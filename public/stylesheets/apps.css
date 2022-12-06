@@ -1,0 +1,170 @@
+@font-face{
+    font-family : ArtifaktElement;
+    font-style : normal;
+    font-weight : 800;
+    src : url(https://fonts.autodesk.com/ArtifaktElement/EOT/Artifakt%20Element%20Black.eot);
+    src : url(https://fonts.autodesk.com/ArtifaktElement/EOT/Artifakt%20Element%20Black.eot#iefix) format("embedded-opentype"),
+        local("Artifakt Element Black"),
+        local("ArtifaktElement-Black"),
+        url(https://fonts.autodesk.com/ArtifaktElement/WOFF2/Artifakt%20Element%20Black.woff2) format("woff2"),
+        local("Artifakt Element Black"),
+        local("ArtifaktElement-Black"),
+        url(https://fonts.autodesk.com/ArtifaktElement/WOFF/Artifakt%20Element%20Black.woff) format("woff"),
+        local("Artifakt Element Black"),
+        local("ArtifaktElement-Black"),url(https://fonts.autodesk.com/ArtifaktElement/TTF/Artifakt%20Element%20Black.ttf) format("truetype")
+}
+
+
+body {
+    background : white;
+    color : #000;
+    font : 14px ArtifaktElement,"Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+
+
+#title {
+    border-bottom : 1px solid #000;
+    font-weight : 800;
+    font-size : 32px;
+    line-height : 30px;
+    margin : 0px 40px;
+    padding :40px 60px 30px;
+    text-align : center;
+}
+
+.print-job {
+    /* border : 2px solid white; */
+    /* background : #333; */
+    color : white;
+    border-radius : 50%;
+    font-size : 18px;
+    line-height : 18px;
+    padding : 16px;
+    text-align : center;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    flex-direction: column;
+    position : absolute;
+    
+}
+.print-job.active {
+    cursor : pointer;
+}
+
+#job-small {
+    border-color : var(--color-status-green);
+    background : var(--color-status-green);
+    height : 90px;
+    width : 90px;
+    top : 170px;
+    left : 40px;
+    animation: pj-small 2s forwards;
+}
+#job-medium {
+    border-color : var(--color-status-yellow);
+    background : var(--color-status-yellow);
+    height : 80px;
+    width : 80px;
+    top : 195px;
+    left : 180px;
+    padding : 40px;
+    animation: pj-medium 4s ease;
+}
+#job-large {
+    border-color : var(--color-status-red);
+    background : var(--color-status-red);
+    height : 120px;
+    width : 120px;
+    padding : 40px;
+    top : 340px;
+    left : 40px;
+    animation: pj-large 6s ease;
+}
+
+#job-small.active {
+    animation : pj-shadow-small 1s forwards;
+}
+#job-medium.active {
+    animation : pj-shadow-medium 1s forwards;
+}
+#job-large.active {
+    animation : pj-shadow-large 1s forwards;
+}
+
+
+@keyframes pj-shadow-small {
+    0% {box-shadow : 0px 0px 14px 14px var(--color-status-green-bright);}
+    40% {box-shadow : 0px 0px 6px 6px var(--color-status-green-bright);}
+    100% {box-shadow : 0px 0px 8px 8px var(--color-status-green-bright);}
+}
+@keyframes pj-shadow-medium {
+    0% {box-shadow : 0px 0px 14px 14px var(--color-status-yellow-bright);}
+    40% {box-shadow : 0px 0px 6px 6px var(--color-status-yellow-bright);}
+    100% {box-shadow : 0px 0px 8px 8px var(--color-status-yellow-bright);}
+}
+@keyframes pj-shadow-large {
+    0% {box-shadow : 0px 0px 14px 14px var(--color-status-red-bright);}
+    40% {box-shadow : 0px 0px 6px 6px var(--color-status-red-bright);}
+    100% {box-shadow : 0px 0px 8px 8px var(--color-status-red-bright);}
+}
+
+
+@keyframes pj-small { 
+    0%{background: #eee}
+    100%{background: var(--color-status-green)}
+}
+@keyframes pj-medium { 
+    0%{background: #eee}
+    100%{background: var(--color-status-yellow)}
+}
+@keyframes pj-large { 
+    0%{background: #eee}
+    100%{background: var(--color-status-red)}
+}
+@keyframes resupply { 
+    0%{background-position:100% 50%}
+    100%{background-position:0% 50%}
+}
+
+
+#resupply {
+    background-image: linear-gradient(
+        90deg,
+        var(--color-blue-500) 0%, 
+        var(--color-blue-500) 50%, 
+        transparent 50%,
+        transparent 100%
+    );  
+    background-size: 200% 200%;
+    border : 2px solid var(--color-blue-500);
+    border-radius : 6px;
+    color : white;
+    font-size : 18px;
+    padding : 14px;
+    text-align : center;
+    animation: resupply 4s ease;
+    position : absolute;
+    right : 40px;
+    bottom : 28px;
+    left : 40px;
+}
+#resupply.active {
+    cursor : pointer;
+}
+
+
+@media only screen 
+   and (min-device-width : 400px) 
+   and (max-device-width : 880px) {
+
+    #job-control {
+        height : 670px;
+        width : 400px;
+        position : absolute;
+        left : calc(50% - 200px);
+        top : calc(50% - 400px);
+    }
+
+}

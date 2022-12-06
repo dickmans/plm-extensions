@@ -1,0 +1,171 @@
+/*  EXTRAS */
+/* ----------------------------------------------------------------------------- */
+.panel-tabs {
+    border-bottom : 4px solid #eeeeee;
+    padding : 10px 24px 0px;
+    left : 0px;
+    right : 0px;
+    top : 11px;
+}
+.panel-tabs > div { 
+    font-size : 16px;
+    font-weight : normal; 
+}
+.panel-content {
+    padding : 24px 24px 24px;
+    top : 62px;
+}
+.dashboard > div { padding : 25px; }
+.section {
+    margin : 0px;
+}
+
+
+/*  PROGRESS */
+/* ----------------------------------------------------------------------------- */
+#processing {
+    color : white;
+    font-size : 0.8em;
+    font-style : italic;
+    line-height : 40px;
+    position : absolute;
+    right : 30px;
+    text-align : right;
+    top : 14px;
+}
+#circle-wrap {
+    background: white;
+}
+#circle-wrap,
+#circle-wrap .circle .mask, 
+#circle-wrap .circle .fill {
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+}
+#circle-wrap .circle .mask, 
+#circle-wrap .circle .fill {
+    position: absolute;
+}
+#circle-wrap .circle .mask {
+    clip: rect(0px, 40px, 40px, 20px);
+}
+#circle-wrap .circle .mask .fill {
+    clip: rect(0px, 20px, 40px, 0px);
+    background-color: #048BD1;
+}
+#circle-wrap .circle .mask.full,
+#circle-wrap .circle .fill {
+    transform: rotate(0deg);
+}
+#percent {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: black;
+    font-size : 9px;
+    line-height: 30px;
+    text-align: center;
+    margin-top: 5px;
+    margin-left: 5px;
+    position: absolute;
+    z-index: 100;
+}
+
+
+
+/*  SYSTEM */
+/* ----------------------------------------------------------------------------- */
+#system {
+    display : flex;
+    flex-wrap: wrap;
+    gap : 20px;
+    overflow: hidden;
+}
+.counter {
+     text-align : center;
+    width : calc(25% - 65px);
+}
+.counter-number {
+    font-size : 60px;
+    font-weight : 800;
+    line-height : 0.9em;
+}
+.counter-label {
+    font-size : 12px;
+}
+#system > .dashboard-chart {
+    height : calc(100% - 200px);
+    width : calc(50% - 60px);
+}
+.chart {
+    height : calc(100% - 50px);
+}
+
+
+
+
+/*  LOGINS */
+/* ----------------------------------------------------------------------------- */
+#logins {
+    display : flex;
+    flex-direction: column;
+    gap : 20px;
+    overflow: hidden;
+}
+#summary {
+    display : flex;
+    height : 40px;
+}
+#summary-bar {
+    width : 50%;
+}
+#summary-bar-logins {
+    background : #eee;
+    height : 40px;
+    width: 50%;
+}
+#summary-bar-nologin {
+    background : #eee;
+    height : 40px;
+    width: 50%;
+}
+#summary-text {
+    line-height : 40px;
+    padding-left : 20px;
+}
+#summary-chart {
+    height : calc(100% - 160px);
+}
+.text-block {
+    margin : 0px 5px;
+}
+
+
+
+/*  EVENTS */
+/* ----------------------------------------------------------------------------- */
+#events {
+    width : 100%;
+}
+#events tr.hidden td {
+    display : none;
+}
+td p {
+    margin : 0px;
+    padding : 0px;
+    width : auto;
+}
+.toolbar {
+    background : #fff;
+    padding-bottom : 12px;
+    text-align : center;
+}
+.wrapper {
+    height : calc(100% - 60px);
+    overflow-y : auto;
+}
+#select-user {
+    margin-left : 10px;
+    padding : 4px 10px;
+}

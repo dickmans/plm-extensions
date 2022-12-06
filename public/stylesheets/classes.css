@@ -1,0 +1,121 @@
+/* EXTRAS */
+/* ----------------------------------------------------------------------------- */
+.panel-title {
+    padding-top: 10px;
+    font-size: 24px;
+    font-weight: 800;
+}
+.panel-header { padding : 10px 140px 0px 0px; }
+.panel-tabs { margin-top : 380px; }
+.panel-content { top :  496px; }
+.panel-item-toolbar {
+    right : 0px;
+    top : 12px;
+}
+
+
+/* MASTER LAYOUT */
+/* ----------------------------------------------------------------------------- */
+#items {
+    padding-bottom : 25px;
+    top : 25px;
+}
+#items {
+    bottom : 0px;
+    left : 25px;
+    right : 25px;
+}
+#item {
+    top : 25px;
+    bottom : -55px;
+    width : 600px;
+    right : -610px;
+}
+#viewer {
+    height : 350px;
+    position : absolute;
+    top : 80px;
+    left : 0px;
+    right : 0px;
+}
+.no-viewer #viewer {
+    display : none;
+}
+.no-viewer .panel-tabs { margin-top : 30px; }
+.no-viewer .panel-content { top : 146px; }
+.with-panel #items, .with-panel #footer {
+    right : 650px;
+    border-right : 4px solid var(--color-gray-100);
+    padding-right : 25px;
+}
+.with-panel #item {
+    right : 25px;
+}
+
+
+
+/* ITEMS */
+/* ----------------------------------------------------------------------------- */
+#items-list { width : 100%; }
+th {
+    background : var(--color-gray-100);
+    padding : 10px 10px;
+    text-align : left;
+}
+td {
+    border-top : 1px solid transparent;
+    border-bottom : 1px solid var(--color-gray-100);
+    cursor : pointer;
+    line-height : 24px;
+    padding : 5px;
+}
+tr:hover td { background : var(--color-hover) !important; }
+tr.selected td {
+    background : var(--color-selected) !important;
+    border-color : var(--color-selected-border) !important; 
+}
+tr.reference td {
+    background : var(--color-blue-700) !important;
+    color : white !important;
+    font-weight : bold;
+}
+.value.neutral {
+    font-weight : normal;
+}
+.value.diff {
+    background : var(--color-red-100);
+    border-bottom : 1px solid white;
+    color : var(--color-status-red);
+    font-weight : bold;
+}
+.value.match {
+    background : var(--color-green-100);
+    border-bottom : 1px solid white;
+    color : var(--color-status-green);
+    font-weight : bold;
+}
+
+
+
+/* TOGGLES */
+/* ----------------------------------------------------------------------------- */
+.panel-toggles { max-width : 900px; }
+
+
+
+/* ITEM */
+/* ----------------------------------*/
+#item-bookmark.active {
+    background : var(--color-status-yellow);
+    color : white;
+}
+
+
+
+/* FORGE VIEWER */
+/* ----------------------------------*/
+#navTools,
+#toolbar-modelStructureTool,
+#toolbar-propertiesTool {
+    display : none;
+}

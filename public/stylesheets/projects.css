@@ -1,0 +1,52 @@
+/*  EXTRAS */
+/* ----------------------------------------------------------------------------- */
+#overlay { display : block; }
+
+
+
+/*  DASHBOARD */
+/* ----------------------------------------------------------------------------- */
+.dashboard > div {
+    display : none;
+    padding : 40px;
+    width : 100%;
+}
+.dashboard > div.half {
+    width : calc(50% - 90px)
+}
+
+
+
+/*  TABLES */
+/* ----------------------------------------------------------------------------- */
+table {
+    width : 100%;
+}
+tr {
+    cursor : pointer;
+}
+th {
+    background : black;
+    color : white;
+}
+td {
+    font-size : 0.9em;
+    height : 26px;
+    padding : 0.4em 1.2em 0.4em 0.5em;
+    white-space : nowrap;
+}
+
+
+.bg-dark-green  { background : #598026; }
+.bg-green       { background : #8fc844; }
+.bg-orange      { background : #ffa600; }
+.bg-red         { background : #ee4444; }
+.bg-gray        { background : #c2cdd3; }
+
+.project-status {
+    text-align : center;
+    color : white;
+    line-height : 24px;
+    height : 24px;
+    width : 64px;
+}
