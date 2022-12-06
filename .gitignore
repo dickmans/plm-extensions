@@ -1,4 +1,4 @@
-/keys/*.key
+/keys/*.pem
 /node_modules
 /public/cache/*
 /uploads/*
@@ -6,5 +6,3 @@ package-lock.json
 settings.js
 !.gitkeep
 .DS_Store*
-settings.js
-settings.js

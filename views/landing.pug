@@ -492,7 +492,7 @@ block content
                         ol 
                             li Add field 'EBOM' as linking pick list to workspace 'Vault Items and BOMs' (Single Selection, editable)
                             li Add date field 'LAST_EBOM_SYNC' (editable)
-                            li Add Single Line Text field 'OPERATION_CODE' (editable)
+                            li Add Single Line Text field 'OPERATION_CODE' (length 10, editable)
                             li Add checkbox 'IS_OPERATION' (editable)
                         h3 Bill of Materials tab of workspace 'Items and BOMs'
                         p Add a new BOM view 'MBOM Transition' to workspace 'Vault Items and BOMs' with the following columns: 
@@ -531,14 +531,12 @@ block content
                         h3 Provide correct IDs
                         p The server requires certain internal IDs of sections and workspaces in order to pull and update data in Fusion 360 Manage. These settings can be changed to allow the usage of this server with any tenant. While these settings also could be determined with the API on the fly, this would slow down the editor startup even more every time. This is why the following settings have to be provided manually instead.
                         p Review the computed formula of field MBOM_EDITOR in workspace 'Vault Items and BOMs'. This formula contains the following string: 
-                        p.code href ="LOCATIONmbom?options=57,121,122,203,643&wsId=79&dmsId=
+                        p.code href ="LOCATIONmbom?options=57,121,122&wsId=79&dmsId=
                         p You have to change the name and port of your server in this link, but also the following IDs:
                         ul
                             li 57 = ID of workspace 'Items and BOMs'
                             li 121 = ID of BOM View 'MBOM Transition' in workspace 'Vault Items and BOMs'
                             li 122 = ID of BOM View 'MBOM Transition' in workspace 'Items and BOMs'
-                            li 203 = ID of section containing the Title field in workspace 'Items and BOMs'
-                            li 643 = ID of section containing the EBOM fields in workspace 'Items and BOMs'
                             li 79 = ID of workspace 'Vault Items and BOMs'
                         p Please use the network tab of your browser to reveal the IDs of the required BOM views and sections: 
                         img.border(src='images/apps/mbom-editor-3.jpg' style='width:100%;')
