@@ -1,7 +1,7 @@
-!.gitkeep
 /keys/*.key
 /node_modules
 /public/cache/*
 /uploads/*
 settings.js
+!.gitkeep
 .DS_Store*
