@@ -14,6 +14,7 @@ let now         = new Date();
 
 let kpiVectors  = [ new THREE.Vector4(205/255,  101/255, 101/255, 0.8), new THREE.Vector4(225/255, 225/255, 84/255, 0.8), new THREE.Vector4(59/255, 210/255, 59/255, 0.8) ]; // red yellow green
 
+
 let kpis = [{
     'id'        : 'lifecycle',
     'title'     : 'Item Lifecycle',
@@ -817,7 +818,7 @@ function parseKPI(kpi, value) {
         'value'     : value, 
         'count'     : 1, 
         'color'     : colorRange[kpi.data.length % colorRange.length], 
-        'vector'    : kpiVectors[kpi.data.length % kpiVectors.length] 
+        'vector'    : vectorRange[kpi.data.length % kpiVectors.length] 
     });
 
 }
@@ -921,6 +922,7 @@ function selectKPI(elemClicked) {
     // $('.kpi-value').removeClass('selected');
     $('#bom-tree').addClass('no-colors');
     $('#flat-bom').addClass('no-colors');
+    $('.flat-bom-number').each(function() { $(this).css('background', '') });
 
     if(isSelected) return; 
         

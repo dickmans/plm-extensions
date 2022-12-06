@@ -7,6 +7,21 @@ let disableViewerSelectionEvent = false;
 
 let viewer, markup, markupsvg, curViewerState;
 
+let vectorRange  = [ 
+    new THREE.Vector4(206/255, 101/255, 101/255, 0.8),
+    new THREE.Vector4(224/255,  175/255, 75/255, 0.8), 
+    new THREE.Vector4(225/255, 225/255,  84/255, 0.8), 
+    new THREE.Vector4(144/255, 216/255,  71/255, 0.8), 
+    new THREE.Vector4( 59/255, 210/255,  59/255, 0.8), 
+    new THREE.Vector4( 59/255, 197/255, 128/255, 0.8), 
+    new THREE.Vector4( 59/255, 186/255, 186/255, 0.8), 
+    new THREE.Vector4(104/255, 158/255, 212/255, 0.8), 
+    new THREE.Vector4( 81/255, 120/255, 200/255, 0.8), 
+    new THREE.Vector4(156/255, 107/255, 206/255, 0.8), 
+    new THREE.Vector4(212/255, 103/255, 212/255, 0.8), 
+    new THREE.Vector4(206/255,  92/255, 149/255, 0.8)
+]; 
+
 
 // Insert viewer in div #viewer
 function insertViewer(link) {
