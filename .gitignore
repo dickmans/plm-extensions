@@ -1,0 +1,6 @@
+/keys/*
+/node_modules
+/public/cache/*
+/uploads/*
+settings.js
+.DS_Store*
