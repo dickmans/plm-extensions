@@ -1,3 +1,4 @@
+!.gitkeep
 /keys/*.key
 /node_modules
 /public/cache/*
