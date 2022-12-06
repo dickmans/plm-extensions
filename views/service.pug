@@ -1,0 +1,165 @@
+extends common
+
+block head
+    link(rel='stylesheet', href='/stylesheets/service.css')
+    link(rel='stylesheet', href='https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/style.min.css')
+    script.
+        tenant='#{tenant}'
+        wsId='#{wsId}'
+        dmsId='#{dmsId}'
+        link='#{link}'
+        options='#{options}'
+    script(src='https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.min.js') 
+    script(src='/javascripts/libs/Chart.bundle.min.js')
+    script(src='/javascripts/ui.js')
+    script(src='/javascripts/forge.js')
+    script(src='/javascripts/service.js')
+
+block content
+
+    body.text-selection-off.surface-level-1
+
+        #header.dark
+            #header-logo
+            #header-title= title
+            #header-subtitle
+            #header-toolbar
+                #bom-reset.button Reset Selection
+                #list-requests.button.disabled Pending Requests
+                #button-settings.button Options
+                #submit-request.button Submit Request
+        
+        #counter
+
+        #main.screen
+
+            #bom
+                .panel-title Bill of Materials
+                .panel-content#bom-tree
+                    table#bom-table(cellspacing='0')
+                .panel-toolbar#bom-search
+                    .material-symbols-sharp.xs filter_list
+                    input#bom-search-input(placeholder='Filter')
+                .panel-loading#bom-process
+                    .bounce1
+                    .bounce2
+                    .bounce3
+
+            #divider-bom.screen-divider.vertical
+
+            #viewer
+
+            #attachments
+                .panel-title Attachments
+                #attachments-list
+                #attachments-process.progress
+                    .bounce1
+                    .bounce2
+                    .bounce3
+
+            #divider-details.screen-divider.vertical
+
+            #details
+                .panel-title Details
+                .panel-content#sections.view-only
+                #details-process.progress
+                    .bounce1
+                    .bounce2
+                    .bounce3
+
+            #divider-panel.screen-divider.vertical
+
+            #panel 
+                .panel-tabs.dark#tabs
+                    div.selected(data-id='items') Spare Parts
+                    div.hidden#tab-charts(data-id='charts') Maintenance
+                    div(data-id='processes') Processes
+                .panel-content#items.tab
+                    #items-list.list.tiles.l
+                    #items-process.progress
+                        .bounce1
+                        .bounce2
+                        .bounce3
+                .panel-content#charts.tab
+                    #charts-list
+                        .chart-title Wear Parts
+                        .wear-parts
+                            .wear-part(data-part-number='001-ASY-0035')
+                                .wear-part-image
+                                .wear-part-descriptor 001-ASY-0035
+                                #wp1.wear-part-health
+                            .wear-part(data-part-number='001-MCH-0004')
+                                .wear-part-image
+                                .wear-part-descriptor 001-MCH-0004
+                                #wp2.wear-part-health
+                            .wear-part(data-part-number='001-MCH-0005')
+                                .wear-part-image
+                                .wear-part-descriptor 001-MCH-0004
+                                #wp3.wear-part-health
+                        .chart-title Print Jobs
+                        .chart
+                            canvas#chart-jobs(width='400' height='200') 
+                        .chart-title Supplies
+                        .chart
+                            canvas#chart-supplies 
+                        .chart-title Temperature
+                        .chart
+                            canvas#chart-temperature
+                        .toolbar 
+                            #remote-control.button Remote Control
+                            #qr-code.button 
+                                img.qr-code
+                .panel-content#processes.tab
+                    #processes-list.list.tiles.m
+                    #processes-process.progress
+                        .bounce1
+                        .bounce2
+                        .bounce3
+
+
+            #options.dialog
+                .dialog-header Options
+                .dialog-content#toggles
+                    #toggle-bom.button 
+                        div.material-symbols-sharp.xxxl segment
+                        div Toggle BOM
+                    #toggle-attachments.button 
+                        div.material-symbols-sharp.xxxl file_present
+                        div Toggle Attachments
+                    #toggle-details.button 
+                        idv.material-symbols-sharp.xxxl key_visualizer
+                        div Toggle Details
+                    #toggle-panel.button 
+                        div.material-symbols-sharp.xxxl list
+                        div Toggle Spare Parts
+                .dialog-footer.single-button
+                    #options-done.button.default Done
+
+            #request.dialog
+                .dialog-header New Spare Parts Request
+                .dialog-content
+                    .col-left 
+                        .col-header Notes
+                        textarea#comments
+                    .col-right
+                        .col-header List of Spare Parts
+                        #request-list
+                .dialog-footer
+                    #request-submit.button.default Submit
+                    #request-cancel.button Cancel
+
+            #qr.dialog.no-footer
+                .dialog-header Open Remote Control 
+                .dialog-close.material-symbols-sharp.ms-close
+                .dialog-content 
+                    img.qr-code
+
+
+        iframe#frame-download.hidden
+
+        #overlay
+            .progress
+                .bounce1
+                .bounce2
+                .bounce3
+            

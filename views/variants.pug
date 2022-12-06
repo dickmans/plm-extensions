@@ -1,0 +1,65 @@
+extends common
+
+block head
+    link(rel='stylesheet', href='/stylesheets/variants.css')
+    link(rel='stylesheet', href='/jquery-ui-1.12.1/jquery-ui.min.css')
+    link(rel='stylesheet', href='https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/style.min.css')
+    script.
+        tenant='#{tenant}'
+        wsId='#{wsId}'
+        dmsId='#{dmsId}'
+        link='#{link}'
+        options='#{options}'
+        
+block content
+    script(src='/jquery-ui-1.12.1/jquery-ui.min.js')
+    script(src='https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.min.js') 
+    script(src='/javascripts/ui.js')
+    script(src='/javascripts/forge.js')
+    script(src='/javascripts/variants.js')
+    
+    #header.dark
+        #header-logo
+        #header-title= title
+        #header-subtitle
+        #header-toolbar
+            #save.button.default Save
+            #toggle-viewer.button Toggle Viewer
+            #toggle-details.button Toggle Details
+            #select-variant.button Select Variant
+    
+    #status
+        #status-match.bar(data-filter="match" title='Click to filter EBOM and MBOM for items that match')
+        #status-additional.bar(data-filter="additional" title='Click to filter EBOM for items not containted in MBOM yet')
+        #status-changed.bar(data-filter="changed" title='Click to filter EBOM and MBOM for items where total quantity does not match')
+    
+    #viewer
+    
+    #bom.basic
+        //- #variant-name.title Bill of Materials
+        //- select#master-bom-views
+        //- select#variant-bom-views
+        //- table#bom-tree
+
+    #details
+        .title Details
+        #sections
+        #details-process.loading
+            .bounce1
+            .bounce2
+            .bounce3
+    
+    #variants
+        #variants-title Variants
+        #variants-close.button
+            i.zmdi.zmdi-close
+        #variants-list
+        #variants-footer 
+            #new-variant.button New Variant
+
+    #overlay
+        .progress
+            .bounce1
+            .bounce2
+            .bounce3
+

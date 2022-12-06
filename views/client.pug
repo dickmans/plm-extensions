@@ -1,0 +1,315 @@
+extends common
+
+block head
+    link(rel='manifest', href='manifest.json')
+    link(rel='stylesheet', href='/stylesheets/client.css')
+    link(rel='stylesheet', href='https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/style.min.css')
+    link(rel="apple-touch-icon" sizes="180x180" href="ios-180x180.png")
+    meta(name="theme-color" content="#000000")
+    script.
+        tenant="#{tenant}"
+        urlWSID='#{wsId}'
+        urlDMSID='#{dmsId}'
+    //- script(src='/javascripts/serviceworker.js')  
+    script(src='https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.min.js')  
+    script(src='/javascripts/ui.js')  
+    script(src='/javascripts/forge.js')  
+    script(src='/javascripts/client.js')  
+
+block content
+    
+    body.surface-level-1
+    
+        #header.dark
+            #header-logo
+            #header-title=title
+            #header-actions
+                #back
+                    i.material-symbols-sharp navigate_before
+                #forward
+                    i.material-symbols-sharp navigate_next
+                #account
+                    i.material-symbols-sharp.xl account_circle
+        
+        #workspaces.screen
+            #workspaces-header.list-header
+                .list-title Browse
+                .list-subtitle Select workspace to open
+            #workspaces-refresh.list-refresh.material-symbols-sharp cached
+            #workspaces-list.list
+            #workspaces-process.progress
+                .bounce1
+                .bounce2
+                .bounce3
+
+        #workspace.screen
+            #workspace-header.list-header
+                #workspace-title.list-title 
+                .list-subtitle Workspace view
+            #workspace-back.material-symbols-sharp.list-back navigate_before
+            .list-actions.right-align
+                select#workspace-views.button.default
+                div
+                    i.material-symbols-sharp filter_list
+                    input#workspace-filter.list-filter
+            .list-wrapper
+                #workspace-list.list.with-actions
+            #workspace-process.progress
+                .bounce1
+                .bounce2
+                .bounce3
+        
+        #dashboard.screen
+            #dashboard-mow
+                .list-header
+                    .list-title Task List
+            #dashboard-recents
+                .list-header
+                    .list-title Recent Data
+            #dashboard-bookmarks
+                .list-header
+                    .list-title Bookmarks
+
+        #mow.screen
+            #mow-header.list-header
+                .list-title Task List
+                .list-subtitle Processes requiring your action
+            #mow-refresh.list-refresh.material-symbols-sharp cached
+            #mow-list.list
+            #mow-process.progress
+                .bounce1
+                .bounce2
+                .bounce3
+
+        #create.screen
+            #create-header.list-header
+                .list-title Create Item
+                .list-subtitle Select type to be created
+            #create-refresh.list-refresh.material-symbols-sharp cached
+            #create-list.list
+            #create-process.progress
+                .bounce1
+                .bounce2
+                .bounce3
+
+        #new.screen
+            #new-header.list-header
+                .list-subtitle Create item in
+                #new-header-subtitle.list-title Select type to be created
+            .content 
+                #new-list
+                #new-process.progress
+                    .bounce1
+                    .bounce2
+                    .bounce3
+            #new-toolbar.dialog-toolbar
+                #new-action-cancel.button Cancel
+                #new-action-save.button.default Save
+
+        #bookmarks.screen
+            #bookmarks-header.list-header
+                .list-title Bookmarks
+                .list-subtitle Your favorite items
+            #bookmarks-refresh.list-refresh.material-symbols-sharp cached
+            #bookmarks-list.list
+            #bookmarks-process.progress
+                .bounce1
+                .bounce2
+                .bounce3
+
+        #recents.screen
+            #recents-header.list-header
+                .list-title Recent Data
+                .list-subtitle Your last 10 items visited
+            #recents-refresh.list-refresh.material-symbols-sharp cached
+            #recents-list.list
+            #recents-process.progress
+                .bounce1
+                .bounce2
+                .bounce3
+
+        #search.screen
+            #search-header.list-header 
+                .list-title Search
+                .list-subtitle Find across all workspaces
+            #search-list.list.with-actions
+            .list-actions
+                input#search-input
+                #search-submit.button.default Search
+            #search-no-results No results found
+            #search-process.progress
+                .bounce1
+                .bounce2
+                .bounce3
+            
+    
+        #toolbar.toolbar
+            #button-workspaces(data-id='workspaces')
+                .material-symbols-sharp.xxs menu
+                .toolbar-label Browse
+            #button-dashboard(data-id='dashboard')
+                .material-symbols-sharp.xxs team_dashboard
+                .toolbar-label Dashboard
+                #dashboard-counter.counter
+            #button-mow(data-id='mow')
+                .material-symbols-sharp.xxs move_to_inbox
+                .toolbar-label Inbox
+                #mow-counter.counter
+            #button-create(data-id='create')
+                .material-symbols-sharp.xxs add_circle
+                .toolbar-label Create
+            #button-recents(data-id='recents')
+                .material-symbols-sharp.xxs history
+                .toolbar-label Recent
+            #button-bookmarks(data-id='bookmarks')
+                .material-symbols-sharp.xxs star
+                .toolbar-label Starred
+            #button-search(data-id='search')
+                .material-symbols-sharp.xxs search
+                .toolbar-label Search
+        
+        #init-progress 
+
+        #item.screen.item(image-fielId='IMAGE_1' data-link='')    
+            
+            #item-header
+                #item-header-image
+                #item-header-title
+                    #item-header-descriptor.nowrap
+                    #item-header-subtitle
+                        #item-header-lock
+                        #item-header-workspace.nowrap
+                        #item-header-status.nowrap
+                #item-header-menu.material-symbols-sharp.button more_horiz
+                #item-header-close.button.material-symbols-sharp close
+            #item-archived 
+                i.material-symbols-sharp delete
+                span ARCHIVED
+            
+            #item-details.item-content
+                #item-details-fields
+                #item-details-process.progress
+                    .bounce1
+                    .bounce2
+                    .bounce3
+            #item-viewer.item-content
+                #viewer
+            #item-attachments.item-content
+                #item-attachments-list.list
+                //- #button-upload.panel-button.main  Upload File
+                form#uploadForm(method='post', encType="multipart/form-data", target="frame-download")
+                    input#select-file.pane-button.main(type="file", name="newFiles" multiple='')
+                iframe#frame-download(style="display:none;" name="frame-download")
+                #item-attachments-process.progress
+                    .bounce1
+                    .bounce2
+                    .bounce3
+            #item-bom.item-content
+                .list-actions.right-align 
+                    div
+                        i.material-symbols-sharp filter_list
+                        input#bom-filter.list-filter
+                #item-bom-list.list.with-actions
+                #item-bom-process.progress
+                    .bounce1
+                    .bounce2
+                    .bounce3
+            #item-manages.item-content
+                #item-manages-list.list
+                #item-manages-process.progress
+                    .bounce1
+                    .bounce2
+                    .bounce3
+            #item-processes.item-content
+                #item-processes-list.list
+                #item-processes-process.progress
+                    .bounce1
+                    .bounce2
+                    .bounce3
+            #item-related.item-content
+                #item-related-list.list
+                #item-related-process.progress
+                    .bounce1
+                    .bounce2
+                    .bounce3
+            #item-change-log.item-content
+                #item-change-log-list.list
+                #item-change-log-process.progress
+                    .bounce1
+                    .bounce2
+                    .bounce3
+
+            #item-toolbar.toolbar
+                #item-button-view(data-id='item-viewer')
+                    .material-symbols-sharp view_in_ar
+                    .toolbar-label Viewer
+                #item-button-details(data-id='item-details')
+                    .material-symbols-sharp list_alt
+                    .toolbar-label Details
+                #item-button-files(data-id='item-attachments')
+                    .material-symbols-sharp description
+                    .toolbar-label Files
+                    #files-counter.counter
+                #item-button-bom(data-id='item-bom')
+                    .material-symbols-sharp account_tree
+                    .toolbar-label Parts
+                #item-button-processes(data-id='item-processes')
+                    .material-symbols-sharp beenhere
+                    .toolbar-label Changes
+                #item-button-related(data-id='item-related')
+                    .material-symbols-sharp link
+                    .toolbar-label Related
+                #item-button-manages(data-id='item-manages')
+                    .material-symbols-sharp fact_check
+                    .toolbar-label Manages
+                #item-button-change-log(data-id='item-change-log')
+                    .material-symbols-sharp event_note
+                    .toolbar-label History
+            
+            #item-menu
+                #item-action-edit.item-action 
+                    i.material-symbols-sharp edit
+                    span Edit Properties
+                #item-action-upload.item-action
+                    i.material-symbols-sharp cloud_upload
+                    span Upload Files
+                a#item-action-share.item-action(href='')
+                    i.material-symbols-sharp mail
+                    span Share Link
+                #item-action-archive.item-action
+                    i.material-symbols-sharp delete
+                    span Archive
+                #item-action-unarchive.item-action
+                    i.material-symbols-sharp restore_from_trash
+                    span Unarchive
+                #item-initiate-process
+                    .item-actions-header  Initiate Process
+                    #item-initiate-processes-list
+                #item-workflow-actions
+                    .item-actions-header  Workflow Actions
+                    #item-workflow-actions-list
+                #item-menu-triangle
+
+            #item-edit.item-content
+                #item-edit-fields
+                #item-edit-process.progress
+                    .bounce1
+                    .bounce2
+                    .bounce3
+            #item-edit-toolbar.dialog-toolbar 
+                #item-edit-cancel.button Cancel
+                #item-edit-save.button.default Save
+
+        #overlay
+            .progress
+                .bounce1
+                .bounce2
+                .bounce3
+
+        #message
+            #message-overlay.overlay 
+            #message-dialog.dialog 
+                #message-header.dialog-header 
+                #message-text.dialog-content
+                #message-footer.dialog-footer 
+                    #message-close.button.default Close

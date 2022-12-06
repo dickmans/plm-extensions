@@ -1,0 +1,70 @@
+extends common
+
+block head
+    link(rel='stylesheet', href='/stylesheets/classes.css')
+    link(rel='stylesheet', href='https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/style.min.css')
+    script.
+        wsId="#{wsId}"
+        dmsId="#{dmsId}" 
+        options="#{options}"
+    script(src='https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.min.js') 
+    script(src='/javascripts/ui.js')
+    script(src='/javascripts/forge.js')
+    script(src='/javascripts/classes.js')
+
+block content
+
+    body.surface-level-1
+        
+        #header.dark
+            #header-logo
+            #header-title= title
+            #header-subtitle
+            #header-toolbar
+                #header-avatar
+        
+        #main.screen.with-footer 
+
+            #items
+                .panel-title#items-title Class Name
+                table#items-list(cellspacing='0')
+                #items-progress.progress 
+                    .bounce1
+                    .bounce2
+                    .bounce3
+
+            #item
+                .panel-header
+                    #panel-header-sub.panel-header-sub
+                    #item-title.panel-header-main
+                .panel-item-toolbar
+                    #item-bookmark.button.material-symbols-sharp.xs star
+                    #item-open.button.material-symbols-sharp.xs open_in_new
+                    #item-close.button.material-symbols-sharp.xs close
+                #viewer 
+                #tabs.panel-tabs 
+                    .tab(data-id='details') Details 
+                    .tab(data-id='files') Files
+                
+                .panel-content.tab#details
+                    .panel-data#details-list
+                    .progress#details-progress
+                            .bounce1
+                            .bounce2
+                            .bounce3
+
+                .panel-content.tab#files
+                    .panel-data#files-list.tiles.list.files
+                    .progress#files-progress
+                        .bounce1
+                        .bounce2
+                        .bounce3
+
+        #footer
+            .panel-toggles
+                #show-all.selected Show All
+                #hide-non-matching Hide Non Matching
+                #show-matches-only Show Exact Matches Only
+
+        iframe#frame-download(style="display:none;" name="frame-download")
+            

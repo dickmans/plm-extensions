@@ -1,0 +1,40 @@
+extends common
+
+block head
+    link(rel='stylesheet', href='/stylesheets/reports.css')
+    link(rel='stylesheet', href='../javascripts/libs/DataTables-1.12.1/datatables.min.css')
+    script(src='../javascripts/libs/DataTables-1.12.1/datatables.min.js')
+    script(src='../javascripts/libs/Chart.bundle.min.js')
+    script(src='../javascripts/ui.js')
+    script(src='../javascripts/reports.js')
+    script.
+        tenant="#{tenant}"
+        options="#{options}"
+
+block content
+
+    body.surface-level-2-5 
+
+        #header
+            #header-logo
+            #header-title= title
+            #header-toolbar
+                #add.button Select Reports
+                #header-avatar
+
+        #reports.dashboard
+        
+        #overlay 
+            .progress
+                .bounce1
+                .bounce2
+                .bounce3
+        
+        #dialog.dialog.surface-level-1
+            .dialog-header Select reports to display in dashboard
+            #list.dialog-content.tiles.wide.s 
+            .dialog-footer
+                .button.clear Deselect All
+                #submit.button.default Apply 
+                .button.cancel Cancel
+            .dialog-processing

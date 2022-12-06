@@ -1,0 +1,229 @@
+extends common
+
+block head
+    link(rel='stylesheet', href='/stylesheets/mbom.css')
+    //- link(rel='stylesheet', href='/jquery-ui-1.12.1/jquery-ui.min.css')
+    link(rel='stylesheet', href='https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/style.min.css')
+    script.
+        tenant='#{tenant}'
+        wsId='#{wsId}'
+        dmsId='#{dmsId}'
+        link='#{link}'
+        options='#{options}'
+    script(src='/javascripts/libs/jquery-ui-1.12.1/jquery-ui.min.js')
+    script(src='https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.min.js') 
+    script(src='/javascripts/forge.js')
+    script(src='/javascripts/ui.js')
+    script(src='/javascripts/mbom.js')
+
+block content
+    body.text-selection-off
+        #header.dark
+            #header-logo
+            #header-title=title
+            #header-subtitle
+            #header-toolbar
+                span.material-symbols-sharp.xl.hover#button-options(title='Select display options') build_circle
+        #main.screen.with-footer
+            
+            #viewer
+
+            #divider-viewer.screen-divider.vertical
+            
+            #ebom.bom
+                .panel-title Engineering BOM
+                #ebom-tree.panel-content
+                .bom-panel
+                    span Total Quantity : 
+                    span#ebom-total-qty
+                .progress
+                    .bounce1
+                    .bounce2
+                    .bounce3
+            
+            #divider-ebom.screen-divider.vertical
+            
+            #mbom.bom
+                .panel-title Manufacturing BOM
+                .panel-toolbar 
+                        #show-add.button Add Items
+                #mbom-tree.panel-content
+                #mbom-add-operation
+                    span#mbom-add-text Add Node
+                    input#mbom-add-name(placeholder="Title")
+                    input#mbom-add-code(placeholder="Code")
+                .bom-panel
+                    span Total Quantity : 
+                    span#mbom-total-qty
+                .progress
+                    .bounce1
+                    .bounce2
+                    .bounce3
+            
+            #divider-mbom.screen-divider.vertical
+            
+            #details.bom
+                .panel-title Details
+                #sections.panel-content.view-only
+                .progress
+                    .bounce1
+                    .bounce2
+                    .bounce3
+
+        #add
+            .panel-title Add items to Manufacturing BOM
+            .panel-toolbar 
+                    #close-add.button Close
+            .panel-content
+                .panel-left.nav
+                    #nav-search-items.panel-nav(data-id='search-items') Search Items
+                    //- #nav-items-tooling.panel-nav(data-id='items-tooling' data-query='ITEM_DETAILS:VERTEILERGRUPPEBEZ%3DWerkzeug') Werkzeuge
+                    //- #nav-items-purchased.panel-nav(data-id='items-purchased' data-query='ITEM_DETAILS:VERTEILERGRUPPEBEZ%3DKaufteil') Kaufteile
+                    #nav-workspace-views-mbom.panel-nav.blank(data-id='workspace-views-mbom') MBOM Workspace Views
+                    #nav-workspace-views-ebom.panel-nav.blank(data-id='workspace-views-ebom') EBOM Workspace Views
+                    #nav-bookmark-items.panel-nav.blank(data-id='bookmark-items') Bookmarks
+                    #nav-recent-items.panel-nav.blank(data-id='recent-items') Recent Items
+                    #nav-create-assembly.panel-nav.blank(data-id='create-item') Create New Item
+                .panel-right
+                    #search-items
+                        .panel-list-toolbar
+                            span Search for:
+                            input#search-input
+                            i.material-symbols-sharp search
+                        #search-items-list.panel-list
+                    #create-item
+                        #create-item-form
+                        #create-item-panel 
+                            #create-operation.button.default Save As Node
+                            #create-end-item.button Save As End Item
+                            .list-header New Items 
+                            #create-item-list.list
+                    #items-tooling
+                        .panel-list-toolbar
+                            .zmdi.zmdi-search
+                            input.list-search
+                            .zmdi.zmdi-filter-list
+                            input.list-filter
+                        #items-tooling-list.list
+                    #items-purchased
+                        .panel-list-toolbar
+                            .zmdi.zmdi-search
+                            input.list-search
+                            .zmdi.zmdi-filter-list
+                            input.list-filter
+                        #items-purchased-list.list
+                    #workspace-views-mbom(data-link='')
+                        .panel-list-toolbar
+                            span Select Workspace View:
+                            select.view-selector#view-selector-mbom
+                            span Filter List:
+                            input.list-filter
+                            i.material-symbols-sharp filter_list
+                        #workspace-view-list-mbom.panel-list
+                    #workspace-views-ebom(data-link='')
+                        .panel-list-toolbar
+                            span Select Workspace View:
+                            select.view-selector#view-selector-ebom
+                            span Filter List:
+                            input.list-filter
+                            i.material-symbols-sharp filter_list
+                        #workspace-view-list-ebom.panel-list
+                    #bookmark-items
+                        #bookmark-items-list.panel-list
+                    #recent-items
+                        #recent-items-list.panel-list
+                    #add-processing.progress
+                        .bounce1
+                        .bounce2
+                        .bounce3
+
+            #divider-add.screen-divider.vertical
+
+        #status
+            #status-progress.bar
+            #status-additional.bar(data-filter="additional" title='Click to filter EBOM for items not containted in MBOM yet')
+            #status-different.bar(data-filter="different" title='Click to filter EBOM and MBOM for items where total quantity does not match')
+            #status-match.bar(data-filter="match" title='Click to filter EBOM and MBOM for items that match')
+
+        #overlay
+
+        #options.dialog
+            .dialog-arrow-up
+            .dialog-header Options
+            .dialog-content  
+                .option
+                    .option-text
+                        .option-title 3D Viewer 
+                        .option-description Preview the design based on the DWF file attached to the Engineering BOM root item
+                    #toggle-viewer.toggle
+                        input.checkbox(type='checkbox')
+                        .knobs 
+                        .layer
+                .option 
+                    .option-text
+                        .option-title Status colors in viewer
+                        .option-description When enabled, the component's colors in the viewer will be replaced by red, yellow and green to indicate their consumption in the MBOM
+                    #toggle-colors.toggle
+                        input.checkbox(type='checkbox' checked='true')
+                        .knobs 
+                        .layer
+                .option 
+                    .option-text
+                        .option-title Item Details Panel
+                        .option-description When items get selected or filtered, a details panel to the rigth will display all related metadata
+                    #toggle-details.toggle
+                        input.checkbox(type='checkbox' checked='true')
+                        .knobs 
+                        .layer
+            .dialog-footer.single-button
+                #options-close.button.default Done
+        
+        #dialog-split.dialog
+            .dialog-header Move Item
+                #item-to-move.dialog-subheader
+            .dialog-content
+                #option-all.dialog-toggle.selected Move all items
+                #option-split.dialog-toggle Split & move defined quantity only.
+                    br
+                    span Move 
+                    input#split-qty 
+                    span out of
+                    span#total-qty 
+                    span items in total.
+            .dialog-footer
+                #submit.button.default Submit
+                #dialog-cancel.button Cancel
+
+        
+        #dialog-saving.dialog
+            .dialog-header Saving Changes
+            .dialog-content
+                #step1.step 
+                    .step-label Creating new items
+                    .step-progress
+                        #step-bar1.step-bar
+                    #step-counter1.step-counter 
+                #step2.step 
+                    .step-label Removing BOM entries 
+                    .step-progress
+                        #step-bar2.step-bar
+                    #step-counter2.step-counter 
+                #step3.step 
+                    .step-label Adding new BOM entries
+                    .step-progress
+                        #step-bar3.step-bar
+                    #step-counter3.step-counter 
+                #step4.step 
+                    .step-label Updating existing BOM entries
+                    .step-progress
+                        #step-bar4.step-bar
+                    #step-counter4.step-counter 
+            .dialog-footer
+                #confirm-saving.button.disabled OK
+
+        #footer
+            #save.button.default Save
+            #cancel.button(title='Cancel all changes and close the editor') Cancel
+            #add-all.button(title='Click all Add buttons in EBOM to add all missing items at once to the MBOM') Add All
+            #deselect-all.button(title='Reset item selection in viewer, EBOM and MBOM') Deselect All
+            #reset.button(title='Reset all changes by reloading the editor') Reset

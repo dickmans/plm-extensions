@@ -1,0 +1,209 @@
+extends common
+
+block head
+    link(rel='stylesheet', href='/stylesheets/reviews.css')
+    link(rel='stylesheet', href='https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/style.min.css')
+    script.
+        tenant="#{tenant}"
+        wsId="#{wsId}"
+    script(src='https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.min.js')  
+    script(src='/javascripts/ui.js')  
+    script(src='/javascripts/forge.js')  
+    script(src='/javascripts/reviews.js')  
+
+block content
+
+    body.surface-level-1
+
+        #header.dark
+            #header-logo
+            #header-title= title
+            #header-subtitle
+            #header-toolbar
+                #review-close.button Close
+                #review-finish.button Finish
+                #header-avatar
+
+        #list.screen
+        
+            #main-actions
+                span.material-symbols-sharp search
+                input#filter
+        
+            .panel-tabs#main-tabs
+                #tab-reviews-pending Pending Reviews
+                #tab-reviews-completed Completed Reviews
+                #tab-reviews-all All Reviews
+        
+            .panel-content.surface-level-2#list
+                #tiles.tiles.wide.xxl
+                #empty 
+                    i.zmdi.zmdi-info-outline
+                    p There are now reviews in this view   
+                .progress#list-progress
+                    .bounce1
+                    .bounce2
+                    .bounce3
+
+        #review.screen
+
+            #viewer.viewer
+            #viewer-messages.viewer.surface-level-2
+                #viewer-empty
+                    span.material-symbols-sharp view_in_ar
+                    span No Viewble Found
+                #viewer-progress.progress
+                    .bounce1
+                    .bounce2
+                    .bounce3
+            #viewer-markup-toolbar.viewer-toolbar.hidden
+                .viewer-markup-toolbar-group
+                    .markup-toggle.color(data-color="FB5A79")
+                    .markup-toggle.color.non-mobile(data-color="FBB135")
+                    .markup-toggle.color(data-color="FBE235")
+                    .markup-toggle.color.new-row(data-color="3694FB")
+                    .markup-toggle.color.non-mobile(data-color="8CE5FC")
+                    .markup-toggle.color(data-color="68E759")
+                    .markup-label Color
+                .viewer-markup-toolbar-group
+                    .markup-toggle.shape.material-symbols-sharp(data-shape="arrow") trending_flat
+                    .markup-toggle.shape.material-symbols-sharp.non-mobile(data-shape="circle") radio_button_unchecked
+                    .markup-toggle.shape.material-symbols-sharp(data-shape="rectangle") crop_square
+                    .markup-toggle.shape.material-symbols-sharp.new-row(data-shape="cloud") water
+                    .markup-toggle.shape.material-symbols-sharp(data-shape="freehand") draw
+                    .markup-toggle.shape.material-symbols-sharp.non-mobile(data-shape="text") text_fields
+                    //- .markup-toggle.shape.material-symbols-sharp.non-mobile(data-shape="polycloud")
+                    //- .markup-toggle.shape.material-symbols-sharp.non-mobile(data-shape="polyline")
+                    .markup-label Shape
+                .viewer-markup-toolbar-group
+                    .markup-button(onclick="markup.undo();") Undo
+                    .markup-button(onclick="markup.redo();") Redo
+                    .markup-button(onclick="markup.clear();") Clear
+                    #viewer-markup-close.markup-button Close
+                    .markup-label Actions
+            #viewer-reset-toolbar.viewer-toolbar.hidden
+                .viewer-markup-toolbar-group
+                    #unselect-action.markup-button(onclick="$('.action.selected').click();")
+                        i.material-symbols-sharp close 
+                    .markup-label Close
+            //- #viewer-progress.surface-level-2
+            //-     .progress
+            //-         .bounce1
+            //-         .bounce2
+            //-         .bounce3
+            
+            #panel
+
+                .panel-header 
+                    #panel-header-sub.panel-header-sub
+                    #panel-header-main.panel-header-main
+
+                .panel-toggles
+                    div(data-id="comments") Comments
+                    div(data-id="files") Files
+                    div(data-id="bom") BOM
+                    div(data-id="actions") Actions
+
+                .panel-content.toggle#comments
+                    
+                    .progress#comments-progress
+                        .bounce1
+                        .bounce2
+                        .bounce3
+                    .panel-toolbar
+                        #button-save-comments.button.default Save
+                    .panel-data#comments-data
+                        .form-header.first Requirements
+                        .form-hint Define additional requirements that are not met by the design
+                        textarea#requirements(rows="6")
+                        .form-header Issues
+                        .form-hint Describe any issues that you find within the current design
+                        textarea#issues(rows="6")
+                        .form-header Concerns
+                        .form-hint Let us know if there are concerns about functionality or quality of the current design
+                        textarea#concerns(rows="6")
+                        .form-header Alternatives
+                        .form-hint You got an alternative in mind that we should review? Please describe your proposal here
+                        textarea#alternatives(rows="6")
+                        .form-header Deficiencies
+                        .form-hint Any deficiency should go in here
+                        textarea#deficiencies(rows="6")
+                        .form-hint.last Please note that you can use the tab Files to upload documents with additional contents or even define a given action for us to follow up in the Actions tab.
+                
+                .panel-content.toggle#files
+
+                    .progress#files-progress
+                        .bounce1
+                        .bounce2
+                        .bounce3
+                    .panel-toolbar
+                        #button-upload.button.default  Upload File
+                        form#uploadForm(method='post', encType="multipart/form-data", target="frame-download")
+                            input#select-file.hidden.button.main(type="file", name="newFiles" multiple='')
+                        iframe#frame-download(style="display:none;" name="frame-download")
+                    .panel-empty There are no files attached
+                    .panel-data#files-list.tiles.list.files
+
+
+                .panel-content.toggle#bom
+
+                    .progress#bom-progress
+                        .bounce1
+                        .bounce2
+                        .bounce3
+                    .panel-toolbar
+                        #button-bom-reset.button.disabled Reset
+                        #button-bom-back.button.with-icon.hidden 
+                            span.material-symbols-sharp chevron_left
+                            span Back
+                    .panel-data#bom-list.flat-bom.hide-left
+                    .panel-data#bom-item-details.invisible.hide-right
+                        #panel-bom-details-header
+                        #panel-bom-details-fields
+
+
+                .panel-content.toggle#actions
+                    
+                    .progress#actions-progress
+                        .bounce1
+                        .bounce2
+                        .bounce3
+                    .panel-toolbar
+                        #button-action-create.button.default Create Action
+                        #button-action-submit.button.default Save
+                        #button-action-cancel.button Cancel
+                    .panel-data#action-create
+                        canvas#action-image
+                        canvas#action-thumbnail.hidden
+                        div.columns
+                            .label Image 
+                            .image-toolbar
+                                #image-delete.image-action.button.with-icon
+                                    span.material-symbols-sharp delete
+                                    span Delete
+                                #image-refresh.image-action.button.with-icon
+                                    span.material-symbols-sharp refresh
+                                    span Refresh
+                        div.columns
+                            .label.first Task
+                            input#input-task.input(type="text", placeholder="What task has to be performed?", name="task", required)
+                        div.columns
+                            .label Description
+                            textarea#input-details.input(rows="6", placeholder="Describe the task in more details here", name="details")
+                        div.columns
+                            .label Target Date
+                            input#input-end.input(type="date", name="end")
+                    .panel-data#actions-list.surface-level-1.tiles.list.l
+        
+        #overlay
+            .progress
+                .bounce1
+                .bounce2
+                .bounce3
+        
+        #dialog.dialog
+            .dialog-header Finish Design Review
+            .dialog-content Do you really want to finish this Design Review? If you confirm with Yes, you may still access the review later on and review all its data and actions, but you will not be able to edit it any longer.
+            .dialog-footer
+                #dialog-yes.button.default Yes 
+                #dialog-no.button No

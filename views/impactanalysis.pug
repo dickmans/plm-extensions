@@ -1,0 +1,172 @@
+extends common
+ 
+block head
+    link(rel='stylesheet', href='/stylesheets/impactanalysis.css')
+    link(rel='stylesheet', href='https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/style.min.css')
+    script.
+        tenant="#{tenant}"
+        wsId="#{wsId}"
+        dmsId="#{dmsId}"
+    script(src='https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.min.js') 
+    script(src='/javascripts/ui.js')  
+    script(src='/javascripts/forge.js')  
+    script(src='/javascripts/impactanalysis.js') 
+
+block content
+
+    body.surface-level-1.no-viewer.no-details
+        
+        #header.dark
+            #header-logo
+            #header-title=title
+            #header-subtitle
+                #header-descriptor
+                #header-description
+            #header-toolbar
+                #toggle-details.button Toggle Details
+                #toggle-comparison.button Toggle Comparison
+                #toggle-viewer.button Toggle Viewer
+                #toggle-tabs.button Toggle Tabs
+        .screen
+            #nav.surface-level-2
+                .panel-title#nav-header 
+                    span#nav-counter 
+                    span Affected Items
+                #nav-actions.panel-toolbar
+                    .button.material-symbols-sharp.xs.hide chevron_left
+                    .button.material-symbols-sharp.xs.show chevron_right
+                #nav-list.tiles.list.xs
+            
+            #item.panel
+                .panel-header.no-subheader
+                    #panel-header-main.panel-header-main
+                #item-actions.panel-item-toolbar
+                    #item-save.button Save
+                    #item-bookmark.button.material-symbols-sharp.xs star
+                    #item-open.button.material-symbols-sharp.xs open_in_new
+                    //- #item-bookmark.button.material-symbols-sharp.zmdi-star
+                    //- #item-open.button.zmdi.zmdi-open-in-new
+                    //- #product-close.button.material-symbols-sharp.xs close
+
+                .surface-level-2#item-change
+                    
+            
+                #viewer
+                
+                .panel-tabs.surface-level-1#tabs
+                    div(tab-id='logs') 
+                        span.label Log
+                    div(tab-id='bom')
+                        span.lavel BOM 
+                        span#bom-counter.counter.value
+                    div(tab-id='related') 
+                        span.label Changed 
+                        span#related-counter.counter.value
+                    div(tab-id='roots') 
+                        span.label End Items
+                        span#roots-counter.counter.value
+                    div(tab-id='impacted') 
+                        span.label Impacted
+                        span#impacted-counter.counter.value
+                    div(tab-id='attachments') 
+                        span.label Files 
+                        span#attachments-counter.counter.value
+                    div(tab-id='changes')
+                        span.label Processes
+                        span#changes-counter.counter.value
+                
+                #contents
+                    #message Please wait while the initial data is being loaded
+                .panel-content.tab.surface-level-2#logs
+                    table#logs-table.content-table
+                        thead
+                            tr.surface-level-2-5
+                                th Date
+                                th User
+                                th Action
+                                th Description
+                        tbody                
+                .panel-content.tab.surface-level-2#roots.content
+                    .content-area
+                        table#roots-table.content-table
+                            thead
+                                tr
+                                    th Item
+                                    th Status
+                                    th Quantity
+                                    th Hierarchy
+                            tbody
+                .panel-content.tab.surface-level-2#impacted.content
+                    //- #impacted-list.content-list
+                    table#impacted-table.content-table
+                        thead
+                            tr
+                                th.tiny Linked
+                                th Workspace
+                                th Name
+                                th Description
+                                th Actions
+                        tbody#impacted-tbody
+                .panel-content.tab#bom.content
+                    .content-area.with-actions
+                        table#bom-table.content-table
+                    .panel-content-actions.surface-level-2
+                        div
+                            span BOM View
+                            #bom-views.panel-toggles
+                        div
+                            span Status Filter
+                            #bom-status
+                                #bom-status-additional.bar(data-filter="additional" title='Click to filter EBOM for items not containted in MBOM yet')
+                                #bom-status-different.bar(data-filter="different" title='Click to filter EBOM and MBOM for items where total quantity does not match')
+                                #bom-status-match.bar(data-filter="match" title='Click to filter EBOM and MBOM for items that match')
+                                #bom-status-removed.bar(data-filter="removed" title='Click to filter EBOM and MBOM for items where total quantity does not match')
+                            #bom-color-toggle
+                                input(type="checkbox" id="apply-to-viewer" name="apply-to-viewer" value="apply-to-viewer")
+                                label(for="apply-to-viewer") Apply to viewer
+                .panel-content.tab.surface-level-2#related.content
+                    .content-area.with-actions
+                        #related-list.content-list
+                    .panel-content-actions.surface-level-2
+                        #related-add-all.button.default Add All
+                        #related-add-selected.button Add Selected
+                        #related-select-all.button Select All
+                        #related-deselect-all.button Deselect All  
+                .panel-content.tab.surface-level-2#attachments.content
+                    table#attachments-table.content-table
+                        thead
+                            tr
+                                th.tiny Icon
+                                th File Name
+                                th Status
+                                th.align-right Version
+                                th Date
+                                th User
+                                th Description
+                                th Type
+                        tbody
+                .panel-content.tab.surface-level-2#changes.content
+                    table#changes-table.content-table
+                        thead
+                            tr
+                                th Name
+                                th Status
+                                th Last Action Date
+                                th By User
+                                th Creation Date
+                                th By User
+                        tbody
+                
+                #details.surface-level-2
+                    .progress#details-progress
+                        .bounce1
+                        .bounce2
+                        .bounce3
+                    #details-list
+                    #details-list-prev
+        
+        #overlay
+            .progress
+                .bounce1
+                .bounce2
+                .bounce3
