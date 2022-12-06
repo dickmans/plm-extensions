@@ -1,5 +1,4 @@
-/keys/*.*
-!/keys
+/keys/*.key
 /node_modules
 /public/cache/*
 /uploads/*
