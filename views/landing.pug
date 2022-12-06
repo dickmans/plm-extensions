@@ -16,6 +16,41 @@ block content
                 p Version of September 2022
             .split-right.tiles.xxl.padding-80
                 .tile 
+                    .tile-image.border(style="background: url('images/app-product-data-explorer.png') no-repeat;background-size:contain;")
+                    .tile-details
+                        .tile-title Product Data Explorer
+                        .tile-subtitle Review and manage your product's data in easy manner using automated KPIs
+                    .instructions
+                        h1 Prerequisites
+                        p This app works best with the 'Vault Items &amp; BOMs' workspace but can also be used with 'Items &amp; BOMs' for example if viewable files exist in this workspace.
+                        h1 Features
+                        p Users can navigate the BOM of a product by filtering for components of interest (i.e. in work items) and update item master data (i.e. store purchasing information)
+                        ul  
+                            li Open the explorer from any record in the Vault Items &amp; BOMs workspace
+                            li Filter BOM items based on KPIs
+                            li Toggle BOM structure and flat table mode
+                            li Review design in 3D and color components to match the selected KPIs
+                            li Access and download attachments of a selected item 
+                            li Review &amp; edit details of selected records
+                        h1 Adjust Workspace Vault Items &amp; BOMs 
+                        p Create a new BOM view named 'Explorer' for this workspace and add the following columns (if you omit some of these columsn, the given KPIs will be hidden automatically): 
+                        ul 
+                            li Item Lifecycle 
+                            li Pending Change
+                            li Descriptor 
+                            li Number
+                            li Vault Category
+                            li Make or Buy
+                            li Spare Wear Part 
+                            li Material
+                            li Vault Folder 
+                            li Last Updated By 
+                            li Last Updated
+                        p If the field DMS_ID does not exist yet in your workspace, add it as Single Line Text (length 20, not visible). Let this field be set upon item creation using the following script code: 
+                        p.code item.DMS_ID = dmsID;
+                        p Add a new computed field to Item Details which renders a button to open the explorer for the current record. Use the following formula and adjust the server name as well as teh workspace ID (79) to match your environment.
+                        p.code &lt;a style="font-size:0.9em;color: #0a131c;border: 1px solid #bec8d2;border-radius:3px;padding:4px 12px;text-align:center;text-decoration:none !important;line-height:16px;white-space:nowrap;" target="_blank" href ="https://www.forge.tools:9000/explorer?wsId=79&amp;dmsId='||DMS_ID||'"&gt;Explorer&lt;/a&gt;
+                .tile 
                     .tile-image.border(style="background: url('images/app-product-catalog.png') no-repeat;background-size:contain;")
                     .tile-details
                         .tile-title Product Catalog
@@ -60,25 +95,13 @@ block content
                         .tile-subtitle Access latest product data, access documentation and order spare parts when needed
                     .instructions
                         h1 Prerequisites
-                        p This solution requires additional fields in the Item Details tab of workspace 'Vault Items'. In order to process the spare part request, you also have to add a workspace 'Spare Part Requests'.
+                        p This solution is based on the standard 'Vault Items &amp; BOMs' workspace. However, in order to process the spare part request processes, you have to add a workspace 'Spare Part Requests'.
                         h1 Limitations 
-                        p There is no capability to navigate to items of interest. Users are supposed to access items directly with the right url (see the end of these instructions).
-                            br
-                            span Note that there is no capability to track the progress of Spare Part Requests in this app. The given button 'Pending Requests' has no function.
-                        h1 Workspace Vault Items
-                        h2 Item Details Tab
-                        p Use the Workspace Manager to add the following fields to workspace 'Vault Items'. Make sure to add all these fields in the same section.
-                        img(src='images/apps/services-portal-1.png' style='width:100%;max-width:900px;margin-bottom:10px;')
-                        ol 
-                            li Add picklist field 'IS_SPARE_PART' as 'Radio Button' with options 'Yes' and 'No'. Set this field editable.
-                                img(src='images/apps/services-portal-2.png' style='width:736px;margin:10px 0px 20px;')
-                            li Add picklist field 'SPART_PART_NR' which links to workspace 'Vault Items'. Set this field editable.
-                                img(src='images/apps/services-portal-3.png' style='width:736px;margin:10px 0px 20px;')
-                            li Add Single Line Text field 'MAINTENANCE_KIT'. Set this field editable. This field is not required technically, but to tell the story of a spare part ordering process which may also involve ordering kits instead of single parts.
-                                img(src='images/apps/services-portal-4.png' style='width:736px;margin:10px 0px 20px;')
+                        p Note that there is no capability to track the progress of Spare Part Requests in this app. The given button 'Pending Requests' has no function.
+                        h1 Canges to workspace Vault Items
                         h2 Bill of Materials Tab
-                        p Create a new BOM view 'Spare Parts' with the fields shown below in workspace 'Vault Items'. The sequence of fields does not matter and you may add further fields if needed.
-                        img(src='images/apps/services-portal-9.png' style='max-width:calc(100% - 30px);margin:10px 0px;padding:10px;border:1px solid #eee;')
+                        p Create a new BOM view 'Service' with the fields shown below. The sequence of fields does not matter and you may add further fields if needed.
+                        img(src='images/apps/services-portal-1.png' style='max-width:calc(100% - 30px);margin:10px 0px 30px;padding:10px;border:1px solid #eee;')
                         table(style='margin:10px 0px 30px')
                             tr
                                 th Source
@@ -94,35 +117,31 @@ block content
                                 td Title
                             tr  
                                 td Item Details
-                                td Is Spare Part
-                                td Is Spare Part
+                                td Number 
+                                td Number 
                             tr  
                                 td Item Details
-                                td Spare Part #
-                                td Spare Part #
+                                td Spare Wear Part
+                                td Spare Wear Part
                             tr  
                                 td Item Details
-                                td Maintenance Kit 
-                                td Maintenance Kit 
-                            tr  
-                                td Item Details
-                                td Dimensions/Size 
-                                td Dimensions/Size 
+                                td Material
+                                td Material
                             tr  
                                 td Item Details
                                 td Mass 
                                 td Mass 
                             tr  
                                 td Item Details
-                                td Number 
-                                td Number 
+                                td Dimensions/Size 
+                                td Dimensions/Size 
                         h1 New Workspace Spare Parts Requests
                         h2 Add Workspace
                         p Users can trigger requests for spare parts in the given portal. This is made possible with a new workspace named 'Spare Parts Requests' which you have to add before using all features this solution. Use the settings shown in the following screenshot.
-                        img(src='images/apps/services-portal-5.png' style='width:100%;max-width:900px;margin:10px 0px;padding:10px;border:1px solid #eee;')
+                        img(src='images/apps/services-portal-2.png' style='width:100%;max-width:900px;margin:10px 0px;padding:10px;border:1px solid #eee;')
                         h2 Item Details Tab
                         p Add the following fields to the new workspace. Keep the layout of two sections as shown in the following screenshot:
-                        img(src='images/apps/services-portal-7.png' style='width:100%;max-width:513px;margin:10px 0px;padding:10px;border:1px solid #eee;')
+                        img(src='images/apps/services-portal-3.png' style='width:100%;max-width:513px;margin:10px 0px 30px;padding:10px;border:1px solid #eee;')
                         table(style='margin:10px 0px 30px')
                             tr
                                 th Label 
@@ -139,7 +158,7 @@ block content
                             tr  
                                 td Linked Item 
                                 td LINKED_ITEM 
-                                td Pick List
+                                td Pick List (Vault Items &amp; BOMs, Single Selection)
                                 td length: 200
                                 td Creation Only
                             tr  
@@ -149,8 +168,8 @@ block content
                                 td length: 200
                                 td false
                             tr  
-                                td Requested Date 
-                                td REQUESTED_DATE
+                                td Request Date 
+                                td REQUEST_DATE
                                 td Date
                                 td -
                                 td false
@@ -188,7 +207,7 @@ block content
                         p Set the descriptor for this workspace as you like (i.e. ID - Requested By)
                         h2 Grid Tab
                         p Add the following fields to the grid tab
-                        img(src='images/apps/services-portal-8.png' style='width:100%;max-width:900px;margin:10px 0px;padding:10px;border:1px solid #eee;')
+                        img(src='images/apps/services-portal-4.png' style='width:100%;max-width:900px;margin:10px 0px 30px;padding:10px;border:1px solid #eee;')
                         table(style='margin:10px 0px 30px')
                             tr
                                 th Label 
@@ -212,7 +231,7 @@ block content
                                 td Unit Cost
                                 td UNIT_COST 
                                 td Money
-                                td Length: 10, Field Precision: 0
+                                td Length: 10, Field Precision: 2
                                 td true
                             tr  
                                 td Total Cost
@@ -227,7 +246,7 @@ block content
                                 td Length: 200
                                 td true
                         h2 Tab Names 
-                        p Adjust the tab names for ease of use as shown below 
+                        p Adjust the tab names for ease of use:
                         ul 
                             li Item Details &gt; Request
                             li Grid &gt; Part List
@@ -239,7 +258,7 @@ block content
                             span item.REQUEST_DATE = new Date();
                         h2 Workflow
                         p Provide a workflow for this new workspace. While the workflow logic does not matter for this solution, make sure to attach the script 'Spare Parts Requests WF Actions' as action script to the initial transition.
-                        img(src='images/apps/services-portal-6.png' style='width:100%;max-width:768px;margin:10px 0px;padding:10px;border:1px solid #eee;')
+                        img(src='images/apps/services-portal-5.png' style='width:100%;max-width:768px;margin:10px 0px;padding:10px;border:1px solid #eee;')
                         h2 Access Permission 
                         p Add a role for this new workspace and assign this given role to your users to enable access. Grant full access (add, delete, edit and view) to the tabs Attachments, Grid, and Workflow.
                         h1 Access the Services Portal
@@ -292,8 +311,9 @@ block content
                                 td Class Browser
                                 td CLASS_BROWSER
                                 td Single Line Text
-                                td Computed Field Formula: CASE WHEN (CLASS_NAME is null) THEN '' ELSE '&lt;a style="color: #0a131c;border: 1px solid #bec8d2;border-radius:3px;padding:2px 20px;text-align:center;text-decoration:none !important;line-height:20px;white-space:nowrap;width:160px;" target="_blank" href ="http://localhost:8080/classes?wsId=57&amp;dmsId='||DMS_ID||'"&gt;Find Similar Parts&lt;/a&gt;' END
+                                td Inser the computed field formula shown below (update the given url according to your server)
                                 td False
+                        p.code CASE WHEN (CLASS_NAME is null) THEN '' ELSE '&lt;a style="color: #0a131c;border: 1px solid #bec8d2;border-radius:3px;padding:2px 20px;text-align:center;text-decoration:none !important;line-height:20px;white-space:nowrap;width:160px;" target="_blank" href ="http://localhost:8080/classes?wsId=57&amp;dmsId='||DMS_ID||'"&gt;Find Similar Parts&lt;/a&gt;' END
                         p Note that the formula for the 'Class Browser' field must contain the right workspace id (wsId); 57 matches the 'Items &amp; BOMs' workspaces in default tenants.
                         h2 Scripts
                         p The fields that were created just before must be updated by scripts every time a new record gets created or when it gets modified. Make sure that the following code is invoked at item creation and during item edit events. In the standard tenant, you will have to modify both the scripts 'Items and BOMs onCreate' and 'Items and BOMs onEdit'.

@@ -2,7 +2,14 @@ let fields, sections, viewId, wsIdRequests, sectionIdRequests;
 let listSpareParts = [];
 let urnPartNumber = '';
 let urns = {
-    'partNumber' : '', 'thumbnail' : '', 'isSparePart' : '', 'sparePart' : '', 'maintenanceKit' : '', 'title' : '', 'description' : '', 'dimensions' : '', 'mass' : ''
+    'thumbnail'     : '', 
+    'partNumber'    : '', 
+    'title'         : '', 
+    'description'   : '', 
+    'spareWearPart' : '', 
+    'material'      : '', 
+    'mass'          : '',
+    'dimensions'    : ''
 }
 
 let maintenanceMode = false;
@@ -87,8 +94,6 @@ function setUIEvents() {
                 }
             ]
         } 
-
-        console.log(params);
 
         $.post({
             url         : '/plm/create', 
@@ -299,6 +304,7 @@ function onSelectionChanged(event) {
 }
 function initViewerDone() {
     viewerDone = true;
+    viewerAddGhostingToggle();
 }
 
 
@@ -314,7 +320,7 @@ function getWSConfig() {
     Promise.all(promises).then(function(responses) {
 
         for(view of responses[0].data) {
-            if(view.name === 'Spare Parts') {
+            if(view.name === 'Service') {
                 viewId = view.id;
             }
         }
@@ -360,13 +366,12 @@ function setBOMData(fields, bom, flatBom) {
     
              if(field.fieldId === 'NUMBER')          urns.partNumber     = field.__self__.urn;
         else if(field.fieldId === 'THUMBNAIL')       urns.thumbnail      = field.__self__.urn;
-        else if(field.fieldId === 'IS_SPARE_PART')   urns.isSparePart    = field.__self__.urn;
-        else if(field.fieldId === 'SPARE_PART')      urns.sparePart      = field.__self__.urn;
-        else if(field.fieldId === 'MAINTENANCE_KIT') urns.maintenanceKit = field.__self__.urn;
         else if(field.fieldId === 'TITLE')           urns.title          = field.__self__.urn;
         else if(field.fieldId === 'DESCRIPTION')     urns.description    = field.__self__.urn;
-        else if(field.fieldId === 'DIMENSIONSSIZE')  urns.dimensions     = field.__self__.urn;
+        else if(field.fieldId === 'SPAREWEAR_PART')  urns.spareWearPart  = field.__self__.urn; 
+        else if(field.fieldId === 'MATERIAL')        urns.material       = field.__self__.urn;
         else if(field.fieldId === 'MASS')            urns.mass           = field.__self__.urn;
+        else if(field.fieldId === 'DIMENSIONSSIZE')  urns.dimensions     = field.__self__.urn;
 
     }
 
@@ -446,23 +451,19 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom) {
 
             result = true;
 
-            let isSparePart = getBOMCellValue(edge.child, urns.isSparePart, bom.nodes);
+            let isSparePart = getBOMCellValue(edge.child, urns.spareWearPart, bom.nodes);
             let partNumber  = getBOMCellValue(edge.child, urns.partNumber, bom.nodes);
             let link        = getBOMNodeLink(edge.child, bom.nodes);
-
-            // console.log(bom);
 
             let elemRow = $('<tr></tr>');
                 elemRow.attr('data-number', edge.itemNumber);
                 elemRow.attr('data-part-number', partNumber);
                 elemRow.attr('data-is-spare-part', isSparePart);
-                elemRow.attr('data-spare-part', getBOMCellValue(edge.child, urns.sparePart, bom.nodes));
-                elemRow.attr('data-maintenance-kit', getBOMCellValue(edge.child, urns.maintenanceKit, bom.nodes));
                 elemRow.attr('data-qty', '1');
                 elemRow.attr('data-status', 'match');
                 elemRow.appendTo(elemRoot);
-    
-            if(isSparePart.toLowerCase() === 'yes') {
+
+            if((isSparePart.toLowerCase() === 'spare part') || (isSparePart.toLowerCase() === 'yes')) {
 
                 elemRow.addClass('is-spare-part');
 
@@ -527,13 +528,17 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom) {
                     //     elemSparePartDescription.html(getBOMCellValue(edge.child, urns.description, bom.nodes));
                     //     elemSparePartDescription.appendTo(elemSparePartDetails);
                     
-                    let elemSparePartDimensions = $('<div></div>');
-                        elemSparePartDimensions.html(getBOMCellValue(edge.child, urns.dimensions, bom.nodes));
-                        elemSparePartDimensions.appendTo(elemSparePartDetails);
-                    
+                    let elemSparePartMaterial = $('<div></div>');
+                        elemSparePartMaterial.html(getBOMCellValue(edge.child, urns.material, bom.nodes));
+                        elemSparePartMaterial.appendTo(elemSparePartDetails);
+
                     let elemSparePartWeight = $('<div></div>');
                         elemSparePartWeight.html(getBOMCellValue(edge.child, urns.mass, bom.nodes));
                         elemSparePartWeight.appendTo(elemSparePartDetails);
+
+                    let elemSparePartDimensions = $('<div></div>');
+                        elemSparePartDimensions.html(getBOMCellValue(edge.child, urns.dimensions, bom.nodes));
+                        elemSparePartDimensions.appendTo(elemSparePartDetails);
 
                     let elemSparePartSide = $('<div></div>');
                         elemSparePartSide.addClass('spare-part-side');

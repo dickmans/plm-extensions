@@ -82,9 +82,9 @@ let kpis = [{
     'type'      : 'value',
     'style'     : 'counters',
     'data'      : [
-        { 'value' : 'No' , 'count' : 0, 'color' : colorRange[0], 'vector' : kpiVectors[0] },
-        { 'value' : '-'  , 'count' : 0, 'color' : colorRange[2], 'vector' : kpiVectors[1] },
-        { 'value' : 'Yes', 'count' : 0, 'color' : colorRange[4], 'vector' : kpiVectors[2] }
+        { 'value' : '-' , 'count' : 0, 'color' : colorRange[0], 'vector' : kpiVectors[0] },
+        { 'value' : 'Wear Part'  , 'count' : 0, 'color' : colorRange[2], 'vector' : kpiVectors[1] },
+        { 'value' : 'Spare Part', 'count' : 0, 'color' : colorRange[4], 'vector' : kpiVectors[2] }
     ]
 },{
     'id'        : 'material',

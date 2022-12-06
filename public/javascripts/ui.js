@@ -1010,13 +1010,11 @@ function getBOMCellValue(urn, key, nodes, property) {
         if(node.item.urn === urn) {
             for(field of node.fields) {
                 if(field.metaData.urn === key) {
-
                     if(typeof field.value === 'object') {
                         if(typeof property === 'undefined') return field.value.link;
                         else return field.value[property];
                     } else if(typeof field.value !== 'undefined') {
-                        if(key === urns.isSparePart) return field.value.title;
-                        else return field.value;
+                        return field.value;
                     } else {
                         return '';
                     }

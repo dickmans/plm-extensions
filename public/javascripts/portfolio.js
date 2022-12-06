@@ -679,7 +679,6 @@ function setProductDetails(link) {
 
 
         let ebom = getSectionFieldValue(response.data.sections, 'ENGINEERING_BOM', '');
-        // console.log(bom);
 
         if(ebom !== '') {
             $('#viewer').show();
@@ -766,14 +765,18 @@ function setProductViewer(link) {
 
         if(response.data.length > 0) {
 
-            $('#product').addClass('has-viewable');
+            $('#product').addClass('has-viewable');          
 
             let viewLink = response.data[0].selfLink;
+
+            for(link of response.data) {
+                if(link.name.indexOf('.ipt.dwf')) viewLink = link.selfLink;
+                else if(link.name.indexOf('.iam.dwf')) viewLink = link.selfLink;
+            }
 
             $.get( '/plm/get-viewable', { 'link' : viewLink } , function(response) {
                 if(response.params.link !== viewLink) return;
                 $('#viewer').show();
-
                 initViewer(response.data, 240);
             });
 
