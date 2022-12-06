@@ -1,18 +1,16 @@
 /*  DEFAULT FONTS */
 /* ----------------------------------------------------------------------------- */
 @font-face {
-    font-family: ArtifaktElement;
+    font-family: 'ArtifaktElement';
     font-style: normal;
-    src: url(../fonts/ArtifaktElementRegular.woff) format('woff2');
+    src: url(../fonts/ArtifaktElementRegular.woff) format('woff2'), url(../fonts/ArtifaktElementRegular.ttf) format('truetype');;
 }
 @font-face {
     font-family: 'Material Symbols Sharp';
     font-style: normal;
     font-weight: 100 700;
-    src: url(../fonts/MaterialSymbolsSharp.ttf) format('woff2');
+    src: url(../fonts/MaterialSymbolsSharp.ttf) format('truetype');
 }
-
-
 
 
 /*  MATERIAL FONT */
@@ -185,7 +183,8 @@ html {
 }
 body {
     /* color : #3c3c3c; */
-    font-family: 'Artifakt Element';
+    font-family: 'ArtifaktElement';
+    /* font-family: 'Artifakt'; */
     font-style: normal;
     font-weight: 400;
     font-size: 14px;
