@@ -450,20 +450,21 @@ function submitCreateForm(wsId, elemParent, callback) {
         'sections' : getSectionsPayload(elemParent) 
     };
 
+    let elemMarkupImage = $('#viewer-markup-image');
+
+    if(elemMarkupImage.length > 0) {
+        params.image = {
+            'fieldId' : elemMarkupImage.attr('data-field-id'),
+            'value'   : elemMarkupImage[0].toDataURL('image/jpg')
+        }
+    }
+
     $.post({
         url : '/plm/create', 
         contentType : "application/json",
         data : JSON.stringify(params)
     }, function(response) {
-
         callback(response);
-
-        // if(idDialog === 'create-project') {
-        //     console.log('link to open projcéct : ' + data);
-        //     openProject(data);
-        // } else {
-
-        // }
     });
 
 }
@@ -546,6 +547,37 @@ function getSectionsPayload(elemParent) {
 
     return sections;
 
+}
+function validateForm(elemForm) {
+    
+    let result = true;
+
+    $('.required-empty').removeClass('required-empty');
+
+    elemForm.find('.field-value').each(function() {
+       
+        if($(this).parent().hasClass('required')) {
+
+            let value     = $(this).val();
+            let elemInput = $(this);
+
+            if(elemInput.hasClass('radio')) {
+                elemInput.children().each(function() {
+                    if($(this).children().first().prop('checked')) value = 'ok';
+                });
+            }
+
+            if (value === '') {
+                elemInput.addClass('required-empty');
+                // $('<div class="validation-error">Input is required</div>').insertAfter($(this));
+                result = false;
+            }
+        }
+       
+    });
+    
+    return result;
+    
 }
 
 
@@ -739,6 +771,16 @@ function getFileSVG(extension) {
 function insertChangeProcesses(elemParent, processes) {
 
     elemParent.html('');
+
+    console.log(processes);
+
+
+    for(process of processes) {
+        process.sort = process['last-workflow-history'].created
+    }
+
+
+    sortArray(processes, 'sort', 'date', 'descending');
 
     for(process of processes) {
 

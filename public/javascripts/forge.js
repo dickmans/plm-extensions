@@ -506,17 +506,17 @@ function viewerAddMarkupControls() {
     addMarkupColorControl(elemMarkupGroupColors, 'FB5A79');
     addMarkupColorControl(elemMarkupGroupColors, 'FBE235');
     addMarkupColorControl(elemMarkupGroupColors, '3694FB');
-    addMarkupColorControl(elemMarkupGroupColors, '8CE5FC');
+    // addMarkupColorControl(elemMarkupGroupColors, '8CE5FC');
     addMarkupColorControl(elemMarkupGroupColors, '68E759');
 
 
     let elemMarkupGroupWidth = addMarkupControlGroup(elemMarkupToolbar, 'Width');
 
-    addMarkupWidthControl(elemMarkupGroupWidth, '1');
-    addMarkupWidthControl(elemMarkupGroupWidth, '2');
-    addMarkupWidthControl(elemMarkupGroupWidth, '3');
-    addMarkupWidthControl(elemMarkupGroupWidth, '4');
-    addMarkupWidthControl(elemMarkupGroupWidth, '5');
+    addMarkupWidthControl(elemMarkupGroupWidth, '1', 0.5);
+    addMarkupWidthControl(elemMarkupGroupWidth, '2', 1);
+    addMarkupWidthControl(elemMarkupGroupWidth, '3', 2);
+    addMarkupWidthControl(elemMarkupGroupWidth, '4', 3.5);
+    addMarkupWidthControl(elemMarkupGroupWidth, '5', 5);
 
     let elemMarkupGroupShapes = addMarkupControlGroup(elemMarkupToolbar, 'Shape');
 
@@ -533,6 +533,12 @@ function viewerAddMarkupControls() {
     addMarkupActionControl(elemMarkupGroupActions, true, 'redo', 'markup.redo();');
     addMarkupActionControl(elemMarkupGroupActions, false, 'Clear', 'markup.clear();');
     addMarkupActionControl(elemMarkupGroupActions, false, 'Close', 'viewerLeaveMarkupMode();');
+
+
+    let elemMarkupImage = $('<canvas>');
+        elemMarkupImage.attr('id', 'viewer-markup-image');
+        elemMarkupImage.addClass('hidden');
+        elemMarkupImage.appendTo($('body'));
 
 
     let newToolbar = new Autodesk.Viewing.UI.ControlGroup('my-custom-markup-toolbar');
@@ -596,12 +602,12 @@ function addMarkupColorControl(elemParent, color) {
     });
 
 }
-function addMarkupWidthControl(elemParent, width) {
+function addMarkupWidthControl(elemParent, label, width) {
 
     let elemControl = $('<div></div>');
         elemControl.addClass('viewer-markup-toggle');
         elemControl.addClass('width');
-        elemControl.html(width);
+        elemControl.html(label);
         elemControl.attr('data-width', width);
         elemControl.appendTo(elemParent);
 
@@ -667,5 +673,36 @@ function viewerLeaveMarkupMode() {
 
     markup.leaveEditMode();
     markup.hide();
+
+}
+function viewerCaptureScreenshot(callback) {
+   
+    var screenshot  = new Image();
+    var imageWidth  = viewer.container.clientWidth;
+    var imageHeight = viewer.container.clientHeight;
+
+    screenshot.onload = function () {
+            
+        let canvas          = document.getElementById('viewer-markup-image');
+            canvas.width    = viewer.container.clientWidth;
+            canvas.height   = viewer.container.clientHeight;
+
+        let context = canvas.getContext('2d');
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            context.drawImage(screenshot, 0, 0, canvas.width, canvas.height); 
+            
+        if(!$('#viewer-markup-toolbar').hasClass('hidden')) {
+            markup.renderToCanvas(context, function() {
+                callback();
+            });
+        } else {
+            callback();
+        }
+            
+    }
+            
+    viewer.getScreenShot(imageWidth, imageHeight, function (blobURL) {
+        screenshot.src = blobURL;
+    });
 
 }

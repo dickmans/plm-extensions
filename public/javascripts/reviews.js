@@ -14,15 +14,6 @@ let sectionIds = {
     'tasks'   : [ { 'name' : 'Definition', 'id' : 354 }, { 'name' : 'Schedule','id'   : 355 } ]
 }
 
-let markupStyle = {
-    'stroke-width' : 1.1,
-    'font-size' : 10
-    // * defaults got disabled in Mar 2019 due to issues with scaling *
-    //    "font-size" : 12,
-    //    "stroke-width" : 0.005
-    //    "stroke-color" : "#FC5A78"
-};
-
 
 $(document).ready(function() {  
     
@@ -1071,6 +1062,9 @@ function captureScreenshot() {
 //    var thumbHeight = 200;    
     var thumbWidth  = viewer.container.clientWidth * 110 / viewer.container.clientHeight;
     var thumbHeight = 110; 
+
+    console.log(imageWidth);
+    console.log(imageHeight);
     
 //    if(imageWidth > 1000) {
 //        imageWidth = 1000;
@@ -1167,6 +1161,10 @@ function submitCreateForm() {
             'value' : $('canvas#action-image')[0].toDataURL("image/jpg")
         }
     };
+
+    console.log($('canvas#action-image')[0].toDataURL("image/jpg"));
+
+    console.log(params);
 
     $.post({
         url : '/plm/create', 

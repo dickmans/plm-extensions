@@ -6,6 +6,8 @@
 .panel-toolbar { right : 12px; }
 .panel-content { top : 50px; }
 #overlay .progress { display : none; }
+.homeViewWrapper,
+.viewcube { display : none !important; }
 
 
 :root {
@@ -27,30 +29,28 @@
     width : var(--width-dashboard);
 }
 #bom {
-    top : var(--padding-panel);
-    bottom : var(--padding-panel);
-    left : calc(var(--width-dashboard) + (3 * var(--padding-dashboard)));
-    width : var(--width-bom);
+    top     : var(--padding-panel);
+    bottom  : var(--padding-panel);
+    left    : calc(var(--width-dashboard) + (3 * var(--padding-dashboard)));
+    width   : var(--width-bom);
 }
 #viewer {
-    top : var(--padding-panel);
-    
-    right : var(--padding-panel);
-    bottom : calc(var(--height-attachments) + var(--padding-panel) + 12px);
-    left : calc(var(--width-dashboard) + var(--width-bom) + (1 * var(--padding-panel)) + (3 * var(--padding-dashboard)));
+    top     : var(--padding-panel);
+    right   : var(--padding-panel);
+    bottom  : calc(var(--height-attachments) + var(--padding-panel) + 12px);
+    left    : calc(var(--width-dashboard) + var(--width-bom) + (1 * var(--padding-panel)) + (3 * var(--padding-dashboard)));
 }
 #attachments {
-    /* right : calc(var(--width-details) + (2 * var(--padding-panel))); */
-    right : var(--padding-panel);
-    bottom : var(--padding-panel);
-    left : calc(var(--width-dashboard) + var(--width-bom) + (1 * var(--padding-panel)) + (3 * var(--padding-dashboard)));
-    height : var(--height-attachments);
+    right   : var(--padding-panel);
+    bottom  : var(--padding-panel);
+    left    : calc(var(--width-dashboard) + var(--width-bom) + (1 * var(--padding-panel)) + (3 * var(--padding-dashboard)));
+    height  : var(--height-attachments);
 }
 .panel-right {
-    width : var(--width-details);
-    top : var(--padding-panel);
-    right : calc(0px - var(--width-details) - 100px);
-    bottom : var(--padding-panel);
+    width   : var(--width-details);
+    top     : var(--padding-panel);
+    right   : calc(0px - var(--width-details) - 100px);
+    bottom  : var(--padding-panel);
 }
 
 body.no-dashboard #dashboard { left : calc(0px - var(--width-dashboard) - 100px); }
@@ -475,26 +475,6 @@ tr.node.bom-level-10 .bom-tree-color {  margin-right : 225px; }
 
 
 
-/* DETAILS */
-/* ----------------------------------------------------------------------------- */
-#bookmark.active {
-    color : var(--color-status-yellow);
-}
-#sections {
-    right : 0px;
-    bottom : 0px;
-    left : 0px;
-}
-
-
-
-
-/* PROCESSES */
-/* ----------------------------------------------------------------------------- */
-#processes {
-    /* display : none; */
-}
-
 
 
 /* ATTACHMENTS */
@@ -529,10 +509,22 @@ tr.node.bom-level-10 .bom-tree-color {  margin-right : 225px; }
 
 
 
+/* DETAILS */
+/* ----------------------------------------------------------------------------- */
+#bookmark.active {
+    color : var(--color-status-yellow);
+}
+#sections {
+    right : 0px;
+    bottom : 0px;
+    left : 0px;
+}
+
 
 
 /* PROCESSES */
 /* ----------------------------------------------------------------------------- */
+#processes-form { display : none; }
 .process .tile-subtitle {
     font-weight : 600;
     padding-bottom : 8px;
@@ -580,3 +572,9 @@ tr.node.bom-level-10 .bom-tree-color {  margin-right : 225px; }
     100%{background-position:0% 50%}
     0%{background-position:100% 50%}
 }
+.process-dialog {
+    display : none;
+}
+
+
+#viewer-markup-image { height : 600px; width : 800px;}

@@ -36,10 +36,10 @@ function sortArray(array, key, type, direction) {
     if(typeof type      === 'undefined') type = 'string';
     if(typeof direction === 'undefined') type = 'ascending';
 
-    // if(type.toLowerCase === 'string') {
     if(direction === 'ascending') {
 
         array.sort(function(a, b){
+
             var nameA=a[key], nameB=b[key];
 
             if(type.toLowerCase() === 'string') nameA=a[key].toLowerCase(), nameB=b[key].toLowerCase()
@@ -54,23 +54,20 @@ function sortArray(array, key, type, direction) {
 
     } else {
 
-
-
         array.sort(function(a, b){
+
             var nameA=a[key], nameB=b[key]
 
             if(type.toLowerCase() === 'string') nameA=a[key].toLowerCase(), nameB=b[key].toLowerCase()
-
 
             if (nameA > nameB) //sort string ascending
                 return -1 
             if (nameA < nameB)
                 return 1
             return 0 //default return value (no sorting)
+
         });
 
     }
-
-    // return array;
 
 }

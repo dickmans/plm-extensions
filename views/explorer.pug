@@ -102,8 +102,11 @@ block content
             .panel-right#processes
                 .panel-title Processes
                 .panel-content#processes-list.list.tiles.l.surface-level-2
+                .panel-content#processes-form.surface-level-2
                 .panel-toolbar
-                    .button.default#create(title='Save changes in PLM') Create
+                    .button#create-process(title='Initiate new process in PLM') Create
+                    .button.process-dialog#cancel-process(title='Cancel creation of new process and return to list of related processes') Cancel
+                    .button.process-dialog.default#save-process(title='Save new process in PLM') Save
                 #processes-process.progress
                     .bounce1
                     .bounce2

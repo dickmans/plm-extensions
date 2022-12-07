@@ -10,8 +10,7 @@ let colorRed    = '#dd2222';
 
 let viewerDone  = false;
 let now         = new Date();
-
-
+let wsIdProblemReport = '82';
 let kpiVectors  = [ new THREE.Vector4(205/255,  101/255, 101/255, 0.8), new THREE.Vector4(225/255, 225/255, 84/255, 0.8), new THREE.Vector4(59/255, 210/255, 59/255, 0.8) ]; // red yellow green
 
 
@@ -131,7 +130,8 @@ let kpis = [{
 }];
 
 let bomItems    = [];
-
+let wsProblemReports = { 'sections' : [], 'fields' : [] };
+ 
 
 $(document).ready(function() {
     
@@ -235,6 +235,59 @@ function setUIEvents() {
     });
     $('#save').click(function() {
         saveChanges();
+    });
+
+
+    // Process Creation
+    $('#create-process').click(function() {
+        
+        let elemParent = $('#processes-form');
+            elemParent.html('');
+            elemParent.show();
+
+        $(this).siblings().show();
+        $(this).hide();
+
+        $('#processes-list').hide();
+
+        insertItemDetails(elemParent, wsProblemReports.sections, wsProblemReports.fields, null, true, true, true);
+
+    });
+    $('#cancel-process').click(function() {
+
+        $('.process-dialog').hide();
+        $('#create-process').show();
+        $('#processes-list').show();
+        $('#processes-form').hide();
+
+    });
+    $('#save-process').click(function() {
+
+        if(!validateForm($('#processes-form'))) return;
+
+        viewerCaptureScreenshot(function() {
+
+            $('#processes-form').hide();
+            $('#processes-list').html('');
+            $('#processes-list').show('');
+            $('#processes-process').show();
+    
+            let link = $('#processes-list').attr('data-source');
+    
+            submitCreateForm(wsIdProblemReport, $('#processes-form'), function(response ) {
+
+                let newLink = response.data.split('.autodeskplm360.net')[1];
+                $.get('/plm/add-managed-items', { 'link' : newLink, 'items' : [ link ] }, function(response) {
+                    setProcesses($('#processes-list').attr('data-source'));
+                    $('.process-dialog').hide();
+                    $('#create-process').show();
+                    $('#processes-list').show();
+                });
+
+            });
+
+        });
+
     });
 
 }
@@ -353,6 +406,9 @@ function initViewerDone() {
     viewerAddMarkupControls();   
     viewerAddGhostingToggle();
     viewerAddViewsToolbar();
+
+    $('#viewer-markup-image').attr('data-field-id', 'IMAGE_1');
+
 }
 
 
@@ -363,6 +419,8 @@ function getWSConfig() {
         $.get('/plm/bom-views-and-fields', { 'wsId' : wsId }),
         $.get('/plm/sections', { 'wsId' : wsId }),
         $.get('/plm/fields', { 'wsId' : wsId }),
+        $.get('/plm/sections', { 'wsId' : wsIdProblemReport }),
+        $.get('/plm/fields', { 'wsId' : wsIdProblemReport })
     ];
 
     Promise.all(promises).then(function(responses) {
@@ -373,8 +431,10 @@ function getWSConfig() {
             }
         }
 
-        sections  = responses[1].data;
-        fields    = responses[2].data;
+        sections                    = responses[1].data;
+        fields                      = responses[2].data;
+        wsProblemReports.sections   = responses[3].data;
+        wsProblemReports.fields     = responses[4].data;
 
         getBOMData(viewId);
         setItemDetails('/api/v3/workspaces/' + wsId + '/items/' + dmsId);
