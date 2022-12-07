@@ -735,6 +735,90 @@ function getFileSVG(extension) {
 
 
 
+// Insert related processes (used by explorer.js)
+function insertChangeProcesses(elemParent, processes) {
+
+    elemParent.html('');
+
+    for(process of processes) {
+
+        let link = process.item.link;
+        let user = process['first-workflow-history'].user.title;
+        let date = process['first-workflow-history'].created;
+
+        let elemProcess = $('<div></div>');
+            elemProcess.addClass('animation');
+            elemProcess.addClass('process');
+            elemProcess.attr('data-link', link);
+            elemProcess.attr('data-urn', process.item.urn);
+            elemProcess.appendTo(elemParent);
+            elemProcess.click(function() {
+                openItemByURN($(this).attr('data-urn'));
+            });
+
+        let elemProcessImage = $('<div></div>');
+            elemProcessImage.addClass('tile-image');
+            elemProcessImage.appendTo(elemProcess);
+
+        let elemProcessDetails = $('<div></div>');
+            elemProcessDetails.addClass('tile-details');
+            elemProcessDetails.appendTo(elemProcess);
+
+        let elemProcessWorkspace = $('<div></div>');
+            elemProcessWorkspace.addClass('tile-title');
+            elemProcessWorkspace.appendTo(elemProcessDetails);
+
+        let elemProcessDescriptor = $('<div></div>');
+            elemProcessDescriptor.addClass('tile-subtitle');
+            elemProcessDescriptor.appendTo(elemProcessDetails);
+
+        let elemProcessData = $('<div></div>');
+            elemProcessData.addClass('tile-data');
+            elemProcessData.appendTo(elemProcessDetails);
+
+        let elemProcessCreator = $('<div></div>');
+            elemProcessCreator.addClass('process-creator');
+            elemProcessCreator.appendTo(elemProcessData);
+
+        let elemProcessStatus = $('<div></div>');
+            elemProcessStatus.addClass('process-status');
+            elemProcessStatus.appendTo(elemProcessData);
+
+        $.get('/plm/details', { 'link' : link}, function(response) {
+
+            $('.process').each(function() {
+                let elemProcess = $(this);
+                if(elemProcess.attr('data-link') === link) {
+    
+                    elemProcess.removeClass('animation');
+    
+                    // let description = getSectionFieldValue(response.data.sections, 'DESCRIPTION', '');
+                    // let priority    = getSectionFieldValue(response.data.sections, 'FLAG', '');
+                    let linkImage   = getFirstImageFieldValue(response.data.sections);
+                    let elemImage   = elemProcess.find('.tile-image').first();
+    
+                    getImageFromCache(elemImage, { 'link' : linkImage }, 'schema', function() {});
+
+                    date = date.split('T')[0].split('-');
+                    let creationDate = new Date(date[0], date[1], date[2]);
+    
+                    elemProcess.find('.tile-title').first().html(response.data.workspace.title);
+                    elemProcess.find('.tile-subtitle').first().html(response.data.title);
+                    // // elemProcess.find('.process-description').first().html(description);
+                    // // elemProcess.find('.process-priority').first().html($('<div></div>').html(priority).text());
+                    elemProcess.find('.process-status').first().html('Status : ' + response.data.currentState.title);
+                    elemProcess.find('.process-creator').first().html('Created by ' + user + ' on ' + creationDate.toLocaleDateString());
+    
+                }
+            });
+    
+        });
+
+    }
+
+}
+
+
 // Insert BOM Tree with controls
 /*function insertBOM(link, title) {
 

@@ -34,12 +34,14 @@
 }
 #viewer {
     top : var(--padding-panel);
-    right : calc(var(--width-details) + (2 * var(--padding-panel)));
+    
+    right : var(--padding-panel);
     bottom : calc(var(--height-attachments) + var(--padding-panel) + 12px);
     left : calc(var(--width-dashboard) + var(--width-bom) + (1 * var(--padding-panel)) + (3 * var(--padding-dashboard)));
 }
 #attachments {
-    right : calc(var(--width-details) + (2 * var(--padding-panel)));
+    /* right : calc(var(--width-details) + (2 * var(--padding-panel))); */
+    right : var(--padding-panel);
     bottom : var(--padding-panel);
     left : calc(var(--width-dashboard) + var(--width-bom) + (1 * var(--padding-panel)) + (3 * var(--padding-dashboard)));
     height : var(--height-attachments);
@@ -47,7 +49,7 @@
 .panel-right {
     width : var(--width-details);
     top : var(--padding-panel);
-    right : var(--padding-panel);
+    right : calc(0px - var(--width-details) - 100px);
     bottom : var(--padding-panel);
 }
 
@@ -65,9 +67,14 @@ body.no-bom-tree.no-dashboard #attachments { left : calc(var(--width-flat-bom) +
 body.no-attachments #viewer { bottom : var(--padding-panel); }
 body.no-attachments #attachments { bottom : calc(0px - var(--height-attachments) - 100px);; }
 
-body.no-details #viewer { right : var(--padding-panel); }
+body.with-panel #viewer { right : calc(var(--width-details) + (2 * var(--padding-panel))); }
+body.with-panel #attachments { right : calc(var(--width-details) + (2 * var(--padding-panel))); }
+body.with-details #details { right : var(--padding-panel); }
+body.with-processes #processes { right : var(--padding-panel); }
+
+/* body.no-details #viewer { right : var(--padding-panel); }
 body.no-details #attachments { right : var(--padding-panel); }
-body.no-details #details { right : calc(0px - var(--width-details) - 100px); }
+body.no-details #details { right : calc(0px - var(--width-details) - 100px); } */
 
 
 
@@ -485,7 +492,7 @@ tr.node.bom-level-10 .bom-tree-color {  margin-right : 225px; }
 /* PROCESSES */
 /* ----------------------------------------------------------------------------- */
 #processes {
-    display : none;
+    /* display : none; */
 }
 
 
@@ -526,6 +533,10 @@ tr.node.bom-level-10 .bom-tree-color {  margin-right : 225px; }
 
 /* PROCESSES */
 /* ----------------------------------------------------------------------------- */
+.process .tile-subtitle {
+    font-weight : 600;
+    padding-bottom : 8px;
+}
 .process-workspace {
     height : 18px;
 }
@@ -535,20 +546,13 @@ tr.node.bom-level-10 .bom-tree-color {  margin-right : 225px; }
     height : 24px;
     margin: 2px 0px;
 }
-.process-footer {
-    display : flex;
-    line-height : 22px;
-    margin-top : 4px;
-}
-.process-priority {
-    height : 22px;
-    margin-left : 10px;
-    min-width : 25px;
-}
+.process-creator, 
 .process-status {
-    height : 22px;
-    min-width : 120px;
+    height : 12px;
+    min-width : 150px;
 }
+
+
 .process .tile-title { width : 60%; height : 20px;}
 .process .tile-subtitle { width : 100%; height : 14px;}
 
@@ -556,7 +560,7 @@ tr.node.bom-level-10 .bom-tree-color {  margin-right : 225px; }
 .process.animation .tile-title,
 .process.animation .tile-subtitle,
 .process.animation .process-description,
-.process.animation .process-priority,
+.process.animation .process-creator,
 .process.animation .process-status {
     background: linear-gradient(270deg, var(--color-gray-300) 40%, var(--color-gray-200) 50%, var(--color-gray-300) 60%);
     background-size: 200% 200%;

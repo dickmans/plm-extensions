@@ -17,7 +17,7 @@ block head
 
 block content
 
-    body.text-selection-off.surface-level-1.no-attachments.no-details
+    body.text-selection-off.surface-level-1.no-attachments
 
         #header.dark
             #header-logo
@@ -77,7 +77,7 @@ block content
                     .bounce2
                     .bounce3
 
-            #viewer
+            #viewer          
 
             #attachments
                 .panel-title Attachments
@@ -101,10 +101,10 @@ block content
 
             .panel-right#processes
                 .panel-title Processes
-                .panel-content#processes.surface-level-2
+                .panel-content#processes-list.list.tiles.l.surface-level-2
                 .panel-toolbar
-                    .button.default#save(title='Save changes in PLM') Create
-                #details-process.progress
+                    .button.default#create(title='Save changes in PLM') Create
+                #processes-process.progress
                     .bounce1
                     .bounce2
                     .bounce3

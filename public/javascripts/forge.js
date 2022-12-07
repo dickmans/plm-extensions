@@ -7,6 +7,16 @@ let disableViewerSelectionEvent = false;
 
 let viewer, markup, markupsvg, curViewerState;
 
+
+let markupStyle = {
+    'stroke-width' : 1.1,
+    'font-size' : 10
+    // * defaults got disabled in Mar 2019 due to issues with scaling *
+    //    "font-size" : 12,
+    //    "stroke-width" : 0.005
+    //    "stroke-color" : "#FC5A78"
+};
+
 let vectorRange  = [ 
     new THREE.Vector4(206/255, 101/255, 101/255, 0.8),
     new THREE.Vector4(224/255,  175/255, 75/255, 0.8), 
@@ -408,7 +418,7 @@ function unloadAll() {
 }
 
 
-// Custom Controls
+// Custom Controls : Ghosting
 function viewerAddGhostingToggle() {
 
     let customToolbar = new Autodesk.Viewing.UI.ControlGroup('custom-toolbar-ghosting');
@@ -441,5 +451,221 @@ function addCustomControl(toolbar, id, icon, tooltip) {
     toolbar.addControl(newButton);
 
     return newButton;
+
+}
+
+
+// Custom Controls : S  tandard views
+function viewerAddViewsToolbar() {
+
+    let newToolbar  = new Autodesk.Viewing.UI.ControlGroup('my-custom-view-toolbar');
+    
+    addCustomViewControl(newToolbar, 'my-vhome-button', 'home', "ms-home", "Home");
+    addCustomViewControl(newToolbar, 'my-view-front-button', 'front', "ms-north-east", "Front View");
+    addCustomViewControl(newToolbar, 'my-view-back-button', 'back', "ms-south-west", "Back View");
+    addCustomViewControl(newToolbar, 'my-view-left-button', 'left', "ms-east", "Left View");
+    addCustomViewControl(newToolbar, 'my-view-right-button', 'right', "ms-west", "Right View");
+    addCustomViewControl(newToolbar, 'my-view-top-button', 'top', "ms-south", "Top View");
+    addCustomViewControl(newToolbar, 'my-view-bottom-button', 'bottom', "ms-north", "Bottom View");
+
+    viewer.toolbar.addControl(newToolbar);
+
+}
+function addCustomViewControl(toolbar, id, view, icon, tooltip) {
+    
+    var button = new Autodesk.Viewing.UI.Button(id);
+        button.addClass('material-symbols-sharp');
+        button.setIcon(icon);
+        button.setToolTip(tooltip);
+    
+    if(view === "home") {
+        button.onClick = function(e) { viewer.setViewFromFile(); };
+    } else {
+        button.onClick = function(e) { 
+            let viewcuiext = viewer.getExtension('Autodesk.ViewCubeUi');
+                viewcuiext.setViewCube(view);
+        };
+    }
+    
+    toolbar.addControl(button);
+    
+}
+
+
+// Custom Controls : Markup
+function viewerAddMarkupControls() {
+
+    let elemMarkupToolbar = $('<div></div>');
+        elemMarkupToolbar.attr('id', 'viewer-markup-toolbar');
+        elemMarkupToolbar.addClass('hidden');
+        elemMarkupToolbar.addClass('set-defaults');
+        elemMarkupToolbar.appendTo($('#viewer'));
+
+    let elemMarkupGroupColors = addMarkupControlGroup(elemMarkupToolbar, 'Color');
+
+    addMarkupColorControl(elemMarkupGroupColors, 'FB5A79');
+    addMarkupColorControl(elemMarkupGroupColors, 'FBE235');
+    addMarkupColorControl(elemMarkupGroupColors, '3694FB');
+    addMarkupColorControl(elemMarkupGroupColors, '8CE5FC');
+    addMarkupColorControl(elemMarkupGroupColors, '68E759');
+
+
+    let elemMarkupGroupWidth = addMarkupControlGroup(elemMarkupToolbar, 'Width');
+
+    addMarkupWidthControl(elemMarkupGroupWidth, '1');
+    addMarkupWidthControl(elemMarkupGroupWidth, '2');
+    addMarkupWidthControl(elemMarkupGroupWidth, '3');
+    addMarkupWidthControl(elemMarkupGroupWidth, '4');
+    addMarkupWidthControl(elemMarkupGroupWidth, '5');
+
+    let elemMarkupGroupShapes = addMarkupControlGroup(elemMarkupToolbar, 'Shape');
+
+    addMarkupShapeControl(elemMarkupGroupShapes, 'arrow', 'trending_flat');
+    addMarkupShapeControl(elemMarkupGroupShapes, 'circle', 'radio_button_unchecked');
+    addMarkupShapeControl(elemMarkupGroupShapes, 'rectangle', 'crop_square');
+    addMarkupShapeControl(elemMarkupGroupShapes, 'cloud', 'water');
+    addMarkupShapeControl(elemMarkupGroupShapes, 'freehand', 'draw');
+    addMarkupShapeControl(elemMarkupGroupShapes, 'text', 'text_fields');
+
+    let elemMarkupGroupActions = addMarkupControlGroup(elemMarkupToolbar, 'Actions');
+
+    addMarkupActionControl(elemMarkupGroupActions, true, 'undo', 'markup.undo();');
+    addMarkupActionControl(elemMarkupGroupActions, true, 'redo', 'markup.redo();');
+    addMarkupActionControl(elemMarkupGroupActions, false, 'Clear', 'markup.clear();');
+    addMarkupActionControl(elemMarkupGroupActions, false, 'Close', 'viewerLeaveMarkupMode();');
+
+
+    let newToolbar = new Autodesk.Viewing.UI.ControlGroup('my-custom-markup-toolbar');
+    let newButton  = addCustomControl(newToolbar, 'my-markup-button', 'ms-markup', 'Markup');
+
+    newButton.onClick = function() {
+
+        markup.enterEditMode();
+        markup.show();
+            
+        if($('#viewer-markup-toolbar').hasClass('set-defaults')) {
+            $('.viewer-markup-toggle.color').first().click();
+            $('.viewer-markup-toggle.width').first().click();
+            $('.viewer-markup-toggle.shape').first().click();
+            $('#viewer-markup-toolbar').removeClass('set-defaults');
+        } else {
+            $('.viewer-markup-toggle.color.selected').click();
+            $('.viewer-markup-toggle.width.selected').click();
+            $('.viewer-markup-toggle.shape.selected').click();
+        }
+        
+        $('#viewer-markup-toolbar').toggleClass('hidden');
+
+    };
+
+    viewer.toolbar.addControl(newToolbar);
+    
+    var promise = viewer.loadExtension('Autodesk.Viewing.MarkupsCore');
+    
+    promise.then(function(extension){ markup = extension; });
+
+}
+function addMarkupControlGroup(elemParent, label) {
+
+    let elemGroup = $('<div></div>');
+        elemGroup.addClass('viewer-markup-toolbar-group');
+        elemGroup.appendTo(elemParent);
+
+    let elemGroupLabel = $('<div></div>');
+        elemGroupLabel.addClass('viewer-markup-toolbar-group-label');
+        elemGroupLabel.html(label);
+        elemGroupLabel.appendTo(elemGroup);
+
+    return elemGroup;
+
+}
+function addMarkupColorControl(elemParent, color) {
+
+    let elemControl = $('<div></div>');
+        elemControl.addClass('viewer-markup-toggle');
+        elemControl.addClass('color');
+        elemControl.css('background', '#' + color);
+        elemControl.attr('data-color', color);
+        elemControl.appendTo(elemParent);
+
+    elemControl.click(function() {
+        markupStyle['stroke-color'] = '#' + $(this).attr('data-color');
+        markup.setStyle(markupStyle);
+        $(this).siblings().removeClass('selected');
+        $(this).addClass('selected');
+    });
+
+}
+function addMarkupWidthControl(elemParent, width) {
+
+    let elemControl = $('<div></div>');
+        elemControl.addClass('viewer-markup-toggle');
+        elemControl.addClass('width');
+        elemControl.html(width);
+        elemControl.attr('data-width', width);
+        elemControl.appendTo(elemParent);
+
+    elemControl.click(function() {
+        markupStyle['stroke-width'] = $(this).attr('data-width');
+        markup.setStyle(markupStyle);
+        $(this).siblings().removeClass('selected');
+        $(this).addClass('selected');
+    });
+
+}
+function addMarkupShapeControl(elemParent, shape, icon) {
+
+    let elemControl = $('<div></div>');
+        elemControl.addClass('viewer-markup-toggle');
+        elemControl.addClass('shape');
+        elemControl.addClass('material-symbols-sharp');
+        elemControl.attr('data-shape', shape);
+        elemControl.html(icon);
+        elemControl.appendTo(elemParent);
+
+    elemControl.click(function() {
+
+        let shape = $(this).attr('data-shape');
+        let mode;
+
+        switch (shape) {
+
+            case 'arrow':       mode = new Autodesk.Viewing.Extensions.Markups.Core.EditModeArrow(markup);      break;
+            case 'circle':      mode = new Autodesk.Viewing.Extensions.Markups.Core.EditModeCircle(markup);     break;
+            case 'cloud':       mode = new Autodesk.Viewing.Extensions.Markups.Core.EditModeCloud(markup);      break;
+            case 'freehand':    mode = new Autodesk.Viewing.Extensions.Markups.Core.EditModeFreehand(markup);   break;
+            case 'rectangle':   mode = new Autodesk.Viewing.Extensions.Markups.Core.EditModeRectangle(markup);  break;
+            case 'text':        mode = new Autodesk.Viewing.Extensions.Markups.Core.EditModeText(markup);       break;
+            case 'polycloud':   mode = new Autodesk.Viewing.Extensions.Markups.Core.EditModePolycloud(markup);  break;
+            case 'polyline':    mode = new Autodesk.Viewing.Extensions.Markups.Core.EditModePolyline(markup);   break;
+        }
+
+        markup.changeEditMode(mode);
+        markup.setStyle(markupStyle);
+        $(this).siblings().removeClass('selected');
+        $(this).addClass('selected');
+
+    });
+
+}
+function addMarkupActionControl(elemParent, icon, content, script) {
+
+    let elemControl = $('<div></div>');
+        elemControl.addClass('viewer-markup-button');
+        elemControl.html(content);
+        elemControl.attr('onclick', script);
+        elemControl.appendTo(elemParent);
+        
+    if(icon) elemControl.addClass('material-symbols-sharp');
+
+}
+function viewerLeaveMarkupMode() {
+
+    $('#viewer-markup-toolbar').addClass('hidden');
+
+    if(typeof markup === 'undefined') return;
+
+    markup.leaveEditMode();
+    markup.hide();
 
 }

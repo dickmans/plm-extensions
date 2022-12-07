@@ -163,7 +163,23 @@ function setUIEvents() {
         setTimeout(function() { viewer.resize(); }, 250);
     });
     $('#button-toggle-details').click(function() {
-        $('body').toggleClass('no-details');
+        $('body').toggleClass('with-details');
+        if($('body').hasClass('with-details')) {
+            $('body').addClass('with-panel');
+            $('body').removeClass('with-processes');
+        } else {
+            $('body').removeClass('with-panel');
+        }
+        setTimeout(function() { viewer.resize(); }, 250);
+    });
+    $('#button-toggle-processes').click(function() {
+        $('body').toggleClass('with-processes');
+        if($('body').hasClass('with-processes')) {
+            $('body').addClass('with-panel');
+            $('body').removeClass('with-details');
+        } else {
+            $('body').removeClass('with-panel');
+        }
         setTimeout(function() { viewer.resize(); }, 250);
     });
 
@@ -210,8 +226,7 @@ function setUIEvents() {
     });
 
 
-
-
+    // Item Details Actions
     $('#bookmark').click(function() {
         toggleBookmark($(this), $('#details').attr('data-link').split('/')[6]);
     });
@@ -335,9 +350,9 @@ function onSelectionChanged(event) {
 }
 function initViewerDone() {
     viewerDone = true;
+    viewerAddMarkupControls();   
     viewerAddGhostingToggle();
-
-    
+    viewerAddViewsToolbar();
 }
 
 
@@ -376,11 +391,10 @@ function getBOMData(viewId) {
         'depth'         : 10,
         // 'revisionBias'  : 'allChangeOrder',
         // 'revisionBias'  : 'changeOrder',
-        'revisionBias'  : 'release',
+        // 'revisionBias'  : 'release',
+        'revisionBias'  : 'working',
         'viewId'        : viewId
     }
-
-    console.log(params);
 
     let promises = [
         $.get('/plm/bom-view-fields', params),
@@ -464,7 +478,8 @@ function setBOMData(fields, bom, flatBom) {
         }
     }
 
-    insertNextBOMLevel(bom, elemRoot, 'urn:adsk.plm:tenant.workspace.item:' + tenant.toUpperCase() + '.' + wsId + '.' + dmsId, flatBom);
+    // insertNextBOMLevel(bom, elemRoot, 'urn:adsk.plm:tenant.workspace.item:' + tenant.toUpperCase() + '.' + wsId + '.' + dmsId, flatBom);
+    insertNextBOMLevel(bom, elemRoot, bom.root, flatBom);
     insertFlatBOM(flatBom);
 
     // console.log(kpis);
@@ -1088,7 +1103,10 @@ function applyFilters() {
         $('#dashboard').addClass('no-toolbar');
     }
 
-    viewerSelectModels(partNumbers);
+    console.log(filters.length);
+
+    if(filters.length === 0) viewerResetColors();
+    else viewerSelectModels(partNumbers);
 
 }
 
@@ -1163,85 +1181,11 @@ function setProcesses(link) {
         
         if(response.params.link === $('#processes-list').attr('data-source')) {
 
+            insertChangeProcesses($('#processes-list'), response.data);
             $('#processes-process').hide();
-
-            for(process of response.data) {
-                insertChangeProcess(elemParent, process.item.link, process.item.urn);
-            }
 
         }
 
     });
 
-}
-function insertChangeProcess(elemParent, link, urn) {
-
-    let elemProcess = $('<div></div>');
-        elemProcess.addClass('animation');
-        elemProcess.addClass('process');
-        elemProcess.attr('data-link', link);
-        elemProcess.attr('data-urn', urn);
-        elemProcess.appendTo(elemParent);
-        elemProcess.click(function() {
-            openItemByURN($(this).attr('data-urn'));
-        });
-
-    let elemProcessImage = $('<div></div>');
-        elemProcessImage.addClass('tile-image');
-        elemProcessImage.appendTo(elemProcess);
-
-    let elemProcessDetails = $('<div></div>');
-        elemProcessDetails.addClass('tile-details');
-        elemProcessDetails.appendTo(elemProcess);
-
-    let elemProcessWorkspace = $('<div></div>');
-        elemProcessWorkspace.addClass('tile-title');
-        elemProcessWorkspace.appendTo(elemProcessDetails);
-
-    let elemProcessDescriptor = $('<div></div>');
-        elemProcessDescriptor.addClass('tile-subtitle');
-        elemProcessDescriptor.appendTo(elemProcessDetails);
-
-    // let elemProcessDescription = $('<div></div>');
-    //     elemProcessDescription.addClass('process-description');
-    //     elemProcessDescription.appendTo(elemProcessDetails);
-
-    // let elemProcessFooter = $('<div></div>');
-    //     elemProcessFooter.addClass('process-footer');
-    //     elemProcessFooter.appendTo(elemProcessDetails);
-
-    // let elemProcessStatus = $('<div></div>');
-    //     elemProcessStatus.addClass('process-status');
-    //     elemProcessStatus.appendTo(elemProcessFooter);
-
-    // let elemProcessPriority = $('<div></div>');
-    //     elemProcessPriority.addClass('process-priority');
-    //     elemProcessPriority.appendTo(elemProcessFooter);
-
-    $.get('/plm/details', { 'link' : link}, function(response) {
-
-        $('.process').each(function() {
-            let elemProcess = $(this);
-            if(elemProcess.attr('data-link') === link) {
-
-                elemProcess.removeClass('animation');
-
-                let description = getSectionFieldValue(response.data.sections, 'DESCRIPTION', '');
-                let priority    = getSectionFieldValue(response.data.sections, 'FLAG', '');
-                let linkImage   = getFirstImageFieldValue(response.data.sections);
-                let elemImage   = elemProcess.find('.tile-image').first();
-
-                getImageFromCache(elemImage, { 'link' : linkImage }, 'account_tree', function() {});
-
-                elemProcess.find('.tile-title').first().html(response.data.workspace.title);
-                elemProcess.find('.tile-subtitle').first().html(response.data.title);
-                // elemProcess.find('.process-description').first().html(description);
-                // elemProcess.find('.process-priority').first().html($('<div></div>').html(priority).text());
-                // elemProcess.find('.process-status').first().html(response.data.currentState.title);
-
-            }
-        });
-
-    });
-    
 }
