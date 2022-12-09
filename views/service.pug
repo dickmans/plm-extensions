@@ -73,7 +73,7 @@ block content
                 .panel-tabs.dark#tabs
                     div.selected(data-id='items') Spare Parts
                     div.hidden#tab-charts(data-id='charts') Maintenance
-                    div(data-id='processes') Processes
+                    div(data-id='processes') Issues
                 .panel-content#items.tab
                     #items-list.list.tiles.l
                     #items-process.progress
@@ -110,7 +110,12 @@ block content
                             #qr-code.button 
                                 img.qr-code
                 .panel-content#processes.tab
-                    #processes-list.list.tiles.m
+                    #processes-toolbar
+                        .button#create-process(title='Initiate new process in PLM') Create
+                        .button.process-dialog#cancel-process(title='Cancel creation of new process and return to list of related processes') Cancel
+                        .button.process-dialog.default#save-process(title='Save new process in PLM') Save
+                    #processes-list.list.tiles.l
+                    #processes-form.form.surface-level-2
                     #processes-process.progress
                         .bounce1
                         .bounce2

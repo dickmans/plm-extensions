@@ -589,6 +589,10 @@ div, button {
     position: relative;
     top: 2px;
 }
+.tile-description p {
+    margin : 0px !important;
+    padding : 0px !important;
+}
 .tile-link {
     color : #006EAF;
     cursor : pointer;

@@ -101,7 +101,7 @@ function sendResponse(req, res, response, error) {
     res.json({
         'url'       : req.url,
         'params'    : params,
-        'data'      : response.data,
+        'data'      : (typeof response.data !== 'undefined') ? response.data : [],
         'status'    : response.status,
         'message'   : message,
         'error'     : error
@@ -1085,8 +1085,6 @@ router.get('/add-managed-items', function(req, res, next) {
     let url =  (typeof req.query.link !== 'undefined') ? req.query.link : '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId;
         url = 'https://' + req.session.tenant + '.autodeskplm360.net' + url + '/affected-items';
 
-    console.log(url);
-
     let custHeaders = getCustomHeaders(req);
         custHeaders.Accept = 'application/vnd.autodesk.plm.affected.items.bulk+json';
 
@@ -1097,6 +1095,7 @@ router.get('/add-managed-items', function(req, res, next) {
         let error = false;
 
         if(typeof response.data !== undefined) {
+            if(typeof response.message === 'undefined') response.message = [];
             if(response.data !== '') {
                 for(entry of response.data) {
                     if(entry.result === 'FAILED') {

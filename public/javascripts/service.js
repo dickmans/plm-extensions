@@ -12,8 +12,10 @@ let urns = {
     'dimensions'    : ''
 }
 
-let maintenanceMode = false;
-let viewerDone = false;
+let wsIdProblemReport   = '82';
+let maintenanceMode     = false;
+let viewerDone          = false;
+let wsProblemReports    = { 'sections' : [], 'fields' : [] };
 
 
 $(document).ready(function() {
@@ -71,6 +73,60 @@ function setUIEvents() {
     })
 
 
+    // Process Creation
+    $('#create-process').click(function() {
+        
+        let elemParent = $('#processes-form');
+            elemParent.html('');
+            elemParent.show();
+
+        $(this).siblings().show();
+        $(this).hide();
+
+        $('#processes-list').hide();
+
+        insertItemDetails(elemParent, wsProblemReports.sections, wsProblemReports.fields, null, true, true, true);
+
+    });
+    $('#cancel-process').click(function() {
+
+        $('.process-dialog').hide();
+        $('#create-process').show();
+        $('#processes-list').show();
+        $('#processes-form').hide();
+
+    });
+    $('#save-process').click(function() {
+
+        if(!validateForm($('#processes-form'))) return;
+
+        viewerCaptureScreenshot(function() {
+
+            $('#processes-form').hide();
+            $('#processes-list').html('');
+            $('#processes-list').show('');
+            $('#processes-process').show();
+    
+            let link = $('#processes-list').attr('data-source');
+    
+            submitCreateForm(wsIdProblemReport, $('#processes-form'), function(response ) {
+
+                let newLink = response.data.split('.autodeskplm360.net')[1];
+                // $.get('/plm/add-managed-items', { 'link' : newLink, 'items' : [ link ] }, function(response) {
+                $.get('/plm/add-relationship', { 'link' : newLink, 'relatedId' : link.split('/')[6] }, function(response) {
+                    setProcesses($('#processes-list').attr('data-source'));
+                    $('.process-dialog').hide();
+                    $('#create-process').show();
+                    $('#processes-list').show();
+                });
+
+            });
+
+        });
+
+    });
+
+
     // Submit Request Dialog functions
     $('#request-submit').click(function() {
         
@@ -101,7 +157,6 @@ function setUIEvents() {
             data        : JSON.stringify(params)
         }, function(response) {
     
-            console.log(response);
 
             if(!response.error) {
 
@@ -119,8 +174,6 @@ function setUIEvents() {
                         ]
                     }
                     
-                    console.log(params);
-
                     $.get('/plm/add-grid-row', params, function(response) {
                         console.log(response);
                     });
@@ -303,8 +356,15 @@ function onSelectionChanged(event) {
 
 }
 function initViewerDone() {
+
     viewerDone = true;
+
+    viewerAddMarkupControls();   
     viewerAddGhostingToggle();
+    viewerAddViewsToolbar();
+
+    $('#viewer-markup-image').attr('data-field-id', 'IMAGE_1');
+
 }
 
 
@@ -315,6 +375,8 @@ function getWSConfig() {
         $.get('/plm/bom-views-and-fields', { 'wsId' : wsId }),
         $.get('/plm/sections', { 'wsId' : wsId }),
         $.get('/plm/fields', { 'wsId' : wsId }),
+        $.get('/plm/sections', { 'wsId' : wsIdProblemReport }),
+        $.get('/plm/fields', { 'wsId' : wsIdProblemReport })
     ];
 
     Promise.all(promises).then(function(responses) {
@@ -327,8 +389,10 @@ function getWSConfig() {
 
         getBOMData(viewId);
 
-        sections  = responses[1].data;
-        fields    = responses[2].data;
+        sections                    = responses[1].data;
+        fields                      = responses[2].data;
+        wsProblemReports.sections   = responses[3].data;
+        wsProblemReports.fields     = responses[4].data;
 
         setItemDetails('/api/v3/workspaces/' + wsId + '/items/' + dmsId);
 
@@ -468,7 +532,7 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom) {
                 elemRow.addClass('is-spare-part');
 
                 if(listSpareParts.indexOf(edge.child) === -1) {
-                    
+
                     listSpareParts.push(edge.child);
 
                     let stockLabel  = 'In stock';
@@ -491,7 +555,7 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom) {
                         elemSparePartImage.appendTo(elemSparePart);
 
                     let valueImage = getFlatBOMCellValue(flatBom, link, urns.thumbnail);
-                    let linkImage = (valueImage === '') ? '' : valueImage.link;
+                    let linkImage = (valueImage === '') ? '' : valueImage;
 
                     getImageFromCache(elemSparePartImage, { 'link' : linkImage }, 'settings', function() {});
 
@@ -506,7 +570,7 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom) {
                             });
                         });
                     }
-
+                    
                     let elemSparePartDetails = $('<div></div>');
                         elemSparePartDetails.addClass('spare-part-details');
                         elemSparePartDetails.addClass('tile-details');
@@ -912,93 +976,21 @@ function setProcesses(link) {
         elemParent.attr('data-source', link);
         elemParent.html('');
 
-    $.get('/plm/changes', { 'link' : link }, function(response) {
-        
+    // $.get('/plm/changes', { 'link' : link }, function(response) {
+    //     if(response.params.link === $('#processes-list').attr('data-source')) {
+    //         insertChangeProcesses($('#processes-list'), response.data);
+    //         $('#processes-process').hide();
+    //     }
+    // });
+
+    $.get('/plm/relationships', { 'link' : link }, function(response) {
         if(response.params.link === $('#processes-list').attr('data-source')) {
-
+            insertRelationships($('#processes-list'), response.data);
             $('#processes-process').hide();
-
-            for(process of response.data) {
-                insertChangeProcess(elemParent, process.item.link, process.item.urn);
-            }
-
         }
-
     });
 
 }
-function insertChangeProcess(elemParent, link, urn) {
-
-    let elemProcess = $('<div></div>');
-        elemProcess.addClass('animation');
-        elemProcess.addClass('process');
-        elemProcess.attr('data-link', link);
-        elemProcess.attr('data-urn', urn);
-        elemProcess.appendTo(elemParent);
-        elemProcess.click(function() {
-            openItemByURN($(this).attr('data-urn'));
-        });
-
-    let elemProcessImage = $('<div></div>');
-        elemProcessImage.addClass('tile-image');
-        elemProcessImage.appendTo(elemProcess);
-
-    let elemProcessDetails = $('<div></div>');
-        elemProcessDetails.addClass('tile-details');
-        elemProcessDetails.appendTo(elemProcess);
-
-    let elemProcessWorkspace = $('<div></div>');
-        elemProcessWorkspace.addClass('tile-title');
-        elemProcessWorkspace.appendTo(elemProcessDetails);
-
-    let elemProcessDescriptor = $('<div></div>');
-        elemProcessDescriptor.addClass('tile-subtitle');
-        elemProcessDescriptor.appendTo(elemProcessDetails);
-
-    // let elemProcessDescription = $('<div></div>');
-    //     elemProcessDescription.addClass('process-description');
-    //     elemProcessDescription.appendTo(elemProcessDetails);
-
-    // let elemProcessFooter = $('<div></div>');
-    //     elemProcessFooter.addClass('process-footer');
-    //     elemProcessFooter.appendTo(elemProcessDetails);
-
-    // let elemProcessStatus = $('<div></div>');
-    //     elemProcessStatus.addClass('process-status');
-    //     elemProcessStatus.appendTo(elemProcessFooter);
-
-    // let elemProcessPriority = $('<div></div>');
-    //     elemProcessPriority.addClass('process-priority');
-    //     elemProcessPriority.appendTo(elemProcessFooter);
-
-    $.get('/plm/details', { 'link' : link}, function(response) {
-
-        $('.process').each(function() {
-            let elemProcess = $(this);
-            if(elemProcess.attr('data-link') === link) {
-
-                elemProcess.removeClass('animation');
-
-                let description = getSectionFieldValue(response.data.sections, 'DESCRIPTION', '');
-                let priority    = getSectionFieldValue(response.data.sections, 'FLAG', '');
-                let linkImage   = getFirstImageFieldValue(response.data.sections);
-                let elemImage   = elemProcess.find('.tile-image').first();
-
-                getImageFromCache(elemImage, { 'link' : linkImage }, 'account_tree', function() {});
-
-                elemProcess.find('.tile-title').first().html(response.data.workspace.title);
-                elemProcess.find('.tile-subtitle').first().html(response.data.title);
-                // elemProcess.find('.process-description').first().html(description);
-                // elemProcess.find('.process-priority').first().html($('<div></div>').html(priority).text());
-                // elemProcess.find('.process-status').first().html(response.data.currentState.title);
-
-            }
-        });
-
-    });
-    
-}
-
 
 
 // Set list of selected spare parts for order submittal

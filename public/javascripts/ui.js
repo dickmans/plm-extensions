@@ -767,18 +767,18 @@ function getFileSVG(extension) {
 
 
 
-// Insert related processes (used by explorer.js)
+// Insert related processes
 function insertChangeProcesses(elemParent, processes) {
+
+    // Used by explorer.js and services.js
 
     elemParent.html('');
 
-    console.log(processes);
-
+    if(processes.length === 0) return;
 
     for(process of processes) {
         process.sort = process['last-workflow-history'].created
     }
-
 
     sortArray(processes, 'sort', 'date', 'descending');
 
@@ -859,6 +859,111 @@ function insertChangeProcesses(elemParent, processes) {
     }
 
 }
+
+
+
+// Insert Relationship Items (used by explorer.js)
+function insertRelationships(elemParent, relationships) {
+
+    // Used by services.js
+
+    console.log(relationships);
+
+    elemParent.html('');
+
+    if(relationships.length === 0) return;
+
+    for(relationship of relationships) {
+        relationship.sort = relationship['item'].title;
+    }
+
+    sortArray(relationships, 'sort', 'string', 'descending');
+
+    for(relationship of relationships) {
+
+        let link    = relationship.item.link;
+        let status  = relationship.state.title;
+       // let user = process['first-workflow-history'].user.title;
+       // let date = process['first-workflow-history'].created;
+
+        let elemItem = $('<div></div>');
+            elemItem.addClass('animation');
+            elemItem.addClass('relationship');
+            elemItem.attr('data-link', link);
+            elemItem.attr('data-urn', relationship.item.urn);
+            elemItem.appendTo(elemParent);
+            elemItem.click(function() {
+                openItemByURN($(this).attr('data-urn'));
+            });
+
+        let elemItemImage = $('<div></div>');
+            elemItemImage.addClass('tile-image');
+            elemItemImage.appendTo(elemItem);
+
+        let elemItemDetails = $('<div></div>');
+            elemItemDetails.addClass('tile-details');
+            elemItemDetails.appendTo(elemItem);
+
+        let elemItemWorkspace = $('<div></div>');
+            elemItemWorkspace.addClass('tile-title');
+            elemItemWorkspace.appendTo(elemItemDetails);
+
+        let elemItemDescriptor = $('<div></div>');
+            elemItemDescriptor.addClass('tile-subtitle');
+            elemItemDescriptor.appendTo(elemItemDetails);
+
+        let elemItemData = $('<div></div>');
+            elemItemData.addClass('tile-data');
+            elemItemData.appendTo(elemItemDetails);
+
+        let elemItemStatus = $('<div></div>');
+                elemItemStatus.addClass('tile-status');
+                elemItemStatus.appendTo(elemItemData);
+
+        let elemItemDescription = $('<div></div>');
+            elemItemDescription.addClass('tile-description');
+            elemItemDescription.appendTo(elemItemData);
+
+
+        $.get('/plm/details', { 'link' : link}, function(response) {
+
+            console.log(response);
+
+            $('.relationship').each(function() {
+                
+                let elemItem = $(this);
+
+                if(elemItem.attr('data-link') === link) {
+    
+                    elemItem.removeClass('animation');
+    
+                    // let description = getSectionFieldValue(response.data.sections, 'DESCRIPTION', '');
+                    // let priority    = getSectionFieldValue(response.data.sections, 'FLAG', '');
+                    let linkImage   = getFirstImageFieldValue(response.data.sections);
+                    let elemImage   = elemItem.find('.tile-image').first();
+    
+                    getImageFromCache(elemImage, { 'link' : linkImage }, 'schema', function() {});
+
+                    // date = date.split('T')[0].split('-');
+                    // let creationDate = new Date(date[0], date[1], date[2]);
+    
+                    elemItem.find('.tile-title').first().html(response.data.workspace.title);
+                    elemItem.find('.tile-subtitle').first().html(response.data.title);
+                    elemItem.find('.tile-description').first().html(getSectionFieldValue(response.data.sections, 'DESCRIPTION', ''));
+                    // // elemProcess.find('.process-description').first().html(description);
+                    // // elemProcess.find('.process-priority').first().html($('<div></div>').html(priority).text());
+                    elemItem.find('.tile-status').first().html('Status : ' + status);
+                    // elemItem.find('.process-creator').first().html('Created by ' + user + ' on ' + creationDate.toLocaleDateString());
+    
+                }
+            });
+    
+        });
+
+    }
+
+}
+
 
 
 // Insert BOM Tree with controls

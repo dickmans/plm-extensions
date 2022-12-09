@@ -402,7 +402,9 @@ function onSelectionChanged(event) {
 
 }
 function initViewerDone() {
+    
     viewerDone = true;
+
     viewerAddMarkupControls();   
     viewerAddGhostingToggle();
     viewerAddViewsToolbar();
