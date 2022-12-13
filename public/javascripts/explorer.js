@@ -8,10 +8,10 @@ let colorGreen  = '#6a9728';
 let colorYellow = '#faa21b';
 let colorRed    = '#dd2222';
 
-let viewerDone  = false;
-let now         = new Date();
-let wsIdProblemReport = '82';
-let kpiVectors  = [ new THREE.Vector4(205/255,  101/255, 101/255, 0.8), new THREE.Vector4(225/255, 225/255, 84/255, 0.8), new THREE.Vector4(59/255, 210/255, 59/255, 0.8) ]; // red yellow green
+let viewerDone          = false;
+let now                 = new Date();
+let wsIdProblemReport   = '82';
+let kpiVectors          = [ new THREE.Vector4(205/255,  101/255, 101/255, 0.8), new THREE.Vector4(225/255, 225/255, 84/255, 0.8), new THREE.Vector4(59/255, 210/255, 59/255, 0.8) ]; // red yellow green
 
 
 let kpis = [{
@@ -50,6 +50,7 @@ let kpis = [{
     'fieldId'   : 'LEAD_TIME',
     'urn'       : '',
     'type'      : 'value',
+    'sort'      : 'value',
     'style'     : 'bars',
     'data'      : []
 },{
@@ -90,6 +91,7 @@ let kpis = [{
     'fieldId'   : 'POTENTIAL_COST_SAVINGS',
     'urn'       : '',
     'type'      : 'value',
+    'sort'      : 'value',
     'style'     : 'bars',
     'data'      : []
 },{
@@ -98,6 +100,7 @@ let kpis = [{
     'fieldId'   : 'POTENTIAL_TIME_SAVINGS',
     'urn'       : '',
     'type'      : 'value',
+    'sort'      : 'value',
     'style'     : 'bars',
     'data'      : []
 },{
@@ -117,14 +120,6 @@ let kpis = [{
     'id'        : 'material',
     'title'     : 'Material',
     'fieldId'   : 'MATERIAL',
-    'urn'       : '',
-    'type'      : 'value',
-    'style'     : 'bars',
-    'data'      : []
-},{
-    'id'        : 'vendor',
-    'title'     : 'Vendor',
-    'fieldId'   : 'VENDOR',
     'urn'       : '',
     'type'      : 'value',
     'style'     : 'bars',
@@ -1132,14 +1127,14 @@ function applyFilters() {
         }
 
         if(isNew) filters.push({
-            'id' : id,
+            'id'     : id,
             'values' : [value]
         });
 
     });
 
     resetViewerSelection(true);
-    
+
     $('#bom-table-tree').children().each(function() {
 
         let isVisible   = true;
@@ -1149,6 +1144,7 @@ function applyFilters() {
             if(bomItem.urn === urn) {
                 for(filter of filters) {
                     let value = bomItem[filter.id];
+                    console.log(value);
                     if(filter.values.indexOf(value) < 0) isVisible = false;
                 }
                 break;
@@ -1191,8 +1187,6 @@ function applyFilters() {
     } else {
         $('#dashboard').addClass('no-toolbar');
     }
-
-    console.log(filters.length);
 
     if(filters.length === 0) viewerResetColors();
     else viewerSelectModels(partNumbers);
