@@ -1,6 +1,7 @@
 let fields, sections, viewId, wsIdRequests, sectionIdRequests;
-let listSpareParts = [];
-let urnPartNumber = '';
+let listSpareParts  = [];
+let listWearParts   = [];
+let urnPartNumber   = '';
 let urns = {
     'thumbnail'     : '', 
     'partNumber'    : '', 
@@ -201,6 +202,7 @@ function setUIEvents() {
     $('#bom-reset').click(function() {
         $('tr.selected').click();
         resetViewerSelection(true);
+        resetSparePartsList();
     });
     $('#bom-search-input').keyup(function() {
         filterBOMTree();
@@ -223,7 +225,10 @@ function setUIEvents() {
                 }
             }
         } else {
-            if(viewerDone) viewer.hideAll();
+            if(viewerDone) {
+                viewer.hideAll();
+                viewerUnhideModels(listWearParts);
+            }
         }
     });
     $('#tabs').children().first().click();
@@ -527,9 +532,11 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom) {
                 elemRow.attr('data-status', 'match');
                 elemRow.appendTo(elemRoot);
 
-            if((isSparePart.toLowerCase() === 'spare part') || (isSparePart.toLowerCase() === 'yes')) {
+            if((isSparePart.toLowerCase() === 'spare part') || (isSparePart.toLowerCase() === 'yes') ||  (isSparePart.toLowerCase() === 'wear part')) {
 
                 elemRow.addClass('is-spare-part');
+
+                if(isSparePart.toLowerCase() === 'wear part') listWearParts.push(partNumber);
 
                 if(listSpareParts.indexOf(edge.child) === -1) {
 
@@ -596,13 +603,18 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom) {
                         elemSparePartMaterial.html(getBOMCellValue(edge.child, urns.material, bom.nodes));
                         elemSparePartMaterial.appendTo(elemSparePartDetails);
 
-                    let elemSparePartWeight = $('<div></div>');
-                        elemSparePartWeight.html(getBOMCellValue(edge.child, urns.mass, bom.nodes));
-                        elemSparePartWeight.appendTo(elemSparePartDetails);
+                    let partSpec        = '';
+                    let partWeight      = getBOMCellValue(edge.child, urns.mass, bom.nodes);
+                    let partDimensions  = getBOMCellValue(edge.child, urns.dimensions, bom.nodes);
 
-                    let elemSparePartDimensions = $('<div></div>');
-                        elemSparePartDimensions.html(getBOMCellValue(edge.child, urns.dimensions, bom.nodes));
-                        elemSparePartDimensions.appendTo(elemSparePartDetails);
+                    if(partWeight !== '') {
+                        partSpec = partWeight;
+                        if(partWeight !== '') partSpec = partWeight + ' / ' + partDimensions;
+                    } else if(partWeight !== '') partSpec = partDimensions
+
+                    let elemSparePartSpec = $('<div></div>');
+                        elemSparePartSpec.html(partSpec);
+                        elemSparePartSpec.appendTo(elemSparePartDetails);
 
                     let elemSparePartSide = $('<div></div>');
                         elemSparePartSide.addClass('spare-part-side');
@@ -839,7 +851,7 @@ function selectBOMItem(elemClicked) {
         resetViewerSelection(true);
         setAttachments('/api/v3/workspaces/' + wsId + '/items/' + dmsId);
         setProcesses('/api/v3/workspaces/' + wsId + '/items/' + dmsId);
-        setSparePartsList();
+        resetSparePartsList();
     } else {
         viewerResetColors();
         $('#bom-reset').show();
@@ -889,8 +901,8 @@ function setSparePartsList(elemItem) {
 
     $('#items-process').show();
 
-    let level = 0;
-    let elemNext = $('tr').first();
+    let level       = 0;
+    let elemNext    = $('tr').closest().first();
 
     if(typeof elemItem !== 'undefined') {
         elemNext  = elemItem;
@@ -907,20 +919,22 @@ function setSparePartsList(elemItem) {
 
         let isSparePart = elemNext.attr('data-is-spare-part');
 
-        if(isSparePart.toLowerCase() === 'yes') {
+        if(typeof isSparePart !== 'undefined') {
+            if((isSparePart.toLowerCase() === 'yes') || (isSparePart.toLowerCase() === 'spare part') || (isSparePart.toLowerCase() === 'wear part')){
 
-            let link = elemNext.attr('data-link');
+                let link = elemNext.attr('data-link');
 
-            if(list.indexOf(link) === -1) {
+                if(list.indexOf(link) === -1) {
 
-                list.push(link);
+                    list.push(link);
 
-                $('.spare-part').each(function() {
-                    if($(this).attr('data-link') === link) $(this).show();
-                });
+                    $('.spare-part').each(function() {
+                        if($(this).attr('data-link') === link) $(this).show();
+                    });
+
+                }
 
             }
-
         }
 
         elemNext  = elemNext.next();
@@ -931,7 +945,11 @@ function setSparePartsList(elemItem) {
     $('#items-process').hide();
 
 }
-
+function resetSparePartsList() {
+    $('.spare-part').each(function() {
+        $(this).show();
+    });
+}
 
 
 function setItemDetails(link) {

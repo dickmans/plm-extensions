@@ -53,10 +53,21 @@ let kpis = [{
     'style'     : 'bars',
     'data'      : []
 },{
+    'id'        : 'make-or-buy-vault',
+    'title'     : 'Make or Buy',
+    'fieldId'   : 'MAKE_BUY',
+    'urn'       : '',
+    'type'      : 'value',
+    'style'     : 'counters',
+    'data'      : [
+        { 'value' : 'Buy' , 'count' : 0, 'color' : colorRange[0], 'vector' : kpiVectors[0] },
+        { 'value' : '-'   , 'count' : 0, 'color' : colorRange[2], 'vector' : kpiVectors[1] },
+        { 'value' : 'Make', 'count' : 0, 'color' : colorRange[4], 'vector' : kpiVectors[2] }
+    ]
+},{
     'id'        : 'make-or-buy',
     'title'     : 'Make or Buy',
-    // 'fieldId'   : 'MAKE_OR_BUY',
-    'fieldId'   : 'MAKE_BUY',
+    'fieldId'   : 'MAKE_OR_BUY',
     'urn'       : '',
     'type'      : 'value',
     'style'     : 'counters',
@@ -69,6 +80,22 @@ let kpis = [{
     'id'        : 'vendor',
     'title'     : 'Vendor',
     'fieldId'   : 'VENDOR',
+    'urn'       : '',
+    'type'      : 'value',
+    'style'     : 'bars',
+    'data'      : []
+},{
+    'id'        : 'potential-cost-savings',
+    'title'     : 'Potential Cost Savings',
+    'fieldId'   : 'POTENTIAL_COST_SAVINGS',
+    'urn'       : '',
+    'type'      : 'value',
+    'style'     : 'bars',
+    'data'      : []
+},{
+    'id'        : 'potential-time-savings',
+    'title'     : 'Potential Time Savings',
+    'fieldId'   : 'POTENTIAL_TIME_SAVINGS',
     'urn'       : '',
     'type'      : 'value',
     'style'     : 'bars',

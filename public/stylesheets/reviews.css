@@ -123,6 +123,8 @@
     display : flex;
     height : 86px;
     justify-content : center;
+    left : 600px;
+    width : auto;
 }
 .viewer-markup-toolbar-group {
     border-radius : 5px;

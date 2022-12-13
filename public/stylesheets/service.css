@@ -441,7 +441,9 @@ tr.result td {
     height : 132px;
 }
 .wear-part:hover {
-    border-color : var(--color-selected-border);
+    /* //border-color : var(--color-selected-border); */
+    background : rgba(0,0,0,0.25);
+    /* opacity: 0.5; */
 }
 .wear-part-image {
     background : var(--color-gray-200);
