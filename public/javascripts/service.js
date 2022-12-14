@@ -445,6 +445,8 @@ function setBOMData(fields, bom, flatBom) {
     }
 
     insertNextBOMLevel(bom, elemRoot, 'urn:adsk.plm:tenant.workspace.item:' + tenant.toUpperCase() + '.' + wsId + '.' + dmsId, flatBom);
+    insertWearParts();
+
 
     $('.spare-part').click(function() {
         $(this).toggleClass('selected');
@@ -536,7 +538,16 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom) {
 
                 elemRow.addClass('is-spare-part');
 
-                if(isSparePart.toLowerCase() === 'wear part') listWearParts.push(partNumber);
+                let valueImage = getFlatBOMCellValue(flatBom, link, urns.thumbnail);
+                let linkImage = (valueImage === '') ? '' : valueImage;
+
+                if(isSparePart.toLowerCase() === 'wear part') {
+                    listWearParts.push({
+                        'link'          : link,
+                        'partNumber'    : partNumber,
+                        'linkImage'     : linkImage
+                    });
+                }
 
                 if(listSpareParts.indexOf(edge.child) === -1) {
 
@@ -561,8 +572,8 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom) {
                         elemSparePartImage.addClass('tile-image');
                         elemSparePartImage.appendTo(elemSparePart);
 
-                    let valueImage = getFlatBOMCellValue(flatBom, link, urns.thumbnail);
-                    let linkImage = (valueImage === '') ? '' : valueImage;
+                    // let valueImage = getFlatBOMCellValue(flatBom, link, urns.thumbnail);
+                    // let linkImage = (valueImage === '') ? '' : valueImage;
 
                     getImageFromCache(elemSparePartImage, { 'link' : linkImage }, 'settings', function() {});
 
@@ -642,35 +653,6 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom) {
                         elemSparePartStock.addClass('spare-part-stock');
                         elemSparePartStock.html(stockLabel);
                         elemSparePartStock.appendTo(elemSparePartSide);
-
-                    $('.wear-part').each(function() {
-
-                        let elemWearPart = $(this);
-
-                        if(elemWearPart.attr('data-part-number') === partNumber) {
-                            elemWearPart.attr('data-link', link);
-                            elemWearPart.find('.wear-part-descriptor').first().html(partNumber);
-                            let elemWearPartImage = elemWearPart.find('.wear-part-image').first();
-                            getImageFromCache(elemWearPartImage, { 'link' : linkImage }, 'view_in_ar', function() {});
-                            elemWearPart.click(function() {
-                                let link = $(this).attr('data-link');
-                                // viewerResetColors();
-                                // viewerSelectModel($(this).attr('data-part-number'), true);
-                                // $('#bom-reset').show();
-                                $('#bom-table').children().each(function() {
-                                    console.log($(this).attr('data-link'));
-                                    if($(this).attr('data-link') === link) { 
-                                        $(this).click();
-                                        $(this).get(0).scrollIntoView();
-                                    }
-
-                                //     if($(this).attr('data-link') === link) $(this).addClass('selected'); else $(this).removeClass('selected');
-                                });
-
-                            });
-                        }
-                    });
-
 
                 }
             }
@@ -775,6 +757,57 @@ function getBOMNodeLink(id, nodes) {
         }
     }
     return '';
+}
+function insertWearParts() {
+
+    let index = 1;
+
+    for(wearPart of listWearParts) {
+
+        let elemWearPart = $('<div></div>');
+            elemWearPart.addClass('wear-part');
+            elemWearPart.attr('data-link', wearPart.link);
+            elemWearPart.attr('data-part-number', wearPart.partNumber);
+            elemWearPart.appendTo($('#wear-parts'));
+            elemWearPart.click(function() {
+                let link = $(this).attr('data-link');
+                $('#bom-table').children().each(function() {
+                    if($(this).attr('data-link') === link) { 
+                        $(this).click();
+                        $(this).get(0).scrollIntoView();
+                    }
+                });
+            });
+
+        let elemWearPartImage = $('<div></div>');
+            elemWearPartImage.addClass('wear-part-image');
+            elemWearPartImage.appendTo(elemWearPart);              
+            
+        if(wearPart.linkImage === '') {
+            $.get('/plm/details', { 'link' : wearPart.link }, function(response) {
+                let linkImage  = getFirstImageFieldValue(response.data.sections);
+                $('.wear-part').each(function() {
+                    if($(this).attr('data-link') === response.params.link) {
+                        let elemWearPartImage = $(this).find('.wear-part-image').first();
+                        getImageFromCache(elemWearPartImage, { 'link' : linkImage }, 'settings', function() {});
+                    }
+                });
+            });
+        } else {
+            getImageFromCache(elemWearPartImage, { 'link' : wearPart.linkImage }, 'view_in_ar', function() {});
+        }
+
+        let elemWearPartDescriptor = $('<div></div>');
+            elemWearPartDescriptor.addClass('wear-part-descriptor');
+            elemWearPartDescriptor.html(wearPart.partNumber);
+            elemWearPartDescriptor.appendTo(elemWearPart);
+
+        let elemWearPartHealth = $('<div></div>');
+            elemWearPartHealth.attr('id', 'wp' + index++);
+            elemWearPartHealth.addClass('wear-part-health');
+            elemWearPartHealth.appendTo(elemWearPart);
+
+    }
 }
 function updateCounter() {
 
@@ -1285,7 +1318,6 @@ function setWearPartColor(value, partNumber, listRed, listYellow, listGreen) {
 
     $('#bom-table').children('.selected').each(function() {
         if($(this).attr('data-part-number') === partNumber) {
-            console.log('is selected');
             isSelected = true;
         }
     });

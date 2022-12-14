@@ -867,8 +867,6 @@ function insertRelationships(elemParent, relationships) {
 
     // Used by services.js
 
-    console.log(relationships);
-
     elemParent.html('');
 
     if(relationships.length === 0) return;
@@ -926,8 +924,6 @@ function insertRelationships(elemParent, relationships) {
 
 
         $.get('/plm/details', { 'link' : link}, function(response) {
-
-            console.log(response);
 
             $('.relationship').each(function() {
                 
