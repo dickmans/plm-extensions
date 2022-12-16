@@ -475,7 +475,7 @@ function submitEdit(link, elemParent, callback) {
         'sections' : getSectionsPayload(elemParent) 
     };
 
-    console.log(params);
+    // console.log(params);
 
     $.get('/plm/edit', params, function(response) {
         callback(response);
@@ -524,7 +524,7 @@ function getSectionsPayload(elemParent) {
                 if(value === '') value = null; else value = Number(value);
                 type = 'integer';
             } else if(elemValue.hasClass('checkbox')) {
-                value = (value === 'on') ? 'true' : 'false';
+                value = (elemValue.is(':checked')) ? 'true' : 'false';
             }
 
             if(value !== null) {
@@ -1754,6 +1754,8 @@ function toggleBookmark(elemBookmark, dmsId) {
 
 // Retrieve field value from item's sections data
 function getSectionFieldValue(sections, fieldId, defaultValue, property) {
+
+    // Used by mbom.js
 
     if(typeof sections === 'undefined') return defaultValue;
     if(sections === null)   return defaultValue;
