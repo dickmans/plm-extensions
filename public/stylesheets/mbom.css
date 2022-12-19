@@ -19,14 +19,14 @@
     top : var(--panel-padding);
     bottom : var(--panel-padding);
 }
-.section { 
+/* .section { 
     background: black; 
     color : white; 
 }
 .section:hover { 
     background: var(--color-gray-800); 
     color : white; 
-}
+} */
 
 
 /* MASTER LAYOUT */
@@ -489,35 +489,15 @@ select.view-selector {
 
 
 
-/* ITEM CATEGORIES */
+/* ITEM TYPES */
 /* ----------------------------------------------------------------------------- */
-/* #ebom .item.category-assembly         > .item-head > .item-icon { background : linear-gradient(0deg, #5d7dbe, #a5bde4 100%) no-repeat; }
-#ebom .item.category-document         > .item-head > .item-icon { background : linear-gradient(0deg, #c85659, #eba1a5 100%) no-repeat; }
-#ebom .item.category-electrical       > .item-head > .item-icon { background : linear-gradient(0deg, #bfba00, #f7f100 100%) no-repeat; }
-#ebom .item.category-general          > .item-head > .item-icon { background : linear-gradient(0deg, #8a4367, #b3618a 100%) no-repeat; }
-#ebom .item.category-part             > .item-head > .item-icon { background : linear-gradient(0deg, #abacab, #f3f4f3 100%) no-repeat; }
-#ebom .item.category-process          > .item-head > .item-icon { background : linear-gradient(0deg, #593e92, #7b5ebd 100%) no-repeat; }
-#ebom .item.category-product          > .item-head > .item-icon { background : linear-gradient(0deg, #345c9a, #4f7cc6 100%) no-repeat; }
-#ebom .item.category-purchased        > .item-head > .item-icon { background : linear-gradient(0deg, #858685, #c0c1c0 100%) no-repeat; }
-#ebom .item.category-sheet-metal-part > .item-head > .item-icon { background : linear-gradient(0deg, #858685, #c0c1c0 100%) no-repeat; } */
-/* .item.category-assembly         > .item-head > .item-icon { background : linear-gradient(0deg, #5d7dbe, #a5bde4 100%) no-repeat; }
-.item.category-document         > .item-head > .item-icon { background : linear-gradient(0deg, #c85659, #eba1a5 100%) no-repeat; }
-.item.category-electrical       > .item-head > .item-icon { background : linear-gradient(0deg, #bfba00, #f7f100 100%) no-repeat; }
-.item.category-general          > .item-head > .item-icon { background : linear-gradient(0deg, #8a4367, #b3618a 100%) no-repeat; }
-.item.category-part             > .item-head > .item-icon { background : linear-gradient(0deg, #abacab, #f3f4f3 100%) no-repeat; }
-.item.category-process          > .item-head > .item-icon { background : linear-gradient(0deg, #593e92, #7b5ebd 100%) no-repeat; }
-.item.category-product          > .item-head > .item-icon { background : linear-gradient(0deg, #345c9a, #4f7cc6 100%) no-repeat; }
-.item.category-purchased        > .item-head > .item-icon { background : linear-gradient(0deg, #858685, #c0c1c0 100%) no-repeat; }
-.item.category-sheet-metal-part > .item-head > .item-icon { background : linear-gradient(0deg, #858685, #c0c1c0 100%) no-repeat; } */
-.item.category-assembly         > .item-head > .item-icon { background : #5d7dbe; color : #a5bde4; }
-.item.category-document         > .item-head > .item-icon { background : #c85659; color : #eba1a5; }
-.item.category-electrical       > .item-head > .item-icon { background : #bfba00; color : #f7f100; }
-.item.category-general          > .item-head > .item-icon { background : #8a4367; color : #b3618a; }
-.item.category-part             > .item-head > .item-icon { background : #abacab; color : #f3f4f3; }
-.item.category-process          > .item-head > .item-icon { background : #593e92; color : #7b5ebd; }
-.item.category-product          > .item-head > .item-icon { background : #345c9a; color : #4f7cc6; }
-.item.category-purchased        > .item-head > .item-icon { background : #858685; color : #c0c1c0; }
-.item.category-sheet-metal-part > .item-head > .item-icon { background : #858685; color : #c0c1c0; }
+.item                   > .item-head > .item-icon { background : #c2cdd3; color : #fff; }
+.item.type-software     > .item-head > .item-icon { background : #AD4E7E; color : #fff; }
+.item.type-packaging    > .item-head > .item-icon { background : #8c714d; color : #fff; }
+.item.type-electrical   > .item-head > .item-icon { background : #299BA6; color : #fff; }
+.item.type-other        > .item-head > .item-icon { background : #A68932; color : #fff; }
+.item.type-mechanical   > .item-head > .item-icon { background : #8256BF; color : #fff; }
+.item.type-process      > .item-head > .item-icon { background : #23a597; color : #fff; }
 
 
 

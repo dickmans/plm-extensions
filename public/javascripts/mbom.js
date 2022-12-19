@@ -1,14 +1,14 @@
-let dataEBOM            = {};
-let dataMBOM            = {};
-let edgesEBOM           = [];
-let edgesMBOM           = [];
 let maxRequests         = 3;
 let fieldsToCopy        = ['TITLE', 'DESCRIPTION'];
 let fieldIdPartNumber   = 'NUMBER';
 let fieldIdTitle        = 'TITLE';
 let forgePropertyName   = 'Name';
-let viewerStarted       = false;
 
+let fieldIdEBOM         = 'ENGINEERING_BOM';
+let fieldIdMBOM         = 'MANUFACTURING_BOM';
+let fieldIdLastSync     = 'LAST_BOM_SYNC';
+let viewId              = options.split(',')[0];
+let fieldDefaultType    = { 'fieldId' : 'TYPE', 'value' : { 'link' : '/api/v3/lookups/CUSTOM_LOOKUP_ITEM_TYPES/options/34' } }
 
 
 // CUSTOMER SETTINGS
@@ -16,48 +16,46 @@ let viewerStarted       = false;
 // forgePropertyName   = 'Artikelnummer'; 
 
 
+let dataEBOM    = {};
+let dataMBOM    = {};
+let edgesEBOM   = [];
+let edgesMBOM   = [];
 
 let wsConfig = {
-    'ebom' : { 'columns' : [] },
-    'mbom' : { 'columns' : [] }
+    'sections'  : [],
+    'fields'    : [],
+    'columns'   : [],
+    'tableaus'  : []
 }
 
+let viewerStarted      = false;
 let viewerStatusColors = false;
 let disassembleMode    = false;
+let elemBOMDropped     = null;
 
 let descriptor, pendingActions, pendingRemovals;
-let dmsIdEBOM, dmsIdMBOM, sectionIdMBOM1, sectionIdMBOM2;
-let elemBOMDropped = null;
+let dmsIdEBOM, dmsIdMBOM;
+let sectionIdMBOM;
 
 
 $(document).ready(function() {
 
-    $('#main').attr('data-link', '/api/v3/workspaces/' + wsId + '/items/' + dmsId);
+    $('#main').attr('data-link', link);
 
-    parseURLOptions();
     setUIEvents();
     submitBaseRequests(function(responses) {     
-        insertItemDetails($('#create-item-form'), responses[0].data, responses[1].data, null, true, false, false);
+        insertItemDetails($('#create-item-form'), wsConfig.sections, wsConfig.fields, null, true, false, false);
         setItemDetails($('#main').attr('data-link'));
-        insertViewOptions('mbom', responses[7].data);
-        insertViewOptions('ebom', responses[8].data);
-        processItemData(responses[2].data, responses[3].data, responses[4].data);
+        // insertViewOptions('mbom', responses[7].data);
+        insertViewOptions('ebom', wsConfig.tableaus);
+        // processItemData(responses[2].data, responses[3].data, responses[4].data);
+        processItemData(responses[0].data);
     });
-    insertViewer(link);
+    //insertViewer(link);
 
 });
 
 
-function parseURLOptions() {
-
-    let temp = options.split(',');
-
-    wsConfig.ebom.wsId      = wsId;     // ID of Vault Items and BOMs workspace
-    wsConfig.mbom.wsId      = temp[0];  // ID of Items and BOMs workspace
-    wsConfig.ebom.viewId    = temp[1];  // ID of BOM View 'MBOM Transition' in Vault Items and BOMs workspaces
-    wsConfig.mbom.viewId    = temp[2];  // ID of BOM View 'MBOM Transition' in Items and BOMs workspace
-
-}
 function setUIEvents() {
 
     // Header Toolbar
@@ -202,27 +200,42 @@ function setUIEvents() {
 }
 function submitBaseRequests(callback) {
 
+    // let temp = options.split(',');
+
     let requests = [
-        $.get('/plm/sections', { 'wsId' : wsConfig.mbom.wsId }),
-        $.get('/plm/fields'  , { 'wsId' : wsConfig.mbom.wsId }),
-        $.get('/plm/details', { 'wsId' : wsId, 'dmsId' : dmsId }),
-        $.get('/plm/bom-view-fields', { 'wsId' : wsConfig.ebom.wsId, 'viewId' : wsConfig.ebom.viewId }),
-        $.get('/plm/bom-view-fields', { 'wsId' : wsConfig.mbom.wsId, 'viewId' : wsConfig.mbom.viewId }),
-        $.get('/plm/sections', { 'wsId' : wsConfig.ebom.wsId }),
-        $.get('/plm/fields'  , { 'wsId' : wsConfig.ebom.wsId }),
-        $.get('/plm/tableaus'  , { 'wsId' : wsConfig.mbom.wsId }),
-        $.get('/plm/tableaus'  , { 'wsId' : wsConfig.ebom.wsId })
+        // $.get('/plm/sections', { 'wsId' : wsConfig.mbom.wsId }),
+        // $.get('/plm/fields'  , { 'wsId' : wsConfig.mbom.wsId }),
+        $.get('/plm/details' , { 'wsId' : wsId, 'dmsId' : dmsId }),
+        $.get('/plm/sections', { 'wsId' : wsId }),
+        $.get('/plm/fields'  , { 'wsId' : wsId }),
+        $.get('/plm/tableaus', { 'wsId' : wsId }),
+        $.get('/plm/bom-view-fields', { 'wsId' : wsId, 'viewId' : viewId }),
+        // $.get('/plm/bom-view-fields', { 'wsId' : wsConfig.mbom.wsId, 'viewId' : wsConfig.mbom.viewId }),
+        // $.get('/plm/sections', { 'wsId' : wsConfig.ebom.wsId }),
+        // $.get('/plm/fields'  , { 'wsId' : wsConfig.ebom.wsId }),
+        // $.get('/plm/tableaus'  , { 'wsId' : wsConfig.ebom.wsId })
     ];
 
     Promise.all(requests).then(function(responses) {
 
-        sectionIdMBOM1 = getFieldSectionId(responses[0].data, fieldsToCopy[0]);
-        sectionIdMBOM2 = getFieldSectionId(responses[0].data, 'EBOM');
+        // sectionIdMBOM1 = getFieldSectionId(responses[0].data, fieldsToCopy[0]);
+        // sectionIdMBOM2 = getFieldSectionId(responses[0].data, 'EBOM');
 
-        wsConfig.mbom.sections = responses[0].data;
-        wsConfig.mbom.fields   = responses[1].data;
-        wsConfig.ebom.sections = responses[5].data;
-        wsConfig.ebom.fields   = responses[6].data;
+        // wsConfig.mbom.sections = responses[0].data;
+        // wsConfig.mbom.fields   = responses[1].data;
+        // wsConfig.ebom.sections = responses[5].data;
+        // wsConfig.ebom.fields   = responses[6].data;
+
+        wsConfig.sections   = responses[1].data;
+        wsConfig.fields     = responses[2].data;
+        wsConfig.tableaus   = responses[4].data;
+        // wsConfig.columns    = responses[3].data;
+
+        for(section of wsConfig.sections) section.id = section.__self__.split('/')[6];
+        
+        for(field of responses[4].data) { wsConfig.columns.push({ fieldId : field.fieldId, viewDefFieldId : field.viewDefFieldId.toString() }); }
+
+        console.log(wsConfig);
 
         callback(responses);
 
@@ -244,57 +257,59 @@ function insertViewOptions(suffix, tableaus) {
 
 
 // Process Item Details and set BOM Trees
-function processItemData(itemDetails, fieldsEBOMView, fieldsMBOMView) {
+// function processItemData(itemDetails, fieldsEBOMView, fieldsMBOMView) {
+function processItemData(itemDetails) {
 
     $('#header-subtitle').html(itemDetails.title);
 
-    let valueEBOM = getSectionFieldValue(itemDetails.sections, 'EBOM', '', 'link');
-    let valueMBOM = getSectionFieldValue(itemDetails.sections, 'MBOM', '', 'link');
+    let valueEBOM = getSectionFieldValue(itemDetails.sections, fieldIdEBOM, '', 'link');
+    let valueMBOM = getSectionFieldValue(itemDetails.sections, fieldIdMBOM, '', 'link');
+    
+    dmsIdEBOM = dmsId;
 
     if(valueEBOM !== '') {
-        wsConfig.ebom.wsId       = valueEBOM.split('/')[4];
-        dmsIdEBOM      = valueEBOM.split('/')[6];
-    }
-    if(valueMBOM !== '') {
-        wsConfig.mbom.wsId       = valueMBOM.split('/')[4];
-        dmsIdMBOM      = valueMBOM.split('/')[6];
+        dmsIdEBOM = valueEBOM.split('/')[6];
+        dmsIdMBOM = dmsId;
+    } else if(valueMBOM !== '') {
+        dmsIdEBOM = dmsId;
+        dmsIdMBOM = valueMBOM.split('/')[6];
     }
 
-    if(typeof  wsConfig.ebom.wsId === 'undefined')  wsConfig.ebom.wsId = wsId;
-    if(typeof dmsIdEBOM === 'undefined') dmsIdEBOM = dmsId;
-        
+    insertViewer('/api/v3/workspaces/' + wsId + '/items/' + dmsIdEBOM);
+
     createMBOMRoot(itemDetails.sections, function() {
 
         let requests = [];
 
         requests.push($.get('/plm/bom', {     
-            'wsId'          : wsConfig.ebom.wsId,
+            'wsId'          : wsId,
             'dmsId'         : dmsIdEBOM,
-            'viewId'        : wsConfig.ebom.viewId,
+            'viewId'        : viewId,
             'depth'         : 10,
             'revisionBias'  : 'release'
         }));
 
         requests.push($.get('/plm/bom', {     
-            'wsId'          : wsConfig.mbom.wsId,
+            'wsId'          : wsId,
             'dmsId'         : dmsIdMBOM,
-            'viewId'        : wsConfig.mbom.viewId,
+            'viewId'        : viewId,
             'depth'         : 10,
             'revisionBias'  : 'release'
         }));
 
         Promise.all(requests).then(function(responses) {
 
-            dataEBOM = responses[0].data;
+            console.log(responses);
+
+            dataEBOM  = responses[0].data;
             edgesEBOM = dataEBOM.edges;
-            edgesEBOM.sort(function(a, b){return a.itemNumber - b.itemNumber});
 
-            dataMBOM = responses[1].data;
+            edgesEBOM.sort(function(a, b){ return a.itemNumber - b.itemNumber });
+
+            dataMBOM  = responses[1].data;
             edgesMBOM = dataMBOM.edges;
-            edgesMBOM.sort(function(a, b){return a.itemNumber - b.itemNumber});
-
-            for(field of fieldsEBOMView) { wsConfig.ebom.columns.push({ fieldId : field.fieldId, viewDefFieldId : field.viewDefFieldId.toString() }); }
-            for(field of fieldsMBOMView) { wsConfig.mbom.columns.push({ fieldId : field.fieldId, viewDefFieldId : field.viewDefFieldId.toString() }); }
+            
+            edgesMBOM.sort(function(a, b){ return a.itemNumber - b.itemNumber });
 
             initEditor();
 
@@ -305,6 +320,8 @@ function processItemData(itemDetails, fieldsEBOMView, fieldsMBOMView) {
 }
 function createMBOMRoot(sections, callback) {
 
+    sectionIdMBOM = getFieldSectionId(wsConfig.sections, fieldIdEBOM);
+
     if(typeof dmsIdMBOM !== 'undefined') {
         
         callback();
@@ -312,18 +329,23 @@ function createMBOMRoot(sections, callback) {
     } else {
     
         let params = { 
-            'wsId' : wsConfig.mbom.wsId,
+            'wsId' : wsId,
             'sections' : [{
-                'id' : sectionIdMBOM1,
-                    'fields' : []
+                // 'id' : sectionIdMBOM1,
+                'id' : wsConfig.sections[0].id,
+                    'fields' : [
+                        fieldDefaultType
+                    ]
             },{
-                'id' : sectionIdMBOM2,
+                'id' : sectionIdMBOM,
                 'fields' : [
-                    { 'fieldId' : 'EBOM', 'value' : { 'link' : link } },
-                    { 'fieldId' : 'IS_OPERATION', 'value' : true }
+                    { 'fieldId' : fieldIdEBOM, 'value' : { 'link' : '/api/v3/workspaces/' + wsId + '/items/' + dmsIdEBOM } }
+                    // { 'fieldId' : 'IS_OPERATION', 'value' : true }
                 ]             
             }]
         };
+
+        console.log(params);
 
         for(fieldId of fieldsToCopy) {
             params.sections[0].fields.push({
@@ -331,13 +353,15 @@ function createMBOMRoot(sections, callback) {
             })
         }
 
+        console.log(params);
+
         $.post({
-            url : '/plm/create', 
+            url         : '/plm/create', 
             contentType : 'application/json',
-            data : JSON.stringify(params)
+            data        : JSON.stringify(params)
         }, function(response) {
             let linkNew = response.data.split('/');
-            dmsIdMBOM = linkNew[linkNew.length - 1];
+            dmsIdMBOM   = linkNew[linkNew.length - 1];
             callback();
         }); 
             
@@ -350,7 +374,7 @@ function initEditor() {
     $('#mbom').find('.progress').hide();
 
     setEBOM($('#ebom-tree'), dataEBOM.root, 1, null);
-    setMBOM($('#mbom-tree'), dataMBOM.root, '', 1, null);
+    setMBOM($('#mbom-tree'), dataMBOM.root, 1, null, '');
 
     $('#mbom-tree').find('.item-head').first().attr('id', 'mbom-root-head');
     $('#mbom-tree').find('.item').first().addClass('selected-target');
@@ -363,13 +387,14 @@ function initEditor() {
     let elemMBOMRootBOM = $('#mbom-tree').find('.item-bom').first();
         elemMBOMRootBOM.attr('id', 'mbom-root-bom');
         elemMBOMRootBOM.sortable({
-            delay : 250,
-            opacity : 0.4,
-            cursor : 'move',
-            cursorAt : { left : 50, top : 15 },
-            items : '.item',
-            placeholder: "sortable-placeholder",
-            stop : function(event, ui) {
+            
+            delay       : 250,
+            opacity     : 0.4,
+            cursor      : 'move',
+            cursorAt    : { left : 50, top : 15 },
+            items       : '.item',
+            placeholder : "sortable-placeholder",
+            stop        : function(event, ui) {
 
                 if(elemBOMDropped !== null) {
                     $(this).sortable('cancel');
@@ -381,6 +406,7 @@ function initEditor() {
                 }
 
             }
+
         });
 
     $('.bar').show();
@@ -544,7 +570,7 @@ function insertNewOperation(e) {
 
         if($('#mbom-add-name').val() === '') return;
 
-        let elemNew = getBOMNode(2, '', '', $('#mbom-add-name').val(), '', '', $('#mbom-add-code').val(), 'radio_button_unchecked', '', 'mbom', '', false);
+        let elemNew = getBOMNode(2, '', '', $('#mbom-add-name').val(), '', '', '', $('#mbom-add-code').val(), 'radio_button_unchecked', '', 'mbom', '', false);
             elemNew.attr('data-parent', '');
             elemNew.addClass('operation');
             elemNew.addClass('neutral');
@@ -567,21 +593,26 @@ function insertNewOperation(e) {
 
 // Display EBOM information
 function setEBOM(elemParent, urn, level, qty) {
-    
+
+    // console.log('setEBOM START');
+
     let descriptor  = getDescriptor(dataEBOM, urn);
     let nodeLink    = getLink(dataEBOM, urn);
-    let partNumber  = getNodeProperty(dataEBOM, urn, wsConfig.ebom.columns, fieldIdPartNumber, '');
-    let category    = getNodeProperty(dataEBOM, urn, wsConfig.ebom.columns, 'CATEGORY', '');
-    let code        = getNodeProperty(dataEBOM, urn, wsConfig.ebom.columns, 'OPERATION_CODE', '');
-    let icon        = getWorkspaceIcon(urn, level);
-    let endItem     = getNodeProperty(dataEBOM, urn, wsConfig.ebom.columns, 'END_ITEM', '');
-    let ignoreMBOM  = getNodeProperty(dataEBOM, urn, wsConfig.ebom.columns, 'IGNORE_IN_MBOM', '');
-    let hasMBOM     = getNodeURN(dataEBOM, urn, wsConfig.ebom.columns, 'MBOM', '');
+    let partNumber  = getNodeProperty(dataEBOM, urn, wsConfig.columns, fieldIdPartNumber, '');
+    let category    = getNodeProperty(dataEBOM, urn, wsConfig.columns, 'CATEGORY', '');
+    let type        = getNodeProperty(dataEBOM, urn, wsConfig.columns, 'TYPE', '');
+    let code        = getNodeProperty(dataEBOM, urn, wsConfig.columns, 'OPERATION_CODE', '');
+    let icon        = getWorkspaceIcon(type);
+    let endItem     = getNodeProperty(dataEBOM, urn, wsConfig.columns, 'END_ITEM', '');
+    let ignoreMBOM  = getNodeProperty(dataEBOM, urn, wsConfig.columns, 'IGNORE_IN_MBOM', '');
+    let hasMBOM     = getNodeURN(dataEBOM, urn, wsConfig.columns, fieldIdMBOM, '');
     let isLeaf      = isEBOMLeaf(level, urn, hasMBOM, endItem);
+
+    // console.log(ignoreMBOM);
 
     if(ignoreMBOM !== 'true') {
     
-        let elemNode = getBOMNode(level, urn, nodeLink, descriptor, partNumber, category, code, icon, qty, 'ebom', hasMBOM, isLeaf);
+        let elemNode = getBOMNode(level, urn, nodeLink, descriptor, partNumber, category, type, code, icon, qty, 'ebom', hasMBOM, isLeaf);
             elemNode.appendTo(elemParent);
             
         if(hasMBOM !== '') elemNode.attr('data-urn-mbom', hasMBOM);
@@ -600,7 +631,7 @@ function isEBOMLeaf(level, urn, hasMBOM, endItem) {
     
     for(edgeEBOM of edgesEBOM) {
         if(edgeEBOM.parent === urn) {
-            if(getNodeProperty(dataEBOM, edgeEBOM.child, wsConfig.ebom.columns, 'IGNORE_IN_MBOM', '') !== true) {
+            if(getNodeProperty(dataEBOM, edgeEBOM.child, wsConfig.columns, 'IGNORE_IN_MBOM', '') !== true) {
                 return  false;   
             }
         }
@@ -609,10 +640,13 @@ function isEBOMLeaf(level, urn, hasMBOM, endItem) {
     return true;
     
 }
-function getBOMNode(level, urn, nodeLink, descriptor, partNumber, category, code, icon, qty, bomType, bomMatch, isLeaf) {
+function getBOMNode(level, urn, nodeLink, descriptor, partNumber, category, type, code, icon, qty, bomType, bomMatch, isLeaf) {
     
     category = category.replace(/ /g, '-');
     category = category.toLowerCase();
+
+    type = type.replace(/ /g, '-');
+    type = type.toLowerCase();
 
     let elemNode = $('<div></div>');
         elemNode.addClass('item');
@@ -723,7 +757,11 @@ function getBOMNode(level, urn, nodeLink, descriptor, partNumber, category, code
     };
     
     if(category !== '') elemNode.addClass('category-' + category);
+    if(type     !== '') elemNode.addClass('type-' + type);
     
+
+    // console.log('bomType === ' + bomType);
+
     if(bomType === 'ebom') {
     
         elemQtyInput.attr('disabled', 'disabled');
@@ -751,6 +789,8 @@ function getBOMNode(level, urn, nodeLink, descriptor, partNumber, category, code
             e.preventDefault();
             selectBOMItem($(this), false);
         });
+
+        // console.log('isLeaf = ' + isLeaf);
         
         if(!isLeaf) {
             
@@ -763,9 +803,11 @@ function getBOMNode(level, urn, nodeLink, descriptor, partNumber, category, code
             for(edgeEBOM of edgesEBOM) {
                 if(edgeEBOM.depth === level) {
                     if(edgeEBOM.parent === urn) { 
-                        let childQty = Number(getEdgeProperty(edgeEBOM, wsConfig.ebom.columns, 'QUANTITY', '0.0'));
-
-    //                    childQty = precisionRound(childQty, -1);
+                        let childQty = Number(getEdgeProperty(edgeEBOM, wsConfig.columns, 'QUANTITY', '0.0'));
+                        // console.log(edgeEBOM);
+                        // console.log(childQty);
+                        // console.log(wsConfig.columns);
+                       //childQty = precisionRound(childQty, -1);
 
                         setEBOM(elemNodeBOM, edgeEBOM.child, level + 1, childQty);
                     }
@@ -1072,32 +1114,34 @@ function updateFromEBOMToMBOM(elemAction) {
 
 
 // Display MBOM information
-function setMBOM(elemParent, urn, urnParent, level, qty) {
+function setMBOM(elemParent, urn, level, qty, urnParent) {
+
+    console.log('setMBOM START');
     
     let descriptor  = getDescriptor(dataMBOM, urn);
     let nodeLink    = getLink(dataMBOM, urn);
-    let partNumber  = getNodeProperty(dataMBOM, urn, wsConfig.mbom.columns, fieldIdPartNumber, '');
-    let category    = getNodeProperty(dataMBOM, urn, wsConfig.mbom.columns, 'TYPE', '');
-    let code        = getNodeProperty(dataMBOM, urn, wsConfig.mbom.columns, 'OPERATION_CODE', '');
-    let isOperation = getNodeProperty(dataMBOM, urn, wsConfig.mbom.columns, 'IS_OPERATION', '');
-    let hasEBOM     = getNodeURN(dataMBOM, urn, wsConfig.mbom.columns, 'EBOM', '');
+    let partNumber  = getNodeProperty(dataMBOM, urn, wsConfig.columns, fieldIdPartNumber, '');
+    let category    = getNodeProperty(dataMBOM, urn, wsConfig.columns, 'TYPE', '');
+    let type        = getNodeProperty(dataMBOM, urn, wsConfig.columns, 'TYPE', '');
+    let code        = getNodeProperty(dataMBOM, urn, wsConfig.columns, 'OPERATION_CODE', '');
+    let isOperation = getNodeProperty(dataMBOM, urn, wsConfig.columns, 'IS_OPERATION', '');
+    let hasEBOM     = getNodeURN(dataMBOM, urn, wsConfig.columns, fieldIdEBOM, '');
     let wsId        = getWorkspaceId(urn);
-    let icon        = getWorkspaceIcon(urn, level);
+    let icon        = getWorkspaceIcon(type);
     let isLeaf      = isMBOMLeaf(urn, wsId, level, code);
     let edge        = getEdge(urn, urnParent);
     let edges       = [];
     let itemNumber  = getItemNumber(urn, urnParent);
    
-    if(wsId === wsConfig.ebom.wsId) {
-        code       = getNodeProperty(dataEBOM, urn, wsConfig.ebom.columns, 'OPERATION_CODE', '');
-        partNumber = getNodeProperty(dataEBOM, urn, wsConfig.ebom.columns, fieldIdPartNumber, '');
-    }
+    // if(wsId === wsConfig.ebom.wsId) {
+    //     code       = getNodeProperty(dataEBOM, urn, wsConfig.columns, 'OPERATION_CODE', '');
+    //     partNumber = getNodeProperty(dataEBOM, urn, wsConfig.columns, fieldIdPartNumber, '');
+    // }
 
     if(level === 1) hasEBOM = '';
-
-    if(hasEBOM !== '') { isLeaf = true; isOperation = false; icon = 'view_in_ar'; }
+    else if(hasEBOM !== '') { isLeaf = true; isOperation = false; icon = 'view_in_ar'; }
     
-    let elemNode = getBOMNode(level, urn, nodeLink, descriptor, partNumber, category, code, icon, qty, 'mbobm', hasEBOM, isLeaf);
+    let elemNode = getBOMNode(level, urn, nodeLink, descriptor, partNumber, category, type, code, icon, qty, 'mbobm', hasEBOM, isLeaf);
 //        elemNode.addClass('neutral');
         elemNode.attr('data-parent', urnParent);
         elemNode.attr('data-edge', edge);
@@ -1150,10 +1194,10 @@ function setMBOM(elemParent, urn, urnParent, level, qty) {
 //    else if(level === 2) elemNode.addClass('operation');
 //                    else elemNode.addClass('leaf');
 
-    if(icon === 'zmdi-wrench') {
-        elemNode.attr('title', 'This is a manufacturing specific item being managed in the Items & BOMS workspace');
-        elemNode.addClass('mbom-item');
-    }
+    // if(icon === 'zmdi-wrench') {
+    //     elemNode.attr('title', 'This is a manufacturing specific item being managed in the Items & BOMS workspace');
+    //     elemNode.addClass('mbom-item');
+    // }
     
     if(isLeaf) {
 
@@ -1168,10 +1212,11 @@ function setMBOM(elemParent, urn, urnParent, level, qty) {
         
                 if(edgeMBOM.parent === urn) {
                     edges.push(edgeMBOM.edgeId);
-                    let childQty = getEdgeProperty(edgeMBOM, wsConfig.mbom.columns, 'QUANTITY', '0.0');
+                    let childQty = getEdgeProperty(edgeMBOM, wsConfig.columns, 'QUANTITY', '0.0');
                     childQty = parseInt(childQty);
 
-                    setMBOM(elemNodeBOM, edgeMBOM.child, urn, level + 1, childQty);
+                    console.log(childQty);
+                    setMBOM(elemNodeBOM, edgeMBOM.child, level + 1, childQty, urn);
                 }
             }
         }
@@ -1190,12 +1235,15 @@ function isMBOMLeaf(urn, wsId, level, code) {
     
 //    if(level === 2) return false;
     if(level === 3) return true;
+
+
+    //TODO MBOM LEAF RECOGNITION
     
-    if(wsId === wsConfig.mbom.wsId) {
-        if(code !== null) return false;
-    } else {
-        return true;
-    }
+    // if(wsId === wsConfig.mbom.wsId) {
+    //     if(code !== null) return false;
+    // } else {
+    //     return true;
+    // }
     
     
     for(edgeMBOM of edgesMBOM) {
@@ -1212,16 +1260,24 @@ function getWorkspaceId(urn) {
     return params[params.length - 2];
     
 }
-function getWorkspaceIcon(urn, level) {
+// function getWorkspaceIcon(urn, level) {
+function getWorkspaceIcon(type) {
     
-    let temp = urn.split('.');
-    let wsId = temp[temp.length - 2];
+    // let temp = urn.split('.');
+    // let wsId = temp[temp.length - 2];
     
-    if(wsId === wsConfig.ebom.wsId) return 'view_in_ar';
-    else if(wsId ===  wsConfig.mbom.wsId) {
-        if(level < 3) { return 'radio_button_unchecked'; } 
-        else { return 'factory'; }
-    } else { return ''; }
+    if(type === 'Process') return 'radio_button_unchecked';
+    else if(type === 'Mechanical') return 'view_in_ar';
+    else return 'factory';
+
+    // if(wsId === wsConfig.ebom.wsId) return 'view_in_ar';
+    // else if(wsId ===  wsConfig.mbom.wsId) {
+    //     if(level < 3) { return 'radio_button_unchecked'; } 
+    //     else { return 'factory'; }
+    // } else { return ''; }
+
+
+    // return 'view_in_ar';
     
 }
 function addAction(label, elemParent) {
@@ -1694,20 +1750,21 @@ function setItemDetails(link) {
     if(link === '') return;
 
     $('#details').find('.progress').show();
-    $('#sections').html('');
-    $('#attachments').html('');
+    // $('#sections').html('');
+    // $('#attachments').html('');
 
-    let selectedWSID = link.split('/')[4];
-    let fields       = (selectedWSID === wsConfig.ebom.wsId) ? wsConfig['ebom'].fields : wsConfig['mbom'].fields; 
-    let sections     = (selectedWSID === wsConfig.ebom.wsId) ? wsConfig['ebom'].sections : wsConfig['mbom'].sections; 
+    // let selectedWSID = link.split('/')[4];
+    // let fields       = (selectedWSID === wsConfig.ebom.wsId) ? wsConfig['ebom'].fields : wsConfig['mbom'].fields; 
+    // let sections     = (selectedWSID === wsConfig.ebom.wsId) ? wsConfig['ebom'].sections : wsConfig['mbom'].sections; 
     
     let requests = [
-        $.get('/plm/details', { 'link' : link }),
+        $.get('/plm/details'    , { 'link' : link }),
         $.get('/plm/attachments', { 'link' : link })
     ]
 
     Promise.all(requests).then(function(responses) {
-        insertItemDetails($('#sections'), sections, fields, responses[0].data, false, false, false);
+        // insertItemDetails($('#sections'), sections, fields, responses[0].data, false, false, false);
+        insertItemDetails($('#sections'), wsConfig.sections, wsConfig.fields, responses[0].data, false, false, false);
         insertAttachments($('#attachments'), responses[1].data, false);
         $('#details').find('.progress').hide();
     });  
@@ -2485,21 +2542,23 @@ function createNewItems() {
                 if(elemItem.find('.item-descriptor').length === 0) title = elemItem.find('.item-title').html();
 
                 let params = {
-                    'wsId' : wsConfig.mbom.wsId,
+                    'wsId' : wsId,
                     'sections' : [{
-                        'id' : sectionIdMBOM1,
+                        'id' : wsConfig.sections[0].id,
                         'fields' : [
-                            { 'fieldId' : fieldIdTitle, 'value' : title }
+                            { 'fieldId' : fieldIdTitle, 'value' : title },
+                            fieldDefaultType
                         ] 
                     },{
-                        'id' : sectionIdMBOM2,
+                        'id' : sectionIdMBOM,
                         'fields' : [
-                            { 'fieldId' : 'OPERATION_CODE', 'value' : elemItem.find('.item-code').html() },
-                            { 'fieldId' : 'IS_OPERATION'  , 'value' : elemItem.hasClass('operation')     }
+                            { 'fieldId' : 'OPERATION_CODE', 'value' : elemItem.find('.item-code').html() }
+                            // { 'fieldId' : 'IS_OPERATION'  , 'value' : elemItem.hasClass('operation')     }
                         ]             
                     }]
                 };
 
+                // params.sections[1].fields.push(fieldTypeProcess);
                 requests.push($.post('/plm/create', params));
                 elements.push(elemItem);
 
@@ -2512,6 +2571,7 @@ function createNewItems() {
             requests = [];
 
             for(response of responses) {
+                console.log(responses);
                 requests.push($.get('/plm/descriptor', {
                     'link' : response.data.split('.autodeskplm360.net')[1]
                 }));
@@ -2805,12 +2865,12 @@ function endProcessing() {
     let timestamp = new Date();
 
     let params = {
-        'wsId'      : wsConfig.mbom.wsId,
-        'dmsId'     : dmsIdMBOM,
-        'sections' : [{
-            'id'     : sectionIdMBOM2,
+        'wsId'       : wsId,
+        'dmsId'      : dmsIdMBOM,
+        'sections'   : [{
+            'id'     : sectionIdMBOM,
             'fields' : [
-                { 'fieldId' : 'LAST_EBOM_SYNC', 'value' : timestamp.getFullYear()  + '-' + (timestamp.getMonth()+1) + '-' + timestamp.getDate() }
+                { 'fieldId' : fieldIdLastSync, 'value' : timestamp.getFullYear()  + '-' + (timestamp.getMonth()+1) + '-' + timestamp.getDate() }
             ]
         }]
     }

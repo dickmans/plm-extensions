@@ -151,7 +151,8 @@ let kpis = [{
     'data'      : []
 }];
 
-let bomItems    = [];
+let bomItems         = [];
+let multiSelect      = { 'wsId' : '', 'dmsIds' : [], 'common': [], 'varies' : [], 'partNumbers': [] };
 let wsProblemReports = { 'sections' : [], 'fields' : [] };
  
 
@@ -619,9 +620,9 @@ function setBOMData(fields, bom, flatBom) {
 
     });
 
-    $('tr').click(function() {
+    $('tr').click(function(e) {
 
-        selectBOMItem($(this));
+        selectBOMItem(e, $(this));
         
     });
 
@@ -833,25 +834,48 @@ function unhideParents(level, elem) {
     });
 
 }
-function selectBOMItem(elemClicked) {
+function selectBOMItem(e, elemClicked) {
 
     if(elemClicked.hasClass('selected')) {
+
         $('.bom-action').hide();
         elemClicked.removeClass('selected');
         resetViewerSelection(true);
         setAttachments('/api/v3/workspaces/' + wsId + '/items/' + dmsId);
         setProcesses('/api/v3/workspaces/' + wsId + '/items/' + dmsId);
+        multiSelect.wsId        = '';
+        multiSelect.dmsIds      = [];
+        multiSelect.common      = [];
+        multiSelect.varies      = [];
+        multiSelect.partNumbers = [];
+
     } else {
+
+        let linkSelected   = elemClicked.attr('data-link');
+        let resetSelection = (!e.shiftKey) ? true : (linkSelected.split('/')[4] !== multiSelect.wsId);
+
+        if(resetSelection) {
+            multiSelect.wsId        = linkSelected.split('/')[4];
+            multiSelect.dmsIds      = [linkSelected.split('/')[6]];
+            multiSelect.common      = [];     
+            multiSelect.varies      = [];     
+            multiSelect.partNumbers = [elemClicked.attr('data-part-number')];
+            $('tr.selected').removeClass('selected');      
+        } else {
+            multiSelect.dmsIds.push(linkSelected.split('/')[6]);
+            multiSelect.partNumbers.push(elemClicked.attr('data-part-number'));
+        }
+
         viewerResetColors();
         $('.bom-action').show();
         $('#go-there').show();
-        $('tr.selected').removeClass('selected');
+        
         elemClicked.addClass('selected');
-        setItemDetails(elemClicked.attr('data-link'));
-        setAttachments(elemClicked.attr('data-link'));
-        setProcesses(elemClicked.attr('data-link'));
+        setItemDetails(linkSelected);
+        setAttachments(linkSelected);
+        setProcesses(linkSelected);
         getBookmarkStatus($('#bookmark'), elemClicked.attr('data-urn'));
-        viewerSelectModel(elemClicked.attr('data-part-number'), true);;
+        viewerSelectModels(multiSelect.partNumbers, true);;
     }
 
 }
@@ -1219,8 +1243,66 @@ function setItemDetails(link) {
         elemParent.html('');
 
     $.get('/plm/details', { 'link' : link }, function(response) {
+
         insertItemDetails(elemParent, sections, fields, response.data, true, false, false);
         $('#details-process').hide();
+
+        if(multiSelect.dmsIds.length === 1) {
+
+            for(section of response.data.sections) {
+                for(field of section.fields) {
+                    multiSelect.common.push({
+                        'fieldId' : field.__self__.split('/')[10],
+                        'value'   : field.value
+                    })
+                }
+            }
+
+        } else {
+
+            for(let index = multiSelect.common.length - 1; index >= 0; index--) {
+
+                let fieldId = multiSelect.common[index].fieldId;
+                let keep    = false;
+
+                for(section of response.data.sections) {
+                
+                    for(field of section.fields) {
+
+                        let id = field.__self__.split('/')[10];
+
+                        if(fieldId === id) {
+                            if(multiSelect.common[index].value === field.value) {
+                                keep = true;
+                            }
+                        }
+
+                    }
+                
+                }
+
+                if(!keep) {
+                    multiSelect.common.splice(index, 1);
+                    multiSelect.varies.push(fieldId);
+                }
+                    
+            }
+
+            elemParent.find('.field-value').each(function() {
+                let id = $(this).attr('data-id');
+                let reset = true;
+                for(field of multiSelect.common) {
+                    if(id === field.fieldId) {
+                        if(field.value === $(this).val()) {
+                            reset = false;
+                        }
+                    }
+                }
+                if(reset) $(this).val('');
+
+            });
+
+        }
     });
 
 }
@@ -1244,10 +1326,65 @@ function setAttachments(link) {
 
 // Save Item Details Changes
 function saveChanges() {
-    $('#overlay').show();
-    submitEdit($('#details').attr('data-link'), $('#sections'), function(response) {
-        $('#overlay').hide();
-    });
+    
+    // $('#overlay').show();
+
+    // submitEdit($('#details').attr('data-link'), $('#sections'), function(response) {
+    //     $('#overlay').hide();
+    // });
+
+    let params = { 
+        'link'     : $('#details').attr('data-link'),
+        'sections' : getSectionsPayload($('#sections')) 
+    };
+
+    // console.log(params);
+
+    if(multiSelect.dmsIds.length === 1) {
+
+        $.get('/plm/edit', params, function(response) {
+            // callback(response);
+            $('#overlay').hide();
+        });
+
+    } else {
+
+        console.log(params.sections);
+        console.log(multiSelect.common);
+        console.log(multiSelect.varies);
+
+        for(section of sections) {
+            for(let index = section.fields.length - 1; index >= 0; index--) {
+                let keep = true;
+
+                console.log(section.fields[index]);
+
+                for(field of multiSelect.common) {
+                    if(field.fieldId === section.fields[index].fieldId) {
+                        if(field.value === section.fields[index].value) {
+                            keep = false;
+                        }
+                    }
+                }
+                for(field of multiSelect.varies) {
+                    if(field.fieldId === section.fields[index].fieldId) {
+                        if(section.fields[index].value === '') {
+                            keep = false;
+                        }
+                    }
+                }
+
+                console.log(keep);
+
+                if(!keep) section.fields.splice(index, 1);
+            }
+        }
+
+        console.log(params.sections);
+
+    }
+
+
 }
 
 
