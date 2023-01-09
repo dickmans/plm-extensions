@@ -1981,7 +1981,7 @@ function searchItems(idView, idList, query) {
     }
 
     let params = { 
-        'wsId'   : wsConfig.mbom.wsId,
+        'wsId'   : wsId,
         'limit'  : 25,
         'offset' : 0,
         'query'  : query,
@@ -2055,13 +2055,13 @@ function setItemsList(idView, idList, list) {
         let urn       = item.hasOwnProperty('item') ? item.item.urn : item.urn;
         let title     = item.hasOwnProperty('item') ? item.item.title : item.title;
         let itemWSID  = link.split('/')[4];
-        let className = (itemWSID === wsConfig.mbom.wsId) ? 'mbom' : 'ebom';
+        // let className = (itemWSID === wsConfig.mbom.wsId) ? 'mbom'  : 'ebom';
 
-        if((itemWSID === wsConfig.mbom.wsId) || (itemWSID === wsConfig.ebom.wsId)) {
+        // if((itemWSID === wsConfig.mbom.wsId) || (itemWSID === wsConfig.ebom.wsId)) {
 
-            addItemListEntry(link, urn, title, className, elemList, false);
+            addItemListEntry(link, urn, title, 'mbom', elemList, false);
 
-        }
+        // }
 
     }
 

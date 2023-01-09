@@ -5,7 +5,7 @@
 .attachment-graphic > img { width : 100%; }
 .panel-toolbar { right : 12px; }
 .panel-content { top : 50px; }
-#overlay .progress { display : none; }
+/* #overlay .progress { display : none; } */
 .homeViewWrapper,
 .viewcube { display : none !important; }
 

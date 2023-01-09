@@ -45,6 +45,14 @@ let kpis = [{
     'style'     : 'bars',
     'data'      : []
 },{
+    'id'        : 'type',
+    'title'     : 'Type',
+    'fieldId'   : 'TYPE',
+    'urn'       : '',
+    'type'      : 'value',
+    'style'     : 'bars',
+    'data'      : []
+},{
     'id'        : 'lead-time',
     'title'     : 'Lead Time',
     'fieldId'   : 'LEAD_TIME',
@@ -152,7 +160,7 @@ let kpis = [{
 }];
 
 let bomItems         = [];
-let multiSelect      = { 'wsId' : '', 'dmsIds' : [], 'common': [], 'varies' : [], 'partNumbers': [] };
+let multiSelect      = { 'wsId' : '', 'links' : [], 'common': [], 'varies' : [], 'partNumbers': [] };
 let wsProblemReports = { 'sections' : [], 'fields' : [] };
  
 
@@ -844,7 +852,7 @@ function selectBOMItem(e, elemClicked) {
         setAttachments('/api/v3/workspaces/' + wsId + '/items/' + dmsId);
         setProcesses('/api/v3/workspaces/' + wsId + '/items/' + dmsId);
         multiSelect.wsId        = '';
-        multiSelect.dmsIds      = [];
+        multiSelect.links       = [];
         multiSelect.common      = [];
         multiSelect.varies      = [];
         multiSelect.partNumbers = [];
@@ -856,26 +864,30 @@ function selectBOMItem(e, elemClicked) {
 
         if(resetSelection) {
             multiSelect.wsId        = linkSelected.split('/')[4];
-            multiSelect.dmsIds      = [linkSelected.split('/')[6]];
+            multiSelect.links       = [linkSelected];
             multiSelect.common      = [];     
             multiSelect.varies      = [];     
             multiSelect.partNumbers = [elemClicked.attr('data-part-number')];
             $('tr.selected').removeClass('selected');      
         } else {
-            multiSelect.dmsIds.push(linkSelected.split('/')[6]);
+            multiSelect.links.push(linkSelected);
             multiSelect.partNumbers.push(elemClicked.attr('data-part-number'));
         }
 
-        viewerResetColors();
+        console.log(multiSelect);        
+
         $('.bom-action').show();
         $('#go-there').show();
         
         elemClicked.addClass('selected');
+
+        viewerResetColors();
         setItemDetails(linkSelected);
         setAttachments(linkSelected);
         setProcesses(linkSelected);
         getBookmarkStatus($('#bookmark'), elemClicked.attr('data-urn'));
-        viewerSelectModels(multiSelect.partNumbers, true);;
+        viewerSelectModels(multiSelect.partNumbers, true);
+
     }
 
 }
@@ -1247,18 +1259,26 @@ function setItemDetails(link) {
         insertItemDetails(elemParent, sections, fields, response.data, true, false, false);
         $('#details-process').hide();
 
-        if(multiSelect.dmsIds.length === 1) {
+        // console.log(multiSelect);
+
+        if(multiSelect.links.length < 2) {
 
             for(section of response.data.sections) {
                 for(field of section.fields) {
-                    multiSelect.common.push({
-                        'fieldId' : field.__self__.split('/')[10],
-                        'value'   : field.value
-                    })
+                    if(typeof field.value !== 'undefined') {
+                        if(field.value !== null) {
+                            multiSelect.common.push({
+                                'fieldId' : field.__self__.split('/')[10],
+                                'value'   : (typeof field.value === 'object') ? field.value.link : field.value
+                            });
+                        }
+                    }
                 }
             }
 
         } else {
+
+            // console.log(' > parsing common properties');
 
             for(let index = multiSelect.common.length - 1; index >= 0; index--) {
 
@@ -1269,12 +1289,30 @@ function setItemDetails(link) {
                 
                     for(field of section.fields) {
 
-                        let id = field.__self__.split('/')[10];
+                       
+
+                        
+
+                            let id = field.__self__.split('/')[10];
+                            
 
                         if(fieldId === id) {
-                            if(multiSelect.common[index].value === field.value) {
-                                keep = true;
+
+                            if(field.value !== null) {
+
+
+                                let value = (typeof field.value === 'object') ? field.value.link : field.value;
+
+                                // console.log(field);
+                                // console.log(fieldId);
+                                // console.log(field.value);
+                                // console.log(multiSelect.common[index].value);
+                                if(multiSelect.common[index].value === value) {
+                                    keep = true;
+                                }
+                                // console.log(keep);
                             }
+
                         }
 
                     }
@@ -1288,21 +1326,45 @@ function setItemDetails(link) {
                     
             }
 
+            // console.log(multiSelect);
+
             elemParent.find('.field-value').each(function() {
+
                 let id = $(this).attr('data-id');
                 let reset = true;
                 for(field of multiSelect.common) {
                     if(id === field.fieldId) {
-                        if(field.value === $(this).val()) {
+                        // if(field.value === $(this).val()) {
                             reset = false;
-                        }
+                        // }
                     }
                 }
-                if(reset) $(this).val('');
+
+                // console.log(id);
+                // console.log(reset);
+
+                if(reset) {
+
+                    console.log(' > about to reset');
+
+                    if($(this).hasClass('radio')) {
+                        console.log(' > about to reset radio');
+
+                        console.log($(this).find('input.radio').length);
+
+                        $(this).find('input').each(function() {
+                            $(this).removeAttr('checked');
+                        });
+                    } else $(this).val('');
+
+                } 
 
             });
 
         }
+
+        console.log(multiSelect);
+
     });
 
 }
@@ -1327,63 +1389,28 @@ function setAttachments(link) {
 // Save Item Details Changes
 function saveChanges() {
     
-    // $('#overlay').show();
+    $('#overlay').show();
+    saveItem(0);
 
-    // submitEdit($('#details').attr('data-link'), $('#sections'), function(response) {
-    //     $('#overlay').hide();
-    // });
+}
+function saveItem(index) {
 
-    let params = { 
-        'link'     : $('#details').attr('data-link'),
-        'sections' : getSectionsPayload($('#sections')) 
-    };
+    if(index < multiSelect.links.length) {
 
-    // console.log(params);
-
-    if(multiSelect.dmsIds.length === 1) {
+        let params = { 
+            'link'     : multiSelect.links[index++],
+            'sections' : getSectionsPayload($('#sections')) 
+        };
 
         $.get('/plm/edit', params, function(response) {
-            // callback(response);
-            $('#overlay').hide();
+            saveItem(index);
         });
 
     } else {
-
-        console.log(params.sections);
-        console.log(multiSelect.common);
-        console.log(multiSelect.varies);
-
-        for(section of sections) {
-            for(let index = section.fields.length - 1; index >= 0; index--) {
-                let keep = true;
-
-                console.log(section.fields[index]);
-
-                for(field of multiSelect.common) {
-                    if(field.fieldId === section.fields[index].fieldId) {
-                        if(field.value === section.fields[index].value) {
-                            keep = false;
-                        }
-                    }
-                }
-                for(field of multiSelect.varies) {
-                    if(field.fieldId === section.fields[index].fieldId) {
-                        if(section.fields[index].value === '') {
-                            keep = false;
-                        }
-                    }
-                }
-
-                console.log(keep);
-
-                if(!keep) section.fields.splice(index, 1);
-            }
-        }
-
-        console.log(params.sections);
+        
+        $('#overlay').hide();
 
     }
-
 
 }
 
