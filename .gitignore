@@ -1,9 +1,10 @@
 /keys/*.pem
 /node_modules
-/public/javascripts/dev
+/public/javascripts/dev/*
 /public/stylesheets/dev
 /public/cache/*
 /uploads/*
+/views/dev/*
 package-lock.json
 settings.*.js
 !.gitkeep
