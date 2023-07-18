@@ -1,8 +1,10 @@
 /keys/*.pem
 /node_modules
+/public/javascripts/dev
+/public/stylesheets/dev
 /public/cache/*
 /uploads/*
 package-lock.json
-settings.js
+settings.*.js
 !.gitkeep
 .DS_Store*
