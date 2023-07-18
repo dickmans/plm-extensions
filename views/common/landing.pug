@@ -182,7 +182,7 @@ block content
                             li Toggle BOM structure and flat table mode
                             li Access and download attachments of a selected item 
                             li Review &amp; edit details of selected records
-                            li Review changs processes related to a selected item
+                            li Review change processes related to a selected item
                             li Perform markups and initate new Problem Reports for given items
                             li Manage master data of single records 
                             li Manage master data of multiple records in flat BOM view
@@ -199,7 +199,7 @@ block content
                             strong Problem Reports 
                             | workspace of standard tenants. When new Problem Report get created, the viewer's image (including markups) will be uploaded to the new Problem Report as well. The parameter 
                             strong fieldIdProblemReportImage 
-                            | defines the image field's ID to be used for storing the image. Per default, this is set to 
+                            |defines the image field's ID to be used for storing the image. Per default, this is set to 
                             strong IMAGE_1 
                             | , matching the standard tenant configuration.
                         p.code
@@ -214,7 +214,7 @@ block content
                             span }
                         p This explorer also can be used to identify items to be shared with suppliers (i.e. new or changed components). Therefore, one can provide the Workspace ID of 
                             strong Supplier Packages 
-                            | in setting 
+                            |in setting 
                             strong wsIdSupplierPackages 
                             |. If this setting is provided, users can click the given icon to create a new package for selected BOM components easily
                         img(src='images/apps/product-data-explorer-1.png' style='max-width:1280px;')
@@ -326,7 +326,7 @@ block content
                             strong Items  
                             | can be connected to 
                             strong Problem Reports 
-                            | as affected items. The retrieval of related PRs and also creation of new PRs will fail otherwise.
+                            |as affected items. The retrieval of related PRs and also creation of new PRs will fail otherwise.
                         h1 Access the Explorer
                         p If your tenant contains the default demo datasets and once you have the BOM view configured as described above, you can open the explorer for validation purposes using the link below:
                         a(href='explorer?wsId=57&dmsId=14669' target='_blank')
@@ -395,7 +395,7 @@ block content
                                 strong viewer.fieldIdPartNumber 
                                 | within the settings file.
                             li If you renamed the standard workspaces of 
-                                strong Product Portfoliio Management
+                                strong Product Portfolio Management
                                 |, you can provide the new names in parameter 
                                 strong hierarchy
                                 |.
@@ -463,7 +463,7 @@ block content
                         p Use the 
                             strong Workspace Manager 
                             | to perform the following changes to your workspace 
-                            strong Design Reviews 
+                            strong Design Reviews
                             |:
                         ol 
                             li Add section 
@@ -471,17 +471,17 @@ block content
                                 | if it does not exist
                             li Add the field 
                                 strong Item 
-                                | (id ITEM) to it if it does not exist yet. Make this a single selection picklist field referring to workspace  
-                                strong Items
-                                | (or Vault Items and BOMs if Items does not exist)
+                                |(id ITEM) to it if it does not exist yet. Make this a single selection picklist field referring to workspace  
+                                strong Items 
+                                |(or Vault Items and BOMs if Items does not exist)
                             li Also, add the field 
-                                strong Image  
-                                | (id IMAGE) as derived field of the previous field and let it derive the image field
+                                strong Image 
+                                |(id IMAGE) as derived field of the previous field and let it derive the image field
                         h1 Configure Workspace Design Review Tasks
                         p Use the 
                             strong Workspace Manager 
                             | to perform the following changes to your workspace 
-                            strong Design Review Tasks 
+                            strong Design Review Tasks
                             |:
                         ol
                             li Add two fields of type paragraph: 
@@ -554,21 +554,21 @@ block content
                             span }   
                         p Parameter transitionId defines the workflow action ID that can be used to close / finish a given design review. If the user has permission to perform this defined transition, the given button 
                             strong Finish 
-                            | will be displayed when opening a design review.
+                            |will be displayed when opening a design review.
                         p The workspaces parameter enables to align this solution with your workspace configuation:     
                             ul 
                                 li reviews.id is used to determine the workspace ID of 
-                                    strong Design Reviews 
+                                    strong Design Reviews
                                 li reviews.sections is required to locate the section in 
                                     strong Item Details 
-                                    | of Design Reviews which contains the fields to store the findings (Issue, Deficiencies ...)
+                                    |of Design Reviews which contains the fields to store the findings (Issue, Deficiencies ...)
                                 li reviews.states defines the list of states that will be used for filtering the reviews in the landing page. 
                                 li tasks.id is used to determine the workspace ID of 
                                     strong Design Review Tasks 
-                                    | . If no id is provided, the solution will determine this id automatically by retrieving the workspaces enabled in the project tab of design reviews 
+                                    |. If no id is provided, the solution will determine this id automatically by retrieving the workspaces enabled in the project tab of design reviews 
                                 li tasks.sections is used to determine the required sections in 
                                     strong Item Details 
-                                    | of design review tassks workspace (the ones containing the fields required)
+                                    |of design review tasks workspace (the ones containing the fields required)
                                 li tasks.states is used to determine the color highlight of actions being shown in context of a review (states 1 &amp; 2 will be shown as new, 2 &amp; 3 as pending and state 4 as complete)
                         h1 Access the Design Review Portal
                         p You can access the design review portal with the 
@@ -607,7 +607,7 @@ block content
                                 strong Spare Wear Part 
                                 | of workspace 
                                 strong Items
-                                |. If this property's value is set to
+                                |. If this property's value is set to 
                                 strong Spare Part 
                                 | or 
                                 strong Wear Part 
@@ -628,7 +628,7 @@ block content
                             strong Service 
                             | for workspace 
                             strong Items 
-                            | and add at least the columns shown below. The sequence of columns does not matter and you may add further fields if needed.
+                            |and add at least the columns shown below. The sequence of columns does not matter and you may add further fields if needed.
                         table(style='margin:10px 0px 30px')
                             tr
                                 th Source
@@ -656,8 +656,8 @@ block content
                                 td Material
                             tr  
                                 td Item Details
-                                td Weight 
-                                td Weight 
+                                td Weight [Grams]
+                                td Weight [Grams]
                             tr  
                                 td Item Details
                                 td Dimensions (LxWxH) 
@@ -674,7 +674,7 @@ block content
                             | in the 
                             strong Workspace Manager
                             |. In here, enable connections to workspace 
-                            strong Items
+                            strong Items 
                             | in 
                             strong Managed Items Tab 
                             | in order to support creation of new PRs.
@@ -860,8 +860,8 @@ block content
                                 | to enable creation of new requests from within the application
                         h1 Access the Services Portal
                         p You can access the Services Portal portal with the /service enpoint. Provide the wsId dmsId of the 
-                            strong Vault Items and BOMs 
-                            | record to be visualised as parameter parameters. The following link will work for default demo tenants containing the default demo data. Please note that none of the demo items has been set as spare part yet:
+                            strong Items 
+                            |record to be visualised as parameter parameters. The following link will work for default demo tenants containing the default demo data. Please note that none of the demo items has been set as spare part yet:
                         a(href='service?wsId=57&dmsId=14669' target='_blank')
                         a(href='service?wsId=57&dmsId=14849' target='_blank' style='margin-left:20px;')
                     .log 
@@ -965,7 +965,7 @@ block content
                         p.code CASE WHEN (CLASS_NAME is null) THEN '' ELSE '&lt;a style="border: 1px solid #bec8d2;border-radius:3px;padding:4px 20px;color: #0a131c;font-weight:600;line-height:32px;text-align:center;text-decoration:none !important;white-space:nowrap;width:160px;" target="_blank" href="
                             span.url http://localhost:8080
                             |classes?wsId=57&amp;dmsId='||DMS_ID||'"&gt;Find Similar Parts&lt;/a&gt;' END
-                        p Note that this formula must contain the right workspace ID (..wsId=57..) to match the ID of workspace
+                        p Note that this formula must contain the right workspace ID (..wsId=57..) to match the ID of workspace 
                             strong Items 
                             | in your tenant (57 is valid for the default tenant).
                         p Of course, the classification section also must be present in this workspace :-)
@@ -1002,7 +1002,7 @@ block content
                             span.indent if(item.CLASS_NAME !== className) item.CLASS_NAME = className;
                             span }
                         h1 Access the Class Browser
-                        p From now on, once an item gets classified, there will now be a button 
+                        p From now on there will be a button, whenever the item is classified 
                             strong Find Similar Parts 
                             | in section 
                             strong Classification Summary 
@@ -1028,7 +1028,7 @@ block content
                             strong Affected Items
                             |. 
                             br
-                            | To do so, multiple information is retrieved in parallel and devided in various tabls. So for each affected item, users can easily review the following information:
+                            | To do so, multiple information is retrieved in parallel and devided in various tables. So for each affected item, users can easily review the following information:
                         ul  
                             li 3D view of the attached dwf
                             li 
@@ -1051,9 +1051,9 @@ block content
                         h1 Configuration Changes
                         p Peform the following changes to workspace 
                             strong Change Orders 
-                            | to enable the impact analysis before releasing a change. In addition, you can perform the same changes in workspace 
+                            |to enable the impact analysis before releasing a change. In addition, you can perform the same changes in workspace 
                             strong Change Requests 
-                            | to benefit of the exact same features while accessing impact of a proposed change.
+                            |to benefit of the exact same features while accessing impact of a proposed change.
                         h2 Store DMSID
                         p In order to make this dashboard work, you have to add a (hidden) field 
                             strong DMS_ID 
@@ -1062,18 +1062,18 @@ block content
                         img(src='images/apps/impact-analysis-2.png' style='max-width:640px;border:1px solid #333;')
                         p Use the following script code at 
                             strong Change Orders 
-                            | / 
+                            |/ 
                             strong Change Requests 
                             | creation to store the given dmsID (attach this script to the initial workflow transition or the given create event):
                         p.code item.DMS_ID = dmsID;
                         h2 Action Button
                         p Add a button to the 
                             strong Item Details 
-                            | tab, enabling to open the analysis dashboard in context ...
+                            |tab, enabling to open the analysis dashboard in context ...
                         img(src='images/apps/impact-analysis-1.jpg' style='height:240px;border:1px solid #333;')
                         p ... implement this button by adding a computed field 
                             strong Actions 
-                            | with the formula shown below. Replace the workspace ID to match yours (..wsId=84..). In a standard tenant, 84 matches the 
+                            |with the formula shown below. Replace the workspace ID to match yours (..wsId=84..). In a standard tenant, 84 matches the 
                             strong Change Orders 
                             | and 83 matches the 
                             strong Change Requests 
@@ -1165,7 +1165,7 @@ block content
                         ul 
                             li Add EBOM items to the MBOM easily with clicks
                             li Add further items to the MBOM using drag &amp; drop 
-                            li Use the Disassemle mode to quickly define the MBOM by reversing the order
+                            li Use the Disassemble mode to quickly define the MBOM by reversing the order
                             li Use color codes to identify mismatches in EBOM and MBOM 
                             li Access details of selected items in right hand side panel whenever needed
                             li Manage multiple MBOMs per EBOM item (i.e. site specific BOMs)
@@ -1250,7 +1250,7 @@ block content
                             li EBOM Root Item
                         p If instead you will use two different workspaces, you have to add a new BOM view 
                             strong MBOM Transition 
-                            | with at least the following columnns:
+                            |with at least the following columnns:
                         ol  
                             li EBOM
                             li Is Process
@@ -1418,7 +1418,7 @@ block content
                                 p Note that you can choose other field labels of course. This documentation only reuses the field ID to better describe the setup process.           
                             li In the EBOM workspace's BOM view 
                                 strong MBOM Transition 
-                                | add the following columns:    
+                                |add the following columns:    
                                 ul 
                                     li MBOM_G
                                     li MBOM_1
@@ -1464,7 +1464,7 @@ block content
                         h2 Create new workspace
                         p Use the 
                             strong Workspace Manager 
-                            | to create new workspace 
+                            |to create new workspace 
                             strong Item Variants 
                             |. 
                             img.border(src='images/apps/variant-manager-1.png' style='max-width:1092px;')
@@ -1489,7 +1489,7 @@ block content
                                     | Set a computation formula for the NAME field: 
                                     p.code CASE WHEN(TITLE is null) Then NUMBER Else TITLE END
                         p In section 
-                            strong Variant Definition 
+                            strong Variant Definition
                             |, add all the fields that will be used to define a variant. For example: Color and Material. This may include any type of field, including pick lists.
                         p All data that should be derived from the 
                             strong Base Item 
@@ -1510,7 +1510,7 @@ block content
                             | tab of 
                             strong Problem Reports
                             |, 
-                            strong Change Requests 
+                            strong Change Requests
                             | and 
                             strong Change Orders
                             |.
@@ -1521,7 +1521,7 @@ block content
                         img.border(src='images/apps/variant-manager-3.png' style='max-width:351px;')
 
                         h2 Bill of Materials tab
-                        p Add the following BOM field to the Bill of Materials
+                        p Add the following BOM field to the Bill of Materials 
                             strong Default View
                             |:
                             br
@@ -1552,7 +1552,7 @@ block content
                                     td Item Details
                         p In addition, add all fields of section 
                             strong Variant Definition 
-                            | to this table.
+                            |to this table.
                         h2 Scripts
                         p Entries of workspace Item Variants should receive a new number by script and also should be linked to the given base item. 
                             br
@@ -1623,7 +1623,7 @@ block content
                                     td -
                                     td Workspace ID of your new 
                                         strong Item Variants 
-                                        | workspace
+                                        |workspace
                                 tr  
                                     td variantsSectionLabel
                                     td Variant Definition 
