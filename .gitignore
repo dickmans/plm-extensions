@@ -4,7 +4,7 @@
 /public/stylesheets/dev
 /public/cache/*
 /uploads/*
-/views/dev/*
+/views/dev
 package-lock.json
 settings.*.js
 !.gitkeep
