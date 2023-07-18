@@ -41,8 +41,6 @@ function insertViewer(link, color) {
 
     $.get('/plm/get-viewables', { 'link' : link }, function(response) {
 
-        console.log(response);
-
         if($('#viewer').attr('data-link') !== response.params.link) return;
 
         if(response.data.length > 0) {
