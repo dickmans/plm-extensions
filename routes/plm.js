@@ -1769,13 +1769,15 @@ router.get('/get-viewables', function(req, res, next) {
     console.log(' ');
     console.log('  /get-viewables');
     console.log(' --------------------------------------------');  
-    console.log('  req.query.wsId  = ' + req.query.wsId);
-    console.log('  req.query.dmsId = ' + req.query.dmsId);
-    console.log('  req.query.link  = ' + req.query.link);
+    console.log('  req.query.wsId       = ' + req.query.wsId);
+    console.log('  req.query.dmsId      = ' + req.query.dmsId);
+    console.log('  req.query.link       = ' + req.query.link);
+    console.log('  req.query.extensions = ' + req.query.extensions);
     
-    let link = (typeof req.query.link === 'undefined') ? '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId : req.query.link;
-    let url  = 'https://' + req.session.tenant + '.autodeskplm360.net' + link + '/attachments?asc=name';
-    
+    let link        = (typeof req.query.link === 'undefined') ? '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId : req.query.link;
+    let url         = 'https://' + req.session.tenant + '.autodeskplm360.net' + link + '/attachments?asc=name';
+    let extensions  = (typeof req.query.extensions === 'undefined') ? ['dwf', 'dwfx', 'ipt'] : req.query.extensions;
+
     let headers = getCustomHeaders(req);
         headers.Accept = 'application/vnd.autodesk.plm.attachments.bulk+json';
 
@@ -1790,9 +1792,16 @@ router.get('/get-viewables', function(req, res, next) {
             for(let i = 0; i < response.data.attachments.length; i++) {
 
                 let attachment = response.data.attachments[i];
-
+                
                 if(attachment.type.extension !== null) {
-                    if(attachment.type.extension.endsWith('dwf') || attachment.type.extension.endsWith('dwfx')) {
+
+                    let extensionMatch = false;
+
+                    for(extension of extensions) {
+                        if(attachment.type.extension.endsWith(extension)) extensionMatch = true;
+                    }
+
+                    if(extensionMatch) {
                         viewables.push({
                             'id'            : attachment.id,
                             'description'   : attachment.description,
