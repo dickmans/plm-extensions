@@ -654,6 +654,19 @@ tr.node.bom-level-10 .bom-tree-color { margin-right : 230px; }
 }
 
 
+@media (max-width : 1440px)  {
+
+    #header-toolbar .button.with-icon {
+        max-width : 22px;
+        overflow : hidden;
+    }
+
+    #header-toolbar .button.with-icon::before {
+        margin-right : 20px;
+    }
+
+}
+
 
 @media only screen 
 and (min-device-width : 768px) 
