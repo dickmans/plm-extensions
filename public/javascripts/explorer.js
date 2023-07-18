@@ -227,7 +227,7 @@ function onViewerSelectionChanged(event) {
 
             for(property of data.properties) {
 
-                if(viewerOptions.partNumberProperties.indexOf(property.displayName) > -1) {
+                if(config.viewer.partNumberProperties.indexOf(property.displayName) > -1) {
 
                     let partNumber = property.displayValue;
 
