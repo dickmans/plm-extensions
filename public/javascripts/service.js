@@ -1,7 +1,8 @@
-let fields, sections, viewId, wsIdRequests, sectionIdRequests;
+let fields, sections, wsIdRequests, sectionIdRequests;
 let listSpareParts  = [];
 let listWearParts   = [];
 let urnPartNumber   = '';
+let maintenanceMode = false;
 let urns = {
     'thumbnail'     : '', 
     'partNumber'    : '', 
@@ -13,26 +14,36 @@ let urns = {
     'dimensions'    : ''
 }
 
-let wsIdProblemReport   = '82';
-let maintenanceMode     = false;
-let viewerDone          = false;
-let wsProblemReports    = { 'sections' : [], 'fields' : [] };
+let selectedBOMContext      = '';
+let wsProblemReports        = { 'id' : '', 'sections' : [], 'fields' : [] };
+let wsSparePartsRequests    = { 'id' : '', 'sections' : [], 'fields' : [] };
 
 
 $(document).ready(function() {
     
+    wsProblemReports.id      = config.service.wsIdProblemReports;
+    wsSparePartsRequests.id  = config.service.wsIdSparePartsRequests;
+
     let link = '/api/v3/workspaces/' + wsId + '/items/' + dmsId;
 
     if(typeof options !== undefined) {
         if(options === 'iot') enableIOT();
     }
 
-    getDetails();
-    getWSConfig();
-    getRequestWSConfig();
+    appendProcessing('bom', false);
+    appendProcessing('details', false);
+    appendProcessing('attachments', true);
+
+    appendProcessing('items', false);
+    appendProcessing('processes', false);
+
+    appendViewerProcessing();
+    appendOverlay();
+
+    getInitialData();
     setViewer();
     setUIEvents();
-    setAttachments(link);
+    insertAttachments(link);
     setProcesses(link);
     
 });
@@ -40,6 +51,12 @@ $(document).ready(function() {
 function setUIEvents() {
 
     // Header Toolbar
+    $('#button-reset').click(function() {
+        $('tr.selected').click();
+        viewerResetSelection(true);
+        resetSparePartsList();
+        $(this).hide();
+    });
     $('#button-settings').click(function() {
         $('#overlay').show();
         $('#options').show();
@@ -77,7 +94,7 @@ function setUIEvents() {
     // Process Creation
     $('#create-process').click(function() {
         
-        let elemParent = $('#processes-form');
+        let elemParent = $('#processes-details');
             elemParent.html('');
             elemParent.show();
 
@@ -86,35 +103,36 @@ function setUIEvents() {
 
         $('#processes-list').hide();
 
-        insertItemDetails(elemParent, wsProblemReports.sections, wsProblemReports.fields, null, true, true, true);
+        insertItemDetailsFields('processes', '', wsProblemReports.sections, wsProblemReports.fields, null, true, true, true);
 
     });
     $('#cancel-process').click(function() {
 
-        $('.process-dialog').hide();
         $('#create-process').show();
+        $('.process-dialog').hide();
         $('#processes-list').show();
-        $('#processes-form').hide();
+        $('#processes-sections').hide();
 
     });
     $('#save-process').click(function() {
 
-        if(!validateForm($('#processes-form'))) return;
+        if(!validateForm($('#processes-sections'))) return;
 
         viewerCaptureScreenshot(function() {
 
-            $('#processes-form').hide();
+            $('#processes-toolbar').hide();
+            $('#processes-sections').hide();
             $('#processes-list').html('');
             $('#processes-list').show('');
-            $('#processes-process').show();
+            $('#processes-processing').show();
     
             let link = $('#processes-list').attr('data-source');
     
-            submitCreateForm(wsIdProblemReport, $('#processes-form'), function(response ) {
+            submitCreateForm(wsProblemReports.id, $('#processes-sections'), 'viewer-markup-image', function(response ) {
 
                 let newLink = response.data.split('.autodeskplm360.net')[1];
-                // $.get('/plm/add-managed-items', { 'link' : newLink, 'items' : [ link ] }, function(response) {
-                $.get('/plm/add-relationship', { 'link' : newLink, 'relatedId' : link.split('/')[6] }, function(response) {
+                $.get('/plm/add-managed-items', { 'link' : newLink, 'items' : [ link ] }, function(response) {
+                // $.get('/plm/add-relationship', { 'link' : newLink, 'relatedId' : link.split('/')[6] }, function(response) {
                     setProcesses($('#processes-list').attr('data-source'));
                     $('.process-dialog').hide();
                     $('#create-process').show();
@@ -130,67 +148,7 @@ function setUIEvents() {
 
     // Submit Request Dialog functions
     $('#request-submit').click(function() {
-        
-        $('#request').hide();
-        $('#overlay .progress').show();
-        
-        let params = {
-            'wsId'     : wsIdRequests,
-            'sections' : [
-                {
-                    'id'        : sectionIdRequests,
-                    'fields'    : [{
-                        'fieldId'   : 'LINKED_ITEM',
-                        'value'     : { 'link' : '/api/v3/workspaces/' + wsId + '/items/' + dmsId },
-                        'type'      : 'picklist'
-                    },{
-                        'fieldId'   : 'COMMENTS',
-                        'value'     : $('#comments').val(),
-                        'type'      : 'string'
-                    }]
-                }
-            ]
-        } 
-
-        $.post({
-            url         : '/plm/create', 
-            contentType : "application/json",
-            data        : JSON.stringify(params)
-        }, function(response) {
-    
-
-            if(!response.error) {
-
-                $('.request-item').each(function() {
-
-                    let link     = $(this).parent().attr('data-link');
-                    let quantity = $(this).next().children().first().val();
-
-                    let params = {
-                        'wsId' : wsIdRequests,
-                        'link' : response.data.split('.autodeskplm360.net')[1],
-                        'data' : [
-                            { 'fieldId' : 'ITEM', 'value' : { 'link' : link } },
-                            { 'fieldId' : 'QUANTITY', 'value' : quantity }
-                        ]
-                    }
-                    
-                    $.get('/plm/add-grid-row', params, function(response) {
-                        console.log(response);
-                    });
-
-
-                });
-
-
-            }
-
-            $('#overlay').hide();
-            $('#overlay .progress').hide();
-            $('.spare-part.selected').each(function() { $(this).click(); });
-    
-        });
-
+        submitRequest();
     });
     $('#request-cancel').click(function() {
         $('#request').hide();
@@ -199,39 +157,34 @@ function setUIEvents() {
 
 
     // BOM Tree Actions
-    $('#bom-reset').click(function() {
-        $('tr.selected').click();
-        resetViewerSelection(true);
-        resetSparePartsList();
-    });
     $('#bom-search-input').keyup(function() {
         filterBOMTree();
     });
 
 
     // Tab Control
-    $('#tabs').children().click(function() {
-        let id = $(this).attr('data-id');
-        $('.tab').hide();
-        $('#' + id).show();
-        $(this).addClass('selected');
-        $(this).siblings().removeClass('selected');
-        maintenanceMode = $('#tab-charts').hasClass('selected');
-        if(!maintenanceMode) {
-            if($('#bom-table').children('.selected').length === 0) {
-                if(viewerDone) {
-                    viewerResetColors();
-                    viewer.showAll();
-                }
-            }
-        } else {
-            if(viewerDone) {
-                viewer.hideAll();
-                viewerUnhideModels(listWearParts);
-            }
-        }
-    });
-    $('#tabs').children().first().click();
+    // $('#tabs').children().click(function() {
+    //     let id = $(this).attr('data-id');
+    //     $('.tab').hide();
+    //     $('#' + id).show();
+    //     $(this).addClass('selected');
+    //     $(this).siblings().removeClass('selected');
+    //     maintenanceMode = $('#tab-charts').hasClass('selected');
+    //     if(!maintenanceMode) {
+    //         if($('#bom-table').children('.selected').length === 0) {
+    //             if(viewerDone) {
+    //                 viewerResetColors();
+    //                 viewer.showAll();
+    //             }
+    //         }
+    //     } else {
+    //         if(viewerDone) {
+    //             viewer.hideAll();
+    //             viewerUnhideModels(listWearParts);
+    //         }
+    //     }
+    // });
+    // $('#tabs').children().first().click();
 
 
     // Maintenance Controls
@@ -249,33 +202,6 @@ function setUIEvents() {
 
 }
 
-
-
-// Get Context Item Ddetails
-function getDetails() {
-    
-    $.get('/plm/details', { 'wsId' : wsId, 'dmsId' : dmsId }, function(response) {
-        
-        $('#header-subtitle').html(response.data.title);
-        
-    });
-    
-}
-function getFieldValue(sections, fieldId, defaultValue) {
-
-    for(section of sections) {
-        for(field of section.fields) {
-            let id = field.urn.split('.')[9];
-            if(id === fieldId) {
-                return field.value;
-            }
-
-        }
-    }
-
-    return defaultValue;
-
-}
 
 
 // Get viewable and init Forge viewer
@@ -303,7 +229,7 @@ function setViewer() {
     });
 
 }
-function onSelectionChanged(event) {
+function onViewerSelectionChanged(event) {
 
     let found = false;
 
@@ -362,10 +288,7 @@ function onSelectionChanged(event) {
 }
 function initViewerDone() {
 
-    viewerDone = true;
-
     viewerAddMarkupControls();   
-    viewerAddGhostingToggle();
     viewerAddViewsToolbar();
 
     $('#viewer-markup-image').attr('data-field-id', 'IMAGE_1');
@@ -374,37 +297,54 @@ function initViewerDone() {
 
 
 // Retrieve Workspace Details, BOM and details
-function getWSConfig() {
+function getInitialData() {
 
     let promises = [
-        $.get('/plm/bom-views-and-fields', { 'wsId' : wsId }),
-        $.get('/plm/sections', { 'wsId' : wsId }),
-        $.get('/plm/fields', { 'wsId' : wsId }),
-        $.get('/plm/sections', { 'wsId' : wsIdProblemReport }),
-        $.get('/plm/fields', { 'wsId' : wsIdProblemReport })
+        $.get('/plm/bom-views-and-fields'   , { 'wsId' : wsId }),
+        $.get('/plm/details'                , { 'wsId' : wsId, 'dmsId' : dmsId }),
+        $.get('/plm/sections'               , { 'wsId' : wsId }),
+        $.get('/plm/fields'                 , { 'wsId' : wsId }),
+        $.get('/plm/sections'               , { 'wsId' : wsProblemReports.id }),
+        $.get('/plm/fields'                 , { 'wsId' : wsProblemReports.id }),
+        $.get('/plm/sections'               , { 'wsId' : wsSparePartsRequests.id })
     ];
 
     Promise.all(promises).then(function(responses) {
 
-        for(view of responses[0].data) {
-            if(view.name === 'Service') {
-                viewId = view.id;
+        let errors = false;
+
+        for(response of responses) {
+            if(response.error) {
+                let message = (isBlank(response.data.message)) ? 'Error in accessing ' + response.params.url : response.data.message;
+                showErrorMessage(message, 'Error occured');
+                errors = true;
             }
         }
 
-        getBOMData(viewId);
+        if(!errors) {
 
-        sections                    = responses[1].data;
-        fields                      = responses[2].data;
-        wsProblemReports.sections   = responses[3].data;
-        wsProblemReports.fields     = responses[4].data;
+            for(view of responses[0].data) {
+                if(view.name === config.service.bomViewName) {
+                    getBOMData(view.id, view.fields);
+                }
+            }
 
-        setItemDetails('/api/v3/workspaces/' + wsId + '/items/' + dmsId);
+            $('#header-subtitle').html(responses[1].data.title);
+
+            sections                        = responses[2].data;
+            fields                          = responses[3].data;
+            wsProblemReports.sections       = responses[4].data;
+            wsProblemReports.fields         = responses[5].data;
+            wsSparePartsRequests.sections   = responses[6].data;
+
+            insertItemDetails('/api/v3/workspaces/' + wsId + '/items/' + dmsId);
+
+        }
 
     });
 
 }
-function getBOMData(viewId) {
+function getBOMData(viewId, viewColumns) {
 
     let params = {
         'wsId'          : wsId,
@@ -415,14 +355,13 @@ function getBOMData(viewId) {
     }
 
     let promises = [
-        $.get('/plm/bom-view-fields', params),
         $.get('/plm/bom', params),
         $.get('/plm/bom-flat', params)
     ];
 
     Promise.all(promises).then(function(responses) {
-        $('#bom-process').hide();
-        setBOMData(responses[0].data, responses[1].data, responses[2].data);
+        $('#bom-processing').hide();
+        setBOMData(viewColumns,responses[0].data, responses[1].data);
     });
 
 }
@@ -433,30 +372,26 @@ function setBOMData(fields, bom, flatBom) {
 
     for(field of fields) {
     
-             if(field.fieldId === 'NUMBER')          urns.partNumber     = field.__self__.urn;
-        else if(field.fieldId === 'THUMBNAIL')       urns.thumbnail      = field.__self__.urn;
-        else if(field.fieldId === 'TITLE')           urns.title          = field.__self__.urn;
-        else if(field.fieldId === 'DESCRIPTION')     urns.description    = field.__self__.urn;
-        else if(field.fieldId === 'SPAREWEAR_PART')  urns.spareWearPart  = field.__self__.urn; 
-        else if(field.fieldId === 'MATERIAL')        urns.material       = field.__self__.urn;
-        else if(field.fieldId === 'MASS')            urns.mass           = field.__self__.urn;
-        else if(field.fieldId === 'DIMENSIONSSIZE')  urns.dimensions     = field.__self__.urn;
+             if(field.fieldId === 'NUMBER')                             urns.partNumber     = field.__self__.urn;
+        else if(field.fieldId === 'PART_NUMBER')                        urns.partNumber     = field.__self__.urn;
+        else if(field.fieldId === 'THUMBNAIL')                          urns.thumbnail      = field.__self__.urn;
+        else if(field.fieldId === 'TITLE')                              urns.title          = field.__self__.urn;
+        else if(field.fieldId === 'DESCRIPTION')                        urns.description    = field.__self__.urn;
+        else if(field.fieldId === config.service.fieldId)               urns.spareWearPart  = field.__self__.urn; 
+        else if(field.fieldId === config.service.spartPartDetails[0])   urns.material       = field.__self__.urn;
+        else if(field.fieldId === config.service.spartPartDetails[1])   urns.weight         = field.__self__.urn;
+        else if(field.fieldId === config.service.spartPartDetails[2])   urns.dimensions     = field.__self__.urn;
 
     }
 
     insertNextBOMLevel(bom, elemRoot, 'urn:adsk.plm:tenant.workspace.item:' + tenant.toUpperCase() + '.' + wsId + '.' + dmsId, flatBom);
     insertWearParts();
 
-
-    $('.spare-part').click(function() {
-        $(this).toggleClass('selected');
-        updateCounter();
+    $('.spare-part').click(function(e) {
+        clickSparePart(e, $(this));
     });
 
-    $('#items-process').hide();
-
-
-    // setSparePartsList();
+    $('#items-processing').hide();
 
     $('.bom-nav').click(function(e) {
 
@@ -534,12 +469,20 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom) {
                 elemRow.attr('data-status', 'match');
                 elemRow.appendTo(elemRoot);
 
-            if((isSparePart.toLowerCase() === 'spare part') || (isSparePart.toLowerCase() === 'yes') ||  (isSparePart.toLowerCase() === 'wear part')) {
+            // if((isSparePart.toLowerCase() === 'spare part') || (isSparePart.toLowerCase() === 'yes') ||  (isSparePart.toLowerCase() === 'wear part')) {
+            if(config.service.fieldValues.indexOf(isSparePart.toLowerCase()) > -1) {
 
                 elemRow.addClass('is-spare-part');
 
                 let valueImage = getFlatBOMCellValue(flatBom, link, urns.thumbnail);
-                let linkImage = (valueImage === '') ? '' : valueImage;
+                let linkImage   = (valueImage === '') ? '' : valueImage;
+                let qty         = 0;
+
+                for(flatItem of flatBom) {
+                    if(flatItem.item.link === link) {
+                        qty = flatItem.totalQuantity;
+                    }
+                }
 
                 if(isSparePart.toLowerCase() === 'wear part') {
                     listWearParts.push({
@@ -549,6 +492,8 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom) {
                     });
                 }
 
+                if(listSpareParts.length > 20) $('#items-list').removeClass('l').addClass('m');
+
                 if(listSpareParts.indexOf(edge.child) === -1) {
 
                     listSpareParts.push(edge.child);
@@ -557,7 +502,7 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom) {
                     let stockClass  = 'normal';
                     let stockRandom = Math.floor(Math.random() * 3) + 1;
 
-                    if(stockRandom === 2) { stockLabel = 'Low stock'; stockClass = 'low'; }
+                         if(stockRandom === 2) { stockLabel = 'Low stock'; stockClass = 'low'; }
                     else if(stockRandom === 3) { stockLabel = 'Out of stock'; stockClass = 'none'; }
 
                     let elemSparePart = $('<div></div>');
@@ -565,6 +510,7 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom) {
                         elemSparePart.addClass('spare-part-stock-' + stockClass);
                         elemSparePart.attr('data-link', link);
                         elemSparePart.attr('data-part-number', partNumber);
+                        elemSparePart.attr('data-qty', qty);
                         elemSparePart.appendTo($('#items-list'));
                         
                     let elemSparePartImage = $('<div></div>');
@@ -599,10 +545,16 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom) {
                         elemSparePartNumber.addClass('tile-title');
                         elemSparePartNumber.html(getBOMCellValue(edge.child, urns.partNumber, bom.nodes));
                         elemSparePartNumber.appendTo(elemSparePartDetails);
+
+
+                    let elemSparePartQuantity = $('<span></span>');
+                        elemSparePartQuantity.addClass('spare-part-quantity');
+                        elemSparePartQuantity.html(qty);
+                        elemSparePartQuantity.prependTo(elemSparePartNumber);
+
                     
                     let elemSparePartTitle = $('<div></div>');
                         elemSparePartTitle.addClass('spare-part-title');
-                        // elemSparePartTitle.addClass('nowrap');
                         elemSparePartTitle.html(getBOMCellValue(edge.child, urns.title, bom.nodes));
                         elemSparePartTitle.appendTo(elemSparePartDetails);
                     
@@ -615,7 +567,7 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom) {
                         elemSparePartMaterial.appendTo(elemSparePartDetails);
 
                     let partSpec        = '';
-                    let partWeight      = getBOMCellValue(edge.child, urns.mass, bom.nodes);
+                    let partWeight      = getBOMCellValue(edge.child, urns.weight, bom.nodes);
                     let partDimensions  = getBOMCellValue(edge.child, urns.dimensions, bom.nodes);
 
                     if(partWeight !== '') {
@@ -637,16 +589,7 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom) {
                         elemSparePartShowMe.html('Zoom');
                         elemSparePartShowMe.appendTo(elemSparePartSide);
                         elemSparePartShowMe.click(function(e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            let elemSelected = $(this).closest('.spare-part');
-                            let link = elemSelected.attr('data-link');
-                            viewerResetColors();
-                            viewerSelectModel(elemSelected.attr('data-part-number'), true);
-                            $('#bom-reset').show();
-                            $('#bom-tree').children().each(function() {
-                                if($(this).attr('data-link') === link) $(this).addClass('selected'); else $(this).removeClass('selected');
-                            });
+                            clickSparePartShowMe(e, $(this));
                         });
 
                     let elemSparePartStock = $('<div></div>');
@@ -668,37 +611,9 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom) {
                 }
             }
 
-            // for(key of keysMaster) {
-            //     let elemCell = $('<td></td>');
-            //         elemCell.appendTo(elemRow);
-            //         elemCell.html(getBOMCellValue(edge.child, key, bom.nodes));
-            // }
-
-            // console.log(edge);
-            // console.log(bom.nodes);
-
             let elemCell = $('<td></td>');
                 elemCell.appendTo(elemRow);
                 elemCell.html(getBOMItem(edge.child, bom.nodes));
-
-            // let elemCellStatus = $('<td></td>');
-            //     elemCellStatus.addClass('cell-status');
-            //     elemCellStatus.appendTo(elemRow);
-
-            // for(key of keysVariant) {
-
-            //     let elemCell = $('<td></td>');
-            //         elemCell.addClass('cell-variant');
-            //         elemCell.appendTo(elemRow);
-
-            //     let elemInput = $('<input>');
-            //         elemInput.attr('data-value', '');
-            //         elemInput.appendTo(elemCell);
-            //         elemInput.keypress(function (e) {
-            //             updateValue($(this), e);
-            //         });
-
-            // }
 
             let hasChildren = insertNextBOMLevel(bom, elemRoot, edge.child, flatBom);
 
@@ -710,7 +625,7 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom) {
 
                     let elemNav = $('<i></i>');
                         elemNav.addClass('bom-nav');
-                        elemNav.addClass('material-symbols-sharp');
+                        elemNav.addClass('icon');
                         elemNav.addClass('expanded');
                         elemNav.prependTo($(this));
 
@@ -726,19 +641,7 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom) {
 
     return result;
 
-
 }
-// function getBOMItemLink(id, nodes) {
-
-//     for(node of nodes) {
-//         if(node.item.urn === id) {
-//             return node.item.link;
-//         }
-//     }
-
-//     return '';
-    
-// }
 function getBOMItem(id, nodes) {
 
     for(node of nodes) {
@@ -879,24 +782,22 @@ function unhideParents(level, elem) {
 function selectBOMItem(elemClicked) {
 
     if(elemClicked.hasClass('selected')) {
-        $('#bom-reset').hide();
         elemClicked.removeClass('selected');
-        resetViewerSelection(true);
-        setAttachments('/api/v3/workspaces/' + wsId + '/items/' + dmsId);
+        insertItemDetails('/api/v3/workspaces/' + wsId + '/items/' + dmsId);
+        insertAttachments('/api/v3/workspaces/' + wsId + '/items/' + dmsId);
         setProcesses('/api/v3/workspaces/' + wsId + '/items/' + dmsId);
         resetSparePartsList();
+        updateViewer();
     } else {
-        viewerResetColors();
-        $('#bom-reset').show();
         $('tr.selected').removeClass('selected');
         elemClicked.addClass('selected');
-        setItemDetails(elemClicked.attr('data-link'));
-        setAttachments(elemClicked.attr('data-link'));
+        insertItemDetails(elemClicked.attr('data-link'));
+        insertAttachments(elemClicked.attr('data-link'));
         setProcesses(elemClicked.attr('data-link'));
         setSparePartsList(elemClicked);
-        viewerSelectModel(elemClicked.attr('data-part-number'), true);;
+        // viewerResetColors();
+        updateViewer();
     }
-
 
     // if(maintenanceMode) {
     //     viewerSetColors(listRed     , new THREE.Vector4(1,   0, 0, 0.5));
@@ -909,22 +810,7 @@ function selectBOMItem(elemClicked) {
 }
 
 
-// Retrieve required details of workspace Spare Parts Requests
-function getRequestWSConfig() {
-
-    $.get('/plm/get-workspace-id', { 'name' : 'Spare Parts Requests' }, function(response) {
-        wsIdRequests = response.data;
-        $.get('/plm/sections', { 'wsId' : wsIdRequests }, function(response) {
-            if(response.data.length > 0) {
-                sectionIdRequests = response.data[0].urn.split('.')[5];
-            }
-        });
-    });
-
-}
-
-
-
+// Parse BOM for Spare Parts
 function setSparePartsList(elemItem) {
 
     let list = [];
@@ -932,7 +818,7 @@ function setSparePartsList(elemItem) {
     // let elemParent = $('#items-list');
     //     elemParent.html('');
 
-    $('#items-process').show();
+    $('#items-processing').show();
 
     let level       = 0;
     let elemNext    = $('tr').closest().first();
@@ -975,7 +861,7 @@ function setSparePartsList(elemItem) {
 
     } while(levelNext > level);
 
-    $('#items-process').hide();
+    $('#items-processing').hide();
 
 }
 function resetSparePartsList() {
@@ -985,34 +871,120 @@ function resetSparePartsList() {
 }
 
 
-function setItemDetails(link) {
+// Spare Part Interactions
+function clickSparePart(e, elemClicked) {
 
-    $('#details-process').show();
+    elemClicked.toggleClass('selected');
+    updateCounter();
+    updateViewer();
 
-    let elemParent = $('#sections');
-        elemParent.html('');
+}
+function clickSparePartShowMe(e, elemClicked) {
 
-    $.get('/plm/details', { 'link' : link }, function(response) {
-        insertItemDetails(elemParent, sections, fields, response.data, false, false, false);
-        $('#details-process').hide();
-    });
+    e.preventDefault();
+    e.stopPropagation();
+
+    let elemSelected = elemClicked.closest('.spare-part');
+        elemSelected.toggleClass('zoom');
+        elemSelected.siblings().removeClass('zoom');
+
+    updateViewer();
 
 }
 
 
+// Viewer interactions
+function onViewerSelectionChanged(event) {
 
-// Display selected item's attachments
-function setAttachments(link) {
+    if(disableViewerSelectionEvent) return;
 
-    $('#attachments-process').show();
+    if (event.dbIdArray.length === 1) {
 
-    let elemParent = $('#attachments-list');
-        elemParent.html('');
+        viewer.getProperties(event.dbIdArray[0], function(data) {
 
-    $.get('/plm/attachments', { 'link' : link }, function(response) {
-        insertAttachments(elemParent, response.data, true);
-        $('#attachments-process').hide();
+            let partNumber = data.name.split(':')[0];
+            let propertyMatch = false;
+
+            for(partNumberProperty of config.viewer.partNumberProperties) {
+                for(property of data.properties) {
+                    if(property.displayName === partNumberProperty) {
+                        partNumber = property.displayValue;
+                        if(partNumber.indexOf(':') > -1) { partNumber = partNumber.split(':')[0]; }
+                        propertyMatch = true;
+                        break;
+                    }
+                }
+                if(propertyMatch) break;
+            }
+
+            $('.spare-part').each(function() {
+
+                if($(this).attr('data-part-number') === partNumber) {
+                    
+                    let link = $(this).attr('data-link');
+
+                    if($('#details').attr('data-link') !== link){
+                        insertAttachments(link);
+                        insertItemDetails(link);
+                        setProcesses(link);
+                    }
+                       
+                    $(this).click();
+
+                }
+
+            })
+        });
+
+    }
+
+}
+
+
+// Apply colors and hide components according to selection
+function updateViewer() {
+
+    disableViewerSelectionEvent = true;
+
+    let selectedBOMNode = $('#bom-table').children('.selected');
+    let zoomPart = $('.spare-part.zoom').first();
+
+    viewerResetColors();
+
+    if(selectedBOMNode.length === 1) {
+
+        let partNumber = selectedBOMNode.attr('data-part-number');
+        let resetView  = (partNumber !== selectedBOMContext);
+
+        viewer.hideAll();
+        viewer.setGhosting(false);
+        viewerUnhideModel(selectedBOMNode.attr('data-part-number'), resetView);
+        selectedBOMContext = partNumber;
+
+        $('#button-reset').show();
+
+    } else {
+
+        viewer.setGhosting(true);
+        viewerResetSelection(selectedBOMContext !== '');
+        selectedBOMContext = '';
+
+        $('#button-reset').css('display', 'none');
+
+    }
+
+    $('.spare-part.selected').each(function() {
+        viewerSetColor($(this).attr('data-part-number'), config.vectors.blue, false, false);
     });
+
+    if(zoomPart.length > 0) {
+        $('#button-reset').show();
+        viewerSetColorToAll(config.vectors.gray);
+        viewerSetColor(zoomPart.attr('data-part-number'), config.vectors.red, true, false);
+
+    }
+
+    disableViewerSelectionEvent = false;
 
 }
 
@@ -1021,25 +993,21 @@ function setAttachments(link) {
 // Display selected item's Change Processes
 function setProcesses(link) {
 
-    $('#processes-process').show();
+    $('#processes-toolbar').show();
+    $('#processes-processing').show();
 
     let elemParent = $('#processes-list');
         elemParent.attr('data-source', link);
         elemParent.html('');
 
-    // $.get('/plm/changes', { 'link' : link }, function(response) {
+    insertChangeProcesses(link, 'processes');
+
+    // $.get('/plm/relationships', { 'link' : link }, function(response) {
     //     if(response.params.link === $('#processes-list').attr('data-source')) {
-    //         insertChangeProcesses($('#processes-list'), response.data);
-    //         $('#processes-process').hide();
+    //         insertRelationships($('#processes-list'), response.data);
+    //         $('#processes-processing').hide();
     //     }
     // });
-
-    $.get('/plm/relationships', { 'link' : link }, function(response) {
-        if(response.params.link === $('#processes-list').attr('data-source')) {
-            insertRelationships($('#processes-list'), response.data);
-            $('#processes-process').hide();
-        }
-    });
 
 }
 
@@ -1073,10 +1041,11 @@ function setRequestList() {
             elemItemInput.val('1');
             elemItemInput.appendTo(elemItemQuantity);
 
-        let elemItemDelete = $('<span></span>');
+        let elemItemDelete = $('<div></div>');
             elemItemDelete.addClass('request-delete');
-            elemItemDelete.addClass('material-symbols-sharp');
-            elemItemDelete.html('delete');
+            elemItemDelete.addClass('button');
+            elemItemDelete.addClass('icon');
+            elemItemDelete.addClass('icon-delete');
             elemItemDelete.appendTo(elemItem);
             elemItemDelete.click(function() {
                 let lineItem = $(this).closest('.request-line');
@@ -1092,6 +1061,71 @@ function setRequestList() {
     });
 
 }
+
+
+
+// Create Spare Parts Request in PLM
+function submitRequest() {
+
+    $('#request').hide();
+    $('#overlay').show();
+
+    let params = {
+        'wsId'     : wsSparePartsRequests.id,
+        'sections' : [{
+            'id'        : wsSparePartsRequests.sections[0].urn.split('.')[5],
+            'fields'    : [{
+                'fieldId'   : 'LINKED_ITEM',
+                'value'     : { 'link' : '/api/v3/workspaces/' + wsId + '/items/' + dmsId },
+                'type'      : 'picklist'
+            },{
+                'fieldId'   : 'COMMENTS',
+                'value'     : $('#comments').val(),
+                'type'      : 'string'
+            }]
+                
+        }]
+    } 
+
+    $.post({
+        url         : '/plm/create', 
+        contentType : 'application/json',
+        data        : JSON.stringify(params)
+    }, function(response) {
+
+        if(!response.error) {
+
+            $('.request-item').each(function() {
+
+                let link     = $(this).parent().attr('data-link');
+                let quantity = $(this).next().children().first().val();
+
+                let params = {
+                    'wsId' : wsSparePartsRequests.id,
+                    'link' : response.data.split('.autodeskplm360.net')[1],
+                    'data' : [
+                        { 'fieldId' : 'ITEM', 'value' : { 'link' : link } },
+                        { 'fieldId' : 'QUANTITY', 'value' : quantity }
+                    ]
+                }
+                
+                $.get('/plm/add-grid-row', params, function(response) {
+                    console.log(response);
+                });
+
+
+            });
+
+
+        }
+
+        $('#overlay').hide();
+        $('.spare-part.selected').each(function() { $(this).click(); });
+
+    });
+
+}
+
 
 
 

@@ -1,0 +1,503 @@
+:root {
+
+    --width-details         : 550px;
+    --width-create          : 500px;
+    --width-edit            : 500px;
+    --padding-panel         : 20px;
+
+}
+
+
+/* MASTER LAYOUT */
+/* ----------------------------------------------------------------------------- */
+#workspaces {
+    display : none;
+}
+#workspaces-panel {
+    top     : var(--padding-panel);
+    right   : var(--padding-panel);
+    bottom  : var(--padding-panel);
+    left    : var(--padding-panel);
+}
+#tableau {
+    top     : var(--padding-panel);
+    right   : var(--padding-panel);
+    bottom  : var(--padding-panel);
+    left    : var(--padding-panel);
+}
+#details {
+    top     : var(--padding-panel);
+    right   : calc(0px - var(--width-details));
+    bottom  : var(--padding-panel);
+    width   : var(--width-details);
+}
+#clone, #create {
+    top     : var(--padding-panel);
+    right   : calc(0px - var(--width-create));
+    bottom  : var(--padding-panel);
+    width   : var(--width-create);
+}
+#edit {
+    top     : var(--padding-panel);
+    right   : calc(0px - var(--width-edit));
+    bottom  : var(--padding-panel);
+    width   : var(--width-create);
+}
+
+
+body.with-details #tableau { right : calc((2 * var(--padding-panel)) + var(--width-details)); }
+body.with-details #details { right : var(--padding-panel); }
+
+body.with-create #tableau { right : calc((2 * var(--padding-panel)) + var(--width-create)); }
+body.with-create #create  { right : var(--padding-panel); }
+
+body.with-clone #tableau { right : calc((2 * var(--padding-panel)) + var(--width-create)); }
+body.with-clone #clone   { right : var(--padding-panel); }
+
+body.with-edit #tableau { right : calc((2 * var(--padding-panel)) + var(--width-edit)); }
+body.with-edit #edit    { right : var(--padding-panel); }
+
+
+#details-processing,
+#deselect-all,
+#edit-selected,
+#archive {
+    display : none;
+}
+.panel {
+    overflow : hidden;
+}
+#edit-fields {
+    top : 64px;
+}
+
+
+#button-toggle-create {
+    display : none;
+}
+
+/* WORKSPACE SELECTION */
+/* ----------------------------------------------------------------------------- */
+.tiles {
+    justify-content: normal;
+}
+
+
+
+/* TABLE */
+/* ----------------------------------------------------------------------------- */
+#tableau > .panel-spacer {
+    position: absolute;
+    top : 50px;
+    right : 0px;
+    left : 0px;
+    height : 30px;
+}
+#tableau > .panel-content {
+    top : 64px;
+}
+table {
+    width : unset;
+}
+#tableau-empty {
+    display: none;
+    color: var(--color-blue-500);
+    font-weight: 600;
+    text-align: center;
+    top: calc(50% - 24px);
+    z-index: 1;
+    position: absolute;
+    right: 0px;
+    left: 0px;
+}
+#tableau-empty .icon {
+    font-size : 48px;
+}
+#tableau-empty p {
+    margin : 0px;
+    padding : 0px;
+}
+#tableau-header > tr > th {
+    line-height : 14px;
+    padding : 0px;
+    position: sticky;
+    top: 0;
+    z-index : 1;
+}
+#tableau-header > tr > th,
+#tableau-body > tr > td {
+    border : none;
+    max-width : 240px;
+    min-width : 180px;
+}
+#tableau-body > tr > td {
+    /* background : #f1f1f1; */
+    background : #f5f5f5;
+    /* background : var(--color-gray-200); */
+    /* border-bottom : 1px solid #f5f5f5; */
+    /* border-bottom : 1px solid #fff; */
+    /* border-bottom : 1px solid var(--color-gray-100); */
+    height : 16px;
+    overflow-x : auto;
+    overflow-y : hidden;
+    padding : 5px 12px;
+}
+#tableau-body > tr:last-of-type > td {
+    border-bottom : none;
+}
+#tableau-body > tr.table-section > td {
+    background: var(--color-gray-200);
+    /* border-top: 10px #f5f5f5 solid; */
+    /* border-bottom: 5px #f5f5f5 solid; */
+    /* border-left : 15px solid #f5f5f5; */
+    border-top: 8px #fff solid;
+    border-bottom: 10px #fff solid;
+    border-left : 15px solid #fff;
+    font-size : 14px;
+    font-weight : 700;
+    line-height : 20px;
+    padding: 9px 20px;
+}
+#tableau-body > tr.table-section:hover > td { background : var(--color-gray-400); }
+
+#tableau-body > tr:last-of-type > td.table-field {
+    padding-bottom : 10px;
+}
+.table-spacer {
+    /* background: #f5f5f5 !important; */
+    background: #fff !important;
+    /* border-left: 1px solid black !important; */
+    /* border-right: 1px solid black !important; */
+    padding : 0px !important;
+    width: 16px;
+    min-width: 16px !important;
+}
+.table-spacer:last-of-type {
+    border-right: none !important;
+}
+th:first-child {
+    left : 0;
+    z-index : 2 !important;
+}
+.selected .item-header-top {
+    background : var(--color-hover);
+}
+
+.item-header-top {
+    background : var(--color-gray-400);
+    cursor : pointer;
+    display : flex;
+    justify-content: space-between;
+}
+.item-header-top.selected {
+    background : var(--color-selected);
+    color : var(--color-selected-border);
+}
+.item-header-top:hover {
+    background : var(--color-gray-500);
+}
+.item-descriptor {
+    font-weight : 800;
+    overflow : hidden;
+    text-overflow: ellipsis;
+    white-space : nowrap;
+}
+th.changed .item-header-top {
+    background : var(--color-status-red-bright);
+}
+th.changed .item-toolbar {
+    background : var(--color-status-red-brighter);
+}
+.item-descriptor, 
+.item-header-selector {
+    padding : 10px;
+}
+.item-header .item-header-selector > .icon-box-checked {
+    color : black !important;
+    display : none;
+}
+.item-header .item-header-selector > .icon-box-unchecked {
+    color : black !important;
+    display : block;
+}
+.item-header.selected .item-header-selector > .icon-box-checked {
+    display : block;
+}
+.item-header.selected .item-header-selector > .icon-box-unchecked {
+    display : none;
+}
+.item-toolbar {
+    background : var(--color-gray-200);
+    border-bottom : 4px solid #fff;
+    display: flex;
+    height: 24px;
+    gap: var(--spacer-xs);
+    padding: 6px;
+}
+.item-toolbar > div.button {
+    cursor : pointer;
+    display : none;
+    flex-grow : 1;
+    flex-basis: 0;
+    font-size : 18px;
+    font-weight : 300;
+    height : 18px;
+    line-height : 18px;
+    margin : unset;
+    min-width : unset;
+    padding : 2px 0px !important;
+    width : unset;
+}
+.item-header:hover .item-toolbar > div {
+    display : block;
+}
+.item-header > .item-toolbar > .icon-show {
+    display : none !important;
+}
+.item-header.invisible:hover > .item-toolbar > .icon-show {
+    display : block !important;
+}
+.item-header.invisible > .item-toolbar > .icon-hide {
+    display : none !important; 
+}
+.first-col {
+    /* background : #d9d9d9 !important; */
+    /* border-right : 1px solid black !important; */
+    /* background : #f5f5f5 !important; */
+    background : #fff !important;
+    font-weight : bold;
+    min-width : 100px !important;
+    padding : 2px 20px 2px 10px !important;
+    position: sticky;
+    left : 0;
+    z-index: 1;
+    text-align : right;
+}
+
+#tableau .field-value {
+    /* width : calc(100% - 12px); */
+    width: 100%;
+}
+#tableau select.field-value { 
+    width : calc(100% - 0px);
+}
+#tableau input.field-value { 
+    padding-top : 6px;
+    padding-bottom : 6px;
+}
+#tableau .image > img {
+    max-width : 240px;
+}
+#tableau-table,
+#tableau .field-value,
+#tableau .radio-option {
+    font-size : 12px;
+}
+#tableau .radio-option > input {
+    height : 10px;
+}
+#tableau-table th.changed {
+    background : var(--color-status-red-brighter);
+}
+#tableau-table td.changed, 
+#tableau-table td.changed > * {
+    background : var(--color-status-red-brighter) !important;
+}
+#tableau-table td.changed select {
+    border-color : var(--color-status-red-brighter) !important;
+}
+tr.match {
+    display : none;
+}
+#tableau-body > tr > td.mismatch { border-left : 4px solid var(--color-status-red)          !important; }
+#tableau-body > tr > td.match    { border-left : 4px solid var(--color-status-green-bright) !important; }
+#tableau-body > tr > td.base     { border-left : 4px solid var(--color-gray-400)            !important; }
+
+.table-field > .field-value > date,
+.table-field > .field-value > input,
+.table-field > .field-value > select,
+.table-field > .field-value > textarea { 
+    background : white; 
+    border-bottom : 1px solid var(--color-gray-300);
+}
+.field-value > textarea:disabled, .field-value > input:disabled {
+    padding-right : 0px;
+    padding-left : 0px;
+}
+
+/* TABLE TOOLBAR */
+/* ----------------------------------------------------------------------------- */
+#tableau .panel-toolbar .button {
+    min-width : unset;
+    white-space: nowrap;
+}
+#archive {
+    color : var(--color-status-red);
+}
+#filter input {
+    width : 68px;
+}
+
+
+
+
+
+th .button.selected {
+    background : var(--color-gray-100);
+}
+
+
+
+th.hover,
+td.hover {
+    /* background : var(--color-hover) !important; */
+    background : var(--color-gray-200) ;
+}
+#tableau-selector {
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 800;
+    /* height: 20px; */
+    line-height: 18px;
+    overflow: hidden;
+    white-space: nowrap;
+    /* padding: 10px 14px 20px; */
+    text-overflow: ellipsis;
+    padding: 0px 10px;
+}
+#tableau-selector:hover {
+    color : var(--color-blue-500);
+}
+body.hidden-layer #hide-items {
+    display : none;
+}
+body #show-items {
+    display : none;
+}
+body.hidden-layer #show-items {
+    display : block;
+}
+body.hidden-layer #show-hidden-layer {
+    display : none;
+}
+#hide-hidden-layer {
+    background : var(--color-status-red);
+    color : white;
+    display : none;
+}
+body.hidden-layer #hide-hidden-layer {
+    display : block;
+}
+th.invisible, td.invisible {
+    display : none;
+}
+body.hidden-layer th.item-header,
+body.hidden-layer th.table-spacer,
+body.hidden-layer td {
+    display : none;
+}
+body.hidden-layer th.first-col,
+body.hidden-layer tr.table-section td, 
+body.hidden-layer td.first-col,
+body.hidden-layer th.invisible,
+body.hidden-layer td.invisible {
+    display : table-cell;
+}
+.radio-option,
+.radio-label {
+    white-space: nowrap;
+}
+
+
+
+
+/* ITEM DETAILS */
+/* ----------------------------------------------------------------------------- */
+#viewer {
+    height : 300px;
+    position : absolute;
+    top : 50px;
+    right : 0px;
+    left : 0px;
+}
+.panel-toggles {
+    position : absolute;
+    bottom : 0px;
+    right : 0px;
+    left : 0px;
+}
+#details > .panel-content {
+    bottom : 52px;
+    top : 350px;
+}
+.no-viewer #details > .panel-content {
+    top : 64px;
+}
+.field-value.image > img {
+    max-height : 300px;
+    max-width : 500px; 
+    width : unset;
+}
+
+
+
+/* EDITS */
+/* ----------------------------------------------------------------------------- */
+#edit .field-label {
+    color : black !important;
+}
+
+
+/* WORKFLOW ACTIONS DIALOG */
+/* ----------------------------------------------------------------------------- */
+/* #perform-workflow-actions {
+    display : none;
+} */
+#transitions {
+    height : 600px;
+    left : calc(50% - 600px);
+    top : calc(50% - 350px);
+    width : 1200px;
+}
+#transitions .dialog-content {
+    display : flex;
+}
+.col-left {
+    width : 250px;
+}
+.col-right {
+    width : calc(100% - 250px);
+}
+.col-header {
+    margin-bottom : 16px;
+}
+#transitions-comment {
+    background : var(--color-gray-100);
+    border: none;
+    height: 330px;
+    padding: 8px 16px;
+    width: 200px;
+}
+#transitions-list {
+    width : 100%;
+    height : 370px;
+}
+#transitions-list > div {
+    background: var(--color-gray-400);
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 12px 8px 24px;
+    line-height: 38px;
+    margin-bottom: 8px;
+}
+#transitions-list > div > div {
+    display : flex;
+}
+select.select-transition {
+    min-width : 200px;
+    max-width : 200px;
+    overflow : hidden;
+    text-overflow : ellipsis;
+    white-space : nowrap;
+}

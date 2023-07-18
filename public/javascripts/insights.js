@@ -11,7 +11,6 @@ let daysCount               = 0;
 let parallelRequestsLog     = 3;
 let parallelRequestsCount   = 3;
 let logLimit                = 500;
-let maxLogEntries           = 500000;
 
 let chartUserStatus, chartUserDomain, chartWorkspaceCount, chartTimelineUsers, chartTimelineLastLogins, chartWorkspaceActivities, chartTimelineLogins, chartTimelineEdits, chartTimelineCreation;
 
@@ -24,7 +23,6 @@ let lastLogins          = [];
 let workspaces          = [];
 let editDates           = [];
 let editWorkspaces      = [];
-let blacklisted         = [];
 
 let colors = [
     'rgb(64, 169, 221, 0.8)',
@@ -63,51 +61,67 @@ let colorsT = [
 
 $(document).ready(function() {   
     
-    $("#header-subtitle").html(tenant.toUpperCase() + " Insights");
+    $('#header-subtitle').html(tenant.toUpperCase());
 
-    if(options !== null) blacklisted = options.split(";");
-    
-    setChartDefaults();
-    initCharts();
-    setUIEvents();
-    getUserData();
-    
+    validateAdminAccess(function(isAdmin) {
+        
+        if(!isAdmin) {
+            showErrorMessage('Access to System Log and user account information requires assignment to group Adminisstration [SYSTEM]', 'Additional Permission Required');
+        } else {
+            initCharts();
+            setUIEvents();
+            getUserData();
+        }
+    });
+
 });
 
 
-// Set defaults for chart.js & init user interactions
-function setChartDefaults() {
-    
-//    Chart.defaults.global.defaultFontColor = 'white';
-    
+// Verify access to System Logs
+function validateAdminAccess(callback) {
+
+    let isAdmin = false;
+
+    $.get( '/plm/me', {}, function(response) {
+
+        for(group of response.data.groups) {
+            if(group.shortName === 'Administration [SYSTEM]') isAdmin = true;      
+        }
+
+        callback(isAdmin);
+
+    });
+
 }
+
+// Set defaults for chart.js & init user interactions
 function initCharts() {
     
     chartUserStatus = new Chart($('#status'), {
-        type: "doughnut",
+        type: 'doughnut',
         data: {
-            labels: ["Active", "Inactive", "Deleted"],
+            labels: ['Active', 'Inactive', 'Deleted'],
             datasets: [{
                 data: [0,0,0],
-                backgroundColor : [ 'rgb(119, 189, 13, 0.6)', 'rgb(250, 177, 28, 0.6)', 'rgb(226, 88, 11, 0.6)' ]
+                backgroundColor : [ config.colors.green, config.colors.yellow, config.colors.red ]
             }]
         },
         options: {
             maintainAspectRatio: false,
             responsive: true,
             legend : {
-                position : "bottom"
+                position : 'bottom'
             }
         }
     });
     
     chartUserDomain = new Chart($('#domains'), {
-        type: "horizontalBar",
+        type: 'horizontalBar',
         data: {
             labels: [],
             datasets: [{
                 data: [],
-                backgroundColor : 'rgb(64, 169, 221, 0.4)'
+                backgroundColor : config.colors.blue
             }]
         },
         options: {
@@ -136,15 +150,15 @@ function initCharts() {
         type: 'bar',
         data: {
             datasets: [{
-                label : "Logins",
+                label : 'Logins',
                 data : [],
-                backgroundColor : "#ef9b12",
+                backgroundColor : '#ef9b12',
                 borderWidth : 0,
                 lineTension : 0
             }, {
-                label : "Users not logging in",
+                label : 'Users not logging in',
                 data : [],
-                backgroundColor : "#f7cc93",
+                backgroundColor : '#f7cc93',
                 borderWidth : 0,
                 lineTension : 0
             }]
@@ -152,7 +166,7 @@ function initCharts() {
         options: {
             maintainAspectRatio: false,
             legend : {
-                position : "bottom"
+                position : 'bottom'
             },
             scales: {
                 yAxes: [{
@@ -176,9 +190,8 @@ function initCharts() {
         type: 'horizontalBar',
         data: {
             datasets: [{
-                label : "Days since last login",
-                borderColor: "rgba(172,78,125,1.0)",
-                backgroundColor: "rgba(172,78,125,0.3)",
+                label : 'Days since last login',
+                backgroundColor: config.colors.blue,
                 borderWidth : 1,
                 minBarLength : 1,
                 data: []
@@ -202,33 +215,33 @@ function initCharts() {
         type: 'bubble',
         data: {
             datasets: [{
-                label : "Logins",
-                backgroundColor: "rgba(238, 136, 34, 0.2)",
+                label : 'Logins',
+                backgroundColor: 'rgba(238, 136, 34, 0.2)',
                 borderColor:'rgba(238, 136, 34, 1)',
                 data: []
             },{
-                label : "Create",
-                backgroundColor: "rgba(50, 188, 173, 0.2)",
+                label : 'Create',
+                backgroundColor: 'rgba(50, 188, 173, 0.2)',
                 borderColor:'rgba(50, 188, 173, 1)',
                 data: []
             },{
-                label : "Edit",
-                backgroundColor: "rgba(24, 88, 168, 0.2)",
+                label : 'Edit',
+                backgroundColor: 'rgba(24, 88, 168, 0.2)',
                 borderColor:'rgba(24, 88, 168, 1)',
                 data: []   
             },{
-                label : "Workflow Action",
-                backgroundColor: "rgba(135, 188, 64, 0.2)",
-                borderColor : "rgba(135, 188, 64, 1)",
+                label : 'Workflow Action',
+                backgroundColor: 'rgba(135, 188, 64, 0.2)',
+                borderColor : 'rgba(135, 188, 64, 1)',
                 data: []    
             },{
-                label : "Milestones",
-                backgroundColor: "rgba(221, 34, 34, 0.2)",
+                label : 'Milestones',
+                backgroundColor: 'rgba(221, 34, 34, 0.2)',
                 borderColor:'rgba(221, 34, 34, 1)',
             },{
-                label : "Attachments",
-                backgroundColor: "rgba(167, 0, 99, 0.2)",
-                borderColor : "rgba(167, 0, 99, 1)",
+                label : 'Attachments',
+                backgroundColor: 'rgba(167, 0, 99, 0.2)',
+                borderColor : 'rgba(167, 0, 99, 1)',
                 data: []
             }]
         },
@@ -280,11 +293,11 @@ function initCharts() {
         data: {
             labels : [],
             datasets: [
-                { label : "Create"      , data : [], backgroundColor: "rgba(50, 188, 173, 0.6)" },
-                { label : "Edit"        , data : [], backgroundColor: "rgba(24, 88, 168, 0.6)" },
-                { label : "Workflow"    , data : [], backgroundColor: "rgba(135, 188, 64, 0.6)" },
-                { label : "Milestones"  , data : [], backgroundColor: "rgba(221, 34, 34, 0.6)" },
-                { label : "Attachments" , data : [], backgroundColor: "rgba(167, 0, 99, 0.6)" },
+                { label : 'Create'      , data : [], backgroundColor: 'rgba(50, 188, 173, 0.6)' },
+                { label : 'Edit'        , data : [], backgroundColor: 'rgba(24, 88, 168, 0.6)' },
+                { label : 'Workflow'    , data : [], backgroundColor: 'rgba(135, 188, 64, 0.6)' },
+                { label : 'Milestones'  , data : [], backgroundColor: 'rgba(221, 34, 34, 0.6)' },
+                { label : 'Attachments' , data : [], backgroundColor: 'rgba(167, 0, 99, 0.6)' },
             ]
         },
         options: {
@@ -315,7 +328,7 @@ function initCharts() {
         },
         options: {
             legend : {
-                position : "bottom"
+                position : 'bottom'
             },
             maintainAspectRatio: false,
             scales: {
@@ -344,7 +357,7 @@ function initCharts() {
         },
         options: {
             legend : {
-                position : "bottom"
+                position : 'bottom'
             },
             responsive: true,
             maintainAspectRatio: false,
@@ -370,30 +383,16 @@ function initCharts() {
 }
 function setUIEvents() {
     
-    $(".panel-tabs > .tab").click(function() {
-        $(".tab").removeClass("selected");
-        $(this).addClass("selected");
-        $(".panel-content").hide();
-        $(".panel-content:eq(" + $(this).index() + ")").show();
-    });
-    
-    $(".tab").first().click();
-    
-    $("#select-user").on("change", function() {
+    $('#select-user').on('change', function() {
         
-        console.log('los');
-
-        var optionSelected = $("option:selected", this);
         var valueSelected = this.value;
 
-        console.log(valueSelected);
-        
-        $("#events").find("tr.user").each(function() {
+        $('#events').find('tr.user').each(function() {
             var name = $(this).children().first().html();
             if(name === valueSelected) {
-                $(this).removeClass("hidden");
+                $(this).removeClass('hidden');
             } else {
-                $(this).addClass("hidden");
+                $(this).addClass('hidden');
             }
         })
         
@@ -419,81 +418,81 @@ function getUserDataChunk(callback) {
     
     $.get('/plm/users', { 'offset' : offsetUsers }, function(response) {
         
-        totalUsers = response.data.totalCount;
+        totalUsers   = response.data.totalCount;
         offsetUsers += response.data.items.length;
-        let now = new Date();
+        let now      = new Date();
         
         for(user of response.data.items) {
 
             let displayName = user.displayName;
             let status      = user.userStatus;
             let email       = user.email;
-            let domain      = email.split("@")[1];
+            let domain      = email.split('@')[1];
             
-            if(notBlacklisted(displayName)) {
-            
-//            console.log(user);
-
-                // users by domain
-                if(status === "Active") {
-
-                    var isNew = true;
-
-                    for(var i = 0; i < chartUserDomain.data.labels.length; i++) {
-                        if(chartUserDomain.data.labels[i] === domain) {
-                            isNew = false;
-                            chartUserDomain.data.datasets[0].data[i]++;
-                            break;
-                        }
-                    }
-
-
-                    if(isNew) {
-                        chartUserDomain.data.labels.push(domain);
-                        chartUserDomain.data.datasets[0].data.push(1);
-                    }
-
-                    $("#select-user").append("<option value='" + displayName + "'>" + displayName + "</option>");
-
-                    users.push({
-                        "userId"        : user.userId,
-                        "displayName"   : user.displayName,
-                        "urn"           : user.urn,
-                        "lastLogin"     : user.lastLoginTime
-                    });
-
-
-
-                    if(typeof user.lastLoginTime !== "undefined") {
-
-                    lastLogins.push({
-                        "displayName"   : user.displayName,
-                        "lastLoginTime" : user.lastLoginTime
-                    });
-
-                    }
-
-                    $("#summary-active").html(users.length);
-
-                }
-
-                // get users by status
-                switch(status) {
-
-                    case 'Active':
-                        chartUserStatus.data.datasets[0].data[0]++; 
-                        break;   
-
-                    case 'Inactive':
-                        chartUserStatus.data.datasets[0].data[1]++; 
-                        break;    
-
-                    case 'Deleted':
-                        chartUserStatus.data.datasets[0].data[2]++; 
-                        break;
-
-                }
+            if(displayName !== ' ') {
+                if(notExcluded(displayName)) {
                 
+                    // users by domain
+                    if(status === 'Active') {
+
+                        var isNew = true;
+
+                        for(var i = 0; i < chartUserDomain.data.labels.length; i++) {
+                            if(chartUserDomain.data.labels[i] === domain) {
+                                isNew = false;
+                                chartUserDomain.data.datasets[0].data[i]++;
+                                break;
+                            }
+                        }
+
+
+                        if(isNew) {
+                            chartUserDomain.data.labels.push(domain);
+                            chartUserDomain.data.datasets[0].data.push(1);
+                        }
+
+                        $('#select-user').append('<option value="' + displayName + '">' + displayName + '</option>');
+
+                        users.push({
+                            'userId'        : user.userId,
+                            'displayName'   : user.displayName,
+                            'urn'           : user.urn,
+                            'lastLogin'     : user.lastLoginTime
+                        });
+
+
+
+                        if(typeof user.lastLoginTime !== 'undefined') {
+
+                        lastLogins.push({
+                            'displayName'   : user.displayName,
+                            'lastLoginTime' : user.lastLoginTime
+                        });
+
+                        }
+
+                        $('#summary-active').html(users.length);
+
+                    }
+
+                    // get users by status
+                    switch(status) {
+
+                        case 'Active':
+                            chartUserStatus.data.datasets[0].data[0]++; 
+                            break;   
+
+                        case 'Inactive':
+                            chartUserStatus.data.datasets[0].data[1]++; 
+                            break;    
+
+                        case 'Deleted':
+                            chartUserStatus.data.datasets[0].data[2]++; 
+                            break;
+
+                    }
+                    
+                }   
             }
             
         }
@@ -502,7 +501,7 @@ function getUserDataChunk(callback) {
         chartUserStatus.update();
         
         
-        $("#users-count").html(users.length);
+        $('#users-count').html(users.length);
         
         progressUsers = Math.round((offsetUsers * 100 / totalUsers), 0);
         updateProgress();
@@ -512,13 +511,15 @@ function getUserDataChunk(callback) {
     });
     
 }
-function notBlacklisted(userName) {
+function notExcluded(userName) {
     
+    if(userName === 'Tenant Admin') return false;
+
     userName = userName.toUpperCase();
     
-    for(blacklist of blacklisted) {
-        blacklist = blacklist.toUpperCase();
-        if(blacklist === userName) return false;
+    for(userExcluded of config.insights.usersExcluded) {
+        userExcluded = userExcluded.toUpperCase();
+        if(userExcluded === userName) return false;
     }
     
     return true;
@@ -546,7 +547,7 @@ function addLastLogin(user) {
     
     let lastLogin   = user.lastLoginTime;
     let now         = new Date();
-    let temp        = lastLogin.split("T");
+    let temp        = lastLogin.split('T');
     let login       = new Date(temp[0]);
     let diff        = (now - login) / 86400000;
     
@@ -566,13 +567,13 @@ function setWorkspacesCharts() {
         'limit'  : 500
     }, function(response) {
 
-        $("#workspaces-count").html(response.data.totalCount);
+        $('#workspaces-count').html(response.data.totalCount);
         
         for(workspace of response.data.items) {
             let temp = workspace.urn.split('.');
             workspaces.push({
-                "label" : workspace.title,
-                "id" : temp[temp.length - 1]
+                'label' : workspace.title,
+                'id' : temp[temp.length - 1]
             });
         }
         
@@ -655,12 +656,12 @@ function getWorkspaceCount(index) {
 // Init timeline charts
 function setTimelineCharts() {
     
-    chartTimelineUsers.options.scales.yAxes[0].labels.push(" ");
+    chartTimelineUsers.options.scales.yAxes[0].labels.push(' ');
     for(user of users) {
         let userName = user.displayName;
-        chartTimelineUsers.options.scales.yAxes[0].labels.push(userName);
+        if(userName !== ' ') chartTimelineUsers.options.scales.yAxes[0].labels.push(userName);
     }
-    chartTimelineUsers.options.scales.yAxes[0].labels.push(" ");
+    chartTimelineUsers.options.scales.yAxes[0].labels.push(' ');
     chartTimelineUsers.update();
 
     getSystemLogs();
@@ -677,10 +678,10 @@ function getSystemLogs() {
         
             totalSystemLog = response.data.totalCount;
 
-            if(totalSystemLog > maxLogEntries) totalSystemLog = maxLogEntries;
-            if(logLimit > maxLogEntries) logLimit = maxLogEntries;
+            if(totalSystemLog > config.insights.maxLogEntries) totalSystemLog = config.insights.maxLogEntries;
+            if(logLimit > config.insights.maxLogEntries) logLimit = config.insights.maxLogEntries;
 
-            $("#entries-count").html(totalSystemLog);
+            $('#entries-count').html(totalSystemLog);
 
             getSystemLogs();
 
@@ -744,7 +745,6 @@ function processSystemLog(dataset) {
             
         let urn       = event.user.urn;
         let userIndex = -1;
-        let exists    = false;
         let date      = new Date(event.timestamp);
         let eventDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0,00,01);
         let age       = Math.round(((now - date) / 1000 / 60 / 60 / 24), 0);
@@ -762,76 +762,76 @@ function processSystemLog(dataset) {
 
             if(age > daysCount) {
                 daysCount = age;
-                $("#days-count").html(daysCount);
-                $("#summary-days").html(daysCount);
+                $('#days-count').html(daysCount);
+                $('#summary-days').html(daysCount);
             }
 
             switch(event.action) {
 
-                case "Log In":
+                case 'Log In':
                     addUserActivity(0, userName, eventDate);
                     if(logins.indexOf(userName) === -1) {
                         logins.push(userName);
-                        $("#summary-logins").html(logins.length);
+                        $('#summary-logins').html(logins.length);
                         updateSummary();
                     }
                     addUserLogin(userName, eventDate);
                     addEventLog(event, date);
                     break;
 
-                case "Create Item":
+                case 'Create Item':
                     addUserActivity(1, userName, eventDate);
                     addWorkspaceCreation(event, eventDate);
                     addEventLog(event, date);
                     break;    
 
-                case "Edit Item":
-                case "Delete Item":
-                case "Delete Linked Item":
-                case "Undelete Item":
-                case "Edit Grid":
-                case "Add rows into grid":
-                case "Delete rows from grid":
-                case "Add Project Item":
-                case "Delete Project Item":
-                case "Add Linked Item":
-                case "Edit Linked Item":
-                case "Add item to BOM":
-                case "Edit BOM":
-                case "Delete item from BOM":
-                case "Add Relationship":
-                case "Edit Relationship":
-                case "Delete Relationship":
-                case "Release item":
-                case "Edit Project Item":
+                case 'Edit Item':
+                case 'Delete Item':
+                case 'Delete Linked Item':
+                case 'Undelete Item':
+                case 'Edit Grid':
+                case 'Add rows into grid':
+                case 'Delete rows from grid':
+                case 'Add Project Item':
+                case 'Delete Project Item':
+                case 'Add Linked Item':
+                case 'Edit Linked Item':
+                case 'Add item to BOM':
+                case 'Edit BOM':
+                case 'Delete item from BOM':
+                case 'Add Relationship':
+                case 'Edit Relationship':
+                case 'Delete Relationship':
+                case 'Release item':
+                case 'Edit Project Item':
                     addUserActivity(2, userName, eventDate);
                     addWorkspaceEdit(event, eventDate, 1);
                     addEventLog(event, date);
                     break;   
 
-                case "Workflow Action":
+                case 'Workflow Action':
                     addUserActivity(3, userName, eventDate);
                     addWorkspaceEdit(event, eventDate, 2);
                     addEventLog(event, date);
                     break;  
 
-                case "Add Milestone":
-                case "Edit Milestone":
-                case "Delete Milestone":
+                case 'Add Milestone':
+                case 'Edit Milestone':
+                case 'Delete Milestone':
                     addUserActivity(4, userName, eventDate);
                     addWorkspaceEdit(event, eventDate, 3);
                     addEventLog(event, date);
                     break;    
 
-                case "Add Attachment":
-                case "Edit Attachment":
-                case "Delete Attachment":
-                case "Download Attachment":
-                case "Download Zip File":
-                case "Download Zip File via parent item":
-                case "Download Related Attachment":
-                case "Upload New Version":
-                case "Checkout Attachment":
+                case 'Add Attachment':
+                case 'Edit Attachment':
+                case 'Delete Attachment':
+                case 'Download Attachment':
+                case 'Download Zip File':
+                case 'Download Zip File via parent item':
+                case 'Download Related Attachment':
+                case 'Upload New Version':
+                case 'Checkout Attachment':
                     addUserActivity(5, userName, eventDate);
                     addWorkspaceEdit(event, eventDate, 4);
                     addEventLog(event, date);
@@ -872,33 +872,31 @@ function processSystemLog(dataset) {
     chartTimelineCreation.update();
     chartTimelineEdits.update();
 
-    // $("#entries-count").html(dataset.data.totalCount);
-    
 }
 
 
 function addEventLog(event, date) {
     
     
-    var elemCellDesc = $("<td></td>");
-    var elemCellLink = $("<td></td>");
-        elemCellLink.addClass("no-wrap");
+    var elemCellDesc = $('<td></td>');
+    var elemCellLink = $('<td></td>');
+        elemCellLink.addClass('no-wrap');
     
-    if(event.hasOwnProperty("item")) {
+    if(event.hasOwnProperty('item')) {
         
-        var link = event.item.link.split("/");
+        var link = event.item.link.split('/');
         
-        var url = "https://" + tenant + ".autodeskplm360.net/plm/workspaces/" + link[4] + "/items/itemDetails?view=full&tab=details&mode=view&itemId=urn%60adsk,plm%60tenant,workspace,item%60" + tenant + "," + link[4] + "," + link[6] + "&cached=false";
+        var url = 'https://' + tenant + '.autodeskplm360.net/plm/workspaces/' + link[4] + '/items/itemDetails?view=full&tab=details&mode=view&itemId=urn%60adsk,plm%60tenant,workspace,item%60' + tenant.toUpperCase() + ',' + link[4] + ',' + link[6] + '&cached=false';
         
-        var elemLink = $("<a></a>");
-            elemLink.attr("target", "_blank");
-            elemLink.attr("href", url);
+        var elemLink = $('<a></a>');
+            elemLink.attr('target', '_blank');
+            elemLink.attr('href', url);
             elemLink.html(event.item.title);
         
         elemCellLink.append(elemLink);
         
     } else {
-        elemCellLink.append("-");
+        elemCellLink.append('-');
     }
     
     
@@ -906,11 +904,7 @@ function addEventLog(event, date) {
         
         for(detail of event.details) {
         
-//            var elemDetail = $("<li></li>");
-            
-//            elemDetail.append(detail.fieldName + " was changed from '" + detail.oldValue + "' to '" + detail.newValue + "'");
-            
-            if(elemCellDesc.html() !== "") elemCellDesc.append("<br/>");
+            if(elemCellDesc.html() !== '') elemCellDesc.append('<br/>');
             
             elemCellDesc.append(detail.fieldName + " was changed from '" + detail.oldValue + "' to '" + detail.newValue + "'");
             
@@ -922,22 +916,18 @@ function addEventLog(event, date) {
         
     }
     
-    var elemEvent = $("<tr></tr>");
-        elemEvent.addClass("user");
+    var elemEvent = $('<tr></tr>');
+        elemEvent.addClass('user');
         elemEvent.append("<td class='no-wrap'>" + event.user.title + "</td>");
         elemEvent.append("<td class='no-wrap'>" + event.action + "</td>");
         elemEvent.append("<td class='no-wrap'>" + date.toLocaleString() + "</td>");
         elemEvent.append(elemCellLink);
         elemEvent.append(elemCellDesc);
-        elemEvent.appendTo("#events");
+        elemEvent.appendTo('#events');
     
-    var selectedName = $("#select-user").val();
+    var selectedName = $('#select-user').val();
     
-//    console.log("selectedName = " + selectedName);
-//    console.log("title = " + event.user.title);
-//    console.log(selectedName === event.user.title);
-    
-    if(selectedName !== event.user.title) elemEvent.addClass("hidden");
+    if(selectedName !== event.user.title) elemEvent.addClass('hidden');
     
 }
 function addUserLogin(userName, eventDate) {
@@ -954,8 +944,8 @@ function addUserLogin(userName, eventDate) {
     }
     
     loginDates.push({
-        "time" : time,
-        "userName" : userName
+        'time' : time,
+        'userName' : userName
     })
     
     for(var i = 0;  i < chartTimelineLogins.data.datasets[1].data.length; i++) {
@@ -1011,12 +1001,12 @@ function addUserActivity(index, userName, eventDate) {
 function addWorkspaceCreation(event, eventDate) {
     
     let itemLink    = event.item.link;
-    let itemData    = itemLink.split("/");
+    let itemData    = itemLink.split('/');
     let wsId        = itemData[itemData.length - 3];
     let exists      = false;
     let newDataset  = true;
-    let wsName      = "";
-    let color       = "#bbb";
+    let wsName      = '';
+    let color       = '#bbb';
     let index       = -1;
     let dayBefore   =  new Date(eventDate.getTime());
         dayBefore.setDate(dayBefore.getDate() - 1);
@@ -1154,11 +1144,11 @@ function addWorkspaceCreation(event, eventDate) {
 function addWorkspaceEdit(event, eventDate, indexDataset) {
     
     let itemLink    = event.item.link;
-    let itemData    = itemLink.split("/");
+    let itemData    = itemLink.split('/');
     let wsId        = itemData[itemData.length - 3];
     let exists      = false;
-    let wsName      = "";
-    let color       = "#bbb";
+    let wsName      = '';
+    let color       = '#bbb';
     let index       = -1;
     
     for(var i = 0; i < workspaces.length; i++) {
@@ -1230,10 +1220,10 @@ function updateSummary() {
     var widthLogins = logins.length * 100 / users.length;
     var widthNoLogins = 100 - widthLogins;
     
-    $("#summary-bar-logins").css("background", "#ef9b12");
-    $("#summary-bar-logins").css("width", widthLogins + "%");
-    $("#summary-bar-nologin").css("background", "#f7cc93");
-    $("#summary-bar-nologin").css("width", widthNoLogins + "%");
+    $('#summary-bar-logins').css('background', '#ef9b12');
+    $('#summary-bar-logins').css('width', widthLogins + '%');
+    $('#summary-bar-nologin').css('background', '#f7cc93');
+    $('#summary-bar-nologin').css('width', widthNoLogins + '%');
 }
 
 function updateProgress() {
@@ -1256,9 +1246,9 @@ function updateProgress() {
     
     var progress = Math.round(value * 180 / 100, 0);
 
-    $("#percent").html(value + "%");
-    $(".rotate").css("transform", "rotate(" + progress.toString() + "deg)");
+    $('#percent').html(value + '%');
+    $('.rotate').css('transform', 'rotate(' + progress.toString() + 'deg)');
     
-    if(value === 100) $("#processing").hide();
+    if(value === 100) $('#processing').hide();
     
 }

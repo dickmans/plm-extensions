@@ -10,10 +10,12 @@ The following extensions are included
 - Change Impact Analysis
 - Class Browser
 - Design Review Portal
+- MBOM Editor
 - Mobile Client
-- Product Catalog
+- Product Portfolio Catalog
 - Product Data Explorer
 - Projects Dashboard
 - Reports Dashboard
 - Services Portal
 - Tenant Inishges
+- Workspaces Navigator

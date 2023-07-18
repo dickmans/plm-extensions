@@ -1,53 +1,37 @@
 #!/usr/bin/env node
+let fileSettings = (process.argv.length > 2) ? '.' + process.argv[2] : '';
 
-/**
- * Module dependencies.
- */
+const fs        = require('fs');
+const app       = require('../app');
+const settings  = require('../settings' + fileSettings + '.js');
+const protocol  = settings.redirectUri.split('://')[0];
+const port      = settings.redirectUri.split(':')[2].split('/')[0];
 
-var app = require('../app');
-var debug = require('debug')('change-report:server');
-var http = require('http');
+let server;
 
-/**
- * Get port from environment and store in Express.
- */
+if(protocol === 'https') {
 
-var port = normalizePort(process.env.PORT || '8080');
+    const https       = require('https');
+    const privateKey  = fs.readFileSync('./keys/privkey.pem', 'utf8');
+    const certificate = fs.readFileSync('./keys/fullchain.pem', 'utf8');
+    const credentials = {key: privateKey, cert: certificate};
+
+    server = https.createServer(credentials, app);
+
+} else {
+
+    const http    = require('http');
+
+    server = http.createServer(app);
+
+}
+
 app.set('port', port);
-
-/**
- * Create HTTP server.
- */
-
-var server = http.createServer(app);
-
-/**
- * Listen on provided port, on all network interfaces.
- */
 
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
 
-/**
- * Normalize a port into a number, string, or false.
- */
-
-function normalizePort(val) {
-  var port = parseInt(val, 10);
-
-  if (isNaN(port)) {
-    // named pipe
-    return val;
-  }
-
-  if (port >= 0) {
-    // port number
-    return port;
-  }
-
-  return false;
-}
 
 /**
  * Event listener for HTTP server "error" event.
@@ -82,9 +66,16 @@ function onError(error) {
  */
 
 function onListening() {
-  var addr = server.address();
-  var bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port;
-  debug('Listening on ' + bind);
+
+    let addr = server.address();
+    let bind = typeof addr === 'string'
+        ? 'pipe ' + addr
+        : 'port ' + addr.port;
+  
+    console.log();
+    console.log('  >> Using settings file   settings' + fileSettings + '.js');
+    console.log('  >> Using redirect Uri    ' + settings.redirectUri);
+    console.log('  >> Listening on port     ' + bind);
+    console.log();
+
 }

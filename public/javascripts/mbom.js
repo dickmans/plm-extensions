@@ -1,71 +1,61 @@
-let maxRequests         = 3;
-let fieldsToCopy        = ['TITLE', 'DESCRIPTION'];
-let fieldIdPartNumber   = 'NUMBER';
-let fieldIdTitle        = 'TITLE';
-let forgePropertyName   = 'Name';
+let maxRequests        = 3;
+let wsEBOM             = { 'id' : '', 'sections' : [], 'fields' : [], 'viewId' : '', 'viewColumns' : [] };
+let wsMBOM             = { 'id' : '', 'sections' : [], 'fields' : [], 'viewId' : '', 'viewColumns' : [] };
+let singleWorkspace    = false;
 
-let fieldIdEBOM         = 'ENGINEERING_BOM';
-let fieldIdMBOM         = 'MANUFACTURING_BOM';
-let fieldIdLastSync     = 'LAST_BOM_SYNC';
-let viewId              = options.split(',')[0];
-let fieldDefaultType    = { 'fieldId' : 'TYPE', 'value' : { 'link' : '/api/v3/lookups/CUSTOM_LOOKUP_ITEM_TYPES/options/34' } }
+let eBOM         = {};
+let mBOM         = {};
+let instructions = [];
 
+let basePartNumber      = '';
+let viewerStarted       = false;
+let viewerStatusColors  = false;
+let disassembleMode     = false;
+let elemBOMDropped      = null;
+let siteSuffix          = '';
+let siteLabel           = '';
 
-// CUSTOMER SETTINGS
-// fieldIdPartNumber   = 'ARTIKEL';  
-// forgePropertyName   = 'Artikelnummer'; 
-
-
-let dataEBOM    = {};
-let dataMBOM    = {};
-let edgesEBOM   = [];
-let edgesMBOM   = [];
-
-let wsConfig = {
-    'sections'  : [],
-    'fields'    : [],
-    'columns'   : [],
-    'tableaus'  : []
-}
-
-let viewerStarted      = false;
-let viewerStatusColors = false;
-let disassembleMode    = false;
-let elemBOMDropped     = null;
-
-let descriptor, pendingActions, pendingRemovals;
-let dmsIdEBOM, dmsIdMBOM;
+let pendingActions, pendingRemovals;
+let linkEBOM, linkMBOM, linkFieldEBOMItem, linkFieldEBOMRootItem;
 let sectionIdMBOM;
 
 
 $(document).ready(function() {
 
-    $('#main').attr('data-link', link);
+    for(option of options) {
+        let param = option.split(':');
+        if(param[0].toLowerCase() === 'site') {
+            siteSuffix = '_' + param[1];
+            siteLabel = param[1];
+        }
+    }
 
+    wsEBOM.wsId = config.mbom.wsIdEBOM;
+    wsMBOM.wsId = config.mbom.wsIdMBOM;
+
+    appendProcessing('ebom', false);
+    appendProcessing('mbom', false);
+    appendProcessing('details');
+    appendOverlay();
+
+    insertSearchFilters();
     setUIEvents();
-    submitBaseRequests(function(responses) {     
-        insertItemDetails($('#create-item-form'), wsConfig.sections, wsConfig.fields, null, true, false, false);
-        setItemDetails($('#main').attr('data-link'));
-        // insertViewOptions('mbom', responses[7].data);
-        insertViewOptions('ebom', wsConfig.tableaus);
-        // processItemData(responses[2].data, responses[3].data, responses[4].data);
-        processItemData(responses[0].data);
-    });
-    //insertViewer(link);
-
+    getInitialData();   
+        
 });
 
 
 function setUIEvents() {
 
+
     // Header Toolbar
-    $('#header-logo').click(function () { resetPage(); });
-    $('#header-title').click(function () { resetPage(); });
+    $('#header-logo').click(function () { reloadPage(); });
+    $('#header-title').click(function () { reloadPage(); });
     $('#toggle-details').click(function() { 
         $('body').toggleClass('details-on');
         setTimeout(function() { viewer.resize(); }, 250); 
     })
-    $('#reset').click(function() { resetPage(); });  
+    $('#reset').click(function() { reloadPage(); });  
     $('#save').click(function() {
         setSaveActions();
         showSaveProcessingDialog();
@@ -75,30 +65,36 @@ function setUIEvents() {
 
     // Tabs
     $('#mode-disassemble').click(function() { 
-        $('body').addClass('mode-disassemble').removeClass('mode-ebom').removeClass('mode-add');
+        $('body').addClass('mode-disassemble').removeClass('mode-ebom').removeClass('mode-add').removeClass('mode-instructions');
         setTimeout(function() { 
             viewer.resize(); 
             viewer.setGhosting(false);
             restoreAssembly();
         }, 250); 
-        $(this).addClass('selected').siblings().removeClass('selected');
         disassembleMode = true;
     });
     $('#mode-ebom').click(function() { 
-        $('body').removeClass('mode-disassemble').addClass('mode-ebom').removeClass('mode-add');
-        setTimeout(function() { 
-            viewer.resize(); 
-            viewer.setGhosting(true);
-            resetViewerSelection(false);
-        }, 250); 
-        $(this).addClass('selected').siblings().removeClass('selected');
+        $('body').removeClass('mode-disassemble').addClass('mode-ebom').removeClass('mode-add').removeClass('mode-instructions');
+        if(typeof viewer !== 'undefined') {
+            setTimeout(function() { 
+                viewer.resize(); 
+                viewer.setGhosting(true);
+                viewerResetSelection(false);
+            }, 250); 
+        }
         disassembleMode = false;
     });
     $('#mode-add').click(function() { 
-        $('body').removeClass('mode-disassemble').removeClass('mode-ebom').addClass('mode-add');
+        $('body').removeClass('mode-disassemble').removeClass('mode-ebom').addClass('mode-add').removeClass('mode-instructions');
         setTimeout(function() { viewer.resize(); }, 250); 
-        $(this).addClass('selected').siblings().removeClass('selected');
+        disassembleMode = false;
     });
+    $('#mode-instructions').click(function() { 
+        $('body').removeClass('mode-disassemble').removeClass('mode-ebom').removeClass('mode-add').addClass('mode-instructions');
+        setTimeout(function() { viewer.resize(); }, 250); 
+        disassembleMode = false;
+    });
+    $('#mode-ebom').click();
 
 
     // EBOM Alignment
@@ -109,7 +105,7 @@ function setUIEvents() {
         $('#ebom').find('.item.selected').each(function() {
             $(this).find('.item-title').click();
         });
-        resetViewerSelection(true);
+        viewerResetSelection(true);
     });
     $('#toggle-colors').click(function() {
         viewerStatusColors = (viewerStatusColors) ? false : true;
@@ -167,10 +163,10 @@ function setUIEvents() {
 
     // Controls to add new operations in BOM
     $('#mbom-add-name').keypress(function (e) {
-        insertNewOperation(e);
+        insertNewProcess(e);
     });
     $('#mbom-add-code').keypress(function (e) {
-        insertNewOperation(e);
+        insertNewProcess(e);
     });
 
 
@@ -198,46 +194,94 @@ function setUIEvents() {
     });
 
 }
-function submitBaseRequests(callback) {
+function selectTab(elemClicked) { 
+    
+    // override default tabs
 
-    // let temp = options.split(',');
+    $('.panel-content').removeClass('hidden');
+
+    elemClicked.addClass('selected');
+    elemClicked.siblings().removeClass('selected');
+
+}
+
+
+function getInitialData() {
 
     let requests = [
-        // $.get('/plm/sections', { 'wsId' : wsConfig.mbom.wsId }),
-        // $.get('/plm/fields'  , { 'wsId' : wsConfig.mbom.wsId }),
-        $.get('/plm/details' , { 'wsId' : wsId, 'dmsId' : dmsId }),
-        $.get('/plm/sections', { 'wsId' : wsId }),
-        $.get('/plm/fields'  , { 'wsId' : wsId }),
-        $.get('/plm/tableaus', { 'wsId' : wsId }),
-        $.get('/plm/bom-view-fields', { 'wsId' : wsId, 'viewId' : viewId }),
-        // $.get('/plm/bom-view-fields', { 'wsId' : wsConfig.mbom.wsId, 'viewId' : wsConfig.mbom.viewId }),
-        // $.get('/plm/sections', { 'wsId' : wsConfig.ebom.wsId }),
-        // $.get('/plm/fields'  , { 'wsId' : wsConfig.ebom.wsId }),
-        // $.get('/plm/tableaus'  , { 'wsId' : wsConfig.ebom.wsId })
+        $.get('/plm/details'                , { 'wsId' : wsId, 'dmsId'  : dmsId }),
+        $.get('/plm/bom-views-and-fields'   , { 'wsId' : wsEBOM.wsId }),
+        $.get('/plm/sections'               , { 'wsId' : wsEBOM.wsId }),
+        $.get('/plm/sections'               , { 'wsId' : wsMBOM.wsId }),
+        $.get('/plm/workspace'              , { 'wsId' : wsEBOM.wsId }),
+        $.get('/plm/tableaus'               , { 'wsId' : wsEBOM.wsId }),
+        $.get('/plm/fields'                 , { 'wsId' : wsMBOM.wsId })
     ];
+
+    if(wsEBOM.wsId === wsMBOM.wsId) {
+
+        singleWorkspace = true;
+        $('#nav-workspace-views-mbom').hide();
+
+    } else {
+
+        requests.push($.get('/plm/bom-views-and-fields' , { 'wsId' : wsMBOM.wsId }));
+        requests.push($.get('/plm/workspace'            , { 'wsId' : wsMBOM.wsId }));
+        requests.push($.get('/plm/tableaus'             , { 'wsId' : wsMBOM.wsId }));
+
+    }
 
     Promise.all(requests).then(function(responses) {
 
-        // sectionIdMBOM1 = getFieldSectionId(responses[0].data, fieldsToCopy[0]);
-        // sectionIdMBOM2 = getFieldSectionId(responses[0].data, 'EBOM');
+        for(view of responses[1].data) {
+            if(view.name.toLowerCase() === config.mbom.bomViewNameEBOM.toLowerCase()) {
+                wsEBOM.viewId       = view.id;
+                wsEBOM.viewColumns  = view.fields;
+            }
+        }
 
-        // wsConfig.mbom.sections = responses[0].data;
-        // wsConfig.mbom.fields   = responses[1].data;
-        // wsConfig.ebom.sections = responses[5].data;
-        // wsConfig.ebom.fields   = responses[6].data;
+        $('#nav-workspace-views-ebom').html(responses[4].data.name);
 
-        wsConfig.sections   = responses[1].data;
-        wsConfig.fields     = responses[2].data;
-        wsConfig.tableaus   = responses[4].data;
-        // wsConfig.columns    = responses[3].data;
+        wsEBOM.tableaus = responses[5].data;
 
-        for(section of wsConfig.sections) section.id = section.__self__.split('/')[6];
+        insertViewOptions('ebom', wsEBOM.tableaus);
+
+        if(wsEBOM.wsId === wsMBOM.wsId) {
         
-        for(field of responses[4].data) { wsConfig.columns.push({ fieldId : field.fieldId, viewDefFieldId : field.viewDefFieldId.toString() }); }
+            wsMBOM.viewId       = wsEBOM.viewId;
+            wsMBOM.viewColumns  = wsEBOM.viewColumns;
+        
+        } else {
 
-        console.log(wsConfig);
+            $('#nav-workspace-views-mbom').html(responses[8].data.name);
 
-        callback(responses);
+            for(view of responses[7].data) {
+                if(view.name === config.mbom.bomViewNameMBOM) {
+                    wsMBOM.viewId       = view.id;
+                    wsMBOM.viewColumns  = view.fields;
+                }
+            }
+
+            wsMBOM.tableaus = responses[9].data;
+
+            insertViewOptions('mbom', wsMBOM.tableaus);
+
+        }
+
+        wsEBOM.sections = responses[2].data;
+        wsMBOM.sections = responses[3].data;
+        wsMBOM.fields   = responses[6].data;
+
+        for(column of wsMBOM.viewColumns) {
+
+            console.log(column.fieldId);
+
+                 if(column.fieldId === config.mbom.fieldIdEBOMItem    ) { linkFieldEBOMItem     = column.__self__.link; }
+            else if(column.fieldId === config.mbom.fieldIdEBOMRootItem) { linkFieldEBOMRootItem = column.__self__.link; }
+        }
+
+        insertItemDetailsFields('create-item', null, wsMBOM.sections, wsMBOM.fields, null, true, true, true);
+        processItemData(responses[0].data);
 
     });
 
@@ -256,61 +300,67 @@ function insertViewOptions(suffix, tableaus) {
 }
 
 
+
 // Process Item Details and set BOM Trees
 // function processItemData(itemDetails, fieldsEBOMView, fieldsMBOMView) {
 function processItemData(itemDetails) {
 
     $('#header-subtitle').html(itemDetails.title);
 
-    let valueEBOM = getSectionFieldValue(itemDetails.sections, fieldIdEBOM, '', 'link');
-    let valueMBOM = getSectionFieldValue(itemDetails.sections, fieldIdMBOM, '', 'link');
+    linkEBOM = getSectionFieldValue(itemDetails.sections, config.mbom.fieldIdEBOM, '', 'link');
+    linkMBOM = getSectionFieldValue(itemDetails.sections, config.mbom.fieldIdMBOM + siteSuffix, '', 'link');
     
-    dmsIdEBOM = dmsId;
+    if(linkEBOM !== '') {
+        
+        linkMBOM = '/api/v3/workspaces/' + wsId + '/items/' + dmsId;
 
-    if(valueEBOM !== '') {
-        dmsIdEBOM = valueEBOM.split('/')[6];
-        dmsIdMBOM = dmsId;
-    } else if(valueMBOM !== '') {
-        dmsIdEBOM = dmsId;
-        dmsIdMBOM = valueMBOM.split('/')[6];
+        $.get('/plm/details', { 'link' : linkEBOM}, function(response) {
+            basePartNumber = getSectionFieldValue(response.data.sections, config.mbom.fieldIdNumber, '', null);
+            processRoots(itemDetails);
+        });
+
+    } else {
+
+        linkEBOM = '/api/v3/workspaces/' + wsId + '/items/' + dmsId;
+        basePartNumber = getSectionFieldValue(itemDetails.sections, config.mbom.fieldIdNumber, '', null);
+        processRoots(itemDetails);
+
     }
+}
+function processRoots(itemDetails) {
 
-    insertViewer('/api/v3/workspaces/' + wsId + '/items/' + dmsIdEBOM);
-
-    createMBOMRoot(itemDetails.sections, function() {
+    createMBOMRoot(itemDetails, function() {
 
         let requests = [];
 
         requests.push($.get('/plm/bom', {     
-            'wsId'          : wsId,
-            'dmsId'         : dmsIdEBOM,
-            'viewId'        : viewId,
+            'link'          : linkEBOM,
+            'viewId'        : wsEBOM.viewId,
             'depth'         : 10,
-            'revisionBias'  : 'release'
+            'revisionBias'  : config.mbom.revisionBias
         }));
 
         requests.push($.get('/plm/bom', {     
-            'wsId'          : wsId,
-            'dmsId'         : dmsIdMBOM,
-            'viewId'        : viewId,
+            'link'          : linkMBOM,
+            'viewId'        : wsMBOM.viewId,
             'depth'         : 10,
-            'revisionBias'  : 'release'
+            'revisionBias'  : config.mbom.revisionBias
         }));
 
         Promise.all(requests).then(function(responses) {
 
-            console.log(responses);
+            eBOM = responses[0].data;
+            mBOM = responses[1].data;
 
-            dataEBOM  = responses[0].data;
-            edgesEBOM = dataEBOM.edges;
+            linkEBOM = '/api/v3/workspaces/' + wsEBOM.wsId + '/items/' + eBOM.root.split('.')[5];
+            linkMBOM = '/api/v3/workspaces/' + wsMBOM.wsId + '/items/' + mBOM.root.split('.')[5];
 
-            edgesEBOM.sort(function(a, b){ return a.itemNumber - b.itemNumber });
+            eBOM.edges.sort(function(a, b){ return a.itemNumber - b.itemNumber });
+            mBOM.edges.sort(function(a, b){ return a.itemNumber - b.itemNumber });
 
-            dataMBOM  = responses[1].data;
-            edgesMBOM = dataMBOM.edges;
-            
-            edgesMBOM.sort(function(a, b){ return a.itemNumber - b.itemNumber });
-
+            insertViewer(linkEBOM);
+            insertItemDetails(linkEBOM);
+            insertAttachments(linkEBOM, 'attachments');
             initEditor();
 
         });
@@ -318,63 +368,76 @@ function processItemData(itemDetails) {
     });
         
 }
-function createMBOMRoot(sections, callback) {
+function createMBOMRoot(itemDetails, callback) {
 
-    sectionIdMBOM = getFieldSectionId(wsConfig.sections, fieldIdEBOM);
-
-    if(typeof dmsIdMBOM !== 'undefined') {
+    if(linkMBOM !== '') {
         
         callback();
         
     } else {
-    
-        let params = { 
-            'wsId' : wsId,
-            'sections' : [{
-                // 'id' : sectionIdMBOM1,
-                'id' : wsConfig.sections[0].id,
-                    'fields' : [
-                        fieldDefaultType
-                    ]
-            },{
-                'id' : sectionIdMBOM,
-                'fields' : [
-                    { 'fieldId' : fieldIdEBOM, 'value' : { 'link' : '/api/v3/workspaces/' + wsId + '/items/' + dmsIdEBOM } }
-                    // { 'fieldId' : 'IS_OPERATION', 'value' : true }
-                ]             
-            }]
+
+        let params = {
+            'wsId'      : wsMBOM.wsId,
+            'sections'  : []
         };
 
-        console.log(params);
+        addFieldToPayload(params.sections, wsMBOM.sections, null, config.mbom.fieldIdEBOM, { 'link' : itemDetails.__self__ } );
 
-        for(fieldId of fieldsToCopy) {
-            params.sections[0].fields.push({
-                'fieldId' : fieldId, value : getSectionFieldValue(sections, fieldId, '', 'title' )
-            })
+        for(fieldToCopy of config.mbom.fieldsToCopy) {
+            let value = getSectionFieldValue(itemDetails.sections, fieldToCopy, '', 'link');
+            addFieldToPayload(params.sections, wsMBOM.sections, null, fieldToCopy, value);
         }
 
-        console.log(params);
+        if(!isBlank(config.mbom.fieldIdNumber)) {
+            if(!isBlank(config.mbom.suffixItemNumber)) {
+                basePartNumber += config.mbom.suffixItemNumber + siteLabel
+                addFieldToPayload(params.sections, wsMBOM.sections, null, config.mbom.fieldIdNumber, basePartNumber);
+            }
+        }
 
         $.post({
             url         : '/plm/create', 
             contentType : 'application/json',
             data        : JSON.stringify(params)
         }, function(response) {
-            let linkNew = response.data.split('/');
-            dmsIdMBOM   = linkNew[linkNew.length - 1];
-            callback();
+            console.log(response);
+            if(response.error) {
+                showErrorMessage('Error while creating MBOM root item, the editor cannot be used at this time. Please review your server configuration.', 'Error');
+            } else {
+                linkMBOM = response.data.split('.autodeskplm360.net')[1];
+                storeMBOMLink();
+                callback();
+            }
+
         }); 
+
             
     }
     
 }
+function storeMBOMLink() {
+
+    let timestamp  = new Date();
+    let value      = timestamp.getFullYear() + '-' + (timestamp.getMonth()+1) + '-' + timestamp.getDate();
+    let paramsEBOM = { 'link' : linkEBOM, 'sections'   : [] }
+
+    addFieldToPayload(paramsEBOM.sections, wsEBOM.sections, null, config.mbom.fieldIdMBOM + siteSuffix, { 'link' : linkMBOM});
+    addFieldToPayload(paramsEBOM.sections, wsEBOM.sections, null, config.mbom.fieldIdLastSync + siteSuffix, value);
+    addFieldToPayload(paramsEBOM.sections, wsEBOM.sections, null, config.mbom.fieldIdLastUser + siteSuffix, $('#header-avatar').attr('title'));
+
+    console.log(paramsEBOM);
+
+    $.get('/plm/edit', paramsEBOM, function(response) {});
+
+
+}
 function initEditor() {
     
-    $('#ebom').find('.progress').hide();
-    $('#mbom').find('.progress').hide();
+    $('#ebom').find('.processing').hide();
+    $('#mbom').find('.processing').hide();
 
-    setEBOM($('#ebom-tree'), dataEBOM.root, 1, null);
-    setMBOM($('#mbom-tree'), dataMBOM.root, 1, null, '');
+    setEBOM($('#ebom-tree'), eBOM.root, 1, null);
+    setMBOM($('#mbom-tree'), mBOM.root, 1, null, '');
 
     $('#mbom-tree').find('.item-head').first().attr('id', 'mbom-root-head');
     $('#mbom-tree').find('.item').first().addClass('selected-target');
@@ -396,6 +459,8 @@ function initEditor() {
             placeholder : "sortable-placeholder",
             stop        : function(event, ui) {
 
+                console.log('sorted!!!!');
+
                 if(elemBOMDropped !== null) {
                     $(this).sortable('cancel');
                     ui.item.appendTo(elemBOMDropped);
@@ -403,6 +468,7 @@ function initEditor() {
                     console.log('sort deteced move');
                 } else {
                     updateViewer();
+                    moveItemInBOM(ui.item);
                 }
 
             }
@@ -411,6 +477,26 @@ function initEditor() {
 
     $('.bar').show();
     
+}
+function moveItemInBOM(elemItem) {
+
+    let link = elemItem.attr('data-link');
+    
+    elemItem.siblings('.item').each(function() {
+        
+        if($(this).attr('data-link') === link) {
+            
+            let elemInput   = $(this).find('input.item-qty-input');
+            let qty         = Number(elemInput.val());
+            let elemQtyAdd  = elemItem.find('input.item-qty-input');
+
+            elemInput.val(qty + Number(elemQtyAdd.val()));
+            elemItem.remove();
+
+        }
+        
+    });
+
 }
 
 
@@ -445,7 +531,7 @@ function setStatusBar() {
         }
     });
 
-    $('#mbom').find('.item').each(function() {
+    $('#mbom').find('.item.is-ebom-item').each(function() {
         if(!$(this).hasClass('root')) {
             if(!$(this).hasClass('operation')) {
                 if(!$(this).hasClass('mbom-item')) {
@@ -476,7 +562,6 @@ function setStatusBar() {
     });
     
     $('#ebom').find('.item').each(function() {
-//        if(!$(this).hasClass('root')) {
         let partNumber = $(this).attr('data-part-number');
         if(!$(this).hasClass('item-has-bom')) {
             let urn     = $(this).attr('data-urn');
@@ -513,7 +598,8 @@ function setStatusBar() {
             
         }
     });
-    $('#mbom').find('.item').each(function() {
+
+    $('#mbom').find('.item.is-ebom-item').each(function() {
         if($(this).hasClass('mbom-item')) {
             $(this).addClass('unique');
         } else if(!$(this).hasClass('root')) {
@@ -544,18 +630,15 @@ function setStatusBar() {
     $('#status-match').css('flex', countMatch + ' 1 0%');
     
     if(countAdditional === 0) $('#status-additional').css('border-width', '0px');  else $('#status-additional').css('border-width', '5px');
-    if(countDifferent  === 0) $('#status-different').css('border-width', '0px');  else $('#status-different').css('border-width', '5px');
-    if(countMatch      === 0) $('#status-match').css('border-width', '0px');  else $('#status-match').css('border-width', '5px');
+    if(countDifferent  === 0) $('#status-different' ).css('border-width', '0px');  else $('#status-different' ).css('border-width', '5px');
+    if(countMatch      === 0) $('#status-match'     ).css('border-width', '0px');  else $('#status-match'     ).css('border-width', '5px');
     
     if(!viewerStarted) return; 
 
     if(viewerStatusColors) {
-        // viewerSetColors(listRed     , new THREE.Vector4(1,   0, 0, 0.5));
-        // viewerSetColors(listYellow  , new THREE.Vector4(1, 0.5, 0, 0.5));
-        // viewerSetColors(listGreen   , new THREE.Vector4(0,   1, 0, 0.5));
-        viewerSetColors(listRed    , new THREE.Vector4(221/255,  34/255, 34/255, 0.8));
-        viewerSetColors(listYellow , new THREE.Vector4(250/255, 162/255, 27/255, 0.8));
-        viewerSetColors(listGreen  , new THREE.Vector4(106/255, 151/255, 40/255, 0.8));
+        viewerSetColors(listRed    , config.vectors.red);
+        viewerSetColors(listYellow , config.vectors.yellow);
+        viewerSetColors(listGreen  , config.vectors.green);
     } else {
         viewerResetColors();
     }
@@ -564,13 +647,13 @@ function setStatusBar() {
 
 
 // Input controls to add new items to MBOM
-function insertNewOperation(e) {
+function insertNewProcess(e) {
     
     if (e.which == 13) {
 
         if($('#mbom-add-name').val() === '') return;
 
-        let elemNew = getBOMNode(2, '', '', $('#mbom-add-name').val(), '', '', '', $('#mbom-add-code').val(), 'radio_button_unchecked', '', 'mbom', '', false);
+        let elemNew = getBOMNode(2, '', '', '', '', $('#mbom-add-name').val(), '', '', '', $('#mbom-add-code').val(), 'radio_button_unchecked', '', 'mbom', '', false);
             elemNew.attr('data-parent', '');
             elemNew.addClass('operation');
             elemNew.addClass('neutral');
@@ -580,7 +663,7 @@ function insertNewOperation(e) {
         if(disassembleMode) elemBOM.prepend(elemNew);
         else elemBOM.append(elemNew);
 
-        selectOperation(elemNew);
+        selectProcess(elemNew);
         
         $('#mbom-add-name').val('');
         $('#mbom-add-code').val('');
@@ -594,25 +677,22 @@ function insertNewOperation(e) {
 // Display EBOM information
 function setEBOM(elemParent, urn, level, qty) {
 
-    // console.log('setEBOM START');
-
-    let descriptor  = getDescriptor(dataEBOM, urn);
-    let nodeLink    = getLink(dataEBOM, urn);
-    let partNumber  = getNodeProperty(dataEBOM, urn, wsConfig.columns, fieldIdPartNumber, '');
-    let category    = getNodeProperty(dataEBOM, urn, wsConfig.columns, 'CATEGORY', '');
-    let type        = getNodeProperty(dataEBOM, urn, wsConfig.columns, 'TYPE', '');
-    let code        = getNodeProperty(dataEBOM, urn, wsConfig.columns, 'OPERATION_CODE', '');
-    let icon        = getWorkspaceIcon(type);
-    let endItem     = getNodeProperty(dataEBOM, urn, wsConfig.columns, 'END_ITEM', '');
-    let ignoreMBOM  = getNodeProperty(dataEBOM, urn, wsConfig.columns, 'IGNORE_IN_MBOM', '');
-    let hasMBOM     = getNodeURN(dataEBOM, urn, wsConfig.columns, fieldIdMBOM, '');
+    let descriptor  = getDescriptor(eBOM, urn);
+    let nodeLink    = getLink(eBOM, urn);
+    let rootLink    = getRootLink(eBOM, urn);
+    let partNumber  = getNodeProperty(eBOM, urn, wsEBOM.viewColumns, config.viewer.fieldIdPartNumber, '');
+    let category    = getNodeProperty(eBOM, urn, wsEBOM.viewColumns, config.mbom.fieldIdCategory, '');
+    let type        = getNodeProperty(eBOM, urn, wsEBOM.viewColumns, 'TYPE', '');
+    let code        = getNodeProperty(eBOM, urn, wsEBOM.viewColumns, config.mbom.fieldIdProcessCode, '');
+    let icon        = getIconClassName(nodeLink);
+    let endItem     = getNodeProperty(eBOM, urn, wsEBOM.viewColumns, config.mbom.fieldIdEndItem, '');
+    let ignoreMBOM  = getNodeProperty(eBOM, urn, wsEBOM.viewColumns, config.mbom.fieldIdIgnoreInMBOM, '');
+    let hasMBOM     = getNodeURN(eBOM, urn, wsEBOM.viewColumns, config.mbom.fieldIdMBOM + siteSuffix, '');
     let isLeaf      = isEBOMLeaf(level, urn, hasMBOM, endItem);
-
-    // console.log(ignoreMBOM);
 
     if(ignoreMBOM !== 'true') {
     
-        let elemNode = getBOMNode(level, urn, nodeLink, descriptor, partNumber, category, type, code, icon, qty, 'ebom', hasMBOM, isLeaf);
+        let elemNode = getBOMNode(level, urn, nodeLink, rootLink, rootLink, descriptor, partNumber, category, type, code, icon, qty, 'ebom', hasMBOM, isLeaf);
             elemNode.appendTo(elemParent);
             
         if(hasMBOM !== '') elemNode.attr('data-urn-mbom', hasMBOM);
@@ -629,9 +709,9 @@ function isEBOMLeaf(level, urn, hasMBOM, endItem) {
     if(hasMBOM !== '') return true;
     if(endItem === 'true') return true;
     
-    for(edgeEBOM of edgesEBOM) {
+    for(edgeEBOM of eBOM.edges) {
         if(edgeEBOM.parent === urn) {
-            if(getNodeProperty(dataEBOM, edgeEBOM.child, wsConfig.columns, 'IGNORE_IN_MBOM', '') !== true) {
+            if(getNodeProperty(eBOM, edgeEBOM.child, wsEBOM.viewColumns, config.mbom.fieldIdIgnoreInMBOM, '') !== true) {
                 return  false;   
             }
         }
@@ -640,7 +720,7 @@ function isEBOMLeaf(level, urn, hasMBOM, endItem) {
     return true;
     
 }
-function getBOMNode(level, urn, nodeLink, descriptor, partNumber, category, type, code, icon, qty, bomType, bomMatch, isLeaf) {
+function getBOMNode(level, urn, nodeLink, rootLink, linkEBOMRoot, descriptor, partNumber, category, type, code, icon, qty, bomType, bomMatch, isLeaf) {
     
     category = category.replace(/ /g, '-');
     category = category.toLowerCase();
@@ -654,6 +734,8 @@ function getBOMNode(level, urn, nodeLink, descriptor, partNumber, category, type
         elemNode.attr('data-code', code);
         elemNode.attr('data-urn', urn);
         elemNode.attr('data-link', nodeLink);
+        elemNode.attr('data-root', rootLink);
+        elemNode.attr('data-ebom-root', linkEBOMRoot);
         elemNode.attr('data-part-number', partNumber);
     
     let elemNodeHead = $('<div></div>');
@@ -666,8 +748,7 @@ function getBOMNode(level, urn, nodeLink, descriptor, partNumber, category, type
     
     let elemNodeIcon = $('<div></div>');
         elemNodeIcon.addClass('item-icon');
-        // elemNodeIcon.html('<i class="zmdi ' + icon + '"></i>');
-        elemNodeIcon.html('<span class="material-symbols-sharp radio-unchecked">' + icon + '</span><span class="material-symbols-sharp radio-checked">radio_button_checked</span>');
+        elemNodeIcon.html('<span class="icon radio-unchecked">' + icon + '</span><span class="icon radio-checked">radio_button_checked</span>');
         elemNodeIcon.appendTo(elemNodeHead);
     
     let elemNodeTitle = $('<div></div>');
@@ -680,7 +761,7 @@ function getBOMNode(level, urn, nodeLink, descriptor, partNumber, category, type
         elemNodeDescriptor.html(descriptor);
         elemNodeDescriptor.appendTo(elemNodeTitle);
 
-    let elemNodeLink = $('<span class="material-symbols-sharp">open_in_new</span>');
+    let elemNodeLink = $('<span class="icon">open_in_new</span>');
         elemNodeLink.addClass('item-link');
         elemNodeLink.attr('title', 'Click to open given item in PLM in a new browser tab');
         elemNodeLink.appendTo(elemNodeTitle);
@@ -690,28 +771,17 @@ function getBOMNode(level, urn, nodeLink, descriptor, partNumber, category, type
             event.preventDefault();
             
             let elemItem = $(this).closest('.item');
-            let urn      = elemItem.attr('data-urn');
+            let link     = elemItem.attr('data-link');
             
-            if(urn === '') {
-
+            if(link === '') {
                 alert('Item does not exist yet. Save your changes to the database first.');
-                
             } else {
-            
-                let data     = urn.split(':')[3].split('.');
-
-                let url  = 'https://' + data[0] + '.autodeskplm360.net';
-                    url += '/plm/workspaces/' + data[1];
-                    url += '/items/itemDetails?view=full&tab=details&mode=view&itemId=urn%60adsk,plm%60tenant,workspace,item%60';
-                    url += data[0] + ',' + data[1] + ',' + data[2];
-
-                window.open(url, '_blank');
-                
+                openItemByLink(link);
             }
             
         });
 
-    let elemNodeFilter = $('<span class="material-symbols-sharp">filter_list</span>');
+    let elemNodeFilter = $('<span class="icon">filter_list</span>');
         elemNodeFilter.addClass('item-link');
         elemNodeFilter.attr('title', 'Click to toggle filter for this component in viewer, EBOM and MBOM');
         elemNodeFilter.appendTo(elemNodeTitle);
@@ -727,7 +797,7 @@ function getBOMNode(level, urn, nodeLink, descriptor, partNumber, category, type
     let elemNodeCode = $('<div></div>');
         elemNodeCode.addClass('item-code');
         elemNodeCode.html(code);
-        elemNodeCode.attr('title', 'Operation Code');
+        elemNodeCode.attr('title', 'Process Code');
         elemNodeCode.appendTo(elemNodeHead);
 
     let elemNodeQty = $('<div></div>');
@@ -763,7 +833,8 @@ function getBOMNode(level, urn, nodeLink, descriptor, partNumber, category, type
     // console.log('bomType === ' + bomType);
 
     if(bomType === 'ebom') {
-    
+
+        elemNode.addClass('is-ebom-item');
         elemQtyInput.attr('disabled', 'disabled');
         
 //        if(level === 2) {
@@ -783,7 +854,7 @@ function getBOMNode(level, urn, nodeLink, descriptor, partNumber, category, type
 //        }
 
 
-        elemNodeIcon.attr('title', 'EBOM item managed in Vault Items & BOMs workspace');
+        elemNodeIcon.attr('title', 'EBOM item');
         elemNodeTitle.click(function(e) {
             e.stopPropagation();
             e.preventDefault();
@@ -800,23 +871,16 @@ function getBOMNode(level, urn, nodeLink, descriptor, partNumber, category, type
                 elemNodeBOM.addClass('item-bom');
                 elemNodeBOM.appendTo(elemNode);
     
-            for(edgeEBOM of edgesEBOM) {
+            for(edgeEBOM of eBOM.edges) {
                 if(edgeEBOM.depth === level) {
                     if(edgeEBOM.parent === urn) { 
-                        let childQty = Number(getEdgeProperty(edgeEBOM, wsConfig.columns, 'QUANTITY', '0.0'));
-                        // console.log(edgeEBOM);
-                        // console.log(childQty);
-                        // console.log(wsConfig.columns);
+                        let childQty = Number(getEdgeProperty(edgeEBOM, wsEBOM.viewColumns, 'QUANTITY', '0.0'));
                        //childQty = precisionRound(childQty, -1);
 
                         setEBOM(elemNodeBOM, edgeEBOM.child, level + 1, childQty);
                     }
                 }
             }
-
-
-
-
 
         
 //        if(level > 1) addBOMToggle(elemNodeHead);
@@ -867,6 +931,16 @@ function getBOMNode(level, urn, nodeLink, descriptor, partNumber, category, type
         insertMBOMSelectEvent(elemNode);
         insertMBOMQtyInputControls(elemQtyInput);
         insertMBOMActions(elemNodeActions);
+
+        // TODO load instructions at startup
+        // let note = getEdgeProperty(edgeEBOM, wsMBOM.viewColumns, config.mbom.fieldIdInstructions, '');
+                        
+        // instructions.push({
+        //     'link'      : nodeLink,
+        //     'edge'      : edgeEBOM,
+        //     'note'      : note,
+        //     'markup'    : ''
+        // });
         
         if(bomMatch !== '') addMBOMShortcut(elemNodeToggle, bomMatch);
 
@@ -900,22 +974,39 @@ function getBOMNode(level, urn, nodeLink, descriptor, partNumber, category, type
                     },
                     drop : function(event, ui) {
 
-                        if($(this).next().children().length === 0) elemBOMDropped = $(this).next();
-
                         let itemDragged      = ui.draggable;
                         let isAdditionalItem = itemDragged.hasClass('additional-item');
+                        let link             = itemDragged.attr('data-link');
+                        let isNew            = true;
+
+                        elemBOMDropped = $(this).next();
+
+                        elemBOMDropped.children('.item').each(function() {
+
+                            if($(this).attr('data-link') === link) {
+                                
+                                isNew = false;
+                                let elemInput = $(this).find('input.item-qty-input');
+                                let qty = elemInput.val();
+                                
+                                if(isAdditionalItem)  {
+                                    qty++;
+                                } else  {
+                                    let elemQtyAdd = itemDragged.find('input.item-qty-input');
+                                    qty += elemQtyAdd.val();
+                                    itemDragged.remove();
+                                }
+
+                                elemInput.val(qty);
+
+                            }
+                        });
 
                         if(isAdditionalItem) {
-                    
-                            insertAdditionalItem($(this), itemDragged.html(), itemDragged.attr('data-urn'), itemDragged.attr('data-link'));
+
+                            if(isNew) insertAdditionalItem($(this), itemDragged.html(), itemDragged.attr('data-urn'), itemDragged.attr('data-link'));
                     
                         }
-
-
-
-
-
-
 
                     }
                 });
@@ -927,7 +1018,7 @@ function getBOMNode(level, urn, nodeLink, descriptor, partNumber, category, type
             elemNode.click(function(e) {
                 e.stopPropagation();
                 e.preventDefault();
-                selectOperation($(this));
+                selectProcess($(this));
             });
             
         }
@@ -942,10 +1033,8 @@ function getEdgeProperty(edge, cols, fieldId, defValue) {
     
     for(field of edge.fields) {
         
-        let fieldArray  = field.metaData.urn.split('.');
-        let fieldIdent  = fieldArray[fieldArray.length - 1];
-        
-        if(fieldIdent === id) return field.value;
+        let fieldIdBOM  = Number(field.metaData.link.split('/')[10]);
+        if(fieldIdBOM === id) return field.value;
     }
     
     return defValue;
@@ -954,20 +1043,18 @@ function getEdgeProperty(edge, cols, fieldId, defValue) {
 function getNodeProperty(list, urn, cols, fieldId, defValue) {
 
     let id = getViewFieldId(cols, fieldId);
-  
+
     if(id === '') return defValue;
     
     for(node of list.nodes) {
         
         if(node.item.urn === urn) {
-            
+
             for(field of node.fields) {
+
+                let fieldId = Number(field.metaData.link.split('/')[10]);
                 
-                let fieldArray  = field.metaData.urn.split('.');
-                let fieldID     = fieldArray[fieldArray.length - 1];
-                
-                
-                if(id === fieldID) {
+                if(id === fieldId) {
                     if(typeof field.value === 'object') {
                         return field.value.title;
                     } else {
@@ -998,11 +1085,9 @@ function getNodeURN(list, urn, cols, fieldId, defValue) {
             
             for(field of node.fields) {
                 
-                let fieldArray  = field.metaData.urn.split('.');
-                let fieldID     = fieldArray[fieldArray.length - 1];
+                let fieldId = Number(field.metaData.link.split('/')[10]);
                 
-                
-                if(id === fieldID) {
+                if(id === fieldId) {
                     if(typeof field.value === 'object') {
                         return field.value.urn;
                     } else {
@@ -1116,40 +1201,56 @@ function updateFromEBOMToMBOM(elemAction) {
 // Display MBOM information
 function setMBOM(elemParent, urn, level, qty, urnParent) {
 
-    console.log('setMBOM START');
-    
-    let descriptor  = getDescriptor(dataMBOM, urn);
-    let nodeLink    = getLink(dataMBOM, urn);
-    let partNumber  = getNodeProperty(dataMBOM, urn, wsConfig.columns, fieldIdPartNumber, '');
-    let category    = getNodeProperty(dataMBOM, urn, wsConfig.columns, 'TYPE', '');
-    let type        = getNodeProperty(dataMBOM, urn, wsConfig.columns, 'TYPE', '');
-    let code        = getNodeProperty(dataMBOM, urn, wsConfig.columns, 'OPERATION_CODE', '');
-    let isOperation = getNodeProperty(dataMBOM, urn, wsConfig.columns, 'IS_OPERATION', '');
-    let hasEBOM     = getNodeURN(dataMBOM, urn, wsConfig.columns, fieldIdEBOM, '');
-    let wsId        = getWorkspaceId(urn);
-    let icon        = getWorkspaceIcon(type);
-    let isLeaf      = isMBOMLeaf(urn, wsId, level, code);
-    let edge        = getEdge(urn, urnParent);
-    let edges       = [];
-    let itemNumber  = getItemNumber(urn, urnParent);
-   
-    // if(wsId === wsConfig.ebom.wsId) {
-    //     code       = getNodeProperty(dataEBOM, urn, wsConfig.columns, 'OPERATION_CODE', '');
-    //     partNumber = getNodeProperty(dataEBOM, urn, wsConfig.columns, fieldIdPartNumber, '');
-    // }
+    let descriptor   = getDescriptor(mBOM, urn);
+    let nodeLink     = getLink(mBOM, urn);
+    let rootLink     = getRootLink(mBOM, urn);
+    let partNumber   = getNodeProperty(mBOM, urn, wsMBOM.viewColumns, config.viewer.fieldIdPartNumber, '');
+    let category     = getNodeProperty(mBOM, urn, wsMBOM.viewColumns, 'TYPE', '');
+    let type         = getNodeProperty(mBOM, urn, wsMBOM.viewColumns, 'TYPE', '');
+    let code         = getNodeProperty(mBOM, urn, wsMBOM.viewColumns, config.mbom.fieldIdProcessCode, '');
+    let edge         = getMBOMEdge(urn, urnParent);
+    let edges        = [];
+    let isProcess    = isMBOMProcess(urn, level);
+    let isEBOMItem   = checkEBOMItem(edge);
+    let linkEBOMRoot = getEdgeProperty(edge, wsMBOM.viewColumns, config.mbom.fieldIdEBOMRootItem, '');
+    let hasEBOM      = getNodeURN(mBOM, urn, wsMBOM.viewColumns, config.mbom.fieldIdEBOM, '');
+    let icon         = getIconClassName(nodeLink, isProcess, isEBOMItem);
+    let isLeaf       = isMBOMLeaf(urn, level, code);
+    let itemNumber   = getMBOMEdgeNumber(urn, urnParent);
 
-    if(level === 1) hasEBOM = '';
-    else if(hasEBOM !== '') { isLeaf = true; isOperation = false; icon = 'view_in_ar'; }
+    let hasInstructions = hasNodeInstructions(edge.edgeId, partNumber, nodeLink);
+
+
+    // 'radio_button_unchecked'
+
+    // isProcess = (type === 'Process') ? true : false;
+
+    // if(level === 1) hasEBOM = '';
+    // else if(hasEBOM !== '') { isLeaf = true; isProcess = false; icon = 'view_in_ar'; }
+
+    // isProcess = (isBlank(isProcess)) ? false : 
+
+    // console.log(level + ' / ' + hasEBOM + ' / ' + isProcess);
+
+    if(isProcess) isLeaf = false;
     
-    let elemNode = getBOMNode(level, urn, nodeLink, descriptor, partNumber, category, type, code, icon, qty, 'mbobm', hasEBOM, isLeaf);
+    let elemNode = getBOMNode(level, urn, nodeLink, rootLink, linkEBOMRoot, descriptor, partNumber, category, type, code, icon, qty, 'mbobm', hasEBOM, isLeaf);
 //        elemNode.addClass('neutral');
         elemNode.attr('data-parent', urnParent);
-        elemNode.attr('data-edge', edge);
+        elemNode.attr('data-edge', edge.edgeId);
         elemNode.attr('data-edges', '');
+        // elemNode.attr('data-ebom-item', isEBOMItem);
         // elemNode.attr('data-number', itemNumber);
         elemNode.attr('data-number-db', itemNumber);
         elemNode.appendTo(elemParent);   
     
+    if(isEBOMItem) { 
+        elemNode.addClass('is-ebom-item'); 
+    } else { 
+        elemNode.addClass('mbom-item');    
+        // elemNode.attr('title', 'This is a manufacturing specific item which is not contained in the EBOM');
+    }
+
     if(hasEBOM !== '') {
         elemNode.attr('data-urn-ebom', hasEBOM);
         elemNode.attr('data-urn-mbom', urn);
@@ -1184,17 +1285,14 @@ function setMBOM(elemParent, urn, level, qty, urnParent) {
     
     if(level === 1) {
         elemNode.addClass('root');
-        // if(wsId !== wsConfig.ebom.wsId) elemNode.addClass('operation');
-    } else if(isOperation) {
+    } else if(isProcess) {
         if(level === 2) {
             elemNode.addClass('neutral');
             elemNode.addClass('operation');
         }
     }
-//    else if(level === 2) elemNode.addClass('operation');
-//                    else elemNode.addClass('leaf');
 
-    // if(icon === 'zmdi-wrench') {
+    // if(icon === 'factory') {
     //     elemNode.attr('title', 'This is a manufacturing specific item being managed in the Items & BOMS workspace');
     //     elemNode.addClass('mbom-item');
     // }
@@ -1207,15 +1305,12 @@ function setMBOM(elemParent, urn, level, qty, urnParent) {
         
         let elemNodeBOM = elemNode.find('.item-bom').first();
         
-        for(edgeMBOM of edgesMBOM) {
+        for(edgeMBOM of mBOM.edges) {
             if(edgeMBOM.depth === level) {
         
                 if(edgeMBOM.parent === urn) {
                     edges.push(edgeMBOM.edgeId);
-                    let childQty = getEdgeProperty(edgeMBOM, wsConfig.columns, 'QUANTITY', '0.0');
-                    childQty = parseInt(childQty);
-
-                    console.log(childQty);
+                    let childQty = Number(getEdgeProperty(edgeMBOM, wsMBOM.viewColumns, 'QUANTITY', '0.0'))
                     setMBOM(elemNodeBOM, edgeMBOM.child, level + 1, childQty, urn);
                 }
             }
@@ -1229,55 +1324,39 @@ function setMBOM(elemParent, urn, level, qty, urnParent) {
 //    if(level === 1) 
     
 }
-function isMBOMLeaf(urn, wsId, level, code) {
+function isMBOMProcess(urn, level)  {
+
+    if(level === 1) return true;
+
+    let isProcess = getNodeProperty(mBOM, urn, wsMBOM.viewColumns, config.mbom.fieldIdIsProcess, '');
+
+    if(isBlank(isProcess)) {
+        return false;
+    } else if(isProcess.toUpperCase() === 'TRUE') {
+        return true;
+    }
     
-    if(level === 1) return false;
+    return false;
+
+}
+function checkEBOMItem(edge)  {
+
+    let isEBOMItem = getEdgeProperty(edge, wsMBOM.viewColumns, config.mbom.fieldIdEBOMItem, 'false');
     
+    return (isEBOMItem.toLowerCase() === 'true')
+    
+}
+function isMBOMLeaf(urn, level, code) {
+    
+    if(level === 1) return false;    
 //    if(level === 2) return false;
     if(level === 3) return true;
-
-
-    //TODO MBOM LEAF RECOGNITION
     
-    // if(wsId === wsConfig.mbom.wsId) {
-    //     if(code !== null) return false;
-    // } else {
-    //     return true;
-    // }
-    
-    
-    for(edgeMBOM of edgesMBOM) {
+    for(edgeMBOM of eBOM.edges) {
         if(edgeMBOM.parent === urn) return false;
     }
     
     return true;
-    
-}
-function getWorkspaceId(urn) {
-    
-    let params = urn.split('.');
-    
-    return params[params.length - 2];
-    
-}
-// function getWorkspaceIcon(urn, level) {
-function getWorkspaceIcon(type) {
-    
-    // let temp = urn.split('.');
-    // let wsId = temp[temp.length - 2];
-    
-    if(type === 'Process') return 'radio_button_unchecked';
-    else if(type === 'Mechanical') return 'view_in_ar';
-    else return 'factory';
-
-    // if(wsId === wsConfig.ebom.wsId) return 'view_in_ar';
-    // else if(wsId ===  wsConfig.mbom.wsId) {
-    //     if(level < 3) { return 'radio_button_unchecked'; } 
-    //     else { return 'factory'; }
-    // } else { return ''; }
-
-
-    // return 'view_in_ar';
     
 }
 function addAction(label, elemParent) {
@@ -1295,7 +1374,7 @@ function addActionIcon(icon, elemParent) {
     let elemAction = $('<div></div>');
         elemAction.addClass('item-action');
         elemAction.addClass('icon');
-        elemAction.addClass('material-symbols-sharp');
+        elemAction.addClass('icon');
         elemAction.html(icon);
         elemAction.appendTo(elemParent);
     
@@ -1366,8 +1445,26 @@ function insertMBOMActions(elemActions) {
 
         });
 
+    let elemActionRemove = addActionIcon('delete_forever', elemActions);
+        elemActionRemove.attr('title', 'Remove this component instance from MBOM');
+        elemActionRemove.addClass('button-remove');
+        elemActionRemove.click(function() {
+
+            event.stopPropagation();
+            event.preventDefault();
+
+            $(this).closest('.item').remove();
+            restoreAssembly();
+            setStatusBar();
+            setStatusBarFilter();
+
+        });
+
+    let elemItem = elemActions.closest('.item');
+
     let elemActionCopy = addActionIcon('content_copy', elemActions);
         elemActionCopy.attr('title', 'Copy this item to selected target');
+        elemActionCopy.addClass('button-copy');
         elemActionCopy.click(function(event) {
         
             event.stopPropagation();
@@ -1392,23 +1489,38 @@ function insertMBOMActions(elemActions) {
 
         });
 
-    let elemActionRemove = addActionIcon('delete_forever', elemActions);
-        elemActionRemove.attr('title', 'Remove this component instance from MBOM');
-        elemActionRemove.addClass('button-remove');
-        elemActionRemove.click(function() {
+}
+function hasNodeInstructions(edge, partNumber, nodeLink) {
 
-            event.stopPropagation();
-            event.preventDefault();
+    if(edge !== '') {
+        for(edgeMBOM of mBOM.edges) {
+            if(edgeMBOM.edgeId === edge) {
 
-            $(this).closest('.item').remove();
-            restoreAssembly();
-            setStatusBar();
-            setStatusBarFilter();
+                let note    = getEdgeProperty(edgeMBOM, wsMBOM.viewColumns, config.mbom.fieldIdInstructions, '');
+                let svg     = getEdgeProperty(edgeMBOM, wsMBOM.viewColumns, config.mbom.fieldIdMarkupSVG   , '');
+                let state   = getEdgeProperty(edgeMBOM, wsMBOM.viewColumns, config.mbom.fieldIdMarkupStage , '');
+                            
+                instructions.push({
+                    'partNumber' : partNumber,
+                    'link'       : nodeLink,
+                    'edge'       : edgeMBOM,
+                    'note'       : note,
+                    'svg'        : svg,
+                    'state'      : state,
+                    'changed'    : false
+                });
 
-        });
+                return (note !== '');
+
+            }
+        }
+    }
+
+    return false;
+    // console.log(instructions);
+
 
 }
-
 
 
 // Parse BOM information
@@ -1434,26 +1546,39 @@ function getLink(data, urn) {
     return '';
     
 }
-function getEdge(urn, urnParent) {
+function getRootLink(data, urn) {
     
-    if(urnParent === '') return '';
-    
-    for(edge of edgesMBOM) {
-        if(edge.child === urn) {
-            if(edge.parent === urnParent) {
-                return edge.edgeId;
-            }
+    for(node of data.nodes) {
+        if(node.item.urn === urn) {
+            return node.rootItem.link;
         }
     }
     
     return '';
     
 }
-function getItemNumber(urn, urnParent) {
+function getMBOMEdge(urn, urnParent) {
+    
+    let empty = { 'edgeId' : '', 'fields': [] }
+
+    if(urnParent === '') return empty;
+    
+    for(edge of mBOM.edges) {
+        if(edge.child === urn) {
+            if(edge.parent === urnParent) {
+                return edge;
+            }
+        }
+    }
+    
+    return empty;
+    
+}
+function getMBOMEdgeNumber(urn, urnParent) {
     
     if(urnParent === '') return -1;
     
-    for(edge of edgesMBOM) {
+    for(edge of mBOM.edges) {
         if(edge.child === urn) {
             if(edge.parent === urnParent) {
                 return edge.itemNumber;
@@ -1471,8 +1596,7 @@ function addBOMToggle(elemParent) {
     
     let elemNodeTogglePlus = $('<div></div>');
         elemNodeTogglePlus.css('display', 'none');
-        // elemNodeTogglePlus.html('<i class="zmdi zmdi-chevron-right"></i>');
-        elemNodeTogglePlus.html('<span class="material-symbols-sharp chevron-right">chevron_right</span>');
+        elemNodeTogglePlus.html('<span class="icon chevron-right">chevron_right</span>');
         elemNodeTogglePlus.appendTo(elemParent);
         elemNodeTogglePlus.click(function(event) {
             
@@ -1491,8 +1615,7 @@ function addBOMToggle(elemParent) {
         });
     
     let elemNodeToggleMinus = $('<div></div>');
-        // elemNodeToggleMinus.html('<i class="zmdi zmdi-chevron-down"></i>');
-        elemNodeToggleMinus.html('<span class="material-symbols-sharp expand-more">expand_more</span>');
+        elemNodeToggleMinus.html('<span class="icon expand-more">expand_more</span>');
         elemNodeToggleMinus.appendTo(elemParent);
         elemNodeToggleMinus.click(function(event) {
 
@@ -1517,7 +1640,7 @@ function addBOMToggle(elemParent) {
 function addMBOMShortcut(elemParent, urn) {
     
     let elemMBOM = $('<div></div>');
-        elemMBOM.addClass('material-symbols-sharp');
+        elemMBOM.addClass('icon');
         elemMBOM.addClass('mbom-shortcut');
         elemMBOM.appendTo(elemParent);
         elemMBOM.click(function(event) {
@@ -1582,24 +1705,15 @@ function setTotalQuantities() {
 
 
 // Enable item filtering & preview
-// function setClickable(elemClicked) {
-function selectOperation(elemClicked) {
+function selectProcess(elemClicked) {
 
     $('.item').removeClass('selected');
     $('.selected-target').removeClass('selected-target');
+    
     elemClicked.addClass('selected-target');
     elemClicked.addClass('selected');
-    setItemDetails(elemClicked.attr('data-link'));
 
-    // let partNumbers = [];
-
-    // elemClicked.find('.item').each(function() {
-    //     partNumbers.push($(this).attr('data-part-number'));
-    // });
-
-    // viewer.setGhosting(true);
-
-    // viewerSelectModels(partNumbers, false);
+    insertItemDetails(elemClicked.attr('data-link'));
 
 }
 function selectBOMItem(elemClicked, filter) {
@@ -1677,10 +1791,28 @@ function selectItem(elemItem, filter) {
 
 
             }
-            setItemDetails(link);
+            insertItemDetails(link);
+            insertAttachments(link, 'attachments');
             setBOMPanels(link);
         }
 
+    }
+
+    // Set instructions in viewer markup
+    $('#my-markup-button').removeClass('highlight');
+    $('#viewer-note').val('');
+    $('#viewer-note').attr('data-link', link);
+
+    for(instruction of instructions) {
+        if(instruction.link === link) {
+            if(instruction.note !== '') {
+                $('#viewer-note').val(instruction.note);
+                $('#viewer-note').attr('data-part-number', partNumber);
+                $('#my-markup-button').addClass('highlight');
+                restoreMarkupSVG = instruction.svg;
+                restoreMarkupState = instruction.state;
+            }
+        }
     }
     
 }
@@ -1720,14 +1852,14 @@ function deselectItem(elemClicked) {
     $('.item').removeClass('filter');
     $('.item').show();
 
-    setItemDetails($('#main').attr('data-link'));
+    insertItemDetails($('#main').attr('data-link'));
 
     let elemMBOM = elemClicked.closest('#mbom');
 
     if(elemMBOM.length === 1) {
-        resetViewerSelection(false);
+        viewerResetSelection(false);
     } else {
-        resetViewerSelection(true);
+        viewerResetSelection(true);
     }
 
     setStatusBar();
@@ -1745,38 +1877,12 @@ function unhideParent(elemVisible) {
     }
     
 }
-function setItemDetails(link) {
 
-    if(link === '') return;
-
-    $('#details').find('.progress').show();
-    // $('#sections').html('');
-    // $('#attachments').html('');
-
-    // let selectedWSID = link.split('/')[4];
-    // let fields       = (selectedWSID === wsConfig.ebom.wsId) ? wsConfig['ebom'].fields : wsConfig['mbom'].fields; 
-    // let sections     = (selectedWSID === wsConfig.ebom.wsId) ? wsConfig['ebom'].sections : wsConfig['mbom'].sections; 
-    
-    let requests = [
-        $.get('/plm/details'    , { 'link' : link }),
-        $.get('/plm/attachments', { 'link' : link })
-    ]
-
-    Promise.all(requests).then(function(responses) {
-        // insertItemDetails($('#sections'), sections, fields, responses[0].data, false, false, false);
-        insertItemDetails($('#sections'), wsConfig.sections, wsConfig.fields, responses[0].data, false, false, false);
-        insertAttachments($('#attachments'), responses[1].data, false);
-        $('#details').find('.progress').hide();
-    });  
-
-}
 
 
 // BOM Panels with total quantities
 function setBOMPanels(link) {
 
-    // $('.bom-panel').show();
-    
     $('body').addClass('bom-panel-on');
 
     let qtyEBOM = 0;
@@ -1791,70 +1897,16 @@ function setBOMPanels(link) {
 
     $('#mbom').find('.item').each(function() {
         if($(this).attr('data-link') === link) {
-            // qtyMBOM += Number($(this).attr('data-instance-qty'));
             qtyMBOM += Number($(this).find('.item-qty-input').val());
         }
     });
 
     $('#mbom-total-qty').html(qtyMBOM + ' (' + (qtyMBOM-qtyEBOM) + ')');
 
-
-
 }
 
 
 // Drag & Drop functions
-function setDroppable(elem) {
-    
-    // elem.droppable({
-    
-    //     classes: {
-    //         'ui-droppable-hover': 'drop-hover'
-    //     },
-    //     drop: function( event, ui ) {
-
-    //         itemDropped = $(this).hasClass('item-head') ? $(this).next() : $(this).find('.item-bom');
-    //         itemDragged = ui.draggable;
-
-    //         let isAdditionalItem = itemDragged.hasClass('additional-item');
-
-    //         if(isAdditionalItem) {
-
-    //             insertAdditionalItem(itemDropped, itemDragged.html(), itemDragged.attr('data-urn'), itemDragged.attr('data-link'));
-
-    //         } else {
-
-    //             let prevBOM  = itemDragged.closest('.item-bom');
-    //             let prevItem = prevBOM.closest('.item');
-    //             let newItem  = itemDropped.closest('.item');
-                
-    //             if(prevItem.attr('data-urn') !== newItem.attr('data-urn')) {
-    
-    //                 let qty = $(ui.helper).find('.item-qty-input').val();
-    //                     qty = Number(qty);
-    
-    //                 if(qty > 1) {
-    
-    //                     let title = itemDragged.find('.item-descriptor').html();
-
-    //                     $('#split-qty').val(qty);
-    //                     $('#total-qty').html(qty);
-    //                     $('#item-to-move').html(title);
-    //                     $('#overlay').show();
-    //                     $('#dialog-split').show();
-    
-    //                 } else {
-    //                     addDraggedItemToBOM();
-    //                 }
-                    
-    //             }
-
-    //         }
-            
-    //     }
-    // });
-    
-}
 function moveItemQuantity() {
     
     let elemItem    = $('.to-move');
@@ -1937,7 +1989,46 @@ function getItemClone(elemItem) {
 }
 
 
-// MBOM Add Dialog
+// Add Items Tab
+function insertSearchFilters() {
+
+    if(typeof config.mbom.searches === 'undefined') return;
+
+    let index = 0;
+
+    for(view of config.mbom.searches) {
+
+        index++;
+
+        let elemSearchNav = $('<div></div>');
+            elemSearchNav.addClass('blank');
+            elemSearchNav.addClass('panel-nav');
+            elemSearchNav.addClass('saved-search');
+            elemSearchNav.html(view.title);
+            elemSearchNav.attr('data-id', 'saved-search-' + index);
+            elemSearchNav.attr('data-wsid', view.wsId);
+            elemSearchNav.attr('data-query', view.query);
+            elemSearchNav.insertAfter($('#nav-search-items'));
+
+        let elemSearchPanel = $('<div></div>');
+            elemSearchPanel.attr('id', 'saved-search-' + index);
+            elemSearchPanel.appendTo($('#add-views'));
+
+        let elemSearchToolbar = $('<div></div>');
+            elemSearchToolbar.addClass('panel-list-toolbar');
+            elemSearchToolbar.append('<span>Filter List:</span>');
+            elemSearchToolbar.append('<input class="list-filter">');
+            elemSearchToolbar.append('<i class="icon">filter_list</i>');
+            elemSearchToolbar.appendTo(elemSearchPanel);
+
+        let elemSearchList = $('<div></div>');
+            elemSearchList.addClass('panel-list');
+            elemSearchList.attr('id', 'saved-search-' + index + '-list');
+            elemSearchList.appendTo(elemSearchPanel);
+
+    }
+
+}
 function clickPanelNav(elemClicked) {
 
     let update = (elemClicked.hasClass('selected')) ? true : elemClicked.hasClass('blank');
@@ -1950,17 +2041,22 @@ function clickPanelNav(elemClicked) {
         elemNew.show();
         elemNew.siblings().hide();
 
-    if(id === 'search-items') {
+    if(elemClicked.hasClass('saved-search')) {
+        if(update) {
+            searchItems(id, id + '-list', elemClicked.attr('data-query'));
+        } else {
+            $('#' + id).show().siblings().hide();
+        }
+    } else  if(id === 'search-items') {
         $('#' + id).show().siblings().hide();
+    } else  if(id === 'create-item') {
+        $('#create-item').show().siblings().hide();
     } else if(update) {
 
-        $('#add-processing').show().siblings().hide();
+        $('#add-processing').show();
 
         switch(id) {
 
-            case 'create-item'          : $('#create-item').show().siblings().hide(); break;
-            case 'items-tooling'        : searchItems('items-tooling', 'items-tooling-list', elemClicked.attr('data-query')); break;
-            case 'items-purchased'      : searchItems('items-purchased', 'items-purchased-list', elemClicked.attr('data-query')); break;
             case 'workspace-views-mbom' : setWorkspaceView('mbom'); break;
             case 'workspace-views-ebom' : setWorkspaceView('ebom'); break;
             case 'bookmark-items'       : setBookmarkItemsList(); break;
@@ -1973,6 +2069,9 @@ function clickPanelNav(elemClicked) {
 }
 function searchItems(idView, idList, query) {
 
+    $('#' + idList).html('');
+    $('#add-processing').show();
+
     if(query === $('.panel-nav.active').first().attr('data-query') ) {
         if($('#' + idList).children().length > 0) {
             $('#' + idList).parent().show().siblings().hide();
@@ -1981,21 +2080,15 @@ function searchItems(idView, idList, query) {
     }
 
     let params = { 
-        'wsId'   : wsId,
-        'limit'  : 25,
+        'wsId'   : wsMBOM.wsId,
+        'limit'  : 50,
         'offset' : 0,
         'query'  : query,
         'bulk'   : false
     }
 
-    $('#add-processing').show();
-
-    console.log(params);
-
     $.get('/plm/search-bulk', params, function(response) {
-        console.log(response);
         setItemsList(idView, idList, response.data.items);
-        //$('#add-processing').hide();
     });
 
 }
@@ -2029,15 +2122,16 @@ function setWorkspaceView(suffix) {
 }
 function setBookmarkItemsList() {
 
+    $('#bookmark-items-list').html('');
+
     $.get('/plm/bookmarks', {}, function(response) {
-
-        console.log(response);
-
         setItemsList('bookmark-items', 'bookmark-items-list', response.data.bookmarks);
     });
 
 }
 function setRecentItemsList() {
+
+    $('#recent-items-list').html('');
 
     $.get('/plm/recent', {}, function(response) {
         setItemsList('recent-items', 'recent-items-list', response.data.recentlyViewedItems);
@@ -2046,22 +2140,19 @@ function setRecentItemsList() {
 }
 function setItemsList(idView, idList, list) {
 
+    $('#add-processing').hide();
+
     let elemList = $('#' + idList);
         elemList.html('');
 
     for(item of list) {
 
-        let link      = item.hasOwnProperty('item') ? item.item.link : item.__self__;
-        let urn       = item.hasOwnProperty('item') ? item.item.urn : item.urn;
+        let link      = item.hasOwnProperty('item') ? item.item.link  : item.__self__;
+        let urn       = item.hasOwnProperty('item') ? item.item.urn   : item.urn;
         let title     = item.hasOwnProperty('item') ? item.item.title : item.title;
-        let itemWSID  = link.split('/')[4];
-        // let className = (itemWSID === wsConfig.mbom.wsId) ? 'mbom'  : 'ebom';
+        let className = getIconClassName(link);
 
-        // if((itemWSID === wsConfig.mbom.wsId) || (itemWSID === wsConfig.ebom.wsId)) {
-
-            addItemListEntry(link, urn, title, 'mbom', elemList, false);
-
-        // }
+        addItemListEntry(link, urn, title, className, elemList, false);
 
     }
 
@@ -2071,7 +2162,7 @@ function setItemsList(idView, idList, list) {
     if(idSelected === idView)  $('#' + idView).show().siblings().hide();
 
 }
-function addItemListEntry(link, urn, title, className, elemParent, isOperation) {
+function addItemListEntry(link, urn, title, className, elemParent, isProcess) {
 
     let elemItem = $('<div></div>');
         elemItem.addClass('additional-item');
@@ -2081,7 +2172,7 @@ function addItemListEntry(link, urn, title, className, elemParent, isOperation) 
         elemItem.html(title);
         elemItem.appendTo(elemParent);
         elemItem.click(function() {
-            setItemDetails($(this).attr('data-link'));
+            insertItemDetails($(this).attr('data-link'));
             $(this).addClass('selected');
             $(this).siblings().removeClass('selected');
         })
@@ -2099,19 +2190,21 @@ function addItemListEntry(link, urn, title, className, elemParent, isOperation) 
             zIndex      : 100000
         });
 
-    if(isOperation) elemItem.addClass('is-operation');
+    if(isProcess) elemItem.addClass('is-operation');
 
 }
 function insertAdditionalItem(elemHead, title, urn, link) {
       
-    let qty = '1';
-    let elemBOM = elemHead.next();
+    let qty         = '1';
+    let elemBOM     = elemHead.next();
+    let className   = getIconClassName(link);
     
     let elemNode = $('<div></div>');
         elemNode.addClass('item');
         elemNode.addClass('leaf');
         elemNode.addClass('unique');
         elemNode.addClass('mbom-item');
+        elemNode.addClass(className);
         elemNode.attr('data-urn', urn);
         elemNode.attr('data-link', link);
         elemNode.appendTo(elemBOM);
@@ -2126,7 +2219,7 @@ function insertAdditionalItem(elemHead, title, urn, link) {
     
     let elemNodeIcon = $('<div></div>');
         elemNodeIcon.addClass('item-icon');
-        elemNodeIcon.html('<i class="material-symbols-sharp">factory</i>');
+        elemNodeIcon.html('<span class="icon"></span>');
         elemNodeIcon.appendTo(elemNodeHead);
     
     let elemNodeTitle = $('<div></div>');
@@ -2167,69 +2260,51 @@ function insertAdditionalItem(elemHead, title, urn, link) {
     insertMBOMActions(elemNodeActions);
         
 }
+function getIconClassName(link, isProcess, isEBOMItem) {
+
+    let className = 'deployed_code';
+
+    if(!singleWorkspace) {
+        let id = link.split('/')[4];
+        className = (id == wsEBOM.wsId) ? 'ebom ': 'mbom';
+    } else {
+        if(!isBlank(isProcess)) {
+            if(isProcess) return 'radio_button_unchecked';
+            else if(!isBlank(isEBOMItem)) {
+                if(!isEBOMItem) return 'factory';
+            }
+        }
+    }
+
+    return className;
+
+}
 function createItem(type) {
 
     $('#add-processing').show();
     $('#create-item').hide();
 
     let params = { 
-        'wsId'     : wsConfig.mbom.wsId,
-        'sections' : getSectionsPayload($('#create-item-form')) 
+        'wsId'     : wsMBOM.wsId,
+        'sections' : getSectionsPayload($('#create-item-sections')) 
     }
 
-    let indexSection = -1;
-    let addField = true;
-    let index = 0;
-    let isOperation = (type === 'operation');
-
-    for(section of params.sections) {
-
-        index++;
-
-        if(section.id === sectionIdMBOM2) {
-
-            indexSection = index;
-
-            for(field of section.fields) {
-                if(field.fieldId === 'IS_OPERATION') {
-                    addField = false;
-                    if(type === 'operation') field.value = true;
-                    else field.value = false;
-                }
-            }
-
-        }
-
-    }
-
-    if(indexSection === -1) {
-        params.sections.push({
-            'id' : sectionIdMBOM2,
-            'fields' : [
-                { 'fieldId' : 'IS_OPERATION', value : isOperation}
-            ]
-        })
-    } else if(addField) {
-        params.sections[indexSection].fields.push({
-            'fieldId' : 'IS_OPERATION', value : isOperation
-        })
-    }
+    let isProcess = (type === 'operation');
 
     $.post({
-        url : '/plm/create', 
+        url         : '/plm/create', 
         contentType : "application/json",
-        data : JSON.stringify(params)
+        data        : JSON.stringify(params)
     }, function(response) {
         
         $('#add-processing').hide();
         $('#create-item').show();
         
         if(response.error) {
-            console.log(' ERROR when creating item');
+            showErrorMessage(' ERROR when creating item');
         } else {
             $.get('/plm/details', { 'link' : response.data.split('.autodeskplm360.net')[1] }, function(response) {
-                console.log(response);
-                addItemListEntry(response.params.link, response.data.urn, response.data.title, 'mbom', $('#create-item-list'), isOperation );
+                addItemListEntry(response.params.link, response.data.urn, response.data.title, 'mbom', $('#create-item-list'), isProcess );
             });
         }
 
@@ -2240,15 +2315,9 @@ function createItem(type) {
 
 
 // Forge Viewer interaction
-function onSelectionChanged(event) {
-
-    console.log('onSelectionChanged START');
-    console.log('onSelectionChanged disableViewerSelectionEvent = ' + disableViewerSelectionEvent);
-
+function onViewerSelectionChanged(event) {
 
     if(disableViewerSelectionEvent) return;
-
-    console.log(event);
 
     if (event.dbIdArray.length === 1) {
 
@@ -2257,25 +2326,29 @@ function onSelectionChanged(event) {
         viewer.getProperties(event.dbIdArray[0], function(data) {
 
             let partNumber = data.name.split(':')[0];
+            let propertyMatch = false;
 
-            if(typeof forgePropertyName !== undefined) { if(forgePropertyName !== '') {
+            for(partNumberProperty of config.viewer.partNumberProperties) {
                 for(property of data.properties) {
-                    if(property.displayName === forgePropertyName) {
+                    if(property.displayName === partNumberProperty) {
                         partNumber = property.displayValue;
+                        if(partNumber.indexOf(':') > -1) { partNumber = partNumber.split(':')[0]; }
+                        propertyMatch = true;
                         break;
                     }
                 }
-            }}
-
+                if(propertyMatch) break;
+            }
 
             if(disassembleMode) {
+
                 if(event.mouseButton === 0) {
                     $('#ebom').find('.item.leaf').each(function() {
                         let elemEBOM = $(this);
                         if(elemEBOM.attr('data-part-number') === partNumber) {
                             let elemActionAdd = elemEBOM.find('.item-action-add').first();
-                            // if(elemActionAdd.is(':visible')) elemActionAdd.click();
                             elemActionAdd.click();
+                            
                         }
                     });
                     viewerHideModel(partNumber);
@@ -2312,11 +2385,61 @@ function onSelectionChanged(event) {
 
 }
 function initViewerDone() {
+    
     viewerStarted = true;
+
+    viewerAddNoteControls();
+    viewerAddMarkupControls();   
+    // viewerAddGhostingToggle();
+    // viewerAddResetButton();
+    viewerAddViewsToolbar();
+
+}
+function closedViewerMarkup(markupSVG, markupState) {
+
+    console.log("closedViewerMarkup");
+
+    let note        = $('#viewer-note').val();
+    let link        = $('#viewer-note').attr('data-link');
+    let partNumber  = $('#viewer-note').attr('data-part-number');
+
+    let add = true;
+
+    console.log(note);
+    console.log(markupSVG);
+    console.log(markupState);
+
+    for(instruction of instructions) {
+        if(instruction.link === link) {
+            instruction.note = note;
+            instruction.svg = markupSVG;
+            instruction.state = markupState;
+            instruction.changed = true;
+            add = false;
+        }
+    }
+    console.log(add);
+
+    if(add) {
+        instructions.push({
+            'partNumber' : partNumber,
+            'link'       : link,
+            'edge'       : '',
+            'note'       : note,
+            'svg'        : markupSVG,
+            'state'      : markupState,
+            'changed'    : true
+        });
+    }
+
+    console.log(instructions);
+
+    if(note !== '') $('#my-markup-button').addClass('highlight');
+
 }
 function updateViewer() {
 
-    console.log('updateViewer START');
+    // console.log('updateViewer START');
 
     var elemButtonView = $('.button-view.selected');
 
@@ -2415,7 +2538,7 @@ function setStatusBarFilter() {
         }
     });
 
-    resetViewerSelection();
+    viewerResetSelection();
     viewerSelectModels(dbIds);
     
 }
@@ -2430,7 +2553,7 @@ function setSaveActions() {
 
     $('.pending-creation').removeClass('pending-creation');
     $('.pending-addition').removeClass('pending-addition');
-    $('.pending-update').removeClass('pending-update');
+    $('.pending-update'  ).removeClass('pending-update'  );
 
     // Determine and flag new items
     $('#mbom').find('.item').each(function() {
@@ -2483,14 +2606,25 @@ function setSaveActions() {
             if(edges.indexOf($(this).attr('data-edge')) < 0) {
                 $(this).addClass('pending-addition');
             } else {
+
                 let dbNumber     = elemItem.attr('data-number-db');
                 let edNumber     = elemItem.attr('data-number');
                 let dbQty        = elemItem.attr('data-qty');
                 let edQty        = elemItem.find('.item-qty-input').first().val();
 
+                // console.log(dbQty + ' / ' + edQty);
+
                 if(dbQty !== edQty) elemItem.addClass('pending-update');
                 else if(dbNumber !== edNumber) elemItem.addClass('pending-update');
+
+            }           
+
+            for(instruction of instructions) {
+                if(instruction.link === elemItem.attr('data-link')) {
+                    if(instruction.changed) elemItem.addClass('pending-update');
+                }
             }
+
         });
 
     });
@@ -2538,27 +2672,33 @@ function createNewItems() {
 
                 let elemItem = $(this);
                 let title    = elemItem.find('.item-descriptor').html();
+                let code     = elemItem.find('.item-code').html();
                 
                 if(elemItem.find('.item-descriptor').length === 0) title = elemItem.find('.item-title').html();
 
                 let params = {
-                    'wsId' : wsId,
-                    'sections' : [{
-                        'id' : wsConfig.sections[0].id,
-                        'fields' : [
-                            { 'fieldId' : fieldIdTitle, 'value' : title },
-                            fieldDefaultType
-                        ] 
-                    },{
-                        'id' : sectionIdMBOM,
-                        'fields' : [
-                            { 'fieldId' : 'OPERATION_CODE', 'value' : elemItem.find('.item-code').html() }
-                            // { 'fieldId' : 'IS_OPERATION'  , 'value' : elemItem.hasClass('operation')     }
-                        ]             
-                    }]
+                    'wsId'      : config.mbom.wsIdMBOM,
+                    'sections'  : []
                 };
 
-                // params.sections[1].fields.push(fieldTypeProcess);
+                addFieldToPayload(params.sections, wsMBOM.sections, null, config.mbom.fieldIdTitle, title);
+                addFieldToPayload(params.sections, wsMBOM.sections, null, config.mbom.fieldIdIsProcess, true);
+                addFieldToPayload(params.sections, wsMBOM.sections, null, config.mbom.fieldIdProcessCode, code);
+
+                console.log(params);
+
+                if(!isBlank(config.mbom.fieldIdNumber)) {
+                    if(!isBlank(config.mbom.incrementOperatonsItemNumber)) {
+                        if(code !== '') {
+                          addFieldToPayload(params.sections, wsMBOM.sections, null, config.mbom.fieldIdNumber, basePartNumber + '-' + code);
+                        }
+                    }
+                }
+
+                for(newDefault of config.mbom.newDefaults) {
+                    addFieldToPayload(params.sections, wsMBOM.sections, null, newDefault[0], newDefault[1]);
+                }
+
                 requests.push($.post('/plm/create', params));
                 elements.push(elemItem);
 
@@ -2571,7 +2711,6 @@ function createNewItems() {
             requests = [];
 
             for(response of responses) {
-                console.log(responses);
                 requests.push($.get('/plm/descriptor', {
                     'link' : response.data.split('.autodeskplm360.net')[1]
                 }));
@@ -2585,6 +2724,7 @@ function createNewItems() {
 
                     let elemItem = elements[index++];
                         elemItem.attr('data-link', response.params.link);
+                        elemItem.attr('root-link', response.params.link);
                         elemItem.removeClass('pending-creation');
 
                     let elemHead = elemItem.children().first();
@@ -2698,6 +2838,8 @@ function addBOMItems() {
                 let paramsChild  = elemItem.attr('data-link').split('/');
                 let edQty        = elemItem.find('.item-qty-input').first().val();
                 let urnMBOM      = elemItem.attr('data-urn-mbom');
+                let linkEBOMRoot = elemItem.attr('data-ebom-root');
+                let isEBOMItem   = elemItem.hasClass('is-ebom-item');
                 
                 if (typeof urnMBOM !== 'undefined') {
 
@@ -2708,17 +2850,23 @@ function addBOMItems() {
                 }
 
                 let params = {                    
-                    'wsIdParent'  : paramsParent[4],
-                    'wsIdChild'   : paramsChild[4],
-                    'dmsIdParent' : paramsParent[6], 
-                    'dmsIdChild'  : paramsChild[6],
-                    'number'      : elemItem.attr('data-number'),
-                    'qty'         : edQty,
-                    'pinned'      : true
+                    'wsIdParent'    : paramsParent[4],
+                    'wsIdChild'     : paramsChild[4],
+                    'dmsIdParent'   : paramsParent[6], 
+                    'dmsIdChild'    : paramsChild[6],
+                    'number'        : elemItem.attr('data-number'),
+                    'qty'           : edQty,
+                    'pinned'        : config.mbom.pinMBOMItems,
+                    'fields'        : []
                 };
+
+                if(isEBOMItem) params.fields.push({ 'link' : linkFieldEBOMItem, 'value' : true });
+                if(!isBlank(linkEBOMRoot)) params.fields.push({ 'link' : linkFieldEBOMRootItem, 'value' : linkEBOMRoot });
 
                 requests.push($.get('/plm/bom-add', params));
                 elements.push(elemItem);
+
+                console.log(params);
 
             }
 
@@ -2818,10 +2966,30 @@ function updateBOMItems() {
                     'edgeId'      : elemItem.attr('data-edge'),
                     'number'      : edNumber,
                     'qty'         : edQty,
-                    'pinned'      : true
+                    'pinned'      : config.mbom.pinMBOMItems
                 };
 
-                console.log(params);
+                let linkFieldNote   = '';
+                let linkFieldSVG    = '';
+                let linkFieldState  = '';
+
+                for(column of wsMBOM.viewColumns) {
+                         if(column.fieldId === config.mbom.fieldIdInstructions) linkFieldNote  = column.link;
+                    else if(column.fieldId === config.mbom.fieldIdMarkupSVG   ) linkFieldSVG   = column.link;
+                    else if(column.fieldId === config.mbom.fieldIdMarkupState ) linkFieldState = column.link;
+                }
+
+                for(instruction of instructions) {
+                    if(instruction.link === elemItem.attr('data-link')) {
+                        if(instruction.changed) {
+                            params.fields = [
+                                { 'link'  : linkFieldNote , 'value' : instruction.note  },
+                                { 'link'  : linkFieldSVG  , 'value' : instruction.svg   },
+                                { 'link'  : linkFieldState, 'value' : instruction.state }
+                            ]
+                        }
+                    }
+                }
 
                 requests.push($.get('/plm/bom-update', params));
                 elements.push(elemItem);
@@ -2839,6 +3007,7 @@ function updateBOMItems() {
                 let elemItem = elements[index++];
                     elemItem.removeClass('pending-update');
                     elemItem.attr('data-number-db', response.params.number);
+                    elemItem.attr('data-qty', response.params.qty);
         
             }
 
@@ -2862,19 +3031,16 @@ function endProcessing() {
     $('#confirm-saving').removeClass('disabled').addClass('default');
     $('.in-work').removeClass('in-work');
 
-    let timestamp = new Date();
+    let timestamp  = new Date();
+    let value      = timestamp.getFullYear() + '-' + (timestamp.getMonth()+1) + '-' + timestamp.getDate();
+    let paramsEBOM = { 'link' : linkEBOM, 'sections'   : [] }
+    let paramsMBOM = { 'link' : linkMBOM, 'sections'   : [] }
 
-    let params = {
-        'wsId'       : wsId,
-        'dmsId'      : dmsIdMBOM,
-        'sections'   : [{
-            'id'     : sectionIdMBOM,
-            'fields' : [
-                { 'fieldId' : fieldIdLastSync, 'value' : timestamp.getFullYear()  + '-' + (timestamp.getMonth()+1) + '-' + timestamp.getDate() }
-            ]
-        }]
-    }
+    addFieldToPayload(paramsEBOM.sections, wsEBOM.sections, null, config.mbom.fieldIdLastSync, value);
+    addFieldToPayload(paramsEBOM.sections, wsEBOM.sections, null, config.mbom.fieldIdLastUser + siteSuffix, $('#header-avatar').attr('title'));
+    addFieldToPayload(paramsMBOM.sections, wsMBOM.sections, null, config.mbom.fieldIdLastSync, value);
 
-    $.get('/plm/edit', params, function() {});   
+    $.get('/plm/edit', paramsEBOM, function(response) {});
+    $.get('/plm/edit', paramsMBOM, function(response) {});
 
 }

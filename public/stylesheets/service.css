@@ -9,7 +9,7 @@
     position: absolute;
     width: 24px;
     top: 10px;
-    right: 22px;
+    right: 94px;
     text-align: center;
     font-size: 12px;
     font-weight: 600;
@@ -20,24 +20,44 @@
 #overlay .progress { display : none; }
 .homeViewWrapper, .viewcube { display : none !important; }
 
+:root {
+
+    --width-bom : 550px;
+    --width-details : 325px;
+    --width-panel : 500px;
+    --padding-panel : 24px;
+
+}
+
 
 /* MASTER LAYOUT */
 /* ----------------------------------------------------------------------------- */
-#bom, #viewer, #panel, .screen-divider.vertical  {
-    top : 24px;
-    bottom : 24px;
+#bom, .viewer, #panel, .screen-divider.vertical  {
+    top : var(--padding-panel);
+    bottom : var(--padding-panel);
+}
+#bom {
+    left : var(--padding-panel);
+    width : var(--width-bom);
+}
+#attachments {
+    bottom : var(--padding-panel);
+}
+#panel {
+    right : var(--padding-panel);
+    width : var(--width-panel);
 }
 #details, #divider-details {
     top : 102%;
     bottom : -102%
 }
-#details { right : 576px; width : 325px; }
+#details { right : 576px; width : var(--width-details); }
 
 #divider-bom     { left :  598px; }
 #divider-details { right : 925px; }
-#divider-panel   { right : 548px; }
+#divider-panel   { right : calc(var(--width-panel) + (2 * var(--padding-panel))); }
 
-.no-panel #viewer           { right :    25px; }
+.no-panel .viewer           { right :    25px; }
 .no-panel #attachments      { right :     0px; }
 .no-panel #divider-details  { right :   373px; }
 .no-panel #details          { right :    24px; } 
@@ -46,13 +66,13 @@
 
 .no-bom #bom         { left : -1000px; }
 .no-bom #divider-bom { left :  -800px; }
-.no-bom #viewer      { left :    25px; }
+.no-bom .viewer      { left :    25px; }
 .no-bom #attachments { left :     0px; }
 
-.no-attachments #viewer      { bottom :   25px; }
+.no-attachments .viewer      { bottom :   var(--padding-panel); }
 .no-attachments #attachments { bottom : -500px; }
 
-.with-details #viewer      { right : 960px; }
+.with-details .viewer      { right : 960px; }
 .with-details #attachments { right : 936px; }
 .with-details #details,
 .with-details #divider-details {
@@ -60,7 +80,7 @@
     bottom : 24px;
 }
 
-.no-panel.with-details #viewer          { right : 401px; }
+.no-panel.with-details .viewer          { right : 401px; }
 .no-panel.with-details #attachments     { right : 377px; }
 
 
@@ -68,30 +88,11 @@
 /* BOM */
 /* ----------------------------------------------------------------------------- */
 #bom {
-    left : 24px;
-    width : 550px;
     overflow : hidden;
-}
-#bom-reset {
-    display : none;
-}
-#bom-search {
-    border-radius: 3px;
-    border: 1px solid black;
-    padding: 4px 15px 5px;
-    position: absolute;
-}
-#bom-search-input {
-    border : none !important;
-    box-shadow : none !important;
-    font-size : 14px;
-    padding : 4px 10px;
-    width: 100px;
 }
 #bom-table {
     width : 100%;
 }
-
 td {
     border : 1px solid transparent;
     border-bottom : 1px solid white;
@@ -154,7 +155,7 @@ tr.result td {
 
 /* VIEWER */
 /* ----------------------------------------------------------------------------- */
-#viewer {
+.viewer {
     bottom : 280px;
     right : 581px;
     left : 631px;
@@ -171,7 +172,6 @@ tr.result td {
     left : 606px;
     height : 232px;
     padding : 25px 25px 0px;
-    bottom : 25px;
     text-align : center;
 }
 #attachments-list {
@@ -202,12 +202,9 @@ tr.result td {
 
 /* PANEL */
 /* ----------------------------------------------------------------------------- */
-#panel {
-    right : 24px;
-    width : 500px;
-}
 .spare-part {
     border : 1px solid transparent;
+    border-right : 5px solid transparent;
 }
 .spare-part-side {
     width : 100px;
@@ -220,9 +217,25 @@ tr.result td {
     margin : 14px 0px 12px 0px;
     min-width: unset;
 }
+.spare-part-quantity {
+    background: black;
+    color: white;
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 11px;
+    margin-right: 8px;
+    padding: 4px 8px;
+    position: relative;
+    top: -2px;
+    width: 30px;
+}
+.zoom .spare-part-show {
+    background : var(--color-status-red);
+    color : white;
+}
 .spare-part-stock {
     border-radius: 12px;
-    color: white;
     text-align: center;
     width: 68px;
     font-size: 10px;
@@ -230,9 +243,12 @@ tr.result td {
     line-height : 18px;
     padding: 0px 4px;
 }
-.spare-part.spare-part-stock-normal .spare-part-stock  { background : var(--color-status-green);}
-.spare-part.spare-part-stock-low     .spare-part-stock { background : var(--color-status-yellow); }
-.spare-part.spare-part-stock-none    .spare-part-stock { background : var(--color-status-red); }
+.spare-part.spare-part-stock-normal { border-right : 5px solid var(--color-status-green); }
+.spare-part.spare-part-stock-low    { border-right : 5px solid var(--color-status-yellow); }
+.spare-part.spare-part-stock-none   { border-right : 5px solid var(--color-status-red); }
+.spare-part.spare-part-stock-normal .spare-part-stock  { color : var(--color-status-green);}
+.spare-part.spare-part-stock-low     .spare-part-stock { color : var(--color-status-yellow); }
+.spare-part.spare-part-stock-none    .spare-part-stock { color : var(--color-status-red); }
 .spare-part.selected {
     background : var(--color-selected) !important;
     border-color : var(--color-selected-border) !important;
@@ -240,7 +256,8 @@ tr.result td {
 .spare-part .tile-details {
     width : 260px !important;
 }
-
+#items-list.m .spare-part-stock { display : none; }
+#items-list.m .spare-part .tile-details { overflow : hidden; width: 292px !important; }
 
 
 /* PROCESSES */
@@ -303,26 +320,6 @@ tr.result td {
 .process-dialog { display : none; }
 
 
-/* OPTIONS DIALOG */
-/* ----------------------------------------------------------------------------- */
-#options {
-    top : calc(50% - 280px);
-    height : 380px;
-    width : 900px;
-    left : calc(50% - 450px);
-}
-#toggles {
-    display : flex;
-    gap : var(--spacer-xs);
-}
-#toggles > div {
-    height : 120px;
-    flex-grow : 1;
-    flex-basis: 0;
-    padding-top : 30px;
-}
-
-
 
 /* REQUEST CREATON DIALOG */
 /* ----------------------------------------------------------------------------- */
@@ -381,9 +378,10 @@ tr.result td {
     text-align: right;
     width: 30px;
 }
-.request-delete {
+.button.request-delete {
     cursor : pointer;
     color: var(--color-status-red);
+    height : 28px;
     line-height : 28px;
 }
 

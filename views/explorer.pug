@@ -1,19 +1,11 @@
-extends common
+extends common/layout
 
 block head
     link(rel='stylesheet', href='/stylesheets/explorer.css')
-    link(rel='stylesheet', href='https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/style.min.css')
-    script.
-        tenant='#{tenant}'
-        wsId='#{wsId}'
-        dmsId='#{dmsId}'
-        link='#{link}'
-        options='#{options}'
-    script(src='https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.min.js') 
     script(src='/javascripts/libs/Chart.bundle.min.js')
-    script(src='/javascripts/ui.js')
-    script(src='/javascripts/forge.js')
     script(src='/javascripts/explorer.js')
+    script.
+        config = !{JSON.stringify(config)};
 
 block content
 
@@ -24,99 +16,74 @@ block content
             #header-title= title
             #header-subtitle
             #header-toolbar
-                //- #button-options-open.material-symbols-sharp.xs arrow_left
-                //- #button-options-close.material-symbols-sharp.xs arrow_right
-                #button-toggle-dashboard.button.with-icon(title='Click to toggle dashboard panel on/off') 
-                    span.material-symbols-sharp.xs dashboard
-                    span Dashboard
-                #button-toggle-bom.button.with-icon(title='Click to switch BOM display form tree to table and back')  
-                    span.material-symbols-sharp.xs format_list_numbered
-                    span BOM Display
-                #button-toggle-attachments.button.with-icon(title='Click to toggle files panel on/off')  
-                    span.material-symbols-sharp.xs picture_as_pdf
-                    span Files
-                #button-toggle-details.button.with-icon(title='Click to toggle details panel on/off')  
-                    span.material-symbols-sharp.xs storage
-                    span Details
-                #button-toggle-processes.button.with-icon(title='Click to toggle processes panel on/off')  
-                    span.material-symbols-sharp.xs schema
-                    span Processes
+                #button-toggle-dashboard.button.with-icon.icon-dashboard(title='Click to toggle dashboard panel on/off') Dashboard
+                #button-toggle-bom.button.with-icon.icon-bom(title='Click to switch BOM display form tree to table and back') BOM
+                #button-toggle-attachments.button.with-icon.icon-pdf(title='Click to toggle files panel on/off') Files
+                #button-toggle-details.button.with-icon.icon-panel(title='Click to toggle details panel on/off') Details
+                #button-toggle-processes.button.with-icon.icon-workflow(title='Click to toggle processes panel on/off') Processes
                 #header-avatar
         
         #main.screen
 
             #dashboard.no-toolbar.surface-level-2
-                .panel-title#dashboard-title Dashboard
-                //- #dashboard-info.material-symbols-sharp.xs(title='Click on counters and bars below to filter the BOM display and viewer for matching items. Using Shift-key, you can click multiple elements to only display items that match all selected critieria. Click on a KPI title to apply the given colors to both the BOM display and viewer.') info
+                .panel-header
+                    .panel-title#dashboard-title Dashboard
+                    .panel-toolbar#dashboard-toolbar
+                        .button.icon.xs.icon-clear#dashboard-reset
+                        .button.icon.xs.icon-fold#collapse-all-kpis
+                        .button.icon.xs.icon-unfold#expand-all-kpis 
+                        .button.icon.xs.icon-refresh#dashboard-refresh(title='Click to reload KPIs')
                 #dashboard-panel
-                .panel-loading#dashboard-process
-                    .bounce1
-                    .bounce2
-                    .bounce3
                 #dashboard-counter
-                .panel-toolbar#dashboard-toolbar
-                    .button.material-symbols-sharp.xs#dashboard-reset block
-                    .button.material-symbols-sharp.xs#collapse-all-kpis unfold_less
-                    .button.material-symbols-sharp.xs#expand-all-kpis unfold_more
                     
 
             #bom
-                .panel-title Bill of Materials
+                .panel-header
+                    .panel-title Bill of Materials
+                    .panel-toolbar
+                        .button.default#save-bom-changes(title='Save changes') Save
+                        .button.icon.bom-action.icon-send#send-selected(title='Create new Supplier Package for selected items')
+                        .button.icon.bom-action.icon-north-east#go-there(title='Open explorer for selected BOM item')
+                        .button.icon.icon-clear.bom-action.xs#bom-reset(title='Click to deselect BOM item and to reset viewer')
+                        .button.with-icon.icon-filter
+                            input#bom-search-input(placeholder='Filter')
                 .panel-content#bom-tree.no-colors
                     table#bom-table-tree(cellspacing='0')
                 .panel-content#flat-bom.no-colors
                     table#bom-table-flat(cellspacing='0')
-                .panel-toolbar
-                    .button.material-symbols-sharp.bom-action.xs.ms.ms-north-east#go-there(title='Open explorer for selected BOM item')
-                    .button.material-symbols-sharp.bom-action.xs#bom-reset(title='Click to deselect BOM item and to reset viewer') block
-                    #bom-search
-                        .material-symbols-sharp.xs filter_list
-                        input#bom-search-input(placeholder='Filter')
-                .panel-loading#bom-process
-                    .bounce1
-                    .bounce2
-                    .bounce3
 
-            #viewer          
+            #viewer.viewer          
 
             #attachments
-                .panel-title Attachments
+                .panel-header
+                    .panel-title.centered Attachments
                 #attachments-list
-                #attachments-process.progress
-                    .bounce1
-                    .bounce2
-                    .bounce3
 
-            .panel-right#details
-                .panel-title Details
-                .panel-content#sections.surface-level-2
-                .panel-toolbar
-                    .button.material-symbols-sharp.xs#bookmark(title='Toggle Bookmark') star
-                    .button.material-symbols-sharp.xs#open(title='Open this item in PLM in new bookmark') open_in_new
-                    .button.default#save(title='Save changes in PLM') Save
-                #details-process.progress
-                    .bounce1
-                    .bounce2
-                    .bounce3
+            .panel#details
+                .panel-header   
+                    .panel-title Details 
+                    .panel-toolbar 
+                        .button.icon.icon-bookmark#bookmark
+                        .button.icon.icon-open#open
+                        .button.default#save(title='Save changes') Save
+                .panel-content.surface-level-2#details-sections
 
-            .panel-right#processes
-                .panel-title Processes
+            .panel#processes
+                .panel-header#processes-header
+                    .panel-title Processes
+                    .panel-toolbar
+                        .button#create-process(title='Initiate new Problem Report in PLM') New PR
+                        .button.process-dialog#cancel-process(title='Cancel creation of new process and return to list of related processes') Cancel
+                        .button.process-dialog.default#save-process(title='Save new process in PLM') Save
                 .panel-content#processes-list.list.tiles.l.surface-level-2
-                .panel-content#processes-form.surface-level-2
-                .panel-toolbar
-                    .button#create-process(title='Initiate new process in PLM') Create
-                    .button.process-dialog#cancel-process(title='Cancel creation of new process and return to list of related processes') Cancel
-                    .button.process-dialog.default#save-process(title='Save new process in PLM') Save
-                #processes-process.progress
-                    .bounce1
-                    .bounce2
-                    .bounce3
+                .panel-content#processes-sections.surface-level-2
+
+            .dialog#create-connect
+                .dialog-header Create Supplier Package
+                .dialog-content#create-connect-sections
+                .dialog-footer
+                    #create-connect-confirm.button.default Confirm
+                    #create-connect-cancel.button Cancel
 
         iframe#frame-download.hidden
-
-        #overlay
-            .progress
-                .bounce1
-                .bounce2
-                .bounce3
             

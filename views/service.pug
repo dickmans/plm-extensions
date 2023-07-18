@@ -1,21 +1,16 @@
-extends common
+extends common/layout
 
 block head
+
     link(rel='stylesheet', href='/stylesheets/service.css')
-    link(rel='stylesheet', href='https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/style.min.css')
-    script.
-        tenant='#{tenant}'
-        wsId='#{wsId}'
-        dmsId='#{dmsId}'
-        link='#{link}'
-        options='#{options}'
-    script(src='https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.min.js') 
     script(src='/javascripts/libs/Chart.bundle.min.js')
-    script(src='/javascripts/ui.js')
-    script(src='/javascripts/forge.js')
     script(src='/javascripts/service.js')
+    script.
+        config = !{JSON.stringify(config)};
 
 block content
+
+
 
     body.text-selection-off.surface-level-1
 
@@ -24,63 +19,63 @@ block content
             #header-title= title
             #header-subtitle
             #header-toolbar
-                #bom-reset.button Reset Selection
+                #button-reset.button(title='Reset BOM selection and viewer' style='display:none') Reset
+                #toggle-bom.button.with-icon.icon-bom-tree(title='Toggle BOM display on/off') Toggle BOM
+                #toggle-attachments.button.with-icon.icon-pdf(title='Toggle selected items files list on/off') Toggle Files
+                #toggle-details.button.with-icon.icon-details(title='Toggle selected item details on/off') Toggle Details
                 #list-requests.button.disabled Pending Requests
-                #button-settings.button Options
-                #submit-request.button Submit Request
+                #submit-request.button.with-icon.icon-send(title='Review and confirm list of selected spare parts before submitting the request') Submit Request
+                #header-avatar
         
         #counter
 
         #main.screen
 
             #bom
-                .panel-title Bill of Materials
+                .panel-header
+                    .panel-title Bill of Materials
+                    .panel-toolbar
+                        .button.with-icon.icon-filter
+                            input#bom-search-input(placeholder='Filter')
                 .panel-content#bom-tree
                     table#bom-table(cellspacing='0')
-                .panel-toolbar#bom-search
-                    .material-symbols-sharp.xs filter_list
-                    input#bom-search-input(placeholder='Filter')
-                .panel-loading#bom-process
-                    .bounce1
-                    .bounce2
-                    .bounce3
 
             #divider-bom.screen-divider.vertical
 
-            #viewer
+            #viewer.viewer
 
             #attachments
-                .panel-title Attachments
+                .panel-header
+                    .panel-title.centered Attachments
                 #attachments-list
-                #attachments-process.progress
-                    .bounce1
-                    .bounce2
-                    .bounce3
 
             #divider-details.screen-divider.vertical
 
-            #details
-                .panel-title Details
-                .panel-content#sections.view-only
-                #details-process.progress
-                    .bounce1
-                    .bounce2
-                    .bounce3
+            #details.panel.compact
+                .panel-header   
+                    .panel-title Details 
+                    .panel-toolbar 
+                        .button.icon.icon-bookmark#bookmark
+                        .button.icon.icon-open#open
+                .panel-content.surface-level-2#details-sections
 
             #divider-panel.screen-divider.vertical
 
-            #panel 
-                .panel-tabs.dark#tabs
+            .panel#panel 
+                .tabs.dark
                     div.selected(data-id='items') Spare Parts
+                    div(data-id='processes') Problem Reports
                     div.hidden#tab-charts(data-id='charts') Maintenance
-                    div(data-id='processes') Issues
-                .panel-content#items.tab
+                .panel-content#items
                     #items-list.list.tiles.l
-                    #items-process.progress
-                        .bounce1
-                        .bounce2
-                        .bounce3
-                .panel-content#charts.tab
+                .panel-content#processes
+                    #processes-toolbar
+                        .button#create-process(title='Initiate new process in PLM') Create
+                        .button.process-dialog#cancel-process(title='Cancel creation of new process and return to list of related processes') Cancel
+                        .button.process-dialog.default#save-process(title='Save new process in PLM') Save
+                    #processes-list.list.tiles.l
+                    #processes-sections.form.surface-level-2
+                .panel-content#charts
                     #charts-list
                         .chart-title Wear Parts
                         .wear-parts#wear-parts
@@ -97,36 +92,6 @@ block content
                             #remote-control.button Remote Control
                             #qr-code.button 
                                 img.qr-code
-                .panel-content#processes.tab
-                    #processes-toolbar
-                        .button#create-process(title='Initiate new process in PLM') Create
-                        .button.process-dialog#cancel-process(title='Cancel creation of new process and return to list of related processes') Cancel
-                        .button.process-dialog.default#save-process(title='Save new process in PLM') Save
-                    #processes-list.list.tiles.l
-                    #processes-form.form.surface-level-2
-                    #processes-process.progress
-                        .bounce1
-                        .bounce2
-                        .bounce3
-
-
-            #options.dialog
-                .dialog-header Options
-                .dialog-content#toggles
-                    #toggle-bom.button 
-                        div.material-symbols-sharp.xxxl segment
-                        div Toggle BOM
-                    #toggle-attachments.button 
-                        div.material-symbols-sharp.xxxl file_present
-                        div Toggle Attachments
-                    #toggle-details.button 
-                        idv.material-symbols-sharp.xxxl key_visualizer
-                        div Toggle Details
-                    #toggle-panel.button 
-                        div.material-symbols-sharp.xxxl list
-                        div Toggle Spare Parts
-                .dialog-footer.single-button
-                    #options-done.button.default Done
 
             #request.dialog
                 .dialog-header New Spare Parts Request
@@ -143,16 +108,6 @@ block content
 
             #qr.dialog.no-footer
                 .dialog-header Open Remote Control 
-                .dialog-close.material-symbols-sharp.ms-close
+                .dialog-close.icon.icon-close
                 .dialog-content 
                     img.qr-code
-
-
-        iframe#frame-download.hidden
-
-        #overlay
-            .progress
-                .bounce1
-                .bounce2
-                .bounce3
-            

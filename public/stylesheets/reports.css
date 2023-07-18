@@ -1,7 +1,6 @@
-/*  LAYOUT */
+/*  ADDITIONS */
 /* ----------------------------------------------------------------------------- */
-#overlay { display : block; }
-
+.dashboard { padding-right : 20px; }
 
 
 /*  REPORT */
@@ -12,11 +11,16 @@
     overflow : auto;
 }
 .report.table {
-    width : 100%;
+    width : calc(100% - 100px)
 }
 .report.chart {
-    height : 260px;
+    height : 270px;
     width : calc(33% - 88px);
+}
+.report-head {
+    display : flex;
+    justify-content: space-between;
+    line-height : 24px;
 }
 .report-title {
     font-size : 18px;
@@ -26,7 +30,12 @@
     font-size : 12px;
     margin-bottom : 16px;
 }
-
+.report-close {
+    cursor : pointer;
+}
+.report-close:hover {
+    color : var(--color-selected-border);
+}
 
 
 /*  CHARTS */
@@ -43,9 +52,6 @@
 
 /*  TABLES */
 /* ----------------------------------------------------------------------------- */
-tr {
-    cursor : pointer;
-}
 th {
     border-bottom : 3px solid black;
     padding : 0.5em 1.2em 0.5em 0.5em;
@@ -54,20 +60,21 @@ th {
 }
 td {
     font-size : 0.9em;
-    padding : 0.4em 1.2em 0.4em 0.5em;
     white-space : nowrap;
 }
-.dataTables_filter { margin-bottom : 10px; }
+.dataTables_filter { 
+    margin-bottom : 10px; 
+}
 
 
 
 /*  DIALOG */
 /* ----------------------------------------------------------------------------- */
-#dialog {
-    width : 1160px;
+.dialog {
+    width : 1180px;
     top : 120px;
     bottom : 120px;
-    left:calc(50% - 580px);
+    left:calc(50% - 590px);
 }
 .button.clear {
     float : left;

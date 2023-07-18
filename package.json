@@ -1,20 +1,20 @@
 {
-  "name": "plm-extensions",
-  "version": "0.0.0",
+  "name": "f3m.ts.experiences",
+  "version": "2.0.0 July 2023",
   "private": true,
   "scripts": {
     "start": "node --max-http-header-size=16384 ./bin/www"
   },
   "dependencies": {
-    "agentkeepalive": "^4.1.4",
-    "axios": "^0.21.1",
-    "express": "^4.17.1",
-    "express-fileupload": "^1.2.1",
-    "express-session": "^1.17.1",
-    "form-data": "^4.0.0",
-    "morgan": "^1.10.0",
-    "nodemon": "^2.0.16",
-    "pug": "^3.0.2",
-    "serve-favicon": "^2.5.0"
+    "agentkeepalive": "*",
+    "axios": "*",
+    "express": "*",
+    "express-fileupload": "*",
+    "express-session": "*",
+    "express-status-monitor": "*",
+    "form-data": "*",
+    "morgan": "*",
+    "pug": "*",
+    "serve-favicon": "*"
   }
 }

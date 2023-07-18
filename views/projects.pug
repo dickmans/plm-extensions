@@ -1,15 +1,15 @@
-extends common
+extends common/layout
 
 block head
+
     link(rel='stylesheet', href='/stylesheets/projects.css')
+
     script(src='https://cdn.jsdelivr.net/npm/chart.js@3.6.0/dist/chart.min.js')
     script(src='https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js')
-    script(src='../javascripts/ui.js')
     script(src='../javascripts/projects.js')
+
     script.
-        tenant="#{tenant}"
-        wsId="#{wsId}"
-        options="#{options}"
+        config = !{JSON.stringify(config)};
 
 block content
 
@@ -48,13 +48,3 @@ block content
             div
                 .title Project Deviation
                 #deviations.chart-graphic
-            //- div(style='display:none;')
-            //-     .chart-title Buffer Consumption
-            //-     #buffers.chart-graphic
-
-        #overlay
-            .progress
-                .bounce1
-                .bounce2 
-                .bounce3
-

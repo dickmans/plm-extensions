@@ -1,0 +1,129 @@
+/*  DEFAULT FONTS */
+/* ----------------------------------------------------------------------------- */
+@font-face {
+    font-family: 'ArtifaktElement';
+    font-style: normal;
+    src: url(../../fonts/ArtifaktElementRegular.woff) format('woff2'), url(../../fonts/ArtifaktElementRegular.ttf) format('truetype');;
+}
+@font-face {
+    font-family: 'Material Symbols Sharp';
+    font-style: normal;
+    font-weight: 100 700;
+    src: url(../../fonts/MaterialSymbolsSharp.ttf) format('truetype');
+}
+
+
+/*  MATERIAL FONT */
+/* ----------------------------------------------------------------------------- */
+.icon {
+    font-family: 'Material Symbols Sharp';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+}
+.icon.xxxl { font-size : 64px; }
+.icon.xxl  { font-size : 48px; }
+.icon.xl   { font-size : 42px; }
+.icon.l    { font-size : 36px; }
+.icon.m    { font-size : 32px; }
+.icon.s    { font-size : 28px; }
+.icon.xs   { font-size : 24px; }
+.icon.xxs  { font-size : 20px; }
+.icon.xxxs { font-size : 16px; }
+
+.icon.filled,
+.with-icon.filled::before {
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48
+}
+
+.icon.hover:hover {
+    color : var(--color-selected-border);
+    cursor : pointer;
+}
+
+.with-icon {
+    display : flex;
+}
+.with-icon::before {
+    font-family: 'Material Symbols Sharp';
+    margin-right : var(--spacer-xs);
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+}
+
+
+
+
+.icon-3d::before { content : '\e9fe'; }
+.icon-block::before { content : '\e14b'; }
+.icon-bookmark::before { content : '\e838'; font-variation-settings: 'FILL' 1 }
+.icon-bom::before { content : '\e242'; }
+.icon-bom-tree::before { content : '\e94b'; }
+.icon-box-checked::before { content : '\e834'; }
+.icon-box-unchecked::before { content : '\e835'; }
+.icon-calendar::before { content : '\ebcc'; }
+.icon-check::before   { content : '\e86c'; }
+.icon-check-box::before   { content : '\e834'; }
+.icon-check-box-unchecked::before   { content : '\e835'; }
+.icon-clear::before   { content : '\e14b'; }
+.icon-clone::before   { content : '\e14d'; }
+.icon-close::before   { content : '\e5cd'; }
+.icon-create::before  { content : '\e147'; }
+.icon-dashboard::before  { content : '\e871'; }
+.icon-delete::before  { content : '\e872'; }
+.icon-deselect-all::before  { content : '\e9d3'; }
+.icon-details::before  { content : '\e0ee'; }
+.icon-edit-multiple::before  { content : '\e745'; }
+.icon-filter::before    { content : '\e152'; }
+.icon-fold::before    { content : '\e5d6'; }
+.icon-hide::before    { content : '\e8f5'; }
+.icon-home::before    { content : '\e88a'; }
+.icon-important::before    { content : '\e82a'; }
+.icon-info::before    { content : '\e88e'; }
+.icon-layers::before  { content : '\e53b'; }
+.icon-link::before  { content : '\e157'; }
+.icon-list::before  { content : '\e896'; }
+.icon-lock::before    { content : '\e897'; }
+.icon-markup::before  { content : '\e560'; }
+.icon-menu::before  { content : '\e5d2'; }
+.icon-open::before  { content : '\e89e'; }
+.icon-panel::before  { content : '\f114'; }
+.icon-pdf::before  { content : '\e415'; }
+.icon-radio-checked::before { content : '\e837'; }
+.icon-radio-unchecked::before { content : '\e836'; }
+.icon-refresh::before    { content : '\e627'; }
+.icon-released::before    { content : '\e031'; }
+.icon-rules::before    { content : '\f1c2'; }
+.icon-send::before    { content : '\e163'; }
+.icon-select-all:before    { content : '\e877'; }
+.icon-settings::before { content : '\e8b8'; }
+.icon-sliders::before { content : '\e429'; }
+.icon-status::before  { content : '\ea50'; }
+.icon-show::before    { content : '\e8f4'; }
+.icon-tabs::before    { content : '\e265'; }
+.icon-tiles::before    { content : '\e9b0'; }
+.icon-type::before    { content : '\e574'; }
+.icon-undelete::before { content : '\e938'; }
+.icon-unfold::before { content : '\e5d7'; }
+.icon-user::before    { content : '\e7fd'; }
+.icon-viewer::before    { content : '\e9fe'; }
+.icon-workflow::before    { content : '\e4fd'; }
+
+.icon-chevron-right::before { content : '\e5cc'; }
+.icon-chevron-left::before  { content : '\e5cb'; }
+
+.icon-north::before { content : '\f1e0'; }
+.icon-north-east::before { content : '\f1e1'; }
+.icon-east::before { content : '\f1df'; }
+.icon-south:before { content : '\f1e3'; }
+.icon-south-west::before { content : '\f1e5'; }
+.icon-west::before { content : '\f1e6'; }

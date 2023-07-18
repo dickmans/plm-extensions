@@ -1,16 +1,10 @@
-extends common
+extends common/layout
 
 block head
     link(rel='stylesheet', href='/stylesheets/portfolio.css')
-    link(rel='stylesheet', href='https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/style.min.css')
-    script(src='https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.min.js')  
-    script(src='../javascripts/ui.js')
-    script(src='../javascripts/forge.js')
     script(src='../javascripts/portfolio.js')
     script.
-        tenant="#{tenant}"
-        wsId="#{wsId}"
-        options="#{options}"
+        config = !{JSON.stringify(config)};
 
 block content
 
@@ -20,7 +14,7 @@ block content
             #header-logo
             #header-title=title
             #header-toolbar
-                #header-search-icon.material-symbols-sharp.xs search
+                #header-search-icon.icon.xs search
                 input#header-search
 
         #landing
@@ -34,32 +28,19 @@ block content
             #landing-pinned.nav 
                 .nav-title Pinned Products
                 #landing-tiles-pinned.nav-tiles.tiles.xl
-            //- #landing-latest.nav 
-            //-     .nav-title Latest Product Updates
-            //-     #landing-tiles-latest.nav-tiles
 
-            #landing-progress.progress
-                    .bounce1
-                    .bounce2
-                    .bounce3
-
-            #landing-prev.button.icon
-            #landing-next.button.icon
+            #landing-prev.button.icon arrow_left
+            #landing-next.button.icon arrow_right
 
             #landing-dots 
-                .dot.ms#landing-dot-recents
-                .dot.ms#landing-dot-lines.selected
-                .dot.ms#landing-dot-pinned
-
+                .dot.icon#landing-dot-recents
+                .dot.icon#landing-dot-lines.selected
+                .dot.icon#landing-dot-pinned
 
         #search.screen
             .screen-header Search Results
             #search-results.screen-tiles.tiles.xl
-            #search-close.material-symbols-sharp.l.hover close
-            #search-progress.progress
-                    .bounce1
-                    .bounce2
-                    .bounce3
+            #search-close.icon.l.hover close
 
         #lines.screen.with-panel 
             .screen-panel
@@ -81,16 +62,12 @@ block content
             #products-back.button.screen-back
             #products-header.screen-header
             #products-tiles.screen-tiles.tiles.xl
-            #products-progress.progress
-                    .bounce1
-                    .bounce2
-                    .bounce3
 
-        #product.screen
+        #product.screen.panel
             #viewer.viewer
             #viewer-messages.viewer.surface-level-2
                 #viewer-empty
-                    span.material-symbols-sharp view_in_ar
+                    span.icon view_in_ar
                     span No Viewble Found
                 #viewer-progress.progress
                     .bounce1
@@ -99,9 +76,9 @@ block content
             #gallery
                 img#gallery-image
             #product-actions
-                #product-close.button.material-symbols-sharp.xs close
-                #product-bookmark.button.material-symbols-sharp.xs star
-                #product-open.button.material-symbols-sharp.xs open_in_new
+                .button.icon.xs#product-close close
+                .button.icon.xs#bookmark star
+                .button.icon.xs#open open_in_new
             #product-header
                 #product-parents
                     #product-category.animation
@@ -125,21 +102,8 @@ block content
             #product-bom.product-panel.single
                 #product-bom-tab.tab Bill of Materials
                 #product-bom-list.list
-                #product-bom-progress.progress
-                    .bounce1
-                    .bounce2
-                    .bounce3
 
-            #product-toolbar
-                //- #product-tab-summary.product-action.selected Summary
+            .panel-toggles#product-toolbar
                 #product-tab-details.product-action.selected(data-id='product-data') Details
                 #product-tab-bom.product-action(data-id='product-bom') Bill of Materials
-        
-        iframe#frame-download(style='display:none')
-
-        #overlay
-            .progress
-                .bounce1
-                .bounce2
-                .bounce3
 

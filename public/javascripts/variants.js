@@ -1,279 +1,943 @@
-let variants = [];
-let keysMaster = [];
-let keysVariant = [];
-let fieldIDsVariant = [];
-let masterFields, masterSections, linkVariant, variantFields, variantSections;
-let requestsCount = 5;
-let wsIdVariants = 302;
-let urnPartNumber = '';
+let maxRequests     = 4;
+
+let wsContext       = { 'id' : '', 'sections'  : [], 'fields' : [] }
+let wsVariants      = { 'id' : '', 'sections'  : [], 'fields' : [], 'bomViews' : [], 'viewId' : '', 'tableau' : '' }
+let listVariants    = [];
+let fieldsVariant   = [];
+let classesViewer   = [ 'standard', 'no-viewer', 'large-viewer', 'wide-viewer'];
+let modeViewer      = 0;
+let linkContext     = '/api/v3/workspaces/' + wsId + '/items/' + dmsId;
+let pendingActions, baseItemNumber;
+
+
 
 $(document).ready(function() {
-    
-    getDetails();
-    // getBOMViews();
-    // setViewer();
-    insertViewer(link);
-    insertBOM(link, 'Bill of Materials');
+
+    wsContext.id  = wsId;
+    wsVariants.id = config.variants.wsIdItemVariants;
+
+    appendProcessing('bom', false);
+    appendProcessing('details', false);
+    appendProcessing('item-variants-list-parent', false);
+    appendOverlay(true);
+
+    getInitialData();
+    insertViewer(linkContext);
+    insertItemDetails(linkContext);
     setUIEvents();
     
 });
 
+
 function setUIEvents() {
 
-    // Variants list
-    $('#variants-close').click(function() {
-        $('#variants').hide();
+    // Header Toolbar
+    $('#button-toggle-viewer').click(function() {
+        $('#main').removeClass('standard');
+        $('#main').removeClass('no-viewer');
+        $('#main').removeClass('large-viewer');
+        $('#main').removeClass('wide-viewer');
+        modeViewer = ++modeViewer % 4;
+        $('#main').addClass(classesViewer[modeViewer]);
+        viewerResize();
+    });
+    $('#button-toggle-details').click(function() {
+        $('#main').toggleClass('with-details');
+        $('#main').removeClass('with-create');
+        $('#main').removeClass('with-item-variants');
+        viewerResize();
+    });
+    $('#button-new').click(function() {
+        if($(this).hasClass('disabled')) return;
+        $('#main').toggleClass('with-create');
+        $('#main').removeClass('with-details');
+        insertItemDetailsFields('create', '', wsVariants.sections, wsVariants.fields, null, true, true, true);
+        viewerResize();
+    });
+    $('#button-save').click(function() {
+        if($(this).hasClass('disabled')) return;
+        setSaveActions();
+        showSaveProcessingDialog();
     });
 
-    // BOM View Selector Change
-    $('#master-bom-views').change(function() {
-        getBOMData();
+
+    // Save Confirmation Dialog
+    $('#confirm-saving').click(function() {
+        if($(this).hasClass('disabled')) return;
+        else {
+            $('#overlay').hide();
+            $('#dialog-saving').hide();
+        }
     });
 
-    // Footer Toolbar
-    $('#select-variant').click(function() {
-        $('#variants').toggle();
-    })
-    $('#toggle-viewer').click(function() {
-        $('body').toggleClass('no-viewer');
-    })
-    $('#toggle-details').click(function() {
-        $('body').toggleClass('with-details');
-    })
-    $('#save').click(function() {
-        saveChanges();
-    })
+
+    // Create Panel
+    $('#cancel-create').click(function() {
+        $('#main').removeClass('with-create');
+        viewerResize();
+    });
+    $('#save-create').click(function() {
+        $('#main').removeClass('with-create');
+        if(!validateForm($('#create'))) return;
+        $('#overlay').show();
+        createNewVariant();
+    });
 
 
+    // Item Variants
+    $('#item-variants-close').click(function() {
+        $('#main').removeClass('with-item-variants');
+    });
 
-//     $('#dialog-cancel').click(function() {
-//         hideDialog();
-//     });
-//     $('#submit').click(function() {
-//         moveDraggedItem();
-//         hideDialog();
-//     });
-
-//     $('.dialog-toggle').click(function() {
-//         $(this).addClass('selected');
-//         $(this).siblings().removeClass('selected'); 
-//     });
-    
-
-//     // Status bar filtering
-//     $('.bar').click(function() {
-//         setStatusBarFilter($(this));
-//     })
-    
-//     $('#mbom-add-name').keypress(function (e) {
-//         insertNewOperation(e);
-//     });
-//     $('#mbom-add-code').keypress(function (e) {
-//         insertNewOperation(e);
-//     });
-    
-//     $('#split-qty').click(function() {
-//         $(this).select();
-//     });
-
-
-//     // Footer Toolbar
-//     $('#deselect-all').click(function() {
-//         // console.log('#add-all : ' + $('.item-action-add:visible').length);
-//         console.log($('#ebom').find('.item.selected').length);
-//         $('#ebom').find('.item.selected').each(function() {
-//             $(this).find('.item-title').click();
-//         });
-//         resetViewerSelection(true);
-//     });   
 
 }
 
 
-// Get viewable and init Forge viewer
-function onSelectionChanged(event) {
+// Get item details to pull further information from PLM
+function getInitialData() {
 
-//     if (event.dbIdArray.length === 1) {
+    let requests = [
+        $.get('/plm/details'                , { 'wsId' : wsContext.id, 'dmsId' : dmsId }),
+        $.get('/plm/sections'               , { 'wsId' : wsContext.id }),
+        $.get('/plm/sections'               , { 'wsId' : wsVariants.id }),
+        $.get('/plm/fields'                 , { 'wsId' : wsVariants.id }),
+        $.get('/plm/bom-views-and-fields'   , { 'wsId' : wsVariants.id })
+    ];
 
-//         let updateBOMPanels = true;
+    Promise.all(requests).then(function(responses) {
 
-//         viewer.getProperties(event.dbIdArray[0], function(data) {
+        $('#header-subtitle').html(responses[0].data.title);
+        let variants   = getSectionFieldValue(responses[0].data.sections, config.variants.fieldIdItemVariants, '');
+        baseItemNumber = getSectionFieldValue(responses[0].data.sections, config.variants.fieldIdItemNumber, '');
+        insertBOM('bom', 'BOM & Variants', linkContext, config.variants.bomViewNameItems, true, false, false, false);
 
-//             let partNumber = data.name.split(':')[0];
+        for(variant of variants) listVariants.push(variant);
 
-//             $('.item.leaf').hide();
-//             $('.item.leaf').removeClass('selected');
-//             $('.item.leaf').each(function() {
-//                 if($(this).attr('data-part-number') === partNumber) { 
-//                     $(this).show(); 
-//                     $(this).addClass('selected'); 
-//                     $(this).parents().show(); 
-//                     if(updateBOMPanels) {
-//                         setBOMPanels($(this).attr('data-urn'));
-//                         updateBOMPanels = false;
-//                     }
-//                 }
-//             });
+        wsContext.sections  = responses[1].data;
+        wsVariants.sections = responses[2].data;
+        wsVariants.fields   = responses[3].data;
+        wsVariants.bomViews = responses[4].data;
 
-//         });
+        getVariantsWSConfig();
 
-//     } else {
-//         $('.item.leaf').show();
-//         $('.item.selected').removeClass('selected');
-//         hideBOMPanels();
-//         viewer.clearThemingColors();
-//     }
-
-}
-function initViewerDone() {}
-
-
-// Get item master details
-function getDetails() {
-    
-    $.get('/plm/details', { 'wsId' : wsId, 'dmsId' : dmsId }, function(response) {
-    
-//         descriptor = data.item.root.title;
-
-//         setItemDetails(data.item.urn);
-        
-        $('#header-subtitle').html(response.data.title);
-        variants = getFieldValue(response.data.sections, 'VARIANTS', []);
-        setVariantsList();
-
-//         for(section of data.item.sections) {
-            
-//             for(field of section.fields) {
-                
-//                 let fieldURN    = field.urn;
-//                 let fieldSplit  = fieldURN.split('.');
-//                 let fieldID     = fieldSplit[fieldSplit.length - 1];
-                
-//                  if(fieldID === 'EBOM') {
-//                      let paramsEBOM = field.value.link.split('/');
-//                      wsIdEBOM       = paramsEBOM[4];
-//                      dmsIdEBOM      = paramsEBOM[6];
-//                  } else if(fieldID === 'MBOM') {
-//                      if(field.value !== null) {
-//                         let paramsMBOM  = field.value.link.split('/');
-//                         wsIdMBOM        = paramsMBOM[4];
-//                         dmsIdMBOM       = paramsMBOM[6];
-//                      }
-//                  }
-                
-//             }
-//         }
-        
-//         if(typeof dmsIdEBOM === 'undefined') dmsIdEBOM = dmsId;
-//         if(typeof  wsIdEBOM === 'undefined')  wsIdEBOM = wsId;
-        
-//         createMBOMRoot(descriptor, function() {
-            
-//             getBOMView(wsId, viewIDEBOM, function(dataEBOMView) {
-
-//                 getBOMView(wsIdMBOM, viewIDMBOM, function(dataMBOMView) {
-
-//                     getBOM(wsIdEBOM, dmsIdEBOM, viewIDEBOM, function(ebom) {
-
-//                         dataEBOM = ebom;
-//                         edgesEBOM = dataEBOM.edges;
-//                         edgesEBOM.sort(function(a, b){return a.itemNumber - b.itemNumber});
-
-//                         getBOM(wsIdMBOM, dmsIdMBOM, viewIDMBOM, function(mbom) {
-
-//                             dataMBOM = mbom;
-//                             edgesMBOM = dataMBOM.edges;
-//                             edgesMBOM.sort(function(a, b){return a.itemNumber - b.itemNumber});
-
-//                             for(field of dataEBOMView) { colsEBOM.push({ fieldId : field.fieldId, viewDefFieldId : field.viewDefFieldId.toString() }); }
-//                             for(field of dataMBOMView) { colsMBOM.push({ fieldId : field.fieldId, viewDefFieldId : field.viewDefFieldId.toString() }); }
-
-//                             initEditor();
-
-//                         });
-//                     });
-
-//                 });
-//             });
-            
-//         });
-        
     });
-    
-}
-function getFieldValue(sections, fieldId, defaultValue) {
 
-    for(section of sections) {
-        for(field of section.fields) {
-            let id = field.urn.split('.')[9];
-            if(id === fieldId) {
-                return field.value;
+}
+function getVariantsWSConfig() {
+
+    let foundSection = false;
+
+    for(section of wsVariants.sections) {
+
+        if(section.name === config.variants.variantsSectionLabel) {
+
+            foundSection = true;
+
+            wsVariants.sectionIdVariansSection = section.__self__.split('/')[6];
+
+            for(sectionField of section.fields) {
+                for(field of wsVariants.fields) {
+                    if(field.__self__ === sectionField.link) {
+
+                        let elemControl = null;
+
+                        switch(field.type.title) {
+
+                            case 'Integer': 
+                            case 'Single Line Text': 
+                                elemControl = $('<input>');
+                                break;
+                            case 'Single Selection': 
+                                elemControl = $('<select>');
+                                elemControl.addClass('picklist');
+    
+                                let elemOptionBlank = $('<option></option>');
+                                    elemOptionBlank.attr('value', null);
+                                    elemOptionBlank.appendTo(elemControl);
+    
+                                getOptions(elemControl, field.picklist, field.__self__.split('/')[8], 'select', '');
+
+                                break;
+
+                        }
+
+                        fieldsVariant.push({
+                            'id'      : field.__self__.split('/')[8],
+                            'title'   : sectionField.title,
+                            'type'    : field.type.title,
+                            'control' : elemControl
+                        });
+
+                    }
+                }  
+            }
+        }
+    }
+
+    if(!foundSection) showErrorMessage('Cannot find section with name  ' + config.variants.variantsSectionLabel + ' in workspace ' +  config.variants.wsIdVariantItems + ' (wsIdVariantItems)', 'Error loading data');
+
+    wsVariants.fieldIdVariantBaseItem   = config.variants.fieldIdVariantBaseItem;
+    wsVariants.sectionIdBaseItem        = getFieldSectionId(wsVariants.sections, config.variants.fieldIdVariantBaseItem);
+
+    for(bomView of wsVariants.bomViews) {
+        if(bomView.name === config.variants.bomViewNameVariants) {
+
+            wsVariants.viewId = bomView.id;
+
+            for(field of bomView.fields) {
+
+                if(field.fieldId === config.variants.fieldIdVariantBaseItem) {
+
+                    wsVariants.fieldLinkVariantBaseItem = field.__self__.link;
+
+                }
+
+                     if(field.fieldId === 'QUANTITY'         ) wsVariants.colIdQuantity  = field.__self__.link;
+                else if(field.fieldId === 'EDGE_ID_BASE_ITEM') wsVariants.colIdRefEdgeId = field.__self__.link;
+
+                for(fieldVariant of fieldsVariant) {
+                    if(fieldVariant.id === field.fieldId) fieldVariant.link = field.__self__.link;
+                }
+
             }
 
         }
     }
 
-    return defaultValue;
+    $('#button-new').removeClass('disabled');
 
 }
-function setVariantsList() {
 
-    let elemParent = $('#variants-list');
-        elemParent.html();
 
-    for(variant of variants) {
 
-        let elemVariant = $('<div></div>')
-            elemVariant.attr('data-link', variant.link);
-            elemVariant.html(variant.title);
-            elemVariant.appendTo(elemParent);
-            elemVariant.click(function() {
-                selectVariant($(this));
+// Extend BOM table with variant columns
+function bomDisplayDone(id) {
+
+    let requests = [];
+
+    let elemTable = $('#' + id + '-table');
+
+    let elemTableHead = $('<thead></thead>');
+        elemTableHead.prependTo(elemTable);
+
+    let elemTableHeadRow1 = $('<tr></tr>');
+        elemTableHeadRow1.attr('id', 'table-head-row-titles');
+        elemTableHeadRow1.appendTo(elemTableHead);
+
+    let elemTableHeadRowFieldTitles = $('<tr></tr>');
+        elemTableHeadRowFieldTitles.attr('id', 'table-head-row-fields');
+        elemTableHeadRowFieldTitles.appendTo(elemTableHead);
+
+    let elemTableHeadCell1 = $('<th></th>');
+        elemTableHeadCell1.addClass('sticky');
+        elemTableHeadCell1.attr('colspan', 2);
+        elemTableHeadCell1.appendTo(elemTableHeadRow1);
+            
+    let elemTableHeadCell2 = $('<th></th>');
+        elemTableHeadCell2.addClass('sticky');
+        elemTableHeadCell2.attr('colspan', 2);
+        elemTableHeadCell2.appendTo(elemTableHeadRowFieldTitles);
+
+    let elemVariantSelector = $('<select>');
+        elemVariantSelector.attr('id', 'variant-selector');
+        elemVariantSelector.prependTo($('#bom-toolbar'));
+        elemVariantSelector.change(function() {
+            if($(this).val() === 'all') {
+                $('.variant-filter').show();
+            } else {
+                $('.variant-filter').hide();
+                $('.variant-index-' + $(this).val()).show();
+            }
+        });
+
+    let elemOptionAll = $('<option></option>');
+        elemOptionAll.attr('value', 'all');
+        elemOptionAll.html('Show all variants');
+        elemOptionAll.appendTo(elemVariantSelector);
+                
+    let indexVariant = 0;
+
+    let elemCellSpacer = $('<th></th>');
+        elemCellSpacer.addClass('variant-spacer');
+        elemCellSpacer.addClass('variant-filter');
+
+    for(variant of listVariants) {
+
+        requests.push($.get('/plm/bom', { 'link' : variant.link, 'viewId' : wsVariants.viewId } ))
+
+        let elemSpacerHead = elemCellSpacer.clone();
+            elemSpacerHead.addClass('variant-index-' + indexVariant);
+            
+        elemTableHeadRow1.append(elemSpacerHead.clone());
+        elemTableHeadRowFieldTitles.append(elemSpacerHead.clone());
+
+        let elemCellHead = $('<th></th>');
+            elemCellHead.attr('colspan', fieldsVariant.length + 1);
+            elemCellHead.attr('data-link', variant.link);
+            elemCellHead.html(variant.title.toUpperCase());
+            elemCellHead.addClass('variant-head');
+            elemCellHead.addClass('variant-filter');
+            
+            elemCellHead.addClass('variant-index-' + indexVariant);
+            elemCellHead.appendTo(elemTableHeadRow1);
+            elemCellHead.click(function() {
+                openItemByLink($(this).attr('data-link'));
             });
 
+        for(field of fieldsVariant) {
+
+            let elemCellHeadField = $('<th></th>');
+                elemCellHeadField.html(field.title);
+                elemCellHeadField.appendTo(elemTableHeadRowFieldTitles);
+                elemCellHeadField.addClass('variant-filter');
+                
+                elemCellHeadField.addClass('variant-index-' + indexVariant);
+
+        }
+
+        let elemCellHeadItem = $('<th></th>');
+            elemCellHeadItem.html('Item');
+            elemCellHeadItem.addClass('variant-filter');
+            elemCellHeadItem.addClass('variant-index-' + indexVariant);
+            elemCellHeadItem.appendTo(elemTableHeadRowFieldTitles);
+
+        let elemOptionVariant = $('<option></option>');
+            elemOptionVariant.attr('value', indexVariant);
+            elemOptionVariant.html(variant.title);
+            elemOptionVariant.appendTo(elemVariantSelector);
+
+        indexVariant++;
+
+    }
+
+    indexVariant = 0;
+
+    // Get Variant BOMs and match with master BOM
+    Promise.all(requests).then(function(responses) {
+
+        for(response of responses) {
+
+            elemTable.children('tr').each(function() {
+
+                let className     = 'status-match';
+                let elemRefItem   = $(this);
+                let dmsIdBaseItem = $(this).attr('data-link').split('/')[6];
+                let variantItem   = getMatchingVariantItem(response.data.nodes, response.data.edges, wsVariants.fieldLinkVariantBaseItem, dmsIdBaseItem);
+
+                console.log(variantItem);
+
+
+                if(variantItem === null) {
+                    className = 'status-missing';
+                    variantItem = validateMatch(response.data.nodes, response.data.edges, elemRefItem);
+                    if(variantItem !== null) {
+                        className = 'status-identical';
+                    } else {
+                        variantItem = {
+                            'link'      : '',
+                            'urn'       : '',
+                            'title'     : '',
+                            'quantity'  : '',
+                            'number'    : '',
+                            'edgeId'    : '',
+                            'edgeIdRef' : '',
+                            'fields'    : []
+                        }
+                    }
+                }
+
+                if(className !== 'status-missing') {
+                    if(variantItem !== null) {
+                        if(parseInt($(this).attr('data-number')) !== variantItem.number) {
+                            console.log(variantItem);
+                            className = 'change-bom';
+                        } else if(parseFloat($(this).attr('data-quantity')) !== parseFloat(variantItem.quantity)) {
+                            className = 'change-bom';
+                        }
+                    }
+                }
+
+                let elemSpacerBody = elemCellSpacer.clone();
+                    elemSpacerBody.addClass('variant-index-' + indexVariant);
+                    elemSpacerBody.appendTo($(this));
+
+                for(fieldVariant of fieldsVariant) {
+
+                    let elemCellField = $('<td></td>');
+                        elemCellField.addClass('variant-filter');
+                        elemCellField.addClass('field-value');
+                        elemCellField.addClass('variant-index-' + indexVariant);
+                        elemCellField.appendTo($(this));
+
+                    let elemControl = fieldVariant.control.clone();
+                        elemControl.appendTo(elemCellField);
+                        elemControl.click(function(e) {
+                            e.stopPropagation();
+                        });
+                        elemControl.change(function() {
+                            valueChanged($(this));
+                        });
+
+                    for(field of variantItem.fields) {
+
+                        if(field.id === fieldVariant.id) {
+
+                            switch (fieldVariant.type) {
+
+                                case 'Single Selection':
+                                    elemControl.val(field.value.link);
+                                    break;
+
+                                default:
+                                    elemControl.val(field.value);
+                                    break;
+
+                            }
+
+                        }
+                    }
+        
+                }
+
+                let elemCellItem = $('<td></td>');
+                    elemCellItem.attr('data-link'       , variantItem.link);
+                    elemCellItem.attr('data-edgeid'     , variantItem.edgeId);
+                    elemCellItem.attr('data-edgeid-ref' , variantItem.edgeIdRef);
+                    elemCellItem.attr('data-quantity'   , variantItem.quantity);
+                    elemCellItem.attr('data-number'     , variantItem.number);
+                    elemCellItem.attr('data-link-parent', variantItem.parent);
+                    elemCellItem.attr('data-link-root'  , response.params.link);
+                    elemCellItem.addClass('variant-filter');
+                    elemCellItem.addClass('variant-index-' + indexVariant);
+                    elemCellItem.addClass('variant-item');
+                    elemCellItem.addClass(className);
+                    elemCellItem.html(variantItem.title);
+                    elemCellItem.appendTo($(this));
+                    elemCellItem.click(function(e) {
+                        clickItemCell(e, $(this));
+                    });
+
+            });
+
+            indexVariant++;
+
+        }
+
+    });
+
+    elemTable.find('.bom-first-col').each(function() {
+        $(this).addClass('sticky');
+    });
+
+}
+function getMatchingVariantItem(nodes, edges, fieldLink, value) {
+
+    for(node of nodes) {
+        for(field of node.fields) {
+            if(field.metaData.link === fieldLink) {
+                let fieldValue = (typeof field.value === 'object') ? field.value.link : field.value;
+                if(fieldValue === value) {
+
+                    let result = {
+                        'urn'       : node.item.urn,
+                        'link'      : node.item.link,
+                        'title'     : node.item.title,
+                        'quantity'  : 1,
+                        'number'    : 0,
+                        'fields'    : []
+                    }
+
+                    for(fieldVariant of fieldsVariant) {
+                        for(nodeField of node.fields) {
+                            if(nodeField.metaData.link === fieldVariant.link) {
+                                result.fields.push({
+                                    'id' : fieldVariant.id,
+                                    'value' : nodeField.value
+                                });
+                            }
+                        }
+                    }
+
+                    for(edge of edges) {
+                        if(edge.child === node.item.urn) {
+                            result.number   = edge.itemNumber;
+                            result.edgeId   = edge.edgeId;
+                            result.quantity = getEdgeQuantity(edge);
+                            result.parent   = convertURN2Link(edge.parent);      
+                        }
+                    }
+
+                    return result;
+                }
+            }
+        }
+    }
+
+    return null;
+    
+}
+function validateMatch(nodes, edges, elemRefItem) {
+
+    let link      = elemRefItem.attr('data-link');
+    let edgeIdRef = Number(elemRefItem.attr('data-edgeid'));
+
+    for(edge of edges) {
+        if(edgeIdRef === edge.edgeId) {
+            return {
+                'urn'       : elemRefItem.attr('data-urn'),
+                'link'      : link,
+                'parent'    : '',
+                'title'     : '',
+                'number'    : edge.itemNumber,
+                'edgeId'    : edgeIdRef,
+                'edgeIdRef' : edgeIdRef,  
+                'quantity'  : getEdgeQuantity(edge),
+                'fields'    : []
+            }
+        }
+    }
+
+    for(node of nodes) {
+        if(node.item.link === link) {
+
+            let result = {
+                'urn'       : node.item.urn,
+                'link'      : node.item.link,
+                'title'     : '',
+                'quantity'  : 0,
+                'number'    : 0,
+                'fields'    : [],
+                'edgeIdRef' : ''
+            }
+
+            for(edge of edges) {
+                if(edge.child === node.item.urn) {
+                    for(edgeField of edge.fields) {
+                        if(edgeField.metaData.link === wsVariants.colIdRefEdgeId) {
+                            if(Number(edgeField.value) === edgeIdRef) {
+                                result.number    = edge.itemNumber;
+                                result.edgeId    = edge.edgeId;    
+                                result.edgeIdRef = edgeIdRef; 
+                                result.quantity  = getEdgeQuantity(edge);                        
+                                result.parent    = convertURN2Link(edge.parent);                        
+                            }
+                        }
+                    }
+                }
+            }
+
+            return result;
+
+        }
+    }
+
+    return null;
+    
+}
+function getEdgeQuantity(edge) {
+
+    for(edgeField of edge.fields) {
+        if(edgeField.metaData.link === wsVariants.colIdQuantity) return edgeField.value;
+    }
+
+    return 0;
+
+}
+function valueChanged(elemControl) {
+
+    let elemVariant = elemControl.parent().nextAll('.variant-item').first();
+    let index       = elemVariant.index();
+    let elemRefItem = elemVariant.closest('tr');
+    let levelNext   = Number(elemRefItem.attr('data-level')) - 1;
+    let elemPrev    = elemRefItem.prev();
+
+
+    elemVariant.addClass('change-properties');
+
+
+    // if((isBlank(elemVariant.attr('data-link')) || elemVariant.hasClass('identical'))) {
+    //     elemVariant.addClass('new-item');
+    // } else {
+    //     elemVariant.addClass('changed-item');
+    // }
+
+    // elemVariant.removeClass('match');
+    // elemVariant.removeClass('identical');    
+
+    while(levelNext > 0) {
+        
+        if(elemPrev.length > 0) {
+
+            let level = Number(elemPrev.attr('data-level'));
+
+            if(level === levelNext) {
+                levelNext--;
+                // elemPrev.children().eq(index).addClass('changed-item').removeClass('match');
+                elemPrev.children().eq(index).addClass('change-properties');
+            }
+
+        }
+
+        elemPrev = elemPrev.prev();
+
     }
 
 }
-function selectVariant(elemClicked) {
+function insertNewVariant(link, title) {
 
-    linkVariant = elemClicked.attr('data-link');
-    $('#variant-name').html(elemClicked.html());
-    $('#variants').hide();
+    let indexVariant = $('.variant-head').length + 1;
 
-    let params = {
-        // 'wsId'          : wsId,
-        // 'dmsId'         : dmsId,
-        'link'          : linkVariant,
-        'depth'         : 10,
-        'revisionBias'  : 'release',
-        'viewId'        : $('#variant-bom-views').val()
+    insertNewVariantHeader(link, title, indexVariant);
+    insertNewVariantFields(link, title, indexVariant);
+    
+}
+function insertNewVariantHeader(link, title, indexVariant) {
+
+    let elemCellSpacer = $('<th></th>');
+        elemCellSpacer.addClass('variant-spacer');
+        elemCellSpacer.addClass('variant-filter');
+
+    let elemSpacerHead = elemCellSpacer.clone();
+        elemSpacerHead.addClass('variant-index-' + indexVariant);
+    
+    let elemTableHeadRow1 = $('#table-head-row-titles');
+        elemTableHeadRow1.append(elemSpacerHead.clone());
+    
+    let elemTableHeadRowFieldTitles = $('#table-head-row-fields');
+        elemTableHeadRowFieldTitles.append(elemSpacerHead.clone());
+
+    let elemCellHead = $('<th></th>');
+        elemCellHead.attr('colspan', fieldsVariant.length + 1);
+        elemCellHead.attr('data-link', link);
+        elemCellHead.html(title);
+        elemCellHead.addClass('variant-head');
+        elemCellHead.addClass('variant-filter');
+    
+        elemCellHead.addClass('variant-index-' + indexVariant);
+        elemCellHead.appendTo(elemTableHeadRow1);
+        elemCellHead.click(function() {
+            openItemByLink($(this).attr('data-link'));
+        });
+
+    for(field of fieldsVariant) {
+
+        let elemCellHeadField = $('<th></th>');
+            elemCellHeadField.html(field.title);
+            elemCellHeadField.appendTo(elemTableHeadRowFieldTitles);
+            elemCellHeadField.addClass('variant-filter');
+            
+            elemCellHeadField.addClass('variant-index-' + indexVariant);
+
     }
 
-    $.get('/plm/bom', params, function(response) {
+    let elemCellHeadItem = $('<th></th>');
+        elemCellHeadItem.html('Item');
+        elemCellHeadItem.addClass('variant-filter');
+        elemCellHeadItem.addClass('variant-index-' + indexVariant);
+        elemCellHeadItem.appendTo(elemTableHeadRowFieldTitles);
 
-        console.log(response);
+    let elemOptionVariant = $('<option></option>');
+        elemOptionVariant.attr('value', indexVariant);
+        elemOptionVariant.html(title);
+        elemOptionVariant.appendTo($('#variant-selector'));
 
-        $('#bom-tree').children().each(function() {
+}
+function insertNewVariantFields(link, title, indexVariant) {
 
-            let dmsId = $(this).attr('data-dmsid');
+    let elemCellSpacer = $('<th></th>');
+        elemCellSpacer.addClass('variant-spacer');
+        elemCellSpacer.addClass('variant-filter');
 
-            console.log(dmsId);
+    let elemTable = $('#bom-table');
 
-            $(this).removeClass('match');
+    elemTable.children('tr').each(function() {
 
-            for(edge of response.data.edges) {
+        let className     = 'status-missing';
+        // let elemRefItem   = $(this);
+        // let dmsIdBaseItem = $(this).attr('data-link').split('/')[6];
+        // let variantItem   = getMatchingVariantItem(response.data.nodes, response.data.edges, wsVariants.fieldLinkVariantBaseItem, dmsIdBaseItem);
 
-                
-                console.log(edge.depth);
-                
+        // console.log(variantItem);
 
-                if(edge.depth === Number($(this).attr('data-level'))) {
+        // if(variantItem === null) {
+            // className = 'status-missing';
+            // variantItem = validateMatch(response.data.nodes, response.data.edges, elemRefItem);
+            // if(variantItem !== null) {
+            //     className = 'identical';
+            // } else {
+                variantItem = {
+                    'link'      : '',
+                    'urn'       : '',
+                    'title'     : '',
+                    'quantity'  : '',
+                    'number'    : '',
+                    'edgeId'    : '',
+                    'edgeIdRef' : '',
+                    'fields'    : []
+                }
+            // }
+        // }
+        // console.log(variantItem);
 
-                    let edgeDMSID = edge.child.split('.')[5];
 
-                    console.log(edgeDMSID);
+        // if(className !== 'missing') {
+        //     if(variantItem !== null) {
+        //         if(parseInt($(this).attr('data-number')) !== variantItem.number) {
+        //             console.log(variantItem);
+        //             className = 'changed-bom';
+        //         } else if(parseFloat($(this).attr('data-quantity')) !== parseFloat(variantItem.quantity)) {
+        //             className = 'changed-bom';
+        //         }
+        //     }
+        // }
 
-                    if(edgeDMSID === dmsId) $(this).addClass('match');
+        let elemSpacerBody = elemCellSpacer.clone();
+            elemSpacerBody.addClass('variant-index-' + indexVariant);
+            elemSpacerBody.appendTo($(this));
+        
+        for(fieldVariant of fieldsVariant) {
+
+            let elemCellField = $('<td></td>');
+                elemCellField.addClass('variant-filter');
+                elemCellField.addClass('field-value');
+                elemCellField.addClass('variant-index-' + indexVariant);
+                elemCellField.appendTo($(this));
+
+            let elemControl = fieldVariant.control.clone();
+                elemControl.appendTo(elemCellField);
+                elemControl.click(function(e) {
+                    e.stopPropagation();
+                });
+                elemControl.change(function() {
+                    valueChanged($(this));
+                });
+
+            // for(field of variantItem.fields) {
+
+            //     if(field.id === fieldVariant.id) {
+
+            //         switch (fieldVariant.type) {
+
+            //             case 'Single Selection':
+            //                 elemControl.val(field.value.link);
+            //                 break;
+
+            //             default:
+            //                 elemControl.val(field.value);
+            //                 break;
+
+            //         }
+
+            //     }
+            // }
+
+        }
+
+        let elemCellItem = $('<td></td>');
+            elemCellItem.attr('data-link'       , variantItem.link);
+            elemCellItem.attr('data-edgeid'     , variantItem.edgeId);
+            elemCellItem.attr('data-edgeid-ref' , variantItem.edgeIdRef);
+            elemCellItem.attr('data-quantity'   , variantItem.quantity);
+            elemCellItem.attr('data-number'     , variantItem.number);
+            // elemCellItem.attr('data-link-parent', variantItem.parent);
+            elemCellItem.attr('data-link-root'  , link);
+            elemCellItem.addClass('variant-filter');
+            elemCellItem.addClass('variant-index-' + indexVariant);
+            elemCellItem.addClass('variant-item');
+            elemCellItem.addClass(className);
+            elemCellItem.html();
+            elemCellItem.appendTo($(this));
+            elemCellItem.click(function(e) {
+                clickItemCell(e, $(this));
+            });
+
+    });
+
+}
+
+
+// User clicks on item cells
+function clickItemCell(e, elemClicked) {
+
+    console.log('clickItemCell');
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    let link = elemClicked.attr('data-link');
+    let elemParent = $('#item-variants-list');
+    
+    if((e.shiftKey) && !isBlank(link)) {
+
+        openItemByLink(link);
+
+    } else {
+
+        $('#item-variants-list-parent-processing').show();
+        $('#main').addClass('with-item-variants');
+        $('#main').removeClass('with-details');
+        $('.item-cell-clicked').removeClass('item-cell-clicked');
+
+        elemParent.html('');
+        
+        let elemRow         = elemClicked.closest('tr');
+        let title           = elemRow.children().first().find('.bom-tree-title').html();
+        let selectedDMSID   = elemRow.attr('data-dmsid');
+
+        viewerResetColors();
+        viewerSelectModel(elemRow.attr('data-part-number'));
+
+        elemRow.addClass('selected');
+        elemRow.siblings().removeClass('selected');
+        elemClicked.addClass('item-cell-clicked');
+        
+        $('#item-variants-title').html(title);
+
+        let requestId = new Date();
+            requestId = requestId.getTime();
+
+        elemParent.attr('data-timestamp', requestId);
+
+        let params = {
+            wsId : wsVariants.id,
+            fields : [
+                'DESCRIPTOR',
+                config.variants.fieldIdVariantBaseItem
+            ],
+            filter : [{
+                field       : config.variants.fieldIdVariantBaseItem,
+                type        : 0,
+                comparator  : 15,
+                value       : selectedDMSID 
+            }],
+            sort : ['DESCRIPTOR'],
+            requestId : requestId
+        }
+
+        for(field of fieldsVariant) { params.fields.push(field.id); }
+
+        $.get( '/plm/search', params, function(response) {
+
+            if(response.params.requestId !== elemParent.attr('data-timestamp')) return;
+
+            $('#item-variants-list-parent-processing').hide();
+
+            for(entry of response.data.row) {
+
+                let title    = '';
+                let subtitle = '<table>';
+
+                for(field of entry.fields.entry) {
+                    if(field.key === 'DESCRIPTOR') title = field.fieldData.value;
+                }
+
+                for(let index = 2; index <response.data.columnKey.length; index++) {
+
+                    let column = response.data.columnKey[index];
+
+                    subtitle += '<tr><td class="tile-key-label">' + column.label + '</td><td class="tile-key-' + column.value + '">';
+
+                    for(field of entry.fields.entry) {
+                        if(field.key === column.value) subtitle += field.fieldData.value;
+                    }
+
+                    subtitle += '</td></tr>';
+
+                }
+
+                subtitle += '</table>';
+
+                let elemTile = genTile('/api/v3/workspaces/' + wsVariants.id + '/items/' + entry.dmsId, null, null, 'settings', title, subtitle);
+                    elemTile.appendTo(elemParent);
+                    elemTile.click(function(e) {
+                        if(e.shiftKey) openItemByLink($(this).attr('data-link'));
+                        else insertSelectedItem($(this));
+                    });
+
+            }
+            
+        });
+
+    }
+
+}
+function insertSelectedItem(elemClicked) {
+
+    let elemCell = $('.item-cell-clicked').first();
+        elemCell.attr('data-link', elemClicked.attr('data-link'));
+        // elemCell.addClass('changed-item');
+        elemCell.addClass('change-item');
+        // elemCell.removeClass('missing');
+        elemCell.html(elemClicked.find('.tile-title').html());
+
+    let index = fieldsVariant.length - 1;
+    let elemCellField = elemCell.prev();
+
+    do {
+
+        let value           = '';
+        let elemCellValue   = elemClicked.find('.tile-key-' + fieldsVariant[index].id);
+        let elemInput       = elemCellField.children().first();
+
+        if(elemCellValue.length > 0) value = elemCellValue.html();
+
+        if(elemInput.is('select')) {
+            elemInput.find('option[displayValue="' + value + '"]').attr('selected','selected');
+        } else {
+            elemInput.val(value);
+        }
+
+        index--;
+        elemCellField = elemCellField.prev();
+
+    } while (index >= 0);
+
+    // $('#main').removeClass('with-item-variants');
+
+}
+
+
+// APS Viewer
+function onViewerSelectionChanged(event) {
+
+    if(disableViewerSelectionEvent) return;
+
+    let found = false;
+
+    if(viewer.getSelection().length === 0) {
+
+        return;
+
+    } else {
+
+        viewer.getProperties(event.dbIdArray[0], function(data) {
+
+            for(property of data.properties) {
+
+                if(viewerOptions.partNumberProperties.indexOf(property.displayName) > -1) {
+
+                    let partNumber = property.displayValue;
+
+                    $('#variants-table').children().each(function() {
+                        if($(this).attr('data-part-number') === partNumber) {
+                            $(this).addClass('selected');
+                            let link = $(this).attr('data-link');
+                            let requests = [
+                                $.get('/plm/details' , { 'link' : link }),
+                                $.get('/plm/sections', { 'link' : link }),
+                                $.get('/plm/fields'  , { 'link' : link }),
+                            ];
+                        
+                            Promise.all(requests).then(function(responses) {
+                                insertItemDetailsFields($('#sections'), '', responses[1].data, responses[2].data, responses[0].data, false, true, false);
+                                $('#details-processing').hide();
+                            });
+                        
+                        } else {
+                            $(this).removeClass('selected');
+                        }
+                    });
+
 
                 }
 
@@ -281,2712 +945,726 @@ function selectVariant(elemClicked) {
 
         });
 
-
-    });
-
-}
-
-// BOM View selectors
-function getBOMViews() {
-
-    let promises = [
-        $.get('/plm/bom-views-and-fields', { 'wsId' : wsId }),
-        $.get('/plm/bom-views-and-fields', { 'wsId' : 302 }),
-        $.get('/plm/sections', { 'wsId' : wsId }),
-        $.get('/plm/fields', { 'wsId' : wsId }),
-        $.get('/plm/sections', { 'wsId' : 302 }),
-        $.get('/plm/fields', { 'wsId' : 302 })
-    ];
-
-    Promise.all(promises).then(function(responses) {
-        setBOMViews(responses[0].data, 'master-bom-views');
-        setBOMViews(responses[1].data, 'variant-bom-views');
-        masterSections  = responses[2].data;
-        masterFields    = responses[3].data;
-        variantSections = responses[4].data;
-        variantFields   = responses[5].data;
-    });
-
-}
-function setBOMViews(views, id){ 
-
-    let elemParent = $('#' + id);
-
-    for(view of views) {
-
-        let elemOption = $('<option></option>');
-                elemOption.html(view.name);
-                elemOption.attr('value', view.id);
-                elemOption.appendTo(elemParent);
-
     }
 
 }
+function initViewerDone() {
 
-
-
-// function getBOMData() {
-
-//     let params = {
-//         'wsId'          : wsId,
-//         'dmsId'         : dmsId,
-//         'depth'         : 10,
-//         'revisionBias'  : 'release',
-//         'viewId'        : $('#master-bom-views').val()
-//     }
-
-//     let promises = [
-//         $.get('/plm/bom-view-fields', params),
-//         $.get('/plm/bom', params),
-//         $.get('/plm/bom-view-fields', {
-//             'wsId'          : 302,
-//             'viewId'        : $('#variant-bom-views').val()
-//         })
-//     ];
-
-//     Promise.all(promises).then(function(responses) {
-
-//         console.log(responses[0]);
-//         console.log(responses[1]);
-//         console.log(responses[2]);
-
-//         setBOMData(responses[0].data, responses[1].data, responses[2].data);
-
-//     });
-    
-//     // $.get('/plm/bom', params, function(response) {
-    
-//     //    console.log(response);
-
-//     //     // let elemOption = $('<option></option>');
-//     //     //     elemOption.html('aaa');
-//     //     //     elemOption.attr('value', 'aaa');
-//     //     //     elemOption.appendTo($('#bom-views'));
-
-//     // });
-
-// }
-
-function setBOMData(columnsMaster, bom, columnsVariant) {
-
-    let elemRoot = $('#bom-tree');
-        elemRoot.html('');
-
-    let elemHeader = $('<tr></tr>');
-        elemHeader.appendTo(elemRoot);
-
-    keysMaster  = [];
-    keysVariant = [];
-
-    
-
-
-    for(column of columnsMaster) {
-        
-        if(column.fieldId === 'PART_NUMBER') urnPartNumber = column.__self__.urn;
-
-        keysMaster.push(column.__self__.urn);
-
-        let elemHeaderCell = $('<th></th>');
-            elemHeaderCell.html(column.displayName);
-            elemHeaderCell.appendTo(elemHeader);
-
-    }
-
-    let elemHeaderMatch = $('<th></th>');
-        elemHeaderMatch.html('Status');
-        elemHeaderMatch.appendTo(elemHeader);
-
-    for(column of columnsVariant) {
-        
-        keysVariant.push(column.__self__.urn);
-        fieldIDsVariant.push(column.fieldId);
-
-        let elemHeaderCell = $('<th></th>');
-            elemHeaderCell.html(column.displayName);
-            elemHeaderCell.addClass('cell-variant');
-            elemHeaderCell.appendTo(elemHeader);
-
-    }
-
-    insertNextBOMLevel(bom, elemRoot, 'urn:adsk.plm:tenant.workspace.item:ADSKDICKMANS.57.11026');
-
-    updateStatusBar();
-
-    $('.bom-nav').click(function(e) {
-
-        e.stopPropagation();
-        e.preventDefault();
-
-        let elemItem  = $(this).closest('tr');
-        let level     = Number(elemItem.attr('data-level'));
-        let levelNext = level - 1;
-        let levelHide = 10000;
-        let elemNext  = $(this).closest('tr');
-        let doExpand  = $(this).hasClass('collapsed');
-
-        $(this).toggleClass('collapsed');
-        
-        do {
-
-            elemNext  = elemNext.next();
-            levelNext = Number(elemNext.attr('data-level'));
-
-            if(levelNext > level) {
-
-                if(doExpand) {
-
-                    if(levelHide > levelNext) {
-
-                        elemNext.show();
-
-                        let elemToggle = elemNext.children().first().find('i.bom-nav');
-
-                        if(elemToggle.length > 0) {
-                            if(elemToggle.hasClass('collapsed')) {
-                                levelHide = levelNext + 1;
-                            }
-                        }
-
-                    }
-
-                } else {
-                    elemNext.hide();
-                }
-
-            }
-        } while(levelNext > level);
-
-
-    });
-
-    $('tr').click(function() {
-
-        if($(this).hasClass('selected')) {
-            $(this).removeClass('selected');
-            resetViewerSelection(true);
-            $('body').removeClass('with-details');
-        } else {
-            $('tr.selected').removeClass('selected');
-            $(this).addClass('selected');
-            setItemDetails($(this).attr('data-link'));
-            viewerSelectModel($(this).attr('data-part-number'), true);
-        }
-        
-    });
+    viewerAddGhostingToggle();
+    viewerAddViewsToolbar();
 
 }
-function insertNextBOMLevel(bom, elemRoot, parent) {
 
-    let result = false;
 
-    for(edge of bom.edges) {
+// Create New Variant
+function createNewVariant() {
 
-        if(edge.parent === parent) {
+    submitCreateForm(wsVariants.id, $('#create-sections'), null, function(response) {
 
-            result = true;
+        let linkVariant = response.data.split('.autodeskplm360.net')[1];
 
-            let elemRow = $('<tr></tr>');
-                elemRow.attr('data-link-variant', '-');
-                elemRow.attr('data-number', edge.itemNumber);
-                elemRow.attr('data-part-number', getBOMCellValue(edge.child, urnPartNumber, bom.nodes));
-                elemRow.attr('data-qty', '1');
-                elemRow.attr('data-status', 'match');
-                elemRow.appendTo(elemRoot);
-    
-            for(node of bom.nodes) {
-                if(node.item.urn === edge.child) {
-                    elemRow.attr('data-dmsId',      node.item.link.split('/')[6]);
-                    elemRow.attr('data-link',       node.item.link);
-                    elemRow.attr('data-edgeId',     edge.edgeId);
-                    elemRow.attr('data-edgeLink',   edge.edgeLink);
-                    elemRow.attr('data-level',      edge.depth);
-                    elemRow.addClass('bom-level-' + edge.depth);
-                }
+        $.get('/plm/details', { 'link' : linkContext }, function(response) {
+
+            let requests        = [];
+            let valueVariants   = [];
+            let listCurrent     = getSectionFieldValue(response.data.sections, config.variants.fieldIdItemVariants, []);
+            let nextID          = ('00' + (listCurrent.length + 1)).slice(-3);
+
+            for(entry of listCurrent) valueVariants.push(entry.link);
+
+            valueVariants.push(linkVariant);
+            
+            let paramsItem = { 
+                'link'      : linkContext, 
+                'sections'  : [{
+                    'id'        : getFieldSectionId(wsContext.sections, config.variants.fieldIdItemVariants),
+                    'fields'    : [{
+                        'fieldId'   : config.variants.fieldIdItemVariants, 
+                        'value'     : valueVariants, 
+                        'type'      : 'multi-linking-picklist' 
+                    }]
+                }] 
             }
 
-            for(key of keysMaster) {
-                let elemCell = $('<td></td>');
-                    elemCell.appendTo(elemRow);
-                    elemCell.html(getBOMCellValue(edge.child, key, bom.nodes));
+            requests.push($.get('/plm/edit', paramsItem));
+
+            let paramsVariant = {
+                'link'      : linkVariant,
+                'sections'  : [{
+                    'id' : wsVariants.sectionIdBaseItem,
+                    'fields' : [
+                        { 'fieldId' : 'NUMBER', 'value' : baseItemNumber },
+                        { 'fieldId' : 'ID'    , 'value' : nextID }
+                    ]
+                }]
             }
 
-            let elemCellStatus = $('<td></td>');
-                elemCellStatus.addClass('cell-status');
-                elemCellStatus.appendTo(elemRow);
+            requests.push($.get('/plm/edit', paramsVariant));
 
-            for(key of keysVariant) {
-
-                let elemCell = $('<td></td>');
-                    elemCell.addClass('cell-variant');
-                    elemCell.appendTo(elemRow);
-
-                let elemInput = $('<input>');
-                    elemInput.attr('data-value', '');
-                    elemInput.appendTo(elemCell);
-                    elemInput.keypress(function (e) {
-                        updateValue($(this), e);
-                    });
-
-            }
-
-            let hasChildren = insertNextBOMLevel(bom, elemRoot, edge.child);
-
-            elemRow.children().first().each(function() {
-                
-                $(this).addClass('bom-first-col');
-
-                if(hasChildren) {
-
-                    let elemNav = $('<i></i>');
-                        elemNav.addClass('bom-nav');
-                        elemNav.addClass('zmdi');
-                        elemNav.addClass('expanded');
-                        elemNav.prependTo($(this));
-
-                }
-
+            Promise.all(requests).then(function(responses) {
+                $.get('/plm/descriptor', { 'link' : linkVariant }, function(response) {
+                    $('#overlay').hide();
+                    insertNewVariant(linkVariant, response.data);
+                });
             });
+        });
 
-        }
-
-    }
-
-    return result;
-
-
-}
-// function getBOMItemLink(id, nodes) {
-
-//     for(node of nodes) {
-//         if(node.item.urn === id) {
-//             return node.item.link;
-//         }
-//     }
-
-//     return '';
-    
-// }
-
-function updateValue(elemInput, e) {
-
-    if (e.which == 13) {
-    
-        if(elemInput.attr('data-value') !== elemInput.val()) {
-            elemInput.parent().addClass('changed');
-            elemInput.closest('tr').attr('data-status', 'changed');
-            updateStatusBar();
-        }
-    
-    }
-
-
-}
-function updateStatusBar() {
-
-    let counters = [0, 0];
-
-    $('tr').each(function() {
-        switch($(this).attr('data-status')) {
-
-            case 'changed': 
-                counters[1]++;
-                break;
-
-            default:
-                counters[0]++;
-                break;
-
-        }    
-    });
-
-    // $('#status-additional').css('flex', countAdditional + ' 1 0%');
-    $('#status-changed').css('flex', counters[1] + ' 1 0%');
-    $('#status-match').css('flex', counters[0] + ' 1 0%');
-    
-    if(counters[2] === 0) $('#status-additional').css('border-width', '0px');  else $('#status-additional').css('border-width', '5px');
-    if(counters[1] === 0) $('#status-changed').css('border-width', '0px');  else $('#status-changed').css('border-width', '5px');
-    if(counters[0] === 0) $('#status-match').css('border-width', '0px');  else $('#status-match').css('border-width', '5px');
-
-}
-
-
-function setItemDetails(link) {
-
-    $('#details-process').show();
-
-    let elemParent = $('#sections');
-        elemParent.html('');
-
-    $.get('/plm/details', { 'link' : link }, function(response) {
-        insertItemDetails(elemParent, masterSections, masterFields, response.data, false, false, false);
-        $('#details-process').hide();
     });
 
 }
+
+
+// Highlight item in viewer and display item details upon selection in BOM
+function selectBOMItem(e, elemClicked) {
+
+    elemClicked.toggleClass('selected');
+    elemClicked.siblings().removeClass('selected');
+    
+    if(elemClicked.hasClass('selected')) {
+
+        $('#details-content').html('');
+        $('#details-processing').show();
+
+        let link       = elemClicked.attr('data-link');
+        let partNumber = elemClicked.attr('data-part-number');
+
+        insertItemDetails(link);
+        viewerResetColors();
+        viewerSelectModel(partNumber);
+
+    } else {
+
+        insertItemDetails(linkContext);
+        viewerResetSelection(true);
+
+    }
+
+}
+
 
 
 // Apply Changes to PLM
-function saveChanges() {
+function setSaveActions() {
 
+    // console.log(' >> setSaveActions START');
+
+    pendingActions = [0,0,0,0,0];
+
+    let levelUpdate = 1;
+
+    // item creation
+    // item updates
+    // bom removals
+    // bom additions
+    // bom updates
+
+    $('.variant-item').each(function() {
+
+        let elemVariant = $(this);
+
+        if(elemVariant.hasClass('change-item')) {
+
+            elemVariant.addClass('pending-addition'); pendingActions[3]++;
+
+            if(elemVariant.hasClass('status-identical')) {
+                elemVariant.addClass('pending-removal'); pendingActions[2]++;
+            } else if(elemVariant.hasClass('status-match')) {
+                elemVariant.addClass('pending-removal'); pendingActions[2]++;
+            }
+
+        } else if(elemVariant.hasClass('change-bom')) {
+
+            if(elemVariant.hasClass('status-missing')) {
+                elemVariant.addClass('pending-addition'); pendingActions[3]++;
+            } else {
+                elemVariant.addClass('pending-update-bom'); pendingActions[4]++;
+            }
+
+        } else if(elemVariant.hasClass('change-properties')) {
+
+            if(elemVariant.hasClass('status-match')) {
+                elemVariant.addClass('pending-update-item'); pendingActions[1]++;
+            } else {
+                elemVariant.addClass('pending-creation'); pendingActions[0]++;
+                elemVariant.addClass('pending-addition'); pendingActions[3]++;
+
+                if(elemVariant.hasClass('status-identical')) {
+                    elemVariant.addClass('pending-removal'); pendingActions[2]++;
+                }
+
+            }
+
+        } else if(elemVariant.hasClass('status-missing')) {
+
+            elemVariant.addClass('pending-addition'); pendingActions[3]++;
+
+        }            
+
+    });
+
+
+    // $('.variant-item.missing').each(function() { 
+    //     let level = Number($(this).parent().attr('data-level'));
+    //     if(level === levelUpdate) {
+    //         $(this).addClass('pending-addition');           
+    //         pendingActions[3]++;
+    //     } else {
+    //         $(this).addClass('identical');   
+    //         $(this).removeClass('missing');   
+    //     }
+    // });
+
+
+    // $('.variant-item.missing').each(function() { 
+    //     let level = Number($(this).parent().attr('data-level'));
+    //     if(level === levelUpdate) {
+    //         $(this).addClass('pending-addition');           
+    //         pendingActions[3]++;
+    //     } else {
+    //         $(this).addClass('identical');   
+    //         $(this).removeClass('missing');   
+    //     }
+    // });
+
+    // $('.variant-item.new-item').each(function() {
+    //     $(this).addClass('pending-creation');           pendingActions[0]++;
+    //     $(this).addClass('pending-addition');           pendingActions[3]++;
+    // });
+
+    // $('.variant-item.replaced-item').each(function() {
+    //     $(this).addClass('pending-removal');            pendingActions[2]++;
+    //     $(this).addClass('pending-addition');           pendingActions[3]++;
+    // });
+
+    // $('.variant-item.changed-item').each(function() {
+    //     // let isNewVariant =  
+    //     if($(this).hasClass('identical') || $(this).hasClass('missing')) {
+    //         if(isBlank($(this).attr('data-link'))) {
+    //             // $(this).addClass('pending-creation');      
+    //             //  pendingActions[0]++;
+    //         } else {
+    //             $(this).addClass('pending-addition');       
+    //             pendingActions[3]++;
+    //         }
+    //         $(this).addClass('pending-removal');        pendingActions[2]++;
+    //         setPendingAddition($(this));
+    //     } else {
+    //         $(this).addClass('pending-update-item');    pendingActions[1]++;
+    //     }
+    // });
+
+    // $('.variant-item.changed-bom').each(function() { 
+    //     $(this).addClass('pending-update-bom');         pendingActions[4]++;
+    // });
+
+    console.log(pendingActions);
+
+}
+function showSaveProcessingDialog() {
+   
+    $('.step-bar').addClass('transition-stopper')
+    $('.step-bar').css('width', '0%');
     $('#overlay').show();
-
-    $('tr').addClass('pending');
+    $('#confirm-saving').addClass('disabled').removeClass('default');
+    $('.in-work').removeClass('in-work');
+    $('#step1').addClass('in-work');
+    $('.step-bar').removeClass('transition-stopper');
+    
+    $('#step-counter1').html('0 of ' + pendingActions[0]);
+    $('#step-counter2').html('0 of ' + pendingActions[1]);
+    $('#step-counter3').html('0 of ' + pendingActions[2]);
+    $('#step-counter4').html('0 of ' + pendingActions[3]);
+    $('#step-counter5').html('0 of ' + pendingActions[4]);
+    
+    $('#dialog-saving').show();
 
     createNewItems();
 
+}
+function setPendingAddition(elemParent) {
+
+    let elemRefItem = elemParent.closest('tr');
+    let elemNext    = elemRefItem.next();
+
+    if(!elemParent.hasClass('pending-addition')) {
+        elemParent.addClass('pending-addition');   
+        pendingActions[3]++;
+    }
+
+    if(elemNext.length === 0) return;
+
+    let level       = Number(elemRefItem.attr('data-level')) + 1;
+    let levelNext   = Number(elemNext.attr('data-level')) ;
+    let index       = elemParent.index();
+
+    while(levelNext >= level) {
+
+        console.log(levelNext);
+
+        if(elemNext.length === 0) levelNext = -1;
+
+        if(levelNext === level) {
+            elemNext.children().eq(index).addClass('pending-addition');
+            pendingActions[3]++;
+        }
+
+        elemNext = elemNext.next();
+
+        if(elemNext.length === 0) return;
+
+        levelNext = Number(elemNext.attr('data-level')) ;
+
+
+    }
 
 }
 function createNewItems() {
 
-    console.log('createNewItems START');
+    // console.log(' >> createNewItems START');
 
-    let promises = [];
+    let pending  = $('.variant-item.pending-creation').length;
+    let progress = (pendingActions[0] - pending) * 100 / pendingActions[0];
 
-    // console.log($('tr.pending').length);
+    $('#step-bar1').css('width', progress + '%');
+    $('#step-counter1').html((pendingActions[0] - pending) + ' of ' + pendingActions[0]);
 
-    $('tr.pending').each(function() {
-       
-        let elemItem = $(this);
 
-        if((elemItem.attr('data-link-variant') === '-') && (elemItem.find('td.changed').length > 0)) {
-            if(promises.length < requestsCount) {
+    if(pending > 0) {
+        
+        let requests = [];
+        let elements = [];
 
-                let sections = [];
-                let index = 0;
+        $('.variant-item.pending-creation').each(function() {
 
-                elemItem.find('.cell-variant').each(function() {
+            if(requests.length < maxRequests) {
 
-                    let elemInput = $(this).find('input');
-                    let fieldId = fieldIDsVariant[index];
-                    let sectionId = getSectionIdOfField(fieldId);
-                    index++;
+                let elemRefItem     = $(this).closest('tr');
+                let elemCellControl = $(this).prev();
 
-                    if(sectionId !== '') {
+                let params = {
+                    'wsId' : wsVariants.id,
+                    'sections' : [{
+                        'id' : wsVariants.sectionIdBaseItem,
+                        'fields' : [
+                            { 'fieldId' : wsVariants.fieldIdVariantBaseItem, 'value' : elemRefItem.attr('data-link').split('/')[6] }
+                        ]
+                    },{
+                        'id' : wsVariants.sectionIdVariansSection,
+                        'fields' : []          
+                    }]
+                };
 
-                    let sectionExists = false;
 
-                    for(section of sections) {
+                for(let index = fieldsVariant.length - 1; index >= 0; index--) {
 
-                        if(section.id === sectionId) {
-                            sectionExists = true;
-                            section.fields.push({
-                                'fieldId' : fieldId,
-                                'value' : elemInput.val()
-                            })
-                        }
+                    let field = fieldsVariant[index];
+                    let value = elemCellControl.children().first().val();
 
-                    }
+                    if(field.type === 'Single Selection') value = { 'link' : value };
 
-                    if(!sectionExists) {
-                        sections.push({
-                            'id' : sectionId,
-                            'fields' : [
-                                {
-                                    'fieldId' : fieldId,
-                                    'value' : elemInput.val()
-                                }
-                            ]
-                        })
-                    }
+                    params.sections[1].fields.push({
+                        'fieldId' : field.id, 'value' : value
+                    });
+
+                    elemCellControl = elemCellControl.prev();
+
                 }
 
-                });
+                requests.push($.post('/plm/create', params));
+                elements.push($(this));
 
-                // console.log(sections);
-
-                promises.push($.post('/plm/create', {
-                    'wsId'     : wsIdVariants,
-                    'sections' : sections,
-                    'index'    : elemItem.index(),
-                    'edgeId'   : elemItem.attr('data-edgeid')
-                }));
-
-                elemItem.removeClass('pending');
-                elemItem.addClass('processing');
-                elemItem.addClass('new');
-
-                //elemItem.removeClass('pending');
             }
-        } else {
-            elemItem.removeClass('pending');
-        }
-        
-    });
 
-    console.log(promises.length);
+        });
 
-    if(promises.length > 0) {
+        Promise.all(requests).then(function(responses) {
 
-        Promise.all(promises).then(function(responses) {
-            
+            requests = [];
+            let errors = false;
+
             for(response of responses) {
-                console.log(response);
 
-                let link = response.data.split('.autodeskplm360.net')[1];
+                if(response.error) {
+                    showErrorMessage(response.data.message, 'Error');
+                    errors = true;
+                } else {
+                    requests.push($.get('/plm/descriptor', {
+                        'link' : response.data.split('.autodeskplm360.net')[1]
+                    }));
+                }
+            }
 
-                console.log(link);
+            if(errors) {
+                endProcessing();
+                
+            } else {
+                Promise.all(requests).then(function(responses) {
 
-                $('tr.processing').each(function() {
-       
-                    console.log('aha');
+                    let index = 0;
 
-                    let elemItem = $(this);
+                    for(response of responses) {
 
-                    console.log(elemItem.attr('data-edgeid'));
+                        let elemItem = elements[index++];
+                            elemItem.html(response.data);
+                            elemItem.attr('data-link', response.params.link);
+                            elemItem.addClass('status-match');
+                            elemItem.removeClass('status-identical');
+                            elemItem.removeClass('pending-creation');
+                            // elemItem.addClass('pending-addition');
 
-                    if(elemItem.attr('data-edgeid') === response.params.edgeId) {
-                        elemItem.attr('data-link-new', link);
-                        elemItem.attr('data-link', link);
-                        elemItem.removeClass('processing');
                     }
 
+                    createNewItems(); 
+
                 });
+            } 
 
-                // let elemItem = $('tr.pending:eq(' + response.params.index + ')');
-                //     elemItem.attr('data-link-new', link);
-                    
-
-            }
-
-            console.log('next chunck');
-
-           createNewItems();
         });
 
     } else {
 
-        $('tr').addClass('pending');
+        $('#step-bar1').css('width', '100%');
+        $('#step1').removeClass('in-work');
+        $('#step2').addClass('in-work');
+        $('#step-counter1').html(pendingActions[0] + ' of ' + pendingActions[0]);
+
         updateItems();
 
     }
 
-
 }
 function updateItems() {
 
-    console.log('updateItems START');
+    // console.log(' >> updateItems START');
 
-    let promises = [];
+    let pending  = $('.variant-item.pending-update-item').length;
+    let progress = (pendingActions[1] - pending) * 100 / pendingActions[1];
 
-    // console.log($('tr.pending').length);
+    $('#step-bar2').css('width', progress + '%');
+    $('#step-counter2').html((pendingActions[1] - pending) + ' of ' + pendingActions[1]);
+    
+    if(pending > 0) {
+        
+        let requests = [];
+        let elements = [];
 
-    $('tr.pending').each(function() {
-       
-        let elemItem = $(this);
+        $('.variant-item.pending-update-item').each(function() {
 
-        // console.log($(this).index());
-       
-        // console.log(elemItem.attr('data-link-variant'));
-        // console.log(elemItem.find('td.changed').length);
+            if(requests.length < maxRequests) {
 
-        if((elemItem.attr('data-link-variant') !== '-') && (elemItem.find('td.changed').length > 0)) {
-            if(promises.length < requestsCount) {
-                let sections = [];
-                let index = 0;
+                let elemCellControl = $(this).prev();
 
-                elemItem.find('.cell-variant').each(function() {
+                let params = {
+                    'link' : $(this).attr('data-link'),
+                    'sections' : [{
+                        'id' : wsVariants.sectionIdVariansSection,
+                        'fields' : []          
+                    }]
+                };
 
-                    let elemInput = $(this).find('input');
-                    let fieldId = fieldIDsVariant[index];
-                    let sectionId = getSectionIdOfField(fieldId);
-                    index++;
+                for(let index = fieldsVariant.length - 1; index >= 0; index--) {
 
-                    if(sectionId !== '') {
+                    let field = fieldsVariant[index];
+                    let value = elemCellControl.children().first().val();
 
-                    let sectionExists = false;
+                    params.sections[0].fields.push({
+                        'fieldId' : field.id, 'value' : value, 'type' : field.type
+                    });
 
-                    for(section of sections) {
+                    elemCellControl = elemCellControl.prev();
 
-                        if(section.id === sectionId) {
-                            sectionExists = true;
-                            section.fields.push({
-                                'fieldId' : fieldId,
-                                'value' : elemInput.val()
-                            })
-                        }
+                }                
 
-                    }
+                requests.push($.get('/plm/edit', params));
+                $(this).removeClass('pending-update-item');
+                $(this).removeClass('change-properties');
+                $(this).addClass('processing-item');
 
-                    if(!sectionExists) {
-                        sections.push({
-                            'id' : sectionId,
-                            'fields' : [
-                                {
-                                    'fieldId' : fieldId,
-                                    'value' : elemInput.val()
-                                }
-                            ]
-                        })
-                    }
+                elements.push($(this));
+
+            }
+
+        });    
+        
+        Promise.all(requests).then(function(responses) {
+            for(element of elements) element.removeClass('processing-item').addClass('status-match');
+            updateItems(); 
+        });
+
+    } else {
+
+        $('#step-bar2').css('width', '100%');
+        $('#step2').removeClass('in-work');
+        $('#step3').addClass('in-work');
+        $('#step-counter2').html(pendingActions[1] + ' of ' + pendingActions[1]);
+
+        deleteBOMItems();
+
+    }
+
+}
+function deleteBOMItems() {
+
+    // console.log(' >> deleteBOMItems START');
+
+    let pending  = $('.variant-item.pending-removal').length;
+    let progress = (pendingActions[2] - pending) * 100 / pendingActions[2];
+
+    $('#step-bar3').css('width', progress + '%');
+    $('#step-counter3').html((pendingActions[2] - pending) + ' of ' + pendingActions[2]);
+
+    if(pending > 0) {
+        
+        let requests = [];
+        
+
+        $('.variant-item.pending-removal').each(function() {
+
+            if(requests.length < maxRequests) {
+
+                let elemItem = $(this);
+                let linkParent = elemItem.attr('data-link-parent');
+
+                if(!isBlank(linkParent)) {
+
+                    let params = {
+                        'wsId'  : linkParent.split('/')[4],
+                        'dmsId' : linkParent.split('/')[6],
+                        'edgeId': elemItem.attr('data-edgeid')
+                    };
+
+                    requests.push($.get('/plm/bom-remove', params));
+
                 }
 
-                });
+                elemItem.removeClass('pending-removal');
+                elemItem.attr('data-edgeid', '');
 
-                console.log(sections);
-
-                promises.push($.get('/plm/edit', {
-                    'wsId'     : wsIdVariants,
-                    'sections' : sections,
-                    'index'    : elemItem.index(),
-                    'edgeId'   : elemItem.attr('data-edgeid')
-                }));
-
-                elemItem.removeClass('update');
-                elemItem.addClass('processing');
-                elemItem.addClass('update');
-
-                //elemItem.removeClass('pending');
             }
-        } else {
-            elemItem.removeClass('pending');
-        }
+
+        });
+
+        Promise.all(requests).then(function(responses) {
         
-    });
-
-    console.log(promises.length);
-
-    if(promises.length > 0) {
-
-        Promise.all(promises).then(function(responses) {
-            
-            for(response of responses) {
-                console.log(response);
-
-                // let link = response.data.split('.autodeskplm360.net')[1];
-
-                // console.log(link);
-
-                // $('tr.processing').each(function() {
-       
-                //     console.log('aha');
-
-                //     let elemItem = $(this);
-
-                //     console.log(elemItem.attr('data-edgeid'));
-
-                //     if(elemItem.attr('data-edgeid') === response.params.edgeId) {
-                //         elemItem.attr('data-link-new', link);
-                //         elemItem.removeClass('processing');
-                //     }
-
-                // });
-
-                // let elemItem = $('tr.pending:eq(' + response.params.index + ')');
-                //     elemItem.attr('data-link-new', link);
-                    
-
-            }
-
-            console.log('next chunck to update');
-
-            updateItems();
+            deleteBOMItems();
+        
         });
 
     } else {
 
-        //$('tr').addClass('connect');
-        connectItems();
+        $('#step-bar3').css('width', '100%');
+        $('#step3').removeClass('in-work');
+        $('#step4').addClass('in-work');
+        $('#step-counter3').html(pendingActions[2] + ' of ' + pendingActions[2]);
+
+        addBOMItems();
 
     }
-}
-    
 
-function connectItems() {
+}  
+function addBOMItems() {
 
-    console.log('connectItems START');
+    // console.log(' >> addBOMItems START');
 
-    let promises = [];
+    let pending  = $('.variant-item.pending-addition').length;
+    let progress = (pendingActions[3] - pending) * 100 / pendingActions[3];
 
-    $('tr.new').each(function() {
+    $('#step-bar4').css('width', progress + '%');
+    $('#step-counter4').html((pendingActions[3] - pending) + ' of ' + pendingActions[3]);
 
-        if(promises.length < requestsCount) {
-
-            let elemItem    = $(this);
-            let linkParent  = getParentItemLink(elemItem);
-            let linkItem    = elemItem.attr('data-link');
-            let params      = {
-                'wsIdParent'    : linkParent.split('/')[4],
-                'wsIdChild'     : linkItem.split('/')[4],
-                'dmsIdParent'   : linkParent.split('/')[6],
-                'dmsIdChild'    : linkItem.split('/')[6],
-                'qty'           : elemItem.attr('data-qty'),
-                'pinned'        : true,
-                'number'        : elemItem.attr('data-number')
-            }
-
-            console.log(linkParent);
-            console.log(linkItem);
-            console.log(params);
-
-            promises.push($.get('/plm/bom-add', params));
-
-            elemItem.removeClass('new');
-            elemItem.addClass('processing');
-
-        }
+    if(pending > 0) {
         
-    });
+        let requests = [];
+        let elements = [];
 
-    console.log(promises.length);
+        $('.variant-item.pending-addition').each(function() {
 
-    if(promises.length > 0) {
+            if(requests.length < maxRequests) {
 
-        Promise.all(promises).then(function(responses) {
-            
-            for(response of responses) {
-                console.log(response);
+                // elemItem.attr('data-link-parent', getParentLink());
 
-                // let link = response.data.split('.autodeskplm360.net')[1];
+                let elemItem    = $(this);
+                // let linkParent  = elemItem.attr('data-link-parent');
+                let linkParent  = getParentLink(elemItem);
+                let linkItem    = elemItem.attr('data-link');
+                let refItem     = elemItem.closest('tr');
+                // let level       = refItem.attr('data-level');
 
-                // console.log(link);
+                elemItem.attr('data-link-parent', linkParent);
 
-                // $('tr.processing').each(function() {
-       
-                //     console.log('aha');
+                if(isBlank(linkItem)) {
+                    if(elemItem.hasClass('status-missing')) linkItem = refItem.attr('data-link');
+                }
 
-                //     let elemItem = $(this);
+                let params = {
+                    'wsIdParent'    : linkParent.split('/')[4],
+                    'dmsIdParent'   : linkParent.split('/')[6],
+                    'wsIdChild'     : linkItem.split('/')[4],
+                    'dmsIdChild'    : linkItem.split('/')[6],
+                    'qty'           : refItem.attr('data-quantity'),
+                    'number'        : refItem.attr('data-number'),
+                    'pinned'        : true,
+                    'fields'        : [
+                        { 'link' : wsVariants.colIdRefEdgeId, 'value' : refItem.attr('data-edgeid') }
+                    ]
+                }
 
-                //     console.log(elemItem.attr('data-edgeid'));
-
-                //     if(elemItem.attr('data-edgeid') === response.params.edgeId) {
-                //         elemItem.attr('data-link-new', link);
-                //         elemItem.removeClass('processing');
-                //     }
-
-                // });
-
-                // let elemItem = $('tr.pending:eq(' + response.params.index + ')');
-                //     elemItem.attr('data-link-new', link);
-                    
+                requests.push($.get('/plm/bom-add', params));
+                elements.push(elemItem);
+                elemItem.removeClass('pending-update-bom');
+                elemItem.removeClass('change-properties');
+                elemItem.removeClass('change-bom');
+                elemItem.addClass('processing-item');
 
             }
 
-            console.log('next chunck to update');
+        });
 
-            updateItems();
+        Promise.all(requests).then(function(responses) {
+            
+            let index = 0;
+
+            for(response of responses) {
+                let elemItem = elements[index++];
+                    elemItem.removeClass('pending-addition');
+                    elemItem.removeClass('processing-item');
+                    elemItem.attr('data-edgeid', response.data.split('/bom-items/')[1]);
+                    
+                if(elemItem.hasClass('change-item')) {
+                    elemItem.removeClass('change-item');
+                    elemItem.addClass('status-match');
+                } else if(elemItem.hasClass('status-missing')) {
+                    elemItem.addClass('status-identical');
+                }
+
+                elemItem.removeClass('status-missing');
+
+            }
+
+            addBOMItems();
+
         });
 
     } else {
 
-        //$('tr').addClass('connect');
-        saveEnd();
+        $('#step-bar4').css('width', '100%');
+        $('#step4').removeClass('in-work');
+        $('#step-counter4').html(pendingActions[3] + ' of ' + pendingActions[3]);
+
+        updateBOMItems();
 
     }
 
 }
-function saveEnd() {
+function getParentLink(elemItem) {
 
-    console.log('saveEnd START');
+    let elemRefItem = elemItem.closest('tr');
+    let level       = Number(elemRefItem.attr('data-level')) - 1;
+    let index       = elemItem.index();
+    let result      = '';
 
-    $('tr').each(function() {
-        $(this).removeClass('pending').removeClass('new').removeClass('update');
+    if(level === 0) return elemItem.attr('data-link-root');
+
+    elemRefItem.prevAll('tr').each(function() {
+        let newLevel = Number($(this).attr('data-level'));
+        if(result === '') {
+            if(newLevel === level) {
+                result = $(this).children().eq(index).attr('data-link');
+                return result;
+            } 
+        }
     });
-    $('#overlay').hide();
+
+    return result;
 
 }
-function getParentItemLink(elemItem) {
+function updateBOMItems() {       
+        
+    // console.log(' >> updateBOMItems START');
 
-    let elemPrev;
-    let levelItem = Number(elemItem.attr('data-level'));
-    let levelPrev = levelItem;
+    let pending  = $('.variant-item.pending-update-bom').length;
+    let progress = (pendingActions[4] - pending) * 100 / pendingActions[4];
 
-    do  {
+    $('#step-bar5').css('width', progress + '%');
+    $('#step-counter5').html((pendingActions[4] - pending) + ' of ' + pendingActions[4]);
 
-        if(elemItem.prev().length > 0) {
+    if(pending > 0) {
 
-            elemPrev = elemItem.prev();
-            levelPrev = Number(elemPrev.attr('data-level'));
+        let requests = [];
+        let elements = [];
 
-        } else {
+        $('.variant-item.pending-update-bom').each(function() {
 
-            levelPrev = -1;
+            if(requests.length < maxRequests) {
 
-        }
+                let elemItem    = $(this);
+                let elemRefItem = elemItem.closest('tr');
+                // let edNumber     = elemItem.attr('data-number');
+                // let paramsChild  = elemItem.attr('data-link').split('/');
+                // let paramsParent = elemParent.attr('data-link').split('/');
+                // let urnMBOM      = elemItem.attr('data-urn-mbom');
+                // let edQty        = elemItem.find('.item-qty-input').first().val();
 
+                // if(typeof urnMBOM !== 'undefined') {
+                //     let data = elemItem.attr('data-urn-mbom').split('.');
+                //     paramsChild[4] = data[4];
+                //     paramsChild[6] = data[5];
+                // }
 
-    } while (levelPrev >= levelItem)
+                let params = {                    
+                    'wsIdParent'  : elemItem.attr('data-link-parent').split('/')[4],
+                    'wsIdChild'   : elemItem.attr('data-link').split('/')[4],
+                    'dmsIdParent' : elemItem.attr('data-link-parent').split('/')[6],
+                    'dmsIdChild'  : elemItem.attr('data-link').split('/')[6],
+                    'edgeId'      : elemItem.attr('data-edgeid'),
+                    'number'      : elemRefItem.attr('data-number'),
+                    'qty'         : elemRefItem.attr('data-quantity'),
+                    'pinned'      : true
+                };
 
-    if(levelPrev > -1) {
+                requests.push($.get('/plm/bom-update', params));
+                elements.push(elemItem);
 
+            }
 
+        });
 
-        return elemPrev.attr('data-link');
+        Promise.all(requests).then(function(responses) {
+
+            let index = 0;
+
+            for(response of responses) {
+
+                let elemItem = elements[index++];
+                    elemItem.removeClass('pending-update-bom');
+                    elemItem.removeClass('change-bom');
+                    elemItem.addClass('status-match');
+                    elemItem.attr('data-number', response.params.number);
+                    elemItem.attr('data-quantity', response.params.qty);
+        
+            }
+
+            updateBOMItems();
+
+        });
 
     } else {
 
-        return linkVariant;
+        $('#step-bar5').css('width', '100%');
+        $('#step5').removeClass('in-work');
+        $('#step-counter5').html(pendingActions[4] + ' of ' + pendingActions[4]);
+
+        endProcessing();
 
     }
-
-
-    // if(elemPrev.length > 0) {
-
-        
-    //     let levelPrev = Number(elemPrev.attr('data-level'));
     
-    //     do while (levelPrev === levelItem) {   
+}
+function endProcessing() {
 
-    //         elemPrev = elemPrev.prev();
-    //         levelPrev = Number(elemPrev.attr('data-level'));
+    // console.log('>> endProcessing START');
 
-    //     } 
-
-
-
-    // }
-
-
-
+    $('#overlay').show();
+    $('#confirm-saving').removeClass('disabled').addClass('default');
+    $('.in-work').removeClass('in-work');    
 
 }
-
-
-function getSectionIdOfField(fieldId) {
-
-    for(section of variantSections) {
-        for(field of section.fields) {
-            let id = field.link.split('/')[8];
-            if(id === fieldId) {
-                return section.__self__.split('/')[6];
-            }
-        }
-    }
-
-    return '';
-
-}
-
-
-// function createMBOMRoot(descriptor, callback) {
-
-//     if(typeof dmsIdMBOM !== 'undefined') {
-        
-//         callback();
-        
-//     } else {
-    
-//         $.get('/plm/fields', { 'wsId' : wsId }, function(data) {
-        
-//             for(field of data.fields) {
-
-//                 let urn     = field.urn.split('.');
-//                 let fieldID = urn[urn.length - 1];
-
-//                 if(fieldID === 'MBOM') {
-//                     let fieldDef = field.picklistFieldDefinition.split('/');
-//                     wsIdMBOM = fieldDef[4];
-//                 }
-
-//             }
-        
-//             if(typeof wsIdMBOM !== 'undefined') {
-
-//                 let params = { 
-//                     'wsId' : wsIdMBOM,
-//                     'sections' : [{
-//                         'id' : sectionIdMBOM1,
-//                         'fields' : [
-//                             { 'fieldId' : 'TITLE', 'value' : descriptor }
-//                             // { 'fieldId' : 'DESCRIPTION', 'value' : $('#input-details').val() },
-//                             // { 'fieldId' : 'MARKUPSTATE', 'value' : JSON.stringify(viewer.getState()) },
-//                             // { 'fieldId' : 'MARKUPSVG', 'value' : markupSVG },
-//                             // { 'fieldId' : 'DESIGN_REVIEW', 'value' : {
-//                             //     'link' : '/api/v3/workspaces/' + selectedWSID + '/items/' + selectedDMSID
-//                             // }}
-//                         ] 
-//                     },{
-//                         'id' : sectionIdMBOM2,
-//                         'fields' : [
-//                             { 'fieldId' : 'EBOM', 'value' : {
-//                                 'link' : '/api/v3/workspaces/' + wsId + '/items/' + dmsId
-//                             }},
-//                             { 'fieldId' : 'IS_OPERATION', 'value' : true }
-//                         ]             
-//                     }]
-//                  };
-
-//                 $.post({
-//                     url : '/plm/create', 
-//                     contentType : 'application/json',
-//                     data : JSON.stringify(params)
-//                 }, function(data) {
-//                     let linkNew = data.split('/');
-//                     dmsIdMBOM = linkNew[linkNew.length - 1];
-//                     callback();
-//                 }); 
-            
-//             }
-//         });   
-//     }
-    
-// }
-   
-    
-// }
-// function getBOM(wsId, dmsId, viewId, callback) {
-    
-//     let params = {
-//         'wsId'          : wsId,
-//         'dmsId'         : dmsId,
-//         'viewDefId'     : viewId,
-//         'depth'         : 5,
-//         'revisionBias'  : 'release'
-//     };
-
-//     $.get('/plm/bom', params, function(data) {
-//         callback(data);
-//     });    
-    
-// }
-// function initEditor() {
-    
-//     $('#ebom').find('.loading').hide();
-//     $('#mbom').find('.loading').hide();
-
-//     setEBOM($('#ebom-tree'), dataEBOM.root, 1, null);
-//     setMBOM($('#mbom-tree'), dataMBOM.root, '', 1, null);
-
-//     setTotalQuantities();
-//     setStatusBar();
-
-//     $('.bar').show();
-    
-// }
-// function setStatusBar() {
-    
-//     let countAdditional = 0;
-//     let countDifferent  = 0;
-//     let countMatch      = 0;
-    
-//     let listEBOM = [];
-//     let listMBOM = [];
-//     let qtysEBOM = [];
-//     let qtysMBOM = [];
-
-//     let listRed     = [];
-//     let listYellow  = [];
-//     let listGreen   = [];
-    
-//     $('#ebom').find('.item').each(function() {
-//         if(!$(this).hasClass('item-has-bom')) {
-//             let urn = $(this).attr('data-urn');
-//             $(this).removeClass('additional');
-//             $(this).removeClass('different');
-//             $(this).removeClass('match');
-//             $(this).removeClass('neutral');
-//             $(this).removeClass('enable-update');
-//             if(listEBOM.indexOf(urn) === -1) {
-//                 listEBOM.push(urn);
-//                 qtysEBOM.push(Number($(this).attr('data-total-qty')));
-//             }
-//         }
-//     });
-
-//     $('#mbom').find('.item').each(function() {
-//         if(!$(this).hasClass('root')) {
-//             if(!$(this).hasClass('operation')) {
-//                 if(!$(this).hasClass('mbom-item')) {
-
-//                     $(this).removeClass('additional');
-//                     $(this).removeClass('different');
-//                     $(this).removeClass('match');
-//                     $(this).removeClass('neutral');
-
-//                     let urn     = $(this).attr('data-urn');
-//                     let urnEBOM = $(this).attr('data-urn-ebom');
-                
-//                     if(typeof urnEBOM !== 'undefined') urn = urnEBOM;
-
-//                     let index = listMBOM.indexOf(urn);
-//                     //let qty = $(this).attr('data-qty');
-//                     let qty   = Number($(this).find('.item-qty-input').val());
-
-//                     if(index === -1) {
-//                         listMBOM.push(urn);
-//                         qtysMBOM.push(qty);
-//                     } else {
-//                         qtysMBOM[index] += qty;
-//                     }
-//                 }
-//             }
-//         }
-//     });
-    
-//     $('#ebom').find('.item').each(function() {
-// //        if(!$(this).hasClass('root')) {
-//         let partNumber = $(this).attr('data-part-number');
-//         if(!$(this).hasClass('item-has-bom')) {
-//             let urn     = $(this).attr('data-urn');
-//             let index   = listMBOM.indexOf(urn); 
-//             let qty     = qtysEBOM[listEBOM.indexOf(urn)];
-//             if(listMBOM.indexOf(urn) === -1) {
-//                 countAdditional++;
-//                 if(listRed.indexOf(partNumber) === -1) listRed.push(partNumber);
-//                 $(this).addClass('additional');
-//             } else if(qtysMBOM[index] === qty) {
-//                 $(this).addClass('match');
-//                 countMatch++;
-//                 if(listGreen.indexOf(partNumber) === -1) listGreen.push(partNumber);
-//             } else {
-//                 $(this).addClass('different');
-//                 countDifferent++;
-//                 if(listYellow.indexOf(partNumber) === -1) listYellow.push(partNumber);
-//                 if($(this).attr('data-instance-qty') === $(this).attr('data-total-qty')) {  
-
-//                     let countMBOMInstances = 0;
-
-//                     $('#mbom').find('.item').each(function() {
-
-//                         let urnMBOM = $(this).attr('data-urn');
-//                         if(urn === urnMBOM) {
-//                             countMBOMInstances++;
-//                         }
-
-//                     });
-
-//                     if(countMBOMInstances === 1) $(this).addClass('enable-update');
-//                 }
-//             }
-            
-//         }
-//     });
-//     $('#mbom').find('.item').each(function() {
-//         if($(this).hasClass('mbom-item')) {
-//             $(this).addClass('unique');
-//         } else if(!$(this).hasClass('root')) {
-//             if(!$(this).hasClass('operation')) {
-                
-//                 let urn     = $(this).attr('data-urn');
-//                 let urnEBOM = $(this).attr('data-urn-ebom');
-                
-//                 if(typeof urnEBOM !== 'undefined') urn = urnEBOM;
-                
-//                 let index   = listEBOM.indexOf(urn); 
-//                 let qty     = qtysMBOM[listMBOM.indexOf(urn)];
-
-//                 if(index === -1) {
-//                     countAdditional++;
-//                     $(this).addClass('additional');
-//                 } else if(qtysEBOM[index] === qty) {
-//                     $(this).addClass('match');
-//                 } else {
-//                     $(this).addClass('different');
-//                 }
-//             }
-//         }
-//     });
-    
-//     $('#status-additional').css('flex', countAdditional + ' 1 0%');
-//     $('#status-different').css('flex', countDifferent + ' 1 0%');
-//     $('#status-match').css('flex', countMatch + ' 1 0%');
-    
-//     if(countAdditional === 0) $('#status-additional').css('border-width', '0px');  else $('#status-additional').css('border-width', '5px');
-//     if(countDifferent === 0) $('#status-different').css('border-width', '0px');  else $('#status-different').css('border-width', '5px');
-//     if(countMatch === 0) $('#status-match').css('border-width', '0px');  else $('#status-match').css('border-width', '5px');
-    
-//     if(viewerStatusColors) {
-//         viewerSetColors(listRed     , new THREE.Vector4(1,   0, 0, 0.5));
-//         viewerSetColors(listYellow  , new THREE.Vector4(1, 0.5, 0, 0.5));
-//         viewerSetColors(listGreen   , new THREE.Vector4(0,   1, 0, 0.5));
-//     } else {
-//         viewerResetColors();
-//     }
-
-// }
-
-
-// // Input controls to add new items to MBOM
-// function addInput(elemParent) {
-
-//     var elemAdd = $('<div></div>');
-//         elemAdd.addClass('item-add');
-//         elemAdd.appendTo(elemParent);
-    
-//     var elemInputName = $('<input></input>');
-//         elemInputName.attr('placeholder', 'Type new component name');
-//         elemInputName.addClass('item-input');
-//         elemInputName.addClass('name');
-//         elemInputName.appendTo(elemAdd);
-    
-//     var elemInputQty = $('<input></input>');
-//         elemInputQty.attr('placeholder', 'Qty');
-//         elemInputQty.addClass('item-input');
-//         elemInputQty.addClass('quantity');
-//         elemInputQty.appendTo(elemAdd);
-
-    
-//     listenForInput(elemInputName);
-//     listenForInput(elemInputQty);
-    
-// }
-// function listenForInput(elemInput) {
-    
-//     elemInput.keypress(function (e) {
-//         if (e.which == 13) {
-//             insertNewItem($(this));
-//         }
-//     });
-    
-// }
-// function insertNewItem(elemInput) {
-      
-    
-//     let title = '';
-//     let qty = '1';
-    
-//     if(elemInput.hasClass('quantity')) {
-//         qty = elemInput.val();
-//         title = elemInput.prev().val();
-//         elemInput.prev().focus();
-//     } else {
-//         qty = elemInput.next().val();
-//         console.log(elemInput.val());
-//         title = elemInput.val();
-//         if(qty === '') qty = '1';
-//     }
-    
-//     elemInput.val('');
-//     elemInput.siblings().val('');
-    
-//     let elemBOM = elemInput.parent().prev();
-    
-//     let elemNode = $('<div></div>');
-//         elemNode.addClass('item');
-//         elemNode.addClass('leaf');
-//         elemNode.addClass('new');
-//         elemNode.addClass('unique');
-//         elemNode.addClass('mbom-item');
-//         elemNode.attr('data-urn', '');
-//         elemNode.appendTo(elemBOM);
-        
-//     let elemNodeHead = $('<div></div>');
-//         elemNodeHead.addClass('item-head');
-//         elemNodeHead.appendTo(elemNode);
-    
-//     let elemNodeToggle = $('<div></div>');
-//         elemNodeToggle.addClass('item-toggle');
-//         elemNodeToggle.appendTo(elemNodeHead);
-    
-//     let elemNodeIcon = $('<div></div>');
-//         elemNodeIcon.addClass('item-icon');
-//         elemNodeIcon.html('<i class="zmdi zmdi-wrench"></i>');
-//         elemNodeIcon.appendTo(elemNodeHead);
-    
-//     let elemNodeTitle = $('<div></div>');
-//         elemNodeTitle.addClass('item-title');
-// //        elemNodeTitle.addClass('with-number');
-//         elemNodeTitle.html(title);
-//         elemNodeTitle.attr('data-urn', '');
-//         elemNodeTitle.appendTo(elemNodeHead);
-    
-//     let elemNodeQty = $('<div></div>');
-//         elemNodeQty.addClass('item-qty');
-//         elemNodeQty.appendTo(elemNodeHead);
-// //        elemNodeQty.html(qty);
-
-//     let elemQtyInput = $('<input></input>');
-//         elemQtyInput.attr('type', 'number');
-//         elemQtyInput.addClass('item-qty-input');
-//         elemQtyInput.val(qty);
-//         elemQtyInput.appendTo(elemNodeQty);
-    
-    
-//     let elemNodeCode = $('<div></div>');
-//         elemNodeCode.addClass('item-code');
-// //        elemNodeCode.html(code);
-//         elemNodeCode.appendTo(elemNodeHead);
-    
-//     let elemNodeStatus = $('<div></div>');
-//         elemNodeStatus.addClass('item-status');
-//         elemNodeStatus.appendTo(elemNodeHead);
-    
-    
-//     let elemNodeActions = $('<div></div>');
-//         elemNodeActions.addClass('item-actions');
-//         elemNodeActions.appendTo(elemNodeHead);
-    
-        
-// //    let elemNodeNumber = $('<input></input>');
-// //        elemNodeNumber.addClass('number');
-// //        elemNodeNumber.appendTo(elemNodeHead);
-    
-// //    let elemNodeAction = $('<div></div>');
-// //        elemNodeAction.addClass('item-action');
-// //        elemNodeAction.addClass('delete');
-// //        elemNodeAction.html('-');
-// //        elemNodeAction.appendTo(elemNodeHead);
-// //        elemNodeAction.click(function() {
-// //            $(this).closest('.item').remove();
-// //            setInsertActions();
-// //        });
-    
-    
-//     elemNodeHead.attr('data-qty', qty);
-//     elemNodeTitle.attr('data-qty', qty);
-//     elemNode.attr('data-qty', qty);
-    
-//     insertMBOMActions(elemNodeActions);
-//     setDraggable(elemNode);
-        
-// }
-// function insertNewOperation(e) {
-    
-//     if (e.which == 13) {
-        
-//         // if(($('#mbom-add-name').val() === '') || ($('#mbom-add-code').val() === '')) {
-//         //     alert('You have to provide both a title and a code for the new operation');
-//         //     return;
-//         // }
-
-//         let elemNew = getBOMNode(2, '', $('#mbom-add-name').val(), '', '', $('#mbom-add-code').val(), '', '', 'mbom', false);
-//             elemNew.attr('data-parent', '');
-//             elemNew.addClass('new');
-//             elemNew.addClass('operation');
-//             elemNew.addClass('neutral');
-//             elemNew.find('.item-icon').children().addClass('zmdi-time');
-        
-//         let elemBOM = $('#mbom-tree').children().first().children('.item-bom').first();
-//             elemBOM.append(elemNew);
-        
-//         $('#mbom-add-name').val('');
-//         $('#mbom-add-code').val('');
-//         $('#mbom-add-name').focus();
-        
-//     }
-    
-// }
-
-
-// // Display EBOM information
-// function setEBOM(elemParent, urn, level, qty) {
-    
-//     let descriptor  = getDescriptor(dataEBOM, urn);
-//     let partNumber  = getNodeProperty(dataEBOM, urn, colsEBOM, 'NUMBER', '');
-//     let category    = getNodeProperty(dataEBOM, urn, colsEBOM, 'CATEGORY', '');
-//     let code        = getNodeProperty(dataEBOM, urn, colsEBOM, 'OPERATION_CODE', '');
-//     let icon        = getWorkspaceIcon(urn, level);
-//     let endItem     = getNodeProperty(dataEBOM, urn, colsEBOM, 'END_ITEM', '');
-//     let ignoreMBOM  = getNodeProperty(dataEBOM, urn, colsEBOM, 'IGNORE_IN_MBOM', '');
-//     let hasMBOM     = getNodeURN(dataEBOM, urn, colsEBOM, 'MBOM', '');
-//     let isLeaf      = isEBOMLeaf(level, urn, hasMBOM, endItem);
-
-//     if(ignoreMBOM !== 'true') {
-    
-//         let elemNode = getBOMNode(level, urn, descriptor, partNumber, category, code, icon, qty, 'ebom', isLeaf);
-//             elemNode.appendTo(elemParent);
-            
-//         if(hasMBOM !== '') elemNode.attr('data-urn-mbom', hasMBOM);
-
-//         if(level === 1) elemNode.addClass('root');
-//         else elemNode.addClass('leaf');
-        
-//     }
-    
-// }
-// function isEBOMLeaf(level, urn, hasMBOM, endItem) {
-    
-//     if(level === 1) return false;
-//     if(hasMBOM !== '') return true;
-//     if(endItem === 'true') return true;
-    
-//     for(edgeEBOM of edgesEBOM) {
-//         if(edgeEBOM.parent === urn) {
-//             if(getNodeProperty(dataEBOM, edgeEBOM.child, colsEBOM, 'IGNORE_IN_MBOM', '') !== true) {
-//                 return  false;   
-//             }
-//         }
-//     }
-        
-//     return true;
-    
-// }
-// function getBOMNode(level, urn, descriptor, partNumber, category, code, icon, qty, bomType, isLeaf) {
-    
-//     let elemNode = $('<div></div>');
-//         elemNode.addClass('item');
-//         elemNode.attr('category', category);
-//         elemNode.attr('data-code', code);
-//         elemNode.attr('data-urn', urn);
-//         elemNode.attr('data-part-number', partNumber);
-    
-//     let elemNodeHead = $('<div></div>');
-//         elemNodeHead.addClass('item-head');
-//         elemNodeHead.appendTo(elemNode);
-    
-//     let elemNodeToggle = $('<div></div>');
-//         elemNodeToggle.addClass('item-toggle');
-//         elemNodeToggle.appendTo(elemNodeHead);
-    
-//     let elemNodeIcon = $('<div></div>');
-//         elemNodeIcon.addClass('item-icon');
-//         elemNodeIcon.html('<i class="zmdi ' + icon + '"></i>');
-//         elemNodeIcon.appendTo(elemNodeHead);
-    
-//     let elemNodeTitle = $('<div></div>');
-//         elemNodeTitle.addClass('item-title');
-//         elemNodeTitle.appendTo(elemNodeHead);
-//         elemNodeTitle.attr('title', descriptor);
-    
-//     let elemNodeDescriptor = $('<span></span>');
-//         elemNodeDescriptor.addClass('item-descriptor');
-//         elemNodeDescriptor.html(descriptor);
-//         elemNodeDescriptor.appendTo(elemNodeTitle);
-
-//     let elemNodeLink = $('<i class="zmdi zmdi-open-in-new"></i>');
-//         elemNodeLink.addClass('item-link');
-//         elemNodeLink.attr('title', 'Click to open given item in PLM in a new browser tab');
-//         elemNodeLink.appendTo(elemNodeTitle);
-//         elemNodeLink.click(function(event) {
-
-//             event.stopPropagation();
-//             event.preventDefault();
-            
-//             let elemItem = $(this).closest('.item');
-//             let urn      = elemItem.attr('data-urn');
-            
-//             if(urn === '') {
-
-//                 alert('Item does not exist yet. Save your changes to the database first.');
-                
-//             } else {
-            
-//                 let data     = urn.split(':')[3].split('.');
-
-//                 let url  = 'https://' + data[0] + '.autodeskplm360.net';
-//                     url += '/plm/workspaces/' + data[1];
-//                     url += '/items/itemDetails?view=full&tab=details&mode=view&itemId=urn%60adsk,plm%60tenant,workspace,item%60';
-//                     url += data[0] + ',' + data[1] + ',' + data[2];
-
-//                 window.open(url, '_blank');
-                
-//             }
-            
-//         });
-
-//     let elemNodeFilter = $('<i class="zmdi zmdi-filter-list"></i>');
-//         elemNodeFilter.addClass('item-link');
-//         elemNodeFilter.attr('title', 'Click to toggle filter for this component in viewer, EBOM and MBOM');
-//         elemNodeFilter.appendTo(elemNodeTitle);
-//         elemNodeFilter.click(function(event) {
-
-//             event.stopPropagation();
-//             event.preventDefault();
-
-//             selectBOMItem($(this), true);
-            
-//         });
-
-//     let elemNodeQty = $('<div></div>');
-//         elemNodeQty.addClass('item-qty');
-//         elemNodeQty.appendTo(elemNodeHead);
-    
-//     let elemQtyInput = $('<input></input>');
-//         elemQtyInput.attr('type', 'number');
-//         elemQtyInput.attr('title', 'Quantity');
-//         elemQtyInput.addClass('item-qty-input');
-//         elemQtyInput.appendTo(elemNodeQty);
-    
-//     let elemNodeCode = $('<div></div>');
-//         elemNodeCode.addClass('item-code');
-//         elemNodeCode.html(code);
-//         elemNodeCode.attr('title', 'Operation Code');
-//         elemNodeCode.appendTo(elemNodeHead);
-    
-//     let elemNodeStatus = $('<div></div>');
-//         elemNodeStatus.addClass('item-status');
-//         elemNodeStatus.attr('title', 'EBOM / MBOM match indicator\r\n- Green : match\r\n- Red : missing in MBOM\r\n- Orange : quantity mismatch');
-//         elemNodeStatus.appendTo(elemNodeHead);
-    
-//     let elemNodeActions = $('<div></div>');
-//         elemNodeActions.addClass('item-actions');
-//         elemNodeActions.appendTo(elemNodeHead);
-    
-//     if(qty !== null) {
-//         elemQtyInput.val(qty);
-//         elemNodeHead.attr('data-qty', qty);
-//         elemNodeTitle.attr('data-qty', qty);
-//         elemNode.attr('data-qty', qty);
-//     };
-    
-//     if(category !== '') elemNode.addClass('category-' + category);
-    
-//     if(bomType === 'ebom') {
-    
-// //        setClickable(elemNodeTitle);
-        
-//         elemQtyInput.attr('disabled', 'disabled');
-        
-// //        if(level === 2) {
-// //        
-// //            let elemActionAdd = addAction('Add', elemNodeActions);
-// //                elemActionAdd.addClass('item-action-add');
-// //                elemActionAdd.click(function() {
-// //                    insertFromEBOMToMBOM($(this));
-// //                });
-// //
-// //            let elemActionUpdate = addAction('Update', elemNodeActions);
-// //                elemActionUpdate.addClass('item-action-update');
-// //                elemActionUpdate.click(function() {
-// //                    updateFromEBOMToMBOM($(this));
-// //                });
-// //            
-// //        }
-
-
-//         elemNodeIcon.attr('title', 'EBOM item managed in Vault Items & BOMs workspace');
-//         elemNodeTitle.click(function() {
-//             selectBOMItem($(this), false);
-//         });
-        
-//         if(!isLeaf) {
-            
-            
-//             elemNode.addClass('item-has-bom');
-        
-//             let elemNodeBOM = $('<div></div>');
-//                 elemNodeBOM.addClass('item-bom');
-//                 elemNodeBOM.appendTo(elemNode);
-    
-//             for(edgeEBOM of edgesEBOM) {
-//                 if(edgeEBOM.depth === level) {
-//                     if(edgeEBOM.parent === urn) { 
-//                         let childQty = Number(getEdgeProperty(edgeEBOM, colsEBOM, 'QUANTITY', '0.0'));
-
-//     //                    childQty = precisionRound(childQty, -1);
-
-//                         setEBOM(elemNodeBOM, edgeEBOM.child, level + 1, childQty);
-//                     }
-//                 }
-//             }
-        
-// //        if(level > 1) addBOMToggle(elemNodeHead);
-        
-// //            let elemNodeToggle = elemNode.find('.item-toggle');
-        
-//             if(level > 1) addBOMToggle(elemNodeToggle);
-
-//             let elemActionAdd = addAction('Add', elemNodeActions);
-//                 elemActionAdd.addClass('item-action-add');
-//                 elemActionAdd.click(function() {
-//                     addBOMItems($(this));
-//                 });
-            
-            
-//         } else {
-
-
-
-//             // let elemNodeTotalQty = $('<div></div>');
-//             //     elemNodeTotalQty.addClass('item-total-qty');
-//             //     elemNodeTotalQty.insertAfter(elemNodeQty);
-//             //     elemNodeTotalQty.html(qty);
-            
-//             let elemActionAdd = addAction('Add', elemNodeActions);
-//                 elemActionAdd.addClass('item-action-add');
-//                 elemActionAdd.attr('title', 'Add this component with matching quantity to MBOM on right hand side');
-//                 elemActionAdd.click(function() {
-//                     insertFromEBOMToMBOM($(this));
-//                 });
-
-//             let elemActionUpdate = addAction('Update', elemNodeActions);
-//                 elemActionUpdate.addClass('item-action-update');
-//                 elemActionUpdate.click(function() {
-//                     updateFromEBOMToMBOM($(this));
-//                 });
-
-
-            
-//         }
-        
-//     } else {
-        
-//         elemQtyInput.keyup(function (e) {
-//            // if (e.which == 13) {
-//                 // $(this).closest('.item').attr('data-qty', $(this).val());
-//                 $(this).closest('.item').attr('data-instance-qty', $(this).val());
-//                 setStatusBar();
-//                 setBOMPanels($(this).closest('.item').attr('data-urn'));
-//             //}
-//         });
-//         elemQtyInput.attr('title', 'Set quantity of this component');
-        
-//         insertMBOMActions(elemNodeActions);
-        
-//                 if(isLeaf) {
-        
-
-            
-//             $('#ebom').find('.item').each(function() {
-            
-//                 var urnEBOM = $(this).attr('data-urn');
-//                 var catEBOM = $(this).attr('category');
-//                 if(urnEBOM === urn) {
-//                     if(typeof urnEBOM !== 'undefined') {
-//                         elemNode.addClass(catEBOM);
-//                     }
-//                 }
-            
-//             });
-            
-//             setDraggable(elemNode);        
-
-//             elemNode.click(function() {
-//                 selectBOMItem($(this), false);
-//             });
-        
-//         } else {
-            
-//             let elemNodeBOM = $('<div></div>');
-//                 elemNodeBOM.addClass('item-bom');
-//                 elemNodeBOM.appendTo(elemNode);
-
-//             if(level === 2)  {
-//                 elemNode.addClass('column');
-//                 setDroppable(elemNode);
-// //                addInput(elemNode);
-//             }
-            
-//             addInput(elemNode);
-
-//             if(level > 1) addBOMToggle(elemNodeToggle);
-            
-//         }
-//     }
-    
-//     return elemNode;
-    
-// }
-// function getEdgeProperty(edge, cols, fieldId, defValue) {
-    
-//     let id = getViewFieldId(cols, fieldId);
-    
-//     for(field of edge.fields) {
-        
-//         let fieldArray  = field.metaData.urn.split('.');
-//         let fieldIdent  = fieldArray[fieldArray.length - 1];
-        
-//         if(fieldIdent === id) return field.value;
-//     }
-    
-//     return defValue;
-    
-// }
-// function getNodeProperty(list, urn, cols, fieldId, defValue) {
-
-//     let id = getViewFieldId(cols, fieldId);
-  
-//     if(id === '') return defValue;
-    
-//     for(node of list.nodes) {
-        
-//         if(node.item.urn === urn) {
-            
-//             for(field of node.fields) {
-                
-//                 let fieldArray  = field.metaData.urn.split('.');
-//                 let fieldID     = fieldArray[fieldArray.length - 1];
-                
-                
-//                 if(id === fieldID) {
-//                     if(typeof field.value === 'object') {
-//                         return field.value.title;
-//                     } else {
-//                         return field.value;    
-//                     }
-//                 }
-                
-//             }
-            
-//             return defValue;
-            
-//         }
-        
-//     }
-    
-//     return defValue;
-    
-// }
-// function getNodeURN(list, urn, cols, fieldId, defValue) {
-
-//     let id = getViewFieldId(cols, fieldId);
-  
-//     if(id === '') return defValue;
-    
-//     for(node of list.nodes) {
-        
-//         if(node.item.urn === urn) {
-            
-//             for(field of node.fields) {
-                
-//                 let fieldArray  = field.metaData.urn.split('.');
-//                 let fieldID     = fieldArray[fieldArray.length - 1];
-                
-                
-//                 if(id === fieldID) {
-//                     if(typeof field.value === 'object') {
-//                         return field.value.urn;
-//                     } else {
-//                         return field.value;    
-//                     }
-//                 }
-                
-//             }
-            
-//             return defValue;
-            
-//         }
-        
-//     }
-    
-//     return defValue;
-    
-// }
-// function getViewFieldId(cols, fieldId) {
-    
-//     for(col of cols) {
-//         if(col.fieldId === fieldId) return col.viewDefFieldId;
-//     }
-    
-//     return '';
-    
-// }
-// function insertFromEBOMToMBOM(elemAction) {
-    
-// //    console.log(' insertFromEBOMToMBOM START');
-    
-//     let elemItem    = elemAction.closest('.item');
-//     let code        = elemItem.attr('data-code');
-//     let category    = elemItem.attr('category');
-//     let elemTarget  = $('#mbom').find('.root');
-    
-//     if($('.operation').length > 0) {
-        
-//         let operationMatch = false;
-        
-//         $('.operation').each(function() {
-//             if(!operationMatch) {
-//                 let operationCode = $(this).attr('data-code');
-//                 if(operationCode === code) {
-//                     operationMatch = true;
-//                     elemTarget = $(this); 
-//                 }
-//             };
-//         });
-        
-//     }
-    
-//     if(elemTarget !== null) {   
-        
-//         let clone = elemItem.clone(true, true);
-//             clone.appendTo(elemTarget.find('.item-bom').first());
-        
-//         let elemQtyInput = clone.find('.item-qty-input');
-//             elemQtyInput.removeAttr('disabled');
-//             elemQtyInput.keyup(function (e) {
-//                 //if (e.which == 13) {
-//                     // $(this).closest('.item').attr('data-qty', $(this).val());
-//                     $(this).closest('.item').attr('data-instance-qty', $(this).val());
-//                     setStatusBar();
-//                     setBOMPanels($(this).closest('.item').attr('data-urn'));
-//                 //}
-//             });
-
-//         let elemActions = clone.find('.item-actions');
-//             elemActions.html('');
-
-//         insertMBOMActions(elemActions);
-//         setDraggable(clone);
-
-//     }
-    
-//     setStatusBar();
-
-// }
-// function updateFromEBOMToMBOM(elemAction) {
-    
-//     let elemItem    = elemAction.closest('.item');
-//     let urn         = elemItem.attr('data-urn');
-//     let qty         = elemItem.attr('data-instance-qty');
-    
-//     let listMBOM = $('#mbom').find('[data-urn="' + urn + '"]');
-    
-//     if(listMBOM.length === 1) {
-//         // listMBOM.attr('data-qty', qty);
-//         listMBOM.find('.item-qty-input').val(qty);
-//         setStatusBar();
-
-//         if(elemItem.hasClass('selected')) setBOMPanels(urn);
-//     }
-    
-// }
-
-
-
-
-// // Display MBOM information
-// function setMBOM(elemParent, urn, urnParent, level, qty) {
-    
-//     let descriptor  = getDescriptor(dataMBOM, urn);
-//     let partNumber  = getNodeProperty(dataMBOM, urn, colsMBOM, 'NUMBER', '');
-//     let category    = getNodeProperty(dataMBOM, urn, colsMBOM, 'TYPE', '');
-//     let code        = getNodeProperty(dataMBOM, urn, colsMBOM, 'OPERATION_CODE', '');
-//     let isOperation = getNodeProperty(dataMBOM, urn, colsMBOM, 'IS_OPERATION', '');
-//     let hasEBOM     = getNodeURN(dataMBOM, urn, colsMBOM, 'EBOM', '');
-//     let wsId        = getWorkspaceId(urn);
-//     let icon        = getWorkspaceIcon(urn, level);
-//     let isLeaf      = isMBOMLeaf(urn, wsId, level, code);
-//     let edge        = getEdge(urn, urnParent);
-//     let edges       = [];
-//     let itemNumber  = getItemNumber(urn, urnParent);
-
-//     // console.log(' > isOperation = ' + isOperation);
-//     // console.log(' > hasEBOM = ' + hasEBOM);
-    
-    
-//     if(wsId === wsIdEBOM) {
-//         code = getNodeProperty(dataEBOM, urn, colsEBOM, 'OPERATION_CODE', '');
-//         partNumber = getNodeProperty(dataEBOM, urn, colsEBOM, 'NUMBER', '');
-//     }
-
-    
-//     let elemNode = getBOMNode(level, urn, descriptor, partNumber, category, code, icon, qty, 'mbobm', isLeaf);
-// //        elemNode.addClass('neutral');
-//         elemNode.attr('data-parent', urnParent);
-//         elemNode.attr('data-edge', edge);
-//         elemNode.attr('data-edges', '');
-//         elemNode.attr('data-number', itemNumber);
-//         elemNode.attr('data-number-db', itemNumber);
-//         elemNode.appendTo(elemParent);
-    
-    
-    
-//     if(hasEBOM !== '') {
-//         elemNode.attr('data-urn-ebom', hasEBOM);
-//         elemNode.attr('data-urn-mbom', urn);
-        
-//         $('#ebom').find('.leaf').each(function() {
-            
-//             let urnEBOM = $(this).attr('data-urn');
-            
-//             if(urnEBOM === hasEBOM) {
-                
-//                 let titleEBOM = $(this).find('.item-title').first().html();
-//                 let codeEBOM = $(this).find('.item-code').first().html();
-                
-//                 elemNode.find('.zmdi').first().addClass('zmdi-settings').removeClass('zmdi-wrench');
-//                 elemNode.find('.item-title').first().html(titleEBOM);
-//                 elemNode.find('.item-code').first().html(codeEBOM);
-//                 elemNode.removeClass('mbom-item');
-//                 icon = 'zmdi-settings';
-//                 isLeaf = true;
-                
-//             }
-            
-//         });
-        
-        
-//     }
-    
-//     if(level === 1) {
-//         elemNode.addClass('root');
-//         // if(wsId !== wsIdEBOM) elemNode.addClass('operation');
-//     } else if(isOperation) {
-//         if(level === 2) {
-//             elemNode.addClass('neutral');
-//             elemNode.addClass('operation');
-//         }
-//     }
-// //    else if(level === 2) elemNode.addClass('operation');
-// //                    else elemNode.addClass('leaf');
-
-//     if(icon === 'zmdi-wrench') {
-//         elemNode.attr('title', 'This is a manufacturing specific item being managed in the Items & BOMS workspace');
-//         elemNode.addClass('mbom-item');
-//     }
-    
-//     if(!isLeaf) {
-        
-//         let elemNodeBOM = elemNode.find('.item-bom').first();
-//         for(edgeMBOM of edgesMBOM) {
-//             if(edgeMBOM.depth === level) {
-//                 if(edgeMBOM.parent === urn) {
-//                     edges.push(edgeMBOM.edgeId);
-//                     let childQty = getEdgeProperty(edgeMBOM, colsMBOM, 'QUANTITY', '0.0');
-//                     childQty = parseInt(childQty);
-//                     setMBOM(elemNodeBOM, edgeMBOM.child, urn, level + 1, childQty);
-//                 }
-//             }
-//         }
-        
-        
-//         elemNode.attr('data-edges', edges.toString());
-        
-//     } else {
-        
-//         elemNode.addClass('leaf');
-           
-//     }
-    
-// //    if(level === 1) 
-    
-// }
-// function isMBOMLeaf(urn, wsId, level, code) {
-    
-//     if(level === 1) return false;
-    
-// //    if(level === 2) return false;
-//     if(level === 3) return true;
-    
-//     if(wsId === wsIdMBOM) {
-//         if(code !== null) return false;
-//     } else {
-//         return true;
-//     }
-    
-    
-//     for(edgeMBOM of edgesMBOM) {
-//         if(edgeMBOM.parent === urn) return false;
-//     }
-    
-//     return true;
-    
-// }
-// function getWorkspaceId(urn) {
-    
-//     let params = urn.split('.');
-    
-//     return params[params.length - 2];
-    
-// }
-// function getWorkspaceIcon(urn, level) {
-    
-//     let temp = urn.split('.');
-//     let wsId = temp[temp.length - 2];
-    
-//     if(wsId === wsIdEBOM) return 'zmdi-settings';
-//     else if(wsId ===  wsIdMBOM) {
-//         if(level < 3) { return 'zmdi-time'; } 
-//         else { return 'zmdi-wrench'; }
-//     } else { return ''; }
-    
-// }
-// function addAction(label, elemParent) {
-    
-//     let elemAction = $('<div></div>');
-//         elemAction.addClass('item-action');
-//         elemAction.html(label);
-//         elemAction.appendTo(elemParent);
-    
-//     return elemAction;
-
-// }
-// function addActionIcon(icon, elemParent) {
-    
-//     let elemAction = $('<div></div>');
-//         elemAction.addClass('item-action');
-//         elemAction.addClass('icon');
-//         elemAction.addClass('zmdi');
-//         elemAction.addClass(icon);
-//         // elemAction.html(label);
-//         elemAction.appendTo(elemParent);
-    
-//     return elemAction;
-
-// }
-// function insertMBOMActions(elemActions) {
-
-//     elemActions.html('');
-
-//     let elemActionRemove = addActionIcon('zmdi-close', elemActions);
-//         elemActionRemove.attr('title', 'Remove this component instance from MBOM');
-//         elemActionRemove.click(function() {
-//             $(this).closest('.item').remove();
-//             setStatusBar();
-//         });
-
-//     let elemActionUp = addActionIcon('zmdi-long-arrow-up', elemActions);
-//         elemActionUp.attr('title', 'Move this component up in MBOM');
-//         elemActionUp.click(function(event) {
-        
-//             event.stopPropagation();
-//             event.preventDefault();
-            
-//             let elemItem    = $(this).closest('.item');
-//             let elemPrev    = elemItem.prev();
-//             let elemNumber  = elemItem.attr('data-number');
-
-//             elemItem.insertBefore(elemPrev);
-//             elemItem.attr('data-number', elemPrev.attr('data-number'));
-
-//             if(typeof elemNumber === 'undefined') {
-//                 let prevNumber = elemPrev.attr('data-number');
-//                 if(typeof prevNumber !== 'undefined') elemNumber = Number(prevNumber) + 1;
-//             }
-
-//             elemPrev.attr('data-number', elemNumber);
-
-//         });
-
-//     let elemActionDown = addActionIcon('zmdi-long-arrow-down', elemActions);
-//         elemActionDown.attr('title', 'Move this component down in MBOM');
-//         elemActionDown.click(function(event) {
-
-//             event.stopPropagation();
-//             event.preventDefault();
-            
-//             let elemItem    = $(this).closest('.item');
-//             let elemNext    = elemItem.next();
-//             let elemNumber  = elemItem.attr('data-number');
-//             let nextNumber  = elemNext.attr('data-number');
-            
-//             if(elemNext.length > 0) {
-
-//                 if(typeof nextNumber === 'undefined') {
-//                     nextNumber = Number(elemNumber) + 1;
-//                 }
-
-//                 elemItem.insertAfter(elemNext);
-//                 elemItem.attr('data-number', nextNumber);
-//                 elemNext.attr('data-number', elemNumber);
-
-//             }
-
-//         });
-
-// }
-
-
-// // Parse BOM information
-// function getDescriptor(data, urn) {
-    
-//     for(node of data.nodes) {
-//         if(node.item.urn === urn) {
-//             return node.item.title;
-//         }
-//     }
-    
-//     return '';
-    
-// }
-// function getEdge(urn, urnParent) {
-    
-//     if(urnParent === '') return '';
-    
-//     for(edge of edgesMBOM) {
-//         if(edge.child === urn) {
-//             if(edge.parent === urnParent) {
-//                 return edge.edgeId;
-//             }
-//         }
-//     }
-    
-//     return '';
-    
-// }
-// function getItemNumber(urn, urnParent) {
-    
-//     if(urnParent === '') return -1;
-    
-//     for(edge of edgesMBOM) {
-//         if(edge.child === urn) {
-//             if(edge.parent === urnParent) {
-//                 return edge.itemNumber;
-//             }
-//         }
-//     }
-    
-//     return -1;
-
-// }
-
-
-// // Toggles to expand / collapse BOMs
-// function addBOMToggle(elemParent) {
-    
-//     let elemNodeTogglePlus = $('<div></div>');
-//         elemNodeTogglePlus.css('display', 'none');
-//         elemNodeTogglePlus.html('<i class="zmdi zmdi-chevron-right"></i>');
-//         elemNodeTogglePlus.appendTo(elemParent);
-//         elemNodeTogglePlus.click(function(event) {
-            
-//             if(event.shiftKey) { 
-//                 let elemRoot = $(this).closest('.root');
-//                 elemRoot.find('.zmdi-chevron-right:visible').click();
-//             } else {
-//                 $(this).closest('.item').find('.item-bom').fadeIn(); 
-//                 $(this).closest('.item').find('.item-add').fadeIn(); 
-//                 $(this).closest('.item').find('.item-input').fadeIn(); 
-//                 $(this).siblings().toggle();
-//                 $(this).toggle();
-//             };
-            
-//         });
-    
-//     let elemNodeToggleMinus = $('<div></div>');
-//         elemNodeToggleMinus.html('<i class="zmdi zmdi-chevron-down"></i>');
-//         elemNodeToggleMinus.appendTo(elemParent);
-//         elemNodeToggleMinus.click(function(event) {
-            
-//             if(event.shiftKey) { 
-//                 let elemRoot = $(this).closest('.root');
-//                 elemRoot.find('.zmdi-chevron-down:visible').click();
-//             } else {
-//                 $(this).closest('.item').find('.item-bom').fadeOut(); 
-//                 $(this).closest('.item').find('.item-add').fadeOut(); 
-//                 $(this).closest('.item').find('.item-input').fadeOut(); 
-//                 $(this).siblings().toggle();
-//                 $(this).toggle();
-//             }
-            
-//         });
-    
-// }
-
-
-// // Calculate total quantities
-// function setTotalQuantities() {
-
-//     let urns = [];
-//     let qtys = [];
-
-//     $('#ebom').find('.item-qty-input').each(function() {
-
-//         let elemQtyInput = $(this);
-
-//         if(elemQtyInput.parent().parent().siblings().length === 0) {
-            
-//             let totalQuantity   = Number(elemQtyInput.val());
-//             let elemItem        = elemQtyInput.closest('.item');
-//             let urn             = elemItem.attr('data-urn');
-
-//             elemQtyInput.parents('.item-has-bom').each(function() {
-//                 if(this.hasAttribute('data-qty')) {
-//                     totalQuantity = totalQuantity * Number($(this).attr('data-qty'));
-//                 }
-//             })
-
-//             elemItem.attr('data-instance-qty', totalQuantity);
-//             elemQtyInput.val(totalQuantity);
-
-//             if(urns.indexOf(urn) === -1) {
-//                 urns.push(urn);
-//                 qtys.push(totalQuantity);
-//             } else {
-//                 qtys[urns.indexOf(urn)] += totalQuantity;
-//             }
-
-//         }
-//     });
-
-//     $('#ebom').find('.item-qty-input').each(function() {
-    
-//         let elemItem = $(this).closest('.item');
-//         let urn = elemItem.attr('data-urn');
-
-//         elemItem.attr('data-total-qty', qtys[urns.indexOf(urn)]);
-
-//     });
-
-// }
-
-
-// // Enable item filtering & preview
-// // function setClickable(elemClicked) {
-// function selectBOMItem(elemClicked, filter) {
-    
-//     let elemItem = elemClicked.closest('.item');
-
-//     if(filter) {
-//         if(elemItem.hasClass('filter')) deselectItem(elemItem);
-//         else selectItem(elemItem, filter);
-//     } else {
-//         if(elemItem.hasClass('selected'))  deselectItem(elemItem);
-//         else selectItem(elemItem, filter);
-//     }
-
-// }
-// function selectItem(elemItem, filter) {      
-    
-//     let urn = elemItem.attr('data-urn');
-//     let isSelected = elemItem.hasClass('selected');
-    
-//     if(elemItem.hasClass('leaf')) {
-
-//         setStatusBar();
-
-//         if(filter) {
-//             viewer.setGhosting(false);
-//             $('.leaf').hide();
-//             $('.item-input').hide();
-//             $('.operation').hide();
-//             $('.item.filter').removeClass('filter');
-//             elemItem.addClass('filter');
-//         } else {
-//             viewer.setGhosting(true);
-//         }
-
-//         $('.item').removeClass('selected');
-
-
-//         $('.leaf').each(function() {
-            
-//             if($(this).attr('data-urn') === urn) {
-//                 $(this).show();
-//                 $(this).addClass('selected');
-//                 unhideParent($(this).parent());
-//             } else if($(this).attr('data-urn-bom') === urn) {
-//                 console.log(' got item to show');
-//                 $(this).show();
-//                 $(this).addClass('selected');
-//                 unhideParent($(this).parent());
-//             }else if($(this).attr('data-urn-ebom') === urn) {
-//                 console.log(' got item to show');
-//                 $(this).show();
-//                 $(this).addClass('selected');
-//                 unhideParent($(this).parent());
-//             }
-
-//         });
-
-//         if(!isSelected) {
-//             viewerSelectModel(elemItem.attr('data-part-number'));
-//             setItemDetails(urn);
-//             setBOMPanels(urn);
-//             $('#ebom').addClass('bom-panel-on');
-//             $('#mbom').addClass('bom-panel-on');
-//         }
-
-//     }
-    
-// }
-// function deselectItem(elemItem) {
-
-//     $('.item').removeClass('selected');
-//     $('.item').removeClass('filter');
-//     $('.item').show();
-//     $('.item-input').show();
-
-//     $('#ebom').removeClass('bom-panel-on');
-//     $('#mbom').removeClass('bom-panel-on');
-
-//     resetViewerSelection();
-//     hideBOMPanels();
-//     setStatusBar();
-
-// }
-// function unhideParent(elemVisible) {
-    
-//     let parent = elemVisible.closest('.item');
-    
-//     if(parent.length > 0) {
-//         parent.show();
-// //        parent.closest('.item');
-//         unhideParent(parent.parent());
-//     }
-    
-// }
-// function setItemDetails(urn) {
-
-//     // move to plm.js
-
-//     $('#details').find('.loading').show();
-
-//     let elemSections = $('#sections')
-//         elemSections.html('');
-
-//     let temp = urn.split('.');
-
-//     let params = {
-//         'wsId'  : temp[4],
-//         'dmsId' : temp[5]
-//     }
-
-//     $.get('/plm/details', params, function(data) {
-
-//         $('#details').find('.loading').hide();
-
-//         for(section of data.item.sections) {
-
-//             let elemSection = $('<div></div>');
-//                 elemSection.addClass('section');
-//                 elemSection.html(section.title);
-//                 elemSection.appendTo(elemSections);
-
-//             for(field of section.fields) {
-
-//                 if(!field.hasOwnProperty('formulaField')) {
-//                     if(field.type.title !== 'URL') {
-
-//                         let elemField = $('<div></div>');
-//                             elemField.addClass('field');
-//                             elemField.appendTo(elemSections);
-
-//                         let elemFieldLabel = $('<div></div>');
-//                             elemFieldLabel.addClass('field-label');
-//                             elemFieldLabel.html(field.title);
-//                             elemFieldLabel.appendTo(elemField);
-
-//                         let elemFieldValue = $('<div></div>');
-//                             elemFieldValue.addClass('field-value');
-//                             elemFieldValue.appendTo(elemField); 
-
-//                         if(field.type.title === 'Image') {
-                            
-
-//                             // "urn:adsk.plm:tenant.workspace.item.view.field:ADSKTSESVEND.79.14520.1.THUMBNAIL"
-
-//                             // // let imageSRC = field.value.link;
-//                             // let temp1 = field.urn.split(':');
-//                             // let temp2 = temp1[3].split('.');
-//                             // let tenant = temp2[0].toLowerCase();
-
-//                             // let imageSRC = 'https://' + tenant + '.autodeskplm360.net' + field.value.link
-
-//                             let elemFieldImage = $('<img>');
-//                                 elemFieldImage.appendTo(elemFieldValue);
-
-
-//                                 // console.log('  req.query.wsId    = ' + req.query.wsId);
-//                                 // console.log('  req.query.dmsId   = ' + req.query.dmsId);
-//                                 // console.log('  req.query.fieldId = ' + req.query.fieldId);
-//                                 // console.log('  req.query.imageId = ' + req.query.imageId);
-
-
-//                             // let paramsImage = {
-//                             //     'wsId' : 
-//                             // }
-
-//                             let link = field.value.link.split('/');
-
-//                             // "/api/v2/workspaces/79/items/14520/field-values/THUMBNAIL/image/1588"
-
-//                             params.fieldId = link[8];
-//                             params.imageId = link[10];
-
-//                             $.get('/plm/image', params, function(data) {
-//                                 // elemFieldImage.attr('src', image);
-//                                 elemFieldImage.attr('src', 'data:image/png;base64,' + data);
-//                             });
-
-
-//                         } else {
-//                             elemFieldValue.html(field.value);           
-//                         }
-
-//                     }
-//                 }
-
-//             }
-
-//         }
-
-//     });
-
-// }
-
-
-// // BOM Panels with total quantities
-// function setBOMPanels(urn) {
-
-//     $('.bom-panel').show();
-//     $('.panel-toggle').removeClass('panel-off');
-
-//     let qtyEBOM = 0;
-//     let qtyMBOM = 0;
-
-//     $('#ebom').find('.item').each(function() {
-//         if($(this).attr('data-urn') === urn) {
-//             qtyEBOM = Number($(this).attr('data-total-qty'));
-//             $('#ebom-total-qty').html(qtyEBOM);
-//         }
-//     });
-
-//     $('#mbom').find('.item').each(function() {
-//         if($(this).attr('data-urn') === urn) {
-//             // qtyMBOM += Number($(this).attr('data-instance-qty'));
-//             qtyMBOM += Number($(this).find('.item-qty-input').val());
-//         }
-//     });
-
-//     $('#mbom-total-qty').html(qtyMBOM + ' (' + (qtyMBOM-qtyEBOM) + ')');
-
-
-
-// }
-// function hideBOMPanels() {
-//     $('.bom-panel').hide();
-//     $('.panel-toggle').addClass('panel-off');
-// }
-
-
-// // Drag & Drop functions
-// function setDraggable(elem) {
-    
-//     elem.draggable({ 
-//         snap        : false,
-//         containment : '#mbom',
-//         scroll      : false,
-//         helper      : 'clone'
-//     });
-    
-// }
-// function setDroppable(elem) {
-    
-//     elem.droppable({
-    
-//         classes: {
-//             'ui-droppable-hover': 'drop-hover'
-//         },
-//         drop: function( event, ui ) {
-
-//             itemDropped = $(this).find('.item-bom');
-//             itemDragged = ui.draggable;
-            
-//             let prevBOM  = itemDragged.closest('.item-bom');
-//             let prevItem = prevBOM.closest('.item');
-//             let newItem  = itemDropped.closest('.item');
-            
-//             if(prevItem.attr('data-urn') !== newItem.attr('data-urn')) {
-
-//                 let qty = $(ui.helper).find('.item-qty-input').val();
-//                     qty = Number(qty);
-
-//                 if(qty > 1) {
-
-//                     $('#split-qty').val(qty);
-//                     $('#total-qty').html(qty);
-//                     $('#item-to-move').html(itemDragged.find('.item-title').html());
-//                     showDialog();
-
-//                 } else {
-//                     addDraggedItemToBOM();
-//                 }
-                
-//             }
-            
-//         }
-//     });
-    
-// }
-// function showDialog() {
-    
-//     $('#overlay').show();
-//     $('#dialog').show();
-    
-// }
-// function hideDialog() {
-    
-//     $('#overlay').hide();
-//     $('#dialog').hide();
-    
-// }
-// function moveDraggedItem() {
-    
-//     if(!$('#option-all').hasClass('selected')) {
-   
-//         let qtySplit = Number($('#split-qty').val());
-//         let qtyTotal = Number($('#total-qty').html());
-        
-//         if(qtySplit !== qtyTotal) {
-        
-//             let qtyNew =  qtyTotal - qtySplit
-        
-//             itemDragged.find('.item-qty-input').val(qtyNew);
-//             itemDragged.attr('data-instance-qty', qtyNew);
-// //            itemDragged.attr('data-qty', qtyNew);
-        
-        
-//             let itemClone = itemDragged.clone();
-//     //            itemClone.appendTo(itemDropped);
-//                 itemClone.attr('data-qty', qtySplit);
-//                 itemClone.attr('data-instance-qty', qtySplit);
-//                 itemClone.find('.item-qty-input').val(qtySplit);
-//                 itemClone.css('position', 'relative').css('left', '').css('right', '').css('top', ''); 
-
-//             let elemActions = itemClone.find('.item-actions');
-            
-//             insertMBOMActions(elemActions);
-//             setDraggable(itemClone);
-        
-//             itemDragged = itemClone;
-  
-//         }
-//     }
-    
-//     addDraggedItemToBOM();
-//     setStatusBar();
-    
-// }
-// function addDraggedItemToBOM() {
-    
-//     if(!itemExistsInBOM()) {
-//         itemDragged.appendTo(itemDropped);
-//         itemDragged.css('position', 'relative').css('left', '').css('right', '').css('top', '');       
-//     }
-    
-// }
-// function itemExistsInBOM() {
-    
-//     let exists = false;
-    
-//     itemDropped.children('.item').each(function() {
-        
-        
-//         if(!exists) {
-        
-//         if($(this).attr('data-urn') === itemDragged.attr('data-urn')) {
-            
-            
-//             console.log('existing item');
-            
-//             let qtyNew = $(this).attr('data-qty');
-            
-//             let qtyAdd  = itemDragged.attr('data-qty');
-// //            let qtyNew  = elemQty.html();
-            
-// //            if(qtyAdd === '') qtyAdd = '0';
-// //            if(qtyNew === '') qtyNew = '0';
-            
-//             qtyNew  = parseInt(qtyAdd) + parseInt(qtyNew);
-            
-// //            elemQty.html(qtyNew);
-            
-//             $(this).attr('data-qty', qtyNew);
-//             $(this).find('.item-qty').html(qtyNew);
-            
-//             itemDragged.remove();
-//             exists = true;
-            
-//             console.log('und weiter');
-//         } 
-//         } 
-//     });
-    
-    
-// //    console.log('new item');
-    
-//     return exists;
-    
-// }
-
-
-// // Filtering by Status Bar
-// function setStatusBarFilter(elemClicked) {
-    
-//     $('.item.leaf').show();
-    
-//     if(elemClicked.hasClass('selected')) {
-        
-//         $('.bar').removeClass('selected');
-//         resetViewerSelection()
-        
-//     } else {
-
-//         let dbIds = [];
-        
-//         $('.bar').removeClass('selected');
-//         elemClicked.addClass('selected');
-        
-//         let selectedFilter = elemClicked.attr('data-filter');
-        
-//         $('.item.leaf').each(function() {
-//             if(!$(this).hasClass('item-has-bom')) { 
-//                 if(!$(this).hasClass(selectedFilter)) $(this).hide(); 
-//                 else dbIds.push($(this).attr('data-part-number'));
-//             }
-//         });
-
-//         viewerSelectModels(dbIds);
-        
-//     }
-    
-// }
-
-
-// // Apply changes to database when clicking Save
-// function showProcessing() {
-//     $('#overlay').show();
-//     $('#processing').show();
-// }
-// function hideProcessing() {
-//     $('#overlay').hide();
-//     $('#processing').hide();
-// }
-// function createNewItems() {
-    
-//     console.log(' createNewItems START');
-//     console.log(' createNewItems .new.lenth : ' + $('.new').length);
-    
-//     if($('.new').length > 0) {
-        
-//         var elemFirst   =  $('.new').first();
-
-//         let title =  elemFirst.find('.item-descriptor').html();
-
-//         if(elemFirst.find('.item-descriptor').length === 0) title =  elemFirst.find('.item-title').html();
-
-//         let params = { 
-//             'wsId' : wsIdMBOM,
-//             'sections' : [{
-//                 'id' : sectionIdMBOM1,
-//                 'fields' : [
-//                     { 'fieldId' : 'TITLE', 'value' : title }
-//                 ] 
-//             },{
-//                 'id' : sectionIdMBOM2,
-//                 'fields' : [
-//                     { 'fieldId' : 'OPERATION_CODE', 'value' : elemFirst.find('.item-code').html() },
-//                     { 'fieldId' : 'IS_OPERATION', 'value' : elemFirst.hasClass('operation') }
-//                 ]             
-//             }]
-//         };
-        
-//         $.post('/plm/create', params, function(link) {
-            
-//             let temp    = link.split('/');
-//             let tenant = temp[2].split('.');
-//             let urn     = 'urn:adsk.plm:tenant.workspace.item:' + tenant[0].toUpperCase() + '.' + wsIdMBOM + '.' + temp[temp.length - 1];
-        
-//             $.get('/plm/descriptor', {
-//                 'wsId'  : wsIdMBOM,
-//                 'dmsId' : temp[temp.length - 1]
-//             }, function(descriptor) {
-
-//                 let elemFirstHead = elemFirst.children().first();
-                
-//                 elemFirst.attr('data-urn', urn);
-//                 elemFirstHead.find('.item-title').attr('data-urn', urn);
-//                 elemFirstHead.find('.item-descriptor').html(descriptor);    
-                
-//                 if(elemFirstHead.find('.item-descriptor').length === 0) elemFirstHead.find('.item-title').html(descriptor);
-                
-
-//                 elemFirst.removeClass('new');
-
-//                 createNewItems(); 
-
-//             });
-            
-//         });        
-        
-//     } else { 
-        
-//         console.log(' createNewItems #mbom .item-bom.length : ' + $('#mbom .item-bom').children().length);
-//         // console.log(' createNewItems .operation .item-bom.length : ' + $('.operation .item-bom').children().length);
-        
-// //        $('.edge').addClass('pending');
-//         $('#mbom .item-bom').addClass('pending');
-//         $('#mbom .item-bom').children().addClass('pending');
-//         // $('.operation .item-bom').children().addClass('pending');
-//         // $('.operation').addClass('pending');
-//         console.log();
-//         console.log(' createNewItems START DELETE OPERATIONS');
-//         deleteBOMItems(); 
-        
-//     }
-    
-// }
-// function deleteBOMItems() {
-    
-//     let elemBOM = $('#mbom .item-bom.pending').first();
-
-//     if(elemBOM.length > 0) {
-
-//         let elemParent  = elemBOM.parent();
-//         let listEdges   = elemParent.attr('data-edges');
-
-//         if(typeof listEdges !== 'undefined') {
-
-//             let edges   = listEdges.split(',');
-//             let remove  = '';
-//             let index   = -1;
-            
-//             for(edge of edges) {
-                
-//                 if(remove === '') {
-                    
-//                     index++;
-
-//                     let keep = false;
-
-//                     elemBOM.children('.item').each(function()  {
-//                         if($(this).attr('data-edge') === edge) {
-//                             keep = true;
-//                         } 
-//                     });
-                    
-//                     if(!keep) {
-//                         remove = edge;
-//                     }
-                    
-//                 }
-                
-//             }
-            
-//             if(remove === '') {
-                
-//                 elemBOM.removeClass('pending');
-//                 deleteBOMItems();    
-                
-//             } else {
-                
-//                 let paramsSplit = elemParent.attr('data-urn').split('.');
-                
-//                 let params = {
-//                     'wsId'   : paramsSplit[paramsSplit.length - 2],
-//                     'dmsId'  : paramsSplit[paramsSplit.length - 1],
-//                     'edgeId' : remove
-//                 }
-                
-//                 $.get('/plm/bom-remove', params, function() {
-//                     edges.splice(index, 1);
-//                     elemParent.attr('data-edges', edges.toString());
-//                     deleteBOMItems();
-//                 });
-//             }
-
-//         } else {
-//             elemBOM.removeClass('pending');
-//             deleteBOMItems();
-//         }
-
-//     } else {
-
-//         console.log();
-//         console.log(' deleteBOMItems : START ADDBOMROWS');
-//         addBOMItems();
-
-//     }
-
-// }
-// function addBOMItems() {       
-        
-//     if($('.item.pending').length > 0) {
-//         addBOMItem($('.item.pending').first())        
-//     } else {
-//         setSyncDate();
-//     }
-    
-// }
-// function addBOMItem(elemItem) {
-    
-//     let isNew        = false;
-//     let elemParent   = elemItem.parent().closest('.item');
-//     let dataParent   = elemItem.attr('data-parent');
-//     let urnParent    = elemParent.attr('data-urn');
-//     let dbQty        = elemItem.attr('data-qty');
-//     let edQty        = elemItem.find('.item-qty-input').first().val();
-//     let dbNumber     = elemItem.attr('data-number-db');
-//     let edNumber     = elemItem.attr('data-number');
-//     let paramsChild  = elemItem.attr('data-urn').split('.');
-//     let paramsParent = elemParent.attr('data-urn').split('.');
-//     let urnMBOM      = elemItem.attr('data-urn-mbom');
-        
-//     if(typeof dataParent === 'undefined') {
-//         isNew = true;
-//     } else if(dataParent !== urnParent) {
-//         isNew = true;
-//     }
-        
-//     if(typeof urnMBOM !== 'undefined') paramsChild = elemItem.attr('data-urn-mbom').split('.');
-
-//     let params = {
-//         'wsIdParent'  : paramsParent[paramsParent.length - 2],
-//         'wsIdChild'   : paramsChild[paramsChild.length - 2],
-//         'dmsIdParent' : paramsParent[paramsParent.length - 1], 
-//         'dmsIdChild'  : paramsChild[paramsChild.length - 1],
-//         'qty'         : edQty,
-//         'pinned'      : true
-//     }
-
-//     let reqUpdate = (edQty !== dbQty);
-    
-//     if(dbNumber !== edNumber) {
-//         reqUpdate = true;
-//         params.number = edNumber;
-//     }
-
-//     if(isNew) {
-
-//         console.log(params);
-
-//         $.get('/plm/bom-add', params, function(link) {
-            
-//             let location = link.split('/');
-//             let edgeId   = location[location.length - 1];
-
-//             console.log(' addBOMRows /add SUCCESS');
-//             console.log(' addBOMRows /edgeId = ' + edgeId);
-
-//             params.edgeId = edgeId;
-
-//             elemItem.attr('data-edge', edgeId);
-//             elemItem.attr('data-parent', urnParent);
-
-//             console.log(elemParent);
-            
-
-//             $.get('/plm/bom-item', { 'link' : link }, function(data) {
-             
-//                 console.log(data);
-
-//                 let itemNumber = data.itemNumber;
-
-//                 if(typeof elemParent.attr('data-edges') === 'undefined') {
-                    
-//                     elemParent.attr('data-edges', edgeId);
-                    
-//                 } else {
-                
-//                     let edges = elemParent.attr('data-edges').split(',');
-//                         edges.push(edgeId);
-
-//                     elemParent.attr('data-edges', edges.toString());
-                    
-//                 }
-
-//                 elemItem.removeClass('pending');
-//                 elemItem.attr('data-number', itemNumber);
-//                 elemItem.attr('data-number-db', itemNumber);
-//                 addBOMItems();
-//             });
-            
-//         });
-
-//     } else if(reqUpdate) {
-
-//         params.edgeId = elemItem.attr('data-edge');
-
-//         $.get('/plm/bom-update', params, function() {
-//             elemItem.removeClass('pending');
-//             elemItem.attr('data-number-db', edNumber);
-//             addBOMItems();
-//         });
-
-//     } else {
-//         elemItem.removeClass('pending');
-//         addBOMItems();
-//     }
-        
-// }
-// function setSyncDate() {
-    
-//     let timestamp = new Date();
-
-//     let params = {
-//         'wsId'      : wsIdMBOM,
-//         'dmsId'     : dmsIdMBOM,
-//         'sections' : [{
-//             'id'     : sectionIdMBOM2,
-//             'fields' : [
-//                 { 'fieldId' : 'LAST_EBOM_SYNC', 'value' : timestamp.getFullYear()  + '-' + (timestamp.getMonth()+1) + '-' + timestamp.getDate() }
-//             ]
-//         }]
-//     }
-
-//     $.get('/plm/edit', params, function() {
-//         hideProcessing(); 
-//     });   
-    
-// }

@@ -1,9 +1,6 @@
 /*  EXTRAS */
 /* ----------------------------------------------------------------------------- */
-
-#header-subtitle {
-    display : none;
-}
+#header-subtitle { display : none; }
 #dialog {
     height : 350px;
     left : calc(50% - 225px);
@@ -11,13 +8,15 @@
     top : 200px;
     width : 450px;
 }
-#guiviewer3d-toolbar > div, 
-.viewer-markup-toolbar-group { background-color: rgba(0,0,0,0.7) !important; }
 
 
 
-/*  MAIN VIEWS */
+/*  MAIN LAYOUT */
 /* ----------------------------------------------------------------------------- */
+:root {
+    --width-panel : 600px;
+    --padding-panel : 40px;
+}
 #main-tabs {
     border-bottom : none;
     padding : 0px 300px 0px 50px;
@@ -26,25 +25,45 @@
     top : 22px;
 }
 #main-tabs > div { 
-    font-size : 18px;
     height : 30px;
     max-width : 350px;
+}
+#review {
+    display : none;
+}
+#panel {
+    top : var(--padding-panel);
+    bottom : var(--padding-panel);
+    left : var(--padding-panel);
+    width : var(--width-panel);
+}
+.viewer {
+    top : 0px;
+    right : 0px;
+    bottom : 0px;
+    left : calc(var(--width-panel) + (2 * var(--padding-panel)));
+}
+#viewer-process {
+    left : calc(50% + (var(--width-panel) / 2) + (var(--padding-panel)) - 33px);
 }
 
 
 
 /*  TILES */
 /* ----------------------------------------------------------------------------- */
-#tiles { padding : 40px; }
-#tiles > div {
+#list .tiles { 
+    justify-content: flex-start;
+    padding : 40px; 
+}
+#list .tile {
     height : 180px;
     width : 700px;
 }
-#tiles .tile-image { 
+#list .tile-image { 
     height : 180px;
     width : 180px; 
 }
-#tiles .tile-details { 
+#list .tile-details {
     margin : 30px 30px 20px 30px;
     width : 460px; 
 }
@@ -69,114 +88,22 @@
     top : 10px;
     z-index : 2;
 }
-#main-actions .material-symbols-sharp {
-    font-size : 22px;
-    position : relative;
-    right : -40px;
-    top : 6px;
-}
 #filter {
-    border-bottom : 1px solid black;
-    font-size : 14px;
-    margin-left : 10px;
-    padding : 6px 16px 6px 40px;
-    width : 62px;
-}
-
-
-
-/*  SWITCH TO REVIEW */
-/* ----------------------------------------------------------------------------- */
-#review, #review-close, #review-finish {
-    display : none;
+    width : 140px;
 }
 
 
 
 /*  VIEWER */
 /* ----------------------------------------------------------------------------- */
-.viewer {
-    position : absolute;
-    top : 0px;
-    right : 0px;
-    bottom : 0px;
-    left : 600px;
-}
 .viewcubeUI,
 .viewcubeWrapper,
-#toolbar-firstPersonTool { display: none !important; }
-#guiviewer3d-toolbar > div { padding-top : 6px; }
-#guiviewer3d-toolbar .adsk-button {
-    background : black;
-}
-#guiviewer3d-toolbar .adsk-button .adsk-button-icon::before { color : white; }
-.viewer-toolbar {
-    bottom : 0px;
-    display : none;  
-    left : 600px;
-    position : absolute;
-    right : 0px;
-    text-align : center;
-    z-index: 5;
-}
-#viewer-markup-toolbar {
-    display : flex;
-    height : 86px;
-    justify-content : center;
-    left : 600px;
-    width : auto;
-}
-.viewer-markup-toolbar-group {
-    border-radius : 5px;
-/*    display : inline-block;*/
-    margin : 0px 4px 10px;
-    overflow : auto;
-    padding : 10px;
-}
-.markup-button {
-
-    line-height: 23px;
-    padding: 2px !important;
-    text-align: center;
-    width: 80px;
-}
-.markup-button,
-.markup-toggle {
-    background : black;
-    border: 1px solid #808080;
-    border-radius: 2px !important;
-    color : white;
-    cursor : pointer;
-    float : left;
-    margin : 2px;
-    height : 23px;
-    padding : 5px;
-}
-.markup-toggle.selected {
-    border-color : white !important;
-}
-#viewer-markup-close {
-    background : var(--color-blue-500) !important;
-    border-color : var(--color-blue-500) !important;
-}
-
-
+#navTools { display: none !important; }
 
 
 
 /*  REVIEW PANEL */
 /* ----------------------------------------------------------------------------- */
-#panel {
-    position : absolute;
-    bottom : 0px;
-    top: 0px;
-    width : 600px;
-}
-#panel > .panel-content {
-    top : 186px;
-    right : 40px;
-    left : 40px;
-}
 #panel textarea {
     background: var(--color-gray-100);
     border: none;
@@ -198,7 +125,6 @@
     border-bottom: 2px solid black;
     cursor: pointer;
     font-size: 16px;
-    font-weight: 900;
     padding: 30px 20px 10px 10px;
 }
 .form-header.first {
@@ -216,10 +142,14 @@ textare:focus { outline: none;}
     padding : 20px 0px;
     right : 0px;
 }
-#panel-bom-details-header {
+#bom-item-details-header {
     font-size: 16px;
-    padding: 8px 16px;
+    padding: 12px 24px;
     font-weight: 800;
+}
+.field-value .thumbnail {
+    max-height : 200px;
+    max-width : 200px;
 }
 
 
@@ -319,236 +249,19 @@ textare:focus { outline: none;}
 #input-details {
     height : 52px;
 }
-
-
-
-
-
-/* ----- Item Display ----- */
-
-::-webkit-input-placeholder { /* Chrome/Opera/Safari */
-    color: #bbb;
-    font-style : italic;
-}
-::-moz-placeholder { /* Firefox 19+ */
-    color: #bbb;
-    font-style : italic;
-}
-:-ms-input-placeholder { /* IE 10+ */
-    color: #bbb;
-    font-style : italic;
-}
-:-moz-placeholder { /* Firefox 18- */
-    color: #bbb;
-    font-style : italic;
-}
-input.required-empty {
-    border-color: #EE3937 !important;
-}
-
-/* ----- Confirmation Dialog ----- */
-#overlay .progress {
-    display : none;
-}
-
-
-
-
-/* Forge Viewer Toolbar */
-#guiviewer3d-toolbar {
-    bottom : 10px;
-    left : 0px;
-    position : absolute;
-    right : 0px;
-    transform : none;
-    width : 100%;
-}
-.toolbar-label {
-    color : white;
-    clear: both;
-    font-size : 10px;
-    padding : 0px 6px 6px;
-}
-.adsk-control-group {
-    margin: 0px 4px 10px;
-    padding: 0px 8px;
-    /* most recent viewer release : background: none;
-    /* valid for 2.16 */
-    background : rgba(34,34,34,1.0);
-    box-shadow : 1px 3px 10px 0 rgba(0,0,0,.5);
-    border-radius : 5px;
-}
-.adsk-viewing-viewer .adsk-button {
-    height: 24px;
-    padding : 1px 4px 6px;
-    width: 24px;
-}
-
-/*
-#my-markup-button {
-    float : none !important;
-    margin : 4px auto !important;
-}
-*/
-
-.adsk-viewing-viewer .explode-submenu {
-    width : 250px;
-}
-.viewcube,
-#navTools,
-#toolbar-sectionToolarrow {
-    display: none;
-}
-
-.adsk-viewing-viewer .adsk-button>.toolbar-vertical-group {
-    left : -12px;
-/*    background : rgba(34,34,34,0.85);*/
-}
-#toolbar-measureTool-done > label {
-    width : 80px;
-}
-/* #measureTools {
-    padding : 8px 8px 10px 8px;
-    width : 320px;
-} */
-.measure-toolbar-seperator {
-    display : none;
-}
-.adsk-viewing-viewer.dark-theme .adsk-button.active, .adsk-viewing-viewer.dark-theme .adsk-button:focus {
-    box-shadow : none;
-}
-.notouch .adsk-toolbar {
-    opacity : 1.0;
-}
-.adsk-toolbar {
-    transition : opacity 0s;
-}
-.adsk-button-arrow>.adsk-button-icon {
-    top : -2px;
-    right : -10px;
-}
-
-
-.adsk-viewing-viewer.dark-theme .adsk-control-tooltip {
-    color: rgb(34,34,34) !important;
-    background-color: #fff !important;
-    box-shadow: 0 3px 5px rgb(0 0 0 / 30%);
-    border-radius: 5px !important;
-    font: 14px ArtifaktElement,"Lucida Grande", Helvetica, Arial, sans-serif !important;
-    padding : 4px 24px !important;
-}
-
-
-/* Viewer markup toolbar */
-
-
-#viewer-reset-toolbar {
-    color: white;
-    display : flex;
-    font-size: 28px;
-    height : 91px;
-    justify-content: center;
-}
-
-
-/* .markup-toggle {
-    border : 2px solid #545454;
-} */
-.markup-toggle.color {
-    padding : 2px;
-    width : 23px;
-}
-.markup-toggle.shape,
-.markup-toggle.thickness {
-    padding: 4px 2px 2px 2px;
-    font-size: 20px;
-    height: 21px;
-    text-align: center;
-    width: 23px;
-}
-
-
-
-
-
-.markup-label {
-    clear : both;
-    color : white;
-    font-size : 10px;
-    padding-top : 5px;
-    text-align : center;
-}
-
-
-
-/* hide unused markup tools */
-
-#unselect-action {
-    padding : 5px;
-    text-align : center;
-/*    width : 20px;*/
-}
-
-
-/* Panel & tabs */
-#panel-contents {
-/*    background : #E1E7ED;*/
-    background : #FFF;
-/*    border-radius : 0px 0px 5px 5px;*/
-    bottom : 0px;
-    left : 0px;
-    overflow: hidden;
-    position : absolute;
-    right : 0px;
-    top: 44px;
-}
-
-.panel-list.invisible {
-    left : 100%;
-    right : -100%;
-}
-.panel-dialog {
-    display : none;
-}
-.panel-empty {
-    display : none;
-    font-style: italic;
-    color: #999;
-    text-align: center;
-    padding: 100px 20% 0%;
-}
-.panel-back {
-    cursor : pointer;
-    color : #30AFE0;
-}
-
-
-
 .validation-error {
-    color : #EE3937;
+    color : var(--color-status-red);
     font-size : 12px;
     padding : 8px;
 }
 
 
-/* Panels Dialog */
-.panel-dialog-label {
-    font-size : 18px;
-    font-weight : 600;
-    margin-top : 20px;
-    margin-bottom : 10px;
-}
-
-
-/* Files Panel */
 @keyframes highlight {
  	0% {
  		background: #fff; 
  		color: #000; 
  	} 
     30% {
-/* 		background: #E5EAEF; */
-/* 		background: #FCA300; */
  		background: #FCCA7E; 
  	}
  	100% {
@@ -558,96 +271,3 @@ input.required-empty {
 .highlight {
     animation: highlight 3s;
 }
-
-
-
-
- /* ----- iPad ----- */
-/* @media only screen 
-and (min-device-width : 768px) 
-and (max-device-width : 1024px)  {
-    
-    #viewer,
-    #viewer-reset-toolbar,
-    #viewer-markup-toolbar {
-        right : 0px !important;
-    }
-
-    #panel {
-        bottom : 30px;
-        right : 30px;
-        width : 500px;
-    }
-    
-    #panel .header {
-        padding-top : 12px;
-        padding-bottom : 4px;
-    }
-    
-    .adsk-viewing-viewer .explode-submenu {
-        
-        bottom : 80px !important;
-        width : 86% !important
-        
-    }
-    
-} */
-
-
-/* ----- iPhone X ----- */
-/* @media only screen 
-and (min-device-width : 375px) 
-and (max-device-width : 812px) 
-and (-webkit-device-pixel-ratio : 3) {
-    
-    #table,
-    .toggle {
-        display : none;
-    }
-    
-    #tiles {
-        padding : 20px;
-    }
-    .tile {
-        float : initial;
-        max-width : 100%;
-        width : 100%;
-    }
-    
-} */
-
-
-/* iPads (landscape) ----------- */
-   /* @media only screen 
-   and (min-device-width : 768px) 
-   and (max-device-width : 1024px) 
-   and (orientation : landscape) {
-   
-       .tile {
-            max-width: 450px;
-            min-width: 450px;
-        }
-
-        .tile-data {
-            width : 260px;
-        }
-} */
-
-
-/* iPads (portrait) ----------- */
-   /* @media only screen 
-   and (min-device-width : 768px) 
-   and (max-device-width : 1024px) 
-   and (orientation : portrait) {
-
-        .tile {
-            max-width: unset;
-            min-width: unset;
-            width : 100%;
-        }
-
-        .tile-data {
-            width : calc(100% - 190px);
-        }
-       
-} */

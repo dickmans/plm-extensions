@@ -9,10 +9,13 @@ let relatedItems        = [];
 
 $(document).ready(function() {   
 
-    $('#overlay').show();
+    appendProcessing('nav', false);
+    appendProcessing('details', false);
+    appendViewerProcessing();
+    appendOverlay(false);
 
     setUIEvents();
-    getChangeOrderDetails();
+    setHeaderSubtitle();
     getManagedFields();
     getRelatedWorkspaces();
     getRelationships(function() {});
@@ -22,26 +25,87 @@ $(document).ready(function() {
 
 // UI functionality
 function setUIEvents() {
-     
-    
-    // Managed Items Selection
-    $('#nav-actions').children().click(function() {
-        // $('.nav-action').toggleClass('hidden');
-        $('body').toggleClass('no-panel');
-    })
+       
 
-
-    $('#tabs').children().click(function() {
-        $(this).siblings().removeClass('selected');
-        $(this).addClass('selected');
-        $('.panel-content').hide();
-        $('#'+ $(this).attr('tab-id')).show();
+    // Header Actions
+    $('#toggle-nav').click(function() {
+        $('body').toggleClass('no-nav');
+        if(typeof viewer !== 'undefined') { setTimeout(function() { viewer.resize(); }, 250); }
     });
-    $('#tabs').children().first().click();
+    $('#toggle-comparison').click(function() {
+
+    
+        $.get( '/plm/get-viewables', { 'wsId' : selectedManagedItem.wsId, 'dmsId' : selectedManagedItem.prev }, function(response) {
+    
+            if(response.data.length > 0) {
+    
+                // for(viewable of response.data) {
+    
+                    // let resourceName = viewable.resourceName;
+
+                    // console.log(resourceName);
+    
+                    // if((resourceName.indexOf('.iam.dwf') > 0) || (resourceName.indexOf('.ipt.dwf') > 0)){
+                        $.get( '/plm/get-viewable', { 'link' : viewable.selfLink } , function(response) {        
+                            addToViewer(response.data);
+                        });
+                    // }
+    
+                // }
+    
+            }
+    
+        });
+        // $.get( '/plm/list-viewables', { 'wsId' : selectedManagedItem.wsId, 'dmsId' : selectedManagedItem.prev }, function(response) {
+    
+        //     console.log(response);
+    
+        //     if(response.data.length > 0) {
+    
+        //         for(viewable of response.data) {
+    
+        //             let resourceName = viewable.resourceName;
+
+        //             console.log(resourceName);
+    
+        //             if((resourceName.indexOf('.iam.dwf') > 0) || (resourceName.indexOf('.ipt.dwf') > 0)){
+        //                 $.get( '/plm/get-viewable', { 'link' : viewable.selfLink } , function(response) {        
+        //                     addToViewer(response.data);
+        //                 });
+        //             }
+    
+        //         }
+    
+        //     }
+    
+        // });
+
+
+
+    });
+    $('#toggle-viewer').click(function() {
+        $('body').toggleClass('no-viewer');
+        if(typeof viewer !== 'undefined') { setTimeout(function() { viewer.resize(); }, 250); }
+    });
+    $('#toggle-tabs').click(function() {
+        $('body').toggleClass('no-tabs');
+        if(typeof viewer !== 'undefined') { setTimeout(function() { viewer.resize(); }, 250); }
+    });
+    $('#toggle-details').click(function() {
+        $('body').toggleClass('with-details');
+        if(typeof viewer !== 'undefined') { setTimeout(function() { viewer.resize(); }, 250); }
+    });
+
+
+    // Item Actions
+    $('#save').click(function() {
+        updateManagedItem();
+    });
+
 
     $('.bar').click(function() {
 
-        resetViewerSelection();
+        viewerResetSelection();
 
         if($(this).hasClass('selected')) {
             $(this).removeClass('selected');
@@ -91,97 +155,6 @@ function setUIEvents() {
     });
 
 
-    // Header Actions
-    $('#toggle-details').click(function() {
-        $('body').toggleClass('no-details');
-        setTimeout(function() { viewer.resize(); }, 250);
-        // viewer.resize();
-    });
-    $('#toggle-comparison').click(function() {
-
-        // document.getElementsByClassName('adsk-viewing-viewer')[0].style.height = '800px'
-        // document.getElementsByClassName('adsk-viewing-viewer')[0].style.width = '1400px'
-    
-        $.get( '/plm/list-viewables', { 'wsId' : selectedManagedItem.wsId, 'dmsId' : selectedManagedItem.prev }, function(response) {
-    
-            console.log(response);
-    
-            if(response.data.length > 0) {
-    
-                for(viewable of response.data) {
-    
-                    let resourceName = viewable.resourceName;
-
-                    console.log(resourceName);
-    
-                    if((resourceName.indexOf('.iam.dwf') > 0) || (resourceName.indexOf('.ipt.dwf') > 0)){
-                        $.get( '/plm/get-viewable', { 'link' : viewable.selfLink } , function(response) {        
-                            addToViewer(response.data);
-                        });
-                    }
-    
-                }
-    
-            }
-    
-        });
-
-
-
-    });
-    $('#toggle-viewer').click(function() {
-        $('body').toggleClass('no-viewer');
-        setTimeout(function() { viewer.resize(); }, 250);
-    });
-    $('#toggle-tabs').click(function() {
-        $('body').toggleClass('no-tabs');
-        setTimeout(function() { viewer.resize(); }, 250);
-    });
-
-
-    // Item Actions
-    $('#item-save').click(function() {
-        updateManagedItem();
-    });
-    $('#item-bookmark').click(function() {
-        toggleBookmark($('#item-bookmark'), selectedManagedItem.dmsId);
-    });
-    $('#item-open').click(function() {
-        openItemByURN(selectedManagedItem.urn);
-    });
-
-
-}
-function reset() {
-   
-    $('#item').show();
-
-    $('#viewer').hide();
-
-    $('#tabs').children().removeClass('count-none');
-    $('#tabs').children().removeClass('count-done');
-    $('#tabs').children().addClass('count-work');
-    $('#tabs').find('.counter').html('');
-
-
-    // $('.counter.value').html('');
-    // $(".counter").hide();
-    // $(".loading").show();
-
-    $('#bom-table').html('');
-    $(".content-table").find('tbody').children().remove();
-    $(".content-list").children().remove();
-
-    $('#related-list').html(''  );
-
-    $("#message").hide();
-    
-    $('#details-progress').show();
-    $('#details-list').html('');
-    $('#details-list-prev').html('');
-
-    $('.bar').css('flex-grow', 0);
-    
 }
 function getItemLink(title, urn, tag) {
     
@@ -243,7 +216,6 @@ function setCounter(id, value, total) {
         elemCounter.parent().removeClass('count-done');
         elemCounter.parent().addClass('count-none');
     }
-    // elemCounter.siblings('.loading').hide();
 
     // if(value > 0) elemCounter.css('display', 'inline-block');
     // else elemCounter.siblings('.none').css('display', 'inline-block');
@@ -251,8 +223,8 @@ function setCounter(id, value, total) {
 }
 
 
-// Get report header
-function getChangeOrderDetails() {
+// Insert descriptor in header subtitle
+function setHeaderSubtitle() {
     
     $.get('/plm/details', { 'wsId' : wsId, 'dmsId' : dmsId}, function(response) {
 
@@ -266,11 +238,7 @@ function getChangeOrderDetails() {
 
     });    
 }
-function decodeHtml(html) {
-    var txt = document.createElement("textarea");
-    txt.innerHTML = html;
-    return txt.value;
-}
+
 
 
 // Get columns of managed items tab of Change Order
@@ -281,11 +249,56 @@ function getManagedFields() {
         let elemFields = $('#item-change');
 
         for(field of response.data) {
-            insertField(field, elemFields, true, false, null, true);
+            insertField(field, null, elemFields, false, false, true, false);
         }
 
     });
 }
+
+
+
+// Get relationships
+function getRelatedWorkspaces() {
+
+    $.get('/plm/related-workspaces', { 'wsId' : wsId, 'view' : '10'}, function(response) {
+        for(workspace of response.data) {
+            relatedWorkspaces.push({
+                'wsId'  : workspace.link.split('/')[4],
+                'title' : workspace.title
+            });
+        }
+        getManagedItems();
+    });
+
+}
+
+
+
+// Retrieve related items
+function getRelationships(callback) {
+
+    relatedItems = [];
+
+    $.get('/plm/relationships', { wsId : wsId, dmsId: dmsId}, function(response) {
+
+        if(response.error) showErrorMessage(response.data.message, 'Error');
+        else {
+
+            for(relationship of response.data) {
+                relatedItems.push({
+                    'urn'           : relationship.item.urn,
+                    'link'          : relationship.__self__,
+                    'description'   : relationship.description
+                });
+            }
+
+            callback();
+        }
+
+    });
+
+}
+
 
 
 // Get managed items of Change Order
@@ -294,9 +307,9 @@ function getManagedItems() {
     $.get('/plm/manages', { 'dmsId' : dmsId, 'wsId' : wsId }, function(response) {
 
         $('#nav-counter').html(response.data.length);
+        $('#nav-processing').hide();
 
         let isUpdate = $('.nav-item').length > 0;
-        
         
         for(var i = 0; i < response.data.length; i++) {
             
@@ -338,54 +351,43 @@ function getManagedItems() {
                     'prevLink'   : null
                 });
 
-                // var elem = $("<div></div>");
-                //     elem.addClass("nav-item");
-                //     elem.addClass("unread");
-                //     // elem.attr('data-from-release', affectedItem.fromRelease);
-                //     // elem.attr('data-from-link', '');
-                //     elem.attr("data-urn", affectedItem.item.urn);
-                //     // elem.attr("data-wsid", itemData[4]);
-                //     // elem.attr("data-dmsid", itemData[6]);
-                //     // elem.attr("data-link", affectedItem.item.link);
-                //     elem.append("<div class='nav-item-header'>" + affectedItem.item.title + "</div>");
-                
-                // if(affectedItem.hasOwnProperty("transitions")) {
-                //     elem.append("<div class='nav-item-detail'>Revision: " + revision + "</div>");
-                //     elem.append("<div class='nav-item-detail'>Transition: " + transition + "</div>");                
-                // }
-
-
-
                 if(transition !== '- not defined -') transition += ' ' + revision
 
-                let elemTile = genTile(affectedItem.item.link, affectedItem.item.urn, '', 'view_in_ar', affectedItem.item.title, transition);
+                let elemTile = genTile(affectedItem.item.link, affectedItem.item.urn, '', 'settings', affectedItem.item.title, transition);
                     elemTile.addClass('nav-item');
+                    elemTile.addClass('unread');
                     elemTile.appendTo("#nav-list").fadeIn();
+                    elemTile.click(function() {
+                        selectManagedItem($(this));
+                    });
 
-
-                elemTile.click(function() {
-                    selectManagedItem($(this));
-                });
             }
 
         }
 
-        $('#nav').show();
-        
         if(!isUpdate) $('.nav-item').first().click();
         
     });  
 
 }
+
+
+
+// Get information for selected managed item
 function selectManagedItem(elemClicked) {
+
+    $('#overlay').hide();
 
     elemClicked.addClass('selected');
     elemClicked.siblings().removeClass('selected');
     elemClicked.removeClass('unread');
 
+    let link = elemClicked.attr('data-link');
+
     reset();
     
-    $('#panel-header-main').html(elemClicked.find('.tile-title').html());
+    $('#item').attr('data-link', link);
+    $('#item-title').html(elemClicked.find('.tile-title').html());
 
     selectedURN = elemClicked.attr('data-urn');
 
@@ -393,14 +395,14 @@ function selectManagedItem(elemClicked) {
         if(managedItem.urn === selectedURN) selectedManagedItem = managedItem;
     }
 
-    getViewables();
+    insertViewer(link, 255);
     getChangeLog();
     setAffectedItemFields();
     getRootParents();
     getRelated();
     getImpactedRelationships();
     getChangeProcesses();
-    getBookmarkStatus($('#item-bookmark'), selectedURN);
+    getBookmarkStatus();
 
     if(selectedManagedItem.prev === null) {
         $.get('/plm/versions', { 'link' : selectedManagedItem.link }, function(response) {
@@ -431,76 +433,49 @@ function selectManagedItem(elemClicked) {
     }
 
 }
-
-
-// Get relationships
-function getRelatedWorkspaces() {
-
-    $.get('/plm/related-workspaces', { 'wsId' : wsId, 'view' : '10'}, function(response) {
-        for(workspace of response.data) {
-            relatedWorkspaces.push({
-                'wsId' : workspace.link.split('/')[4],
-                'title' : workspace.title
-            });
-        }
-        getManagedItems();
-    });
-
-}
-function getRelationships(callback) {
-
-    relatedItems = [];
-
-    $.get('/plm/relationships', { wsId : wsId, dmsId: dmsId}, function(response) {
-        for(relationship of response.data) {
-            relatedItems.push({
-                'urn'           : relationship.item.urn,
-                'link'          : relationship.__self__,
-                'description'   : relationship.description
-            });
-        }
-        callback();
-    });
-
-}
-
-
-
-// Get viewables of selected Vault Item to init viewer
-function getViewables() {
+function reset() {
+   
+    $('#item').show();
 
     $('#viewer').hide();
 
-    $.get('/plm/list-viewables', { 'link' : selectedManagedItem.link }, function(response) {
+    $('#tabs').children().removeClass('count-none');
+    $('#tabs').children().removeClass('count-done');
+    $('#tabs').children().addClass('count-work');
+    $('#tabs').find('.counter').html('');
 
-        if(response.params.link !== selectedManagedItem.link) return;
 
-        if(response.data.length > 0) {
+    $('#bom-table').html('');
+    $('.content-table').find('tbody').children().remove();
+    $('.content-list').children().remove();
 
-            $('body').removeClass('no-viewer');
-            $('#header-actions').show();
+    $('#related-list').html(''  );
 
-            let link = response.data[0].selfLink;
+    $('#message').hide();
+    
+    $('#details-progress').show();
+    $('#details-sections').html('');
+    $('#details-prev-sections').html('');
 
-            $.get( '/plm/get-viewable', { 'link' : link } , function(response) {
-                if(response.params.link !== link) return;
-                $('#viewer').show();
-                initViewer(response.data);
-            });
-
-        } else {
-
-            $('body').addClass('no-viewer');
-            // $('#header-actions').hide();
-
-        }
-
-    });
-
+    $('.bar').css('flex-grow', 0);
+    
 }
+
+
+// APS Viewer
 function initViewerDone() {
+
+    viewerAddMarkupControls();   
+    viewerAddGhostingToggle();
+    viewerAddResetButton();
+    viewerAddViewsToolbar();
+
+    $('#viewer-markup-image').attr('data-field-id', 'IMAGE_1');
+
 }
-function onSelectionChanged(event) {}
+
+
+// Get viewables of selected Vault Item to init viewer
 function addToViewer(data) {
 
     // console.log(data);
@@ -658,39 +633,41 @@ function updateManagedItem() {
         if(managedItem.urn === selectedURN) {
             
             let params = {
-                'link' : managedItem.affected,
-                'fields': [],
-                'transition' : managedItem.transition
+                'link'          : managedItem.affected,
+                'fields'        : [],
+                'transition'    : managedItem.transition
             }
 
             console.log(managedItem);
 
             $('#item-change .field-value').each(function() {
+
+                let fieldData = getFieldValue($(this));
+
                 params.fields.push({
                     '__self__' : $(this).attr('data-link'),
-                    'value' : getFieldInternalValue($(this))
+                    'value' : fieldData.value
                 });
                 let newField = true;
                 for(field of managedItem.fields) {
                     if(field.__self__ === $(this).attr('data-link')) {
-                        field.value = $(this).val();
+                        field.value = fieldData.value;
                         newField = false;
                     }
                 }
                 if(newField) {
                     managedItem.fields.push({
                         '__self__' : $(this).attr('data-link'),
-                        'value' : $(this).val()
+                        'value' : fieldData.value
                     });
                 }
 
-
-
             });
 
-            console.log(managedItem);
-
             $.get('/plm/update-managed-item', params, function(response) {
+                if(response.error) {
+                    showErrorMessage(response.data.message, 'Error');
+                }
                 $('#overlay').hide();
             });
 
@@ -698,6 +675,36 @@ function updateManagedItem() {
     }
 
 }
+function clearAllFields(id) {
+
+    let elemParent = $('#' + id);
+
+    elemParent.find('.field-value').each(function() {
+        $(this).val('');
+    });
+
+}
+function setFieldValue(field) {
+
+    let fieldId = field.__self__.split('/')[8];
+
+    $('.field-value').each(function() {
+
+        if($(this).attr('data-id') === fieldId) {
+
+            let value = field.value;
+
+            if(typeof field.value === 'object') value = field.value.link;
+
+            $(this).val(value);
+
+        }
+
+    });
+
+
+}
+
 
 
 // [3] Get details of selected item
@@ -716,42 +723,40 @@ function getItemDetails() {
     //         insertItemDetails(elemParent, responses[0].data, responses[1].data, responses[2].data, false, false, false);
 
 
-    
+    $('#details-processing').show();
+    $('#details-sections').html('');
 
-    let promises = [ 
+    let elemParentPrev = $('#details-prev-sections');
+        elemParentPrev.html('');
+
+
+    let requests = [ 
         $.get('/plm/sections', { 'wsId' : selectedManagedItem.wsId }), 
         $.get('/plm/fields'  , { 'wsId' : selectedManagedItem.wsId }), 
         $.get('/plm/details' , { 'link' : selectedManagedItem.link })
     ];
-    
-    if(selectedManagedItem.prevLink !== '') promises.push($.get('/plm/details', { 'link' : selectedManagedItem.prevLink }));
 
-    Promise.all(promises).then(function(responses) {
+    if(selectedManagedItem.prevLink !== '') requests.push($.get('/plm/details', { 'link' : selectedManagedItem.prevLink }));
 
+    Promise.all(requests).then(function(responses) {
 
         if(responses[2].params.link !== selectedManagedItem.link) return;
 
+        $('#details-processing').hide();
 
-        // $('#panel-header-main').html(responses[2].data.title);
-
-        let elemParent = $('#details-list');
-            elemParent.html('');
-
-        insertItemDetails(elemParent, responses[0].data, responses[1].data, responses[2].data, false, false, false);
-
-        let elemParentPrev = $('#details-list-prev');
-            elemParentPrev.html('');
-
-        if(promises.length > 3) {
+        insertItemDetailsFields('details', '', responses[0].data, responses[1].data, responses[2].data, false, false, false);
 
 
-            insertItemDetails(elemParentPrev, responses[0].data, responses[1].data, responses[3].data, false, false, false);
+        if(requests.length > 3) {
+
+
+            insertItemDetailsFields('details-prev', '', responses[0].data, responses[1].data, responses[3].data, false, false, false);
 
             markItemDetailsChanges();
 
             elemParentPrev.html('');
 
-            $('#details-progress').hide();
+            
 
         }
 
@@ -822,24 +827,28 @@ function getItemDetails() {
 }
 function markItemDetailsChanges() {
 
-    $('#details-list').find('.field-value').each(function() {
+    $('#details-sections').find('.field-value').each(function() {
 
         let fieldId     = $(this).attr('data-id');
         let fieldValue  = $(this).val();
         let elemField   = $(this).closest('.field');
         let className   = 'match';
 
-        $('#details-list-prev').find('.field-value').each(function() {
+        $('#details-prev-sections').find('.field-value').each(function() {
             if($(this).attr('data-id') === fieldId) {
                 if($(this).val() !== fieldValue) {
+                    
                     className = 'different';
 
                     let elemDiff = $('<div></div>');
                         elemDiff.addClass('field');
+                        elemDiff.addClass('difference');
                         elemDiff.insertAfter(elemField);
 
                     let elemDiffLabel = $('<div></div>');
                         elemDiffLabel.addClass('field-label');
+                        elemDiffLabel.addClass('icon');
+                        elemDiffLabel.addClass('icon-important');
                         elemDiffLabel.appendTo(elemDiff);
 
                     $(this).appendTo(elemDiff).addClass('was');
@@ -1088,7 +1097,7 @@ function setBOMTable(viewId) {
             elemRow.click(function() {
 
                 if($(this).hasClass('selected')) {                          
-                    resetViewerSelection(true);
+                    viewerResetSelection(true);
                     $(this).removeClass('selected');
                 } else {
 
@@ -1437,7 +1446,7 @@ function getChildren(elemChildren, edges, nodes, parent, level) {
                     });
             }
                 
-            for(let i = level - 1; i > 0; i--) { elemParentPath.append('<span class="material-symbols-sharp">trending_flat</span>'); }
+            for(let i = level - 1; i > 0; i--) { elemParentPath.append('<span class="icon">trending_flat</span>'); }
 
             for(node of nodes) {
                 if(parent === node.item.urn) {
@@ -1507,7 +1516,7 @@ function insertImpactedItem(item, workspace) {
                 openItemByURN($(this).closest('tr').attr('data-urn'));
             });
 
-        let elemStatus = $('<td class="impacted-status tiny"><span class="material-symbols-sharp">link</spn></td>');
+        let elemStatus = $('<td class="impacted-status tiny"><span class="icon">link</spn></td>');
 
         let elemInput = $('<td></td>');
             elemInput.html('<input class="rel-desc" value="">');
@@ -1687,7 +1696,7 @@ function getRelated() {
                     if($(this).hasClass('selected')) {
                         viewerSelectModel($(this).attr('data-part-number'), true);
                     } else {
-                        resetViewerSelection(true);
+                        viewerResetSelection(true);
                     }
                 });
 
@@ -1788,7 +1797,7 @@ function getAttachments() {
                 elemRow.addClass('link');
                 elemRow.attr('data-url', attachment.url);
                 elemRow.click(function() {
-                    openURL($(this).attr('data-url'));
+                    window.open($(this).attr('data-url'));
                 });
                 
         }
@@ -1796,40 +1805,6 @@ function getAttachments() {
         setCounter('attachments', response.data.length);
 
     });
-
-    // $.get('/plm/attachments', { 'link' : selectedManagedItem.link }, function(response) {
-    
-    //     if(response.params.link !== selectedManagedItem.link) return;
-
-    //     let elemTable   = $('#attachments-table').find('tbody');
-
-    //     for(attachment of response.data) {
-            
-    //         let timeStamp = new Date(attachment.created.timeStamp);
-    //         let description = (typeof attachment.description === 'undefined') ? '' : attachment.description;
-    //         let elemIcon = $('<td class="tiny"></td>').append(getFileGrahpic(attachment));
-            
-    //         let elemRow = $('<tr></tr>');
-    //             elemRow.append(elemIcon);
-    //             elemRow.append('<td>' + attachment.name + '</td>');
-    //             elemRow.append('<td>' + attachment.resourceName + '</td>');
-    //             elemRow.append('<td class="tiny align-right">' + attachment.version + '</td>');
-    //             elemRow.append('<td class="tiny">' + timeStamp.toLocaleString() + '</td>');
-    //             elemRow.append('<td class="tiny">' + attachment.created.user.title + '</td>');
-    //             elemRow.append('<td class="tiny">' + description + '</td>');
-    //             elemRow.append('<td class="tiny">' + attachment.type.fileType + '</td>');
-    //             elemRow.appendTo(elemTable);
-    //             elemRow.addClass('link');
-    //             elemRow.attr('data-url', attachment.url);
-    //             elemRow.click(function() {
-    //                 openURL($(this).attr('data-url'));
-    //             });
-                
-    //     }
-
-    //     setCounter('attachments', response.data.length);
-        
-    // });
     
 }
 

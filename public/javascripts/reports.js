@@ -1,23 +1,12 @@
-let chartColors = [
-    'rgb(64, 169, 221, 0.8)',
-    'rgb(250, 177, 28, 0.8)',
-    'rgb(119, 189, 13, 0.8)',
-    'rgb(226, 88, 11, 0.8)',
-    'rgb(114, 114, 114, 0.8)',
-    'rgb(156, 115, 221, 0.8)',
-    'rgb(206, 112, 87, 0.8)',
-    'rgb(64, 169, 221, 0.4)',
-    'rgb(250, 177, 28, 0.4)',
-    'rgb(119, 189, 13, 0.4)',
-    'rgb(226, 88, 11, 0.4)',
-    'rgb(114, 114, 114, 0.4)',
-    'rgb(156, 115, 221, 0.4)',
-    'rgb(206, 112, 87, 0.4)'
-];
-
+let startupReports = [];
+let startupCount   = 3;
 
 $(document).ready(function() {   
-    
+
+    startupReports = config.reports.startupReportNames;
+    startupCount = config.reports.startupReportCount;
+
+    appendOverlay(false);
     setUIEvents();
     getReports();
 
@@ -34,7 +23,6 @@ function setUIEvents() {
 
     $('#submit').click(function() {
         setReports();
-        $('#overlay .progress').show();
         $('.dialog').hide();
     });
 
@@ -48,20 +36,14 @@ function setUIEvents() {
 // Retrieve list of reports in PLM
 function getReports() {
 
-    $.get('/plm/reports', { }, function(response) {
+    $.get('/plm/reports', {}, function(response) {
 
         let elemReports = $('#list');
-        let index       = 0;
         let reports     = response.data.reportDefinitionList.list;
 
-        reports.sort(function(a, b){
-            var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
-            if (nameA < nameB) 
-                return -1 
-            if (nameA > nameB)
-                return 1
-            return 0 
-        });
+        $('#overlay').hide();
+
+        sortArray(reports, 'name', 'string', 'ascending');
 
         for(report of reports) {
 
@@ -82,10 +64,10 @@ function getReports() {
                         case 'LINE'         : icon = 'show_chart'; break;
                         case 'MSCOLUMN'     : icon = 'grouped_bar_chart'; break;
                         case 'MSAREA'       : icon = 'stacked_line_chart'; break;
-                        case 'PIE'          : icon = 'pie_chart'; break;
+                        case 'PIE'          : icon = 'incomplete_circle'; break;
                         case 'DOUGHNUT'     : icon = 'donut_small'; break;
                         case 'STACKEDCOLUMN': icon = 'stacked_bar_chart'; break;
-                        default             : icon = 'pie_chart'; break;
+                        default             : icon = 'incomplete_circle'; break;
 
                     }
 
@@ -98,10 +80,16 @@ function getReports() {
                         $(this).toggleClass('selected');
                     });
 
-                if(index < 3) { elemTile.addClass('selected'); index++; }
+                if(startupReports.indexOf(report.name) > -1) elemTile.addClass('selected');
 
             }
 
+        }
+
+        if(elemReports.children('.selected').length === 0) {
+            elemReports.children().each(function() {
+                if($(this).index() < startupCount) $(this).addClass('selected');
+            })
         }
 
         setReports();
@@ -124,7 +112,6 @@ function setReports() {
             let definitionId = $(this).attr('data-id');
             if(reportId === definitionId) {
                 keep = true;
-                //break;
             }
         });
 
@@ -143,7 +130,6 @@ function setReports() {
             let reportId = $(this).attr('data-id');
             if(definitionId === reportId) {
                 visible = true;
-                // break;
             }
         });
 
@@ -155,7 +141,6 @@ function setReports() {
     });
 
     if(!waitForReport) {
-        $('#overlay .progress').hide();
         $('#overlay').hide();
     }
     
@@ -169,22 +154,37 @@ function insertReport(id) {
 
     let elemReports = $('#reports');
 
+    let elemReport = $('<div></div>');
+        elemReport.addClass('report');
+        elemReport.attr('data-id', id);
+        elemReport.appendTo(elemReports);
+
     $.get('/plm/report', { 'reportId' : id }, function(response) {
 
-        let elemReport = $('<div></div>');
-            elemReport.addClass('report');
-            elemReport.attr('data-id', id);
-            elemReport.appendTo(elemReports);
-
+        let elemHead = $('<div></div>');
+            elemHead.addClass('report-head');
+            elemHead.appendTo(elemReport);
+        
         let elemTitle = $('<div></div>');
             elemTitle.addClass('report-title');
             elemTitle.html(response.data.reportDefinition.name);
-            elemTitle.appendTo(elemReport);
+            elemTitle.appendTo(elemHead);
+        
+        let elemClose = $('<div></div>');
+            elemClose.addClass('report-close');
+            elemClose.addClass('icon');
+            elemClose.addClass('icon-close');
+            elemClose.appendTo(elemHead);        
+            elemClose.click(function() {
+                closeReport($(this).closest('.report'));
+            });
 
         let elemSubtitle = $('<div></div>');
             elemSubtitle.addClass('report-subtitle');
             elemSubtitle.html(response.data.reportDefinition.description);
             elemSubtitle.appendTo(elemReport);
+
+
 
         if(response.data.reportDefinition.isChartReport) {
             insertChart('chart' + id, elemReport, response.data);
@@ -192,7 +192,6 @@ function insertReport(id) {
             insertTable(elemReport, response.data);
         }
 
-        $('#overlay .progress').fadeOut();
         $('#overlay').fadeOut();
 
     });
@@ -206,6 +205,7 @@ function insertTable(elemReport, data) {
     let wsId = data.reportDefinition.workspaceId;
 
     let elemTable = $('<table></table>');
+        elemTable.addClass('hovering-enabled');
         elemTable.appendTo(elemReport);
     
     let elemTableHead = $('<thead></thead>');
@@ -229,9 +229,10 @@ function insertTable(elemReport, data) {
 
         let elemRow = $('<tr></tr>');
             elemRow.appendTo(elemTableBody);
-            elemRow.attr('data-dmsid', row.dmsId);
+            elemRow.attr('data-dmsId', row.dmsId);
+            elemRow.attr('data-wsId', wsId);
             elemRow.click(function() {
-                window.open('https://' + tenant + '.autodeskplm360.net/plm/workspaces/' + wsId + '/items/itemDetails?view=full&tab=details&mode=view&itemId=urn%60adsk,plm%60tenant,workspace,item%60ADSKTSESVEND,' + wsId + ',' + elemRow.attr('data-dmsid'));
+                openItemByID(elemRow.attr('data-wsId'), elemRow.attr('data-dmsId'));
             });
 
         for(column of data.reportResult.columnKey) {
@@ -267,11 +268,11 @@ function insertTable(elemReport, data) {
     }
 
     elemTable.DataTable( {
-        colReorder: true,
-        fixedHeader : true,
+        colReorder   : true,
+        fixedHeader  : true,
         fixedColumns : true,
-        info : false,
-        paging : false
+        info         : false,
+        paging       : true
     });
 
 }
@@ -327,7 +328,7 @@ function insertChart(idChart, elemReport, data) {
 
         let labels = [];
         let values = [];
-        let colors = [];
+        let styles = [];
         let index  = 0;
 
         for(row of data.reportResult.row) {
@@ -338,7 +339,7 @@ function insertChart(idChart, elemReport, data) {
 
             labels.push(row.fields.entry[0].fieldData.value);
             values.push(value);
-            colors.push(chartColors[index++]);
+            styles.push(config.colors.list[index++]);
 
         }
 
@@ -348,23 +349,7 @@ function insertChart(idChart, elemReport, data) {
                 labels: labels,
                 datasets: [{
                     data: values,
-                    backgroundColor: colors,
-                        // backgroundColor: [
-                        //     'rgba(255, 99, 132, 0.2)',
-                        //     'rgba(54, 162, 235, 0.2)',
-                        //     'rgba(255, 206, 86, 0.2)',
-                        //     'rgba(75, 192, 192, 0.2)',
-                        //     'rgba(153, 102, 255, 0.2)',
-                        //     'rgba(255, 159, 64, 0.2)'
-                        // ],
-                        // borderColor: [
-                        //     'rgba(255, 99, 132, 1)',
-                        //     'rgba(54, 162, 235, 1)',
-                        //     'rgba(255, 206, 86, 1)',
-                        //     'rgba(75, 192, 192, 1)',
-                        //     'rgba(153, 102, 255, 1)',
-                        //     'rgba(255, 159, 64, 1)'
-                        // ],
+                    backgroundColor: config.colors.list,
                     borderWidth: 1
                 }]
             },
@@ -384,5 +369,17 @@ function insertChart(idChart, elemReport, data) {
         });
 
     }
+
+}
+function closeReport(elemReport) {
+
+    let id = elemReport.attr('data-id');
+
+    $('.tile.selected').each(function() {
+        let definitionId   = $(this).attr('data-id');
+        if(definitionId === id) $(this).removeClass('selected');
+    });
+
+    elemReport.remove();
 
 }

@@ -1,19 +1,22 @@
-let hierarchy   = ['Product Categories', 'Product Lines', 'Products'];
 let workspaces  = [];
-let gridColumns = [];
-let languageId  = '1';
 
 
 $(document).ready(function() {   
     
+    appendProcessing('landing', false);
+    appendProcessing('search', false);
+    appendProcessing('products', false);
+    appendProcessing('product-bom', false);
+    appendViewerProcessing();
+    appendOverlay();
+
     getBrowserLanguage();
     setLabels();
     setUIEvents();
     getWorkspaceIds(function() {
         getTabNames();
-        getGridColumns();
-        getRecentProducts();
         getProductCatgories();
+        getRecentProducts();
         getProductLines();
         getBookmarkProducts();
     });
@@ -21,36 +24,20 @@ $(document).ready(function() {
 });
 
 
-// Determine browser language
-function getBrowserLanguage() {
-
-    switch(navigator.language.toLowerCase()) {
-        case 'es'   :   languageId = '2'; break;
-        case 'es-es':   languageId = '2'; break;
-        case 'fr'   :   languageId = '3'; break;
-        case 'fr-fr':   languageId = '3'; break;
-        case 'de'   :   languageId = '4'; break;
-        case 'de-de':   languageId = '4'; break;
-    }
-
-}
-
-
 // Set UI Labels
 function setLabels() {
 
-    $('#landing-title').html(hierarchy[0]);
-    $('#lines-back').html(hierarchy[0]);
-    $('#lines-header').html(hierarchy[1]);
-    $('#products-back').html(hierarchy[1]);
-    $('#products-header').html(hierarchy[2]);
+    $('#landing-title').html(config.portfolio.hierarchy[0]);
+    $('#lines-back').html(config.portfolio.hierarchy[0]);
+    $('#lines-header').html(config.portfolio.hierarchy[1]);
+    $('#products-back').html(config.portfolio.hierarchy[1]);
+    $('#products-header').html(config.portfolio.hierarchy[2]);
 
 }
 
 
 // Set UI Controls
 function setUIEvents() {
-
 
     // LANDING
     $('#landing-prev').click(function() {
@@ -108,23 +95,6 @@ function setUIEvents() {
 
 
     // PRODUCT
-    $('#product-open').click(function() {
-        openItemByURN($('#product').attr('data-urn'));
-    });
-    $('#product-bookmark').click(function() {
-        let dmsId = $('#product').attr('data-urn').split('.')[5];
-        if($('#product-bookmark').hasClass('active')) {
-            $.get('/plm/remove-bookmark', { 'dmsId' : dmsId }, function (response) {
-                setBookmark($('#product').attr('data-urn'), 'product-bookmark');
-            });
-        } else {
-            $.get('/plm/add-bookmark', { 'dmsId' : dmsId, 'comment' : ' ' }, function (response) {
-                setBookmark($('#product').attr('data-urn'), 'product-bookmark');
-            });
-        }
-
-
-    });
     $('#product-close').click(function() {
         $('#product').hide();
     });
@@ -141,22 +111,9 @@ function setUIEvents() {
 
 
     // HEADER
-
-    $('#header-logo').click(function () { goHome(); });
-    $('#header-title').click(function () { goHome(); });
-    $('#search-close').click(function () {
+    $('#search-close').click(function() {
         $('#search').hide();
     });
-
-}
-
-
-// Restore Landing page
-function goHome() {
-
-    $('#landing').show();
-    $('.screen').hide();
-    $('#search').hide();
 
 }
 
@@ -165,11 +122,11 @@ function goHome() {
 function getWorkspaceIds(callback) {
 
     $.get('/plm/workspaces', {}, function(response) {
-        for(level of hierarchy) {
+        for(level of config.portfolio.hierarchy) {
             for(workspace of response.data.items) {
                 if(workspace.title === level) {
                     workspaces.push({
-                        'wsId' : workspace.link.split('/')[4],
+                        'wsId'  : workspace.link.split('/')[4],
                         'title' : workspace.title
                     })
                 }
@@ -185,6 +142,7 @@ function getWorkspaceIds(callback) {
 function getTabNames() {
 
     $.get('/plm/tabs', { 'wsId' : workspaces[2].wsId }, function(response) {
+
         for(tab of response.data) {
 
             let label = (tab.name !== null) ? tab.name : tab.key;
@@ -196,13 +154,7 @@ function getTabNames() {
             }
 
         }
-    });
 
-}
-function getGridColumns() {
-
-    $.get('/plm/grid-columns', { 'wsId' : workspaces[2].wsId }, function(response) {
-        gridColumns = response.data.fields;
     });
 
 }
@@ -213,7 +165,7 @@ function getProductCatgories() {
 
     $.get('/plm/search-bulk', { 'query' : '*', 'wsId' : workspaces[0].wsId }, function(response) {
 
-        $('#landing-progress').hide();
+        $('#landing-processing').hide();
 
         let elemParent = $('#landing-lines-tiles');
             elemParent.html('');
@@ -235,7 +187,6 @@ function getProductCatgories() {
                 });
 
             if(imageIds.length > 0) elemTile.attr('data-imageIds', imageIds);
-
 
         }
 
@@ -271,7 +222,6 @@ function selectProductCategory(elemClicked) {
 }
 function setMarketingImages(elemClicked, elemParent) {
 
-
     elemParent.html('').hide();
 
     let value = elemClicked.attr('data-imageIds');
@@ -285,45 +235,22 @@ function setMarketingImages(elemClicked, elemParent) {
             let elemDiv = $('<div></div>');
                 elemDiv.appendTo(elemParent);
                 
-            getSmallImageFromCache(elemDiv, { 'link' : imageId }, 'zmdi-wallpaper');
+            getImageFromCache(elemDiv, { 'link' : imageId }, 'image', function(elemImage) {
+
+                let url = elemImage.attr('src');
+                let elemMain = elemImage.closest('.screen-images').prev().find('img');
+                let urlMain = elemMain.attr('src');
+                
+                elemMain.attr('src', url);
+                elemImage.attr('src', urlMain);       
+
+            });
     
         }
 
         elemParent.show();
 
     }
-
-
-}
-function getSmallImageFromCache(elemParent, params, icon) {
-
-    let elemIcon = $('<i></i>');
-        elemIcon.addClass('zmdi');
-        elemIcon.addClass(icon);
-        elemIcon.appendTo(elemParent);
-
-    if(typeof params.link === 'undefined') {
-        if(typeof params.dmsId === 'undefined') return;
-        else if(params.dmsId === '') return;
-    } else if(params.link === '') return;
-
-    $.get('/plm/image-cache', params, function(response) {
-
-        elemParent.html('');
-
-        let elemImage = $('<img>');
-            elemImage.attr('src', response.data.url);
-            elemImage.appendTo(elemParent);
-            elemImage.click(function() {
-                let url = $(this).attr('src');
-                let elemMain = $(this).closest('.screen-images').prev().find('img');
-                let urlMain = elemMain.attr('src');
-
-                elemMain.attr('src', url);
-                $(this).attr('src', urlMain);
-            });
-
-    });
 
 }
 
@@ -359,6 +286,8 @@ function getBookmarkProducts() {
 
     $.get('/plm/bookmarks', {}, function(response) {
 
+
+
         for(item of response.data.bookmarks) {
             let workspace = item.workspace.link.split('/')[4];
             if(workspace === workspaces[2].wsId) links.push(item.item.link);
@@ -377,7 +306,7 @@ function searchProducts() {
     
     $('#search').show();
     $('#search-results').html('');
-    $('#search-progress').show();
+    $('#search-processing').show();
 
     let params = {
         'wsId'      : workspaces[2].wsId,
@@ -393,7 +322,7 @@ function searchProducts() {
         for(item of response.data.items) {
             addProductTile(item, elemParent)
         }
-        $('#search-progress').hide();
+        $('#search-processing').hide();
     });
     
 }
@@ -457,7 +386,7 @@ function selectProductLine(elemClicked) {
 
     $('#lines').hide();
     $('#products').show();
-    $('#products-progress').show();
+    $('#products-processing').show();
 
     $('#products-image').html('').hide();
     $('#products-images').html('').show();
@@ -474,7 +403,6 @@ function selectProductLine(elemClicked) {
 
     setMarketingImages(elemClicked, $('#products-images'));
 
-
     let parentName = elemClicked.attr('data-title');
     let elemParent = $('#products-tiles');
         elemParent.html('');
@@ -488,7 +416,7 @@ function selectProductLine(elemClicked) {
 
     $.get('/plm/search-bulk', params, function(response) {
 
-        $('#products-progress').hide();
+        $('#products-processing').hide();
 
         for(item of response.data.items) {
             addProductTile(item, elemParent)
@@ -515,7 +443,7 @@ function getMarketingImages(sections) {
 // Product Interactions
 function selectProduct(elemClicked) {
 
-    let urn = elemClicked.attr('data-urn');
+    let link = elemClicked.attr('data-link');
 
     $('#product-category').html('').addClass('animation');
     $('#product-line').html('').addClass('animation');
@@ -524,22 +452,20 @@ function selectProduct(elemClicked) {
 
     $('#viewer').hide();
     $('#viewer-empty').hide();
-    $('#viewer-progress').show();
+    $('#viewer-processing').show();
     
     $('#gallery').hide();
     $('#product').show();
-    $('#product').attr('data-urn', urn);
-    $('#product-bom-progress').show();
+    $('#product').attr('data-link', link);
+    $('#product-bom-processing').show();
     $('#product-bom-list').html('');
     $('#product-toolbar').children().first().click();
     $('#product').removeClass('has-viewable');
 
-    let link =  elemClicked.attr('data-link');
-
-    setBookmark(urn, 'product-bookmark');
+    getBookmarkStatus();
     setProductDetails(link);
-    setProductAttachments(link);
-    setProductVariants(link);
+    insertAttachments(link, 'product-files');
+    insertGrid(link, 'product-variants');
 
 }
 function setProductDetails(link) {
@@ -558,15 +484,15 @@ function setProductDetails(link) {
         let text     = getSectionFieldValue(response.data.sections, 'MARKETING_TEXT_' + languageId, '');
 
         if(category !== '') category = category.split(' - ')[1];
-        if(line !== '') line = line.split(' - ')[1];
-        if(title === '') title = getSectionFieldValue(response.data.sections, 'MARKETING_NAME_1', '');
-        if(text  === '') text  = getSectionFieldValue(response.data.sections, 'MARKETING_TEXT_1', ''); 
+        if(line     !== '') line     = line.split(' - ')[1];
+        if(title    === '') title    = getSectionFieldValue(response.data.sections, 'MARKETING_NAME_1', '');
+        if(text     === '') text     = getSectionFieldValue(response.data.sections, 'MARKETING_TEXT_1', ''); 
 
         let elemText = $('<span></span>').html(text).text();
 
         $('#product-category').html(category).removeClass('animation');
-        $('#product-line').html(line).removeClass('animation');
-        $('#product-title').html(title).removeClass('animation');
+        $('#product-line'    ).html(line    ).removeClass('animation');
+        $('#product-title'   ).html(title   ).removeClass('animation');
 
         if(text === '') {
             $('#product-text').hide();
@@ -609,7 +535,7 @@ function setProductDetails(link) {
 
         }
 
-        let imageIds = getMarketingImages(response.data.sections);
+        let imageIds   = getMarketingImages(response.data.sections);
         let valueImage = getSectionFieldValue(response.data.sections, 'IMAGE', '');
 
         if(valueImage !== '') imageIds.splice(0, 0, valueImage);
@@ -627,9 +553,6 @@ function setProductDetails(link) {
                     elemDiv.click(function() {
                         let elemClicked = $(this);
                         if(elemClicked.hasClass('selected')) {
-                            // $('#gallery-image').siblings().hide();
-                            // $('#viewer').hide();
-                            // $('#no-viewer').hide();
                             $('#gallery').hide();
                             elemClicked.removeClass('selected');
                         } else {
@@ -637,43 +560,12 @@ function setProductDetails(link) {
                             elemClicked.siblings().removeClass('selected');
                             $('#gallery').show();
                             $('#gallery-image').attr('src', elemClicked.find('img').attr('src')).show();
-                          //  $('#gallery').hide();
                         }
                     });
                     
-                getImageFromCache(elemDiv, { 'link' : imageId }, 'zmdi-wallpaper', function(elemClicked) {
-
-                    // $('#gallery').show();
-
-                    // let elemParent = elemClicked.parent();
-
-                    // //elemClicked.toggleClass('selected');
-                    // //elemParent.toggleClass('selected');
-
-                    // if(elemParent.hasClass('selected')) {
-                    //     // $('#gallery-image').siblings().hide();
-                    //     // $('#viewer').hide();
-                    //     // $('#no-viewer').hide();
-                    //     $('#gallery').hide();
-                    //     elemParent.removeClass('selected');
-                    // } else {
-                    //     elemParent.addClass('selected');
-                    //     elemParent.siblings().removeClass('selected');
-                    //     $('#gallery').show();
-                    //     $('#gallery-image').attr('src', elemClicked.attr('src')).show();
-                    //   //  $('#gallery').hide();
-                    // }
-
-                });
+                getImageFromCache(elemDiv, { 'link' : imageId }, 'zmdi-wallpaper', function(elemClicked) {});
         
             }
-            // console.log(elemParent.find('img').length);
-
-            // elemParent.find('img').click(function() {
-            //     // let elemClicked = $(this);
-            //     console.log('bild click');
-            //     $('#viewer-image').attr('src', $(this).attr('src')).show();
-            // });
 
         }
 
@@ -683,10 +575,10 @@ function setProductDetails(link) {
         if(ebom !== '') {
             $('#viewer').show();
             $('#viewer-empty').hide();
-            setProductViewer(ebom);
-            insertFlatBOM('product-bom-list', 'product-bom-progress', ebom, false, []);
+            insertViewer(ebom, 240);
+            insertFlatBOM('product-bom', ebom, config.portfolio.bomViewName, config.portfolio.fieldIdPartNumber, false, []);
         } else {
-            $('#product-bom-progress').hide();
+            $('#product-bom-processing').hide();
             $('#viewer-empty').show();
             $('#viewer-progress').hide();
         }
@@ -694,110 +586,15 @@ function setProductDetails(link) {
     });
 
 }
-function setProductAttachments(link) {
 
-    let elemParent = $('#product-files-list');
-        elemParent.html('');
 
-    $.get('/plm/attachments', { 'link' : link }, function(response) {
-        insertAttachments(elemParent, response.data);
-    });
+// Click BOM Item
+function selectBOMItem(e, elemClicked) {
 
-}
-function setProductVariants(link) {
-
-    $('#product-variants').hide();
-    $('#product-variants-list').html('');
-
-    $.get('/plm/grid', { 'link' : link }, function(response) {
-        if(response.data.length > 0 ) {
-
-            let elemTable = $('<table></table>');
-                elemTable.appendTo($('#product-variants-list'));
-            
-            let elemTableBody = $('<tbody></tbody>');
-                elemTableBody.appendTo(elemTable);
-
-            let elemTableHead = $('<tr></tr>');
-                elemTableHead.appendTo(elemTableBody);
-
-            for(column of gridColumns) {
-
-                let elemTableHeadCell = $('<th></th>');
-                    elemTableHeadCell.html(column.name);
-                    elemTableHeadCell.appendTo(elemTableHead);
-                
-            }
-
-            for(row of response.data) {
-
-                let elemTableRow = $('<tr></tr>');
-                    elemTableRow.appendTo(elemTableBody);
-
-                for(column of gridColumns) {
-
-                    let value = '';
-
-                    for(field of row.rowData) {
-                        if(field.title === column.name) {
-                            value = field.value;
-                        }
-                    }
-
-                    let elemTableCell = $('<td></td>');
-                        elemTableCell.html(value);
-                        elemTableCell.appendTo(elemTableRow);
-                }
-
-            }
-
-            $('#product-variants').show();
-
-        }
-    });
-
-}
-function setProductViewer(link) {
-
-    $.get( '/plm/list-viewables', { 'link' : link }, function(response) {
-
-        if(response.params.link !== link) return;
-
-        if(response.data.length > 0) {
-
-            $('#product').addClass('has-viewable');          
-
-            let viewLink = response.data[0].selfLink;
-
-            for(link of response.data) {
-                if(link.name.indexOf('.ipt.dwf')) viewLink = link.selfLink;
-                else if(link.name.indexOf('.iam.dwf')) viewLink = link.selfLink;
-            }
-
-            $.get( '/plm/get-viewable', { 'link' : viewLink } , function(response) {
-                if(response.params.link !== viewLink) return;
-                $('#viewer').show();
-                initViewer(response.data, 240);
-            });
-
-        }
-
-    });
-
-}
-function initViewerDone() {
-    $('#viewer-progress').hide();
-}
-function onSelectionChanged(event) {}
-
-function selectBOMItem(elemClicked) {
-
-    elemClicked.removeClass('unread');
-    
     if(elemClicked.hasClass('selected')) {
 
         elemClicked.removeClass('selected');
-        resetViewerSelection();
+        viewerResetSelection();
 
     } else {
 
@@ -811,12 +608,18 @@ function selectBOMItem(elemClicked) {
 
     }
 
-    if($('.bom-item.selected').length === 0) {
-        $('#button-bom-reset').addClass('disabled');
-        // $('#button-bom-reset').attr('disabled', 'disabled');
-    } else {
-        $('#button-bom-reset').removeClass('disabled');
-        // $('#button-bom-reset').removeAttribute('disabled');
-    }
+}
 
+// APS Viewer Callbacks
+function initViewerDone() {
+
+    viewerAddGhostingToggle();
+    viewerAddResetButton();
+    viewerAddViewsToolbar();
+
+}
+function viewerSelectionResetDone() {
+
+    $('.bom-item').removeClass('selected');
+    
 }

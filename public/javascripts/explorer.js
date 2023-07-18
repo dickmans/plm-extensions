@@ -1,180 +1,37 @@
-let fields, sections, viewId;
-let urnPartNumber = '';
-let urns = {
-    'partNumber' : ''
-}
-
-let colorGreen  = '#6a9728';
-let colorYellow = '#faa21b';
-let colorRed    = '#dd2222';
-
-let viewerDone          = false;
+let maxRequests         = 5;
+let urns                = { 'partNumber' : '' }
 let now                 = new Date();
-let wsIdProblemReport   = '82';
-let kpiVectors          = [ new THREE.Vector4(205/255,  101/255, 101/255, 0.8), new THREE.Vector4(225/255, 225/255, 84/255, 0.8), new THREE.Vector4(59/255, 210/255, 59/255, 0.8) ]; // red yellow green
-
-
-let kpis = [{
-    'id'        : 'lifecycle',
-    'title'     : 'Item Lifecycle',
-    'fieldId'   : 'LIFECYCLE',
-    'urn'       : '',
-    'type'      : 'value',
-    'style'     : 'counters',
-    'data'      : [
-        { 'value' : 'Working',    'count' : 0, 'color' : colorRange[0], 'vector' : kpiVectors[0] },
-        { 'value' : 'Production', 'count' : 0, 'color' : colorRange[4], 'vector' : kpiVectors[2] }
-    ]
-},{
-    'id'        : 'change',
-    'title'     : 'Pending Change',
-    'fieldId'   : 'WORKING_CHANGE_ORDER',
-    'urn'       : '',
-    'type'      : 'non-empty',
-    'style'     : 'counters',
-    'data'      : [
-        { 'value' : 'Yes', 'count' : 0, 'color' : colorRange[0], 'vector' : kpiVectors[0]},
-        { 'value' : 'No' , 'count' : 0, 'color' : colorRange[4], 'vector' : kpiVectors[2] }
-    ]
-},{
-    'id'        : 'category',
-    'title'     : 'Vault Category',
-    'fieldId'   : 'CATEGORY',
-    'urn'       : '',
-    'type'      : 'value',
-    'style'     : 'bars',
-    'data'      : []
-},{
-    'id'        : 'type',
-    'title'     : 'Type',
-    'fieldId'   : 'TYPE',
-    'urn'       : '',
-    'type'      : 'value',
-    'style'     : 'bars',
-    'data'      : []
-},{
-    'id'        : 'lead-time',
-    'title'     : 'Lead Time',
-    'fieldId'   : 'LEAD_TIME',
-    'urn'       : '',
-    'type'      : 'value',
-    'sort'      : 'value',
-    'style'     : 'bars',
-    'data'      : []
-},{
-    'id'        : 'make-or-buy-vault',
-    'title'     : 'Make or Buy',
-    'fieldId'   : 'MAKE_BUY',
-    'urn'       : '',
-    'type'      : 'value',
-    'style'     : 'counters',
-    'data'      : [
-        { 'value' : 'Buy' , 'count' : 0, 'color' : colorRange[0], 'vector' : kpiVectors[0] },
-        { 'value' : '-'   , 'count' : 0, 'color' : colorRange[2], 'vector' : kpiVectors[1] },
-        { 'value' : 'Make', 'count' : 0, 'color' : colorRange[4], 'vector' : kpiVectors[2] }
-    ]
-},{
-    'id'        : 'make-or-buy',
-    'title'     : 'Make or Buy',
-    'fieldId'   : 'MAKE_OR_BUY',
-    'urn'       : '',
-    'type'      : 'value',
-    'style'     : 'counters',
-    'data'      : [
-        { 'value' : 'Buy' , 'count' : 0, 'color' : colorRange[0], 'vector' : kpiVectors[0] },
-        { 'value' : '-'   , 'count' : 0, 'color' : colorRange[2], 'vector' : kpiVectors[1] },
-        { 'value' : 'Make', 'count' : 0, 'color' : colorRange[4], 'vector' : kpiVectors[2] }
-    ]
-},{
-    'id'        : 'vendor',
-    'title'     : 'Vendor',
-    'fieldId'   : 'VENDOR',
-    'urn'       : '',
-    'type'      : 'value',
-    'style'     : 'bars',
-    'data'      : []
-},{
-    'id'        : 'potential-cost-savings',
-    'title'     : 'Potential Cost Savings',
-    'fieldId'   : 'POTENTIAL_COST_SAVINGS',
-    'urn'       : '',
-    'type'      : 'value',
-    'sort'      : 'value',
-    'style'     : 'bars',
-    'data'      : []
-},{
-    'id'        : 'potential-time-savings',
-    'title'     : 'Potential Time Savings',
-    'fieldId'   : 'POTENTIAL_TIME_SAVINGS',
-    'urn'       : '',
-    'type'      : 'value',
-    'sort'      : 'value',
-    'style'     : 'bars',
-    'data'      : []
-},{
-    'id'        : 'spare-part',
-    'title'     : 'Spare Part',
-    // 'fieldId'   : 'IS_SPARE_PART',
-    'fieldId'   : 'SPAREWEAR_PART',
-    'urn'       : '',
-    'type'      : 'value',
-    'style'     : 'counters',
-    'data'      : [
-        { 'value' : '-' , 'count' : 0, 'color' : colorRange[0], 'vector' : kpiVectors[0] },
-        { 'value' : 'Wear Part'  , 'count' : 0, 'color' : colorRange[2], 'vector' : kpiVectors[1] },
-        { 'value' : 'Spare Part', 'count' : 0, 'color' : colorRange[4], 'vector' : kpiVectors[2] }
-    ]
-},{
-    'id'        : 'material',
-    'title'     : 'Material',
-    'fieldId'   : 'MATERIAL',
-    'urn'       : '',
-    'type'      : 'value',
-    'style'     : 'bars',
-    'data'      : []
-},{
-    'id'        : 'folder',
-    'title'     : 'Vault Folder',
-    'fieldId'   : 'FOLDER',
-    'urn'       : '',
-    'type'      : 'value',
-    'style'     : 'bars',
-    'data'      : []
-},{
-    'id'        : 'last-update',
-    'title'     : 'Last Updated By',
-    'fieldId'   : 'LAST_UPDATED_BY',
-    'urn'       : '',
-    'type'      : 'value',
-    'style'     : 'bars',
-    'data'      : []
-},{
-    'id'        : 'last-update',
-    'title'     : 'Last Modification',
-    'fieldId'   : 'LAST_UPDATED',
-    'urn'       : '',
-    'type'      : 'days',
-    'sort'      : 'value',
-    'style'     : 'bars',
-    'data'      : []
-}];
-
-let bomItems         = [];
-let multiSelect      = { 'wsId' : '', 'links' : [], 'common': [], 'varies' : [], 'partNumbers': [] };
-let wsProblemReports = { 'sections' : [], 'fields' : [] };
+let bomItems            = [];
+let editableFields      = [];
+let indexSelected       = -1;
+let multiSelect         = { 'wsId' : '', 'links' : [], 'common': [], 'varies' : [], 'partNumbers': [] };
+let wsItems             = { 'id' : wsId, 'sections' : [], 'fields' : [], 'viewId' : '' };
+let wsProblemReports    = { 'id' : ''  , 'sections' : [], 'fields' : [] };
+let wsSupplierPackages  = { 'id' : ''  , 'sections' : [], 'fields' : [] };
  
 
 $(document).ready(function() {
     
-    let link = '/api/v3/workspaces/' + wsId + '/items/' + dmsId;
+    wsProblemReports.id   = config.explorer.wsIdProblemReports;
+    wsSupplierPackages.id = config.explorer.wsIdSupplierPackages;
 
-    getDetails();
-    getWSConfig();
-    getRequestWSConfig();
-    setViewer();
+    let link = '/api/v3/workspaces/' + wsId + '/items/' + dmsId;
+    
+    $('#details').attr('data-link', link);
+
+    appendProcessing('dashboard', true);
+    appendProcessing('bom', false);
+    appendProcessing('attachments', false);
+    appendProcessing('details', false);
+    appendProcessing('processes', false);
+    appendViewerProcessing();
+    appendOverlay();
+    
+    getInitialData();
+    insertViewer(link);
+    insertAttachments(link);
+    insertChangeProcesses(link, 'processes');
     setUIEvents();
-    setAttachments(link);
-    setProcesses(link);
     
 });
 
@@ -183,15 +40,22 @@ function setUIEvents() {
     // Header Toolbar
     $('#button-toggle-dashboard').click(function() {
         $('body').toggleClass('no-dashboard');
-        setTimeout(function() { viewer.resize(); }, 250);
+        viewerResize();
     });
     $('#button-toggle-bom').click(function() {
-        $('body').toggleClass('no-bom-tree');
-        setTimeout(function() { viewer.resize(); }, 250);
+        if($('body').hasClass('no-bom-tree')) {
+            $('body').removeClass('no-bom-tree');
+            $('body').addClass('no-bom');
+        } else if($('body').hasClass('no-bom')) {
+            $('body').removeClass('no-bom');
+        } else {
+            $('body').addClass('no-bom-tree');
+        }
+        viewerResize();
     });
     $('#button-toggle-attachments').click(function() {
         $('body').toggleClass('no-attachments');
-        setTimeout(function() { viewer.resize(); }, 250);
+        viewerResize();
     });
     $('#button-toggle-details').click(function() {
         $('body').toggleClass('with-details');
@@ -201,7 +65,7 @@ function setUIEvents() {
         } else {
             $('body').removeClass('with-panel');
         }
-        setTimeout(function() { viewer.resize(); }, 250);
+        viewerResize();
     });
     $('#button-toggle-processes').click(function() {
         $('body').toggleClass('with-processes');
@@ -211,7 +75,8 @@ function setUIEvents() {
         } else {
             $('body').removeClass('with-panel');
         }
-        setTimeout(function() { viewer.resize(); }, 250);
+        // setTimeout(function() { viewer.resize(); }, 250);
+        viewerResize();
     });
 
   
@@ -230,27 +95,29 @@ function setUIEvents() {
         $('.kpi-value.selected').removeClass('selected');
         applyFilters();
     });
+    $('#dashboard-refresh').click(function() {
+        refreshKPIs();
+    });
 
 
-    // BOM Tree Actions
+    // BOM Actions
+    $('#save-bom-changes').click(function() {
+        saveBOMChanges();
+    });
+    $('#send-selected').click(function() {
+        showCreateDialog();
+    });
     $('#go-there').click(function() {
         let link = $('tr.selected').attr('data-link').split('/');
-        // console.log(elemSelected.attr('data-link'));
-        // console.log(document.location.href);
-        // 
-        // http://localhost:8080/explorer?wsId=79&dmsId=11143
         let url = document.location.href.split('?')[0];
             url += '?';
             url += 'wsId=' + link[4];
             url += '&dmsId=' + link[6];
-
         document.location.href = url;
-        //$('tr.selected').click();
-        //resetViewerSelection(true);
     });
     $('#bom-reset').click(function() {
         $('tr.selected').click();
-        resetViewerSelection(true);
+        viewerResetSelection(true);
     });
     $('#bom-search-input').keyup(function() {
         filterBOMTree();
@@ -258,12 +125,6 @@ function setUIEvents() {
 
 
     // Item Details Actions
-    $('#bookmark').click(function() {
-        toggleBookmark($(this), $('#details').attr('data-link').split('/')[6]);
-    });
-    $('#open').click(function() {
-        openItemByLink($('#details').attr('data-link'));
-    });
     $('#save').click(function() {
         saveChanges();
     });
@@ -272,7 +133,7 @@ function setUIEvents() {
     // Process Creation
     $('#create-process').click(function() {
         
-        let elemParent = $('#processes-form');
+        let elemParent = $('#processes-sections');
             elemParent.html('');
             elemParent.show();
 
@@ -281,7 +142,7 @@ function setUIEvents() {
 
         $('#processes-list').hide();
 
-        insertItemDetails(elemParent, wsProblemReports.sections, wsProblemReports.fields, null, true, true, true);
+        insertItemDetailsFields('processes', '',  wsProblemReports.sections, wsProblemReports.fields, null, true, true, true);
 
     });
     $('#cancel-process').click(function() {
@@ -289,27 +150,35 @@ function setUIEvents() {
         $('.process-dialog').hide();
         $('#create-process').show();
         $('#processes-list').show();
-        $('#processes-form').hide();
+        $('#processes-sections').hide();
 
     });
     $('#save-process').click(function() {
 
-        if(!validateForm($('#processes-form'))) return;
+        $('#processes-processing').show();
+        $('#processes-processing').siblings('.panel-content').hide();
+
+        if(!validateForm($('#processes-sections'))) {
+            showErrorMessage('Field validations faild', 'Cannot Save');
+            return;
+        }
 
         viewerCaptureScreenshot(function() {
 
-            $('#processes-form').hide();
+            $('#processes-sections').hide();
             $('#processes-list').html('');
             $('#processes-list').show('');
-            $('#processes-process').show();
+            $('#processes-sections');
     
-            let link = $('#processes-list').attr('data-source');
+            let link = $('#processes').attr('data-link');
     
-            submitCreateForm(wsIdProblemReport, $('#processes-form'), function(response ) {
+            submitCreateForm(wsProblemReports.id, $('#processes-sections'), 'viewer-markup-image', function(response ) {
 
                 let newLink = response.data.split('.autodeskplm360.net')[1];
+
                 $.get('/plm/add-managed-items', { 'link' : newLink, 'items' : [ link ] }, function(response) {
-                    setProcesses($('#processes-list').attr('data-source'));
+
+                    insertChangeProcesses(link, 'processes')
                     $('.process-dialog').hide();
                     $('#create-process').show();
                     $('#processes-list').show();
@@ -321,64 +190,30 @@ function setUIEvents() {
 
     });
 
-}
 
-
-// Get Context Item Deetails
-function getDetails() {
-    
-    $.get('/plm/details', { 'wsId' : wsId, 'dmsId' : dmsId }, function(response) {
-        
-        $('#header-subtitle').html(response.data.title);
-        getBookmarkStatus($('#bookmark'), response.data.urn);
-        $('#details').attr('data-urn', response.data.urn);
-
+    // Create Connect Dialog
+    $('#create-connect-cancel').click(function() {
+        $('#overlay').hide();
+        $('#create-connect').hide();
     });
-    
-}
-function getFieldValue(sections, fieldId, defaultValue) {
+    $('#create-connect-confirm').click(function() {
+        
+        if(!validateForm($('#create-connect-sections'))) return;
 
-    for(section of sections) {
-        for(field of section.fields) {
-            let id = field.urn.split('.')[9];
-            if(id === fieldId) {
-                return field.value;
-            }
+        $('#create-connect').hide();
 
-        }
-    }
-
-    return defaultValue;
+        submitCreateForm(wsSupplierPackages.id, $('#create-connect-sections'), null, function(response ) {
+            $('#overlay').hide();
+        });
+        
+    });
 
 }
+
 
 
 // Get viewable and init Forge viewer
-function setViewer() {
-
-    $.get('/plm/get-viewables', { 'wsId' : wsId, 'dmsId' : dmsId }, function(response) {
-
-        if(response.data.length > 0) {
-
-            let found = false;
-
-            for(viewable of response.data) {
-                if(viewable.name.indexOf('.iam.dwf') > -1) {
-                    initViewer(viewable, 255);
-                    found = true;
-                    break;
-                }
-            }
-
-            if(!found) initViewer(response.data[0], 255);
-
-        } else {
-            $("#viewer").hide();
-        }
-    });
-
-}
-function onSelectionChanged(event) {
+function onViewerSelectionChanged(event) {
 
     let found = false;
 
@@ -392,7 +227,7 @@ function onSelectionChanged(event) {
 
             for(property of data.properties) {
 
-                if(partNumberProperties.indexOf(property.displayName) > -1) {
+                if(viewerOptions.partNumberProperties.indexOf(property.displayName) > -1) {
 
                     let partNumber = property.displayValue;
 
@@ -434,49 +269,67 @@ function onSelectionChanged(event) {
 }
 function initViewerDone() {
     
-    viewerDone = true;
-
     viewerAddMarkupControls();   
     viewerAddGhostingToggle();
     viewerAddViewsToolbar();
 
-    $('#viewer-markup-image').attr('data-field-id', 'IMAGE_1');
+    $('#viewer-markup-image').attr('data-field-id', config.explorer.fieldIdProblemReportImage);
 
 }
 
 
-// Retrieve Workspace Details, BOM and details
-function getWSConfig() {
 
-    let promises = [
-        $.get('/plm/bom-views-and-fields', { 'wsId' : wsId }),
-        $.get('/plm/sections', { 'wsId' : wsId }),
-        $.get('/plm/fields', { 'wsId' : wsId }),
-        $.get('/plm/sections', { 'wsId' : wsIdProblemReport }),
-        $.get('/plm/fields', { 'wsId' : wsIdProblemReport })
+// Retrieve Workspace Details, BOM and details
+function getInitialData() {
+
+    let requests = [
+        $.get('/plm/bom-views-and-fields'   , { 'wsId' : wsId }),
+        $.get('/plm/details'                , { 'wsId' : wsId, 'dmsId' : dmsId }),
+        $.get('/plm/sections'               , { 'wsId' : wsId }),
+        $.get('/plm/fields'                 , { 'wsId' : wsId }),
+        $.get('/plm/sections'               , { 'wsId' : wsProblemReports.id }),
+        $.get('/plm/fields'                 , { 'wsId' : wsProblemReports.id })
     ];
 
-    Promise.all(promises).then(function(responses) {
+    if(!isBlank(config.explorer.wsIdSupplierPackages)) {
+        requests.push($.get('/plm/sections', { 'wsId' : wsSupplierPackages.id }));
+        requests.push($.get('/plm/fields'  , { 'wsId' : wsSupplierPackages.id }));
+    }
+
+    Promise.all(requests).then(function(responses) {
 
         for(view of responses[0].data) {
-            if(view.name === 'Explorer') {
-                viewId = view.id;
+            if(view.name === config.explorer.bomViewName) {
+                wsItems.viewId = view.id;
+                wsItems.viewColumns = view.fields;
             }
         }
 
-        sections                    = responses[1].data;
-        fields                      = responses[2].data;
-        wsProblemReports.sections   = responses[3].data;
-        wsProblemReports.fields     = responses[4].data;
+        if(wsItems.viewId === '') showErrorMessage('Error in configuration. Could not find BOM view "' + config.explorer.bomViewName + '"');
 
-        getBOMData(viewId);
+        $('#header-subtitle').html(responses[1].data.title);
+
+        wsItems.sections            = responses[2].data;
+        wsItems.fields              = responses[3].data;
+        wsProblemReports.sections   = responses[4].data;
+        wsProblemReports.fields     = responses[5].data;
+
+        if(!isBlank(config.explorer.wsIdSupplierPackages)) {
+            wsSupplierPackages.sections = responses[6].data;
+            wsSupplierPackages.fields   = responses[7].data;
+        } else {
+            $('#send-selected').remove();
+        }
+
+        getBOMData();
         setItemDetails('/api/v3/workspaces/' + wsId + '/items/' + dmsId);
+        
+        editableFields = getEditableFields(wsItems.fields);
 
     });
 
 }
-function getBOMData(viewId) {
-
+function getBOMData() {
     
     let params = {
         'wsId'          : wsId,
@@ -484,13 +337,12 @@ function getBOMData(viewId) {
         'depth'         : 10,
         // 'revisionBias'  : 'allChangeOrder',
         // 'revisionBias'  : 'changeOrder',
-        // 'revisionBias'  : 'release',
-        'revisionBias'  : 'working',
-        'viewId'        : viewId
+        'revisionBias'  : 'release',
+        // 'revisionBias'  : 'working',
+        'viewId'        : wsItems.viewId
     }
 
     let promises = [
-        $.get('/plm/bom-view-fields', params),
         $.get('/plm/bom', params),
         $.get('/plm/bom-flat', params)
     ];
@@ -498,25 +350,25 @@ function getBOMData(viewId) {
     Promise.all(promises).then(function(responses) {
 
         // Drop KPIs not contained in BOM View
-        for(var i = kpis.length - 1; i >= 0; i--) {
+        for(var i = config.explorer.kpis.length - 1; i >= 0; i--) {
 
             let keep = false;
 
-            for(field of responses[0].data) {
-                if(field.fieldId === kpis[i].fieldId) {
+            for(field of wsItems.viewColumns) {
+                if(field.fieldId === config.explorer.kpis[i].fieldId) {
                     keep = true;
                     break;
                 }
             }
 
-            if(!keep) kpis.splice(i, 1);
+            if(!keep) config.explorer.kpis.splice(i, 1);
 
         }
 
-        $('#dashboard-process').hide();
-        $('#bom-process').hide();
+        $('#dashboard-processing').hide();
+        $('#bom-processing').hide();
         setFlatBOMHeader();
-        setBOMData(responses[0].data, responses[1].data, responses[2].data);
+        setBOMData(responses[0].data, responses[1].data);
 
     });
 
@@ -528,6 +380,13 @@ function setFlatBOMHeader() {
 
     let elemFlatBOMHead = $('<tr></tr>');
         elemFlatBOMHead.appendTo(elemFlatBOMTHead);
+    
+    let elemFlatBOMHeadCheck = $('<th></th>');
+        elemFlatBOMHeadCheck.html('<div id="flat-bom-select-all" class="icon flat-bom-check-box xxs"></div>');
+        elemFlatBOMHeadCheck.appendTo(elemFlatBOMHead);
+        elemFlatBOMHeadCheck.click(function() {
+            toggleSelectAll();
+        });
 
     let elemFlatBOMHeadNumber = $('<th></th>');
         elemFlatBOMHeadNumber.html('Nr');
@@ -543,7 +402,7 @@ function setFlatBOMHeader() {
         elemFlatBOMHeadQty.html('Qty');
         elemFlatBOMHeadQty.appendTo(elemFlatBOMHead); 
 
-    for(kpi of kpis) {
+    for(kpi of config.explorer.kpis) {
         let elemFlatBOMHeadCell = $('<th></th>');
             elemFlatBOMHeadCell.html(kpi.title);
             elemFlatBOMHeadCell.appendTo(elemFlatBOMHead);       
@@ -554,32 +413,28 @@ function setFlatBOMHeader() {
         elemFlatBOMTBody.appendTo($('#bom-table-flat'));
 
 }
-function setBOMData(fields, bom, flatBom) {
+function setBOMData(bom, flatBom) {
 
     let elemRoot = $('#bom-table-tree');
         elemRoot.html('');
 
-    for(field of fields) {
+    for(field of wsItems.viewColumns) {
         if(field.fieldId === 'NUMBER') urns.partNumber = field.__self__.urn;
         else {
-            for(kpi of kpis) {
+            for(kpi of config.explorer.kpis) {
                 if(field.fieldId === kpi.fieldId) {
                     kpi.urn = field.__self__.urn;
-                    break;
                 }
             }
         }
     }
 
-    // insertNextBOMLevel(bom, elemRoot, 'urn:adsk.plm:tenant.workspace.item:' + tenant.toUpperCase() + '.' + wsId + '.' + dmsId, flatBom);
     insertNextBOMLevel(bom, elemRoot, bom.root, flatBom);
     insertFlatBOM(flatBom);
 
-    // console.log(kpis);
+    for(kpi of config.explorer.kpis) insertKPI(kpi);
 
-    for(kpi of kpis) insertKPI(kpi);
-
-    $('#items-process').hide();
+    $('#items-processing').hide();
 
 
     $('.bom-tree-nav').click(function(e) {
@@ -628,10 +483,11 @@ function setBOMData(fields, bom, flatBom) {
 
     });
 
-    $('tr').click(function(e) {
-
+    $('#bom-table-tree').children('tr').click(function(e) {
         selectBOMItem(e, $(this));
-        
+    });
+    $('tr.flat-bom-row').click(function(e) {
+        selectBOMItem(e, $(this));
     });
 
 }
@@ -645,18 +501,22 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom) {
 
             result = true;
 
-            let partNumber  =  getBOMCellValue(edge.child, urns.partNumber , bom.nodes);
-            let link        =  getBOMNodeLink(edge.child, bom.nodes);
+            let title       = getBOMItem(edge.child, bom.nodes);
+            let partNumber  = getBOMCellValue(edge.child, urns.partNumber , bom.nodes);
+            let link        = getBOMNodeLink(edge.child, bom.nodes);
             let newBOMItem  = { 'urn' : edge.child, 'part-number' : partNumber };
             let newItem     = true;
+
+            if(partNumber === '') partNumber = title.split(' - ')[0];
 
             let elemRow = $('<tr></tr>');
                 elemRow.attr('data-number', edge.itemNumber);
                 elemRow.attr('data-part-number', partNumber);
+                elemRow.attr('data-title', title);
                 elemRow.attr('data-qty', '1');
                 elemRow.appendTo(elemRoot);
     
-            for(kpi of kpis) {
+            for(kpi of config.explorer.kpis) {
 
                 let kpiValue = getBOMCellValue(edge.child, kpi.urn, bom.nodes, 'title');
 
@@ -692,20 +552,13 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom) {
                 if(node.item.urn === edge.child) {
                     elemRow.attr('data-dmsId',      node.item.link.split('/')[6]);
                     elemRow.attr('data-link',       node.item.link);
-                    elemRow.attr('data-urn',       edge.child);
+                    elemRow.attr('data-urn',        edge.child);
                     elemRow.attr('data-edgeId',     edge.edgeId);
                     elemRow.attr('data-edgeLink',   edge.edgeLink);
                     elemRow.attr('data-level',      edge.depth);
                     elemRow.addClass('bom-level-' + edge.depth);
                 }
             }
-
-            // for(key of keysMaster) {
-            //     let elemCell = $('<td></td>');
-            //         elemCell.appendTo(elemRow);
-            //         elemCell.html(getBOMCellValue(edge.child, key, bom.nodes));
-            // }
-
 
             let elemCell = $('<td></td>');
                 elemCell.appendTo(elemRow);
@@ -717,7 +570,7 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom) {
 
             let elemCellTitle = $('<span></span>');
                 elemCellTitle.addClass('bom-tree-title');
-                elemCellTitle.html(getBOMItem(edge.child, bom.nodes));
+                elemCellTitle.html(title);
                 elemCellTitle.appendTo(elemCell);
 
             let hasChildren = insertNextBOMLevel(bom, elemRoot, edge.child, flatBom);
@@ -730,7 +583,7 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom) {
 
                     let elemNav = $('<span></span>');
                         elemNav.addClass('bom-tree-nav');
-                        elemNav.addClass('material-symbols-sharp');
+                        elemNav.addClass('icon');
                         elemNav.addClass('expanded');
                         elemNav.prependTo($(this));
 
@@ -773,6 +626,7 @@ function getBOMNodeLink(id, nodes) {
 function filterBOMTree() {
 
     $('tr.result').removeClass('result');
+    $('.bom-tree-nav.collapsed').removeClass('collapsed');
 
     let filterValue = $('#bom-search-input').val().toLowerCase();
 
@@ -812,16 +666,16 @@ function filterBOMTree() {
 
         });
 
-        $('.flat-bom-item').each(function() {
+        $('.flat-bom-row').each(function() {
 
-            let elemRow   = $(this).parent();
-            let cellValue = $(this).html().toLowerCase();
+            let elemRow   = $(this);
 
-            console.log(cellValue);
-
-            if(cellValue.indexOf(filterValue) > -1) {
-                elemRow.show();
-            }
+            elemRow.children().each(function() {
+                let cellValue = $(this).html().toLowerCase();
+                if(cellValue.indexOf(filterValue) > -1) {
+                    elemRow.show();
+                }
+            });
 
         });
 
@@ -844,50 +698,131 @@ function unhideParents(level, elem) {
 }
 function selectBOMItem(e, elemClicked) {
 
-    if(elemClicked.hasClass('selected')) {
+    $('#create-process').show();
+    $('#cancel-process').hide();
+    $('#save-process').hide();
+    $('#processes-details').hide();
 
-        $('.bom-action').hide();
+    let partNumbers = [];
+
+    if(elemClicked.hasClass('selected')) {
+        
         elemClicked.removeClass('selected');
-        resetViewerSelection(true);
-        setAttachments('/api/v3/workspaces/' + wsId + '/items/' + dmsId);
-        setProcesses('/api/v3/workspaces/' + wsId + '/items/' + dmsId);
-        multiSelect.wsId        = '';
-        multiSelect.links       = [];
-        multiSelect.common      = [];
-        multiSelect.varies      = [];
-        multiSelect.partNumbers = [];
+        viewerResetSelection(true);
+
+        // if($('.flat-bom-row.selected').length === 0) {
+
+        //     $('.bom-action').hide();
+            
+        //     insertAttachments('/api/v3/workspaces/' + wsId + '/items/' + dmsId);
+        //     insertChangeProcesses('/api/v3/workspaces/' + wsId + '/items/' + dmsId, 'processes');
+        //     viewerResetSelection(true);
+            
+        //     multiSelect.wsId        = '';
+        //     multiSelect.links       = [];
+        //     multiSelect.common      = [];
+        //     multiSelect.varies      = [];
+        //     multiSelect.partNumbers = [];
+            
+        //     indexSelected = -1;
+            
+        // } else if(e.shiftKey) {
+
+        //     // let partNumbers = [];
+        //     $('.flat-bom-row.selected').each(function() {
+        //         partNumbers.push($(this).attr('data-part-number'));
+        //     });
+        //     viewerSelectModels(partNumbers, true);
+        //     viewerResetColors();
+
+        // } else {
+        //     elemClicked.click();
+        // }
 
     } else {
 
-        let linkSelected   = elemClicked.attr('data-link');
-        let resetSelection = (!e.shiftKey) ? true : (linkSelected.split('/')[4] !== multiSelect.wsId);
+        // let linkSelected   = elemClicked.attr('data-link');
+        // let resetSelection = (!e.shiftKey) ? true : (linkSelected.split('/')[4] !== multiSelect.wsId);
 
-        if(resetSelection) {
-            multiSelect.wsId        = linkSelected.split('/')[4];
-            multiSelect.links       = [linkSelected];
-            multiSelect.common      = [];     
-            multiSelect.varies      = [];     
-            multiSelect.partNumbers = [elemClicked.attr('data-part-number')];
-            $('tr.selected').removeClass('selected');      
+        // if(resetSelection) {
+        //     multiSelect.wsId        = linkSelected.split('/')[4];
+        //     multiSelect.links       = [linkSelected];
+        //     multiSelect.common      = [];     
+        //     multiSelect.varies      = [];     
+        //     multiSelect.partNumbers = [elemClicked.attr('data-part-number')];
+        //     $('tr.selected').removeClass('selected');      
+        // } else {
+        //     multiSelect.links.push(linkSelected);
+        //     multiSelect.partNumbers.push(elemClicked.attr('data-part-number'));
+        // }
+
+        
+
+        if(e.shiftKey) {
+
+            if(indexSelected > -1) {
+                let increment = (indexSelected < elemClicked.index()) ? 1 : -1;
+                do {
+                    $('.flat-bom-row').eq(indexSelected).addClass('selected');
+                    indexSelected += increment;
+                } while (indexSelected !== elemClicked.index());
+            }
+            $('.flat-bom-row.selected').each(function() {
+                partNumbers.push($(this).attr('data-part-number'));
+            });
+            viewerResetColors();
+            viewerSelectModels(partNumbers, true);
+
+        } else if(e.ctrlKey || event.metaKey) {
+
+            $('.flat-bom-row.selected').each(function() {
+                partNumbers.push($(this).attr('data-part-number'));
+            });
+            viewerResetColors();
+            viewerSelectModels(partNumbers, true);
+
         } else {
-            multiSelect.links.push(linkSelected);
-            multiSelect.partNumbers.push(elemClicked.attr('data-part-number'));
+            
+            $('#bom-table-tree').children().removeClass('selected');
+            $('.flat-bom-row').removeClass('selected');
+            // viewerResetColors();
+            // viewerSelectModels(multiSelect.partNumbers, true);
+            
         }
 
-        console.log(multiSelect);        
+        elemClicked.addClass('selected');
+        partNumbers.push(elemClicked.attr('data-part-number'));
 
+        indexSelected = elemClicked.index();
+
+        let linkSelected   = elemClicked.attr('data-link');
+
+        $('#details').attr('data-link', linkSelected);
         $('.bom-action').show();
         $('#go-there').show();
         
-        elemClicked.addClass('selected');
-
         viewerResetColors();
-        setItemDetails(linkSelected);
-        setAttachments(linkSelected);
-        setProcesses(linkSelected);
-        getBookmarkStatus($('#bookmark'), elemClicked.attr('data-urn'));
-        viewerSelectModels(multiSelect.partNumbers, true);
+        viewerSelectModels(partNumbers, true);
 
+        setItemDetails(linkSelected);
+        insertAttachments(linkSelected);
+        insertChangeProcesses(linkSelected, 'processes');
+        
+        
+    }
+
+}
+function toggleSelectAll() {
+ 
+    let elemControl = $('#flat-bom-select-all');
+        elemControl.toggleClass('selected');
+
+    if(elemControl.hasClass('selected')) {
+        $('.flat-bom-row').addClass('selected');
+        viewerSelectAll();
+    } else {
+        $('.flat-bom-row').removeClass('selected');
+        viewerResetSelection(true);
     }
 
 }
@@ -899,15 +834,24 @@ function insertFlatBOM(flatBom) {
     for(item of flatBom) {
 
         let link        = item.item.link.toString();
+        let urn         = item.item.urn;
+        let title       = item.item.title;
         let qty         = Number(item.totalQuantity).toFixed(2);
         let partNumber  = getFlatBOMCellValue(flatBom, link, urns.partNumber, 'title');
 
+        if(partNumber === '') partNumber = title.split(' - ')[0];
+
         let elemRow = $('<tr></tr>');
-            elemRow.attr('data-link', item.item.link);
-            elemRow.attr('data-urn', item.item.urn);
+            elemRow.attr('data-link', link);
+            elemRow.attr('data-urn', urn);
             elemRow.attr('data-part-number', partNumber);
             elemRow.addClass('flat-bom-row');
             elemRow.appendTo(elemParent);
+
+        let elemRowCheck = $('<td></td>');
+            elemRowCheck.html('<div class="icon flat-bom-check-box xxs"></div>');
+            elemRowCheck.addClass('flat-bom-check');
+            elemRowCheck.appendTo(elemRow);
 
         let elemRowNumber = $('<td></td>');
             elemRowNumber.html(count++);
@@ -915,7 +859,7 @@ function insertFlatBOM(flatBom) {
             elemRowNumber.appendTo(elemRow);
 
         let elemRowItem = $('<td></td>');
-            elemRowItem.html(item.item.title)
+            elemRowItem.html(title)
             elemRowItem.addClass('flat-bom-item');
             elemRowItem.appendTo(elemRow);
 
@@ -924,17 +868,71 @@ function insertFlatBOM(flatBom) {
             elemRowQty.addClass('flat-bom-qty');
             elemRowQty.appendTo(elemRow);
 
-        for(kpi of kpis) {
+        for(kpi of config.explorer.kpis) {
 
-            let value = getFlatBOMCellValue(flatBom, link, kpi.urn, 'title');
-
+            let value       = getFlatBOMCellValue(flatBom, link, kpi.urn, 'title');
+            let isEditable  = false;
             let elemRowCell = $('<td></td>');
-                elemRowCell.html(value);
-                elemRowCell.appendTo(elemRow);      
-                
+
+            elemRowCell.appendTo(elemRow); 
+
+            for(editableField of editableFields) {
+
+                if(kpi.fieldId === editableField.id) {
+
+                    if(!isBlank(editableField.control)) {
+
+                        let elemControl = editableField.control.clone();
+                            elemControl.appendTo(elemRowCell);
+                            elemRowCell.attr('data-id', editableField.id);
+                            elemControl.click(function(e) {
+                                e.stopPropagation();
+                            });
+                            elemControl.change(function() {
+                                valueChanged($(this));
+                            });
+
+                        switch (editableField.type) {
+
+                            case 'Single Selection':
+                                elemControl.val(value.link);
+                                break;
+
+                            default:
+                                elemControl.val(value);
+                                break;
+
+                        }
+
+                        isEditable = true;
+                    }
+
+                }
+
+            }
+
+            if(!isEditable) elemRowCell.html(value);
+                         
         }
 
     }
+
+}
+function valueChanged(elemControl) {
+
+    let index = elemControl.parent().index();
+    let value = elemControl.val();
+
+    elemControl.parent().addClass('changed');
+    elemControl.closest('tr').addClass('changed');
+
+    $('#save-bom-changes').show();
+
+    $('.flat-bom-row.selected').each(function() {
+        $(this).addClass('changed');
+        $(this).children().eq(index).addClass('changed');
+        $(this).children().eq(index).children().first().val(value);
+    })
 
 }
 function parseKPI(kpi, value) {
@@ -952,8 +950,8 @@ function parseKPI(kpi, value) {
     if(isNew) kpi.data.push({ 
         'value'     : value, 
         'count'     : 1, 
-        'color'     : colorRange[kpi.data.length % colorRange.length], 
-        'vector'    : vectorRange[kpi.data.length % kpiVectors.length] 
+        'color'     : config.colors.list[ kpi.data.length % config.colors.list.length ],
+        'vector'    : config.vectors.list[kpi.data.length % config.vectors.list.length] 
     });
 
 }
@@ -1010,8 +1008,6 @@ function insertKPI(kpi) {
         let color =  entry.color;
         let label = (entry.value === '') ? '-' : entry.value;
 
-
-
         let elemKPIValue = $('<div></div>');
             elemKPIValue.attr('data-filter', entry.value);
             elemKPIValue.addClass('kpi-value');
@@ -1044,6 +1040,7 @@ function insertKPI(kpi) {
 }
 
 
+
 // KPI Handling
 function selectKPI(elemClicked) {
 
@@ -1061,7 +1058,7 @@ function selectKPI(elemClicked) {
 
     if(isSelected) return; 
         
-    for(kpi of kpis) {
+    for(kpi of config.explorer.kpis) {
         if(kpi.id === id) {
             kpiData = kpi.data;
             break;
@@ -1119,7 +1116,7 @@ function selectKPI(elemClicked) {
             }
 
             if(value === filter) {
-                $(this).children().first().css('background', color);
+                $(this).children('.flat-bom-number').first().css('background', color);
             }
 
         });
@@ -1169,7 +1166,7 @@ function applyFilters() {
 
     });
 
-    resetViewerSelection(true);
+    viewerResetSelection(true);
 
     $('#bom-table-tree').children().each(function() {
 
@@ -1180,7 +1177,6 @@ function applyFilters() {
             if(bomItem.urn === urn) {
                 for(filter of filters) {
                     let value = bomItem[filter.id];
-                    console.log(value);
                     if(filter.values.indexOf(value) < 0) isVisible = false;
                 }
                 break;
@@ -1228,38 +1224,201 @@ function applyFilters() {
     else viewerSelectModels(partNumbers);
 
 }
+function refreshKPIs() {
+
+    let params = {
+        'wsId'          : wsId,
+        'dmsId'         : dmsId,
+        'depth'         : 10,
+        // 'revisionBias'  : 'allChangeOrder',
+        // 'revisionBias'  : 'changeOrder',
+        'revisionBias'  : 'release',
+        // 'revisionBias'  : 'working',
+        'viewId'        : wsItems.viewId
+    }
+
+    let promises = [
+        $.get('/plm/bom'     , params),
+        $.get('/plm/bom-flat', params)
+    ];
 
 
-// Retrieve required details of workspace Spare Parts Requests
-function getRequestWSConfig() {
+    // $('#dashboard-panel').html('');
+    $('#dashboard-panel').addClass('hidden');
+    $('#dashboard-processing').show();
 
-    $.get('/plm/get-workspace-id', { 'name' : 'Spare Parts Requests' }, function(response) {
-        wsIdRequests = response.data;
-        $.get('/plm/sections', { 'wsId' : wsIdRequests }, function(response) {
-            if(response.data.length > 0) {
-                sectionIdRequests = response.data[0].urn.split('.')[5];
+    Promise.all(promises).then(function(responses) {
+
+
+        let bom = responses[0].data;
+
+        bomItems = [];
+
+
+        for(kpi of config.explorer.kpis) {
+            for(data of kpi.data) {
+                data.count = 0;
             }
-        });
+        };
+
+        parsetNextBOMLevelKPIs(bom, bom.root);
+
+        $('#dashboard-panel').removeClass('hidden');
+        $('#dashboard-processing').hide();
+
+        
+        for(kpi of config.explorer.kpis) refreshKPI(kpi);
+
+
     });
+    
+}
+function parsetNextBOMLevelKPIs(bom, parent) {
+
+    for(edge of bom.edges) {
+
+        if(edge.parent === parent) {
+
+            let partNumber  = getBOMCellValue(edge.child, urns.partNumber , bom.nodes);
+            // let link        = getBOMNodeLink(edge.child, bom.nodes);
+            let newBOMItem  = { 'urn' : edge.child, 'part-number' : partNumber };
+            let newItem     = true;
+
+
+            for(kpi of config.explorer.kpis) {
+
+                let kpiValue = getBOMCellValue(edge.child, kpi.urn, bom.nodes, 'title');
+
+                if(kpi.type === 'non-empty') {
+                    kpiValue = (kpiValue === '' ) ? 'No' : 'Yes';
+                } else if(kpi.type === 'days') {
+                    if(kpiValue === '') kpiValue = '-'
+                    else {
+                        let day  = kpiValue.split(' ')[0].split('-');
+                        let date = new Date(day[0], day[1], day[2]);
+                        var diff = now.getTime() - date.getTime();
+                        kpiValue = diff / (1000 * 3600 * 24);
+                        kpiValue = Math.round(kpiValue, 0);
+                        kpiValue = kpiValue + ' days ago';
+                    }
+                } else if(kpi.type === 'value') {
+                    kpiValue = (kpiValue === '' ) ? '-' : kpiValue;
+                }
+
+                newBOMItem[kpi.id] = kpiValue;
+                parseKPI(kpi, kpiValue);
+
+                for(bomItem of bomItems) {
+
+                    if(bomItem.urn === edge.child) { newItem = false; break; }
+                }
+    
+                if(newItem) bomItems.push(newBOMItem);
+
+                
+    
+            }
+
+            parsetNextBOMLevelKPIs(bom, edge.child);
+
+        }
+    }
 
 }
+function refreshKPI(kpi) {
 
+    let elemDashboard = $('#dashboard-panel');
+
+    if(kpi.style === 'bars') {
+
+        let sort = (typeof kpi.sort === 'undefined') ? 'count' : kpi.sort;
+
+        sortArray(kpi.data, sort, 'number');
+
+        let max = 1; 
+
+        for(entry of kpi.data) {
+            if(entry.count > max) max = entry.count;
+        }
+
+        kpi.max = max;
+
+    }
+
+    elemDashboard.children('.kpi').each(function() {
+        
+        let elemKPI = $(this);
+        let id = elemKPI.attr('data-kpi-id');
+
+        if(id === kpi.id) {
+        
+            let elemKPISelector = $(this).children('.kpi-selector').first();
+
+            if(elemKPI.hasClass('selected')) {
+                elemKPI.removeClass('selected');
+                // selectKPI(elemKPISelector);
+                elemKPISelector.click();
+            }
+            
+        let elemKPIValues = $(this).children('.kpi-values').first();
+        elemKPIValues.html('');
+
+        for(entry of kpi.data) {
+
+            let color =  entry.color;
+            let label = (entry.value === '') ? '-' : entry.value;
+    
+            let elemKPIValue = $('<div></div>');
+                elemKPIValue.attr('data-filter', entry.value);
+                elemKPIValue.addClass('kpi-value');
+                elemKPIValue.appendTo(elemKPIValues);
+                elemKPIValue.click(function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    selectKPIValue(e, $(this));
+                });
+        
+            let elemKPILabel = $('<div></div>');
+                elemKPILabel.addClass('kpi-label');
+                elemKPILabel.html(label);
+                elemKPILabel.appendTo(elemKPIValue);
+    
+            let elemKPICounter = $('<div></div>');
+                elemKPICounter.addClass('kpi-counter');
+                elemKPICounter.html(entry.count);
+                elemKPICounter.appendTo(elemKPIValue);
+    
+            if(kpi.style === 'bars') {
+                let width = entry.count * 100 / kpi.max;
+                elemKPIValue.css('background', 'linear-gradient(90deg, ' + color + ' 0 ' + width + '%, white ' + width + '% 100%)');
+            } else {
+                elemKPILabel.css('border-color', entry.color);
+            }
+    
+        }
+    }
+
+    });
+    
+    
+}
+ 
 
 
 function setItemDetails(link) {
 
-    $('#details').attr('data-link', link);
-    $('#details-process').show();
+    getBookmarkStatus();
 
-    let elemParent = $('#sections');
-        elemParent.html('');
+    $('#details-processing').show();
+    $('#details-sections').html('');
 
     $.get('/plm/details', { 'link' : link }, function(response) {
 
-        insertItemDetails(elemParent, sections, fields, response.data, true, false, false);
-        $('#details-process').hide();
+        if($('#details').attr('data-link') !== response.params.link) return;
 
-        // console.log(multiSelect);
+        insertItemDetailsFields('details', '', wsItems.sections, wsItems.fields, response.data, true, false, false);
+
+        $('#details-processing').hide();
 
         if(multiSelect.links.length < 2) {
 
@@ -1328,7 +1487,7 @@ function setItemDetails(link) {
 
             // console.log(multiSelect);
 
-            elemParent.find('.field-value').each(function() {
+            $('#sections').find('.field-value').each(function() {
 
                 let id = $(this).attr('data-id');
                 let reset = true;
@@ -1340,51 +1499,106 @@ function setItemDetails(link) {
                     }
                 }
 
-                // console.log(id);
-                // console.log(reset);
-
                 if(reset) {
-
-                    console.log(' > about to reset');
-
                     if($(this).hasClass('radio')) {
-                        console.log(' > about to reset radio');
-
-                        console.log($(this).find('input.radio').length);
-
                         $(this).find('input').each(function() {
                             $(this).removeAttr('checked');
                         });
                     } else $(this).val('');
-
                 } 
 
             });
 
         }
 
-        console.log(multiSelect);
+    });
 
+}
+
+
+// Display create & connect dialog
+function showCreateDialog() {
+
+    $('#overlay').show();
+    $('#create-connect').show();
+
+    insertItemDetailsFields('create-connect', '', wsSupplierPackages.sections, wsSupplierPackages.fields, null, true, true, true);
+
+    let elemField;
+
+    $('#create-connect-sections').find('.multi-picklist').each(function() {
+        if($(this).attr('data-id') === 'SHARED_ITEMS') elemField = $(this);
+    });
+
+    $('#bom-table-tree').children('.selected').each(function() {
+
+        let elemOption = $('<div></div>');
+            elemOption.attr('data-link', $(this).attr('data-link'));
+            elemOption.html($(this).attr('data-title'));
+            elemOption.appendTo(elemField);
+        
     });
 
 }
 
 
 
-// Display selected item's attachments
-function setAttachments(link) {
+// Save BOM Changes
+function saveBOMChanges() {
 
-    $('#attachments-process').show();
-
-    let elemParent = $('#attachments-list');
-        elemParent.html('');
-
-    $.get('/plm/attachments', { 'link' : link }, function(response) {
-        insertAttachments(elemParent, response.data, true);
-        $('#attachments-process').hide();
-    });
+    $('#overlay').show();
+    saveBOMChange();
 
 }
+function saveBOMChange() {
+
+    if($('tr.changed').length === 0) {
+
+        $('#save-bom-changes').hide();
+        $('#overlay').hide();
+
+    } else {
+
+        let requests = [];
+        let elements = [];
+
+        $('tr.changed').each(function() {
+
+            if(requests.length < maxRequests) {
+
+                let elemItem = $(this);
+
+                let params = { 
+                    'link'     : elemItem.attr('data-link'),
+                    'sections' : []
+                };      
+        
+                elemItem.children('.changed').each(function() {
+                    let elemField = getFieldValue($(this));
+                    addFieldToPayload(params.sections, wsItems.sections, null, elemField.fieldId, elemField.value);
+                });
+
+                requests.push($.get('/plm/edit', params));
+                elements.push(elemItem);
+
+            }
+
+        });
+
+        Promise.all(requests).then(function(responses) {
+
+            for(element of elements) {
+                element.removeClass('changed');
+                element.children().removeClass('changed');
+            }
+            saveBOMChange();
+
+        });
+
+    }
+
+}
+
 
 // Save Item Details Changes
 function saveChanges() {
@@ -1395,44 +1609,41 @@ function saveChanges() {
 }
 function saveItem(index) {
 
-    if(index < multiSelect.links.length) {
+    // if(index < multiSelect.links.length) {
 
-        let params = { 
-            'link'     : multiSelect.links[index++],
-            'sections' : getSectionsPayload($('#sections')) 
-        };
+    //     console.log('heir');
 
-        $.get('/plm/edit', params, function(response) {
-            saveItem(index);
-        });
+    //     let params = { 
+    //         'link'     : multiSelect.links[index++],
+    //         'sections' : getSectionsPayload($('#details-sections')) 
+    //     };
 
-    } else {
+    //     console.log(params);
+
+    //     $.get('/plm/edit', params, function(response) {
+    //         if(response.error) {
+    //             showErrorMessage(response.data.message, 'Save Failed');
+    //         }
+    //         saveItem(index);
+    //     });
+
+    // } else {
         
-        $('#overlay').hide();
+    //     $('#overlay').hide();
 
-    }
-
-}
+    // }
 
 
-// Display selected item's Change Processes
-function setProcesses(link) {
+    let params = { 
+        'link'     : $('#details').attr('data-link'),
+        'sections' : getSectionsPayload($('#details-sections')) 
+    };
 
-    $('#processes-process').show();
-
-    let elemParent = $('#processes-list');
-        elemParent.attr('data-source', link);
-        elemParent.html('');
-
-    $.get('/plm/changes', { 'link' : link }, function(response) {
-        
-        if(response.params.link === $('#processes-list').attr('data-source')) {
-
-            insertChangeProcesses($('#processes-list'), response.data);
-            $('#processes-process').hide();
-
+    $.get('/plm/edit', params, function(response) {
+        if(response.error) {
+            showErrorMessage(response.data.message, 'Save Failed');
         }
-
+        $('#overlay').hide();
     });
 
 }

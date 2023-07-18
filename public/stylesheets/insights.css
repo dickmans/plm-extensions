@@ -1,19 +1,29 @@
-/*  EXTRAS */
+/*  ADDITIONS */
 /* ----------------------------------------------------------------------------- */
-.panel-tabs {
-    border-bottom : 4px solid #eeeeee;
-    padding : 10px 24px 0px;
+.tabs {
+    background : var(--color-gray-100);
+    border-top: 2px solid black;
+    border-bottom: none;
+    font-size : 16px;
+    padding : 0px;
     left : 0px;
     right : 0px;
-    top : 11px;
+    bottom : 0px;
 }
-.panel-tabs > div { 
-    font-size : 16px;
-    font-weight : normal; 
+.tabs > div {
+    border : none;
+    height : 60px;
+    line-height : 60px;
 }
-.panel-content {
-    padding : 24px 24px 24px;
-    top : 62px;
+.tabs > div.selected {
+    background : black;
+    color : white;
+}
+.panel-content { 
+    /* display : none; */
+    padding : 40px;
+    top : 0px; 
+    bottom : 62px;
 }
 .dashboard > div { padding : 25px; }
 .section {
@@ -29,7 +39,7 @@
     font-style : italic;
     line-height : 40px;
     position : absolute;
-    right : 30px;
+    right : 90px;
     text-align : right;
     top : 14px;
 }
@@ -110,6 +120,7 @@
 #logins {
     display : flex;
     flex-direction: column;
+    flex-wrap: nowrap;
     gap : 20px;
     overflow: hidden;
 }

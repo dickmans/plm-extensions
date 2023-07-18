@@ -1,15 +1,4 @@
-var fs = require('fs');
-
-
-/* ------------------------------------------------------------------
-   Uncomment the following lines to enable https connections 
-   This requires to have the given certificates stored in /keys
-   use letsencrypt to generate such keys if needed 
-   ------------------------------------------------------------------ */
-// var https       = require('https');
-// var privateKey  = fs.readFileSync('keys/privkey.pem', 'utf8');
-// var certificate = fs.readFileSync('keys/fullchain.pem', 'utf8');
-// var credentials = {key: privateKey, cert: certificate};
+let fileSettings = (process.argv.length > 2) ? '.' + process.argv[2] : '';
 
 
 const express     = require('express');
@@ -21,7 +10,7 @@ const bodyParser  = require('body-parser');
 const landing     = require('./routes/landing');
 const plm         = require('./routes/plm');
 const extensions  = require('./routes/extensions');
-const settings    = require('./settings.js');
+const settings    = require('./settings' + fileSettings + '.js');
 const app         = express();
 
 
@@ -30,11 +19,15 @@ app.locals.tenant       = settings.tenant;
 app.locals.clientId     = settings.clientId;
 app.locals.clientSecret = settings.clientSecret;
 app.locals.redirectUri  = settings.redirectUri;
+app.locals.config       = settings.config;
+app.locals.debugMode    = settings.debugMode;
 
 
 // VIEW ENGINE SETUP
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
+
+app.use(require('express-status-monitor')());
 
 
 // FAVICON & OTHERS
@@ -74,18 +67,8 @@ app.use(function(err, req, res, next) {
 
     // render the error page
     res.status(err.status || 500);
-    res.render('error');
+    res.render('common/error');
 
 });
-
-
-/* ------------------------------------------------------------------
-   Uncomment the following lines to enable https connections 
-   This requires to have the given certificates stored in /keys
-   use letsencrypt to generate such keys if needed 
-   ------------------------------------------------------------------ */
-// var httpsServer = https.createServer(credentials, app);
-//     httpsServer.listen(settings.port);
-
 
 module.exports = app;

@@ -1,19 +1,20 @@
-extends common
+extends common/layout
 
 block head
+
     link(rel='stylesheet', href='/stylesheets/reports.css')
     link(rel='stylesheet', href='../javascripts/libs/DataTables-1.12.1/datatables.min.css')
+    
     script(src='../javascripts/libs/DataTables-1.12.1/datatables.min.js')
     script(src='../javascripts/libs/Chart.bundle.min.js')
-    script(src='../javascripts/ui.js')
     script(src='../javascripts/reports.js')
+
     script.
-        tenant="#{tenant}"
-        options="#{options}"
+        config = !{JSON.stringify(config)};
 
 block content
 
-    body.surface-level-2-5 
+    body.surface-level-2 
 
         #header
             #header-logo
@@ -24,17 +25,10 @@ block content
 
         #reports.dashboard
         
-        #overlay 
-            .progress
-                .bounce1
-                .bounce2
-                .bounce3
-        
-        #dialog.dialog.surface-level-1
+        .dialog
             .dialog-header Select reports to display in dashboard
-            #list.dialog-content.tiles.wide.s 
+            .dialog-content.tiles.wide.s#list 
             .dialog-footer
                 .button.clear Deselect All
-                #submit.button.default Apply 
+                .button.default#submit Apply 
                 .button.cancel Cancel
-            .dialog-processing

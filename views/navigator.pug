@@ -1,0 +1,120 @@
+extends common/layout
+
+block head
+    link(rel='stylesheet', href='/stylesheets/navigator.css')
+    script(src='/javascripts/navigator.js')
+    script.
+        config = !{JSON.stringify(config)};
+
+block content
+
+    body
+
+        #header.dark
+            #header-logo
+            #header-title= title
+            #header-subtitle
+            #header-toolbar
+                #button-toggle-create.button.with-icon.icon-create.filled(title='Click to create new record') 
+                #button-change-workspace.button.with-icon.icon-tiles.filled(title='Switch to another workspace') Select Workspace
+                #header-avatar
+
+        #main.screen
+
+            .panel#tableau 
+                .panel-header 
+                    .panel-title#tableau-title
+                        select#tableau-selector
+                            option#option-bookmarks(value='bookmarks', name='bookmarks') Your Bookmarks
+                            option#option-recents(value='recents', name='recents') Your Recent Data
+                            option#option-mow(value='mow', name='mow') Your Outstanding Work
+                    .panel-toolbar
+                        .button.with-icon.icon-workflow.workflow-actions.hidden#perform-workflow-actions Workflow
+                        .button.with-icon.icon-edit-multiple#edit-selected Edit
+                        .button.with-icon.icon-delete#archive Archive
+                        .button.default#save Save Changes
+                        .panel-toolbar-spacer
+                        .button.icon.icon-deselect-all#deselect-all(title='Clear selection of items')
+                        .button.icon.icon-select-all#select-all(title='Select all visible items')
+                        .button.with-icon.icon-filter#filter
+                            input(placeholder='Filter')
+                        .button.icon.icon-hide.disabled#hide-items(title='Hide selected items from this view')
+                        .button.icon.icon-show.disabled#show-items(title='Unhide selected items')
+                        .button.icon.icon-layers.toggle-layer#show-hidden-layer(title='Switch layer to only show hidden items instead')
+                        .button.icon.icon-layers.toggle-layer#hide-hidden-layer(title='Switch layer to only show visible items')
+                #tableau-empty 
+                    .icon.icon-info 
+                    p No data for this view
+                .panel-spacer.surface-level-1
+                .panel-content.surface-level-1
+                    table#tableau-table
+                        thead#tableau-header
+                        tbody#tableau-body
+
+            .panel.compact#details
+                .panel-header   
+                    .panel-title#details-title Details 
+                    .panel-toolbar 
+                        select.workflow-actions.hidden#workflow-actions(label='Workflow Actions')
+                        .button.icon.icon-clone#button-clone(title='Clone this record')
+                        .button.icon#bookmark(title='Toggle bookmark') star
+                        .button.icon#open(title='Open record in new PLM tab') open_in_new
+                        .button.icon#close.icon.icon-close(title='Close this panel')
+                #viewer
+                .panel-toggles
+                    div#tabItemDetails Details 
+                    div#tabGrid Grid
+                    div#tabAttachments Attachments 
+                .panel-content.surface-level-2.view-only#details-sections
+                .panel-content.surface-level-2#grid-list
+                .panel-content.surface-level-2.tiles.list.m#attachments-list
+
+            .panel#create
+                .panel-header
+                    .panel-title New Record
+                    .panel-toolbar
+                        .button.default#save-create(title='Save new process in PLM') Save
+                        .button#cancel-create(title='Cancel creation of new process') Cancel
+                .panel-content#create-sections.surface-level-2
+
+            .panel#clone
+                .panel-header
+                    .panel-title#clone-title Clone Record
+                    .panel-toolbar
+                        .button.default#submit-clone(title='Clone') Clone
+                        .button#cancel-clone.icon.icon-close(title='Cancel')
+                .panel-content#clone-sections.surface-level-2
+
+            .panel#edit
+                .panel-header
+                    .panel-title Edit Selected Records
+                    .panel-toolbar
+                        .button#apply-edits.default(title='Apply given changes to selected items') Apply
+                        .button#clear-edits.icon.icon-clear(title='Clear all the inputs in this form') 
+                        .button#close-edits.icon.icon-close(title='Close this panel')
+                .panel-content#edit-fields.surface-level-2.section-fields
+
+        #workspaces.screen 
+
+            .panel#workspaces-panel  
+                .panel-header   
+                    .panel-title Select Workspace
+                    .panel-toolbar  
+                        .button.with-icon.icon-filter
+                            input#filter-workspaces(placeholder='Filter Workspaces')
+                        .button.icon.icon-close#workspaces-close
+                .panel-content#workspaces-list.tiles.wide.s
+
+
+        #transitions.dialog
+            .dialog-header Perform Workflow Actions
+            .dialog-content
+                .col-left 
+                    .col-header Workflow Comments
+                    textarea#transitions-comment
+                .col-right
+                    .col-header Selected Workflow Actions
+                    #transitions-list
+            .dialog-footer
+                #transitions-submit.button.default Submit
+                #transitions-cancel.button Cancel

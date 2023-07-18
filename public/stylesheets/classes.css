@@ -1,61 +1,62 @@
-/* EXTRAS */
-/* ----------------------------------------------------------------------------- */
-.panel-title {
-    padding-top: 10px;
-    font-size: 24px;
-    font-weight: 800;
-}
-.panel-header { padding : 10px 140px 0px 0px; }
-.panel-tabs { margin-top : 380px; }
-.panel-content { top :  496px; }
-.panel-item-toolbar {
-    right : 0px;
-    top : 12px;
-}
-
-
 /* MASTER LAYOUT */
 /* ----------------------------------------------------------------------------- */
-#items {
-    padding-bottom : 25px;
-    top : 25px;
+:root {
+    --width-panel   : 800px;
+    --height-viewer : 350px;
+    --padding-panel : 25px;
 }
 #items {
-    bottom : 0px;
-    left : 25px;
-    right : 25px;
+    border-right : 4px solid var(--color-gray-100);
+    padding-right : var(--padding-panel);
+    top : var(--padding-panel);
+    right : calc((2 * var(--padding-panel)) + var(--width-panel));
+    bottom : var(--padding-panel);
+    left : var(--padding-panel);
 }
 #item {
-    top : 25px;
-    bottom : -55px;
-    width : 600px;
-    right : -610px;
+    top    : var(--padding-panel);
+    right  : var(--padding-panel);
+    bottom : var(--padding-panel);
+    width  : var(--width-panel);
 }
 #viewer {
-    height : 350px;
+    height : var(--height-viewer);
     position : absolute;
-    top : 80px;
+    top : 70px;
     left : 0px;
     right : 0px;
 }
-.no-viewer #viewer {
-    display : none;
-}
-.no-viewer .panel-tabs { margin-top : 30px; }
-.no-viewer .panel-content { top : 146px; }
-.with-panel #items, .with-panel #footer {
-    right : 650px;
-    border-right : 4px solid var(--color-gray-100);
-    padding-right : 25px;
-}
-.with-panel #item {
-    right : 25px;
-}
+
+.no-viewer #viewer { display : none; }
+
+.no-panel #items { border : none; padding-right : 0px; right : var(--padding-panel); }
+.no-panel #items-content { right : 0px; }
+.no-panel #item { right : calc(0px - var(--width-panel)); }
 
 
 
 /* ITEMS */
 /* ----------------------------------------------------------------------------- */
+#items-header {
+    border-bottom: 2px solid black;
+    padding: 10px;
+}
+#items-title { font-size : 24px; }
+#items-content { 
+    display : block !important;
+    right : var(--padding-panel);
+    bottom : 58px;
+}
+#items-toggles {
+    position : absolute;
+    right : 0px;
+    bottom : 0px;
+    left : 0px;
+}
+#items-toggles > div {
+    margin : auto;
+    max-width : 900px;
+}
 #items-list { width : 100%; }
 th {
     background : var(--color-gray-100);
@@ -94,26 +95,26 @@ tr.reference td {
     color : var(--color-status-green);
     font-weight : bold;
 }
-
-
-
-/* TOGGLES */
-/* ----------------------------------------------------------------------------- */
-.panel-toggles { max-width : 900px; }
-
+/* #items .panel-toggles {
+    bottom : 0px;
+    max-width : 900px;
+    margin : auto;
+    position : absolute;
+} */
 
 
 /* ITEM */
-/* ----------------------------------*/
-#item-bookmark.active {
-    background : var(--color-status-yellow);
-    color : white;
-}
+/* ----------------------------------------------------------------------------- */
+#item .panel-toggles { margin-top : calc(16px + var(--height-viewer)); }
+#item .panel-content { margin-top : calc(80px + var(--height-viewer)); }
+.no-viewer #item .panel-toggles { margin-top : 16px; }
+.no-viewer #item .panel-content { margin-top : 80px; }
+#item-title { font-size : 24px; }
+#item > div { transition : all .25s ease; }
 
 
-
-/* FORGE VIEWER */
-/* ----------------------------------*/
+/* APS VIEWER */
+/* ----------------------------------------------------------------------------- */
 #navTools,
 #toolbar-modelStructureTool,
 #toolbar-propertiesTool {

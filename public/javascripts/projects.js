@@ -1,23 +1,6 @@
-let chartColors = [
-    'rgb(64, 169, 221, 0.8)',
-    'rgb(250, 177, 28, 0.8)',
-    'rgb(119, 189, 13, 0.8)',
-    'rgb(226, 88, 11, 0.8)',
-    'rgb(114, 114, 114, 0.8)',
-    'rgb(156, 115, 221, 0.8)',
-    'rgb(206, 112, 87, 0.8)',
-    'rgb(64, 169, 221, 0.4)',
-    'rgb(250, 177, 28, 0.4)',
-    'rgb(119, 189, 13, 0.4)',
-    'rgb(226, 88, 11, 0.4)',
-    'rgb(114, 114, 114, 0.4)',
-    'rgb(156, 115, 221, 0.4)',
-    'rgb(206, 112, 87, 0.4)'
-];
-
-
 $(document).ready(function() {   
     
+    appendOverlay();
     getData();
 
 });
@@ -28,21 +11,13 @@ $(document).ready(function() {
 function getData() {
 
     $.get('/plm/search-bulk', { 
-        'wsId'   : wsId,
+        'wsId'   : config.projects.wsIdProjects,
         'limit'  : 100,
         'offset' : 0,
         'query'  : '*'
     }, function(response) {
 
-        response.data.items.sort(function(a, b){
-            var nameA=a.title.toLowerCase(), nameB=b.title.toLowerCase()
-            if (nameA < nameB) 
-                return -1 
-            if (nameA > nameB)
-                return 1
-            return 0 
-        });
-
+        sortArray(response.data.items, 'title', 'string', 'ascending');
 
         let projectNames = [];
         for(project of response.data.items) {
@@ -58,7 +33,6 @@ function getData() {
         setGatesTimeline('gates', response.data.items, projectNames);
         setEfforts('efforts', response.data.items, projectNames);
         setDeviations('deviations', response.data.items, projectNames);
-        // setBuffers('buffers', data.items, projectNames);
 
         $('.dashboard').children().show();
         $('#overlay').hide();
@@ -108,7 +82,7 @@ function setStatusTable(projects) {
 }
 function getProjectStatus(data, fieldId) {
 
-    let status = getProjectProperty(data, fieldId);
+    let status = getSectionFieldValue(data.sections, fieldId, '', 'title');
     let style = 'bg-gray';
 
     if(status.length > 0) status = status.substring(0, 1);
@@ -163,20 +137,16 @@ function setKPIsTable(projects) {
             elemCellName.appendTo(elemRow);
 
         let elemCell1 = $('<td></td>');
-            elemCell1.append(getProjectProperty(project, 'PROGRESS'));
+            elemCell1.append(getSectionFieldValue(project.sections, 'PROGRESS', ''));
             elemCell1.appendTo(elemRow);
         
         let elemCell2 = $('<td></td>');
-            elemCell2.append(getProjectProperty(project, 'BUDGET_CONSUMPTION'));
+            elemCell2.append(getSectionFieldValue(project.sections, 'BUDGET_CONSUMPTION', ''));
             elemCell2.appendTo(elemRow);
         
         let elemCell3 = $('<td></td>');
-            elemCell3.append(getProjectProperty(project, 'CURRENT_PHASE_PROGRESS'));
+            elemCell3.append(getSectionFieldValue(project.sections, 'CURRENT_PHASE_PROGRESS', ''));
             elemCell3.appendTo(elemRow);
-        
-        // let elemCell4 = $('<td></td>');
-        //     elemCell4.append(getProjectStatus(project, 'STATUS_REPORT_4'));
-        //     elemCell4.appendTo(elemRow);
 
     }
 
@@ -197,23 +167,23 @@ function setGatesTimeline(id, projects, projectNames) {
         data: {
             datasets: [{
                 label : "G1",
-                backgroundColor: chartColors[0],
+                backgroundColor: config.colors.list[0],
                 data: []
             },{
                 label : "G2",
-                backgroundColor: chartColors[1],
+                backgroundColor: config.colors.list[2],
                 data: []
             },{
                 label : "G3",
-                backgroundColor: chartColors[2],
+                backgroundColor: config.colors.list[4],
                 data: []
             },{
                 label : "G4",
-                backgroundColor: chartColors[3],
+                backgroundColor: config.colors.list[6],
                 data: []
             },{
                 label : "G5",
-                backgroundColor: chartColors[4],
+                backgroundColor: config.colors.list[8],
                 data: []
             }]
         },
@@ -244,7 +214,7 @@ function setGatesTimeline(id, projects, projectNames) {
 
         for(let i = 1; i <= 5; i++) {
 
-            let value = getProjectProperty(project, 'PLANNED_COMPLETION_GATE_' + i);
+            let value = getSectionFieldValue(project.sections, 'PLANNED_COMPLETION_GATE_' + i, '');
 
             if(value !== '') {
 
@@ -283,23 +253,23 @@ function setEfforts(id, projects, projectNames) {
             labels : projectNames,
             datasets: [{
                 label : "Phase Specification",
-                backgroundColor: chartColors[0],
+                backgroundColor: config.colors.list[0],
                 data: [],
             },{
                 label : "Phase Concept",
-                backgroundColor: chartColors[1],
+                backgroundColor: config.colors.list[2],
                 data: []
             },{
                 label : "Phase Development",
-                backgroundColor: chartColors[2],
+                backgroundColor: config.colors.list[4],
                 data: []
             },{
                 label : "Phase Validation",
-                backgroundColor: chartColors[3],
+                backgroundColor: config.colors.list[6],
                 data: []
             },{
                 label : "Phase Production",
-                backgroundColor: chartColors[4],
+                backgroundColor: config.colors.list[8],
                 data: []
             }]
         },
@@ -327,7 +297,7 @@ function setEfforts(id, projects, projectNames) {
 
         for(let i = 1; i <= 5; i++) {
 
-            let value = getProjectProperty(project, 'PLANNED_EFFORT_PHASE_' + i, 0);
+            let value = getSectionFieldValue(project.sections, 'PLANNED_EFFORT_PHASE_' + i, 0);
 
             if(value !== '') {
                 chart.data.datasets[i-1].data.push(value);
@@ -433,7 +403,7 @@ function setBuffers(id, projects, projectNames) {
     for(project of projects) {
 
         let base        = 0;
-        let progress    = getProjectProperty(project, 'CURRENT_PHASE_PERCENT_COMPLETE', 0);
+        let progress    = getSectionFieldValue(project.sections, 'CURRENT_PHASE_PERCENT_COMPLETE', 0);
         let totalBuffer = getTotalBuffer(project);
         let remBuffer   = getRemainingBuffer(project);
         let conBuffer   = totalBuffer - remBuffer;
@@ -474,7 +444,6 @@ function setBuffers(id, projects, projectNames) {
         let dataset = {
             label : project.title,
             backgroundColor: '#ffa600',
-            // borderColor: "rgba(255,221,50,1)",
             data : [{
                 x : base + Number(progress),
                 y : yValue,
@@ -496,7 +465,7 @@ function getTotalBuffer(project) {
 
     for(let i = 0; i <= 5; i++) {
 
-        result += getProjectProperty(project, 'DURATION_REVIEW_' + i, 0);
+        result += getSectionFieldValue(project.sections, 'DURATION_REVIEW_' + i, 0);
 
     }
 
@@ -509,10 +478,10 @@ function getRemainingBuffer(project) {
 
     for(let i = 1; i <= 5; i++) {
 
-        let planPhase   = getProjectProperty(project, 'PLANNED_COMPLETION_PHASE_' + i, null);
-        let expPhase    = getProjectProperty(project, 'EXPECTED_COMPLETION_PHASE_' + i, null);
-        let planGate    = getProjectProperty(project, 'PLANNED_COMPLETION_GATE_' + i, null);
-        let expGate     = getProjectProperty(project, 'EXPECTED_COMPLETION_GATE_' + i, null);
+        let planPhase   = getSectionFieldValue(project.sections, 'PLANNED_COMPLETION_PHASE_' + i);
+        let expPhase    = getSectionFieldValue(project.sections, 'EXPECTED_COMPLETION_PHASE_' + i);
+        let planGate    = getSectionFieldValue(project.sections, 'PLANNED_COMPLETION_GATE_' + i);
+        let expGate     = getSectionFieldValue(project.sections, 'EXPECTED_COMPLETION_GATE_' + i);
 
         if(expPhase !== '') planPhase = expPhase;
         if(expGate !== '') planGate = expGate;
@@ -603,15 +572,11 @@ function setDeviations(id, projects, projectNames) {
             }
         });
 
-let index = 1;
-
     for(project of projects) {
 
-        // for(let i = 1; i <= 5; i++) {
-    
-        let plan = getProjectProperty(project, 'PLANNED_COMPLETION_GATE_5');
-        let exp = getProjectProperty(project, 'EXPECTED_COMPLETION_GATE_5');
-    
+        let plan    = getSectionFieldValue(project.sections, 'PLANNED_COMPLETION_GATE_5', '');
+        let exp     = getSectionFieldValue(project.sections, 'EXPECTED_COMPLETION_GATE_5', '');
+
         if(exp === '') exp = plan;
 
         let dayPlan = plan.split('-');
@@ -684,31 +649,5 @@ let index = 1;
     }
     
     chart.update();  
-
-}
-
-
-// Retrieve project field data by browsing sections data
-function getProjectProperty(data, fieldId, empty) {
-
-    for(section of data.sections) {
-        for(field of section.fields) {
-
-            let urn = field.urn.split('.');
-
-            if(fieldId === urn[urn.length -1]) {
-
-                if(field.value === null) return '';
-                if(typeof field.value === 'object') return field.value.title;
-
-                return field.value;
-            }
-
-        }
-    }
-
-    if(typeof empty !== 'undefined') return empty;
-
-    return '';
 
 }

@@ -1,0 +1,47 @@
+/* SAVE PROCESSING */
+/* ----------------------------------------------------------------------------- */
+#dialog-saving {
+    height : 354px;
+    width : 660px;
+    top : calc(50% - 170px);
+    left : calc(50% - 330px);
+}
+.step {
+    display : flex;
+    height : 26px;
+    line-height : 26px;
+    margin-top : 4px;
+}
+.step-label {
+    white-space : nowrap;
+    width : 240px;
+}
+.in-work .step-label {
+    font-weight : 800;
+}
+.step-progress {
+    background : var(--color-gray-100);
+    width : calc(100% - 300px);
+}
+.step-bar {
+    background : var(--color-gray-400);
+    height : 100%;
+    width : 0%;
+    text-align : center;
+    transition: width ease 0.1s;
+}
+.step-counter {
+    overflow : hidden;
+    padding-left : 10px;
+    text-align : right;
+    text-overflow: ellipsis;
+    white-space : nowrap;
+    width : 70px;
+}
+.transition-stopper {
+    transition: none !important;
+}
+#confirm-saving {
+    float : unset;
+    margin : 0px;
+}

@@ -3,6 +3,8 @@
 input { border-bottom : 1px solid var(--color-gray-300); }
 .screen > .list-header { left : 0px ; right : 0px; }
 .section:first-of-type { margin-top: 18px; }
+#header-toolbar { top : 11px; right : 18px; }
+#header-avatar { margin-left : 10px; }
 
 
 
@@ -12,9 +14,17 @@ input { border-bottom : 1px solid var(--color-gray-300); }
 }
 
 
-/* ----------------------------------------------------------- */
-/*  Top Header                                                 */
-/* ----------------------------------------------------------- */
+
+/* MASTER LAYOUT */
+/* ----------------------------------------------------------------------------- */
+.no-viewer #item-viewer,
+.no-viewer #item-button-view {
+    display : none !important;
+}
+
+
+/* HEADER */
+/* ----------------------------------------------------------------------------- */
 #header {
     background: black;
     color: white;
@@ -22,62 +32,24 @@ input { border-bottom : 1px solid var(--color-gray-300); }
     padding: 22px 56px 22px;
 }
 #header-logo {
-    background-image : url('../images/autodesk-logo-white.png');
     background-size : 56px;
-    float : left;
     height : 24px;
     width : 40px;
-    position : absolute;
-    top : 18px;
-    left : 8px;
 }
 #header-title {
-    font-weight : 800;
     font-size : 20px;
     line-height : 20px;
 }
-#header-actions {
-    display : flex;
-    position : absolute;
-    right : 19px;
-    top : 17px;
-}
-#back, #forward {
-    border : 1pt solid white;
-    border-radius : 50%;
+#header-toolbar > .button {
     display : none;
-    font-size : 34px;
-    height : 28px;
-    width : 28px;
-    line-height : 28px;
-    text-align : center;
 }
-#forward {
-    margin-left : 6px;
-}
-#back .zmdi-chevron-left::before {
-    position: relative;
-    left: -1px;
-}
-#account {
-    border-radius : 50%;
-    font-size : 40px;
-    height : 40px;
-    line-height : 40px;
-    margin-left : 12px;
-    text-align : center;
-    width : 40px;
-    position : relative;
-    top : -5px;
-}
-
 
 
 /* ITEMS */
 /* ----------------------------------------------------------------------------- */
 .screen {
     position : absolute;
-    top : 63px;
+    top : 64px;
     right : 0px;
     bottom : 61px;
     left : 0px;
@@ -134,7 +106,7 @@ input { border-bottom : 1px solid var(--color-gray-300); }
     top : 130px;
 }
 .list > div {
-    padding : 12px 24px;
+    padding : 8px 16px;
     border-bottom : 1px solid var(--color-gray-100);
 }
 .list > div:last-of-type {
@@ -173,11 +145,6 @@ input { border-bottom : 1px solid var(--color-gray-300); }
     justify-content: flex-end;
 }
 .list-actions input {
-    font-size: 16px;
-    height: 32px;
-    line-height: 16px;
-    margin: 5px 10px 0px 0px;
-    padding: 2px 10px;
     width: 100%;
 }
 .list-actions .material-symbols-sharp {
@@ -192,11 +159,11 @@ input { border-bottom : 1px solid var(--color-gray-300); }
     float : none;
     margin : 5px;
 }
-.list-filter {
+/* .list-filter {
     padding-left : 40px !important;
     margin-right : 0px;
     width : 70px !important;
-}
+} */
 .item-workspace::before, .item-status::before {
     float : left;
     font: normal normal normal 14px/1 'Material Symbols Sharp';
@@ -234,7 +201,7 @@ input { border-bottom : 1px solid var(--color-gray-300); }
 }
 #workspace-views {
     flex-grow : 1;
-    padding : 9px;
+    padding : 7px;
 }
 
 
@@ -457,9 +424,6 @@ input { border-bottom : 1px solid var(--color-gray-300); }
 #item-header-lock {
     display : none;
 }
-#item-header-lock::before {
-    content: '\e897';    
-}
 #item-header-workspace::before {
     content: '\e2c7';
 }
@@ -596,17 +560,14 @@ input { border-bottom : 1px solid var(--color-gray-300); }
 .section-fields {
     margin : 0px 18px;
 }
-.field {
-    border-bottom : 1px solid var(--color-section);
-    display : flex;
-    margin-bottom : 4px;
+.section-fields .field {
+    padding : 0px;
+}
+.section-fields .field.editable {
     padding-bottom : 4px;
 }
 .field:last-of-type {
     border-bottom : none;
-}
-.field.editable {
-    margin-bottom : 10px;
 }
 .field-label {
     font-weight : bold;
@@ -643,11 +604,6 @@ div.field-value.string {
 }
 input.field-value {
     font-family : ArtifaktElement;
-    font-size: 14px;
-    line-height : 14px;
-    padding : 0px;
-    /* width : calc(100% - 160px); */
-    /* width : 100%; */
 }
 input[type='date']:disabled { 
     color : white; 
@@ -658,12 +614,6 @@ textarea.field-value {
     line-height : 14px;
     padding : 4px 0px;
     /* width : calc(100% - 148px); */
-}
-input:disabled, textarea:disabled {
-    background : none;
-    border : none;
-    color : var(--color-black) !important;
-    text-overflow : ellipsis;
 }
 .field-text {
     color : var(--color-gray-200);
@@ -697,12 +647,12 @@ input:disabled, textarea:disabled {
 }
 
 /* VIEWER */
-#viewer {
-    position : absolute;
-    top : 0px;
+.viewer {
+    /* position : absolute; */
+    /* top : 0px; */
     right : 0px;
-    bottom : 0px;
-    left : 0px;
+    /* bottom : 0px; */
+    /* left : 0px; */
 }
 #navTools {
     display : none !important;
@@ -720,7 +670,7 @@ input:disabled, textarea:disabled {
     width : calc(100% - 70px);
 }
 .bom-item-quantity {
-    background: var(--color-gray-bright);
+    background: var(--color-gray-100);
     height: 38px;
     line-height: 38px;
     padding: 2px 10px;
@@ -767,7 +717,7 @@ input:disabled, textarea:disabled {
     content: '\ebcc';
     font-size: 26px;
     position: relative;
-    left: -38px;
+    left: -28px;
     top: -4px;
     background: white;
 }

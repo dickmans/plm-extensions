@@ -1,0 +1,1653 @@
+extends layout
+
+block head
+    link(rel='stylesheet', href='/stylesheets/common/landing.css')
+    script(src='/javascripts/common/landing.js') 
+
+block content
+    body.surface-level-2
+        span.icon.m.hover#close-app close
+        .split.left-350.surface-level-2
+            .split-left.padding-100
+                h1#title Custom PLM User Experiences
+                .divider.horizontal.heavy
+                p Unleash the power of Fusion 360 Manage by utilizing its REST API to provide custom built frontends based on Autodesk Platform Services. All solutions manage data in PLM only. All business rules of PLM as well as access permissions still apply.
+                p These solutions are provided by Autodesk Technical Sales without warranty and support.
+                p#version(style="font-weight:bold") Version of July 2023 
+                    br
+                    |connected to 
+                    span#tenant
+                p This  version has been optimized for the tenant template released in 2023 using a single Items workspaces (dedicated workspace for Vault Items got removed), reducing configuration efforts.
+                a(href="status" target="_blank" style="margin-top:50px;color:black;") Server Status Monitor
+            .split-right.tiles.xxl.padding-80
+                .tile(data-name='Reports Dashboard')
+                    .tile-image(style="background: url('images/app-reports-dashboard.png') no-repeat;background-size:contain;")
+                    .tile-details
+                        .tile-title Reports Dashboard
+                        .tile-subtitle Access your real time reports of PLM in a single dashboard, enabling to combine multiple reports easily (charts and tables)
+                    .instructions
+                        h1 Features
+                        ul
+                            li The dashboard makes use of the reports defined in PLM. Make sure that you have valid reports defined in the reports panel. 
+                            li The first two out of these reports will get displayed in the dashboard automatically.
+                            li The button 
+                                strong Select Reports
+                                |  enables users to select a different set of reports for the dashboard. Note: This given selection will not be saved.
+                            li Users can click on the rows in table based reports to navigate to the given record in PLM.
+                        h1 Limitations
+                        p This solution only supports non-stacked column charts and pie charts. All other charts require further developoments.
+                        h1 Configure Startup Reports 
+                        p The dashboard will automatically load a defined set of reports at startup before users can select their preferred reports using the 
+                            strong Select Reports
+                            | button. These startup reports can be defined in the 
+                            strong settings.js
+                            | file.
+                        p.code
+                            span 'reports' : {
+                            span.indent 'startupReportNames' : ['Audits by Workflow State', 'CR approval status', 'DR: Rework Required', 'EX: Change Requests'],
+                            span.indent 'startupReportNames' : 5
+                            span }
+                        p The list of startup repports can be defined by their names using the setting 
+                            strong startupReportNames
+                            |. In addition, 
+                            strong startupReportNames 
+                            | can be set to define a minimum number of reports to be loaded if none of the report names match for the current user. In this case, when set to 5, the system will display the first five reports (in alphabetical order) if none of the report names were found.
+                        h1 Access the Dashboard
+                        p You can access the reports dashboard using the 
+                            strong /reports 
+                            | enpoint:
+                        a(href="reports" target="_blank")
+                    .log 
+                        h1 Reports Dashboard Change Log 
+                        table 
+                            tr 
+                                td 7. July 2023
+                                td New Feature 
+                                td Reports can be removed from the dashboard with a new X icon
+                            tr 
+                                td 7. July 2023
+                                td New Feature
+                                td Automatic pagination has been enabled for table reports to improve usability
+                .tile(data-name='Tenant Insights')
+                    .tile-image(style="background: url('images/app-insights.png') no-repeat;background-size:contain;")
+                    .tile-details
+                        .tile-title Tenant Insights
+                        .tile-subtitle Reveal insights of your tenant to track user activity and data modifications using standard system log entries
+                    .instructions
+                        h1 Prerequisites
+                        p Your user must have admin privileges in order to have access to the system Log. Please note that the dashboard will retrieve the system log information in small packages. This process takes some time. There is a progress inidicator in top right corner to inform you about the data retrieval progress.
+                        h1 Configuration Settings
+                        p To make this solution compatible with large environments, it will take into account a maximumg of 500.000 log entries. This number can be changed in file 
+                            strong settings.js
+                            |  if needed. Find the variable exports.config and adjust the value of 
+                            strong maxLogEntries
+                            |  shown below.
+                        p.code
+                            span 'insights' : {
+                            span.indent 'maxLogEntries' : 500000,
+                            span.indent 'usersExcluded' : ['Administrator', 'Import User', 'Job User', 'Integration User']
+                            span }
+                        p You can also exclude user accounts from the report by providing their display names in parameter 
+                            strong usersExcluded.
+                        h1 Access the Dashboard
+                        p You can access the dashboard with the 
+                            strong /insights
+                            |  enpoint, just click this link:
+                        a(href='insights' target='_blank')
+                    .log 
+                        h1 Tenant Insights Change Log 
+                        table 
+                            tr 
+                                td 7. July 2023
+                                td Enhancement
+                                td Improved styling with tabs at bottom
+                            tr 
+                                td 
+                                td Enhancement
+                                td User's image is shown in top right corner for consistency with other apps
+                            tr 
+                                td 
+                                td Bugfix
+                                td User 'Tenant Admin' now is excluded from reports
+                            tr 
+                                td 
+                                td New Feature
+                                td An error messags is shown if the user does not have admin privileges
+                .tile(data-name='Workspace Navigator')
+                    .tile-image(style="background: url('images/app-workspace-navigator.png') no-repeat;background-size:contain;")
+                    .tile-details
+                        .tile-title Workspace Navigator
+                        .tile-subtitle Manage your data with ease using an alternate browser for your workspaces
+                    .instructions
+                        h1 Features
+                        p Access data of relevance easily by having 
+                            strong Workspaces Views
+                            |, your 
+                            strong Bookmarks
+                            |, 
+                            strong Recent Items 
+                            | and entries of your 
+                            strong My Outstanding Work 
+                            | list combined in a single view. In these views, benefit from various additional features:
+                        ul
+                            li Item style instead of table style
+                            li Filter using type ahead
+                            li Mass Edit Item Details 
+                            li Compare and highlight
+                            li Hide / Unhide records in the views 
+                            li Perform Workflow Actions on multiple records
+                            li Clone items from the overviews
+                            li Archive multiple records in one action
+                            li Navigate to workspace of interest
+                            li Bookmarks view will be selected automatically if the user bookmarks contain items of the selected workspace
+                        h1 Limitations 
+                        p You cannot modify fields of type Image and Multiple Picklists in this utility. Also, there are no options when cloning records.
+                        h1 Access the Dashboard
+                        p You can access the Workspace Navigator using the 
+                            strong /navigator 
+                            |  enpoint. You can also access the Workspace Navigator also for a defined workspace directly by passing the given Workspace ID wihtin the URL. Changing the workspace then is still possible:
+                        div(style='display:flex;gap:20px;')
+                            a(href="navigator" target="_blank")
+                            a(href="navigator?wsId=149" target="_blank")
+                    .log 
+                        h1 Workspace Navigator Change Log 
+                        table 
+                            tr 
+                                td 7. July 2023
+                                td Enhancement
+                                td Read-only fields are shown as read-only now
+                            tr 
+                                td 
+                                td Enhancement
+                                td Button 'Toggle Panel' has been replaced with dedicated close buttons to improve usability
+                .tile(data-name='Product Data Explorer') 
+                    .tile-image(style='background: url("images/app-product-data-explorer.png") no-repeat;background-size:contain;')
+                    .tile-details
+                        .tile-title Product Data Explorer
+                        .tile-subtitle Review and manage your product's engineering data in easy manner using graphic KPIs. Manage master data with ease to meet data quality requirements.
+                    .instructions
+                        h1 Prerequisites
+                        p This app works best with the 
+                            strong Items 
+                            | workspace, but can also be used with the former 
+                            strong Vault Items and BOMs 
+                            | and 
+                            strong Items and BOMs 
+                            | workspaces. However, it is recommended to be used with a workspace where the items have viewable files (dwf) attached.
+                        h1 Features
+                        ul  
+                            li Navigate and visualize a BOM
+                            li Filter BOM and 3D view by text and dynamic KPIs
+                            li Apply colours to BOM and viewer to visualise KPIs
+                            li Toggle BOM structure and flat table mode
+                            li Access and download attachments of a selected item 
+                            li Review &amp; edit details of selected records
+                            li Review changs processes related to a selected item
+                            li Perform markups and initate new Problem Reports for given items
+                            li Manage master data of single records 
+                            li Manage master data of multiple records in flat BOM view
+                        h1 Configuration Settings
+                        p Users can create new 
+                            strong Problem Reports 
+                            | for the selected items and also reveal existing processes. As your tenant might be configured differently, you can define the Workspace ID of the matching 
+                            strong Problem Reports 
+                            | workspace in your tenant. Open file 
+                            strong settings.js 
+                            | and adjust the value of the variable 
+                            strong explorer.wsIdProblemReports 
+                            | if needed. This parameter is set to 82 per default to match the default 
+                            strong Problem Reports 
+                            | workspace of standard tenants. When new Problem Report get created, the viewer's image (including markups) will be uploaded to the new Problem Report as well. The parameter 
+                            strong fieldIdProblemReportImage 
+                            | defines the image field's ID to be used for storing the image. Per default, this is set to 
+                            strong IMAGE_1 
+                            | , matching the standard tenant configuration.
+                        p.code
+                            span exports.config = {
+                            span.indent 'explorer' : {
+                            span.indent-2 'bomViewName' : 'Details',
+                            span.indent-2.highlight 'fieldIdProblemReportImage' : 'IMAGE_1',
+                            span.indent-2.highlight 'wsIdProblemReports' : 82,
+                            span.indent-2 'wsIdSupplierPackages'      : 147,
+                            span.indent-2 'kpis' : [..],
+                            span.indent }
+                            span }
+                        p This explorer also can be used to identify items to be shared with suppliers (i.e. new or changed components). Therefore, one can provide the Workspace ID of 
+                            strong Supplier Packages 
+                            | in setting 
+                            strong wsIdSupplierPackages 
+                            |. If this setting is provided, users can click the given icon to create a new package for selected BOM components easily
+                        img(src='images/apps/product-data-explorer-1.png' style='max-width:1280px;')
+                        p The 'kpis' parameter of config.explorer shown above defines the KPIs being displayed in the explorer's dashboard to the left. You may change them, but please create a backup copy of the original 
+                            strong settings.js 
+                            | before. Keep in mind that all KPIs of relevance must be included in the given BOM view as well (see next step):  if you want to indicate the value of field 
+                            strong Material 
+                            | for example, this field must be included in the new BOM view as well.
+                        p Certain KPIs are preconfigured to match the standard 
+                            strong Items 
+                            | workspace. For example, the dasboard will display counters to reveal items undergoing a change, and also display bars to indicate the PDM category:
+                        p.code  
+                            span             {
+                            span.indent 'id'        : 'change',
+                            span.indent 'title'     : 'Pending Change',
+                            span.indent 'fieldId'   : 'WORKING_CHANGE_ORDER',
+                            span.indent 'urn'       : '',
+                            span.indent 'type'      : 'non-empty',
+                            span.indent 'style'     : 'counters',
+                            span.indent 'data'      : [
+                            span.indent-2 { 'value' : 'Yes', 'count' : 0, 'color' : colors.list[0], 'vector' : vectors.red },
+                            span.indent-2 { 'value' : 'No' , 'count' : 0, 'color' : colors.list[4], 'vector' : vectors.green }
+                            span.indent  ]
+                            span },{
+                            span.indent 'id'        : 'pdm-category',
+                            span.indent 'title'     : 'PDM Category',
+                            span.indent 'fieldId'   : 'PDM_CATEGORY',
+                            span.indent 'urn'       : '',
+                            span.indent 'type'      : 'value',
+                            span.indent 'style'     : 'bars',
+                            span.indent 'data'      : []
+                            span }
+                        p Each KPI is configured with the same parameters:  
+                            table 
+                                tr 
+                                    td id 
+                                    td Unique identifier for each KPI 
+                                tr  
+                                    td title 
+                                    td The title being displayed for the given KPI in the dashboard
+                                tr 
+                                    td fieldId 
+                                    td ID of the given item details field to retrieve the given value - or the id of the given BOM column 
+                                tr 
+                                    td urn 
+                                    td Is set during runtime, leave it blank 
+                                tr  
+                                    td type 
+                                    td Defines if the KPI should be based on the given value (value) or if it should just indiate if the given field is not empty (non-empty)
+                                tr  
+                                    td style 
+                                    td Select if the KPI should be presented as counters or colored bars with value. No matter which style you choose, users will be able to filter using the given KPI anyway.
+                                tr  
+                                    td data 
+                                    td Leave this array blank for a dynamic range of values. If you want to predefine the range of interest and given colors, define the given datapoints in this array as shown for the Pending Changes.
+
+                        h1 Configure Workspace BOM View 
+                        p This application requires a BOM view that contains all fields required to determine the KPIs for the dashboard shown on the left hand side of the application. It is recommended to create a new BOM view named 
+                            strong Details 
+                            | for workspace 
+                            strong Items 
+                            | if it does not exist yet - with all the columns shown below. If you omit some of these columns (as they might not exist in your tenant), the given KPIs will be hidden automatically and the dashboard will still work. If you want to reuse an existing BOM view instead, you can change the view's name in file 
+                            strong  settings.js 
+                            | . Locate the parameter 
+                            strong explorer.bomViewName 
+                            | (see previous chapter) and change it accordingly (restart the application server afterwards).
+                        p List of recommended columns to match the standard KPIs:
+                        ul 
+                            li Descriptor 
+                            li Number
+                            li Lifecycle (System Field)
+                            li Change Pending
+                            li Type
+                            li Class Name
+                            li PDM Category
+                            li PDM Folder 
+                            li Responsible Designer
+                            li Material
+                            li REACH
+                            li Spare / Wear Part
+                            li Make or Buy
+                            li Lead Time
+                            li Long Lead Time
+                            li Vendor
+                            li Country 
+                            li Has Pending Packages
+                            li Total Cost (BOM Field)
+                            li Total Weight (BOM Field)
+                        h1 Extend Workspace Item Details
+                        p If the field 
+                            strong DMS_ID 
+                            | does not exist yet in your workspace, add it as 
+                            strong Single Line Text 
+                            | (length 20, not visible) in tab 
+                            strong Item Details
+                            | . Let this field be set upon item creation using the following script code: 
+                        p.code item.DMS_ID = dmsID;
+                        p In addition, add a new computed field 
+                            strong Actions 
+                            | to 
+                            strong Item Details 
+                            | that renders a button to open the explorer for the current record. Use the formula shown below. In this formula, adjust the workspace ID to match your environment if needed (57 matches the standard Items workspace).
+                            br
+                            |If an Actions field is already present in your Items workspace, add the given formula to your existing Actions field. Note that the latest standard tenant renders multiple buttons in a standard Actions field which are all aligned thanks to a wrapping table. If this table is present in your tenant's Actions field, insert the formula accordingly to the other buttons.
+                        p.code '&lt;a style="border: 1px solid #bec8d2;border-radius:3px;color: #0a131c;font-weight:600;line-height:32px;padding:4px 20px;text-align:center;text-decoration:none !important;white-space:nowrap;" target="_blank" href ="
+                            span.url 
+                            | explorer?wsId=57&amp;dmsId='||DMS_ID||'"&gt;Explorer&lt;/a&gt;'
+                        p Make sure that  
+                            strong Items  
+                            | can be connected to 
+                            strong Problem Reports 
+                            | as affected items. The retrieval of related PRs and also creation of new PRs will fail otherwise.
+                        h1 Access the Explorer
+                        p If your tenant contains the default demo datasets and once you have the BOM view configured as described above, you can open the explorer for validation purposes using the link below:
+                        a(href='explorer?wsId=57&dmsId=14669' target='_blank')
+                    .log 
+                        h1 Product Data Explorer Change Log 
+                        table 
+                            tr 
+                                td 7. July 2023
+                                td New Feature
+                                td When switching to the flat BOM view, users can modify properties for multiple records (given the fields in the defined BOM are editable)
+                            tr 
+                                td 
+                                td Enhancement
+                                td Enhanced KPI definition to match standard properties and BOM view of new default tenant
+                .tile(data-name='Product Portfolio Catalog') 
+                    .tile-image(style='background: url("images/app-product-catalog.png") no-repeat;background-size:contain;')
+                    .tile-details
+                        .tile-title Product Portofolio Catalog
+                        .tile-subtitle Browse the Product Portfolio managed by Product Categories and Product Lines in real time and retrieve latest product data including documentation and Bill of Materials
+                    .instructions
+                        h1 Prerequisites
+                        p Your tenant must have the 
+                            strong Product Portfolio Management 
+                            | app installed (providing the workspaces Product Categories, Product Lines and Products). If your tenant has been created after April 2021, changes are high that it meets this requirement.
+                        h1 Features
+                        p Users can navigate the various level of the portfolio from Product Categories down to Products in an easy manner. Once a product is selected, users can retrieve a couple of information: 
+                        ul  
+                            li The Marketing Text managed in section 'Product Catalog Definition' can be used to describe the product's features
+                            li The images managed in section 'Product Catalog Images' can be opened 
+                            li If Classification section is added to the Products workspace, the given technical specification can be seen 
+                            li The product attachments can be downloaded 
+                            li If an engineering BOM item is linked to the product, the given BOM can be accessed and the given root item's viewable will be rendered
+                        h1 Adjust Workspace Products 
+                        p If your tenant has been created in 2023 or later, the Products workspace should meet the following requirements already, so the following changes might not be required!
+                        p Add the 
+                            strong Classification 
+                            | section to the 
+                            strong Products 
+                            | workspace. This enables the management of technical specification based on the product type. The given information will be displayed in the catalog as well.
+                        img(src='images/apps/product-catalog-1.png' style='width:736px;')
+                        p Set the field 
+                            strong Engineering BOM 
+                            | to be a pick list, enabling references to the workspace 
+                            strong Items 
+                            | (if existent, otherwise use 
+                            strong Vault Items and BOMs
+                            | ). When using the app, only if an item is selected in this field, the product catalog will be able to render the 3D design of the product (as this will render the related item's dwf). Also, this given item will be used to retrieve the product 
+                            strong Bill of Materials
+                            | .
+                        img(src='images/apps/product-catalog-2.png' style='max-width:736px;')
+                        h1 Configuration Settings
+                        p A couple of settings can be adjusted in file 
+                            strong settings.js 
+                            | to match your environment if needed:
+                        p.code
+                            span export.config = {
+                            span.indent 'portfolio' : {
+                            span.indent-2 'bomViewName' : 'Basic',
+                            span.indent-2 'hierarchy' : ['Product Categories', 'Product Lines', 'Products']
+                            span.indent }
+                            span }                         
+                        ul 
+                            li In setting 
+                                strong bomViewName
+                                |, provide the name of a BOM view of your items workspace which contains the Number field as column. If this column is missing, the highlighting of BOM items in the viewer will fail. Make sure that this number's Field ID is also properly defined in 
+                                strong viewer.fieldIdPartNumber 
+                                | within the settings file.
+                            li If you renamed the standard workspaces of 
+                                strong Product Portfoliio Management
+                                |, you can provide the new names in parameter 
+                                strong hierarchy
+                                |.
+                        h1 Access the Portfolio Catalog
+                        p You can access the extension with the 
+                            strong /portfolio 
+                            | enpoint, just click this link:
+                        a(href='portfolio' target='_blank')
+                    .log 
+                        h1 Product Portfolio Catalog Change Log 
+                        table 
+                            tr 
+                                td 7. July 2023
+                                td Enhancement
+                                td Better demo datasets in the default tenant to match this app (i.e. Marketing Names and Marketing Texts on Product Lines and Product Categories)
+                .tile(data-name='Projects Dashboard')
+                    .tile-image(style="background: url('images/app-projects-dashboard.png') no-repeat;background-size:contain;")
+                    .tile-details
+                        .tile-title Projects Dashboard
+                        .tile-subtitle Track progress of all your projects in a single dashboard
+                    .instructions
+                        h1 Prerequisites
+                        p Your tenant must have the latest NPI solution installed (providing the workspaces Projects, Project Tasks, Teams and so on).
+                        h1 Features
+                        p The dashboard will provide insights in all projects that are accessible to the current user and display the following reports:
+                        ul
+                            li The timeline of each projects by showing all Gates' target dates
+                            li The Status Reports of each projects
+                            li Current progress, project budget and progress of current phase of each project
+                            li The planned effort for each project's phase
+                            li Deviations of project end dates
+                        h1 Configuration Settings
+                        p Provide the ID of your Projects workspace in file 
+                            strong settings.js.
+                            |  Adjust the value of the following variable which is set to 86 to match the default Projects workspace.
+                        p.code
+                            span export.config = {
+                            span.indent 'projects' : {
+                            span.indent-2 'wsIdProjects' : '86',
+                            span.indent }
+                            span }   
+                        h1 Access the Dashboard
+                        p You can access the dashboard with the 
+                            strong /projects
+                            |  enpoint, just click this link:
+                        a(href="projects" target="_blank")
+                    .log 
+                        h1 Projects Dashboard Change Log 
+                        table 
+                            tr 
+                                td 7. July 2023
+                                td -
+                                td No changes in this release
+                .tile(data-name='Design Reviews')
+                    .tile-image(style='background: url("images/app-design-review.png") no-repeat;background-size:contain;')
+                    .tile-details
+                        .tile-title Design Reviews
+                        .tile-subtitle Portal to involve (external) stakeholders in the design review process, providing file sharing &amp; markups to drive corrective actions
+                    .instructions
+                        h1 Prerequisites
+                        p You must have the latest Design Review app installed from the App Store. If your tenant is based on a template past April 2021, this given app is included already. To check if your tenant contains this latest app, please verify that the workspace 
+                            strong Design Review Tasks 
+                            | is available in your tenant.
+                        h1 Configure Workspace Design Reviews
+                        p Use the 
+                            strong Workspace Manager 
+                            | to perform the following changes to your workspace 
+                            strong Design Reviews 
+                            |:
+                        ol 
+                            li Add section 
+                                strong Design Data 
+                                | if it does not exist
+                            li Add the field 
+                                strong Item 
+                                | (id ITEM) to it if it does not exist yet. Make this a single selection picklist field referring to workspace  
+                                strong Items
+                                | (or Vault Items and BOMs if Items does not exist)
+                            li Also, add the field 
+                                strong Image  
+                                | (id IMAGE) as derived field of the previous field and let it derive the image field
+                        h1 Configure Workspace Design Review Tasks
+                        p Use the 
+                            strong Workspace Manager 
+                            | to perform the following changes to your workspace 
+                            strong Design Review Tasks 
+                            |:
+                        ol
+                            li Add two fields of type paragraph: 
+                                strong MARKUPSTATE 
+                                | and 
+                                strong MARKUPSVG
+                                | . Set maximum lenght to 1.000.000 for both fields and set their visibility to 
+                                strong Never
+                                | . Add these two fields to the first section of Item Details.
+                            li The following fields must be  
+                                strong editable at creation:  
+                                ul  
+                                    li TITLE 
+                                    li DESCRIPTION
+                                    li DESIGN_REVIEW
+                                    li TARGET_COMPLETION_DATE
+                            li Field 
+                                strong ASSIGNEE 
+                                | must 
+                                strong NOT 
+                                | be mandatory
+                            li Disable 
+                                strong Workflow Locking 
+                                | for all sections
+                        p Grant permission to 
+                            strong Add Items 
+                            | in workspace 
+                            strong Design Review Tasks 
+                            | for all the users which will use the Design Review Portal.
+                        h1 Script Changes
+                        p Let new 
+                            strong Design Review Tasks 
+                            | be connected to the related 
+                            strong Design Review 
+                            | by adding the following script to the initial workflow transition (from the Start Node) in workspaces 
+                            strong Design Review Tasks:
+                        p.code if(item.DESIGN_REVIEW !== null) { item.DESIGN_REVIEW.project.addTask(item); }
+                        p Adjust the script 
+                            strong Design Reviews WF Actions 
+                            | by extending the if statement with the following condition as shown in the screenshot below: 
+                        p.code item.project.children.length === 0
+                        img(src='images/apps/design-review-1.jpg' style='width:100%;max-width:900px;border:1px solid #333;margin-bottom:10px;')
+                        h1 Configuration Settings
+                        p If the standard workspace  
+                            strong Design Reviews 
+                            | or 
+                            strong Design Review Tasks 
+                            | got changed, you may have to adjust some configuration settings within file 
+                            strong settings.js
+                            | . Locate the following section in this file to adjust the given properties if needed:
+                        p.code
+                            span export.config = {
+                            span.indent 'reviews' : {
+                            span.indent-2 'fieldIdItem' : 'ITEM',
+                            span.indent-2 'fieldIdImage' : 'IMAGE',
+                            span.indent-2 'transitionId' : 'CLOSE_REVIEW',
+                            span.indent-2 'workspaces' : {
+                            span.indent-3 'reviews' : {
+                            span.indent-4 'id' : 76,
+                            span.indent-4 'sections' : [ { 'name' : 'Review Findings' } ],
+                            span.indent-4 'states'    : [ 'Planning', 'Preparation', 'In Progress' ]
+                            span.indent-3 },
+                            span.indent-3 'tasks' : {
+                            span.indent-4 'id' : '',
+                            span.indent-4 'sections' : [ { 'name' : 'Definition' }, { 'name' : 'Schedule' } ],
+                            span.indent-4 'states'    : [ 'Assigned', 'On Hold', 'In Work', 'Review', 'Complete' ]
+                            span.indent-3 }
+                            span.indent-2 },
+                            span.indent }
+                            span }   
+                        p Parameter transitionId defines the workflow action ID that can be used to close / finish a given design review. If the user has permission to perform this defined transition, the given button 
+                            strong Finish 
+                            | will be displayed when opening a design review.
+                        p The workspaces parameter enables to align this solution with your workspace configuation:     
+                            ul 
+                                li reviews.id is used to determine the workspace ID of 
+                                    strong Design Reviews 
+                                li reviews.sections is required to locate the section in 
+                                    strong Item Details 
+                                    | of Design Reviews which contains the fields to store the findings (Issue, Deficiencies ...)
+                                li reviews.states defines the list of states that will be used for filtering the reviews in the landing page. 
+                                li tasks.id is used to determine the workspace ID of 
+                                    strong Design Review Tasks 
+                                    | . If no id is provided, the solution will determine this id automatically by retrieving the workspaces enabled in the project tab of design reviews 
+                                li tasks.sections is used to determine the required sections in 
+                                    strong Item Details 
+                                    | of design review tassks workspace (the ones containing the fields required)
+                                li tasks.states is used to determine the color highlight of actions being shown in context of a review (states 1 &amp; 2 will be shown as new, 2 &amp; 3 as pending and state 4 as complete)
+                        h1 Access the Design Review Portal
+                        p You can access the design review portal with the 
+                            strong /reviews 
+                            | endpoint, just click this link:
+                        a(href='reviews' target='_blank')
+                    .log 
+                        h1 Projects Dashboard Change Log 
+                        table 
+                            tr 
+                                td 7. July 2023
+                                td Enhancement
+                                td Better alignment of installation instructions with new default tenant
+                .tile(data-name='Service Portal')
+                    .tile-image(style='background: url("images/app-services-portal.png") no-repeat;background-size:contain;')
+                    .tile-details
+                        .tile-title Services Portal
+                        .tile-subtitle Provide online access to latest product data for global services teams, including documentation and BOM as well as the capability to create Spare Part Requests and Problem Reports
+                    .instructions
+                        h1 Features 
+                        p Provide an online interface for service technicians to have latest product information at hand at anytime, anywhere.
+                        ul
+                            li View the 3D design in context of the BOM
+                            li Browse and filter the product BOM
+                            li Select BOM items to retrieve all details 
+                            li Download item documentation
+                            li Access list of defined Spare Parts
+                            li Submit Spare Part Requests 
+                            li Capture Problem Reports
+                        h1 Prerequisites
+                        ul
+                            li This solution is based on the standard 
+                                strong Items 
+                                | workspace and its standard properties.
+                            li Spare parts get identified by the standard field 
+                                strong Spare Wear Part 
+                                | of workspace 
+                                strong Items
+                                |. If this property's value is set to
+                                strong Spare Part 
+                                | or 
+                                strong Wear Part 
+                                | for an item, it will be treated as spare part in this portal.
+                            li In order to create and manage the 
+                                strong Spare Part Requests 
+                                | processes, you have to add the given workspace to your tenant as described below.
+                        h1 Limitations 
+                        p Note that there is no capability to track the progress of 
+                            strong Spare Part Requests 
+                            | in this application. The given button 
+                            strong Pending Requests 
+                            | has no function. Tracking of requests in only possible in the standard user interface of PLM for now. This might change in future releases of this application.
+                            br
+                            | The application indicates the stock availability of each spare part using colors. As this solution does not have a real time connection to an ERP, the given information is generated randomly.
+                        h1 Create BOM View 'Service' for workspace Items
+                        p Create a new BOM view 
+                            strong Service 
+                            | for workspace 
+                            strong Items 
+                            | and add at least the columns shown below. The sequence of columns does not matter and you may add further fields if needed.
+                        table(style='margin:10px 0px 30px')
+                            tr
+                                th Source
+                                th Source Field 
+                                th Display Name 
+                            tr  
+                                td System
+                                td Descriptor
+                                td Descriptor
+                            tr  
+                                td Item Details
+                                td Title
+                                td Title
+                            tr  
+                                td Item Details
+                                td Number 
+                                td Number 
+                            tr  
+                                td Item Details
+                                td Spare / Wear Part
+                                td Spare / Wear Part
+                            tr  
+                                td Item Details
+                                td Material
+                                td Material
+                            tr  
+                                td Item Details
+                                td Weight 
+                                td Weight 
+                            tr  
+                                td Item Details
+                                td Dimensions (LxWxH) 
+                                td Dimensions (LxWxH) 
+                            tr  
+                                td BOM Fields
+                                td Quantity
+                                td Quantity
+                        h1 Configure Workspace Relationships of Problem Reports
+                        p Open the 
+                            strong Workspace Relationships 
+                            | control for workspace 
+                            strong Problem Reports 
+                            | in the 
+                            strong Workspace Manager
+                            |. In here, enable connections to workspace 
+                            strong Items
+                            | in 
+                            strong Managed Items Tab 
+                            | in order to support creation of new PRs.
+                        img(src='images/apps/services-portal-1.png' style='max-width:960px;')
+                        h1 Add button to launch the portal 
+                        p Users can access the service portal by passing the dmsId and wsId of a given record, allowing to encode this information in a qr-code for example (see the end of this page for the given URL). 
+                            br
+                            |In addition, you may want to provide a button within the details page of an item to open the given portal from there. For this, add a new field 
+                            strong Actions 
+                            | which contains the computed formula shown below. In case your tenant has the given field already, please add this button to the existing 
+                            strong Actions 
+                            | field.
+                        p Note that this computed field requires the field 
+                            strong DMS_ID 
+                            | which must contain the dmsId of the current record. As the other solutions of this package require this field as well, it is assumed that the given field exists already. If not, please add the field as single line text and let it be set upon item creation.
+                        p Keep in mind to update the workspace id contained in the formula below if needed. It refers to workspace ID 57 which matches the standard 
+                            strong Items 
+                            | workspace. If you are using another id, please adjust the value of parameter wsId.
+                        p.code CASE 
+                            span WHEN (DMS_ID is null) THEN ''
+                            span ELSE '&lt;a style="color: #0a131c;border: 1px solid #bec8d2;border-radius:3px;text-align:center;text-decoration:none !important;line-height:32px;white-space:nowrap;padding:4px 20px;width:140px;font-weight:600;" target="_blank" href ="LOCATIONservice?wsId=57&dmsId='||DMS_ID||'"&gt;Service Portal&lt;/a&gt;'
+                            span END       
+                        h1 Create Workspace Spare Parts Requests
+                        p The following steps are optional. Your Service Portal should be ready by now. However, if you want to initiate requests for selected spare parts from within the portal, then continue with the steps of this chapter.
+                        h2 Add Workspace
+                        p Users can trigger requests for spare parts in the given portal. This is made possible with a new workspace named 
+                            strong Spare Parts Requests 
+                            | which you have to add before using all features this solution. Use the settings shown in the following screenshot when doing so.
+                        img(src='images/apps/services-portal-2.png' style='width:100%;max-width:900px;margin:10px 0px;padding:10px;border:1px solid #eee;')
+                        h2 Item Details Tab
+                        p Add the following fields to the new workspace. Keep the layout of the initial two sections as shown in the following screenshot. You may add further fields (non-mandatory) and sections when needed.
+                        img(src='images/apps/services-portal-3.png' style='width:100%;max-width:513px;margin:10px 0px 30px;padding:10px;border:1px solid #eee;')
+                        table(style='margin:10px 0px 30px')
+                            tr
+                                th Label 
+                                th Field ID 
+                                th Type 
+                                th Details 
+                                th Editable
+                            tr  
+                                td ID 
+                                td ID 
+                                td Auto Number
+                                td Formula: AUTONUMBER('', ID__AUTO_INC, 6) 
+                                td false
+                            tr  
+                                td Linked Item 
+                                td LINKED_ITEM 
+                                td Pick List ([WS] Items, Single Selection)
+                                td length: 200
+                                td Creation Only
+                            tr  
+                                td Requested By 
+                                td REQUESTED_BY 
+                                td Single Line Text
+                                td length: 200
+                                td false
+                            tr  
+                                td Request Date 
+                                td REQUEST_DATE
+                                td Date
+                                td -
+                                td false
+                            tr  
+                                td Comments 
+                                td COMMENTS
+                                td Paragraph
+                                td Length: 100000
+                                td true
+                            tr  
+                                td Total Cost 
+                                td TOTAL_COST
+                                td Money
+                                td Length: 10, Field Precision: 0
+                                td true
+                            tr  
+                                td Shipment Date 
+                                td SHIPMENT_DATE
+                                td Date
+                                td -
+                                td true
+                            tr  
+                                td Tracking # 
+                                td TRACKING
+                                td Single Line Text
+                                td Length : 200
+                                td true
+                            tr  
+                                td Notes 
+                                td NOTES
+                                td Paragraph
+                                td Length: 100000
+                                td true
+                        h2 Descriptor
+                        p Set the descriptor for this workspace as you like (i.e. ID - Requested By)
+                        h2 Grid Tab
+                        p Add the following fields to the grid tab
+                        img(src='images/apps/services-portal-4.png' style='width:100%;max-width:900px;margin:10px 0px 30px;padding:10px;border:1px solid #eee;')
+                        table(style='margin:10px 0px 30px')
+                            tr
+                                th Label 
+                                th Field ID 
+                                th Type 
+                                th Details 
+                                th Editable
+                            tr  
+                                td Item 
+                                td ITEM
+                                td Pick List
+                                td Pick List [WS] Items (Single Selection)
+                                td Creation Only
+                            tr  
+                                td Quantity
+                                td QUANTITY 
+                                td Integer
+                                td length: 10
+                                td Creation Only
+                            tr  
+                                td Unit Cost
+                                td UNIT_COST 
+                                td Money
+                                td Length: 10, Field Precision: 2
+                                td true
+                            tr  
+                                td Total Cost
+                                td TOTAL_COST 
+                                td Money
+                                td Formula: QUANTITY * UNIT_COST; Add aggregation type 'Sum'
+                                td false
+                            tr  
+                                td Remarks 
+                                td REMARKS
+                                td Single Line Text
+                                td Length: 200
+                                td true
+                        h2 Tab Names 
+                        p Adjust the tab names for ease of use:
+                        ul 
+                            li Item Details &gt; Request
+                            li Grid &gt; Part List
+                            li Workflow Actions &gt; Workflow
+                        h2 Scripts
+                        p Create a new Action script 
+                            strong Spare Parts Requests WF Actions 
+                            | with the code shown below. Make sure to select library script 
+                            strong getUserName 
+                            | in the script's imports.
+                        p.code item.REQUESTED_BY = getUserName(); 
+                            br
+                            span item.REQUEST_DATE = new Date();
+                        h2 Workflow
+                        p Provide a workflow for this new workspace. While the workflow logic does not matter for this solution, make sure to attach the script 
+                            strong Spare Parts Requests WF Actions 
+                            | as action script to the initial transition.
+                        img(src='images/apps/services-portal-5.png' style='width:100%;max-width:768px;margin:10px 0px;padding:10px;border:1px solid #eee;')
+                        h2 Access Permission 
+                        p Add a role for this new workspace and assign this given role to your users to enable access. Grant full access (add, delete, edit and view) to the tabs Attachments, Grid, and Workflow.
+                        h1 Configuration Settings
+                        p Once the previous steps have been completed, you should review the solution's settings in file 
+                            strong settings.js 
+                            | before using the application:
+                        p.code
+                            span export.config = {
+                            span.indent 'service' : {
+                            span.indent-2 'bomViewName' : 'Service',
+                            span.indent-2 'fieldId' : 'SPARE_WEAR_PART',
+                            span.indent-2 'fieldValues' : ['spare part', 'yes', 'x', 'y', 'wear part'],
+                            span.indent-2 'spartPartDetails' : ['MATERIAL', 'ITEM_WEIGHT', 'DIMENSIONS'],
+                            span.indent-2 'wsIdProblemReports' : 82,
+                            span.indent-2 'wsIdSparePartsRequests' : 241
+                            span.indent }
+                            span }                         
+                        ul
+                            li bomViewName: Provide name of the BOM view that has been created in the previous steps (change should not be required)
+                            li fieldId: ID of field being used to identify spare parts
+                            li fieldValues: List of values (for the previous field) which are used to identify spare parts 
+                            li sparePartDetails: Each spare part tile can show 3 additional fields. If other fields than the default fields are relevent, change this list. However, make sure that there are exactly 3 entries and these fields also must be contained in the given BOM view.
+                            li wsIdProblemReports : Provide the workspace ID of 
+                                strong Problem Reports 
+                                | to enable creation of new processes from within the application (82 matches the default tenant configuration)
+                            li wsIdSparePartsRequests : Provide ID of the new workspace 
+                                strong Spare Parts Requests 
+                                | to enable creation of new requests from within the application
+                        h1 Access the Services Portal
+                        p You can access the Services Portal portal with the /service enpoint. Provide the wsId dmsId of the 
+                            strong Vault Items and BOMs 
+                            | record to be visualised as parameter parameters. The following link will work for default demo tenants containing the default demo data. Please note that none of the demo items has been set as spare part yet:
+                        a(href='service?wsId=57&dmsId=14669' target='_blank')
+                        a(href='service?wsId=57&dmsId=14849' target='_blank' style='margin-left:20px;')
+                    .log 
+                        h1 Services Portal Change Log 
+                        table 
+                            tr 
+                                td 7. July 2023
+                                td Enhancement 
+                                td When spare parts get zoomed in, they will be highlighted in red within the viewer
+                            tr 
+                                td 
+                                td New Feature
+                                td Users can click items in the viewer to get it selected in the spare parts list and to retrieve item details as well as attachments
+                            tr 
+                                td 
+                                td Enhancement
+                                td The Options button in main toolbar has been replaced by dedicated toggles
+                            tr 
+                                td 
+                                td Enhancement
+                                td All spare parts selected in the panel to the right will now be highlighted in blue within the viewer to continuously indicate the selection
+                            tr 
+                                td 
+                                td Enhancement
+                                td The (fake) stock information now is also shown with a colored border in the spare parts list
+                            tr 
+                                td 
+                                td Enhancement
+                                td When users click on BOM entries, geometry not being in context will be hidden (before, it was still shown transparently)
+                            tr 
+                                td 30. June 2023
+                                td New Feature 
+                                td The spare parts list now indicates the total quantity of the given component (qty is shown in white with black background)
+                            tr 
+                                td 
+                                td New Feature
+                                td The entries in the spare parts list will automatically adjust its style in case of longer lists (tile height get reduced)
+                .tile(data-name='Class Browser')
+                    .tile-image(style="background: url('images/app-class-browser.png') no-repeat;background-size:contain;")
+                    .tile-details
+                        .tile-title Class Browser
+                        .tile-subtitle Use item classification data to easily browse for similar components to increase reuse of existing items and reduce development efforts
+                    .instructions
+                        h1 Prerequisites
+                        p You can use this solution with any workspace that has the 
+                            strong Classification 
+                            | section enabled. The installation instructions below describe how to enable this extension for workspace 
+                            strong Items
+                            | , but you can also enable it for any other workspace (including 
+                            strong  Items and BOMs 
+                            | and 
+                            strong Vault Items and BOMs
+                            |).
+                        h1 Required Changes
+                        h2 Item Details Tab 
+                        p Use the 
+                            strong Workspace Manager 
+                            | to add the fields described below to your context workspace. It is recommended to add all these fields to the same (new) section 
+                            strong Classification Summary 
+                            | and position them in a matrix, but both is not required. These fields will be set by script, so their placement does not matter. Tenants created mid 2023 or later will have all these fields already, only the last one 
+                            strong Class Browser 
+                            | should be missing.
+                        img(src='images/apps/class-browser-1.png' style='width:100%;max-width:900px;margin:10px 0px')
+                        table(style='margin:10px 0px 30px')
+                            tr
+                                th Label 
+                                th Field ID 
+                                th Type 
+                                th Details 
+                                th Editable
+                            tr
+                                td DMS_ID 
+                                td DMS_ID 
+                                td Single Line Text 
+                                td Field Length: 20; set visibility to Never 
+                                td False
+                            tr  
+                                td Top Level Class
+                                td TOP_LEVEL_CLASS
+                                td Single Line Text
+                                td Field Length : 200
+                                td False
+                            tr  
+                                td Class Path
+                                td CLASS_PATH 
+                                td Single Line Text
+                                td Field Length : 1000
+                                td False
+                            tr  
+                                td Class Name
+                                td CLASS_NAME
+                                td Single Line Text
+                                td Field Length : 200
+                                td False
+                            tr  
+                                td Class Browser
+                                td CLASS_BROWSER
+                                td Single Line Text
+                                td Insert the computed field formula shown below
+                                td False
+                        p.code CASE WHEN (CLASS_NAME is null) THEN '' ELSE '&lt;a style="border: 1px solid #bec8d2;border-radius:3px;padding:4px 20px;color: #0a131c;font-weight:600;line-height:32px;text-align:center;text-decoration:none !important;white-space:nowrap;width:160px;" target="_blank" href="
+                            span.url http://localhost:8080
+                            |classes?wsId=57&amp;dmsId='||DMS_ID||'"&gt;Find Similar Parts&lt;/a&gt;' END
+                        p Note that this formula must contain the right workspace ID (..wsId=57..) to match the ID of workspace
+                            strong Items 
+                            | in your tenant (57 is valid for the default tenant).
+                        p Of course, the classification section also must be present in this workspace :-)
+                        h2 Scripts
+                        p The fields that were created just before must be updated by scripts every time a new record gets created or when it gets modified. Make sure that the following code is invoked at item creation and during item edit events. 
+                            br 
+                            | In the standard tenants of mid 2023 and later, this should already be included in script 
+                            strong Items onCreate onEdit
+                            |.
+                        p.code 
+                            span if(item.DMS_ID !== dmsID) item.DMS_ID = dmsID;
+                            br 
+                            span setClassSummary();
+                            br
+                            span function setClassSummary() {
+                            span.indent var rootClass = "";
+                            span.indent var classPath = "";
+                            span.indent var className = "";
+                            span.indent if(Object.keys(item.classification).length > 0) {
+                            span.indent-2 var path = item.classificationSection.getClassificationPath();
+                            span.indent-2 if(path.length > 0) {
+                            span.indent-3  rootClass = path[0];
+                            span.indent-3 className = path[path.length - 1];
+                            span.indent-3 classPath = rootClass;
+                            span.indent-3 if(path.length > 1) {
+                            span.indent-4 for(var i = 1; i < path.length; i++) {
+                            span.indent-5 classPath += ' / ' + path[i];
+                            span.indent-4 }
+                            span.indent-3 }
+                            span.indent-2 }
+                            span.indent }
+                            span.indent if(item.TOP_LEVEL_CLASS !== rootClass) item.TOP_LEVEL_CLASS = rootClass;
+                            span.indent if(item.CLASS_PATH !== classPath) item.CLASS_PATH = classPath;
+                            span.indent if(item.CLASS_NAME !== className) item.CLASS_NAME = className;
+                            span }
+                        h1 Access the Class Browser
+                        p From now on, once an item gets classified, there will now be a button 
+                            strong Find Similar Parts 
+                            | in section 
+                            strong Classification Summary 
+                            | to open the Class Browser in a new tab:
+                        img(src='images/apps/class-browser-2.png' style='width:100%;max-width:1280px;margin:10px 0px;border:1px solid black;')
+                    .log 
+                        h1 Class Browser Change Log 
+                        table 
+                            tr 
+                                td 7. July 2023
+                                td Enhancement
+                                td New default tenant now contains required fields of this extension to reduce implementation efforts and provide value for all users
+                .tile(data-name='Change Impact Analysis')
+                    .tile-image(style='background: url("images/app-impact-analysis.png") no-repeat;background-size:contain;')
+                    .tile-details
+                        .tile-title Change Impact Analysis
+                        .tile-subtitle Open this dashboard in context of a given Change Order to easily reveal insights about the impact of the changes to all Affected Items
+                    .instructions
+                        h1 Features
+                        p With this application, users can by far better assess the impact of changes by reviewing all details of the given 
+                            strong Change Order's 
+                            | list of 
+                            strong Affected Items
+                            |. 
+                            br
+                            | To do so, multiple information is retrieved in parallel and devided in various tabls. So for each affected item, users can easily review the following information:
+                        ul  
+                            li 3D view of the attached dwf
+                            li 
+                                strong Change Log 
+                                | tab reveals the item's change log
+                            li The Item tab shows details defined in the affected items tab itself
+                            li All 
+                                strong Item Details 
+                                | can be reviewed in the Details tab 
+                            li The flat BOM can be listed in the BOM tab, where items that got changed will be highlighted by color. 
+                            li Users can select items in the BOM tab and have the given component highlighted in the 3D view
+                            li The Where Used tab will be used to retrieve all 
+                                strong End Items 
+                                | of an item (the root item nodes not having any further parents). In this view, users can also add the given nodes to the CO's list of Affected Items.
+                            li In tab Impacted, users can see all records linked to the affected item within its Relationships tab. This tab also will show all BOM root nodes which are neither managed in the 'Items and BOMs' nor in the 'Vault Items and BOMs' workspace. The latter one will for example show if a component is used within a product's BOM.
+                            li Inside the Impacted tab, users can easily link given records of interest to the current Change Order's References tab for later reuse 
+                            li In tab Changed Items, users can get the list of all BOM sub items where the working version got modified and which are not listed in the list of Affected Items yet
+                            li The item's Attachments can be opened in the Files tab
+                            li All item related change processes are listed in tab Processes
+                        h1 Configuration Changes
+                        p Peform the following changes to workspace 
+                            strong Change Orders 
+                            | to enable the impact analysis before releasing a change. In addition, you can perform the same changes in workspace 
+                            strong Change Requests 
+                            | to benefit of the exact same features while accessing impact of a proposed change.
+                        h2 Store DMSID
+                        p In order to make this dashboard work, you have to add a (hidden) field 
+                            strong DMS_ID 
+                            | to the item details tab. This field must store the dmsID of the current process. 
+                            br
+                        img(src='images/apps/impact-analysis-2.png' style='max-width:640px;border:1px solid #333;')
+                        p Use the following script code at 
+                            strong Change Orders 
+                            | / 
+                            strong Change Requests 
+                            | creation to store the given dmsID (attach this script to the initial workflow transition or the given create event):
+                        p.code item.DMS_ID = dmsID;
+                        h2 Action Button
+                        p Add a button to the 
+                            strong Item Details 
+                            | tab, enabling to open the analysis dashboard in context ...
+                        img(src='images/apps/impact-analysis-1.jpg' style='height:240px;border:1px solid #333;')
+                        p ... implement this button by adding a computed field 
+                            strong Actions 
+                            | with the formula shown below. Replace the workspace ID to match yours (..wsId=84..). In a standard tenant, 84 matches the 
+                            strong Change Orders 
+                            | and 83 matches the 
+                            strong Change Requests 
+                            | workspace.
+                        p.code '&lt;a style="border: 1px solid #bec8d2;border-radius:3px;color: #0a131c;font-weight:600;line-height:32px;padding:4px 20px;text-align:center;text-decoration:none !important;white-space:nowrap;" target="_blank" href ="LOCATIONimpactanalysis?wsId=84&dmsId='||DMS_ID||'"&gt;Impact Analysis&lt;/a&gt;'
+                        h2 Set Workspace Relationships (optional)
+                        p The impact analysis dashboard enables to connect records of interest to the current change process. For example, the dashboard will retrieve related 
+                            strong Requirements 
+                            | of each affected item - which then can be connected to the change process inside the dashboard for reference. This helps to create a comprehensive list of all data being impacted by a change.
+                            b 
+                            | This mechanism requires to allow the given workspace relationships within the 
+                            strong Workspace Manager
+                            |. For example, you may want to enable 
+                            strong Relationships 
+                            | for the change proceses to the workspaces 
+                            strong Requirements 
+                            | and 
+                            strong Supplier Packages
+                            |. The dashboard will take this workspace configuration into account and only offer to connect workspaces that are valid.
+                        img(src='images/apps/impact-analysis-3.png' style='max-width:889px;border:1px solid #333;')
+                        h1 Access the Dashboard
+                        p The dashboard also can be opened by using the  
+                            strong /impactanalysis 
+                            | endpoint, followed by wsId and dmsId. If your tenant contains the standard demo dataset, you can use the following link to open the dashboard for a given Change Order:
+                        a(href='impactanalysis?wsId=84&dmsId=14993' target='_blank')
+                    .log 
+                        h1 Change Impact Analysis Change Log 
+                        table 
+                            tr 
+                                td 7. July 2023
+                                td Enhancement
+                                td Styling has been adjusted to improve usability
+                .tile(data-name='Mobile Client')
+                    .tile-image(style="background: url('images/app-mobile-client.png') no-repeat;background-size:contain;")
+                    .tile-details
+                        .tile-title Mobile Client
+                        .tile-subtitle Have PLM with you all the time in your pocket. Visualize product data and trigger new processes whenever needed.
+                    .instructions
+                        h1 Prerequisites
+                        p This solution does not require any changes to your tenant, all information is retrieved dynamically. However, in order to make the solution accessible on your mobile device, your server must be available from the Internet. For security reasons, it is highly recommended to https connections instead of http.
+                        h1 Features
+                        p Users benefit from PLM features on a mobile device: 
+                        ul  
+                            li Browse Workspaces and given views 
+                            li Access Bookmarks and Recently Viewed items 
+                            li Create &amp; Search records 
+                            li Manage Item Details 
+                            li View 3D data 
+                            li Upload &amp; download attachments
+                            li Browse the flat BOM of items 
+                            li View relationships of a record 
+                            li Track related change processes
+                            li Perform Workflow Actions 
+                            li Archive &amp; Unarchive items
+                            li Share links to items using mail
+                            li Review the Change Log
+                        p The Mobile Client also can be used to navigate to a given record directly. This enables to scan a QR code to be directed to the matching record in PLM. See instructions for accesing the client below for details.
+                        p While a lot of features are supported, the client also has limitations. It does not provide access to the following tabs: 
+                        ul 
+                            li Workflow 
+                            li Grid 
+                            li Project
+                        h1 Mobile Device Simulation 
+                        p If you want to test this solutions, but cannot access the server online from your phone, your browser can be of help. Open the Mobile Client using the instructions shown below. Once opened, right click the page and select 
+                            strong Inspect 
+                            | in Chrome. This will open the developer tools in which you can toggle the device for testing. Just select your preferred mobile device and reload the page. This enables to render the page like on a mobile device.
+                        img(src='images/apps/mobile-client-1.png' style='width:100%;max-width:900px;margin:10px 0px 30px;padding:10px;border:1px solid #eee;')
+                        h1 Access the Mobile Client
+                        p You can access the client with the 
+                            strong /client
+                            |  enpoint, just click the first button. In order to navigate to a defined record, you can also pass the Workspace ID and DMS ID of a record as parameters. See the second button example which opens a demo dataset item automatically.
+                        div(style='display:flex;gap:20px;')
+                            a(href='client' target='_blank') Mobile Client
+                            a(href='client?wsId=79&dmsId=11143' target='_blank')
+                    .log 
+                        h1 Mobile Client Change Log 
+                        table 
+                            tr 
+                                td 7. July 2023
+                                td -
+                                td No changes in this release
+                .tile(data-name='MBOM Editor')
+                    .tile-image(style="background: url('images/app-mbom-editor.png') no-repeat;background-size:contain;")
+                    .tile-details
+                        .tile-title MBOM Editor
+                        .tile-subtitle Transform an Engineering BOM to a Manufacturing BOM with ease to provide right information for an ERP connector
+                    .instructions
+                        h1 Features 
+                        ul 
+                            li Add EBOM items to the MBOM easily with clicks
+                            li Add further items to the MBOM using drag &amp; drop 
+                            li Use the Disassemle mode to quickly define the MBOM by reversing the order
+                            li Use color codes to identify mismatches in EBOM and MBOM 
+                            li Access details of selected items in right hand side panel whenever needed
+                            li Manage multiple MBOMs per EBOM item (i.e. site specific BOMs)
+                        h1 Important
+                        p This editor helps users in copying &amp; extending one BOM into another. Depending on the tenant configuration, this may involve a single items workspaces or multiple ones. For example, you may want to copy a Vault Items and BOMs structure into an Items and BOMs structure to have different access permission controls and business logic. However, you may also want to manage both BOMs in the same workspace, for example the Items or Vault Items and BOMs. While the editor supports both scenarios, the setup is slightly different in each scenario.
+                        p Note that the viewer inside the MBOM Editor will only work if the base EBOM item has a dwf file attached.
+                        p The installation instructions shown below will refer to the source BOM as 'EBOM' and to the target BOM as 'MBOM'. Most probably, you will use the Items (and BOMs) workspace to manage both the EBOM and MBOM. In this case, a minimum of adjustments is needed. This documentation will focus on this primary use case but also explain the extra configurations required when using two workspaces instead.
+                        h1 Configuration Changes for EBOM Workspace (Items)
+                        h2 Extend Item Details
+                        p Add a new section 
+                            strong Manufacturing BOM 
+                            | with the following fields to this workspace:
+                        ol 
+                            li If it does not exist yet, add Single Line Text field 'DMS_ID' (DMS_ID, length 20, not editable, hidden)
+                            li Add checkbox 'End Item' (END_ITEM, visible, editable)
+                            li Add checkbox 'Ignore in MBOM' (IGNORE_IN_MBOM, visible, editable)
+                            li Add Single Line Text field 'Process Code' (PROCESS_CODE, length 10, visible, editable)
+                            li Add Single Line Text field 'Last MBOM User' (LAST_MBOM_USER, length 50, visible, editable)
+                            li Add date field  'Last MBOM Sync' (LAST_MBOM_SYNC, visible, editable)
+                            li Add field MBOM as linking pick list to the MBOM workspace (MBOM, Single Selection, visible, editable)
+                            li Add computed field 'MBOM_EDITOR' with the following formula. Make sure to provide the right workspace ID (...?wsId=57...). It has to match the EBOM workspace ID (57 matches the standard Items workspace).
+                                p.code CASE 
+                                    span WHEN (DMS_ID is null) THEN '<span style="white-space:nowrap;color:#bbb;font-style:italic;">Item ID is not set</span>'
+                                    span WHEN (END_ITEM = true) THEN '<span style="white-space:nowrap;color:#bbb;font-style:italic;">Not available for end items</span>'
+                                    span ELSE '&lt;a style="color: #0a131c;border: 1px solid #bec8d2;border-radius:3px;text-align:center;text-decoration:none !important;line-height:32px;white-space:nowrap;padding:4px 20px;width:140px;font-weight:600;" target="_blank" href ="LOCATIONmbom?wsId=57&dmsId='||DMS_ID||'"&gt;Open MBOM Editor&lt;/a&gt;'
+                                    span END                         
+                        p While the layout does not matter, it is recommended to combine the given fields in a Matrix within this section as shown below.
+                        img.border(src='images/apps/mbom-editor-1.png' style='width:100%;max-width:1381px')
+                        h2 New BOM View 
+                        p Add a new BOM view 
+                            strong MBOM Transition 
+                            | to the EBOM workspace. Add all the fields that were created in the step before to this view - plus a few others. You may also add any further column as you like. The sequence of columns does not matter.
+                        ol  
+                            li Descriptor
+                            li CC
+                            li Category
+                            li Quantity
+                            li Number
+                            li MBOM Editor
+                            li MBOM
+                            li Last MBOM Sync
+                            li Process Code
+                            li End Item
+                            li Ignore in MBOM
+                            li Revision
+                        h1 Configuration Changes for MBOM Workspace
+                        h2 Extend Item Details
+                        p If you use the same workspace for both the EBOM and MBOM, simply add the following fields to this EBOM &amp; MBOM workspace. You may add these fields to the matrix created before:
+                        ol 
+                            li Add field EBOM as linking pick list to the EBOM workspace (EBOM, Single Selection, editable)
+                            li Add checkbox 'Is Process' (IS_PROCESS, hidden, editable)
+                        p If instead you will use two different workspaces (i.e. manage the EBOM in 
+                            strong Vault Items and BOMs 
+                            | and the MBOM in 
+                            strong Items and BOMs 
+                            | workspace), you also have to add the following fields to the MBOM workspace in addition: 
+                        ol 
+                            li If it does not exist yet, add Single Line Text field 'DMS_ID' (DMS_ID, length 20, not editable, hidden)
+                            li Add date field  'Last MBOM Sync' (LAST_MBOM_SYNC, visible, editable)
+                            li Add Single Line Text field 'Process Code' (PROCESS_CODE, length 10, visible, editable)
+                            li Add computed field 'MBOM_EDITOR' with the following formula. Make sure to provide the right workspace ID (...?wsId=57...). It has to match the MBOM workspace ID (57 matches the standard Items workspace).
+                                p.code CASE 
+                                    span WHEN (DMS_ID is null) THEN '<span style="white-space:nowrap;color:#bbb;font-style:italic;">Item ID is not set</span>'
+                                    span WHEN (END_ITEM = true) THEN '<span style="white-space:nowrap;color:#bbb;font-style:italic;">Not available for end items</span>'
+                                    span ELSE '&lt;a style="color: #0a131c;border: 1px solid #bec8d2;border-radius:3px;text-align:center;text-decoration:none !important;line-height:32px;white-space:nowrap;padding:4px 20px;width:140px;font-weight:600;" target="_blank" href ="LOCATIONmbom?wsId=57&dmsId='||DMS_ID||'"&gt;Open MBOM Editor&lt;/a&gt;'
+                                    span END   
+                        p These fields once again can be managed in a dedicated section and matrix when using two distinct workspaces: 
+                        img.border(src='images/apps/mbom-editor-2.png' style='width:100%;max-width:1223;')
+                        h2 Add BOM Fields
+                        p Add two new fields to the BOM tab in your MBOM workspace
+                        ul 
+                            li Add Checkbox field 'Is EBOM Item' (IS_EBOM_ITEM, hidden, editable)
+                            li Add Single Line Text field 'EBOM Root Item' (EBOM_ROOT_ITEM, length 50, hidden, editable)
+                        h2 BOM View
+                        p If you use the same workspace for both the EBOM and MBOM, add the following fields to the existing BOM view 
+                            strong MBOM Transition
+                            |:
+                        ol 
+                            li EBOM 
+                            li Is Process
+                            li Is EBOM Item 
+                            li EBOM Root Item
+                        p If instead you will use two different workspaces, you have to add a new BOM view 
+                            strong MBOM Transition 
+                            | with at least the following columnns:
+                        ol  
+                            li EBOM
+                            li Is Process
+                            li Process Code
+                            li Descriptor
+                            li Revision
+                            li Quantity
+                            li Is EBOM Item 
+                            li EBOM Root Item
+                        h1 Additional step for 2 workspaces setup 
+                        p Make sure that the MBOM workspace allows for BOM connections to the EBOM workspace:
+                        img.border(src='images/apps/mbom-editor-4.jpg' style='width:100%;max-width:900px;')
+                        h1 Scripts
+                        p For both the EBOM and MBOM workspace, the system has to store the dmsID for new records in field DMS_ID. Add the following script code to the creation event of both workspaces. If your tenant is based on the template released in April 2023, this field exists in your tenant and will be set by script already.
+                        p.code
+                            span item.DMS_ID = dmsID;
+                        h1 Server Settings File
+                        p Review the following contents in file 
+                            strong settings.js
+                            |. The default configuration matches the standard tenant template and makes use of the 
+                            strong Items 
+                            | workspace only. If you change this file, a restart of your server is required.
+                        p.code  
+                            span export.config = {
+                            span.indent 'mbom' : {
+                            span.indent-2 'wsIdEBOM' : '57',
+                            span.indent-2 'wsIdMBOM' : '57',
+                            span.indent-2 'bomViewNameEBOM' : 'MBOM Transition'
+                            span.indent-2 'bomViewNameMBOM' : 'MBOM Transition'
+                            span.indent-2 'fieldIdEBOM' : 'EBOM'
+                            span.indent-2 ...
+                            span.indent }
+                            span }  
+                        h2 Field Mapping 
+                        p This area within settings.js contains a couple of parameters to adjust the field IDs being used whenever needed. You may want to review this list, but if you followed the setup instructions, this mapping should be fine already.
+                            table   
+                                tr 
+                                    td fieldIdEBOM
+                                    td Field of MBOM workspace to refer to given EBOM item
+                                tr 
+                                    td fieldIdMBOM
+                                    td Field of EBOM workspace to refer to given MBOM item
+                                tr 
+                                    td fieldIdNumber
+                                    td Number field of both EBOM and MBOM Workspace
+                                tr 
+                                    td fieldIdTitle
+                                    td Title field of MBOM Workspace that will be used when creating new processes
+                                tr 
+                                    td fieldIdCategory
+                                    td Category field of EBOM Workspace (being used to highlight certain categories)
+                                tr 
+                                    td fieldIdProcessCode
+                                    td Process Code field of both EBOM and MBOM Workspace
+                                tr 
+                                    td fieldIdEndItem
+                                    td End Item field of EBOM Workspace
+                                tr 
+                                    td fieldIdIgnoreInMBOM
+                                    td Ignore in MBOM field of EBOM Workspace
+                                tr 
+                                    td fieldIdIsProcess
+                                    td Is Process field of MBOM Workspace
+                                tr 
+                                    td fieldIdLastSync
+                                    td Last MBOM Sync field of EBOM and MBOM Workspace
+                                tr 
+                                    td fieldIdLastUser
+                                    td Last MBOM User field of EBOM Workspace
+                                tr 
+                                    td fieldIdEBOMItem
+                                    td Field 'Is EBOM Item' in MBOM Workspace BOM
+                                tr 
+                                    td fieldIdEBOMRootItem
+                                    td Field 'EBOM Root Item' in MBOM Workspace BOM
+                        h2 Application Options
+                        p Following settings are much more important. They impact the mechanism of the MBOM Editor. Please review these settings carefully.
+                            table   
+                                tr 
+                                    th Setting 
+                                    th Default Value    
+                                    th Description
+                                tr 
+                                    td wsIdEBOM 
+                                    td 57
+                                    td Workspace ID of your EBOM Workspace 
+                                tr 
+                                    td wsIDMBOM 
+                                    td 57
+                                    td Workspaces ID of your MBOM Workspace (can be the same as EBOM or a different one)
+                                tr 
+                                    td bomViewNameEBOM
+                                    td MBOM Transition
+                                    td BOM View being used to expand the EBOM
+                                tr 
+                                    td bomViewNameMBOM
+                                    td MBOM Transition
+                                    td BOM View being used to expand the MBOM
+                                tr 
+                                    td fieldsToCopy
+                                    td ['TITLE', 'DESCRIPTION']
+                                    td Defines a list of fields to be copied from EBOM to MBOM when the editor creates the MBOM root node. This is happening when the editor is launched for the first time for a given EBOM item. These fields must be available in both the EBOM and MBOM workspace with the same id.
+                                tr  
+                                    td revisionBias
+                                    td working 
+                                    td Defines the BOM expansion bias, ensuring to use working versions of all items automatically. Change this to release if you want to work with released data instead. Note that if set to working, the MBOM Editor will automatically navigate to the latest working version of an EBOM item, even if it gets opened from a released item.
+                                tr  
+                                    td pinMBOMItems
+                                    td false 
+                                    td Determines if relationship in MBOM should be pinned to the given revision
+                                tr  
+                                    td suffixItemNumber
+                                    td -M
+                                    td When the editor is opened for an EBOM item that does not have matching MBOM item yet, this given MBOM root item will be created automatically. If this parameter is set, this MBOM root item will be created with the same part number as the matching EBOM item plus the given suffix. With this standard value, EBOM item 00812 will be connected to MBOM item 00812-M for example.
+                                tr 
+                                    td newDefaults
+                                    td ['ITEM_TYPE' , { 'link' : '/api/v3/lookups/CUSTOM_LOOKUP_ITEM_TYPES/options/34' }]
+                                    td Provide default values for new items being created by the MBOM Editor (i.e. the Processes). Provide an array of pairs containing fieldId and given value. The default value sets the item to 'Process' (works with latest tenant template only).
+                                tr 
+                                    td searches
+                                    td [{ 'title' : 'Purchased Parts', 'query' : 'ITEM_DETAILS:CATEGORY%3DPurchased' }, { 'title' : 'Packaging Parts', 'query' : 'ITEM_DETAILS:CATEGORY%3DPackaging' }]
+                                    td The Add Items tab may provide preconfigured queries for quick access to relevant MBOM items, right underneath the generic Search view. This list of predefined views can be adjusted here. Provide a list of views, defined by a title to be displayed in the editor and the given query string to execute. If you are not sure about the query string, please have a look at the standard search dialog and review the Network tab in your browser to grab the matching search filters.
+                        h2 Viewer Options
+                        p The MBOM Editor will load the selected EBOM item's viewable in the viewer and allow for interactions between the BOMs and the viewer. However, this requires a mappging of your item numbers and the property within the dwf which holds the item number as well. 
+                        p For a proper match, see the 'viewer' parameters at the end of settings.js. Provide the field ID of your Number field in EBOM workspace as 'fieldIdPartNumber'. Additionally, provide a list of possible property names in 'partNumberProperties' that might be present in your dwf files and contain the matching number too - the first occurence will be taken into account.
+                        p.code  
+                            span export.config = {
+                            span.indent 'viewer' : {
+                            span.indent-2 'fieldIdPartNumber' : 'NUMBER'
+                            span.indent-2 'partNumberProperties' : ['Part Number', 'Name', 'label', 'Artikelnummer', 'Bauteilnummer'],
+                            span.indent-2 'backgroundColor' : 255,
+                            span.indent-2 'groundReflection' : false,
+                            span.indent-2 'groundShadow' : true
+                            span.indent-2 ...
+                            span.indent }
+                            span }  
+                        h1 Support for multiple sites
+                        p With the standard configuration steps above, there will be only one MBOM per EBOM. However, the setup can be changed to support multiple MBOMs, for example to have site specific MBOMs. To achieve this setup, the fields that were created formerly must be cloned for each site.
+                        p By following the steps below, the existing fields will be kept in order to have a 'standard' base MBOM. In addition, further fields will be added to capture the MBOM for 'Site 1' and 'Site 2'. 
+                            br
+                            |Each site requires a unique id that you can define yourself. This id must be used to name the new fields and it will be passed to the MBOM editor to define the site context. In this setup, 'G' will be used for the generic MBOM while '1' and '2' are used for the site specific MBOMs. Keep in mind that these suffixes will get appended to all site specific MBOM item numbers.
+                        ol 
+                            li In the EBOM workspace, adjust the layout of the MBOM transition section as shown below, by adding a second matrixes to hold all the site specific contents: 
+                                img.border(src='images/apps/mbom-editor-6.png' style='max-width:1277px;')
+                            li Create new fields for the 2nd matrix. You have to create the same fields multiple times, one for each site. Always append the site index (G, 1, 2) to each field while keeping the field base name identical. Here are the fields for the Generic MBOM:
+                                ul 
+                                    li MBOM_G: Linking picklist to MBOM item workspace (single selection, editable)
+                                    li LAST_MBOM_SYNC_G: Date field (editable)
+                                    li LAST_MBOM_USER_G: Single Line Text (length 50, editable)
+                                    li MBOM_EDITOR_G: Computed field with the following formula. Note that the URL contains a parameter to identify the site (G)
+                                p.code CASE 
+                                    span WHEN (DMS_ID is null) THEN '<span style="white-space:nowrap;color:#bbb;font-style:italic;">Item ID is not set</span>'
+                                    span WHEN (END_ITEM = true) THEN '<span style="white-space:nowrap;color:#bbb;font-style:italic;">Not available for end items</span>'
+                                    span ELSE '&lt;a style="color: #0a131c;border: 1px solid #bec8d2;border-radius:3px;text-align:center;text-decoration:none !important;line-height:32px;white-space:nowrap;padding:4px 20px;width:140px;font-weight:600;" target="_blank" href ="LOCATIONmbom?wsId=57&dmsId='||DMS_ID||'&options=site:G"&gt;Edit MBOM&lt;/a&gt;'
+                                    span END   
+                                p Repeat these steps for site 1 and 2 accordingly. 
+                            li If you followed the setup instructions for a single MBOM before, remove the following fields as they are no longer required:
+                                ul  
+                                    li MBOM 
+                                    li Last MBOM Sync 
+                                    li Last MBOM User
+                                    li MBOM Editor
+                            li In the end, the MBOM section should look like this: 
+                                img.border(src='images/apps/mbom-editor-5.png' style='max-width:1277px;')
+                                p Note that you can choose other field labels of course. This documentation only reuses the field ID to better describe the setup process.           
+                            li In the EBOM workspace's BOM view 
+                                strong MBOM Transition 
+                                | add the following columns:    
+                                ul 
+                                    li MBOM_G
+                                    li MBOM_1
+                                    li MBOM_2 
+                                img.border(src='images/apps/mbom-editor-7.png' style='max-width:1080px;')
+                                p Note that your bom view might be named differently. Check for the name in use by validating setting mbom.bomViewNameEBOM in settings.js
+                        p Users are now able to open the editor for a specific site. Each site will receive a specific MBOM with a dedicated part number (the site suffix gets appended at the end):
+                            img.border(src='images/apps/mbom-editor-8.png' style='max-width:1080px;')
+                    .log 
+                        h1 MBOM Editor Change Log 
+                        table 
+                            tr 
+                                td 7. July 2023
+                                td New Feature
+                                td Support of multiple Manufacturing BOMs per item
+                            tr 
+                                td 
+                                td Enhancements
+                                td Better alignment with new default client: ready-to-use settings and replacement of 'operations' with 'processes' reflected by a dedicated item type
+                            tr 
+                                td 
+                                td Bugfix
+                                td Items that are added from outside the EBOM will no longer be taken into account in item matching / coloring
+                            tr 
+                                td 
+                                td Bugfix
+                                td When items get added to a location twice, its quantity will be increased accordingly; there will be no second node in the BOM any
+                .tile(data-name='Variant Manager')
+                    .tile-image(style="background: url('images/app-variant-manager.png') no-repeat;background-size:contain;")
+                    .tile-details
+                        .tile-title Variants Manager
+                        .tile-subtitle Define variants of an existing product design to create BOM variants based on color, material or other properties
+                    .instructions
+                        h1 Features 
+                        ul 
+                            li Manage variant items that inherit master data from the base item
+                            li 3D viewer helps to identify the right items
+                            li Keep multiple BOM structures in sync
+                            li Manage multiple variants at the same time or focus a single variant only
+                            li Dynamically define the properties that define a variant
+                        h1 New Workspace Item Variants 
+                        p A new workspace is required to manage items and BOMs that are specific for a given variant. These item variant will refere to a base item to allow for data reuse by using derived fields, but will also have additional fields that define a variant (i.e. color, material etc.)
+                        h2 Create new workspace
+                        p Use the 
+                            strong Workspace Manager 
+                            | to create new workspace 
+                            strong Item Variants 
+                            |. 
+                            img.border(src='images/apps/variant-manager-1.png' style='max-width:1092px;')
+                        h2 Set Item Details of new workspace
+                        p Create 3 sections in 
+                            strong Item Details 
+                            | tab: 
+                        ul
+                            li  Basic
+                            li Variant Definition
+                            li Base Item 
+                        p Add the following fields to section 
+                            strong Basic
+                            |:
+                            ol  
+                                li Number (id: NUMBER, Single Line Text, length : 20, read-only)
+                                li Title (id: TITLE, Single Line Text, length: 200, editable)
+                                li Base Item (id: BASE_ITEM, Picklist to [WS] Items, single selection, read-only)
+                                li DMS_ID_BASE_ITEM (id: DMS_ID_BASE_ITEM, Single Line Text, length : 20, hidden, editable)
+                                li NAME (id:NAME, Single Line Text, hidden, ready-only)
+                                    br
+                                    | Set a computation formula for the NAME field: 
+                                    p.code CASE WHEN(TITLE is null) Then NUMBER Else TITLE END
+                        p In section 
+                            strong Variant Definition 
+                            |, add all the fields that will be used to define a variant. For example: Color and Material. This may include any type of field, including pick lists.
+                        p All data that should be derived from the 
+                            strong Base Item 
+                            | should be defined in section 
+                            strong Base Item Data
+                            |. Make use of derived fields to copy data from the given base item. This may include the Type, Description, Image and further fields of your items workspace.
+                        img.border(src='images/apps/variant-manager-4.png' style='max-width:728px;')
+                        h2 Descriptor
+                        p Set the workspace's 
+                            strong Descriptor 
+                            | to display field NAME, enabling dynamic display of the variant's number or title (if existent).
+                        img.border(src='images/apps/variant-manager-5.png' style='max-width:496px;')
+                        h2 Workspace Relationships
+                        p Enable required relationships in the BOM tab:
+                        img.border(src='images/apps/variant-manager-2.png' style='max-width:862px;')
+                        p As the Item Variants should be revision controlled, add this new workspace to the 
+                            strong Managed Items 
+                            | tab of 
+                            strong Problem Reports
+                            |, 
+                            strong Change Requests 
+                            | and 
+                            strong Change Orders
+                            |.
+                        h2 Access Permissions
+                        p Create a role for the new workspace enabling creation of new records, BOM management and attachments. 
+                            br
+                            |Make sure that users also can access the working versions of records.
+                        img.border(src='images/apps/variant-manager-3.png' style='max-width:351px;')
+
+                        h2 Bill of Materials tab
+                        p Add the following BOM field to the Bill of Materials
+                            strong Default View
+                            |:
+                            br
+                            br
+                        table 
+                            tr 
+                                th Field ID 
+                                th Field Type 
+                                th Field Settings
+                                th Editable
+                            tr 
+                                td EDGE_ID_BASE_ITEM
+                                td Single Line Text
+                                td Length : 20, Visibility: hidden
+                                td true
+                        p Adjust the 
+                            string Default View 
+                            | by adding the following columns to (sequence does not matter):
+                            table   
+                                tr 
+                                    th Field ID
+                                    th Source 
+                                tr 
+                                    td EDGE_ID_BASE_ITEM
+                                    td BOM 
+                                tr 
+                                    td DMS_ID_BASE_ITEM
+                                    td Item Details
+                        p In addition, add all fields of section 
+                            strong Variant Definition 
+                            | to this table.
+                        h2 Scripts
+                        p Entries of workspace Item Variants should receive a new number by script and also should be linked to the given base item. 
+                            br
+                            |Create a new action script 
+                            strong Item Variants onCreate 
+                            | and attach this script to the create event of workspace 
+                            strong Item Variants
+                            |:
+                        p.code
+                            span setNumber();
+                            span linkBaseItem();
+                            br
+                            span function setNumber() {
+                            span.indent var seq = new Sequencer("Item Variants");
+                            span.indent item.NUMBER = ('00000' + seq.nextValue().toString()).slice(-6);
+                            span }
+                            br
+                            span function linkBaseItem() {
+                            span.indent if(item.DMS_ID_BASE_ITEM === null) return;
+                            span.indent var elemBase = loadItem(item.DMS_ID_BASE_ITEM);
+                            span.indent item.BASE_ITEM = elemBase;
+                            span }
+                        h1 Action Button 
+                        p Enable access to the 
+                            strong Variants Manager 
+                            | app by adding a new computed field to your 
+                            strong Items 
+                            | workspace. Use the following formula for the new field: 
+                        p.code '&lt;a style="border: 1px solid #bec8d2;border-radius:3px;color: #0a131c;font-weight:600;line-height:32px;padding:4px 20px;text-align:center;text-decoration:none !important;white-space:nowrap;" target="_blank" href ="LOCATIONvariants?wsId=57&dmsId='||DMS_ID||'"&gt;Variant Manager&lt;/a&gt;'
+                        h1 Adjust Workspace Items 
+                        p In the 
+                            strong Item Details 
+                            | tab of workspace Items, add a linking picklist field 
+                            strong Variants 
+                            | allowing multiple selection. This field should link to the new 
+                            strong Item Variants 
+                            | workspace created before. Set this field visible and editable.
+                        img.border(src='images/apps/variant-manager-6.png' style='max-width:851px;')
+                        p The items workspace (from where the app will be launched) also must have a field containing the item's dmsID. If not present yet, add a new single line text field with id 
+                            strong DMS_ID 
+                            | in the items workspace (hidden). Let this field be set automatically item creation by script as shown below. 
+                            br
+                            |Tenants created mid 2023 or later have this field and script already.
+                        p.code  
+                            span item.DMS_ID = dmsID;
+                        h1 Server Settings File 
+                        p If you require usage of different field names, table names etc, please have a look at the settings.js file and locate section variants, listing all possible configurable settings: 
+                        p.code  
+                            span export.config = {
+                            span.indent 'variants' : {
+                            span.indent-2 'wsIdItemVariants' : '208'
+                            span.indent-2 'variantsSectionLabel' : 'Variant Definition',
+                            span.indent-2 'fieldIdVariantBaseItem' : 'DMS_ID_BASE_ITEM',
+                            span.indent-2 'fieldIdItemNumber' : 'NUMBER',
+                            span.indent-2 'fieldIdItemVariants' : 'VARIANTS',
+                            span.indent-2 'bomViewNameItems' : 'Variant Management',
+                            span.indent-2 'bomViewNameVariants' : 'Default View'
+                            span.indent }
+                            span }
+                        p Adjust these settings if needed and restart your server afterwards to apply the given changes.
+                            table 
+                                tr 
+                                    th Setting 
+                                    th Default Value 
+                                    th Description  
+                                tr
+                                    td wsIdItemVariants
+                                    td -
+                                    td Workspace ID of your new 
+                                        strong Item Variants 
+                                        | workspace
+                                tr  
+                                    td variantsSectionLabel
+                                    td Variant Definition 
+                                    td Name of section in the Item Variants workspace which contians all the fields that define a variant. This section will drive the columns of the manager dialog.
+                                tr 
+                                    td fieldIdItemNumber
+                                    td NUMBER 
+                                    td Field ID of your Items workspaces which contians number
+                                tr 
+                                    td fieldIdItemVariants
+                                    td VARIANTS 
+                                    td Field ID of your Items workspaces which contians the linking picklist to item variants, to allow for retrieval of existing variants.
+                                tr 
+                                    td bomViewNameItems
+                                    td Variant Management 
+                                    td BOM view of items workspace which contains the required fields
+                                tr 
+                                    td bomViewNameVariants
+                                    td Default View 
+                                    td BOM view of item variants workspace which contains the required fields
+                    .log 
+                        h1 Variant Manager Change Log 
+                        table 
+                            tr 
+                                td 7. July 2023
+                                td Initial Release
+                                td This is the very first version of this application

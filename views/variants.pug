@@ -1,65 +1,84 @@
-extends common
+extends common/layout
 
 block head
     link(rel='stylesheet', href='/stylesheets/variants.css')
-    link(rel='stylesheet', href='/jquery-ui-1.12.1/jquery-ui.min.css')
-    link(rel='stylesheet', href='https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/style.min.css')
+    link(rel='stylesheet', href='/stylesheets/common/dialogs.css')
+    script(src='/javascripts/variants.js')
     script.
-        tenant='#{tenant}'
-        wsId='#{wsId}'
-        dmsId='#{dmsId}'
-        link='#{link}'
-        options='#{options}'
+        config = !{JSON.stringify(config)};
         
 block content
-    script(src='/jquery-ui-1.12.1/jquery-ui.min.js')
-    script(src='https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.min.js') 
-    script(src='/javascripts/ui.js')
-    script(src='/javascripts/forge.js')
-    script(src='/javascripts/variants.js')
     
     #header.dark
         #header-logo
-        #header-title= title
+        #header-title=title
         #header-subtitle
         #header-toolbar
-            #save.button.default Save
-            #toggle-viewer.button Toggle Viewer
-            #toggle-details.button Toggle Details
-            #select-variant.button Select Variant
-    
-    #status
-        #status-match.bar(data-filter="match" title='Click to filter EBOM and MBOM for items that match')
-        #status-additional.bar(data-filter="additional" title='Click to filter EBOM for items not containted in MBOM yet')
-        #status-changed.bar(data-filter="changed" title='Click to filter EBOM and MBOM for items where total quantity does not match')
-    
-    #viewer
-    
-    #bom.basic
-        //- #variant-name.title Bill of Materials
-        //- select#master-bom-views
-        //- select#variant-bom-views
-        //- table#bom-tree
+            .button#button-toggle-viewer.with-icon.icon-viewer(title='Click to toggle size of the viewer') Toggle Viewer
+            .button#button-toggle-details.with-icon.icon-panel.filled(title='Click to toggle item details panel on/off') Toggle Details
+            .button#button-new.disabled.with-icon.icon-create New Variant
+            .button#button-save.default Save
+            #header-avatar
+       
+    #main.screen.wide-viewer.with-details
 
-    #details
-        .title Details
-        #sections
-        #details-process.loading
-            .bounce1
-            .bounce2
-            .bounce3
-    
-    #variants
-        #variants-title Variants
-        #variants-close.button
-            i.zmdi.zmdi-close
-        #variants-list
-        #variants-footer 
-            #new-variant.button New Variant
+        #viewer
+        
+        #bom
 
-    #overlay
-        .progress
-            .bounce1
-            .bounce2
-            .bounce3
+        .panel#item-variants 
+            .panel-header 
+                .panel-title#item-variants-header Item Variants
+                .panel-toolbar 
+                    .button.icon.icon-close#item-variants-close
+            .panel-content#item-variants-text Select from the variants of
+            .panel-content#item-variants-title
+            .panel-content.surface-level-2#item-variants-list-parent
+                #item-variants-list.list.tiles.l
 
+        .panel#details.compact
+            .panel-header 
+                .panel-title Details
+                .panel-toolbar 
+                    .button.icon.icon-bookmark#bookmark
+                    .button.icon.icon-open#open
+            .panel-content.surface-level-2#details-sections
+
+        .panel#create
+            .panel-header
+                .panel-title New Record
+                .panel-toolbar
+                    .button#cancel-create(title='Cancel creation of new process') Cancel
+                    .button.default#save-create(title='Save new process in PLM') Create
+            .panel-content#create-sections.surface-level-2
+
+    #dialog-saving.dialog
+        .dialog-header Saving Changes
+        .dialog-content
+            #step1.step 
+                .step-label Creating new item variants
+                .step-progress
+                    #step-bar1.step-bar
+                #step-counter1.step-counter 
+            #step2.step 
+                .step-label Updating existing item variants 
+                .step-progress
+                    #step-bar2.step-bar
+                #step-counter2.step-counter 
+            #step3.step 
+                .step-label Deleting BOM entries
+                .step-progress
+                    #step-bar3.step-bar
+                #step-counter3.step-counter 
+            #step4.step 
+                .step-label Adding BOM entries
+                .step-progress
+                    #step-bar4.step-bar
+                #step-counter4.step-counter 
+            #step5.step 
+                .step-label Updating existing BOM entries
+                .step-progress
+                    #step-bar5.step-bar
+                #step-counter5.step-counter 
+        .dialog-footer
+            #confirm-saving.button.disabled Close     
