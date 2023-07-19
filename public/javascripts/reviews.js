@@ -380,11 +380,11 @@ function setDetails() {
         
         let linkItem = getSectionFieldValue(response.data.sections, config.reviews.fieldIdItem, 'link');
 
-        $('#issues'      ).val(getSectionFieldValue(response.data.sections, 'ISSUES',       ''));
-        $('#requirements').val(getSectionFieldValue(response.data.sections, 'REQUIREMENTS', ''));
-        $('#concerns'    ).val(getSectionFieldValue(response.data.sections, 'CONCERNS',     ''));
-        $('#alternatives').val(getSectionFieldValue(response.data.sections, 'ALTERNATIVES', ''));
-        $('#deficiencies').val(getSectionFieldValue(response.data.sections, 'DEFICIENCIES', ''));
+        $('#requirements').val($('<div></div>').html(getSectionFieldValue(response.data.sections, 'REQUIREMENTS', '')).text());
+        $('#issues'      ).val($('<div></div>').html(getSectionFieldValue(response.data.sections, 'ISSUES',       '')).text());
+        $('#concerns'    ).val($('<div></div>').html(getSectionFieldValue(response.data.sections, 'CONCERNS',     '')).text());
+        $('#alternatives').val($('<div></div>').html(getSectionFieldValue(response.data.sections, 'ALTERNATIVES', '')).text());
+        $('#deficiencies').val($('<div></div>').html(getSectionFieldValue(response.data.sections, 'DEFICIENCIES', '')).text());
 
         insertViewer(linkItem, 240);
         insertFlatBOM('bom', linkItem, '', 'NUMBER', true, []);

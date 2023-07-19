@@ -327,6 +327,7 @@
     cursor : pointer;
     flex-grow : 1;
     height : 80px;
+    max-width : 40%;
 }
 #product-images-list img {
     border-radius : 10px;

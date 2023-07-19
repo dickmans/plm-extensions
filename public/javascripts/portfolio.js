@@ -563,7 +563,7 @@ function setProductDetails(link) {
                         }
                     });
                     
-                getImageFromCache(elemDiv, { 'link' : imageId }, 'zmdi-wallpaper', function(elemClicked) {});
+                getImageFromCache(elemDiv, { 'link' : imageId }, 'image', function(elemClicked) {});
         
             }
 
