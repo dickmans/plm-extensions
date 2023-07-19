@@ -326,8 +326,8 @@
     border-radius : 10px;
     cursor : pointer;
     flex-grow : 1;
-    height : 80px;
-    max-width : 40%;
+    /* height : 80px; */
+    max-width : 30%;
 }
 #product-images-list img {
     border-radius : 10px;
