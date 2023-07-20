@@ -1276,9 +1276,17 @@ router.get('/update-managed-item', function(req, res, next) {
 
     let url = 'https://' + req.session.tenant + '.autodeskplm360.net' + req.query.link;
     
-    axios.put(url, {
+    let params = {
         'linkedFields' : req.query.fields
-    },{
+    }
+
+    if(typeof req.query.transition !== undefined) {
+        if(req.query.transition !== '') {
+            params.targetTransition = { 'link' : req.query.transition }
+        }
+    }
+
+    axios.put(url, params,{
         headers : req.session.headers
     }).then(function(response) {
         sendResponse(req, res, response, false);

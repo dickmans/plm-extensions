@@ -135,8 +135,8 @@ td.link {
     color : var(--color-blue-500);
     cursor : pointer;
 }
-.surface-level-2 > table > thead > tr > th { border-bottom : 1px solid white; }
-.surface-level-2 > table > tbody > tr > td { border-bottom : 1px solid white; }
+.surface-level-2 > table > thead > tr > th { border-bottom-color : var(--color-gray-200); }
+.surface-level-2 > table > tbody > tr > td { border-bottom-color : var(--color-gray-200); }
 
 table.grid.rotated th {
     padding : 5px 16px;

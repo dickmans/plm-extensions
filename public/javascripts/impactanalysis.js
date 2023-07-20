@@ -12,7 +12,7 @@ $(document).ready(function() {
     appendProcessing('nav', false);
     appendProcessing('details', false);
     appendViewerProcessing();
-    appendOverlay(false);
+    appendOverlay(true);
 
     setUIEvents();
     setHeaderSubtitle();
@@ -620,9 +620,32 @@ function getChangeLog() {
 // [2] Set managed items tab fields
 function setAffectedItemFields() {
 
-    clearAllFields('item-change');
+    let elemParent = $('#item-change');
+
+    elemParent.find('.field-value').each(function() {
+        $(this).children().first().val('');
+    });
 
     for(field of selectedManagedItem.fields) setFieldValue(field);
+
+}
+function setFieldValue(field) {
+
+    let fieldId = field.__self__.split('/')[8];
+
+    $('.field-value').each(function() {
+
+        if($(this).attr('data-id') === fieldId) {
+
+            let value = field.value;
+
+            if(typeof field.value === 'object') value = field.value.link;
+
+            $(this).children().first().val(value);
+
+        }
+
+    });
 
 }
 function updateManagedItem() {
@@ -637,8 +660,6 @@ function updateManagedItem() {
                 'fields'        : [],
                 'transition'    : managedItem.transition
             }
-
-            console.log(managedItem);
 
             $('#item-change .field-value').each(function() {
 
@@ -673,35 +694,6 @@ function updateManagedItem() {
 
         }
     }
-
-}
-function clearAllFields(id) {
-
-    let elemParent = $('#' + id);
-
-    elemParent.find('.field-value').each(function() {
-        $(this).val('');
-    });
-
-}
-function setFieldValue(field) {
-
-    let fieldId = field.__self__.split('/')[8];
-
-    $('.field-value').each(function() {
-
-        if($(this).attr('data-id') === fieldId) {
-
-            let value = field.value;
-
-            if(typeof field.value === 'object') value = field.value.link;
-
-            $(this).val(value);
-
-        }
-
-    });
-
 
 }
 
@@ -1315,6 +1307,8 @@ function getRootParents() {
     $('#roots-table').find('tbody').children().remove();
    
     $.get('/plm/where-used', { 'link' : selectedManagedItem.link }, function(response) {
+
+        console.log(response);
         
         if(response.params.link !==  selectedManagedItem.link) return;
 
@@ -1387,7 +1381,73 @@ function getRootParents() {
                         }
 
                     }
+                    
                 }
+                // if(!edge.hasOwnProperty('edgeLink')) {
+
+                //     let urn      = edge.child;
+                //     let temp     = urn.split('.');
+                //     let edgeWSID = temp[4];
+                //     let wsTitle  = relatedProperty(edgeWSID, 'title');
+
+                //     if(isRelated(edgeWSID)) {
+
+                //         for(node of response.data.nodes) {
+                //             if(urn === node.item.urn) {
+
+                //                 $.get('/plm/is-archived', { 'link' : node.item.link, 'item' : node.item }, function(response) {
+
+                //                     if(response.data === false) insertImpactedItem(response.params.item, wsTitle);
+
+                //                 });
+
+                //             }
+                //         }
+
+                //         urn = edge.parent;
+
+                //     }
+
+                //     for(node of response.data.nodes) {
+
+                //         if(urn === node.item.urn) {
+
+                //             counterRoots++;
+
+                //             let lifecycle = '';
+                //             let quantity  = '';
+
+                //             for(field of node.fields) {
+                //                 if(field.title === 'QUANTITY') quantity = field.value;
+                //                 else if(field.title === 'LIFECYCLE') lifecycle = field.value;
+                //             }
+
+                //             let elemItem = $('<td></td>');
+                //                 elemItem.html(node.item.title);
+                //                 elemItem.addClass('tiny');
+                //                 elemItem.addClass('link');
+                //                 elemItem.click(function() {
+                //                     openItemByURN($(this).closest('tr').attr('data-urn'));
+                //                 });
+
+                //             let elemChildren = $('<td></td>');
+
+                //             let elemRow = $('<tr></tr>');
+                //                 // elemRow.append(getItemLink(node.item.title, node.item.urn));
+                //                 elemRow.append(elemItem);
+                //                 elemRow.append('<td class="tiny">' + lifecycle + '</td>');
+                //                 elemRow.append('<td class="tiny align-right">' + quantity + '</td>');
+                //                 elemRow.append(elemChildren);
+                //                 elemRow.appendTo(elemTable);
+                //                 elemRow.attr('data-urn', node.item.urn);
+
+                //             getChildren(elemChildren, response.data.edges, response.data.nodes, node.item.urn, 1);
+
+                //         }
+
+                //     }
+
+                // }
             }
         }
 

@@ -18,7 +18,7 @@ block content
                 #header-descriptor
                 #header-description
             #header-toolbar
-                #toggle-nav.button.with-icon.icon-list(title='Click to affected items panel on/off') Affected Items
+                #toggle-nav.button.with-icon.icon-list(title='Click to toggle affected items panel on/off') Affected Items
                 //- #toggle-comparison.button.with-icon.icon-list Toggle Comparison
                 #toggle-viewer.button.with-icon.icon-viewer(title='Click to toggle viewer on/off') Viewer
                 #toggle-tabs.button.with-icon.icon-tabs(title='Click to toggle tabs at bottom on/off') Tabs
@@ -103,15 +103,14 @@ block content
                         #related-select-all.button Select All
                         #related-deselect-all.button Deselect All  
                 .panel-content.surface-level-2#roots.content
-                    .content-area
-                        table#roots-table.content-table
-                            thead
-                                tr
-                                    th Item
-                                    th Status
-                                    th Quantity
-                                    th Hierarchy
-                            tbody
+                    table#roots-table.content-table
+                        thead
+                            tr
+                                th Item
+                                th Status
+                                th Quantity
+                                th Hierarchy
+                        tbody
                 .panel-content.surface-level-2#impacted.content
                     table#impacted-table.content-table
                         thead
