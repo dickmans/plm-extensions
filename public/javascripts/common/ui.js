@@ -3,6 +3,7 @@ let cachePicklists  = []; // keys: link, data
 let cacheSections   = [];
 let cacheWorkspaces = [];
 let urnsBOMFields   = [];
+let username        = '';
 
 
 
@@ -14,6 +15,8 @@ function insertAvatar() {
     if(elemAvatar.length === 0) return;
 
     $.get( '/plm/me', {}, function(response) {
+
+        username = response.data.displayName;
 
         let elemAvatar = $('#header-avatar');
             elemAvatar.addClass('no-icon');
@@ -50,7 +53,6 @@ function insertViewer(link, color) {
             $('body').removeClass('no-viewer');
 
             for(viewable of response.data) {
-                console.log(viewable);
                 if(viewable.name.indexOf('.iam.dwf') > -1) {
                     $('body').removeClass('no-viewer');
                     if(elemInstance.length > 0) elemInstance.show();
@@ -62,7 +64,6 @@ function insertViewer(link, color) {
             }
 
             if(!foundAssembly) {
-                $('body').removeClass('no-viewer');
                 if(elemInstance.length > 0) elemInstance.show();
                 insertViewerCallback(response.data[0]);
                 initViewer(response.data[0], color);

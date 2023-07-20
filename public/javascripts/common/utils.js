@@ -102,6 +102,7 @@ function appendViewerProcessing() {
     
     let elemWrapper = $('<div></div>');
         elemWrapper.attr('id', 'viewer-processing');
+        elemWrapper.addClass('viewer');
         elemWrapper.insertAfter(elemViewer);
 
     let elemProcessing = $('<div></div>');
@@ -122,6 +123,7 @@ function appendViewerProcessing() {
 
     let elemMessage = $('<div></div>');
         elemMessage.attr('id', 'viewer-message');
+        elemMessage.addClass('viewer');
         elemMessage.insertAfter(elemViewer);
 
     let elemMessageIcon = $('<span></span>');

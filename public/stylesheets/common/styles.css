@@ -570,7 +570,7 @@ tr.node.bom-level-10 .bom-tree-color { margin-right : 230px; }
     line-height : 16px;
 }
 #header-description {
-    font-size : 11px;
+    font-size : 12px;
     line-height : 18px;
 }
 #header-toolbar {
@@ -657,6 +657,7 @@ tr.node.bom-level-10 .bom-tree-color { margin-right : 230px; }
 @media (max-width : 1440px)  {
 
     #header-toolbar .button.with-icon {
+        min-width : unset;
         max-width : 22px;
         overflow : hidden;
     }
@@ -980,6 +981,7 @@ div.button {
     min-width : 80px;
     padding : 8px 16px;
     text-align : center;
+    white-space: nowrap;
 }
 div.button.default {
     background : #0696D7;

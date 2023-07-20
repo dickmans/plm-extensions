@@ -32,7 +32,7 @@ block content
                     #mode-add(data-id='add') Add Items 
                     //- #mode-instructions(data-id='instructions') Instructions ** custom
 
-                .panel-content#viewer
+                .panel-content.viewer#viewer
                 
                 .panel-content#ebom
                     #ebom-tree
@@ -148,6 +148,18 @@ block content
                 #copy-add.button Add Quantity
                 #copy-cancel.button Cancel
         
+        #dialog-convert.dialog
+            .dialog-header Create and insert MBOM
+            .dialog-content
+                span This will create a matching MBOM for 
+                    span#convert-item-name 
+                p If you confirm, the given MBOM will be created immediately and inserted to the selected target. The items of this EBOM that were added to the MBOM already will not get removed.
+                p After the MBOM creation operation completed, the sub-items of this EBOM will be removed from this view.
+                span This action cannot be undone within this editor.
+            .dialog-footer
+                #convert-confirm.default.button Confirm
+                #convert-cancel.button Cancel
+
         #dialog-saving.dialog
             .dialog-header Saving Changes
             .dialog-content

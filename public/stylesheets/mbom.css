@@ -36,7 +36,7 @@
     bottom : var(--padding-panel);
     left : var(--padding-panel);
 }
-#viewer {
+.viewer {
     right : 0px;
     left : 0px;
     /* width : calc(100% - var(--width-ebom) - var(--width-mbom) - (5 * var(--padding-panel))); */
@@ -74,12 +74,13 @@ body.mode-instructions #viewer {
     width : calc(100% - var(--width-mbom) - (4 * var(--padding-panel)));
 } */
 body.mode-disassemble #ebom, body.mode-disassemble #add { display : none; }
-body.mode-ebom #viewer { display : block !important; right : calc(var(--width-ebom) + var(--padding-panel)); }
+body.mode-ebom .viewer { right : calc(var(--width-ebom) + var(--padding-panel)); }
+body.mode-ebom #viewer { display : block !important; }
 body.mode-ebom #add, body.mode-ebom #instructions { display : none; }
 
-body.mode-add #viewer, body.mode-add #ebom, body.mode-add #instructions { display : none !important; }
+body.mode-add .viewer, body.mode-add #ebom, body.mode-add #instructions { display : none !important; }
 
-body.mode-instructions #viewer { display : block !important; right : 0px; }
+body.mode-instructions .viewer { display : block !important; right : 0px; }
 body.mode-instructions #ebom, body.mode-instructions #add { display : none !important; }
 
 body.details-on #tabs            { right : calc((5 * var(--padding-panel)) + var(--width-mbom) + var(--width-details)); }
@@ -410,16 +411,16 @@ select.view-selector {
     border : 1px solid var(--color-gray-600);
     color : var(--color-gray-900);
     cursor : pointer;
-    font-size : 0.9em;
     height : 28px;
     line-height : 28px;
     text-align : center;
 }
+.mbom-shortcut:hover,
 .item-action:hover {
     box-shadow:  0 0 0 3px inset #e3e3e3;
 }
 .item-action.icon {
-    font-size : 1em;
+    font-weight : 200;
     padding : 0px 4px;
 }
 
@@ -563,20 +564,19 @@ body.bom-panel-on .bom-panel {
 #ebom .item-has-bom > .item-head > .item-qty > input { display : none; }
 #ebom .item > .item-head > .iteqm-qty > input.item-qty-input { background : var(--color-gray-100); }
 #ebom .item.selected > .item-head > .iteqm-qty > input.item-qty-input { background : var(--color-selected); }
-#ebom .item-has-bom .item-actions > div { display : none; }
+#ebom .item-has-bom > .item-head > .item-actions > div { display : block; }
 #ebom .item-has-bom > .item-head:hover .item-actions > div { display : block !important; }
 .mbom-shortcut {
     font-weight: 200;
-    font-size: 20px;
+    font-size: 24px;
     border-radius: 2px;
     border: 1px solid var(--color-gray-600);
-    width: 22px;
-    height: 22px;
-    margin: 4px;
-    line-height: 22px !important;
+    width: 28px;
+    height: 28px;
+    margin: 0px;
+    line-height: 28px !important;
     cursor: pointer;
 }
-.mbom-shortcut:hover { box-shadow:  0 0 0 3px #e3e3e3; }
 .mbom-shortcut::before { content : '\ebbc'; }
 #ebom .bom-panel {
     left : 5px;
@@ -628,6 +628,7 @@ body.bom-panel-on #ebom-tree { bottom : 106px; }
 .radio-checked { display : none; }
 .selected-target > .item-head > .item-icon > .radio-unchecked { display : none; }
 .selected-target > .item-head > .item-icon > .radio-checked { display : block !important; }
+#mbom .item-title { width: calc(100% - 324px); }
 #mbom .item-qty { width : 64px; }
 #mbom .item-qty-input {
     background : none;
@@ -766,6 +767,28 @@ body.bom-panel-on #mbom-tree { bottom : 106px; }
     padding : 10px;
     text-align : center;
 }
+
+
+
+/* CONVERT TO MBOM DIALOG */
+/* ----------------------------------------------------------------------------- */
+#dialog-convert {
+    top : calc(50% - 220px);
+    left : calc(50% - 270px);
+    height : 440px;
+    width : 540px;
+}
+/* #dialog-convert > .dialog-content {
+    text-align : center;
+} */
+#convert-item-name {
+    display : block;
+    font-weight : bold;
+}
+#convert-confirm {
+    background : var(--color-status-red) !important;
+}
+
 
 
 /* RESPONSIVE LAYOUT */

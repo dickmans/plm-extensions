@@ -12,16 +12,9 @@
     font-size: 100px;
     color: var(--color-blue-500);
 }
-.viewer {
-    position : absolute;
-    top : 0px;
-    right : 800px;
-    bottom : 0px;
-    left : 0px;
-}
 
 
-/*  APS VIEWER */
+/*  STANDARD APS VIEWER OVERRIDES*/
 /* ----------------------------------------------------------------------------- */
 .adsk-viewing-viewer {
     background : white !important;

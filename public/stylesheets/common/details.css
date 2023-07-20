@@ -49,7 +49,6 @@
     padding: 4px var(--padding-field-label) 0px 0px;
     width: var(--width-field-label);
     text-align: right;
-    font-size: 12px;
     font-weight : bold;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -60,16 +59,16 @@
     /* background: white; */
     border: none;
     flex-grow : 1;
-    font-size: 12px;
+    /* font-size: 12px; */
     padding: 0px;
     width: calc(100% - var(--padding-field-label) - var(--width-field-label));
 }
-.field-value > date,
+/* .field-value > date,
 .field-value > input,
 .field-value > select,
 .field-value > textarea {
     font-size : 12px;
-}
+} */
 .field-value > input {
     background : white;
     padding-top : 6px;
