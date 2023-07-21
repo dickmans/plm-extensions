@@ -352,7 +352,7 @@ select.view-selector {
     padding: 0px 10px;
     text-overflow: ellipsis;
     white-space : nowrap;
-    width : calc(100% - 281px);
+    width : calc(100% - 324px);
 }
 .item-descriptor {
     display : inline-block;
@@ -404,7 +404,7 @@ select.view-selector {
     border-bottom : 1px solid transparent;
     display: flex;
     gap: var(--spacer-xxs);
-    width : 82px;
+    width : 108px;
 }
 .item-action {
     border-radius : 2px;
@@ -769,6 +769,19 @@ body.bom-panel-on #mbom-tree { bottom : 106px; }
 }
 
 
+/* INSERT TO MBOM DIALOG */
+/* ----------------------------------------------------------------------------- */
+#dialog-insert {
+    top : calc(50% - 205px);
+    left : calc(50% - 300px);
+    height : 410px;
+    width : 600px;
+}
+#insert-item-name {
+    display : block;
+    font-weight : bold;
+}
+
 
 /* CONVERT TO MBOM DIALOG */
 /* ----------------------------------------------------------------------------- */
@@ -778,9 +791,6 @@ body.bom-panel-on #mbom-tree { bottom : 106px; }
     height : 440px;
     width : 540px;
 }
-/* #dialog-convert > .dialog-content {
-    text-align : center;
-} */
 #convert-item-name {
     display : block;
     font-weight : bold;

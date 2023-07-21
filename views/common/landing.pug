@@ -1181,6 +1181,7 @@ block content
                         ol 
                             li If it does not exist yet, add Single Line Text field 'DMS_ID' (DMS_ID, length 20, not editable, hidden)
                             li Add checkbox 'End Item' (END_ITEM, visible, editable)
+                            li Add checkbox 'Matches MBOM' (MATCHES_MBOM, visible, editable)
                             li Add checkbox 'Ignore in MBOM' (IGNORE_IN_MBOM, visible, editable)
                             li Add Single Line Text field 'Process Code' (PROCESS_CODE, length 10, visible, editable)
                             li Add Single Line Text field 'Last MBOM User' (LAST_MBOM_USER, length 50, visible, editable)
@@ -1190,10 +1191,11 @@ block content
                                 p.code CASE 
                                     span WHEN (DMS_ID is null) THEN '<span style="white-space:nowrap;color:#bbb;font-style:italic;">Item ID is not set</span>'
                                     span WHEN (END_ITEM = true) THEN '<span style="white-space:nowrap;color:#bbb;font-style:italic;">Not available for end items</span>'
+                                    span WHEN (MATCHES_MBOM = true) THEN '<span style="white-space:nowrap;color:#bbb;font-style:italic;">EBOM matches MBOM</span>'
                                     span ELSE '&lt;a style="color: #0a131c;border: 1px solid #bec8d2;border-radius:3px;text-align:center;text-decoration:none !important;line-height:32px;white-space:nowrap;padding:4px 20px;width:140px;font-weight:600;" target="_blank" href ="LOCATIONmbom?wsId=57&dmsId='||DMS_ID||'"&gt;Open MBOM Editor&lt;/a&gt;'
                                     span END                         
                         p While the layout does not matter, it is recommended to combine the given fields in a Matrix within this section as shown below.
-                        img.border(src='images/apps/mbom-editor-1.png' style='width:100%;max-width:1381px')
+                        img.border(src='images/apps/mbom-editor-1.png' style='width:100%;max-width:1105px')
                         h2 New BOM View 
                         p Add a new BOM view 
                             strong MBOM Transition 
@@ -1208,6 +1210,7 @@ block content
                             li Last MBOM Sync
                             li Process Code
                             li End Item
+                            li Matches MBOM
                             li Ignore in MBOM
                             li Revision
                         h1 Configuration Changes for MBOM Workspace
@@ -1308,6 +1311,9 @@ block content
                                     td fieldIdEndItem
                                     td End Item field of EBOM Workspace
                                 tr 
+                                    td fieldIdMatchesMBOM
+                                    td Matches MBOM field of EBOM Workspace
+                                tr 
                                     td fieldIdIgnoreInMBOM
                                     td Ignore in MBOM field of EBOM Workspace
                                 tr 
@@ -1393,7 +1399,7 @@ block content
                             |Each site requires a unique id that you can define yourself. This id must be used to name the new fields and it will be passed to the MBOM editor to define the site context. In this setup, 'G' will be used for the generic MBOM while '1' and '2' are used for the site specific MBOMs. Keep in mind that these suffixes will get appended to all site specific MBOM item numbers.
                         ol 
                             li In the EBOM workspace, adjust the layout of the MBOM transition section as shown below, by adding a second matrixes to hold all the site specific contents: 
-                                img.border(src='images/apps/mbom-editor-6.png' style='max-width:1277px;')
+                                img.border(src='images/apps/mbom-editor-6.png' style='max-width:1470px;')
                             li Create new fields for the 2nd matrix. You have to create the same fields multiple times, one for each site. Always append the site index (G, 1, 2) to each field while keeping the field base name identical. Here are the fields for the Generic MBOM:
                                 ul 
                                     li MBOM_G: Linking picklist to MBOM item workspace (single selection, editable)
@@ -1403,6 +1409,7 @@ block content
                                 p.code CASE 
                                     span WHEN (DMS_ID is null) THEN '<span style="white-space:nowrap;color:#bbb;font-style:italic;">Item ID is not set</span>'
                                     span WHEN (END_ITEM = true) THEN '<span style="white-space:nowrap;color:#bbb;font-style:italic;">Not available for end items</span>'
+                                    span WHEN (MATCHES_MBOM = true) THEN '<span style="white-space:nowrap;color:#bbb;font-style:italic;">EBOM matches MBOM</span>'
                                     span ELSE '&lt;a style="color: #0a131c;border: 1px solid #bec8d2;border-radius:3px;text-align:center;text-decoration:none !important;line-height:32px;white-space:nowrap;padding:4px 20px;width:140px;font-weight:600;" target="_blank" href ="LOCATIONmbom?wsId=57&dmsId='||DMS_ID||'&options=site:G"&gt;Edit MBOM&lt;/a&gt;'
                                     span END   
                                 p Repeat these steps for site 1 and 2 accordingly. 
@@ -1413,7 +1420,7 @@ block content
                                     li Last MBOM User
                                     li MBOM Editor
                             li In the end, the MBOM section should look like this: 
-                                img.border(src='images/apps/mbom-editor-5.png' style='max-width:1277px;')
+                                img.border(src='images/apps/mbom-editor-5.png' style='max-width:1470px;')
                                 p Note that you can choose other field labels of course. This documentation only reuses the field ID to better describe the setup process.           
                             li In the EBOM workspace's BOM view 
                                 strong MBOM Transition 
@@ -1425,10 +1432,18 @@ block content
                                 img.border(src='images/apps/mbom-editor-7.png' style='max-width:1080px;')
                                 p Note that your bom view might be named differently. Check for the name in use by validating setting mbom.bomViewNameEBOM in settings.js
                         p Users are now able to open the editor for a specific site. Each site will receive a specific MBOM with a dedicated part number (the site suffix gets appended at the end):
-                            img.border(src='images/apps/mbom-editor-8.png' style='max-width:1080px;')
+                            img.border(src='images/apps/mbom-editor-8.png' style='max-width:1188px;')
                     .log 
                         h1 MBOM Editor Change Log 
                         table 
+                            tr 
+                                td 21. July 2023
+                                td New Feature
+                                td Insert EBOM as is to MBOM (supported by checkbox Matches MBOM)
+                            tr 
+                                td 
+                                td New Feature
+                                td Insert EBOM as MBOM node (this creates the matching MBOM for the given EBOM in the editor and inserts the node)
                             tr 
                                 td 7. July 2023
                                 td New Feature

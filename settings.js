@@ -259,6 +259,7 @@ exports.config = {
         'fieldIdCategory'               : 'PDM_CATEGORY',
         'fieldIdProcessCode'            : 'PROCESS_CODE',
         'fieldIdEndItem'                : 'END_ITEM',
+        'fieldIdMatchesMBOM'            : 'MATCHES_MBOM',
         'fieldIdIgnoreInMBOM'           : 'IGNORE_IN_MBOM',
         'fieldIdIsProcess'              : 'IS_PROCESS',
         'fieldIdLastSync'               : 'LAST_MBOM_SYNC',

@@ -148,6 +148,22 @@ block content
                 #copy-add.button Add Quantity
                 #copy-cancel.button Cancel
         
+        #dialog-insert.dialog
+            .dialog-header Insert BOM
+            .dialog-content
+                span The EBOM of item 
+                    span#insert-item-name 
+                span will be inserted as is to the MBOM. In addition, the flag 
+                    strong Matches MBOM 
+                    |will be set in the item's details.
+                p This will automatically hide this item's BOM within this editor as it must not be modified any longer. Same applies to all other instances of this item.
+                span To undo this action, uncheck the property 
+                    strong Matches MBOM 
+                    |at any time.
+            .dialog-footer
+                #insert-confirm.default.button Confirm
+                #insert-cancel.button Cancel
+
         #dialog-convert.dialog
             .dialog-header Create and insert MBOM
             .dialog-content
