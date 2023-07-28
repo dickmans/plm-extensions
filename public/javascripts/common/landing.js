@@ -3,6 +3,10 @@ $(document).ready(function() {
     updateLinks(document.location.href);
 
     $('#tenant').html(tenant);
+    
+    $('#tenant').click(function() {
+        window.open('https://' + tenant + '.autodeskplm360.net');
+    });
 
     $('.tile').click(function(e) {
 

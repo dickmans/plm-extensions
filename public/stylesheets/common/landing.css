@@ -214,3 +214,13 @@ body.logs .tile {
 .log tr:first-of-type > td {
     border : none;
 }
+
+/*  TENANT */
+/* ----------------------------------------------------------------------------- */
+#tenant {
+    cursor : pointer;
+    font-weight : bold;
+}
+#tenant:hover {
+    color : var(--color-blue-500);
+}
