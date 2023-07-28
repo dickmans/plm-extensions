@@ -1,0 +1,108 @@
+:root {
+    --width-panel : 880px;
+}
+body {
+    background : var(--color-gray-100);
+}
+
+/*  MASTER LAYOUT */
+/* ----------------------------------------------------------------------------- */
+.container {
+    left : calc(50% - (var(--width-panel) / 2));
+    top : calc(50% - 460px);
+    width : var(--width-panel);
+}
+#utilities {
+    bottom : 100px;
+    left : calc(50% - (var(--width-panel) / 2));
+    width : var(--width-panel);
+}
+
+
+/*  MAIN */
+/* ----------------------------------------------------------------------------- */
+#logo {
+    background-image: url(../../images/autodesk-logo-black.png);
+    background-size: 220px;
+    cursor : pointer;
+    height: 140px;
+    margin : auto;
+    width: 220px;
+}
+#title {
+    background : var(--color-dark-blue-700);
+    color : white;
+    font-size : 22px;
+    font-weight : 800;
+    line-height : 28px;
+    margin-top : 20px;
+    padding : 20px;
+    text-align : center;
+}
+#welcome {
+    display : flex;
+    justify-content: center;
+    line-height : 42px;
+    gap : 10px;
+}
+
+
+/*  APPLICATIONS */
+/* ----------------------------------------------------------------------------- */
+#applications {
+    display : flex;
+    gap : 28px;
+    justify-content: center;
+    margin-top : 60px;
+}
+#applications > div {
+    display : flex;
+    flex-direction: column;
+    float:unset;
+    flex-grow : 1;
+    height : 210px;
+    min-width: unset;
+    padding : 30px;
+    margin: 0px;
+}
+.button-icon {
+    font-size : 90px;
+    font-weight : 200;
+}
+.button-title {
+    font-weight : 800;
+    font-size : 24px;
+    line-height : 50px;
+}
+.button-description {
+    overflow:visible;
+    white-space: normal !important;
+}
+
+
+/*  UTILITIES */
+/* ----------------------------------------------------------------------------- */
+#utilities {
+    display : flex;
+    justify-content: center;
+    gap : 40px;
+}
+#utilities > div {
+    display : flex;
+    float:unset;
+    height : 42px;
+    line-height : 42px;
+    margin : 0px;
+    min-width: unset;
+    padding : 15px 30px;
+    width : 180px;
+}
+#utilities .button .icon {
+    font-size : 42px;
+}
+#utilities .button .label {
+    margin-left : 14px;
+}
+#header-avatar {
+    margin : 0px;
+}

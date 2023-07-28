@@ -11,6 +11,7 @@ const router        = express.Router();
    ------------------------------------------------------------------------------ */
 router.get('/classes'       , function(req, res, next) { redirect('classes'         , 'Classification Browser'      , req, res, next); });
 router.get('/client'        , function(req, res, next) { redirect('client'          , 'Mobile PLM Client'           , req, res, next); });
+router.get('/customer'      , function(req, res, next) { redirect('customer'        , 'Customer Services'           , req, res, next); });
 router.get('/configurator'  , function(req, res, next) { redirect('configurator'    , 'Product Configuration Editor', req, res, next); });
 router.get('/explorer'      , function(req, res, next) { redirect('explorer'        , 'Product Data Explorer'       , req, res, next); });
 router.get('/impactanalysis', function(req, res, next) { redirect('impactanalysis'  , 'Change Impact Analysis'      , req, res, next); });

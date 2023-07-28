@@ -1,0 +1,38 @@
+extends common/layout
+
+block head
+    link(rel='stylesheet', href='/stylesheets/customer.css')
+    script(src='/javascripts/customer.js')  
+    script.
+        config = !{JSON.stringify(config)};
+
+block content
+
+    #main.screen 
+
+        .container
+
+            #logo 
+
+            #title Customer Services Portal 
+
+            #applications 
+                .button(data-link='/portfolio') 
+                    span.button-icon.icon settings_input_component
+                    span.button-title Product Catalog 
+                    span.button-description Explore our portfolio of standard products and retrieve technical product details
+                .button(data-link='/reviews') 
+                    span.button-icon.icon.icon-markup
+                    span.button-title Design Reviews 
+                    span.button-description Review our latest designs and share your feedback before approving a new product
+                .button(data-link='/navigator?wsId=82')
+                    span.button-icon.icon.icon-problem
+                    span.button-title Product Support 
+                    span.button-description In case of problems with a product, get immediate help from our support team
+        #utilities 
+            .button
+                #header-avatar
+                .label Edit Profile 
+            .button
+                .icon.icon-info.filled 
+                .label Contact Support

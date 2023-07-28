@@ -11,9 +11,9 @@ $(document).ready(function() {
     enableBookmark();
     enableOpenInNew();
 
-    $('#header-logo'    ).click(function() { reloadPage(); });
-    $('#header-title'   ).click(function() { reloadPage(); });
-    $('#header-subtitle').click(function() { reloadPage(); });
+    $('#header-logo'    ).click(function() { reloadPage(true); });
+    $('#header-title'   ).click(function() { reloadPage(false); });
+    $('#header-subtitle').click(function() { reloadPage(false); });
 
 });
 
@@ -152,9 +152,13 @@ function appendViewerProcessing() {
 
 
 // Reset current page
-function reloadPage() {
+function reloadPage(ret) {
 
-    document.location.href = document.location.href;
+    if(ret && (document.location.href !== document.referrer)) {
+        document.location.href = document.referrer;
+    } else {
+        document.location.href = document.location.href;
+    }
 
 }
 

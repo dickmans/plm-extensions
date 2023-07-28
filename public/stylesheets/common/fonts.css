@@ -85,6 +85,7 @@
 .icon-edit-multiple::before  { content : '\e745'; }
 .icon-filter::before    { content : '\e152'; }
 .icon-fold::before    { content : '\e5d6'; }
+.icon-help::before    { content : '\f1c0'; }
 .icon-hide::before    { content : '\e8f5'; }
 .icon-home::before    { content : '\e88a'; }
 .icon-important::before    { content : '\e82a'; }
@@ -98,6 +99,7 @@
 .icon-open::before  { content : '\e89e'; }
 .icon-panel::before  { content : '\f114'; }
 .icon-pdf::before  { content : '\e415'; }
+.icon-problem::before  { content : '\e122'; }
 .icon-radio-checked::before { content : '\e837'; }
 .icon-radio-unchecked::before { content : '\e836'; }
 .icon-refresh::before    { content : '\e627'; }
