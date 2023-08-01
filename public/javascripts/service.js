@@ -311,6 +311,8 @@ function getInitialData() {
 
     Promise.all(promises).then(function(responses) {
 
+        console.log(responses);
+
         let errors = false;
 
         for(response of responses) {

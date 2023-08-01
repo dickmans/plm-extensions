@@ -266,6 +266,9 @@ function getInitialData() {
             }
         }
 
+
+        if(wsEBOM.viewId === '') showErrorMessage('Error in configuration, BOM view "'+ config.mbom.bomViewNameEBOM + '" could not be found in workspace '+ wsEBOM.wsId, 'Setup Error');
+
         $('#nav-workspace-views-ebom').html(responses[4].data.name);
 
         wsEBOM.tableaus = responses[5].data;
@@ -1484,10 +1487,6 @@ function setMBOM(elemParent, urn, level, qty, urnParent) {
     let itemNumber   = getMBOMEdgeNumber(urn, urnParent);
 
     let hasInstructions = hasNodeInstructions(edge.edgeId, partNumber, nodeLink);
-
-
-    console.log(isEBOMItem);
-    console.log(nodeLink);
 
     // isProcess = (type === 'Process') ? true : false;
 

@@ -17,14 +17,14 @@ function insertAvatar() {
     $.get( '/plm/me', {}, function(response) {
 
         username = response.data.displayName;
-
+        
         let elemAvatar = $('#header-avatar');
             elemAvatar.addClass('no-icon');
             elemAvatar.html('');
             elemAvatar.attr('title', response.data.displayName + ' @ ' + tenant);
-            elemAvatar.css('background', 'url(' + response.data.image.medium + ')');
+            elemAvatar.css('background', 'url(' + response.data.image.large + ')');
             elemAvatar.css('background-position', 'center');
-            elemAvatar.css('background-size', '42px');
+            elemAvatar.css('background-size', elemAvatar.css('height'));
 
     });
 
