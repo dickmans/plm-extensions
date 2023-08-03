@@ -235,6 +235,7 @@ function selectTab(elemClicked) {
 function getInitialData() {
 
     let requests = [
+        $.get('/plm/versions'               , { 'wsId' : wsId, 'dmsId'  : dmsId }),
         $.get('/plm/details'                , { 'wsId' : wsId, 'dmsId'  : dmsId }),
         $.get('/plm/bom-views-and-fields'   , { 'wsId' : wsEBOM.wsId }),
         $.get('/plm/sections'               , { 'wsId' : wsEBOM.wsId }),
@@ -259,19 +260,18 @@ function getInitialData() {
 
     Promise.all(requests).then(function(responses) {
 
-        for(view of responses[1].data) {
+        for(view of responses[2].data) {
             if(view.name.toLowerCase() === config.mbom.bomViewNameEBOM.toLowerCase()) {
                 wsEBOM.viewId       = view.id;
                 wsEBOM.viewColumns  = view.fields;
             }
         }
 
-
         if(wsEBOM.viewId === '') showErrorMessage('Error in configuration, BOM view "'+ config.mbom.bomViewNameEBOM + '" could not be found in workspace '+ wsEBOM.wsId, 'Setup Error');
 
-        $('#nav-workspace-views-ebom').html(responses[4].data.name);
+        $('#nav-workspace-views-ebom').html(responses[5].data.name);
 
-        wsEBOM.tableaus = responses[5].data;
+        wsEBOM.tableaus = responses[6].data;
 
         insertViewOptions('ebom', wsEBOM.tableaus);
 
@@ -282,24 +282,24 @@ function getInitialData() {
         
         } else {
 
-            $('#nav-workspace-views-mbom').html(responses[8].data.name);
+            $('#nav-workspace-views-mbom').html(responses[9].data.name);
 
-            for(view of responses[7].data) {
+            for(view of responses[8].data) {
                 if(view.name === config.mbom.bomViewNameMBOM) {
                     wsMBOM.viewId       = view.id;
                     wsMBOM.viewColumns  = view.fields;
                 }
             }
 
-            wsMBOM.tableaus = responses[9].data;
+            wsMBOM.tableaus = responses[10].data;
 
             insertViewOptions('mbom', wsMBOM.tableaus);
 
         }
 
-        wsEBOM.sections = responses[2].data;
-        wsMBOM.sections = responses[3].data;
-        wsMBOM.fields   = responses[6].data;
+        wsEBOM.sections = responses[3].data;
+        wsMBOM.sections = responses[4].data;
+        wsMBOM.fields   = responses[7].data;
 
         for(column of wsMBOM.viewColumns) {
                  if(column.fieldId === config.mbom.fieldIdEBOMItem    ) { linkFieldEBOMItem     = column.__self__.link; }
@@ -307,7 +307,18 @@ function getInitialData() {
         }
 
         insertItemDetailsFields('create-item', null, wsMBOM.sections, wsMBOM.fields, null, true, true, true);
-        processItemData(responses[0].data);
+
+        let linkLatest  = responses[0].data.versions[0].item.link;
+        let dmsIDLatest = linkLatest.split('/')[6];
+
+        if(dmsId !== dmsIDLatest) {
+            dmsId = dmsIDLatest;
+            $.get('/plm/details', { 'wsId' : wsId, 'dmsId' : dmsId }, function(response) {
+                processItemData(response.data);
+            });
+        } else {
+            processItemData(responses[1].data);
+        }
 
     });
 
@@ -520,6 +531,7 @@ function moveItemInBOM(elemItem) {
 }
 
 
+
 // Set & update status bar
 function setStatusBar() {
     
@@ -665,6 +677,7 @@ function setStatusBar() {
 }
 
 
+
 // Input controls to add new items to MBOM
 function insertNewProcess(e) {
     
@@ -691,6 +704,7 @@ function insertNewProcess(e) {
     }
     
 }
+
 
 
 // Display EBOM information
@@ -1466,6 +1480,7 @@ function copyBOM(wsIdParent, dmsIdParent, linkEBOMRoot, bom) {
 }
 
 
+
 // Display MBOM information
 function setMBOM(elemParent, urn, level, qty, urnParent) {
 
@@ -1783,6 +1798,7 @@ function hasNodeInstructions(edge, partNumber, nodeLink) {
 }
 
 
+
 // Parse BOM information
 function getDescriptor(data, urn) {
     
@@ -1851,6 +1867,7 @@ function getMBOMEdgeNumber(urn, urnParent) {
 }
 
 
+
 // Toggles to expand / collapse BOMs
 function addBOMToggle(elemParent) {
     
@@ -1896,6 +1913,7 @@ function addBOMToggle(elemParent) {
 }
 
 
+
 // Add Shortcut to open related MBOM
 function addMBOMShortcut(elemParent) {
     
@@ -1918,6 +1936,7 @@ function addMBOMShortcut(elemParent) {
         });
     
 }
+
 
 
 // Calculate total quantities
@@ -1965,6 +1984,7 @@ function setTotalQuantities() {
     });
 
 }
+
 
 
 // Enable item filtering & preview
@@ -2169,6 +2189,7 @@ function setBOMPanels(link) {
 }
 
 
+
 // Drag & Drop functions
 function moveItemQuantity() {
     
@@ -2250,6 +2271,7 @@ function getItemClone(elemItem) {
    return elemClone;
 
 }
+
 
 
 // Add Items Tab
@@ -3295,7 +3317,7 @@ function endProcessing() {
     let paramsMBOM = { 'link' : linkMBOM, 'sections'   : [] }
 
     addFieldToPayload(paramsEBOM.sections, wsEBOM.sections, null, config.mbom.fieldIdLastSync, value);
-    addFieldToPayload(paramsEBOM.sections, wsEBOM.sections, null, config.mbom.fieldIdLastUser + siteSuffix, $('#header-avatar').attr('title'));
+    addFieldToPayload(paramsEBOM.sections, wsEBOM.sections, null, config.mbom.fieldIdLastUser + siteSuffix, username);
     addFieldToPayload(paramsMBOM.sections, wsMBOM.sections, null, config.mbom.fieldIdLastSync, value);
 
     $.get('/plm/edit', paramsEBOM, function(response) {});

@@ -1,49 +1,74 @@
 :root {
-    --width-panel : 880px;
+    --width-container   : 1140px;
+    --height-container  : 600px;
+    --width-guide       :  300px;
+    --padding-guide     : 50px;
 }
 body {
     background : var(--color-gray-100);
 }
+#header-avatar {
+    margin : 0px;
+    height : 72px;
+    width  : 72px;
+}
 
 /*  MASTER LAYOUT */
 /* ----------------------------------------------------------------------------- */
-.container {
-    left : calc(50% - (var(--width-panel) / 2));
+#container {
+    left : calc(50% - (var(--width-container) / 2));
     top : calc(50% - 460px);
-    width : var(--width-panel);
+    height : var(--height-container);
+    width : var(--width-container);
 }
-#utilities {
-    bottom : 100px;
-    left : calc(50% - (var(--width-panel) / 2));
-    width : var(--width-panel);
+#container > div {
+    position : absolute;
+    top : 0px;
+    bottom : 0px;
 }
+#guide {
+    left : 0px;
+    width : var(--width-guide);
+}
+#applications {
+    left : calc(var(--width-guide) + 24px);
+    right : 0px;
+}
+
 
 
 /*  MAIN */
 /* ----------------------------------------------------------------------------- */
 #logo {
-    background-image: url(../../images/autodesk-logo-black.png);
-    background-size: 220px;
+    background-image: url(../../images/autodesk-logo-white.png);
+    background-size: 130px;
     cursor : pointer;
-    height: 140px;
-    margin : auto;
-    width: 220px;
+    height: 72px;
+    margin : 30px 0px 0px 36px;
+    width: 130px;
 }
 #title {
-    background : var(--color-dark-blue-700);
-    color : white;
-    font-size : 22px;
+    font-size : 32px;
     font-weight : 800;
-    line-height : 28px;
-    margin-top : 20px;
-    padding : 20px;
-    text-align : center;
+    line-height : 32px;
+    padding : 40px var(--padding-guide) 10px;
 }
 #welcome {
     display : flex;
     justify-content: center;
-    line-height : 42px;
-    gap : 10px;
+    line-height : 16px;
+    padding : 0px var(--padding-guide);
+}
+#help {
+    padding : var(--padding-guide);
+}
+
+
+/*  GUIDE */
+/* ----------------------------------------------------------------------------- */
+#guide {
+    background : var(--color-dark-blue-700);
+    color : white;
 }
 
 
@@ -51,58 +76,45 @@ body {
 /* ----------------------------------------------------------------------------- */
 #applications {
     display : flex;
-    gap : 28px;
-    justify-content: center;
-    margin-top : 60px;
+    flex-direction: column;
+    gap : 20px;
 }
 #applications > div {
     display : flex;
-    flex-direction: column;
+    flex-direction: row;
     float:unset;
     flex-grow : 1;
-    height : 210px;
+    gap : 30px;
     min-width: unset;
-    padding : 30px;
+    padding : 30px 30px 30px 30px;
     margin: 0px;
 }
 .button-icon {
-    font-size : 90px;
-    font-weight : 200;
+    font-size : 72px;
+    font-weight : 300;
+    line-height : 76px;
 }
+.button-labels { flex-grow : 1;}
+.button-labels > div { text-align : left; }
 .button-title {
     font-weight : 800;
     font-size : 24px;
-    line-height : 50px;
+    line-height : 42px;
 }
 .button-description {
+    font-size : 14px;
+    line-height : 16px;
     overflow:visible;
     white-space: normal !important;
 }
-
-
-/*  UTILITIES */
-/* ----------------------------------------------------------------------------- */
-#utilities {
-    display : flex;
-    justify-content: center;
-    gap : 40px;
+#applications > div::after  {
+    font: normal normal normal 14px/1 'Material Symbols Sharp';
+    font-size : 40px;
+    line-height : 76px;
+    margin-right : 8px;
+    position: relative;
+    top : 2px;
 }
-#utilities > div {
-    display : flex;
-    float:unset;
-    height : 42px;
-    line-height : 42px;
-    margin : 0px;
-    min-width: unset;
-    padding : 15px 30px;
-    width : 180px;
-}
-#utilities .button .icon {
-    font-size : 42px;
-}
-#utilities .button .label {
-    margin-left : 14px;
-}
-#header-avatar {
-    margin : 0px;
+#applications > div::after {
+    content: '\e5cc';
 }

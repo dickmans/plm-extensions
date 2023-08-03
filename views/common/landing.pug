@@ -1215,7 +1215,7 @@ block content
                                     span WHEN (DMS_ID is null) THEN '<span style="white-space:nowrap;color:#bbb;font-style:italic;">Item ID is not set</span>'
                                     span WHEN (END_ITEM = true) THEN '<span style="white-space:nowrap;color:#bbb;font-style:italic;">Not available for end items</span>'
                                     span WHEN (MATCHES_MBOM = true) THEN '<span style="white-space:nowrap;color:#bbb;font-style:italic;">EBOM matches MBOM</span>'
-                                    span ELSE '&lt;a style="color: #0a131c;border: 1px solid #bec8d2;border-radius:3px;text-align:center;text-decoration:none !important;line-height:32px;white-space:nowrap;padding:4px 20px;width:140px;font-weight:600;" target="_blank" href ="LOCATIONmbom?wsId=57&dmsId='||DMS_ID||'"&gt;MBOM Editor&lt;/a&gt;'
+                                    span ELSE '&lt;a style="color: #0a131c;border: 1px solid #bec8d2;border-radius:3px;text-align:center;text-decoration:none !important;line-height:32px;white-space:nowrap;padding:4px 20px;width:140px;font-weight:600;" target="_blank" href ="LOCATIONmbom?wsId=57&dmsId='||DMS_ID||'"&gt;Edit MBOM&lt;/a&gt;'
                                     span END                         
                         p While the layout does not matter, it is recommended to combine the given fields in a Matrix within this section as shown below.
                         img.border(src='images/apps/mbom-editor-1.png' style='width:100%;max-width:1105px')
@@ -1255,7 +1255,7 @@ block content
                                 p.code CASE 
                                     span WHEN (DMS_ID is null) THEN '<span style="white-space:nowrap;color:#bbb;font-style:italic;">Item ID is not set</span>'
                                     span WHEN (END_ITEM = true) THEN '<span style="white-space:nowrap;color:#bbb;font-style:italic;">Not available for end items</span>'
-                                    span ELSE '&lt;a style="color: #0a131c;border: 1px solid #bec8d2;border-radius:3px;text-align:center;text-decoration:none !important;line-height:32px;white-space:nowrap;padding:4px 20px;width:140px;font-weight:600;" target="_blank" href ="LOCATIONmbom?wsId=57&dmsId='||DMS_ID||'"&gt;MBOM Editor&lt;/a&gt;'
+                                    span ELSE '&lt;a style="color: #0a131c;border: 1px solid #bec8d2;border-radius:3px;text-align:center;text-decoration:none !important;line-height:32px;white-space:nowrap;padding:4px 20px;width:140px;font-weight:600;" target="_blank" href ="LOCATIONmbom?wsId=57&dmsId='||DMS_ID||'"&gt;Edit MBOM&lt;/a&gt;'
                                     span END   
                         p These fields once again can be managed in a dedicated section and matrix when using two distinct workspaces: 
                         img.border(src='images/apps/mbom-editor-2.png' style='width:100%;max-width:1223;')
