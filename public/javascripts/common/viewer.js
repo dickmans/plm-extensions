@@ -876,12 +876,7 @@ function viewerAddMarkupControls() {
 
 
     let elemMarkupGroupWidth = addMarkupControlGroup(elemMarkupToolbar, 'Width');
-
-    // addMarkupWidthControl(elemMarkupGroupWidth, '1', 1);
-    // addMarkupWidthControl(elemMarkupGroupWidth, '2', 5);
-    // addMarkupWidthControl(elemMarkupGroupWidth, '3', 12);
-    // addMarkupWidthControl(elemMarkupGroupWidth, '4', 25);
-    // addMarkupWidthControl(elemMarkupGroupWidth, '5', 40);
+    
     addMarkupWidthControl(elemMarkupGroupWidth, '1', 2);
     addMarkupWidthControl(elemMarkupGroupWidth, '2', 4);
     addMarkupWidthControl(elemMarkupGroupWidth, '3', 8);
