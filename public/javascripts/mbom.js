@@ -2387,15 +2387,11 @@ function setWorkspaceView(suffix) {
         let elemParent = $('#workspace-view-list-' + suffix);
             elemParent.html('');
 
-        $.get('/plm//tableau-data', { 'link' : $('#view-selector-' + suffix).val() }, function(response) {
-        
-            console.log(response);
-
+        $.get('/plm//tableau-data', { 'link' : $('#view-selector-' + suffix).val() }, function(response) {        
             $('#add-processing').hide();
             for(item of response.data) {
                 addItemListEntry(item.item.link, item.item.urn, item.fields[0].value, suffix, elemParent, false);
             }
-
         });
 
     } else {
@@ -3158,6 +3154,9 @@ function addBOMItems() {
 
             for(response of responses) {
                 requests.push($.get('/plm/bom-item', { 'link' : response.data }));
+                if(response.error) {
+                    showErrorMessage(response.data[0].message, 'Error while adding BOM items');
+                }
             }
 
             Promise.all(requests).then(function(responses) {
@@ -3192,6 +3191,7 @@ function addBOMItems() {
                 }
 
                 addBOMItems();
+
             });
         
         });
