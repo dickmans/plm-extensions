@@ -846,7 +846,7 @@ function viewerAddNoteControls() {
         elemNoteToolbar.addClass('hidden');
         elemNoteToolbar.appendTo($('#viewer'));
 
-    let elemNoteGroup = addMarkupControlGroup(elemNoteToolbar, 'Note');
+    let elemNoteGroup = addMarkupControlGroup(elemNoteToolbar, 'markup-toolbar-note', 'Note');
 
     let elemInput = $('<textarea></textarea>');
         elemInput.addClass('viewer-note');
@@ -866,24 +866,29 @@ function viewerAddMarkupControls() {
         elemMarkupToolbar.addClass('set-defaults');
         elemMarkupToolbar.appendTo($('#viewer'));
 
-    let elemMarkupGroupColors = addMarkupControlGroup(elemMarkupToolbar, 'Color');
+    let elemMarkupGroupColors = addMarkupControlGroup(elemMarkupToolbar, 'markup-toolbar-colors', 'Color');
 
-    addMarkupColorControl(elemMarkupGroupColors, 'FB5A79');
-    addMarkupColorControl(elemMarkupGroupColors, 'FBE235');
-    addMarkupColorControl(elemMarkupGroupColors, '68E759');
-    addMarkupColorControl(elemMarkupGroupColors, '3694FB');
+    // addMarkupColorControl(elemMarkupGroupColors, 'FB5A79');
+    // addMarkupColorControl(elemMarkupGroupColors, 'FBE235');
+    // addMarkupColorControl(elemMarkupGroupColors, '68E759');
+    // addMarkupColorControl(elemMarkupGroupColors, '3694FB');
+    addMarkupColorControl(elemMarkupGroupColors, 'eb5555');
+    addMarkupColorControl(elemMarkupGroupColors, 'faa21b');
+    addMarkupColorControl(elemMarkupGroupColors, '87b340');
+    addMarkupColorControl(elemMarkupGroupColors, '0696d7');
     // addMarkupColorControl(elemMarkupGroupColors, '8CE5FC');
 
 
-    let elemMarkupGroupWidth = addMarkupControlGroup(elemMarkupToolbar, 'Width');
-    
+    let elemMarkupGroupWidth = addMarkupControlGroup(elemMarkupToolbar, 'markup-toolbar-sizes', 'Width');
+
     addMarkupWidthControl(elemMarkupGroupWidth, '1', 2);
     addMarkupWidthControl(elemMarkupGroupWidth, '2', 4);
     addMarkupWidthControl(elemMarkupGroupWidth, '3', 8);
     addMarkupWidthControl(elemMarkupGroupWidth, '4', 16);
-    addMarkupWidthControl(elemMarkupGroupWidth, '5', 32);
+    addMarkupWidthControl(elemMarkupGroupWidth, '5', 28);
+    addMarkupWidthControl(elemMarkupGroupWidth, '6', 48);
 
-    let elemMarkupGroupShapes = addMarkupControlGroup(elemMarkupToolbar, 'Shape');
+    let elemMarkupGroupShapes = addMarkupControlGroup(elemMarkupToolbar, 'markup-toolbar-shapes', 'Shape');
 
     addMarkupShapeControl(elemMarkupGroupShapes, 'arrow', 'trending_flat');
     addMarkupShapeControl(elemMarkupGroupShapes, 'circle', 'radio_button_unchecked');
@@ -892,7 +897,7 @@ function viewerAddMarkupControls() {
     addMarkupShapeControl(elemMarkupGroupShapes, 'freehand', 'draw');
     addMarkupShapeControl(elemMarkupGroupShapes, 'text', 'text_fields');
 
-    let elemMarkupGroupActions = addMarkupControlGroup(elemMarkupToolbar, 'Actions');
+    let elemMarkupGroupActions = addMarkupControlGroup(elemMarkupToolbar, 'markup-toolbar-actions', 'Actions');
 
     addMarkupActionControl(elemMarkupGroupActions, true, 'undo', 'markup.undo();');
     addMarkupActionControl(elemMarkupGroupActions, true, 'redo', 'markup.redo();');
@@ -949,7 +954,7 @@ function viewerAddMarkupControls() {
     promise.then(function(extension){ markup = extension; });
 
 }
-function addMarkupControlGroup(elemParent, label) {
+function addMarkupControlGroup(elemParent, id, label) {
 
     let elemGroup = $('<div></div>');
         elemGroup.addClass('viewer-markup-toolbar-group');
@@ -960,7 +965,13 @@ function addMarkupControlGroup(elemParent, label) {
         elemGroupLabel.html(label);
         elemGroupLabel.appendTo(elemGroup);
 
-    return elemGroup;
+    let elemGroupToolbar = $('<div></div>');
+        elemGroupToolbar.addClass('viewer-markup-toolbar-group-toolbar');
+        elemGroupToolbar.attr('id', id);
+        // elemGroupActions.html(label);
+        elemGroupToolbar.appendTo(elemGroup);
+
+    return elemGroupToolbar;
 
 }
 function addMarkupColorControl(elemParent, color) {

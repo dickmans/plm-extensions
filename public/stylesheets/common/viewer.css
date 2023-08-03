@@ -96,7 +96,6 @@
 #viewer-markup-toolbar {
     display : flex;
     gap : 8px;
-    height : 80px;
     justify-content : center;
     position: absolute;
     bottom: 10px;
@@ -108,22 +107,21 @@
     background : black;
     border-radius : 3px;
     overflow : auto;
-    padding : 6px 10px;
+    padding : 8px 12px 12px;
 }
 .viewer-markup-toolbar-group-label {
     color : white;
     font-size : 12px;
-    padding-bottom : 4px;
+    font-weight : 800;
+    padding-bottom : 8px;
     text-align : center;
 }
 .viewer-markup-toggle, .viewer-markup-button {
     background : black;
-    border: 1px solid var(--color-gray-600);
+    border: 2px solid var(--color-gray-700);
     border-radius: 2px !important;
     color : white;
     cursor : pointer;
-    float : left;
-    margin : 2px;
     height : 36px;
     line-height : 36px;
     text-align : center;
@@ -132,3 +130,43 @@
 .viewer-markup-toggle.selected { border-color : white !important; }
 .viewer-markup-button { width : 60px; }
 .viewer-markup-button.material-symbols-sharp { width : 36px; }
+
+
+.viewer-markup-toolbar-group-toolbar {
+    display : grid;
+    gap : 4px;
+}
+
+#markup-toolbar-colors > div {
+    border-color : transparent;
+}
+
+#markup-toolbar-colors  { grid-template-columns: repeat(4, 1fr); }
+#markup-toolbar-sizes   { grid-template-columns: repeat(6, 1fr); }
+#markup-toolbar-shapes  { grid-template-columns: repeat(6, 1fr); }
+#markup-toolbar-actions { grid-template-columns: repeat(4, 1fr); }
+
+
+#viewer-markup-toolbar {
+    container-type : inline-size;
+}
+@container (max-width: 1080px) {
+
+    #markup-toolbar-colors {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+    }
+    #markup-toolbar-sizes {
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+    }
+    #markup-toolbar-shapes {
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+    }
+    #markup-toolbar-actions {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+    }
+
+}

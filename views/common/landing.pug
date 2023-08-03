@@ -13,7 +13,7 @@ block content
                 .divider.horizontal.heavy
                 p Unleash the power of Fusion 360 Manage by utilizing its REST API to provide custom built frontends based on Autodesk Platform Services. All solutions manage data in PLM only. All business rules of PLM as well as access permissions still apply.
                 p These solutions are provided by Autodesk Technical Sales without warranty and support.
-                p#version(style="font-weight:bold") Version of July 2023 
+                p#version(style="font-weight:bold") Version of August 2023 
                 p This  version has been optimized for the tenant template released in 2023 using a single Items workspaces (dedicated workspace for Vault Items got removed), reducing configuration efforts.
                 p Connected to 
                     span#tenant
@@ -333,6 +333,14 @@ block content
                         h1 Product Data Explorer Change Log 
                         table 
                             tr 
+                                td 3. August 2023
+                                td Bugfix 
+                                td Improved behavior of markup toolbar at lower resolutions
+                            tr 
+                                td 
+                                td Bugfix 
+                                td Width of markups and font size of markup text can now be set properly
+                            tr 
                                 td 7. July 2023
                                 td New Feature
                                 td When switching to the flat BOM view, users can modify properties for multiple records (given the fields in the defined BOM are editable)
@@ -575,8 +583,16 @@ block content
                             | endpoint, just click this link:
                         a(href='reviews' target='_blank')
                     .log 
-                        h1 Projects Dashboard Change Log 
+                        h1 Design Reviews Change Log 
                         table 
+                            tr 
+                                td 3. August 2023
+                                td Bugfix 
+                                td Improved behavior of markup toolbar at lower resolutions
+                            tr 
+                                td 
+                                td Bugfix 
+                                td Width of markups and font size of markup text can now be set properly
                             tr 
                                 td 7. July 2023
                                 td Enhancement
@@ -866,6 +882,14 @@ block content
                     .log 
                         h1 Services Portal Change Log 
                         table 
+                            tr 
+                                td 3. August 2023
+                                td Bugfix 
+                                td Improved behavior of markup toolbar at lower resolutions
+                            tr 
+                                td 
+                                td Bugfix 
+                                td Width of markups and font size of markup text can now be set properly
                             tr 
                                 td 7. July 2023
                                 td Enhancement 
@@ -1403,7 +1427,7 @@ block content
                                 ul 
                                     li MBOM_G: Linking picklist to MBOM item workspace (single selection, editable)
                                     li LAST_MBOM_SYNC_G: Date field (editable)
-                                    li LAST_MBOM_USER_G: Single Line Text (length 50, editable)
+                                    li LAST_MBOM_USER_G: Single Line Text (length 100, editable)
                                     li MBOM_EDITOR_G: Computed field with the following formula. Note that the URL contains a parameter to identify the site (G)
                                 p.code CASE 
                                     span WHEN (DMS_ID is null) THEN '<span style="white-space:nowrap;color:#bbb;font-style:italic;">Item ID is not set</span>'
