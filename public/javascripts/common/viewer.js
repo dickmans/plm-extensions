@@ -4,15 +4,9 @@ let ghosting                    = true;
 let disableViewerSelectionEvent = false;
 let viewerDone                  = false;
 
-let viewer, dmu, markup, markupsvg, curViewerState, restoreMarkupSVG, restoreMarkupState;
+let viewer, dmu, markup, markupsvg, curViewerState, restoreMarkupSVG, restoreMarkupState, baseStrokeWidth;
 
-let markupStyle = {
-    'stroke-width'  : 1.1,
-    'font-size'     : 10
-    // * defaults got disabled in Mar 2019 due to issues with scaling *
-    //    "font-size" : 12,
-    //    "stroke-color" : "#FC5A78"
-};
+let markupStyle = {};
 
 let vectorRange  = [ 
     new THREE.Vector4(206/255, 101/255, 101/255, 0.8),
@@ -128,7 +122,6 @@ function initViewerDone() {
 function onViewerSelectionChanged(event) {}
 
 
-
 // Resize Viewer
 function viewerResize(delay) {
 
@@ -139,7 +132,6 @@ function viewerResize(delay) {
     setTimeout(function() { viewer.resize(); }, delay);
 
 }
-
 
 
 // Launch Forge Aggregated View
@@ -878,18 +870,23 @@ function viewerAddMarkupControls() {
 
     addMarkupColorControl(elemMarkupGroupColors, 'FB5A79');
     addMarkupColorControl(elemMarkupGroupColors, 'FBE235');
+    addMarkupColorControl(elemMarkupGroupColors, '68E759');
     addMarkupColorControl(elemMarkupGroupColors, '3694FB');
     // addMarkupColorControl(elemMarkupGroupColors, '8CE5FC');
-    addMarkupColorControl(elemMarkupGroupColors, '68E759');
 
 
     let elemMarkupGroupWidth = addMarkupControlGroup(elemMarkupToolbar, 'Width');
 
-    addMarkupWidthControl(elemMarkupGroupWidth, '1', 1);
-    addMarkupWidthControl(elemMarkupGroupWidth, '2', 5);
-    addMarkupWidthControl(elemMarkupGroupWidth, '3', 12);
-    addMarkupWidthControl(elemMarkupGroupWidth, '4', 25);
-    addMarkupWidthControl(elemMarkupGroupWidth, '5', 40);
+    // addMarkupWidthControl(elemMarkupGroupWidth, '1', 1);
+    // addMarkupWidthControl(elemMarkupGroupWidth, '2', 5);
+    // addMarkupWidthControl(elemMarkupGroupWidth, '3', 12);
+    // addMarkupWidthControl(elemMarkupGroupWidth, '4', 25);
+    // addMarkupWidthControl(elemMarkupGroupWidth, '5', 40);
+    addMarkupWidthControl(elemMarkupGroupWidth, '1', 2);
+    addMarkupWidthControl(elemMarkupGroupWidth, '2', 4);
+    addMarkupWidthControl(elemMarkupGroupWidth, '3', 8);
+    addMarkupWidthControl(elemMarkupGroupWidth, '4', 16);
+    addMarkupWidthControl(elemMarkupGroupWidth, '5', 32);
 
     let elemMarkupGroupShapes = addMarkupControlGroup(elemMarkupToolbar, 'Shape');
 
@@ -928,6 +925,8 @@ function viewerAddMarkupControls() {
 
         markup.enterEditMode();
         markup.show();
+
+        baseStrokeWidth = markup.getStyle()['stroke-width'];
             
         if($('#viewer-markup-toolbar').hasClass('set-defaults')) {
             $('.viewer-markup-toggle.color').first().click();
@@ -996,7 +995,8 @@ function addMarkupWidthControl(elemParent, label, width) {
         elemControl.appendTo(elemParent);
 
     elemControl.click(function() {
-        markupStyle['stroke-width'] = $(this).attr('data-width');
+        markupStyle['stroke-width'] = baseStrokeWidth * Number($(this).attr('data-width'));
+        markupStyle['font-size'] = baseStrokeWidth * 5 * Number($(this).attr('data-width'));
         markup.setStyle(markupStyle);
         $(this).siblings().removeClass('selected');
         $(this).addClass('selected');
