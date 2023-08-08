@@ -2,13 +2,14 @@
 /* ----------------------------------------------------------------------------- */
 :root {
 
-    --spacer-xxs :  4px;
-    --spacer-xs  :  8px;
-    --spacer-s   : 12px;
-    --spacer-m   : 16px;
-    --spacer-l   : 24px;
-    --spacer-xl  : 32px;
-    --spacer-xxl : 48px;
+    --spacer-xxxs :  2px;
+    --spacer-xxs  :  4px;
+    --spacer-xs   :  8px;
+    --spacer-s    : 12px;
+    --spacer-m    : 16px;
+    --spacer-l    : 24px;
+    --spacer-xl   : 32px;
+    --spacer-xxl  : 48px;
 
     --width-viewer-note : 946px;
 
@@ -186,6 +187,7 @@
 .tiles.list.m     { gap : var(--spacer-xs); }
 .tiles.list.s     { gap : var(--spacer-xs); }
 .tiles.list.xs    { gap : var(--spacer-xs); }
+.tiles.list.xxs   { gap : var(--spacer-xxxs); }
 .tiles.list.files { gap : var(--spacer-xs); } /* DESIGN REVIEWS, CLASS BROWSER */
 
 .tiles.xxl > div { height : 344px; width : 384px; }
@@ -210,6 +212,7 @@
 .tiles.list.m     > div { height : 64px; width : 100%; }
 .tiles.list.s     > div { height : 64px; width : 100%; }
 .tiles.list.xs    > div { height : 48px; width : 100%; }
+.tiles.list.xxs   > div { height : 36px; width : 100%; }
 .tiles.list.files > div { height : 58px; width : 100%; } /* DESIGN REVIEWS APP */
 
 .tile-image > img {
@@ -229,10 +232,11 @@
 .tiles.wide.m   .tile-image { height :  96px; width :  96px; }
 .tiles.wide.s   .tile-image { height :  64px; width :  64px; } .tiles.wide.s   .tile-details { gap : 2px; margin : 16px 20px 12px; width : calc(100% -  88px); }
 
-.tiles.list.l   .tile-image { height :  96px; width :  96px; } .tiles.list.l  .tile-details { margin : 13px 20px; width : calc(100% - 136px); } .tiles.list.l .tile-image > span { font-size : 54px; line-height : 96px; }
-.tiles.list.m   .tile-image { height :  64px; width :  64px; } .tiles.list.m  .tile-details { margin : 13px 20px; width : calc(100% - 104px); }
-.tiles.list.s   .tile-image { height :  64px; width :  64px; } .tiles.list.s  .tile-details { margin : 10px 20px; width : calc(100% - 104px); }
-.tiles.list.xs  .tile-image { height :  48px; width :  48px; } .tiles.list.xs .tile-details { margin :  8px 16px; width : calc(100%  - 98px); } .tiles.list.xs .tile-title { font-size : 14px; line-height : 16px; text-overflow : ellipsis; white-space : nowrap; } .tiles.list.xs .tile-image span { font-size : 36px; line-height : 48px; }
+.tiles.list.l   .tile-image { height :  96px; width :  96px; } .tiles.list.l   .tile-details { margin : 13px 20px; width : calc(100% - 136px); } .tiles.list.l .tile-image > span { font-size : 54px; line-height : 96px; }
+.tiles.list.m   .tile-image { height :  64px; width :  64px; } .tiles.list.m   .tile-details { margin : 13px 20px; width : calc(100% - 104px); }
+.tiles.list.s   .tile-image { height :  64px; width :  64px; } .tiles.list.s   .tile-details { margin : 10px 20px; width : calc(100% - 104px); }
+.tiles.list.xs  .tile-image { height :  48px; width :  48px; } .tiles.list.xs  .tile-details { margin :  8px 16px; width : calc(100%  - 98px); } .tiles.list.xs .tile-title { font-size : 14px; line-height : 16px; text-overflow : ellipsis; white-space : nowrap; } .tiles.list.xs .tile-image span { font-size : 36px; line-height : 48px; }
+.tiles.list.xxs .tile-image { height :  36px; width :  36px; } .tiles.list.xxs .tile-details { margin :  6px 14px; width : calc(100%  - 64px); } .tiles.list.xxs .tile-title { font-size : 12px; line-height : 12px; text-overflow : ellipsis; white-space : nowrap; } .tiles.list.xxs .tile-image span { font-size : 24px; line-height : 36px; } .tiles.list.xxs .tile-subtitle { font-size : 10px; line-height : 10px; }
 
 .tiles.wide > div,
 .tiles.list > div {
