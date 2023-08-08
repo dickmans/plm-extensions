@@ -60,7 +60,6 @@ function appendProcessing(id, hidden) {
 }
 
 
-
 // Insert overlay with progress indicator
 function appendOverlay(hidden) {
 
@@ -90,7 +89,6 @@ function appendOverlay(hidden) {
     if(!hidden) elemOverlay.show();
 
 }
-
 
 
 // Insert messaging and process indicator for the viewer
@@ -150,7 +148,6 @@ function appendViewerProcessing() {
 }
 
 
-
 // Reset current page
 function reloadPage(ret) {
 
@@ -161,7 +158,6 @@ function reloadPage(ret) {
     }
 
 }
-
 
 
 // Display Error Message on top
@@ -199,7 +195,6 @@ function showErrorMessage(message, title) {
 }
 
 
-
 // Handle tabs
 function enableTabs() {
 
@@ -227,7 +222,6 @@ function selectTab(elemSelected) {
 }
 
 
-
 // Handle panel toggles
 function enablePanelToggles() {
 
@@ -249,6 +243,87 @@ function selectToggle(elemSelected) {
     elemPanel.find('.panel-content').eq(index).removeClass('hidden');
 
     elemSelected.addClass('selected').siblings().removeClass('selected');
+
+}
+
+
+// Insert Calendar Controls
+function insertCalendarMonth(id, currentDate) {
+    
+    let elemCalendar    = $('#' + id);
+    let elemTable       = $('<table></table>');
+    let elemHead        = $('<thead></thead>');
+    let elemRowMonth    = $('<tr></tr>');
+    let elemRowDays     = $('<tr></tr>');
+    let elemMonthName   = $('<th></th>');
+    let elemBody        = $('<tbody></tbody;>');
+
+    elemCalendar.append(elemTable);
+       elemTable.append(elemHead);
+       elemTable.append(elemBody);
+        elemHead.append(elemRowMonth);
+        elemHead.append(elemRowDays);
+
+    elemRowMonth.append(elemMonthName);
+    elemMonthName.attr('colspan', 8);
+    elemMonthName.addClass('calendar-month-name');
+    elemMonthName.html(currentDate.toLocaleString('default', { month: 'long' }));
+
+    elemRowDays.append('<th></th>');
+    elemRowDays.append('<th>Mo</th>');
+    elemRowDays.append('<th>Tu</th>');
+    elemRowDays.append('<th>We</th>');
+    elemRowDays.append('<th>Th</th>');
+    elemRowDays.append('<th>Fr</th>');
+    elemRowDays.append('<th>Sa</th>');
+    elemRowDays.append('<th>Su</th>');
+  
+    elemTable.addClass('calendar');
+
+    let currentYear     = currentDate.getFullYear();
+    let currentMonth    = currentDate.getMonth();
+    let firstDay        = new Date(currentYear, currentMonth, 1);
+    let lastDay         = new Date(currentYear, currentMonth + 1, 0);
+    let currentDay      = firstDay;
+    let startDay        = firstDay.getDay() - 1;
+    let onejan          = new Date(currentYear, 0, 1);
+    
+    while (currentDay <= lastDay) {
+
+        let week = Math.ceil((((currentDay.getTime() - onejan.getTime()) / 86400000) + onejan.getDay() + 1) / 7);
+    
+        let weekRow = $('<tr></tr>');
+            weekRow.appendTo(elemBody);
+        
+        let weekCell = $('<td></td>');
+            weekCell.addClass('calendar-week');
+            weekCell.html(week);
+            weekCell.appendTo(weekRow);
+
+        for (let i = 0; i < 7; i++) {
+
+            let dayCell = $('<td></td>');
+            let iDay    = currentDay.getDay();
+            
+            if(i >= startDay) {
+
+                
+                if (currentDay >= firstDay && currentDay <= lastDay) {
+                    if((iDay === 0) || (iDay === 6)) dayCell.addClass('calendar-weekend');
+                    dayCell.html(currentDay.getDate());
+                    if (currentDay.toDateString() === new Date().toDateString()) {
+                        dayCell.addClass('calendar-today');
+                    }
+                }
+                startDay = -1;
+                currentDay.setDate(currentDay.getDate() + 1);
+            }   
+
+            dayCell.appendTo(weekRow);
+
+        }
+    
+    }
 
 }
 
@@ -368,10 +443,12 @@ function genTile(link, urn, image, icon, title, subtitle) {
         elemTileTitle.html(title);
         elemTileTitle.appendTo(elemTileDetails);
 
-    let elemTileText = $('<div></div>');
-        elemTileText.addClass('tile-subtitle');
-        elemTileText.html(subtitle);
-        elemTileText.appendTo(elemTileDetails);
+    if(typeof subtitle !== 'undefined') {
+        let elemTileText = $('<div></div>');
+            elemTileText.addClass('tile-subtitle');
+            elemTileText.html(subtitle);
+            elemTileText.appendTo(elemTileDetails);
+    }
         
     getImageFromCache(elemTileImage, { 'link' : image }, icon, function() {});
 
