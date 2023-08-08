@@ -77,12 +77,14 @@
 .icon-clear::before   { content : '\e14b'; }
 .icon-clone::before   { content : '\e14d'; }
 .icon-close::before   { content : '\e5cd'; }
+.icon-collapse::before  { content : '\e5cf'; }
 .icon-create::before  { content : '\e147'; }
 .icon-dashboard::before  { content : '\e871'; }
 .icon-delete::before  { content : '\e872'; }
 .icon-deselect-all::before  { content : '\e9d3'; }
 .icon-details::before  { content : '\e0ee'; }
 .icon-edit-multiple::before  { content : '\e745'; }
+.icon-expand::before  { content : '\e5cc'; }
 .icon-filter::before    { content : '\e152'; }
 .icon-fold::before    { content : '\e5d6'; }
 .icon-help::before    { content : '\f1c0'; }
