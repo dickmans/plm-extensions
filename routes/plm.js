@@ -2780,10 +2780,10 @@ router.get('/tableaus', function(req, res, next) {
 
 
 /* ----- CREATE INITIAL TABLEAU ----- */
-router.get('/init-tableaus', function(req, res, next) {
+router.get('/tableau-init', function(req, res, next) {
     
     console.log(' ');
-    console.log('  /init-tableaus');
+    console.log('  /tableau-init');
     console.log(' --------------------------------------------');  
     console.log('  req.query.wsId  = ' + req.query.wsId);
     
@@ -2791,6 +2791,96 @@ router.get('/init-tableaus', function(req, res, next) {
     
     axios.post(url, {}, {
         headers : req.session.headers
+    }).then(function(response) {
+        sendResponse(req, res, response, false);
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+    
+});
+
+
+
+/* ----- CREATE BASE VIEW ----- */
+router.get('/tableau-add', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /tableau-add');
+    console.log(' --------------------------------------------');  
+    console.log('  req.query.wsId    = ' + req.query.wsId);
+    console.log('  req.query.name    = ' + req.query.name);
+    console.log('  req.query.columns = ' + req.query.columns);
+    
+    let title   = (typeof req.query.name === 'undefined') ? 'New View' : req.query.name;
+    let columns = (typeof req.query.columns === 'undefined') ? ['descriptor', 'created_on', 'last_modified_on'] : req.query.columns;
+    let url     = 'https://' + req.session.tenant + '.autodeskplm360.net/api/v3/workspaces/' + req.query.wsId + '/tableaus';
+    let index   = 0;
+    let params  = {
+        'name'          : title,
+        'createdDate'   : new Date(),
+        'isDefault'     : false,
+        'columns'       : []
+    };
+
+    console.log(columns);
+
+    for(column of columns) {
+
+        let col = {
+            'displayOrder' : index++,
+            'field' : {},
+            'group' : {}
+        }
+
+        switch(column.toLowerCase()) {
+
+            case 'descriptor':
+                col.field.title     = 'Item Descriptor';
+                col.field.__self__  = '/api/v3/workspaces/' + req.query.wsId + '/views/0/fields/DESCRIPTOR';
+                col.field.urn       = '';
+                col.field.type      = { 'link' : '/api/v3/field-types/4' }
+                col.group           = { 'label' : 'ITEM_DESCRIPTOR_FIELD' };
+                break;
+
+            case 'created_on':
+                col.field.title     = 'Created On';
+                col.field.__self__  = '/api/v3/workspaces/' + req.query.wsId + '/views/0/fields/CREATED_ON';
+                col.field.urn       = '';
+                col.field.type      = { 'link' : '/api/v3/field-types/3' };
+                col.group           = { 'label' : 'LOG_FIELD' };
+                break;
+
+            case 'last_modified_on':
+                col.field.title     = 'Last Modified On';
+                col.field.__self__  = '/api/v3/workspaces/' + req.query.wsId + '/views/0/fields/LAST_MODIFIED_ON';
+                col.field.urn       = '';
+                col.field.type      = { 'link' : '/api/v3/field-types/3' };
+                col.group           = { 'label' : 'LOG_FIELD' };
+                break;
+
+            case 'wf_current_state':
+                col.field.title     = 'Currrent State';
+                col.field.__self__  = '/api/v3/workspaces/' + req.query.wsId + '/views/0/fields/WF_CURRENT_STATE';
+                col.field.urn       = '';
+                col.field.type      = { 'link' : '/api/v3/field-types/3' };
+                col.group           = { 'label' : 'WORKFLOW_FIELD' };
+                break;
+
+            default:
+                break;
+        }
+
+        params.columns.push(col);
+
+    }
+    
+    console.log(params);
+
+    let headers = getCustomHeaders(req);
+        headers['Content-Type'] = 'application/vnd.autodesk.plm.meta+json';
+
+    axios.post(url, params, {
+        headers : headers
     }).then(function(response) {
         sendResponse(req, res, response, false);
     }).catch(function(error) {
@@ -2846,49 +2936,6 @@ router.get('/tableau-data', function(req, res, next) {
     });
     
 });
-
-
-
-/* ----- CREATE TABLEAU ----- */
-// router.get('/create-tableau', function(req, res, next) {
-    
-//     console.log(' ');
-//     console.log('  /create-tableau');
-//     console.log(' --------------------------------------------');  
-//     console.log('  req.query.wsId    = ' + req.query.wsId);
-//     console.log('  req.query.name    = ' + req.query.name);
-//     console.log('  req.query.columns = ' + req.query.columns);
-    
-//     let url = 'https://' + req.session.tenant + '.autodeskplm360.net/api/v3/workspaces/'  + req.query.wsId + '/tableaus';
-    
-//     console.log(url);
-
-//     let headers = getCustomHeaders(req);
-//         headers.Accept = 'application/vnd.autodesk.plm.meta+json';
-
-
-//     axios.post(url, {
-//         'name'                      : req.query.name,
-//         'description'               : req.query.name,
-//         'columns'                   : req.query.columns,
-//         'showOnlyDeletedRecords'    : false,
-//         'isDefault'                 : false,
-//         'workspace'                 : req.query.wsId,
-//         'createdDate'               : new Date()
-//     }, {
-//         headers : req.session.headers
-//     }).then(function(response) {
-
-//         console.log(response);
-
-//         // let result = [];
-//         // if(response.data !== '') result = response.data.items;
-//         // sendResponse(req, res, { 'data' : result, 'status' : response.status }, false);
-//     }).catch(function(error) {
-//         sendResponse(req, res, error.response, true);
-//     });
-    
-// });
 
 
 /* ----- ALL REPORTS ----- */
