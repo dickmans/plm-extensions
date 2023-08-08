@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "agentkeepalive": "*",
-    "axios": "^1.4.0",
+    "axios": "*",
     "express": "*",
     "express-fileupload": "*",
     "express-session": "*",
