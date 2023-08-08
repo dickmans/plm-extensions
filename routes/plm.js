@@ -2435,6 +2435,36 @@ router.get('/transition', function(req, res, next) {
 });
 
 
+/* ----- GET WORKFLOW HISTORY ----- */
+router.get('/workflow-history', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /workflow-history');
+    console.log(' --------------------------------------------');  
+    console.log('  req.query.wsId       = ' + req.query.wsId);
+    console.log('  req.query.dmsId      = ' + req.query.dmsId);
+    console.log('  req.query.link       = ' + req.query.link);
+    console.log();
+
+    let url = 'https://' + req.session.tenant + '.autodeskplm360.net';
+        url += (typeof req.query.link !== 'undefined') ? req.query.link : '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId;
+        url += '/workflows/1/history';
+
+    axios.get(url, {
+        headers : req.session.headers
+    }).then(function(response) {
+        sendResponse(req, res, response, false);
+    }).catch(function(error) {
+        if(error.statusCode === 303) {
+            sendResponse(req, res, error.response, false);
+        } else {
+            sendResponse(req, res, error.response, true);
+        }
+    });
+    
+});
+
+
 /* ----- MY OUTSTANDING WORK ----- */
 router.get('/mow', function(req, res, next) {
     
