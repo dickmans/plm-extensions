@@ -385,6 +385,7 @@ function uploadImage(req, url, callback) {
     console.log(' --------------------------------------------');
     console.log('   req.body.image.fieldId  = ' + req.body.image.fieldId);
     console.log('   req.body.image.value    = ' + req.body.image.value);
+    console.log('   url                     = ' + url);
     console.log();
    
    axios.get(url, {
@@ -399,30 +400,22 @@ function uploadImage(req, url, callback) {
            contentType: 'application/octet-stream'
        }); 
        
-       
        formData.append('itemDetail', JSON.stringify(response.data), {
            filename: 'blob',
            contentType: 'application/json'
        });
        
-    //    console.log(formData);
-//        console.log(formData.getHeaders());
-       
-       
-//        let header = JSON.parse(JSON.stringify(req.session.headers));
-       
-       
-//        let headers = Object.assign(req.session.headers, formData.getHeaders());
        let headers = Object.assign({
            'Authorization' : req.session.headers.Authorization
 //            'X-Tenant'      : req.sesson.headers['X-Tenant'],
        }, formData.getHeaders());
        
+
        axios.put(url, formData, {
 //            headers : req.session.headers
 //            headers : formData.getHeaders()
            headers : headers
-       }).then(function (response) {           
+       }).then(function (response) {        
            if(response.status === 204) {
                console.log('   Image upload successful');
            } else {
@@ -434,8 +427,8 @@ function uploadImage(req, url, callback) {
            console.log(error);
        });
                
-   }).catch(function (error) {
-       console.log(error.data);    
+    }).catch(function (error) {
+        console.log(error.data);    
    });
    
 }
@@ -697,6 +690,33 @@ router.get('/descriptor', function(req, res, next) {
 });
 
 
+/* ----- ITEM CHANGE SUMMARY ----- */
+router.get('/change-summary', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /change-summary');
+    console.log(' --------------------------------------------');
+    console.log('  req.query.wsId   = ' + req.query.wsId);
+    console.log('  req.query.dmsId  = ' + req.query.dmsId);
+    console.log('  req.query.link   = ' + req.query.link);
+    console.log(' ');
+        
+
+
+    let url =  (typeof req.query.link !== 'undefined') ? req.query.link : '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId;
+        url = 'https://' + req.session.tenant + '.autodeskplm360.net' + url + '/audit';
+
+    axios.get(url, {
+        headers : req.session.headers
+    }).then(function(response) {
+        sendResponse(req, res, response, false);
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+    
+});
+
+
 /* ----- ITEM DETAILS ----- */
 router.get('/details', function(req, res, next) {
     
@@ -810,64 +830,21 @@ router.get('/image-cache', function(req, res) {
 });
 
 
-/* ----- UPLOAD ITEM IMAGE  (DEV!!!) ----- */
+/* ----- UPLOAD ITEM IMAGE ----- */
 router.post('/upload-image', function(req, res) {
    
     console.log(' ');
     console.log('  /upload-image');
     console.log(' --------------------------------------------');
-    console.log('  req.body.link       = ' + req.body.link);
-    // console.log('  req.body.sections   = ' + req.body.sections);
-    console.log('  req.body.image      = ' + req.body.image);
-    console.log(' ');
-    console.log(req.body);
+    console.log('  req.body.link            = ' + req.body.link);
+    console.log('  req.body.image.fieldId   = ' + req.body.image.fieldId);
     console.log(' ');
 
+    let url = 'https://' + req.session.tenant + '.autodeskplm360.net' + req.body.link;
 
-    uploadImage(req, req.body.link, function() {
+    uploadImage(req, url, function() {
         sendResponse(req, res, { 'data' : 'success' }, false);
     });
-
-
-    // let prefix   = '/api/v3/workspaces/' + req.body.wsId;
-    // let url      = 'https://' + req.session.tenant + '.autodeskplm360.net' + prefix + '/items';
-    // let sections = [];
-
-    // for(section of req.body.sections) {
-
-    //     let sect = {
-    //         'link'   : prefix + '/sections/' + section.id,
-    //         'fields' : []
-    //     }
-
-    //     for(field of section.fields) {
-    //         sect.fields.push({
-    //             '__self__'  : prefix + '/views/1/fields/' + field.fieldId,
-    //             'value'     : field.value
-    //         });
-    //     }
-
-    //     sections.push(sect);
-
-    // }
-
-    // console.log(url);
-    // console.log(sections);
-
-    // axios.post(url, {
-    //     'sections' : sections
-    // }, { headers : req.session.headers }).then(function (response) {
-    //     if(typeof req.body.image !== 'undefined') {
-    //         uploadImage(req, response.headers.location, function() {
-    //             res.json(response.headers.location);
-    //         });
-    //     } else {
-    //         res.json(response.headers.location);   // https://adsktsesvend.autodeskplm360.net/api/v3/workspaces/57/items/14378
-    //     }
-    // }).catch(function (error) {
-    //     console.log(error.message);
-    //     res.send(false);
-    // });
 
 });
 
