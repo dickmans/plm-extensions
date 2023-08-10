@@ -138,6 +138,8 @@ function insertItemDetailsFields(id, link, sections, fields, data, editable, hid
 
     let requests = [];
 
+    $('#' + id).attr('data-link', link);
+
     if(isBlank(sections) || isBlank(fields)) {
         if(!isBlank(link)) {
             for(workspace of cacheWorkspaces) {
@@ -1625,6 +1627,8 @@ function insertFlatBOM(id, link, bomViewName, fieldIdPartNumber, showMore, class
 }
 function insertFlatBOMTable(params, elemParent, elemProgress, fieldURNPartNumber, showMore, classNames) {
 
+    if(isBlank(classNames)) classNames = [];
+
     $.get('/plm/bom-flat', params, function(response) {
 
         for(item of response.data) {
@@ -2005,6 +2009,51 @@ function insertRelationships(elemParent, relationships) {
         });
 
     }
+
+}
+
+
+// Insert Workflow History
+function insertWorkflowHistory(link, id) {
+
+    if(isBlank(id)) id = 'workflow-history';
+    
+    let elemParent = $('#' + id);
+        elemParent.html('');
+
+    $.get('/plm/workflow-history', { 'link' : link }, function(response) {
+
+        console.log(response);
+
+        for(action of response.data.history) {
+
+            let timeStamp = new Date(action.created);
+
+            let elemAction = $('<div></div>');
+                elemAction.appendTo(elemParent);
+
+            let elemActionAction = $('<div></div>');
+                elemActionAction.addClass('workflow-history-action');
+                elemActionAction.html(action.workflowTransition.title);
+                elemActionAction.appendTo(elemAction);
+
+            let elemActionDescription = $('<div></div>');
+                elemActionDescription.addClass('workflow-history-comment');
+                elemActionDescription.html(action.comments);
+                elemActionDescription.appendTo(elemAction);
+
+            let elemActionUser = $('<div></div>');
+                elemActionUser.addClass('workflow-history-user');
+                elemActionUser.html(action.user.title);
+                elemActionUser.appendTo(elemAction);
+
+            let elemActionDate = $('<div></div>');
+                elemActionDate.addClass('workflow-history-date');
+                elemActionDate.html(timeStamp.toLocaleDateString());
+                elemActionDate.appendTo(elemAction);
+
+        }
+    });
 
 }
 

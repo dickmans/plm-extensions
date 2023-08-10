@@ -297,6 +297,7 @@ function insertCalendarMonth(id, currentDate) {
         
         let weekCell = $('<td></td>');
             weekCell.addClass('calendar-week');
+            weekCell.attr('data-date', currentDay);
             weekCell.html(week);
             weekCell.appendTo(weekRow);
 
@@ -307,12 +308,13 @@ function insertCalendarMonth(id, currentDate) {
             
             if(i >= startDay) {
 
-                
+                dayCell.attr('data-date', currentDay);
                 if (currentDay >= firstDay && currentDay <= lastDay) {
                     if((iDay === 0) || (iDay === 6)) dayCell.addClass('calendar-weekend');
                     dayCell.html(currentDay.getDate());
                     if (currentDay.toDateString() === new Date().toDateString()) {
-                        dayCell.addClass('calendar-today');
+                        dayCell.addClass('calendar-day-current');
+                        weekRow.addClass('calendar-week-current');
                     }
                 }
                 startDay = -1;
@@ -320,6 +322,7 @@ function insertCalendarMonth(id, currentDate) {
             }   
 
             dayCell.appendTo(weekRow);
+            dayCell.addClass('calendar-day');
 
         }
     
