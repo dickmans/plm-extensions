@@ -128,7 +128,7 @@
 }
 .viewer-markup-toggle { width : 36px; }
 .viewer-markup-toggle.selected { border-color : white !important; }
-.viewer-markup-button { width : 60px; }
+.viewer-markup-button { width : 76px; }
 .viewer-markup-button.material-symbols-sharp { width : 36px; }
 
 
@@ -144,7 +144,13 @@
 #markup-toolbar-colors  { grid-template-columns: repeat(4, 1fr); }
 #markup-toolbar-sizes   { grid-template-columns: repeat(6, 1fr); }
 #markup-toolbar-shapes  { grid-template-columns: repeat(6, 1fr); }
-#markup-toolbar-actions { grid-template-columns: repeat(4, 1fr); }
+#markup-toolbar-actions { grid-template-columns: 1fr 1fr 2fr 2fr; }
+#markup-toolbar-actions.with-save-button { grid-template-columns: repeat(4, 1fr) 2fr; }
+#markup-toolbar-actions.with-save-button > .viewer-markup-button { 
+    background: var(--color-blue-500);
+    border-color: var(--color-blue-500);
+}
+
 
 
 #viewer-markup-toolbar {
@@ -167,6 +173,15 @@
     #markup-toolbar-actions {
         grid-template-columns: repeat(2, 1fr);
         grid-template-rows: repeat(2, 1fr);
+    }
+    #markup-toolbar-actions > div { width : 60px; }
+    #markup-toolbar-actions.with-save-button {
+        grid-template-columns: repeat(3, 1fr);;
+        grid-template-rows: repeat(2, 1fr);
+    }
+    #markup-toolbar-actions.with-save-button > .viewer-markup-button { 
+        grid-column : span 2;
+        width : 80px; 
     }
 
 }
