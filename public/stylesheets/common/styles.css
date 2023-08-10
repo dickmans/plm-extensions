@@ -331,40 +331,6 @@
 .tiles.wide.xxl .tile-data { gap : var(--spacer-xs); }
 
 
-/*  ATTACHMENTS */
-/* ----------------------------------------------------------------------------- */
-.attachment {
-    border-bottom : 1px solid var(--color-gray-100) !important;
-    cursor : pointer;
-    padding : 8px 10px 8px;
-}
-.attachment:last-of-type { border-bottom : none !important; }
-.attachment:hover {
-    background-color : var(--color-hover) !important;
-}
-.attachment-graphic { 
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    width: 64px;
-}
-.attachment-graphic > img { 
-    height : 80%;
-    object-fit: contain;
-    width : 80%;
-}
-.attachment-details {
-    font-size: 12px;
-    line-height: 16px;
-}
-.attachment-name {
-    font-weight : 800;
-    line-height : 22px;
-}
-
-
-
-
 /*  Tree BOM */
 /*  Used by Explorer and Product Configuator */
 /* ----------------------------------------------------------------------------- */

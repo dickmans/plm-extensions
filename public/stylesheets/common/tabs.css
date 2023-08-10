@@ -1,0 +1,84 @@
+/*  ATTACHMENTS */
+/* ----------------------------------------------------------------------------- */
+.attachment {
+    border-bottom : 1px solid var(--color-gray-100) !important;
+    cursor : pointer;
+    padding : 8px 10px 8px;
+}
+.attachment:last-of-type { border-bottom : none !important; }
+.attachment:hover {
+    background-color : var(--color-hover) !important;
+}
+.attachment-graphic { 
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 64px;
+}
+.attachment-graphic > img { 
+    height : 80%;
+    object-fit: contain;
+    width : 80%;
+}
+.attachment-name {
+    font-weight : 800;
+    line-height : 22px;
+}
+.attachment-user, 
+.attachment-date {
+    font-size: 12px;
+    line-height: 16px;
+}
+
+
+
+/*  WORKFLOW */
+/* ----------------------------------------------------------------------------- */
+#workflow-history > div {
+    border-bottom : none;
+    border-left : 2px solid var(--color-gray-300);
+    margin-bottom : -4px;
+    margin-left : 24px;
+    padding-bottom : 24px;
+    padding-left : 14px;
+}
+.workflow-history-action {
+    color : var(--color-blue-500);
+    font-weight : 800;
+    line-height : 18px;
+    margin : 3px 0px 1px;
+    position : relative;
+    left : -24px;
+}
+.workflow-history-comment {
+    margin-bottom : 8px;
+}
+.workflow-history-action::before, 
+.workflow-history-date::before, 
+.workflow-history-user::before {
+    font: normal normal normal 14px/1 'Material Symbols Sharp';
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48;
+}
+.workflow-history-action::before {
+    content: '\e86c';
+    font-size: 26px;
+    position: relative;
+    left: -4px;
+    top: 8px;
+    background: white;
+}
+.workflow-history-date::before {
+    content: '\ebcc';
+    font-size : 14px;
+    margin-right : 8px;
+    position: relative;
+    top : 2px;  
+}
+.workflow-history-user::before {
+    content: '\e851';
+    margin-left : 0px;
+    font-size : 14px;
+    margin-right : 8px;
+    position: relative;
+    top : 2px;  
+}
