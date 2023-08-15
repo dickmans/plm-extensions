@@ -32,7 +32,7 @@ router.get('/variants'      , function(req, res, next) { redirect('variants'    
 /* ------------------------------------------------------------------------------
     DEFAULT LANDING PAGE
    ------------------------------------------------------------------------------ */
-   router.get('/', function(req, res, next) {
+router.get('/', function(req, res, next) {
     res.render('common/landing', {
         title : 'PLM TS User Experiences'
     });
@@ -55,15 +55,19 @@ function redirect(view, app, req, res, next) {
     console.log(" ");
     console.log("  Redirect START");
     console.log(" --------------------------------------------");
-    
+
+    let params = [req.query.wsId, req.query.dmsId, req.query.partNumber];
+
+    if(typeof params[0] === 'undefined') params[0] = req.query.wsid;
+    if(typeof params[1] === 'undefined') params[1] = req.query.dmsid;
+    if(typeof params[2] === 'undefined') params[2] = req.query.partnumber;
+     
     req.session.url         = req.url;
     req.session.view        = view;
     req.session.app         = app;
-    req.session.wsId        = req.query.wsId;
-    req.session.wsId        = req.query.wsid;
-    req.session.dmsId       = req.query.dmsId;
-    req.session.dmsId       = req.query.dmsid;
-    req.session.partNumber  = req.query.partNumber;
+    req.session.wsId        = params[0];
+    req.session.dmsId       = params[1];
+    req.session.partNumber  = params[2];
     req.session.link        = '/api/v3/workspaces/' + req.session.wsId + '/items/' + req.session.dmsId
     req.session.options     = req.query.hasOwnProperty('options') ? req.query.options : '';
     req.session.tenant      = req.query.hasOwnProperty('tenant') ? req.query.tenant : req.app.locals.tenant;
