@@ -1,0 +1,172 @@
+extends common/layout
+
+block head
+    link(rel='stylesheet', href='/stylesheets/dashboard.css')
+    script(src='/javascripts/libs/chart.js/dist/chart.umd.js')
+    script(src='/javascripts/dashboard.js')
+    script.
+        config = !{JSON.stringify(config)};
+
+block content
+
+    #header.dark
+        #header-logo
+        #header-title
+        #header-toolbar
+            #header-search-icon.icon.xs search
+            input#header-search
+            #header-avatar
+        
+    #main.screen.surface-level-2
+
+        #new.panel 
+            .panel-header
+                .panel-title Initiate New Process
+            .panel-message You encountered an issue with one of our products? Please provide a few details below and let us fix the problem. You can provide more details and also upload files in the next step.
+            .panel-content#new-sections
+            .panel-toolbar
+                    .button.default#continue Continue
+
+        #right
+
+            #browser.panel 
+                .panel-header 
+                    .panel-title Select Product 
+                    .panel-toolbar     
+                        .button.icon.icon-close#browser-close 
+                .panel-conent   
+                    #browser-list.tiles.m
+                    #browser-filters.surface-level-3 eeeq
+                    #browser-toolbar dd
+
+
+
+            #progress.panel.toggle.expanded
+                .panel-header
+                    .panel-title
+                        .icon.icon-expand
+                        .icon.icon-collapse
+                        div Processes by Status
+                .panel-content#progress-content
+
+            .row
+
+                .row-column
+
+                    #mow.panel.toggle.expanded
+                        .panel-header
+                            .panel-title
+                                .icon.icon-expand
+                                .icon.icon-collapse
+                                div Processes Requiring Your Action
+                        .panel-content#mow-content
+                            #mow-list.list.tiles.xs
+
+                    #recents.panel.toggle.expanded
+                        .panel-header
+                            .panel-title
+                                .icon.icon-expand
+                                .icon.icon-collapse
+                                div Recently Viewed Processes
+                            .panel-toolbar 
+                        .panel-content#recents-content
+                            #recents-list.list.tiles.xs
+
+                    #bookmarks.panel.toggle.expanded
+                        .panel-header
+                            .panel-title
+                                .icon.icon-expand
+                                .icon.icon-collapse
+                                div Your Pinned Processes
+                            .panel-toolbar 
+                        .panel-content#bookmarks-content
+                            #bookmarks-list.list.tiles.xs
+
+                #calendar.panel.toggle.collapsed 
+                    .panel-header
+                        .panel-title
+                            .icon.icon-expand
+                            .icon.icon-collapse
+                            div Your Processes by Creation Date
+                        .panel-toolbar 
+                    .panel-content
+                        .panel-content-left#calendar-months
+                            #calendar-month-1.month 
+                            #calendar-month-2.month     
+                        .panel-content-right#calendar-list
+                            table#calendar-table
+                                thead#calendar-table-head 
+                                    tr 
+                                        th Process 
+                                        th Creation Date 
+                                        th Last Modification Date 
+                                        th Status
+                                tbody#calendar-table-body
+
+            #charts.panel.toggle.collapsed 
+                    .panel-header
+                        .panel-title
+                            .icon.icon-expand
+                            .icon.icon-collapse
+                            div Response Times
+                        .panel-toolbar 
+                    .panel-content  
+                        canvas#chart
+
+    #item.screen.surface-level-2 
+
+        #item-header
+            #item-title
+                #item-descriptor 
+                #item-details 
+                    #item-status
+                    #item-summary Created by 
+                        span#created-by 
+                        |  on 
+                        span#created-on
+                        |. Last modified by 
+                        span#modified-by 
+                        |  on 
+                        span#modified-on 
+                        |.
+            #item-toolbar 
+                select#workflow-actions(label='Select Action')
+                .button.icon.icon-close#item-close
+                .button#button-upload Upload File
+                .button#bookmark.icon.icon-bookmark
+
+        #item-content 
+            #workflow
+                #workflow-header.panel-header 
+                    .panel-title Activity
+                #workflow-history.panel-content
+            #details 
+                .panel-header 
+                    .panel-title Details 
+                .panel-content#details-sections
+            #design 
+                .panel-header 
+                    .panel-title Viewer 
+                .panel-content#viewer.viewer
+                .panel-content.surface-level-3#markups
+                    #markup-panel
+                        #markup-title Markups
+                        #markup-subtitle You can capture markups using the given controls within the viewer above. They will be saved in context of this process.
+                    #markup-list
+                        //- .button.icon.icon-create
+                        //- .button.icon.icon-create
+                        //- .button.icon.icon-create
+                        //- canvas.markup.placeholder#markup-1
+                        //- .markup.placeholder#markup-2
+                        //- $('#viewer-markup-image').attr('data-field-id', 'IMAGE_1');
+                        //- .markup.placeholder
+                        //- .markup.placeholder
+                        //- .markup.placeholder
+            #attachments 
+                .panel-header
+                    .panel-title.centered Attachments
+                #attachments-list.panel-content.list.tiles.files
+
+    frame#frame-download.hidden
+    form#uploadForm(method='post', encType="multipart/form-data", target="frame-download")
+        input#select-file.hidden.button.main(type="file", name="newFiles" multiple='')   

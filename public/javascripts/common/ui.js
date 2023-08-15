@@ -134,7 +134,7 @@ function insertItemDetails(link, data) {
     // });
 
 }
-function insertItemDetailsFields(id, link, sections, fields, data, editable, hideComputed, hideReadOnly) {
+function insertItemDetailsFields(id, link, sections, fields, data, editable, hideComputed, hideReadOnly, excludedSections) {
 
     let requests = [];
 
@@ -186,7 +186,7 @@ function insertItemDetailsFields(id, link, sections, fields, data, editable, hid
                 })
             }
 
-            processItemDetailsFields(id, sections, fields, data, editable, hideComputed, hideReadOnly)
+            processItemDetailsFields(id, sections, fields, data, editable, hideComputed, hideReadOnly, excludedSections)
 
         });
 
@@ -197,7 +197,7 @@ function insertItemDetailsFields(id, link, sections, fields, data, editable, hid
     }
 
 }
-function processItemDetailsFields(id, sections, fields, data, editable, hideComputed, hideReadOnly) {
+function processItemDetailsFields(id, sections, fields, data, editable, hideComputed, hideReadOnly, excludedSections) {
 
     if(typeof id           === 'undefined') id            = 'details';
     if(typeof sections     === 'undefined') sections      = [];
@@ -206,6 +206,8 @@ function processItemDetailsFields(id, sections, fields, data, editable, hideComp
     if(typeof editable     === 'undefined') editable      = false;
     if(typeof hideComputed === 'undefined') hideComputed  = false;
     if(typeof hideReadOnly === 'undefined') hideReadOnly  = false;
+
+    if(isBlank(excludedSections)) excludedSections = [];
    
     let elemParent = $('#' + id + '-sections');
         elemParent.html('');
@@ -214,76 +216,81 @@ function processItemDetailsFields(id, sections, fields, data, editable, hideComp
    
     for(section of sections) {
 
+        let sectionId   = section.__self__.split('/')[6];
         let isNew       = true;
         let className   = 'expanded'
 
-        for(cacheSection of cacheSections) {
-            if(cacheSection.urn === section.urn) {
-                isNew = false;
-                className = cacheSection.className;
-            }
-        }
+        if(excludedSections.indexOf(sectionId) === -1) {
 
-        if(isNew) {
-            cacheSections.push({
-                'urn' : section.urn, 'className' : 'expanded'
-            })
-        }
-
-        let elemSection = $('<div></div>');
-            elemSection.attr('data-urn', section.urn);
-            elemSection.addClass('section');
-            elemSection.addClass(className);
-            elemSection.html(section.name);
-            elemSection.appendTo(elemParent);
-            elemSection.click(function() {
-                
-                $(this).next().toggle();
-                $(this).toggleClass('expanded');
-                $(this).toggleClass('collapsed');
-
-                for(cacheSection of cacheSections) {
-                    if(cacheSection.urn === $(this).attr('data-urn')) {
-                        cacheSection.className = $(this).hasClass('expanded') ? 'expanded' : 'collapsed';
-                    }
+            for(cacheSection of cacheSections) {
+                if(cacheSection.urn === section.urn) {
+                    isNew = false;
+                    className = cacheSection.className;
                 }
+            }
 
-            });
+            if(isNew) {
+                cacheSections.push({
+                    'urn' : section.urn, 'className' : 'expanded'
+                })
+            }
 
-        let elemFields = $('<div></div>');
-            elemFields.addClass('section-fields');
-            elemFields.attr('data-id', section.__self__.split('/')[6]);
-            elemFields.appendTo(elemParent);
+            let elemSection = $('<div></div>');
+                elemSection.attr('data-urn', section.urn);
+                elemSection.addClass('section');
+                elemSection.addClass(className);
+                elemSection.html(section.name);
+                elemSection.appendTo(elemParent);
+                elemSection.click(function() {
+                    
+                    $(this).next().toggle();
+                    $(this).toggleClass('expanded');
+                    $(this).toggleClass('collapsed');
 
-        if(className !== 'expanded') elemFields.toggle();
+                    for(cacheSection of cacheSections) {
+                        if(cacheSection.urn === $(this).attr('data-urn')) {
+                            cacheSection.className = $(this).hasClass('expanded') ? 'expanded' : 'collapsed';
+                        }
+                    }
 
-        for(sectionField of section.fields) {
-            if(sectionField.type === 'MATRIX') {
-                for(matrix of section.matrices) {
-                    if(matrix.urn === sectionField.urn) {
-                        for(matrixFields of matrix.fields) {
-                            for(matrixField  of matrixFields) {
-                                if(matrixField !== null) {
-                                    for(wsField of fields) {
-                                        if(wsField.urn === matrixField.urn)
-                                            insertField(wsField, data, elemFields, hideComputed, hideReadOnly, editable);
+                });
+
+            let elemFields = $('<div></div>');
+                elemFields.addClass('section-fields');
+                elemFields.attr('data-id', section.__self__.split('/')[6]);
+                elemFields.appendTo(elemParent);
+
+            if(className !== 'expanded') elemFields.toggle();
+
+            for(sectionField of section.fields) {
+                if(sectionField.type === 'MATRIX') {
+                    for(matrix of section.matrices) {
+                        if(matrix.urn === sectionField.urn) {
+                            for(matrixFields of matrix.fields) {
+                                for(matrixField  of matrixFields) {
+                                    if(matrixField !== null) {
+                                        for(wsField of fields) {
+                                            if(wsField.urn === matrixField.urn)
+                                                insertField(wsField, data, elemFields, hideComputed, hideReadOnly, editable);
+                                        }
                                     }
                                 }
                             }
                         }
                     }
-                }
-            } else {
-                for(wsField of fields) {
-                    if(wsField.urn === sectionField.urn)
-                        insertField(wsField, data, elemFields, hideComputed, hideReadOnly, editable);
+                } else {
+                    for(wsField of fields) {
+                        if(wsField.urn === sectionField.urn)
+                            insertField(wsField, data, elemFields, hideComputed, hideReadOnly, editable);
+                    }
                 }
             }
-        }
 
-        if(elemFields.children().length === 0) {
-            elemFields.hide();
-            elemSection.hide();
+            if(elemFields.children().length === 0) {
+                elemFields.hide();
+                elemSection.hide();
+            }
+
         }
 
     }
@@ -2023,8 +2030,6 @@ function insertWorkflowHistory(link, id) {
 
     $.get('/plm/workflow-history', { 'link' : link }, function(response) {
 
-        console.log(response);
-
         for(action of response.data.history) {
 
             let timeStamp = new Date(action.created);
@@ -2107,14 +2112,19 @@ function insertWorkflowActions(link, hideEmpty) {
 
 
 // Togggle item bookmark
-function getBookmarkStatus(elemBookmark) {
+function getBookmarkStatus(link, id) {
 
-    if(typeof elemBookmark === 'undefined') elemBookmark = $('#bookmark');
+    if(typeof id === 'undefined') id = 'bookmark';
+
+    let elemBookmark = $('#' + id);
+
     if(elemBookmark.length === 0) return;
 
     elemBookmark.removeClass('active');
+    
+    if(typeof link === 'undefined') link = elemBookmark.closest('.panel').attr('data-link');
 
-    let link = elemBookmark.closest('.panel').attr('data-link');
+    elemBookmark.attr('data-link', link);
 
     $.get('/plm/bookmarks', function(response) {
         for(bookmark of response.data.bookmarks) {
@@ -2130,7 +2140,7 @@ function toggleBookmark(elemBookmark) {
     if(typeof elemBookmark === 'undefined') elemBookmark = $('#bookmark');
     if(elemBookmark.length === 0) return;
     
-    let dmsId = elemBookmark.closest('.panel').attr('data-link').split('/')[6];
+    let dmsId = elemBookmark.attr('data-link').split('/')[6];
 
     if(elemBookmark.hasClass('active')) {
         $.get('/plm/remove-bookmark', { 'dmsId' : dmsId }, function () {

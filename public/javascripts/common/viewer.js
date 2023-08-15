@@ -75,7 +75,7 @@ function initViewer(data, color, id) {
     
     } else {
 
-        unloadAllModels();
+        viewerUnloadAllModels();
         newInstance = false;
         Autodesk.Viewing.Document.load('urn:'+ data.urn, onDocumentLoadSuccess, onDocumentLoadFailure);
 
@@ -355,7 +355,7 @@ function unloadModel(urn) {
 
 
 // Close all models currently in viewer
-function unloadAllModels() {
+function viewerUnloadAllModels() {
 
     if(viewer === null) return;
     if(typeof viewer === 'undefined') return;
@@ -858,7 +858,9 @@ function viewerAddNoteControls() {
 
 
 // Custom Controls : Markup
-function viewerAddMarkupControls() {
+function viewerAddMarkupControls(includeSaveButton) {
+
+    if(typeof includeSaveButton === 'undefined') includeSaveButton = false;
 
     let elemMarkupToolbar = $('<div></div>');
         elemMarkupToolbar.attr('id', 'viewer-markup-toolbar');
@@ -899,11 +901,19 @@ function viewerAddMarkupControls() {
 
     let elemMarkupGroupActions = addMarkupControlGroup(elemMarkupToolbar, 'markup-toolbar-actions', 'Actions');
 
-    addMarkupActionControl(elemMarkupGroupActions, true, 'undo', 'markup.undo();');
-    addMarkupActionControl(elemMarkupGroupActions, true, 'redo', 'markup.redo();');
-    addMarkupActionControl(elemMarkupGroupActions, false, 'Clear', 'markup.clear();');
-    addMarkupActionControl(elemMarkupGroupActions, false, 'Close', 'viewerLeaveMarkupMode();');
-
+    if(includeSaveButton) {
+        addMarkupActionControl(elemMarkupGroupActions, true, 'undo', 'markup.undo();', 'Undo');
+        addMarkupActionControl(elemMarkupGroupActions, true, 'redo', 'markup.redo();', 'Redo');
+        addMarkupActionControl(elemMarkupGroupActions, true, 'delete', 'markup.clear();', 'Clear all markups');
+        addMarkupActionControl(elemMarkupGroupActions, true, 'close', 'viewerLeaveMarkupMode();', 'Close markup toolbar');
+        addMarkupActionControl(elemMarkupGroupActions, false, 'Save', 'viewerSaveMarkup();', 'Save markup');
+        elemMarkupGroupActions.addClass('with-save-button');
+    } else {
+        addMarkupActionControl(elemMarkupGroupActions, true, 'undo', 'markup.undo();', 'Undo');
+        addMarkupActionControl(elemMarkupGroupActions, true, 'redo', 'markup.redo();', 'Redo');
+        addMarkupActionControl(elemMarkupGroupActions, false, 'Clear', 'markup.clear();', 'Clear all markups');
+        addMarkupActionControl(elemMarkupGroupActions, false, 'Close', 'viewerLeaveMarkupMode();', 'Close markup toolbar');
+    }
 
     let elemMarkupImage = $('<canvas>');
         elemMarkupImage.attr('id', 'viewer-markup-image');
@@ -925,6 +935,10 @@ function viewerAddMarkupControls() {
 
         markup.enterEditMode();
         markup.show();
+
+        if($('#markup-list').children('.selected').length === 0) {
+            $('#markup-list').children().first().addClass('selected');
+        }
 
         baseStrokeWidth = markup.getStyle()['stroke-width'];
             
@@ -1044,15 +1058,21 @@ function addMarkupShapeControl(elemParent, shape, icon) {
     });
 
 }
-function addMarkupActionControl(elemParent, icon, content, script) {
+function addMarkupActionControl(elemParent, icon, content, script, tooltip) {
 
     let elemControl = $('<div></div>');
-        elemControl.addClass('viewer-markup-button');
         elemControl.html(content);
         elemControl.attr('onclick', script);
         elemControl.appendTo(elemParent);
+
+    if(typeof tooltip !== 'undefined') elemControl.attr('title', tooltip);
         
-    if(icon) elemControl.addClass('icon');
+    if(icon) {
+        elemControl.addClass('icon');
+        elemControl.addClass('viewer-markup-toggle');
+    } else {
+        elemControl.addClass('viewer-markup-button');
+    }
 
 }
 function viewerLeaveMarkupMode() {
@@ -1074,16 +1094,25 @@ function viewerLeaveMarkupMode() {
     restoreMarkupSVG   = '';
     restoreMarkupState = '';
 
+    $('#markup-list').children('.selected').removeClass('selected');
+
+
 }
-function viewerCaptureScreenshot(callback) {
+function viewerSaveMarkup() {}
+
+
+function viewerCaptureScreenshot(id, callback) {
    
+    if(isBlank(id)) id = 'viewer-markup-image';
+
     var screenshot  = new Image();
     var imageWidth  = viewer.container.clientWidth;
     var imageHeight = viewer.container.clientHeight;
 
     screenshot.onload = function () {
             
-        let canvas          = document.getElementById('viewer-markup-image');
+        let canvas          = document.getElementById(id);
+        // let canvas          = document.getElementById('viewer-markup-image');
             canvas.width    = viewer.container.clientWidth;
             canvas.height   = viewer.container.clientHeight;
 

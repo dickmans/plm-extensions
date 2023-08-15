@@ -163,7 +163,7 @@ function setUIEvents() {
             return;
         }
 
-        viewerCaptureScreenshot(function() {
+        viewerCaptureScreenshot(null, function() {
 
             $('#processes-sections').hide();
             $('#processes-list').html('');

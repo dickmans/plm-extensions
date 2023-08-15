@@ -342,7 +342,7 @@ function openSelectedItem(elemSelected) {
     $('#review-close').removeClass('hidden');
     $('#review-finish').removeClass('hidden').addClass('disabled');
 
-    unloadAllModels();
+    viewerUnloadAllModels();
     viewerLeaveMarkupMode();
 
     $('#viewer-empty').hide();

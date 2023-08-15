@@ -118,7 +118,7 @@ function setUIEvents() {
 
         if(!validateForm($('#processes-sections'))) return;
 
-        viewerCaptureScreenshot(function() {
+        viewerCaptureScreenshot(null, function() {
 
             $('#processes-toolbar').hide();
             $('#processes-sections').hide();

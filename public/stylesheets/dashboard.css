@@ -1,0 +1,428 @@
+:root {
+    
+    --width-new             : 400px;
+    --padding-main          : 40px;
+    --padding-panel         : 40px;
+    --margin-item           : 40px;
+    --margin-item-panels    : 24px;
+    --padding-item          : 30px;
+    --width-workflow        : 240px;
+    --width-details         : 500px;
+    --width-attachments     : 300px;
+    --height-markups        : 160px;
+
+}
+
+.processing { position: unset;}
+
+
+
+/* ADDITIONS */
+/* ----------------------------------------------------------------------------- */
+.panel { background : white; border-radius : 3px; padding : 20px var(--padding-panel) 28px; }
+.panel.collapsed { padding-bottom : 20px; }
+.panel.expanded  .icon-expand { display : none; }
+.panel.collapsed .icon-collapse { display : none; }
+.panel.collapsed .panel-header { border: none; }
+.panel.collapsed .panel-title { padding-bottom : 14px; }
+.panel.collapsed .panel-content { display : none !important; }
+.panel-header { border : none; cursor : pointer; }
+.panel-title { display: flex; line-height : 24px; padding-left : 0px; padding-bottom : 26px; }
+.panel-title > .icon { margin-right : 8px; }
+.panel-content { position: unset; }
+.tiles > div { border : none; }
+#new-sections .field-value > input { width : calc(100% - 20px); }
+
+
+
+/* MASTER LAYOUT */
+/* ----------------------------------------------------------------------------- */
+body.no-viewer {
+    --margin-item-panels : 24px;
+    --width-details      : 650px;
+    --width-attachments  : 420px;
+}
+#new {
+    top     : var(--padding-main);
+    bottom  : var(--padding-main);
+    left    : var(--padding-main);
+    width   : var(--width-new);
+}
+#right {
+    top     : var(--padding-main);
+    right   : var(--padding-main);
+    bottom  : var(--padding-main);
+    left    : calc(var(--width-new) + (2 * var(--padding-panel) + (2 * var(--padding-main))));
+}
+#item {
+    display : none;
+}
+#bom { 
+    display : none;
+}
+#workflow {
+    left : var(--margin-item);
+    right : unset;
+    width: var(--width-workflow);
+}
+#details {
+    /* left : calc(var(--width-workflow) + (2 * (var(--margin-item) + var(--padding-item)))); */
+    left : calc(var(--width-workflow) + var(--margin-item) + var(--margin-item-panels) + (2 * var(--padding-item)));
+    width : var(--width-details);
+}
+#design {
+    left : calc(var(--width-workflow) + var(--width-details) + var(--margin-item) + (2 * var(--margin-item-panels)) + (4 * var(--padding-item)));
+    right : calc(var(--width-attachments) + var(--margin-item) + var(--margin-item-panels) + (2 * var(--padding-item)));
+}
+#viewer {
+    bottom : calc(var(--height-markups) + var(--padding-item)) !important;
+}
+/* #design {
+    right : 0px;
+} */
+#markups {
+    top : unset !important;
+    right : 0px !important;
+    bottom : 0px !important;
+    left : 0px !important;
+    height : var(--height-markups);
+}
+#attachments {
+    right : var(--margin-item);
+    width : var(--width-attachments);
+}
+
+body.no-viewer #workflow {
+    left : unset;
+    right : calc(50% + (var(--width-details) / 2) + var(--margin-item-panels) + var(--padding-item) + ((var(--width-attachments) - var(--width-workflow)) / 2));
+    /* width: var(--width-workflow); */
+}
+body.no-viewer #details {
+    left : calc(50% - (var(--width-details) / 2) - var(--padding-item) - ((var(--width-attachments) - var(--width-workflow)) / 2));
+    width : var(--width-details);
+}
+body.no-viewer #design{
+    display : none;
+}
+body.no-viewer #attachments {
+    left : calc(50% + (var(--width-details) / 2) + var(--margin-item-panels) + var(--padding-item) - ((var(--width-attachments) - var(--width-workflow)) / 2));
+    width : var(--width-attachments);
+}
+
+body.no-markup #viewer { bottom : var(--padding-item) !important; }
+body.no-markup #markups { display : none; }
+
+
+/* NEW */
+/* ----------------------------------------------------------------------------- */
+.panel-message {
+    background: var(--color-blue-100);
+    color: var(--color-blue-700);
+    padding: 20px;
+    margin: 0px 0px;
+    border-radius: 4px;
+    line-height: 16px;
+}
+#new-sections {
+    overflow-y: auto;
+    padding: 0px;
+    position : absolute;
+    top: 196px;
+    right : var(--padding-panel);
+    bottom: 72px;
+    left : var(--padding-panel);
+}
+#new-sections .section-fields {
+    padding : 0px;
+}
+#new-sections .field {
+    border : none;
+    padding : 10px 0px;
+}
+#new-sections .field-label {
+    color : black !important;
+    width : 120px
+}
+#new-sections .field-value {
+    width : calc(100% - var(--padding-field-label) - 120px);
+}
+#new-sections .section,
+#new-sections .field {
+    display : none;
+}
+#new-sections input,
+#new-sections select {
+    border : 1px solid black;
+}
+#new .panel-toolbar {
+    padding : 0px;
+    position : absolute;
+    bottom : 20px;
+    right : var(--padding-panel);
+}
+#continue {
+    display : flex;
+    margin : 0px;
+    padding-left : 30px;
+}
+#continue::after {
+    font-size: 24px;
+    font-weight: 200;
+    line-height: 20px;
+    content: '\e5cc';
+    font-family: 'Material Symbols Sharp';
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+}
+
+
+
+/* RIGHT */
+/* ----------------------------------------------------------------------------- */
+#right {
+    display : flex;
+    flex-direction : column;
+    gap : 30px;
+    overflow-y : auto;
+}
+.row {
+    display : flex;
+    flex-direction: row;
+    gap : var(--padding-main);
+}
+.row-column {
+    display : flex;
+    flex-direction: column;
+    gap : var(--padding-main);
+    width : 40%;
+}
+
+
+
+/* PROGRESS COLUMNS */
+/* ----------------------------------------------------------------------------- */
+#progress-content {
+    background : var(--color-gray-100);
+    display : flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap : 2px;
+}
+#progress-content > div {
+    background : white;
+    border-left : 10px solid white;
+    border-right : 10px solid white;
+    flex-grow: 1;
+    width : 25%;
+}
+#progress-content > div:first-of-type {
+    border-left : none;
+}
+#progress-content > div:last-of-type {
+    border-right : none;
+}
+.progress-title {
+    color : white;
+    font-weight : bold;
+    padding : var(--spacer-xxs);
+    text-align : center;
+}
+.progress-column {
+    margin-top : 8px;
+    min-height : 36px;
+}
+
+
+
+/* CALENDAR */
+/* ----------------------------------------------------------------------------- */
+#calendar {
+    width : 60%;
+}
+#calendar > .panel-content {
+    display : flex;
+    gap: 20px;
+    justify-content: space-between;
+}
+#calendar-months {
+    display : flex;
+    flex-direction: column;
+    gap : 20px;
+}
+.calendar-month-name { 
+    color : white; 
+    background : black !important; 
+    text-align : center !important; 
+}
+.calendar { width : 100%; }
+.calendar th, 
+.calendar td {
+    cursor : pointer;
+    font-size : 12px;
+    line-height : 8px;
+    padding : 8px;
+    text-align: right;
+    width : 16px;
+}
+.calendar-week { 
+    padding-left : 12px;
+    padding-right : 12px;
+}
+.calendar th,
+.calendar-week { 
+    font-weight : bold;
+    background: var(--color-gray-200); 
+}
+.calendar-weekend { color : var(--color-gray-400); }
+.calendar-day-current { font-weight : 800; }
+/* .calendar-week-current > td.calendar-week { background : var(--color-blue-300); } */
+.calendar-week-current > td.calendar-day  { background : var(--color-gray-100); }
+
+.calendar-highlight { background: var(--color-status-yellow) !important; color : white !important; }
+
+
+
+#calendar-table-body tr {
+    display : none;
+}
+td.selected {
+    background : var(--color-blue-500) !important;
+    color : white !important;
+}
+
+
+
+
+
+/* ITEM */
+/* ----------------------------------------------------------------------------- */
+#item-header {
+    background : white;
+    display : flex;
+    justify-content: space-between;
+    /* line-height : 36px; */
+    padding : 20px 40px;
+    position : absolute;
+    top : 0px;
+    right : 0px;
+    left : 0px;
+}
+#item-descriptor {
+    font-size : 22px;
+    font-weight : 800;
+    margin : 6px 0px 10px 0px;
+}
+#item-details {
+    display: flex;
+    font-size : 14px;
+    gap: 16px;
+}
+#item-summary > span {
+    font-weight : bold;
+}
+#item-status {
+    border-radius : 3px;
+    color : white;
+    font-size : 14px;
+    font-weight : bold;
+    padding : 0px 12px;
+}
+#item-toolbar {
+    margin-top : 10px;
+}
+#workflow-actions {
+    padding : 8px 4px;
+}
+#item-content {
+    position : absolute;
+    /* top : 76px; */
+    top : 96px;
+    right : 0px;
+    bottom : 0px;
+    left : 0px;   
+}
+#item-content > div {
+    background : white;
+    border-radius : 3px;
+    /* margin : var(--margin-item); */
+    padding : 20px var(--padding-item);
+    position : absolute;
+    top : var(--margin-item);
+    bottom : var(--margin-item);
+    transition: all ease 0.25s;
+
+}
+#item-content > div > .panel-content {
+    overflow-y : auto;
+    position : absolute;
+    top : 76px;
+    right : var(--padding-item);
+    bottom : var(--padding-item);
+    left : var(--padding-item);
+}
+#tabs {
+    padding : var(--padding-item);
+    /* position : absolute; */
+    /* top : 0px; */
+    /* bottom : 0px; */
+    /* right : 0px; */
+    width : var(--width-history);
+}
+#details-sections .section-fields .field {
+    border : none;
+}
+
+
+
+/* MAKRUPS */
+/* ----------------------------------------------------------------------------- */
+#markups {
+    background : black;
+    color : white;
+    display : flex;
+}
+#markups > div {
+    padding : var(--padding-item);
+}
+#markup-panel {
+    min-width : 200px;
+    width : 200px;
+}
+#markup-title {
+    font-size : 18px;
+    font-weight : 800;
+    line-height : 30px;
+}
+#markup-subtitle {
+    font-size : 12px;
+    line-height : 16px;
+}
+#markup-list {
+    display : flex;
+    gap : 10px;
+    overflow : auto;
+}
+.markup {
+    border-radius : 3px;
+    border : 3px solid transparent;
+    cursor : pointer;
+    height : 100px;
+}
+.markup.placeholder {
+    border : 2px dashed var(--color-gray-400);
+    width : 100px;
+}
+.markup.selected {
+    border-color : var(--color-blue-500);
+}
+
+
+
+/* BROWSER */
+/* ----------------------------------------------------------------------------- */
+#browser-list {
+    height : 800px;
+}
+#browser-filters {
+    width : 300px;
+}
