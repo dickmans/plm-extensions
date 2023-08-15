@@ -51,6 +51,40 @@ exports.config = {
     'colors'  : colors,
     'vectors' : vectors,
 
+    'dashboard' : [{
+        'title'         : 'Problem Reporting Dashboard',
+        'wsId'          : 82,
+        'fieldIdItem'   : 'AFFECTED_ITEM',
+        'icon'          : 'account_tree', // Use https://fonts.google.com/icons to search for icons
+        'progress' : [
+            { 'label' : 'New',         'color' : colors.red,    'states' : ['Create'] },
+            { 'label' : 'Analysis',    'color' : colors.yellow, 'states' : ['Review', 'Technical Analysis'] },
+            { 'label' : 'Improvement', 'color' : colors.yellow, 'states' : ['CAPA in progress', 'Change Request in progress'] },
+            { 'label' : 'Completed',   'color' : colors.green,  'states' : ['Completed'] }
+        ]
+    },{
+        'title' : 'Change Requests Management',
+        'wsId'  : 83,
+        'icon'  : 'rebase_edit',
+        'progress' : [
+            { 'label' : 'Planning',    'color' : '#000000',     'states' : ['Create']  },
+            { 'label' : 'Review',      'color' : colors.red,    'states' : ['Review & Impact Analysis', 'Peform Tasks', 'Change Control Board Review']  },
+            { 'label' : 'In Work',     'color' : colors.yellow, 'states' : ['Change Order in progress']   },
+            { 'label' : 'Completed',   'color' : colors.green,  'states' : ['Completed'] }
+        ]
+    },{
+        'title' : 'Project Actitivity Management',
+        'wsId'  : 90,
+        'icon'  : 'account_tree',
+        'progress' : [
+            { 'label' : 'Planning',    'color' : colors.red,    'states' : ['Planning']  },
+            { 'label' : 'Assigned',    'color' : colors.red,    'states' : ['Assigned']  },
+            { 'label' : 'In Work',     'color' : colors.yellow, 'states' : ['In Work']   },
+            { 'label' : 'Review',      'color' : colors.green,  'states' : ['Review']    },
+            { 'label' : 'Completed',   'color' : colors.green,  'states' : ['Completed'] }
+        ]
+    }],
+
     'explorer' : {
         'bomViewName'               : 'Details',
         'fieldIdProblemReportImage' : 'IMAGE_1',
