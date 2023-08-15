@@ -60,9 +60,11 @@ function redirect(view, app, req, res, next) {
     req.session.view        = view;
     req.session.app         = app;
     req.session.wsId        = req.query.wsId;
+    req.session.wsId        = req.query.wsid;
     req.session.dmsId       = req.query.dmsId;
+    req.session.dmsId       = req.query.dmsid;
     req.session.partNumber  = req.query.partNumber;
-    req.session.link        = '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId
+    req.session.link        = '/api/v3/workspaces/' + req.session.wsId + '/items/' + req.session.dmsId
     req.session.options     = req.query.hasOwnProperty('options') ? req.query.options : '';
     req.session.tenant      = req.query.hasOwnProperty('tenant') ? req.query.tenant : req.app.locals.tenant;
     
