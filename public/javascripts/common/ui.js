@@ -2021,20 +2021,16 @@ function insertRelationships(elemParent, relationships) {
 
 
 // Insert Workflow History
-function insertWorkflowHistory(link, id, statusId) {
+function insertWorkflowHistory(link, id, currentStatus, currentStatusId, transitionInfo) {
 
-    let excludedTransitions = ["Cancel", "Close", "Close Report"];
-    let includeNextOptions = true;
-
-    if(isBlank(statusId)){
+    if(isBlank(currentStatusId)){
         $.get('/plm/details', { 'link' : link }, function(response) {
-            statusId = response.data.currentState.link.split("/").pop();
-            insertWorkflowHistory(link, id, statusId);
+            currentStatusId = response.data.currentState.link.split("/").pop();
+            insertWorkflowHistory(link, id, currentStatus, currentStatusId, transitionInfo);
     })}
     else {
-        let approverLink = link + '/workflows/1/states/' + statusId + '/approvers';
+        let approverLink = link + '/workflows/1/states/' + currentStatusId + '/approvers';
         let transitionLink = (link.split('/').slice(0, 5).join('/')) + '/workflows/1/transitions'; 
-
         let requests = [
             $.get('/plm/details' , { 'link' : approverLink }),
             $.get('/plm/workflow-history', { 'link' : link }),
@@ -2042,106 +2038,103 @@ function insertWorkflowHistory(link, id, statusId) {
         ];
 
         Promise.all(requests).then(function(responses){
-            let validStates = filterInvalidTransitions(responses[0].data, responses[2].data, excludedTransitions);
+            console.log('Response is:');
+            console.log(responses[1]);
+            let validTransitions = filterInvalidTransitions(responses[0].data, responses[2].data, transitionInfo.excludedTransitions);
             let nextOption = {};
+            let tooltipUserList = finalUserList = "";
+            let approverList = [];
 
-            if(validStates.length === 1){
+            if(validTransitions.length === 1){
                 console.log('Option 1');
-                let approverList = [];
-                validStates[0].approvers.forEach(approver => approverList.push(approver.title))
-                let finalUserList = approverList.join(', ');
-                nextOption = {statename: validStates[0].name, approvers: finalUserList, option: 1};
+                approverList = validTransitions[0].approvers.map(approver => approver.title);
+                nextOption = {statename: validTransitions[0].name, option: 1};
             }
             else{
                 console.log('Option 2');
                 let stateNames = [];
-                let userList = [];
-                validStates.forEach(state => {
-                        state.approvers.forEach(approver => {
-                            if(!userList.includes(approver.title)){
-                                userList.push(approver.title)
-                                userList.push("Test User");
-                                userList.push("Test User 1");
-                                userList.push("Test User 3");
-                                userList.push("Test User 4");
-                            } 
-                        })
-                        if(!stateNames.includes(state.name)){
-                            stateNames.push(state.name);
-                        }
-                        let finalStateList = stateNames.map((state, index) => `[${index + 1}] ${state}`).join(', ');
-                        let finalUserList = userList.join(', ');
-                            nextOption = {statename: finalStateList, approvers: finalUserList, option: 2};
+                validTransitions.forEach(state => {
+                    state.approvers.forEach(approver => {
+                        if(!approverList.includes(approver.title)){
+                            approverList.push(approver.title)
+                        } 
                     })
+                    if(!stateNames.includes(state.name))stateNames.push(state.name);
+                    let stateList = stateNames.map((state, index) => `[${index + 1}] ${state}`).join(', ');
+                    nextOption = {statename: stateList, option: 2};
+                })
             }
 
-            
-                if(isBlank(id)) id = 'workflow-history';
-    
-                let elemParent = $('#' + id);
-                    elemParent.html('');
+            tooltipUserList = approverList.join(', ');
+            nextOption.approvers = approverList.length > 6 ? approverList.slice(0, 4).join(', ') + ', ...' : tooltipUserList;
 
-            //Next steps
-                if(includeNextOptions === true){
-                    let timeStamp = new Date(action.created);
-                    
-                    let elemAction = $('<div></div>');
-                    elemAction.appendTo(elemParent);
+            if(isBlank(id)) id = 'workflow-history';
 
-                    if(nextOption.option === 1){
-                        let elemActionAction = $('<div></div>');
-                            elemActionAction.addClass('workflow-next-action');
-                            elemActionAction.html(nextOption.statename);
-                            elemActionAction.appendTo(elemAction);
-                    }
-                    else{
+            let elemParent = $('#' + id);
+                elemParent.html('');
+
+        //Next steps
+            if(transitionInfo.showNextActions === true && !transitionInfo.finalStates.includes(currentStatus)){
+                let timeStamp = new Date(action.created);
+                
+                let elemAction = $('<div></div>');
+                elemAction.appendTo(elemParent);
+
+                if(nextOption.option === 1){
                     let elemActionAction = $('<div></div>');
-                        elemActionAction.addClass('workflow-next-moreactions');
+                        elemActionAction.addClass('workflow-next-action');
                         elemActionAction.html(nextOption.statename);
                         elemActionAction.appendTo(elemAction);
-                    } 
-         
-                    let elemActionUser = $('<div></div>');
-                        elemActionUser.addClass('workflow-next-user');
-                        elemActionUser.html(nextOption.approvers);
-                        elemActionUser.appendTo(elemAction);
                 }
+                else{
+                let elemActionAction = $('<div></div>');
+                    elemActionAction.addClass('workflow-next-moreactions');
+                    elemActionAction.html(nextOption.statename);
+                    elemActionAction.appendTo(elemAction);
+                } 
+    
+                let elemActionUser = $('<div></div>');
+                    elemActionUser.addClass('workflow-next-user');
+                    elemActionUser.html(nextOption.approvers);
+                    elemActionUser.attr('title', tooltipUserList);
+                    elemActionUser.appendTo(elemAction);
+            }
 
-                //Workflow History
-                    for(action of responses[1].data.history) {
-        
-                        let timeStamp = new Date(action.created);
-        
-                        let elemAction = $('<div></div>');
-                            elemAction.appendTo(elemParent);
-        
-                        let elemActionAction = $('<div></div>');
-                            elemActionAction.addClass('workflow-history-action');
-                            elemActionAction.html(action.workflowTransition.title);
-                            elemActionAction.appendTo(elemAction);
-        
-                        let elemActionDescription = $('<div></div>');
-                            elemActionDescription.addClass('workflow-history-comment');
-                            elemActionDescription.html(action.comments);
-                            elemActionDescription.appendTo(elemAction);
-        
-                        let elemActionUser = $('<div></div>');
-                            elemActionUser.addClass('workflow-history-user');
-                            elemActionUser.html(action.user.title);
-                            elemActionUser.appendTo(elemAction);
-        
-                        let elemActionDate = $('<div></div>');
-                            elemActionDate.addClass('workflow-history-date');
-                            elemActionDate.html(timeStamp.toLocaleDateString());
-                            elemActionDate.appendTo(elemAction);
-                    }
-            }) 
+            //Workflow History
+            for(action of responses[1].data.history) {
+
+                let timeStamp = new Date(action.created);
+
+                let elemAction = $('<div></div>');
+                    elemAction.appendTo(elemParent);
+
+                let elemActionAction = $('<div></div>');
+                    elemActionAction.addClass('workflow-history-action');
+                    elemActionAction.html(action.workflowTransition.title);
+                    elemActionAction.appendTo(elemAction);
+
+                let elemActionDescription = $('<div></div>');
+                    elemActionDescription.addClass('workflow-history-comment');
+                    elemActionDescription.html(action.comments);
+                    elemActionDescription.appendTo(elemAction);
+
+                let elemActionUser = $('<div></div>');
+                    elemActionUser.addClass('workflow-history-user');
+                    elemActionUser.html(action.user.title);
+                    elemActionUser.appendTo(elemAction);
+
+                let elemActionDate = $('<div></div>');
+                    elemActionDate.addClass('workflow-history-date');
+                    elemActionDate.html(timeStamp.toLocaleDateString());
+                    elemActionDate.appendTo(elemAction);
+            }
+        }) 
     }
 }
 
 function filterInvalidTransitions(possibleTransitions, hiddenTransitions, excludedTransitions){
     
-    let validStates = [];
+    let validTransitions = [];
 
     hiddenTransitions.forEach(transition => {
         if(transition.hidden === true){
@@ -2151,10 +2144,10 @@ function filterInvalidTransitions(possibleTransitions, hiddenTransitions, exclud
     console.log(excludedTransitions);
     possibleTransitions.forEach(transition => {
         if((!excludedTransitions.includes(transition.name))){
-            validStates.push(transition);
+            validTransitions.push(transition);
         }
     })
-    return validStates;
+    return validTransitions;
 }
 
 // Set options of defined select element to trigger workflow action

@@ -6,7 +6,7 @@ let wsConfig        = {
     'id'                    : null,
     'sections'              : [],
     'excludedSections'      : [],
-    'excludedTransitions'   : [],
+    'transitions'           : {},
     'fields'                : [],
     'progress'              : null,
     'icon'                  : 'account_tree',
@@ -29,6 +29,7 @@ $(document).ready(function() {
             wsConfig.id          = profile.wsId.toString();
             wsConfig.progress    = profile.progress;
             wsConfig.fieldIdItem = profile.fieldIdItem;
+            wsConfig.transitions = profile.transitions;
 
             if(!isBlank(profile.icon)) wsConfig.icon = profile.icon;
             if(!isBlank(profile.title)) title = profile.title;
@@ -697,7 +698,7 @@ function openItem(link) {
         let elemStatus = $('#item-status');
         let statusId = response.data.currentState.link.split("/").pop();
 
-        insertWorkflowHistory(link, null, statusId);
+        insertWorkflowHistory(link, null, status, statusId, wsConfig.transitions);
         if(linkItem !== '') {
             insertViewer(linkItem);
             // insertFlatBOM('bom', linkItem);

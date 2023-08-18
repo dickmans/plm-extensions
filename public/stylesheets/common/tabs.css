@@ -86,16 +86,8 @@
     top : 2px;  
 }
 
-#workflow-next > div {
-    border-bottom : none;
-    border-left : 2px dashed var(--color-gray-300) !important;
-    margin-bottom : -4px;
-    margin-left : 24px;
-    padding-bottom : 24px;
-    padding-left : 14px;
-}
 .workflow-next-action {
-    color : var(--color-gray-500);
+    color : var(--color-gray-600);
     font-weight : 800;
     line-height : 18px;
     margin : 3px 0px 1px;
@@ -104,7 +96,7 @@
 }
 
 .workflow-next-moreactions {
-    color : var(--color-gray-500);
+    color : var(--color-gray-600);
     font-weight : 800;
     line-height : 18px;
     margin : 3px 0px 1px;
@@ -139,7 +131,7 @@
 
 .workflow-next-user::before {
     content: '\e851';
-    color: grey;
+    /* color: black; */
     margin-left : 0px;
     font-size : 14px;
     margin-right : 8px;
