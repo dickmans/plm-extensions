@@ -238,12 +238,7 @@ function setItemDetails(link) {
 
         elemPanelHeaderSub.append($('<span>' + responses[2].data.workspace.title + '</span>'));
         if(lifecycle !== '') elemPanelHeaderSub.append($('<span>' + lifecycle + '</span>'));
-
-        $.get('/plm/details', { 'link' : link }, function(response) {
-            insertItemDetailsFields('item', '', responses[0].data, responses[1].data, responses[2].data, false, false, false);
-            
-        });
-
+        insertItemDetailsFields('item', '', responses[0].data, responses[1].data, responses[2].data, false, false, false);     
     });
 
 }
