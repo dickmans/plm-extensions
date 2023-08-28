@@ -129,6 +129,14 @@ exports.config = {
             'style'     : 'bars',
             'data'      : []
         },{
+            'id'        : 'top-level-class-name',
+            'title'     : 'Top Level Class',
+            'fieldId'   : 'TOP_LEVEL_CLASS',
+            'urn'       : '',
+            'type'      : 'value',
+            'style'     : 'bars',
+            'data'      : []
+        },{
             'id'        : 'class-name',
             'title'     : 'Class',
             'fieldId'   : 'CLASS_NAME',
@@ -145,9 +153,9 @@ exports.config = {
             'style'     : 'bars',
             'data'      : []
         },{
-            'id'        : 'pdm-folder',
-            'title'     : 'PDM Folder',
-            'fieldId'   : 'PDM_FOLDER',
+            'id'        : 'pdm-location',
+            'title'     : 'PDM Location',
+            'fieldId'   : 'PDM_LOCATION',
             'urn'       : '',
             'type'      : 'value',
             'style'     : 'bars',
