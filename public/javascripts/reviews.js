@@ -743,8 +743,6 @@ function captureScreenshot() {
     var thumbWidth  = viewer.container.clientWidth * 110 / viewer.container.clientHeight;
     var thumbHeight = 110; 
 
-    console.log(imageWidth);
-    console.log(imageHeight);
     
 //    if(imageWidth > 1000) {
 //        imageWidth = 1000;
@@ -837,7 +835,7 @@ function submitCreateForm() {
             ]             
         }],
         'image' : {
-            'fieldId' : 'IMAGE_1',
+            'fieldId' : config.reviews.fieldIdMarkup,
             'value' : $('canvas#action-image')[0].toDataURL("image/jpg")
         }
     };
@@ -892,7 +890,7 @@ function transitionDesignReview() {
         'comment'    : 'Closed by Design Review Portal'
     }
 
-    $.get( '/plm/transition', params, function(response) {
+    $.get( '/plm/transition', params, function() {
         $('#review-close').click();
         $('#overlay').hide();
         $('#main-tabs').find('.selected').click();

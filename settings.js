@@ -340,10 +340,11 @@ exports.config = {
     },
 
     'reviews' : {
-        'fieldIdItem'  : 'ITEM',
-        'fieldIdImage' : 'IMAGE',
-        'transitionId' : 'CLOSE_REVIEW',
-        'workspaces' : {
+        'fieldIdItem'   : 'ITEM',
+        'fieldIdImage'  : 'IMAGE',
+        'fieldIdMarkup' : 'MARKUP',
+        'transitionId'  : 'CLOSE_REVIEW',
+        'workspaces'    : {
             'reviews' : {
                 'id'        : 76,
                 'sections'  : [ { 'name' : 'Review Findings' } ],

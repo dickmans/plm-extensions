@@ -245,7 +245,6 @@ console.log(url);
 console.log(filters);
 
     for(filter of filters) {
-        console.log('1');
         url += filter[0];
         url += '=';
         // url += encodeURIComponent(filter[1]);
@@ -381,11 +380,11 @@ router.post('/create', function(req, res) {
 function uploadImage(req, url, callback) {
     
     console.log(' ');
-    console.log('  /uploadImage');
+    console.log('  uploadImage');
     console.log(' --------------------------------------------');
-    console.log('   req.body.image.fieldId  = ' + req.body.image.fieldId);
-    console.log('   req.body.image.value    = ' + req.body.image.value);
-    console.log('   url                     = ' + url);
+    console.log('  req.body.image.fieldId  = ' + req.body.image.fieldId);
+    console.log('  req.body.image.value    = ' + req.body.image.value);
+    console.log('  url                     = ' + url);
     console.log();
    
    axios.get(url, {
@@ -1399,7 +1398,7 @@ router.post('/upload/:wsId/:dmsId', function(req, res) {
 
     Promise.all(promises).then(function() {
 
-        console.log('   > Moved files to uploads');
+        console.log('   > Moved files to folder uploads');
            
         getAttachments(req, function(attachmentsList) {
             processFiles(req, res, attachmentsList, folderName, files);
@@ -1409,14 +1408,14 @@ router.post('/upload/:wsId/:dmsId', function(req, res) {
    
 });
 function processFiles(req, res, attachmentsList, folderName, files) {
-
+    
     if(files.length === 0) {
         sendResponse(req, res, { 'data' : 'success' }, false);
     } else {
         parseAttachments(req, pathUploads + files[0].name, files[0].name, attachmentsList, folderName, function() {
+            fs.unlinkSync(pathUploads + files[0].name);
             files.splice(0, 1);
             processFiles(req, res, attachmentsList, folderName, files);
-            fs.unlinkSync(pathUploads + files[0].name);
         });
     }
 
@@ -1464,8 +1463,8 @@ function parseAttachments(req, path, fileName, attachmentsList, folderName, call
             }
         
         }
-   }
-   
+    }
+
     if(fileId !== '') {
         createVersion(req, folderId, fileId, path, fileName, function() {
             callback();
@@ -1512,20 +1511,19 @@ function createFolder(req, folderName, callback) {
 function createFile(req, folderId, path, fileName, callback) {
    
     console.log('   > Creating file record');
-    console.log('     folderId = ' + folderId);
 
     let stats = fs.statSync(path);
     let url   = 'https://' + req.session.tenant + '.autodeskplm360.net/api/v3/workspaces/' + req.params.wsId + '/items/' + req.params.dmsId + '/attachments';
    
-    console.log('     url = ' + url);
-   
+    
     req.session.headers.Accept = 'application/json';
-   
+    
     if(folderId === '') folderId = null;
-   
-    console.log('     fileName = ' + fileName);
-    console.log('     folderId = ' + folderId);
-    console.log('     size     = ' + stats.size);
+    
+    console.log('     url       = ' + url);
+    console.log('     fileName  = ' + fileName);
+    console.log('     folderId  = ' + folderId);
+    console.log('     size      = ' + stats.size);
    
     axios.post(url, {
         'description'   : fileName,
@@ -1630,21 +1628,21 @@ function uploadFile(req, path, fileData, callback) {
 }
 function setStatus(req, fileId, callback) {
    
-   console.log('   > Setting Status in PLM');
+    console.log('   > Setting Status in PLM');
    
-   let url = 'https://' + req.session.tenant + '.autodeskplm360.net/api/v3/workspaces/' + req.params.wsId + '/items/' + req.params.dmsId + '/attachments/' + fileId;
+    let url = 'https://' + req.session.tenant + '.autodeskplm360.net/api/v3/workspaces/' + req.params.wsId + '/items/' + req.params.dmsId + '/attachments/' + fileId;
    
-   axios.patch(url, {
+    axios.patch(url, {
        status : {
            'name' : 'CheckIn'
        }
-   },{
+    },{
        headers : req.session.headers
-   }).then(function (response) {
+    }).then(function (response) {
        callback();
-   }).catch(function (error) {
-       console.log(error.message);
-   }); 
+    }).catch(function (error) {
+        console.log(error.message);
+    }); 
    
 }
 
@@ -1883,7 +1881,6 @@ router.get('/bom-views', function(req, res, next) {
     axios.get(url, {
         headers : req.session.headers
     }).then(function(response) {
-        console.log(response.data);
         sendResponse(req, res, { 'data' : response.data.bomViews, 'status' : response.status }, false, 'bom-views');
     }).catch(function(error) {
         sendResponse(req, res, error.response, true, 'bom-views');

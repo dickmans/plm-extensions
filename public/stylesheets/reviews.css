@@ -5,8 +5,12 @@
     height : 350px;
     left : calc(50% - 225px);
     position : absolute;
-    top : 200px;
+    top : calc(50% - 175px);
     width : 450px;
+}
+textarea:focus {
+    border-color : none !important;
+    box-shadow : none !important;
 }
 
 
