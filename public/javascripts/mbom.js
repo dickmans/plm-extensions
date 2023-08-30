@@ -2428,12 +2428,13 @@ function setItemsList(idView, idList, list) {
 
     for(item of list) {
 
-        let link      = item.hasOwnProperty('item') ? item.item.link  : item.__self__;
-        let urn       = item.hasOwnProperty('item') ? item.item.urn   : item.urn;
-        let title     = item.hasOwnProperty('item') ? item.item.title : item.title;
-        let className = getIconClassName(link);
+        let link      =  item.hasOwnProperty('item') ? item.item.link  : item.__self__;
+        let urn         = item.hasOwnProperty('item') ? item.item.urn   : item.urn;
+        let title       = item.hasOwnProperty('item') ? item.item.title : item.title;
+        let className   = getIconClassName(link);
+        let ws          = link.split('/')[4];
 
-        addItemListEntry(link, urn, title, className, elemList, false);
+        if(ws === config.mbom.wsIdMBOM) addItemListEntry(link, urn, title, className, elemList, false);
 
     }
 

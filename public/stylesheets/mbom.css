@@ -628,7 +628,7 @@ body.bom-panel-on #ebom-tree { bottom : 106px; }
 .radio-checked { display : none; }
 .selected-target > .item-head > .item-icon > .radio-unchecked { display : none; }
 .selected-target > .item-head > .item-icon > .radio-checked { display : block !important; }
-#mbom .item-title { width: calc(100% - 324px); }
+#mbom .item-title { width: calc(100% - 328px); }
 #mbom .item-qty { width : 64px; }
 #mbom .item-qty-input {
     background : none;
