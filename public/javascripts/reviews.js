@@ -422,7 +422,7 @@ function setActions(update) {
             'DESCRIPTION',
             'TARGET_COMPLETION_DATE',
             'ASSIGNEE',
-            'IMAGE_1',
+            'MARKUP',
             'MARKUPSVG',
             'MARKUPSTATE',
             'WF_CURRENT_STATE'
@@ -432,7 +432,7 @@ function setActions(update) {
     }
 
     $.get('/plm/search/', params, function(response) {
-        
+
         if(response.error) {
             showErrorMessage('Failed to load list of actions', 'Error');
         } else {
@@ -526,8 +526,8 @@ function setAction(update, currentActions, elemActions, data, update) {
             elemActionLabel.append(data.WF_CURRENT_STATE);
             elemActionLabel.appendTo(elemActionStatus);
 
-        if(data.IMAGE_1 !== "") {
-            elemAction.attr('data-imageid', data.IMAGE_1);
+        if(data.MARKUP !== "") {
+            elemAction.attr('data-imageid', data.MARKUP);
         }
         
         let elemActionTitle = $("<div class='action-detail action-title'></div>"); 
@@ -582,7 +582,7 @@ function setActionsImages() {
                     dmsId   : $(this).attr("data-dmsid"),
                     wsId    : $(this).attr("data-wsid"),
                     imageId : $(this).attr("data-imageid"),
-                    fieldId : "IMAGE_1"
+                    fieldId : "MARKUP"
                 }
 
                 $.get( '/plm/image', params, function(response) {
@@ -725,7 +725,7 @@ function initViewerDone() {
     viewerAddGhostingToggle();
     viewerAddViewsToolbar();
 
-    $('#viewer-markup-image').attr('data-field-id', 'IMAGE_1');
+    $('#viewer-markup-image').attr('data-field-id', 'MARKUP');
 
 }
 
