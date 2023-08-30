@@ -45,7 +45,7 @@ let vectors = {
 // -------------------------------------------------------------------------------------------
 // CONFIGURATION SETTINGS for all applications
 // The key names match the given endpoint names
-// Make sure to restart your after any change to this file
+// Make sure to restart your server after any change to this file
 exports.config = {
 
     'colors'  : colors,
@@ -56,6 +56,11 @@ exports.config = {
         'wsId'          : 82,
         'fieldIdItem'   : 'AFFECTED_ITEM',
         'icon'          : 'account_tree', // Use https://fonts.google.com/icons to search for icons
+        'transitions': {
+            'showNextActions' : true,
+            'excludedTransitions' : ['Close Report'],
+            'finalStates' : ['Completed', 'Closed']
+        },
         'progress' : [
             { 'label' : 'New',         'color' : colors.red,    'states' : ['Create'] },
             { 'label' : 'Analysis',    'color' : colors.yellow, 'states' : ['Review', 'Technical Analysis'] },
