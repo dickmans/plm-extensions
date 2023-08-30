@@ -87,3 +87,64 @@
     position: relative;
     top : 2px;  
 }
+
+#workflow-next > div {
+    border-bottom : none;
+    border-left : 2px dashed var(--color-gray-300) !important;
+    margin-bottom : -4px;
+    margin-left : 24px;
+    padding-bottom : 24px;
+    padding-left : 14px;
+}
+.workflow-next-action {
+    color : var(--color-gray-500);
+    font-weight : 800;
+    line-height : 18px;
+    margin : 3px 0px 1px;
+    position : relative;
+    left : -24px;
+}
+
+.workflow-next-moreactions {
+    color : var(--color-gray-500);
+    font-weight : 800;
+    line-height : 18px;
+    margin : 3px 0px 1px;
+    position : relative;
+    left : -24px;
+    padding-left : 25px;
+}
+
+.workflow-next-action::before, 
+.workflow-next-moreactions::before,
+.workflow-next-user::before {
+    font: normal normal normal 35px/1 'Material Symbols Sharp';
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48;
+}
+.workflow-next-action::before {
+    content: '\25CB';
+    font-size: 40px;
+    position: relative;
+    left: -3px;
+    top: 3px;
+    background: white;
+}
+
+.workflow-next-moreactions::before {
+    content: '\f184';
+    font-size: 30px;
+    position: absolute;
+    left: -5.5px;
+    top: 0px;
+    background: white;
+}
+
+.workflow-next-user::before {
+    content: '\e851';
+    color: grey;
+    margin-left : 0px;
+    font-size : 14px;
+    margin-right : 8px;
+    position: relative;
+    top : 2px;  
+}

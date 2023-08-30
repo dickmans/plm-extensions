@@ -687,22 +687,22 @@ function openItem(link) {
     $('body').addClass('no-viewer');
 
     viewerUnloadAllModels();
-    insertWorkflowHistory(link);
     insertWorkflowActions(link, true);
-
     $.get('/plm/details', { 'link' : link }, function(response) {
-
+        
         $('#item-descriptor').html(response.data.title);
-
+        
         let status     = response.data.currentState.title;
         let linkItem   = getSectionFieldValue(response.data.sections, wsConfig.fieldIdItem, '', 'link');
         let elemStatus = $('#item-status');
-        
+        let statusId = response.data.currentState.link.split("/").pop();
+
+        insertWorkflowHistory(link, null, statusId);
         if(linkItem !== '') {
             insertViewer(linkItem);
             // insertFlatBOM('bom', linkItem);
         }
-
+        
         for(state of wsConfig.progress) {
             if(state.states.indexOf(status) > -1) {
                 elemStatus.html(state.label);

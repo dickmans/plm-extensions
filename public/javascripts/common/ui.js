@@ -2021,47 +2021,141 @@ function insertRelationships(elemParent, relationships) {
 
 
 // Insert Workflow History
-function insertWorkflowHistory(link, id) {
+function insertWorkflowHistory(link, id, statusId) {
 
-    if(isBlank(id)) id = 'workflow-history';
+    let excludedTransitions = ["Cancel", "Close", "Close Report"];
+    let includeNextOptions = true;
+
+    if(isBlank(statusId)){
+        $.get('/plm/details', { 'link' : link }, function(response) {
+            statusId = response.data.currentState.link.split("/").pop();
+            insertWorkflowHistory(link, id, statusId);
+    })}
+    else {
+        let approverLink = link + '/workflows/1/states/' + statusId + '/approvers';
+        let transitionLink = (link.split('/').slice(0, 5).join('/')) + '/workflows/1/transitions'; 
+
+        let requests = [
+            $.get('/plm/details' , { 'link' : approverLink }),
+            $.get('/plm/workflow-history', { 'link' : link }),
+            $.get('/plm/details' , { 'link' : transitionLink })
+        ];
+
+        Promise.all(requests).then(function(responses){
+            let validStates = filterInvalidTransitions(responses[0].data, responses[2].data, excludedTransitions);
+            let nextOption = {};
+
+            if(validStates.length === 1){
+                console.log('Option 1');
+                let approverList = [];
+                validStates[0].approvers.forEach(approver => approverList.push(approver.title))
+                let finalUserList = approverList.join(', ');
+                nextOption = {statename: validStates[0].name, approvers: finalUserList, option: 1};
+            }
+            else{
+                console.log('Option 2');
+                let stateNames = [];
+                let userList = [];
+                validStates.forEach(state => {
+                        state.approvers.forEach(approver => {
+                            if(!userList.includes(approver.title)){
+                                userList.push(approver.title)
+                                userList.push("Test User");
+                                userList.push("Test User 1");
+                                userList.push("Test User 3");
+                                userList.push("Test User 4");
+                            } 
+                        })
+                        if(!stateNames.includes(state.name)){
+                            stateNames.push(state.name);
+                        }
+                        let finalStateList = stateNames.map((state, index) => `[${index + 1}] ${state}`).join(', ');
+                        let finalUserList = userList.join(', ');
+                            nextOption = {statename: finalStateList, approvers: finalUserList, option: 2};
+                    })
+            }
+
+            
+                if(isBlank(id)) id = 'workflow-history';
     
-    let elemParent = $('#' + id);
-        elemParent.html('');
+                let elemParent = $('#' + id);
+                    elemParent.html('');
 
-    $.get('/plm/workflow-history', { 'link' : link }, function(response) {
+            //Next steps
+                if(includeNextOptions === true){
+                    let timeStamp = new Date(action.created);
+                    
+                    let elemAction = $('<div></div>');
+                    elemAction.appendTo(elemParent);
 
-        for(action of response.data.history) {
+                    if(nextOption.option === 1){
+                        let elemActionAction = $('<div></div>');
+                            elemActionAction.addClass('workflow-next-action');
+                            elemActionAction.html(nextOption.statename);
+                            elemActionAction.appendTo(elemAction);
+                    }
+                    else{
+                    let elemActionAction = $('<div></div>');
+                        elemActionAction.addClass('workflow-next-moreactions');
+                        elemActionAction.html(nextOption.statename);
+                        elemActionAction.appendTo(elemAction);
+                    } 
+         
+                    let elemActionUser = $('<div></div>');
+                        elemActionUser.addClass('workflow-next-user');
+                        elemActionUser.html(nextOption.approvers);
+                        elemActionUser.appendTo(elemAction);
+                }
 
-            let timeStamp = new Date(action.created);
-
-            let elemAction = $('<div></div>');
-                elemAction.appendTo(elemParent);
-
-            let elemActionAction = $('<div></div>');
-                elemActionAction.addClass('workflow-history-action');
-                elemActionAction.html(action.workflowTransition.title);
-                elemActionAction.appendTo(elemAction);
-
-            let elemActionDescription = $('<div></div>');
-                elemActionDescription.addClass('workflow-history-comment');
-                elemActionDescription.html(action.comments);
-                elemActionDescription.appendTo(elemAction);
-
-            let elemActionUser = $('<div></div>');
-                elemActionUser.addClass('workflow-history-user');
-                elemActionUser.html(action.user.title);
-                elemActionUser.appendTo(elemAction);
-
-            let elemActionDate = $('<div></div>');
-                elemActionDate.addClass('workflow-history-date');
-                elemActionDate.html(timeStamp.toLocaleDateString());
-                elemActionDate.appendTo(elemAction);
-
-        }
-    });
-
+                //Workflow History
+                    for(action of responses[1].data.history) {
+        
+                        let timeStamp = new Date(action.created);
+        
+                        let elemAction = $('<div></div>');
+                            elemAction.appendTo(elemParent);
+        
+                        let elemActionAction = $('<div></div>');
+                            elemActionAction.addClass('workflow-history-action');
+                            elemActionAction.html(action.workflowTransition.title);
+                            elemActionAction.appendTo(elemAction);
+        
+                        let elemActionDescription = $('<div></div>');
+                            elemActionDescription.addClass('workflow-history-comment');
+                            elemActionDescription.html(action.comments);
+                            elemActionDescription.appendTo(elemAction);
+        
+                        let elemActionUser = $('<div></div>');
+                            elemActionUser.addClass('workflow-history-user');
+                            elemActionUser.html(action.user.title);
+                            elemActionUser.appendTo(elemAction);
+        
+                        let elemActionDate = $('<div></div>');
+                            elemActionDate.addClass('workflow-history-date');
+                            elemActionDate.html(timeStamp.toLocaleDateString());
+                            elemActionDate.appendTo(elemAction);
+                    }
+            }) 
+    }
 }
 
+function filterInvalidTransitions(possibleTransitions, hiddenTransitions, excludedTransitions){
+    
+    let validStates = [];
+
+    hiddenTransitions.forEach(transition => {
+        if(transition.hidden === true){
+            excludedTransitions.push(transition.name);
+        }
+    })
+    console.log(excludedTransitions);
+    possibleTransitions.forEach(transition => {
+        if((!excludedTransitions.includes(transition.name))){
+            validStates.push(transition);
+        }
+    })
+    return validStates;
+}
 
 // Set options of defined select element to trigger workflow action
 function insertWorkflowActions(link, hideEmpty) {
