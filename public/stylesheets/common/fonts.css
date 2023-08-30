@@ -64,6 +64,7 @@
 
 
 .icon-3d::before { content : '\e9fe'; }
+.icon-activity::before { content : '\e53f'; }
 .icon-block::before { content : '\e14b'; }
 .icon-bookmark::before { content : '\e838'; font-variation-settings: 'FILL' 1 }
 .icon-bom::before { content : '\e242'; }
@@ -98,6 +99,7 @@
 .icon-lock::before    { content : '\e897'; }
 .icon-markup::before  { content : '\e560'; }
 .icon-menu::before  { content : '\e5d2'; }
+.icon-no-data::before  { content : '\f0ba'; }
 .icon-open::before  { content : '\e89e'; }
 .icon-panel::before  { content : '\f114'; }
 .icon-pdf::before  { content : '\e415'; }
