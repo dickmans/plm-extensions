@@ -32,7 +32,9 @@
     font-size: 12px;
     line-height: 16px;
 }
-
+#frame-download {
+    display : none;
+}
 
 
 /*  WORKFLOW */
