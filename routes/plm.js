@@ -360,7 +360,7 @@ router.post('/create', function(req, res) {
         // console.log(sect);
 
     }
-
+    
     axios.post(url, {
         'sections' : sections
     }, { headers : req.session.headers }).then(function (response) {
@@ -383,14 +383,13 @@ function uploadImage(req, url, callback) {
     console.log('  uploadImage');
     console.log(' --------------------------------------------');
     console.log('  req.body.image.fieldId  = ' + req.body.image.fieldId);
-    console.log('  req.body.image.value    = ' + req.body.image.value);
     console.log('  url                     = ' + url);
     console.log();
    
-   axios.get(url, {
-       headers : req.session.headers
-   }).then(function (response) {
-       
+    axios.get(url, {
+        headers : req.session.headers
+    }).then(function (response) {
+
        let formData = new FormData();
        let data     = req.body.image.value.replace(/^data:image\/\w+;base64,/, '');
        let stream   = new Buffer.from(data, 'base64');
@@ -406,13 +405,9 @@ function uploadImage(req, url, callback) {
        
        let headers = Object.assign({
            'Authorization' : req.session.headers.Authorization
-//            'X-Tenant'      : req.sesson.headers['X-Tenant'],
        }, formData.getHeaders());
        
-
        axios.put(url, formData, {
-//            headers : req.session.headers
-//            headers : formData.getHeaders()
            headers : headers
        }).then(function (response) {        
            if(response.status === 204) {
@@ -422,13 +417,14 @@ function uploadImage(req, url, callback) {
            }
            callback();
        }).catch(function (error) {
-           console.log('error');
+           console.log(' #ERROR# while uploading image file');
            console.log(error);
        });
                
     }).catch(function (error) {
+        console.log(' #ERROR# getting Item Details');
         console.log(error.data);    
-   });
+    });
    
 }
 
@@ -2813,7 +2809,6 @@ router.get('/tableau-add', function(req, res, next) {
     console.log(' --------------------------------------------');  
     console.log('  req.query.wsId    = ' + req.query.wsId);
     console.log('  req.query.name    = ' + req.query.name);
-    console.log('  req.query.fields  = ' + req.query.fields);
     console.log('  req.query.columns = ' + req.query.columns);
     
     let title       = (typeof req.query.name === 'undefined') ? 'New View' : req.query.name;
