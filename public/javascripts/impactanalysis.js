@@ -359,15 +359,13 @@ function getManagedItems() {
                         case config.impactanalysis.fieldIdStockQuantity              : countStock        = field.value; break;
                         case config.impactanalysis.fieldIdNextProductionOrderQantity : countOrders       = field.value; break;
                         case config.impactanalysis.fieldIdPendingSupplies            : countSupplies     = (field.value === 'true') ? 1 : 0; break;
-                        case config.impactanalysis.fieldIdProductionOrdersData       : productionOrders  = field.value; console.log(field.value); break;
+                        case config.impactanalysis.fieldIdProductionOrdersData       : productionOrders  = field.value; break;
 
                     }
 
                     if(fieldId === config.impactanalysis.fieldIdProposedChange) transition = field.value;
 
                 }
-
-                console.log(productionOrders);
 
                 if(!isBlank(productionOrders)) {
                     if(!Array.isArray(productionOrders)) {
@@ -745,7 +743,6 @@ function setFieldValue(field) {
                 if(value === 'true') {
                     $(this).children().first().prop( "checked", true );
                 } else {
-                    console.log('reset checkbox');
                     $(this).children().first().prop( "checked", false );
                 }
             } else $(this).children().first().val(value);
