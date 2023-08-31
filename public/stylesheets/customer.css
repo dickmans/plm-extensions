@@ -56,7 +56,6 @@ body {
 #welcome {
     display : flex;
     justify-content: center;
-    line-height : 16px;
     padding : 0px var(--padding-guide);
 }
 #help {
