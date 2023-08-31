@@ -173,7 +173,7 @@ body.no-viewer #hide-viewer { display : none; }
 /* ----------------------------------------------------------------------------- */
 #tabs > div {
     display : flex;
-    font-size : 1px;
+    font-size : 14px;
     height : 26px;
     line-height : 20px;
     justify-content: center;
