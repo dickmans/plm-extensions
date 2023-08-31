@@ -25,93 +25,45 @@ block content
             .panel-message You encountered an issue with one of our products? Please provide a few details below and let us fix the problem. You can provide more details and also upload files in the next step.
             .panel-content#new-sections
             .panel-toolbar
-                    .button.default#continue Continue
+                .button.default#continue Continue
 
         #right
+            .panel-header
+                .panel-title Track Your Processes
+                .panel-toolbar
+                    select#view(name='view') 
+                        option(value='recents') List Recent Proceses
+                        option(value='bookmarks') List Pinned Proceses
+                        option(value='mow') List Proceses Requiring Action
+                        option(value='all') List All
+                        option(value='calendar') Browse By Date
+                        option(value='progress') View Processes By Progress
+                        option(value='timeline') View Process Timeline Chart
+            .panel-content#views
 
-            #browser.panel 
-                .panel-header 
-                    .panel-title Select Product 
-                    .panel-toolbar     
-                        .button.icon.icon-close#browser-close 
-                .panel-conent   
-                    #browser-list.tiles.m
-                    #browser-filters.surface-level-3 eeeq
-                    #browser-toolbar dd
+                #recents.list.tiles.l
+                #bookmarks.list.tiles.l
+                #mow.list.tiles.l
+                #all.list.tiles.l
 
+                #progress
 
+                #timeline
+                    canvas#chart
 
-            #progress.panel.toggle.expanded
-                .panel-header
-                    .panel-title
-                        .icon.icon-expand
-                        .icon.icon-collapse
-                        div Processes by Status
-                .panel-content#progress-content
-
-            .row
-
-                .row-column
-
-                    #mow.panel.toggle.expanded
-                        .panel-header
-                            .panel-title
-                                .icon.icon-expand
-                                .icon.icon-collapse
-                                div Processes Requiring Your Action
-                        .panel-content#mow-content
-                            #mow-list.list.tiles.xs
-
-                    #recents.panel.toggle.expanded
-                        .panel-header
-                            .panel-title
-                                .icon.icon-expand
-                                .icon.icon-collapse
-                                div Recently Viewed Processes
-                            .panel-toolbar 
-                        .panel-content#recents-content
-                            #recents-list.list.tiles.xs
-
-                    #bookmarks.panel.toggle.expanded
-                        .panel-header
-                            .panel-title
-                                .icon.icon-expand
-                                .icon.icon-collapse
-                                div Your Pinned Processes
-                            .panel-toolbar 
-                        .panel-content#bookmarks-content
-                            #bookmarks-list.list.tiles.xs
-
-                #calendar.panel.toggle.collapsed 
-                    .panel-header
-                        .panel-title
-                            .icon.icon-expand
-                            .icon.icon-collapse
-                            div Your Processes by Creation Date
-                        .panel-toolbar 
-                    .panel-content
-                        .panel-content-left#calendar-months
-                            #calendar-month-1.month 
-                            #calendar-month-2.month     
-                        .panel-content-right#calendar-list
-                            table#calendar-table
-                                thead#calendar-table-head 
-                                    tr 
-                                        th Process 
-                                        th Creation Date 
-                                        th Last Modification Date 
-                                        th Status
-                                tbody#calendar-table-body
-
-            #charts.panel.toggle.collapsed 
-                    .panel-header
-                        .panel-title
-                            .icon.icon-expand
-                            .icon.icon-collapse
-                            div Response Times
-                        .panel-toolbar 
-                    .panel-content  
-                        canvas#chart
+                #calendar
+                    .panel-content-left#calendar-months
+                        #calendar-month-1.month 
+                        #calendar-month-2.month     
+                    .panel-content-right#calendar-list
+                        table#calendar-table
+                            thead#calendar-table-head 
+                                tr 
+                                    th Process 
+                                    th Creation Date 
+                                    th Last Modification Date 
+                                    th Status
+                            tbody#calendar-table-body
 
     #item.screen.surface-level-2 
 
@@ -151,7 +103,7 @@ block content
                 .panel-content.surface-level-3#markups
                     #markup-panel
                         #markup-title Markups
-                        #markup-subtitle You can capture markups using the given controls within the viewer above. They will be saved in context of this process.
+                        #markup-subtitle Capture markups using the given controls within the viewer above. They will be saved in context of this process.
                     #markup-list
                         //- .button.icon.icon-create
                         //- .button.icon.icon-create

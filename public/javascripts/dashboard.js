@@ -11,7 +11,8 @@ let wsConfig        = {
     'progress'              : null,
     'icon'                  : 'account_tree',
     'fieldIdItem'           : '',
-    'tableau'               : ''
+    'tableau'               : '',
+    'imageFieldsPrefix'     : 'MARKUP_'
 }
 let wsConfigBrowser = {
     'id' : '95',
@@ -33,6 +34,7 @@ $(document).ready(function() {
 
             if(!isBlank(profile.icon)) wsConfig.icon = profile.icon;
             if(!isBlank(profile.title)) title = profile.title;
+            if(!isBlank(profile.imageFieldsPrefix)) wsConfig.imageFieldsPrefix = profile.imageFieldsPrefix;
 
         }
 
@@ -44,18 +46,18 @@ $(document).ready(function() {
     appendProcessing('mow-content', false);
     appendProcessing('recents-content', false);
     appendProcessing('bookmarks-content', false);
-    appendOverlay(true);
+    appendNoDataFound('recents');
+    appendNoDataFound('bookmarks');
+    appendNoDataFound('mow');
+    appendOverlay(false);
 
     setUIEvents();
     setStatusColumns();
     setCalendars();
     setChart();
 
-    getMOWEntries();
-    getRecentEntries();
-    getBookmarkEntries();
     getInitialData();
-    initBrowser();
+    // initBrowser();
 
 });
 
@@ -69,13 +71,23 @@ function setUIEvents() {
         $(this).closest('.panel').toggleClass('collapsed');
     });
 
+
+    // View Selector
+    $('#view').change(function() {
+        setSelectedView();
+    });
+
     // Create new item
     $('#continue').click(function() {
         
+        
+
         if(!validateForm($('#new-sections'))) {
             showErrorMessage('Field validations faild', 'Cannot Save');
             return;
         }
+
+        $('#overlay').show();
 
         // viewerCaptureScreenshot(function() {
 
@@ -88,11 +100,14 @@ function setUIEvents() {
     
             submitCreateForm(wsConfig.id, $('#new-sections'), '', function(response ) {
 
-                console.log(response);
+                // console.log(response);
 
                 let newLink = response.data.split('.autodeskplm360.net')[1];
 
+                // $('#overlay').show();
+
                 openItem(newLink);
+                clearFields('new-sections');
 
                 // $.get('/plm/add-managed-items', { 'link' : newLink, 'items' : [ link ] }, function(response) {
 
@@ -143,13 +158,15 @@ function setUIEvents() {
         insertAttachments($('#item').attr('data-link'));
     });
 
+    setSelectedView();
+
 }
 
 
 // Set UI Elements
 function setStatusColumns() {
 
-    let elemParent = $('#progress-content')
+    let elemParent = $('#progress')
 
     for(state of wsConfig.progress) {
 
@@ -168,6 +185,8 @@ function setStatusColumns() {
             elemStateList.addClass('tiles');
             elemStateList.addClass('xs');
             elemStateList.attr('data-states', state.states);
+            elemStateList.attr('data-label', state.label);
+            elemStateList.attr('data-color', state.color);
             elemStateList.appendTo(elemState);
 
     }
@@ -221,83 +240,16 @@ function setChart() {
 }
 
 
-// Get default views
-function getMOWEntries() {
+// View selector to track existing processes
+function setSelectedView() {
 
-    $.get('/plm/mow', {}, function(response) {
+    $('#views').children().hide();
 
-        let elemParent = $('#mow-list');
+    let view = $('#view').val();
+    $('#' + view).show();
 
-        $('#mow-content-processing').hide();
-
-        for(item of response.data.outstandingWork) {
-
-            let link = item.item.link;
-            let ws   = link.split('/')[4];
-
-            if(ws === wsConfig.id) {
-
-                let elemTile = genTile(link, '', null, wsConfig.icon, item.item.title, item.workflowStateName);
-                    elemTile.appendTo(elemParent);
-                    elemTile.click(function() { openItem($(this).attr('data-link')); });
-
-            }
-
-        }
-
-    });
-
-}
-function getRecentEntries() {
-
-    $.get('/plm/recent', {}, function(response) {
-
-        let elemParent = $('#recents-list');
-
-        $('#recents-content-processing').hide();
-
-        for(item of response.data.recentlyViewedItems) {
-
-            let link = item.item.link;
-            let ws   = link.split('/')[4];
-
-            if(ws === wsConfig.id) {
-
-                let elemTile = genTile(link, '', null, wsConfig.icon, item.item.title);
-                    elemTile.appendTo(elemParent);
-                    elemTile.click(function() { openItem($(this).attr('data-link')); });
-
-            }
-
-        }
-
-    });
-
-}
-function getBookmarkEntries() {
-
-    $.get('/plm/bookmarks', {}, function(response) {
-
-        let elemParent = $('#bookmarks-list');
-
-        $('#bookmarks-content-processing').hide();
-
-        for(item of response.data.bookmarks) {
-
-            let link = item.item.link;
-            let ws   = link.split('/')[4];
-
-            if(ws === wsConfig.id) {
-
-                let elemTile = genTile(link, '', null, wsConfig.icon, item.item.title, item.message);
-                    elemTile.appendTo(elemParent);
-                    elemTile.click(function() { openItem($(this).attr('data-link')); });
-
-            }
-
-        }
-
-    });
+    // if(view === 'progress') $('#' + view).css('display', 'flex');
+    $('#' + view).css('display', 'flex');
 
 }
 
@@ -326,7 +278,7 @@ function getInitialData() {
             if(!isBlank(field.type)) {
                 if(field.type.title === 'Image') {
                     let fieldId = field.__self__.split('/')[8];
-                    if(fieldId.indexOf('MARKUP_') === 0) {
+                    if(fieldId.indexOf(wsConfig.imageFieldsPrefix) === 0) {
                         enableMarkup = true;
                         fieldIdsMarkup.push(fieldId);
                         let sectionId   = getFieldSectionId(wsConfig.sections, fieldId);
@@ -349,7 +301,7 @@ function getInitialData() {
             let params = {
                 'wsId'      : wsConfig.id, 
                 'name'      : title,
-                'columns'   : ['descriptor', 'created_on', 'last_modified_on', 'wf_current_state']
+                'columns'   : ['descriptor', 'created_on', 'last_modified_on', 'wf_current_state', 'TITLE', 'PRODUCT']
             }
 
             $.get('/plm/tableau-add', params, function(response) {
@@ -357,38 +309,74 @@ function getInitialData() {
                     for(tableau of response.data) {
                         if(tableau.title === title) {
                             wsConfig.tableau = tableau.link;
-                            getTableauData();
+                            getProcesses();
                         }
                     }
                 }); 
             }); 
 
         } else {
-            getTableauData();
+            getProcesses();
         }
 
     });
 
 }
-function getTableauData() {
+function getProcesses() {
 
-    $.get('/plm/tableau-data', { 'link' : wsConfig.tableau }, function(response) {
+    let requests = [
+        $.get('/plm/tableau-data', { 'link' : wsConfig.tableau }),
+        $.get('/plm/mow', {}),
+        $.get('/plm/recent', {}),
+        $.get('/plm/bookmarks', {})
+    ];
+
+
+    Promise.all(requests).then(function(responses) {
+
+        $('#overlay').hide();
+
+        if(responses[1].data.outstandingWork.length     === 0) $('#mow-no-data').removeClass('hidden');
+        if(responses[2].data.recentlyViewedItems.length === 0) $('#recents-no-data').removeClass('hidden');
+        if(responses[3].data.bookmarks.length           === 0) $('#bookmarks-no-data').removeClass('hidden');
 
         let elemTable = $('#calendar-table-body');
             elemTable.html('');
 
-        for(item of response.data) {
+        for(item of responses[0].data) {
 
             let status          = item.fields[3].value;
             let descriptor      = item.fields[0].value.split(' - ');
-            let elemTile        = genTile(item.item.link, '', '', wsConfig.icon, descriptor[0], descriptor[1]);
+            let elemTile        = genTile(item.item.link, '', '', wsConfig.icon, descriptor[0] + ' - ' + item.fields[4].value, 'Product : ' + item.fields[5].value);
+            // let elemTile        = genTile(item.item.link, '', '', wsConfig.icon, item.fields[0].value, descriptor[1]);
             let valueCreated    = item.fields[1].value;
             let valueModified   = item.fields[2].value;
             let dateNow         = new Date();
             let diffCreated     = 0;
             let diffModified    = 0;
             let dateCreated;
+            let statusColor = 'transparent';
+
+            // appendTileDetails(elemTile, [
+            //     ['with-icon icon-calendar'  , 'Created on ' + item.fields[1].value + ', last updated on ' + item.fields[2].value, false],
+            //     // ['with-icon icon-calendar', 'Last update on ' + item.fields[2].value  , false],
+            //     ['with-icon icon-calendar', 'Current status is ' + item.fields[2].value  , false]
+            // ]);
+            appendTileDetails(elemTile, [
+                ['with-icon icon-create'  , 'Created on ' + item.fields[1].value      , false],
+                ['with-icon icon-calendar', 'Last update on ' + item.fields[2].value  , false]
+            ]);
+
+            let elemTileStatus = $('<div></div>');
+                elemTileStatus.appendTo(elemTile);
+                elemTileStatus.addClass('tile-status');
+                elemTileStatus.css('background-color', statusColor);
             
+            let elemTileStatusLabel = $('<div></div>');
+                elemTileStatusLabel.appendTo(elemTileStatus);
+                elemTileStatusLabel.addClass('tile-status-label');
+
+
             if(!isBlank(valueCreated)) {
                 dateCreated  = new Date(valueCreated);
                 diffCreated = dateNow.getTime() - dateCreated.getTime();
@@ -408,11 +396,17 @@ function getTableauData() {
             $('.progress-column').each(function() {
                 let states = $(this).attr('data-states').split(',');
                 if(states.indexOf(status) > -1) {
-                    $(this).append(elemTile);
+                    elemTileStatus.css('background-color', $(this).attr('data-color'));
+                    elemTileStatusLabel.html($(this).attr('data-label'));
+                    $(this).append(elemTile.clone());
                 }
             });
 
-            elemTile.click(function() { openItem($(this).attr('data-link')); });
+            elemTile.appendTo($('#all'));
+
+            if(isContained(item.item.link, responses[1].data.outstandingWork)) elemTile.clone().appendTo($('#mow'));
+            if(isContained(item.item.link, responses[2].data.recentlyViewedItems)) elemTile.clone().appendTo($('#recents'));
+            if(isContained(item.item.link, responses[3].data.bookmarks)) elemTile.clone().appendTo($('#bookmarks'));
 
             chart.data.labels.push(descriptor[0]);
             chart.data.datasets[0].data.push(diffCreated);
@@ -452,12 +446,23 @@ function getTableauData() {
 
         }
 
-        $('#chart').css('height', response.data.length * 32 + 'px');
+        $('.tile').click(function() { openItem($(this).attr('data-link')); });
+
+        // $('#chart').css('height', response.data.length * 32 + 'px');
         $('.calendar-day-current').click();
 
         chart.update();
 
     });
+
+}
+function isContained(link, list) {
+
+    for(listItem of list) {
+        if(link === listItem.item.link) return true;
+    }
+
+    return false;
 
 }
 
@@ -686,11 +691,14 @@ function openItem(link) {
     $('#item').attr('data-link', link);
     $('#item').show();
     $('body').addClass('no-viewer');
+    $('#overlay').show();
 
     viewerUnloadAllModels();
     insertWorkflowActions(link, true);
+
     $.get('/plm/details', { 'link' : link }, function(response) {
-        
+
+        $('#overlay').hide();
         $('#item-descriptor').html(response.data.title);
         
         let status     = response.data.currentState.title;

@@ -60,6 +60,35 @@ function appendProcessing(id, hidden) {
 }
 
 
+// Insert no data found messaage
+function appendNoDataFound(id, icon, text) {
+
+    if(typeof icon === 'undefined') icon = 'icon-no-data';
+    if(typeof text === 'undefined') text = 'No data found';
+
+    let elemParent = $('#' + id);
+
+    let elemNoData = $('<div></div>');
+        elemNoData.addClass('no-data');
+        elemNoData.addClass('hidden');
+        elemNoData.attr('id', id + '-no-data');
+        elemNoData.appendTo(elemParent);
+
+
+    let elemNoDataIcon = $('<div></div>');
+        elemNoDataIcon.addClass('no-data-icon');
+        elemNoDataIcon.addClass('icon');
+        elemNoDataIcon.addClass(icon);
+        elemNoDataIcon.appendTo(elemNoData);
+
+    let elemNoDataText = $('<div></div>');
+        elemNoDataText.addClass('no-data-text');
+        elemNoDataText.html(text);
+        elemNoDataText.appendTo(elemNoData);
+
+}
+
+
 // Insert overlay with progress indicator
 function appendOverlay(hidden) {
 

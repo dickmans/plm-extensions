@@ -53,7 +53,7 @@ function insertViewer(link, color) {
             $('body').removeClass('no-viewer');
 
             for(viewable of response.data) {
-                if(viewable.name.indexOf('.iam.dwf') > -1) {
+                if((viewable.name.indexOf('.iam.dwf') > -1) || (viewable.name.indexOf('.ipt.dwf') > -1)) {
                     $('body').removeClass('no-viewer');
                     if(elemInstance.length > 0) elemInstance.show();
                     foundAssembly = true;
@@ -760,7 +760,7 @@ function closeAllFilteredPicklists() {
 function clearFields(id) {
 
     $('#' + id).find('.field-value').each(function() {
-        $(this).val('');
+        $(this).children().val('');
     });
 
     $('#' + id).find('.radio-option').each(function() {
@@ -2110,8 +2110,19 @@ function insertWorkflowHistory(link, id, currentStatus, currentStatusId, transit
 
                 let elemActionAction = $('<div></div>');
                     elemActionAction.addClass('workflow-history-action');
-                    elemActionAction.html(action.workflowTransition.title);
                     elemActionAction.appendTo(elemAction);
+
+                let elemActionActionIcon = $('<div></div>');
+                    elemActionActionIcon.addClass('workflow-history-action-icon');
+                    elemActionActionIcon.addClass('icon');
+                    elemActionActionIcon.addClass('icon-check');
+                    elemActionActionIcon.addClass('filled');
+                    elemActionActionIcon.appendTo(elemActionAction);
+
+                let elemActionActionText = $('<div></div>');
+                    elemActionActionText.addClass('workflow-history-action-text');
+                    elemActionActionText.html(action.workflowTransition.title);
+                    elemActionActionText.appendTo(elemActionAction);
 
                 let elemActionDescription = $('<div></div>');
                     elemActionDescription.addClass('workflow-history-comment');

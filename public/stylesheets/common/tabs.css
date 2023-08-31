@@ -49,29 +49,33 @@
 }
 .workflow-history-action {
     color : var(--color-blue-500);
+    display : flex;
     font-weight : 800;
-    line-height : 18px;
+    gap : 4px;
+    line-height : 24px;
     margin : 3px 0px 1px;
     position : relative;
-    left : -24px;
+    left : -27px;
+}
+.workflow-history-action-icon::before {
+    background : white;
 }
 .workflow-history-comment {
     margin-bottom : 8px;
 }
-.workflow-history-action::before, 
 .workflow-history-date::before, 
 .workflow-history-user::before {
     font: normal normal normal 14px/1 'Material Symbols Sharp';
     font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48;
 }
-.workflow-history-action::before {
+/* .workflow-history-action::before {
     content: '\e86c';
     font-size: 26px;
     position: relative;
     left: -4px;
     top: 8px;
     background: white;
-}
+} */
 .workflow-history-date::before {
     content: '\ebcc';
     font-size : 14px;

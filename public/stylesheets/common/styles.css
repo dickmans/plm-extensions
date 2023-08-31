@@ -272,7 +272,7 @@
 .tile-title {
     font-weight: 800;
     font-size: 16px;
-    line-height: 18px;
+    line-height: 20px;
     flex: none;
     order: 0;
     align-self: stretch;
@@ -282,7 +282,7 @@
 .tile-subtitle {
     font-weight: 400;
     font-size: 12px;
-    line-height: 14px;
+    line-height: 16px;
     flex: none;
     order: 1;
     align-self: stretch;
@@ -860,6 +860,29 @@ and (max-device-width : 1900px)  {
     font-weight : bold;
 }
 
+
+
+/*  NO DATA */
+/* ----------------------------------------------------------------------------- */
+.no-data {
+    background: transparent !important;
+    color : var(--color-blue-500);
+    cursor: unset !important;
+    display : flex;
+    flex-direction: column;
+    height : unset !important;
+    text-align : center;
+}
+.no-data:hover {
+    background : transparent !important;
+}
+.no-data-icon {
+    font-size : 68px;
+    padding : 10px 10px 0px;
+}
+.no-data-text {
+    padding : 0px 10px 10px 10px;
+}
 
 
 /*  TABS */
