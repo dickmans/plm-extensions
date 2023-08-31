@@ -9,3 +9,4 @@ package-lock.json
 settings.*.js
 !.gitkeep
 .DS_Store*
+public/stylesheets/common/custom.css
