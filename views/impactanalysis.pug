@@ -53,10 +53,10 @@ block content
                         span.lavel BOM 
                         span#bom-counter.counter.value
                     div(title='Review list of BOM items which got changed but are not listed as affected item in this CO') 
-                        span.label Sub Items 
+                        span.label BOM Updates 
                         span#related-counter.counter.value
                     div(title='Review list of root items being impacted by expanding the usage in BOMs') 
-                        span.label End Items
+                        span.label Where Used
                         span#roots-counter.counter.value
                     div(title='Review list of relevant items being connected via relationships tab') 
                         span.label Related
@@ -67,6 +67,9 @@ block content
                     div(title='Review list of all change processes of this item')
                         span.label Processes
                         span#changes-counter.counter.value
+                    div(title='List of pending Production Orders managed in ERP')
+                        span.label Orders (ERP)
+                        span#orders-counter.counter.value
                 
                 .panel-content.surface-level-2#logs
                     table#logs-table.content-table
@@ -144,6 +147,16 @@ block content
                                 th By User
                                 th Creation Date
                                 th By User
+                        tbody
+
+                .panel-content.surface-level-2#orders.content
+                    table#orders-table.content-table.hovering-enabled
+                        thead
+                            tr
+                                th ID
+                                th Site
+                                th Quantity
+                                th Date
                         tbody
                 
             .panel#details

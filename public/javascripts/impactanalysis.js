@@ -5,6 +5,7 @@ let bomItemsByStatus    = [];
 let selectedURN         = '';
 let relatedWorkspaces   = [];
 let relatedItems        = [];
+let isRevisioningWS     = false;
 
 
 $(document).ready(function() {   
@@ -17,7 +18,7 @@ $(document).ready(function() {
     setUIEvents();
     setHeaderSubtitle();
     getManagedFields();
-    getRelatedWorkspaces();
+    getWorkspaceConfiguration();
     getRelationships(function() {});
 
 });
@@ -240,7 +241,6 @@ function setHeaderSubtitle() {
 }
 
 
-
 // Get columns of managed items tab of Change Order
 function getManagedFields() {
     
@@ -253,25 +253,34 @@ function getManagedFields() {
         }
 
     });
+
 }
 
 
-
 // Get relationships
-function getRelatedWorkspaces() {
+function getWorkspaceConfiguration() {
 
-    $.get('/plm/related-workspaces', { 'wsId' : wsId, 'view' : '10'}, function(response) {
-        for(workspace of response.data) {
+    let requests = [
+        $.get('/plm/workspace', { 'wsId' : wsId }),
+        $.get('/plm/related-workspaces', { 'wsId' : wsId, 'view' : '10'})
+    ];
+
+    Promise.all(requests).then(function(responses) {
+
+        isRevisioningWS = responses[0].data.type === '/api/v3/workspace-types/7';
+
+        for(workspace of responses[1].data) {
             relatedWorkspaces.push({
                 'wsId'  : workspace.link.split('/')[4],
                 'title' : workspace.title
             });
         }
+
         getManagedItems();
+
     });
 
 }
-
 
 
 // Retrieve related items
@@ -300,7 +309,6 @@ function getRelationships(callback) {
 }
 
 
-
 // Get managed items of Change Order
 function getManagedItems() {
     
@@ -310,7 +318,7 @@ function getManagedItems() {
         $('#nav-processing').hide();
 
         let isUpdate = $('.nav-item').length > 0;
-        
+
         for(var i = 0; i < response.data.length; i++) {
             
             var affectedItem    = response.data[i];
@@ -321,7 +329,11 @@ function getManagedItems() {
             let fromRelease     = (affectedItem.hasOwnProperty("fromRelease")) ? affectedItem.fromRelease : "";
             let toRelease       = (affectedItem.hasOwnProperty("toRelease")) ? affectedItem.toRelease : "";
 
-            let add             = true;
+            let add              = true;
+            let countStock       = 0;
+            let countOrders      = 0;
+            let countSupplies    = 0;
+            let productionOrders = [];
 
             $('.nav-item').each(function() {
                 if($(this).attr('data-urn') === affectedItem.item.urn) add = false;
@@ -338,20 +350,58 @@ function getManagedItems() {
                     revision = " - not defined -"          
                 }
 
+                for(field of affectedItem.linkedFields) {
+                    
+                    let fieldId = field.__self__.split('/')[8];
+
+                    switch(fieldId) {
+
+                        case config.impactanalysis.fieldIdStockQuantity              : countStock        = field.value; break;
+                        case config.impactanalysis.fieldIdNextProductionOrderQantity : countOrders       = field.value; break;
+                        case config.impactanalysis.fieldIdPendingSupplies            : countSupplies     = (field.value === 'true') ? 1 : 0; break;
+                        case config.impactanalysis.fieldIdProductionOrdersData       : productionOrders  = field.value; console.log(field.value); break;
+
+                    }
+
+                    if(fieldId === config.impactanalysis.fieldIdProposedChange) transition = field.value;
+
+                }
+
+                console.log(productionOrders);
+
+                if(!isBlank(productionOrders)) {
+                    if(!Array.isArray(productionOrders)) {
+                        productionOrders = productionOrders.replace(/&#34;/g, '"');
+                        productionOrders = JSON.parse(productionOrders);
+                    }
+                } else { productionOrders = []; }
+
+                if(countStock   > 1000) countStock   = Math.floor(countStock   / 1000) + ' k';
+                if(countOrders  > 1000) countOrders  = Math.floor(countOrders  / 1000) + ' k';
+
                 managedItems.push({
-                    'urn'        : affectedItem.item.urn,
-                    'affected'   : affectedItem.__self__,
-                    'link'       : affectedItem.item.link,
-                    'wsId'       : itemData[4],
-                    'dmsId'      : itemData[6],
-                    'fields'     : affectedItem.linkedFields,
-                    'from'       : affectedItem.fromRelease,
-                    'transition' : transitionLink,
-                    'prev'       : null,
-                    'prevLink'   : null
+                    'urn'               : affectedItem.item.urn,
+                    'affected'          : affectedItem.__self__,
+                    'link'              : affectedItem.item.link,
+                    'wsId'              : itemData[4],
+                    'dmsId'             : itemData[6],
+                    'fields'            : affectedItem.linkedFields,
+                    'from'              : affectedItem.fromRelease,
+                    'transition'        : transitionLink,
+                    'prev'              : null,
+                    'prevLink'          : null,
+                    'productionOrders'  : productionOrders
                 });
 
                 if(transition !== '- not defined -') transition += ' ' + revision
+
+                if(!isRevisioningWS) {
+                    transition === '';
+                    for(field of affectedItem.linkedFields) {
+                        let fieldId = field.__self__.split('/')[8];
+                        if(fieldId === config.impactanalysis.fieldIdProposedChange) transition = field.value;
+                    }
+                }
 
                 let elemTile = genTile(affectedItem.item.link, affectedItem.item.urn, '', 'settings', affectedItem.item.title, transition);
                     elemTile.addClass('nav-item');
@@ -360,6 +410,56 @@ function getManagedItems() {
                     elemTile.click(function() {
                         selectManagedItem($(this));
                     });
+
+                let elemStatus = $('<div></div>');
+                    elemStatus.addClass('tile-item-status');
+                    elemStatus.appendTo(elemTile);
+
+                let elemStatusStock = $('<div></div>');
+                    elemStatusStock.attr('title', 'In Stock Quantity');
+                    elemStatusStock.appendTo(elemStatus);
+                
+                let elemStatusStockIcon = $('<div></div>');
+                    elemStatusStockIcon.addClass('icon');
+                    elemStatusStockIcon.html('warehouse');
+                    elemStatusStockIcon.appendTo(elemStatusStock);
+                
+                let elemStatusStockQuantity = $('<div></div>');
+                    elemStatusStockQuantity.addClass('value');
+                    elemStatusStockQuantity.html(countStock);
+                    elemStatusStockQuantity.appendTo(elemStatusStock);
+
+                let elemStatusOrders = $('<div></div>');
+                    elemStatusOrders.attr('title', 'Next Production Order Quantity');
+                    elemStatusOrders.appendTo(elemStatus);
+                
+                let elemStatusOrdersIcon = $('<div></div>');
+                    elemStatusOrdersIcon.addClass('icon');
+                    elemStatusOrdersIcon.html('order_approve');
+                    elemStatusOrdersIcon.appendTo(elemStatusOrders);
+                
+                let elemStatusOrdersQuantity = $('<div></div>');
+                    elemStatusOrdersQuantity.addClass('value');
+                    elemStatusOrdersQuantity.html(countOrders);
+                    elemStatusOrdersQuantity.appendTo(elemStatusOrders);
+
+                let elemStatusSuppliers = $('<div></div>');
+                    elemStatusSuppliers.attr('title', 'Supplier Packages Pending');
+                    elemStatusSuppliers.appendTo(elemStatus);
+                
+                let elemStatusSuppliersIcon = $('<div></div>');
+                    elemStatusSuppliersIcon.addClass('icon');
+                    elemStatusSuppliersIcon.html('local_shipping');
+                    elemStatusSuppliersIcon.appendTo(elemStatusSuppliers);
+                
+                let elemStatusSuppliersQuantity = $('<div></div>');
+                    elemStatusSuppliersQuantity.addClass('value');
+                    elemStatusSuppliersQuantity.html(countSupplies);
+                    elemStatusSuppliersQuantity.appendTo(elemStatusSuppliers);
+
+                if(countStock    !== 0) elemStatusStock.addClass('highlight-stock');
+                if(countOrders   !== 0) elemStatusOrders.addClass('highlight-orders');
+                if(countSupplies !== 0) elemStatusSuppliers.addClass('highlight-suppliers');
 
             }
 
@@ -370,7 +470,6 @@ function getManagedItems() {
     });  
 
 }
-
 
 
 // Get information for selected managed item
@@ -402,6 +501,7 @@ function selectManagedItem(elemClicked) {
     getRelated();
     getImpactedRelationships();
     getChangeProcesses();
+    getProductionOrders();
     getBookmarkStatus();
 
     if(selectedManagedItem.prev === null) {
@@ -641,7 +741,14 @@ function setFieldValue(field) {
 
             if(typeof field.value === 'object') value = field.value.link;
 
-            $(this).children().first().val(value);
+            if($(this).hasClass('checkbox')) {
+                if(value === 'true') {
+                    $(this).children().first().prop( "checked", true );
+                } else {
+                    console.log('reset checkbox');
+                    $(this).children().first().prop( "checked", false );
+                }
+            } else $(this).children().first().val(value);
 
         }
 
@@ -1902,5 +2009,29 @@ function getChangeProcesses() {
         setCounter('changes', response.data.length);
         
     });  
+
+}
+
+
+// [10] Get ERP Production Orders
+function getProductionOrders() {
+
+    let elemTable = $('#orders-table').find('tbody');
+        elemTable.html('');
+        
+    for(order of selectedManagedItem.productionOrders) {
+         
+        var date = new Date(order.date);
+
+        let elemRow = $('<tr></tr>');
+            elemRow.append('<td>' + order.id + '</td>');
+            elemRow.append('<td>' + order.site + '</td>');
+            elemRow.append('<td>' + order.qty + '</td>');
+            elemRow.append('<td>' + date.toLocaleDateString() + '</td>');
+            elemRow.appendTo(elemTable);
+                
+    }
+        
+    setCounter('orders', selectedManagedItem.productionOrders.length);
 
 }

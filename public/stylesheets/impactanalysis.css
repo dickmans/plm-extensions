@@ -89,7 +89,39 @@ body.no-viewer #hide-viewer { display : none; }
     background : var(--color-gray-900) !important;
     color : var(--color-gray-300) !important;
 }
-/* .nav-item.unread > .tile-image > .icon { font-weight : 400; } */
+.nav-item .tile-details {
+    width : calc(100% - 202px) !important;
+}
+.tile-item-status {
+    display : flex;
+    gap : 1px;
+    width : 122px;
+}
+.tile-item-status > div {
+    display : flex;
+    flex-direction: column;
+    width : 40px;
+}
+.tile-item-status .icon {
+  font-variation-settings:  'FILL' 1,  'wght' 200,   'GRAD' 0,  'opsz' 20;
+    font-size : 20px;
+    font-weight : 200;
+    height : 24px;
+    line-height : 30px;
+    text-align : center;
+    width : 100%;
+}
+.tile-item-status .value {
+    font-size : 12px;
+    line-height : 22px;
+    height : 24px;
+    text-align : center;
+}
+.highlight-stock, 
+.highlight-orders, 
+.highlight-suppliers {
+    color : var(--color-status-red); 
+}
 
 
 /*  ITEM */
@@ -130,6 +162,7 @@ body.no-viewer #hide-viewer { display : none; }
 #item-change .field.with-text .field-value { width : auto; }
 #item-change .field-value { font-size : 12px; width : auto; }
 #item-change select.field-value { padding : 1px 2px;}
+#item-change .checkbox.field-value { padding-left: 8px; }
 .field-text { display : none; }
 .no-panel #item { left : 110px; }
 
@@ -140,7 +173,7 @@ body.no-viewer #hide-viewer { display : none; }
 /* ----------------------------------------------------------------------------- */
 #tabs > div {
     display : flex;
-    font-size : 16px;
+    font-size : 1px;
     height : 26px;
     line-height : 20px;
     justify-content: center;
@@ -322,6 +355,7 @@ body.no-viewer #bom-color-toggle {
 /* ----------------------------------------------------------------------------- */
 .parent {
     display : flex;
+    line-height : 22px;
 }
 .parent-path {
     cursor : pointer;
@@ -330,13 +364,9 @@ body.no-viewer #bom-color-toggle {
     margin-left : 8px;
     padding : 3px 12px;
 }
-/* .parent-path:hover {
-    background : var(--color-selected-bright);
-    color : var(--color-selected);
-} */
-.parent-path .material-symbols-sharp {
-    line-height: 14px;
-    margin-right: 8px;
+.parent-path .icon {
+    line-height: 22px;
+    margin-right: 4px;
 }
 .parent-actions {
     padding-top : 1px;
