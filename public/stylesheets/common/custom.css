@@ -3,3 +3,21 @@
 /* #header.dark {
     background : red;
 } */
+
+
+/* #header.dark #header-logo {
+    background-image: url(https://www.lemo.com/sites/all/themes/bootstrap_lemo/logo.png);
+    background-size : 138px;
+    left : 18px;
+    top : 20px;
+    width : 138px;
+}
+#header-title {
+    margin-left : 140px;
+}
+#logo {
+    background-image: url(https://www.lemo.com/sites/all/themes/bootstrap_lemo/logo.png) !important;  
+    background-size : 170px !important;
+    height : 35px !important;
+    width : 170px !important;
+} */
