@@ -1,6 +1,5 @@
 let fileSettings = (process.argv.length > 2) ? '.' + process.argv[2] : '';
 
-
 const express     = require('express');
 const session     = require('express-session');
 const path        = require('path');
