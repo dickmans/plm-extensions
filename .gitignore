@@ -10,3 +10,4 @@ settings.*.js
 !.gitkeep
 .DS_Store*
 public/stylesheets/common/custom.css
+run.sh
