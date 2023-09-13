@@ -13,6 +13,13 @@ h2 {
 .divider.horizontal {
     margin-bottom : 20px;
 }
+#disclaimer {
+    background: var(--color-status-red);
+    color: var(--color-status-red-brighter);
+    line-height: 16px;
+    padding: 20px;
+    font-size: 12px;
+}
 #close-app {
     display : none;
     position: absolute;
