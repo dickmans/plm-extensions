@@ -6,6 +6,7 @@ let selectedURN         = '';
 let relatedWorkspaces   = [];
 let relatedItems        = [];
 let isRevisioningWS     = false;
+let isLocked            = true;
 
 
 $(document).ready(function() {   
@@ -17,7 +18,6 @@ $(document).ready(function() {
 
     setUIEvents();
     setHeaderSubtitle();
-    getManagedFields();
     getWorkspaceConfiguration();
     getRelationships(function() {});
 
@@ -233,9 +233,14 @@ function setHeaderSubtitle() {
         let elem = $('<span></span>');
             elem.html(description);
 
+        isLocked = response.data.itemLocked;
+
+        if(!isLocked) $('#save').show();
+
         $('#header-description').append(elem.text());
         $('#header-descriptor').html(response.data.title);
-        $('#overlay').hide();
+
+        getManagedFields();
 
     });    
 }
@@ -249,8 +254,10 @@ function getManagedFields() {
         let elemFields = $('#item-change');
 
         for(field of response.data) {
-            insertField(field, null, elemFields, false, false, true, false);
+            insertField(field, null, elemFields, false, false, !isLocked, false);
         }
+
+        $('#overlay').hide();
 
     });
 
@@ -1412,8 +1419,6 @@ function getRootParents() {
    
     $.get('/plm/where-used', { 'link' : selectedManagedItem.link }, function(response) {
 
-        console.log(response);
-        
         if(response.params.link !==  selectedManagedItem.link) return;
 
         let counterRoots        = 0;
@@ -1588,26 +1593,28 @@ function getChildren(elemChildren, edges, nodes, parent, level) {
                 }
             }
 
-            if(!isConnected) {
+            if(!isLocked) {
+                if(!isConnected) {
 
-                let elemActionAdd = $('<div></div>');
-                    elemActionAdd.addClass('button');
-                    elemActionAdd.html('Add');
-                    elemActionAdd.appendTo(elemParentActions);
-                    elemActionAdd.click(function() {
-                        $('#overlay').show();
-                        let link = $(this).closest('.parent').attr('data-link');
-                        let items = [link];
-                        $.get('/plm/add-managed-items', { 'wsId' : wsId , 'dmsId' : dmsId, 'items' : items }, function() {
-                            $('#overlay').hide();
-                            $('.parent').each(function() {
-                                if(link === $(this).attr('data-link')) {
-                                    $(this).find('.button').remove();
-                                }
-                            });
-                            getManagedItems();
-                        });  
-                    });
+                    let elemActionAdd = $('<div></div>');
+                        elemActionAdd.addClass('button');
+                        elemActionAdd.html('Add');
+                        elemActionAdd.appendTo(elemParentActions);
+                        elemActionAdd.click(function() {
+                            $('#overlay').show();
+                            let link = $(this).closest('.parent').attr('data-link');
+                            let items = [link];
+                            $.get('/plm/add-managed-items', { 'wsId' : wsId , 'dmsId' : dmsId, 'items' : items }, function() {
+                                $('#overlay').hide();
+                                $('.parent').each(function() {
+                                    if(link === $(this).attr('data-link')) {
+                                        $(this).find('.button').remove();
+                                    }
+                                });
+                                getManagedItems();
+                            });  
+                        });
+                }
             }
                 
             for(let i = level - 1; i > 0; i--) { elemParentPath.append('<span class="icon">trending_flat</span>'); }
@@ -1685,6 +1692,8 @@ function insertImpactedItem(item, workspace) {
         let elemInput = $('<td></td>');
             elemInput.html('<input class="rel-desc" value="">');
 
+        if(isLocked) elemInput.html('<input disabled class="rel-desc" value="">');
+
         let elemActionLink = $('<div></div>');
             elemActionLink.addClass('button');
             elemActionLink.addClass('default');
@@ -1712,9 +1721,12 @@ function insertImpactedItem(item, workspace) {
 
         let elemActions = $('<td></td>');
             elemActions.addClass('impacted-actions');
+
+        if(!isLocked) {
             elemActions.append(elemActionLink);
             elemActions.append(elemActionUnlink);
             elemActions.append(elemActionUpdate);
+        }
 
         let elemImpacted = $('<tr></tr>');
             elemImpacted.attr('data-id', itemDMSID);
@@ -1882,6 +1894,10 @@ function getRelated() {
         }
             
         setCounter('related', response.data.length);
+
+        if(!isLocked) {
+            $('#related-actions').show();
+        }
 
         $('#overlay').hide();
         

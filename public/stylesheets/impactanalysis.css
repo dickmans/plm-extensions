@@ -127,6 +127,7 @@ body.no-viewer #hide-viewer { display : none; }
 /*  ITEM */
 /* ----------------------------------------------------------------------------- */
 #item > div { transition : all .25s ease; }
+#save { display : none; }
 
 
 
@@ -390,6 +391,7 @@ body.no-viewer #bom-color-toggle {
     line-height: 23px;
     padding: 0px 8px;
 }
+#impacted-tbody input:disabled { background : none; }
 #impacted-tbody tr:hover td {
     background :transparent !important;
 }
@@ -454,6 +456,7 @@ body.no-viewer #bom-color-toggle {
 .changed-item-detail {
     font-size : 10px;
 }
+#related-actions { display : none; }
 
 
 /*  FILES */
