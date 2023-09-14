@@ -418,6 +418,7 @@ body.no-viewer #bom-color-toggle {
 .impacted-actions {
     width : 255px;
 }
+.disconnected > .impacted-status > .icon,
 .disconnected .impacted-disconnect,
 .disconnected .impacted-update {
     display : none;

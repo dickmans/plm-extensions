@@ -1687,7 +1687,7 @@ function insertImpactedItem(item, workspace) {
                 openItemByURN($(this).closest('tr').attr('data-urn'));
             });
 
-        let elemStatus = $('<td class="impacted-status tiny"><span class="icon">link</spn></td>');
+        let elemStatus = $('<td class="impacted-status tiny"><span class="icon">link</span></td>');
 
         let elemInput = $('<td></td>');
             elemInput.html('<input class="rel-desc" value="">');
