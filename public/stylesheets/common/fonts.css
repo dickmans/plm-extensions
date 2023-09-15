@@ -119,6 +119,7 @@
 .icon-start::before    { content : '\e1c4'; }
 .icon-tabs::before    { content : '\e265'; }
 .icon-tiles::before    { content : '\e9b0'; }
+.icon-tiles-list::before    { content : '\e875'; }
 .icon-type::before    { content : '\e574'; }
 .icon-undelete::before { content : '\e938'; }
 .icon-unfold::before { content : '\e5d7'; }

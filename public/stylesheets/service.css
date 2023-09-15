@@ -22,10 +22,12 @@
 
 :root {
 
-    --width-bom : 550px;
-    --width-details : 325px;
-    --width-panel : 500px;
-    --padding-panel : 24px;
+    --width-bom             : 550px;
+    --width-details         : 400px;
+    --width-panel           : 500px;
+    --width-divider         :   4px;
+    --height-attachments    : 236px;
+    --padding-panel         :  24px;
 
 }
 
@@ -40,6 +42,11 @@
     left : var(--padding-panel);
     width : var(--width-bom);
 }
+.viewer,
+#attachments {
+    right  :  calc(var(--width-panel) + var(--width-divider) + (3 * var(--padding-panel)));
+    left   :  calc(var(--width-bom) + var(--width-divider) + (3 * var(--padding-panel)));
+}
 #attachments {
     bottom : var(--padding-panel);
 }
@@ -53,35 +60,35 @@
 }
 #details { right : 576px; width : var(--width-details); }
 
-#divider-bom     { left :  598px; }
-#divider-details { right : 925px; }
+#divider-bom     { left :  calc(var(--width-bom) + (2 * var(--padding-panel))); }
+#divider-details { right : calc(var(--width-details) + var(--width-panel) + (1 * var(--width-divider)) + (4 * var(--padding-panel))); }
 #divider-panel   { right : calc(var(--width-panel) + (2 * var(--padding-panel))); }
 
-.no-panel .viewer           { right :    25px; }
-.no-panel #attachments      { right :     0px; }
-.no-panel #divider-details  { right :   373px; }
-.no-panel #details          { right :    24px; } 
-.no-panel #divider-panel    { right :  -800px; }
-.no-panel #panel            { right : -1000px; }
+.no-panel .viewer           { right : var(--padding-panel); }
+.no-panel #attachments      { right : var(--padding-panel); }
+.no-panel #divider-details  { right : calc(var(--width-details) + (2 * var(--padding-panel))); }
+.no-panel #details          { right : var(--padding-panel); } 
+.no-panel #divider-panel    { right : calc(2 * var(--width-panel) * -1); }
+.no-panel #panel            { right : calc(2 * var(--width-panel) * -1); }
 
-.no-bom #bom         { left : -1000px; }
-.no-bom #divider-bom { left :  -800px; }
-.no-bom .viewer      { left :    25px; }
-.no-bom #attachments { left :     0px; }
+.no-bom #bom         { left : calc(2 * var(--width-bom) * -1); }
+.no-bom #divider-bom { left : calc(2 * var(--width-bom) * -1); }
+.no-bom .viewer      { left : var(--padding-panel); }
+.no-bom #attachments { left : var(--padding-panel); }
 
-.no-attachments .viewer      { bottom :   var(--padding-panel); }
-.no-attachments #attachments { bottom : -500px; }
+.no-attachments .viewer      { bottom : var(--padding-panel); }
+.no-attachments #attachments { bottom : calc(2 * var(--height-attachments) * -1); }
 
-.with-details .viewer      { right : 960px; }
-.with-details #attachments { right : 936px; }
+.with-details .viewer      { right : calc(var(--width-details) + var(--width-panel) + (2 * var(--width-divider)) + (5 * var(--padding-panel))); }
+.with-details #attachments { right : calc(var(--width-details) + var(--width-panel) + (2 * var(--width-divider)) + (5 * var(--padding-panel))); }
 .with-details #details,
 .with-details #divider-details {
     top : 24px;
     bottom : 24px;
 }
 
-.no-panel.with-details .viewer          { right : 401px; }
-.no-panel.with-details #attachments     { right : 377px; }
+.no-panel.with-details .viewer,
+.no-panel.with-details #attachments  { right : calc(var(--width-details) + var(--width-divider) + (3 * var(--padding-panel))); }
 
 
 
@@ -156,9 +163,7 @@ tr.result td {
 /* VIEWER */
 /* ----------------------------------------------------------------------------- */
 .viewer {
-    bottom : 280px;
-    right : 581px;
-    left : 631px;
+    bottom : calc(var(--height-attachments) + (2 * var(--padding-panel)));
 }
 #navTools { display : none; }
 
@@ -168,10 +173,8 @@ tr.result td {
 /* ----------------------------------------------------------------------------- */
 #attachments {
     position : absolute;
-    right : 556px;
-    left : 606px;
-    height : 232px;
-    padding : 25px 25px 0px;
+    height : var(--height-attachments);
+    padding : var(--padding-panel) 0px 0px;
     text-align : center;
 }
 #attachments-list {
@@ -466,4 +469,20 @@ tr.result td {
 }
 .wear-part-health {
     height : 6px;
+}
+
+
+
+@media (max-width : 1940px)  {
+
+    #header-toolbar .button.with-icon {
+        min-width : unset;
+        max-width : 22px;
+        overflow : hidden;
+    }
+
+    #header-toolbar .button.with-icon::before {
+        margin-right : 20px;
+    }
+
 }
