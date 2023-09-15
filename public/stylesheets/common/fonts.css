@@ -87,6 +87,7 @@
 .icon-edit-multiple::before  { content : '\e745'; }
 .icon-expand::before  { content : '\e5cc'; }
 .icon-filter::before    { content : '\e152'; }
+.icon-finish::before    { content : '\eaf8'; }
 .icon-fold::before    { content : '\e5d6'; }
 .icon-help::before    { content : '\f1c0'; }
 .icon-hide::before    { content : '\e8f5'; }
@@ -115,6 +116,7 @@
 .icon-sliders::before { content : '\e429'; }
 .icon-status::before  { content : '\ea50'; }
 .icon-show::before    { content : '\e8f4'; }
+.icon-start::before    { content : '\e1c4'; }
 .icon-tabs::before    { content : '\e265'; }
 .icon-tiles::before    { content : '\e9b0'; }
 .icon-type::before    { content : '\e574'; }
