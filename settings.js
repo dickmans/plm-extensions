@@ -52,14 +52,16 @@ exports.config = {
     'vectors' : vectors,
 
     'dashboard' : [{
-        'title'         : 'Problem Reporting Dashboard',
-        'wsId'          : 82,
-        'fieldIdItem'   : 'AFFECTED_ITEM',
-        'icon'          : 'account_tree', // Use https://fonts.google.com/icons to search for icons
-        'transitions': {
-            'showNextActions' : true,
-            'excludedTransitions' : ['Close Report'],
-            'finalStates' : ['Completed', 'Closed']
+        'title'             : 'Problem Reporting Dashboard',
+        'wsId'              : 82,
+        'icon'              : 'account_tree', // Use https://fonts.google.com/icons to search for icons
+        'fieldIdSubtitle'   : 'DESCRIPTION',
+        'fieldIdItem'       : 'AFFECTED_ITEM',
+        'imageFieldsPrefix' : 'IMAGE_',
+        'workflowHistory'   : {
+            'showNextActions'       : true,
+            'excludedTransitions'   : ['Close Report'],
+            'finalStates'           : ['Completed']
         },
         'progress' : [
             { 'label' : 'New',         'color' : colors.red,    'states' : ['Create'] },

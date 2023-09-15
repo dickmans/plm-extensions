@@ -6,10 +6,11 @@ let wsConfig        = {
     'id'                    : null,
     'sections'              : [],
     'excludedSections'      : [],
-    'transitions'           : {},
+    'workflowHistory'       : {},
     'fields'                : [],
     'progress'              : null,
     'icon'                  : 'account_tree',
+    'fieldIdSubtitle'       : '',
     'fieldIdItem'           : '',
     'tableau'               : '',
     'imageFieldsPrefix'     : 'MARKUP_'
@@ -30,10 +31,11 @@ $(document).ready(function() {
             wsConfig.id          = profile.wsId.toString();
             wsConfig.progress    = profile.progress;
             wsConfig.fieldIdItem = profile.fieldIdItem;
-            wsConfig.transitions = profile.transitions;
 
             if(!isBlank(profile.icon)) wsConfig.icon = profile.icon;
             if(!isBlank(profile.title)) title = profile.title;
+            if(!isBlank(profile.fieldIdSubtitle)) wsConfig.fieldIdSubtitle = profile.fieldIdSubtitle;
+            if(!isBlank(profile.workflowHistory)) wsConfig.workflowHistory = profile.workflowHistory;
             if(!isBlank(profile.imageFieldsPrefix)) wsConfig.imageFieldsPrefix = profile.imageFieldsPrefix;
 
         }
@@ -79,8 +81,6 @@ function setUIEvents() {
 
     // Create new item
     $('#continue').click(function() {
-        
-        
 
         if(!validateForm($('#new-sections'))) {
             showErrorMessage('Field validations faild', 'Cannot Save');
@@ -89,38 +89,15 @@ function setUIEvents() {
 
         $('#overlay').show();
 
-        // viewerCaptureScreenshot(function() {
-
-        //     $('#processes-sections').hide();
-        //     $('#processes-list').html('');
-        //     $('#processes-list').show('');
-        //     $('#processes-sections');
     
-            // let link = $('#processes').attr('data-link');
-    
-            submitCreateForm(wsConfig.id, $('#new-sections'), '', function(response ) {
+        submitCreateForm(wsConfig.id, $('#new-sections'), '', function(response ) {
 
-                // console.log(response);
+            let newLink = response.data.split('.autodeskplm360.net')[1];
 
-                let newLink = response.data.split('.autodeskplm360.net')[1];
+            openItem(newLink);
+            clearFields('new-sections');
 
-                // $('#overlay').show();
-
-                openItem(newLink);
-                clearFields('new-sections');
-
-                // $.get('/plm/add-managed-items', { 'link' : newLink, 'items' : [ link ] }, function(response) {
-
-                //     insertChangeProcesses(link, 'processes')
-                //     $('.process-dialog').hide();
-                //     $('#create-process').show();
-                //     $('#processes-list').show();
-                // });
-
-            });
-
-        // });
-
+        });
 
     });
 
@@ -148,11 +125,9 @@ function setUIEvents() {
     $('#select-file').change(function() {
         $('#attachments-list').hide();
         $('#attachments-processing').show();
-        console.log('1');
         $('#uploadForm').submit();
     });
     $('#frame-download').on('load', function() {
-        console.log('2');
         $('#attachments-list').show();
         $('#attachments-processing').hide();
         insertAttachments($('#item').attr('data-link'));
@@ -228,7 +203,7 @@ function setChart() {
             maintainAspectRatio: false,
             responsive: true,
             plugins: {
-                legend: { position: 'right' }
+                legend: { position: 'top' }
             },
             scales: {
                 x: { stacked : true, beginAtZero : true },
@@ -246,9 +221,6 @@ function setSelectedView() {
     $('#views').children().hide();
 
     let view = $('#view').val();
-    $('#' + view).show();
-
-    // if(view === 'progress') $('#' + view).css('display', 'flex');
     $('#' + view).css('display', 'flex');
 
 }
@@ -301,10 +273,12 @@ function getInitialData() {
             let params = {
                 'wsId'      : wsConfig.id, 
                 'name'      : title,
-                'columns'   : ['descriptor', 'created_on', 'last_modified_on', 'wf_current_state', 'TITLE', 'PRODUCT']
+                'columns'   : ['descriptor', 'created_on', 'last_modified_on', 'wf_current_state']
             }
 
-            $.get('/plm/tableau-add', params, function(response) {
+            if(!isBlank(wsConfig.fieldIdSubtitle)) params.columns.push(wsConfig.fieldIdSubtitle);
+
+            $.get('/plm/tableau-add', params, function() {
                 $.get('/plm/tableaus', { 'wsId' : wsConfig.id }, function(response) {
                     for(tableau of response.data) {
                         if(tableau.title === title) {
@@ -346,22 +320,17 @@ function getProcesses() {
         for(item of responses[0].data) {
 
             let status          = item.fields[3].value;
-            let descriptor      = item.fields[0].value.split(' - ');
-            let elemTile        = genTile(item.item.link, '', '', wsConfig.icon, descriptor[0] + ' - ' + item.fields[4].value, 'Product : ' + item.fields[5].value);
-            // let elemTile        = genTile(item.item.link, '', '', wsConfig.icon, item.fields[0].value, descriptor[1]);
+            let descriptor      = item.fields[0].value;
+            let subtitle        = (isBlank(wsConfig.fieldIdSubtitle)) ? '' : item.fields[4].value;
+            let elemTile        = genTile(item.item.link, '', '', wsConfig.icon, descriptor, subtitle);
             let valueCreated    = item.fields[1].value;
             let valueModified   = item.fields[2].value;
+            let statusColor     = 'transparent';
             let dateNow         = new Date();
             let diffCreated     = 0;
             let diffModified    = 0;
             let dateCreated;
-            let statusColor = 'transparent';
 
-            // appendTileDetails(elemTile, [
-            //     ['with-icon icon-calendar'  , 'Created on ' + item.fields[1].value + ', last updated on ' + item.fields[2].value, false],
-            //     // ['with-icon icon-calendar', 'Last update on ' + item.fields[2].value  , false],
-            //     ['with-icon icon-calendar', 'Current status is ' + item.fields[2].value  , false]
-            // ]);
             appendTileDetails(elemTile, [
                 ['with-icon icon-create'  , 'Created on ' + item.fields[1].value      , false],
                 ['with-icon icon-calendar', 'Last update on ' + item.fields[2].value  , false]
@@ -376,8 +345,13 @@ function getProcesses() {
                 elemTileStatusLabel.appendTo(elemTileStatus);
                 elemTileStatusLabel.addClass('tile-status-label');
 
-
             if(!isBlank(valueCreated)) {
+
+                if(valueCreated.indexOf('.') > -1) {
+                    let split = valueCreated.split('.');
+                    valueCreated = split[1] + '/' + split[0] + '/' + split[2];
+ 
+                }
                 dateCreated  = new Date(valueCreated);
                 diffCreated = dateNow.getTime() - dateCreated.getTime();
                 diffCreated = diffCreated / (1000 * 3600 * 24);
@@ -385,6 +359,10 @@ function getProcesses() {
             }
             
             if(!isBlank(valueModified)) {
+                if(valueModified.indexOf('.') > -1) {
+                    let split = valueModified.split('.');
+                    valueModified = split[1] + '/' + split[0] + '/' + split[2];
+                }
                 let dateModified = new Date(valueModified);
                 diffModified = dateNow.getTime() - dateModified.getTime();
                 diffModified = diffModified / (1000 * 3600 * 24);
@@ -408,7 +386,7 @@ function getProcesses() {
             if(isContained(item.item.link, responses[2].data.recentlyViewedItems)) elemTile.clone().appendTo($('#recents'));
             if(isContained(item.item.link, responses[3].data.bookmarks)) elemTile.clone().appendTo($('#bookmarks'));
 
-            chart.data.labels.push(descriptor[0]);
+            chart.data.labels.push(descriptor.split(' - ')[0]);
             chart.data.datasets[0].data.push(diffCreated);
             chart.data.datasets[1].data.push(diffModified);
 
@@ -511,9 +489,6 @@ function getBrowserData() {
     let elemList = $('#browser-list');
 
     $.get('/plm/tableau-data', { 'link' : wsConfigBrowser.tableau, 'size' : 500 }, function(response) {
-
-        console.log(response);
-
 
 
         for(item of response.data) {
@@ -686,6 +661,7 @@ function openItem(link) {
 
     $('#item-descriptor').html('');
     $('#item-status').html('');
+    $('#workflow-history').html('');
     $('#markup-list').html('');
     $('#summary').find('span').html('');
     $('#item').attr('data-link', link);
@@ -701,16 +677,13 @@ function openItem(link) {
         $('#overlay').hide();
         $('#item-descriptor').html(response.data.title);
         
-        let status     = response.data.currentState.title;
-        let linkItem   = getSectionFieldValue(response.data.sections, wsConfig.fieldIdItem, '', 'link');
-        let elemStatus = $('#item-status');
-        let statusId = response.data.currentState.link.split("/").pop();
+        let status      = response.data.currentState.title;
+        let linkItem    = getSectionFieldValue(response.data.sections, wsConfig.fieldIdItem, '', 'link');
+        let elemStatus  = $('#item-status');
+        let statusId    = response.data.currentState.link.split('/').pop();
 
-        insertWorkflowHistory(link, null, status, statusId, wsConfig.transitions);
-        if(linkItem !== '') {
-            insertViewer(linkItem);
-            // insertFlatBOM('bom', linkItem);
-        }
+        insertWorkflowHistory(link, null, status, statusId, wsConfig.workflowHistory.excludedTransitions, wsConfig.workflowHistory.finalStates, wsConfig.workflowHistory.showNextActions);
+        insertViewer(linkItem);
         
         for(state of wsConfig.progress) {
             if(state.states.indexOf(status) > -1) {
