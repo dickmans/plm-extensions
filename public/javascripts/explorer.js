@@ -526,7 +526,7 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom) {
                     if(kpiValue === '') kpiValue = '-'
                     else {
                         let day  = kpiValue.split(' ')[0].split('-');
-                        let date = new Date(day[0], day[1], day[2]);
+                        let date = new Date(day[0], day[1], day[2].split('T')[0]);
                         var diff = now.getTime() - date.getTime();
                         kpiValue = diff / (1000 * 3600 * 24);
                         kpiValue = Math.round(kpiValue, 0);
@@ -1295,7 +1295,7 @@ function parsetNextBOMLevelKPIs(bom, parent) {
                     if(kpiValue === '') kpiValue = '-'
                     else {
                         let day  = kpiValue.split(' ')[0].split('-');
-                        let date = new Date(day[0], day[1], day[2]);
+                        let date = new Date(day[0], day[1], day[2].split('T')[0]);
                         var diff = now.getTime() - date.getTime();
                         kpiValue = diff / (1000 * 3600 * 24);
                         kpiValue = Math.round(kpiValue, 0);

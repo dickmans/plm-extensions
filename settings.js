@@ -128,6 +128,34 @@ exports.config = {
             'style'     : 'bars',
             'data'      : []
         },{
+            'id'        : 'revision',
+            'title'     : 'Revision',
+            'fieldId'   : 'REVISION',
+            'urn'       : '',
+            'type'      : 'value',
+            'style'     : 'bars',
+            'data'      : []       
+        },{
+            'id'        : 'status',
+            'title'     : 'Status',
+            'fieldId'   : 'STATUS',
+            'urn'       : '',
+            'type'      : 'value',
+            'style'     : 'counters',
+            'data'      : [
+                { 'value' : 'Superseded', 'count' : 0, 'color' : colors.list[0], 'vector' : vectors.red    },
+                { 'value' : 'Working'   , 'count' : 0, 'color' : colors.list[2], 'vector' : vectors.yellow },
+                { 'value' : 'Latest'    , 'count' : 0, 'color' : colors.list[4], 'vector' : vectors.green  }
+            ]     
+        },{
+            'id'        : 'release-date',
+            'title'     : 'Release Date',
+            'fieldId'   : 'RELEASE_DATE',
+            'urn'       : '',
+            'type'      : 'days',
+            'style'     : 'bars',
+            'data'      : []
+        },{
             'id'        : 'type',
             'title'     : 'Type',
             'fieldId'   : 'TYPE',
@@ -165,6 +193,14 @@ exports.config = {
             'fieldId'   : 'PDM_LOCATION',
             'urn'       : '',
             'type'      : 'value',
+            'style'     : 'bars',
+            'data'      : []
+        },{
+            'id'        : 'pdm-last-modification-date',
+            'title'     : 'PDM Last Modification',
+            'fieldId'   : 'PDM_LAST_MODIFICATION_DATE',
+            'urn'       : '',
+            'type'      : 'days',
             'style'     : 'bars',
             'data'      : []
         },{
