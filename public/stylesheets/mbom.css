@@ -352,7 +352,7 @@ select.view-selector {
     padding: 0px 10px;
     text-overflow: ellipsis;
     white-space : nowrap;
-    width : calc(100% - 324px);
+    width : calc(100% - 320px);
 }
 .item-descriptor {
     display : inline-block;
@@ -421,6 +421,7 @@ select.view-selector {
 }
 .item-action.icon {
     font-weight : 200;
+    font-size : 22px;
     padding : 0px 4px;
 }
 
@@ -628,7 +629,7 @@ body.bom-panel-on #ebom-tree { bottom : 106px; }
 .radio-checked { display : none; }
 .selected-target > .item-head > .item-icon > .radio-unchecked { display : none; }
 .selected-target > .item-head > .item-icon > .radio-checked { display : block !important; }
-#mbom .item-title { width: calc(100% - 328px); }
+#mbom .item-title { width: calc(100% - 320px); }
 #mbom .item-qty { width : 64px; }
 #mbom .item-qty-input {
     background : none;
