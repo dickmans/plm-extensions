@@ -14,11 +14,15 @@ h2 {
     margin-bottom : 20px;
 }
 #disclaimer {
-    background: var(--color-status-red);
-    color: var(--color-status-red-brighter);
+    border: 1px solid var(--color-status-red);
+    color: var(--color-status-red);
     line-height: 16px;
     padding: 20px;
     font-size: 12px;
+    margin: 20px 0px;
+}
+.split-left > p {
+    line-height : 18px;
 }
 #close-app {
     display : none;
