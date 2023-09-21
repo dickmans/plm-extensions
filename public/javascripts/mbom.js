@@ -502,6 +502,8 @@ function initEditor() {
                     moveItemInBOM(ui.item);
                 }
 
+                selectAdjacentMBOMModels();
+
             }
 
         });
@@ -1076,6 +1078,8 @@ function getBOMNode(level, urn, nodeLink, rootLink, linkEBOMRoot, descriptor, pa
                             if(isNew) insertAdditionalItem($(this), itemDragged.html(), itemDragged.attr('data-urn'), itemDragged.attr('data-link'));
                     
                         }
+
+                        selectAdjacentMBOMModels();
 
                     }
                 });
@@ -1732,6 +1736,7 @@ function insertMBOMActions(elemActions) {
             restoreAssembly();
             setStatusBar();
             setStatusBarFilter();
+            selectAdjacentMBOMModels();
 
         });
 
@@ -2003,6 +2008,10 @@ function selectBOMItem(elemClicked, filter) {
 
     let elemItem = elemClicked.closest('.item');
 
+    $('.adjacent-prev').removeClass('adjacent-prev');
+    $('.current-mbom ').removeClass('current-mbom ');
+    $('.adjacent-next').removeClass('adjacent-next');    
+
     if(filter) {
         if(elemItem.hasClass('filter')) deselectItem(elemClicked);
         else selectItem(elemItem, filter);
@@ -2065,13 +2074,12 @@ function selectItem(elemItem, filter) {
                 let elemMBOM = elemItem.closest('#mbom');
 
                 if(elemMBOM.length === 1) {
-                    // selectAdjacentMBOMModels(elemItem);
+                    elemItem.addClass('current-mbom');
+                    selectAdjacentMBOMModels();
                     viewerSelectModel(partNumber, false);
                 } else {
                     viewerSelectModel(partNumber, true);
-
                 }
-
 
             }
             insertItemDetails(link);
@@ -2099,18 +2107,31 @@ function selectItem(elemItem, filter) {
     }
     
 }
-function selectAdjacentMBOMModels(elemItem) {
+function selectAdjacentMBOMModels() {
 
-    // let elemMBOM = elemItem.closest('#mbom');
+    $('.adjacent-prev').removeClass('adjacent-prev');
+    $('.adjacent-next').removeClass('adjacent-next');    
 
-    // if(elemMBOM.length === 0) return;
+    if($('.current-mbom').length === 0) return;
+    
+    let elemItem = $('.current-mbom').first();
 
+    // Get previous element within tree
     let elemPrev = elemItem.prev();
-    // let elemNext = elemItem.next();
-
     if(elemPrev.length === 0) {
-        let elemParent = elemItem.parent().parent();
-        elemPrev = elemParent.prev();
+        let elemParent  = elemItem.parent().parent();
+        let elemPrevAll = elemParent.prevAll();
+        elemPrev = null;
+        elemPrevAll.each(function() {
+            if(elemPrev === null) {
+                let elemTest = $(this);
+                if(elemTest.children('.item-bom').length === 0) {
+                    elemPrev = elemTest;
+                } else if(elemTest.children('.item-bom').children().length > 0) {
+                    elemPrev = elemTest.children('.item-bom').children().last();
+                }
+            }
+        });
     } else if(elemPrev.attr('data-part-number') === '') {
         let elemPrevBOM = elemPrev.children('.item-bom');
         if(elemPrevBOM.length > 0) {
@@ -2119,13 +2140,37 @@ function selectAdjacentMBOMModels(elemItem) {
     }
     if(elemPrev.length > 0) {
         let prevPartNumber = elemPrev.attr('data-part-number');
-        viewerSetColor(prevPartNumber, new THREE.Vector4(1, 0.5, 0, 0.5));
+        elemPrev.addClass('adjacent-prev');
+        viewerSetColor(prevPartNumber, config.vectors.green);
     }
 
-    // if(elemNext.length > 0) {
-    //     let nextPartNumber = elemNext.attr('data-part-number');
-    //     viewerSetColor(nextPartNumber, new THREE.Vector4(0, 1, 0, 0.5));
-    // }
+    // Get next element within tree
+    let elemNext = getNextAdjacentItem(elemItem);
+
+    if(elemNext.length > 0) {
+        let nextPartNumber = elemNext.attr('data-part-number');
+        elemNext.addClass('adjacent-next');
+        viewerSetColor(nextPartNumber, config.vectors.red);
+    }
+
+}
+function getNextAdjacentItem(elemItem) {
+
+    let elemNextAll = elemItem.nextAll();
+    let elemNext    = null;
+
+    elemNextAll.each(function() {
+        if(elemNext === null) {
+            let elemTest = $(this);
+            if(elemTest.children('.item-bom').length === 0) {
+                elemNext = elemTest;
+            } else if(elemTest.children('.item-bom').children().length > 0) {
+                elemNext = elemTest.children('.item-bom').children().first();
+            }
+        }
+    });
+
+    return elemNext;
 
 }
 function deselectItem(elemClicked) {

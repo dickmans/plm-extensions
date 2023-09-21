@@ -429,11 +429,6 @@ select.view-selector {
 .item.deployed_code > .item-head > .item-icon > span.icon::before { content : '\f720'; }
 
 .item.selected > .item-head > .item-icon,
-.item.selected > .item-head > .item-title,
-.item.selected > .item-head > .item-code,
-.item.selected > .item-head > .item-qty,
-.item.selected > .item-head > .item-qty >input,
-.item.selected > .item-head > .item-qty >input.item-qty-input,
 .item.selected.category-assembly > .item-head > .item-icon,
 .item.selected.category-document > .item-head > .item-icon,
 .item.selected.category-electrical > .item-head > .item-icon,
@@ -443,6 +438,14 @@ select.view-selector {
 .item.selected.category-product > .item-head > .item-icon,
 .item.selected.category-purchased > .item-head > .item-icon,
 .item.selected.category-sheet-metal-part > .item-head > .item-icon {
+    background : var(--color-blue-500);
+    border-color : var(--color-selected-border);
+}
+.item.selected > .item-head > .item-title,
+.item.selected > .item-head > .item-code,
+.item.selected > .item-head > .item-qty,
+.item.selected > .item-head > .item-qty >input,
+.item.selected > .item-head > .item-qty >input.item-qty-input {
     color : var(--color-gray-900) !important;
     background : var(--color-selected);
     border-color : var(--color-selected-border);
@@ -673,6 +676,16 @@ body.bom-panel-on #mbom-tree { bottom : 106px; }
     background : black;
     /* border-color : var(--color-selected-border); */
     color : white;
+}
+.adjacent-prev > .item-head > .item-icon {
+    background : var(--color-status-green);
+}
+.current-mbom > .item-head > .item-icon {
+    background : var(--color-blue-500) !important;
+    color : white !important;
+}
+.adjacent-next > .item-head > .item-icon {
+    background : var(--color-status-red);
 }
 
 
