@@ -140,6 +140,7 @@ function insertItemDetailsFields(id, link, sections, fields, data, editable, hid
     let requests = [];
 
     $('#' + id).attr('data-link', link);
+    $('#' + id + '-sections').html('');
 
     if(isBlank(sections) || isBlank(fields)) {
         if(!isBlank(link)) {
@@ -1007,6 +1008,7 @@ function insertAttachments(link, id, split) {
     if(typeof split === 'undefined') split = false;
 
     $('#' + id + '-processing').show();
+    $('#' + id + '-no-data').addClass('hidden');
 
     let elemParent = $('#' + id + '-list');
         elemParent.html('');
@@ -1031,6 +1033,8 @@ function insertAttachments(link, id, split) {
         $('#' + id + '-processing').hide();
 
         attachments = response.data;
+
+        if(attachments.length === 0) $('#' + id + '-no-data').removeClass('hidden');
 
         for(attachment of attachments) {
 
@@ -1106,8 +1110,6 @@ function insertAttachments(link, id, split) {
                     'fileId'    : elemAttachment.attr('data-file-id'),
                     'fileLink'  : elemAttachment.attr('data-file-link')
                 }
-
-                console.log(params);
 
                 $.getJSON( '/plm/download', params, function(response) {
 
@@ -2029,8 +2031,10 @@ function insertWorkflowHistory(link, id, currentStatus, currentStatusId, exclude
     if(isBlank(finalStates        )) finalStates         = [];
     if(isBlank(showNextTransitions)) showNextTransitions = false;
 
-    let elemParent = $('#' + id);
+    let elemParent = $('#' + id + '-events');
         elemParent.html('');
+
+    $('#' + id + '-processing').show();
 
     if(showNextTransitions && isBlank(currentStatusId)) {
         
@@ -2049,6 +2053,8 @@ function insertWorkflowHistory(link, id, currentStatus, currentStatusId, exclude
 
         Promise.all(requests).then(function(responses){
 
+            $('#' + id + '-processing').hide();
+
             if(showNextTransitions) {
                 if(!finalStates.includes(currentStatus)) {
 
@@ -2066,7 +2072,7 @@ function insertWorkflowHistory(link, id, currentStatus, currentStatusId, exclude
                     
                             let elemAction = $('<div></div>');
                                 elemAction.addClass('with-icon');
-                                elemAction.addClass('icon-radio-unchecked');
+                                elemAction.addClass('icon-arrow-right');
                                 elemAction.addClass('workflow-next-action');
                                 elemAction.html(next.name);
                                 elemAction.appendTo(elemNextActions);

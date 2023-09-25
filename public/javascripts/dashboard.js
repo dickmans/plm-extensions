@@ -44,13 +44,14 @@ $(document).ready(function() {
 
     $('#header-title').html(title);
 
+    document.title = title;
+
+    appendProcessing('workflow-history', false);
     appendProcessing('details', false);
-    appendProcessing('mow-content', false);
-    appendProcessing('recents-content', false);
-    appendProcessing('bookmarks-content', false);
-    appendNoDataFound('recents');
-    appendNoDataFound('bookmarks');
-    appendNoDataFound('mow');
+    appendProcessing('attachments', false);
+
+    appendNoDataFound('list');
+
     appendOverlay(false);
 
     setUIEvents();
@@ -59,7 +60,6 @@ $(document).ready(function() {
     setChart();
 
     getInitialData();
-    // initBrowser();
 
 });
 
@@ -72,7 +72,6 @@ function setUIEvents() {
         $(this).closest('.panel').toggleClass('expanded');
         $(this).closest('.panel').toggleClass('collapsed');
     });
-
 
     // View Selector
     $('#view').change(function() {
@@ -128,12 +127,12 @@ function setUIEvents() {
         $('#uploadForm').submit();
     });
     $('#frame-download').on('load', function() {
+        console.log('hier');
+        console.log($('#item').attr('data-link'));
         $('#attachments-list').show();
         $('#attachments-processing').hide();
         insertAttachments($('#item').attr('data-link'));
     });
-
-    setSelectedView();
 
 }
 
@@ -158,7 +157,7 @@ function setStatusColumns() {
             elemStateList.addClass('progress-column');
             elemStateList.addClass('list');
             elemStateList.addClass('tiles');
-            elemStateList.addClass('xs');
+            elemStateList.addClass('l');
             elemStateList.attr('data-states', state.states);
             elemStateList.attr('data-label', state.label);
             elemStateList.attr('data-color', state.color);
@@ -219,9 +218,12 @@ function setChart() {
 function setSelectedView() {
 
     $('#views').children().hide();
+    $('#list-no-data').addClass('hidden');
 
     let view = $('#view').val();
     $('#' + view).css('display', 'flex');
+
+    if($('#' + view).children().length === 0) $('#list-no-data').removeClass('hidden');
 
 }
 
@@ -267,6 +269,9 @@ function getInitialData() {
         $('#new-sections').find('.field.required').each(function() {
             $(this).css('display', 'flex');
         });
+        $('#new-sections').find('.field.editable').each(function() {
+            if($(this).children('.field-value').attr('data-id') === wsConfig.fieldIdItem) $(this).css('display', 'flex');
+        });
 
         if(wsConfig.tableau === '') {
 
@@ -305,14 +310,13 @@ function getProcesses() {
         $.get('/plm/bookmarks', {})
     ];
 
-
     Promise.all(requests).then(function(responses) {
 
         $('#overlay').hide();
 
-        if(responses[1].data.outstandingWork.length     === 0) $('#mow-no-data').removeClass('hidden');
-        if(responses[2].data.recentlyViewedItems.length === 0) $('#recents-no-data').removeClass('hidden');
-        if(responses[3].data.bookmarks.length           === 0) $('#bookmarks-no-data').removeClass('hidden');
+        // if(responses[1].data.outstandingWork.length     === 0) $('#mow-no-data').removeClass('hidden');
+        // if(responses[2].data.recentlyViewedItems.length === 0) $('#recents-no-data').removeClass('hidden');
+        // if(responses[3].data.bookmarks.length           === 0) $('#bookmarks-no-data').removeClass('hidden');
 
         let elemTable = $('#calendar-table-body');
             elemTable.html('');
@@ -332,7 +336,7 @@ function getProcesses() {
             let dateCreated;
 
             appendTileDetails(elemTile, [
-                ['with-icon icon-create'  , 'Created on ' + item.fields[1].value      , false],
+                ['with-icon icon-start'  , 'Created on ' + item.fields[1].value      , false],
                 ['with-icon icon-calendar', 'Last update on ' + item.fields[2].value  , false]
             ]);
 
@@ -424,6 +428,8 @@ function getProcesses() {
 
         }
 
+        setSelectedView();
+
         $('.tile').click(function() { openItem($(this).attr('data-link')); });
 
         // $('#chart').css('height', response.data.length * 32 + 'px');
@@ -446,44 +452,6 @@ function isContained(link, list) {
 
 
 // Retrieve browser data
-function initBrowser() {
-
-    $.get('/plm/tableaus', { 'wsId' : wsConfigBrowser.id }, function(response) {
-
-        for(tableau of response.data) {
-            if(tableau.title === wsConfigBrowser.viewName) {
-                wsConfigBrowser.tableau = tableau.link;
-            }
-        }
-
-        // wsConfigBrowser.fields = responses[1].data;
-
-        if(wsConfigBrowser.tableau === '') {
-
-            let params = {
-                'wsId'      : wsConfigBrowser.id, 
-                'name'      : wsConfigBrowser.viewName,
-                'columns'   : ['descriptor', 'created_on', 'last_modified_on', 'wf_current_state', 'NUMBER', 'TITLE', 'IMAGE']
-            }
-
-            $.get('/plm/tableau-add', params, function() {
-                $.get('/plm/tableaus', { 'wsId' : wsConfigBrowser.id }, function(response) {
-                    for(tableau of response.data) {
-                        if(tableau.title === wsConfigBrowser.viewName) {
-                            wsConfigBrowser.tableau = tableau.link;
-                            getBrowserData();
-                        }
-                    }
-                }); 
-            }); 
-
-        } else {
-            getBrowserData();
-        }
-
-    });
-
-}
 function getBrowserData() {
 
     let elemList = $('#browser-list');
@@ -661,20 +629,20 @@ function openItem(link) {
 
     $('#item-descriptor').html('');
     $('#item-status').html('');
-    $('#workflow-history').html('');
+    $('#workflow-history-events').html('');
     $('#markup-list').html('');
     $('#summary').find('span').html('');
     $('#item').attr('data-link', link);
     $('#item').show();
+    $('#workflow-history-processing').show();
+    $('#details-processing').show();
     $('body').addClass('no-viewer');
-    $('#overlay').show();
 
     viewerUnloadAllModels();
     insertWorkflowActions(link, true);
 
     $.get('/plm/details', { 'link' : link }, function(response) {
 
-        $('#overlay').hide();
         $('#item-descriptor').html(response.data.title);
         
         let status      = response.data.currentState.title;

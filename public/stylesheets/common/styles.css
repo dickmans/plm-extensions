@@ -232,8 +232,8 @@
 .tiles.wide.m   .tile-image { height :  96px; width :  96px; }
 .tiles.wide.s   .tile-image { height :  64px; width :  64px; } .tiles.wide.s   .tile-details { gap : 2px; margin : 16px 20px 12px; width : calc(100% -  88px); }
 
-.tiles.list.l   .tile-image { height :  96px; width :  96px; } .tiles.list.l   .tile-details { margin : 13px 20px; width : calc(100% - 136px); } .tiles.list.l .tile-image > span { font-size : 54px; line-height : 96px; }
-.tiles.list.m   .tile-image { height :  64px; width :  64px; } .tiles.list.m   .tile-details { margin : 13px 20px; width : calc(100% - 104px); }
+.tiles.list.l   .tile-image { height :  96px; width :  96px; } .tiles.list.l   .tile-details { margin : 12px 20px; width : calc(100% - 136px); } .tiles.list.l .tile-image > span { font-size : 54px; line-height : 96px; }
+.tiles.list.m   .tile-image { height :  64px; width :  64px; } .tiles.list.m   .tile-details { margin : 12px 20px; width : calc(100% - 104px); }
 .tiles.list.s   .tile-image { height :  64px; width :  64px; } .tiles.list.s   .tile-details { margin : 10px 20px; width : calc(100% - 104px); }
 .tiles.list.xs  .tile-image { height :  48px; width :  48px; } .tiles.list.xs  .tile-details { margin :  8px 16px; width : calc(100%  - 98px); } .tiles.list.xs .tile-title { font-size : 14px; line-height : 16px; text-overflow : ellipsis; white-space : nowrap; } .tiles.list.xs .tile-image span { font-size : 36px; line-height : 48px; }
 .tiles.list.xxs .tile-image { height :  36px; width :  36px; } .tiles.list.xxs .tile-details { margin :  6px 14px; width : calc(100%  - 64px); } .tiles.list.xxs .tile-title { font-size : 12px; line-height : 12px; text-overflow : ellipsis; white-space : nowrap; } .tiles.list.xxs .tile-image span { font-size : 24px; line-height : 36px; } .tiles.list.xxs .tile-subtitle { font-size : 10px; line-height : 10px; }
@@ -266,7 +266,7 @@
 }
 .tiles.list .tile-details {
     font-size : 12px;
-    gap : 2px;
+    gap : 3px;
     line-height : 14px;
 }
 .tile-title {
@@ -282,8 +282,9 @@
 .tile-subtitle {
     font-weight: 400;
     font-size: 12px;
-    line-height: 16px;
+    line-height: 14px;
     flex: none;
+    margin-bottom : 2px;
     order: 1;
     align-self: stretch;
     flex-grow: 0;
@@ -298,7 +299,8 @@
     flex-direction: column;
     font-size : 12px;
     line-height : 12px;
-    gap : var(--spacer-xxs);
+    gap : var(--spacer-xxxs);
+    margin-top : var(--spacer-xxxs);
     order : 2;
 }
 .tile-data > div > .ms {
@@ -317,6 +319,21 @@
     order: 2;
     align-self: stretch;
     flex-grow: 0;
+}
+.tile-status {
+    width : 26px;
+}
+.tile-status-label {
+    color: white;
+    display: inline-block;
+    font-size: 12px;
+    position: relative;
+    top: 37px;
+    left: -35px;
+    text-align: center;
+    text-overflow: ellipsis;
+    transform: rotate(90deg);
+    width: 96px;
 }
 .tiles.wide.s .tile-title { 
     font-size : 14px;

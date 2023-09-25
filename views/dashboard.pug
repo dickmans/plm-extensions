@@ -17,17 +17,17 @@ block content
             input#header-search
             #header-avatar
         
-    #main.screen.surface-level-2
+    #main.screen
 
-        #new.panel 
+        #new.panel
             .panel-header
                 .panel-title Initiate New Process
-            .panel-message You encountered an issue with one of our products? Please provide a few details below and let us fix the problem. You can provide more details and also upload files in the next step.
-            .panel-content#new-sections
+            .panel-message You encountered an issue? Please provide a few details below and let us fix the problem. You can provide more details and also upload files in the next step.
+            .panel-content#new-sections.surface-level-2 
             .panel-toolbar
                 .button.default#continue Continue
 
-        #right
+        #list
             .panel-header
                 .panel-title Track Your Processes
                 .panel-toolbar
@@ -35,7 +35,7 @@ block content
                         option(value='recents') List Recent Proceses
                         option(value='bookmarks') List Pinned Proceses
                         option(value='mow') List Proceses Requiring Action
-                        option(value='all') List All
+                        option(value='all') List All Processes
                         option(value='calendar') Browse By Date
                         option(value='progress') View Processes By Progress
                         option(value='timeline') View Process Timeline Chart
@@ -88,37 +88,26 @@ block content
                 .button#bookmark.icon.icon-bookmark
 
         #item-content 
-            #workflow
+            #workflow-history
                 #workflow-header.panel-header 
                     .panel-title Activity
-                #workflow-history.panel-content
+                #workflow-history-events.panel-content
             #details 
                 .panel-header 
                     .panel-title Details 
                 .panel-content#details-sections
             #design 
-                .panel-header 
-                    .panel-title Viewer 
                 .panel-content#viewer.viewer
                 .panel-content.surface-level-3#markups
                     #markup-panel
                         #markup-title Markups
                         #markup-subtitle Capture markups using the given controls within the viewer above. They will be saved in context of this process.
                     #markup-list
-                        //- .button.icon.icon-create
-                        //- .button.icon.icon-create
-                        //- .button.icon.icon-create
-                        //- canvas.markup.placeholder#markup-1
-                        //- .markup.placeholder#markup-2
-                        //- $('#viewer-markup-image').attr('data-field-id', 'IMAGE_1');
-                        //- .markup.placeholder
-                        //- .markup.placeholder
-                        //- .markup.placeholder
             #attachments 
                 .panel-header
                     .panel-title.centered Attachments
                 #attachments-list.panel-content.list.tiles.files
 
-    frame#frame-download.hidden
+    iframe#frame-download(name="frame-download").hidden
     form#uploadForm(method='post', encType="multipart/form-data", target="frame-download")
         input#select-file.hidden.button.main(type="file", name="newFiles" multiple='')   
