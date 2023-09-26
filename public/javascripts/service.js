@@ -311,8 +311,6 @@ function getInitialData() {
 
     Promise.all(promises).then(function(responses) {
 
-        console.log(responses);
-
         let errors = false;
 
         for(response of responses) {
@@ -332,6 +330,8 @@ function getInitialData() {
             }
 
             $('#header-subtitle').html(responses[1].data.title);
+
+            document.title = document.title + ': ' + responses[1].data.title
 
             sections                        = responses[2].data;
             fields                          = responses[3].data;
