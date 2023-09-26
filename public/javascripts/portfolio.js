@@ -95,6 +95,11 @@ function setUIEvents() {
 
 
     // PRODUCT
+    $('#services').click(function() {
+        let itemLink = $('#viewer').attr('data-link').split('/');
+        let url = document.location.href.split('/portfolio')[0];
+        window.open(url + '/service?wsId=' + itemLink[4] + '&dmsId=' + itemLink[6]);
+    });
     $('#product-close').click(function() {
         $('#product').hide();
     });

@@ -77,9 +77,10 @@ block content
             #gallery
                 img#gallery-image
             #product-actions
-                .button.icon.xs#product-close close
-                .button.icon.xs#bookmark star
-                .button.icon.xs#open open_in_new
+                .button.icon.xs#product-close(title='Close the product panel and return to previous view') close
+                .button.icon.xs#services(title='Navigate to Services Portal for this product in a new tab') handyman
+                .button.icon.xs#bookmark(title='Toggle bookmark') star
+                .button.icon.xs#open(title='Open product master data in a new PLM tab') open_in_new
             #product-header
                 #product-parents
                     #product-category.animation
