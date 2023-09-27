@@ -324,7 +324,14 @@ exports.config = {
                 { 'value' : 'Compliant'     , 'count' : 0, 'color' : colors.list[4], 'vector' : vectors.green }
             ]
         }
-    ]    
+    ]},
+
+    'impactanalysis' : {
+        'fieldIdProposedChange'             : 'PROPOSED_CHANGE',
+        'fieldIdStockQuantity'              : 'STOCK_QUANTITY',
+        'fieldIdNextProductionOrderQantity' : 'NEXT_PO_QUANTITY',
+        'fieldIdPendingSupplies'            : 'PENDING_SUPPLIES',
+        'fieldIdProductionOrdersData'       : 'PO_DATA'
     },
     
     'insights' : {

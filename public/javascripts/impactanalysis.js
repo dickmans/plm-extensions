@@ -357,6 +357,8 @@ function getManagedItems() {
                     revision = " - not defined -"          
                 }
 
+                if(transition !== '- not defined -') transition += ' ' + revision;
+
                 for(field of affectedItem.linkedFields) {
                     
                     let fieldId = field.__self__.split('/')[8];
@@ -397,8 +399,6 @@ function getManagedItems() {
                     'prevLink'          : null,
                     'productionOrders'  : productionOrders
                 });
-
-                if(transition !== '- not defined -') transition += ' ' + revision
 
                 if(!isRevisioningWS) {
                     transition === '';

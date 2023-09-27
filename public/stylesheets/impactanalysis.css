@@ -90,6 +90,7 @@ body.no-viewer #hide-viewer { display : none; }
     color : var(--color-gray-300) !important;
 }
 .nav-item .tile-details {
+    overflow : hidden;
     width : calc(100% - 202px) !important;
 }
 .tile-item-status {
@@ -164,6 +165,7 @@ body.no-viewer #hide-viewer { display : none; }
 #item-change .field-value { font-size : 12px; width : auto; }
 #item-change select.field-value { padding : 1px 2px;}
 #item-change .checkbox.field-value { padding-left: 8px; }
+#item-change textarea { height : 19px; }
 .field-text { display : none; }
 .no-panel #item { left : 110px; }
 
