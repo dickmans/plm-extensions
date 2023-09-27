@@ -937,7 +937,9 @@ function viewerAddMarkupControls(includeSaveButton) {
         markup.show();
 
         if($('#markup-list').children('.selected').length === 0) {
-            $('#markup-list').children().first().addClass('selected');
+            let placeholders = $('#markup-list').children('.placeholder');
+            if(placeholders.length === 0) $('#markup-list').children().first().addClass('selected');
+            else placeholders.first().addClass('selected');
         }
 
         baseStrokeWidth = markup.getStyle()['stroke-width'];
