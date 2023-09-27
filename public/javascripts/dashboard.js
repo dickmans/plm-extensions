@@ -101,6 +101,9 @@ function setUIEvents() {
     });
 
     // Item Toolbar Actions
+    $('#workflow-actions').change(function() {
+        performWorkflowAction();
+    });
     $('#bookmark').click(function() {
         toggleBookmark($(this));
     });
@@ -175,6 +178,10 @@ function setCalendars() {
     currentDate.setMonth(currentDate.getMonth() - 1);
 
     insertCalendarMonth('calendar-month-2', currentDate);
+
+    currentDate.setMonth(currentDate.getMonth() - 1);
+
+    insertCalendarMonth('calendar-month-3', currentDate);
 
     $('.calendar-day').click(function() {
         selectCalendarDay($(this));
@@ -683,6 +690,8 @@ function openItem(link) {
                     }, function(response) {
 
 
+                        console.log(response);
+
                         $('#' + response.params.fieldId).removeClass('placeholder');
 
                         let canvas = document.getElementById(response.params.fieldId);
@@ -694,7 +703,7 @@ function openItem(link) {
                             img.src = response.data.url;
                             img.onload = function() {
                                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                              };
+                            };
                     
                     });
 
@@ -726,6 +735,20 @@ function openItem(link) {
 
 }
 
+
+// Perform Workflow Transitions
+function performWorkflowAction() {
+
+    $('#overlay').show();
+
+    let link = $('#item').attr('data-link');
+
+    $.get('/plm/transition', { 'link' : link, 'transition' : $('#workflow-actions').val()}, function() {
+        $('#overlay').hide();
+        openItem(link);
+    });
+
+}
 
 // Viewer
 function selectMarkup(elemClicked) {

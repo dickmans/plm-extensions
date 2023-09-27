@@ -268,6 +268,9 @@
     font-size : 12px;
     gap : 3px;
     line-height : 14px;
+    overflow : hidden;
+    white-space : nowrap;
+    text-overflow: ellipsis;
 }
 .tile-title {
     font-weight: 800;
@@ -284,7 +287,7 @@
     font-size: 12px;
     line-height: 14px;
     flex: none;
-    margin-bottom : 2px;
+    margin-bottom : 3px;
     order: 1;
     align-self: stretch;
     flex-grow: 0;

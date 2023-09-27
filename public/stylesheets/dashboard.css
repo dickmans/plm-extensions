@@ -259,12 +259,15 @@ body.no-markup #markups { display : none; }
 /* CALENDAR */
 /* ----------------------------------------------------------------------------- */
 #calendar {
-    width : 60%;
+    display : flex;
+    justify-content: space-between;
+    gap : 40px;
 }
 #calendar > .panel-content {
     display : flex;
     gap: 20px;
     justify-content: space-between;
+    width : 260px;
 }
 #calendar-months {
     display : flex;
@@ -272,9 +275,10 @@ body.no-markup #markups { display : none; }
     gap : 20px;
 }
 .calendar-month-name { 
-    color : white; 
-    background : black !important; 
-    text-align : center !important; 
+    color       : white; 
+    background  : black !important; 
+    padding     : 10px !important;
+    text-align  : center !important; 
 }
 .calendar { width : 100%; }
 .calendar th, 
@@ -296,20 +300,30 @@ body.no-markup #markups { display : none; }
     background: var(--color-gray-200); 
 }
 .calendar-weekend { color : var(--color-gray-400); }
+.calendar-day:hover { background : var(--color-hover); }
 .calendar-day-current { font-weight : 800; }
 /* .calendar-week-current > td.calendar-week { background : var(--color-blue-300); } */
 .calendar-week-current > td.calendar-day  { background : var(--color-gray-100); }
 
 .calendar-highlight { background: var(--color-status-yellow) !important; color : white !important; }
 
-
-
+#calendar-table-head th {
+    background : black;
+    color : white;
+}
 #calendar-table-body tr {
+    cursor : pointer;
     display : none;
+}
+#calendar-table-body tr:hover {
+    background : var(--color-hover);
 }
 td.selected {
     background : var(--color-blue-500) !important;
     color : white !important;
+}
+#calendar-list {
+    flex-grow : 1;
 }
 
 
@@ -426,18 +440,20 @@ td.selected {
     width : 240px;
 }
 #markup-title {
-    font-size : 18px;
-    font-weight : 800;
-    line-height : 30px;
+    font-size    : 18px;
+    font-weight  : 800;
+    line-height  : 30px;
 }
 #markup-subtitle {
     font-size : 12px;
     line-height : 16px;
 }
 #markup-list {
-    display : flex;
-    gap : 10px;
-    overflow : auto;
+    display      : flex;
+    gap          : 10px;
+    padding-left : 0px !important;
+    overflow-x   : auto;
+    overflow-y   : hidden;
 }
 .markup {
     border-radius : 3px;
