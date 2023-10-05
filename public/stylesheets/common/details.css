@@ -135,6 +135,9 @@
 #details-sections.view-only .field-value > img {
     max-width : 100%;
 }
+#details-sections.view-only .field-value > input {
+    font-size : 12px;
+}
 
 #details-sections.view-only input.field-value {
     background : none;

@@ -45,16 +45,20 @@
 }
 
 
-body.with-details #tableau { right : calc((2 * var(--padding-panel)) + var(--width-details)); }
+body.with-details #tableau { border-right : 4px solid var(--color-gray-100); padding-right : var(--padding-panel); right : calc((2 * var(--padding-panel)) + var(--width-details)); }
+body.with-details #tableau .panel-content { right : var(--padding-panel); } 
 body.with-details #details { right : var(--padding-panel); }
 
-body.with-create #tableau { right : calc((2 * var(--padding-panel)) + var(--width-create)); }
+body.with-create #tableau { border-right : 4px solid var(--color-gray-100); padding-right : var(--padding-panel); right : calc((2 * var(--padding-panel)) + var(--width-create)); }
+body.with-create #tableau .panel-content { right : var(--padding-panel); } 
 body.with-create #create  { right : var(--padding-panel); }
 
-body.with-clone #tableau { right : calc((2 * var(--padding-panel)) + var(--width-create)); }
+body.with-clone #tableau { border-right : 4px solid var(--color-gray-100); padding-right : var(--padding-panel); right : calc((2 * var(--padding-panel)) + var(--width-create)); }
+body.with-clone #tableau .panel-content { right : var(--padding-panel); } 
 body.with-clone #clone   { right : var(--padding-panel); }
 
-body.with-edit #tableau { right : calc((2 * var(--padding-panel)) + var(--width-edit)); }
+body.with-edit #tableau { border-right : 4px solid var(--color-gray-100); padding-right : var(--padding-panel); right : calc((2 * var(--padding-panel)) + var(--width-edit)); }
+body.with-edit #tableau .panel-content { right : var(--padding-panel); } 
 body.with-edit #edit    { right : var(--padding-panel); }
 
 
@@ -179,7 +183,8 @@ th:first-child {
     left : 0;
     z-index : 2 !important;
 }
-.selected .item-header-top {
+.selected .item-header-top,
+.selected .item-header-top:hover {
     background : var(--color-hover);
 }
 
@@ -197,7 +202,6 @@ th:first-child {
     background : var(--color-gray-500);
 }
 .item-descriptor {
-    font-weight : 800;
     overflow : hidden;
     text-overflow: ellipsis;
     white-space : nowrap;
@@ -231,7 +235,7 @@ th.changed .item-toolbar {
     border-bottom : 4px solid #fff;
     display: flex;
     height: 24px;
-    gap: var(--spacer-xs);
+    gap: var(--spacer-xxs);
     padding: 6px;
 }
 .item-toolbar > div.button {
@@ -319,6 +323,7 @@ tr.match {
 .table-field > .field-value > textarea { 
     background : white; 
     border-bottom : 1px solid var(--color-gray-300);
+    font-size : 12px;
 }
 .field-value > textarea:disabled, .field-value > input:disabled {
     padding-right : 0px;
@@ -332,6 +337,7 @@ tr.match {
     white-space: nowrap;
 }
 #archive {
+    border-color : var(--color-status-red);
     color : var(--color-status-red);
 }
 #filter input {

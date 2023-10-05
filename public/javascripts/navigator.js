@@ -400,8 +400,10 @@ function appendHeaderCell(elemHeaderRow, indexItem, link, descriptor) {
 
     if(descriptor !== '') {
         let text = descriptor.split(' - ');
-        for(entry of text) {
-            elemHeaderCellDescriptor.append(entry).append($('<br>'));
+        if(text.length > 1) {
+            elemHeaderCellDescriptor.append(text[0]).append($('<br>')).append(text[1]);
+        } else {
+            elemHeaderCellDescriptor.append(text[0]);
         }
     } else {
         elemHeaderCellDescriptor.html('# ' + (indexItem + 1));

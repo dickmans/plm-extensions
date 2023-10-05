@@ -29,9 +29,9 @@ block content
                             option#option-recents(value='recents', name='recents') Your Recent Data
                             option#option-mow(value='mow', name='mow') Your Outstanding Work
                     .panel-toolbar
+                        .button.with-icon.icon-delete#archive Archive
                         .button.with-icon.icon-workflow.workflow-actions.hidden#perform-workflow-actions Workflow
                         .button.with-icon.icon-edit-multiple#edit-selected Edit
-                        .button.with-icon.icon-delete#archive Archive
                         .button.default#save Save Changes
                         .panel-toolbar-spacer
                         .button.icon.icon-deselect-all#deselect-all(title='Clear selection of items')
@@ -89,7 +89,7 @@ block content
                 .panel-header
                     .panel-title Edit Selected Records
                     .panel-toolbar
-                        .button#apply-edits.default(title='Apply given changes to selected items') Apply
+                        .button#apply-edits(title='Apply given changes to selected items') Apply
                         .button#clear-edits.icon.icon-clear(title='Clear all the inputs in this form') 
                         .button#close-edits.icon.icon-close(title='Close this panel')
                 .panel-content#edit-fields.surface-level-2.section-fields

@@ -435,7 +435,7 @@ function insertField(field, itemData, elemParent, hideComputed, hideReadOnly, ed
                         } else {
                             elemValue = $('<div></div>');
                             elemValue.addClass('string');
-                            elemValue.addClass('link');
+                            if(field.type.link.split('/')[4] === '23') elemValue.addClass('link');
                             if(value !== null) {
                                 elemValue.html(value.title);
                                 if(field.type.link === '/api/v3/field-types/23') {
