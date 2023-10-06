@@ -18,9 +18,23 @@ $(document).ready(function() {
             $(this).siblings().hide();
             $(this).addClass('max');
             $('body').removeClass('logs');
+            $('.with-log').removeClass('.with-log');
             $('.tiles').addClass('surface-level-1');
             $('#close-app').show();
         }
+    });
+
+    $('.tile').each(function() {
+        let elemButtonLog = $('<div></div>');
+            elemButtonLog.html('Toggle Change Log');
+            elemButtonLog.addClass('button');
+            elemButtonLog.addClass('change-log');
+            elemButtonLog.appendTo($(this).children('.tile-details').first());
+            elemButtonLog.click(function() {
+                $(this).closest('.tile').toggleClass('with-log');
+            });
+
+
     });
 
     $('#close-app').click(function() {
@@ -41,11 +55,17 @@ function updateLinks(location) {
 
     $('a').each(function() {
 
-        let url = location + $(this).attr('href');
+        let href = $(this).attr('href');
 
-        $(this).attr('href', url);
+        if(href.indexOf('youtu.be') < 0) {
 
-        if($(this).html() === '') $(this).html(url);
+            let url = location + href;
+
+            $(this).attr('href', url);
+
+            if($(this).html() === '') $(this).html(url);
+
+        }
 
     });
 
