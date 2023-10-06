@@ -113,11 +113,15 @@ body.no-viewer #attachments {
 body.no-viewer #design {
     display : none;
 }
+#details-sections .section-fields .field-label {
+    width : unset;
+}
 body.no-viewer #details-sections .section-fields .field {
     flex-direction : row;
 }
 body.no-viewer #details-sections .section-fields .field .field-label {
     text-align : right;
+    width: var(--width-field-label);
 }
 body.no-viewer .attachment { height : 58px !important; }
 body.no-viewer .attachment-details > div { display : block; }

@@ -54,7 +54,7 @@ block content
                         h1 Access the Dashboard
                         p You can access the reports dashboard using the 
                             strong /reports 
-                            | enpoint:
+                            | endpoint:
                         a(href="reports" target="_blank")
                     .log 
                         h1 Reports Dashboard Change Log 
@@ -91,7 +91,7 @@ block content
                         h1 Access the Dashboard
                         p You can access the dashboard with the 
                             strong /insights
-                            |  enpoint, just click this link:
+                            |  endpoint, just click this link:
                         a(href='insights' target='_blank')
                     .log 
                         h1 Tenant Insights Change Log 
@@ -144,7 +144,7 @@ block content
                         h1 Access the Dashboard
                         p You can access the Workspace Navigator using the 
                             strong /navigator 
-                            |  enpoint. You can also access the Workspace Navigator also for a defined workspace directly by passing the given Workspace ID wihtin the URL. Changing the workspace then is still possible:
+                            |  endpoint. You can also access the Workspace Navigator also for a defined workspace directly by passing the given Workspace ID wihtin the URL. Changing the workspace then is still possible:
                         div(style='display:flex;gap:20px;')
                             a(href="navigator" target="_blank")
                             a(href="navigator?wsId=149" target="_blank")
@@ -413,7 +413,7 @@ block content
                         h1 Access the Portfolio Catalog
                         p You can access the extension with the 
                             strong /portfolio 
-                            | enpoint, just click this link:
+                            | endpoint, just click this link:
                         a(href='portfolio' target='_blank')
                     .log 
                         h1 Product Portfolio Catalog Change Log 
@@ -426,6 +426,125 @@ block content
                                 td 7. July 2023
                                 td Enhancement
                                 td Better demo datasets in the default tenant to match this app (i.e. Marketing Names and Marketing Texts on Product Lines and Product Categories)
+                .tile(data-name='Process Dashboard')
+                    .tile-image(style="background: url('images/app-process-dashboard.png') no-repeat;background-size:contain;")
+                    .tile-details
+                        .tile-title Process Dashboard
+                        .tile-subtitle Involve infrequent, casual and external users in your business processes by providing an application focussing on management of one defined business process only
+                    .instructions
+                        h1 Features
+                        p Users can track progression of processes, update existing processes and create new processes with ease using this dashboard. The dashboard provides access to a single workspace only to reduce complexity.
+                        ul  
+                            li Create new processes by providing basic data only 
+                            li Review history of selected processes 
+                            li Update status of a given process 
+                            li Download and upload process attachments
+                            li Use 3D markups to document process
+                            li Access bookmarked and recent processes 
+                            li Track proces progression in Kanban 
+                            li Review process updates in a chart
+                        h1 Configuration Settings
+                        p This dashboard can be used with any workspace but requires the matching configuration in file 
+                            strong settings.js
+                            |. This application is preconfigured for the workspaces 
+                            strong Problem Reports 
+                            |, 
+                            strong Change Requests 
+                            | and 
+                            strong Project Tasks 
+                            |of default tenants. Additional workspace configuration profiles can be added by copying one of the existing configurations shown below.
+                        p.code
+                            span 'dashboard' : [{
+                            span.indent 'title'             : 'Problem Reporting Dashboard',
+                            span.indent 'wsId'              : 82,
+                            span.indent 'icon'              : 'account_tree', // Use https://fonts.google.com/icons to search for icons
+                            span.indent 'fieldIdSubtitle'   : 'DESCRIPTION',
+                            span.indent 'fieldIdItem'       : 'AFFECTED_ITEM',
+                            span.indent 'imageFieldsPrefix' : 'IMAGE_',
+                            span.indent 'workflowHistory'   : {
+                            span.indent-2 'showNextActions'       : true,
+                            span.indent-2 'excludedTransitions'   : ['Close Report'],
+                            span.indent-2 'finalStates'           : ['Completed']
+                            span.indent  },
+                            span.indent 'progress' : [
+                            span.indent-2 { 'label' : 'New',         'color' : colors.red,    'states' : ['Create'] },
+                            span.indent-2 { 'label' : 'Analysis',    'color' : colors.yellow, 'states' : ['Review', 'Technical Analysis'] },
+                            span.indent-2 { 'label' : 'Improvement', 'color' : colors.yellow, 'states' : ['CAPA in progress', 'Change Request in progress'] },
+                            span.indent-2 { 'label' : 'Completed',   'color' : colors.green,  'states' : ['Completed'] }
+                            span.indent ]
+                            span },{
+                            span.indent 'title' : 'Change Requests Management',
+                            span.indent 'wsId'  : 83,
+                            span.indent 'icon'  : 'rebase_edit',
+                            span.indent 'progress' : [
+                            span.indent-2 { 'label' : 'Planning',    'color' : '#000000',     'states' : ['Create']  },
+                            span.indent-2 { 'label' : 'Review',      'color' : colors.red,    'states' : ['Review & Impact Analysis', 'Peform Tasks', 'Change Control Board Review']  },
+                            span.indent-2 { 'label' : 'In Work',     'color' : colors.yellow, 'states' : ['Change Order in progress']   },
+                            span.indent-2 { 'label' : 'Completed',   'color' : colors.green,  'states' : ['Completed'] }
+                            span.indent ]
+                            span },{
+                            span.indent 'title' : 'Project Actitivity Management',
+                            span.indent 'wsId'  : 90,
+                            span.indent 'icon'  : 'account_tree',
+                            span.indent 'progress' : [
+                            span.indent-2 { 'label' : 'Planning',    'color' : colors.red,    'states' : ['Planning']  },
+                            span.indent-2 { 'label' : 'Assigned',    'color' : colors.red,    'states' : ['Assigned']  },
+                            span.indent-2 { 'label' : 'In Work',     'color' : colors.yellow, 'states' : ['In Work']   },
+                            span.indent-2 { 'label' : 'Review',      'color' : colors.green,  'states' : ['Review']    },
+                            span.indent-2 { 'label' : 'Completed',   'color' : colors.green,  'states' : ['Completed'] }
+                            span.indent ]
+                            span }]
+                        p Each profile requires the settings listed below.
+                            table   
+                                tr 
+                                    th Setting 
+                                    th Example Value    
+                                    th Description
+                                tr 
+                                    td title 
+                                    td Problem Reporting Dashboard
+                                    td Sets the application title shown in the main toolbar and tab name 
+                                tr 
+                                    td wsId 
+                                    td 82
+                                    td ID of PLM workspace to use for the dashboard
+                                tr 
+                                    td icon 
+                                    td account_tree
+                                    td Google font icon to use for the business process type (Use https://fonts.google.com/icons to search for icons)
+                                tr 
+                                    td fieldIdSubtitle 
+                                    td DESCRIPTION
+                                    td Use this setting to select the field which will be used as subtitle for the tiles of business processes
+                                tr 
+                                    td fieldIdItem 
+                                    td AFFECTED_ITEM
+                                    td Provide ID of the field that is used to connect the business process to a context item. If this optional field is defined and has a value, the given item's viewable will be shown to the right.
+                                tr 
+                                    td imageFieldsPrefix 
+                                    td IMAGE_
+                                    td Provide the prefix of Image fields to be used to store markups. If this setting is omitted, the markup feature will not be enabled when opening a selected process.
+                                tr 
+                                    td progress 
+                                    td [..]
+                                    td Maps the business process workflow states to a linear sequene of steps to provide a better overview of the process progression. Each entry of this array must contain a label that will be used in the applcation, a color code to use for this state as well as the list of workflow 'states' that match to this step.
+                                tr 
+                                    td workflowHistory 
+                                    td {..}
+                                    td These optional parameters can be used to suppress the workflow history display. It also enables to hide certain transitions and to define the final states (which will be shown with a different icon).
+                                
+                        h1 Access the Dashboard
+                        p You can access the process dashboard with the 
+                            strong /dashboard
+                            |  endpoint by providing the workspace profile to use. The value of parameter wsId has to match the wsId property value of the configuration profile to use. If you're connected to a default tenant, use this link:
+                        a(href='dashboard?wsId=82' target='_blank')
+                    .log 
+                        h1 Process Dashboard Change Log 
+                        table 
+                            tr 
+                                td 6. October 2023
+                                td Release
+                                td Initial release of this new app
                 .tile(data-name='Projects Dashboard')
                     .tile-image(style="background: url('images/app-projects-dashboard.png') no-repeat;background-size:contain;")
                     .tile-details
@@ -455,7 +574,7 @@ block content
                         h1 Access the Dashboard
                         p You can access the dashboard with the 
                             strong /projects
-                            |  enpoint, just click this link:
+                            |  endpoint, just click this link:
                         a(href="projects" target="_blank")
                     .log 
                         h1 Projects Dashboard Change Log 
@@ -903,7 +1022,7 @@ block content
                                 strong Spare Parts Requests 
                                 | to enable creation of new requests from within the application
                         h1 Access the Services Portal
-                        p You can access the Services Portal portal with the /service enpoint. Provide the wsId dmsId of the 
+                        p You can access the Services Portal portal with the /service endpoint. Provide the wsId dmsId of the 
                             strong Items 
                             |record to be visualised as parameter parameters. The following link will work for default demo tenants containing the default demo data. Please note that none of the demo items has been set as spare part yet:
                         a(href='service?wsId=57&dmsId=14669' target='_blank')
@@ -1216,7 +1335,7 @@ block content
                         h1 Access the Mobile Client
                         p You can access the client with the 
                             strong /client
-                            |  enpoint, just click the first button. In order to navigate to a defined record, you can also pass the Workspace ID and DMS ID of a record as parameters. See the second button example which opens a demo dataset item automatically.
+                            |  endpoint, just click the first button. In order to navigate to a defined record, you can also pass the Workspace ID and DMS ID of a record as parameters. See the second button example which opens a demo dataset item automatically.
                         div(style='display:flex;gap:20px;')
                             a(href='client' target='_blank') Mobile Client
                             a(href='client?wsId=79&dmsId=11143' target='_blank')
