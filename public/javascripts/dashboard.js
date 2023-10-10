@@ -651,6 +651,7 @@ function openItem(link) {
     $.get('/plm/details', { 'link' : link }, function(response) {
 
         $('#item-descriptor').html(response.data.title);
+        $('#overlay').hide();
         
         let status      = response.data.currentState.title;
         let linkItem    = getSectionFieldValue(response.data.sections, wsConfig.fieldIdItem, '', 'link');
@@ -726,6 +727,8 @@ function openItem(link) {
         $('#created-on').html(dateCreated.toLocaleDateString());
         $('#modified-by').html(userModified);
         $('#modified-on').html(dateModified);
+
+        $('#overlay').hide();
 
     });
 
