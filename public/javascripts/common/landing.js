@@ -20,14 +20,31 @@ $(document).ready(function() {
             $('body').removeClass('logs');
             $('.with-log').removeClass('.with-log');
             $('.tiles').addClass('surface-level-1');
-            $('#close-app').show();
         }
     });
 
     $('.tile').each(function() {
+        let elemButtonClose = $('<div></div>');
+            // elemButtonClose.html('Close');
+            elemButtonClose.addClass('button');
+            elemButtonClose.addClass('icon');
+            elemButtonClose.addClass('icon-close');
+            elemButtonClose.addClass('close-app');
+            elemButtonClose.appendTo($(this).children('.tile-details').first());
+            elemButtonClose.click(function(e) {
+                $('.tile').show();
+                $('.tile').removeClass('max');
+                $('.tile').removeClass('with-log');
+                $('.tiles').removeClass('surface-level-1');
+                e.preventDefault();
+                e.stopPropagation();
+            });
+
         let elemButtonLog = $('<div></div>');
-            elemButtonLog.html('Toggle Change Log');
+            elemButtonLog.attr('title', 'Toggle Change Log');
             elemButtonLog.addClass('button');
+            elemButtonLog.addClass('icon');
+            elemButtonLog.addClass('icon-history');
             elemButtonLog.addClass('change-log');
             elemButtonLog.appendTo($(this).children('.tile-details').first());
             elemButtonLog.click(function() {
@@ -37,15 +54,8 @@ $(document).ready(function() {
 
     });
 
-    $('#close-app').click(function() {
-        $(this).hide();
-        $('.tile').show();
-        $('.tile').removeClass('max');
-        $('.tiles').removeClass('surface-level-1');
-    });
-
     $('#version').click(function() {
-        $('#close-app').click();
+        $('.close-app').click();
         $('body').toggleClass('logs');
     });
     

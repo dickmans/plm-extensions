@@ -92,6 +92,7 @@
 .icon-fold::before    { content : '\e5d6'; }
 .icon-help::before    { content : '\f1c0'; }
 .icon-hide::before    { content : '\e8f5'; }
+.icon-history::before    { content : '\e889'; }
 .icon-home::before    { content : '\e88a'; }
 .icon-important::before    { content : '\e82a'; }
 .icon-info::before    { content : '\e88e'; }

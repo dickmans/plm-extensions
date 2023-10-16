@@ -32,22 +32,14 @@ h2 {
 .split-left > p {
     line-height : 18px;
 }
-#close-app {
-    display : none;
-    position: absolute;
-    top: var(--padding-top);
-    right: 40px;
-    z-index: 10;
-    border: 1px solid var(--color-gray-400);
-    padding: 6px;
-    border-radius: 3px;
-}
 .tiles.surface-level-1 {
     top: 0px;
     right : 0px;
     bottom : 0px;
     width: calc(100% - 550px) !important;
 }
+
+
 
 
 /*  APP */
@@ -68,7 +60,7 @@ h2 {
 .tile.max .tile-details {
     display: block;
     margin: 0px;
-    padding: 40px 60px 40px 40px;
+    padding: 40px 140px 40px 40px;
     position: absolute;
     top : var(--padding-top);
     right: calc(50% - 600px);
@@ -87,6 +79,13 @@ h2 {
     font-size: 14px;
     line-height: 20px;
 }
+.close-app { 
+    display : none ; 
+    position : absolute;
+    top : 38px;
+    right : 38px;
+}
+.tile.max .close-app { display : block ; }
 
 
 
@@ -208,10 +207,9 @@ a:hover {
 }
 .button.change-log {
     display: none;
-    padding : 14px 40px;
     position: absolute;
-    bottom: 30px;
-    right: 60px;
+    top: 86px;
+    right: 38px;
 }
 .log {
     background : #000;
@@ -299,7 +297,7 @@ body.logs .tile {
 @media only screen and (max-width : 1768px)  {
 
     .tile.max .tile-image   { left:  60px; }
-    .tile.max .instructions { left:  60px; right : 110px; }
-    .tile.max .tile-details { left: 504px; right : 110px; }
+    .tile.max .instructions { left:  60px; right : 60px; }
+    .tile.max .tile-details { left: 504px; right : 60px; }
 
 }
