@@ -32,7 +32,7 @@ $(document).ready(function() {
     insertAttachments(link);
     insertChangeProcesses(link, 'processes');
     setUIEvents();
-    
+
 });
 
 function setUIEvents() {
@@ -702,6 +702,8 @@ function selectBOMItem(e, elemClicked) {
     $('#cancel-process').hide();
     $('#save-process').hide();
     $('#processes-details').hide();
+
+    
 
     let partNumbers = [];
 

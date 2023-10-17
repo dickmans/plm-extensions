@@ -38,6 +38,9 @@ h2 {
     bottom : 0px;
     width: calc(100% - 550px) !important;
 }
+.button.icon {
+    padding : 2px;
+}
 
 
 
@@ -208,7 +211,7 @@ a:hover {
 .button.change-log {
     display: none;
     position: absolute;
-    top: 86px;
+    top: 90px;
     right: 38px;
 }
 .log {
