@@ -291,13 +291,15 @@ body.logs .tile {
 
     .tile.max .tile-image   { left: calc(50% - 500px); }
     .tile.max .tile-details { left: calc(50% -  55px); right: calc(50% - 500px);  }
-    .tile.max .instructions { left: calc(50% - 500px); right: calc(50% - 500px); }
+    .tile.max .instructions,
+    .tile.max .log { left: calc(50% - 500px); right: calc(50% - 500px); }
 
 }
 @media only screen and (max-width : 1768px)  {
 
     .tile.max .tile-image   { left:  60px; }
     .tile.max .instructions { left:  60px; right : 60px; }
-    .tile.max .tile-details { left: 504px; right : 60px; }
+    .tile.max .instructions,
+    .tile.max .log { left:  60px; right : 60px; }
 
 }
