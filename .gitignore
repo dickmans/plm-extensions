@@ -11,3 +11,4 @@ settings.*.js
 .DS_Store*
 public/stylesheets/common/custom.css
 run.sh
+views/.DS_Store
