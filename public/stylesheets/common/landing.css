@@ -211,7 +211,7 @@ a:hover {
 .button.change-log {
     display: none;
     position: absolute;
-    top: 90px;
+    top: 85px;
     right: 38px;
 }
 .log {
@@ -277,6 +277,39 @@ body.logs .tile {
 }
 
 
+/*  TROUBLESHOOTING */
+/* ----------------------------------------------------------------------------- */
+.troubleshooting-button {
+    display : none;
+    position : absolute;
+    top: 133px;
+    right: 38px;
+}
+.tile.max .troubleshooting-button {
+    display : block;
+}
+.tile.max.with-troubleshooting .troubleshooting-button {
+    background : black;
+    color : white;
+    display : block;
+}
+.tile.max.with-troubleshooting .troubleshooting {
+    display : block;
+}
+.troubleshooting {
+    background : white;
+    display : none;
+    margin : 0px;
+    padding : 40px;
+    overflow: auto;
+    position: absolute;
+    top: 360px;
+    right: calc(50% - 600px);
+    bottom: 40px;
+    left: calc(50% - 600px);
+}
+
+
 /*  TENANT */
 /* ----------------------------------------------------------------------------- */
 #tenant {
@@ -295,7 +328,8 @@ body.logs .tile {
     .tile.max .tile-image   { left: calc(50% - 500px); }
     .tile.max .tile-details { left: calc(50% -  55px); right: calc(50% - 500px);  }
     .tile.max .instructions,
-    .tile.max .log { left: calc(50% - 500px); right: calc(50% - 500px); }
+    .tile.max .log,
+    .tile.max .troubleshooting { left: calc(50% - 500px); right: calc(50% - 500px); }
 
 }
 @media only screen and (max-width : 1768px)  {
@@ -303,6 +337,7 @@ body.logs .tile {
     .tile.max .tile-image   { left:  60px; }
     .tile.max .instructions { left:  60px; right : 60px; }
     .tile.max .instructions,
-    .tile.max .log { left:  60px; right : 60px; }
+    .tile.max .log,
+    .tile.max .troubleshooting { left:  60px; right : 60px; }
 
 }

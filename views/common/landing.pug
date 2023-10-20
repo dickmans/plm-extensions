@@ -742,6 +742,9 @@ block content
                                 td 7. July 2023
                                 td Enhancement
                                 td Better alignment of installation instructions with new default tenant
+                    .troubleshooting 
+                        h1 Troubleshooting 
+                        div Insert content heres
                 .tile(data-name='Service Portal')
                     .tile-image(style='background: url("images/app-services-portal.png") no-repeat;background-size:contain;')
                     .tile-details
@@ -1296,55 +1299,6 @@ block content
                                 td 7. July 2023
                                 td Enhancement
                                 td Styling has been adjusted to improve usability
-                .tile(data-name='Mobile Client')
-                    .tile-image(style="background: url('images/app-mobile-client.png') no-repeat;background-size:contain;")
-                    .tile-details
-                        .tile-title Mobile Client
-                        .tile-subtitle Have PLM with you all the time in your pocket. Visualize product data and trigger new processes whenever needed.
-                    .instructions
-                        h1 Prerequisites
-                        p This solution does not require any changes to your tenant, all information is retrieved dynamically. However, in order to make the solution accessible on your mobile device, your server must be available from the Internet. For security reasons, it is highly recommended to https connections instead of http.
-                        h1 Features
-                        p Users benefit from PLM features on a mobile device: 
-                        ul  
-                            li Browse Workspaces and given views 
-                            li Access Bookmarks and Recently Viewed items 
-                            li Create &amp; Search records 
-                            li Manage Item Details 
-                            li View 3D data 
-                            li Upload &amp; download attachments
-                            li Browse the flat BOM of items 
-                            li View relationships of a record 
-                            li Track related change processes
-                            li Perform Workflow Actions 
-                            li Archive &amp; Unarchive items
-                            li Share links to items using mail
-                            li Review the Change Log
-                        p The Mobile Client also can be used to navigate to a given record directly. This enables to scan a QR code to be directed to the matching record in PLM. See instructions for accesing the client below for details.
-                        p While a lot of features are supported, the client also has limitations. It does not provide access to the following tabs: 
-                        ul 
-                            li Workflow 
-                            li Grid 
-                            li Project
-                        h1 Mobile Device Simulation 
-                        p If you want to test this solutions, but cannot access the server online from your phone, your browser can be of help. Open the Mobile Client using the instructions shown below. Once opened, right click the page and select 
-                            strong Inspect 
-                            | in Chrome. This will open the developer tools in which you can toggle the device for testing. Just select your preferred mobile device and reload the page. This enables to render the page like on a mobile device.
-                        img(src='images/apps/mobile-client-1.png' style='width:100%;max-width:900px;margin:10px 0px 30px;padding:10px;border:1px solid #eee;')
-                        h1 Access the Mobile Client
-                        p You can access the client with the 
-                            strong /client
-                            |  endpoint, just click the first button. In order to navigate to a defined record, you can also pass the Workspace ID and DMS ID of a record as parameters. See the second button example which opens a demo dataset item automatically.
-                        div(style='display:flex;gap:20px;')
-                            a(href='client' target='_blank') Mobile Client
-                            a(href='client?wsId=79&dmsId=11143' target='_blank')
-                    .log 
-                        h1 Mobile Client Change Log 
-                        table 
-                            tr 
-                                td 7. July 2023
-                                td -
-                                td No changes in this release
                 .tile(data-name='MBOM Editor')
                     .tile-image(style="background: url('images/app-mbom-editor.png') no-repeat;background-size:contain;")
                     .tile-details
@@ -1814,7 +1768,7 @@ block content
                         p.code  
                             span export.config = {
                             span.indent 'variants' : {
-                            span.indent-2 'wsIdItemVariants' : '208'
+                            span.indent-2 'wsIdItemVariants' : 208
                             span.indent-2 'variantsSectionLabel' : 'Variant Definition',
                             span.indent-2 'fieldIdVariantBaseItem' : 'DMS_ID_BASE_ITEM',
                             span.indent-2 'fieldIdItemNumber' : 'NUMBER',
@@ -1862,3 +1816,52 @@ block content
                                 td 7. July 2023
                                 td Initial Release
                                 td This is the very first version of this application
+                .tile(data-name='Mobile Client')
+                    .tile-image(style="background: url('images/app-mobile-client.png') no-repeat;background-size:contain;")
+                    .tile-details
+                        .tile-title Mobile Client
+                        .tile-subtitle Have PLM with you all the time in your pocket. Visualize product data and trigger new processes whenever needed.
+                    .instructions
+                        h1 Prerequisites
+                        p This solution does not require any changes to your tenant, all information is retrieved dynamically. However, in order to make the solution accessible on your mobile device, your server must be available from the Internet. For security reasons, it is highly recommended to https connections instead of http.
+                        h1 Features
+                        p Users benefit from PLM features on a mobile device: 
+                        ul  
+                            li Browse Workspaces and given views 
+                            li Access Bookmarks and Recently Viewed items 
+                            li Create &amp; Search records 
+                            li Manage Item Details 
+                            li View 3D data 
+                            li Upload &amp; download attachments
+                            li Browse the flat BOM of items 
+                            li View relationships of a record 
+                            li Track related change processes
+                            li Perform Workflow Actions 
+                            li Archive &amp; Unarchive items
+                            li Share links to items using mail
+                            li Review the Change Log
+                        p The Mobile Client also can be used to navigate to a given record directly. This enables to scan a QR code to be directed to the matching record in PLM. See instructions for accesing the client below for details.
+                        p While a lot of features are supported, the client also has limitations. It does not provide access to the following tabs: 
+                        ul 
+                            li Workflow 
+                            li Grid 
+                            li Project
+                        h1 Mobile Device Simulation 
+                        p If you want to test this solutions, but cannot access the server online from your phone, your browser can be of help. Open the Mobile Client using the instructions shown below. Once opened, right click the page and select 
+                            strong Inspect 
+                            | in Chrome. This will open the developer tools in which you can toggle the device for testing. Just select your preferred mobile device and reload the page. This enables to render the page like on a mobile device.
+                        img(src='images/apps/mobile-client-1.png' style='width:100%;max-width:900px;margin:10px 0px 30px;padding:10px;border:1px solid #eee;')
+                        h1 Access the Mobile Client
+                        p You can access the client with the 
+                            strong /client
+                            |  endpoint, just click the first button. In order to navigate to a defined record, you can also pass the Workspace ID and DMS ID of a record as parameters. See the second button example which opens a demo dataset item automatically.
+                        div(style='display:flex;gap:20px;')
+                            a(href='client' target='_blank') Mobile Client
+                            a(href='client?wsId=79&dmsId=11143' target='_blank')
+                    .log 
+                        h1 Mobile Client Change Log 
+                        table 
+                            tr 
+                                td 7. July 2023
+                                td -
+                                td No changes in this release

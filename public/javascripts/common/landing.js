@@ -11,6 +11,7 @@ $(document).ready(function() {
     $('.tile').click(function(e) {
 
         if(e.shiftKey) {
+            if($(this).hasClass('max')) return;
             e.stopPropagation();
             e.preventDefault();
             window.open($(this).find('a').attr('href'), '_blank');
@@ -18,14 +19,15 @@ $(document).ready(function() {
             $(this).siblings().hide();
             $(this).addClass('max');
             $('body').removeClass('logs');
-            $('.with-log').removeClass('.with-log');
+            $('.with-log').removeClass('with-log');
+            $('.with-troubleshooting').removeClass('with-troubleshooting');
             $('.tiles').addClass('surface-level-1');
         }
     });
 
     $('.tile').each(function() {
+
         let elemButtonClose = $('<div></div>');
-            // elemButtonClose.html('Close');
             elemButtonClose.addClass('button');
             elemButtonClose.addClass('icon');
             elemButtonClose.addClass('icon-close');
@@ -40,6 +42,26 @@ $(document).ready(function() {
                 e.stopPropagation();
             });
 
+        if($(this).children('.troubleshooting').length) {
+
+            let elemButtonTroubleshooting = $('<div></div>');
+                elemButtonTroubleshooting.attr('title', 'Toggle Troubleshooting');
+                elemButtonTroubleshooting.addClass('button');
+                elemButtonTroubleshooting.addClass('icon');
+                elemButtonTroubleshooting.addClass('filled');
+                elemButtonTroubleshooting.addClass('icon-info');
+                elemButtonTroubleshooting.addClass('troubleshooting-button');
+                elemButtonTroubleshooting.appendTo($(this).children('.tile-details').first());
+                elemButtonTroubleshooting.click(function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    let elemTile = $(this).closest('.tile');
+                        elemTile.toggleClass('with-troubleshooting')
+                        elemTile.removeClass('with-log');
+                });
+
+        }
+
         let elemButtonLog = $('<div></div>');
             elemButtonLog.attr('title', 'Toggle Change Log');
             elemButtonLog.addClass('button');
@@ -47,10 +69,13 @@ $(document).ready(function() {
             elemButtonLog.addClass('icon-history');
             elemButtonLog.addClass('change-log');
             elemButtonLog.appendTo($(this).children('.tile-details').first());
-            elemButtonLog.click(function() {
-                $(this).closest('.tile').toggleClass('with-log');
+            elemButtonLog.click(function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                let elemTile = $(this).closest('.tile');
+                    elemTile.toggleClass('with-log')
+                    elemTile.removeClass('with-troubleshooting');
             });
-
 
     });
 
