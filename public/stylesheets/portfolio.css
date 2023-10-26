@@ -200,6 +200,7 @@
 #products-title {
     padding-top : 8px;
 }
+.product > .tile-details { overflow-y : auto; }
 
 
 

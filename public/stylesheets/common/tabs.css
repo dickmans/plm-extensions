@@ -37,6 +37,22 @@
 }
 
 
+/*  PROJECT-GRID */
+/* ----------------------------------------------------------------------------- */
+.project-grid {
+    display : flex;
+    flex-direction: row;
+}
+.project-grid > div {
+    padding : 4px;
+}
+.project-grid-head {
+    background : black;
+    color : white;
+}
+
+
+
 /*  WORKFLOW */
 /* ----------------------------------------------------------------------------- */
 .workflowh-history-event {

@@ -2023,6 +2023,52 @@ function insertRelationships(elemParent, relationships) {
 }
 
 
+// Insert Relationship Items (used by explorer.js)
+function insertProjectGrid(link, id) {
+
+    if(isBlank(id)) id = 'project-grid';
+
+    let elemParent = $('#' + id);
+        elemParent.addClass('project-grid');
+        elemParent.html('');
+
+    $.get('/plm/project', { 'link' : link}, function(response) {
+
+        for(projectItem of response.data.projectItems) {
+
+            let elemColumn = $('<div></div>');
+                elemColumn.appendTo(elemParent);
+
+            let elemHead = $('<div></div>');
+                elemHead.addClass('project-grid-head');
+                elemHead.html(projectItem.title);
+                elemHead.appendTo(elemColumn);
+
+            if(isBlank(projectItem.projectItems)) {
+
+
+            } else {
+
+                elemColumn.addClass('tiles');
+                elemColumn.addClass('list');
+                elemColumn.addClass('xxs');
+
+                for(task of projectItem.projectItems) {
+
+                    let elemTask = genTile(task.item.link, '', null, '', task.title);
+                        elemTask.addClass('project-grid-task');
+                        elemTask.appendTo(elemColumn);
+
+                }
+            }
+
+        }
+
+    });
+
+}
+
+
 // Insert Workflow History
 function insertWorkflowHistory(link, id, currentStatus, currentStatusId, excludedTransitions, finalStates, showNextTransitions) {
 

@@ -18,6 +18,8 @@ $(document).ready(function() {
 
     // define user interaction events
     setUIEvents();
+
+    insertProjectGrid(link);
     
 });
 
