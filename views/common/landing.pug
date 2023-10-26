@@ -1346,7 +1346,7 @@ block content
                             | to the EBOM workspace. Add all the fields that were created in the step before to this view - plus a few others. You may also add any further column as you like. The sequence of columns does not matter.
                         ol  
                             li Descriptor
-                            li Category
+                            li PDM Category
                             li Quantity
                             li Number
                             li MBOM
@@ -1645,51 +1645,44 @@ block content
                             strong Basic
                             |:
                             ol  
-                                li Number (id: NUMBER, Single Line Text, length : 20, read-only)
-                                li Title (id: TITLE, Single Line Text, length: 200, editable)
-                                li Base Item (id: BASE_ITEM, Picklist to [WS] Items, single selection, read-only)
-                                li DMS_ID_BASE_ITEM (id: DMS_ID_BASE_ITEM, Single Line Text, length : 20, hidden, editable)
-                                li NAME (id:NAME, Single Line Text, hidden, ready-only)
-                                    br
-                                    | Set a computation formula for the NAME field: 
-                                    p.code CASE WHEN(TITLE is null) Then NUMBER Else TITLE END
+                                li Number (id: NUMBER, Single Line Text, length : 20, Visibility : Always, Editable: false)
+                                li Index (id: VARIANT_INDEX, Single Line Text, length : 5, Visibility : Always, Editable: false)
+                                li Title (id: TITLE, Single Line Text, length: 200, Editable: true)
+                                li Base Item (id: BASE_ITEM, Picklist to [WS] Items, single selection, Editable: false)
+                                li DMS_ID_BASE_ITEM (id: DMS_ID_BASE_ITEM, Single Line Text, length : 20, Visibility : Never, Editable: true)
                         p In section 
                             strong Variant Definition
-                            |, add all the fields that will be used to define a variant. For example: Color and Material. This may include any type of field, including pick lists.
+                            |, add all the fields that will be used to define a variant, for example Colour and Material. This section may include any type of field, including pick lists.
                         p All data that should be derived from the 
                             strong Base Item 
-                            | should be defined in section 
+                            | must be defined in section 
                             strong Base Item Data
                             |. Make use of derived fields to copy data from the given base item. This may include the Type, Description, Image and further fields of your items workspace.
-                        img.border(src='images/apps/variant-manager-4.png' style='max-width:728px;')
+                        img.border(src='images/apps/variant-manager-4.png' style='max-width:737px;')
                         h2 Descriptor
                         p Set the workspace's 
                             strong Descriptor 
-                            | to display field NAME, enabling dynamic display of the variant's number or title (if existent).
-                        img.border(src='images/apps/variant-manager-5.png' style='max-width:496px;')
+                            | to display the fields Number, Index and Title:
+                        img.border(src='images/apps/variant-manager-5.png' style='max-width:493px;')
                         h2 Workspace Relationships
                         p Enable required relationships in the BOM tab:
                         img.border(src='images/apps/variant-manager-2.png' style='max-width:862px;')
-                        p As the Item Variants should be revision controlled, add this new workspace to the 
+                        p As the Item Variants are revision controlled, add this new workspace to the 
                             strong Managed Items 
-                            | tab of 
-                            strong Problem Reports
-                            |, 
-                            strong Change Requests
-                            | and 
-                            strong Change Orders
-                            |.
+                            | tab of the following workspaces: 
+                            ul 
+                                li Problem Reports
+                                li Change Requests
+                                li Change Orders
                         h2 Access Permissions
                         p Create a role for the new workspace enabling creation of new records, BOM management and attachments. 
                             br
                             |Make sure that users also can access the working versions of records.
                         img.border(src='images/apps/variant-manager-3.png' style='max-width:351px;')
-
                         h2 Bill of Materials tab
-                        p Add the following BOM field to the Bill of Materials 
-                            strong Default View
+                        p Add the following BOM field in workspace 
+                            strong Item Variants
                             |:
-                            br
                             br
                         table 
                             tr 
@@ -1700,11 +1693,11 @@ block content
                             tr 
                                 td EDGE_ID_BASE_ITEM
                                 td Single Line Text
-                                td Length : 20, Visibility: hidden
+                                td Length : 20, Visibility: Never
                                 td true
-                        p Adjust the 
-                            string Default View 
-                            | by adding the following columns to (sequence does not matter):
+                        p Add the following columns to the 
+                            strong Default View 
+                            | (sequence does not matter):
                             table   
                                 tr 
                                     th Field ID
@@ -1717,29 +1710,30 @@ block content
                                     td Item Details
                         p In addition, add all fields of section 
                             strong Variant Definition 
-                            |to this table.
+                            |to this table (for example Colour and Material).
                         h2 Scripts
-                        p Entries of workspace Item Variants should receive a new number by script and also should be linked to the given base item. 
-                            br
-                            |Create a new action script 
-                            strong Item Variants onCreate 
-                            | and attach this script to the create event of workspace 
+                        p In order to link the variant items with the given base items, a script is required. Create a new action script 
+                            strong Item Variants onCreate onEdit 
+                            | and attach this script to the create and edit event of workspace 
                             strong Item Variants
                             |:
                         p.code
-                            span setNumber();
                             span linkBaseItem();
                             br
-                            span function setNumber() {
-                            span.indent var seq = new Sequencer("Item Variants");
-                            span.indent item.NUMBER = ('00000' + seq.nextValue().toString()).slice(-6);
-                            span }
-                            br
                             span function linkBaseItem() {
+                            span.indent if(item.BASE_ITEM !== null) return;
                             span.indent if(item.DMS_ID_BASE_ITEM === null) return;
                             span.indent var elemBase = loadItem(item.DMS_ID_BASE_ITEM);
+                            span.indent var listVariants = elemBase.VARIANTS;
+                            span.indent if(listVariants === null) {
+                            span.indent-2 listVariants = []; 
+                            span.indent-2 elemBase.VARIANTS = item; 
+                            span.indent } else  elemBase.VARIANTS.add(item);
+                            span.indent item.NUMBER         = elemBase.NUMBER;
+                            span.indent item.VARIANT_INDEX  = ('00' + listVariants.length).toString().slice(-2);
                             span.indent item.BASE_ITEM = elemBase;
                             span }
+                        img.border(src='images/apps/variant-manager-7.png' style='max-width:1082px;')
                         h1 Action Button 
                         p Enable access to the 
                             strong Variants Manager 
@@ -1747,7 +1741,8 @@ block content
                             strong Items 
                             | workspace. Use the following formula for the new field: 
                         p.code '&lt;a style="border: 1px solid #bec8d2;border-radius:3px;color: #0a131c;font-weight:600;line-height:26px;padding:4px 20px;text-align:center;text-decoration:none !important;white-space:nowrap;" target="_blank" href ="LOCATIONvariants?wsId=57&dmsId='||DMS_ID||'"&gt;Variant Manager&lt;/a&gt;'
-                        h1 Adjust Workspace Items 
+                        h1 Adjust Items Workspace
+                        h2 Add field Variants
                         p In the 
                             strong Item Details 
                             | tab of workspace Items, add a linking picklist field 
@@ -1756,6 +1751,7 @@ block content
                             strong Item Variants 
                             | workspace created before. Set this field visible and editable.
                         img.border(src='images/apps/variant-manager-6.png' style='max-width:851px;')
+                        h2 Add field to store dmsID
                         p The items workspace (from where the app will be launched) also must have a field containing the item's dmsID. If not present yet, add a new single line text field with id 
                             strong DMS_ID 
                             | in the items workspace (hidden). Let this field be set automatically item creation by script as shown below. 
@@ -1763,6 +1759,20 @@ block content
                             |Tenants created mid 2023 or later have this field and script already.
                         p.code  
                             span item.DMS_ID = dmsID;
+                        h2 Configure BOM View 
+                        p The application requires a BOM view with the following columns: 
+                            ul  
+                                li Descriptor 
+                                li Quantity 
+                                li Number
+                        p You may add a new view 
+                            strong Variant Management 
+                            | with these columns or reuse an existing BOM view containing these columns (the view may also contain further columns of course). If you prefer to use a BOM view that is not named 
+                            strong Variant Management
+                            | , you have to speficfy this view's name in the server's settings file in parameter 
+                        p.code 
+                            span config.variants.bomViewNameVariants : 'Variant Management'
+                        p See next chapter for details.
                         h1 Server Settings File 
                         p If you require usage of different field names, table names etc, please have a look at the settings.js file and locate section variants, listing all possible configurable settings: 
                         p.code  

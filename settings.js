@@ -418,10 +418,9 @@ exports.config = {
     },
 
     'variants' : {
-        'wsIdItemVariants'       : '208',
+        'wsIdItemVariants'       : 208,
         'variantsSectionLabel'   : 'Variant Definition',
         'fieldIdVariantBaseItem' : 'DMS_ID_BASE_ITEM',
-        'fieldIdItemNumber'      : 'NUMBER',
         'fieldIdItemVariants'    : 'VARIANTS',
         'bomViewNameItems'       : 'Variant Management',
         'bomViewNameVariants'    : 'Default View'

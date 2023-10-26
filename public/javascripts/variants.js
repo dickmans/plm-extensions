@@ -7,7 +7,7 @@ let fieldsVariant   = [];
 let classesViewer   = [ 'standard', 'no-viewer', 'large-viewer', 'wide-viewer'];
 let modeViewer      = 0;
 let linkContext     = '/api/v3/workspaces/' + wsId + '/items/' + dmsId;
-let pendingActions, baseItemNumber;
+let pendingActions;
 
 
 
@@ -53,11 +53,6 @@ function setUIEvents() {
         $('#main').removeClass('with-details');
         insertItemDetailsFields('create', '', wsVariants.sections, wsVariants.fields, null, true, true, true);
         viewerResize();
-    });
-    $('#button-save').click(function() {
-        if($(this).hasClass('disabled')) return;
-        setSaveActions();
-        showSaveProcessingDialog();
     });
 
 
@@ -108,7 +103,6 @@ function getInitialData() {
 
         $('#header-subtitle').html(responses[0].data.title);
         let variants   = getSectionFieldValue(responses[0].data.sections, config.variants.fieldIdItemVariants, '');
-        baseItemNumber = getSectionFieldValue(responses[0].data.sections, config.variants.fieldIdItemNumber, '');
         insertBOM('bom', 'BOM & Variants', linkContext, config.variants.bomViewNameItems, true, false, false, false);
 
         for(variant of variants) listVariants.push(variant);
@@ -250,6 +244,18 @@ function bomDisplayDone(id) {
             }
         });
 
+    let elemVariantsSave = $('<div></div>');
+        elemVariantsSave.addClass('button');
+        elemVariantsSave.addClass('default');
+        elemVariantsSave.html('Update Variant BOMs');
+        elemVariantsSave.attr('id', 'button-save');
+        elemVariantsSave.prependTo($('#bom-toolbar'));
+        elemVariantsSave.click(function() {
+            if($(this).hasClass('disabled')) return;
+            setSaveActions();
+            showSaveProcessingDialog();
+        });  
+
     let elemOptionAll = $('<option></option>');
         elemOptionAll.attr('value', 'all');
         elemOptionAll.html('Show all variants');
@@ -324,9 +330,6 @@ function bomDisplayDone(id) {
                 let dmsIdBaseItem = $(this).attr('data-link').split('/')[6];
                 let variantItem   = getMatchingVariantItem(response.data.nodes, response.data.edges, wsVariants.fieldLinkVariantBaseItem, dmsIdBaseItem);
 
-                console.log(variantItem);
-
-
                 if(variantItem === null) {
                     className = 'status-missing';
                     variantItem = validateMatch(response.data.nodes, response.data.edges, elemRefItem);
@@ -399,6 +402,11 @@ function bomDisplayDone(id) {
         
                 }
 
+                let variantTitle = variantItem.title;
+                if(!isBlank(variantTitle)) {
+                    variantTitle = variantTitle.split(' - ')[0] + '-' + variantTitle.split(' - ')[1];
+                }
+
                 let elemCellItem = $('<td></td>');
                     elemCellItem.attr('data-link'       , variantItem.link);
                     elemCellItem.attr('data-edgeid'     , variantItem.edgeId);
@@ -411,7 +419,7 @@ function bomDisplayDone(id) {
                     elemCellItem.addClass('variant-index-' + indexVariant);
                     elemCellItem.addClass('variant-item');
                     elemCellItem.addClass(className);
-                    elemCellItem.html(variantItem.title);
+                    elemCellItem.html(variantTitle);
                     elemCellItem.appendTo($(this));
                     elemCellItem.click(function(e) {
                         clickItemCell(e, $(this));
@@ -754,12 +762,22 @@ function insertNewVariantFields(link, title, indexVariant) {
     });
 
 }
+function getVariantNumber(descriptor) {
+
+    let result = descriptor;
+
+    if(!isBlank(descriptor)) {
+        let split = descriptor.split(' - ');
+        result = split[0] + '-' + split[1];
+    }
+
+    return result;
+
+}
 
 
 // User clicks on item cells
 function clickItemCell(e, elemClicked) {
-
-    console.log('clickItemCell');
 
     e.preventDefault();
     e.stopPropagation();
@@ -868,7 +886,8 @@ function insertSelectedItem(elemClicked) {
         // elemCell.addClass('changed-item');
         elemCell.addClass('change-item');
         // elemCell.removeClass('missing');
-        elemCell.html(elemClicked.find('.tile-title').html());
+        // elemCell.html(elemClicked.find('.tile-title').html());
+        elemCell.html(getVariantNumber(elemClicked.find('.tile-title').html()));
 
     let index = fieldsVariant.length - 1;
     let elemCellField = elemCell.prev();
@@ -968,45 +987,30 @@ function createNewVariant() {
             let requests        = [];
             let valueVariants   = [];
             let listCurrent     = getSectionFieldValue(response.data.sections, config.variants.fieldIdItemVariants, []);
-            let nextID          = ('00' + (listCurrent.length + 1)).slice(-3);
 
             for(entry of listCurrent) valueVariants.push(entry.link);
 
             valueVariants.push(linkVariant);
             
-            let paramsItem = { 
-                'link'      : linkContext, 
-                'sections'  : [{
-                    'id'        : getFieldSectionId(wsContext.sections, config.variants.fieldIdItemVariants),
-                    'fields'    : [{
-                        'fieldId'   : config.variants.fieldIdItemVariants, 
-                        'value'     : valueVariants, 
-                        'type'      : 'multi-linking-picklist' 
-                    }]
-                }] 
-            }
-
-            requests.push($.get('/plm/edit', paramsItem));
-
             let paramsVariant = {
                 'link'      : linkVariant,
                 'sections'  : [{
                     'id' : wsVariants.sectionIdBaseItem,
                     'fields' : [
-                        { 'fieldId' : 'NUMBER', 'value' : baseItemNumber },
-                        { 'fieldId' : 'ID'    , 'value' : nextID }
+                        { 'fieldId' : config.variants.fieldIdVariantBaseItem, 'value' : dmsId }
                     ]
                 }]
             }
 
             requests.push($.get('/plm/edit', paramsVariant));
 
-            Promise.all(requests).then(function(responses) {
+            Promise.all(requests).then(function() {
                 $.get('/plm/descriptor', { 'link' : linkVariant }, function(response) {
                     $('#overlay').hide();
                     insertNewVariant(linkVariant, response.data);
                 });
             });
+
         });
 
     });
@@ -1157,8 +1161,6 @@ function setSaveActions() {
     //     $(this).addClass('pending-update-bom');         pendingActions[4]++;
     // });
 
-    console.log(pendingActions);
-
 }
 function showSaveProcessingDialog() {
    
@@ -1254,7 +1256,6 @@ function createNewItems() {
                     }]
                 };
 
-
                 for(let index = fieldsVariant.length - 1; index >= 0; index--) {
 
                     let field = fieldsVariant[index];
@@ -1305,7 +1306,7 @@ function createNewItems() {
                     for(response of responses) {
 
                         let elemItem = elements[index++];
-                            elemItem.html(response.data);
+                            elemItem.html(getVariantNumber(response.data));
                             elemItem.attr('data-link', response.params.link);
                             elemItem.addClass('status-match');
                             elemItem.removeClass('status-identical');
@@ -1353,7 +1354,7 @@ function updateItems() {
             if(requests.length < maxRequests) {
 
                 let elemCellControl = $(this).prev();
-
+                
                 let params = {
                     'link' : $(this).attr('data-link'),
                     'sections' : [{
@@ -1373,14 +1374,14 @@ function updateItems() {
 
                     elemCellControl = elemCellControl.prev();
 
-                }                
-
+                }         
+                
                 requests.push($.get('/plm/edit', params));
+                elements.push($(this));
+
                 $(this).removeClass('pending-update-item');
                 $(this).removeClass('change-properties');
                 $(this).addClass('processing-item');
-
-                elements.push($(this));
 
             }
 
