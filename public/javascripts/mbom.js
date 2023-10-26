@@ -2068,14 +2068,14 @@ function selectItem(elemItem, filter) {
 
         });
 
-        if(!isSelected) {
+        if(!isSelected || filter) {
             if(partNumber !== '') {
 
                 let elemMBOM = elemItem.closest('#mbom');
 
                 if(elemMBOM.length === 1) {
                     elemItem.addClass('current-mbom');
-                    selectAdjacentMBOMModels();
+                    if(!filter) selectAdjacentMBOMModels();
                     viewerSelectModel(partNumber, false);
                 } else {
                     viewerSelectModel(partNumber, true);
@@ -2138,19 +2138,23 @@ function selectAdjacentMBOMModels() {
             elemPrev = elemPrevBOM.children().last();
         }
     }
-    if(elemPrev.length > 0) {
-        let prevPartNumber = elemPrev.attr('data-part-number');
-        elemPrev.addClass('adjacent-prev');
-        viewerSetColor(prevPartNumber, config.vectors.green);
+    if(elemPrev !== null) {
+        if(elemPrev.length > 0) {
+            let prevPartNumber = elemPrev.attr('data-part-number');
+            elemPrev.addClass('adjacent-prev');
+            viewerSetColor(prevPartNumber, config.vectors.green);
+        }
     }
 
     // Get next element within tree
     let elemNext = getNextAdjacentItem(elemItem);
 
-    if(elemNext.length > 0) {
-        let nextPartNumber = elemNext.attr('data-part-number');
-        elemNext.addClass('adjacent-next');
-        viewerSetColor(nextPartNumber, config.vectors.red);
+    if(elemNext !== null) {
+        if(elemNext.length > 0) {
+            let nextPartNumber = elemNext.attr('data-part-number');
+            elemNext.addClass('adjacent-next');
+            viewerSetColor(nextPartNumber, config.vectors.red);
+        }
     }
 
 }
@@ -2641,7 +2645,7 @@ function createItem(type) {
 
 
 
-// Forge Viewer interaction
+// Viewer interaction
 function onViewerSelectionChanged(event) {
 
     if(disableViewerSelectionEvent) return;
