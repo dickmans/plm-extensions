@@ -725,11 +725,13 @@ function performSearch() {
     $('#search-processing').show();
     $('#search-no-results').hide();
 
-    $.get('/plm/search-bulk', { 'query' : $('#search-input').val() }, function(response) {
+    $.get('/plm/search-descriptor', { 'query' : $('#search-input').val(), 'limit' : 50, 'bulk' : 'false' }, function(response) {
 
         if(typeof response.data.items !== 'undefined') {
 
             for(record of response.data.items) {
+
+                console.log(record);
 
                 let elemItem = $('<div></div>');
                     elemItem.attr('data-link', record.__self__);
@@ -737,14 +739,16 @@ function performSearch() {
                     elemItem.click(function() { openItem($(this).attr('data-link')); });
 
                 let elemItemDescriptor = $('<div></div>');
-                    elemItemDescriptor.html(record.title);
+                    // elemItemDescriptor.html(record.title);
+                    elemItemDescriptor.html(record.descriptor);
                     elemItemDescriptor.addClass('link');
                     elemItemDescriptor.addClass('nowrap');
                     elemItemDescriptor.appendTo(elemItem);
 
                 let elemItemWorkspace = $('<div></div>');
                     elemItemWorkspace.addClass('item-workspace');
-                    elemItemWorkspace.html(record.workspace.title);
+                    // elemItemWorkspace.html(record.workspace.title);
+                    elemItemWorkspace.html(record.workspaceLongName);
                     elemItemWorkspace.appendTo(elemItem);
 
             }

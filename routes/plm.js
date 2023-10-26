@@ -1755,7 +1755,7 @@ router.get('/get-viewables', function(req, res, next) {
     
     let link        = (typeof req.query.link === 'undefined') ? '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId : req.query.link;
     let url         = 'https://' + req.session.tenant + '.autodeskplm360.net' + link + '/attachments?asc=name';
-    let extensions  = (typeof req.query.extensions === 'undefined') ? ['dwf', 'dwfx', 'ipt'] : req.query.extensions;
+    let extensions  = (typeof req.query.extensions === 'undefined') ? ['dwf', 'dwfx', 'ipt', 'stp', 'step'] : req.query.extensions;
 
     let headers = getCustomHeaders(req);
         headers.Accept = 'application/vnd.autodesk.plm.attachments.bulk+json';
@@ -2290,6 +2290,31 @@ router.get('/related-items', function(req, res, next) {
 });
 
 
+/* ----- PROJECT TAB ENTRIES ----- */
+router.get('/project', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /project');
+    console.log(' --------------------------------------------');  
+    console.log('  req.query.wsId        = ' + req.query.wsId);
+    console.log('  req.query.dmsId       = ' + req.query.dmsId);
+    console.log('  req.query.link        = ' + req.query.link);
+    console.log();
+    
+    let url =  (typeof req.query.link !== 'undefined') ? req.query.link : '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId;
+        url = 'https://' + req.session.tenant + '.autodeskplm360.net' + url + '/views/16';
+
+    axios.get(url, {
+        headers : req.session.headers
+    }).then(function(response) {
+        sendResponse(req, res, response, false);
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+    
+});
+
+
 /* ----- CHANGE LOG ----- */
 router.get('/logs', function(req, res, next) {
     
@@ -2528,7 +2553,6 @@ router.get('/remove-bookmark', function(req, res, next) {
 });
 
 
-
 /* ----- RECENT ITEMS ----- */
 router.get('/recent', function(req, res, next) {
     
@@ -2548,7 +2572,6 @@ router.get('/recent', function(req, res, next) {
     });
     
 });
-
 
 
 /* ----- WORKSPACE ITEMS ----- */
@@ -2711,6 +2734,52 @@ function setBodyFilter(body, filters) {
 }
 
 
+/* ----- SEARCH DESCRIPTOR ----- */
+router.get('/search-descriptor', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /search-descriptor');
+    console.log(' --------------------------------------------'); 
+    console.log('  req.query.wsId       = ' + req.query.wsId);
+    console.log('  req.query.query      = ' + req.query.query);
+    console.log('  req.query.limit      = ' + req.query.limit);
+    console.log('  req.query.offset     = ' + req.query.offset); 
+    console.log('  req.query.bulk       = ' + req.query.bulk); 
+    console.log('  req.query.page       = ' + req.query.page); 
+    console.log('  req.query.revision   = ' + req.query.revision); 
+    console.log();
+
+    let limit       = (typeof req.query.limit    === 'undefined') ?   100    : req.query.limit;
+    let offset      = (typeof req.query.offset   === 'undefined') ?     0    : req.query.offset;
+    let bulk        = (typeof req.query.bulk     === 'undefined') ?  'false' : req.query.bulk;
+    let page        = (typeof req.query.page     === 'undefined') ?   '1'    : req.query.page;
+    let revision    = (typeof req.query.revision === 'undefined') ?   '1'    : req.query.revision;
+
+    let url = 'https://' + req.session.tenant + '.autodeskplm360.net/api/v3/search-results?limit=' + limit + '&offset=' + offset + '&page=' + page + '&revision=' + revision + '&query=itemDescriptor%3D*' + req.query.query + '*';
+    
+    if(typeof req.query.wsId !== 'undefined') url += '+AND+(workspaceId%3D' + req.query.wsId + ')';
+
+    let headers = getCustomHeaders(req);
+
+    if(bulk !== 'false') headers.Accept = 'application/vnd.autodesk.plm.items.bulk+json';
+
+console.log(headers);
+console.log(url);
+
+    axios.get(url, {
+        'headers' : headers
+    }).then(function(response) {
+        console.log(response);
+        if(response.data === "") response.data = { 'items' : [] }
+        sendResponse(req, res, response, false);
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+    
+});
+
+
+
 /* ----- SEARCH BULK ----- */
 router.get('/search-bulk', function(req, res, next) {
     
@@ -2798,7 +2867,6 @@ router.get('/tableau-init', function(req, res, next) {
     });
     
 });
-
 
 
 /* ----- CREATE BASE VIEW ----- */

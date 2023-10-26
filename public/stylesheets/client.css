@@ -3,7 +3,7 @@
 input { border-bottom : 1px solid var(--color-gray-300); }
 .screen > .list-header { left : 0px ; right : 0px; }
 .section:first-of-type { margin-top: 18px; }
-#header-toolbar { top : 11px; right : 18px; }
+#header-toolbar { top : 7px; right : 14px; }
 #header-avatar { margin-left : 10px; }
 
 
@@ -29,19 +29,37 @@ input { border-bottom : 1px solid var(--color-gray-300); }
     background: black;
     color: white;
     height: 20px;
-    padding: 22px 56px 22px;
+    padding: 18px 56px 18px;
 }
 #header-logo {
     background-size : 56px;
     height : 24px;
+    left : 2px;
+    top : 14px;
     width : 40px;
 }
 #header-title {
     font-size : 20px;
     line-height : 20px;
+    margin-left : 0px;
 }
 #header-toolbar > .button {
+    border-radius : 50%;
     display : none;
+}
+#forward {
+    margin-left : 4px;
+}
+#back,
+#forward {
+    background: var(--color-gray-900);
+    border : none;
+    font-size : 28px;
+    font-weight : 800;    
+    height : 32px;
+    line-height : 32px;
+    margin-top : 4px !important;
+    width : 32px;
 }
 
 
@@ -49,9 +67,9 @@ input { border-bottom : 1px solid var(--color-gray-300); }
 /* ----------------------------------------------------------------------------- */
 .screen {
     position : absolute;
-    top : 64px;
+    top : 56px;
     right : 0px;
-    bottom : 61px;
+    bottom : 80px;
     left : 0px;
 }
 .list-header {
@@ -103,10 +121,11 @@ input { border-bottom : 1px solid var(--color-gray-300); }
 }
 .list.with-actions {
     overflow-x : hidden;
-    top : 130px;
+    top : 142px;
 }
 .list > div {
-    padding : 8px 16px;
+    font-weight : 600;
+    padding : 10px 16px;
     border-bottom : 1px solid var(--color-gray-100);
 }
 .list > div:last-of-type {
@@ -118,7 +137,7 @@ input { border-bottom : 1px solid var(--color-gray-300); }
     font-size : 18px;
     margin-right : 8px;
     position: relative;
-    top : 2px;
+    top : 4px;
 }
 .list > div::after {
     float : right;
@@ -134,8 +153,9 @@ input { border-bottom : 1px solid var(--color-gray-300); }
 }
 .list-wrapper { position: initial !important; }
 .list-actions {
+    background : #f5f5f5;
     display : flex;
-    padding : 7px 18px;
+    padding : 10px 18px;
     position : absolute;
     top : 74px;
     right : 0px;
@@ -288,6 +308,14 @@ input { border-bottom : 1px solid var(--color-gray-300); }
 }
  
 /* SEARCH */
+#search-input {
+    background : white;
+    border : 1px solid #808080;
+    height : 36px;
+    line-height : 36px;
+    margin : 5px;
+    padding : 0px 10px;
+}
 #search-submit {
     width: 60px;
     max-width: 60px;
@@ -313,9 +341,9 @@ input { border-bottom : 1px solid var(--color-gray-300); }
 /* MASTER LAYOUT */
 /* ----------------------------------------------------------------------------- */
 .toolbar {
-    border-top : 1px solid var(--color-gray-300);
+    border-top : 1px solid var(--color-gray-500);
+    border-bottom : 8px solid #f5f5f5;
     display : flex;
-    height : 60px;
     padding : 0px;
     position : absolute;
     right : 0px;
@@ -329,7 +357,7 @@ input { border-bottom : 1px solid var(--color-gray-300); }
     text-align : center;
 }
 .toolbar > div.selected {
-    background : var(--color-selected);
+    /* background : var(--color-selected); */
     color : var(--color-blue-500);
 }
 .toolbar .zmdi {
@@ -387,7 +415,7 @@ input { border-bottom : 1px solid var(--color-gray-300); }
     color : white;
     display: flex;
     height : 39px;
-    padding : 18px 24px 17px;
+    padding : 18px 20px 17px;
     left : 0px;
     right : 0px;
 }
@@ -448,7 +476,7 @@ input { border-bottom : 1px solid var(--color-gray-300); }
     right : 62px;
 }
 .show-info #item-header-menu {
-    color: var(--color-status-yellow);
+    background: var(--color-status-yellow);
 }
 #item-header-close {
     right : 18px;
@@ -460,7 +488,7 @@ input { border-bottom : 1px solid var(--color-gray-300); }
     position : absolute;
     top : 74px;
     right : 0px;
-    bottom : 61px;
+    bottom : 80px;
     left : 0px;
 }
 .item-content > .list {
