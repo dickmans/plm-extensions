@@ -1755,7 +1755,7 @@ router.get('/get-viewables', function(req, res, next) {
     
     let link        = (typeof req.query.link === 'undefined') ? '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId : req.query.link;
     let url         = 'https://' + req.session.tenant + '.autodeskplm360.net' + link + '/attachments?asc=name';
-    let extensions  = (typeof req.query.extensions === 'undefined') ? ['dwf', 'dwfx', 'ipt', 'stp', 'step'] : req.query.extensions;
+    let extensions  = (typeof req.query.extensions === 'undefined') ? ['dwf', 'dwfx', 'ipt', 'stp', 'step', 'sldprt'] : req.query.extensions;
 
     let headers = getCustomHeaders(req);
         headers.Accept = 'application/vnd.autodesk.plm.attachments.bulk+json';
