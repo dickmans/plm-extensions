@@ -21,9 +21,9 @@ h2 {
     margin-bottom : 20px;
 }
 #disclaimer {
-    border: 2px solid var(--color-status-red);
-    background: var(--color-status-red-brighter);
-    color: var(--color-status-red);
+    background: var(--color-status-red);
+    border-radius : 3px;
+    color: white;
     line-height: 16px;
     padding: 20px;
     font-size: 12px;

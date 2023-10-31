@@ -34,7 +34,7 @@ $(document).ready(function() {
             elemButtonClose.addClass('close-app');
             elemButtonClose.appendTo($(this).children('.tile-details').first());
             elemButtonClose.click(function(e) {
-                $('.tile').show();
+                $('.tiles').children().show();
                 $('.tile').removeClass('max');
                 $('.tile').removeClass('with-log');
                 $('.tiles').removeClass('surface-level-1');
@@ -79,6 +79,10 @@ $(document).ready(function() {
 
     });
 
+    $('#disclaimer').click(function() {
+        $(this).hide();
+    });
+
     $('#version').click(function() {
         $('.close-app').click();
         $('body').toggleClass('logs');
@@ -95,9 +99,7 @@ function updateLinks(location) {
         if(href.indexOf('youtu.be') < 0) {
 
             let url = location + href;
-
             $(this).attr('href', url);
-
             if($(this).html() === '') $(this).html(url);
 
         }
@@ -107,18 +109,13 @@ function updateLinks(location) {
     $('.code').each(function() {
 
         let text = $(this).html();
-
         text = text.replace(/LOCATION/g, location);
-
         $(this).html(text);
 
     });
 
     $('.url').each(function() {
-
-
         $(this).html(location);
-
     });
 
 
