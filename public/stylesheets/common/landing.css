@@ -256,10 +256,11 @@ a:hover {
 .log td:last-of-type {
     padding-right : 40px;
 }
+body.logs .tiles-group,
 body.logs .tile-image,
 body.logs .tile-details,
 body.logs .instructions {
-    display : none;
+    display : none !important;
 }
 body.logs .log {
     display : block;
@@ -268,8 +269,8 @@ body.logs .log {
 }
 body.logs .tile {
     background : none;
-    height : auto;
-    width : 100%;
+    height : auto !important;
+    width : 100% !important;
 }
 .log tr:first-of-type > td {
     border : none;
