@@ -1609,32 +1609,7 @@ function saveChanges() {
     saveItem(0);
 
 }
-function saveItem(index) {
-
-    // if(index < multiSelect.links.length) {
-
-    //     console.log('heir');
-
-    //     let params = { 
-    //         'link'     : multiSelect.links[index++],
-    //         'sections' : getSectionsPayload($('#details-sections')) 
-    //     };
-
-    //     console.log(params);
-
-    //     $.get('/plm/edit', params, function(response) {
-    //         if(response.error) {
-    //             showErrorMessage(response.data.message, 'Save Failed');
-    //         }
-    //         saveItem(index);
-    //     });
-
-    // } else {
-        
-    //     $('#overlay').hide();
-
-    // }
-
+function saveItem() {
 
     let params = { 
         'link'     : $('#details').attr('data-link'),
