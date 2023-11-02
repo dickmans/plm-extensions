@@ -885,7 +885,7 @@ function getSectionsPayload(elemParent) {
             let elemField = $(this).children('.field-value').first();
             let fieldData = getFieldValue(elemField);
             
-            if(!elemField.hasClass('multi-picklist')) {
+            // if(!elemField.hasClass('multi-picklist')) {
                 if(fieldData.value !== null) {
                     if(typeof fieldData.value !== 'undefined') {
                         if(fieldData.value !== '') {
@@ -900,7 +900,7 @@ function getSectionsPayload(elemParent) {
                         }
                     }
                 }
-            }
+            // }
 
         });
 
@@ -2023,16 +2023,18 @@ function insertRelationships(elemParent, relationships) {
 }
 
 
-// Insert Relationship Items (used by explorer.js)
-function insertProjectGrid(link, id) {
+// Insert grid for phases, gates and tasks
+function insertPhaseGates(link, id) {
 
-    if(isBlank(id)) id = 'project-grid';
+    if(isBlank(id)) id = 'project-phase-gates';
 
     let elemParent = $('#' + id);
-        elemParent.addClass('project-grid');
+        elemParent.addClass('project-phase-gates');
         elemParent.html('');
 
     $.get('/plm/project', { 'link' : link}, function(response) {
+
+        console.log(response);
 
         for(projectItem of response.data.projectItems) {
 
@@ -2051,13 +2053,34 @@ function insertProjectGrid(link, id) {
 
                 elemColumn.addClass('tiles');
                 elemColumn.addClass('list');
-                elemColumn.addClass('xxs');
+                elemColumn.addClass('xxxs');
 
                 for(task of projectItem.projectItems) {
 
-                    let elemTask = genTile(task.item.link, '', null, '', task.title);
+                    let elemTask;
+                    let className = 'task-not-started';
+                    let elemProgress = $('<div></div>');
+                    elemProgress.addClass('task-progress-bar');
+
+                    if(task.progress === 100) {
+                        className = 'task-completed';
+                    } else if(task.statusFlag === 'CRITICAL') {
+                        className = 'task-overdue';
+                    }
+
+                    if(task.type.link === '/api/v3/project-item-type/WFM') {
+
+                        elemTask = genTile(task.item.link, '', null, 'check_circle', task.title);
+                    } else {
+                        elemTask = genTile('', '', null, 'not_started', task.title);
+
+                    }
+
                         elemTask.addClass('project-grid-task');
+                        elemTask.addClass(className);
                         elemTask.appendTo(elemColumn);
+
+                        elemProgress.appendTo(elemTask);
 
                 }
             }
