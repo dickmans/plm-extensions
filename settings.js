@@ -8,15 +8,21 @@ let tenant          = '';
 
 // -------------------------------------------------------------------------------------------
 // OVERRIDE SETTINGS WITH ENVIRONMENT VARIABLES
-let protocol        = redirectUri.split('://')[0];
-let port            = redirectUri.split(':')[2].split('/')[0];
-
 clientId     = (typeof process.env.CLIENT_ID     === 'undefined') ? clientId     : process.env.CLIENT_ID;
 clientSecret = (typeof process.env.CLIENT_SECRET === 'undefined') ? clientSecret : process.env.CLIENT_SECRET;
 redirectUri  = (typeof process.env.REDIRECT_URI  === 'undefined') ? redirectUri  : process.env.REDIRECT_URI;
 tenant       = (typeof process.env.TENANT        === 'undefined') ? tenant       : process.env.TENANT;
-protocol    = (typeof process.env.PROTOCOL       === 'undefined') ? protocol     : process.env.PROTOCOL;
-port         = (typeof process.env.PORT          === 'undefined') ? port         : process.env.PORT;
+
+let protocol  = redirectUri.split('://')[0];
+    protocol  = (typeof process.env.PROTOCOL === 'undefined') ? protocol : process.env.PROTOCOL;
+
+let port = typeof process.env.PORT;
+
+if(typeof port === 'undefined') {
+    if(redirectUri.indexOf(':') > -1) {
+        port = redirectUri.split(':')[2].split('/')[0];
+    }
+}
 
 exports.clientId        = clientId;
 exports.clientSecret    = clientSecret;
