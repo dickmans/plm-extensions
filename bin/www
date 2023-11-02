@@ -4,8 +4,8 @@ let fileSettings = (process.argv.length > 2) ? '.' + process.argv[2] : '';
 const fs        = require('fs');
 const app       = require('../app');
 const settings  = require('../settings' + fileSettings + '.js');
-const protocol  = settings.redirectUri.split('://')[0];
-const port      = settings.redirectUri.split(':')[2].split('/')[0];
+const protocol  = settings.protocol;
+const port      = settings.port;
 
 let server;
 
