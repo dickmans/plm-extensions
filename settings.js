@@ -16,11 +16,12 @@ tenant       = (typeof process.env.TENANT        === 'undefined') ? tenant      
 let protocol  = redirectUri.split('://')[0];
     protocol  = (typeof process.env.PROTOCOL === 'undefined') ? protocol : process.env.PROTOCOL;
 
-let port = typeof process.env.PORT;
+let port = process.env.PORT;
 
 if(typeof port === 'undefined') {
-    if(redirectUri.indexOf(':') > -1) {
-        port = redirectUri.split(':')[2].split('/')[0];
+    let redirectSplit = redirectUri.split(':');
+    if(redirectSplit.length > 2) {
+        port = redirectSplit[2].split('/')[0];
     }
 }
 
@@ -28,7 +29,7 @@ exports.clientId        = clientId;
 exports.clientSecret    = clientSecret;
 exports.redirectUri     = redirectUri;
 exports.tenant          = tenant; 
-exports.prototcol       = protocol;
+exports.protocol        = protocol;
 exports.port            = port;
 
 

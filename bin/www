@@ -9,7 +9,10 @@ const port      = settings.port;
 
 let server;
 
+
 if(protocol === 'https') {
+
+  if(fs.existsSync('./keys/privkey.pem')) {
 
     const https       = require('https');
     const privateKey  = fs.readFileSync('./keys/privkey.pem', 'utf8');
@@ -18,9 +21,22 @@ if(protocol === 'https') {
 
     server = https.createServer(credentials, app);
 
+  } else {
+  
+    console.log();
+    console.log('  ERROR ! File privkey.pem not available in folder /keys');
+    console.log('        ! Server will be started using http instead of https');
+    console.log();
+
+    const http = require('http');
+
+    server = http.createServer(app);
+
+  }
+
 } else {
 
-    const http    = require('http');
+    const http = require('http');
 
     server = http.createServer(app);
 
