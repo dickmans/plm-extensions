@@ -1,8 +1,29 @@
 // Fusion 360 Manage connection based on APS Application
-exports.clientId        = '';
-exports.clientSecret    = '';
-exports.redirectUri     = 'http://localhost:8080/callback';
-exports.tenant          = ''; 
+let clientId        = '';
+let clientSecret    = '';
+let redirectUri     = 'http://localhost:8080/callback';
+let tenant          = '';
+
+
+
+// -------------------------------------------------------------------------------------------
+// OVERRIDE SETTINGS WITH ENVIRONMENT VARIABLES
+let protocol        = redirectUri.split('://')[0];
+let port            = redirectUri.split(':')[2].split('/')[0];
+
+clientId     = (typeof process.env.CLIENT_ID     === 'undefined') ? clientId     : process.env.CLIENT_ID;
+clientSecret = (typeof process.env.CLIENT_SECRET === 'undefined') ? clientSecret : process.env.CLIENT_SECRET;
+redirectUri  = (typeof process.env.REDIRECT_URI  === 'undefined') ? redirectUri  : process.env.REDIRECT_URI;
+tenant       = (typeof process.env.TENANT        === 'undefined') ? tenant       : process.env.TENANT;
+protocol    = (typeof process.env.PROTOCOL       === 'undefined') ? protocol     : process.env.PROTOCOL;
+port         = (typeof process.env.PORT          === 'undefined') ? port         : process.env.PORT;
+
+exports.clientId        = clientId;
+exports.clientSecret    = clientSecret;
+exports.redirectUri     = redirectUri;
+exports.tenant          = tenant; 
+exports.prototcol       = protocol;
+exports.port            = port;
 
 
 // -------------------------------------------------------------------------------------------
