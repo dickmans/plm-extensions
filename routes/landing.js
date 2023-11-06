@@ -61,15 +61,16 @@ function redirect(view, app, req, res, next) {
     if(typeof params[1] === 'undefined') params[1] = req.query.dmsid;
     if(typeof params[2] === 'undefined') params[2] = req.query.partnumber;
      
-    req.session.url         = req.url;
-    req.session.view        = view;
-    req.session.app         = app;
-    req.session.wsId        = params[0];
-    req.session.dmsId       = params[1];
-    req.session.partNumber  = params[2];
-    req.session.link        = '/api/v3/workspaces/' + req.session.wsId + '/items/' + req.session.dmsId
-    req.session.options     = req.query.hasOwnProperty('options') ? req.query.options : '';
-    req.session.tenant      = req.query.hasOwnProperty('tenant') ? req.query.tenant : req.app.locals.tenant;
+    req.session.url             = req.url;
+    req.session.view            = view;
+    req.session.app             = app;
+    req.session.wsId            = params[0];
+    req.session.dmsId           = params[1];
+    req.session.partNumber      = params[2];
+    req.session.link            = '/api/v3/workspaces/' + req.session.wsId + '/items/' + req.session.dmsId
+    req.session.options         = req.query.hasOwnProperty('options') ? req.query.options : '';
+    req.session.tenant          = req.query.hasOwnProperty('tenant') ? req.query.tenant : req.app.locals.tenant;
+    req.session.revisionBias    = req.query.hasOwnProperty('revisionBias') ? req.query.revisionBias : 'release';
     
     console.log("  req.session.view         = " + req.session.view); 
     console.log("  req.session.app          = " + req.session.app); 
@@ -79,6 +80,7 @@ function redirect(view, app, req, res, next) {
     console.log('  req.session.link         = ' + req.session.link); 
     console.log("  req.session.options      = " + req.session.options); 
     console.log("  req.session.tenant       = " + req.session.tenant); 
+    console.log("  req.session.revisionBias = " + req.session.revisionBias); 
     console.log();
 
     let redirect = false;
@@ -117,13 +119,14 @@ function redirect(view, app, req, res, next) {
     } else {
 
         res.render(req.session.view, { 
-            title   : req.session.app, 
-            tenant  : req.session.tenant,
-            wsId    : req.session.wsId,
-            dmsId   : req.session.dmsId,
-            link    : req.session.link,
-            options : req.session.options,
-            config  : req.app.locals.config
+            title        : req.session.app, 
+            tenant       : req.session.tenant,
+            wsId         : req.session.wsId,
+            dmsId        : req.session.dmsId,
+            link         : req.session.link,
+            revisionBias : req.session.revisionBias,
+            options      : req.session.options,
+            config       : req.app.locals.config
         });
         
     }

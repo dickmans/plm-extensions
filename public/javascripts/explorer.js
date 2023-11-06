@@ -335,10 +335,7 @@ function getBOMData() {
         'wsId'          : wsId,
         'dmsId'         : dmsId,
         'depth'         : 10,
-        // 'revisionBias'  : 'allChangeOrder',
-        // 'revisionBias'  : 'changeOrder',
-        // 'revisionBias'  : 'release',
-        'revisionBias'  : 'working',
+        'revisionBias'  : revisionBias,
         'viewId'        : wsItems.viewId
     }
 

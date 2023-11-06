@@ -352,7 +352,7 @@ function getBOMData(viewId, viewColumns) {
         'wsId'          : wsId,
         'dmsId'         : dmsId,
         'depth'         : 10,
-        'revisionBias'  : 'release',
+        'revisionBias'  : revisionBias,
         'viewId'        : viewId
     }
 
@@ -482,9 +482,12 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom) {
 
                 for(flatItem of flatBom) {
                     if(flatItem.item.link === link) {
+                        console.log(link);
                         qty = flatItem.totalQuantity;
                     }
                 }
+
+                console.log(qty);
 
                 if(isSparePart.toLowerCase() === 'wear part') {
                     listWearParts.push({
@@ -508,6 +511,7 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom) {
                     else if(stockRandom === 3) { stockLabel = 'Out of stock'; stockClass = 'none'; }
 
                     let elemSparePart = $('<div></div>');
+                        elemSparePart.addClass('tile');
                         elemSparePart.addClass('spare-part');
                         elemSparePart.addClass('spare-part-stock-' + stockClass);
                         elemSparePart.attr('data-link', link);
