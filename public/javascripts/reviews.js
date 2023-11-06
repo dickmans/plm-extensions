@@ -507,6 +507,7 @@ function setAction(update, currentActions, elemActions, data, update) {
     
         let elemAction = $('<div></div>');   
             elemAction.addClass('action');
+            elemAction.addClass('tile');
             elemAction.attr('data-dmsId', data.dmsId);
             elemAction.attr('data-wsid', config.reviews.workspaces.tasks.id);
             elemAction.attr('data-MARKUPSVG', data.MARKUPSVG);
