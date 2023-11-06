@@ -1,6 +1,6 @@
 {
-  "name": "f3m.ts.experiences",
-  "version": "2.0.1 August 2023",
+  "name": "plm-extensions",
+  "version": "2.1 November 2023",
   "private": true,
   "scripts": {
     "start": "node --max-http-header-size=16384 ./bin/www"

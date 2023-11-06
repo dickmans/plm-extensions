@@ -39,16 +39,37 @@
 
 /*  PROJECT-GRID */
 /* ----------------------------------------------------------------------------- */
-.project-grid {
+.project-phase-gates {
     display : flex;
     flex-direction: row;
+    left : 0px;
+    right : 0px;
 }
-.project-grid > div {
+.project-phase-gates > div {
     padding : 4px;
 }
 .project-grid-head {
+    /* background: black !important; */
+    /* color: white; */
+    font-weight: normal;
+    height: 32px !important;
+    line-height: 32px;
+    padding: 0px 14px;
+}
+.project-grid-task.task-completed .tile-image {
+    background : var(--color-status-green);
+    color : var(--color-status-green-brighter);
+}
+.project-grid-task.task-overdue .tile-image {
+    background : var(--color-status-red);
+    color : var(--color-status-red-brighter);
+}
+.project-grid-task .task-progress-bar {
+    height : 4px;
     background : black;
-    color : white;
+    position : absolute;
+    bottom : 0px;
+    right : 0px;
 }
 
 
