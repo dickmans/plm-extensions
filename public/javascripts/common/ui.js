@@ -1042,6 +1042,7 @@ function insertAttachments(link, id, split) {
 
             let elemAttachment = $('<div></div>');
                 elemAttachment.addClass('attachment');
+                elemAttachment.addClass('tile');
                 elemAttachment.attr('data-file-id', attachment.id);
                 elemAttachment.attr('data-url', attachment.url);
                 elemAttachment.attr('data-file-link', attachment.selfLink);
