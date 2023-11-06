@@ -1859,6 +1859,7 @@ function insertChangeProcesses(link, id) {
                 let elemProcess = $('<div></div>');
                     elemProcess.addClass('animation');
                     elemProcess.addClass('process');
+                    elemProcess.addClass('tile');
                     elemProcess.attr('data-link', link);
                     elemProcess.attr('data-urn', process.item.urn);
                     elemProcess.appendTo(elemParent);
