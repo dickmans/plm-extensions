@@ -379,6 +379,7 @@ function setBOMData(fields, bom, flatBom) {
         else if(field.fieldId === 'THUMBNAIL')                          urns.thumbnail      = field.__self__.urn;
         else if(field.fieldId === 'TITLE')                              urns.title          = field.__self__.urn;
         else if(field.fieldId === 'DESCRIPTION')                        urns.description    = field.__self__.urn;
+        else if(field.fieldId === 'QUANTITY')                           urns.quantity       = field.__self__.urn;
         else if(field.fieldId === config.service.fieldId)               urns.spareWearPart  = field.__self__.urn; 
         else if(field.fieldId === config.service.spartPartDetails[0])   urns.material       = field.__self__.urn;
         else if(field.fieldId === config.service.spartPartDetails[1])   urns.weight         = field.__self__.urn;
@@ -386,7 +387,7 @@ function setBOMData(fields, bom, flatBom) {
 
     }
 
-    insertNextBOMLevel(bom, elemRoot, 'urn:adsk.plm:tenant.workspace.item:' + tenant.toUpperCase() + '.' + wsId + '.' + dmsId, flatBom);
+    insertNextBOMLevel(bom, elemRoot, 'urn:adsk.plm:tenant.workspace.item:' + tenant.toUpperCase() + '.' + wsId + '.' + dmsId, flatBom, 1.0);
     insertWearParts();
 
     $('.spare-part').click(function(e) {
@@ -449,7 +450,7 @@ function setBOMData(fields, bom, flatBom) {
     });
 
 }
-function insertNextBOMLevel(bom, elemRoot, parent, flatBom) {
+function insertNextBOMLevel(bom, elemRoot, parent, flatBom, qtyTotal) {
 
     let result = false;
 
@@ -462,32 +463,32 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom) {
             let isSparePart = getBOMCellValue(edge.child, urns.spareWearPart, bom.nodes);
             let partNumber  = getBOMCellValue(edge.child, urns.partNumber, bom.nodes);
             let link        = getBOMNodeLink(edge.child, bom.nodes);
+            let quantity    = getBOMEdgeValue(edge, urns.quantity, null, 0);
+            let quantityRow = qtyTotal * quantity;
 
             let elemRow = $('<tr></tr>');
                 elemRow.attr('data-number', edge.itemNumber);
                 elemRow.attr('data-part-number', partNumber);
                 elemRow.attr('data-is-spare-part', isSparePart);
-                elemRow.attr('data-qty', '1');
+                elemRow.attr('data-qty', quantityRow);
                 elemRow.attr('data-status', 'match');
                 elemRow.appendTo(elemRoot);
 
-            // if((isSparePart.toLowerCase() === 'spare part') || (isSparePart.toLowerCase() === 'yes') ||  (isSparePart.toLowerCase() === 'wear part')) {
             if(config.service.fieldValues.indexOf(isSparePart.toLowerCase()) > -1) {
 
                 elemRow.addClass('is-spare-part');
 
                 let valueImage = getFlatBOMCellValue(flatBom, link, urns.thumbnail);
                 let linkImage   = (valueImage === '') ? '' : valueImage;
-                let qty         = 0;
+                let qty         = quantityRow;
+                let isAssembly  = true;
 
                 for(flatItem of flatBom) {
                     if(flatItem.item.link === link) {
-                        console.log(link);
                         qty = flatItem.totalQuantity;
+                        isAssembly = false;
                     }
                 }
-
-                console.log(qty);
 
                 if(isSparePart.toLowerCase() === 'wear part') {
                     listWearParts.push({
@@ -603,6 +604,21 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom) {
                         elemSparePartStock.html(stockLabel);
                         elemSparePartStock.appendTo(elemSparePartSide);
 
+                } else if(isAssembly) {
+
+                    $('.spare-part').each(function() {
+                        
+                        let elemSparePart = $(this);
+                        
+                        if(elemSparePart.attr('data-link') === link) {
+                            let elemSparePartQuantity = elemSparePart.find('.spare-part-quantity').first();
+                            let quantitySparePart = parseFloat(elemSparePart.attr('data-qty')) + quantityRow;
+                            elemSparePartQuantity.html(quantitySparePart);
+                            elemSparePart.attr('data-qty', quantitySparePart);
+                        }
+
+                    });
+
                 }
             }
 
@@ -621,7 +637,7 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom) {
                 elemCell.appendTo(elemRow);
                 elemCell.html(getBOMItem(edge.child, bom.nodes));
 
-            let hasChildren = insertNextBOMLevel(bom, elemRoot, edge.child, flatBom);
+            let hasChildren = insertNextBOMLevel(bom, elemRoot, edge.child, flatBom, quantityRow);
 
             elemRow.children().first().each(function() {
                 
