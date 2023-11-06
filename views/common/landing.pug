@@ -1572,13 +1572,13 @@ block content
                             li Manage multiple variants at the same time or focus a single variant only
                             li Dynamically define the properties that define a variant
                         h1 New Workspace Item Variants 
-                        p A new workspace is required to manage items and BOMs that are specific for a given variant. These item variant will refere to a base item to allow for data reuse by using derived fields, but will also have additional fields that define a variant (i.e. color, material etc.)
+                        p A new workspace is required to manage items and BOMs that are specific for a given variant. These item variants will refer to the given base item to allow for data reuse by using derived fields, but will also have additional fields that define a variant (i.e. color, material, dimeions, serial #, ...). Customers can choose any properties they like for these variant specific properties, the application will adjust accordingly.
                         h2 Create new workspace
                         p Use the 
                             strong Workspace Manager 
                             |to create new workspace 
                             strong Item Variants 
-                            |. 
+                            |as revision controlled workspace. 
                             img.border(src='images/apps/variant-manager-1.png' style='max-width:1092px;')
                         h2 Set Item Details of new workspace
                         p Create 3 sections in 
@@ -1599,12 +1599,12 @@ block content
                                 li DMS_ID_BASE_ITEM (id: DMS_ID_BASE_ITEM, Single Line Text, length : 20, Visibility : Never, Editable: true)
                         p In section 
                             strong Variant Definition
-                            |, add all the fields that will be used to define a variant, for example Colour and Material. This section may include any type of field, including pick lists.
+                            |, add all the fields that will be used to define a variant, for example Colour and Material. This section may include any type of field, including pick lists (with single selection).
                         p All data that should be derived from the 
                             strong Base Item 
                             | must be defined in section 
                             strong Base Item Data
-                            |. Make use of derived fields to copy data from the given base item. This may include the Type, Description, Image and further fields of your items workspace.
+                            |. Make use of derived fields to copy data from the given base item. This may for example include Type, Description, Image and further fields of your items workspace.
                         img.border(src='images/apps/variant-manager-4.png' style='max-width:737px;')
                         h2 Descriptor
                         p Set the workspace's 
@@ -1614,7 +1614,9 @@ block content
                         h2 Workspace Relationships
                         p Enable required relationships in the BOM tab:
                         img.border(src='images/apps/variant-manager-2.png' style='max-width:862px;')
-                        p As the Item Variants are revision controlled, add this new workspace to the 
+                        p As 
+                            strong Item Variants 
+                            |are revision controlled, add this new workspace to the 
                             strong Managed Items 
                             | tab of the following workspaces: 
                             ul 
@@ -1648,13 +1650,13 @@ block content
                             table   
                                 tr 
                                     th Field ID
-                                    th Source 
+                                    th Field Source 
                                 tr 
                                     td EDGE_ID_BASE_ITEM
-                                    td BOM 
+                                    td BOM Fields
                                 tr 
                                     td DMS_ID_BASE_ITEM
-                                    td Item Details
+                                    td Item Details Fields
                         p In addition, add all fields of section 
                             strong Variant Definition 
                             |to this table (for example Colour and Material).
@@ -1687,7 +1689,7 @@ block content
                             | app by adding a new computed field to your 
                             strong Items 
                             | workspace. Use the following formula for the new field: 
-                        p.code '&lt;a style="border: 1px solid #bec8d2;border-radius:3px;color: #0a131c;font-weight:600;line-height:26px;padding:4px 20px;text-align:center;text-decoration:none !important;white-space:nowrap;" target="_blank" href ="LOCATIONvariants?wsId=57&dmsId='||DMS_ID||'"&gt;Variant Manager&lt;/a&gt;'
+                        p.code '&lt;a style="border: 1px solid #bec8d2;border-radius:3px;color: #0a131c;font-weight:600;line-height:32px;padding:4px 20px;text-align:center;text-decoration:none !important;white-space:nowrap;" target="_blank" href ="LOCATIONvariants?wsId=57&dmsId='||DMS_ID||'"&gt;Variant Manager&lt;/a&gt;'
                         h1 Adjust Items Workspace
                         h2 Add field Variants
                         p In the 
@@ -1701,27 +1703,38 @@ block content
                         h2 Add field to store dmsID
                         p The items workspace (from where the app will be launched) also must have a field containing the item's dmsID. If not present yet, add a new single line text field with id 
                             strong DMS_ID 
-                            | in the items workspace (hidden). Let this field be set automatically item creation by script as shown below. 
+                            | in the items workspace (hidden). Let this field be set automatically at item creation by script as shown below. 
                             br
                             |Tenants created mid 2023 or later have this field and script already.
                         p.code  
                             span item.DMS_ID = dmsID;
                         h2 Configure BOM View 
                         p The application requires a BOM view with the following columns: 
-                            ul  
-                                li Descriptor 
-                                li Quantity 
-                                li Number
+                            table   
+                                tr 
+                                    th Field
+                                    th Field Source 
+                                tr 
+                                    td Descriptor
+                                    td System Fields
+                                tr 
+                                    td Quantity
+                                    td BOM Fields
+                                tr 
+                                    td Number
+                                    td Item Details Fields
                         p You may add a new view 
                             strong Variant Management 
                             | with these columns or reuse an existing BOM view containing these columns (the view may also contain further columns of course). If you prefer to use a BOM view that is not named 
                             strong Variant Management
-                            | , you have to speficfy this view's name in the server's settings file in parameter 
+                            | , you have to speficfy this view's name in the server's settings file in parameter.
                         p.code 
                             span config.variants.bomViewNameVariants : 'Variant Management'
                         p See next chapter for details.
                         h1 Server Settings File 
-                        p If you require usage of different field names, table names etc, please have a look at the settings.js file and locate section variants, listing all possible configurable settings: 
+                        p If you require usage of different field names, table names etc, please have a look at the settings.js file and locate section variants, listing all possible configurable settings as shown below. Review the first option 
+                            strong wsIdItemVariants 
+                            |which must contain the workspace ID of your newly created workspace. You can retrieve this ID from your browser's URL when navigating to this workspace using the workspaces menu.
                         p.code  
                             span export.config = {
                             span.indent 'variants' : {
