@@ -1,7 +1,7 @@
 # plm-extensions
 PLM User Experiences based on Fusion 360 Manage and Autodesk Platform Serivces
 
-Disclaimer: This solution is provided as is and there should be no assumption that updates, patches, bug fixes and / or new features will be delivered to you. There will also be no support available either through Autodesk Support channels or by the Autodesk Pre-sales Technical Team. Please feel free to take the source code and ideas from this tool to develop your own production ready tool. This package contains native source code on purpose so that you can change or reuse it as you like.
+Disclaimer: In any case all source code, templates and snippets of this solution is of "work in progress" character. Neither of the contributors Koechl nor Autodesk represents that theses code samples are reliable, accurate, complete, or otherwise valid. Accordingly, those configuration samples are provided “as is” with no warranty of any kind and you use the applications at your own risk.
 
 The following extensions are included
 - Change Impact Analysis
