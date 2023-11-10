@@ -79,6 +79,24 @@ exports.config = {
     'colors'  : colors,
     'vectors' : vectors,
 
+    'configurator' : {
+        'wsIdEningeeringItems'      : '57',
+        'wsIdConfigurationFeatures' : '274',
+        // 'bomViewName'               : 'Explorer', ** custom
+        'bomViewName'               : 'Configurator',
+        'fieldIdFeatures'           : 'FEATURES',
+        'fieldIdOptions'            : 'OPTIONS',
+        'fieldIdInclusions'         : 'INCLUSIONS',
+        'fieldIdExclusions'         : 'EXCLUSIONS',
+        // 'fieldIdBOM'                : 'BASE_BOM',
+        'fieldIdBOM'                : 'MANUFACTURING_BOM',
+        'fieldIdBOMType'            : 'CONFIGURATION_TYPE',
+        'stateFeatureApproved'      : 'Approved',
+        'labelSingleOptions'        : 'Single Options',
+        'valueAlternatives'         : 'Modul',
+        'valueOptional'             : 'Modulvariante'
+    },
+
     'dashboard' : [{
         'title'             : 'Problem Reporting Dashboard',
         'wsId'              : 82,

@@ -196,9 +196,7 @@ tr.result td {
     margin-bottom : 10px;
 }
 .attachment-name {
-    display : inline-flex;
     font-weight : bold;
-    max-width : 180px;
 }
 
 

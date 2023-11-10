@@ -631,9 +631,6 @@ div.field-value.string {
 input.field-value {
     font-family : ArtifaktElement;
 }
-input[type='date']:disabled { 
-    color : white; 
-}
 textarea.field-value {
     font-size: 14px;
     height : 40px;
