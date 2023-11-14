@@ -2763,7 +2763,6 @@ router.get('/search-descriptor', function(req, res, next) {
 
     if(bulk !== 'false') headers.Accept = 'application/vnd.autodesk.plm.items.bulk+json';
 
-
     axios.get(url, {
         'headers' : headers
     }).then(function(response) {

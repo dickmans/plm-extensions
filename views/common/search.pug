@@ -1,0 +1,17 @@
+extends layout
+
+block head
+    script.
+        config = !{JSON.stringify(config)};
+    script(src='/javascripts/common/search.js')
+
+block content
+    script.
+        partNumber="#{partNumber}"
+    #progress.processing(style="top:calc(50% - 15px)")
+        .bounce1
+        .bounce2
+        .bounce3
+    #message(style='position:absolute;margin:auto;top:calc(50% + 40px);width:300px;left:calc(50% - 150px);text-align:center;')
+        #text Searchig for item
+        #number(style='font-weight:bold;')= partNumber

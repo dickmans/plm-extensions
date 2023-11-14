@@ -479,6 +479,11 @@ exports.config = {
         }
     },
 
+    'search' : {
+        'wsId'    : 57,
+        'fieldId' : 'NUMBER'
+    },
+
     'service' : {
         'bomViewName'            : 'Service',
         'fieldId'                : 'SPARE_WEAR_PART',
