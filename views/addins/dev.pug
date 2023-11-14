@@ -15,7 +15,7 @@ block content
         .button#button-3 selectComponents(['CAD_30000012', 'CAD_30000052'])
         .button#button-4 addComponent('CAD_00019779')
         .button#button-5 openComponent('CAD_30000012')
-        .button#button-6 updateProperties([{'partNumber' : 'CAD_30000012','properties' : [{ 'key' : 'Title', 'value' : 'Neuer Name'},{ 'key' : 'Description', 'value' : 'Neue Beschreibung'}]}])
+        .button#button-6 updateProperties([{'partNumber' : 'CAD_30000012','properties' : [{ 'key' : 'Title', 'value' : 'Neuer Name'},{ 'key' : 'Description', 'value' : 'Neue Beschreibung'}, { 'key' : 'ca_model_year', 'value' : '2024'}]}])
         .button#button-7 getComponentsLocked(['CAD_30000012','CAD_30000014','CAD_30000052'])
         .button#button-8 isolateComponents(['CAD_30000012', 'CAD_30000052'])
         .button#button-9 setLifecycleState('CO-000012', 'Review')
@@ -26,3 +26,6 @@ block content
         .item(data-part-number='CAD_30000012') CAD_30000012
         .item(data-part-number='CAD_30000052') CAD_30000052
         .item(data-part-number='CAD_30000014') CAD_30000014
+        .item(data-part-number='CAD_30000045') CAD_30000045
+        .item(data-part-number='CAD_30000038') CAD_30000038
+        .item(data-part-number='CAD_30000026') CAD_30000026

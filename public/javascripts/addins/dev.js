@@ -12,4 +12,18 @@ $(document).ready(function() {
     $('#button-8').click(function() { isolateComponents(['CAD_30000012', 'CAD_30000052']); });
     $('#button-9').click(function() { setLifecycleState('CO-000012', 'Review'); });
 
+    $('.item').click(function() {
+
+        $(this).toggleClass('selected');
+
+        let partNumbers = [];
+
+        $('.item').each(function() {
+            if($(this).hasClass('selected')) partNumbers.push($(this).attr('data-part-number'));
+        });
+
+        selectComponents(partNumbers);
+
+    });
+
 });
