@@ -1,6 +1,13 @@
 $(document).ready(function() {
 
-    let data = [{'partNumber' : 'CAD_30000012','properties' : [{ 'key' : 'Title', 'value' : 'Neuer Name'},{ 'key' : 'Description', 'value' : 'Neue Beschreibung'}]}];
+    let data = [{
+        'partNumber' : 'CAD_30000012',
+        'properties' : [
+            { 'key' : 'Title', 'value' : 'Neuer Name'},
+            { 'key' : 'Description', 'value' : 'Neue Beschreibung'},
+            { 'key' : 'ca_model_year', 'value' : '2024'}
+        ]
+    }];
 
     $('#button-1').click(function() { selectComponents([]); });
     $('#button-2').click(function() { selectComponents(['CAD_30000012']); });
