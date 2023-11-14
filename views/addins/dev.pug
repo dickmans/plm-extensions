@@ -1,0 +1,28 @@
+extends ../common/addins
+
+block head
+    script.
+        config = !{JSON.stringify(config)};
+    script(src='/javascripts/addins/dev.js')
+
+block content
+
+    span https://www.forge.tools:9150/addins/dev?partNumber=CAD_30000000
+
+    .buttons(style='display:flex;flex-direction:column;gap:12px;padding:40px;')
+        .button#button-1 selectComponents([])
+        .button#button-2 selectComponents(['CAD_30000012'])
+        .button#button-3 selectComponents(['CAD_30000012', 'CAD_30000052'])
+        .button#button-4 addComponent('CAD_00019779')
+        .button#button-5 openComponent('CAD_30000012')
+        .button#button-6 updateProperties([{'partNumber' : 'CAD_30000012','properties' : [{ 'key' : 'Title', 'value' : 'Neuer Name'},{ 'key' : 'Description', 'value' : 'Neue Beschreibung'}]}])
+        .button#button-7 getComponentsLocked(['CAD_30000012','CAD_30000014','CAD_30000052'])
+        .button#button-8 isolateComponents(['CAD_30000012', 'CAD_30000052'])
+        .button#button-9 setLifecycleState('CO-000012', 'Review')
+
+
+    h1 BOM
+    #bom(style='display:flex;flex-direction:column;gap:12px;padding:40px;') 
+        .item(data-part-number='CAD_30000012') CAD_30000012
+        .item(data-part-number='CAD_30000052') CAD_30000052
+        .item(data-part-number='CAD_30000014') CAD_30000014

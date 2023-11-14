@@ -39,6 +39,18 @@ router.get('/', function(req, res, next) {
 });
 
 
+
+/* ------------------------------------------------------------------------------
+    INVENTOR ADDINS
+   ------------------------------------------------------------------------------ */
+router.get('/addins/dev'           , function(req, res, next) { redirect('addins/dev'          , 'PLM Plugin Development'  , req, res, next); });
+router.get('/addins/bom'           , function(req, res, next) { redirect('addins/bom'          , 'BOM Management'          , req, res, next); });
+router.get('/addins/change'        , function(req, res, next) { redirect('addins/change'       , 'Change Management'       , req, res, next); });
+router.get('/addins/context'       , function(req, res, next) { redirect('addins/context'      , 'Context Browser'         , req, res, next); });
+router.get('/addins/configurations', function(req, res, next) { redirect('addins/configuration', 'Configruation Management', req, res, next); });
+
+
+
 /* ------------------------------------------------------------------------------
     LIST OF APPS
    ------------------------------------------------------------------------------ */
@@ -52,36 +64,30 @@ router.get('/apps/printer', function(req, res, next) {
    ------------------------------------------------------------------------------ */
 function redirect(view, app, req, res, next) {
 
-    console.log(" ");
-    console.log("  Redirect START");
-    console.log(" --------------------------------------------");
-
-    let params = [req.query.wsId, req.query.dmsId, req.query.partNumber];
-
-    if(typeof params[0] === 'undefined') params[0] = req.query.wsid;
-    if(typeof params[1] === 'undefined') params[1] = req.query.dmsid;
-    if(typeof params[2] === 'undefined') params[2] = req.query.partnumber;
-     
+    console.log(' ');
+    console.log('  Redirect START');
+    console.log(' --------------------------------------------');
+    
     req.session.url             = req.url;
     req.session.view            = view;
     req.session.app             = app;
-    req.session.wsId            = params[0];
-    req.session.dmsId           = params[1];
-    req.session.partNumber      = params[2];
+    req.session.wsId            = req.query.wsId;
+    req.session.dmsId           = req.query.dmsId;
+    req.session.partNumber      = req.query.partNumber;
     req.session.link            = '/api/v3/workspaces/' + req.session.wsId + '/items/' + req.session.dmsId
     req.session.options         = req.query.hasOwnProperty('options') ? req.query.options : '';
     req.session.tenant          = req.query.hasOwnProperty('tenant') ? req.query.tenant : req.app.locals.tenant;
     req.session.revisionBias    = req.query.hasOwnProperty('revisionBias') ? req.query.revisionBias : 'release';
     
-    console.log("  req.session.view         = " + req.session.view); 
-    console.log("  req.session.app          = " + req.session.app); 
-    console.log("  req.session.wsId         = " + req.session.wsId); 
-    console.log("  req.session.dmsId        = " + req.session.dmsId); 
-    console.log("  req.session.partNumber   = " + req.session.partNumber); 
+    console.log('  req.session.view         = ' + req.session.view); 
+    console.log('  req.session.app          = ' + req.session.app); 
+    console.log('  req.session.wsId         = ' + req.session.wsId); 
+    console.log('  req.session.dmsId        = ' + req.session.dmsId); 
+    console.log('  req.session.partNumber   = ' + req.session.partNumber); 
     console.log('  req.session.link         = ' + req.session.link); 
-    console.log("  req.session.options      = " + req.session.options); 
-    console.log("  req.session.tenant       = " + req.session.tenant); 
-    console.log("  req.session.revisionBias = " + req.session.revisionBias); 
+    console.log('  req.session.options      = ' + req.session.options); 
+    console.log('  req.session.tenant       = ' + req.session.tenant); 
+    console.log('  req.session.revisionBias = ' + req.session.revisionBias); 
     console.log();
 
     let redirect = false;

@@ -1,0 +1,10 @@
+div.button {
+    background : #fafafa;
+    white-space: normal;
+}
+
+
+.item.selected {
+    background : blue;
+    color : white;
+}

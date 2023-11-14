@@ -1,0 +1,34 @@
+doctype html
+html
+    head
+
+        title= title
+    
+        meta(name='viewport' content='width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=no')
+        meta(charset='utf-8')
+    
+        link(rel='stylesheet', href='/stylesheets/common/colors.css')
+        link(rel='stylesheet', href='/stylesheets/common/fonts.css')
+        link(rel='stylesheet', href='/stylesheets/common/standard.css')
+        link(rel='stylesheet', href='/stylesheets/common/styles.css')
+        link(rel='stylesheet', href='/stylesheets/common/details.css')
+        link(rel='stylesheet', href='/stylesheets/common/viewer.css')
+        link(rel='stylesheet', href='/stylesheets/common/tabs.css')
+        link(rel='stylesheet', href='/stylesheets/common/addins.css')
+        link(rel='stylesheet', href='/stylesheets/common/custom.css')
+    
+        script(src='/javascripts/libs/jquery-3.6.1.min')
+        script(src='/javascripts/common/utils.js')
+        script(src='/javascripts/common/ui.js')
+        script(src='/javascripts/common/addins.js')
+
+        script.
+            tenant='#{tenant}'
+            wsId='#{wsId}'
+            dmsId='#{dmsId}' 
+            revisionBias='#{revisionBias}' 
+            options='#{options}'.split(',');
+    
+        block head
+
+    block content
