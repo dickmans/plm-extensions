@@ -2750,7 +2750,7 @@ router.get('/search-descriptor', function(req, res, next) {
     console.log();
 
     let limit       = (typeof req.query.limit    === 'undefined') ?   100    : req.query.limit;
-    let offset      = (typeof req.query.offset   === 'undefined') ?     0    : req.query.offset;
+    let offset      = (typeof req.query.offset   === 'undefined') ?   0      : req.query.offset;
     let bulk        = (typeof req.query.bulk     === 'undefined') ?  'false' : req.query.bulk;
     let page        = (typeof req.query.page     === 'undefined') ?   '1'    : req.query.page;
     let revision    = (typeof req.query.revision === 'undefined') ?   '1'    : req.query.revision;
@@ -2763,8 +2763,6 @@ router.get('/search-descriptor', function(req, res, next) {
 
     if(bulk !== 'false') headers.Accept = 'application/vnd.autodesk.plm.items.bulk+json';
 
-console.log(headers);
-console.log(url);
 
     axios.get(url, {
         'headers' : headers
