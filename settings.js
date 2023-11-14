@@ -356,6 +356,31 @@ exports.config = {
             'style'     : 'bars',
             'data'      : []  
         },{
+            'id'        : 'quality-inspection-required',
+            'title'     : 'Quality Inspection Required',
+            'fieldId'   : 'INSPECTION_REQUIRED',
+            'urn'       : '',
+            'type'      : 'value',
+            'style'     : 'counters',
+            'data'      : [
+                { 'value' : 'Yes' , 'count' : 0, 'color' : colors.list[0], 'vector' : vectors.red },
+                { 'value' : '-'   , 'count' : 0, 'color' : colors.list[2], 'vector' : vectors.yellow },
+                { 'value' : 'No'  , 'count' : 0, 'color' : colors.list[4], 'vector' : vectors.green }
+            ]
+        },{
+            'id'        : 'quality-inspection-result',
+            'title'     : 'Latest Quality Inspection Result',
+            'fieldId'   : 'LATEST_QI_RESULT',
+            'urn'       : '',
+            'type'      : 'value',
+            'style'     : 'bars',
+            'data'      : [
+                { 'value' : '-'          , 'count' : 0, 'color' : colors.list[3], 'vector' : vectors.list[0] },
+                { 'value' : 'FAIL'       , 'count' : 0, 'color' : colors.list[0], 'vector' : vectors.red },
+                { 'value' : 'In Progress', 'count' : 0, 'color' : colors.list[2], 'vector' : vectors.yellow },
+                { 'value' : 'PASS'       , 'count' : 0, 'color' : colors.list[4], 'vector' : vectors.green }
+            ]
+        },{
             'id'        : 'reach',
             'title'     : 'REACH',
             'fieldId'   : 'REACH',
