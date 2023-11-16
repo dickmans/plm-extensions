@@ -116,6 +116,24 @@ exports.config = {
             { 'label' : 'Completed',   'color' : colors.green,  'states' : ['Completed'] }
         ]
     },{
+        'title'             : 'Non Conformances Tracking Dashboard',
+        'wsId'              : 98,
+        'icon'              : 'workspace_premium',
+        'fieldIdSubtitle'   : 'DESCRIPTION',
+        'fieldIdItem'       : 'NONCONFORMING_ITEM',
+        'imageFieldsPrefix' : 'IMAGE_',
+        'workflowHistory'   : {
+            'showNextActions'       : true,
+            'excludedTransitions'   : ['Cancel'],
+            'finalStates'           : ['Closed']
+        },
+        'progress' : [
+            { 'label' : 'New',         'color' : colors.red,    'states' : ['Identification In Progress'] },
+            { 'label' : 'Analysis',    'color' : colors.yellow, 'states' : ['Under Review'] },
+            { 'label' : 'Improvement', 'color' : colors.yellow, 'states' : ['Disposition In Progress', 'CAPA In Progress'] },
+            { 'label' : 'Closed',      'color' : colors.green,  'states' : ['Closed'] }
+        ]
+    },{
         'title' : 'Change Requests Management',
         'wsId'  : 83,
         'icon'  : 'rebase_edit',
