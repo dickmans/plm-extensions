@@ -2888,82 +2888,93 @@ router.get('/tableau-add', function(req, res, next) {
         'columns'       : []
     };
 
-    axios.get(urlFields, {
-        headers : req.session.headers
-    }).then(function(response) {
+    if(title.length > 30) {
 
-        for(column of columns) {
+        console.log();
+        console.log('  ERROR : Tableau name must not exceed 30 characters');
+        console.log();
+        sendResponse(req, res, { 'status' : 500, 'message' : 'Tableau name must not exceed 30 characters' }, true);
 
-            let col = {
-                'displayOrder' : index++,
-                'field' : {},
-                'group' : {}
-            }
+    } else {
 
-            switch(column.toLowerCase()) {
-
-                case 'descriptor':
-                    col.field.title     = 'Item Descriptor';
-                    col.field.__self__  = '/api/v3/workspaces/' + req.query.wsId + '/views/0/fields/DESCRIPTOR';
-                    col.field.urn       = '';
-                    col.field.type      = { 'link' : '/api/v3/field-types/4' }
-                    col.group           = { 'label' : 'ITEM_DESCRIPTOR_FIELD' };
-                    break;
-
-                case 'created_on':
-                    col.field.title     = 'Created On';
-                    col.field.__self__  = '/api/v3/workspaces/' + req.query.wsId + '/views/0/fields/CREATED_ON';
-                    col.field.urn       = '';
-                    col.field.type      = { 'link' : '/api/v3/field-types/3' };
-                    col.group           = { 'label' : 'LOG_FIELD' };
-                    break;
-
-                case 'last_modified_on':
-                    col.field.title     = 'Last Modified On';
-                    col.field.__self__  = '/api/v3/workspaces/' + req.query.wsId + '/views/0/fields/LAST_MODIFIED_ON';
-                    col.field.urn       = '';
-                    col.field.type      = { 'link' : '/api/v3/field-types/3' };
-                    col.group           = { 'label' : 'LOG_FIELD' };
-                    break;
-
-                case 'wf_current_state':
-                    col.field.title     = 'Currrent State';
-                    col.field.__self__  = '/api/v3/workspaces/' + req.query.wsId + '/views/0/fields/WF_CURRENT_STATE';
-                    col.field.urn       = '';
-                    col.field.type      = { 'link' : '/api/v3/field-types/3' };
-                    col.group           = { 'label' : 'WORKFLOW_FIELD' };
-                    break;
-
-                default:
-                    for(field of response.data.fields) {
-                        let fieldId = field.__self__.split('/')[8];
-                        if(fieldId === column) {
-                            col.field.title     = field.name;
-                            col.field.__self__  = field.__self__;
-                            col.field.urn       = '';
-                            col.field.type      = { 'link' : field.type.link };
-                            col.group           = { 'label' : 'ITEM_DETAILS_FIELD' };
-                        }
-                    }
-                    break;
-            }
-
-            params.columns.push(col);
-
-        }
-    
-        let headers = getCustomHeaders(req);
-            headers['Content-Type'] = 'application/vnd.autodesk.plm.meta+json';
-
-        axios.post(url, params, {
-            headers : headers
+        axios.get(urlFields, {
+            headers : req.session.headers
         }).then(function(response) {
-            sendResponse(req, res, response, false);
-        }).catch(function(error) {
-            sendResponse(req, res, error.response, true);
+
+            for(column of columns) {
+
+                let col = {
+                    'displayOrder' : index++,
+                    'field' : {},
+                    'group' : {}
+                }
+
+                switch(column.toLowerCase()) {
+
+                    case 'descriptor':
+                        col.field.title     = 'Item Descriptor';
+                        col.field.__self__  = '/api/v3/workspaces/' + req.query.wsId + '/views/0/fields/DESCRIPTOR';
+                        col.field.urn       = '';
+                        col.field.type      = { 'link' : '/api/v3/field-types/4' }
+                        col.group           = { 'label' : 'ITEM_DESCRIPTOR_FIELD' };
+                        break;
+
+                    case 'created_on':
+                        col.field.title     = 'Created On';
+                        col.field.__self__  = '/api/v3/workspaces/' + req.query.wsId + '/views/0/fields/CREATED_ON';
+                        col.field.urn       = '';
+                        col.field.type      = { 'link' : '/api/v3/field-types/3' };
+                        col.group           = { 'label' : 'LOG_FIELD' };
+                        break;
+
+                    case 'last_modified_on':
+                        col.field.title     = 'Last Modified On';
+                        col.field.__self__  = '/api/v3/workspaces/' + req.query.wsId + '/views/0/fields/LAST_MODIFIED_ON';
+                        col.field.urn       = '';
+                        col.field.type      = { 'link' : '/api/v3/field-types/3' };
+                        col.group           = { 'label' : 'LOG_FIELD' };
+                        break;
+
+                    case 'wf_current_state':
+                        col.field.title     = 'Currrent State';
+                        col.field.__self__  = '/api/v3/workspaces/' + req.query.wsId + '/views/0/fields/WF_CURRENT_STATE';
+                        col.field.urn       = '';
+                        col.field.type      = { 'link' : '/api/v3/field-types/3' };
+                        col.group           = { 'label' : 'WORKFLOW_FIELD' };
+                        break;
+
+                    default:
+                        for(field of response.data.fields) {
+                            let fieldId = field.__self__.split('/')[8];
+                            if(fieldId === column) {
+                                col.field.title     = field.name;
+                                col.field.__self__  = field.__self__;
+                                col.field.urn       = '';
+                                col.field.type      = { 'link' : field.type.link };
+                                col.group           = { 'label' : 'ITEM_DETAILS_FIELD' };
+                            }
+                        }
+                        break;
+                }
+
+                params.columns.push(col);
+
+            }
+        
+            let headers = getCustomHeaders(req);
+                headers['Content-Type'] = 'application/vnd.autodesk.plm.meta+json';
+
+            axios.post(url, params, {
+                headers : headers
+            }).then(function(response) {
+                sendResponse(req, res, response, false);
+            }).catch(function(error) {
+                sendResponse(req, res, error.response, true);
+            });
+
         });
 
-    });
+    }
     
 });
 

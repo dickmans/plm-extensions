@@ -12,7 +12,8 @@ let wsConfig        = {
     'icon'                  : 'account_tree',
     'fieldIdSubtitle'       : '',
     'fieldIdItem'           : '',
-    'tableau'               : '',
+    'tableauName'           : '',
+    'tableauLink'           : '',
     'imageFieldsPrefix'     : 'MARKUP_'
 }
 let wsConfigBrowser = {
@@ -31,6 +32,7 @@ $(document).ready(function() {
             wsConfig.id          = profile.wsId.toString();
             wsConfig.progress    = profile.progress;
             wsConfig.fieldIdItem = profile.fieldIdItem;
+            wsConfig.tableauName = (profile.title.length < 31) ? profile.title.length : 'Process Dashboard';
 
             if(!isBlank(profile.icon)) wsConfig.icon = profile.icon;
             if(!isBlank(profile.title)) title = profile.title;
@@ -250,8 +252,8 @@ function getInitialData() {
         wsConfig.fields   = responses[1].data;
 
         for(tableau of responses[2].data) {
-            if(tableau.title === title) {
-                wsConfig.tableau = tableau.link;
+            if(tableau.title === wsConfig.tableauName) {
+                wsConfig.tableauLink = tableau.link;
             }
         }
 
@@ -280,21 +282,21 @@ function getInitialData() {
             if($(this).children('.field-value').attr('data-id') === wsConfig.fieldIdItem) $(this).css('display', 'flex');
         });
 
-        if(wsConfig.tableau === '') {
+        if(wsConfig.tableauLink === '') {
 
             let params = {
                 'wsId'      : wsConfig.id, 
-                'name'      : title,
+                'name'      : wsConfig.tableauName,
                 'columns'   : ['descriptor', 'created_on', 'last_modified_on', 'wf_current_state']
             }
 
             if(!isBlank(wsConfig.fieldIdSubtitle)) params.columns.push(wsConfig.fieldIdSubtitle);
 
-            $.get('/plm/tableau-add', params, function() {
+            $.get('/plm/tableau-add', params, function(response) {
                 $.get('/plm/tableaus', { 'wsId' : wsConfig.id }, function(response) {
                     for(tableau of response.data) {
-                        if(tableau.title === title) {
-                            wsConfig.tableau = tableau.link;
+                        if(tableau.title === wsConfig.tableauName) {
+                            wsConfig.tableauLink = tableau.link;
                             getProcesses();
                         }
                     }
@@ -311,7 +313,7 @@ function getInitialData() {
 function getProcesses() {
 
     let requests = [
-        $.get('/plm/tableau-data', { 'link' : wsConfig.tableau }),
+        $.get('/plm/tableau-data', { 'link' : wsConfig.tableauLink }),
         $.get('/plm/mow', {}),
         $.get('/plm/recent', {}),
         $.get('/plm/bookmarks', {})
