@@ -528,6 +528,10 @@ block content
                         h1 Process Dashboard Change Log 
                         table 
                             tr 
+                                td 16. November 2023
+                                td Extension
+                                td Added configuration profile for management of Non Conformances (incl. given button in documentation)
+                            tr 
                                 td 6. October 2023
                                 td Release
                                 td Initial release of this new app
@@ -1362,6 +1366,12 @@ block content
                         p For both the EBOM and MBOM workspace, the system has to store the dmsID for new records in field DMS_ID. Add the following script code to the creation event of both workspaces. If your tenant is based on the template released in April 2023, this field exists in your tenant and will be set by script already.
                         p.code
                             span item.DMS_ID = dmsID;
+                        h1 Default Values for new items 
+                        p When users add operations and MBOM items, these new items may receive default values for defined fields, like a specific type. Such defaults can be defined in the file settings.js - see next chapter for details. The default settings file provides a placeholder example:
+                        img.border(src='images/apps/mbom-editor-9.png' style='width:100%;max-width:725px;')
+                        p You can provide an array of all the fields to be populated with default values. As shown in the example above, this requires the field's ID (TYPE) and value. In addition, the setting 
+                            strong fieldsToCopy 
+                            |enables definition of a list of fields which will be copied from the given related EBOM item to the new MBOM item.
                         h1 Server Settings File
                         p Review the following contents in file 
                             strong settings.js
