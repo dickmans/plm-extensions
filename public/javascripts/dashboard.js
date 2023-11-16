@@ -32,7 +32,7 @@ $(document).ready(function() {
             wsConfig.id          = profile.wsId.toString();
             wsConfig.progress    = profile.progress;
             wsConfig.fieldIdItem = profile.fieldIdItem;
-            wsConfig.tableauName = (profile.title.length < 31) ? profile.title.length : 'Process Dashboard';
+            wsConfig.tableauName = (profile.title.length < 31) ? profile.title : 'Process Dashboard';
 
             if(!isBlank(profile.icon)) wsConfig.icon = profile.icon;
             if(!isBlank(profile.title)) title = profile.title;

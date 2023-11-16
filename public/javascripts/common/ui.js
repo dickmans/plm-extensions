@@ -414,7 +414,6 @@ function insertField(field, itemData, elemParent, hideComputed, hideReadOnly, ed
                         elemValue.addClass('date');
                         elemValue.append(elemInput);
                         if(value !== null) elemInput.val(value);
-                        console.log(value);
                         break;
                         
                     case 'Check Box':

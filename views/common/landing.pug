@@ -520,8 +520,10 @@ block content
                         h1 Access the Dashboard
                         p You can access the process dashboard with the 
                             strong /dashboard
-                            |  endpoint by providing the workspace profile to use. The value of parameter wsId has to match the wsId property value of the configuration profile to use. If you're connected to a default tenant, use this link:
-                        a(href='dashboard?wsId=82' target='_blank')
+                            |  endpoint by providing the workspace profile to use. The value of parameter wsId has to match the wsId property value of the configuration profile to use. If you're connected to a default tenant of 2023 or later, you can use these links:
+                        div(style='display:flex;gap:10px;') 
+                            a(href='dashboard?wsId=82' target='_blank') Problem Reporting Dashboard (wsId 82)
+                            a(href='dashboard?wsId=98' target='_blank') Non Conformances Dashboard (wsId 98)
                     .log 
                         h1 Process Dashboard Change Log 
                         table 
