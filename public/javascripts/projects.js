@@ -14,7 +14,7 @@ function getData() {
         'wsId'   : config.projects.wsIdProjects,
         'limit'  : 100,
         'offset' : 0,
-        'query'  : '*'
+        'query'  : config.projects.query
     }, function(response) {
 
         sortArray(response.data.items, 'title', 'string', 'ascending');

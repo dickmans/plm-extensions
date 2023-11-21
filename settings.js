@@ -470,7 +470,8 @@ exports.config = {
     },
 
     'projects' : {
-        'wsIdProjects' : 86
+        'wsIdProjects' : 86,
+        'query'        : '*'
     },
 
     'reports': {
