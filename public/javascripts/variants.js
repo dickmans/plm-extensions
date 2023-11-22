@@ -404,7 +404,9 @@ function bomDisplayDone(id) {
 
                 let variantTitle = variantItem.title;
                 if(!isBlank(variantTitle)) {
-                    variantTitle = variantTitle.split(' - ')[0] + '-' + variantTitle.split(' - ')[1];
+                    if(variantTitle.indexOf(' - ') > -1) { 
+                        variantTitle = variantTitle.split(' - ')[0] + '-' + variantTitle.split(' - ')[1];
+                    }
                 }
 
                 let elemCellItem = $('<td></td>');
