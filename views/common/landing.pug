@@ -1362,7 +1362,6 @@ block content
                                 td To MBOM workspace ([WS] Items), Single Selection
                                 td Always
                                 td True
-
                         p Finally, add a  computed field 'MBOM_EDITOR' with the following formula. Make sure to provide the right workspace ID (...?wsId=57...). It has to match the EBOM workspace ID (57 matches the standard Items workspace).
                         p.code CASE 
                             span WHEN (DMS_ID is null) THEN '<span style="white-space:nowrap;color:#bbb;font-style:italic;">Item ID is not set</span>'
@@ -1389,6 +1388,7 @@ block content
                             li Ignore in MBOM
                             li Revision
                         h1 Configuration Changes for MBOM Workspace
+                        p The following steps must be performed in the workspace to manage the MBOMs - which could be the same one as for the previous steps or a second one in case of a 2 workspaces setup.
                         h2 Extend Item Details
                         p If you use the same workspace for both the EBOM and MBOM, simply add the following fields to this EBOM &amp; MBOM workspace. You may add these fields to the matrix created before:
                         ol 
