@@ -2,6 +2,15 @@
     --padding-top : 50px;
 }
 
+* {
+    -webkit-touch-callout: unset;
+    -webkit-user-select: unset;
+    -khtml-user-select: unset;
+    -moz-user-select:unset;
+    -ms-user-select:unset;
+    user-select:all;
+}
+
 img {
     border : 1px solid var(--color-gray-400) !important;
 }
@@ -41,8 +50,6 @@ h2 {
 .button.icon {
     padding : 2px;
 }
-
-
 
 
 /*  APP */
