@@ -1271,31 +1271,105 @@ block content
                             li Access details of selected items in right hand side panel whenever needed
                             li Manage multiple MBOMs per EBOM item (i.e. site specific BOMs)
                         a(href='https://youtu.be/5s9080mmYLo') See introduction video
-                        h1 Important
-                        p This editor helps users in copying &amp; extending one BOM into another. Depending on the tenant configuration, this may involve a single items workspaces or multiple ones. For example, you may want to copy a Vault Items and BOMs structure into an Items and BOMs structure to have different access permission controls and business logic. However, you may also want to manage both BOMs in the same workspace, for example the Items or Vault Items and BOMs. While the editor supports both scenarios, the setup is slightly different in each scenario.
+                        h1 Important - Read before proceeding
+                        p This editor helps in transitioning an Engineering BOM to a Manufacturing BOM. This may involve one or two item workspaces, depending on your teannt configuration and preference. If your tenant has been created before Mid 2023, your tenant will most likelly have two workspaces to manage items: 
+                            strong Items and BOMs 
+                            |as well as 
+                            strong Vault Items and BOMs
+                            |. If your tenant is more recent, it will only contain the new workspace named 
+                            strong Items 
+                            |(unless you installed the Vault Items and BOMs from the template library).
+                        p If your tenant only has the single 
+                            strong Items 
+                            |workspace, this workspace will be used to manage both the EBOMs and the MBOMs. In this case, all installation steps referring to both EBOM and MBOM must be applied to this workspace. You can skip all steps referring to the 
+                            strong 2 Workspaces 
+                            |setup.
+                        p On the other hand, if you have two workspaces, you can use the one for the EBOM and the other one for the MBOM. In this case, you will most likely use 
+                            strong Vault Items and BOMs 
+                            |as the EBOM workspace and 
+                            strong Items and BOMs 
+                            |as the MBOM workspace. This setup is referred to as the 
+                            strong 2 Workspaces 
+                            |setup in the instructions below. Of course, you can also choose one of these workpaces and use it for both EBOM and MBOM at the same time.
                         p Note that the viewer inside the MBOM Editor will only work if the base EBOM item has a dwf file attached.
-                        p The installation instructions shown below will refer to the source BOM as 'EBOM' and to the target BOM as 'MBOM'. Most probably, you will use the Items (and BOMs) workspace to manage both the EBOM and MBOM. In this case, a minimum of adjustments is needed. This documentation will focus on this primary use case but also explain the extra configurations required when using two workspaces instead.
-                        h1 Configuration Changes for EBOM Workspace (Items)
+                        h1 Configuration Changes for EBOM Workspace
                         h2 Extend Item Details
                         p Add a new section 
                             strong Manufacturing BOM 
                             | with the following fields to this workspace:
-                        ol 
-                            li If it does not exist yet, add Single Line Text field 'DMS_ID' (DMS_ID, length 20, not editable, hidden)
-                            li Add checkbox 'End Item' (END_ITEM, visible, editable)
-                            li Add checkbox 'Matches MBOM' (MATCHES_MBOM, visible, editable)
-                            li Add checkbox 'Ignore in MBOM' (IGNORE_IN_MBOM, visible, editable)
-                            li Add Single Line Text field 'Process Code' (PROCESS_CODE, length 10, visible, editable)
-                            li Add Single Line Text field 'Last MBOM User' (LAST_MBOM_USER, length 50, visible, editable)
-                            li Add date field  'Last MBOM Sync' (LAST_MBOM_SYNC, visible, editable)
-                            li Add field MBOM as linking pick list to the MBOM workspace (MBOM, Single Selection, visible, editable)
-                            li Add computed field 'MBOM_EDITOR' with the following formula. Make sure to provide the right workspace ID (...?wsId=57...). It has to match the EBOM workspace ID (57 matches the standard Items workspace).
-                                p.code CASE 
-                                    span WHEN (DMS_ID is null) THEN '<span style="white-space:nowrap;color:#bbb;font-style:italic;">Item ID is not set</span>'
-                                    span WHEN (END_ITEM = true) THEN '<span style="white-space:nowrap;color:#bbb;font-style:italic;">Not available for end items</span>'
-                                    span WHEN (MATCHES_MBOM = true) THEN '<span style="white-space:nowrap;color:#bbb;font-style:italic;">EBOM matches MBOM</span>'
-                                    span ELSE '&lt;a style="color: #0a131c;border: 1px solid #bec8d2;border-radius:3px;text-align:center;text-decoration:none !important;line-height:32px;white-space:nowrap;padding:4px 20px;width:140px;font-weight:600;" target="_blank" href ="LOCATIONmbom?wsId=57&dmsId='||DMS_ID||'"&gt;Edit MBOM&lt;/a&gt;'
-                                    span END                         
+
+                        table   
+                            tr 
+                                th Field Name 
+                                th Field ID    
+                                th Data Type
+                                th Options
+                                th Visibility
+                                th Editable
+                            tr 
+                                td DMS_ID 
+                                td DMS_ID
+                                td Single Line Text 
+                                td Length : 20
+                                td Never
+                                td False
+                            tr 
+                                td End Item 
+                                td END_ITEM
+                                td Check Box 
+                                td 
+                                td Always
+                                td True
+                            tr 
+                                td Matches MBOM 
+                                td MATCHES_MBOM
+                                td Check Box 
+                                td 
+                                td Always
+                                td True
+                            tr 
+                                td Ignore in MBOM
+                                td IGNORE_IN_MBOM
+                                td Check Box 
+                                td 
+                                td Always
+                                td True
+                            tr 
+                                td Process Code 
+                                td PROCESS_CODE
+                                td Single Line Text 
+                                td Length : 10
+                                td Always
+                                td True
+                            tr 
+                                td Last MBOM User 
+                                td LAST_MBOM_USER
+                                td Single Line Text  
+                                td Length : 100
+                                td Always
+                                td True
+                            tr 
+                                td Last MBOM Sync
+                                td LAST_MBOM_SYNC
+                                td Date
+                                td 
+                                td Always
+                                td True
+                            tr 
+                                td MBOM
+                                td MBOM
+                                td Pick List
+                                td To MBOM workspace ([WS] Items), Single Selection
+                                td Always
+                                td True
+
+                        p Finally, add a  computed field 'MBOM_EDITOR' with the following formula. Make sure to provide the right workspace ID (...?wsId=57...). It has to match the EBOM workspace ID (57 matches the standard Items workspace).
+                        p.code CASE 
+                            span WHEN (DMS_ID is null) THEN '<span style="white-space:nowrap;color:#bbb;font-style:italic;">Item ID is not set</span>'
+                            span WHEN (END_ITEM = true) THEN '<span style="white-space:nowrap;color:#bbb;font-style:italic;">Not available for end items</span>'
+                            span WHEN (MATCHES_MBOM = true) THEN '<span style="white-space:nowrap;color:#bbb;font-style:italic;">EBOM matches MBOM</span>'
+                            span ELSE '&lt;a style="color: #0a131c;border: 1px solid #bec8d2;border-radius:3px;text-align:center;text-decoration:none !important;line-height:32px;white-space:nowrap;padding:4px 20px;width:140px;font-weight:600;" target="_blank" href ="LOCATIONmbom?wsId=57&dmsId='||DMS_ID||'"&gt;Edit MBOM&lt;/a&gt;'
+                            span END                         
                         p While the layout does not matter, it is recommended to combine the given fields in a Matrix within this section as shown below.
                         img.border(src='images/apps/mbom-editor-1.png' style='width:100%;max-width:1105px')
                         h2 New BOM View 
