@@ -67,7 +67,7 @@ router.get('/apps/printer', function(req, res, next) {
 function launch(view, app, req, res, next) {
 
     console.log(' ');
-    console.log('  launch START');
+    console.log('  Application START');
     console.log(' --------------------------------------------');
     
     req.session.url             = req.url;
