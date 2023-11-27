@@ -861,7 +861,7 @@ function setSparePartsList(elemItem) {
         let isSparePart = elemNext.attr('data-is-spare-part');
 
         if(typeof isSparePart !== 'undefined') {
-            if((isSparePart.toLowerCase() === 'yes') || (isSparePart.toLowerCase() === 'spare part') || (isSparePart.toLowerCase() === 'wear part')){
+            if(config.service.fieldValues.indexOf(isSparePart.toLowerCase()) > -1) {
 
                 let link = elemNext.attr('data-link');
 
