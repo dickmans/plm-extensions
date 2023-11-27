@@ -177,8 +177,6 @@ router.get('/fields', function(req, res, next) {
 
     let url = 'https://' + req.session.tenant + '.autodeskplm360.net/api/v3/workspaces/' + wsId + '/fields';
     
-    console.log(url);
-
     axios.get(url, {
         headers : req.session.headers
     }).then(function(response) {
@@ -1775,9 +1773,10 @@ router.get('/get-viewables', function(req, res, next) {
                 if(attachment.type.extension !== null) {
 
                     let extensionMatch = false;
+                    let extensionLCase = attachment.type.extension.toLowerCase();
 
                     for(extension of extensions) {
-                        if(attachment.type.extension.endsWith(extension)) extensionMatch = true;
+                        if(extensionLCase.endsWith(extension)) extensionMatch = true;
                     }
 
                     if(extensionMatch) {

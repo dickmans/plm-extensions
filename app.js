@@ -9,6 +9,7 @@ const bodyParser  = require('body-parser');
 const landing     = require('./routes/landing');
 const plm         = require('./routes/plm');
 const extensions  = require('./routes/extensions');
+const { fchmodSync } = require('fs');
 const settings    = require('./settings' + fileSettings + '.js');
 const app         = express();
 
@@ -71,3 +72,6 @@ app.use(function(err, req, res, next) {
 });
 
 module.exports = app;
+
+
+fchmodSync

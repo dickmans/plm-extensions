@@ -112,6 +112,7 @@
 .icon-refresh::before    { content : '\e627'; }
 .icon-released::before    { content : '\e031'; }
 .icon-rules::before    { content : '\f1c2'; }
+.icon-save::before    { content : '\e2c3'; }
 .icon-send::before    { content : '\e163'; }
 .icon-select-all:before    { content : '\e877'; }
 .icon-settings::before { content : '\e8b8'; }

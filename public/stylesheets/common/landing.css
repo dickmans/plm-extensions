@@ -4,11 +4,11 @@
 
 * {
     -webkit-touch-callout: unset;
-    -webkit-user-select: unset;
+    -webkit-user-select: auto;
     -khtml-user-select: unset;
     -moz-user-select:unset;
     -ms-user-select:unset;
-    user-select:all;
+    user-select:text;
 }
 
 img {
@@ -181,7 +181,7 @@ td {
     border-bottom : 1px solid #eee;
 }
 th, td {
-    padding : 3px 8px;
+    padding : 5px 10px;
 }
 li {
     margin : 1px 0px;

@@ -31,6 +31,7 @@ exports.tenant          = tenant;
 exports.redirectUri     = redirectUri;
 exports.protocol        = protocol;
 exports.port            = port;
+exports.debugMode       = true;
 
 
 // -------------------------------------------------------------------------------------------

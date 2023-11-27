@@ -1,0 +1,65 @@
+/* MASTER LAYOUT */
+/* ----------------------------------------------------------------------------- */
+:root {
+    --width-panel   : 400px;
+    --padding-panel : 25px;
+}
+#matrix {
+    /* border-right : 4px solid var(--color-gray-100); */
+    position : absolute;
+    padding-right : var(--padding-panel);
+    top : var(--padding-panel);
+    right : calc((2 * var(--padding-panel)) + var(--width-panel));
+    bottom : var(--padding-panel);
+    left : var(--padding-panel);
+    width : calc(100% - (2 * var(--padding-panel)));
+}
+#details {
+    top    : var(--padding-panel);
+    right  : var(--padding-panel);
+    bottom : var(--padding-panel);
+    width  : var(--width-panel);
+    left : 100%;
+}
+#viewer {
+    height : var(--height-viewer);
+    position : absolute;
+    top : 70px;
+    left : 0px;
+    right : 0px;
+}
+
+/* .with-panel #matrix  */
+.with-panel #matrix { width : calc(100% - var(--width-panel) - (2 * var(--padding-panel))); }
+/* .with-panel #details { display : block !important; } */
+.with-panel #details { left : unset; }
+.matrix-head {
+    font-size : 18px;
+    font-weight : 800;
+    padding : 16px 24px;
+    border-bottom : 2px solid black;
+}
+.matrix-titles {
+    background : var(--color-gray-100);
+}
+#main {
+    overflow-y : auto;
+}
+
+/* matrix */
+/* ----------------------------------------------------------------------------- */
+#matrix tr {
+    cursor : pointer;
+}
+#matrix tr:hover td {
+    background : var(--color-hover) !important;
+}
+#matrix tr.selected td {
+    background   : var(--color-selected) !important;
+    border-color : var(--color-selected-border);
+}
+/* DETAILS */
+/* ----------------------------------------------------------------------------- */
+/* #details {
+    display : none;
+} */

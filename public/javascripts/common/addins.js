@@ -38,13 +38,36 @@ async function updateProperties(data) {
 
 }
 
-async function getComponentsLocked(partNumbers) {
+// async function getComponentsLocked(partNumbers) {
+
+//     console.log('getComponentsLocked START');
+//     console.log(partNumbers);
+
+//     const plmAddin = chrome.webview.hostObjects.plmAddin;
+//     let itemsLocked = await plmAddin.getComponentsLocked(partNumbers);
+//     // let itemsLocked = await plmAddin.getComponentsLocked(partNumbers);
+//     // var itemsLocked = await plmAddin.getComponentsLocked(partNumbers);
+//     // var itemsLocked = await plmAddin.getComponentsLocked("42");
+//     // await plmAddin.getComponentsLocked();
+//     // let itemsLocked = await plmAddin.getComponentsLocked("");
+
+//     console.log(itemsLocked);
+
+// }
+function getComponentsLocked(partNumbers) {
 
     console.log('getComponentsLocked START');
     console.log(partNumbers);
 
-    const plmAddin = chrome.webview.hostObjects.plmAddin;
-    await plmAddin.getComponentsLocked(partNumbers);
+    const plmAddin = chrome.webview.hostObjects.sync.plmAddin;
+    let itemsLocked = plmAddin.getComponentsLocked(partNumbers);
+    // let itemsLocked = await plmAddin.getComponentsLocked(partNumbers);
+    // var itemsLocked = await plmAddin.getComponentsLocked(partNumbers);
+    // var itemsLocked = await plmAddin.getComponentsLocked("42");
+    // await plmAddin.getComponentsLocked();
+    // let itemsLocked = await plmAddin.getComponentsLocked("");
+
+    console.log(itemsLocked);
 
 }
 
