@@ -9,9 +9,9 @@ $(document).ready(function() {
     appendOverlay();
     
     // call methods of common/ui.js to insert PLM data
-    // insertViewer(link, 240);
-    // insertItemDetails(link);
-    // insertAttachments(link);
+    insertViewer(link, 240);
+    insertItemDetails(link);
+    insertAttachments(link);
 
     // get selected item's descriptor and insert in header subtitle
     setHeaderSubtitle(link);
@@ -19,8 +19,6 @@ $(document).ready(function() {
     // define user interaction events
     setUIEvents();
 
-    insertPhaseGates(link);
-    
 });
 
 function setHeaderSubtitle(link) {
