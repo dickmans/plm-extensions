@@ -1027,7 +1027,18 @@ function toggleComparison(elemClicked) {
 
                  if(hasText ) baseValue = baseCell.html();
             else if(hasRadio) baseValue = baseCell.find('input:checked').first().val();
-            else if(hasChild) baseValue = baseCell.children('div').first().html();
+            else if(hasChild) {
+                let elemInputs = baseCell.children('div').first().children('input');
+                if( elemInputs.length > 0) {
+                    baseValue = elemInputs.first().val();
+                } else {
+                    baseValue = baseCell.children('div').first().html();
+                }
+            }
+
+            console.log(hasText);
+            console.log(hasChild);
+            console.log(baseValue);
 
             $(this).children().each(function() {
 
