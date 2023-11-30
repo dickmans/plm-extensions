@@ -218,7 +218,6 @@ router.get('/picklist', function(req, res, next) {
 });
 
 
-
 /* ----- GET FILTERED PICKLIST ----- */
 router.get('/filtered-picklist', function(req, res, next) {
 
@@ -266,7 +265,6 @@ console.log(filters);
     });
 
 });
-
 
 
 /* ----- RELATED WORKSPACES ----- */
