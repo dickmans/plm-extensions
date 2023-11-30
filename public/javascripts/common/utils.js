@@ -60,66 +60,6 @@ function appendProcessing(id, hidden) {
 }
 
 
-// Insert no data found messaage
-function appendNoDataFound(id, icon, text) {
-
-    if(typeof icon === 'undefined') icon = 'icon-no-data';
-    if(typeof text === 'undefined') text = 'No data found';
-
-    let elemParent = $('#' + id);
-
-    let elemNoData = $('<div></div>');
-        elemNoData.addClass('no-data');
-        elemNoData.addClass('hidden');
-        elemNoData.attr('id', id + '-no-data');
-        elemNoData.appendTo(elemParent);
-
-
-    let elemNoDataIcon = $('<div></div>');
-        elemNoDataIcon.addClass('no-data-icon');
-        elemNoDataIcon.addClass('icon');
-        elemNoDataIcon.addClass(icon);
-        elemNoDataIcon.appendTo(elemNoData);
-
-    let elemNoDataText = $('<div></div>');
-        elemNoDataText.addClass('no-data-text');
-        elemNoDataText.html(text);
-        elemNoDataText.appendTo(elemNoData);
-
-}
-
-
-// Insert overlay with progress indicator
-function appendOverlay(hidden) {
-
-    if(typeof hidden === 'undefined') hidden = true;
-
-    let elemOverlay = $('<div></div>');
-        elemOverlay.attr('id', 'overlay');
-        elemOverlay.appendTo('body');
-
-    let elemProcessing = $('<div></div>');
-        elemProcessing.addClass('processing');
-        elemProcessing.attr('id', 'overlay-processing');
-        elemProcessing.appendTo(elemOverlay);
-
-    let elemBoune1 = $('<div></div>');
-        elemBoune1.addClass('bounce1');
-        elemBoune1.appendTo(elemProcessing);
-
-    let elemBoune2 = $('<div></div>');
-        elemBoune2.addClass('bounce2');
-        elemBoune2.appendTo(elemProcessing);
-
-    let elemBoune3 = $('<div></div>');
-        elemBoune3.addClass('bounce3');
-        elemBoune3.appendTo(elemProcessing);
-
-    if(!hidden) elemOverlay.show();
-
-}
-
-
 // Insert messaging and process indicator for the viewer
 function appendViewerProcessing() {
     
@@ -173,6 +113,66 @@ function appendViewerProcessing() {
             }
         }
     }
+
+}
+
+
+// Insert overlay with progress indicator
+function appendOverlay(hidden) {
+
+    if(typeof hidden === 'undefined') hidden = true;
+
+    let elemOverlay = $('<div></div>');
+        elemOverlay.attr('id', 'overlay');
+        elemOverlay.appendTo('body');
+
+    let elemProcessing = $('<div></div>');
+        elemProcessing.addClass('processing');
+        elemProcessing.attr('id', 'overlay-processing');
+        elemProcessing.appendTo(elemOverlay);
+
+    let elemBoune1 = $('<div></div>');
+        elemBoune1.addClass('bounce1');
+        elemBoune1.appendTo(elemProcessing);
+
+    let elemBoune2 = $('<div></div>');
+        elemBoune2.addClass('bounce2');
+        elemBoune2.appendTo(elemProcessing);
+
+    let elemBoune3 = $('<div></div>');
+        elemBoune3.addClass('bounce3');
+        elemBoune3.appendTo(elemProcessing);
+
+    if(!hidden) elemOverlay.show();
+
+}
+
+
+// Insert no data found messaage
+function appendNoDataFound(id, icon, text) {
+
+    if(typeof icon === 'undefined') icon = 'icon-no-data';
+    if(typeof text === 'undefined') text = 'No data found';
+
+    let elemParent = $('#' + id);
+
+    let elemNoData = $('<div></div>');
+        elemNoData.addClass('no-data');
+        elemNoData.addClass('hidden');
+        elemNoData.attr('id', id + '-no-data');
+        elemNoData.appendTo(elemParent);
+
+
+    let elemNoDataIcon = $('<div></div>');
+        elemNoDataIcon.addClass('no-data-icon');
+        elemNoDataIcon.addClass('icon');
+        elemNoDataIcon.addClass(icon);
+        elemNoDataIcon.appendTo(elemNoData);
+
+    let elemNoDataText = $('<div></div>');
+        elemNoDataText.addClass('no-data-text');
+        elemNoDataText.html(text);
+        elemNoDataText.appendTo(elemNoData);
 
 }
 
@@ -453,8 +453,6 @@ function getBrowserLanguage() {
 
 // Generate Tile HTML
 function genTile(link, urn, image, icon, title, subtitle) {
-
-    // used by portfolio.js
 
     let elemTile = $('<div></div>');
         elemTile.addClass('tile');
