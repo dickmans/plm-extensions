@@ -51,7 +51,7 @@ function setUIEvents() {
         if($(this).hasClass('disabled')) return;
         $('#main').toggleClass('with-create');
         $('#main').removeClass('with-details');
-        insertItemDetailsFields('create', '', wsVariants.sections, wsVariants.fields, null, true, true, true);
+        insertItemDetailsFields('', 'create', wsVariants.sections, wsVariants.fields, null, true, true, true);
         viewerResize();
     });
 
@@ -103,7 +103,7 @@ function getInitialData() {
 
         $('#header-subtitle').html(responses[0].data.title);
         let variants   = getSectionFieldValue(responses[0].data.sections, config.variants.fieldIdItemVariants, '');
-        insertBOM('bom', 'BOM & Variants', linkContext, config.variants.bomViewNameItems, true, false, false, false);
+        insertBOM(linkContext, 'bom', config.variants.bomViewNameItems, 'BOM & Variants', true, true, false, false, false);
 
         for(variant of variants) listVariants.push(variant);
 
@@ -205,7 +205,7 @@ function getVariantsWSConfig() {
 
 
 // Extend BOM table with variant columns
-function bomDisplayDone(id) {
+function setBOMDisplayDone(id) {
 
     let requests = [];
 
@@ -950,7 +950,7 @@ function onViewerSelectionChanged(event) {
                             ];
                         
                             Promise.all(requests).then(function(responses) {
-                                insertItemDetailsFields($('#sections'), '', responses[1].data, responses[2].data, responses[0].data, false, true, false);
+                                insertItemDetailsFields('', $('#sections'), responses[1].data, responses[2].data, responses[0].data, false, true, false);
                                 $('#details-processing').hide();
                             });
                         

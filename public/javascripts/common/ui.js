@@ -85,59 +85,22 @@ function insertViewerCallback() {}
 
 
 // Insert Item Details
-function insertItemDetails(link, data) {
+function insertItemDetails(link, id, data) {
 
-    if(typeof link === 'undefined') return;
-    if(link === '') return;
+    if(isBlank(link)) return;
+    if(isBlank(id)) id = 'details';
 
-    // let selectedWSID    = link.split('/')[4];
-    // let params          = { 'link' : link };
-    // let promises        = [ $.get('/plm/details', params) ];
-    // let sections        = [];
-    // let fields          = [];
-
-    $('#details').attr('data-link', link);
-    $('#details-processing').show();
-    $('#details-sections').html('');
+    $('#' + id + '-processing').show();
 
     getBookmarkStatus();
-        
-    // for(workspace of cacheWorkspaces) {
-    //     if(workspace.id === selectedWSID) {
-    //         sections = workspace.sections;
-    //         fields   = workspace.fields;
-    //     }
-    // }
-    
-    // if(sections.length === 0) {
-    //     promises.push($.get('/plm/sections', params));
-    //     promises.push($.get('/plm/fields',   params));
-    // }
-    
-    // Promise.all(promises).then(function(responses) {
-
-        // if(sections.length === 0) {
-        //     sections = responses[1].data;
-        //     fields   = responses[2].data;
-        //     cacheWorkspaces.push({
-        //         'id'        : selectedWSID,
-        //         'sections'  : sections,
-        //         'fields'    : fields
-        //     })
-        // }
-
-        // $('#details-processing').hide();
-        // $('#details-sections').show();
-
-        // insertItemDetailsFields('details-sections', link, sections, fields, responses[0].data, false, false, false);
-        insertItemDetailsFields('details', link, null, null, data, false, false, false);
-
-    // });
+    insertItemDetailsFields(link, id, null, null, data, false, false, false);
 
 }
-function insertItemDetailsFields(id, link, sections, fields, data, editable, hideComputed, hideReadOnly, excludedSections) {
+function insertItemDetailsFields(link, id, sections, fields, data, editable, hideComputed, hideReadOnly, excludedSections) {
 
     let requests = [];
+
+    if(isBlank(id)) id = 'details';
 
     $('#' + id).attr('data-link', link);
     $('#' + id + '-sections').html('');
@@ -1219,21 +1182,24 @@ function insertAttachmentsDone() {}
 // - reset (true/false) enables or disables reset button above BOM
 // - toggles (true/false) enables or disables toggles to collapse or expand nodes using buttons on top of the BOM
 // - toggles (true/false) enables or disables view selector on top of the BOM
-function insertBOM(id, title, link , defaultView, quantity, reset, toggles, views) {
+function insertBOM(link , id, bomViewName, title, position, quantity, reset, toggles, views, search) {
 
-    // used by configurator.js, variants.js
     // add property data-default-value to div to set default view by name
 
-    if(typeof id            === 'undefined')          id = 'bom';
-    if(typeof toggles       === 'undefined')     toggles = false;
-    if(typeof quantity      === 'undefined')    quantity = false;
-    if(typeof reset         === 'undefined')       reset = false;
-    if(typeof views         === 'undefined')       views = false;
-    if(typeof defaultView   === 'undefined') defaultView = elemBOM.attr('data-default-view');
-    
+    if(isBlank(link)    ) return;
+    if(isBlank(id)      )       id = 'bom';
+    if(isBlank(title)   )   title  = 'BOM';
+    if(isBlank(position)) position = true;
+    if(isBlank(quantity)) quantity = false;
+    if(isBlank(reset)   )    reset = false;
+    if(isBlank(toggles) )  toggles = true;
+    if(isBlank(views)   )    views = false;
+    if(isBlank(search)  )   search = false;
 
     let elemBOM = $('#' + id);
         elemBOM.attr('data-link', link);
+        elemBOM.attr('data-position', position);
+        elemBOM.attr('data-quantity', quantity);
         elemBOM.addClass('panel');
         elemBOM.html('');
 
@@ -1299,10 +1265,30 @@ function insertBOM(id, title, link , defaultView, quantity, reset, toggles, view
     let elemSelect = $('<select></select>');
         elemSelect.attr('id', id + '-view-selector');
         elemSelect.addClass('bom-view-selector');
+        elemSelect.hide();
         elemSelect.appendTo(elemToolbar);
         elemSelect.change(function() {
-            setBOMDisplay(id);
+            bomSetData(id);
         });
+
+    if(search) {
+
+        let elemFilter = $('<div></div>');
+            elemFilter.addClass('button');
+            elemFilter.addClass('with-icon');
+            elemFilter.addClass('icon-filter');
+            elemFilter.appendTo(elemToolbar);
+
+        let elemFilterInput = $('<input></input>');
+            elemFilterInput.attr('placeholder', 'Search');
+            elemFilterInput.attr('data-id', id);
+            elemFilterInput.addClass('bom-search-input')
+            elemFilterInput.appendTo(elemFilter);
+            elemFilterInput.keyup(function() {
+                bomSearch($(this));
+            });
+
+    }
 
     let elemProcess = $('<div></div>');
         elemProcess.attr('id', id + '-processing');
@@ -1337,25 +1323,29 @@ function insertBOM(id, title, link , defaultView, quantity, reset, toggles, view
                 elemOption.attr('value', view.id);
                 elemOption.appendTo(elemSelect);
 
-            if(typeof defaultView !== undefined) {
-                if(view.name === defaultView) {
+            if(!isBlank(bomViewName)) {
+                if(view.name === bomViewName) {
                     elemSelect.val(view.id);
                 }
             }
 
         }
 
-        if(views === false) elemSelect.hide();
+        if(views) elemSelect.show();
 
-        setBOMDisplay(id);
+        bomSetData(id);
 
     });
 
 }
-function setBOMDisplay(id) {
+function bomSetData(id) {
 
-    $('#' + id).show();
-    
+    let elemBOM = $('#' + id);
+        elemBOM.show();
+
+    let position = elemBOM.attr('data-position');
+    let quantity = elemBOM.attr('data-quantity');
+
     let elemTable = $('#' + id + '-table');
         elemTable.html('');
         
@@ -1379,7 +1369,11 @@ function setBOMDisplay(id) {
 
         urnsBOMFields = [];
 
+        console.log(config.viewer.fieldIdPartNumber);
+
         for(field of responses[0].data) {
+
+            console.log(field);
 
             if(field.fieldId === 'QUANTITY') urnsBOMFields.quantity = field.__self__.urn;
             else if(field.fieldId === config.viewer.fieldIdPartNumber) urnsBOMFields.partNumber = field.__self__.urn;
@@ -1388,7 +1382,7 @@ function setBOMDisplay(id) {
 
         $('#' + id + '-processing').hide();
 
-        insertNextBOMLevel(responses[1].data, elemTable, responses[1].data.root);
+        insertNextBOMLevel(responses[1].data, elemTable, responses[1].data.root, position, quantity);
     
         $('#' + id).find('.bom-tree-nav').click(function(e) {
     
@@ -1443,15 +1437,17 @@ function setBOMDisplay(id) {
         });
     
         elemTable.find('tr').click(function(e) {
-            selectBOMItem(e, $(this));
+            e.preventDefault();
+            e.stopPropagation();
+            selectBOMItem($(this));
         });
 
-        bomDisplayDone(id);
+        bomSetDataDone(id);
 
     });
 
 }
-function insertNextBOMLevel(bom, elemTable, parent) {
+function insertNextBOMLevel(bom, elemTable, parent, showPosition, showQuantity) {
 
     let result = false;
 
@@ -1469,6 +1465,7 @@ function insertNextBOMLevel(bom, elemTable, parent) {
                 elemRow.attr('data-part-number', partNumber);
                 elemRow.attr('data-quantity', quantity);
                 elemRow.attr('data-number', edge.itemNumber);
+                elemRow.addClass('bom-tree-row');
                 elemRow.appendTo(elemTable);
     
             for(node of bom.nodes) {
@@ -1485,19 +1482,21 @@ function insertNextBOMLevel(bom, elemTable, parent) {
             let elemCell = $('<td></td>');
                 elemCell.appendTo(elemRow);
 
-            let elemCellNumber = $('<span></span>');
-                elemCellNumber.addClass('bom-tree-number');
-                elemCellNumber.html(edge.depth + '.' + edge.itemNumber);
-                elemCellNumber.appendTo(elemCell);
+            if(showPosition === 'true') {
+
+                let elemCellNumber = $('<span></span>');
+                    elemCellNumber.addClass('bom-tree-number');
+                    elemCellNumber.html(edge.depth + '.' + edge.itemNumber);
+                    elemCellNumber.appendTo(elemCell);
+
+            }
 
             let elemCellTitle = $('<span></span>');
                 elemCellTitle.addClass('bom-tree-title');
                 elemCellTitle.html(getBOMItemTitle(edge.child, bom.nodes));
                 elemCellTitle.appendTo(elemCell);
 
-            let showQuantity = elemTable.attr('data-show-quantity');
-
-            if(showQuantity) {
+            if(showQuantity === 'true') {
 
                 let elemCellQuantity = $('<td></td>');
                     elemCellQuantity.addClass('bom-quantity');
@@ -1506,7 +1505,7 @@ function insertNextBOMLevel(bom, elemTable, parent) {
 
             }
 
-            let hasChildren = insertNextBOMLevel(bom, elemTable, edge.child);
+            let hasChildren = insertNextBOMLevel(bom, elemTable, edge.child, showPosition, showQuantity);
 
             elemRow.children().first().each(function() {
                 
@@ -1558,8 +1557,9 @@ function bomReset(elemClicked) {
 }
 function bomExpandAll(elemClicked) {
 
-    let elemToolbar = elemClicked.closest('.panel-toolbar');
-    let elemContent = elemToolbar.nextAll('.panel-content');
+    let elemBOM     = elemClicked.closest('.panel');
+    let id          = elemBOM.attr('id');
+    let elemContent = $('#' + id + '-content');
 
     elemContent.find('tr').each(function() {
         $(this).show();
@@ -1569,10 +1569,13 @@ function bomExpandAll(elemClicked) {
 }
 function bomCollapseAll(elemClicked) {
 
-    let elemToolbar = elemClicked.closest('.panel-toolbar');
-    let elemContent = elemToolbar.nextAll('.panel-content');
+    let elemBOM     = elemClicked.closest('.panel');
+    let id          = elemBOM.attr('id');
+    let elemContent = $('#' + id + '-content');
 
     elemContent.find('tr').each(function() {
+        console.log('check');
+
         if($(this).children('th').length === 0) {
             if(!$(this).hasClass('bom-level-1')) {
                 $(this).hide();
@@ -1582,10 +1585,58 @@ function bomCollapseAll(elemClicked) {
     });
 
 }
+function bomSearch(elemInput) {
+
+    let id          = elemInput.attr('data-id');
+    let elemTable   = $('#' + id + '-table');
+    let filterValue = elemInput.val().toLowerCase();
+
+    elemTable.children('tr').removeClass('result');
+
+    if(filterValue === '') {
+
+        elemTable.children().each(function() {
+            $(this).show();
+        });
+
+    } else {
+
+        $('i.collapsed').removeClass('collapsed').addClass('expanded');
+        elemTable.children().each(function() {
+            $(this).hide();
+        });
+
+        elemTable.children().each(function() {
+
+            let cellValue = $(this).children().first().html().toLowerCase();
+
+            if(cellValue.indexOf(filterValue) > -1) {
+             
+                $(this).show();
+                $(this).addClass('result');
+             
+                let level = Number($(this).attr('data-level'));
+                unhideParents(level - 1, $(this));
+
+            }
+
+        });
+
+    }
+
+}
+function bomSetDataDone(id) {}
+function selectBOMItem(elemClicked) {
+    elemClicked.siblings().removeClass('selected');
+    elemClicked.toggleClass('selected');
+}
 
 
 // Insert Flat BOM into given domId
-function insertFlatBOM(id, link, bomViewName, fieldIdPartNumber, showMore, classNames) {
+function insertFlatBOM(link, id, bomViewName, showMore, classNames) {
+
+    if(isBlank(id))             id = 'bom-flat';
+    if(isBlank(showMore)) showMore = false;
 
     let elemParent = $('#' + id + '-list');
         elemParent.html('');
@@ -1593,8 +1644,6 @@ function insertFlatBOM(id, link, bomViewName, fieldIdPartNumber, showMore, class
     if(link === null) return;
     if(link === ''  ) return;
 
-    if(typeof fieldIdPartNumber === 'undefined') fieldIdPartNumber = null;
-    
     let elemProgress = $('#' + id + '-processing');
         elemProgress.show();
 
@@ -1603,35 +1652,29 @@ function insertFlatBOM(id, link, bomViewName, fieldIdPartNumber, showMore, class
         'revisionBias'  : 'release'
     }
 
-    if((typeof bomViewName === 'undefined') || (bomViewName === null) || (bomViewName === '')) {
-        
-        $.get('/plm/bom-views', params, function(response) {
-            let view = response.data[0].link.split('/');
-            params.viewId = view[view.length - 1];
-            insertFlatBOMTable(params, elemParent, elemProgress, null, showMore, classNames);
-        });
+    $.get('/plm/bom-views-and-fields', params, function(response) {
 
-    } else {
+        let bomView = response.data[0];
+        let fieldURNPartNumber = '';
 
-        $.get('/plm/bom-views-and-fields', params, function(response) {
+        if(!isBlank(bomViewName)) {
             for(view of response.data) {
                 if(view.name === bomViewName) {
-
-                    params.viewId = view.id;
-
-                    let fieldURNPartNumber = null;
-
-                    for(field of view.fields) {
-                        if(field.fieldId === fieldIdPartNumber) fieldURNPartNumber = field.__self__.urn;
-                    }
-
-                    insertFlatBOMTable(params, elemParent, elemProgress, fieldURNPartNumber, showMore, classNames);
-
+                    bomView = view;
                 }
             }
-        });
 
-    }
+        }
+
+        params.viewId = bomView.id;
+
+        for(field of bomView.fields) {
+            if(field.fieldId === config.viewer.fieldIdPartNumber) fieldURNPartNumber = field.__self__.urn;
+        }
+
+        insertFlatBOMTable(params, elemParent, elemProgress, fieldURNPartNumber, showMore, classNames);
+
+    });
 
 }
 function insertFlatBOMTable(params, elemParent, elemProgress, fieldURNPartNumber, showMore, classNames) {
@@ -1654,7 +1697,9 @@ function insertFlatBOMTable(params, elemParent, elemProgress, fieldURNPartNumber
                 elemItem.attr('data-title', item.item.title);
                 elemItem.attr('data-part-number', partNumber);
                 elemItem.click(function(e) {
-                    selectBOMItem(e, $(this));
+                    e.preventDefault();
+                    e.stopPropagation();
+                    selectBOMItem($(this));
                 });
 
             for(className of classNames) elemItem.addClass(className);
@@ -1695,7 +1740,6 @@ function insertFlatBOMTable(params, elemParent, elemProgress, fieldURNPartNumber
     });
 
 }
-function selectBOMItem(e, elemSelected) {}
 function showMoreBOMItem(elemClicked) {
 
     let elemItem        = elemClicked.closest('.bom-item');
@@ -1707,7 +1751,7 @@ function showMoreBOMItem(elemClicked) {
     $('#bom-item-details-header').html(elemItem.attr('data-title'));
     $('#bom-item-details-sections').html('');
 
-    insertItemDetailsFields('bom-item-details',  elemItem.attr('data-link'),  null, null, null, false, false, false);
+    insertItemDetailsFields(elemItem.attr('data-link'), 'bom-item-details',  null, null, null, false, false, false);
 
 }
 
@@ -1924,102 +1968,39 @@ function insertChangeProcesses(link, id) {
 }
 
 
-// Insert Relationship Items (used by explorer.js)
-function insertRelationships(elemParent, relationships) {
+// Insert Relationship Items
+function insertRelationships(link, id) {
 
-    // Used by services.js
+    if(typeof id === 'undefined') id = 'relationships';
 
-    elemParent.html('');
+    let elemParent = $('#' + id + '-list');
+        elemParent.html('');
 
-    if(relationships.length === 0) return;
+    $('#' + id + '-processing').show();
 
-    for(relationship of relationships) {
-        relationship.sort = relationship['item'].title;
-    }
-
-    sortArray(relationships, 'sort', 'string', 'descending');
-
-    for(relationship of relationships) {
-
-        let link    = relationship.item.link;
-        let status  = relationship.state.title;
-       // let user = process['first-workflow-history'].user.title;
-       // let date = process['first-workflow-history'].created;
-
-        let elemItem = $('<div></div>');
-            elemItem.addClass('animation');
-            elemItem.addClass('relationship');
-            elemItem.attr('data-link', link);
-            elemItem.attr('data-urn', relationship.item.urn);
-            elemItem.appendTo(elemParent);
-            elemItem.click(function() {
-                openItemByURN($(this).attr('data-urn'));
-            });
-
-        let elemItemImage = $('<div></div>');
-            elemItemImage.addClass('tile-image');
-            elemItemImage.appendTo(elemItem);
-
-        let elemItemDetails = $('<div></div>');
-            elemItemDetails.addClass('tile-details');
-            elemItemDetails.appendTo(elemItem);
-
-        let elemItemWorkspace = $('<div></div>');
-            elemItemWorkspace.addClass('tile-title');
-            elemItemWorkspace.appendTo(elemItemDetails);
-
-        let elemItemDescriptor = $('<div></div>');
-            elemItemDescriptor.addClass('tile-subtitle');
-            elemItemDescriptor.appendTo(elemItemDetails);
-
-        let elemItemData = $('<div></div>');
-            elemItemData.addClass('tile-data');
-            elemItemData.appendTo(elemItemDetails);
-
-        let elemItemStatus = $('<div></div>');
-                elemItemStatus.addClass('tile-status');
-                elemItemStatus.appendTo(elemItemData);
-
-        let elemItemDescription = $('<div></div>');
-            elemItemDescription.addClass('tile-description');
-            elemItemDescription.appendTo(elemItemData);
-
-
-        $.get('/plm/details', { 'link' : link}, function(response) {
-
-            $('.relationship').each(function() {
-                
-                let elemItem = $(this);
-
-                if(elemItem.attr('data-link') === link) {
+    $.get('/plm/relationships', { 'link' : link }, function(response) {
     
-                    elemItem.removeClass('animation');
+        if(response.params.link === link) {
     
-                    // let description = getSectionFieldValue(response.data.sections, 'DESCRIPTION', '');
-                    // let priority    = getSectionFieldValue(response.data.sections, 'FLAG', '');
-                    let linkImage   = getFirstImageFieldValue(response.data.sections);
-                    let elemImage   = elemItem.find('.tile-image').first();
+            $('#' + id + '-processing').hide();
     
-                    getImageFromCache(elemImage, { 'link' : linkImage }, 'schema', function() {});
+            elemParent.show();
 
-                    // date = date.split('T')[0].split('-');
-                    // let creationDate = new Date(date[0], date[1], date[2]);
-    
-                    elemItem.find('.tile-title').first().html(response.data.workspace.title);
-                    elemItem.find('.tile-subtitle').first().html(response.data.title);
-                    elemItem.find('.tile-description').first().html(getSectionFieldValue(response.data.sections, 'DESCRIPTION', ''));
-                    // // elemProcess.find('.process-description').first().html(description);
-                    // // elemProcess.find('.process-priority').first().html($('<div></div>').html(priority).text());
-                    elemItem.find('.tile-status').first().html('Status : ' + status);
-                    // elemItem.find('.process-creator').first().html('Created by ' + user + ' on ' + creationDate.toLocaleDateString());
-    
-                }
-            });
-    
-        });
+            for(relationship of response.data) {
 
-    }
+                let elemTile = genTile(relationship.item.link, '', '', 'link', relationship.workspace.title, relationship.item.title);
+                    elemTile.appendTo(elemParent);
+                    elemTile.click(function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        openItemByLink($(this).attr('data-link'));
+                    });
 
+            }
+    
+        }           
+    });
+    
 }
 
 
@@ -2214,11 +2195,12 @@ function insertWorkflowHistory(link, id, currentStatus, currentStatusId, exclude
 
 
 // Set options of defined select element to trigger workflow action
-function insertWorkflowActions(link, hideEmpty) {
+function insertWorkflowActions(link, id, hideEmpty) {
 
+    if(isBlank(id)) id = 'workflow-actions';
     if(typeof hideEmpty === 'undefined') hideEmpty = false;
 
-    let elemActions = $('#workflow-actions');
+    let elemActions = $('#' + id);
         elemActions.addClass('disabled');
         elemActions.attr('disabled', '');
         elemActions.html('');

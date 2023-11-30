@@ -782,25 +782,14 @@ function getSectionFieldValue(sections, fieldId, defaultValue, property) {
 // Functions to handle BOM requests data
 function getBOMCellValue(urn, key, nodes, property) {
 
-    // used by configuratorjs, explorer.js, service.js, variants.js
-
-    console.log('getBOMCellValue');
-
     if(urn === '') return '';
-
-    console.log(key);
-    console.log(urn);
 
     for(node of nodes) {
         if(node.item.urn === urn) {
 
-            console.log(node.item.urn);
-
             for(field of node.fields) {
                 if((field.metaData.urn === key) || (field.metaData.link === key)) {
 
-                    console.log(field.metaData.urn);
-                    console.log(typeof field.value);
                     if(typeof field.value === 'object') {
                         if(typeof property === 'undefined') return field.value.link;
                         else return field.value[property];

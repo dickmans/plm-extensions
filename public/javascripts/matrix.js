@@ -217,7 +217,7 @@ function setItemDetails(link) {
 
         if($('#details').attr('data-link') !== response.params.link) return;
 
-        insertItemDetailsFields('details', link, wsItems.sections, wsItems.fields, response.data, true, false, false);
+        insertItemDetailsFields(link, 'details', wsItems.sections, wsItems.fields, response.data, true, false, false);
 
         $('#details-processing').hide();
 

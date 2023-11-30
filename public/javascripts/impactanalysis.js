@@ -847,13 +847,13 @@ function getItemDetails() {
 
         $('#details-processing').hide();
 
-        insertItemDetailsFields('details', '', responses[0].data, responses[1].data, responses[2].data, false, false, false);
+        insertItemDetailsFields('', 'details', responses[0].data, responses[1].data, responses[2].data, false, false, false);
 
 
         if(requests.length > 3) {
 
 
-            insertItemDetailsFields('details-prev', '', responses[0].data, responses[1].data, responses[3].data, false, false, false);
+            insertItemDetailsFields('', 'details-prev', responses[0].data, responses[1].data, responses[3].data, false, false, false);
 
             markItemDetailsChanges();
 

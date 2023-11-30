@@ -961,7 +961,7 @@ function setItemDetails(ws, link) {
 
         $('#item-action-share').attr('href', 'mailto:?body=' + url + '&subject=' + item.title);
 
-        insertItemDetailsFields('item', link, ws.sections, ws.fields, item, false, false, false);
+        insertItemDetailsFields(link, 'item', ws.sections, ws.fields, item, false, false, false);
 
         $('.linking').click(function() {
             openItem($(this).attr('data-item-link'));
@@ -1498,7 +1498,7 @@ function openItemEditor() {
     $('#item-edit-sections').html('');
     $('#item-edit-toolbar').css('display', 'flex');
 
-    insertItemDetailsFields('item-edit', $('#item').attr('data-link'), null, null, null, true, false, false);
+    insertItemDetailsFields($('#item').attr('data-link'), 'item-edit', null, null, null, true, false, false);
 
 }
 function saveChanges() {
@@ -1611,7 +1611,7 @@ function showCreateDialog(id, source) {
 
         $('#new-processing').hide();
 
-        insertItemDetailsFields('new', '', ws.sections, ws.fields, defaults, true, true, true);
+        insertItemDetailsFields( '', 'new',ws.sections, ws.fields, defaults, true, true, true);
 
         // if(source !== null) {
 

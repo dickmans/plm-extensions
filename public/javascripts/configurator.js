@@ -116,7 +116,7 @@ function getInitialData() {
     Promise.all(promises).then(function(responses) {
     
         $('#header-subtitle').html(responses[0].data.title);
-        insertItemDetailsFields('product', '', responses[1].data, responses[2].data, responses[0].data, false, false, false);
+        insertItemDetailsFields('', 'product', responses[1].data, responses[2].data, responses[0].data, false, false, false);
 
         wsProducts.sections              = responses[1].data;
         wsConfigurationFeatures.sections = responses[3].data;
@@ -137,7 +137,7 @@ function getInitialData() {
         if(bomRoot === '') {
             showErrorMessage('Related BOM could not be found');
         } else {
-            insertBOM('bom', 'BOM', bomRoot, config.configurator.bomViewName, false, true, false);
+            insertBOM(bomRoot, 'bom', config.configurator.bomViewName, 'BOM', true, false, true, false);
         }
 
         setProductFeatures(features);

@@ -109,7 +109,7 @@ function setUIEvents() {
     // Create Dialog
     $('#cancel-create').click(function() {
         $('#button-toggle-create').click();
-        insertItemDetailsFields('create', '', wsConfig.sections, wsConfig.fields, null, true, true, true);
+        insertItemDetailsFields('', 'create', wsConfig.sections, wsConfig.fields, null, true, true, true);
     });
     $('#save-create').click(function() {
 
@@ -278,7 +278,7 @@ function getPicklists() {
             'data' : response.data
         });
 
-        insertItemDetailsFields('create', '', wsConfig.sections, wsConfig.fields, null, true, true, true);
+        insertItemDetailsFields('', 'create', wsConfig.sections, wsConfig.fields, null, true, true, true);
         setTableau();
 
     }) ;
@@ -1124,7 +1124,7 @@ function showClone(link) {
     $('#clone-sections').html('');
     $.get('/plm/details', { 'link' : link }, function(response) { 
         $('#clone-title').html(response.data.title);
-        insertItemDetailsFields('clone', '', wsConfig.sections, wsConfig.fields, response.data, true, true, true);
+        insertItemDetailsFields('', 'clone', wsConfig.sections, wsConfig.fields, response.data, true, true, true);
     });
 
 

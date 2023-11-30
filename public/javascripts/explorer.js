@@ -142,7 +142,7 @@ function setUIEvents() {
 
         $('#processes-list').hide();
 
-        insertItemDetailsFields('processes', '',  wsProblemReports.sections, wsProblemReports.fields, null, true, true, true);
+        insertItemDetailsFields('', 'processes', wsProblemReports.sections, wsProblemReports.fields, null, true, true, true);
 
     });
     $('#cancel-process').click(function() {
@@ -178,7 +178,7 @@ function setUIEvents() {
 
                 $.get('/plm/add-managed-items', { 'link' : newLink, 'items' : [ link ] }, function(response) {
 
-                    insertChangeProcesses(link, 'processes')
+                    insertChangeProcesses(link, 'processes');
                     $('.process-dialog').hide();
                     $('#create-process').show();
                     $('#processes-list').show();
@@ -1415,7 +1415,7 @@ function setItemDetails(link) {
 
         if($('#details').attr('data-link') !== response.params.link) return;
 
-        insertItemDetailsFields('details', link, wsItems.sections, wsItems.fields, response.data, true, false, false);
+        insertItemDetailsFields(link, 'details', wsItems.sections, wsItems.fields, response.data, true, false, false);
 
         $('#details-processing').hide();
 
@@ -1521,7 +1521,7 @@ function showCreateDialog() {
     $('#overlay').show();
     $('#create-connect').show();
 
-    insertItemDetailsFields('create-connect', '', wsSupplierPackages.sections, wsSupplierPackages.fields, null, true, true, true);
+    insertItemDetailsFields('', 'create-connect', wsSupplierPackages.sections, wsSupplierPackages.fields, null, true, true, true);
 
     let elemField;
 

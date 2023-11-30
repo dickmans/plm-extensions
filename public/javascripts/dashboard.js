@@ -273,7 +273,7 @@ function getInitialData() {
 
         if(!enableMarkup) $('body').addClass('no-markup');
 
-        insertItemDetailsFields('new', '', wsConfig.sections, wsConfig.fields, null, true, true, true, wsConfig.excludedSections);
+        insertItemDetailsFields('', 'new', wsConfig.sections, wsConfig.fields, null, true, true, true, wsConfig.excludedSections);
 
         $('#new-sections').find('.field.required').each(function() {
             $(this).css('display', 'flex');
@@ -648,7 +648,7 @@ function openItem(link) {
     $('body').addClass('no-viewer');
 
     viewerUnloadAllModels();
-    insertWorkflowActions(link, true);
+    insertWorkflowActions(link, null, true);
 
     $.get('/plm/details', { 'link' : link }, function(response) {
 
@@ -736,7 +736,7 @@ function openItem(link) {
 
     getBookmarkStatus(link);
     insertAttachments(link);
-    insertItemDetailsFields('details', link, wsConfig.sections, wsConfig.fields, null, true, false, false, wsConfig.excludedSections);
+    insertItemDetailsFields(link, 'details', wsConfig.sections, wsConfig.fields, null, true, false, false, wsConfig.excludedSections);
 
 }
 

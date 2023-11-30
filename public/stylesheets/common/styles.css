@@ -376,12 +376,22 @@
 .bom-view-selector {
     margin-left : 8px;
 }
-#bom-search-input {
+#bom-search-input,
+.bom-search-input {
     border : none !important;
     box-shadow : none !important;
     font-size : 14px;
     padding : 4px 10px;
-    width: 100px;
+    width: 50px;
+}
+.bom-tree-row {
+    cursor : pointer;
+}
+.bom-tree-row.selected {
+    background : var(--color-selected);
+}
+    .bom-tree-row.selected > td {
+    border-color : var(--color-selected-border);
 }
 .bom-tree-nav {
     cursor: pointer;

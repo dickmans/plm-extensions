@@ -581,7 +581,7 @@ function setProductDetails(link) {
             $('#viewer').show();
             $('#viewer-empty').hide();
             insertViewer(ebom, 240);
-            insertFlatBOM('product-bom', ebom, config.portfolio.bomViewName, config.portfolio.fieldIdPartNumber, false, []);
+            insertFlatBOM(ebom, 'product-bom', config.portfolio.bomViewName);
         } else {
             $('#product-bom-processing').hide();
             $('#viewer-empty').show();

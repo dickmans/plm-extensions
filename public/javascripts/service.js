@@ -103,7 +103,7 @@ function setUIEvents() {
 
         $('#processes-list').hide();
 
-        insertItemDetailsFields('processes', '', wsProblemReports.sections, wsProblemReports.fields, null, true, true, true);
+        insertItemDetailsFields('', 'processes', wsProblemReports.sections, wsProblemReports.fields, null, true, true, true);
 
     });
     $('#cancel-process').click(function() {

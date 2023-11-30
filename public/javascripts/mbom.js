@@ -306,7 +306,7 @@ function getInitialData() {
             else if(column.fieldId === config.mbom.fieldIdEBOMRootItem) { linkFieldEBOMRootItem = column.__self__.link; }
         }
 
-        insertItemDetailsFields('create-item', null, wsMBOM.sections, wsMBOM.fields, null, true, true, true);
+        insertItemDetailsFields('', 'create-item', wsMBOM.sections, wsMBOM.fields, null, true, true, true);
 
         let linkLatest  = responses[0].data.versions[0].item.link;
         let dmsIDLatest = linkLatest.split('/')[6];

@@ -387,7 +387,7 @@ function setDetails() {
         $('#deficiencies').val($('<div></div>').html(getSectionFieldValue(response.data.sections, 'DEFICIENCIES', '')).text());
 
         insertViewer(linkItem, 240);
-        insertFlatBOM('bom', linkItem, '', 'NUMBER', true, []);
+        insertFlatBOM(linkItem, 'bom', '', true, []);
         
         $('#comments-data').show();
         $('#comments-processing').hide();
