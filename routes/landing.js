@@ -27,7 +27,6 @@ router.get('/reports'       , function(req, res, next) { launch('reports'       
 router.get('/reviews'       , function(req, res, next) { launch('reviews'         , 'Design Reviews'              , req, res, next); });
 router.get('/service'       , function(req, res, next) { launch('service'         , 'Services Portal'             , req, res, next); });
 router.get('/template'      , function(req, res, next) { launch('template'        , 'App Template Page'           , req, res, next); });
-router.get('/training'      , function(req, res, next) { launch('training'        , 'Training Application'        , req, res, next); });
 router.get('/variants'      , function(req, res, next) { launch('variants'        , 'Variant Manager'             , req, res, next); });
 
 
