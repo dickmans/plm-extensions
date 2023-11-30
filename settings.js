@@ -413,6 +413,20 @@ exports.config = {
                 { 'value' : 'Not Required'  , 'count' : 0, 'color' : colors.list[3], 'vector' : vectors.list[0] },
                 { 'value' : 'Compliant'     , 'count' : 0, 'color' : colors.list[4], 'vector' : vectors.green }
             ]
+        },{
+            'id'        : 'rohs',
+            'title'     : 'RoHS',
+            'fieldId'   : 'ROHS',
+            'urn'       : '',
+            'type'      : 'value',
+            'style'     : 'bars',
+            'data'      : [
+                { 'value' : 'Not Compliant' , 'count' : 0, 'color' : colors.list[0], 'vector' : vectors.red },
+                { 'value' : 'Unknown'       , 'count' : 0, 'color' : colors.list[1], 'vector' : vectors.yellow },
+                { 'value' : 'Not Validated' , 'count' : 0, 'color' : colors.list[2], 'vector' : vectors.yellow },
+                { 'value' : 'Not Required'  , 'count' : 0, 'color' : colors.list[3], 'vector' : vectors.list[0] },
+                { 'value' : 'Compliant'     , 'count' : 0, 'color' : colors.list[4], 'vector' : vectors.green }
+            ]
         }
     ]},
 
