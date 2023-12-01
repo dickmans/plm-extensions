@@ -61,6 +61,7 @@ router.get('/apps/printer', function(req, res, next) {
 });
 
 
+
 /* ------------------------------------------------------------------------------
     LAUNCH APPLICATION
    ------------------------------------------------------------------------------ */
@@ -70,16 +71,30 @@ function launch(view, app, req, res, next) {
     console.log('  Launch Application START');
     console.log(' --------------------------------------------');
     
+    let reqWS           = ''
+    let reqDMS          = '';
+    let reqPartNumber   = '';
+    let reqRevisioBias  = 'release';
+
+    for(key in req.query) {
+        switch(key.toLowerCase()) {
+            case 'wsid'         :          reqWS = req.query[key]; break;
+            case 'dmsid'        :         reqDMS = req.query[key]; break;
+            case 'partnumber'   :  reqPartNumber = req.query[key]; break;
+            case 'revisionbias' : reqRevisioBias = req.query[key]; break;
+        }
+    }
+
     req.session.url             = req.url;
     req.session.view            = view;
     req.session.app             = app;
-    req.session.wsId            = req.query.wsId;
-    req.session.dmsId           = req.query.dmsId;
-    req.session.partNumber      = req.query.partNumber;
-    req.session.link            = '/api/v3/workspaces/' + req.session.wsId + '/items/' + req.session.dmsId
+    req.session.wsId            = reqWS;
+    req.session.dmsId           = reqDMS;
+    req.session.partNumber      = reqPartNumber;
+    req.session.link            = '/api/v3/workspaces/' + reqWS + '/items/' + reqDMS;
     req.session.options         = req.query.hasOwnProperty('options') ? req.query.options : '';
     req.session.tenant          = req.query.hasOwnProperty('tenant') ? req.query.tenant : req.app.locals.tenant;
-    req.session.revisionBias    = req.query.hasOwnProperty('revisionBias') ? req.query.revisionBias : 'release';
+    req.session.revisionBias    = reqRevisioBias;
     
     console.log('  req.session.view         = ' + req.session.view); 
     console.log('  req.session.app          = ' + req.session.app); 
@@ -119,10 +134,10 @@ function launch(view, app, req, res, next) {
             redirectUri : req.app.locals.redirectUri
         });
 
-    } else if((typeof req.session.partNumber !== 'undefined') && (typeof req.session.dmsId === 'undefined')) {
+    } else if(reqPartNumber !== '') {
 
         res.render('common/search', {
-            partNumber : req.session.partNumber
+            partNumber : reqPartNumber
         });
 
     } else {
@@ -140,6 +155,7 @@ function launch(view, app, req, res, next) {
         
     }
 }
+
 
 
 /* ------------------------------------------------------------------------------
