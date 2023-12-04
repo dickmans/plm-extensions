@@ -1,16 +1,137 @@
-/*  DEFAULT FONTS */
+/*  DEFAULT FONTS (Material & Artifakt) */
 /* ----------------------------------------------------------------------------- */
-@font-face {
-    font-family: 'ArtifaktElement';
-    font-style: normal;
-    src: url(../../fonts/ArtifaktElementRegular.woff) format('woff2'), url(../../fonts/ArtifaktElementRegular.ttf) format('truetype');;
-}
 @font-face {
     font-family: 'Material Symbols Sharp';
     font-style: normal;
     font-weight: 100 700;
     src: url(../../fonts/MaterialSymbolsSharp.ttf) format('truetype');
 }
+@font-face {
+    font-family: ArtifaktElement;
+    font-style: normal;
+    font-weight: 100;
+    src: url(https://fonts.autodesk.com/ArtifaktElement/EOT/Artifakt%20Element%20Hair.eot);
+    src: url(https://fonts.autodesk.com/ArtifaktElement/EOT/Artifakt%20Element%20Hair.eot?#iefix) format("embedded-opentype"),local("Artifakt Element Hair"),local("ArtifaktElement-Hair"),url(https://fonts.autodesk.com/ArtifaktElement/WOFF2/Artifakt%20Element%20Hair.woff2) format("woff2"),local("Artifakt Element Hair"),local("ArtifaktElement-Hair"),url(https://fonts.autodesk.com/ArtifaktElement/WOFF/Artifakt%20Element%20Hair.woff) format("woff"),local("Artifakt Element Hair"),local("ArtifaktElement-Hair"),url(https://fonts.autodesk.com/ArtifaktElement/TTF/Artifakt%20Element%20Hair.ttf) format("truetype")
+}
+@font-face {
+    font-family: ArtifaktElement;
+    font-style: normal;
+    font-weight: 200;
+    src: url(https://fonts.autodesk.com/ArtifaktElement/EOT/Artifakt%20Element%20Thin.eot);
+    src: url(https://fonts.autodesk.com/ArtifaktElement/EOT/Artifakt%20Element%20Thin.eot?#iefix) format("embedded-opentype"),local("Artifakt Element Thin"),local("ArtifaktElement-Thin"),url(https://fonts.autodesk.com/ArtifaktElement/WOFF2/Artifakt%20Element%20Thin.woff2) format("woff2"),local("Artifakt Element Thin"),local("ArtifaktElement-Thin"),url(https://fonts.autodesk.com/ArtifaktElement/WOFF/Artifakt%20Element%20Thin.woff) format("woff"),local("Artifakt Element Thin"),local("ArtifaktElement-Thin"),url(https://fonts.autodesk.com/ArtifaktElement/TTF/Artifakt%20Element%20Thin.ttf) format("truetype")
+}
+@font-face {
+    font-family: ArtifaktElement;
+    font-style: normal;
+    font-weight: 300;
+    src: url(https://fonts.autodesk.com/ArtifaktElement/EOT/Artifakt%20Element%20Light.eot);
+    src: url(https://fonts.autodesk.com/ArtifaktElement/EOT/Artifakt%20Element%20Light.eot?#iefix) format("embedded-opentype"),local("Artifakt Element Light"),local("ArtifaktElement-Light"),url(https://fonts.autodesk.com/ArtifaktElement/WOFF2/Artifakt%20Element%20Light.woff2) format("woff2"),local("Artifakt Element Light"),local("ArtifaktElement-Light"),url(https://fonts.autodesk.com/ArtifaktElement/WOFF/Artifakt%20Element%20Light.woff) format("woff"),local("Artifakt Element Light"),local("ArtifaktElement-Light"),url(https://fonts.autodesk.com/ArtifaktElement/TTF/Artifakt%20Element%20Light.ttf) format("truetype")
+}
+@font-face {
+    font-family: ArtifaktElement;
+    font-style: normal;
+    font-weight: 400;
+    src: url(https://fonts.autodesk.com/ArtifaktElement/EOT/Artifakt%20Element%20Regular.eot);
+    src: url(https://fonts.autodesk.com/ArtifaktElement/EOT/Artifakt%20Element%20Regular.eot?#iefix) format("embedded-opentype"),local("Artifakt Element Regular"),local("ArtifaktElement-Regular"),url(https://fonts.autodesk.com/ArtifaktElement/WOFF2/Artifakt%20Element%20Regular.woff2) format("woff2"),local("Artifakt Element Regular"),local("ArtifaktElement-Regular"),url(https://fonts.autodesk.com/ArtifaktElement/WOFF/Artifakt%20Element%20Regular.woff) format("woff"),local("Artifakt Element Regular"),local("ArtifaktElement-Regular"),url(https://fonts.autodesk.com/ArtifaktElement/TTF/Artifakt%20Element%20Regular.ttf) format("truetype")
+}
+@font-face {
+    font-family: ArtifaktElement;
+    font-style: normal;
+    font-weight: 500;
+    src: url(https://fonts.autodesk.com/ArtifaktElement/EOT/Artifakt%20Element%20Book.eot);
+    src: url(https://fonts.autodesk.com/ArtifaktElement/EOT/Artifakt%20Element%20Book.eot?#iefix) format("embedded-opentype"),local("Artifakt Element Book"),local("ArtifaktElement-Book"),url(https://fonts.autodesk.com/ArtifaktElement/WOFF2/Artifakt%20Element%20Book.woff2) format("woff2"),local("Artifakt Element Book"),local("ArtifaktElement-Book"),url(https://fonts.autodesk.com/ArtifaktElement/WOFF/Artifakt%20Element%20Book.woff) format("woff"),local("Artifakt Element Book"),local("ArtifaktElement-Book"),url(https://fonts.autodesk.com/ArtifaktElement/TTF/Artifakt%20Element%20Book.ttf) format("truetype")
+}
+@font-face {
+    font-family: ArtifaktElement;
+    font-style: normal;
+    font-weight: 600;
+    src: url(https://fonts.autodesk.com/ArtifaktElement/EOT/Artifakt%20Element%20Medium.eot);
+    src: url(https://fonts.autodesk.com/ArtifaktElement/EOT/Artifakt%20Element%20Medium.eot?#iefix) format("embedded-opentype"),local("Artifakt Element Medium"),local("ArtifaktElement-Medium"),url(https://fonts.autodesk.com/ArtifaktElement/WOFF2/Artifakt%20Element%20Medium.woff2) format("woff2"),local("Artifakt Element Medium"),local("ArtifaktElement-Medium"),url(https://fonts.autodesk.com/ArtifaktElement/WOFF/Artifakt%20Element%20Medium.woff) format("woff"),local("Artifakt Element Medium"),local("ArtifaktElement-Medium"),url(https://fonts.autodesk.com/ArtifaktElement/TTF/Artifakt%20Element%20Medium.ttf) format("truetype")
+}
+@font-face {
+    font-family: ArtifaktElement;
+    font-style: normal;
+    font-weight: 700;
+    src: url(https://fonts.autodesk.com/ArtifaktElement/EOT/Artifakt%20Element%20Bold.eot);
+    src: url(https://fonts.autodesk.com/ArtifaktElement/EOT/Artifakt%20Element%20Bold.eot?#iefix) format("embedded-opentype"),local("Artifakt Element Bold"),local("ArtifaktElement-Bold"),url(https://fonts.autodesk.com/ArtifaktElement/WOFF2/Artifakt%20Element%20Bold.woff2) format("woff2"),local("Artifakt Element Bold"),local("ArtifaktElement-Bold"),url(https://fonts.autodesk.com/ArtifaktElement/WOFF/Artifakt%20Element%20Bold.woff) format("woff"),local("Artifakt Element Bold"),local("ArtifaktElement-Bold"),url(https://fonts.autodesk.com/ArtifaktElement/TTF/Artifakt%20Element%20Bold.ttf) format("truetype")
+}
+@font-face {
+    font-family: ArtifaktElement;
+    font-style: normal;
+    font-weight: 800;
+    src: url(https://fonts.autodesk.com/ArtifaktElement/EOT/Artifakt%20Element%20Black.eot);
+    src: url(https://fonts.autodesk.com/ArtifaktElement/EOT/Artifakt%20Element%20Black.eot?#iefix) format("embedded-opentype"),local("Artifakt Element Black"),local("ArtifaktElement-Black"),url(https://fonts.autodesk.com/ArtifaktElement/WOFF2/Artifakt%20Element%20Black.woff2) format("woff2"),local("Artifakt Element Black"),local("ArtifaktElement-Black"),url(https://fonts.autodesk.com/ArtifaktElement/WOFF/Artifakt%20Element%20Black.woff) format("woff"),local("Artifakt Element Black"),local("ArtifaktElement-Black"),url(https://fonts.autodesk.com/ArtifaktElement/TTF/Artifakt%20Element%20Black.ttf) format("truetype")
+}
+@font-face {
+    font-family: ArtifaktElement;
+    font-style: normal;
+    font-weight: 900;
+    src: url(https://fonts.autodesk.com/ArtifaktElement/EOT/Artifakt%20Element%20Heavy.eot);
+    src: url(https://fonts.autodesk.com/ArtifaktElement/EOT/Artifakt%20Element%20Heavy.eot?#iefix) format("embedded-opentype"),local("Artifakt Element Heavy"),local("ArtifaktElement-Heavy"),url(https://fonts.autodesk.com/ArtifaktElement/WOFF2/Artifakt%20Element%20Heavy.woff2) format("woff2"),local("Artifakt Element Heavy"),local("ArtifaktElement-Heavy"),url(https://fonts.autodesk.com/ArtifaktElement/WOFF/Artifakt%20Element%20Heavy.woff) format("woff"),local("Artifakt Element Heavy"),local("ArtifaktElement-Heavy"),url(https://fonts.autodesk.com/ArtifaktElement/TTF/Artifakt%20Element%20Heavy.ttf) format("truetype")
+}
+@font-face {
+    font-family: ArtifaktElement;
+    font-style: italic;
+    font-weight: 100;
+    src: url(https://fonts.autodesk.com/ArtifaktElement/EOT/Artifakt%20Element%20Hair%20Italic.eot);
+    src: url(https://fonts.autodesk.com/ArtifaktElement/EOT/Artifakt%20Element%20Hair%20Italic.eot?#iefix) format("embedded-opentype"),local("Artifakt Legend Hair"),local("ArtifaktElement-Hair"),url(https://fonts.autodesk.com/ArtifaktElement/WOFF2/Artifakt%20Element%20Hair%20Italic.woff2) format("woff2"),local("Artifakt Legend Hair"),local("ArtifaktElement-Hair"),url(https://fonts.autodesk.com/ArtifaktElement/WOFF/Artifakt%20Element%20Hair%20Italic.woff) format("woff"),local("Artifakt Legend Hair"),local("ArtifaktElement-Hair"),url(https://fonts.autodesk.com/ArtifaktElement/TTF/Artifakt%20Element%20Hair%20Italic.ttf) format("truetype")
+}
+@font-face {
+    font-family: ArtifaktElement;
+    font-style: italic;
+    font-weight: 200;
+    src: url(https://fonts.autodesk.com/ArtifaktElement/EOT/Artifakt%20Element%20Thin%20Italic.eot);
+    src: url(https://fonts.autodesk.com/ArtifaktElement/EOT/Artifakt%20Element%20Thin%20Italic.eot?#iefix) format("embedded-opentype"),local("Artifakt Legend Thin"),local("ArtifaktElement-Thin"),url(https://fonts.autodesk.com/ArtifaktElement/WOFF2/Artifakt%20Element%20Thin%20Italic.woff2) format("woff2"),local("Artifakt Legend Thin"),local("ArtifaktElement-Thin"),url(https://fonts.autodesk.com/ArtifaktElement/WOFF/Artifakt%20Element%20Thin%20Italic.woff) format("woff"),local("Artifakt Legend Thin"),local("ArtifaktElement-Thin"),url(https://fonts.autodesk.com/ArtifaktElement/TTF/Artifakt%20Element%20Thin%20Italic.ttf) format("truetype")
+}
+@font-face {
+    font-family: ArtifaktElement;
+    font-style: italic;
+    font-weight: 300;
+    src: url(https://fonts.autodesk.com/ArtifaktElement/EOT/Artifakt%20Element%20Light%20Italic.eot);
+    src: url(https://fonts.autodesk.com/ArtifaktElement/EOT/Artifakt%20Element%20Light%20Italic.eot?#iefix) format("embedded-opentype"),local("Artifakt Legend Light"),local("ArtifaktElement-Light"),url(https://fonts.autodesk.com/ArtifaktElement/WOFF2/Artifakt%20Element%20Light%20Italic.woff2) format("woff2"),local("Artifakt Legend Light"),local("ArtifaktElement-Light"),url(https://fonts.autodesk.com/ArtifaktElement/WOFF/Artifakt%20Element%20Light%20Italic.woff) format("woff"),local("Artifakt Legend Light"),local("ArtifaktElement-Light"),url(https://fonts.autodesk.com/ArtifaktElement/TTF/Artifakt%20Element%20Light%20Italic.ttf) format("truetype")
+}
+@font-face {
+    font-family: ArtifaktElement;
+    font-style: italic;
+    font-weight: italic;
+    src: url(https://fonts.autodesk.com/ArtifaktElement/EOT/Artifakt%20Element%20Regular%20Italic.eot);
+    src: url(https://fonts.autodesk.com/ArtifaktElement/EOT/Artifakt%20Element%20Regular%20Italic.eot?#iefix) format("embedded-opentype"),local("Artifakt Legend Regular"),local("ArtifaktElement-Regular"),url(https://fonts.autodesk.com/ArtifaktElement/WOFF2/Artifakt%20Element%20Regular%20Italic.woff2) format("woff2"),local("Artifakt Legend Regular"),local("ArtifaktElement-Regular"),url(https://fonts.autodesk.com/ArtifaktElement/WOFF/Artifakt%20Element%20Regular%20Italic.woff) format("woff"),local("Artifakt Legend Regular"),local("ArtifaktElement-Regular"),url(https://fonts.autodesk.com/ArtifaktElement/TTF/Artifakt%20Element%20Regular%20Italic.ttf) format("truetype")
+}
+@font-face {
+    font-family: ArtifaktElement;
+    font-style: italic;
+    font-weight: 500;
+    src: url(https://fonts.autodesk.com/ArtifaktElement/EOT/Artifakt%20Element%20Book%20Italic.eot);
+    src: url(https://fonts.autodesk.com/ArtifaktElement/EOT/Artifakt%20Element%20Book%20Italic.eot?#iefix) format("embedded-opentype"),local("Artifakt Legend Book"),local("ArtifaktElement-Book"),url(https://fonts.autodesk.com/ArtifaktElement/WOFF2/Artifakt%20Element%20Book%20Italic.woff2) format("woff2"),local("Artifakt Legend Book"),local("ArtifaktElement-Book"),url(https://fonts.autodesk.com/ArtifaktElement/WOFF/Artifakt%20Element%20Book%20Italic.woff) format("woff"),local("Artifakt Legend Book"),local("ArtifaktElement-Book"),url(https://fonts.autodesk.com/ArtifaktElement/TTF/Artifakt%20Element%20Book%20Italic.ttf) format("truetype")
+}
+@font-face {
+    font-family: ArtifaktElement;
+    font-style: italic;
+    font-weight: 600;
+    src: url(https://fonts.autodesk.com/ArtifaktElement/EOT/Artifakt%20Element%20Medium%20Italic.eot);
+    src: url(https://fonts.autodesk.com/ArtifaktElement/EOT/Artifakt%20Element%20Medium%20Italic.eot?#iefix) format("embedded-opentype"),local("Artifakt Legend Medium"),local("ArtifaktElement-Medium"),url(https://fonts.autodesk.com/ArtifaktElement/WOFF2/Artifakt%20Element%20Medium%20Italic.woff2) format("woff2"),local("Artifakt Legend Medium"),local("ArtifaktElement-Medium"),url(https://fonts.autodesk.com/ArtifaktElement/WOFF/Artifakt%20Element%20Medium%20Italic.woff) format("woff"),local("Artifakt Legend Medium"),local("ArtifaktElement-Medium"),url(https://fonts.autodesk.com/ArtifaktElement/TTF/Artifakt%20Element%20Medium%20Italic.ttf) format("truetype")
+}
+@font-face {
+    font-family: ArtifaktElement;
+    font-style: italic;
+    font-weight: 700;
+    src: url(https://fonts.autodesk.com/ArtifaktElement/EOT/Artifakt%20Element%20Bold%20Italic.eot);
+    src: url(https://fonts.autodesk.com/ArtifaktElement/EOT/Artifakt%20Element%20Bold%20Italic.eot?#iefix) format("embedded-opentype"),local("Artifakt Legend Bold"),local("ArtifaktElement-Bold"),url(https://fonts.autodesk.com/ArtifaktElement/WOFF2/Artifakt%20Element%20Bold%20Italic.woff2) format("woff2"),local("Artifakt Legend Bold"),local("ArtifaktElement-Bold"),url(https://fonts.autodesk.com/ArtifaktElement/WOFF/Artifakt%20Element%20Bold%20Italic.woff) format("woff"),local("Artifakt Legend Bold"),local("ArtifaktElement-Bold"),url(https://fonts.autodesk.com/ArtifaktElement/TTF/Artifakt%20Element%20Bold%20Italic.ttf) format("truetype")
+}
+@font-face {
+    font-family: ArtifaktElement;
+    font-style: italic;
+    font-weight: 800;
+    src: url(https://fonts.autodesk.com/ArtifaktElement/EOT/Artifakt%20Element%20Black%20Italic.eot);
+    src: url(https://fonts.autodesk.com/ArtifaktElement/EOT/Artifakt%20Element%20Black%20Italic.eot?#iefix) format("embedded-opentype"),local("Artifakt Legend Black"),local("ArtifaktElement-Black"),url(https://fonts.autodesk.com/ArtifaktElement/WOFF2/Artifakt%20Element%20Black%20Italic.woff2) format("woff2"),local("Artifakt Legend Black"),local("ArtifaktElement-Black"),url(https://fonts.autodesk.com/ArtifaktElement/WOFF/Artifakt%20Element%20Black%20Italic.woff) format("woff"),local("Artifakt Legend Black"),local("ArtifaktElement-Black"),url(https://fonts.autodesk.com/ArtifaktElement/TTF/Artifakt%20Element%20Black%20Italic.ttf) format("truetype")
+}
+@font-face {
+    font-family: ArtifaktElement;
+    font-style: italic;
+    font-weight: 900;
+    src: url(https://fonts.autodesk.com/ArtifaktElement/EOT/Artifakt%20Element%20Heavy%20Italic.eot);
+    src: url(https://fonts.autodesk.com/ArtifaktElement/EOT/Artifakt%20Element%20Heavy%20Italic.eot?#iefix) format("embedded-opentype"),local("Artifakt Legend Heavy"),local("ArtifaktElement-Heavy"),url(https://fonts.autodesk.com/ArtifaktElement/WOFF2/Artifakt%20Element%20Heavy%20Italic.woff2) format("woff2"),local("Artifakt Legend Heavy"),local("ArtifaktElement-Heavy"),url(https://fonts.autodesk.com/ArtifaktElement/WOFF/Artifakt%20Element%20Heavy%20Italic.woff) format("woff"),local("Artifakt Legend Heavy"),local("ArtifaktElement-Heavy"),url(https://fonts.autodesk.com/ArtifaktElement/TTF/Artifakt%20Element%20Heavy%20Italic.ttf) format("truetype")
+} 
 
 
 /*  MATERIAL FONT */
