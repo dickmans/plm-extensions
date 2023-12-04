@@ -1,0 +1,37 @@
+/*  MY OUTSTANDING WORK */
+/* ----------------------------------------------------------------------------- */
+.mow-table {
+    display: table;
+    width : 100%;
+}
+.mow-row {
+    cursor : pointer;
+    display:table-row;
+}
+.mow-row:hover > div { 
+    background : var(--color-hover); 
+}
+.blue-theme .mow-row:hover > div {
+    background : unset;
+    border-color: var(--color-selected-border);
+}
+.mow-row > div {
+    border : 1px solid white;
+    display: table-cell;
+    padding : 5px 10px;
+}
+.mow-date {
+    border-radius: 3px;
+    color: white;
+    float: right;
+    font-size: 12px;
+    line-height: 12px;
+    min-width : 62px;
+    padding: 2px 18px;
+    text-align : right;
+    position: relative;
+    right : -8px;
+    top: -18px;
+}
+.mow-date.in-time { background : var(--color-status-green); }
+.mow-date.late    { background : var(--color-status-red);   }
