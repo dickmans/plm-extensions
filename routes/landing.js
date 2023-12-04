@@ -137,7 +137,11 @@ function launch(view, app, req, res, next) {
     } else if(reqPartNumber !== '') {
 
         res.render('common/search', {
-            partNumber : reqPartNumber
+            partNumber : reqPartNumber,
+            title        : req.session.app, 
+            tenant       : req.session.tenant,
+            revisionBias : req.session.revisionBias,
+            options      : req.session.options
         });
 
     } else {

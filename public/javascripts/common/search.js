@@ -15,6 +15,10 @@ $(document).ready(function() {
             let url  = window.location.href.split('?')[0];
                 url += '?dmsId=' + link.split('/')[6];
                 url += '&wsId='  + config.search.wsId;
+                url += '&title=' + title;
+                url += '&tenant=' + tenant;
+                url += '&revisionBias=' + revisionBias;
+                url += '&options=' + options;
 
             window.location = url;
 
