@@ -227,7 +227,10 @@ function showErrorMessage(message, title) {
 // Handle tabs
 function enableTabs() {
 
-    $('.tabs').siblings('.panel-content').addClass('hidden');
+    $('.tabs').each(function() {
+        let groupName = $(this).attr('data-tab-group');
+        $('.' + groupName).addClass('hidden');
+    });
 
     $('.tabs').children().click(function() {
         selectTab($(this));
@@ -241,10 +244,11 @@ function enableTabs() {
 function selectTab(elemSelected) {
 
     let index     = elemSelected.index() + 0;
-    let elemPanel = elemSelected.closest('.panel');
-    
-    elemPanel.find('.panel-content').addClass('hidden');
-    elemPanel.find('.panel-content').eq(index).removeClass('hidden');
+    let elemTabs  = elemSelected.closest('.tabs');
+    let groupName = elemTabs.attr('data-tab-group');
+
+    $('.' + groupName).addClass('hidden');
+    $('.' + groupName).eq(index).removeClass('hidden');
 
     elemSelected.addClass('selected').siblings().removeClass('selected');
 
@@ -456,6 +460,7 @@ function genTile(link, urn, image, icon, title, subtitle) {
 
     let elemTile = $('<div></div>');
         elemTile.addClass('tile');
+        elemTile.attr('data-title', title);
 
     if(link !== '') elemTile.attr('data-link', link);
     if(urn  !== '') elemTile.attr('data-urn', urn);

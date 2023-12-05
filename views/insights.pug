@@ -21,7 +21,7 @@ block content
 
 
         #main.screen.panel
-            .tabs
+            .tabs(data-tab-group="tab-group-main")
                 div System
                 div Last Login
                 div Logins
@@ -31,7 +31,7 @@ block content
                 div Item Creation
                 div Item Edits
                 div Event Log
-            .panel-content.dashboard.surface-level-2-5#system
+            .panel-content.tab-group-main.dashboard.surface-level-2-5#system
                 .counter
                     #workspaces-count.counter-number 0
                     .counter-label Workspaces 
@@ -52,9 +52,9 @@ block content
                     .title Active users by mail domain
                     .chart
                         canvas#domains 
-            .panel-content.surface-level-1
+            .panel-content.tab-group-main.surface-level-1
                 canvas#timelineLastLogins
-            .panel-content.surface-level-2-5.dashboard#logins
+            .panel-content.tab-group-main.surface-level-2-5.dashboard#logins
                 #summary
                     #summary-bar
                         #summary-bar-logins.left
@@ -70,17 +70,17 @@ block content
                     .title Active users / unique logins per day 
                     .chart
                         canvas#timelineLogins
-            .panel-content.surface-level-1
+            .panel-content.tab-group-main.surface-level-1
                 canvas#timelineUsers
-            .panel-content.surface-level-1
+            .panel-content.tab-group-main.surface-level-1
                 canvas#workspaceActivities
-            .panel-content.surface-level-1
+            .panel-content.tab-group-main.surface-level-1
                 canvas#workspaces 
-            .panel-content.surface-level-1
+            .panel-content.tab-group-main.surface-level-1
                 canvas#timelineCreation
-            .panel-content.surface-level-1
+            .panel-content.tab-group-main.surface-level-1
                 canvas#timelineEdits 
-            .panel-content.surface-level-1 
+            .panel-content.tab-group-main.surface-level-1 
                 .toolbar
                     span.select-label Select user:
                     select#select-user

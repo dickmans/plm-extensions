@@ -63,20 +63,20 @@ block content
             #divider-panel.screen-divider.vertical
 
             .panel#panel 
-                .tabs.dark
+                .tabs.dark(data-tab-group="tab-group-main")
                     div.selected(data-id='items') Spare Parts
                     div(data-id='processes') Problem Reports
                     div.hidden#tab-charts(data-id='charts') Maintenance
-                .panel-content#items
+                .panel-content.tab-group-main#items
                     #items-list.list.tiles.l
-                .panel-content#processes
+                .panel-content.tab-group-main#processes
                     #processes-toolbar
                         .button#create-process(title='Initiate new process in PLM') Create
                         .button.process-dialog#cancel-process(title='Cancel creation of new process and return to list of related processes') Cancel
                         .button.process-dialog.default#save-process(title='Save new process in PLM') Save
                     #processes-list.list.tiles.l
                     #processes-sections.form.surface-level-2
-                .panel-content#charts
+                .panel-content.tab-group-main#charts
                     #charts-list
                         .chart-title Wear Parts
                         .wear-parts#wear-parts

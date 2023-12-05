@@ -46,7 +46,7 @@ block content
             
                 #viewer.viewer
                 
-                .tabs.surface-level-1#tabs
+                .tabs.surface-level-1#tabs(data-tab-group="tab-group-main")
                     div(title='Review change log of selected affected item') 
                         span.label Log
                     div(title='Review changes in the BOM')
@@ -71,7 +71,7 @@ block content
                         span.label Orders (ERP)
                         span#orders-counter.counter.value
                 
-                .panel-content.surface-level-2#logs
+                .panel-content.tab-group-mai.surface-level-2#logs
                     table#logs-table.content-table
                         thead
                             tr
@@ -80,7 +80,7 @@ block content
                                 th Action
                                 th Description
                         tbody                
-                .panel-content.surface-level-2#bom.content
+                .panel-content.tab-group-mai.surface-level-2#bom.content
                     .content-area.with-actions
                         table#bom-table.content-table
                     .panel-content-actions.surface-level-2
@@ -97,7 +97,7 @@ block content
                             #bom-color-toggle
                                 input(type="checkbox" id="apply-to-viewer" name="apply-to-viewer" value="apply-to-viewer")
                                 label(for="apply-to-viewer") Apply to viewer
-                .panel-content.surface-level-2#related.content
+                .panel-content.tab-group-mai.surface-level-2#related.content
                     .content-area.with-actions
                         #related-list.content-list
                     .panel-content-actions.surface-level-2#related-actions
@@ -105,7 +105,7 @@ block content
                         #related-add-selected.button Add Selected
                         #related-select-all.button Select All
                         #related-deselect-all.button Deselect All  
-                .panel-content.surface-level-2#roots.content
+                .panel-content.tab-group-mai.surface-level-2#roots.content
                     table#roots-table.content-table
                         thead
                             tr
@@ -114,7 +114,7 @@ block content
                                 th Quantity
                                 th Hierarchy
                         tbody
-                .panel-content.surface-level-2#impacted.content
+                .panel-content.tab-group-mai.surface-level-2#impacted.content
                     table#impacted-table.content-table
                         thead
                             tr
@@ -124,7 +124,7 @@ block content
                                 th Description
                                 th Actions
                         tbody#impacted-tbody
-                .panel-content.surface-level-2#attachments.content
+                .panel-content.tab-group-mai.surface-level-2#attachments.content
                     table#attachments-table.content-table.hovering-enabled
                         thead
                             tr
@@ -137,7 +137,7 @@ block content
                                 th Description
                                 th Type
                         tbody
-                .panel-content.surface-level-2#changes.content
+                .panel-content.tab-group-mai.surface-level-2#changes.content
                     table#changes-table.content-table.hovering-enabled
                         thead
                             tr
@@ -149,7 +149,7 @@ block content
                                 th By User
                         tbody
 
-                .panel-content.surface-level-2#orders.content
+                .panel-content.tab-group-mai.surface-level-2#orders.content
                     table#orders-table.content-table.hovering-enabled
                         thead
                             tr

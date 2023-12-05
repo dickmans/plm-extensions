@@ -26,15 +26,15 @@ block content
 
             .panel#tabs 
 
-                .panel-header.tabs.no-auto-select
+                .panel-header.tabs.no-auto-select(data-tab-group="tab-group-main")
                     #mode-disassemble(data-id='disassemble') Disassemble
                     #mode-ebom.selected(data-id='ebom') EBOM Alignment
                     #mode-add(data-id='add') Add Items 
                     //- #mode-instructions(data-id='instructions') Instructions ** custom
 
-                .panel-content.viewer#viewer
+                .panel-content.tab-group-main.viewer#viewer
                 
-                .panel-content#ebom
+                .panel-content.tab-group-main#ebom
                     #ebom-tree
                     .bom-panel
                         span Total Quantity : 
@@ -53,7 +53,7 @@ block content
                         #deselect-all.button(title='Reset item selection in viewer, EBOM and MBOM') Deselect All
                         #toggle-colors.button(title='When enabled, the component colors in the viewer will be replaced by red, yellow and green to indicate their consumption in the MBOM') Toggle Viewer Colors
 
-                .panel-content#add
+                .panel-content.tab-group-main#add
                         .panel-left
                             #nav-search-items.panel-nav(data-id='search-items') Search
                             #nav-workspace-views-ebom.panel-nav.blank(data-id='workspace-views-ebom') Workspace Views
