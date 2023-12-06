@@ -2217,7 +2217,7 @@ router.get('/where-used', function(req, res, next) {
     console.log('  req.query.link   = ' + req.query.link);
     console.log('  req.query.depth  = ' + req.query.depth);
 
-    let depth = (typeof req.query.depth !== 'undefined') ? req.query.link : 10;
+    let depth = (typeof req.query.depth !== 'undefined') ? req.query.depth : 10;
     
     let url =  (typeof req.query.link !== 'undefined') ? req.query.link : '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId;
         url = 'https://' + req.session.tenant + '.autodeskplm360.net' + url + '/where-used?depth=' + depth;
@@ -2752,7 +2752,7 @@ router.get('/search-descriptor', function(req, res, next) {
     let page        = (typeof req.query.page     === 'undefined') ?   '1'    : req.query.page;
     let revision    = (typeof req.query.revision === 'undefined') ?   '1'    : req.query.revision;
 
-    let url = 'https://' + req.session.tenant + '.autodeskplm360.net/api/v3/search-results?limit=' + limit + '&offset=' + offset + '&page=' + page + '&revision=' + revision + '&query=itemDescriptor%3D%22' + req.query.query + '%22';
+    let url = 'https://' + req.session.tenant + '.autodeskplm360.net/api/v3/search-results?limit=' + limit + '&offset=' + offset + '&page=' + page + '&revision=' + revision + '&query=itemDescriptor%3D*' + req.query.query + '*';
     
     if(typeof req.query.wsId !== 'undefined') url += '+AND+(workspaceId%3D' + req.query.wsId + ')';
 
@@ -2763,7 +2763,6 @@ router.get('/search-descriptor', function(req, res, next) {
     axios.get(url, {
         'headers' : headers
     }).then(function(response) {
-        console.log(response);
         if(response.data === "") response.data = { 'items' : [] }
         sendResponse(req, res, response, false);
     }).catch(function(error) {
