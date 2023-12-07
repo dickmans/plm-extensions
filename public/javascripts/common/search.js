@@ -1,5 +1,10 @@
 $(document).ready(function() {
 
+    if(!isBlank(options)) {
+        let params = options.split(',');
+        if(params.indexOf('dark') > -1) $('body').addClass('blue-theme');
+    }
+
     let params = {
         'wsId'  : config.search.wsId,
         'limit' : 1,
