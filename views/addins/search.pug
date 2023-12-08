@@ -1,0 +1,33 @@
+extends ../common/addins
+
+block head
+    link(rel='stylesheet', href='/stylesheets/addins/search.css')
+    script.
+        config = !{JSON.stringify(config)};
+    script(src='/javascripts/addins/search.js')
+
+block content
+
+    .screen.surface-level-1  
+
+        .tabs.surface-level-2(data-tab-group="tab-group-main")
+            .tab#tab-search Suche
+            .tab Ansichten
+            .tab#tab-recents Zuletzt Angesehen 
+            .tab#tab-bookmarks Lesezeichen 
+
+        .panel.tab-group-main#search
+            .panel-header#search-header.search-header
+            .panel-toolbar#search-actions.search-actions
+                input#search-input.search-input.surface-level-2(placeholder='Nummer / Bezeichnung des Artikels')
+                #search-submit.button.default Suche
+            .panel-content#search-list.list.tiles.xs.search-result-list
+            .panel-content#search-no-results.search-result-message Keine Ergebnisse gefunden
+
+        .panel.tab-group-main#views
+
+        .panel.tab-group-main#recents
+            .panel-content#recents-list.tiles.list.xs
+
+        .panel.tab-group-main#bookmarks
+            .panel-content#bookmarks-list.tiles.list.xs

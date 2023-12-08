@@ -27,6 +27,7 @@ router.get('/reports'       , function(req, res, next) { launch('reports'       
 router.get('/reviews'       , function(req, res, next) { launch('reviews'         , 'Design Reviews'              , req, res, next); });
 router.get('/service'       , function(req, res, next) { launch('service'         , 'Services Portal'             , req, res, next); });
 router.get('/template'      , function(req, res, next) { launch('template'        , 'App Template Page'           , req, res, next); });
+router.get('/training'      , function(req, res, next) { launch('training'        , 'Training Application'        , req, res, next); });
 router.get('/variants'      , function(req, res, next) { launch('variants'        , 'Variant Manager'             , req, res, next); });
 
 
@@ -45,11 +46,12 @@ router.get('/', function(req, res, next) {
 /* ------------------------------------------------------------------------------
     INVENTOR ADDINS
    ------------------------------------------------------------------------------ */
-router.get('/addins/dev'           , function(req, res, next) { launch('addins/dev'          , 'PLM Plugin Development'  , req, res, next); });
-router.get('/addins/bom'           , function(req, res, next) { launch('addins/bom'          , 'BOM Management'          , req, res, next); });
-router.get('/addins/change'        , function(req, res, next) { launch('addins/change'       , 'Change Management'       , req, res, next); });
-router.get('/addins/context'       , function(req, res, next) { launch('addins/context'      , 'Context Browser'         , req, res, next); });
-router.get('/addins/configurations', function(req, res, next) { launch('addins/configuration', 'Configruation Management', req, res, next); });
+router.get('/addins/dev'     , function(req, res, next) { launch('addins/dev'     , 'PLM Plugin Development'          , req, res, next); });
+router.get('/addins/change'  , function(req, res, next) { launch('addins/change'  , 'Change Management'               , req, res, next); });
+router.get('/addins/context' , function(req, res, next) { launch('addins/context' , 'Context Browser'                 , req, res, next); });
+router.get('/addins/item'    , function(req, res, next) { launch('addins/item'    , 'Item & BOM Management'           , req, res, next); });
+router.get('/addins/search'  , function(req, res, next) { launch('addins/search'  , 'Search'                          , req, res, next); });
+router.get('/addins/products', function(req, res, next) { launch('addins/products', 'Product Configuration Management', req, res, next); });
 
 
 
@@ -75,6 +77,7 @@ function launch(view, app, req, res, next) {
     let reqDMS          = '';
     let reqPartNumber   = '';
     let reqRevisioBias  = 'release';
+    let theme           = '';
 
     for(key in req.query) {
         switch(key.toLowerCase()) {
@@ -82,6 +85,7 @@ function launch(view, app, req, res, next) {
             case 'dmsid'        :         reqDMS = req.query[key]; break;
             case 'partnumber'   :  reqPartNumber = req.query[key]; break;
             case 'revisionbias' : reqRevisioBias = req.query[key]; break;
+            case 'theme'        :          theme = req.query[key]; break;
         }
     }
 
@@ -95,6 +99,7 @@ function launch(view, app, req, res, next) {
     req.session.options         = req.query.hasOwnProperty('options') ? req.query.options : '';
     req.session.tenant          = req.query.hasOwnProperty('tenant') ? req.query.tenant : req.app.locals.tenant;
     req.session.revisionBias    = reqRevisioBias;
+    req.session.theme           = theme;
     
     console.log('  req.session.view         = ' + req.session.view); 
     console.log('  req.session.app          = ' + req.session.app); 
@@ -105,6 +110,7 @@ function launch(view, app, req, res, next) {
     console.log('  req.session.options      = ' + req.session.options); 
     console.log('  req.session.tenant       = ' + req.session.tenant); 
     console.log('  req.session.revisionBias = ' + req.session.revisionBias); 
+    console.log('  req.session.theme        = ' + req.session.theme); 
     console.log();
 
     let redirect = false;
@@ -137,7 +143,7 @@ function launch(view, app, req, res, next) {
     } else if(reqPartNumber !== '') {
 
         res.render('common/search', {
-            partNumber : reqPartNumber,
+            partNumber   : reqPartNumber,
             title        : req.session.app, 
             tenant       : req.session.tenant,
             revisionBias : req.session.revisionBias,
@@ -153,6 +159,7 @@ function launch(view, app, req, res, next) {
             dmsId        : req.session.dmsId,
             link         : req.session.link,
             revisionBias : req.session.revisionBias,
+            theme        : req.session.theme,
             options      : req.session.options,
             config       : req.app.locals.config
         });

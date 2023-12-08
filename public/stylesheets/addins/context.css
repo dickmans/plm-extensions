@@ -1,0 +1,17 @@
+/* CONTEXT BROWSER */
+/* ----------------------------------------------------------------------------- */
+.screen { top : 0px; }
+.panel { 
+    top : 80px;
+    right : var(--padding-main);
+    bottom : var(--padding-main);
+    left : var(--padding-main);
+}
+
+.tabs {
+    border-bottom : none;
+    padding-top : 20px;
+    top : 0px;
+    right : 0px;
+    left : 0px;
+}

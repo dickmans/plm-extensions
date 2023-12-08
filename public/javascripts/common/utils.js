@@ -31,6 +31,14 @@ function isBlank(value) {
     return false;
 
 }
+function isEmpty(value) {
+
+    if(typeof value === 'undefined') return true;
+    if(       value === null       ) return true;
+
+    return false;
+
+}
 
 
 // Insert progress indicator

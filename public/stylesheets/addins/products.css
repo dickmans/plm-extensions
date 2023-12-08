@@ -1,0 +1,38 @@
+/* MASTER LAYOUT */
+/* ----------------------------------------------------------------------------- */
+/* #tasks, #task {
+    top     : 0px;
+    right   : 0px;
+    bottom  : 0px;
+    left    : 0px;
+}
+#mow-list {
+    width : calc(100% - 40px);
+}
+#task {
+    display : none;
+}
+ */
+.screen > .panel {
+    top : var(--padding-main); 
+}
+#products-search-input {
+    width : 80px;
+}
+
+
+#details {
+    display : none;
+}
+#details > .tabs {
+    position : absolute;
+    top : 44px;
+    left : calc(-1 * var(--padding-main)); 
+    right : calc(-1 * var(--padding-main)); 
+}
+#details > .panel-content {
+    top : 78px;
+    right : calc(-1 * var(--padding-main)); 
+    bottom : calc(-1 * var(--padding-main)); 
+    left : calc(-1 * var(--padding-main)); 
+}

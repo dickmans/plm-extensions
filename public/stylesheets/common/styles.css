@@ -182,6 +182,8 @@
 
 .tiles.xxl        { gap : var(--spacer-xl); }
 .tiles.xl         { gap : var(--spacer-l); }
+.tiles.l          { gap : var(--spacer-l); }
+.tiles.m          { gap : var(--spacer-l); }
 .tiles.wide.s     { gap : var(--spacer-s); }
 .tiles.list.l     { gap : var(--spacer-s); }
 .tiles.list.m     { gap : var(--spacer-xs); }
@@ -370,151 +372,6 @@
 .surface-level-2 .tiles-group { border-color : rgba(60, 60, 60, 0.25); }
 
 
-/*  Tree BOM */
-/*  Used by Explorer and Product Configuator */
-/* ----------------------------------------------------------------------------- */
-.bom-view-selector {
-    margin-left : 8px;
-}
-#bom-search-input,
-.bom-search-input {
-    border : none !important;
-    box-shadow : none !important;
-    font-size : 14px;
-    padding : 4px 10px;
-    width: 50px;
-}
-.bom-tree-row {
-    cursor : pointer;
-}
-.bom-tree-row.selected {
-    background : var(--color-selected);
-}
-    .bom-tree-row.selected > td {
-    border-color : var(--color-selected-border);
-}
-.bom-tree-nav {
-    cursor: pointer;
-    font-size : 22px;
-    /* line-height : 4px; */
-    padding-right: 9px;
-    width: 16px;
-    position : relative;
-    top : 5px;
-}
-.bom-tree-nav:before { content: '\e5cf'; }
-.bom-tree-nav.collapsed:before { content: '\e5cc'; }
-.bom-first-col {
-    white-space: nowrap;
-    overflow : hidden;
-    text-overflow: ellipsis;
-}
-.bom-tree-color {
-    width : 12px;
-    background : transparent;
-}
-#bom-tree.no-colors .bom-tree-color {
-    width : 0px;
-}
-.bom-tree-number {
-    min-width: 28px;
-    padding : 5px;
-    font-weight: bold;
-    display: inline-block;
-}
-.bom-tree-title {
-    padding : 5px;
-}
-.bom-quantity {
-    font-weight : bold;
-    text-align : right;
-}
-
-.bom-level-1,  .bom-level-1 >  .bom-first-col { background : #ffffff; }
-.bom-level-2,  .bom-level-2 >  .bom-first-col { background : #f8f8f8; }
-.bom-level-3,  .bom-level-3 >  .bom-first-col { background : #f1f1f1; }
-.bom-level-4,  .bom-level-4 >  .bom-first-col { background : #e8e8e8; }
-.bom-level-5,  .bom-level-5 >  .bom-first-col { background : #e1e1e1; }
-.bom-level-6,  .bom-level-6 >  .bom-first-col { background : #d8d8d8; }
-.bom-level-7,  .bom-level-7 >  .bom-first-col { background : #d1d1d1; }
-.bom-level-8,  .bom-level-8 >  .bom-first-col { background : #c8c8c8; }
-.bom-level-9,  .bom-level-9 >  .bom-first-col { background : #c1c1c1; }
-.bom-level-10, .bom-level-10 > .bom-first-col { background : #b8b8b8; }
-
-.bom-level-1  .bom-tree-color { margin-right :  30px; }
-.bom-level-2  .bom-tree-color { margin-right :  55px; }
-.bom-level-3  .bom-tree-color { margin-right :  80px; }
-.bom-level-4  .bom-tree-color { margin-right : 105px; }
-.bom-level-5  .bom-tree-color { margin-right : 130px; }
-.bom-level-6  .bom-tree-color { margin-right : 155px; }
-.bom-level-7  .bom-tree-color { margin-right : 180px; }
-.bom-level-8  .bom-tree-color { margin-right : 205px; }
-.bom-level-9  .bom-tree-color { margin-right : 230px; }
-.bom-level-10 .bom-tree-color { margin-right : 255px; }
-
-tr.node.bom-level-1 .bom-tree-color  { margin-right :   5px; }
-tr.node.bom-level-2 .bom-tree-color  { margin-right :  30px; }
-tr.node.bom-level-3 .bom-tree-color  { margin-right :  55px; }
-tr.node.bom-level-4 .bom-tree-color  { margin-right :  80px; }
-tr.node.bom-level-5 .bom-tree-color  { margin-right : 105px; }
-tr.node.bom-level-6 .bom-tree-color  { margin-right : 130px; }
-tr.node.bom-level-7 .bom-tree-color  { margin-right : 155px; }
-tr.node.bom-level-8 .bom-tree-color  { margin-right : 180px; }
-tr.node.bom-level-9 .bom-tree-color  { margin-right : 205px; }
-tr.node.bom-level-10 .bom-tree-color { margin-right : 230px; }
-
-
-/*  Flat BOM */
-/*  Used by Design Review and Product Portfolio */
-/* ----------------------------------------------------------------------------- */
-.bom-item {
-    border-top : 1px solid transparent;
-    border-bottom : 1px solid var(--color-gray-100);
-    border-left : 1px solid transparent;
-    border-right : 1px solid transparent;
-    cursor : pointer;
-    display : flex;
-    padding : 4px 15px;
-}
-.bom-item:last-of-type {
-    border-bottom : none;
-}
-.bom-item:hover {
-    background-color : var(--color-hover) !important;
-}
-.bom-item.selected {
-    background-color : var(--color-selected);
-    border : 1px solid var(--color-selected-border);
-}
-.bom-item-title {
-    line-height : 26px;
-    overflow : hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    width : calc(100% - 90px);
-}
-.bom-item-qty {
-    line-height : 26px;
-    text-align : right;
-    width : 50px;
-}
-.bom-item.unread { font-weight : bold; }
-.bom-item-actions > span {
-    border: 1px solid #808080;
-    border-radius : 2px;
-    color: #3C3C3C;
-    display : none;
-    float: right;
-    line-height: 24px;
-    margin-left: var(--spacer-s);
-    text-align: center;
-}
-.bom-item:hover .bom-item-actions > span {
-    display : block;
-}
-.no-actions .bom-item-title { width : calc(100% - 50px); }
-
-
 
 /*  THUMBNAILS */
 /* ----------------------------------------------------------------------------- */
@@ -548,7 +405,6 @@ tr.node.bom-level-10 .bom-tree-color { margin-right : 230px; }
 /*  HEADER */
 /* ----------------------------------------------------------------------------- */
 #header {
-    background : white;
     display : flex;
     height : 28px;
     padding : 20px 56px 20px; 

@@ -1,0 +1,74 @@
+extends ../common/addins
+
+block head
+    link(rel='stylesheet', href='/stylesheets/addins/item.css')
+    script.
+        config = !{JSON.stringify(config)};
+    script(src='/javascripts/addins/item.js')
+
+block content
+
+    .screen.surface-level-1  
+
+        .tabs.surface-level-2(data-tab-group="tab-group-main")
+            .tab Artikel
+            .tab#tab-bom EFE 
+            .tab Kolorierung 
+            .tab#tab-materials Rohmaterialien 
+            .tab Dateien 
+        
+        .panel.tab-group-main#details
+            .panel-header   
+                .panel-title
+                .panel-toolbar 
+                    .button.icon.icon-bookmark#bookmark
+                    .button.icon.icon-open#open
+            .panel-content#details-sections
+
+        .panel.tab-group-main#bom-flat
+        //- .panel.tab-group-main#bom-flat
+        //-     .panel-header   
+        //-         .panel-title 
+        //-         .panel-toolbar 
+        //-     .panel-content#bom-flat-list
+        .panel.tab-group-main#variants
+            //- .panel-header   
+            //-     .panel-title 
+            //-     .panel-toolbar 
+            //- .panel-content#variants-list
+            .panel-header 
+                .panel-title#item-variants-header 
+                .panel-toolbar 
+                    .button.with-icon.icon-tiles#item-variants-select Farbwelten wählen
+            .panel-content#item-variants-editor 
+                #master-bom
+
+            //- .panel-content#item-variants-title
+            //- .panel-content.surface-level-2#item-variants-list-parent
+            //-     #item-variants-list.list.tiles.l
+
+
+        .panel.tab-group-main#materials
+            .panel-header#materials-header.search-header
+            .panel-toolbar#materials-actions.search-actions
+                input#materials-input.search-input.surface-level-2(placeholder='Nummer / Bezeichnung des Rohmaterials')
+                #materials-submit.button.default Suche
+            .panel-content#materials-list.list.tiles.xs.search-result-list
+            .panel-content#materials-no-results.search-result-message Keine Ergebnisse gefunden
+
+
+        .panel.tab-group-main#attachments
+            .panel-header   
+                .panel-title
+                .panel-toolbar 
+                    .button.with-icon.icon-upload.default#upload Datei hochladen
+            .panel-content#attachments-list
+
+
+        .dialog#dialog-variants
+            .dialog-header Farbwelten wählen
+            .dialog-content.tiles.wide.s#dialog-variants-list 
+            .dialog-footer
+                .button.clear Deselect All
+                .button.default#dialog-variants-apply Apply 
+                .button.cancel#dialog-variants-cancel Cancel

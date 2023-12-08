@@ -1,0 +1,47 @@
+/*  VIEWS */
+/* ----------------------------------------------------------------------------- */
+#views-header .panel-title {
+    height : 0px;
+}
+.panel-toolbar {
+    padding-right : 0px;
+}
+#views-content {
+    top : 46px;
+    right : 0px;
+    bottom : 0px;
+    left : 0px;
+}
+.blue-theme #views-thead th {
+    background : none;
+    background : #454f61;
+}
+.blue-theme .workspace-view-item {
+    background : #222933;
+}
+.blue-theme .workspace-view-item > td {
+    border-top : none;
+    border-bottom : 4px solid #454f61;
+}
+.blue-theme .workspace-view-item:hover {
+    background : #2e3440 !important;
+}
+
+
+/*  RECENTS */
+/* ----------------------------------------------------------------------------- */
+#recents-list {
+    top : 0px;
+    right : 0px;
+    bottom : 0px;
+    left : 0px;
+}
+
+/*  BOOKMARKS */
+/* ----------------------------------------------------------------------------- */
+#bookmarks-list {
+    top : 0px;
+    right : 0px;
+    bottom : 0px;
+    left : 0px;
+}

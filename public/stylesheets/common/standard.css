@@ -113,7 +113,11 @@ th {
 }
 .fixed-header > thead > tr > th,
 .fixed-header > tbody > tr > th,
-.fixed-header > tr > th { position : sticky; top : 0; }
+.fixed-header > tr > th { 
+    position : sticky; 
+    top : 0; 
+    z-index : 1;
+}
 table.hovering-enabled tbody tr:hover td {
     background : var(--color-hover) !important;
     cursor : pointer;

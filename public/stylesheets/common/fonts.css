@@ -213,6 +213,7 @@
 .icon-fold::before    { content : '\e5d6'; }
 .icon-help::before    { content : '\f1c0'; }
 .icon-hide::before    { content : '\e8f5'; }
+.icon-highlight::before    { content : '\e518'; }
 .icon-history::before    { content : '\e889'; }
 .icon-home::before    { content : '\e88a'; }
 .icon-important::before    { content : '\e82a'; }
@@ -236,6 +237,7 @@
 .icon-save::before    { content : '\e2c3'; }
 .icon-search-list::before    { content : '\f02f'; }
 .icon-send::before    { content : '\e163'; }
+.icon-select:before    { content : '\f718'; }
 .icon-select-all:before    { content : '\e877'; }
 .icon-settings::before { content : '\e8b8'; }
 .icon-show::before    { content : '\e8f4'; }

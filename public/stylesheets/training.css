@@ -1,0 +1,58 @@
+:root {
+
+    --width-details         : 500px;
+    --width-attachments     : 400px;
+    --padding-panel         : 25px;
+
+}
+
+
+/* MASTER LAYOUT */
+/* ----------------------------------------------------------------------------- */
+#viewer {
+    /* display : none !important; */
+    top     : 0px;
+    right   : calc((3 * var(--padding-panel)) + var(--width-details) + var(--width-attachments));
+    bottom  : 0px;
+    left    : 0px;
+}
+#details {
+    top     : var(--padding-panel);
+    right   : calc((2 * var(--padding-panel)) + var(--width-attachments));
+    bottom  : var(--padding-panel);
+    width   : var(--width-details);
+}
+#attachments {
+    /* top     : 400px; */
+    top     : var(--padding-panel);
+    right   : var(--padding-panel);
+    /* bottom  : 300px; */
+    bottom  : var(--padding-panel);
+    width   : var(--width-attachments);
+}
+
+
+#iframe {
+    position : absolute;
+    top : 0px;
+    right : 0px;
+    width : var(--width-attachments);
+    height : 300px;
+}
+
+
+#create {
+    top     : var(--padding-panel);
+    right   : calc((3 * var(--padding-panel)) + var(--width-details) + var(--width-attachments));
+    bottom  : var(--padding-panel);
+    left    : var(--padding-panel);
+}
+
+
+#recents {
+    position : absolute;
+    right : var(--padding-panel);
+    bottom : var(--padding-panel);
+    width : var(--width-attachments);
+    height : 300px;   
+}

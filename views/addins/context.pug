@@ -1,0 +1,82 @@
+extends ../common/addins
+
+block head
+    link(rel='stylesheet', href='/stylesheets/addins/context.css')
+    script.
+        config = !{JSON.stringify(config)};
+    script(src='/javascripts/addins/context.js')
+
+block content
+
+    .screen.surface-level-1  
+
+        .tabs.surface-level-3(data-tab-group="tab-group-main")
+            .tab#tab-parents Immediate Parents
+            .tab#tab-relationships Relationships 
+            .tab#tab-processes Change Processes 
+            .tab#tab-roots Top Level Assemblies
+            .tab#tab-mbom MBOM 
+
+        .panel.tab-group-main#parents
+            .panel-header   
+                .panel-title
+                .panel-toolbar 
+            .panel-content#parents-list.tiles.list.xs
+
+        .panel.tab-group-main#relationships
+            .panel-header   
+                .panel-title
+                .panel-toolbar 
+            .panel-content#relationships-list.tiles.list.xs
+
+        .panel.tab-group-main#processes
+            .panel-header   
+                .panel-title
+                .panel-toolbar 
+            .panel-content#processes-list.tiles.list.l
+
+        .panel.tab-group-main#roots
+            .panel-header   
+                .panel-title
+                .panel-toolbar 
+            .panel-content#roots-list.tiles.list.l
+
+        .panel.tab-group-main#mbom
+            .panel-header   
+                .panel-title
+                .panel-toolbar 
+            .panel-content#mbom-editor.tiles.list.l
+
+        //- .panel#tasks
+        //-     .panel-header   
+        //-         .panel-title Change Tasks 
+        //-         .panel-toolbar 
+        //-     //-         .button.default.icon.icon-create
+        //-     //-         select#view(name='view') 
+        //-     //-             option(value='recents') List Recent Proceses
+        //-     //-             option(value='bookmarks') List Pinned Proceses
+        //-     //-             option(value='mow') List Proceses Requiring Action
+        //-     //-             option(value='all') List All Processes
+        //-     //-             option(value='calendar') Browse By Date
+        //-     //-             option(value='progress') View Processes By Progress
+        //-     //-             option(value='timeline') View Process Timeline Chart
+        //-     //- .panel-content.surface-level-2#views-list    
+
+
+        //-     .panel-content.surface-level-2.mow-table#mow-list    
+
+
+        //- .panel#task
+        //-     .panel-header   
+        //-         .panel-title#task-title
+        //-         .panel-toolbar 
+        //-             .button.icon.icon-bookmark#bookmark
+        //-             .button.icon.icon-open#open
+        //-             .button.icon.icon-close#close-task
+        //-         .panel-content-top.compact#task-sections
+        //-         .panel-content-bottom
+        //-             #managed-items-list.tiles.list.files
+        //-             #attachments-list.tiles.list.files
+        //-         .panel-content-toggle 
+        //-             div Managed Items 
+        //-             div Files               

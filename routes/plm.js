@@ -2578,12 +2578,17 @@ router.get('/items', function(req, res) {
     console.log('  /items');
     console.log(' --------------------------------------------');
     console.log('  req.query.wsId   = ' + req.query.wsId);
+    console.log('  req.query.bulk   = ' + req.query.bulk); 
     console.log();
 
-   let url = 'https://' + req.session.tenant + '.autodeskplm360.net/api/v3/workspaces/' + req.query.wsId + '/items';
-   
+    let url         = 'https://' + req.session.tenant + '.autodeskplm360.net/api/v3/workspaces/' + req.query.wsId + '/items';
+    let bulk        = (typeof req.query.bulk !== 'undefined') ? (req.query.bulk.toLowerCase() === 'true') : false;
+    let custHeaders = getCustomHeaders(req);
+
+    if(bulk) custHeaders['Accept'] = 'application/vnd.autodesk.plm.items.bulk+json';
+
     axios.get(url, { 
-        headers : req.session.headers
+        'headers' : custHeaders
     }).then(function (response) {
         sendResponse(req, res, response, false);
     }).catch(function (error) {
@@ -2752,8 +2757,23 @@ router.get('/search-descriptor', function(req, res, next) {
     let page        = (typeof req.query.page     === 'undefined') ?   '1'    : req.query.page;
     let revision    = (typeof req.query.revision === 'undefined') ?   '1'    : req.query.revision;
 
-    let url = 'https://' + req.session.tenant + '.autodeskplm360.net/api/v3/search-results?limit=' + limit + '&offset=' + offset + '&page=' + page + '&revision=' + revision + '&query=itemDescriptor%3D*' + req.query.query + '*';
+    let url    = 'https://' + req.session.tenant + '.autodeskplm360.net/api/v3/search-results?limit=' + limit + '&offset=' + offset + '&page=' + page + '&revision=' + revision + '&query=';
+    let values = req.query.query.split(' ');
     
+    if(values.length > 1) {
+        let query  = '';
+        for(value of values) {
+            if(value !== '-') {
+                if(query !== '') query += '+OR+'
+                if(!isNaN(value)) query += 'itemDescriptor%3D*' + value + '*'
+                else query += 'itemDescriptor%3D' + value
+            }
+        }
+        url += '(' + query + ')';
+    } else {
+        url += 'itemDescriptor%3D*' + req.query.query + '*';
+    }
+
     if(typeof req.query.wsId !== 'undefined') url += '+AND+(workspaceId%3D' + req.query.wsId + ')';
 
     let headers = getCustomHeaders(req);

@@ -41,7 +41,7 @@ function insertViewer(link, color) {
     if(elemInstance.length > 0) elemInstance.hide();
 
     $('#viewer-processing').show();
-    $('#viewer').attr('data-link', link);
+    $('#viewer').attr('data-link', link);1433
 
     $.get('/plm/get-viewables', { 'link' : link }, function(response) {
 
@@ -84,8 +84,53 @@ function insertViewer(link, color) {
 function insertViewerCallback() {}
 
 
+// Insert Create Dialog
+function insertCreateForm(wsId, id, hideReadOnly, excludeSections, excludeFields) {
+
+    if(isBlank(wsId)            ) return;
+    if(isBlank(id)              )               id = 'create';
+    if(isBlank(hideReadOnly)    )    hideReadOnly  = true;
+    if(isBlank(excludeSections)) excludeSections = [];
+
+    let sections = [];
+    let fields   = [];
+    
+    for(workspace of cacheWorkspaces) {
+        if(workspace.id === wsId) {
+            if(isBlank(sections)) sections = workspace.sections;
+            if(isBlank(fields)  ) fields   = workspace.fields;
+        }
+    }
+    
+    if(sections.length === 0) {
+
+        let requests = [
+            $.get('/plm/sections', { 'wsId' : wsId }),
+            $.get('/plm/fields', { 'wsId' : wsId })
+        ]
+
+        Promise.all(requests).then(function(responses) {
+
+            cacheWorkspaces.push({
+                'id'        : wsId,
+                'sections'  : requests[0].data,
+                'fields'    : requests[1].data
+            });
+
+            insertItemDetailsFields('', id, responses[0].data, responses[1].data, null, true, true, hideReadOnly, excludeSections, excludeFields)
+
+        });
+
+    } else {
+
+        insertItemDetailsFields('', id, sections, fields, null, true, true, hideReadOnly, excludeSections, excludeFields)
+    
+    }
+}
+
+
 // Insert Item Details
-function insertItemDetails(link, id, data) {
+function insertItemDetails(link, id, data, excludeSections, excludeFields) {
 
     if(isBlank(link)) return;
     if(isBlank(id)) id = 'details';
@@ -93,10 +138,10 @@ function insertItemDetails(link, id, data) {
     $('#' + id + '-processing').show();
 
     getBookmarkStatus();
-    insertItemDetailsFields(link, id, null, null, data, false, false, false);
+    insertItemDetailsFields(link, id, null, null, data, false, false, false, excludeSections, excludeFields);
 
 }
-function insertItemDetailsFields(link, id, sections, fields, data, editable, hideComputed, hideReadOnly, excludedSections) {
+function insertItemDetailsFields(link, id, sections, fields, data, editable, hideComputed, hideReadOnly, excludeSections, excludeFields) {
 
     let requests = [];
 
@@ -145,13 +190,15 @@ function insertItemDetailsFields(link, id, sections, fields, data, editable, hid
 
             if(addToCache) {
                 cacheWorkspaces.push({
-                    'id'        : link.split('/')[4],
-                    'sections'  : sections,
-                    'fields'    : fields
+                    'id'                : link.split('/')[4],
+                    'sections'          : sections,
+                    'fields'            : fields,
+                    'editableFields'    : null,
+                    'bomViews'          : null
                 })
             }
 
-            processItemDetailsFields(id, sections, fields, data, editable, hideComputed, hideReadOnly, excludedSections)
+            processItemDetailsFields(id, sections, fields, data, editable, hideComputed, hideReadOnly, excludeSections, excludeFields)
 
         });
 
@@ -162,7 +209,7 @@ function insertItemDetailsFields(link, id, sections, fields, data, editable, hid
     }
 
 }
-function processItemDetailsFields(id, sections, fields, data, editable, hideComputed, hideReadOnly, excludedSections) {
+function processItemDetailsFields(id, sections, fields, data, editable, hideComputed, hideReadOnly, excludeSections, excludeFields) {
 
     if(typeof id           === 'undefined') id            = 'details';
     if(typeof sections     === 'undefined') sections      = [];
@@ -172,7 +219,8 @@ function processItemDetailsFields(id, sections, fields, data, editable, hideComp
     if(typeof hideComputed === 'undefined') hideComputed  = false;
     if(typeof hideReadOnly === 'undefined') hideReadOnly  = false;
 
-    if(isBlank(excludedSections)) excludedSections = [];
+    if(isBlank(excludeSections)) excludeSections = [];
+    if(isBlank(excludeFields)  ) excludeFields   = [];
    
     let elemParent = $('#' + id + '-sections');
         elemParent.html('');
@@ -185,7 +233,7 @@ function processItemDetailsFields(id, sections, fields, data, editable, hideComp
         let isNew       = true;
         let className   = 'expanded'
 
-        if(excludedSections.indexOf(sectionId) === -1) {
+        if(excludeSections.indexOf(sectionId) === -1) {
 
             for(cacheSection of cacheSections) {
                 if(cacheSection.urn === section.urn) {
@@ -228,26 +276,31 @@ function processItemDetailsFields(id, sections, fields, data, editable, hideComp
             if(className !== 'expanded') elemFields.toggle();
 
             for(sectionField of section.fields) {
-                if(sectionField.type === 'MATRIX') {
-                    for(matrix of section.matrices) {
-                        if(matrix.urn === sectionField.urn) {
-                            for(matrixFields of matrix.fields) {
-                                for(matrixField  of matrixFields) {
-                                    if(matrixField !== null) {
-                                        for(wsField of fields) {
-                                            if(wsField.urn === matrixField.urn)
-                                                insertField(wsField, data, elemFields, hideComputed, hideReadOnly, editable);
+
+                if(!excludeFields.includes(sectionField.link.split('/')[8])) {
+
+                    if(sectionField.type === 'MATRIX') {
+                        for(matrix of section.matrices) {
+                            if(matrix.urn === sectionField.urn) {
+                                for(matrixFields of matrix.fields) {
+                                    for(matrixField  of matrixFields) {
+                                        if(matrixField !== null) {
+                                            for(wsField of fields) {
+                                                if(wsField.urn === matrixField.urn)
+                                                    insertField(wsField, data, elemFields, hideComputed, hideReadOnly, editable);
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
+                    } else {
+                        for(wsField of fields) {
+                            if(wsField.urn === sectionField.urn)
+                                insertField(wsField, data, elemFields, hideComputed, hideReadOnly, editable);
+                        }
                     }
-                } else {
-                    for(wsField of fields) {
-                        if(wsField.urn === sectionField.urn)
-                            insertField(wsField, data, elemFields, hideComputed, hideReadOnly, editable);
-                    }
+                    
                 }
             }
 
@@ -785,7 +838,6 @@ function getEditableFields(fields) {
 }
 
 
-
 // Parse details page to create record (created for client.js)
 function submitCreateForm(wsId, elemParent, idMarkup, callback) {
 
@@ -1182,42 +1234,47 @@ function insertAttachmentsDone() {}
 // - reset (true/false) enables or disables reset button above BOM
 // - toggles (true/false) enables or disables toggles to collapse or expand nodes using buttons on top of the BOM
 // - toggles (true/false) enables or disables view selector on top of the BOM
-function insertBOM(link , id, bomViewName, title, position, quantity, reset, toggles, views, search) {
+function insertBOM(link , id, title, bomViewName, reset, views, search, headers, toggles, position, quantity) {
 
     // add property data-default-value to div to set default view by name
 
-    if(isBlank(link)    ) return;
-    if(isBlank(id)      )       id = 'bom';
-    if(isBlank(title)   )   title  = 'BOM';
-    if(isBlank(position)) position = true;
-    if(isBlank(quantity)) quantity = false;
-    if(isBlank(reset)   )    reset = false;
-    if(isBlank(toggles) )  toggles = true;
-    if(isBlank(views)   )    views = false;
-    if(isBlank(search)  )   search = false;
+    if(isBlank(link)        ) return;
+    if(isBlank(id)          )          id = 'bom';
+    if(isEmpty(title)       )       title = 'BOM';
+    if(isBlank(bomViewName) ) bomViewName = '';
+    if(isBlank(reset)       )       reset = false;
+    if(isBlank(views)       )       views = false;
+    if(isBlank(search)      )      search = false;
+    if(isBlank(headers)     )     headers = true;
+    if(isBlank(toggles)     )     toggles = true;
+    if(isBlank(position)    )    position = true;
+    if(isBlank(quantity)    )    quantity = false;
+    
+    let hideDetails = ((bomViewName === '') && (views === false));
 
     let elemBOM = $('#' + id);
         elemBOM.attr('data-link', link);
         elemBOM.attr('data-position', position);
         elemBOM.attr('data-quantity', quantity);
-        elemBOM.addClass('panel');
+        elemBOM.attr('data-hide-details', hideDetails);
+        elemBOM.addClass('bom');
         elemBOM.html('');
 
     let elemHeader = $('<div></div>');
         elemHeader.addClass('panel-header');
+        elemHeader.attr('id', id + '-header');
         elemHeader.appendTo(elemBOM);
 
     let elemTitle = $('<div></div>');
-        elemTitle.attr('id', id + '-title');
         elemTitle.addClass('panel-title');
+        elemTitle.attr('id', id + '-title');
         elemTitle.html(title);
         elemTitle.appendTo(elemHeader);
 
     let elemToolbar = $('<div></div>');
-        elemToolbar.attr('id', id + '-toolbar');
         elemToolbar.addClass('panel-toolbar');
+        elemToolbar.attr('id', id + '-toolbar');
         elemToolbar.appendTo(elemHeader);
-
 
     if(reset) {
 
@@ -1227,9 +1284,10 @@ function insertBOM(link , id, bomViewName, title, position, quantity, reset, tog
             elemReset.addClass('xs');
             elemReset.attr('id', id + '-action-reset');
             elemReset.html('block');
+            elemReset.hide();
             elemReset.appendTo(elemToolbar);
             elemReset.click(function() {
-                bomReset($(this));
+                clickBOMReset($(this));
             });
 
     }
@@ -1245,7 +1303,7 @@ function insertBOM(link , id, bomViewName, title, position, quantity, reset, tog
             elemExpand.html('unfold_more');
             elemExpand.appendTo(elemToolbar);
             elemExpand.click(function() {
-                bomExpandAll($(this));
+                clickBOMExpandAll($(this));
             });
 
         let elemCollapse = $('<div></div>');
@@ -1257,75 +1315,136 @@ function insertBOM(link , id, bomViewName, title, position, quantity, reset, tog
             elemCollapse.html('unfold_less');
             elemCollapse.appendTo(elemToolbar);
             elemCollapse.click(function() {
-                bomCollapseAll($(this));
+                clickBOMCollapseAll($(this));
             });
 
     }
 
     let elemSelect = $('<select></select>');
-        elemSelect.attr('id', id + '-view-selector');
         elemSelect.addClass('bom-view-selector');
+        elemSelect.attr('id', id + '-view-selector');
         elemSelect.hide();
         elemSelect.appendTo(elemToolbar);
         elemSelect.change(function() {
-            bomSetData(id);
+            changeBOMView(id);
         });
 
     if(search) {
 
-        let elemFilter = $('<div></div>');
-            elemFilter.addClass('button');
-            elemFilter.addClass('with-icon');
-            elemFilter.addClass('icon-filter');
-            elemFilter.appendTo(elemToolbar);
+        let elemSearch = $('<div></div>');
+            elemSearch.addClass('button');
+            elemSearch.addClass('with-icon');
+            elemSearch.addClass('icon-search-list');
+            elemSearch.appendTo(elemToolbar);
 
-        let elemFilterInput = $('<input></input>');
-            elemFilterInput.attr('placeholder', 'Search');
-            elemFilterInput.attr('data-id', id);
-            elemFilterInput.addClass('bom-search-input')
-            elemFilterInput.appendTo(elemFilter);
-            elemFilterInput.keyup(function() {
-                bomSearch($(this));
+        let elemSearchInput = $('<input></input>');
+            elemSearchInput.attr('placeholder', 'Search');
+            elemSearchInput.attr('data-id', id);
+            elemSearchInput.addClass('bom-search-input')
+            elemSearchInput.appendTo(elemSearch);
+            elemSearchInput.keyup(function() {
+                searchInBOM($(this));
             });
 
     }
 
-    let elemProcess = $('<div></div>');
-        elemProcess.attr('id', id + '-processing');
-        elemProcess.addClass('processing');
-        elemProcess.append($('<div class="bounce1"></div>'));
-        elemProcess.append($('<div class="bounce2"></div>'));
-        elemProcess.append($('<div class="bounce2"></div>'));
-        elemProcess.appendTo(elemBOM);
+    let elemProcessing = $('<div></div>');
+        elemProcessing.attr('id', id + '-processing');
+        elemProcessing.addClass('processing');
+        elemProcessing.append($('<div class="bounce1"></div>'));
+        elemProcessing.append($('<div class="bounce2"></div>'));
+        elemProcessing.append($('<div class="bounce2"></div>'));
+        elemProcessing.appendTo(elemBOM);
 
     let elemContent = $('<div></div>');
-        elemContent.attr('id', id + '-content');
         elemContent.addClass('panel-content');
+        elemContent.attr('id', id + '-content');
         elemContent.appendTo(elemBOM);
 
     let elemTree = $('<div></div>');
         elemTree.attr('id', id + '-tree');
         elemTree.appendTo(elemContent);
 
-    let elemTable = $('<table></table');
-        elemTable.attr('id', id + '-table');
-        elemTable.attr('cellspacing', 0);
-        elemTable.attr('data-link', link);
-        elemTable.attr('data-show-quantity', quantity);
-        elemTable.appendTo(elemContent);
+    let elemBOMTable = $('<table></table');
+        elemBOMTable.addClass('flat-bom-table');
+        elemBOMTable.addClass('fixed-header');
+        elemBOMTable.attr('id', id + '-table');
+        // elemBOMTable.attr('cellspacing', 0);
+        // elemBOMTable.attr('data-link', link);
+        // elemBOMTable.attr('data-show-quantity', quantity);
+        elemBOMTable.appendTo(elemContent);
 
-    $.get('/plm/bom-views-and-fields', { 'link' : link }, function(response) {
 
-        for(view of response.data) {
+    let elemBOMTableHead = $('<thead></thead>');
+        elemBOMTableHead.attr('id', id + '-thead');
+        elemBOMTableHead.appendTo(elemBOMTable);
+
+    if(!headers) elemBOMTableHead.hide();
+
+    let elemBOMTableBody = $('<tbody></tbody>');
+        elemBOMTableBody.attr('id', id + '-tbody');
+        elemBOMTableBody.appendTo(elemBOMTable);        
+
+    let bomViews        = null;
+    let fields          = null
+    let requests        = [];
+
+    for(workspace of cacheWorkspaces) {
+        if(workspace.id === link.split('/')[4]) {
+            bomViews        = workspace.bomViews;
+            fields          = workspace.fields;
+        }
+    }
+
+    if(isBlank(bomViews)) requests.push($.get('/plm/bom-views-and-fields', { 'link' : link }));
+    if(isBlank(fields))   if(!hideDetails) requests.push($.get('/plm/fields', { 'wsId' : link.split('/')[4] }))
+
+    Promise.all(requests).then(function(responses) {
+
+        for(let response of responses) {
+            if(response.url.indexOf('/bom-views-and-fields') === 0) {
+                bomViews = response.data;
+            } else if(response.url.indexOf('/fields') === 0) {
+                fields = response.data;
+                // editableFields = getEditableFields(fields);
+            }
+        }
+
+        let addToCache = true;
+
+        if(responses.length > 0) {
+            for(workspace of cacheWorkspaces) {
+                if(workspace.id === link.split('/')[4]) {
+                    workspace.bomViews           = bomViews;
+                    if(!hideDetails) {
+                        workspace.fields         = fields;
+                        // workspace.editableFields = editableFields;
+                    }
+                    addToCache                  = false;
+                }
+            }
+        }
+
+        if(addToCache) {
+            cacheWorkspaces.push({
+                'id'                : link.split('/')[4],
+                'sections'          : null,
+                'fields'            : fields,
+                // 'editableFields'    : editableFields,
+                'bomViews'          : bomViews
+            });
+        }
+
+        for(let bomView of bomViews) {
 
             let elemOption = $('<option></option>');
-                elemOption.html(view.name);
-                elemOption.attr('value', view.id);
+                elemOption.html(bomView.name);
+                elemOption.attr('value', bomView.id);
                 elemOption.appendTo(elemSelect);
 
             if(!isBlank(bomViewName)) {
-                if(view.name === bomViewName) {
-                    elemSelect.val(view.id);
+                if(bomView.name === bomViewName) {
+                    elemSelect.val(bomView.id);
                 }
             }
 
@@ -1333,121 +1452,94 @@ function insertBOM(link , id, bomViewName, title, position, quantity, reset, tog
 
         if(views) elemSelect.show();
 
-        bomSetData(id);
+        changeBOMView(id);
 
     });
 
 }
-function bomSetData(id) {
+function changeBOMView(id) {
 
-    let elemBOM = $('#' + id);
-        elemBOM.show();
+    let elemBOM             = $('#' + id);
+    let position            = (elemBOM.attr('data-position'    ).toLowerCase() === 'true');
+    let quantity            = (elemBOM.attr('data-quantity'    ).toLowerCase() === 'true');
+    let hideDetails         = (elemBOM.attr('data-hide-details').toLowerCase() === 'true');
+    let link                = elemBOM.attr('data-link');
+    let bomViewId           = $('#' + id + '-view-selector').val();
+    let elemProcessing      = $('#' + id + '-processing');
+    let elemBOMTableBody    = $('#' + id + '-tbody');
 
-    let position = elemBOM.attr('data-position');
-    let quantity = elemBOM.attr('data-quantity');
-
-    let elemTable = $('#' + id + '-table');
-        elemTable.html('');
-        
-    let link         = elemTable.attr('data-link').split('/')
+    elemProcessing.show();
+    elemBOMTableBody.html('');
 
     let params = {
-        'wsId'          : link[4],
-        'dmsId'         : link[6],
+        'link'          : link,
         'depth'         : 10,
         'revisionBias'  : 'release',
-        'viewId'        : $('#' + id + '-view-selector').val()
+        'viewId'        : bomViewId
     }
 
-    let promises = [ 
-        $.get('/plm/bom-view-fields', params),
-        $.get('/plm/bom'            , params),
-        $.get('/plm/bom-flat'       , params)
-    ];
+    let fieldURNQuantity   = '';
+    let fieldURNPartNumber = '';
+    let bomView;
 
-    Promise.all(promises).then(function(responses) {
 
-        urnsBOMFields = [];
-
-        console.log(config.viewer.fieldIdPartNumber);
-
-        for(field of responses[0].data) {
-
-            console.log(field);
-
-            if(field.fieldId === 'QUANTITY') urnsBOMFields.quantity = field.__self__.urn;
-            else if(field.fieldId === config.viewer.fieldIdPartNumber) urnsBOMFields.partNumber = field.__self__.urn;
-
+    for(workspace of cacheWorkspaces) {
+        if(workspace.id === link.split('/')[4]) {
+            for(view of workspace.bomViews) {
+                if(view.id === Number(bomViewId)) bomView = view;
+            }
         }
+    }
 
-        $('#' + id + '-processing').hide();
+    for(field of bomView.fields) {
+        if(field.fieldId === config.viewer.fieldIdPartNumber) fieldURNPartNumber = field.__self__.urn;
+        else if(field.fieldId === 'QUANTITY') fieldURNQuantity = field.__self__.urn;
+    }
 
-        insertNextBOMLevel(responses[1].data, elemTable, responses[1].data.root, position, quantity);
-    
-        $('#' + id).find('.bom-tree-nav').click(function(e) {
-    
-            e.stopPropagation();
-            e.preventDefault();
-    
-            let elemItem  = $(this).closest('tr');
-            let level     = Number(elemItem.attr('data-level'));
-            let levelNext = level - 1;
-            let levelHide = level + 2;
-            let elemNext  = $(this).closest('tr');
-            let doExpand  = $(this).hasClass('collapsed');
+    $.get('/plm/bom', params, function(response) {
 
-            if(e.shiftKey) levelHide = 100;
-    
-            $(this).toggleClass('collapsed');
-            
-            do {
-    
-                elemNext  = elemNext.next();
-                levelNext = Number(elemNext.attr('data-level'));
-    
-                if(levelNext > level) {
-    
-                    if(doExpand) {
-    
-                        if(levelHide > levelNext) {
-    
-                            elemNext.show();
-
-                            if(e.shiftKey) elemNext.find('.bom-tree-nav').removeClass('collapsed');
-    
-                            // let elemToggle = elemNext.children().first().find('i.bom-nav');
-    
-                            // if(elemToggle.length > 0) {
-                            //     if(elemToggle.hasClass('collapsed')) {
-                            //         // elemToggle.hasClass('collapsed').removeClass('collapsed');
-                            //         levelHide = levelNext + 1;
-                            //     }
-                            // }
-    
-                        }
-    
-                    } else {
-                        elemNext.hide();
-                    }
-    
-                }
-            } while(levelNext > level);
-    
-    
-        });
-    
-        elemTable.find('tr').click(function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            selectBOMItem($(this));
-        });
-
-        bomSetDataDone(id);
+        setBOMHeaders(id, quantity, hideDetails, bomView.fields);
+        insertNextBOMLevel(response.data, elemBOMTableBody, response.data.root, position, quantity, hideDetails, bomView.fields, fieldURNPartNumber, fieldURNQuantity);
+        enableBOMToggles(id);
+        changeBOMViewDone(id);
+        elemProcessing.hide();
 
     });
 
 }
-function insertNextBOMLevel(bom, elemTable, parent, showPosition, showQuantity) {
+function changeBOMViewDone(id) {}
+function setBOMHeaders(id, quantity, hideDetails, fields) {
+
+    let elemBOMTableHead = $('#'+  id + '-thead');
+        elemBOMTableHead.html('');
+
+    let elemBOMTableHeadRow = $('<tr></tr>');
+        elemBOMTableHeadRow.appendTo(elemBOMTableHead);
+
+    let elemBOMTableHeadItem = $('<th></th>');
+        elemBOMTableHeadItem.html('Item');
+        elemBOMTableHeadItem.appendTo(elemBOMTableHeadRow);
+
+    if(quantity) {
+        
+        let elemBOMTableHeadQty = $('<th></th>');
+            elemBOMTableHeadQty.html('Qty');
+            elemBOMTableHeadQty.appendTo(elemBOMTableHeadRow); 
+    
+    }
+
+    if(!hideDetails) {
+
+        for(field of fields) {
+            let elemBOMTableHeadCell = $('<th></th>');
+                elemBOMTableHeadCell.html(field.displayName);
+                elemBOMTableHeadCell.appendTo(elemBOMTableHeadRow);       
+        }
+
+    }
+
+}
+function insertNextBOMLevel(bom, elemTable, parent, position, quantity, hideDetails, fields, fieldURNPartNumber, fieldURNQuantity) {
 
     let result = false;
 
@@ -1457,16 +1549,21 @@ function insertNextBOMLevel(bom, elemTable, parent, showPosition, showQuantity) 
 
             result = true;
 
-            let partNumber  = getBOMCellValue(edge.child, urnsBOMFields.partNumber, bom.nodes);
-            let quantity    = getBOMEdgeValue(edge, urnsBOMFields.quantity, null, 0);
+            let partNumber  = getBOMCellValue(edge.child, fieldURNPartNumber, bom.nodes);
+            let rowQuantity = getBOMEdgeValue(edge, fieldURNQuantity, null, 0);
 
             let elemRow = $('<tr></tr>');
                 elemRow.attr('data-number', edge.itemNumber);
                 elemRow.attr('data-part-number', partNumber);
-                elemRow.attr('data-quantity', quantity);
+                elemRow.attr('data-quantity', rowQuantity);
                 elemRow.attr('data-number', edge.itemNumber);
-                elemRow.addClass('bom-tree-row');
+                elemRow.addClass('bom-item');
                 elemRow.appendTo(elemTable);
+                elemRow.click(function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    clickBOMItem($(this));
+                })
     
             for(node of bom.nodes) {
                 if(node.item.urn === edge.child) {
@@ -1482,7 +1579,7 @@ function insertNextBOMLevel(bom, elemTable, parent, showPosition, showQuantity) 
             let elemCell = $('<td></td>');
                 elemCell.appendTo(elemRow);
 
-            if(showPosition === 'true') {
+            if(position) {
 
                 let elemCellNumber = $('<span></span>');
                     elemCellNumber.addClass('bom-tree-number');
@@ -1496,16 +1593,25 @@ function insertNextBOMLevel(bom, elemTable, parent, showPosition, showQuantity) 
                 elemCellTitle.html(getBOMItemTitle(edge.child, bom.nodes));
                 elemCellTitle.appendTo(elemCell);
 
-            if(showQuantity === 'true') {
+            if(quantity) {
 
                 let elemCellQuantity = $('<td></td>');
                     elemCellQuantity.addClass('bom-quantity');
-                    elemCellQuantity.html(quantity);
+                    elemCellQuantity.html(rowQuantity);
                     elemCellQuantity.appendTo(elemRow);
 
             }
 
-            let hasChildren = insertNextBOMLevel(bom, elemTable, edge.child, showPosition, showQuantity);
+            if(!hideDetails) {
+                for(field of fields) {
+                    let value = getBOMCellValue(edge.child, field.__self__.urn, bom.nodes);
+                    let elemRowCell = $('<td></td>');
+                    elemRowCell.html(value);
+                    elemRowCell.appendTo(elemRow);
+                }
+            }
+
+            let hasChildren = insertNextBOMLevel(bom, elemTable, edge.child, position, quantity, hideDetails, fields, fieldURNPartNumber, fieldURNQuantity);
 
             elemRow.children().first().each(function() {
                 
@@ -1547,7 +1653,50 @@ function getBOMItemTitle(id, nodes) {
     return '';
     
 }
-function bomReset(elemClicked) {
+function enableBOMToggles(id) {
+
+    $('#' + id).find('.bom-tree-nav').click(function(e) {
+    
+        e.stopPropagation();
+        e.preventDefault();
+
+        let elemItem  = $(this).closest('tr');
+        let level     = Number(elemItem.attr('data-level'));
+        let levelNext = level - 1;
+        let levelHide = level + 2;
+        let elemNext  = $(this).closest('tr');
+        let doExpand  = $(this).hasClass('collapsed');
+
+        if(e.shiftKey) levelHide = 100;
+
+        $(this).toggleClass('collapsed');
+        
+        do {
+
+            elemNext  = elemNext.next();
+            levelNext = Number(elemNext.attr('data-level'));
+
+            if(levelNext > level) {
+
+                if(doExpand) {
+
+                    if(levelHide > levelNext) {
+                        elemNext.show();
+                        if(e.shiftKey) elemNext.find('.bom-tree-nav').removeClass('collapsed');
+                    }
+
+                } else {
+                    elemNext.hide();
+                }
+
+            }
+
+        } while(levelNext > level);
+
+    });
+
+}
+function clickBOMReset(elemClicked) {
 
     let elemToolbar = elemClicked.closest('.panel-toolbar');
     let elemContent = elemToolbar.nextAll('.panel-content');
@@ -1555,11 +1704,11 @@ function bomReset(elemClicked) {
     elemContent.find('tr.selected').click();
 
 }
-function bomExpandAll(elemClicked) {
+function clickBOMExpandAll(elemClicked) {
 
-    let elemBOM     = elemClicked.closest('.panel');
+    let elemBOM     = elemClicked.closest('.bom');
     let id          = elemBOM.attr('id');
-    let elemContent = $('#' + id + '-content');
+    let elemContent = $('#' + id + '-tbody');
 
     elemContent.find('tr').each(function() {
         $(this).show();
@@ -1567,15 +1716,13 @@ function bomExpandAll(elemClicked) {
     });
 
 }
-function bomCollapseAll(elemClicked) {
+function clickBOMCollapseAll(elemClicked) {
 
-    let elemBOM     = elemClicked.closest('.panel');
+    let elemBOM     = elemClicked.closest('.bom');
     let id          = elemBOM.attr('id');
-    let elemContent = $('#' + id + '-content');
+    let elemContent = $('#' + id + '-tbody');
 
     elemContent.find('tr').each(function() {
-        console.log('check');
-
         if($(this).children('th').length === 0) {
             if(!$(this).hasClass('bom-level-1')) {
                 $(this).hide();
@@ -1585,7 +1732,7 @@ function bomCollapseAll(elemClicked) {
     });
 
 }
-function bomSearch(elemInput) {
+function searchInBOM(elemInput) {
 
     let id          = elemInput.attr('data-id');
     let elemTable   = $('#' + id + '-table');
@@ -1625,122 +1772,463 @@ function bomSearch(elemInput) {
     }
 
 }
-function bomSetDataDone(id) {}
-function selectBOMItem(elemClicked) {
+function clickBOMItem(elemClicked) {
     elemClicked.siblings().removeClass('selected');
     elemClicked.toggleClass('selected');
 }
 
 
 // Insert Flat BOM into given domId
-function insertFlatBOM(link, id, bomViewName, showMore, classNames) {
+function insertFlatBOM(link, id, title, bomViewName, reset, views, search, headers, showMore, classNames, editable) {
 
-    if(isBlank(id))             id = 'bom-flat';
-    if(isBlank(showMore)) showMore = false;
+    if(isBlank(link)       ) return;
+    if(isBlank(id)         )          id = 'bom-flat';
+    if(isEmpty(title)      )       title = 'Flat BOM';
+    if(isBlank(bomViewName)) bomViewName = '';
+    if(isBlank(reset)      )       reset = false;
+    if(isBlank(views)      )       views = false;
+    if(isBlank(search)     )      search = false;
+    if(isBlank(headers)    )     headers = false;
+    if(isBlank(showMore)   )    showMore = false;
+    if(isBlank(classNames) )  classNames = [];
+    if(isBlank(editable)   )    editable = false;
 
-    let elemParent = $('#' + id + '-list');
-        elemParent.html('');
+    let hideDetails = ((bomViewName === '') && (views === false));
 
-    if(link === null) return;
-    if(link === ''  ) return;
+    let elemBOM = $('#' + id);
+        elemBOM.attr('data-link', link);
+        elemBOM.attr('data-editable', editable);
+        elemBOM.attr('data-show-more', showMore);
+        elemBOM.attr('data-hide-details', hideDetails);
+        elemBOM.addClass('flat-bom');
+        elemBOM.html('');
 
-    let elemProgress = $('#' + id + '-processing');
-        elemProgress.show();
+    if(!isBlank(classNames)) elemBOM.attr('data-class-names', classNames);
 
-    let params = {
-        'link'          : link,
-        'revisionBias'  : 'release'
+    let elemHeader = $('<div></div>');
+        elemHeader.addClass('panel-header');
+        elemHeader.attr('id', id + '-header');
+        elemHeader.appendTo(elemBOM);
+
+    let elemTitle = $('<div></div>');
+        elemTitle.addClass('panel-title');
+        elemTitle.attr('id', id + '-title');
+        elemTitle.html(title);
+        elemTitle.appendTo(elemHeader);
+
+    let elemToolbar = $('<div></div>');
+        elemToolbar.addClass('panel-toolbar');
+        elemToolbar.attr('id', id + '-toolbar');
+        elemToolbar.appendTo(elemHeader);
+
+    if(reset) {
+
+        let elemReset = $('<div></div>');
+            elemReset.addClass('button');
+            elemReset.addClass('icon');
+            elemReset.addClass('xs');
+            elemReset.attr('id', id + '-action-reset');
+            elemReset.html('block');
+            elemReset.hide();
+            elemReset.appendTo(elemToolbar);
+            elemReset.click(function() {
+                clickFlatBOMReset($(this));
+            });
+
     }
 
-    $.get('/plm/bom-views-and-fields', params, function(response) {
+    if(editable) {
 
-        let bomView = response.data[0];
-        let fieldURNPartNumber = '';
+        let elemSave = $('<div></div>');
+            elemSave.addClass('button');
+            elemSave.addClass('default');
+            elemSave.html('Save');
+            elemSave.hide();
+            elemSave.attr('id', id + '-save');
+            elemSave.appendTo(elemToolbar);
+            elemSave.click(function() {
+                clickFlatBOMSave($(this));
+            });
 
-        if(!isBlank(bomViewName)) {
-            for(view of response.data) {
-                if(view.name === bomViewName) {
-                    bomView = view;
+    }
+
+    let elemSelect = $('<select></select>');
+        elemSelect.addClass('flat-bom-view-selector');
+        elemSelect.attr('id', id + '-view-selector');
+        elemSelect.hide();
+        elemSelect.appendTo(elemToolbar);
+        elemSelect.change(function() {
+            changeFlatBOMView(id);
+        });
+
+    if(search) {
+
+        let elemSearch = $('<div></div>');
+            elemSearch.addClass('button');
+            elemSearch.addClass('with-icon');
+            elemSearch.addClass('icon-search-list');
+            elemSearch.appendTo(elemToolbar);
+
+        let elemSearchInput = $('<input></input>');
+            elemSearchInput.attr('placeholder', 'Search');
+            elemSearchInput.attr('data-id', id);
+            elemSearchInput.addClass('flat-bom-search-input')
+            elemSearchInput.appendTo(elemSearch);
+            elemSearchInput.keyup(function() {
+                searchInFlatBOM($(this));
+            });
+
+    }
+
+    let elemProcessing = $('<div></div>');
+        elemProcessing.attr('id', id + '-processing');
+        elemProcessing.addClass('processing');
+        elemProcessing.append($('<div class="bounce1"></div>'));
+        elemProcessing.append($('<div class="bounce2"></div>'));
+        elemProcessing.append($('<div class="bounce2"></div>'));
+        elemProcessing.appendTo(elemBOM);
+    
+    let elemContent = $('<div></div>');
+        elemContent.addClass('panel-content');
+        elemContent.attr('id', id + '-content');
+        elemContent.appendTo(elemBOM);
+
+    let elemBOMTable = $('<table></table>');
+        elemBOMTable.addClass('flat-bom-table');
+        elemBOMTable.addClass('fixed-header');
+        elemBOMTable.attr('id', id + '-table');
+        elemBOMTable.appendTo(elemContent);
+
+    let elemBOMTableHead = $('<thead></thead>');
+        elemBOMTableHead.attr('id', id + '-thead');
+        elemBOMTableHead.appendTo(elemBOMTable);
+
+    if(!headers) elemBOMTableHead.hide();
+
+    let elemBOMTableBody = $('<tbody></tbody>');
+        elemBOMTableBody.attr('id', id + '-tbody');
+        elemBOMTableBody.appendTo(elemBOMTable);
+
+    insertFlatBOMDone(id);
+
+    let bomViews        = null;
+    let fields          = null
+    let editableFields  = null;
+    let requests        = [];
+
+    for(workspace of cacheWorkspaces) {
+        if(workspace.id === link.split('/')[4]) {
+            bomViews        = workspace.bomViews;
+            fields          = workspace.fields;
+            editableFields  = workspace.editableFields;
+        }
+    }
+
+    if(isBlank(bomViews)) requests.push($.get('/plm/bom-views-and-fields', { 'link' : link }));
+    if(isBlank(fields))   if(!hideDetails) requests.push($.get('/plm/fields', { 'wsId' : link.split('/')[4] }))
+
+    Promise.all(requests).then(function(responses) {
+
+        for(let response of responses) {
+            if(response.url.indexOf('/bom-views-and-fields') === 0) {
+                bomViews = response.data;
+            } else if(response.url.indexOf('/fields') === 0) {
+                fields = response.data;
+                editableFields = getEditableFields(fields);
+            }
+        }
+
+        let addToCache = true;
+
+        if(responses.length > 0) {
+            for(workspace of cacheWorkspaces) {
+                if(workspace.id === link.split('/')[4]) {
+                    workspace.bomViews           = bomViews;
+                    if(!hideDetails) {
+                        workspace.fields         = fields;
+                        workspace.editableFields = editableFields;
+                    }
+                    addToCache                  = false;
+                }
+            }
+        }
+
+        if(addToCache) {
+            cacheWorkspaces.push({
+                'id'                : link.split('/')[4],
+                'sections'          : null,
+                'fields'            : fields,
+                'editableFields'    : editableFields,
+                'bomViews'          : bomViews
+            });
+        }
+
+        for(let bomView of bomViews) {
+
+            let elemOption = $('<option></option>');
+                elemOption.html(bomView.name);
+                elemOption.attr('value', bomView.id);
+                elemOption.appendTo(elemSelect);
+
+            if(!isBlank(bomViewName)) {
+                if(bomView.name === bomViewName) {
+                    elemSelect.val(view.id);
                 }
             }
 
         }
 
-        params.viewId = bomView.id;
+        if(views) elemSelect.show();
 
-        for(field of bomView.fields) {
-            if(field.fieldId === config.viewer.fieldIdPartNumber) fieldURNPartNumber = field.__self__.urn;
-        }
-
-        insertFlatBOMTable(params, elemParent, elemProgress, fieldURNPartNumber, showMore, classNames);
+        changeFlatBOMView(id);
 
     });
 
 }
-function insertFlatBOMTable(params, elemParent, elemProgress, fieldURNPartNumber, showMore, classNames) {
+function insertFlatBOMDone(id) {}
+function changeFlatBOMView(id) {
+
+    let elemBOM             = $('#' + id);
+    let editable            = (elemBOM.attr('data-editable'    ).toLowerCase() === 'true');
+    let showMore            = (elemBOM.attr('data-show-more'   ).toLowerCase() === 'true');
+    let hideDetails         = (elemBOM.attr('data-hide-details').toLowerCase() === 'true');
+    let classNames          = elemBOM.attr('data-class-names');
+    let link                = elemBOM.attr('data-link');
+    let bomViewId           = $('#' + id + '-view-selector').val();
+    let elemProcessing      = $('#' + id + '-processing');
+    let elemBOMTableBody    = $('#' + id + '-tbody');
 
     if(isBlank(classNames)) classNames = [];
 
+    elemProcessing.show();
+    elemBOMTableBody.html('');
+
+    let params = {
+        'link'          : link,
+        'depth'         : 10,
+        'revisionBias'  : 'release',
+        'viewId'        : bomViewId
+    }
+
+    let editableFields     = [];
+    let fieldURNPartNumber = '';
+    let bomView;
+
+
+    for(workspace of cacheWorkspaces) {
+        if(workspace.id === link.split('/')[4]) {
+            editableFields = workspace.editableFields;
+            for(view of workspace.bomViews) {
+                if(view.id === Number(bomViewId)) bomView = view;
+            }
+        }
+    }
+
+    for(field of bomView.fields) {
+        if(field.fieldId === config.viewer.fieldIdPartNumber) fieldURNPartNumber = field.__self__.urn;
+    }
+
     $.get('/plm/bom-flat', params, function(response) {
+
+        setFlatBOMHeaders(id, editable, showMore, hideDetails, bomView.fields)
+
+        let count = 1;
 
         for(item of response.data) {
 
-            let itemLink   = item.item.link.split('/');
-            let partNumber = (fieldURNPartNumber === null) ? item.item.title.split(' - ')[0] : getFlatBOMCellValue(response.data, item.item.link, fieldURNPartNumber);
+            let itemLink    = item.item.link;
+            let title       = item.item.title;
+            let qty         = Number(item.totalQuantity).toFixed(2);
+            let partNumber  = getFlatBOMCellValue(response.data, itemLink, fieldURNPartNumber, 'title');
+    
+            if(partNumber === '') partNumber = title.split(' - ')[0];
 
-            let elemItem = $('<div></div>');
-                elemItem.addClass('bom-item');
-                elemItem.appendTo(elemParent);
-                elemItem.attr('data-wsid' , itemLink[itemLink.length - 3]);
-                elemItem.attr('data-dmsid', itemLink[itemLink.length - 1]);
-                elemItem.attr('data-link', item.item.link);
-                elemItem.attr('data-title', item.item.title);
-                elemItem.attr('data-part-number', partNumber);
-                elemItem.click(function(e) {
+            let elemRow = $('<tr></tr>');
+                elemRow.addClass('flat-bom-item');
+                elemRow.appendTo(elemBOMTableBody);
+                elemRow.attr('data-link', item.item.link);
+                elemRow.attr('data-title', item.item.title);
+                elemRow.attr('data-part-number', partNumber);
+                elemRow.click(function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    selectBOMItem($(this));
+                    clickFlatBOMItem($(this));
                 });
 
-            for(className of classNames) elemItem.addClass(className);
+            for(className of classNames) elemRow.addClass(className);
 
-            let elemItemTitle = $('<div></div>');
-                elemItemTitle.addClass('bom-item-title');
-                elemItemTitle.html(item.item.title);
-                elemItemTitle.appendTo(elemItem);
+            if(editable) {
 
-            let elemItemQty = $('<div></div>');
-                elemItemQty.addClass('bom-item-qty');
-                elemItemQty.html(item.totalQuantity);
-                elemItemQty.appendTo(elemItem);
+                let elemRowCheck = $('<td></td>');
+                    elemRowCheck.html('<div class="icon icon-check-box xxs"></div>');
+                    elemRowCheck.addClass('flat-bom-check');
+                    elemRowCheck.appendTo(elemRow);
 
-            let elemItemActions = $('<div></div>');
-                elemItemActions.addClass('bom-item-actions');
-                elemItemActions.appendTo(elemItem);
+            }
+
+            let elemRowNumber = $('<td></td>');
+                elemRowNumber.html(count++);
+                elemRowNumber.addClass('flat-bom-number');
+                elemRowNumber.appendTo(elemRow);        
+                
+            let elemRowTitle = $('<td></td>');
+                elemRowTitle.html(title)
+                elemRowTitle.addClass('flat-bom-title');
+                elemRowTitle.appendTo(elemRow);   
+
+            let elemRowQty = $('<td></td>');
+                elemRowQty.html(qty);
+                elemRowQty.addClass('flat-bom-qty');
+                elemRowQty.appendTo(elemRow);
+
+            if(!hideDetails) {
+
+                for(field of bomView.fields) {
+
+                    let value       = getFlatBOMCellValue(response.data, itemLink, field.__self__.urn, 'title');
+                    let isEditable  = false;
+                    let elemRowCell = $('<td></td>');
+    
+                    elemRowCell.appendTo(elemRow); 
+
+                    for(editableField of editableFields) {
+
+                        if(field.fieldId === editableField.id) {
+
+                            if(!isBlank(editableField.control)) {
+        
+                                let elemControl = editableField.control.clone();
+                                    elemControl.appendTo(elemRowCell);
+                                    elemRowCell.attr('data-id', editableField.id);
+                                    elemControl.click(function(e) {
+                                        e.stopPropagation();
+                                    });
+                                    elemControl.change(function() {
+                                        changedFlatBOMValue($(this));
+                                    });
+        
+                                switch (editableField.type) {
+        
+                                    case 'Single Selection':
+                                        elemControl.val(value.link);
+                                        break;
+        
+                                    default:
+                                        elemControl.val(value);
+                                        break;
+        
+                                }
+        
+                                isEditable = true;
+                            }
+        
+                        }
+        
+                    }
+
+                if(!isEditable) elemRowCell.html(value);
+
+                }
+            }
 
             if(showMore) {
 
-                let elemItemMore = $('<span></span>');
-                    elemItemMore.addClass('bom-show-more');
-                    elemItemMore.addClass('icon');
-                    elemItemMore.addClass('icon-chevron-right');
-                    elemItemMore.appendTo(elemItemActions);
-                    elemItemMore.click(function(e) {
+                let elemRowActions = $('<td></td>');
+                    elemRowActions.addClass('flat-bom-actions');
+                    elemRowActions.appendTo(elemRow);
+
+                let elemShowMore = $('<span></span>');
+                    elemShowMore.addClass('flat-bom-show-more');
+                    elemShowMore.addClass('icon');
+                    elemShowMore.addClass('icon-chevron-right');
+                    elemShowMore.appendTo(elemRowActions);
+                    elemShowMore.click(function(e) {
                         e.preventDefault();
                         e.stopPropagation();
-                        showMoreBOMItem($(this));
+                        clickFlatBOMShowMore($(this));
                     });
 
             }
 
         }
 
-        elemProgress.hide();
+        elemProcessing.hide();
+        changeFlatBOMViewDone(id);
 
     });
 
 }
-function showMoreBOMItem(elemClicked) {
+function changeFlatBOMViewDone(id) {}
+function setFlatBOMHeaders(id, editable, showMore, hideDetails, fields) {
+
+    let elemBOMTableHead = $('#'+  id + '-thead');
+        elemBOMTableHead.html('');
+
+    let elemBOMTableHeadRow = $('<tr></tr>');
+        elemBOMTableHeadRow.appendTo(elemBOMTableHead);
+
+    if(editable) {
+
+        let elemBOMTableHeadCheck = $('<th></th>');
+            elemBOMTableHeadCheck.html('<div id="' + id + '-select-all" class="flat-bom-select-all icon icon-check-box xxs"></div>');
+            elemBOMTableHeadCheck.appendTo(elemBOMTableHeadRow);
+            elemBOMTableHeadCheck.click(function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                clickSelectAllFlatBOM($(this));
+            });
+
+    }
+
+    let elemBOMTableHeadNumber = $('<th></th>');
+        elemBOMTableHeadNumber.html('Nr');
+        elemBOMTableHeadNumber.appendTo(elemBOMTableHeadRow);
+
+    let elemBOMTableHeadItem = $('<th></th>');
+        elemBOMTableHeadItem.html('Item');
+        elemBOMTableHeadItem.appendTo(elemBOMTableHeadRow);
+
+    let elemBOMTableHeadQty = $('<th></th>');
+        elemBOMTableHeadQty.html('Qty');
+        elemBOMTableHeadQty.appendTo(elemBOMTableHeadRow); 
+
+    if(!hideDetails) {
+
+        for(field of fields) {
+            let elemBOMTableHeadCell = $('<th></th>');
+                elemBOMTableHeadCell.html(field.displayName);
+                elemBOMTableHeadCell.appendTo(elemBOMTableHeadRow);       
+        }
+
+    }
+
+    if(showMore) {
+
+        let elemBOMTableHeadShowMore = $('<th></th>');
+            elemBOMTableHeadShowMore.html('');
+            elemBOMTableHeadShowMore.appendTo(elemBOMTableHeadRow);
+
+    }
+
+}
+function clickSelectAllFlatBOM(elemClicked) {
+
+    let elemCheckbox = elemClicked.children();
+        elemCheckbox.toggleClass('icon-check-box');
+        elemCheckbox.toggleClass('icon-check-box-checked');
+
+    let elemTable = elemClicked.closest('table');
+
+    if(elemCheckbox.hasClass('icon-check-box')) elemTable.find('.flat-bom-item').removeClass('selected');
+    else elemTable.find('.flat-bom-item').addClass('selected');
+
+}
+function clickFlatBOMItem(elemClicked) {
+
+    elemClicked.toggleClass('selected');
+
+}
+function clickFlatBOMShowMore(elemClicked) {
 
     let elemItem        = elemClicked.closest('.bom-item');
 
@@ -1754,6 +2242,210 @@ function showMoreBOMItem(elemClicked) {
     insertItemDetailsFields(elemItem.attr('data-link'), 'bom-item-details',  null, null, null, false, false, false);
 
 }
+function changedFlatBOMValue(elemControl) {
+
+    let elemBOM = elemControl.closest('.flat-bom');
+    let id      = elemBOM.attr('id');
+    let index   = elemControl.parent().index();
+    let value   = elemControl.val();
+
+    elemControl.parent().addClass('changed');
+    elemControl.closest('tr').addClass('changed');
+    console.log(id);
+
+    $('#' + id + '-save').show();
+
+    $('.flat-bom-item.selected').each(function() {
+        $(this).addClass('changed');
+        $(this).children().eq(index).addClass('changed');
+        $(this).children().eq(index).children().first().val(value);
+    });
+
+}
+
+
+// Insert Where Used immediate parents
+function insertParents(link, id, icon) {
+
+    if(isBlank(link)) return;
+    if(isBlank(id)  ) id   = 'parents';
+    if(isBlank(icon)) icon = 'account_tree';
+
+    let elemList = $('#' + id + '-list');
+        elemList.html('');
+
+    let elemProcessing = $('#' + id + '-processing')
+        elemProcessing.show();
+
+    let params = {
+        'link' : link,
+        'depth' : 1
+    }
+
+    $.get('/plm/where-used', params, function(response) {
+    
+        if(response.params.link === link) {
+    
+            elemProcessing.hide();
+
+            for(let node of response.data.nodes) {
+
+                let quantity =  0;
+
+                for(field of node.fields) {
+                    if(field.title === 'QUANTITY') quantity = field.value;
+                }
+
+                let elemTile = genTile(node.item.link, '', '', icon, node.item.title, 'Quantity: ' + quantity);
+                    elemTile.appendTo(elemList);
+                    elemTile.click(function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        clickParentItem($(this));
+                    });
+
+            }
+    
+        }           
+    });
+    
+}
+function clickParentItem(elemClicked) { openItemByLink(elemClicked.attr('data-link')); }
+
+
+// Insert Where Used root items
+function insertRoots(link, id, icon) {
+
+    if(isBlank(link)) return;
+    if(isBlank(id)  ) id   = 'roots';
+    if(isBlank(icon)) icon = 'account_tree';
+
+    let elemList = $('#' + id + '-list');
+        elemList.html('');
+        elemList.hide();
+
+    let elemProcessing = $('#' + id + '-processing')
+        elemProcessing.show();
+
+    let params = {
+        'link'  : link,
+        'depth' : 10
+    }
+
+    let elemTable = $('<table></table>');
+        elemTable.attr('id', '#' + id + '-table');
+        elemTable.appendTo(elemList);
+
+    let elemTHead = $('<thead></thead>');
+        elemTHead.attr('id', '#' + id + '-thead');
+        elemTHead.appendTo(elemTable);
+
+    let elemTHeadRow = $('<tr></tr>');
+        elemTHeadRow.append('<th>Top Level Item</th>');
+        elemTHeadRow.append('<th>Status</th>');
+        elemTHeadRow.append('<th>Quantity</th>');
+        elemTHeadRow.append('<th>Hierarchy</th>');
+        elemTHeadRow.appendTo(elemTHead);
+
+    let elemTBody = $('<tbody></tbody>');
+        elemTBody.attr('id', '#' + id + '-tbody');
+        elemTBody.appendTo(elemTable);
+
+    $.get('/plm/where-used', params, function(response) {
+    
+        if(response.params.link === link) {
+    
+            elemList.show();
+            elemProcessing.hide();
+
+            if(isBlank(response.data.edges)) return;
+
+            for(edge of response.data.edges) {
+    
+                if(!edge.hasOwnProperty('edgeLink')) {
+    
+                    let urn = edge.child;
+    
+                    for(node of response.data.nodes) {
+    
+                        if(urn === node.item.urn) {
+    
+                            let lifecycle = '';
+                            let quantity  = '';
+    
+                            for(field of node.fields) {
+                                     if(field.title === 'QUANTITY' ) quantity  = field.value;
+                                else if(field.title === 'LIFECYCLE') lifecycle = field.value;
+                            }
+    
+                            let elemItem = $('<td></td>');
+                                elemItem.html(node.item.title);
+                                elemItem.attr('data-link', node.item.link);
+                                elemItem.addClass('roots-item');
+                                elemItem.click(function(e) {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    clickRootItem($(this));
+                                });
+    
+                            let elemChildren = $('<td></td>');
+
+                            let elemRow = $('<tr></tr>');
+                                elemRow.append(elemItem);
+                                elemRow.append('<td class="roots-lifecycle">' + lifecycle + '</td>');
+                                elemRow.append('<td class="roots-quantity">' + quantity + '</td>');
+                                elemRow.append(elemChildren);
+                                elemRow.appendTo(elemTable);
+                                elemRow.attr('data-urn', node.item.urn);
+    
+                            getRootChildren(elemChildren, response.data.edges, response.data.nodes, node.item.urn, 1);
+    
+                        }
+                    }
+                }
+            }
+        }           
+    });
+    
+}
+function getRootChildren(elemChildren, edges, nodes, parent, level) {
+
+    for(edge of edges) {
+
+        if(parent === edge.child) {
+
+            let elemParent = $('<div></div>');
+                elemParent.addClass('roots-parent');
+
+            let elemParentPath = $('<div></div>');
+                elemParentPath.addClass('roots-parent-path');
+                elemParentPath.appendTo(elemParent);
+                
+            for(let i = level - 1; i > 0; i--) { elemParentPath.append('<span class="icon roots-parent-path-icon">trending_flat</span>'); }
+
+            for(node of nodes) {
+                if(parent === node.item.urn) {
+                    elemParent.attr('data-urn', node.item.urn);
+                    elemParent.attr('data-link', node.item.link);
+                    elemParentPath.append(node.item.title);
+                    elemParent.click(function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        clickRootsPathItem($(this));
+                    });
+                }
+            }
+
+            elemChildren.append(elemParent);
+            getRootChildren(elemChildren, edges, nodes, edge.parent, level+1);
+
+        }
+
+    }
+
+}
+function clickRootItem(elemClicked) { openItemByLink(elemClicked.attr('data-link')); }
+function clickRootsPathItem(elemClicked) { openItemByLink(elemClicked.attr('data-link')); }
 
 
 // Insert Grid table
@@ -1863,17 +2555,18 @@ function insertGrid(link, id, rotate) {
 
 
 // Insert related processes
-function insertChangeProcesses(link, id) {
+function insertChangeProcesses(link, id, icon) {
 
-    // Used by explorer.js and services.js
-
-    if(typeof id === 'undefined') id = 'processes';
+    if(isBlank(link)) return;
+    if(isBlank(id)  )   id = 'processes';
+    if(isBlank(icon)) icon = 'schema';
 
     let elemParent = $('#' + id + '-list');
         elemParent.html('');
         elemParent.closest('.panel').attr('data-link', link);
 
-    $('#' + id + '-processing').show();
+    let elemProcessing = $('#' + id + '-processing');
+        elemProcessing.show();
 
     $.get('/plm/changes', { 'link' : link }, function(response) {
 
@@ -1882,8 +2575,7 @@ function insertChangeProcesses(link, id) {
 
         if(response.params.link === link) {
 
-            $('#' + id + '-processing').hide();
-
+            elemProcessing.hide();
             elemParent.show();
 
             for(process of response.data) {
@@ -1905,8 +2597,10 @@ function insertChangeProcesses(link, id) {
                     elemProcess.attr('data-link', link);
                     elemProcess.attr('data-urn', process.item.urn);
                     elemProcess.appendTo(elemParent);
-                    elemProcess.click(function() {
-                        openItemByURN($(this).attr('data-urn'));
+                    elemProcess.click(function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        clickChangeProcess($(this));
                     });
         
                 let elemProcessImage = $('<div></div>');
@@ -1948,24 +2642,26 @@ function insertChangeProcesses(link, id) {
                             let linkImage   = getFirstImageFieldValue(response.data.sections);
                             let elemImage   = elemProcess.find('.tile-image').first();
             
-                            getImageFromCache(elemImage, { 'link' : linkImage }, 'schema', function() {});
+                            getImageFromCache(elemImage, { 'link' : linkImage }, icon, function() {});
         
                             date = date.split('T')[0].split('-');
                             let creationDate = new Date(date[0], date[1], date[2]);
             
-                            elemProcess.find('.tile-title').first().html(response.data.workspace.title);
-                            elemProcess.find('.tile-subtitle').first().html(response.data.title);
+                            elemProcess.find('.tile-title').first().html(response.data.title);
+                            elemProcess.find('.tile-subtitle').first().html(response.data.workspace.title);
                             elemProcess.find('.process-status').first().html('Status : ' + response.data.currentState.title);
                             elemProcess.find('.process-creator').first().html('Created by ' + user + ' on ' + creationDate.toLocaleDateString());
             
                         }
                     });
                 });
+
             }
         }
     });
 
 }
+function clickChangeProcess(elemClicked) { openItemByURN(elemClicked.attr('data-urn')); }
 
 
 // Insert Relationship Items
@@ -1988,7 +2684,7 @@ function insertRelationships(link, id) {
 
             for(relationship of response.data) {
 
-                let elemTile = genTile(relationship.item.link, '', '', 'link', relationship.workspace.title, relationship.item.title);
+                let elemTile = genTile(relationship.item.link, '', '', 'link', relationship.item.title, relationship.workspace.title);
                     elemTile.appendTo(elemParent);
                     elemTile.click(function(e) {
                         e.preventDefault();
@@ -2071,6 +2767,40 @@ function insertPhaseGates(link, id) {
     });
 
 }
+
+
+// Insert managed items
+function insertManagedItems(link, id, icon) {
+
+    if(isBlank(link)) return;
+    if(isBlank(id)  ) id = 'managed-items';
+    if(isBlank(icon)) icon = '';
+
+    let elemParent = $('#' + id + '-list');
+        elemParent.html('');
+
+    $('#' + id + '-processing').show();
+
+    $.getJSON('/plm/manages', { 'link' : link }, function(response) {
+        
+        $('#' + id + '-processing').hide();
+
+        for(affectedItem of response.data) {
+
+            let elemTile = genTile(affectedItem.item.link, '', '', icon, affectedItem.item.title);
+                elemTile.appendTo(elemParent);
+                elemTile.click(function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    clickManagedItem($(this));
+                });
+
+        }
+        
+    });
+
+}
+function clickManagedItem(elemClicked) {}
 
 
 // Insert Workflow History
@@ -2285,7 +3015,6 @@ function toggleBookmark(elemBookmark) {
     }
 
 }
-
 
 
 // Set tab labels

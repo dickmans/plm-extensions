@@ -1,0 +1,15 @@
+/* MASTER LAYOUT */
+/* ----------------------------------------------------------------------------- */
+#tasks, #task {
+    top     : 0px;
+    right   : 0px;
+    bottom  : 0px;
+    left    : 0px;
+}
+#mow-list {
+    width : calc(100% - 40px);
+}
+#task {
+    display : none;
+}
+

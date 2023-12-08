@@ -18,6 +18,8 @@ $(document).ready(function() {
     $("#button-7").click(function() { getComponentsLocked(["CAD_30000012","CAD_30000014","CAD_30000052"]); });
     $("#button-8").click(function() { isolateComponents(["CAD_30000012", "CAD_30000052"]); });
     $("#button-9").click(function() { setLifecycleState("CO-000012", "Review"); });
+    $("#button-10").click(function() { setDirty(true); });
+    $("#button-11").click(function() { setDirty(false); });
 
     $(".item").click(function() {
 

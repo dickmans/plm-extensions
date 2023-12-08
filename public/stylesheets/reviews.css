@@ -1,6 +1,6 @@
 /*  EXTRAS */
 /* ----------------------------------------------------------------------------- */
-#header-subtitle { display : none; }
+#header-subtitle, #bom-header { display : none; }
 #dialog {
     height : 350px;
     left : calc(50% - 225px);
@@ -12,6 +12,7 @@ textarea:focus {
     border-color : none !important;
     box-shadow : none !important;
 }
+
 
 
 /*  MAIN LAYOUT */

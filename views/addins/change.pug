@@ -1,0 +1,47 @@
+extends ../common/addins
+
+block head
+    link(rel='stylesheet', href='/stylesheets/addins/change.css')
+    script.
+        config = !{JSON.stringify(config)};
+    script(src='/javascripts/addins/change.js')
+
+block content
+
+    #header.surface-level-1   
+        #header-title= title
+            
+    .screen.surface-level-1  
+        .panel#tasks
+            .panel-header   
+                .panel-title Change Tasks 
+                .panel-toolbar 
+                    .button.default.with-icon.icon-create New Change Order
+            //-         select#view(name='view') 
+            //-             option(value='recents') List Recent Proceses
+            //-             option(value='bookmarks') List Pinned Proceses
+            //-             option(value='mow') List Proceses Requiring Action
+            //-             option(value='all') List All Processes
+            //-             option(value='calendar') Browse By Date
+            //-             option(value='progress') View Processes By Progress
+            //-             option(value='timeline') View Process Timeline Chart
+            //- .panel-content.surface-level-2#views-list    
+
+
+            .panel-content.surface-level-2.mow-table#mow-list    
+
+
+        .panel#task
+            .panel-header   
+                .panel-title#task-title
+                .panel-toolbar 
+                    .button.icon.icon-bookmark#bookmark
+                    .button.icon.icon-open#open
+                    .button.icon.icon-close#close-task
+                .panel-content-top.compact#task-sections
+                .panel-content-bottom
+                    #managed-items-list.tiles.list.files
+                    #attachments-list.tiles.list.files
+                .panel-content-toggle 
+                    div Managed Items 
+                    div Files               

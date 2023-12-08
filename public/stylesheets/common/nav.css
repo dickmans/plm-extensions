@@ -35,3 +35,24 @@
 }
 .mow-date.in-time { background : var(--color-status-green); }
 .mow-date.late    { background : var(--color-status-red);   }
+
+
+/*  WORKSPACE VIEWS */
+/* ----------------------------------------------------------------------------- */
+.workspace-view-item {
+    border-top : 1px solid transparent;
+    border-bottom : 1px solid var(--color-gray-100);
+    border-left : 1px solid transparent;
+    border-right : 1px solid transparent;
+    cursor : pointer;
+    padding : 4px 15px;
+}
+.workspace-view-item:last-of-type {
+    border-bottom : none;
+}
+.workspace-view-item:hover {
+    background-color : var(--color-hover) !important;
+}
+.workspace-view-item-descriptor {
+    font-weight : 800;
+}
