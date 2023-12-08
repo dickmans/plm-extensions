@@ -4,7 +4,9 @@ let isiPhone    = navigator.userAgent.match(/iPhone/i) != null;
 
 
 $(document).ready(function() {  
-        
+          
+    if(theme === 'dark') $('body').addClass('blue-theme');
+
     insertAvatar();  
     enableTabs();
     enablePanelToggles();
@@ -34,7 +36,7 @@ function isBlank(value) {
 // Insert progress indicator
 function appendProcessing(id, hidden) {
 
-    if(typeof hidden === 'undefined') hidden = true;
+    if(isBlank(hidden)) hidden = true;
 
     let elemParent = $('#' + id);
 
@@ -508,8 +510,6 @@ function appendTileDetails(elemTile, data) {
         let elemAppend = $('<div></div>');
             elemAppend.html(field[1]);
 
-
-
         if(field[0] !== '') {
             let classNames = field[0].split(' ');
             for(className of classNames) elemAppend.addClass(className);
@@ -818,7 +818,7 @@ function getFlatBOMCellValue(flatBom, link, key, property) {
 
         if(item.item.link === link) {
 
-            for(field of item.occurrences[0].fields) {
+            for(let field of item.occurrences[0].fields) {
                 
                 if(field.metaData.urn === key) {
 
@@ -1013,8 +1013,12 @@ function getImageFromCache(elemParent, params, icon, onclick) {
 
         elemParent.html('');
 
+        let src = response.data.url;
+
+        if(document.location.href.indexOf('/addins/') > -1) src = '../' + src;
+
         let elemImage = $('<img>');
-            elemImage.attr('src', response.data.url);
+            elemImage.attr('src', src);
             elemImage.appendTo(elemParent);
             elemImage.click(function() {
                 onclick($(this));
