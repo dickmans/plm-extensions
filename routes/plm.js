@@ -2066,21 +2066,27 @@ router.get('/bom-add', function(req, res, next) {
     console.log('  req.query.wsIdChild   = ' + req.query.wsIdChild);
     console.log('  req.query.dmsIdParent = ' + req.query.dmsIdParent);
     console.log('  req.query.dmsIdChild  = ' + req.query.dmsIdChild);
+    console.log('  req.query.linkParent  = ' + req.query.linkParent);
+    console.log('  req.query.linkChild   = ' + req.query.linkChild);
     console.log('  req.query.qty         = ' + req.query.qty);
     console.log('  req.query.pinned      = ' + req.query.pinned);
     console.log('  req.query.number      = ' + req.query.number);
     console.log('  req.query.fields      = ' + req.query.fields);
     console.log();
 
-    let url = 'https://' + req.session.tenant + '.autodeskplm360.net/api/v3/workspaces/' + req.query.wsIdParent + '/items/' + req.query.dmsIdParent + '/bom-items';
     
-    let isPinned = (typeof req.query.pinned === 'undefined') ? false : req.query.pinned;
-
+    let linkParent = (typeof req.query.linkParent !== 'undefined') ? req.query.linkParent : '/api/v3/workspaces/' + req.query.wsIdParent + '/items/' + req.query.dmsIdParent;
+    let linkChild  = (typeof  req.query.linkChild !== 'undefined') ? req.query.linkChild  : '/api/v3/workspaces/' + req.query.wsIdChild  + '/items/' + req.query.dmsIdChild;
+    let quantity   = (typeof   req.query.quantity === 'undefined') ? 1 : req.query.quantity;
+    let isPinned   = (typeof     req.query.pinned === 'undefined') ? false : req.query.pinned;
+    
+    let url = 'https://' + req.session.tenant + '.autodeskplm360.net' + linkParent + '/bom-items';
+    
     let params = {
-        'quantity'  : req.query.qty,
+        'quantity'  : quantity,
         'isPinned'  : isPinned,
         'item'      : { 
-            'link'  : '/api/v3/workspaces/' + req.query.wsIdChild + '/items/' + req.query.dmsIdChild
+            'link'  : linkChild
         }
     };
 
