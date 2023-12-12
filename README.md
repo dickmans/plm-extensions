@@ -9,11 +9,12 @@ The following extensions are included
 - Design Review Portal
 - MBOM Editor
 - Mobile Client
+- Process Dashboard
 - Product Portfolio Catalog
 - Product Data Explorer
 - Projects Dashboard
 - Reports Dashboard
 - Services Portal
 - Tenant Inisghts
-- Variant Management
+- Variants Manager
 - Workspaces Navigator
