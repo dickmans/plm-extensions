@@ -27,7 +27,6 @@ router.get('/reports'       , function(req, res, next) { launch('reports'       
 router.get('/reviews'       , function(req, res, next) { launch('reviews'         , 'Design Reviews'              , req, res, next); });
 router.get('/service'       , function(req, res, next) { launch('service'         , 'Services Portal'             , req, res, next); });
 router.get('/template'      , function(req, res, next) { launch('template'        , 'App Template Page'           , req, res, next); });
-router.get('/training'      , function(req, res, next) { launch('training'        , 'Training Application'        , req, res, next); });
 router.get('/variants'      , function(req, res, next) { launch('variants'        , 'Variant Manager'             , req, res, next); });
 
 
@@ -46,7 +45,6 @@ router.get('/', function(req, res, next) {
 /* ------------------------------------------------------------------------------
     INVENTOR ADDINS
    ------------------------------------------------------------------------------ */
-router.get('/addins/dev'     , function(req, res, next) { launch('addins/dev'     , 'PLM Plugin Development'          , req, res, next); });
 router.get('/addins/change'  , function(req, res, next) { launch('addins/change'  , 'Change Management'               , req, res, next); });
 router.get('/addins/context' , function(req, res, next) { launch('addins/context' , 'Context Browser'                 , req, res, next); });
 router.get('/addins/item'    , function(req, res, next) { launch('addins/item'    , 'Item & BOM Management'           , req, res, next); });
@@ -76,16 +74,16 @@ function launch(view, app, req, res, next) {
     let reqWS           = ''
     let reqDMS          = '';
     let reqPartNumber   = '';
-    let reqRevisioBias  = 'release';
+    let reqRevisionBias = 'release';
     let theme           = '';
 
     for(key in req.query) {
         switch(key.toLowerCase()) {
-            case 'wsid'         :          reqWS = req.query[key]; break;
-            case 'dmsid'        :         reqDMS = req.query[key]; break;
-            case 'partnumber'   :  reqPartNumber = req.query[key]; break;
-            case 'revisionbias' : reqRevisioBias = req.query[key]; break;
-            case 'theme'        :          theme = req.query[key]; break;
+            case 'wsid'         :           reqWS = req.query[key]; break;
+            case 'dmsid'        :          reqDMS = req.query[key]; break;
+            case 'partnumber'   :   reqPartNumber = req.query[key]; break;
+            case 'revisionbias' : reqRevisionBias = req.query[key]; break;
+            case 'theme'        :           theme = req.query[key]; break;
         }
     }
 
@@ -98,9 +96,9 @@ function launch(view, app, req, res, next) {
     req.session.link            = '/api/v3/workspaces/' + reqWS + '/items/' + reqDMS;
     req.session.options         = req.query.hasOwnProperty('options') ? req.query.options : '';
     req.session.tenant          = req.query.hasOwnProperty('tenant') ? req.query.tenant : req.app.locals.tenant;
-    req.session.revisionBias    = reqRevisioBias;
+    req.session.revisionBias     = reqRevisionBias;
     req.session.theme           = theme;
-    
+
     console.log('  req.session.view         = ' + req.session.view); 
     console.log('  req.session.app          = ' + req.session.app); 
     console.log('  req.session.wsId         = ' + req.session.wsId); 
@@ -144,10 +142,8 @@ function launch(view, app, req, res, next) {
 
         res.render('common/search', {
             partNumber   : reqPartNumber,
-            title        : req.session.app, 
-            tenant       : req.session.tenant,
             revisionBias : req.session.revisionBias,
-            options      : req.session.options
+            theme        : req.session.theme
         });
 
     } else {
