@@ -32,7 +32,8 @@ function initViewer(data, color, id) {
 
     if(typeof color !== 'undefined') {
         if(color !== null) {
-            config.viewer.backgroundColor = color;
+            if(Array.isArray(color)) config.viewer.backgroundColor = color;
+            else config.viewer.backgroundColor = [color, color, color];
         }
     }
 
@@ -94,7 +95,7 @@ function onDocumentLoadSuccess(doc) {
     if (viewable) {
         // viewer.loadDocumentNode(doc, viewable).then(function(result) {
         viewer.loadDocumentNode(doc, viewable, {globalOffset: {x:0,y:0,z:0}}).then(function(result) {
-            viewer.setBackgroundColor(config.viewer.backgroundColor, config.viewer.backgroundColor, config.viewer.backgroundColor, config.viewer.backgroundColor, config.viewer.backgroundColor, config.viewer.backgroundColor);
+            viewer.setBackgroundColor(config.viewer.backgroundColor[0], config.viewer.backgroundColor[1], config.viewer.backgroundColor[2], config.viewer.backgroundColor[0], config.viewer.backgroundColor[1], config.viewer.backgroundColor[2]);
             viewerDone = true;
             initViewerDone(newInstance);
         }).catch(function(err) {

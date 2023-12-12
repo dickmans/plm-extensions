@@ -539,7 +539,7 @@ exports.config = {
     'viewer' : {
         'fieldIdPartNumber'       : 'NUMBER',
         'partNumberProperties'    : ['Part Number', 'Name', 'label', 'Artikelnummer', 'Bauteilnummer'],
-        'backgroundColor'         : 255,
+        'backgroundColor'         : [255, 255, 255],
         'groundReflection'        : false,
         'groundShadow'            : true
     }
