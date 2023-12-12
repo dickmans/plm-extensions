@@ -1,9 +1,7 @@
 $(document).ready(function() {
 
-    if(!isBlank(options)) {
-        let params = options.split(',');
-        if(params.indexOf('dark') > -1) $('body').addClass('blue-theme');
-    }
+         if(theme.toLowerCase() === 'blue') $('body').addClass('blue-theme');
+    else if(theme.toLowerCase() === 'dark') $('body').addClass('dark-theme');
 
     let params = {
         'wsId'  : config.search.wsId,
@@ -19,11 +17,9 @@ $(document).ready(function() {
 
             let url  = window.location.href.split('?')[0];
                 url += '?dmsId=' + link.split('/')[6];
-                url += '&wsId='  + config.search.wsId;
-                url += '&title=' + title;
-                url += '&tenant=' + tenant;
-                url += '&revisionBias=' + revisionBias;
-                url += '&options=' + options;
+                url += '&wsId='  + link.split('/')[4];
+
+            if(theme !== '') url += '&theme=' + theme;
 
             window.location = url;
 

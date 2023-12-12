@@ -5,7 +5,8 @@ let isiPhone    = navigator.userAgent.match(/iPhone/i) != null;
 
 $(document).ready(function() {  
           
-    if(theme === 'dark') $('body').addClass('blue-theme');
+         if(theme.toLowerCase() === 'blue') $('body').addClass('blue-theme');
+    else if(theme.toLowerCase() === 'dark') $('body').addClass('dark-theme');
 
     insertAvatar();  
     enableTabs();
@@ -1038,12 +1039,16 @@ function getImageFromCache(elemParent, params, icon, onclick) {
 
 
 // Add new field to sections payload, adds given section if new
-function addFieldToPayload(payload, sections, elemField, fieldId, value) {
+function addFieldToPayload(payload, sections, elemField, fieldId, value, skipEmpty) {
 
-    if(isBlank(value)) {
-        if(isBlank(elemField)) {
-            return;
-        }   
+    if(isBlank(skipEmpty)) skipEmpty = true;
+
+    if(skipEmpty) {
+        if(isBlank(value)) {
+            if(isBlank(elemField)) {
+                return;
+            }   
+        }
     }
 
     let sectionId   = getFieldSectionId(sections, fieldId);
