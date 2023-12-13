@@ -100,7 +100,7 @@ function setUIEvents() {
 
     // EBOM Alignment
     $('#add-all').click(function() {
-        $('.item-action-add:visible').click();
+        $('.item.additional').find('.item-action-add').click();
     });
     $('#deselect-all').click(function() {
         $('#ebom').find('.item.selected').each(function() {

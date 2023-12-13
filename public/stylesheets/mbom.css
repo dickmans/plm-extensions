@@ -538,19 +538,20 @@ body.bom-panel-on .bom-panel {
     position: absolute;
     top : 0px;
     right: 0px;
-    bottom : 72px;
+    bottom : 74px;
     left: 0px;
 }
 #ebom-status {
     display : flex;
     position : absolute;
     right : 0px;
-    bottom : 42px;
+    bottom : 46px;
     left : 0px;
 }
 #ebom-actions {
     display : flex;
     gap : var(--spacer-s);
+    height : 41px;
     position : absolute;
     right : 5px;
     bottom : 0px;
