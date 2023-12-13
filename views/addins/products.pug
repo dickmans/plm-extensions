@@ -1,61 +1,42 @@
 extends ../common/addins
 
 block head
+    
     link(rel='stylesheet', href='/stylesheets/addins/products.css')
     script.
         config = !{JSON.stringify(config)};
     script(src='/javascripts/addins/products.js')
 
-block content
+block body 
+
+    body
     
-    .screen.surface-level-1  
-        .panel#products
-            //- .panel-header   
-            //-     .panel-title Grundrissaufbauten
-            //-     .panel-toolbar 
-            //- //-         .button.default.icon.icon-create
-            //- //-         select#view(name='view') 
-            //- //-             option(value='recents') List Recent Proceses
-            //- //-             option(value='bookmarks') List Pinned Proceses
-            //- //-             option(value='mow') List Proceses Requiring Action
-            //- //-             option(value='all') List All Processes
-            //- //-             option(value='calendar') Browse By Date
-            //- //-             option(value='progress') View Processes By Progress
-            //- //-             option(value='timeline') View Process Timeline Chart
-            //- //- .panel-content.surface-level-2#views-list    
-
-
-        .panel#details.surface-level-2
-            .panel-header   
-                .panel-title
-                .panel-toolbar 
-                    .button.icon.icon-bookmark#bookmark
-                    .button.icon.icon-open#open
-                    .button.icon.icon-close#close
-            .tabs(data-tab-group="tab-group-product")
-                .tab BOM
-                .tab#tab-bom Module 
-                .tab Regeln 
-                .tab#tab-materials Konfigurationen 
+        .screen.surface-level-1  
             
-            .panel-content.surface-level-1
-                #bom
+            .panel#products
 
+            .panel#details.surface-level-2
+                .panel-header   
+                    .panel-title
+                    .panel-toolbar 
+                        .button.with-icon.icon-target#context Aktiver Kontext
+                        .button.icon.icon-bookmark#bookmark
+                        .button.icon.icon-open#open
+                        .button.icon.icon-close#close
+                .tabs(data-tab-group="tab-group-main")
+                    .tab BOM
+                    .tab#tab-bom Module 
+                    .tab Regeln 
+                    .tab#tab-materials Konfigurationen 
+                
+                .panel-content.tab-group-main.surface-level-1
+                    #bom
 
-            //- .panel-content.tiles.wide.s#products-list 
+                .panel-content.tab-group-main.surface-level-1
+                    #modules.tiles.list.xxxs
 
+                .panel-content.tab-group-main.surface-level-1
 
-        //- .panel#task
-        //-     .panel-header   
-        //-         .panel-title#task-title
-        //-         .panel-toolbar 
-        //-             .button.icon.icon-bookmark#bookmark
-        //-             .button.icon.icon-open#open
-        //-             .button.icon.icon-close#close-task
-        //-         .panel-content-top.compact#task-sections
-        //-         .panel-content-bottom
-        //-             #managed-items-list.tiles.list.files
-        //-             #attachments-list.tiles.list.files
-        //-         .panel-content-toggle 
-        //-             div Managed Items 
-        //-             div Files               
+                .panel-content.tab-group-main.surface-level-1
+
+            .viewer#viewer

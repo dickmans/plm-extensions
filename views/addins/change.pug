@@ -1,47 +1,58 @@
 extends ../common/addins
 
 block head
+
     link(rel='stylesheet', href='/stylesheets/addins/change.css')
     script.
         config = !{JSON.stringify(config)};
     script(src='/javascripts/addins/change.js')
 
-block content
+block body
 
-    #header.surface-level-1   
-        #header-title= title
+    body
+
+        .screen.surface-level-1  
             
-    .screen.surface-level-1  
-        .panel#tasks
-            .panel-header   
-                .panel-title Change Tasks 
-                .panel-toolbar 
-                    .button.default.with-icon.icon-create New Change Order
-            //-         select#view(name='view') 
-            //-             option(value='recents') List Recent Proceses
-            //-             option(value='bookmarks') List Pinned Proceses
-            //-             option(value='mow') List Proceses Requiring Action
-            //-             option(value='all') List All Processes
-            //-             option(value='calendar') Browse By Date
-            //-             option(value='progress') View Processes By Progress
-            //-             option(value='timeline') View Process Timeline Chart
-            //- .panel-content.surface-level-2#views-list    
+            .panel#tasks
 
+            .panel#task.surface-level-2.with-subtitle
+                .panel-header   
+                    .panel-title#task-title
+                    .panel-subtitle#task-status 
+                    .panel-toolbar 
+                        select#workflow-actions(label='Workflow-Aktionen')
+                        .button.icon.icon-bookmark#bookmark
+                        .button.icon.icon-open#open
+                        .button.icon.icon-close#close-task
+                
+                .tabs(data-tab-group="tab-group-main")
+                    .tab#tab-details Details 
+                    .tab#tab-items Artikel
+                    .tab#tab-files Dateien
+                    .tab#tab-history Historie
 
-            .panel-content.surface-level-2.mow-table#mow-list    
+                .panel-back.surface-level-1
 
+                .panel-content.tab-group-main.surface-level-1#task-sections.compact
+                .panel-content.tab-group-main.surface-level-1
+                    .panel-header   
+                        .panel-title#task-title
+                        .panel-toolbar 
+                            .button.with-icon.icon-link.default#add-affected-item Aktives Dokument hinzufügen
+                    .panel-content#managed-items-list.tiles.list.xxxs
+                .panel-content.tab-group-main.surface-level-1#attachments-list
+                .panel-content.tab-group-main.surface-level-1#history-events
 
-        .panel#task
-            .panel-header   
-                .panel-title#task-title
-                .panel-toolbar 
-                    .button.icon.icon-bookmark#bookmark
-                    .button.icon.icon-open#open
-                    .button.icon.icon-close#close-task
-                .panel-content-top.compact#task-sections
-                .panel-content-bottom
-                    #managed-items-list.tiles.list.files
-                    #attachments-list.tiles.list.files
-                .panel-content-toggle 
-                    div Managed Items 
-                    div Files               
+            .dialog#add.surface-level-1    
+                .dialog-header.surface-level-2 Artikel hinzfügen
+                .dialog-content#add-content
+                    p Der folgende Artikel wird der Änderungsaufgabe hinzufgefügt: 
+                    #add-root.tiles.list.xxxs
+                        //- span#add-title 
+                    p Wählen Sie aus der nachfolgenden Liste weitere Artikel, die geändert wurden oder noch freizugeben sind und auch an die Änderungsaufgabe angehängt werden sollen:
+                    #add-list.tiles.list.xxxs
+                .dialog-footer
+                    #add-confirm.button.default Bestätigen
+                    #add-cancel.button Abbruch
+                    #add-deselect.button Alle abwählen
+                    #add-select.button Alle auswählen     
