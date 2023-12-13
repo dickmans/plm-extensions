@@ -1,32 +1,42 @@
 #!/usr/bin/env node
-let fileSettings = (process.argv.length > 2) ? 'settings/' + process.argv[2] + '.js' : 'settings.js';
+let fileSettings = (process.argv.length > 2) ? '/settings/' + process.argv[2] + '.js' : '/settings.js';
 
-const fs        = require('fs');
-const app       = require('../app');
-const settings  = require('../' + fileSettings);
-const protocol  = settings.protocol;
-const port      = settings.port;
+const fs  = require('fs');
+const app = require('../app');
 
-let server;
+let server, settings, protocol, port;
 
+if ((process.argv.length < 2) || (fs.existsSync('.' + fileSettings))) {
 
-if(protocol === 'https') {
+  settings = require('..' + fileSettings);
+  protocol = settings.protocol;
+  port     = settings.port;
 
-  if(fs.existsSync('./keys/privkey.pem')) {
+  if (protocol === 'https') {
 
-    const https       = require('https');
-    const privateKey  = fs.readFileSync('./keys/privkey.pem', 'utf8');
-    const certificate = fs.readFileSync('./keys/fullchain.pem', 'utf8');
-    const credentials = {key: privateKey, cert: certificate};
+    if (fs.existsSync('./keys/privkey.pem')) {
 
-    server = https.createServer(credentials, app);
+      const https       = require('https');
+      const privateKey  = fs.readFileSync('./keys/privkey.pem', 'utf8');
+      const certificate = fs.readFileSync('./keys/fullchain.pem', 'utf8');
+      const credentials = { key: privateKey, cert: certificate };
+
+      server = https.createServer(credentials, app);
+
+    } else {
+
+      console.log();
+      console.log('  ERROR ! File privkey.pem not available in folder /keys');
+      console.log('        ! Server will be started using http instead of https');
+      console.log();
+
+      const http = require('http');
+
+      server = http.createServer(app);
+
+    }
 
   } else {
-  
-    console.log();
-    console.log('  ERROR ! File privkey.pem not available in folder /keys');
-    console.log('        ! Server will be started using http instead of https');
-    console.log();
 
     const http = require('http');
 
@@ -34,19 +44,13 @@ if(protocol === 'https') {
 
   }
 
-} else {
+  app.set('port', port);
 
-    const http = require('http');
-
-    server = http.createServer(app);
+  server.listen(port);
+  server.on('error', onError);
+  server.on('listening', onListening);
 
 }
-
-app.set('port', port);
-
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
 
 
 /**
@@ -83,15 +87,15 @@ function onError(error) {
 
 function onListening() {
 
-    let addr = server.address();
-    let bind = typeof addr === 'string'
-        ? 'pipe ' + addr
-        : 'port ' + addr.port;
-  
-    console.log();
-    console.log('  >> Using settings file   ' + fileSettings);
-    console.log('  >> Using redirect Uri    ' + settings.redirectUri);
-    console.log('  >> Listening on port     ' + bind);
-    console.log();
+  let addr = server.address();
+  let bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port;
+
+  console.log();
+  console.log('  >> Using settings file   ' + fileSettings);
+  console.log('  >> Using redirect Uri    ' + settings.redirectUri);
+  console.log('  >> Listening on port     ' + bind);
+  console.log();
 
 }
