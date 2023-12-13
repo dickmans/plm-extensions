@@ -5,40 +5,53 @@ const router        = express.Router();
 
 
 /* ------------------------------------------------------------------------------
-    LIST OF SERVICES
-   ------------------------------------------------------------------------------
-    router.get('/<endpoint>', function(req, res, next) { launch('<pug filename in /views>', '<page title>', req, res, next); });
+    DEFAULT LANDING PAGE
    ------------------------------------------------------------------------------ */
-router.get('/classes'       , function(req, res, next) { launch('classes'         , 'Classification Browser'      , req, res, next); });
-router.get('/client'        , function(req, res, next) { launch('client'          , 'Mobile PLM Client'           , req, res, next); });
-router.get('/configurator'  , function(req, res, next) { launch('configurator'    , 'Product Configuration Editor', req, res, next); });
-router.get('/customer'      , function(req, res, next) { launch('customer'        , 'Customer Services'           , req, res, next); });
-router.get('/dashboard'     , function(req, res, next) { launch('dashboard'       , 'Dashboard'                   , req, res, next); });
-router.get('/editor'        , function(req, res, next) { launch('editor'          , 'Content Editor'              , req, res, next); });
-router.get('/explorer'      , function(req, res, next) { launch('explorer'        , 'Product Data Explorer'       , req, res, next); });
-router.get('/impactanalysis', function(req, res, next) { launch('impactanalysis'  , 'Change Impact Analysis'      , req, res, next); });
-router.get('/insights'      , function(req, res, next) { launch('insights'        , 'Tenant Insights Dashboard'   , req, res, next); });
-router.get('/matrix'        , function(req, res, next) { launch('matrix'          , 'Portfolio Matrix'            , req, res, next); });
-router.get('/mbom'          , function(req, res, next) { launch('mbom'            , 'Manufacturing BOM Editor'    , req, res, next); });
-router.get('/navigator'     , function(req, res, next) { launch('navigator'       , 'Workspace Navigator'         , req, res, next); });
-router.get('/portfolio'     , function(req, res, next) { launch('portfolio'       , 'Product Portfolio Catalog'   , req, res, next); });
-router.get('/projects'      , function(req, res, next) { launch('projects'        , 'Projects Dashboard'          , req, res, next); });
-router.get('/reports'       , function(req, res, next) { launch('reports'         , 'Reports Dashboard'           , req, res, next); });
-router.get('/reviews'       , function(req, res, next) { launch('reviews'         , 'Design Reviews'              , req, res, next); });
-router.get('/service'       , function(req, res, next) { launch('service'         , 'Services Portal'             , req, res, next); });
-router.get('/template'      , function(req, res, next) { launch('template'        , 'App Template Page'           , req, res, next); });
-router.get('/variants'      , function(req, res, next) { launch('variants'        , 'Variant Manager'             , req, res, next); });
+   router.get('/', function(req, res, next) {
+    res.render('framework/landing', {
+        title : 'PLM TS User Experiences'
+    });
+});
 
 
 
 /* ------------------------------------------------------------------------------
-    DEFAULT LANDING PAGE
+    STANDARD APPLICATIONS
+   ------------------------------------------------------------------------------
+    router.get('/<endpoint>', function(req, res, next) { launch('<pug filename in /views>', '<page title>', req, res, next); });
    ------------------------------------------------------------------------------ */
-router.get('/', function(req, res, next) {
-    res.render('common/landing', {
-        title : 'PLM TS User Experiences'
-    });
-});
+router.get('/classes'       , function(req, res, next) { launch('apps/classes'         , 'Classification Browser'      , req, res, next); });
+router.get('/client'        , function(req, res, next) { launch('apps/client'          , 'Mobile PLM Client'           , req, res, next); });
+router.get('/dashboard'     , function(req, res, next) { launch('apps/dashboard'       , 'Dashboard'                   , req, res, next); });
+router.get('/explorer'      , function(req, res, next) { launch('apps/explorer'        , 'Product Data Explorer'       , req, res, next); });
+router.get('/impactanalysis', function(req, res, next) { launch('apps/impactanalysis'  , 'Change Impact Analysis'      , req, res, next); });
+router.get('/insights'      , function(req, res, next) { launch('apps/insights'        , 'Tenant Insights Dashboard'   , req, res, next); });
+router.get('/mbom'          , function(req, res, next) { launch('apps/mbom'            , 'Manufacturing BOM Editor'    , req, res, next); });
+router.get('/navigator'     , function(req, res, next) { launch('apps/navigator'       , 'Workspace Navigator'         , req, res, next); });
+router.get('/portfolio'     , function(req, res, next) { launch('apps/portfolio'       , 'Product Portfolio Catalog'   , req, res, next); });
+router.get('/projects'      , function(req, res, next) { launch('apps/projects'        , 'Projects Dashboard'          , req, res, next); });
+router.get('/reports'       , function(req, res, next) { launch('apps/reports'         , 'Reports Dashboard'           , req, res, next); });
+router.get('/reviews'       , function(req, res, next) { launch('apps/reviews'         , 'Design Reviews'              , req, res, next); });
+router.get('/service'       , function(req, res, next) { launch('apps/service'         , 'Services Portal'             , req, res, next); });
+router.get('/variants'      , function(req, res, next) { launch('apps/variants'        , 'Variant Manager'             , req, res, next); });
+
+
+
+/* ------------------------------------------------------------------------------
+    APPLICATIONS IN DEVELOPMENT
+   ------------------------------------------------------------------------------ */
+router.get('/configurator'  , function(req, res, next) { launch('dev/configurator'    , 'Product Configuration Editor', req, res, next); });
+router.get('/control'       , function(req, res, next) { launch('dev/control'         , 'Remote Device Control'       , req, res, next); });
+router.get('/customer'      , function(req, res, next) { launch('dev/customer'        , 'Customer Services'           , req, res, next); });
+router.get('/editor'        , function(req, res, next) { launch('dev/editor'          , 'Content Editor'              , req, res, next); });
+router.get('/matrix'        , function(req, res, next) { launch('dev/matrix'          , 'Portfolio Matrix'            , req, res, next); });
+
+
+
+/* ------------------------------------------------------------------------------
+    TUTORIAL APPLICATIONS
+   ------------------------------------------------------------------------------ */
+router.get('/template'      , function(req, res, next) { launch('tutorial/template'   , 'App Template Page'           , req, res, next); });
 
 
 
@@ -50,15 +63,6 @@ router.get('/addins/context' , function(req, res, next) { launch('addins/context
 router.get('/addins/item'    , function(req, res, next) { launch('addins/item'    , 'Item & BOM Management'           , req, res, next); });
 router.get('/addins/search'  , function(req, res, next) { launch('addins/search'  , 'Search'                          , req, res, next); });
 router.get('/addins/products', function(req, res, next) { launch('addins/products', 'Product Configuration Management', req, res, next); });
-
-
-
-/* ------------------------------------------------------------------------------
-    LIST OF APPS
-   ------------------------------------------------------------------------------ */
-router.get('/apps/printer', function(req, res, next) {
-    res.render('apps/printer');
-});
 
 
 
@@ -132,7 +136,7 @@ function launch(view, app, req, res, next) {
     
     if(redirect) {
 
-        res.render('common/redirect', { 
+        res.render('framework/redirect', { 
             title       : req.session.app,
             clientId    : req.app.locals.clientId,
             redirectUri : req.app.locals.redirectUri
@@ -140,7 +144,7 @@ function launch(view, app, req, res, next) {
 
     } else if(reqPartNumber !== '') {
 
-        res.render('common/search', {
+        res.render('framework/search', {
             partNumber   : reqPartNumber,
             revisionBias : req.session.revisionBias,
             theme        : req.session.theme

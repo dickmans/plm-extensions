@@ -1,0 +1,60 @@
+/*  MY OUTSTANDING WORK */
+/* ----------------------------------------------------------------------------- */
+.mow-table {
+    display : table;
+    width   : 100%;
+}
+.mow-row {
+    cursor  : pointer;
+    display : table-row;
+}
+.mow-row:hover { 
+    background : var(--color-hover); 
+}
+.mow-row > div {
+    display : table-cell;
+}
+.mow-icon {
+    line-height : 14px;
+    width       : 30px;
+    text-align  : center;
+}
+.mow-icon::before {
+    font-size : 18px;
+    position  : relative;
+    top        : 4px;
+}
+
+.mow-date {
+    text-align : right; 
+    width : 80px;
+}
+.mow-date.in-time { background : var(--color-status-green); }
+.mow-date.late    { background : var(--color-status-red);   }
+
+.blue-theme .mow-row        { background : #222933; }
+.blue-theme .mow-row:hover  { background : #3b4453 !important; }
+.blue-theme .mow-icon       { background : #2e3440; }
+
+
+
+
+/*  WORKSPACE VIEWS */
+/* ----------------------------------------------------------------------------- */
+.workspace-view-item {
+    border-top : 1px solid transparent;
+    border-bottom : 1px solid var(--color-gray-100);
+    border-left : 1px solid transparent;
+    border-right : 1px solid transparent;
+    cursor : pointer;
+    padding : 4px 15px;
+}
+.workspace-view-item:last-of-type {
+    border-bottom : none;
+}
+.workspace-view-item:hover {
+    background-color : var(--color-hover) !important;
+}
+.workspace-view-item-descriptor {
+    font-weight : 800;
+}

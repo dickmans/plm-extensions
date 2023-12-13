@@ -1,0 +1,179 @@
+/*  STANDARD ELEMENTS
+/* ----------------------------------------------------------------------------- */
+html { 
+    /* PREVENT IOS BOUNCING */
+    height: 100%;
+    overflow: hidden;
+    position: fixed;
+}
+body {
+    /* color : #3c3c3c; */
+    font-family: 'ArtifaktElement';
+    /* font-family: 'Artifakt'; */
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    margin: 0px;
+    padding: 0px;
+    width: 100vw;
+    height: 100vh;
+    overflow-y: hidden;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    -webkit-font-smoothing: antialiased;
+}
+
+body.dark-theme { color : #F5F5F5; }
+body.blue-theme { color : #F5F5F5; }
+h1 {
+    font-weight: 800;
+    font-size: 28px;
+    line-height: 36px;
+}
+h2 {
+    font-weight: 800;
+    font-size: 20px;
+    line-height: 26px;
+    margin-top: 32px;
+}
+h3 {
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 26px;
+}
+a {
+    color : var(--color-blue-500);
+    text-decoration: none;
+}
+
+input, textarea, select { 
+    font-family: 'ArtifaktElement'; 
+}
+input, textarea { 
+    border : none;
+    border-bottom : 1px solid var(--color-gray-100);
+}
+
+input, input:disabled {
+    background : none;
+}
+input { padding : 8px; }
+input:focus {
+    outline: 0;
+    border-color : var(--color-blue-500) !important;
+    box-shadow : 0px 3px 0px 0px rgba(6, 150, 215, 0.35) !important;
+}
+input[type='checkbox'] { width : 16px; }
+input[type='radio'] {
+    appearance: none;
+    cursor : pointer;
+    margin : 0px 6px 0px 0px;
+    background: white;
+    border-radius: 50%;
+    border: 1px solid var(--color-gray-100);
+    padding: 7px;
+}
+input[type='radio']:focus,
+input[type='radio']:checked {
+    background-color : var(--color-blue-500);
+    box-shadow : none !important;
+}
+
+.blue-theme input { color : white; }
+.blue-theme ::placeholder { color: #bbb; opacity: 1; }
+
+textarea {
+    outline : 0;
+    padding : 8px;
+}
+textarea:focus {
+    border-color : var(--color-blue-500) !important;
+    box-shadow : 0px 3px 0px 0px rgba(6, 150, 215, 0.35) !important;   
+}
+
+select {
+    padding : 5px 4px;
+}
+select:focus {
+    outline : none;
+}
+select.disabled {
+    border-color: rgba(128, 128, 128, 0.5);
+    color: #808080;
+    cursor: not-allowed;
+}
+
+table {
+    border-spacing : 0;
+    width : 100%;
+}
+th {
+    background : #eeeeee;
+    padding : 10px 5px;
+    text-align : left;
+    white-space : nowrap;
+}
+.fixed-header > thead > tr > th,
+.fixed-header > tbody > tr > th,
+.fixed-header > tr > th { 
+    position : sticky; 
+    top : 0; 
+    z-index : 1;
+}
+table.hovering-enabled tbody tr:hover td {
+    background : var(--color-hover) !important;
+    cursor : pointer;
+}
+tr.selected td {
+    background : var(--color-selected) !important;
+    /* border-color : var(--color-selected-border); */
+}
+td {
+    border-top : 1px solid transparent;
+    border-bottom : 1px solid var(--color-gray-100);
+    line-height : 16px;
+    padding : 10px 5px;
+}
+tr:last-of-type > td {
+    border-bottom : 1px solid transparent;
+}
+td.link {
+    color : var(--color-blue-500);
+    cursor : pointer;
+}
+.surface-level-2 > table > thead > tr > th { border-bottom-color : var(--color-gray-200); }
+.surface-level-2 > table > tbody > tr > td { border-bottom-color : var(--color-gray-200); }
+
+table.grid.rotated th {
+    padding : 5px 16px;
+    text-align : right;
+}
+table.grid.rotated tr:first-of-type > td {
+    border-top : 1px solid var(--color-gray-100);
+}
+table.grid.rotated tr:last-of-type > td {
+    border-bottom : 1px solid var(--color-gray-100);
+}
+ 
+
+.blue-theme thead th       { background : var(--color-blue-surface-level-1); }
+.blue-theme tbody tr       { background : var(--color-blue-surface-level-3); }
+.blue-theme tbody td       { border-bottom : 2px solid var(--color-blue-surface-level-1);}
+.blue-theme tbody tr:hover { background : var(--color-blue-surface-level-2-5) !important; }
+.blue-theme tbody tr.selected td        { background : var(--color-blue-surface-level-3) !important; }
+.blue-theme tbody tr.selected:hover td  { background : var(--color-blue-surface-level-2-5) !important; }
+
+
+/*  PREVENT TEXT SELECTION */
+/* ----------------------------------------------------------------------------- */
+body.text-selection-off,
+div, 
+button {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none;   /* Chrome/Safari/Opera */
+  -khtml-user-select: none;    /* Konqueror */
+  -moz-user-select: none;      /* Firefox */
+  -ms-user-select: none;       /* Internet Explorer/Edge */
+  user-select: none;           /* Non-prefixed version, currently not supported by any browser */    
+}

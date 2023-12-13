@@ -1,0 +1,90 @@
+extends ../framework/layout
+
+block head
+
+    link(rel='stylesheet', href='/stylesheets/apps/explorer.css')
+    script(src='/javascripts/libs/Chart.bundle.min.js')
+    script(src='/javascripts/apps/explorer.js')
+    script.
+        config = !{JSON.stringify(config)};
+
+block body
+
+    body.surface-level-1.text-selection-off.no-attachments
+
+        #header.dark
+            #header-logo
+            #header-title= title
+            #header-subtitle
+            #header-toolbar
+                #button-toggle-dashboard.button.with-icon.icon-dashboard(title='Click to toggle dashboard panel on/off') Dashboard
+                #button-toggle-bom.button.with-icon.icon-bom(title='Click to switch BOM display form tree to table and back') BOM
+                #button-toggle-attachments.button.with-icon.icon-pdf(title='Click to toggle files panel on/off') Files
+                #button-toggle-details.button.with-icon.icon-panel(title='Click to toggle details panel on/off') Details
+                #button-toggle-processes.button.with-icon.icon-workflow(title='Click to toggle processes panel on/off') Processes
+                #header-avatar
+        
+        #main.screen
+
+            #dashboard.no-toolbar.surface-level-2
+                .panel-header
+                    .panel-title#dashboard-title Dashboard
+                    .panel-toolbar#dashboard-toolbar
+                        .button.icon.xs.icon-clear#dashboard-reset
+                        .button.icon.xs.icon-fold#collapse-all-kpis
+                        .button.icon.xs.icon-unfold#expand-all-kpis 
+                        .button.icon.xs.icon-refresh#dashboard-refresh(title='Click to reload KPIs')
+                #dashboard-panel
+                #dashboard-counter
+                    
+
+            #bom
+                .panel-header
+                    .panel-title Bill of Materials
+                    .panel-toolbar
+                        .button.default#save-bom-changes(title='Save changes') Save
+                        .button.icon.bom-action.icon-send#send-selected(title='Create new Supplier Package for selected items')
+                        .button.icon.bom-action.icon-north-east#go-there(title='Open explorer for selected BOM item')
+                        .button.icon.icon-clear.bom-action.xs#bom-reset(title='Click to deselect BOM item and to reset viewer')
+                        .button.with-icon.icon-filter
+                            input#bom-search-input(placeholder='Filter')
+                .panel-content#bom-tree.no-colors
+                    table#bom-table-tree(cellspacing='0')
+                .panel-content#flat-bom.no-colors
+                    table#bom-table-flat(cellspacing='0')
+
+            #viewer.viewer          
+
+            #attachments
+                .panel-header
+                    .panel-title.centered Attachments
+                #attachments-list
+
+            .panel#details
+                .panel-header   
+                    .panel-title Details 
+                    .panel-toolbar 
+                        .button.icon.icon-bookmark#bookmark
+                        .button.icon.icon-open#open
+                        .button.default#save(title='Save changes') Save
+                .panel-content.surface-level-2#details-sections
+
+            .panel#processes
+                .panel-header#processes-header
+                    .panel-title Processes
+                    .panel-toolbar
+                        .button#create-process(title='Initiate new Problem Report in PLM') New PR
+                        .button.process-dialog#cancel-process(title='Cancel creation of new process and return to list of related processes') Cancel
+                        .button.process-dialog.default#save-process(title='Save new process in PLM') Save
+                .panel-content#processes-list.list.tiles.m.surface-level-2
+                .panel-content#processes-sections.surface-level-2
+
+            .dialog#create-connect
+                .dialog-header Create Supplier Package
+                .dialog-content#create-connect-sections
+                .dialog-footer
+                    #create-connect-confirm.button.default Confirm
+                    #create-connect-cancel.button Cancel
+
+        iframe#frame-download.hidden
+            

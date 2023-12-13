@@ -1,0 +1,197 @@
+/*  VIEWER */
+/* ----------------------------------------------------------------------------- */
+#viewer-message {
+    display: none;
+    flex-flow: column;
+    gap: 10px;
+    justify-content: center;
+    text-align: center;
+    height: 100%;
+}
+#viewer-message .material-symbols-sharp {
+    font-size: 100px;
+    color: var(--color-blue-500);
+}
+
+
+/*  STANDARD APS VIEWER OVERRIDES*/
+/* ----------------------------------------------------------------------------- */
+.adsk-viewing-viewer {
+    background : white !important;
+}
+#guiviewer3d-toolbar > div {
+    background : transparent;
+    box-shadow : none !important;
+    color : black !important;
+}
+#guiviewer3d-toolbar .adsk-button {
+    background : white;
+    border: 1px solid #808080 !important;
+    border-radius : 2px !important;
+}
+#guiviewer3d-toolbar .adsk-button:hover {
+    border-color : var(--color-selected) !important;
+    color : var(--color-selected) !important;
+    box-shadow:  0 0 0 3px #e3e3e3;
+}
+#guiviewer3d-toolbar .adsk-button.active {
+    box-shadow:  0 0 0 3px #A1D5EA;
+}
+#guiviewer3d-toolbar .adsk-button .adsk-button-icon::before {
+    color : #3C3C3C;
+}
+#toolbar-measureTool-done, #toolbar-measureTool-done > label {
+    background : #0696D7 !important;
+    padding : 5px 10px;
+}
+#guiviewer3d-toolbar .docking-panel {
+    background-color: white !important;
+    border: 1px solid #808080 !important;
+    box-shadow: none !important;
+}
+#toolbar-panTool,
+#toolbar-zoomTool { display : none !important; }
+#modelTools .explode-slider {
+    border : none !important;
+    box-shadow : none !important;
+}
+#toolbar-sectionToolarrow { display : none !important; }
+.adsk-control-tooltip {  
+    font-family : 'Artifakt Element';
+    padding : 8px 16px !important;
+}
+.adsk-toolbar .adsk-control-group { margin : 0px !important; }
+.adsk-viewing-viewer.dark-theme .adsk-control-tooltip { background : black !important; }
+
+#my-custom-toolbar-ghosting.ghosting    #button-toggle-ghosting-on  { display : none; }
+#my-custom-toolbar-ghosting.no-ghosting #button-toggle-ghosting-off { display : none; }
+#my-custom-toolbar-views{ margin-left : 20px !important; }
+
+
+
+/*  APS VIEWER CUSTOM TOOLBARS */
+/* ----------------------------------------------------------------------------- */
+#button-toggle-ghosting-off { background : black !important; }
+#button-toggle-ghosting-off .icon-hide::before { color : white !important; }
+
+
+
+/*  APS VIEWER MARKUP */
+/* ----------------------------------------------------------------------------- */
+#viewer-note-toolbar {
+    position: absolute;
+    bottom: 98px;
+    left: calc(50% - (var(--width-viewer-note) / 2));
+    width: var(--width-viewer-note);
+    z-index: 5;
+}
+#viewer-note {
+    background: #222;
+    border-radius: 3px;
+    padding: var(--spacer-xs);
+    width: calc(100% - (2 * var(--spacer-xs)));
+    border: 1px solid white;
+    color: white;
+}
+#viewer-markup-toolbar {
+    display : flex;
+    gap : 8px;
+    justify-content : center;
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    width: calc(100% - 20px);
+    z-index: 5;
+}
+.viewer-markup-toolbar-group {
+    background : black;
+    border-radius : 3px;
+    overflow : auto;
+    padding : 8px 12px 12px;
+}
+.viewer-markup-toolbar-group-label {
+    color : white;
+    font-size : 12px;
+    font-weight : 800;
+    padding-bottom : 8px;
+    text-align : center;
+}
+.viewer-markup-toggle, .viewer-markup-button {
+    background : black;
+    border: 2px solid var(--color-gray-700);
+    border-radius: 2px !important;
+    color : white;
+    cursor : pointer;
+    height : 36px;
+    line-height : 36px;
+    text-align : center;
+}
+.viewer-markup-toggle { width : 36px; }
+.viewer-markup-toggle.selected { border-color : white !important; }
+.viewer-markup-button { width : 76px; }
+.viewer-markup-button.material-symbols-sharp { width : 36px; }
+
+
+.viewer-markup-toolbar-group-toolbar {
+    display : grid;
+    gap : 4px;
+}
+
+#markup-toolbar-colors > div {
+    border-color : transparent;
+}
+
+#markup-toolbar-colors  { grid-template-columns: repeat(4, 1fr); }
+#markup-toolbar-sizes   { grid-template-columns: repeat(6, 1fr); }
+#markup-toolbar-shapes  { grid-template-columns: repeat(6, 1fr); }
+#markup-toolbar-actions { grid-template-columns: 1fr 1fr 2fr 2fr; }
+#markup-toolbar-actions.with-save-button { grid-template-columns: repeat(4, 1fr) 2fr; }
+#markup-toolbar-actions.with-save-button > .viewer-markup-button { 
+    background: var(--color-blue-500);
+    border-color: var(--color-blue-500);
+}
+
+
+
+#viewer-markup-toolbar {
+    container-type : inline-size;
+}
+@container (max-width: 1080px) {
+
+    #markup-toolbar-colors {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+    }
+    #markup-toolbar-sizes {
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+    }
+    #markup-toolbar-shapes {
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+    }
+    #markup-toolbar-actions {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+    }
+    #markup-toolbar-actions > div { width : 60px; }
+    #markup-toolbar-actions.with-save-button {
+        grid-template-columns: repeat(3, 1fr);;
+        grid-template-rows: repeat(2, 1fr);
+    }
+    #markup-toolbar-actions.with-save-button > .viewer-markup-button { 
+        grid-column : span 2;
+        width : 80px; 
+    }
+
+}
+
+
+.blue-theme #guiviewer3d-toolbar .adsk-button {
+    background : var(--color-blue-surface-level-3);
+    color : white;
+    border-color : var(--color-blue-surface-level-3) !important;
+}
+.blue-theme #guiviewer3d-toolbar .adsk-button .adsk-button-icon::before {
+    color : white;
+}

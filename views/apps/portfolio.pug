@@ -1,0 +1,112 @@
+extends ../framework/layout
+
+block head
+    
+    link(rel='stylesheet', href='/stylesheets/apps/portfolio.css')
+    script(src='../javascripts/apps/portfolio.js')
+    script.
+        config = !{JSON.stringify(config)};
+
+block body
+
+    body.text-selection-off.surface-level-1
+
+        #header.dark
+            #header-logo
+            #header-title=title
+            #header-toolbar
+                #header-search-icon.icon.xs search
+                input#header-search
+                #header-avatar
+
+        #landing
+
+            #landing-recents.nav 
+                .nav-title Recently Viewed Products
+                #landing-tiles-recents.nav-tiles.tiles.wide.xxl
+            #landing-lines.nav.selected 
+                #landing-title.nav-title
+                #landing-lines-tiles.nav-tiles.tiles.xxl
+            #landing-pinned.nav 
+                .nav-title Pinned Products
+                #landing-tiles-pinned.nav-tiles.tiles.xl
+
+            #landing-prev.button.icon arrow_left
+            #landing-next.button.icon arrow_right
+
+            #landing-dots 
+                .dot.icon#landing-dot-recents
+                .dot.icon#landing-dot-lines.selected
+                .dot.icon#landing-dot-pinned
+
+        #search.screen
+            .screen-header Search Results
+            #search-results.screen-tiles.tiles.xl
+            #search-close.icon.l.hover close
+
+        #lines.screen.with-panel 
+            .screen-panel
+                #lines-image.screen-image
+                #lines-images.screen-images
+                #lines-title.screen-title
+                #lines-text.screen-text
+            #lines-back.button.screen-back
+            #lines-header.screen-header
+            #lines-tiles.screen-tiles.tiles.wide.xl.reverse
+
+        #products.screen.with-panel
+            .screen-panel
+                #products-image.screen-image
+                #products-images.screen-images
+                #products-line.screen-title
+                #products-title.screen-title
+                #products-text.screen-text
+            #products-back.button.screen-back
+            #products-header.screen-header
+            #products-tiles.screen-tiles.tiles.xl
+
+        #product.screen.panel
+            #viewer.viewer
+            #viewer-messages.viewer.surface-level-2
+                #viewer-empty
+                    span.icon view_in_ar
+                    span No Viewble Found
+                #viewer-progress.progress
+                    .bounce1
+                    .bounce2
+                    .bounce3
+            #gallery
+                img#gallery-image
+            #product-actions
+                .button.icon.xs#product-close(title='Close the product panel and return to previous view') close
+                .button.icon.xs#services(title='Navigate to Services Portal for this product in a new tab') handyman
+                .button.icon.xs#bookmark(title='Toggle bookmark') star
+                .button.icon.xs#open(title='Open product master data in a new PLM tab') open_in_new
+            #product-header
+                #product-parents
+                    #product-category.animation
+                    #product-parents-separator
+                    #product-line.animation
+                #product-title.animation
+            #product-data.product-panel
+                #product-text.animation
+                #product-images
+                    #product-images-tab.tab Images
+                    #product-images-list.list
+                #product-specification 
+                    #product-specification-tab.tab
+                    #product-specification-list.list
+                #product-files
+                    #product-files-tab.tab
+                    #product-files-list.list
+                #product-variants
+                    #product-variants-tab.tab
+                    #product-variants-list.list
+            #product-bom.product-panel.single
+                #product-bom-tab.tab Bill of Materials
+                #product-bom-list.list
+
+            .panel-toggles#product-toolbar
+                #product-tab-details.product-action.selected(data-id='product-data') Details
+                #product-tab-bom.product-action(data-id='product-bom') Bill of Materials
+

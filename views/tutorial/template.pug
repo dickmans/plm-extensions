@@ -1,0 +1,37 @@
+extends ../framework/layout
+
+block head
+    
+    link(rel='stylesheet', href='/stylesheets/tutorial/template.css')
+    script(src='/javascripts/tutorial/template.js')
+    script.
+        config = !{JSON.stringify(config)};
+
+block body
+
+    body.surface-level-1
+
+        #header.dark
+            #header-logo
+            #header-title= title
+            #header-subtitle
+            #header-toolbar
+                #button-settings.button.with-icon.icon-settings(title='Click to open settings') Settings 
+                #header-avatar
+        
+        #main.screen
+
+            .viewer#viewer     
+
+            .panel#details
+                .panel-header   
+                    .panel-title Details 
+                    .panel-toolbar 
+                        .button.icon.icon-bookmark#bookmark
+                        .button.icon.icon-open#open
+                .panel-content#details-sections
+            
+            .panel#attachments
+                .panel-header
+                    .panel-title Attachments
+                .panel-content.tiles.list.s#attachments-list

@@ -1,15 +1,88 @@
 /* MASTER LAYOUT */
 /* ----------------------------------------------------------------------------- */
 #tasks, #task {
-    top     : 0px;
-    right   : 0px;
-    bottom  : 0px;
-    left    : 0px;
-}
-#mow-list {
-    width : calc(100% - 40px);
+    top     : var(--padding-main);
 }
 #task {
     display : none;
 }
+#task > .panel-content {
+    top : calc(82px + var(--padding-main))
+}
+.panel-back {
+    position    : absolute;
+    top         : 82px;
+    right       : calc(-1 * var(--padding-main));
+    bottom      : calc(-1 * var(--padding-main));
+    left        : calc(-1 * var(--padding-main));
+}
 
+
+.workspace-view-search-input {
+    width : 80px;
+}
+
+
+#add {
+    box-shadow : none;
+    /* top: var(--padding-main);
+    left: var(--padding-main);
+    right: var(--padding-main);
+    bottom: var(--padding-main); */
+    left : 0px;
+    right : 0px;
+    bottom : 0px;
+    top : 112px;
+}
+.dialog > div {
+    background : transparent;
+}
+#add-list {
+    min-height : 200px;
+}
+#add .dialog-content {
+
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+}
+
+#task-title {
+    line-height: 16px;
+    margin-top: 0px;
+    padding-bottom: 0px;
+}
+#task-status {
+    height: 20px;
+    padding : 0px;
+}
+.tabs {
+    padding-top : 12px;
+}
+#task .panel-toolbar { top : 0px; }
+
+#add-deselect, #add-select { float : left;}
+
+#add .dialog-header {
+    padding: 10px;
+    font-size: 14px;
+    font-weight: bold;
+    margin: var(--padding-main);
+    border: none;
+}
+#add .dialog-content {
+    top : 50px;
+}
+#add-root .tile-actions,
+#add-list .tile-actions {
+    right : 41px
+}
+
+
+.surface-level-2 > .processing > div {
+     background-color: var(--color-blue-500);
+ }
+ .blue-theme .workflow-history-action-icon::before {
+    background: var(--color-blue-surface-level-1);
+ }

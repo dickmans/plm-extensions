@@ -1,0 +1,117 @@
+extends ../framework/layout
+
+block head
+
+    link(rel='stylesheet', href='/stylesheets/apps/dashboard.css')
+    script(src='/javascripts/libs/chart.js/dist/chart.umd.js')
+    script(src='/javascripts/apps/dashboard.js')
+    script.
+        config = !{JSON.stringify(config)};
+
+block body
+
+    body.surface-level-1
+
+        #header.dark
+            #header-logo
+            #header-title
+            #header-toolbar
+                #header-search-icon.icon.xs search
+                input#header-search
+                #header-avatar
+            
+        #main.screen
+
+            #new.panel
+                .panel-header
+                    .panel-title Initiate New Process
+                .panel-message You encountered an issue? Please provide a few details below and let us fix the problem. You can provide more details and also upload files in the next step.
+                .panel-content#new-sections.surface-level-2 
+                .panel-toolbar
+                    .button.default#continue Continue
+
+            #list
+                .panel-header
+                    .panel-title Track Your Processes
+                    .panel-toolbar
+                        select#view(name='view') 
+                            option(value='recents') List Recent Proceses
+                            option(value='bookmarks') List Pinned Proceses
+                            option(value='mow') List Proceses Requiring Action
+                            option(value='all') List All Processes
+                            option(value='calendar') Browse By Date
+                            option(value='progress') View Processes By Progress
+                            option(value='timeline') View Process Timeline Chart
+                .panel-content#views
+
+                    #recents.list.tiles.l
+                    #bookmarks.list.tiles.l
+                    #mow.list.tiles.l
+                    #all.list.tiles.l
+
+                    #progress
+
+                    #timeline
+                        canvas#chart
+
+                    #calendar
+                        .panel-content-left#calendar-months
+                            #calendar-month-3.month     
+                            #calendar-month-2.month     
+                            #calendar-month-1.month 
+                        .panel-content-right#calendar-list
+                            table#calendar-table
+                                thead#calendar-table-head 
+                                    tr 
+                                        th Process 
+                                        th Creation Date 
+                                        th Last Modification Date 
+                                        th Status
+                                tbody#calendar-table-body
+
+        #item.screen.surface-level-2 
+
+            #item-header
+                #item-title
+                    #item-descriptor 
+                    #item-details 
+                        #item-status
+                        #item-summary Created by 
+                            span#created-by 
+                            |  on 
+                            span#created-on
+                            |. Last modified by 
+                            span#modified-by 
+                            |  on 
+                            span#modified-on 
+                            |.
+                #item-toolbar 
+                    select#workflow-actions(label='Select Action')
+                    .button.icon.icon-close#item-close
+                    .button#button-upload Upload File
+                    .button#bookmark.icon.icon-bookmark
+
+            #item-content 
+                #workflow-history
+                    #workflow-header.panel-header 
+                        .panel-title Activity
+                    #workflow-history-events.panel-content
+                #details 
+                    .panel-header 
+                        .panel-title Details 
+                    .panel-content#details-sections
+                #design 
+                    .panel-content#viewer.viewer
+                    .panel-content.surface-level-3#markups
+                        #markup-panel
+                            #markup-title Markups
+                            #markup-subtitle Capture markups using the given controls within the viewer above. They will be saved in context of this process.
+                        #markup-list
+                #attachments 
+                    .panel-header
+                        .panel-title.centered Attachments
+                    #attachments-list.panel-content.list.tiles.files
+
+        iframe#frame-download(name="frame-download").hidden
+        form#uploadForm(method='post', encType="multipart/form-data", target="frame-download")
+            input#select-file.hidden.button.main(type="file", name="newFiles" multiple='')   

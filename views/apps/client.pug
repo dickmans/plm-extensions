@@ -1,0 +1,242 @@
+extends ../framework/layout
+
+block head
+    
+    link(rel='manifest', href='manifest.json')
+    link(rel='stylesheet', href='/stylesheets/apps/client.css')
+    link(rel='apple-touch-icon' sizes='180x180' href='ios-180x180.png')
+    meta(name='theme-color' content='#000000')
+    //- script(src='/javascripts/dev/serviceworker.js')  
+    script(src='/javascripts/apps/client.js')  
+    script.
+        config = !{JSON.stringify(config)};
+
+block body
+    
+    body.surface-level-1
+    
+        #header.dark
+            #header-logo
+            #header-title=title
+            #header-toolbar
+                #back.button.icon navigate_before
+                #forward.button.icon navigate_next
+                #header-avatar
+        
+        #workspaces.screen
+            #workspaces-header.list-header
+                .list-title Browse
+                .list-subtitle Select workspace to open
+            #workspaces-refresh.list-refresh.icon cached
+            #workspaces-list.list
+
+        #workspace.screen
+            #workspace-header.list-header
+                #workspace-title.list-title 
+                .list-subtitle Workspace view
+            #workspace-back.icon.list-back navigate_before
+            .list-actions.right-align
+                select#workspace-views.button.default
+                .button.with-icon.icon-filter
+                    input#workspace-filter.list-filter
+            .list-wrapper
+                #workspace-list.list.with-actions
+        
+        #dashboard.screen
+            #dashboard-mow
+                .list-header
+                    .list-title Task List
+            #dashboard-recents
+                .list-header
+                    .list-title Recent Data
+            #dashboard-bookmarks
+                .list-header
+                    .list-title Bookmarks
+
+        #mow.screen
+            #mow-header.list-header
+                .list-title Task List
+                .list-subtitle Processes requiring your action
+            #mow-refresh.list-refresh.icon cached
+            #mow-list.list
+
+        #create.screen
+            #create-header.list-header
+                .list-title Create Item
+                .list-subtitle Select type to be created
+            #create-refresh.list-refresh.icon cached
+            #create-list.list
+
+        #new.screen
+            #new-header.list-header
+                .list-subtitle Create item in
+                #new-header-subtitle.list-title Select type to be created
+            .content 
+                #new-sections
+            #new-toolbar.dialog-toolbar
+                #new-action-cancel.button Cancel
+                #new-action-save.button.default Save
+
+        #bookmarks.screen
+            #bookmarks-header.list-header
+                .list-title Bookmarks
+                .list-subtitle Your favorite items
+            #bookmarks-refresh.list-refresh.icon cached
+            #bookmarks-list.list
+
+        #recents.screen
+            #recents-header.list-header
+                .list-title Recent Data
+                .list-subtitle Your last 10 items visited
+            #recents-refresh.list-refresh.icon cached
+            #recents-list.list
+
+        #search.screen
+            #search-header.list-header 
+                .list-title Search
+                .list-subtitle Find across all workspaces
+            #search-list.list.with-actions
+            .list-actions
+                input#search-input
+                #search-submit.button.default Search
+            #search-no-results No results found
+
+    
+        #toolbar.toolbar.surface-level-2
+            #button-workspaces(data-id='workspaces')
+                .icon menu
+                .toolbar-label Browse
+            #button-dashboard(data-id='dashboard')
+                .icon team_dashboard
+                .toolbar-label Dashboard
+                #dashboard-counter.counter
+            #button-mow(data-id='mow')
+                .icon move_to_inbox
+                .toolbar-label Inbox
+                #mow-counter.counter
+            #button-create(data-id='create')
+                .icon add_circle
+                .toolbar-label Create
+            #button-recents(data-id='recents')
+                .icon history
+                .toolbar-label Recent
+            #button-bookmarks(data-id='bookmarks')
+                .icon star
+                .toolbar-label Starred
+            #button-search(data-id='search')
+                .icon search
+                .toolbar-label Search
+        
+        #init-progress 
+
+        #item.screen.item(image-fielId='IMAGE_1' data-link='')    
+            
+            #item-header
+                #item-header-image
+                #item-header-title
+                    #item-header-descriptor.nowrap
+                    #item-header-subtitle
+                        #item-header-lock.icon.icon-released
+                        #item-header-workspace.nowrap
+                        #item-header-status.nowrap
+                #item-header-menu.icon.button more_horiz
+                #item-header-close.button.icon close
+            #item-archived ARCHIVED
+                           
+            #item-details.item-content
+                //- #item-details-fields
+                #item-sections
+            #item-viewer.item-content
+                #viewer.viewer
+            #item-attachments.item-content
+                #item-attachments-list.list
+                //- #button-upload.panel-button.main  Upload File
+                form#uploadForm(method='post', encType='multipart/form-data', target='frame-download')
+                    input#select-file.pane-button.main(type='file', name='newFiles' multiple='')
+                iframe#frame-download(style='display:none;' name='frame-download')
+            #item-bom.item-content
+                .list-actions.right-align 
+                    .button.with-icon.icon-filter
+                        input#bom-filter.list-filter
+                #item-bom-list.list.with-actions
+                #item-bom-process.progress
+                    .bounce1
+                    .bounce2
+                    .bounce3
+            #item-manages.item-content
+                #item-manages-list.list
+            #item-processes.item-content
+                #item-processes-list.list
+                #item-processes-process.progress
+                    .bounce1
+                    .bounce2
+                    .bounce3
+            #item-related.item-content
+                #item-related-list.list
+            #item-change-log.item-content
+                #item-change-log-list.list
+
+            #item-toolbar.toolbar.surface-level-2
+                #item-button-view(data-id='item-viewer')
+                    .icon view_in_ar
+                    .toolbar-label Viewer
+                #item-button-details(data-id='item-details')
+                    .icon list_alt
+                    .toolbar-label Details
+                #item-button-files(data-id='item-attachments')
+                    .icon description
+                    .toolbar-label Files
+                    #files-counter.counter
+                #item-button-bom(data-id='item-bom')
+                    .icon account_tree
+                    .toolbar-label Parts
+                #item-button-processes(data-id='item-processes')
+                    .icon beenhere
+                    .toolbar-label Changes
+                #item-button-related(data-id='item-related')
+                    .icon link
+                    .toolbar-label Related
+                #item-button-manages(data-id='item-manages')
+                    .icon fact_check
+                    .toolbar-label Manages
+                #item-button-change-log(data-id='item-change-log')
+                    .icon event_note
+                    .toolbar-label History
+            
+            #item-menu
+                #item-action-edit.item-action 
+                    i.icon edit
+                    span Edit Properties
+                #item-action-upload.item-action
+                    i.icon cloud_upload
+                    span Upload Files
+                a#item-action-share.item-action(href='')
+                    i.icon mail
+                    span Share Link
+                #item-action-archive.item-action
+                    i.icon delete
+                    span Archive
+                #item-action-unarchive.item-action
+                    i.icon restore_from_trash
+                    span Unarchive
+                #item-initiate-process
+                    .item-actions-header  Initiate Process
+                    #item-initiate-processes-list
+                #item-workflow-actions
+                    .item-actions-header  Workflow Actions
+                    #item-workflow-actions-list
+                #item-menu-triangle
+
+            #item-edit.item-content
+                #item-edit-sections
+            #item-edit-toolbar.dialog-toolbar 
+                #item-edit-cancel.button Cancel
+                #item-edit-save.button.default Save
+
+        #message
+            #message-overlay.overlay 
+            #message-dialog.dialog 
+                #message-header.dialog-header 
+                #message-text.dialog-content
+                #message-footer.dialog-footer 
+                    #message-close.button.default Close

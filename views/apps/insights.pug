@@ -1,0 +1,103 @@
+extends ../framework/layout
+
+block head
+    
+    link(rel='stylesheet', href='/stylesheets/apps/insights.css')
+    script(src='../javascripts/libs/Chart.bundle.min.js')
+    script(src='../javascripts/apps/insights.js')
+    script.
+        config = !{JSON.stringify(config)};
+
+block body
+
+    body.surface-level-1
+
+        #header
+            #header-logo
+            #header-title= title
+            #header-subtitle
+            #header-toolbar
+                #header-avatar
+
+
+        #main.screen.panel
+            .tabs(data-tab-group="tab-group-main")
+                div System
+                div Last Login
+                div Logins
+                div User Activity
+                div Workspaces Activity
+                div Item Count
+                div Item Creation
+                div Item Edits
+                div Event Log
+            .panel-content.tab-group-main.dashboard.surface-level-2-5#system
+                .counter
+                    #workspaces-count.counter-number 0
+                    .counter-label Workspaces 
+                .counter
+                    #users-count.counter-number 0
+                    .counter-label Active Users 
+                .counter
+                    #entries-count.counter-number 0
+                    .counter-label Log entries     
+                .counter
+                    #days-count.counter-number 0
+                    .counter-label Log days 
+                .dashboard-chart
+                    .title Users by status
+                    .chart
+                        canvas#status 
+                .dashboard-chart
+                    .title Active users by mail domain
+                    .chart
+                        canvas#domains 
+            .panel-content.tab-group-main.surface-level-1
+                canvas#timelineLastLogins
+            .panel-content.tab-group-main.surface-level-2-5.dashboard#logins
+                #summary
+                    #summary-bar
+                        #summary-bar-logins.left
+                        #summary-bar-nologin.left
+                    #summary-text
+                        span#summary-logins 0
+                        span.text-block out of
+                        span#summary-active 0
+                        span.text-block active users logged in the past 
+                        span#summary-days 0 
+                        span.text-block days
+                #summary-chart
+                    .title Active users / unique logins per day 
+                    .chart
+                        canvas#timelineLogins
+            .panel-content.tab-group-main.surface-level-1
+                canvas#timelineUsers
+            .panel-content.tab-group-main.surface-level-1
+                canvas#workspaceActivities
+            .panel-content.tab-group-main.surface-level-1
+                canvas#workspaces 
+            .panel-content.tab-group-main.surface-level-1
+                canvas#timelineCreation
+            .panel-content.tab-group-main.surface-level-1
+                canvas#timelineEdits 
+            .panel-content.tab-group-main.surface-level-1 
+                .toolbar
+                    span.select-label Select user:
+                    select#select-user
+                .wrapper
+                    table.fixed-header#events
+                        tr
+                            th User
+                            th Event
+                            th Date
+                            th Link
+                            th Description
+
+        #processing
+            #circle-wrap
+                .circle
+                    .mask.rotate.full
+                        .rotate.fill
+                    .mask.half
+                        .rotate.fill
+                    #percent 0%

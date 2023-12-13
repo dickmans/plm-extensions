@@ -1,0 +1,359 @@
+:root {
+    --padding-top : 50px;
+}
+
+* {
+    -webkit-touch-callout: unset;
+    -webkit-user-select: auto;
+    -khtml-user-select: unset;
+    -moz-user-select:unset;
+    -ms-user-select:unset;
+    user-select:text;
+}
+
+img {
+    border : 1px solid var(--color-gray-400) !important;
+}
+table {
+    border : 1px solid var(--color-gray-400);
+    width : unset;
+}
+.tile.max h1:first-of-type {
+    margin-top : 0px;
+}
+h2 {
+    border-left : 5px solid black;
+    margin-left : 2px;
+    padding-left : 10px;
+}
+.divider.horizontal {
+    margin-bottom : 20px;
+}
+#disclaimer {
+    background: var(--color-status-red);
+    border-radius : 3px;
+    color: white;
+    line-height: 16px;
+    padding: 20px;
+    font-size: 12px;
+    margin: 20px 0px;
+}
+.split-left > p {
+    line-height : 18px;
+}
+.tiles.surface-level-1 {
+    top: 0px;
+    right : 0px;
+    bottom : 0px;
+    width: calc(100% - 550px) !important;
+}
+.button.icon {
+    padding : 2px;
+}
+
+
+/*  APP */
+/* ----------------------------------------------------------------------------- */
+.tile.max {
+    background: none !important; 
+}
+.tile.max:hover {
+    background : none;
+}
+.tile.max .tile-image {
+    border : 30px solid var(--color-gray-100);
+    border-left-width: 60px;
+    position : absolute;
+    top : var(--padding-top);
+    left: calc(50% - 600px);
+}
+.tile.max .tile-details {
+    display: block;
+    margin: 0px;
+    padding: 40px 140px 40px 40px;
+    position: absolute;
+    top : var(--padding-top);
+    right: calc(50% - 600px);
+    left: calc(50% - 156px);
+    background : var(--color-gray-100);
+    height: 196px;
+}
+.tile.max .tile-title {
+    font-weight: 800;
+    font-size: 28px;
+    line-height: 36px;
+    /* margin-bottom : 20px; */
+}
+.tile.max .tile-subtitle {
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+}
+.close-app { 
+    display : none ; 
+    position : absolute;
+    top : 38px;
+    right : 38px;
+}
+.tile.max .tile-endpoint,
+.tile.max .close-app { display : block ; }
+.tile-endpoint {
+    color: var(--color-blue-500);
+    display : none;
+    font-size: 16px;
+    font-weight: 800;
+    margin: 4px 0px 20px;
+}
+
+
+
+/*  INSTRUCTIONS */
+/* ----------------------------------------------------------------------------- */
+.instructions {
+    display : none;
+}
+.instructions {
+    position: absolute;
+    top: 360px;
+    right: calc(50% - 600px);
+    bottom: 40px;
+    left: calc(50% - 600px);
+    width: auto !important;
+    overflow: auto;
+    height: auto !important;
+    background: none !important;
+    margin : 0px;
+}
+.instructions img {
+    display : block;
+    margin : 20px 0px;
+}
+.instructions img.border {
+    border : 1px solid var(--color-gray-100);
+    max-width : calc(100% - 2px);
+}
+.tiles {
+    justify-content: flex-start;
+    width: calc(100% - 600px);
+}
+.tile.max {
+    cursor : default;
+}
+.tile.max h1 {
+    margin-top : 40px;
+}
+.tile.max h3 {
+    margin-top : 30px;
+}
+.tile.max .instructions {
+    display : block;
+    padding-bottom : 40px;
+}
+.tile.max.with-log .instructions {
+    display : none;
+}
+p.code {
+    background : var(--color-gray-100);
+    color : black;
+    font-family: 'Courier New', monospace;
+    font-size : 0.9em;
+    margin-bottom : 25px;
+    padding : 20px;
+    -webkit-user-select:text;
+    -webkit-touch-callout: text;
+    -webkit-user-select: text;
+    -khtml-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: all;
+}
+p.code > span {
+    display : block;
+    line-height : 12px;
+    margin: 8px 0px; 
+}
+span.url {
+    display : inline-block !important;
+}
+.indent   { padding-left :  30px; }
+.indent-2 { padding-left :  60px; }
+.indent-3 { padding-left :  90px; }
+.indent-4 { padding-left : 120px; }
+.indent-5 { padding-left : 150px; }
+th {
+    background : black;
+    color : white;
+    text-align : left;
+}
+td {
+    border-bottom : 1px solid #eee;
+}
+th, td {
+    padding : 5px 10px;
+}
+li {
+    margin : 1px 0px;
+}
+li:last-of-type {
+    margin-bottom : 15px;
+}
+.code .highlight {
+    font-weight : bold;
+}
+a {
+    color: var(--color-blue-600);
+    font-weight : 700;
+    text-decoration: none;
+    border: 1px solid black;
+    border-radius: 3px;
+    padding: 14px 40px;
+    margin-top: 10px;
+    display: inline-block;
+}
+a:hover {
+    border-color : var(--color-blue-500);
+}
+
+
+/*  CHANGE LOG */
+/* ----------------------------------------------------------------------------- */
+#version {
+    cursor : pointer;
+}
+#version:hover {
+    color : var(--color-blue-500);
+}
+.button.change-log {
+    display: none;
+    position: absolute;
+    top: 85px;
+    right: 38px;
+}
+.log {
+    background : #000;
+    color : white;
+    display : none;
+    margin : 0px;
+    padding : 40px;
+    overflow: auto;
+    position: absolute;
+    top: 360px;
+    right: calc(50% - 600px);
+    bottom: 40px;
+    left: calc(50% - 600px);
+}
+.tile.max.with-log .log {
+    display : block;
+}
+.tile.max .button.change-log {
+    display : block;
+    position : absolute;
+}
+.tile.max.with-log .button.change-log {
+    background : black;
+    color : white;
+    display : block;
+}
+.tile.max .log {
+    /* display : block; */
+    padding-bottom : 40px;
+}
+.tile .log h1 {
+    margin-top : 0px;
+}
+.log table {
+    border : none;
+}
+.log td {
+    border-color : #333;
+    padding : 8px 12px;
+}
+.log td:last-of-type {
+    padding-right : 40px;
+}
+body.logs .tiles-group,
+body.logs .tile-image,
+body.logs .tile-details,
+body.logs .instructions {
+    display : none !important;
+}
+body.logs .log {
+    display : block;
+    margin-top : 0px;
+    position : unset;
+}
+body.logs .tile {
+    background : none;
+    height : auto !important;
+    width : 100% !important;
+}
+.log tr:first-of-type > td {
+    border : none;
+    white-space : nowrap;
+}
+
+
+/*  TROUBLESHOOTING */
+/* ----------------------------------------------------------------------------- */
+.troubleshooting-button {
+    display : none;
+    position : absolute;
+    top: 133px;
+    right: 38px;
+}
+.tile.max .troubleshooting-button {
+    display : block;
+}
+.tile.max.with-troubleshooting .troubleshooting-button {
+    background : black;
+    color : white;
+    display : block;
+}
+.tile.max.with-troubleshooting .troubleshooting {
+    display : block;
+}
+.troubleshooting {
+    background : white;
+    display : none;
+    margin : 0px;
+    padding : 40px;
+    overflow: auto;
+    position: absolute;
+    top: 360px;
+    right: calc(50% - 600px);
+    bottom: 40px;
+    left: calc(50% - 600px);
+}
+
+
+/*  TENANT */
+/* ----------------------------------------------------------------------------- */
+#tenant {
+    cursor : pointer;
+    font-weight : bold;
+}
+#tenant:hover {
+    color : var(--color-blue-500);
+}
+
+
+/*  RESPONSIVE DESIGN */
+/* ----------------------------------------------------------------------------- */
+@media only screen and (max-width : 1920px)  {
+
+    .tile.max .tile-image   { left: calc(50% - 500px); }
+    .tile.max .tile-details { left: calc(50% -  55px); right: calc(50% - 500px);  }
+    .tile.max .instructions,
+    .tile.max .log,
+    .tile.max .troubleshooting { left: calc(50% - 500px); right: calc(50% - 500px); }
+
+}
+@media only screen and (max-width : 1768px)  {
+
+    .tile.max .tile-image   { left:  60px; }
+    .tile.max .instructions { left:  60px; right : 60px; }
+    .tile.max .instructions,
+    .tile.max .log,
+    .tile.max .troubleshooting { left:  60px; right : 60px; }
+
+}

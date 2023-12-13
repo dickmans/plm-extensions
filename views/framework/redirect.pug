@@ -1,0 +1,16 @@
+extends layout
+
+block head
+    
+    script(src='/javascripts/framework/redirect.js')
+
+block body
+    
+    script.
+        clientId="#{clientId}"
+        redirectUri="#{redirectUri}"
+    
+    #progress(style="position:absolute;top:calc(50% - 15px);left:calc(50% - 33px);")
+        .bounce1
+        .bounce2
+        .bounce3

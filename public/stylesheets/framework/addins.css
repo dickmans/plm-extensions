@@ -1,0 +1,421 @@
+:root {
+
+    --padding-main : 30px;
+
+}
+
+body, input { font-size : 12px; }
+
+.screen { top : 0px; }
+
+
+
+/*  BUTTONS */
+/* ----------------------------------------------------------------------------- */
+div.button {
+    font-size   : 12px;
+    height      : 30px;
+    line-height : 30px;
+    margin-left : 6px;
+    padding     : 0px 16px;
+}
+.button.with-icon { padding-left : 8px; }
+.button.with-icon::before { line-height : 28px; }
+.button.icon {
+    height      : 30px;
+    width       : 40px;
+    line-height : 28px;
+    font-size   : 22px;
+}
+.blue-theme div.button {
+    background : #3b4453;
+    border : none;
+    color : white;
+}
+.blue-theme div.button:hover {
+    background : #222933;
+    box-shadow : none;
+}
+
+
+
+/*  TABS */
+/* ----------------------------------------------------------------------------- */
+.tabs {
+    border-left : 18px solid #f5f5f5;
+    border-right : 18px solid #f5f5f5;
+    border-bottom : none;
+    font-size   : 12px;
+    line-height : 28px;
+    padding-top : 2px;
+    top : 0px;
+    right : 0px;
+    left : 0px;
+}
+.tabs > div {
+    border-bottom : none;
+    border-radius : 2px 2px 0px 0px;
+    border-top : 2px solid transparent;
+    height : 30px;
+}
+.tab.selected {
+    background : #fff;
+    border-top : 2px solid var(--color-blue-500);
+    font-weight : normal;
+}
+.blue-theme .tabs {
+    border-color : var(--color-blue-surface-level-2);
+}
+.blue-theme .tab.selected {
+    background : var(--color-blue-surface-level-1);
+}
+
+
+
+/*  SEARCH */
+/* ----------------------------------------------------------------------------- */
+.search-header {
+    display : none;
+}
+.search-input { 
+    max-width : 360px;
+    width : calc(100% - 180px); 
+}
+.list-results {
+    position : absolute;
+    top : 130px;
+    right : var(--padding-main);
+    bottom : var(--padding-main);
+    left : var(--padding-main);
+}
+.search-actions {
+    display : flex;
+    gap : 10px;
+    justify-content: center;
+}
+.search-result-listt {
+    right : 0px;
+    bottom : 0px;
+    left : 0px;
+}
+.search-result-message {
+    display : none;
+    padding-top : 100px;
+    text-align : center;
+}
+
+
+
+
+
+/*  PANELS */
+/* ----------------------------------------------------------------------------- */
+.panel { 
+    top : 64px;
+    right : var(--padding-main);
+    bottom : var(--padding-main);
+    left : var(--padding-main);
+}
+/* .panel-content {
+    right : var(--padding-main);
+    bottom : var(--padding-main);
+    left : var(--padding-main);
+} */
+.panel-header {
+    border : none;
+    display : flex;
+    justify-content: space-between;
+}
+.panel.with-subtitle .panel-header {
+    flex-direction: column;
+}
+.panel.with-subtitle .panel-toolbar {
+    position : absolute;
+    top : 12px;
+    right : 0px;
+}
+.panel-title {
+    font-size : 16px;
+    font-weight : normal;
+    line-height : 30px;
+    padding : 0px var(--padding-main) var(--padding-main) var(--padding-main);
+}
+.panel-subtitle { 
+    height : 20px; 
+    padding : 0px 14px;
+}
+.panel-subtitle > span {
+    border-left : 2px solid black;
+    padding : 0px 10px;
+}
+.panel-subtitle > span:first-of-type {
+    border-left : none;
+    padding-left : 0px;
+}
+.panel-title {
+    padding-left : 0px;
+    padding-right : 0px;
+    /* font-size : 18px;
+    font-weight : 800;
+    height : 18px;
+    line-height : 18px;
+    overflow : hidden;
+    white-space: nowrap;
+    padding : 10px 14px 20px;
+    text-overflow : ellipsis; */
+}
+.panel-title.centered {
+    text-align : center;
+    width : 100%;
+}
+.panel-toolbar {
+    padding-right : 0px;
+}
+.panel-toolbar > select {
+    background : var(--color-blue-500);
+    border-radius : 2px;
+    border : none;
+    color : white;
+    cursor : pointer;
+    font-size: 12px;
+    /* font-weight: 600; */
+    height: 30px;
+    line-height: 30px;
+    /* margin-left: var(--spacer-s); */
+    padding: 0px 12px;
+}
+/* .panel-toolbar-search {
+    padding : 0px !important;
+    display : flex;
+}
+.panel-toolbar-search-input::after {
+    font-family: 'Material Symbols Sharp';
+    margin-right : var(--spacer-xs);
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    content : '\f02f';
+} */
+/* .panel-toolbar-search-input {
+    position : relative;
+    left : -50px;
+    padding-left : 60px;
+} */
+.panel-content-top {
+    overflow-y : auto;
+    position : absolute;
+    top : 90px;
+    right : var(--padding-main);
+    bottom : calc(50% + (3 * var(--padding-main)));
+    left : var(--padding-main);
+}
+.panel-content-bottom {
+    position : absolute;
+    top : calc(50% + var(--padding-main));
+    right : var(--padding-main);
+    bottom : var(--padding-main);
+    left : var(--padding-main);
+}
+.panel-content-toggle {
+    position : absolute;
+    right : var(--padding-main);
+    bottom : 50%;
+    left : var(--padding-main);
+}
+.panel-content-toggle {
+    border: 1px solid var(--color-gray-200);
+    border-radius: 3px;
+    display: flex;
+}
+.panel-content-toggle > div {
+    border-right : 1px solid var(--color-gray-200);
+    cursor: pointer;
+    flex-grow: 1;
+    line-height: 32px;
+    padding : 0px 8px;
+    text-align: center;
+    width: 100%;
+}
+.panel-content-toggle > div:first-of-type { border-radius: 3px 0px 0px 3px; }
+.panel-content-toggle > div:last-of-type { 
+    border-radius: 0px 3px 3px 0px; 
+    border-right : none;
+}
+.panel-content-toggle > div:hover { font-weight : bold;}
+.panel-content-toggle > div.selected {
+    background : black;
+    color : white;
+    font-weight : bold;
+}
+
+
+
+/*  TILES */
+/* ----------------------------------------------------------------------------- */
+.blue-theme .tile-toggle {
+    background : #454F61;
+    width : 30px;
+    line-height : 48px;
+    /* color : white; */
+}
+.blue-theme .tile-image {
+    background : #2e3440;
+    color : white;
+}
+/* .blue-theme .tile {
+    background : #222933;
+    border : none;
+} */
+.blue-theme .tile:hover,
+.blue-theme .tile:hover .tile-image {
+    background : #2e3440;
+}
+.tile-title {
+    font-weight : bold;
+}
+.tiles.list.xs .tile-title {
+    font-size : 12px;
+    line-height : 14px;
+}
+.tile-actions {
+    display : none;
+    margin-top : 1px;
+    padding-left : 10px;
+    position : absolute;
+    right : 10px;
+}
+.tile:hover .tile-actions {
+    background : #DFDFDF;
+    display : block;
+}
+.tile-actions > div:hover {
+    background : var(--color-blue-500) !important;
+    color : white;
+}
+.blue-theme .tile:hover .tile-actions {
+    background : #2e3440;
+}
+.icon-new-window::before {
+    content : '\e062';
+}
+.tiles.list.xxs .tile-image span { font-size : 20px; }
+.tiles.list.xxxs .tile-image span { font-size : 14px; }
+
+
+.tiles.list.xxxs .tile .tile-details { display : flex; margin : 0px; }
+.tiles.list.xxxs .tile .tile-actions { margin-top : 0px; }
+.tiles.list.xxxs .tile .button.icon  { font-size : 12px; }
+.tiles.list.xxxs .tile-details { width : calc(100%  - 26px); }
+.tiles.list.xxxs .tile-title { line-height : 26px; padding : 0px 10px; }
+.tiles.list.xxxs  .tile-actions { right : 1px; padding-left : 0px; }
+.tiles.list.xxxs  .tile-actions > .button {
+    border-radius: 0px;
+    height : 26px;
+    line-height : 26px;
+    margin-left : 0px;
+    width : 39px;
+}
+
+.blue-theme .tiles.list > .tile { background : #222933; }
+.blue-theme .tiles.list > .tile:hover { background : #2e3440 !important; }
+
+
+/*  MOW */
+/* ----------------------------------------------------------------------------- */
+/* .mow-row > div { border-color : #ffffff; } */
+/* .blue-theme .mow-row > div { border-color : #454f61; } */
+.mow-row {
+    line-height : 30px;
+}
+.mow-row > div {
+    padding: 0px 10px;
+}
+
+/*  WORKSPACE VIEWS */
+/* ----------------------------------------------------------------------------- */
+.workspace-view-item-descriptor {
+    font-weight : normal;
+}
+
+
+/*  ITEM DETAILS */
+/* ----------------------------------------------------------------------------- */
+.blue-theme .section { background : var(--color-blue-surface-level-3); }
+.blue-theme .section:hover { background : var(--color-blue-surface-level-2-5);}
+.section-fields .field {
+    border : none;
+    padding : 0px;
+}
+.field-label {
+    padding-top : 2px;
+}
+.field-value.computed {
+    padding-top: 2px;
+    padding-left : 10px;
+    width : calc(100% - var(--padding-field-label) - var(--width-field-label) - 10px);
+}
+.field-value > input {
+    padding-top : 4px;
+    padding-bottom : 2px;
+}
+.field-value.image > img {
+    margin-top : 10px;
+    max-width : 200px;
+}
+
+
+
+/*  ATTACHMENTS */
+/* ----------------------------------------------------------------------------- */
+.attachment { display : flex; }
+.blue-theme .attachment:hover { background : var(--color-blue-surface-level-2-5) !important; }
+.attachment-name { font-weight : bold; }
+
+
+/*  BOM */
+/* ----------------------------------------------------------------------------- */
+.bom-tree-nav {
+    font-size   : 16px;
+    top         : 3px;
+}
+
+
+/*  FLAT BOM */
+/* ----------------------------------------------------------------------------- */
+.bom-tree-actions {
+    padding-left : 3px;
+    width : 128px;
+}
+.bom-tree-actions > div > .button {
+    font-size : 18px !important;
+    height : 26px !important;
+    line-height : 26px !important;
+    margin-left : 2px !important;
+    width : 26px !important;
+}
+
+
+
+
+.blue-theme input { color : white; }
+.blue-theme ::placeholder { color: #bbb; opacity: 1; }
+
+.blue-theme thead th       { background : var(--color-blue-surface-level-1); }
+.blue-theme tbody tr       { background : var(--color-blue-surface-level-3); }
+.blue-theme tbody td       { border-bottom : 2px solid var(--color-blue-surface-level-1);}
+.blue-theme tbody tr:hover { background : var(--color-blue-surface-level-2-5) !important; }
+.blue-theme tbody tr.selected td        { background : var(--color-blue-surface-level-3) !important; }
+.blue-theme tbody tr.selected:hover td  { background : var(--color-blue-surface-level-2-5) !important; }
+
+.blue-theme div.button.default {  background: var(--color-blue-500); }
+
+
+.tiles.list.xs { gap : 0px; }
+
+.mow-row > div {
+    border-bottom : 2px solid var(--color-blue-surface-level-1);
+}
+
+.blue-theme .flat-bom-item > td.changed {
+    background: var(--color-status-red-bright) !important;
+}
+div.button { min-width : 40px; }

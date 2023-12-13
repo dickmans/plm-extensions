@@ -1,17 +1,11 @@
 /* CONTEXT BROWSER */
 /* ----------------------------------------------------------------------------- */
-.screen { top : 0px; }
-.panel { 
-    top : 80px;
-    right : var(--padding-main);
-    bottom : var(--padding-main);
-    left : var(--padding-main);
-}
+#parents .panel-header  { display: none;}
+#parents .panel-content { top : 0px }
 
-.tabs {
-    border-bottom : none;
-    padding-top : 20px;
-    top : 0px;
-    right : 0px;
-    left : 0px;
-}
+
+.child.bom { width : 100%; }
+.child.bom > .panel-content { position : unset; }
+.child.bom .bom-tbody tr:last-of-type td { border-bottom : 1px solid transparent; }
+
+#roots-list { top : 0px; }

@@ -1,0 +1,147 @@
+extends ../framework/layout
+
+block head
+
+    link(rel='stylesheet', href='/stylesheets/apps/reviews.css')
+    script(src='/javascripts/apps/reviews.js') 
+    script.
+        config = !{JSON.stringify(config)};
+
+block body
+
+    body.surface-level-1
+
+        #header.dark
+            #header-logo
+            #header-title= title
+            #header-subtitle
+            #header-toolbar
+                #review-close.button.with-icon.icon-close.hidden(title='Close this review and return to landing page') Close
+                #review-finish.button.with-icon.icon-check.hidden(title='Submit this review to its next status and return to landing page') Finish
+                #header-avatar
+
+        #list.screen.panel
+        
+            #main-actions.button.with-icon.icon-filter
+                input#filter(placeholder='Filter')
+        
+            .tabs#main-tabs
+                #tab-reviews-pending Pending Reviews
+                #tab-reviews-completed Completed Reviews
+                #tab-reviews-all All Reviews
+        
+            .panel-content.surface-level-2#panel-pending
+                #list-pending.tiles.wide.xxl
+                #empty 
+                    .icon.icon.icon-info.xxxl
+                    p There are now reviews in this view   
+            
+            .panel-content.surface-level-2#panel-completed
+                #list-completed.tiles.wide.xxl
+                #empty 
+                    .icon.icon.icon-info.xxxl
+                    p There are now reviews in this view   
+            
+            .panel-content.surface-level-2#panel-all
+                #list-all.tiles.wide.xxl
+                #empty 
+                    .icon.icon.icon-info.xxxl
+                    p There are now reviews in this view   
+
+        #review.screen
+
+            #viewer.viewer.surface-level-2
+            //- #viewer-messages.viewer.surface-level-2
+            //-     #viewer-empty
+            //-         span.icon view_in_ar
+            //-         span No Viewble Found
+            
+            #panel.panel.with-subtitle.with-toggles.compact 
+
+                .panel-header
+                    .panel-subtitle#panel-subtitle
+                    .panel-title#panel-title
+
+                .panel-toggles
+                    div Comments
+                    div Files
+                    div BOM
+                    div Actions
+
+                .panel-content.with-toolbar#comments
+
+                    .panel-content-toolbar
+                        #button-save-comments.button.default Save
+                    .panel-content-data#comments-data
+                        .form-header.first Requirements
+                        .form-hint Define additional requirements that are not met by the design
+                        textarea#requirements(rows="6")
+                        .form-header Issues
+                        .form-hint Describe any issues that you find within the current design
+                        textarea#issues(rows="6")
+                        .form-header Concerns
+                        .form-hint Let us know if there are concerns about functionality or quality of the current design
+                        textarea#concerns(rows="6")
+                        .form-header Alternatives
+                        .form-hint You got an alternative in mind that we should review? Please describe your proposal here
+                        textarea#alternatives(rows="6")
+                        .form-header Deficiencies
+                        .form-hint Any deficiency should go in here
+                        textarea#deficiencies(rows="6")
+                        .form-hint.last Please note that you can use the tab Files to upload documents with additional contents or even define a given action for us to follow up in the Actions tab.
+                
+                .panel-content.with-toolbar#files
+
+                    .panel-content-toolbar
+                        #button-upload.button.default  Upload File
+                    
+                    .panel-content-empty There are no files attached
+                    .panel-content-data#files-list.tiles.list.files
+
+                .panel-content.with-toolbar.compact#bom
+
+                    .panel-content-toolbar
+                        #button-bom-reset.button.disabled Reset
+                        #button-bom-back.button.with-icon.icon-chevron-left.hidden Back
+                    .panel-content-data#bom-list.flat-bom.hide-left
+                    .panel-content-data#bom-item-details.surface-level-2.invisible.hide-right
+                        #bom-item-details-header
+                        #bom-item-details-sections.surface-level-2
+
+                .panel-content.with-toolbar#actions
+
+                    .panel-content-toolbar
+                        #button-action-create.button.default Create Action
+                        #button-action-submit.button.default Save
+                        #button-action-cancel.button Cancel
+                    .panel-content-data#action-create
+                        canvas#action-image
+                        canvas#action-thumbnail.hidden
+                        div.columns
+                            .label Image 
+                            .image-toolbar
+                                #image-delete.image-action.button.with-icon.icon-delete
+                                    span Delete
+                                #image-refresh.image-action.button.with-icon.icon-refresh
+                                    span Refresh
+                        div.columns
+                            .label.first Task
+                            input#input-task.input(type="text", placeholder="What task has to be performed?", name="task", required)
+                        div.columns
+                            .label Description
+                            textarea#input-details.input(rows="6", placeholder="Describe the task in more details here", name="details")
+                        div.columns
+                            .label Target Date
+                            input#input-end.input(type="date", name="end")
+                    .panel-content-data#actions-list.surface-level-1.tiles.list.l
+               
+        #dialog.dialog
+            .dialog-header Finish Design Review
+            .dialog-content Do you really want to finish this Design Review? If you confirm with Yes, you may still access the review later on and review all its data and actions, but you will not be able to edit it any longer.
+            .dialog-footer
+                #dialog-yes.button.default Yes 
+                #dialog-no.button No
+
+        iframe#frame-download(name="frame-download")
+        form#uploadForm(method='post', encType="multipart/form-data", target="frame-download")
+            input#select-file.hidden.button.main(type="file", name="newFiles" multiple='')    

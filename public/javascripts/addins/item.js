@@ -4,16 +4,15 @@ let wsVariants    = { 'id' : '275' }
 $(document).ready(function() {
 
     appendProcessing('details');
-    appendProcessing('materials');
     appendOverlay(true);
 
     setUIEvents();
     insertItemDetails(link, null, null, [], ['ACTIONS']);
     insertAttachments(link);
     insertWorkspaceItems('274', 'dialog-variants-list', 'format_color_fill');
-    insertFlatBOM(link, null, '', '', true, true, true, true, true, [], true);
+    insertFlatBOM(link, null, '', 'EFE', true, true, true, true, false, [], true);
     insertBOM(link, 'master-bom', '', '', true, false, true, true, true, true, true);
-    getInitialData();
+    getVariantsInitialData();
 
 });
 
@@ -36,21 +35,6 @@ function setUIEvents() {
         setVariantsEditor();
     });
 
-
-    // Materials search tab
-    $('#tab-materials').click(function() {
-        $('#materials-input').focus();
-    });
-    $('#materials-input').keypress(function(e) {
-        if(e.which == 13) {
-            performSearch();
-        }
-    });
-    $('#materials-submit').click(function() {
-        performSearch();
-    });
-
-
 }
 
 
@@ -70,6 +54,15 @@ function insertFlatBOMDone(id) {
                 elemButton.toggleClass('isolate-on');
                 elemButton.toggleClass('isolate-off');
             isolate = !isolate;
+
+            let partNumbers = [];
+
+            $('.flat-bom-item.selected').each(function() {
+                partNumbers.push($(this).attr('data-part-number'));
+            })
+        
+            select3D(partNumbers);
+
         });
 
     let elemCounter = $('<div></div>');
@@ -151,84 +144,8 @@ function updateFlatBOMCounter(count) {
 }
 
 
-// Search for raw materials
-function performSearch() {
 
-    let elemList = $('#materials-list');
-        elemList.html('');
-
-    $('#materials-processing').show();
-    $('#materials-no-results').hide();
-
-    let params = {
-        'wsId'  : 57,
-        'query' : $('#materials-input').val(),
-        'limit' : 30
-    }
-
-    // console.log('performSearch');
-
-    $.get('/plm/search-descriptor', params, function(response) {
-
-        // console.log(response);
-        // console.log(params);
-
-        elemList.html('');
-
-        if((typeof response.data.items === 'undefined') || (response.data.items.length === 0)) {
-
-            $('#materials-no-results').show();
-
-        } else {
-
-            // console.log(response.data.items.length);
-
-            for(record of response.data.items) {
-
-                let elemTile = genTile(record.__self__, '', '', 'view_in_ar', record.descriptor, record.workspaceLongName);
-                    elemTile.appendTo(elemList);
-                    elemTile.click(function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        clickSearchResult($(this));
-                    });
-
-            }
-
-        }
-
-        $('#materials-processing').hide();
-        
-    });
-
-}
-function clickSearchResult(elemClicked) {
-
-    let title = elemClicked.attr('data-title');
-    // let partNumber = title.split(' - ')[0];
-
-    console.log(title);
-
-    selectComponents([title]);
-
-}
-
-
-
-
-
-// function addinSelect(partNumbers) {
-
-//     $('.flat-bom-item').each(function() {
-//         let elemItem   = $(this);
-//         let partNumber = elemItem.attr('data-part-number');
-//             if(partNumbers.includes(partNumber)) { elemItem.addClass('selected') } else { elemItem.removeClass('selected'); }
-//     });
-    
-// }
-
-
-function getInitialData() {
+function getVariantsInitialData() {
 
     let requests = [
         $.get('/plm/details'                , { 'link' : link }),
@@ -499,4 +416,3 @@ function changeBOMViewDone(id) {
         elemTHeadRow2.appendTo(elemTHead);
 
 }
-    

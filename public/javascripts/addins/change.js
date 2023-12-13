@@ -1,89 +1,192 @@
 $(document).ready(function() {
 
-    // let data = [{
-    //     "partNumber" : "CAD_30000012",
-    //     "properties" : [
-    //         { "key" : "Title",          "value" : "Neuer Name" },
-    //         { "key" : "Description",    "value" : "Neue Beschreibung" },
-    //         { "key" : "MODEL_YEAR",     "value" : "2024" }
-    //     ]
-    // }];
-
-    // $("#button-1").click(function() { selectComponents([]); });
-    // $("#button-2").click(function() { selectComponents(["CAD_30000012"]); });
-    // $("#button-3").click(function() { selectComponents(["CAD_30000012", "CAD_30000052"]); });
-    // $("#button-4").click(function() { addComponent("CAD_00019779"); });
-    // $("#button-5").click(function() { openComponent("CAD_30000012"); });
-    // $("#button-6").click(function() { updateProperties(data); });
-    // $("#button-7").click(function() { getComponentsLocked(["CAD_30000012","CAD_30000014","CAD_30000052"]); });
-    // $("#button-8").click(function() { isolateComponents(["CAD_30000012", "CAD_30000052"]); });
-    // $("#button-9").click(function() { setLifecycleState("CO-000012", "Review"); });
-    // $("#button-10").click(function() { setDirty(true); });
-    // $("#button-11").click(function() { setDirty(false); });
-
-    // $(".item").click(function() {
-
-    //     $(this).toggleClass("selected");
-
-    //     let partNumbers = [];
-
-    //     $(".item").each(function() {
-    //         if($(this).hasClass("selected")) partNumbers.push($(this).attr("data-part-number"));
-    //     });
-
-    //     selectComponents(partNumbers);
-
-    // });
-
-
+    appendProcessing('task');
+    appendProcessing('add');
+    appendOverlay();
 
     setUIEvents();
-    getWSConfig();
-    insertMOW('mow', 'Change Tasks');
-    // insertMOW('mow');
-    // getChangeTasks();
-    insertViewSelector(80, 'views');
+
+    insertWorkspaceViews('tasks', '80', 'Änderungsaufgaben', true, 3, true, true);
 
 });
 
 
-
 function setUIEvents() {
-
-
-    // View Selector
-    $('#view').change(function() {
-        setSelectedView();
-    });
 
     $('#close-task').click(function() {
         $('#tasks').show();
         $('#task').hide();  
+        $('.screen').addClass('surface-level-1');
+        $('.screen').removeClass('surface-level-2');
     })
 
+    $('#add-affected-item').click(function() {
+
+        $('#add-root').html('');
+
+        console.log('getting active document');
+
+        getActiveDocument().then(partNumber => {
+        
+            // let partNumber = 'CAD_30000096';
+
+            console.log(partNumber);
+
+            let params = {
+                'wsId'  : config.search.wsId,
+                'limit' : 1,
+                'query' : partNumber
+            }        
+
+            $.get('/plm/search-descriptor', params, function(response) {
+            
+                if(response.data.items.length > 0) {
+
+                    console.log(response.data.items[0]);
+        
+                    let link = response.data.items[0].__self__;
+
+                    let elemTile = genTile(link, '', '', 'view_in_ar', response.data.items[0].descriptor);
+                        elemTile.appendTo($('#add-root'));
+                        insertTileActions('add-root');
+
+                    // $('#add-title').html(partNumber);
+                    $('#add').show();
+                    insertChildrenChanged(link, 'add-list', '80');
+                    
+                } else {
+        
+                    showErrorMessage('Could find matching item when searching for ' + partNumber + ' in field ' + config.search.fieldId, 'Error when searching item');
+        
+                }
+            });        
+
+        });
+
+    });
+
+    $('#workflow-actions').change(function() {
+        performWorkflowAction($(this));
+    });
+
+
+    $('#add-select').click(function() {
+        $('#add-list').children().addClass('selected');
+    });
+    $('#add-deselect').click(function() {
+        $('#add-list').children().removeClass('selected');
+    });
+    $('#add-cancel').click(function() {
+        $('#add').hide();
+    });
+    $('#add-confirm').click(function() {
+        $('#add').hide();
+
+        let items = [ $('#add-root').children().first().attr('data-link') ];
+
+        $('#add-list').children('.selected').each(function() {
+            items.push($(this).attr('data-link'));
+        });
+
+        console.log(items);
+
+        $.get('/plm/add-managed-items', { 'link' : $('#task').attr('data-link'), 'items' : items }, function(response) {
+            console.log(response);
+            // $('.is-selected').click();
+            insertManagedItems($('#task').attr('data-link'), 'managed-items', 'settings');
+        });
+
+    });
+
 }
 
-
-function getWSConfig() {
-
-
-
+function insertChildrenChangedDone(id) { 
+    insertTileActions(id); 
+    $('#' + id).children().addClass('selected');
 }
+function clickChildrenChangedItem(elemClicked) { elemClicked.toggleClass('selected'); }
 
 
-function clickMOWItem(elemClicked) {
+function clickMOWItem(elemClicked) { openChangeTask(elemClicked); }
+function clickBookmarkItem(elemClicked) { openChangeTask(elemClicked); }
+function clickWorkspaceViewItem(elemClicked) { openChangeTask(elemClicked); }
+
+function openChangeTask(elemClicked) {
 
     $('#tasks').hide();
     $('#task').show();
+    $('.screen').removeClass('surface-level-1');
+    $('.screen').addClass('surface-level-2');
+    
+    $('.is-selected').removeClass('is-selected');
+    elemClicked.addClass('is-selected');
 
     let link = elemClicked.attr('data-link');
 
     $('#task-title').html(elemClicked.attr('data-title'));
 
+    insertItemStatus(link, 'task-status');
     insertItemDetails(link, 'task');
-    insertManagedItems(link, 'managed-items', 'view_in_ar');
+    insertManagedItems(link, 'managed-items', 'settings');
+    insertAttachments(link);
+    insertWorkflowActions(link);
+    insertWorkflowHistory(link, 'history');
+
 
 }
+function insertItemDetailsDone(id) {
+
+    $('.linking.field-value').each(function() {
+        let elemField = $(this);
+        let fieldId = elemField.attr('data-id');
+        if(fieldId === 'AFFECTED_ITEM') {
+
+            let title = elemField.html();
+
+            if(!isBlank(title)) {
+
+            
+
+                let elemTile = genTile(elemField.attr('data-item-link'), '', '', 'view_in_ar', elemField.html());
+                elemField.html('');
+                elemField.addClass('tiles');
+                elemField.addClass('list');
+                elemField.addClass('xxxs');
+                elemField.attr('id', 'field-AFFECTED_ITEM');
+                elemTile.appendTo(elemField);
+                elemTile.css('color', 'white');
+                insertTileActions('field-AFFECTED_ITEM');
+
+            }
+
+        }
+
+       
+
+    });
+
+}
+function insertManagedItemsDone() {
+
+    insertTileActions('managed-items-list');
+
+}
+
+
+function performWorkflowAction(elemAction) {
+
+    $('#overlay').show();
+
+    let link = elemAction.attr('data-link');
+
+    $.get('/plm/transition', { 'link' : link, 'transition' : elemAction.val()}, function(response) {
+        $('#overlay').hide();
+        $('.is-selected').click();
+    });
+
+}
+
+
 
 function clickManagedItem(elemClicked) {
 
@@ -97,75 +200,75 @@ function clickManagedItem(elemClicked) {
 }
 
 
-function setSelectedView() {
+// function setSelectedView() {
 
-    $('#views').children().hide();
-    $('#list-no-data').addClass('hidden');
+//     $('#views').children().hide();
+//     $('#list-no-data').addClass('hidden');
 
-    let view = $('#view').val();
-    $('#' + view).css('display', 'flex');
+//     let view = $('#view').val();
+//     $('#' + view).css('display', 'flex');
 
-    if($('#' + view).children().length === 0) $('#list-no-data').removeClass('hidden');
+//     if($('#' + view).children().length === 0) $('#list-no-data').removeClass('hidden');
 
-}
-
-
-function insertViewSelector(wsId, id, includeBookmarks, includeMOW) {
-
-    if(isBlank(includeBookmarks)) includeBookmarks = false;
-    if(isBlank(includeMOW)      ) includeMOW       = false;
-
-    let elemParent = $('#' + id + '-list');
-        elemParent.html('');
-
-    $.get('/plm/tableaus', { 'wsId' : wsId}, function(response) {
-        // console.log(response);
-
-        for(tableau of response.data) {
-            let elemView = $('<div></div>');
-                elemView.addClass('workspace-view-selector');
-                elemView.attr('data-link', tableau.link);
-                elemView.html(tableau.title);
-                elemView.appendTo(elemParent);
-        }
-
-        $('.workspace-view-selector').click(function() {
-            insertWorkspaceView($(this).attr('data-link'));
-            // let elemView = $(this);
-            //     console.log(elemView.attr('data-link'));
-        });
-
-    });
+// }
 
 
-}
+// function insertViewSelector(wsId, id, includeBookmarks, includeMOW) {
 
-function insertWorkspaceView(link, id) {
+//     if(isBlank(includeBookmarks)) includeBookmarks = false;
+//     if(isBlank(includeMOW)      ) includeMOW       = false;
 
-    let elemParent = $('#tasks-list');
-        elemParent.html('');
+//     let elemParent = $('#' + id + '-list');
+//         elemParent.html('');
 
-    let requests = [
-        $.get('/plm/tableau-columns', { 'link' : link}),
-        $.get('/plm/tableau-data'   , { 'link' : link})
-    ];
+//     $.get('/plm/tableaus', { 'wsId' : wsId}, function(response) {
+//         // console.log(response);
 
-    Promise.all(requests).then(function(responses) {
-        console.log(responses[0]);
-        console.log(responses[1]);
+//         for(tableau of response.data) {
+//             let elemView = $('<div></div>');
+//                 elemView.addClass('workspace-view-selector');
+//                 elemView.attr('data-link', tableau.link);
+//                 elemView.html(tableau.title);
+//                 elemView.appendTo(elemParent);
+//         }
 
-        for(item of responses[1].data) {
+//         $('.workspace-view-selector').click(function() {
+//             insertWorkspaceView($(this).attr('data-link'));
+//             // let elemView = $(this);
+//             //     console.log(elemView.attr('data-link'));
+//         });
 
-            let elemRow = $('<div></div>');
-                elemRow.html('1');
-                elemRow.appendTo(elemParent);
+//     });
 
-        }
 
-    });
+// }
 
-    // $.get('/plm/tableau-data', { 'link' : link}, function(response) {
-    //     console.log(response);
-    // });
+// function insertWorkspaceView(link, id) {
 
-}
+//     let elemParent = $('#tasks-list');
+//         elemParent.html('');
+
+//     let requests = [
+//         $.get('/plm/tableau-columns', { 'link' : link}),
+//         $.get('/plm/tableau-data'   , { 'link' : link})
+//     ];
+
+//     Promise.all(requests).then(function(responses) {
+//         console.log(responses[0]);
+//         console.log(responses[1]);
+
+//         for(item of responses[1].data) {
+
+//             let elemRow = $('<div></div>');
+//                 elemRow.html('1');
+//                 elemRow.appendTo(elemParent);
+
+//         }
+
+//     });
+
+//     // $.get('/plm/tableau-data', { 'link' : link}, function(response) {
+//     //     console.log(response);
+//     // });
+
+// }
