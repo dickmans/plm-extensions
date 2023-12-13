@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-let fileSettings = (process.argv.length > 2) ? '.' + process.argv[2] : '';
+let fileSettings = (process.argv.length > 2) ? 'settings/' + process.argv[2] + '.js' : 'settings.js';
 
 const fs        = require('fs');
 const app       = require('../app');
-const settings  = require('../settings' + fileSettings + '.js');
+const settings  = require('../' + fileSettings);
 const protocol  = settings.protocol;
 const port      = settings.port;
 
@@ -89,7 +89,7 @@ function onListening() {
         : 'port ' + addr.port;
   
     console.log();
-    console.log('  >> Using settings file   settings' + fileSettings + '.js');
+    console.log('  >> Using settings file   ' + fileSettings);
     console.log('  >> Using redirect Uri    ' + settings.redirectUri);
     console.log('  >> Listening on port     ' + bind);
     console.log();

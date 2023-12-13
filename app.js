@@ -1,4 +1,4 @@
-let fileSettings = (process.argv.length > 2) ? '.' + process.argv[2] : '';
+let fileSettings = (process.argv.length > 2) ? './settings/' + process.argv[2] + '.js' : './settings.js';
 
 const express     = require('express');
 const session     = require('express-session');
@@ -10,7 +10,7 @@ const landing     = require('./routes/landing');
 const plm         = require('./routes/plm');
 const extensions  = require('./routes/extensions');
 const { fchmodSync } = require('fs');
-const settings    = require('./settings' + fileSettings + '.js');
+const settings    = require(fileSettings);
 const app         = express();
 
 
