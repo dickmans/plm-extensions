@@ -1,83 +1,86 @@
 extends common/layout
 
 block head
+    
     link(rel='stylesheet', href='/stylesheets/variants.css')
     link(rel='stylesheet', href='/stylesheets/common/dialogs.css')
     script(src='/javascripts/variants.js')
     script.
         config = !{JSON.stringify(config)};
         
-block content
+block body 
+
+    body.surface-level-1
     
-    #header.dark
-        #header-logo
-        #header-title=title
-        #header-subtitle
-        #header-toolbar
-            .button#button-toggle-viewer.with-icon.icon-viewer(title='Click to toggle size of the viewer') Toggle Viewer
-            .button#button-toggle-details.with-icon.icon-panel.filled(title='Click to toggle item details panel on/off') Toggle Details
-            .button#button-new.disabled.default.with-icon.icon-create New Variant
-            #header-avatar
-       
-    #main.screen.wide-viewer.with-details
-
-        #viewer
+        #header.dark
+            #header-logo
+            #header-title=title
+            #header-subtitle
+            #header-toolbar
+                .button#button-toggle-viewer.with-icon.icon-viewer(title='Click to toggle size of the viewer') Toggle Viewer
+                .button#button-toggle-details.with-icon.icon-panel.filled(title='Click to toggle item details panel on/off') Toggle Details
+                .button#button-new.disabled.default.with-icon.icon-create New Variant
+                #header-avatar
         
-        #bom
+        #main.screen.wide-viewer.with-details
 
-        .panel#item-variants 
-            .panel-header 
-                .panel-title#item-variants-header Item Variants
-                .panel-toolbar 
-                    .button.icon.icon-close#item-variants-close
-            .panel-content#item-variants-text Select from the variants of
-            .panel-content#item-variants-title
-            .panel-content.surface-level-2#item-variants-list-parent
-                #item-variants-list.list.tiles.l
+            #viewer
+            
+            #bom
 
-        .panel#details.compact
-            .panel-header 
-                .panel-title Details
-                .panel-toolbar 
-                    .button.icon.icon-bookmark#bookmark
-                    .button.icon.icon-open#open
-            .panel-content.surface-level-2#details-sections
+            .panel#item-variants 
+                .panel-header 
+                    .panel-title#item-variants-header Item Variants
+                    .panel-toolbar 
+                        .button.icon.icon-close#item-variants-close
+                .panel-content#item-variants-text Select from the variants of
+                .panel-content#item-variants-title
+                .panel-content.surface-level-2#item-variants-list-parent
+                    #item-variants-list.list.tiles.l
 
-        .panel#create
-            .panel-header
-                .panel-title New Record
-                .panel-toolbar
-                    .button#cancel-create(title='Cancel creation of new process') Cancel
-                    .button.default#save-create(title='Save new process in PLM') Create
-            .panel-content#create-sections.surface-level-2
+            .panel#details.compact
+                .panel-header 
+                    .panel-title Details
+                    .panel-toolbar 
+                        .button.icon.icon-bookmark#bookmark
+                        .button.icon.icon-open#open
+                .panel-content.surface-level-2#details-sections
 
-    #dialog-saving.dialog
-        .dialog-header Saving Changes
-        .dialog-content
-            #step1.step 
-                .step-label Creating new item variants
-                .step-progress
-                    #step-bar1.step-bar
-                #step-counter1.step-counter 
-            #step2.step 
-                .step-label Updating existing item variants 
-                .step-progress
-                    #step-bar2.step-bar
-                #step-counter2.step-counter 
-            #step3.step 
-                .step-label Deleting BOM entries
-                .step-progress
-                    #step-bar3.step-bar
-                #step-counter3.step-counter 
-            #step4.step 
-                .step-label Adding BOM entries
-                .step-progress
-                    #step-bar4.step-bar
-                #step-counter4.step-counter 
-            #step5.step 
-                .step-label Updating existing BOM entries
-                .step-progress
-                    #step-bar5.step-bar
-                #step-counter5.step-counter 
-        .dialog-footer
-            #confirm-saving.button.disabled Close     
+            .panel#create
+                .panel-header
+                    .panel-title New Record
+                    .panel-toolbar
+                        .button#cancel-create(title='Cancel creation of new process') Cancel
+                        .button.default#save-create(title='Save new process in PLM') Create
+                .panel-content#create-sections.surface-level-2
+
+        #dialog-saving.dialog
+            .dialog-header Saving Changes
+            .dialog-content
+                #step1.step 
+                    .step-label Creating new item variants
+                    .step-progress
+                        #step-bar1.step-bar
+                    #step-counter1.step-counter 
+                #step2.step 
+                    .step-label Updating existing item variants 
+                    .step-progress
+                        #step-bar2.step-bar
+                    #step-counter2.step-counter 
+                #step3.step 
+                    .step-label Deleting BOM entries
+                    .step-progress
+                        #step-bar3.step-bar
+                    #step-counter3.step-counter 
+                #step4.step 
+                    .step-label Adding BOM entries
+                    .step-progress
+                        #step-bar4.step-bar
+                    #step-counter4.step-counter 
+                #step5.step 
+                    .step-label Updating existing BOM entries
+                    .step-progress
+                        #step-bar5.step-bar
+                    #step-counter5.step-counter 
+            .dialog-footer
+                #confirm-saving.button.disabled Close     

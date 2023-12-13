@@ -1,14 +1,15 @@
 extends common/layout
 
 block head
+    
     link(rel='stylesheet', href='/stylesheets/navigator.css')
     script(src='/javascripts/navigator.js')
     script.
         config = !{JSON.stringify(config)};
 
-block content
+block body
 
-    body
+    body.surface-level-1
 
         #header.dark
             #header-logo

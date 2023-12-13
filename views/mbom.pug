@@ -1,6 +1,7 @@
 extends common/layout
 
 block head
+    
     link(rel='stylesheet', href='/stylesheets/mbom.css')
     link(rel='stylesheet', href='/stylesheets/common/dialogs.css')
     script(src='/javascripts/libs/jquery-ui-1.12.1/jquery-ui.min.js')
@@ -8,9 +9,9 @@ block head
     script.
         config = !{JSON.stringify(config)};
 
-block content
+block body
 
-    body.text-selection-off.mode-ebom
+    body.surface-level-1.text-selection-off.mode-ebom
 
         #header.dark
             #header-logo

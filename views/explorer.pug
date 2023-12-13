@@ -1,15 +1,16 @@
 extends common/layout
 
 block head
+
     link(rel='stylesheet', href='/stylesheets/explorer.css')
     script(src='/javascripts/libs/Chart.bundle.min.js')
     script(src='/javascripts/explorer.js')
     script.
         config = !{JSON.stringify(config)};
 
-block content
+block body
 
-    body.text-selection-off.surface-level-1.no-attachments
+    body.surface-level-1.text-selection-off.no-attachments
 
         #header.dark
             #header-logo

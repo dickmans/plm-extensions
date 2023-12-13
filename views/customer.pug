@@ -1,44 +1,47 @@
 extends common/layout
 
 block head
+
     link(rel='stylesheet', href='/stylesheets/customer.css')
     script(src='/javascripts/customer.js')  
     script.
         config = !{JSON.stringify(config)};
 
-block content
+block body
 
-    #main.screen 
+    body.surface-level-1
 
-        #container
+        #main.screen 
 
-            #guide
-               
-                #logo 
-                #title Customer Portal 
-                #welcome Stay in touch with us and collaborate in real time with our dedicated teams of experts using these online services
-                #help If you require help with this platform, please 
-                    a contact our support team
-            
-            #applications 
-                .button(data-link='/portfolio') 
-                    .button-icon.icon.icon-3d
-                    .button-labels
-                        .button-title Product Catalog 
-                        .button-description Explore our portfolio of standard products available to you. Retrieve all technical product details and download documentation as well as 3D model data. 
-                .button(data-link='/reviews') 
-                    .button-icon.icon.icon-markup
-                    .button-labels
-                        .button-title Design Reviews 
-                        .button-description In case of custom orders, you can review our latest designs online. You can share feedback before approving a new product and exchange data with the team directly.
-                .button(data-link='/dashboard?wsId=208')
-                    .button-icon.icon.icon-problem
-                    .button-labels
-                        .button-title Product Support 
-                        .button-description In the unexpected case of problems with our products, use this utility to describe the issue easily and inform our support team online to get immediate help.
-                .button(data-link='https://profile.autodesk.com')
-                    #header-avatar
-                    .button-labels
-                        .button-title Edit Profile
-                        .button-description Manage your acccount information and preferences
+            #container
+
+                #guide
+                
+                    #logo 
+                    #title Customer Portal 
+                    #welcome Stay in touch with us and collaborate in real time with our dedicated teams of experts using these online services
+                    #help If you require help with this platform, please 
+                        a contact our support team
+                
+                #applications 
+                    .button(data-link='/portfolio') 
+                        .button-icon.icon.icon-3d
+                        .button-labels
+                            .button-title Product Catalog 
+                            .button-description Explore our portfolio of standard products available to you. Retrieve all technical product details and download documentation as well as 3D model data. 
+                    .button(data-link='/reviews') 
+                        .button-icon.icon.icon-markup
+                        .button-labels
+                            .button-title Design Reviews 
+                            .button-description In case of custom orders, you can review our latest designs online. You can share feedback before approving a new product and exchange data with the team directly.
+                    .button(data-link='/dashboard?wsId=208')
+                        .button-icon.icon.icon-problem
+                        .button-labels
+                            .button-title Product Support 
+                            .button-description In the unexpected case of problems with our products, use this utility to describe the issue easily and inform our support team online to get immediate help.
+                    .button(data-link='https://profile.autodesk.com')
+                        #header-avatar
+                        .button-labels
+                            .button-title Edit Profile
+                            .button-description Manage your acccount information and preferences
             
