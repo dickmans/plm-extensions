@@ -1,6 +1,6 @@
 {
   "name": "plm-extensions",
-  "version": "2.1 November 2023",
+  "version": "2.2 December 2023",
   "private": true,
   "scripts": {
     "start": "node --max-http-header-size=16384 ./bin/www"
@@ -11,7 +11,6 @@
     "express": "*",
     "express-fileupload": "*",
     "express-session": "*",
-    "express-status-monitor": "*",
     "form-data": "*",
     "morgan": "*",
     "pug": "*",

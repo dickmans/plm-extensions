@@ -8,7 +8,7 @@ const morgan      = require('morgan');
 const bodyParser  = require('body-parser');
 const landing     = require('./routes/landing');
 const plm         = require('./routes/plm');
-const extensions  = require('./routes/extensions');
+const services    = require('./routes/services');
 const { fchmodSync } = require('fs');
 const settings    = require(fileSettings);
 const app         = express();
@@ -26,8 +26,6 @@ app.locals.debugMode    = settings.debugMode;
 // VIEW ENGINE SETUP
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
-
-app.use(require('express-status-monitor')());
 
 
 // FAVICON & OTHERS
@@ -47,7 +45,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // ROUTING
 app.use('/', landing);
 app.use('/plm', plm);
-app.use('/extensions', extensions);
+app.use('/services', services);
 
 
 // CATCH 404 AND FORWARD TO ERROR HANDLER
@@ -67,7 +65,7 @@ app.use(function(err, req, res, next) {
 
     // render the error page
     res.status(err.status || 500);
-    res.render('common/error');
+    res.render('framework/error');
 
 });
 
