@@ -34,6 +34,7 @@ exports.port            = port;
 exports.debugMode       = true;
 
 
+
 // -------------------------------------------------------------------------------------------
 // THEME
 // Primary styling in css files also can be adjusted
@@ -45,9 +46,6 @@ let colors = {
     list    : ['#CE6565', '#E0AF4B', '#E1E154', '#90D847', '#3BD23B', '#3BC580', '#3BBABA', '#689ED4', '#5178C8', '#9C6BCE', '#D467D4', '#CE5C95']
 }
 let vectors = {
-    // red     : [221/255, 101/255, 101/255, 0.8],
-    // yellow  : [225/255, 225/255,  84/255, 0.8],
-    // green   : [ 59/255, 210/255,  59/255, 0.8],
     red     : [221/255,  34/255, 34/255, 0.8],
     yellow  : [250/255, 162/255, 27/255, 0.8],
     green   : [106/255, 151/255, 40/255, 0.8],
@@ -83,19 +81,17 @@ exports.config = {
     'configurator' : {
         'wsIdEningeeringItems'      : '57',
         'wsIdConfigurationFeatures' : '274',
-        // 'bomViewName'               : 'Explorer', ** custom
         'bomViewName'               : 'Configurator',
         'fieldIdFeatures'           : 'FEATURES',
         'fieldIdOptions'            : 'OPTIONS',
         'fieldIdInclusions'         : 'INCLUSIONS',
         'fieldIdExclusions'         : 'EXCLUSIONS',
-        // 'fieldIdBOM'                : 'BASE_BOM',
         'fieldIdBOM'                : 'MANUFACTURING_BOM',
         'fieldIdBOMType'            : 'CONFIGURATION_TYPE',
         'stateFeatureApproved'      : 'Approved',
         'labelSingleOptions'        : 'Single Options',
-        'valueAlternatives'         : 'Modul',
-        'valueOptional'             : 'Modulvariante'
+        'valueAlternatives'         : 'Alternatives',
+        'valueOptional'             : 'Optional'
     },
 
     'dashboard' : [{
@@ -520,9 +516,11 @@ exports.config = {
 
     'service' : {
         'bomViewName'            : 'Service',
+        'enableCustomRequests'   : true,
         'fieldId'                : 'SPARE_WEAR_PART',
         'fieldValues'            : ['spare part', 'yes', 'x', 'y', 'wear part'],
         'spartPartDetails'       : ['MATERIAL', 'ITEM_WEIGHT', 'DIMENSIONS'],
+        'wsIdProducts'           : 95,
         'wsIdProblemReports'     : 82,
         'wsIdSparePartsRequests' : 208
     },
@@ -531,6 +529,7 @@ exports.config = {
         'wsIdItemVariants'       : 208,
         'variantsSectionLabel'   : 'Variant Definition',
         'fieldIdVariantBaseItem' : 'DMS_ID_BASE_ITEM',
+        'fieldIdItemNumber'      : 'NUMBER',
         'fieldIdItemVariants'    : 'VARIANTS',
         'bomViewNameItems'       : 'Variant Management',
         'bomViewNameVariants'    : 'Default View'

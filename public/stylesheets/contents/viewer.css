@@ -16,38 +16,13 @@
 
 /*  STANDARD APS VIEWER OVERRIDES*/
 /* ----------------------------------------------------------------------------- */
-.adsk-viewing-viewer {
-    background : white !important;
-}
 #guiviewer3d-toolbar > div {
     background : transparent;
     box-shadow : none !important;
-    color : black !important;
-}
-#guiviewer3d-toolbar .adsk-button {
-    background : white;
-    border: 1px solid #808080 !important;
-    border-radius : 2px !important;
-}
-#guiviewer3d-toolbar .adsk-button:hover {
-    border-color : var(--color-selected) !important;
-    color : var(--color-selected) !important;
-    box-shadow:  0 0 0 3px #e3e3e3;
-}
-#guiviewer3d-toolbar .adsk-button.active {
-    box-shadow:  0 0 0 3px #A1D5EA;
-}
-#guiviewer3d-toolbar .adsk-button .adsk-button-icon::before {
-    color : #3C3C3C;
 }
 #toolbar-measureTool-done, #toolbar-measureTool-done > label {
     background : #0696D7 !important;
     padding : 5px 10px;
-}
-#guiviewer3d-toolbar .docking-panel {
-    background-color: white !important;
-    border: 1px solid #808080 !important;
-    box-shadow: none !important;
 }
 #toolbar-panTool,
 #toolbar-zoomTool { display : none !important; }
@@ -66,6 +41,7 @@
 #my-custom-toolbar-ghosting.ghosting    #button-toggle-ghosting-on  { display : none; }
 #my-custom-toolbar-ghosting.no-ghosting #button-toggle-ghosting-off { display : none; }
 #my-custom-toolbar-views{ margin-left : 20px !important; }
+[class*=" adsk-icon-"]:before, [class^=adsk-icon-]:before, [data-icon]:before { font-weight : 100; }
 
 
 
@@ -104,10 +80,10 @@
     z-index: 5;
 }
 .viewer-markup-toolbar-group {
-    background : black;
-    border-radius : 3px;
-    overflow : auto;
-    padding : 8px 12px 12px;
+    background      : var(--color-dark);
+    border-radius   : 3px;
+    overflow        : auto;
+    padding         : 8px 12px 12px;
 }
 .viewer-markup-toolbar-group-label {
     color : white;
@@ -117,24 +93,29 @@
     text-align : center;
 }
 .viewer-markup-toggle, .viewer-markup-button {
-    background : black;
-    border: 2px solid var(--color-gray-700);
-    border-radius: 2px !important;
-    color : white;
-    cursor : pointer;
-    height : 36px;
-    line-height : 36px;
-    text-align : center;
+    background      : transparent;
+    border          : 1px solid var(--color-surface-level-1);
+    border-radius   : 2px !important;
+    color           : white;
+    cursor          : pointer;
+    height          : 36px;
+    line-height     : 36px;
+    text-align      : center;
 }
+.viewer-markup-toggle:hover, .viewer-markup-button:hover { border-color : var(--color-blue-500) !important; }
 .viewer-markup-toggle { width : 36px; }
 .viewer-markup-toggle.selected { border-color : white !important; }
 .viewer-markup-button { width : 76px; }
 .viewer-markup-button.material-symbols-sharp { width : 36px; }
 
+.light-theme .viewer-markup-toggle, 
+.light-theme .viewer-markup-button {
+    border-color : var(--color-gray-800);
+}
 
 .viewer-markup-toolbar-group-toolbar {
     display : grid;
-    gap : 4px;
+    gap     : 4px;
 }
 
 #markup-toolbar-colors > div {
@@ -184,14 +165,4 @@
         width : 80px; 
     }
 
-}
-
-
-.blue-theme #guiviewer3d-toolbar .adsk-button {
-    background : var(--color-blue-surface-level-3);
-    color : white;
-    border-color : var(--color-blue-surface-level-3) !important;
-}
-.blue-theme #guiviewer3d-toolbar .adsk-button .adsk-button-icon::before {
-    color : white;
 }

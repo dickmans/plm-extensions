@@ -2068,7 +2068,7 @@ router.get('/bom-add', function(req, res, next) {
     console.log('  req.query.dmsIdChild  = ' + req.query.dmsIdChild);
     console.log('  req.query.linkParent  = ' + req.query.linkParent);
     console.log('  req.query.linkChild   = ' + req.query.linkChild);
-    console.log('  req.query.qty         = ' + req.query.qty);
+    console.log('  req.query.quantity    = ' + req.query.quantity);
     console.log('  req.query.pinned      = ' + req.query.pinned);
     console.log('  req.query.number      = ' + req.query.number);
     console.log('  req.query.fields      = ' + req.query.fields);
@@ -2231,7 +2231,11 @@ router.get('/where-used', function(req, res, next) {
     axios.get(url, {
         headers : req.session.headers
     }).then(function(response) {
-        let result = [];
+        let result = {
+            'edges'      : [],
+            'nodes'      : [],
+            'totalCount' : 0
+        };
         if(response.data !== '') result = response.data;
         sendResponse(req, res, { 'data' : result, 'status' : response.status }, false);
     }).catch(function(error) {
@@ -2624,27 +2628,21 @@ router.get('/search', function(req, res) {
        'filter'        : [],
        'sort'          : []
    };
-
-
-
-   
    
    setBodyFields(params, req.query.fields);
    setBodySort(params, req.query.sort);
    setBodyFilter(params, req.query.filter);
 
-   if(typeof req.query.latest !== 'undefined') {
-    if(req.query.latest) {
-        params.filter.push({ 
-            'fieldID'       : 'LC_RELEASE_LETTER',
-            'fieldTypeID'   : '10',
-            'filterType'    : { 'filterID' : 20 },
-            'filterValue'   : 'true'      
-        }); 
+    if(typeof req.query.latest !== 'undefined') {
+        if(req.query.latest) {
+            params.filter.push({ 
+                'fieldID'       : 'LC_RELEASE_LETTER',
+                'fieldTypeID'   : '10',
+                'filterType'    : { 'filterID' : 20 },
+                'filterValue'   : 'true'      
+            }); 
+        }
     }
-}
-
-   console.log(params);
 
     axios.post(url, params, { 
         headers : req.session.headers

@@ -2,6 +2,7 @@ extends layout
 
 block head
     
+    link(rel='stylesheet', href='/stylesheets/framework/search.css')
     script.
         config = !{JSON.stringify(config)};
     script(src='/javascripts/framework/search.js')
@@ -17,12 +18,28 @@ block body
             revisionBias='#{revisionBias}' 
             options='#{options}' 
 
-        .screen(style='top:0px')
+        .screen#search-screen
 
-            #progress.processing(style="top:calc(50% - 15px)")
+            .processing
                 .bounce1
                 .bounce2
                 .bounce3
-            #message(style='position:absolute;margin:auto;top:calc(50% + 40px);width:300px;left:calc(50% - 150px);text-align:center;')
+            #search-message.message
                 #text Searching for item
-                #number(style='font-weight:bold;')= partNumber
+                #number.partNumber= partNumber
+            #create-message.message 
+                div The selected item 
+                    span.partNumber= partNumber 
+                    | does not exist in PLM yet. Please use the following button to create the matching record now.
+                #create-action.button.default Create 
+                    span= partNumber
+
+        .screen.panel#create-screen
+            .panel#create
+                .panel-header 
+                    .panel-title#create-title sdfds
+                    .panel-toolbar
+                        .button#create-cancel Cancel 
+                        .button.default Submit
+                .panel-content#create-sections
+

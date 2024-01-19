@@ -11,9 +11,15 @@ block body
 
     body
 
+        #header.dark
+            #header-logo
+            #header-title= title
+            #header-toolbar
+                #header-avatar
+
         .screen.surface-level-1  
 
-            .tabs.surface-level-2(data-tab-group="tab-group-main")
+            .tabs.surface-level-2#tabs(data-tab-group="tab-group-main")
                 .tab#tab-search Artikel
                 .tab#tab-materials Rohmaterialien
                 .tab#tab-views Ansichten
@@ -25,7 +31,7 @@ block body
                 .panel-toolbar#search-actions.search-actions
                     input#search-input.search-input.surface-level-2(placeholder='Nummer / Bezeichnung des Artikels')
                     #search-submit.button.default Suche
-                .panel-content#search-list.list.tiles.xs.search-result-list
+                .panel-content#search-list.list.tiles.xxs.search-result-list.surface-level-1
                 .panel-content#search-no-results.search-result-message Keine Ergebnisse gefunden
 
             .panel.tab-group-main#materials
@@ -33,13 +39,13 @@ block body
                 .panel-toolbar#materials-actions.search-actions
                     input#materials-input.search-input.surface-level-2(placeholder='Nummer / Bezeichnung des Rohmaterials')
                     #materials-submit.button.default Suche
-                .panel-content#materials-list.list.tiles.xs.search-result-list
+                .panel-content#materials-list.list.tiles.xxs.search-result-list.surface-level-1
                 .panel-content#materials-no-results.search-result-message Keine Ergebnisse gefunden
 
             .panel.tab-group-main#views
 
             .panel.tab-group-main#recents
-                .panel-content#recents-recents.tiles.list.xs
+                .panel-content#recents-recents.tiles.list.xxs.surface-level-1
 
             .panel.tab-group-main#bookmarks
-                .panel-content#bookmarks-bookmarks.tiles.list.xs
+                .panel-content#bookmarks-bookmarks.tiles.list.xxs.surface-level-1

@@ -1,0 +1,40 @@
+.screen {
+    top : 0px;
+}
+#create-screen {
+    display : none;
+}
+
+.processing {
+    top : 150px;
+}
+.message {
+    left        : calc(50% - 150px);
+    margin      : auto;
+    position    : absolute;
+    text-align  : center;
+    width       : 300px;
+}
+#search-message {
+    display : block;
+    top     : 200px;
+}
+#create-message {
+    display : none;
+    top     : 100px;
+}
+#create-action {
+    float : unset;
+    margin-top : 24px;
+}
+.partNumber {
+    font-weight : 800;
+}
+
+
+#create {
+    top: 60px;
+    right: calc(50% - 300px);
+    bottom: 60px;
+    left: calc(50% - 300px);
+}

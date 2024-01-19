@@ -5,8 +5,9 @@ let isiPhone    = navigator.userAgent.match(/iPhone/i) != null;
 
 $(document).ready(function() {  
           
-         if(theme.toLowerCase() === 'blue') $('body').addClass('blue-theme');
-    else if(theme.toLowerCase() === 'dark') $('body').addClass('dark-theme');
+         if(theme.toLowerCase() ===  'dark') { $('body').addClass( 'dark-theme'); theme =  'dark'; }
+    else if(theme.toLowerCase() === 'black') { $('body').addClass('black-theme'); theme = 'black'; }
+    else                                     { $('body').addClass('light-theme'); theme = 'light'; }
 
     insertAvatar();  
     enableTabs();
@@ -200,39 +201,69 @@ function reloadPage(ret) {
 }
 
 
-// Display Error Message on top
-function showErrorMessage(message, title) {
+// Display Error & Success Message
+function showErrorMessage(title, message) {
 
-    if(typeof title === 'undefined') title = 'Error';
+    if(isBlank(message)) { message = title; title = 'Error' };
 
-    let elemError = $('<div></div>');
-        elemError.attr('id', 'error');
-        elemError.appendTo($('body'));
-        elemError.click(function() {
+    showMessage('error', title, message);
+
+}
+function showSuccessMessage(title, message) {
+
+    if(isBlank(message)) { message = title; title = 'Success' };
+
+    showMessage('success', title, message);
+
+}
+function showMessage(type, title, message) {
+
+    let elemMessage = $('#message');
+
+    if(elemMessage.length === 0) elemMessage = $('<div></div>').appendTo($('body'));
+
+    elemMessage.html('');
+
+    elemMessage.attr('id', 'message')
+        .addClass('message')
+        .addClass(type)
+        .click(function() {
             $(this).fadeOut();
         });
 
-    let elemErrorTitle = $('<div></div>');
-        elemErrorTitle.addClass('error-title');
-        elemErrorTitle.html(title);
-        elemErrorTitle.appendTo(elemError);
+    $('<div></div>').appendTo(elemMessage)
+        .addClass('message-title')
+        .html(title);
 
-    let elemErrorMessage = $('<div></div>');
-        elemErrorMessage.addClass('error-message');
-        elemErrorMessage.html(message);
-        elemErrorMessage.appendTo(elemError);
+    $('<div></div>').appendTo(elemMessage)
+        .addClass('message-text')
+        .html(message);
 
-    let elemErrorFooter = $('<div></div>');
-        elemErrorFooter.addClass('error-footer');
-        elemErrorFooter.html('Click this message to close it');
-        elemErrorFooter.appendTo(elemError);
+    $('<div></div>').appendTo(elemMessage)
+        .addClass('message-footer')
+        .html('Click this message to close it');
 
-    elemError.fadeIn();
+    elemMessage.fadeIn();
 
     $('.processing').hide();
     $('#overlay').hide();
 
 }
+
+
+// Get CSS class defining the element's surface level
+function getSurfaceLevel(elem) {
+
+    if(elem.hasClass('surface-level-1')) return 'surface-level-1';
+    if(elem.hasClass('surface-level-2')) return 'surface-level-2';
+    if(elem.hasClass('surface-level-3')) return 'surface-level-3';
+    if(elem.hasClass('surface-level-4')) return 'surface-level-4';
+    if(elem.hasClass('surface-level-5')) return 'surface-level-5';
+
+    return 'surface-level-0';
+
+}
+
 
 
 // Handle tabs
@@ -244,7 +275,7 @@ function enableTabs() {
     });
 
     $('.tabs').children().click(function() {
-        selectTab($(this));
+        clickTab($(this));
     });
 
     $('.tabs').each(function() {
@@ -252,16 +283,16 @@ function enableTabs() {
     });
 
 }
-function selectTab(elemSelected) {
+function clickTab(elemClicked) {
 
-    let index     = elemSelected.index() + 0;
-    let elemTabs  = elemSelected.closest('.tabs');
+    let index     = elemClicked.index() + 0;
+    let elemTabs  = elemClicked.closest('.tabs');
     let groupName = elemTabs.attr('data-tab-group');
 
     $('.' + groupName).addClass('hidden');
     $('.' + groupName).eq(index).removeClass('hidden');
 
-    elemSelected.addClass('selected').siblings().removeClass('selected');
+    elemClicked.addClass('selected').siblings().removeClass('selected');
 
 }
 
@@ -270,7 +301,7 @@ function selectTab(elemSelected) {
 function enablePanelToggles() {
 
     $('.panel-toggles').children().click(function() {
-        selectToggle($(this));
+        clickPanelToggle($(this));
     });
 
     $('.panel-toggles').each(function() {
@@ -278,13 +309,27 @@ function enablePanelToggles() {
     });
 
 }
-function selectToggle(elemSelected) {
-
-    let index     = elemSelected.index() + 0;
-    let elemPanel = elemSelected.closest('.panel');
+function clickPanelToggle(elemSelected) {
     
-    elemPanel.find('.panel-content').addClass('hidden');
-    elemPanel.find('.panel-content').eq(index).removeClass('hidden');
+    let id = elemSelected.attr('data-id');
+    
+    if(isBlank(id)) {
+        
+        let index     = elemSelected.index() + 0;
+        let elemPanel = elemSelected.closest('.panel');
+            elemPanel.find('.panel-content').addClass('hidden');
+            elemPanel.find('.panel-content').eq(index).removeClass('hidden');
+
+    }  else {
+    
+        $('#' + id).removeClass('hidden');
+
+        elemSelected.siblings().each(function() {
+            let idSibling = $(this).attr('data-id');
+            if(!isBlank(idSibling)) $('#' + idSibling).addClass('hidden');
+        })
+
+    }
 
     elemSelected.addClass('selected').siblings().removeClass('selected');
 
@@ -750,10 +795,8 @@ function getFieldSectionId(sections, fieldId) {
 // Retrieve field value from item's sections data
 function getSectionFieldValue(sections, fieldId, defaultValue, property) {
 
-    // Used by mbom.js
-
     if(typeof sections === 'undefined') return defaultValue;
-    if(sections === null)   return defaultValue;
+    if(sections === null) return defaultValue;
 
     for(section of sections) {
         for(field of section.fields) {
@@ -850,8 +893,6 @@ function getFlatBOMCellValue(flatBom, link, key, property) {
 }
 function getBOMEdgeValue(edge, key, property, defaultValue) {
 
-    // used by configurator.js
-
     if(typeof defaultValue === 'undefined') defaultValue = '';
 
     for(field of edge.fields) {
@@ -869,6 +910,14 @@ function getBOMEdgeValue(edge, key, property, defaultValue) {
 
     return defaultValue;
     
+}
+function getBOMNodeLink(id, nodes) {
+    for(node of nodes) {
+        if(node.item.urn === id) {
+            return node.item.link;
+        }
+    }
+    return '';
 }
 
 

@@ -297,7 +297,7 @@ function getRelationships(callback) {
 
     $.get('/plm/relationships', { wsId : wsId, dmsId: dmsId}, function(response) {
 
-        if(response.error) showErrorMessage(response.data.message, 'Error');
+        if(response.error) showErrorMessage('Error', response.data.message);
         else {
 
             for(relationship of response.data) {
@@ -499,7 +499,7 @@ function selectManagedItem(elemClicked) {
         if(managedItem.urn === selectedURN) selectedManagedItem = managedItem;
     }
 
-    insertViewer(link, 255);
+    insertViewer(link, viewerBGColors[theme].level1);
     getChangeLog();
     setAffectedItemFields();
     getRootParents();
@@ -798,7 +798,7 @@ function updateManagedItem() {
 
             $.get('/plm/update-managed-item', params, function(response) {
                 if(response.error) {
-                    showErrorMessage(response.data.message, 'Error');
+                    showErrorMessage('Error', response.data.message);
                 }
                 $('#overlay').hide();
             });

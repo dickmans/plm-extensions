@@ -1,11 +1,41 @@
 $(document).ready(function() {
 
-    updateLinks(document.location.href);
+         if(theme.toLowerCase() ===  'dark') { $('body').addClass( 'dark-theme'); theme =  'dark'; }
+    else if(theme.toLowerCase() === 'black') { $('body').addClass('black-theme'); theme = 'black'; }
+    else                                     { $('body').addClass('light-theme'); theme = 'light'; }
+
+    updateLinks();
+
+    $('#theme-selector').val(theme + '-theme');
 
     $('#tenant').html(tenant);
     
     $('#tenant').click(function() {
         window.open('https://' + tenant + '.autodeskplm360.net');
+    });
+
+    $('#theme-selector').change(function() {
+
+        $('body').removeClass('dark-theme');
+        $('body').removeClass('black-theme');
+        $('body').removeClass('light-theme');
+        $('body').addClass($(this).val());
+
+        theme = $(this).val().split('-theme')[0];
+
+        $('a').each(function() {
+
+            let href  = $(this).attr('href');
+            let index = href.indexOf('theme=');
+
+            if(index > 0) { href = $(this).attr('href').split('theme=')[0] + 'theme=' + theme;
+            } else if(href.indexOf('?') < 0) { href += '?theme=' + theme 
+            } else { href += '&theme=' + theme }
+
+            $(this).attr('href', href);
+        
+        });
+
     });
 
     $('.tile').click(function(e) {
@@ -16,7 +46,7 @@ $(document).ready(function() {
             e.preventDefault();
             window.open($(this).find('a').attr('href'), '_blank');
         } else {
-            $(this).siblings().hide();
+            $(this).siblings().hide().addClass('hidden');
             $(this).addClass('max');
             $('body').removeClass('logs');
             $('.with-log').removeClass('with-log');
@@ -34,8 +64,11 @@ $(document).ready(function() {
             elemButtonClose.addClass('close-app');
             elemButtonClose.appendTo($(this).children('.tile-details').first());
             elemButtonClose.click(function(e) {
-                $('.tiles').children().show();
+                $('.tiles-group').removeClass('hidden');
+                $('.tiles').children('.tile').show();
+                $('.tiles').children('.tiles-group').show();
                 $('.tile').removeClass('max');
+                $('.tile').removeClass('hidden');
                 $('.tile').removeClass('with-log');
                 $('.tiles').removeClass('surface-level-1');
                 e.preventDefault();
@@ -90,7 +123,9 @@ $(document).ready(function() {
     
 });
 
-function updateLinks(location) {
+function updateLinks() {
+
+    let location = document.location.href.split('?');
 
     $('a').each(function() {
 
@@ -98,10 +133,12 @@ function updateLinks(location) {
 
         if(href.indexOf('youtu.be') < 0) {
 
-            let url = location + href;
-            $(this).attr('href', url);
+            let url = location[0] + href;
             if($(this).html() === '') $(this).html(url);
-
+            let concat = (url.indexOf('?') > -1) ? '&' : '?';
+            if(location.length > 1)url += concat + location[1];
+            $(this).attr('href', url);
+            
         }
 
     });
@@ -109,14 +146,13 @@ function updateLinks(location) {
     $('.code').each(function() {
 
         let text = $(this).html();
-        text = text.replace(/LOCATION/g, location);
+        text = text.replace(/LOCATION/g, location[0]);
         $(this).html(text);
 
     });
 
     $('.url').each(function() {
-        $(this).html(location);
+        $(this).html(location[0]);
     });
-
 
 }

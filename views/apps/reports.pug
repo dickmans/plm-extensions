@@ -6,7 +6,7 @@ block head
     link(rel='stylesheet', href='../javascripts/libs/DataTables-1.12.1/datatables.min.css')
     
     script(src='../javascripts/libs/DataTables-1.12.1/datatables.min.js')
-    script(src='../javascripts/libs/Chart.bundle.min.js')
+    script(src='https://cdn.jsdelivr.net/npm/chart.js')
     script(src='../javascripts/apps/reports.js')
 
     script.
@@ -20,14 +20,14 @@ block body
             #header-logo
             #header-title= title
             #header-toolbar
-                #add.button Select Reports
+                #add.button.default Select Reports
                 #header-avatar
 
-        #reports.dashboard
+        #reports.dashboard.no-scrollbar
         
         .dialog
             .dialog-header Select reports to display in dashboard
-            .dialog-content.tiles.wide.s#list 
+            .dialog-content.surface-level-1.tiles.wide.s#list 
             .dialog-footer
                 .button.clear Deselect All
                 .button.default#submit Apply 

@@ -9,7 +9,13 @@ block head
 
 block body 
 
-    body
+    body.embedded
+
+        #header.dark
+            #header-logo
+            #header-title= title
+            #header-toolbar
+                #header-avatar
 
         .screen.surface-level-1  
 
@@ -24,7 +30,7 @@ block body
                 .panel-header   
                     .panel-title
                     .panel-toolbar 
-                .panel-content#parents-list.tiles.list.xs
+                .panel-content#parents-list.tiles.list.xs.surface-level-1
 
             .panel.tab-group-main#roots
                 .panel-content#roots-list.tiles.list.l
@@ -41,10 +47,10 @@ block body
                     .panel-toolbar 
                         .button.with-icon.icon-create Neuer Änderungsantrag
                         .button.default.with-icon.icon-create Neuer Änderungsauftrag
-                .panel-content#processes-list.tiles.list.l
+                .panel-content#processes-list.tiles.list.l.surface-level-1
 
             .panel.tab-group-main#mbom
                 .panel-header   
                     .panel-title
                     .panel-toolbar 
-                .panel-content#mbom-editor.tiles.list.l
+                .panel-content#mbom-editor.tiles.list.l.surface-level-1

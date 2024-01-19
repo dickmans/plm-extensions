@@ -1,13 +1,13 @@
 /* MASTER LAYOUT */
 /* ----------------------------------------------------------------------------- */
 #tasks, #task {
-    top     : var(--padding-main);
+    top     : var(--padding-main-top);
 }
 #task {
     display : none;
 }
 #task > .panel-content {
-    top : calc(82px + var(--padding-main))
+    top : 78px;
 }
 .panel-back {
     position    : absolute;
@@ -18,9 +18,46 @@
 }
 
 
-.workspace-view-search-input {
-    width : 80px;
+/* MOW */
+/* ----------------------------------------------------------------------------- */
+.embedded .mow-row > div {
+    height      : 24px;
+    line-height : 24px;
+    padding     : 0px 8px;
 }
+.embedded .mow-icon {
+    line-height : 8px !important;
+}
+
+
+/* TASK */
+/* ----------------------------------------------------------------------------- */
+.embedded #task-title { padding-bottom : 0px; }
+.tabs {
+    position : absolute;
+    top : 40px !important;
+}
+
+
+/* .icon { grid-area: icon;}
+.mow-descriptor { grid-area: title;}
+.mow-date { grid-area: detail-1;}
+.mow-status { grid-area: detail-2;}
+.mow-workspace { grid-area: detail-3;}
+
+.mow-row {
+    display: grid;
+    grid-template-areas:
+      'icon title'
+      'icon detail-1'
+      'icon detail-2'
+      'icon detail-3';
+    gap: 10px;
+    background-color: #2196F3;
+    padding: 10px;
+  } */
+
+
 
 
 #add {
@@ -48,15 +85,8 @@
 
 }
 
-#task-title {
-    line-height: 16px;
-    margin-top: 0px;
-    padding-bottom: 0px;
-}
-#task-status {
-    height: 20px;
-    padding : 0px;
-}
+
+
 .tabs {
     padding-top : 12px;
 }
@@ -82,7 +112,4 @@
 
 .surface-level-2 > .processing > div {
      background-color: var(--color-blue-500);
- }
- .blue-theme .workflow-history-action-icon::before {
-    background: var(--color-blue-surface-level-1);
  }

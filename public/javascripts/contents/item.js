@@ -88,6 +88,8 @@ function insertViewerCallback() {}
 // Insert Create Dialog
 function insertCreateForm(wsId, id, hideReadOnly, excludeSections, excludeFields) {
 
+    console.log('insertCreateForm');
+
     if(isBlank(wsId)            ) return;
     if(isBlank(id)              )               id = 'create';
     if(isBlank(hideReadOnly)    )    hideReadOnly  = true;
@@ -102,6 +104,8 @@ function insertCreateForm(wsId, id, hideReadOnly, excludeSections, excludeFields
             if(isBlank(fields)  ) fields   = workspace.fields;
         }
     }
+
+    console.log(sections);
     
     if(sections.length === 0) {
 
@@ -111,6 +115,8 @@ function insertCreateForm(wsId, id, hideReadOnly, excludeSections, excludeFields
         ]
 
         Promise.all(requests).then(function(responses) {
+
+            console.log(responses);
 
             cacheWorkspaces.push({
                 'id'        : wsId,
@@ -390,6 +396,7 @@ function insertField(field, itemData, elemParent, hideComputed, hideReadOnly, ed
                     case 'Single Line Text':
                         if(field.formulaField) {
                             elemValue.addClass('computed');
+                            elemValue.addClass('no-scrollbar');
                             elemValue.html($('<div></div>').html(value).text());
                         } else {
                             if(value !== null) elemInput.val(value);
@@ -415,7 +422,6 @@ function insertField(field, itemData, elemParent, hideComputed, hideReadOnly, ed
                         break;
 
                     case 'URL':
-                        console.log(value);
                         if(editable) {
                             elemValue.append(elemInput);
                             if(value !== null) elemInput.val(value);
@@ -976,8 +982,6 @@ function getFieldValue(elemField) {
     // } else if(elemField.hasClass('picklist')) {
     } else if(hasSelect) {
         elemInput = elemField.find('select');
-        console.log(elemInput.length);
-        console.log(elemInput.val());
         if(elemInput.val() === '') {
             result.value = null;
         } else {
@@ -1038,14 +1042,17 @@ function validateForm(elemForm) {
 // Insert attachments as tiles
 function insertAttachments(link, id, split) {
 
-    if(typeof id    === 'undefined') id    = 'attachments';
-    if(typeof split === 'undefined') split = false;
+    if(isBlank(id))       id = 'attachments';
+    if(isBlank(split)) split = false;
 
     $('#' + id + '-processing').show();
     $('#' + id + '-no-data').addClass('hidden');
 
-    let elemParent = $('#' + id + '-list');
-        elemParent.html('');
+    let attachments = [];
+    let timestamp   = new Date().getTime();
+    let elemList  = $('#' + id + '-list');
+        elemList.attr('data-timestamp', timestamp);
+        elemList.html('');
 
     if($('#frame-download').length === 0) {
 
@@ -1057,126 +1064,134 @@ function insertAttachments(link, id, split) {
 
     }  
 
-    let attachments = [];
+    let params = {
+        'link'      : link,
+        'timestamp' : timestamp
+    }
 
-    $.get('/plm/attachments', { 'link' : link }, function(response) {
+    $.get('/plm/attachments', params, function(response) {
 
              if(response.data.statusCode === 403) return;
         else if(response.data.statusCode === 404) return;
 
-        $('#' + id + '-processing').hide();
+        if(response.params.timestamp === $('#' + id + '-list').attr('data-timestamp')) {
+            if(response.params.link === link) {
 
-        attachments = response.data;
+                $('#' + id + '-processing').hide();
 
-        if(attachments.length === 0) $('#' + id + '-no-data').removeClass('hidden');
+                attachments = response.data;
 
-        for(attachment of attachments) {
+                if(attachments.length === 0) $('#' + id + '-no-data').removeClass('hidden');
 
-            let date = new Date(attachment.created.timeStamp);
+                for(let attachment of attachments) {
 
-            let elemAttachment = $('<div></div>');
-                elemAttachment.addClass('attachment');
-                elemAttachment.addClass('tile');
-                elemAttachment.attr('data-file-id', attachment.id);
-                elemAttachment.attr('data-url', attachment.url);
-                elemAttachment.attr('data-file-link', attachment.selfLink);
-                elemAttachment.attr('data-extension', attachment.type.extension);
-                elemAttachment.appendTo(elemParent);
+                    let date = new Date(attachment.created.timeStamp);
 
-            let elemAttachmentGraphic = getFileGrahpic(attachment);
-                elemAttachmentGraphic.appendTo(elemAttachment);
+                    let elemAttachment = $('<div></div>');
+                        elemAttachment.addClass('attachment');
+                        elemAttachment.addClass('tile');
+                        elemAttachment.attr('data-file-id', attachment.id);
+                        elemAttachment.attr('data-url', attachment.url);
+                        elemAttachment.attr('data-file-link', attachment.selfLink);
+                        elemAttachment.attr('data-extension', attachment.type.extension);
+                        elemAttachment.appendTo(elemList);
 
-            let elemAttachmentDetails = $('<div></div>');
-                elemAttachmentDetails.addClass('attachment-details');
-                elemAttachmentDetails.appendTo(elemAttachment);
+                    let elemAttachmentGraphic = getFileGrahpic(attachment);
+                        elemAttachmentGraphic.appendTo(elemAttachment);
 
-            let elemAttachmentName = $('<div></div>');
-                elemAttachmentName.addClass('attachment-name');
-                elemAttachmentName.appendTo(elemAttachmentDetails);
+                    let elemAttachmentDetails = $('<div></div>');
+                        elemAttachmentDetails.addClass('attachment-details');
+                        elemAttachmentDetails.appendTo(elemAttachment);
 
-            if(!split) {
+                    let elemAttachmentName = $('<div></div>');
+                        elemAttachmentName.addClass('attachment-name');
+                        elemAttachmentName.appendTo(elemAttachmentDetails);
 
-                elemAttachmentName.addClass('nowrap');
-                elemAttachmentName.html(attachment.name);
+                    if(!split) {
 
-            } else {
+                        elemAttachmentName.addClass('nowrap');
+                        elemAttachmentName.html(attachment.name);
 
-                let filename = attachment.name.split('.');
+                    } else {
 
-                let filePrefix = '';
+                        let filename   = attachment.name.split('.');
+                        let filePrefix = '';
 
-                for(let i = 0; i < filename.length - 1; i++) filePrefix += filename[i];
+                        for(let i = 0; i < filename.length - 1; i++) filePrefix += filename[i];
 
-                let elemAttachmentPrefix = $('<div></div>');
-                    elemAttachmentPrefix.addClass('attachment-name-prefix');
-                    elemAttachmentPrefix.addClass('nowrap');
-                    elemAttachmentPrefix.html(filePrefix);
-                    elemAttachmentPrefix.appendTo(elemAttachmentName);
+                        let elemAttachmentPrefix = $('<div></div>');
+                            elemAttachmentPrefix.addClass('attachment-name-prefix');
+                            elemAttachmentPrefix.addClass('nowrap');
+                            elemAttachmentPrefix.html(filePrefix);
+                            elemAttachmentPrefix.appendTo(elemAttachmentName);
 
-                let elemAttachmentSuffix = $('<div></div>');
-                    elemAttachmentSuffix.addClass('attachment-name-suffix');
-                    // elemAttachmentSuffix.addClass('nowrap');
-                    elemAttachmentSuffix.html('.' + filename[filename.length - 1]);
-                    elemAttachmentSuffix.appendTo(elemAttachmentName);
+                        let elemAttachmentSuffix = $('<div></div>');
+                            elemAttachmentSuffix.addClass('attachment-name-suffix');
+                            // elemAttachmentSuffix.addClass('nowrap');
+                            elemAttachmentSuffix.html('.' + filename[filename.length - 1]);
+                            elemAttachmentSuffix.appendTo(elemAttachmentName);
 
-            }
+                    }
 
-            let elemAttachmentUser = $('<div></div>');
-                elemAttachmentUser.addClass('attachment-user');
-                elemAttachmentUser.addClass('nowrap');
-                elemAttachmentUser.html('Created by ' + attachment.created.user.title);
-                elemAttachmentUser.appendTo(elemAttachmentDetails);            
+                    let elemAttachmentUser = $('<div></div>');
+                        elemAttachmentUser.addClass('attachment-user');
+                        elemAttachmentUser.addClass('nowrap');
+                        elemAttachmentUser.html('Created by ' + attachment.created.user.title);
+                        elemAttachmentUser.appendTo(elemAttachmentDetails);            
 
-            let elemAttachmentDate = $('<div></div>');
-                elemAttachmentDate.addClass('attachment-date');
-                elemAttachmentDate.addClass('nowrap');
-                elemAttachmentDate.html( date.toLocaleString());
-                elemAttachmentDate.appendTo(elemAttachmentDetails);
+                    let elemAttachmentDate = $('<div></div>');
+                        elemAttachmentDate.addClass('attachment-date');
+                        elemAttachmentDate.addClass('nowrap');
+                        elemAttachmentDate.html( date.toLocaleString());
+                        elemAttachmentDate.appendTo(elemAttachmentDetails);
 
-            elemAttachment.click(function() {
+                    elemAttachment.click(function() {
 
-                let elemClicked    = $(this).closest('.item');
-                let elemAttachment = $(this).closest('.attachment');
-                let fileExtension  = elemAttachment.attr('data-extension');
+                        let elemClicked    = $(this).closest('.item');
+                        let elemAttachment = $(this).closest('.attachment');
+                        let fileExtension  = elemAttachment.attr('data-extension');
 
-                let params = {
-                    'wsId'      : elemClicked.attr('data-wsid'),
-                    'dmsId'     : elemClicked.attr('data-dmsid'),
-                    'fileId'    : elemAttachment.attr('data-file-id'),
-                    'fileLink'  : elemAttachment.attr('data-file-link')
+                        let params = {
+                            'wsId'      : elemClicked.attr('data-wsid'),
+                            'dmsId'     : elemClicked.attr('data-dmsid'),
+                            'fileId'    : elemAttachment.attr('data-file-id'),
+                            'fileLink'  : elemAttachment.attr('data-file-link')
+                        }
+
+                        $.getJSON( '/plm/download', params, function(response) {
+
+                            document.getElementById('frame-download').src = response.data.fileUrl;
+
+                            // switch(fileExtension) {
+
+                            //     case '.pdf':
+                                    
+                            //         let elemFramePreview = $('#frame-preview');
+                            //         if(elemFramePreview.length > 0) {
+                            //             elemFramePreview.show();
+                            //             elemFramePreview.attr('data', response.data.fileUrl)
+                            //         } else {
+                            //             document.getElementById('frame-download').src = response.data.fileUrl;
+                            //         }
+
+                            //         break;
+
+                            //     default:
+                            //         document.getElementById('frame-download').src = response.data.fileUrl;
+                            //         break;
+                                    
+                            // }
+
+                        });
+                                
+                    });
+
                 }
 
-                $.getJSON( '/plm/download', params, function(response) {
+                insertAttachmentsDone(id, response.data);
 
-                    document.getElementById('frame-download').src = response.data.fileUrl;
-
-                    // switch(fileExtension) {
-
-                    //     case '.pdf':
-                            
-                    //         let elemFramePreview = $('#frame-preview');
-                    //         if(elemFramePreview.length > 0) {
-                    //             elemFramePreview.show();
-                    //             elemFramePreview.attr('data', response.data.fileUrl)
-                    //         } else {
-                    //             document.getElementById('frame-download').src = response.data.fileUrl;
-                    //         }
-
-                    //         break;
-
-                    //     default:
-                    //         document.getElementById('frame-download').src = response.data.fileUrl;
-                    //         break;
-                            
-                    // }
-
-                });
-                        
-            });
-
+            }
         }
-
-        insertAttachmentsDone();
 
     });
 
@@ -1247,116 +1262,159 @@ function getFileSVG(extension) {
     return svg;
     
 }
-function insertAttachmentsDone() {}
+function insertAttachmentsDone(id, data) {}
 
 
-// Insert BOM Tree with controls
-// - quantity (true/false) shows or supresses bom quantity display
-// - reset (true/false) enables or disables reset button above BOM
-// - toggles (true/false) enables or disables toggles to collapse or expand nodes using buttons on top of the BOM
-// - toggles (true/false) enables or disables view selector on top of the BOM
-function insertBOM(link , id, title, bomViewName, reset, views, search, headers, toggles, position, quantity) {
+// Insert BOM with selected controls
+function insertBOM(link , params) {
 
-    // add property data-default-value to div to set default view by name
+    //  Set defaults for optional parameters
+    // --------------------------------------
+    let id          = 'bom';    // id of DOM element where the BOM will be inseerted
+    let title       = 'BOM';    // Title being shown on top of the BOM display
+    let bomViewName = '';       // BOM view of PLM to display (if no value is provided, the first view will be used)
+    let reset       = false;    //  Adds button to deselect selected elements
+    let openInPLM   = true;     //  Adds button to open selected element in PLM
+    let goThere     = false;    //  Adds button to open the same view for the selected element
+    let toggles     = true;     //  Enables expand all / collapse all buttons on top of BOM
+    let views       = false;    //  Adds drop down menu to select from the available PLM BOM views
+    let search      = true;     //  Adds quick filtering using search input on top of BOM
+    let position    = true;     //  When set to true, the position / find number will be displayed
+    let quantity    = false;    //  When set to true, the quantity column will be displayed
+    let hideDetails = false;    //  When set to true, detail columns will be skipped, only the descriptor will be shown
+    let headers     = true;     //  When set to false, the table headers will not be shown
+    let getFlatBOM  = false;    //  Retrieve Flat BOM at the same time (i.e. to get total quantities)
 
-    if(isBlank(link)        ) return;
-    if(isBlank(id)          )          id = 'bom';
-    if(isEmpty(title)       )       title = 'BOM';
-    if(isBlank(bomViewName) ) bomViewName = '';
-    if(isBlank(reset)       )       reset = false;
-    if(isBlank(views)       )       views = false;
-    if(isBlank(search)      )      search = false;
-    if(isBlank(headers)     )     headers = true;
-    if(isBlank(toggles)     )     toggles = true;
-    if(isBlank(position)    )    position = true;
-    if(isBlank(quantity)    )    quantity = false;
-    
-    let hideDetails = ((bomViewName === '') && (views === false));
+
+    if(isBlank(link)) return;
+    if(isBlank(params)) params = {};
+
+    if(!isBlank(params.id)         )            id = params.id;
+    if(!isEmpty(params.title)      )         title = params.title;
+    if(!isBlank(params.bomViewName))   bomViewName = params.bomViewName;
+    if(!isBlank(params.reset)      )         reset = params.reset;
+    if(!isBlank(params.openInPLM)  )     openInPLM = params.openInPLM;
+    if(!isBlank(params.goThere)    )       goThere = params.goThere;
+    if(!isBlank(params.toggles)    )       toggles = params.toggles;
+    if(!isBlank(params.views)      )         views = params.views;
+    if(!isBlank(params.search)     )        search = params.search;
+    if(!isBlank(params.position)   )      position = params.position;
+    if(!isBlank(params.quantity)   )      quantity = params.quantity;
+    if(!isBlank(params.hideDetails)) { hideDetails = params.hideDetails } else { hideDetails = ((bomViewName === '') && (views === false)); }
+    if(!isBlank(params.headers)    )     { headers = params.headers } else { headers = !hideDetails; }
+    if(!isBlank(params.getFlatBOM) )    getFlatBOM = params.getFlatBOM;
 
     let elemBOM = $('#' + id);
         elemBOM.attr('data-link', link);
         elemBOM.attr('data-position', position);
         elemBOM.attr('data-quantity', quantity);
         elemBOM.attr('data-hide-details', hideDetails);
+        elemBOM.attr('data-get-flat-bom', getFlatBOM);
         elemBOM.addClass('bom');
         elemBOM.html('');
 
-    let elemHeader = $('<div></div>');
-        elemHeader.addClass('panel-header');
-        elemHeader.attr('id', id + '-header');
-        elemHeader.appendTo(elemBOM);
+    let elemHeader = $('<div></div>').appendTo(elemBOM)
+        .addClass('panel-header')
+        .attr('id', id + '-header');
 
-    let elemTitle = $('<div></div>');
-        elemTitle.addClass('panel-title');
-        elemTitle.attr('id', id + '-title');
-        elemTitle.html(title);
-        elemTitle.appendTo(elemHeader);
+    $('<div></div>').appendTo(elemHeader)
+        .addClass('panel-title')
+        .attr('id', id + '-title')
+        .html(title);
 
-    let elemToolbar = $('<div></div>');
-        elemToolbar.addClass('panel-toolbar');
-        elemToolbar.attr('id', id + '-toolbar');
-        elemToolbar.appendTo(elemHeader);
+    let elemToolbar = $('<div></div>').appendTo(elemHeader)
+        .addClass('panel-toolbar')
+        .attr('id', id + '-toolbar');
 
     if(reset) {
 
-        let elemReset = $('<div></div>');
-            elemReset.addClass('button');
-            elemReset.addClass('icon');
-            elemReset.addClass('xs');
-            elemReset.attr('id', id + '-action-reset');
-            elemReset.html('block');
-            elemReset.hide();
-            elemReset.appendTo(elemToolbar);
-            elemReset.click(function() {
+        $('<div></div>').appendTo(elemToolbar)
+            .addClass('button')
+            .addClass('icon')
+            .addClass('icon-deselect')
+            .addClass('xs')
+            .addClass('bom-select-action')
+            .attr('id', id + '-action-reset')
+            .attr('title', 'Deselect BOM item')
+            .hide()
+            .click(function() {
                 clickBOMReset($(this));
+            });
+
+    }
+
+    if(openInPLM) {
+
+        $('<div></div>').appendTo(elemToolbar)
+            .addClass('button')
+            .addClass('icon')
+            .addClass('icon-open')
+            .addClass('xs')
+            .addClass('bom-open-in-plm')
+            .addClass('bom-select-action')
+            .attr('title', 'Open the selected item in PLM')
+            .click(function() {
+                clickBOMOpenInPLM($(this));
+            });
+
+    }
+
+    if(goThere) {
+
+        $('<div></div>').appendTo(elemToolbar)
+            .addClass('button')
+            .addClass('icon')
+            .addClass('icon-go-there')
+            .addClass('xs')
+            .addClass('bom-select-action')
+            .attr('title', 'Open this view for the selected item')
+            .click(function() {
+                clickBOMGoThere($(this));
             });
 
     }
 
     if(toggles) {
 
-        let elemExpand = $('<div></div>');
-            elemExpand.addClass('button');
-            elemExpand.addClass('icon');
-            elemExpand.addClass('xs');
-            elemExpand.attr('id', id + '-action-expand-all');
-            elemExpand.attr('title', 'Expand all BOM tree nodes');
-            elemExpand.html('unfold_more');
-            elemExpand.appendTo(elemToolbar);
-            elemExpand.click(function() {
+        $('<div></div>').appendTo(elemToolbar)
+            .addClass('button')
+            .addClass('icon')
+            .addClass('xs')
+            .attr('id', id + '-action-expand-all')
+            .attr('title', 'Expand all BOM tree nodes')
+            .html('unfold_more')
+            .click(function() {
                 clickBOMExpandAll($(this));
             });
 
-        let elemCollapse = $('<div></div>');
-            elemCollapse.addClass('button');
-            elemCollapse.addClass('icon');
-            elemCollapse.addClass('xs');
-            elemCollapse.attr('id', id + '-action-collapse-all');
-            elemCollapse.attr('title', 'Collapse all BOM tree nodes');
-            elemCollapse.html('unfold_less');
-            elemCollapse.appendTo(elemToolbar);
-            elemCollapse.click(function() {
+        $('<div></div>').appendTo(elemToolbar)
+            .addClass('button')
+            .addClass('icon')
+            .addClass('xs')
+            .attr('id', id + '-action-collapse-all')
+            .attr('title', 'Collapse all BOM tree nodes')
+            .html('unfold_less')
+            .click(function() {
                 clickBOMCollapseAll($(this));
             });
 
     }
 
-    let elemSelect = $('<select></select>');
-        elemSelect.addClass('bom-view-selector');
-        elemSelect.attr('id', id + '-view-selector');
-        elemSelect.hide();
-        elemSelect.appendTo(elemToolbar);
-        elemSelect.change(function() {
+    let elemSelect = $('<select></select>').appendTo(elemToolbar)
+        .addClass('bom-view-selector')
+        .addClass('button')
+        .attr('id', id + '-view-selector')
+        .hide()
+        .change(function() {
             changeBOMView(id);
         });
 
     if(search) {
 
-        let elemSearch = $('<div></div>');
-            elemSearch.addClass('button');
-            elemSearch.addClass('with-icon');
-            elemSearch.addClass('icon-search-list');
-            elemSearch.appendTo(elemToolbar);
+        let elemSearch = $('<div></div>').appendTo(elemToolbar)
+            .addClass('button')
+            .addClass('with-icon')
+            .addClass('icon-search-list');
 
         let elemSearchInput = $('<input></input>');
             elemSearchInput.attr('placeholder', 'Search');
@@ -1381,19 +1439,11 @@ function insertBOM(link , id, title, bomViewName, reset, views, search, headers,
         elemContent.attr('id', id + '-content');
         elemContent.appendTo(elemBOM);
 
-    let elemTree = $('<div></div>');
-        elemTree.attr('id', id + '-tree');
-        elemTree.appendTo(elemContent);
-
     let elemBOMTable = $('<table></table');
         elemBOMTable.addClass('bom-table');
         elemBOMTable.addClass('fixed-header');
         elemBOMTable.attr('id', id + '-table');
-        // elemBOMTable.attr('cellspacing', 0);
-        // elemBOMTable.attr('data-link', link);
-        // elemBOMTable.attr('data-show-quantity', quantity);
         elemBOMTable.appendTo(elemContent);
-
 
     let elemBOMTableHead = $('<thead></thead>');
         elemBOMTableHead.addClass('bom-thead');
@@ -1488,6 +1538,7 @@ function changeBOMView(id) {
     let position            = (elemBOM.attr('data-position'    ).toLowerCase() === 'true');
     let quantity            = (elemBOM.attr('data-quantity'    ).toLowerCase() === 'true');
     let hideDetails         = (elemBOM.attr('data-hide-details').toLowerCase() === 'true');
+    let getFlatBOM          = (elemBOM.attr('data-get-flat-bom').toLowerCase() === 'true');
     let link                = elemBOM.attr('data-link');
     let bomViewId           = $('#' + id + '-view-selector').val();
     let elemProcessing      = $('#' + id + '-processing');
@@ -1507,7 +1558,6 @@ function changeBOMView(id) {
     let fieldURNPartNumber = '';
     let bomView;
 
-
     for(workspace of cacheWorkspaces) {
         if(workspace.id === link.split('/')[4]) {
             for(view of workspace.bomViews) {
@@ -1521,12 +1571,19 @@ function changeBOMView(id) {
         else if(field.fieldId === 'QUANTITY') fieldURNQuantity = field.__self__.urn;
     }
 
-    $.get('/plm/bom', params, function(response) {
+    let requests = [$.get('/plm/bom', params)];
+
+    if(getFlatBOM) requests.push($.get('/plm/bom-flat', params));
+
+    Promise.all(requests).then(function(responses) {
 
         setBOMHeaders(id, quantity, hideDetails, bomView.fields);
-        insertNextBOMLevel(response.data, elemBOMTableBody, response.data.root, position, quantity, hideDetails, bomView.fields, fieldURNPartNumber, fieldURNQuantity);
+        insertNextBOMLevel(responses[0].data, elemBOMTableBody, responses[0].data.root, position, quantity, hideDetails, bomView.fields, fieldURNPartNumber, fieldURNQuantity);
         enableBOMToggles(id);
-        changeBOMViewDone(id);
+
+        if(getFlatBOM) changeBOMViewDone(id, bomView.fields, responses[0].data, responses[1].data);
+        else           changeBOMViewDone(id, bomView.fields, responses[0].data);
+        
         elemProcessing.hide();
 
     });
@@ -1541,32 +1598,29 @@ function setBOMHeaders(id, quantity, hideDetails, fields) {
     let elemBOMTableHeadRow = $('<tr></tr>');
         elemBOMTableHeadRow.appendTo(elemBOMTableHead);
 
-    let elemBOMTableHeadItem = $('<th></th>');
-        elemBOMTableHeadItem.html('Item');
-        elemBOMTableHeadItem.appendTo(elemBOMTableHeadRow);
+    $('<th></th>').appendTo(elemBOMTableHeadRow).html('').addClass('bom-color');
+    $('<th></th>').appendTo(elemBOMTableHeadRow).html('Item');
 
     if(quantity) {
         
-        let elemBOMTableHeadQty = $('<th></th>');
-            elemBOMTableHeadQty.html('Qty');
-            elemBOMTableHeadQty.appendTo(elemBOMTableHeadRow); 
+        $('<th></th>').appendTo(elemBOMTableHeadRow)
+            .html('Qty');
     
     }
 
     if(!hideDetails) {
-
         for(field of fields) {
-            let elemBOMTableHeadCell = $('<th></th>');
-                elemBOMTableHeadCell.html(field.displayName);
-                elemBOMTableHeadCell.appendTo(elemBOMTableHeadRow);       
+            $('<th></th>').appendTo(elemBOMTableHeadRow)
+                .html(field.displayName)
+                .addClass('bom-column-' + field.fieldId.toLowerCase());
         }
-
     }
 
 }
 function insertNextBOMLevel(bom, elemTable, parent, position, quantity, hideDetails, fields, fieldURNPartNumber, fieldURNQuantity) {
 
-    let result = false;
+    let result    = false;
+    let firstLeaf = true;
 
     for(edge of bom.edges) {
 
@@ -1587,13 +1641,15 @@ function insertNextBOMLevel(bom, elemTable, parent, position, quantity, hideDeta
                 elemRow.click(function (e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    clickBOMItem($(this));
+                    clickBOMItem(e, $(this));
+                    toggleBOMSelectActions($(this));
                 })
     
             for(node of bom.nodes) {
                 if(node.item.urn === edge.child) {
                     elemRow.attr('data-dmsId',      node.item.link.split('/')[6]);
                     elemRow.attr('data-link',       node.item.link);
+                    elemRow.attr('data-urn',        edge.child);
                     elemRow.attr('data-title',      node.item.title);
                     elemRow.attr('data-edgeId',     edge.edgeId);
                     elemRow.attr('data-edge-Link',  edge.edgeLink);
@@ -1602,38 +1658,47 @@ function insertNextBOMLevel(bom, elemTable, parent, position, quantity, hideDeta
                 }
             }
 
-            let elemCell = $('<td></td>');
-                elemCell.appendTo(elemRow);
+            let elemColor = $('<td></td>').appendTo(elemRow)
+                .addClass('bom-color');
+
+            let elemCell = $('<td></td>').appendTo(elemRow)
+                .addClass('bom-first-col');
 
             if(position) {
 
                 let elemCellNumber = $('<span></span>');
-                    elemCellNumber.addClass('bom-tree-number');
+                    elemCellNumber.addClass('bom-number');
                     elemCellNumber.html(edge.depth + '.' + edge.itemNumber);
                     elemCellNumber.appendTo(elemCell);
 
             }
 
             let elemCellTitle = $('<span></span>');
-                elemCellTitle.addClass('bom-tree-title');
+                elemCellTitle.addClass('bom-title');
                 elemCellTitle.html(getBOMItemTitle(edge.child, bom.nodes));
                 elemCellTitle.appendTo(elemCell);
 
+
             if(quantity) {
 
-                let elemCellQuantity = $('<td></td>');
-                    elemCellQuantity.addClass('bom-quantity');
-                    elemCellQuantity.html(rowQuantity);
-                    elemCellQuantity.appendTo(elemRow);
+                $('<td></td>').appendTo(elemRow)
+                    .addClass('bom-quantity')
+                    .html(rowQuantity);
 
             }
 
             if(!hideDetails) {
-                for(field of fields) {
-                    let value = getBOMCellValue(edge.child, field.__self__.urn, bom.nodes);
-                    let elemRowCell = $('<td></td>');
-                    elemRowCell.html(value);
-                    elemRowCell.appendTo(elemRow);
+                for(let field of fields) {
+
+                    let value = ''
+
+                    if(field.fieldTab === 'STANDARD_BOM') value = getBOMEdgeValue(edge, field.__self__.urn, null, '');
+                    else value = getBOMCellValue(edge.child, field.__self__.urn, bom.nodes);
+
+                    $('<td></td>').appendTo(elemRow)
+                        .html(value)
+                        .addClass('bom-column-' + field.fieldId.toLowerCase());
+
                 }
             }
 
@@ -1641,23 +1706,22 @@ function insertNextBOMLevel(bom, elemTable, parent, position, quantity, hideDeta
 
             elemRow.children().first().each(function() {
                 
-                $(this).addClass('bom-first-col');
-
                 if(hasChildren) {
 
-                    let elemNav = $('<span></span>');
-                        elemNav.addClass('bom-tree-nav');
-                        elemNav.addClass('icon');
-                        elemNav.addClass('expanded');
-                        elemNav.prependTo($(this));
+                    $('<span></span>').prependTo(elemCell)
+                        .addClass('bom-nav')
+                        .addClass('icon')
+                        .addClass('expanded');
 
                     elemRow.addClass('node');
 
-                }
+                } else {
 
-                let elemColor = $('<span></span>');
-                    elemColor.addClass('bom-tree-color');
-                    elemColor.prependTo($(this));
+                    elemRow.addClass('leaf');
+                    if(firstLeaf) elemRow.addClass('first-leaf');
+                    firstLeaf = false;
+
+                }
 
             });
 
@@ -1681,7 +1745,7 @@ function getBOMItemTitle(id, nodes) {
 }
 function enableBOMToggles(id) {
 
-    $('#' + id).find('.bom-tree-nav').click(function(e) {
+    $('#' + id).find('.bom-nav').click(function(e) {
     
         e.stopPropagation();
         e.preventDefault();
@@ -1703,31 +1767,20 @@ function enableBOMToggles(id) {
             levelNext = Number(elemNext.attr('data-level'));
 
             if(levelNext > level) {
-
                 if(doExpand) {
-
                     if(levelHide > levelNext) {
                         elemNext.show();
-                        if(e.shiftKey) elemNext.find('.bom-tree-nav').removeClass('collapsed');
+                        if(e.shiftKey) elemNext.find('.bom-nav').removeClass('collapsed');
                     }
-
                 } else {
                     elemNext.hide();
+                    elemNext.find('.bom-nav').addClass('collapsed');
                 }
-
             }
 
         } while(levelNext > level);
 
     });
-
-}
-function clickBOMReset(elemClicked) {
-
-    let elemToolbar = elemClicked.closest('.panel-toolbar');
-    let elemContent = elemToolbar.nextAll('.panel-content');
-
-    elemContent.find('tr.selected').click();
 
 }
 function clickBOMExpandAll(elemClicked) {
@@ -1738,7 +1791,7 @@ function clickBOMExpandAll(elemClicked) {
 
     elemContent.find('tr').each(function() {
         $(this).show();
-        $(this).find('.bom-tree-nav').removeClass('collapsed');
+        $(this).find('.bom-nav').removeClass('collapsed');
     });
 
 }
@@ -1754,7 +1807,7 @@ function clickBOMCollapseAll(elemClicked) {
                 $(this).hide();
             }
         }
-        $(this).find('.bom-tree-nav').addClass('collapsed');
+        $(this).find('.bom-nav').addClass('collapsed');
     });
 
 }
@@ -1781,7 +1834,7 @@ function searchInBOM(id, elemInput) {
 
         elemTable.children().each(function() {
 
-            let cellValue = $(this).children().first().html().toLowerCase();
+            let cellValue = $(this).children('.bom-first-col').html().toLowerCase();
 
             if(cellValue.indexOf(filterValue) > -1) {
              
@@ -1812,28 +1865,148 @@ function unhideBOMParents(level, elem) {
     });
 
 }
-function clickBOMItem(elemClicked) {
+function toggleBOMSelectActions(elemClicked) {
+
+    let elemBOM     = elemClicked.closest('.bom');
+    let elemActions = elemBOM.find('.bom-select-action');
+
+    if(elemBOM.find('.bom-item.selected').length === 1) elemActions.show(); else elemActions.hide();
+
+}
+function clickBOMReset(elemClicked) {
+
+    let elemContent = elemClicked.closest('.bom').find('.bom-tbody');
+        elemContent.find('tr.selected').removeClass('selected');
+
+    toggleBOMSelectActions(elemClicked);
+    clickBOMResetDone(elemClicked);
+
+}
+function clickBOMResetDone(elemClicked) {}
+function clickBOMOpenInPLM(elemClicked) {
+
+    let elemBOM   = elemClicked.closest('.bom');
+    let elemItem  = elemBOM.find('.bom-item.selected').first();
+    
+    openItemByLink(elemItem.attr('data-link'));
+
+}
+function clickBOMGoThere(elemClicked) {
+
+    let elemBOM   = elemClicked.closest('.bom');
+    let elemItem  = elemBOM.find('.bom-item.selected').first();
+
+    console.log(elemBOM.length);
+    console.log(elemItem.length);
+
+    if(elemItem.length > 0) {
+        
+        let link        = elemItem.attr('data-link').split('/');
+        let location    = document.location.href.split('?');
+        let params      = location[1].split('&');
+
+        let url = location[0] + '?';
+
+        for(param of params) {
+            if(param.toLowerCase().indexOf('dmsid=') === 0) {
+                url += '&dmsid=' + link[6];
+            } else url += '&' + param;
+        }
+
+        document.location.href = url;
+
+    } 
+
+}
+function clickBOMItem(e, elemClicked) {
+    
     elemClicked.siblings().removeClass('selected');
     elemClicked.toggleClass('selected');
+
+    clickBOMItemDone(elemClicked);
+    
+}
+function clickBOMItemDone(elemClicked) {}
+function getBOMItemPath(elemItem) {
+
+    let result = {
+        'string' : elemItem.attr('data-part-number'),
+        'items'  : [elemItem]
+    }
+
+    let level = Number(elemItem.attr('data-level'));
+
+    elemItem.prevAll().each(function() {
+        let nextLevel = Number($(this).attr('data-level'));
+        if(nextLevel < level) {
+            result.string = $(this).attr('data-part-number') + '|' + result.string;
+            result.items.push($(this));
+            level = nextLevel;
+        }
+    });
+
+    return result;
+
 }
 
 
-// Insert Flat BOM into given domId
-function insertFlatBOM(link, id, title, bomViewName, reset, views, search, headers, showMore, classNames, editable) {
 
-    if(isBlank(link)       ) return;
-    if(isBlank(id)         )          id = 'bom-flat';
-    if(isEmpty(title)      )       title = 'Flat BOM';
-    if(isBlank(bomViewName)) bomViewName = '';
-    if(isBlank(reset)      )       reset = false;
-    if(isBlank(views)      )       views = false;
-    if(isBlank(search)     )      search = false;
-    if(isBlank(headers)    )     headers = false;
-    if(isBlank(showMore)   )    showMore = false;
-    if(isBlank(classNames) )  classNames = [];
-    if(isBlank(editable)   )    editable = false;
+function insertFlatBOM(link , params) {
 
-    let hideDetails = ((bomViewName === '') && (views === false));
+    //  Set defaults for optional parameters
+    // --------------------------------------
+    let id          = 'flat-bom';   // id of DOM element where the BOM will be inseerted
+    let title       = 'Flat BOM';   // Title being shown on top of the BOM display
+    let bomViewName = '';           // BOM view of PLM to display (if no value is provided, the first view will be used)
+    let selectAll   = false;        //  Adds buttons to select / deselect all elements
+    let openInPLM   = true;         //  Adds button to open selected element in PLM
+    let goThere     = false;        //  Adds button to open the same view for the selected element
+    let views       = false;        //  Adds drop down menu to select from the available PLM BOM views
+    let search      = true;         //  Adds quick filtering using search input on top of BOM
+    let hideDetails = false;        //  When set to true, detail columns will be skipped, only the descriptor will be shown
+    let headers     = true;         //  When set to false, the table headers will not be shown
+    let showMore    = false;        //  When set to true, adds controls to access the item details pages for each BOM entry
+    let editable    = false;        //  When set to true, enables modifications in editable fields
+    let classNames  = [];           //  Array of class names that will be assigned to each BOM row (enables specific styling and event listeners)
+
+
+    if(isBlank(link)) return;
+    if(isBlank(params)) params = {};
+
+    if(!isBlank(params.id)         )            id = params.id;
+    if(!isEmpty(params.title)      )         title = params.title;
+    if(!isBlank(params.bomViewName))   bomViewName = params.bomViewName;
+    if(!isBlank(params.selectAll)  )         selectAll = params.selectAll;
+    if(!isBlank(params.openInPLM)  )     openInPLM = params.openInPLM;
+    if(!isBlank(params.goThere)    )       goThere = params.goThere;
+    if(!isBlank(params.views)      )         views = params.views;
+    if(!isBlank(params.search)     )        search = params.search;
+    if(!isBlank(params.headers)    )       headers = params.headers;
+    if(!isBlank(params.showMore)   )      showMore = params.showMore;
+    if(!isBlank(params.editable)   )      editable = params.editable;
+    if(!isBlank(params.hideDetails)) { hideDetails = params.hideDetails } else { hideDetails = ((bomViewName === '') && (views === false)); }
+    if(!isBlank(params.classNames) )    classNames = params.classNames;
+
+    console.log(editable);
+
+// // Insert Flat BOM with controls
+// function insertFlatBOM(link, id, title, bomViewName, selectAll, openInPLM, goThere, views, search, headers, showMore, classNames, editable) {
+
+//     if(isBlank(link)       ) return;
+//     if(isBlank(id)         )          id = 'bom-flat';
+//     if(isEmpty(title)      )       title = 'Flat BOM';
+//     if(isBlank(bomViewName)) bomViewName = '';
+//     if(isBlank(selectAll)  )   selectAll = false;
+//     if(isBlank(openInPLM)  )   openInPLM = true;
+//     if(isBlank(goThere)    )     goThere = false;
+//     if(isBlank(views)      )       views = false;
+//     if(isBlank(search)     )      search = false;
+//     if(isBlank(headers)    )     headers = false;
+//     if(isBlank(showMore)   )    showMore = false;
+//     if(isBlank(classNames) )  classNames = [];
+//     if(isBlank(editable)   )    editable = false;
+
+    // let hideDetails = ((bomViewName === '') && (views === false));
 
     let elemBOM = $('#' + id);
         elemBOM.attr('data-link', link);
@@ -1861,18 +2034,71 @@ function insertFlatBOM(link, id, title, bomViewName, reset, views, search, heade
         elemToolbar.attr('id', id + '-toolbar');
         elemToolbar.appendTo(elemHeader);
 
-    if(reset) {
 
-        let elemReset = $('<div></div>');
-            elemReset.addClass('button');
-            elemReset.addClass('icon');
-            elemReset.addClass('xs');
-            elemReset.attr('id', id + '-action-reset');
-            elemReset.html('block');
-            elemReset.hide();
-            elemReset.appendTo(elemToolbar);
-            elemReset.click(function() {
-                clickFlatBOMReset($(this));
+    $('<div></div>').appendTo(elemToolbar)
+        .addClass('button') 
+        .addClass('with-icon') 
+        .addClass('icon-filter') 
+        .addClass('flat-bom-counter') 
+        .hide()
+        .click(function() {
+            $(this).toggleClass('selected');
+            filterFlatBOMByCounter($(this));
+        });
+
+    if(selectAll) {
+
+        $('<div></div>').appendTo(elemToolbar)
+            .addClass('button')
+            .addClass('icon')
+            .addClass('icon-select-all')
+            .addClass('xs')
+            .attr('id', id + '-action-reset')
+            .click(function() {
+                clickFlatBOMSelectAll($(this));
+            });
+
+            $('<div></div>').appendTo(elemToolbar)
+            .addClass('button')
+            .addClass('icon')
+            .addClass('icon-deselect-all')
+            .addClass('xs')
+            .addClass('flat-bom-multi-select-action')
+            .attr('id', id + '-action-reset')
+            .click(function() {
+                clickFlatBOMDeselectAll($(this));
+            });
+
+    }
+
+    if(openInPLM) {
+
+        $('<div></div>').appendTo(elemToolbar)
+            .addClass('button')
+            .addClass('icon')
+            .addClass('icon-open')
+            .addClass('xs')
+            .addClass('flat-bom-open-in-plm')
+            .addClass('flat-bom-single-select-action')
+            .attr('title', 'Open the selected item in PLM')
+            .click(function() {
+                clickFlatBOMOpenInPLM($(this));
+            });
+
+    }
+
+    if(goThere) {
+
+        $('<div></div>').appendTo(elemToolbar)
+            .addClass('button')
+            .addClass('icon')
+            .addClass('icon-go-there')
+            .addClass('xs')
+            .addClass('flat-bom-go-there')
+            .addClass('flat-bom-single-select-action')
+            .attr('title', 'Open this view for the selected item')
+            .click(function() {
+                clickFlatBOMGoThere($(this));
             });
 
     }
@@ -1892,12 +2118,12 @@ function insertFlatBOM(link, id, title, bomViewName, reset, views, search, heade
 
     }
 
-    let elemSelect = $('<select></select>');
-        elemSelect.addClass('flat-bom-view-selector');
-        elemSelect.attr('id', id + '-view-selector');
-        elemSelect.hide();
-        elemSelect.appendTo(elemToolbar);
-        elemSelect.change(function() {
+    let elemSelect = $('<select></select>').appendTo(elemToolbar)
+        .addClass('flat-bom-view-selector')
+        .addClass('button')
+        .attr('id', id + '-view-selector')
+        .hide()
+        .change(function() {
             changeFlatBOMView(id);
         });
 
@@ -1939,15 +2165,16 @@ function insertFlatBOM(link, id, title, bomViewName, reset, views, search, heade
         elemBOMTable.attr('id', id + '-table');
         elemBOMTable.appendTo(elemContent);
 
-    let elemBOMTableHead = $('<thead></thead>');
-        elemBOMTableHead.attr('id', id + '-thead');
-        elemBOMTableHead.appendTo(elemBOMTable);
+    let elemBOMTableHead = $('<thead></thead>').appendTo(elemBOMTable)
+        .addClass('flat-bom-thead')
+        .attr('id', id + '-thead');
 
     if(!headers) elemBOMTableHead.hide();
 
-    let elemBOMTableBody = $('<tbody></tbody>');
-        elemBOMTableBody.attr('id', id + '-tbody');
-        elemBOMTableBody.appendTo(elemBOMTable);
+    $('<tbody></tbody>').appendTo(elemBOMTable)
+        .addClass('flat-bom-tbody')
+        .attr('id', id + '-tbody');
+
 
     insertFlatBOMDone(id);
 
@@ -2076,8 +2303,6 @@ function saveFlatBOMChanges(elemButton, sections) {
                     addFieldToPayload(params.sections, sections, null, elemField.fieldId, elemField.value, false);
                 });
 
-                console.log(params);
-
                 requests.push($.get('/plm/edit', params));
                 elements.push(elemItem);
 
@@ -2127,7 +2352,6 @@ function changeFlatBOMView(id) {
     let fieldURNPartNumber = '';
     let bomView;
 
-
     for(workspace of cacheWorkspaces) {
         if(workspace.id === link.split('/')[4]) {
             editableFields = workspace.editableFields;
@@ -2165,17 +2389,18 @@ function changeFlatBOMView(id) {
                 elemRow.click(function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    clickFlatBOMItem($(this));
+                    clickFlatBOMItem(e, $(this));
+                    toggleFlatBOMItemActions($(this));
+                    updateFlatBOMCounter($(this).closest('.flat-bom'));
                 });
 
             for(className of classNames) elemRow.addClass(className);
 
             if(editable) {
 
-                let elemRowCheck = $('<td></td>');
-                    elemRowCheck.html('<div class="icon icon-check-box xxs"></div>');
-                    elemRowCheck.addClass('flat-bom-check');
-                    elemRowCheck.appendTo(elemRow);
+                $('<td></td>').appendTo(elemRow)
+                    .html('<div class="icon icon-check-box xxs"></div>')
+                    .addClass('flat-bom-check');
 
             }
 
@@ -2189,10 +2414,9 @@ function changeFlatBOMView(id) {
                 elemRowTitle.addClass('flat-bom-title');
                 elemRowTitle.appendTo(elemRow);   
 
-            let elemRowQty = $('<td></td>');
-                elemRowQty.html(qty);
-                elemRowQty.addClass('flat-bom-qty');
-                elemRowQty.appendTo(elemRow);
+            $('<td></td>').appendTo(elemRow)
+                .html(qty)
+                .addClass('flat-bom-qty');
 
             if(!hideDetails) {
 
@@ -2202,7 +2426,9 @@ function changeFlatBOMView(id) {
                     let isEditable  = false;
                     let elemRowCell = $('<td></td>');
 
+
                     elemRowCell.appendTo(elemRow); 
+                    elemRowCell.addClass('flat-bom-column-' + field.fieldId.toLowerCase());
 
                     for(editableField of editableFields) {
 
@@ -2386,7 +2612,7 @@ function clickSelectAllFlatBOM(elemClicked) {
     else elemTable.find('.flat-bom-item').addClass('selected');
 
 }
-function clickFlatBOMItem(elemClicked) {
+function clickFlatBOMItem(e, elemClicked) {
 
     elemClicked.toggleClass('selected');
 
@@ -2426,6 +2652,110 @@ function changedFlatBOMValue(elemControl) {
     });
 
 }
+function toggleFlatBOMItemActions(elemClicked) {
+
+    let elemBOM             = elemClicked.closest('.flat-bom');
+    let actionsMultiSelect  = elemBOM.find('.flat-bom-multi-select-action');
+    let actionsSingleSelect = elemBOM.find('.flat-bom-single-select-action');
+
+    if(elemBOM.find('.flat-bom-item.selected').length === 1) actionsSingleSelect.show(); else actionsSingleSelect.hide();
+    if(elemBOM.find('.flat-bom-item.selected').length   > 0) actionsMultiSelect.show();  else actionsMultiSelect.hide();
+
+}
+function clickFlatBOMSelectAll(elemClicked) {
+
+    let elemBOM = elemClicked.closest('.flat-bom');
+
+    elemBOM.find('.flat-bom-item').addClass('selected');
+
+    updateFlatBOMCounter(elemBOM);
+    toggleFlatBOMItemActions(elemClicked);
+    clickFlatBOMSelectAllDone(elemClicked);
+
+}
+function clickFlatBOMSelectAllDone(elemClicked) {}
+function clickFlatBOMDeselectAll(elemClicked) {
+
+    let elemBOM     = elemClicked.closest('.flat-bom');
+    let elemCounter = elemClicked.siblings('.flat-bom-counter');
+
+    elemBOM.find('.flat-bom-item').removeClass('selected');
+    elemCounter.removeClass('selected');
+
+    updateFlatBOMCounter(elemBOM);
+    toggleFlatBOMItemActions(elemClicked);
+    clickFlatBOMDeselectAllDone(elemClicked);
+
+}
+function clickFlatBOMDeselectAllDone(elemClicked) {}
+function updateFlatBOMCounter(elemBOM) {
+
+    let count       = elemBOM.find('.flat-bom-item.selected').length;
+    let elemCounter = elemBOM.find('.flat-bom-counter');
+
+    elemCounter.html(count + ' Zeilen gewählt');
+
+    if(count > 0) {
+        elemCounter.show(); 
+    } else {
+        elemCounter.hide();
+        elemCounter.removeClass('filter-selected');
+    }
+
+    filterFlatBOMByCounter(elemCounter);
+
+}
+function filterFlatBOMByCounter(elemCounter, enforce) {
+
+    if(isBlank(enforce)) enforce = false;
+
+    let elemBOM   = elemCounter.closest('.flat-bom');
+    let elemTBody = elemBOM.find('tbody');
+
+    if((elemCounter).hasClass('selected')) {
+        elemTBody.children().hide();
+        elemTBody.children('.selected').show();
+        
+    } else {
+        elemTBody.children().show();
+    }
+
+    if(enforce) elemTBody.children().show();
+
+}
+function clickFlatBOMOpenInPLM(elemClicked) {
+
+    let elemBOM   = elemClicked.closest('.flat-bom');
+    let elemItem  = elemBOM.find('.flat-bom-item.selected').first();
+    
+    openItemByLink(elemItem.attr('data-link'));
+
+}
+function clickFlatBOMGoThere(elemClicked) {
+
+    let elemBOM   = elemClicked.closest('.flat-bom');
+    let elemItem  = elemBOM.find('.flat-bom-item.selected').first();
+
+    if(elemItem.length > 0) {
+        
+        let link        = elemItem.attr('data-link').split('/');
+        let location    = document.location.href.split('?');
+        let params      = location[1].split('&');
+
+        let url = location[0] + '?';
+
+        for(param of params) {
+            if(param.toLowerCase().indexOf('dmsid=') === 0) {
+                url += '&dmsid=' + link[6];
+            } else url += '&' + param;
+        }
+
+        document.location.href = url;
+
+    } 
+
+}
+
 
 
 // Insert Where Used immediate parents
@@ -2453,6 +2783,8 @@ function insertParents(link, id, icon, enableExpand) {
 
     $.get('/plm/where-used', params, function(response) {
 
+        console.log(response);
+
         if(response.params.timestamp === $('#' + id + '-list').attr('data-timestamp')) {
             if(response.params.link === link) {
         
@@ -2463,9 +2795,14 @@ function insertParents(link, id, icon, enableExpand) {
                     let urnParent = edge.child;
                     let quantity  =  0;
 
-                    for(node of response.data.nodes) {
+                    for(let node of response.data.nodes) {
+
+                        console.log(urnParent);
+                        console.log(node.item.urn);
 
                         if(urnParent === node.item.urn){ 
+
+                            console.log('hier');
 
                             for(field of node.fields) {
                                 if(field.title === 'QUANTITY') quantity = field.value;
@@ -2498,7 +2835,12 @@ function insertParents(link, id, icon, enableExpand) {
                         }
                     }
                 }
-        
+
+                if(response.data.totalCount === 0) {
+                    $('<div>No parents found</div>').appendTo(elemList)
+                        .css('margin', 'auto');
+                }
+
                 insertParentsDone(id);
 
             }     
@@ -2526,7 +2868,11 @@ function clickParentItemToggle(id, elemClicked) {
         elemBOM.addClass('child');
         elemBOM.insertAfter(elemParent);
         
-        insertBOM(linkParent, idBOM, '', '', false, false, false, false, true, true, true);
+        insertBOM(linkParent, {
+            'id'    : idBOM,
+            'title' : ''
+        });
+
         } else {
             elemParent.nextUntil('.parent').show();
         }

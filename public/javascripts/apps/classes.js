@@ -209,7 +209,7 @@ function selectItem(elemClicked) {
     
     setItemDetails(link);
     insertAttachments(link);
-    insertViewer(link);
+    insertViewer(link, viewerBGColors[theme].level2);
     getBookmarkStatus();
 
 }
@@ -238,8 +238,16 @@ function setItemDetails(link) {
 
         elemPanelHeaderSub.append($('<span>' + responses[2].data.workspace.title + '</span>'));
         if(lifecycle !== '') elemPanelHeaderSub.append($('<span>' + lifecycle + '</span>'));
-        insertItemDetailsFields('', 'item', responses[0].data, responses[1].data, responses[2].data, false, false, false);   
+        insertItemDetailsFields(link, 'item', responses[0].data, responses[1].data, responses[2].data, false, false, false);   
           
     });
+
+}
+
+
+// Add custom toolbar to viewer
+function initViewerDone() {
+
+    viewerAddViewsToolbar();
 
 }

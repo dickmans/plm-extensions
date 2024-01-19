@@ -52,7 +52,7 @@
     cursor : pointer;
 }
 #matrix tr:hover td {
-    background : var(--color-hover) !important;
+    background : var(--color-hover-background) !important;
 }
 #matrix tr.selected td {
     background   : var(--color-selected) !important;

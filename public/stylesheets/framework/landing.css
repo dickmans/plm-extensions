@@ -10,33 +10,24 @@
     -ms-user-select:unset;
     user-select:text;
 }
-
-img {
-    border : 1px solid var(--color-gray-400) !important;
-}
-table {
-    border : 1px solid var(--color-gray-400);
-    width : unset;
-}
-.tile.max h1:first-of-type {
-    margin-top : 0px;
-}
 h2 {
-    border-left : 5px solid black;
+    border-left : 10px solid var(--color-surface-level-3);
     margin-left : 2px;
-    padding-left : 10px;
+    padding-left : 14px;
 }
+
+
 .divider.horizontal {
     margin-bottom : 20px;
 }
 #disclaimer {
-    background: var(--color-status-red);
+    color: var(--color-status-red);
+    border: 4px solid var(--color-status-red);
     border-radius : 3px;
-    color: white;
-    line-height: 16px;
+    font-weight : bold;
+    line-height: 18px;
     padding: 20px;
-    font-size: 12px;
-    margin: 20px 0px;
+    margin: 40px 0px 0px;
 }
 .split-left > p {
     line-height : 18px;
@@ -50,32 +41,69 @@ h2 {
 .button.icon {
     padding : 2px;
 }
+#themes {
+    display : flex;
+    justify-content: space-between;
+    padding-top : 20px;
+}
+#themes span {
+    line-height : 38px;
+    padding-right : 20px;
+}
+#themes select {
+    flex-grow : 1;
+    height : 38px;
+}
+
+
+/*  LEFT TOOLBAR */
+/* ----------------------------------------------------------------------------- */
+.left-toolbar {
+    display : flex;
+    flex-direction: column;
+    padding : var(--spacer-xs) 0px;
+    gap : var(--spacer-xs);
+}
+.left-toolbar .button {
+    margin-left : 0px;
+}
+
 
 
 /*  APP */
 /* ----------------------------------------------------------------------------- */
+.surface-level-2 > .tiles > .tile.max,
+.tiles.xxl > .tile.max,
 .tile.max {
     background: none !important; 
+    border : none;
+    cursor : default;
+    height : 0px !important;
+    width : 0px !important;
 }
+.surface-level-2 > .tiles > .tile.max:hover,
 .tile.max:hover {
-    background : none;
+    background : none !important;
+    border : none !important;
 }
 .tile.max .tile-image {
-    border : 30px solid var(--color-gray-100);
+    /* border : 30px solid var(--color-gray-100); */
+    border : 30px solid var(--color-surface-level-2);
     border-left-width: 60px;
     position : absolute;
     top : var(--padding-top);
     left: calc(50% - 600px);
 }
 .tile.max .tile-details {
-    display: block;
+    display: block; 
     margin: 0px;
     padding: 40px 140px 40px 40px;
     position: absolute;
     top : var(--padding-top);
     right: calc(50% - 600px);
     left: calc(50% - 156px);
-    background : var(--color-gray-100);
+    /* background : var(--color-gray-100); */
+    background : var(--color-surface-level-2);
     height: 196px;
 }
 .tile.max .tile-title {
@@ -104,46 +132,54 @@ h2 {
     font-weight: 800;
     margin: 4px 0px 20px;
 }
-
+.surface-level-2 > .tiles > .tile.max,
+.tiles.xxl > .tile.max,
+.tile.max {
+    background: none !important; 
+    border : none;
+    cursor : default;
+    height : 0px !important;
+    width : 0px !important;
+}
 
 
 /*  INSTRUCTIONS */
 /* ----------------------------------------------------------------------------- */
 .instructions {
-    display : none;
-}
-.instructions {
-    position: absolute;
-    top: 360px;
-    right: calc(50% - 600px);
-    bottom: 40px;
-    left: calc(50% - 600px);
-    width: auto !important;
-    overflow: auto;
-    height: auto !important;
-    background: none !important;
-    margin : 0px;
+    background  : none !important;
+    display     : none;
+    height      : auto !important;
+    margin      : 0px;
+    overflow-x  : hidden;
+    overflow-y  : auto;
+    position    : absolute;
+    top         : 360px;
+    right       : calc(50% - 600px);
+    bottom      : 40px;
+    left        : calc(50% - 600px);
+    width       : auto !important;
 }
 .instructions img {
-    display : block;
-    margin : 20px 0px;
+    display     : block;
+    margin      : 20px 0px;
+    max-width   : 100%;
 }
-.instructions img.border {
-    border : 1px solid var(--color-gray-100);
-    max-width : calc(100% - 2px);
+.light-theme .instructions img {
+    border      : 1px solid var(--color-surface-level-4);
+    max-width   : calc(100% - 2px);
 }
 .tiles {
-    justify-content: flex-start;
-    width: calc(100% - 600px);
-}
-.tile.max {
-    cursor : default;
+    justify-content : flex-start;
+    width           : calc(100% - 600px);
 }
 .tile.max h1 {
     margin-top : 40px;
 }
 .tile.max h3 {
     margin-top : 30px;
+}
+.tile.max h1:first-of-type {
+    margin-top : 0px;
 }
 .tile.max .instructions {
     display : block;
@@ -153,8 +189,7 @@ h2 {
     display : none;
 }
 p.code {
-    background : var(--color-gray-100);
-    color : black;
+    background : var(--color-surface-level-2);
     font-family: 'Courier New', monospace;
     font-size : 0.9em;
     margin-bottom : 25px;
@@ -181,8 +216,8 @@ span.url {
 .indent-4 { padding-left : 120px; }
 .indent-5 { padding-left : 150px; }
 th {
-    background : black;
-    color : white;
+    /* background : black; */
+    /* color : white; */
     text-align : left;
 }
 td {
@@ -213,15 +248,35 @@ a {
 a:hover {
     border-color : var(--color-blue-500);
 }
+.dark-theme a,
+.black-theme a {
+    background : var(--color-blue-500);
+    border : none;
+    color : white;
+}
+.dark-theme a:hover,
+.black-theme a:hover {
+    background : var(--color-blue-600);
+}
+
 
 
 /*  CHANGE LOG */
 /* ----------------------------------------------------------------------------- */
 #version {
     cursor : pointer;
-}
-#version:hover {
     color : var(--color-blue-500);
+    font-weight : bold;
+}
+/* #version:hover { */
+/* } */
+#framework-changes { 
+    background : black;
+    color : white;
+    display : none; 
+}
+#framework-changes td {
+    background : black;   
 }
 .button.change-log {
     display: none;
@@ -230,8 +285,8 @@ a:hover {
     right: 38px;
 }
 .log {
-    background : #000;
-    color : white;
+    background : var(--color-surface-level-2);
+    color : var(--color-font);
     display : none;
     margin : 0px;
     padding : 40px;
@@ -242,6 +297,11 @@ a:hover {
     bottom: 40px;
     left: calc(50% - 600px);
 }
+.logs .tile { border :none; }
+.logs .log, 
+.logs .log td {
+    background : var(--color-surface-level-3);
+}
 .tile.max.with-log .log {
     display : block;
 }
@@ -250,7 +310,8 @@ a:hover {
     position : absolute;
 }
 .tile.max.with-log .button.change-log {
-    background : black;
+    background : var(--color-blue-500);
+    border-color : var(--color-blue-500);
     color : white;
     display : block;
 }
@@ -258,15 +319,22 @@ a:hover {
     /* display : block; */
     padding-bottom : 40px;
 }
-.tile .log h1 {
+.log h1 {
     margin-top : 0px;
 }
 .log table {
     border : none;
+    table-layout: fixed;
 }
 .log td {
-    border-color : #333;
     padding : 8px 12px;
+    border-top : none;
+}
+.log td:first-of-type {
+    width : 130px;
+}
+.log td:nth-child(2) {
+    width : 120px;
 }
 .log td:last-of-type {
     padding-right : 40px;
@@ -278,7 +346,7 @@ body.logs .instructions {
     display : none !important;
 }
 body.logs .log {
-    display : block;
+    display : block !important;
     margin-top : 0px;
     position : unset;
 }
@@ -287,10 +355,20 @@ body.logs .tile {
     height : auto !important;
     width : 100% !important;
 }
+.log tr {
+    background : none !important;
+}
+.log td,
+.log tr:last-of-type  td {
+    border-bottom : 1px solid var(--color-surface-level-1) !important; 
+}
 .log tr:first-of-type > td {
-    border : none;
+    border-top : 1px solid var(--color-surface-level-1);
+}
+.log tr > td:first-of-type {
     white-space : nowrap;
 }
+
 
 
 /*  TROUBLESHOOTING */
@@ -305,15 +383,13 @@ body.logs .tile {
     display : block;
 }
 .tile.max.with-troubleshooting .troubleshooting-button {
-    background : black;
-    color : white;
     display : block;
 }
 .tile.max.with-troubleshooting .troubleshooting {
     display : block;
 }
 .troubleshooting {
-    background : white;
+    background : var(--color-surface-level-2);
     display : none;
     margin : 0px;
     padding : 40px;
@@ -329,15 +405,13 @@ body.logs .tile {
 /*  TENANT */
 /* ----------------------------------------------------------------------------- */
 #tenant {
-    cursor : pointer;
+    cursor      : pointer;
     font-weight : bold;
-}
-#tenant:hover {
-    color : var(--color-blue-500);
+    color       : var(--color-blue-500);
 }
 
 
-/*  RESPONSIVE DESIGN */
+/*  RESPONSIVE LAYOUT */
 /* ----------------------------------------------------------------------------- */
 @media only screen and (max-width : 1920px)  {
 

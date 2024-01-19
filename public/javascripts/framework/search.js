@@ -1,7 +1,6 @@
 $(document).ready(function() {
 
-         if(theme.toLowerCase() === 'blue') $('body').addClass('blue-theme');
-    else if(theme.toLowerCase() === 'dark') $('body').addClass('dark-theme');
+    appendProcessing('create');
 
     let params = {
         'wsId'  : config.search.wsId,
@@ -11,6 +10,9 @@ $(document).ready(function() {
 
     $.get('/plm/search-descriptor', params, function(response) {
         
+        $('.processing').hide();
+        $('#search-message').hide();
+
         if(response.data.items.length > 0) {
 
             let link = response.data.items[0].__self__;
@@ -25,9 +27,33 @@ $(document).ready(function() {
 
         } else {
 
-            showErrorMessage('Could find matching item when searching for ' + partNumber + ' in field ' + config.search.fieldId, 'Error when searching item');
+            console.log(document.location.href);
+
+            if(document.location.href.indexOf('/addins/') < 0) showErrorMessage('Error when searching item', 'Could find matching item when searching for ' + partNumber + ' in field ' + config.search.fieldId);
+            else $('#create-message').show();
 
         }
+
     })
 
+    setUIEvents();
+
+
 });
+
+function setUIEvents() {
+
+    $('#create-action').click(function() {
+        $('#create-processing').show();
+        insertCreateForm(config.search.wsId, 'create', true);
+        $('#create-title').html($(this).html());
+        $('#search-screen').hide();
+        $('#create-screen').show();
+    });
+
+    $('#create-cancel').click(function() {
+        $('#search-screen').show();
+        $('#create-screen').hide();
+    });
+
+}

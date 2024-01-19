@@ -3,10 +3,9 @@
 :root {
     --width-panel   : 800px;
     --height-viewer : 350px;
-    --padding-panel : 25px;
+    --padding-panel : 30px;
 }
 #items {
-    border-right : 4px solid var(--color-gray-100);
     padding-right : var(--padding-panel);
     top : var(--padding-panel);
     right : calc((2 * var(--padding-panel)) + var(--width-panel));
@@ -14,10 +13,11 @@
     left : var(--padding-panel);
 }
 #item {
-    top    : var(--padding-panel);
-    right  : var(--padding-panel);
-    bottom : var(--padding-panel);
-    width  : var(--width-panel);
+    border-width : var(--padding-panel);
+    top          : 0px;
+    right        : 0px;
+    bottom       : 0px;
+    width        : var(--width-panel);
 }
 #viewer {
     height : var(--height-viewer);
@@ -31,7 +31,7 @@
 
 .no-panel #items { border : none; padding-right : 0px; right : var(--padding-panel); }
 .no-panel #items-content { right : 0px; }
-.no-panel #item { right : calc(0px - var(--width-panel)); }
+.no-panel #item { right : calc(0px - (2 * var(--width-panel))); }
 
 
 
@@ -58,49 +58,23 @@
     max-width : 900px;
 }
 #items-list { width : 100%; }
-th {
-    background : var(--color-gray-100);
-    padding : 10px 10px;
-    text-align : left;
-}
-td {
-    border-top : 1px solid transparent;
-    border-bottom : 1px solid var(--color-gray-100);
-    cursor : pointer;
-    line-height : 24px;
-    padding : 5px;
-}
-tr:hover td { background : var(--color-hover) !important; }
-tr.selected td {
-    background : var(--color-selected) !important;
-    border-color : var(--color-selected-border) !important; 
-}
 tr.reference td {
-    background : var(--color-blue-700) !important;
-    color : white !important;
+    background  : var(--color-surface-level-1) !important;
+    color       : var(--color-font);
     font-weight : bold;
 }
 .value.neutral {
     font-weight : normal;
 }
 .value.diff {
-    background : var(--color-red-100);
-    border-bottom : 1px solid white;
-    color : var(--color-status-red);
+    background  : var(--color-status-red-bright);
     font-weight : bold;
 }
 .value.match {
-    background : var(--color-green-100);
-    border-bottom : 1px solid white;
-    color : var(--color-status-green);
+    background  : var(--color-status-green-bright);
     font-weight : bold;
 }
-/* #items .panel-toggles {
-    bottom : 0px;
-    max-width : 900px;
-    margin : auto;
-    position : absolute;
-} */
+
 
 
 /* ITEM */
@@ -111,6 +85,7 @@ tr.reference td {
 .no-viewer #item .panel-content { margin-top : 80px; }
 #item-title { font-size : 24px; }
 #item > div { transition : all .25s ease; }
+
 
 
 /* APS VIEWER */

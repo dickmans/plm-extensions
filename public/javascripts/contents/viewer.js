@@ -23,6 +23,30 @@ let vectorRange  = [
     new THREE.Vector4(206/255,  92/255, 149/255, 0.8)
 ]; 
 
+let viewerBGColors = {
+    'light' : {
+        'level1' : [255, 255, 255],
+        'level2' : [245, 245, 245],
+        'level3' : [238, 238, 238],
+        'level4' : [217, 217, 217],
+        'level5' : [204, 204, 204]
+    },
+    'dark' : {
+        'level1' : [69, 79, 97],
+        'level2' : [59, 68, 83],
+        'level3' : [46, 52, 64],
+        'level4' : [34, 41, 51],
+        'level5' : [26, 31, 38]
+    },
+    'black' : {
+        'level1' : [83, 83, 83],
+        'level2' : [71, 71, 71],
+        'level3' : [55, 55, 55],
+        'level4' : [42, 42, 42],
+        'level5' : [32, 32, 32]
+    }
+}
+
 
 // Launch Forge Viewer
 function initViewer(data, color, id) {
@@ -649,6 +673,79 @@ function viewerResetSelection(resetView) {
     }
 
 }
+
+
+// Get selected models
+async function viewerGetSelectedComponentPaths() {
+
+    return new Promise(function(resolve, reject) {
+        
+        let instances   = viewer.model.getInstanceTree();
+        let promises    = [];
+        let result      = [];
+
+        for(let i = 1; i < instances.objectCount; i++) {
+            promises.push(getPropertiesAsync(i));
+        }
+
+        Promise.all(promises).then(function(responses) {
+
+            let items = responses;
+
+            for(selection of viewer.getSelection()) {
+                result.push(getComponentPath(items, selection));
+            }
+
+            resolve(result);
+
+        });
+
+    });
+
+}
+
+const getPropertiesAsync = (id) => {
+    
+    return new Promise((resolve, reject) => {
+        viewer.getProperties(id, (result) => {
+            resolve(result)
+        }, (error) => {
+            reject(error)
+       });
+    });
+ 
+}
+// const getPropertiesAsync = (id) => {
+    
+//     return new Promise((resolve, reject) => {
+//         viewer.getProperties(id, (result) => {
+//             resolve(result)
+//         }, (error) => {
+//             reject(error)
+//        });
+//     });
+ 
+// }
+function getComponentPath(items, id) {
+
+    let result = ';'
+
+    for(let item of items) {
+        if(item.dbId === id) {
+            result = item.name;
+            for(property of item.properties) {
+                if(property.attributeName === 'parent') {
+                    result = getComponentPath(items, property.displayValue) + '|' + result;
+                }
+            }
+
+        }
+    }
+
+    return result;
+
+}
+
 
 
 // Set custom colors for multiple records

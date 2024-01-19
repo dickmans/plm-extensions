@@ -9,7 +9,8 @@ $(document).ready(function() {
     appendOverlay();
     
     // call methods of common/ui.js to insert PLM data
-    insertViewer(link, 240);
+    insertViewer(link, viewerBGColors[theme].level1);
+    insertBOM(link);
     insertItemDetails(link);
     insertAttachments(link);
 
@@ -33,7 +34,7 @@ function setUIEvents() {
 
     // Header Toolbar
     $('#button-settings').click(function() {
-        showErrorMessage('Not implemented yet');
+        showErrorMessage('Expected Error', 'Not implemented yet');
     });
 
 }

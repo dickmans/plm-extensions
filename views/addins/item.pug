@@ -9,7 +9,13 @@ block head
 
 block body  
 
-    body
+    body.embedded
+
+        #header.dark
+            #header-logo
+            #header-title= title
+            #header-toolbar
+                #header-avatar
 
         .screen.surface-level-1  
 
@@ -25,24 +31,18 @@ block body
                     .panel-toolbar 
                         .button.icon.icon-bookmark#bookmark
                         .button.icon.icon-open#open
-                .panel-content#details-sections
+                .panel-content.compact#details-sections
 
-            .panel.tab-group-main#bom-flat
+            .panel.tab-group-main#flat-bom
             
-            .panel.tab-group-main#variants
-                .panel-header 
-                    .panel-title#item-variants-header 
-                    .panel-toolbar 
-                        .button.with-icon.icon-tiles#item-variants-select Farbwelten wählen
-                .panel-content#item-variants-editor 
-                    #master-bom
+            .panel.tab-group-main#master-bom
 
             .panel.tab-group-main#attachments
                 .panel-header   
                     .panel-title
                     .panel-toolbar 
                         .button.with-icon.icon-upload.default#upload Datei hochladen
-                .panel-content#attachments-list
+                .panel-content#attachments-list.attachments.list
 
 
             .dialog#dialog-variants

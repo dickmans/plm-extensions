@@ -1,0 +1,53 @@
+/*  REPORT */
+/* ----------------------------------------------------------------------------- */
+.report {
+    border   : 36px solid var( --color-surface-level-1);
+    overflow : hidden;
+}
+.report.table {
+    width : 100%;
+}
+.report.chart {
+    height : 270px;
+}
+.report-head {
+    display         : flex;
+    justify-content : space-between;
+    line-height     : 24px;
+}
+.report-title {
+    font-size   : 18px;
+    font-weight : 800;
+}
+.report-subtitle {
+    font-size     : 12px;
+    margin-bottom : 16px;
+}
+.report-close {
+    cursor : pointer;
+}
+.report-close:hover {
+    color : var(--color-blue-500);
+}
+
+
+/*  CHARTS */
+/* ----------------------------------------------------------------------------- */
+.wrapper {
+    height : 204px;
+}
+.report-no-data {
+    color: var(--color-status-red);
+    font-size: 12px;
+}
+
+
+/*  TABLES */
+/* ----------------------------------------------------------------------------- */
+.report-tbody td {
+    font-size : 0.9em;
+    white-space : nowrap;
+}
+.report-table {
+    overflow : auto;
+}

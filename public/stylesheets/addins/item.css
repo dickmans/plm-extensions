@@ -2,13 +2,42 @@
 .isolate-off::before { content : '\e9f5'; }
 .isolate-on::before  { content : '\e9f6'; }
 .isolate-on, 
-.filter-selected { background : var(--color-status-yellow) !important; }
+.filter-selected { 
+    background   : var(--color-status-yellow) !important;
+    border-color : var(--color-status-yellow) !important;
+}
+.panel { top : 40px !important; }
+.panel-content { top: 32px !important; }
+
+
+#details > .panel-header {
+    height  : 0px;
+    /* padding : 0px; */
+}
 
 
 /* Flat BOM Check Box toggles */
-.blue-theme #bom-flat-tbody tr.selected td.flat-bom-check { background : var(--color-blue-500) !important; }
-.blue-theme #bom-flat-tbody tr.selected td.flat-bom-check .icon-check-box::before { content : '\e834'; }
+/* #bom-flat-tbody tr.selected td.flat-bom-check .icon-check-box::before { content : '\e834'; } */
 
+
+.flat-bom-item {
+    background : var(--color-surface-level-4);
+}
+.flat-bom-item input,
+.flat-bom-item select {
+    
+    background : var(--color-surface-level-2);
+}
+.flat-bom-column-model_year > select {
+    width : 70px;
+}
+.icon-check-box {
+    font-size : 14px !important;
+    line-height : 14px;
+    position: relative;
+    top: 2px;
+    left: 2px;
+}
 
 /* Dialog */
 .dialog {
@@ -22,14 +51,15 @@
     margin-left : 0px;
 }
 
-
-.blue-theme .flat-bom td { padding : 2px 5px; }
-.blue-theme .flat-bom .panel-content select, 
-.blue-theme .flat-bom .panel-content input {
-    background : var(--color-blue-surface-level-2-5);
-    border : none;
-    color : white;
-}
-.blue-theme .flat-bom .panel-content input {padding : 4px 8px; }
-.blue-theme .flat-bom .panel-content select { padding : 2px 8px; }
 .flat-bom-search-input { font-size : 12px; }
+
+
+/* VARIANTS SELECTION */
+/* ----------------------------------------------------------------------------- */
+#dialog-variants {
+    top     : 50px;
+    right   : calc(50% - 200px);
+    bottom  : 50px;
+    left    : calc(50% - 200px);
+    width   : unset;
+}

@@ -3,43 +3,36 @@ extends ../framework/layout
 block head
 
     link(rel='stylesheet', href='/stylesheets/apps/service.css')
-    script(src='/javascripts/libs/Chart.bundle.min.js')
     script(src='/javascripts/apps/service.js')
     script.
         config = !{JSON.stringify(config)};
 
 block body
 
-    body.text-selection-off.surface-level-1
+    body.text-selection-off.surface-level-1.screen-landing
 
         #header.dark
             #header-logo
             #header-title= title
             #header-subtitle
             #header-toolbar
-                #button-reset.button(title='Reset BOM selection and viewer' style='display:none') Reset
                 #toggle-bom.button.with-icon.icon-bom-tree(title='Toggle BOM display on/off') Toggle BOM
                 #toggle-attachments.button.with-icon.icon-pdf(title='Toggle selected items files list on/off') Toggle Files
                 #toggle-details.button.with-icon.icon-details(title='Toggle selected item details on/off') Toggle Details
                 #toggle-panel.button.with-icon.icon-tiles-list(title='Toggle list of Spare Parts / Problem Reports on and off') Toggle List
-                #list-requests.button.disabled Pending Requests
-                #submit-request.button.with-icon.icon-send(title='Review and confirm list of selected spare parts before submitting the request') Submit Request
+                #submit-request.button.with-icon.icon-send(title='Review and confirm list of selected spare parts before submitting the request') Send Request
+                #done.button.with-icon.icon-home(title='Close this product display and return to landing page') Home
                 #header-avatar
         
         #counter
 
-        #main.screen
+        .screen#landing 
+            .panel#products.surface-level-1 
+            .panel#requests.surface-level-3
 
-            #bom
-                .panel-header
-                    .panel-title Bill of Materials
-                    .panel-toolbar
-                        .button.with-icon.icon-filter
-                            input#bom-search-input(placeholder='Filter')
-                .panel-content#bom-tree
-                    table#bom-table(cellspacing='0')
+        .screen#main
 
-            #divider-bom.screen-divider.vertical
+            .panel#bom.surface-level-1
 
             #viewer.viewer
 
@@ -48,31 +41,27 @@ block body
                     .panel-title.centered Attachments
                 #attachments-list
 
-            #divider-details.screen-divider.vertical
-
-            #details.panel.compact
+            #details.panel
                 .panel-header   
                     .panel-title Details 
                     .panel-toolbar 
                         .button.icon.icon-bookmark#bookmark
                         .button.icon.icon-open#open
-                .panel-content.surface-level-2#details-sections
+                .panel-content.surface-level-2.compact#details-sections
 
-            #divider-panel.screen-divider.vertical
-
-            .panel#panel 
-                .tabs.dark(data-tab-group="tab-group-main")
+            .panel#panel
+                .tabs(data-tab-group="tab-group-main")
                     div.selected(data-id='items') Spare Parts
                     div(data-id='processes') Problem Reports
                     div.hidden#tab-charts(data-id='charts') Maintenance
                 .panel-content.tab-group-main#items
-                    #items-list.list.tiles.l
+                    #items-list.list.tiles.l.surface-level-1
                 .panel-content.tab-group-main#processes
                     #processes-toolbar
                         .button#create-process(title='Initiate new process in PLM') Create
                         .button.process-dialog#cancel-process(title='Cancel creation of new process and return to list of related processes') Cancel
                         .button.process-dialog.default#save-process(title='Save new process in PLM') Save
-                    #processes-list.list.tiles.l
+                    #processes-list.list.tiles.l.surface-level-1
                     #processes-sections.form.surface-level-2
                 .panel-content.tab-group-main#charts
                     #charts-list
@@ -92,14 +81,14 @@ block body
                             #qr-code.button 
                                 img.qr-code
 
-            #request.dialog
+            #request.dialog.surface-level-1
                 .dialog-header New Spare Parts Request
                 .dialog-content
                     .col-left 
                         .col-header Notes
                         textarea#comments
                     .col-right
-                        .col-header List of Spare Parts
+                        .col-header Selected Spare Parts
                         #request-list
                 .dialog-footer
                     #request-submit.button.default Submit

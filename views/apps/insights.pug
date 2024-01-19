@@ -3,14 +3,16 @@ extends ../framework/layout
 block head
     
     link(rel='stylesheet', href='/stylesheets/apps/insights.css')
-    script(src='../javascripts/libs/Chart.bundle.min.js')
+    script(src='https://cdn.jsdelivr.net/npm/chart.js')
+    script(src='https://cdn.jsdelivr.net/npm/moment@^2')
+    script(src='https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@^1')
     script(src='../javascripts/apps/insights.js')
     script.
         config = !{JSON.stringify(config)};
 
 block body
 
-    body.surface-level-1
+    body.surface-level-2
 
         #header
             #header-logo
@@ -19,12 +21,11 @@ block body
             #header-toolbar
                 #header-avatar
 
-
         #main.screen.panel
-            .tabs(data-tab-group="tab-group-main")
+            .tabs.surface-level-5(data-tab-group="tab-group-main")
                 div System
                 div Last Login
-                div Logins
+                div Login History
                 div User Activity
                 div Workspaces Activity
                 div Item Count
@@ -33,16 +34,16 @@ block body
                 div Event Log
             .panel-content.tab-group-main.dashboard.surface-level-2-5#system
                 .counter
-                    #workspaces-count.counter-number 0
+                    #workspaces-count.counter-number ?
                     .counter-label Workspaces 
                 .counter
-                    #users-count.counter-number 0
+                    #users-count.counter-number ?
                     .counter-label Active Users 
                 .counter
-                    #entries-count.counter-number 0
+                    #entries-count.counter-number ?
                     .counter-label Log entries     
                 .counter
-                    #days-count.counter-number 0
+                    #days-count.counter-number ?
                     .counter-label Log days 
                 .dashboard-chart
                     .title Users by status
@@ -70,7 +71,7 @@ block body
                     .title Active users / unique logins per day 
                     .chart
                         canvas#timelineLogins
-            .panel-content.tab-group-main.surface-level-1
+            .panel-content.tab-group-main.surface-level-1#panelTimelineUsers
                 canvas#timelineUsers
             .panel-content.tab-group-main.surface-level-1
                 canvas#workspaceActivities
@@ -83,9 +84,9 @@ block body
             .panel-content.tab-group-main.surface-level-1 
                 .toolbar
                     span.select-label Select user:
-                    select#select-user
+                    select.button#select-user
                 .wrapper
-                    table.fixed-header#events
+                    table.fixed-header.row-hovering#events
                         tr
                             th User
                             th Event

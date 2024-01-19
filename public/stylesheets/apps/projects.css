@@ -1,15 +1,12 @@
-/*  EXTRAS */
-/* ----------------------------------------------------------------------------- */
-#overlay { display : block; }
-
-
-
 /*  DASHBOARD */
 /* ----------------------------------------------------------------------------- */
+#charts {
+    padding-top : 0px;
+}
 .dashboard > div {
     display : none;
     padding : 40px;
-    width : 100%;
+    width   : 100%;
 }
 .dashboard > div.half {
     width : calc(50% - 90px)
@@ -25,15 +22,17 @@ table {
 tr {
     cursor : pointer;
 }
-th {
-    background : black;
-    color : white;
+.surface-level-3 th {
+    color       : var(--color-font); 
+    background  : var(--color-surface-level-3);
 }
-td {
-    font-size : 0.9em;
-    height : 26px;
-    padding : 0.4em 1.2em 0.4em 0.5em;
-    white-space : nowrap;
+.surface-level-3 td {
+    background      : var(--color-surface-level-2);
+    border-color    : var(--color-surface-level-1);
+    font-size       : 0.9em;
+    height          : 26px;
+    padding         : 0.4em 1.2em 0.4em 0.5em;
+    white-space     : nowrap;
 }
 
 
@@ -44,9 +43,9 @@ td {
 .bg-gray        { background : #c2cdd3; }
 
 .project-status {
-    text-align : center;
-    color : white;
+    text-align  : center;
+    color       : white;
     line-height : 24px;
-    height : 24px;
-    width : 64px;
+    height      : 24px;
+    width       : 64px;
 }

@@ -84,7 +84,7 @@ function setUIEvents() {
     $('#continue').click(function() {
 
         if(!validateForm($('#new-sections'))) {
-            showErrorMessage('Field validations faild', 'Cannot Save');
+            showErrorMessage('Cannot Save', 'Field validations faild');
             return;
         }
 
@@ -161,6 +161,7 @@ function setStatusColumns() {
         let elemStateList = $('<div></div>');
             elemStateList.addClass('progress-column');
             elemStateList.addClass('list');
+            elemStateList.addClass('surface-level-2');
             elemStateList.addClass('tiles');
             elemStateList.addClass('l');
             elemStateList.attr('data-states', state.states);
@@ -194,6 +195,10 @@ function setCalendars() {
 
 }
 function setChart() {
+
+    Chart.defaults.borderColor       = chartThemes[theme].axisColor;
+    Chart.defaults.color             = chartThemes[theme].fontColor;
+    Chart.defaults.scale.grid.color  = chartThemes[theme].gridColor;
 
     let ctx = document.getElementById('chart').getContext('2d');
 
@@ -661,7 +666,7 @@ function openItem(link) {
         let statusId    = response.data.currentState.link.split('/').pop();
 
         insertWorkflowHistory(link, null, status, statusId, wsConfig.workflowHistory.excludedTransitions, wsConfig.workflowHistory.finalStates, wsConfig.workflowHistory.showNextActions);
-        insertViewer(linkItem);
+        insertViewer(linkItem, viewerBGColors[theme].level1);
         
         for(state of wsConfig.progress) {
             if(state.states.indexOf(status) > -1) {

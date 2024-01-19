@@ -98,7 +98,7 @@ function setUIEvents() {
     $('#services').click(function() {
         let itemLink = $('#viewer').attr('data-link').split('/');
         let url = document.location.href.split('/portfolio')[0];
-        window.open(url + '/service?wsId=' + itemLink[4] + '&dmsId=' + itemLink[6]);
+        window.open(url + '/service?wsId=' + itemLink[4] + '&dmsId=' + itemLink[6] + '&theme=' + theme);
     });
     $('#product-close').click(function() {
         $('#product').hide();
@@ -106,12 +106,6 @@ function setUIEvents() {
     $('.tab').click(function() {
         $(this).toggleClass('collapsed');
         $(this).next().toggle();
-    });
-    $('.product-action').click(function() {
-        $(this).addClass('selected');
-        $(this).siblings().removeClass('selected');
-        let elemSelected = $('#' + $(this).attr('data-id'));
-            elemSelected.show().siblings('.product-panel').hide();
     });
 
 
@@ -506,7 +500,6 @@ function setProductDetails(link) {
             $('#product-text').show();
         }
         
-
         for(section of response.data.sections) {
 
             if(section.hasOwnProperty('classificationId')) {
@@ -574,14 +567,13 @@ function setProductDetails(link) {
 
         }
 
-
         let ebom = getSectionFieldValue(response.data.sections, 'ENGINEERING_BOM', '');
 
         if(ebom !== '') {
             $('#viewer').show();
             $('#viewer-empty').hide();
-            insertViewer(ebom, 240);
-            insertFlatBOM(ebom, 'product-bom', config.portfolio.bomViewName);
+            insertViewer(ebom, viewerBGColors[theme].level1);
+            insertFlatBOM(ebom, { 'id' : 'product-bom'});
         } else {
             $('#product-bom-processing').hide();
             $('#viewer-empty').show();
@@ -594,7 +586,7 @@ function setProductDetails(link) {
 
 
 // Click BOM Item
-function selectBOMItem(e, elemClicked) {
+function clickFlatBOMItem(e, elemClicked) {
 
     if(elemClicked.hasClass('selected')) {
 
@@ -603,7 +595,7 @@ function selectBOMItem(e, elemClicked) {
 
     } else {
 
-        $('.bom-item').removeClass('selected');
+        elemClicked.siblings().removeClass('selected');
         elemClicked.addClass('selected');
 
         let partNumber = elemClicked.attr('data-part-number');
@@ -625,6 +617,6 @@ function initViewerDone() {
 }
 function viewerSelectionResetDone() {
 
-    $('.bom-item').removeClass('selected');
+    $('.flat-bom-item').removeClass('selected');
     
 }

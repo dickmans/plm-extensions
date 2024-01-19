@@ -1,7 +1,6 @@
 /*  EXTRAS */
 /* ----------------------------------------------------------------------------- */
 /* #item .panel-content { top : 482px; right : 330px; transition: all ease 0.25s; } */
-.section-fields .field { border-color : white; padding : 0px; }
 .section-fields .field-value { background : none; width : calc(100% - 150px); }
 .bom-item { display: revert; }
 
@@ -12,48 +11,48 @@
 
     --width-affected-items : 450px;
     --height-viewer : 300px;
-    --width-details : 400px;
+    --width-details : 420px;
     --padding-panel : 25px;
 
 }
 
 #nav {
-    border : var(--padding-panel) solid #f5f5f5;
-    top : 0px;
-    bottom : 0px;
-    left : 0px;
-    width : var(--width-affected-items);   
+    border  : var(--padding-panel) solid var(--color-surface-level-2);
+    top     : 0px;
+    bottom  : 0px;
+    left    : 0px;
+    width   : var(--width-affected-items);   
 }
 #item {
-    top : var(--padding-panel);
-    right : var(--padding-panel);
-    bottom : var(--padding-panel);
-    left : calc((3 * var(--padding-panel)) + var(--width-affected-items));
+    top     : var(--padding-panel);
+    right   : var(--padding-panel);
+    bottom  : var(--padding-panel);
+    left    : calc((3 * var(--padding-panel)) + var(--width-affected-items));
 }
 .viewer {
-    height : var(--height-viewer);
+    height   : var(--height-viewer);
     position : absolute;
-    top : 140px;
-    right :0px;
-    left : 0px;  
+    top      : 140px;
+    right    : 0px;
+    left     : 0px;  
 }
 #tabs {
     position : absolute;
-    top : calc(var(--height-viewer) + 138px);
-    right : 0px;
-    left : 0px;
+    top      : calc(var(--height-viewer) + 146px);
+    right    : 0px;
+    left     : 0px;
 }
 #details {
-    width : var(--width-details);
-    top : 147px;;
-    right : calc(0px - var(--width-details) - (2 * var(--padding-panel)));
+    width  : var(--width-details);
+    top    : 165px;;
+    right  : calc(0px - var(--width-details) - (2 * var(--padding-panel)));
     bottom : var(--padding-panel);
 }
 
 .no-nav #nav { left : calc(0px - var(--width-affected-items) - (2 * var(--padding-panel))); }
 .no-nav #item { left : var(--padding-panel); }
 
-#item .panel-content {top : calc(var(--height-viewer) + 180px); }
+#item .panel-content {top : calc(var(--height-viewer) + 186px); }
 
 .no-viewer .viewer { display : none; }
 .no-viewer #tabs { top : 150px; }
@@ -68,7 +67,7 @@
 
 .with-details .viewer,
 .with-details #tabs,
-.with-details #item .panel-content { right : calc((1 * var(--padding-panel)) + var(--width-details))}
+.with-details #item .panel-content { right : calc(10px + var(--width-details))}
 .with-details #details { right : var(--padding-panel) !important; }
 
 
@@ -86,8 +85,8 @@ body.no-viewer #hide-viewer { display : none; }
     padding-right : 6px;
 }
 .nav-item.unread > .tile-image {
-    background : var(--color-gray-900) !important;
-    color : var(--color-gray-300) !important;
+    background : var(--color-status-yellow) !important;
+    color : white !important;
 }
 .nav-item .tile-details {
     overflow : hidden;
@@ -196,7 +195,7 @@ body.no-viewer #hide-viewer { display : none; }
     color : var(--color-selected);
 } */
 .count-done .counter { background : var(--color-blue-500); }
-.count-none .counter { background : black; }
+.count-none .counter { background : var(--color-dark); }
 .count-work .counter { background : var(--color-status-yellow); }
 
 .content-area {
@@ -224,9 +223,9 @@ body.no-viewer #hide-viewer { display : none; }
     font-size : 12px;
     padding : 4px 16px;
 }
-.content-table > thead > tr > th {
+/* .content-table > thead > tr > th {
     background : var(--color-gray-300);
-}
+} */
 
 
 /*  CHANGE LOG */
@@ -431,15 +430,14 @@ body.no-viewer #bom-color-toggle {
 
 
 
-
 /*  CHANGED */
 /* ----------------------------------------------------------------------------- */
 #related-list {
     padding : 10px;
 }
 .changed-item {
-    border : 1px solid #d9d9d9;
-    background : #d9d9d9;
+    border : 1px solid var(--color-surface-level-4);
+    background : var(--color-surface-level-4);
     border-radius : 4px;
     cursor : pointer;
     float : left;
@@ -462,6 +460,7 @@ body.no-viewer #bom-color-toggle {
 #related-actions { display : none; }
 
 
+
 /*  FILES */
 /* ----------------------------------------------------------------------------- */
 td.status-new     { background : var(--color-status-red);    color : white; }
@@ -475,10 +474,10 @@ td.status-match   { background : var(--color-status-green);  color : white; }
 /* ----------------------------------------------------------------------------- */
 #details > .panel-header > .panel-title {
     font-size : 16px;
-    padding : 12px 14px 8px;
+    padding   : 12px 14px 8px;
 }
 #details .panel-content {
-    top : 40px;
+    top : 0px;
 }
 .section-fields .field-label {
     max-width : 120px;

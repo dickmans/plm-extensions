@@ -64,9 +64,8 @@ $(document).ready(function() {
     $('#header-subtitle').html(tenant.toUpperCase());
 
     validateAdminAccess(function(isAdmin) {
-        
         if(!isAdmin) {
-            showErrorMessage('Access to System Log and user account information requires assignment to group Adminisstration [SYSTEM]', 'Additional Permission Required');
+            showErrorMessage('Additional Permission Required', 'Access to System Log and user account information requires assignment to group Administration [SYSTEM]');
         } else {
             initCharts();
             setUIEvents();
@@ -94,29 +93,38 @@ function validateAdminAccess(callback) {
 
 }
 
+
 // Set defaults for chart.js & init user interactions
 function initCharts() {
+
+   Chart.defaults.borderColor       = chartThemes[theme].axisColor;
+   Chart.defaults.color             = chartThemes[theme].fontColor;
+   Chart.defaults.scale.grid.color  = chartThemes[theme].gridColor;
     
     chartUserStatus = new Chart($('#status'), {
-        type: 'doughnut',
-        data: {
-            labels: ['Active', 'Inactive', 'Deleted'],
+        type : 'doughnut',
+        data : {
+            labels : ['Active', 'Inactive', 'Deleted'],
             datasets: [{
-                data: [0,0,0],
-                backgroundColor : [ config.colors.green, config.colors.yellow, config.colors.red ]
+                data            : [0,0,0],
+                backgroundColor : [ config.colors.green, config.colors.yellow, config.colors.red ],
+                borderWidth     : 0
             }]
         },
-        options: {
-            maintainAspectRatio: false,
-            responsive: true,
-            legend : {
-                position : 'bottom'
-            }
+        options : {
+            plugins : {
+                legend : {
+                    display  : true,
+                    position : 'bottom'
+                }
+            },
+            maintainAspectRatio : false,
+            responsive          : true
         }
     });
     
     chartUserDomain = new Chart($('#domains'), {
-        type: 'horizontalBar',
+        type: 'bar',
         data: {
             labels: [],
             datasets: [{
@@ -126,164 +134,133 @@ function initCharts() {
         },
         options: {
             maintainAspectRatio: false,
-            responsive: true,
+            indexAxis: 'y',
+            plugins : {
+                legend : {
+                    display  : false
+                }
+            },
+            responsive: true
+        }
+    });
+    
+    chartTimelineLastLogins = new Chart($('#timelineLastLogins'), {
+        type : 'bar',
+        data : {
+            datasets : [{
+                label           : 'Days since last login',
+                backgroundColor : config.colors.blue,
+                minBarLength    : 1,
+                data            : []
+            }]
+        },
+        options : {
+            maintainAspectRatio : false,
+            indexAxis           : 'y',
             legend : {
                 display : false
             },
-            scales: {
-                xAxes: [{
-                    ticks: {
-                        beginAtZero: true,
-                        precision : 0
-                    }
-                }],
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true
-                    }
-                }]
+            scales : {
+                y : {                   
+                    type    : 'category',
+                    labels  : []
+                }
             }
         }
     });
 
     chartTimelineLogins = new Chart($('#timelineLogins'), {
-        type: 'bar',
-        data: {
-            datasets: [{
-                label : 'Logins',
-                data : [],
+        type : 'bar',
+        data : {
+            datasets : [{
+                label           : 'Logins',
+                data            : [],
                 backgroundColor : '#ef9b12',
-                borderWidth : 0,
-                lineTension : 0
-            }, {
-                label : 'Users not logging in',
-                data : [],
+                lineTension     : 0
+            },{
+                label           : 'Users not logging in',
+                data            : [],
                 backgroundColor : '#f7cc93',
-                borderWidth : 0,
-                lineTension : 0
+                lineTension     : 0
             }]
         },
-        options: {
-            maintainAspectRatio: false,
+        options : {
+            maintainAspectRatio : false,
             legend : {
                 position : 'bottom'
             },
-            scales: {
-                yAxes: [{
+            scales : {
+                x : {
                     stacked : true,
-                    ticks: {
-                        beginAtZero: true
-                    }
-                }],
-                xAxes: [{
-                    stacked : true,
-                    type: 'time',
-                    time: {
+                    type    : 'time',
+                    time    : {
                         unit: 'day'
                     }
-                }]
+                }, 
+                y : {
+                    stacked : true,
+                    ticks   : {
+                        beginAtZero : true
+                    }
+                }
             }
         }
     });
-    
-    chartTimelineLastLogins = new Chart($('#timelineLastLogins'), {
-        type: 'horizontalBar',
-        data: {
-            datasets: [{
-                label : 'Days since last login',
-                backgroundColor: config.colors.blue,
-                borderWidth : 1,
-                minBarLength : 1,
-                data: []
-            }]
-        },
-        options: {
-            maintainAspectRatio: false,
-            legend : {
-                display : false
-            },
-            scales: {
-                yAxes: [{
-                    type: 'category',
-                    labels : []
-                }]
-            }
-        }
-    });
-    
+
     chartTimelineUsers = new Chart($('#timelineUsers'), {
         type: 'bubble',
         data: {
             datasets: [{
-                label : 'Logins',
-                backgroundColor: 'rgba(238, 136, 34, 0.2)',
-                borderColor:'rgba(238, 136, 34, 1)',
-                data: []
+                label           : 'Login',
+                backgroundColor : 'rgba(238, 136, 34, 0.2)',
+                borderColor     : 'rgba(238, 136, 34, 1)',
+                data            : []
             },{
-                label : 'Create',
-                backgroundColor: 'rgba(50, 188, 173, 0.2)',
-                borderColor:'rgba(50, 188, 173, 1)',
-                data: []
+                label           : 'Create',
+                backgroundColor : 'rgba(50, 188, 173, 0.2)',
+                borderColor     : 'rgba(50, 188, 173, 1)',
+                data            : []
             },{
-                label : 'Edit',
-                backgroundColor: 'rgba(24, 88, 168, 0.2)',
-                borderColor:'rgba(24, 88, 168, 1)',
-                data: []   
+                label           : 'Edit',
+                backgroundColor : 'rgba(24, 88, 168, 0.2)',
+                borderColor     : 'rgba(24, 88, 168, 1)',
+                data            : []   
             },{
-                label : 'Workflow Action',
-                backgroundColor: 'rgba(135, 188, 64, 0.2)',
-                borderColor : 'rgba(135, 188, 64, 1)',
-                data: []    
+                label           : 'Workflow Action',
+                backgroundColor : 'rgba(135, 188, 64, 0.2)',
+                borderColor     : 'rgba(135, 188, 64, 1)',
+                data            : []    
             },{
-                label : 'Milestones',
-                backgroundColor: 'rgba(221, 34, 34, 0.2)',
-                borderColor:'rgba(221, 34, 34, 1)',
+                label           : 'Milestones',
+                backgroundColor : 'rgba(221, 34, 34, 0.2)',
+                borderColor     : 'rgba(221, 34, 34, 1)',
             },{
-                label : 'Attachments',
-                backgroundColor: 'rgba(167, 0, 99, 0.2)',
-                borderColor : 'rgba(167, 0, 99, 1)',
-                data: []
+                label           : 'Attachments',
+                backgroundColor : 'rgba(167, 0, 99, 0.2)',
+                borderColor     : 'rgba(167, 0, 99, 1)',
+                data            : []
             }]
         },
-        options: {
+        options : {
             maintainAspectRatio: false,
-            legend : {
-                position : 'bottom'
+            responsive : true, 
+            // clip : 0,
+            plugins : {
+                legend : {
+                    position : 'top'
+                }
             },
-            scales: {
-                yAxes: [{
-                    type: 'category',
-                    labels : []
-                }],
-                xAxes: [{
-                    type: 'time',
+            scales : {  
+                x : {
+                    type : 'time',
                     time: {
-                        unit: 'day'
+                        unit : 'day'
                     }
-                }]
-            }
-        }
-    });
-    
-    chartWorkspaceCount = new Chart($('#workspaces'), {
-        type: 'bar',
-        data: {
-            labels: [ 'Workspace' ],
-            datasets: []
-        },
-        options: {
-            maintainAspectRatio: false,
-            responsive: true,
-            legend : {
-                display : true,
-                position : 'bottom'
-            },
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true
-                    }
-                }]
+                },
+                y : {
+                    type   : 'category',
+                    labels : []
+                }
             }
         }
     });
@@ -293,89 +270,118 @@ function initCharts() {
         data: {
             labels : [],
             datasets: [
-                { label : 'Create'      , data : [], backgroundColor: 'rgba(50, 188, 173, 0.6)' },
-                { label : 'Edit'        , data : [], backgroundColor: 'rgba(24, 88, 168, 0.6)' },
-                { label : 'Workflow'    , data : [], backgroundColor: 'rgba(135, 188, 64, 0.6)' },
-                { label : 'Milestones'  , data : [], backgroundColor: 'rgba(221, 34, 34, 0.6)' },
-                { label : 'Attachments' , data : [], backgroundColor: 'rgba(167, 0, 99, 0.6)' },
+                { label : 'Create'      , data : [], backgroundColor: 'rgba(50,  188, 173, 0.6)' },
+                { label : 'Edit'        , data : [], backgroundColor: 'rgba(24,   88, 168, 0.6)' },
+                { label : 'Workflow'    , data : [], backgroundColor: 'rgba(135, 188,  64, 0.6)' },
+                { label : 'Milestones'  , data : [], backgroundColor: 'rgba(221,  34,  34, 0.6)' },
+                { label : 'Attachments' , data : [], backgroundColor: 'rgba(167,   0,  99, 0.6)' },
             ]
         },
         options: {
-            maintainAspectRatio: false,
-            responsive: true,
+            maintainAspectRatio : false,
+            responsive : true,
             legend : {
-                display : true,
+                display  : true,
                 position : 'bottom'
             },
             scales: {
-                xAxes : [{
+                x : {
                     stacked : true 
-                }],
-                yAxes: [{
+                },
+                y: {
                     stacked : true,
                     ticks: {
                         beginAtZero: true
                     }
-                }]
+                }
             }
         }
     }); 
+
+    chartWorkspaceCount = new Chart($('#workspaces'), {
+        type : 'bar',
+        data : {
+            labels   : ['Workspaces'],
+            datasets : []
+        },
+        options : {
+            maintainAspectRatio : false,
+            responsive          : true,
+            plugins : {
+                legend : {
+                    display  : true,
+                    position : 'right'
+                }
+            },
+            scales : {
+                y : {
+                    ticks : {
+                        beginAtZero : true
+                    }
+                }
+            }
+        }
+    });
     
     chartTimelineCreation = new Chart($('#timelineCreation'), {
-        type: 'line',
-        data: {
-            datasets: []
+        type : 'line',
+        data : {
+            datasets : []
         },
-        options: {
-            legend : {
-                position : 'bottom'
+        options : {
+            maintainAspectRatio : false,
+            plugins : {
+                legend : {
+                    display  : true,
+                    position : 'right'
+                }
             },
-            maintainAspectRatio: false,
-            scales: {
-                yAxes: [{
-//                    stacked : true,
-                    ticks: {
-                        beginAtZero: true
+            scales : {
+                x : {
+                    type : 'time',
+                    time : {
+                        unit : 'day'
                     }
-                }],
-                xAxes: [{
-//                    stacked : true,
-                    type: 'time',
-                    time: {
-                        unit: 'day'
+                },
+                y : {
+                    ticks : {
+                        beginAtZero : true
                     }
-                }]
+                }
             }
         }
     });
     
     chartTimelineEdits = new Chart($('#timelineEdits'), {
-        type: 'bar',
-        data: {
-            labels : [],
-            datasets: [],
+        type : 'bar',
+        data : {
+            labels   : [],
+            datasets : [],
         },
-        options: {
-            legend : {
-                position : 'bottom'
+        options : {
+            plugins : {
+                legend : {
+                    display  : true,
+                    position : 'right'
+                }
             },
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-                yAxes: [{
+                y: {
                     stacked : true,
                     ticks: {
                         beginAtZero: true,
                     }
-                }],
-                xAxes: [{
+                },
+                x: {
                     stacked : true,
                     type: 'time'
                     ,
                     time: {
                         unit: 'day'
                     }
-                }]
+                }
             }
         }
     });
@@ -553,7 +559,7 @@ function addLastLogin(user) {
     
     diff = Math.round(diff, 0);
     
-    chartTimelineLastLogins.options.scales.yAxes[0].labels.push(user.displayName);
+    chartTimelineLastLogins.options.scales.y.labels.push(user.displayName);
     chartTimelineLastLogins.data.datasets[0].data.push(diff);
     
 }
@@ -656,12 +662,12 @@ function getWorkspaceCount(index) {
 // Init timeline charts
 function setTimelineCharts() {
     
-    chartTimelineUsers.options.scales.yAxes[0].labels.push(' ');
+    chartTimelineUsers.options.scales.y.labels.push(' ');
     for(user of users) {
         let userName = user.displayName;
-        if(userName !== ' ') chartTimelineUsers.options.scales.yAxes[0].labels.push(userName);
+        if(userName !== ' ') chartTimelineUsers.options.scales.y.labels.push(userName);
     }
-    chartTimelineUsers.options.scales.yAxes[0].labels.push(' ');
+    chartTimelineUsers.options.scales.y.labels.push(' ');
     chartTimelineUsers.update();
 
     getSystemLogs();
@@ -877,7 +883,6 @@ function processSystemLog(dataset) {
 
 function addEventLog(event, date) {
     
-    
     var elemCellDesc = $('<td></td>');
     var elemCellLink = $('<td></td>');
         elemCellLink.addClass('no-wrap');
@@ -898,7 +903,6 @@ function addEventLog(event, date) {
     } else {
         elemCellLink.append('-');
     }
-    
     
     if(event.description === null) {
         
@@ -1016,68 +1020,10 @@ function addWorkspaceCreation(event, eventDate) {
         var workspace = workspaces[i];
         if(wsId === workspace.id) {
             wsName = workspace.label;
-            color = workspace.colorT;
+            color = workspace.color;
             index = i;
         }
     }
-    
-    
-//    let newDate = (creationDates.indexOf(eventDate.getTime()) === -1);
-//    let newWorkspace = (creationWorkspaces.indexOf(wsName) === -1);
-//    
-//    if(newDate) creationDates.push(eventDate.getTime());
-//    if(newWorkspace) creationWorkspaces.push(wsName);
-//    
-//    if(newDate) {
-//        for(dataset of chartTimelineCreation.data.datasets) {
-//            dataset.data.push({
-//                x : eventDate.getTime(),
-//                y : 0
-//            })
-//        }
-//    }
-//
-//    if(newWorkspace) {
-//        
-//        let newData = [];
-//        
-//        for(editDate of editDates) {
-//            newData.push({
-//                x : editDate,
-//                y : 0
-//            })
-//        }
-//        
-//        chartTimelineCreation.data.datasets.push({
-//            label : wsName,
-//            data : newData,
-//            backgroundColor : color,
-//            borderWidth : 1,
-//            lineTension : 0
-//        });
-//        
-//    }
-//
-//    
-//    
-//        for(dataset of chartTimelineCreation.data.datasets) {
-//        
-//        if(dataset.label === wsName) {
-//            for(record of dataset.data) {        
-//                if(record.x >= eventDate.getTime()) {
-//                    record.y = record.y + 1;
-//                }
-//                if(record.x === eventDate.getTime()) {
-//                    record.y = record.y + 1;
-//                    break;
-//                }
-//            }
-//        }
-//
-//    }
-//    
-//    
-//    console.log(chartTimelineCreation.data.datasets);
     
     for(dataset of chartTimelineCreation.data.datasets) {
         
@@ -1127,14 +1073,13 @@ function addWorkspaceCreation(event, eventDate) {
         })
         
         chartTimelineCreation.data.datasets.push({
-            label : wsName,
-            data : newData,
+            label           : wsName,
+            data            : newData,
             backgroundColor : color,
-            borderWidth : 1,
-            lineTension : 0
+            borderColor     : color,
+            borderWidth     : 1,
+            lineTension     : 0
         });
-        
-        
         
     }
     

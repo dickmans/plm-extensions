@@ -36,7 +36,6 @@ $(document).ready(function() {
     appendProcessing('ebom', false);
     appendProcessing('mbom', false);
     appendProcessing('details');
-    appendViewerProcessing();
     appendOverlay();
 
     insertSearchFilters();
@@ -267,7 +266,7 @@ function getInitialData() {
             }
         }
 
-        if(wsEBOM.viewId === '') showErrorMessage('Error in configuration, BOM view "'+ config.mbom.bomViewNameEBOM + '" could not be found in workspace '+ wsEBOM.wsId, 'Setup Error');
+        if(wsEBOM.viewId === '') showErrorMessage('Setup Error', 'Error in configuration, BOM view "'+ config.mbom.bomViewNameEBOM + '" could not be found in workspace '+ wsEBOM.wsId);
 
         $('#nav-workspace-views-ebom').html(responses[5].data.name);
 
@@ -307,6 +306,8 @@ function getInitialData() {
         }
 
         insertItemDetailsFields('', 'create-item', wsMBOM.sections, wsMBOM.fields, null, true, true, true);
+
+        if(responses[0].error) showErrorMessage('Error at startup', responses[0].data.message);
 
         let linkLatest  = responses[0].data.versions[0].item.link;
         let dmsIDLatest = linkLatest.split('/')[6];
@@ -395,7 +396,7 @@ function processRoots(itemDetails) {
             eBOM.edges.sort(function(a, b){ return a.itemNumber - b.itemNumber });
             mBOM.edges.sort(function(a, b){ return a.itemNumber - b.itemNumber });
 
-            insertViewer(linkEBOM);
+            insertViewer(linkEBOM, viewerBGColors[theme].level1);
             insertItemDetails(linkEBOM);
             insertAttachments(linkEBOM, 'attachments');
             initEditor();
@@ -438,7 +439,7 @@ function createMBOMRoot(itemDetails, callback) {
             data        : JSON.stringify(params)
         }, function(response) {
             if(response.error) {
-                showErrorMessage('Error while creating MBOM root item, the editor cannot be used at this time. Please review your server configuration.', 'Error');
+                showErrorMessage('Error', 'Error while creating MBOM root item, the editor cannot be used at this time. Please review your server configuration.');
             } else {
                 linkMBOM = response.data.split('.autodeskplm360.net')[1];
                 storeMBOMLink(linkEBOM, linkMBOM);
@@ -1291,7 +1292,7 @@ function insertEBOMtoMBOM() {
         
             if(response.error) {
 
-                showErrorMessage('Error while updating item with Matches MBOM flag', 'Error');
+                showErrorMessage('Error', 'Error while updating item with Matches MBOM flag');
 
             } else {
 
@@ -1375,7 +1376,7 @@ function convertEBOMtoMBOM() {
             }, function(response) {
                 console.log(response);
                 if(response.error) {
-                    showErrorMessage('Error while creating matching MBOM item, please review your server configuration and logs', 'Error');
+                    showErrorMessage('Error', 'Error while creating matching MBOM item, please review your server configuration and logs');
                 } else {
 
                     let linkNew     = response.data.split('.autodeskplm360.net')[1];
@@ -1444,7 +1445,7 @@ function copyBOM(wsIdParent, dmsIdParent, linkEBOMRoot, bom) {
                     'dmsIdParent'   : dmsIdParent,
                     'wsIdChild'     : edge.child.split('.')[4],
                     'dmsIdChild'    : edge.child.split('.')[5],
-                    'qty'           : Number(getEdgeProperty(edge, wsEBOM.viewColumns, 'QUANTITY', '0.0')),
+                    'quantity'      : Number(getEdgeProperty(edge, wsEBOM.viewColumns, 'QUANTITY', '0.0')),
                     'pinned'        : config.mbom.pinMBOMItems,
                     'number'        : edge.itemNumber,
                     'fields'        : [
@@ -2550,7 +2551,7 @@ function insertAdditionalItem(elemHead, title, urn, link) {
     
     let elemNodeIcon = $('<div></div>');
         elemNodeIcon.addClass('item-icon');
-        elemNodeIcon.html('<span class="icon"></span>');
+        elemNodeIcon.html('<span class="icon">factory</span>');
         elemNodeIcon.appendTo(elemNodeHead);
     
     let elemNodeTitle = $('<div></div>');
@@ -2597,7 +2598,7 @@ function getIconClassName(link, isProcess, isEBOMItem) {
 
     if(!singleWorkspace) {
         let id = link.split('/')[4];
-        className = (id == wsEBOM.wsId) ? 'ebom ': 'mbom';
+        className = (id == wsEBOM.wsId) ? 'deployed_code' : 'factory';
     } else {
         if(!isBlank(isProcess)) {
             if(isProcess) return 'radio_button_unchecked';
@@ -2632,7 +2633,7 @@ function createItem(type) {
         $('#create-item').show();
         
         if(response.error) {
-            showErrorMessage(' ERROR when creating item');
+            showErrorMessage(null, ' ERROR when creating item');
         } else {
             $.get('/plm/details', { 'link' : response.data.split('.autodeskplm360.net')[1] }, function(response) {
                 addItemListEntry(response.params.link, response.data.urn, response.data.title, 'mbom', $('#create-item-list'), isProcess );
@@ -3183,10 +3184,12 @@ function addBOMItems() {
                     'dmsIdParent'   : paramsParent[6], 
                     'dmsIdChild'    : paramsChild[6],
                     'number'        : elemItem.attr('data-number'),
-                    'qty'           : edQty,
+                    'quantity'      : edQty,
                     'pinned'        : config.mbom.pinMBOMItems,
                     'fields'        : []
                 };
+
+                console.log(params);
 
                 if(isEBOMItem) params.fields.push({ 'link' : linkFieldEBOMItem, 'value' : true });
                 if(!isBlank(linkEBOMRoot)) params.fields.push({ 'link' : linkFieldEBOMRootItem, 'value' : linkEBOMRoot });
@@ -3205,7 +3208,7 @@ function addBOMItems() {
             for(response of responses) {
                 requests.push($.get('/plm/bom-item', { 'link' : response.data }));
                 if(response.error) {
-                    showErrorMessage(response.data[0].message, 'Error while adding BOM items');
+                    showErrorMessage('Error while adding BOM items', response.data[0].message);
                 }
             }
 

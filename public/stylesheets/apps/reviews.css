@@ -1,16 +1,18 @@
 /*  EXTRAS */
 /* ----------------------------------------------------------------------------- */
-#header-subtitle, #bom-header { display : none; }
+#header-subtitle, #bom-header { 
+    display : none; 
+}
 #dialog {
-    height : 350px;
-    left : calc(50% - 225px);
+    height   : 350px;
+    left     : calc(50% - 225px);
     position : absolute;
-    top : calc(50% - 175px);
-    width : 450px;
+    top      : calc(50% - 175px);
+    width    : 450px;
 }
 textarea:focus {
     border-color : none !important;
-    box-shadow : none !important;
+    box-shadow   : none !important;
 }
 
 
@@ -18,34 +20,34 @@ textarea:focus {
 /*  MAIN LAYOUT */
 /* ----------------------------------------------------------------------------- */
 :root {
-    --width-panel : 600px;
+    --width-panel   : 600px;
     --padding-panel : 40px;
 }
 #main-tabs {
-    border-bottom : none;
-    padding : 0px 300px 0px 50px;
-    left : 0px;
-    right : 0px;
-    top : 22px;
+    border-bottom   : none;
+    padding         : 0px 300px 0px 50px;
+    top             : 22px;
+    right           : 0px;
+    left            : 0px;
 }
 #main-tabs > div { 
-    height : 30px;
+    height    : 30px;
     max-width : 350px;
 }
 #review {
     display : none;
 }
 #panel {
-    top : var(--padding-panel);
-    bottom : var(--padding-panel);
-    left : var(--padding-panel);
-    width : var(--width-panel);
+    top     : var(--padding-panel);
+    bottom  : var(--padding-panel);
+    left    : var(--padding-panel);
+    width   : var(--width-panel);
 }
 .viewer {
-    top : 0px;
-    right : 0px;
-    bottom : 0px;
-    left : calc(var(--width-panel) + (2 * var(--padding-panel)));
+    top     : 0px;
+    right   : 0px;
+    bottom  : 0px;
+    left    : calc(var(--width-panel) + (2 * var(--padding-panel)));
 }
 #viewer-process {
     left : calc(50% + (var(--width-panel) / 2) + (var(--padding-panel)) - 33px);
@@ -56,27 +58,26 @@ textarea:focus {
 /*  TILES */
 /* ----------------------------------------------------------------------------- */
 #list .tiles { 
-    justify-content: flex-start;
     padding : 40px; 
 }
 #list .tile {
     height : 180px;
-    width : 700px;
+    width  : 700px;
 }
 #list .tile-image { 
     height : 180px;
-    width : 180px; 
+    width  : 180px; 
 }
 #list .tile-details {
     margin : 26px 30px 20px 30px;
-    width : 460px; 
+    width  : 460px; 
 }
 #empty {
-    display : none;
-    font-style: italic;
-    position : relative;
-    text-align: center;
-    top : calc(50% - 100px);
+    display     : none;
+    font-style  : italic;
+    position    : relative;
+    text-align  : center;
+    top         : calc(50% - 100px);
 }
 #empty i {
     font-size : 48px;
@@ -87,13 +88,10 @@ textarea:focus {
 /*  TILES FILTER */
 /* ----------------------------------------------------------------------------- */
 #main-actions {
-    position : absolute;
-    right : 30px;
-    top : 10px;
-    z-index : 2;
-}
-#filter {
-    width : 140px;
+    position    : absolute;
+    top         : 10px;
+    right       : 30px;
+    z-index     : 2;
 }
 
 
@@ -108,53 +106,72 @@ textarea:focus {
 
 /*  REVIEW PANEL */
 /* ----------------------------------------------------------------------------- */
+#panel input,
 #panel textarea {
-    background: var(--color-gray-100);
-    border: none;
-    width: calc(100% - 16px);
-    padding: 10px;
-    font-family: sans-serif;
-    resize: vertical;
+    background: var(--color-surface-level-2);
+}
+#panel textarea {
+    font-family : sans-serif;
+    padding     : 10px;
+    resize      : vertical;
+    width       : calc(100% - 16px);
 }
 .panel-data {
-    overflow-y : auto;
-    position : absolute;
-    top : 0px;
-    right : 0px;
-    bottom : 72px;
-    left : 0px;
-    transition: all ease 0.25s;
+    overflow-y  : auto;
+    position    : absolute;
+    top         : 0px;
+    right       : 0px;
+    bottom      : 72px;
+    left        : 0px;
+    transition  : all ease 0.25s;
 }
 .form-header {
-    border-bottom: 2px solid black;
-    cursor: pointer;
-    font-size: 16px;
-    padding: 30px 20px 10px 10px;
+    border-bottom   : 2px solid var(--color-surface-level-5);
+    cursor          : pointer;
+    font-size       : 16px;
+    padding         : 30px 20px 10px 10px;
 }
 .form-header.first {
     padding-top : 4px;
 }
 .form-hint {
-    color : var(--color-gray-500);
-    display : none;
-    font-size : 10px;
+    color       : var(--color-gray-500);
+    display     : none;
+    font-size   : 10px;
 }
-textare:focus { outline: none;}
+textare:focus { outline: none; }
 .panel-toolbar {
-    top:auto;
-    bottom : 0px;
     padding : 20px 0px;
-    right : 0px;
+    top     :auto;
+    bottom  : 0px;
+    right   : 0px;
 }
 #bom-item-details-header {
-    font-size: 16px;
-    padding: 12px 24px;
-    font-weight: 800;
+    font-size   : 16px;
+    padding     : 12px 24px;
+    font-weight : 800;
 }
 .field-value .thumbnail {
-    max-height : 200px;
-    max-width : 200px;
+    max-height  : 200px;
+    max-width   : 200px;
 }
+#comments > .panel-content-data {
+    overflow-x : hidden;
+}
+
+
+
+/*  BOM */
+/* ----------------------------------------------------------------------------- */
+#bom-header {
+    display : none;
+}
+#bom-content {
+    top : 0px;
+}
+.flat-bom-number { max-width :  40px; width :  40px; }
+.flat-bom-title  { max-width : 440px; width : 440px; }
+.flat-bom-qty    { max-width :  50px; width :  50px; }
 
 
 /*  ACTIONS */
@@ -165,36 +182,33 @@ textare:focus { outline: none;}
     display : none;
 }
 .action {
-    background : var(--color-gray-100);
-    cursor : pointer;
-    height : 110px !important;
-    overflow : hidden;
-/*    padding : 8px 5px;*/
-    padding : 0px;
-    /* position : relative; */
+    cursor      : pointer;
+    height      : 110px !important;
+    overflow    : hidden;
+    padding     : 0px;
 }
 .action-image {
-    height : 110px;
-    text-align : center;
-    width : 110px;
+    height      : 110px;
+    text-align  : center;
+    width       : 110px;
 }
 .action-image img {
-    height : 100%;
-    object-fit: cover;;
-    width : 100%;
+    height      : 100%;
+    object-fit  : cover;;
+    width       : 100%;
 }
 .action-image .ms {
     line-height : 110px;
-    font-size : 64px;
+    font-size   : 64px;
 }
 .action-details {
     padding : 16px 30px;
-    width : calc(100% - 190px);
+    width   : calc(100% - 190px);
 }
 .action-detail.ms::before {
     margin-right : var(--spacer-xxs);
-    position : relative;
-    top : 2px;
+    position     : relative;
+    top          : 2px;
 }
 .action-title {
     font-weight : 800;
@@ -206,70 +220,72 @@ textare:focus { outline: none;}
     width : 20px;
 }
 .action-status-label {
-    color: white;
-    display: inline-block;
-    font-size: 12px;
-    position: relative;
-    top : 45px;
-    left : -45px;
-    text-align: center;
-    text-overflow: ellipsis;
-    text-transform: uppercase;
-    transform: rotate(90deg);
-    width: 110px;
+    color           : white;
+    display         : inline-block;
+    font-size       : 12px;
+    position        : relative;
+    top             : 45px;
+    left            : -45px;
+    text-align      : center;
+    text-overflow   : ellipsis;
+    text-transform  : uppercase;
+    transform       : rotate(90deg);
+    width           : 110px;
 }
 .action-status.new      { background : var(--color-status-red);    }
 .action-status.pending  { background : var(--color-status-yellow); }
 .action-status.complete { background : var(--color-status-green);  }
 #action-create {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+    display         : flex;
+    flex-direction  : column;
+    gap             : 12px;
 }
 #action-image {
-    /* max-height : 50%; */
     max-width : 100%;
 }
 .image-toolbar > div {
-    float : left;
-    margin-left : 0px;
+    float        : left;
+    margin-left  : 0px;
     margin-right : var(--spacer-s);
 }
 #action-create .label {
-    font-size : 14px;
+    font-size   : 14px;
     font-weight : 600;
-    padding : 10px 15px 0px 0px;
-    text-align : right;
-    width : 100px;
+    padding     : 10px 15px 0px 0px;
+    text-align  : right;
+    width       : 100px;
+}
+#action-create textarea,
+#action-create .input {
+    border-color : var(--color-gray-400);
 }
 #action-create .input {
     padding : 11px;
-    width : calc(100% - 150px);
+    width   : calc(100% - 150px);
 }
 #panel input[type="date"] { 
-    font-family : sans-serif;
     padding : 9px;
 }
 #input-details {
     height : 52px;
 }
 .validation-error {
-    color : var(--color-status-red);
-    font-size : 12px;
-    padding : 8px;
+    color       : var(--color-status-red);
+    font-size   : 12px;
+    padding     : 8px;
 }
 
 
 @keyframes highlight {
  	0% {
- 		background: #fff; 
- 		color: #000; 
+ 		background  : #fff; 
+ 		color       : #000; 
  	} 
     30% {
- 		background: #FCCA7E; 
+ 		background  : #FCCA7E; 
  	}
  	100% {
- 		background: #fff;
+ 		background  : #fff;
  	}
 }
 .highlight {

@@ -162,7 +162,7 @@
 .icon.xxxs { font-size : 16px; }
 
 .icon.hover:hover {
-    color  : var(--color-selected-border);
+    color  : var(--color-blue-500);
     cursor : pointer;
 }
 
@@ -202,13 +202,16 @@
 .icon-create::before            { content : '\e147'; }
 .icon-dashboard::before         { content : '\e871'; }
 .icon-delete::before            { content : '\e872'; }
+.icon-deselect::before          { content : '\f230'; }
 .icon-deselect-all::before      { content : '\e9d3'; }
 .icon-details::before           { content : '\e0ee'; }
+.icon-disconnect::before        { content : '\e16f'; }
 .icon-edit-multiple::before     { content : '\e745'; }
 .icon-expand::before            { content : '\e5cc'; }
 .icon-filter::before            { content : '\e152'; }
 .icon-finish::before            { content : '\eaf8'; }
 .icon-fold::before              { content : '\e5d6'; }
+.icon-go-there::before          { content : '\e5da'; }
 .icon-help::before              { content : '\f1c0'; }
 .icon-hide::before              { content : '\e8f5'; }
 .icon-highlight::before         { content : '\e518'; }
@@ -218,20 +221,24 @@
 .icon-info::before              { content : '\e88e'; }
 .icon-layers::before            { content : '\e53b'; }
 .icon-link::before              { content : '\e157'; }
+.icon-link-add::before          { content : '\e178'; }
 .icon-list::before              { content : '\e896'; }
 .icon-lock::before              { content : '\e897'; }
 .icon-markup::before            { content : '\e560'; }
 .icon-menu::before              { content : '\e5d2'; }
 .icon-mow::before               { content : '\e85f'; }
+.icon-new-window::before        { content : '\f710'; }
 .icon-no-data::before           { content : '\f0ba'; }
 .icon-open::before              { content : '\e89e'; }
 .icon-panel::before             { content : '\f114'; }
 .icon-pdf::before               { content : '\e415'; }
 .icon-problem::before           { content : '\e122'; }
+.icon-product::before           { content : '\f720'; }
 .icon-radio-checked::before     { content : '\e837'; }
 .icon-radio-unchecked::before   { content : '\e836'; }
 .icon-refresh::before           { content : '\e627'; }
 .icon-released::before          { content : '\e031'; }
+.icon-remove::before            { content : '\eb80'; }
 .icon-rules::before             { content : '\f1c2'; }
 .icon-save::before              { content : '\e2c3'; }
 .icon-search-list::before       { content : '\f02f'; }
@@ -243,6 +250,7 @@
 .icon-sliders::before           { content : '\e429'; }
 .icon-start::before             { content : '\e1c4'; }
 .icon-status::before            { content : '\ea50'; }
+.icon-table::before             { content : '\e3ec'; }
 .icon-tabs::before              { content : '\e265'; }
 .icon-target::before            { content : '\f70c'; }
 .icon-tiles::before             { content : '\e9b0'; }
@@ -256,6 +264,7 @@
 .icon-user::before              { content : '\e7fd'; }
 .icon-viewer::before            { content : '\e9fe'; }
 .icon-workflow::before          { content : '\e4fd'; }
+.icon-zoom-in::before           { content : '\e8ff'; }
 
 .icon-chevron-right::before { content : '\e5cc'; }
 .icon-chevron-left::before  { content : '\e5cb'; }

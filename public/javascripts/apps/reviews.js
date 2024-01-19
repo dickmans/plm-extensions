@@ -16,7 +16,6 @@ $(document).ready(function() {
     getTasksWorkspace();
     getSectionIds(config.reviews.workspaces.reviews);
     setUIEvents();
-    selectFirstTabs();
     // setMarkupColors();
     
 });
@@ -34,8 +33,11 @@ function setUIEvents() {
             case 'tab-reviews-all'      : getReviewsAll();       break;
         }
     });
+    $('#main-tabs').children().first().click();
     $('#filter').on('change paste keyup', function() {
-        filterTiles('filter', 'tiles')
+        filterTiles('filter', 'list-pending');
+        filterTiles('filter', 'list-completed');
+        filterTiles('filter', 'list-all');
     });
 
 
@@ -144,14 +146,6 @@ function setUIEvents() {
     
 }
 
-
-// Select first tab in landing page automatically
-function selectFirstTabs() {
-    
-    $('#main-tabs').children().first().click();
-    // $('.panel-toggles').children().first().click();
-    
-}
 
 
 // Init at startup
@@ -355,7 +349,7 @@ function openSelectedItem(elemSelected) {
     $('#bom-list').html('');
     $('#actions-list').html('');
 
-    $('.panel-toggles').children().first().click();
+    // $('.panel-toggles').children().first().click();
 
     let reviewType   = (elemSelected.find('.review-type'  ).length > 0) ? elemSelected.find('.review-type'  ).html() : '';
     let reviewStatus = (elemSelected.find('.review-status').length > 0) ? elemSelected.find('.review-status').html() : '';
@@ -386,8 +380,8 @@ function setDetails() {
         $('#alternatives').val($('<div></div>').html(getSectionFieldValue(response.data.sections, 'ALTERNATIVES', '')).text());
         $('#deficiencies').val($('<div></div>').html(getSectionFieldValue(response.data.sections, 'DEFICIENCIES', '')).text());
 
-        insertViewer(linkItem, 240);
-        insertFlatBOM(linkItem, 'bom', '', '', true, []);
+        insertViewer(linkItem, viewerBGColors[theme].level2);
+        insertFlatBOM(linkItem, { 'id' : 'bom'});
         
         $('#comments-data').show();
         $('#comments-processing').hide();
@@ -434,7 +428,7 @@ function setActions(update) {
     $.get('/plm/search/', params, function(response) {
 
         if(response.error) {
-            showErrorMessage('Failed to load list of actions', 'Error');
+            showErrorMessage('Error', 'Failed to load list of actions');
         } else {
 
             let currentActions    = [];
@@ -685,8 +679,8 @@ function closeReview() {
 }
 
 
-// Get flakt BOM of selected Vault Item to init viewer
-function selectBOMItem(e, elemClicked) {
+// Get flat BOM of selected Vault Item to init viewer
+function clickFlatBOMItem(e, elemClicked) {
 
     elemClicked.removeClass('unread');
     
@@ -697,7 +691,7 @@ function selectBOMItem(e, elemClicked) {
 
     } else {
 
-        $('.bom-item').removeClass('selected');
+        elemClicked.siblings().removeClass('selected');
         elemClicked.addClass('selected');
 
         let partNumber = elemClicked.attr('data-part-number');
@@ -705,14 +699,6 @@ function selectBOMItem(e, elemClicked) {
         viewerResetColors();
         viewerSelectModel(partNumber, true);
 
-    }
-
-    if($('.bom-item.selected').length === 0) {
-        $('#button-bom-reset').addClass('disabled');
-        // $('#button-bom-reset').attr('disabled', 'disabled');
-    } else {
-        $('#button-bom-reset').removeClass('disabled');
-        // $('#button-bom-reset').removeAttribute('disabled');
     }
 
 }
@@ -724,6 +710,7 @@ function initViewerDone() {
 
     viewerAddMarkupControls();   
     viewerAddGhostingToggle();
+    viewerAddResetButton();
     viewerAddViewsToolbar();
 
     $('#viewer-markup-image').attr('data-field-id', 'MARKUP');

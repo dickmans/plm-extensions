@@ -126,7 +126,7 @@ function setUIEvents() {
 
             if(response.error) {
 
-                showErrorMessage(response.message);
+                showErrorMessage('Error', response.message);
 
             } else {
 
@@ -868,7 +868,7 @@ function showItem(ws, link, buttonView) {
 
     if(hasPermission(ws, 'view_attachments')) {
         setItemAttachments(link);
-        insertViewer(link);
+        insertViewer(link, viewerBGColors[theme].level1);
     }
     if(hasPermission(ws, 'view_bom')) setItemBOM(ws, link);
     if(hasPermission(ws, 'view_associated_workflow')) setProcesses(link);
@@ -1506,7 +1506,13 @@ function saveChanges() {
     $('#overlay').show();
     submitEdit($('#item').attr('data-link'), $('#item-edit-sections'), function(response) {
         $('#overlay').hide();
-        openItem($('#item').attr('data-link'));
+        $('#item-edit').hide();
+        $('#item-viewer').hide();
+        $('#item-details').show();
+        $('#item-edit-toolbar').hide();
+        $('#item-button-details').click();
+        // openItem($('#item').attr('data-link'));
+        insertItemDetailsFields($('#item').attr('data-link'), 'item', null, null, null, false, false, false);
         if(response.error) {
             showErrorMessage(response.data.message);
         }

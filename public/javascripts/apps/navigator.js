@@ -18,8 +18,7 @@ $(document).ready(function() {
         $('#workspaces').show();
         $('#workspaces-close').hide();
         $('#header-subtitle').hide();
-        $('#button-change-workspace').addClass('disabled');
-        $('#button-toggle-create').addClass('disabled');
+        $('#button-toggle-create').hide();
         showWorkspacesList();
     } else {
         getInitialData();
@@ -37,6 +36,7 @@ function setUIEvents() {
         $('#workspaces').fadeIn();
         $('#main').fadeOut();
         $('#filter-workspaces').val('');
+        $('#button-toggle-create').hide();
         if(wsId !== '') $('#workspaces-close').show();
         showWorkspacesList();
     });
@@ -140,8 +140,6 @@ function setUIEvents() {
     });
     $('#cancel-clone').click(function() {
         $('body').removeClass('with-clone');
-        let restoreClass = $('#clone').attr('data-restore-class');
-        if(restoreClass !== '') $('body').addClass(restoreClass);
     });
 
 
@@ -301,9 +299,9 @@ function showWorkspacesList() {
                 elemTile.click(function() {
                     let link     = $(this).attr('data-link');
                     let id       = link.split('/')[4];
-                    let location = document.location.href.split('navigator');
-                    let url      = location[0] + 'navigator?wsId=' + id;
-                    document.location.href = url;
+                    let location = document.location.href.split('/navigator');
+                    let url      = location[0] + '/navigator?wsId=' + id;
+                    document.location.href = url + '&theme=' + theme;
                 });
         }
         $('#workspaces-panel-processing').hide();
@@ -472,9 +470,6 @@ function appendHeaderCell(elemHeaderRow, indexItem, link, descriptor) {
         elemHeaderCellDetails.html('view_sidebar');
         elemHeaderCellDetails.appendTo(elemHeaderCellToolbar);
         elemHeaderCellDetails.click(function() {
-            $('body').addClass('with-details');
-            $('body').removeClass('with-create');
-            $('body').removeClass('with-edit');
             setItemDetails($(this).closest('th').attr('data-link'));
         });
 
@@ -545,9 +540,6 @@ function getWorkspaceData(elemTable, timestamp, url, key) {
 
 }
 function setWorkspacesFields(elemTable) {
-
-    console.log(wsConfig.sections);
-    console.log(wsConfig.fields);
 
     for(section of wsConfig.sections) {
 
@@ -943,6 +935,11 @@ function setItemDetails(link) {
     $('#details-title').html('');        
     $('#details').attr('data-link', link);
 
+    $('body').removeClass('with-create');
+    $('body').removeClass('with-clone');
+    $('body').removeClass('with-edit');
+    $('body').addClass('with-details');
+
     insertGrid(link, 'grid');
     insertViewer(link, 255);        
     insertItemDetails(link);
@@ -1096,7 +1093,7 @@ function archiveSelected() {
             if(response.error) {
                 if(typeof response.data !== 'undefined') {
                     if(typeof response.data.message !== 'undefined') {
-                        showErrorMessage(response.data.message, 'Error');
+                        showErrorMessage('Error', response.data.message);
                     }
                 }
             }
@@ -1111,11 +1108,7 @@ function archiveSelected() {
 // Clone from details view
 function showClone(link) {
 
-    $('#clone').attr('data-restore-class', '');
-
-    if($('body').hasClass('with-details')) $('#clone').attr('data-restore-class', 'with-details');
-
-    $('body').toggleClass('with-clone');
+    $('body').addClass('with-clone');
     $('body').removeClass('with-edit');
     $('body').removeClass('with-details');
     $('body').removeClass('with-create');
@@ -1140,13 +1133,8 @@ function clickClone(elemClicked) {
     }
 
     $.post('/plm/clone', params, function(response) {
-
         let url = response.data.split('.autodeskplm360.net');
         setItemDetails(url[1]);
-        $('body').removeClass('with-create');
-        $('body').removeClass('with-clone');
-        $('body').removeClass('with-edit');
-        $('body').addClass('with-details');
     });
 
 }
@@ -1210,9 +1198,10 @@ function setTransitionsDialog() {
 
             if(respTransitions.length > 0) {
 
-                let elemItemSelect = $('<select></select>');
-                    elemItemSelect.addClass('select-transition');
-                    elemItemSelect.appendTo(elemItemActions);
+                let elemItemSelect = $('<select></select>')
+                    .addClass('button')
+                    .addClass('select-transition')
+                    .appendTo(elemItemActions);
 
                 for(transition of respTransitions) {
                     let elemItemOption = $('<option></option>');
@@ -1224,13 +1213,14 @@ function setTransitionsDialog() {
             } else {
 
                 let elemNoAction = $('<div></div>');
-                    elemNoAction.html('No action available');
+                    elemNoAction.html('No workflow action available');
                     elemNoAction.appendTo(elemItemActions);
 
             }
 
             let elemItemDelete = $('<div></div>');
                 elemItemDelete.addClass('button');
+                elemItemDelete.addClass('red');
                 elemItemDelete.addClass('icon');
                 elemItemDelete.addClass('icon-delete');
                 elemItemDelete.appendTo(elemItemActions);
@@ -1315,7 +1305,7 @@ function saveChanges() {
             if(response.error) {
                 if(!error) {
                     error = true;
-                    showErrorMessage('Please refresh the page to reset data to database values', 'Error while saving');
+                    showErrorMessage('Error while saving', 'Please refresh the page to reset data to database values');
                 }
             }
         }

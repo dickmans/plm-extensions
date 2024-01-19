@@ -96,37 +96,185 @@
 }
 
 
-/*  HOVERING & SELECTION */
-/* ----------------------------------------------------------------------------- */
-:root {
-
-    --color-selected-border : #76B5D5;
-    --color-selected        : #e1f2fa;
-    --color-hover           : #B9E1F4;
-
-}
-
-
 /*  SURFACE LEVELS */
 /* ----------------------------------------------------------------------------- */
 :root {
 
-    --color-surface-level-1    : #ffffff;
-    --color-surface-level-2    : #f5f5f5;
-    --color-surface-level-2-5  : #eeeeee;
-    --color-surface-level-3    : #d9d9d9;
-    --color-surface-level-3-5  : #cccccc;
+    --color-surface-level-1 : #ffffff;
+    --color-surface-level-2 : #f5f5f5;
+    --color-surface-level-3 : #eeeeee;
+    --color-surface-level-4 : #d9d9d9;
+    --color-surface-level-5 : #cccccc;
     
-    --color-blue-surface-level-1    : #454f61;
-    --color-blue-surface-level-2    : #3b4453;
-    --color-blue-surface-level-2-5  : #2e3440;
-    --color-blue-surface-level-3    : #222933;
-    --color-blue-surface-level-3-5  : #1a1f26;
-    
-    --color-dark-surface-level-1    : #535353;
-    --color-dark-surface-level-2    : #474747;
-    --color-dark-surface-level-2-5  : #373737;
-    --color-dark-surface-level-3    : #2a2a2a;
-    --color-dark-surface-level-3-5  : #202020;
+}
+body.dark-theme {
 
+    --color-surface-level-1 : #454f61;
+    --color-surface-level-2 : #3b4453;
+    --color-surface-level-3 : #2e3440;
+    --color-surface-level-4 : #222933;
+    --color-surface-level-5 : #1a1f26;
+
+} 
+body.black-theme {
+    
+    --color-surface-level-1 : #535353;
+    --color-surface-level-2 : #474747;
+    --color-surface-level-3 : #373737;
+    --color-surface-level-4 : #2a2a2a;
+    --color-surface-level-5 : #202020;
+
+}
+
+
+/*  HOVERING & SELECTION */
+/* ----------------------------------------------------------------------------- */
+:root {
+    --color-hover-background    : #e1f2fa;
+    --color-hover-border        : #76B5D5;
+    --color-hover-image         : #76B5D5;
+    --color-selected-background : #B9E1F4;
+    --color-selected-border     : #76B5D5;
+    --color-selected-image      : #76B5D5;
+    --color-font                : #000000;
+    --color-dark                : #000000;
+    color-scheme                : light;
+}
+.dark-theme {
+    --color-hover-border        : var(--color-blue-500);
+    --color-hover-background    : var(--color-blue-800);
+    --color-hover-image         : var(--color-blue-900);
+    --color-selected-background : var(--color-blue-700);
+    --color-selected-image      : var(--color-blue-800);
+    --color-font                : #ffffff;
+    --color-dark                : var(--color-surface-level-4);
+    color-scheme                : dark;
+}
+.black-theme {
+    --color-hover-border        : var(--color-blue-500);
+    --color-hover-background    : var(--color-blue-800);
+    --color-hover-image         : var(--color-blue-900);
+    --color-selected-background : var(--color-blue-700);
+    --color-selected-image      : var(--color-blue-800);
+    --color-font                : #ffffff;
+    --color-dark                : #000000;
+    color-scheme                : dark;
+}
+
+
+
+/*  SURFACE COLORS */
+/* ----------------------------------------------------------------------------- */
+.surface-level-1 { background : var(--color-surface-level-1); border: 0px solid var(--color-surface-level-1); }
+.surface-level-2 { background : var(--color-surface-level-2); border: 0px solid var(--color-surface-level-2); }
+.surface-level-3 { background : var(--color-surface-level-3); border: 0px solid var(--color-surface-level-3); }
+.surface-level-4 { background : var(--color-surface-level-4); border: 0px solid var(--color-surface-level-4); }
+.surface-level-5 { background : var(--color-surface-level-5); border: 0px solid var(--color-surface-level-5); }
+
+
+/*  FONT COLOR */
+/* ----------------------------------------------------------------------------- */
+ .dark-theme { color : #ffffff; }
+.black-theme { color : #ffffff; }
+.light-theme { color : #000000; }
+
+
+
+/*  VIEWER */
+/* ----------------------------------------------------------------------------- */
+.adsk-viewing-viewer { background : var(--color-surface-level-1) }
+
+body.dark-theme  #guiviewer3d-toolbar .adsk-button { background : var(--color-surface-level-4); color : white;  border-color : var(--color-surface-level-4) !important; }
+body.black-theme #guiviewer3d-toolbar .adsk-button { background : var(--color-surface-level-4); color : white;  border-color : var(--color-surface-level-4) !important; }
+body.light-theme #guiviewer3d-toolbar .adsk-button { background : white; border-color: #808080 !important;  border-radius : 2px !important }
+
+body.light-theme #guiviewer3d-toolbar .adsk-button .adsk-button-icon::before { color : black; }
+body.dark-theme  #guiviewer3d-toolbar .adsk-button .adsk-button-icon::before { color : white; }
+body.black-theme #guiviewer3d-toolbar .adsk-button .adsk-button-icon::before { color : white; }
+
+body.dark-theme  #guiviewer3d-toolbar .adsk-button:hover { background : var(--color-surface-level-5) !important; }
+body.black-theme #guiviewer3d-toolbar .adsk-button:hover { background : var(--color-surface-level-5) !important; }
+body.light-theme #guiviewer3d-toolbar .adsk-button:hover { border-color : var(--color-selected-background) !important; color : var(--color-selected-background) !important;  box-shadow:  0 0 0 3px #e3e3e3; }
+
+body.light-theme #guiviewer3d-toolbar .adsk-button.active { box-shadow : 0 0 0 3px #A1D5EA; }
+body.dark-theme  #guiviewer3d-toolbar .adsk-button.active { color : var(--color-blue-500) !important; border-color : var(--color-blue-500) !important; box-shadow : none; }
+body.black-theme #guiviewer3d-toolbar .adsk-button.active { color : var(--color-blue-500) !important; border-color : var(--color-blue-500) !important; box-shadow : none; }
+
+body.light-theme #guiviewer3d-toolbar .docking-panel { box-shadow : none !important; background-color : white !important;  border: 1px solid #808080 !important; }
+body.dark-theme  #guiviewer3d-toolbar .docking-panel { box-shadow : none !important; background-color : var(--color-surface-level-3) !important;  border-color : var(--color-surface-level-3) !important; }
+body.black-theme #guiviewer3d-toolbar .docking-panel { box-shadow : none !important; background-color : var(--color-surface-level-3) !important;  border-color : var(--color-surface-level-3) !important; }
+
+body.dark-theme .adsk-viewing-viewer.dark-theme .docking-panel-title,
+body.dark-theme .adsk-viewing-viewer.dark-theme .adsk-filterbox input.filter-box, .adsk-viewing-viewer.dark-theme .adsk-searchbox input.search-box { 
+    background-color : rgba(34,41,51,.94) !important; 
+    border-bottom : rgba(34,41,51,.8) !important; 
+}
+body.dark-theme .adsk-viewing-viewer.dark-theme .adsk-control-group,
+body.dark-theme .adsk-viewing-viewer.dark-theme .docking-panel-container-solid-color-b {
+    background-color : rgba(34,41,51,.94);
+}
+body.dark-theme .adsk-viewing-viewer.dark-theme .docking-panel-container-solid-color-a {
+    background-color : rgba(34,41,51,.9);
+}
+body.dark-theme .adsk-viewing-viewer.dark-theme .docking-panel-footer {
+    background-color : var(--color-surface-level-5);
+}
+
+
+
+/*  OVERLAY & PROCESSING*/
+/* ----------------------------------------------------------------------------- */
+ .dark-theme #overlay { background : rgba(26, 31, 38, 0.8); }
+.black-theme #overlay { background : rgba(20, 20, 20, 0.7); }
+.light-theme #overlay { background : rgba( 0,  0,  0, 0.5); }
+
+ .dark-theme .processing > div { background-color: white; }
+.black-theme .processing > div { background-color: black; }
+.light-theme .processing > div { background-color: var(--color-blue-500); }
+
+.light-theme #overlay .processing > div { background-color: white; }
+
+
+
+/*  DATA TABLES */
+/* ----------------------------------------------------------------------------- */
+ .dark-theme .dataTables_wrapper .dataTables_length select,
+.black-theme .dataTables_wrapper .dataTables_length select {
+    background   : var(--color-surface-level-4);
+    border-color : var(--color-surface-level-4);
+    margin-right : 8px;
+    margin-left  : 8px;
+}
+.dataTables_filter { 
+    margin-bottom : 10px; 
+}
+.dataTables_length label,
+.dataTables_filter label {
+    color : var(--color-font);
+}
+.paginate_button.current {
+    background  : var(--color-surface-3);
+    color       : var(--color-font);
+}
+.dataTables_wrapper .dataTables_filter input { 
+    border-top      : none !important; 
+    border-right    : none !important; 
+    border-left     : none !important; 
+    border-radius   : 0px !important;
+    background      : var(--color-surface-level-3) !important; 
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button.current, .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+    color: var(--color-font) !important;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    background: none !important;
+}
+.dataTables_wrapper .dataTables_filter input {
+    border-color : var(--color-gray-400) !important;
+    margin-left  : 12px !important;
+}
+table.dataTable tbody tr td {
+    cursor : pointer;
+}
+table.dataTable tbody tr:hover td {
+    background : var(--color-hover-border); 
 }

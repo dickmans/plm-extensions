@@ -7,9 +7,10 @@ const router        = express.Router();
 /* ------------------------------------------------------------------------------
     DEFAULT LANDING PAGE
    ------------------------------------------------------------------------------ */
-   router.get('/', function(req, res, next) {
+router.get('/', function(req, res, next) {
     res.render('framework/landing', {
-        title : 'PLM TS User Experiences'
+        title : 'PLM TS User Experiences',
+        theme : (typeof req.query.theme === 'undefined') ? '' : req.query.theme
     });
 });
 
@@ -17,23 +18,22 @@ const router        = express.Router();
 
 /* ------------------------------------------------------------------------------
     STANDARD APPLICATIONS
-   ------------------------------------------------------------------------------
     router.get('/<endpoint>', function(req, res, next) { launch('<pug filename in /views>', '<page title>', req, res, next); });
    ------------------------------------------------------------------------------ */
-router.get('/classes'       , function(req, res, next) { launch('apps/classes'         , 'Classification Browser'      , req, res, next); });
-router.get('/client'        , function(req, res, next) { launch('apps/client'          , 'Mobile PLM Client'           , req, res, next); });
-router.get('/dashboard'     , function(req, res, next) { launch('apps/dashboard'       , 'Dashboard'                   , req, res, next); });
-router.get('/explorer'      , function(req, res, next) { launch('apps/explorer'        , 'Product Data Explorer'       , req, res, next); });
-router.get('/impactanalysis', function(req, res, next) { launch('apps/impactanalysis'  , 'Change Impact Analysis'      , req, res, next); });
-router.get('/insights'      , function(req, res, next) { launch('apps/insights'        , 'Tenant Insights Dashboard'   , req, res, next); });
-router.get('/mbom'          , function(req, res, next) { launch('apps/mbom'            , 'Manufacturing BOM Editor'    , req, res, next); });
-router.get('/navigator'     , function(req, res, next) { launch('apps/navigator'       , 'Workspace Navigator'         , req, res, next); });
-router.get('/portfolio'     , function(req, res, next) { launch('apps/portfolio'       , 'Product Portfolio Catalog'   , req, res, next); });
-router.get('/projects'      , function(req, res, next) { launch('apps/projects'        , 'Projects Dashboard'          , req, res, next); });
-router.get('/reports'       , function(req, res, next) { launch('apps/reports'         , 'Reports Dashboard'           , req, res, next); });
-router.get('/reviews'       , function(req, res, next) { launch('apps/reviews'         , 'Design Reviews'              , req, res, next); });
-router.get('/service'       , function(req, res, next) { launch('apps/service'         , 'Services Portal'             , req, res, next); });
-router.get('/variants'      , function(req, res, next) { launch('apps/variants'        , 'Variant Manager'             , req, res, next); });
+router.get('/classes'       , function(req, res, next) { launch('apps/classes'         , 'Classification Browser'       , req, res, next); });
+router.get('/client'        , function(req, res, next) { launch('apps/client'          , 'Mobile PLM Client'            , req, res, next); });
+router.get('/dashboard'     , function(req, res, next) { launch('apps/dashboard'       , 'Dashboard'                    , req, res, next); });
+router.get('/explorer'      , function(req, res, next) { launch('apps/explorer'        , 'Product Data Explorer'        , req, res, next); });
+router.get('/impactanalysis', function(req, res, next) { launch('apps/impactanalysis'  , 'Change Impact Analysis'       , req, res, next); });
+router.get('/insights'      , function(req, res, next) { launch('apps/insights'        , 'Tenant Insights Dashboard'    , req, res, next); });
+router.get('/mbom'          , function(req, res, next) { launch('apps/mbom'            , 'Manufacturing BOM Editor'     , req, res, next); });
+router.get('/navigator'     , function(req, res, next) { launch('apps/navigator'       , 'Workspace Navigator'          , req, res, next); });
+router.get('/portfolio'     , function(req, res, next) { launch('apps/portfolio'       , 'Product Portfolio Catalog'    , req, res, next); });
+router.get('/projects'      , function(req, res, next) { launch('apps/projects'        , 'Projects Dashboard'           , req, res, next); });
+router.get('/reports'       , function(req, res, next) { launch('apps/reports'         , 'Reports Dashboard'            , req, res, next); });
+router.get('/reviews'       , function(req, res, next) { launch('apps/reviews'         , 'Design Reviews'               , req, res, next); });
+router.get('/service'       , function(req, res, next) { launch('apps/service'         , 'Services Portal'              , req, res, next); });
+router.get('/variants'      , function(req, res, next) { launch('apps/variants'        , 'Variant Manager'              , req, res, next); });
 
 
 
@@ -69,51 +69,7 @@ router.get('/addins/products', function(req, res, next) { launch('addins/product
 /* ------------------------------------------------------------------------------
     LAUNCH APPLICATION
    ------------------------------------------------------------------------------ */
-function launch(view, app, req, res, next) {
-
-    console.log(' ');
-    console.log('  Launch Application START');
-    console.log(' --------------------------------------------');
-    
-    let reqWS           = ''
-    let reqDMS          = '';
-    let reqPartNumber   = '';
-    let reqRevisionBias = 'release';
-    let theme           = '';
-
-    for(key in req.query) {
-        switch(key.toLowerCase()) {
-            case 'wsid'         :           reqWS = req.query[key]; break;
-            case 'dmsid'        :          reqDMS = req.query[key]; break;
-            case 'partnumber'   :   reqPartNumber = req.query[key]; break;
-            case 'revisionbias' : reqRevisionBias = req.query[key]; break;
-            case 'theme'        :           theme = req.query[key]; break;
-        }
-    }
-
-    req.session.url             = req.url;
-    req.session.view            = view;
-    req.session.app             = app;
-    req.session.wsId            = reqWS;
-    req.session.dmsId           = reqDMS;
-    req.session.partNumber      = reqPartNumber;
-    req.session.link            = '/api/v3/workspaces/' + reqWS + '/items/' + reqDMS;
-    req.session.options         = req.query.hasOwnProperty('options') ? req.query.options : '';
-    req.session.tenant          = req.query.hasOwnProperty('tenant') ? req.query.tenant : req.app.locals.tenant;
-    req.session.revisionBias     = reqRevisionBias;
-    req.session.theme           = theme;
-
-    console.log('  req.session.view         = ' + req.session.view); 
-    console.log('  req.session.app          = ' + req.session.app); 
-    console.log('  req.session.wsId         = ' + req.session.wsId); 
-    console.log('  req.session.dmsId        = ' + req.session.dmsId); 
-    console.log('  req.session.partNumber   = ' + req.session.partNumber); 
-    console.log('  req.session.link         = ' + req.session.link); 
-    console.log('  req.session.options      = ' + req.session.options); 
-    console.log('  req.session.tenant       = ' + req.session.tenant); 
-    console.log('  req.session.revisionBias = ' + req.session.revisionBias); 
-    console.log('  req.session.theme        = ' + req.session.theme); 
-    console.log();
+function launch(view, title, req, res, next) {
 
     let redirect = false;
     let refresh  = false;
@@ -133,38 +89,77 @@ function launch(view, app, req, res, next) {
     } else {
         redirect = true;
     }
-    
+
     if(redirect) {
 
         res.render('framework/redirect', { 
-            title       : req.session.app,
+            title       : title,
             clientId    : req.app.locals.clientId,
-            redirectUri : req.app.locals.redirectUri
-        });
-
-    } else if(reqPartNumber !== '') {
-
-        res.render('framework/search', {
-            partNumber   : reqPartNumber,
-            revisionBias : req.session.revisionBias,
-            theme        : req.session.theme
+            redirectUri : req.app.locals.redirectUri,
+            appUrl      : encodeURIComponent(req.url)
         });
 
     } else {
 
-        res.render(req.session.view, { 
-            title        : req.session.app, 
-            tenant       : req.session.tenant,
-            wsId         : req.session.wsId,
-            dmsId        : req.session.dmsId,
-            link         : req.session.link,
-            revisionBias : req.session.revisionBias,
-            theme        : req.session.theme,
-            options      : req.session.options,
-            config       : req.app.locals.config
-        });
+        console.log(' ');
+        console.log('  Launch Application START');
+        console.log(' --------------------------------------------');
         
+        let reqWS           = ''
+        let reqDMS          = '';
+        let reqPartNumber   = '';
+        let reqRevisionBias = 'release';
+        let reqTheme        = '';
+        let reqOptions      = req.query.hasOwnProperty('options') ? req.query.options : '';
+    
+        for(key in req.query) {
+            switch(key.toLowerCase()) {
+                case 'wsid'         :           reqWS = req.query[key]; break;
+                case 'dmsid'        :          reqDMS = req.query[key]; break;
+                case 'partnumber'   :   reqPartNumber = req.query[key]; break;
+                case 'revisionbias' : reqRevisionBias = req.query[key]; break;
+                case 'theme'        :        reqTheme = req.query[key]; break;
+            }
+        }
+
+        req.session.tenant = req.query.hasOwnProperty('tenant') ? req.query.tenant : req.app.locals.tenant;
+    
+        console.log('  view         = ' + view); 
+        console.log('  title        = ' + title); 
+        console.log('  tenant       = ' + req.session.tenant); 
+        console.log('  wsId         = ' + reqWS); 
+        console.log('  dmsId        = ' + reqDMS); 
+        console.log('  partNumber   = ' + reqPartNumber); 
+        console.log('  options      = ' + reqOptions); 
+        console.log('  revisionBias = ' + reqRevisionBias); 
+        console.log('  theme        = ' + reqTheme); 
+        console.log();
+        
+        if(reqPartNumber !== '') {
+
+            res.render('framework/search', {
+                partNumber   : reqPartNumber,
+                revisionBias : reqRevisionBias,
+                theme        : reqTheme
+            });
+
+        } else {
+
+            res.render(view, { 
+                title        : title, 
+                tenant       : req.session.tenant,
+                wsId         : reqWS,
+                dmsId        : reqDMS,
+                revisionBias : reqRevisionBias,
+                theme        : reqTheme,
+                options      : reqOptions,
+                config       : req.app.locals.config
+            });    
+            
+        }
+
     }
+
 }
 
 
@@ -177,11 +172,10 @@ router.get('/callback', function(req, res, next) {
     console.log();
     console.log('  /callback START');
     console.log(' --------------------------------------------');
-    console.log('  req.session.app  = ' + req.session.app);
-    console.log('  req.session.view = ' + req.session.view);
-    
+    console.log('  Target URL = ' + req.query.state);
+
     getToken(req, req.query.code, function() {
-        res.redirect(req.session.url);
+        res.redirect(req.query.state);
     });
         
 });

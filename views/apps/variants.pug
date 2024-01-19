@@ -3,7 +3,6 @@ extends ../framework/layout
 block head
     
     link(rel='stylesheet', href='/stylesheets/apps/variants.css')
-    link(rel='stylesheet', href='/stylesheets/common/dialogs.css')
     script(src='/javascripts/apps/variants.js')
     script.
         config = !{JSON.stringify(config)};
@@ -26,7 +25,7 @@ block body
 
             #viewer
             
-            #bom
+            #bom.compact
 
             .panel#item-variants 
                 .panel-header 
@@ -35,18 +34,18 @@ block body
                         .button.icon.icon-close#item-variants-close
                 .panel-content#item-variants-text Select from the variants of
                 .panel-content#item-variants-title
-                .panel-content.surface-level-2#item-variants-list-parent
-                    #item-variants-list.list.tiles.l
+                .panel-content.surface-level-3#item-variants-list-parent
+                    #item-variants-list.list.tiles.m
 
-            .panel#details.compact
+            .panel.surface-level-2#details
                 .panel-header 
                     .panel-title Details
                     .panel-toolbar 
                         .button.icon.icon-bookmark#bookmark
                         .button.icon.icon-open#open
-                .panel-content.surface-level-2#details-sections
+                .panel-content.surface-level-2.compact#details-sections
 
-            .panel#create
+            .panel.surface-level-2#create
                 .panel-header
                     .panel-title New Record
                     .panel-toolbar

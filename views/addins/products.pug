@@ -9,34 +9,51 @@ block head
 
 block body 
 
-    body
+    body.surface-level-1.embedded
     
-        .screen.surface-level-1  
+        #header.dark
+            #header-logo
+            #header-title= title
+            #header-toolbar
+                #header-avatar
+
             
-            .panel#products
+        .screen#products.surface-level-1
 
-            .panel#details.surface-level-2
-                .panel-header   
-                    .panel-title
-                    .panel-toolbar 
-                        .button.with-icon.icon-target#context Aktiver Kontext
-                        .button.icon.icon-bookmark#bookmark
-                        .button.icon.icon-open#open
-                        .button.icon.icon-close#close
-                .tabs(data-tab-group="tab-group-main")
-                    .tab BOM
-                    .tab#tab-bom Module 
-                    .tab Regeln 
-                    .tab#tab-materials Konfigurationen 
-                
-                .panel-content.tab-group-main.surface-level-1
-                    #bom
+        .screen#details.surface-level-2
+            .panel-header   
+                .panel-title
+                .panel-toolbar 
+                    .button.icon.icon-bookmark#bookmark
+                    .button.icon.icon-open#open
+                    .button.icon.icon-close#close
+            .tabs(data-tab-group="tab-group-main").surface-level-2
+                .tab EBOM
+                .tab MBOM
+                .tab#tab-bom Module 
+                .tab Merkmalsoptionen 
+            
+            .panel-content.tab-group-main.surface-level-1
+                #bom
+            
+            .panel-content.tab-group-main.surface-level-1    
 
-                .panel-content.tab-group-main.surface-level-1
-                    #modules.tiles.list.xxxs
+            .panel-content.tab-group-main.surface-level-1
+                #modules.tiles.list.xxxs
 
-                .panel-content.tab-group-main.surface-level-1
-
-                .panel-content.tab-group-main.surface-level-1
+            .panel-content.tab-group-main.surface-level-1
+                #features
+                #configurations.surface-level-5
+                    .configurations-line    
+                        .configurations-label Konfiguration wählen: 
+                        .configurations-control
+                            select#select-configuration
+                            .button.configuration-action.with-icon.icon-save#update-configuration Speichern
+                            .button.configuration-action.icon.icon-delete.red#delete-configuration
+                    .configurations-line 
+                        .configurations-label Konfiguration erstellen:
+                        .configurations-control     
+                            input#input-configuration(type="text")
+                            .button.with-icon.icon-create#save-configuration Erstellen
 
             .viewer#viewer

@@ -1,61 +1,67 @@
 /*  ADDITIONS */
 /* ----------------------------------------------------------------------------- */
 .tabs {
-    background : var(--color-gray-100);
-    border-top: 2px solid black;
-    border-bottom: none;
-    font-size : 16px;
-    padding : 0px;
-    left : 0px;
-    right : 0px;
-    bottom : 0px;
+    border-top      : 6px solid var(--color-surface-level-2);
+    border-bottom   : none;
+    font-size       : 14px;
+    padding         : 0px;
+    right           : 0px;
+    bottom          : 0px;
+    left            : 0px;
 }
 .tabs > div {
-    border : none;
-    height : 60px;
-    line-height : 60px;
+    border      : none;
+    height      : 46px;
+    line-height : 46px;
+}
+.tabs > div:hover {
+    background : var(--color-surface-level-4);
 }
 .tabs > div.selected {
-    background : black;
-    color : white;
+    background  : var(--color-surface-level-2);
+    font-weight : bold;
 }
 .panel-content { 
-    /* display : none; */
-    padding : 40px;
-    top : 0px; 
-    bottom : 62px;
+    border-radius   : 4px;
+    margin          : 10px 40px;
+    padding         : 40px;
+    top             : 0px; 
+    bottom          : 64px;
 }
-.dashboard > div { padding : 25px; }
+.dashboard > div { 
+    padding : 25px; 
+}
 .section {
     margin : 0px;
 }
 
 
+
 /*  PROGRESS */
 /* ----------------------------------------------------------------------------- */
 #processing {
-    color : white;
-    font-size : 0.8em;
-    font-style : italic;
+    color       : white;
+    font-size   : 0.8em;
+    font-style  : italic;
     line-height : 40px;
-    position : absolute;
-    right : 90px;
-    text-align : right;
-    top : 14px;
+    text-align  : right;
+    position    : absolute;
+    right       : 90px;
+    top         : 14px;
 }
 #circle-wrap {
-    background: white;
+    background : var(--color-font);
 }
 #circle-wrap,
 #circle-wrap .circle .mask, 
 #circle-wrap .circle .fill {
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
+    border-radius : 50%;
+    width         : 40px;
+    height        : 40px;
 }
 #circle-wrap .circle .mask, 
 #circle-wrap .circle .fill {
-    position: absolute;
+    position : absolute;
 }
 #circle-wrap .circle .mask {
     clip: rect(0px, 40px, 40px, 20px);
@@ -72,7 +78,8 @@
     width: 30px;
     height: 30px;
     border-radius: 50%;
-    background: black;
+    background: var(--color-surface-level-5);
+    color : var(--color-font);
     font-size : 9px;
     line-height: 30px;
     text-align: center;
@@ -87,10 +94,11 @@
 /*  SYSTEM */
 /* ----------------------------------------------------------------------------- */
 #system {
-    display : flex;
-    flex-wrap: wrap;
-    gap : 20px;
-    overflow: hidden;
+    display     : flex;
+    flex-wrap   : wrap;
+    gap         : 20px;
+    overflow    : hidden;
+    padding     : 0px;
 }
 .counter {
      text-align : center;
@@ -114,35 +122,35 @@
 
 
 
-
 /*  LOGINS */
 /* ----------------------------------------------------------------------------- */
 #logins {
-    display : flex;
-    flex-direction: column;
-    flex-wrap: nowrap;
-    gap : 20px;
-    overflow: hidden;
+    display         : flex;
+    flex-direction  : column;
+    flex-wrap       : nowrap;
+    gap             : 20px;
+    overflow        : hidden;
+    padding         : 0px;
 }
 #summary {
     display : flex;
-    height : 40px;
+    height  : 40px;
 }
 #summary-bar {
     width : 50%;
 }
 #summary-bar-logins {
-    background : #eee;
-    height : 40px;
-    width: 50%;
+    background  : #eee;
+    height      : 40px;
+    width       : 50%;
 }
 #summary-bar-nologin {
-    background : #eee;
-    height : 40px;
-    width: 50%;
+    background  : #eee;
+    height      : 40px;
+    width       : 50%;
 }
 #summary-text {
-    line-height : 40px;
+    line-height  : 40px;
     padding-left : 20px;
 }
 #summary-chart {
@@ -152,6 +160,21 @@
     margin : 0px 5px;
 }
 
+
+/* #timelineUsersWrapper {
+    height : 900px;
+    width : 900px;
+} */
+
+/* #panelTimelineUsers {
+/* #timelineUsers {
+    position : absolute;
+    top : 0px;
+    right : 0px;
+    bottom : 0px;
+    left : 0px;
+    background :red;
+} */
 
 
 /*  EVENTS */
@@ -163,20 +186,27 @@
     display : none;
 }
 td p {
-    margin : 0px;
+    margin  : 0px;
     padding : 0px;
-    width : auto;
+    width   : auto;
 }
 .toolbar {
-    background : #fff;
-    padding-bottom : 12px;
-    text-align : center;
+    display         : flex;
+    gap             : 20px;
+    justify-content : center;
+    height          : 40px;;
+    line-height     : 40px;;
+    padding-bottom  : 12px;
+    text-align      : center;
 }
 .wrapper {
-    height : calc(100% - 60px);
+    height     : calc(100% - 60px);
     overflow-y : auto;
 }
 #select-user {
+    height : 40px;
+    /* background  : transparent;
+    color       : var(--color-font);
     margin-left : 10px;
-    padding : 4px 10px;
+    padding     : 4px 10px; */
 }

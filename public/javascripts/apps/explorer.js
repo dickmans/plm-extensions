@@ -19,7 +19,7 @@ $(document).ready(function() {
     
     $('#details').attr('data-link', link);
 
-    appendProcessing('dashboard', true);
+    appendProcessing('dashboard', false);
     appendProcessing('bom', false);
     appendProcessing('attachments', false);
     appendProcessing('details', false);
@@ -28,7 +28,7 @@ $(document).ready(function() {
     appendOverlay();
     
     getInitialData();
-    insertViewer(link);
+    insertViewer(link, viewerBGColors[theme].level1);
     insertAttachments(link);
     insertChangeProcesses(link, 'processes');
     setUIEvents();
@@ -159,7 +159,7 @@ function setUIEvents() {
         $('#processes-processing').siblings('.panel-content').hide();
 
         if(!validateForm($('#processes-sections'))) {
-            showErrorMessage('Field validations faild', 'Cannot Save');
+            showErrorMessage('Cannot Save', 'Field validations faild');
             return;
         }
 
@@ -434,7 +434,7 @@ function setBOMData(bom, flatBom) {
     $('#items-processing').hide();
 
 
-    $('.bom-tree-nav').click(function(e) {
+    $('.bom-nav').click(function(e) {
 
         e.stopPropagation();
         e.preventDefault();
@@ -461,7 +461,7 @@ function setBOMData(bom, flatBom) {
 
                         elemNext.show();
 
-                        let elemToggle = elemNext.children().first().find('.bom-tree-nav');
+                        let elemToggle = elemNext.children().first().find('.bom-nav');
 
                         if(elemToggle.length > 0) {
                             if(elemToggle.hasClass('collapsed')) {
@@ -511,6 +511,7 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom) {
                 elemRow.attr('data-part-number', partNumber);
                 elemRow.attr('data-title', title);
                 elemRow.attr('data-qty', '1');
+                elemRow.addClass('bom-item');
                 elemRow.appendTo(elemRoot);
     
             for(kpi of config.explorer.kpis) {
@@ -556,17 +557,19 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom) {
                     elemRow.addClass('bom-level-' + edge.depth);
                 }
             }
+            $('<td></td>').appendTo(elemRow)
+                .addClass('bom-color');
 
-            let elemCell = $('<td></td>');
-                elemCell.appendTo(elemRow);
+            let elemCell = $('<td></td>').appendTo(elemRow)
+                .addClass('bom-first-col');
 
             let elemCellNumber = $('<span></span>');
-                elemCellNumber.addClass('bom-tree-number');
+                elemCellNumber.addClass('bom-number');
                 elemCellNumber.html(edge.depth + '.' + edge.itemNumber);
                 elemCellNumber.appendTo(elemCell);
 
             let elemCellTitle = $('<span></span>');
-                elemCellTitle.addClass('bom-tree-title');
+                elemCellTitle.addClass('bom-title');
                 elemCellTitle.html(title);
                 elemCellTitle.appendTo(elemCell);
 
@@ -574,22 +577,20 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom) {
 
             elemRow.children().first().each(function() {
                 
-                $(this).addClass('bom-first-col');
-
                 if(hasChildren) {
 
                     let elemNav = $('<span></span>');
-                        elemNav.addClass('bom-tree-nav');
+                        elemNav.addClass('bom-nav');
                         elemNav.addClass('icon');
                         elemNav.addClass('expanded');
-                        elemNav.prependTo($(this));
+                        elemNav.prependTo(elemCell);
 
                     elemRow.addClass('node');
 
                 }
 
                 let elemColor = $('<span></span>');
-                    elemColor.addClass('bom-tree-color');
+                    elemColor.addClass('bom-color');
                     elemColor.prependTo($(this));
 
             });
@@ -623,7 +624,7 @@ function getBOMNodeLink(id, nodes) {
 function filterBOMTree() {
 
     $('tr.result').removeClass('result');
-    $('.bom-tree-nav.collapsed').removeClass('collapsed');
+    $('.bom-nav.collapsed').removeClass('collapsed');
 
     let filterValue = $('#bom-search-input').val().toLowerCase();
 
@@ -638,7 +639,7 @@ function filterBOMTree() {
 
     } else {
 
-        $('i.collapsed').removeClass('collapsed').addClass('expanded');
+        $('.bom-nav.collapsed').removeClass('collapsed').addClass('expanded');
         
         $('#bom-table-tree').children().each(function() {
             $(this).hide();
@@ -649,7 +650,7 @@ function filterBOMTree() {
 
         $('#bom-table-tree').children().each(function() {
 
-            let cellValue = $(this).children().first().html().toLowerCase();
+            let cellValue = $(this).children('.bom-first-col').html().toLowerCase();
 
             if(cellValue.indexOf(filterValue) > -1) {
              
@@ -1029,7 +1030,7 @@ function insertKPI(kpi) {
 
         if(kpi.style === 'bars') {
             let width = entry.count * 100 / kpi.max;
-            elemKPIValue.css('background', 'linear-gradient(90deg, ' + color + ' 0 ' + width + '%, white ' + width + '% 100%)');
+            elemKPIValue.css('background', 'linear-gradient(90deg, ' + color + ' 0 ' + width + '%, var(--color-surface-level-1) ' + width + '% 100%)');
         } else {
             elemKPILabel.css('border-color', entry.color);
         }
@@ -1051,8 +1052,9 @@ function selectKPI(elemClicked) {
 
     $('.kpi').removeClass('selected');
     // $('.kpi-value').removeClass('selected');
-    $('#bom-tree').addClass('no-colors');
-    $('#flat-bom').addClass('no-colors');
+    // $('#bom').addClass('no-colors');
+    // $('#flat-bom').addClass('no-colors');
+    $('.bom-color').each(function() { $(this).css('background', '') });
     $('.flat-bom-number').each(function() { $(this).css('background', '') });
 
     if(isSelected) return; 
@@ -1066,8 +1068,8 @@ function selectKPI(elemClicked) {
 
     if(kpiData === null) return;
 
-    $('#bom-tree').removeClass('no-colors');
-    $('#flat-bom').removeClass('no-colors');
+    // $('#bom').removeClass('no-colors');
+    // $('#flat-bom').removeClass('no-colors');
     elemClicked.addClass('selected');
 
     elemClicked.find('.kpi-value').each(function() {
@@ -1084,6 +1086,8 @@ function selectKPI(elemClicked) {
                 break;
             }
         }
+
+        console.log(color);
     
         $('#bom-table-tree').children().each(function() {
             
@@ -1093,12 +1097,13 @@ function selectKPI(elemClicked) {
             for (bomItem of bomItems) {
                 if(bomItem.urn === urn) {
                     value = bomItem[id];
+                    console.log(value);
                 }
             }
 
             if(value === filter) {
                 partNumbers.push($(this).attr('data-part-number'));
-                $(this).find('.bom-tree-color').css('background', color);
+                $(this).find('.bom-color').css('background', color);
             }
 
         });
@@ -1134,8 +1139,6 @@ function selectKPIValue(e, elemClicked) {
     if(isSelected) elemClicked.removeClass('selected');
     else           elemClicked.addClass('selected');
     
-    // $('.kpi').removeClass('selected');
-
     applyFilters();
 
 }
@@ -1615,7 +1618,7 @@ function saveItem() {
 
     $.get('/plm/edit', params, function(response) {
         if(response.error) {
-            showErrorMessage(response.data.message, 'Save Failed');
+            showErrorMessage('Save Failed', response.data.message);
         }
         $('#overlay').hide();
     });

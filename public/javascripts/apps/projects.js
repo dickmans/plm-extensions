@@ -1,6 +1,10 @@
 $(document).ready(function() {   
     
-    appendOverlay();
+    Chart.defaults.borderColor       = chartThemes[theme].axisColor;
+    Chart.defaults.color             = chartThemes[theme].fontColor;
+    Chart.defaults.scale.grid.color  = chartThemes[theme].gridColor;
+
+    appendOverlay(false);
     getData();
 
 });

@@ -1,13 +1,11 @@
 /*  COMMON */
 /* ----------------------------------------------------------------------------- */
 .screen {
-    background : white;
     display : none;
 }
 .screen-panel {
-    background: var(--color-gray-100);
-    border : 60px solid var(--color-gray-100);
-    border-top : 100px solid var(--color-gray-100);
+    border-width : 60px;
+    border-top-width: 100px;
     overflow-y: auto;
     width: 350px;
     position: absolute;
@@ -82,8 +80,12 @@
     font-size : 18px;
 }
 
+.tiles {
+    justify-content : center;
+}
+
 .animation {
-    background: linear-gradient(270deg, var(--color-gray-100) 40%, var(--color-gray-200) 50%, var(--color-gray-100) 60%);
+    background: linear-gradient(270deg, var(--color-surface-level-2) 40%, var(--color-surface-level-3) 50%, var(--color-surface-level-2) 60%);
     background-size: 200% 200%;
 
     -webkit-animation: AnimationName 2s ease infinite;
@@ -116,37 +118,33 @@
     display : block;
 }
 .nav-title {
-    border-bottom : 4px solid var(--color-gray-100);
-    font-size : 30px;
-    font-weight : 900;
-    line-height : 30px;
-    overflow : hidden;
-    padding-bottom : 15px;
-    text-align : center;
-    text-overflow : ellipsis;
-    white-space : nowrap;
-    position : absolute;
-    top : 100px;
-    right : 150px;
-    left : 150px;
+    border-bottom   : 4px solid var(--color-gray-100);
+    font-size       : 30px;
+    font-weight     : 900;
+    line-height     : 30px;
+    overflow        : hidden;
+    padding-bottom  : 15px;
+    text-align      : center;
+    text-overflow   : ellipsis;
+    white-space     : nowrap;
+    position        : absolute;
+    top             : 100px;
+    right           : 150px;
+    left            : 150px;
 }
 .nav-tiles {
-    padding : 10px;
-    position : absolute;
-    top : 160px;
-    right : 150px;
-    bottom : 80px;
-    left : 150px;
+    padding         : 10px;
+    position        : absolute;
+    top             : 160px;
+    right           : 150px;
+    bottom          : 80px;
+    left            : 150px;
 }
 .nav-tiles .tile-image {
-    height : 200px;
-    text-align : center;
+    height      : 200px;
+    text-align  : center;
 }
-.nav-tiles .tile-image .zmdi {
-    font-size : 140px;
-    position : relative;
-    top : 60px;
-}
+
 
 #landing-prev, #landing-next {
     font-size : 50px;
@@ -184,6 +182,12 @@
     color : var(--color-blue-500);
     content: '\e837'; 
 }
+#landing .tile-subtitle td {
+    background      : transparent;
+    border-color    : transparent;
+    line-height     : 15px;
+    padding         : 0px;
+}
 
 
 
@@ -220,11 +224,6 @@
     /* display : bloc; */
     text-align : center;
 }
-#no-viewer .zmdi {
-    position: relative;
-    font-size: 80px;
-    top: calc(50% - 80px);
-}
 #viewer-progress {
     display : none;
 }
@@ -235,9 +234,6 @@
     display: block;
     position: relative;
     top : calc(50% - 60px);
-}
-#no-viewer.processing .zmdi, #no-viewer.processing span {
-    display : none;
 }
 #no-viewer.processing #viewer-progress {
     display : block !important;
@@ -314,6 +310,7 @@
     top: 140px;
     right: 0px;
     bottom: 70px;
+    left : unset;
     width: 700px;
     /* border-left: 4px solid var(--color-gray); */
     padding: 0px 50px 50px 50px;
@@ -359,11 +356,11 @@
     width : 400px;
 }
 .tab {
-    border-bottom : 2px solid black;
-    cursor : pointer;
-    font-size : 16px;
-    font-weight : 900;
-    padding : 30px 20px 10px 10px;
+    border-bottom   : 2px solid var(--color-font);
+    cursor          : pointer;
+    font-size       : 16px;
+    font-weight     : bold;
+    padding         : 30px 20px 10px 10px;
 }
 .tab::after {
     content: '\e5cf';
@@ -378,12 +375,11 @@
     padding-top : 0px;
 }
 .list {
-    padding : 10px;
+    padding : 10px 0px;
 }
 #product-specification-list > div {
-    border-bottom : 1px solid var(--color-gray-100);
     display : flex;
-    padding : 5px;
+    padding : 4px;
 }
 #product-specification-list > div:last-of-type {
     border-bottom : none;
@@ -397,47 +393,11 @@
     white-space : nowrap;
     width : 200px;
 }
-.attachment {
-    display : flex;
-    padding : 5px;
-}
-.attachment:hover {
-    background : var(--color-gray-100);
-}
-.attachment:last-of-type {
-    border-bottom : none;
-}
-.attachment-graphic {
-    height : 20px;
-    margin-top : 2px;
-    width : 20px;
-}
-.attachment-graphic img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-.attachment-details {
-    padding-left : 14px;
-    width : 100%;
-}
-.attachment-name {
-    float : left;
-}
-.attachment-user {
-    display : none;
-}
-.attachment-date {
-    float : right;
-}
 #product-variants-list > table {
     width : 100%;
 }
 #product-variants-list td {
-    padding : 4px;
-}
-#product-bom {
-    display : none;
+    padding : 8px 12px;
 }
 #product-bom-list {
     padding : 0px;
@@ -458,6 +418,13 @@
     left: 50px;
     right: 50px;
     bottom: 0px;
+}
+#product-bom-header {
+    display : none;
+}
+#product-bom-content {
+    padding : 0px 40px;
+    top     : 0px;
 }
 
 

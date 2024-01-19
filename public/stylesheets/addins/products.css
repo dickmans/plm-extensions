@@ -1,34 +1,121 @@
+/* PRODUCTS */
+/* ----------------------------------------------------------------------------- */
+.embedded #products-content {
+    flex-direction: column;
+    gap : 4px;
+}
+.embedded #products-content > .tile { width : calc(100% - 2px); }
+
+
+
+/* MODULES */
+/* ----------------------------------------------------------------------------- */
+.module-toolbar {
+    display : flex;
+    gap : 4px;
+}
+#modules > .tile > .tile-details { width : calc(100% - 174px); }
+.toggle-module-grid.selected { 
+    background   : var(--color-status-yellow); 
+    border-color : var(--color-status-yellow); 
+    color        : white; 
+}
+.module-grid {
+    display     : grid;
+    column-gap  : 3px;
+    row-gap     : 3px;
+    font-size   : 11px;
+    line-height : 14px;
+}
+.module-grid-feature { background : var(--color-surface-level-4); padding : 4px; text-align : center;}
+.module-grid-variant { background : var(--color-surface-level-3); padding : 4px; white-space : nowrap; overflow:hidden; text-overflow: ellipsis;}
+.module-grid-cell { background : var(--color-surface-level-2); }
+.module-grid-link { background : var(--color-status-green); justify-content: center; line-height:36px;}
+.module-grid-link::before { font-size : 14px; }
+
+/* DETAILS */
+/* ----------------------------------------------------------------------------- */
+#details > .panel-header {
+    border : none;
+}
+#details > .tabs { top : 40px !important; }
+#details > .panel-content {
+    top : 78px;
+}
+
+
+/* FEATURES */
+/* ----------------------------------------------------------------------------- */
+#features .bom-first-col        { max-width : 24px; width : 24px; }
+#features .bom-column-id        { max-width : 60px; width : 60px; }
+#features .bom-column-revision  { max-width : 40px; width : 40px; }
+#features .bom-tree-actions     { max-width : 96px; width : 96px; }
+
+
+
+
+
+#features-tbody .node:hover td {
+    background          : transparent !important;
+    border-top-color    : transparent !important;
+    border-right-color  : transparent !important;
+    border-left-color   : transparent !important;
+    border-bottom-color : white !important;
+}
+
+
+
+.button input {
+    padding: 2px 4px;
+    line-height: 16px;
+    height: 18px;
+}
+
+
 /* MASTER LAYOUT */
 /* ----------------------------------------------------------------------------- */
-.screen > .panel {
+/* .screen > .panel {
     top : var(--padding-main); 
-}
-#products-search-input {
-    width : 80px;
+} */
+
+
+#products-search-input, .bom-search-input {
+    width       : 50px;
 }
 #details {
     display : none;
 }
-#details > .panel-content {
-    top     : 82px;
+/* #details > .panel-content {
+    top     : 86px;
     right   : calc(-1 * var(--padding-main)); 
     bottom  : calc(-1 * var(--padding-main)); 
     left    : calc(-1 * var(--padding-main)); 
-}
+} */
 #context.selected {
     background : var(--color-status-yellow);
+}
+/* .standalone .bom-tree-actions > div {
+    display : none;
+} */
+.bom-tree-actions {
+    border-right : 1px solid transparent;
 }
 
 
 /*  BOM */
 /* ----------------------------------------------------------------------------- */
 #bom-content {
-    right   : var(--padding-main); 
+    top     : 52px;
+    /* right   : var(--padding-main); 
     bottom  : var(--padding-main); 
-    left    : var(--padding-main);    
+    left    : var(--padding-main);     */
 }
 #bom-thead {
     display : none !important;
+}
+#bom-table .bom-tree-actions {
+    max-width   : 120px;
+    width       : 120px;
 }
 #bom td {
     padding-top    : 1px;
@@ -58,13 +145,13 @@
 
 /*  MODULES */
 /* ----------------------------------------------------------------------------- */
-#modules {
+/* #modules {
     position    : absolute;
     top         : var(--padding-main); 
     right       : var(--padding-main); 
     bottom      : var(--padding-main); 
     left        : var(--padding-main);
-}
+} */
 #modules > .module {
     border-bottom : 1px solid white;
     display : flex;
@@ -75,7 +162,7 @@
     margin-top : 30px;
     margin-bottom : 10px;
     text-align : center;
-    width : 100%;
+    /* width : 100%; */
 }
 #modules > .module:first-of-type { margin-top : 0px; }
 #modules .module-title {
@@ -87,12 +174,190 @@
 .module-title { cursor : pointer; }
 
 
-#products-content > .tile {
+/* #products-content > .tile {
     width: 500px;
-}
+} */
 
 #products-content .tile-image {
     width: 256px;
+}
+
+
+
+
+/*  FEATURES */
+/* ----------------------------------------------------------------------------- */
+#features-content {
+    right   : var(--padding-main); 
+    bottom  : var(--padding-main); 
+    left    : var(--padding-main);    
+}
+#features-toolbar {
+    padding : 15px 30px;
+}
+#features .bom-color,
+#features .bom-title {
+    display : none;
+}
+#features th:first-of-type {
+    color : transparent;
+}
+#features th:first-of-type,
+#features td:first-of-type {
+    max-width   : 28px;
+    width       : 28px;
+}
+#features tr.node > td {
+    background      : transparent;
+    border-bottom   : 1px solid var(--color-font);
+    border-top      : none;
+    padding-top     : 30px;
+}
+#features tr.node:hover > td {
+    border-right-color : transparent !important;
+    border-left-color : transparent !important;
+}
+
+#features .leaf .icon-check-box-checked {
+    display : none;
+}
+#features .leaf.selected .icon-check-box-checked {
+    display : block;
+}
+#features .leaf .icon-check-box {
+    display : block;
+}
+#features .leaf.selected .icon-check-box {
+    display : none;
+}
+#features .icon-check-box,
+#features .icon-check-box-checked {
+    font-size   : 18px;
+    font-weight : 400;
+}
+#features .bom-nav {
+    padding-right : 0px;
+}
+#features .leaf .bom-first-col {
+    height       : 28px;
+    padding-left : 6px;
+}
+
+.feature-actions {
+    display : flex;
+    gap     : 2px;
+    height  : 28px;
+}
+.feature-actions > .button {
+    margin : 0px;
+}
+.feature-items {
+    width : 40px;
+    max-width : 40px;
+    text-align : right;
+}
+
+/* .bom-level-1.leaf td, */
+/* .bom-level-1.first-leaf td {
+    border-top : 40px solid transparent;
+} */
+.feature-items > td {
+    background : var(--color-surface-level-1);
+    border : none;
+    padding : 1px 0px 16px 32px;
+}
+.feature-items-list {
+    display : flex;
+    flex-direction: column;
+    gap : var(--spacer-xxxs);
+}
+
+.feature-item {
+    background  : var(--color-surface-level-2);
+    display     : flex;
+    gap         : var(--spacer-s);
+    height      : 28px;
+    line-height : 28px;
+    padding     : 4px 6px 4px 16px;
+    text-align  : left;
+}
+.feature-item-part-number {
+    font-weight     : bold;
+    overflow        : hidden;
+    text-overflow   : ellipsis;
+    white-space     : nowrap;
+    width           : 140px;
+}
+.feature-item-path {
+    white-space : nowrap;
+    overflow : hidden;
+    text-overflow : ellipsis;
+    flex-grow : 1;
+}
+.feature-item-actions {
+    display : flex;
+    gap : var(--spacer-xxxs);
+    justify-content: end;
+    width : 80px;
+}
+.feature-item-actions > div {
+    font-size: 18px !important;
+    height: 26px !important;
+    line-height: 26px !important;
+    width: 26px !important;
+}
+.feature-item-delete {
+    color : var(--color-status-red) !important; 
+}
+.feature-items-list-empty {
+    padding : 8px;
+    text-align : center;
+}
+.feature-item-actions .button{
+    display : none;
+}
+.feature-item:hover .feature-item-actions .button {
+    display : block;
+}
+
+
+
+/*  FEATURES */
+/* ----------------------------------------------------------------------------- */
+#configurations {
+    /* background : var(--color-surface-level-5); */
+    display: flex;
+    flex-direction: column;
+    gap : 10px;
+    padding : 20px  40px;
+    position : absolute;
+    right : 0px;
+    bottom : 0px;
+    left : 0px;
+}
+.configurations-line {
+    display : flex;
+    gap : 20px;
+}
+.configurations-label {
+    line-height : 34px;
+    width : 150px;
+}
+.configurations-control {
+    display : flex;
+    flex-grow : 1;
+    gap : 10px;
+}
+.configurations-control input {
+    height : 14px;
+    width : calc(100% - 124px);
+}
+.configuration-action {
+    display : none;
+}
+#select-configuration {
+    height : 32px;
+    width : calc(100% - 178px);
 }
 
 
@@ -112,6 +377,7 @@ body.standalone #viewer {
 
 }
 body.standalone .tabs {
+    border-width : 0px;
     width : 655px;
     left : var(--padding-main);
 }
@@ -121,4 +387,3 @@ body.standalone #details > .panel-content {
     bottom : 0px;
     width : 655px;
 }
-body.standalon .bom-tree-actions { display : none !important; }

@@ -3,7 +3,6 @@ extends ../framework/layout
 block head
     
     link(rel='stylesheet', href='/stylesheets/apps/mbom.css')
-    link(rel='stylesheet', href='/stylesheets/common/dialogs.css')
     script(src='/javascripts/libs/jquery-ui-1.12.1/jquery-ui.min.js')
     script(src='/javascripts/apps/mbom.js')
     script.
@@ -116,7 +115,7 @@ block body
                 .panel-header
                     .panel-title Manufacturing BOM
                 .panel-content#mbom-tree
-                #mbom-add-operation
+                #mbom-add-operation.surface-level-3
                     span#mbom-add-text Add Process
                     input#mbom-add-name(placeholder="Title")
                     input#mbom-add-code(placeholder="Code")
@@ -126,13 +125,13 @@ block body
 
             #divider-details.screen-divider.vertical
 
-            .panel.compact#details
+            .panel#details
                 .panel-header
                     .panel-title Details
                     .panel-toolbar
                         .button.icon.icon-bookmark#bookmark
                         .button.icon.icon-open#open
-                .panel-content#details-sections.view-only.surface-level-2
+                .panel-content#details-sections.surface-level-2.compact
                 .panel-content#attachments-list
 
         #dialog-copy.dialog

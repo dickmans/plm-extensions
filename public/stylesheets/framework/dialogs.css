@@ -1,47 +1,128 @@
+/* GENERAL */
+/* ----------------------------------------------------------------------------- */
+.dialog {
+    background      : var(--color-surface-level-1);
+    border-radius   : 4px;
+    box-shadow      : 0px 0px 16px rgba(0, 0, 0, 0.2);
+    display         : none;
+    position        : absolute;
+    transition      : transform .15s ease;
+    z-index         : 10;
+}
+.dialog-arrow-up {
+    background : none !important;
+    width: 0; 
+    height: 0; 
+    border-bottom: 20px solid #fff;
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    position : relative;
+}
+.dialog-header {
+    border-bottom   : 1px solid var(--color-surface-level-4);
+    border-radius   : 4px 4px 0px 0px;
+    display         : flex;
+    font-size       : 22px;
+    font-weight     : 800;
+    height          : 22px;
+    line-height     : 22px;
+    padding         : 24px 40px 24px;
+    position        : absolute;
+    top             : 0px;
+    right           : 0px;
+    left            : 0px;
+    white-space     : nowrap;
+}
+.dialog-subheader {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    margin-left: 14px;
+}
+.dialog-close {
+    color : #0a131c;
+    cursor : pointer;
+    font-size : 32px !important;
+    position : absolute;
+    top : 18px;
+    right : 36px;
+}
+.dialog-content {
+    position : absolute;
+    top : 71px;
+    right : 0px;
+    bottom : 98px;
+    left : 0px;
+    overflow-y : auto;
+    padding : 30px 40px;
+}
+.dialog.no-footer .dialog-content {
+    bottom : 0px;
+}
+.dialog-footer {
+    border-radius : 0px 0px 4px 4px;
+    height: 38px;
+    padding : 30px 40px;
+    position : absolute;
+    right : 0px;
+    bottom : 0px;
+    left : 0px;
+}
+.dialog-footer > div {
+    float : right;
+    margin-left : 10px;
+}
+.dialog-footer.single-button > div {
+    float : none;
+    margin : 0px;
+}
+
+
+
 /* SAVE PROCESSING */
 /* ----------------------------------------------------------------------------- */
 #dialog-saving {
-    height : 354px;
-    width : 660px;
-    top : calc(50% - 170px);
-    left : calc(50% - 330px);
+    height  : 354px;
+    width   : 660px;
+    top     : calc(50% - 170px);
+    left    : calc(50% - 330px);
 }
 .step {
-    display : flex;
-    height : 26px;
+    display     : flex;
+    height      : 26px;
     line-height : 26px;
-    margin-top : 4px;
+    margin-top  : 4px;
 }
 .step-label {
-    white-space : nowrap;
-    width : 240px;
+    white-space     : nowrap;
+    width           : 240px;
 }
 .in-work .step-label {
     font-weight : 800;
 }
 .step-progress {
-    background : var(--color-gray-100);
-    width : calc(100% - 300px);
+    background  : var(--color-surface-level-2);
+    width       : calc(100% - 300px);
 }
 .step-bar {
-    background : var(--color-gray-400);
-    height : 100%;
-    width : 0%;
-    text-align : center;
-    transition: width ease 0.1s;
+    background  : var(--color-surface-level-4);
+    height      : 100%;
+    text-align  : center;
+    transition  : width ease 0.1s;
+    width       : 0%;
 }
 .step-counter {
-    overflow : hidden;
-    padding-left : 10px;
-    text-align : right;
-    text-overflow: ellipsis;
-    white-space : nowrap;
-    width : 70px;
+    overflow        : hidden;
+    padding-left    : 10px;
+    text-align      : right;
+    text-overflow   : ellipsis;
+    white-space     : nowrap;
+    width           : 70px;
 }
 .transition-stopper {
-    transition: none !important;
+    transition : none !important;
 }
 #confirm-saving {
-    float : unset;
+    float  : unset;
     margin : 0px;
 }

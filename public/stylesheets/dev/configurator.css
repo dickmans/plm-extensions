@@ -639,7 +639,7 @@ tr.node.bom-level-9 .bom-first-col {  padding-left : 245px; }
 tr.node.bom-level-10 .bom-first-col {  padding-left : 275px; } */
 
 /* tr:hover td {
-    background : var(--color-hover) !important;
+    background : var(--color-hover-background) !important;
 } */
 tr.selected td {
     background: var(--color-selected) !important;

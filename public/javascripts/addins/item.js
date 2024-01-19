@@ -3,15 +3,25 @@ let wsVariants    = { 'id' : '275' }
 
 $(document).ready(function() {
 
+    let link = '/api/v3/workspaces/' + wsId + '/items/' + dmsId;
+
     appendProcessing('details');
     appendOverlay(true);
 
     setUIEvents();
     insertItemDetails(link, null, null, [], ['ACTIONS']);
     insertAttachments(link);
-    insertWorkspaceItems('274', 'dialog-variants-list', 'format_color_fill');
-    insertFlatBOM(link, null, '', 'EFE', true, true, true, true, false, [], true);
-    insertBOM(link, 'master-bom', '', '', true, false, true, true, true, true, true);
+    insertWorkspaceItems('274', {
+        'id'   : 'dialog-variants-list', 
+        'icon' : 'format_color_fill'
+    });
+    insertFlatBOM(link, {
+        'title'         : '',
+        'editable'      : true,
+        'bomViewName'   : 'EFE',
+        'views'         : true
+    });
+    insertBOM(link, { 'id' : 'master-bom', 'title' : '', 'hideDetails' : true});
     getVariantsInitialData();
 
 });
@@ -19,16 +29,11 @@ $(document).ready(function() {
 
 function setUIEvents() {
 
-    $('#item-variants-select').click(function() {
-        $('#overlay').show();
-        $('#dialog-variants').show();
-    });
-
-
     $('#dialog-variants-cancel').click(function() {
         $('#overlay').hide();
         $('.dialog').hide();
     });
+
     $('#dialog-variants-apply').click(function() {
         $('#overlay').hide();
         $('.dialog').hide();
@@ -42,12 +47,12 @@ function setUIEvents() {
 function insertFlatBOMDone(id) {
 
     let elemToolbar = $('#' + id + '-toolbar');
-        
+
     let elemToggle = $('<div></div>');
         elemToggle.addClass('button');    
         elemToggle.addClass('with-icon');    
         elemToggle.addClass('isolate-off');
-        elemToggle.html('Isolate');
+        elemToggle.html('Isolate in CAD');
         elemToggle.prependTo(elemToolbar);
         elemToggle.click(function() {
             let elemButton = $(this);
@@ -65,38 +70,38 @@ function insertFlatBOMDone(id) {
 
         });
 
-    let elemCounter = $('<div></div>');
-        elemCounter.addClass('button');    
-        elemCounter.attr('id', 'flat-bom-counter');
-        elemCounter.html();
-        elemCounter.hide();
-        elemCounter.prependTo(elemToolbar);
-        elemCounter.click(function() {
-            let elemButton = $(this);
-                elemButton.toggleClass('filter-selected');
+    // let elemCounter = $('<div></div>');
+    //     elemCounter.addClass('button');    
+    //     elemCounter.attr('id', 'flat-bom-counter');
+    //     elemCounter.html();
+    //     elemCounter.hide();
+    //     elemCounter.prependTo(elemToolbar);
+    //     elemCounter.click(function() {
+    //         let elemButton = $(this);
+    //             elemButton.toggleClass('filter-selected');
 
-            filterFlatBOMBySelection();
+    //         filterFlatBOMBySelection();
 
-        });
+    //     });
 
 }
-function filterFlatBOMBySelection(enforce) {
+// function filterFlatBOMBySelection(enforce) {
 
-    if(isBlank(enforce)) enforce = false;
+//     if(isBlank(enforce)) enforce = false;
 
-    let elemButton = $('#flat-bom-counter');
+//     let elemButton = $('#flat-bom-counter');
 
-    if((elemButton).hasClass('filter-selected')) {
-        $('#bom-flat-tbody').children().hide();
-        $('#bom-flat-tbody').children('.selected').show();
+//     if((elemButton).hasClass('filter-selected')) {
+//         $('#bom-flat-tbody').children().hide();
+//         $('#bom-flat-tbody').children('.selected').show();
         
-    } else {
-        $('#bom-flat-tbody').children().show();
-    }
+//     } else {
+//         $('#bom-flat-tbody').children().show();
+//     }
 
-    if(enforce) $('#bom-flat-tbody').children().show();
+//     if(enforce) $('#bom-flat-tbody').children().show();
 
-}
+// }
 function changeFlatBOMViewDone() {
     $('#bom-flat-select-all').click(function() { 
         let count = $(this).hasClass('icon-check-box-checked') ? 0 : $('#bom-flat-tbody').children().length;
@@ -105,7 +110,7 @@ function changeFlatBOMViewDone() {
     });
 
 }
-function clickFlatBOMItem(elemClicked) {
+function clickFlatBOMItem(e, elemClicked) {
 
     let partNumbers = [];
 
@@ -116,32 +121,32 @@ function clickFlatBOMItem(elemClicked) {
     })
 
     select3D(partNumbers);
-    updateFlatBOMCounter();
+    
 
 }
-function updateFlatBOMCounter(count) {
+// function updateFlatBOMCounter(count) {
 
 
-    console.log('updateFlatBOMCounter START');
+//     console.log('updateFlatBOMCounter START');
 
-    if(isBlank(count)) count = $('#bom-flat-tbody').children('.selected').length;
+//     if(isBlank(count)) count = $('#bom-flat-tbody').children('.selected').length;
 
-    console.log(count);
+//     console.log(count);
 
-    let elemCounter = $('#flat-bom-counter');
+//     let elemCounter = $('#flat-bom-counter');
 
-        elemCounter.html(count + ' Zeilen gewählt');
+//         elemCounter.html(count + ' Zeilen gewählt');
 
-    if(count > 0) {
-        elemCounter.show(); 
-    } else {
-        elemCounter.hide();
-        elemCounter.removeClass('filter-selected');
-    }
+//     if(count > 0) {
+//         elemCounter.show(); 
+//     } else {
+//         elemCounter.hide();
+//         elemCounter.removeClass('filter-selected');
+//     }
 
-    filterFlatBOMBySelection();
+//     filterFlatBOMBySelection();
 
-}
+// }
 
 
 
@@ -408,6 +413,41 @@ function setVariantsEditor() {
 
 }
 function changeBOMViewDone(id) {
+
+    let elemToolbar = $('#' + id + '-toolbar');
+
+    $('<div></div>').prependTo(elemToolbar)
+        .addClass('button')  
+        .addClass('with-icon')    
+        .addClass('icon-tiles')
+        .html('Farbwelten wählen')
+        .click(function() {
+            $('#overlay').show();
+            $('#dialog-variants').show();
+        });
+
+
+    let elemToggle = $('<div></div>');
+        elemToggle.addClass('button');    
+        elemToggle.addClass('with-icon');    
+        elemToggle.addClass('isolate-off');
+        elemToggle.html('Isolate in CAD');
+        elemToggle.prependTo(elemToolbar);
+        elemToggle.click(function() {
+            let elemButton = $(this);
+                elemButton.toggleClass('isolate-on');
+                elemButton.toggleClass('isolate-off');
+            isolate = !isolate;
+
+            let partNumbers = [];
+
+            $('.flat-bom-item.selected').each(function() {
+                partNumbers.push($(this).attr('data-part-number'));
+            })
+        
+            select3D(partNumbers);
+
+        });
 
     let elemTHead = $('#' + id + '-thead');
 

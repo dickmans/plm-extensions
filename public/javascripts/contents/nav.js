@@ -1,36 +1,63 @@
 // Display records of defined workspace
 // List items of defined workspace in options dialog
-function insertWorkspaceItems(wsId, id, title, classNames, search, icon, fieldIdImage, fieldIdTitle, fieldIdSubtitle, fieldIdsDetails, sortBy, fieldIdsAttributes) {
+function insertWorkspaceItems(wsId, params) {
+
+
+
+    //  Set defaults for optional parameters
+    // --------------------------------------
+    let id                  = 'list';   // id of DOM element where the list will be inseerted
+    let title               = '';       // Title being shown on top of the list
+    let classNames          = [];       // Array of class names that will be assigned to the tiles list (enables specific styling and event listeners)
+    let search              = true;     // Adds quick filtering using search input on top of the list
+    let icon                = 'label';  // Tile icon to use
+    let fieldIdImage        = '';       // ID of field to use as tile image
+    let fieldIdTitle        = '';       // ID of field to use as tile title
+    let fieldIdSubtitle     = '';       // ID of field to use as tile subtitle
+    let fieldIdsDetails     = [];       // List of field IDs to be displayed as tile details
+    let fieldIdsAttributes  = [];       // List of field IDs whose values will be stored in the DOM attributes of the tiles to allow for further user interactions
+    let sortBy              = 'title';  // Field ID to use for sorting
+    let groupBy             = '';       // Field ID to use for grouping of items (leave blank to disable grouping)
 
     let bulk = false;
 
-    if(isBlank(wsId              )) return;
-    if(isBlank(id                ))                 id = 'list';
-    if(isBlank(title             ))              title = '';
-    if(isBlank(classNames        ))         classNames = [];
-    if(isBlank(icon              ))               icon = 'label';
-    if(isBlank(search            ))             search = true;
-    if(isBlank(fieldIdImage      ))       fieldIdImage = '';    else bulk = true;
-    if(isBlank(fieldIdTitle      ))       fieldIdTitle = '';    else bulk = true;
-    if(isBlank(fieldIdSubtitle   ))    fieldIdSubtitle = '';    else bulk = true;
-    if(isBlank(fieldIdsDetails   ))    fieldIdsDetails = [];    else bulk = true; 
-    if(isBlank(fieldIdsAttributes)) fieldIdsAttributes = [];    else bulk = true; 
-    if(isBlank(sortBy            ))              sortBy = 'title';
+    if(isBlank(wsId)) return;
+    if(isBlank(params)) params = {};
+
+    if(!isBlank(params.id)                )                   id = params.id;
+    if(!isEmpty(params.title)             )                title = params.title;
+    if(!isBlank(params.classNames)        )           classNames = params.classNames;
+    if(!isBlank(params.search)            )               search = params.search;
+    if(!isBlank(params.icon)              )                 icon = params.icon;
+    if(!isBlank(params.fieldIdImage)      ) {       fieldIdImage = params.fieldIdImage;        bulk = true; }
+    if(!isBlank(params.fieldIdTitle)      ) {       fieldIdTitle = params.fieldIdTitle;        bulk = true; }
+    if(!isBlank(params.fieldIdSubtitle)   ) {    fieldIdSubtitle = params.fieldIdSubtitle;     bulk = true; }
+    if(!isBlank(params.fieldIdsDetails)   ) {    fieldIdsDetails = params.fieldIdsDetails;     bulk = true; }
+    if(!isBlank(params.fieldIdsAttributes)) { fieldIdsAttributes = params.fieldIdsAttributes;  bulk = true; }
+    if(!isBlank(params.sortBy)            )               sortBy = params.sortBy;
+    if(!isBlank(params.groupBy)           )              groupBy = params.groupBy;
+
 
     let elemList = $('#' + id);
         elemList.addClass('workspace-items');
         elemList.html('');
+
+    if(elemList.length === 0) {
+        showErrorMessage('View Definition Error', 'Could not find view element with id "' + id + '". Please contact your administrator');
+        return;
+    }
+
+    let surfaceLevel = getSurfaceLevel(elemList);
 
     let elemHeader = $('<div></div>');
         elemHeader.addClass('panel-header');
         elemHeader.attr('id', id + '-header');
         elemHeader.appendTo(elemList);
 
-    let elemTitle = $('<div></div>');
-        elemTitle.addClass('panel-title');
-        elemTitle.attr('id', id + '-title');
-        elemTitle.html(title);
-        elemTitle.appendTo(elemHeader);
+    $('<div></div>').appendTo(elemHeader)
+        .addClass('panel-title')
+        .attr('id', id + '-title')
+        .html(title);
 
     let elemToolbar = $('<div></div>');
         elemToolbar.addClass('panel-toolbar');
@@ -68,11 +95,17 @@ function insertWorkspaceItems(wsId, id, title, classNames, search, icon, fieldId
 
     let elemContent = $('<div></div>');
         elemContent.addClass('panel-content');
-        elemContent.addClass('tiles');
         elemContent.attr('id', id + '-content');
         elemContent.appendTo(elemList);
 
-    for(let className of classNames) elemContent.addClass(className);
+    if(isBlank(groupBy)) {
+        elemContent.addClass('tiles');
+        elemContent.addClass(surfaceLevel);
+        for(let className of classNames) elemContent.addClass(className);
+    } else {
+        elemContent.addClass('workspace-items-groups');
+    }
+
 
     $.get('/plm/items', { 'wsId' : wsId, 'bulk' : bulk }, function(response) {
 
@@ -86,10 +119,47 @@ function insertWorkspaceItems(wsId, id, title, classNames, search, icon, fieldId
                 for(item of response.data.items) {
                     item.sortKey = getSectionFieldValue(item.sections, sortBy, '', 'title');
                 }
-                sortArray(response.data.items, sortKey, 'string', 'ascending');
+                sortArray(response.data.items, 'sortKey', 'string', 'ascending');
             }
 
+            if(!isBlank(groupBy)) {
+                for(item of response.data.items) {
+                    item.groupKey = getSectionFieldValue(item.sections, groupBy, '', 'title');
+                }
+                sortArray(response.data.items, 'groupKey', 'string', 'ascending');
+            }
+
+            let groupName = null;
+            let elemGroupList;
+
             for(item of response.data.items) {
+
+                if(!isBlank(groupBy)) {
+
+                    if(groupName !== item.groupKey) {
+
+                        let elemGroup = $('<div></div>');
+                            elemGroup.addClass('workspace-items-group');
+                            elemGroup.appendTo(elemContent);
+
+                        let elemGroupName = $('<div></div>');
+                            elemGroupName.addClass('workspace-items-group-name');
+                            elemGroupName.html(item.groupKey);
+                            elemGroupName.appendTo(elemGroup);                            
+
+                        elemGroupList = $('<div></div>');
+                        elemGroupList.addClass('workspace-items-group-list');
+                        elemGroupList.addClass('tiles');
+                        elemGroupList.addClass(surfaceLevel);
+                        elemGroupList.appendTo(elemGroup);
+
+                        for(let className of classNames) elemGroupList.addClass(className);
+
+                    }
+
+                    groupName = item.groupKey;
+
+                }
 
                 let image    = (fieldIdImage === '') ? null : getSectionFieldValue(item.sections, fieldIdImage, '', 'link');
                 let title    = getSectionFieldValue(item.sections, fieldIdTitle, '', 'title');
@@ -97,7 +167,8 @@ function insertWorkspaceItems(wsId, id, title, classNames, search, icon, fieldId
                 let details  = [];
 
                 let elemTile = genTile(item.__self__, '', image, icon, title, subtitle);
-                    elemTile.appendTo(elemContent);
+                    // elemTile.appendTo(elemContent);
+                    if(isBlank(groupBy)) elemTile.appendTo(elemContent); else elemTile.appendTo(elemGroupList);
                     elemTile.click(function(e) {
                         e.preventDefault();
                         e.stopPropagation();
@@ -169,6 +240,7 @@ function searchInWorkspaceItems(id, elemInput) {
 
 }
 function clickWorkspaceItem(elemClicked) {}
+
 
 
 // Insert user's MY OUTSTANDING WORK (filter for defined workspaces if needed)
@@ -380,16 +452,19 @@ function clickRecentItem(elemClicked) {}
 
 
 // Insert user's WORKSPACE VIEWS for given workspace
-function insertWorkspaceViews(id, workspaceId, title, search, limit, includeMOW, includeBookmarks, includeRecents) {
+function insertWorkspaceViews(id, workspaceId, title, views, search, limit, includeMOW, includeBookmarks, includeRecents) {
 
     if(isBlank(workspaceId      )) return;
     if(isBlank(id               ))               id = 'views';
     if(isBlank(title            ))            title = '';
+    if(isBlank(views            ))            views = true;
     if(isBlank(search           ))           search = false;
     if(isBlank(limit            ))            limit = 100;
     if(isBlank(includeMOW       ))       includeMOW = false;
     if(isBlank(includeBookmarks )) includeBookmarks = false;
     if(isBlank(includeRecents   ))   includeRecents = false;
+
+    console.log('insertWorkspaceViews');
 
     let elemViews = $('#' + id);
         elemViews.attr('data-limit', limit);
@@ -415,10 +490,13 @@ function insertWorkspaceViews(id, workspaceId, title, search, limit, includeMOW,
     let elemSelect = $('<select></select>');
         elemSelect.attr('id', id + '-view-selector');
         elemSelect.addClass('workspace-view-selector');
+        elemSelect.addClass('button');
         elemSelect.appendTo(elemToolbar);
         elemSelect.change(function() {
             changeWorkspaceView(id);
         });
+
+    if(!views) elemSelect.hide();
 
     let elemRefresh = $('<div></div>');
         elemRefresh.addClass('button');
@@ -444,7 +522,7 @@ function insertWorkspaceViews(id, workspaceId, title, search, limit, includeMOW,
             elemFilterInput.addClass('workspace-view-search-input')
             elemFilterInput.appendTo(elemFilter);
             elemFilterInput.keyup(function() {
-                searchInWorkspaceView($(this));
+                searchInWorkspaceView(id, $(this));
             });
 
     }
@@ -464,14 +542,17 @@ function insertWorkspaceViews(id, workspaceId, title, search, limit, includeMOW,
 
     let elemTable = $('<table></table>');
         elemTable.attr('id', id + '-table');
+        elemTable.addClass('workspace-view-table');
         elemTable.addClass('fixed-header');
         elemTable.appendTo(elemContent);
 
     let elemTableHead = $('<thead></thead>');
+        elemTableHead.addClass('workspace-view-thead');
         elemTableHead.attr('id', id + '-thead');
         elemTableHead.appendTo(elemTable);
 
     let elemTableBody = $('<tbody></tbody>');
+        elemTableBody.addClass('workspace-view-tbody');
         elemTableBody.attr('id', id + '-tbody');
         elemTableBody.appendTo(elemTable);
 
@@ -486,7 +567,7 @@ function insertWorkspaceViews(id, workspaceId, title, search, limit, includeMOW,
     if(includeMOW) {
 
         let elemOptionMOW = $('<option></option>');
-            elemOptionMOW.html('Meine Aufgabenliste');
+            elemOptionMOW.html('My Outstanding Work');
             elemOptionMOW.attr('value', 'mow');
             elemOptionMOW.appendTo(elemSelect);
 
@@ -500,7 +581,7 @@ function insertWorkspaceViews(id, workspaceId, title, search, limit, includeMOW,
     if(includeBookmarks) {
 
         let elemOptionMOW = $('<option></option>');
-            elemOptionMOW.html('Meine Lesezeichen');
+            elemOptionMOW.html('My Bookmarks');
             elemOptionMOW.attr('value', 'bookmarks');
             elemOptionMOW.appendTo(elemSelect);
 
@@ -515,7 +596,7 @@ function insertWorkspaceViews(id, workspaceId, title, search, limit, includeMOW,
     if(includeRecents) {
 
         let elemOptionRecents = $('<option></option>');
-            elemOptionRecents.html('Zuletzt Angesehen');
+            elemOptionRecents.html('Recently Viewed');
             elemOptionRecents.attr('value', 'recents');
             elemOptionRecents.appendTo(elemSelect);
 
@@ -532,35 +613,94 @@ function insertWorkspaceViews(id, workspaceId, title, search, limit, includeMOW,
 
     $.get('/plm/tableaus' , { 'wsId' : workspaceId }, function(response) {
 
-        for(let tableau of response.data) {
+        if(response.error) {
 
-            let elemOption = $('<option></option>');
-                elemOption.html(tableau.title);
-                elemOption.attr('value', tableau.link);
-                elemOption.appendTo(elemSelect);
+            showErrorMessage('Error when accessing workspace with id ' + workspaceId, response.data.message);
 
-            if(!isBlank(tableau.type)) {
-                if(tableau.type.toLowerCase() === 'default') {
-                    elemSelect.val(tableau.link);
+        } else {
+
+            for(let tableau of response.data) {
+
+                let elemOption = $('<option></option>');
+                    elemOption.html(tableau.title);
+                    elemOption.attr('value', tableau.link);
+                    elemOption.appendTo(elemSelect);
+    
+                if(!isBlank(tableau.type)) {
+                    if(tableau.type.toLowerCase() === 'default') {
+                        elemSelect.val(tableau.link);
+                    }
                 }
+    
+                if(includeBookmarks) elemSelect.val('bookmarks');
+                if(includeMOW) elemSelect.val('mow');
+    
             }
-
-            if(includeBookmarks) elemSelect.val('bookmarks');
-            if(includeMOW) elemSelect.val('mow');
+    
+            changeWorkspaceView(id);
 
         }
-
-        changeWorkspaceView(id);
 
     });
 
 }
 function insertWorkspaceViewsDone(id) {}
-function changeWorkspaceView(id) {
+function searchInWorkspaceView(id, elemInput) {
 
+    let elemTable   = $('#' + id + '-tbody');
+    let filterValue = elemInput.val().toLowerCase();
+
+    elemTable.children('tr').removeClass('result');
+
+    if(filterValue === '') {
+
+        elemTable.children().each(function() {
+            $(this).show();
+        });
+
+    } else {
+
+        elemTable.children().each(function() {
+            $(this).hide();
+        });
+
+        elemTable.children().each(function() {
+
+            let elemRow = $(this);
+            let unhide  = false;
+
+            elemRow.children().each(function() {
+
+                if($(this).children('.image').length === 0) {
+        
+                    let text = $(this).html().toLowerCase();
+        
+                    if($(this).children('input').length === 1) text = $(this).children('input').val().toLowerCase();
+                    else if($(this).children('textarea').length === 1) text = $(this).children('textarea').val().toLowerCase();
+        
+                    if(text.indexOf(filterValue) > -1) {
+        
+                        unhide = true;
+        
+                    }
+                }
+        
+            });
+
+            if(unhide) elemRow.show();
+
+        });
+
+    }
+
+}
+function changeWorkspaceView(id) {
 
     $('#' + id + '-empty').hide();
     $('#' + id + '-processing').show();
+
+    console.log(id);
+
 
     let timestamp   = new Date().getTime();
     let elemParent  = $('#' + id);
@@ -572,6 +712,8 @@ function changeWorkspaceView(id) {
     let linkView    = elemSelect.val();
     let limit       = Number(elemParent.attr('data-limit'));
     let workspaceId = elemParent.attr('data-wsid');
+
+    console.log(linkView);
 
     elemContent.children().hide();
 
@@ -595,7 +737,6 @@ function changeWorkspaceView(id) {
 
                 elemTable.show();
                 $('#' + id + '-processing').hide();
-
                 if(responses[1].data.length > 0) {
                     setWorkspaceViewColumns(elemTHead, responses[0].data, limit);
                     setWorkspaceViewRows   (elemTBody, responses[1].data, limit);
@@ -626,6 +767,7 @@ function setWorkspaceViewColumns(elemTHead, columns, limit) {
 
             if(index < limit) {
                 let elemTHeadCell = $('<th></th>');
+                    elemTHeadCell.addClass('workspace-view-head');
                     elemTHeadCell.html(column.field.title);
                     elemTHeadCell.appendTo(elemTHeadRow);
 

@@ -56,7 +56,7 @@ function setUIEvents() {
                     
                 } else {
         
-                    showErrorMessage('Could find matching item when searching for ' + partNumber + ' in field ' + config.search.fieldId, 'Error when searching item');
+                    showErrorMessage('Error when searching item', 'Could find matching item when searching for ' + partNumber + ' in field ' + config.search.fieldId);
         
                 }
             });        

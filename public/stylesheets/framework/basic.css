@@ -2,138 +2,129 @@
 /* ----------------------------------------------------------------------------- */
 html { 
     /* PREVENT IOS BOUNCING */
-    height: 100%;
-    overflow: hidden;
-    position: fixed;
+    height   : 100%;
+    overflow : hidden;
+    position : fixed;
 }
 body {
-    /* color : #3c3c3c; */
-    font-family: 'ArtifaktElement';
-    /* font-family: 'Artifakt'; */
-    font-style: normal;
-    font-weight: 400;
-    font-size: 14px;
-    line-height: 20px;
-    margin: 0px;
-    padding: 0px;
-    width: 100vw;
-    height: 100vh;
-    overflow-y: hidden;
-    overflow-x: hidden;
-    -webkit-overflow-scrolling: touch;
-    -webkit-font-smoothing: antialiased;
+    font-family : 'ArtifaktElement';
+    font-style  : normal;
+    font-weight : 400;
+    font-size   : 14px;
+    line-height : 20px;
+    margin      : 0px;
+    padding     : 0px;
+    height      : 100vh;
+    width       : 100vw;
+    overflow-y  : hidden;
+    overflow-x  : hidden;
+    -webkit-overflow-scrolling : touch;
+    -webkit-font-smoothing     : antialiased;
 }
-
-body.dark-theme { color : #F5F5F5; }
-body.blue-theme { color : #F5F5F5; }
 h1 {
-    font-weight: 800;
-    font-size: 28px;
-    line-height: 36px;
+    font-size   : 28px;
+    font-weight : 800;
+    line-height : 36px;
 }
 h2 {
-    font-weight: 800;
-    font-size: 20px;
-    line-height: 26px;
-    margin-top: 32px;
+    font-size   : 20px;
+    font-weight : 800;
+    line-height : 26px;
+    margin-top  : 32px;
 }
 h3 {
-    font-weight: 600;
-    font-size: 18px;
-    line-height: 26px;
+    font-size   : 18px;
+    font-weight : 600;
+    line-height : 26px;
 }
 a {
     color : var(--color-blue-500);
-    text-decoration: none;
+    text-decoration : none;
 }
 
-input, textarea, select { 
-    font-family: 'ArtifaktElement'; 
+input, select, textarea { 
+    background  : var(--color-surface-level-1);
+    color       : var(--color-font);
+    font-family : 'ArtifaktElement'; 
 }
 input, textarea { 
-    border : none;
-    border-bottom : 1px solid var(--color-gray-100);
+    border          : none;
+    border-bottom   : 1px solid transparent;
 }
 
-input, input:disabled {
+
+input { 
+    padding : 8px;
+}
+input.readonly,
+input:disabled {
     background : none;
 }
-input { padding : 8px; }
 input:focus {
-    outline: 0;
-    border-color : var(--color-blue-500) !important;
-    box-shadow : 0px 3px 0px 0px rgba(6, 150, 215, 0.35) !important;
+    outline : 0;
 }
 input[type='checkbox'] { width : 16px; }
+input[type="date"] { font-family : sans-serif; }
 input[type='radio'] {
-    appearance: none;
-    cursor : pointer;
-    margin : 0px 6px 0px 0px;
-    background: white;
-    border-radius: 50%;
-    border: 1px solid var(--color-gray-100);
-    padding: 7px;
+    appearance      : none;
+    background      : var(--color-surface-level-1);
+    border          : 1px solid transparent;
+    border-radius   : 50%;
+    cursor          : pointer;
+    height          : 16px;
+    margin          : 0px 6px 0px 0px;
+    padding         : 7px;
+    width           : 16px;
 }
 input[type='radio']:focus,
 input[type='radio']:checked {
-    background-color : var(--color-blue-500);
-    box-shadow : none !important;
+    background-color: var(--color-gray-400) !important;
+    border-color    : var(--color-gray-400) !important;
+    box-shadow      : none !important;
 }
 
-.blue-theme input { color : white; }
-.blue-theme ::placeholder { color: #bbb; opacity: 1; }
-
-textarea {
-    outline : 0;
-    padding : 8px;
-}
-textarea:focus {
-    border-color : var(--color-blue-500) !important;
-    box-shadow : 0px 3px 0px 0px rgba(6, 150, 215, 0.35) !important;   
-}
+.dark-theme ::placeholder { color: var(--color-gray-500); opacity: 1; }
 
 select {
-    padding : 5px 4px;
+    border          : none;
+    border-bottom   : 1px solid transparent;
+    padding         : 5px 4px;
 }
 select:focus {
     outline : none;
 }
 select.disabled {
     border-color: rgba(128, 128, 128, 0.5);
-    color: #808080;
-    cursor: not-allowed;
+    color       : #808080;
+    cursor      : not-allowed;
+}
+textarea {
+    outline : 0;
+    padding : 8px;
 }
 
+
+
 table {
-    border-spacing : 0;
-    width : 100%;
+    border-spacing  : 0;
+    width           : 100%;
 }
 th {
-    background : #eeeeee;
-    padding : 10px 5px;
-    text-align : left;
+    padding     : 10px 10px;
+    text-align  : left;
     white-space : nowrap;
 }
-.fixed-header > thead > tr > th,
-.fixed-header > tbody > tr > th,
-.fixed-header > tr > th { 
-    position : sticky; 
-    top : 0; 
-    z-index : 1;
-}
-table.hovering-enabled tbody tr:hover td {
-    background : var(--color-hover) !important;
-    cursor : pointer;
-}
-tr.selected td {
-    background : var(--color-selected) !important;
-    /* border-color : var(--color-selected-border); */
-}
 td {
-    border-top : 1px solid transparent;
-    border-bottom : 1px solid var(--color-gray-100);
-    line-height : 16px;
-    padding : 10px 5px;
+    border-top      : 1px solid transparent;
+    border-bottom   : 1px solid transparent;
+    line-height     : 18px;
+    padding         : 5px 10px;
+}
+td:first-of-type {
+    border-left : 1px solid transparent;
+}
+td:last-of-type {
+    border-right : 1px solid transparent;
 }
 tr:last-of-type > td {
     border-bottom : 1px solid transparent;
@@ -142,8 +133,20 @@ td.link {
     color : var(--color-blue-500);
     cursor : pointer;
 }
-.surface-level-2 > table > thead > tr > th { border-bottom-color : var(--color-gray-200); }
-.surface-level-2 > table > tbody > tr > td { border-bottom-color : var(--color-gray-200); }
+
+.surface-level-1 th { background : var(--color-surface-level-4); border-color : var(--color-surface-level-1); } 
+.surface-level-1 td { background : var(--color-surface-level-3); border-color : var(--color-surface-level-1); } 
+.surface-level-2 th { background : var(--color-surface-level-4); border-color : var(--color-surface-level-2); } 
+.surface-level-2 td { background : var(--color-surface-level-3); border-color : var(--color-surface-level-2); } 
+.surface-level-3 th { background : var(--color-surface-level-5); border-color : var(--color-surface-level-3); } 
+.surface-level-3 td { background : var(--color-surface-level-4); border-color : var(--color-surface-level-3); } 
+.surface-level-4 th { background : var(--color-surface-level-3); border-color : var(--color-surface-level-4); } 
+.surface-level-4 td { background : var(--color-surface-level-2); border-color : var(--color-surface-level-4); } 
+.surface-level-5 th { background : var(--color-surface-level-3); border-color : var(--color-surface-level-5); } 
+.surface-level-5 td { background : var(--color-surface-level-2); border-color : var(--color-surface-level-5); } 
+
+.surface-level-2 > table > thead > tr > th { border-bottom-color : var(--color-surface-level-2); }
+.surface-level-2 > table > tbody > tr > td { border-bottom-color : var(--color-surface-level-2); }
 
 table.grid.rotated th {
     padding : 5px 16px;
@@ -155,14 +158,32 @@ table.grid.rotated tr:first-of-type > td {
 table.grid.rotated tr:last-of-type > td {
     border-bottom : 1px solid var(--color-gray-100);
 }
+
+.fixed-header > thead > tr > th,
+.fixed-header > tbody > tr > th,
+.fixed-header > tr > th { 
+    position : sticky; 
+    top     : 0; 
+    z-index : 1;
+}
+table.row-hovering tr:hover td,
+table.row-hovering tbody tr:hover td {
+    background      : var(--color-hover-background) !important;
+    border-color    : var(--color-hover-border) !important;
+    cursor          : pointer;
+}
+tr.selected td {
+    background   : var(--color-selected-background) !important;
+}
  
 
-.blue-theme thead th       { background : var(--color-blue-surface-level-1); }
-.blue-theme tbody tr       { background : var(--color-blue-surface-level-3); }
-.blue-theme tbody td       { border-bottom : 2px solid var(--color-blue-surface-level-1);}
-.blue-theme tbody tr:hover { background : var(--color-blue-surface-level-2-5) !important; }
-.blue-theme tbody tr.selected td        { background : var(--color-blue-surface-level-3) !important; }
-.blue-theme tbody tr.selected:hover td  { background : var(--color-blue-surface-level-2-5) !important; }
+
+/*  HIDE SCROLL BARS */
+/* ----------------------------------------------------------------------------- */
+.no-scrollbar::-webkit-scrollbar {
+    display : none;
+}
+
 
 
 /*  PREVENT TEXT SELECTION */

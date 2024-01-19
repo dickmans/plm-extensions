@@ -3,7 +3,7 @@ extends ../framework/layout
 block head
 
     link(rel='stylesheet', href='/stylesheets/apps/dashboard.css')
-    script(src='/javascripts/libs/chart.js/dist/chart.umd.js')
+    script(src='https://cdn.jsdelivr.net/npm/chart.js')
     script(src='/javascripts/apps/dashboard.js')
     script.
         config = !{JSON.stringify(config)};
@@ -22,11 +22,11 @@ block body
             
         #main.screen
 
-            #new.panel
+            #new.panel.surface-level-2
                 .panel-header
                     .panel-title Initiate New Process
                 .panel-message You encountered an issue? Please provide a few details below and let us fix the problem. You can provide more details and also upload files in the next step.
-                .panel-content#new-sections.surface-level-2 
+                .panel-content#new-sections
                 .panel-toolbar
                     .button.default#continue Continue
 
@@ -34,15 +34,15 @@ block body
                 .panel-header
                     .panel-title Track Your Processes
                     .panel-toolbar
-                        select#view(name='view') 
+                        select.button#view(name='view') 
                             option(value='recents') List Recent Proceses
                             option(value='bookmarks') List Pinned Proceses
                             option(value='mow') List Proceses Requiring Action
                             option(value='all') List All Processes
-                            option(value='calendar') Browse By Date
+                            option(value='calendar') Browse By Creation Date
                             option(value='progress') View Processes By Progress
                             option(value='timeline') View Process Timeline Chart
-                .panel-content#views
+                .panel-content#views.surface-level-1
 
                     #recents.list.tiles.l
                     #bookmarks.list.tiles.l
@@ -85,29 +85,29 @@ block body
                             |  on 
                             span#modified-on 
                             |.
-                #item-toolbar 
-                    select#workflow-actions(label='Select Action')
-                    .button.icon.icon-close#item-close
+                #item-toolbar.panel-toolbar
+                    select.button#workflow-actions(label='Select Action')
                     .button#button-upload Upload File
                     .button#bookmark.icon.icon-bookmark
+                    .button.icon.icon-close#item-close
 
             #item-content 
-                #workflow-history
+                #workflow-history.surface-level-1 
                     #workflow-header.panel-header 
                         .panel-title Activity
-                    #workflow-history-events.panel-content
-                #details 
+                    #workflow-history-events.panel-content.no-scrollbar
+                #details.surface-level-1 
                     .panel-header 
                         .panel-title Details 
-                    .panel-content#details-sections
-                #design 
+                    .panel-content#details-sections.no-scrollbar.surface-level-1
+                #design.surface-level-1 
                     .panel-content#viewer.viewer
                     .panel-content.surface-level-3#markups
                         #markup-panel
                             #markup-title Markups
                             #markup-subtitle Capture markups using the given controls within the viewer above. They will be saved in context of this process.
                         #markup-list
-                #attachments 
+                #attachments.surface-level-1 
                     .panel-header
                         .panel-title.centered Attachments
                     #attachments-list.panel-content.list.tiles.files

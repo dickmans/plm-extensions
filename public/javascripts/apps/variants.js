@@ -22,7 +22,7 @@ $(document).ready(function() {
     appendOverlay(true);
 
     getInitialData();
-    insertViewer(linkContext);
+    insertViewer(linkContext, viewerBGColors[theme].level1);
     insertItemDetails(linkContext);
     setUIEvents();
     
@@ -102,8 +102,11 @@ function getInitialData() {
     Promise.all(requests).then(function(responses) {
 
         $('#header-subtitle').html(responses[0].data.title);
+
+        document.title = documentTitle + ': ' + responses[0].data.title;
+
         let variants   = getSectionFieldValue(responses[0].data.sections, config.variants.fieldIdItemVariants, '');
-        insertBOM(linkContext, 'bom', config.variants.bomViewNameItems, 'BOM & Variants', true, true, false, false, false);
+        insertBOM(linkContext, { 'title' : 'BOM & Variants', 'bomViewName' : config.variants.bomViewNameItems, 'reset' : true, 'hideDetails' : true, 'quantity' : true, 'headers' : true });
 
         for(variant of variants) listVariants.push(variant);
 
@@ -147,6 +150,7 @@ function getVariantsWSConfig() {
     
                                 let elemOptionBlank = $('<option></option>');
                                     elemOptionBlank.attr('value', null);
+                                    elemOptionBlank.attr('displayValue', '');
                                     elemOptionBlank.appendTo(elemControl);
     
                                 getOptions(elemControl, field.picklist, field.__self__.split('/')[8], 'select', '');
@@ -168,7 +172,7 @@ function getVariantsWSConfig() {
         }
     }
 
-    if(!foundSection) showErrorMessage('Cannot find section with name  ' + config.variants.variantsSectionLabel + ' in workspace ' +  config.variants.wsIdVariantItems + ' (wsIdVariantItems)', 'Error loading data');
+    if(!foundSection) showErrorMessage('Error loading data', 'Cannot find section with name  ' + config.variants.variantsSectionLabel + ' in workspace ' +  config.variants.wsIdItemVariants + ' (wsIdItemVariants)');
 
     wsVariants.fieldIdVariantBaseItem   = config.variants.fieldIdVariantBaseItem;
     wsVariants.sectionIdBaseItem        = getFieldSectionId(wsVariants.sections, config.variants.fieldIdVariantBaseItem);
@@ -205,34 +209,10 @@ function getVariantsWSConfig() {
 
 
 // Extend BOM table with variant columns
-function setBOMDisplayDone(id) {
-
-    let requests = [];
-
-    let elemTable = $('#' + id + '-table');
-
-    let elemTableHead = $('<thead></thead>');
-        elemTableHead.prependTo(elemTable);
-
-    let elemTableHeadRow1 = $('<tr></tr>');
-        elemTableHeadRow1.attr('id', 'table-head-row-titles');
-        elemTableHeadRow1.appendTo(elemTableHead);
-
-    let elemTableHeadRowFieldTitles = $('<tr></tr>');
-        elemTableHeadRowFieldTitles.attr('id', 'table-head-row-fields');
-        elemTableHeadRowFieldTitles.appendTo(elemTableHead);
-
-    let elemTableHeadCell1 = $('<th></th>');
-        elemTableHeadCell1.addClass('sticky');
-        elemTableHeadCell1.attr('colspan', 2);
-        elemTableHeadCell1.appendTo(elemTableHeadRow1);
-            
-    let elemTableHeadCell2 = $('<th></th>');
-        elemTableHeadCell2.addClass('sticky');
-        elemTableHeadCell2.attr('colspan', 2);
-        elemTableHeadCell2.appendTo(elemTableHeadRowFieldTitles);
+function changeBOMViewDone(id) {
 
     let elemVariantSelector = $('<select>');
+        elemVariantSelector.addClass('button');
         elemVariantSelector.attr('id', 'variant-selector');
         elemVariantSelector.prependTo($('#bom-toolbar'));
         elemVariantSelector.change(function() {
@@ -244,8 +224,12 @@ function setBOMDisplayDone(id) {
             }
         });
 
+    $('<option></option>').appendTo(elemVariantSelector)
+        .attr('value', 'all')
+        .html('Show all variants');
+    
     let elemVariantsSave = $('<div></div>');
-        elemVariantsSave.addClass('button');
+        elemVariantsSave.addClass('button').addClass('with-icon').addClass('icon-save');
         elemVariantsSave.addClass('default');
         elemVariantsSave.html('Update Variant BOMs');
         elemVariantsSave.attr('id', 'button-save');
@@ -256,10 +240,64 @@ function setBOMDisplayDone(id) {
             showSaveProcessingDialog();
         });  
 
-    let elemOptionAll = $('<option></option>');
-        elemOptionAll.attr('value', 'all');
-        elemOptionAll.html('Show all variants');
-        elemOptionAll.appendTo(elemVariantSelector);
+    
+    let requests = [];
+    
+    let elemTable = $('#' + id + '-table');
+    let elemTHead = $('#' + id + '-thead');
+
+    let elemTHeadRow2 = $('#' + id + '-thead').children('tr').first();
+        elemTHeadRow2.attr('id', 'table-head-row-titles');
+        
+   
+    let elemTHeadRow1 = $('<tr></tr>');
+        elemTHeadRow1.attr('id', 'table-head-row-fields');
+        elemTHeadRow1.prependTo(elemTHead);
+        elemTHeadRow1.append('<th style="background:none" colspan="' + elemTHeadRow2.children().length + '"></th>');
+
+
+    // elemTHeadRow2.children().each(function() { $(this).attr('rowspan', '2'); })
+
+    
+
+
+    // let elemTableHead = $('<thead></thead>');
+    //     elemTableHead.prependTo(elemTable);
+
+    // let elemTableHeadRow1 = $('<tr></tr>');
+    //     elemTableHeadRow1.attr('id', 'table-head-row-titles');
+    //     elemTableHeadRow1.appendTo(elemTableHead);
+
+    // let elemTableHeadRowFieldTitles = $('<tr></tr>');
+    //     elemTableHeadRowFieldTitles.attr('id', 'table-head-row-fields');
+    //     elemTableHeadRowFieldTitles.appendTo(elemTableHead);
+
+    // let elemTableHeadCell1 = $('<th></th>');
+    //     elemTableHeadCell1.addClass('sticky');
+    //     elemTableHeadCell1.attr('colspan', 2);
+    //     elemTableHeadCell1.appendTo(elemTableHeadRow1);
+            
+    // let elemTableHeadCell2 = $('<th></th>');
+    //     elemTableHeadCell2.addClass('sticky');
+    //     elemTableHeadCell2.attr('colspan', 2);
+    //     elemTableHeadCell2.appendTo(elemTableHeadRowFieldTitles);
+
+    // let elemVariantSelector = $('<select>');
+    //     elemVariantSelector.addClass('button');
+    //     elemVariantSelector.attr('id', 'variant-selector');
+    //     elemVariantSelector.prependTo($('#bom-toolbar'));
+    //     elemVariantSelector.change(function() {
+    //         if($(this).val() === 'all') {
+    //             $('.variant-filter').show();
+    //         } else {
+    //             $('.variant-filter').hide();
+    //             $('.variant-index-' + $(this).val()).show();
+    //         }
+    //     });
+
+
+
+
                 
     let indexVariant = 0;
 
@@ -274,8 +312,8 @@ function setBOMDisplayDone(id) {
         let elemSpacerHead = elemCellSpacer.clone();
             elemSpacerHead.addClass('variant-index-' + indexVariant);
             
-        elemTableHeadRow1.append(elemSpacerHead.clone());
-        elemTableHeadRowFieldTitles.append(elemSpacerHead.clone());
+        elemTHeadRow1.append(elemSpacerHead.clone());
+        elemTHeadRow2.append(elemSpacerHead.clone());
 
         let elemCellHead = $('<th></th>');
             elemCellHead.attr('colspan', fieldsVariant.length + 1);
@@ -285,27 +323,24 @@ function setBOMDisplayDone(id) {
             elemCellHead.addClass('variant-filter');
             
             elemCellHead.addClass('variant-index-' + indexVariant);
-            elemCellHead.appendTo(elemTableHeadRow1);
+            elemCellHead.appendTo(elemTHeadRow1);
             elemCellHead.click(function() {
                 openItemByLink($(this).attr('data-link'));
             });
 
         for(field of fieldsVariant) {
 
-            let elemCellHeadField = $('<th></th>');
-                elemCellHeadField.html(field.title);
-                elemCellHeadField.appendTo(elemTableHeadRowFieldTitles);
-                elemCellHeadField.addClass('variant-filter');
-                
-                elemCellHeadField.addClass('variant-index-' + indexVariant);
+            $('<th></th>').appendTo(elemTHeadRow2)
+                .html(field.title)
+                .addClass('variant-filter')
+                .addClass('variant-index-' + indexVariant);
 
         }
 
-        let elemCellHeadItem = $('<th></th>');
-            elemCellHeadItem.html('Item');
-            elemCellHeadItem.addClass('variant-filter');
-            elemCellHeadItem.addClass('variant-index-' + indexVariant);
-            elemCellHeadItem.appendTo(elemTableHeadRowFieldTitles);
+        $('<th></th>').appendTo(elemTHeadRow2)
+            .html('Item')
+            .addClass('variant-filter')
+            .addClass('variant-index-' + indexVariant);
 
         let elemOptionVariant = $('<option></option>');
             elemOptionVariant.attr('value', indexVariant);
@@ -323,7 +358,7 @@ function setBOMDisplayDone(id) {
 
         for(response of responses) {
 
-            elemTable.children('tr').each(function() {
+            elemTable.find('.bom-item').each(function() {
 
                 let className     = 'status-match';
                 let elemRefItem   = $(this);
@@ -427,6 +462,23 @@ function setBOMDisplayDone(id) {
                         clickItemCell(e, $(this));
                     });
 
+                if(className === 'status-missing') {
+                    elemCellItem.addClass('icon');
+                    elemCellItem.addClass('icon-disconnect');
+                    elemCellItem.addClass('status-icon');
+                    elemCellItem.attr('title', 'No matching item in BOM yet');
+                } else if(className === 'status-identical') {
+                    elemCellItem.addClass('icon');
+                    elemCellItem.addClass('icon-link');
+                    elemCellItem.addClass('status-icon');
+                    elemCellItem.attr('title', 'Using identical item, no variant');
+                } else {
+                    elemCellItem.removeClass('icon');    
+                    elemCellItem.removeClass('icon-link');    
+                    elemCellItem.removeClass('icon-disconnect');    
+                    elemCellItem.removeClass('icon-status');    
+                }
+
             });
 
             indexVariant++;
@@ -435,9 +487,9 @@ function setBOMDisplayDone(id) {
 
     });
 
-    elemTable.find('.bom-first-col').each(function() {
-        $(this).addClass('sticky');
-    });
+    // elemTable.find('.bom-first-col').each(function() {
+    //     $(this).addClass('sticky');
+    // });
 
 }
 function getMatchingVariantItem(nodes, edges, fieldLink, value) {
@@ -903,11 +955,14 @@ function insertSelectedItem(elemClicked) {
         if(elemCellValue.length > 0) value = elemCellValue.html();
 
         if(elemInput.is('select')) {
-            elemInput.find('option[displayValue="' + value + '"]').attr('selected','selected');
-        } else {
-            elemInput.val(value);
+            elemInput.children('option').each(function() {
+                if($(this).attr('displayValue') === value) {
+                    value = $(this).attr('value');
+                }
+            });
         }
-
+        
+        elemInput.val(value);
         index--;
         elemCellField = elemCellField.prev();
 
@@ -1021,7 +1076,7 @@ function createNewVariant() {
 
 
 // Highlight item in viewer and display item details upon selection in BOM
-function selectBOMItem(e, elemClicked) {
+function clickBOMItem(e, elemClicked) {
 
     elemClicked.toggleClass('selected');
     elemClicked.siblings().removeClass('selected');
@@ -1046,7 +1101,12 @@ function selectBOMItem(e, elemClicked) {
     }
 
 }
+function clickBOMResetDone(elemClicked) {
 
+    insertItemDetails(linkContext);
+    viewerResetSelection(true);
+
+}
 
 
 // Apply Changes to PLM
@@ -1288,7 +1348,7 @@ function createNewItems() {
             for(response of responses) {
 
                 if(response.error) {
-                    showErrorMessage(response.data.message, 'Error');
+                    showErrorMessage('Error', response.data.message);
                     errors = true;
                 } else {
                     requests.push($.get('/plm/descriptor', {
@@ -1504,7 +1564,7 @@ function addBOMItems() {
                     'dmsIdParent'   : linkParent.split('/')[6],
                     'wsIdChild'     : linkItem.split('/')[4],
                     'dmsIdChild'    : linkItem.split('/')[6],
-                    'qty'           : refItem.attr('data-quantity'),
+                    'quantity'      : refItem.attr('data-quantity'),
                     'number'        : refItem.attr('data-number'),
                     'pinned'        : true,
                     'fields'        : [
@@ -1527,7 +1587,15 @@ function addBOMItems() {
             
             let index = 0;
 
-            for(response of responses) {
+            for(let response of responses) {
+
+                console.log(response);
+
+                if(response.error) {
+                    showErrorMessage('Error when adding BOM entries', response.data[0].message);
+                    return;
+                }
+
                 let elemItem = elements[index++];
                     elemItem.removeClass('pending-addition');
                     elemItem.removeClass('processing-item');

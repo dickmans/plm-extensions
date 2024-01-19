@@ -52,13 +52,13 @@ block body
                         thead#tableau-header
                         tbody#tableau-body
 
-            .panel.compact#details
+            .panel.surface-level-2.compact#details
                 .panel-header   
                     .panel-title#details-title Details 
                     .panel-toolbar 
                         select.workflow-actions.hidden#workflow-actions(label='Workflow Actions')
                         .button.icon.icon-clone#button-clone(title='Clone this record')
-                        .button.icon#bookmark(title='Toggle bookmark') star
+                        .button.icon.filled#bookmark(title='Toggle bookmark') star
                         .button.icon#open(title='Open record in new PLM tab') open_in_new
                         .button.icon#close.icon.icon-close(title='Close this panel')
                 #viewer
@@ -66,11 +66,11 @@ block body
                     div#tabItemDetails Details 
                     div#tabGrid Grid
                     div#tabAttachments Attachments 
-                .panel-content.surface-level-2.view-only#details-sections
+                .panel-content.surface-level-2#details-sections.no-scrollbar
                 .panel-content.surface-level-2#grid-list
                 .panel-content.surface-level-2.tiles.list.m#attachments-list
 
-            .panel#create
+            .panel.surface-level-2#create
                 .panel-header
                     .panel-title New Record
                     .panel-toolbar
@@ -78,7 +78,7 @@ block body
                         .button#cancel-create(title='Cancel creation of new process') Cancel
                 .panel-content#create-sections.surface-level-2
 
-            .panel#clone
+            .panel.surface-level-2#clone
                 .panel-header
                     .panel-title#clone-title Clone Record
                     .panel-toolbar
@@ -86,7 +86,7 @@ block body
                         .button#cancel-clone.icon.icon-close(title='Cancel')
                 .panel-content#clone-sections.surface-level-2
 
-            .panel#edit
+            .panel.surface-level-2#edit
                 .panel-header
                     .panel-title Edit Selected Records
                     .panel-toolbar
@@ -97,7 +97,7 @@ block body
 
         #workspaces.screen 
 
-            .panel#workspaces-panel  
+            .panel#workspaces-panel.surface-level-1  
                 .panel-header   
                     .panel-title Select Workspace
                     .panel-toolbar  

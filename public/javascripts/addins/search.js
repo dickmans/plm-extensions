@@ -95,9 +95,9 @@ function performSearchItems() {
 
             }
 
-            $('#search-list').children().each(function() {
-                insertTileAction($(this));
-            });
+            // $('#search-list').children().each(function() {
+            //     insertTileAction($(this));
+            // });
 
         }
 

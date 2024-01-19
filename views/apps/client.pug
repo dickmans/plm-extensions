@@ -24,17 +24,17 @@ block body
                 #header-avatar
         
         #workspaces.screen
-            #workspaces-header.list-header
+            #workspaces-header.list-header.surface-level-3
                 .list-title Browse
                 .list-subtitle Select workspace to open
-            #workspaces-refresh.list-refresh.icon cached
+            #workspaces-refresh.list-refresh.button.icon.icon-refresh
             #workspaces-list.list
 
         #workspace.screen
-            #workspace-header.list-header
+            #workspace-header.list-header.surface-level-3
                 #workspace-title.list-title 
                 .list-subtitle Workspace view
-            #workspace-back.icon.list-back navigate_before
+            #workspace-back.button.icon.list-back navigate_before
             .list-actions.right-align
                 select#workspace-views.button.default
                 .button.with-icon.icon-filter
@@ -54,45 +54,45 @@ block body
                     .list-title Bookmarks
 
         #mow.screen
-            #mow-header.list-header
+            #mow-header.list-header.surface-level-3
                 .list-title Task List
                 .list-subtitle Processes requiring your action
-            #mow-refresh.list-refresh.icon cached
+            #mow-refresh.list-refresh.button.icon.icon-refresh
             #mow-list.list
 
         #create.screen
-            #create-header.list-header
+            #create-header.list-header.surface-level-3
                 .list-title Create Item
                 .list-subtitle Select type to be created
-            #create-refresh.list-refresh.icon cached
+            #create-refresh.list-refresh.button.icon.icon-refresh
             #create-list.list
 
-        #new.screen
-            #new-header.list-header
+        #new.screen.surface-level-1
+            #new-header.list-header.surface-level-3
                 .list-subtitle Create item in
                 #new-header-subtitle.list-title Select type to be created
             .content 
                 #new-sections
-            #new-toolbar.dialog-toolbar
+            #new-toolbar.dialog-toolbar.surface-level-3
                 #new-action-cancel.button Cancel
                 #new-action-save.button.default Save
 
         #bookmarks.screen
-            #bookmarks-header.list-header
+            #bookmarks-header.list-header.surface-level-3
                 .list-title Bookmarks
                 .list-subtitle Your favorite items
-            #bookmarks-refresh.list-refresh.icon cached
+            #bookmarks-refresh.list-refresh.button.icon.icon-refresh
             #bookmarks-list.list
 
         #recents.screen
-            #recents-header.list-header
+            #recents-header.list-header.surface-level-3
                 .list-title Recent Data
                 .list-subtitle Your last 10 items visited
-            #recents-refresh.list-refresh.icon cached
+            #recents-refresh.list-refresh.button.icon.icon-refresh
             #recents-list.list
 
         #search.screen
-            #search-header.list-header 
+            #search-header.list-header.surface-level-3
                 .list-title Search
                 .list-subtitle Find across all workspaces
             #search-list.list.with-actions
@@ -102,7 +102,7 @@ block body
             #search-no-results No results found
 
     
-        #toolbar.toolbar.surface-level-2
+        #toolbar.toolbar.surface-level-3
             #button-workspaces(data-id='workspaces')
                 .icon menu
                 .toolbar-label Browse
@@ -131,7 +131,7 @@ block body
 
         #item.screen.item(image-fielId='IMAGE_1' data-link='')    
             
-            #item-header
+            #item-header.surface-level-3
                 #item-header-image
                 #item-header-title
                     #item-header-descriptor.nowrap
@@ -176,7 +176,7 @@ block body
             #item-change-log.item-content
                 #item-change-log-list.list
 
-            #item-toolbar.toolbar.surface-level-2
+            #item-toolbar.toolbar.surface-level-3
                 #item-button-view(data-id='item-viewer')
                     .icon view_in_ar
                     .toolbar-label Viewer
@@ -228,8 +228,8 @@ block body
                 #item-menu-triangle
 
             #item-edit.item-content
-                #item-edit-sections
-            #item-edit-toolbar.dialog-toolbar 
+                #item-edit-sections.surface-level-1.no-scrollbar
+            #item-edit-toolbar.dialog-toolbar.surface-level-3 
                 #item-edit-cancel.button Cancel
                 #item-edit-save.button.default Save
 

@@ -110,8 +110,11 @@ body.details-on #details         { right : var(--padding-panel); }
 
 /* ADD Panel */
 /* ----------------------------------------------------------------------------- */
+#add input {
+    /* background : var(--color-surface-level-2); */
+}
 .panel-left {
-    border-right : 1px solid var(--color-gray-200);
+    border-right : 1px solid  var(--color-surface-level-2);
     display : flex;
     flex-direction: column;
     gap : var(--spacer-m);
@@ -172,7 +175,7 @@ body.details-on #details         { right : var(--padding-panel); }
     padding: 6px 36px 6px 10px;
 }
 .additional-item {
-    background : var(--color-gray-100);
+    background : var(--color-surface-level-2);
     border : 1px solid transparent;
     cursor : pointer;
     float : left;
@@ -185,9 +188,9 @@ body.details-on #details         { right : var(--padding-panel); }
     white-space : nowrap;
     width : 400px;
 }
-.additional-item:hover { background : var(--color-hover); }
+.additional-item:hover { background : var(--color-hover-background); }
 .additional-item.selected {
-    background : var(--color-selected);
+    background : var(--color-selected-background);
     border-color : var(--color-selected-border);
 }
 .additional-item::before {
@@ -330,7 +333,7 @@ select.view-selector {
     line-height : 30px;
 }
 .item-icon {
-    background : var(--color-gray-100);
+    background : var(--color-surface-level-2); 
     font-size: 22px;
     text-align: center;
     width: 30px;
@@ -344,7 +347,7 @@ select.view-selector {
     height: 30px;
 }
 .item-title {
-    background : var(--color-gray-100);
+    background : var(--color-surface-level-2); 
     border-top : 1px solid transparent;
     border-bottom : 1px solid transparent;
     cursor : pointer;
@@ -369,7 +372,7 @@ select.view-selector {
     margin-left : var(--spacer-xxs);
 }
 .item-code {
-    background : var(--color-gray-100);
+    background : var(--color-surface-level-2); 
     border-top : 1px solid transparent;
     border-bottom : 1px solid transparent;
     text-align: center;
@@ -378,7 +381,7 @@ select.view-selector {
     font-weight: 800;
 }
 .item-qty {
-    background: var(--color-gray-100);
+    background : var(--color-surface-level-2); 
     border-top : 1px solid transparent;
     border-right : 1px solid transparent;
     border-bottom : 1px solid transparent;
@@ -409,7 +412,7 @@ select.view-selector {
 .item-action {
     border-radius : 2px;
     border : 1px solid var(--color-gray-600);
-    color : var(--color-gray-900);
+    color : var(--color-font);
     cursor : pointer;
     height : 28px;
     line-height : 28px;
@@ -423,6 +426,12 @@ select.view-selector {
     font-weight : 200;
     font-size : 22px;
     padding : 0px 4px;
+}
+
+.dark-theme .item-action,
+.dark-theme #ebom-actions > div {
+    background   : var(--color-surface-level-3);
+    border-color : var(--color-surface-level-3);
 }
 
 
@@ -447,7 +456,7 @@ select.view-selector {
 .item.selected > .item-head > .item-qty >input,
 .item.selected > .item-head > .item-qty >input.item-qty-input {
     color : var(--color-gray-900) !important;
-    background : var(--color-selected);
+    background : var(--color-selected-background);
     border-color : var(--color-selected-border);
 }
 .item-head:hover > .item-icon ,
@@ -462,7 +471,7 @@ select.view-selector {
 .item-head.selected:hover > .item-qty,
 .item-head.selected:hover > .item-qty >input,
 .item-head.selected:hover > .item-title >span  {
-    background : var(--color-hover) !important;
+    background : var(--color-hover-background) !important;
     color : var(--color-gray-900) !important;
 }
 .item-bom {
@@ -470,7 +479,7 @@ select.view-selector {
     overflow : auto;
 }
 .item.root { border-top : none; }
-.item.root > .item-head { background : var(--color-gray-100); }
+.item.root > .item-head { background : var(--color-surface-level-2); }
 .item.root > .item-head > .item-toggle,
 .item.root > .item-head > .item-code, 
 .item.root > .item-head > .item-qty, 
@@ -568,7 +577,7 @@ body.bom-panel-on .bom-panel {
 #ebom .item.different.enable-update > div > .item-actions > .item-action-update { display : block; }
 #ebom .item-has-bom > .item-head > .item-qty > input { display : none; }
 #ebom .item > .item-head > .iteqm-qty > input.item-qty-input { background : var(--color-gray-100); }
-#ebom .item.selected > .item-head > .iteqm-qty > input.item-qty-input { background : var(--color-selected); }
+#ebom .item.selected > .item-head > .iteqm-qty > input.item-qty-input { background : var(--color-selected-background); }
 #ebom .item-has-bom > .item-head > .item-actions > div { display : block; }
 #ebom .item-has-bom > .item-head:hover .item-actions > div { display : block !important; }
 .mbom-shortcut {
@@ -594,16 +603,16 @@ body.bom-panel-on #ebom-tree { bottom : 106px; }
 /* STATUS BAR */
 /* ----------------------------------------------------------------------------- */
 .bar {
-    border : 5px solid #fff;
-    border-radius : 3px;
-    cursor : pointer;
-    display : none;
-    flex :0;
-    height : 16px;
-    transition: all 0.25s ease;
+    border          : 5px solid var(--color-surface-level-1);
+    border-radius   : 3px;
+    cursor          : pointer;
+    display         : none;
+    flex            : 0;
+    height          : 16px;
+    transition      : all 0.25s ease;
 }
 #status-progress {
-    background: linear-gradient(270deg, var(--color-gray-100) 45%, var(--color-gray-200) 50%, var(--color-gray-100) 55%);
+    background: linear-gradient(270deg, var(--color-surface-level-2) 45%, var(--color-surface-level-4) 50%, var(--color-surface-level-2) 55%);
     background-size: 200% 200%;
     display : block;
     flex : 1;
@@ -694,50 +703,32 @@ body.bom-panel-on #mbom-tree { bottom : 106px; }
 /* MBOM ADD OPERATION CONTROLS */
 /* ----------------------------------------------------------------------------- */
 #mbom-add-operation {
-    background : var(--color-gray-100);
-    padding : 15px;
-    position : absolute;
-    right : 0px;
-    bottom : 0px;
-    left : 0px;
-}
-#mbom-add-operation input {
-    background : none;
-    border-bottom : 1px solid var(--color-gray-400);
-}
-#mbom-add-operation input:focus {
-    outline: 0;
-    border-color : var(--color-blue-500) !important;
-    box-shadow : 0px 3px 0px 0px rgba(6, 150, 215, 0.35) !important;
-}
-#mbom-add-operation input:hover {
-    border-color : #929292;
-    box-shadow : 0px 3px 0px 0px #E3E3E3;
+    padding     : 15px;
+    position    : absolute;
+    right       : 0px;
+    bottom      : 0px;
+    left        : 0px;
 }
 #mbom-add-text {
-    font-weight : 800;
-    padding: 6px 20px 6px 20px;
-    height: 30px;
-    line-height: 30px;
-    text-align: center;
-    /* margin-right: 10px; */
+    font-weight     : 800;
+    padding         : 6px 20px 6px 20px;
+    height          : 30px;
+    line-height     : 30px;
+    text-align      : center;
 }
 #mbom-add-name {
-    border : none;
-    height : 30px;
-    line-height : 30px;
     margin-right : 10px;
-    padding : 1px 15px;
-    width : calc(100% - 270px);
+    width        : calc(100% - 270px);
 }
 #mbom-add-code {
-    background : #fff;
-    border : none;
-    height : 30px;
+    text-align  : center;
+    width       : 50px;
+}
+#mbom-add-name,
+#mbom-add-code {
+    height      : 30px;
     line-height : 30px;
-    text-align : center;
-    padding : 1px 15px;
-    width : 50px;
+    padding     : 1px 15px;
 }
 
 
@@ -748,15 +739,13 @@ body.bom-panel-on #mbom-tree { bottom : 106px; }
     bottom : 158px; 
 }
 #attachments-list {
-    bottom : 0px;
+    bottom  : 0px;
     display : flex;
-    gap : 4px;
-    top : unset;
-    height : 138px;
+    gap     : 4px;
+    height  : 138px;
+    top     : unset;
 }
 #attachments-list > div {
-    background : var(--color-gray-100);
-    border-bottom : none;
     padding : var(--spacer-m);
 }
 

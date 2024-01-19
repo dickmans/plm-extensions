@@ -25,24 +25,24 @@ block body
             #main-actions.button.with-icon.icon-filter
                 input#filter(placeholder='Filter')
         
-            .tabs#main-tabs
+            .tabs#main-tabs(data-tab-group='main-tab')
                 #tab-reviews-pending Pending Reviews
                 #tab-reviews-completed Completed Reviews
                 #tab-reviews-all All Reviews
         
-            .panel-content.surface-level-2#panel-pending
+            .panel-content.surface-level-2#panel-pending.main-tab
                 #list-pending.tiles.wide.xxl
                 #empty 
                     .icon.icon.icon-info.xxxl
                     p There are now reviews in this view   
             
-            .panel-content.surface-level-2#panel-completed
+            .panel-content.surface-level-2#panel-completed.main-tab
                 #list-completed.tiles.wide.xxl
                 #empty 
                     .icon.icon.icon-info.xxxl
                     p There are now reviews in this view   
             
-            .panel-content.surface-level-2#panel-all
+            .panel-content.surface-level-2#panel-all.main-tab
                 #list-all.tiles.wide.xxl
                 #empty 
                     .icon.icon.icon-info.xxxl
@@ -63,10 +63,10 @@ block body
                     .panel-title#panel-title
 
                 .panel-toggles
-                    div Comments
-                    div Files
-                    div BOM
-                    div Actions
+                    div(data-id='comments') Comments
+                    div(data-id='files') Files
+                    div(data-id='bom') BOM
+                    div(data-id='actions') Actions
 
                 .panel-content.with-toolbar#comments
 

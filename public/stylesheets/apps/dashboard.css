@@ -29,7 +29,6 @@
 .panel.collapsed .panel-content { display : none !important; }
 /* .panel-title > .icon { margin-right : 8px; } */
 .panel-content { position: unset; }
-.tiles > div { border : none; }
 
 
 #progress .tile-status {
@@ -47,9 +46,9 @@ body.no-viewer {
 }
 #new {
     width   : var(--width-new);
-    top     : var(--margin-main);
-    right   : var(--margin-main);
-    bottom  : var(--margin-main);
+    top     : 0px;
+    right   : 0px;
+    bottom  : 0px;
 }
 #list {
     top     : var(--margin-main);
@@ -135,8 +134,7 @@ body.no-markup #markups { display : none; }
 /* NEW */
 /* ----------------------------------------------------------------------------- */
 #new {
-    border-left : 4px solid var(--color-gray-100);
-    padding-left : calc(var(--margin-main) - 2px);
+    border-width : var(--margin-main) 
 }
 .panel-message {
     padding: 20px 14px;
@@ -145,11 +143,10 @@ body.no-markup #markups { display : none; }
     line-height: 18px;
 }
 #new-sections {
-    border-top : 16px solid #f5f5f5;
-    border-bottom : 16px solid #f5f5f5;
-    margin-left: calc(var(--margin-main) - 2px);
+    /* border-top : 16px solid #f5f5f5; */
+    /* border-bottom : 16px solid #f5f5f5; */
     overflow-y: auto;
-    padding: 0px 16px;
+    padding: 16px;
     position : absolute;
     top: 140px;
     right : 0px;
@@ -164,7 +161,7 @@ body.no-markup #markups { display : none; }
     padding : 6px 0px;
 }
 #new-sections .field-label {
-    color : black !important;
+    color : var(--color-font) !important;
     width : 120px
 }
 #new-sections .field-value {
@@ -200,10 +197,10 @@ body.no-markup #markups { display : none; }
 /* LIST */
 /* ----------------------------------------------------------------------------- */
 #list {
-    display : flex;
-    flex-direction : column;
-    gap : 16px;
-    overflow-y : auto;
+    display         : flex;
+    flex-direction  : column;
+    gap             : 16px;
+    overflow-y      : auto;
 }
 #list > .panel-content > div {
     display : none;
@@ -213,18 +210,16 @@ body.no-markup #markups { display : none; }
 /* PROGRESS COLUMNS */
 /* ----------------------------------------------------------------------------- */
 #progress {
-    /* background : var(--color-gray-100); */
-    display : flex;
-    flex-direction: row;
-    justify-content: space-between;
-    gap : 2px;
+    background      : var(--color-surface-level-2);
+    display         : flex;
+    flex-direction  : row;
+    justify-content : space-between;
 }
 #progress > div {
-    /* background : white; */
-    border-left : 10px solid transparent;
-    border-right : 10px solid transparent;
-    flex-grow: 1;
-    width : 25%;
+    border-left     : 5px solid var(--color-surface-level-1);
+    border-right    : 5px solid var(--color-surface-level-1);
+    flex-grow       : 1;
+    width           : 25%;
 }
 #progress > div:first-of-type {
     border-left : none;
@@ -243,13 +238,13 @@ body.no-markup #markups { display : none; }
     min-height : 36px;
 }
 .progress-column.tiles.list.l .tile-image {
-    width : 48px;
+    width : 36px;
 }
 .progress-column.tiles.list.l .tile-image > span {
     font-size : 24px;
 }
 .progress-column.tiles.list.l .tile-details {
-    width : calc(100% - 94px);
+    width : calc(100% - 74px);
 }
 .tile-title,
 .tile-subtitle {
@@ -279,35 +274,40 @@ body.no-markup #markups { display : none; }
     gap : 20px;
 }
 .calendar-month-name { 
-    color       : white; 
-    background  : black !important; 
+    color       : var(--color-font) ;
+    background  : var(--color-surface-level-5) !important; 
     padding     : 10px !important;
     text-align  : center !important; 
 }
 .calendar { width : 100%; }
 .calendar th, 
 .calendar td {
-    cursor : pointer;
-    font-size : 12px;
-    line-height : 8px;
-    padding : 8px;
-    text-align: right;
-    width : 16px;
+    border-bottom   : none;
+    cursor          : pointer;
+    font-size       : 12px;
+    line-height     : 8px;
+    padding         : 8px;
+    text-align      : right;
+    width           : 16px;
 }
 .calendar-week { 
-    padding-left : 12px;
+    padding-left  : 12px;
     padding-right : 12px;
 }
 .calendar th,
-.calendar-week { 
+td.calendar-week { 
     font-weight : bold;
-    background: var(--color-gray-200); 
+    background  : var(--color-surface-level-4); 
 }
-.calendar-weekend { color : var(--color-gray-400); }
-.calendar-day:hover { background : var(--color-hover); }
+td.calendar-day { 
+    background : var(--color-surface-level-2); 
+}
+td.calendar-weekend { 
+    background : var(--color-surface-level-3); 
+}
+.calendar-day:hover { background : var(--color-hover-background); }
 .calendar-day-current { font-weight : 800; }
-/* .calendar-week-current > td.calendar-week { background : var(--color-blue-300); } */
-.calendar-week-current > td.calendar-day  { background : var(--color-gray-100); }
+.calendar-week-current > td.calendar-day  { background : var(--color-selected-background); }
 
 .calendar-highlight { background: var(--color-status-yellow) !important; color : white !important; }
 
@@ -315,12 +315,15 @@ body.no-markup #markups { display : none; }
     background : black;
     color : white;
 }
+ .dark-theme #calendar-table-head th { background : var(--color-surface-level-5); }
+.black-theme #calendar-table-head th { background : var(--color-surface-level-5); }
 #calendar-table-body tr {
     cursor : pointer;
     display : none;
 }
-#calendar-table-body tr:hover {
-    background : var(--color-hover);
+#calendar-table-body tr:hover td {
+    background : var(--color-hover-background);
+    border-color : var(--color-hover-border);
 }
 td.selected {
     background : var(--color-blue-500) !important;
@@ -366,7 +369,7 @@ td.selected {
     margin-top : 10px;
 }
 #workflow-actions {
-    padding : 8px 4px;
+    padding : 8px 12px;
 }
 #item-content {
     position : absolute;
@@ -376,8 +379,6 @@ td.selected {
     left     : 0px;   
 }
 #item-content > div {
-    background      : white;
-    border-radius   : 3px;
     padding         : 20px var(--padding-item);
     position        : absolute;
     top             : 0px;
@@ -402,6 +403,12 @@ td.selected {
 }
 .field-value {
     width : 100%;
+}
+.workflow-history-action-icon::before {
+    background : var(--color-surface-level-1)
+}
+.workflowh-history-event {
+    border-color : var(--color-surface-level-4);
 }
 
 
@@ -432,9 +439,9 @@ td.selected {
 /* MAKRUPS */
 /* ----------------------------------------------------------------------------- */
 #markups {
-    background : black;
-    color : white;
-    display : flex;
+    background  : var(--color-dark);
+    color       : white;
+    display     : flex;
 }
 #markups > div {
     padding : var(--padding-item) calc(2 * var(--padding-item));
@@ -471,4 +478,4 @@ td.selected {
 }
 .markup.selected {
     border-color : var(--color-blue-500);
-}
+};

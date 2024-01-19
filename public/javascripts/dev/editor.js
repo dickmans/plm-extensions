@@ -167,7 +167,7 @@ function setUIEvents() {
         $('#processes-processing').siblings('.panel-content').hide();
 
         if(!validateForm($('#processes-sections'))) {
-            showErrorMessage('Field validations faild', 'Cannot Save');
+            showErrorMessage('Cannot Save', 'Field validations faild');
             return;
         }
 
@@ -303,7 +303,7 @@ function getInitialData() {
             }
         }
 
-        if(wsItems.viewId === '') showErrorMessage('Error in configuration. Could not find BOM view "' + config.explorer.bomViewName + '"');
+        if(wsItems.viewId === '') showErrorMessage('Error in configuration', 'Could not find BOM view "' + config.explorer.bomViewName + '"');
 
         $('#header-subtitle').html(responses[1].data.title);
 
@@ -1556,7 +1556,7 @@ function saveItem() {
 
     $.get('/plm/edit', params, function(response) {
         if(response.error) {
-            showErrorMessage(response.data.message, 'Save Failed');
+            showErrorMessage('Save Failed', response.data.message);
         }
         $('#overlay').hide();
     });

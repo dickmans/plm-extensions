@@ -9,30 +9,30 @@
     --width-panel       : 500px;
     --width-item-variants : 400px;
     --padding-panel     : 25px;
-    --width-bom-spacer  : 10px;
+    --width-bom-spacer  : 6px;
 }
 
 
 /* MASTER LAYOUT */
 /* ----------------------------------------------------------------------------- */
 #viewer { 
-    width : var(--width-viewer);
-    top : 0px;
-    bottom : 0px;
-    left : 0px;
+    top     : var(--padding-panel);
+    bottom  : 0px;
+    left    : var(--padding-panel);
+    width   : var(--width-viewer);
 }
 #bom {
-    top : var(--padding-panel);
-    right : var(--padding-panel);
-    bottom : var(--padding-panel);
-    left : calc(var(--width-viewer) + var(--padding-panel));
+    top     : var(--padding-panel);
+    right   : var(--padding-panel);
+    bottom  : var(--padding-panel);
+    left    : calc(var(--width-viewer) + var(--padding-panel));
 }
-#details {
-    top : var(--padding-panel);
-    bottom : var(--padding-panel);
-    right : calc(0px - (2 * var(--padding-panel)) - var(--width-panel) - 10px);
-    padding : 0px;
-    width : var(--width-panel);
+#details, #create {
+    border-width : var(--padding-panel);
+    top          : 0px;
+    right        : calc(0px - (2 * var(--padding-panel)) - var(--width-panel) - 10px);
+    bottom       : 0px;
+    width        : var(--width-panel);
 }
 #item-variants {
     top : var(--padding-panel);
@@ -41,13 +41,7 @@
     padding : 0px;
     width : var(--width-item-variants);
 }
-#create {
-    top : var(--padding-panel);
-    bottom : var(--padding-panel);
-    right : calc(0px - (2 * var(--padding-panel)) - var(--width-panel) - 10px);
-    padding : 0px;
-    width : var(--width-panel);
-}
+
 
 #main.no-viewer #viewer { left : calc(0px - var(--width-viewer)); }
 #main.no-viewer #bom  { left : var(--padding-panel); }
@@ -58,33 +52,37 @@
 #main.wide-viewer #viewer  { 
     bottom : unset;
     height : 415px;
-    right : var(--padding-panel);
-    width : auto; 
+    right  : var(--padding-panel);
+    width  : auto; 
 }
 #main.wide-viewer #bom  {
-    left : var(--padding-panel); 
-    top : calc(400px + var(--padding-panel));
+    top     : calc(440px + var(--padding-panel));
+    left    : var(--padding-panel); 
 }
 
 
-#main.with-details.wide-viewer #viewer { right : calc(var(--width-panel) + (2 * var(--padding-panel))); }
-#main.with-details #bom { right : calc(var(--width-panel) + (2 * var(--padding-panel))); }
-#main.with-details #details { right : var(--padding-panel); }
+/* #main.with-details.wide-viewer #viewer { right : calc(var(--width-panel) + (3 * var(--padding-panel))); }
+#main.with-details #bom { right : calc(var(--width-panel) + (3 * var(--padding-panel))); }
+#main.with-details #details { right : 0px; } */
 
 
-#main.with-item-variants.wide-viewer #viewer { right : calc(var(--width-item-variants) + (2 * var(--padding-panel))); }
-#main.with-item-variants #bom { right : calc(var(--width-item-variants) + (2 * var(--padding-panel))); }
+#main.with-create.wide-viewer #viewer,
+#main.with-details.wide-viewer #viewer,
+#main.with-item-variants.wide-viewer #viewer,
+#main.with-create #bom,
+#main.with-details #bom,
+#main.with-item-variants #bom { right : calc(var(--width-panel) + (3 * var(--padding-panel))); }
+#main.with-details #details, 
+#main.with-create #create { right : 0px; }
+
 #main.with-item-variants #item-variants  { right : var(--padding-panel); }
 
 
-#main.with-create.wide-viewer #viewer { right : calc(var(--width-panel) + (2 * var(--padding-panel))); }
-#main.with-create #bom { right : calc(var(--width-panel) + (2 * var(--padding-panel))); }
-#main.with-create #create { right : var(--padding-panel); }
 
 
-.variant-filter.field-value {
+/* .variant-filter.field-value {
     background : var(--color-gray-100);
-}
+} */
 .field-value > textarea,
 .field-value > select,
 .field-value > input {
@@ -94,17 +92,8 @@ tr.selected > .variant-spacer { background: var(--color-selected) !important; }
 
 /* BOM */
 /* ----------------------------------------------------------------------------- */
-#bom-tree {
-    width : 100%;
-}
 #bom-table {
     width : auto;
-}
-#bom-table th {
-    position: sticky;
-    top: 0;
-    font-size : 12px;
-    padding : 6px 12px;
 }
 #bom-table .sticky {
     position: sticky;
@@ -112,15 +101,11 @@ tr.selected > .variant-spacer { background: var(--color-selected) !important; }
     z-index : 5;
 }
 #bom-table td {
-    border-bottom : 1px solid var(--color-gray-100);
-    white-space: nowrap;
-    font-size : 12px;
-    padding : 2px 6px;
+    white-space : nowrap;
 }
 .variant-spacer {
-    border : none;
-    background : white;
-    width : var(--width-bom-spacer);
+    background  : var(--color-surface-level-1) !important;
+    width       : var(--width-bom-spacer);
 }
 .variant-column {
     background : var(--color-gray-300);
@@ -140,19 +125,22 @@ tr.existing .bom-tree-color { background : var(--color-status-yellow); }
 tr.missing  .bom-tree-color { background : var(--color-status-red); }
 
 th.variant-head { 
-    background : black;
-    border-bottom : 1px solid white;
-    color : white;
-    cursor : pointer;
-    text-align : center;
+    /* background : black; */
+    /* border-bottom : 1px solid white; */
+    background  : var(--color-dark);
+    color       : white;
+    cursor      : pointer;
+    text-align  : center;
 }
 th.variant-item { cursor : pointer;}
-td.variant-item.status-identical { background : var(--color-gray-200) !important; }
+td.variant-item.status-icon { color: white; display : table-cell; text-align : center; font-size: 16px !important; }
+td.variant-item.status-identical { color : var(--color-font); }
 td.variant-item.status-match     { background : var(--color-status-green-bright) !important; }
 td.variant-item.status-missing   { background : var(--color-status-red-bright) !important; }
 td.variant-item.processing-item {
     background : var(--color-selected) !important;
 }
+
 /* td.variant-item.new-item, */
 /* td.variant-item.changed-item, */
 /* td.variant-item.replaced-item, */
@@ -164,6 +152,7 @@ td.variant-item.change-item {
 
 #bom-table select {
     /* border: 1px solid #808080; */
+    background : var(--color-surface-level-2);
     font-size: 12px;
     min-width : 100px;
     padding: 4px;
@@ -172,6 +161,7 @@ td.variant-item.change-item {
 #bom-table input {
     /* background : white; */
     /* border : 1px solid #808080; */
+    background : var(--color-surface-level-2);
     font-size: 12px;
     min-width : 100px;
     padding: 5px;
