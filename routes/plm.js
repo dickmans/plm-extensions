@@ -2753,6 +2753,7 @@ router.get('/search-descriptor', function(req, res, next) {
     console.log('  req.query.bulk       = ' + req.query.bulk); 
     console.log('  req.query.page       = ' + req.query.page); 
     console.log('  req.query.revision   = ' + req.query.revision); 
+    console.log('  req.query.wildcard   = ' + req.query.wildcard); 
     console.log();
 
     let limit       = (typeof req.query.limit    === 'undefined') ?   100    : req.query.limit;
@@ -2760,6 +2761,7 @@ router.get('/search-descriptor', function(req, res, next) {
     let bulk        = (typeof req.query.bulk     === 'undefined') ?  'false' : req.query.bulk;
     let page        = (typeof req.query.page     === 'undefined') ?   '1'    : req.query.page;
     let revision    = (typeof req.query.revision === 'undefined') ?   '1'    : req.query.revision;
+    let wildcard    = (typeof req.query.wildcard === 'undefined') ?   true   : (req.query.wildcard.toLowerCase() === 'true');
 
     let url    = 'https://' + req.session.tenant + '.autodeskplm360.net/api/v3/search-results?limit=' + limit + '&offset=' + offset + '&page=' + page + '&revision=' + revision + '&query=';
     let values = req.query.query.split(' ');
@@ -2774,6 +2776,8 @@ router.get('/search-descriptor', function(req, res, next) {
             }
         }
         url += '(' + query + ')';
+    } else if(!wildcard) {
+        url += 'itemDescriptor%3D%22' + req.query.query + '%22';
     } else {
         url += 'itemDescriptor%3D*' + req.query.query + '*';
     }
