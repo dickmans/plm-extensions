@@ -850,7 +850,8 @@ function getBOMCellValue(urn, key, nodes, property) {
             for(field of node.fields) {
                 if((field.metaData.urn === key) || (field.metaData.link === key)) {
 
-                    if(typeof field.value === 'object') {
+                    if(field.value === null) { return '';
+                    } else if(typeof field.value === 'object') {
                         if(typeof property === 'undefined') return field.value.link;
                         else return field.value[property];
                     } else if(typeof field.value !== 'undefined') {
