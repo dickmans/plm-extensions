@@ -10,6 +10,11 @@ $(document).ready(function() {
     setUIEvents();
     appendOverlay();
 
+    if($('body').hasClass('standalone')) {
+        // $('#bom').insertAfter($('.tabs'));
+        $('#tab-bom').addClass('selected');
+    }
+
     insertWorkspaceItems('95', {
         'id'                : 'products', 
         'title'             : 'Grundrissaufbauten', 
@@ -17,11 +22,10 @@ $(document).ready(function() {
         'fieldIdImage'      : 'IMAGE', 
         'fieldIdTitle'      : 'TITLE', 
         'fieldIdSubtitle'   : 'DESCRIPTION', 
-        'fildIdsAttributes' : ['ENGINEERING_BOM', 'FEATURES_OPTIONS']
+        'fieldIdsAttributes' : ['ENGINEERING_BOM', 'MANUFACTURING_BOM', 'MODULES', 'FEATURES_OPTIONS']
     });   
 
 });
-
 
 
 function setUIEvents() {
@@ -30,6 +34,7 @@ function setUIEvents() {
         $('#products').show();
         $('#details').hide();
         $('#viewer').hide();
+        $('#header-toggle-ebom').hide();
         $('.screen').addClass('surface-level-1');
         $('.screen').removeClass('surface-level-2');
 
@@ -59,15 +64,12 @@ function setUIEvents() {
     $('#select-configuration').change(function() {
         let name = $('#select-configuration').val();
         let features = [];
-        console.log(name);
         for(let configuration of rules.configurations) {
             if(configuration.name === name) {
                 features = configuration.features;
             }
         }
-        console.log(features);
         $('#features-tbody').children('.leaf').each(function() {
-            console.log($(this).attr('data-link'));
             $(this).removeClass('selected');
             for(let feature of features) {
                 if(feature === $(this).attr('data-link')) {
@@ -101,9 +103,10 @@ function setUIEvents() {
     $('#delete-configuration').click(function() {
         let name  = $('#select-configuration').val();
         let index = -1;
-        for(let configuration of rules.configurations) {
-            if(configuration.name === name) {
-                index = configuration.index;
+
+        for(let i = 0; i < rules.configurations.length; i++) {
+            if(rules.configurations[i].name === name) {
+                index = i;
             }
         }
         if(index > -1) {
@@ -114,19 +117,33 @@ function setUIEvents() {
         });
         $('#select-configuration').val('');
         $('.configuration-action').hide();
+
         saveRules();
         
     });
 
+    $('#modules-open').click(function() {
+        openItemByLink($('#bom-modules').attr('data-link'));
+    }); 
+
+    $('#header-toggle-ebom').click(function() {
+        $('body').toggleClass('fixed-ebom');
+        if($('body').hasClass('fixed-ebom')) { $('#bom').insertAfter($('.tabs')); }
+        else { $('#bom').appendTo($('.tab-group-main').first()); }
+        viewerResize();
+    })
 
 
 }
 
-// Click on product to open its BOM and configuration management
-function clickWorkspaceItem(elemClicked) {
 
-    let link     = elemClicked.attr('data-link');
-    let linkEBOM = elemClicked.attr('data-engineering_bom');
+// Click on product to open its BOM and configuration management
+function clickWorkspaceItem(e, elemClicked) {
+
+    let link        = elemClicked.attr('data-link');
+    let linkEBOM    = elemClicked.attr('data-engineering_bom');
+    let linkMBOM    = elemClicked.attr('data-manufacturing_bom');
+    let linkModules = elemClicked.attr('data-modules');
 
     $('#products').hide();
     $('#details').show();
@@ -141,14 +158,32 @@ function clickWorkspaceItem(elemClicked) {
     $('#select-configuration').append('<option></option>');
     $('.configuration-action').hide();
 
-    $('.tabs').children().first().click();
+    if($('body').hasClass('standalone')) {
+        $('#tab-bom').click();
+        $('#header-toggle-ebom').css('display', 'flex');
+        console.log($('#tab-bom').length);
+    } else {
+        $('.tabs').children().first().click();
+    }
+
+    let titleEBOM = $('body').hasClass('standalone') ? 'EBOM' : '';
+
 
     getContextPartNumber(linkEBOM);
     getProductConfigurationRules(link, elemClicked.attr('data-features_options'));
     insertBOM(linkEBOM, {
-        'title'       : '',
+        'title'       : titleEBOM,
         'bomViewName' : 'Konfigurationsmanagement',
-        'reset'       : true
+        'multiSelect' : true
+    });
+    insertBOM(linkMBOM, {
+        'id'          : 'mbom',
+        'title'       : '',
+        'multiSelect' : true
+    });
+    insertBOM(linkModules, {
+        'id'          : 'bom-modules',
+        'bomViewName' : 'Konfigurationsmanagement'
     });
 
     if(typeof chrome.webview === 'undefined') {
@@ -207,6 +242,7 @@ function getProductConfigurationRules(link, linkFeatures) {
 function initViewerDone() {
 
     viewerAddGhostingToggle();
+    viewerAddResetButton();
     viewerAddViewsToolbar();
     viewerAddMarkupControls();
 
@@ -236,7 +272,7 @@ function changeBOMViewDone(id) {
         $('<div></div>').prependTo($('#features-toolbar'))
             .attr('id', 'button-load')
             .html('Load in CAD')
-            .hide()
+            // .hide()
             .addClass('button')
             .addClass('default')
             .click(function(e) {
@@ -265,6 +301,7 @@ function changeBOMViewDone(id) {
         });
 
 
+        // Add Feature Items counter
         $('<th>Items</th>').appendTo($('#' + id + '-thead').children('tr').first());
 
         $('#' + id + '-tbody').children('.node').each(function() {
@@ -301,8 +338,7 @@ function changeBOMViewDone(id) {
         $('#' + id + '-tbody').children('.leaf').each(function() {
 
             let elemActions = $('<td></td>').appendTo($(this))
-                .addClass('bom-tree-actions');
-                
+                .addClass('bom-tree-actions');              
 
             let elemToolbar = $('<div></div>').addClass('feature-actions').appendTo(elemActions);
 
@@ -346,10 +382,40 @@ function changeBOMViewDone(id) {
 
 
 
+    } else if(id === 'bom-modules') {
+        setProductModules(id);
+        highlightModulesInEBOM();
     } else {
 
+        if(id === 'bom') highlightModulesInEBOM();
+
         insertTableActions(id);
-        setProductModules(id);
+        // setProductModules(id);
+
+        // if(id === '') 
+
+        $('<div></div>').prependTo($('#' + id + '-toolbar'))
+            .addClass('button')
+            .addClass('icon')
+            .addClass('icon-factory')
+            .addClass('xs')
+            .attr('title', 'MBOM-Editor öffnen')
+            .click(function() {
+                let urlBase = document.location.href.split('/addins/');
+                let link    = $('#bom').attr('data-link').split('/');
+                let url     = urlBase[0] + '/mbom?wsId=' + link[4] + '&dmsId=' + link[6] + '&theme=' + theme;
+                window.open(url);
+            });
+
+        $('<div></div>').prependTo($('#' + id + '-toolbar'))
+            .attr('id', 'button-load')
+            .html('Load in CAD')
+            // .hide()
+            .addClass('button')
+            .addClass('default')
+            .click(function(e) {
+                loadInCAD();
+            });
     
         // if(typeof chrome.webview === 'undefined') {
         //     $('#' + id).find('.bom-item').click(function() {
@@ -372,7 +438,7 @@ function clickBOMItem(e, elemClicked) {
     let elemBOM = elemClicked.closest('.bom');
     let idBOM   = elemBOM.attr('id');
 
-    if(idBOM === 'bom') { elemClicked.siblings().removeClass('selected'); }
+    // if(idBOM === 'bom') { elemClicked.siblings().removeClass('selected'); }
     elemClicked.toggleClass('selected');
 
     clickBOMItemDone(elemClicked);
@@ -437,10 +503,13 @@ function setProductModules(id) {
 
                 let elemModuleTitle = $('<div></div>');
                     elemModuleTitle.addClass('module-title');
+                    elemModuleTitle.addClass('with-icon');
+                    elemModuleTitle.addClass('icon-collapse');
                     elemModuleTitle.html(elemItem.attr('data-title'));
                     elemModuleTitle.appendTo(elemModule);
                     elemModuleTitle.click(function() {
-                        openItemByLink(elemItem.attr('data-link'));
+                        // openItemByLink(elemItem.attr('data-link'));
+                        clickModuleTitle($(this));
                     });
 
                 let elemModuleToolbar = $('<div></div>').appendTo(elemModule)
@@ -462,6 +531,7 @@ function setProductModules(id) {
                     elemModuleAction.addClass('with-icon');
                     elemModuleAction.addClass('icon-link');
                     elemModuleAction.html('Variante hinzufügen')
+                    elemModuleAction.attr('data-context-descriptor', elemItem.attr('data-title').split('[REV')[0]);
                     elemModuleAction.attr('title', 'Fügt die ausgewählte Geometrie als weitere Modulausprägung zu diesem Modul hinzu');
                     elemModuleAction.appendTo(elemModuleToolbar);
                     elemModuleAction.click(function(e) {
@@ -496,7 +566,7 @@ function setProductModules(id) {
     });
 
     $('#modules').children('.tile').each(function() {
-        insertTileAction($(this));
+        insertTileAction($(this), false, true, true, true, true);
     });
 
     $('.tile-image').click(function(e) {
@@ -510,6 +580,39 @@ function setProductModules(id) {
             elemTile.children().first().find('.icon').html('check_box_outline_blank');
         }
     });
+
+}
+function clickModuleTitle(elemClicked) {
+
+    let elemModule = elemClicked.closest('.module');
+
+    elemModule.toggleClass('collapsed');
+    elemClicked.toggleClass('icon-collapse');
+    elemClicked.toggleClass('icon-expand');
+
+    if(elemModule.hasClass('collapsed')) elemModule.nextUntil('.module').hide();
+    else elemModule.nextUntil('.module').show();
+
+}
+function highlightModulesInEBOM() {
+
+    console.log('highlightModulesInEBOM START');
+
+    $('#bom').find('.bom-item').each(function() {
+        let elemItem = $(this);
+        elemItem.removeClass('module');
+        elemItem.removeClass('variant');
+        let linkItem = elemItem.attr('data-link');
+        $('#modules').find('.moduel').each(function() {
+            let linkModule = $(this).attr('data-link');
+            if(linkModule === linkItem) elemItem.addClass('module');
+        });
+        $('#modules').find('.tile').each(function() {
+            let linkVariant = $(this).attr('data-link');
+            if(linkVariant === linkItem) elemItem.addClass('variant');
+        });
+    });
+
 
 }
 function toggleModuleGrid(elemClicked) {
@@ -529,7 +632,7 @@ function toggleModuleGrid(elemClicked) {
         
         let elemVariants = elemModule.nextUntil('.module');
 
-        console.log(elemVariants.length);
+        // console.log(elemVariants.length);
 
         elemVariants.each(function() {
             $(this).hide();
@@ -542,7 +645,7 @@ function toggleModuleGrid(elemClicked) {
         });
 
 
-        for(let feature of testData.features) {
+        for(let feature of rules.features) {
 
             let name        = '';
 
@@ -643,7 +746,7 @@ function clickModuleAddVariant(elemClicked) {
 
     $('#overlay').show();
 
-    getActiveDocument().then(partNumber => {
+    getActiveDocument(elemClicked.attr('data-context-descriptor')).then(partNumber => {
 
     // let partNumber = 'CAD_30000153';
         
@@ -686,10 +789,17 @@ function clickModuleAddVariant(elemClicked) {
             Promise.all(requests).then(function(responses) {
 
                 $('#modules').html('');
-                insertBOM($('#details').attr('data-link-bom'), {
-                    'title' : '',
+
+                insertBOM($('#bom-modules').attr('data-link'), {
+                    'id'          : 'bom-modules',
                     'bomViewName' : 'Konfigurationsmanagement'
                 });
+
+
+                // insertBOM($('#details').attr('data-link-bom'), {
+                //     'title' : '',
+                //     'bomViewName' : 'Konfigurationsmanagement'
+                // });
                 $('#overlay').hide();
                 
             });
@@ -719,7 +829,7 @@ function toggleFeatureItemsList(elemClicked) {
             .addClass('feature-items');
 
         let elemCell = $('<td></td>');
-            elemCell.attr('colspan', 6);
+            elemCell.attr('colspan', 5);
             elemCell.appendTo(elemNext);
 
         let elemList = $('<div></div>');
@@ -735,16 +845,25 @@ function toggleFeatureItemsList(elemClicked) {
                     
                     let split       = path.split('|');
                     let partNumber  = split[split.length - 1];
+                    let title       = getTitleFromEBOM(partNumber.split(':')[0]);
 
                     let elemItem = $('<div></div>').appendTo(elemList)
                         .addClass('feature-item')
                         .attr('data-path', path);
+                        
+                    let elemItemDetails = $('<div></div>').appendTo(elemItem)
+                        .addClass('feature-item-details');
+                        // .attr('data-path', path);
 
-                    $('<div></div>').appendTo(elemItem)
+                    $('<div></div>').appendTo(elemItemDetails)
                         .addClass('feature-item-part-number')
                         .html(partNumber);
+
+                    $('<div></div>').appendTo(elemItemDetails)
+                        .addClass('feature-item-title')
+                        .html(title);                        
                    
-                    $('<div></div>').appendTo(elemItem)
+                    $('<div></div>').appendTo(elemItemDetails)
                         .addClass('feature-item-path')
                         .html(path.replaceAll('|', ' / '));
 
@@ -792,47 +911,44 @@ function toggleFeatureItemsList(elemClicked) {
     }
 
 }
+function getTitleFromEBOM(partNumber) {
+
+    let result = '';
+
+    // console.log(partNumber);
+
+    $('#bom-tbody').children().each(function() {
+        // console.log($(this).attr('data-part-number'));
+        if($(this).attr('data-part-number') === partNumber) {
+            let title = $(this).attr('data-title').split(' - ')[1];
+            result = title.split('[REV')[0];
+        }
+    })
+
+    return result;
+
+}
 function addFeatureItems(elemFeature) {
 
     $('#overlay').show();
 
-    if($('body').hasClass('tandalone')) {
+    if($('body').hasClass('standalone')) {
 
-        console.log('viewer aufrufen');
-
-        // viewerGetSelectedComponentPaths().then(function(selectedComponentPaths) {
-        //     // console.log('234567');
-        //     console.log(selectedComponentPaths);
-        //     // return [
-        //     //     '1', '2'
-        //     // ]
-
-        //     addSelectedFeatureItems(elemFeature, selectedComponentPaths)
-
-        // });
+        viewerGetSelectedComponentPaths().then(function(selectedComponentPaths) {
+            addSelectedFeatureItems(elemFeature, selectedComponentPaths)
+        });
 
     } else {
-
-
-        console.log('plugin aufrufen');
-
-        // getActiveDocument().then(function(selectedComponentPaths) {
-
-        // });
-
 
         // let selectedComponentPaths = '["test1", "Test2"]';
         // let selectedComponentPaths = '[]';
         // let selectedComponentPaths = '["CAD_30000000|test1","CAD_30000000|test2"]';
 
         getSelectedComponentPaths().then(selectedComponentPaths => {
-            // getActiveDocument().then(partNumber => {
-
 
             $('#overlay').hide();
 
             console.log(selectedComponentPaths);
-
 
             if(selectedComponentPaths === '[]') {
 
@@ -850,81 +966,11 @@ function addFeatureItems(elemFeature) {
 
             }
 
-            // let partNumber = 'CAD_30000153';
-                
-                // console.log(partNumber);
         
-                // let linkParent = elemClicked.closest('.module').attr('data-link');
-        
-                // console.log(linkParent);
-                
-                // $.get('/plm/search-descriptor', { 'query' : partNumber }, function(response) {
-        
-                //     console.log(response);
-                
-                //     let params = {
-                
-                //         'linkParent' : linkParent,
-                //         'linkChild' : response.data.items[0].__self__
-            
-                //     }
-        
-                //     let paramsEdit = { 
-                //         'link' : response.data.items[0].__self__, 
-                //         'sections'   : [{
-                //             'id' : '203',
-                //             'fields' : [{
-                //                 'fieldId' : 'TYPE',
-                //                 'value' : {
-                //                     'link' : "/api/v3/lookups/CUSTOM_LOOKUP_ITEM_TYPES/options/133"
-                //                 }}
-                //             ]
-                //         }] 
-                //     }
-        
-                //     let requests = [
-                //         $.get('/plm/bom-add', params),
-                //         $.get('/plm/edit', paramsEdit)
-        
-                //     ];
-        
-                //     Promise.all(requests).then(function(responses) {
-        
-                //         $('#modules').html('');
-                //         insertBOM($('#details').attr('data-link-bom'), {
-                //             'title' : '',
-                //             'bomViewName' : 'Konfigurationsmanagement'
-                //         });
-                //         $('#overlay').hide();
-                        
-                //     });
-                
-                // });
-        
-        
-            });
-
-        // let selectedComponentPaths = getSelectedComponentPaths();
-
-        // addSelectedFeatureItems(elemFeature, selectedComponentPaths);
-
-        // getSelectedComponentPaths().then(function(selectedComponentPaths){
-        //     console.log(selectedComponentPaths);
-        //     $('#overlay').hide();
-
-        // });
+        });
 
     }
 
-
-    // getSelectedComponentPaths().then(function(data) {
-    //     console.log(data);
-    // });
-
-//     // selectedComponentPaths = ['CAD_30000000|CAD_30000026:1|CAD_[30000067:1|CAD_30000074:2', 'CAD_30000000|CAD_30000012:1|CAD_30000012-01:1|CAD_30000096:2'];
-
-
-//     console.log(selectedComponentPaths);
 }
 
 function addSelectedFeatureItems(elemFeature, selectedComponentPaths) {

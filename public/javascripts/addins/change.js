@@ -16,8 +16,8 @@ function setUIEvents() {
     $('#close-task').click(function() {
         $('#tasks').show();
         $('#task').hide();  
-        $('.screen').addClass('surface-level-1');
-        $('.screen').removeClass('surface-level-2');
+        // $('.screen').addClass('surface-level-1');
+        // $('.screen').removeClass('surface-level-2');
     })
 
     $('#add-affected-item').click(function() {
@@ -26,7 +26,7 @@ function setUIEvents() {
 
         console.log('getting active document');
 
-        getActiveDocument().then(partNumber => {
+        getActiveDocument($(this).attr('data-context-descriptor')).then(partNumber => {
         
             // let partNumber = 'CAD_30000096';
 
@@ -56,7 +56,7 @@ function setUIEvents() {
                     
                 } else {
         
-                    showErrorMessage('Error when searching item', 'Could find matching item when searching for ' + partNumber + ' in field ' + config.search.fieldId);
+                    showErrorMessage('Error when searching item', 'Could not find matching item when searching for ' + partNumber + ' in field ' + config.search.fieldId);
         
                 }
             });        
@@ -124,6 +124,7 @@ function openChangeTask(elemClicked) {
     let link = elemClicked.attr('data-link');
 
     $('#task-title').html(elemClicked.attr('data-title'));
+    $('#add-affected-item').attr('data-context-descriptor', elemClicked.attr('data-title'));
 
     insertItemStatus(link, 'task-status');
     insertItemDetails(link, 'task');
@@ -138,6 +139,7 @@ function insertItemDetailsDone(id) {
 
     $('.linking.field-value').each(function() {
         let elemField = $(this);
+        elemField.addClass('surface-level-1');
         let fieldId = elemField.attr('data-id');
         if(fieldId === 'AFFECTED_ITEM') {
 
@@ -155,7 +157,8 @@ function insertItemDetailsDone(id) {
                 elemField.attr('id', 'field-AFFECTED_ITEM');
                 elemTile.appendTo(elemField);
                 elemTile.css('color', 'white');
-                insertTileActions('field-AFFECTED_ITEM');
+                // insertTileActions('field-AFFECTED_ITEM');
+                insertTileAction(elemTile, false, true, true, true, true);
 
             }
 

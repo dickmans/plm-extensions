@@ -90,7 +90,7 @@ function performSearchItems() {
                     elemTile.click(function(e) {
                         e.preventDefault();
                         e.stopPropagation();
-                        clickSearchResult($(this));
+                        // clickSearchResult($(this));
                     });
 
             }
@@ -141,12 +141,18 @@ function performSearchMaterials() {
                     elemTile.click(function(e) {
                         e.preventDefault();
                         e.stopPropagation();
-                        clickSearchResult($(this));
+                        // clickSearchResult($(this));
                     });
 
             }
 
         }
+
+        // > Rohmaterial aktuellem Body zuweisen :: assignMaterial(descriptor);
+        // + Im fenster auswählen
+        // - in neuem fenster öffnen
+        // - in aktiver sizung hinzuladen
+        // + neues fenster
 
         $('#materials-processing').hide();
         insertTileActions('materials-list');

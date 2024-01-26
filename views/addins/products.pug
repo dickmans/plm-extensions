@@ -9,12 +9,13 @@ block head
 
 block body 
 
-    body.surface-level-1.embedded
+    body.surface-level-1
     
         #header.dark
             #header-logo
             #header-title= title
             #header-toolbar
+                #header-toggle-ebom.button.with-icon.icon-bom EBOM Fixieren
                 #header-avatar
 
             
@@ -28,7 +29,7 @@ block body
                     .button.icon.icon-open#open
                     .button.icon.icon-close#close
             .tabs(data-tab-group="tab-group-main").surface-level-2
-                .tab EBOM
+                .tab#tab-ebom EBOM
                 .tab MBOM
                 .tab#tab-bom Module 
                 .tab Merkmalsoptionen 
@@ -36,14 +37,19 @@ block body
             .panel-content.tab-group-main.surface-level-1
                 #bom
             
-            .panel-content.tab-group-main.surface-level-1    
+            .panel-content.tab-group-main.surface-level-1   
+                #mbom 
 
             .panel-content.tab-group-main.surface-level-1
-                #modules.tiles.list.xxxs
+                #modules-toolbar 
+                    .button.with-icon.icon-create Modul erstellen
+                    .button.with-icon.icon-edit-multiple Module bearbeiten
+                    .button.icon.icon-open#modules-open(title='Bearbeitung der entsprechenden Struktur in PLM-Oberfläche')
+                #modules.tiles.list.xxxs                
 
             .panel-content.tab-group-main.surface-level-1
                 #features
-                #configurations.surface-level-5
+                #configurations.surface-level-2
                     .configurations-line    
                         .configurations-label Konfiguration wählen: 
                         .configurations-control
@@ -56,4 +62,5 @@ block body
                             input#input-configuration(type="text")
                             .button.with-icon.icon-create#save-configuration Erstellen
 
+            #bom-modules.hidden
             .viewer#viewer

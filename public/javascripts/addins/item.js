@@ -13,7 +13,8 @@ $(document).ready(function() {
     insertAttachments(link);
     insertWorkspaceItems('274', {
         'id'   : 'dialog-variants-list', 
-        'icon' : 'format_color_fill'
+        'icon' : 'format_color_fill',
+        'classNames' : [ 'tiles', 'list', 'xxs']
     });
     insertFlatBOM(link, {
         'title'         : '',
@@ -21,7 +22,14 @@ $(document).ready(function() {
         'bomViewName'   : 'EFE',
         'views'         : true
     });
-    insertBOM(link, { 'id' : 'master-bom', 'title' : '', 'hideDetails' : true});
+    insertBOM(link, { 
+        'id'            : 'master-bom', 
+        'bomViewName'   : 'EFE',
+        'title'         : '', 
+        'hideDetails'   : true,
+        'headers'       : true,
+        'multiSelect'   : true
+    });
     getVariantsInitialData();
 
 });
@@ -47,6 +55,24 @@ function setUIEvents() {
 function insertFlatBOMDone(id) {
 
     let elemToolbar = $('#' + id + '-toolbar');
+
+    $('<div></div>').prependTo(elemToolbar)
+        .addClass('button')  
+        .addClass('icon')   
+        .html('published_with_changes')
+        .attr('title', 'Auswahl mit der Selektion in CAD abgleichen')
+        .click(function() {
+            getCADSelection('flat', true);
+        });
+
+    $('<div></div>').prependTo(elemToolbar)
+        .addClass('button')  
+        .addClass('icon')   
+        .addClass('icon-check-circle-add')
+        .attr('title', 'Die in CAD gewählten Elemente ergänzen und ebenfalls auswählen')
+        .click(function() {
+            getCADSelection('flat', false);
+        });
 
     let elemToggle = $('<div></div>');
         elemToggle.addClass('button');    
@@ -102,6 +128,50 @@ function insertFlatBOMDone(id) {
 //     if(enforce) $('#bom-flat-tbody').children().show();
 
 // }
+function getCADSelection(id, match) {
+
+    console.log('getCADSelection START');
+
+    $('#overlay').show();
+    $('.flat-bom-counter').show();
+
+    getSelectedComponentPaths().then(selectedComponentPaths => {  
+
+        $('#overlay').hide();
+
+        selectedComponentPaths = selectedComponentPaths.replaceAll('[', '');
+        selectedComponentPaths = selectedComponentPaths.replaceAll(']', '');
+        selectedComponentPaths = selectedComponentPaths.replaceAll('"', '');
+        selectedComponentPaths = selectedComponentPaths.split(',');
+
+        // let selectedComponentPaths = ['CAD_30000072', 'CAD_30000097'];
+
+        if(match) $('#' + id + '-bom-tbody').children().removeClass('selected');
+
+        for(let selectedComponentPath of selectedComponentPaths) {
+
+            let path = selectedComponentPath.split('|');
+            let partNumber = path[path.length - 1].split(':')[0];
+
+            // console.log(partNumber);
+
+            $('#' + id + '-bom-tbody').children().each(function() {
+                if(partNumber === $(this).attr('data-part-number')) {
+                    $(this).addClass('selected');
+                // } else if(match) {
+                    // $(this).removeClass('selected');
+                }
+            });
+
+        }
+
+        updateFlatBOMCounter($('#flat-bom')); 
+        // filterFlatBOMBySelection(true);
+    
+    });
+
+
+}
 function changeFlatBOMViewDone() {
     $('#bom-flat-select-all').click(function() { 
         let count = $(this).hasClass('icon-check-box-checked') ? 0 : $('#bom-flat-tbody').children().length;
@@ -282,7 +352,11 @@ function setVariantsEditor() {
     let elemTHeadRow1 = elemTHead.children().first();
     let elemTHeadRow2 = $('#theadfields');
 
-    $('#dialog-variants-list').children('.selected').each(function() {
+    console.log($('#dialog-variants-list-content').find('.tile.selected').length);
+
+    $('#dialog-variants-list-content').find('.tile.selected').each(function() {
+
+        console.log('1');
 
         let elemSpacerHead = elemCellSpacer.clone();
             elemSpacerHead.addClass('variant-index-' + indexVariant);
@@ -304,6 +378,7 @@ function setVariantsEditor() {
                 // });
 
 
+        console.log(fieldsVariant);
 
         for(field of fieldsVariant) {
 
@@ -325,7 +400,10 @@ function setVariantsEditor() {
 
     });
     
-    $('#dialog-variants-list').children('.selected').each(function() {
+    // $('#dialog-variants-list').children('.selected').each(function() {
+    $('#dialog-variants-list-content').find('.tile.selected').each(function() {
+
+        console.log('2');
         
         elemTBody.children('tr').each(function() {
 
@@ -392,7 +470,7 @@ function setVariantsEditor() {
                 elemCellItem.addClass('variant-item');
                 elemCellItem.addClass('variant-column');
                 elemCellItem.addClass(className);
-                elemCellItem.html('variantTitle');
+                elemCellItem.html('');
                 elemCellItem.appendTo($(this));
                 elemCellItem.click(function(e) {
                     clickItemCell(e, $(this));
@@ -426,6 +504,27 @@ function changeBOMViewDone(id) {
             $('#dialog-variants').show();
         });
 
+    $('<div></div>').prependTo(elemToolbar)
+        .addClass('button')  
+        .addClass('icon')   
+        .html('published_with_changes')
+        .attr('title', 'Auswahl mit der Selektion in CAD abgleichen')
+        .click(function() {
+            getCADSelection('master', true);
+        });
+
+    $('<div></div>').prependTo(elemToolbar)
+        .addClass('button')  
+        .addClass('icon')   
+        .addClass('icon-check-circle-add')
+        .attr('title', 'Die in CAD gewählten Elemente ergänzen und ebenfalls auswählen')
+        .click(function() {
+            getCADSelection('master', false);
+        });
+
+
+
+
 
     let elemToggle = $('<div></div>');
         elemToggle.addClass('button');    
@@ -454,5 +553,134 @@ function changeBOMViewDone(id) {
     let elemTHeadRow2 = $('<tr><th></th><th></th></tr>');
         elemTHeadRow2.attr('id', 'theadfields');
         elemTHeadRow2.appendTo(elemTHead);
+
+}
+function valueChanged(elemControl) {
+
+    let elemCell = elemControl.parent();
+    let elemVariant = elemControl.parent().nextAll('.variant-item').first();
+    let index       = elemCell.index();
+    let value = elemControl.val();
+
+    elemCell.addClass('changed-properties');
+
+    $('#master-bom-tbody').children('.selected').each(function() {
+        let elemTarget = $(this).children().eq(index);
+        let elemControl = elemTarget.children('select');
+        elemTarget.addClass('changed-properties');
+        elemControl.val(value);
+    });
+
+}
+
+function clickWorkspaceItem(e, elemClicked) {
+    elemClicked.toggleClass('selected');
+}
+
+
+
+
+// User clicks on item cells
+function clickItemCell(e, elemClicked) {
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    let link = elemClicked.attr('data-link');
+    let elemParent = $('#item-variants-list');
+    
+    // if((e.shiftKey) && !isBlank(link)) {
+
+    //     openItemByLink(link);
+
+    // } else {
+
+        $('#item-variants-list-parent-processing').show();
+        $('#main').addClass('with-item-variants');
+        $('#main').removeClass('with-details');
+        $('.item-cell-clicked').removeClass('item-cell-clicked');
+
+        elemParent.html('');
+        
+        let elemRow         = elemClicked.closest('tr');
+        let title         = elemRow.atrr('data-title');
+        // let title           = elemRow.children().first().find('.bom-tree-title').html();
+        let selectedDMSID   = elemRow.attr('data-dmsid');
+
+        // viewerResetColors();
+        // viewerSelectModel(elemRow.attr('data-part-number'));
+
+        elemRow.addClass('selected');
+        elemRow.siblings().removeClass('selected');
+        elemClicked.addClass('item-cell-clicked');
+        
+        $('#item-variants-title').html(title);
+
+        let requestId = new Date();
+            requestId = requestId.getTime();
+
+        elemParent.attr('data-timestamp', requestId);
+
+        let params = {
+            wsId : wsVariants.id,
+            fields : [
+                'DESCRIPTOR',
+                config.variants.fieldIdVariantBaseItem
+            ],
+            filter : [{
+                field       : config.variants.fieldIdVariantBaseItem,
+                type        : 0,
+                comparator  : 15,
+                value       : selectedDMSID 
+            }],
+            sort : ['DESCRIPTOR'],
+            requestId : requestId
+        }
+
+        for(field of fieldsVariant) { params.fields.push(field.id); }
+
+        $.get( '/plm/search', params, function(response) {
+
+            if(response.params.requestId !== elemParent.attr('data-timestamp')) return;
+
+            $('#item-variants-list-parent-processing').hide();
+
+            for(entry of response.data.row) {
+
+                let title    = '';
+                let subtitle = '<table>';
+
+                for(field of entry.fields.entry) {
+                    if(field.key === 'DESCRIPTOR') title = field.fieldData.value;
+                }
+
+                for(let index = 2; index <response.data.columnKey.length; index++) {
+
+                    let column = response.data.columnKey[index];
+
+                    subtitle += '<tr><td class="tile-key-label">' + column.label + '</td><td class="tile-key-' + column.value + '">';
+
+                    for(field of entry.fields.entry) {
+                        if(field.key === column.value) subtitle += field.fieldData.value;
+                    }
+
+                    subtitle += '</td></tr>';
+
+                }
+
+                subtitle += '</table>';
+
+                let elemTile = genTile('/api/v3/workspaces/' + wsVariants.id + '/items/' + entry.dmsId, null, null, 'settings', title, subtitle);
+                    elemTile.appendTo(elemParent);
+                    elemTile.click(function(e) {
+                        if(e.shiftKey) openItemByLink($(this).attr('data-link'));
+                        else insertSelectedItem($(this));
+                    });
+
+            }
+            
+        });
+
+    // }
 
 }
