@@ -469,8 +469,6 @@ function insertWorkspaceViews(id, workspaceId, title, views, search, limit, incl
     if(isBlank(includeBookmarks )) includeBookmarks = false;
     if(isBlank(includeRecents   ))   includeRecents = false;
 
-    console.log('insertWorkspaceViews');
-
     let elemViews = $('#' + id);
         elemViews.attr('data-limit', limit);
         elemViews.attr('data-wsid', workspaceId);
@@ -704,9 +702,6 @@ function changeWorkspaceView(id) {
     $('#' + id + '-empty').hide();
     $('#' + id + '-processing').show();
 
-    console.log(id);
-
-
     let timestamp   = new Date().getTime();
     let elemParent  = $('#' + id);
     let elemContent = $('#' + id + '-content');
@@ -717,8 +712,6 @@ function changeWorkspaceView(id) {
     let linkView    = elemSelect.val();
     let limit       = Number(elemParent.attr('data-limit'));
     let workspaceId = elemParent.attr('data-wsid');
-
-    console.log(linkView);
 
     elemContent.children().hide();
 
