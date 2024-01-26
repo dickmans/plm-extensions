@@ -2600,7 +2600,8 @@ router.get('/items', function(req, res) {
     axios.get(url, { 
         'headers' : custHeaders
     }).then(function (response) {
-        sendResponse(req, res, response, false);
+        if(response.data === '') response.data = { 'items' : []};
+        sendResponse(req, res, response, false); 
     }).catch(function (error) {
         sendResponse(req, res, error.response, true);
     });
