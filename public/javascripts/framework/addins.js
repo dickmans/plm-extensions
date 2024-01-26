@@ -2,15 +2,32 @@ let isolate = false;
 
 $(document).ready(function() {
 
-    if(typeof chrome.webview === 'undefined') {
-        $('body').addClass('standalone');
-    } else {
+    if(typeof chrome.webview !== 'undefined') {
         $('body').addClass('embedded');
         const plmAddin = chrome.webview.hostObjects.plmAddin;
               plmAddin.confirmLogin(document.location.href);
+    } else if(window.window.innerWidth > 1200) { 
+        $('body').addClass('standalone');
+    } else {
+        $('body').addClass('embedded');
     }
 
 });
+
+
+
+// Assign selected raw material to body
+async function assignMaterial(descriptor) {
+
+    console.log('assignMaterial START');
+    console.log(descriptor);
+
+    if(typeof chrome.webview === 'undefined') return;
+
+    const plmAddin = chrome.webview.hostObjects.plmAddin;
+    await plmAddin.assignMaterial(descriptor);
+
+}
 
 
 
@@ -21,7 +38,20 @@ function select3D(partNumbers) {
     console.log('select3D isolate : ' + isolate);
     console.log(partNumbers);
 
-    if(isolate) isolateComponents(partNumbers);
+    if(typeof chrome.webview === 'undefined') {
+        let selectNumbers = [];
+        for(let selectNumber of partNumbers) {
+            let numbers = selectNumber.split('|');
+            let number = numbers[numbers.length - 1];
+            selectNumbers.push(number.split(':')[0]);
+        }
+        viewerSelectModels(selectNumbers);
+        $('#bom-tbody').children().each(function() {
+            let partNumber = $(this).attr('data-part-number');
+            if(selectNumbers.indexOf(partNumber) < 0) $(this).removeClass('selected');
+            else $(this).addClass('selected');
+        });
+    } else if(isolate) isolateComponents(partNumbers);
     else selectComponents(partNumbers);
 }
 async function selectComponents(partNumbers) {
@@ -30,9 +60,7 @@ async function selectComponents(partNumbers) {
     console.log(partNumbers.length);
     console.log(partNumbers);
 
-    if(typeof chrome.webview === 'undefined') {
-
-        
+    if(typeof chrome.webview === 'undefined') {      
 
     } else  {
 
@@ -40,7 +68,6 @@ async function selectComponents(partNumbers) {
         await plmAddin.selectComponents(partNumbers);
 
     }
-
 
 }
 async function isolateComponents(partNumbers) {
@@ -55,6 +82,7 @@ async function isolateComponents(partNumbers) {
     await plmAddin.isolateComponents(partNumbers);
 
 }
+
 
 
 // Enable Inventor to highlighting items
@@ -81,6 +109,8 @@ function addinSelect(partNumbers) {
     }
 
 }
+
+
 
 // Enable Inventor to open raw material search
 function addinSelectRawMaterial(bodyName) {
@@ -153,14 +183,19 @@ async function updateProperties(data) {
 
 
 // Get current active document to be added to BOM
-async function getActiveDocument() {
+async function getActiveDocument(context) {
 
     console.log('GetActiveDocument START');
 
+    if(isBlank(getActiveDocument)) context = '-';
+
+    console.log(context);
+
     if(typeof chrome.webview === 'undefined') return;
+    
 
     const plmAddin = chrome.webview.hostObjects.plmAddin;
-    let partNumber = await plmAddin.getActiveDocument('-');
+    let partNumber = await plmAddin.getActiveDocument(context);
 
     console.log(partNumber);
 
@@ -271,12 +306,53 @@ function setDirty(data) {
 // Insert actions into tile lists
 function insertTileActions(id) {
 
+    let btnAssign = false;
+    let btnSelect = false;
+    let btnOpen   = false;
+    let btnAdd    = false;
+    let btnPLM    = false;
+
+    console.log(id);
+
+    switch(id) {
+
+        case 'search-list':
+            btnSelect = true;
+            btnOpen   = true;
+            btnAdd    = true;
+            btnPLM    = true;
+            break;
+        
+        case 'managed-items-list':
+            btnSelect = true;
+            btnOpen   = true;
+            btnAdd    = true;
+            btnPLM    = true;
+            break;
+
+        case 'materials-list':
+            btnAssign = true;
+            btnSelect = true;
+            btnPLM    = true;
+            break;
+
+
+    }
+
     $('#' + id).children('.tile').each(function() {
-        insertTileAction($(this));
+        insertTileAction($(this), btnAssign, btnSelect, btnOpen, btnAdd, btnPLM);
     });
 
 }
-function insertTileAction(elemTile) {
+function insertTileAction(elemTile, btnAssign, btnSelect, btnOpen, btnAdd, btnPLM) {
+
+    if(isBlank(btnAssign)   ) btnAssign = false;
+    if(isBlank(btnSelect)   ) btnSelect = false;
+    if(isBlank(btnOpen)     )   btnOpen = false;
+    if(isBlank(btnAdd)      )    btnAdd = false;
+    if(isBlank(btnPLM)      )    btnPLM = false;
+
+    console.log(btnPLM);
 
     let elemActions = $('<div></div>');
         elemActions.addClass('tile-actions');
@@ -284,52 +360,82 @@ function insertTileAction(elemTile) {
         elemActions.appendTo(elemTile);
 
 
+    if(btnAssign) {
 
-    let elemAction4 = $('<div></div>');
-        elemAction4.addClass('button');
-        elemAction4.addClass('icon');
-        elemAction4.addClass('icon-zoom-in');
-        elemAction4.attr('title', 'Im Fenster auswählen');
-        elemAction4.appendTo(elemActions);
-        elemAction4.click(function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            select3D([$(this).closest('.tile').attr('data-title').split(' -')[0]]);
-        });
+        $('<div></div>').appendTo(elemActions)
+            .addClass('button')
+            .addClass('icon')
+            .addClass('icon-raw-material')
+            .attr('title', 'Material dem gewählten Körper zuweisen')
+            .click(function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                assignMaterial($(this).closest('.tile').attr('data-title'));
+            });
 
-    let elemAction3 = $('<div></div>');
-        elemAction3.addClass('button');
-        elemAction3.addClass('icon');
-        elemAction3.addClass('icon-new-window');
-        elemAction3.attr('title', 'In neuem Fenster öffnen');
-        elemAction3.appendTo(elemActions);
-        elemAction3.click(function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            openComponent([$(this).closest('.tile').attr('data-title').split(' -')[0]]);
-        });
+    }
+
+    if(btnSelect) {
+
+        let elemAction4 = $('<div></div>');
+            elemAction4.addClass('button');
+            elemAction4.addClass('icon');
+            elemAction4.addClass('icon-zoom-in');
+            elemAction4.attr('title', 'Im Fenster auswählen');
+            elemAction4.appendTo(elemActions);
+            elemAction4.click(function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                select3D([$(this).closest('.tile').attr('data-title').split(' -')[0]]);
+            });
+
+    }
+
+    if(btnOpen) {
+
+        let elemAction3 = $('<div></div>');
+            elemAction3.addClass('button');
+            elemAction3.addClass('icon');
+            elemAction3.addClass('icon-new-window');
+            elemAction3.attr('title', 'In neuem Fenster öffnen');
+            elemAction3.appendTo(elemActions);
+            elemAction3.click(function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                openComponent([$(this).closest('.tile').attr('data-title').split(' -')[0]]);
+            });
+
+    }
     
-    $('<div></div>').appendTo(elemActions)
-        .addClass('button')
-        .addClass('icon')
-        .addClass('icon-create')
-        .attr('title', 'In der aktiven Sitzung hinzuladen')
-        .click(function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            addComponents([$(this).closest('.tile').attr('data-title').split(' -')[0]]);
-        });
+    if(btnAdd) {
 
-    $('<div></div>').appendTo(elemActions)
-        .addClass('button')
-        .addClass('icon')
-        .addClass('icon-open')
-        .attr('title', 'In PLM ansehen')
-        .click(function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            openItemByLink($(this).closest('.tile').attr('data-link'));
-        });
+        $('<div></div>').appendTo(elemActions)
+            .addClass('button')
+            .addClass('icon')
+            .addClass('icon-create')
+            .attr('title', 'In der aktiven Sitzung hinzuladen')
+            .click(function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                addComponents([$(this).closest('.tile').attr('data-title').split(' -')[0]]);
+            });
+
+    }
+
+    if(btnPLM) {
+
+        $('<div></div>').appendTo(elemActions)
+            .addClass('button')
+            .addClass('icon')
+            .addClass('icon-open')
+            .attr('title', 'In PLM ansehen')
+            .click(function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                openItemByLink($(this).closest('.tile').attr('data-link'));
+            });
+
+    }
 
 }
 
