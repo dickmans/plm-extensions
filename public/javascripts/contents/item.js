@@ -1273,6 +1273,7 @@ function insertBOM(link , params) {
     let id          = 'bom';    // id of DOM element where the BOM will be inseerted
     let title       = 'BOM';    // Title being shown on top of the BOM display
     let bomViewName = '';       // BOM view of PLM to display (if no value is provided, the first view will be used)
+    let multiSelect = false;    //  Adds buttons to select / deselect all elements as well as checkboxes
     let reset       = false;    //  Adds button to deselect selected elements
     let openInPLM   = true;     //  Adds button to open selected element in PLM
     let goThere     = false;    //  Adds button to open the same view for the selected element
@@ -1292,6 +1293,7 @@ function insertBOM(link , params) {
     if(!isBlank(params.id)         )            id = params.id;
     if(!isEmpty(params.title)      )         title = params.title;
     if(!isBlank(params.bomViewName))   bomViewName = params.bomViewName;
+    if(!isBlank(params.multiSelect))   multiSelect = params.multiSelect;
     if(!isBlank(params.reset)      )         reset = params.reset;
     if(!isBlank(params.openInPLM)  )     openInPLM = params.openInPLM;
     if(!isBlank(params.goThere)    )       goThere = params.goThere;
@@ -1310,6 +1312,7 @@ function insertBOM(link , params) {
         elemBOM.attr('data-quantity', quantity);
         elemBOM.attr('data-hide-details', hideDetails);
         elemBOM.attr('data-get-flat-bom', getFlatBOM);
+        elemBOM.attr('data-select-mode', (multiSelect) ? 'multi' : 'single');
         elemBOM.addClass('bom');
         elemBOM.html('');
 
@@ -1326,6 +1329,34 @@ function insertBOM(link , params) {
         .addClass('panel-toolbar')
         .attr('id', id + '-toolbar');
 
+    if(multiSelect) {
+
+        $('<div></div>').appendTo(elemToolbar)
+            .addClass('button')
+            .addClass('icon')
+            .addClass('icon-select-all')
+            .addClass('xs')
+            .attr('id', id + '-select-all')
+            .attr('title', 'Select all')
+            .click(function() {
+                clickBOMSelectAll($(this));
+            });
+
+            $('<div></div>').appendTo(elemToolbar)
+            .addClass('button')
+            .addClass('icon')
+            .addClass('icon-deselect-all')
+            .addClass('xs')
+            .addClass('bom-multi-select-action')
+            .attr('id', id + '-deselect-all')
+            .attr('title', 'Deselect all')
+            .click(function() {
+                clickBOMDeselectAll($(this));
+            });
+    
+    }
+
+
     if(reset) {
 
         $('<div></div>').appendTo(elemToolbar)
@@ -1333,7 +1364,7 @@ function insertBOM(link , params) {
             .addClass('icon')
             .addClass('icon-deselect')
             .addClass('xs')
-            .addClass('bom-select-action')
+            .addClass('bom-single-select-action')
             .attr('id', id + '-action-reset')
             .attr('title', 'Deselect BOM item')
             .hide()
@@ -1351,7 +1382,7 @@ function insertBOM(link , params) {
             .addClass('icon-open')
             .addClass('xs')
             .addClass('bom-open-in-plm')
-            .addClass('bom-select-action')
+            .addClass('bom-single-select-action')
             .attr('title', 'Open the selected item in PLM')
             .click(function() {
                 clickBOMOpenInPLM($(this));
@@ -1366,7 +1397,7 @@ function insertBOM(link , params) {
             .addClass('icon')
             .addClass('icon-go-there')
             .addClass('xs')
-            .addClass('bom-select-action')
+            .addClass('bom-single-select-action')
             .attr('title', 'Open this view for the selected item')
             .click(function() {
                 clickBOMGoThere($(this));
@@ -1642,7 +1673,7 @@ function insertNextBOMLevel(bom, elemTable, parent, position, quantity, hideDeta
                     e.preventDefault();
                     e.stopPropagation();
                     clickBOMItem(e, $(this));
-                    toggleBOMSelectActions($(this));
+                    toggleBOMItemActions($(this));
                 })
     
             for(node of bom.nodes) {
@@ -1783,6 +1814,36 @@ function enableBOMToggles(id) {
     });
 
 }
+function toggleBOMItemActions(elemClicked) {
+
+    console.log('toggleBOMItemActions START');
+
+    let elemBOM             = elemClicked.closest('.bom');
+    let actionsMultiSelect  = elemBOM.find('.bom-multi-select-action');
+    let actionsSingleSelect = elemBOM.find('.bom-single-select-action');
+
+    if(elemBOM.find('.bom-item.selected').length === 1) actionsSingleSelect.show(); else actionsSingleSelect.hide();
+    if(elemBOM.find('.bom-item.selected').length   > 0)  actionsMultiSelect.show(); else  actionsMultiSelect.hide();
+
+}
+function clickBOMSelectAll(elemClicked) {
+
+    let elemBOM = elemClicked.closest('.bom');
+
+    elemBOM.find('.bom-item').addClass('selected');
+
+    toggleBOMItemActions(elemClicked);
+
+}
+function clickBOMDeselectAll(elemClicked) {
+
+    let elemBOM = elemClicked.closest('.bom');
+
+    elemBOM.find('.bom-item').removeClass('selected');
+
+    toggleBOMItemActions(elemClicked);
+
+}
 function clickBOMExpandAll(elemClicked) {
 
     let elemBOM     = elemClicked.closest('.bom');
@@ -1865,20 +1926,12 @@ function unhideBOMParents(level, elem) {
     });
 
 }
-function toggleBOMSelectActions(elemClicked) {
-
-    let elemBOM     = elemClicked.closest('.bom');
-    let elemActions = elemBOM.find('.bom-select-action');
-
-    if(elemBOM.find('.bom-item.selected').length === 1) elemActions.show(); else elemActions.hide();
-
-}
 function clickBOMReset(elemClicked) {
 
     let elemContent = elemClicked.closest('.bom').find('.bom-tbody');
         elemContent.find('tr.selected').removeClass('selected');
 
-    toggleBOMSelectActions(elemClicked);
+    toggleBOMItemActions(elemClicked);
     clickBOMResetDone(elemClicked);
 
 }
@@ -1920,7 +1973,12 @@ function clickBOMGoThere(elemClicked) {
 }
 function clickBOMItem(e, elemClicked) {
     
-    elemClicked.siblings().removeClass('selected');
+
+    let elemBOM    = elemClicked.closest('.bom');
+    let selectMode = elemBOM.attr('data-select-mode');
+
+    if(selectMode == 'single') elemClicked.siblings().removeClass('selected');
+
     elemClicked.toggleClass('selected');
 
     clickBOMItemDone(elemClicked);
@@ -1958,7 +2016,7 @@ function insertFlatBOM(link , params) {
     let id          = 'flat-bom';   // id of DOM element where the BOM will be inseerted
     let title       = 'Flat BOM';   // Title being shown on top of the BOM display
     let bomViewName = '';           // BOM view of PLM to display (if no value is provided, the first view will be used)
-    let selectAll   = false;        //  Adds buttons to select / deselect all elements
+    let multiSelect = false;        //  Adds buttons to select / deselect all elements as well as checkboxes
     let openInPLM   = true;         //  Adds button to open selected element in PLM
     let goThere     = false;        //  Adds button to open the same view for the selected element
     let views       = false;        //  Adds drop down menu to select from the available PLM BOM views
@@ -1976,7 +2034,7 @@ function insertFlatBOM(link , params) {
     if(!isBlank(params.id)         )            id = params.id;
     if(!isEmpty(params.title)      )         title = params.title;
     if(!isBlank(params.bomViewName))   bomViewName = params.bomViewName;
-    if(!isBlank(params.selectAll)  )         selectAll = params.selectAll;
+    if(!isBlank(params.multiSelect))   multiSelect = params.multiSelect;
     if(!isBlank(params.openInPLM)  )     openInPLM = params.openInPLM;
     if(!isBlank(params.goThere)    )       goThere = params.goThere;
     if(!isBlank(params.views)      )         views = params.views;
@@ -1987,26 +2045,6 @@ function insertFlatBOM(link , params) {
     if(!isBlank(params.hideDetails)) { hideDetails = params.hideDetails } else { hideDetails = ((bomViewName === '') && (views === false)); }
     if(!isBlank(params.classNames) )    classNames = params.classNames;
 
-    console.log(editable);
-
-// // Insert Flat BOM with controls
-// function insertFlatBOM(link, id, title, bomViewName, selectAll, openInPLM, goThere, views, search, headers, showMore, classNames, editable) {
-
-//     if(isBlank(link)       ) return;
-//     if(isBlank(id)         )          id = 'bom-flat';
-//     if(isEmpty(title)      )       title = 'Flat BOM';
-//     if(isBlank(bomViewName)) bomViewName = '';
-//     if(isBlank(selectAll)  )   selectAll = false;
-//     if(isBlank(openInPLM)  )   openInPLM = true;
-//     if(isBlank(goThere)    )     goThere = false;
-//     if(isBlank(views)      )       views = false;
-//     if(isBlank(search)     )      search = false;
-//     if(isBlank(headers)    )     headers = false;
-//     if(isBlank(showMore)   )    showMore = false;
-//     if(isBlank(classNames) )  classNames = [];
-//     if(isBlank(editable)   )    editable = false;
-
-    // let hideDetails = ((bomViewName === '') && (views === false));
 
     let elemBOM = $('#' + id);
         elemBOM.attr('data-link', link);
@@ -2040,20 +2078,21 @@ function insertFlatBOM(link , params) {
         .addClass('with-icon') 
         .addClass('icon-filter') 
         .addClass('flat-bom-counter') 
-        .hide()
+        // .hide()
         .click(function() {
             $(this).toggleClass('selected');
             filterFlatBOMByCounter($(this));
         });
 
-    if(selectAll) {
+    if(multiSelect) {
 
         $('<div></div>').appendTo(elemToolbar)
             .addClass('button')
             .addClass('icon')
             .addClass('icon-select-all')
             .addClass('xs')
-            .attr('id', id + '-action-reset')
+            .attr('id', id + '-select-all')
+            .attr('title', 'Select all')
             .click(function() {
                 clickFlatBOMSelectAll($(this));
             });
@@ -2064,7 +2103,8 @@ function insertFlatBOM(link , params) {
             .addClass('icon-deselect-all')
             .addClass('xs')
             .addClass('flat-bom-multi-select-action')
-            .attr('id', id + '-action-reset')
+            .attr('id', id + '-deselect-all')
+            .attr('title', 'Deselect all')
             .click(function() {
                 clickFlatBOMDeselectAll($(this));
             });
@@ -2698,7 +2738,7 @@ function updateFlatBOMCounter(elemBOM) {
     if(count > 0) {
         elemCounter.show(); 
     } else {
-        elemCounter.hide();
+        // elemCounter.hide();
         elemCounter.removeClass('filter-selected');
     }
 
@@ -2782,8 +2822,6 @@ function insertParents(link, id, icon, enableExpand) {
     }
 
     $.get('/plm/where-used', params, function(response) {
-
-        console.log(response);
 
         if(response.params.timestamp === $('#' + id + '-list').attr('data-timestamp')) {
             if(response.params.link === link) {
@@ -2869,8 +2907,10 @@ function clickParentItemToggle(id, elemClicked) {
         elemBOM.insertAfter(elemParent);
         
         insertBOM(linkParent, {
-            'id'    : idBOM,
-            'title' : ''
+            'id'        : idBOM,
+            'title'     : '',
+            'toggles'   : true,
+            'search'    : true
         });
 
         } else {

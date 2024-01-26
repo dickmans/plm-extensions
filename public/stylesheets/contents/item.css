@@ -282,7 +282,8 @@
 
 /*  BOM */
 /* ----------------------------------------------------------------------------- */
-.bom-select-action {
+.bom-multi-select-action,
+.bom-single-select-action {
     display : none;
 }
 .bom-search-input {
