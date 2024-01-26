@@ -135,7 +135,7 @@ function launch(view, title, req, res, next) {
         console.log('  theme        = ' + reqTheme); 
         console.log();
         
-        if(reqPartNumber !== '') {
+        if((reqPartNumber !== '') || ((reqPartNumber === '') && (view === 'addins/item') && (reqDMS === ''))) {
 
             res.render('framework/search', {
                 partNumber   : reqPartNumber,
