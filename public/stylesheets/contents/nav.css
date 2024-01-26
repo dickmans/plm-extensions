@@ -10,6 +10,10 @@
     cursor      : pointer;
     display     : table-row;
 }
+.surface-level-2 .mow-row,
+.surface-level-2 .mow-row > div {
+    border-color : var(--color-surface-level-2) !important; 
+}
 .mow-row:hover { 
     background   : var(--color-hover-background);
 }
@@ -24,7 +28,7 @@
     border-right : 1px solid var(--color-surface-level-1); 
 }
 .mow-row:hover > div { 
-    border-color : var(--color-hover-border); 
+    border-color : var(--color-hover-border) !important; 
 }
 .mow-row > div {
     display : table-cell;
@@ -47,7 +51,6 @@
 }
 .mow-date.in-time { background : var(--color-status-green); }
 .mow-date.late    { background : var(--color-status-red);   }
-
 
 
 
