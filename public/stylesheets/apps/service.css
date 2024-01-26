@@ -109,7 +109,10 @@
 
 /* BOM */
 /* ----------------------------------------------------------------------------- */
-.is-spare-part .bom-first-col { font-weight : 700; }
+.is-spare-part .bom-first-col { 
+    color       : var(--color-status-yellow);
+    font-weight : 700; 
+}
 .spare-part-custom .bom-first-col { color : var(--color-blue-500); }
 
 
