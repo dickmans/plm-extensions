@@ -1285,6 +1285,7 @@ function insertBOM(link , params) {
     let hideDetails = false;    //  When set to true, detail columns will be skipped, only the descriptor will be shown
     let headers     = true;     //  When set to false, the table headers will not be shown
     let getFlatBOM  = false;    //  Retrieve Flat BOM at the same time (i.e. to get total quantities)
+    let endItem     = null;
 
 
     if(isBlank(link)) return;
@@ -1313,8 +1314,14 @@ function insertBOM(link , params) {
         elemBOM.attr('data-hide-details', hideDetails);
         elemBOM.attr('data-get-flat-bom', getFlatBOM);
         elemBOM.attr('data-select-mode', (multiSelect) ? 'multi' : 'single');
+        elemBOM.attr('data-enditem', endItem);
         elemBOM.addClass('bom');
         elemBOM.html('');
+
+    if(!isBlank(params.endItem)) {
+        if(!isBlank(params.endItem.fieldId)) elemBOM.attr('data-enditem-fieldId', params.endItem.fieldId);
+        if(!isBlank(params.endItem.value  )) elemBOM.attr('data-enditem-value'  , params.endItem.value  );
+    }
 
     let elemHeader = $('<div></div>').appendTo(elemBOM)
         .addClass('panel-header')
@@ -1570,6 +1577,8 @@ function changeBOMView(id) {
     let quantity            = (elemBOM.attr('data-quantity'    ).toLowerCase() === 'true');
     let hideDetails         = (elemBOM.attr('data-hide-details').toLowerCase() === 'true');
     let getFlatBOM          = (elemBOM.attr('data-get-flat-bom').toLowerCase() === 'true');
+    let fieldIdEndItem      = (typeof elemBOM.attr('data-enditem-fieldId') === 'undefined') ? '' : elemBOM.attr('data-enditem-fieldId');
+    let valueEndItem        = (typeof elemBOM.attr('data-enditem-value') === 'undefined') ? '' : elemBOM.attr('data-enditem-value');
     let link                = elemBOM.attr('data-link');
     let bomViewId           = $('#' + id + '-view-selector').val();
     let elemProcessing      = $('#' + id + '-processing');
@@ -1585,8 +1594,9 @@ function changeBOMView(id) {
         'viewId'        : bomViewId
     }
 
-    let fieldURNQuantity   = '';
-    let fieldURNPartNumber = '';
+    let fieldURNQuantity    = '';
+    let fieldURNPartNumber  = '';
+    let fieldURNEndItem     = '';
     let bomView;
 
     for(workspace of cacheWorkspaces) {
@@ -1598,8 +1608,9 @@ function changeBOMView(id) {
     }
 
     for(field of bomView.fields) {
-        if(field.fieldId === config.viewer.fieldIdPartNumber) fieldURNPartNumber = field.__self__.urn;
+             if(field.fieldId === config.viewer.fieldIdPartNumber) fieldURNPartNumber = field.__self__.urn;
         else if(field.fieldId === 'QUANTITY') fieldURNQuantity = field.__self__.urn;
+        else if(field.fieldId === fieldIdEndItem) fieldURNEndItem = field.__self__.urn;
     }
 
     let requests = [$.get('/plm/bom', params)];
@@ -1609,7 +1620,7 @@ function changeBOMView(id) {
     Promise.all(requests).then(function(responses) {
 
         setBOMHeaders(id, quantity, hideDetails, bomView.fields);
-        insertNextBOMLevel(responses[0].data, elemBOMTableBody, responses[0].data.root, position, quantity, hideDetails, bomView.fields, fieldURNPartNumber, fieldURNQuantity);
+        insertNextBOMLevel(responses[0].data, elemBOMTableBody, responses[0].data.root, position, quantity, hideDetails, bomView.fields, fieldURNPartNumber, fieldURNQuantity, fieldURNEndItem, valueEndItem);
         enableBOMToggles(id);
 
         if(getFlatBOM) changeBOMViewDone(id, bomView.fields, responses[0].data, responses[1].data);
@@ -1648,7 +1659,7 @@ function setBOMHeaders(id, quantity, hideDetails, fields) {
     }
 
 }
-function insertNextBOMLevel(bom, elemTable, parent, position, quantity, hideDetails, fields, fieldURNPartNumber, fieldURNQuantity) {
+function insertNextBOMLevel(bom, elemTable, parent, position, quantity, hideDetails, fields, fieldURNPartNumber, fieldURNQuantity, fieldURNEndItem, valueEndItem) {
 
     let result    = false;
     let firstLeaf = true;
@@ -1659,8 +1670,8 @@ function insertNextBOMLevel(bom, elemTable, parent, position, quantity, hideDeta
 
             result = true;
 
-            let partNumber  = getBOMCellValue(edge.child, fieldURNPartNumber, bom.nodes);
-            let rowQuantity = getBOMEdgeValue(edge, fieldURNQuantity, null, 0);
+            let partNumber   = getBOMCellValue(edge.child, fieldURNPartNumber, bom.nodes);
+            let rowQuantity  = getBOMEdgeValue(edge, fieldURNQuantity, null, 0);
 
             let elemRow = $('<tr></tr>');
                 elemRow.attr('data-number', edge.itemNumber);
@@ -1733,7 +1744,16 @@ function insertNextBOMLevel(bom, elemTable, parent, position, quantity, hideDeta
                 }
             }
 
-            let hasChildren = insertNextBOMLevel(bom, elemTable, edge.child, position, quantity, hideDetails, fields, fieldURNPartNumber, fieldURNQuantity);
+            let isEndItem = false;
+
+            if(fieldURNEndItem !== '') {
+                let cellEndItem = getBOMCellValue(edge.child, fieldURNEndItem, bom.nodes);
+                if(valueEndItem === cellEndItem) {
+                    isEndItem = true;
+                }
+            }
+
+            let hasChildren = (isEndItem) ? false : insertNextBOMLevel(bom, elemTable, edge.child, position, quantity, hideDetails, fields, fieldURNPartNumber, fieldURNQuantity, fieldURNEndItem, valueEndItem);
 
             elemRow.children().first().each(function() {
                 
