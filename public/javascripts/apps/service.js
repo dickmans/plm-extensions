@@ -207,7 +207,7 @@ function setUIEvents() {
 
 
 // Click on Product in landing page
-function clickWorkspaceItem(elemClicked) {
+function clickWorkspaceItem(e, elemClicked) {
 
     let link = elemClicked.attr('data-engineering_bom');
 

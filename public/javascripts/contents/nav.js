@@ -37,7 +37,6 @@ function insertWorkspaceItems(wsId, params) {
     if(!isBlank(params.sortBy)            )               sortBy = params.sortBy;
     if(!isBlank(params.groupBy)           )              groupBy = params.groupBy;
 
-
     let elemList = $('#' + id);
         elemList.addClass('workspace-items');
         elemList.html('');
@@ -167,12 +166,11 @@ function insertWorkspaceItems(wsId, params) {
                 let details  = [];
 
                 let elemTile = genTile(item.__self__, '', image, icon, title, subtitle);
-                    // elemTile.appendTo(elemContent);
                     if(isBlank(groupBy)) elemTile.appendTo(elemContent); else elemTile.appendTo(elemGroupList);
                     elemTile.click(function(e) {
                         e.preventDefault();
                         e.stopPropagation();
-                        clickWorkspaceItem($(this));
+                        clickWorkspaceItem(e, $(this));
                     });
 
 
@@ -205,12 +203,14 @@ function insertWorkspaceItems(wsId, params) {
             for(item of response.data.items) {
 
                 let elemTile = genTile(item.__self__, '', '', icon, item.descriptor, item.workspaceLongName);
-                    elemTile.appendTo(elemList);
-                    elemTile.click(function() {
+                    // elemTile.appendTo(elemList);
+                    elemTile.click(function(e) {
                         e.preventDefault();
                         e.stopPropagation();
-                        clickWorkspaceItem($(this));
+                        clickWorkspaceItem(e, $(this));
                     });
+
+                if(isBlank(groupBy)) elemTile.appendTo(elemContent); else elemTile.appendTo(elemGroupList);
 
             }
 
@@ -239,7 +239,12 @@ function searchInWorkspaceItems(id, elemInput) {
     }    
 
 }
-function clickWorkspaceItem(elemClicked) {}
+function clickWorkspaceItem(e, elemClicked) {
+
+    elemClicked.toggleClass('selected');
+    elemClicked.siblings().removeClass('selected');
+
+}
 
 
 
