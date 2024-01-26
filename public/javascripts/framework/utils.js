@@ -430,6 +430,9 @@ function enableOpenInNew() {
     elemButton.click(function() {
 
         let link = $(this).closest('.panel').attr('data-link');
+
+        if($(this).closest('.panel').length === 0) link = $(this).closest('.screen').attr('data-link');
+
         openItemByLink(link);
 
     });
