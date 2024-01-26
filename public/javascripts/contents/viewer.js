@@ -52,7 +52,7 @@ let viewerBGColors = {
 function initViewer(data, color, id) {
 
     if(typeof data === undefined) return;
-    else if(data === "") return;
+    else if(data === '') return;
 
     if(typeof color !== 'undefined') {
         if(color !== null) {

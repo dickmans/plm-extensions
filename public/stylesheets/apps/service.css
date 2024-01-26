@@ -119,7 +119,11 @@
 .viewer {
     bottom : calc(var(--height-attachments) + (2 * var(--padding-panel)));
 }
-#navTools { display : none; }
+.adsk-viewing-viewer > .viewcubeWrapper,
+#navTools,
+#toolbar-modelStructureTool,
+#toolbar-propertiesTool,
+#toolbar-settingsTool { display : none; }
 
 
 
