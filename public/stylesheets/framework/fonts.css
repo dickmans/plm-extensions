@@ -171,7 +171,7 @@
 }
 .with-icon::before {
     font-family             : 'Material Symbols Sharp';
-    margin-right            : var(--spacer-xs);
+    margin-right            : var(--spacer-xxs);
     text-rendering          : optimizeLegibility;
     -webkit-font-smoothing  : antialiased;
 }
@@ -195,6 +195,7 @@
 .icon-check::before             { content : '\e86c'; }
 .icon-check-box::before         { content : '\e835'; }
 .icon-check-box-checked::before { content : '\e834'; }
+.icon-check-circle-add::before  { content : '\f23a'; }
 .icon-clear::before             { content : '\e14b'; }
 .icon-clone::before             { content : '\e14d'; }
 .icon-close::before             { content : '\e5cd'; }
@@ -208,6 +209,7 @@
 .icon-disconnect::before        { content : '\e16f'; }
 .icon-edit-multiple::before     { content : '\e745'; }
 .icon-expand::before            { content : '\e5cc'; }
+.icon-factory::before           { content : '\ebbc'; }
 .icon-filter::before            { content : '\e152'; }
 .icon-finish::before            { content : '\eaf8'; }
 .icon-fold::before              { content : '\e5d6'; }
@@ -236,6 +238,7 @@
 .icon-product::before           { content : '\f720'; }
 .icon-radio-checked::before     { content : '\e837'; }
 .icon-radio-unchecked::before   { content : '\e836'; }
+.icon-raw-material::before      { content : '\f86a'; }
 .icon-refresh::before           { content : '\e627'; }
 .icon-released::before          { content : '\e031'; }
 .icon-remove::before            { content : '\eb80'; }
@@ -244,6 +247,7 @@
 .icon-search-list::before       { content : '\f02f'; }
 .icon-send::before              { content : '\e163'; }
 .icon-select:before             { content : '\f718'; }
+.icon-select-circle:before      { content : '\f511'; }
 .icon-select-all:before         { content : '\e877'; }
 .icon-settings::before          { content : '\e8b8'; }
 .icon-show::before              { content : '\e8f4'; }
