@@ -28,6 +28,16 @@
     
     background : var(--color-surface-level-2);
 }
+
+.flat-bom-item.selected input,
+.flat-bom-item.selected select {
+    background : var(--color-blue-500);
+}
+.flat-bom-item td.changed,
+.flat-bom-item td.changed input,
+.flat-bom-item td.changed select {
+    background : var(--color-status-red);
+}
 .flat-bom-column-model_year > select {
     width : 70px;
 }
@@ -52,6 +62,26 @@
 }
 
 .flat-bom-search-input { font-size : 12px; }
+th.variant-head.variant-column {
+    border-bottom   : 1px solid var(--color-surface-level-1);
+    max-width       : 300px;
+    text-align      : center;
+    width           : 300px;
+}
+
+#master-bom-tbody select { background : var(--color-surface-level-2); }
+#master-bom-tbody .bom-item.selected select { background : var(--color-blue-500); }
+
+/* tr.selected td.changed-properties,
+td.changed-properties {
+    background : var(--color-status-red) !important;
+} */
+
+tr.selected td.changed-properties select,
+td.changed-properties select {
+    background : var(--color-status-red) !important;
+}
+
 
 
 /* VARIANTS SELECTION */
@@ -62,4 +92,11 @@
     bottom  : 50px;
     left    : calc(50% - 200px);
     width   : unset;
+}
+#dialog-variants-list-content {
+    top : 50px !important;
+}
+.variant-spacer {
+    background: var(--color-surface-level-1) !important;
+    width: 10px;
 }

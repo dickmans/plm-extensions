@@ -64,7 +64,7 @@
 /* ----------------------------------------------------------------------------- */
 body.embedded, 
 .embedded input, 
-.embedded select { font-size : 12px; }
+.embedded select { font-size : 11px; }
 
 .embedded input  { padding : 2px 4px; }
 .embedded select { padding : 2px 4px; }
@@ -97,17 +97,17 @@ body.embedded,
 }
 .embedded .workspace-view-search-input { width : 60px; }
 .panel-subtitle {
-    padding: 4px 10px;
-    background: rebeccapurple;
-    margin: 5px 0px;
-    text-align: center;
+    background  : rebeccapurple;
+    margin      : 5px 0px;
+    padding     : 2px 10px;
+    text-align  : center;
 }
 
 
 
 /*  TABS */
 /* ----------------------------------------------------------------------------- */
-.tabs {
+.embedded .tabs {
     right : 0px;
     left  : 0px;
 }
@@ -163,6 +163,7 @@ body.embedded,
 .embedded .tile-title { font-size : 12px !important;}
 .embedded .tile-subtitle { font-size : 11px !important; }
 .embedded .tiles.list.xxs .tile-details { margin: 6px 10px; }
+.embedded .tiles.wide.s { padding-top: var(--spacer-s); }
 
 .tile-actions {
     display      : none;
@@ -185,9 +186,14 @@ body.embedded,
 
 /*  TABLES */
 /* ----------------------------------------------------------------------------- */
-.embedded th { padding : 4px 4px; }
-.embedded td { padding : 2px 4px; }
+.embedded th { padding : 3px 2px; }
+.embedded td { padding : 1px 2px; }
 
+
+
+/*  MOW */
+/* ----------------------------------------------------------------------------- */
+.embedded .mow-icon::before { font-size : 16px; }
 
 
 /*  BOM */
@@ -206,6 +212,14 @@ body.embedded,
     box-shadow   : none !important;
     color        : white;
 }
+
+
+/*  ATTACHMENTS */
+/* ----------------------------------------------------------------------------- */
+.embedded .attachment {
+    width : calc(100% - 22px) !important;
+}
+
 
 
 /*  DIALOGS */

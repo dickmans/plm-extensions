@@ -26,7 +26,13 @@
 .search-result-list {
     top : 44px !important;
 }
-
+#search-list .tile-details {
+    width : calc(100% - 180px);
+}
+.search-result-list .tile-actions { margin-top : 6px; }
+#materials-list .tile-details {
+    width : calc(100% - 150px);
+}
 
 
 /*  WORKSPACE VIEWS */

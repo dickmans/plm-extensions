@@ -1,7 +1,8 @@
 /* MASTER LAYOUT */
 /* ----------------------------------------------------------------------------- */
 #tasks, #task {
-    top     : var(--padding-main-top);
+    /* top     : var(--padding-main-top); */
+    top : 0px;
 }
 #task {
     display : none;
@@ -16,6 +17,10 @@
     bottom      : calc(-1 * var(--padding-main));
     left        : calc(-1 * var(--padding-main));
 }
+.field-value .tile-details { width : calc(100% - 168px) !important; }
+.field-value .tile-actions .icon { font-size : 16px !important; }
+.field-value .tile-image .icon { font-weight: 100 !important; }
+
 
 
 /* MOW */
@@ -37,6 +42,17 @@
     position : absolute;
     top : 40px !important;
 }
+
+
+
+
+
+/* MANAGED ITEMS */
+/* ----------------------------------------------------------------------------- */
+#managed-items-list .tile-details {
+    width : calc(100% - 168px);
+}
+
 
 
 /* .icon { grid-area: icon;}
