@@ -1816,8 +1816,6 @@ function enableBOMToggles(id) {
 }
 function toggleBOMItemActions(elemClicked) {
 
-    console.log('toggleBOMItemActions START');
-
     let elemBOM             = elemClicked.closest('.bom');
     let actionsMultiSelect  = elemBOM.find('.bom-multi-select-action');
     let actionsSingleSelect = elemBOM.find('.bom-single-select-action');
@@ -1949,22 +1947,27 @@ function clickBOMGoThere(elemClicked) {
     let elemBOM   = elemClicked.closest('.bom');
     let elemItem  = elemBOM.find('.bom-item.selected').first();
 
-    console.log(elemBOM.length);
-    console.log(elemItem.length);
-
     if(elemItem.length > 0) {
         
         let link        = elemItem.attr('data-link').split('/');
         let location    = document.location.href.split('?');
-        let params      = location[1].split('&');
-
-        let url = location[0] + '?';
+        let params      = (location.length > 1) ? location[1].split('&') : [];
+        let url         = location[0] + '?';
+        let appendDMSID = true;
+        let appendWSID  = true;
 
         for(param of params) {
             if(param.toLowerCase().indexOf('dmsid=') === 0) {
-                url += '&dmsid=' + link[6];
+                url += '&dmsId=' + link[6];
+                appendDMSID = false;
+            } else if(param.toLowerCase().indexOf('wsid=') === 0) {
+                url += '&wsId=' + link[4];
+                appendWSID = false;
             } else url += '&' + param;
         }
+
+        if(appendWSID) url += '&wsId=' + link[4];
+        if(appendDMSID) url += '&dmsId=' + link[6];
 
         document.location.href = url;
 
