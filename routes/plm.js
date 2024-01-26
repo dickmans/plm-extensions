@@ -3048,6 +3048,7 @@ router.get('/tableau-data', function(req, res, next) {
     }).then(function(response) {
         let result = [];
         if(response.data !== '') result = response.data.items;
+        if(typeof result === 'undefined') result = [];
         sendResponse(req, res, { 'data' : result, 'status' : response.status }, false);
     }).catch(function(error) {
         sendResponse(req, res, error.response, true);
