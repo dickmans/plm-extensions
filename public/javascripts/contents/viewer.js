@@ -693,7 +693,25 @@ async function viewerGetSelectedComponentPaths() {
             let items = responses;
 
             for(selection of viewer.getSelection()) {
-                result.push(getComponentPath(items, selection));
+                
+                // result.push(getComponentPath(items, selection));
+
+                let componentPath   = getComponentPath(items, selection).split('|');
+                let newPath         = '';
+
+                for(let index = 0; index <= componentPath.length - 1; index++) {
+
+                    let segment = componentPath[index];
+
+                    if(segment.indexOf('Component Pattern') < 0) {
+                        if(newPath !== '') newPath += '|';
+                        newPath += segment;
+                    }
+
+                }
+
+                result.push(newPath);
+
             }
 
             resolve(result);
@@ -735,7 +753,8 @@ function getComponentPath(items, id) {
             result = item.name;
             for(property of item.properties) {
                 if(property.attributeName === 'parent') {
-                    result = getComponentPath(items, property.displayValue) + '|' + result;
+                    let partNumber = getComponentPath(items, property.displayValue);
+                    result = partNumber.split('.iam')[0] + '|' + result;
                 }
             }
 
