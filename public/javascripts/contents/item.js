@@ -815,7 +815,6 @@ function getEditableFields(fields) {
 
     let result = [];
 
-
     for(field of fields) {
 
         if(field.editability === 'ALWAYS') {
@@ -828,11 +827,13 @@ function getEditableFields(fields) {
                     elemControl = $('<input>');
                     elemControl.attr('type', 'checkbox');
 
+                case 'Float': 
                 case 'Integer': 
                 case 'Single Line Text': 
                     elemControl = $('<input>');
                     break;
 
+                case 'Radio Button': 
                 case 'Single Selection': 
                     elemControl = $('<select>');
                     elemControl.addClass('picklist');
@@ -2044,6 +2045,7 @@ function insertFlatBOM(link , params) {
     let goThere     = false;        //  Adds button to open the same view for the selected element
     let views       = false;        //  Adds drop down menu to select from the available PLM BOM views
     let search      = true;         //  Adds quick filtering using search input on top of BOM
+    let quantity    = false;        //  When set to true, the quantity column will be displayed
     let hideDetails = false;        //  When set to true, detail columns will be skipped, only the descriptor will be shown
     let headers     = true;         //  When set to false, the table headers will not be shown
     let showMore    = false;        //  When set to true, adds controls to access the item details pages for each BOM entry
@@ -2062,6 +2064,7 @@ function insertFlatBOM(link , params) {
     if(!isBlank(params.goThere)    )       goThere = params.goThere;
     if(!isBlank(params.views)      )         views = params.views;
     if(!isBlank(params.search)     )        search = params.search;
+    if(!isBlank(params.quantity)   )      quantity = params.quantity;
     if(!isBlank(params.headers)    )       headers = params.headers;
     if(!isBlank(params.showMore)   )      showMore = params.showMore;
     if(!isBlank(params.editable)   )      editable = params.editable;
@@ -2073,6 +2076,7 @@ function insertFlatBOM(link , params) {
         elemBOM.attr('data-link', link);
         elemBOM.attr('data-editable', editable);
         elemBOM.attr('data-show-more', showMore);
+        elemBOM.attr('data-quantity', quantity);
         elemBOM.attr('data-hide-details', hideDetails);
         elemBOM.addClass('flat-bom');
         elemBOM.html('');
@@ -2424,6 +2428,8 @@ function changeFlatBOMView(id) {
         }
     }
 
+    sortArray(bomView.fields, 'displayOrder', 'integer');
+
     for(field of bomView.fields) {
         if(field.fieldId === config.viewer.fieldIdPartNumber) fieldURNPartNumber = field.__self__.urn;
     }
@@ -2642,6 +2648,7 @@ function setFlatBOMHeaders(id, editable, showMore, hideDetails, fields) {
 
     let elemBOMTableHeadQty = $('<th></th>');
         elemBOMTableHeadQty.html('Qty');
+        elemBOMTableHeadQty.addClass('flat-bom-qty');
         elemBOMTableHeadQty.appendTo(elemBOMTableHeadRow); 
 
     if(!hideDetails) {
