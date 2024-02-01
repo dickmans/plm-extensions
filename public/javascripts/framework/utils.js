@@ -457,8 +457,8 @@ function enableBookmark() {
 // Sort array by defined key
 function sortArray(array, key, type, direction) {
 
-    if(typeof type      === 'undefined') type = 'string';
-    if(typeof direction === 'undefined') type = 'ascending';
+    if(typeof type      === 'undefined') type      = 'string';
+    if(typeof direction === 'undefined') direction = 'ascending';
 
     if(direction === 'ascending') {
 
