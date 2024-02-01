@@ -318,13 +318,13 @@
 .bom-color {
     background  : transparent;
     padding     : 0px !important;
-    width       : 10px;
+    width       : 6px;
 }
 .bom-nav {
     cursor          : pointer;
     font-size       : 20px;
     line-height     : 5px;
-    padding-right   : 9px;
+    padding-right   : 4px;
     width           : 16px;
     position        : relative;
     top             : 5px;
@@ -366,27 +366,27 @@
     text-align  : right;
 }
 
-.bom-level-1  .bom-first-col { padding-left :  30px; }
-.bom-level-2  .bom-first-col { padding-left :  55px; }
-.bom-level-3  .bom-first-col { padding-left :  80px; }
-.bom-level-4  .bom-first-col { padding-left : 105px; }
-.bom-level-5  .bom-first-col { padding-left : 130px; }
-.bom-level-6  .bom-first-col { padding-left : 155px; }
-.bom-level-7  .bom-first-col { padding-left : 180px; }
-.bom-level-8  .bom-first-col { padding-left : 205px; }
-.bom-level-9  .bom-first-col { padding-left : 230px; }
-.bom-level-10 .bom-first-col { padding-left : 255px; }
+.bom-level-1  .bom-first-col { padding-left :  25px; }
+.bom-level-2  .bom-first-col { padding-left :  46px; }
+.bom-level-3  .bom-first-col { padding-left :  66px; }
+.bom-level-4  .bom-first-col { padding-left :  86px; }
+.bom-level-5  .bom-first-col { padding-left : 106px; }
+.bom-level-6  .bom-first-col { padding-left : 126px; }
+.bom-level-7  .bom-first-col { padding-left : 146px; }
+.bom-level-8  .bom-first-col { padding-left : 166px; }
+.bom-level-9  .bom-first-col { padding-left : 186px; }
+.bom-level-10 .bom-first-col { padding-left : 206px; }
 
-tr.node.bom-level-1  .bom-first-col  { padding-left :   5px; }
-tr.node.bom-level-2  .bom-first-col  { padding-left :  30px; }
-tr.node.bom-level-3  .bom-first-col  { padding-left :  55px; }
-tr.node.bom-level-4  .bom-first-col  { padding-left :  80px; }
-tr.node.bom-level-5  .bom-first-col  { padding-left : 105px; }
-tr.node.bom-level-6  .bom-first-col  { padding-left : 130px; }
-tr.node.bom-level-7  .bom-first-col  { padding-left : 155px; }
-tr.node.bom-level-8  .bom-first-col  { padding-left : 180px; }
-tr.node.bom-level-9  .bom-first-col  { padding-left : 205px; }
-tr.node.bom-level-10 .bom-first-col  { padding-left : 230px; }
+tr.node.bom-level-1  .bom-first-col  { padding-left :   4px; }
+tr.node.bom-level-2  .bom-first-col  { padding-left :  26px; }
+tr.node.bom-level-3  .bom-first-col  { padding-left :  46px; }
+tr.node.bom-level-4  .bom-first-col  { padding-left :  66px; }
+tr.node.bom-level-5  .bom-first-col  { padding-left :  86px; }
+tr.node.bom-level-6  .bom-first-col  { padding-left : 106px; }
+tr.node.bom-level-7  .bom-first-col  { padding-left : 126px; }
+tr.node.bom-level-8  .bom-first-col  { padding-left : 146px; }
+tr.node.bom-level-9  .bom-first-col  { padding-left : 166px; }
+tr.node.bom-level-10 .bom-first-col  { padding-left : 186px; }
 
 .bom.compact > .panel-content > .bom-table > .bom-thead > tr > th { font-size : 12px; padding : 6px 8px; }
 .bom.compact > .panel-content > .bom-table > .bom-tbody > tr > td { font-size : 12px; }
@@ -394,7 +394,7 @@ tr.node.bom-level-10 .bom-first-col  { padding-left : 230px; }
 .bom.compact > .panel-content > .bom-table > .bom-tbody > tr > td.bom-color { width : 4px; }
 .bom.compact > .panel-content > .bom-table > .bom-tbody > tr > td.bom-first-col > span { font-size : 12px; padding-top : 0px; padding-bottom : 0px; }
 .bom.compact > .panel-content > .bom-table > .bom-tbody > tr > td.bom-first-col > span.icon { font-size : 16px; line-height : 8px; }
-
+.bom.compact > .panel-content > .bom-table .bom-nav { top : 4px; }
 
 /*  FLAT BOM */
 /* ----------------------------------------------------------------------------- */
@@ -486,10 +486,36 @@ tr.node.bom-level-10 .bom-first-col  { padding-left : 230px; }
 .flat-bom-item > td:last-of-type {
     border-right : 1px solid transparent;
 }
-.flat-bom-item > td.changed {
+.flat-bom-item > td.changed > input, 
+.flat-bom-item > td.changed > select {
     background : var(--color-status-red-bright) !important;
 }
 .no-actions .flat-bom-title { width : calc(100% - 50px); }
+
+.flat-bom.compact,
+.flat-bom.compact input,
+.flat-bom.compact select {
+    font-size   : 12px;
+    line-height : 12px;
+}
+.flat-bom.compact th { padding : 8px 4px; }
+.flat-bom.compact td { padding : 2px 4px; }
+.flat-bom.compact .flat-bom-select-all.icon {
+    font-size   : 16px;
+    position    : relative;
+    top         : 1px;
+}
+.flat-bom.compact .flat-bom-check .icon {
+    font-size   : 16px;
+    position    : relative;
+    top         : 2px;
+}
+.flat-bom.compact input {
+    padding : 4px 4px;
+}
+.flat-bom.compact select {
+    padding : 3px 2px;
+}
 
 
 /*  PROJECT-GRID */
