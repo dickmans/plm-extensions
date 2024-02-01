@@ -2045,6 +2045,7 @@ function insertFlatBOM(link , params) {
     let goThere     = false;        //  Adds button to open the same view for the selected element
     let views       = false;        //  Adds drop down menu to select from the available PLM BOM views
     let search      = true;         //  Adds quick filtering using search input on top of BOM
+    let position    = true;         //  When set to true, the position / find number will be displayed
     let quantity    = false;        //  When set to true, the quantity column will be displayed
     let hideDetails = false;        //  When set to true, detail columns will be skipped, only the descriptor will be shown
     let headers     = true;         //  When set to false, the table headers will not be shown
@@ -2064,6 +2065,7 @@ function insertFlatBOM(link , params) {
     if(!isBlank(params.goThere)    )       goThere = params.goThere;
     if(!isBlank(params.views)      )         views = params.views;
     if(!isBlank(params.search)     )        search = params.search;
+    if(!isBlank(params.position)   )      position = params.position;
     if(!isBlank(params.quantity)   )      quantity = params.quantity;
     if(!isBlank(params.headers)    )       headers = params.headers;
     if(!isBlank(params.showMore)   )      showMore = params.showMore;
@@ -2074,9 +2076,10 @@ function insertFlatBOM(link , params) {
 
     let elemBOM = $('#' + id);
         elemBOM.attr('data-link', link);
+        elemBOM.attr('data-position', position);
+        elemBOM.attr('data-quantity', quantity);
         elemBOM.attr('data-editable', editable);
         elemBOM.attr('data-show-more', showMore);
-        elemBOM.attr('data-quantity', quantity);
         elemBOM.attr('data-hide-details', hideDetails);
         elemBOM.addClass('flat-bom');
         elemBOM.html('');
@@ -2394,6 +2397,8 @@ function saveFlatBOMChanges(elemButton, sections) {
 function changeFlatBOMView(id) {
 
     let elemBOM             = $('#' + id);
+    let position            = (elemBOM.attr('data-position'    ).toLowerCase() === 'true');
+    let quantity            = (elemBOM.attr('data-quantity'    ).toLowerCase() === 'true');
     let editable            = (elemBOM.attr('data-editable'    ).toLowerCase() === 'true');
     let showMore            = (elemBOM.attr('data-show-more'   ).toLowerCase() === 'true');
     let hideDetails         = (elemBOM.attr('data-hide-details').toLowerCase() === 'true');
@@ -2436,7 +2441,7 @@ function changeFlatBOMView(id) {
 
     $.get('/plm/bom-flat', params, function(response) {
 
-        setFlatBOMHeaders(id, editable, showMore, hideDetails, bomView.fields)
+        setFlatBOMHeaders(id, position, quantity, editable, showMore, hideDetails, bomView.fields)
 
         let count = 1;
 
@@ -2473,19 +2478,14 @@ function changeFlatBOMView(id) {
 
             }
 
-            let elemRowNumber = $('<td></td>');
-                elemRowNumber.html(count++);
-                elemRowNumber.addClass('flat-bom-number');
-                elemRowNumber.appendTo(elemRow);        
+            if(position)  $('<td></td>').appendTo(elemRow).addClass('flat-bom-number').html(count++);
                 
             let elemRowTitle = $('<td></td>');
                 elemRowTitle.html(title)
                 elemRowTitle.addClass('flat-bom-title');
                 elemRowTitle.appendTo(elemRow);   
 
-            $('<td></td>').appendTo(elemRow)
-                .html(qty)
-                .addClass('flat-bom-qty');
+            if(quantity) $('<td></td>').appendTo(elemRow).addClass('flat-bom-qty').html(qty);
 
             if(!hideDetails) {
 
@@ -2617,7 +2617,7 @@ function searchInFlatBOM(id, elemInput) {
     }
 
 }
-function setFlatBOMHeaders(id, editable, showMore, hideDetails, fields) {
+function setFlatBOMHeaders(id, position, quantity, editable, showMore, hideDetails, fields) {
 
     let elemBOMTableHead = $('#'+  id + '-thead');
         elemBOMTableHead.html('');
@@ -2638,18 +2638,13 @@ function setFlatBOMHeaders(id, editable, showMore, hideDetails, fields) {
 
     }
 
-    let elemBOMTableHeadNumber = $('<th></th>');
-        elemBOMTableHeadNumber.html('Nr');
-        elemBOMTableHeadNumber.appendTo(elemBOMTableHeadRow);
+    if(position) $('<th></th>').appendTo(elemBOMTableHeadRow).addClass('flat-bom-number').html('Nr');
 
     let elemBOMTableHeadItem = $('<th></th>');
         elemBOMTableHeadItem.html('Item');
         elemBOMTableHeadItem.appendTo(elemBOMTableHeadRow);
 
-    let elemBOMTableHeadQty = $('<th></th>');
-        elemBOMTableHeadQty.html('Qty');
-        elemBOMTableHeadQty.addClass('flat-bom-qty');
-        elemBOMTableHeadQty.appendTo(elemBOMTableHeadRow); 
+    if(quantity) $('<th></th>').appendTo(elemBOMTableHeadRow).addClass('flat-bom-qty').html('Qty');
 
     if(!hideDetails) {
 
