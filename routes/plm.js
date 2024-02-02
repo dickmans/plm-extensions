@@ -88,7 +88,12 @@ function sendResponse(req, res, response, error) {
                 console.log(response.message);
                 result.message = response.message;
             }
-            if(typeof response.data    !== 'undefined') console.log(response.data);
+            if(typeof response.data !== 'undefined') {
+                console.log(response.data);
+                if(response.data.length > 0) {
+                    if('message' in response.data[0]) result.message = response.data[0].message;
+                }
+            }
         }
 
     }
