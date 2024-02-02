@@ -3043,6 +3043,10 @@ function createNewItems() {
             requests = [];
 
             for(response of responses) {
+                if(response.error) {
+                    showErrorMessage('Error while creating new MBOM nodes', 'Error message : ' + response.message + '<br/>Please refresh your browser window before continuing. All changes that were not saved will be lost.');
+                    return;
+                }
                 requests.push($.get('/plm/descriptor', {
                     'link' : response.data.split('.autodeskplm360.net')[1]
                 }));
@@ -3068,7 +3072,7 @@ function createNewItems() {
 
                 createNewItems(); 
 
-            });
+            });       
 
         });
      
