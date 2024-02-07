@@ -106,8 +106,8 @@
 .workspace-items-groups {
     display         : flex;
     flex-direction  : column;
-    gap             : var(--spacer-m);
-    margin-top      : 8px;
+    gap             : var(--spacer-xl);
+    margin-top      : var(--spacer-l);
 }
 .workspace-items-group {
     display     : flex;
