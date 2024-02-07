@@ -247,7 +247,7 @@
     flex-direction: column;
     align-items: flex-start;
     overflow : hidden;
-    margin: 20px 30px 20px;
+    margin: 20px 30px 18px;
     gap: 10px;
 }
 .tiles.list .tile-details {
@@ -632,13 +632,13 @@ and (max-device-width : 1900px)  {
 }
  .dark-theme .panel-header { border-color : var(--color-surface-level-4); }
 .black-theme .panel-header { border-color : var(--color-surface-level-4); }
-.dark-theme .surface-level-1  > .panel-header { border-color : var(--color-surface-level-4); }
-.dark-theme .surface-level-2  > .panel-header { border-color : var(--color-surface-level-4); }
+.dark-theme .surface-level-1  > .panel-header { border-color : var(--color-surface-level-5); }
+.dark-theme .surface-level-2  > .panel-header { border-color : var(--color-surface-level-5); }
 .dark-theme .surface-level-3  > .panel-header { border-color : var(--color-surface-level-5); }
 .dark-theme .surface-level-4  > .panel-header { border-color : var(--color-surface-level-1); }
 .dark-theme .surface-level-5  > .panel-header { border-color : var(--color-surface-level-1); }
-.black-theme .surface-level-1 > .panel-header { border-color : var(--color-surface-level-4); }
-.black-theme .surface-level-2 > .panel-header { border-color : var(--color-surface-level-4); }
+.black-theme .surface-level-1 > .panel-header { border-color : var(--color-surface-level-5); }
+.black-theme .surface-level-2 > .panel-header { border-color : var(--color-surface-level-5); }
 .black-theme .surface-level-3 > .panel-header { border-color : var(--color-surface-level-5); }
 .black-theme .surface-level-4 > .panel-header { border-color : var(--color-surface-level-1); }
 .black-theme .surface-level-5 > .panel-header { border-color : var(--color-surface-level-1); }
@@ -868,7 +868,7 @@ and (max-device-width : 1900px)  {
 /*  TABS */
 /* ----------------------------------------------------------------------------- */
 .tabs {
-    border-bottom : 2px solid black;
+    border-bottom : 2px solid var(--color-surface-level-5);
     display : flex;
     font-size : 18px;
     line-height : 18px;
