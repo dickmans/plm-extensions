@@ -695,17 +695,18 @@ function viewerUnhideModels(partNumbers, fitToView) {
 
 
 // Reset viewer / deselect all
-function viewerResetSelection(resetView) {
+function viewerResetSelection(resetView, resetColors) {
 
     if(!isViewerStarted()) return;
 
-    if(typeof resetView === 'undefined') resetView = true;
+    if(typeof resetView   === 'undefined') resetView   = true;
+    if(typeof resetColors === 'undefined') resetColors = true;
 
     viewer.showAll();
     viewer.clearSelection();
-    viewer.clearThemingColors();
     
-    if(resetView) viewer.setViewFromFile();
+    if(resetColors) viewer.clearThemingColors();
+    if(resetView  ) viewer.setViewFromFile();
 
 }
 
@@ -895,9 +896,11 @@ function viewerSetColors(partNumbers, color, fitToView, unhide) {
     if(typeof fitToView === 'undefined') fitToView = false;
     if(typeof unhide    === 'undefined') unhide     = true;
 
-    let vector      = new THREE.Vector4(color[0], color[1], color[2], color[3]);
+    let vector      = null;
     let instances   = viewer.model.getInstanceTree();
     let dbIds       = [];
+
+    if(color !== null) vector = new THREE.Vector4(color[0], color[1], color[2], color[3]);
 
     for(var i = 1; i < instances.objectCount; i++) {
 

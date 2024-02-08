@@ -713,8 +713,12 @@ function resetSparePartsList() {
 function clickSparePart(e, elemClicked) {
 
     elemClicked.toggleClass('selected');
+
+    let partNumber = elemClicked.attr('data-part-number');
+    let color      = (elemClicked.hasClass('selected')) ? config.vectors.blue : null;
+
+    viewerSetColor(partNumber, color, false, false);
     updateCounter();
-    updateViewer();
 
 }
 function updateCounter() {
@@ -827,23 +831,14 @@ function updateViewer(partNumber) {
 
     let selectedBOMNode = $('.bom-item.selected').first();
 
-    
-
     if(partNumber !== '') {
-        viewerResetColors();
         viewerSelectModel(partNumber, true, false);
     } else if(selectedBOMNode.length === 1) {
-        
         partNumber = selectedBOMNode.attr('data-part-number');
-        viewerResetColors();
         viewerSelectModel(partNumber, true, false);
     } else {
-        viewerResetSelection();
+        viewerResetSelection(true, false);
     }
-
-    $('.spare-part.selected').each(function() {
-        viewerSetColor($(this).attr('data-part-number'), config.vectors.blue, false, false);
-    });
 
     disableViewerSelectionEvent = false;
 
