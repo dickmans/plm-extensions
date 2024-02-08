@@ -630,6 +630,8 @@ function clickBOMResetDone() {
     
     let link = $('#bom').attr('data-link');
     
+    $('.spare-part').removeClass('zoom');
+
     insertItemDetails(link);
     insertAttachments(link);
     resetSparePartsList();
@@ -647,6 +649,7 @@ function setSparePartsList(elemItem) {
     let count       = 0;
     let level       = 0;
     let elemNext    = $('tr').closest().first();
+    let isSparePart = elemItem.hasClass('is-spare-part');
 
     if(typeof elemItem !== 'undefined') {
         elemNext  = elemItem;
@@ -684,7 +687,15 @@ function setSparePartsList(elemItem) {
 
     } while(levelNext > level);
 
-    if(count === 0) $('#custom-message').attr('data-link', elemItem.attr('data-link')).show();
+    let elemCustomMessage = $('#custom-message');
+
+    if(elemCustomMessage.length > 0) {   
+        if(isSparePart) {
+            elemCustomMessage.hide();
+        } else {
+            elemCustomMessage.attr('data-link', elemItem.attr('data-link')).show();
+        } 
+    }
 
     $('#items-processing').hide();
 
@@ -726,7 +737,12 @@ function clickSparePartZoomIn(e, elemClicked) {
     e.preventDefault();
     e.stopPropagation();
 
-    updateViewer(elemClicked.closest('.spare-part').attr('data-part-number'));
+    let elemSparePart = elemClicked.closest('.spare-part');
+        elemSparePart.siblings().removeClass('zoom');
+        elemSparePart.toggleClass('zoom')
+
+    if(elemSparePart.hasClass('zoom')) updateViewer(elemSparePart.attr('data-part-number'));
+    else updateViewer();
 
 }
 
@@ -809,11 +825,17 @@ function updateViewer(partNumber) {
 
     disableViewerSelectionEvent = true;
 
+    let selectedBOMNode = $('.bom-item.selected').first();
+
+    
+
     if(partNumber !== '') {
+        viewerResetColors();
         viewerSelectModel(partNumber, true, false);
     } else if(selectedBOMNode.length === 1) {
-        let selectedBOMNode = $('.bom-item.selected').first();
+        
         partNumber = selectedBOMNode.attr('data-part-number');
+        viewerResetColors();
         viewerSelectModel(partNumber, true, false);
     } else {
         viewerResetSelection();
