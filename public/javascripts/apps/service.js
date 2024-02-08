@@ -234,7 +234,11 @@ function openItem(link) {
     });
 
     if(isBlank(sections)) getInitialData(link.split('/')[4]);
-    insertBOM(link, { 'bomViewName' : config.service.bomViewName, 'reset' : true, 'openInPLM' : false, 'goThere' : true, 'hideDetails' : true, 'getFlatBOM' : true });
+    insertBOM(link, { 
+        'bomViewName' : config.service.bomViewName, 
+        'reset' : true, 'openInPLM' : false, 'goThere' : true, 'hideDetails' : true, 'getFlatBOM' : true, 'quantity' : true,
+        'endItem' : { 'fieldId' : 'SBOM_END_ITEM', 'value' : true }
+    });
     insertViewer(link, viewerBGColors[theme].level1);
     insertItemDetails(link);
     insertAttachments(link);
@@ -299,7 +303,7 @@ function changeBOMViewDone(id, fields, viewBOM, viewFlatBOM) {
     for(field of fields) {
     
              if(field.fieldId === 'NUMBER')                             urns.partNumber     = field.__self__.urn;
-        else if(field.fieldId === 'PART_NUMBER')                        urns.partNumber     = field.__self__.urn;
+        else if(field.fieldId === config.viewer.fieldIdPartNumber)      urns.partNumber     = field.__self__.urn;
         else if(field.fieldId === 'THUMBNAIL')                          urns.thumbnail      = field.__self__.urn;
         else if(field.fieldId === 'TITLE')                              urns.title          = field.__self__.urn;
         else if(field.fieldId === 'DESCRIPTION')                        urns.description    = field.__self__.urn;
@@ -449,7 +453,8 @@ function getBOMSpareParts(bom, flatBOM, parent, qtyTotal) {
 
                 if(listSpareParts.length > 15) $('#items-list').removeClass('l').addClass('m');
 
-                if(listSpareParts.indexOf(edge.child) === -1) {
+                // if(listSpareParts.indexOf(edge.child) === -1) {
+                if(listSpareParts.indexOf(link) === -1) {
 
                     listSpareParts.push(link);
 
@@ -721,72 +726,26 @@ function clickSparePartZoomIn(e, elemClicked) {
     e.preventDefault();
     e.stopPropagation();
 
-    let elemSelected = elemClicked.closest('.spare-part');
-        elemSelected.toggleClass('zoom');
-        elemSelected.siblings().removeClass('zoom');
-
-    updateViewer();
+    updateViewer(elemClicked.closest('.spare-part').attr('data-part-number'));
 
 }
 
 
 // Viewer init and interactions
-// function onViewerSelectionChanged(event) {
-
-//     let found = false;
-
-//     if(viewer.getSelection().length === 0) {
-
-//         return;
-
-//     } else {
-
-//         viewer.getProperties(event.dbIdArray[0], function(data) {
-
-//             for(property of data.properties) {
-
-//                 if(partNumberProperties.indexOf(property.displayName) > -1) {
-
-//                     let partNumber = property.displayValue;
-
-//                     $('tr').each(function() {
-//                         if(!found) {
-//                             if($(this).attr('data-part-number') === partNumber) {
-//                                 found = true;
-//                                 $(this).click();
-//                             }
-//                         }
-//                     });
-
-//                     if(!found) {
-//                         if(partNumber.indexOf(':') > -1 ) {
-//                             partNumber = property.displayValue.split(':')[0];
-//                             $('tr').each(function() {
-//                                 if(!found) {
-//                                     if($(this).attr('data-part-number') === partNumber) {
-//                                         found = true;
-//                                         $(this).click();                                        
-//                                     }
-//                                 }
-//                             });
-//                         }
-//                     }
-
-//                 }
-
-//             }
-
-//         });
-
-//     }
-
-// }
 function initViewerDone() {
 
+    viewerAddGhostingToggle();
+    viewerAddResetButton();
     viewerAddMarkupControls();   
     viewerAddViewsToolbar();
 
     $('#viewer-markup-image').attr('data-field-id', 'IMAGE_1');
+
+}
+function viewerSelectionResetDone() {
+    
+    clickBOMDeselectAll($('#bom-action-reset'));
+    clickBOMResetDone();
 
 }
 function onViewerSelectionChanged(event) {
@@ -844,47 +803,25 @@ function onViewerSelectionChanged(event) {
     }
 
 }
-function updateViewer() {
+function updateViewer(partNumber) {
+
+    if(typeof partNumber === 'undefined') partNumber = '';
 
     disableViewerSelectionEvent = true;
 
-    let selectedBOMNode = $('#bom-tbody').children('.selected');
-    let zoomPart        = $('.spare-part.zoom').first();
-
-    viewerResetColors();
-
-    if(selectedBOMNode.length === 1) {
-
-        let partNumber = selectedBOMNode.attr('data-part-number');
-        let resetView  = (partNumber !== selectedBOMContext);
-
-        viewer.hideAll();
-        viewer.setGhosting(false);
-        viewerUnhideModel(selectedBOMNode.attr('data-part-number'), resetView);
-        selectedBOMContext = partNumber;
-
-        $('#button-reset').show();
-
+    if(partNumber !== '') {
+        viewerSelectModel(partNumber, true, false);
+    } else if(selectedBOMNode.length === 1) {
+        let selectedBOMNode = $('.bom-item.selected').first();
+        partNumber = selectedBOMNode.attr('data-part-number');
+        viewerSelectModel(partNumber, true, false);
     } else {
-
-        viewer.setGhosting(true);
-        viewerResetSelection(selectedBOMContext !== '');
-        selectedBOMContext = '';
-
-        $('#button-reset').css('display', 'none');
-
+        viewerResetSelection();
     }
 
     $('.spare-part.selected').each(function() {
         viewerSetColor($(this).attr('data-part-number'), config.vectors.blue, false, false);
     });
-
-    if(zoomPart.length > 0) {
-        $('#button-reset').show();
-        viewerSetColorToAll(config.vectors.gray);
-        viewerSetColor(zoomPart.attr('data-part-number'), config.vectors.red, true, false);
-
-    }
 
     disableViewerSelectionEvent = false;
 
