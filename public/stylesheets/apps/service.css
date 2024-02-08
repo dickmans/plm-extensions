@@ -219,10 +219,6 @@
 .spare-part-show {
     padding : 5px 10px;
 }
-.zoom .spare-part-show {
-    background  : var(--color-status-red);
-    color       : white;
-}
 .spare-part-stock {
     color       : white;
     font-size   : 10px;
@@ -232,10 +228,10 @@
     text-align  : center;
     width       : 102px;
 }
-.spare-part.spare-part-stock-normal .spare-part-stock { background : var(--color-status-green ); }
-.spare-part.spare-part-stock-low    .spare-part-stock { background : var(--color-status-yellow); }
-.spare-part.spare-part-stock-none   .spare-part-stock { background : var(--color-status-red   ); }
-.spare-part.spare-part-stock-custom .spare-part-stock { background : var(--color-blue-500     ); }
+.spare-part.spare-part-stock-normal .spare-part-stock { color : var(--color-status-green ); }
+.spare-part.spare-part-stock-low    .spare-part-stock { color : var(--color-status-yellow); }
+.spare-part.spare-part-stock-none   .spare-part-stock { color : var(--color-status-red   ); }
+.spare-part.spare-part-stock-custom .spare-part-stock { color : var(--color-blue-500     ); }
 
 /* Adjust for lists with 15+ entries */
 #items-list.m .spare-part .tile-details { overflow : hidden; width: 260px !important; }
