@@ -100,11 +100,9 @@
     text-align      : center;
     position        : absolute;
     top             : 10px;
-    right           : 238px;
+    right           : 104px;
     width           : 24px;
 }
-#done { margin-left : 12px; }
-
 
 
 /* BOM */
@@ -218,6 +216,10 @@
 }
 .spare-part-show {
     padding : 5px 10px;
+}
+.spare-part.zoom .spare-part-show {
+    background   : var(--color-selected-background) !important;
+    border-color : var(--color-selected-background) !important;
 }
 .spare-part-stock {
     color       : white;
