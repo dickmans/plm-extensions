@@ -147,6 +147,7 @@ function initViewerDone() {
 function onViewerSelectionChanged(event) {}
 
 
+
 // Resize Viewer
 function viewerResize(delay) {
 
@@ -157,6 +158,20 @@ function viewerResize(delay) {
     setTimeout(function() { viewer.resize(); }, delay);
 
 }
+
+
+
+// Validate viewer finished loading
+function isViewerStarted() {
+ 
+    if(!viewerDone) return false;
+    if(typeof viewer === 'undefined') return false;
+    if(!viewer.started) return false;
+
+    return true;
+
+}
+
 
 
 // Launch Forge Aggregated View
@@ -393,58 +408,48 @@ function viewerUnloadAllModels() {
 
 
 // Select and focus on selected item
-function viewerSelectModel(partNumber, fitToView) {
+function viewerSelectModel(partNumber, fitToView, highlight) {
 
-    viewerSelectModels([partNumber], fitToView);
+    viewerSelectModels([partNumber], fitToView, highlight);
 
 }
-function viewerSelectModels(partNumbers, fitToView) {
+function viewerSelectModels(partNumbers, fitToView, highlight) {
 
-    if(!viewerDone) return;
+    if(!isViewerStarted()) return;
+
+    if(typeof fitToView === 'undefined') fitToView = false;
+    if(typeof highlight === 'undefined') highlight = true;
 
     disableViewerSelectionEvent = true;
     viewer.hideAll();
-
-    if(typeof fitToView === 'undefined') fitToView = false;
+    
+    if(highlight) viewer.clearThemingColors();
 
     let instances   = viewer.model.getInstanceTree();
     let dbIds       = [];
+    let promises    = [];
 
-    for(var i = 1; i < instances.objectCount; i++) {
+    for(let i = 1; i < instances.objectCount; i++) promises.push(getPropertiesAsync(i));
 
-        viewer.model.getProperties(i, function(data) { 
+    Promise.all(promises).then(function(items) {
 
-            let partNumberValues = [];
+        for(let item of items) {
 
-            for(property of data.properties) {
-                if(config.viewer.partNumberProperties.indexOf(property.attributeName) > -1) {
+            let itemPartNumber = getItemPartNumber(item);
 
-                    let value = property.displayValue;
-                        value = value.split(':')[0];
-
-                    partNumberValues.push(value);
-
+            for(let partNumber of partNumbers) {
+                if(partNumber === itemPartNumber) {
+                    dbIds.push(item.dbId);
+                    viewer.show(item.dbId);
+                    if(highlight) viewer.setThemingColor(item.dbId, colorModelSelected, null, true );
                 }
             }
+        }
 
-            if(partNumberValues.length > 0) {
-                for(partNumberValue of partNumberValues) {
-                    for(partNumber of partNumbers) {
-                        if(partNumberValue.indexOf(partNumber) === 0) {
-                            dbIds.push(data.dbId);
-                            viewer.show(data.dbId);
-                            viewer.setThemingColor(data.dbId, colorModelSelected, null, true );
-                            if(fitToView) viewer.fitToView(dbIds);
-                            break;
-                        }
-                    }
-                }
-            }
-            
-        })
-    }
+        if(fitToView) viewer.fitToView(dbIds);
+        disableViewerSelectionEvent = false;
 
-    disableViewerSelectionEvent = false;
+    });
 
 }
 function viewerSelectModelNew(selected, fitToView) {
@@ -556,6 +561,37 @@ function viewerSelectAll(fitToView) {
     disableViewerSelectionEvent = false;
 
 }
+function viewerSelectIDs(dbIds, fitToView) {
+
+    if(!viewerDone) return;
+    if(typeof fitToView === 'undefined') fitToView = false;
+
+    disableViewerSelectionEvent = true;
+    viewer.hideAll();
+    viewer.clearThemingColors();
+
+    for(let dbId of dbIds) {
+        dbId = Number(dbId);
+        viewer.show(dbId);
+        viewer.setThemingColor(dbId, colorModelSelected, null, true );
+    }
+    
+    if(fitToView) viewer.fitToView(dbIds);
+
+    disableViewerSelectionEvent = false;
+
+}
+function getItemPartNumber(item) {
+
+    for(let partNumberPropery of config.viewer.partNumberProperties) {
+        for(property of item.properties) {
+            if(partNumberPropery === property.attributeName) return property.displayValue.split(':')[0];
+        }
+    }
+    
+    return null;
+
+}
 
 
 
@@ -657,22 +693,100 @@ function viewerUnhideModels(partNumbers, fitToView) {
 }
 
 
+
 // Reset viewer / deselect all
 function viewerResetSelection(resetView) {
 
-    if(!viewerDone) return;
+    if(!isViewerStarted()) return;
+
+    if(typeof resetView === 'undefined') resetView = true;
 
     viewer.showAll();
     viewer.clearSelection();
     viewer.clearThemingColors();
     
-    if(resetView !== null) {
-        if(resetView) {
-            viewer.setViewFromFile();
-        }
-    }
+    if(resetView) viewer.setViewFromFile();
 
 }
+
+
+
+// Get paths / instances of defined part numbers
+async function viewerGetComponentsInstances(partNumbers, propertyName) {
+
+    if(!viewerDone) return;
+
+    return new Promise(function(resolve, reject) {
+        
+        let instances   = viewer.model.getInstanceTree();
+        let promises    = [];
+        let result      = [];
+        
+        for(let i = 1; i < instances.objectCount; i++) {
+            promises.push(getPropertiesAsync(i));
+        }
+
+        Promise.all(promises).then(function(items) {
+
+            if(isBlank(propertyName)) {
+                if(items.length > 0) {
+                    for(let partNumberPropery of config.viewer.partNumberProperties) {
+                        if(propertyName === '') {
+                            for(let property of items[0].properties) {
+                                if(partNumberPropery === property.attributeName) {
+                                    propertyName = property.attributeName;
+                                    continue;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            for(let partNumber of partNumbers) {
+                result.push({
+                    'partNumber' : partNumber,
+                    'instances'  : viewerGetComponentInstances(partNumber, propertyName, items)
+                });
+            };
+
+            resolve(result);
+
+        });
+
+    });
+
+}
+function viewerGetComponentInstances(partNumber, propertyName, items) {
+
+    let result = [];
+
+    for(let item of items) {
+
+        let propertyPartNumber = item.properties.find((e) => e.attributeName == propertyName);
+
+        if(typeof propertyPartNumber !== 'undefined') {
+
+            let itemPartNumber = propertyPartNumber.displayValue;
+            let propertyParent = item.properties.find((e) => e.attributeName == 'parent');
+
+            if(typeof propertyParent !== 'undefined') {
+                if(itemPartNumber === partNumber) {
+                    result.push({
+                        'dbId' : item.dbId,
+                        'path' : getComponentPath(items, item.dbId)  
+                    });
+                }
+            }
+
+        }
+
+    }
+
+    return result;
+
+}
+
 
 
 // Get selected models
@@ -721,7 +835,6 @@ async function viewerGetSelectedComponentPaths() {
     });
 
 }
-
 const getPropertiesAsync = (id) => {
     
     return new Promise((resolve, reject) => {
@@ -866,7 +979,7 @@ function viewerAddResetButton() {
 
     let customToolbar = new Autodesk.Viewing.UI.ControlGroup('custom-toolbar-reset');
 
-    let buttonReset = addCustomControl(customToolbar, 'button-reset-selection', 'icon-close', 'Reset selection and show all models');
+    let buttonReset = addCustomControl(customToolbar, 'button-reset-selection', 'icon-deselect', 'Reset selection and show all models');
         buttonReset.onClick = function() { 
             viewer.showAll();
             viewerResetColors();
