@@ -980,15 +980,18 @@ function viewerAddResetButton() {
 
     let buttonReset = addCustomControl(customToolbar, 'button-reset-selection', 'icon-deselect', 'Reset selection and show all models');
         buttonReset.onClick = function() { 
-            viewer.showAll();
-            viewerResetColors();
-            viewerSelectionResetDone();
+            viewerClickReset();
         };
         
     viewer.toolbar.addControl(customToolbar);
 
 }
-function viewerSelectionResetDone() {}
+function viewerClickReset() {
+    viewer.showAll();
+    viewerResetColors();
+    viewerClickResetDone();
+}
+function clickBOMResetDone() {}
 
 
 

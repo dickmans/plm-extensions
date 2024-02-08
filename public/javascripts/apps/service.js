@@ -762,11 +762,11 @@ function initViewerDone() {
     $('#viewer-markup-image').attr('data-field-id', 'IMAGE_1');
 
 }
-function viewerSelectionResetDone() {
-    
+function viewerClickReset() {
+    viewer.showAll();
+    viewer.setViewFromFile();
     clickBOMDeselectAll($('#bom-action-reset'));
     clickBOMResetDone();
-
 }
 function onViewerSelectionChanged(event) {
 
