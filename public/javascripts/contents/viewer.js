@@ -951,13 +951,9 @@ function viewerSetColorToAll(color) {
 // Reset all custom colors
 function viewerResetColors() {
 
-    if(!viewerDone) return;
+    if(!isViewerStarted()) return;
 
-    if(typeof viewer !== 'undefined') {
-        if(viewer.started) {
-            viewer.clearThemingColors();
-        }
-    }
+    viewer.clearThemingColors();
 
 }
 
