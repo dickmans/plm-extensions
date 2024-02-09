@@ -626,7 +626,7 @@ and (max-device-width : 1900px)  {
 /*  PANELS */
 /* ----------------------------------------------------------------------------- */
 .panel-header {
-    border-bottom   : 2px solid var(--color-font);
+    border-bottom   : 2px solid var(--color-surface-level-5);
     display         : flex;
     justify-content : space-between;
 }
