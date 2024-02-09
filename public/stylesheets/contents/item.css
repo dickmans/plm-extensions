@@ -349,7 +349,7 @@
     font-weight : bold;
     display     : inline-block;
 }   
-.bom-title {
+.bom-descriptor {
     padding : 4px;
 }
 .bom-actions > div {
@@ -364,6 +364,7 @@
 .bom-quantity {
     font-weight : bold;
     text-align  : right;
+    width       : 60px;
 }
 
 .bom-level-1  .bom-first-col { padding-left :  25px; }
@@ -498,8 +499,14 @@ tr.node.bom-level-10 .bom-first-col  { padding-left : 186px; }
     font-size   : 12px;
     line-height : 12px;
 }
-.flat-bom.compact th { padding : 8px 4px; }
-.flat-bom.compact td { padding : 2px 4px; }
+.flat-bom.compact th { 
+    padding     : 8px 4px; 
+    white-space : nowrap;
+}
+.flat-bom.compact td { 
+    padding     : 2px 4px; 
+    white-space : nowrap;
+}
 .flat-bom.compact .flat-bom-select-all.icon {
     font-size   : 16px;
     position    : relative;
@@ -510,10 +517,10 @@ tr.node.bom-level-10 .bom-first-col  { padding-left : 186px; }
     position    : relative;
     top         : 2px;
 }
-.flat-bom.compact input {
+.flat-bom.compact table input {
     padding : 4px 4px;
 }
-.flat-bom.compact select {
+.flat-bom.compact table select {
     padding : 3px 2px;
 }
 
