@@ -89,9 +89,11 @@ function sendResponse(req, res, response, error) {
                 result.message = response.message;
             }
             if(typeof response.data !== 'undefined') {
-                console.log(response.data);
                 if(response.data.length > 0) {
-                    if('message' in response.data[0]) result.message = response.data[0].message;
+                    if(typeof response.data === 'string') result.message = response.data;
+                    else if(Array.isArray(response.data)) {
+                        if('message' in response.data[0]) result.message = response.data[0].message;
+                    }
                 }
             }
         }
@@ -2622,6 +2624,9 @@ router.get('/search', function(req, res) {
     console.log(' --------------------------------------------');
     console.log('  req.query.wsId   = ' + req.query.wsId);
     console.log('  req.query.latest = ' + req.query.latest);
+    console.log('  req.query.sort   = ' + req.query.sort);
+    console.log('  req.query.fields = ' + req.query.fields);
+    console.log('  req.query.filter = ' + req.query.filter);
     console.log();
 
    let url = 'https://' + req.session.tenant + '.autodeskplm360.net/api/rest/v1/workspaces/' + req.query.wsId + '/items/search';
