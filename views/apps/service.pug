@@ -55,6 +55,11 @@ block body
                     div(data-id='processes') Problem Reports
                     div.hidden#tab-charts(data-id='charts') Maintenance
                 .panel-content.tab-group-main#items
+                    #items-toolbar.panel-content-toolbar
+                        .button.icon.icon-filter#filter-spare-parts(title='Filter list and viewer for selected Spare Parts')
+                        .button.icon.icon-deselect#deselect-spare-parts(title='Deselect all currently selected Spare Parts')
+                        .button.with-icon.icon-search-list
+                            input#spare-parts-search-input(placeholder="Search")
                     #items-list.list.tiles.l.surface-level-1
                 .panel-content.tab-group-main#processes
                     #processes-toolbar

@@ -592,6 +592,53 @@ function appendTileDetails(elemTile, data) {
 }
 
 
+// Search in list of tiles
+function searchInTiles(id, elemInput) {
+
+    let elemContent = $('#' + id);
+    let filterValue = elemInput.val().toLowerCase();
+
+    if(isBlank(filterValue)) {
+        
+        elemContent.children('.tile').show();
+        elemContent.children('.workspace-items-group').show();
+        elemContent.children('.workspace-items-group').find('.tile').show();
+
+    } else {
+        
+        elemContent.children('.tile').hide();
+        elemContent.children('.workspace-items-group').hide();
+        elemContent.children('.workspace-items-group').find('.tile').hide();
+
+        elemContent.children('.tile').each(function() {
+            let elemTile = $(this);
+            elemTile.find('.tile-details').children().each(function() {
+                let value = $(this).html().toLowerCase();
+                if(value.indexOf(filterValue) > -1) elemTile.show();
+            });
+
+            // let value = $(this).find('.tile-title').html().toLowerCase();
+            // if(value.indexOf(filterValue) > -1) $(this).show();
+        });
+
+        elemContent.children('.workspace-items-group').each(function() {
+            $(this).find('.tile').each(function() {
+                let elemTile = $(this);
+                elemTile.find('.tile-details').children().each(function() {
+                    let value = $(this).html().toLowerCase();
+                    if(value.indexOf(filterValue) > -1) {
+                        elemTile.show();
+                        $(this).closest('.workspace-items-group').show();
+                    }
+                });
+            });
+        });
+
+    }    
+
+}
+
+
 // Retrieve configuration profile from settings based on workspace ID
 function getProfileSettings(profiles, wsId) {
 

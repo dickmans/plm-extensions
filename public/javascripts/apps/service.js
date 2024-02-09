@@ -91,6 +91,28 @@ function setUIEvents() {
     });
 
 
+    // Spare Parts List Toolbar
+    $('#filter-spare-parts').click(function() {
+        let partNumbers = [];
+        $('.spare-part').hide();
+        $('.spare-part.selected').each(function() {
+            $(this).show();
+            partNumbers.push($(this).attr('data-part-number'));
+        });
+        viewerSelectModels(partNumbers, true, false);
+    });
+    $('#deselect-spare-parts').click(function() {
+        $('.spare-part.selected').removeClass('selected');
+        $('.spare-part').show();
+        $('#spare-parts-search-input').val('');
+        viewerResetColors();
+        updateCounter();
+    });
+    $('#spare-parts-search-input').keyup(function() {
+        searchInTiles('items-list', $(this));
+    });
+
+
     // Submit Request Dialog functions
     $('#request-submit').click(function() {
         submitRequest();
@@ -729,9 +751,13 @@ function updateCounter() {
 
     if(count === 0) {
         $('#counter').hide();
+        $('#filter-spare-parts').hide();
+        $('#deselect-spare-parts').hide();
         $('#submit-request').removeClass('default');
     } else {
         $('#counter').show();
+        $('#filter-spare-parts').show();
+        $('#deselect-spare-parts').show();
         $('#submit-request').addClass('default');
     }
 

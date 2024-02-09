@@ -42,6 +42,7 @@
 #my-custom-toolbar-ghosting.no-ghosting #button-toggle-ghosting-off { display : none; }
 #my-custom-toolbar-views{ margin-left : 20px !important; }
 [class*=" adsk-icon-"]:before, [class^=adsk-icon-]:before, [data-icon]:before { font-weight : 100; }
+#guiviewer3d-toolbar .adsk-button .adsk-button-icon::before { font-weight : 300; }
 
 
 

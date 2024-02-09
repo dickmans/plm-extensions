@@ -158,7 +158,26 @@
 .custom-message {
     display         : none;
     border-radius   : 8px;
+    margin-bottom   : 10px;
     padding         : 16px 24px;
+}
+#items-toolbar {
+    padding : 10px;
+    top     : 0px;
+    right   : 0px;
+    bottom  : unset;
+}
+#spare-parts-search-input {
+    width : 60px;
+}
+#items-list { 
+    flex-direction  : row;
+    gap             : 0px !important; 
+    position        : absolute;
+    top             : 58px;
+    right           : 0px;
+    bottom          : 0px;
+    left            : 0px;
 }
 .custom-message-text {
     margin-bottom : 10px;
@@ -219,7 +238,7 @@
 }
 .spare-part.zoom .spare-part-show {
     background   : var(--color-selected-background) !important;
-    border-color : var(--color-selected-background) !important;
+    border-color : var(--color-hover-border) !important;
 }
 .spare-part-stock {
     color       : white;
@@ -238,6 +257,10 @@
 /* Adjust for lists with 15+ entries */
 #items-list.m .spare-part .tile-details { overflow : hidden; width: 260px !important; }
 #items-list.m .spare-part-side { gap : 2px; padding-top : 5px;}
+#filter-spare-parts,
+#deselect-spare-parts {
+    display : none;
+}
 
 
 
