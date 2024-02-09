@@ -793,6 +793,28 @@ function openItemByID(wsId, dmsId) {
 
 
 
+// Get V1 search result field value
+function getSearchResultFieldValue(item, fieldId, defaultValue) {
+
+    if(isBlank(defaultValue)) defaultValue = ''; 
+
+    for(field of item.fields.entry) {
+        if(field.key === fieldId) {
+            switch(field.fieldData.dataType) {
+                case 'Image':
+                    return field.fieldData.uri;
+                default:
+                    return field.fieldData.value;
+            }
+        }
+    }
+
+    return defaultValue;
+
+}
+
+
+
 // Retrieve section id of given field
 function getFieldSectionId(sections, fieldId) {
 
