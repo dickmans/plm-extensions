@@ -16,10 +16,12 @@ function insertWorkspaceItems(wsId, params) {
     let fieldIdSubtitle     = '';       // ID of field to use as tile subtitle
     let fieldIdsDetails     = [];       // List of field IDs to be displayed as tile details
     let fieldIdsAttributes  = [];       // List of field IDs whose values will be stored in the DOM attributes of the tiles to allow for further user interactions
-    let sortBy              = 'title';  // Field ID to use for sorting
+    let filter              = '';       // Define optional filters by providing the matching query string (copy the full query string from advanced search)
+    let sortBy              = '';       // Field ID to use for sorting (if parameter is omitted, items will be sorted by descriptor automatically)
     let groupBy             = '';       // Field ID to use for grouping of items (leave blank to disable grouping)
 
-    let bulk = false;
+    let bulk  = false;
+    let query = false;
 
     if(isBlank(wsId)) return;
     if(isBlank(params)) params = {};
@@ -29,20 +31,21 @@ function insertWorkspaceItems(wsId, params) {
     if(!isBlank(params.classNames)        )           classNames = params.classNames;
     if(!isBlank(params.search)            )               search = params.search;
     if(!isBlank(params.icon)              )                 icon = params.icon;
-    if(!isBlank(params.fieldIdImage)      ) {       fieldIdImage = params.fieldIdImage;        bulk = true; }
-    if(!isBlank(params.fieldIdTitle)      ) {       fieldIdTitle = params.fieldIdTitle;        bulk = true; }
-    if(!isBlank(params.fieldIdSubtitle)   ) {    fieldIdSubtitle = params.fieldIdSubtitle;     bulk = true; }
-    if(!isBlank(params.fieldIdsDetails)   ) {    fieldIdsDetails = params.fieldIdsDetails;     bulk = true; }
-    if(!isBlank(params.fieldIdsAttributes)) { fieldIdsAttributes = params.fieldIdsAttributes;  bulk = true; }
-    if(!isBlank(params.sortBy)            )               sortBy = params.sortBy;
-    if(!isBlank(params.groupBy)           )              groupBy = params.groupBy;
+    if(!isBlank(params.fieldIdImage)      ) {       fieldIdImage = params.fieldIdImage;         bulk = true; }
+    if(!isBlank(params.fieldIdTitle)      ) {       fieldIdTitle = params.fieldIdTitle;         bulk = true; }
+    if(!isBlank(params.fieldIdSubtitle)   ) {    fieldIdSubtitle = params.fieldIdSubtitle;      bulk = true; }
+    if(!isBlank(params.fieldIdsDetails)   ) {    fieldIdsDetails = params.fieldIdsDetails;      bulk = true; }
+    if(!isBlank(params.fieldIdsAttributes)) { fieldIdsAttributes = params.fieldIdsAttributes;   bulk = true; }
+    if(!isBlank(params.filter)            ) {             filter = params.filter;              query = true; }
+    if(!isBlank(params.sortBy)            ) {             sortBy = params.sortBy;               bulk = true; }
+    if(!isBlank(params.groupBy)           ) {            groupBy = params.groupBy;              bulk = true; }
 
     let elemList = $('#' + id);
         elemList.addClass('workspace-items');
         elemList.html('');
 
     if(elemList.length === 0) {
-        showErrorMessage('View Definition Error', 'Could not find view element with id "' + id + '". Please contact your administrator');
+        showErrorMessage('View Definition Error', 'Could not find view element with id "' + id + '" in page. Please contact your administrator');
         return;
     }
 
@@ -79,7 +82,8 @@ function insertWorkspaceItems(wsId, params) {
             elemSearchInput.addClass('workspace-items-search-input')
             elemSearchInput.appendTo(elemSearch);
             elemSearchInput.keyup(function() {
-                searchInWorkspaceItems(id, $(this));
+                // searchInWorkspaceItems(id, $(this));
+                searchInTiles(id + '-content', $(this));
             });
 
     }
@@ -105,21 +109,27 @@ function insertWorkspaceItems(wsId, params) {
         elemContent.addClass('workspace-items-groups');
     }
 
+    let payload = { 'wsId' : wsId }
+    let url     = '/plm/items';
 
-    $.get('/plm/items', { 'wsId' : wsId, 'bulk' : bulk }, function(response) {
+    if(query) {
+        url             = '/plm/search-bulk';
+        payload.query   = filter;
+        payload.bulk    = true;
+    } else if(bulk) {
+        payload.bulk    = true;
+    }
+
+    $.get(url, payload, function(response) {
 
         elemContent.html('');
 
         if(bulk) {
 
-            if(sortBy === 'title') {
-                sortArray(response.data.items, 'title', 'string', 'ascending');
-            } else {
-                for(item of response.data.items) {
-                    item.sortKey = getSectionFieldValue(item.sections, sortBy, '', 'title');
-                }
-                sortArray(response.data.items, 'sortKey', 'string', 'ascending');
+            for(item of response.data.items) {
+                item.sortKey = getSectionFieldValue(item.sections, sortBy, '', 'ttile');
             }
+            sortArray(response.data.items, 'sortKey', 'string', 'ascending');
 
             if(!isBlank(groupBy)) {
                 for(item of response.data.items) {
@@ -199,7 +209,6 @@ function insertWorkspaceItems(wsId, params) {
 
             }
 
-
         } else {
 
             sortArray(response.data.items, 'descriptor', 'string', 'ascending');
@@ -207,14 +216,12 @@ function insertWorkspaceItems(wsId, params) {
             for(item of response.data.items) {
 
                 let elemTile = genTile(item.__self__, '', '', icon, item.descriptor, item.workspaceLongName);
-                    // elemTile.appendTo(elemList);
+                    elemTile.appendTo(elemContent);
                     elemTile.click(function(e) {
                         e.preventDefault();
                         e.stopPropagation();
                         clickWorkspaceItem(e, $(this));
                     });
-
-                if(isBlank(groupBy)) elemTile.appendTo(elemContent); else elemTile.appendTo(elemGroupList);
 
             }
 
@@ -227,41 +234,6 @@ function insertWorkspaceItems(wsId, params) {
 
 }
 function insertWorkspaceItemsDone(id) {}
-function searchInWorkspaceItems(id, elemInput) {
-
-    let elemContent = $('#' + id + '-content');
-    let filterValue = elemInput.val().toLowerCase();
-
-    if(isBlank(filterValue)) {
-        
-        elemContent.children('.tile').show();
-        elemContent.children('.workspace-items-group').show();
-        elemContent.children('.workspace-items-group').find('.tile').show();
-
-    } else {
-        
-        elemContent.children('.tile').hide();
-        elemContent.children('.workspace-items-group').hide();
-        elemContent.children('.workspace-items-group').find('.tile').hide();
-
-        elemContent.children('.tile').each(function() {
-            let value = $(this).find('.tile-title').html().toLowerCase();
-            if(value.indexOf(filterValue) > -1) $(this).show();
-        });
-
-        elemContent.children('.workspace-items-group').each(function() {
-            $(this).find('.tile').each(function() {
-                let value = $(this).find('.tile-title').html().toLowerCase();
-                if(value.indexOf(filterValue) > -1) {
-                    $(this).show();
-                    $(this).closest('.workspace-items-group').show();
-                }
-            });
-        });
-
-    }    
-
-}
 function clickWorkspaceItem(e, elemClicked) {
 
     elemClicked.toggleClass('selected');

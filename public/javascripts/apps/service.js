@@ -43,15 +43,16 @@ $(document).ready(function() {
     
     if(!isBlank(config.service.wsIdProducts)) insertWorkspaceItems(config.service.wsIdProducts, {
         'id'                 : 'products', 
-        'title'              : 'Serviceable Products', 
+        'title'              : config.service.productsListHeader, 
         'classNames'         : ['wide', 's'], 
         'icon'               : 'deployed_code', 
-        'fieldIdImage'       : 'IMAGE', 
-        'fieldIdTitle'       : 'TITLE', 
-        'fieldIdSubtitle'    : 'DESCRIPTION', 
-        'sortBy'             : 'title', 
-        'groupBy'            : 'PRODUCT_LINE',
-        'fieldIdsAttributes' : ['ENGINEERING_BOM']  
+        'fieldIdImage'       : config.service.productsFieldIdImage, 
+        'fieldIdTitle'       : config.service.productsFieldIdTitle, 
+        'fieldIdSubtitle'    : config.service.productsFieldIdSubtitle, 
+        'fieldIdsAttributes' : [ config.service.productsFieldIdBOM ],
+        'filter'             : config.service.productsFilter,
+        'sortBy'             : config.service.productsSortBy, 
+        'groupBy'            : config.service.productsGroupBy
     }); 
 
     if(!isBlank(dmsId)) {

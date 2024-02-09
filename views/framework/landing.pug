@@ -13,9 +13,9 @@ block body
                 h1#title Custom PLM 
                     br
                     |User Experiences
-                p Unleash the power of Fusion 360 Manage by utilizing its REST API to provide custom built frontends based on Autodesk Platform Services. All solutions manage data in PLM only. All business rules of PLM as well as access permissions still apply.
+                p Unleash the power of Fusion Manage by utilizing its REST API to provide custom built frontends based on Autodesk Platform Services. All solutions manage data in PLM only. All business rules of PLM as well as access permissions still apply.
                 div.left-toolbar
-                    .button#version Version of January 2024
+                    .button#version Version of February 2024
                     .button Connected to 
                         span#tenant
                 p This  version has been optimized for the tenant template released in 2023 using a single Items workspace. While the solutions can be used with any tenant thanks to their configuration capabilities, using this new tenant reduces configuration efforts. In addition, most of the solutions can be tested with the given demo datasets immediately.
@@ -1138,26 +1138,98 @@ block body
                             span.indent-2 'fieldId' : 'SPARE_WEAR_PART',
                             span.indent-2 'fieldValues' : ['spare part', 'yes', 'x', 'y', 'wear part'],
                             span.indent-2 'spartPartDetails' : ['MATERIAL', 'ITEM_WEIGHT', 'DIMENSIONS'],
+                            span.indent-2 'productsFilter' : '',
+                            span.indent-2 'productsSortBy' : 'TITLE',
+                            span.indent-2 'productsGroupBy' : 'PRODUCT_LINE',
+                            span.indent-2 'productsFieldIdImage' : 'IMAGE',
+                            span.indent-2 'productsFieldIdTitle' : 'TITLE',
+                            span.indent-2 'productsFieldIdSubtitle' : 'DESCRIPTION',
+                            span.indent-2 'productsFieldIdBOM' : 'ENGINEERING_BOM',
+                            span.indent-2 'productsListHeader' : 'Serviceable Products',
                             span.indent-2 'wsIdProducts' : 95,
                             span.indent-2 'wsIdProblemReports' : 82,
                             span.indent-2 'wsIdSparePartsRequests' : 241
                             span.indent }
                             span }                         
-                        ul
-                            li bomViewName: Provide name of the BOM view that has been created in the previous steps (change should not be required)
-                            li enableCustomRequests: When set to true, users can add non-spare-parts to service requests as well
-                            li fieldId: ID of field being used to identify spare parts
-                            li fieldValues: List of values (for the previous field) which are used to identify spare parts 
-                            li sparePartDetails: Each spare part tile can show 3 additional fields. If other fields than the default fields are relevent, change this list. However, make sure that there are exactly 3 entries and these fields also must be contained in the given BOM view.
-                            li wsIdProducts : Provide the workspace ID of 
-                                strong Products 
-                                | to let users browse for the product of interest when no dmsId is provided in the URL (95 matches the default tenant configuration)
-                            li wsIdProblemReports : Provide the workspace ID of 
-                                strong Problem Reports 
-                                | to enable creation of new processes from within the application (82 matches the default tenant configuration)
-                            li wsIdSparePartsRequests : Provide ID of the new workspace 
-                                strong Spare Parts Requests 
-                                | to enable creation of new requests from within the application
+                        
+                        p 
+                            table 
+                                tr
+                                    th Setting 
+                                    th Default Value 
+                                    th Description  
+                                tr 
+                                    td bomViewName
+                                    td Service
+                                    td Provide name of the BOM view that has been created in the previous steps (a change should not be required)
+                                tr 
+                                    td enableCustomRequests
+                                    td true
+                                    td When set to true, users can add non-spare-parts to service requests as well
+                                tr 
+                                    td fieldId
+                                    td SPARE_WEAR_PART
+                                    td ID of field being used to identify spare parts (the next setting defines the possible values of this field)
+                                tr 
+                                    td fieldValues
+                                    td ['spare part', 'yes', 'x', 'y', 'wear part']
+                                    td List of values (for the previous field) which are used to identify spare parts 
+                                tr 
+                                    td sparePartDetails
+                                    td ['MATERIAL', 'ITEM_WEIGHT', 'DIMENSIONS']
+                                    td Each spare part tile can show 3 additional fields. If other fields than the default fields are relevent, change this list. However, make sure that there are exactly 3 entries and these fields also must be contained in the given BOM view.
+                                tr 
+                                    td productsFilter
+                                    td (empty)
+                                    td Provide a query string to filter the list of products being shown in the landing page. Only products matching this search criteria will be display.
+                                        br
+                                        |For example, you could add a checkbox field 'SERVICES_PORTAL' and provide the following filter to only show products where this given checkbox is enabled: ITEM_DETAILS:SERVICES_PORTAL=TRUE
+                                tr 
+                                    td productsSortBy
+                                    td TITLE
+                                    td Set the field being used to sort the products in the landing page
+                                tr 
+                                    td productsGroupBy
+                                    td PRODUCT_LINE
+                                    td This optional setting enables to group the prdoducts in the landing page based on the given field's values
+                                tr 
+                                    td productsFieldIdImage
+                                    td IMAGE
+                                    td Field being used to render the image for the product tiles in the landing page
+                                tr 
+                                    td productsFieldIdTitle
+                                    td TITLE
+                                    td Field being used as primary name for the product tiles in the landing page
+                                tr 
+                                    td productsFieldIdSubtitle
+                                    td DESCRIPTION
+                                    td Field being used as subtitle for the product tiles in the landing page
+                                tr 
+                                    td productsFieldIdBOM
+                                    td ENGINEERING_BOM
+                                    td Field of Products workspace that links the given EBOM that will be used to retrive product information once a user clicks on a product tile
+                                tr 
+                                    td productsListHeader
+                                    td Serviceable Products
+                                    td Defines the header being shown on top of the products list in the landing page
+                                tr 
+                                    td wsIdProducts
+                                    td 95
+                                    td Provide the workspace ID of 
+                                        strong Products 
+                                        | to let users browse for the product of interest when no dmsId is provided in the URL (95 matches the default tenant configuration)
+                                tr 
+                                    td wsIdProblemReports
+                                    td 82
+                                    td Provide the workspace ID of 
+                                        strong Problem Reports 
+                                        | to enable creation of new processes from within the application (82 matches the default tenant configuration)
+                                tr 
+                                    td wsIdSparePartsRequests
+                                    td ?
+                                    td Provide ID of the new workspace 
+                                        strong Spare Parts Requests 
+                                        | to enable creation of new requests from within the application
                         h1 Access the Services Portal
                         p You can access the Services Portal portal with the /service endpoint:
                         a(href='service' target='_blank')
@@ -1181,6 +1253,10 @@ block body
                                 td 
                                 td Enhancement
                                 td A new button in the viewer toolbar enables toggling ghosting on and off
+                            tr 
+                                td 
+                                td Enhancement
+                                td Additional options now can be configured in settings.js (i.e. enabling a filter for the products in the landing)
                             tr 
                                 td 
                                 td Quality
