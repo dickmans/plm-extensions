@@ -1,4 +1,5 @@
 let colorModelSelected          = new THREE.Vector4(0.02, 0.58, 0.84, 0.5);
+let colorModelHighlighted       = new THREE.Vector4(0.9, 0.1, 0.1, 0.5);
 let newInstance                 = true;
 let ghosting                    = true;
 let disableViewerSelectionEvent = false;
@@ -413,7 +414,7 @@ function viewerSelectModel(partNumber, fitToView, highlight) {
     viewerSelectModels([partNumber], fitToView, highlight);
 
 }
-function viewerSelectModels(partNumbers, fitToView, highlight) {
+function viewerSelectModels(partNumbers, fitToView, resetColors) {
 
     if(!isViewerStarted()) return;
 
@@ -423,7 +424,7 @@ function viewerSelectModels(partNumbers, fitToView, highlight) {
     disableViewerSelectionEvent = true;
     viewer.hideAll();
     
-    if(highlight) viewer.clearThemingColors();
+    if(resetColors) viewer.clearThemingColors();
 
     let instances   = viewer.model.getInstanceTree();
     let dbIds       = [];
@@ -561,19 +562,23 @@ function viewerSelectAll(fitToView) {
     disableViewerSelectionEvent = false;
 
 }
-function viewerSelectIDs(dbIds, fitToView) {
+function viewerSelectInstances(dbIds, fitToView, resetColors, color) {
 
     if(!viewerDone) return;
-    if(typeof fitToView === 'undefined') fitToView = false;
+    if(typeof fitToView   === 'undefined') fitToView   = false;
+    if(typeof resetColors === 'undefined') resetColors = true;
+    if(typeof color       === 'undefined') color       = colorModelSelected;
 
     disableViewerSelectionEvent = true;
     viewer.hideAll();
-    viewer.clearThemingColors();
+    if(resetColors) viewer.clearThemingColors();
+
+    console.log(resetColors);
 
     for(let dbId of dbIds) {
         dbId = Number(dbId);
         viewer.show(dbId);
-        viewer.setThemingColor(dbId, colorModelSelected, null, true );
+        viewer.setThemingColor(dbId, color, null, true );
     }
     
     if(fitToView) viewer.fitToView(dbIds);
@@ -590,6 +595,57 @@ function getItemPartNumber(item) {
     }
     
     return null;
+
+}
+
+
+// Select all occurences of a partNumber and highlight defined instance IDs
+function viewerHighlightInstances(partNumber, ids, fitToView, hideAll, resetColors) {
+
+    if(!isViewerStarted()) return;
+
+    if(typeof partNumber  === 'undefined') return;
+    if(typeof ids         === 'undefined') return;
+
+    if(typeof fitToView   === 'undefined') fitToView   = false;
+    if(typeof hideAll     === 'undefined') hideAll     = true;
+    if(typeof resetColors === 'undefined') resetColors = true;
+
+    disableViewerSelectionEvent = true;
+
+    if(hideAll)     viewer.hideAll();
+    if(resetColors) viewer.clearThemingColors();
+
+    let instances   = viewer.model.getInstanceTree();
+    let dbIds       = [];
+    let promises    = [];
+
+    for(let i = 1; i < instances.objectCount; i++) promises.push(getPropertiesAsync(i));
+
+    Promise.all(promises).then(function(items) {
+
+        for(let item of items) {
+
+            let itemPartNumber = getItemPartNumber(item);
+
+            if(partNumber === itemPartNumber) {
+                dbIds.push(item.dbId);
+                viewer.show(item.dbId);
+               if(!ids.includes(String.valueOf(item.dbId))) viewer.setThemingColor(item.dbId, colorModelSelected, null, true );
+            }
+
+        }
+
+        for(let id of ids) {
+            console.log(id);
+            viewer.setThemingColor(Number(id), colorModelHighlighted, null, true );
+        }
+        
+        if(fitToView) viewer.fitToView(dbIds);
+
+        disableViewerSelectionEvent = false;
+
+    });
 
 }
 
