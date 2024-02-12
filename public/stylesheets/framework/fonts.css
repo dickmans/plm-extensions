@@ -261,6 +261,7 @@
 .icon-tiles-list::before        { content : '\e875'; }
 .icon-toggle-off::before        { content : '\e9f5'; }
 .icon-toggle-on::before         { content : '\e9f6'; }
+.icon-toggle-layout::before     { content : '\e42a'; }
 .icon-type::before              { content : '\e574'; }
 .icon-undelete::before          { content : '\e938'; }
 .icon-unfold::before            { content : '\e5d7'; }
