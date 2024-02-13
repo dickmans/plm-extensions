@@ -612,7 +612,7 @@ router.get('/edit', function(req, res) {
         dmsId = req.query.link.split('/')[6];
     }
 
-    for(section of req.query.sections) {
+    for(let section of req.query.sections) {
 
         let sectionId =  (typeof section.link === 'undefined') ? section.id : section.link.split('/')[6];
 
@@ -635,6 +635,8 @@ router.get('/edit', function(req, res) {
                 for(link of field.value) value.push({'link' : link});
             } else if(type === 'single selection') {
                 value = { 'link' : value };
+            } else if(type === 'picklist') {
+                if(value === '') value = null;
             }
 
             sect.fields.push({
@@ -887,6 +889,7 @@ router.get('/add-grid-row', function(req, res, next) {
     console.log('  req.query.data    = ' + req.query.data);
     console.log(); 
     
+    let wsId = (typeof req.query.wsId !== 'undefined') ? req.query.wsId : req.query.link.split('/')[4];
 
     let url =  (typeof req.query.link !== 'undefined') ? req.query.link : '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId;
         url  = 'https://' + req.session.tenant + '.autodeskplm360.net' + url;
@@ -895,12 +898,10 @@ router.get('/add-grid-row', function(req, res, next) {
     let rowData = [];
 
     for(field of req.query.data) {
-
         rowData.push({
-            '__self__' : '/api/v3/workspaces/' + req.query.wsId + '/views/13/fields/' + field.fieldId,
+            '__self__' : '/api/v3/workspaces/' + wsId + '/views/13/fields/' + field.fieldId,
             'value' : field.value
         });
-
     }
 
     axios.post(url, {
