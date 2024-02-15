@@ -211,6 +211,7 @@
 .icon-expand::before            { content : '\e5cc'; }
 .icon-factory::before           { content : '\ebbc'; }
 .icon-filter::before            { content : '\e152'; }
+.icon-filter-empty::before      { content : '\e7b3'; }
 .icon-finish::before            { content : '\eaf8'; }
 .icon-fold::before              { content : '\e5d6'; }
 .icon-go-there::before          { content : '\e5da'; }

@@ -366,6 +366,44 @@
     text-align  : right;
     width       : 60px;
 }
+.bom-content {
+    bottom : 48px;
+}
+
+.bom-counters {
+    background      : var(--color-surface-level-4);
+    display         : flex;
+    font-size       : 12px;
+    gap             : var(--spacer-m);
+    padding         : 8px 20px;
+    justify-content : space-between;
+    position        : absolute;
+    right           : 0px;
+    bottom          : 0px;
+    left            : 0px;
+}
+.bom-counters > div {
+    border-bottom   : 2px solid transparent;
+    flex-grow       : 1;
+    height          : 20px;
+    line-height     : 20px;
+    padding         : 2px 4px;
+    text-align      : center;
+    width           : 25%;
+}
+.no-bom-counters .bom-content {
+    bottom : 0px;
+}
+.no-bom-counters .bom-counters {
+    display : none !important;
+}
+.bom-counter-filtered.not-empty {
+    border-color : var(--color-status-yellow) !important;
+}
+.bom-counter-selected.not-empty {
+    border-color : var(--color-hover-border) !important;
+}
+
 
 .bom-level-1  .bom-first-col { padding-left :  25px; }
 .bom-level-2  .bom-first-col { padding-left :  46px; }
@@ -402,6 +440,7 @@ tr.node.bom-level-10 .bom-first-col  { padding-left : 186px; }
 .flat-bom-select-all {
     cursor : pointer;
 }
+.flat-bom-filter-empty.selected,
 .flat-bom-counter.selected {
     background   : var(--color-status-yellow) !important;
     border-color : var(--color-status-yellow) !important;
@@ -507,6 +546,9 @@ tr.node.bom-level-10 .bom-first-col  { padding-left : 186px; }
     padding     : 2px 4px; 
     white-space : nowrap;
 }
+.flat-bom.compact .flat-bom-counter {
+    font-size   : 12px;
+}
 .flat-bom.compact .flat-bom-select-all.icon {
     font-size   : 16px;
     position    : relative;
@@ -519,9 +561,11 @@ tr.node.bom-level-10 .bom-first-col  { padding-left : 186px; }
 }
 .flat-bom.compact table input {
     padding : 4px 4px;
+    width   : calc(100% - 8px);
 }
 .flat-bom.compact table select {
     padding : 3px 2px;
+    width   : 100%;
 }
 
 

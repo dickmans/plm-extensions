@@ -986,13 +986,13 @@ function getFieldValue(elemField) {
     // } else if(elemField.hasClass('picklist')) {
     } else if(hasSelect) {
         elemInput = elemField.find('select');
+        result.type ='picklist';
         if(elemInput.val() === '') {
             result.value = null;
         } else {
             result.value = {
                 'link' : elemInput.val()
             };
-            result.type ='picklist';
             result.display = elemInput.val();
         }
     } else if(elemField.hasClass('multi-picklist')) {
@@ -1288,6 +1288,7 @@ function insertBOM(link , params) {
     let quantity    = false;    //  When set to true, the quantity column will be displayed
     let hideDetails = false;    //  When set to true, detail columns will be skipped, only the descriptor will be shown
     let headers     = true;     //  When set to false, the table headers will not be shown
+    let counters    = true;     //  When set to true, a footer will inidicate total items, selected items and filtered items
     let getFlatBOM  = false;    //  Retrieve Flat BOM at the same time (i.e. to get total quantities)
     let endItem     = null;
 
@@ -1309,6 +1310,7 @@ function insertBOM(link , params) {
     if(!isBlank(params.quantity)   )      quantity = params.quantity;
     if(!isBlank(params.hideDetails)) { hideDetails = params.hideDetails } else { hideDetails = ((bomViewName === '') && (views === false)); }
     if(!isBlank(params.headers)    )     { headers = params.headers } else { headers = !hideDetails; }
+    if(!isBlank(params.counters)   )      counters = params.counters;
     if(!isBlank(params.getFlatBOM) )    getFlatBOM = params.getFlatBOM;
 
     let elemBOM = $('#' + id);
@@ -1460,6 +1462,7 @@ function insertBOM(link , params) {
 
         let elemSearchInput = $('<input></input>');
             elemSearchInput.attr('placeholder', 'Search');
+            elemSearchInput.attr('id', id + '-search-input');
             elemSearchInput.addClass('bom-search-input')
             elemSearchInput.appendTo(elemSearch);
             elemSearchInput.keyup(function() {
@@ -1478,6 +1481,7 @@ function insertBOM(link , params) {
 
     let elemContent = $('<div></div>');
         elemContent.addClass('panel-content');
+        elemContent.addClass('bom-content');
         elemContent.attr('id', id + '-content');
         elemContent.appendTo(elemBOM);
 
@@ -1497,7 +1501,30 @@ function insertBOM(link , params) {
     let elemBOMTableBody = $('<tbody></tbody>');
         elemBOMTableBody.addClass('bom-tbody');
         elemBOMTableBody.attr('id', id + '-tbody');
-        elemBOMTableBody.appendTo(elemBOMTable);        
+        elemBOMTableBody.appendTo(elemBOMTable);   
+
+    let elemBOMCounters = $('<div></div>').appendTo(elemBOM)
+        .attr('id', id + '-bom-counters')
+        .addClass('bom-counters')
+        .hide();
+
+    $('<div></div>').appendTo(elemBOMCounters)
+            .attr('id', id + '-bom-counter-total')
+            .addClass('bom-counter-total');
+    
+    $('<div></div>').appendTo(elemBOMCounters)
+            .attr('id', id + '-bom-counter-unique')
+            .addClass('bom-counter-unique');
+    
+    $('<div></div>').appendTo(elemBOMCounters)
+        .attr('id', id + '-bom-counter-filtered')
+        .addClass('bom-counter-filtered');
+    
+    $('<div></div>').appendTo(elemBOMCounters)
+        .attr('id', id + '-bom-counter-selected')
+        .addClass('bom-counter-selected');      
+
+    if(!counters) elemBOM.addClass('no-bom-counters');
 
     insertBOMDone(id);
 
@@ -1626,6 +1653,8 @@ function changeBOMView(id) {
         setBOMHeaders(id, quantity, hideDetails, bomView.fields);
         insertNextBOMLevel(responses[0].data, elemBOMTableBody, responses[0].data.root, position, quantity, hideDetails, bomView.fields, fieldURNPartNumber, fieldURNQuantity, fieldURNEndItem, valueEndItem);
         enableBOMToggles(id);
+        updateBOMCounters(id);
+        if(!elemBOM.hasClass('no-bom-counters')) { $('#' + id + '-bom-counters').show(); }
 
         if(getFlatBOM) changeBOMViewDone(id, bomView.fields, responses[0].data, responses[1].data);
         else           changeBOMViewDone(id, bomView.fields, responses[0].data);
@@ -1838,6 +1867,50 @@ function enableBOMToggles(id) {
     });
 
 }
+function updateBOMCounters(id) {
+
+    let elemBOM     = $('#' + id + '-tbody');
+    let counters    = [0, 0, 0, 0];
+    let links       = [];
+
+    elemBOM.children('.bom-item').each(function() {
+        
+        let elemItem = $(this);
+        let itemLink = elemItem.attr('data-link');
+
+        counters[0]++;
+
+        if(links.indexOf(itemLink) < 0) {
+            counters[1]++;
+            links.push(itemLink);
+        }
+
+        if(elemItem.hasClass('result')) counters[2]++;
+        if(elemItem.hasClass('selected')) counters[3]++;
+    });
+
+    $('#' + id + '-bom-counter-total'   ).html(counters[0] + ' items total');
+    $('#' + id + '-bom-counter-unique'  ).html(counters[1] + ' unique items');
+
+    let elemCounterFiltered = $('#' + id + '-bom-counter-filtered');
+    let elemCounterSelected = $('#' + id + '-bom-counter-selected');
+
+    if(counters[2] === 0) {
+        elemCounterFiltered.removeClass('not-empty').html(''); 
+    } else {
+        elemCounterFiltered.addClass('not-empty')
+        if(counters[2] === 1) elemCounterFiltered.html(counters[2] + ' item matches');
+        else elemCounterFiltered.html(counters[2] + ' items match');
+    }
+    if(counters[3] === 0) {
+        elemCounterSelected.removeClass('not-empty').html(''); 
+    } else {
+        elemCounterSelected.addClass('not-empty');
+        if(counters[3] === 1)elemCounterSelected.html(counters[3] + ' item selected');
+        else elemCounterSelected.html(counters[3] + ' items selected');
+    }
+
+}
 function toggleBOMItemActions(elemClicked) {
 
     let elemBOM             = elemClicked.closest('.bom');
@@ -1855,6 +1928,7 @@ function clickBOMSelectAll(elemClicked) {
     elemBOM.find('.bom-item').addClass('selected');
 
     toggleBOMItemActions(elemClicked);
+    updateBOMCounters(elemBOM.attr('id'));
 
 }
 function clickBOMDeselectAll(elemClicked) {
@@ -1864,6 +1938,7 @@ function clickBOMDeselectAll(elemClicked) {
     elemBOM.find('.bom-item').removeClass('selected');
 
     toggleBOMItemActions(elemClicked);
+    updateBOMCounters(elemBOM.attr('id'));
 
 }
 function clickBOMExpandAll(elemClicked) {
@@ -1933,6 +2008,8 @@ function searchInBOM(id, elemInput) {
 
     }
 
+    updateBOMCounters(id);
+
 }
 function unhideBOMParents(level, elem) {
 
@@ -1950,10 +2027,19 @@ function unhideBOMParents(level, elem) {
 }
 function clickBOMReset(elemClicked) {
 
+    let id = elemClicked.closest('.bom').attr('id');
+    let elemSearchInput = $('#' + id + '-search-input');
+    
     let elemContent = elemClicked.closest('.bom').find('.bom-tbody');
         elemContent.find('tr.selected').removeClass('selected');
 
+    if(elemSearchInput.length > 0) {
+        elemSearchInput.val('');
+        searchInBOM(id, elemSearchInput);
+    }
+
     toggleBOMItemActions(elemClicked);
+    updateBOMCounters(id);
     clickBOMResetDone(elemClicked);
 
 }
@@ -2000,7 +2086,6 @@ function clickBOMGoThere(elemClicked) {
 }
 function clickBOMItem(e, elemClicked) {
     
-
     let elemBOM    = elemClicked.closest('.bom');
     let selectMode = elemBOM.attr('data-select-mode');
 
@@ -2009,9 +2094,32 @@ function clickBOMItem(e, elemClicked) {
     elemClicked.toggleClass('selected');
 
     clickBOMItemDone(elemClicked);
+    updateBOMCounters(elemBOM.attr('id'));
     
 }
 function clickBOMItemDone(elemClicked) {}
+function getBOMItemChhildren(elemClicked) {
+
+
+    let level     = Number(elemClicked.attr('data-level'));
+    let levelNext = level - 1;
+    let elemNext  = elemClicked;
+    let children  = [];
+
+    do {
+
+        elemNext  = elemNext.next();
+        levelNext = Number(elemNext.attr('data-level'));
+
+        if(levelNext > level) {
+            children.push(elemNext);
+        }
+
+    } while(levelNext > level);
+
+    return children;
+
+}
 function getBOMItemPath(elemItem) {
 
     let result = {
@@ -2055,6 +2163,7 @@ function insertFlatBOM(link , params) {
     let headers     = true;         //  When set to false, the table headers will not be shown
     let showMore    = false;        //  When set to true, adds controls to access the item details pages for each BOM entry
     let editable    = false;        //  When set to true, enables modifications in editable fields
+    let filterEmpty = false;        //  When set to true, adds filter for rows with empty input cells 
     let classNames  = [];           //  Array of class names that will be assigned to each BOM row (enables specific styling and event listeners)
 
 
@@ -2075,9 +2184,9 @@ function insertFlatBOM(link , params) {
     if(!isBlank(params.headers)    )       headers = params.headers;
     if(!isBlank(params.showMore)   )      showMore = params.showMore;
     if(!isBlank(params.editable)   )      editable = params.editable;
+    if(!isBlank(params.filterEmpty))   filterEmpty = params.filterEmpty;
     if(!isBlank(params.hideDetails)) { hideDetails = params.hideDetails } else { hideDetails = ((bomViewName === '') && (views === false)); }
     if(!isBlank(params.classNames) )    classNames = params.classNames;
-
 
     let elemBOM = $('#' + id);
         elemBOM.attr('data-link', link);
@@ -2114,7 +2223,8 @@ function insertFlatBOM(link , params) {
         .addClass('with-icon') 
         .addClass('icon-filter') 
         .addClass('flat-bom-counter') 
-        // .hide()
+        .html('0 rows selected')
+        .hide()
         .click(function() {
             $(this).toggleClass('selected');
             filterFlatBOMByCounter($(this));
@@ -2191,6 +2301,20 @@ function insertFlatBOM(link , params) {
             elemSave.click(function() {
                 clickFlatBOMSave($(this));
             });
+
+        if(filterEmpty) {
+            
+            $('<div></div>').appendTo(elemToolbar)
+                .addClass('button')
+                .addClass('icon')
+                .addClass('icon-filter-empty')
+                .addClass('flat-bom-filter-empty')
+                .attr('title', 'Focus on rows having inputs without values')
+                .click(function() {
+                    clickFlatBOMFilterEmpty($(this));
+                });
+
+        }
 
     }
 
@@ -2353,7 +2477,7 @@ function saveFlatBOMChanges(elemButton, sections) {
     if(listChanges.length === 0) {
 
         elemButton.hide();
-        $('#overlay').hide();
+        saveFlatBOMChangesDone();
 
     } else {
 
@@ -2374,10 +2498,14 @@ function saveFlatBOMChanges(elemButton, sections) {
                 console.log(elemItem.children('.changed'));
 
                 elemItem.children('.changed').each(function() {
-                    let elemField = getFieldValue($(this));
-                    console.log(elemField);
-                    addFieldToPayload(params.sections, sections, null, elemField.fieldId, elemField.value, false);
+                    // let elemField = getFieldValue($(this));
+                    // console.log(elemField);
+                    // addFieldToPayload(params.sections, sections, null, elemField.fieldId, elemField.value, false);
+                    // addFieldToPayload(params.sections, sections, null, elemField.fieldId, elemField.value, false);
+                    addFieldToPayload(params.sections, sections, $(this), null, null, false);
                 });
+
+                console.log(params);
 
                 requests.push($.get('/plm/edit', params));
                 elements.push(elemItem);
@@ -2400,6 +2528,45 @@ function saveFlatBOMChanges(elemButton, sections) {
 
 
 }
+function saveFlatBOMChangesDone() {
+    $('#overlay').hide();
+}
+function clickFlatBOMFilterEmpty(elemClicked) {
+
+    elemClicked.toggleClass('selected');
+
+    let elemFlatBOM = elemClicked.closest('.flat-bom');
+    let id          = elemFlatBOM.attr('id');
+    let elemTBody   = $('#' + id + '-tbody');
+
+    if(elemClicked.hasClass('selected')) {
+
+        elemTBody.children().show();
+
+        elemTBody.children().each(function() {
+
+            let elemRow = $(this);
+            let hide    = true;
+
+            elemRow.find('input').each(function() {
+                if($(this).val() === '') hide = false;
+            });
+            elemRow.find('select').each(function() {
+                if($(this).val() === '') hide = false;
+            });
+
+            if(hide) elemRow.hide();
+            
+        });
+
+    } else {
+        elemTBody.children().show();
+    }
+
+    clickFlatBOMFilterEmptyDone(elemClicked);
+
+}
+function clickFlatBOMFilterEmptyDone(elemClicked) {}
 function changeFlatBOMView(id) {
 
     let elemBOM             = $('#' + id);
@@ -2486,6 +2653,7 @@ function changeFlatBOMView(id) {
                         e.preventDefault();
                         e.stopPropagation();
                         clickFlatBOMCheckbox(e, $(this));
+                        updateFlatBOMCounter($(this).closest('.flat-bom'));
                     });
 
             }
@@ -2654,7 +2822,15 @@ function setFlatBOMHeaders(id, position, descriptor, quantity, editable, showMor
         for(field of fields) {
             let elemBOMTableHeadCell = $('<th></th>');
                 elemBOMTableHeadCell.html(field.displayName);
-                elemBOMTableHeadCell.appendTo(elemBOMTableHeadRow);       
+                elemBOMTableHeadCell.addClass('flat-bom-column-' + field.fieldId.toLowerCase());
+                elemBOMTableHeadCell.appendTo(elemBOMTableHeadRow);   
+                
+            if('displayLength' in field) {
+                elemBOMTableHeadCell.css('max-width', field.displayLength + 'ch');
+                elemBOMTableHeadCell.css('min-width', field.displayLength + 'ch');
+                elemBOMTableHeadCell.css(    'width', field.displayLength + 'ch');
+            }
+
         }
 
     }
@@ -2766,10 +2942,12 @@ function clickFlatBOMDeselectAll(elemClicked) {
 function clickFlatBOMDeselectAllDone(elemClicked) {}
 function updateFlatBOMCounter(elemBOM) {
 
+    console.log('updateFlatBOMCounter');
+
     let count       = elemBOM.find('.flat-bom-item.selected').length;
     let elemCounter = elemBOM.find('.flat-bom-counter');
 
-    elemCounter.html(count + ' Zeilen gewählt');
+    elemCounter.html(count + ' rows selected');
 
     if(count > 0) {
         elemCounter.show(); 
