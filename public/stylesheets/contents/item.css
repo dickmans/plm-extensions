@@ -387,8 +387,11 @@
     flex-grow       : 1;
     height          : 20px;
     line-height     : 20px;
+    overflow        : hidden;
     padding         : 2px 4px;
     text-align      : center;
+    text-overflow   : ellipsis;
+    white-space     : nowrap;
     width           : 25%;
 }
 .no-bom-counters .bom-content {
