@@ -179,7 +179,6 @@
 } 
 .dot::before { content: '\e836'; }
 .dot.selected::before { 
-    color : var(--color-blue-500);
     content: '\e837'; 
 }
 #landing .tile-subtitle td {
