@@ -5,11 +5,17 @@ const router        = express.Router();
 
 
 /* ------------------------------------------------------------------------------
-    DEFAULT LANDING PAGE
+    DEFAULT LANDING PAGE & DOCUMENTATION
    ------------------------------------------------------------------------------ */
 router.get('/', function(req, res, next) {
     res.render('framework/landing', {
         title : 'PLM TS User Experiences',
+        theme : (typeof req.query.theme === 'undefined') ? '' : req.query.theme
+    });
+});
+router.get('/docs', function(req, res, next) {
+    res.render('framework/docs', {
+        title : 'PLM UX Developers Guide',
         theme : (typeof req.query.theme === 'undefined') ? '' : req.query.theme
     });
 });
@@ -40,11 +46,13 @@ router.get('/variants'      , function(req, res, next) { launch('apps/variants' 
 /* ------------------------------------------------------------------------------
     APPLICATIONS IN DEVELOPMENT
    ------------------------------------------------------------------------------ */
+router.get('/assets'        , function(req, res, next) { launch('dev/assets'          , 'Asset Management'            , req, res, next); });
 router.get('/configurator'  , function(req, res, next) { launch('dev/configurator'    , 'Product Configuration Editor', req, res, next); });
 router.get('/control'       , function(req, res, next) { launch('dev/control'         , 'Remote Device Control'       , req, res, next); });
 router.get('/customer'      , function(req, res, next) { launch('dev/customer'        , 'Customer Services'           , req, res, next); });
 router.get('/editor'        , function(req, res, next) { launch('dev/editor'          , 'Content Editor'              , req, res, next); });
 router.get('/matrix'        , function(req, res, next) { launch('dev/matrix'          , 'Portfolio Matrix'            , req, res, next); });
+router.get('/specification' , function(req, res, next) { launch('dev/specification'   , 'Product Specification Editor', req, res, next); });
 
 
 
@@ -60,7 +68,7 @@ router.get('/template'      , function(req, res, next) { launch('tutorial/templa
    ------------------------------------------------------------------------------ */
 router.get('/addins/change'  , function(req, res, next) { launch('addins/change'  , 'Change Management'               , req, res, next); });
 router.get('/addins/context' , function(req, res, next) { launch('addins/context' , 'Context Browser'                 , req, res, next); });
-router.get('/addins/item'    , function(req, res, next) { launch('addins/item'    , 'Item & BOM Management'           , req, res, next); });
+router.get('/addins/item'    , function(req, res, next) { launch('addins/item'    , 'Item Master'                     , req, res, next); });
 router.get('/addins/search'  , function(req, res, next) { launch('addins/search'  , 'Search'                          , req, res, next); });
 router.get('/addins/products', function(req, res, next) { launch('addins/products', 'Product Configuration Management', req, res, next); });
 
