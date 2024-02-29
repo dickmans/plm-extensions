@@ -142,8 +142,8 @@ td.link {
 .surface-level-3 td { background : var(--color-surface-level-4); border-color : var(--color-surface-level-3); } 
 .surface-level-4 th { background : var(--color-surface-level-3); border-color : var(--color-surface-level-4); } 
 .surface-level-4 td { background : var(--color-surface-level-2); border-color : var(--color-surface-level-4); } 
-.surface-level-5 th { background : var(--color-surface-level-3); border-color : var(--color-surface-level-5); } 
-.surface-level-5 td { background : var(--color-surface-level-2); border-color : var(--color-surface-level-5); } 
+.surface-level-5 th { background : var(--color-surface-level-3); border-color : var(--color-surface-level-3); } 
+.surface-level-5 td { background : var(--color-surface-level-2); border-color : var(--color-surface-level-3); } 
 
 .surface-level-2 > table > thead > tr > th { border-bottom-color : var(--color-surface-level-2); }
 .surface-level-2 > table > tbody > tr > td { border-bottom-color : var(--color-surface-level-2); }
