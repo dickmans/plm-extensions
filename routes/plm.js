@@ -1344,17 +1344,12 @@ router.get('/download', function(req, res, next) {
     if(typeof req.query.fileLink !== 'undefined') {
         url += req.query.fileLink;
     } else {
-
         let link = (typeof req.query.link !== 'undefined') ? req.query.link : '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId;
             link += '/attachments/' + req.query.fileId;
-
         url += link;
-
     }
 
-    console.log(url);
-
-    axios.get(url, {
+   axios.get(url, {
         headers : req.session.headers 
     }).then(function (response) {
         sendResponse(req, res, response, false);
