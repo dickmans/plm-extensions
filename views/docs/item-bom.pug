@@ -1,0 +1,260 @@
+#item-bom.doc-content 
+    h1 insertBOM();
+    .definition  Insert the Bill of Materials of a defined item
+        br
+        |This function gets included in all pages automatically and is defined in 
+        span.path /public/javascripts/contents/item.js
+        |. 
+        br
+        |Styling of the given contents is defined in 
+        span.path /public/stylesheets/contents/item.css 
+        | based on the primary class bom-item.
+        img(src='images/docs/item-attachments-1.png' style='display:block;margin-top:20px;height:180px;')
+    h2 DOM Elements 
+    p Insert the following base element to your pug file to add the BOM container in your page. You can choose another id than shown here, but will then have to provide your element's id as parameter.
+    p.code #bom 
+    p Add the following optional classes to this DOM element to adjust the contents display:
+    p 
+        table.row-hovering 
+            tr 
+                th Class Name 
+                th Description
+            tr 
+                td surface-level-[1..5]
+                td Add the UI classes surface-level-1 through surface-level-5 to adjust the background color of the BOM panel 
+
+    h2 Parameters
+    p Various parameters can be provided when using insertBOM. The link parameter is required specifically and must be provided as string. All further parameters must be passed by using a JSON object. See this example call: 
+    p.code insertBOM('/api/v3/workspaces/57/items/14669', { 'id' : 'item-bom', 'openInPLM' : true, 'quantity' : true });
+    p   
+        table.parameters.row-hovering 
+            tr 
+                th.nowrap Parameter 
+                th Description
+                th Type 
+                th Required 
+                th Default 
+            tr 
+                td link 
+                td The API-link of the item containing the attachments
+                td String
+                td Yes
+                td -
+            tr 
+                td id 
+                td ID of the DOM element where the BOM should be inserted
+                td String
+                td No
+                td bom
+            tr 
+                td title 
+                td Title being shown on top of the BOM display. Pass an empty string to hide the title
+                td String
+                td No
+                td BOM
+            tr 
+                td bomViewName
+                td Name of the BOM view in PLM to use (if no value is provided, the first BOM view will be used)
+                td String
+                td No
+                td - the first view available -
+            tr 
+                td collapsed 
+                td When enabled, the BOM will be collapsed at startup
+                td Boolean
+                td No 
+                td false
+            tr 
+                td multiSelect 
+                td Enables selection of multiple items and adds buttons to select / deselect all elements as well as checkboxes
+                td Boolean
+                td No 
+                td false
+            tr 
+                td reset 
+                td Adds button to deselect selected elements (not required if multiSelect is enabled)
+                td Boolean
+                td No
+                td false
+            tr 
+                td openInPLM 
+                td Adds button to open selected element in PLM
+                td Boolean
+                td No
+                td true
+            tr 
+                td goThere 
+                td EAdds button to open the same view for the selected element
+                td Boolean
+                td No
+                td false
+            tr 
+                td toggles 
+                td Enables expand all / collapse all buttons on top of BOM
+                td Boolean
+                td No
+                td true
+            tr 
+                td views 
+                td Adds drop down menu to select from the available PLM BOM views
+                td Boolean
+                td No
+                td false
+            tr 
+                td search 
+                td Adds quick filtering using search input on top of BOM
+                td Boolean
+                td No
+                td true
+            tr 
+                td position 
+                td When set to true, the position / find number will be displayed
+                td Boolean
+                td No 
+                td true
+            tr 
+                td quantity 
+                td When set to true, the quantity column will be displayed
+                td Boolean
+                td No 
+                td false
+            tr 
+                td hideDetails 
+                td When set to true, detail columns will be skipped, only the descriptor will be shown
+                td Boolean
+                td No 
+                td true
+            tr 
+                td headers 
+                td When set to false, the table headers will not be shown
+                td Boolean
+                td No 
+                td true
+            tr 
+                td counters 
+                td When set to true, a footer will inidicate total items, selected items and filtered items
+                td Boolean
+                td No 
+                td true
+            tr 
+                td getFlatBOM 
+                td Retrieve Flat BOM at the same time (i.e. to get total quantities)
+                td Boolean
+                td No 
+                td false
+            tr 
+                td depth 
+                td BOM Levels to expand
+                td Integer
+                td No 
+                td 10
+            tr 
+                td endItem 
+                td Define a key value pair consisting of field id and field value to prevent expansion of matching elements in the BOM tree (example: { 'fieldId' : 'END_ITEM', 'value' : true })
+                td JSON
+                td No 
+                td -
+    h2 Examples 
+    p   
+        table.row-hovering 
+            tr 
+                th Code 
+                th Screenshot 
+                th Application 
+            tr 
+                td.code 
+                    span.indent-1 insertAttachments(link, { 'size' : 's', 'upload' : true, 'extensionsEx' : '.dwf,.dwfx' });
+                td
+                    img(src='images/docs/item-attachments-1.png' style='height:180px;')
+                td Product Data Explorer 
+            tr 
+                td.code 
+                    span.indent-1 let paramsAttachments = { 
+                    span.indent-2 'extensionsEx'  : '.dwf,.dwfx',
+                    span.indent-2 'header'        : true, 
+                    span.indent-2 'size'          : 'xs'
+                    span.indent-1 }
+                    span.indent-1 insertAttachments(link, paramsAttachments);
+
+                td
+                    img(src='images/docs/item-attachments-2.png' style='height:180px;')
+                td Serivce Portal 
+            tr 
+                td.code 
+                    span.indent-1 insertAttachments(link, { 
+                    span.indent-2 'header'    : false, 
+                    span.indent-2 'layout'    : 'list',
+                    span.indent-2  'size'      : 's', 
+                    span.indent-2 'upload'    : false, 
+                    span.indent-1 });
+
+                td
+                    img(src='images/docs/item-attachments-3.png' style='height:320px;')
+                td Workspace Navigator 
+            tr 
+                td.code 
+                    span.indent-1    insertAttachments(link, { 
+                    span.indent-2 'layout'    : 'list',
+                    span.indent-2 'size'      : 'l', 
+                    span.indent-2 'upload'    : true ,
+                    span.indent-2 headerToggle: true
+                    span.indent-1  });
+                td
+                    img(src='images/docs/item-attachments-4.png' style='height:300px;')
+                td Process Dashboard
+
+    h2 Events 
+    p You can override the following functions in your code to adjust the default behavior.
+    p 
+        table.row-hovering
+            tr 
+                th Function 
+                th Event 
+                th Parameters 
+            tr 
+                td insertBOMDone(id) 
+                td This function gets invoked after the BOM panel elements have been added to the page, before BOM data is being requested from PLM
+                td id = id of the parent div element (i.e. bom)
+            tr 
+                td changeBOMViewDone(id, fields, bomData, flatBOMData) 
+                td When BOM data has been retrieved and BOM rows have been added, this function will be invoked. flatBOMData will not be null only if flatBOM data is being requested as well (depends on given paramter).
+                td 
+                    ul 
+                        li id = id of the parent div element (i.e. bom)
+                        li fields = list of fields available in the selected BOM view 
+                        li bomData = BOM data as provided by the REST API
+                        li flatBOMData = Flat BOM data as provided by the REST API
+            tr 
+                td clickBOMItemDone(e, elemClicked) 
+                td When users click the upload button, this function gets invoked. It is only available if 'upload' is set to true and will open the file browser to initiate the file upload process.
+                td 
+                    ul 
+                        li e = click event object
+                        li elemClicked = jQuery element of BOM row that got clicked
+    h2 User Interactions 
+    p You can override the behavior of the BOM display with the user interactions shown below. They all receive the UI element that got clicked as parameter elemClicked.
+        table.row-hovering
+            tr 
+                th Function 
+                th Triggering Event 
+            tr 
+                td clickBOMSelectAll(elemClicked) 
+                td User clicks the select all button in the BOM toolbar
+            tr 
+                td clickBOMDeselectAll(elemClicked) 
+                td User clicks the deselect all button in the BOM toolbar
+            tr 
+                td clickBOMExpandAll(elemClicked) 
+                td User clicks the expand all button in the BOM toolbar
+            tr 
+                td clickBOMCollapseAll(elemClicked) 
+                td User clicks the collapse all button in the BOM toolbar
+            tr 
+                td clickBOMReset(elemClicked) 
+                td User clicks the reset button in the BOM toolbar
+            tr 
+                td clickBOMResetDone(elemClicked) 
+                td Once user clicked the reset button in the BOM toolbar and the standard functionality has been processed (i.e. toggling BOM Actions that depend on item selection)
+            tr 
+                td clickBOMOpenInPLM(elemClicked) 
+                td User clicks the icon to open the (first) selected item in PLM

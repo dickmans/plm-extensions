@@ -1,0 +1,26 @@
+extends layout
+
+block head
+
+    link(rel='stylesheet', href='/stylesheets/framework/docs.css')
+    script(src='/javascripts/framework/docs.js') 
+
+block body
+
+    body
+        .split.left-350.surface-level-5
+            .split-left.padding-100.surface-level-3
+                h1#title User Experiences Developers Guide
+                p You can use this package to also build your own applications based on reusable components described below.
+                .nav-header Navigation
+                span workspace views
+                .nav-header Item Contents
+                .nav-description Using functions of item.js, the following contents can be inserted to your applications
+                .nav-contents
+                    .nav-content(data-id='item-attachments') Attachments
+                    .nav-content(data-id='item-bom') BOM
+            //- iframe#doc-contents.split-right.padding-80.no-scrollbar(name='doc-contents')
+            #doc-contents.split-right.padding-80.surface-level-1.no-scrollbar(name='doc-contents')
+                include ../docs/item-attachments.pug
+                include ../docs/item-bom.pug
+                

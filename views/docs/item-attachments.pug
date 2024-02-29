@@ -1,0 +1,210 @@
+#item-attachments.doc-content 
+    h1 insertAttachments();
+    .definition  Insert attachments of a defined item and let users downloads existing or upload new files. 
+        br
+        |This function gets included in all pages automatically and is defined in 
+        span.path /public/javascripts/contents/item.js
+        |. 
+        br
+        |Styling of the given contents is defined in 
+        span.path /public/stylesheets/contents/item.css 
+        | based on the primary class attachments.
+        img(src='images/docs/item-attachments-1.png' style='display:block;margin-top:20px;height:180px;')
+    h2 DOM Elements 
+    p Insert the following base element to your pug file to add the attachments container in your page. You can choose another id than shown here, but will then have to provide your element's id as parameter.
+    p.code #attachments 
+    p Add the following optional classes to this DOM element to adjust the contents display:
+    p 
+        table.row-hovering 
+            tr 
+                th Class Name 
+                th Description
+            tr 
+                td centered 
+                td Centers display of title and tiles
+            tr 
+                td surface-level-[1..5]
+                td Add the UI classes surface-level-1 through surface-level-5 to adjust the background color of the attachments element 
+
+    h2 Parameters
+    p Various parameters can be provided when using insertAttachments. The link parameter is required specifically and must be provided as string. All further parameters must be passed by using a JSON object. See this example call: 
+    p.code insertAttachments('/api/v3/workspaces/82/items/4810', { 'id' : 'item-attachments', 'header' : false });
+    p   
+        table.parameters.row-hovering 
+            tr 
+                th.nowrap Parameter 
+                th Description
+                th Type 
+                th Required 
+                th Default 
+            tr 
+                td link 
+                td The API-link of the item containing the attachments
+                td String
+                td Yes
+                td -
+            tr 
+                td id 
+                td ID of the DOM element where the attachments should be inserted
+                td String
+                td No
+                td attachments
+            tr 
+                td header 
+                td Can be used to suppress addition of the panel header element. As this element is required for the file upload button parameter, it will be set to true if uploads should be enabled.
+                td Boolean
+                td No
+                td false
+            tr 
+                td headerLabel
+                td Sets the header label (if header is enabled)
+                td String
+                td No
+                td Attachments
+            tr 
+                td headerToggle 
+                td Enables collapsing and expanding the attachments display
+                td Boolean
+                td No 
+                td false
+            tr 
+                td reload 
+                td Enables reload button for the attachments panel
+                td Boolean
+                td No
+                td false
+            tr 
+                td download 
+                td Enables download of files
+                td Boolean
+                td No
+                td true
+            tr 
+                td upload 
+                td Enables upload button in toolbar above attachments display
+                td Boolean
+                td No
+                td false
+            tr 
+                td uploadLabel 
+                td Sets the label of the file upload button (if uploads are enabled). Leave blank to display an icon only.
+                td String
+                td No
+                td Upload File
+            tr 
+                td layout 
+                td Sets content layout (tiles, list or table)
+                td String
+                td No
+                td tiles
+            tr 
+                td size 
+                td Set the size of contents (xxs, xs, s, m, l, xl or xxl)
+                td String
+                td No
+                td s
+            tr 
+                td fileVersion 
+                td Display current version of each file
+                td Boolean
+                td No 
+                td false
+            tr 
+                td fileSize 
+                td Display size of each file
+                td Boolean
+                td No 
+                td false
+            tr 
+                td extensionsIn 
+                td List of file extensions to be included. Files with an extension not included in this list will not be shown (example: '.pdf,.docx')
+                td String
+                td No 
+                td ''
+            tr 
+                td extensionsEx 
+                td List of file extensions to be excluded. Files with an extension included in this list will not be shown (example: '.xml,.dwf')
+                td String
+                td No 
+                td '.dwf,dwfx'
+    h2 Examples 
+    p   
+        table.row-hovering 
+            tr 
+                th Code 
+                th Screenshot 
+                th Application 
+            tr 
+                td.code 
+                    span.indent-1 insertAttachments(link, { 'size' : 's', 'upload' : true, 'extensionsEx' : '.dwf,.dwfx' });
+                td
+                    img(src='images/docs/item-attachments-1.png' style='height:180px;')
+                td Product Data Explorer 
+            tr 
+                td.code 
+                    span.indent-1 let paramsAttachments = { 
+                    span.indent-2 'extensionsEx'  : '.dwf,.dwfx',
+                    span.indent-2 'header'        : true, 
+                    span.indent-2 'size'          : 'xs'
+                    span.indent-1 }
+                    span.indent-1 insertAttachments(link, paramsAttachments);
+
+                td
+                    img(src='images/docs/item-attachments-2.png' style='height:180px;')
+                td Serivce Portal 
+            tr 
+                td.code 
+                    span.indent-1 insertAttachments(link, { 
+                    span.indent-2 'header'    : false, 
+                    span.indent-2 'layout'    : 'list',
+                    span.indent-2  'size'      : 's', 
+                    span.indent-2 'upload'    : false, 
+                    span.indent-1 });
+
+                td
+                    img(src='images/docs/item-attachments-3.png' style='height:320px;')
+                td Workspace Navigator 
+            tr 
+                td.code 
+                    span.indent-1    insertAttachments(link, { 
+                    span.indent-2 'layout'    : 'list',
+                    span.indent-2 'size'      : 'l', 
+                    span.indent-2 'upload'    : true ,
+                    span.indent-2 headerToggle: true
+                    span.indent-1  });
+                td
+                    img(src='images/docs/item-attachments-4.png' style='height:300px;')
+                td Process Dashboard
+
+    h2 Events 
+    p You can override the following functions in your code to adjust the default behavior.
+    p 
+        table.row-hovering
+            tr 
+                th Function 
+                th Event 
+                th Parameters 
+            tr 
+                td insertAttachmentsDone(id, data, update) 
+                td Gets executed after attachment information has been retrieved from PLM and after div.attachment elements have been inserted to the page. This event also gets triggered after an update of the attachments list (i.e. after a file upload).
+                td 
+                    ul 
+                        li id = id of the parent div element (i.e. attachments)
+                        li data = data of /attachments REST API call of PLM
+                        li update = indicates if this event got triggered by an update of the list (i.e. after file upload) or the initial file display (if update === false).
+            tr 
+                td clickAttachment(elemClicked) 
+                td This function is invoked when a user clicks a div.attachment element. This event will only be registered if parameter 'download' is set to true as this will invoke the document download per default.
+                td elemClicked = jQuery element of the given div.attachment which got clicked by the user.
+            tr 
+                td clickAttachmentsUpload(elemClicked) 
+                td When users click the upload button, this function gets invoked. It is only available if 'upload' is set to true and will open the file browser to initiate the file upload process.
+                td elemClicked = jQuery element of the upload button being clicked by the users.
+            tr 
+                td selectFileForUpload(id) 
+                td When users clikcked the upload button and selected the file for upload, this function gets invoked.  It is only available if 'upload' is set to true and will perform the file upload to PLM.
+                td id = id of the parent div element (i.e. attachments)
+            tr 
+                td fileUploadDone(id) 
+                td Once the file upload in PLM completed, this function will perform the attachments list refresh. 
+                td id = id of the parent div element (i.e. attachments)
