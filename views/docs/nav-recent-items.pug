@@ -1,0 +1,125 @@
+#nav-recent-items.doc-content 
+    h1 insertRecentItems();
+    .definition  Insert a user's recently viewed items list
+        br
+        |This function gets included in all pages automatically and is defined in 
+        span.path /public/javascripts/contents/nav.js
+        |. 
+        img(src='images/docs/nav-recent-items-1.png' style='display:block;margin-top:20px;height:320px;')
+    h2 DOM Elements 
+    p Insert the following base element to your pug file to add the attachments container in your page. You can choose another id than shown here, but will then have to provide your element's id as parameter.
+    p.code #recents 
+    p Add the following optional classes to this DOM element to adjust the contents display:
+    p 
+        table.row-hovering 
+            tr 
+                th Class Name 
+                th Description
+            tr 
+                td surface-level-[1..5]
+                td Add the UI classes surface-level-1 through surface-level-5 to adjust the background color of the attachments element 
+
+    h2 Parameters
+    p Various parameters can be provided when using insertAttachments. The link parameter is required specifically and must be provided as string. All further parameters must be passed by using a JSON object. See this example call: 
+    p.code insertRecentItems({ 'headerLabel' : 'Your Recent Data', 'headerToggle' : true });
+    p   
+        table.parameters.row-hovering 
+            tr 
+                th.nowrap Parameter 
+                th Description
+                th Type 
+                th Required 
+                th Default 
+            tr 
+                td id 
+                td ID of the DOM element where the list should be inserted
+                td String
+                td No
+                td recents
+            tr 
+                td header 
+                td Can be used to suppress addition of the panel header element
+                td Boolean
+                td No
+                td true
+            tr 
+                td headerLabel
+                td Sets the header label (if header is enabled)
+                td String
+                td No
+                td Recently Viewed Items
+            tr 
+                td headerToggle 
+                td Enables collapsing and expanding the list display
+                td Boolean
+                td No 
+                td false
+            tr 
+                td reload 
+                td Enables reload button for the panel
+                td Boolean
+                td No
+                td true
+            tr 
+                td icon 
+                td Sets the icon to be displayed for each tile (see fonts.css for available icons, default will use .icon-history)
+                td String
+                td No
+                td history
+            tr 
+                td size 
+                td Set the size of contents (xxs, xs, s, m, l, xl or xxl)
+                td String
+                td No
+                td s
+            tr 
+                td workspacesIn 
+                td List of workspace IDs to be included. Items from other workspaces will not be shown (example: ['82', '57'])
+                td Array
+                td No 
+                td []
+            tr 
+                td workspacesEx 
+                td List of workspace IDs to be excluded. Items of these workspaces will not be shown (example: ['82', '57'])
+                td Array
+                td No 
+                td []
+    h2 Examples 
+    p   
+        table.row-hovering 
+            tr 
+                th Code 
+                th Screenshot 
+                th Application 
+            tr 
+                td.code 
+                    span.indent-1 insertRecentItems({
+                    span.indent-2 'workspacesIn'  : ['82'],
+                    span.indent-2 'header'        : true,
+                    span.indent-2 'headerLabel'   : 'Recent Problem Reports',
+                    span.indent-2 'headerToggle'  : true
+                    span.indent-1 });
+
+                td
+                    img(src='images/docs/nav-recent-items-2.png' style='height:120px;')
+                td -
+
+    h2 Events 
+    p You can override the following functions in your code to adjust the default behavior.
+    p 
+        table.row-hovering
+            tr 
+                th Function 
+                th Event 
+                th Parameters 
+            tr 
+                td insertRecentItemsDone(id, data)
+                td Once the list of recent items inserted, this function will be called
+                td 
+                    ul 
+                        li id = id of the parent div element (i.e. recents)
+                        li data = data of given REST API call in PLM
+            tr 
+                td clickRecentItem(elemClicked) 
+                td This function is invoked when a user clicks a tile in the list of recent items. It opens the given record in PLM per default.
+                td elemClicked = jQuery element of the given tile which got clicked by the user.
