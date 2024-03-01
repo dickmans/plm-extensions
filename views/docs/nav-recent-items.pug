@@ -120,6 +120,6 @@
                         li id = id of the parent div element (i.e. recents)
                         li data = data of given REST API call in PLM
             tr 
-                td clickRecentItem(elemClicked) 
+                td clickRecentItem(elemClicked, e) 
                 td This function is invoked when a user clicks a tile in the list of recent items. It opens the given record in PLM per default.
-                td elemClicked = jQuery element of the given tile which got clicked by the user.
+                td elemClicked = jQuery element of the given tile which got clicked by the user; e = click event
