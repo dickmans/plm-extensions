@@ -1,0 +1,134 @@
+#nav-mow.doc-content 
+    h1 insertMOW();
+    .definition  Insert a user's My Outstanding Work list.
+        br
+        |This function gets included in all pages automatically and is defined in 
+        span.path /public/javascripts/contents/nav.js
+        |. 
+        br
+        |Styling of the given contents is defined in 
+        span.path /public/stylesheets/contents/nav.css 
+        | based on the primary class mow-row.
+        img(src='images/docs/nav-mow-1.png' style='display:block;margin-top:20px;height:449px;')
+    h2 DOM Elements 
+    p Insert the following base element to your pug file to add the outstanding work list in your page:
+    p.code #mow 
+    p You can also use another id, but you will then have to pass the right name using the 'id' parameter (see section Parameters). Add the following optional classes to this DOM element to adjust the contents display:
+    p 
+        table.row-hovering 
+            tr 
+                th Class Name 
+                th Description
+            tr 
+                td surface-level-[1..5]
+                td Add the UI classes surface-level-1 through surface-level-5 to adjust the background color of the element 
+
+    h2 Parameters
+    p Various parameters can be provided using a JSON object as shown below. Note that all parameters are optional.
+    p.code insertMOW({ 'headerLabel' : 'Pending Problem Reports', 'search' : true, 'workspacesIn' : ['82'] });
+    p   
+        table.parameters.row-hovering 
+            tr 
+                th.nowrap Parameter 
+                th Description
+                th Type 
+                th Required 
+                th Default 
+            tr 
+                td id 
+                td ID of the DOM element where the list should be inserted
+                td String
+                td No
+                td mow
+            tr 
+                td header 
+                td Can be used to suppress addition of the panel header element
+                td Boolean
+                td No
+                td true
+            tr 
+                td headerLabel
+                td Sets the header label (if header is enabled)
+                td String
+                td No
+                td My Outstanding Work
+            tr 
+                td headerToggle 
+                td Enables collapsing and expanding the list display
+                td Boolean
+                td No 
+                td false
+            tr 
+                td reload 
+                td Enables reload button for the panel
+                td Boolean
+                td No
+                td true
+            tr 
+                td search 
+                td Enable search within the list
+                td Boolean
+                td No
+                td true
+            tr 
+                td icon 
+                td Sets the icon to be displayed for each tile (see fonts.css for available icons, default will use .icon-mow)
+                td String
+                td No
+                td mow
+            tr 
+                td size 
+                td Set the size of contents (xxs, xs, s, m, l, xl or xxl)
+                td String
+                td No
+                td m
+            tr 
+                td workspacesIn 
+                td List of workspace IDs to be included. Items from other workspaces will not be shown (example: ['82', '57'])
+                td Array
+                td No 
+                td []
+            tr 
+                td workspacesEx 
+                td List of workspace IDs to be excluded. Items of these workspaces will not be shown (example: ['82', '57'])
+                td Array
+                td No 
+                td []
+    h2 Examples 
+    p   
+        table.row-hovering 
+            tr 
+                th Code 
+                th Screenshot 
+                th Application 
+            tr 
+                td.code 
+                    span.indent-1 insertMOW({
+                    span.indent-2 'workspacesIn' : ['90'],
+                    span.indent-2 'headerToggle' : true,
+                    span.indent-2 'search'       : false
+                    span.indent-1 });
+
+                td
+                    img(src='images/docs/nav-mow-2.png' style='height:303px;')
+                td -
+
+    h2 Events 
+    p You can override the following functions in your code to adjust the default behavior.
+    p 
+        table.row-hovering
+            tr 
+                th Function 
+                th Event 
+                th Parameters 
+            tr 
+                td insertMOWDone(id, data)
+                td Once the MOW list got inserted, this function will be called. It will also be executed after a manual refresh of the list.
+                td 
+                    ul 
+                        li id = id of the parent div element (i.e. mow)
+                        li data = data of given REST API call in PLM
+            tr 
+                td clickMOWItem(elemClicked) 
+                td This function is invoked when a user clicks a tile in the list. It opens the given record in PLM per default.
+                td elemClicked = jQuery element of the given tile which got clicked by the user; e = click event

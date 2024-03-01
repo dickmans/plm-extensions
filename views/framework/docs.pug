@@ -15,8 +15,9 @@ block body
                 .nav-header Navigation Views
                 .nav-description The capabilities of nav.js enable displaying multiple records to let users navigate to information of interest
                 .nav-contents
-                    .nav-content(data-id='nav-bookmarks') Bookmarks
+                    .nav-content(data-id='nav-mow') My Outstanding Work
                     .nav-content(data-id='nav-recent-items') Recently Viewed Items
+                    .nav-content(data-id='nav-bookmarks') Bookmarks
                     .nav-content(data-id='nav-workspace-views') Workspace Views
                 .nav-header Item Contents
                 .nav-description Insert data of a given record using the functions defined in item.js
@@ -24,6 +25,7 @@ block body
                     .nav-content(data-id='item-attachments') Attachments
                     .nav-content(data-id='item-bom') BOM
             #doc-contents.split-right.padding-80.surface-level-1.no-scrollbar(name='doc-contents')
+                include ../docs/nav-mow.pug
                 include ../docs/nav-recent-items.pug
                 include ../docs/nav-bookmarks.pug
                 include ../docs/nav-workspace-views.pug
