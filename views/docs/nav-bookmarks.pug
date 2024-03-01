@@ -35,7 +35,7 @@
                 td ID of the DOM element where the list should be inserted
                 td String
                 td No
-                td recents
+                td bookmarks
             tr 
                 td header 
                 td Can be used to suppress addition of the panel header element
@@ -119,6 +119,6 @@
                         li id = id of the parent div element (i.e. bookmarks)
                         li data = data of given REST API call in PLM
             tr 
-                td clickBookmarkItem(elemClicked) 
+                td clickBookmarkItem(elemClicked, e) 
                 td This function is invoked when a user clicks a tile in the list of bookmarks. It opens the given record in PLM per default.
-                td elemClicked = jQuery element of the given tile which got clicked by the user.
+                td elemClicked = jQuery element of the given tile which got clicked by the user; e = click event

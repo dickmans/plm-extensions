@@ -15,7 +15,7 @@ router.get('/', function(req, res, next) {
 });
 router.get('/docs', function(req, res, next) {
     res.render('framework/docs', {
-        title : 'PLM UX Developers Guide',
+        title : 'PLM UX Developer Guide',
         theme : (typeof req.query.theme === 'undefined') ? '' : req.query.theme
     });
 });
