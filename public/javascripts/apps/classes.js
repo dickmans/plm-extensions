@@ -208,7 +208,12 @@ function selectItem(elemClicked) {
     }  
     
     setItemDetails(link);
-    insertAttachments(link);
+    insertAttachments(link, { 
+        'extensionsEx'  : '.dwf,.dwfx',
+        'header'        : false, 
+        'layout'        : 'list',
+        'size'          : 'm'
+    });
     insertViewer(link, viewerBGColors[theme].level2);
     getBookmarkStatus();
 

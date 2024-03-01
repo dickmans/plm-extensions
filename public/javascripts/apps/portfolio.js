@@ -463,7 +463,13 @@ function selectProduct(elemClicked) {
 
     getBookmarkStatus();
     setProductDetails(link);
-    insertAttachments(link, 'product-files');
+    insertAttachments(link, { 
+        'id'        : 'product-attachments',
+        'header'    : false, 
+        'layout'    : 'list',
+        'size'      : 's', 
+        'upload'    : false, 
+    });
     insertGrid(link, 'product-variants');
 
 }

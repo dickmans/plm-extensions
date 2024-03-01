@@ -4,6 +4,7 @@ let newInstance                 = true;
 let ghosting                    = true;
 let disableViewerSelectionEvent = false;
 let viewerDone                  = false;
+let dataInstances               = [];
 
 let viewer, dmu, markup, markupsvg, curViewerState, restoreMarkupSVG, restoreMarkupState, baseStrokeWidth;
 
@@ -145,7 +146,74 @@ function onViewerRestore(event) {
 function initViewerDone() {
     $('#viewer-progress').hide();
 }
-function onViewerSelectionChanged(event) {}
+function onViewerSelectionChanged(event) {
+
+    if(disableViewerSelectionEvent) return;
+
+    if(dataInstances.length === 0) {
+        getInstancesData(function() {
+            onViewerSelectionChanged(event);
+        });
+    } else {
+
+        let partNumbers = [];
+
+        for(let dataInstance of dataInstances) {
+            for(let dbId of event.dbIdArray) {
+                if(dataInstance.dbId === dbId) {
+                    partNumbers.push(dataInstance.partNumber);
+                }
+            }
+        }
+
+        onViewerSelectionChangedDone(partNumbers);
+
+    }
+
+}
+function onViewerSelectionChangedDone(partNumbers) {}
+function getInstancesData(callback) {
+
+    let instanceTree    = viewer.model.getInstanceTree();
+    let promises        = [];
+
+    for(let i = 1; i < instanceTree.objectCount; i++) promises.push(getPropertiesAsync(i));
+
+    Promise.all(promises).then(function(instances) {
+        for(let instance of instances) {
+            instance.partNumber = getInstancePartNumber(instance);
+            dataInstances.push(instance);
+        }
+        callback();
+    });
+
+}
+function getInstancePartNumber(item) {
+
+    let splitPartNumberBy      = (isBlank(config.viewer.splitPartNumberBy))      ? ''  : config.viewer.splitPartNumberBy;
+    let splitPartNumberIndexes = (isBlank(config.viewer.splitPartNumberIndexes)) ? [0] : config.viewer.splitPartNumberIndexes;
+    let splitPartNumberSpacer  = (isBlank(config.viewer.splitPartNumberSpacer))  ? ''  : config.viewer.splitPartNumberSpacer;
+
+    for(let partNumberPropery of config.viewer.partNumberProperties) {
+        for(property of item.properties) {
+            if(partNumberPropery === property.attributeName) {
+                let partNumber = property.displayValue.split(':')[0];
+                if(splitPartNumberBy !== '') {
+                    let split = partNumber.split(splitPartNumberBy);
+                    partNumber = split[0];
+                    for(let i = 1; i < splitPartNumberIndexes.length; i++) {
+                        partNumber += splitPartNumberSpacer + split[i];
+                    }
+                }
+                return partNumber;
+            }
+        }
+    }
+    
+    return null;
+
+}
+
 
 
 
@@ -409,40 +477,39 @@ function viewerUnloadAllModels() {
 
 
 // Select and focus on selected item
-function viewerSelectModel(partNumber, fitToView, highlight) {
+function viewerSelectModel(partNumber, fitToView, highlight, resetColors) {
 
-    viewerSelectModels([partNumber], fitToView, highlight);
+    viewerSelectModels([partNumber], fitToView, highlight, resetColors);
 
 }
-function viewerSelectModels(partNumbers, fitToView, resetColors) {
+function viewerSelectModels(partNumbers, fitToView, highlight, resetColors) {
 
     if(!isViewerStarted()) return;
 
-    if(typeof fitToView === 'undefined') fitToView = false;
-    if(typeof highlight === 'undefined') highlight = true;
+    if(dataInstances.length === 0) {
+        
+        getInstancesData(function() {
+            onViewerSelectionChanged(partNumbers, fitToView, highlight, resetColors);
+        });
 
-    disableViewerSelectionEvent = true;
-    viewer.hideAll();
-    
-    if(resetColors) viewer.clearThemingColors();
+    } else {
 
-    let instances   = viewer.model.getInstanceTree();
-    let dbIds       = [];
-    let promises    = [];
+        if(typeof fitToView   === 'undefined') fitToView   = false;
+        if(typeof highlight   === 'undefined') highlight   = true;
+        if(typeof resetColors === 'undefined') resetColors = true;
 
-    for(let i = 1; i < instances.objectCount; i++) promises.push(getPropertiesAsync(i));
+        let dbIds = [];
+        disableViewerSelectionEvent = true;
+        viewer.hideAll();
+        
+        if(resetColors) viewer.clearThemingColors();
 
-    Promise.all(promises).then(function(items) {
-
-        for(let item of items) {
-
-            let itemPartNumber = getItemPartNumber(item);
-
+        for(let dataInstance of dataInstances) {
             for(let partNumber of partNumbers) {
-                if(partNumber === itemPartNumber) {
-                    dbIds.push(item.dbId);
-                    viewer.show(item.dbId);
-                    if(highlight) viewer.setThemingColor(item.dbId, colorModelSelected, null, true );
+                if(dataInstance.partNumber === partNumber) {
+                    dbIds.push(dataInstance.dbId);
+                    viewer.show(dataInstance.dbId);
+                    if(highlight) viewer.setThemingColor(dataInstance.dbId, colorModelSelected, null, true );
                 }
             }
         }
@@ -450,7 +517,34 @@ function viewerSelectModels(partNumbers, fitToView, resetColors) {
         if(fitToView) viewer.fitToView(dbIds);
         disableViewerSelectionEvent = false;
 
-    });
+
+        // let instances   = viewer.model.getInstanceTree();
+        // let dbIds       = [];
+        // let promises    = [];
+
+        // for(let i = 1; i < instances.objectCount; i++) promises.push(getPropertiesAsync(i));
+
+        // Promise.all(promises).then(function(items) {
+
+        //     for(let item of items) {
+
+        //         let itemPartNumber = getInstancePartNumber(item);
+
+        //         for(let partNumber of partNumbers) {
+        //             if(partNumber === itemPartNumber) {
+        //                 dbIds.push(item.dbId);
+        //                 viewer.show(item.dbId);
+        //                 if(highlight) viewer.setThemingColor(item.dbId, colorModelSelected, null, true );
+        //             }
+        //         }
+        //     }
+
+        //     if(fitToView) viewer.fitToView(dbIds);
+        //     disableViewerSelectionEvent = false;
+
+        // });
+
+    }
 
 }
 function viewerSelectModelNew(selected, fitToView) {
@@ -586,17 +680,6 @@ function viewerSelectInstances(dbIds, fitToView, resetColors, color) {
     disableViewerSelectionEvent = false;
 
 }
-function getItemPartNumber(item) {
-
-    for(let partNumberPropery of config.viewer.partNumberProperties) {
-        for(property of item.properties) {
-            if(partNumberPropery === property.attributeName) return property.displayValue.split(':')[0];
-        }
-    }
-    
-    return null;
-
-}
 
 
 // Select all occurences of a partNumber and highlight defined instance IDs
@@ -626,7 +709,7 @@ function viewerHighlightInstances(partNumber, ids, fitToView, hideAll, resetColo
 
         for(let item of items) {
 
-            let itemPartNumber = getItemPartNumber(item);
+            let itemPartNumber = getInstancePartNumber(item);
 
             if(partNumber === itemPartNumber) {
                 dbIds.push(item.dbId);
@@ -903,17 +986,6 @@ const getPropertiesAsync = (id) => {
     });
  
 }
-// const getPropertiesAsync = (id) => {
-    
-//     return new Promise((resolve, reject) => {
-//         viewer.getProperties(id, (result) => {
-//             resolve(result)
-//         }, (error) => {
-//             reject(error)
-//        });
-//     });
- 
-// }
 function getComponentPath(items, id) {
 
     let result = ';'

@@ -7,9 +7,9 @@ block head
 
 block body
 
-    body.surface-level-2
-        .split.left-350.surface-level-2
-            .split-left.padding-100
+    body
+        .split.left-350
+            .split-left.padding-100.surface-level-2
                 h1#title Custom PLM 
                     br
                     |User Experiences
@@ -26,10 +26,18 @@ block body
                         option(value='dark-theme') Dark Theme
                         option(value='black-theme') Black Theme
                 p#disclaimer These solutions are provided by Autodesk Technical Sales without warranty and support. There should be no assumption that updates, patches, bug fixes and / or new features will be delivered to you. There will also be no support available either through Autodesk Support channels or by the Autodesk Pre-sales Technical Team. Please feel free to take the source code and ideas from this tool to develop your own production ready tool and products. Change and reuse the source code as you like.
-            .split-right.tiles.xxl.padding-80.no-scrollbar
+            .split-right.tiles.xxl.padding-80.surface-level-2.no-scrollbar
                 .log#framework-changes 
                     h1 Framework Changes
                     table 
+                        tr 
+                            td 29. February 2024
+                            td BOM Displays 
+                            td New options have been added to collapse the BOM at startup and to prevent expansion of defined items (parameter endItem)
+                        tr 
+                            td 
+                            td Attachments
+                            td The attachments panels have been reworked and provide new configurable features like version information, various layouts and sizes. See the developer documentation for details.
                         tr 
                             td 15. February 2024
                             td BOM Displays 
@@ -1245,6 +1253,10 @@ block body
                     .log 
                         h1 Services Portal Change Log 
                         table 
+                            tr 
+                                td 29. February 2024
+                                td Enhancement
+                                td The BOM display will be collapsed at startup automatically
                             tr 
                                 td 9. February 2024
                                 td Enhancement

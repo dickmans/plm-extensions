@@ -1,7 +1,7 @@
 :root {
     --screen-top    : 15px;
-    --width-ebom    : 650px;
-    --width-mbom    : 650px;
+    --width-ebom    : 850px;
+    --width-mbom    : 850px;
     --width-details : 400px;
     --content-top   : 55px;
     --padding-panel : 20px;
@@ -738,17 +738,13 @@ body.bom-panel-on #mbom-tree { bottom : 106px; }
 #details-sections { 
     bottom : 158px; 
 }
-#attachments-list {
+#attachments {
     bottom  : 0px;
     display : flex;
     gap     : 4px;
     height  : 138px;
     top     : unset;
 }
-#attachments-list > div {
-    padding : var(--spacer-m);
-}
-
 
 
 /* COPY / MOVE ITEM DIALOG */

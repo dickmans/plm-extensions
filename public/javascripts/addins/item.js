@@ -18,8 +18,10 @@ $(document).ready(function() {
     });
     insertFlatBOM(link, {
         'title'         : '',
+        'descriptor'    : false,
         'editable'      : true,
         'bomViewName'   : 'EFE',
+        'filterEmpty'   : true,
         'views'         : true
     });
     insertBOM(link, { 
@@ -32,7 +34,39 @@ $(document).ready(function() {
     });
     getVariantsInitialData();
 
+
+    if($('body').hasClass('standalone')) {
+        // $('#tab-bom').click();
+        $('#header-toggle-ebom').css('display', 'flex');
+        $('.tab-group-main').each(function() { $(this).addClass('surface-level-2'); });
+        // console.log($('#tab-bom').length);
+
+        $.get('/plm/details', { 'link' : link}, function(response) {
+            
+            // let title               = response.data.title;
+            // let link                = response.params.link;
+
+        $('#header-subtitle').html(response.data.title).show();
+        });
+    }
+
+    if(typeof chrome.webview === 'undefined') {
+        $('#viewer').show();
+        insertViewer(link, viewerBGColors[theme].level1);
+    } 
+
+
 });
+
+
+function initViewerDone() {
+
+    viewerAddGhostingToggle();
+    viewerAddResetButton();
+    viewerAddViewsToolbar();
+    viewerAddMarkupControls();
+
+}
 
 
 function setUIEvents() {
@@ -194,6 +228,19 @@ function clickFlatBOMItem(e, elemClicked) {
     
 
 }
+function clickBOMItemDone(elemClicked) {
+
+    let elemBOM     = elemClicked.closest('.bom');
+    let partNumbers = [];
+
+    elemBOM.find('.bom-item.selected').each(function() {
+        partNumbers.push($(this).attr('data-part-number'));
+    })
+
+    select3D(partNumbers);
+    
+
+}
 // function updateFlatBOMCounter(count) {
 
 
@@ -218,6 +265,27 @@ function clickFlatBOMItem(e, elemClicked) {
 
 // }
 
+
+
+function onViewerSelectionChangedDone(partNumbers) {
+
+    console.log(partNumbers);
+
+    $('.flat-bom-item').each(function() {
+        
+        let elemItem = $(this);
+
+        if(partNumbers.indexOf(elemItem.attr('data-part-number')) < 0) {
+            elemItem.removeClass('selected');
+        } else {
+            elemItem.addClass('selected').show();
+        }
+    });
+
+    updateFlatBOMCounter($('#flat-bom')); 
+
+
+}
 
 
 function getVariantsInitialData() {

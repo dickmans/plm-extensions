@@ -18,6 +18,11 @@ let bom, flatBOM;
 let selectedBOMContext      = '';
 let wsProblemReports        = { 'id' : '', 'sections' : [], 'fields' : [] };
 let wsSparePartsRequests    = { 'id' : '', 'sections' : [], 'fields' : [] };
+let paramsAttachments = { 
+    'extensionsEx'  : '.dwf,.dwfx',
+    'header'        : true, 
+    'size'          : 'xs'
+}
 
 
 $(document).ready(function() {
@@ -258,13 +263,20 @@ function openItem(link) {
 
     if(isBlank(sections)) getInitialData(link.split('/')[4]);
     insertBOM(link, { 
-        'bomViewName' : config.service.bomViewName, 
-        'reset' : true, 'openInPLM' : false, 'goThere' : true, 'hideDetails' : true, 'getFlatBOM' : true, 'quantity' : true,
-        'endItem' : { 'fieldId' : 'SBOM_END_ITEM', 'value' : true }
+        'bomViewName'   : config.service.bomViewName, 
+        'collapsed'     : true,
+        'reset'         : true, 
+        'openInPLM'     : false, 
+        'goThere'       : true, 
+        'hideDetails'   : true, 
+        'quantity'      : true,
+        'counters'      : true,
+        'getFlatBOM'    : true, 
+        'endItem'       : { 'fieldId' : 'SBOM_END_ITEM', 'value' : true }
     });
     insertViewer(link, viewerBGColors[theme].level1);
     insertItemDetails(link);
-    insertAttachments(link);
+    insertAttachments(link, paramsAttachments);
     setProcesses(link);
 
 }
@@ -626,7 +638,7 @@ function clickBOMItem(e, elemClicked) {
     if(elemClicked.hasClass('selected')) {
         elemClicked.removeClass('selected');
         insertItemDetails('/api/v3/workspaces/' + wsId + '/items/' + dmsId);
-        insertAttachments('/api/v3/workspaces/' + wsId + '/items/' + dmsId);
+        insertAttachments('/api/v3/workspaces/' + wsId + '/items/' + dmsId, paramsAttachments);
         setProcesses('/api/v3/workspaces/' + wsId + '/items/' + dmsId);
         resetSparePartsList();
         updateViewer();
@@ -634,11 +646,13 @@ function clickBOMItem(e, elemClicked) {
         $('tr.selected').removeClass('selected');
         elemClicked.addClass('selected');
         insertItemDetails(elemClicked.attr('data-link'));
-        insertAttachments(elemClicked.attr('data-link'));
+        insertAttachments(elemClicked.attr('data-link'), paramsAttachments);
         setProcesses(elemClicked.attr('data-link'));
         setSparePartsList(elemClicked);
         updateViewer();
     }
+
+    updateBOMCounters(elemClicked.closest('.bom').attr('id'));
 
     // if(maintenanceMode) {
     //     viewerSetColors(listRed     , new THREE.Vector4(1,   0, 0, 0.5));
@@ -656,7 +670,7 @@ function clickBOMResetDone() {
     $('.spare-part').removeClass('zoom');
 
     insertItemDetails(link);
-    insertAttachments(link);
+    insertAttachments(link, paramsAttachments);
     resetSparePartsList();
     updateViewer();
 
@@ -826,7 +840,7 @@ function onViewerSelectionChanged(event) {
                     let link = $(this).attr('data-link');
 
                     if($('#details').attr('data-link') !== link){
-                        insertAttachments(link);
+                        insertAttachments(link, paramsAttachments);
                         insertItemDetails(link);
                         setProcesses(link);
                     }
@@ -852,11 +866,15 @@ function onViewerSelectionChanged(event) {
 }
 function updateViewer(partNumber) {
 
+    console.log(partNumber);
+
     if(typeof partNumber === 'undefined') partNumber = '';
 
     disableViewerSelectionEvent = true;
 
     let selectedBOMNode = $('.bom-item.selected').first();
+
+    console.log(partNumber);
 
     if(partNumber !== '') {
         viewerSelectModel(partNumber, true, false);

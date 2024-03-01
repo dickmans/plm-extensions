@@ -2,9 +2,9 @@ extends ../framework/layout
 
 block head
 
-    link(rel='stylesheet', href='/stylesheets/apps/dashboard.css')
+    link(rel='stylesheet', href='/stylesheets/dev/assets.css')
     script(src='https://cdn.jsdelivr.net/npm/chart.js')
-    script(src='/javascripts/apps/dashboard.js')
+    script(src='/javascripts/dev/assets.js')
     script.
         config = !{JSON.stringify(config)};
 
@@ -14,13 +14,41 @@ block body
 
         #header.dark
             #header-logo
-            #header-title
+            #header-title=title
             #header-toolbar
-                #header-search-icon.icon.xs search
-                input#header-search
                 #header-avatar
+
+        #asset.screen
+
+            #side.surface-level-2 
+                
+                #side-head 
+                    div selected section deetails
+
+                #side-nav.surface-level-1
+                    div Dashboard 
+                    div Calendar (upcoming events)
+                    div Design
+                    div Data &amp; Documents
+                    div Specification
+                    div Design Reviews &amp; Validation
+                    div Issues &amp; Changes
+                    div Supply Chain
+                    div Serial Numbers
+                    div Service Activities
+                    div Services Portal
+
+            #content
             
+                    div timeline summary
+                    div viewer
+                    div flat bom (all, new, released)
+                    div docs (folders als tiles, latest, in work, by type, mine)
+                    div opl (problem reports)
+                    div upcoming events
+
         #main.screen
+
 
             #new.panel.surface-level-2
                 .panel-header
@@ -87,6 +115,7 @@ block body
                             |.
                 #item-toolbar.panel-toolbar
                     select.button#workflow-actions(label='Select Action')
+                    .button#button-upload Upload File
                     .button#bookmark.icon.icon-bookmark
                     .button.icon.icon-close#item-close
 
@@ -107,3 +136,10 @@ block body
                             #markup-subtitle Capture markups using the given controls within the viewer above. They will be saved in context of this process.
                         #markup-list
                 #attachments.surface-level-1 
+                    .panel-header
+                        .panel-title.centered Attachments
+                    #attachments-list.panel-content.list.tiles.files
+
+        iframe#frame-download(name="frame-download").hidden
+        form#uploadForm(method='post', encType="multipart/form-data", target="frame-download")
+            input#select-file.hidden.button.main(type="file", name="newFiles" multiple='')   

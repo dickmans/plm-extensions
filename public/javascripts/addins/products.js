@@ -12,7 +12,7 @@ $(document).ready(function() {
 
     if($('body').hasClass('standalone')) {
         // $('#bom').insertAfter($('.tabs'));
-        $('#tab-bom').addClass('selected');
+        // $('#tab-bom').addClass('selected');
     }
 
     insertWorkspaceItems('95', {
@@ -24,6 +24,27 @@ $(document).ready(function() {
         'fieldIdSubtitle'   : 'DESCRIPTION', 
         'fieldIdsAttributes' : ['ENGINEERING_BOM', 'MANUFACTURING_BOM', 'MODULES', 'FEATURES_OPTIONS']
     });   
+
+    if(dmsId !== '') {
+
+        $('#products').hide();
+        $('#overlay').show();
+
+        $.get('/plm/details', { 'link' : '/api/v3/workspaces/95/items/' + dmsId}, function(response) {
+            
+            let title               = response.data.title;
+            let link                = response.params.link;
+            let linkEBOM            = getSectionFieldValue(response.data.sections, 'ENGINEERING_BOM', '', 'link');
+            let linkMBOM            = getSectionFieldValue(response.data.sections, 'MANUFACTURING_BOM', '', 'link');
+            let linkModules         = getSectionFieldValue(response.data.sections, 'MODULES', '', 'link');
+            let linkFeaturesOptions = getSectionFieldValue(response.data.sections, 'FEATURE_OPTIONS', '', 'link');
+
+            openProduct(title, link, linkEBOM, linkMBOM, linkModules, linkFeaturesOptions);
+
+            $('#overlay').hide();
+        });
+
+    }
 
 });
 
@@ -128,7 +149,11 @@ function setUIEvents() {
 
     $('#header-toggle-ebom').click(function() {
         $('body').toggleClass('fixed-ebom');
-        if($('body').hasClass('fixed-ebom')) { $('#bom').insertAfter($('.tabs')); }
+        $('#bom-title').toggle();
+        if($('body').hasClass('fixed-ebom')) { 
+            $('#bom').insertAfter($('.tabs')); 
+            $('#tab-bom').click();
+        }
         else { $('#bom').appendTo($('.tab-group-main').first()); }
         viewerResize();
     })
@@ -137,13 +162,45 @@ function setUIEvents() {
 }
 
 
+// Add tile actions
+function insertWorkspaceItemsDone(id) {
+
+    // if(!$('body').hasClass('standalone')) return;
+
+    $('#' + id + '-content').children().each(function() {
+
+        $('<div></div>').appendTo($(this))
+            .addClass('button')
+            .addClass('icon')
+            .addClass('icon-open')
+            .addClass('tile-action')
+            .click(function(e) {
+                e.preventDefault;
+                e.stopPropagation();
+                let elemTile = $(this).closest('.tile');
+                window.open(document.location.href + '&dmsId=' + elemTile.attr('data-link').split('/')[6]);
+            });
+
+    });
+
+}
+
+
 // Click on product to open its BOM and configuration management
 function clickWorkspaceItem(e, elemClicked) {
 
-    let link        = elemClicked.attr('data-link');
-    let linkEBOM    = elemClicked.attr('data-engineering_bom');
-    let linkMBOM    = elemClicked.attr('data-manufacturing_bom');
-    let linkModules = elemClicked.attr('data-modules');
+    let title               = elemClicked.attr('data-title');
+    let link                = elemClicked.attr('data-link');
+    let linkEBOM            = elemClicked.attr('data-engineering_bom');
+    let linkMBOM            = elemClicked.attr('data-manufacturing_bom');
+    let linkModules         = elemClicked.attr('data-modules');
+    let linkFeaturesOptions = elemClicked.attr('data-features_options');
+
+    openProduct(title, link, linkEBOM, linkMBOM, linkModules, linkFeaturesOptions);
+
+}
+
+function openProduct(title, link, linkEBOM, linkMBOM, linkModules, linkFeaturesOptions) {
 
     $('#products').hide();
     $('#details').show();
@@ -151,7 +208,7 @@ function clickWorkspaceItem(e, elemClicked) {
     $('#details').attr('data-link', link);
     $('#details').attr('data-link-bom', linkEBOM);
     $('#details').attr('data-part-number', '');
-    $('#details').find('.panel-title').html(elemClicked.attr('data-title'));
+    $('#details').find('.panel-title').html(title);
     $('.screen').removeClass('surface-level-1');
     $('.screen').addClass('surface-level-2');
     $('#select-configuration').children().remove();
@@ -159,9 +216,10 @@ function clickWorkspaceItem(e, elemClicked) {
     $('.configuration-action').hide();
 
     if($('body').hasClass('standalone')) {
-        $('#tab-bom').click();
+        // $('#tab-bom').click();
         $('#header-toggle-ebom').css('display', 'flex');
-        console.log($('#tab-bom').length);
+        // console.log($('#tab-bom').length);
+        $('#header-subtitle').html(title).show();
     } else {
         $('.tabs').children().first().click();
     }
@@ -170,7 +228,7 @@ function clickWorkspaceItem(e, elemClicked) {
 
 
     getContextPartNumber(linkEBOM);
-    getProductConfigurationRules(link, elemClicked.attr('data-features_options'));
+    getProductConfigurationRules(link, linkFeaturesOptions);
     insertBOM(linkEBOM, {
         'title'       : titleEBOM,
         'bomViewName' : 'Konfigurationsmanagement',
@@ -188,7 +246,7 @@ function clickWorkspaceItem(e, elemClicked) {
 
     if(typeof chrome.webview === 'undefined') {
         $('#viewer').show();
-        insertViewer(elemClicked.attr('data-engineering_bom'), viewerBGColors[theme].level2);
+        insertViewer(linkEBOM, viewerBGColors[theme].level2);
     } 
 
 }
@@ -517,6 +575,16 @@ function setProductModules(id) {
 
                 $('<div></div>').appendTo(elemModuleToolbar)
                     .addClass('button')
+                    .addClass('with-icon')
+                    .addClass('icon-rules')
+                    .html('Regeleditor')
+                    .addClass('toggle-module-grid')
+                    .attr('title', 'Stellt die Zuordnung der einzelnen Ausprägungen zu Merkmalsoptionen dar')
+                    .click(function() {
+                        // toggleModuleGrid($(this));
+                    });
+                $('<div></div>').appendTo(elemModuleToolbar)
+                    .addClass('button')
                     .addClass('icon')
                     .addClass('icon-table')
                     .addClass('toggle-module-grid')
@@ -530,7 +598,7 @@ function setProductModules(id) {
                     elemModuleAction.addClass('default');
                     elemModuleAction.addClass('with-icon');
                     elemModuleAction.addClass('icon-link');
-                    elemModuleAction.html('Variante hinzufügen')
+                    elemModuleAction.html('Variante')
                     elemModuleAction.attr('data-context-descriptor', elemItem.attr('data-title').split('[REV')[0]);
                     elemModuleAction.attr('title', 'Fügt die ausgewählte Geometrie als weitere Modulausprägung zu diesem Modul hinzu');
                     elemModuleAction.appendTo(elemModuleToolbar);

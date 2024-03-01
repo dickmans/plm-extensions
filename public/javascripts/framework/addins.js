@@ -45,12 +45,12 @@ function select3D(partNumbers) {
             let number = numbers[numbers.length - 1];
             selectNumbers.push(number.split(':')[0]);
         }
-        viewerSelectModels(selectNumbers);
-        $('#bom-tbody').children().each(function() {
-            let partNumber = $(this).attr('data-part-number');
-            if(selectNumbers.indexOf(partNumber) < 0) $(this).removeClass('selected');
-            else $(this).addClass('selected');
-        });
+        viewerSelectModels(selectNumbers, false, true);
+        // $('#bom-tbody').children().each(function() {
+        //     let partNumber = $(this).attr('data-part-number');
+        //     if(selectNumbers.indexOf(partNumber) < 0) $(this).removeClass('selected');
+        //     else $(this).addClass('selected');
+        // });
     } else if(isolate) isolateComponents(partNumbers);
     else selectComponents(partNumbers);
 }

@@ -219,17 +219,22 @@
 
 /*  ATTACHMENTS */
 /* ----------------------------------------------------------------------------- */
-.attachments {
-    display : flex;
-    gap     : var(--spacer-xs);  
+.attachments-list {
+    display     : flex;
+    gap         : var(--spacer-xs);  
+    overflow-y  : auto;
+    position    : absolute;
+    top         : 52px;
+    right       : 0px;
+    bottom      : 0px;
+    left        : 0px;
 }
-.attachments.list {
-    flex-direction: column;
+.no-header > .attachments-list {
+    top : 0px;
 }
 .attachment {
     cursor  : pointer;
     padding : 8px 20px 8px 10px;
-    width   : calc(100% - 32px) !important;
 }
 .attachment-graphic { 
     display         : flex;
@@ -239,22 +244,29 @@
     width           : 64px;
 }
 .attachment-graphic > img { 
-    height : 80%;
-    object-fit: contain;
-    width : 80%;
+    height      : 80%;
+    object-fit  : contain;
+    width       : 80%;
 }
 .attachment-details {
-    overflow: hidden;
-    max-width : calc(100% - 90px);
+    overflow    : hidden;
+    max-width   : calc(100% - 90px);
 }
 .attachment-name {
     font-weight : 700;
     line-height : 24px;
 }
-.attachment-user, 
+.attachment-version {
+    background      : var(--color-surface-level-5);
+    border-radius   : 3px;
+    padding         : 0px 6px;
+}
+.attachment-version, 
+.attachment-size, 
+.attachment-user,
 .attachment-date {
-    font-size: 12px;
-    line-height: 16px;
+    font-size   : 12px;
+    line-height : 16px;
 }
 #frame-download {
     display : none;
@@ -267,6 +279,169 @@
     display : none;
 }
 
+.no-attachments-header > .attachments {
+    top : 0px;
+}
+
+.attachments-list.tiles {
+    flex-direction  : row;
+    flex-wrap       : nowrap;
+    gap             : var(--spacer-xxxs);
+    overflow-y      : auto;
+}
+.attachments-list.tiles .attachment {
+    height      : unset;
+    padding     : 8px 16px 8px 16px;
+    text-align  : center;
+}
+.attachments-list.tiles .attachment-graphic {
+    display         : flex;
+    flex-direction  : column;
+    justify-content : center;
+    width           : 100% !important;
+}
+.attachments-list.tiles .attachment-graphic > img {
+    width : 100% !important;
+}
+.attachments-list.tiles.xxs > .attachment { min-width : 120px; width : 120px; }
+.attachments-list.tiles.xs  > .attachment { min-width : 120px; width : 120px; }
+.attachments-list.tiles.s   > .attachment { min-width : 160px; width : 160px; }
+.attachments-list.tiles.m   > .attachment { min-width : 160px; width : 160px; }
+.attachments-list.tiles.l   > .attachment { min-width : 180px; width : 180px; }
+.attachments-list.tiles.xl  > .attachment { min-width : 200px; width : 200px; }
+.attachments-list.tiles.xxl > .attachment { min-width : 220px; width : 220px; }
+.attachments-list.tiles.xxs .attachment-graphic, .attachments-list.tiles.xxs .attachment-graphic > img { height :  16px; min-width:  16px; width :  16px; }
+.attachments-list.tiles.xs  .attachment-graphic, .attachments-list.tiles.xs  .attachment-graphic > img { height :  24px; min-width:  24px; width :  24px; }
+.attachments-list.tiles.s   .attachment-graphic, .attachments-list.tiles.s   .attachment-graphic > img { height :  32px; min-width:  32px; width :  32px; }
+.attachments-list.tiles.m   .attachment-graphic, .attachments-list.tiles.m   .attachment-graphic > img { height :  48px; min-width:  48px; width :  48px; }
+.attachments-list.tiles.l   .attachment-graphic, .attachments-list.tile0s.l  .attachment-graphic > img { height :  64px; min-width:  64px; width :  64px; }
+.attachments-list.tiles.xl  .attachment-graphic, .attachments-list.tiles.xl  .attachment-graphic > img { height :  96px; min-width:  96px; width :  96px; }
+.attachments-list.tiles.xxl .attachment-graphic, .attachments-list.tiles.xxl .attachment-graphic > img { height : 128px; min-width: 128px; width : 128px; }
+.attachments-list.tiles .attachment-details {
+    max-width : 100%;
+}
+.attachments-list.tiles .attachment-version {
+    margin      : auto;
+    max-width   : 26px;
+}
+.attachments-list.tiles.xxs .attachment-user,
+.attachments-list.tiles.xs .attachment-user,
+.attachments-list.tiles.xxs .attachment-date,
+.attachments-list.tiles.xs .attachment-date {
+    display : none;
+}
+
+.attachments-list.list {
+    display         : flex;
+    flex-direction  : column;
+    gap             : var(--spacer-xxxs);
+    overflow-x      : auto;
+}
+.attachments-list.list .attachment {
+    display     : flex;
+    gap         : var(--spacer-s);
+    padding     : var(--spacer-s);
+    width       : unset !important;
+}
+.attachments-list.list .attachment-details {
+    max-width : calc(100% - 52px);
+    width     : calc(100% - 52px);
+}
+.attachments-list.list .attachment-name {
+    display     : inline-flex;
+    font-weight : bold;
+}
+.attachments-list.list .attachment-summary {
+    display         : flex;
+    flex-direction  : row;
+    gap             : var(--spacer-m);
+}
+
+.attachments-list.list.xxl,
+.attachments-list.list.xl {
+    gap : var(--spacer-xxs);
+}
+
+.attachments-list.list.xxs > .attachment { padding: var(--spacer-xxs); height : 12px ! important; min-height : 12px ! important; }
+.attachments-list.list.xs >  .attachment { padding: var(--spacer-xs);  height : 18px ! important; min-height : 18px ! important; }
+.attachments-list.list.s >   .attachment { padding: var(--spacer-s);   height : 24px ! important; min-height : 24px ! important; }
+.attachments-list.list.m >   .attachment { padding: var(--spacer-s);   height : 32px ! important; min-height : 32px ! important; }
+.attachments-list.list.l >   .attachment { padding: var(--spacer-s);   height : 36px ! important; min-height : 36px ! important; }
+.attachments-list.list.xl >  .attachment { padding: var(--spacer-m);   height : 42px ! important; min-height : 42px ! important; }
+.attachments-list.list.xxl > .attachment { padding: var(--spacer-m);   height : 48px ! important; min-height : 48px ! important; }
+
+.attachments-list.list.xxs .attachment-graphic, .attachments-list.list.xxs .attachment-graphic > img { height : 12px; min-width: 12px; width : 12px; }
+.attachments-list.list.xs  .attachment-graphic, .attachments-list.list.xs  .attachment-graphic > img { height : 18px; min-width: 18px; width : 18px; }
+.attachments-list.list.s   .attachment-graphic, .attachments-list.list.s   .attachment-graphic > img { height : 24px; min-width: 24px; width : 24px; }
+.attachments-list.list.m   .attachment-graphic, .attachments-list.list.m   .attachment-graphic > img { height : 32px; min-width: 32px; width : 32px; }
+.attachments-list.list.l   .attachment-graphic, .attachments-list.list.l   .attachment-graphic > img { height : 36px; min-width: 16px; width : 36px; }
+.attachments-list.list.xl  .attachment-graphic, .attachments-list.list.xl  .attachment-graphic > img { height : 42px; min-width: 16px; width : 42px; }
+.attachments-list.list.xxl .attachment-graphic, .attachments-list.list.xxl .attachment-graphic > img { height : 48px; min-width: 16px; width : 48px; }
+
+.attachments-list.list.xxs div { line-height : 12px; }
+.attachments-list.list.xs  div { line-height : 18px; }
+.attachments-list.list.s   div { line-height : 24px; }
+.attachments-list.list.m   div { line-height : 16px; }
+.attachments-list.list.l   div { line-height : 18px; }
+.attachments-list.list.xl  div { line-height : 21px; }
+.attachments-list.list.xxl div { line-height : 24px; }
+
+.attachments-list.list.xxl  .attachment-name,
+.attachments-list.list.xl   .attachment-name,
+.attachments-list.list.xxl  .attachment-summary > div,
+.attachments-list.list.xl   .attachment-summary > div {
+    font-size : 14px;
+}  
+
+.attachments-list.list.xxs .attachment-user, .attachments-list.list.xxs .attachment-date,
+.attachments-list.list.xs .attachment-user, .attachments-list.list.xs .attachment-date {
+    display : none;
+}
+.attachments-list.list.xxs .attachment-details,
+.attachments-list.list.xs .attachment-details,
+.attachments-list.list.s .attachment-details {
+    display         : flex;
+    flex-direction  : row;
+    gap             : var(--spacer-xxs);
+    justify-content : space-between;
+}
+
+
+.attachments-list.table {
+    display : block;
+}
+.attachments-table {
+    display : table;
+}
+.attachments-table > .attachment {
+    display : table-row;
+    width   : auto;
+}
+.attachments-table > .attachment > div {
+    border-bottom : 2px solid white;
+    display : table-cell;
+}
+
+.attachments-list.table.xxs .attachment-graphic, .attachments-list.table.xxs .attachment-graphic > img { height : 12px; min-width: 12px; width : 12px; }
+.attachments-list.table.xs  .attachment-graphic, .attachments-list.table.xs  .attachment-graphic > img { height : 12px; min-width: 12px; width : 12px; }
+.attachments-list.table.s   .attachment-graphic, .attachments-list.table.s   .attachment-graphic > img { height : 16px; min-width: 16px; width : 16px; }
+.attachments-list.table.m   .attachment-graphic, .attachments-list.table.m   .attachment-graphic > img { height : 16px; min-width: 16px; width : 16px; }
+.attachments-list.table.l   .attachment-graphic, .attachments-list.table.l   .attachment-graphic > img { height : 16px; min-width: 16px; width : 16px; }
+.attachments-list.table.xl  .attachment-graphic, .attachments-list.table.xl  .attachment-graphic > img { height : 16px; min-width: 16px; width : 16px; }
+.attachments-list.table.xxl .attachment-graphic, .attachments-list.table.xxl .attachment-graphic > img { height : 16px; min-width: 16px; width : 16px; }
+
+.attachments-list.table.xxs .attachment > div { font-size : 12px; height : 16px; line-height : 16px; padding : 2px  8px; }
+.attachments-list.table.xs  .attachment > div { font-size : 12px; height : 18px; line-height : 18px; padding : 4px  8px; }
+.attachments-list.table.s   .attachment > div { font-size : 14px; height : 24px; line-height : 24px; padding : 2px 10px; }
+.attachments-list.table.m   .attachment > div { font-size : 14px; height : 32px; line-height : 32px; padding : 2px 10px; }
+.attachments-list.table.l   .attachment > div { font-size : 14px; height : 36px; line-height : 36px; padding : 2px 10px; }
+.attachments-list.table.xl  .attachment > div { font-size : 14px; height : 42px; line-height : 42px; padding : 2px 10px; }
+.attachments-list.table.xxi .attachment > div { font-size : 14px; height : 64px; line-height : 64px; padding : 4px 14px; }
+
+.attachments-table > .attachment > .attachment-version { border-radius : 0px; }
+.attachments-table > .attachment > .attachment-size { text-align : right; }
+
+
 .surface-level-1 .attachment { background-color : var(--color-surface-level-3); }
 .surface-level-2 .attachment { background-color : var(--color-surface-level-4); }
 .surface-level-3 .attachment { background-color : var(--color-surface-level-5); }
@@ -277,6 +452,9 @@
 .surface-level-3 .attachment:hover { background-color : var(--color-surface-level-4); }
 .surface-level-4 .attachment:hover { background-color : var(--color-surface-level-3); }
 .surface-level-5 .attachment:hover { background-color : var(--color-surface-level-3); }
+
+.attachments > .processing { top : calc(50% + 18px); }
+.attachments.no-header > .processing { top : calc(50% - 15px); }
 
 
 
@@ -367,15 +545,15 @@
     width       : 60px;
 }
 .bom-content {
-    bottom : 48px;
+    bottom : 38px;
 }
 
 .bom-counters {
     background      : var(--color-surface-level-4);
     display         : flex;
     font-size       : 12px;
-    gap             : var(--spacer-m);
-    padding         : 8px 20px;
+    gap             : var(--spacer-xs);
+    padding         : 6px 16px;
     justify-content : space-between;
     position        : absolute;
     right           : 0px;
@@ -385,10 +563,10 @@
 .bom-counters > div {
     border-bottom   : 2px solid transparent;
     flex-grow       : 1;
-    height          : 20px;
-    line-height     : 20px;
+    height          : 18px;
+    line-height     : 18px;
     overflow        : hidden;
-    padding         : 2px 4px;
+    padding         : 3px 4px 1px;
     text-align      : center;
     text-overflow   : ellipsis;
     white-space     : nowrap;

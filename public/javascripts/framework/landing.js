@@ -51,7 +51,7 @@ $(document).ready(function() {
             $('body').removeClass('logs');
             $('.with-log').removeClass('with-log');
             $('.with-troubleshooting').removeClass('with-troubleshooting');
-            $('.tiles').addClass('surface-level-1');
+            $('.tiles').addClass('surface-level-1').removeClass('surface-level-2');
         }
     });
 
@@ -70,7 +70,7 @@ $(document).ready(function() {
                 $('.tile').removeClass('max');
                 $('.tile').removeClass('hidden');
                 $('.tile').removeClass('with-log');
-                $('.tiles').removeClass('surface-level-1');
+                $('.tiles').removeClass('surface-level-1').addClass('surface-level-2');
                 e.preventDefault();
                 e.stopPropagation();
             });

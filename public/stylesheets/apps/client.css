@@ -632,10 +632,7 @@ textarea.field-value {
 
 /* ATTACHMENTS */
 #item-attachments-list {
-    display         : flex;
-    flex-direction  : column;
-    gap             : var(--spacer-l);
-    padding         : var(--spacer-l);
+    padding : var(--spacer-l);
 }
 #uploadForm {
     display : none;

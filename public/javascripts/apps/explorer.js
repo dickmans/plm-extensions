@@ -15,13 +15,13 @@ $(document).ready(function() {
     wsProblemReports.id   = config.explorer.wsIdProblemReports;
     wsSupplierPackages.id = config.explorer.wsIdSupplierPackages;
 
+
     let link = '/api/v3/workspaces/' + wsId + '/items/' + dmsId;
     
     $('#details').attr('data-link', link);
 
     appendProcessing('dashboard', false);
     appendProcessing('bom', false);
-    appendProcessing('attachments', false);
     appendProcessing('details', false);
     appendProcessing('processes', false);
     appendViewerProcessing();
@@ -29,7 +29,7 @@ $(document).ready(function() {
     
     getInitialData();
     insertViewer(link, viewerBGColors[theme].level1);
-    insertAttachments(link);
+    insertAttachments(link, { 'size' : 's', 'upload' : true, 'extensionsEx' : '.dwf,.dwfx' });
     insertChangeProcesses(link, 'processes');
     setUIEvents();
 
@@ -75,7 +75,6 @@ function setUIEvents() {
         } else {
             $('body').removeClass('with-panel');
         }
-        // setTimeout(function() { viewer.resize(); }, 250);
         viewerResize();
     });
 
@@ -700,15 +699,14 @@ function selectBOMItem(e, elemClicked) {
     $('#cancel-process').hide();
     $('#save-process').hide();
     $('#processes-details').hide();
-
     
-
     let partNumbers = [];
 
     if(elemClicked.hasClass('selected')) {
         
         elemClicked.removeClass('selected');
         viewerResetSelection(true);
+        insertAttachments($('#viewer').attr('data-link'), { 'size' : 's', 'upload' : true, 'extensionsEx' : '.dwf,.dwfx' });
 
         // if($('.flat-bom-row.selected').length === 0) {
 
@@ -739,24 +737,7 @@ function selectBOMItem(e, elemClicked) {
         //     elemClicked.click();
         // }
 
-    } else {
-
-        // let linkSelected   = elemClicked.attr('data-link');
-        // let resetSelection = (!e.shiftKey) ? true : (linkSelected.split('/')[4] !== multiSelect.wsId);
-
-        // if(resetSelection) {
-        //     multiSelect.wsId        = linkSelected.split('/')[4];
-        //     multiSelect.links       = [linkSelected];
-        //     multiSelect.common      = [];     
-        //     multiSelect.varies      = [];     
-        //     multiSelect.partNumbers = [elemClicked.attr('data-part-number')];
-        //     $('tr.selected').removeClass('selected');      
-        // } else {
-        //     multiSelect.links.push(linkSelected);
-        //     multiSelect.partNumbers.push(elemClicked.attr('data-part-number'));
-        // }
-
-        
+    } else {      
 
         if(e.shiftKey) {
 
@@ -805,9 +786,8 @@ function selectBOMItem(e, elemClicked) {
         viewerSelectModels(partNumbers, true);
 
         setItemDetails(linkSelected);
-        insertAttachments(linkSelected);
+        insertAttachments(linkSelected, { 'size' : 's', 'upload' : true, 'extensionsEx' : '.dwf,.dwfx' });
         insertChangeProcesses(linkSelected, 'processes');
-        
         
     }
 

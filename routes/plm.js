@@ -1754,7 +1754,7 @@ router.get('/get-viewables', function(req, res, next) {
     
     let link        = (typeof req.query.link === 'undefined') ? '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId : req.query.link;
     let url         = 'https://' + req.session.tenant + '.autodeskplm360.net' + link + '/attachments?asc=name';
-    let extensions  = (typeof req.query.extensions === 'undefined') ? ['dwf', 'dwfx', 'ipt', 'stp', 'step', 'sldprt'] : req.query.extensions;
+    let extensions  = (typeof req.query.extensions === 'undefined') ? ['dwf', 'dwfx', 'ipt', 'stp', 'step', 'sldprt', 'nwd'] : req.query.extensions;
 
     let headers = getCustomHeaders(req);
         headers.Accept = 'application/vnd.autodesk.plm.attachments.bulk+json';
@@ -1770,13 +1770,13 @@ router.get('/get-viewables', function(req, res, next) {
             for(let i = 0; i < response.data.attachments.length; i++) {
 
                 let attachment = response.data.attachments[i];
-                
+
                 if(attachment.type.extension !== null) {
 
                     let extensionMatch = false;
                     let extensionLCase = attachment.type.extension.toLowerCase();
 
-                    for(extension of extensions) {
+                    for(let extension of extensions) {
                         if(extensionLCase.endsWith(extension)) extensionMatch = true;
                     }
 
@@ -1814,7 +1814,8 @@ function getViewables(req, res, headers, link, viewables, attempt) {
 
     let requests = [];
 
-    for(viewable of viewables) {
+    for(let viewable of viewables) {
+
         if(viewable.status !== 'DONE') {
             let url = 'https://' + req.session.tenant  + '.autodeskplm360.net' + link + '/attachments/' + viewable.id;
             if(viewable.status === 'FAILED') url += '?force=true';
@@ -1826,8 +1827,10 @@ function getViewables(req, res, headers, link, viewables, attempt) {
 
         let success = true;
 
-        for(viewable of viewables) {
-            for(response of responses) {
+        for(let viewable of viewables) {
+
+            for(let response of responses) {
+
                 if((viewable.name === response.fileName) || ((viewable.name + viewable.extension) === response.fileName)) {
                     if(response.status !== 'DONE') {
                         success = false;

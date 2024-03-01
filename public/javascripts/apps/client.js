@@ -866,15 +866,15 @@ function showItem(ws, link, buttonView) {
 
     setItemDetails(ws, link);
 
-    if(hasPermission(ws, 'view_attachments')) {
+    if(hasPermission(ws.permissions, 'view_attachments')) {
         setItemAttachments(link);
         insertViewer(link, viewerBGColors[theme].level1);
     }
-    if(hasPermission(ws, 'view_bom')) setItemBOM(ws, link);
-    if(hasPermission(ws, 'view_associated_workflow')) setProcesses(link);
-    if(hasPermission(ws, 'view_workflow_items')) setManagedItems(link);
-    if(hasPermission(ws, 'view_relationships')) setRelationships(link);
-    if(hasPermission(ws, 'view_change_log')) getChangeLog(link);
+    if(hasPermission(ws.permissions, 'view_bom')) setItemBOM(ws, link);
+    if(hasPermission(ws.permissions, 'view_associated_workflow')) setProcesses(link);
+    if(hasPermission(ws.permissions, 'view_workflow_items')) setManagedItems(link);
+    if(hasPermission(ws.permissions, 'view_relationships')) setRelationships(link);
+    if(hasPermission(ws.permissions, 'view_change_log')) getChangeLog(link);
 
     setItemCreateList(ws, link);
 
@@ -886,14 +886,6 @@ function showItem(ws, link, buttonView) {
         $('#item-toolbar').children('.selected:visible').click();
     }
 
-}
-function hasPermission(ws, name) {
-
-    for(permission of ws.permissions) {
-        if(permission.name === 'permission.shortname.' + name) return true;
-    }
-
-    return false;
 }
 function insertViewerCallback(viewable) {
     
@@ -913,7 +905,7 @@ function setItemDetails(ws, link) {
 
     let promises = [ $.get( '/plm/details', { 'link' : link }) ]
 
-    if(hasPermission(ws, 'view_workflow')) promises.push($.get('/plm/transitions', { 'link' : link }));
+    if(hasPermission(ws.permissions, 'view_workflow')) promises.push($.get('/plm/transitions', { 'link' : link }));
 
     Promise.all(promises).then(function(responses) {       
 
@@ -929,13 +921,13 @@ function setItemDetails(ws, link) {
         if(!item.itemLocked) {
             if(hasEditableSection(item)) {
                 if(ws.update) {
-                    if(hasPermission(ws, 'edit_items')) {
+                    if(hasPermission(ws.permissions, 'edit_items')) {
                         $('#item-action-edit').show();
                     }
                 }
             }
             if(item.editable) {
-                if(hasPermission(ws, 'add_attachments')) {
+                if(hasPermission(ws.permissions, 'add_attachments')) {
                     $('#item-action-upload').show();
                 }
                 if(ws.delete) {
@@ -976,13 +968,13 @@ function isEditable(item, transitions) {
         
         // Worklfow Driven
         if(transitions.length > 0) { return true; }
-        if(hasPermission(ws, 'admin_override_workflow_locks')) { return true; }
+        if(hasPermission(ws.permissions, 'admin_override_workflow_locks')) { return true; }
 
     } else if(item.workspace.type === "/api/v3/workspace-types/6") { 
 
         // Rev Controlled
         if(item.workingVersion) { return true; }
-        if(hasPermission(ws, 'override_revision_control_locks')) { return true; }
+        if(hasPermission(ws.permissions, 'override_revision_control_locks')) { return true; }
 
     }
 
@@ -1010,7 +1002,13 @@ function setItemAttachments(link) {
     $('#item-button-files').show();
     $('#files-counter').hide();
 
-    insertAttachments(link, 'item-attachments');
+    insertAttachments(link, { 
+        'id'        : 'item-attachments',
+        'header'    : false, 
+        'layout'    : 'list',
+        'size'      : 'xl', 
+        'upload'    : false, 
+    });
 
 }
 function insertAttachmentsDone () {

@@ -58,21 +58,21 @@
     left : 0px;
 }
 .split-left {
-    position: absolute;
-    top: 60px;
-    bottom: 60px;
-    left: 60px;
+    position : absolute;
+    top      : 0px;
+    bottom   : 0px;
+    left     : 0px;
 }
 .split-right {
-    position: absolute;
-    top: 60px;
-    right: 60px;
-    bottom: 60px;
+    position : absolute;
+    top      : 0px;
+    right    : 0px;
+    bottom   : 0px;
 }
 .split-divider {
     position : absolute;
-    top : 0px;
-    bottom : 0px;
+    top     : 0px;
+    bottom  : 0px;
 }
 .split.left-250 > .split-left  { width : 250px; }
 .split.left-250 > .split-right { width : calc(100% - 520px); overflow-y : auto; }
@@ -81,13 +81,13 @@
 .split.left-300 > .split-right { width : calc(100% - 450px); overflow-y : auto; }
 .split.left-300 > .split-divider { left : 300px; }
 .split.left-350 > .split-left  { width : 350px; }
-.split.left-350 > .split-right { width : calc(100% - 640px); overflow-y : auto; }
+.split.left-350 > .split-right { width : calc(100% - 710px); overflow-y : auto; }
 .split.left-350 > .split-divider { left : 350px; }
 
-.split-left.padding-80  { top :  80px; bottom :  80px; left :  80px; }
-.split-left.padding-100 { top : 100px; bottom : 100px; left : 100px; }
-.split-right.padding-80  { top :  80px; bottom :  80px; right :  80px; }
-.split-right.padding-100 { top : 100px; bottom : 100px; right : 100px; }
+.split-left.padding-80   { border-width :  80px  80px  80px  80px; }
+.split-left.padding-100  { border-width : 100px 100px 100px 100px; }
+.split-right.padding-80  { border-width :  80px  80px  80px  80px; }
+.split-right.padding-100 { border-width : 100px 100px 100px 100px; }
 
 
 
@@ -381,6 +381,15 @@
     padding-top : 6px;
 }
 
+@keyframes highlight {
+    from { background  : var(--color-yellow-500); } 
+      to { background  : var(--color-yellow-200); }
+}
+.highlight {
+   animation: highlight 1s ease;
+}
+
+
 .surface-level-1 .tiles-group { border-color : var(--color-surface-level-3); }
 .surface-level-2 .tiles-group { border-color : var(--color-surface-level-4); }
 .surface-level-3 .tiles-group { border-color : var(--color-surface-level-5); }
@@ -628,6 +637,7 @@ and (max-device-width : 1900px)  {
 .panel-header {
     border-bottom   : 2px solid var(--color-surface-level-5);
     display         : flex;
+    gap             : var(--spacer-s);
     justify-content : space-between;
 }
  .dark-theme .panel-header { border-color : var(--color-surface-level-4); }
@@ -659,22 +669,33 @@ and (max-device-width : 1900px)  {
     padding     : 0px 10px;
 }
 .panel-subtitle > span:first-of-type {
-    border-left : none;
+    border-left  : none;
     padding-left : 0px;
 }
 .panel-title {
-    font-size : 18px;
-    font-weight : 800;
-    height : 18px;
-    line-height : 18px;
-    overflow : hidden;
-    white-space: nowrap;
-    padding : 10px 14px 20px;
-    text-overflow : ellipsis;
+    flex-grow       : 1;
+    font-size       : 18px;
+    font-weight     : 800;
+    height          : 18px;
+    line-height     : 18px;
+    overflow        : hidden;
+    padding         : 10px 14px 20px;
+    text-overflow   : ellipsis;
+    white-space     : nowrap;
 }
-.panel-title.centered {
+.centered > .panel-header > .panel-title {
     text-align : center;
     width : 100%;
+}
+.panel-header.with-toggle {
+    cursor : pointer;
+}
+.panel-header.with-toggle > .panel-title {
+    padding-left : 0px;
+}
+.panel-header.collapsed { border-color : transparent;}
+.panel-header-toggle {
+    padding : 7px 0px 0px 10px;
 }
 
 
@@ -954,11 +975,9 @@ and (max-device-width : 1900px)  {
     white-space     : nowrap;
 }
 .button.disabled {
-    cursor : not-allowed;
-}
-.button.disabled {
-    /* border-color : rgba(128, 128, 128, 0.5);
-    color : #808080; */
+    border-color : var(--color-surface-level-3) !important;
+    color        : var(--color-surface-level-3) !important;
+    cursor       : not-allowed;
 }
 .button.default.disabled {
     color   : #ffffff;
@@ -1170,3 +1189,32 @@ and (max-device-width : 1900px)  {
 .message-footer {
     font-size : 12px;
 }
+
+
+/*  PREVIEW */
+/* ----------------------------------------------------------------------------- */
+/* #preview {
+    z-index : 8;
+}
+#preview-header {
+    display         : flex;
+    gap             : 20px;
+    justify-content : space-between;
+    padding         : 20px 40px;
+    position        : absolute;
+    top             : 0px;
+    right           : 0px;
+    left            : 0px;
+}
+#preview-title {
+    font-size   : 22px;
+    font-weight : 800;
+}
+#preview-frame {
+    border : 20px solid var(--color-surface-level-3);
+    position        : absolute;
+    top             : 80px;
+    right           : 0px;
+    bottom          : 0px;
+    left            : 0px;
+} */

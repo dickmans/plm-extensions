@@ -168,23 +168,19 @@ function appendNoDataFound(id, icon, text) {
 
     let elemParent = $('#' + id);
 
-    let elemNoData = $('<div></div>');
-        elemNoData.addClass('no-data');
-        elemNoData.addClass('hidden');
-        elemNoData.attr('id', id + '-no-data');
-        elemNoData.appendTo(elemParent);
+    let elemNoData = $('<div></div>').appendTo(elemParent)
+        .addClass('no-data')
+        .attr('id', id + '-no-data')
+        .hide();
 
+     $('<div></div>').appendTo(elemNoData)
+        .addClass('no-data-icon')
+        .addClass('icon')
+        .addClass(icon);
 
-    let elemNoDataIcon = $('<div></div>');
-        elemNoDataIcon.addClass('no-data-icon');
-        elemNoDataIcon.addClass('icon');
-        elemNoDataIcon.addClass(icon);
-        elemNoDataIcon.appendTo(elemNoData);
-
-    let elemNoDataText = $('<div></div>');
-        elemNoDataText.addClass('no-data-text');
-        elemNoDataText.html(text);
-        elemNoDataText.appendTo(elemNoData);
+    $('<div></div>').appendTo(elemNoData)
+        .addClass('no-data-text')
+        .html(text);
 
 }
 
@@ -264,6 +260,19 @@ function getSurfaceLevel(elem) {
 
 }
 
+
+// Panel Header collapse / expand
+function togglePanelHeader(elemClicked) {
+
+    let elemToggle = elemClicked.find('.panel-header-toggle');
+    elemToggle.toggleClass('icon-collapse').toggleClass('icon-expand');
+
+    elemClicked.siblings().toggleClass('hidden');
+    elemClicked.toggleClass('collapsed');
+
+    elemClicked.parent().find('.highlight').removeClass('highlight');
+
+}
 
 
 // Handle tabs
@@ -1173,14 +1182,20 @@ function addFieldToPayload(payload, sections, elemField, fieldId, value, skipEmp
         }
     }
 
-    let sectionId   = getFieldSectionId(sections, fieldId);
+    let sectionId   = null;
     let isNew       = true;
-    let fieldData   = {
-        'fieldId' : fieldId,
-        'value'   : value
-    };
+    let fieldData   = {};
 
-    if(!isBlank(elemField)) fieldData = getFieldValue(elemField);
+    if(!isBlank(elemField)) {
+        fieldData  = getFieldValue(elemField);
+        sectionId  = getFieldSectionId(sections, fieldData.fieldId);
+    } else {
+        sectionId  = getFieldSectionId(sections, fieldId);
+        fieldData  = {
+            'fieldId' : fieldId,
+            'value'   : value
+        };
+    }
 
     for(section of payload) {
         if(section.id === sectionId) {
@@ -1199,6 +1214,17 @@ function addFieldToPayload(payload, sections, elemField, fieldId, value, skipEmp
 }
 
 
+// Determin if given permission is granted
+function hasPermission(permissions, id) {
+
+    for(let permission of permissions) {
+        if(permission.name === 'permission.shortname.' + id) return true;
+    }
+
+    return false;
+
+}
+
 
 // Convert URN to link
 function convertURN2Link(urn) {
@@ -1211,7 +1237,6 @@ function convertURN2Link(urn) {
 
 
 }
-
 
 
 // Decode paragraph html tags

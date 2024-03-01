@@ -3,6 +3,13 @@ let wsEBOM             = { 'id' : '', 'sections' : [], 'fields' : [], 'viewId' :
 let wsMBOM             = { 'id' : '', 'sections' : [], 'fields' : [], 'viewId' : '', 'viewColumns' : [] };
 let singleWorkspace    = false;
 
+let paramsAttachments = { 
+    'extensionsEx'  : '.dwf,.dwfx',
+    'header'        : false, 
+    'layout'        : 'list',
+    'size'          : 'xs'
+}
+
 let eBOM         = {};
 let mBOM         = {};
 let instructions = [];
@@ -398,7 +405,7 @@ function processRoots(itemDetails) {
 
             insertViewer(linkEBOM, viewerBGColors[theme].level1);
             insertItemDetails(linkEBOM);
-            insertAttachments(linkEBOM, 'attachments');
+            insertAttachments(linkEBOM, paramsAttachments);
             initEditor();
 
         });
@@ -2084,7 +2091,7 @@ function selectItem(elemItem, filter) {
 
             }
             insertItemDetails(link);
-            insertAttachments(link, 'attachments');
+            insertAttachments(link, paramsAttachments);
             setBOMPanels(link);
         }
 

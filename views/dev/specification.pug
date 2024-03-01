@@ -1,0 +1,72 @@
+extends ../framework/layout
+
+block head
+
+    link(rel='stylesheet', href='/stylesheets/dev/specification.css')
+    script(src='/javascripts/dev/specification.js')
+    script.
+        config = !{JSON.stringify(config)};
+
+block body
+
+    body.text-selection-off.surface-level-1.screen-landing
+
+        #header.dark
+            #header-logo
+            #header-title= title
+            #header-subtitle
+            #header-toolbar
+                #done.button.with-icon.icon-home(title='Close this product display and return to landing page') Home
+                #header-sync.button.disabled.default(title='Toggle BOM display on/off') EBOM Sync
+                //- #header-save.button.default(title='Toggle BOM display on/off') Save
+                #toggle-layout.button.with-icon.icon-toggle-layout(title='Toggle alternate screen layouts') Toggle Layout
+                #toggle-bom.button.with-icon.icon-bom-tree(title='Toggle BOM display on/off') Toggle BOM
+                #toggle-attachments.button.with-icon.icon-pdf(title='Toggle selected items files list on/off') Toggle Files
+                #toggle-details.button.with-icon.icon-details(title='Toggle selected item details on/off') Toggle Details
+                #header-avatar
+        
+        #counter
+
+        .screen#landing 
+            .panel#products.surface-level-1 
+
+            
+
+        .screen#main
+
+            .panel#bom.compact.surface-level-1
+
+            #viewer.viewer
+
+            #attachments
+                .panel-header
+                    .panel-title.centered Attachments
+                #attachments-list
+
+            #details.panel
+                .panel-header   
+                    .panel-title Details 
+                    .panel-toolbar 
+                        .button.icon.icon-bookmark#bookmark
+                        .button.icon.icon-open#open
+                .panel-content.surface-level-2.compact#details-sections
+
+            #grid
+
+            .panel#panel
+                .tabs(data-tab-group="tab-group-main")
+                    div.selected Motors
+                    div Sensors
+                    div Actors
+                    div Cylinders
+                    div Operator Panel
+                .panel-content.tab-group-main
+                    #list-motors.compact
+                .panel-content.tab-group-main
+                    #list-sensors.compact
+                .panel-content.tab-group-main
+                    #list-actors.compact
+                .panel-content.tab-group-main
+                    #list-cylinders.compact
+                .panel-content.tab-group-main
+                    #list-operator-panel.compact

@@ -941,9 +941,14 @@ function setItemDetails(link) {
     $('body').addClass('with-details');
 
     insertGrid(link, 'grid');
-    insertViewer(link, 255);        
+    insertViewer(link, viewerBGColors[theme].level2);        
     insertItemDetails(link);
-    insertAttachments(link, 'attachments');
+    insertAttachments(link, { 
+        'header'    : false, 
+        'layout'    : 'list',
+        'size'      : 's', 
+        'upload'    : false, 
+    });
 
     if(wsConfig.permissions.workflow) insertWorkflowActions(link);
 

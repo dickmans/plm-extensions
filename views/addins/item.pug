@@ -9,19 +9,22 @@ block head
 
 block body  
 
-    body.embedded
+    body
 
         #header.dark
             #header-logo
             #header-title= title
+            #header-subtitle
             #header-toolbar
                 #header-avatar
 
         .screen.surface-level-1  
 
+            .viewer#viewer
+
             .tabs.surface-level-2(data-tab-group="tab-group-main")
                 .tab Artikel
-                .tab#tab-bom EFE 
+                .tab#tab-bom BOM 
                 .tab Kolorierung 
                 .tab Dateien 
             

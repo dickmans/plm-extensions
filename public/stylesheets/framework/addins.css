@@ -67,7 +67,7 @@ body.embedded,
 .embedded select { font-size : 11px; }
 
 .embedded input  { padding : 2px 4px; }
-.embedded select { padding : 2px 4px; }
+.embedded select { padding : 1px 4px; }
 
 
 

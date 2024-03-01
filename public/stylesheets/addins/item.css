@@ -1,3 +1,59 @@
+:root {
+    
+    --width-viewer  : 700px;
+    --width-panel   : 1160px;
+    --padding-panel : 20px;
+
+}
+
+
+
+/* MASTER LAYOUT */
+/* ----------------------------------------------------------------------------- */
+#viewer { 
+    top     : var(--padding-panel);
+    bottom  : var(--padding-panel);
+    left    : var(--padding-panel);
+    right : calc(var(--width-panel) + (2 * var(--padding-panel)));
+    /* width   : var(--width-viewer); */
+}
+.standalone .tabs { 
+    background : transparent !important;
+    top         :var(--padding-panel) !important; 
+    right       : var(--padding-panel);
+    width : var(--width-panel);
+    /* left     : calc(var(--width-viewer) + (2 * var(--padding-panel))); */
+}
+.standalone .tab-group-main {
+    border-top : 10px solid var(--color-surface-level-2);
+    top     : 70px !important;
+    right   : var(--padding-panel);
+    width : var(--width-panel);
+    bottom  : var(--padding-panel);
+    left : unset;
+    /* left     : calc(var(--width-viewer) + (2 * var(--padding-panel))); */
+}
+.standalone .tab-group-main > .panel-header {
+    border : none;
+}
+
+.standalone table input, .standalone table select, .standalone table td { font-size : 12px; line-height : 14px;}
+.standalone table input { padding : 4px 8px; }
+.standalone table select { padding : 2px 4px; }
+.standalone table th { font-size : 12px; }
+.standalone table td { padding : 5px; }
+.standalone .flat-bom-column-number, .standalone .flat-bom-column-number input { max-width : 100px; }
+.standalone .flat-bom-column-title, .standalone .flat-bom-column-title input { min-width : 240px; }
+.standalone #flat-bom-content {
+    padding-top : 0px;
+    top : 50px !important;
+}
+.standalone .variant-spacer { background : var(--color-surface-level-2) !important; width : 1px; padding-left : 2px; padding-right : 2px;}
+.flat-bom-title {
+    max-width : 170px;
+}
+
+
 /* Isolate toggle */
 .isolate-off::before { content : '\e9f5'; }
 .isolate-on::before  { content : '\e9f6'; }

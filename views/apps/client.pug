@@ -149,11 +149,9 @@ block body
             #item-viewer.item-content
                 #viewer.viewer
             #item-attachments.item-content
-                #item-attachments-list.list
+                //- #item-attachments-list.list
                 //- #button-upload.panel-button.main  Upload File
-                form#uploadForm(method='post', encType='multipart/form-data', target='frame-download')
-                    input#select-file.pane-button.main(type='file', name='newFiles' multiple='')
-                iframe#frame-download(style='display:none;' name='frame-download')
+
             #item-bom.item-content
                 .list-actions.right-align 
                     .button.with-icon.icon-filter
@@ -240,3 +238,8 @@ block body
                 #message-text.dialog-content
                 #message-footer.dialog-footer 
                     #message-close.button.default Close
+
+
+        form#uploadForm(method='post', encType='multipart/form-data', target='frame-download')
+            input#select-file.pane-button.main(type='file', name='newFiles' multiple='')
+        iframe#frame-download(style='display:none;' name='frame-download')

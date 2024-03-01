@@ -53,31 +53,6 @@ function setUIEvents() {
     });
 
 
-    // File upload capabilities
-    $('#button-upload').click(function() {
-    
-        let link = $('#panel').attr('data-link');
-
-        let urlUpload = '/plm/upload/';
-            urlUpload += link.split('/')[4] + '/';
-            urlUpload += link.split('/')[6];
-    
-        $('#uploadForm').attr('action', urlUpload);    
-        $('#select-file').click();
-        
-    }); 
-    $('#select-file').change(function() {
-        $('#files-list').hide();
-        $('#files-processing').show();
-        $('#uploadForm').submit();
-    });
-    $('#frame-download').on('load', function() {
-        $('#files-list').show();
-        $('#files-processing').hide();
-        insertAttachments($('#panel').attr('data-link'), 'files');
-    });
-
-
     // BOM list controls
     $('#button-bom-reset').click(function() {
         if($('.bom-item.selected').length > 0) {
@@ -365,7 +340,15 @@ function openSelectedItem(elemSelected) {
     setDetails();
     getTransitions();
     setActions(false);
-    insertAttachments(link, 'files');
+    insertAttachments(link, { 
+        'id'        : 'files',
+        'header'    : true, 
+        'headerLabel' : '',
+        'layout'    : 'list',
+        'size'      : 'xs', 
+        'upload'    : true, 
+    });
+
     
 }
 function setDetails() {
