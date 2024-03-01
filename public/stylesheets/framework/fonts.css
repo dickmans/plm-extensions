@@ -233,6 +233,7 @@
 .icon-new-window::before        { content : '\f710'; }
 .icon-no-data::before           { content : '\f0ba'; }
 .icon-open::before              { content : '\e89e'; }
+.icon-package::before           { content : '\f569'; }
 .icon-panel::before             { content : '\f114'; }
 .icon-pdf::before               { content : '\e415'; }
 .icon-problem::before           { content : '\e122'; }
