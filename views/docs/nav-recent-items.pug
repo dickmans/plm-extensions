@@ -7,9 +7,9 @@
         |. 
         img(src='images/docs/nav-recent-items-1.png' style='display:block;margin-top:20px;height:320px;')
     h2 DOM Elements 
-    p Insert the following base element to your pug file to add the attachments container in your page. You can choose another id than shown here, but will then have to provide your element's id as parameter.
+    p Insert the following base element to your pug file to add the recently viewed items list in your page:
     p.code #recents 
-    p Add the following optional classes to this DOM element to adjust the contents display:
+    p You can also use another id, but you will then have to pass the right name using the 'id' parameter (see section Parameters). Add the following optional classes to this DOM element to adjust the contents display:
     p 
         table.row-hovering 
             tr 
@@ -17,10 +17,10 @@
                 th Description
             tr 
                 td surface-level-[1..5]
-                td Add the UI classes surface-level-1 through surface-level-5 to adjust the background color of the attachments element 
+                td Add the UI classes surface-level-1 through surface-level-5 to adjust the background color of the element 
 
     h2 Parameters
-    p Various parameters can be provided when using insertAttachments. The link parameter is required specifically and must be provided as string. All further parameters must be passed by using a JSON object. See this example call: 
+    p Various parameters can be provided using a JSON object as shown below. Note that all parameters are optional.
     p.code insertRecentItems({ 'headerLabel' : 'Your Recent Data', 'headerToggle' : true });
     p   
         table.parameters.row-hovering 
@@ -114,7 +114,7 @@
                 th Parameters 
             tr 
                 td insertRecentItemsDone(id, data)
-                td Once the list of recent items inserted, this function will be called
+                td Once the list of recent items got inserted, this function will be called. It will also be executed after a manual refresh of the list.
                 td 
                     ul 
                         li id = id of the parent div element (i.e. recents)
