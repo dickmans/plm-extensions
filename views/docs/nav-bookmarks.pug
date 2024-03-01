@@ -1,0 +1,124 @@
+#nav-bookmarks.doc-content 
+    h1 insertBookmarks();
+    .definition  Insert a user's list of bookmarked items.
+        br
+        |This function gets included in all pages automatically and is defined in 
+        span.path /public/javascripts/contents/nav.js
+        |. 
+        img(src='images/docs/nav-bookmarks-1.png' style='display:block;margin-top:20px;height:309px;')
+    h2 DOM Elements 
+    p Insert the following base element to your pug file to add the bookmarks list in your page:
+    p.code #bookmarks 
+    p You can also use another id, but you will then have to pass the right name using the 'id' parameter (see section Parameters). Add the following optional classes to this DOM element to adjust the contents display:
+    p 
+        table.row-hovering 
+            tr 
+                th Class Name 
+                th Description
+            tr 
+                td surface-level-[1..5]
+                td Add the UI classes surface-level-1 through surface-level-5 to adjust the background color of the element 
+
+    h2 Parameters
+    p Various parameters can be provided using a JSON object as shown below. Note that all parameters are optional.
+    p.code insertBookmarks({ 'size' : 'xs'});
+    p   
+        table.parameters.row-hovering 
+            tr 
+                th.nowrap Parameter 
+                th Description
+                th Type 
+                th Required 
+                th Default 
+            tr 
+                td id 
+                td ID of the DOM element where the list should be inserted
+                td String
+                td No
+                td recents
+            tr 
+                td header 
+                td Can be used to suppress addition of the panel header element
+                td Boolean
+                td No
+                td true
+            tr 
+                td headerLabel
+                td Sets the header label (if header is enabled)
+                td String
+                td No
+                td Bookmarked Items
+            tr 
+                td headerToggle 
+                td Enables collapsing and expanding the list display
+                td Boolean
+                td No 
+                td false
+            tr 
+                td reload 
+                td Enables reload button for the panel
+                td Boolean
+                td No
+                td true
+            tr 
+                td icon 
+                td Sets the icon to be displayed for each tile (see fonts.css for available icons, default will use .icon-star)
+                td String
+                td No
+                td star
+            tr 
+                td size 
+                td Set the size of contents (xxs, xs, s, m, l, xl or xxl)
+                td String
+                td No
+                td m
+            tr 
+                td workspacesIn 
+                td List of workspace IDs to be included. Items from other workspaces will not be shown (example: ['82', '57'])
+                td Array
+                td No 
+                td []
+            tr 
+                td workspacesEx 
+                td List of workspace IDs to be excluded. Items of these workspaces will not be shown (example: ['82', '57'])
+                td Array
+                td No 
+                td []
+    h2 Examples 
+    p   
+        table.row-hovering 
+            tr 
+                th Code 
+                th Screenshot 
+                th Application 
+            tr 
+                td.code 
+                    span.indent-1 insertBookmarks({
+                    span.indent-2 'workspacesIn'  : ['82'],
+                    span.indent-2 'header'        : true,
+                    span.indent-2 'headerLabel'   : 'Pinned Problem Reports'
+                    span.indent-1 });
+
+                td
+                    img(src='images/docs/nav-bookmarks-2.png' style='height:192px;')
+                td -
+
+    h2 Events 
+    p You can override the following functions in your code to adjust the default behavior.
+    p 
+        table.row-hovering
+            tr 
+                th Function 
+                th Event 
+                th Parameters 
+            tr 
+                td insertBookmarksDone(id, data)
+                td Once the list of bookmarks items got inserted, this function will be called. It will also be executed after a manual refresh of the list.
+                td 
+                    ul 
+                        li id = id of the parent div element (i.e. bookmarks)
+                        li data = data of given REST API call in PLM
+            tr 
+                td clickBookmarkItem(elemClicked) 
+                td This function is invoked when a user clicks a tile in the list of bookmarks. It opens the given record in PLM per default.
+                td elemClicked = jQuery element of the given tile which got clicked by the user.

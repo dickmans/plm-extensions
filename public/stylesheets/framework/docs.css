@@ -9,14 +9,14 @@ img {
 }
 
 .nav-header {
-    font-weight : 700;
+    font-weight : 800;
     font-size   : 20px;
-    padding     : 20px 0px 10px;
+    padding     : 50px 0px 10px;
 }
 .nav-contents {
     display         : flex;
     flex-direction  : column;
-    gap             : var(--spacer-xs);
+    gap             : var(--spacer-xxs);
     padding         : var(--spacer-xs) 0px;
 }
 .nav-content {
@@ -75,6 +75,7 @@ img {
 .indent-5 { padding-left : 130px; }
 
 table td:nth-child(1) {
+    background   : var(--color-surface-level-3);
     font-family  : 'Courier New', monospace;
     white-space  : nowrap;
 }

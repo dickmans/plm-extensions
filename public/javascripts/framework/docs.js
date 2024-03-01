@@ -5,6 +5,6 @@ $(document).ready(function() {
         $('#' + $(this).attr('data-id')).show();
     });
 
-    $('.nav-content').last().click();
+    $('.nav-content').first().click();
 
 });

@@ -10,17 +10,23 @@ block body
     body
         .split.left-350.surface-level-5
             .split-left.padding-100.surface-level-3
-                h1#title User Experiences Developers Guide
-                p You can use this package to also build your own applications based on reusable components described below.
-                .nav-header Navigation
-                span workspace views
+                h1 User Experiences Developer Guide
+                .nav-subtitle You can use this package to also build your own applications based on modular components being used for the preconfigured apps as well
+                .nav-header Navigation Views
+                .nav-description The capabilities of nav.js enable displaying multiple records to let users navigate to information of interest
+                .nav-contents
+                    .nav-content(data-id='nav-bookmarks') Bookmarks
+                    .nav-content(data-id='nav-recent-items') Recently Viewed Items
+                    .nav-content(data-id='nav-workspace-views') Workspace Views
                 .nav-header Item Contents
-                .nav-description Using functions of item.js, the following contents can be inserted to your applications
+                .nav-description Insert data of a given record using the functions defined in item.js
                 .nav-contents
                     .nav-content(data-id='item-attachments') Attachments
                     .nav-content(data-id='item-bom') BOM
-            //- iframe#doc-contents.split-right.padding-80.no-scrollbar(name='doc-contents')
             #doc-contents.split-right.padding-80.surface-level-1.no-scrollbar(name='doc-contents')
+                include ../docs/nav-recent-items.pug
+                include ../docs/nav-bookmarks.pug
+                include ../docs/nav-workspace-views.pug
                 include ../docs/item-attachments.pug
                 include ../docs/item-bom.pug
                 
