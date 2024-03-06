@@ -152,11 +152,12 @@ exports.config = {
             { 'label' : 'Completed',   'color' : colors.green,  'states' : ['Completed'] }
         ]
     },{
-        'title' : 'Deliverable Dashboard',
+        'title' : 'Supplier Collaboration Platform',
         'wsId'  : 146,
         'icon'  : 'account_tree',
         'workflowHistory'   : {
-            'showNextActions'       : true
+            'showNextActions'       : true,
+            'finalStates'           : ['Completed']
         },
         'progress' : [
             { 'label' : 'Planning',      'color' : colors.red,     'states' : ['Requested']  },
