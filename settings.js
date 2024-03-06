@@ -151,6 +151,18 @@ exports.config = {
             { 'label' : 'Review',      'color' : colors.green,  'states' : ['Review']    },
             { 'label' : 'Completed',   'color' : colors.green,  'states' : ['Completed'] }
         ]
+    },{
+        'title' : 'Deliverable Dashboard',
+        'wsId'  : 146,
+        'icon'  : 'account_tree',
+        'workflowHistory'   : {
+            'showNextActions'       : true
+        },
+        'progress' : [
+            { 'label' : 'Planning',      'color' : colors.red,     'states' : ['Requested']  },
+            { 'label' : 'In Progress',   'color' : colors.yellow,  'states' : ['In Work', 'Clarification']   },
+            { 'label' : 'Completed',     'color' : colors.green,   'states' : ['Completed'] }
+        ]
     }],
 
     'explorer' : {
