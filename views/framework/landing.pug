@@ -36,6 +36,10 @@ block body
                             td New options have been added to collapse the BOM at startup and to prevent expansion of defined items (parameter endItem)
                         tr 
                             td 
+                            td BOM Displays
+                            td If users do not have access to sub items, the parent item BOM will display a lock icon with tooltip
+                        tr 
+                            td 
                             td Attachments
                             td The attachments panels have been reworked and provide new configurable features like version information, various layouts and sizes. See the developer documentation for details.
                         tr 
@@ -477,7 +481,7 @@ block body
                         h1 Features
                         p Users can track progression of processes, update existing processes and create new processes with ease using this dashboard. The dashboard provides access to a single workspace only to reduce complexity.
                         ul  
-                            li Create new processes by providing basic data only 
+                            li Create new processes by providing basic data only (only if create permission is granted)
                             li Review history of selected processes 
                             li Update status of a given process 
                             li Download and upload process attachments
@@ -585,6 +589,14 @@ block body
                     .log 
                         h1 Process Dashboard Change Log 
                         table 
+                            tr 
+                                td 6. March 2024
+                                td Extension
+                                td The dashboard now validates the user's access permissions and only shows the create panel if the 'Add Items' permission is granted to the user in PLM
+                            tr 
+                                td 
+                                td Extension
+                                td Added a new configuration profile in settings.js to support the 'Supplier Deliverables' workspace of the 2023 default tenants
                             tr 
                                 td 16. November 2023
                                 td Extension
@@ -1257,6 +1269,14 @@ block body
                                 td 29. February 2024
                                 td Enhancement
                                 td The BOM display will be collapsed at startup automatically
+                            tr 
+                                td 
+                                td Enhancement
+                                td Spare parts in the BOM tree will no longer be highlighted by bold / orange font, but with a dedicated icon and matching tooltip
+                            tr 
+                                td 
+                                td Enhancement
+                                td If BOM items are not accessible due to access permission restrictions, this will be indicated by red lock icons in the BOM tree
                             tr 
                                 td 9. February 2024
                                 td Enhancement
