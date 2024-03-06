@@ -223,12 +223,14 @@ function getInitialData() {
         $.get('/plm/sections' , { 'wsId' : wsConfig.id }),
         $.get('/plm/fields'   , { 'wsId' : wsConfig.id }),
         $.get('/plm/tableaus' , { 'wsId' : wsConfig.id }),
+        $.get( '/plm/permissions', { 'wsId' : wsConfig.id }),
     ];
 
     Promise.all(promises).then(function(responses) {
 
         wsConfig.sections = responses[0].data;
         wsConfig.fields   = responses[1].data;
+        wsConfig.permissions = responses[3].data;
 
         for(tableau of responses[2].data) {
             if(tableau.title === wsConfig.tableauName) {
@@ -236,6 +238,7 @@ function getInitialData() {
             }
         }
 
+        
         for(field of wsConfig.fields) {
             if(!isBlank(field.type)) {
                 if(field.type.title === 'Image') {
@@ -249,10 +252,17 @@ function getInitialData() {
                 }
             }
         }
-
+        
+        $('#main').removeClass('hidden');
+        
         if(!enableMarkup) $('body').addClass('no-markup');
-
-        insertItemDetailsFields('', 'new', wsConfig.sections, wsConfig.fields, null, true, true, true, wsConfig.excludedSections);
+        
+        for(let permission of wsConfig.permissions){
+            if(permission.name === 'permission.shortname.add_items'){
+                $('body').removeClass('no-new');
+                insertItemDetailsFields('', 'new', wsConfig.sections, wsConfig.fields, null, true, true, true, wsConfig.excludedSections);
+            }
+        }
 
         $('#new-sections').find('.field.required').each(function() {
             $(this).css('display', 'flex');
