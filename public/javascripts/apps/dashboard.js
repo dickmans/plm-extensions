@@ -681,7 +681,7 @@ function openItem(link) {
     $('body').addClass('no-viewer');
 
     viewerUnloadAllModels();
-    insertWorkflowActions(link, null, true);
+    insertWorkflowActions(link);
 
     $.get('/plm/details', { 'link' : link }, function(response) {
 

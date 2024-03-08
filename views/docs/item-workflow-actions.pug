@@ -1,0 +1,92 @@
+#item-workflow-actions.doc-content 
+    h1 insertWorkflowActions();
+    .definition  Add the workflow actions menu for the given item
+        br
+        |This function gets included in all pages automatically and is defined in 
+        span.path /public/javascripts/contents/item.js
+        |. 
+        img(src='images/docs/item-workflow-actions-1.png' style='display:block;margin-top:20px;height:57px;')
+    h2 DOM Elements 
+    p Insert the following base element to your pug file to add the menu in your page. You can choose another id than shown here, but will then have to provide your element's id as parameter.
+    p.code select.button#workflow-actions
+    h2 Parameters
+    p Various parameters can be provided when using insertBOM. The link parameter is required specifically and must be provided as string. All further parameters must be passed by using a JSON object. See this example call: 
+    p.code insertWorkflowActions('/api/v3/workspaces/83/items/14669', { 'disableAtStartup' : true });
+    p   
+        table.parameters.row-hovering 
+            tr 
+                th.nowrap Parameter 
+                th Description
+                th Type 
+                th Required 
+                th Default 
+            tr 
+                td link 
+                td The API-link of the item for which the workflow actions should be shown
+                td String
+                td Yes
+                td -
+            tr 
+                td id 
+                td ID of the DOM element where the actions menu should be inserted
+                td String
+                td No
+                td workflow-actions
+            tr 
+                td label 
+                td Label that will be shown in the select control
+                td String
+                td No
+                td Select Action
+            tr 
+                td hideIfEmpty
+                td If set to true, the select control will be hidden if there are not workflow actions available
+                td Boolean
+                td No
+                td true
+            tr 
+                td disableAtStartup
+                td If set to true, the select control will be disabled until the available actions have been retrieved
+                td Boolean
+                td No
+                td false
+    h2 Examples 
+    p   
+        table.row-hovering 
+            tr 
+                th Code 
+                th Screenshot 
+                th Application 
+            tr 
+                td.code 
+                    span.indent-1 insertWorkflowActions(link);
+                td
+                    img(src='images/docs/item-workflow-actions-1.png' style='height:57px;')
+                td Service Portal 
+
+    h2 Events 
+    p You can override the following functions in your code to adjust the default behavior.
+    p 
+        table.row-hovering
+            tr 
+                th Function 
+                th Event 
+                th Parameters 
+            tr 
+                td insertWorkflowActionsDone(id,data) 
+                td This function gets invoked after actions have been added to the select control
+                td id = id of the parent div element (i.e. workflow-actions)
+                    br
+                    |data = Workflow actions data as retrieved by the PLM REST API
+            tr 
+                td clickWorkflowAction(elemClicked) 
+                td When user clicks a workflow action, this event will be triggered to perform the selected transition
+                td elemClicked = select control with link-attribute and selected value
+            tr 
+                td clickWorkflowActionDone(link, transition, data) 
+                td If the standard clickWorkflowAction triggers, it will call clickWorkflowActionDone right after the given workflow transition has been performed
+                td link = API-Link of the item for which the transition completed
+                    ul 
+                        li link = API-Link of the item for which the transition completed
+                        li tranistion = API-Link of the transition that has been performed 
+                        li data = Response data of the workflow transition API call

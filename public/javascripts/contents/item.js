@@ -4180,12 +4180,6 @@ function insertWorkflowHistory(link, id, currentStatus, currentStatusId, exclude
 
                         if(!excludedTransitions.includes(next.name)) {
                     
-                            let elemAction = $('<div></div>');
-                                elemAction.addClass('with-icon');
-                                elemAction.addClass('icon-arrow-right');
-                                elemAction.addClass('workflow-next-action');
-                                elemAction.html(next.name);
-                                elemAction.appendTo(elemNextActions);
 
                         }
 
@@ -4209,13 +4203,9 @@ function insertWorkflowHistory(link, id, currentStatus, currentStatusId, exclude
 
                     if((index === 2) && finalStates.includes(currentStatus)) icon = 'icon-finish';
 
-                    let elemAction = $('<div></div>');
-                        elemAction.addClass('workflowh-history-event')
-                        elemAction.appendTo(elemParent);
 
                     let elemActionAction = $('<div></div>');
                         elemActionAction.addClass('workflow-history-action');
-                        elemActionAction.appendTo(elemAction);
 
                     let elemActionActionIcon = $('<div></div>');
                         elemActionActionIcon.addClass('workflow-history-action-icon');
@@ -4232,17 +4222,14 @@ function insertWorkflowHistory(link, id, currentStatus, currentStatusId, exclude
                     let elemActionDescription = $('<div></div>');
                         elemActionDescription.addClass('workflow-history-comment');
                         elemActionDescription.html(action.comments);
-                        elemActionDescription.appendTo(elemAction);
 
                     let elemActionUser = $('<div></div>');
                         elemActionUser.addClass('workflow-history-user');
                         elemActionUser.html(action.user.title);
-                        elemActionUser.appendTo(elemAction);
 
                     let elemActionDate = $('<div></div>');
                         elemActionDate.addClass('workflow-history-date');
                         elemActionDate.html(timeStamp.toLocaleDateString());
-                        elemActionDate.appendTo(elemAction);
 
                 }
 
@@ -4255,39 +4242,46 @@ function insertWorkflowHistory(link, id, currentStatus, currentStatusId, exclude
 
 
 // Set options of defined select element to trigger workflow action
-function insertWorkflowActions(link, id, hideEmpty) {
+function insertWorkflowActions(link, params) {
 
-    if(isBlank(id)) id = 'workflow-actions';
-    if(isBlank(hideEmpty)) hideEmpty = false;
+    if(isBlank(link)) return;
 
-    let elemActions = $('#' + id);
-        elemActions.addClass('disabled');
-        elemActions.attr('disabled', '');
-        elemActions.attr('data-link', link);
-        elemActions.html('');
+    //  Set defaults for optional parameters
+    // --------------------------------------
+    let id               = 'workflow-actions';  // id of DOM element where the actions menue will be inserted
+    let label            = 'Select Action';     // Label that will be shown in the select control
+    let hideIfEmpty      = true;                // If set to true, the select control will be hidden if there are not workflow actions available
+    let disableAtStartup = false;               // If set to true, the select control will be disabled until the available actions have been retrieved
 
-    let label = elemActions.attr('label');
+    if( isBlank(params)                 )           params = {};
+    if(!isBlank(params.id)              )               id = params.id;
+    if(!isBlank(params.label)           )            label = params.label;
+    if(!isBlank(params.hideIfEmpty)     )      hideIfEmpty = params.hideIfEmpty;
+    if(!isBlank(params.disableAtStartup)) disableAtStartup = params.disableAtStartup;
 
-    if(isBlank(label)) label = 'Worfklow Actions';
+    let elemActions = $('#' + id)
+        .attr('data-link', link)
+        .html('')
+        .change(function() {
+            clickWorkflowAction($(this));
+        });
 
-    let elemLabel = $('<option></option>');
-        elemLabel.attr('value', '');
-        elemLabel.attr('hidden', '');
-        elemLabel.attr('selected', '');
-        elemLabel.html(label);
-        elemLabel.appendTo(elemActions);
+    if(disableAtStartup) elemActions.addClass('disabled').attr('disabled', '')
 
-    if(typeof link === 'undefined') return;
-    if(       link === ''         ) return;
+    $('<option></option>')
+        .attr('value', '')
+        .attr('hidden', '')
+        .attr('selected', '')
+        .html(label)
+        .appendTo(elemActions);
 
     $.get('/plm/transitions', { 'link' : link }, function(response) {
 
         for(action of response.data) {
 
-            let elemAction = $('<option></option>');
-                elemAction.attr('value', action.__self__);
-                elemAction.html(action.name);
-                elemAction.appendTo(elemActions);
+            $('<option></option>').appendTo(elemActions)
+                .attr('value', action.__self__)
+                .html(action.name);
 
         }
 
@@ -4295,13 +4289,30 @@ function insertWorkflowActions(link, id, hideEmpty) {
             elemActions.show();
             elemActions.removeClass('disabled');
             elemActions.removeAttr('disabled');
-        } else if(hideEmpty) {
+        } else if(hideIfEmpty) {
             elemActions.hide();
         }
+
+        insertWorkflowActionsDone(id, response);
 
     });
 
 }
+function insertWorkflowActionsDone(id, data) {}
+function clickWorkflowAction(elemClicked) {
+
+    $('#overlay').show();
+
+    let link       = elemClicked.attr('data-link');
+    let transition = elemClicked.val();
+
+    $.get('/plm/transition', { 'link' : link, 'transition' : transition }, function(response) {
+        $('#overlay').hide();
+        clickWorkflowActionDone(link, tranistion, response);
+    });
+
+}
+function clickWorkflowActionDone(link, transition, data) {}
 
 
 // Togggle item bookmark
