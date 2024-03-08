@@ -6,6 +6,7 @@ let settings = {
     attachments     : {},
     bom             : {},
     flatBOM         : {},
+    grid            : {},
     recents         : {},
     bookmarks       : {},
     mow             : {},
@@ -531,6 +532,37 @@ function getBrowserLanguage() {
         case 'de'   :   languageId = '4'; break;
         case 'de-de':   languageId = '4'; break;
     }
+
+}
+
+
+// Generate and return Panel Header
+function genPanelHeader(id, headerToggle, headerLabel) {
+
+    let elemHeader = $('<div></div>', {
+        id : id + '-header'
+    }).addClass('panel-header');
+
+    if(headerToggle) {
+
+        $('<div></div>').appendTo(elemHeader)
+            .addClass('panel-header-toggle')
+            .addClass('icon')
+            .addClass('icon-collapse');
+
+        elemHeader.addClass('with-toggle');
+        elemHeader.click(function() {
+            togglePanelHeader($(this));
+        });
+
+    }
+
+    $('<div></div>').appendTo(elemHeader)
+        .addClass('panel-title')
+        .attr('id', id + '-title')
+        .html(headerLabel);
+
+    return elemHeader;
 
 }
 
@@ -1071,8 +1103,6 @@ function hasBOMRestrictedFields(urn, nodes) {
 
 // Retrieve field value from item's grid row data
 function getGridRowValue(row, fieldId, defaultValue, property) {
-
-    // used by configurator.js
 
     for(var i = 1; i < row.rowData.length; i++) {
 

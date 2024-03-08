@@ -940,7 +940,7 @@ function setItemDetails(link) {
     $('body').removeClass('with-edit');
     $('body').addClass('with-details');
 
-    insertGrid(link, 'grid');
+    insertGrid(link, { 'id' : 'grid-list', 'header' : false });
     insertViewer(link, viewerBGColors[theme].level2);        
     insertItemDetails(link);
     insertAttachments(link, { 

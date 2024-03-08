@@ -468,9 +468,14 @@ function selectProduct(elemClicked) {
         'header'    : false, 
         'layout'    : 'list',
         'size'      : 's', 
+        'inline'    : true, 
         'upload'    : false, 
     });
-    insertGrid(link, 'product-variants');
+    insertGrid(link, { 
+        'id'     : 'product-variants-list', 
+        'header' : false, 
+        'inline' : true 
+    });
 
 }
 function setProductDetails(link) {

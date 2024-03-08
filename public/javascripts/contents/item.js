@@ -1076,6 +1076,7 @@ function insertAttachments(link, params) {
     let upload       = false;            // Enable file uploads
     let uploadLabel  = 'Upload File';    // File upload button label
     let layout       = 'tiles';          // Content layout (tiles, list or table)
+    let inline       = false;            // Display the attachments inline with other elements
     let size         = 'm';              // layout size (xxs, xs, s, m, l, xl, xxl)
     let fileVersion  = true;             // Display version of each attachment
     let fileSize     = true;             // Display size of each attachment
@@ -1092,6 +1093,7 @@ function insertAttachments(link, params) {
     if(!isBlank(params.download)    )     download = params.download;
     if(!isBlank(params.upload)      )       upload = params.upload;
     if(!isBlank(params.layout)      )       layout = params.layout;
+    if(!isBlank(params.inline)      )       inline = params.inline;
     if(!isBlank(params.size)        )         size = params.size;
     if(!isBlank(params.fileVersion) )  fileVersion = params.fileVersion;
     if(!isBlank(params.fileSize)    )     fileSize = params.fileSize;
@@ -1229,13 +1231,14 @@ function insertAttachments(link, params) {
     appendProcessing(id, false);
     appendNoDataFound(id, 'icon-no-data', 'No attachments');
 
-    let elemList  = $('<div></div>').appendTo(elemParent)
+    let elemContent  = $('<div></div>').appendTo(elemParent)
         .attr('id', id + '-list')
         .addClass('attachments-list')
         .addClass('no-scrollbar')
         .addClass(layout);
 
-    if(!isBlank(size)) elemList.addClass(size);
+    if(!inline) elemContent.addClass('panel-content')
+    if(!isBlank(size)) elemContent.addClass(size);
 
     $('#' + id + '-no-data').hide();
 
@@ -3776,98 +3779,175 @@ function clickChildrenChangedItem(elemClicked) {}
 
 
 // Insert Grid table
-function insertGrid(link, id, rotate) {
+function insertGrid(link, params) {
 
-    // used by portfolio.js
+    if(isBlank(link)) return;
 
-    if(typeof id === 'undefined') id = 'grid';
-    if(typeof rotate === 'undefined') rotate = false;
+    //  Set defaults for optional parameters
+    // --------------------------------------
+    let id                  = 'grid';   // ID of the DOM element where the history should be inserted
+    let header              = true;     // Can be used to suppress addition of the panel header element
+    let headerLabel         = 'Grid';   // Set the header label
+    let headerToggle        = false;    // Enable header toggles
+    let reload              = true;     // Enable reload button for the history panel
+    let rotate              = false;    // Rotate the table display by 90 degrees
+    let inline              = false;    // Display the grid inline with other elements
+    let columnsIn           = [];       // Define list of columns to include by fieldId; columns not included in this list will not be shown at all. Keep empty to show all columns.
+    let columnsEx           = [];       // Define list of columns to exclude by fieldId; columns in this list will not be shown at all. Keep empty to show all columns.
+
+    if( isBlank(params)             )       params = {};
+    if(!isBlank(params.id)          )           id = params.id;
+    if(!isBlank(params.header)      )       header = params.header;
+    if(!isBlank(params.headerLabel) )  headerLabel = params.headerLabel;
+    if(!isBlank(params.headerToggle)) headerToggle = params.headerToggle;
+    if(!isBlank(params.reload)      )       reload = params.reload;
+    if(!isBlank(params.rotate)      )       rotate = params.rotate;
+    if(!isBlank(params.inline)      )       inline = params.inline;
+    if(!isBlank(params.columnsIn)   )    columnsIn = params.columnsIn;
+    if(!isBlank(params.columnsEx)   )    columnsEx = params.columnsEx;
+
+    settings.workflowHistory[id]           = {};
+    settings.workflowHistory[id].rotate    = rotate;
+    settings.workflowHistory[id].columnsIn = columnsIn;
+    settings.workflowHistory[id].columnsEx = columnsEx;
+
+    let elemParent = $('#' + id)
+        .addClass('grid')
+        .html('');
+
+    if(header) {
+        
+        let elemHeader = genPanelHeader(id, headerToggle, headerLabel);
+            elemHeader.appendTo(elemParent);   
+
+        if(reload) {
+
+            let elemToolbar = $('<div></div>').appendTo(elemHeader)
+                .addClass('panel-toolbar')
+                .attr('id', id + '-toolbar');
+
+            $('<div></div>').appendTo(elemToolbar)
+                .addClass('button')
+                .addClass('icon')
+                .addClass('icon-refresh')
+                .attr('id', id + '-reload')
+                .attr('title', 'Reload this view')
+                .click(function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    insertGridData(id);
+                });
+
+        }
+    }
+
+    let elemContent = $('<div></div>').appendTo(elemParent)
+        .attr('id', id + '-content')
+        .attr('data-link', link)
+        .addClass('grid-content')
+        .addClass('no-scrollbar');
+
+    if(!inline) elemContent.addClass('panel-content')
+
+    appendProcessing(id, true);
+    appendNoDataFound(id, 'icon-no-data', 'No Data');
+
+    insertGridData(id);
+
+}
+function insertGridData(id) {
 
     $('#' + id + '-processing').show();
 
-    let elemParent = $('#' + id + '-list');
-        elemParent.html('');
-
-    let requests = [
+    let elemContent = $('#' + id + '-content');
+    let link        = elemContent.attr('data-link');
+    let requests    = [
         $.get('/plm/grid', { 'link' : link }),
         $.get('/plm/grid-columns', { 'wsId' : link.split('/')[4] })
     ];
 
+    elemContent.html('');
+
     Promise.all(requests).then(function(responses) {
 
-        let columns = responses[1].data.fields;
+        let fields      = responses[1].data.fields;
+        let columnsIn   = settings.workflowHistory[id].columnsIn;
+        let columnsEx   = settings.workflowHistory[id].columnsEx;
+        let columns     = [];
+
+        for(let field of fields) {
+            let fieldId = field.__self__.split('/').pop();
+            if(columnsIn.length === 0 || columnsIn.includes(fieldId)) {
+                if(columnsEx.length === 0 || !columnsEx.includes(fieldId)) {
+                    columns.push(field);
+                }
+            }
+        }
+
+        $('#' + id + '-processing').hide();
 
         if(responses[0].data.length > 0 ) {
 
-            let elemTable = $('<table></table>');
-                elemTable.addClass('grid');
-                elemTable.appendTo(elemParent);
-        
-            let elemTableBody = $('<tbody></tbody>');
-                elemTableBody.appendTo(elemTable);
+            let elemTable       = $('<table></table>').appendTo(elemContent).addClass('grid')
+            let elemTableBody   = $('<tbody></tbody>').appendTo(elemTable);
+            let elemTableHead   = $('<tr></tr>').appendTo(elemTableBody).addClass('fixed')
 
-            let elemTableHead = $('<tr></tr>');
-                elemTableHead.appendTo(elemTableBody);
+            if(!settings.workflowHistory[id].rotate) {
 
+                elemTable.addClass('row-hovering');
+                elemTable.addClass('fixed-header');
 
-            if(!rotate) {
-
-                for(column of columns) {
-
-                    let elemTableHeadCell = $('<th></th>');
-                        elemTableHeadCell.html(column.name);
-                        elemTableHeadCell.appendTo(elemTableHead);
-                    
+                for(let column of columns) {
+                    $('<th></th>').appendTo(elemTableHead).html(column.name);
                 }
 
                 for(row of responses[0].data) {
 
-                    let elemTableRow = $('<tr></tr>');
-                        elemTableRow.appendTo(elemTableBody);
+                    let elemTableRow = $('<tr></tr>').appendTo(elemTableBody)
+                        .click(function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            clickGridRow($(this), e);
+                        });
 
-                    for(column of columns) {
-
-                        let value = '';
-
-                        for(field of row.rowData) {
-                            if(field.title === column.name) {
-                                value = field.value;
-                            }
+                    for(let field of row.rowData) {
+                        if(field.title === 'Row Id') {
+                            elemTableRow.attr('data-link', field.__self__);
                         }
+                    }
 
-                        let elemTableCell = $('<td></td>');
-                            elemTableCell.html(value);
-                            elemTableCell.appendTo(elemTableRow);
+                    for(let column of columns) {
+
+                        let fieldId = column.__self__.split('/').pop();
+                        let value   = getGridRowValue(row, fieldId, '', 'title');
+
+                        $('<td></td>').appendTo(elemTableRow).html(value);
                     }
 
                 }
 
             } else {
 
-                for(column of columns) {
+                elemTable.addClass('rotated');
 
-                    elemTable.addClass('rotated');
+                for(let column of columns) {
 
-                    let elemTableRow = $('<tr></tr>');
-                        elemTableRow.appendTo(elemTableBody);
+                    let elemTableRow = $('<tr></tr>').appendTo(elemTableBody)
+                        .click(function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            clickGridRow($(this), e);
+                        });
 
-                    let elemTableHeadCell = $('<th></th>');
-                        elemTableHeadCell.html(column.name);
-                        elemTableHeadCell.appendTo(elemTableRow);
+                    $('<th></th>').appendTo(elemTableRow).html(column.name);
 
-                    for(row of responses[0].data) {
+                    for(let row of responses[0].data) {
 
-                        let value = '';
+                        let fieldId = column.__self__.split('/').pop();
+                        let value   = getGridRowValue(row, fieldId, '', 'title');
 
-                        for(field of row.rowData) {
-                            if(field.title === column.name) {
-                                value = field.value;
-                            }
-                        }
+                        $('<td></td>').appendTo(elemTableRow).html(value);
 
-                        let elemTableCell = $('<td></td>');
-                            elemTableCell.html(value);
-                            elemTableCell.appendTo(elemTableRow);
                     }
 
                 }
@@ -3876,9 +3956,13 @@ function insertGrid(link, id, rotate) {
 
         }
 
+        insertGridDone(id, responses[0].data, responses[1].data);
+
     });
 
 }
+function insertGridDone(id, data, columns) {}
+function clickGridRow(elemClicked, e) {}
 
 
 // Insert related processes
@@ -4134,7 +4218,6 @@ function clickManagedItem(elemClicked) {}
 
 
 // Insert Workflow History
-// function insertWorkflowHistory(link, id, currentStatus, currentStatusId, excludedTransitions, finalStates, showNextTransitions) {
 function insertWorkflowHistory(link, params) {
 
     if(isBlank(link)) return;
