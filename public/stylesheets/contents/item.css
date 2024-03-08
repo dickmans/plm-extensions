@@ -223,11 +223,6 @@
     display     : flex;
     gap         : var(--spacer-xs);  
     overflow-y  : auto;
-    position    : absolute;
-    top         : 52px;
-    right       : 0px;
-    bottom      : 0px;
-    left        : 0px;
 }
 .no-header > .attachments-list {
     top : 0px;
