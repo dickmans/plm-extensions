@@ -2,6 +2,17 @@ let languageId  = '1';
 let isiPad      = navigator.userAgent.match(/iPad/i)   != null;
 let isiPhone    = navigator.userAgent.match(/iPhone/i) != null;
 
+let settings = {
+    attachments     : {},
+    bom             : {},
+    flatBOM         : {},
+    recents         : {},
+    bookmarks       : {},
+    mow             : {},
+    workspaceViews  : {},
+    workspaceItems  : {}
+}
+
 
 $(document).ready(function() {  
           
@@ -526,31 +537,25 @@ function getBrowserLanguage() {
 // Generate Tile HTML
 function genTile(link, urn, image, icon, title, subtitle) {
 
-    let elemTile = $('<div></div>');
-        elemTile.addClass('tile');
-        elemTile.attr('data-title', title);
+    let elemTile = $('<div></div>')
+        .addClass('tile')
+        .attr('data-title', title);
 
     if(link !== '') elemTile.attr('data-link', link);
-    if(urn  !== '') elemTile.attr('data-urn', urn);
+    if(urn  !== '') elemTile.attr('data-urn',  urn );
 
-    let elemTileImage = $('<div></div>');
-        elemTileImage.addClass('tile-image');
-        elemTileImage.appendTo(elemTile);
+    let elemTileImage   = $('<div></div>').appendTo(elemTile).addClass('tile-image');
+    let elemTileDetails = $('<div></div>').appendTo(elemTile).addClass('tile-details');
 
-    let elemTileDetails = $('<div></div>');
-        elemTileDetails.addClass('tile-details');
-        elemTileDetails.appendTo(elemTile);
-
-    let elemTileTitle = $('<div></div>');
-        elemTileTitle.addClass('tile-title');
-        elemTileTitle.html(title);
-        elemTileTitle.appendTo(elemTileDetails);
+    $('<div></div>').appendTo(elemTileDetails)
+        .addClass('tile-title')
+        .html(title);
 
     if(typeof subtitle !== 'undefined') {
-        let elemTileText = $('<div></div>');
-            elemTileText.addClass('tile-subtitle');
-            elemTileText.html(subtitle);
-            elemTileText.appendTo(elemTileDetails);
+        $('<div></div>')
+            .addClass('tile-subtitle')
+            .html(subtitle)
+            .appendTo(elemTileDetails);
     }
         
     getImageFromCache(elemTileImage, { 'link' : image }, icon, function() {});
@@ -562,8 +567,6 @@ function genTile(link, urn, image, icon, title, subtitle) {
 
 // Append further fields to HTML tile
 function appendTileDetails(elemTile, data) {
-
-    // used by reviews.js
 
     let elemDetails = elemTile.find('.tile-details').first();
 
@@ -604,7 +607,7 @@ function appendTileDetails(elemTile, data) {
 // Search in list of tiles
 function searchInTiles(id, elemInput) {
 
-    let elemContent = $('#' + id);
+    let elemContent = $('#' + id + '-list');
     let filterValue = elemInput.val().toLowerCase();
 
     if(isBlank(filterValue)) {
@@ -625,9 +628,6 @@ function searchInTiles(id, elemInput) {
                 let value = $(this).html().toLowerCase();
                 if(value.indexOf(filterValue) > -1) elemTile.show();
             });
-
-            // let value = $(this).find('.tile-title').html().toLowerCase();
-            // if(value.indexOf(filterValue) > -1) $(this).show();
         });
 
         elemContent.children('.workspace-items-group').each(function() {
@@ -824,6 +824,46 @@ function getSearchResultFieldValue(item, fieldId, defaultValue) {
 
 
 
+// Get Workspace view record field value
+function getWorkspaceViewRowValue(row, fieldId, defaultValue, property) {
+
+    if(isBlank(row)) return defaultValue;
+
+    for(let field of row.fields) {
+        if(field.id === fieldId) {
+
+            let value = field.value;
+
+            if(isBlank(value)) return defaultValue;
+
+
+            if(typeof value === 'object') {
+
+                if(Array.isArray(value)) return value;
+                else if(typeof property === 'undefined') return field.value.link;
+                else return field.value[property];
+                
+            } else if(field.type.title === 'Paragraph') {
+
+                var txt = document.createElement("textarea");
+                    txt.innerHTML = field.value;
+                return txt.value;
+
+            } else {
+
+                return field.value;
+            }
+
+        }
+
+    }
+
+    return defaultValue;
+
+}
+
+
+
 // Retrieve section id of given field
 function getFieldSectionId(sections, fieldId) {
 
@@ -922,10 +962,10 @@ function getBOMCellValue(urn, key, nodes, property) {
 
     if(urn === '') return '';
 
-    for(node of nodes) {
+    for(let node of nodes) {
         if(node.item.urn === urn) {
 
-            for(field of node.fields) {
+            for(let field of node.fields) {
                 if((field.metaData.urn === key) || (field.metaData.link === key)) {
 
                     if(field.value === null) { return '';
@@ -948,7 +988,7 @@ function getBOMCellValue(urn, key, nodes, property) {
 }
 function getFlatBOMCellValue(flatBom, link, key, property) {
 
-    for(item of flatBom) {
+    for(let item of flatBom) {
 
         if(item.item.link === link) {
 
@@ -977,7 +1017,7 @@ function getBOMEdgeValue(edge, key, property, defaultValue) {
 
     if(typeof defaultValue === 'undefined') defaultValue = '';
 
-    for(field of edge.fields) {
+    for(let field of edge.fields) {
         if(field.metaData.urn === key) {
             if(typeof field.value === 'object') {
                 if(typeof property === 'undefined') return field.value.link;
@@ -994,13 +1034,38 @@ function getBOMEdgeValue(edge, key, property, defaultValue) {
     
 }
 function getBOMNodeLink(id, nodes) {
-    for(node of nodes) {
+    for(let node of nodes) {
         if(node.item.urn === id) {
             return node.item.link;
         }
     }
     return '';
 }
+
+
+
+// Validate if there are restricted columns in the BOM to validate item access permissions
+function hasBOMRestrictedFields(urn, nodes) {
+
+    if(urn === '') return '';
+
+    for(let node of nodes) {
+        if(node.item.urn === urn) {
+
+            for(let field of node.fields) {
+                if('context' in field) {
+
+                    if(field.context === 'SECURITY') return true;
+
+                }
+            }
+        }
+    }
+
+    return false;
+    
+}
+
 
 
 // Retrieve field value from item's grid row data
@@ -1135,10 +1200,9 @@ function getFirstImageFieldValue(sections) {
 // Display image from cache, use defined placeholder icon while processing
 function getImageFromCache(elemParent, params, icon, onclick) {
 
-    let elemIcon = $('<span></span>');
-        elemIcon.addClass('icon');
-        elemIcon.html(icon);
-        elemIcon.appendTo(elemParent);
+    $('<span></span>').appendTo(elemParent)
+        .addClass('icon')
+        .addClass('icon-' + icon);
 
     if(typeof params === 'undefined')  return;
     if(params === null)  return;
@@ -1157,10 +1221,9 @@ function getImageFromCache(elemParent, params, icon, onclick) {
 
         if(document.location.href.indexOf('/addins/') > -1) src = '../' + src;
 
-        let elemImage = $('<img>');
-            elemImage.attr('src', src);
-            elemImage.appendTo(elemParent);
-            elemImage.click(function() {
+        $('<img>').appendTo(elemParent)
+            .attr('src', src)
+            .click(function() {
                 onclick($(this));
             });
 
