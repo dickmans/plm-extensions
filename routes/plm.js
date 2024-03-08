@@ -758,8 +758,6 @@ router.get('/image', function(req, res) {
     let url =  (typeof req.query.link !== 'undefined') ? req.query.link : '/api/v2/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId + '/field-values/' + req.query.fieldId + '/image/' + req.query.imageId;
         url = 'https://' + req.session.tenant + '.autodeskplm360.net' + url;
 
-    console.log(url);
-
     axios.get(url, { 
         responseType     : 'arraybuffer',
         responseEncoding : 'binary',
@@ -2839,8 +2837,6 @@ router.get('/search-bulk', function(req, res, next) {
     let headers = getCustomHeaders(req);
 
     if(bulk) headers.Accept = 'application/vnd.autodesk.plm.items.bulk+json';
-
-    console.log(url);
 
     axios.get(url, {
         headers : headers
