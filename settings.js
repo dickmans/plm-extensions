@@ -97,7 +97,7 @@ exports.config = {
     'dashboard' : [{
         'title'             : 'Problem Reporting Dashboard',
         'wsId'              : 82,
-        'icon'              : 'account_tree', // Use https://fonts.google.com/icons to search for icons
+        'icon'              : 'icon-problem', // See predefined icons in /public/stylesheets/framework/fonts.css
         'fieldIdSubtitle'   : 'DESCRIPTION',
         'fieldIdItem'       : 'AFFECTED_ITEM',
         'imageFieldsPrefix' : 'IMAGE_',
@@ -115,7 +115,7 @@ exports.config = {
     },{
         'title'             : 'Non Conformances Tracking Dashboard',
         'wsId'              : 98,
-        'icon'              : 'workspace_premium',
+        'icon'              : 'icon-rules',
         'fieldIdSubtitle'   : 'DESCRIPTION',
         'fieldIdItem'       : 'NONCONFORMING_ITEM',
         'imageFieldsPrefix' : 'IMAGE_',
@@ -133,7 +133,7 @@ exports.config = {
     },{
         'title' : 'Change Requests Management',
         'wsId'  : 83,
-        'icon'  : 'rebase_edit',
+        'icon'  : 'icon-workflow',
         'progress' : [
             { 'label' : 'Planning',    'color' : '#000000',     'states' : ['Create']  },
             { 'label' : 'Review',      'color' : colors.red,    'states' : ['Review & Impact Analysis', 'Peform Tasks', 'Change Control Board Review']  },
@@ -143,7 +143,7 @@ exports.config = {
     },{
         'title' : 'Project Actitivity Management',
         'wsId'  : 90,
-        'icon'  : 'account_tree',
+        'icon'  : 'icon-layers',
         'progress' : [
             { 'label' : 'Planning',    'color' : colors.red,    'states' : ['Planning']  },
             { 'label' : 'Assigned',    'color' : colors.red,    'states' : ['Assigned']  },
@@ -154,7 +154,7 @@ exports.config = {
     },{
         'title' : 'Supplier Collaboration Platform',
         'wsId'  : 146,
-        'icon'  : 'account_tree',
+        'icon'  : 'icon-workflow',
         'workflowHistory'   : {
             'showNextActions'       : true,
             'finalStates'           : ['Completed']

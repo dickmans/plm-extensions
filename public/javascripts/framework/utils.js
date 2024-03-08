@@ -1202,7 +1202,7 @@ function getImageFromCache(elemParent, params, icon, onclick) {
 
     $('<span></span>').appendTo(elemParent)
         .addClass('icon')
-        .addClass('icon-' + icon);
+        .addClass(icon);
 
     if(typeof params === 'undefined')  return;
     if(params === null)  return;

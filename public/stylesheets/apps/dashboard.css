@@ -50,6 +50,7 @@ body.no-viewer {
     --width-details      : 650px;
     --width-attachments  : 420px;
 }
+#profiles { display : none; }
 #new {
     width   : var(--width-new);
     top     : 0px;
@@ -137,6 +138,52 @@ body.no-markup #viewer { bottom : 0px !important; }
 body.no-markup #markups { display : none; }
 body.no-new #new {    display: none;}
 body.no-new #list {right : var(--margin-main);}
+
+body.no-profile #header,
+body.no-profile #main,
+body.no-profile #item { display : none; }
+body.no-profile #profiles { display : block; }
+
+
+/* PROFILES */
+/* ----------------------------------------------------------------------------- */
+.screen-content {
+    display         : flex;
+    flex-direction  : column;
+    gap             : 30px;
+    text-align      : center;
+    top             : calc(50% - 400px);
+    right           : calc(50% - 475px);
+    width           : 950px;
+}
+.screen-title {
+    border-bottom   : 2px solid var(--color-surface-level-5);
+    font-size       : 32px;
+    font-weight     : 800;
+    padding         : 0px 0px 24px;
+}
+.screen-list {
+    display         : flex;
+    gap             : 10px;
+    padding         : 20px;
+    justify-content : center;
+    flex-wrap       : wrap;
+}
+.screen-list-tile {
+    cursor      : pointer;
+    min-width   : 160px;
+    max-width   : 160px;
+    padding     : 30px;
+}
+.screen-list-tile:hover {
+    background : var(--color-surface-level-5);
+}
+.screen-list-tile-icon {
+    font-size       : 60px;
+    line-height     : 60px;
+    font-weight     : 200;
+    margin-bottom   : 10px;
+}
 
 
 /* NEW */

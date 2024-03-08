@@ -489,6 +489,7 @@ block body
                             li Access bookmarked and recent processes 
                             li Track proces progression in Kanban 
                             li Review process updates in a chart
+                            li Access defined dashboard directly (by providing valid wsId as parameter) or select from configured profiles
                         h1 Configuration Settings
                         p This dashboard can be used with any workspace but requires the matching configuration in file 
                             strong settings.js
@@ -586,9 +587,15 @@ block body
                         div(style='display:flex;gap:10px;') 
                             a(href='dashboard?wsId=82' target='_blank') Problem Reporting Dashboard (wsId 82)
                             a(href='dashboard?wsId=98' target='_blank') Non Conformances Dashboard (wsId 98)
+                        p You can also omit the workspaceId and select from the list of configured profiles instead:
+                        a(href='dashboard?' target='_blank') Process Dashboard Profiles
                     .log 
                         h1 Process Dashboard Change Log 
                         table 
+                            tr 
+                                td 8. March 2024
+                                td Extension
+                                td Users now can access a landing page with all available dashboard configurations by omitting the wsId parameter
                             tr 
                                 td 6. March 2024
                                 td Extension
