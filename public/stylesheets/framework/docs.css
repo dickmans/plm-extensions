@@ -80,4 +80,11 @@ table td:nth-child(1) {
     background   : var(--color-surface-level-3);
     font-family  : 'Courier New', monospace;
     white-space  : nowrap;
+    -webkit-user-select:text;
+    -webkit-touch-callout: text;
+    -webkit-user-select: text;
+    -khtml-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: all;
 }

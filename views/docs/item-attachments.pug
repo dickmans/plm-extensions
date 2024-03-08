@@ -136,9 +136,15 @@
                 th Application 
             tr 
                 td.code 
-                    span.indent-1 insertAttachments(link, { 'size' : 's', 'upload' : true, 'extensionsEx' : '.dwf,.dwfx' });
+                    span.indent-1 insertAttachments (
+                    span.indent-2 link, { 
+                    span.indent-3 'size' : 's', 
+                    span.indent-3 'upload' : true, 
+                    span.indent-3 'extensionsEx' : '.dwf,.dwfx' 
+                    span.indent-2 }
+                    span.indent-1 );
                 td
-                    img(src='images/docs/item-attachments-1.png' style='height:180px;')
+                    img(src='images/docs/item-attachments-1.png' style='height:140px;')
                 td Product Data Explorer 
             tr 
                 td.code 
@@ -150,7 +156,7 @@
                     span.indent-1 insertAttachments(link, paramsAttachments);
 
                 td
-                    img(src='images/docs/item-attachments-2.png' style='height:180px;')
+                    img(src='images/docs/item-attachments-2.png' style='height:140px;')
                 td Serivce Portal 
             tr 
                 td.code 

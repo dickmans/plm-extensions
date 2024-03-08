@@ -9,7 +9,7 @@
         |Styling of the given contents is defined in 
         span.path /public/stylesheets/contents/item.css 
         | based on the primary class bom-item.
-        img(src='images/docs/item-attachments-1.png' style='display:block;margin-top:20px;height:180px;')
+        img(src='images/docs/item-bom-1.png' style='display:block;margin-top:20px;height:360px;')
     h2 DOM Elements 
     p Insert the following base element to your pug file to add the BOM container in your page. You can choose another id than shown here, but will then have to provide your element's id as parameter.
     p.code #bom 
@@ -149,6 +149,12 @@
                 td No 
                 td 10
             tr 
+                td showRestricted 
+                td When set to true, red lock icons will be shown if an item's BOM contains items that are not accessilbe for the user due to access permissions
+                td Boolean
+                td No 
+                td false
+            tr 
                 td endItem 
                 td Define a key value pair consisting of field id and field value to prevent expansion of matching elements in the BOM tree (example: { 'fieldId' : 'END_ITEM', 'value' : true })
                 td JSON
@@ -163,45 +169,21 @@
                 th Application 
             tr 
                 td.code 
-                    span.indent-1 insertAttachments(link, { 'size' : 's', 'upload' : true, 'extensionsEx' : '.dwf,.dwfx' });
-                td
-                    img(src='images/docs/item-attachments-1.png' style='height:180px;')
-                td Product Data Explorer 
-            tr 
-                td.code 
-                    span.indent-1 let paramsAttachments = { 
-                    span.indent-2 'extensionsEx'  : '.dwf,.dwfx',
-                    span.indent-2 'header'        : true, 
-                    span.indent-2 'size'          : 'xs'
-                    span.indent-1 }
-                    span.indent-1 insertAttachments(link, paramsAttachments);
-
-                td
-                    img(src='images/docs/item-attachments-2.png' style='height:180px;')
-                td Serivce Portal 
-            tr 
-                td.code 
-                    span.indent-1 insertAttachments(link, { 
-                    span.indent-2 'header'    : false, 
-                    span.indent-2 'layout'    : 'list',
-                    span.indent-2  'size'      : 's', 
-                    span.indent-2 'upload'    : false, 
+                    span.indent-1 insertBOM(link, { 
+                    span.indent-2 'bomViewName'   : config.service.bomViewName, 
+                    span.indent-2 'collapsed'     : true,
+                    span.indent-2 'reset'         : true, 
+                    span.indent-2 'openInPLM'     : false, 
+                    span.indent-2 'goThere'       : true, 
+                    span.indent-2 'hideDetails'   : true, 
+                    span.indent-2 'quantity'      : true,
+                    span.indent-2 'counters'      : true,
+                    span.indent-2 'getFlatBOM'    : true, 
+                    span.indent-2 'endItem'       : { 'fieldId' : 'SBOM_END_ITEM', 'value' : true }
                     span.indent-1 });
-
                 td
-                    img(src='images/docs/item-attachments-3.png' style='height:320px;')
-                td Workspace Navigator 
-            tr 
-                td.code 
-                    span.indent-1    insertAttachments(link, { 
-                    span.indent-2 'layout'    : 'list',
-                    span.indent-2 'size'      : 'l', 
-                    span.indent-2 'upload'    : true ,
-                    span.indent-2 headerToggle: true
-                    span.indent-1  });
-                td
-                    img(src='images/docs/item-attachments-4.png' style='height:300px;')
-                td Process Dashboard
+                    img(src='images/docs/item-bom-1.png' style='height:360px;')
+                td Services Portal 
 
     h2 Events 
     p You can override the following functions in your code to adjust the default behavior.
@@ -217,7 +199,7 @@
                 td id = id of the parent div element (i.e. bom)
             tr 
                 td changeBOMViewDone(id, fields, bomData, flatBOMData) 
-                td When BOM data has been retrieved and BOM rows have been added, this function will be invoked. flatBOMData will not be null only if flatBOM data is being requested as well (depends on given paramter).
+                td When BOM data has been retrieved and BOM rows have been added, this function will be invoked. This function also gets invoked when users select another BOM view in the given drop down (if enabled with parameter 'views'). flatBOMData will not be null only if flatBOM data is being requested as well (depends on given paramter).
                 td 
                     ul 
                         li id = id of the parent div element (i.e. bom)

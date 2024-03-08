@@ -1,0 +1,184 @@
+#nav-workspace-items.doc-content 
+    h1 insertWorkspaceItems();
+    .definition  Inserts all items of a defined workspace that can optionally be filtered using a search filter.
+        br
+        |This function gets included in all pages automatically and is defined in 
+        span.path /public/javascripts/contents/nav.js
+        |. 
+        br
+        |Styling of the given contents is defined in 
+        span.path /public/stylesheets/contents/nav.css 
+        | based on the primary class workspace-items.
+        img(src='images/docs/nav-workspace-items-1.png' style='display:block;margin-top:20px;height:237px;')
+    h2 DOM Elements 
+    p Insert the following base element to your pug file to add the workspace items list in your page:
+    p.code #list 
+    p You can also use another id, but you will then have to pass the right name using the 'id' parameter (see section Parameters). Add the following optional classes to this DOM element to adjust the contents display:
+    p 
+        table.row-hovering 
+            tr 
+                th Class Name 
+                th Description
+            tr 
+                td surface-level-[1..5]
+                td Add the UI classes surface-level-1 through surface-level-5 to adjust the background color of the element 
+
+    h2 Parameters
+    p Various parameters can be provided when using insertWorkspaceItems. The workspace ID parameter (wsId) is required specifically and must be provided as string. All further parameters must be passed by using a JSON object. See this example call: 
+    p.code insertWorkspaceItems('95', { 'size' : 'xs'});
+    p   
+        table.parameters.row-hovering 
+            tr 
+                th.nowrap Parameter 
+                th Description
+                th Type 
+                th Required 
+                th Default 
+            tr 
+                td wsId 
+                td ID of the workspace whose items should be displayed
+                td String
+                td Yes
+                td 
+            tr 
+                td id 
+                td ID of the DOM element where the list should be inserted
+                td String
+                td No
+                td bookmarks
+            tr 
+                td header 
+                td Can be used to suppress addition of the panel header element
+                td Boolean
+                td No
+                td true
+            tr 
+                td headerLabel
+                td Sets the header label (if header is enabled)
+                td String
+                td No
+                td Items
+            tr 
+                td headerToggle 
+                td Enables collapsing and expanding the list display
+                td Boolean
+                td No 
+                td false
+            tr 
+                td reload 
+                td Enables reload button for the panel
+                td Boolean
+                td No
+                td true
+            tr 
+                td search 
+                td Enables type ahead filtering in the list
+                td Boolean
+                td No
+                td true
+            tr 
+                td icon 
+                td Sets the icon to be displayed for each tile (see fonts.css for available icons, default will use .icon-settings)
+                td String
+                td No
+                td icon-settings
+            tr 
+                td size 
+                td Set the size of contents (xxs, xs, s, m, l, xl or xxl)
+                td String
+                td No
+                td s
+            tr 
+                td filter 
+                td Define optional filters by providing the matching query string (copy the full query string from advanced search)
+                td String
+                td No
+                td 
+            tr 
+                td sortBy 
+                td Field ID to use for sorting (if parameter is omitted, items will be sorted by descriptor automatically)
+                td String
+                td No
+                td 
+            tr 
+                td groupBy 
+                td Field ID to use for grouping of items (leave blank to disable grouping)
+                td String
+                td No
+                td 
+            tr 
+                td fieldIdImage 
+                td ID of field to use as tile image
+                td String
+                td No
+                td 
+            tr 
+                td fieldIdTitle 
+                td ID of field to use as tile title
+                td String
+                td No
+                td 
+            tr 
+                td fieldIdSubtitle 
+                td ID of field to use as tile subtitle
+                td String
+                td No
+                td 
+            tr 
+                td fieldIdsDetails 
+                td List of field IDs to be displayed as tile details
+                td Array
+                td No
+                td []
+            tr 
+                td fieldIdsAttributes 
+                td List of field IDs whose values will be stored in the DOM attributes of the tiles to allow for further user interactions
+                td Array
+                td No
+                td []
+
+    h2 Examples 
+    p   
+        table.row-hovering 
+            tr 
+                th Code 
+                th Screenshot 
+                th Application 
+            tr 
+                td.code 
+                    span.indent-1 insertWorkspaceItems( '95', {
+                    span.indent-2 'id'                 : 'products', 
+                    span.indent-2 'headerLabel'        : 'Serviceable Products', 
+                    span.indent-2 'icon'               : 'icon-package', 
+                    span.indent-2 'filter'             : 'ITEM_DETAILS:SERVICES_PORTAL=TRUE',
+                    span.indent-2 'sortBy'             : 'TITLE',
+                    span.indent-2 'groupBy'            : 'PRODUCT_LINE',
+                    span.indent-2 'fieldIdImage'       : 'IMAGE', 
+                    span.indent-2 'fieldIdTitle'       : 'TITLE', 
+                    span.indent-2 'fieldIdSubtitle'    : 'DESCRIPTION', 
+                    span.indent-2 'fieldIdsAttributes' : [ 'ENGINEERING_BOM' ]
+                    span.indent-1 });
+
+                td
+                    img(src='images/docs/nav-workspace-items-1.png' style='height:235px;')
+                td Services Portal
+
+    h2 Events 
+    p You can override the following functions in your code to adjust the default behavior.
+    p 
+        table.row-hovering
+            tr 
+                th Function 
+                th Event 
+                th Parameters 
+            tr 
+                td insertWorkspaceItemsDone(id, data)
+                td Once the list of workspace items got inserted, this function will be called. It will also be executed after a manual refresh of the list.
+                td 
+                    ul 
+                        li id = id of the parent div element (i.e. list)
+                        li data = data of given REST API call in PLM
+            tr 
+                td clickWorkspaceItem(elemClicked, e) 
+                td This function is invoked when a user clicks a tile in the list of workspace items. It opens the given record in PLM per default.
+                td elemClicked = jQuery element of the given tile which got clicked by the user; e = click event

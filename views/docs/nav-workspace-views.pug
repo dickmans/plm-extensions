@@ -1,0 +1,226 @@
+#nav-workspace-views.doc-content 
+    h1 insertWorkspaceViews();
+    .definition  Insert a user's workspace views for a given workspace. It may optionally include addiontal views: outstanding work list, bookmarks &amp; as well as recent items.
+        br
+        |This function gets included in all pages automatically and is defined in 
+        span.path /public/javascripts/contents/nav.js
+        |. 
+        br
+        |Styling of the given contents is defined in 
+        span.path /public/stylesheets/contents/nav.css 
+        | based on the primary class workspace-view.
+        img(src='images/docs/nav-workspace-views-1.png' style='display:block;margin-top:20px;height:261px;')
+    h2 DOM Elements 
+    p Insert the following base element to your pug file to add the workspace views in your page:
+    p.code #workspace 
+    p You can also use another id, but you will then have to pass the right name using the 'id' parameter (see section Parameters). Add the following optional classes to this DOM element to adjust the contents display:
+    p 
+        table.row-hovering 
+            tr 
+                th Class Name 
+                th Description
+            tr 
+                td surface-level-[1..5]
+                td Add the UI classes surface-level-1 through surface-level-5 to adjust the background color of the attachments element 
+
+    h2 Parameters
+    p Various parameters can be provided when using insertAttachments. The link parameter is required specifically and must be provided as string. All further parameters must be passed by using a JSON object. See this example call: 
+    p.code insertWorkspaceViews('208', { 'id' : 'requests', 'headerLabel' : 'Your Requests' });
+    p   
+        table.parameters.row-hovering 
+            tr 
+                th.nowrap Parameter 
+                th Description
+                th Type 
+                th Required 
+                th Default 
+            tr 
+                td workspaceId 
+                td Provie the ID of the workspace to use. All views of this workspace will be available for the user to select from. 
+                    br
+                    |If additional views like the bookmarks or outstanding work are enabled with the given parameters, only entries of this workspace will be shown.
+                td String
+                td Yes
+                td -
+            tr 
+                td id 
+                td ID of the DOM element where the workspace views should be inserted
+                td String
+                td No
+                td workspace
+            tr 
+                td header 
+                td Can be used to suppress addition of the panel header element
+                td Boolean
+                td No
+                td false
+            tr 
+                td headerLabel
+                td Sets the header label (if header is enabled)
+                td String
+                td No
+                td Attachments
+            tr 
+                td headerToggle 
+                td Enables collapsing and expanding the panel
+                td Boolean
+                td No 
+                td false
+            tr 
+                td reload 
+                td Enables reload button for the selected view
+                td Boolean
+                td No
+                td false
+            tr 
+                td search 
+                td Enables quick filtering in the selected workspace view
+                td Boolean
+                td No
+                td true
+            tr 
+                td views 
+                td Enables view selector when set to true
+                td Boolean
+                td No
+                td true
+            tr 
+                td layout 
+                td Sets content layout (tiles, list or table). This setting only applies to the workspace views, not the additional views like bookmarks.
+                td String
+                td No
+                td tiles
+            tr 
+                td size 
+                td Set the size of contents (xxs, xs, s, m, l, xl or xxl). This setting only applies to the workspace views, not the additional views like bookmarks.
+                td String
+                td No
+                td s
+            tr 
+                td icon 
+                td Sets the icon to be displyed for each tile. This parameter only applies if layout is set to 'tiles' or 'list' and only for the workspace views, not the additional views like bookmarks.
+                    br
+                    |Make use of the predefined icons defined in 
+                    a(href='../stylesheets/framework/fonts.css' target='_blank') fonts.css
+                td String
+                td No
+                td icon-settings
+            tr 
+                td groupBy 
+                td When layout is set to 'tiles' or 'list', items can be grouped by a defined fieldId (i.e. DESCRIPTOR). This only works if the given field is availalbe in the selected workspace view.
+                td String
+                td No 
+                td ''
+            tr 
+                td columnLimit 
+                td Sets the maximum number of columns being displayed for the selected workspace view
+                td Integer
+                td No 
+                td 25
+            tr 
+                td includeMOW 
+                td When set to true, the view selector enables to access the My Outstanding Work entries of the defined workspaces.
+                    br
+                    |Make sure to enable the view selector for this feature with parameter 'views'.
+                td Boolean
+                td No 
+                td false
+            tr 
+                td includeBookmarks 
+                td When set to true, the view selector enables to access the bookmarked entries of the defined workspaces.
+                    br
+                    |Make sure to enable the view selector for this feature with parameter 'views'.
+                td Boolean
+                td No 
+                td false
+            tr 
+                td includeRecents 
+                td When set to true, the view selector enables to access the recently viewed entries of the defined workspaces.
+                    br
+                    |Make sure to enable the view selector for this feature with parameter 'views'.
+                td Boolean
+                td No 
+                td false
+            tr 
+                td startupView 
+                td If additional views like the bookmarks are enabled, this parameter determines which view to open at startup. Use 'mow', 'bookmarks', 'recents' to select the given additional view or leave blank to have the default workspace view opened.
+                td String
+                td No 
+                td ''
+            tr 
+                td fieldIdImage 
+                td ID of field to use as tile image (only applies when layout is set to 'tiles' or 'list')
+                td String
+                td No
+                td 
+            tr 
+                td fieldIdTitle 
+                td ID of field to use as tile title (only applies when layout is set to 'tiles' or 'list')
+                td String
+                td No
+                td 
+            tr 
+                td fieldIdSubtitle 
+                td ID of field to use as tile subtitle (only applies when layout is set to 'tiles' or 'list')
+                td String
+                td No
+                td 
+            tr 
+                td fieldIdsDetails 
+                td List of field IDs to be displayed as tile details (only applies when layout is set to 'tiles' or 'list')
+                td Array
+                td No
+                td []
+            tr 
+                td fieldIdsAttributes 
+                td List of field IDs whose values will be stored in the DOM attributes of the tiles to allow for further user interactions (only applies when layout is set to 'tiles' or 'list')
+                td Array
+                td No
+                td []
+    h2 Examples 
+    p   
+        table.row-hovering 
+            tr 
+                th Code 
+                th Screenshot 
+                th Application 
+            tr 
+                td.code 
+                    span.indent-1 insertWorkspaceViews(wsSparePartsRequests.id, {
+                    span.indent-2 'id'                : 'requests',
+                    span.indent-2 'headerLabel'       : 'Your Requests', 
+                    span.indent-2 'layout'            : 'table',
+                    span.indent-2 'includeRecents'    : true,
+                    span.indent-2 'startupView'       : 'recents'
+                    span.indent-1 }
+                td
+                    img(src='images/docs/nav-workspace-views-1.png' style='height:261px;')
+                td Service Portal
+
+    h2 Events 
+    p You can override the following functions in your code to adjust the default behavior. This list only applies to the usage of workspace views. If additional views like bookmarks are used as well, these given views' events also get triggered. See their given documnentation for details.
+    p 
+        table.row-hovering
+            tr 
+                th Function 
+                th Event 
+                th Parameters 
+            tr 
+                td insertWorkspaceViewsDone(id, data)
+                td Gets executed after the user's workspace views got retrieved and added to the view selector
+                td 
+                    ul 
+                        li id = id of the parent div element (i.e. workspace)
+                        li data = data of the PLM REST API call to retrieve the user's workspace views
+            tr 
+                td changeWorkspaceViewDone(id, columns, data) 
+                td This function is invoked when a user selected a view from the view selector in the header and the data got loaded. This also gets triggered at startup, when the system automtically loads the user's default workspace view.
+                td 
+                    ul 
+                        li id = id of the parent div element (i.e. workspace)
+                        li columns = column configuration of the selected workspace view as returned by the PLM REST API
+                        li data = item data of the selected workspace view as returned by the PLM REST API
+            tr 
+                td clickWorkspaceViewItem(elemClicked, ) 
+                td This function is invoked when a user clicks an item in a workspace view. It opens the given record in PLM per default.
+                td elemClicked = jQuery element of the given tile which got clicked by the user; e = click event
