@@ -4134,111 +4134,211 @@ function clickManagedItem(elemClicked) {}
 
 
 // Insert Workflow History
-function insertWorkflowHistory(link, id, currentStatus, currentStatusId, excludedTransitions, finalStates, showNextTransitions) {
+// function insertWorkflowHistory(link, id, currentStatus, currentStatusId, excludedTransitions, finalStates, showNextTransitions) {
+function insertWorkflowHistory(link, params) {
 
-    if(isBlank(id                 )) id                  = 'workflow-history';
-    if(isBlank(excludedTransitions)) excludedTransitions = [];
-    if(isBlank(finalStates        )) finalStates         = [];
-    if(isBlank(showNextTransitions)) showNextTransitions = false;
+    if(isBlank(link)) return;
 
-    let elemParent = $('#' + id + '-events');
-        elemParent.html('');
+    //  Set defaults for optional parameters
+    // --------------------------------------
+    let id                  = 'workflow-history';   // ID of the DOM element where the history should be inserted
+    let header              = true;                 // Can be used to suppress addition of the panel header element
+    let headerLabel         = 'Workflow History';   // Set the header label
+    let headerToggle        = false;                // Enable header toggles
+    let reload              = true;                 // Enable reload button for the history panel
+    let showNextTransitions = true;                 // If set to true, the list of possible next actions will be shown on top of the history entries
+    let finalStates         = ['Complete', 'Completed', 'Closed', 'Done'];  // This list may be used to define the final states of workflows. These final states will be shown with a different icon.
+    let transitionsIn       = [];                   // List of transitions that will be included in the history log and next transitions list. Transitions not included in this list will not be shown.
+    let transitionsEx       = ['Cancel', 'Delete']; // List of transitions that will be excluded in the history log and next transitions list. Transitions included in this list will not be shown.
+
+    if( isBlank(params)                    )              params = {};
+    if(!isBlank(params.id)                 )                  id = params.id;
+    if(!isBlank(params.header)             )              header = params.header;
+    if(!isBlank(params.headerLabel)        )         headerLabel = params.headerLabel;
+    if(!isBlank(params.headerToggle)       )        headerToggle = params.headerToggle;
+    if(!isBlank(params.reload)             )              reload = params.reload;
+    if(!isBlank(params.showNextTransitions)) showNextTransitions = params.showNextTransitions;
+    if(!isBlank(params.finalStates)        )         finalStates = params.finalStates;
+    if(!isBlank(params.transitionsIn)      )       transitionsIn = params.transitionsIn;
+    if(!isBlank(params.transitionsEx)      )       transitionsEx = params.transitionsEx;
+
+    settings.workflowHistory[id]                     = {};
+    settings.workflowHistory[id].showNextTransitions = showNextTransitions;
+    settings.workflowHistory[id].finalStates         = finalStates;
+    settings.workflowHistory[id].transitionsIn       = transitionsIn;
+    settings.workflowHistory[id].transitionsEx       = transitionsEx;
+
+    let elemParent = $('#' + id)
+        .addClass('workflow-history')
+        .html('');
+
+    if(header) {
+
+        let elemHeader = $('<div></div>', {
+            id : id + '-header'
+        }).appendTo(elemParent).addClass('panel-header');
+    
+        if(headerToggle) {
+    
+            $('<div></div>').appendTo(elemHeader)
+                .addClass('panel-header-toggle')
+                .addClass('icon')
+                .addClass('icon-collapse');
+    
+            elemHeader.addClass('with-toggle');
+            elemHeader.click(function() {
+                togglePanelHeader($(this));
+            });
+    
+        }
+
+        $('<div></div>').appendTo(elemHeader)
+            .addClass('panel-title')
+            .attr('id', id + '-title')
+            .html(headerLabel);
+
+        if(reload) {
+
+            let elemToolbar = $('<div></div>').appendTo(elemHeader)
+                .addClass('panel-toolbar')
+                .attr('id', id + '-toolbar');
+
+            $('<div></div>').appendTo(elemToolbar)
+                .addClass('button')
+                .addClass('icon')
+                .addClass('icon-refresh')
+                .attr('id', id + '-reload')
+                .attr('title', 'Reload this view')
+                .click(function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    insertWorkflowHistoryData(id);
+                });
+
+        }
+
+    }
+
+    if(!header) { elemParent.addClass('no-header'); }
+
+    appendProcessing(id, true);
+
+    $('<div></div>').appendTo(elemParent)
+        .attr('id', id + '-content')
+        .attr('data-link', link)
+        .addClass('panel-content')
+        .addClass('workflow-history-content')
+        .addClass('no-scrollbar');
+
+    insertWorkflowHistoryData(id);
+
+}
+
+function insertWorkflowHistoryData(id) {
 
     $('#' + id + '-processing').show();
 
-    if(showNextTransitions && isBlank(currentStatusId)) {
-        
-        $.get('/plm/details', { 'link' : link }, function(response) {
-            currentStatusId = response.data.currentState.link.split('/').pop();
-            insertWorkflowHistory(link, id, currentStatus, currentStatusId, excludedTransitions, finalStates, showNextTransitions);
-        });
+    let elemContent = $('#' + id + '-content');
+    let link        = elemContent.attr('data-link');
+    let requests    = [ 
+        $.get('/plm/workflow-history', { 'link' : link }),
+        $.get('/plm/details', { 'link' : link })
+    ];
 
-    } else {
+    elemContent.html('');
 
-        let requests = [
-            $.get('/plm/workflow-history', { 'link' : link })
-        ];
+    if(settings.workflowHistory[id].showNextTransitions) requests.push($.get('/plm/transitions', { 'link' : link }));
 
-        if(showNextTransitions) requests.push($.get('/plm/transitions', { 'link' : link }));
+    Promise.all(requests).then(function(responses) {
 
-        Promise.all(requests).then(function(responses){
+        $('#' + id + '-processing').hide();
 
-            $('#' + id + '-processing').hide();
+        let index         = 1;
+        let transitionsIn = settings.workflowHistory[id].transitionsIn;
+        let transitionsEx = settings.workflowHistory[id].transitionsEx;
+        let currentStatus = responses[1].data.currentState.title;
 
-            if(showNextTransitions) {
-                if(!finalStates.includes(currentStatus)) {
+        if(settings.workflowHistory[id].showNextTransitions) {
+            if(!settings.workflowHistory[id].finalStates.includes(currentStatus)) {
 
-                    let elemNextActions = $('<div></div>');
-                        elemNextActions.addClass('workflow-next');
+                let elemNext = $('<div></div>').addClass('workflow-next');
 
-                    let elemNextActionsTitle = $('<div></div>');
-                        elemNextActionsTitle.html('Next Step');
-                        elemNextActionsTitle.addClass('workflow-next-title');
-                        elemNextActionsTitle.appendTo(elemNextActions);
+                let elemNextTitle = $('<div></div>').appendTo(elemNext)
+                    .html('Next Step')
+                    .addClass('workflow-next-title');
 
-                    for(next of responses[1].data) {
+                for(let nextTransition of responses[2].data) {
 
-                        if(!excludedTransitions.includes(next.name)) {
+                    if(!transitionsEx.includes(nextTransition.name)) {
                     
+                        $('<div></div>').appendTo(elemNext)
+                            .addClass('with-icon')
+                            .addClass('icon-arrow-right')
+                            .addClass('workflow-next-action')
+                            .html(nextTransition.name);
 
                         }
 
-                    }
-
-                    if(elemNextActions.children().length > 1) elemNextActions.appendTo(elemParent);
-                    if(elemNextActions.children().length > 2) elemNextActionsTitle.html('Possible Next Steps');
-
                 }
+
+                if(elemNext.children().length > 1) elemNext.appendTo(elemContent);
+                if(elemNext.children().length > 2) elemNextTitle.html('Possible Next Steps');
+
             }
+        }
 
-            let index = 1;
+        for(let action of responses[0].data.history) {
+            
+            let actionTitle = action.workflowTransition.title;
 
-            //Workflow History
-            for(action of responses[0].data.history) {
-
-                if(!excludedTransitions.includes(action.workflowTransition.title)) {
+            if(transitionsIn.length === 0 || transitionsIn.includes(actionTitle)) {
+                if(transitionsEx.length === 0 || !transitionsEx.includes(actionTitle)) {
 
                     let timeStamp = new Date(action.created);
-                    let icon = (index++ === responses[0].data.history.length) ? 'icon-start' : 'icon-check';
+                    let icon      = (index++ === responses[0].data.history.length) ? 'icon-start' : 'icon-check';
 
-                    if((index === 2) && finalStates.includes(currentStatus)) icon = 'icon-finish';
+                    if((index === 2) && settings.workflowHistory[id].finalStates.includes(currentStatus)) icon = 'icon-finish';
+                    
+                    let elemEvent = $('<div></div>').appendTo(elemContent)
+                        .addClass('workflowh-history-event');
 
+                    let elemAction = $('<div></div>').appendTo(elemEvent)
+                        .addClass('workflow-history-action');
 
-                    let elemActionAction = $('<div></div>');
-                        elemActionAction.addClass('workflow-history-action');
+                    $('<div></div>').appendTo(elemAction)
+                        .addClass('workflow-history-action-icon')
+                        .addClass('icon')
+                        .addClass(icon)
+                        .addClass('filled');
 
-                    let elemActionActionIcon = $('<div></div>');
-                        elemActionActionIcon.addClass('workflow-history-action-icon');
-                        elemActionActionIcon.addClass('icon');
-                        elemActionActionIcon.addClass(icon);
-                        elemActionActionIcon.addClass('filled');
-                        elemActionActionIcon.appendTo(elemActionAction);
+                    $('<div></div>').appendTo(elemAction)
+                        .addClass('workflow-history-action-text')
+                        .html(action.workflowTransition.title);
+                        
 
-                    let elemActionActionText = $('<div></div>');
-                        elemActionActionText.addClass('workflow-history-action-text');
-                        elemActionActionText.html(action.workflowTransition.title);
-                        elemActionActionText.appendTo(elemActionAction);
+                    $('<div></div>').appendTo(elemEvent)
+                        .addClass('workflow-history-comment')
+                        .html(action.comments);
 
-                    let elemActionDescription = $('<div></div>');
-                        elemActionDescription.addClass('workflow-history-comment');
-                        elemActionDescription.html(action.comments);
+                    $('<div></div>').appendTo(elemEvent)
+                        .addClass('workflow-history-user')
+                        .html(action.user.title);
 
-                    let elemActionUser = $('<div></div>');
-                        elemActionUser.addClass('workflow-history-user');
-                        elemActionUser.html(action.user.title);
-
-                    let elemActionDate = $('<div></div>');
-                        elemActionDate.addClass('workflow-history-date');
-                        elemActionDate.html(timeStamp.toLocaleDateString());
+                    $('<div></div>').appendTo(elemEvent)
+                        .addClass('workflow-history-date')
+                        .html(timeStamp.toLocaleDateString());
 
                 }
-
             }
+        }
 
-        });
+        insertWorkflowHistoryDone(id, responses[0].data, responses[1].data);
 
-    }
+    });
+
 }
+function insertWorkflowHistoryDone(id, dataHistory, dataItem) {}
+
 
 
 // Set options of defined select element to trigger workflow action
@@ -4248,7 +4348,7 @@ function insertWorkflowActions(link, params) {
 
     //  Set defaults for optional parameters
     // --------------------------------------
-    let id               = 'workflow-actions';  // id of DOM element where the actions menue will be inserted
+    let id               = 'workflow-actions';  // id of DOM element where the actions menu will be inserted
     let label            = 'Select Action';     // Label that will be shown in the select control
     let hideIfEmpty      = true;                // If set to true, the select control will be hidden if there are not workflow actions available
     let disableAtStartup = false;               // If set to true, the select control will be disabled until the available actions have been retrieved

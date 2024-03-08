@@ -1,0 +1,130 @@
+#item-workflow-history.doc-content 
+    h1 insertWorkflowHistory();
+    .definition  Add the workflow history for the given item
+        br
+        |This function gets included in all pages automatically and is defined in 
+        span.path /public/javascripts/contents/item.js
+        |. 
+        br
+        |Styling of the given contents is defined in 
+        span.path /public/stylesheets/contents/item.css
+        |.
+        img(src='images/docs/item-workflow-history-1.png' style='display:block;margin-top:20px;height:438px;')
+    h2 DOM Elements 
+    p Insert the following base element to your pug file to add the menu in your page. You can choose another id than shown here, but will then have to provide your element's id as parameter.
+    p.code #workflow-history
+    h2 Parameters
+    p Various parameters can be provided when using insertBOM. The link parameter is required specifically and must be provided as string. All further parameters must be passed by using a JSON object. See this example call: 
+    p.code insertWorkflowHistory('/api/v3/workspaces/82/items/29321', { 'headerLabel' : 'Activity', 'reload' : false });
+    p   
+        table.parameters.row-hovering 
+            tr 
+                th.nowrap Parameter 
+                th Description
+                th Type 
+                th Required 
+                th Default 
+            tr 
+                td link 
+                td The API-link of the item for which the workflow history should be shown
+                td String
+                td Yes
+                td -
+            tr 
+                td id 
+                td ID of the DOM element where the history should be inserted
+                td String
+                td No
+                td workflow-history
+            tr 
+                td header 
+                td Can be used to suppress addition of the panel header element
+                td Boolean
+                td No
+                td true
+            tr 
+                td headerLabel
+                td Sets the header label (if header is enabled)
+                td String
+                td No
+                td Workflow History
+            tr 
+                td headerToggle 
+                td Enables collapsing and expanding the list display
+                td Boolean
+                td No 
+                td false
+            tr 
+                td reload
+                td If set to true, the history panel can be refreshed on demand
+                td Boolean
+                td No
+                td true
+            tr 
+                td showNextTransitions
+                td If set to true, the list of possible next actions will be shown on top of the history entries
+                td Boolean
+                td No
+                td true
+            tr 
+                td finalStates
+                td This list may be used to define the final states of workflows. These final states will be shown with a different icon.
+                td Array
+                td No
+                td ['Complete', 'Completed', 'Closed']
+            tr 
+                td transitionsIn
+                td List of transitions that will be included in the history log and next transitions list. Transitions not included in this list will not be shown.
+                td Array
+                td No
+                td []
+            tr 
+                td transitionsEx
+                td List of transitions that will be excluded in the history log and next transitions list. Transitions included in this list will not be shown.
+                td Array
+                td No
+                td ['Cancel']
+    h2 Examples 
+    p   
+        table.row-hovering 
+            tr 
+                th Code 
+                th Screenshot 
+                th Application 
+            tr 
+                td.code 
+                    span.indent-1 insertWorkflowHistory(link, {
+                    span.indent-2 'id'      : 'request-workflow-history',
+                    span.indent-2 'reload'  : true
+                    span.indent-1 });
+                td
+                    img(src='images/docs/item-workflow-history-2.png' style='height:332px;')
+                td Service Portal 
+            tr 
+                td.code 
+                    span.indent-1 insertWorkflowHistory(link, {
+                    span.indent-2 'headerLabel'           : 'Activity',
+                    span.indent-2 'reload'                : false,
+                    span.indent-2 'showNextTransitions'   : wsConfig.workflowHistory.showNextActions,
+                    span.indent-2 'transitionsEx'         : wsConfig.workflowHistory.excludedTransitions,
+                    span.indent-2 'finalStates'           : wsConfig.workflowHistory.finalStates
+                    span.indent-1 });
+                td
+                    img(src='images/docs/item-workflow-history-1.png' style='height:438px;')
+                td Process Dashboard 
+    h2 Events 
+    p You can override the following functions in your code to adjust the default behavior.
+    p 
+        table.row-hovering
+            tr 
+                th Function 
+                th Event 
+                th Parameters 
+            tr 
+                td insertWorkflowHistoryDone(id, dataHistory, dataItem) 
+                td This function gets invoked once the history panel has finished loading
+                td
+                    ul 
+                        li id = ID of the DOM element
+                        li dataHistory = Workflow History of given record as returned by the PLM REST API
+                        li dataHistory = Item Details of given record as returned by the PLM REST API

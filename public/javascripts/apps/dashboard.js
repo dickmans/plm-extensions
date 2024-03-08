@@ -683,6 +683,14 @@ function openItem(link) {
     viewerUnloadAllModels();
     insertWorkflowActions(link);
 
+    insertWorkflowHistory(link, {
+        'headerLabel'           : 'Activity',
+        'reload'                : false,
+        'showNextTransitions'   : wsConfig.workflowHistory.showNextActions,
+        'transitionsEx'         : wsConfig.workflowHistory.excludedTransitions,
+        'finalStates'           : wsConfig.workflowHistory.finalStates
+    });
+
     $.get('/plm/details', { 'link' : link }, function(response) {
 
         $('#item-descriptor').html(response.data.title);
@@ -691,9 +699,7 @@ function openItem(link) {
         let status      = response.data.currentState.title;
         let linkItem    = getSectionFieldValue(response.data.sections, wsConfig.fieldIdItem, '', 'link');
         let elemStatus  = $('#item-status');
-        let statusId    = response.data.currentState.link.split('/').pop();
 
-        insertWorkflowHistory(link, null, status, statusId, wsConfig.workflowHistory.excludedTransitions, wsConfig.workflowHistory.finalStates, wsConfig.workflowHistory.showNextActions);
         insertViewer(linkItem, viewerBGColors[theme].level1);
         
         for(state of wsConfig.progress) {

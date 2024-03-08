@@ -10,7 +10,8 @@ let settings = {
     bookmarks       : {},
     mow             : {},
     workspaceViews  : {},
-    workspaceItems  : {}
+    workspaceItems  : {},
+    workflowHistory : {}
 }
 
 
