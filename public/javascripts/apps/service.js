@@ -37,27 +37,31 @@ $(document).ready(function() {
     appendProcessing('bom', false);
     appendProcessing('details', false);
     appendProcessing('attachments', true);
-    appendProcessing('items', false);
     appendProcessing('processes', false);
     appendViewerProcessing();
     appendOverlay();
-    
+
     setUIEvents();
-    
-    insertWorkspaceViews('requests', wsSparePartsRequests.id, 'Your Requests', false, false, 3, false, false, false);
+
+    insertWorkspaceViews(wsSparePartsRequests.id, {
+        'id'                : 'requests',
+        'headerLabel'       : 'Your Requests', 
+        'layout'            : 'table',
+        'includeRecents'    : true,
+        'startupView'       : 'recents'
+    });
     
     if(!isBlank(config.service.wsIdProducts)) insertWorkspaceItems(config.service.wsIdProducts, {
         'id'                 : 'products', 
-        'title'              : config.service.productsListHeader, 
-        'classNames'         : ['wide', 's'], 
-        'icon'               : 'deployed_code', 
+        'headerLabel'        : config.service.productsListHeader, 
+        'icon'               : 'icon-package', 
+        'filter'             : config.service.productsFilter,
+        'sortBy'             : config.service.productsSortBy, 
+        'groupBy'            : config.service.productsGroupBy,
         'fieldIdImage'       : config.service.productsFieldIdImage, 
         'fieldIdTitle'       : config.service.productsFieldIdTitle, 
         'fieldIdSubtitle'    : config.service.productsFieldIdSubtitle, 
-        'fieldIdsAttributes' : [ config.service.productsFieldIdBOM ],
-        'filter'             : config.service.productsFilter,
-        'sortBy'             : config.service.productsSortBy, 
-        'groupBy'            : config.service.productsGroupBy
+        'fieldIdsAttributes' : [ config.service.productsFieldIdBOM ]
     }); 
 
     if(!isBlank(dmsId)) {
@@ -272,6 +276,7 @@ function openItem(link) {
         'quantity'      : true,
         'counters'      : true,
         'getFlatBOM'    : true, 
+        'showRestricted': false,
         'endItem'       : { 'fieldId' : 'SBOM_END_ITEM', 'value' : true }
     });
     insertViewer(link, viewerBGColors[theme].level1);
@@ -283,11 +288,11 @@ function openItem(link) {
 
 
 // Click on existing Spare Parts Request
-function clickWorkspaceViewItem(elemClicked) {
+// function clickWorkspaceViewItem(elemClicked) {
 
-    openItemByLink(elemClicked.attr('data-link'));
+    // openItemByLink(elemClicked.attr('data-link'));
 
-}
+// }
 
 
 // Retrieve Workspace Details
@@ -353,13 +358,19 @@ function changeBOMViewDone(id, fields, viewBOM, viewFlatBOM) {
     insertNonSparePartMessage();
     getBOMSpareParts(bom, flatBOM, 'urn:adsk.plm:tenant.workspace.item:' + tenant.toUpperCase() + '.' + link.split('/')[4] + '.' + link.split('/')[6], 1.0);
 
-    for(sparePart of listSpareParts) {
-        $('.bom-item').each(function() {
+    $('.bom-item').each(function() {
+        let elemCell = $('<td></td>').addClass('bom-column-icon').addClass('bom-column-spare-parts').appendTo(this);
+        for(sparePart of listSpareParts) {
             if($(this).attr('data-link') === sparePart) {
                 $(this).addClass('is-spare-part');
+                $('<span></span>').appendTo(elemCell)
+                    .addClass('icon')
+                    .addClass('icon-package')
+                    .addClass('filled')
+                    .attr('title', 'Is Spare Part');
             }
-        });
-    }
+        }
+    });
 
     $('#items-processing').hide();
 
@@ -649,7 +660,7 @@ function clickBOMItem(e, elemClicked) {
         insertAttachments(elemClicked.attr('data-link'), paramsAttachments);
         setProcesses(elemClicked.attr('data-link'));
         setSparePartsList(elemClicked);
-        updateViewer();
+        updateViewer(elemClicked.attr('data-part-number'));
     }
 
     updateBOMCounters(elemClicked.closest('.bom').attr('id'));

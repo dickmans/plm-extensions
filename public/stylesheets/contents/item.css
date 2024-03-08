@@ -536,13 +536,25 @@
 .bom-item:hover .bom-actions > div {
     display : flex;
 }
+.bom-column-icon {
+    padding     : 2px 0px 0px !important;
+    text-align  : center;
+    width       : 26px;   
+}
+.bom-column-icon > span {
+    font-size   : 20px;
+    font-weight : 300;
+}
+.bom-restricted {
+    color       : var(--color-status-red);
+}
 .bom-column-quantity {
     text-align : right;
 }
 .bom-quantity {
     font-weight : bold;
     text-align  : right;
-    width       : 60px;
+    width       : 50px;
 }
 .bom-content {
     bottom : 38px;

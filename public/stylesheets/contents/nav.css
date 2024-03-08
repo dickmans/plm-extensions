@@ -1,18 +1,16 @@
 /*  MY OUTSTANDING WORK */
 /* ----------------------------------------------------------------------------- */
-.mow-table {
+.mow-search-input {
+    width : 60px;
+}
+.mow-list {
     display : table;
     width   : 100%;
 }
 .mow-row {
     background  : var(--color-surface-level-3);
-
     cursor      : pointer;
     display     : table-row;
-}
-.surface-level-2 .mow-row,
-.surface-level-2 .mow-row > div {
-    border-color : var(--color-surface-level-2) !important; 
 }
 .mow-row:hover { 
     background   : var(--color-hover-background);
@@ -34,8 +32,10 @@
     display : table-cell;
 }
 .mow-icon {
-    line-height : 14px;
-    width       : 30px;
+    font-size   : 18px;
+    font-weight : 300;
+    line-height : 11px !important;
+    width       : 24px;
     text-align  : center;
 }
 .mow-icon::before {
@@ -43,14 +43,72 @@
     position  : relative;
     top       : 4px;
 }
-
 .mow-date {
-    color       : white;
-    text-align  : right; 
-    width       : 70px;
+    color         : white;
+    padding-left  : 10px !important;
+    padding-right : 10px !important;
+    text-align    : right; 
+    width         : 70px;
 }
-.mow-date.in-time { background : var(--color-status-green); }
-.mow-date.late    { background : var(--color-status-red);   }
+.mow-date.in-time { 
+    background : var(--color-status-green); 
+}
+.mow-date.late    { 
+    background : var(--color-status-red);   
+}
+.mow-status {
+    padding-left : 10px !important;
+}
+
+.mow-list.xxs .mow-row > div { padding :  2px  4px; }
+.mow-list.xs  .mow-row > div { padding :  4px  4px; }
+.mow-list.s   .mow-row > div { padding :  4px  8px; }
+.mow-list.m   .mow-row > div { padding :  6px 10px; }
+.mow-list.l   .mow-row > div { padding :  6px 10px; }
+.mow-list.xl  .mow-row > div { padding :  8px 12px; }
+.mow-list.xxl .mow-row > div { padding : 10px 12px; }
+
+.surface-level-2 .mow-row,
+.surface-level-2 .mow-row > div {
+    border-color : var(--color-surface-level-2) !important; 
+}
+
+
+
+/*  WORKSPACE ITEMS */
+/* ----------------------------------------------------------------------------- */
+.workspace-items-search-input {
+    width : 80px;
+}
+.workspace-items-groups {
+    display         : flex;
+    flex-direction  : column;
+    gap             : var(--spacer-xl);
+    margin-top      : var(--spacer-l);
+}
+.workspace-items-group {
+    display     : flex;
+    gap         : var(--spacer-m);
+}
+.workspace-items-group-name {
+    border-right: 2px solid var(--color-font);
+    font-weight : 700;
+    max-width   : 200px;
+    min-width   : 200px;
+    padding     : 10px;
+    text-align  : right;
+}
+.workspace-items-group-list {
+    flex-grow       : 1;
+    justify-content : flex-start;
+    padding         : 0px !important;
+}
+
+.surface-level-1 > .panel-content > .workspace-items-group > .workspace-items-group-name { border-color : var(--color-surface-level-3) ;}
+.surface-level-2 > .panel-content > .workspace-items-group > .workspace-items-group-name { border-color : var(--color-surface-level-4) ;}
+.surface-level-3 > .panel-content > .workspace-items-group > .workspace-items-group-name { border-color : var(--color-surface-level-4) ;}
+.surface-level-4 > .panel-content > .workspace-items-group > .workspace-items-group-name { border-color : var(--color-surface-level-1) ;}
+.surface-level-5 > .panel-content > .workspace-items-group > .workspace-items-group-name { border-color : var(--color-surface-level-1) ;}
 
 
 
@@ -96,24 +154,15 @@
     background : var(--color-selected-background);
     border-color : var(--color-selected-border);
 }
-
-
-/*  WORKSPACE ITEMS */
-/* ----------------------------------------------------------------------------- */
-.workspace-items-search-input {
-    width : 80px;
+.workspace-view-groups {
+    display : flex;
 }
-.workspace-items-groups {
-    display         : flex;
-    flex-direction  : column;
-    gap             : var(--spacer-xl);
-    margin-top      : var(--spacer-l);
-}
-.workspace-items-group {
+
+.workspace-view-group {
     display     : flex;
     gap         : var(--spacer-m);
 }
-.workspace-items-group-name {
+.workspace-view-group-name {
     border-right: 2px solid var(--color-font);
     font-weight : 700;
     max-width   : 200px;
@@ -121,14 +170,17 @@
     padding     : 10px;
     text-align  : right;
 }
-.workspace-items-group-list {
-    flex-grow       : 1;
-    justify-content : flex-start;
-    padding         : 0px !important;
+.workspace-view-groups.list {
+    flex-direction  : column;
+    gap             :  var(--spacer-m);
 }
-
-.surface-level-1 > .panel-content > .workspace-items-group > .workspace-items-group-name { border-color : var(--color-surface-level-3) ;}
-.surface-level-2 > .panel-content > .workspace-items-group > .workspace-items-group-name { border-color : var(--color-surface-level-4) ;}
-.surface-level-3 > .panel-content > .workspace-items-group > .workspace-items-group-name { border-color : var(--color-surface-level-4) ;}
-.surface-level-4 > .panel-content > .workspace-items-group > .workspace-items-group-name { border-color : var(--color-surface-level-1) ;}
-.surface-level-5 > .panel-content > .workspace-items-group > .workspace-items-group-name { border-color : var(--color-surface-level-1) ;}
+.workspace-view-groups.list > .workspace-view-group {
+    flex-direction  : column;   
+}
+.workspace-view-groups.list > .workspace-view-group > .workspace-view-group-name {
+    border-bottom   : 2px solid var(--color-font);
+    border-right    : none;
+    max-width       : unset;
+    min-width       : unset;
+    text-align      : left;
+}

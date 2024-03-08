@@ -107,10 +107,10 @@
 
 /* BOM */
 /* ----------------------------------------------------------------------------- */
-.is-spare-part .bom-first-col { 
-    font-weight : 700; 
-}
 .spare-part-custom .bom-first-col { color : var(--color-blue-500); }
+.bom-column-spare-parts {
+    padding-right : 6px !important;
+}
 
 
 
