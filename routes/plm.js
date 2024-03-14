@@ -3271,6 +3271,28 @@ router.get('/get-workspace-id', function(req, res, next) {
 });
 
 
+/* ----- GET ASSIGNED GROUPS ----- */
+router.get('/assigned-groups', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /assigned-groups');
+    console.log(' --------------------------------------------');  
+    console.log();
+
+    let url = 'https://' + req.session.tenant + '.autodeskplm360.net/api/v3/users/@me'
+
+    axios.get(url, {
+        headers : req.session.headers
+    }).then(function(response) {
+        console.log(response);
+        sendResponse(req, res, { 'data' : response.data.groups, 'status' : response.status }, false);
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+
+});
+
+
 /* ----- GET WORKSPACE PERMISSIONS ----- */
 router.get('/permissions', function(req, res, next) {
     
