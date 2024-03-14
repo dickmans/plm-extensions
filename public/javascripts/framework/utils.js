@@ -1,4 +1,5 @@
 let languageId  = '1';
+let username    = '';
 let isiPad      = navigator.userAgent.match(/iPad/i)   != null;
 let isiPhone    = navigator.userAgent.match(/iPhone/i) != null;
 
@@ -270,6 +271,29 @@ function getSurfaceLevel(elem) {
     if(elem.hasClass('surface-level-5')) return 'surface-level-5';
 
     return 'surface-level-0';
+
+}
+
+
+// Set user profile picture
+function insertAvatar() {
+
+    let elemAvatar = $('#header-avatar');
+
+    if(elemAvatar.length === 0) return;
+
+    $.get('/plm/me', {}, function(response) {
+
+        username = response.data.displayName;
+        
+        elemAvatar.html('')
+            .addClass('no-icon')
+            .attr('title', response.data.displayName + ' @ ' + tenant)
+            .css('background', 'url(' + response.data.image.large + ')')
+            .css('background-position', 'center')
+            .css('background-size', elemAvatar.css('height'));
+
+    });
 
 }
 

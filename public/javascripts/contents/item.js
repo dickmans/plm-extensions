@@ -3,33 +3,8 @@ let cachePicklists  = []; // keys: link, data
 let cacheSections   = [];
 let cacheWorkspaces = [];
 let urnsBOMFields   = [];
-let username        = '';
 let requestsLimit   = 5;
 
-
-
-// Set user profile picture
-function insertAvatar() {
-
-    let elemAvatar = $('#header-avatar');
-
-    if(elemAvatar.length === 0) return;
-
-    $.get( '/plm/me', {}, function(response) {
-
-        username = response.data.displayName;
-        
-        let elemAvatar = $('#header-avatar');
-            elemAvatar.addClass('no-icon');
-            elemAvatar.html('');
-            elemAvatar.attr('title', response.data.displayName + ' @ ' + tenant);
-            elemAvatar.css('background', 'url(' + response.data.image.large + ')');
-            elemAvatar.css('background-position', 'center');
-            elemAvatar.css('background-size', elemAvatar.css('height'));
-
-    });
-
-}
 
 
 // Insert APS Viewer
@@ -1060,7 +1035,7 @@ function validateForm(elemForm) {
 
 
 
-// Insert attachments as tiles
+// Insert attachments as tiles or table
 function insertAttachments(link, params) {
 
     if(isBlank(link)) return;
@@ -4542,29 +4517,29 @@ function toggleBookmark(elemBookmark) {
 }
 
 
-// Set tab labels
+// Set tab labels and toggle visibility based on user permission
 function insertTabLabels(tabs) {
 
-    $('#tabItemDetails').hide();
-    $('#tabAttachments').hide();
-    $('#tabWorkflow').hide();
-    $('#tabGrid').hide();
-    $('#tabProject').hide();
+    $('#tabItemDetails'  ).hide();
+    $('#tabAttachments'  ).hide();
+    $('#tabWorkflow'     ).hide();
+    $('#tabGrid'         ).hide();
+    $('#tabProject'      ).hide();
     $('#tabRelationships').hide();
-    $('#tabChangeLog').hide();
+    $('#tabChangeLog'    ).hide();
 
-    for(tab of tabs) {
+    for(let tab of tabs) {
 
         let label = (tab.name === null) ? tab.key : tab.name;
 
         switch(tab.workspaceTabName) {
-            case 'ITEM_DETAILS'         : $('#tabItemDetails').html(label).show(); break;
-            case 'PART_ATTACHMENTS'     : $('#tabAttachments').html(label).show(); break;
-            case 'WORKFLOW_ACTIONS'     : $('#tabWorkflow').html(label).show(); break;
-            case 'PART_GRID'            : $('#tabGrid').html(label).show(); break;
-            case 'PROJECT_MANAGEMENT'   : $('#tabProject').html(label).show(); break;
+            case 'ITEM_DETAILS'         : $('#tabItemDetails'  ).html(label).show(); break;
+            case 'PART_ATTACHMENTS'     : $('#tabAttachments'  ).html(label).show(); break;
+            case 'WORKFLOW_ACTIONS'     : $('#tabWorkflow'     ).html(label).show(); break;
+            case 'PART_GRID'            : $('#tabGrid'         ).html(label).show(); break;
+            case 'PROJECT_MANAGEMENT'   : $('#tabProject'      ).html(label).show(); break;
             case 'RELATIONSHIPS'        : $('#tabRelationships').html(label).show(); break;
-            case 'PART_HISTORY'         : $('#tabChangeLog').html(label).show(); break;
+            case 'PART_HISTORY'         : $('#tabChangeLog'    ).html(label).show(); break;
         }
 
     }
