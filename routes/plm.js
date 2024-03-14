@@ -3272,10 +3272,10 @@ router.get('/get-workspace-id', function(req, res, next) {
 
 
 /* ----- GET ASSIGNED GROUPS ----- */
-router.get('/assigned-groups', function(req, res, next) {
+router.get('/groups-assigned', function(req, res, next) {
     
     console.log(' ');
-    console.log('  /assigned-groups');
+    console.log('  /groups-assigned');
     console.log(' --------------------------------------------');  
     console.log();
 
@@ -3284,7 +3284,6 @@ router.get('/assigned-groups', function(req, res, next) {
     axios.get(url, {
         headers : req.session.headers
     }).then(function(response) {
-        console.log(response);
         sendResponse(req, res, { 'data' : response.data.groups, 'status' : response.status }, false);
     }).catch(function(error) {
         sendResponse(req, res, error.response, true);
