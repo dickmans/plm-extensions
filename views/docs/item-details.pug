@@ -1,0 +1,166 @@
+#item-details.doc-content 
+    h1 insertDetails();
+    .definition  Insert item details of a defined item 
+        br
+        |This function gets included in all pages automatically and is defined in 
+        span.path /public/javascripts/contents/item.js
+        |. 
+        br
+        |Styling of the given contents is defined in 
+        span.path /public/stylesheets/contents/item.css 
+        | based on the primary classes section and field.
+        img(src='images/docs/item-details-1.png' style='display:block;margin-top:20px;height:297px;')
+    h2 DOM Elements 
+    p Insert the following base element to your pug file to add the grid container in your page. You can choose another id than shown here, but will then have to provide your element's id as parameter.
+    p.code #details 
+    p Add the following optional classes to this DOM element to adjust the contents display:
+    p 
+        table.row-hovering 
+            tr 
+                th Class Name 
+                th Description
+            tr 
+                td surface-level-[1..5]
+                td Add the UI classes surface-level-1 through surface-level-5 to adjust the background color of the attachments element 
+
+    h2 Parameters
+    p Various parameters can be provided when using insertDetails. The link parameter is required specifically and must be provided as string. All further parameters must be passed by using a JSON object. See this example call: 
+    p.code insertDetails('/api/v3/workspaces/82/items/4810', { 'id' : 'request-details', 'reload' : true });
+    p   
+        table.parameters.row-hovering 
+            tr 
+                th.nowrap Parameter 
+                th Description
+                th Type 
+                th Required 
+                th Default 
+            tr 
+                td link 
+                td The API-link of the item to be displayed
+                td String
+                td Yes
+                td -
+            tr 
+                td id 
+                td ID of the DOM element where the grid will be inserted
+                td String
+                td No
+                td details
+            tr 
+                td header 
+                td Can be used to suppress addition of the panel header element. As this element is required for the file upload button parameter, it will be set to true if uploads should be enabled.
+                td Boolean
+                td No
+                td true
+            tr 
+                td headerLabel
+                td Sets the header label (if header is enabled)
+                td String
+                td No
+                td Details
+            tr 
+                td headerToggle 
+                td Enables collapsing and expanding the attachments display
+                td Boolean
+                td No 
+                td false
+            tr 
+                td inline 
+                td Display the details inline with other elements (preents absolut positioning)
+                td Boolean
+                td No
+                td false
+            tr 
+                td reload 
+                td Enables reload button for the attachments panel
+                td Boolean
+                td No
+                td false
+            tr 
+                td compactDisplay 
+                td Enables a compact display of the form by adding class compact to the sections parent element
+                td Boolean
+                td No
+                td false
+            tr 
+                td hideComputed 
+                td Hide computed fields
+                td Boolean
+                td No
+                td false
+            tr 
+                td hideReadOnly 
+                td Hide read only fields
+                td Boolean
+                td No
+                td false
+            tr 
+                td hideLabels 
+                td Hide field labels of each fields
+                td Boolean
+                td No
+                td false
+            tr 
+                td suppressLinks 
+                td When set to true, linking pick lists will not be shown as links, preventing users from opening the native PLM user interface
+                td Boolean
+                td No
+                td false
+            tr 
+                td sectionsIn 
+                td List of sections to be included, identified by Section Name. Sections not included in this list will not be shown (example: ['Header', 'Details']).
+                td Array
+                td No 
+                td []
+            tr 
+                td sectionsEx 
+                td List of sections columns to be excluded, identified by Section Name. Sections in this list will not be shown (example: ['Hidden Section']).
+                td Array
+                td No 
+                td []
+            tr 
+                td fieldsIn 
+                td List of fields to be included, identified by Field ID. Fields not included in this list will not be shown (example: ['TITLE', 'DESCRIPTION']).
+                td Array
+                td No 
+                td []
+            tr 
+                td fieldsEx 
+                td List of fields to be excluded, identified by Field ID. Fields in this list will not be shown (example: ['DMS_ID']).
+                td Array
+                td No 
+                td []
+    h2 Examples 
+    p   
+        table.row-hovering 
+            tr 
+                th Code 
+                th Screenshot 
+                th Application 
+            tr 
+                td.code 
+                    span.indent-1 insertDetails( link, {
+                    span.indent-2 id'              : 'request-details',
+                    span.indent-2 'compactDisplay' : true
+                    span.indent-1 });
+                td
+                    img(src='images/docs/item-details-1.png' style='height:297px;')
+                td Service Portal
+
+    h2 Events 
+    p You can override the following functions in your code to adjust the default behavior.
+    p 
+        table.row-hovering
+            tr 
+                th Function 
+                th Event 
+                th Parameters 
+            tr 
+                td insertDetailsDone(id, data, sections, fields) 
+                td Gets executed once data has been retrieved from PLM and after sections/fields got inserted to the page.
+                td 
+                    ul 
+                        li id = id of the parent div element (i.e. details)
+                        li data = data of /item REST API call of PLM
+                        li sections = data of /sections REST API call of PLM
+                        li fields = data of /fields REST API call of PLM
