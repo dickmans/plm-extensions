@@ -4,6 +4,7 @@ let isiPad      = navigator.userAgent.match(/iPad/i)   != null;
 let isiPhone    = navigator.userAgent.match(/iPhone/i) != null;
 
 let settings = {
+    details         : {},
     attachments     : {},
     bom             : {},
     flatBOM         : {},
@@ -15,6 +16,8 @@ let settings = {
     workspaceItems  : {},
     workflowHistory : {}
 }
+
+const includesAny = (arr, values) => values.some(v => arr.includes(v));
 
 
 $(document).ready(function() {  
@@ -35,6 +38,63 @@ $(document).ready(function() {
 
 });
 
+
+// Get list of disabled features
+function getApplicationFeatures(app, callback) {
+
+    $('body').children().hide();
+
+    $('<div></div>').appendTo('body')
+        .attr('id', 'startup')
+        .addClass(getSurfaceLevel($('body')));
+
+    $('<div></div>').appendTo($('#startup'))
+        .attr('id', 'startup-logo');
+
+    if(isBlank(config[app].features)) callback() 
+    else {
+
+        $.get('/plm/groups-assigned', {}, function(response) {
+            
+            let groupsAssigned   = [];
+            let settingsFeatures = config[app].features;
+            
+            for(let group of response.data) groupsAssigned.push(group.shortName);
+
+            for(let feature of Object.keys(features)) {
+                if(feature !== 'viewer') {
+                    for(let settingFeature of Object.keys(settingsFeatures)) {
+                        if(feature === settingFeature) {
+                            if(typeof settingsFeatures[settingFeature] === 'object') {
+                                features[feature] = includesAny(groupsAssigned, settingsFeatures[settingFeature]);
+                            } else features[feature] = settingsFeatures[settingFeature];
+                        }
+                    }
+                }
+            }
+
+            if(!isBlank(features.viewer)) {
+                if(!isBlank(settingsFeatures.viewer)) {
+                    for(let feature of Object.keys(features.viewer)) {
+                        for(let settingFeature of Object.keys(settingsFeatures.viewer)) {
+                            if(feature === settingFeature) {
+                                if(typeof settingsFeatures.viewer[settingFeature] === 'object') {
+                                    features.viewer[feature] = includesAny(groupsAssigned, settingsFeatures.viewer[settingFeature]);
+                                } else features.viewer[feature] = settingsFeatures.viewer[settingFeature];
+                            }
+                        }
+                    }
+                }
+            }          
+
+            getApplicationFeaturesDone(app);
+            callback();
+
+        });
+    }
+
+}
+function getApplicationFeaturesDone(app) {}
 
 
 // Validate if given variable is null or empty

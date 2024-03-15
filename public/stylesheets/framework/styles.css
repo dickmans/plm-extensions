@@ -1112,6 +1112,31 @@ and (max-device-width : 1900px)  {
 
 
 
+/*  STARTUP */
+/* ----------------------------------------------------------------------------- */
+#startup {
+    position    : absolute;
+    top         : 0px;
+    right       : 0px;
+    bottom      : 0px;
+    left        : 0px;
+    z-index     : 10;
+}
+#startup-logo {
+    background-image    : url(../../images/autodesk-logo-black.png);
+    background-size     : 390px;
+    height              : 258px;
+    width               : 390px;
+    position            : absolute;
+    top                 : calc(50% - 160px);
+    left                : calc(50% - 195px);
+}
+.dark-theme #startup-logo {
+    background-image    : url(../../images/autodesk-logo-white.png);
+}
+
+
+
 /*  OVERLAY */
 /* ----------------------------------------------------------------------------- */
 #overlay, .overlay {
