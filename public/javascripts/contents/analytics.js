@@ -33,7 +33,7 @@ function insertReportDefinitions(id, selectedReports) {
 
         sortArray(reports, 'name', 'string', 'ascending');
 
-        for(report of reports) {
+        for(let report of reports) {
 
             if(report.hasOrphanFields) {
 
@@ -42,20 +42,20 @@ function insertReportDefinitions(id, selectedReports) {
             } else {
 
                 let description = (typeof report.description === 'undefined') ? '&nbsp;' : report.description;
-                let icon        = 'table';
+                let icon        = 'icon-table';
 
                 if(report.isChartReport) {
 
                     switch(report.reportChart.type) {
 
-                        case 'COLUMN'       : icon = 'bar_chart'; break;
-                        case 'LINE'         : icon = 'show_chart'; break;
-                        case 'MSCOLUMN'     : icon = 'grouped_bar_chart'; break;
-                        case 'MSAREA'       : icon = 'stacked_line_chart'; break;
-                        case 'PIE'          : icon = 'incomplete_circle'; break;
-                        case 'DOUGHNUT'     : icon = 'donut_small'; break;
-                        case 'STACKEDCOLUMN': icon = 'stacked_bar_chart'; break;
-                        default             : icon = 'incomplete_circle'; break;
+                        case 'COLUMN'       : icon = 'icon-bar-chart'; break;
+                        case 'LINE'         : icon = 'icon-line-chart'; break;
+                        case 'MSCOLUMN'     : icon = 'icon-bar-chart-stack'; break;
+                        case 'MSAREA'       : icon = 'icon-line-chart-stack'; break;
+                        case 'PIE'          : icon = 'icon-pie-chart'; break;
+                        case 'DOUGHNUT'     : icon = 'icon-donut-chart'; break;
+                        case 'STACKEDCOLUMN': icon = 'icon-bar-chart-stack'; break;
+                        default             : icon = 'icon-pie-chart'; break;
 
                     }
 
@@ -173,17 +173,12 @@ function insertReportTable(elemReport, data) {
                 }
             }
 
-            let elemCell = $('<td></td>');
-                elemCell.appendTo(elemRow);
+            let elemCell = $('<td></td>').appendTo(elemRow);
 
             if(image === '') {
                 elemCell.html(value);
             } else {
-
-                let elemImage = $('<img>');
-                    elemImage.attr('src', image);
-                    elemImage.appendTo(elemCell);
-
+                $('<img>').appendTo(elemCell).attr('src', image);
             } 
         
         }

@@ -185,6 +185,8 @@
 .icon-3d::before                { content : '\e9fe'; }
 .icon-activity::before          { content : '\e53f'; }
 .icon-arrow-right::before       { content : '\f81d'; }
+.icon-bar-chart::before         { content : '\e26b'; }
+.icon-bar-chart-stack::before   { content : '\e9e6'; }
 .icon-block::before             { content : '\e14b'; }
 .icon-bookmark::before          { content : '\e838'; font-variation-settings: 'FILL' 1 }
 .icon-bom::before               { content : '\e242'; }
@@ -208,6 +210,7 @@
 .icon-deselect-all::before      { content : '\e9d3'; }
 .icon-details::before           { content : '\e0ee'; }
 .icon-disconnect::before        { content : '\e16f'; }
+.icon-donut-chart::before       { content : '\e917'; }
 .icon-edit-multiple::before     { content : '\e745'; }
 .icon-expand::before            { content : '\e5cc'; }
 .icon-factory::before           { content : '\ebbc'; }
@@ -224,6 +227,8 @@
 .icon-important::before         { content : '\e82a'; }
 .icon-info::before              { content : '\e88e'; }
 .icon-layers::before            { content : '\e53b'; }
+.icon-line-chart::before        { content : '\e6e1'; }
+.icon-line-chart-stack::before  { content : '\f22b'; }
 .icon-link::before              { content : '\e157'; }
 .icon-link-add::before          { content : '\e178'; }
 .icon-list::before              { content : '\e896'; }
@@ -237,6 +242,7 @@
 .icon-package::before           { content : '\f569'; }
 .icon-panel::before             { content : '\f114'; }
 .icon-pdf::before               { content : '\e415'; }
+.icon-pie-chart::before         { content : '\e79b'; }
 .icon-problem::before           { content : '\e122'; }
 .icon-product::before           { content : '\f720'; }
 .icon-radio-checked::before     { content : '\e837'; }
