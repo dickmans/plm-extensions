@@ -1,0 +1,66 @@
+#viewer-colors.doc-content 
+    
+    h1 Set Component Colors
+    .definition Apply colors to the components in the viewer
+    
+    h2 viewerSetColor(partNumber, params) 
+    p Use this function to color up a single component in the viewer by passing its part number. All entries of 'dataInstances' then will be evaluated for a match against this part number. This is achieved by calling the function viewerSetColors with exact same parameters as described next.
+    p.code 
+        span.indent-1 viewerSetColor('002771', {
+        span.indent-2 'color' : [240, 0, 0, 0.5]
+        span.indent-1 });
+    
+    h2 viewerSetColors(partNumbers, params) 
+    p Apply the same color to a list of defined components. 
+    p.code 
+        span.indent-1 viewerSetColors( ['002771','003481','003821'], {
+        span.indent-2 'isolate' : true,
+        span.indent-2 'fitToView' : true,
+        span.indent-2 'color' : [240, 0, 0, 0.5]
+        span.indent-1 }); 
+    p Use the params object (JSON) to enable the required behavior using the parameters listed below.
+    p 
+        table.row-hovering
+            tr 
+                th Parameter 
+                th Description 
+                th Type
+                th Default Value
+            tr 
+                td isolate
+                td When set to true, all other geometry will get hidden (or ghosted if ghosting is enabled)
+                td Boolean 
+                td false
+            tr 
+                td ghosting
+                td If components get hidden, they can be ghosted instead by setting this parameter to true
+                td Boolean 
+                td false
+            tr 
+                td fitToView
+                td This will refresh the viewer after components got selected to fit them into screen
+                td Boolean 
+                td false
+            tr 
+                td resetColors
+                td If set to true, all colors of all components will be removed before
+                td Boolean 
+                td true
+            tr 
+                td unhide
+                td The list of part numbers may include components which got hidden. When setting this parameter to true, such components get unhidden automatically.
+                td Boolean 
+                td true                
+            tr 
+                td color
+                td Defines the color to be used for highlighting the selected components. 
+                td THREE.Vector4
+                td new THREE.Vector4(0.02, 0.58, 0.84, 0.5)
+    
+    h2 viewerSetColorToAll(color) 
+    p Apply the same color all components in viewer
+    p.code viewerSetColorToAll([240, 0, 0, 0.5]); 
+    
+    h2 viewerResetColors() 
+    p Reset all colors of all components in viewer.
+    p.code viewerResetColors();

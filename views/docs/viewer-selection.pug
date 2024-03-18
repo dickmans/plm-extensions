@@ -1,0 +1,193 @@
+#viewer-selection.doc-content 
+    h1 Selecting Components In Viewer
+    .definition While the user clicks on components of your application (i.e. the BOM), you may want to select the given components in the viewer at the same time. The functions listed below cover these selection use cases.
+    h2 viewerSelectModel(partNumber, params) 
+    p Use this function to select a single item in the viewer by passing its part number. All entries of 'dataInstances' then will be evaluated for a match against this part number. This is achieved by calling the function viewerSelectModels with exact same parameters as described next.
+    p.code viewerSelectModel('002771', {});
+    h2 viewerSelectModels(partNumbers, params) 
+    p Select a set of multiple items by passing an array of part numbers. 
+    p.code 
+        span.indent-1 viewerSelectModels( ['002771','003481','003821'], {
+        span.indent-2 'isolate' : true, 
+        span.indent-2 'fitToView' : true
+        span.indent-1 }); 
+    p Use the params object (JSON) to enable the required behavior using the parameters listed below.
+    p 
+        table.row-hovering
+            tr 
+                th Parameter 
+                th Description 
+                th Type
+                th Default Value
+            tr 
+                td isolate
+                td When set to true, all other geometry will get hidden (or ghosted if ghosting is enabled)
+                td Boolean 
+                td true
+            tr 
+                td ghosting
+                td When components get hidden, they can be ghosted instead by setting this parameter to true
+                td Boolean 
+                td false
+            tr 
+                td fitToView
+                td This will refresh the viewer after components got selected to fit them into screen
+                td Boolean 
+                td true
+            tr 
+                td highlight
+                td The components being selected can be highlighted by color. If the parameter color is omitted, a default color will be applied (variable 'colorModelSelected').
+                td Boolean 
+                td true
+            tr 
+                td resetColors
+                td Before the new set of components get selected, you can enforce a reest of all colors of all components before
+                td Boolean 
+                td true
+            tr 
+                td color
+                td Defines the color to be used for highlighting the selected components. 
+                td THREE.Vector4
+                td new THREE.Vector4(0.02, 0.58, 0.84, 0.5)
+    h2 viewerSelectAll(params) 
+    p Select all components in viewer
+    p.code viewerSelectAll(); 
+    p Use the params object (JSON) to enable the required behavior using the parameters listed below.
+    p 
+        table.row-hovering
+            tr 
+                th Parameter 
+                th Description 
+                th Type
+                th Default Value
+            tr 
+                td fitToView
+                td This will refresh the viewer after components got selected to fit them into screen
+                td Boolean 
+                td true
+            tr 
+                td highlight
+                td The components can be highlighted by color. If the parameter color is omitted, a default color will be applied (variable 'colorModelSelected').
+                td Boolean 
+                td true
+            tr 
+                td resetColors
+                td Before the components get selected, you can enforce a reest of all colors of all components before
+                td Boolean 
+                td true
+            tr 
+                td color
+                td Defines the color to be used for highlighting the components. 
+                td THREE.Vector4
+                td new THREE.Vector4(0.02, 0.58, 0.84, 0.5)
+    h2 viewerSelectInstances(dbIds, params) 
+    p Select a specific set of instances of a given model by providing the given dbIs being used in the viewer. See variable 'dataInstances' for the list of these Ids. You can also use method 'viewerGetComponentsInstances' described in Basics to retrieve the instance Ids.
+    p.code 
+        span.indent-1 viewerSelectInstances( ['45','32'], {
+        span.indent-2 'isolate' : true, 
+        span.indent-2 'highlight' : true
+        span.indent-1 }); 
+    p Use the params object (JSON) to enable the required behavior using the parameters listed below.
+    p 
+        table.row-hovering
+            tr 
+                th Parameter 
+                th Description 
+                th Type
+                th Default Value
+            tr 
+                td isolate
+                td When set to true, all other geometry will get hidden (or ghosted if ghosting is enabled)
+                td Boolean 
+                td true
+            tr 
+                td ghosting
+                td When instances get hidden, they can be ghosted instead by setting this parameter to true
+                td Boolean 
+                td false
+            tr 
+                td fitToView
+                td This will refresh the viewer after instances got selected to fit them into screen
+                td Boolean 
+                td true
+            tr 
+                td highlight
+                td The instances being selected can be highlighted by color. If the parameter color is omitted, a default color will be applied (variable 'colorModelSelected').
+                td Boolean 
+                td true
+            tr 
+                td resetColors
+                td Before the new set of instances get selected, you can enforce a reest of all colors of all components before
+                td Boolean 
+                td true
+            tr 
+                td color
+                td Defines the color to be used for highlighting the selected components. 
+                td THREE.Vector4
+                td new THREE.Vector4(0.02, 0.58, 0.84, 0.5)
+    h2 viewerHighlightInstances(partNumber, dbIds, params) 
+    p Select all instanced of a given part number and highlight a given set of instances of this part specfically. Provide the partNumber as string and an array of instance ids to be highlighted.
+    p.code 
+        span.indent-1 viewerHighlightInstances( '004598', [45, 34, 21], {
+        span.indent-2 'isolate' : true, 
+        span.indent-2 'ghosting' : true
+        span.indent-1 }); 
+    p Use the params object (JSON) to enable the required behavior using the parameters listed below.
+    p 
+        table.row-hovering
+            tr 
+                th Parameter 
+                th Description 
+                th Type
+                th Default Value
+            tr 
+                td isolate
+                td When set to true, all other geometry will get hidden (or ghosted if ghosting is enabled)
+                td Boolean 
+                td true
+            tr 
+                td ghosting
+                td When instances get hidden, they can be ghosted instead by setting this parameter to true
+                td Boolean 
+                td false
+            tr 
+                td fitToView
+                td This will refresh the viewer after instances got selected to fit them into screen
+                td Boolean 
+                td true
+            tr 
+                td resetColors
+                td Before the new set of instances get selected, you can enforce a reest of all colors of all components before
+                td Boolean 
+                td true
+            tr 
+                td color
+                td Defines the color to be used for all the part number instances
+                td THREE.Vector4
+                td new THREE.Vector4(0.02, 0.58, 0.84, 0.5)
+            tr 
+                td colorHighlight
+                td Defines the color to be used for highlighting the selected instances 
+                td THREE.Vector4
+                td new THREE.Vector4(0.9, 0.1, 0.1, 0.5)
+    h2 viewerResetSelection(params) 
+    p Deselect all components
+    p.code viewerResetSelection();
+    p Use the params object (JSON) to enable the required behavior using the parameters listed below.
+    p 
+        table.row-hovering
+            tr 
+                th Parameter 
+                th Description 
+                th Type
+                th Default Value
+            tr 
+                td fitToView
+                td This will refresh the viewer after instances got selected to fit them into screen
+                td Boolean 
+                td true
+            tr 
+                td resetColors
+                td Before the new set of instances get selected, you can enforce a reest of all colors of all components before
+                td Boolean 
+                td true

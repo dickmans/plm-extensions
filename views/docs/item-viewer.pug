@@ -1,0 +1,162 @@
+#item-viewer.doc-content 
+    h1 insertViewer();
+    .definition  Retrievews viewable files from PLM and inserts viewer for this file
+        br
+        |This function gets included in all pages automatically and is defined in 
+        span.path /public/javascripts/contents/item.js
+        |. 
+        img(src='images/docs/item-viewer-1.png' style='display:block;margin-top:20px;height:520px;')
+    h2 DOM Elements 
+    p Insert the following base element to your pug file to add the grid container in your page. You can choose another id than shown here, but will then have to provide your element's id as parameter.
+    p.code #viewer.viewer
+    p Additional elements will be inserted to the page in order to indicate the load process and to show a message if no valid viewable could be found. These elements will have the class 'viewer'. Therefore it is recommended to add this class 'viewer' also to your viewer DOM element as shown above, so that all these elements will share the same position on screen (only one will be shown at a time).
+    p Add the following optional classes to this DOM element to adjust the contents display:
+    p 
+        table.row-hovering 
+            tr 
+                th Class Name 
+                th Description
+            tr 
+                td surface-level-[1..5]
+                td Add the UI classes surface-level-1 through surface-level-5 to automatically match the background color of the viewer (if no specific color is provided) 
+    h2 Viewable Recognition 
+    p This function insertViewer will automatically determine the viewable file to be visualised. It performs a request against /plm/get-viewables to determine the list of avilable viewable files. It will apply the following logic: 
+    ul
+        li The first valid viewable will be used to launch the viewer. 
+        li When searching for viewable files, the following extensions will be reconized as valid formats: 'dwf', 'dwfx', 'ipt', 'stp', 'step', 'sldprt' and 'nwd'.
+        li If no viewable is available, the function will show a matching message to the user. It will also add class 'no-viewer' to the 'body' element of your page to allow for adjustments of the UI if needed. 
+        li If both 3D and 2D viewables are available, the viewer will automatically select the 3D files (iam, ipt) instead of the drawing.
+        li Before rendering the given viewable, insertViewer will trigger the given conversion if the file has never been visualized before. In this case, launching the viewer will take some extra time.
+    h2 Parameters
+    p When using insertViewer, few parameters can be provided using a JSON object as shown below. The link parameter is always required, all further parameters are optional. Assuming that the default DOM element id of viewer should be used, it is enough to provide the API link for the item with the given attachment to be displayed:
+    p.code insertViewer('/api/v3/workspaces/82/items/4810', {});
+    p   
+        table.parameters.row-hovering 
+            tr 
+                th.nowrap Parameter 
+                th Description
+                th Type 
+                th Required 
+                th Default 
+            tr 
+                td link 
+                td The API-link of the item whose attachment should be be displayed
+                td String
+                td Yes
+                td - none -
+            tr 
+                td id 
+                td ID of the DOM element where the viewer will be inserted
+                td String
+                td No
+                td viewer
+            tr 
+                td fileId 
+                td Select a specific file to be rendered by providing its unique ID
+                td String
+                td No
+                td - empty -
+            tr 
+                td filename 
+                td Select a specific file to be rendered by providing its filename (matches the Title column in the attachments tab)
+                td String
+                td No
+                td - empty -
+            tr 
+                td extensionsIn 
+                td Defines the list of attachment file types to take into account when requesting the possible list of viewable files. Only file types included in this list will be taken into account.
+                td Array
+                td No
+                td ['dwf', 'dwfx', 'ipt', 'stp', 'step', 'sldprt', 'nwd']
+            tr 
+                td extensionsEx 
+                td Defines the list of attachment file types to exclued when requesting the possible list of viewable files. Files with an extension listed will not be considered as valid viewable.
+                td Array
+                td No
+                td []
+            tr 
+                td color 
+                td Background color for the viewer. You can pass a single integer value that will be used as identical Red, Green and Blue value. 
+                    br
+                    |As alternative, you can also pass an array of RGB values (i.e. [69, 79, 97]).
+                    br
+                    |If the color parameter is omitted, the viewer will determine the background color automatically (matching to the given surface level).
+                td Single Integer (i.e. 255 for white)
+                    br
+                    | or Array of RGB Values [200, 200, 0]
+                td No
+                td - matching to surface level [1..5] -
+    h2 Examples 
+    p   
+        table.row-hovering 
+            tr 
+                th Code 
+                th Screenshot 
+                th Application 
+            tr 
+                td.code 
+                    span.indent-1 insertViewer( link );
+                td
+                    img(src='images/docs/item-viewer-1.png' style='height:520px;')
+                td Service Portal
+
+    h2 Events 
+    p You can override the following functions in your code to adjust the default behavior of inserting the viewer.
+    p 
+        table.row-hovering
+            tr 
+                th Function 
+                th Event 
+                th Parameters 
+            tr 
+                td insertViewerDone(id, viewable, viewables)
+                td Gets executed once viewable data has been retrieved from PLM just before the viewer gets initialised
+                td 
+                    ul 
+                        li id = id of the parent div element (i.e. viewer)
+                        li viewable = data of viewable to be visualised as returned by REST API call of PLM
+                        li viewables = data of all viewable of current context item as returned by REST API call of PLM
+    p In addition to these events, the following functions can be overridden to attach logic to given events within the viewer once it is loaded.
+    p 
+        table.row-hovering
+            tr 
+                th Function 
+                th Event 
+                th Standard Action 
+                th Parameters 
+            tr 
+                td onViewerToolbarCreated(event)
+                td Gets executed once toolbar got loaded in the viewer. The toolbar might not be shown on screen yet at this event.
+                td As further processing is required at a later stage of the viewer loading process to determine the correct features available to the users, the viewer's toolbar will be hidden at this step.
+                td event = event object
+            tr 
+                td onViewerGeometryLoaded()
+                td Once the viewer finished loading all data, you may want to apply some postprocessing.
+                td This function enables selected features in the viewer toolbar using setViewerFeatures() and unhides the toolbar right after.
+                    br
+                    |It also caches instance data of all components loaded in the viewer along with given part numbers in dataInstances thanks to setViewerInstancedData().
+                td -
+            tr 
+                td setViewerInstancedDataDone()
+                td The function setViewerInstancedData() get triggerd by onViewerGeometryLoaded() and will trigger setViewerInstancedDataDone() once the instance data got parsed and enriched with the matchin part numbers. 
+                    br
+                    |Once this function gets called, all instance data and related part numbers of the viewer components is accessible via 'dataInstances' array.
+                td - no logic implemented -
+                td -
+            tr 
+                td onViewerSelectionChanged(event)
+                td Whenever a component gets selected in the viewer, this event triggers.
+                td Per default, this function will determine the partNumbers matching the selected components and pass this to onViewerSelectionChangedDone (see next line).
+                td event = event object
+            tr 
+                td onViewerSelectionChangedDone(partNumbers, event)
+                td Whenever a component gets selected in the viewer and matching part numbers got identified, this function gets invoked by onViewerSelectionChanged().
+                td - no logic implemented -
+                td partNumbers = array of part numbers of selectec components 
+                    br
+                    |event = event object
+            tr 
+                td onViewerRestore(event)
+                td Gets triggered when a given viewpoint gets restored
+                td The default function will unload all markups
+                td event = event object

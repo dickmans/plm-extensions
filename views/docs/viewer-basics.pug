@@ -1,0 +1,66 @@
+#viewer-basics.doc-content 
+    h1 Basic Functionality
+    .definition Once the viewer is loaded, you can access it with variable viewer. In addition, the methods listed below are available for your applications.
+    
+    h2 viewerResize(delay) 
+    p As your application layout may change, you may have to resize the viewer window as well. Using this function, you can enforce the viewer to update to its current canvas size. 
+    p.code viewerResize();
+    p The 
+        strong delay 
+        |parameter is optional and enables to delay this resize if you must align it with an animation in your user interface. This delay is set to 250 ms, but you can provide any other value.
+    p.code viewerResize(50);
+    
+    h2 isViewerStarted() 
+    p This method validates if the viewer has been started and if object 'viewer' is accessible. It is recommeded to include this check in your viewer extensions as well to prevent error statements in the console.
+    p.code isViewerStarted();
+    p The functions listed in the subsequent pages all make use of this functionality as well, whenever needed: 
+    p.code if(!isViewerStarted()) return;
+
+    h2 viewerGetComponentInstances(partNumber) 
+    p This method returns all instances and paths of single components identified by partNumber.
+    p.code viewerGetComponentInstances('003311');
+    p The response will return an array of instance paths and ids:
+    p.code
+        span.indent-1 [{
+        span.indent-2 'dbId' : 35
+        span.indent-2 'path' : '001102.iam|002771.iam.1'
+        span.indent-2  },{
+        span.indent-2 'dbId' : 31
+        span.indent-2 'path' : '001102.iam|002771.iam.2'
+        span.indent-1 }]
+
+    h2 viewerGetComponentsInstances(partNumbers) 
+    p This method returns all instances and paths of all components identified by list of partNumbers.
+    p.code viewerGetComponentsInstances(['002771', '003311']);
+    p The response will return an array of the given part numbers as well as the instances paths and ids:
+    p.code
+        span.indent-1 [{
+        span.indent-2 'partNumber' : '002771',
+        span.indent-2 'instances' : [{
+        span.indent-3 'dbId' : 45
+        span.indent-3 'path' : '001102.iam'
+        span.indent-2 }]
+        span.indent-1 },{
+        span.indent-2 'partNumber' : '003311',
+        span.indent-2 'instances' : [{
+        span.indent-3 'dbId' : 35
+        span.indent-3 'path' : '001102.iam|002771.iam.1'
+        span.indent-2  },{
+        span.indent-3 'dbId' : 31
+        span.indent-3 'path' : '001102.iam|002771.iam.2'
+        span.indent-2 }]
+        span.indent-1 }]
+
+    h2 viewerGetSelectedComponentPaths() 
+    p This method returns all instances and paths of all components selected in the viewer.
+    p.code viewerGetSelectedComponentPaths();
+    p The response will return an array of the selected components' paths:
+    p.code
+        span.indent-1 [
+        span.indent-2 '002771;002771|002772;Case Assembly v16:1|002775;Rotating Window Sub-Assembly:1|002830;Rotating Window Moulding:1',
+        span.indent-2 '002771;002771|002772;Case Assembly v16:1|002779;Vertical Extrusion - Right:1',
+        span.indent-2 '002771;002771|002773;Build Assembly:1|002806;Peel Plate:1'
+        span.indent-1 ]
+
+
+        

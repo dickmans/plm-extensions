@@ -8,7 +8,7 @@ block head
 block body
 
     body
-        .split.left-350.surface-level-5
+        .split.left-350.surface-level-1
             .split-left.padding-100.surface-level-3
                 h1 User Experiences Developer Guide
                 .nav-subtitle You can use this package to also build your own applications based on modular components being used for the preconfigured apps as well
@@ -25,10 +25,19 @@ block body
                 .nav-contents
                     .nav-content(data-id='item-details') Details
                     .nav-content(data-id='item-attachments') Attachments
+                    .nav-content(data-id='item-viewer') Viewer
                     .nav-content(data-id='item-bom') BOM
                     .nav-content(data-id='item-grid') Grid
                     .nav-content(data-id='item-workflow-actions') Workflow Actions
                     .nav-content(data-id='item-workflow-history') Workflow History
+                .nav-header Viewer
+                .nav-description Enable interactions with the viewer using functionality of viewer.js
+                .nav-contents
+                    .nav-content(data-id='viewer-basics') Basics
+                    .nav-content(data-id='viewer-selection') Selection
+                    .nav-content(data-id='viewer-colors') Colors
+                    .nav-content(data-id='viewer-visibility') Visibility
+                    .nav-content(data-id='viewer-toolbars') Toolbars
             #doc-contents.split-right.padding-80.surface-level-1.no-scrollbar(name='doc-contents')
                 include ../docs/nav-mow.pug
                 include ../docs/nav-recent-items.pug
@@ -37,8 +46,13 @@ block body
                 include ../docs/nav-workspace-items.pug
                 include ../docs/item-details.pug
                 include ../docs/item-attachments.pug
+                include ../docs/item-viewer.pug
                 include ../docs/item-bom.pug
                 include ../docs/item-grid.pug
                 include ../docs/item-workflow-actions.pug
                 include ../docs/item-workflow-history.pug
+                include ../docs/viewer-basics.pug
+                include ../docs/viewer-selection.pug
+                include ../docs/viewer-colors.pug
+                include ../docs/viewer-visibility.pug
                 
