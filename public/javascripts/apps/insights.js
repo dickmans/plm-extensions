@@ -155,6 +155,9 @@ function initCharts() {
             }]
         },
         options : {
+            animation : {
+                duration : 0
+            },
             maintainAspectRatio : false,
             indexAxis           : 'y',
             legend : {
@@ -185,6 +188,9 @@ function initCharts() {
             }]
         },
         options : {
+            animation : {
+                duration : 0
+            },
             maintainAspectRatio : false,
             legend : {
                 position : 'bottom'
@@ -242,9 +248,12 @@ function initCharts() {
             }]
         },
         options : {
+            animation : {
+                duration : 0
+            },
             maintainAspectRatio: false,
             responsive : true, 
-            // clip : 0,
+            clip : 0,
             plugins : {
                 legend : {
                     position : 'top'
@@ -278,6 +287,9 @@ function initCharts() {
             ]
         },
         options: {
+            animation : {
+                duration : 0
+            },
             maintainAspectRatio : false,
             responsive : true,
             legend : {
@@ -305,6 +317,9 @@ function initCharts() {
             datasets : []
         },
         options : {
+            animation : {
+                duration : 0
+            },
             maintainAspectRatio : false,
             responsive          : true,
             plugins : {
@@ -329,6 +344,9 @@ function initCharts() {
             datasets : []
         },
         options : {
+            animation : {
+                duration : 0
+            },
             maintainAspectRatio : false,
             plugins : {
                 legend : {
@@ -359,6 +377,9 @@ function initCharts() {
             datasets : [],
         },
         options : {
+            animation : {
+                duration : 0
+            },
             plugins : {
                 legend : {
                     display  : true,
@@ -722,7 +743,12 @@ function getSystemLogs() {
             
         });
         
-    }        
+    } else {
+
+
+        adjustBubbleChartScale();
+
+    }      
 
 }
 function getSystemLog(offset, limit) {
@@ -746,8 +772,10 @@ function processSystemLog(dataset) {
     
     let events  = dataset.data.items;
     let now     = new Date();
+
+    console.log(events);
         
-    for(event of events) {
+    for(let event of events) {
             
         let urn       = event.user.urn;
         let userIndex = -1;
@@ -879,6 +907,30 @@ function processSystemLog(dataset) {
     chartTimelineEdits.update();
 
 }
+function adjustBubbleChartScale() {
+
+    let datasets = chartTimelineUsers.data.datasets;
+    let rMax     = 0;
+    let rRef     = 1500 / (totalUsers + 2);
+
+    for(let dataset of datasets) {
+        for(let dataPoint of dataset.data) {
+            console.log(dataset);
+            if(dataPoint.r > rMax) rMax = dataPoint.r;
+        }
+    }
+
+    let multiplier = 1 / (rMax / rRef) ;
+
+    for(let dataset of datasets) {
+        for(let dataPoint of dataset.data) {
+            dataPoint.r = dataPoint.r * multiplier;
+        }
+    }       
+    
+    chartTimelineUsers.update();
+
+}
 
 
 function addEventLog(event, date) {
@@ -981,7 +1033,7 @@ function addUserActivity(index, userName, eventDate) {
     let exists   = false;
     let datasets = chartTimelineUsers.data.datasets[index].data;
     
-    for(dataset of datasets) {
+    for(let dataset of datasets) {
         if(dataset.y === userName) {
             if(dataset.x === eventDate.getTime()) {
                 exists = true;
@@ -999,7 +1051,7 @@ function addUserActivity(index, userName, eventDate) {
         });
     }
 
-    chartTimelineUsers.update();
+    //chartTimelineUsers.update();
     
 }
 function addWorkspaceCreation(event, eventDate) {

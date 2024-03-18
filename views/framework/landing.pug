@@ -15,7 +15,7 @@ block body
                     |User Experiences
                 p Unleash the power of Fusion Manage by utilizing its REST API to provide custom built frontends based on Autodesk Platform Services. All solutions manage data in PLM only. All business rules of PLM as well as access permissions still apply.
                 div.left-toolbar
-                    .button#version Version of February 2024
+                    .button#version Version of March 2024
                     .button Connected to 
                         span#tenant
                 p This  version has been optimized for the tenant template released in 2023 using a single Items workspace. While the solutions can be used with any tenant thanks to their configuration capabilities, using this new tenant reduces configuration efforts. In addition, most of the solutions can be tested with the given demo datasets immediately.
@@ -30,6 +30,14 @@ block body
                 .log#framework-changes 
                     h1 Framework Changes
                     table 
+                        tr 
+                            td 15. March 2024
+                            td Framework 
+                            td Most standard apps now can be extended easier thanks to dedicated css and js files in subfolders custom. 
+                                br
+                                |Override standard javascript code and css  by adding your custom contents to these empty files in /javascripts/custom as well as /stylesheets/custom. 
+                                br
+                                |For example, if the styling of the MBOM-Editor should be adjusted, add your custom css styling to /public/stylesheets/custom/mbom.css. 
                         tr 
                             td 29. February 2024
                             td BOM Displays 
@@ -146,6 +154,14 @@ block body
                     .log 
                         h1 Tenant Insights Change Log 
                         table 
+                            tr 
+                                td 18. March 2024
+                                td Enhancement
+                                td Improved the scale of the User Activity bubble chart
+                            tr 
+                                td 
+                                td Enhancement
+                                td Disabled (startup) animations of charts (except for the charts in the initial tab)
                             tr 
                                 td 9. January 2023
                                 td Library Update 
@@ -1272,6 +1288,22 @@ block body
                     .log 
                         h1 Services Portal Change Log 
                         table 
+                            tr 
+                                td 14. March 2024
+                                td Enhancement
+                                td When users open an existing spare parts request in the landing page, this request will no longer be shown in PLM, but the portal instead. Users can still perform workflow actions and upload additional files in this view.
+                            tr 
+                                td 
+                                td Bugfix
+                                td When users closed the dialog for creation of a new spare parts request and reopened the dialog afterwards, the quantities were reset for each line. Now, these quantities are preserved.
+                            tr 
+                                td 
+                                td Bugfix
+                                td Users can no longer submit an empty request
+                            tr 
+                                td 
+                                td Enhancement
+                                td A new icon is used for the button to submit the spare parts request
                             tr 
                                 td 29. February 2024
                                 td Enhancement
