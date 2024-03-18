@@ -1745,14 +1745,20 @@ router.get('/get-viewables', function(req, res, next) {
     console.log(' ');
     console.log('  /get-viewables');
     console.log(' --------------------------------------------');  
-    console.log('  req.query.wsId       = ' + req.query.wsId);
-    console.log('  req.query.dmsId      = ' + req.query.dmsId);
-    console.log('  req.query.link       = ' + req.query.link);
-    console.log('  req.query.extensions = ' + req.query.extensions);
+    console.log('  req.query.wsId           = ' + req.query.wsId);
+    console.log('  req.query.dmsId          = ' + req.query.dmsId);
+    console.log('  req.query.link           = ' + req.query.link);
+    console.log('  req.query.fileId         = ' + req.query.fileId);
+    console.log('  req.query.filename       = ' + req.query.filename);
+    console.log('  req.query.extensionsIn   = ' + req.query.extensionsIn);
+    console.log('  req.query.extensionsEx   = ' + req.query.extensionsEx);
     
-    let link        = (typeof req.query.link === 'undefined') ? '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId : req.query.link;
-    let url         = 'https://' + req.session.tenant + '.autodeskplm360.net' + link + '/attachments?asc=name';
-    let extensions  = (typeof req.query.extensions === 'undefined') ? ['dwf', 'dwfx', 'ipt', 'stp', 'step', 'sldprt', 'nwd'] : req.query.extensions;
+    let link         = (typeof req.query.link === 'undefined') ? '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId : req.query.link;
+    let url          = 'https://' + req.session.tenant + '.autodeskplm360.net' + link + '/attachments?asc=name';
+    let fileId       = (typeof req.query.fileId       === 'undefined') ? '' : req.query.fileId;
+    let filename     = (typeof req.query.filename     === 'undefined') ? '' : req.query.filename;
+    let extensionsIn = (typeof req.query.extensionsIn === 'undefined') ? ['dwf', 'dwfx', 'ipt', 'stp', 'step', 'sldprt', 'nwd'] : req.query.extensionsIn;
+    let extensionsEx = (typeof req.query.extensionsEx === 'undefined') ? [] : req.query.extensionsEx;
 
     let headers = getCustomHeaders(req);
         headers.Accept = 'application/vnd.autodesk.plm.attachments.bulk+json';
@@ -1771,14 +1777,22 @@ router.get('/get-viewables', function(req, res, next) {
 
                 if(attachment.type.extension !== null) {
 
-                    let extensionMatch = false;
-                    let extensionLCase = attachment.type.extension.toLowerCase();
+                    let include     = false;
+                    let extension   = attachment.type.extension.toLowerCase().split('.').pop();
 
-                    for(let extension of extensions) {
-                        if(extensionLCase.endsWith(extension)) extensionMatch = true;
+                    console.log(attachment.resourceName);
+
+                    if(fileId === '' || fileId === attachment.id) {
+                        if(filename === '' || filename === attachment.resourceName) {
+                            if(extensionsIn.length === 0 || extensionsIn.includes(extension)) {
+                                if(extensionsEx.length === 0 || !extensionsEx.includes(extension)) {
+                                    include = true;
+                                }
+                            }
+                        }
                     }
 
-                    if(extensionMatch) {
+                    if(include) {
                         viewables.push({
                             'id'            : attachment.id,
                             'description'   : attachment.description,
