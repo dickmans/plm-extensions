@@ -218,6 +218,7 @@
 .icon-filter-empty::before      { content : '\e7b3'; }
 .icon-finish::before            { content : '\eaf8'; }
 .icon-fold::before              { content : '\e5d6'; }
+.icon-folder::before            { content : '\e2c7'; }
 .icon-go-there::before          { content : '\e5da'; }
 .icon-help::before              { content : '\f1c0'; }
 .icon-hide::before              { content : '\e8f5'; }

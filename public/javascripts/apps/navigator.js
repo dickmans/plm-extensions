@@ -294,7 +294,7 @@ function showWorkspacesList() {
     $.get('/plm/workspaces', function(response){
         sortArray(response.data.items, 'title', 'string', 'ascending');
         for(workspace of response.data.items) {
-            let elemTile = genTile(workspace.link, workspace.urn, null, 'folder', workspace.title, workspace.category.name);
+            let elemTile = genTile(workspace.link, workspace.urn, null, 'icon-folder', workspace.title, workspace.category.name);
                 elemTile.appendTo(elemParent);
                 elemTile.click(function() {
                     let link     = $(this).attr('data-link');
@@ -941,7 +941,7 @@ function setItemDetails(link) {
     $('body').addClass('with-details');
 
     insertGrid(link, { 'id' : 'grid-list', 'header' : false });
-    insertViewer(link, viewerBGColors[theme].level2);        
+    insertViewer(link);        
     insertItemDetails(link);
     insertAttachments(link, { 
         'header'    : false, 
