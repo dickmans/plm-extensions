@@ -1,0 +1,621 @@
+.tile(data-name='Service Portal')
+    .tile-image(style='background: url("images/app-services-portal.png") no-repeat;background-size:contain;')
+    .tile-details
+        .tile-title Services Portal
+        .tile-endpoint /service
+        .tile-subtitle Service teams get online access to latest product data and spare parts information. Users can navigate the BOM, download documentation and create Spare Part Requests &amp; Problem Reports in PLM.
+    .instructions
+        h1 Features 
+        p Provide an online interface for service technicians to have latest product information at hand at anytime, anywhere.
+        ul
+            li View the 3D design in context of the BOM
+            li Browse and filter the product BOM
+            li Select BOM items to retrieve all details 
+            li Download item documentation
+            li Access list of defined Spare Parts
+            li Submit Spare Part Requests 
+            li Capture Problem Reports
+        a(href='https://youtu.be/q1LxqVtVDD8') See introduction video
+        h1 Prerequisites
+        ul
+            li This solution is based on the standard 
+                strong Items 
+                | workspace and its standard properties.
+            li Spare parts get identified by the standard field 
+                strong Spare Wear Part 
+                | of workspace 
+                strong Items
+                |. If this property's value is set to 
+                strong Spare Part 
+                | or 
+                strong Wear Part 
+                | for an item, it will be treated as spare part in this portal.
+            li In order to create and manage the 
+                strong Spare Part Requests 
+                | processes, you have to add the given workspace to your tenant as described below.
+        h1 Limitations 
+        p Note that there is no capability to track the progress of 
+            strong Spare Part Requests 
+            | in this application. The given button 
+            strong Pending Requests 
+            | has no function. Tracking of requests in only possible in the standard user interface of PLM for now. This might change in future releases of this application.
+            br
+            | The application indicates the stock availability of each spare part using colors. As this solution does not have a real time connection to an ERP, the given information is generated randomly.
+        h1 Create BOM View 'Service' for workspace Items
+        p Create a new BOM view 
+            strong Service 
+            | for workspace 
+            strong Items 
+            |and add at least the columns shown below. The sequence of columns does not matter. You may add further fields if needed, but this may impact performance / load times of the portal.
+        table(style='margin:10px 0px 30px')
+            tr
+                th Source
+                th Source Field 
+                th Display Name 
+            tr  
+                td System
+                td Descriptor
+                td Descriptor
+            tr  
+                td Item Details / Basic
+                td Number 
+                td Number 
+            tr  
+                td Item Details / Basic
+                td Title
+                td Title
+            tr  
+                td Item Details / Technical Details
+                td Dimensions (LxWxH) 
+                td Dimensions (LxWxH) 
+            tr  
+                td Item Details / Technical Details
+                td Material
+                td Material
+            tr  
+                td Item Details / Technical Details
+                td Spare / Wear Part
+                td Spare / Wear Part
+            tr  
+                td Item Details / Technical Details
+                td Weight [grams]
+                td Weight [grams]
+            tr  
+                td BOM Fields
+                td Quantity
+                td Quantity
+        h1 Configure Workspace Relationships of Problem Reports
+        p Open the 
+            strong Workspace Relationships 
+            | control for workspace 
+            strong Problem Reports 
+            | in the 
+            strong Workspace Manager
+            |. In here, enable connections to workspace 
+            strong Items 
+            | in 
+            strong Managed Items Tab 
+            | in order to support creation of new PRs.
+        img(src='images/apps/services-portal-1.png' style='max-width:960px;')
+        h1 Add button to launch the portal 
+        p Users can access the service portal by passing the dmsId and wsId of a given record, allowing to encode this information in a qr-code for example (see the end of this page for the given URL). 
+            br
+            |In addition, you may want to provide a button within the details page of an item to open the given portal from there. For this, add a new field 
+            strong Actions 
+            | which contains the computed formula shown below. In case your tenant has the given field already, please add this button to the existing 
+            strong Actions 
+            | field.
+        p Note that this computed field requires the field 
+            strong DMS_ID 
+            | which must contain the dmsId of the current record. As the other solutions of this package require this field as well, it is assumed that the given field exists already. If not, please add the field as single line text and let it be set upon item creation.
+        p Keep in mind to update the workspace id contained in the formula below if needed. It refers to workspace ID 57 which matches the standard 
+            strong Items 
+            | workspace. If you are using another id, please adjust the value of parameter wsId.
+        p.code CASE 
+            span WHEN (DMS_ID is null) THEN ''
+            span ELSE '&lt;a style="color: #0a131c;border: 1px solid #bec8d2;border-radius:3px;text-align:center;text-decoration:none !important;line-height:26px;white-space:nowrap;padding:4px 20px;width:140px;font-weight:600;" target="_blank" href ="LOCATIONservice?wsId=57&dmsId='||DMS_ID||'"&gt;Service Portal&lt;/a&gt;'
+            span END       
+        h1 Create Workspace Spare Parts Requests
+        p The following steps are optional. Your Service Portal should be ready by now. However, if you want to initiate requests for selected spare parts from within the portal, then continue with the steps of this chapter.
+        h2 Add Workspace
+        p Users can trigger requests for spare parts in the given portal. This is made possible with a new workspace named 
+            strong Spare Parts Requests 
+            | which you have to add before using all features this solution. Use the settings shown in the following screenshot when doing so.
+        img(src='images/apps/services-portal-2.png' style='width:100%;max-width:900px;margin:10px 0px;border: 10px solid white')
+        h2 Item Details Tab
+        p Add the following fields to the new workspace. Keep the layout of the initial two sections as shown in the following screenshot. You may add further fields (non-mandatory) and sections when needed.
+        img(src='images/apps/services-portal-3.png' style='width:100%;max-width:513px;margin:10px 0px 30px;')
+        table(style='margin:10px 0px 30px')
+            tr
+                th Label 
+                th Field ID 
+                th Type 
+                th Details 
+                th Editable
+            tr  
+                td ID 
+                td ID 
+                td Auto Number
+                td Formula: AUTONUMBER('', ID__AUTO_INC, 6) 
+                td false
+            tr  
+                td Linked Item 
+                td LINKED_ITEM 
+                td Pick List ([WS] Items, Single Selection)
+                td length: 200
+                td Creation Only
+            tr  
+                td Requested By 
+                td REQUESTED_BY 
+                td Single Line Text
+                td length: 200
+                td false
+            tr  
+                td Request Date 
+                td REQUEST_DATE
+                td Date
+                td -
+                td false
+            tr  
+                td Comments 
+                td COMMENTS
+                td Paragraph
+                td Length: 100000
+                td true
+            tr  
+                td Total Cost 
+                td TOTAL_COST
+                td Money
+                td Length: 10, Field Precision: 0
+                td true
+            tr  
+                td Shipment Date 
+                td SHIPMENT_DATE
+                td Date
+                td -
+                td true
+            tr  
+                td Tracking # 
+                td TRACKING
+                td Single Line Text
+                td Length : 200
+                td true
+            tr  
+                td Notes 
+                td NOTES
+                td Paragraph
+                td Length: 100000
+                td true
+        h2 Descriptor
+        p Set the descriptor for this workspace as you like (i.e. ID - Requested By)
+        h2 Grid Tab
+        p Add the following fields to the grid tab
+        img(src='images/apps/services-portal-4.png' style='width:100%;max-width:855px;margin:10px 0px 30px;')
+        table(style='margin:10px 0px 30px')
+            tr
+                th Label 
+                th Field ID 
+                th Type 
+                th Details 
+                th Editable
+            tr  
+                td Item 
+                td ITEM
+                td Pick List
+                td Pick List [WS] Items (Single Selection)
+                td Creation Only
+            tr  
+                td Quantity
+                td QUANTITY 
+                td Integer
+                td length: 10
+                td Creation Only
+            tr  
+                td Unit Cost
+                td UNIT_COST 
+                td Money
+                td Length: 10, Field Precision: 2
+                td true
+            tr  
+                td Total Cost
+                td TOTAL_COST 
+                td Money
+                td Formula: QUANTITY * UNIT_COST; Add aggregation type 'Sum'
+                td false
+            tr  
+                td Availability at request
+                td AVAILABILITY_AT_REQUEST 
+                td Single Line Text
+                td Length: 50
+                td true
+            tr  
+                td Remarks 
+                td REMARKS
+                td Single Line Text
+                td Length: 200
+                td true
+        h2 Tab Names 
+        p Adjust the tab names for ease of use:
+        ul 
+            li Item Details &gt; Request
+            li Grid &gt; Part List
+            li Workflow Actions &gt; Workflow
+        h2 Scripts
+        p Create a new Action script 
+            strong Spare Parts Requests WF Actions 
+            | with the code shown below. Make sure to select library script 
+            strong getUserName 
+            | in the script's imports.
+        p.code item.REQUESTED_BY = getUserName(); 
+            br
+            span item.REQUEST_DATE = new Date();
+        h2 Workflow
+        p Provide a workflow for this new workspace. While the workflow logic does not matter for this solution, make sure to attach the script 
+            strong Spare Parts Requests WF Actions 
+            | as action script to the initial transition.
+        img(src='images/apps/services-portal-5.png' style='width:100%;max-width:768px;margin:10px 0px;')
+        h2 Access Permission 
+        p Add a role for this new workspace and assign this given role to your users to enable access. Grant full access (add, delete, edit and view) to the tabs Attachments, Grid, and Workflow.
+        img(src='images/apps/services-portal-6.png' style='width:100%;max-width:368px;margin:10px 0px;')
+        h1 Configuration Settings
+        p Once the previous steps have been completed, you should review the solution's settings in file 
+            strong settings.js 
+            | before using the application:
+        p.code
+            span export.config = {
+            span.indent 'service' : {
+            span.indent-2 'bomViewName' : 'Service',
+            span.indent-2 'enableCustomRequests' : true,
+            span.indent-2 'fieldId' : 'SPARE_WEAR_PART',
+            span.indent-2 'fieldValues' : ['spare part', 'yes', 'x', 'y', 'wear part'],
+            span.indent-2 'spartPartDetails' : ['MATERIAL', 'ITEM_WEIGHT', 'DIMENSIONS'],
+            span.indent-2 'productsFilter' : '',
+            span.indent-2 'productsSortBy' : 'TITLE',
+            span.indent-2 'productsGroupBy' : 'PRODUCT_LINE',
+            span.indent-2 'productsFieldIdImage' : 'IMAGE',
+            span.indent-2 'productsFieldIdTitle' : 'TITLE',
+            span.indent-2 'productsFieldIdSubtitle' : 'DESCRIPTION',
+            span.indent-2 'productsFieldIdBOM' : 'ENGINEERING_BOM',
+            span.indent-2 'productsListHeader' : 'Serviceable Products',
+            span.indent-2 'wsIdProducts' : 95,
+            span.indent-2 'wsIdProblemReports' : 82,
+            span.indent-2 'wsIdSparePartsRequests' : 241
+            span.indent }
+            span }                         
+        
+        p 
+            table 
+                tr
+                    th Setting 
+                    th Default Value 
+                    th Description  
+                tr 
+                    td bomViewName
+                    td Service
+                    td Provide name of the BOM view that has been created in the previous steps (a change should not be required)
+                tr 
+                    td enableCustomRequests
+                    td true
+                    td When set to true, users can add non-spare-parts to service requests as well
+                tr 
+                    td fieldId
+                    td SPARE_WEAR_PART
+                    td ID of field being used to identify spare parts (the next setting defines the possible values of this field)
+                tr 
+                    td fieldValues
+                    td ['spare part', 'yes', 'x', 'y', 'wear part']
+                    td List of values (for the previous field) which are used to identify spare parts 
+                tr 
+                    td sparePartDetails
+                    td ['MATERIAL', 'ITEM_WEIGHT', 'DIMENSIONS']
+                    td Each spare part tile can show 3 additional fields. If other fields than the default fields are relevent, change this list. However, make sure that there are exactly 3 entries and these fields also must be contained in the given BOM view.
+                tr 
+                    td productsFilter
+                    td (empty)
+                    td Provide a query string to filter the list of products being shown in the landing page. Only products matching this search criteria will be display.
+                        br
+                        |For example, you could add a checkbox field 'SERVICES_PORTAL' and provide the following filter to only show products where this given checkbox is enabled: ITEM_DETAILS:SERVICES_PORTAL=TRUE
+                tr 
+                    td productsSortBy
+                    td TITLE
+                    td Set the field being used to sort the products in the landing page
+                tr 
+                    td productsGroupBy
+                    td PRODUCT_LINE
+                    td This optional setting enables to group the prdoducts in the landing page based on the given field's values
+                tr 
+                    td productsFieldIdImage
+                    td IMAGE
+                    td Field being used to render the image for the product tiles in the landing page
+                tr 
+                    td productsFieldIdTitle
+                    td TITLE
+                    td Field being used as primary name for the product tiles in the landing page
+                tr 
+                    td productsFieldIdSubtitle
+                    td DESCRIPTION
+                    td Field being used as subtitle for the product tiles in the landing page
+                tr 
+                    td productsFieldIdBOM
+                    td ENGINEERING_BOM
+                    td Field of Products workspace that links the given EBOM that will be used to retrive product information once a user clicks on a product tile
+                tr 
+                    td productsListHeader
+                    td Serviceable Products
+                    td Defines the header being shown on top of the products list in the landing page
+                tr 
+                    td wsIdProducts
+                    td 95
+                    td Provide the workspace ID of 
+                        strong Products 
+                        | to let users browse for the product of interest when no dmsId is provided in the URL (95 matches the default tenant configuration)
+                tr 
+                    td wsIdProblemReports
+                    td 82
+                    td Provide the workspace ID of 
+                        strong Problem Reports 
+                        | to enable creation of new processes from within the application (82 matches the default tenant configuration)
+                tr 
+                    td wsIdSparePartsRequests
+                    td ?
+                    td Provide ID of the new workspace 
+                        strong Spare Parts Requests 
+                        | to enable creation of new requests from within the application
+        h1 Feature Availability 
+        p Selected application features as well as viewer toolbar functionality can be restricted using the features property in settings.js. The given settings are disabled in the standard settings file to enable all features. Uncomment the property you would like to adjust and change its value as this will override the application defaults.
+        img(src='images/apps/services-portal-7.png' style='width:100%;max-width:578px;margin:10px 0px;')
+        p In general, if a property equals true, the given feature will be available for the user. You can use basic boolean values, but also make use of groups to grant access for defined user groups only. Examples: 
+            ul 
+                li features.homeButton = true &gt; The home button is available for all users
+                li features.homeButton = false &gt; The home button is not visible for any user
+                li features.homeButton = ['Employees','Service Technician'] &gt; The home button will only be shown for users in group Employees or Service Technician
+        p The following settings control features within the application:
+        p 
+            table 
+                tr 
+                    th Setting 
+                    th Description 
+                    th Default Value
+                tr 
+                    td features.homeButton 
+                    td Enables Home button in global toolbar to close a given product's spare parts view and to return to the landing page 
+                    td true
+                tr 
+                    td features.toggleItemAttachments 
+                    td Enables button 'Toggle Files' in global toolbar to toggle the selected item's attachments on/off
+                    td true
+                tr 
+                    td features.toggleItemDetails 
+                    td Enables button 'Toggle Details' in global toolbar to toggle the selected item's details on/off
+                    td true
+                tr 
+                    td features.manageProblemReports 
+                    td Enables tab 'Problem Reports' next to the tab 'Spare Parts', enabling users to reveal related PRs and also to create new ones
+                    td true
+        p In addition, the following settings in features.viewer control the availability of icons in the viewer toolbar.
+            table
+                tr 
+                    th Setting 
+                    th Toolbar Icon 
+                    th Description 
+                    th Default Value
+                tr 
+                    td features.viewer.cube 
+                    td   
+                    td Enables the cube and home button in top right corner of the viewer. Per default, these controls get replaced with a dediated view toolbar instead.
+                    td false
+                tr 
+                    td features.viewer.orbit 
+                    td
+                        .adsk-button-icon.adsk-icon-orbit-constrained
+                    td Enables the orbit controls
+                    td false
+                tr 
+                    td features.viewer.firstPerson 
+                    td
+                        .adsk-button-icon.adsk-icon-first-person
+                    td Enables first person view
+                    td false
+                tr 
+                    td features.viewer.camera 
+                    td
+                        .adsk-button-icon.adsk-icon-camera
+                    td Enables camera interactions
+                    td false
+                tr 
+                    td features.viewer.measure 
+                    td
+                        .adsk-button-icon.adsk-icon-measure
+                    td Enables the measurements toolbar
+                    td true
+                tr 
+                    td features.viewer.section 
+                    td
+                        .adsk-button-icon.adsk-icon-section-analysis
+                    td Enables sectioning
+                    td true
+                tr 
+                    td features.viewer.explodedView 
+                    td
+                        .adsk-button-icon.adsk-icon-explode
+                    td Enables exploded views
+                    td true
+                tr 
+                    td features.viewer.modelBrowser 
+                    td
+                        .adsk-button-icon.adsk-icon-structure
+                    td Enables browsing the model hierarchy within the viewer
+                    td false
+                tr 
+                    td features.viewer.properties 
+                    td
+                        .adsk-button-icon.adsk-icon-properties
+                    td Enables access to the selected component's properties stored in the viewable file
+                    td false
+                tr 
+                    td features.viewer.settings 
+                    td
+                        .adsk-button-icon.adsk-icon-settings
+                    td Enables viewer settings
+                    td false
+                tr 
+                    td features.viewer.fullscreen 
+                    td
+                        .adsk-button-icon.adsk-icon-fullscreen
+                    td Enables fullscreen toggle
+                    td true
+                tr 
+                    td features.viewer.markup 
+                    td
+                        .adsk-button-icon.icon.icon-markup(style="font-size:14px;")
+                    td Enables markup toolbar
+                    td false
+                tr 
+                    td features.viewer.reset 
+                    td
+                        .adsk-button-icon.icon.icon-deselect(style="font-size:14px;")
+                    td Enables to deselect all, invoking viewerClickReset()
+                    td true
+                tr 
+                    td features.viewer.ghosting 
+                    td
+                        .adsk-button-icon.icon.icon-show(style="font-size:14px;")
+                    td Enables toggling ghosting mode on/off
+                    td true
+                tr 
+                    td features.viewer.views 
+                    td
+                        .adsk-button-icon.icon.icon-home(style="font-size:14px;")
+                    td Enables toolbar to quickly access main views
+                    td true
+        h1 Access the Services Portal
+        p You can access the Services Portal portal with the /service endpoint:
+        a(href='service' target='_blank')
+        p To open the portal for a given item directly, provide the wsId dmsId of the 
+            strong Items 
+            |record as URL parameters. The following links will work for default demo tenants containing the default demo data. Please note that none of the demo items has been set as spare part yet:
+        a(href='service?wsId=57&dmsId=14669' target='_blank')
+        a(href='service?wsId=57&dmsId=14849' target='_blank' style='margin-left:20px;')
+    .log 
+        h1 Services Portal Change Log 
+        table 
+            tr 
+                td 19. March 2024
+                td Enhancement
+                td Feature control: Restrict access to application features for all users or specific user groups using the settings file
+            tr 
+                td 
+                td Enhancement
+                td Routing has been enabled : Browser URL gets updated when users switch between landing page and item context to enable refresh of the current screen
+            tr 
+                td 14. March 2024
+                td Enhancement
+                td When users open an existing spare parts request in the landing page, this request will no longer be shown in PLM, but the portal instead. Users can still perform workflow actions and upload additional files in this view.
+            tr 
+                td 
+                td Bugfix
+                td When users closed the dialog for creation of a new spare parts request and reopened the dialog afterwards, the quantities were reset for each line. Now, these quantities are preserved.
+            tr 
+                td 
+                td Bugfix
+                td Users can no longer submit an empty request
+            tr 
+                td 
+                td Enhancement
+                td A new icon is used for the button to submit the spare parts request
+            tr 
+                td 29. February 2024
+                td Enhancement
+                td The BOM display will be collapsed at startup automatically
+            tr 
+                td 
+                td Enhancement
+                td Spare parts in the BOM tree will no longer be highlighted by bold / orange font, but with a dedicated icon and matching tooltip
+            tr 
+                td 
+                td Enhancement
+                td If BOM items are not accessible due to access permission restrictions, this will be indicated by red lock icons in the BOM tree
+            tr 
+                td 9. February 2024
+                td Enhancement
+                td A new toolbar on top of the Spare Parts list enables searches, filtering and deselection
+            tr 
+                td 
+                td Enhancement
+                td Viewer behavior upon BOM item selection and Spare Part Zoom has been adjusted for better usability
+            tr 
+                td 
+                td Enhancement
+                td A new button in the viewer toolbar enables toggling ghosting on and off
+            tr 
+                td 
+                td Enhancement
+                td Additional options now can be configured in settings.js (i.e. enabling a filter for the products in the landing)
+            tr 
+                td 
+                td Quality
+                td Global toolbar icon sequence has been adjusted
+            tr 
+                td 26. January 2024
+                td Enhancement
+                td The following buttons got removed from the viewer toolbar: Model Structure, Properties and Settings 
+            tr 
+                td 
+                td Enhancement
+                td The BOM tree now highlights spare parts with orange text
+            tr 
+                td 10. January 2024
+                td New Feature 
+                td The portal can be opened without context item to let users browse for the product of interest
+            tr 
+                td 
+                td New Feature 
+                td Users now can track previously created spare part requests from within the portal
+            tr 
+                td 
+                td New Feature 
+                td Users can submit requests for items which are not flagged as spart part. This feature can be disabled with new option 'enableCustomRequests' in settings file.
+            tr 
+                td 26. September 2023
+                td Enhancement 
+                td Display root item name in web page title
+            tr 
+                td 3. August 2023
+                td Bugfix 
+                td Improved behavior of markup toolbar at lower resolutions
+            tr 
+                td 
+                td Bugfix 
+                td Width of markups and font size of markup text can now be set properly
+            tr 
+                td 7. July 2023
+                td Enhancement 
+                td When spare parts get zoomed in, they will be highlighted in red within the viewer
+            tr 
+                td 
+                td New Feature
+                td Users can click items in the viewer to get it selected in the spare parts list and to retrieve item details as well as attachments
+            tr 
+                td 
+                td Enhancement
+                td The Options button in main toolbar has been replaced by dedicated toggles
+            tr 
+                td 
+                td Enhancement
+                td All spare parts selected in the panel to the right will now be highlighted in blue within the viewer to continuously indicate the selection
+            tr 
+                td 
+                td Enhancement
+                td The (fake) stock information now is also shown with a colored border in the spare parts list
+            tr 
+                td 
+                td Enhancement
+                td When users click on BOM entries, geometry not being in context will be hidden (before, it was still shown transparently)
+            tr 
+                td 30. June 2023
+                td New Feature 
+                td The spare parts list now indicates the total quantity of the given component (qty is shown in white with black background)
+            tr 
+                td 
+                td New Feature
+                td The entries in the spare parts list will automatically adjust its style in case of longer lists (tile height get reduced)

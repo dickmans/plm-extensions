@@ -51,8 +51,11 @@ function getApplicationFeatures(app, callback) {
     $('<div></div>').appendTo($('#startup'))
         .attr('id', 'startup-logo');
 
-    if(isBlank(config[app].features)) callback() 
-    else {
+    if(isBlank(config[app].features)) {
+        $('body').children().removeClass('hidden');
+        getApplicationFeaturesDone(app);
+        callback();
+    } else {
 
         $.get('/plm/groups-assigned', {}, function(response) {
             

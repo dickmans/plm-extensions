@@ -34,7 +34,7 @@ let features = {
         'orbit'         : false,
         'firstPerson'   : false,
         'camera'        : false,
-        'measure'       : false,
+        'measure'       : true,
         'section'       : true,
         'explodedView'  : true,
         'modelBrowser'  : false,
@@ -42,7 +42,7 @@ let features = {
         'settings'      : false,
         'fullscreen'    : true,
         'markup'        : false,
-        'reset'         : false,
+        'reset'         : true,
         'ghosting'      : true,
         'views'         : true
     }
@@ -57,6 +57,8 @@ $(document).ready(function() {
     appendOverlay();
 
     getApplicationFeatures('service', function() {
+
+        console.log(features.homeButton);
 
         if(!features.homeButton) {
             $('#home').remove();
