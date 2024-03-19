@@ -18,18 +18,14 @@
 .mow-row > div {
     border-top    : 1px solid var(--color-surface-level-1);
     border-bottom : 1px solid var(--color-surface-level-1);
+    display       : table-cell;
 }
 .mow-row > div:first-of-type {
+    background : var(--color-surface-level-4);
     border-left : 1px solid var(--color-surface-level-1); 
 }
 .mow-row > div:last-of-type {
     border-right : 1px solid var(--color-surface-level-1); 
-}
-.mow-row:hover > div { 
-    border-color : var(--color-hover-border) !important; 
-}
-.mow-row > div {
-    display : table-cell;
 }
 .mow-icon {
     font-size   : 18px;
@@ -50,12 +46,8 @@
     text-align    : right; 
     width         : 70px;
 }
-.mow-date.in-time { 
-    background : var(--color-status-green); 
-}
-.mow-date.late    { 
-    background : var(--color-status-red);   
-}
+.mow-date.in-time { background : var(--color-status-green); }
+.mow-date.late    { background : var(--color-status-red);   }
 .mow-status {
     padding-left : 10px !important;
 }
@@ -68,11 +60,18 @@
 .mow-list.xl  .mow-row > div { padding :  8px 12px; }
 .mow-list.xxl .mow-row > div { padding : 10px 12px; }
 
-.surface-level-2 .mow-row,
-.surface-level-2 .mow-row > div {
-    border-color : var(--color-surface-level-2) !important; 
-}
+.surface-level-2 .mow-row, .surface-level-2 .mow-row > div { border-color : var(--color-surface-level-2) !important; }
+.surface-level-3 .mow-row, .surface-level-3 .mow-row > div { border-color : var(--color-surface-level-3) !important; }
+.surface-level-4 .mow-row, .surface-level-4 .mow-row > div { border-color : var(--color-surface-level-4) !important; }
+.surface-level-5 .mow-row, .surface-level-5 .mow-row > div { border-color : var(--color-surface-level-5) !important; }
 
+.surface-level-2 .mow-row > div { background : var(--color-surface-level-4); }
+.surface-level-2 .mow-row > div:first-of-type { background : var(--color-surface-level-5); }
+
+.mow-row:hover > div {
+    background-color : var(--color-hover-background) !important;
+    border-color     : var(--color-blue-500) !important;
+}
 
 
 /*  WORKSPACE ITEMS */
@@ -122,11 +121,7 @@
     padding : 8px 12px;
 }
 .workspace-view-item {
-    /* border-top : 1px solid transparent; */
-    /* border-bottom : 1px solid var(--color-gray-100); */
-    /* border-left : 1px solid transparent; */
-    /* border-right : 1px solid transparent; */
-    cursor : pointer;
+    cursor  : pointer;
     padding : 4px 15px;
 }
 .workspace-view-item:last-of-type {
