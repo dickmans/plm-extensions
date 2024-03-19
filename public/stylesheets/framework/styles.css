@@ -885,20 +885,21 @@ and (max-device-width : 1900px)  {
 /*  NO DATA */
 /* ----------------------------------------------------------------------------- */
 .no-data {
-    background: transparent !important;
-    color : var(--color-blue-500);
-    cursor: unset !important;
-    display : flex;
-    flex-direction: column;
-    height : unset !important;
-    text-align : center;
+    background      : transparent !important;
+    cursor          : unset !important;
+    display         : flex;
+    flex-direction  : column;
+    height          : unset !important;
+    margin-top      : 40px;
+    text-align      : center;
 }
 .no-data:hover {
     background : transparent !important;
 }
 .no-data-icon {
-    font-size : 68px;
-    padding : 10px 10px 0px;
+    color       : var(--color-blue-500);
+    font-size   : 68px;
+    padding     : 10px 10px 0px;
 }
 .no-data-text {
     padding : 0px 10px 10px 10px;
