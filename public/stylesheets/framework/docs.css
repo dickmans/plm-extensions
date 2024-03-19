@@ -7,7 +7,9 @@ th, td {
 img {
     border-radius : 6px;
 }
-
+.split-left {
+    overflow-y : auto;
+}
 .nav-header {
     font-weight : 800;
     font-size   : 20px;
@@ -77,7 +79,6 @@ img {
 .indent-5 { padding-left : 130px; }
 
 table td:nth-child(1) {
-    background   : var(--color-surface-level-3);
     font-family  : 'Courier New', monospace;
     white-space  : nowrap;
     -webkit-user-select:text;
@@ -87,4 +88,33 @@ table td:nth-child(1) {
     -moz-user-select: text;
     -ms-user-select: text;
     user-select: all;
+}
+
+
+/*  ICONS */
+/* ----------------------------------------------------------------------------- */
+.icon-grid {
+    display     : flex;
+    flex-wrap   : wrap;
+    gap         : 8px;
+}
+.icon-grid > div {
+    background      : var(--color-surface-level-2);
+    line-height     : 48px;
+    overflow        : hidden;
+    padding         : 10px;
+    text-overflow   : ellipsis;
+    white-space     : nowrap;
+    width           : 240px;
+    -webkit-user-select:text;
+    -webkit-touch-callout: text;
+    -webkit-user-select: text;
+    -khtml-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: all;
+}
+.with-icon::before {
+    font-size    : 48px;
+    margin-right : 10px;
 }

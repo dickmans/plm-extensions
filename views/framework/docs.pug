@@ -12,6 +12,10 @@ block body
             .split-left.padding-100.surface-level-3
                 h1 User Experiences Developer Guide
                 .nav-subtitle You can use this package to also build your own applications based on modular components being used for the preconfigured apps as well
+                .nav-header Framework
+                .nav-description Use standard building blocks to create your own app
+                .nav-contents
+                    .nav-content(data-id='icons') Icons
                 .nav-header Navigation Views
                 .nav-description The capabilities of nav.js enable displaying multiple records to let users navigate to information of interest
                 .nav-contents
@@ -37,8 +41,8 @@ block body
                     .nav-content(data-id='viewer-selection') Selection
                     .nav-content(data-id='viewer-colors') Colors
                     .nav-content(data-id='viewer-visibility') Visibility
-                    .nav-content(data-id='viewer-toolbars') Toolbars
             #doc-contents.split-right.padding-80.surface-level-1.no-scrollbar(name='doc-contents')
+                include ../docs/icons.pug
                 include ../docs/nav-mow.pug
                 include ../docs/nav-recent-items.pug
                 include ../docs/nav-bookmarks.pug
