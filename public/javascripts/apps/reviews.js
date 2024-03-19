@@ -363,7 +363,7 @@ function setDetails() {
         $('#alternatives').val($('<div></div>').html(getSectionFieldValue(response.data.sections, 'ALTERNATIVES', '')).text());
         $('#deficiencies').val($('<div></div>').html(getSectionFieldValue(response.data.sections, 'DEFICIENCIES', '')).text());
 
-        insertViewer(linkItem, viewerBGColors[theme].level2);
+        insertViewer(linkItem);
         insertFlatBOM(linkItem, { 'id' : 'bom'});
         
         $('#comments-data').show();
@@ -680,7 +680,7 @@ function clickFlatBOMItem(e, elemClicked) {
         let partNumber = elemClicked.attr('data-part-number');
         
         viewerResetColors();
-        viewerSelectModel(partNumber, true);
+        viewerSelectModel(partNumber);
 
     }
 

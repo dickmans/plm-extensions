@@ -264,16 +264,16 @@ function setSelectedView() {
 function getInitialData() {
 
     let promises = [
-        $.get('/plm/sections' , { 'wsId' : wsConfig.id }),
-        $.get('/plm/fields'   , { 'wsId' : wsConfig.id }),
-        $.get('/plm/tableaus' , { 'wsId' : wsConfig.id }),
-        $.get( '/plm/permissions', { 'wsId' : wsConfig.id }),
+        $.get('/plm/sections'   , { 'wsId' : wsConfig.id }),
+        $.get('/plm/fields'     , { 'wsId' : wsConfig.id }),
+        $.get('/plm/tableaus'   , { 'wsId' : wsConfig.id }),
+        $.get('/plm/permissions', { 'wsId' : wsConfig.id }),
     ];
 
     Promise.all(promises).then(function(responses) {
 
-        wsConfig.sections = responses[0].data;
-        wsConfig.fields   = responses[1].data;
+        wsConfig.sections    = responses[0].data;
+        wsConfig.fields      = responses[1].data;
         wsConfig.permissions = responses[3].data;
 
         for(tableau of responses[2].data) {
@@ -281,7 +281,6 @@ function getInitialData() {
                 wsConfig.tableauLink = tableau.link;
             }
         }
-
         
         for(field of wsConfig.fields) {
             if(!isBlank(field.type)) {
@@ -700,7 +699,7 @@ function openItem(link) {
         let linkItem    = getSectionFieldValue(response.data.sections, wsConfig.fieldIdItem, '', 'link');
         let elemStatus  = $('#item-status');
 
-        insertViewer(linkItem, viewerBGColors[theme].level1);
+        insertViewer(linkItem);
         
         for(state of wsConfig.progress) {
             if(state.states.indexOf(status) > -1) {

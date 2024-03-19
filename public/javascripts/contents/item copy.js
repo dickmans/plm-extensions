@@ -8,91 +8,63 @@ let requestsLimit   = 5;
 
 
 // Insert APS Viewer
-function insertViewer(link, params) {
+function insertViewer(link, color) {
 
     if(isBlank(link)) return;
+    if(typeof color === 'undefined') color = 255;
 
-    //  Set defaults for optional parameters
-    // --------------------------------------
-    let id           = 'viewer';    // ID of the DOM element where the viewer should be inserted
-    let fileId       = '';         // Select a specific file to be rendered by providing its unique ID
-    let filename     = '';         // Select a specific file to be rendered by providing its filename (matches the Title column in the attachments tab)
-    let extensionsIn = [];         // Defines the list of attachment file types to take into account when requesting the possible list of viewable files. Only file types included in this list will be taken into account.
-    let extensionsEx = [];         // Defines the list of attachment file types to exclued when requesting the possible list of viewable files. Files with an extension listed will not be considered as valid viewable.
-    let color        = '';         // Background color
-    
-    if( isBlank(params)             )       params = {};
-    if(!isBlank(params.id)          )           id = params.id;
-    if(!isBlank(params.fileId)      )       fileId = params.fileId;
-    if(!isBlank(params.filename)    )     filename = params.filename;
-    if(!isBlank(params.extensionsIn)) extensionsIn = params.extensionsIn;
-    if(!isBlank(params.extensionsEx)) extensionsEx = params.extensionsEx;
-    if(!isBlank(params.color)       )        color = params.color;
-
-    let elemInstance = $('#' + id).children('.adsk-viewing-viewer');
+    let elemInstance = $('#viewer').children('.adsk-viewing-viewer');
     if(elemInstance.length > 0) elemInstance.hide();
 
-    $('#' + id).attr('data-link', link);
+    $('#viewer-processing').show();
+    $('#viewer').attr('data-link', link);1433
 
-    let elemProcessing = $('#' + id + '-processing')
+    $.get('/plm/get-viewables', { 'link' : link }, function(response) {
 
-    if(elemProcessing.length === 0) {
-        appendViewerProcessing(id, false);
-    } else {
-        elemProcessing.show();
-        $('#' + id + '-message').hide();
-    }
-
-    $.get('/plm/get-viewables', { 
-        'link'          : link, 
-        'fileId'        : fileId, 
-        'filename'      : filename, 
-        'extensionsIn'  : extensionsIn, 
-        'extensionsEx'  : extensionsEx 
-    }, function(response) {
-
-        if($('#' + id).attr('data-link') !== response.params.link) return;
+        if($('#viewer').attr('data-link') !== response.params.link) return;
 
         if(response.data.length > 0) {
 
             let foundAssembly = false;
+            let viewable = response.data[0];
 
             $('body').removeClass('no-viewer');
 
-            for(let viewable of response.data) {
+            for(viewable of response.data) {
                 if((viewable.name.indexOf('.iam.dwf') > -1) || (viewable.name.indexOf('.ipt.dwf') > -1)) {
                     $('body').removeClass('no-viewer');
                     if(elemInstance.length > 0) elemInstance.show();
                     foundAssembly = true;
-                    insertViewerDone(id, viewable, response.data);
-                    initViewer(id, viewable, color);
+                    insertViewerCallback(viewable);
+                    initViewer(viewable, color);
                     break;
                 }
             }
 
             if(!foundAssembly) {
                 if(elemInstance.length > 0) elemInstance.show();
-                insertViewerDone(id, response.data[0], response.data);
-                initViewer(id, response.data[0], color);
+                insertViewerCallback(response.data[0]);
+                initViewer(response.data[0], color);
             }
 
         } else {
 
-            $('#' + id).hide();
-            $('#' + id + '-processing').hide();
-            $('#' + id + '-message').css('display', 'flex');
+            $('#viewer').hide();
+            $('#viewer-processing').hide();
+            $('#viewer-message').css('display', 'flex');
             $('body').addClass('no-viewer');
 
         }
     });
 
 }
-function insertViewerDone(id, viewable, viewables) {}
-
+function insertViewerCallback() {}
 
 
 // Insert Create Dialog
 function insertCreateForm(wsId, id, hideReadOnly, excludeSections, excludeFields) {
+
+    console.log('insertCreateForm');
 
     if(isBlank(wsId)            ) return;
     if(isBlank(id)              )               id = 'create';
@@ -1061,566 +1033,6 @@ function validateForm(elemForm) {
     
 }
 
-
-
-// Insert Details
-function insertDetails(link, params) {
-
-    if(isBlank(link)) return;
-
-    //  Set defaults for optional parameters
-    // --------------------------------------
-    let id              = 'details';    // ID of the DOM element where the history should be inserted
-    let header          = true;         // Can be used to suppress addition of the panel header element
-    let headerLabel     = 'Details';    // Set the header label
-    let headerToggle    = false;        // Enable header toggles
-    let inline          = false;        // Display the grid inline with other elements
-    let reload          = false;        // Enable reload button for the history panel
-    let hideComputed    = false;        // Hide computed fields
-    let hideReadOnly    = false;        // Hide read only fields
-    let hideLabels      = false;        // Hide field labels
-    let suppressLinks   = false;        // When set to true, linking pick lists will not be shown as links, preventing users from opening the native PLM user interface
-    let editable        = false;        // Display form in edit mode
-    let compactDisplay  = false;        // Enable compact display
-    let sectionsIn      = [];           // Define list of columns to include by fieldId; columns not included in this list will not be shown at all. Keep empty to show all columns.
-    let sectionsEx      = [];           // Define list of columns to exclude by fieldId; columns in this list will not be shown at all. Keep empty to show all columns.
-    let fieldsIn        = [];           // Define list of columns to include by fieldId; columns not included in this list will not be shown at all. Keep empty to show all columns.
-    let fieldsEx        = [];           // Define list of columns to exclude by fieldId; columns in this list will not be shown at all. Keep empty to show all columns.
-
-    if( isBlank(params)               )         params = {};
-    if(!isBlank(params.id)            )             id = params.id;
-    if(!isBlank(params.header)        )         header = params.header;
-    if(!isBlank(params.headerLabel)   )    headerLabel = params.headerLabel;
-    if(!isBlank(params.headerToggle)  )   headerToggle = params.headerToggle;
-    if(!isBlank(params.inline)        )         inline = params.inline;
-    if(!isBlank(params.reload)        )         reload = params.reload;
-    if(!isBlank(params.hideComputed)  )   hideComputed = params.hideComputed;
-    if(!isBlank(params.hideReadOnly)  )   hideReadOnly = params.hideReadOnly;
-    if(!isBlank(params.hideLabels)    )     hideLabels = params.hideLabels;
-    if(!isBlank(params.suppressLinks) )  suppressLinks = params.suppressLinks;
-    if(!isBlank(params.editable)      )      columnsIn = params.editable;
-    if(!isBlank(params.compactDisplay)) compactDisplay = params.compactDisplay;
-    if(!isBlank(params.sectionsIn)    )      columnsIn = params.sectionsIn;
-    if(!isBlank(params.sectionsEx)    )      columnsIn = params.sectionsEx;
-    if(!isBlank(params.fieldsIn)      )      columnsIn = params.fieldsIn;
-    if(!isBlank(params.fieldsEx)      )       fieldsEx = params.fieldsEx;
-
-    settings.details[id]                = {};
-    settings.details[id].hideComputed   = hideComputed;
-    settings.details[id].hideReadOnly   = hideReadOnly;
-    settings.details[id].hideLabels     = hideLabels;
-    settings.details[id].suppressLinks  = suppressLinks;
-    settings.details[id].editable       = editable;
-    settings.details[id].sectionsIn     = sectionsIn;
-    settings.details[id].sectionsEx     = sectionsEx;
-    settings.details[id].fieldsIn       = fieldsIn;
-    settings.details[id].fieldsEx       = fieldsEx;
-
-    let elemParent = $('#' + id)
-        .addClass('details')
-        .html('');
-
-    if(header) {
-        
-        let elemHeader = genPanelHeader(id, headerToggle, headerLabel);
-            elemHeader.appendTo(elemParent);   
-
-        if(reload) {
-
-            let elemToolbar = $('<div></div>').appendTo(elemHeader)
-                .addClass('panel-toolbar')
-                .attr('id', id + '-toolbar');
-
-            $('<div></div>').appendTo(elemToolbar)
-                .addClass('button')
-                .addClass('icon')
-                .addClass('icon-refresh')
-                .attr('id', id + '-reload')
-                .attr('title', 'Reload this view')
-                .click(function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    insertDetailsData(id);
-                });
-
-        }
-    }
-
-    let elemContent = $('<div></div>').appendTo(elemParent)
-        .attr('id', id + '-content')
-        .attr('data-link', link)
-        .addClass('grid-content')
-        .addClass('no-scrollbar');
-
-    if(compactDisplay) elemContent.addClass('compact')
-    if(!inline) elemContent.addClass('panel-content')
-
-    appendProcessing(id, true);
-    insertDetailsData(id);
-
-}
-function insertDetailsData(id) {
-
-    let timestamp   = new Date().getTime();
-    let elemContent = $('#' + id + '-content');
-    let link        = elemContent.attr('data-link');
-    let requests    = [ $.get('/plm/details', { 'link' : link, 'timestamp' : timestamp }) ];
-    let sections    = null;
-    let fields      = null;
-
-    $('#' + id + '-content').hide();
-    $('#' + id + '-processing').show();
-
-    elemContent.attr('data-timestamp', timestamp).html('');
-
-    for(let workspace of cacheWorkspaces) {
-        if(workspace.id === link.split('/')[4]) {
-            sections = workspace.sections;
-            fields   = workspace.fields;
-        }
-    }
-
-    if(isBlank(sections)) requests.push($.get('/plm/sections', { 'link' : link }));
-    if(isBlank(fields)  ) requests.push($.get('/plm/fields'  , { 'link' : link }));
-
-    Promise.all(requests).then(function(responses) {
-
-        if(responses[0].params.timestamp === $('#' + id + '-content').attr('data-timestamp')) {
-            if(responses[0].params.link === $('#' + id + '-content').attr('data-link')) {
-
-                $('#' + id + '-processing').hide();
-                elemContent.show();
-
-                let elemParent   = $('#' + id + '-content');
-                let data         = responses[0].data;
-                let sectionsIn   = settings.details[id].sectionsIn;
-                let sectionsEx   = settings.details[id].sectionsEx;
-                let fieldsIn     = settings.details[id].fieldsIn;
-                let fieldsEx     = settings.details[id].fieldsEx;
-
-                if(responses.length > 1) sections  = responses[1].data;
-                if(responses.length > 2) fields    = responses[2].data;
-
-                if(responses.length > 1) {
-                    cacheWorkspaces.push({
-                        'id'                : responses[0].params.link.split('/')[4],
-                        'sections'          : sections,
-                        'fields'            : fields,
-                        'editableFields'    : null,
-                        'bomViews'          : null
-                    })
-                }
-
-                cacheSections = [];
-
-                for(let section of sections) {
-
-                    let sectionId   = section.__self__.split('/')[6];
-                    let isNew       = true;
-                    let className   = 'expanded'
-
-                    if(sectionsIn.length === 0 || sectionsIn.includes(section.name)) {
-                        if(sectionsEx.length === 0 || !sectionsEx.includes(section.name)) 
-
-                            for(let cacheSection of cacheSections) {
-                                if(cacheSection.urn === section.urn) {
-                                    isNew = false;
-                                    className = cacheSection.className;
-                                }
-                            }
-            
-                            if(isNew) {
-                                cacheSections.push({
-                                    'urn' : section.urn, 'className' : 'expanded'
-                                })
-                            }
-            
-                            let elemSection = $('<div></div>').appendTo(elemParent)
-                                .attr('data-urn', section.urn)
-                                .addClass('section')
-                                .addClass(className)
-                                .html(section.name)
-                                .appendTo(elemParent)
-                                .click(function() {
-                                    
-                                    $(this).next().toggle();
-                                    $(this).toggleClass('expanded');
-                                    $(this).toggleClass('collapsed');
-                
-                                    for(let cacheSection of cacheSections) {
-                                        if(cacheSection.urn === $(this).attr('data-urn')) {
-                                            cacheSection.className = $(this).hasClass('expanded') ? 'expanded' : 'collapsed';
-                                        }
-                                    }
-                
-                                });
-            
-                            let elemFields = $('<div></div>').appendTo(elemParent)
-                                .addClass('section-fields')
-                                .attr('data-id', sectionId);
-            
-                            if(className !== 'expanded') elemFields.toggle();
-            
-                            for(let sectionField of section.fields) {
-                
-                                let fieldId = sectionField.link.split('/')[8];
-
-                                if(fieldsIn.length === 0 || fieldsIn.includes(fieldId)) {
-                                    if(fieldsEx.length === 0 || !sectionsEx.includes(fieldId)) {
-                                        if(sectionField.type === 'MATRIX') {
-                                            for(let matrix of section.matrices) {
-                                                if(matrix.urn === sectionField.urn) {
-                                                    for(let matrixFields of matrix.fields) {
-                                                        for(let matrixField  of matrixFields) {
-                                                            if(matrixField !== null) {
-                                                                for(let wsField of fields) {
-                                                                    if(wsField.urn === matrixField.urn)
-                                                                    insertDetailsField(id, wsField, data, elemFields);
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        } else {
-                                            for(let wsField of fields) {
-                                                if(wsField.urn === sectionField.urn)
-                                                    insertDetailsField(id, wsField, data, elemFields);
-                                            }
-                                        }
-                                    }
-                                    
-                                }
-                            }
-            
-                        if(elemFields.children().length === 0) {
-                            elemFields.remove();
-                            elemSection.remove();
-                        }
-            
-                    }
-                }
-
-                insertItemDetailsDone(id, data, sections, fields);
-
-            }
-        }
-    });
-
-}
-function insertDetailsDone(id, data, sections, fields) {}
-function insertDetailsField(id, field, data, elemFields) {
-
-    let hideComputed  = settings.details[id].hideComputed;
-    let hideReadOnly  = settings.details[id].hideReadOnly;
-    let hideLabels    = settings.details[id].hideLabels;
-    let suppressLinks = settings.details[id].suppressLinks;
-    let editable      = settings.details[id].editable;
-
-    if(field.visibility === 'NEVER') return;
-    if((field.editability === 'NEVER') && hideReadOnly) return;
-    if(field.formulaField  && hideComputed) return;
-
-    let value    = null;
-    let urn      = field.urn.split('.');
-    let fieldId  = urn[urn.length - 1];
-    let readonly = (!editable || field.editability === 'NEVER' || (field.editability !== 'ALWAYS' && (typeof itemData === 'undefined')) || field.formulaField);
-
-    let elemField = $('<div></div').addClass('field');
-    let elemValue = $('<div></div>');
-    let elemInput = $('<input>');
-
-    if(!hideLabels) {
-        $('<div></div>').appendTo(elemField)
-            .addClass('field-label')
-            .html(field.name);
-    }
-
-    if(!isBlank(data)) {
-        for(let nextSection of data.sections) {
-            for(let itemField of nextSection.fields) {
-                if(itemField.hasOwnProperty('urn')) {
-                    let urn = itemField.urn.split('.');
-                    let itemFieldId = urn[urn.length - 1];
-                    if(fieldId === itemFieldId) {
-                        value = itemField.value;
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    if(typeof value === 'undefined') value = null;
-
-    switch(field.type.title) {
-
-        case 'Auto Number':
-            elemValue.addClass('string');
-            elemValue.append(elemInput);
-            if(value !== null) elemInput.val(value);
-            break;
-
-        case 'Single Line Text':
-            if(field.formulaField) {
-                elemValue.addClass('computed');
-                elemValue.addClass('no-scrollbar');
-                elemValue.html($('<div></div>').html(value).text());
-            } else {
-                if(value !== null) elemInput.val(value);
-                if(field.fieldLength !== null) {
-                    elemInput.attr('maxlength', field.fieldLength);
-                    elemInput.css('max-width', field.fieldLength * 8 + 'px');
-                }
-                elemValue.addClass('string');
-                elemValue.append(elemInput);
-            }
-            break;
-
-        case 'Paragraph':
-            elemValue.addClass('paragraph');
-            if(editable) {
-                elemInput = $('<textarea></textarea>');
-                elemValue.append(elemInput);
-                // if(value !== null) elemValue.val($('<div></div>').html(value).text());
-                if(value !== null) elemInput.html(value);
-            } else {
-                elemValue.html($('<div></div>').html(value).text());
-            }
-            break;
-
-        case 'URL':
-            if(editable) {
-                elemValue.append(elemInput);
-                if(value !== null) elemInput.val(value);
-            } else {
-                elemInput = $('<div></div>');
-                elemValue.addClass('link');
-                elemValue.append(elemInput);
-                if(value !== '') {
-                    elemInput.attr('onclick', 'window.open("' + value + '")');
-                    elemInput.html(value);
-                }
-            }
-            break;
-
-        case 'Integer':
-            elemValue.addClass('integer');
-            elemValue.append(elemInput);
-            if(value !== null) elemInput.val(value);
-            break;
-            
-        case 'Float':
-        case 'Money':
-            elemValue.addClass('float');
-            elemValue.append(elemInput);
-            if(value !== null) elemInput.val(value);
-            break;
-
-        case 'Date':
-            elemInput.attr('type', 'date');
-            elemValue.addClass('date');
-            elemValue.append(elemInput);
-            if(value !== null) elemInput.val(value);
-            break;
-            
-        case 'Check Box':
-            elemInput.attr('type', 'checkbox');
-            elemValue.addClass('checkbox');
-            elemValue.append(elemInput);
-            if(value !== null) if(value === 'true') elemInput.attr('checked', true);
-            break;
-
-        case 'Single Selection':
-            if(editable) {
-                elemInput = $('<select>');
-                elemValue.addClass('picklist');
-                elemValue.append(elemInput);
-                let elemOptionBlank = $('<option></option>');
-                    elemOptionBlank.attr('value', null);
-                    elemOptionBlank.appendTo(elemInput);
-                getOptions(elemInput, field.picklist, fieldId, 'select', value);
-            } else {
-                elemValue = $('<div></div>');
-                elemValue.addClass('string');
-                if(value !== null) {
-                    elemValue.html(value.title);
-                    if(field.type.link === '/api/v3/field-types/23') {
-                        elemValue.attr('data-item-link', value.link);
-                        if(!suppressLinks) {
-                            elemValue.addClass('link');
-                            elemValue.attr('onclick', 'openItemByURN("' + value.urn + '")');
-                        }
-                    }
-                }
-                if(field.type.link === '/api/v3/field-types/23') elemValue.addClass('linking');
-            }
-            break;
-
-        case 'Multiple Selection':
-            elemValue.addClass('multi-picklist');
-            if(editable) {
-                if(value !== null) {
-                    for(optionValue of value) {
-                        let elemOption = $('<div></div>');
-                            elemOption.attr('data-link', optionValue.link);
-                            elemOption.addClass('field-multi-picklist-item');
-                            elemOption.html(optionValue.title);
-                            elemOption.appendTo(elemValue);
-                            elemOption.click(function() { openItemByLink($(this).attr('data-link')); });
-                    }
-                }
-            }
-            break;
-
-        case 'Filtered':
-            if(editable) {
-                
-                elemValue.addClass('filtered-picklist');
-                elemValue.append(elemInput);
-                elemInput.attr('data-filter-list', field.picklist);
-                elemInput.attr('data-filter-field', field.picklistFieldDefinition.split('/')[8]);
-                elemInput.addClass('filtered-picklist-input');
-                elemInput.click(function() {
-                    getFilteredPicklistOptions($(this));
-                });
-                
-                if(value !== null) elemInput.val(value);
-                
-                let elemList = $('<div></div>');
-                    elemList.addClass('filtered-picklist-options');
-                    elemList.appendTo(elemValue);
-                
-                let elemIcon = $('<div></div>');
-                    elemIcon.addClass('icon');
-                    elemIcon.addClass('icon-close');
-                    elemIcon.addClass('xxs');
-                    elemIcon.appendTo(elemValue);
-                    elemIcon.click(function() {
-                        clearFilteredPicklist($(this));
-                    });
-
-            } else {
-                elemValue = $('<div></div>');
-                elemValue.addClass('string');
-                elemValue.addClass('link');
-                if(value !== null) {
-                    elemValue.html(value.title);
-                    if(field.type.link === '/api/v3/field-types/23') {
-                        elemValue.attr('onclick', 'openItemByURN("' + value.urn + '")');
-                        elemValue.attr('data-item-link', value.link);
-                    }
-                }
-                if(field.type.link === '/api/v3/field-types/23') elemValue.addClass('linking');
-            }
-            break;
-
-        case 'BOM UOM Pick List':
-            if(editable) {
-                
-                elemInput = $('<select>');
-                elemValue.addClass('picklist');
-                elemValue.append(elemInput);
-
-                let elemOptionBlank = $('<option></option>');
-                    elemOptionBlank.attr('value', null);
-                    elemOptionBlank.appendTo(elemInput);
-
-                getOptions(elemInput, field.picklist, fieldId, 'select', value);
-
-            } else {
-                elemInput = $('<div></div>');
-                elemValue.addClass('string');
-                elemValue.append(elemInput);
-
-                if(value !== null) {
-                    elemInput.html(value.title);
-                    if(field.type.link === '/api/v3/field-types/28') {
-                        elemInput.attr('data-item-link', value.link);
-                    }
-                }
-                if(field.type.link === '/api/v3/field-types/28') elemValue.addClass('bom-uom');
-            }
-            break;
-
-        case 'Image':
-            elemValue.addClass('drop-zone');
-            elemValue.addClass('image');
-            getImage(elemValue, value);
-            break;
-
-        case 'Radio Button':
-            if(editable) {
-                elemValue = $('<div></div>');
-                elemValue.addClass('radio');
-                getOptions(elemValue, field.picklist, fieldId, 'radio', value);
-            } else {
-                elemValue = $('<input>');
-                elemValue.addClass('string');
-                if(value !== null) elemValue.val(value.title);
-            }
-            break;
-
-        default:
-
-            if(!isBlank(field.defaultValue)) {
-                elemValue.val(field.defaultValue);
-            }
-
-            break;
-
-    }
-
-    elemValue.addClass('field-value');
-
-    elemValue.attr('data-id'        , fieldId);
-    elemValue.attr('data-title'     , field.name);
-    elemValue.attr('data-link'      , field.__self__);
-    elemValue.attr('data-type-id'   , field.type.link.split('/')[4]);
-
-    if(readonly) {
-        elemInput.attr('readonly', true);
-        elemInput.attr('disabled', true);
-        elemValue.addClass('readonly');    
-        elemField.addClass('readonly');    
-    } else {
-        elemField.addClass('editable');               
-
-        if(field.fieldValidators !== null) {
-            for(let validator of field.fieldValidators) {
-                if(validator.validatorName === 'required') {
-                    elemField.addClass('required');
-                } else if(validator.validatorName === 'dropDownSelection') {
-                    elemField.addClass('required');
-                } else if(validator.validatorName === 'maxlength') {
-                    elemValue.attr('maxlength', validator.variables.maxlength);
-                }
-            }
-        }
-
-    }
-
-    if(field.unitOfMeasure !== null) {
-        
-        elemValue.addClass('with-unit');
-
-        let elemText = $('<div></div>');
-            elemText.addClass('field-unit');
-            elemText.html(field.unitOfMeasure);
-            elemText.appendTo(elemValue);
-
-    }
-    
-    if(hideLabels) {
-        if(elemFields !== null) elemValue.appendTo(elemFields); 
-        return elemValue;
-    } else {
-        elemValue.appendTo(elemField);
-        if(elemFields !== null) elemField.appendTo(elemFields);
-        return elemField;
-    }
-
-}
 
 
 // Insert attachments as tiles or table

@@ -5,10 +5,10 @@ let ghosting                    = true;
 let disableViewerSelectionEvent = false;
 let viewerDone                  = false;
 let dataInstances               = [];
+let markupStyle                 = {};
 
-let viewer, dmu, markup, markupsvg, curViewerState, restoreMarkupSVG, restoreMarkupState, baseStrokeWidth;
-
-let markupStyle = {};
+let viewer, markup, markupsvg, curViewerState, restoreMarkupSVG, restoreMarkupState, baseStrokeWidth;
+let splitPartNumberBy, splitPartNumberIndexes, splitPartNumberSpacer;
 
 let vectorRange  = [ 
     new THREE.Vector4(206/255, 101/255, 101/255, 0.8),
@@ -27,68 +27,80 @@ let vectorRange  = [
 
 let viewerBGColors = {
     'light' : {
-        'level1' : [255, 255, 255],
-        'level2' : [245, 245, 245],
-        'level3' : [238, 238, 238],
-        'level4' : [217, 217, 217],
-        'level5' : [204, 204, 204]
+        'level-1' : [255, 255, 255],
+        'level-2' : [245, 245, 245],
+        'level-3' : [238, 238, 238],
+        'level-4' : [217, 217, 217],
+        'level-5' : [204, 204, 204]
     },
     'dark' : {
-        'level1' : [69, 79, 97],
-        'level2' : [59, 68, 83],
-        'level3' : [46, 52, 64],
-        'level4' : [34, 41, 51],
-        'level5' : [26, 31, 38]
+        'level-1' : [69, 79, 97],
+        'level-2' : [59, 68, 83],
+        'level-3' : [46, 52, 64],
+        'level-4' : [34, 41, 51],
+        'level-5' : [26, 31, 38]
     },
     'black' : {
-        'level1' : [83, 83, 83],
-        'level2' : [71, 71, 71],
-        'level3' : [55, 55, 55],
-        'level4' : [42, 42, 42],
-        'level5' : [32, 32, 32]
+        'level-1' : [83, 83, 83],
+        'level-2' : [71, 71, 71],
+        'level-3' : [55, 55, 55],
+        'level-4' : [42, 42, 42],
+        'level-5' : [32, 32, 32]
     }
 }
 
 
-// Launch Forge Viewer
-function initViewer(data, color, id) {
+// Launch Viewer
+function initViewer(id, data, color) {
 
-    if(typeof data === undefined) return;
-    else if(data === '') return;
+    if(isBlank(data)) return;
+    if(isBlank(id)  ) id = 'viewer';
 
-    if(typeof color !== 'undefined') {
-        if(color !== null) {
-            if(Array.isArray(color)) config.viewer.backgroundColor = color;
-            else config.viewer.backgroundColor = [color, color, color];
-        }
+    if((typeof color !== 'undefined') && (color !== null) && (color !== '')) {
+        if(Array.isArray(color)) config.viewer.backgroundColor = color;
+        else config.viewer.backgroundColor = [color, color, color];
+        
+    } else {
+        let surfaceLevel = getSurfaceLevel($('#' + id)).split('surface-')[1];
+        config.viewer.backgroundColor = viewerBGColors[theme][surfaceLevel];
     }
 
-    if(typeof id === 'undefined') id = 'viewer';
-    else if(id === null) id = 'viewer';
-
+    $('body').addClass('no-viewer-cube');
     $('#' + id + '-message').hide();
     $('#' + id + '-processing').hide();
     $('#' + id).show();
 
+    dataInstances = [];
+
     var options = {
-        logLevel    : 0,
+        logLevel    : 1,
         env         : 'AutodeskProduction',
         api         : 'derivativeV2',  // for models uploaded to EMEA change this option to 'derivativeV2_EU'
         getAccessToken  : function(onTokenReady) {
             var token = data.token;
-            var timeInSeconds = 3600; // Use value provided by Forge Authentication (OAuth) API
+            var timeInSeconds = 3600; 
             onTokenReady(token, timeInSeconds);
         }
-    };
+    }; // see https://aps.autodesk.com/en/docs/viewer/v7/reference/globals/TypeDefs/InitOptions/
 
     if(typeof viewer === 'undefined') { 
+
+        splitPartNumberBy      = (isBlank(config.viewer.splitPartNumberBy))      ? ''  : config.viewer.splitPartNumberBy;
+        splitPartNumberIndexes = (isBlank(config.viewer.splitPartNumberIndexes)) ? [0] : config.viewer.splitPartNumberIndexes;
+        splitPartNumberSpacer  = (isBlank(config.viewer.splitPartNumberSpacer))  ? ''  : config.viewer.splitPartNumberSpacer;
 
         Autodesk.Viewing.Initializer(options, function() {
 
             var htmlDiv = document.getElementById(id);
-            viewer = new Autodesk.Viewing.Private.GuiViewer3D(htmlDiv, { modelBrowserStartCollapsed: true, startCollapsed: true });
-            viewer.addEventListener(Autodesk.Viewing.VIEWER_STATE_RESTORED_EVENT, onViewerRestore);
+            viewer = new Autodesk.Viewing.Private.GuiViewer3D(htmlDiv, { 
+                modelBrowserExcludeRoot     : false,
+                modelBrowserStartCollapsed  : true
+            });
+
+            viewer.addEventListener(Autodesk.Viewing.TOOLBAR_CREATED_EVENT, onViewerToolbarCreated);
+            viewer.addEventListener(Autodesk.Viewing.GEOMETRY_LOADED_EVENT, onViewerGeometryLoaded);
             viewer.addEventListener(Autodesk.Viewing.SELECTION_CHANGED_EVENT, onViewerSelectionChanged);
+            viewer.addEventListener(Autodesk.Viewing.VIEWER_STATE_RESTORED_EVENT, onViewerRestore);
 
             var startedCode = viewer.start();
             if (startedCode > 0) {
@@ -116,63 +128,92 @@ function onDocumentLoadSuccess(doc) {
     viewer.setGroundReflection(config.viewer.setGroundReflection);
     viewer.setProgressiveRendering(true);
 
-    var viewable = doc.getRoot().getDefaultGeometry();
+    let viewable = doc.getRoot().getDefaultGeometry();
 
     if (viewable) {
         // viewer.loadDocumentNode(doc, viewable).then(function(result) {
         viewer.loadDocumentNode(doc, viewable, {globalOffset: {x:0,y:0,z:0}}).then(function(result) {
             viewer.setBackgroundColor(config.viewer.backgroundColor[0], config.viewer.backgroundColor[1], config.viewer.backgroundColor[2], config.viewer.backgroundColor[0], config.viewer.backgroundColor[1], config.viewer.backgroundColor[2]);
             viewerDone = true;
-            initViewerDone(newInstance);
+            initViewerDone();
         }).catch(function(err) {
             console.log(err);
         });
     }
 }
 function onDocumentLoadFailure() {
-    console.error('Failed fetching Forge manifest');
-}
-function onViewerRestore(event) {
-     
-    markup.unloadMarkupsAllLayers();
-    
-    if(markupsvg !== "") {
-        markup.show();
-        markup.loadMarkups(markupsvg, "review");
-        
-    }
-    
+    console.error('Failed fetching manifest');
 }
 function initViewerDone() {
     $('#viewer-progress').hide();
 }
-function onViewerSelectionChanged(event) {
+function onViewerToolbarCreated(event) {  
+    event.target.toolbar.setVisible(false); 
+}
+function onViewerGeometryLoaded() {
+    setViewerFeatures();
+    setViewerInstancedData();
+}
+function setViewerFeatures() {
 
-    if(disableViewerSelectionEvent) return;
-
-    if(dataInstances.length === 0) {
-        getInstancesData(function() {
-            onViewerSelectionChanged(event);
-        });
-    } else {
-
-        let partNumbers = [];
-
-        for(let dataInstance of dataInstances) {
-            for(let dbId of event.dbIdArray) {
-                if(dataInstance.dbId === dbId) {
-                    partNumbers.push(dataInstance.partNumber);
-                }
-            }
-        }
-
-        onViewerSelectionChangedDone(partNumbers);
-
+    if (typeof features === 'undefined') {
+        viewer.toolbar.setVisible(true);
+        return;
     }
 
+    if(isBlank(features)) return;
+    if(isBlank(features.viewer)) return;
+
+    for(let feature of Object.keys(features.viewer)) {
+
+        if(features.viewer[feature] === false) {
+
+            let elemParent = null;
+            let controlId  = '';
+
+            switch(feature) {
+
+                case 'orbit'        : elemParent = viewer.toolbar.getControl('navTools');       controlId = 'toolbar-orbitTools'; break;
+                case 'firstPerson'  : elemParent = viewer.toolbar.getControl('navTools');       controlId = 'toolbar-bimWalkTool'; break;
+                case 'camera'       : elemParent = viewer.toolbar.getControl('navTools');       controlId = 'toolbar-cameraSubmenuTool'; break;
+                case 'measure'      : elemParent = viewer.toolbar.getControl('modelTools');     controlId = 'toolbar-measurementSubmenuTool'; break;
+                case 'section'      : elemParent = viewer.toolbar.getControl('modelTools');     controlId = 'toolbar-sectionTool'; break;
+                case 'explodedView' : elemParent = viewer.toolbar.getControl('modelTools');     controlId = 'toolbar-explodeTool'; break;
+                case 'modelBrowser' : elemParent = viewer.toolbar.getControl('settingsTools');  controlId = 'toolbar-modelStructureTool'; break;
+                case 'properties'   : elemParent = viewer.toolbar.getControl('settingsTools');  controlId = 'toolbar-propertiesTool'; break;
+                case 'settings'     : elemParent = viewer.toolbar.getControl('settingsTools');  controlId = 'toolbar-settingsTool'; break;
+                case 'fullscreen'   : elemParent = viewer.toolbar.getControl('settingsTools');  controlId = 'toolbar-fullscreenTool'; break;
+
+            }
+            if(elemParent !== null) {
+                if(controlId !== '') {
+                    let elemControl = elemParent.getControl(controlId);
+                    elemParent.removeControl(elemControl);
+                }
+            }
+                    
+        } else {
+
+            switch(feature) {
+                
+                case 'markup'   : viewerAddMarkupControls(); break;
+                case 'reset'    : viewerAddResetButton();    break;
+                case 'ghosting' : viewerAddGhostingToggle(); break;
+                case 'views'    : viewerAddViewsToolbar();   break;
+
+            }
+
+        }      
+    }
+
+    if(!isBlank(features.viewer.cube)) {
+        if(features.viewer.cube) $('body').removeClass('no-viewer-cube');
+    }
+
+    viewer.toolbar.setVisible(true);
+
 }
-function onViewerSelectionChangedDone(partNumbers) {}
-function getInstancesData(callback) {
+function setViewerInstancedData() {
 
     let instanceTree    = viewer.model.getInstanceTree();
     let promises        = [];
@@ -181,18 +222,28 @@ function getInstancesData(callback) {
 
     Promise.all(promises).then(function(instances) {
         for(let instance of instances) {
-            instance.partNumber = getInstancePartNumber(instance);
-            dataInstances.push(instance);
+            let partNumber = getInstancePartNumber(instance);
+            if(partNumber !== null) {
+                instance.partNumber = partNumber;
+                dataInstances.push(instance);
+            }
         }
-        callback();
+        setViewerInstancedDataDone();
     });
 
 }
+const getPropertiesAsync = (id) => {
+    
+    return new Promise((resolve, reject) => {
+        viewer.getProperties(id, (result) => {
+            resolve(result)
+        }, (error) => {
+            reject(error)
+       });
+    });
+ 
+}
 function getInstancePartNumber(item) {
-
-    let splitPartNumberBy      = (isBlank(config.viewer.splitPartNumberBy))      ? ''  : config.viewer.splitPartNumberBy;
-    let splitPartNumberIndexes = (isBlank(config.viewer.splitPartNumberIndexes)) ? [0] : config.viewer.splitPartNumberIndexes;
-    let splitPartNumberSpacer  = (isBlank(config.viewer.splitPartNumberSpacer))  ? ''  : config.viewer.splitPartNumberSpacer;
 
     for(let partNumberPropery of config.viewer.partNumberProperties) {
         for(property of item.properties) {
@@ -213,7 +264,7 @@ function getInstancePartNumber(item) {
     return null;
 
 }
-
+function setViewerInstancedDataDone() {}
 
 
 
@@ -243,155 +294,395 @@ function isViewerStarted() {
 
 
 
-// Launch Forge Aggregated View
-// function initDMU(data, color, id) {
+// Event listener for user selecting geometry in the viewer
+function onViewerSelectionChanged(event) {
 
-//     if(typeof data === undefined) return;
-//     else if(data === "") return;
+    if(disableViewerSelectionEvent) return;
+    if(dataInstances.length  === 0) return;
 
-//     if(typeof color !== 'undefined') {
-//         if(color !== null) {
-//             backgroundColor = color;
-//         }
-//     }
+    let partNumbers = [];
 
-//     if(typeof id === 'undefined') id = 'viewer';
-//     else if(id === null) id = 'viewer';
+    for(let dataInstance of dataInstances) {
+        for(let dbId of event.dbIdArray) {
+            if(dataInstance.dbId === dbId) {
+                partNumbers.push(dataInstance.partNumber);
+            }
+        }
+    }
 
-//     $('#' + id + '-message').hide();
-//     $('#' + id).show();
-//     $('#' + id + '-progress').hide();
+    onViewerSelectionChangedDone(partNumbers, event);
 
-//     var options = {
-//         logLevel : 0,
-//         env: 'AutodeskProduction',
-//         api: 'derivativeV2',  // for models uploaded to EMEA change this option to 'derivativeV2_EU'
-//         getAccessToken: function(onTokenReady) {
-//             var token = data.token;
-//             var timeInSeconds = 3600; // Use value provided by Forge Authentication (OAuth) API
-//             onTokenReady(token, timeInSeconds);
-//         }
-//     };
-
-//     if(typeof dmu === 'undefined') { 
-
-//         dmu = new Autodesk.Viewing.AggregatedView();
-
-//         Autodesk.Viewing.Initializer(options, function onInitialized() {
-//             // Get the Viewer DIV
-//             var htmlDiv = document.getElementById(id);
-        
-//             // Initialize the AggregatedView view
-//             dmu.init(htmlDiv, options).then(function () {
-//                 Autodesk.Viewing.Document.load('urn:'+ data.urn, (doc) => {
-//                     var nodes = doc.getRoot().search({ type: 'geometry' });
-//                     dmu.setNodes(nodes[0]);
-//                 }, (errorCode, errorMsg, messages) => {});
-//             });
-//         });
+}
+function onViewerSelectionChangedDone(partNumbers, event) {}
 
 
 
 
-//         // var htmlDiv = document.getElementById(id);
+// Select / deselect items in the viewer
+function viewerSelectModel(partNumber, params) {
 
-//         // await dmu.init(htmlDiv, options)
+    viewerSelectModels([partNumber], params);
 
-//         // Autodesk.Viewing.Initializer(options, function() {
+}
+function viewerSelectModels(partNumbers, params) {
 
-            
-            
-//         //     dmu.addEventListener(Autodesk.Viewing.VIEWER_STATE_RESTORED_EVENT, onViewerRestore);
-//         //     dmu.addEventListener(Autodesk.Viewing.SELECTION_CHANGED_EVENT, onSelectionChanged);
+    if(!isViewerStarted()) return;
 
-//         //     var startedCode = dmu.start();
-//         //     if (startedCode > 0) {
-//         //         console.error('Failed to create a Viewer: WebGL not supported.');
-//         //         return;
-//         //     }
+    //  Set defaults for optional parameters
+    // --------------------------------------
+    let isolate     = true;    // Enable isolation of selected component(s)
+    let ghosting    = false;   // Enforce ghosting of hidden components
+    let fitToView   = true;    // Zoom in / out to fit selection into view 
+    let highlight   = true;    // Highlight given partNumber(s) by defined color (colorModelSelected)
+    let resetColors = true;    // Reset colors of all componente before highlighting the partNumber(s)
+    let color       = colorModelSelected; 
 
-//         //     Autodesk.Viewing.Document.load('urn:'+ data.urn, onDocumentLoadSuccess, onDocumentLoadFailure);
-            
-//         // });
+
+    if( isBlank(params)            )      params = {};
+    if(!isBlank(params.isolate)    )     isolate = params.isolate;
+    if(!isBlank(params.ghosting)   )    ghosting = params.ghosting;
+    if(!isBlank(params.fitToView)  )   fitToView = params.fitToView;
+    if(!isBlank(params.highlight)  )   highlight = params.highlight;
+    if(!isBlank(params.resetColors)) resetColors = params.resetColors;
+    if(!isBlank(params.color)      )       color = params.color;
+
+    disableViewerSelectionEvent = true;
     
-//     } else {
-
-//         // unloadAll();
-//         // newInstance = false;
-//         // Autodesk.Viewing.Document.load('urn:'+ data.urn, onDocumentLoadSuccess, onDocumentLoadFailure);
-
-//     } 
+    let dbIds = [];
     
-// }
-// function insertModels(list) {
+    if(isolate)     viewer.hideAll();
+    if(resetColors) viewer.clearThemingColors();
 
-//     console.log(list);
+    for(let dataInstance of dataInstances) {
+        for(let partNumber of partNumbers) {
+            if(dataInstance.partNumber === partNumber) {
+                dbIds.push(dataInstance.dbId);
+                viewer.show(dataInstance.dbId);
+                if(highlight) viewer.setThemingColor(dataInstance.dbId, color, null, true );
+            }
+        }
+    }
 
-// let tasks = [];
+    if(ghosting)  viewer.setGhosting(true);
+    if(fitToView) viewer.fitToView(dbIds);
 
-//     for(item of list) {
+    disableViewerSelectionEvent = false;
 
-//         // models.forEach( md => tasks.push( loadManifest( md.urn ) ) );
-//         // docs.push(Autodesk.Viewing.Document.load('urn:' + item));
-//         tasks.push(loadManifest('urn:' + item));
+}
+function viewerSelectAll(params) {
 
-//     }
+    if(!isViewerStarted()) return;
 
-//     console.log(tasks.length);
-//     console.log(tasks);
+    //  Set defaults for optional parameters
+    // --------------------------------------
+    let fitToView   = true;     // Zoom in / out to fit selection into view 
+    let highlight   = true;     // Highlight given partNumber(s) by defined color (colorModelSelected)
+    let resetColors = true;     // Reset colors of all componente before highlighting the partNumber(s)
+    let color       = colorModelSelected; 
 
-//     Promise.all(tasks).then( docs =>  Promise.resolve( docs.map( doc => {
-//       const bubbles = doc.getRoot().search({type:'geometry', role: '3d'});
-//       const bubble = bubbles[0];
-//       if( !bubble ) return null;
+    if( isBlank(params)            )      params = {};
+    if(!isBlank(params.fitToView)  )   fitToView = params.fitToView;
+    if(!isBlank(params.highlight)  )   highlight = params.highlight;
+    if(!isBlank(params.resetColors)) resetColors = params.resetColors;
+    if(!isBlank(params.color)      )       color = params.color;
 
-//       return bubble;
-//     }))).then( bubbles => dmu.setNodes( bubbles ) );
-// // });
+    disableViewerSelectionEvent = true;
+    viewer.showAll();
+    
+    if(resetColors) viewer.clearThemingColors();
+
+    if(highlight) {
+        for(let dataInstance of dataInstances) {
+            viewer.setThemingColor(dataInstance.dbId, color, null, true );
+        }
+    }
+
+    if(fitToView) viewer.setViewFromFile();
+
+    disableViewerSelectionEvent = false;
+
+}
+function viewerSelectInstances(dbIds, params) {
+
+    if(!isViewerStarted()) return;
+
+    //  Set defaults for optional parameters
+    // --------------------------------------
+    let isolate     = true;    // Enable isolation of selected component(s)
+    let ghosting    = false;   // Enforce ghosting of hidden components
+    let fitToView   = true;    // Zoom in / out to fit selection into view 
+    let highlight   = true;    // Highlight given partNumber(s) by defined color (colorModelSelected)
+    let resetColors = true;    // Reset colors of all componente before highlighting the partNumber(s)
+    let color       = colorModelSelected; 
+
+    if( isBlank(params)            )      params = {};
+    if(!isBlank(params.isolate)    )     isolate = params.isolate;
+    if(!isBlank(params.ghosting)   )    ghosting = params.ghosting;
+    if(!isBlank(params.fitToView)  )   fitToView = params.fitToView;
+    if(!isBlank(params.highlight)  )   highlight = params.highlight;
+    if(!isBlank(params.resetColors)) resetColors = params.resetColors;
+    if(!isBlank(params.color)      )       color = params.color;
+
+    disableViewerSelectionEvent = true;
+
+    if(isolate)     viewer.hideAll();
+    if(resetColors) viewer.clearThemingColors();
+    
+    for(let dbId of dbIds) {
+        dbId = Number(dbId);
+        viewer.show(dbId);
+        if(highlight) viewer.setThemingColor(dbId, color, null, true );
+    }
+    
+    if(ghosting)  viewer.setGhosting(true);
+    if(fitToView) viewer.fitToView(dbIds);
+
+    disableViewerSelectionEvent = false;
+
+}
+function viewerHighlightInstances(partNumber, dbIds, params) {
+    
+    // Select all occurences of a partNumber and highlight defined instance IDs
+
+    if(!isViewerStarted()) return;
+    if(isBlank(partNumber)) return;
+    if(isBlank(ids)) return;
+
+        //  Set defaults for optional parameters
+    // --------------------------------------
+    let isolate         = true;    // Enable isolation of selected component(s)
+    let ghosting        = false;   // Enforce ghosting of hidden components
+    let fitToView       = true;    // Zoom in / out to fit selection into view 
+    let resetColors     = true;     // Reset colors of all componente before highlighting the partNumber(s)
+    let color           = colorModelSelected; 
+    let colorHighlight  = colorModelHighlighted; 
 
 
-//     // console.log(docs.length);
-//     // console.log(docs);
+    if( isBlank(params)               )         params = {};
+    if(!isBlank(params.isolate)       )        isolate = params.isolate;
+    if(!isBlank(params.ghosting)      )       ghosting = params.ghosting;
+    if(!isBlank(params.fitToView)     )      fitToView = params.fitToView;
+    if(!isBlank(params.resetColors)   )    resetColors = params.resetColors;
+    if(!isBlank(params.color)         )          color = params.color;
+    if(!isBlank(params.colorHighlight)) colorHighlight = params.colorHighlight;
 
-//     // const bubbleNodes = [];
-//     // // docs is an array of loaded documents
-//     // docs.forEach((doc) => {
-//     //     var nodes = doc.getRoot().search({ type: 'geometry' });
-//     //     bubbleNodes.push(nodes[0]);
-//     // });
-//     // dmu.setNodes(bubbleNodes);
+    disableViewerSelectionEvent = true;
 
-// }
+    if(isolate)     viewer.hideAll();
+    if(resetColors) viewer.clearThemingColors();
 
-// function loadManifest( documentId ) {
-//     return new Promise(( resolve, reject ) => {
-//     //   const onDocumentLoadSuccess = ( doc ) => {
-//     //     doc.downloadAecModelData(() => resolve(doc));
-//     //   };
-//       Autodesk.Viewing.Document.load( documentId, function() {
-//         return resolve();
-//       }, reject );
-//     });
-//   }
+    for(let dataInstance of dataInstances) {
+        for(let partNumber of partNumbers) {
+            if(dataInstance.partNumber === partNumber) {
+                dbIds.push(dataInstance.dbId);
+                viewer.show(dataInstance.dbId);
+                if(!ids.includes(String.valueOf(item.dbId))) viewer.setThemingColor(item.dbId, color, null, true );
+            }
+        }
+    }
+
+    for(let dbId of dbIds) {
+        viewer.setThemingColor(Number(dbId), colorHighlight, null, true );
+    }
+     
+    if(ghosting)  viewer.setGhosting(false);
+    if(fitToView) viewer.fitToView(dbIds);
+    
+    disableViewerSelectionEvent = false;
+
+}
+function viewerResetSelection(params) {
+
+    if(!isViewerStarted()) return;
+
+    //  Set defaults for optional parameters
+    // --------------------------------------
+    let fitToView   = true;     // Zoom in / out to fit all into view
+    let resetColors = true;     // Highlight given partNumber(s) by defined color (colorModelSelected)
+
+    if( isBlank(params)            )      params = {};
+    if(!isBlank(params.fitToView)  )   fitToView = params.fitToView;
+    if(!isBlank(params.resetColors)) resetColors = params.resetColors;
+
+    viewer.showAll();
+    viewer.clearSelection();
+    
+    if(resetColors) viewer.clearThemingColors();
+    if(fitToView  ) viewer.setViewFromFile();
+
+}
 
 
 
+// Set Component Colors
+function viewerSetColor(partNumber, params) {
+
+    viewerSetColors([partNumber], params);
+
+}
+function viewerSetColors(partNumbers, params) {
+
+    if(!isViewerStarted()) return;
+
+    //  Set defaults for optional parameters
+    // --------------------------------------
+    let isolate     = false;   // Enable isolation of selected component(s)
+    let ghosting    = false;   // Enforce ghosting of hidden components
+    let fitToView   = false;   // Zoom in / out to fit selection into view 
+    let resetColors = true;    // Reset colors of all componente before highlighting the partNumber(s)
+    let unhide      = true;    // Unhide component if it is currently hidden
+    let color       = colorModelSelected; 
 
 
+    if( isBlank(params)            )      params = {};
+    if(!isBlank(params.isolate)    )     isolate = params.isolate;
+    if(!isBlank(params.ghosting)   )    ghosting = params.ghosting;
+    if(!isBlank(params.fitToView)  )   fitToView = params.fitToView;
+    if(!isBlank(params.resetColors)) resetColors = params.resetColors;
+    if(!isBlank(params.highlight)  )   highlight = params.highlight;
+    if(!isBlank(params.color)      )   color = new THREE.Vector4(params.color[0], params.color[1], params.color[2], params.color[3]);
+
+
+    let dbIds  = [];
+
+    if(isolate)     viewer.hideAll();
+    if(resetColors) viewer.clearThemingColors();
+
+    for(let dataInstance of dataInstances) {
+        for(let partNumber of partNumbers) {
+            if(dataInstance.partNumber === partNumber) {
+                dbIds.push(dataInstance.dbId);
+                if(unhide) viewer.show(dataInstance.dbId);
+                viewer.setThemingColor(dataInstance.dbId, color, null, true );
+            }
+        }
+    }
+
+    if(ghosting)  viewer.setGhosting(true);
+    if(fitToView) viewer.fitToView(dbIds);
+
+}
+function viewerSetColorToAll(color) {
+
+    if(!isViewerStarted()) return;
+
+    let vector      = new THREE.Vector4(color[0], color[1], color[2], color[3]);
+    let instances   = viewer.model.getInstanceTree();
+
+    for(var i = 0; i < instances.objectCount; i++) {
+        viewer.model.getProperties(i, function(data) { 
+            viewer.setThemingColor(data.dbId, vector, null, true);
+        })
+    }
+
+}
+function viewerResetColors() {
+
+    if(!isViewerStarted()) return;
+
+    viewer.clearThemingColors();
+
+}
+
+
+
+// Hide / unhide elements from viewer
+function viewerHideModel(partNumber) {
+
+    viewerHideModels([partNumber]);
+
+}
+function viewerHideModels(partNumbers) {
+
+    if(!isViewerStarted()) return;
+
+    for(let dataInstance of dataInstances) {
+        for(let partNumber of partNumbers) {
+            if(dataInstance.partNumber === partNumber) {
+                viewer.hide(dataInstance.dbId);
+            }
+        }
+    }
+
+}
+function viewerUnhideModel(partNumber, fitToView) {
+
+    viewerUnhideModels([partNumber], fitToView);
+
+}
+function viewerUnhideModels(partNumbers, params) {
+
+    if(!isViewerStarted()) return;
+
+    //  Set defaults for optional parameters
+    // --------------------------------------
+    let fitToView   = true;    // Zoom in / out to fit selection into view 
+    let highlight   = true;    // Highlight given partNumber(s) by defined color (colorModelSelected)
+    let resetColors = true;    // Reset colors of all componente before highlighting the partNumber(s)
+    let color       = colorModelSelected; 
+
+
+    if( isBlank(params)            )      params = {};
+    if(!isBlank(params.fitToView)  )   fitToView = params.fitToView;
+    if(!isBlank(params.highlight)  )   highlight = params.highlight;
+    if(!isBlank(params.resetColors)) resetColors = params.resetColors;
+    if(!isBlank(params.color)      )       color = new THREE.Vector4(params.color[0], params.color[1], params.color[2], params.color[3]);
+
+    let dbIds = [];
+    
+    if(resetColors) viewer.clearThemingColors();
+
+    for(let dataInstance of dataInstances) {
+        for(let partNumber of partNumbers) {
+            if(dataInstance.partNumber === partNumber) {
+                dbIds.push(dataInstance.dbId);
+                viewer.show(dataInstance.dbId);
+                if(highlight) viewer.setThemingColor(dataInstance.dbId, color, null, true );
+            }
+        }
+    }
+
+    if(fitToView) viewer.fitToView(dbIds);
+
+}
+function viewerUnhideAll(params) {
+
+    if(!isViewerStarted()) return;
+
+    //  Set defaults for optional parameters
+    // --------------------------------------
+    let fitToView   = true;    // Zoom in / out to fit selection into view 
+    let resetColors = true;    // Reset colors of all componente before highlighting the partNumber(s)
+
+
+    if( isBlank(params)            )      params = {};
+    if(!isBlank(params.fitToView)  )   fitToView = params.fitToView;
+    if(!isBlank(params.resetColors)) resetColors = params.resetColors;
+
+    if(resetColors) viewer.clearThemingColors();
+
+    viewer.showAll();
+
+    if(fitToView) viewer.setViewFromFile();
+}
 
 
 
 
 // Add & unload models to session
 function viewerAddModel(model) {
+    
     viewerAddModels([model]);
-    // }]);
+
 }
 function viewerAddModels(models) {
-    for(model of models) addModel(model);
+
+    for(let model of models) addModel(model);
+
 }
-// function addModel(urn, transX, transY, transZ, rotX, rotY, rotZ) {
 function addModel(model) {
+
+    if(!isViewerStarted()) return;
 
     // see https://aps.autodesk.com/blog/loading-multiple-models-forge-viewer-v7 about transformation
     
@@ -402,8 +693,6 @@ function addModel(model) {
     if(typeof model.angleX === 'undefined') model.angleX = 0;
     if(typeof model.angleY === 'undefined') model.angleY = 0;
     if(typeof model.angleZ === 'undefined') model.angleZ = 0;
-
-    // console.log(model);
 
     Autodesk.Viewing.Document.load('urn:'+ model.urn, function(doc) {
 
@@ -447,555 +736,83 @@ function addModel(model) {
 
 }
 function viewerUnloadModel(urn) {
+
     viewerUnloadModels([urn]);
+
 }
 function viewerUnloadModels(urns) {
-    for(urn of urns) unloadModel(urn);
+
+    for(let urn of urns) unloadModel(urn);
+
 }
 function unloadModel(urn) {
 
+    if(!isViewerStarted()) return;
+
     let models = viewer.impl.modelQueue().getModels();
 
-    for(model of models) {
+    for(let model of models) {
         if(model.myData.urn === urn) viewer.unloadModel(model);
     }
 
 }
-
-
-// Close all models currently in viewer
 function viewerUnloadAllModels() {
 
-    if(viewer === null) return;
-    if(typeof viewer === 'undefined') return;
+    if(!isViewerStarted()) return;
 
     let models = viewer.impl.modelQueue().getModels();
 
-    for(model of models) viewer.impl.unloadModel(model);
-
-}
-
-
-// Select and focus on selected item
-function viewerSelectModel(partNumber, fitToView, highlight, resetColors) {
-
-    viewerSelectModels([partNumber], fitToView, highlight, resetColors);
-
-}
-function viewerSelectModels(partNumbers, fitToView, highlight, resetColors) {
-
-    if(!isViewerStarted()) return;
-
-    if(dataInstances.length === 0) {
-        
-        getInstancesData(function() {
-            onViewerSelectionChanged(partNumbers, fitToView, highlight, resetColors);
-        });
-
-    } else {
-
-        if(typeof fitToView   === 'undefined') fitToView   = false;
-        if(typeof highlight   === 'undefined') highlight   = true;
-        if(typeof resetColors === 'undefined') resetColors = true;
-
-        let dbIds = [];
-        disableViewerSelectionEvent = true;
-        viewer.hideAll();
-        
-        if(resetColors) viewer.clearThemingColors();
-
-        for(let dataInstance of dataInstances) {
-            for(let partNumber of partNumbers) {
-                if(dataInstance.partNumber === partNumber) {
-                    dbIds.push(dataInstance.dbId);
-                    viewer.show(dataInstance.dbId);
-                    if(highlight) viewer.setThemingColor(dataInstance.dbId, colorModelSelected, null, true );
-                }
-            }
-        }
-
-        if(fitToView) viewer.fitToView(dbIds);
-        disableViewerSelectionEvent = false;
-
-
-        // let instances   = viewer.model.getInstanceTree();
-        // let dbIds       = [];
-        // let promises    = [];
-
-        // for(let i = 1; i < instances.objectCount; i++) promises.push(getPropertiesAsync(i));
-
-        // Promise.all(promises).then(function(items) {
-
-        //     for(let item of items) {
-
-        //         let itemPartNumber = getInstancePartNumber(item);
-
-        //         for(let partNumber of partNumbers) {
-        //             if(partNumber === itemPartNumber) {
-        //                 dbIds.push(item.dbId);
-        //                 viewer.show(item.dbId);
-        //                 if(highlight) viewer.setThemingColor(item.dbId, colorModelSelected, null, true );
-        //             }
-        //         }
-        //     }
-
-        //     if(fitToView) viewer.fitToView(dbIds);
-        //     disableViewerSelectionEvent = false;
-
-        // });
-
-    }
-
-}
-function viewerSelectModelNew(selected, fitToView) {
-
-    let partNumbers = [selected];
-    let dbIds = [];
-
-    disableViewerSelectionEvent = true;
-    viewer.hideAll();
-
-    if(typeof fitToView === 'undefined') fitToView = false;
-
-    // let instances   = viewer.model.getInstanceTree();
-//     let dbIds       = [];
-
-
-// let dbId = 1;
-
-
-// for(var i = 1; i < instances.objectCount; i++) {
-
-//     for(model of viewer.getAllModels()) {
-
-//         model.getProperties(i, function(data) { 
-//         data.dbId = dbId++;
-//         });
-
-//     }
-// }
-
-
-    // let models = viewer.getAllModels();
-
-    let models = viewer.getAllModels();
-
-
-    for(let x = 0; x < models.length; x++) {
-
-        let model = models[x];
-        let instances   = model.getInstanceTree();
-
-        for(var i = 1; i < instances.objectCount; i++) {
-                
-            model.getProperties(i, function(data) { 
-
-                let partNumberValues = [];
-
-                for(property of data.properties) {
-                    if(config.viewer.partNumberProperties.indexOf(property.attributeName) > -1) {
-
-                        let value = property.displayValue;
-                            value = value.split(':')[0];
-
-                        partNumberValues.push(value);
-
-                    }
-                }
-
-                if(partNumberValues.length > 0) {
-                    for(partNumber of partNumberValues) {
-                        for(number of partNumbers) {
-                            if(partNumber.indexOf(number) === 0) {
-                                dbIds.push(data.dbId);  
-                                viewer.show(data.dbId, model);
-                                viewer.setThemingColor(data.dbId, config.viewer.colorModelSelected, model, true );
-                                if(fitToView) viewer.fitToView(dbIds);
-                                break;
-                            }
-                        }
-                    }
-                }
-                
-            })
-        }
-    }
-
-    disableViewerSelectionEvent = false;
-
-}
-function viewerSelectAll(fitToView) {
-
-    disableViewerSelectionEvent = true;
-    
-    if(typeof fitToView === 'undefined') fitToView = true;
-    
-    viewer.showAll();
-    
-    let dbIds  = [];
-    let models = viewer.getAllModels();
-
-    for(let x = 0; x < models.length; x++) {
-
-        let model     = models[x];
-        let instances = model.getInstanceTree();
-
-        for(var i = 1; i < instances.objectCount; i++) {
-                
-            model.getProperties(i, function(data) { 
-
-                dbIds.push(data.dbId);  
-                viewer.setThemingColor(data.dbId, colorModelSelected, model, true);
-                
-            })
-        }
-    }
-
-    if(fitToView) viewer.setViewFromFile();
-
-    disableViewerSelectionEvent = false;
-
-}
-function viewerSelectInstances(dbIds, fitToView, resetColors, color) {
-
-    if(!viewerDone) return;
-    if(typeof fitToView   === 'undefined') fitToView   = false;
-    if(typeof resetColors === 'undefined') resetColors = true;
-    if(typeof color       === 'undefined') color       = colorModelSelected;
-
-    disableViewerSelectionEvent = true;
-    viewer.hideAll();
-    if(resetColors) viewer.clearThemingColors();
-
-    console.log(resetColors);
-
-    for(let dbId of dbIds) {
-        dbId = Number(dbId);
-        viewer.show(dbId);
-        viewer.setThemingColor(dbId, color, null, true );
-    }
-    
-    if(fitToView) viewer.fitToView(dbIds);
-
-    disableViewerSelectionEvent = false;
-
-}
-
-
-// Select all occurences of a partNumber and highlight defined instance IDs
-function viewerHighlightInstances(partNumber, ids, fitToView, hideAll, resetColors) {
-
-    if(!isViewerStarted()) return;
-
-    if(typeof partNumber  === 'undefined') return;
-    if(typeof ids         === 'undefined') return;
-
-    if(typeof fitToView   === 'undefined') fitToView   = false;
-    if(typeof hideAll     === 'undefined') hideAll     = true;
-    if(typeof resetColors === 'undefined') resetColors = true;
-
-    disableViewerSelectionEvent = true;
-
-    if(hideAll)     viewer.hideAll();
-    if(resetColors) viewer.clearThemingColors();
-
-    let instances   = viewer.model.getInstanceTree();
-    let dbIds       = [];
-    let promises    = [];
-
-    for(let i = 1; i < instances.objectCount; i++) promises.push(getPropertiesAsync(i));
-
-    Promise.all(promises).then(function(items) {
-
-        for(let item of items) {
-
-            let itemPartNumber = getInstancePartNumber(item);
-
-            if(partNumber === itemPartNumber) {
-                dbIds.push(item.dbId);
-                viewer.show(item.dbId);
-               if(!ids.includes(String.valueOf(item.dbId))) viewer.setThemingColor(item.dbId, colorModelSelected, null, true );
-            }
-
-        }
-
-        for(let id of ids) {
-            console.log(id);
-            viewer.setThemingColor(Number(id), colorModelHighlighted, null, true );
-        }
-        
-        if(fitToView) viewer.fitToView(dbIds);
-
-        disableViewerSelectionEvent = false;
-
-    });
-
-}
-
-
-
-// Hide given model item
-function viewerHideModel(partNumber) {
-
-    viewerHideModels([partNumber]);
-
-}
-function viewerHideModels(partNumbers) {
-
-    let instances   = viewer.model.getInstanceTree();
-    let dbIds       = [];
-
-    disableViewerSelectionEvent = true;
-
-    for(var i = 1; i < instances.objectCount; i++) {
-
-        viewer.model.getProperties(i, function(data) { 
-
-            let partNumberValues = [];
-
-            for(property of data.properties) {
-                if(config.viewer.partNumberProperties.indexOf(property.attributeName) > -1) {
-
-                    let value = property.displayValue;
-                        value = value.split(':')[0];
-
-                    partNumberValues.push(value);
-
-                }
-            }
-
-            if(partNumberValues.length > 0) {
-                for(partNumber of partNumberValues) {
-                    for(number of partNumbers) {
-                        if(partNumber.indexOf(number) === 0) {
-                            viewer.hide(data.dbId);
-                            break;
-                        }
-                    }
-                }
-            }
-            
-        })
-    }
-
-    disableViewerSelectionEvent = false;
-
-}
-
-
-// Unhide given model item
-function viewerUnhideModel(partNumber, fitToView) {
-
-    viewerUnhideModels([partNumber], fitToView);
-
-}
-function viewerUnhideModels(partNumbers, fitToView) {
-
-    if(typeof fitToView === 'undefined') fitToView = false;
-
-    let instances   = viewer.model.getInstanceTree();
-    let dbIds       = [];
-
-    for(var i = 1; i < instances.objectCount; i++) {
-
-        viewer.model.getProperties(i, function(data) { 
-
-            let partNumberValues = [];
-
-            for(property of data.properties) {
-                if(config.viewer.partNumberProperties.indexOf(property.attributeName) > -1) {
-
-                    let value = property.displayValue;
-                        value = value.split(':')[0];
-
-                    partNumberValues.push(value);
-
-                }
-            }
-
-            if(partNumberValues.length > 0) {
-                for(partNumber of partNumberValues) {
-                    for(number of partNumbers) {
-                        if(partNumber.indexOf(number) === 0) {
-                            dbIds.push(data.dbId);
-                            viewer.show(data.dbId);
-                            if(fitToView) viewer.fitToView(dbIds);
-                            break;
-                        }
-                    }
-                }
-            }
-            
-        })
-    }
-
-}
-
-
-
-// Reset viewer / deselect all
-function viewerResetSelection(resetView, resetColors) {
-
-    if(!isViewerStarted()) return;
-
-    if(typeof resetView   === 'undefined') resetView   = true;
-    if(typeof resetColors === 'undefined') resetColors = true;
-
-    viewer.showAll();
-    viewer.clearSelection();
-    
-    if(resetColors) viewer.clearThemingColors();
-    if(resetView  ) viewer.setViewFromFile();
+    for(let model of models) viewer.impl.unloadModel(model);
 
 }
 
 
 
 // Get paths / instances of defined part numbers
-async function viewerGetComponentsInstances(partNumbers, propertyName) {
+function viewerGetComponentsInstances(partNumbers) {
 
-    if(!viewerDone) return;
+    if(!isViewerStarted()) return [];
 
-    return new Promise(function(resolve, reject) {
+    let result = [];
         
-        let instances   = viewer.model.getInstanceTree();
-        let promises    = [];
-        let result      = [];
-        
-        for(let i = 1; i < instances.objectCount; i++) {
-            promises.push(getPropertiesAsync(i));
-        }
-
-        Promise.all(promises).then(function(items) {
-
-            if(isBlank(propertyName)) {
-                if(items.length > 0) {
-                    for(let partNumberPropery of config.viewer.partNumberProperties) {
-                        if(propertyName === '') {
-                            for(let property of items[0].properties) {
-                                if(partNumberPropery === property.attributeName) {
-                                    propertyName = property.attributeName;
-                                    continue;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            for(let partNumber of partNumbers) {
-                result.push({
-                    'partNumber' : partNumber,
-                    'instances'  : viewerGetComponentInstances(partNumber, propertyName, items)
-                });
-            };
-
-            resolve(result);
-
+    for(let partNumber of partNumbers) {
+        result.push({
+            'partNumber' : partNumber,
+            'instances'  : viewerGetComponentInstances(partNumber)
         });
+    };
 
-    });
+    return result;
 
 }
-function viewerGetComponentInstances(partNumber, propertyName, items) {
+function viewerGetComponentInstances(partNumber) {
+
+    if(!isViewerStarted()) return [];
 
     let result = [];
 
-    for(let item of items) {
-
-        let propertyPartNumber = item.properties.find((e) => e.attributeName == propertyName);
-
-        if(typeof propertyPartNumber !== 'undefined') {
-
-            let itemPartNumber = propertyPartNumber.displayValue;
-            let propertyParent = item.properties.find((e) => e.attributeName == 'parent');
-
-            if(typeof propertyParent !== 'undefined') {
-                if(itemPartNumber === partNumber) {
-                    result.push({
-                        'dbId' : item.dbId,
-                        'path' : getComponentPath(items, item.dbId)  
-                    });
-                }
-            }
-
+    for(let dataInstance of dataInstances) {
+        if(dataInstance.partNumber === partNumber) {
+            result.push({
+                'dbId' : dataInstance.dbId,
+                'path' : getComponentPath(dataInstance.dbId)  
+            });
         }
-
     }
 
     return result;
 
 }
-
-
-
-// Get selected models
-async function viewerGetSelectedComponentPaths() {
-
-    return new Promise(function(resolve, reject) {
-        
-        let instances   = viewer.model.getInstanceTree();
-        let promises    = [];
-        let result      = [];
-
-        for(let i = 1; i < instances.objectCount; i++) {
-            promises.push(getPropertiesAsync(i));
-        }
-
-        Promise.all(promises).then(function(responses) {
-
-            let items = responses;
-
-            for(selection of viewer.getSelection()) {
-                
-                // result.push(getComponentPath(items, selection));
-
-                let componentPath   = getComponentPath(items, selection).split('|');
-                let newPath         = '';
-
-                for(let index = 0; index <= componentPath.length - 1; index++) {
-
-                    let segment = componentPath[index];
-
-                    if(segment.indexOf('Component Pattern') < 0) {
-                        if(newPath !== '') newPath += '|';
-                        newPath += segment;
-                    }
-
-                }
-
-                result.push(newPath);
-
-            }
-
-            resolve(result);
-
-        });
-
-    });
-
-}
-const getPropertiesAsync = (id) => {
-    
-    return new Promise((resolve, reject) => {
-        viewer.getProperties(id, (result) => {
-            resolve(result)
-        }, (error) => {
-            reject(error)
-       });
-    });
- 
-}
-function getComponentPath(items, id) {
+function getComponentPath(id) {
 
     let result = ';'
 
-    for(let item of items) {
-        if(item.dbId === id) {
-            result = item.name;
-            for(property of item.properties) {
+    for(let dataInstance of dataInstances) {
+        if(dataInstance.dbId === id) {
+            result = dataInstance.partNumber + ';' + dataInstance.name;
+            for(let property of dataInstance.properties) {
                 if(property.attributeName === 'parent') {
-                    let partNumber = getComponentPath(items, property.displayValue);
+                    let partNumber = getComponentPath(property.displayValue);
                     result = partNumber.split('.iam')[0] + '|' + result;
                 }
             }
@@ -1006,102 +823,39 @@ function getComponentPath(items, id) {
     return result;
 
 }
+function viewerGetSelectedComponentPaths() {
 
+    if(!isViewerStarted()) return [];
 
+    let result = [];
 
-// Set custom colors for multiple records
-function viewerSetColor(partNumber, color, fitToView, unhide) {
+    for(let selection of viewer.getSelection()) {
 
-    viewerSetColors([partNumber], color, fitToView, unhide);
+        let componentPath   = getComponentPath(selection).split('|');
+        let newPath         = '';
 
-}
-function viewerSetColors(partNumbers, color, fitToView, unhide) {
+        for(let index = 0; index <= componentPath.length - 1; index++) {
 
-    if(typeof viewer === 'undefined') return;
-    if(typeof partNumbers === 'undefined') return;
-    if(partNumbers.length === 0) return;
+            let segment = componentPath[index];
 
-    if(typeof fitToView === 'undefined') fitToView = false;
-    if(typeof unhide    === 'undefined') unhide     = true;
-
-    let vector      = null;
-    let instances   = viewer.model.getInstanceTree();
-    let dbIds       = [];
-
-    if(color !== null) vector = new THREE.Vector4(color[0], color[1], color[2], color[3]);
-
-    for(var i = 1; i < instances.objectCount; i++) {
-
-        viewer.model.getProperties(i, function(data) { 
-
-            let partNumberValues = [];
-
-            for(property of data.properties) {
-                if(config.viewer.partNumberProperties.indexOf(property.attributeName) > -1) {
-                    let value = property.displayValue;
-                        value = value.split(':')[0];
-
-                    partNumberValues.push(value);
-                }
+            if(segment.indexOf('Component Pattern') < 0) {
+                if(newPath !== '') newPath += '|';
+                newPath += segment;
             }
 
-            if(partNumberValues.length > 0) {
-                for(partNumber of partNumberValues) {
-                    for(number of partNumbers) {
-                        if(partNumber.indexOf(number) > -1) {
-                            viewer.setThemingColor(data.dbId, vector, null, true);
-                            if(unhide) viewer.show(data.dbId);
-                            if(fitToView) viewer.fitToView(dbIds);
-                        }
-                    }
-                }
-            }
+        }
 
-        })
+        result.push(newPath);
 
     }
 
-}
-
-
-// Set same color to all elements
-function viewerSetColorToAll(color) {
-
-    let vector      = new THREE.Vector4(color[0], color[1], color[2], color[3]);
-    let instances   = viewer.model.getInstanceTree();
-
-    for(var i = 1; i < instances.objectCount; i++) {
-        viewer.model.getProperties(i, function(data) { 
-            viewer.setThemingColor(data.dbId, vector, null, true);
-        })
-    }
+    return result;
 
 }
 
 
-// Reset all custom colors
-function viewerResetColors() {
 
-    if(!isViewerStarted()) return;
-
-    viewer.clearThemingColors();
-
-}
-
-
-// Close markup view
-// function viewerLeaveMarkupMode() {
-
-//     if(typeof markup === 'undefined') return;
-
-//     markup.leaveEditMode();
-//     markup.hide();
-
-// }
-
-
-
-// Custom Controls: Reset
+// Custom Controls: Reset Button
 function viewerAddResetButton() {
 
     let customToolbar = new Autodesk.Viewing.UI.ControlGroup('custom-toolbar-reset');
@@ -1119,11 +873,15 @@ function viewerClickReset() {
     viewerResetColors();
     viewerClickResetDone();
 }
-function clickBOMResetDone() {}
+function viewerClickResetDone() {
+
+    $('.bom-item').removeClass('selected');
+    $('.flat-bom-item').removeClass('selected');
+
+}
 
 
-
-// Custom Controls : Ghosting
+// Custom Controls : Ghosting Toggle
 function viewerAddGhostingToggle() {
 
     let newToolbar = new Autodesk.Viewing.UI.ControlGroup('my-custom-toolbar-ghosting');
@@ -1161,7 +919,7 @@ function addCustomControl(toolbar, id, icon, tooltip) {
 }
 
 
-// Custom Controls : Standard views
+// Custom Controls : Standard Views Toolbar
 function viewerAddViewsToolbar() {
 
     let newToolbar  = new Autodesk.Viewing.UI.ControlGroup('my-custom-toolbar-views');
@@ -1198,7 +956,7 @@ function addCustomViewControl(toolbar, id, view, icon, tooltip) {
 }
 
 
-// Custom Controls : Note
+// Custom Controls : Notes
 function viewerAddNoteControls() {
 
     let elemNoteToolbar = $('<div></div>');
@@ -1216,8 +974,7 @@ function viewerAddNoteControls() {
 }
 
 
-
-// Custom Controls : Markup
+// Custom Controls : Markup Controls
 function viewerAddMarkupControls(includeSaveButton) {
 
     if(typeof includeSaveButton === 'undefined') includeSaveButton = false;
@@ -1462,9 +1219,11 @@ function viewerLeaveMarkupMode() {
 }
 function viewerSaveMarkup() {}
 
-
+// Capture screenshot with markup for image upload
 function viewerCaptureScreenshot(id, callback) {
    
+    if(!isViewerStarted()) return;
+
     if(isBlank(id)) id = 'viewer-markup-image';
 
     var screenshot  = new Image();
@@ -1474,7 +1233,6 @@ function viewerCaptureScreenshot(id, callback) {
     screenshot.onload = function () {
             
         let canvas          = document.getElementById(id);
-        // let canvas          = document.getElementById('viewer-markup-image');
             canvas.width    = viewer.container.clientWidth;
             canvas.height   = viewer.container.clientHeight;
 
@@ -1496,4 +1254,17 @@ function viewerCaptureScreenshot(id, callback) {
         screenshot.src = blobURL;
     });
 
+}
+
+// Markup restore
+function onViewerRestore(event) {
+     
+    markup.unloadMarkupsAllLayers();
+    
+    if(markupsvg !== '') {
+        markup.show();
+        markup.loadMarkups(markupsvg, 'review');
+        
+    }
+    
 }

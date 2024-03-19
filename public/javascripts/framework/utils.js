@@ -147,46 +147,36 @@ function appendProcessing(id, hidden) {
 
 
 // Insert messaging and process indicator for the viewer
-function appendViewerProcessing() {
+function appendViewerProcessing(id, hidden) {
     
-    let elemViewer = $('#viewer');
+    if(isBlank(id)) id = 'viewer';
+    if(isBlank(hidden)) hidden = true;
+
+    let elemViewer = $('#' + id);
     
     if(elemViewer.length === 0) return;
     
-    let elemWrapper = $('<div></div>');
-        elemWrapper.attr('id', 'viewer-processing');
-        elemWrapper.addClass('viewer');
-        elemWrapper.insertAfter(elemViewer);
+    let elemWrapper = $('<div></div>').insertAfter(elemViewer)
+        .attr('id', 'viewer-processing')
+        .addClass('viewer');
+    
+    let elemProcessing = $('<div></div>').appendTo(elemWrapper)
+        .addClass('processing');
 
-    let elemProcessing = $('<div></div>');
-        elemProcessing.addClass('processing');
-        elemProcessing.appendTo(elemWrapper);
+    $('<div></div>').appendTo(elemProcessing).addClass('bounce1');
+    $('<div></div>').appendTo(elemProcessing).addClass('bounce2');
+    $('<div></div>').appendTo(elemProcessing).addClass('bounce3');
 
-    let elemBoune1 = $('<div></div>');
-        elemBoune1.addClass('bounce1');
-        elemBoune1.appendTo(elemProcessing);
+    let elemMessage = $('<div></div>').insertAfter(elemViewer)
+        .attr('id', 'viewer-message')
+        .addClass('viewer');
 
-    let elemBoune2 = $('<div></div>');
-        elemBoune2.addClass('bounce2');
-        elemBoune2.appendTo(elemProcessing);
+    $('<span></span>').appendTo(elemMessage)
+        .addClass('icon')
+        .html('view_in_ar');
 
-    let elemBoune3 = $('<div></div>');
-        elemBoune3.addClass('bounce3');
-        elemBoune3.appendTo(elemProcessing);
-
-    let elemMessage = $('<div></div>');
-        elemMessage.attr('id', 'viewer-message');
-        elemMessage.addClass('viewer');
-        elemMessage.insertAfter(elemViewer);
-
-    let elemMessageIcon = $('<span></span>');
-        elemMessageIcon.addClass('icon');
-        elemMessageIcon.html('view_in_ar');
-        elemMessageIcon.appendTo(elemMessage);
-
-    let elemMessageText = $('<span></span>');
-        elemMessageText.html('No Viewble Found');
-        elemMessageText.appendTo(elemMessage);
+    $('<span></span>').appendTo(elemMessage)
+        .html('No Viewble Found');
 
     let classNames = elemViewer.attr('class');
 
@@ -329,6 +319,18 @@ function getSurfaceLevel(elem) {
     if(elem.hasClass('surface-level-3')) return 'surface-level-3';
     if(elem.hasClass('surface-level-4')) return 'surface-level-4';
     if(elem.hasClass('surface-level-5')) return 'surface-level-5';
+
+    if(elem.parent().hasClass('surface-level-1')) return 'surface-level-1';
+    if(elem.parent().hasClass('surface-level-2')) return 'surface-level-2';
+    if(elem.parent().hasClass('surface-level-3')) return 'surface-level-3';
+    if(elem.parent().hasClass('surface-level-4')) return 'surface-level-4';
+    if(elem.parent().hasClass('surface-level-5')) return 'surface-level-5';
+
+    if(elem.parent().parent().hasClass('surface-level-1')) return 'surface-level-1';
+    if(elem.parent().parent().hasClass('surface-level-2')) return 'surface-level-2';
+    if(elem.parent().parent().hasClass('surface-level-3')) return 'surface-level-3';
+    if(elem.parent().parent().hasClass('surface-level-4')) return 'surface-level-4';
+    if(elem.parent().parent().hasClass('surface-level-5')) return 'surface-level-5';
 
     return 'surface-level-0';
 

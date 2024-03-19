@@ -414,13 +414,13 @@ function appendHeaderCell(elemHeaderRow, indexItem, link, descriptor) {
     let elemHeaderCellToggleIcon = $('<div></div>');
         elemHeaderCellToggleIcon.attr('title', 'Select this record');
         elemHeaderCellToggleIcon.addClass('icon');
-        elemHeaderCellToggleIcon.addClass('icon-box-checked');
+        elemHeaderCellToggleIcon.addClass('icon-check-box-checked');
         elemHeaderCellToggleIcon.appendTo(elemHeaderCelSelector);
 
     let elemHeaderCellToggleIconAlt = $('<div></div>');
         elemHeaderCellToggleIconAlt.attr('title', 'Deselect this record');
         elemHeaderCellToggleIconAlt.addClass('icon');
-        elemHeaderCellToggleIconAlt.addClass('icon-box-unchecked');
+        elemHeaderCellToggleIconAlt.addClass('icon-check-box');
         elemHeaderCellToggleIconAlt.appendTo(elemHeaderCelSelector);
 
     let elemHeaderCellToolbar = $('<div></div>');

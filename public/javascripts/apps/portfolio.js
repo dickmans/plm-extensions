@@ -583,7 +583,7 @@ function setProductDetails(link) {
         if(ebom !== '') {
             $('#viewer').show();
             $('#viewer-empty').hide();
-            insertViewer(ebom, viewerBGColors[theme].level1);
+            insertViewer(ebom);
             insertFlatBOM(ebom, { 'id' : 'product-bom'});
         } else {
             $('#product-bom-processing').hide();
@@ -611,8 +611,7 @@ function clickFlatBOMItem(e, elemClicked) {
 
         let partNumber = elemClicked.attr('data-part-number');
         
-        viewerResetColors();
-        viewerSelectModel(partNumber, true);
+        viewerSelectModel(partNumber);
 
     }
 

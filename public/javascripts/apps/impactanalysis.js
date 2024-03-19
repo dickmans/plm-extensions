@@ -124,7 +124,7 @@ function setUIEvents() {
                     partNumbers.push($(this).attr('data-part-number'));
                 } else $(this).hide();
             });
-            viewerSelectModels(partNumbers, true);
+            viewerSelectModels(partNumbers);
             setItemColorsInViewer();
 
 
@@ -408,7 +408,7 @@ function getManagedItems() {
                     }
                 }
 
-                let elemTile = genTile(affectedItem.item.link, affectedItem.item.urn, '', 'settings', affectedItem.item.title, transition);
+                let elemTile = genTile(affectedItem.item.link, affectedItem.item.urn, '', 'icon-item', affectedItem.item.title, transition);
                     elemTile.addClass('nav-item');
                     elemTile.addClass('unread');
                     elemTile.appendTo("#nav-list").fadeIn();
@@ -416,51 +416,42 @@ function getManagedItems() {
                         selectManagedItem($(this));
                     });
 
-                let elemStatus = $('<div></div>');
-                    elemStatus.addClass('tile-item-status');
-                    elemStatus.appendTo(elemTile);
+                let elemStatus = $('<div></div>').appendTo(elemTile)
+                    .addClass('tile-item-status');
 
-                let elemStatusStock = $('<div></div>');
-                    elemStatusStock.attr('title', 'In Stock Quantity');
-                    elemStatusStock.appendTo(elemStatus);
+                let elemStatusStock = $('<div></div>').appendTo(elemStatus)
+                    .attr('title', 'In Stock Quantity');
                 
-                let elemStatusStockIcon = $('<div></div>');
-                    elemStatusStockIcon.addClass('icon');
-                    elemStatusStockIcon.html('warehouse');
-                    elemStatusStockIcon.appendTo(elemStatusStock);
-                
-                let elemStatusStockQuantity = $('<div></div>');
-                    elemStatusStockQuantity.addClass('value');
-                    elemStatusStockQuantity.html(countStock);
-                    elemStatusStockQuantity.appendTo(elemStatusStock);
+                $('<div></div>').appendTo(elemStatusStock)
+                    .addClass('icon')
+                    .addClass('icon-stock');
+            
+                $('<div></div>').appendTo(elemStatusStock)
+                    .addClass('value')
+                    .html(countStock);
 
-                let elemStatusOrders = $('<div></div>');
-                    elemStatusOrders.attr('title', 'Next Production Order Quantity');
-                    elemStatusOrders.appendTo(elemStatus);
+                let elemStatusOrders = $('<div></div>').appendTo(elemStatus)
+                    .attr('title', 'Next Production Order Quantity');
                 
-                let elemStatusOrdersIcon = $('<div></div>');
-                    elemStatusOrdersIcon.addClass('icon');
-                    elemStatusOrdersIcon.html('order_approve');
-                    elemStatusOrdersIcon.appendTo(elemStatusOrders);
+                $('<div></div>').appendTo(elemStatusOrders)
+                    .addClass('icon')
+                    .addClass('icon-order-in-work');
                 
-                let elemStatusOrdersQuantity = $('<div></div>');
-                    elemStatusOrdersQuantity.addClass('value');
-                    elemStatusOrdersQuantity.html(countOrders);
-                    elemStatusOrdersQuantity.appendTo(elemStatusOrders);
+                $('<div></div>').appendTo(elemStatusOrders)
+                    .addClass('value')
+                    .html(countOrders);
 
-                let elemStatusSuppliers = $('<div></div>');
-                    elemStatusSuppliers.attr('title', 'Supplier Packages Pending');
-                    elemStatusSuppliers.appendTo(elemStatus);
+                let elemStatusSuppliers = $('<div></div>').appendTo(elemStatus)
+                    .attr('title', 'Supplier Packages Pending');
                 
-                let elemStatusSuppliersIcon = $('<div></div>');
-                    elemStatusSuppliersIcon.addClass('icon');
-                    elemStatusSuppliersIcon.html('local_shipping');
-                    elemStatusSuppliersIcon.appendTo(elemStatusSuppliers);
+                $('<div></div>').appendTo(elemStatusSuppliers)
+                    .addClass('icon')
+                    .addClass('icon-shipping');
                 
-                let elemStatusSuppliersQuantity = $('<div></div>');
-                    elemStatusSuppliersQuantity.addClass('value');
-                    elemStatusSuppliersQuantity.html(countSupplies);
-                    elemStatusSuppliersQuantity.appendTo(elemStatusSuppliers);
+                $('<div></div>').appendTo(elemStatusSuppliers)
+                    .addClass('value')
+                    .html(countSupplies);
+                    
 
                 if(countStock    !== 0) elemStatusStock.addClass('highlight-stock');
                 if(countOrders   !== 0) elemStatusOrders.addClass('highlight-orders');
@@ -499,7 +490,7 @@ function selectManagedItem(elemClicked) {
         if(managedItem.urn === selectedURN) selectedManagedItem = managedItem;
     }
 
-    insertViewer(link, viewerBGColors[theme].level1);
+    insertViewer(link);
     getChangeLog();
     setAffectedItemFields();
     getRootParents();
@@ -1206,8 +1197,7 @@ function setBOMTable(viewId) {
 
                     let partNumber = $(this).attr('data-part-number');
 
-                    viewerResetColors();
-                    viewerSelectModel(partNumber, true);
+                    viewerSelectModel(partNumber);
 
                     $(this).siblings().removeClass('selected');
                     $(this).addClass('selected');
@@ -1396,16 +1386,14 @@ function genBOMItem(item, fields) {
 }
 function setItemColorsInViewer() {
 
+    viewerResetColors();
+
     if($('#apply-to-viewer').is(":checked")) {
 
-        viewerSetColors(bomItemsByStatus.new        , new THREE.Vector4(1,   0, 0, 0.5), false);
-        viewerSetColors(bomItemsByStatus.additional , new THREE.Vector4(1,   0, 0, 0.5), false);
-        viewerSetColors(bomItemsByStatus.different  , new THREE.Vector4(1, 0.5, 0, 0.5), false);
-        viewerSetColors(bomItemsByStatus.match      , new THREE.Vector4(0,   1, 0, 0.5), false);
-
-    } else {
-
-        viewerResetColors();
+        viewerSetColors(bomItemsByStatus.new        , { 'resetColors' : false, 'color' : config.colors.red    });
+        viewerSetColors(bomItemsByStatus.additional , { 'resetColors' : false, 'color' : config.colors.blue   });
+        viewerSetColors(bomItemsByStatus.different  , { 'resetColors' : false, 'color' : config.colors.yellow });
+        viewerSetColors(bomItemsByStatus.match      , { 'resetColors' : false, 'color' : config.colors.green  });
 
     }
 
@@ -1870,7 +1858,7 @@ function getRelated() {
                     $(this).toggleClass('selected');
                     console.log($(this).attr('data-part-number'));
                     if($(this).hasClass('selected')) {
-                        viewerSelectModel($(this).attr('data-part-number'), true);
+                        viewerSelectModel($(this).attr('data-part-number'));
                     } else {
                         viewerResetSelection(true);
                     }

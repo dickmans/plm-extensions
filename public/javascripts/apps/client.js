@@ -868,13 +868,13 @@ function showItem(ws, link, buttonView) {
 
     if(hasPermission(ws.permissions, 'view_attachments')) {
         setItemAttachments(link);
-        insertViewer(link, viewerBGColors[theme].level1);
+        insertViewer(link);
     }
-    if(hasPermission(ws.permissions, 'view_bom')) setItemBOM(ws, link);
+    if(hasPermission(ws.permissions, 'view_bom')                ) setItemBOM(ws, link);
     if(hasPermission(ws.permissions, 'view_associated_workflow')) setProcesses(link);
-    if(hasPermission(ws.permissions, 'view_workflow_items')) setManagedItems(link);
-    if(hasPermission(ws.permissions, 'view_relationships')) setRelationships(link);
-    if(hasPermission(ws.permissions, 'view_change_log')) getChangeLog(link);
+    if(hasPermission(ws.permissions, 'view_workflow_items')     ) setManagedItems(link);
+    if(hasPermission(ws.permissions, 'view_relationships')      ) setRelationships(link);
+    if(hasPermission(ws.permissions, 'view_change_log')         ) getChangeLog(link);
 
     setItemCreateList(ws, link);
 
@@ -887,7 +887,7 @@ function showItem(ws, link, buttonView) {
     }
 
 }
-function insertViewerCallback(viewable) {
+function insertViewerDone() {
     
     $('#item-viewer').show();
     $('#item-button-view').show().click();
