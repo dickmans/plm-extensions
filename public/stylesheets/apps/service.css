@@ -198,7 +198,6 @@
 }
 #items-list { 
     flex-direction  : row;
-    gap             : 0px !important; 
     position        : absolute;
     top             : 58px;
     right           : 0px;

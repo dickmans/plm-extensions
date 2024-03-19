@@ -145,10 +145,10 @@
 .tiles.xxs        { gap : var(--spacer-xxs); }
 .tiles.list.xxl   { gap : var(--spacer-s); }
 .tiles.list.xl    { gap : var(--spacer-s); }
-.tiles.list.l     { gap : var(--spacer-s); }
+.tiles.list.l     { gap : var(--spacer-xs); }
 .tiles.list.m     { gap : var(--spacer-xs); }
 .tiles.list.s     { gap : var(--spacer-xs); }
-.tiles.list.xs    { gap : var(--spacer-xs); }
+.tiles.list.xs    { gap : var(--spacer-xxxs); }
 .tiles.list.xxs   { gap : var(--spacer-xxxs); }
 .tiles.list.xxxs  { gap : var(--spacer-xxxs); }
 .tiles.list.files { gap : var(--spacer-xs); } /* DESIGN REVIEWS, CLASS BROWSER */
