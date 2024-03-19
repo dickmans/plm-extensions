@@ -259,7 +259,7 @@ function insertRecentItems(params) {
     let headerLabel  = 'Recently Viewed Items'; // Set the header text
     let headerToggle = false;                   // Enable header toggles
     let reload       = true;                    // Enable reload button for the list
-    let icon         = 'history';               // Sets the icon to be displayed for each tile
+    let icon         = 'icon-history';          // Sets the icon to be displayed for each tile
     let size         = 'xs';                    // layout size (xxs, xs, s, m, l, xl, xxl)
     let workspacesIn = [];                      // List of workspace IDs to be included. Items from other workspaces will not be shown.
     let workspacesEx = [];                      // List of workspace IDs to be excluded. Items of these workspaces will not be shown.
@@ -419,7 +419,7 @@ function insertBookmarks(params) {
     let headerLabel  = 'Bookmarked Items';  // Set the header text
     let headerToggle = false;               // Enable header toggles
     let reload       = true;                // Enable reload button for the list
-    let icon         = 'star';              // Sets the icon to be displayed for each tile
+    let icon         = 'icon-bookmark';     // Sets the icon to be displayed for each tile
     let size         = 'm';                 // layout size (xxs, xs, s, m, l, xl, xxl)
     let workspacesIn = [];                  // List of workspace IDs to be included. Items from other workspaces will not be shown.
     let workspacesEx = [];                  // List of workspace IDs to be excluded. Items of these workspaces will not be shown.
