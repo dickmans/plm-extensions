@@ -675,7 +675,7 @@ function openItem(link) {
         let statusId    = response.data.currentState.link.split('/').pop();
 
         insertWorkflowHistory(link, null, status, statusId, wsConfig.workflowHistory.excludedTransitions, wsConfig.workflowHistory.finalStates, wsConfig.workflowHistory.showNextActions);
-        insertViewer(linkItem, viewerBGColors[theme].level1);
+        insertViewer(linkItem);
         
         for(state of wsConfig.progress) {
             if(state.states.indexOf(status) > -1) {

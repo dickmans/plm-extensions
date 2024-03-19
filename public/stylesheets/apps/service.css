@@ -1,21 +1,24 @@
 :root {
 
-    --width-requests        : 800px;
-    --padding-landing-top   : 24px;
-    --padding-landing-side  : 40px;
-    --padding-landing-bottom: 16px;
-    --width-bom             : 550px;
-    --width-details         : 400px;
-    --width-panel           : 500px;
-    --height-attachments    : 184px;
-    --padding-panel         :  24px;
+    --width-requests         : 800px;
+    --padding-landing-top    : 24px;
+    --padding-landing-side   : 40px;
+    --padding-landing-bottom : 16px;
+    --width-bom              : 550px;
+    --width-details          : 400px;
+    --width-panel            : 500px;
+    --height-attachments     : 184px;
+    --width-request-history  : 300px;
+    --width-request-details  : 400px;
+    --height-request-files   : 226px;
+    --padding-panel          :  24px;
 
 }
+.screen { display : none; }
 
 
 /* MASTER LAYOUT */
 /* ----------------------------------------------------------------------------- */
-#landing { display : none; }
 #products {
     top     : 0px;
     bottom  : 0px;
@@ -30,7 +33,6 @@
     width   : var(--width-requests);
     border-width : var(--padding-landing-top) var(--padding-landing-side) var(--padding-landing-bottom);
 }
-#main { display : none; }
 #bom, .viewer, #panel {
     top     : var(--padding-panel);
     bottom  : var(--padding-panel);
@@ -58,12 +60,41 @@
     bottom : -102%;
     width  : var(--width-details); 
 }
-
+#request-workflow-history {
+    top     : 0px;
+    bottom  : var(--padding-panel);
+    left    : var(--padding-panel);
+    width   : var(--width-request-history);
+}
+#request-details {
+    top     : 0px;
+    bottom  : var(--padding-panel);
+    left    : calc(var(--width-request-history) + (2 * var(--padding-panel)) + 60px);
+    width   : var(--width-request-details);
+}
+#request-grid {
+    top     : 0px;
+    right   : var(--padding-panel);
+    bottom  : calc(var(--height-request-files) + (2 * var(--padding-panel)) + 40px);
+    left    : calc(var(--width-request-history) + var(--width-request-details) + (3 * var(--padding-panel)) + 120px);
+}
+#request-attachments {
+    top     : unset;
+    bottom  : var(--padding-panel);
+    right   : var(--padding-panel);
+    left    : calc(var(--width-request-history) + var(--width-request-details) + (3 * var(--padding-panel)) + 120px);
+    height  : var(--height-request-files);
+}
 
 .screen-landing #landing { display : block; }
 .screen-landing #header-subtitle,
 .screen-landing #header-toolbar .button { display : none; }
+
 .screen-main #main { display : block; }
+
+.screen-request #request { display : block; }
+.screen-request #header-subtitle,
+.screen-request #header-toolbar .button { display : none; }
 
 .no-panel .viewer           { right : var(--padding-panel); }
 .no-panel #attachments      { right : var(--padding-panel); }
@@ -105,6 +136,7 @@
 }
 
 
+
 /* BOM */
 /* ----------------------------------------------------------------------------- */
 .spare-part-custom .bom-first-col { color : var(--color-blue-500); }
@@ -119,11 +151,11 @@
 .viewer {
     bottom : calc(var(--height-attachments) + (2 * var(--padding-panel)));
 }
-.adsk-viewing-viewer > .viewcubeWrapper,
+/* .adsk-viewing-viewer > .viewcubeWrapper,
 #navTools,
 #toolbar-modelStructureTool,
 #toolbar-propertiesTool,
-#toolbar-settingsTool { display : none; }
+#toolbar-settingsTool { display : none; } */
 
 
 
@@ -265,13 +297,13 @@
 
 /* REQUEST CREATON DIALOG */
 /* ----------------------------------------------------------------------------- */
-#request {
+#request-creation {
     height  : 600px;
     left    : calc(50% - 500px);
     top     : calc(50% - 350px);
     width   : 1000px;
 }
-#request .dialog-content {
+#request-creation .dialog-content {
     display : flex;
 }
 .col-header {
@@ -333,6 +365,55 @@
     color           : white;
 }
 
+
+
+/* SINGLE REQUEST DISPLAY */
+/* ----------------------------------------------------------------------------- */
+.item-header {
+    display         : flex;
+    justify-content : space-between;
+    padding         : 20px 30px;
+    position        : absolute;
+    top             : 0px;
+    right           : 0px;
+    left            : 0px;
+}
+.item-descriptor {
+    font-size   : 22px;
+    font-weight : 800;
+    margin      : 6px 0px 10px 0px;
+}
+.item-details {
+    display     : flex;
+    font-size   : 14px;
+    gap         : 16px;
+}
+.item-status {
+    background      : var(--color-status-yellow);
+    border-radius   : 3px;
+    color           : white;
+    font-size       : 12px;
+    font-weight     : 700;
+    padding         : 0px 12px;
+}
+.item-toolbar {
+    margin-top : 10px;
+}
+.item-content {
+    position : absolute;
+    top      : 100px;
+    right    : 0px;
+    bottom   : 0px;
+    left     : 0px;   
+}
+.item-content > div {
+    border-width    : 20px 30px;
+    padding         : 20px var(--padding-item);
+    position        : absolute;
+    /* top             : 0px; */
+    bottom          : var(--margin-item);
+    transition      : all ease 0.25s;
+}
 
 
 /* PROCESSES */

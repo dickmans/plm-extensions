@@ -253,7 +253,7 @@ function openItem(link) {
         'hideDetails'   : true
     });
     
-    insertViewer(link, viewerBGColors[theme].level1);
+    insertViewer(link);
     insertItemDetails(link);
     insertAttachments(link);
     // setProcesses(link);

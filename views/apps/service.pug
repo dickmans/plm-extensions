@@ -3,25 +3,27 @@ extends ../framework/layout
 block head
 
     link(rel='stylesheet', href='/stylesheets/apps/service.css')
+    link(rel='stylesheet', href='/stylesheets/custom/service.css')
     script(src='/javascripts/apps/service.js')
+    script(src='/javascripts/custom/service.js')
     script.
         config = !{JSON.stringify(config)};
 
 block body
 
-    body.text-selection-off.surface-level-1.screen-landing
+    body.text-selection-off.surface-level-1.screen-landing.no-attachments
 
         #header.dark
             #header-logo
             #header-title= title
             #header-subtitle
             #header-toolbar
-                #done.button.with-icon.icon-home(title='Close this product display and return to landing page') Home
+                #home.button.with-icon.icon-home.requires(title='Close this product display and return to landing page') Home
                 #toggle-bom.button.with-icon.icon-bom-tree(title='Toggle BOM display on/off') Toggle BOM
                 #toggle-attachments.button.with-icon.icon-pdf(title='Toggle selected items files list on/off') Toggle Files
                 #toggle-details.button.with-icon.icon-details(title='Toggle selected item details on/off') Toggle Details
                 #toggle-panel.button.with-icon.icon-tiles-list(title='Toggle list of Spare Parts / Problem Reports on and off') Toggle List
-                #submit-request.button.with-icon.icon-send(title='Review and confirm list of selected spare parts before submitting the request') Send Request
+                #submit-request.button.with-icon.icon-cart-checkout(title='Review and confirm list of selected spare parts before submitting the request') Send Request
                 #header-avatar
         
         #counter
@@ -48,9 +50,9 @@ block body
 
             .panel#panel
                 .tabs(data-tab-group="tab-group-main")
-                    div.selected(data-id='items') Spare Parts
-                    div(data-id='processes') Problem Reports
-                    div.hidden#tab-charts(data-id='charts') Maintenance
+                    div#tab-spare-parts.selected(data-id='items') Spare Parts
+                    div#tab-processes(data-id='processes') Problem Reports
+                    div#tab-charts.hidden(data-id='charts') Maintenance
                 .panel-content.tab-group-main#items
                     #items-toolbar.panel-content-toolbar
                         .button.icon.icon-filter#filter-spare-parts(title='Filter list and viewer for selected Spare Parts')
@@ -83,7 +85,7 @@ block body
                             #qr-code.button 
                                 img.qr-code
 
-            #request.dialog.surface-level-1
+            #request-creation.dialog.surface-level-1
                 .dialog-header New Spare Parts Request
                 .dialog-content
                     .col-left 
@@ -93,11 +95,35 @@ block body
                         .col-header Selected Spare Parts
                         #request-list
                 .dialog-footer
-                    #request-submit.button.default Submit
-                    #request-cancel.button Cancel
+                    #request-creation-submit.button.default Submit
+                    #request-creation-cancel.button Cancel
 
-            #qr.dialog.no-footer
-                .dialog-header Open Remote Control 
-                .dialog-close.icon.icon-close
-                .dialog-content 
-                    img.qr-code
+        .screen#request.surface-level-2 
+
+            .item-header
+                .item-title
+                    .item-descriptor 
+                    .item-details 
+                        .item-status
+                        .item-summary Created by 
+                            span.item-created-by 
+                            |  on 
+                            span.item-created-on
+                            |. Last modified by 
+                            span.item-modified-by 
+                            |  on 
+                            span.item-modified-on 
+                            |.
+                .item-toolbar.panel-toolbar#item-toolbar
+                    select.button#workflow-actions
+                    .button#bookmark.icon.icon-bookmark
+                    .button.icon.icon-close#close-item
+
+            .item-content 
+                #request-workflow-history.surface-level-1 
+                #request-details.surface-level-1 
+                    //- .panel-header 
+                    //-     .panel-title Details 
+                    //- .panel-content#details-sections.no-scrollbar.surface-level-1
+                #request-grid.surface-level-1 
+                #request-attachments.surface-level-1 

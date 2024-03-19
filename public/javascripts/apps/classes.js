@@ -214,7 +214,7 @@ function selectItem(elemClicked) {
         'layout'        : 'list',
         'size'          : 'm'
     });
-    insertViewer(link, viewerBGColors[theme].level2);
+    insertViewer(link);
     getBookmarkStatus();
 
 }

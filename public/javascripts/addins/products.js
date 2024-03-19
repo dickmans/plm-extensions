@@ -246,7 +246,7 @@ function openProduct(title, link, linkEBOM, linkMBOM, linkModules, linkFeaturesO
 
     if(typeof chrome.webview === 'undefined') {
         $('#viewer').show();
-        insertViewer(linkEBOM, viewerBGColors[theme].level2);
+        insertViewer(linkEBOM);
     } 
 
 }

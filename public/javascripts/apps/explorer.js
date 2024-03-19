@@ -28,7 +28,7 @@ $(document).ready(function() {
     appendOverlay();
     
     getInitialData();
-    insertViewer(link, viewerBGColors[theme].level1);
+    insertViewer(link);
     insertAttachments(link, { 'size' : 's', 'upload' : true, 'extensionsEx' : '.dwf,.dwfx' });
     insertChangeProcesses(link, 'processes');
     setUIEvents();
@@ -751,16 +751,14 @@ function selectBOMItem(e, elemClicked) {
             $('.flat-bom-row.selected').each(function() {
                 partNumbers.push($(this).attr('data-part-number'));
             });
-            viewerResetColors();
-            viewerSelectModels(partNumbers, true);
+            viewerSelectModels(partNumbers);
 
         } else if(e.ctrlKey || event.metaKey) {
 
             $('.flat-bom-row.selected').each(function() {
                 partNumbers.push($(this).attr('data-part-number'));
             });
-            viewerResetColors();
-            viewerSelectModels(partNumbers, true);
+            viewerSelectModels(partNumbers);
 
         } else {
             
@@ -782,8 +780,7 @@ function selectBOMItem(e, elemClicked) {
         $('.bom-action').show();
         $('#go-there').show();
         
-        viewerResetColors();
-        viewerSelectModels(partNumbers, true);
+        viewerSelectModels(partNumbers);
 
         setItemDetails(linkSelected);
         insertAttachments(linkSelected, { 'size' : 's', 'upload' : true, 'extensionsEx' : '.dwf,.dwfx' });
@@ -971,7 +968,7 @@ function insertKPI(kpi) {
 
         let sort = (typeof kpi.sort === 'undefined') ? 'count' : kpi.sort;
 
-        sortArray(kpi.data, sort, 'number');
+        sortArray(kpi.data, sort, 'number', 'descending');
 
         let max = 1; 
 
@@ -1052,6 +1049,8 @@ function selectKPI(elemClicked) {
     // $('#flat-bom').removeClass('no-colors');
     elemClicked.addClass('selected');
 
+    viewerResetColors();
+
     elemClicked.find('.kpi-value').each(function() {
     
         let filter      = $(this).attr('data-filter');
@@ -1067,8 +1066,6 @@ function selectKPI(elemClicked) {
             }
         }
 
-        console.log(color);
-    
         $('#bom-table-tree').children().each(function() {
             
             let value   = null;
@@ -1077,7 +1074,6 @@ function selectKPI(elemClicked) {
             for (bomItem of bomItems) {
                 if(bomItem.urn === urn) {
                     value = bomItem[id];
-                    console.log(value);
                 }
             }
 
@@ -1105,7 +1101,10 @@ function selectKPI(elemClicked) {
 
         });
 
-        viewerSetColors(partNumbers, vector);
+        viewerSetColors(partNumbers, { 
+            'color' : vector ,
+            'resetColors' : false
+        });
 
     });
 
@@ -1315,7 +1314,7 @@ function refreshKPI(kpi) {
 
         let sort = (typeof kpi.sort === 'undefined') ? 'count' : kpi.sort;
 
-        sortArray(kpi.data, sort, 'number');
+        sortArray(kpi.data, sort, 'number', 'descending');
 
         let max = 1; 
 

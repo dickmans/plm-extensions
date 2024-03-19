@@ -9,7 +9,7 @@ $(document).ready(function() {
     appendOverlay();
     
     // call methods of common/ui.js to insert PLM data
-    insertViewer(link, viewerBGColors[theme].level1);
+    insertViewer(link);
     insertBOM(link);
     insertItemDetails(link);
     insertAttachments(link);

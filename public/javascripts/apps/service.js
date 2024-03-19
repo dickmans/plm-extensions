@@ -24,50 +24,100 @@ let paramsAttachments = {
     'size'          : 'xs'
 }
 
+let features = {
+    'homeButton'            : true,
+    'toggleItemAttachments' : true,
+    'toggleItemDetails'     : true,
+    'manageProblemReports'  : true,
+    'viewer' : {
+        'cube'          : false,
+        'orbit'         : false,
+        'firstPerson'   : false,
+        'camera'        : false,
+        'measure'       : false,
+        'section'       : true,
+        'explodedView'  : true,
+        'modelBrowser'  : false,
+        'properties'    : false,
+        'settings'      : false,
+        'fullscreen'    : true,
+        'markup'        : false,
+        'reset'         : false,
+        'ghosting'      : true,
+        'views'         : true
+    }
+}
+
 
 $(document).ready(function() {
     
     wsProblemReports.id      = config.service.wsIdProblemReports;
     wsSparePartsRequests.id  = config.service.wsIdSparePartsRequests;
 
-    if(typeof options !== undefined) {
-        // if(options === 'iot') enableIOT();
-    }
-
-    appendProcessing('bom', false);
-    appendProcessing('details', false);
-    appendProcessing('attachments', true);
-    appendProcessing('processes', false);
-    appendViewerProcessing();
+    // appendProcessing('bom', false);
+    // appendProcessing('details', false);
+    // appendProcessing('attachments', true);
+    // appendProcessing('processes', false);
+    // appendViewerProcessing();
     appendOverlay();
 
-    setUIEvents();
+    getApplicationFeatures('service', function() {
 
-    insertWorkspaceViews(wsSparePartsRequests.id, {
-        'id'                : 'requests',
-        'headerLabel'       : 'Your Requests', 
-        'layout'            : 'table',
-        'includeRecents'    : true,
-        'startupView'       : 'recents'
+        if(!features.homeButton) {
+            $('#home').remove();
+            $('#landing').remove();
+        }
+        if(!features.toggleItemAttachments) {
+            $('#attachments').remove();
+            $('#toggle-attachments').remove();
+        }
+        if(!features.toggleItemDetails) {
+            $('#details').remove();
+            $('#toggle-details').remove();
+        }
+        if(!features.manageProblemReports) {
+            $('#processes').remove();
+            $('#tab-processes').remove();
+        }
+
+        $('#header').show();
+        $('#startup').remove();
+        setUIEvents();
+
+        if(features.homeButton) {
+
+            insertWorkspaceViews(wsSparePartsRequests.id, {
+                'id'                : 'requests',
+                'headerLabel'       : 'Your Requests', 
+                'layout'            : 'table',
+                'includeRecents'    : true,
+                'startupView'       : ''
+            });
+            
+            if(!isBlank(config.service.wsIdProducts)) insertWorkspaceItems(config.service.wsIdProducts, {
+                'id'                 : 'products', 
+                'headerLabel'        : config.service.productsListHeader, 
+                'icon'               : 'icon-package', 
+                'filter'             : config.service.productsFilter,
+                'sortBy'             : config.service.productsSortBy, 
+                'groupBy'            : config.service.productsGroupBy,
+                'fieldIdImage'       : config.service.productsFieldIdImage, 
+                'fieldIdTitle'       : config.service.productsFieldIdTitle, 
+                'fieldIdSubtitle'    : config.service.productsFieldIdSubtitle, 
+                'fieldIdsAttributes' : [ config.service.productsFieldIdBOM ]
+            }); 
+
+        }
+
+        if(!isBlank(dmsId)) {
+            $('#main').show();
+            $('body').addClass('screen-main')
+                .removeClass('screen-landing')
+                .removeClass('screen-request');
+            openItem(link);
+        } else $('#landing').show();
+
     });
-    
-    if(!isBlank(config.service.wsIdProducts)) insertWorkspaceItems(config.service.wsIdProducts, {
-        'id'                 : 'products', 
-        'headerLabel'        : config.service.productsListHeader, 
-        'icon'               : 'icon-package', 
-        'filter'             : config.service.productsFilter,
-        'sortBy'             : config.service.productsSortBy, 
-        'groupBy'            : config.service.productsGroupBy,
-        'fieldIdImage'       : config.service.productsFieldIdImage, 
-        'fieldIdTitle'       : config.service.productsFieldIdTitle, 
-        'fieldIdSubtitle'    : config.service.productsFieldIdSubtitle, 
-        'fieldIdsAttributes' : [ config.service.productsFieldIdBOM ]
-    }); 
-
-    if(!isBlank(dmsId)) {
-        $('body').removeClass('screen-landing').addClass('screen-main');
-        openItem(link);
-    }
     
 });
 
@@ -94,7 +144,7 @@ function setUIEvents() {
 
 
     // Close current product display
-    $('#done').click(function() {
+    $('#home').click(function() {
         $('body').removeClass('screen-main');
         $('body').addClass('screen-landing');
         document.title = documentTitle;
@@ -109,7 +159,7 @@ function setUIEvents() {
             $(this).show();
             partNumbers.push($(this).attr('data-part-number'));
         });
-        viewerSelectModels(partNumbers, true, false);
+        viewerSelectModels(partNumbers);
     });
     $('#deselect-spare-parts').click(function() {
         $('.spare-part.selected').removeClass('selected');
@@ -124,17 +174,25 @@ function setUIEvents() {
 
 
     // Submit Request Dialog functions
-    $('#request-submit').click(function() {
+    $('#request-creation-submit').click(function() {
         submitRequest();
     });
-    $('#request-cancel').click(function() {
-        $('#request').hide();
+    $('#request-creation-cancel').click(function() {
+        $('#request-creation').hide();
         $('#overlay').hide();
     });
     $('#submit-request').click(function() {
-        $('#request').show();
+        $('#request-creation').show();
         $('#overlay').show();
         setRequestList();
+    });
+
+    // Single Request Display Actions
+    $('#close-item').click(function() {
+        $('body').addClass('screen-landing')
+            .removeClass('screen-main')
+            .removeClass('screen-request');
+        
     });
 
 
@@ -221,20 +279,6 @@ function setUIEvents() {
     // });
     // $('#tabs').children().first().click();
 
-
-    // Maintenance Controls
-    // $('#remote-control').click(function() {
-    //     window.open(urlRC);
-    // })
-    // $('#qr-code').click(function() {
-    //     $('#qr').show();
-    //     $('#overlay').show();
-    // })
-    // $('.dialog-close').click(function() {
-    //     $('#overlay').hide();
-    //     $(this).closest('.dialog').hide();
-    // });
-
 }
 
 
@@ -250,6 +294,15 @@ function clickWorkspaceItem(e, elemClicked) {
 
     $('body').removeClass('screen-landing');
     $('body').addClass('screen-main');
+
+    let url = document.location.href;
+
+    console.log(url);
+    url += '&hase=moehre';
+
+    console.log(url);
+
+    window.history.replaceState(null, null, '/service?hase=moehre');
 
     openItem(link);
 
@@ -279,7 +332,7 @@ function openItem(link) {
         'showRestricted': false,
         'endItem'       : { 'fieldId' : 'SBOM_END_ITEM', 'value' : true }
     });
-    insertViewer(link, viewerBGColors[theme].level1);
+    insertViewer(link);
     insertItemDetails(link);
     insertAttachments(link, paramsAttachments);
     setProcesses(link);
@@ -288,11 +341,80 @@ function openItem(link) {
 
 
 // Click on existing Spare Parts Request
-// function clickWorkspaceViewItem(elemClicked) {
+function clickWorkspaceViewItem(elemClicked) {
 
-    // openItemByLink(elemClicked.attr('data-link'));
+    resetItemScreen();
+    openSelectedRequest(elemClicked.attr('data-link'));
 
-// }
+}
+function resetItemScreen() {
+    $('.item-descriptor').html('');
+    $('.item-status').html('');
+    $('.item-summary').find('span').html('');
+}
+function openSelectedRequest(link) {
+
+    $('body').addClass('screen-request')
+        .removeClass('screen-landing')
+        .removeClass('screen-main');
+
+    $.get('/plm/details', { 'link' : link }, function(response) {
+
+        $('.item-descriptor').html(response.data.title);
+        $('.item-status').html(response.data.currentState.title);
+
+    });
+
+    $.get('/plm/change-summary', { 'link' : link }, function(response) {
+
+        let dateCreated  = new Date(response.data.createdOn);
+        let dateModified = '';
+        let userModified = '';
+
+        if(!isBlank(response.data.lastModifiedOn)) dateModified = new Date(response.data.lastModifiedOn).toLocaleDateString();
+        if(!isBlank(response.data.lastModifiedBy)) userModified = response.data.lastModifiedBy.displayName;
+
+        $('.item-created-by').html(response.data.createdBy.displayName);
+        $('.item-created-on').html(dateCreated.toLocaleDateString());
+        $('.item-modified-by').html(userModified);
+        $('.item-modified-on').html(dateModified);
+
+    });
+
+    getBookmarkStatus(link);
+    insertWorkflowActions(link);
+
+    insertWorkflowHistory(link, {
+        'id'     : 'request-workflow-history',
+        'reload' : false
+    });
+    insertDetails(link, {
+        'id'             : 'request-details',
+        'compactDisplay' : true,
+        'suppressLinks'  : true
+    });
+    insertGrid(link, {
+        'id'            : 'request-grid',
+        'headerLabel'   : 'Part List',
+        'columnsEx'     : ['UNIT_COST', 'TOTAL_COST'],
+        'reload'        : false
+    });
+    insertAttachments(link, {
+        'id'        : 'request-attachments',
+        'layout'    : 'tiles',
+        'size'      : 'm',
+        'upload'    : true
+    });
+
+
+}
+function insertAttachmentsDone(id) {
+
+    if(id === 'request-attachments') {
+        $('#request-attachments-upload').prependTo($('#item-toolbar'));
+    }
+
+}
 
 
 // Retrieve Workspace Details
@@ -765,7 +887,11 @@ function clickSparePart(e, elemClicked) {
     let partNumber = elemClicked.attr('data-part-number');
     let color      = (elemClicked.hasClass('selected')) ? config.vectors.blue : null;
 
-    viewerSetColor(partNumber, color, false, false);
+    viewerSetColor(partNumber, {
+        'color'         : color, 
+        'resetColors'   : true,
+        'fitToView'     : true
+    });
     updateCounter();
 
 }
@@ -806,10 +932,10 @@ function clickSparePartZoomIn(e, elemClicked) {
 // Viewer init and interactions
 function initViewerDone() {
 
-    viewerAddGhostingToggle();
-    viewerAddResetButton();
-    viewerAddMarkupControls();   
-    viewerAddViewsToolbar();
+    // viewerAddGhostingToggle();
+    // viewerAddResetButton();
+    // viewerAddMarkupControls();   
+    // viewerAddViewsToolbar();
 
     $('#viewer-markup-image').attr('data-field-id', 'IMAGE_1');
 
@@ -877,21 +1003,17 @@ function onViewerSelectionChanged(event) {
 }
 function updateViewer(partNumber) {
 
-    console.log(partNumber);
-
     if(typeof partNumber === 'undefined') partNumber = '';
 
     disableViewerSelectionEvent = true;
 
     let selectedBOMNode = $('.bom-item.selected').first();
 
-    console.log(partNumber);
-
     if(partNumber !== '') {
-        viewerSelectModel(partNumber, true, false);
+        viewerSelectModel(partNumber, { 'highlight' : false , 'isolate' : true } );
     } else if(selectedBOMNode.length === 1) {
         partNumber = selectedBOMNode.attr('data-part-number');
-        viewerSelectModel(partNumber, true, false);
+        viewerSelectModel(partNumber, { 'highlight' : false ,'isolate' : true } );
     } else {
         viewerResetSelection(true, false);
     }
@@ -927,53 +1049,81 @@ function setProcesses(link) {
 function setRequestList() {
 
     let elemParent = $('#request-list');
+
+    if($('.spare-part.selected').length === 0) {
         elemParent.html('');
+        $('#request-creation-submit').addClass('disabled');
+        return;
+    } else {
+        $('#request-creation-submit').removeClass('disabled');
+    }
+
+    elemParent.children().each(function() {
+
+        let remove = true;
+        let link   = $(this).attr('data-link');
+
+        $('.spare-part.selected').each(function() {
+            let linkSelected = $(this).attr('data-link');
+            if(linkSelected === link) remove = false;
+        });
+
+        if(remove) $(this).remove();
+
+    });
 
     $('.spare-part.selected').each(function() {
 
+        let link    = $(this).attr('data-link');
         let number  = $(this).find('.spare-part-number').html();
         let title   = $(this).find('.spare-part-title').html();
         let stock   = $(this).find('.spare-part-stock').html();
-        
-        let elemItem = $('<div></div>');
-            elemItem.attr('data-link', $(this).attr('data-link'));
-            elemItem.addClass('request-line');
-            elemItem.appendTo(elemParent);
+        let add     = true;
 
-        let elemItemName = $('<div></div>');
-            elemItemName.addClass('request-item');
-            elemItemName.html(number + ' - ' + title);
-            elemItemName.appendTo(elemItem);
+        elemParent.children().each(function() {
+            let linkList = $(this).attr('data-link');
+            if(linkList === link) add = false;
+        });
 
-        let elemItemQuantity = $('<div></div>');
-            elemItemQuantity.addClass('request-quantity');
-            elemItemQuantity.appendTo(elemItem);
+        if(add) {
 
-        $('<input></input>').appendTo(elemItemQuantity)
-            .addClass('request-input')    
-            .val('1');
+            let elemItem = $('<div></div>').appendTo(elemParent)
+                .attr('data-link', $(this).attr('data-link'))
+                .addClass('request-line');
 
-        $('<div></div>').appendTo(elemItem)
-            .addClass('request-stock')
-            .html(stock);
+            $('<div></div>').appendTo(elemItem)
+                .addClass('request-item')
+                .html(number + ' - ' + title);
 
-        let elemItemDelete = $('<div></div>');
-            elemItemDelete.addClass('request-delete');
-            elemItemDelete.addClass('button');
-            elemItemDelete.addClass('red');
-            elemItemDelete.addClass('icon');
-            elemItemDelete.addClass('icon-delete');
-            elemItemDelete.appendTo(elemItem);
-            elemItemDelete.click(function() {
-                let lineItem = $(this).closest('.request-line');
-                let link = lineItem.attr('data-link');
-                $('.spare-part').each(function() {
-                    if($(this).attr('data-link') === link) {
-                        $(this).removeClass('selected');
-                    }
+            let elemItemQuantity = $('<div></div>').appendTo(elemItem)
+                .addClass('request-quantity');
+
+            $('<input></input>').appendTo(elemItemQuantity)
+                .addClass('request-input')    
+                .val('1');
+
+            $('<div></div>').appendTo(elemItem)
+                .addClass('request-stock')
+                .html(stock);
+
+            $('<div></div>').appendTo(elemItem)
+                .addClass('request-delete')
+                .addClass('button')
+                .addClass('red')
+                .addClass('icon')
+                .addClass('icon-delete')
+                .click(function() {
+                    let lineItem = $(this).closest('.request-line');
+                    let link     = lineItem.attr('data-link');
+                    $('.spare-part').each(function() {
+                        if($(this).attr('data-link') === link) {
+                            $(this).removeClass('selected');
+                        }
+                    });
+                    lineItem.remove();
+                    if($('#request-list').children().length === 0) $('#request-creation-submit').addClass('disabled');
                 });
-                lineItem.remove();
-            });
+        }
 
     });
 
@@ -983,7 +1133,9 @@ function setRequestList() {
 // Create Spare Parts Request in PLM
 function submitRequest() {
 
-    $('#request').hide();
+    if($('#request-creation-submit').hasClass('disabled')) return;
+
+    $('#request-creation').hide();
     $('#overlay').show();
 
     let params = {
@@ -1038,251 +1190,6 @@ function submitRequest() {
         $('#overlay').hide();
         $('.spare-part.selected').each(function() { $(this).click(); });
 
-    });
-
-}
-
-
-
-
-// IoT Extensions
-let urlRC = document.location.href.split('/service')[0] + '/apps/printer';
-let chartEntries = 30;
-let chartJobs, chartSupplies, chartTemperature;
-
-
-async function init() {
-
-    if(maintenanceMode === false) return;
-
-    do {
-        await sleep(1000);
-        updateCharts();
-    } while(true)
-
-}  
-
-function enableIOT() {
-
-    maintenanceMode = true;
-
-    $('#tab-charts').removeClass('hidden');
-
-    initCharts();   
-    setQRCodes(); 
-
-}
-
-function sleep(ms) {
-    return new Promise((resolve) => {
-        setTimeout(resolve, ms);
-    });
-}
-function initCharts() {
-    
-    chartJobs = new Chart($('#chart-jobs'), {
-        type: 'bar',
-        data: {
-            labels : [],
-            datasets: [
-                { label : 'large' ,  data: [],  backgroundColor : '#ee4444' },
-                { label : 'medium',  data: [],  backgroundColor : '#ffa600' },
-                { label : 'small' ,  data: [],  backgroundColor : '#87bc40' }
-            ]
-        },
-        options: {
-            legend : {
-                display : false
-            },
-            layout : {
-                padding : {
-                    bottom : 40
-                }
-            },
-            maintainAspectRatio: false,
-            scales: {
-                yAxes: [{
-                    stacked : true,
-                    ticks: {
-                        beginAtZero: true
-                    }
-                }],
-                xAxes: [{
-                    stacked : true,
-                    display : false
-                }]
-            }
-        }
-    });
-
-    chartSupplies = new Chart($('#chart-supplies'), {
-        type: "line",
-        data: {
-            datasets: [{
-                backgroundColor : '#e8f6fe',
-                borderColor : '#0696d7',
-                data: [],
-                pointStyle : 'rect'
-            }]
-        },
-        options: {
-            legend : {
-                display : false
-            },
-            layout : {
-                padding : {
-                    bottom : 40
-                }
-            },
-            maintainAspectRatio: false,
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true,
-                        max : 100,
-                        steps : 10
-                    }
-                }],
-                xAxes: [{
-                    display : false,
-                    type: 'time'
-                }]
-            }
-        }
-    });
-
-    chartTemperature = new Chart($('#chart-temperature'), {
-        type: "line",
-        data: {
-            datasets: [{
-                data: [],
-                backgroundColor : [ '#f5f7fa' ]
-            }]
-        },
-        options: {
-            legend : {
-                display : false
-            },
-            maintainAspectRatio: false,
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true
-                    }
-                }],
-                xAxes: [{
-                    display : false,
-                    type: 'time'
-                }]
-            }
-        }
-    });
-
-    init();
-
-}
-function updateCharts() {
-
-    let now = new Date();
-    
-    $.get('/extensions/get-printer-status', {}, function(response) {
-
-        chartJobs.data.labels.push('');
-        chartJobs.data.datasets[0].data.push(response.jobsl);
-        chartJobs.data.datasets[1].data.push(response.jobsm);
-        chartJobs.data.datasets[2].data.push(response.jobss);
-
-        if(chartJobs.data.datasets[0].data.length > chartEntries) {
-            chartJobs.data.labels.splice(0,1);
-            chartJobs.data.datasets[0].data.splice(0,1);
-            chartJobs.data.datasets[1].data.splice(0,1);
-            chartJobs.data.datasets[2].data.splice(0,1);
-        }
-    
-        chartJobs.update();
-
-        chartSupplies.data.datasets[0].data.push({
-            x : now.getTime(),
-            y : response.supplies
-        });
-
-        if(chartSupplies.data.datasets[0].data.length > chartEntries) {
-            chartSupplies.data.datasets[0].data.splice(0,1);
-        }
-    
-        chartSupplies.update();
-
-        chartTemperature.data.datasets[0].data.push({
-            x : now.getTime(),
-            y : response.temperature
-        });
-
-        if(chartTemperature.data.datasets[0].data.length > chartEntries) {
-            chartTemperature.data.datasets[0].data.splice(0,1);
-        }
-    
-        chartTemperature.update();
-
-        setWearPartStatus('wp1', response.wp1);
-        setWearPartStatus('wp2', response.wp2);
-        setWearPartStatus('wp3', response.wp3);
-
-        setWearPartColors(response);
-
-    })
-
-}
-function setWearPartStatus(id, value ) {
-
-    let color = '#87bc40';
-
-    if(value < 15) color = '#ee4444';
-    else if(value <= 25) color = '#ffa600';
-
-    $('#' + id).css('background', 'linear-gradient(to right, ' + color + ' 0%, ' + color + ' ' + value + '%, var(--color-gray-100) ' + value + '%, var(--color-gray-100) 100%)');
-
-}
-function setWearPartColors(response) {
-
-    if(maintenanceMode) {
-
-        let listRed    = [];
-        let listYellow = [];
-        let listGreen  = [];
-
-        setWearPartColor(response.wp1, '001-ASY-0035', listRed, listYellow, listGreen);
-        setWearPartColor(response.wp2, '001-MCH-0004', listRed, listYellow, listGreen);
-        setWearPartColor(response.wp3, '001-MCH-0005', listRed, listYellow, listGreen);
-
-        viewerSetColors(listRed    , new THREE.Vector4(1,   0, 0, 0.5), false);
-        viewerSetColors(listYellow , new THREE.Vector4(1, 0.5, 0, 0.5), false);
-        viewerSetColors(listGreen  , new THREE.Vector4(0,   1, 0, 0.5), false);
-        
-    }
-
-
-}
-function setWearPartColor(value, partNumber, listRed, listYellow, listGreen) {
-
-    let isSelected = false;
-
-    $('#bom-table').children('.selected').each(function() {
-        if($(this).attr('data-part-number') === partNumber) {
-            isSelected = true;
-        }
-    });
-
-    if(!isSelected) {
-        if(value < 15) listRed.push(partNumber);
-        else if(value <= 25) listYellow.push(partNumber);
-        else listGreen.push(partNumber);
-    }
-
-}
-function setQRCodes() {
-
-    $('.qr-code').each(function() {
-        $(this).attr('src', 'https://chart.googleapis.com/chart?cht=qr&chs=180x180&chl=' + urlRC);
     });
 
 }

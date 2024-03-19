@@ -8,63 +8,91 @@ let requestsLimit   = 5;
 
 
 // Insert APS Viewer
-function insertViewer(link, color) {
+function insertViewer(link, params) {
 
     if(isBlank(link)) return;
-    if(typeof color === 'undefined') color = 255;
 
-    let elemInstance = $('#viewer').children('.adsk-viewing-viewer');
+    //  Set defaults for optional parameters
+    // --------------------------------------
+    let id           = 'viewer';    // ID of the DOM element where the viewer should be inserted
+    let fileId       = '';         // Select a specific file to be rendered by providing its unique ID
+    let filename     = '';         // Select a specific file to be rendered by providing its filename (matches the Title column in the attachments tab)
+    let extensionsIn = [];         // Defines the list of attachment file types to take into account when requesting the possible list of viewable files. Only file types included in this list will be taken into account.
+    let extensionsEx = [];         // Defines the list of attachment file types to exclued when requesting the possible list of viewable files. Files with an extension listed will not be considered as valid viewable.
+    let color        = '';         // Background color
+    
+    if( isBlank(params)             )       params = {};
+    if(!isBlank(params.id)          )           id = params.id;
+    if(!isBlank(params.fileId)      )       fileId = params.fileId;
+    if(!isBlank(params.filename)    )     filename = params.filename;
+    if(!isBlank(params.extensionsIn)) extensionsIn = params.extensionsIn;
+    if(!isBlank(params.extensionsEx)) extensionsEx = params.extensionsEx;
+    if(!isBlank(params.color)       )        color = params.color;
+
+    let elemInstance = $('#' + id).children('.adsk-viewing-viewer');
     if(elemInstance.length > 0) elemInstance.hide();
 
-    $('#viewer-processing').show();
-    $('#viewer').attr('data-link', link);1433
+    $('#' + id).attr('data-link', link);
 
-    $.get('/plm/get-viewables', { 'link' : link }, function(response) {
+    let elemProcessing = $('#' + id + '-processing')
 
-        if($('#viewer').attr('data-link') !== response.params.link) return;
+    if(elemProcessing.length === 0) {
+        appendViewerProcessing(id, false);
+    } else {
+        elemProcessing.show();
+        $('#' + id + '-message').hide();
+    }
+
+    $.get('/plm/get-viewables', { 
+        'link'          : link, 
+        'fileId'        : fileId, 
+        'filename'      : filename, 
+        'extensionsIn'  : extensionsIn, 
+        'extensionsEx'  : extensionsEx 
+    }, function(response) {
+
+        if($('#' + id).attr('data-link') !== response.params.link) return;
 
         if(response.data.length > 0) {
 
             let foundAssembly = false;
-            let viewable = response.data[0];
 
             $('body').removeClass('no-viewer');
 
-            for(viewable of response.data) {
+            for(let viewable of response.data) {
                 if((viewable.name.indexOf('.iam.dwf') > -1) || (viewable.name.indexOf('.ipt.dwf') > -1)) {
                     $('body').removeClass('no-viewer');
                     if(elemInstance.length > 0) elemInstance.show();
                     foundAssembly = true;
-                    insertViewerCallback(viewable);
-                    initViewer(viewable, color);
+                    insertViewerDone(id, viewable, response.data);
+                    initViewer(id, viewable, color);
                     break;
                 }
             }
 
             if(!foundAssembly) {
                 if(elemInstance.length > 0) elemInstance.show();
-                insertViewerCallback(response.data[0]);
-                initViewer(response.data[0], color);
+                insertViewerDone(id, response.data[0], response.data);
+                initViewer(id, response.data[0], color);
             }
 
         } else {
 
-            $('#viewer').hide();
-            $('#viewer-processing').hide();
-            $('#viewer-message').css('display', 'flex');
+            $('#' + id).hide();
+            $('#' + id + '-processing').hide();
+            $('#' + id + '-message').css('display', 'flex');
             $('body').addClass('no-viewer');
 
         }
     });
 
 }
-function insertViewerCallback() {}
+function insertViewerDone(id, viewable, viewables) {}
+
 
 
 // Insert Create Dialog
 function insertCreateForm(wsId, id, hideReadOnly, excludeSections, excludeFields) {
-
-    console.log('insertCreateForm');
 
     if(isBlank(wsId)            ) return;
     if(isBlank(id)              )               id = 'create';

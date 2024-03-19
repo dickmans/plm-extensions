@@ -403,7 +403,7 @@ function processRoots(itemDetails) {
             eBOM.edges.sort(function(a, b){ return a.itemNumber - b.itemNumber });
             mBOM.edges.sort(function(a, b){ return a.itemNumber - b.itemNumber });
 
-            insertViewer(linkEBOM, viewerBGColors[theme].level1);
+            insertViewer(linkEBOM);
             insertItemDetails(linkEBOM);
             insertAttachments(linkEBOM, paramsAttachments);
             initEditor();
@@ -676,12 +676,12 @@ function setStatusBar() {
     
     if(!viewerStarted) return; 
 
+    viewerResetColors();
+
     if(viewerStatusColors) {
-        viewerSetColors(listRed    , config.vectors.red);
-        viewerSetColors(listYellow , config.vectors.yellow);
-        viewerSetColors(listGreen  , config.vectors.green);
-    } else {
-        viewerResetColors();
+        viewerSetColors(listRed    , { 'resetColors' : false, 'color' : config.vectors.red}    );
+        viewerSetColors(listYellow , { 'resetColors' : false, 'color' : config.vectors.yellow} );
+        viewerSetColors(listGreen  , { 'resetColors' : false, 'color' : config.vectors.green}  );
     }
 
 }
@@ -2084,9 +2084,9 @@ function selectItem(elemItem, filter) {
                 if(elemMBOM.length === 1) {
                     elemItem.addClass('current-mbom');
                     if(!filter) selectAdjacentMBOMModels();
-                    viewerSelectModel(partNumber, false);
+                    viewerSelectModel(partNumber, { 'fitToView' : false });
                 } else {
-                    viewerSelectModel(partNumber, true);
+                    viewerSelectModel(partNumber);
                 }
 
             }
@@ -2150,7 +2150,7 @@ function selectAdjacentMBOMModels() {
         if(elemPrev.length > 0) {
             let prevPartNumber = elemPrev.attr('data-part-number');
             elemPrev.addClass('adjacent-prev');
-            viewerSetColor(prevPartNumber, config.vectors.green);
+            viewerSetColor(prevPartNumber, { 'color' : config.vectors.green} );
         }
     }
 
@@ -2161,7 +2161,7 @@ function selectAdjacentMBOMModels() {
         if(elemNext.length > 0) {
             let nextPartNumber = elemNext.attr('data-part-number');
             elemNext.addClass('adjacent-next');
-            viewerSetColor(nextPartNumber, config.vectors.red);
+            viewerSetColor(nextPartNumber, { 'color' : config.vectors.red} );
         }
     }
 

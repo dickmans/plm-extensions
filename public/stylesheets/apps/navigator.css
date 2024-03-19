@@ -227,13 +227,13 @@ th.changed .item-header-top {
 .item-header-selector {
     padding : 10px;
 }
-.item-header .item-header-selector > .icon-box-checked {
+.item-header .item-header-selector > .icon-check-box-checked {
     display : none;
 }
-.item-header.selected .item-header-selector > .icon-box-checked {
+.item-header.selected .item-header-selector > .icon-check-box-checked {
     display : block;
 }
-.item-header.selected .item-header-selector > .icon-box-unchecked {
+.item-header.selected .item-header-selector > .icon-check-box {
     display : none;
 }
 .item-toolbar {

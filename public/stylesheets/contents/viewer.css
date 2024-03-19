@@ -12,6 +12,9 @@
     font-size: 100px;
     color: var(--color-blue-500);
 }
+.no-viewer-cube .viewcubeWrapper {
+    z-index : -10;
+}
 
 
 /*  STANDARD APS VIEWER OVERRIDES*/

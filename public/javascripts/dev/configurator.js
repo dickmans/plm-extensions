@@ -1275,7 +1275,7 @@ function addViewables() {
                     if(typeof initialViewable === 'undefined') {
                     if(response.params.variant === 'false') {
                             initialViewable = response.data[0];
-                            initViewer(initialViewable, 255);
+                            initViewer(initialViewable);
                         }
                     }
 

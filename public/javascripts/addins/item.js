@@ -52,7 +52,7 @@ $(document).ready(function() {
 
     if(typeof chrome.webview === 'undefined') {
         $('#viewer').show();
-        insertViewer(link, viewerBGColors[theme].level1);
+        insertViewer(link);
     } 
 
 

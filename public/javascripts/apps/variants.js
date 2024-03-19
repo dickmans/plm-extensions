@@ -22,7 +22,7 @@ $(document).ready(function() {
     appendOverlay(true);
 
     getInitialData();
-    insertViewer(linkContext, viewerBGColors[theme].level1);
+    insertViewer(linkContext);
     insertItemDetails(linkContext);
     setUIEvents();
     
