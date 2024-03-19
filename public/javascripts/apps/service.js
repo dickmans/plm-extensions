@@ -54,11 +54,6 @@ $(document).ready(function() {
     wsProblemReports.id      = config.service.wsIdProblemReports;
     wsSparePartsRequests.id  = config.service.wsIdSparePartsRequests;
 
-    // appendProcessing('bom', false);
-    // appendProcessing('details', false);
-    // appendProcessing('attachments', true);
-    // appendProcessing('processes', false);
-    // appendViewerProcessing();
     appendOverlay();
 
     getApplicationFeatures('service', function() {
@@ -110,10 +105,7 @@ $(document).ready(function() {
         }
 
         if(!isBlank(dmsId)) {
-            $('#main').show();
-            $('body').addClass('screen-main')
-                .removeClass('screen-landing')
-                .removeClass('screen-request');
+            $('body').addClass('screen-main').removeClass('screen-landing').removeClass('screen-request');
             openItem(link);
         } else $('#landing').show();
 
@@ -145,9 +137,9 @@ function setUIEvents() {
 
     // Close current product display
     $('#home').click(function() {
-        $('body').removeClass('screen-main');
-        $('body').addClass('screen-landing');
+        $('body').addClass('screen-landing').removeClass('screen-main').removeClass('screen-request');
         document.title = documentTitle;
+        window.history.replaceState(null, null, '/service?theme=' + theme);
     });
 
 
@@ -292,17 +284,11 @@ function clickWorkspaceItem(e, elemClicked) {
         return;
     }
 
-    $('body').removeClass('screen-landing');
-    $('body').addClass('screen-main');
+    $('body').addClass('screen-main').removeClass('screen-landing').removeClass('screen-request');
 
-    let url = document.location.href;
+    let split = link.split('/');
 
-    console.log(url);
-    url += '&hase=moehre';
-
-    console.log(url);
-
-    window.history.replaceState(null, null, '/service?hase=moehre');
+    window.history.replaceState(null, null, '/service?wsid=' + split[4] + '&dmsid=' + split[6] + '&theme=' + theme);
 
     openItem(link);
 
@@ -351,6 +337,7 @@ function resetItemScreen() {
     $('.item-descriptor').html('');
     $('.item-status').html('');
     $('.item-summary').find('span').html('');
+    // $('#request').show();
 }
 function openSelectedRequest(link) {
 

@@ -42,7 +42,7 @@ $(document).ready(function() {
 // Get list of disabled features
 function getApplicationFeatures(app, callback) {
 
-    $('body').children().hide();
+    $('body').children().addClass('hidden');
 
     $('<div></div>').appendTo('body')
         .attr('id', 'startup')
@@ -87,6 +87,7 @@ function getApplicationFeatures(app, callback) {
                 }
             }          
 
+            $('body').children().removeClass('hidden');
             getApplicationFeaturesDone(app);
             callback();
 
