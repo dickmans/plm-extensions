@@ -2825,6 +2825,16 @@ function enableBOMToggles(id) {
 
         } while(levelNext > level);
 
+
+        if(!$(this).hasClass('collapsed')) {
+
+            let elemInput   = $('#' + id + '-search-input');
+            let filterValue = elemInput.val().toLowerCase();
+
+            if(!isBlank(filterValue)) searchInBOM(id, elemInput);
+            
+        }
+
     });
 
 }
@@ -2912,6 +2922,11 @@ function clickBOMExpandAll(elemClicked) {
         $(this).show();
         $(this).find('.bom-nav').removeClass('collapsed');
     });
+
+    let elemInput   = $('#' + id + '-search-input');
+    let filterValue = elemInput.val().toLowerCase();
+
+    if(!isBlank(filterValue)) searchInBOM(id, elemInput);
 
 }
 function clickBOMCollapseAll(elemClicked) {
