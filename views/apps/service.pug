@@ -22,11 +22,8 @@ block body
                 #toggle-bom.button.with-icon.icon-bom-tree(title='Toggle BOM display on/off') Toggle BOM
                 #toggle-attachments.button.with-icon.icon-pdf(title='Toggle selected items files list on/off') Toggle Files
                 #toggle-details.button.with-icon.icon-details(title='Toggle selected item details on/off') Toggle Details
-                #toggle-panel.button.with-icon.icon-tiles-list(title='Toggle list of Spare Parts / Problem Reports on and off') Toggle List
-                #submit-request.button.with-icon.icon-cart-checkout(title='Review and confirm list of selected spare parts before submitting the request') Send Request
+                #toggle-panel.button.with-icon.icon-tiles-list(title='Toggle right hand side panel on and off') Toggle Panel
                 #header-avatar
-        
-        #counter
 
         .screen#landing 
             .panel#products.surface-level-1 
@@ -38,7 +35,7 @@ block body
 
             #viewer.viewer
 
-            #attachments
+            #attachments           
 
             #details.panel
                 .panel-header   
@@ -49,17 +46,26 @@ block body
                 .panel-content.surface-level-2.compact#details-sections
 
             .panel#panel
-                .tabs(data-tab-group="tab-group-main")
+                #cart.surface-level-3.collapsed
+                    #cart-header
+                        #cart-title.with-icon Your Cart
+                        #cart-toolbar   
+                            .button.icon.icon-viewer#filter-cart(title='Display items of cart in viewer only')
+                            .button.icon.icon-cart-clear#clear-cart(title='Clear cart, remvoe all parts')
+                            .button.with-icon.icon-cart-checkout.default#submit-request(title='Review and confirm list of selected spare parts before submitting the request') Send Request
+                    #cart-list.tiles.list.m
+                    #cart-counter
+                .tabs#tabs(data-tab-group="tab-group-main")
                     div#tab-spare-parts.selected(data-id='items') Spare Parts
                     div#tab-processes(data-id='processes') Problem Reports
                     div#tab-charts.hidden(data-id='charts') Maintenance
                 .panel-content.tab-group-main#items
                     #items-toolbar.panel-content-toolbar
-                        .button.icon.icon-filter#filter-spare-parts(title='Filter list and viewer for selected Spare Parts')
-                        .button.icon.icon-deselect#deselect-spare-parts(title='Deselect all currently selected Spare Parts')
+                        .button.icon.icon-viewer#filter-list(title='Display this list of items in viewer only')
+                        .button.icon.icon-stock#color-stock(title='Display spare part availability in viewer')
                         .button.with-icon.icon-search-list
                             input#spare-parts-search-input(placeholder="Search")
-                    #items-list.list.tiles.l.surface-level-1
+                    #items-list.list.tiles.l.no-scrollbar.surface-level-1
                 .panel-content.tab-group-main#processes
                     #processes-toolbar
                         .button#create-process(title='Initiate new process in PLM') Create
@@ -89,8 +95,33 @@ block body
                 .dialog-header New Spare Parts Request
                 .dialog-content
                     .col-left 
-                        .col-header Notes
-                        textarea#comments
+                        .col-header Contact Details
+                        #contact-details
+                            .field 
+                                .field-label Name
+                                input.field-value#request-name
+                            .field 
+                                .field-label Company
+                                input.field-value#request-company
+                            .field 
+                                .field-label E-Mail
+                                input.field-value#request-e-mail
+                            .field 
+                                .field-label Address
+                                input.field-value#request-address
+                            .field 
+                                .field-label City
+                                input.field-value#request-city
+                            .field 
+                                .field-label Postal Code
+                                input.field-value#request-postal
+                            .field 
+                                .field-label Country Code
+                                input.field-value#request-country
+                        .col-header#header-shipping-address Shipping Address
+                        textarea#request-shipping-address
+                        .col-header#header-comments Comments
+                        textarea#reqeust-comments
                     .col-right
                         .col-header Selected Spare Parts
                         #request-list

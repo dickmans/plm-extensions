@@ -298,6 +298,18 @@
                     td true
                     td When set to true, users can add non-spare-parts to service requests as well
                 tr 
+                    td endItemFilter
+                    td { 'fieldId' : 'SBOM_END_ITEM', 'value' : true }
+                    td BOM items having the given value in the defined field will be considered as end nodes. Users will not be able to see the items below.
+                        br
+                        |This filter only applies if the given fieldId is present in your Items workspace. 
+                        br
+                        |If the field does not exist, this setting will be ignored automatically.
+                        br
+                        |Of course you can change this setting to make use of another field. 
+                        br
+                        |In any case, this field must be included in the BOM view being used by the Service Portal (default is 'Service').
+                tr 
                     td fieldId
                     td SPARE_WEAR_PART
                     td ID of field being used to identify spare parts (the next setting defines the possible values of this field)
@@ -391,6 +403,14 @@
                 tr 
                     td features.manageProblemReports 
                     td Enables tab 'Problem Reports' next to the tab 'Spare Parts', enabling users to reveal related PRs and also to create new ones
+                    td true
+                tr 
+                    td features.showStock 
+                    td Enables display of stock information in spare parts list
+                    td true
+                tr 
+                    td features.requestWorkflowActions 
+                    td Enables display of workflow actions menu when opening a spare part request from the landing page
                     td true
         p In addition, the following settings in features.viewer control the availability of icons in the viewer toolbar.
             table
@@ -499,6 +519,32 @@
     .log 
         h1 Services Portal Change Log 
         table 
+            tr 
+                td 20. March 2024
+                td Enhancement
+                td Selected spare parts will be moved to a new cart panel now and not only be highlighted in blue. From this cart, users can filter the viewer for cart items and also trigger the spare part request creation.
+            tr 
+                td 
+                td Enhancement
+                td Option endItemFilter has been added to settings file to prevent expansion of defined BOM nodes.
+            tr 
+                td 
+                td Enhancement
+                td The request creation dialog has been enhanced to capture more information, including contact details 
+                    br
+                    |These contact details will be filled auotmatically based on the user's Autodesk Account data.
+            tr 
+                td 
+                td Enhancement
+                td New feature toggle has been added to prevent display of stock information for spare parts : features.showStock
+            tr 
+                td 
+                td Enhancement
+                td New feature toggle has been added to prevent workflow actions for spare parts requests : features.requestWorkflowActions
+            tr 
+                td 
+                td Enhancement
+                td A new function has been added to set the stock information for all spare parts. Override this function setSparePartStockStatus in file /javascripts/custom/service.js to implement your custom logic.
             tr 
                 td 19. March 2024
                 td Enhancement

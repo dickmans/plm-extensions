@@ -2752,7 +2752,7 @@ function insertNextBOMLevel(id, bom, elemTable, parent, quantity, fields, fieldU
 
                 if(fieldURNEndItem !== '') {
                     let cellEndItem = getBOMCellValue(edge.child, fieldURNEndItem, bom.nodes);
-                    isEndItem = (settings.bom[id].endItemValue === cellEndItem);
+                    isEndItem = (settings.bom[id].endItemValue.toString().toLowerCase() === cellEndItem.toString().toLowerCase());
                 }
 
                 let itemBOM = (isEndItem) ? { hasChildren : false, hasRestricted : false } : insertNextBOMLevel(id, bom, elemTable, edge.child, quantity, fields, fieldURNPartNumber, fieldURNQuantity, fieldURNEndItem);

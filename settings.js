@@ -530,6 +530,7 @@ exports.config = {
     'service' : {
         'bomViewName'            : 'Service',
         'enableCustomRequests'   : true,
+        'endItemFilter'          : { 'fieldId' : 'SBOM_END_ITEM', 'value' : true },
         'fieldId'                : 'SPARE_WEAR_PART',
         'fieldValues'            : ['spare part', 'yes', 'x', 'y', 'wear part'],
         'spartPartDetails'       : ['MATERIAL', 'ITEM_WEIGHT', 'DIMENSIONS'],

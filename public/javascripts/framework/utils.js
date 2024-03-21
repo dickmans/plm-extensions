@@ -1385,6 +1385,8 @@ function addFieldToPayload(payload, sections, elemField, fieldId, value, skipEmp
         };
     }
 
+    if(sectionId === -1) return;
+
     for(section of payload) {
         if(section.id === sectionId) {
             isNew = false;
