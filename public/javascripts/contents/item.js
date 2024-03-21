@@ -2214,7 +2214,8 @@ function insertBOM(link , params) {
     let bomViewName     = '';       // Name of the BOM view in PLM to use (if no value is provided, the first view will be used)
     let collapsed       = false;    // When enabled, the BOM will be collapsed at startup
     let multiSelect     = false;    // Enables selection of multiple items and adds buttons to select / deselect all elements as well as checkboxes
-    let reset           = false;    // Adds button to deselect selected elements (not required if multiSelect is enabled)
+    let deselect        = true;     // Adds button to deselect selected element (not available if multiSelect is enabled)
+    let reset           = false;    // Reset the BOM view to its default layout
     let openInPLM       = true;     // Adds button to open selected element in PLM
     let goThere         = false;    // Adds button to open the same view for the selected element
     let toggles         = true;     // Enables expand all / collapse all buttons on top of BOM
@@ -2238,6 +2239,7 @@ function insertBOM(link , params) {
     if(!isBlank(params.bomViewName)     )    bomViewName = params.bomViewName;
     if(!isBlank(params.collapsed)       )      collapsed = params.collapsed;
     if(!isBlank(params.multiSelect)     )    multiSelect = params.multiSelect;
+    if(!isBlank(params.deselect)        )       deselect = params.deselect;
     if(!isBlank(params.reset)           )          reset = params.reset;
     if(!isBlank(params.openInPLM)       )      openInPLM = params.openInPLM;
     if(!isBlank(params.goThere)         )        goThere = params.goThere;
@@ -2301,7 +2303,7 @@ function insertBOM(link , params) {
                 clickBOMSelectAll($(this));
             });
 
-            $('<div></div>').appendTo(elemToolbar)
+        $('<div></div>').appendTo(elemToolbar)
             .addClass('button')
             .addClass('icon')
             .addClass('icon-deselect-all')
@@ -2313,9 +2315,7 @@ function insertBOM(link , params) {
                 clickBOMDeselectAll($(this));
             });
     
-    }
-
-    if(reset) {
+    } else if(deselect) {
 
         $('<div></div>').appendTo(elemToolbar)
             .addClass('button')
@@ -2323,11 +2323,11 @@ function insertBOM(link , params) {
             .addClass('icon-deselect')
             .addClass('xs')
             .addClass('bom-single-select-action')
-            .attr('id', id + '-action-reset')
+            .attr('id', id + '-deselect')
             .attr('title', 'Deselect BOM item')
             .hide()
             .click(function() {
-                clickBOMReset($(this));
+                clickBOMDeselectAll($(this));
             });
 
     }
@@ -2411,6 +2411,21 @@ function insertBOM(link , params) {
             .addClass('bom-search-input')
             .keyup(function() {
                 searchInBOM(id, $(this));
+            });
+
+    }
+
+    if(reset) {
+
+        $('<div></div>').appendTo(elemToolbar)
+            .addClass('button')
+            .addClass('icon')
+            .addClass('icon-reset')
+            .addClass('xs')
+            .attr('id', id + '-action-reset')
+            .attr('title', 'Reset BOM view')
+            .click(function() {
+                clickBOMReset($(this));
             });
 
     }
@@ -2911,7 +2926,10 @@ function clickBOMDeselectAll(elemClicked) {
     toggleBOMItemActions(elemClicked);
     updateBOMCounters(elemBOM.attr('id'));
 
+    clickBOMDeselectAllDone(elemClicked);
+
 }
+function clickBOMDeselectAllDone(elemClicked) {}
 function clickBOMExpandAll(elemClicked) {
 
     let elemBOM     = elemClicked.closest('.bom');
@@ -3002,16 +3020,17 @@ function unhideBOMParents(level, elem) {
 }
 function clickBOMReset(elemClicked) {
 
-    let id = elemClicked.closest('.bom').attr('id');
-    let elemSearchInput = $('#' + id + '-search-input');
-    
+    let id          = elemClicked.closest('.bom').attr('id');
     let elemContent = elemClicked.closest('.bom').find('.bom-tbody');
-        elemContent.find('tr.selected').removeClass('selected');
 
-    if(elemSearchInput.length > 0) {
-        elemSearchInput.val('');
-        searchInBOM(id, elemSearchInput);
-    }
+    elemContent.find('tr.selected').removeClass('selected');
+    elemContent.find('tr.result').removeClass('result');
+    elemContent.find('.bom-nav').removeClass('expanded');
+    elemContent.find('tr').show();
+    
+    if(settings.bom[id].collapsed) clickBOMCollapseAll($('#' + id + '-toolbar'));
+
+    $('#' + id + '-search-input').val('');
 
     toggleBOMItemActions(elemClicked);
     updateBOMCounters(id);
