@@ -192,6 +192,9 @@
 .icon-bom::before               { content : '\e242'; }
 .icon-bom-tree::before          { content : '\e94b'; }
 .icon-calendar::before          { content : '\ebcc'; }
+.icon-cart-add::before          { content : '\e854'; }
+.icon-cart-remove::before       { content : '\e928'; }
+.icon-cart-clear::before        { content : '\f4f7'; }
 .icon-cart-checkout::before     { content : '\eb88'; }
 .icon-check::before             { content : '\e86c'; }
 .icon-check-box::before         { content : '\e835'; }
@@ -280,6 +283,7 @@
 .icon-upload::before            { content : '\e2c3'; }
 .icon-user::before              { content : '\e7fd'; }
 .icon-viewer::before            { content : '\e9fe'; }
+.icon-width::before             { content : '\f730'; }
 .icon-workflow::before          { content : '\e4fd'; }
 .icon-zoom-in::before           { content : '\e8ff'; }
 
