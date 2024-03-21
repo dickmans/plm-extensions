@@ -823,6 +823,36 @@ function getComponentPath(id) {
     return result;
 
 }
+function getComponentParents(id) {
+
+    let result = []
+
+    getComponentParent(result, id);
+
+    return result;
+
+}
+function getComponentParent(parents, id) {
+
+    for(let dataInstance of dataInstances) {
+        if(dataInstance.dbId === id) {
+
+            parents.push({
+                'dbId'       : id,
+                'partNumber' : dataInstance.partNumber,
+                'name'       : dataInstance.name
+            });
+
+            for(let property of dataInstance.properties) {
+                if(property.attributeName === 'parent') {
+                    getComponentParent(parents, property.displayValue);
+                }
+            }
+
+        }
+    }
+
+}
 function viewerGetSelectedComponentPaths() {
 
     if(!isViewerStarted()) return [];
