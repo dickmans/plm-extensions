@@ -141,7 +141,7 @@ exports.config = {
             { 'label' : 'Completed',   'color' : colors.green,  'states' : ['Completed'] }
         ]
     },{
-        'title' : 'Project Actitivity Management',
+        'title' : 'Project Activities Management',
         'wsId'  : 90,
         'icon'  : 'icon-layers',
         'progress' : [
@@ -543,7 +543,32 @@ exports.config = {
         'productsListHeader'     : 'Serviceable Products',
         'wsIdProducts'           : 95,
         'wsIdProblemReports'     : 82,
-        'wsIdSparePartsRequests' : 208
+        'wsIdSparePartsRequests' : 208,
+        'features' : {
+            // 'homeButton'            : true,
+            // 'toggleItemAttachments' : true,
+            // 'toggleItemDetails'     : true,
+            // 'manageProblemReports'  : true,
+            // 'showStock'             : true,
+            // 'requestWorkflowActions': true,
+            // 'viewer' : {
+            //     'cube'          : false,
+            //     'orbit'         : false,
+            //     'firstPerson'   : false,
+            //     'camera'        : false,
+            //     'measure'       : true,
+            //     'section'       : true,
+            //     'explodedView'  : true,
+            //     'modelBrowser'  : false,
+            //     'properties'    : false,
+            //     'settings'      : false,
+            //     'fullscreen'    : true,
+            //     'markup'        : false,
+            //     'reset'         : true,
+            //     'ghosting'      : true,
+            //     'views'         : true
+            // }
+        }
     },
 
     'variants' : {
