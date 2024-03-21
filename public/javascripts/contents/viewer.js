@@ -860,7 +860,7 @@ function viewerAddResetButton() {
 
     let customToolbar = new Autodesk.Viewing.UI.ControlGroup('custom-toolbar-reset');
 
-    let buttonReset = addCustomControl(customToolbar, 'button-reset-selection', 'icon-deselect', 'Reset selection and show all models');
+    let buttonReset = addCustomControl(customToolbar, 'button-reset-selection', 'icon-reset', 'Reset selection and show all models');
         buttonReset.onClick = function() { 
             viewerClickReset();
         };

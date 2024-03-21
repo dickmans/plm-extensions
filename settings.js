@@ -564,8 +564,8 @@ exports.config = {
             //     'settings'      : false,
             //     'fullscreen'    : true,
             //     'markup'        : false,
-            //     'reset'         : true,
             //     'ghosting'      : true,
+            //     'reset'         : true,
             //     'views'         : true
             // }
         }
