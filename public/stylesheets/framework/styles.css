@@ -778,7 +778,7 @@ and (max-device-width : 1900px)  {
 }
 .panel-content-toolbar {
     display  : flex;
-    gap      : var(--spacer-s);
+    gap      : var(--spacer-xs);
     position : absolute;
     bottom   : 4px;
     right    : 4px;
@@ -995,8 +995,8 @@ and (max-device-width : 1900px)  {
     white-space     : nowrap;
 }
 .button.disabled {
-    border-color : var(--color-surface-level-3) !important;
-    color        : var(--color-surface-level-3) !important;
+    border-color : var(--color-surface-level-4) !important;
+    color        : var(--color-surface-level-4) !important;
     cursor       : not-allowed;
 }
 .button.default.disabled {
@@ -1035,6 +1035,13 @@ and (max-device-width : 1900px)  {
 .black-theme .surface-level-5 .button { background : var(--color-surface-level-1); border-color : var(--color-surface-level-1); }
  .dark-theme .surface-level-5 .button:hover { background : var(--color-surface-level-2); border-color : var(--color-surface-level-2); }
 .black-theme .surface-level-5 .button:hover { background : var(--color-surface-level-2); border-color : var(--color-surface-level-2); }
+
+
+ .dark-theme .button.disabled,
+.black-theme .button.disabled {
+    background  : var(--color-surface-level-3) !important;
+    color       : var(--color-surface-level-1) !important;
+}
 
 .button.icon {
     font-family : 'Material Symbols Sharp';
