@@ -207,7 +207,7 @@
 .icon-create::before            { content : '\e147'; }
 .icon-dashboard::before         { content : '\e871'; }
 .icon-delete::before            { content : '\e872'; }
-.icon-deselect::before          { content : '\f230'; }
+.icon-deselect::before          { content : '\f236'; }
 .icon-deselect-all::before      { content : '\e9d3'; }
 .icon-details::before           { content : '\e0ee'; }
 .icon-disconnect::before        { content : '\e16f'; }
@@ -255,6 +255,7 @@
 .icon-refresh::before           { content : '\e627'; }
 .icon-released::before          { content : '\e031'; }
 .icon-remove::before            { content : '\eb80'; }
+.icon-reset::before             { content : '\f053'; }
 .icon-rules::before             { content : '\f1c2'; }
 .icon-save::before              { content : '\e2c3'; }
 .icon-search-list::before       { content : '\f02f'; }
