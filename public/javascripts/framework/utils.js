@@ -359,9 +359,13 @@ function insertAvatar() {
             .css('background-position', 'center')
             .css('background-size', elemAvatar.css('height'));
 
+        insertAvatarDone(response.data);
+
+
     });
 
 }
+function insertAvatarDone(data) {}
 
 
 // Panel Header collapse / expand
