@@ -838,13 +838,14 @@ function insertWorkspaceItemsData(id) {
 
             }
 
+            
+            elemList.show();
+            $('#' + id + '-processing').hide();
+            $('#' + id + '-workspace-items-counter').html(counter);
+            if(counter === 0) $('#' + id + '-no-data').show();
+            insertWorkspaceItemsDone(id, response);
+        
         }
-
-        elemList.show();
-        $('#' + id + '-processing').hide();
-        $('#' + id + '-workspace-items-counter').html(counter);
-        if(counter === 0) $('#' + id + '-no-data').show();
-        insertWorkspaceItemsDone(id, response);
 
     });
 
