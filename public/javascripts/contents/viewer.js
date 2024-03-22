@@ -1252,37 +1252,44 @@ function viewerSaveMarkup() {}
 // Capture screenshot with markup for image upload
 function viewerCaptureScreenshot(id, callback) {
    
-    if(!isViewerStarted()) return;
+    if(!isViewerStarted()) callback();
 
     if(isBlank(id)) id = 'viewer-markup-image';
 
-    var screenshot  = new Image();
-    var imageWidth  = viewer.container.clientWidth;
-    var imageHeight = viewer.container.clientHeight;
+    if($('#' + id).length === 0) {
 
-    screenshot.onload = function () {
-            
-        let canvas          = document.getElementById(id);
-            canvas.width    = viewer.container.clientWidth;
-            canvas.height   = viewer.container.clientHeight;
+        callback();
+        
+    } else {
 
-        let context = canvas.getContext('2d');
-            context.clearRect(0, 0, canvas.width, canvas.height);
-            context.drawImage(screenshot, 0, 0, canvas.width, canvas.height); 
-            
-        if(!$('#viewer-markup-toolbar').hasClass('hidden')) {
-            markup.renderToCanvas(context, function() {
+        var screenshot  = new Image();
+        var imageWidth  = viewer.container.clientWidth;
+        var imageHeight = viewer.container.clientHeight;
+
+        screenshot.onload = function () {
+                
+            let canvas          = document.getElementById(id);
+                canvas.width    = viewer.container.clientWidth;
+                canvas.height   = viewer.container.clientHeight;
+
+            let context = canvas.getContext('2d');
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                context.drawImage(screenshot, 0, 0, canvas.width, canvas.height); 
+                
+            if(!$('#viewer-markup-toolbar').hasClass('hidden')) {
+                markup.renderToCanvas(context, function() {
+                    callback();
+                });
+            } else {
                 callback();
-            });
-        } else {
-            callback();
+            }
+                
         }
-            
+                
+        viewer.getScreenShot(imageWidth, imageHeight, function (blobURL) {
+            screenshot.src = blobURL;
+        });
     }
-            
-    viewer.getScreenShot(imageWidth, imageHeight, function (blobURL) {
-        screenshot.src = blobURL;
-    });
 
 }
 

@@ -898,7 +898,7 @@ and (max-device-width : 1900px)  {
 }
 .no-data-icon {
     color       : var(--color-blue-500);
-    font-size   : 68px;
+    font-size   : 48px;
     padding     : 10px 10px 0px;
 }
 .no-data-text {

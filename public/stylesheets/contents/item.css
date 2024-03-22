@@ -757,6 +757,13 @@ tr.node.bom-level-10 .bom-first-col  { padding-left : 186px; }
 }
 
 
+/*  CHANGE PROCESSES */
+/* ----------------------------------------------------------------------------- */
+.processes-action-create {
+    display : none;
+}
+
+
 /*  PROJECT-GRID */
 /* ----------------------------------------------------------------------------- */
 .project-phase-gates {

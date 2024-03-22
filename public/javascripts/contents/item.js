@@ -91,55 +91,6 @@ function insertViewerDone(id, viewable, viewables) {}
 
 
 
-// Insert Create Dialog
-function insertCreateForm(wsId, id, hideReadOnly, excludeSections, excludeFields) {
-
-    if(isBlank(wsId)            ) return;
-    if(isBlank(id)              )               id = 'create';
-    if(isBlank(hideReadOnly)    )    hideReadOnly  = true;
-    if(isBlank(excludeSections)) excludeSections = [];
-
-    let sections = [];
-    let fields   = [];
-    
-    for(workspace of cacheWorkspaces) {
-        if(workspace.id === wsId) {
-            if(isBlank(sections)) sections = workspace.sections;
-            if(isBlank(fields)  ) fields   = workspace.fields;
-        }
-    }
-
-    console.log(sections);
-    
-    if(sections.length === 0) {
-
-        let requests = [
-            $.get('/plm/sections', { 'wsId' : wsId }),
-            $.get('/plm/fields', { 'wsId' : wsId })
-        ]
-
-        Promise.all(requests).then(function(responses) {
-
-            console.log(responses);
-
-            cacheWorkspaces.push({
-                'id'        : wsId,
-                'sections'  : requests[0].data,
-                'fields'    : requests[1].data
-            });
-
-            insertItemDetailsFields('', id, responses[0].data, responses[1].data, null, true, true, hideReadOnly, excludeSections, excludeFields)
-
-        });
-
-    } else {
-
-        insertItemDetailsFields('', id, sections, fields, null, true, true, hideReadOnly, excludeSections, excludeFields)
-    
-    }
-}
-
-
 // Insert Item Status
 function insertItemStatus(link, id) {
 
@@ -885,7 +836,188 @@ function getEditableFields(fields) {
 }
 
 
-// Parse details page to create record (created for client.js)
+// Insert Create Dialog
+function insertCreateForm(id, wsId, params) {
+
+    if(isBlank(id)  ) return;
+    if(isBlank(wsId)) return;
+
+    //  Set defaults for optional parameters
+    // --------------------------------------
+    let hideReadOnly    = true;             // Hide header with setting this to false
+    let sectionsIn      = [];    // Set the header text
+    let sectionsEx      = [];    // Set the header text
+    let fieldsIn        = [];    // Set the header text
+    let fieldsEx        = [];    // Set the header text
+
+    if( isBlank(params)             )       params = {};
+    if(!isBlank(params.hideReadOnly)) hideReadOnly = params.hideReadOnly;
+    if(!isBlank(params.sectionsIn)  )   sectionsIn = params.sectionsIn;
+    if(!isBlank(params.sectionsEx)  )   sectionsEx = params.sectionsEx;
+    if(!isBlank(params.fieldsIn)    )     fieldsIn = params.fieldsIn;
+    if(!isBlank(params.fieldsEx)    )     fieldsEx = params.fieldsEx;
+
+    let paramsForm = {
+        id           : id,
+        sections     : [],
+        fields       : [],
+        hideReadOnly : hideReadOnly,
+        sectionsIn   : sectionsIn,
+        sectionsEx   : sectionsEx,
+        fieldsIn     : fieldsIn,
+        fieldsEx     : fieldsEx,
+    }
+
+    wsId = wsId.toString();
+    
+    for(let workspace of cacheWorkspaces) {
+        if(workspace.id === wsId) {
+            if(!isBlank(workspace.sections)) paramsForm.sections = workspace.sections;
+            if(!isBlank(workspace.fields)  ) paramsForm.fields   = workspace.fields;
+        }
+    }
+    
+    if((paramsForm.sections.length === 0) || (paramsForm.fields.length === 0)) {
+
+        let requests = [
+            $.get('/plm/sections', { 'wsId' : wsId } ),
+            $.get('/plm/fields',   { 'wsId' : wsId } )
+        ]
+
+        Promise.all(requests).then(function(responses) {
+
+            let addToCache = true;
+
+            for(let workspace of cacheWorkspaces) {
+                if(workspace.id === wsId) {
+                    workspace.sections = responses[0].data;
+                    workspace.fields   = responses[0].data;
+                    addToCache         = false;
+                }
+            }
+
+            if(addToCache) {
+                cacheWorkspaces.push({
+                    'id'        : wsId,
+                    'sections'  : responses[0].data,
+                    'fields'    : responses[1].data
+                });
+            }
+
+            paramsForm.sections = responses[0].data;
+            paramsForm.fields   = responses[1].data;
+
+            insertCreateFormFields(paramsForm);
+
+        });
+
+    } else insertCreateFormFields(paramsForm);
+    
+}
+function insertCreateFormFields(params) {
+  
+    $('#' + params.id + '-processing').hide();
+
+    let elemSections = $('#' + params.id + '-sections');
+        elemSections.html('');
+
+    for(let section of params.sections) {
+
+        let isNew       = true;
+        let className   = 'expanded'
+
+        if(params.sectionsIn.length === 0 || params.sectionsIn.includes(section.name)) {
+            if(params.sectionsEx.length === 0 || !params.sectionsEx.includes(section.name)) {
+
+                for(let cacheSection of cacheSections) {
+                    if(cacheSection.urn === section.urn) {
+                        isNew = false;
+                        className = cacheSection.className;
+                    }
+                }
+
+                if(isNew) {
+                    cacheSections.push({
+                        'urn' : section.urn, 'className' : 'expanded'
+                    })
+                }
+
+                let elemSection = $('<div></div>')
+                    .attr('data-urn', section.urn)
+                    .addClass('section')
+                    .addClass(className)
+                    .html(section.name)
+                    .click(function() {
+                        $(this).next().toggle();
+                        $(this).toggleClass('expanded');
+                        $(this).toggleClass('collapsed');
+                        for(let cacheSection of cacheSections) {
+                            if(cacheSection.urn === $(this).attr('data-urn')) {
+                                cacheSection.className = $(this).hasClass('expanded') ? 'expanded' : 'collapsed';
+                            }
+                        }
+
+                    });
+
+                let elemFields = $('<div></div>')
+                    .addClass('section-fields')
+                    .attr('data-id', section.__self__.split('/')[6]);
+
+                if(className !== 'expanded') elemFields.toggle();
+
+                for(let sectionField of section.fields) {
+
+                    let fieldId = sectionField.link.split('/')[8];
+
+                    if(params.fieldsIn.length === 0 || params.fieldsIn.includes(fieldId)) {
+                        if(params.fieldsEx.length === 0 || !params.fieldsEx.includes(fieldId)) {
+
+                            if(sectionField.type === 'MATRIX') {
+                                for(let matrix of section.matrices) {
+                                    if(matrix.urn === sectionField.urn) {
+                                        for(let matrixFields of matrix.fields) {
+                                            for(let matrixField  of matrixFields) {
+                                                if(matrixField !== null) {
+                                                    for(let wsField of params.fields) {
+                                                        if(wsField.urn === matrixField.urn) {
+                                                            let matrixFieldId = matrixField.link.split('/')[8];
+                                                            if(params.fieldsIn.length === 0 || params.fieldsIn.includes(matrixFieldId)) {
+                                                                if(params.fieldsEx.length === 0 || !params.fieldsEx.includes(matrixFieldId)) {
+                                                                    insertField(wsField, null, elemFields, params.hideComputed, params.hideReadOnly, true);
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            } else {
+                                for(let wsField of params.fields) {
+                                    if(wsField.urn === sectionField.urn)
+                                        insertField(wsField, null, elemFields, params.hideComputed, params.hideReadOnly, true);
+                                }
+                            }
+                                
+                        }
+                    }
+                }
+
+                if(elemFields.children().length > 0) {
+                    elemSection.appendTo(elemSections);
+                    elemFields.appendTo(elemSections);
+                }
+
+            }
+        }
+
+    }
+
+    $('#' + params.id + '-sections').show();
+    $('#' + params.id + '-processing').hide();
+
+}
 function submitCreateForm(wsId, elemParent, idMarkup, callback) {
 
     let params = { 
@@ -4563,113 +4695,345 @@ function clickGridRow(elemClicked, e) {}
 
 
 // Insert related processes
-function insertChangeProcesses(link, id, icon) {
+function insertChangeProcesses(link, params) {
 
     if(isBlank(link)) return;
-    if(isBlank(id)  )   id = 'processes';
-    if(isBlank(icon)) icon = 'schema';
 
-    let elemParent = $('#' + id + '-list');
-        elemParent.html('');
-        elemParent.closest('.panel').attr('data-link', link);
+    //  Set defaults for optional parameters
+    // --------------------------------------
+    let id                  = 'processes';     // ID of the DOM element where the processes list & create form will be inserted
+    let header              = true;            // Hide header with setting this to false
+    let headerLabel         = 'Processes';     // Sets the header label (if header is enabled)
+    let headerToggle        = false;           // Enables collapsing and expanding the panel
+    let reload              = true;            // Enable reload button for the processes list
+    let size                = 'l';             // Layout size (xxs, xs, s, m, l, xl, xxl)
+    let icon                = 'icon-workflow'; // Icon to be displayed in each tile
+    let inline              = false;           // Display the processes list with other elements
+    let workspacesIn        = [];              // List of workspace to be included, identified by workspace IDs (example: ['82'])
+    let workspacesEx        = [];              // List of workspace to be excluded, identified by workspace ID (example: ['83','84'])
+    let createWSID          = '';              // Enable creation of new records by providing the given workspace ID in which new records should be created
+    let createSectionsIn    = [];              // If creation of new records is enabled (using parameter createWSID), this list can be used to select the sections to be shown in the create dialog (example: ['Header','Details'])
+    let createSectionsEx    = [];              // If creation of new records is enabled (using parameter createWSID), this list can be used to hide sections in the create dialog (example: ['Review'])
+    let createFieldsIn      = [];              // If creation of new records is enabled (using parameter createWSID), this list can be used to select the fields to be shown in the create dialog (example: ['Title','Description'])
+    let createFieldsEx      = [];              // If creation of new records is enabled (using parameter createWSID), this list can be used to hide fields in the create dialog. Fields of this list will not be shown (example: ['Closing Comment']).
 
-    let elemProcessing = $('#' + id + '-processing');
-        elemProcessing.show();
 
-    $.get('/plm/changes', { 'link' : link }, function(response) {
+    if( isBlank(params)                 )           params = {};
+    if(!isBlank(params.id)              )               id = params.id;
+    if(!isBlank(params.header)          )           header = params.header;
+    if(!isEmpty(params.headerLabel)     )      headerLabel = params.headerLabel;
+    if(!isBlank(params.headerToggle)    )     headerToggle = params.headerToggle;
+    if(!isBlank(params.reload)          )           reload = params.reload;
+    if(!isBlank(params.size)            )             size = params.size;
+    if(!isBlank(params.icon)            )             icon = params.icon;
+    if(!isBlank(params.workspacesIn)    )     workspacesIn = params.workspacesIn;
+    if(!isBlank(params.workspacesEx)    )     workspacesEx = params.workspacesEx;
+    if(!isBlank(params.createWSID)      )       createWSID = params.createWSID;
+    if(!isBlank(params.createSectionsIn)) createSectionsIn = params.createSectionsIn;
+    if(!isBlank(params.createSectionsEx)) createSectionsEx = params.createSectionsEx;
+    if(!isBlank(params.createFieldsIn)  )   createFieldsIn = params.createFieldsIn;
+    if(!isBlank(params.createFieldsEx)  )   createFieldsEx = params.createFieldsEx;
 
-             if(response.data.statusCode === 403) return;
-        else if(response.data.statusCode === 404) return;
+    settings.processes[id]                  = {};
+    settings.processes[id].icon             = icon;
+    settings.processes[id].workspacesIn     = workspacesIn;
+    settings.processes[id].workspacesEx     = workspacesEx;
+    settings.processes[id].createWSID       = createWSID;
+    settings.processes[id].createSectionsIn = createSectionsIn;
+    settings.processes[id].createSectionsEx = createSectionsEx;
+    settings.processes[id].createFieldsIn   = createFieldsIn;
+    settings.processes[id].createFieldsEx   = createFieldsEx;
+
+    let elemParent = $('#' + id).addClass('processes').html('');
+
+    if(header) {
+        
+        let elemHeader = genPanelHeader(id, headerToggle, headerLabel);
+            elemHeader.appendTo(elemParent);   
+
+        let elemToolbar = $('<div></div>').addClass('panel-toolbar').attr('id', id + '-toolbar');
+
+        if(reload) {
+
+            elemToolbar.appendTo(elemHeader);
+
+            $('<div></div>').appendTo(elemToolbar)
+                .addClass('button')
+                .addClass('icon')
+                .addClass('icon-refresh')
+                .attr('id', id + '-reload')
+                .attr('title', 'Reload this view')
+                .click(function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    insertChangeProcessesData(id);
+                });
+
+        }
+
+        if(!isBlank(createWSID)) {
+
+            elemToolbar.appendTo(elemHeader);
+
+            $('<div></div>').appendTo(elemToolbar)
+                .addClass('button')
+                .attr('id', id + '-create')
+                .attr('title', 'Create new process')
+                .html('Create')
+                .click(function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleProcessCreateForm(id, true);
+                });
+
+            $('<div></div>').appendTo(elemToolbar)
+                .addClass('button')
+                .addClass('processes-action-create')
+                .attr('id', id + '-cancel')
+                .attr('title', 'Cancel process creation')
+                .html('Cancel')
+                .click(function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleProcessCreateForm(id, false);
+                });
+
+            $('<div></div>').appendTo(elemToolbar)
+                .addClass('button')
+                .addClass('processes-action-create')
+                .addClass('default')
+                .attr('id', id + '-save')
+                .attr('title', 'Submit form and create process')
+                .html('Save')
+                .click(function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    submitProcessCreateForm(id);
+                });
+
+            let elemSections = $('<div></div>').appendTo(elemParent)
+                .attr('id', id + '-sections')
+                .attr('data-wsid', createWSID)
+                .attr('data-link', link)
+                .addClass('form')
+                .addClass('no-scrollbar')
+                .addClass(getSurfaceLevel($('body')));
+
+            if(!inline) elemSections.addClass('panel-content')
+
+        }
+    }
+
+    let elemList = $('<div></div>').appendTo(elemParent)
+        .attr('id', id + '-list')
+        .attr('data-link', link)
+        .addClass('tiles')
+        .addClass('list')
+        .addClass(size)
+        .addClass(getSurfaceLevel($('body')))
+        .addClass('processes-content')
+        .addClass('no-scrollbar');
+
+    if(!inline) elemList.addClass('panel-content')
+
+    appendProcessing(id, true);
+    appendNoDataFound(id, 'icon-no-data', 'No Processes');
+    insertChangeProcessesData(id);
+
+}
+function toggleProcessCreateForm(id, visible) {
+
+    let elemToolbar  = $('#' + id + '-toolbar');
+    let elemList     = $('#' + id + '-list');
+    let elemNoData   = $('#' + id + '-no-data');
+    let elemSections = $('#' + id + '-sections');
+
+    if(visible) {
+
+        $('#' + id + '-processing').show();
+        
+        elemToolbar.children().hide();
+        elemToolbar.children('.processes-action-create').show();
+
+        elemSections.html('').show();
+        elemList.hide();
+        elemNoData.hide();
+
+        insertCreateForm(id, settings.processes[id].createWSID, {
+            sectionsIn : settings.processes[id].createSectionsIn,
+            sectionsEx : settings.processes[id].createSectionsEx,
+            fieldsIn   : settings.processes[id].createFieldsIn,
+            fieldsEx   : settings.processes[id].createFieldsEx
+        });
+
+    } else {
+        
+        elemToolbar.children().show();
+        elemToolbar.children('.processes-action-create').hide();
+
+        elemSections.hide();
+
+        if(elemList.children().length === 0) {
+            elemNoData.show();
+        } else {
+            elemList.show();
+        }
+
+    }
+
+    elemToolbar.show();
+
+    toggleProcessCreateFormDone(id);
+
+}
+function toggleProcessCreateFormDone(id) {}
+function submitProcessCreateForm(id) {
+
+    if(!validateForm($('#' + id + '-sections'))) return;
+
+    $('#' + id + '-toolbar').hide();
+    $('#' + id + '-sections').hide();
+    $('#' + id + '-list').hide();
+    $('#' + id + '-no-data').hide();
+    $('#' + id + '-processing').show();
+
+    viewerCaptureScreenshot(null, function() {
+
+        submitCreateForm(settings.processes[id].createWSID, $('#' + id + '-sections'), 'viewer-markup-image', function(response) {
+               
+            let link    = $('#' + id + '-list').attr('data-link');
+            let newLink = response.data.split('.autodeskplm360.net')[1];
+                
+            $.get('/plm/add-managed-items', { 'link' : newLink, 'items' : [ link ] }, function(response) {
+                toggleProcessCreateForm(id, false)
+                createProcessDone(id, response);
+            });
+
+        });
+
+    });
+
+}
+function createProcessDone(id, reponse) {
+
+    insertChangeProcessesData(id);
+
+}
+function insertChangeProcessesData(id) {
+
+    $('#' + id + '-processing').show();
+    $('#' + id + '-no-data').hide();
+
+    let timestamp    = new Date().getTime();
+    let elemList    = $('#' + id + '-list');
+    let link         = elemList.attr('data-link');
+    let workspacesIn = settings.processes[id].workspacesIn;
+    let workspacesEx = settings.processes[id].workspacesEx;
+
+    elemList.attr('data-timestamp', timestamp)
+        .html('')
+        .hide();
+
+    let params = {
+        'link'      : link,
+        'timestamp' : timestamp
+    }
+
+    $.get('/plm/changes', params, function(response) {
 
         if(response.params.link === link) {
+            if(response.params.timestamp === $('#' + id + '-list').attr('data-timestamp')) {
 
-            elemProcessing.hide();
-            elemParent.show();
+                     if(response.data.statusCode === 403) return;
+                else if(response.data.statusCode === 404) return;
 
-            for(process of response.data) {
-                process.sort = process['last-workflow-history'].created
-            }
+                $('#' + id + '-processing').hide();
 
-            sortArray(response.data, 'sort', 'date', 'descending');
+                for(let process of response.data) {
+                    process.sort = process['last-workflow-history'].created
+                }
 
-            for(process of response.data) {
-        
-                let link = process.item.link;
-                let user = process['first-workflow-history'].user.title;
-                let date = process['first-workflow-history'].created;
-        
-                let elemProcess = $('<div></div>');
-                    elemProcess.addClass('animation');
-                    elemProcess.addClass('process');
-                    elemProcess.addClass('tile');
-                    elemProcess.attr('data-link', link);
-                    elemProcess.attr('data-urn', process.item.urn);
-                    elemProcess.appendTo(elemParent);
-                    elemProcess.click(function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        clickChangeProcess($(this));
-                    });
-        
-                let elemProcessImage = $('<div></div>');
-                    elemProcessImage.addClass('tile-image');
-                    elemProcessImage.appendTo(elemProcess);
-        
-                let elemProcessDetails = $('<div></div>');
-                    elemProcessDetails.addClass('tile-details');
-                    elemProcessDetails.appendTo(elemProcess);
-        
-                let elemProcessWorkspace = $('<div></div>');
-                    elemProcessWorkspace.addClass('tile-title');
-                    elemProcessWorkspace.appendTo(elemProcessDetails);
-        
-                let elemProcessDescriptor = $('<div></div>');
-                    elemProcessDescriptor.addClass('tile-subtitle');
-                    elemProcessDescriptor.appendTo(elemProcessDetails);
-        
-                let elemProcessData = $('<div></div>');
-                    elemProcessData.addClass('tile-data');
-                    elemProcessData.appendTo(elemProcessDetails);
-        
-                let elemProcessCreator = $('<div></div>');
-                    elemProcessCreator.addClass('process-creator');
-                    elemProcessCreator.appendTo(elemProcessData);
-        
-                let elemProcessStatus = $('<div></div>');
-                    elemProcessStatus.addClass('process-status');
-                    elemProcessStatus.appendTo(elemProcessData);
-        
-                $.get('/plm/details', { 'link' : link}, function(response) {
-        
-                    $('.process').each(function() {
-                        let elemProcess = $(this);
-                        if(elemProcess.attr('data-link') === link) {
-            
-                            elemProcess.removeClass('animation');
-            
-                            let linkImage   = getFirstImageFieldValue(response.data.sections);
-                            let elemImage   = elemProcess.find('.tile-image').first();
-            
-                            getImageFromCache(elemImage, { 'link' : linkImage }, icon, function() {});
-        
-                            date = date.split('T')[0].split('-');
-                            let creationDate = new Date(date[0], date[1], date[2]);
-            
-                            elemProcess.find('.tile-title').first().html(response.data.title);
-                            elemProcess.find('.tile-subtitle').first().html(response.data.workspace.title);
-                            elemProcess.find('.process-status').first().html('Status : ' + response.data.currentState.title);
-                            elemProcess.find('.process-creator').first().html('Created by ' + user + ' on ' + creationDate.toLocaleDateString());
-            
+                sortArray(response.data, 'sort', 'date', 'descending');
+
+                for(let process of response.data) {
+
+                    let processWSID = process.item.link.split('/')[4];
+
+                    if(workspacesIn.length === 0 || workspacesIn.includes(processWSID)) {
+                        if(workspacesEx.length === 0 || !workspacesEx.includes(processWSID)) {
+
+                            let user = process['first-workflow-history'].user.title;
+                            let date = process['first-workflow-history'].created;
+
+                            let elemProcess = $('<div></div>').appendTo(elemList)
+                                .addClass('animation')
+                                .addClass('process')
+                                .addClass('tile')
+                                .attr('data-link', process.item.link)
+                                .attr('data-urn', process.item.urn)
+                                .click(function(e) {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    clickChangeProcess($(this));
+                                });
+                    
+                            $('<div></div>').appendTo(elemProcess).addClass('tile-image');
+                    
+                            let elemProcessDetails = $('<div></div>').appendTo(elemProcess).addClass('tile-details');
+                    
+                            $('<div></div>').appendTo(elemProcessDetails).addClass('tile-title');
+                            $('<div></div>').appendTo(elemProcessDetails).addClass('tile-subtitle');
+                    
+                            let elemProcessData = $('<div></div>').appendTo(elemProcessDetails).addClass('tile-data');
+                            
+                            $('<div></div>').appendTo(elemProcessData).addClass('process-creator');
+                            $('<div></div>').appendTo(elemProcessData).addClass('process-status');
+                                
+                            $.get('/plm/details', { 'link' : process.item.link}, function(response) {
+                    
+                                $('.process').each(function() {
+                                    let elemProcess = $(this);
+                                    if(elemProcess.attr('data-link') === process.item.link) {
+                        
+                                        elemProcess.removeClass('animation');
+                        
+                                        let linkImage   = getFirstImageFieldValue(response.data.sections);
+                                        let elemImage   = elemProcess.find('.tile-image').first();
+                        
+                                        getImageFromCache(elemImage, { 'link' : linkImage }, settings.processes[id].icon, function() {});
+                    
+                                        date = date.split('T')[0].split('-');
+                                        let creationDate = new Date(date[0], date[1], date[2]);
+                        
+                                        elemProcess.find('.tile-title').first().html(response.data.title);
+                                        elemProcess.find('.tile-subtitle').first().html(response.data.workspace.title);
+                                        elemProcess.find('.process-status').first().html('Status : ' + response.data.currentState.title);
+                                        elemProcess.find('.process-creator').first().html('Created by ' + user + ' on ' + creationDate.toLocaleDateString());
+                        
+                                    }
+                                });
+                            });
+
                         }
-                    });
-                });
+                    }
+                }
+
+                if(elemList.children().length === 0) {
+                    $('#' + id + '-no-data').css('display', 'flex');
+                } else {
+                    $('#' + id + '-no-data').hide();
+                    elemList.show();
+                }
+
+                insertChangeProcessesDone(id, response.data);
 
             }
         }
     });
-
+    
 }
-function clickChangeProcess(elemClicked) { openItemByURN(elemClicked.attr('data-urn')); }
+function insertChangeProcessesDone(id, data) {}
+function clickChangeProcess(elemClicked, e) { openItemByLink(elemClicked.attr('data-link')); }
 
 
 // Insert Relationship Items
