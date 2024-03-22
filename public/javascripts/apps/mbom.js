@@ -465,7 +465,7 @@ function storeMBOMLink(ebomLink, mbomLink) {
 
     addFieldToPayload(paramsEBOM.sections, wsEBOM.sections, null, config.mbom.fieldIdMBOM     + siteSuffix, { 'link' : mbomLink });
     addFieldToPayload(paramsEBOM.sections, wsEBOM.sections, null, config.mbom.fieldIdLastSync + siteSuffix, value);
-    addFieldToPayload(paramsEBOM.sections, wsEBOM.sections, null, config.mbom.fieldIdLastUser + siteSuffix, username);
+    addFieldToPayload(paramsEBOM.sections, wsEBOM.sections, null, config.mbom.fieldIdLastUser + siteSuffix, userAccount.displayName);
 
     $.get('/plm/edit', paramsEBOM, function() {});
 
@@ -3381,7 +3381,7 @@ function endProcessing() {
     let paramsMBOM = { 'link' : linkMBOM, 'sections'   : [] }
 
     addFieldToPayload(paramsEBOM.sections, wsEBOM.sections, null, config.mbom.fieldIdLastSync, value);
-    addFieldToPayload(paramsEBOM.sections, wsEBOM.sections, null, config.mbom.fieldIdLastUser + siteSuffix, username);
+    addFieldToPayload(paramsEBOM.sections, wsEBOM.sections, null, config.mbom.fieldIdLastUser + siteSuffix, userAccount.displayName);
     addFieldToPayload(paramsMBOM.sections, wsMBOM.sections, null, config.mbom.fieldIdLastSync, value);
 
     $.get('/plm/edit', paramsEBOM, function(response) {});

@@ -1,7 +1,9 @@
-let languageId  = '1';
-let username    = '';
-let isiPad      = navigator.userAgent.match(/iPad/i)   != null;
-let isiPhone    = navigator.userAgent.match(/iPhone/i) != null;
+let userAccount     = { displayName : '', groupsAssigned : [] };
+let languageId      = '1';
+let username        = '';
+let isiPad          = navigator.userAgent.match(/iPad/i)   != null;
+let isiPhone        = navigator.userAgent.match(/iPhone/i) != null;
+
 
 let settings = {
     details         : {},
@@ -9,6 +11,7 @@ let settings = {
     bom             : {},
     flatBOM         : {},
     grid            : {},
+    processes       : {},
     recents         : {},
     bookmarks       : {},
     mow             : {},
@@ -59,17 +62,16 @@ function getApplicationFeatures(app, callback) {
 
         $.get('/plm/groups-assigned', {}, function(response) {
             
-            let groupsAssigned   = [];
             let settingsFeatures = config[app].features;
             
-            for(let group of response.data) groupsAssigned.push(group.shortName);
+            for(let group of response.data) userAccount.groupsAssigned.push(group.shortName);
 
             for(let feature of Object.keys(features)) {
                 if(feature !== 'viewer') {
                     for(let settingFeature of Object.keys(settingsFeatures)) {
                         if(feature === settingFeature) {
                             if(typeof settingsFeatures[settingFeature] === 'object') {
-                                features[feature] = includesAny(groupsAssigned, settingsFeatures[settingFeature]);
+                                features[feature] = includesAny(userAccount.groupsAssigned, settingsFeatures[settingFeature]);
                             } else features[feature] = settingsFeatures[settingFeature];
                         }
                     }
@@ -82,7 +84,7 @@ function getApplicationFeatures(app, callback) {
                         for(let settingFeature of Object.keys(settingsFeatures.viewer)) {
                             if(feature === settingFeature) {
                                 if(typeof settingsFeatures.viewer[settingFeature] === 'object') {
-                                    features.viewer[feature] = includesAny(groupsAssigned, settingsFeatures.viewer[settingFeature]);
+                                    features.viewer[feature] = includesAny(userAccount.groupsAssigned, settingsFeatures.viewer[settingFeature]);
                                 } else features.viewer[feature] = settingsFeatures.viewer[settingFeature];
                             }
                         }
@@ -240,10 +242,11 @@ function appendNoDataFound(id, icon, text) {
         .addClass('no-data')
         .attr('id', id + '-no-data')
         .hide();
-
-     $('<div></div>').appendTo(elemNoData)
+        
+    $('<div></div>').appendTo(elemNoData)
         .addClass('no-data-icon')
         .addClass('icon')
+        .addClass('filled')
         .addClass(icon);
 
     $('<div></div>').appendTo(elemNoData)
@@ -350,7 +353,9 @@ function insertAvatar() {
 
     $.get('/plm/me', {}, function(response) {
 
-        username = response.data.displayName;
+        userAccount.displayName  = response.data.displayName;
+        userAccount.email        = response.data.email;
+        userAccount.organization = response.data.organization;
         
         elemAvatar.html('')
             .addClass('no-icon')
