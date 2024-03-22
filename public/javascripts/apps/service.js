@@ -23,7 +23,12 @@ let paramsAttachments = {
     'header'        : true, 
     'size'          : 'xs'
 }
-
+let paramsProcesses = { 
+    'headerLabel'       : '', 
+    'createWSID'        : '82' ,
+    'createSectionsEx'  : ['Review', 'Technical Analysis'],
+    'workspacesEx'      : ['83','84']
+}
 let features = {
     'homeButton'            : true,
     'toggleItemAttachments' : true,
@@ -211,65 +216,11 @@ function setUIEvents() {
     });
 
 
-    // Process Creation
-    $('#create-process').click(function() {
-        
-        $('#processes-sections').html('').show();
-
-        $(this).siblings().show();
-        $(this).hide();
-
-        $('#processes-list').hide();
-
-        insertItemDetailsFields('', 'processes', wsProblemReports.sections, wsProblemReports.fields, null, true, true, true);
-
-    });
-    $('#cancel-process').click(function() {
-
-        $('#create-process').show();
-        $('.process-dialog').hide();
-        $('#processes-list').show();
-        $('#processes-sections').hide();
-
-    });
-    $('#save-process').click(function() {
-
-        if(!validateForm($('#processes-sections'))) return;
-
-        viewerCaptureScreenshot(null, function() {
-
-            $('#processes-toolbar').hide();
-            $('#processes-sections').hide();
-            $('#processes-list').html('');
-            $('#processes-list').show('');
-            $('#processes-processing').show();
-    
-            let link = $('#processes-list').attr('data-source');
-    
-            submitCreateForm(wsProblemReports.id, $('#processes-sections'), 'viewer-markup-image', function(response ) {
-
-                let newLink = response.data.split('.autodeskplm360.net')[1];
-                $.get('/plm/add-managed-items', { 'link' : newLink, 'items' : [ link ] }, function(response) {
-                // $.get('/plm/add-relationship', { 'link' : newLink, 'relatedId' : link.split('/')[6] }, function(response) {
-                    setProcesses($('#processes-list').attr('data-source'));
-                    $('.process-dialog').hide();
-                    $('#create-process').show();
-                    $('#processes-list').show();
-                });
-
-            });
-
-        });
-
-    });
-
-
     // Single Request Display Actions
     $('#close-item').click(function() {
         $('body').addClass('screen-landing')
             .removeClass('screen-main')
-            .removeClass('screen-request');
-        
+            .removeClass('screen-request'); 
     });
 
 }
@@ -335,9 +286,9 @@ function openItem(link) {
         'endItem'       : config.service.endItemFilter
     });
     insertViewer(link);
-    if(features.toggleItemDetails) insertItemDetails(link);
+    if(features.toggleItemDetails)     insertItemDetails(link);
     if(features.toggleItemAttachments) insertAttachments(link, paramsAttachments);
-    setProcesses(link);
+    if(features.manageProblemReports)  insertChangeProcesses(link, paramsProcesses);
 
 }
 
@@ -846,17 +797,17 @@ function clickBOMItem(e, elemClicked) {
 
     if(elemClicked.hasClass('selected')) {
         elemClicked.removeClass('selected');
-        if(features.toggleItemDetails) insertItemDetails('/api/v3/workspaces/' + wsId + '/items/' + dmsId);
+        if(features.toggleItemDetails)     insertItemDetails('/api/v3/workspaces/' + wsId + '/items/' + dmsId);
         if(features.toggleItemAttachments) insertAttachments('/api/v3/workspaces/' + wsId + '/items/' + dmsId, paramsAttachments);
-        setProcesses('/api/v3/workspaces/' + wsId + '/items/' + dmsId);
+        if(features.manageProblemReports)  insertChangeProcesses('/api/v3/workspaces/' + wsId + '/items/' + dmsId, paramsProcesses);
         resetSparePartsList();
         updateViewer();
     } else {
         $('tr.selected').removeClass('selected');
         elemClicked.addClass('selected');
-        if(features.toggleItemDetails) insertItemDetails(elemClicked.attr('data-link'));
+        if(features.toggleItemDetails)     insertItemDetails(elemClicked.attr('data-link'));
         if(features.toggleItemAttachments) insertAttachments(elemClicked.attr('data-link'), paramsAttachments);
-        setProcesses(elemClicked.attr('data-link'));
+        if(features.manageProblemReports)  insertChangeProcesses(elemClicked.attr('data-link'), paramsProcesses);
         setSparePartsList(elemClicked);
         updateViewer(elemClicked.attr('data-part-number'));
     }
@@ -1193,27 +1144,6 @@ function updateViewer(partNumber) {
 
 }
 
-
-// Display selected item's Change Processes
-function setProcesses(link) {
-
-    $('#processes-toolbar').show();
-    $('#processes-processing').show();
-
-    let elemParent = $('#processes-list');
-        elemParent.attr('data-source', link);
-        elemParent.html('');
-
-    insertChangeProcesses(link, 'processes');
-
-    // $.get('/plm/relationships', { 'link' : link }, function(response) {
-    //     if(response.params.link === $('#processes-list').attr('data-source')) {
-    //         insertRelationships($('#processes-list'), response.data);
-    //         $('#processes-processing').hide();
-    //     }
-    // });
-
-}
 
 
 // Update request creation dialog upon opening and cosing

@@ -551,6 +551,7 @@
 
 /* PROCESSES */
 /* ----------------------------------------------------------------------------- */
+#processes-header { border : none; }
 .process-workspace {
     height : 18px;
 }
@@ -603,10 +604,10 @@
     overflow : hidden;
 }
 #processes-toolbar {
-    display : flex;
+    /* display : flex; */
     margin  : 10px;
-    gap     : 10px;
-    justify-content : flex-end;
+    /* gap     : 10px; */
+    /* justify-content : flex-end; */
 }
 #processes-sections {
     display     : none;

@@ -67,12 +67,6 @@ block body
                             input#spare-parts-search-input(placeholder="Search")
                     #items-list.list.tiles.l.no-scrollbar.surface-level-1
                 .panel-content.tab-group-main#processes
-                    #processes-toolbar
-                        .button#create-process(title='Initiate new process in PLM') Create
-                        .button.process-dialog#cancel-process(title='Cancel creation of new process and return to list of related processes') Cancel
-                        .button.process-dialog.default#save-process(title='Save new process in PLM') Save
-                    #processes-list.list.tiles.l.surface-level-1
-                    #processes-sections.form.surface-level-2
                 .panel-content.tab-group-main#charts
                     #charts-list
                         .chart-title Wear Parts
@@ -153,8 +147,5 @@ block body
             .item-content 
                 #request-workflow-history.surface-level-1 
                 #request-details.surface-level-1 
-                    //- .panel-header 
-                    //-     .panel-title Details 
-                    //- .panel-content#details-sections.no-scrollbar.surface-level-1
                 #request-grid.surface-level-1 
                 #request-attachments.surface-level-1 
