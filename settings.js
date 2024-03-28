@@ -544,7 +544,7 @@ exports.config = {
         'productsListHeader'     : 'Serviceable Products',
         'wsIdProducts'           : 95,
         'wsIdProblemReports'     : 82,
-        'wsIdSparePartsRequests' : 208,
+        'wsIdSparePartsRequests' : 373,
         'features' : {
             // 'homeButton'            : true,
             // 'toggleItemAttachments' : true,
