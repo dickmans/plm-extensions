@@ -1053,12 +1053,15 @@ function onViewerSelectionChanged(event) {
         for(let parent of parents) {
             if(proceed) {
                 let partNumber = parent.partNumber;
+
                 if(!isBlank(partNumber)) {
                     $('.bom-item').each(function() {
                         if(proceed) {
                             if($(this).attr('data-part-number') === partNumber) {
                                 proceed = false;
+                                $(this).removeClass('selected');
                                 $(this).click();
+                                bomDisplayItem($(this));
                             }
                         }
                     });

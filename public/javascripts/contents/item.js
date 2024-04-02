@@ -2951,6 +2951,7 @@ function enableBOMToggles(id) {
 
         if(e.shiftKey) levelHide = 100;
 
+        elemItem.toggleClass('collapsed').toggleClass('expanded');
         $(this).toggleClass('collapsed');
         
         do {
@@ -2962,11 +2963,15 @@ function enableBOMToggles(id) {
                 if(doExpand) {
                     if(levelHide > levelNext) {
                         elemNext.show();
-                        if(e.shiftKey) elemNext.find('.bom-nav').removeClass('collapsed');
+                        if(e.shiftKey) {
+                            elemNext.removeClass('collapsed').addClass('expanded');
+                            elemNext.find('.bom-nav').removeClass('collapsed').addClass('expanded');
+                        }
                     }
                 } else {
                     elemNext.hide();
-                    elemNext.find('.bom-nav').addClass('collapsed');
+                    elemNext.addClass('collapsed').removeClass('expanded');
+                    elemNext.find('.bom-nav').addClass('collapsed').removeClass('expanded');
                 }
             }
 
@@ -3070,7 +3075,8 @@ function clickBOMExpandAll(elemClicked) {
 
     elemContent.find('tr').each(function() {
         $(this).show();
-        $(this).find('.bom-nav').removeClass('collapsed');
+        $(this).find('.bom-nav').removeClass('collapsed').addClass('expanded');
+        $(this).removeClass('collapsed').addClass('expanded');
     });
 
     let elemInput   = $('#' + id + '-search-input');
@@ -3091,7 +3097,8 @@ function clickBOMCollapseAll(elemClicked) {
                 $(this).hide();
             }
         }
-        $(this).find('.bom-nav').addClass('collapsed');
+        $(this).find('.bom-nav').addClass('collapsed').removeClass('expanded');
+        $(this).addClass('collapsed').removeClass('expanded');
     });
 
 }
@@ -3111,6 +3118,7 @@ function searchInBOM(id, elemInput) {
     } else {
 
         $('.bom-nav').removeClass('collapsed').addClass('expanded');
+        $('.bom-item').removeClass('collapsed').addClass('expanded');
         elemTable.children().each(function() {
             $(this).hide();
         });
@@ -3141,6 +3149,9 @@ function unhideBOMParents(level, elem) {
     elem.prevAll().each(function() {
 
         let prevLevel = Number($(this).attr('data-level'));
+
+        console.log(prevLevel);
+
 
         if(level === prevLevel) {
             level--;
@@ -3265,6 +3276,39 @@ function getBOMItemPath(elemItem) {
     });
 
     return result;
+
+}
+function bomDisplayItem(elemItem) {
+
+    let level   = Number(elemItem.attr('data-level'));
+    
+    expandBOMParents(level - 1, elemItem);
+    
+    let elemBOM = elemItem.closest('.bom-content');
+    let top     = elemItem.position().top - (elemBOM.innerHeight() / 2);
+    
+    elemBOM.animate({ scrollTop: top }, 500);
+
+}
+function expandBOMParents(level, elem) {
+
+    elem.prevAll('.bom-item.node').each(function() {
+
+        let prevLevel   = Number($(this).attr('data-level'));
+        let isNode      = $(this).hasClass('node');
+        let isCollapsed = $(this).hasClass('collapsed');
+
+        if(level === prevLevel) {
+            level--;
+            $(this).show();
+            if(isNode) {
+                if(isCollapsed) {
+                    $(this).find('.bom-nav').click();
+                }
+            }
+        }
+
+    });
 
 }
 
