@@ -188,8 +188,8 @@ body.black-theme {
     background : none !important;
 }
 
-body.dark-theme  #guiviewer3d-toolbar .adsk-button { background : var(--color-surface-level-4); color : white;  border-color : var(--color-surface-level-4) !important; }
-body.black-theme #guiviewer3d-toolbar .adsk-button { background : var(--color-surface-level-4); color : white;  border-color : var(--color-surface-level-4) !important; }
+body.dark-theme  #guiviewer3d-toolbar .adsk-button { background : var(--color-surface-level-4); color : white;  border-color : var(--color-surface-level-4); }
+body.black-theme #guiviewer3d-toolbar .adsk-button { background : var(--color-surface-level-4); color : white;  border-color : var(--color-surface-level-4); }
 body.light-theme #guiviewer3d-toolbar .adsk-button { background : white; border-color: #808080 !important;  border-radius : 2px !important }
 
 body.light-theme #guiviewer3d-toolbar .adsk-button .adsk-button-icon::before { color : black; }
