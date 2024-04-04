@@ -488,6 +488,9 @@
     background-color : var(--color-hover-background) !important;
     border-color     : var(--color-blue-500) !important;
 }
+.bom-hidden {
+    display : none !important;
+}
 .bom-color {
     background  : transparent;
     padding     : 0px !important;
@@ -505,7 +508,7 @@
 .bom-nav:before { 
     content: '\e5cf';
  }
-.bom-nav.collapsed:before { 
+.bom-item.collapsed .bom-nav:before { 
     content: '\e5cc'; 
 }
 .bom-nav:hover { 

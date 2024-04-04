@@ -43,7 +43,7 @@ $(document).ready(function() {
 
 
 // Get list of disabled features
-function getApplicationFeatures(app, callback) {
+function getApplicationFeatures(app, requests, callback) {
 
     $('body').children().addClass('hidden');
 
@@ -60,11 +60,15 @@ function getApplicationFeatures(app, callback) {
         callback();
     } else {
 
-        $.get('/plm/groups-assigned', {}, function(response) {
+        requests.unshift($.get('/plm/groups-assigned', {}));
+
+        Promise.all(requests).then(function(responses) {
+
+        // $.get('/plm/groups-assigned', {}, function(response) {
             
             let settingsFeatures = config[app].features;
             
-            for(let group of response.data) userAccount.groupsAssigned.push(group.shortName);
+            for(let group of responses[0].data) userAccount.groupsAssigned.push(group.shortName);
 
             for(let feature of Object.keys(features)) {
                 if(feature !== 'viewer') {
@@ -94,7 +98,7 @@ function getApplicationFeatures(app, callback) {
 
             $('body').children().removeClass('hidden');
             getApplicationFeaturesDone(app);
-            callback();
+            callback(responses);
 
         });
     }
@@ -1112,6 +1116,27 @@ function getBOMCellValue(urn, key, nodes, property) {
 
                 }
             }
+        }
+    }
+
+    return '';
+    
+}
+function getBOMNodeValue(node, key, property) {
+
+    for(let field of node.fields) {
+        if((field.metaData.urn === key) || (field.metaData.link === key)) {
+
+            if(field.value === null) { return '';
+            } else if(typeof field.value === 'object') {
+                if(typeof property === 'undefined') return field.value.link;
+                else return field.value[property];
+            } else if(typeof field.value !== 'undefined') {
+                return field.value;
+            } else {
+                return '';
+            }
+
         }
     }
 
