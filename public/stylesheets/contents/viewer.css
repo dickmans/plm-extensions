@@ -41,9 +41,8 @@
 .adsk-toolbar .adsk-control-group { margin : 0px !important; }
 .adsk-viewing-viewer.dark-theme .adsk-control-tooltip { background : black !important; }
 
-#my-custom-toolbar-ghosting.ghosting    #button-toggle-ghosting-on  { display : none; }
-#my-custom-toolbar-ghosting.no-ghosting #button-toggle-ghosting-off { display : none; }
-#my-custom-toolbar-views{ margin-left : 20px !important; }
+
+/* #my-custom-toolbar-views{ margin-left : 20px !important; } */
 [class*=" adsk-icon-"]:before, [class^=adsk-icon-]:before, [data-icon]:before { font-weight : 100; }
 #guiviewer3d-toolbar .adsk-button .adsk-button-icon::before { font-weight : 300; }
 
@@ -51,8 +50,20 @@
 
 /*  APS VIEWER CUSTOM TOOLBARS */
 /* ----------------------------------------------------------------------------- */
-#button-toggle-ghosting-off { background : black !important; }
+#button-toggle-ghosting-off { 
+    background : var(--color-blue-500) !important; 
+    border-color : var(--color-blue-500) !important; 
+}
 #button-toggle-ghosting-off .icon-hide::before { color : white !important; }
+#my-custom-toolbar-ghosting.ghosting    #button-toggle-ghosting-on  { display : none; }
+#my-custom-toolbar-ghosting.no-ghosting #button-toggle-ghosting-off { display : none; }
+#button-toggle-highlight-on { 
+    background : var(--color-blue-500) !important; 
+    border-color : var(--color-blue-500) !important; 
+}
+#button-toggle-highlight-off .icon-hide::before { color : white !important; }
+#my-custom-toolbar-highlight.highlight-on  #button-toggle-highlight-off { display : none; }
+#my-custom-toolbar-highlight.highlight-off #button-toggle-highlight-on  { display : none; }
 
 
 

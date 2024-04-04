@@ -149,6 +149,12 @@
                 td No 
                 td false
             tr 
+                td revisionBias 
+                td Set BOM configuration to expand [release, working, changeOrder, allChangeOrder]
+                td String
+                td No 
+                td release
+            tr 
                 td depth 
                 td BOM Levels to expand
                 td Integer
@@ -160,6 +166,12 @@
                 td Boolean
                 td No 
                 td false
+            tr 
+                td selectItems 
+                td To enable postprocessing for selected items, provide a filter to identify the given items in the BOM (example :  { 'fieldId' : 'SPARE_PART', 'values' : ['y', 'yes', 'x'] })
+                td JSON
+                td No 
+                td {}
             tr 
                 td endItem 
                 td Define a key value pair consisting of field id and field value to prevent expansion of matching elements in the BOM tree (example: { 'fieldId' : 'END_ITEM', 'value' : true })

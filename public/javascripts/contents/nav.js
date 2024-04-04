@@ -831,7 +831,9 @@ function insertWorkspaceItemsData(id) {
                 }
 
                 for(let fieldAttribute of settings.workspaceItems[id].fieldIdsAttributes) {
-                    elemTile.attr('data-' + fieldAttribute.toLowerCase(), getSectionFieldValue(item.sections, fieldAttribute, '', 'link'),)
+                    if(!isBlank(fieldAttribute)) {
+                        elemTile.attr('data-' + fieldAttribute.toLowerCase(), getSectionFieldValue(item.sections, fieldAttribute, '', 'link'),)
+                    }
                 }
 
                 if(details.length > 0) appendTileDetails(elemTile, details);

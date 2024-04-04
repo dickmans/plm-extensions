@@ -533,6 +533,7 @@ exports.config = {
         'endItemFilter'          : { 'fieldId' : 'SBOM_END_ITEM', 'value' : true },
         'fieldId'                : 'SPARE_WEAR_PART',
         'fieldValues'            : ['spare part', 'yes', 'x', 'y', 'wear part'],
+        'fieldIdImage'           : 'IMAGE',
         'spartPartDetails'       : ['MATERIAL', 'ITEM_WEIGHT', 'DIMENSIONS'],
         'productsFilter'         : '',
         'productsSortBy'         : 'TITLE',
@@ -566,6 +567,7 @@ exports.config = {
             //     'fullscreen'    : true,
             //     'markup'        : false,
             //     'ghosting'      : true,
+            //     'highlight'     : true,
             //     'reset'         : true,
             //     'views'         : true
             // }
@@ -588,9 +590,12 @@ exports.config = {
         'splitPartNumberBy'       : ' v',
         'splitPartNumberIndexes'  : [0],
         'splitPartNumberSpacer'   : '',
-        'backgroundColor'         : [255, 255, 255],
+        'backgroundColor'         : [255, 255, 255, 255, 255, 255],
+        'antiAliasing'            : true,
+        'ambientShadows'          : true,
         'groundReflection'        : false,
-        'groundShadow'            : true
+        'groundShadow'            : true,
+        'lightPreset'             : 4
     }
 
 }
