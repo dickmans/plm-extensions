@@ -58,6 +58,10 @@
                 td Descriptor
             tr  
                 td Item Details / Basic
+                td Image
+                td Image
+            tr  
+                td Item Details / Basic
                 td Number 
                 td Number 
             tr  
@@ -268,6 +272,7 @@
             span.indent-2 'enableCustomRequests' : true,
             span.indent-2 'fieldId' : 'SPARE_WEAR_PART',
             span.indent-2 'fieldValues' : ['spare part', 'yes', 'x', 'y', 'wear part'],
+            span.indent-2 'fieldIdImage' : 'IMAGE',
             span.indent-2 'spartPartDetails' : ['MATERIAL', 'ITEM_WEIGHT', 'DIMENSIONS'],
             span.indent-2 'productsFilter' : '',
             span.indent-2 'productsSortBy' : 'TITLE',
@@ -317,6 +322,10 @@
                     td fieldValues
                     td ['spare part', 'yes', 'x', 'y', 'wear part']
                     td List of values (for the previous field) which are used to identify spare parts 
+                tr 
+                    td fieldIdImage
+                    td IMAGE
+                    td ID of field containing the item image
                 tr 
                     td sparePartDetails
                     td ['MATERIAL', 'ITEM_WEIGHT', 'DIMENSIONS']
@@ -501,6 +510,12 @@
                     td
                         .adsk-button-icon.icon.icon-show(style="font-size:14px;")
                     td Enables toggling ghosting mode on/off
+                    td true
+                tr 
+                    td features.viewer.highlight 
+                    td
+                        .adsk-button-icon.icon.icon-highlight(style="font-size:14px;")
+                    td Enables toggling highlight of selected models on/off
                     td true
                 tr 
                     td features.viewer.views 
