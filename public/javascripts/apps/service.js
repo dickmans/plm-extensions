@@ -608,7 +608,7 @@ function insertBOMSpareParts(elemParent, selectedItems, urnsSpareParts, flatBOM)
         let elemSparePart = $('<div></div>').appendTo(elemParent)
             .addClass('tile')
             .addClass('spare-part')
-            .attr('data-link', link)
+            .attr('data-link', selectedItem.node.item.link)
             .attr('data-part-number', selectedItem.node.partNumber)
             .attr('data-qty', selectedItem.node.totalQuantity)
             .click(function(e) {
@@ -628,7 +628,7 @@ function insertBOMSpareParts(elemParent, selectedItems, urnsSpareParts, flatBOM)
             $.get('/plm/details', { 'link' : link}, function(response) {
                 linkImage  = getFirstImageFieldValue(response.data.sections);
                 $('.spare-part').each(function() {
-                    if($(this).attr('data-link') === link) {
+                    if($(this).attr('data-link') === response.params.link) {
                         let elemSparePartImage = $(this).find('.spare-part-image').first();
                         getImageFromCache(elemSparePartImage, { 'link' : linkImage }, 'settings', function() {});
                     }
