@@ -75,17 +75,51 @@
                 td No
                 td []
             tr 
-                td color 
+                td backgroundColor 
                 td Background color for the viewer. You can pass a single integer value that will be used as identical Red, Green and Blue value. 
                     br
-                    |As alternative, you can also pass an array of RGB values (i.e. [69, 79, 97]).
+                    |You can also pass an array of RGB values of a single color instead (i.e. [69, 79, 97]). 
+                    br
+                    |You can also pass two RGB values to set a fading background (i.e. [255, 0, 0, 0, 255, 0] to have the background fading from red to green)
                     br
                     |If the color parameter is omitted, the viewer will determine the background color automatically (matching to the given surface level).
                 td Single Integer (i.e. 255 for white)
                     br
-                    | or Array of RGB Values [200, 200, 0]
+                    | or Array of single RGB value [200, 200, 0]
+                    br
+                    | or Array of two RGB values [255, 255, 255, 0, 0, 0]
                 td No
                 td - matching to surface level [1..5] -
+            tr 
+                td antiAliasing 
+                td Enables / disables Anti-Aliasing. Use this setting to improve viewer performance if needed.
+                td Boolean
+                td No
+                td true (defined by config.viewer.antiAliasing in settings.js)
+            tr 
+                td ambientShadows 
+                td Enables / disables Ambient Shadows. Use this setting to improve viewer performance if needed.
+                td Boolean
+                td No
+                td true (defined by config.viewer.ambientShadows in settings.js)
+            tr 
+                td groundReflection 
+                td Enables / disables Ground Reflection. Use this setting to improve viewer performance if needed.
+                td Boolean
+                td No
+                td false (defined by config.viewer.groundReflection in settings.js)
+            tr 
+                td groundShadow 
+                td Enables / disables Ground Shadows. Use this setting to improve viewer performance if needed.
+                td Boolean
+                td No
+                td true (defined by config.viewer.groundShadow in settings.js)
+            tr 
+                td lightPreset 
+                td Sets the lighting preset based on the lighting presets available in the viewer (see Environment tab of viewer settings control). The first preset is identified by 0.
+                td Integer
+                td No
+                td 4 (defined by config.viewer.lightPreset in settings.js)
     h2 Examples 
     p   
         table.row-hovering 

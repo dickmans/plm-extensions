@@ -49,20 +49,65 @@ let viewerBGColors = {
     }
 }
 
+let viewerSettings = {
+    'backgroundColor'  : [255, 255, 255, 255, 255, 255],
+    'antiAliasing'     : true,
+    'ambientShadows'   : true,
+    'groundReflection' : false,
+    'groundShadow'     : true,
+    'lightPreset'      : 4
+}
 
 // Launch Viewer
-function initViewer(id, data, color) {
+function initViewer(id, data, color, params) {
 
-    if(isBlank(data)) return;
-    if(isBlank(id)  ) id = 'viewer';
+    if(isBlank(data)  ) return;
+    if(isBlank(id)    ) id = 'viewer';
+    if(isBlank(params)) params = {};
 
-    if((typeof color !== 'undefined') && (color !== null) && (color !== '')) {
-        if(Array.isArray(color)) config.viewer.backgroundColor = color;
-        else config.viewer.backgroundColor = [color, color, color];
-        
+    let surfaceLevel = getSurfaceLevel($('#' + id)).split('surface-')[1];
+    viewerSettings.backgroundColor = viewerBGColors[theme][surfaceLevel];
+
+    if(!isBlank(params.backgroundColor)) {
+        viewerSettings.backgroundColor = params.backgroundColor;
+    } else if(surfaceLevel === 'level-0') {
+        viewerSettings.backgroundColor = config.viewer.backgroundColor;
+    }
+
+    if(Array.isArray(viewerSettings.backgroundColor)) {
+        if(viewerSettings.backgroundColor.length === 3) {
+            viewerSettings.backgroundColor.push(viewerSettings.backgroundColor[0]);
+            viewerSettings.backgroundColor.push(viewerSettings.backgroundColor[1]);
+            viewerSettings.backgroundColor.push(viewerSettings.backgroundColor[2]);
+        }
     } else {
-        let surfaceLevel = getSurfaceLevel($('#' + id)).split('surface-')[1];
-        config.viewer.backgroundColor = viewerBGColors[theme][surfaceLevel];
+        viewerSettings.backgroundColor = [viewerSettings.backgroundColor, viewerSettings.backgroundColor, viewerSettings.backgroundColor, viewerSettings.backgroundColor, viewerSettings.backgroundColor, viewerSettings.backgroundColor];
+    }
+
+    if(!isBlank(params.antiAliasing)) {
+        viewerSettings.antiAliasing = params.antiAliasing;
+    } else if(!isBlank(config.viewer.antiAliasing)) {
+        viewerSettings.antiAliasing = config.viewer.antiAliasing;
+    }
+    if(!isBlank(params.ambientShadows)) {
+        viewerSettings.ambientShadows = params.ambientShadows;
+    } else if(!isBlank(config.viewer.ambientShadows)) {
+        viewerSettings.ambientShadows = config.viewer.ambientShadows;
+    }
+    if(!isBlank(params.groundReflection)) {
+        viewerSettings.groundReflection = params.groundReflection;
+    } else if(!isBlank(config.viewer.groundReflection)) {
+        viewerSettings.groundReflection = config.viewer.groundReflection;
+    }
+    if(!isBlank(params.groundShadow)) {
+        viewerSettings.groundShadow = params.groundShadow;
+    } else if(!isBlank(config.viewer.groundShadow)) {
+        viewerSettings.groundShadow = config.viewer.groundShadow;
+    }
+    if(!isBlank(params.lightPreset)) {
+        viewerSettings.lightPreset = params.lightPreset;
+    } else if(!isBlank(config.viewer.lightPreset)) {
+        viewerSettings.lightPreset = config.viewer.lightPreset;
     }
 
     $('body').addClass('no-viewer-cube');
@@ -124,8 +169,11 @@ function initViewer(id, data, color) {
 function onDocumentLoadSuccess(doc) {
 
     viewer.setGhosting(true);
-    viewer.setGroundShadow(config.viewer.groundShadow);
-    viewer.setGroundReflection(config.viewer.setGroundReflection);
+    viewer.setGroundReflection(viewerSettings.groundReflection);
+    viewer.setGroundShadow(viewerSettings.groundShadow);
+    viewer.setQualityLevel(viewerSettings.ambientShadows, viewerSettings.antiAliasing);
+    viewer.setLightPreset(viewerSettings.lightPreset);
+    viewer.setEnvMapBackground(false);
     viewer.setProgressiveRendering(true);
 
     let viewable = doc.getRoot().getDefaultGeometry();
@@ -133,7 +181,7 @@ function onDocumentLoadSuccess(doc) {
     if (viewable) {
         // viewer.loadDocumentNode(doc, viewable).then(function(result) {
         viewer.loadDocumentNode(doc, viewable, {globalOffset: {x:0,y:0,z:0}}).then(function(result) {
-            viewer.setBackgroundColor(config.viewer.backgroundColor[0], config.viewer.backgroundColor[1], config.viewer.backgroundColor[2], config.viewer.backgroundColor[0], config.viewer.backgroundColor[1], config.viewer.backgroundColor[2]);
+            viewer.setBackgroundColor(viewerSettings.backgroundColor[0], viewerSettings.backgroundColor[1], viewerSettings.backgroundColor[2], viewerSettings.backgroundColor[3], viewerSettings.backgroundColor[4], viewerSettings.backgroundColor[5]);
             viewerDone = true;
             initViewerDone();
         }).catch(function(err) {
@@ -196,10 +244,11 @@ function setViewerFeatures() {
 
             switch(feature) {
                 
-                case 'markup'   : viewerAddMarkupControls(); break;
-                case 'reset'    : viewerAddResetButton();    break;
-                case 'ghosting' : viewerAddGhostingToggle(); break;
-                case 'views'    : viewerAddViewsToolbar();   break;
+                case 'markup'    : viewerAddMarkupControls();  break;
+                case 'reset'     : viewerAddResetButton();     break;
+                case 'ghosting'  : viewerAddGhostingToggle();  break;
+                case 'highlight' : viewerAddHighlightToggle(); break;
+                case 'views'     : viewerAddViewsToolbar();    break;
 
             }
 
@@ -243,11 +292,12 @@ const getPropertiesAsync = (id) => {
     });
  
 }
-function getInstancePartNumber(item) {
+function getInstancePartNumber(instance) {
 
     for(let partNumberPropery of config.viewer.partNumberProperties) {
-        for(property of item.properties) {
-            if(partNumberPropery === property.attributeName) {
+        for(let property of instance.properties) {
+            // if(partNumberPropery === property.attributeName) {
+            if(partNumberPropery === property.displayName) {
                 let partNumber = property.displayValue.split(':')[0];
                 if(splitPartNumberBy !== '') {
                     let split = partNumber.split(splitPartNumberBy);
@@ -352,6 +402,11 @@ function viewerSelectModels(partNumbers, params) {
     
     if(isolate)     viewer.hideAll();
     if(resetColors) viewer.clearThemingColors();
+
+    let toolbar = $('#my-custom-toolbar-highlight');
+    if(toolbar.length > 0) {
+        if(toolbar.hasClass('highlight-on')) highlight = true;
+    }
 
     for(let dataInstance of dataInstances) {
         for(let partNumber of partNumbers) {
@@ -945,6 +1000,45 @@ function addCustomControl(toolbar, id, icon, tooltip) {
     toolbar.addControl(newButton);
 
     return newButton;
+
+}
+
+
+// Custom Controls : Highlight Toggle
+function viewerAddHighlightToggle() {
+
+    let newToolbar = new Autodesk.Viewing.UI.ControlGroup('my-custom-toolbar-highlight');
+
+    let buttonOff = addCustomControl(newToolbar, 'button-toggle-highlight-off', 'icon-highlight', 'Enable selection hihglight by color');
+        buttonOff.onClick = function(e) { 
+            toggleSelectionHighlight(true);
+            $('#my-custom-toolbar-highlight').addClass('highlight-on');
+            $('#my-custom-toolbar-highlight').removeClass('highlight-off');
+        };
+
+    let buttonOn = addCustomControl(newToolbar, 'button-toggle-highlight-on', 'icon-highlight', 'Disable selection highlight by color');
+        buttonOn.onClick = function(e) { 
+            toggleSelectionHighlight(false);
+            $('#my-custom-toolbar-highlight').removeClass('highlight-on');
+            $('#my-custom-toolbar-highlight').addClass('highlight-off');
+        };
+
+    viewer.toolbar.addControl(newToolbar);
+
+    $('#my-custom-toolbar-highlight').addClass('highlight-off');
+
+}
+function toggleSelectionHighlight(enabled) {
+
+    viewer.clearThemingColors();
+
+    if(!enabled) return;
+
+    for(let dataInstance of dataInstances) {
+        if(viewer.isNodeVisible(dataInstance.dbId)) {
+            viewer.setThemingColor(dataInstance.dbId, colorModelSelected, null, true );
+        }
+    }
 
 }
 

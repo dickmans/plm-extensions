@@ -14,7 +14,7 @@ let urns = {
     'dimensions'    : ''
 }
 
-let bom, flatBOM;
+// let bom, flatBOM;
 let selectedBOMContext      = '';
 let wsProblemReports        = { 'id' : '', 'sections' : [], 'fields' : [] };
 let wsSparePartsRequests    = { 'id' : '', 'sections' : [], 'fields' : [] };
@@ -50,6 +50,7 @@ let features = {
         'fullscreen'    : true,
         'markup'        : false,
         'ghosting'      : true,
+        'highlight'     : true,
         'reset'         : true,
         'views'         : true
     }
@@ -64,7 +65,29 @@ $(document).ready(function() {
     appendProcessing('items');
     appendOverlay();
 
-    getApplicationFeatures('service', function() {
+    let requests = [];
+
+    if(!isBlank(wsId)) { if(!isBlank(dmsId)) {
+        requests.push($.get('/plm/bom-views-and-fields', { 'wsId' : wsId }))
+    }}
+
+    getApplicationFeatures('service', requests, function(responses) {
+
+        if(!isBlank(wsId)) {
+            let addToCache = true;
+            for(let workspace of cacheWorkspaces) {
+                if(workspace.id === wsId) {
+                    workspace.bomViews = responses[1].data;
+                    addToCache = false;
+                }
+            }
+            if(addToCache) {
+                cacheWorkspaces.push({
+                    'id'       : wsId,
+                    'bomViews' : responses[1].data
+                })
+            }
+        }
 
         if(!features.homeButton) {
             $('#home').remove();
@@ -283,7 +306,9 @@ function openItem(link) {
         'counters'      : true,
         'getFlatBOM'    : true, 
         'showRestricted': false,
-        'endItem'       : config.service.endItemFilter
+        'revisionBias'  : 'working',
+        'endItem'       : config.service.endItemFilter,
+        'selectItems'   : { 'fieldId' : config.service.fieldId, 'values' : config.service.fieldValues }
     });
     insertViewer(link);
     if(features.toggleItemDetails)     insertItemDetails(link);
@@ -408,34 +433,39 @@ function getInitialData(wsId) {
 
 
 // Parse BOM for Spare Parts
-function changeBOMViewDone(id, fields, viewBOM, viewFlatBOM) {
+function changeBOMViewDone(id, fields, bom, selectedItems, flatBOM) {
 
-    let link = $('#' + id).attr('data-link');
-    bom      = viewBOM;
-    flatBOM  = viewFlatBOM;
+    $('#bom-processing').hide();
 
-    for(field of fields) {
-    
-             if(field.fieldId === 'NUMBER')                             urns.partNumber     = field.__self__.urn;
-        else if(field.fieldId === config.viewer.fieldIdPartNumber)      urns.partNumber     = field.__self__.urn;
-        else if(field.fieldId === 'THUMBNAIL')                          urns.thumbnail      = field.__self__.urn;
-        else if(field.fieldId === 'TITLE')                              urns.title          = field.__self__.urn;
-        else if(field.fieldId === 'DESCRIPTION')                        urns.description    = field.__self__.urn;
-        else if(field.fieldId === 'QUANTITY')                           urns.quantity       = field.__self__.urn;
-        else if(field.fieldId === config.service.fieldId)               urns.spareWearPart  = field.__self__.urn; 
-        else if(field.fieldId === config.service.spartPartDetails[0])   urns.material       = field.__self__.urn;
-        else if(field.fieldId === config.service.spartPartDetails[1])   urns.weight         = field.__self__.urn;
-        else if(field.fieldId === config.service.spartPartDetails[2])   urns.dimensions     = field.__self__.urn;
+    if(selectedItems.length > 15) $('#items-list').removeClass('l').addClass('m');
+
+    let urnsSpareParts = [];
+
+    for(let field of fields) {
+
+        let urnField = field.__self__.urn;
+
+        switch(field.fieldId) {
+            case 'NUMBER'                           : urnsSpareParts.partNumber   = urnField; break;
+            case 'TITLE'                            : urnsSpareParts.title        = urnField; break;
+            case 'DESCRIPTION'                      : urnsSpareParts.description  = urnField; break;
+            case config.service.fieldIdImage        : urnsSpareParts.image        = urnField; break;
+            case config.viewer.fieldIdPartNumber    : urnsSpareParts.partNumber   = urnField; break;
+            case config.service.fieldId             : urnsSpareParts.spareWearPart= urnField; break;
+            case config.service.spartPartDetails[0] : urnsSpareParts.material     = urnField; break;
+            case config.service.spartPartDetails[1] : urnsSpareParts.weight       = urnField; break;
+            case config.service.spartPartDetails[2] : urnsSpareParts.dimensions   = urnField; break;
+        }
 
     }
-
+    
     insertNonSparePartMessage();
-    getBOMSpareParts(bom, flatBOM, 'urn:adsk.plm:tenant.workspace.item:' + tenant.toUpperCase() + '.' + link.split('/')[4] + '.' + link.split('/')[6], 1.0);
+    insertBOMSpareParts($('#items-list'), selectedItems, urnsSpareParts, flatBOM);
 
     $('.bom-item').each(function() {
         let elemCell = $('<td></td>').addClass('bom-column-icon').addClass('bom-column-spare-parts').appendTo(this);
-        for(let sparePart of listSpareParts) {
-            if($(this).attr('data-link') === sparePart) {
+        for(let selectedItem of selectedItems) {
+            if($(this).attr('data-link') === selectedItem.node.item.link) {
                 $(this).addClass('is-spare-part');
                 $('<span></span>').appendTo(elemCell)
                     .addClass('icon')
@@ -446,37 +476,12 @@ function changeBOMViewDone(id, fields, viewBOM, viewFlatBOM) {
         }
     });
 
-    if(features.showStock) setSparePartStockStatus();
+    setSparePartStockStatus();
 
     $('#items-processing').hide();
 
 }
-function setSparePartStockStatus() {
 
-    $('#items-list').children().each(function() {
-
-        let elemSparePart = $(this);
-        let elemStock     = elemSparePart.find('.spare-part-stock');
-        let stockLabel    = 'In stock';
-        let stockClass    = 'normal';
-        let stockRandom   = Math.floor(Math.random() * 3) + 1;
-    
-             if(stockRandom === 2) { stockLabel = 'Low stock';    stockClass = 'low';  }
-        else if(stockRandom === 3) { stockLabel = 'Out of stock'; stockClass = 'none'; }
-
-        elemSparePart.addClass('spare-part-stock-' + stockClass);
-        elemStock.attr('title', stockLabel);
-
-        $('<div></div>').appendTo(elemStock)
-            .addClass('spare-part-stock-icon');
-
-        $('<div></div>').appendTo(elemStock)
-            .addClass('spare-part-stock-label')
-            .html(stockLabel);
-
-    })
-
-}
 function insertNonSparePartMessage() {
 
     if(isBlank(config.service.enableCustomRequests)) return;
@@ -594,200 +599,163 @@ function insertWearParts() {
             elemWearPartHealth.appendTo(elemWearPart);
 
     }
+
 }
-function getBOMSpareParts(bom, flatBOM, parent, qtyTotal) {
+function insertBOMSpareParts(elemParent, selectedItems, urnsSpareParts, flatBOM) {
 
-    let result = false;
+    for(let selectedItem of selectedItems) {
 
-    for(let edge of bom.edges) {
-
-        if(edge.parent === parent) {
-
-            result = true;
-
-            let isSparePart = getBOMCellValue(edge.child, urns.spareWearPart, bom.nodes);
-            let partNumber  = getBOMCellValue(edge.child, urns.partNumber, bom.nodes);
-            let link        = getBOMNodeLink(edge.child, bom.nodes);
-            let quantity    = getBOMEdgeValue(edge, urns.quantity, null, 0);
-            let quantityRow = qtyTotal * quantity;
-
-            if(config.service.fieldValues.indexOf(isSparePart.toLowerCase()) > -1) {
-
-                let qty = quantityRow;
-
-                if(isSparePart.toLowerCase() === 'wear part') {
-                    listWearParts.push({
-                        'link'          : link,
-                        'partNumber'    : partNumber
-                        // 'linkImage'     : getFirstImageFieldValue(response.data.sections)
-                    });
-                }
-
-                if(listSpareParts.length > 15) $('#items-list').removeClass('l').addClass('m');
-
-                // if(listSpareParts.indexOf(edge.child) === -1) {
-                if(listSpareParts.indexOf(link) === -1) {
-
-                    listSpareParts.push(link);
-
-                    let title         = getBOMCellValue(edge.child, urns.title, bom.nodes);
-                    let elemSparePart = genTileSparePart(link, edge.child, partNumber, title, qty);
+        let elemSparePart = $('<div></div>').appendTo(elemParent)
+            .addClass('tile')
+            .addClass('spare-part')
+            .attr('data-link', selectedItem.node.item.link)
+            .attr('data-part-number', selectedItem.node.partNumber)
+            .attr('data-qty', selectedItem.node.totalQuantity)
+            .click(function(e) {
+                clickSparePart($(this));
+            });
                         
-                    elemSparePart.appendTo($('#items-list'));
+        let elemSparePartImage = $('<div></div>').appendTo(elemSparePart)
+            .addClass('spare-part-image')
+            .addClass('tile-image');
+                
+        let valueImage = getFlatBOMCellValue(flatBOM, selectedItem.node.item.link, urnsSpareParts.image);
+        let linkImage = (valueImage === '') ? '' : valueImage;
 
-                } else {
-
-                    $('.spare-part').each(function() {
-                        
-                        let elemSparePart = $(this);
-                        
-                        if(elemSparePart.attr('data-link') === link) {
-                            let elemSparePartQuantity = elemSparePart.find('.spare-part-quantity').first();
-                            let quantitySparePart = parseFloat(elemSparePart.attr('data-qty')) + quantityRow;
-                            elemSparePartQuantity.html(quantitySparePart);
-                            elemSparePart.attr('data-qty', quantitySparePart);
-                        }
-
-                    });
-
-                }
+        getImageFromCache(elemSparePartImage, { 'link' : linkImage }, 'settings', function() {});
+    
+        if(linkImage === '') {
+            $.get('/plm/details', { 'link' : link}, function(response) {
+                linkImage  = getFirstImageFieldValue(response.data.sections);
+                $('.spare-part').each(function() {
+                    if($(this).attr('data-link') === response.params.link) {
+                        let elemSparePartImage = $(this).find('.spare-part-image').first();
+                        getImageFromCache(elemSparePartImage, { 'link' : linkImage }, 'settings', function() {});
+                    }
+                });
+            });
+        }
+                    
+        let elemSparePartDetails = $('<div></div>').appendTo(elemSparePart)
+            .addClass('spare-part-details')
+            .addClass('tile-details');
+    
+        let elemSparePartID = $('<div></div>').appendTo(elemSparePartDetails)
+            .addClass('spare-part-identifier');
+    
+        $('<div></div>').appendTo(elemSparePartID)
+            .addClass('spare-part-quantity')
+            .html(Number(selectedItem.node.totalQuantity));
+    
+        $('<div></div>').appendTo(elemSparePartID)
+            .addClass('spare-part-number')
+            .addClass('tile-title')
+            .html(selectedItem.node.partNumber);    
+        
+        $('<div></div>').appendTo(elemSparePartDetails)
+            .addClass('spare-part-title')
+            .html(selectedItem.node.title);  
+    
+        $('<div></div>').appendTo(elemSparePartDetails)
+            .addClass('spare-part-material')
+            .addClass('with-icon')
+            .addClass('icon-product')
+            .addClass('filled')
+            .html(getBOMNodeValue(selectedItem.node, urnsSpareParts.material));
+            
+        let partSpec        = '';
+        let partWeight      = getBOMNodeValue(selectedItem.node, urnsSpareParts.weight);
+        let partDimensions  = getBOMNodeValue(selectedItem.node, urnsSpareParts.dimensions);
+                
+        if(partWeight !== '') {
+            partSpec = partWeight;
+            if(partWeight !== '') partSpec = partWeight + ' / ' + partDimensions;
+        } else partSpec = partDimensions
+    
+        $('<div></div>').appendTo(elemSparePartDetails)
+            .addClass('spare-part-dimensions')
+            .addClass('with-icon')
+            .addClass('icon-width')
+            .html(partSpec);
+    
+        let elemSparePartSide = $('<div></div>').appendTo(elemSparePart)
+            .addClass('spare-part-side');
+    
+        let elemCartQuantity = $('<div></div>').appendTo(elemSparePartSide)
+            .addClass('cart-quantity')
+            .click(function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            });
+    
+        $('<div></div>').appendTo(elemCartQuantity)
+            .addClass('cart-quantity-label')
+            .html('Qty');
+    
+        $('<input></input>').appendTo(elemCartQuantity)
+            .addClass('cart-quantity-input')
+            .val('1');
+    
+        let elemCartAdd = $('<div></div>').appendTo(elemSparePartSide)
+            .addClass('button')
+            .addClass('cart-add')
+            .click(function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                moveSparePart($(this));
+            });  
+                
+        $('<div></div>').appendTo(elemCartAdd)
+            .addClass('icon')
+            .addClass('icon-cart-add');
+    
+        $('<div></div>').appendTo(elemCartAdd)
+            .html('Add to cart');
+    
+        $('<div></div>').appendTo(elemSparePartSide)
+            .addClass('button')
+            .addClass('icon')
+            .addClass('icon-cart-remove')
+            .addClass('cart-remove')
+            .click(function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                moveSparePart($(this));
+            });  
+    
+            if(features.showStock) {
+                $('<div></div>').appendTo(elemSparePartSide).addClass('spare-part-stock');
             }
 
-            getBOMSpareParts(bom, flatBOM, edge.child, quantityRow);
-        }
     }
-
-    return result;
 
 }
-function genTileSparePart(link, urn, partNumber, title, qty) {
+function setSparePartStockStatus() {
 
-    let elemSparePart = $('<div></div>')
-        .addClass('tile')
-        .addClass('spare-part')
-        .attr('data-link', link)
-        .attr('data-part-number', partNumber)
-        .attr('data-qty', qty)
-        .click(function(e) {
-            clickSparePart($(this));
-        });
-        
-    let elemSparePartImage = $('<div></div>').appendTo(elemSparePart)
-        .addClass('spare-part-image')
-        .addClass('tile-image');
+    if(!features.showStock) return;
 
-    let valueImage = getFlatBOMCellValue(flatBOM, link, urns.thumbnail);
-    let linkImage = (valueImage === '') ? '' : valueImage;
+    $('#items-list').children().each(function() {
 
-    getImageFromCache(elemSparePartImage, { 'link' : linkImage }, 'settings', function() {});
-
-    if(linkImage === '') {
-        $.get('/plm/details', { 'link' : link}, function(response) {
-            linkImage  = getFirstImageFieldValue(response.data.sections);
-            $('.spare-part').each(function() {
-                if($(this).attr('data-link') === link) {
-                    let elemSparePartImage = $(this).find('.spare-part-image').first();
-                    getImageFromCache(elemSparePartImage, { 'link' : linkImage }, 'settings', function() {});
-                }
-            });
-        });
-    }
+        let elemSparePart = $(this);
+        let elemStock     = elemSparePart.find('.spare-part-stock');
+        let stockLabel    = 'In stock';
+        let stockClass    = 'normal';
+        let stockRandom   = Math.floor(Math.random() * 3) + 1;
     
-    let elemSparePartDetails = $('<div></div>').appendTo(elemSparePart)
-        .addClass('spare-part-details')
-        .addClass('tile-details');
+             if(stockRandom === 2) { stockLabel = 'Low stock';    stockClass = 'low';  }
+        else if(stockRandom === 3) { stockLabel = 'Out of stock'; stockClass = 'none'; }
 
-    let elemSparePartID = $('<div></div>').appendTo(elemSparePartDetails)
-        .addClass('spare-part-identifier');
+        elemSparePart.addClass('spare-part-stock-' + stockClass);
+        elemStock.attr('title', stockLabel);
 
-    $('<div></div>').appendTo(elemSparePartID)
-        .addClass('spare-part-quantity')
-        .html(qty);
+        $('<div></div>').appendTo(elemStock)
+            .addClass('spare-part-stock-icon');
 
-    $('<div></div>').appendTo(elemSparePartID)
-        .addClass('spare-part-number')
-        .addClass('tile-title')
-        .html(partNumber);    
-    
-    $('<div></div>').appendTo(elemSparePartDetails)
-        .addClass('spare-part-title')
-        .html(title);  
+        $('<div></div>').appendTo(elemStock)
+            .addClass('spare-part-stock-label')
+            .html(stockLabel);
 
-    $('<div></div>').appendTo(elemSparePartDetails)
-        .addClass('spare-part-material')
-        .addClass('with-icon')
-        .addClass('icon-product')
-        .addClass('filled')
-        .html(getBOMCellValue(urn, urns.material, bom.nodes));
-        
-    let partSpec        = '';
-    let partWeight      = getBOMCellValue(urn, urns.weight, bom.nodes);
-    let partDimensions  = getBOMCellValue(urn, urns.dimensions, bom.nodes);
-
-    if(partWeight !== '') {
-        partSpec = partWeight;
-        if(partWeight !== '') partSpec = partWeight + ' / ' + partDimensions;
-    } else partSpec = partDimensions
-
-    $('<div></div>').appendTo(elemSparePartDetails)
-        .addClass('spare-part-dimensions')
-        .addClass('with-icon')
-        .addClass('icon-width')
-        .html(partSpec);
-
-    let elemSparePartSide = $('<div></div>').appendTo(elemSparePart)
-        .addClass('spare-part-side');
-
-    let elemCartQuantity = $('<div></div>').appendTo(elemSparePartSide)
-        .addClass('cart-quantity')
-        .click(function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        });
-
-    $('<div></div>').appendTo(elemCartQuantity)
-        .addClass('cart-quantity-label')
-        .html('Qty');
-
-    $('<input></input>').appendTo(elemCartQuantity)
-        .addClass('cart-quantity-input')
-        .val('1');
-
-
-    let elemCartAdd = $('<div></div>').appendTo(elemSparePartSide)
-        .addClass('button')
-        .addClass('cart-add')
-        .click(function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            moveSparePart($(this));
-        });  
-
-    $('<div></div>').appendTo(elemCartAdd)
-        .addClass('icon')
-        .addClass('icon-cart-add');
-
-    $('<div></div>').appendTo(elemCartAdd)
-        .html('Add to cart');
-
-
-
-    $('<div></div>').appendTo(elemSparePartSide)
-        .addClass('button')
-        .addClass('icon')
-        .addClass('icon-cart-remove')
-        .addClass('cart-remove')
-        .click(function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            moveSparePart($(this));
-        });  
-
-        if(features.showStock) {
-            $('<div></div>').appendTo(elemSparePartSide).addClass('spare-part-stock');
-        }
-
-    return elemSparePart;
+    })
 
 }
 
@@ -801,7 +769,10 @@ function clickBOMItem(e, elemClicked) {
         if(features.toggleItemAttachments) insertAttachments('/api/v3/workspaces/' + wsId + '/items/' + dmsId, paramsAttachments);
         if(features.manageProblemReports)  insertChangeProcesses('/api/v3/workspaces/' + wsId + '/items/' + dmsId, paramsProcesses);
         resetSparePartsList();
-        updateViewer();
+        // updateViewer();
+        viewerResetSelection({
+            fitToView : true
+        });
     } else {
         $('tr.selected').removeClass('selected');
         elemClicked.addClass('selected');
@@ -809,7 +780,12 @@ function clickBOMItem(e, elemClicked) {
         if(features.toggleItemAttachments) insertAttachments(elemClicked.attr('data-link'), paramsAttachments);
         if(features.manageProblemReports)  insertChangeProcesses(elemClicked.attr('data-link'), paramsProcesses);
         setSparePartsList(elemClicked);
-        updateViewer(elemClicked.attr('data-part-number'));
+
+        viewerSelectModel(elemClicked.attr('data-part-number'), {
+            highlight : false
+        });
+
+        // updateViewer(elemClicked.attr('data-part-number'));
     }
 
     updateBOMCounters(elemClicked.closest('.bom').attr('id'));
@@ -1053,12 +1029,15 @@ function onViewerSelectionChanged(event) {
         for(let parent of parents) {
             if(proceed) {
                 let partNumber = parent.partNumber;
+
                 if(!isBlank(partNumber)) {
                     $('.bom-item').each(function() {
                         if(proceed) {
                             if($(this).attr('data-part-number') === partNumber) {
                                 proceed = false;
+                                $(this).removeClass('selected');
                                 $(this).click();
+                                bomDisplayItem($(this));
                             }
                         }
                     });
