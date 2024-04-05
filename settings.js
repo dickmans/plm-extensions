@@ -538,7 +538,7 @@ exports.config = {
         'productsFilter'         : '',
         'productsSortBy'         : 'TITLE',
         'productsGroupBy'        : 'PRODUCT_LINE',
-        'productsFieldIdImage'   : 'IMAGE',
+        'productsFieldIdImage'   : 'THUMBNAIL',
         'productsFieldIdTitle'   : 'TITLE',
         'productsFieldIdSubtitle': 'DESCRIPTION',
         'productsFieldIdBOM'     : 'ENGINEERING_BOM',
