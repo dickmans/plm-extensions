@@ -2,6 +2,7 @@ let fields, sections, wsIdRequests, sectionIdRequests;
 let listSpareParts  = [];
 let listWearParts   = [];
 let maintenanceMode = false;
+
 let link            = '/api/v3/workspaces/' + wsId + '/items/' + dmsId;
 let urns = {
     'thumbnail'     : '', 
