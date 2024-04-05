@@ -58,10 +58,10 @@
 #my-custom-toolbar-ghosting.ghosting    #button-toggle-ghosting-on  { display : none; }
 #my-custom-toolbar-ghosting.no-ghosting #button-toggle-ghosting-off { display : none; }
 #button-toggle-highlight-on { 
-    background : var(--color-blue-500) !important; 
+    background   : var(--color-blue-500) !important; 
     border-color : var(--color-blue-500) !important; 
 }
-#button-toggle-highlight-off .icon-hide::before { color : white !important; }
+#button-toggle-highlight-on .icon-highlight::before { color : white !important; }
 #my-custom-toolbar-highlight.highlight-on  #button-toggle-highlight-off { display : none; }
 #my-custom-toolbar-highlight.highlight-off #button-toggle-highlight-on  { display : none; }
 

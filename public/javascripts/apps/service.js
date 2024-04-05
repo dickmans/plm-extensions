@@ -112,7 +112,6 @@ $(document).ready(function() {
         if(!features.requestWorkflowActions) $('#workflow-actions').remove();
 
         $('#header').show();
-        $('#startup').remove();
         setUIEvents();
 
         if(features.homeButton) {
@@ -440,7 +439,10 @@ function changeBOMViewDone(id, fields, bom, selectedItems, flatBOM) {
 
     if(selectedItems.length > 15) $('#items-list').removeClass('l').addClass('m');
 
-    let urnsSpareParts = [];
+    let urnsSpareParts  = [];
+    let fieldIdImage    = config.service.fieldIdImage;
+
+    if(isBlank(fieldIdImage)) fieldIdImage = getFirstImageFieldID(fields);
 
     for(let field of fields) {
 
@@ -450,7 +452,7 @@ function changeBOMViewDone(id, fields, bom, selectedItems, flatBOM) {
             case 'NUMBER'                           : urnsSpareParts.partNumber   = urnField; break;
             case 'TITLE'                            : urnsSpareParts.title        = urnField; break;
             case 'DESCRIPTION'                      : urnsSpareParts.description  = urnField; break;
-            case config.service.fieldIdImage        : urnsSpareParts.image        = urnField; break;
+            case fieldIdImage                       : urnsSpareParts.image        = urnField; break;
             case config.viewer.fieldIdPartNumber    : urnsSpareParts.partNumber   = urnField; break;
             case config.service.fieldId             : urnsSpareParts.spareWearPart= urnField; break;
             case config.service.spartPartDetails[0] : urnsSpareParts.material     = urnField; break;
@@ -1055,48 +1057,34 @@ function onViewerSelectionChanged(event) {
 }
 function getFirstBOMParent() {
 
-    console.log('getFirstBOMParent START');
-
-
-    
-
     let paths = viewerGetSelectedComponentPaths();
     let result = null;
-
-    console.log(paths);
 
     for(let path of paths) {
 
         if(isBlank(result)) {
 
-        console.log(path);
+            let parents = path.split('|');
 
-        let parents = path.split('|');
+            for(let parent of parents) {
 
-        for(let parent of parents) {
+                if(isBlank(result)) {
 
-            if(isBlank(result)) {
+                    let partNumber = parent.split(';')[0];
 
-            console.log(parent);
-            
-            let partNumber = parent.split(';')[0];
+                    $('.bom-item').each(function() {
+                        if($(this).attr('data-part-number') === partNumber) {
+                            console.log('found it');
 
+                            result = $(this);
+                        }
+                    });
 
-            console.log(partNumber);
-
-            $('.bom-item').each(function() {
-                if($(this).attr('data-part-number') === partNumber) {
-                    console.log('found it');
-
-                    result = $(this);
                 }
-            });
 
+
+            }
         }
-
-
-        }
-    }
 
     }
 

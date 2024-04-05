@@ -104,7 +104,11 @@ function getApplicationFeatures(app, requests, callback) {
     }
 
 }
-function getApplicationFeaturesDone(app) {}
+function getApplicationFeaturesDone(app) {
+
+    $('#startup').remove();
+
+}
 
 
 // Validate if given variable is null or empty
@@ -1333,14 +1337,32 @@ function getTableauFieldValue(row, fieldId, defaultValue, property) {
 }
 
 
+
+// Retrieve first image field ID
+function getFirstImageFieldID(fields) {
+
+    if(typeof fields === 'undefined') return '';
+    if(fields === null) return '';
+
+    for(let field of fields) {
+        if(field.type.title === 'Image') {
+            return field.fieldId;
+        }
+    }
+
+    return '';
+
+}
+
+
 // Retrieve first image field value from item's sections data
 function getFirstImageFieldValue(sections) {
 
     if(typeof sections === 'undefined') return '';
-    if(sections === null)   return '';
+    if(sections === null) return '';
 
-    for(section of sections) {
-        for(field of section.fields) {
+    for(let section of sections) {
+        for(let field of section.fields) {
             if(field.type.title === 'Image') {
                 if(field.value !== null) return field.value.link;
             }
