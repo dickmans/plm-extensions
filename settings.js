@@ -533,7 +533,7 @@ exports.config = {
         'endItemFilter'          : { 'fieldId' : 'SBOM_END_ITEM', 'value' : true },
         'fieldId'                : 'SPARE_WEAR_PART',
         'fieldValues'            : ['spare part', 'yes', 'x', 'y', 'wear part'],
-        'fieldIdImage'           : 'IMAGE',
+        'fieldIdImage'           : 'THUMBNAIL',
         'spartPartDetails'       : ['MATERIAL', 'ITEM_WEIGHT', 'DIMENSIONS'],
         'productsFilter'         : '',
         'productsSortBy'         : 'TITLE',
