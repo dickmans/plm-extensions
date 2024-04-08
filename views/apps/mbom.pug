@@ -28,7 +28,7 @@ block body
 
             .panel#tabs 
 
-                .panel-header.tabs.no-auto-select(data-tab-group="tab-group-main")
+                .panel-header.tabs.no-auto-select
                     #mode-disassemble(data-id='disassemble') Disassemble
                     #mode-ebom.selected(data-id='ebom') EBOM Alignment
                     #mode-add(data-id='add') Add Items 
@@ -86,7 +86,7 @@ block body
                             #workspace-views-mbom(data-link='')
                                 .panel-list-toolbar
                                     span Select View:
-                                    select.view-selector#view-selector-mbom
+                                    select.button.view-selector#view-selector-mbom
                                     span Filter List:
                                     input.list-filter
                                     i.icon filter_list
@@ -94,7 +94,7 @@ block body
                             #workspace-views-ebom(data-link='/api/v3/workspaces/79/tableaus')
                                 .panel-list-toolbar
                                     span Select View:
-                                    select.view-selector#view-selector-ebom
+                                    select.button.view-selector#view-selector-ebom
                                     span Filter List:
                                     input.list-filter
                                     i.icon filter_list

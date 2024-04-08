@@ -79,6 +79,8 @@ function setUIEvents() {
             restoreAssembly();
         }, 250); 
         disassembleMode = true;
+        $(this).addClass('selected');
+        $(this).siblings().removeClass('selected');
     });
     $('#mode-ebom').click(function() { 
         $('body').removeClass('mode-disassemble').addClass('mode-ebom').removeClass('mode-add').removeClass('mode-instructions');
@@ -90,16 +92,22 @@ function setUIEvents() {
             }, 250); 
         }
         disassembleMode = false;
+        $(this).addClass('selected');
+        $(this).siblings().removeClass('selected');
     });
     $('#mode-add').click(function() { 
         $('body').removeClass('mode-disassemble').removeClass('mode-ebom').addClass('mode-add').removeClass('mode-instructions');
         setTimeout(function() { viewer.resize(); }, 250); 
         disassembleMode = false;
+        $(this).addClass('selected');
+        $(this).siblings().removeClass('selected');
     });
     $('#mode-instructions').click(function() { 
         $('body').removeClass('mode-disassemble').removeClass('mode-ebom').removeClass('mode-add').addClass('mode-instructions');
         setTimeout(function() { viewer.resize(); }, 250); 
         disassembleMode = false;
+        $(this).addClass('selected');
+        $(this).siblings().removeClass('selected');
     });
     $('#mode-ebom').click();
 
@@ -1930,11 +1938,11 @@ function addBOMToggle(elemParent) {
 // Add Shortcut to open related MBOM
 function addMBOMShortcut(elemParent) {
     
-    let elemMBOM = $('<div></div>');
-        elemMBOM.addClass('icon');
-        elemMBOM.addClass('mbom-shortcut');
-        elemMBOM.appendTo(elemParent);
-        elemMBOM.click(function() {
+     $('<div></div>').appendTo(elemParent)
+        .addClass('icon')
+        .addClass('mbom-shortcut')
+        .attr('title', 'This item has MBOM defined, click to open the given editor')
+        .click(function() {
 
             let elemItem = $(this).closest('.item');
             let linkMBOM = elemItem.attr('data-link');
@@ -2199,7 +2207,7 @@ function deselectItem(elemClicked) {
     if(elemMBOM.length === 1) {
         viewerResetSelection(false);
     } else {
-        viewerResetSelection(true);
+        viewerResetSelection({ 'fitToView' : true });
     }
 
     setStatusBar();
