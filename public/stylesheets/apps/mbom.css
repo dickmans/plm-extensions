@@ -111,10 +111,11 @@ body.details-on #details         { right : var(--padding-panel); }
 /* ADD Panel */
 /* ----------------------------------------------------------------------------- */
 #add input {
-    /* background : var(--color-surface-level-2); */
+    background : var(--color-surface-level-2);
+    border-color : var(--color-surface-level-5);
 }
 .panel-left {
-    border-right : 1px solid  var(--color-surface-level-2);
+    border-right : 1px solid  var(--color-surface-level-5);
     display : flex;
     flex-direction: column;
     gap : var(--spacer-m);
@@ -726,11 +727,12 @@ body.bom-panel-on #mbom-tree { bottom : 106px; }
 }
 #mbom-add-name,
 #mbom-add-code {
-    height      : 30px;
-    line-height : 30px;
-    padding     : 1px 15px;
+    border-color : var(--color-surface-level-5);
+    height       : 30px;
+    line-height  : 30px;
+    padding      : 1px 15px;
 }
-
+select.button.view-selector { height : 36px; }
 
 
 /* DETAILS PANEL */
@@ -807,8 +809,8 @@ body.bom-panel-on #mbom-tree { bottom : 106px; }
 
     :root {
         /* --screen-top : 15px; */
-        --width-ebom : 600px;
-        --width-mbom : 600px;
+        --width-ebom : 800px;
+        --width-mbom : 800px;
         --width-details : 300px;
         /* --padding-panel : 15px; */
     }
