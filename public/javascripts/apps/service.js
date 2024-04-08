@@ -29,7 +29,8 @@ let paramsProcesses = {
     'createSectionsEx'  : ['Review', 'Technical Analysis'],
     'workspacesEx'      : ['83','84']
 }
-let features = {
+
+applicationFeatures = {
     'homeButton'            : true,
     'toggleItemAttachments' : true,
     'toggleItemDetails'     : true,
@@ -52,6 +53,8 @@ let features = {
         'ghosting'      : true,
         'highlight'     : true,
         'reset'         : true,
+        'fitToView'     : true,
+        'single'        : true,
         'views'         : true
     }
 }
@@ -89,31 +92,31 @@ $(document).ready(function() {
             }
         }
 
-        if(!features.homeButton) {
+        if(!applicationFeatures.homeButton) {
             $('#home').remove();
             $('#landing').remove();
         }
-        if(!features.toggleItemAttachments) {
+        if(!applicationFeatures.toggleItemAttachments) {
             $('#attachments').remove();
             $('#toggle-attachments').remove();
         }
-        if(!features.toggleItemDetails) {
+        if(!applicationFeatures.toggleItemDetails) {
             $('#details').remove();
             $('#toggle-details').remove();
         }
-        if(!features.manageProblemReports) {
+        if(!applicationFeatures.manageProblemReports) {
             $('#processes').remove();
             $('#tab-processes').remove();
         }
-        if(!features.showStock) {
+        if(!applicationFeatures.showStock) {
             $('#color-stock').remove();
         }
-        if(!features.requestWorkflowActions) $('#workflow-actions').remove();
+        if(!applicationFeatures.requestWorkflowActions) $('#workflow-actions').remove();
 
         $('#header').show();
         setUIEvents();
 
-        if(features.homeButton) {
+        if(applicationFeatures.homeButton) {
 
             insertWorkspaceViews(wsSparePartsRequests.id, {
                 'id'                : 'requests',
@@ -152,7 +155,7 @@ function setUIEvents() {
 
 
     // Close current product display and return to landing page
-    if(features.homeButton) {
+    if(applicationFeatures.homeButton) {
         $('#home').click(function() {
             $('body').addClass('screen-landing').removeClass('screen-main').removeClass('screen-request');
             document.title = documentTitle;
@@ -166,13 +169,13 @@ function setUIEvents() {
         $('body').toggleClass('no-bom');
         viewerResize();
     })
-    if(features.toggleItemAttachments) {
+    if(applicationFeatures.toggleItemAttachments) {
         $('#toggle-attachments').click(function() {
             $('body').toggleClass('no-attachments');
             viewerResize();
         })
     }
-    if(features.toggleItemDetails) {
+    if(applicationFeatures.toggleItemDetails) {
         $('#toggle-details').click(function() {
             $('body').toggleClass('with-details');
             viewerResize();
@@ -310,9 +313,9 @@ function openItem(link) {
         'selectItems'   : { 'fieldId' : config.service.fieldId, 'values' : config.service.fieldValues }
     });
     insertViewer(link);
-    if(features.toggleItemDetails)     insertItemDetails(link);
-    if(features.toggleItemAttachments) insertAttachments(link, paramsAttachments);
-    if(features.manageProblemReports)  insertChangeProcesses(link, paramsProcesses);
+    if(applicationFeatures.toggleItemDetails)     insertItemDetails(link);
+    if(applicationFeatures.toggleItemAttachments) insertAttachments(link, paramsAttachments);
+    if(applicationFeatures.manageProblemReports)  insertChangeProcesses(link, paramsProcesses);
 
 }
 
@@ -359,7 +362,7 @@ function openSelectedRequest(link) {
     });
 
     getBookmarkStatus(link);
-    if(features.requestWorkflowActions) insertWorkflowActions(link);
+    if(applicationFeatures.requestWorkflowActions) insertWorkflowActions(link);
 
     insertWorkflowHistory(link, {
         'id'     : 'request-workflow-history',
@@ -530,7 +533,7 @@ function insertNonSparePartMessage() {
                 elemSparePart.insertAfter($('#custom-message'));
                 elemSparePart.addClass('spare-part-custom');
 
-            if(features.showStock) {
+            if(applicationFeatures.showStock) {
 
                 let elemStock     = elemSparePart.find('.spare-part-stock');
                 let stockLabel    = 'No spare part';
@@ -725,7 +728,7 @@ function insertBOMSpareParts(elemParent, selectedItems, urnsSpareParts, flatBOM)
                 moveSparePart($(this));
             });  
     
-            if(features.showStock) {
+            if(applicationFeatures.showStock) {
                 $('<div></div>').appendTo(elemSparePartSide).addClass('spare-part-stock');
             }
 
@@ -734,7 +737,7 @@ function insertBOMSpareParts(elemParent, selectedItems, urnsSpareParts, flatBOM)
 }
 function setSparePartStockStatus() {
 
-    if(!features.showStock) return;
+    if(!applicationFeatures.showStock) return;
 
     $('#items-list').children().each(function() {
 
@@ -765,11 +768,13 @@ function setSparePartStockStatus() {
 // BOM User Interactions
 function clickBOMItem(e, elemClicked) {
 
+    $('.bom-item').removeClass('selected-context');
+
     if(elemClicked.hasClass('selected')) {
         elemClicked.removeClass('selected');
-        if(features.toggleItemDetails)     insertItemDetails('/api/v3/workspaces/' + wsId + '/items/' + dmsId);
-        if(features.toggleItemAttachments) insertAttachments('/api/v3/workspaces/' + wsId + '/items/' + dmsId, paramsAttachments);
-        if(features.manageProblemReports)  insertChangeProcesses('/api/v3/workspaces/' + wsId + '/items/' + dmsId, paramsProcesses);
+        if(applicationFeatures.toggleItemDetails)     insertItemDetails('/api/v3/workspaces/' + wsId + '/items/' + dmsId);
+        if(applicationFeatures.toggleItemAttachments) insertAttachments('/api/v3/workspaces/' + wsId + '/items/' + dmsId, paramsAttachments);
+        if(applicationFeatures.manageProblemReports)  insertChangeProcesses('/api/v3/workspaces/' + wsId + '/items/' + dmsId, paramsProcesses);
         resetSparePartsList();
         // updateViewer();
         viewerResetSelection({
@@ -777,10 +782,10 @@ function clickBOMItem(e, elemClicked) {
         });
     } else {
         $('tr.selected').removeClass('selected');
-        elemClicked.addClass('selected');
-        if(features.toggleItemDetails)     insertItemDetails(elemClicked.attr('data-link'));
-        if(features.toggleItemAttachments) insertAttachments(elemClicked.attr('data-link'), paramsAttachments);
-        if(features.manageProblemReports)  insertChangeProcesses(elemClicked.attr('data-link'), paramsProcesses);
+        elemClicked.addClass('selected').addClass('selected-context');
+        if(applicationFeatures.toggleItemDetails)     insertItemDetails(elemClicked.attr('data-link'));
+        if(applicationFeatures.toggleItemAttachments) insertAttachments(elemClicked.attr('data-link'), paramsAttachments);
+        if(applicationFeatures.manageProblemReports)  insertChangeProcesses(elemClicked.attr('data-link'), paramsProcesses);
         setSparePartsList(elemClicked);
 
         viewerSelectModel(elemClicked.attr('data-part-number'), {
@@ -805,8 +810,8 @@ function clickBOMDeselectAllDone() {
     
     let link = $('#bom').attr('data-link');
 
-    if(features.toggleItemDetails) insertItemDetails(link);
-    if(features.toggleItemAttachments) insertAttachments(link, paramsAttachments);
+    if(applicationFeatures.toggleItemDetails) insertItemDetails(link);
+    if(applicationFeatures.toggleItemAttachments) insertAttachments(link, paramsAttachments);
     resetSparePartsList();
     updateViewer();
 
@@ -999,8 +1004,8 @@ function clickSparePart(elemClicked) {
 
     let link = elemClicked.attr('data-link');
 
-    if(features.toggleItemDetails) insertItemDetails(link);
-    if(features.toggleItemAttachments) insertAttachments(link, paramsAttachments);
+    if(applicationFeatures.toggleItemDetails) insertItemDetails(link);
+    if(applicationFeatures.toggleItemAttachments) insertAttachments(link, paramsAttachments);
     viewerSelectModel(elemClicked.attr('data-part-number'), { 'highlight' : false , 'isolate' : true } );
 
 }
@@ -1033,18 +1038,46 @@ function onViewerSelectionChanged(event) {
                 let partNumber = parent.partNumber;
 
                 if(!isBlank(partNumber)) {
+                    $('.bom-item').removeClass('selected');
                     $('.bom-item').each(function() {
                         if(proceed) {
                             if($(this).attr('data-part-number') === partNumber) {
                                 proceed = false;
-                                $(this).removeClass('selected');
-                                $(this).click();
+                                let linkItem = $(this).attr('data-link');
+                                $(this).addClass('selected');
                                 bomDisplayItem($(this));
+                                setSparePartsList($(this));
+                                toggleBOMItemActions($(this));
+                                updateBOMCounters('bom');
+                                if(applicationFeatures.toggleItemDetails)     insertItemDetails(linkItem);
+                                if(applicationFeatures.toggleItemAttachments) insertAttachments(linkItem, paramsAttachments);
+                                if(applicationFeatures.manageProblemReports)  insertChangeProcesses(linkItem, paramsProcesses);
                             }
                         }
                     });
                 }
             }
+        }
+
+    } else if (event.dbIdArray.length === 0) {
+
+        let elemContext = $('.bom-item.selected-context');
+        $('.bom-item').removeClass('selected');
+
+        if(elemContext.length === 0) {
+            resetSparePartsList();
+        } else {
+ 
+            let linkItem = elemContext.attr('data-link');
+            elemContext.addClass('selected');
+            bomDisplayItem(elemContext);
+            setSparePartsList(elemContext);
+            toggleBOMItemActions(elemContext);
+            updateBOMCounters('bom');
+            if(applicationFeatures.toggleItemDetails)     insertItemDetails(linkItem);
+            if(applicationFeatures.toggleItemAttachments) insertAttachments(linkItem, paramsAttachments);
+            if(applicationFeatures.manageProblemReports)  insertChangeProcesses(linkItem, paramsProcesses);            
+
         }
 
     } else {

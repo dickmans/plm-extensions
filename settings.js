@@ -546,7 +546,7 @@ exports.config = {
         'wsIdProducts'           : 95,
         'wsIdProblemReports'     : 82,
         'wsIdSparePartsRequests' : 208,
-        'features' : {
+        'applicationFeatures' : {
             // 'homeButton'            : true,
             // 'toggleItemAttachments' : true,
             // 'toggleItemDetails'     : true,
@@ -569,6 +569,8 @@ exports.config = {
             //     'ghosting'      : true,
             //     'highlight'     : true,
             //     'reset'         : true,
+            //     'fitToView'     : true,
+            //     'single'        : true,
             //     'views'         : true
             // }
         }

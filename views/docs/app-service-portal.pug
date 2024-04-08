@@ -518,6 +518,18 @@
                     td Enables toggling highlight of selected models on/off
                     td true
                 tr 
+                    td features.viewer.fitToView 
+                    td
+                        .adsk-button-icon.icon.icon-viewer(style="font-size:14px;")
+                    td Enables reframing all visible items
+                    td true
+                tr 
+                    td features.viewer.single 
+                    td
+                        .adsk-button-icon.icon.icon-first(style="font-size:14px;")
+                    td Enables fitting of first instance to viewer
+                    td true
+                tr 
                     td features.viewer.views 
                     td
                         .adsk-button-icon.icon.icon-home(style="font-size:14px;")
@@ -534,6 +546,14 @@
     .log 
         h1 Services Portal Change Log 
         table 
+            tr 
+                td 8. April 2024
+                td Enhancement
+                td Behavior for item selection in viewer has been changed. When users click in item, remaining geometry will no longer be ghosted to allow for follow-up seleciton. The selected item still gets highlighted in BOM and matching spare part list as well as Item Details and Item Attachments get refreshed to match the selection.
+            tr 
+                td 
+                td Enhancement
+                td Added new controls in viewer to reframe visible items and to fit only first visible instance in viewer. Both can be disabled by new options in settings.js.
             tr 
                 td 20. March 2024
                 td Enhancement

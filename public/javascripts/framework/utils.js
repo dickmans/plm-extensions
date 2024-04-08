@@ -1,8 +1,9 @@
-let userAccount     = { displayName : '', groupsAssigned : [] };
-let languageId      = '1';
-let username        = '';
-let isiPad          = navigator.userAgent.match(/iPad/i)   != null;
-let isiPhone        = navigator.userAgent.match(/iPhone/i) != null;
+let userAccount         = { displayName : '', groupsAssigned : [] };
+let languageId          = '1';
+let username            = '';
+let isiPad              = navigator.userAgent.match(/iPad/i)   != null;
+let isiPhone            = navigator.userAgent.match(/iPhone/i) != null;
+let applicationFeatures = {}
 
 
 let settings = {
@@ -54,7 +55,7 @@ function getApplicationFeatures(app, requests, callback) {
     $('<div></div>').appendTo($('#startup'))
         .attr('id', 'startup-logo');
 
-    if(isBlank(config[app].features)) {
+    if(isBlank(config[app].applicationFeatures)) {
         $('body').children().removeClass('hidden');
         getApplicationFeaturesDone(app);
         callback();
@@ -66,30 +67,30 @@ function getApplicationFeatures(app, requests, callback) {
 
         // $.get('/plm/groups-assigned', {}, function(response) {
             
-            let settingsFeatures = config[app].features;
+            let settingsFeatures = config[app].applicationFeatures;
             
             for(let group of responses[0].data) userAccount.groupsAssigned.push(group.shortName);
 
-            for(let feature of Object.keys(features)) {
-                if(feature !== 'viewer') {
+            for(let applicationFeature of Object.keys(applicationFeatures)) {
+                if(applicationFeature !== 'viewer') {
                     for(let settingFeature of Object.keys(settingsFeatures)) {
-                        if(feature === settingFeature) {
+                        if(applicationFeature === settingFeature) {
                             if(typeof settingsFeatures[settingFeature] === 'object') {
-                                features[feature] = includesAny(userAccount.groupsAssigned, settingsFeatures[settingFeature]);
-                            } else features[feature] = settingsFeatures[settingFeature];
+                                applicationFeatures[applicationFeature] = includesAny(userAccount.groupsAssigned, settingsFeatures[settingFeature]);
+                            } else applicationFeatures[applicationFeatures] = settingsFeatures[settingFeature];
                         }
                     }
                 }
             }
 
-            if(!isBlank(features.viewer)) {
+            if(!isBlank(applicationFeatures.viewer)) {
                 if(!isBlank(settingsFeatures.viewer)) {
-                    for(let feature of Object.keys(features.viewer)) {
+                    for(let applicationFeature of Object.keys(applicationFeatures.viewer)) {
                         for(let settingFeature of Object.keys(settingsFeatures.viewer)) {
-                            if(feature === settingFeature) {
+                            if(applicationFeature === settingFeature) {
                                 if(typeof settingsFeatures.viewer[settingFeature] === 'object') {
-                                    features.viewer[feature] = includesAny(userAccount.groupsAssigned, settingsFeatures.viewer[settingFeature]);
-                                } else features.viewer[feature] = settingsFeatures.viewer[settingFeature];
+                                    applicationFeatures.viewer[applicationFeature] = includesAny(userAccount.groupsAssigned, settingsFeatures.viewer[settingFeature]);
+                                } else applicationFeatures.viewer[applicationFeature] = settingsFeatures.viewer[settingFeature];
                             }
                         }
                     }
@@ -399,17 +400,28 @@ function togglePanelHeader(elemClicked) {
 function enableTabs() {
 
     $('.tabs').each(function() {
+        
         let groupName = $(this).attr('data-tab-group');
+
+        if(isBlank(groupName)) return;
+
         $('.' + groupName).addClass('hidden');
-    });
 
-    $('.tabs').children().click(function() {
-        clickTab($(this));
-    });
+        $(this).children().click(function() {
+            clickTab($(this));
+        });
 
-    $('.tabs').each(function() {
         if(!$(this).hasClass('no-auto-select')) $(this).children().first().click();
+
     });
+
+    // $('.tabs').children().click(function() {
+    //     clickTab($(this));
+    // });
+
+    // $('.tabs').each(function() {
+    //     if(!$(this).hasClass('no-auto-select')) $(this).children().first().click();
+    // });
 
 }
 function clickTab(elemClicked) {
