@@ -2,7 +2,24 @@ let rules       = { 'features' : [], 'configurations' : [] };
 let wsProducts  = { 'sections' : [] };
 
 
-let testData = {"features":[{"link":"/api/v3/workspaces/307/items/15863","paths":[]},{"link":"/api/v3/workspaces/307/items/15871","paths":[]},{"link":"/api/v3/workspaces/307/items/15862","paths":[]},{"link":"/api/v3/workspaces/307/items/15867","paths":["CAD_30000000|test1","CAD_30000000|test2"]},{"link":"/api/v3/workspaces/307/items/15864","paths":[]},{"link":"/api/v3/workspaces/307/items/15870","paths":["CAD_30000000|CAD_30000045:1|CAD_30000047:3","CAD_30000000|CAD_30000000|CAD_30000045:1|CAD_30000046:1"]},{"link":"/api/v3/workspaces/307/items/15872","paths":["CAD_30000000|CAD_30000205:1"]}],"configurations":[{"name":"alle einser","features":["/api/v3/workspaces/307/items/15867","/api/v3/workspaces/307/items/15862","/api/v3/workspaces/307/items/15870"]},{"name":"3er","features":["/api/v3/workspaces/307/items/15870","/api/v3/workspaces/307/items/15871","/api/v3/workspaces/307/items/15872"]},{"name":"ddd","features":["/api/v3/workspaces/307/items/15867","/api/v3/workspaces/307/items/15868","/api/v3/workspaces/307/items/15862","/api/v3/workspaces/307/items/15864"]},{"name":"Basis","features":["/api/v3/workspaces/307/items/15862","/api/v3/workspaces/307/items/15870"]}]}
+// let testData = {"features":[{"link":"/api/v3/workspaces/307/items/15863","paths":[]},{"link":"/api/v3/workspaces/307/items/15871","paths":[]},{"link":"/api/v3/workspaces/307/items/15862","paths":[]},{"link":"/api/v3/workspaces/307/items/15867","paths":["CAD_30000000|test1","CAD_30000000|test2"]},{"link":"/api/v3/workspaces/307/items/15864","paths":[]},{"link":"/api/v3/workspaces/307/items/15870","paths":["CAD_30000000|CAD_30000045:1|CAD_30000047:3","CAD_30000000|CAD_30000000|CAD_30000045:1|CAD_30000046:1"]},{"link":"/api/v3/workspaces/307/items/15872","paths":["CAD_30000000|CAD_30000205:1"]}],"configurations":[{"name":"alle einser","features":["/api/v3/workspaces/307/items/15867","/api/v3/workspaces/307/items/15862","/api/v3/workspaces/307/items/15870"]},{"name":"3er","features":["/api/v3/workspaces/307/items/15870","/api/v3/workspaces/307/items/15871","/api/v3/workspaces/307/items/15872"]},{"name":"ddd","features":["/api/v3/workspaces/307/items/15867","/api/v3/workspaces/307/items/15868","/api/v3/workspaces/307/items/15862","/api/v3/workspaces/307/items/15864"]},{"name":"Basis","features":["/api/v3/workspaces/307/items/15862","/api/v3/workspaces/307/items/15870"]}]}
+
+
+applicationFeatures.viewer = {
+    'cube'          : false,
+    'orbit'         : false,
+    'firstPerson'   : false,
+    'camera'        : false,
+    'measure'       : true,
+    'section'       : true,
+    'modelBrowser'  : false,
+    'properties'    : false,
+    'settings'      : false,
+    'ghosting'      : true,
+    'highlight'     : true,
+    'reset'         : true,
+    'views'         : true
+}
 
 
 $(document).ready(function() {
@@ -299,10 +316,10 @@ function getProductConfigurationRules(link, linkFeatures) {
 // Viewer setup
 function initViewerDone() {
 
-    viewerAddGhostingToggle();
-    viewerAddResetButton();
-    viewerAddViewsToolbar();
-    viewerAddMarkupControls();
+    // viewerAddGhostingToggle();
+    // viewerAddResetButton();
+    // viewerAddViewsToolbar();
+    // viewerAddMarkupControls();
 
 }
 
@@ -510,7 +527,9 @@ function clickBOMItemDone(elemClicked) {
     if(idBOM === 'bom') {
         if(typeof chrome.webview === 'undefined') {
             if(elemClicked.hasClass('selected')) {
-                viewerSelectModel(elemClicked.attr('data-part-number'), true);
+                viewerSelectModel(elemClicked.attr('data-part-number'), {
+                    'highlight' : false
+                });
             } else {
                 viewerResetSelection(true);
             }
