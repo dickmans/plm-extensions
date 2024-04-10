@@ -859,7 +859,7 @@ function adjustCartHeight() {
 
         if(!isVisible) setTimeout(function() { elemCart.fadeIn(); }, 300);
 
-        topTabs = 110;
+        topTabs = 100;
 
     } else {
 
