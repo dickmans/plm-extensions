@@ -288,7 +288,10 @@ function openItem(link) {
 
     $('#header-subtitle').html('');
     $('#items-list').html('');
+    $('#cart-list').html('');
     $('#items-processing').show();
+
+    adjustCartHeight();
 
     $.get('/plm/descriptor', { 'link' : link}, function(response) {
         $('#header-subtitle').html(response.data);
@@ -998,6 +1001,7 @@ function highlightSparePartStock(className, vector, reset) {
     });
 
 }
+
 
 // Spare Part interactions
 function clickSparePart(elemClicked) {
