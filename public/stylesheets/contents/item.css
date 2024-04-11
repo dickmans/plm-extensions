@@ -207,6 +207,7 @@
 .compact .section-fields { padding : 4px 10px; }
 .compact .section-fields .field { gap : 10px; padding : 2px 0px; }
 .compact .section-fields .field-label { font-size : 12px; padding : 0px; max-width : 30%; min-width : 30%; width : 30%; }
+.compact .section-fields .field-value { font-size : 12px; }
 .compact .section-fields .field-value.image > img { max-width : 150px; }
 .compact .section-fields .field-value.readonly input { font-size : 12px; padding : 0px 0px; }
 .compact .section-fields .field-value.readonly div { font-size : 12px; padding : 0px 0px; }

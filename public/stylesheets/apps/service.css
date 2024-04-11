@@ -1,6 +1,6 @@
 :root {
 
-    --width-requests         : 800px;
+    --width-requests         : 650px;
     --padding-landing-top    : 24px;
     --padding-landing-side   : 40px;
     --padding-landing-bottom : 16px;
@@ -9,7 +9,7 @@
     --width-panel            : 540px;
     --height-attachments     : 184px;
     --width-request-history  : 300px;
-    --width-request-details  : 400px;
+    --width-request-details  : 440px;
     --height-request-files   : 226px;
     --padding-panel          :  24px;
 
@@ -547,7 +547,18 @@
     bottom          : var(--margin-item);
     transition      : all ease 0.25s;
 }
-
+#request-details-content .field {
+    margin-bottom : 0px;
+}
+#request-details-content .field-label {
+    font-weight : bold;
+    max-width   : 150px;
+    min-width   : 150px;
+    width       : 150px;
+}
+#request-attachments-toolbar {
+    display : none;
+}
 
 /* PROCESSES */
 /* ----------------------------------------------------------------------------- */
