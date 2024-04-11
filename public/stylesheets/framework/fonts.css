@@ -218,7 +218,7 @@
 .icon-filter::before            { content : '\e152'; }
 .icon-filter-empty::before      { content : '\e7b3'; }
 .icon-finish::before            { content : '\eaf8'; }
-.icon-first::before             { content : '\e400'; }
+.icon-first::before             { content : '\e400'; font-variation-settings: 'FILL' 1 }
 .icon-fold::before              { content : '\e5d6'; }
 .icon-folder::before            { content : '\e2c7'; }
 .icon-go-there::before          { content : '\e5da'; }
