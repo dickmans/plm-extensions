@@ -92,11 +92,11 @@ block body
                         .col-header Contact Details
                         #contact-details
                             .field 
-                                .field-label Name
-                                input.field-value#request-name
-                            .field 
                                 .field-label Company
                                 input.field-value#request-company
+                            .field 
+                                .field-label Name
+                                input.field-value#request-name
                             .field 
                                 .field-label E-Mail
                                 input.field-value#request-e-mail
@@ -112,10 +112,13 @@ block body
                             .field 
                                 .field-label Country Code
                                 input.field-value#request-country
-                        .col-header#header-shipping-address Shipping Address
-                        textarea#request-shipping-address
-                        .col-header#header-comments Comments
-                        textarea#reqeust-comments
+                        #contact-comments
+                            div
+                                .col-header#header-shipping-address Shipping Address
+                                textarea#request-shipping-address
+                            div
+                                .col-header#header-comments Comments
+                                textarea#reqeust-comments
                     .col-right
                         .col-header Selected Spare Parts
                         #request-list

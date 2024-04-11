@@ -382,8 +382,8 @@
 /* REQUEST CREATON DIALOG */
 /* ----------------------------------------------------------------------------- */
 #request-creation {
-    height  : 920px;
-    top     : calc(50% - 490px);
+    height  : 760px;
+    top     : calc(50% - 400px);
     left    : calc(50% - 800px);
     width   : 1600px;
 }
@@ -391,9 +391,10 @@
     padding-left : 56px; 
 }
 #request-creation .dialog-content {
-    display  : flex;
-    gap      : 40px;
-    overflow : hidden;
+    display         : flex;
+    gap             : 40px;
+    overflow        : hidden;
+    padding-bottom  : 0px;
 }
 .col-header {
     border-bottom   : 2px solid var(--color-surface-level-5);
@@ -402,10 +403,10 @@
     font-size       : 16px;
 }
 .col-left {
-    width : 540px;
+    width : 580px;
 }
 .col-right {
-    width : calc(100% - 540px);
+    width : calc(100% - 580px);
 }
 #contact-details .field {
     display         : flex;
@@ -433,11 +434,15 @@
 #contact-details {
     margin : 24px 0px 36px;
 }
-#header-comments {
-    margin-top : 24px;
+#contact-comments {
+    display : flex;
+    gap : 20px;
 }
-#request-shipping-address { height : 100px; }
-#reqeust-comments         { height :  72px; }
+#contact-comments > div {
+    flex-grow : 1;
+}
+#request-shipping-address { height : 116px; }
+#reqeust-comments         { height : 116px; }
 #request-list {
     display         : flex;
     flex-direction  : column;
@@ -447,8 +452,8 @@
     position        : absolute;
     top             : 68px;
     right           : 40px;
-    bottom          : 30px;
-    left            : 606px;
+    bottom          : 0px;
+    left            : 646px;
 }
 #request-list > div {
     background      : var(--color-surface-level-3);
