@@ -407,7 +407,7 @@
 .col-right {
     width : calc(100% - 540px);
 }
-.field {
+#contact-details .field {
     display         : flex;
     margin-bottom   : 8px;
 }
@@ -417,7 +417,7 @@
     padding-top : 8px;
     width       : 100px;
 }
-.field input {
+#contact-details .field input {
     background      : var(--color-surface-level-2);
     border-color    : var(--color-surface-level-5);
     font-size       : 14px;
