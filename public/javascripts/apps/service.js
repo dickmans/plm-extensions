@@ -371,12 +371,13 @@ function openSelectedRequest(link) {
     insertDetails(link, {
         'id'             : 'request-details',
         'compactDisplay' : true,
-        'suppressLinks'  : true
+        'suppressLinks'  : true,
+        'sectionsEx'     : ['Request Confirmation', 'Planning & Tracking', 'Real Time KPIs']
     });
     insertGrid(link, {
         'id'            : 'request-grid',
         'headerLabel'   : 'Part List',
-        'columnsEx'     : ['UNIT_COST', 'TOTAL_COST'],
+        'columnsEx'     : config.service.requestColumnsExcluded,
         'reload'        : false
     });
     insertAttachments(link, {
@@ -486,7 +487,6 @@ function changeBOMViewDone(id, fields, bom, selectedItems, flatBOM) {
     $('#items-processing').hide();
 
 }
-
 function insertNonSparePartMessage() {
 
     if(isBlank(config.service.enableCustomRequests)) return;

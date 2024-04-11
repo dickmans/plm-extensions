@@ -382,6 +382,10 @@
                     td Provide ID of the new workspace 
                         strong Spare Parts Requests 
                         | to enable creation of new requests from within the application
+                tr 
+                    td requestColumnsExcluded
+                    td ['UNIT_COST', 'TOTAL_COST', 'MAKE_OR_BUY', 'MANUFACTURER', 'MANUFACTURER_PN', 'LEAD_TIME', 'LONG_LEAD_TIME']
+                    td Defines columns to be hidden from Part List when users open a given request within the portal to track its progression.
         h1 Feature Availability 
         p Selected application features as well as viewer toolbar functionality can be restricted using the features property in settings.js. The given settings are disabled in the standard settings file to enable all features. Uncomment the property you would like to adjust and change its value as this will override the application defaults.
         img(src='images/apps/services-portal-7.png' style='width:100%;max-width:578px;margin:10px 0px;')
@@ -546,6 +550,16 @@
     .log 
         h1 Services Portal Change Log 
         table 
+            tr 
+                td 11. April 2024
+                td Enhancement
+                td New setting 
+                    strong requestColumnsExcluded 
+                    |enables hiding defined columns from the Parts List of a Spare Part Request shown in the portal.
+            tr 
+                td 
+                td Quallity
+                td Change some CSS setting to improve display of given requests witin the portal
             tr 
                 td 8. April 2024
                 td Enhancement

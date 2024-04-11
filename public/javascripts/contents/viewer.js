@@ -273,10 +273,12 @@ function setViewerInstancedData() {
 
     Promise.all(promises).then(function(instances) {
         for(let instance of instances) {
-            let partNumber = getInstancePartNumber(instance);
-            if(partNumber !== null) {
-                instance.partNumber = partNumber;
-                dataInstances.push(instance);
+            if(!isBlank(instance.name)) {
+                let partNumber = getInstancePartNumber(instance);
+                if(partNumber !== null) {
+                    instance.partNumber = partNumber;
+                    dataInstances.push(instance);
+                }
             }
         }
         setViewerInstancedDataDone();
@@ -500,7 +502,7 @@ function viewerSelectInstances(dbIds, params) {
     disableViewerSelectionEvent = false;
 
 }
-function viewerHighlightInstances(partNumber, dbIds, params) {
+function viewerHighlightInstances(partNumber, ids, params) {
     
     // Select all occurences of a partNumber and highlight defined instance IDs
 
@@ -508,7 +510,8 @@ function viewerHighlightInstances(partNumber, dbIds, params) {
     if(isBlank(partNumber)) return;
     if(isBlank(ids)) return;
 
-        //  Set defaults for optional parameters
+
+    //  Set defaults for optional parameters
     // --------------------------------------
     let isolate         = true;    // Enable isolation of selected component(s)
     let ghosting        = false;   // Enforce ghosting of hidden components
@@ -527,22 +530,25 @@ function viewerHighlightInstances(partNumber, dbIds, params) {
     if(!isBlank(params.colorHighlight)) colorHighlight = params.colorHighlight;
 
     disableViewerSelectionEvent = true;
+    ghosting = getToolbarGhostingToggle(ghosting);
+    
+    let dbIds   = [];
 
     if(isolate)     viewer.hideAll();
     if(resetColors) viewer.clearThemingColors();
 
     for(let dataInstance of dataInstances) {
-        for(let partNumber of partNumbers) {
-            if(dataInstance.partNumber === partNumber) {
-                dbIds.push(dataInstance.dbId);
-                viewer.show(dataInstance.dbId);
-                if(!ids.includes(String.valueOf(item.dbId))) viewer.setThemingColor(item.dbId, color, null, true );
-            }
+        if(dataInstance.partNumber === partNumber) {
+            dbIds.push(dataInstance.dbId);
+            viewer.show(dataInstance.dbId);
         }
     }
 
     for(let dbId of dbIds) {
-        viewer.setThemingColor(Number(dbId), colorHighlight, null, true );
+        viewer.setThemingColor(Number(dbId), colorModelSelected, null, true );
+    }
+    for(let dbIdHighlight of ids) {
+        viewer.setThemingColor(Number(dbIdHighlight), colorModelHighlighted, null, true );
     }
      
     if(ghosting)  viewer.setGhosting(false);
@@ -837,7 +843,7 @@ function viewerGetComponentsInstances(partNumbers) {
     if(!isViewerStarted()) return [];
 
     let result = [];
-        
+
     for(let partNumber of partNumbers) {
         result.push({
             'partNumber' : partNumber,
@@ -872,7 +878,7 @@ function getComponentPath(id) {
 
     for(let dataInstance of dataInstances) {
         if(dataInstance.dbId === id) {
-            result = dataInstance.partNumber + ';' + dataInstance.name;
+            result = dataInstance.partNumber + ';xx' + dataInstance.name;
             for(let property of dataInstance.properties) {
                 if(property.attributeName === 'parent') {
                     let partNumber = getComponentPath(property.displayValue);
@@ -1008,6 +1014,17 @@ function addCustomControl(toolbar, id, icon, tooltip) {
     toolbar.addControl(newButton);
 
     return newButton;
+
+}
+function getToolbarGhostingToggle(value) {
+
+    let toolbar = $('#my-custom-toolbar-ghosting');
+    if(toolbar.length > 0) {
+        if(toolbar.hasClass('ghosting')) return true;
+        else return false;
+    } else {
+        return value;
+    }
 
 }
 

@@ -1240,9 +1240,9 @@ function insertDetails(link, params) {
     if(!isBlank(params.suppressLinks) )  suppressLinks = params.suppressLinks;
     if(!isBlank(params.editable)      )      columnsIn = params.editable;
     if(!isBlank(params.compactDisplay)) compactDisplay = params.compactDisplay;
-    if(!isBlank(params.sectionsIn)    )      columnsIn = params.sectionsIn;
-    if(!isBlank(params.sectionsEx)    )      columnsIn = params.sectionsEx;
-    if(!isBlank(params.fieldsIn)      )      columnsIn = params.fieldsIn;
+    if(!isBlank(params.sectionsIn)    )     sectionsIn = params.sectionsIn;
+    if(!isBlank(params.sectionsEx)    )     sectionsEx = params.sectionsEx;
+    if(!isBlank(params.fieldsIn)      )       fieldsIn = params.fieldsIn;
     if(!isBlank(params.fieldsEx)      )       fieldsEx = params.fieldsEx;
 
     settings.details[id]                = {};
@@ -1353,14 +1353,18 @@ function insertDetailsData(id) {
 
                 cacheSections = [];
 
+                console.log(sectionsEx);
+
                 for(let section of sections) {
 
                     let sectionId   = section.__self__.split('/')[6];
                     let isNew       = true;
                     let className   = 'expanded'
 
+                    console.log(section.name);
+
                     if(sectionsIn.length === 0 || sectionsIn.includes(section.name)) {
-                        if(sectionsEx.length === 0 || !sectionsEx.includes(section.name)) 
+                        if(sectionsEx.length === 0 || !sectionsEx.includes(section.name)) {
 
                             for(let cacheSection of cacheSections) {
                                 if(cacheSection.urn === section.urn) {
@@ -1433,9 +1437,10 @@ function insertDetailsData(id) {
                                 }
                             }
             
-                        if(elemFields.children().length === 0) {
-                            elemFields.remove();
-                            elemSection.remove();
+                            if(elemFields.children().length === 0) {
+                                elemFields.remove();
+                                elemSection.remove();
+                            }
                         }
             
                     }
@@ -4162,7 +4167,10 @@ function clickFlatBOMItem(e, elemClicked) {
 
     elemClicked.toggleClass('selected').siblings().removeClass('selected');
 
+    clickFlatBOMItemDone(e, elemClicked);
+
 }
+function clickFlatBOMItemDone(e, elemClicked) {}
 function clickFlatBOMCheckbox(e, elemClicked) {
 
     elemClicked.closest('.flat-bom-item').toggleClass('selected');

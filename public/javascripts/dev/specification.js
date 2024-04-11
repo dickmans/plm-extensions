@@ -13,24 +13,34 @@ let urns = {
     'dimensions'    : ''
 }
 
+let paramsAttachments = { 'layout' : 'list', upload : true};
+
+let edit = false;
+
+
 let ebom, flatEBOM, ebomFields;
 let selectedBOMContext      = '';
 let wsProblemReports        = { 'id' : '', 'sections' : [], 'fields' : [] };
 let wsConfig = {
     'sensors' : {
-        'wsId' : 341
+        'wsId' : 341,
+        'pending' : true
     },
     'actors' : {
-        'wsId' : 374
+        'wsId' : 374,
+        'pending' : true
     },
     'motors' : {
-        'wsId' : 340
+        'wsId' : 340,
+        'pending' : true
     },
     'cylinders' : {
-        'wsId' : 376
+        'wsId' : 376,
+        'pending' : true
     },
     'operators' : {
-        'wsId' : 472
+        'wsId' : 472,
+        'pending' : true
     }
 };
 
@@ -122,11 +132,11 @@ function setUIEvents() {
         $('body').toggleClass('no-bom');setTimeout(function() { viewer.resize(); }, 250);
     })
     $('#toggle-details').click(function() {
-        $('body').toggleClass('with-details');
+        $('body').toggleClass('with-details').removeClass('with-attachments');
         setTimeout(function() { viewer.resize(); }, 250);
     })
     $('#toggle-attachments').click(function() {
-        $('body').toggleClass('no-attachments');
+        $('body').toggleClass('with-attachments').removeClass('with-details');
         viewer.resize();setTimeout(function() { viewer.resize(); }, 250);
     })
 
@@ -190,7 +200,8 @@ function getWSConfig() {
 
     let requests = [
         $.get('/plm/grid-columns', { 'wsId' : wsConfig.sensors.wsId}),
-        $.get('/plm/grid-columns', { 'wsId' : wsConfig.motors.wsId})
+        $.get('/plm/grid-columns', { 'wsId' : wsConfig.motors.wsId}),
+        $.get('/plm/grid-columns', { 'wsId' : wsConfig.cylinders.wsId})
     ]
 
     Promise.all(requests).then(function(responses) {
@@ -200,6 +211,9 @@ function getWSConfig() {
 
         wsConfig.motors.grid = responses[1].data.fields;
         wsConfig.motors.editableFields = getEditableFields(responses[1].data.fields);
+
+        wsConfig.cylinders.grid = responses[2].data.fields;
+        wsConfig.cylinders.editableFields = getEditableFields(responses[2].data.fields);
 
     });
  
@@ -255,7 +269,7 @@ function openItem(link) {
     
     insertViewer(link);
     insertItemDetails(link);
-    insertAttachments(link);
+    insertAttachments(link, paramsAttachments);
     // setProcesses(link);
 
 }
@@ -300,10 +314,10 @@ function insertElementLists() {
 
     $('#panel').show();
 
-    insertFlatBOM(linksComponentLists[0], { 'id' : 'list-sensors',   'title' : '', 'editable' : true, 'bomViewName' : 'Specification', 'views' : true, 'quantity' : false, 'position' : false, 'descriptor' : false });
-    insertFlatBOM(linksComponentLists[1], { 'id' : 'list-actors',    'title' : '', 'editable' : true, 'bomViewName' : 'Default View',  'views' : true, 'quantity' : false, 'position' : false, 'descriptor' : false });
-    insertFlatBOM(linksComponentLists[2], { 'id' : 'list-motors' ,   'title' : '', 'editable' : true, 'filterEmpty' : true, 'bomViewName' : 'Specification', 'views' : true, 'quantity' : false, 'position' : false, 'descriptor' : false });
-    insertFlatBOM(linksComponentLists[3], { 'id' : 'list-cylinders', 'title' : '', 'editable' : true, 'bomViewName' : 'Specification', 'views' : true, 'quantity' : false, 'position' : false, 'descriptor' : false });
+    insertFlatBOM(linksComponentLists[0], { 'id' : 'list-sensors',   'title' : '', 'editable' : edit, 'bomViewName' : 'Specification', 'views' : true, 'quantity' : false, 'position' : false, 'descriptor' : false });
+    insertFlatBOM(linksComponentLists[1], { 'id' : 'list-actors',    'title' : '', 'editable' : edit, 'bomViewName' : 'Default View',  'views' : true, 'quantity' : false, 'position' : false, 'descriptor' : false });
+    insertFlatBOM(linksComponentLists[2], { 'id' : 'list-motors' ,   'title' : '', 'editable' : edit, 'filterEmpty' : true, 'bomViewName' : 'Specification', 'views' : true, 'quantity' : false, 'position' : false, 'descriptor' : false });
+    insertFlatBOM(linksComponentLists[3], { 'id' : 'list-cylinders', 'title' : '', 'editable' : edit, 'bomViewName' : 'Specification', 'views' : true, 'quantity' : false, 'position' : false, 'descriptor' : false });
 
 }
 
@@ -314,15 +328,16 @@ function clickBOMItem(e, elemClicked) {
     if(elemClicked.hasClass('selected')) {
         elemClicked.removeClass('selected');
         insertItemDetails('/api/v3/workspaces/' + wsId + '/items/' + dmsId);
-        insertAttachments('/api/v3/workspaces/' + wsId + '/items/' + dmsId);
+        insertAttachments('/api/v3/workspaces/' + wsId + '/items/' + dmsId, paramsAttachments);
         setProcesses('/api/v3/workspaces/' + wsId + '/items/' + dmsId);
         updateViewer();
         $('.flat-bom-item').show();
+        $('.application-data-instance').show();
     } else {
         $('tr.selected').removeClass('selected');
         elemClicked.addClass('selected');
         insertItemDetails(elemClicked.attr('data-link'));
-        insertAttachments(elemClicked.attr('data-link'));
+        insertAttachments(elemClicked.attr('data-link'), paramsAttachments);
         setProcesses(elemClicked.attr('data-link'));
         updateViewer();
         filterPartList(elemClicked);
@@ -340,7 +355,7 @@ function clickBOMResetDone() {
     let link = $('#bom').attr('data-link');
     
     insertItemDetails(link);
-    insertAttachments(link);
+    insertAttachments(link, paramsAttachments);
     updateViewer();
 
 }
@@ -369,13 +384,10 @@ function filterApplicationData(elemClicked) {
 
     let partNumber = elemClicked.attr('data-part-number');
 
-    console.log(partNumber);
-
     $('.application-data-instance').hide();
 
     $('.application-data-instance').each(function() {
         let path = $(this).attr('data-path');
-        console.log(path);
         if(path.indexOf(partNumber) > -1) {
             $(this).show();
             // $(this).closest('.application-data-cell').show();
@@ -552,11 +564,23 @@ function changeFlatBOMViewDone(id) {
     setApplicationDataTable(id);
 
 }
+function setViewerInstancedDataDone() {
 
+    awaitingViewer = false;
+    setApplicationDataTable('list-motors');
+    setApplicationDataTable('list-sensors');
+
+}
 function setApplicationDataTable(id) {
 
     if(awaitingBOM) return;
     if(awaitingViewer) return;
+
+    let idWS = id.split('-')[1];
+
+    if(wsConfig[idWS].pending = false) return;
+
+    wsConfig[idWS].pending = false;
 
     let elemTHRow = $('#' + id + '-thead').children().first();
 
@@ -586,27 +610,18 @@ function setApplicationDataTable(id) {
                 clickToggleApplicationData($(this));
             })
 
-
-    // });
-
-    // for(let elemRow of elemTBody) {
-
-        let partNumber = elemRow.attr('data-part-number');
-
         partNumbers.push(elemRow.attr('data-part-number'));
 
     });
 
-    viewerGetComponentsInstances(partNumbers, 'Bauteilnummer').then(function(components) {
-        for(let component of components) {
-            insertApplicationDataTable(id, component);
-        }
-    });
+    let components = viewerGetComponentsInstances(partNumbers);
+
+    for(let component of components) {
+        insertApplicationDataTable(id, component);
+    }
 
 }
 function insertApplicationDataTable(id, component) {
-
-    // return;
 
     sortArray(component.instances, 'path');
 
@@ -643,6 +658,8 @@ function insertApplicationDataTable(id, component) {
 
 
     for(let instance of component.instances) {
+
+        // console.log(instance);
 
         let elemRow = $('<tr></tr>').appendTo(elemTBody)
             .addClass('application-data-instance')
@@ -684,6 +701,16 @@ function insertApplicationDataTable(id, component) {
                                     changedFlatBOMValue($(this));
                                 });
     
+
+                            // if(!edit) {
+
+
+                                elemControl.attr('readonly', true);
+                                elemControl.attr('disabled', true);
+                                elemRowCell.addClass('readonly');  
+
+                            // }
+
                             switch (editableField.type) {
     
                                 case 'Single Selection':
@@ -715,14 +742,11 @@ function insertApplicationDataTable(id, component) {
 }
 function clickToggleApplicationData(elemClicked) {
 
-    console.log('clickToggleApplicationData START');
-
     let elemRow = elemClicked.parent();
         elemRow.toggleClass('collapsed');
         elemRow.toggleClass('expanded');
 
     elemRow.next().children().toggle();
-
 
 }
 function clickInstance(elemClicked) {
@@ -738,10 +762,12 @@ function clickInstance(elemClicked) {
         $('.flat-bom-item').removeClass('selected');
         elemPrev.addClass('selected');
         insertItemDetails(elemPrev.attr('data-link'));
-        insertAttachments(elemPrev.attr('data-link'));
-        viewerHighlightInstances(elemPrev.attr('data-part-number'), [dbId], true, true, true);
+        insertAttachments(elemPrev.attr('data-link'), paramsAttachments);
+        // viewerHighlightInstances(elemPrev.attr('data-part-number'), [dbId], true, true, true);
+        viewerHighlightInstances(elemPrev.attr('data-part-number'), [dbId], {});
     } else {
-        viewerHighlightInstances(elemPrev.attr('data-part-number'), [dbId], false, false, false);
+        // viewerHighlightInstances(elemPrev.attr('data-part-number'), [dbId], false, false, false);
+        viewerHighlightInstances(elemPrev.attr('data-part-number'), [dbId], {});
     }
 
 }
@@ -754,8 +780,12 @@ function clickFlatBOMItem(e, elemClicked) {
     if(elemClicked.hasClass('selected')) {
         viewerSelectModels([elemClicked.attr('data-part-number')], true);
         insertItemDetails(elemClicked.attr('data-link'));
-        insertAttachments(elemClicked.attr('data-link'));
-    } else viewerResetSelection(true);
+        insertAttachments(elemClicked.attr('data-link'), paramsAttachments);
+    } else {
+        viewerResetSelection(true);
+        let elemTable = elemClicked.closest('.flat-bom-tbody');
+        elemTable.find('.application-data-instance').removeClass('selected');
+    }
 
 }
 function clickFlatBOMCheckboxDone(e, elemClicked) {
@@ -920,16 +950,18 @@ function initViewerDone() {
 
     $('#viewer-markup-image').attr('data-field-id', 'IMAGE_1');
 
-    awaitingViewer = false;
+    // awaitingViewer = false;
 
-    setApplicationDataTable('list-motors');
+    // setApplicationDataTable('list-motors');
 
 }
 function onViewerSelectionChanged(event) {
 
     if(disableViewerSelectionEvent) return;
 
-    viewerGetSelectedComponentPaths().then(function(selectedComponentPaths) {
+    let selectedComponentPaths = viewerGetSelectedComponentPaths();
+
+    // viewerGetSelectedComponentPaths().then(function(selectedComponentPaths) {
         console.log(selectedComponentPaths);
         console.log(selectedComponentPaths[0]);
         // addSelectedFeatureItems(elemFeature, selectedComponentPaths)
@@ -958,7 +990,7 @@ function onViewerSelectionChanged(event) {
         })
 
 
-    });
+    // });
 
     // if (event.dbIdArray.length === 1) {
 

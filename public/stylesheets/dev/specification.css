@@ -9,7 +9,7 @@
     --width-details         : 400px;
     /* --width-panel           : 500px; */
     --height-viewer         : 400px;
-    --height-attachments    : 184px;
+    /* --height-attachments    : 184px; */
     --padding-panel         :  24px;
 
 }
@@ -108,7 +108,7 @@ td.instance-path { display : none;}
     height  : var(--height-viewer);
 }
 /* .viewer, */
-#attachments {
+/* #attachments {
     right  :  calc(var(--width-panel) + (2 * var(--padding-panel)));
     left   :  calc(var(--width-bom)   + (2 * var(--padding-panel)));
 }
@@ -116,14 +116,14 @@ td.instance-path { display : none;}
     display : none;
     bottom : var(--padding-panel);
     height : var(--height-attachments);
-}
+} */
 #panel {
     top   :  calc(var(--height-viewer) + (2 * var(--padding-panel)));
     right   : var(--padding-panel);
     bottom  : var(--padding-panel);
     left    : calc(var(--width-bom)   + (2 * var(--padding-panel)));
 }
-#details {
+#details, #attachments {
     top    : var(--padding-panel);
     right  : calc(0px - (2 * var(--padding-panel)) - var(--width-details));
     bottom : var(--padding-panel);
@@ -146,13 +146,20 @@ td.instance-path { display : none;}
 .no-bom #attachments { left : var(--padding-panel); }
 .no-bom #panel { left : var(--padding-panel); }
 
-.no-attachments .viewer      { bottom : var(--padding-panel); }
-.no-attachments #attachments { bottom : calc(2 * var(--height-attachments) * -1); }
+/* .no-attachments .viewer      { bottom : var(--padding-panel); }
+.no-attachments #attachments { bottom : calc(2 * var(--height-attachments) * -1); } */
 
 .with-details .viewer      { right : calc(var(--width-details) + (3 * var(--padding-panel))); }
 .with-details #panel      { right : calc(var(--width-details) + (3 * var(--padding-panel))); }
-.with-details #attachments { right : calc(var(--width-details) + var(--width-panel) + (3 * var(--padding-panel))); }
+/* .with-details #attachments { right : calc(var(--width-details) + var(--width-panel) + (3 * var(--padding-panel))); } */
 .with-details #details     { right : var(--padding-panel); }
+
+
+.with-attachments .viewer      { right : calc(var(--width-details) + (3 * var(--padding-panel))); }
+.with-attachments #panel      { right : calc(var(--width-details) + (3 * var(--padding-panel))); }
+.with-attachments #attachments { right : var(--padding-panel); }
+
+/* .with-details #details     { right : var(--padding-panel); } */
 
 .no-panel.with-details .viewer,
 .no-panel.with-details #attachments  { right : calc(var(--width-details) + (3 * var(--padding-panel))); }
@@ -229,7 +236,7 @@ td.instance-path { display : none;}
 
 /* ATTACHMENTS */
 /* ----------------------------------------------------------------------------- */
-#attachments {
+/* #attachments {
     padding     : var(--padding-panel) 0px 0px;
     text-align : center;
 }
@@ -248,7 +255,7 @@ td.instance-path { display : none;}
 }
 #attachments-processing { top : 120px; }
 #attachments-list .attachment { width : auto !important;}
-#attachments-list .attachment-details { max-width : unset; }
+#attachments-list .attachment-details { max-width : unset; } */
 
 
 /* REQUEST CREATON DIALOG */
