@@ -411,7 +411,7 @@
     display         : flex;
     margin-bottom   : 8px;
 }
-.field-label {
+#contact-details .field-label {
     font-weight : normal;
     min-width   : 100px;
     padding-top : 8px;
