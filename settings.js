@@ -546,6 +546,7 @@ exports.config = {
         'wsIdProducts'           : 95,
         'wsIdProblemReports'     : 82,
         'wsIdSparePartsRequests' : 208,
+        'requestSectionsExcluded': ['Workflow Activity'],
         'requestColumnsExcluded' : ['UNIT_COST', 'TOTAL_COST', 'MAKE_OR_BUY', 'MANUFACTURER', 'MANUFACTURER_PN', 'LEAD_TIME', 'LONG_LEAD_TIME'],
         'applicationFeatures' : {
             // 'homeButton'            : true,

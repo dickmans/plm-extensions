@@ -383,6 +383,10 @@
                         strong Spare Parts Requests 
                         | to enable creation of new requests from within the application
                 tr 
+                    td requestSectionsExcluded
+                    td ['Workflow Activity']
+                    td Defines sections to be hidden from Spare Part Request details display.
+                tr 
                     td requestColumnsExcluded
                     td ['UNIT_COST', 'TOTAL_COST', 'MAKE_OR_BUY', 'MANUFACTURER', 'MANUFACTURER_PN', 'LEAD_TIME', 'LONG_LEAD_TIME']
                     td Defines columns to be hidden from Part List when users open a given request within the portal to track its progression.
@@ -552,6 +556,12 @@
         table 
             tr 
                 td 11. April 2024
+                td Enhancement
+                td New setting 
+                    strong requestSectionsExcluded 
+                    |enables hiding defined sections from the Spare Part Request Details. The details display is still driven by the user permissions and sections can be hidden based on their access permissions defined in the Workspace Manager. 
+            tr 
+                td 
                 td Enhancement
                 td New setting 
                     strong requestColumnsExcluded 

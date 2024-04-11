@@ -372,7 +372,7 @@ function openSelectedRequest(link) {
         'id'             : 'request-details',
         'compactDisplay' : true,
         'suppressLinks'  : true,
-        'sectionsEx'     : ['Request Confirmation', 'Planning & Tracking', 'Real Time KPIs']
+        'sectionsEx'     : config.service.requestSectionsExcluded
     });
     insertGrid(link, {
         'id'            : 'request-grid',
