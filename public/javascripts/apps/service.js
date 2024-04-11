@@ -24,10 +24,8 @@ let paramsAttachments = {
     'size'          : 'xs'
 }
 let paramsProcesses = { 
-    'headerLabel'       : '', 
-    'createWSID'        : '82' ,
-    'createSectionsEx'  : ['Review', 'Technical Analysis'],
-    'workspacesEx'      : ['83','84']
+     'headerLabel'       : '', 
+     'createWSID'        : '' 
 }
 
 applicationFeatures = {
@@ -62,8 +60,10 @@ applicationFeatures = {
 
 $(document).ready(function() {
     
-    wsProblemReports.id      = config.service.wsIdProblemReports;
-    wsSparePartsRequests.id  = config.service.wsIdSparePartsRequests;
+    paramsProcesses.createWSID   = config.service.wsIdProblemReports;
+    paramsProcesses.workspacesIn = [config.service.wsIdProblemReports];
+    wsProblemReports.id          = config.service.wsIdProblemReports;
+    wsSparePartsRequests.id      = config.service.wsIdSparePartsRequests;
 
     appendProcessing('items');
     appendOverlay();
