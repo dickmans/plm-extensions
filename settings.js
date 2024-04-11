@@ -3,6 +3,7 @@ let clientId        = '';
 let clientSecret    = '';
 let tenant          = '';
 let redirectUri     = 'http://localhost:8080/callback';
+let defaultTheme    = 'light';
 
 
 

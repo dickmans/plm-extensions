@@ -10,13 +10,13 @@ const router        = express.Router();
 router.get('/', function(req, res, next) {
     res.render('framework/landing', {
         title : 'PLM TS User Experiences',
-        theme : (typeof req.query.theme === 'undefined') ? '' : req.query.theme
+        theme : (typeof req.query.theme === 'undefined') ? req.app.locals.defaultTheme : req.query.theme
     });
 });
 router.get('/docs', function(req, res, next) {
     res.render('framework/docs', {
         title : 'PLM UX Developer Guide',
-        theme : (typeof req.query.theme === 'undefined') ? '' : req.query.theme
+        theme : (typeof req.query.theme === 'undefined') ? req.app.locals.defaultTheme : req.query.theme
     });
 });
 
@@ -117,7 +117,7 @@ function launch(view, title, req, res, next) {
         let reqDMS          = '';
         let reqPartNumber   = '';
         let reqRevisionBias = 'release';
-        let reqTheme        = '';
+        let reqTheme        = req.app.locals.defaultTheme;
         let reqOptions      = req.query.hasOwnProperty('options') ? req.query.options : '';
     
         for(key in req.query) {
@@ -140,6 +140,7 @@ function launch(view, title, req, res, next) {
         console.log('  partNumber   = ' + reqPartNumber); 
         console.log('  options      = ' + reqOptions); 
         console.log('  revisionBias = ' + reqRevisionBias); 
+        console.log('  defaultTheme = ' + req.app.locals.defaultTheme); 
         console.log('  theme        = ' + reqTheme); 
         console.log();
         

@@ -39,6 +39,7 @@ if ((process.argv.length > 2) && (!fs.existsSync('./' + fileSettings))) {
     app.locals.redirectUri  = settings.redirectUri;
     app.locals.config       = settings.config;
     app.locals.debugMode    = settings.debugMode;
+    app.locals.defaultTheme = settings.defaultTheme;
 
 
     // VIEW ENGINE SETUP
