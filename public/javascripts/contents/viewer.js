@@ -1235,11 +1235,9 @@ function viewerAddMarkupControls(includeSaveButton) {
         addMarkupActionControl(elemMarkupGroupActions, false, 'Close', 'viewerLeaveMarkupMode();', 'Close markup toolbar');
     }
 
-    let elemMarkupImage = $('<canvas>');
-        elemMarkupImage.attr('id', 'viewer-markup-image');
-        elemMarkupImage.addClass('hidden');
-        elemMarkupImage.appendTo($('body'));
-
+     $('<canvas>').appendTo($('body'))
+        .attr('id', 'viewer-markup-image')
+        .addClass('hidden');
 
     let newToolbar = new Autodesk.Viewing.UI.ControlGroup('my-custom-markup-toolbar');
     let newButton  = addCustomControl(newToolbar, 'my-markup-button', 'icon-markup', 'Markup');

@@ -24,8 +24,9 @@ let paramsAttachments = {
     'size'          : 'xs'
 }
 let paramsProcesses = { 
-     'headerLabel'       : '', 
-     'createWSID'        : '' 
+     'headerLabel'    : '', 
+     'createWSID'     : '' ,
+     'fieldIdMarkup'  : ''
 }
 
 applicationFeatures = {
@@ -47,7 +48,7 @@ applicationFeatures = {
         'properties'    : false,
         'settings'      : false,
         'fullscreen'    : true,
-        'markup'        : false,
+        'markup'        : true,
         'ghosting'      : true,
         'highlight'     : true,
         'reset'         : true,
@@ -60,10 +61,11 @@ applicationFeatures = {
 
 $(document).ready(function() {
     
-    paramsProcesses.createWSID   = config.service.wsIdProblemReports;
-    paramsProcesses.workspacesIn = [config.service.wsIdProblemReports];
-    wsProblemReports.id          = config.service.wsIdProblemReports;
-    wsSparePartsRequests.id      = config.service.wsIdSparePartsRequests;
+    paramsProcesses.createWSID    = config.service.wsIdProblemReports;
+    paramsProcesses.workspacesIn  = [config.service.wsIdProblemReports.toString()];
+    paramsProcesses.fieldIdMarkup = config.service.fieldIdPRImage;
+    wsProblemReports.id           = config.service.wsIdProblemReports;
+    wsSparePartsRequests.id       = config.service.wsIdSparePartsRequests;
 
     appendProcessing('items');
     appendOverlay();
@@ -429,7 +431,15 @@ function getInitialData(wsId) {
             fields                          = responses[1].data;
             wsProblemReports.sections       = responses[2].data;
             wsProblemReports.fields         = responses[3].data;
+            wsProblemReports.fieldIdImage   = config.service.fieldIdPRImage;
             wsSparePartsRequests.sections   = responses[4].data;
+
+            if(isBlank(config.service.fieldIdPRImage)) {
+                wsProblemReports.fieldIdImage = getFirstImageFieldID(wsProblemReports.fields);
+                paramsProcesses.fieldIdMarkup = wsProblemReports.fieldIdImage;
+                if(applicationFeatures.manageProblemReports) insertChangeProcesses(link, paramsProcesses);
+            }
+
 
         }
 
@@ -446,7 +456,7 @@ function changeBOMViewDone(id, fields, bom, selectedItems, flatBOM) {
     if(selectedItems.length > 15) $('#items-list').removeClass('l').addClass('m');
 
     let urnsSpareParts  = [];
-    let fieldIdImage    = config.service.fieldIdImage;
+    let fieldIdImage    = config.service.fieldIdSparePartImage;
 
     if(isBlank(fieldIdImage)) fieldIdImage = getFirstImageFieldID(fields);
 

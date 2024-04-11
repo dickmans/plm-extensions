@@ -323,13 +323,17 @@
                     td ['spare part', 'yes', 'x', 'y', 'wear part']
                     td List of values (for the previous field) which are used to identify spare parts 
                 tr 
-                    td fieldIdImage
+                    td fieldIdSparePartImage
                     td IMAGE
                     td ID of field containing the item image
                 tr 
                     td sparePartDetails
                     td ['MATERIAL', 'ITEM_WEIGHT', 'DIMENSIONS']
                     td Each spare part tile can show 3 additional fields. If other fields than the default fields are relevent, change this list. However, make sure that there are exactly 3 entries and these fields also must be contained in the given BOM view.
+                tr 
+                    td fieldIdPRImage
+                    td IMAGE_1
+                    td Provide image field ID to be use for storing the markup image of new Problem Reports
                 tr 
                     td productsFilter
                     td (empty)
