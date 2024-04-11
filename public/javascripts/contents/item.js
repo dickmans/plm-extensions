@@ -1026,10 +1026,10 @@ function insertCreateFormFields(params) {
     $('#' + params.id + '-processing').hide();
 
 }
-function submitCreateForm(wsId, elemParent, idMarkup, callback) {
+function submitCreateForm(wsIdNew, elemParent, idMarkup, callback) {
 
     let params = { 
-        'wsId'     : wsId,
+        'wsId'     : wsIdNew,
         'sections' : getSectionsPayload(elemParent) 
     };
 
@@ -1039,7 +1039,7 @@ function submitCreateForm(wsId, elemParent, idMarkup, callback) {
 
         if(elemMarkupImage.length > 0) {
             params.image = {
-                'fieldId' : elemMarkupImage.attr('data-field-id'),
+                'fieldId' : elemParent.attr('data-field-id-markup'),
                 'value'   : elemMarkupImage[0].toDataURL('image/jpg')
             }
         }
@@ -1047,9 +1047,9 @@ function submitCreateForm(wsId, elemParent, idMarkup, callback) {
     }
 
     $.post({
-        url : '/plm/create', 
-        contentType : "application/json",
-        data : JSON.stringify(params)
+        url         : '/plm/create', 
+        contentType : 'application/json',
+        data        : JSON.stringify(params)
     }, function(response) {
         callback(response);
     });
@@ -4840,6 +4840,7 @@ function insertChangeProcesses(link, params) {
     let workspacesIn        = [];              // List of workspace to be included, identified by workspace IDs (example: ['82'])
     let workspacesEx        = [];              // List of workspace to be excluded, identified by workspace ID (example: ['83','84'])
     let createWSID          = '';              // Enable creation of new records by providing the given workspace ID in which new records should be created
+    let fieldIdMarkup       = '';              // If viewer markups should be stored when creating new records, provide the given image field's ID 
     let createSectionsIn    = [];              // If creation of new records is enabled (using parameter createWSID), this list can be used to select the sections to be shown in the create dialog (example: ['Header','Details'])
     let createSectionsEx    = [];              // If creation of new records is enabled (using parameter createWSID), this list can be used to hide sections in the create dialog (example: ['Review'])
     let createFieldsIn      = [];              // If creation of new records is enabled (using parameter createWSID), this list can be used to select the fields to be shown in the create dialog (example: ['Title','Description'])
@@ -4857,6 +4858,7 @@ function insertChangeProcesses(link, params) {
     if(!isBlank(params.workspacesIn)    )     workspacesIn = params.workspacesIn;
     if(!isBlank(params.workspacesEx)    )     workspacesEx = params.workspacesEx;
     if(!isBlank(params.createWSID)      )       createWSID = params.createWSID;
+    if(!isBlank(params.fieldIdMarkup)   )    fieldIdMarkup = params.fieldIdMarkup;
     if(!isBlank(params.createSectionsIn)) createSectionsIn = params.createSectionsIn;
     if(!isBlank(params.createSectionsEx)) createSectionsEx = params.createSectionsEx;
     if(!isBlank(params.createFieldsIn)  )   createFieldsIn = params.createFieldsIn;
@@ -4943,6 +4945,7 @@ function insertChangeProcesses(link, params) {
                 .attr('id', id + '-sections')
                 .attr('data-wsid', createWSID)
                 .attr('data-link', link)
+                .attr('data-field-id-markup', fieldIdMarkup)
                 .addClass('form')
                 .addClass('no-scrollbar')
                 .addClass(getSurfaceLevel($('body')));
