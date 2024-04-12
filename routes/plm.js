@@ -1757,7 +1757,7 @@ router.get('/get-viewables', function(req, res, next) {
     let url          = 'https://' + req.session.tenant + '.autodeskplm360.net' + link + '/attachments?asc=name';
     let fileId       = (typeof req.query.fileId       === 'undefined') ? '' : req.query.fileId;
     let filename     = (typeof req.query.filename     === 'undefined') ? '' : req.query.filename;
-    let extensionsIn = (typeof req.query.extensionsIn === 'undefined') ? ['dwf', 'dwfx', 'ipt', 'stp', 'step', 'sldprt', 'nwd'] : req.query.extensionsIn;
+    let extensionsIn = (typeof req.query.extensionsIn === 'undefined') ? ['dwf', 'dwfx', 'ipt', 'stp', 'step', 'sldprt', 'nwd', 'rvt'] : req.query.extensionsIn;
     let extensionsEx = (typeof req.query.extensionsEx === 'undefined') ? [] : req.query.extensionsEx;
 
     let headers = getCustomHeaders(req);
@@ -1779,8 +1779,6 @@ router.get('/get-viewables', function(req, res, next) {
 
                     let include     = false;
                     let extension   = attachment.type.extension.toLowerCase().split('.').pop();
-
-                    console.log(attachment.resourceName);
 
                     if(fileId === '' || fileId === attachment.id) {
                         if(filename === '' || filename === attachment.resourceName) {
