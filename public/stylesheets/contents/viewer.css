@@ -69,6 +69,10 @@
 
 /*  APS VIEWER MARKUP */
 /* ----------------------------------------------------------------------------- */
+#viewer-markup-image {
+    height : 800px;
+    width  : 800px;
+}
 #viewer-note-toolbar {
     position: absolute;
     bottom: 98px;

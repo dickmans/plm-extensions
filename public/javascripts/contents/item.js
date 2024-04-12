@@ -4955,8 +4955,7 @@ function insertChangeProcesses(link, params) {
                 .attr('data-link', link)
                 .attr('data-field-id-markup', fieldIdMarkup)
                 .addClass('form')
-                .addClass('no-scrollbar')
-                .addClass(getSurfaceLevel($('body')));
+                .addClass('no-scrollbar');
 
             if(!inline) elemSections.addClass('panel-content')
 
@@ -4969,7 +4968,6 @@ function insertChangeProcesses(link, params) {
         .addClass('tiles')
         .addClass('list')
         .addClass(size)
-        .addClass(getSurfaceLevel($('body')))
         .addClass('processes-content')
         .addClass('no-scrollbar');
 

@@ -8,12 +8,25 @@ let multiSelect         = { 'wsId' : '', 'links' : [], 'common': [], 'varies' : 
 let wsItems             = { 'id' : wsId, 'sections' : [], 'fields' : [], 'viewId' : '' };
 let wsProblemReports    = { 'id' : ''  , 'sections' : [], 'fields' : [] };
 let wsSupplierPackages  = { 'id' : ''  , 'sections' : [], 'fields' : [] };
+
+let paramsAttachments = { 
+    'size'          : 's', 
+    'upload'        : true, 
+    'extensionsEx'  : '.dwf,.dwfx' 
+}
+let paramsProcesses = { 
+    'headerLabel'    : 'Change Processes', 
+    'createWSID'     : '' ,
+    'fieldIdMarkup'  : ''
+}
  
 
 $(document).ready(function() {
     
     wsProblemReports.id   = config.explorer.wsIdProblemReports;
     wsSupplierPackages.id = config.explorer.wsIdSupplierPackages;
+    paramsProcesses.createWSID = config.explorer.wsIdProblemReports;
+    paramsProcesses.fieldIdMarkup = config.explorer.fieldIdProblemReportImage;
 
 
     let link = '/api/v3/workspaces/' + wsId + '/items/' + dmsId;
@@ -23,14 +36,13 @@ $(document).ready(function() {
     appendProcessing('dashboard', false);
     appendProcessing('bom', false);
     appendProcessing('details', false);
-    appendProcessing('processes', false);
     appendViewerProcessing();
     appendOverlay();
     
     getInitialData();
     insertViewer(link);
-    insertAttachments(link, { 'size' : 's', 'upload' : true, 'extensionsEx' : '.dwf,.dwfx' });
-    insertChangeProcesses(link, 'processes');
+    insertAttachments(link, paramsAttachments);
+    insertChangeProcesses(link, paramsProcesses);
     setUIEvents();
 
 });
@@ -177,7 +189,7 @@ function setUIEvents() {
 
                 $.get('/plm/add-managed-items', { 'link' : newLink, 'items' : [ link ] }, function(response) {
 
-                    insertChangeProcesses(link, 'processes');
+                    insertChangeProcesses(link, paramsProcesses);
                     $('.process-dialog').hide();
                     $('#create-process').show();
                     $('#processes-list').show();
@@ -706,7 +718,7 @@ function selectBOMItem(e, elemClicked) {
         
         elemClicked.removeClass('selected');
         viewerResetSelection(true);
-        insertAttachments($('#viewer').attr('data-link'), { 'size' : 's', 'upload' : true, 'extensionsEx' : '.dwf,.dwfx' });
+        insertAttachments($('#viewer').attr('data-link'), paramsAttachments);
 
         // if($('.flat-bom-row.selected').length === 0) {
 
@@ -783,8 +795,8 @@ function selectBOMItem(e, elemClicked) {
         viewerSelectModels(partNumbers);
 
         setItemDetails(linkSelected);
-        insertAttachments(linkSelected, { 'size' : 's', 'upload' : true, 'extensionsEx' : '.dwf,.dwfx' });
-        insertChangeProcesses(linkSelected, 'processes');
+        insertAttachments(linkSelected, paramsAttachments);
+        insertChangeProcesses(linkSelected, paramsProcesses);
         
     }
 
