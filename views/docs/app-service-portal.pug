@@ -15,6 +15,8 @@
             li Access list of defined Spare Parts
             li Submit Spare Part Requests 
             li Capture Problem Reports
+            li Browse catalog of serviceable products 
+            li Track progression of and update formerly create spare part requests
         a(href='https://youtu.be/gYAyASE3vAU') See introduction video
         h1 Prerequisites
         ul
@@ -261,6 +263,23 @@
         h2 Access Permission 
         p Add a role for this new workspace and assign this given role to your users to enable access. Grant full access (add, delete, edit and view) to the tabs Attachments, Grid, and Workflow.
         img(src='images/apps/services-portal-6.png' style='width:100%;max-width:368px;margin:10px 0px;')
+        h1 Landing Page Configuration
+        p You may provide a landing page as part of the Service Portal, enabling users to navigate to the product of interest. If this is configured properly, users do no longer require direct access to a given BOM using the workspace ID and dms ID. Instead, they can click on a given product and with this open the matching service information of the related BOM.
+        img(src='images/apps/services-portal-8.png' style='width:100%;max-height:722px;margin:10px 0px;')
+        p In addition, they can track their formerly created spare parts requests.
+        img(src='images/apps/services-portal-9.png' style='width:100%;max-height:915px;margin:10px 0px;')
+        p With the default configuration, this capability involves the Products workspace. All products matching a defined search critieria will be displayed on the Landing Page. In addition, these products must link to the matching EBOM which will be used to open the given serivce information for the selected product.
+        p Various configuration settings drive this landing page: productsFilter, productsSortBy, productsGroupBy, productsFieldImage, ... wsIdProducts. See their description in the next chapter.
+        p The default configuration of the landing page uses the following settings: 
+            ol 
+                li All products of workspace 95 will be shown (settings wsIdProducts and productsFilter)
+                li These products will be sorted by Title and grouped by Product Line (settings proudctsSortBy and productsGroupBy)
+                li Each product tile will show the image of field IMAGE as well as the products' TITLE and DESCRIPTION property values (settings productsFieldIdImage, productsFieldIdTitle, productsFieldIdSubtitle)
+                li When users click a product, its field ENGINEERING_BOM will be used to open the related EBOM and to open the matching Service Portal for this item (setting productsFieldIdBOM)
+                li The header of the landing page's list of products is set to 'Serviceable Products' (settings productsListHeader)
+        p You can disable access to this landing page with the home button by setting 'features.homeButton = false'. See chapter 
+            strong Feature Availability 
+            |for details.
         h1 Configuration Settings
         p Once the previous steps have been completed, you should review the solution's settings in file 
             strong settings.js 
