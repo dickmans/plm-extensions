@@ -301,12 +301,13 @@ function processItemDetailsFields(id, sections, fields, data, editable, hideComp
 }
 function insertItemDetailsDone(id) {}
 function processItemDetailsFieldsDone(id) {}
-function insertField(field, itemData, elemParent, hideComputed, hideReadOnly, editable, hideLabel) {
+function insertField(field, itemData, elemParent, hideComputed, hideReadOnly, editable, hideLabel, context) {
 
     if(typeof hideComputed === 'undefined') hideComputed = false;  // hide computed fields
     if(typeof hideReadOnly === 'undefined') hideReadOnly = false;  // hide read only fields
     if(typeof editable     === 'undefined')     editable = false;  // display editable
     if(typeof hideLabel    === 'undefined')    hideLabel = false;  // return value only, without label field
+    if(typeof context      === 'undefined')      context = null;  
 
     if(field.visibility !== 'NEVER') {
 
@@ -431,10 +432,15 @@ function insertField(field, itemData, elemParent, hideComputed, hideReadOnly, ed
                             elemInput = $('<select>');
                             elemValue.addClass('picklist');
                             elemValue.append(elemInput);
-                            let elemOptionBlank = $('<option></option>');
-                                elemOptionBlank.attr('value', null);
-                                elemOptionBlank.appendTo(elemInput);
-                            getOptions(elemInput, field.picklist, fieldId, 'select', value);
+                            if(context === null) {
+                                 $('<option></option>').appendTo(elemInput)
+                                    .attr('value', null);
+                                getOptions(elemInput, field.picklist, fieldId, 'select', value);
+                            } else {
+                                $('<option></option>').appendTo(elemInput)
+                                    .attr('value', context.link)
+                                    .html(context.title);
+                            }
                         } else {
                             elemValue = $('<div></div>');
                             elemValue.addClass('string');
@@ -856,11 +862,12 @@ function insertCreateForm(id, wsId, params) {
 
     //  Set defaults for optional parameters
     // --------------------------------------
-    let hideReadOnly    = true;             // Hide header with setting this to false
-    let sectionsIn      = [];    // Set the header text
-    let sectionsEx      = [];    // Set the header text
-    let fieldsIn        = [];    // Set the header text
-    let fieldsEx        = [];    // Set the header text
+    let hideReadOnly    = true;  // Hide header with setting this to false
+    let sectionsIn      = [];    // Defines sections to be incluced (by section names)
+    let sectionsEx      = [];    // Defines sections to be excluded (by section names)
+    let fieldsIn        = [];    // Defines fields to be included (by field ID)
+    let fieldsEx        = [];    // Defines fields to be excluded (by field ID)
+    let context         = null;  // Provide context item information ( { title, link, fieldId })
 
     if( isBlank(params)             )       params = {};
     if(!isBlank(params.hideReadOnly)) hideReadOnly = params.hideReadOnly;
@@ -868,6 +875,7 @@ function insertCreateForm(id, wsId, params) {
     if(!isBlank(params.sectionsEx)  )   sectionsEx = params.sectionsEx;
     if(!isBlank(params.fieldsIn)    )     fieldsIn = params.fieldsIn;
     if(!isBlank(params.fieldsEx)    )     fieldsEx = params.fieldsEx;
+    if(!isBlank(params.context)     )      context = params.context;
 
     let paramsForm = {
         id           : id,
@@ -878,7 +886,10 @@ function insertCreateForm(id, wsId, params) {
         sectionsEx   : sectionsEx,
         fieldsIn     : fieldsIn,
         fieldsEx     : fieldsEx,
+        context      : context
     }
+
+    let requests = [];
 
     wsId = wsId.toString();
     
@@ -890,34 +901,52 @@ function insertCreateForm(id, wsId, params) {
     }
     
     if((paramsForm.sections.length === 0) || (paramsForm.fields.length === 0)) {
-
-        let requests = [
+        requests = [
             $.get('/plm/sections', { 'wsId' : wsId } ),
             $.get('/plm/fields',   { 'wsId' : wsId } )
         ]
+    }
+
+    if(context !== null) {
+        if(isBlank(context.title)) {
+            requests.push($.get('/plm/details', { 'link' : context.link } ));
+        }
+    }
+
+    if(requests.length > 0) {
 
         Promise.all(requests).then(function(responses) {
 
-            let addToCache = true;
+            if(requests.length > 1) {
 
-            for(let workspace of cacheWorkspaces) {
-                if(workspace.id === wsId) {
-                    workspace.sections = responses[0].data;
-                    workspace.fields   = responses[0].data;
-                    addToCache         = false;
+                let addToCache = true;
+
+                for(let workspace of cacheWorkspaces) {
+                    if(workspace.id === wsId) {
+                        workspace.sections = responses[0].data;
+                        workspace.fields   = responses[0].data;
+                        addToCache         = false;
+                    }
+                }
+
+                if(addToCache) {
+                    cacheWorkspaces.push({
+                        'id'        : wsId,
+                        'sections'  : responses[0].data,
+                        'fields'    : responses[1].data
+                    });
+                }
+
+                paramsForm.sections = responses[0].data;
+                paramsForm.fields   = responses[1].data;
+
+            }
+
+            for(let response of responses) {
+                if(response.url.indexOf('/details') === 0) {
+                    paramsForm.context.title = response.data.title;
                 }
             }
-
-            if(addToCache) {
-                cacheWorkspaces.push({
-                    'id'        : wsId,
-                    'sections'  : responses[0].data,
-                    'fields'    : responses[1].data
-                });
-            }
-
-            paramsForm.sections = responses[0].data;
-            paramsForm.fields   = responses[1].data;
 
             insertCreateFormFields(paramsForm);
 
@@ -933,6 +962,8 @@ function insertCreateFormFields(params) {
     let elemSections = $('#' + params.id + '-sections');
         elemSections.html('');
 
+    let contextFieldId = (isBlank(params.context)) ? '' : params.context.fieldId;
+    
     for(let section of params.sections) {
 
         let isNew       = true;
@@ -980,7 +1011,8 @@ function insertCreateFormFields(params) {
                 for(let sectionField of section.fields) {
 
                     let fieldId = sectionField.link.split('/')[8];
-
+                    let context = (fieldId === contextFieldId) ? params.context : null;
+                    
                     if(params.fieldsIn.length === 0 || params.fieldsIn.includes(fieldId)) {
                         if(params.fieldsEx.length === 0 || !params.fieldsEx.includes(fieldId)) {
 
@@ -993,9 +1025,10 @@ function insertCreateFormFields(params) {
                                                     for(let wsField of params.fields) {
                                                         if(wsField.urn === matrixField.urn) {
                                                             let matrixFieldId = matrixField.link.split('/')[8];
+                                                            context = (matrixFieldId === contextFieldId) ? params.context : null;
                                                             if(params.fieldsIn.length === 0 || params.fieldsIn.includes(matrixFieldId)) {
                                                                 if(params.fieldsEx.length === 0 || !params.fieldsEx.includes(matrixFieldId)) {
-                                                                    insertField(wsField, null, elemFields, params.hideComputed, params.hideReadOnly, true);
+                                                                    insertField(wsField, null, elemFields, params.hideComputed, params.hideReadOnly, true, null, context);
                                                                 }
                                                             }
                                                         }
@@ -1008,7 +1041,7 @@ function insertCreateFormFields(params) {
                             } else {
                                 for(let wsField of params.fields) {
                                     if(wsField.urn === sectionField.urn)
-                                        insertField(wsField, null, elemFields, params.hideComputed, params.hideReadOnly, true);
+                                        insertField(wsField, null, elemFields, params.hideComputed, params.hideReadOnly, true, null, context);
                                 }
                             }
                                 
@@ -4853,6 +4886,7 @@ function insertChangeProcesses(link, params) {
     let createSectionsEx    = [];              // If creation of new records is enabled (using parameter createWSID), this list can be used to hide sections in the create dialog (example: ['Review'])
     let createFieldsIn      = [];              // If creation of new records is enabled (using parameter createWSID), this list can be used to select the fields to be shown in the create dialog (example: ['Title','Description'])
     let createFieldsEx      = [];              // If creation of new records is enabled (using parameter createWSID), this list can be used to hide fields in the create dialog. Fields of this list will not be shown (example: ['Closing Comment']).
+    let createContext       = null;            // Provide context item information if default value should be set in linking pick list field ( { title, link, fieldId })
 
 
     if( isBlank(params)                 )           params = {};
@@ -4871,6 +4905,12 @@ function insertChangeProcesses(link, params) {
     if(!isBlank(params.createSectionsEx)) createSectionsEx = params.createSectionsEx;
     if(!isBlank(params.createFieldsIn)  )   createFieldsIn = params.createFieldsIn;
     if(!isBlank(params.createFieldsEx)  )   createFieldsEx = params.createFieldsEx;
+    if(!isBlank(params.createContext)   )    createContext = params.createContext;
+
+    if(createContext !== null) {
+        if(isBlank(createContext.link)) createContext.link = link;
+    }
+
 
     settings.processes[id]                  = {};
     settings.processes[id].icon             = icon;
@@ -4881,6 +4921,7 @@ function insertChangeProcesses(link, params) {
     settings.processes[id].createSectionsEx = createSectionsEx;
     settings.processes[id].createFieldsIn   = createFieldsIn;
     settings.processes[id].createFieldsEx   = createFieldsEx;
+    settings.processes[id].context          = createContext;
 
     let elemParent = $('#' + id).addClass('processes').html('');
 
@@ -5000,7 +5041,8 @@ function toggleProcessCreateForm(id, visible) {
             sectionsIn : settings.processes[id].createSectionsIn,
             sectionsEx : settings.processes[id].createSectionsEx,
             fieldsIn   : settings.processes[id].createFieldsIn,
-            fieldsEx   : settings.processes[id].createFieldsEx
+            fieldsEx   : settings.processes[id].createFieldsEx,
+            context    : settings.processes[id].context
         });
 
     } else {
@@ -5037,6 +5079,8 @@ function submitProcessCreateForm(id) {
     viewerCaptureScreenshot(null, function() {
 
         submitCreateForm(settings.processes[id].createWSID, $('#' + id + '-sections'), 'viewer-markup-image', function(response) {
+
+            console.log(response);
                
             let link    = $('#' + id + '-list').attr('data-link');
             let newLink = response.data.split('.autodeskplm360.net')[1];
