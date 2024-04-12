@@ -19,15 +19,15 @@ let paramsProcesses = {
     'createWSID'     : '' ,
     'fieldIdMarkup'  : ''
 }
+let context = {}
  
 
 $(document).ready(function() {
     
-    wsProblemReports.id   = config.explorer.wsIdProblemReports;
-    wsSupplierPackages.id = config.explorer.wsIdSupplierPackages;
-    paramsProcesses.createWSID = config.explorer.wsIdProblemReports;
-    paramsProcesses.fieldIdMarkup = config.explorer.fieldIdProblemReportImage;
-
+    wsProblemReports.id             = config.explorer.wsIdProblemReports;
+    wsSupplierPackages.id           = config.explorer.wsIdSupplierPackages;
+    paramsProcesses.createWSID      = config.explorer.wsIdProblemReports;
+    paramsProcesses.fieldIdMarkup   = config.explorer.fieldIdPRImage;
 
     let link = '/api/v3/workspaces/' + wsId + '/items/' + dmsId;
     
@@ -39,6 +39,10 @@ $(document).ready(function() {
     appendViewerProcessing();
     appendOverlay();
     
+    paramsProcesses.createContext  = {
+        'fieldId' : config.explorer.fieldIdPRContext
+    }
+
     getInitialData();
     insertViewer(link);
     insertAttachments(link, paramsAttachments);
@@ -320,6 +324,9 @@ function getInitialData() {
 
         $('#header-subtitle').html(responses[1].data.title);
 
+        context.link  = '/api/v3/workspaces/' + wsId + '/items/' + dmsId;
+        context.title = responses[1].data.title 
+
         wsItems.sections            = responses[2].data;
         wsItems.fields              = responses[3].data;
         wsProblemReports.sections   = responses[4].data;
@@ -333,7 +340,7 @@ function getInitialData() {
         }
 
         getBOMData();
-        setItemDetails('/api/v3/workspaces/' + wsId + '/items/' + dmsId);
+        setItemDetails(context.link);
         
         editableFields = getEditableFields(wsItems.fields);
 
@@ -716,9 +723,14 @@ function selectBOMItem(e, elemClicked) {
 
     if(elemClicked.hasClass('selected')) {
         
+        paramsProcesses.createContext.link  = context.link;
+        paramsProcesses.createContext.title = context.title;
+
         elemClicked.removeClass('selected');
+        
         viewerResetSelection(true);
         insertAttachments($('#viewer').attr('data-link'), paramsAttachments);
+        insertChangeProcesses(context.link, paramsProcesses);
 
         // if($('.flat-bom-row.selected').length === 0) {
 
@@ -792,8 +804,10 @@ function selectBOMItem(e, elemClicked) {
         $('.bom-action').show();
         $('#go-there').show();
         
+        paramsProcesses.createContext.title = elemClicked.attr('data-title');
+        paramsProcesses.createContext.link  = linkSelected;
+        
         viewerSelectModels(partNumbers);
-
         setItemDetails(linkSelected);
         insertAttachments(linkSelected, paramsAttachments);
         insertChangeProcesses(linkSelected, paramsProcesses);

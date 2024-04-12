@@ -168,10 +168,11 @@ exports.config = {
     }],
 
     'explorer' : {
-        'bomViewName'               : 'Details',
-        'fieldIdProblemReportImage' : 'IMAGE_1',
-        'wsIdProblemReports'        : 82,
-        'wsIdSupplierPackages'      : 147,
+        'bomViewName'           : 'Details',
+        'fieldIdPRImage'        : 'IMAGE_1',
+        'fieldIdPRContext'      : 'AFFECTED_ITEM',
+        'wsIdProblemReports'    : 82,
+        'wsIdSupplierPackages' : 147,
         'kpis' : [{
             'id'        : 'lifecycle',
             'title'     : 'Item Lifecycle',
