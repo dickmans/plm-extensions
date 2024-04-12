@@ -706,11 +706,15 @@ function insertOptions(elemParent, data, fieldId, type, value) {
 
         } else if(type === 'select') {
 
+            let title = option.title;
+
+            if(!isBlank(option.version)) title += ' ' + option.version;
+
             let elemOption = $('<option></option>');
                 elemOption.attr('id', option.link);
                 elemOption.attr('value', option.link);
-                elemOption.attr('displayValue', option.title);
-                elemOption.html(option.title);
+                elemOption.attr('displayValue', title);
+                elemOption.html(title);
                 elemOption.appendTo(elemParent);
 
             if(typeof value !== 'undefined') {
