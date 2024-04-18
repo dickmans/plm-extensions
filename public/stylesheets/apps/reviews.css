@@ -1,8 +1,5 @@
 /*  EXTRAS */
 /* ----------------------------------------------------------------------------- */
-#header-subtitle, #bom-header { 
-    display : none; 
-}
 #dialog {
     height   : 350px;
     left     : calc(50% - 225px);
@@ -106,8 +103,18 @@ textarea:focus {
 
 /*  REVIEW PANEL */
 /* ----------------------------------------------------------------------------- */
-#panel input,
-#panel textarea {
+#panel > .panel-header {
+    gap : var(--spacer-xxs);
+}
+#panel > .panel-header > .panel-subtitle {
+    padding : 0px;
+}
+#panel > .panel-header > .panel-title {
+    font-size : 20px;
+    padding : 0px 0px 24px 0px;
+}
+#comments input,
+#comments textarea {
     background: var(--color-surface-level-2);
 }
 #panel textarea {
@@ -141,10 +148,10 @@ textarea:focus {
 }
 textare:focus { outline: none; }
 .panel-toolbar {
-    padding : 20px 0px;
+    /* padding : 20px 0px;
     top     :auto;
     bottom  : 0px;
-    right   : 0px;
+    right   : 0px; */
 }
 #bom-item-details-header {
     font-size   : 16px;
@@ -156,7 +163,8 @@ textare:focus { outline: none; }
     max-width   : 200px;
 }
 #comments > .panel-content-data {
-    overflow-x : hidden;
+    overflow-x  : hidden;
+    top         : 10px;
 }
 
 
@@ -166,16 +174,21 @@ textare:focus { outline: none; }
 #files-title {
     display : none;
 }
-
+#files-toolbar {
+    top : 4px;
+}
+#files-list {
+    top : 60px;
+}
 
 
 /*  BOM */
 /* ----------------------------------------------------------------------------- */
-#bom-header {
-    display : none;
+#bom-toolbar {
+    top : 4px;
 }
 #bom-content {
-    top : 0px;
+    top : 60px;
 }
 .flat-bom-number { max-width :  40px; width :  40px; }
 .flat-bom-title  { max-width : 440px; width : 440px; }

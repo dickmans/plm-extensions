@@ -1,0 +1,363 @@
+.tile(data-name='Design Reviews')
+    .tile-image(style='background: url("images/app-design-review.png") no-repeat;background-size:contain;')
+    .tile-details
+        .tile-title Design Reviews
+        .tile-endpoint /reviews
+        .tile-subtitle This portal can involve customers in the review process. Driven by Design Review processes in PLM, it provides feedback &amp; file sharing capabilities. Markups can be used to create corrective Design Review Tasks.
+    .instructions
+        h1 Prerequisites
+        p You must have the latest Design Review app installed from the App Store. If your tenant is based on a template past April 2021, this given app is included already. To check if your tenant contains this latest app, please verify that the workspace 
+            strong Design Review Tasks 
+            | is available in your tenant.
+        h1 Configure Workspace Design Reviews
+        p Use the 
+            strong Workspace Manager 
+            | to perform the following changes to your workspace 
+            strong Design Reviews
+            |:
+        ol 
+            li Add section 
+                strong Design Data 
+                | if it does not exist
+            li Add the field 
+                strong Item 
+                |(id ITEM) to it if it does not exist yet. Make this a single selection picklist field referring to workspace  
+                strong Items 
+                |(or Vault Items and BOMs if Items does not exist)
+            li Also, add the field 
+                strong Image 
+                |(id IMAGE) as derived field of the previous field and let it derive the image field
+        img(src='images/apps/design-review-2.png' style='width:100%;max-width:769px;margin-bottom:10px;')
+        h1 Configure Workspace Design Review Tasks
+        p Use the 
+            strong Workspace Manager 
+            | to perform the following changes to your workspace 
+            strong Design Review Tasks
+            |:
+        ol
+            li Add an image field MARKUP to the first section
+            li Add two fields of type paragraph: 
+                strong MARKUPSTATE 
+                | and 
+                strong MARKUPSVG
+                | . Set maximum length to 1.000.000 for both fields and set their visibility to 
+                strong Never
+                | . Set them to be editable anyway. Add these two fields to the first section of Item Details.
+                img(src='images/apps/design-review-3.png' style='width:100%;max-width:439px;margin-bottom:10px;')
+            li The following fields must be  
+                strong editable at creation:  
+                ul  
+                    li TITLE 
+                    li DESCRIPTION
+                    li DESIGN_REVIEW
+                    li TARGET_COMPLETION_DATE
+            li Field 
+                strong ASSIGNEE 
+                | must 
+                strong NOT 
+                | be mandatory
+            li Disable 
+                strong Workflow Locking 
+                | for all sections
+            li Enable transition 
+                strong Return 
+                | also for the Owner. If this permission is not granted, the creation of tasks will fail as the given user cannot upload the markup image after task creation.
+                img(src='images/apps/design-review-4.png' style='width:100%;max-width:630px;margin-bottom:30px;')
+        p Grant permission to 
+            strong Add Items 
+            | in workspace 
+            strong Design Review Tasks 
+            | for all the users which will use the Design Review Portal.
+        h1 Script Changes
+        p Let new 
+            strong Design Review Tasks 
+            | be connected to the related 
+            strong Design Review 
+            | by adding the following script to the initial workflow transition (from the Start Node) in workspaces 
+            strong Design Review Tasks:
+        p.code if(item.DESIGN_REVIEW !== null) { item.DESIGN_REVIEW.project.addTask(item); }
+        p Adjust the script 
+            strong Design Reviews WF Actions 
+            | by extending the if statement with the following condition as shown in the screenshot below: 
+        p.code item.project.children.length === 0
+        img(src='images/apps/design-review-1.jpg' style='width:100%;max-width:900px;margin-bottom:10px;')
+        h1 BOM View configuration for Items workspace 
+        p This solution requires a BOM view in the Items workspace which includes the Number field. Only if this column is present, the cross-highlight between the BOM and the viewer will work. The latest tenant template includes such a view 
+            strong Basic 
+            |already and this solution will use this view automatically. Perform the following steps if this standard Basic view does not exist in your tenant. If it exists, make sure that the basic columns required are included in this view: 
+            ol 
+                li Descriptor 
+                li Quantity 
+                li Number
+        p Use the 
+            strong Workspace Manager 
+            |to add a new view in the 
+            strong Bill of Materials Tab 
+            |with the columns shown in the screenshot below. Note that for performance reasons, it is recommended to use a BOM view with the bare minimum of fields only. Anyway, you can add further fields to this view or reuse another view which includes these fields already to not mess up your BOM views. 
+        img(src='images/apps/design-review-5.png' style='width:100%;max-width:728px;margin-bottom:10px;')
+        p If your BOM view of choice is not named 
+            strong Basic
+            |, you will have to provide this view's name in file settings.js using parameter 
+            strong bomViewName
+            |. See the next chapter for details. Keep in mind that you have restart your server to apply the changes to settings.js.
+        h1 Configuration Settings
+        p Locate the reviews section in file 
+            strong settings.js 
+            |shown below to adjust your confiugration if needed. These settings are aligned with the latest default tenant as much as possible. After changing this settings file, you have to restart your node server to get them applied.
+        p.code
+            span export.config = {
+            span.indent 'reviews' : {
+            span.indent-2 'fieldIdItem' : 'ITEM',
+            span.indent-2 'fieldIdImage' : 'IMAGE',
+            span.indent-2 'fieldIdMarkup' : 'MARKUP',
+            span.indent-2 'transitionId' : 'CLOSE_REVIEW',
+            span.indent-2 'bomViewName' : 'Basic',
+            span.indent-2 'viewerFeatures' : {
+            span.indent-3 'cube'          : false,
+            span.indent-3 'orbit'         : false,
+            span.indent-3 'firstPerson'   : false,
+            span.indent-3 'camera'        : false,
+            span.indent-3 'measure'       : true,
+            span.indent-3 'section'       : true,
+            span.indent-3 'explodedView'  : true,
+            span.indent-3 'modelBrowser'  : false,
+            span.indent-3 'properties'    : false,
+            span.indent-3 'settings'      : false,
+            span.indent-3 'fullscreen'    : true,
+            span.indent-3 'markup'        : true,
+            span.indent-3 'ghosting'      : true,
+            span.indent-3 'highlight'     : true,
+            span.indent-3 'single'        : true,
+            span.indent-3 'fitToView'     : true,
+            span.indent-3 'reset'         : true,
+            span.indent-3 'views'         : true
+            span.indent-2 },
+            span.indent-2 'workspaces' : {
+            span.indent-3 'reviews' : {
+            span.indent-4 'id' : 76,
+            span.indent-4 'sections' : [ { 'name' : 'Review Findings' } ],
+            span.indent-4 'states'    : [ 'Planning', 'Preparation', 'In Progress' ]
+            span.indent-3 },
+            span.indent-3 'tasks' : {
+            span.indent-4 'id' : '',
+            span.indent-4 'sections' : [ { 'name' : 'Definition' }, { 'name' : 'Schedule' } ],
+            span.indent-4 'states'    : [ 'Assigned', 'On Hold', 'In Work', 'Review', 'Complete' ]
+            span.indent-3 }
+            span.indent-2 },
+            span.indent }
+            span }   
+        p   
+            table 
+                tr 
+                    th Setting 
+                    th Description 
+                    th Default Value
+                tr 
+                    td fieldIdItem 
+                    td Defines the Design Review's fieldID used to link the Item to be reviewed 
+                    td ITEM
+                tr 
+                    td fieldIdImage 
+                    td Defines the Design Review's fieldID used to store the linkede Item's preview image 
+                    td IMAGE
+                tr 
+                    td fieldIdMarkup
+                    td FieldID of Design Review Task to use for storing the Markup image
+                    td MARKUP
+                tr 
+                    td transitionId
+                    td Defines the workflow action ID that can be used to close / finish a given design review. If the user has permission to perform this defined transition, the given button 
+                        strong Finish 
+                        |will be displayed when opening a design review.
+                    td CLOSE_REVIEW
+                tr 
+                    td bomViewName
+                    td The Item workspace's BOM view to use for expanding the BOM. See instructions above about minimum columns required in this view.
+                    td Basic
+                tr 
+                    td workspaces
+                    td(colspan="2") The workspaces parameter enables to align this solution with your workspace configuation:     
+                        ul 
+                            li reviews.id is used to determine the workspace ID of 
+                                strong Design Reviews
+                            li reviews.sections is required to locate the section in 
+                                strong Item Details 
+                                |of Design Reviews which contains the fields to store the findings (Issue, Deficiencies ...)
+                            li reviews.states defines the list of states that will be used for filtering the reviews in the landing page. 
+                            li tasks.id is used to determine the workspace ID of 
+                                strong Design Review Tasks 
+                                |. If no id is provided, the solution will determine this id automatically by retrieving the workspaces enabled in the project tab of design reviews 
+                            li tasks.sections is used to determine the required sections in 
+                                strong Item Details 
+                                |of design review tasks workspace (the ones containing the fields required)
+                            li tasks.states is used to determine the color highlight of actions being shown in context of a review (states 1 &amp; 2 will be shown as new, 2 &amp; 3 as pending and state 4 as complete)
+        p In addition, the following settings in reviews.viewerFeatures control the availability of icons in the viewer toolbar.
+            table
+                tr 
+                    th Setting 
+                    th Icon 
+                    th Description 
+                    th Default Value
+                tr 
+                    td cube 
+                    td   
+                    td Enables the cube / home button in top right corner of the viewer. Parameter 'views' can be used instead, providing dedicated buttons.
+                    td false
+                tr 
+                    td orbit 
+                    td
+                        .adsk-button-icon.adsk-icon-orbit-constrained
+                    td Enables the orbit controls
+                    td false
+                tr 
+                    td firstPerson 
+                    td
+                        .adsk-button-icon.adsk-icon-first-person
+                    td Enables first person view
+                    td false
+                tr 
+                    td camera 
+                    td
+                        .adsk-button-icon.adsk-icon-camera
+                    td Enables camera interactions
+                    td false
+                tr 
+                    td measure 
+                    td
+                        .adsk-button-icon.adsk-icon-measure
+                    td Enables the measurements toolbar
+                    td true
+                tr 
+                    td section 
+                    td
+                        .adsk-button-icon.adsk-icon-section-analysis
+                    td Enables sectioning
+                    td true
+                tr 
+                    td explodedView 
+                    td
+                        .adsk-button-icon.adsk-icon-explode
+                    td Enables exploded views
+                    td true
+                tr 
+                    td modelBrowser 
+                    td
+                        .adsk-button-icon.adsk-icon-structure
+                    td Enables browsing the model hierarchy within the viewer
+                    td false
+                tr 
+                    td properties 
+                    td
+                        .adsk-button-icon.adsk-icon-properties
+                    td Enables access to the selected component's properties stored in the viewable file
+                    td false
+                tr 
+                    td settings 
+                    td
+                        .adsk-button-icon.adsk-icon-settings
+                    td Enables viewer settings
+                    td false
+                tr 
+                    td fullscreen 
+                    td
+                        .adsk-button-icon.adsk-icon-fullscreen
+                    td Enables fullscreen toggle
+                    td true
+                tr 
+                    td markup 
+                    td
+                        .adsk-button-icon.icon.icon-markup(style="font-size:14px;")
+                    td Enables markup toolbar
+                    td true
+                tr 
+                    td ghosting 
+                    td
+                        .adsk-button-icon.icon.icon-show(style="font-size:14px;")
+                    td Enables toggling ghosting mode on/off
+                    td true
+                tr 
+                    td highlight 
+                    td
+                        .adsk-button-icon.icon.icon-highlight(style="font-size:14px;")
+                    td Enables toggling highlight of selected models on/off
+                    td true
+                tr 
+                    td single 
+                    td
+                        .adsk-button-icon.icon.icon-first(style="font-size:14px;")
+                    td Enables fitting of first instance to viewer
+                    td true
+                tr 
+                    td fitToView 
+                    td
+                        .adsk-button-icon.icon.icon-viewer(style="font-size:14px;")
+                    td Enables reframing all visible items
+                    td true
+                tr 
+                    td reset 
+                    td
+                        .adsk-button-icon.icon.icon-reset(style="font-size:14px;")
+                    td Enables to deselect all, invoking viewerClickReset()
+                    td true
+                tr 
+                    td views 
+                    td
+                        .adsk-button-icon.icon.icon-home(style="font-size:14px;")
+                    td Enables toolbar to quickly access main views
+                    td true
+        h1 Access the Design Review Portal
+        p You can access the design review portal with the 
+            strong /reviews 
+            | endpoint, just click this link:
+        a(href='reviews' target='_blank')
+    .log 
+        h1 Design Reviews Change Log 
+        table 
+            tr 
+                td 18. April 2024
+                td Enhancement 
+                td Replaced Flat BOM display with BOM Tree display (offering search capabilities, position numbers and quantitiy information)
+            tr 
+                td 
+                td Enhancement 
+                td Viewer features now can be configured in settings.js, enabling to hide / show toolbar icons of interest. Documentation has been extended accordingly.
+            tr 
+                td 
+                td Enhancement 
+                td Latest viewer enhancements get enabled per default: Fokus on single instance, toggle component highlight and more
+            tr 
+                td 
+                td Documentation 
+                td Added instructions for BOM view configuration which is required for proper component highlight in viewer
+            tr 
+                td 
+                td Quality 
+                td Some styling issues got fixed
+            tr 
+                td 30. August 2023
+                td CONFIG CHANGE
+                td Formerly, the field IMAGE_1 was used to store the markups of Design Review Tasks. 
+                    br
+                    |This has been changed and field MARKUP will be used instead now. 
+                    br 
+                    |Please review the installation instructions once again and compare it with your setup.
+            tr 
+                td 
+                td Documentation 
+                td Adjusted installation instructions to ease deployment
+            tr 
+                td 3. August 2023
+                td Bugfix 
+                td Improved behavior of markup toolbar at lower resolutions
+            tr 
+                td 
+                td Bugfix 
+                td Width of markups and font size of markup text can now be set properly
+            tr 
+                td 7. July 2023
+                td Enhancement
+                td Better alignment of installation instructions with new default tenant
+    .troubleshooting 
+        h1 Troubleshooting 
+        h3 Missing coordinator in demo data sets
+        div In case of using the standard tenant with the latest demo data as of Q3 2023, make sure to add yourself or any user as the coordinator inside of the design review you want to open. Without a coordinator, the creation of the design review task will result in an error. This is only relevant to the data that has been published with the creation of the demo tenant. Newly created design reviews are not affected by this behaviour.

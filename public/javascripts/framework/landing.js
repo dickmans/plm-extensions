@@ -8,7 +8,7 @@ $(document).ready(function() {
 
     $('#theme-selector').val(theme + '-theme');
 
-    $('#tenant').html(tenant);
+    $('#tenant-name').html(tenant);
     
     $('#tenant').click(function() {
         window.open('https://' + tenant + '.autodeskplm360.net');

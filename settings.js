@@ -510,6 +510,27 @@ exports.config = {
         'fieldIdImage'  : 'IMAGE',
         'fieldIdMarkup' : 'MARKUP',
         'transitionId'  : 'CLOSE_REVIEW',
+        'bomViewName'   : 'Basic',
+        'viewerFeatures': {
+            'cube'          : false,
+            'orbit'         : false,
+            'firstPerson'   : false,
+            'camera'        : false,
+            'measure'       : true,
+            'section'       : true,
+            'explodedView'  : true,
+            'modelBrowser'  : false,
+            'properties'    : false,
+            'settings'      : false,
+            'fullscreen'    : true,
+            'markup'        : true,
+            'ghosting'      : true,
+            'highlight'     : true,
+            'single'        : true,
+            'fitToView'     : true,
+            'reset'         : true,
+            'views'         : true
+        },
         'workspaces'    : {
             'reviews' : {
                 'id'        : 76,

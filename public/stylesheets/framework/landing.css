@@ -248,20 +248,26 @@ a:hover {
 
 
 
+/*  TENANT */
+/* ----------------------------------------------------------------------------- */
+#tenant-name {
+    color       : var(--color-blue-500);
+}
+
+
+
 /*  CHANGE LOG */
 /* ----------------------------------------------------------------------------- */
-#version {
-    cursor      : pointer;
+#version-name {
     color       : var(--color-blue-500);
-    font-weight : bold;
 }
 #framework-changes { 
-    background  : black;
+    background  : var(--color-surface-level-5);
     color       : white;
     display     : none; 
 }
 #framework-changes td {
-    background : black;   
+    background : var(--color-surface-level-5);
 }
 .button.change-log {
     display  : none;
@@ -384,15 +390,6 @@ body.logs .tile {
     right       : calc(50% - 600px);
     bottom      : 40px;
     left        : calc(50% - 600px);
-}
-
-
-/*  TENANT */
-/* ----------------------------------------------------------------------------- */
-#tenant {
-    cursor      : pointer;
-    font-weight : bold;
-    color       : var(--color-blue-500);
 }
 
 

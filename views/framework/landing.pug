@@ -15,9 +15,10 @@ block body
                     |User Experiences
                 p Unleash the power of Fusion Manage by utilizing its REST API to provide custom built frontends based on Autodesk Platform Services. All solutions manage data in PLM only. All business rules of PLM as well as access permissions still apply.
                 div.left-toolbar
-                    .button#version Version of April 2024
-                    .button Connected to 
-                        span#tenant
+                    .button#version Version of 
+                        span#version-name April 2024
+                    .button#tenant Connected to 
+                        span#tenant-name
                 p This  version has been optimized for the tenant template released in 2023 using a single Items workspace. While the solutions can be used with any tenant thanks to their configuration capabilities, using this new tenant reduces configuration efforts. In addition, most of the solutions can be tested with the given demo datasets immediately.
                 p#themes 
                     span Select Theme:
@@ -555,171 +556,7 @@ block body
                 .tiles-group 
                     .tiles-group-title Setup Required
                     .tiles-group-subtitle Applications requiring configuration changes using the Workspace Manager and/or even changes to scripts. 
-                .tile(data-name='Design Reviews')
-                    .tile-image(style='background: url("images/app-design-review.png") no-repeat;background-size:contain;')
-                    .tile-details
-                        .tile-title Design Reviews
-                        .tile-endpoint /reviews
-                        .tile-subtitle This portal can involve customers in the review process. Driven by Design Review processes in PLM, it provides feedback &amp; file sharing capabilities. Markups can be used to create corrective Design Review Tasks.
-                    .instructions
-                        h1 Prerequisites
-                        p You must have the latest Design Review app installed from the App Store. If your tenant is based on a template past April 2021, this given app is included already. To check if your tenant contains this latest app, please verify that the workspace 
-                            strong Design Review Tasks 
-                            | is available in your tenant.
-                        h1 Configure Workspace Design Reviews
-                        p Use the 
-                            strong Workspace Manager 
-                            | to perform the following changes to your workspace 
-                            strong Design Reviews
-                            |:
-                        ol 
-                            li Add section 
-                                strong Design Data 
-                                | if it does not exist
-                            li Add the field 
-                                strong Item 
-                                |(id ITEM) to it if it does not exist yet. Make this a single selection picklist field referring to workspace  
-                                strong Items 
-                                |(or Vault Items and BOMs if Items does not exist)
-                            li Also, add the field 
-                                strong Image 
-                                |(id IMAGE) as derived field of the previous field and let it derive the image field
-                        img(src='images/apps/design-review-2.png' style='width:100%;max-width:769px;margin-bottom:10px;')
-                        h1 Configure Workspace Design Review Tasks
-                        p Use the 
-                            strong Workspace Manager 
-                            | to perform the following changes to your workspace 
-                            strong Design Review Tasks
-                            |:
-                        ol
-                            li Add an image field MARKUP to the first section
-                            li Add two fields of type paragraph: 
-                                strong MARKUPSTATE 
-                                | and 
-                                strong MARKUPSVG
-                                | . Set maximum length to 1.000.000 for both fields and set their visibility to 
-                                strong Never
-                                | . Set them to be editable anyway. Add these two fields to the first section of Item Details.
-                                img(src='images/apps/design-review-3.png' style='width:100%;max-width:439px;margin-bottom:10px;')
-                            li The following fields must be  
-                                strong editable at creation:  
-                                ul  
-                                    li TITLE 
-                                    li DESCRIPTION
-                                    li DESIGN_REVIEW
-                                    li TARGET_COMPLETION_DATE
-                            li Field 
-                                strong ASSIGNEE 
-                                | must 
-                                strong NOT 
-                                | be mandatory
-                            li Disable 
-                                strong Workflow Locking 
-                                | for all sections
-                            li Enable transition 
-                                strong Return 
-                                | also for the Owner. If this permission is not granted, the creation of tasks will fail as the given user cannot upload the markup image after task creation.
-                                img(src='images/apps/design-review-4.png' style='width:100%;max-width:630px;margin-bottom:30px;')
-                        p Grant permission to 
-                            strong Add Items 
-                            | in workspace 
-                            strong Design Review Tasks 
-                            | for all the users which will use the Design Review Portal.
-                        h1 Script Changes
-                        p Let new 
-                            strong Design Review Tasks 
-                            | be connected to the related 
-                            strong Design Review 
-                            | by adding the following script to the initial workflow transition (from the Start Node) in workspaces 
-                            strong Design Review Tasks:
-                        p.code if(item.DESIGN_REVIEW !== null) { item.DESIGN_REVIEW.project.addTask(item); }
-                        p Adjust the script 
-                            strong Design Reviews WF Actions 
-                            | by extending the if statement with the following condition as shown in the screenshot below: 
-                        p.code item.project.children.length === 0
-                        img(src='images/apps/design-review-1.jpg' style='width:100%;max-width:900px;margin-bottom:10px;')
-                        h1 Configuration Settings
-                        p If the standard workspace  
-                            strong Design Reviews 
-                            | or 
-                            strong Design Review Tasks 
-                            | got changed, you may have to adjust some configuration settings within file 
-                            strong settings.js
-                            | . Locate the following section in this file to adjust the given properties if needed:
-                        p.code
-                            span export.config = {
-                            span.indent 'reviews' : {
-                            span.indent-2 'fieldIdItem' : 'ITEM',
-                            span.indent-2 'fieldIdImage' : 'IMAGE',
-                            span.indent-2 'transitionId' : 'CLOSE_REVIEW',
-                            span.indent-2 'workspaces' : {
-                            span.indent-3 'reviews' : {
-                            span.indent-4 'id' : 76,
-                            span.indent-4 'sections' : [ { 'name' : 'Review Findings' } ],
-                            span.indent-4 'states'    : [ 'Planning', 'Preparation', 'In Progress' ]
-                            span.indent-3 },
-                            span.indent-3 'tasks' : {
-                            span.indent-4 'id' : '',
-                            span.indent-4 'sections' : [ { 'name' : 'Definition' }, { 'name' : 'Schedule' } ],
-                            span.indent-4 'states'    : [ 'Assigned', 'On Hold', 'In Work', 'Review', 'Complete' ]
-                            span.indent-3 }
-                            span.indent-2 },
-                            span.indent }
-                            span }   
-                        p Parameter transitionId defines the workflow action ID that can be used to close / finish a given design review. If the user has permission to perform this defined transition, the given button 
-                            strong Finish 
-                            |will be displayed when opening a design review.
-                        p The workspaces parameter enables to align this solution with your workspace configuation:     
-                            ul 
-                                li reviews.id is used to determine the workspace ID of 
-                                    strong Design Reviews
-                                li reviews.sections is required to locate the section in 
-                                    strong Item Details 
-                                    |of Design Reviews which contains the fields to store the findings (Issue, Deficiencies ...)
-                                li reviews.states defines the list of states that will be used for filtering the reviews in the landing page. 
-                                li tasks.id is used to determine the workspace ID of 
-                                    strong Design Review Tasks 
-                                    |. If no id is provided, the solution will determine this id automatically by retrieving the workspaces enabled in the project tab of design reviews 
-                                li tasks.sections is used to determine the required sections in 
-                                    strong Item Details 
-                                    |of design review tasks workspace (the ones containing the fields required)
-                                li tasks.states is used to determine the color highlight of actions being shown in context of a review (states 1 &amp; 2 will be shown as new, 2 &amp; 3 as pending and state 4 as complete)
-                        h1 Access the Design Review Portal
-                        p You can access the design review portal with the 
-                            strong /reviews 
-                            | endpoint, just click this link:
-                        a(href='reviews' target='_blank')
-                    .log 
-                        h1 Design Reviews Change Log 
-                        table 
-                            tr 
-                                td 30. August 2023
-                                td CONFIG CHANGE
-                                td Formerly, the field IMAGE_1 was used to store the markups of Design Review Tasks. 
-                                    br
-                                    |This has been changed and field MARKUP will be used instead now. 
-                                    br 
-                                    |Please review the installation instructions once again and compare it with your setup.
-                            tr 
-                                td 
-                                td Documentation 
-                                td Adjusted installation instructions to ease deployment
-                            tr 
-                                td 3. August 2023
-                                td Bugfix 
-                                td Improved behavior of markup toolbar at lower resolutions
-                            tr 
-                                td 
-                                td Bugfix 
-                                td Width of markups and font size of markup text can now be set properly
-                            tr 
-                                td 7. July 2023
-                                td Enhancement
-                                td Better alignment of installation instructions with new default tenant
-                    .troubleshooting 
-                        h1 Troubleshooting 
-                        h3 Missing coordinator in demo data sets
-                        div In case of using the standard tenant with the latest demo data as of Q3 2023, make sure to add yourself or any user as the coordinator inside of the design review you want to open. Without a coordinator, the creation of the design review task will result in an error. This is only relevant to the data that has been published with the creation of the demo tenant. Newly created design reviews are not affected by this behaviour.
+                include ../docs/app-design-reviews.pug
                 include ../docs/app-service-portal.pug
                 .tile(data-name='Change Impact Analysis')
                     .tile-image(style='background: url("images/app-impact-analysis.png") no-repeat;background-size:contain;')
