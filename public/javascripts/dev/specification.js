@@ -15,7 +15,7 @@ let urns = {
 
 let paramsAttachments = { 'layout' : 'list', upload : true};
 
-let edit = false;
+let edit = true;
 
 
 let ebom, flatEBOM, ebomFields;
