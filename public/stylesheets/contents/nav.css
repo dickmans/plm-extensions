@@ -118,11 +118,14 @@
 }
 .workspace-view-thead th {
     border-bottom : 1px solid transparent;
-    padding : 8px 12px;
+    padding       : 8px 12px;
 }
 .workspace-view-item {
-    cursor  : pointer;
-    padding : 4px 15px;
+    cursor          : pointer;
+    overflow        : hidden;
+    padding         : 4px 15px;
+    text-overflow   : ellipsis;
+    white-space     : nowrap;
 }
 .workspace-view-item:last-of-type {
     border-bottom : none;
