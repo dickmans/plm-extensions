@@ -409,7 +409,7 @@ function viewerSelectModels(partNumbers, params) {
 
     let toolbar = $('#my-custom-toolbar-highlight');
     if(toolbar.length > 0) {
-        if(toolbar.hasClass('highlight-on')) highlight = true;
+        highlight = toolbar.hasClass('highlight-on');
     }
 
     for(let dataInstance of dataInstances) {
