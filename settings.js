@@ -168,10 +168,11 @@ exports.config = {
     }],
 
     'explorer' : {
-        'bomViewName'           : 'Details',
-        'fieldIdPRImage'        : 'IMAGE_1',
-        'fieldIdPRContext'      : 'AFFECTED_ITEM',
-        'wsIdProblemReports'    : 82,
+        'bomViewName'          : 'Details',
+        'fieldIdPRImage'       : 'IMAGE_1',
+        'fieldIdPRContext'     : 'AFFECTED_ITEM',
+        'wsIdItems'            : 57,
+        'wsIdProblemReports'   : 82,
         'wsIdSupplierPackages' : 147,
         'kpis' : [{
             'id'        : 'lifecycle',
@@ -438,8 +439,28 @@ exports.config = {
                 { 'value' : 'Not Required'  , 'count' : 0, 'color' : colors.list[3], 'vector' : vectors.list[0] },
                 { 'value' : 'Compliant'     , 'count' : 0, 'color' : colors.list[4], 'vector' : vectors.green }
             ]
+        }],
+        'viewerFeatures': {
+            'cube'          : false,
+            'orbit'         : false,
+            'firstPerson'   : false,
+            'camera'        : false,
+            'measure'       : true,
+            'section'       : true,
+            'explodedView'  : true,
+            'modelBrowser'  : false,
+            'properties'    : false,
+            'settings'      : false,
+            'fullscreen'    : true,
+            'markup'        : true,
+            'ghosting'      : true,
+            'highlight'     : true,
+            'single'        : true,
+            'fitToView'     : true,
+            'reset'         : true,
+            'views'         : true
         }
-    ]},
+    },
 
     'impactanalysis' : {
         'fieldIdProposedChange'             : 'PROPOSED_CHANGE',

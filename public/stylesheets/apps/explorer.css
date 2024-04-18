@@ -11,6 +11,11 @@
 
 :root {
 
+    --width-recents         : 400px;
+    --width-bookmarks       : 500px;
+    --padding-landing-v     : 40px;
+    --padding-landing-h     : 60px;
+
     --width-dashboard       : 450px;
     --width-bom             : 600px;
     --width-flat-bom        : 60%;
@@ -24,6 +29,29 @@
 
 /* MASTER LAYOUT */
 /* ----------------------------------------------------------------------------- */
+
+#recents {
+    border-width : var(--padding-landing-v) var(--padding-landing-h);
+    top          : 0px;
+    bottom       : 0px;
+    left         : 0px;
+    width        : var(--width-recents);
+}
+#products {
+    border-width : var(--padding-landing-v) var(--padding-landing-h);
+    top          : 0px;
+    right        : calc(var(--width-bookmarks) + (2 * var(--padding-landing-h)));
+    bottom       : 0px;
+    left         : calc(var(--width-recents) + (2 * var(--padding-landing-h)));
+}
+#bookmarks {
+    border-width : var(--padding-landing-v) var(--padding-landing-h);
+    right        : 0px;
+    top          : 0px;
+    bottom       : 0px;
+    width        : var(--width-bookmarks);
+}
+
 #dashboard {
     width : var(--width-dashboard);
 }
@@ -55,6 +83,25 @@
     width   : var(--width-panel);
 
 }
+
+body.screen-startup > .screen { display : none; }
+body.screen-startup .landing  { display : none; }
+body.screen-startup .main     { display : none; }
+
+body.screen-landing #landing { display : block; }
+body.screen-landing .landing { display : flex;  }
+body.screen-landing #main    { display : none;  }
+body.screen-landing .main    { display : none;  }
+body.screen-main    #landing { display : none;  }
+body.screen-main    .landing { display : none;  }
+body.screen-main    #main    { display : block; }
+body.screen-main    .main    { display : flex;  }
+
+body.no-recents   #recents   { left : calc(0px - var(--width-recents) - (2 * var(--padding-landing-h))); }
+body.no-recents   #products  { left : 0px; }
+body.no-bookmarks #bookmarks { right : calc(0px - var(--width-bookmarks) - (2 * var(--padding-landing-h))); }
+body.no-bookmarks #products  { right : 0px; }
+
 
 body.no-dashboard #dashboard { left : calc(0px - var(--width-dashboard) - 100px); }
 body.no-dashboard #bom { left : var(--padding-panel); }

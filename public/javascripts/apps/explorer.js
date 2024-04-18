@@ -28,25 +28,48 @@ $(document).ready(function() {
     wsSupplierPackages.id           = config.explorer.wsIdSupplierPackages;
     paramsProcesses.createWSID      = config.explorer.wsIdProblemReports;
     paramsProcesses.fieldIdMarkup   = config.explorer.fieldIdPRImage;
+    applicationFeatures.viewer      = config.reviews.viewerFeatures;
 
     let link = '/api/v3/workspaces/' + wsId + '/items/' + dmsId;
     
-    $('#details').attr('data-link', link);
-
     appendProcessing('dashboard', false);
     appendProcessing('bom', false);
     appendProcessing('details', false);
     appendViewerProcessing();
-    appendOverlay();
+    appendOverlay(false);
     
     paramsProcesses.createContext  = {
         'fieldId' : config.explorer.fieldIdPRContext
     }
 
-    getInitialData();
-    insertViewer(link);
-    insertAttachments(link, paramsAttachments);
-    insertChangeProcesses(link, paramsProcesses);
+    if(isBlank(wsItems.id)) wsItems.id = config.explorer.wsIdItems;
+
+    insertRecentItems({
+        headerLabel : 'Recently Viewed',
+        size : 'm',
+        workspacesIn : [wsItems.id]
+    });
+    insertWorkspaceViews(wsItems.id, {
+        id : 'products',
+        headerLabel : 'Workspace Views'
+    });
+    insertBookmarks({
+        headerLabel : 'Bookmarks',
+        workspacesIn : [wsItems.id]
+    });
+
+    getInitialData(function() {
+
+        $('#overlay').hide();
+        $('body').removeClass('screen-startup');
+
+        if(!isBlank(dmsId)) {
+            openItem(link);
+        } else {
+            $('body').addClass('screen-landing');
+        }
+    });
+
     setUIEvents();
 
 });
@@ -54,6 +77,18 @@ $(document).ready(function() {
 function setUIEvents() {
 
     // Header Toolbar
+    $('#button-toggle-recents').click(function() {
+        $('body').toggleClass('no-recents');
+    });
+    $('#button-toggle-bookmarks').click(function() {
+        $('body').toggleClass('no-bookmarks');
+
+    });
+    $('#button-home').click(function() {
+        $('body').addClass('screen-landing').removeClass('screen-main');
+        document.title = documentTitle;
+        window.history.replaceState(null, null, '/explorer?theme=' + theme);
+    });
     $('#button-toggle-dashboard').click(function() {
         $('body').toggleClass('no-dashboard');
         viewerResize();
@@ -227,6 +262,104 @@ function setUIEvents() {
 
 
 
+// Retrieve Workspace Details, BOM and details
+function getInitialData(callback) {
+
+    let requests = [
+        $.get('/plm/bom-views-and-fields'   , { 'wsId' : wsItems.id }),
+        $.get('/plm/details'                , { 'wsId' : wsItems.id, 'dmsId' : dmsId }),
+        $.get('/plm/sections'               , { 'wsId' : wsItems.id }),
+        $.get('/plm/fields'                 , { 'wsId' : wsItems.id }),
+        $.get('/plm/sections'               , { 'wsId' : wsProblemReports.id }),
+        $.get('/plm/fields'                 , { 'wsId' : wsProblemReports.id })
+    ];
+
+    if(!isBlank(config.explorer.wsIdSupplierPackages)) {
+        requests.push($.get('/plm/sections', { 'wsId' : wsSupplierPackages.id }));
+        requests.push($.get('/plm/fields'  , { 'wsId' : wsSupplierPackages.id }));
+    }
+
+    Promise.all(requests).then(function(responses) {
+
+        for(view of responses[0].data) {
+            if(view.name === config.explorer.bomViewName) {
+                wsItems.viewId = view.id;
+                wsItems.viewColumns = view.fields;
+            }
+        }
+
+        if(wsItems.viewId === '') showErrorMessage('Error in configuration. Could not find BOM view "' + config.explorer.bomViewName + '"');
+
+        wsItems.sections            = responses[2].data;
+        wsItems.fields              = responses[3].data;
+        wsProblemReports.sections   = responses[4].data;
+        wsProblemReports.fields     = responses[5].data;
+        editableFields              = getEditableFields(wsItems.fields);
+
+        if(!isBlank(config.explorer.wsIdSupplierPackages)) {
+            wsSupplierPackages.sections = responses[6].data;
+            wsSupplierPackages.fields   = responses[7].data;
+        } else {
+            $('#send-selected').remove();
+        }
+
+        callback();
+
+    });
+
+}
+
+
+
+// Open by id or click in landing page
+function clickRecentItem(elemClicked)        { openSelectedItem(elemClicked); }
+function clickWorkspaceViewItem(elemClicked) { openSelectedItem(elemClicked); }
+function clickBookmarkItem(elemClicked)      { openSelectedItem(elemClicked); }
+function openSelectedItem(elemClicked)       { openItem(elemClicked.attr('data-link'), elemClicked.attr('data-title')); }
+function openItem(link, title) {
+
+    let split = link.split('/');
+
+    window.history.replaceState(null, null, '/explorer?wsid=' + split[4] + '&dmsid=' + split[6] + '&theme=' + theme);
+
+    $('body').addClass('screen-main').removeClass('screen-landing');
+    $('#details').attr('data-link', link);
+    $('#header-subtitle').html('');
+    $('#bom-table-tree').html('');
+    $('.kpi').remove();
+    $('#dashboard-processing').show();
+    $('#bom-processing').show();
+
+    context.link = link;
+    
+    if(isBlank(title)) {
+        $.get('/plm/descriptor', { 'link' : link}, function(response) {
+            $('#header-subtitle').html(response.data);
+            document.title = documentTitle + ': ' + response.data;
+            context.title = response.data;
+        });
+    } else {
+        $('#header-subtitle').html(title);
+        document.title = documentTitle + ': ' + title;
+        context.title = title;
+    }
+
+    for(let kpi of config.explorer.kpis) {
+        kpi.data = [];
+    }
+
+    viewerLeaveMarkupMode();
+    getBOMData(link);
+    insertViewer(link);
+    setItemDetails(link);
+    insertAttachments(link, paramsAttachments);
+    insertChangeProcesses(link, paramsProcesses);
+
+}
+
+
+
+
 // Get viewable and init Forge viewer
 function onViewerSelectionChanged(event) {
 
@@ -284,74 +417,17 @@ function onViewerSelectionChanged(event) {
 }
 function initViewerDone() {
     
-    viewerAddMarkupControls();   
-    viewerAddGhostingToggle();
-    viewerAddViewsToolbar();
-
     $('#viewer-markup-image').attr('data-field-id', config.explorer.fieldIdProblemReportImage);
 
 }
 
 
 
-// Retrieve Workspace Details, BOM and details
-function getInitialData() {
-
-    let requests = [
-        $.get('/plm/bom-views-and-fields'   , { 'wsId' : wsId }),
-        $.get('/plm/details'                , { 'wsId' : wsId, 'dmsId' : dmsId }),
-        $.get('/plm/sections'               , { 'wsId' : wsId }),
-        $.get('/plm/fields'                 , { 'wsId' : wsId }),
-        $.get('/plm/sections'               , { 'wsId' : wsProblemReports.id }),
-        $.get('/plm/fields'                 , { 'wsId' : wsProblemReports.id })
-    ];
-
-    if(!isBlank(config.explorer.wsIdSupplierPackages)) {
-        requests.push($.get('/plm/sections', { 'wsId' : wsSupplierPackages.id }));
-        requests.push($.get('/plm/fields'  , { 'wsId' : wsSupplierPackages.id }));
-    }
-
-    Promise.all(requests).then(function(responses) {
-
-        for(view of responses[0].data) {
-            if(view.name === config.explorer.bomViewName) {
-                wsItems.viewId = view.id;
-                wsItems.viewColumns = view.fields;
-            }
-        }
-
-        if(wsItems.viewId === '') showErrorMessage('Error in configuration. Could not find BOM view "' + config.explorer.bomViewName + '"');
-
-        $('#header-subtitle').html(responses[1].data.title);
-
-        context.link  = '/api/v3/workspaces/' + wsId + '/items/' + dmsId;
-        context.title = responses[1].data.title 
-
-        wsItems.sections            = responses[2].data;
-        wsItems.fields              = responses[3].data;
-        wsProblemReports.sections   = responses[4].data;
-        wsProblemReports.fields     = responses[5].data;
-
-        if(!isBlank(config.explorer.wsIdSupplierPackages)) {
-            wsSupplierPackages.sections = responses[6].data;
-            wsSupplierPackages.fields   = responses[7].data;
-        } else {
-            $('#send-selected').remove();
-        }
-
-        getBOMData();
-        setItemDetails(context.link);
-        
-        editableFields = getEditableFields(wsItems.fields);
-
-    });
-
-}
-function getBOMData() {
+// Insert Selected item's data
+function getBOMData(link) {
     
     let params = {
-        'wsId'          : wsId,
-        'dmsId'         : dmsId,
+        'link'          : link,
         'depth'         : 10,
         'revisionBias'  : revisionBias,
         'viewId'        : wsItems.viewId
@@ -532,7 +608,7 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom) {
                 elemRow.addClass('bom-item');
                 elemRow.appendTo(elemRoot);
     
-            for(kpi of config.explorer.kpis) {
+            for(let kpi of config.explorer.kpis) {
 
                 let kpiValue = getBOMCellValue(edge.child, kpi.urn, bom.nodes, 'title');
 
@@ -942,7 +1018,7 @@ function parseKPI(kpi, value) {
 
     let isNew = true;
 
-    for(entry of kpi.data) {
+    for(let entry of kpi.data) {
         if(entry.value === value) {
             entry.count++;
             isNew = false;

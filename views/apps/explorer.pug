@@ -11,21 +11,30 @@ block head
 
 block body
 
-    body.surface-level-1.text-selection-off.no-attachments
+    body.surface-level-1.text-selection-off.no-attachments.screen-startup
 
         #header.dark
             #header-logo
             #header-title= title
-            #header-subtitle
+            #header-subtitle.main
             #header-toolbar
-                #button-toggle-dashboard.button.with-icon.icon-dashboard(title='Click to toggle dashboard panel on/off') Dashboard
-                #button-toggle-bom.button.with-icon.icon-bom(title='Click to switch BOM display form tree to table and back') BOM
-                #button-toggle-attachments.button.with-icon.icon-pdf(title='Click to toggle files panel on/off') Files
-                #button-toggle-details.button.with-icon.icon-panel(title='Click to toggle details panel on/off') Details
-                #button-toggle-processes.button.with-icon.icon-workflow(title='Click to toggle processes panel on/off') Processes
+                .landing#button-toggle-recents.button.with-icon.icon-history(title='Click to toggle Recently Viewed panel on/off') Toggle Recently Viewed
+                .landing#button-toggle-bookmarks.button.with-icon.icon-bookmark(title='Click to toggle Bookmarks panel on/off') Toggle Bookmarks
+                .main#button-home.button.with-icon.icon-home(title='Browse availalbe products') Home
+                .main#button-toggle-dashboard.button.with-icon.icon-dashboard(title='Click to toggle dashboard panel on/off') Dashboard
+                .main#button-toggle-bom.button.with-icon.icon-bom(title='Click to switch BOM display form tree to table and back') BOM
+                .main#button-toggle-attachments.button.with-icon.icon-pdf(title='Click to toggle files panel on/off') Files
+                .main#button-toggle-details.button.with-icon.icon-panel(title='Click to toggle details panel on/off') Details
+                .main#button-toggle-processes.button.with-icon.icon-workflow(title='Click to toggle processes panel on/off') Processes
                 #header-avatar
         
-        #main.screen
+        .screen#landing
+
+            #recents.surface-level-2
+            #products.surface-level-1
+            #bookmarks.surface-level-2
+
+        .screen#main
 
             #dashboard.no-toolbar.surface-level-2
                 .panel-header
