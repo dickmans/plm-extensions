@@ -637,13 +637,12 @@ function insertBOMSpareParts(elemParent, selectedItems, urnsSpareParts, flatBOM)
             .addClass('spare-part-image')
             .addClass('tile-image');
                 
-        let valueImage = getFlatBOMCellValue(flatBOM, selectedItem.node.item.link, urnsSpareParts.image);
-        let linkImage = (valueImage === '') ? '' : valueImage;
+        let linkImage = getFlatBOMCellValue(flatBOM, selectedItem.node.item.link, urnsSpareParts.image);
 
         getImageFromCache(elemSparePartImage, { 'link' : linkImage }, 'settings', function() {});
     
         if(linkImage === '') {
-            $.get('/plm/details', { 'link' : link}, function(response) {
+            $.get('/plm/details', { 'link' : selectedItem.node.item.link}, function(response) {
                 linkImage  = getFirstImageFieldValue(response.data.sections);
                 $('.spare-part').each(function() {
                     if($(this).attr('data-link') === response.params.link) {
