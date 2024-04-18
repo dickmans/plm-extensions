@@ -1059,6 +1059,17 @@ function toggleSelectionHighlight(enabled) {
 
     if(!enabled) return;
 
+    let allVisible = true;
+
+    for(let dataInstance of dataInstances) {
+        if(!viewer.isNodeVisible(dataInstance.dbId)) {
+            allVisible = false;
+            break;
+        }
+    }
+
+    if(allVisible) return;
+
     for(let dataInstance of dataInstances) {
         if(viewer.isNodeVisible(dataInstance.dbId)) {
             viewer.setThemingColor(dataInstance.dbId, colorModelSelected, null, true );
