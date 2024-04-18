@@ -45,16 +45,17 @@ $(document).ready(function() {
     if(isBlank(wsItems.id)) wsItems.id = config.explorer.wsIdItems;
 
     insertRecentItems({
-        headerLabel : 'Recently Viewed',
-        size : 'm',
+        headerLabel  : 'Recently Viewed',
+        size         : 'm',
         workspacesIn : [wsItems.id]
     });
     insertWorkspaceViews(wsItems.id, {
-        id : 'products',
+        id          : 'products',
         headerLabel : 'Workspace Views'
     });
     insertBookmarks({
-        headerLabel : 'Bookmarks',
+        headerLabel  : 'Bookmarks',
+        images       : true,
         workspacesIn : [wsItems.id]
     });
 
