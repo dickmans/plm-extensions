@@ -295,6 +295,9 @@ a:hover {
 }
 .tile.max.with-log .log {
     display : block;
+    top     : 300px;
+    right   : 0px;
+    bottom  : 0px;
 }
 .tile.max .button.change-log {
     display  : block;
