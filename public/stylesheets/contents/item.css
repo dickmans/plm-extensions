@@ -229,6 +229,34 @@
 .no-header > .attachments-list {
     top : 0px;
 }
+.folder {
+    background    : var(--color-surface-level-2);
+    margin-bottom : 10px;
+    padding       : 20px;
+}
+.folder-header {
+    cursor        : pointer;
+    display       : flex;
+    gap           : 12px;
+    margin-bottom : 18px;
+}
+.folder-header:hover {
+    color : var(--color-blue-500);
+}
+.folder.collapsed .folder-header {
+    margin-bottom : 0px;
+}
+.folder-attachments {
+    display         : flex;
+    flex-direction  : column;
+    gap             : var(--spacer-xxxs);
+}
+.folder .folder-toggle::before {
+    content : '\e5cf';
+}
+.folder.collapsed .folder-toggle::before {
+    content : '\e5cc';
+}
 .attachment {
     cursor  : pointer;
     padding : 8px 20px 8px 10px;
