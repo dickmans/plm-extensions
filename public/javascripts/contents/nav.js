@@ -260,6 +260,7 @@ function insertRecentItems(params) {
     let headerToggle = false;                   // Enable header toggles
     let reload       = true;                    // Enable reload button for the list
     let icon         = 'icon-history';          // Sets the icon to be displayed for each tile
+    let images       = true;                    // Display first image field as tile image
     let size         = 'xs';                    // layout size (xxs, xs, s, m, l, xl, xxl)
     let workspacesIn = [];                      // List of workspace IDs to be included. Items from other workspaces will not be shown.
     let workspacesEx = [];                      // List of workspace IDs to be excluded. Items of these workspaces will not be shown.
@@ -271,12 +272,14 @@ function insertRecentItems(params) {
     if(!isBlank(params.headerToggle)) headerToggle = params.headerToggle;
     if(!isBlank(params.reload)      )       reload = params.reload;
     if(!isBlank(params.icon)        )         icon = params.icon;
+    if(!isBlank(params.images)      )       images = params.images;
     if(!isBlank(params.size)        )         size = params.size;
     if(!isBlank(params.workspacesIn)) workspacesIn = params.workspacesIn;
     if(!isBlank(params.workspacesEx)) workspacesEx = params.workspacesEx;
 
     settings.recents[id]              = {};
     settings.recents[id].icon         = icon;
+    settings.recents[id].images       = images;
     settings.recents[id].workspacesIn = workspacesIn;
     settings.recents[id].workspacesEx = workspacesEx;
 
@@ -388,6 +391,8 @@ function insertRecentItemsData(id) {
                                 clickRecentItem($(this), e);
                             });
 
+                        if(settings.recents[id].images) getTileImage(elemTile, settings.recents[id].icon);
+
                     }
                 }
 
@@ -403,6 +408,24 @@ function insertRecentItemsData(id) {
 
     });
 
+}
+function getTileImage(elemTile, icon) {
+
+    let linkTile = elemTile.attr('data-link');
+
+    if(isBlank(linkTile)) return;
+
+    $.get('/plm/details', { 'link' : linkTile}, function(response) {
+
+        let linkImage  = getFirstImageFieldValue(response.data.sections);
+
+        if(isBlank(linkImage)) return;
+
+        let elemTileImage = elemTile.find('.tile-image').first();
+        getImageFromCache(elemTileImage, { 'link' : linkImage }, icon, function() {});
+
+    });
+    
 }
 function insertRecentItemsDone(id, data) {}
 function clickRecentItem(elemClicked) {
@@ -422,6 +445,7 @@ function insertBookmarks(params) {
     let headerToggle = false;               // Enable header toggles
     let reload       = true;                // Enable reload button for the list
     let icon         = 'icon-bookmark';     // Sets the icon to be displayed for each tile
+    let images       = false;               // Display first image field as tile image
     let size         = 'm';                 // layout size (xxs, xs, s, m, l, xl, xxl)
     let workspacesIn = [];                  // List of workspace IDs to be included. Items from other workspaces will not be shown.
     let workspacesEx = [];                  // List of workspace IDs to be excluded. Items of these workspaces will not be shown.
@@ -433,12 +457,14 @@ function insertBookmarks(params) {
     if(!isBlank(params.headerToggle)) headerToggle = params.headerToggle;
     if(!isBlank(params.reload)      )       reload = params.reload;
     if(!isBlank(params.icon)        )         icon = params.icon;
+    if(!isBlank(params.images)      )       images = params.images;
     if(!isBlank(params.size)        )         size = params.size;
     if(!isBlank(params.workspacesIn)) workspacesIn = params.workspacesIn;
     if(!isBlank(params.workspacesEx)) workspacesEx = params.workspacesEx;
 
     settings.bookmarks[id]              = {};
     settings.bookmarks[id].icon         = icon;
+    settings.bookmarks[id].images         = images;
     settings.bookmarks[id].workspacesIn = workspacesIn;
     settings.bookmarks[id].workspacesEx = workspacesEx;    
 
@@ -547,6 +573,8 @@ function insertBookmarksData(id) {
                                 e.stopPropagation();
                                 clickBookmarkItem($(this), e);
                             });
+
+                        if(settings.bookmarks[id].images) getTileImage(elemTile, settings.bookmarks[id].icon);
 
                     }
                 }
