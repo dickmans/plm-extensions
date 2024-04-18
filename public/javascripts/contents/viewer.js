@@ -1397,6 +1397,8 @@ function addMarkupActionControl(elemParent, icon, content, script, tooltip) {
 }
 function viewerLeaveMarkupMode() {
 
+    if(!isViewerStarted()) return;
+
     let elemNoteControl = $('#viewer-note-toolbar');
 
     if(elemNoteControl.length > 0) {

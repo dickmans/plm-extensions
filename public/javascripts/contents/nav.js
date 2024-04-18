@@ -343,6 +343,7 @@ function insertRecentItems(params) {
         .attr('id', id + '-list')
         .addClass('recents-list')
         .addClass('no-scrollbar')
+        .addClass('panel-content')
         .addClass('tiles')
         .addClass('list')
         .addClass(size);
@@ -360,6 +361,7 @@ function insertRecentItemsData(id) {
     elemList.hide();
 
     $('#' + id + '-processing').show();
+    $('#' + id + '-no-data').hide();
 
     $.get('/plm/recent', { 'timestamp' : timestamp }, function(response) {
 
@@ -371,7 +373,7 @@ function insertRecentItemsData(id) {
 
             for(recent of response.data.recentlyViewedItems) {
 
-                let workspaceId = recent.item.link.split('/')[4];
+                let workspaceId = Number(recent.item.link.split('/')[4]);
 
                 if((settings.recents[id].workspacesIn.length === 0) || ( settings.recents[id].workspacesIn.includes(workspaceId))) {
                     if((settings.recents[id].workspacesEx.length === 0) || (!settings.recents[id].workspacesEx.includes(workspaceId))) {
@@ -383,7 +385,7 @@ function insertRecentItemsData(id) {
                             elemTile.click(function(e) {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                clickRecentItem($(this));
+                                clickRecentItem($(this), e);
                             });
 
                     }
@@ -403,7 +405,7 @@ function insertRecentItemsData(id) {
 
 }
 function insertRecentItemsDone(id, data) {}
-function clickRecentItem(elemClicked, e) {
+function clickRecentItem(elemClicked) {
     openItemByLink(elemClicked.attr('data-link'));
 }
 
@@ -503,6 +505,7 @@ function insertBookmarks(params) {
     .attr('id', id + '-list')
         .addClass('bookmarks-list')
         .addClass('no-scrollbar')
+        .addClass('panel-content')
         .addClass('tiles')
         .addClass('list')
         .addClass(size);
@@ -530,7 +533,7 @@ function insertBookmarksData(id) {
 
             for(bookmark of response.data.bookmarks) {
 
-                let workspaceId = bookmark.item.link.split('/')[4];
+                let workspaceId = Number(bookmark.item.link.split('/')[4]);
 
                 if((settings.bookmarks[id].workspacesIn.length === 0) || ( settings.bookmarks[id].workspacesIn.includes(workspaceId))) {
                     if((settings.bookmarks[id].workspacesEx.length === 0) || (!settings.bookmarks[id].workspacesEx.includes(workspaceId))) {
@@ -542,7 +545,7 @@ function insertBookmarksData(id) {
                             elemTile.click(function(e) {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                clickBookmarkItem($(this));
+                                clickBookmarkItem($(this), e);
                             });
 
                     }
@@ -923,7 +926,7 @@ function insertWorkspaceViews(wsId, params) {
         .html('');
 
     if(elemParent.length === 0) {
-        showErrorMessage('View Definition Error', 'Could not find view element with id "' + id + '" in page. Please contact your administrator');
+        showErrorMessage('View Definition Error', 'Could not find html element with id "' + id + '" in page. Please contact your administrator');
         return;
     }
 
@@ -1308,6 +1311,8 @@ function setWorkspaceViewRows(id, elemTBody, rows) {
             })
 
         for(let field of row.fields) {
+
+            if(field.id === 'DESCRIPTOR') elemRow.attr('data-title', field.value);
 
             let elemCell = $('<td></td>').html($('<div></div>').html(field.value).text());
 

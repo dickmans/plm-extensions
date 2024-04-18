@@ -3493,22 +3493,18 @@ function insertFlatBOM(link , params) {
 
     if(!isBlank(classNames)) elemBOM.attr('data-class-names', classNames);
 
-    let elemHeader = $('<div></div>');
-        elemHeader.addClass('panel-header');
-        elemHeader.attr('id', id + '-header');
-        elemHeader.appendTo(elemBOM);
+    let elemHeader = $('<div></div>').appendTo(elemBOM)
+        .addClass('panel-header')
+        .attr('id', id + '-header');
 
-    let elemTitle = $('<div></div>');
-        elemTitle.addClass('panel-title');
-        elemTitle.attr('id', id + '-title');
-        elemTitle.html(title);
-        elemTitle.appendTo(elemHeader);
+    $('<div></div>').appendTo(elemHeader)
+        .addClass('panel-title')
+        .attr('id', id + '-title')
+        .html(title);
 
-    let elemToolbar = $('<div></div>');
-        elemToolbar.addClass('panel-toolbar');
-        elemToolbar.attr('id', id + '-toolbar');
-        elemToolbar.appendTo(elemHeader);
-
+    let elemToolbar = $('<div></div>').appendTo(elemHeader)
+        .addClass('panel-toolbar')
+        .attr('id', id + '-toolbar');
 
     $('<div></div>').appendTo(elemToolbar)
         .addClass('button') 
