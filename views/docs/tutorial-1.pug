@@ -1,0 +1,44 @@
+#tutorial-1.doc-content 
+    h3 Tutorial #1
+    h1 Create a new app
+    .definition This initial tutorial explains how to create a new app. It is based on template files that you can use anytime you need to build a new app. These files make sure that you take full benefit of the framework and its standard features. First, you will have to create copies of these template files in specific directories, then you will register a new app with a new endpoint and then be able to use this app after a server restart.
+    h2 Files Required
+    p Each of the standard apps requires a set of 3 files. It is recommended to follow the same approach when creating a new app by using a ... 
+    ul 
+        li .pug file which defines the static html content of your application 
+        li .css file to set app specific styles for your applicaation 
+        li .js to implement custom code for user interactions and to insert PLM contents
+    p For easy reference, it is recommended give all these files the same name. The standard apps even use the same name as for the endpoint. This is not required technically, but best practice anyway. This tutorial makes use of prepared template files to allow for a quick start.
+    h2 Copy Files 
+    p In this tutorial, we will create a new app named 
+        strong myapp 
+        |and name the files accordingly. Copy the files listed below to the given target folders using your explorer.
+    p   
+        table.row-hovering 
+            tr 
+                th Source File 
+                th Destination File 
+                th Remarks
+            tr 
+                td views/tutorial/1-template.pug 
+                td.code views/custom/myapp.pug
+                td Please store all you custom .pug files in this folder as this folder is excluded from the Github repository
+            tr 
+                td public/javascripts/tutorial/1-template.js
+                td.code public/javascripts/custom/myapp.js
+                td This folder contains placeholder .js files already that you can use to extend existing applications. Do not remove these files.
+            tr 
+                td public/stylesheets/tutorial/1-template.css
+                td.code public/stylesheets/custom/myapp.css
+                td This folder contains placeholder .css files already that you can use to extend existing applications. Do not remove these files.
+    h2 Update File References
+    p Next, we have to update the references to the files as we moved and renamed the files. Fortunately, this only involes the .pug file. Open the following file in an editor (Visual Studio Code is recommended but not required).
+    p.code views/custom/myapp.pug
+    p This file determines the HTML elements of your application and makes use of the 
+        a(href='https://devhints.io/pug' target='_blank') pug notation
+        |. Update the references to both the js file and the css file in the header as shown below: 
+    img(src='images/docs/tutorial-1-01.png'  style='max-width:546px;')
+    h2 Register new endpiont 
+    p In order to make your new app accessible for your users, you have to register a new endpoint for it. Open the following file to add a new endpoint: 
+    p.code routes/landing.js
+    h2 Code Review

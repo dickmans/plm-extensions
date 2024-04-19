@@ -59,7 +59,7 @@ router.get('/specification' , function(req, res, next) { launch('dev/specificati
 /* ------------------------------------------------------------------------------
     TUTORIAL APPLICATIONS
    ------------------------------------------------------------------------------ */
-router.get('/template'      , function(req, res, next) { launch('tutorial/template'   , 'App Template Page'           , req, res, next); });
+router.get('/template'      , function(req, res, next) { launch('tutorial/1-template'   , 'App Template Page'         , req, res, next); });
 
 
 

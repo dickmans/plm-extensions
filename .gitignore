@@ -3,6 +3,7 @@
 /public/cache/*
 /uploads/*
 /settings/*
+/views/custom/*
 /views/.DS_Store
 package-lock.json
 !.gitkeep

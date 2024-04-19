@@ -10,10 +10,34 @@ img {
 .split-left {
     overflow-y : auto;
 }
+.nav-subtitle {
+    margin-bottom : 30px;
+}
 .nav-header {
+    cursor      : pointer;
+    display     : flex;
     font-weight : 800;
     font-size   : 20px;
-    padding     : 50px 0px 10px;
+    line-height : 24px;
+    padding     : 20px 0px 10px;
+}
+.nav-header:hover::before {
+    color : var(--color-blue-500);
+}
+.nav-header::before {
+    font-family             : 'Material Symbols Sharp';
+    margin-right            : var(--spacer-xxs);
+    text-rendering          : optimizeLegibility;
+    -webkit-font-smoothing  : antialiased;
+    content                 : '\e5cf';
+    line-height             : 24px;
+    font-size               : 24px;
+}
+.nav-header.collapsed::before {
+    content: '\e5cc';
+}
+.nav-description {
+    padding-left : 28px;
 }
 .nav-contents {
     display         : flex;
@@ -21,13 +45,15 @@ img {
     font-size       : 16px;
     gap             : var(--spacer-xxs);
     line-height     : 22px;
-    padding         : var(--spacer-xs) 0px;
+    padding         : var(--spacer-xs) 0px 40px 28px;
 }
 .nav-content {
     color   : var(--color-blue-500);
     cursor  : pointer;
 }
-
+.nav-content:hover {
+    font-weight : bold;
+}
 
 #doc-contents {
     overflow-x : hidden;
@@ -78,7 +104,8 @@ img {
 .indent-4 { padding-left : 100px; }
 .indent-5 { padding-left : 130px; }
 
-table td:nth-child(1) {
+table td:nth-child(1),
+td.code {
     font-family  : 'Courier New', monospace;
     white-space  : nowrap;
     -webkit-user-select:text;
