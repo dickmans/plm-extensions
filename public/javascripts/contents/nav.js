@@ -111,10 +111,9 @@ function insertMOW(params) {
 
     $('<div></div>').appendTo(elemParent)
         .attr('id', id + '-list')
+        .addClass('panel-content')
         .addClass('mow-list')
         .addClass('no-scrollbar')
-        .addClass('tiles')
-        .addClass('list')
         .addClass(size);
 
     insertMOWData(id);
@@ -136,6 +135,9 @@ function insertMOWData(id) {
         if(response.params.timestamp === $('#' + id).attr('data-timestamp')) {
 
             elemList.html('');
+            
+            let elemTable = $('<div></div>').appendTo(elemList) 
+                .addClass('mow-table');
 
             let counter = 0;
 
@@ -160,7 +162,7 @@ function insertMOWData(id) {
                             if(item.milestoneStatus === 'CRITICAL') dateClass = 'late';
                         }
 
-                        let elemItem = $('<div></div>').appendTo(elemList)
+                        let elemItem = $('<div></div>').appendTo(elemTable)
                             .addClass('mow-row')
                             .attr('data-link', item.item.link)
                             .attr('data-title', item.item.title)
