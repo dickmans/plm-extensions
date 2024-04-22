@@ -51,9 +51,9 @@ applicationFeatures = {
         'markup'        : true,
         'ghosting'      : true,
         'highlight'     : true,
-        'reset'         : true,
-        'fitToView'     : true,
         'single'        : true,
+        'fitToView'     : true,
+        'reset'         : true,
         'views'         : true
     }
 }
