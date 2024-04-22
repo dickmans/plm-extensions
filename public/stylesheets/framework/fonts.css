@@ -197,6 +197,7 @@
 .icon-cart-clear::before        { content : '\f4f7'; }
 .icon-cart-checkout::before     { content : '\eb88'; }
 .icon-check::before             { content : '\e86c'; }
+.icon-checkmark::before         { content : '\e5ca'; }
 .icon-check-box::before         { content : '\e835'; }
 .icon-check-box-checked::before { content : '\e834'; }
 .icon-check-circle-add::before  { content : '\f23a'; }
