@@ -250,6 +250,15 @@
 .tiles.list.xxs  .tile-toggle { line-height : 36px; }
 .tiles.list.xxxs .tile-toggle { line-height : 26px; }
 
+.tile-counter { font-weight : 800; }
+.tiles.list.xxl .tile-counter { line-height : 96px; font-size : 32px; }
+.tiles.list.xl  .tile-counter { line-height : 96px; font-size : 32px; }
+.tiles.list.l   .tile-counter { line-height : 96px; font-size : 32px; }
+.tiles.list.m   .tile-counter { line-height : 64px; font-size : 24px; }
+.tiles.list.s   .tile-counter { line-height : 64px; font-size : 24px; }
+.tiles.list.xs  .tile-counter { line-height : 48px; font-size : 18px; }
+.tiles.list.xxs .tile-counter { line-height : 36px; font-size : 16px; }
+
 .tiles.list.xxl .tile-details { gap : var(--spacer-xxxs); }
 .tiles.list.xl  .tile-details { gap : var(--spacer-xxxs); }
 .tiles.list.l   .tile-details { gap : var(--spacer-xxxs); }
