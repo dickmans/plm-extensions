@@ -124,9 +124,12 @@ function insertMOWData(id) {
     let timestamp  = new Date().getTime();
     let elemParent = $('#' + id)
     let elemList   = $('#' + id + '-list');  
+    let elemSearch = $('#' + id + '-search-input')
 
     elemParent.attr('data-timestamp', timestamp);
     elemList.hide();
+
+    if(elemSearch.length > 0) elemSearch.val('');
 
     $('#' + id + '-processing').show();
 
@@ -137,6 +140,7 @@ function insertMOWData(id) {
             elemList.html('');
             
             let elemTable = $('<div></div>').appendTo(elemList) 
+                .attr('id', id + '-table')
                 .addClass('mow-table');
 
             let counter = 0;
@@ -220,18 +224,18 @@ function clickMOWItem(elemClicked, e) {
 }
 function searchInMOW(id, elemInput) {
 
-    let elemList   = $('#' + id + '-list');
+    let elemTable   = $('#' + id + '-table');
     let filterValue = elemInput.val().toLowerCase();
 
     if(filterValue === '') {
        
-        elemList.children().show();
+        elemTable.children().show();
 
     } else {
 
-        elemList.children().hide();
+        elemTable.children().hide();
 
-        elemList.children().each(function() {
+        elemTable.children().each(function() {
 
             let elemRow = $(this);
             let unhide  = false;
