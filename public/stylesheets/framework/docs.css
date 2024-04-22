@@ -7,6 +7,32 @@ th, td {
 img {
     border-radius : 6px;
 }
+a.button {
+    color           : var(--color-blue-600);
+    font-weight     : 700;
+    text-decoration : none;
+    border          : 1px solid black;
+    border-radius   : 3px;
+    padding         : 14px 40px;
+    margin-top      : 10px;
+    display         : inline-block;
+}
+a.button:hover {
+    border-color : var(--color-blue-500);
+}
+.dark-theme a.button,
+.black-theme a.button {
+    background  : var(--color-blue-500);
+    border      : none;
+    color       : white;
+}
+.dark-theme a.button:hover,
+.black-theme a.button:hover {
+    background : var(--color-blue-600);
+}
+
+
+
 .split-left {
     overflow-y : auto;
 }
@@ -116,6 +142,11 @@ td.code {
     -ms-user-select: text;
     user-select: all;
 }
+span.ref {
+    cursor : pointer;
+    color  : var(--color-blue-500);
+}
+
 
 
 /*  ICONS */

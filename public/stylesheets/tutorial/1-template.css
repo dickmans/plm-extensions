@@ -1,36 +1,16 @@
 :root {
 
-    --width-bom             : 500px;
-    --width-details         : 500px;
-    --width-attachments     : 400px;
-    --padding-panel         : 25px;
+    --width-border : 40px;
 
 }
 
 
 /* MASTER LAYOUT */
 /* ----------------------------------------------------------------------------- */
-#viewer {
-    top     : 0px;
-    right   : calc((5 * var(--padding-panel)) + var(--width-bom) + var(--width-details) + var(--width-attachments));
-    bottom  : 0px;
-    left    : 0px;
-}
-#bom {
-    top     : var(--padding-panel);
-    right   : calc((4 * var(--padding-panel)) + var(--width-details) + var(--width-attachments));
-    bottom  : var(--padding-panel);
-    width   : var(--width-details);
-}
-#details {
-    top     : var(--padding-panel);
-    right   : calc((2 * var(--padding-panel)) + var(--width-attachments));
-    bottom  : var(--padding-panel);
-    width   : var(--width-details);
-}
-#attachments {
-    top     : var(--padding-panel);
-    right   : var(--padding-panel);
-    bottom  : var(--padding-panel);
-    width   : var(--width-attachments);
+#mow {
+    border-width : var(--width-border);
+    top          : 0px;
+    right        : 0px;
+    bottom       : 0px;
+    left         : 0px;
 }

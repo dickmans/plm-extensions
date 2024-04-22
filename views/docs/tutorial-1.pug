@@ -12,7 +12,7 @@
     h2 Copy Files 
     p In this tutorial, we will create a new app named 
         strong myapp 
-        |and name the files accordingly. Copy the files listed below to the given target folders using your explorer.
+        |and name the files accordingly. Copy the files listed below to the given target folders using your explorer or the workspaces panel in Visual Studio Code.
     p   
         table.row-hovering 
             tr 
@@ -32,13 +32,61 @@
                 td.code public/stylesheets/custom/myapp.css
                 td This folder contains placeholder .css files already that you can use to extend existing applications. Do not remove these files.
     h2 Update File References
-    p Next, we have to update the references to the files as we moved and renamed the files. Fortunately, this only involes the .pug file. Open the following file in an editor (Visual Studio Code is recommended but not required).
+    p Next, we have to update the references to the files as we moved and renamed them. Fortunately, this only involes the .pug file which refers to the .css and .js file. Open the following file in an editor (Visual Studio Code is recommended but not required).
     p.code views/custom/myapp.pug
-    p This file determines the HTML elements of your application and makes use of the 
+    p This file defines the HTML elements of your application and makes use of the 
         a(href='https://devhints.io/pug' target='_blank') pug notation
         |. Update the references to both the js file and the css file in the header as shown below: 
     img(src='images/docs/tutorial-1-01.png'  style='max-width:546px;')
     h2 Register new endpiont 
-    p In order to make your new app accessible for your users, you have to register a new endpoint for it. Open the following file to add a new endpoint: 
+    p In order to make your new app accessible for your users, you have to register a new endpoint (URL) for it. Open the following file to add a new endpoint: 
     p.code routes/landing.js
+    p This file manages all the server endpoints, including the ones of the standard apps. Locate the section with registration of tutorial applications (line #46 in the screenshot below) and its first line that starts with 'router.get' (line #49).
+    img(src='images/docs/tutorial-1-02.png'  style='max-width:1097px;')
+    p Copy this line and update its paramters as shown in the screenshot below: 
+        ul 
+            li 
+                strong /myapp 
+                |defines the URL suffix of the endpoint 
+            li
+                strong custom/myapp 
+                |defines the .pug file to open when http://../myapp is opened in the browser 
+            li 
+                strong 'My Custom App' 
+                |sets the application title which will be shown in the browser tab
+    img(src='images/docs/tutorial-1-03.png'  style='max-width:1068px;')
+    p Save your changes. Your endpoint will not be available immediately as this configuration gets applied during server startup. 
+        br 
+        |Therefore, before proceeding and testing the application, please restart your server process (using npm start).
+    h2 Showtime 
+    p Once you restarted your server, you should now be able to access this new application. As this app does not require a context item, you can simply open the URL in a browser:
+    a.button(href='myapp' target='_blank')
+    p This will open a basic application providing access to the user's outstanding work list including type ahead filtering:
+    img(src='images/docs/tutorial-1-04.png'  style='max-width:987px;')
     h2 Code Review
+    p Let's review the basic building blocks of this application as they will be reused in the next tuturials as well.
+    p
+        table 
+            tr 
+                td(style='width:535px') 
+                    img(src='images/docs/tutorial-1-05.png'  style='max-width:535px;')
+                td
+                    p Lines #5 and #6 got modified as part of the app creation process just before
+                    p Lines #14 to #18 set the default black header of this app. Variable title in line #16 is used to inherit the title from the definition in landing.js. #header-avatar is the placeholder for the user's account image.
+                    p Line #20 adds an element of class screen to the page, which consumes all space below the header
+                    p Line #22 adds element #mow as a placeholder for the MOW table which will be inserted by javascript later on. This element also has class 'surface-level-1' assigned to set the right border-color.
+            tr
+                td 
+                    img(src='images/docs/tutorial-1-06.png'  style='max-width:535px;')
+                td
+                    span Most HTML elements of this custom app use the default styling set by the framework (i.e. the header and screen). But the element #mow must be positioned in the screen. This is achieved by the css settings shown to the left, applying an absolute positioning in screen and setting a border-width of 40px.
+            tr
+                td 
+                    img(src='images/docs/tutorial-1-07.png'  style='max-width:535px;')
+                td
+                    p This script gets executed when the page finished loading. It only triggers the function 'insertMOW()' provided by this framework. This function will automatically create the MOW table object with default settings, inlcuding the header and type ahead filtering.
+                    p To learn more about this capability, click on 
+                        span.ref(data-id='nav-mow') My Outstanding Work 
+                        |in the 
+                        strong Navigation Views 
+                        |section in the left panel.
