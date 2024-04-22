@@ -169,7 +169,7 @@ exports.config = {
     'explorer' : {
         'bomViewName'               : 'Details',
         'fieldIdProblemReportImage' : 'IMAGE_1',
-        'wsIdProblemReports'        : 82,
+        'wsIdProblemReports'        : 79,
         'wsIdSupplierPackages'      : 407,
         'kpis' : [{
             'id'        : 'lifecycle',
