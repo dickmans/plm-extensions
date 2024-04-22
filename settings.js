@@ -170,7 +170,7 @@ exports.config = {
         'bomViewName'               : 'Details',
         'fieldIdProblemReportImage' : 'IMAGE_1',
         'wsIdProblemReports'        : 82,
-        'wsIdSupplierPackages'      : 147,
+        'wsIdSupplierPackages'      : 407,
         'kpis' : [{
             'id'        : 'lifecycle',
             'title'     : 'Item Lifecycle',
