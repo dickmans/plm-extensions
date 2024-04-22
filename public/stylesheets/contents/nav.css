@@ -182,3 +182,26 @@
     min-width       : unset;
     text-align      : left;
 }
+
+
+
+/*  SEARCH */
+/* ----------------------------------------------------------------------------- */
+.search-list-toolbar {
+    display : flex;
+    gap     : 10px;
+    margin  : 16px 16px;
+}
+.search-list-input {
+    border-color : var(--color-surface-level-3);
+    flex-grow    : 1;
+    padding      : 10px;
+}
+.search-list {
+    top : 120px;
+}
+.search-list-status {
+    padding     : 20px;
+    text-align  : center;
+    width       : 100%; 
+}

@@ -1,0 +1,176 @@
+#nav-search.doc-content 
+    h1 insertSearch();
+    .definition  Insert a quick find enabling to search within the item descriptors in a defined or all workspaces.
+        br
+        |This function gets included in all pages automatically and is defined in 
+        span.path /public/javascripts/contents/nav.js
+        |. 
+        br
+        |Styling of the given contents is defined in 
+        span.path /public/stylesheets/contents/nav.css 
+        | based on the primary class search-list.
+        img(src='images/docs/nav-search-1.png' style='display:block;margin-top:20px;height:355px;')
+    h2 DOM Elements 
+    p Insert the following base element to your pug file to add the workspace views in your page:
+    p.code #search 
+    p You can also use another id, but you will then have to pass the right name using the 'id' parameter (see section Parameters). Add the following optional classes to this DOM element to adjust the contents display:
+    p 
+        table.row-hovering 
+            tr 
+                th Class Name 
+                th Description
+            tr 
+                td surface-level-[1..5]
+                td Add the UI classes surface-level-1 through surface-level-5 to adjust the background color of the search element 
+
+    h2 Parameters
+    p Various parameters can be provided when using insertSearch. All parameters listed below are optional and can be passed using a JSON object. See this example call: 
+    p.code insertSearch('208', { 'workspace' : '57', 'limit' : 100 });
+    p   
+        table.parameters.row-hovering 
+            tr 
+                th.nowrap Parameter 
+                th Description
+                th Type 
+                th Required 
+                th Default 
+            tr 
+                td id 
+                td ID of the DOM element where the search panel should be inserted
+                td String
+                td No
+                td search
+            tr 
+                td header 
+                td Can be used to suppress addition of the panel header element
+                td Boolean
+                td No
+                td false
+            tr 
+                td headerLabel
+                td Sets the header label (if header is enabled)
+                td String
+                td No
+                td Search
+            tr 
+                td headerToggle 
+                td Enables collapsing and expanding the panel
+                td Boolean
+                td No 
+                td false
+            tr 
+                td placeholder 
+                td Sets the placeholder text for the search input element
+                td String
+                td No 
+                td 'Enter search critieria'
+            tr 
+                td buttonLabel 
+                td Sets the label of the button to run the search (users can also press the enter key to run the given search)
+                td String
+                td No 
+                td 'Submit'
+            tr 
+                td reset 
+                td Enables a reset button for the search panel
+                td Boolean
+                td No
+                td true
+            tr 
+                td tileCounter 
+                td A counter can be displayed in each tile instead of an icon to let users remember given search results easieer
+                td Boolean
+                td No
+                td false
+            tr 
+                td icon 
+                td Sets the icon to be displayed for each tile (this setting gets overwritten with the previous parameter tileCounter)
+                td String
+                td No
+                td 'icon-checkmark'
+            tr 
+                td images 
+                td Set this parameter to true if the first image of each result should be displayed within the tile
+                td Boolean
+                td No
+                td false
+            tr 
+                td size 
+                td Set the size of tiles (xxs, xs, s, m, l, xl or xxl)
+                td String
+                td No
+                td 'm'
+            tr 
+                td limit 
+                td Set maximum limit of search results (if more search results would be available, a given text message will be shown below the list of search results)
+                td Integer
+                td No 
+                td 50
+            tr 
+                td workspace 
+                td Provide a workspac ID to restrict the search for the given workspace
+                td String
+                td No 
+                td ''
+            tr 
+                td baseQuery 
+                td Provide a base query string which will be added to the user's input automtically
+                td String
+                td No 
+                td ''
+            tr 
+                td exactMatch 
+                td If enabled, wildcards will not be added automatically
+                td Boolean
+                td No
+                td false
+            tr 
+                td autoClick 
+                td When this is set to true and a search returns one result only, this result will automatically be clicked, triggering the given user event automatically
+                td Boolean
+                td No
+                td false
+    h2 Examples 
+    p   
+        table.row-hovering 
+            tr 
+                th Code 
+                th Screenshot 
+                th Application 
+            tr 
+                td.code 
+                    span.indent-1 insertSearch({
+                    span.indent-2 'size'         : 'xxs',
+                    span.indent-2 'images'       : true,
+                    span.indent-2 'limit'        : 20,
+                    span.indent-2 'workspace'    : wsItems.id,
+                    span.indent-2 'tileCounter'  : true,
+                    span.indent-2 'autoClick'    : true
+                    span.indent-1 });
+                td
+                    img(src='images/docs/nav-search-1.png' style='height:355px;')
+                td Product Data Explorer
+
+    h2 Events 
+    p You can override the following functions in your code to adjust the default behavior.
+    p 
+        table.row-hovering
+            tr 
+                th Function 
+                th Event 
+                th Parameters 
+            tr 
+                td insertSearchDone(id)
+                td Gets executed when the given UI elements of the search panel got added to the page
+                td id = id of the parent div element (i.e. search)
+            tr 
+                td insertSearchDataDone(id, data) 
+                td This function is invoked when the search results got returned and the tiles were added to the search result list.
+                td 
+                    ul 
+                        li id = id of the parent div element (i.e. search)
+                        li data = result data of the selected search as returned by the PLM REST API
+            tr 
+                td clickSearchResult(elemClicked, e) 
+                td This function is invoked when a user clicks an item in the list of search results. It opens the given record in PLM per default.
+                td elemClicked = jQuery element of the given tile which got clicked by the user; e = click event

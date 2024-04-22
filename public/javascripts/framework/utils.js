@@ -16,6 +16,7 @@ let settings = {
     recents         : {},
     bookmarks       : {},
     mow             : {},
+    search          : {},
     workspaceViews  : {},
     workspaceItems  : {},
     workflowHistory : {}
