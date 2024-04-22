@@ -9,10 +9,11 @@ let defaultTheme    = 'light';
 
 // -------------------------------------------------------------------------------------------
 // OVERRIDE SETTINGS WITH ENVIRONMENT VARIABLES
-clientId     = (typeof process.env.CLIENT_ID     === 'undefined') ? clientId     : process.env.CLIENT_ID;
-clientSecret = (typeof process.env.CLIENT_SECRET === 'undefined') ? clientSecret : process.env.CLIENT_SECRET;
-tenant       = (typeof process.env.TENANT        === 'undefined') ? tenant       : process.env.TENANT;
-redirectUri  = (typeof process.env.REDIRECT_URI  === 'undefined') ? redirectUri  : process.env.REDIRECT_URI;
+clientId     = (typeof process.env.CLIENT_ID      === 'undefined') ? clientId     : process.env.CLIENT_ID;
+clientSecret = (typeof process.env.CLIENT_SECRET  === 'undefined') ? clientSecret : process.env.CLIENT_SECRET;
+tenant       = (typeof process.env.TENANT         === 'undefined') ? tenant       : process.env.TENANT;
+redirectUri  = (typeof process.env.REDIRECT_URI   === 'undefined') ? redirectUri  : process.env.REDIRECT_URI;
+defaultTheme = (typeof process.env.DEFAUlT_THEME  === 'undefined') ? defaultTheme : process.env.DEFAUlT_THEME;
 
 let protocol  = redirectUri.split('://')[0];
     protocol  = (typeof process.env.PROTOCOL === 'undefined') ? protocol : process.env.PROTOCOL;
@@ -30,6 +31,7 @@ exports.clientId        = clientId;
 exports.clientSecret    = clientSecret;
 exports.tenant          = tenant; 
 exports.redirectUri     = redirectUri;
+exports.defaultTheme    = defaultTheme;
 exports.protocol        = protocol;
 exports.port            = port;
 exports.debugMode       = true;
