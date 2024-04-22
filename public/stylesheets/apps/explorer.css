@@ -15,6 +15,7 @@
     --width-bookmarks       : 500px;
     --padding-landing-v     : 40px;
     --padding-landing-h     : 60px;
+    --height-recents        : 454px;
 
     --width-dashboard       : 450px;
     --width-bom             : 600px;
@@ -33,6 +34,14 @@
 #recents {
     border-width : var(--padding-landing-v) var(--padding-landing-h);
     top          : 0px;
+    /* bottom       : 0px; */
+    left         : 0px;
+    height       : var(--height-recents);
+    width        : var(--width-recents);
+}
+#search {
+    border-width : var(--padding-landing-v) var(--padding-landing-h);
+    top          : calc(var(--height-recents) + (2 * var(--padding-landing-v)));
     bottom       : 0px;
     left         : 0px;
     width        : var(--width-recents);

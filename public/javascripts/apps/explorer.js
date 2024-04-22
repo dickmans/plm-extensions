@@ -46,8 +46,16 @@ $(document).ready(function() {
 
     insertRecentItems({
         headerLabel  : 'Recently Viewed',
-        size         : 'm',
+        size         : 'xxs',
         workspacesIn : [wsItems.id]
+    });
+    insertSearch({
+        size         : 'xxs',
+        images       : true,
+        limit        : 20,
+        workspace    : wsItems.id,
+        tileCounter  : true,
+        autoClick    : true
     });
     insertWorkspaceViews(wsItems.id, {
         id          : 'products',
@@ -314,6 +322,7 @@ function getInitialData(callback) {
 
 // Open by id or click in landing page
 function clickRecentItem(elemClicked)        { openSelectedItem(elemClicked); }
+function clickSearchResult(elemClicked)      { openSelectedItem(elemClicked); }
 function clickWorkspaceViewItem(elemClicked) { openSelectedItem(elemClicked); }
 function clickBookmarkItem(elemClicked)      { openSelectedItem(elemClicked); }
 function openSelectedItem(elemClicked)       { openItem(elemClicked.attr('data-link'), elemClicked.attr('data-title')); }
