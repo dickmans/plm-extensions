@@ -22,6 +22,7 @@
 #guiviewer3d-toolbar > div {
     background : transparent;
     box-shadow : none !important;
+    margin     : 0px 4px !important;
 }
 #toolbar-measureTool-done, #toolbar-measureTool-done > label {
     background : #0696D7 !important;
@@ -55,15 +56,15 @@
     border-color : var(--color-blue-500) !important; 
 }
 #button-toggle-ghosting-off .icon-hide::before { color : white !important; }
-#my-custom-toolbar-ghosting.ghosting    #button-toggle-ghosting-on  { display : none; }
-#my-custom-toolbar-ghosting.no-ghosting #button-toggle-ghosting-off { display : none; }
+#customSelectionToolbar.ghosting    #button-toggle-ghosting-on  { display : none; }
+#customSelectionToolbar.no-ghosting #button-toggle-ghosting-off { display : none; }
 #button-toggle-highlight-on { 
     background   : var(--color-blue-500) !important; 
     border-color : var(--color-blue-500) !important; 
 }
 #button-toggle-highlight-on .icon-highlight::before { color : white !important; }
-#my-custom-toolbar-highlight.highlight-on  #button-toggle-highlight-off { display : none; }
-#my-custom-toolbar-highlight.highlight-off #button-toggle-highlight-on  { display : none; }
+#customSelectionToolbar.highlight-on  #button-toggle-highlight-off { display : none; }
+#customSelectionToolbar.highlight-off #button-toggle-highlight-on  { display : none; }
 
 
 

@@ -407,7 +407,7 @@ function viewerSelectModels(partNumbers, params) {
     if(isolate)     viewer.hideAll();
     if(resetColors) viewer.clearThemingColors();
 
-    let toolbar = $('#my-custom-toolbar-highlight');
+    let toolbar = $('#customSelectionToolbar');
     if(toolbar.length > 0) {
         highlight = toolbar.hasClass('highlight-on');
     }
@@ -958,18 +958,33 @@ function viewerGetSelectedComponentPaths() {
 
 
 
+// Custom Controls: Add Selection Toolbar
+function getCustomSelectionToolbar() {
+
+    for(let control of viewer.toolbar._controls) {
+        if(control._id === 'customSelectionToolbar') {
+            return control;
+        }
+    }
+
+    let selectToolbar = new Autodesk.Viewing.UI.ControlGroup('customSelectionToolbar');
+    viewer.toolbar.addControl(selectToolbar);
+
+    return selectToolbar;
+
+}
+
+
 // Custom Controls: Reset Button
 function viewerAddResetButton() {
 
-    let customToolbar = new Autodesk.Viewing.UI.ControlGroup('custom-toolbar-reset');
+    let toolbar = getCustomSelectionToolbar();
 
-    let buttonReset = addCustomControl(customToolbar, 'button-reset-selection', 'icon-reset', 'Reset selection and show all models');
+    let buttonReset = addCustomControl(toolbar, 'button-reset-selection', 'icon-reset', 'Reset selection and show all models');
         buttonReset.onClick = function() { 
             viewerClickReset();
         };
         
-    viewer.toolbar.addControl(customToolbar);
-
 }
 function viewerClickReset() {
     viewer.showAll();
@@ -986,26 +1001,25 @@ function viewerClickResetDone() {
 
 // Custom Controls : Ghosting Toggle
 function viewerAddGhostingToggle() {
+   
 
-    let newToolbar = new Autodesk.Viewing.UI.ControlGroup('my-custom-toolbar-ghosting');
+    let toolbar = getCustomSelectionToolbar();
 
-    let buttonOff = addCustomControl(newToolbar, 'button-toggle-ghosting-off', 'icon-hide', 'Enable ghosting mode');
+    let buttonOff = addCustomControl(toolbar, 'button-toggle-ghosting-off', 'icon-hide', 'Enable ghosting mode');
         buttonOff.onClick = function(e) { 
             viewer.setGhosting(true);
-            $('#my-custom-toolbar-ghosting').addClass('no-ghosting');
-            $('#my-custom-toolbar-ghosting').removeClass('ghosting');
+            $('#customSelectionToolbar').addClass('no-ghosting');
+            $('#customSelectionToolbar').removeClass('ghosting');
         };
 
-    let buttonOn = addCustomControl(newToolbar, 'button-toggle-ghosting-on', 'icon-show', 'Disable ghosting mode');
+    let buttonOn = addCustomControl(toolbar, 'button-toggle-ghosting-on', 'icon-show', 'Disable ghosting mode');
         buttonOn.onClick = function(e) { 
             viewer.setGhosting(false);
-            $('#my-custom-toolbar-ghosting').removeClass('no-ghosting');
-            $('#my-custom-toolbar-ghosting').addClass('ghosting');
+            $('#customSelectionToolbar').removeClass('no-ghosting');
+            $('#customSelectionToolbar').addClass('ghosting');
         };
 
-    viewer.toolbar.addControl(newToolbar);
-
-    $('#my-custom-toolbar-ghosting').addClass('no-ghosting');
+    toolbar.addClass('no-ghosting');
 
 }
 function addCustomControl(toolbar, id, icon, tooltip) {
@@ -1022,7 +1036,7 @@ function addCustomControl(toolbar, id, icon, tooltip) {
 }
 function getToolbarGhostingToggle(value) {
 
-    let toolbar = $('#my-custom-toolbar-ghosting');
+    let toolbar = $('#customSelectionToolbar');
     if(toolbar.length > 0) {
         if(toolbar.hasClass('ghosting')) return true;
         else return false;
@@ -1036,25 +1050,23 @@ function getToolbarGhostingToggle(value) {
 // Custom Controls : Highlight Toggle
 function viewerAddHighlightToggle() {
 
-    let newToolbar = new Autodesk.Viewing.UI.ControlGroup('my-custom-toolbar-highlight');
+    let toolbar = getCustomSelectionToolbar();
 
-    let buttonOff = addCustomControl(newToolbar, 'button-toggle-highlight-off', 'icon-highlight', 'Enable selection hihglight by color');
+    let buttonOff = addCustomControl(toolbar, 'button-toggle-highlight-off', 'icon-highlight', 'Enable selection hihglight by color');
         buttonOff.onClick = function(e) { 
             toggleSelectionHighlight(true);
-            $('#my-custom-toolbar-highlight').addClass('highlight-on');
-            $('#my-custom-toolbar-highlight').removeClass('highlight-off');
+            $('#customSelectionToolbar').addClass('highlight-on');
+            $('#customSelectionToolbar').removeClass('highlight-off');
         };
 
-    let buttonOn = addCustomControl(newToolbar, 'button-toggle-highlight-on', 'icon-highlight', 'Disable selection highlight by color');
+    let buttonOn = addCustomControl(toolbar, 'button-toggle-highlight-on', 'icon-highlight', 'Disable selection highlight by color');
         buttonOn.onClick = function(e) { 
             toggleSelectionHighlight(false);
-            $('#my-custom-toolbar-highlight').removeClass('highlight-on');
-            $('#my-custom-toolbar-highlight').addClass('highlight-off');
+            $('#customSelectionToolbar').removeClass('highlight-on');
+            $('#customSelectionToolbar').addClass('highlight-off');
         };
 
-    viewer.toolbar.addControl(newToolbar);
-
-    $('#my-custom-toolbar-highlight').addClass('highlight-off');
+    toolbar.addClass('highlight-off');
 
 }
 function toggleSelectionHighlight(enabled) {
@@ -1086,9 +1098,9 @@ function toggleSelectionHighlight(enabled) {
 // Custom Controls : Fit (selection) to view
 function viewerAddFitToView() {
     
-    let customToolbar = new Autodesk.Viewing.UI.ControlGroup('custom-toolbar-fit');
+    let toolbar = getCustomSelectionToolbar();
 
-    let buttionFitToView = addCustomControl(customToolbar, 'button-fit-to-view', 'icon-viewer', 'Fit (selected) components to view');
+    let buttionFitToView = addCustomControl(toolbar, 'button-fit-to-view', 'icon-viewer', 'Fit (selected) components to view');
         buttionFitToView.onClick = function() { 
 
             let dbIds = [];
@@ -1103,17 +1115,15 @@ function viewerAddFitToView() {
 
         };
         
-    viewer.toolbar.addControl(customToolbar);
-
 }
 
 
 // Custom Controls : 
 function viewerAddFitFirstInstance() {
 
-    let customToolbar = new Autodesk.Viewing.UI.ControlGroup('custom-toolbar-single');
+    let toolbar = getCustomSelectionToolbar();
 
-    let buttionFitFirst = addCustomControl(customToolbar, 'button-fit-first', 'icon-first', 'Fit first instance to view');
+    let buttionFitFirst = addCustomControl(toolbar, 'button-fit-first', 'icon-first', 'Fit first instance to view');
         buttionFitFirst.onClick = function() { 
 
             let dbIdFirst = [];
@@ -1132,8 +1142,6 @@ function viewerAddFitFirstInstance() {
             
         };
         
-    viewer.toolbar.addControl(customToolbar);
-
 }
 
 
