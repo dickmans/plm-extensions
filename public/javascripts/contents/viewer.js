@@ -561,6 +561,8 @@ function viewerResetSelection(params) {
 
     if(!isViewerStarted()) return;
 
+    disableViewerSelectionEvent = true;
+
     //  Set defaults for optional parameters
     // --------------------------------------
     let fitToView   = true;     // Zoom in / out to fit all into view
@@ -574,10 +576,12 @@ function viewerResetSelection(params) {
 
     viewer.showAll();
     viewer.clearSelection();
-    
+
          if(resetColors) viewer.clearThemingColors();
          if(resetView  ) viewer.setViewFromFile();
     else if(fitToView  ) viewer.fitToView();
+
+    disableViewerSelectionEvent = false;
 
 }
 
