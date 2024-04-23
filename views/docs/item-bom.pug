@@ -225,12 +225,12 @@
                         li bomData = BOM data as provided by the REST API
                         li flatBOMData = Flat BOM data as provided by the REST API
             tr 
-                td clickBOMItemDone(e, elemClicked) 
+                td clickBOMItemDone(elemClicked, e) 
                 td When users click the upload button, this function gets invoked. It is only available if 'upload' is set to true and will open the file browser to initiate the file upload process.
                 td 
                     ul 
-                        li e = click event object
                         li elemClicked = jQuery element of BOM row that got clicked
+                        li e = click event object
     h2 User Interactions 
     p You can override the behavior of the BOM display with the user interactions shown below. They all receive the UI element that got clicked as parameter elemClicked.
         table.row-hovering

@@ -3009,7 +3009,7 @@ function insertNextBOMLevel(id, elemTable, bom, parent, parentQuantity, selected
                     .click(function (e) {
                         e.preventDefault();
                         e.stopPropagation();
-                        clickBOMItem(e, $(this));
+                        clickBOMItem($(this), e);
                         toggleBOMItemActions($(this));
                     })
         
@@ -3413,7 +3413,7 @@ function clickBOMGoThere(elemClicked) {
     } 
 
 }
-function clickBOMItem(e, elemClicked) {
+function clickBOMItem(elemClicked, e) {
     
     let elemBOM    = elemClicked.closest('.bom');
     let selectMode = elemBOM.attr('data-select-mode');
@@ -3422,11 +3422,11 @@ function clickBOMItem(e, elemClicked) {
 
     elemClicked.toggleClass('selected');
 
-    clickBOMItemDone(e, elemClicked);
+    clickBOMItemDone(elemClicked, e);
     updateBOMCounters(elemBOM.attr('id'));
     
 }
-function clickBOMItemDone(e, elemClicked) {}
+function clickBOMItemDone(elemClicked, e) {}
 function getBOMItemChhildren(elemClicked) {
 
 
