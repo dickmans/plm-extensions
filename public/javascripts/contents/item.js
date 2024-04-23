@@ -1390,15 +1390,11 @@ function insertDetailsData(id) {
 
                 cacheSections = [];
 
-                console.log(sectionsEx);
-
                 for(let section of sections) {
 
                     let sectionId   = section.__self__.split('/')[6];
                     let isNew       = true;
                     let className   = 'expanded'
-
-                    console.log(section.name);
 
                     if(sectionsIn.length === 0 || sectionsIn.includes(section.name)) {
                         if(sectionsEx.length === 0 || !sectionsEx.includes(section.name)) {
