@@ -27,7 +27,7 @@ h2 {
     font-weight     : bold;
     line-height     : 18px;
     padding         : 20px;
-    margin          : 40px 0px 0px;
+    margin          : 20px 0px 30px;
 }
 .split-left > p {
     line-height : 18px;
@@ -38,6 +38,7 @@ h2 {
 #themes {
     display         : flex;
     justify-content : space-between;
+    margin-bottom   : 20px;
     padding-top     : 20px;
 }
 #themes span {
@@ -251,6 +252,13 @@ a:hover {
 /*  TENANT */
 /* ----------------------------------------------------------------------------- */
 #tenant-name {
+    color       : var(--color-blue-500);
+}
+
+
+/*  DOCS */
+/* ----------------------------------------------------------------------------- */
+#docs-name {
     color       : var(--color-blue-500);
 }
 

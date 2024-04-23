@@ -1,0 +1,83 @@
+#buttons.doc-content 
+    h1 Buttons
+    .definition This development framework provides standard classes to render buttons in various styles. The button styling adjusts to the selected theme automatically. All these classes and css settings are defined in 
+        br
+        span.path /public/stylesheets/framework/styles.css
+    h2 Button Examples
+    table   
+        tr 
+            th PUG code
+            th Result
+            th Remarks
+            th Matching standard HTML
+        tr  
+            td .button Settings
+            td  
+                .button Settings
+            td Standard button style with text only
+            td 
+                img(src='images/docs/buttons-1.png'  style='max-width:237px;')
+        tr  
+            td .button.with-icon.icon-settings Settings
+            td  
+                .button.with-icon.icon-settings Settings
+            td Standard button with text and preceeding icon. In order to select an icon, have a look at all framework 
+                span.ref(data-id='icons') Icons
+                |.
+            td 
+                img(src='images/docs/buttons-2.png'  style='max-width:350px;')
+        tr  
+            td .button.with-icon.icon-settings.default Settings
+            td  
+                .button.with-icon.icon-settings.default Settings
+            td Add the class default to indicate the default / primary action.
+            td 
+                img(src='images/docs/buttons-3.png'  style='max-width:405px;')
+        tr  
+            td .dark .button.with-icon.icon-settings.default Settings
+            td.dark  
+                .button.with-icon.icon-settings.default Settings
+            td Buttons within the application header will be adjusted to match the dark styling. This is the example with class default.
+            td 
+                img(src='images/docs/buttons-3.png'  style='max-width:405px;')
+        tr  
+            td .dark .button.with-icon.icon-settings Settings
+            td.dark  
+                .button.with-icon.icon-settings Settings
+            td Buttons within the application header will be adjusted to match the dark styling. This is a standard (non-default) button.
+            td 
+                img(src='images/docs/buttons-2.png'  style='max-width:350px;')
+        tr  
+            td .button.disabled Settings
+            td  
+                .button.disabled Settings
+            td Buttons may be disabled by adding class disabled. Note that this impacts the styling of the button only, users may still be able to click it and trigger the given script code. Your script code should therefore validate the class disabled if needed.
+            td 
+                img(src='images/docs/buttons-4.png'  style='max-width:311px;')
+        tr  
+            td .button.icon.icon-settings
+            td  
+                .button.icon.icon-settings
+            td Button witout any text, just an icon.
+            td 
+                img(src='images/docs/buttons-5.png'  style='max-width:283px;')
+    h2 Button Interaction
+    p While the standard buttons already provide the right style and react on hovering already, you still have to implement the logic of the click event. There are multiple possibilities to do so, but the standard apps always follow the same approach by registering the click event using jQuery.
+    p 
+        table 
+            tr 
+                th Assuming you added a button 'demo' to our pug file like this: 
+                th Then the button will look and behave like this: 
+                th And the logic should be defined in our javascript like this:
+            tr 
+                td.code .button.default#demo Click Me
+                td 
+                    .button.default#demo Click Me
+                td.code
+                    span.indent-1 $(document).ready(function() {
+                    span.indent-1 
+                    span.indent-2 $('#demo').click(function() {
+                    span.indent-3 alert('Hello World');
+                    span.indent-2 })
+                    span.indent-1
+                    span.indent-1 });

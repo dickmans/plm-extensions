@@ -1,0 +1,45 @@
+:root {
+
+    --width-border : 40px;
+    --width-mow    : 840px;
+    --width-panels : 400px;
+    --height-files : 220px;
+
+}
+
+
+/* MASTER LAYOUT */
+/* ----------------------------------------------------------------------------- */
+#mow {
+    border-width : var(--width-border);
+    top          : 0px;
+    /* right        : 0px; */
+    bottom       : 0px;
+    left         : 0px;
+    width        : var(--width-mow);
+}
+#workspace {
+    border-width : var(--width-border);
+    top          : 0px;
+    /* right        : 0px; */
+    right        : calc(var(--width-panels) + (2 * var(--width-border)));
+    bottom       : 0px;
+    left         : calc(var(--width-mow) + (2 * var(--width-border)));
+}
+#details {
+    border-width : var(--width-border);
+    top          : 0px;
+    right        : 0px;
+    bottom       : calc(var(--height-files) + (2 * var(--width-border)));
+    width        : var(--width-panels);
+}
+#attachments {
+    border-width : var(--width-border);
+    right        : 0px;
+    bottom       : 0px;
+    width        : var(--width-panels);
+    height       : var(--height-files);
+}
+
+body.no-mow #mow { left : calc(0px - var(--width-mow) - (2 * var(--width-border))); }
+body.no-mow #workspace { left : 0px; };

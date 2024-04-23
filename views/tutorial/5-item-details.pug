@@ -1,0 +1,27 @@
+extends ../framework/layout
+
+block head
+    
+    link(rel='stylesheet', href='/stylesheets/custom/myapp.css')
+    script(src='/javascripts/custom/myapp.js')
+    script.
+        config = !{JSON.stringify(config)};
+
+block body
+
+    body.surface-level-1
+
+        #header.dark
+            #header-logo
+            #header-title= title
+            #header-toolbar
+                #toggle-mow.button.with-icon.icon-mow(title="Click to toggle My Outstanding Work on/off") Toggle MOW
+                #header-avatar
+        
+        #main.screen
+
+            #mow.surface-level-1
+            #workspace.surface-level-2
+            
+            #details.surface-level-3
+            #attachments.surface-level-3

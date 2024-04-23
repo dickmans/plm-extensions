@@ -1,0 +1,78 @@
+#tutorial-6.doc-content 
+    h3 Tutorial #6
+    h1 Context Application
+    .definition This tutorial is similar to the first one, it creates a new app based on template files. The difference this time is that this app will be used in context of an item. It will require a dmsId and a workspaceId to then render the item's BOM, viewer, attachments and details.
+    h2 Copy Files 
+    p In this tutorial, we will create a new app named 
+        strong myexplorer 
+        |and name the files accordingly. Copy the files listed below to the given target folders using your explorer or the workspaces panel in Visual Studio Code.
+    p   
+        table.row-hovering 
+            tr 
+                th Source File 
+                th Destination File 
+                th Remarks
+            tr 
+                td views/tutorial/6-context.pug 
+                td.code views/custom/myexplorer.pug
+                td Please store all you custom .pug files in this folder as this folder is excluded from the Github repository
+            tr 
+                td public/javascripts/tutorial/6-context.js
+                td.code public/javascripts/custom/myexplorer.js
+                td This folder contains placeholder .js files already that you can use to extend existing applications. Do not remove these files.
+            tr 
+                td public/stylesheets/tutorial/6-context.css
+                td.code public/stylesheets/custom/myexplorer.css
+                td This folder contains placeholder .css files already that you can use to extend existing applications. Do not remove these files.
+    h2 Update File References
+    p Next, we have to update the references to the files as we moved and renamed them. Fortunately, this only involes the .pug file which refers to the .css and .js file. Open the following file in an editor (Visual Studio Code is recommended but not required).
+    p.code views/custom/myexplorer.pug
+    p This file defines the HTML elements of your application and makes use of the 
+        a(href='https://devhints.io/pug' target='_blank') pug notation
+        |. Update the references to both the js file and the css file in the header as shown below: 
+    img(src='images/docs/tutorial-6-03.png'  style='max-width:585px;')
+    h2 Register new endpiont 
+    p In order to make your new app accessible for your users, you have to register a new endpoint (URL) for it. Open the following file to add a new endpoint: 
+    p.code routes/landing.js
+    p This file manages all the server endpoints, including the ones of the standard apps. Locate the section with registration of tutorial applications (line #46 in the screenshot below) and its first line that starts with 'router.get' (line #49).
+    img(src='images/docs/tutorial-1-02.png'  style='max-width:1097px;')
+    p Copy this line and update its paramters as shown in the screenshot below (line #50 with /myapp got added in tutorial #1 and is not required for this tutorial): 
+        ul 
+            li 
+                strong /myexplorer 
+                |defines the URL suffix of the endpoint 
+            li
+                strong custom/myexplorer 
+                |defines the .pug file to open when http://../myexplorer is opened in the browser 
+            li 
+                strong 'My Item Explorer' 
+                |sets the application title which will be shown in the browser tab
+    img(src='images/docs/tutorial-6-01.png'  style='max-width:1024px;')
+    p Save your changes. Your endpoint will not be available immediately as this configuration gets applied during server startup. 
+        br 
+        |Therefore, before proceeding and testing the application, please restart your server process (using npm start).
+    h2 Showtime 
+    p Once you restarted your server, you should now be able to access this new application. However, you must pass a dmsId and a workspaceId to the application. Find an item in PLM which has a viewable attached before proceeding and capture the record's ids. You may want to use the demo EMBER printer that is availalbe in all demo and trial tenants: dmsId = 14669, wsId = 57.
+    p In order to open your app with the right ids, append the two parameters dmsid and wsid. With the given demo data and when the server is running locally, the right url looks like this:
+    a.button(href='myexplorer?wsId=57&dmsId=14669' target='_blank')
+    p This will open relevant data for the given item. Obviously, these tutorial files can be used to build new app quickly.
+    img(src='images/docs/tutorial-6-02.png'  style='max-width:1024px;')
+    h2 Code Review
+    p Let's review the basic building blocks of this application.
+    p
+        table 
+            tr 
+                td(style='width:585px') 
+                    img(src='images/docs/tutorial-6-04.png'  style='max-width:585px;')
+                td Lines #23 to #26 add named div elements as placeholder for the given control elements being inserted by Javascript later on. Using different surface-level-classes applies alternate background colors to the given panels.
+            tr
+                td 
+                    img(src='images/docs/tutorial-6-05.png'  style='max-width:585px;')
+                td The various placeholder elements get positioned absolutely. By using variables defined in lines #3 to #6, adjustments become easy.
+            tr
+                td 
+                    img(src='images/docs/tutorial-6-06.png'  style='max-width:585px;')
+                td 
+                    p Lines #5 to #8 invoke standard framework features with standard options by using the API-link that is based on the wsId and dmsId provided in the URL.
+                    p Line #9 invokes a custom function to set the application subtitle matching the item's descriptor.
+                    p Line #11 Adds a placeholder function in which one can now add UI specific code, but this is not required at this time.

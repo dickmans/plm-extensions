@@ -1,0 +1,54 @@
+#tutorial-3.doc-content 
+    h3 Tutorial #3
+    h1 Multiple Page Elements
+    .definition This time, a new page element will be added to display the user's Items workspace views. This not only requires to add further javascript code, but also the positioning of multiple elements in a single screen. The insertion of workspace views is is accomplished in a similar way like the MOW of the previous tutorials. 
+        br
+        br
+        |To learn about the given capability, have a look at 
+        span.ref(data-id='nav-workspace-views') Workspace Views
+        br
+        br
+        |If the steps of this tutorial fail on your side, you can review the tutorial files named 3-multiple-elements.* in folders 
+        ul 
+            li views/tutorial
+            li public/javascripts/tutorial
+            li public/stylesheets/tutorial
+    h2 Add Page Element
+    p Open the pug file of your app to add a new div element to the page:
+    .code views/custom/myapp.pug
+    p Add a div element named workspace add the end of the file as shown in this screenshot:
+    img(src='images/docs/tutorial-3-01.png'  style='max-width:360px;')
+    p Be cautious about the indentation as the pug files use the indentation levels to define the opening and closure of HTML tags. Save your changes.
+    p Setting a different surface-level-class to this new element will help to better distinguish between the two panels on screen afterwards: The higher the level (1 to 5), the darker the background.
+    h2 Add Javascript Code 
+    p Now that the placeholder div element is available in the page, we can invoke the insertion of the given workspace views. Open the javascript file of your app: 
+    .code public/javascript/custom/myapp.js
+    p We will insert the user's workspace view for the Items workspace with ID 57 and default settings. This only requires the addition of the following code in the section $(document).ready() ... please adjust the workspace ID 57 if needed to match your items workspace:
+    .code insertWorkspaceViews('57');
+    p In addition, to save some space on screen, change the row height of the MOW entries to size 'xs' by adjusting the given parameter of insertMOW(). Your javascript file then should look like this:
+    img(src='images/docs/tutorial-3-02.png'  style='max-width:423px;')
+    h2 Position page elements using CSS
+    p Finally, we have to set the right position on screen for the new workspace views. This also requires adjustments to the MOW list to free up some space on screen. Open the css file of your application:
+    .code public/stylesheets/custom/myapp.css
+    p To optimize the layout with having the MOW to the left and the Workspace Views to the right, we will set a fixed width for the MOW and assign all the space remaining to the Workspace Views. This is recommended as the columns of the MOW is fixed, but not for the Workspace Views. As a first step, add a variable to the CSS's :root to set the MOW panel width. Using a variable for this enables easy adjustments whenever needed:
+    .code --width-mow : 840px;
+    p The css's :root element now should look like this: 
+    img(src='images/docs/tutorial-3-03.png'  style='max-width:274px;')    
+    p Next, apply the width setting to the mow element. The width will only be taken into account if we do no longer use the property right, so must uncomment or remove this given line:
+    img(src='images/docs/tutorial-3-04.png'  style='max-width:657px;')    
+    p Now that the MOW got resized to a defined width, we can assign the remaining space on screen to the new div named workspace. This can be achieved by using a formula and the given variables for the border-widths and the mow-width. Insert the following code after the settings for #mow: 
+    .code 
+        span.indent-1 #workspace {
+        span.indent-2  border-width : var(--width-border);
+        span.indent-2  top          : 0px;
+        span.indent-2  right        : 0px;
+        span.indent-2  bottom       : 0px;
+        span.indent-2  left         : calc(var(--width-mow) + (2 * var(--width-border)));
+        span.indent-1 }
+    p With this change, your css now should look like this: 
+    img(src='images/docs/tutorial-3-05.png'  style='max-width:657px;')    
+    h2 Showtime 
+    p This tutorial required changes to files in folders /public and /views only. Therefore, a restart of the server is NOT required. To validate your new solution, simply refresh your app in the browser or use the button below to open it again:
+    a.button(href='myapp' target='_blank')
+    p You application's screen now is divided in two sections, showing the MOW to the left and the Items to the right. Both panels are fully functional and users can already click the given records to open them in PLM.
+    img(src='images/docs/tutorial-3-06.png'  style='max-width:1810px;')

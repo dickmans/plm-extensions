@@ -1,5 +1,9 @@
 $(document).ready(function() {
 
+    $('#demo').click(function() {
+        alert('Hello World');
+    })
+
     $('.nav-header').click(function() {
         $(this).toggleClass('collapsed');
         $(this).next().toggle();
@@ -10,14 +14,21 @@ $(document).ready(function() {
     });
 
     $('.nav-content').click(function() {
+        $('.nav-content').removeClass('selected');
+        $(this).addClass('selected');
         $('.doc-content').hide();
         $('#' + $(this).attr('data-id')).show();
         $('#doc-contents').animate({ scrollTop: 0 }, 250);
     });
 
     $('span.ref').click(function() {
+        let id = $(this).attr('data-id')
+        $('.nav-content').removeClass('selected');
+        $('.nav-content').each(function() {
+            if($(this).attr('data-id') === id) $(this).addClass('selected');
+        });
         $('.doc-content').hide();
-        $('#' + $(this).attr('data-id')).show();
+        $('#' + id).show();
         $('#doc-contents').animate({ scrollTop: 0 }, 250);
     });
 

@@ -38,6 +38,15 @@ $(document).ready(function() {
 
     });
 
+    $('#docs').click(function() {
+        let href = document.location.href.split('?');
+        let base = href[0] += 'docs';
+
+        if(href.length > 1) base += '?' + href[1];
+        
+        window.open(base);
+    });
+
     $('.tile').click(function(e) {
 
         if(e.shiftKey) {
