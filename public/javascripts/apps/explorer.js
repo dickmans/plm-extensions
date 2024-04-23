@@ -28,7 +28,7 @@ $(document).ready(function() {
     wsSupplierPackages.id           = config.explorer.wsIdSupplierPackages;
     paramsProcesses.createWSID      = config.explorer.wsIdProblemReports;
     paramsProcesses.fieldIdMarkup   = config.explorer.fieldIdPRImage;
-    applicationFeatures.viewer      = config.reviews.viewerFeatures;
+    applicationFeatures.viewer      = config.explorer.viewerFeatures;
 
     let link = '/api/v3/workspaces/' + wsId + '/items/' + dmsId;
     
