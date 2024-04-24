@@ -5,7 +5,7 @@ let tenant          = '';
 let redirectUri     = 'http://localhost:8080/callback';
 let defaultTheme    = 'light';
 
-
+// Test
 
 // -------------------------------------------------------------------------------------------
 // OVERRIDE SETTINGS WITH ENVIRONMENT VARIABLES
