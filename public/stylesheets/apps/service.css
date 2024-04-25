@@ -591,6 +591,11 @@
     height : 22px;
     min-width : 120px;
 }
+#processes-sections select,
+#processes-sections textarea,
+#processes-sections input {
+    background : var(--color-surface-level-2);
+}
 
 .process.animation .tile-image,
 .process.animation .tile-title,
