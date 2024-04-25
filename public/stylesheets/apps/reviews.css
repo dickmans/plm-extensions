@@ -278,7 +278,8 @@ textare:focus { outline: none; }
 }
 #action-create textarea,
 #action-create .input {
-    border-color : var(--color-gray-400);
+    background   : var(--color-surface-level-2);
+    border-color : var(--color-surface-level-5);
 }
 #action-create .input {
     padding : 11px;
