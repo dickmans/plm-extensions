@@ -192,7 +192,7 @@ function appendViewerProcessing(id, hidden) {
         .html('view_in_ar');
 
     $('<span></span>').appendTo(elemMessage)
-        .html('No Viewble Found');
+        .html('No Viewable Found');
 
     let classNames = elemViewer.attr('class');
 
