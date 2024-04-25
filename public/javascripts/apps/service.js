@@ -778,7 +778,7 @@ function setSparePartStockStatus() {
 
 
 // BOM User Interactions
-function clickBOMItem(e, elemClicked) {
+function clickBOMItem(elemClicked, e) {
 
     $('.bom-item').removeClass('selected-context');
 
