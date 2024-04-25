@@ -41,6 +41,7 @@
 }
 .adsk-toolbar .adsk-control-group { margin : 0px !important; }
 .adsk-viewing-viewer.dark-theme .adsk-control-tooltip { background : black !important; }
+.adsk-viewing-viewer .adsk-button { margin : 2px ! important; }
 
 
 /* #my-custom-toolbar-views{ margin-left : 20px !important; } */
