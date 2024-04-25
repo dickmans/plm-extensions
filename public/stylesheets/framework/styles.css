@@ -1093,6 +1093,24 @@ and (max-device-width : 1900px)  {
     background   : var(--color-status-red-bright) !important;
     border-color : var(--color-status-red-bright) !important;
 }
+.button.green {
+    background   : var(--color-status-green) !important;
+    border-color : var(--color-status-green) !important;
+    color        : white;
+}
+.button.green:hover {
+    background   : var(--color-status-green-bright) !important;
+    border-color : var(--color-status-green-bright) !important;
+}
+.button.yellow {
+    background   : var(--color-status-yellow) !important;
+    border-color : var(--color-status-yellow) !important;
+    color        : white;
+}
+.button.yellow:hover {
+    background   : var(--color-status-yellow-bright) !important;
+    border-color : var(--color-status-yellow-bright) !important;
+}
 
  .dark-theme .button input { background : var(--color-surface-level-4); }
 .black-theme .button input { background : var(--color-surface-level-4); }
