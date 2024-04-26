@@ -49,6 +49,7 @@ applicationFeatures = {
         'settings'      : false,
         'fullscreen'    : true,
         'markup'        : true,
+        'hide'          : true,
         'ghosting'      : true,
         'highlight'     : true,
         'single'        : true,
@@ -732,7 +733,7 @@ function insertBOMSpareParts(elemParent, selectedItems, urnsSpareParts, flatBOM)
         $('<div></div>').appendTo(elemSparePartSide)
             .addClass('button')
             .addClass('icon')
-            .addClass('icon-cart-remove')
+            .addClass('icon-delete')
             .addClass('cart-remove')
             .click(function(e) {
                 e.preventDefault();
@@ -921,7 +922,6 @@ function setSparePartsList(elemItem) {
     let count       = 0;
     let level       = 0;
     let elemNext    = $('tr').closest().first();
-    let isSparePart = elemItem.hasClass('is-spare-part');
     let isNode      = elemItem.hasClass('node');
 
     if(typeof elemItem !== 'undefined') {
@@ -961,9 +961,25 @@ function setSparePartsList(elemItem) {
     } while(levelNext > level);
 
     let elemCustomMessage = $('#custom-message');
-    
+
+    // If no spare part is present, validate if parents are spare parts
+    if(list.length === 0) {
+        let parents = getBOMItemPath(elemItem);
+        for(let parent of parents.items) {
+            if(parent.hasClass('is-spare-part')) {
+                let linkParent = parent.attr('data-link');
+                list.push(linkParent);
+                $('#items-list').children().each(function() {
+                    if($(this).attr('data-link') === linkParent) $(this).show();
+                });
+                break;
+            }
+        }
+    }
+
+    // Display message to order custom spare part if enabled
     if(elemCustomMessage.length > 0) {   
-        if(isSparePart) {
+        if(list.length > 0) {
             elemCustomMessage.hide();
         } else if(!isNode) {
             elemCustomMessage.attr('data-link', elemItem.attr('data-link')).show();
@@ -1039,6 +1055,9 @@ function viewerClickReset() {
 }
 function onViewerSelectionChanged(event) {
 
+
+    if(viewerHideSelected(event)) return;
+
     if(disableViewerSelectionEvent) return;
 
     if (event.dbIdArray.length === 1) {
@@ -1080,7 +1099,7 @@ function onViewerSelectionChanged(event) {
         if(elemContext.length === 0) {
             resetSparePartsList();
         } else {
- 
+    
             let linkItem = elemContext.attr('data-link');
             elemContext.addClass('selected');
             bomDisplayItem(elemContext);

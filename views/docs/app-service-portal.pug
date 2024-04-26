@@ -537,6 +537,12 @@
                     td Enables to deselect all, invoking viewerClickReset()
                     td true
                 tr 
+                    td features.viewer.hide 
+                    td
+                        .adsk-button-icon.icon.icon-remove(style="font-size:14px;")
+                    td Enables easy hiding of (selected) components
+                    td true
+                tr 
                     td features.viewer.ghosting 
                     td
                         .adsk-button-icon.icon.icon-show(style="font-size:14px;")
@@ -577,6 +583,14 @@
     .log 
         h1 Services Portal Change Log 
         table 
+            tr 
+                td 26. April 2024
+                td Enhancement 
+                td Added setting features.viewer.hide to support easy hiding of components in viewer
+            tr 
+                td 
+                td Enhancement
+                td When there is no spare part for the current selected BOM item, the portal will now validate if any of the parents is defined as spare part. If so, the first given parent will be shown in the list of available spare parts.
             tr 
                 td 11. April 2024
                 td Enhancement

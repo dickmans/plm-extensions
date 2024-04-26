@@ -373,6 +373,8 @@ function openItem(link, title) {
 // Get viewable and init Forge viewer
 function onViewerSelectionChanged(event) {
 
+    if(viewerHideSelected(event)) return;
+
     let found = false;
 
     if(viewer.getSelection().length === 0) {

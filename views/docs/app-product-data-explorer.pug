@@ -121,6 +121,7 @@
             span.indent-3 'settings'      : false,
             span.indent-3 'fullscreen'    : true,
             span.indent-3 'markup'        : true,
+            span.indent-3 'hide    '      : true,
             span.indent-3 'ghosting'      : true,
             span.indent-3 'highlight'     : true,
             span.indent-3 'single'        : true,
@@ -297,6 +298,12 @@
                     td Enables markup toolbar
                     td true
                 tr 
+                    td hide 
+                    td
+                        .adsk-button-icon.icon.icon-remove(style="font-size:14px;")
+                    td Enables easy hiding of (selected) components
+                    td true
+                tr 
                     td ghosting 
                     td
                         .adsk-button-icon.icon.icon-show(style="font-size:14px;")
@@ -340,6 +347,10 @@
     .log 
         h1 Product Data Explorer Change Log 
         table 
+            tr 
+                td 26. April 2024
+                td Enhancement 
+                td Added setting viewer.hide to support easy hiding of components in viewer
             tr 
                 td 22. April 2024
                 td Enhancement 

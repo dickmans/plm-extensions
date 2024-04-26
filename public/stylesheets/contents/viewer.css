@@ -52,6 +52,32 @@
 
 /*  APS VIEWER CUSTOM TOOLBARS */
 /* ----------------------------------------------------------------------------- */
+#customSelectionToolbar.hide-selectd  #button-toggle-hide-selected  { 
+    background   : var(--color-blue-500) !important; 
+    border-color : var(--color-blue-500) !important; 
+}
+#counter-hidden-selection {
+    font-family     : 'ArtifaktElement';
+    background      : var(--color-yellow-500);
+    border-radius   : 3px;
+    cursor          : pointer;
+    font-size       : 14px;
+    height          : 20px;
+    line-height     : 20px;
+    margin          : auto;
+    max-width       : 240px;
+    overflow        : hidden;
+    position        : relative;
+    padding         : 8px 24px;
+    text-align      : center;
+    text-overflow   : ellipsis;
+    top             : 10px;
+    white-space     : nowrap;
+    z-index         : 2;
+}
+#counter-hidden-selection:hover {
+    background : var(--color-yellow-600);
+}
 #button-toggle-ghosting-off { 
     background : var(--color-blue-500) !important; 
     border-color : var(--color-blue-500) !important; 

@@ -5,6 +5,7 @@ let ghosting                    = true;
 let disableViewerSelectionEvent = false;
 let viewerDone                  = false;
 let dataInstances               = [];
+let hiddenInstances             = [];
 let markupStyle                 = {};
 
 let viewer, markup, markupsvg, curViewerState, restoreMarkupSVG, restoreMarkupState, baseStrokeWidth;
@@ -245,6 +246,7 @@ function setViewerFeatures() {
             switch(applicationFeature) {
                 
                 case 'markup'    : viewerAddMarkupControls();  break;
+                case 'hide'      : viewerAddHideSelected();    break;
                 case 'ghosting'  : viewerAddGhostingToggle();  break;
                 case 'highlight' : viewerAddHighlightToggle(); break;
                 case 'single'    : viewerAddFitFirstInstance();break;
@@ -364,6 +366,7 @@ function onViewerSelectionChanged(event) {
         }
     }
 
+    viewerHideSelected(event);
     onViewerSelectionChangedDone(partNumbers, event);
 
 }
@@ -401,6 +404,8 @@ function viewerSelectModels(partNumbers, params) {
     if(!isBlank(params.color)      )       color = params.color;
 
     disableViewerSelectionEvent = true;
+    hiddenInstances = [];
+    if($('#counter-hidden-selection').length > 0) $('#counter-hidden-selection').hide();
     
     let dbIds = [];
     
@@ -574,6 +579,9 @@ function viewerResetSelection(params) {
     if(!isBlank(params.resetView)  )   resetView = params.resetView;
     if(!isBlank(params.resetColors)) resetColors = params.resetColors;
 
+    hiddenInstances = [];
+    if($('#counter-hidden-selection').length > 0) $('#counter-hidden-selection').hide();
+
     viewer.showAll();
     viewer.clearSelection();
 
@@ -612,9 +620,8 @@ function viewerSetColors(partNumbers, params) {
     if(!isBlank(params.ghosting)   )    ghosting = params.ghosting;
     if(!isBlank(params.fitToView)  )   fitToView = params.fitToView;
     if(!isBlank(params.resetColors)) resetColors = params.resetColors;
-    if(!isBlank(params.highlight)  )   highlight = params.highlight;
-    if(!isBlank(params.color)      )   color = new THREE.Vector4(params.color[0], params.color[1], params.color[2], params.color[3]);
-
+    if(!isBlank(params.unhide)     )      unhide = params.unhide;
+    if(!isBlank(params.color)      )       color = new THREE.Vector4(params.color[0], params.color[1], params.color[2], params.color[3]);
 
     let dbIds  = [];
 
@@ -999,9 +1006,75 @@ function viewerClickResetDone() {
 }
 
 
+// Custom Controls : Controls to hide selected components
+function viewerAddHideSelected() {
+
+    let toolbar = getCustomSelectionToolbar();
+
+    let buttonHide = addCustomControl(toolbar, 'button-toggle-hide-selected', 'icon-remove', 'Hide selected components');
+        buttonHide.onClick = function(e) { 
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            let enabled     = $('#customSelectionToolbar').hasClass('hide-selectd');
+            let selected    = viewer.getSelection().length;
+            let elemCounter = $('#counter-hidden-selection');
+
+            if(!enabled && selected > 0) {
+                for(let dbId of viewer.getSelection()) {
+                    viewer.hide(dbId);
+                    hiddenInstances.push(dbId);
+                }
+            } else if(enabled) {
+                $('#customSelectionToolbar').toggleClass('hide-selectd');
+            } else if(selected === 0) {
+                $('#customSelectionToolbar').toggleClass('hide-selectd');
+            }
+
+            elemCounter.html(hiddenInstances.length);
+
+            if(hiddenInstances.length === 0) {
+                elemCounter.hide();
+            } else {
+                elemCounter.show().html('Click to unhide ' + hiddenInstances.length + ' components');
+            }
+
+        };
+
+    $('<div></div>').appendTo($('#viewer'))
+        .attr('id', 'counter-hidden-selection')
+        .hide()
+        .click(function() {
+            for(let instance of hiddenInstances) viewer.show(instance);
+            hiddenInstances = [];
+            $(this).html('').hide();
+        });
+
+}
+function viewerHideSelected(event) {
+
+    let toolbar = $('#customSelectionToolbar');
+
+    if(toolbar.length > 0) {
+        if(toolbar.hasClass('hide-selectd')) {
+            for(let dbId of event.dbIdArray) {
+
+                viewer.hide(dbId);
+                hiddenInstances.push(dbId);
+                $('#counter-hidden-selection').html('Click to unhide ' + hiddenInstances.length + ' components').show();
+            
+            }
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+
 // Custom Controls : Ghosting Toggle
 function viewerAddGhostingToggle() {
-   
 
     let toolbar = getCustomSelectionToolbar();
 
