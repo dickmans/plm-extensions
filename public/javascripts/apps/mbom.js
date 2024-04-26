@@ -2091,8 +2091,8 @@ function selectItem(elemItem, filter) {
 
                 if(elemMBOM.length === 1) {
                     elemItem.addClass('current-mbom');
+                    viewerSelectModel(partNumber, { 'fitToView' : false, resetColors : true });
                     if(!filter) selectAdjacentMBOMModels();
-                    viewerSelectModel(partNumber, { 'fitToView' : false });
                 } else {
                     viewerSelectModel(partNumber);
                 }
@@ -2158,7 +2158,7 @@ function selectAdjacentMBOMModels() {
         if(elemPrev.length > 0) {
             let prevPartNumber = elemPrev.attr('data-part-number');
             elemPrev.addClass('adjacent-prev');
-            viewerSetColor(prevPartNumber, { 'color' : config.vectors.green} );
+            viewerSetColor(prevPartNumber, { 'color' : config.vectors.green, resetColors : false } );
         }
     }
 
@@ -2169,7 +2169,7 @@ function selectAdjacentMBOMModels() {
         if(elemNext.length > 0) {
             let nextPartNumber = elemNext.attr('data-part-number');
             elemNext.addClass('adjacent-next');
-            viewerSetColor(nextPartNumber, { 'color' : config.vectors.red} );
+            viewerSetColor(nextPartNumber, { 'color' : config.vectors.red, resetColors : false } );
         }
     }
 
