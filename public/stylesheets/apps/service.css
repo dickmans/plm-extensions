@@ -213,14 +213,14 @@
     display         : flex;
     flex-direction  : column;
     gap             : 6px;
-    padding         : 14px 10px 0px 0px;
+    padding         : 11px 0px 0px 0px;
     width           : 136px;
 }
 .spare-part-side .button {
     gap : 4px;
 }
 .spare-part-side .icon {
-    font-size : 20px;
+    font-size : 22px;
 }
 .spare-part-stock {
     display     : flex;
@@ -340,7 +340,7 @@
 #cart-list .tile-details {
     margin   : 14px 20px;
     overflow : hidden;
-    width    : 194px;
+    width    : 210px;
 }
 .cart-quantity {
     display : flex;
@@ -350,10 +350,14 @@
     margin-right : 10px;
 }
 .cart-quantity-input { 
-    background : var(--color-surface-level-2);
-    border-color : var(--color-surface-level-5);
-    text-align : center;
-    width : 30px;
+    background           : var(--color-surface-level-2);
+    border              : 1px solid var(--color-surface-level-2);
+    border-bottom-color : var(--color-surface-level-5);
+    height              : 40px;
+    line-height         : 40px;
+    padding             : 0px;
+    text-align          : center;
+    width               : 40px;
 }
 .cart-add {
     display : flex;
@@ -483,7 +487,7 @@
 #request-list .spare-part-side {
     flex-direction  : row;
     gap             : 10px;
-    padding         : 10px 20px;
+    padding         : 9px 20px;
     width           : 260px;
 }
 #cart .spare-part-side > div,
