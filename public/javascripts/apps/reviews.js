@@ -663,7 +663,7 @@ function closeReview() {
 
 
 // Get flat BOM of selected Vault Item to init viewer
-function clickBOMItemDone(e, elemClicked) {
+function clickBOMItemDone(elemClicked) {
 
     if(elemClicked.hasClass('selected')) {
         let partNumber = elemClicked.attr('data-part-number');
