@@ -585,11 +585,121 @@
     width       : 50px;
 }
 .bom-content {
-    bottom : 42px;
+    bottom : 73px;
 }
 
+
+.bom-path {
+    font-size       : 12px;
+    gap             : 36px;
+    padding         : 0px;
+    justify-content : flex-start;
+    position        : absolute;
+    right           : 0px;
+    bottom          : 38px;
+    left            : 0px;
+}
+.bom-path-parent {
+    background  : var(--color-surface-level-3);
+    cursor      : pointer;
+    padding     : 6px 2px;
+    position    : relative;
+}
+.bom-path-parent:first-of-type {
+    padding-left : 16px;
+}
+.bom-path-parent:first-of-type::before {
+    border : none !important;
+}
+.bom-path-parent:before {
+    left                : -32px;
+	top                 : 50%;
+	border              : solid transparent;
+	content             : "";
+	height              : 0;
+	width               : 0;
+	position            : absolute;
+	pointer-events      : none;
+	border-color        : rgba(136, 183, 213, 0);
+	border-right-color  : var(--color-surface-level-3);
+	border-bottom-color : var(--color-surface-level-3);
+	border-width        : 16px;
+	margin-top          : -16px;
+}
+.bom-path-parent:after {
+	left                : 100%;
+	top                 : 50%;
+	border              : solid transparent;
+	content             : "";
+	height              : 0;
+	width               : 0;
+	position            : absolute;
+	pointer-events      : none;
+	border-color        : rgba(136, 183, 213, 0);
+	border-left-color   : var(--color-surface-level-3);
+	border-top-color    : var(--color-surface-level-3);
+	border-width        : 16px;
+	margin-top          : -16px;
+}
+.bom-path-parent:hover {
+    background : var(--color-surface-level-4);
+}
+.bom-path-parent:hover:before {
+    border-right-color  : var(--color-surface-level-4); 
+    border-bottom-color : var(--color-surface-level-4); 
+}
+.bom-path-parent:hover:after {
+    border-top-color    : var(--color-surface-level-4); 
+    border-left-color   : var(--color-surface-level-4); 
+}
+.bom-path-selected {
+    background  : var(--color-surface-level-5);
+    flex-grow   : 1;
+    padding     : 6px 2px 6px 2px;
+    position    : relative;
+}
+.bom-path-selected:before {
+    left                : -32px;
+	top                 : 50%;
+	border              : solid transparent;
+	content             : "";
+	height              : 0;
+	width               : 0;
+	position            : absolute;
+	pointer-events      : none;
+	border-color        : rgba(136, 183, 213, 0);
+	border-right-color  : var(--color-surface-level-5);
+	border-bottom-color : var(--color-surface-level-5);
+	border-width        : 16px;
+	margin-top          : -16px;
+}
+.bom-path-selected-single {
+    padding-left : 12px;
+}
+.bom-path-selected-single:before {
+    border : none !important;
+}
+.bom-path.bom-path-empty {
+    background  : var(--color-surface-level-5);
+    padding     : 16px;
+}
+.no-bom-path .bom-content {
+    bottom : 42px;
+} 
+.no-bom-counters .bom-content {
+    bottom : 34px;
+}
+.no-bom-counters .bom-path {
+    bottom : 0px;
+}
+.no-bom-path.no-bom-counters .bom-content {
+    bottom : 0px;
+}
+
+
+
 .bom-counters {
-    background      : var(--color-surface-level-4);
+    background      : var(--color-surface-level-5);
     display         : flex;
     font-size       : 12px;
     gap             : var(--spacer-xs);
@@ -611,9 +721,6 @@
     text-overflow   : ellipsis;
     white-space     : nowrap;
     width           : 25%;
-}
-.no-bom-counters .bom-content {
-    bottom : 0px;
 }
 .no-bom-counters .bom-counters {
     display : none !important;

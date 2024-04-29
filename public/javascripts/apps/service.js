@@ -808,6 +808,7 @@ function clickBOMItem(elemClicked, e) {
         // updateViewer(elemClicked.attr('data-part-number'));
     }
 
+    updateBOMPath(elemClicked);
     updateBOMCounters(elemClicked.closest('.bom').attr('id'));
 
     // if(maintenanceMode) {

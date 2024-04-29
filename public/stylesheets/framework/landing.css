@@ -197,6 +197,9 @@ p.code > span {
     line-height : 12px;
     margin      : 8px 0px; 
 }
+span.code {
+    font-family : 'Courier New', monospace;
+}
 span.url {
     display : inline-block !important;
 }

@@ -2484,6 +2484,7 @@ function insertBOM(link , params) {
     let quantity        = false;     // When set to true, the quantity column will be displayed
     let hideDetails     = true;      // When set to true, detail columns will be skipped, only the descriptor will be shown
     let headers         = true;      // When set to false, the table headers will not be shown
+    let path            = true;      // Display path of selected component in BOM, enabling quick navigation to parent(s)
     let counters        = true;      // When set to true, a footer will inidicate total items, selected items and filtered items
     let revisionBias    = 'release'; // Set BOM configuration to expand [release, working, changeOrder, allChangeOrder]
     let depth           = 10;        // BOM Levels to expand
@@ -2725,6 +2726,14 @@ function insertBOM(link , params) {
         .attr('id', id + '-tbody')
         .addClass('bom-tbody');
 
+    if(path) {
+        $('<div></div>').appendTo(elemBOM)
+            .attr('id', id + '-bom-path')
+            .addClass('bom-path-empty')
+            .addClass('bom-path')
+            .hide();
+    } else elemBOM.addClass('no-bom-path');
+
     let elemBOMCounters = $('<div></div>').appendTo(elemBOM)
         .attr('id', id + '-bom-counters')
         .addClass('bom-counters')
@@ -2881,6 +2890,7 @@ function changeBOMView(id) {
 
         if(settings.bom[id].collapsed) clickBOMCollapseAll($('#' + id + '-toolbar'));
 
+        if(!elemBOM.hasClass('no-bom-path')) { $('#' + id + '-bom-path').css('display', 'flex'); }
         if(!elemBOM.hasClass('no-bom-counters')) { $('#' + id + '-bom-counters').show(); }
 
         if(settings.bom[id].getFlatBOM) changeBOMViewDone(id, bomView.fields, responses[0].data, selectedItems, responses[1].data);
@@ -3244,6 +3254,7 @@ function clickBOMDeselectAll(elemClicked) {
     elemBOM.find('.bom-item').removeClass('selected');
 
     toggleBOMItemActions(elemClicked);
+    updateBOMPath(elemClicked);
     updateBOMCounters(elemBOM.attr('id'));
 
     clickBOMDeselectAllDone(elemClicked);
@@ -3363,6 +3374,7 @@ function clickBOMReset(elemClicked) {
     $('#' + id + '-search-input').val('');
 
     toggleBOMItemActions(elemClicked);
+    updateBOMPath(elemClicked);
     updateBOMCounters(id);
     clickBOMResetDone(elemClicked);
 
@@ -3410,15 +3422,16 @@ function clickBOMGoThere(elemClicked) {
 }
 function clickBOMItem(elemClicked, e) {
     
-    let elemBOM    = elemClicked.closest('.bom');
-    let selectMode = elemBOM.attr('data-select-mode');
+    let elemBOM     = elemClicked.closest('.bom');
+    let selectMode  = elemBOM.attr('data-select-mode');
 
     if(selectMode == 'single') elemClicked.siblings().removeClass('selected');
 
-    elemClicked.toggleClass('selected');
+    elemClicked.toggleClass('selected');    
 
-    clickBOMItemDone(elemClicked, e);
+    updateBOMPath(elemClicked);
     updateBOMCounters(elemBOM.attr('id'));
+    clickBOMItemDone(elemClicked, e);
     
 }
 function clickBOMItemDone(elemClicked, e) {}
@@ -3496,6 +3509,54 @@ function expandBOMParents(level, elem) {
         }
 
     });
+
+}
+function updateBOMPath(elemClicked) {
+    
+    let elemBOM     = elemClicked.closest('.bom');
+    let id          = elemBOM.attr('id');
+    let elemPath    = $('#' + id + '-bom-path');
+    
+    elemPath.html('').addClass('bom-path-empty');
+    
+    if(!elemClicked.hasClass('selected')) return;
+    
+    let path        = getBOMItemPath(elemClicked);
+    let index       = 0;
+
+    elemPath.removeClass('bom-path-empty');
+
+    for(let item of path.items) {
+
+        let label = item.attr('data-part-number');
+
+        if(isBlank(label)) label = item.attr('data-title');
+
+        label = label.split(' - ')[0];
+
+        let elemItem = $('<div></div>').prependTo(elemPath)
+            .attr('data-edgeid', item.attr('data-edgeid'))
+            .html(label);
+
+        if(path.items.length === 1) elemItem.addClass('bom-path-selected-single');
+
+        if(index > 0) {
+            elemItem.addClass('bom-path-parent');
+            elemItem.click(function() {
+                let edgeId = $(this).attr('data-edgeid');
+                $('#' + id + '-tbody').find('.bom-item').each(function() {
+                    if($(this).attr('data-edgeid') === edgeId) {
+                        bomDisplayItem($(this));
+                        $(this).click();
+                    }
+                });
+            });
+        } else elemItem.addClass('bom-path-selected');
+
+        index++;
+
+    }
+
 
 }
 
