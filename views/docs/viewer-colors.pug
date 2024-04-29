@@ -33,7 +33,7 @@
                 td false
             tr 
                 td ghosting
-                td If components get hidden, they can be ghosted instead by setting this parameter to true
+                td When components get hidden in the viewer, they can be ghosted instead by setting this parameter to true (this behavior is overwritten by the ghosting toggle in the viewer toolbar if enabled)
                 td Boolean 
                 td false
             tr 
@@ -44,6 +44,11 @@
             tr 
                 td resetColors
                 td If set to true, all colors of all components will be removed before
+                td Boolean 
+                td true
+            tr 
+                td keepHidden
+                td If the hide feature is enabled in the viewer toolbar, the components will remain hidden and reset button will remain
                 td Boolean 
                 td true
             tr 

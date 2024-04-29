@@ -78,13 +78,16 @@
 #counter-hidden-selection:hover {
     background : var(--color-yellow-600);
 }
-#button-toggle-ghosting-off { 
+
+#button-toggle-ghosting-enable { 
     background : var(--color-blue-500) !important; 
     border-color : var(--color-blue-500) !important; 
 }
-#button-toggle-ghosting-off .icon-hide::before { color : white !important; }
-#customSelectionToolbar.ghosting    #button-toggle-ghosting-on  { display : none; }
-#customSelectionToolbar.no-ghosting #button-toggle-ghosting-off { display : none; }
+#button-toggle-ghosting-eanble .icon-hide::before { color : white !important; }
+#button-toggle-ghosting-disable  { display : none; }
+#customSelectionToolbar.ghosting #button-toggle-ghosting-disable  { display : block; }
+#customSelectionToolbar.ghosting #button-toggle-ghosting-enable  { display : none; }
+
 #button-toggle-highlight-on { 
     background   : var(--color-blue-500) !important; 
     border-color : var(--color-blue-500) !important; 
