@@ -20,7 +20,6 @@ function insertViewer(link, params) {
     let filename        = '';         // Select a specific file to be rendered by providing its filename (matches the Title column in the attachments tab)
     let extensionsIn    = [];         // Defines the list of attachment file types to take into account when requesting the possible list of viewable files. Only file types included in this list will be taken into account.
     let extensionsEx    = [];         // Defines the list of attachment file types to exclued when requesting the possible list of viewable files. Files with an extension listed will not be considered as valid viewable.
-    let backgroundColor = '';         // Background color
     let settings        = {};
     
     if( isBlank(params)                 )       params = {};
