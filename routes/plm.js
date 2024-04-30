@@ -243,12 +243,7 @@ router.get('/filtered-picklist', function(req, res, next) {
 
     let url = 'https://' + req.session.tenant + '.autodeskplm360.net' + req.query.link + '/options?';
     
-
-console.log(url);
-
-console.log(filters);
-
-    for(filter of filters) {
+    for(let filter of filters) {
         url += filter[0];
         url += '=';
         // url += encodeURIComponent(filter[1]);
@@ -260,8 +255,6 @@ console.log(filters);
 
     url += 'limit=' + limit + '&offset=' + offset + '&filter=';
     
-    console.log(url);
-
     axios.get(url, {
         headers : req.session.headers
     }).then(function(response) {
@@ -675,8 +668,6 @@ router.get('/descriptor', function(req, res, next) {
         
     let url = (typeof req.query.link !== 'undefined') ? req.query.link : 'https://' + req.session.tenant + '.autodeskplm360.net/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId;
     
-    console.log(url);
-
     if(url.indexOf('/api/v3') === 0) url = 'https://' + req.session.tenant + '.autodeskplm360.net' + url;
 
     axios.get(url, {
@@ -701,8 +692,6 @@ router.get('/change-summary', function(req, res, next) {
     console.log('  req.query.link   = ' + req.query.link);
     console.log(' ');
         
-
-
     let url =  (typeof req.query.link !== 'undefined') ? req.query.link : '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId;
         url = 'https://' + req.session.tenant + '.autodeskplm360.net' + url + '/audit';
 
@@ -993,8 +982,6 @@ router.get('/update-grid-row', function(req, res, next) {
         });
 
     }
-
-    console.log(rowData);
 
     axios.put(url, {
         'rowData' : rowData
@@ -1376,18 +1363,15 @@ router.post('/upload/:wsId/:dmsId', function(req, res) {
     let files = [];
     let folderName = (typeof req.params.folderName === 'undefined') ? '' : req.params.folderName;
 
-
     if(Array.isArray(req.files.newFiles)) {
         files = req.files.newFiles;
     } else files.push(req.files.newFiles);
   
     let promises = [];
 
-    for(file of files) {
+    for(let file of files) {
         promises.push(file.mv(pathUploads + file.name));
     }
-
-    console.log('   > Uploading ' + files.length + ' files');
 
     Promise.all(promises).then(function() {
 
@@ -1801,6 +1785,7 @@ router.get('/get-viewables', function(req, res, next) {
                             'extension'     : attachment.type.extension,
                             'status'        : '',
                             'fileUrn'       : '',
+                            'thumbnail'     : attachment.thumbnails.large,
                             'token'         : req.session.headers.token
                         });
                     }
@@ -2089,7 +2074,6 @@ router.get('/bom-add', function(req, res, next) {
     console.log('  req.query.number      = ' + req.query.number);
     console.log('  req.query.fields      = ' + req.query.fields);
     console.log();
-
     
     let linkParent = (typeof req.query.linkParent !== 'undefined') ? req.query.linkParent : '/api/v3/workspaces/' + req.query.wsIdParent + '/items/' + req.query.dmsIdParent;
     let linkChild  = (typeof  req.query.linkChild !== 'undefined') ? req.query.linkChild  : '/api/v3/workspaces/' + req.query.wsIdChild  + '/items/' + req.query.dmsIdChild;
@@ -2190,8 +2174,6 @@ router.get('/bom-update', function(req, res, next) {
         }
 
     }
-
-    console.log(params);
 
     axios.patch(url, params, {
         headers : req.session.headers
@@ -3161,9 +3143,6 @@ router.get('/me', function(req, res, next) {
     }).then(function(response) {
         let timerEnd = new Date();
         let timerDiff = timerEnd.getTime() - timerStart.getTime();
-        // console.log(timerDiff);
-        // console.log(new Date());
-        // console.log(req.app.locals.debugMode);
         if(req.app.locals.debugMode) console.log(timerDiff);
         sendResponse(req, res, response, false);
     }).catch(function(error) {
