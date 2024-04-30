@@ -56,10 +56,12 @@
     background   : var(--color-blue-500) !important; 
     border-color : var(--color-blue-500) !important; 
 }
+#customSelectionToolbar.hide-selectd #button-toggle-hide-selected .icon-remove::before { color : white !important; }
 #counter-hidden-selection {
     font-family     : 'ArtifaktElement';
     background      : var(--color-yellow-500);
     border-radius   : 3px;
+    color           : white;
     cursor          : pointer;
     font-size       : 14px;
     height          : 20px;
@@ -83,7 +85,7 @@
     background : var(--color-blue-500) !important; 
     border-color : var(--color-blue-500) !important; 
 }
-#button-toggle-ghosting-eanble .icon-hide::before { color : white !important; }
+#button-toggle-ghosting-enable .icon-hide::before { color : white !important; }
 #button-toggle-ghosting-disable  { display : none; }
 #customSelectionToolbar.ghosting #button-toggle-ghosting-disable  { display : block; }
 #customSelectionToolbar.ghosting #button-toggle-ghosting-enable  { display : none; }
