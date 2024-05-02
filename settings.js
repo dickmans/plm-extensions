@@ -461,7 +461,8 @@ exports.config = {
             'single'        : true,
             'fitToView'     : true,
             'reset'         : true,
-            'views'         : true
+            'views'         : true,
+            'selectFile'    : true
         }
     },
 
@@ -554,7 +555,8 @@ exports.config = {
             'single'        : true,
             'fitToView'     : true,
             'reset'         : true,
-            'views'         : true
+            'views'         : true,
+            'selectFile'    : true
         },
         'workspaces'    : {
             'reviews' : {
@@ -598,32 +600,31 @@ exports.config = {
         'requestSectionsExcluded': ['Workflow Activity'],
         'requestColumnsExcluded' : ['UNIT_COST', 'TOTAL_COST', 'MAKE_OR_BUY', 'MANUFACTURER', 'MANUFACTURER_PN', 'LEAD_TIME', 'LONG_LEAD_TIME'],
         'applicationFeatures' : {
-            // 'homeButton'            : true,
-            // 'toggleItemAttachments' : true,
-            // 'toggleItemDetails'     : true,
-            // 'manageProblemReports'  : true,
-            // 'showStock'             : true,
-            // 'requestWorkflowActions': true,
-            // 'viewer' : {
-            //     'cube'          : false,
-            //     'orbit'         : false,
-            //     'firstPerson'   : false,
-            //     'camera'        : false,
-            //     'measure'       : true,
-            //     'section'       : true,
-            //     'explodedView'  : true,
-            //     'modelBrowser'  : false,
-            //     'properties'    : false,
-            //     'settings'      : false,
-            //     'fullscreen'    : true,
-            //     'markup'        : false,
-            //     'ghosting'      : true,
-            //     'highlight'     : true,
-            //     'single'        : true,
-            //     'fitToView'     : true,
-            //     'reset'         : true,
-            //     'views'         : true
-            // }
+            'homeButton'            : true,
+            'toggleItemAttachments' : true,
+            'toggleItemDetails'     : true,
+            'manageProblemReports'  : true,
+            'showStock'             : true,
+            'requestWorkflowActions': true
+        },
+        'viewerFeatures' : {
+            'cube'          : false,
+            'orbit'         : false,
+            'firstPerson'   : false,
+            'camera'        : false,
+            'measure'       : true,
+            'section'       : true,
+            'explodedView'  : true,
+            'modelBrowser'  : false,
+            'properties'    : false,
+            'settings'      : false,
+            'fullscreen'    : true,
+            'markup'        : true,
+            'ghosting'      : true,
+            'highlight'     : true,
+            'reset'         : true,
+            'views'         : true,
+            'selectFile'    : true
         }
     },
 

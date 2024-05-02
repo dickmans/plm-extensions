@@ -29,36 +29,6 @@ let paramsProcesses = {
      'fieldIdMarkup'  : ''
 }
 
-applicationFeatures = {
-    'homeButton'            : true,
-    'toggleItemAttachments' : true,
-    'toggleItemDetails'     : true,
-    'manageProblemReports'  : true,
-    'showStock'             : true,
-    'requestWorkflowActions': true,
-    'viewer' : {
-        'cube'          : false,
-        'orbit'         : false,
-        'firstPerson'   : false,
-        'camera'        : false,
-        'measure'       : true,
-        'section'       : true,
-        'explodedView'  : true,
-        'modelBrowser'  : false,
-        'properties'    : false,
-        'settings'      : false,
-        'fullscreen'    : true,
-        'markup'        : true,
-        'hide'          : true,
-        'ghosting'      : true,
-        'highlight'     : true,
-        'single'        : true,
-        'fitToView'     : true,
-        'reset'         : true,
-        'views'         : true
-    }
-}
-
 
 $(document).ready(function() {
     

@@ -2,8 +2,6 @@ let selectDefaults  = true;
 
 
 $(document).ready(function() {  
-
-    applicationFeatures.viewer = config.reviews.viewerFeatures;
     
     appendProcessing('panel-pending', false);
     appendProcessing('panel-completed', false);
@@ -12,11 +10,15 @@ $(document).ready(function() {
     appendProcessing('actions', false);
     appendViewerProcessing();
     appendOverlay();
+    
+    getApplicationFeatures('reviews', [], function(responses) {
+        
+        getTasksWorkspace();
+        getSectionIds(config.reviews.workspaces.reviews);
+        setUIEvents();
+        // setMarkupColors();
 
-    getTasksWorkspace();
-    getSectionIds(config.reviews.workspaces.reviews);
-    setUIEvents();
-    // setMarkupColors();
+    });
     
 });
 

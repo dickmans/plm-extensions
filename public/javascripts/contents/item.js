@@ -60,28 +60,29 @@ function insertViewer(link, params) {
 
         if($('#' + id).attr('data-link') !== response.params.link) return;
 
+        let suffix3D = ['.iam','.ipt','.stp','.step','.sldprt'];
+
         if(response.data.length > 0) {
 
-            let foundAssembly = false;
+            let viewables = [];
+
+            for(let viewable of response.data) {
+                let is3D = false;
+                for(let suffix of suffix3D) {
+                    if(viewable.name.indexOf(suffix) > -1) {
+                        is3D = true;
+                        break;
+                    }
+                }
+                if(is3D) viewables.unshift(viewable); else viewables.push(viewable);
+            }
 
             $('body').removeClass('no-viewer');
 
-            for(let viewable of response.data) {
-                if((viewable.name.indexOf('.iam.dwf') > -1) || (viewable.name.indexOf('.ipt.dwf') > -1)) {
-                    $('body').removeClass('no-viewer');
-                    if(elemInstance.length > 0) elemInstance.show();
-                    foundAssembly = true;
-                    insertViewerDone(id, viewable, response.data);
-                    initViewer(id, viewable, settings);
-                    break;
-                }
-            }
+            if(elemInstance.length > 0) elemInstance.show();
 
-            if(!foundAssembly) {
-                if(elemInstance.length > 0) elemInstance.show();
-                insertViewerDone(id, response.data[0], response.data);
-                initViewer(id, response.data[0], settings);
-            }
+            insertViewerDone(id, viewables, response.data);
+            initViewer(id, viewables, settings);
 
         } else {
 
@@ -94,7 +95,7 @@ function insertViewer(link, params) {
     });
 
 }
-function insertViewerDone(id, viewable, viewables) {}
+function insertViewerDone(id, viewables, viewables) {}
 
 
 

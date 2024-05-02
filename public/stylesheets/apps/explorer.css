@@ -4,8 +4,6 @@
 .attachment-graphic > img { width : 100%; } */
 .panel-toolbar { right : 12px; }
 /* #overlay .progress { display : none; } */
-.homeViewWrapper,
-.viewcube { display : none !important; }
 #details-sections { overflow-x : hidden; }
 
 

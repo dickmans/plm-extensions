@@ -47,62 +47,87 @@ $(document).ready(function() {
 // Get list of disabled features
 function getApplicationFeatures(app, requests, callback) {
 
-    $('body').children().addClass('hidden');
+    if(!isBlank(config[app].applicationFeatures)) applicationFeatures = config[app].applicationFeatures;
+    if(!isBlank(config[app].viewerFeatures)) applicationFeatures.viewer = config[app].viewerFeatures;
 
-    $('<div></div>').appendTo('body')
-        .attr('id', 'startup')
-        .addClass(getSurfaceLevel($('body')));
+    if(config[app].viewerFeatures.length === 0) {
 
-    $('<div></div>').appendTo($('#startup'))
-        .attr('id', 'startup-logo');
-
-    if(isBlank(config[app].applicationFeatures)) {
-        $('body').children().removeClass('hidden');
         getApplicationFeaturesDone(app);
         callback();
+        
     } else {
 
-        requests.unshift($.get('/plm/groups-assigned', {}));
+        let includesGroups = false;
 
-        Promise.all(requests).then(function(responses) {
-
-        // $.get('/plm/groups-assigned', {}, function(response) {
-            
-            let settingsFeatures = config[app].applicationFeatures;
-            
-            for(let group of responses[0].data) userAccount.groupsAssigned.push(group.shortName);
-
-            for(let applicationFeature of Object.keys(applicationFeatures)) {
-                if(applicationFeature !== 'viewer') {
-                    for(let settingFeature of Object.keys(settingsFeatures)) {
-                        if(applicationFeature === settingFeature) {
-                            if(typeof settingsFeatures[settingFeature] === 'object') {
-                                applicationFeatures[applicationFeature] = includesAny(userAccount.groupsAssigned, settingsFeatures[settingFeature]);
-                            } else applicationFeatures[applicationFeatures] = settingsFeatures[settingFeature];
-                        }
+        for(let applicationFeature of Object.keys(applicationFeatures)) {
+            if(applicationFeature !== 'viewer') {
+                if(typeof applicationFeatures[applicationFeature] === 'object') {
+                    includesGroups = true;
+                    break;
+                }
+            } else {
+                for(let viewerFeature of Object.keys(applicationFeatures.viewer)) {
+                    if(typeof applicationFeatures.viewer[viewerFeature] === 'object') {
+                        includesGroups = true;
+                        break;
                     }
                 }
             }
+        }
 
-            if(!isBlank(applicationFeatures.viewer)) {
-                if(!isBlank(settingsFeatures.viewer)) {
-                    for(let applicationFeature of Object.keys(applicationFeatures.viewer)) {
-                        for(let settingFeature of Object.keys(settingsFeatures.viewer)) {
-                            if(applicationFeature === settingFeature) {
-                                if(typeof settingsFeatures.viewer[settingFeature] === 'object') {
-                                    applicationFeatures.viewer[applicationFeature] = includesAny(userAccount.groupsAssigned, settingsFeatures.viewer[settingFeature]);
-                                } else applicationFeatures.viewer[applicationFeature] = settingsFeatures.viewer[settingFeature];
+        if(includesGroups) requests.unshift($.get('/plm/groups-assigned', {}));
+
+    }
+
+    if(requests.length === 0) {
+
+        getApplicationFeaturesDone(app);
+        callback();
+
+    } else {
+
+        $('body').children().addClass('hidden');
+
+        $('<div></div>').appendTo('body')
+            .attr('id', 'startup')
+            .addClass(getSurfaceLevel($('body')));
+
+        $('<div></div>').appendTo($('#startup'))
+            .attr('id', 'startup-logo');
+
+        if(isBlank(config[app].length === 0)) {
+            $('body').children().removeClass('hidden');
+            getApplicationFeaturesDone(app);
+            callback();
+        } else {
+
+            requests.unshift($.get('/plm/groups-assigned', {}));
+
+            Promise.all(requests).then(function(responses) {
+
+                for(let group of responses[0].data) userAccount.groupsAssigned.push(group.shortName);
+
+                for(let applicationFeature of Object.keys(applicationFeatures)) {
+                    if(applicationFeature !== 'viewer') {
+                        if(typeof applicationFeatures[applicationFeature] === 'object') {
+                            applicationFeatures[applicationFeature] = includesAny(userAccount.groupsAssigned, applicationFeatures[applicationFeature]);
+                        }
+                    } else {
+                        for(let viewerFeature of Object.keys(applicationFeatures.viewer)) {
+                            if(typeof applicationFeatures.viewer[viewerFeature] === 'object') {
+                                applicationFeatures.viewer[viewerFeature] = includesAny(userAccount.groupsAssigned, applicationFeatures.viewer[viewerFeature]);
                             }
                         }
                     }
                 }
-            }          
 
-            $('body').children().removeClass('hidden');
-            getApplicationFeaturesDone(app);
-            callback(responses);
+                $('body').children().removeClass('hidden');
+                getApplicationFeaturesDone(app);
+                callback(responses);
 
-        });
+            });
+        }
+
     }
 
 }

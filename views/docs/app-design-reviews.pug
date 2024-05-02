@@ -115,23 +115,7 @@
             span.indent-2 'viewerFeatures' : {
             span.indent-3 'cube'          : false,
             span.indent-3 'orbit'         : false,
-            span.indent-3 'firstPerson'   : false,
-            span.indent-3 'camera'        : false,
-            span.indent-3 'measure'       : true,
-            span.indent-3 'section'       : true,
-            span.indent-3 'explodedView'  : true,
-            span.indent-3 'modelBrowser'  : false,
-            span.indent-3 'properties'    : false,
-            span.indent-3 'settings'      : false,
-            span.indent-3 'fullscreen'    : true,
-            span.indent-3 'markup'        : true,
-            span.indent-3 'hide'          : true,
-            span.indent-3 'ghosting'      : true,
-            span.indent-3 'highlight'     : true,
-            span.indent-3 'single'        : true,
-            span.indent-3 'fitToView'     : true,
-            span.indent-3 'reset'         : true,
-            span.indent-3 'views'         : true
+            span.indent-3 ..
             span.indent-2 },
             span.indent-2 'workspaces' : {
             span.indent-3 'reviews' : {
@@ -192,126 +176,8 @@
                                 strong Item Details 
                                 |of design review tasks workspace (the ones containing the fields required)
                             li tasks.states is used to determine the color highlight of actions being shown in context of a review (states 1 &amp; 2 will be shown as new, 2 &amp; 3 as pending and state 4 as complete)
-        p In addition, the following settings in reviews.viewerFeatures control the availability of icons in the viewer toolbar.
-            table
-                tr 
-                    th Setting 
-                    th Icon 
-                    th Description 
-                    th Default Value
-                tr 
-                    td cube 
-                    td   
-                    td Enables the cube / home button in top right corner of the viewer. Parameter 'views' can be used instead, providing dedicated buttons.
-                    td false
-                tr 
-                    td orbit 
-                    td
-                        .adsk-button-icon.adsk-icon-orbit-constrained
-                    td Enables the orbit controls
-                    td false
-                tr 
-                    td firstPerson 
-                    td
-                        .adsk-button-icon.adsk-icon-first-person
-                    td Enables first person view
-                    td false
-                tr 
-                    td camera 
-                    td
-                        .adsk-button-icon.adsk-icon-camera
-                    td Enables camera interactions
-                    td false
-                tr 
-                    td measure 
-                    td
-                        .adsk-button-icon.adsk-icon-measure
-                    td Enables the measurements toolbar
-                    td true
-                tr 
-                    td section 
-                    td
-                        .adsk-button-icon.adsk-icon-section-analysis
-                    td Enables sectioning
-                    td true
-                tr 
-                    td explodedView 
-                    td
-                        .adsk-button-icon.adsk-icon-explode
-                    td Enables exploded views
-                    td true
-                tr 
-                    td modelBrowser 
-                    td
-                        .adsk-button-icon.adsk-icon-structure
-                    td Enables browsing the model hierarchy within the viewer
-                    td false
-                tr 
-                    td properties 
-                    td
-                        .adsk-button-icon.adsk-icon-properties
-                    td Enables access to the selected component's properties stored in the viewable file
-                    td false
-                tr 
-                    td settings 
-                    td
-                        .adsk-button-icon.adsk-icon-settings
-                    td Enables viewer settings
-                    td false
-                tr 
-                    td fullscreen 
-                    td
-                        .adsk-button-icon.adsk-icon-fullscreen
-                    td Enables fullscreen toggle
-                    td true
-                tr 
-                    td markup 
-                    td
-                        .adsk-button-icon.icon.icon-markup(style="font-size:14px;")
-                    td Enables markup toolbar
-                    td true
-                tr 
-                    td hide 
-                    td
-                        .adsk-button-icon.icon.icon-remove(style="font-size:14px;")
-                    td Enables easy hiding of (selected) components
-                    td true
-                tr 
-                    td ghosting 
-                    td
-                        .adsk-button-icon.icon.icon-show(style="font-size:14px;")
-                    td Enables toggling ghosting mode on/off
-                    td true
-                tr 
-                    td highlight 
-                    td
-                        .adsk-button-icon.icon.icon-highlight(style="font-size:14px;")
-                    td Enables toggling highlight of selected models on/off
-                    td true
-                tr 
-                    td single 
-                    td
-                        .adsk-button-icon.icon.icon-first(style="font-size:14px;")
-                    td Enables fitting of first instance to viewer
-                    td true
-                tr 
-                    td fitToView 
-                    td
-                        .adsk-button-icon.icon.icon-viewer(style="font-size:14px;")
-                    td Enables reframing all visible items
-                    td true
-                tr 
-                    td reset 
-                    td
-                        .adsk-button-icon.icon.icon-reset(style="font-size:14px;")
-                    td Enables to deselect all, invoking viewerClickReset()
-                    td true
-                tr 
-                    td views 
-                    td
-                        .adsk-button-icon.icon.icon-home(style="font-size:14px;")
-                    td Enables toolbar to quickly access main views
-                    td true
+        h2 Configuring Viewer Features
+        include ../framework/viewer.pug
         h1 Access the Design Review Portal
         p You can access the design review portal with the 
             strong /reviews 

@@ -289,10 +289,12 @@
             span.indent 'service' : {
             span.indent-2 'bomViewName' : 'Service',
             span.indent-2 'enableCustomRequests' : true,
+            span.indent-2 'endItemFilter' : { 'fieldId' : 'SBOM_END_ITEM', 'value' : true },
             span.indent-2 'fieldId' : 'SPARE_WEAR_PART',
             span.indent-2 'fieldValues' : ['spare part', 'yes', 'x', 'y', 'wear part'],
-            span.indent-2 'fieldIdImage' : 'IMAGE',
+            span.indent-2 'fieldIdSparePartImage'  : 'IMAGE',
             span.indent-2 'spartPartDetails' : ['MATERIAL', 'ITEM_WEIGHT', 'DIMENSIONS'],
+            span.indent-2 'fieldIdPRImage' : 'IMAGE_1',
             span.indent-2 'productsFilter' : '',
             span.indent-2 'productsSortBy' : 'TITLE',
             span.indent-2 'productsGroupBy' : 'PRODUCT_LINE',
@@ -303,10 +305,25 @@
             span.indent-2 'productsListHeader' : 'Serviceable Products',
             span.indent-2 'wsIdProducts' : 95,
             span.indent-2 'wsIdProblemReports' : 82,
-            span.indent-2 'wsIdSparePartsRequests' : 241
+            span.indent-2 'wsIdSparePartsRequests' : 208,
+            span.indent-2 'requestSectionsExcluded': ['Workflow Activity'],
+            span.indent-2 'requestColumnsExcluded' : ['UNIT_COST', 'TOTAL_COST', 'MAKE_OR_BUY', 'MANUFACTURER', 'MANUFACTURER_PN', 'LEAD_TIME', 'LONG_LEAD_TIME'],
+            span.indent-2 'applicationFeatures' : {
+            span.indent-3     'homeButton'            : true,
+            span.indent-3     'toggleItemAttachments' : true,
+            span.indent-3     'toggleItemDetails'     : true,
+            span.indent-3     'manageProblemReports'  : true,
+            span.indent-3     'showStock'             : true,
+            span.indent-3     'requestWorkflowActions': true
+            span.indent-2 },
+            span.indent-2 'viewerFeatures' : {
+            span.indent-3 'cube'          : false,
+            span.indent-3 'orbit'         : false,
+            span.indent-3 ..
+            span.indent-2 } 
             span.indent }
             span }                         
-        
+        h2 Basic Settings
         p 
             table 
                 tr
@@ -413,14 +430,12 @@
                     td requestColumnsExcluded
                     td ['UNIT_COST', 'TOTAL_COST', 'MAKE_OR_BUY', 'MANUFACTURER', 'MANUFACTURER_PN', 'LEAD_TIME', 'LONG_LEAD_TIME']
                     td Defines columns to be hidden from Part List when users open a given request within the portal to track its progression.
-        h1 Feature Availability 
-        p Selected application features as well as viewer toolbar functionality can be restricted using the features property in settings.js. The given settings are disabled in the standard settings file to enable all features. Uncomment the property you would like to adjust and change its value as this will override the application defaults.
-        img(src='images/apps/services-portal-7.png' style='width:100%;max-width:578px;margin:10px 0px;')
-        p In general, if a property equals true, the given feature will be available for the user. You can use basic boolean values, but also make use of groups to grant access for defined user groups only. Examples: 
+        h2 Configuring Application Features
+        p Selected application features can be restricted using the applicationFeatures property in settings.js. In general, if a property equals true, the given feature will be available for the user. You can use basic boolean values, but also make use of groups to grant access for defined user groups only. Examples: 
             ul 
-                li features.homeButton = true &gt; The home button is available for all users
-                li features.homeButton = false &gt; The home button is not visible for any user
-                li features.homeButton = ['Employees','Service Technician'] &gt; The home button will only be shown for users in group Employees or Service Technician
+                li applicationFeatures.homeButton = true &gt; The home button is available for all users
+                li applicationFeatures.homeButton = false &gt; The home button is not visible for any user
+                li applicationFeatures.homeButton = ['Employees','Service Technician'] &gt; The home button will only be shown for users in group Employees or Service Technician
         p The following settings control features within the application:
         p 
             table 
@@ -452,126 +467,9 @@
                     td features.requestWorkflowActions 
                     td Enables display of workflow actions menu when opening a spare part request from the landing page
                     td true
-        p In addition, the following settings in features.viewer control the availability of icons in the viewer toolbar.
-            table
-                tr 
-                    th Setting 
-                    th Toolbar Icon 
-                    th Description 
-                    th Default Value
-                tr 
-                    td features.viewer.cube 
-                    td   
-                    td Enables the cube and home button in top right corner of the viewer. Per default, these controls get replaced with a dediated view toolbar instead.
-                    td false
-                tr 
-                    td features.viewer.orbit 
-                    td
-                        .adsk-button-icon.adsk-icon-orbit-constrained
-                    td Enables the orbit controls
-                    td false
-                tr 
-                    td features.viewer.firstPerson 
-                    td
-                        .adsk-button-icon.adsk-icon-first-person
-                    td Enables first person view
-                    td false
-                tr 
-                    td features.viewer.camera 
-                    td
-                        .adsk-button-icon.adsk-icon-camera
-                    td Enables camera interactions
-                    td false
-                tr 
-                    td features.viewer.measure 
-                    td
-                        .adsk-button-icon.adsk-icon-measure
-                    td Enables the measurements toolbar
-                    td true
-                tr 
-                    td features.viewer.section 
-                    td
-                        .adsk-button-icon.adsk-icon-section-analysis
-                    td Enables sectioning
-                    td true
-                tr 
-                    td features.viewer.explodedView 
-                    td
-                        .adsk-button-icon.adsk-icon-explode
-                    td Enables exploded views
-                    td true
-                tr 
-                    td features.viewer.modelBrowser 
-                    td
-                        .adsk-button-icon.adsk-icon-structure
-                    td Enables browsing the model hierarchy within the viewer
-                    td false
-                tr 
-                    td features.viewer.properties 
-                    td
-                        .adsk-button-icon.adsk-icon-properties
-                    td Enables access to the selected component's properties stored in the viewable file
-                    td false
-                tr 
-                    td features.viewer.settings 
-                    td
-                        .adsk-button-icon.adsk-icon-settings
-                    td Enables viewer settings
-                    td false
-                tr 
-                    td features.viewer.fullscreen 
-                    td
-                        .adsk-button-icon.adsk-icon-fullscreen
-                    td Enables fullscreen toggle
-                    td true
-                tr 
-                    td features.viewer.markup 
-                    td
-                        .adsk-button-icon.icon.icon-markup(style="font-size:14px;")
-                    td Enables markup toolbar
-                    td false
-                tr 
-                    td features.viewer.reset 
-                    td
-                        .adsk-button-icon.icon.icon-reset(style="font-size:14px;")
-                    td Enables to deselect all, invoking viewerClickReset()
-                    td true
-                tr 
-                    td features.viewer.hide 
-                    td
-                        .adsk-button-icon.icon.icon-remove(style="font-size:14px;")
-                    td Enables easy hiding of (selected) components
-                    td true
-                tr 
-                    td features.viewer.ghosting 
-                    td
-                        .adsk-button-icon.icon.icon-show(style="font-size:14px;")
-                    td Enables toggling ghosting mode on/off
-                    td true
-                tr 
-                    td features.viewer.highlight 
-                    td
-                        .adsk-button-icon.icon.icon-highlight(style="font-size:14px;")
-                    td Enables toggling highlight of selected models on/off
-                    td true
-                tr 
-                    td features.viewer.fitToView 
-                    td
-                        .adsk-button-icon.icon.icon-viewer(style="font-size:14px;")
-                    td Enables reframing all visible items
-                    td true
-                tr 
-                    td features.viewer.single 
-                    td
-                        .adsk-button-icon.icon.icon-first(style="font-size:14px;")
-                    td Enables fitting of first instance to viewer
-                    td true
-                tr 
-                    td features.viewer.views 
-                    td
-                        .adsk-button-icon.icon.icon-home(style="font-size:14px;")
-                    td Enables toolbar to quickly access main views
-                    td true
+
+        h2 Configuring Viewer Features
+        include ../framework/viewer.pug
         h1 Access the Services Portal
         p You can access the Services Portal portal with the /service endpoint:
         a(href='service' target='_blank')
@@ -583,6 +481,11 @@
     .log 
         h1 Services Portal Change Log 
         table 
+            tr 
+                td 2. May 2024
+                td Enhancement 
+                td The configuration of viewer features has been aligned with other apps using the dedicated settings 
+                    span.code viewerFeatures
             tr 
                 td 26. April 2024
                 td Enhancement 

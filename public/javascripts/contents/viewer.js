@@ -4,6 +4,7 @@ let newInstance                 = true;
 let ghosting                    = true;
 let disableViewerSelectionEvent = false;
 let viewerDone                  = false;
+let viewerFiles                 = [];
 let dataInstances               = [];
 let hiddenInstances             = [];
 let markupStyle                 = {};
@@ -60,11 +61,15 @@ let viewerSettings = {
 }
 
 // Launch Viewer
-function initViewer(id, data, color, params) {
+function initViewer(id, viewables, params) {
 
-    if(isBlank(data)  ) return;
-    if(isBlank(id)    ) id = 'viewer';
-    if(isBlank(params)) params = {};
+    if(isBlank(viewables)) return;
+    if(isBlank(id)       ) id = 'viewer';
+    if(isBlank(params)   ) params = {};
+
+    if(!Array.isArray(viewables)) viewables = [viewables];
+
+    viewerFiles = viewables;
 
     let surfaceLevel = getSurfaceLevel($('#' + id)).split('surface-')[1];
     viewerSettings.backgroundColor = viewerBGColors[theme][surfaceLevel];
@@ -115,6 +120,7 @@ function initViewer(id, data, color, params) {
     $('#' + id + '-message').hide();
     $('#' + id + '-processing').hide();
     $('#' + id).show();
+    $('#viewer-file-browser').remove();
 
     dataInstances = [];
 
@@ -123,7 +129,7 @@ function initViewer(id, data, color, params) {
         env         : 'AutodeskProduction',
         api         : 'derivativeV2',  // for models uploaded to EMEA change this option to 'derivativeV2_EU'
         getAccessToken  : function(onTokenReady) {
-            var token = data.token;
+            var token = viewables[0].token;
             var timeInSeconds = 3600; 
             onTokenReady(token, timeInSeconds);
         }
@@ -154,7 +160,7 @@ function initViewer(id, data, color, params) {
                 return;
             }
 
-            Autodesk.Viewing.Document.load('urn:'+ data.urn, onDocumentLoadSuccess, onDocumentLoadFailure);
+            Autodesk.Viewing.Document.load('urn:'+ viewables[0].urn, onDocumentLoadSuccess, onDocumentLoadFailure);
             
         });
     
@@ -162,7 +168,7 @@ function initViewer(id, data, color, params) {
 
         viewerUnloadAllModels();
         newInstance = false;
-        Autodesk.Viewing.Document.load('urn:'+ data.urn, onDocumentLoadSuccess, onDocumentLoadFailure);
+        Autodesk.Viewing.Document.load('urn:'+ viewables[0].urn, onDocumentLoadSuccess, onDocumentLoadFailure);
 
     } 
     
@@ -213,6 +219,10 @@ function setViewerFeatures() {
     if(isBlank(applicationFeatures)) return;
     if(isBlank(applicationFeatures.viewer)) return;
 
+    let selectionToolbarFeatures = [];
+    let viewsToolbar             = false;
+    let selectFiles              = false;
+
     for(let applicationFeature of Object.keys(applicationFeatures.viewer)) {
 
         if(applicationFeatures.viewer[applicationFeature] === false) {
@@ -243,30 +253,147 @@ function setViewerFeatures() {
                     
         } else {
 
-            switch(applicationFeature) {
-                
-                case 'markup'    : viewerAddMarkupControls();  break;
-                case 'hide'      : viewerAddHideSelected();    break;
-                case 'ghosting'  : viewerAddGhostingToggle();  break;
-                case 'highlight' : viewerAddHighlightToggle(); break;
-                case 'single'    : viewerAddFitFirstInstance();break;
-                case 'fitToView' : viewerAddFitToView();       break;
-                case 'reset'     : viewerAddResetButton();     break;
-                case 'views'     : viewerAddViewsToolbar();    break;
+            if(applicationFeature === 'markup') {
+
+                viewerAddMarkupControls(); 
+            
+            } else if(applicationFeature === 'selectFile') {
+
+                selectFiles = applicationFeatures.viewer[applicationFeature]; 
+
+            } else if(viewer.model.is3d()) {
+
+                switch(applicationFeature) {
+                    
+                    case 'hide'      : selectionToolbarFeatures.push(applicationFeature); break;
+                    case 'ghosting'  : selectionToolbarFeatures.push(applicationFeature); break;
+                    case 'highlight' : selectionToolbarFeatures.push(applicationFeature); break;
+                    case 'single'    : selectionToolbarFeatures.push(applicationFeature); break;
+                    case 'fitToView' : selectionToolbarFeatures.push(applicationFeature); break;
+                    case 'reset'     : selectionToolbarFeatures.push(applicationFeature); break;
+                    case 'views'     : viewsToolbar = true;      break;
+
+                }
 
             }
 
         }      
     }
 
+    if(viewer.model.is2d()) {
+
+        $('#customSelectionToolbar').hide();
+        $('#my-custom-toolbar-views').hide();
+
+    } else {
+
+        addCustomSelectionToolbar(selectionToolbarFeatures);
+        if(viewsToolbar) viewerAddViewsToolbar();
+
+    }
+
     if(!isBlank(applicationFeatures.viewer.cube)) {
         if(applicationFeatures.viewer.cube) $('body').removeClass('no-viewer-cube');
     }
 
+    if(selectFiles) insertFileBrowser();
     viewer.toolbar.setVisible(true);
 
 }
+function insertFileBrowser() {
+
+    let elemFileBrowser = $('#viewer-file-browser');
+
+    if(viewerFiles.length > 1) {
+
+        let fileBrowserToolbar = new Autodesk.Viewing.UI.ControlGroup('customFileBrowserToolbar');
+            viewer.toolbar.addControl(fileBrowserToolbar);
+
+        let button = addCustomControl(fileBrowserToolbar, 'button-file-browser', 'icon-folder', 'Switch viewable file');
+            button.onClick = function() { 
+                $('#viewer-file-browser').css('display', 'flex');
+            };
+
+        if(elemFileBrowser.length === 0) {
+
+            elemFileBrowser = $('<div></div>').appendTo($('#viewer'))
+                .attr('id', 'viewer-file-browser');
+
+            let elemFileBrowserPanel = $('<div></div>').appendTo(elemFileBrowser)
+                .addClass('surface-level-1')
+                .attr('id', 'viewer-file-browser-panel');
+
+            let elemFilesHeader = $('<div></div>').appendTo(elemFileBrowserPanel)
+                .attr('id', 'viewer-file-browser-header');
+
+            $('<div></div>').appendTo(elemFilesHeader)
+                .attr('id', 'viewer-file-browser-title')
+                .html('Select Viewing File')
+
+            $('<div></div>').appendTo(elemFilesHeader)
+                .addClass('button')
+                .addClass('icon')
+                .addClass('icon-close')
+                .click(function() {
+                    $('#viewer-file-browser').hide();
+                })
+           
+            let elemFilesList = $('<div></div>').appendTo(elemFileBrowserPanel)
+                .addClass('tiles')    
+                .addClass('list')    
+                .addClass('l')    
+                .attr('id', 'viewer-file-browser-list');
+
+            for(let viewerFile of viewerFiles) {
+
+                let elemFile = $('<div></div>').appendTo(elemFilesList)
+                    .attr('data-urn', viewerFile.urn)
+                    .addClass('tile')
+                    .click(function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        $(this).siblings().removeClass('selected');
+                        $(this).addClass('selected');
+                        $('#viewer-file-browser').hide();
+                        viewerSwitchFile($(this));
+                    })
+
+                let elemFileThumbnail = $('<div></div>').appendTo(elemFile)
+                    .addClass('tile-image');
+
+                $('<img></img>').appendTo(elemFileThumbnail)
+                    .attr('src', viewerFile.thumbnail);
+
+                let elemFileDetails = $('<div></div>').appendTo(elemFile)
+                    .addClass('tile-details');
+
+                $('<div></div>').appendTo(elemFileDetails)
+                    .addClass('tile-title')
+                    .html(viewerFile.name);
+                
+                $('<div></div>').appendTo(elemFileDetails)
+                    .html('User : ' + viewerFile.user);
+                
+                $('<div></div>').appendTo(elemFileDetails)
+                    .html('Version : ' + viewerFile.version);
+                
+                $('<div></div>').appendTo(elemFileDetails)
+                    .html('Date : ' + viewerFile.timestamp);
+
+            }
+
+            elemFilesList.children('.tile').first().addClass('selected');
+
+        }
+    }
+
+}
+
 function setViewerInstancedData() {
+
+    dataInstances = [];
+
+    if(viewer.model.is2d()) return;
 
     let instanceTree    = viewer.model.getInstanceTree();
     let promises        = [];
@@ -321,6 +448,38 @@ function getInstancePartNumber(instance) {
 
 }
 function setViewerInstancedDataDone() {}
+
+
+
+// Switch to other file
+function viewerSwitchFile(elemFile) {
+
+    let urn     = elemFile.attr('data-urn');
+    newInstance = false;
+    viewerDone  = false;
+    
+    viewer.toolbar.setVisible(false);
+    viewerUnloadAllModels();
+    
+    Autodesk.Viewing.Document.load('urn:'+ urn, function(doc) {
+
+        let viewable = doc.getRoot().getDefaultGeometry();
+
+        if (viewable) {
+            // viewer.loadDocumentNode(doc, viewable).then(function(result) {
+            viewer.loadDocumentNode(doc, viewable, {globalOffset: {x:0,y:0,z:0}}).then(function(result) {
+                viewer.setBackgroundColor(viewerSettings.backgroundColor[0], viewerSettings.backgroundColor[1], viewerSettings.backgroundColor[2], viewerSettings.backgroundColor[3], viewerSettings.backgroundColor[4], viewerSettings.backgroundColor[5]);
+                viewerDone = true;
+                // initViewerDone();
+            }).catch(function(err) {
+                console.log(err);
+            });
+        }
+
+
+    });
+
+}
 
 
 
@@ -384,6 +543,7 @@ function viewerSelectModel(partNumber, params) {
 function viewerSelectModels(partNumbers, params) {
 
     if(!isViewerStarted()) return;
+    if(viewer.model.is2d()) return;
 
     //  Set defaults for optional parameters
     // --------------------------------------
@@ -446,6 +606,7 @@ function viewerSelectModels(partNumbers, params) {
 function viewerSelectAll(params) {
 
     if(!isViewerStarted()) return;
+    if(viewer.model.is2d()) return;
 
     //  Set defaults for optional parameters
     // --------------------------------------
@@ -488,6 +649,7 @@ function viewerSelectAll(params) {
 function viewerSelectInstances(dbIds, params) {
 
     if(!isViewerStarted()) return;
+    if(viewer.model.is2d()) return;
 
     //  Set defaults for optional parameters
     // --------------------------------------
@@ -539,7 +701,7 @@ function viewerHighlightInstances(partNumber, ids, params) {
     if(!isViewerStarted()) return;
     if(isBlank(partNumber)) return;
     if(isBlank(ids)) return;
-
+    if(viewer.model.is2d()) return;
 
     //  Set defaults for optional parameters
     // --------------------------------------
@@ -598,6 +760,7 @@ function viewerHighlightInstances(partNumber, ids, params) {
 function viewerResetSelection(params) {
 
     if(!isViewerStarted()) return;
+    if(viewer.model.is2d()) return;
 
     disableViewerSelectionEvent = true;
 
@@ -645,6 +808,7 @@ function viewerSetColor(partNumber, params) {
 function viewerSetColors(partNumbers, params) {
 
     if(!isViewerStarted()) return;
+    if(viewer.model.is2d()) return;
 
     //  Set defaults for optional parameters
     // --------------------------------------
@@ -695,6 +859,7 @@ function viewerSetColors(partNumbers, params) {
 function viewerSetColorToAll(color) {
 
     if(!isViewerStarted()) return;
+    if(viewer.model.is2d()) return;
 
     let vector      = new THREE.Vector4(color[0], color[1], color[2], color[3]);
     let instances   = viewer.model.getInstanceTree();
@@ -709,6 +874,7 @@ function viewerSetColorToAll(color) {
 function viewerResetColors() {
 
     if(!isViewerStarted()) return;
+    if(viewer.model.is2d()) return;
 
     viewer.clearThemingColors();
 
@@ -725,6 +891,7 @@ function viewerHideModel(partNumber) {
 function viewerHideModels(partNumbers) {
 
     if(!isViewerStarted()) return;
+    if(viewer.model.is2d()) return;
 
     for(let dataInstance of dataInstances) {
         for(let partNumber of partNumbers) {
@@ -743,6 +910,7 @@ function viewerUnhideModel(partNumber, fitToView) {
 function viewerUnhideModels(partNumbers, params) {
 
     if(!isViewerStarted()) return;
+    if(viewer.model.is2d()) return;
 
     //  Set defaults for optional parameters
     // --------------------------------------
@@ -778,6 +946,7 @@ function viewerUnhideModels(partNumbers, params) {
 function viewerUnhideAll(params) {
 
     if(!isViewerStarted()) return;
+    if(viewer.model.is2d()) return;
 
     //  Set defaults for optional parameters
     // --------------------------------------
@@ -911,6 +1080,7 @@ function viewerUnloadAllModels() {
 function viewerGetComponentsInstances(partNumbers) {
 
     if(!isViewerStarted()) return [];
+    if(viewer.model.is2d()) return;
 
     let result = [];
 
@@ -927,6 +1097,7 @@ function viewerGetComponentsInstances(partNumbers) {
 function viewerGetComponentInstances(partNumber) {
 
     if(!isViewerStarted()) return [];
+    if(viewer.model.is2d()) return;
 
     let result = [];
 
@@ -995,6 +1166,7 @@ function getComponentParent(parents, id) {
 function viewerGetSelectedComponentPaths() {
 
     if(!isViewerStarted()) return [];
+    if(viewer.model.is2d()) return;
 
     let result = [];
 
@@ -1025,52 +1197,43 @@ function viewerGetSelectedComponentPaths() {
 
 
 // Custom Controls: Add Selection Toolbar
-function getCustomSelectionToolbar() {
+function addCustomSelectionToolbar(selectionToolbarFeatures) {
 
-    for(let control of viewer.toolbar._controls) {
-        if(control._id === 'customSelectionToolbar') {
-            return control;
-        }
+    let elemToolbar = $('#customSelectionToolbar');
+
+    if(elemToolbar.length > 0) {
+        elemToolbar.show();
+        return;
     }
 
     let selectToolbar = new Autodesk.Viewing.UI.ControlGroup('customSelectionToolbar');
+    
     viewer.toolbar.addControl(selectToolbar);
 
-    return selectToolbar;
+    if(selectionToolbarFeatures.includes('hide')     ) viewerAddHideSelected(selectToolbar);
+    if(selectionToolbarFeatures.includes('ghosting') ) viewerAddGhostingToggle(selectToolbar);
+    if(selectionToolbarFeatures.includes('highlight')) viewerAddHighlightToggle(selectToolbar);
+    if(selectionToolbarFeatures.includes('single')   ) viewerAddFitFirstInstance(selectToolbar);
+    if(selectionToolbarFeatures.includes('fitToView')) viewerAddFitToView(selectToolbar);
+    if(selectionToolbarFeatures.includes('reset')    ) viewerAddResetButton(selectToolbar);
 
 }
+function addCustomControl(toolbar, id, icon, tooltip) {
 
+    let newButton = new Autodesk.Viewing.UI.Button(id);
+        newButton.addClass('icon');
+        newButton.setIcon(icon);
+        newButton.setToolTip(tooltip);
 
-// Custom Controls: Reset Button
-function viewerAddResetButton() {
+    toolbar.addControl(newButton);
 
-    let toolbar = getCustomSelectionToolbar();
-
-    let buttonReset = addCustomControl(toolbar, 'button-reset-selection', 'icon-reset', 'Reset selection and show all models');
-        buttonReset.onClick = function() { 
-            viewerClickReset();
-        };
-        
-}
-function viewerClickReset() {
-    hiddenInstances = [];
-    if($('#counter-hidden-selection').length > 0) $('#counter-hidden-selection').hide();
-    viewer.showAll();
-    viewerResetColors();
-    viewerClickResetDone();
-}
-function viewerClickResetDone() {
-
-    $('.bom-item').removeClass('selected');
-    $('.flat-bom-item').removeClass('selected');
+    return newButton;
 
 }
 
 
 // Custom Controls : Controls to hide selected components
-function viewerAddHideSelected() {
-
-    let toolbar = getCustomSelectionToolbar();
+function viewerAddHideSelected(toolbar) {
 
     let buttonHide = addCustomControl(toolbar, 'button-toggle-hide-selected', 'icon-remove', 'Hide selected components');
         buttonHide.onClick = function(e) { 
@@ -1134,9 +1297,7 @@ function viewerHideSelected(event) {
 
 
 // Custom Controls : Ghosting Toggle
-function viewerAddGhostingToggle() {
-
-    let toolbar = getCustomSelectionToolbar();
+function viewerAddGhostingToggle(toolbar) {
 
     let buttonEnableGosting = addCustomControl(toolbar, 'button-toggle-ghosting-enable', 'icon-hide', 'Click to enable ghosting mode');
         buttonEnableGosting.onClick = function(e) { 
@@ -1151,18 +1312,6 @@ function viewerAddGhostingToggle() {
         };
 
     toolbar.addClass('ghosting');
-
-}
-function addCustomControl(toolbar, id, icon, tooltip) {
-
-    let newButton = new Autodesk.Viewing.UI.Button(id);
-        newButton.addClass('icon');
-        newButton.setIcon(icon);
-        newButton.setToolTip(tooltip);
-
-    toolbar.addControl(newButton);
-
-    return newButton;
 
 }
 function viewerSetGhosting(value) {
@@ -1180,9 +1329,7 @@ function viewerSetGhosting(value) {
 
 
 // Custom Controls : Highlight Toggle
-function viewerAddHighlightToggle() {
-
-    let toolbar = getCustomSelectionToolbar();
+function viewerAddHighlightToggle(toolbar) {
 
     let buttonOff = addCustomControl(toolbar, 'button-toggle-highlight-off', 'icon-highlight', 'Enable selection hihglight by color');
         buttonOff.onClick = function(e) { 
@@ -1227,33 +1374,8 @@ function toggleSelectionHighlight(enabled) {
 }
 
 
-// Custom Controls : Fit (selection) to view
-function viewerAddFitToView() {
-    
-    let toolbar = getCustomSelectionToolbar();
-
-    let buttionFitToView = addCustomControl(toolbar, 'button-fit-to-view', 'icon-viewer', 'Fit (selected) components to view');
-        buttionFitToView.onClick = function() { 
-
-            let dbIds = [];
-
-            for(let dataInstance of dataInstances) {
-                if(viewer.isNodeVisible(dataInstance.dbId)) {
-                    dbIds.push(dataInstance.dbId);
-                }
-            }
-
-            viewer.fitToView(dbIds);
-
-        };
-        
-}
-
-
 // Custom Controls : 
-function viewerAddFitFirstInstance() {
-
-    let toolbar = getCustomSelectionToolbar();
+function viewerAddFitFirstInstance(toolbar) {
 
     let buttionFitFirst = addCustomControl(toolbar, 'button-fit-first', 'icon-first', 'Fit first instance to view');
         buttionFitFirst.onClick = function() { 
@@ -1277,8 +1399,59 @@ function viewerAddFitFirstInstance() {
 }
 
 
+// Custom Controls : Fit (selection) to view
+function viewerAddFitToView(toolbar) {
+
+    let buttionFitToView = addCustomControl(toolbar, 'button-fit-to-view', 'icon-viewer', 'Fit (selected) components to view');
+        buttionFitToView.onClick = function() { 
+
+            let dbIds = [];
+
+            for(let dataInstance of dataInstances) {
+                if(viewer.isNodeVisible(dataInstance.dbId)) {
+                    dbIds.push(dataInstance.dbId);
+                }
+            }
+
+            viewer.fitToView(dbIds);
+
+        };
+        
+}
+
+
+// Custom Controls: Reset Button
+function viewerAddResetButton(toolbar) {
+
+
+    let buttonReset = addCustomControl(toolbar, 'button-reset-selection', 'icon-reset', 'Reset selection and show all models');
+        buttonReset.onClick = function() { 
+            viewerClickReset();
+        };
+        
+}
+function viewerClickReset() {
+    hiddenInstances = [];
+    if($('#counter-hidden-selection').length > 0) $('#counter-hidden-selection').hide();
+    viewer.showAll();
+    viewerResetColors();
+    viewerClickResetDone();
+}
+function viewerClickResetDone() {
+
+    $('.bom-item').removeClass('selected');
+    $('.flat-bom-item').removeClass('selected');
+
+}
+
+
+
 // Custom Controls : Standard Views Toolbar
 function viewerAddViewsToolbar() {
+
+    let elemToolbar = $('#my-custom-toolbar-views');
+
+    if(elemToolbar.length > 0) { elemToolbar.show(); return; }
 
     let newToolbar  = new Autodesk.Viewing.UI.ControlGroup('my-custom-toolbar-views');
     
@@ -1336,6 +1509,10 @@ function viewerAddNoteControls() {
 function viewerAddMarkupControls(includeSaveButton) {
 
     if(typeof includeSaveButton === 'undefined') includeSaveButton = false;
+
+    let elemToolbar = $('#my-custom-markup-toolbar');
+
+    if(elemToolbar.length > 0) { elemToolbar.show(); return; }
 
     let elemMarkupToolbar = $('<div></div>');
         elemMarkupToolbar.attr('id', 'viewer-markup-toolbar');

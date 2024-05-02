@@ -28,7 +28,6 @@ $(document).ready(function() {
     wsSupplierPackages.id           = config.explorer.wsIdSupplierPackages;
     paramsProcesses.createWSID      = config.explorer.wsIdProblemReports;
     paramsProcesses.fieldIdMarkup   = config.explorer.fieldIdPRImage;
-    applicationFeatures.viewer      = config.explorer.viewerFeatures;
 
     let link = '/api/v3/workspaces/' + wsId + '/items/' + dmsId;
     
@@ -44,39 +43,43 @@ $(document).ready(function() {
 
     if(isBlank(wsItems.id)) wsItems.id = config.explorer.wsIdItems;
 
-    insertRecentItems({
-        headerLabel  : 'Recently Viewed',
-        size         : 'xxs',
-        workspacesIn : [wsItems.id]
-    });
-    insertSearch({
-        size         : 'xxs',
-        images       : true,
-        limit        : 20,
-        workspace    : wsItems.id,
-        tileCounter  : true,
-        autoClick    : true
-    });
-    insertWorkspaceViews(wsItems.id, {
-        id          : 'products',
-        headerLabel : 'Workspace Views'
-    });
-    insertBookmarks({
-        headerLabel  : 'Bookmarks',
-        images       : true,
-        workspacesIn : [wsItems.id]
-    });
+    getApplicationFeatures('explorer', [], function(responses) {
 
-    getInitialData(function() {
+        insertRecentItems({
+            headerLabel  : 'Recently Viewed',
+            size         : 'xxs',
+            workspacesIn : [wsItems.id]
+        });
+        insertSearch({
+            size         : 'xxs',
+            images       : true,
+            limit        : 20,
+            workspace    : wsItems.id,
+            tileCounter  : true,
+            autoClick    : true
+        });
+        insertWorkspaceViews(wsItems.id, {
+            id          : 'products',
+            headerLabel : 'Workspace Views'
+        });
+        insertBookmarks({
+            headerLabel  : 'Bookmarks',
+            images       : true,
+            workspacesIn : [wsItems.id]
+        });
 
-        $('#overlay').hide();
-        $('body').removeClass('screen-startup');
+        getInitialData(function() {
 
-        if(!isBlank(dmsId)) {
-            openItem(link);
-        } else {
-            $('body').addClass('screen-landing');
-        }
+            $('#overlay').hide();
+            $('body').removeClass('screen-startup');
+
+            if(!isBlank(dmsId)) {
+                openItem(link);
+            } else {
+                $('body').addClass('screen-landing');
+            }
+        });
+
     });
 
     setUIEvents();
@@ -816,7 +819,7 @@ function selectBOMItem(e, elemClicked) {
 
         elemClicked.removeClass('selected');
         
-        viewerResetSelection(true);
+        viewerResetSelection();
         insertAttachments($('#viewer').attr('data-link'), paramsAttachments);
         insertChangeProcesses(context.link, paramsProcesses);
 
