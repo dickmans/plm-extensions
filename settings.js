@@ -620,8 +620,11 @@ exports.config = {
             'settings'      : false,
             'fullscreen'    : true,
             'markup'        : true,
+            'hide'          : true,
             'ghosting'      : true,
             'highlight'     : true,
+            'single'        : true,
+            'fitToView'     : true,
             'reset'         : true,
             'views'         : true,
             'selectFile'    : true
