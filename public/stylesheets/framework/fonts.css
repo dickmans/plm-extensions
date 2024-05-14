@@ -205,6 +205,7 @@
 .icon-clone::before             { content : '\e14d'; }
 .icon-close::before             { content : '\e5cd'; }
 .icon-collapse::before          { content : '\e5cf'; }
+.icon-contains::before          { content : '\f525'; }
 .icon-create::before            { content : '\e147'; }
 .icon-dashboard::before         { content : '\e871'; }
 .icon-delete::before            { content : '\e872'; }
@@ -213,6 +214,8 @@
 .icon-details::before           { content : '\e0ee'; }
 .icon-disconnect::before        { content : '\e16f'; }
 .icon-donut-chart::before       { content : '\e917'; }
+.icon-ends-with::before         { content : '\e31c'; }
+.icon-equals::before            { content : '\f77b'; }
 .icon-expand::before            { content : '\e5cc'; }
 .icon-factory::before           { content : '\ebbc'; }
 .icon-filter::before            { content : '\e152'; }
@@ -272,6 +275,7 @@
 .icon-show::before              { content : '\e8f4'; }
 .icon-sliders::before           { content : '\e429'; }
 .icon-start::before             { content : '\e1c4'; }
+.icon-starts-with::before       { content : '\ec73'; }
 .icon-status::before            { content : '\ea50'; }
 .icon-stock::before             { content : '\ebb8'; }
 .icon-table::before             { content : '\e3ec'; }
