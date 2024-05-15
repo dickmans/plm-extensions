@@ -722,10 +722,11 @@ and (max-device-width : 1900px)  {
 .panel-header.with-toggle > .panel-title {
     padding-left : 0px;
 }
-.panel-header.collapsed { border-color : transparent;}
+.panel-header.collapsed { border-color : transparent !important; }
 .panel-header-toggle {
     padding : 7px 0px 0px 10px;
 }
+.panel-header.collapsed .panel-toolbar { display : none; }
 
 
 
