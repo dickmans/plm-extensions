@@ -1,0 +1,197 @@
+#item-summary.doc-content 
+    h1 showSummary();
+    .definition When creating your apps, you may want to display a summary of a selected item. The can be achieved easily with this method which will combine multiple elements in a single screen.
+        br
+        |This function gets included in all pages automatically and is defined in 
+        span.path /public/javascripts/framework/utils.js
+        |. 
+        br
+        |Styling of the given contents is defined in 
+        span.path /public/stylesheets/framework/styles.css 
+        |based on the primary class item.
+        img(src='images/docs/item-summary-1.png' style='display:block;margin-top:20px;height:945px;')
+    h2 DOM Elements 
+    p Insert the following base element to your pug file to add the menu in your page. You can choose another id than shown here, but will then have to provide your element's id as parameter. Make sure to assign class item as this will hide the given element during application startup. You can apply any surface-level class from 1-5 to make it fit best.
+    p.code #item.screen.item.surface-level-2
+    h2 Invocation 
+    p This method requires a PLM record to be displayed. Usually, this method gets inovoked when users click a PLM record being displayed as search result, in a BOM or in a workspace view. Make use of the given view's callback functions to invoke showSummary.
+    p For example, your application may display the BOM of an item by using 
+        span.path insertBOM(..); 
+        |Then you can create the function  
+        span.path clickBOMItem(elemClicked, e){} 
+        |in your application to override the click event on a BOM item, which then can call the showSummary method: 
+    p.code 
+        span.indent-1 function clickBOMIem(elemClicked) {
+        span.indent-2 showSummary(elemClicked);
+        span.indent-1 }
+    h2 Parameters
+    p Various parameters can be provided when using showSummary. The clicked element with property data-link is required specifically. All further parameters must be passed by using a JSON object. See this example call: 
+    p.code showSummary(elemClicked, { openInPLM : true, workflowActions : true, reload : true });
+    p   
+        table.parameters.row-hovering 
+            tr 
+                th.nowrap Parameter 
+                th Description
+                th Type 
+                th Required 
+                th Default 
+            tr 
+                td element 
+                td A DOM element with parameter data-link is required to get the information from PLM. Such an element is proivded by all the features of this UX Framework (i.e. Workspace Views, BOM, Bookmarks, ...)
+                td jQuery Object
+                td Yes
+                td -
+            tr 
+                td id 
+                td ID of the DOM element representing the item display
+                td String
+                td No
+                td item
+            tr 
+                td statesColors 
+                td Provide an array of state names and colors to apply the color to the header's state name.
+                    br
+                    |Example : [ { 'color' : 'red',    'states' : ['Proposal'] }, { color : yellow, 'states' : ['Review', 'Technical Analysis'] } ]
+                td Array
+                td No
+                td []
+            tr 
+                td workflowActions
+                td Enables the Workflow Actions menu in header to provide list of available transitions which will be performed when clicked
+                td Boolean
+                td No
+                td false
+            tr 
+                td bookmark 
+                td Adds a bookmark toggle to enable addition to / removal from bookmarked items
+                td Boolean
+                td No 
+                td true
+            tr 
+                td openInPLM
+                td When set to true, an icon in the header enables to open given item in PLM
+                td Boolean
+                td No
+                td true
+            tr 
+                td reload
+                td If set to true, the summary page can be reloaded with a single click
+                td Boolean
+                td No
+                td false
+            tr 
+                td editable
+                td Enables edit capabilities in given panels
+                td Boolean
+                td No
+                td false
+            tr 
+                td additionalView
+                td Set content of additional view (select from grid or relationships)
+                td String
+                td No
+                td -
+            tr 
+                td classConents
+                td Set the CSS class to be applied to all summary panels
+                td String
+                td No
+                td surface-level-3
+    p Further parameters can be provided to configure the Item Details display:
+    p   
+        table.parameters.row-hovering 
+            tr 
+                th.nowrap Parameter 
+                th Description
+                th Type 
+                th Required 
+                th Default 
+            tr 
+                td hideComputed 
+                td Hide computed fields
+                td Boolean
+                td No
+                td false
+            tr 
+                td hideReadOnly 
+                td Hide read only fields
+                td Boolean
+                td No
+                td false
+            tr 
+                td hideLabels 
+                td Hide field labels of each field
+                td Boolean
+                td No
+                td false
+            tr 
+                td suppressLinks 
+                td When set to true, linking pick lists will not be shown as links, preventing users from opening the native PLM user interface
+                td Boolean
+                td No
+                td false
+            tr 
+                td sectionsIn 
+                td List of sections to be included, identified by Section Name. Sections not included in this list will not be shown (example: ['Header', 'Details']).
+                td Array
+                td No 
+                td []
+            tr 
+                td sectionsEx 
+                td List of sections columns to be excluded, identified by Section Name. Sections in this list will not be shown (example: ['Hidden Section']).
+                td Array
+                td No 
+                td []
+            tr 
+                td fieldsIn 
+                td List of fields to be included, identified by Field ID. Fields not included in this list will not be shown (example: ['TITLE', 'DESCRIPTION']).
+                td Array
+                td No 
+                td []
+            tr 
+                td fieldsEx 
+                td List of fields to be excluded, identified by Field ID. Fields in this list will not be shown (example: ['DMS_ID']).
+                td Array
+                td No 
+                td []
+    h2 Examples 
+    p   
+        table.row-hovering 
+            tr 
+                th Code 
+                th Screenshot 
+                th Application 
+            tr 
+                td.code 
+                    span.indent-1 showSummary(elemClicked, {
+                    span.indent-2 additionalView    : 'grid',
+                    span.indent-2 openInPLM         : false,
+                    span.indent-2 workflowActions   : true,
+                    span.indent-2 reload            : true,
+                    span.indent-2 editable          : true,
+                    span.indent-2 hideComputed      : true,
+                    span.indent-2 suppressLinks     : true,
+                    span.indent-2 classConents      : 'surface-level-1'
+                    span.indent-1 });
+                td
+                    img(src='images/docs/item-summary-1.png' style='height:450px;')
+                td
+    h2 Events 
+    p You can override the following functions in your code to adjust the default behavior.
+    p 
+        table.row-hovering
+            tr 
+                th Function 
+                th Event 
+                th Parameters 
+            tr 
+                td showSummaryDone(id) 
+                td Once all required elements have been added to the DOM, before PLM data gets retrieved, this function gets invoked
+                td id = ID of the top DOM element (i.e. item)
+    p As this summary page invokes other functions of this framework, the given functions' events can be used as well. Review the events of the following functions if needed:  
+        ul 
+            li insertWorkflowHistory()
+            li insertDetails()
+            li insertAttachments()
+            li insertGrid()
+            li insertRelationships()
