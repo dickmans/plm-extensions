@@ -1,0 +1,174 @@
+#create.doc-content 
+    h1 showCreateForm();
+    .definition Enable creation of new recordy by displaying the given workspace's form
+        br
+        |This function gets included in all pages automatically and is defined in 
+        span.path /public/javascripts/framnework/utils.js
+        |. 
+        br
+        |Styling of the given contents is defined in 
+        span.path /public/stylesheets/framework/styles.css 
+        | based on the primary class create.
+        img(src='images/docs/create-1.png' style='display:block;margin-top:20px;height:973px;')
+    h2 DOM Elements 
+    p Insert the following base element to your pug file. If the form should be displayed in a dialog, make sure that this element is placed directly under the body tag, not below the header or a screen element: 
+    p.code #dialog 
+    h2 Parameters
+    p Various parameters can be provided when using showCreateForm: 
+    p.code showCreateForm(wsId, params);
+    p The workspace parameter is required to determine the right form. All further parameters must be passed by using a JSON object. See this example call: 
+    p.code 
+        span.indent-1 showCreateForm(
+        span.indent-2 95,{
+        span.indent-3 headerLabel : 'Create new product',
+        span.indent-3 sectionsEx : ['Product Marketing','Product Catalog Images']
+        span.indent-2 }
+        span.indent-1 );
+    p The following optional parameters can be used to configure the form's contents:
+    p   
+        table.parameters.row-hovering 
+            tr 
+                th.nowrap Parameter 
+                th Description
+                th Type 
+                th Required 
+                th Default 
+            tr 
+                td id 
+                td ID of the DOM element where the form/dialog will be inserted
+                td String
+                td No
+                td create
+            tr 
+                td header 
+                td Can be used to suppress addition of the panel header element
+                td Boolean
+                td No
+                td true
+            tr 
+                td headerLabel
+                td Sets the header label (if header is enabled)
+                td String
+                td No
+                td Create New
+            tr 
+                td headerToggle 
+                td Enables collapsing and expanding the attachments display
+                td Boolean
+                td No 
+                td false
+            tr 
+                td compactDisplay 
+                td Enables a compact display of the form by adding class compact to the sections parent element
+                td Boolean
+                td No
+                td false
+            tr 
+                td dialog 
+                td Display create from in a dialog instead of a panel element
+                td Boolean
+                td No
+                td true
+            tr 
+                td hideComputed 
+                td Hide computed fields
+                td Boolean
+                td No
+                td true
+            tr 
+                td hideReadOnly 
+                td Hide read only fields
+                td Boolean
+                td No
+                td true
+            tr 
+                td hideLabels 
+                td Hide field labels of each field
+                td Boolean
+                td No
+                td false
+            tr 
+                td sectionsIn 
+                td List of sections to be included, identified by Section Name. Sections not included in this list will not be shown (example: ['Header', 'Details']).
+                td Array
+                td No 
+                td []
+            tr 
+                td sectionsEx 
+                td List of sections columns to be excluded, identified by Section Name. Sections in this list will not be shown (example: ['Hidden Section']).
+                td Array
+                td No 
+                td []
+            tr 
+                td fieldsIn 
+                td List of fields to be included, identified by Field ID. Fields not included in this list will not be shown (example: ['TITLE', 'DESCRIPTION']).
+                td Array
+                td No 
+                td []
+            tr 
+                td fieldsEx 
+                td List of fields to be excluded, identified by Field ID. Fields in this list will not be shown (example: ['DMS_ID']).
+                td Array
+                td No 
+                td []
+    h2 Examples 
+    p   
+        table.row-hovering 
+            tr 
+                th Code 
+                th Screenshot 
+                th Application 
+            tr 
+                td.code 
+                    span.indent-1 showCreateForm(
+                    span.indent-2 95,{
+                    span.indent-3 headerLabel : 'Create new product',
+                    span.indent-3 sectionsEx : ['Product Marketing','Product Catalog Images']
+                    span.indent-2 }
+                    span.indent-1 );
+                td
+                    img(src='images/docs/create-1.png' style='display:block;margin-top:20px;height:475px;')
+                td -
+
+    h2 Events 
+    p You can override the following functions in your code to adjust the default behavior.
+    p 
+        table.row-hovering
+            tr 
+                th Function 
+                th Event 
+                th Parameters 
+            tr 
+                td showCreateFormDone(id, sections, fields) 
+                td Gets executed once the workspace configuration has been retrieved and the fields were added to the form
+                td 
+                    ul 
+                        li id = id of the parent div element (i.e. create)
+                        li sections = data of /sections REST API call of PLM
+                        li fields = data of /fields REST API call of PLM
+            tr 
+                td closeCreateForm(id) 
+                td This function gets triggered when users close the create dialog or press the Cancel button. It will hide the overlay and the parent div element before calling closeCreateFormDone.
+                td id = id of the parent div element (i.e. create)
+            tr 
+                td closeCreateFormDone(id) 
+                td This function gets triggered by closeCreateForm after the overlay and parent div element got hidden
+                td id = id of the parent div element (i.e. create)
+    h2 User Interactions 
+    p You can override the behavior of the Flat BOM display with the user interactions shown below. They all receive the UI element that got clicked as parameter elemClicked.
+    p 
+        table.row-hovering
+            tr 
+                th Function 
+                th Triggering Event 
+            tr 
+                td clickCreateFormSubmit(id) 
+                td Gets executed once the user clicks the Submit button. This will hide certain UI elements after validating the form for mandatory inputs.
+                    br
+                    |It triggers submitCreateForm to perform the item creation in PLM.
+            tr 
+                td submitCreateForm(id) 
+                td This gets invoked by clickCreateFormSubmit and performs the item creation. Once the item creation finished, it will invoke submitCreateFormDone(id, link).
+            tr 
+                td submitCreateForm(id, link) 
+                td This function gets triggered once the item creation finished. It received the parent div element's id and the API-link of the newly created record.
