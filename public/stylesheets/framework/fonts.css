@@ -219,7 +219,7 @@
 .icon-expand::before            { content : '\e5cc'; }
 .icon-factory::before           { content : '\ebbc'; }
 .icon-filter::before            { content : '\e152'; }
-.icon-filter-empty::before      { content : '\e7b3'; }
+.icon-filter-empty::before      { content : '\f703'; }
 .icon-finish::before            { content : '\eaf8'; }
 .icon-first::before             { content : '\e400'; font-variation-settings: 'FILL' 1 }
 .icon-fold::before              { content : '\e5d6'; }
