@@ -525,7 +525,7 @@ function setBOMData(bom, flatBom) {
         elemRoot.html('');
 
     for(field of wsItems.viewColumns) {
-        if(field.fieldId === 'NUMBER') urns.partNumber = field.__self__.urn;
+        if(field.fieldId === config.viewer.fieldIdPartNumber) urns.partNumber = field.__self__.urn;
         else {
             for(kpi of config.explorer.kpis) {
                 if(field.fieldId === kpi.fieldId) {
