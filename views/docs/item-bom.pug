@@ -231,8 +231,15 @@
                         li bomData = BOM data as provided by the REST API
                         li flatBOMData = Flat BOM data as provided by the REST API
             tr 
+                td clickBOMItem(elemClicked, e) 
+                td When users click a BOM item, this function gets invoked
+                td 
+                    ul 
+                        li elemClicked = jQuery element of BOM row that got clicked
+                        li e = click event object
+            tr 
                 td clickBOMItemDone(elemClicked, e) 
-                td When users click the upload button, this function gets invoked. It is only available if 'upload' is set to true and will open the file browser to initiate the file upload process.
+                td When users click a BOM item and the BOM view got updated accordingly (i.e. by selecting the given rows and adjusting the toolbar icons), this function gets invoked
                 td 
                     ul 
                         li elemClicked = jQuery element of BOM row that got clicked
