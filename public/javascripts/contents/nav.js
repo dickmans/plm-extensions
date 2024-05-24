@@ -3,7 +3,7 @@ function insertMOW(params) {
 
     //  Set defaults for optional parameters
     // --------------------------------------
-    let id           = 'mow';                   // id of DOM element where the list will be inseerted
+    let id           = 'mow';                   // id of DOM element where the list will be inserted
     let header       = true;                    // Hide header with setting this to false
     let headerLabel  = 'My Outstanding Work';   // Set the header text
     let headerToggle = false;                   // Enable header toggles
@@ -260,7 +260,7 @@ function insertRecentItems(params) {
 
     //  Set defaults for optional parameters
     // --------------------------------------
-    let id           = 'recents';               // id of DOM element where the list will be inseerted
+    let id           = 'recents';               // id of DOM element where the list will be inserted
     let header       = true;                    // Hide header with setting this to false
     let headerLabel  = 'Recently Viewed Items'; // Set the header text
     let headerToggle = false;                   // Enable header toggles
@@ -445,11 +445,12 @@ function insertBookmarks(params) {
 
     //  Set defaults for optional parameters
     // --------------------------------------
-    let id           = 'bookmarks';         // id of DOM element where the list will be inseerted
+    let id           = 'bookmarks';         // id of DOM element where the list will be inserted
     let header       = true;                // Hide header with setting this to false
     let headerLabel  = 'Bookmarked Items';  // Set the header text
     let headerToggle = false;               // Enable header toggles
     let reload       = true;                // Enable reload button for the list
+    let tileCounter  = false;               // A counter can be displayed in each tile instead of an icon to let users remember given search results easieer
     let icon         = 'icon-bookmark';     // Sets the icon to be displayed for each tile
     let images       = false;               // Display first image field as tile image
     let size         = 'm';                 // layout size (xxs, xs, s, m, l, xl, xxl)
@@ -462,6 +463,7 @@ function insertBookmarks(params) {
     if(!isBlank(params.headerLabel) )  headerLabel = params.headerLabel;
     if(!isBlank(params.headerToggle)) headerToggle = params.headerToggle;
     if(!isBlank(params.reload)      )       reload = params.reload;
+    if(!isBlank(params.tileCounter) )  tileCounter = params.tileCounter;
     if(!isBlank(params.icon)        )         icon = params.icon;
     if(!isBlank(params.images)      )       images = params.images;
     if(!isBlank(params.size)        )         size = params.size;
@@ -469,8 +471,9 @@ function insertBookmarks(params) {
     if(!isBlank(params.workspacesEx)) workspacesEx = params.workspacesEx;
 
     settings.bookmarks[id]              = {};
+    settings.bookmarks[id].tileCounter  = tileCounter;
     settings.bookmarks[id].icon         = icon;
-    settings.bookmarks[id].images         = images;
+    settings.bookmarks[id].images       = images;
     settings.bookmarks[id].workspacesIn = workspacesIn;
     settings.bookmarks[id].workspacesEx = workspacesEx;    
 
@@ -580,6 +583,15 @@ function insertBookmarksData(id) {
                                 clickBookmarkItem($(this), e);
                             });
 
+                        if(settings.bookmarks[id].tileCounter) {
+                            let elemImage = elemTile.find('.tile-image');
+                            elemImage.html('');
+    
+                            $('<div></div>').appendTo(elemImage)
+                                .addClass('tile-counter')
+                                .html(counter);
+                        }
+
                         if(settings.bookmarks[id].images) getTileImage(elemTile, settings.bookmarks[id].icon);
 
                     }
@@ -610,7 +622,7 @@ function insertWorkspaceItems(wsId, params) {
 
     //  Set defaults for optional parameters
     // --------------------------------------
-    let id                  = 'list';           // id of DOM element where the list will be inseerted
+    let id                  = 'list';           // id of DOM element where the list will be inserted
     let header              = true;             // Hide header with setting this to false
     let headerLabel         = 'Items';          // Set the header text
     let headerToggle        = false;            // Enable header toggles
@@ -855,7 +867,7 @@ function insertWorkspaceItemsData(id) {
                     elemTile.click(function(e) {
                         e.preventDefault();
                         e.stopPropagation();
-                        clickWorkspaceItem(e, $(this));
+                        clickWorkspaceItem($(this), e);
                     });
 
 
@@ -906,7 +918,7 @@ function insertWorkspaceViews(wsId, params) {
 
     //  Set defaults for optional parameters
     // --------------------------------------
-    let id                  = 'workspace';      // id of DOM element where the list will be inseerted
+    let id                  = 'workspace';      // id of DOM element where the list will be inserted
     let header              = true;             // Hide header with setting this to false
     let headerLabel         = 'Items';          // Set the header text
     let headerToggle        = false;            // Enable header toggles
@@ -1448,7 +1460,7 @@ function insertSearch(params) {
 
     //  Set defaults for optional parameters
     // --------------------------------------
-    let id           = 'search';            // id of DOM element where the list will be inseerted
+    let id           = 'search';            // id of DOM element where the list will be inserted
     let header       = true;                // Hide header with setting this to false
     let headerLabel  = 'Search';            // Set the header text
     let headerToggle = false;               // Enable header toggles
@@ -1689,3 +1701,409 @@ function insertSearchDataDone(id, data) {}
 function clickSearchResult(elemClicked, e) {
     openItemByLink(elemClicked.attr('data-link'));
 }
+
+
+
+// Insert advanced SEARCH results
+function insertResults(wsId, filters, params) {
+
+    //  Set defaults for optional parameters
+    // --------------------------------------
+    let id              = 'results';        // id of DOM element where the list will be inserted
+    let header          = true;             // Hide header (and toolbar) by setting this to false
+    let headerLabel     = 'Results';        // Set the header text
+    let headerToggle    = false;            // Enable header toggles
+    let compactDisplay  = false;            // Optimizes CSS settings for a compact display
+    let openInPLM       = true;             // Adds button to open selected element in PLM
+    let reload          = true;             // Enable reload button for the list
+    let search          = true;             // Adds quick filtering using search input on top of list
+    let placeholder     = 'Search';         // Set placeholder text for quick filtering input
+    let layout          = 'table';          // Content layout (tiles, list or table)
+    let tileSize        = 's';              // Tile size (xxs, xs, s, m, l, xl, xxl)
+    let tileIcon        = 'icon-product';   // Tile icon to use if no image is available
+    let tileCounter     = false;            // When enabled, a counter will be displayed instead of the icon
+    let tileSubtitle    = '';               // When enabled, a counter will be displayed instead of the icon
+    let tilesGroupBy    = '';               // Field ID to use for grouping of items (leave blank to disable grouping)
+    let multiSelect     = false;            // Enables selection of multiple items
+    let editable        = false;            // When set to true, enables modifications in editable fields
+    let filterEmpty     = false;            // When set to true, adds filter for rows with empty input cells 
+    let filterSelected  = false;            // When set to true, adds filter for selected rows
+    let tableHeaders    = true;             // When set to false, the table headers will not be shown
+    let number          = true;             // When set to true, a counter will be displayed as first column
+    let descriptor      = true;             // When set to true, the descriptor will be displayed as first table column
+    let hideDetails     = false;            // When set to true, detail columns will be skipped, only the descriptor will be shown
+    let tableCounters   = true;             // Display counters at bottom to indicate total, selected, filtered and modified items
+    let totals          = false;            // Enable automatic total calculation for numeric columns, based on selected (or all) items
+    let ranges          = false;            // Enable automatic range indicators for numeric columns, based on selected (or all) items
+    let fields          = [];               // Set columns to be display by providing an array of fieldIds
+    let sort            = [];               // Determines sorting of rows by providing an array of fieldIds
+
+
+    if(isBlank(wsId)) return;
+    if(isBlank(filters)) return;
+
+    if( isBlank(params)               )         params = {};
+    if(!isBlank(params.id)            )             id = params.id;
+    if(!isBlank(params.header)        )         header = params.header;
+    if(!isBlank(params.headerLabel)   )    headerLabel = params.headerLabel;
+    if(!isBlank(params.headerToggle)  )   headerToggle = params.headerToggle;
+    if(!isBlank(params.compactDisplay)) compactDisplay = params.compactDisplay;
+    if(!isBlank(params.openInPLM)     )      openInPLM = params.openInPLM;
+    if(!isBlank(params.reload)        )         reload = params.reload;
+    if(!isBlank(params.search)        )         search = params.search;
+    if(!isBlank(params.placeholder)   )    placeholder = params.placeholder;
+    if(!isBlank(params.layout)        )         layout = params.layout;
+    if(!isBlank(params.tileSize)      )       tileSize = params.tileSize;
+    if(!isBlank(params.tileIcon)      )       tileIcon = params.tileIcon;
+    if(!isBlank(params.tileCounter)   )    tileCounter = params.tileCounter;
+    if(!isBlank(params.tileSubtitle)  )   tileSubtitle = params.tileSubtitle;
+    if(!isBlank(params.tilesGroupBy)  )   tilesGroupBy = params.tilesGroupBy;
+    if(!isBlank(params.multiSelect)   )    multiSelect = params.multiSelect;
+    if(!isBlank(params.editable)      )       editable = params.editable;
+    if(!isBlank(params.filterEmpty)   )    filterEmpty = params.filterEmpty;
+    if(!isBlank(params.filterSelected)) filterSelected = params.filterSelected;
+    if(!isBlank(params.tableHeaders)  )   tableHeaders = params.tableHeaders;
+    if(!isBlank(params.number)        )         number = params.number;
+    if(!isBlank(params.descriptor)    )     descriptor = params.descriptor;
+    if(!isBlank(params.hideDetails)   )    hideDetails = params.hideDetails;
+    if(!isBlank(params.tableCounters) )  tableCounters = params.tableCounters;
+    if(!isBlank(params.totals)        )         totals = params.totals;
+    if(!isBlank(params.ranges)        )         ranges = params.ranges;
+    if(!isBlank(params.fields)        )         fields = params.fields;
+    if(!isBlank(params.sort)          )           sort = params.sort; 
+
+    if(sort.length   === 0) sort.push(filters[0].field);
+    if(fields.length === 0) for(let field of filters) { fields.push(field.field); }
+
+
+    settings.results[id]                = {};
+    settings.results[id].layout         = layout;
+    settings.results[id].tileSize       = tileSize;
+    settings.results[id].tileIcon       = tileIcon;
+    settings.results[id].tileCounter    = tileCounter;
+    settings.results[id].tileSubtitle   = tileSubtitle;
+    settings.results[id].tilesGroupBy   = tilesGroupBy;
+    settings.results[id].multiSelect    = multiSelect;
+    settings.results[id].editable       = editable;  
+    settings.results[id].tableHeaders   = tableHeaders; 
+    settings.results[id].number         = number;  
+    settings.results[id].descriptor     = descriptor;  
+    settings.results[id].hideDetails    = hideDetails;  
+    settings.results[id].totals         = totals;  
+    settings.results[id].ranges         = ranges;  
+    settings.results[id].wsId           = wsId; 
+    settings.results[id].filters        = filters;    
+    settings.results[id].fields         = fields;
+    settings.results[id].sort           = sort;
+
+    settings.results[id].fields.unshift('DESCRIPTOR');
+
+    console.log(openInPLM);
+
+
+    let elemTop = $('#' + id)
+        .addClass('panel-top')
+        .addClass('list-top')
+        .addClass('results')
+        .attr('data-wsid', wsId)
+        .html('');
+
+    if(multiSelect) elemTop.addClass('multi-select');
+    if(compactDisplay) elemTop.addClass('compact');
+    if(layout.toLowerCase() !== 'table') tableCounters = false;
+    if(tableCounters) elemTop.addClass('with-counters');
+
+    if(header) {
+
+        let elemHeader = $('<div></div>', {
+            id : id + '-header'
+        }).appendTo(elemTop).addClass('panel-header');
+
+        if(headerToggle) {
+
+            $('<div></div>').appendTo(elemHeader)
+                .addClass('panel-header-toggle')
+                .addClass('icon')
+                .addClass('icon-collapse');
+
+            elemHeader.addClass('with-toggle');
+            elemHeader.click(function() {
+                togglePanelHeader($(this));
+            });
+
+        }
+
+        $('<div></div>').appendTo(elemHeader)
+            .addClass('panel-title')
+            .attr('id', id + '-title')
+            .html(headerLabel);
+
+        let elemToolbar = $('<div></div>').appendTo(elemHeader)
+            .addClass('panel-toolbar')
+            .attr('id', id + '-toolbar');
+
+        if(openInPLM) {
+
+            $('<div></div>').appendTo(elemToolbar)
+                .addClass('button')
+                .addClass('icon')
+                .addClass('icon-open')
+                .addClass('xs')
+                .addClass('list-open-in-plm')
+                .addClass('list-single-select-action')
+                .attr('title', 'Open the selected item in PLM')
+                .click(function() {
+                    clickListOpenInPLM($(this));
+                });
+    
+        }            
+
+        if(filterSelected) {
+                
+            $('<div></div>').appendTo(elemToolbar)
+                .addClass('button')
+                .addClass('icon')
+                .addClass('icon-check-box-checked')
+                .addClass('list-filter-selected')
+                .addClass('list-single-select-action')
+                .addClass('list-multi-select-action')
+                .attr('title', 'Focus on selected rows')
+                .click(function() {
+                    clickListFilterSelected($(this));
+                });
+
+        }
+
+        $('<div></div>').appendTo(elemToolbar)
+            .addClass('button')
+            .addClass('icon')
+            .addClass('icon-deselect-all')
+            .addClass('xs')
+            .addClass('list-multi-select-action')
+            .addClass('list-single-select-action')
+            .attr('id', id + '-deselect-all')
+            .attr('title', 'Deselect all')
+            .click(function() {
+                clickListDeselectAll($(this));
+            });
+
+        if(editable) {
+
+            appendOverlay(true);
+
+            $('<div></div>').appendTo(elemToolbar)
+                .addClass('button')
+                .addClass('default')
+                .html('Save')
+                .hide()
+                .attr('id', id + '-save')
+                .click(function() {
+                    clickListSave($(this));
+                });
+
+            if(filterEmpty) {
+                
+                $('<div></div>').appendTo(elemToolbar)
+                    .addClass('button')
+                    .addClass('icon')
+                    .addClass('icon-filter-empty')
+                    .addClass('list-filter-empty')
+                    .attr('title', 'Focus on rows having empty inputs')
+                    .click(function() {
+                        clickListFilterEmptyInputs($(this));
+                    });
+
+            }
+
+        } 
+
+        if(reload) {
+
+            $('<div></div>').appendTo(elemToolbar)
+                .addClass('button')
+                .addClass('icon')
+                .addClass('icon-refresh')
+                .attr('id', id + '-reload')
+                .attr('title', 'Reload this list')
+                .click(function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    insertResultsData(id);
+                });
+
+        }
+
+        $('<div></div>').appendTo(elemToolbar)
+            .addClass('button') 
+            .addClass('with-icon') 
+            .addClass('icon-filter') 
+            .addClass('flat-bom-counter') 
+            .html('0 rows selected')
+            .hide()
+            .click(function() {
+                $(this).toggleClass('selected');
+                filterFlatBOMByCounter($(this));
+            }); 
+        
+        if(search) {
+
+            let elemSearch = $('<div></div>').appendTo(elemToolbar)
+                .addClass('button')
+                .addClass('with-icon')
+                .addClass('icon-search-list');
+
+            $('<input></input>').appendTo(elemSearch)
+                .attr('placeholder', placeholder)
+                .attr('id', id + '-search-input')
+                .addClass('list-search-input')
+                .keyup(function() {
+                    searchInList(id, $(this));
+                });
+
+        }
+
+    } else { elemTop.addClass('no-header'); }
+
+    appendProcessing(id, false);
+    appendNoDataFound(id, 'icon-no-data', 'No Results');
+
+    $('<div></div>').appendTo(elemTop)
+        .attr('id', id + '-list')
+        .addClass('panel-content')
+        .addClass('panel-list')
+        .addClass('no-scrollbar');
+
+    let elemCounters = $('<div></div>').appendTo(elemTop)
+        .attr('id', id + '-list-counters')
+        .addClass('list-counters')
+        .hide();
+
+    if(tableCounters) {
+
+        $('<div></div>').appendTo(elemCounters)
+            .attr('id', id + '-list-counter-total')
+            .addClass('list-counter-total');
+        
+        $('<div></div>').appendTo(elemCounters)
+            .attr('id', id + '-list-counter-filtered')
+            .addClass('list-counter-filtered');
+        
+        $('<div></div>').appendTo(elemCounters)
+            .attr('id', id + '-list-counter-selected')
+            .addClass('list-counter-selected');      
+
+        $('<div></div>').appendTo(elemCounters)
+            .attr('id', id + '-list-counter-changed')
+            .addClass('list-counter-changed');
+
+        elemCounters.show();
+
+    } 
+
+    insertResultsDone(id);
+    insertResultsData(id);
+
+}
+function insertResultsDone(id) {}
+function insertResultsData(id) {
+
+    let elemParent  = $('#' + id);
+    let timestamp   = new Date().getTime();
+    let elemList    = $('#' + id + '-list');
+    
+    elemParent.attr('data-timestamp', timestamp);
+    elemList.html('').hide();
+
+    $('#' + id + '-processing').show();
+
+    let params = {
+        wsId        : settings.results[id].wsId,
+        filter      : settings.results[id].filters,
+        fields      : settings.results[id].fields,
+        sort        : settings.results[id].sort,
+        timestamp   : timestamp
+    }
+
+    let requests = [
+        $.get( '/plm/search', params),
+        $.get( '/plm/fields', { 'wsId' : settings.results[id].wsId }),
+    ]
+
+    Promise.all(requests).then(function(responses) {
+
+        if(responses[0].params.timestamp === $('#' + id).attr('data-timestamp')) {
+
+            let items   = responses[0].data.row;
+            let columns = [];
+                
+            for(let column of settings.results[id].fields) {
+                for(let field of responses[1].data) {
+                    let fieldId = field.__self__.split('/').pop();
+                    if(column === fieldId) {
+                        field.displayName = field.name;
+                        field.fieldId = column;
+                        columns.push(field);
+                    }
+                }
+            }
+
+            settings.results[id].columns = columns;
+
+            for(let item of items) {
+
+                item.link       = '/api/v3/workspaces/' + settings.results[id].wsId + '/items/' + item.dmsId;
+                item.title      = '';
+                item.subtitle   = '';
+                item.partNumber = '';
+                item.data       = [];
+                item.quantity   = '';
+
+                for(let column of settings.results[id].columns) {
+
+                    let value = '';
+
+                    for(let field of item.fields.entry) {
+
+                        if(field.key === 'DESCRIPTOR') item.title = field.fieldData.formattedValue;
+                        if(field.key === config.viewer.fieldIdPartNumber) item.partNumber = field.fieldData.value;
+                        if(field.key === settings.results[id].tileSubtitle) item.subtitle = field.fieldData.value;
+                        if(field.key === settings.results[id].tilesGroupBy) item.groupKey = field.fieldData.value;
+
+                        if(field.key === column.fieldId) {
+                            value = field.fieldData.value;
+                            break;
+                        }
+
+
+                    }
+
+                    item.data.push({
+                        fieldId : column.fieldId,
+                        value   : value
+                    });
+
+                }
+
+            }
+
+            if(settings.results[id].layout === 'table') {                
+                
+                genTable(id ,settings.results[id], items);
+                
+            } else {
+
+                genTilesList(id, items, settings.results[id]);
+
+            }
+
+            if(items.length === 0) $('#' + id + '-no-data').show();
+            $('#' + id + '-processing').hide();
+            elemList.show();
+            insertResultsDataDone(id, responses);
+
+        }
+
+    });
+
+}
+function insertResultsDataDone(id, data) {}
