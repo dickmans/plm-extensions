@@ -7,13 +7,63 @@ th, td {
 img {
     border-radius : 6px;
 }
+a.button {
+    color           : var(--color-blue-600);
+    font-weight     : 700;
+    text-decoration : none;
+    border          : 1px solid black;
+    border-radius   : 3px;
+    padding         : 14px 40px;
+    margin-top      : 10px;
+    display         : inline-block;
+}
+a.button:hover {
+    border-color : var(--color-blue-500);
+}
+.dark-theme a.button,
+.black-theme a.button {
+    background  : var(--color-blue-500);
+    border      : none;
+    color       : white;
+}
+.dark-theme a.button:hover,
+.black-theme a.button:hover {
+    background : var(--color-blue-600);
+}
+
+
+
 .split-left {
     overflow-y : auto;
 }
+.nav-subtitle {
+    margin-bottom : 30px;
+}
 .nav-header {
+    cursor      : pointer;
+    display     : flex;
     font-weight : 800;
     font-size   : 20px;
-    padding     : 50px 0px 10px;
+    line-height : 24px;
+    padding     : 20px 0px 10px;
+}
+.nav-header:hover::before {
+    color : var(--color-blue-500);
+}
+.nav-header::before {
+    font-family             : 'Material Symbols Sharp';
+    margin-right            : var(--spacer-xxs);
+    text-rendering          : optimizeLegibility;
+    -webkit-font-smoothing  : antialiased;
+    content                 : '\e5cf';
+    line-height             : 24px;
+    font-size               : 24px;
+}
+.nav-header.collapsed::before {
+    content: '\e5cc';
+}
+.nav-description {
+    padding-left : 28px;
 }
 .nav-contents {
     display         : flex;
@@ -21,13 +71,35 @@ img {
     font-size       : 16px;
     gap             : var(--spacer-xxs);
     line-height     : 22px;
-    padding         : var(--spacer-xs) 0px;
+    padding         : var(--spacer-xs) 0px 40px 0px;
 }
 .nav-content {
-    color   : var(--color-blue-500);
-    cursor  : pointer;
+    color       : var(--color-blue-500);
+    cursor      : pointer;
+    margin-left : 28px;
 }
-
+.nav-content:hover {
+    font-weight : bold;
+}
+.nav-content.selected::after {
+    content :'\f81d';
+    font-variation-settings: 'FILL' 1;
+    position : absolute;
+    left : 0px;
+    font-family: 'Material Symbols Sharp';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 22px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+}
 
 #doc-contents {
     overflow-x : hidden;
@@ -78,7 +150,8 @@ img {
 .indent-4 { padding-left : 100px; }
 .indent-5 { padding-left : 130px; }
 
-table td:nth-child(1) {
+table td:nth-child(1),
+td.code {
     font-family  : 'Courier New', monospace;
     white-space  : nowrap;
     -webkit-user-select:text;
@@ -89,6 +162,12 @@ table td:nth-child(1) {
     -ms-user-select: text;
     user-select: all;
 }
+span.ref {
+    cursor      : pointer;
+    color       : var(--color-blue-500);
+    font-weight : bold;
+}
+
 
 
 /*  ICONS */

@@ -36,7 +36,7 @@
                 th Default 
             tr 
                 td link 
-                td The API-link of the item containing the attachments
+                td The API-link of the item containing the Bill of Materials
                 td String
                 td Yes
                 td -
@@ -137,6 +137,12 @@
                 td No 
                 td true
             tr 
+                td path 
+                td When set to true, the selected component's path will be shown at bottom, enabling quick navigation to parent(s)
+                td Boolean
+                td No 
+                td true
+            tr 
                 td counters 
                 td When set to true, a footer will inidicate total items, selected items and filtered items
                 td Boolean
@@ -225,12 +231,19 @@
                         li bomData = BOM data as provided by the REST API
                         li flatBOMData = Flat BOM data as provided by the REST API
             tr 
-                td clickBOMItemDone(e, elemClicked) 
-                td When users click the upload button, this function gets invoked. It is only available if 'upload' is set to true and will open the file browser to initiate the file upload process.
+                td clickBOMItem(elemClicked, e) 
+                td When users click a BOM item, this function gets invoked
                 td 
                     ul 
-                        li e = click event object
                         li elemClicked = jQuery element of BOM row that got clicked
+                        li e = click event object
+            tr 
+                td clickBOMItemDone(elemClicked, e) 
+                td When users click a BOM item and the BOM view got updated accordingly (i.e. by selecting the given rows and adjusting the toolbar icons), this function gets invoked
+                td 
+                    ul 
+                        li elemClicked = jQuery element of BOM row that got clicked
+                        li e = click event object
     h2 User Interactions 
     p You can override the behavior of the BOM display with the user interactions shown below. They all receive the UI element that got clicked as parameter elemClicked.
         table.row-hovering

@@ -197,6 +197,7 @@
 .icon-cart-clear::before        { content : '\f4f7'; }
 .icon-cart-checkout::before     { content : '\eb88'; }
 .icon-check::before             { content : '\e86c'; }
+.icon-checkmark::before         { content : '\e5ca'; }
 .icon-check-box::before         { content : '\e835'; }
 .icon-check-box-checked::before { content : '\e834'; }
 .icon-check-circle-add::before  { content : '\f23a'; }
@@ -204,6 +205,7 @@
 .icon-clone::before             { content : '\e14d'; }
 .icon-close::before             { content : '\e5cd'; }
 .icon-collapse::before          { content : '\e5cf'; }
+.icon-contains::before          { content : '\f525'; }
 .icon-create::before            { content : '\e147'; }
 .icon-dashboard::before         { content : '\e871'; }
 .icon-delete::before            { content : '\e872'; }
@@ -212,11 +214,12 @@
 .icon-details::before           { content : '\e0ee'; }
 .icon-disconnect::before        { content : '\e16f'; }
 .icon-donut-chart::before       { content : '\e917'; }
-.icon-edit-multiple::before     { content : '\e745'; }
+.icon-ends-with::before         { content : '\e31c'; }
+.icon-equals::before            { content : '\f77b'; }
 .icon-expand::before            { content : '\e5cc'; }
 .icon-factory::before           { content : '\ebbc'; }
 .icon-filter::before            { content : '\e152'; }
-.icon-filter-empty::before      { content : '\e7b3'; }
+.icon-filter-empty::before      { content : '\f703'; }
 .icon-finish::before            { content : '\eaf8'; }
 .icon-first::before             { content : '\e400'; font-variation-settings: 'FILL' 1 }
 .icon-fold::before              { content : '\e5d6'; }
@@ -236,6 +239,9 @@
 .icon-link::before              { content : '\e157'; }
 .icon-link-add::before          { content : '\e178'; }
 .icon-list::before              { content : '\e896'; }
+.icon-list-edit::before         { content : '\e745'; }
+.icon-list-add::before          { content : '\e03b'; }
+.icon-list-remove::before       { content : '\eb80'; }
 .icon-lock::before              { content : '\e897'; }
 .icon-markup::before            { content : '\e560'; }
 .icon-menu::before              { content : '\e5d2'; }
@@ -255,7 +261,7 @@
 .icon-raw-material::before      { content : '\f86a'; }
 .icon-refresh::before           { content : '\e627'; }
 .icon-released::before          { content : '\e031'; }
-.icon-remove::before            { content : '\eb80'; }
+.icon-remove::before            { content : '\e644'; }
 .icon-reset::before             { content : '\f053'; }
 .icon-rules::before             { content : '\f1c2'; }
 .icon-save::before              { content : '\e2c3'; }
@@ -269,6 +275,7 @@
 .icon-show::before              { content : '\e8f4'; }
 .icon-sliders::before           { content : '\e429'; }
 .icon-start::before             { content : '\e1c4'; }
+.icon-starts-with::before       { content : '\ec73'; }
 .icon-status::before            { content : '\ea50'; }
 .icon-stock::before             { content : '\ebb8'; }
 .icon-table::before             { content : '\e3ec'; }

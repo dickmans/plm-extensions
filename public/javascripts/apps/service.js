@@ -29,35 +29,6 @@ let paramsProcesses = {
      'fieldIdMarkup'  : ''
 }
 
-applicationFeatures = {
-    'homeButton'            : true,
-    'toggleItemAttachments' : true,
-    'toggleItemDetails'     : true,
-    'manageProblemReports'  : true,
-    'showStock'             : true,
-    'requestWorkflowActions': true,
-    'viewer' : {
-        'cube'          : false,
-        'orbit'         : false,
-        'firstPerson'   : false,
-        'camera'        : false,
-        'measure'       : true,
-        'section'       : true,
-        'explodedView'  : true,
-        'modelBrowser'  : false,
-        'properties'    : false,
-        'settings'      : false,
-        'fullscreen'    : true,
-        'markup'        : true,
-        'ghosting'      : true,
-        'highlight'     : true,
-        'reset'         : true,
-        'fitToView'     : true,
-        'single'        : true,
-        'views'         : true
-    }
-}
-
 
 $(document).ready(function() {
     
@@ -637,13 +608,12 @@ function insertBOMSpareParts(elemParent, selectedItems, urnsSpareParts, flatBOM)
             .addClass('spare-part-image')
             .addClass('tile-image');
                 
-        let valueImage = getFlatBOMCellValue(flatBOM, selectedItem.node.item.link, urnsSpareParts.image);
-        let linkImage = (valueImage === '') ? '' : valueImage;
+        let linkImage = getFlatBOMCellValue(flatBOM, selectedItem.node.item.link, urnsSpareParts.image);
 
         getImageFromCache(elemSparePartImage, { 'link' : linkImage }, 'settings', function() {});
     
         if(linkImage === '') {
-            $.get('/plm/details', { 'link' : link}, function(response) {
+            $.get('/plm/details', { 'link' : selectedItem.node.item.link}, function(response) {
                 linkImage  = getFirstImageFieldValue(response.data.sections);
                 $('.spare-part').each(function() {
                     if($(this).attr('data-link') === response.params.link) {
@@ -733,7 +703,7 @@ function insertBOMSpareParts(elemParent, selectedItems, urnsSpareParts, flatBOM)
         $('<div></div>').appendTo(elemSparePartSide)
             .addClass('button')
             .addClass('icon')
-            .addClass('icon-cart-remove')
+            .addClass('icon-delete')
             .addClass('cart-remove')
             .click(function(e) {
                 e.preventDefault();
@@ -779,7 +749,7 @@ function setSparePartStockStatus() {
 
 
 // BOM User Interactions
-function clickBOMItem(e, elemClicked) {
+function clickBOMItem(elemClicked, e) {
 
     $('.bom-item').removeClass('selected-context');
 
@@ -808,6 +778,7 @@ function clickBOMItem(e, elemClicked) {
         // updateViewer(elemClicked.attr('data-part-number'));
     }
 
+    updateBOMPath(elemClicked);
     updateBOMCounters(elemClicked.closest('.bom').attr('id'));
 
     // if(maintenanceMode) {
@@ -922,7 +893,6 @@ function setSparePartsList(elemItem) {
     let count       = 0;
     let level       = 0;
     let elemNext    = $('tr').closest().first();
-    let isSparePart = elemItem.hasClass('is-spare-part');
     let isNode      = elemItem.hasClass('node');
 
     if(typeof elemItem !== 'undefined') {
@@ -962,9 +932,25 @@ function setSparePartsList(elemItem) {
     } while(levelNext > level);
 
     let elemCustomMessage = $('#custom-message');
-    
+
+    // If no spare part is present, validate if parents are spare parts
+    if(list.length === 0) {
+        let parents = getBOMItemPath(elemItem);
+        for(let parent of parents.items) {
+            if(parent.hasClass('is-spare-part')) {
+                let linkParent = parent.attr('data-link');
+                list.push(linkParent);
+                $('#items-list').children().each(function() {
+                    if($(this).attr('data-link') === linkParent) $(this).show();
+                });
+                break;
+            }
+        }
+    }
+
+    // Display message to order custom spare part if enabled
     if(elemCustomMessage.length > 0) {   
-        if(isSparePart) {
+        if(list.length > 0) {
             elemCustomMessage.hide();
         } else if(!isNode) {
             elemCustomMessage.attr('data-link', elemItem.attr('data-link')).show();
@@ -1040,6 +1026,9 @@ function viewerClickReset() {
 }
 function onViewerSelectionChanged(event) {
 
+
+    if(viewerHideSelected(event)) return;
+
     if(disableViewerSelectionEvent) return;
 
     if (event.dbIdArray.length === 1) {
@@ -1081,7 +1070,7 @@ function onViewerSelectionChanged(event) {
         if(elemContext.length === 0) {
             resetSparePartsList();
         } else {
- 
+    
             let linkItem = elemContext.attr('data-link');
             elemContext.addClass('selected');
             bomDisplayItem(elemContext);

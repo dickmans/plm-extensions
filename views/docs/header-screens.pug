@@ -1,0 +1,27 @@
+#header-screens.doc-content 
+    h1 Page Layout consisting of Header &amp; Screens
+    .definition Each application is based on a master layout consisting of the header on top and a single or multiple screen elements underneath. This helps to create standardised single page applications even when using multiple dialogs.
+    p
+        img(src='images/docs/header-screens-1.png'  style='max-width:1024px;')
+    h2 Header Elements
+    p The header may consist of multiple elements. Define the elements to use in your #header tag of the pug file. See the example of the Services Portal application which makes use of all the available elements:
+    img(src='images/docs/header-screens-4.png'  style='max-width:973px;')
+    p This pug will display the logo and title to the very left (the latter one is set to match the application title automatically). The subtitle also will always be left-aligned and usually display the context item/process descriptor. The avatar image gets inserted automtically to the very right while the space between the avator and the (sub)title will be used for the toolbar.
+    img(src='images/docs/header-screens-2.png'  style='max-width:1024px;')
+    p As each element has a unique identfier, your application can hide/show and update them easily. For example, to set the header-subtitle on the fly, use this code:
+    p.code  
+        span.indent-1 $('#header-subtitle').html('This is the new subtitle').show();
+    h2 Header Styling
+    p Your app may use a dark or bright header. If class 'dark' is assigned to the #header element (like in the Services Portal pug shown above), the toolbar will be shown in dark color.
+    img(src='images/docs/header-screens-5.png'  style='max-width:1024px;')
+    p However, if you do not apply this class 'dark', the header will be shown in a light color. The final colors obviously are driven by the selected theme as well:
+    img(src='images/docs/header-screens-6.png'  style='max-width:1024px;')
+    p As you can see in the screenshots above, the header toolbar will automatically hide the text of buttons that contain icon and text if the screen is now wide enough to display both at the same time.
+    h2 Screen Elements
+    p Below the #header element, an application has at least one element of class screen. This given class ensures that the elemeent spans across the whole screen using absolute positioning without overlapping with the #header. There can also be multiple screen per app. The Services Portal for example use multiple screen to either display the landing page, the main screen or a selected request's details:
+    img(src='images/docs/header-screens-3.png'  style='max-width:606px;')
+    p As always, be careful with the indentation in your pug file as the indentation level is used to identifiy the opening and closing of html tags. Always make sure that the .screen elements are at the same level as your #header as they would be considered being child elements otherwise.
+    p If an application uses multiple screens, it is recommended to give them unique name like in the Service Portal app. This makes it very easy to show/hide a given screen by javascript: 
+    p.code 
+        span.indent-1 $('.screen').hide(); // hide all screens
+        span.indent-1 $('#landing').show(); // unhide a selected screen

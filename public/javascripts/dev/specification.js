@@ -15,7 +15,7 @@ let urns = {
 
 let paramsAttachments = { 'layout' : 'list', upload : true};
 
-let edit = false;
+let edit = true;
 
 
 let ebom, flatEBOM, ebomFields;
@@ -702,14 +702,14 @@ function insertApplicationDataTable(id, component) {
                                 });
     
 
-                            // if(!edit) {
+                            if(!edit) {
 
 
                                 elemControl.attr('readonly', true);
                                 elemControl.attr('disabled', true);
                                 elemRowCell.addClass('readonly');  
 
-                            // }
+                            }
 
                             switch (editableField.type) {
     

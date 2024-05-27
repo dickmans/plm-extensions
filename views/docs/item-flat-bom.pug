@@ -1,0 +1,274 @@
+#item-flat-bom.doc-content 
+    h1 insertFlatBOM();
+    .definition  Insert the flattend Bill of Materials of a defined item
+        br
+        |This function gets included in all pages automatically and is defined in 
+        span.path /public/javascripts/contents/item.js
+        |. 
+        br
+        |Styling of the given contents is defined in 
+        span.path /public/stylesheets/contents/item.css 
+        | based on the primary class list-item.
+        img(src='images/docs/item-flat-bom-1.png' style='display:block;margin-top:20px;height:445px;')
+    h2 DOM Elements 
+    p Insert the following base element to your pug file to add the Flat BOM container in your page. You can choose another id than shown here, but will then have to provide your element's id as parameter.
+    p.code #flat-bom 
+    p Add the following optional classes to this DOM element to adjust the contents display:
+    p 
+        table.row-hovering 
+            tr 
+                th Class Name 
+                th Description
+            tr 
+                td surface-level-[1..5]
+                td Add the UI classes surface-level-1 through surface-level-5 to adjust the background color of the BOM panel 
+
+    h2 Parameters
+    p Various parameters can be provided when using insertFlatBOM. The link parameter is required specifically and must be provided as string. All further parameters must be passed by using a JSON object. See this example call: 
+    p.code insertFlatBOM('/api/v3/workspaces/57/items/14669', { openInPLM : true, quantity : true, totals : true, counters : true, compactDisplay : true });
+    p   
+        table.parameters.row-hovering 
+            tr 
+                th.nowrap Parameter 
+                th Description
+                th Type 
+                th Required 
+                th Default 
+            tr 
+                td link 
+                td The API-link of the item containing the Bill of Materials
+                td String
+                td Yes
+                td -
+            tr 
+                td id 
+                td ID of the DOM element where the BOM should be inserted
+                td String
+                td No
+                td bom
+            tr 
+                td header 
+                td Can be used to suppress addition of the panel header element by setting the parameter to false
+                td Boolean
+                td No
+                td true
+            tr 
+                td headerLabel
+                td Sets the header label (if header is enabled)
+                td String
+                td No
+                td Flat BOM
+            tr 
+                td headerToggle 
+                td Enables collapsing and expanding the panel
+                td Boolean
+                td No 
+                td false
+            tr 
+                td compactDisplay 
+                td Optimizes CSS settings for a compact display (when set to true)
+                td Boolean
+                td No 
+                td false
+            tr 
+                td openInPLM 
+                td Adds button to open selected element in PLM (button get disabled when multiple items get selected)
+                td Boolean
+                td No
+                td true
+            tr 
+                td reload 
+                td Enables reload button for the selected view
+                td Boolean
+                td No
+                td true
+            tr 
+                td viewSelector 
+                td Adds drop down menu to select from the available PLM BOM views
+                td Boolean
+                td No
+                td false
+            tr 
+                td search 
+                td Adds quick filtering using search input on top of BOM
+                td Boolean
+                td No
+                td true
+            tr 
+                td placeholder 
+                td Set placeholder text for quick filtering input
+                td String
+                td No 
+                td Search
+            tr 
+                td multiSelect 
+                td Enables selection of multiple items and adds buttons to deselect all elements as well as checkboxes
+                td Boolean
+                td No 
+                td false
+            tr 
+                td editable 
+                td When set to true, enables modifications in editable fields
+                td Boolean
+                td No
+                td false
+            tr 
+                td filterEmpty 
+                td When set to true, adds filter for rows with empty input cells 
+                td Boolean
+                td No
+                td false
+            tr 
+                td filterSelected 
+                td When set to true, adds filter for selected rows
+                td Boolean
+                td No
+                td false
+            tr 
+                td tableHeaders 
+                td When set to false, the table headers will not be shown
+                td Boolean
+                td No 
+                td true
+            tr 
+                td number 
+                td When set to true, a counter will be displayed as first column
+                td Boolean
+                td No
+                td true
+            tr 
+                td descriptor 
+                td When set to true, the descriptor will be displayed as first table column
+                td Boolean
+                td No
+                td true
+            tr 
+                td quantity 
+                td When set to true, the quantity column will be displayed
+                td Boolean
+                td No
+                td false
+            tr 
+                td hideDetails 
+                td When set to true, detail columns will be skipped, only the descriptor will be shown
+                td Boolean
+                td No 
+                td true
+            tr 
+                td counters 
+                td Display counters at bottom to indicate total, selected, filtered and modified items
+                td Boolean
+                td No
+                td true
+            tr 
+                td totals 
+                td Enable automatic total calculation for numeric columns, based on selected (or all) items
+                td Boolean
+                td No
+                td false
+            tr 
+                td ranges 
+                td Enable automatic range indicators for numeric columns, based on selected (or all) items
+                td Boolean
+                td No
+                td false
+            tr 
+                td depth 
+                td BOM Levels to expand
+                td Integer
+                td No 
+                td 10
+            tr 
+                td revisionBias 
+                td Set BOM configuration to expand [release, working, changeOrder, allChangeOrder]
+                td String
+                td No 
+                td release
+            tr 
+                td bomViewName
+                td BOM view of PLM to display (if no value is provided, bomViewId will be used)
+                td String
+                td No
+                td - the first view available -
+            tr 
+                td bomViewId
+                td BOM view of PLM to display (if no value is provided, the first view available will be used)
+                td String
+                td No
+                td - the first view available -
+            tr 
+                td columnsIn 
+                td Define list of columns to include by fieldId; columns not included in this list will not be shown at all. Keep empty to show all columns.
+                td Array
+                td No 
+                td []
+            tr 
+                td columnsEx
+                td Define list of columns to exclude by fieldId; columns in this list will not be shown at all. Keep empty to show all columns.
+                td Array
+                td No 
+                td []
+    h2 Examples 
+    p   
+        table.row-hovering 
+            tr 
+                th Code 
+                th Screenshot 
+                th Application 
+            tr 
+                td.code 
+                    span.indent-1 insertFlatBOM(link, { 
+                    span.indent-2 compactDisplay : true,
+                    span.indent-2 viewSelector   : true,
+                    span.indent-2 multiSelect    : true,
+                    span.indent-2 editable       : true,
+                    span.indent-2 filterEmpty    : true,
+                    span.indent-2 filterSelected : true,
+                    span.indent-2 quantity       : true,
+                    span.indent-2 totals         : true,
+                    span.indent-2 bomViewName    : 'Procurement'
+                    span.indent-1 });
+                td
+                    img(src='images/docs/item-flat-bom-1.png' style='height:222px;')
+
+    h2 Events 
+    p You can override the following functions in your code to adjust the default behavior.
+    p 
+        table.row-hovering
+            tr 
+                th Function 
+                th Event 
+                th Parameters 
+            tr 
+                td insertFlatBOMDone(id) 
+                td This function gets invoked after the Flat BOM panel elements have been added to the page, before BOM data is being requested from PLM
+                td id = id of the parent div element (i.e. flat-bom)
+            tr 
+                td insertFlatBOMDataDone(id,data) 
+                td When BOM data has been retrieved and BOM rows have been added, this function will be invoked. This function also gets invoked when users select another BOM view in the given drop down (if enabled with parameter 'viewSelector').
+                td 
+                    ul 
+                        li id = id of the parent div element (i.e. bom)
+                        li data = Flat BOM data
+
+    h2 User Interactions 
+    p You can override the behavior of the Flat BOM display with the user interactions shown below. They all receive the UI element that got clicked as parameter elemClicked.
+        table.row-hovering
+            tr 
+                th Function 
+                th Triggering Event 
+            tr 
+                td clickListOpenInPLM(elemClicked) 
+                td User clicks the icon to open the (first) selected item in PLM
+            tr 
+                td clickListDeselectAllDone(elemClicked)
+                td This will trigger when users click the deselect all button
+            tr 
+                td clickListToggleAllDone(elemClicked) 
+                td User clicks the checkbox in the Flat BOM header to select / deselect all rows
+            tr 
+                td clickListItemDone(elemClicked) 
+                td When users click a BOM row element this function gets invoked.
+            tr 
+                td saveListChangesDone(elemClicked) 
+                td Triggers when save operations finished

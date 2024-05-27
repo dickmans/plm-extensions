@@ -1,0 +1,50 @@
+#tutorial-4.doc-content 
+    h3 Tutorial #4
+    h1 Add Header Toggle
+    .definition The application from the previous tutorials so far displays the MOW and the Workspace Views at the same time. Now let's add a toggle to the application header which hides / unhides the MOW to provide more screen space for the Workspace Views if needed. This involves adding a button to the toolbar, adding further CSS settings and basic javascript to toggle a given CSS class.
+        br
+        br
+        |To learn about the header itself and the styling of buttons, you may want to have a look at  
+        span.ref(data-id='header-screens') Header &amp; Screens 
+        |and 
+        span.ref(data-id='buttons') Buttons
+        |.
+        br
+        br
+        |If the steps of this tutorial fail on your side, you can review the tutorial files named 4-header-toggle.* in folders 
+        ul 
+            li views/tutorial
+            li public/javascripts/tutorial
+            li public/stylesheets/tutorial
+    h2 Add Button
+    p Open the pug file of your app to add a new button element to the page:
+    .code views/custom/myapp.pug
+    p Add the button within #header-toolbar using the following pug statement: 
+    .code #toggle-mow.button.with-icon.icon-mow(title="Click to toggle My Outstanding Work on/off") Toggle MOW
+    img(src='images/docs/tutorial-4-01.png'  style='max-width:917px;')
+    p The title attribute enables a tooltip when users hover the given button.
+    h2 Add Javascript Code 
+    p Next, the logic of the button must be implemented: When users click the button, the class 'no-mow' should be assigned or removed from the body element of the page. This class will then apply the given CSS settings to hide the MOW from the page and to resize the Workspaces View at the same tiem. Open the javascript file of your application:
+    .code public/javascript/custom/myapp.js
+    p Add the following code at the location shown by the screenshot below:
+    .code 
+        span.indent-1 $('#toggle-mow').click(function() {
+        span.indent-2 $('body').toggleClass('no-mow');
+        span.indent-1 });
+    img(src='images/docs/tutorial-4-02.png'  style='max-width:396px;')
+    h2 Add CSS Class Settings
+    p Additional settings must be added which only apply if the body element has the class 'no-mow' assigned. Open the CSS file of your application:
+    .code public/stylesheets/custom/myapp.css
+    p Add the following two lines at the end of your CSS:
+    .code 
+        span.indent-1 body.no-mow #mow { left : calc(0px - var(--width-mow) - (2 * var(--width-border))); }
+        span.indent-1 body.no-mow #workspace { left : 0px; };
+    img(src='images/docs/tutorial-4-03.png'  style='max-width:693px;')
+    p The first new setting will move the #mow element to the invisible area to the left by chaning the left position only. While the second setting will resize the #workspace element to start at the very left of the screen.
+    h2 Showtime 
+    p This tutorial required changes to files in folders /public and /views only. Therefore, a restart of the server is NOT required. To validate your new solution, simply refresh your app in the browser or use the button below to open it again:
+    a.button(href='myapp' target='_blank')
+    p As you click the header toolbar button, the MOW on the left now should vanish and return when clicking the button a second time. 
+    img(src='images/docs/tutorial-4-04.png'  style='max-width:1024px;')
+    p You may notice that the elements resize with an animation. This is because all child elements of class .screen have the given css setting applied:
+    img(src='images/docs/tutorial-4-05.png'  style='max-width:668px;')

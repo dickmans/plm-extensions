@@ -1,0 +1,45 @@
+#tutorial-7.doc-content 
+    h3 Tutorial #7
+    h1 Viewer Interactions
+    .definition In the previous tutorial, you added a new application for browsing an item's data. As next step, we will now add interactive cross-highlighting between the BOM and the viewer: When an item gets selected, the given component will get highlighted in the viewer as well. This requires changes to your javascript file only.
+        br
+        br
+        |This tutorial extends the click/select event of insertBOM. In addition, it will invoke viewer features to select the given components. To learn about these library functions and their parameters, you may want to have a look at  
+        span.ref(data-id='item-bom') Item Contents: BOM  
+        |and 
+        span.ref(data-id='viewer-selection') Viewer: Selection
+        |.
+        br
+        br
+        |If the steps of this tutorial fail on your side, you can review the tutorial files named 7-interactions.* in folders 
+        ul 
+            li views/tutorial
+            li public/javascripts/tutorial
+            li public/stylesheets/tutorial
+    h2 Add Cross-Highlighting
+    p Open the javascript file of your application:
+    p.code public/javascripts/custom/myexplorer.js
+    p The selection of viewer components can only work if the BOM display is aware of the item's number / part number. Therefore, you have to define a BOM view to use by insertBOM(). Provide the name of a BOM view which contains this number field - and suppress the display of further details: 
+    .code insertBOM(link, { bomViewName : 'Details', hideDetails : true} );
+    img(src='images/docs/tutorial-7-01.png'  style='max-width:573px;')
+    p Now, when you refresh your application, your browser's inspector would reveal that each BOM row has a data-part-number property to store the given item number. This is not required to do, but in case this tutorial fails on your end, this is good for troubleshooting:
+    img(src='images/docs/tutorial-7-02.png'  style='max-width:962px;')
+    p Next step is about adding the code to run when users click a BOM entry. We will override the given function of insertBOM() which gets triggered with every click on item: 
+    .code 
+        span.indent-1 function clickBOMItemDone(elemClicked) {
+        span.indent-2 iif(elemClicked.hasClass('selected')) { 
+        span.indent-3 viewerSelectModel(elemClicked.attr('data-part-number'));
+        span.indent-3 insertDetails(elemClicked.attr('data-link'));
+        span.indent-3 insertAttachments(elemClicked.attr('data-link'));
+        span.indent-2 } else {
+        span.indent-3 viewerResetSelection();
+        span.indent-2 }
+        span.indent-1 }
+    img(src='images/docs/tutorial-7-03.png'  style='max-width:560px;')
+    p With elemClicked, we can access the selected BOM item and read its properties like the data-part-number. Everytime a user clicks an item, the BOM display will toggle the class 'selected' to determine if the click was used to select or deselect an item. This information is used to either select the given model in the viewer or to reset the view. When a new item gets selected, insertDetails() and insertAttachments() will be triggered as well to display data of the given item to the right.
+    h2 Showtime 
+    p Use the same link as in the previous tutorial to access this app in context of a given item.
+    a.button(href='myexplorer?wsId=57&dmsId=14669' target='_blank')
+    p Now, with every click on a BOM item, the viewer will get updated - as well as the details and the attachments
+    img(src='images/docs/tutorial-7-04.png'  style='max-width:1024px;')
+    

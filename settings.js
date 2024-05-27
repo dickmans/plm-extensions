@@ -9,10 +9,11 @@ let defaultTheme    = 'light';
 
 // -------------------------------------------------------------------------------------------
 // OVERRIDE SETTINGS WITH ENVIRONMENT VARIABLES
-clientId     = (typeof process.env.CLIENT_ID     === 'undefined') ? clientId     : process.env.CLIENT_ID;
-clientSecret = (typeof process.env.CLIENT_SECRET === 'undefined') ? clientSecret : process.env.CLIENT_SECRET;
-tenant       = (typeof process.env.TENANT        === 'undefined') ? tenant       : process.env.TENANT;
-redirectUri  = (typeof process.env.REDIRECT_URI  === 'undefined') ? redirectUri  : process.env.REDIRECT_URI;
+clientId     = (typeof process.env.CLIENT_ID      === 'undefined') ? clientId     : process.env.CLIENT_ID;
+clientSecret = (typeof process.env.CLIENT_SECRET  === 'undefined') ? clientSecret : process.env.CLIENT_SECRET;
+tenant       = (typeof process.env.TENANT         === 'undefined') ? tenant       : process.env.TENANT;
+redirectUri  = (typeof process.env.REDIRECT_URI   === 'undefined') ? redirectUri  : process.env.REDIRECT_URI;
+defaultTheme = (typeof process.env.DEFAUlT_THEME  === 'undefined') ? defaultTheme : process.env.DEFAUlT_THEME;
 
 let protocol  = redirectUri.split('://')[0];
     protocol  = (typeof process.env.PROTOCOL === 'undefined') ? protocol : process.env.PROTOCOL;
@@ -30,6 +31,7 @@ exports.clientId        = clientId;
 exports.clientSecret    = clientSecret;
 exports.tenant          = tenant; 
 exports.redirectUri     = redirectUri;
+exports.defaultTheme    = defaultTheme;
 exports.protocol        = protocol;
 exports.port            = port;
 exports.debugMode       = true;
@@ -168,10 +170,11 @@ exports.config = {
     }],
 
     'explorer' : {
-        'bomViewName'           : 'Details',
-        'fieldIdPRImage'        : 'IMAGE_1',
-        'fieldIdPRContext'      : 'AFFECTED_ITEM',
-        'wsIdProblemReports'    : 82,
+        'bomViewName'          : 'Details',
+        'fieldIdPRImage'       : 'IMAGE_1',
+        'fieldIdPRContext'     : 'AFFECTED_ITEM',
+        'wsIdItems'            : 57,
+        'wsIdProblemReports'   : 82,
         'wsIdSupplierPackages' : 147,
         'kpis' : [{
             'id'        : 'lifecycle',
@@ -438,8 +441,30 @@ exports.config = {
                 { 'value' : 'Not Required'  , 'count' : 0, 'color' : colors.list[3], 'vector' : vectors.list[0] },
                 { 'value' : 'Compliant'     , 'count' : 0, 'color' : colors.list[4], 'vector' : vectors.green }
             ]
+        }],
+        'viewerFeatures': {
+            'cube'          : false,
+            'orbit'         : false,
+            'firstPerson'   : false,
+            'camera'        : false,
+            'measure'       : true,
+            'section'       : true,
+            'explodedView'  : true,
+            'modelBrowser'  : false,
+            'properties'    : false,
+            'settings'      : false,
+            'fullscreen'    : true,
+            'markup'        : true,
+            'hide'          : true,
+            'ghosting'      : true,
+            'highlight'     : true,
+            'single'        : true,
+            'fitToView'     : true,
+            'reset'         : true,
+            'views'         : true,
+            'selectFile'    : true
         }
-    ]},
+    },
 
     'impactanalysis' : {
         'fieldIdProposedChange'             : 'PROPOSED_CHANGE',
@@ -510,6 +535,29 @@ exports.config = {
         'fieldIdImage'  : 'IMAGE',
         'fieldIdMarkup' : 'MARKUP',
         'transitionId'  : 'CLOSE_REVIEW',
+        'bomViewName'   : 'Basic',
+        'viewerFeatures': {
+            'cube'          : false,
+            'orbit'         : false,
+            'firstPerson'   : false,
+            'camera'        : false,
+            'measure'       : true,
+            'section'       : true,
+            'explodedView'  : true,
+            'modelBrowser'  : false,
+            'properties'    : false,
+            'settings'      : false,
+            'fullscreen'    : true,
+            'markup'        : true,
+            'hide'          : true,
+            'ghosting'      : true,
+            'highlight'     : true,
+            'single'        : true,
+            'fitToView'     : true,
+            'reset'         : true,
+            'views'         : true,
+            'selectFile'    : true
+        },
         'workspaces'    : {
             'reviews' : {
                 'id'        : 76,
@@ -552,32 +600,34 @@ exports.config = {
         'requestSectionsExcluded': ['Workflow Activity'],
         'requestColumnsExcluded' : ['UNIT_COST', 'TOTAL_COST', 'MAKE_OR_BUY', 'MANUFACTURER', 'MANUFACTURER_PN', 'LEAD_TIME', 'LONG_LEAD_TIME'],
         'applicationFeatures' : {
-            // 'homeButton'            : true,
-            // 'toggleItemAttachments' : true,
-            // 'toggleItemDetails'     : true,
-            // 'manageProblemReports'  : true,
-            // 'showStock'             : true,
-            // 'requestWorkflowActions': true,
-            // 'viewer' : {
-            //     'cube'          : false,
-            //     'orbit'         : false,
-            //     'firstPerson'   : false,
-            //     'camera'        : false,
-            //     'measure'       : true,
-            //     'section'       : true,
-            //     'explodedView'  : true,
-            //     'modelBrowser'  : false,
-            //     'properties'    : false,
-            //     'settings'      : false,
-            //     'fullscreen'    : true,
-            //     'markup'        : false,
-            //     'ghosting'      : true,
-            //     'highlight'     : true,
-            //     'reset'         : true,
-            //     'fitToView'     : true,
-            //     'single'        : true,
-            //     'views'         : true
-            // }
+            'homeButton'            : true,
+            'toggleItemAttachments' : true,
+            'toggleItemDetails'     : true,
+            'manageProblemReports'  : true,
+            'showStock'             : true,
+            'requestWorkflowActions': true
+        },
+        'viewerFeatures' : {
+            'cube'          : false,
+            'orbit'         : false,
+            'firstPerson'   : false,
+            'camera'        : false,
+            'measure'       : true,
+            'section'       : true,
+            'explodedView'  : true,
+            'modelBrowser'  : false,
+            'properties'    : false,
+            'settings'      : false,
+            'fullscreen'    : true,
+            'markup'        : true,
+            'hide'          : true,
+            'ghosting'      : true,
+            'highlight'     : true,
+            'single'        : true,
+            'fitToView'     : true,
+            'reset'         : true,
+            'views'         : true,
+            'selectFile'    : true
         }
     },
 

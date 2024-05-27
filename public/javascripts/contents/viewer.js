@@ -4,7 +4,9 @@ let newInstance                 = true;
 let ghosting                    = true;
 let disableViewerSelectionEvent = false;
 let viewerDone                  = false;
+let viewerFiles                 = [];
 let dataInstances               = [];
+let hiddenInstances             = [];
 let markupStyle                 = {};
 
 let viewer, markup, markupsvg, curViewerState, restoreMarkupSVG, restoreMarkupState, baseStrokeWidth;
@@ -59,11 +61,15 @@ let viewerSettings = {
 }
 
 // Launch Viewer
-function initViewer(id, data, color, params) {
+function initViewer(id, viewables, params) {
 
-    if(isBlank(data)  ) return;
-    if(isBlank(id)    ) id = 'viewer';
-    if(isBlank(params)) params = {};
+    if(isBlank(viewables)) return;
+    if(isBlank(id)       ) id = 'viewer';
+    if(isBlank(params)   ) params = {};
+
+    if(!Array.isArray(viewables)) viewables = [viewables];
+
+    viewerFiles = viewables;
 
     let surfaceLevel = getSurfaceLevel($('#' + id)).split('surface-')[1];
     viewerSettings.backgroundColor = viewerBGColors[theme][surfaceLevel];
@@ -114,6 +120,7 @@ function initViewer(id, data, color, params) {
     $('#' + id + '-message').hide();
     $('#' + id + '-processing').hide();
     $('#' + id).show();
+    $('#viewer-file-browser').remove();
 
     dataInstances = [];
 
@@ -122,7 +129,7 @@ function initViewer(id, data, color, params) {
         env         : 'AutodeskProduction',
         api         : 'derivativeV2',  // for models uploaded to EMEA change this option to 'derivativeV2_EU'
         getAccessToken  : function(onTokenReady) {
-            var token = data.token;
+            var token = viewables[0].token;
             var timeInSeconds = 3600; 
             onTokenReady(token, timeInSeconds);
         }
@@ -153,7 +160,7 @@ function initViewer(id, data, color, params) {
                 return;
             }
 
-            Autodesk.Viewing.Document.load('urn:'+ data.urn, onDocumentLoadSuccess, onDocumentLoadFailure);
+            Autodesk.Viewing.Document.load('urn:'+ viewables[0].urn, onDocumentLoadSuccess, onDocumentLoadFailure);
             
         });
     
@@ -161,7 +168,7 @@ function initViewer(id, data, color, params) {
 
         viewerUnloadAllModels();
         newInstance = false;
-        Autodesk.Viewing.Document.load('urn:'+ data.urn, onDocumentLoadSuccess, onDocumentLoadFailure);
+        Autodesk.Viewing.Document.load('urn:'+ viewables[0].urn, onDocumentLoadSuccess, onDocumentLoadFailure);
 
     } 
     
@@ -212,6 +219,10 @@ function setViewerFeatures() {
     if(isBlank(applicationFeatures)) return;
     if(isBlank(applicationFeatures.viewer)) return;
 
+    let selectionToolbarFeatures = [];
+    let viewsToolbar             = false;
+    let selectFiles              = false;
+
     for(let applicationFeature of Object.keys(applicationFeatures.viewer)) {
 
         if(applicationFeatures.viewer[applicationFeature] === false) {
@@ -242,29 +253,147 @@ function setViewerFeatures() {
                     
         } else {
 
-            switch(applicationFeature) {
-                
-                case 'markup'    : viewerAddMarkupControls();  break;
-                case 'reset'     : viewerAddResetButton();     break;
-                case 'ghosting'  : viewerAddGhostingToggle();  break;
-                case 'highlight' : viewerAddHighlightToggle(); break;
-                case 'fitToView' : viewerAddFitToView();       break;
-                case 'single'    : viewerAddFitFirstInstance();break;
-                case 'views'     : viewerAddViewsToolbar();    break;
+            if(applicationFeature === 'markup') {
+
+                viewerAddMarkupControls(); 
+            
+            } else if(applicationFeature === 'selectFile') {
+
+                selectFiles = applicationFeatures.viewer[applicationFeature]; 
+
+            } else if(viewer.model.is3d()) {
+
+                switch(applicationFeature) {
+                    
+                    case 'hide'      : selectionToolbarFeatures.push(applicationFeature); break;
+                    case 'ghosting'  : selectionToolbarFeatures.push(applicationFeature); break;
+                    case 'highlight' : selectionToolbarFeatures.push(applicationFeature); break;
+                    case 'single'    : selectionToolbarFeatures.push(applicationFeature); break;
+                    case 'fitToView' : selectionToolbarFeatures.push(applicationFeature); break;
+                    case 'reset'     : selectionToolbarFeatures.push(applicationFeature); break;
+                    case 'views'     : viewsToolbar = true;      break;
+
+                }
 
             }
 
         }      
     }
 
+    if(viewer.model.is2d()) {
+
+        $('#customSelectionToolbar').hide();
+        $('#my-custom-toolbar-views').hide();
+
+    } else {
+
+        addCustomSelectionToolbar(selectionToolbarFeatures);
+        if(viewsToolbar) viewerAddViewsToolbar();
+
+    }
+
     if(!isBlank(applicationFeatures.viewer.cube)) {
         if(applicationFeatures.viewer.cube) $('body').removeClass('no-viewer-cube');
     }
 
+    if(selectFiles) insertFileBrowser();
     viewer.toolbar.setVisible(true);
 
 }
+function insertFileBrowser() {
+
+    let elemFileBrowser = $('#viewer-file-browser');
+
+    if(viewerFiles.length > 1) {
+
+        let fileBrowserToolbar = new Autodesk.Viewing.UI.ControlGroup('customFileBrowserToolbar');
+            viewer.toolbar.addControl(fileBrowserToolbar);
+
+        let button = addCustomControl(fileBrowserToolbar, 'button-file-browser', 'icon-folder', 'Switch viewable file');
+            button.onClick = function() { 
+                $('#viewer-file-browser').css('display', 'flex');
+            };
+
+        if(elemFileBrowser.length === 0) {
+
+            elemFileBrowser = $('<div></div>').appendTo($('#viewer'))
+                .attr('id', 'viewer-file-browser');
+
+            let elemFileBrowserPanel = $('<div></div>').appendTo(elemFileBrowser)
+                .addClass('surface-level-1')
+                .attr('id', 'viewer-file-browser-panel');
+
+            let elemFilesHeader = $('<div></div>').appendTo(elemFileBrowserPanel)
+                .attr('id', 'viewer-file-browser-header');
+
+            $('<div></div>').appendTo(elemFilesHeader)
+                .attr('id', 'viewer-file-browser-title')
+                .html('Select Viewing File')
+
+            $('<div></div>').appendTo(elemFilesHeader)
+                .addClass('button')
+                .addClass('icon')
+                .addClass('icon-close')
+                .click(function() {
+                    $('#viewer-file-browser').hide();
+                })
+           
+            let elemFilesList = $('<div></div>').appendTo(elemFileBrowserPanel)
+                .addClass('tiles')    
+                .addClass('list')    
+                .addClass('l')    
+                .attr('id', 'viewer-file-browser-list');
+
+            for(let viewerFile of viewerFiles) {
+
+                let elemFile = $('<div></div>').appendTo(elemFilesList)
+                    .attr('data-urn', viewerFile.urn)
+                    .addClass('tile')
+                    .click(function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        $(this).siblings().removeClass('selected');
+                        $(this).addClass('selected');
+                        $('#viewer-file-browser').hide();
+                        viewerSwitchFile($(this));
+                    })
+
+                let elemFileThumbnail = $('<div></div>').appendTo(elemFile)
+                    .addClass('tile-image');
+
+                $('<img></img>').appendTo(elemFileThumbnail)
+                    .attr('src', viewerFile.thumbnail);
+
+                let elemFileDetails = $('<div></div>').appendTo(elemFile)
+                    .addClass('tile-details');
+
+                $('<div></div>').appendTo(elemFileDetails)
+                    .addClass('tile-title')
+                    .html(viewerFile.name);
+                
+                $('<div></div>').appendTo(elemFileDetails)
+                    .html('User : ' + viewerFile.user);
+                
+                $('<div></div>').appendTo(elemFileDetails)
+                    .html('Version : ' + viewerFile.version);
+                
+                $('<div></div>').appendTo(elemFileDetails)
+                    .html('Date : ' + viewerFile.timestamp);
+
+            }
+
+            elemFilesList.children('.tile').first().addClass('selected');
+
+        }
+    }
+
+}
+
 function setViewerInstancedData() {
+
+    dataInstances = [];
+
+    if(viewer.model.is2d()) return;
 
     let instanceTree    = viewer.model.getInstanceTree();
     let promises        = [];
@@ -322,6 +451,38 @@ function setViewerInstancedDataDone() {}
 
 
 
+// Switch to other file
+function viewerSwitchFile(elemFile) {
+
+    let urn     = elemFile.attr('data-urn');
+    newInstance = false;
+    viewerDone  = false;
+    
+    viewer.toolbar.setVisible(false);
+    viewerUnloadAllModels();
+    
+    Autodesk.Viewing.Document.load('urn:'+ urn, function(doc) {
+
+        let viewable = doc.getRoot().getDefaultGeometry();
+
+        if (viewable) {
+            // viewer.loadDocumentNode(doc, viewable).then(function(result) {
+            viewer.loadDocumentNode(doc, viewable, {globalOffset: {x:0,y:0,z:0}}).then(function(result) {
+                viewer.setBackgroundColor(viewerSettings.backgroundColor[0], viewerSettings.backgroundColor[1], viewerSettings.backgroundColor[2], viewerSettings.backgroundColor[3], viewerSettings.backgroundColor[4], viewerSettings.backgroundColor[5]);
+                viewerDone = true;
+                // initViewerDone();
+            }).catch(function(err) {
+                console.log(err);
+            });
+        }
+
+
+    });
+
+}
+
+
+
 // Resize Viewer
 function viewerResize(delay) {
 
@@ -364,6 +525,7 @@ function onViewerSelectionChanged(event) {
         }
     }
 
+    viewerHideSelected(event);
     onViewerSelectionChangedDone(partNumbers, event);
 
 }
@@ -381,6 +543,7 @@ function viewerSelectModel(partNumber, params) {
 function viewerSelectModels(partNumbers, params) {
 
     if(!isViewerStarted()) return;
+    if(viewer.model.is2d()) return;
 
     //  Set defaults for optional parameters
     // --------------------------------------
@@ -389,6 +552,7 @@ function viewerSelectModels(partNumbers, params) {
     let fitToView   = true;    // Zoom in / out to fit selection into view 
     let highlight   = true;    // Highlight given partNumber(s) by defined color (colorModelSelected)
     let resetColors = true;    // Reset colors of all componente before highlighting the partNumber(s)
+    let keepHidden  = true;    // Keep selectively hidden components hidden
     let color       = colorModelSelected; 
 
 
@@ -398,18 +562,24 @@ function viewerSelectModels(partNumbers, params) {
     if(!isBlank(params.fitToView)  )   fitToView = params.fitToView;
     if(!isBlank(params.highlight)  )   highlight = params.highlight;
     if(!isBlank(params.resetColors)) resetColors = params.resetColors;
+    if(!isBlank(params.keepHidden) )  keepHidden = params.keepHidden;
     if(!isBlank(params.color)      )       color = params.color;
 
     disableViewerSelectionEvent = true;
-    
+
+    if(!keepHidden) {
+        hiddenInstances = [];
+        if($('#counter-hidden-selection').length > 0) $('#counter-hidden-selection').hide();
+    }
+
     let dbIds = [];
     
     if(isolate)     viewer.hideAll();
     if(resetColors) viewer.clearThemingColors();
 
-    let toolbar = $('#my-custom-toolbar-highlight');
+    let toolbar = $('#customSelectionToolbar');
     if(toolbar.length > 0) {
-        if(toolbar.hasClass('highlight-on')) highlight = true;
+        highlight = toolbar.hasClass('highlight-on');
     }
 
     for(let dataInstance of dataInstances) {
@@ -425,7 +595,9 @@ function viewerSelectModels(partNumbers, params) {
         dataInstance.selected = isSelected;
     }
 
-    if(ghosting)  viewer.setGhosting(true);
+    for(instance of hiddenInstances) viewer.hide(instance);
+
+    viewerSetGhosting(ghosting);
     if(fitToView) viewer.fitToView(dbIds);
 
     disableViewerSelectionEvent = false;
@@ -434,22 +606,30 @@ function viewerSelectModels(partNumbers, params) {
 function viewerSelectAll(params) {
 
     if(!isViewerStarted()) return;
+    if(viewer.model.is2d()) return;
 
     //  Set defaults for optional parameters
     // --------------------------------------
     let fitToView   = true;     // Zoom in / out to fit selection into view 
     let highlight   = true;     // Highlight given partNumber(s) by defined color (colorModelSelected)
     let resetColors = true;     // Reset colors of all componente before highlighting the partNumber(s)
+    let keepHidden  = true;     // Keep selectively hidden components hidden
     let color       = colorModelSelected; 
 
     if( isBlank(params)            )      params = {};
     if(!isBlank(params.fitToView)  )   fitToView = params.fitToView;
     if(!isBlank(params.highlight)  )   highlight = params.highlight;
     if(!isBlank(params.resetColors)) resetColors = params.resetColors;
+    if(!isBlank(params.keepHidden) )  keepHidden = params.keepHidden;
     if(!isBlank(params.color)      )       color = params.color;
 
     disableViewerSelectionEvent = true;
     viewer.showAll();
+
+    if(!keepHidden) {
+        hiddenInstances = [];
+        if($('#counter-hidden-selection').length > 0) $('#counter-hidden-selection').hide();
+    }
     
     if(resetColors) viewer.clearThemingColors();
 
@@ -459,6 +639,8 @@ function viewerSelectAll(params) {
         }
     }
 
+    for(instance of hiddenInstances) viewer.hide(instance);
+
     if(fitToView) viewer.setViewFromFile();
 
     disableViewerSelectionEvent = false;
@@ -467,6 +649,7 @@ function viewerSelectAll(params) {
 function viewerSelectInstances(dbIds, params) {
 
     if(!isViewerStarted()) return;
+    if(viewer.model.is2d()) return;
 
     //  Set defaults for optional parameters
     // --------------------------------------
@@ -475,6 +658,7 @@ function viewerSelectInstances(dbIds, params) {
     let fitToView   = true;    // Zoom in / out to fit selection into view 
     let highlight   = true;    // Highlight given partNumber(s) by defined color (colorModelSelected)
     let resetColors = true;    // Reset colors of all componente before highlighting the partNumber(s)
+    let keepHidden  = true;    // Keep selectively hidden components hidden
     let color       = colorModelSelected; 
 
     if( isBlank(params)            )      params = {};
@@ -483,20 +667,28 @@ function viewerSelectInstances(dbIds, params) {
     if(!isBlank(params.fitToView)  )   fitToView = params.fitToView;
     if(!isBlank(params.highlight)  )   highlight = params.highlight;
     if(!isBlank(params.resetColors)) resetColors = params.resetColors;
+    if(!isBlank(params.keepHidden) )  keepHidden = params.keepHidden;
     if(!isBlank(params.color)      )       color = params.color;
 
     disableViewerSelectionEvent = true;
+
+    if(!keepHidden) {
+        hiddenInstances = [];
+        if($('#counter-hidden-selection').length > 0) $('#counter-hidden-selection').hide();
+    }    
 
     if(isolate)     viewer.hideAll();
     if(resetColors) viewer.clearThemingColors();
     
     for(let dbId of dbIds) {
         dbId = Number(dbId);
-        viewer.show(dbId);
-        if(highlight) viewer.setThemingColor(dbId, color, null, true );
+        if(hiddenInstances.indexOf(dbId < 0)) {
+            viewer.show(dbId);
+            if(highlight) viewer.setThemingColor(dbId, color, null, true );
+        }
     }
     
-    if(ghosting)  viewer.setGhosting(true);
+    viewerSetGhosting(ghosting);
     if(fitToView) viewer.fitToView(dbIds);
 
     disableViewerSelectionEvent = false;
@@ -509,14 +701,15 @@ function viewerHighlightInstances(partNumber, ids, params) {
     if(!isViewerStarted()) return;
     if(isBlank(partNumber)) return;
     if(isBlank(ids)) return;
-
+    if(viewer.model.is2d()) return;
 
     //  Set defaults for optional parameters
     // --------------------------------------
     let isolate         = true;    // Enable isolation of selected component(s)
     let ghosting        = false;   // Enforce ghosting of hidden components
     let fitToView       = true;    // Zoom in / out to fit selection into view 
-    let resetColors     = true;     // Reset colors of all componente before highlighting the partNumber(s)
+    let resetColors     = true;    // Reset colors of all componente before highlighting the partNumber(s)
+    let keepHidden      = true;    // Keep selectively hidden components hidden
     let color           = colorModelSelected; 
     let colorHighlight  = colorModelHighlighted; 
 
@@ -526,11 +719,16 @@ function viewerHighlightInstances(partNumber, ids, params) {
     if(!isBlank(params.ghosting)      )       ghosting = params.ghosting;
     if(!isBlank(params.fitToView)     )      fitToView = params.fitToView;
     if(!isBlank(params.resetColors)   )    resetColors = params.resetColors;
+    if(!isBlank(params.keepHidden)    )     keepHidden = params.keepHidden;
     if(!isBlank(params.color)         )          color = params.color;
     if(!isBlank(params.colorHighlight)) colorHighlight = params.colorHighlight;
 
     disableViewerSelectionEvent = true;
-    ghosting = getToolbarGhostingToggle(ghosting);
+
+    if(!keepHidden) {
+        hiddenInstances = [];
+        if($('#counter-hidden-selection').length > 0) $('#counter-hidden-selection').hide();
+    }    
     
     let dbIds   = [];
 
@@ -539,8 +737,10 @@ function viewerHighlightInstances(partNumber, ids, params) {
 
     for(let dataInstance of dataInstances) {
         if(dataInstance.partNumber === partNumber) {
-            dbIds.push(dataInstance.dbId);
-            viewer.show(dataInstance.dbId);
+            if(hiddenInstances.indexOf(dbId < 0)) {
+                dbIds.push(dataInstance.dbId);
+                viewer.show(dataInstance.dbId);
+            }
         }
     }
 
@@ -551,7 +751,7 @@ function viewerHighlightInstances(partNumber, ids, params) {
         viewer.setThemingColor(Number(dbIdHighlight), colorModelHighlighted, null, true );
     }
      
-    if(ghosting)  viewer.setGhosting(false);
+    viewerSetGhosting(ghosting);
     if(fitToView) viewer.fitToView(dbIds);
     
     disableViewerSelectionEvent = false;
@@ -560,24 +760,40 @@ function viewerHighlightInstances(partNumber, ids, params) {
 function viewerResetSelection(params) {
 
     if(!isViewerStarted()) return;
+    if(viewer.model.is2d()) return;
+
+    disableViewerSelectionEvent = true;
 
     //  Set defaults for optional parameters
     // --------------------------------------
     let fitToView   = true;     // Zoom in / out to fit all into view
     let resetView   = false;    // Reset view to initial view from file
     let resetColors = true;     // Highlight given partNumber(s) by defined color (colorModelSelected)
+    let keepHidden  = true;     // Keep selectively hidden components hidden
 
     if( isBlank(params)            )      params = {};
     if(!isBlank(params.fitToView)  )   fitToView = params.fitToView;
     if(!isBlank(params.resetView)  )   resetView = params.resetView;
     if(!isBlank(params.resetColors)) resetColors = params.resetColors;
+    if(!isBlank(params.keepHidden) )  keepHidden = params.keepHidden;
 
     viewer.showAll();
     viewer.clearSelection();
+
+    if(keepHidden) {
+        for(let instance of hiddenInstances) {
+            viewer.hide(instance);
+        }
+    } else { 
+        hiddenInstances = [];
+        if($('#counter-hidden-selection').length > 0) $('#counter-hidden-selection').hide();
+    }
     
          if(resetColors) viewer.clearThemingColors();
          if(resetView  ) viewer.setViewFromFile();
     else if(fitToView  ) viewer.fitToView();
+
+    disableViewerSelectionEvent = false;
 
 }
 
@@ -592,6 +808,7 @@ function viewerSetColor(partNumber, params) {
 function viewerSetColors(partNumbers, params) {
 
     if(!isViewerStarted()) return;
+    if(viewer.model.is2d()) return;
 
     //  Set defaults for optional parameters
     // --------------------------------------
@@ -599,6 +816,7 @@ function viewerSetColors(partNumbers, params) {
     let ghosting    = false;   // Enforce ghosting of hidden components
     let fitToView   = false;   // Zoom in / out to fit selection into view 
     let resetColors = true;    // Reset colors of all componente before highlighting the partNumber(s)
+    let keepHidden  = true;    // Keep selectively hidden components hidden
     let unhide      = true;    // Unhide component if it is currently hidden
     let color       = colorModelSelected; 
 
@@ -608,32 +826,40 @@ function viewerSetColors(partNumbers, params) {
     if(!isBlank(params.ghosting)   )    ghosting = params.ghosting;
     if(!isBlank(params.fitToView)  )   fitToView = params.fitToView;
     if(!isBlank(params.resetColors)) resetColors = params.resetColors;
-    if(!isBlank(params.highlight)  )   highlight = params.highlight;
-    if(!isBlank(params.color)      )   color = new THREE.Vector4(params.color[0], params.color[1], params.color[2], params.color[3]);
-
+    if(!isBlank(params.keepHidden) )  keepHidden = params.keepHidden;
+    if(!isBlank(params.unhide)     )      unhide = params.unhide;
+    if(!isBlank(params.color)      )       color = new THREE.Vector4(params.color[0], params.color[1], params.color[2], params.color[3]);
 
     let dbIds  = [];
 
     if(isolate)     viewer.hideAll();
     if(resetColors) viewer.clearThemingColors();
 
+    if(!keepHidden) {
+        hiddenInstances = [];
+        if($('#counter-hidden-selection').length > 0) $('#counter-hidden-selection').hide();
+    }
+
     for(let dataInstance of dataInstances) {
         for(let partNumber of partNumbers) {
             if(dataInstance.partNumber === partNumber) {
-                dbIds.push(dataInstance.dbId);
-                if(unhide) viewer.show(dataInstance.dbId);
-                viewer.setThemingColor(dataInstance.dbId, color, null, true );
+                if(hiddenInstances.indexOf(dbId < 0)) {
+                    dbIds.push(dataInstance.dbId);
+                    if(unhide) viewer.show(dataInstance.dbId);
+                    viewer.setThemingColor(dataInstance.dbId, color, null, true );
+                }
             }
         }
     }
 
-    if(ghosting)  viewer.setGhosting(true);
+    viewerSetGhosting(ghosting);
     if(fitToView) viewer.fitToView(dbIds);
 
 }
 function viewerSetColorToAll(color) {
 
     if(!isViewerStarted()) return;
+    if(viewer.model.is2d()) return;
 
     let vector      = new THREE.Vector4(color[0], color[1], color[2], color[3]);
     let instances   = viewer.model.getInstanceTree();
@@ -648,6 +874,7 @@ function viewerSetColorToAll(color) {
 function viewerResetColors() {
 
     if(!isViewerStarted()) return;
+    if(viewer.model.is2d()) return;
 
     viewer.clearThemingColors();
 
@@ -664,6 +891,7 @@ function viewerHideModel(partNumber) {
 function viewerHideModels(partNumbers) {
 
     if(!isViewerStarted()) return;
+    if(viewer.model.is2d()) return;
 
     for(let dataInstance of dataInstances) {
         for(let partNumber of partNumbers) {
@@ -682,6 +910,7 @@ function viewerUnhideModel(partNumber, fitToView) {
 function viewerUnhideModels(partNumbers, params) {
 
     if(!isViewerStarted()) return;
+    if(viewer.model.is2d()) return;
 
     //  Set defaults for optional parameters
     // --------------------------------------
@@ -717,20 +946,30 @@ function viewerUnhideModels(partNumbers, params) {
 function viewerUnhideAll(params) {
 
     if(!isViewerStarted()) return;
+    if(viewer.model.is2d()) return;
 
     //  Set defaults for optional parameters
     // --------------------------------------
     let fitToView   = true;    // Zoom in / out to fit selection into view 
     let resetColors = true;    // Reset colors of all componente before highlighting the partNumber(s)
+    let keepHidden  = true;    // Keep selectively hidden components hidden
 
 
     if( isBlank(params)            )      params = {};
     if(!isBlank(params.fitToView)  )   fitToView = params.fitToView;
     if(!isBlank(params.resetColors)) resetColors = params.resetColors;
+    if(!isBlank(params.keepHidden) )  keepHidden = params.keepHidden;
+
+    if(!keepHidden) {
+        hiddenInstances = [];
+        if($('#counter-hidden-selection').length > 0) $('#counter-hidden-selection').hide();
+    }
 
     if(resetColors) viewer.clearThemingColors();
 
     viewer.showAll();
+
+    for(let instance of hiddenInstances) viewer.hide(instance);
 
     if(fitToView) viewer.setViewFromFile();
 }
@@ -841,6 +1080,7 @@ function viewerUnloadAllModels() {
 function viewerGetComponentsInstances(partNumbers) {
 
     if(!isViewerStarted()) return [];
+    if(viewer.model.is2d()) return;
 
     let result = [];
 
@@ -857,6 +1097,7 @@ function viewerGetComponentsInstances(partNumbers) {
 function viewerGetComponentInstances(partNumber) {
 
     if(!isViewerStarted()) return [];
+    if(viewer.model.is2d()) return;
 
     let result = [];
 
@@ -925,6 +1166,7 @@ function getComponentParent(parents, id) {
 function viewerGetSelectedComponentPaths() {
 
     if(!isViewerStarted()) return [];
+    if(viewer.model.is2d()) return;
 
     let result = [];
 
@@ -954,54 +1196,26 @@ function viewerGetSelectedComponentPaths() {
 
 
 
-// Custom Controls: Reset Button
-function viewerAddResetButton() {
+// Custom Controls: Add Selection Toolbar
+function addCustomSelectionToolbar(selectionToolbarFeatures) {
 
-    let customToolbar = new Autodesk.Viewing.UI.ControlGroup('custom-toolbar-reset');
+    let elemToolbar = $('#customSelectionToolbar');
 
-    let buttonReset = addCustomControl(customToolbar, 'button-reset-selection', 'icon-reset', 'Reset selection and show all models');
-        buttonReset.onClick = function() { 
-            viewerClickReset();
-        };
-        
-    viewer.toolbar.addControl(customToolbar);
+    if(elemToolbar.length > 0) {
+        elemToolbar.show();
+        return;
+    }
 
-}
-function viewerClickReset() {
-    viewer.showAll();
-    viewerResetColors();
-    viewerClickResetDone();
-}
-function viewerClickResetDone() {
+    let selectToolbar = new Autodesk.Viewing.UI.ControlGroup('customSelectionToolbar');
+    
+    viewer.toolbar.addControl(selectToolbar);
 
-    $('.bom-item').removeClass('selected');
-    $('.flat-bom-item').removeClass('selected');
-
-}
-
-
-// Custom Controls : Ghosting Toggle
-function viewerAddGhostingToggle() {
-
-    let newToolbar = new Autodesk.Viewing.UI.ControlGroup('my-custom-toolbar-ghosting');
-
-    let buttonOff = addCustomControl(newToolbar, 'button-toggle-ghosting-off', 'icon-hide', 'Enable ghosting mode');
-        buttonOff.onClick = function(e) { 
-            viewer.setGhosting(true);
-            $('#my-custom-toolbar-ghosting').addClass('no-ghosting');
-            $('#my-custom-toolbar-ghosting').removeClass('ghosting');
-        };
-
-    let buttonOn = addCustomControl(newToolbar, 'button-toggle-ghosting-on', 'icon-show', 'Disable ghosting mode');
-        buttonOn.onClick = function(e) { 
-            viewer.setGhosting(false);
-            $('#my-custom-toolbar-ghosting').removeClass('no-ghosting');
-            $('#my-custom-toolbar-ghosting').addClass('ghosting');
-        };
-
-    viewer.toolbar.addControl(newToolbar);
-
-    $('#my-custom-toolbar-ghosting').addClass('no-ghosting');
+    if(selectionToolbarFeatures.includes('hide')     ) viewerAddHideSelected(selectToolbar);
+    if(selectionToolbarFeatures.includes('ghosting') ) viewerAddGhostingToggle(selectToolbar);
+    if(selectionToolbarFeatures.includes('highlight')) viewerAddHighlightToggle(selectToolbar);
+    if(selectionToolbarFeatures.includes('single')   ) viewerAddFitFirstInstance(selectToolbar);
+    if(selectionToolbarFeatures.includes('fitToView')) viewerAddFitToView(selectToolbar);
+    if(selectionToolbarFeatures.includes('reset')    ) viewerAddResetButton(selectToolbar);
 
 }
 function addCustomControl(toolbar, id, icon, tooltip) {
@@ -1016,41 +1230,122 @@ function addCustomControl(toolbar, id, icon, tooltip) {
     return newButton;
 
 }
-function getToolbarGhostingToggle(value) {
 
-    let toolbar = $('#my-custom-toolbar-ghosting');
+
+// Custom Controls : Controls to hide selected components
+function viewerAddHideSelected(toolbar) {
+
+    let buttonHide = addCustomControl(toolbar, 'button-toggle-hide-selected', 'icon-remove', 'Hide selected components');
+        buttonHide.onClick = function(e) { 
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            let enabled     = $('#customSelectionToolbar').hasClass('hide-selectd');
+            let selected    = viewer.getSelection().length;
+            let elemCounter = $('#counter-hidden-selection');
+
+            if(!enabled && selected > 0) {
+                for(let dbId of viewer.getSelection()) {
+                    viewer.hide(dbId);
+                    hiddenInstances.push(dbId);
+                }
+            } else if(enabled) {
+                $('#customSelectionToolbar').toggleClass('hide-selectd');
+            } else if(selected === 0) {
+                $('#customSelectionToolbar').toggleClass('hide-selectd');
+            }
+
+            elemCounter.html(hiddenInstances.length);
+
+            if(hiddenInstances.length === 0) {
+                elemCounter.hide();
+            } else {
+                elemCounter.show().html('Click to unhide ' + hiddenInstances.length + ' components');
+            }
+
+        };
+
+    $('<div></div>').appendTo($('#viewer'))
+        .attr('id', 'counter-hidden-selection')
+        .hide()
+        .click(function() {
+            for(let instance of hiddenInstances) viewer.show(instance);
+            hiddenInstances = [];
+            $(this).html('').hide();
+        });
+
+}
+function viewerHideSelected(event) {
+
+    let toolbar = $('#customSelectionToolbar');
+
     if(toolbar.length > 0) {
-        if(toolbar.hasClass('ghosting')) return true;
-        else return false;
-    } else {
-        return value;
+        if(toolbar.hasClass('hide-selectd')) {
+            for(let dbId of event.dbIdArray) {
+                viewer.hide(dbId);
+                hiddenInstances.push(dbId);
+                $('#counter-hidden-selection').html('Click to unhide ' + hiddenInstances.length + ' components').show();
+            
+            }
+            return true;
+        }
     }
+    
+    return false;
+}
+
+
+// Custom Controls : Ghosting Toggle
+function viewerAddGhostingToggle(toolbar) {
+
+    let buttonEnableGosting = addCustomControl(toolbar, 'button-toggle-ghosting-enable', 'icon-hide', 'Click to enable ghosting mode');
+        buttonEnableGosting.onClick = function(e) { 
+            viewer.setGhosting(true);
+            $('#customSelectionToolbar').addClass('ghosting');
+        };
+
+    let buttonDisableGosting = addCustomControl(toolbar, 'button-toggle-ghosting-disable', 'icon-show', 'Click to disable ghosting mode');
+        buttonDisableGosting.onClick = function(e) { 
+            viewer.setGhosting(false);
+            $('#customSelectionToolbar').removeClass('ghosting');
+        };
+
+    toolbar.addClass('ghosting');
+
+}
+function viewerSetGhosting(value) {
+
+    let ghosting = value;
+    let toolbar  = $('#customSelectionToolbar');
+
+    if(toolbar.length > 0) {
+        ghosting = (toolbar.hasClass('ghosting'));
+    }
+
+    viewer.setGhosting(ghosting);
 
 }
 
 
 // Custom Controls : Highlight Toggle
-function viewerAddHighlightToggle() {
+function viewerAddHighlightToggle(toolbar) {
 
-    let newToolbar = new Autodesk.Viewing.UI.ControlGroup('my-custom-toolbar-highlight');
-
-    let buttonOff = addCustomControl(newToolbar, 'button-toggle-highlight-off', 'icon-highlight', 'Enable selection hihglight by color');
+    let buttonOff = addCustomControl(toolbar, 'button-toggle-highlight-off', 'icon-highlight', 'Enable selection hihglight by color');
         buttonOff.onClick = function(e) { 
             toggleSelectionHighlight(true);
-            $('#my-custom-toolbar-highlight').addClass('highlight-on');
-            $('#my-custom-toolbar-highlight').removeClass('highlight-off');
+            $('#customSelectionToolbar').addClass('highlight-on');
+            $('#customSelectionToolbar').removeClass('highlight-off');
         };
 
-    let buttonOn = addCustomControl(newToolbar, 'button-toggle-highlight-on', 'icon-highlight', 'Disable selection highlight by color');
+    let buttonOn = addCustomControl(toolbar, 'button-toggle-highlight-on', 'icon-highlight', 'Disable selection highlight by color');
         buttonOn.onClick = function(e) { 
             toggleSelectionHighlight(false);
-            $('#my-custom-toolbar-highlight').removeClass('highlight-on');
-            $('#my-custom-toolbar-highlight').addClass('highlight-off');
+            $('#customSelectionToolbar').removeClass('highlight-on');
+            $('#customSelectionToolbar').addClass('highlight-off');
         };
 
-    viewer.toolbar.addControl(newToolbar);
-
-    $('#my-custom-toolbar-highlight').addClass('highlight-off');
+    toolbar.addClass('highlight-off');
 
 }
 function toggleSelectionHighlight(enabled) {
@@ -1058,6 +1353,17 @@ function toggleSelectionHighlight(enabled) {
     viewer.clearThemingColors();
 
     if(!enabled) return;
+
+    let allVisible = true;
+
+    for(let dataInstance of dataInstances) {
+        if(!viewer.isNodeVisible(dataInstance.dbId)) {
+            allVisible = false;
+            break;
+        }
+    }
+
+    if(allVisible) return;
 
     for(let dataInstance of dataInstances) {
         if(viewer.isNodeVisible(dataInstance.dbId)) {
@@ -1068,37 +1374,10 @@ function toggleSelectionHighlight(enabled) {
 }
 
 
-// Custom Controls : Fit (selection) to view
-function viewerAddFitToView() {
-    
-    let customToolbar = new Autodesk.Viewing.UI.ControlGroup('custom-toolbar-fit');
-
-    let buttionFitToView = addCustomControl(customToolbar, 'button-fit-to-view', 'icon-viewer', 'Fit (selected) components to view');
-        buttionFitToView.onClick = function() { 
-
-            let dbIds = [];
-
-            for(let dataInstance of dataInstances) {
-                if(viewer.isNodeVisible(dataInstance.dbId)) {
-                    dbIds.push(dataInstance.dbId);
-                }
-            }
-
-            viewer.fitToView(dbIds);
-
-        };
-        
-    viewer.toolbar.addControl(customToolbar);
-
-}
-
-
 // Custom Controls : 
-function viewerAddFitFirstInstance() {
+function viewerAddFitFirstInstance(toolbar) {
 
-    let customToolbar = new Autodesk.Viewing.UI.ControlGroup('custom-toolbar-single');
-
-    let buttionFitFirst = addCustomControl(customToolbar, 'button-fit-first', 'icon-first', 'Fit first instance to view');
+    let buttionFitFirst = addCustomControl(toolbar, 'button-fit-first', 'icon-first', 'Fit first instance to view');
         buttionFitFirst.onClick = function() { 
 
             let dbIdFirst = [];
@@ -1117,13 +1396,62 @@ function viewerAddFitFirstInstance() {
             
         };
         
-    viewer.toolbar.addControl(customToolbar);
+}
+
+
+// Custom Controls : Fit (selection) to view
+function viewerAddFitToView(toolbar) {
+
+    let buttionFitToView = addCustomControl(toolbar, 'button-fit-to-view', 'icon-viewer', 'Fit (selected) components to view');
+        buttionFitToView.onClick = function() { 
+
+            let dbIds = [];
+
+            for(let dataInstance of dataInstances) {
+                if(viewer.isNodeVisible(dataInstance.dbId)) {
+                    dbIds.push(dataInstance.dbId);
+                }
+            }
+
+            viewer.fitToView(dbIds);
+
+        };
+        
+}
+
+
+// Custom Controls: Reset Button
+function viewerAddResetButton(toolbar) {
+
+
+    let buttonReset = addCustomControl(toolbar, 'button-reset-selection', 'icon-reset', 'Reset selection and show all models');
+        buttonReset.onClick = function() { 
+            viewerClickReset();
+        };
+        
+}
+function viewerClickReset() {
+    hiddenInstances = [];
+    if($('#counter-hidden-selection').length > 0) $('#counter-hidden-selection').hide();
+    viewer.showAll();
+    viewerResetColors();
+    viewerClickResetDone();
+}
+function viewerClickResetDone() {
+
+    $('.bom-item').removeClass('selected');
+    $('.flat-bom-item').removeClass('selected');
 
 }
 
 
+
 // Custom Controls : Standard Views Toolbar
 function viewerAddViewsToolbar() {
+
+    let elemToolbar = $('#my-custom-toolbar-views');
+
+    if(elemToolbar.length > 0) { elemToolbar.show(); return; }
 
     let newToolbar  = new Autodesk.Viewing.UI.ControlGroup('my-custom-toolbar-views');
     
@@ -1181,6 +1509,10 @@ function viewerAddNoteControls() {
 function viewerAddMarkupControls(includeSaveButton) {
 
     if(typeof includeSaveButton === 'undefined') includeSaveButton = false;
+
+    let elemToolbar = $('#my-custom-markup-toolbar');
+
+    if(elemToolbar.length > 0) { elemToolbar.show(); return; }
 
     let elemMarkupToolbar = $('<div></div>');
         elemMarkupToolbar.attr('id', 'viewer-markup-toolbar');
@@ -1396,6 +1728,8 @@ function addMarkupActionControl(elemParent, icon, content, script, tooltip) {
 
 }
 function viewerLeaveMarkupMode() {
+
+    if(!isViewerStarted()) return;
 
     let elemNoteControl = $('#viewer-note-toolbar');
 

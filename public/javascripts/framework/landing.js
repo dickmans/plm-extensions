@@ -8,7 +8,7 @@ $(document).ready(function() {
 
     $('#theme-selector').val(theme + '-theme');
 
-    $('#tenant').html(tenant);
+    $('#tenant-name').html(tenant);
     
     $('#tenant').click(function() {
         window.open('https://' + tenant + '.autodeskplm360.net');
@@ -36,6 +36,15 @@ $(document).ready(function() {
         
         });
 
+    });
+
+    $('#docs').click(function() {
+        let href = document.location.href.split('?');
+        let base = href[0] += 'docs';
+
+        if(href.length > 1) base += '?' + href[1];
+        
+        window.open(base);
     });
 
     $('.tile').click(function(e) {

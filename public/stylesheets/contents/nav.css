@@ -3,7 +3,7 @@
 .mow-search-input {
     width : 60px;
 }
-.mow-list {
+.mow-table {
     display : table;
     width   : 100%;
 }
@@ -118,11 +118,14 @@
 }
 .workspace-view-thead th {
     border-bottom : 1px solid transparent;
-    padding : 8px 12px;
+    padding       : 8px 12px;
 }
 .workspace-view-item {
-    cursor  : pointer;
-    padding : 4px 15px;
+    cursor          : pointer;
+    overflow        : hidden;
+    padding         : 4px 15px;
+    text-overflow   : ellipsis;
+    white-space     : nowrap;
 }
 .workspace-view-item:last-of-type {
     border-bottom : none;
@@ -178,4 +181,27 @@
     max-width       : unset;
     min-width       : unset;
     text-align      : left;
+}
+
+
+
+/*  SEARCH */
+/* ----------------------------------------------------------------------------- */
+.search-list-toolbar {
+    display : flex;
+    gap     : 10px;
+    margin  : 16px 16px;
+}
+.search-list-input {
+    border-color : var(--color-surface-level-3);
+    flex-grow    : 1;
+    padding      : 10px;
+}
+.search-list {
+    top : 120px;
+}
+.search-list-status {
+    padding     : 20px;
+    text-align  : center;
+    width       : 100%; 
 }

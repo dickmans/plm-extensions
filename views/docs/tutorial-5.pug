@@ -1,0 +1,84 @@
+#tutorial-5.doc-content 
+    h3 Tutorial #5
+    h1 Display Selected Item's Details &amp; Attachments
+    .definition The MOW and Workspaces Views in the current app enable users to navigate to items of interest. However, these items always get opened in a new tab within the standard PLM user interface. By the end of this tutorial, users can instead review the Item Details page and the related Attachments of a selected record within our custom app. To achieve this, new elements must be added to the page to render the details and attachments. It is also required to override the default click behavior for the MOW and Workspaces Views using Javascript.
+        br
+        br
+        |This tutorial reuses insertDetails() and insertAttachments() to insert the given data in the application with default settings. However, both functions provide a couple of parameters to change their given behaviro. To learn about these library functions and their parameters, you may want to have a look at  
+        span.ref(data-id='item-details') Item Details  
+        |and 
+        span.ref(data-id='item-Attachments') Attachments
+        |.
+        br
+        br
+        |If the steps of this tutorial fail on your side, you can review the tutorial files named 5-item-details.* in folders 
+        ul 
+            li views/tutorial
+            li public/javascripts/tutorial
+            li public/stylesheets/tutorial
+    h2 Add Page Elements
+    p Open the pug file of your app to add the 2 new elements to the page which will contain the Item Details and the Attachments of the selected record:
+    .code views/custom/myapp.pug
+    p Add the elements #details and #attachments on the same level as #mow and #workspace:
+    .code 
+        span.indent-1 #details.surface-level-3
+        span.indent-1 #attachments.surface-level-3
+    img(src='images/docs/tutorial-5-01.png'  style='max-width:378px;')
+    p Using another surface-level will apply an alternate background color and with this help to understand the layout of the screen better.
+    h2 Add Javascript Code 
+    p Currently, clicking an item will launch PLM. To change this, we have to override the function which gets invoked when clicking the records. Open the javascript file of your application: 
+    .code public/javascript/custom/myapp.js
+    p We can catch the given 2 functions for both the clicks in the MOW and the Workspace Views and redirect it to new custom function openSelectedItem() by adding the following two lines:
+    .code 
+        span.indent-1 function clickMOWItem(elemClicked) { openSelectedItem(elemClicked); }
+        span.indent-1 function clickWorkspaceViewItem(elemClicked, e) { openSelectedItem(elemClicked); }
+    p The new function openSelectedItem receives the clicked html element which will have an attribute that provides the API link for the given record. Using the following lines of code, we can retrieve the given data-link property and use its value to let the details and attachments be inserted:
+    .code 
+        span.indent-1 function openSelectedItem(elemClicked) {
+        span.indent-2 let link = elemClicked.attr('data-link');
+        span.indent-2 insertDetails(link);
+        span.indent-2 insertAttachments(link);
+        span.indent-1 }
+    p Add these lines and the ones before at the very end of your javascript file, outside the document.ready() function:
+    img(src='images/docs/tutorial-5-02.png'  style='max-width:630px;')
+    p If you are wondering about the initial function names that we had to override (clickMOWItem, clickWorkspaceViewItem), please have a look at the documentation of insertMOW() and insertWorkspaceViews(). By scrolling to the very end of the following two pages, you can find out about the standard functions/events that can be overwritten with custom code: 
+        ul  
+            li
+                span.ref(data-id='nav-mow') My Outstanding Work  
+            li
+                span.ref(data-id='nav-workspace-views') Workspace Views
+    h2 Add CSS Class Settings
+    p While the solution would be working already, we still have to care for the layout and adjust the CSS settings of your application in:
+    .code public/stylesheets/custom/myapp.css
+    p Add two new variables to the :root element. One for the width of the details and attachments panel and another one to set the height of the attachments panel:
+    .code 
+        span.indent-1 --width-panels : 400px;
+        span.indent-1 --height-files : 220px;;
+    img(src='images/docs/tutorial-5-03.png'  style='max-width:226px;')
+    p Use the first variable to resize the Workspace Views panel. Add some space to the right where the new panels will be displayed:
+    .code right        : calc(var(--width-panels) + (2 * var(--width-border)));
+    img(src='images/docs/tutorial-5-04.png'  style='max-width:621px;')
+    p The new elements #details and #attachments also require some space, we will once again make use of absolute positioning: 
+    .code 
+        span.indent-1 #details {
+        span.indent-2 border-width : var(--width-border);
+        span.indent-2 top          : 0px;
+        span.indent-2  right        : 0px;
+        span.indent-2 bottom       : calc(var(--height-files) + (2 * var(--width-border)));
+        span.indent-2 width        : var(--width-panels);
+        span.indent-1 }
+        span.indent-1 #attachments {
+        span.indent-2 border-width : var(--width-border);
+        span.indent-2 right        : 0px;
+        span.indent-2 bottom       : 0px;
+        span.indent-2 width        : var(--width-panels);
+        span.indent-2 height       : var(--height-files);
+        span.indent-1 }
+    p For your reference, this is what the css file should lookk like now: 
+    img(src='images/docs/tutorial-5-05.png'  style='max-width:621px;')
+    h2 Showtime 
+    p This tutorial required changes to files in folders /public and /views only. Therefore, a restart of the server is NOT required. To validate your new solution, simply refresh your app in the browser or use the button below to open it again:
+    a.button(href='myapp' target='_blank')
+    p Now you can click any entry in the MOW or Workspaces View to review the selcted record's details and attachments to the right. Users also can click an attachment to download the given file. Using the parameters of insertDetails() and insertAttachments() we could further enhance this app with file upload capabilties and exclusion of defined sections or fields.
+    img(src='images/docs/tutorial-5-06.png'  style='max-width:1024px;')
+    p This application is already fully dynamic and aware of your workspace configuration. As you change the Item Details using the Workspace Manager, the details panel to the right will also be adjusted. As the application uses a given user's context, also the given section permissions will be taken into account.

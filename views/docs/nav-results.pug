@@ -1,0 +1,357 @@
+#nav-results.doc-content 
+    h1 insertResults();
+    .definition  Insert the results of a search based on V1 API to enable browsing a given list.
+        br
+        |This function gets included in all pages automatically and is defined in 
+        span.path /public/javascripts/contents/nav.js
+        |. 
+        br
+        |Styling of the given contents is defined in 
+        span.path /public/stylesheets/contents/item.css 
+        | based on the primary class list-item.
+        img(src='images/docs/nav-results-1.png' style='display:block;margin-top:20px;height:521px;')
+    h2 DOM Elements 
+    p Insert the following base element to your pug file to add the Flat BOM container in your page. You can choose another id than shown here, but will then have to provide your element's id as parameter.
+    p.code #results
+    p Add the following optional classes to this DOM element to adjust the contents display:
+    p 
+        table.row-hovering 
+            tr 
+                th Class Name 
+                th Description
+            tr 
+                td surface-level-[1..5]
+                td Add the UI classes surface-level-1 through surface-level-5 to adjust the background color of the BOM panel 
+
+    h2 Parameters
+    p This method supports 3 parameters: Workspace ID, Filters and further optional parameters: 
+    p.code insertResults(wsId, filters, params);
+    p The first parameter Workspace Id is always requried as it defines the workspace in which matching records will be located. In addition, at least one filter condition must be provided, but there can also be multiple of course. As this method uses the V1 API for searches, the filters must be provided according to the REST API documentation. For example, you should review the list of comparators in the online help:   
+        a(href="https://help.autodesk.com/view/PLM/ENU/?guid=PLM_360_REST_APIv1_Resource_Endpoints_Item_Search_items_search_filter_types_GET_List_field_data_type_filters_html" target='_blank') Search Filter Types
+    p Each filter condition within the filters array must contain the following keys: 
+    p 
+        table.parameters.row-hovering 
+            tr 
+                th.nowrap Key 
+                th Description
+                th Options 
+                th Example Value
+            tr 
+                td field 
+                td Field to used for the search 
+                td Provide the matching field ID
+                td TITLE 
+            tr 
+                td type 
+                td Provide the type of this filter. If the search is to be performed within the Item Details, provide 0. See the list of field types in the 
+                    a(href="https://help.autodesk.com/view/PLM/ENU/?guid=PLM_360_REST_APIv1_Resource_Endpoints_Item_Search_items_search_field_types_GET_List_workspace_field_types_html") Online Documentation
+                td
+                    ul 
+                        li  0 = Item Details 
+                        li  1 = Workflow 
+                        li  2 = Grid Field 
+                        li  4 = Attachments 
+                        li  5 = Managed Items 
+                        li  6 = BOM
+                        li  7 = Where Used
+                        li  8 = Relationships 
+                        li 10 = Lifecycle 
+                        li 14 = Related Workflow 
+                        li 15 = Descriptor
+                        li 99 = All Fields
+                td 0 
+            tr 
+                td comparator 
+                td Sets the comparator to be used when performing the search. 
+                td 
+                    ul 
+                        li  2 = Contains 
+                        li  3 = Starts With 
+                        li  4 = Ends With 
+                        li  5 = Does Not Contain 
+                        li 15 = Is
+                        li 20 = Is Blank 
+                        li 21 = Not Blank
+                td 2
+            tr 
+                td value 
+                td Defines the value to be searched for. This does not require any wildcard.
+                td Any text
+                td '0815'
+
+    p Here is an exmaple call with a single filter defined for the field NUMBER: 
+    p.code 
+        span.indent-1 insertResults(57, 
+        span.indent-2 [{
+        span.indent-3 field:'NUMBER', 
+        span.indent-3 type:0, 
+        span.indent-3 comparator:2, 
+        span.indent-3 value:'0815', 
+        span.indent-2 }],
+        span.indent-2 { openInPLM : true, quantity : true, totals : true, counters : true, compactDisplay : true }
+        span.indent-1 );
+    p Use the following optional parameters to drive the contents and features of the results display:
+    p   
+        table.parameters.row-hovering 
+            tr 
+                th.nowrap Parameter 
+                th Description
+                th Type 
+                th Required 
+                th Default 
+            tr 
+                td id 
+                td ID of the DOM element where the results should be inserted
+                td String
+                td No
+                td results
+            tr 
+                td header 
+                td Can be used to suppress addition of the panel header element by setting the parameter to false
+                td Boolean
+                td No
+                td true
+            tr 
+                td headerLabel
+                td Sets the header label (if header is enabled)
+                td String
+                td No
+                td Results
+            tr 
+                td headerToggle 
+                td Enables collapsing and expanding the panel
+                td Boolean
+                td No 
+                td false
+            tr 
+                td compactDisplay 
+                td Optimizes CSS settings for a compact display (when set to true)
+                td Boolean
+                td No 
+                td false
+            tr 
+                td openInPLM 
+                td Adds button to open selected element in PLM (button get disabled when multiple items get selected)
+                td Boolean
+                td No
+                td true
+            tr 
+                td reload 
+                td Enables reload button for the selected view
+                td Boolean
+                td No
+                td true
+            tr 
+                td search 
+                td Adds quick filtering using search input on top of list
+                td Boolean
+                td No
+                td true
+            tr 
+                td placeholder 
+                td Set placeholder text for quick filtering input
+                td String
+                td No 
+                td Search
+            tr 
+                td layout 
+                td Sets content layout (tiles, list or table)
+                td String
+                td No
+                td table
+            tr 
+                td tileSize 
+                td Sets the size of tiles (xxs, xs, s, m, l, xl or xxl)
+                td String
+                td No
+                td s
+            tr 
+                td tileIcon 
+                td Sets the icon to be displyed for each tile if no image is found. This parameter only applies if layout is set to 'tiles' or 'list'.
+                    br
+                    |Make use of the predefined icons defined in 
+                    a(href='../stylesheets/framework/fonts.css' target='_blank') fonts.css
+                td String
+                td No
+                td icon-product
+            tr 
+                td tileCounter 
+                td When set to true, a counter will be displayed instead of the tile icon
+                td Boolean
+                td No
+                td false            
+            tr 
+                td tileSubtitle 
+                td Provide a field ID to set the tiles' subtitles
+                td String
+                td No
+                td -            
+            tr 
+                td tilesGroupBy 
+                td Enable grouping of tiles by providing a field ID
+                td String
+                td No
+                td -            
+            tr 
+                td multiSelect 
+                td Enables selection of multiple items and adds buttons to deselect all elements as well as checkboxes
+                td Boolean
+                td No 
+                td false
+            tr 
+                td editable 
+                td When set to true, enables modifications in editable fields
+                td Boolean
+                td No
+                td false
+            tr 
+                td filterEmpty 
+                td When set to true, adds filter for rows with empty input cells 
+                td Boolean
+                td No
+                td false
+            tr 
+                td filterSelected 
+                td When set to true, adds filter for selected rows
+                td Boolean
+                td No
+                td false
+            tr 
+                td tableHeaders 
+                td When set to false, the table headers will not be shown
+                td Boolean
+                td No 
+                td true
+            tr 
+                td number 
+                td When set to true, a counter will be displayed as first column
+                td Boolean
+                td No
+                td true
+            tr 
+                td descriptor 
+                td When set to true, the descriptor will be displayed as first table column
+                td Boolean
+                td No
+                td true
+            tr 
+                td hideDetails 
+                td When set to true, detail columns will be skipped, only the descriptor will be shown
+                td Boolean
+                td No 
+                td false
+            tr 
+                td tableCounters 
+                td Display counters at bottom to indicate total, selected, filtered and modified items
+                td Boolean
+                td No
+                td true
+            tr 
+                td totals 
+                td Enable automatic total calculation for numeric columns, based on selected (or all) items
+                td Boolean
+                td No
+                td false
+            tr 
+                td ranges 
+                td Enable automatic range indicators for numeric columns, based on selected (or all) items
+                td Boolean
+                td No
+                td false
+            tr 
+                td fields 
+                td Set columns to be display by providing an array of fieldIds (i.e. ['NUNBER', 'TITLE', 'DESCRIPTION', 'COST']). If left blank, the fields used in filters will be used automatically.
+                td Array
+                td No 
+                td []
+            tr 
+                td sort
+                td Determines sorting of rows by providing an array of fieldIds (i.e. ['NUNBER', 'TITLE']). If left blank, the first field of filters will be used for sorting.
+                td Array
+                td No 
+                td []
+    h2 Examples 
+    p   
+        table.row-hovering 
+            tr 
+                th Code 
+                th Screenshot 
+                th Application 
+            tr 
+                td.code 
+                    span.indent-1 insertResults(57, [{
+                    span.indent-3 field : "TYPE",
+                    span.indent-3 type : 0,
+                    span.indent-3 comparator : 15,
+                    span.indent-3 value : "Mechanical"
+                    span.indent-2 }],
+                    span.indent-2 compactDisplay : true,
+                    span.indent-2 multiSelect    : true,
+                    span.indent-2 editable       : true,
+                    span.indent-2 filterEmpty    : true,
+                    span.indent-2 filterSelected : true,
+                    span.indent-2 counters       : true
+                    span.indent-2 totals         : true,
+                    span.indent-2 ranges         : true,
+                    span.indent-2 fields         : ['TITLE','TYPE','ICON', 'LENGTH', 'SPARE_WEAR_PART', 'TOP_LEVEL_CLASS', 'MAKE_OR_BUY'],
+                    span.indent-2 sort           : ['TITLE']
+                    span.indent-1 });
+                td
+                    img(src='images/docs/nav-results-2.png' style='height:260px;')
+
+    h2 Events 
+    p You can override the following functions in your code to adjust the default behavior.
+    p 
+        table.row-hovering
+            tr 
+                th Function 
+                th Event 
+                th Parameters 
+            tr 
+                td insertResultsDone(id) 
+                td This function gets invoked after the panel elements have been added to the page, before data is being requested from PLM
+                td id = id of the parent div element (i.e. results)
+            tr 
+                td insertResultsDataDone(id,data) 
+                td When data has been retrieved and rows have been added, this function will be invoked.
+                td 
+                    ul 
+                        li id = id of the parent div element (i.e. bom)
+                        li data = search result data
+
+    h2 User Interactions 
+    p You can override the behavior of the Flat BOM display with the user interactions shown below. They all receive the UI element that got clicked as parameter elemClicked.
+        table.row-hovering
+            tr 
+                th Function 
+                th Triggering Event 
+            tr 
+                td clickListOpenInPLM(elemClicked) 
+                td User clicks the icon to open the (first) selected item in PLM
+            tr 
+                td clickListDeselectAllDone(elemClicked)
+                td This will trigger when users click the deselect all button
+            tr 
+                td clickListToggleAllDone(elemClicked) 
+                td User clicks the checkbox in the Flat BOM header to select / deselect all rows
+            tr 
+                td clickListItem(elemClicked) 
+                td When users click a BOM row element this function gets invoked. Use this click event if the given table will be hidden afterwards. If not, use 
+                    span.path clickListItemDone 
+                    |instead.
+            tr 
+            tr 
+                td clickListItemDone(elemClicked) 
+                td After users clicked a BOM row element and table updates got performed, this function gets invoked. Use this click event if the given table remains on screen. If not, use 
+                    span.path clickListItem 
+                    |instead.
+            tr 
+                td clickListItemSelect(elemClicked) 
+                td If multi-select or edit mode are enabled, this function gets invoked when users click the checkbox of an item.
+            tr 
+            tr 
+                td clickListItemSelectDone(elemClicked) 
+                td td If multi-select or edit mode are enabled, this function gets invoked when users click the checkbox of an item and the table got updated accordingly.
+            tr 
+                td saveListChangesDone(elemClicked) 
+                td Triggers when save operations finished

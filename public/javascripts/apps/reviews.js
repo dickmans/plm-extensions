@@ -7,16 +7,18 @@ $(document).ready(function() {
     appendProcessing('panel-completed', false);
     appendProcessing('panel-all', false);
     appendProcessing('comments', false);
-    appendProcessing('files', false);
-    appendProcessing('bom', false);
     appendProcessing('actions', false);
     appendViewerProcessing();
     appendOverlay();
+    
+    getApplicationFeatures('reviews', [], function(responses) {
+        
+        getTasksWorkspace();
+        getSectionIds(config.reviews.workspaces.reviews);
+        setUIEvents();
+        // setMarkupColors();
 
-    getTasksWorkspace();
-    getSectionIds(config.reviews.workspaces.reviews);
-    setUIEvents();
-    // setMarkupColors();
+    });
     
 });
 
@@ -326,16 +328,8 @@ function openSelectedItem(elemSelected) {
 
     // $('.panel-toggles').children().first().click();
 
-    let reviewType   = (elemSelected.find('.review-type'  ).length > 0) ? elemSelected.find('.review-type'  ).html() : '';
-    let reviewStatus = (elemSelected.find('.review-status').length > 0) ? elemSelected.find('.review-status').html() : '';
-
-    let elemPanelHeaderSub = $('#panel-subtitle');
-        elemPanelHeaderSub.html('');
-
-    if(reviewType   !== '') elemPanelHeaderSub.html('<span>' + reviewType + '</span>').show();
-    if(reviewStatus !== '') elemPanelHeaderSub.append($('<span>' + reviewStatus + '</span>')).show();
-
     $('#panel-title').html(elemSelected.find('.tile-title').html());
+    $('#panel-subtitle').html(elemSelected.find('.tile-subtitle').html());
 
     setDetails();
     getTransitions();
@@ -345,7 +339,7 @@ function openSelectedItem(elemSelected) {
         'header'    : true, 
         'headerLabel' : '',
         'layout'    : 'list',
-        'size'      : 'xs', 
+        'size'      : 'l', 
         'upload'    : true, 
     });
 
@@ -364,7 +358,15 @@ function setDetails() {
         $('#deficiencies').val($('<div></div>').html(getSectionFieldValue(response.data.sections, 'DEFICIENCIES', '')).text());
 
         insertViewer(linkItem);
-        insertFlatBOM(linkItem, { 'id' : 'bom'});
+        insertBOM(linkItem, { 
+            'id'        : 'bom',
+            title       : '',
+            hideDetails : true,
+            bomViewName : config.reviews.bomViewName,
+            openInPLM   : false,
+            reset       : true,
+            quantity    : true
+        });
         
         $('#comments-data').show();
         $('#comments-processing').hide();
@@ -663,38 +665,25 @@ function closeReview() {
 
 
 // Get flat BOM of selected Vault Item to init viewer
-function clickFlatBOMItem(e, elemClicked) {
+function clickBOMItemDone(elemClicked) {
 
-    elemClicked.removeClass('unread');
-    
     if(elemClicked.hasClass('selected')) {
-
-        elemClicked.removeClass('selected');
-        viewerResetSelection();
-
-    } else {
-
-        elemClicked.siblings().removeClass('selected');
-        elemClicked.addClass('selected');
-
         let partNumber = elemClicked.attr('data-part-number');
-        
-        viewerResetColors();
         viewerSelectModel(partNumber);
-
     }
 
+}
+function clickBOMDeselectAllDone(elemClicked) {
+    viewerResetSelection();
+}
+function clickBOMResetDone(elemClicked) {
+    viewerResetSelection();
 }
 
 
 
 // Forge Viewer interaction
 function initViewerDone() {
-
-    viewerAddMarkupControls();   
-    viewerAddGhostingToggle();
-    viewerAddResetButton();
-    viewerAddViewsToolbar();
 
     $('#viewer-markup-image').attr('data-field-id', 'MARKUP');
 

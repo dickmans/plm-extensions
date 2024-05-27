@@ -1,0 +1,45 @@
+#tutorial-2.doc-content 
+    h3 Tutorial #2
+    h1 Adjust Element Parameters
+    .definition In the previous tutorial, we created a new app by using the given template files. This time, we will adjust some configuration parameters of this app's content.
+        br
+        |If the steps of this tutorial fail on your side, you can review the tutorial files named 2-parameters.* in folders 
+        ul 
+            li views/tutorial
+            li public/javascripts/tutorial
+            li public/stylesheets/tutorial
+    h2 Explore MOW Parameters
+    p The new app uses the function insertMOW with its default settings to insert the user's My Outstanding Work List. This function however, provides a couple of configuration parameters that can be used to adjust its contents and behavior. 
+        br
+        |The same is true for all the function that can be found in section 
+        strong Navigation Views 
+        |and 
+        strong Item Contents 
+        |in the panel to the left.
+    p Click on  
+        span.ref(data-id='nav-mow') My Outstanding Work 
+        |in the 
+        strong Navigation Views 
+        |section in the left panel and review the list of parameters that are supported by this function and then return to this Tutorial:
+    img(src='images/docs/tutorial-2-01.png'  style='max-width:520px;border:1px solid var(--color-surface-level-5)')
+    h2 Set Parameters
+    p Open the javascript file of Tutorial #1 in an editor:
+    .code public/javascript/custom/myapp.js
+    p Adjust the call of insertMOW() by adding a parameters object with the follwing contents: 
+    p.code 
+        span.indent-1 {
+        span.indent-2 headerLabel: 'Your Change Responsibility',
+        span.indent-2 size : 'xxl',
+        span.indent-2 workspacesIn : ['82','83','84']
+        span.indent-1 }
+    p Your function call then should look like this:
+    img(src='images/docs/tutorial-2-02.png'  style='max-width:443px;')
+    p With these settings, we apply a custom header to the list (Your Change Responsibility). We also set the size of the table rows to xxl for a maximum height. Finally, we limit the MoW list to entries of workspaces 82, 83 and 84 which match to Problem Reports, Change Requests and Change Orders in standard tenants.
+    p(style='background:var(--color-red-600);font-weight:bold;padding:18px;border-radius:4px;') Changes to files in folders /public and /views get applied immediately, there is no need to restart the server afterwards. 
+        br 
+        |After saving your change to the js file, you can test the result in your browser direclty by refreshing the page.
+    h2 Showtime 
+    p Refresh your app in the browser or use the button below to open it again:
+    a.button(href='myapp' target='_blank')
+    p You should now see the new header, notice slightly taller rows and only find processes of the defined workspaces in this list:
+    img(src='images/docs/tutorial-2-03.png'  style='max-width:983px;')
