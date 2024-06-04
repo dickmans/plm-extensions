@@ -731,6 +731,33 @@ router.get('/details', function(req, res, next) {
 });
 
 
+/* ----- DERIVED FIELD VALUES ----- */
+router.get('/derived', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /derived');
+    console.log(' --------------------------------------------');
+    console.log('  req.query.pivotItemId    = ' + req.query.pivotItemId);
+    console.log('  req.query.wsId           = ' + req.query.wsId);
+    console.log('  req.query.fieldId        = ' + req.query.fieldId);
+    console.log();
+
+    let  url = 'https://' + req.session.tenant + '.autodeskplm360.net'
+        + '/api/v3/workspaces/' + req.query.wsId + '/views/1/pivots/' + req.query.fieldId
+        + '?pivotItemId=' + req.query.pivotItemId;
+
+    axios.get(url, {
+        headers : req.session.headers
+    }).then(function(response) {
+        sendResponse(req, res, response, false);
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+    
+});
+
+
+
 /* ----- GET ITEM IMAGE ----- */
 router.get('/image', function(req, res) {
    
