@@ -757,7 +757,6 @@ router.get('/derived', function(req, res, next) {
 });
 
 
-
 /* ----- GET ITEM IMAGE ----- */
 router.get('/image', function(req, res) {
    
