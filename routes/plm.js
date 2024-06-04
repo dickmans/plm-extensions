@@ -884,7 +884,7 @@ router.get('/add-grid-row', function(req, res, next) {
 
     let rowData = [];
 
-    for(field of req.query.data) {
+    for(let field of req.query.data) {
         rowData.push({
             '__self__' : '/api/v3/workspaces/' + wsId + '/views/13/fields/' + field.fieldId,
             'value' : field.value
@@ -974,7 +974,7 @@ router.get('/update-grid-row', function(req, res, next) {
 
     let rowData = [];
 
-    for(field of req.query.data) {
+    for(let field of req.query.data) {
 
         rowData.push({
             '__self__' : '/api/v3/workspaces/' + req.query.wsId + '/views/13/fields/' + field.fieldId,
@@ -995,6 +995,29 @@ router.get('/update-grid-row', function(req, res, next) {
     });
     
 });
+
+
+/* ----- REMOVE GRID ROW ----- */
+router.get('/remove-grid-row', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /remove-grid-row');
+    console.log(' --------------------------------------------'); 
+    console.log('  req.query.link    = ' + req.query.link);
+    console.log(); 
+
+    let url  = 'https://' + req.session.tenant + '.autodeskplm360.net' + req.query.link;
+    
+    axios.delete(url, {
+        headers : req.session.headers
+    }).then(function(response) {
+        sendResponse(req, res, response, false);
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+    
+});
+
 
 
 /* ----- GET ALL GRID COLUMNS ----- */
