@@ -3030,6 +3030,7 @@ function insertNextBOMLevel(id, elemTable, bom, parent, parentQuantity, selected
                     .attr('data-number',      edge.itemNumber)
                     // .attr('data-dmsId',       node.item.link.split('/')[6])
                     .attr('data-link',        node.item.link)
+                    .attr('data-root-link',   node.rootItem.link)
                     .attr('data-urn',         edge.child)
                     .attr('data-title',       node.item.title)
                     .attr('data-edgeId',      edge.edgeId)
@@ -3485,6 +3486,23 @@ function getBOMItemChhildren(elemClicked) {
     return children;
 
 }
+function getBOMItemParent(elemItem) {
+
+    let level = Number(elemItem.attr('data-level'));
+    let elemParent = null;
+
+    elemItem.prevAll().each(function() {
+        let nextLevel = Number($(this).attr('data-level'));
+        if(elemParent === null) {
+        if(nextLevel < level) {
+            elemParent = $(this);
+        }
+    }
+    });
+
+    return elemParent;
+
+}
 function getBOMItemPath(elemItem) {
 
     let result = {
@@ -3498,7 +3516,7 @@ function getBOMItemPath(elemItem) {
         let nextLevel = Number($(this).attr('data-level'));
         if(nextLevel < level) {
             result.string = $(this).attr('data-part-number') + '|' + result.string;
-            result.items.push($(this));
+            result.items.unshift($(this));
             level = nextLevel;
         }
     });
