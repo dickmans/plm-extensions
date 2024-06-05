@@ -456,6 +456,10 @@
                     td Enables button 'Toggle Details' in global toolbar to toggle the selected item's details on/off
                     td true
                 tr 
+                    td features.productDocumentation 
+                    td Enables tab 'Documentation' next to the tab 'Spare Parts', enabling users to download files attached to the context product. Note that this list will be empty if users access the Service Portal with a defined item dmsId. Only if users click on a product in the landing page of the Service Portal, this tab will contain data.
+                    td true
+                tr 
                     td features.manageProblemReports 
                     td Enables tab 'Problem Reports' next to the tab 'Spare Parts', enabling users to reveal related PRs and also to create new ones
                     td true
@@ -481,6 +485,10 @@
     .log 
         h1 Services Portal Change Log 
         table 
+            tr 
+                td 5. June 2024
+                td Enhancement 
+                td When opening the Service Portal from the landing page by selecting a product, a new Documentation tab provides access to the given product's attachments next to the list of Spare Parts. This tab can be disabled using the setting applicationFeatures.productDocumentation.
             tr 
                 td 2. May 2024
                 td Enhancement 

@@ -603,6 +603,7 @@ exports.config = {
             'homeButton'            : true,
             'toggleItemAttachments' : true,
             'toggleItemDetails'     : true,
+            'productDocumentation'  : true,
             'manageProblemReports'  : true,
             'showStock'             : true,
             'requestWorkflowActions': true

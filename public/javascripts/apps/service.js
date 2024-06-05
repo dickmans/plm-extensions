@@ -21,7 +21,8 @@ let wsSparePartsRequests    = { 'id' : '', 'sections' : [], 'fields' : [] };
 let paramsAttachments = { 
     'extensionsEx'  : '.dwf,.dwfx',
     'header'        : true, 
-    'size'          : 'xs'
+    headerLabel     : 'Item Attachments',
+    'size'          : 's'
 }
 let paramsProcesses = { 
      'headerLabel'    : '', 
@@ -77,6 +78,10 @@ $(document).ready(function() {
             $('#details').remove();
             $('#toggle-details').remove();
         }
+        if(!applicationFeatures.productDocumentation) {
+            $('#documentation').remove();
+            $('#tab-documentation').remove();
+        }
         if(!applicationFeatures.manageProblemReports) {
             $('#processes').remove();
             $('#tab-processes').remove();
@@ -115,8 +120,27 @@ $(document).ready(function() {
         }
 
         if(!isBlank(dmsId)) {
+            
             $('body').addClass('screen-main').removeClass('screen-landing').removeClass('screen-request');
-            openItem(link);
+
+            let params       = document.location.href.split('?')[1].split('&');
+            let linkProduct  = null;
+            let wsIdProduct  = null;
+            let dmsIdProduct = null;
+
+            for(let param of params) {
+                if(param.toLowerCase().indexOf('wsidproduct=') === 0) { wsIdProduct = param.split('=')[1]; }
+                else if(param.toLowerCase().indexOf('dmsidproduct=') === 0) { dmsIdProduct = param.split('=')[1]; }
+            }
+
+            if(!isBlank(wsIdProduct)) {
+                if(!isBlank(dmsIdProduct)) {
+                 linkProduct = '/api/v3/workspaces/' + wsIdProduct + '/items/' + dmsIdProduct;
+                }
+            }
+
+            openItem(link, linkProduct);
+
         } else $('#landing').show();
 
     });
@@ -241,28 +265,32 @@ function insertAvatarDone(data) {
 // Click on Product in landing page
 function clickWorkspaceItem(elemClicked, e) {
 
-    let link = elemClicked.attr('data-engineering_bom');
+    let linkEBOM     = elemClicked.attr('data-engineering_bom');
+    let linkProduct  = elemClicked.attr('data-link');
+    let splitEBOM    = linkEBOM.split('/');
+    let splitProduct = linkProduct.split('/');
 
-    if(isBlank(link)) {
+    if(isBlank(linkEBOM)) {
         showErrorMessage('Invalid Product Data', 'BOM of the selected product is not availalbe, please contact your administrator');
         return;
     }
 
     $('body').addClass('screen-main').removeClass('screen-landing').removeClass('screen-request');
 
-    let split = link.split('/');
+    window.history.replaceState(null, null, '/service?wsid=' + splitEBOM[4] + '&dmsid=' + splitEBOM[6] + '&wsidproduct=' + splitProduct[4] + '&dmsidproduct=' + splitProduct[6] + '&theme=' + theme);
 
-    window.history.replaceState(null, null, '/service?wsid=' + split[4] + '&dmsid=' + split[6] + '&theme=' + theme);
 
-    openItem(link);
+
+    openItem(linkEBOM, linkProduct);
 
 }
-function openItem(link) {
+function openItem(link, linkProduct) {
 
     $('#header-subtitle').html('');
     $('#items-list').html('');
     $('#cart-list').html('');
     $('#items-processing').show();
+    
 
     adjustCartHeight();
 
@@ -270,6 +298,21 @@ function openItem(link) {
         $('#header-subtitle').html(response.data);
         document.title = documentTitle + ': ' + response.data;
     });
+
+    if(!isBlank(linkProduct)) {
+        if(applicationFeatures.productDocumentation) {
+            $('#tab-documentation').show();
+            insertAttachments(linkProduct, {
+                id      : 'documentation',
+                header  : false,
+                upload  : false,
+                layout  : 'list',
+                size    : 'l'
+            });
+        }
+    } else if($('#tab-documentation').length > 0) { $('#tab-documentation').hide(); }
+
+    $('#tabs').children().first().click();
 
     if(isBlank(sections)) getInitialData(link.split('/')[4]);
     insertBOM(link, { 

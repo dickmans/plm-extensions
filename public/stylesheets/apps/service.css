@@ -6,8 +6,8 @@
     --padding-landing-bottom : 16px;
     --width-bom              : 550px;
     --width-details          : 400px;
-    --width-panel            : 540px;
-    --height-attachments     : 184px;
+    --width-panel            : 560px;
+    --height-attachments     : 196px;
     --width-request-history  : 300px;
     --width-request-details  : 440px;
     --height-request-files   : 226px;
@@ -140,15 +140,6 @@
 #attachments-list {
     justify-content: center;
 }
-.attachment {
-    min-width   : 140px !important;
-    width       : 140px !important;
-}
-.attachment-graphic,
-.attachment-graphic > img {
-    height : 48px !important;
-    margin : 5px 0px;
-}
 
 
 
@@ -189,7 +180,7 @@
 }
 #items-list.tiles.list.l .tile-details {
     gap     : var(--spacer-xxs);
-    width   : 250px
+    width   : 270px
 }
 .spare-part-identifier {
     display : flex;
@@ -340,7 +331,7 @@
 #cart-list .tile-details {
     margin   : 14px 20px;
     overflow : hidden;
-    width    : 210px;
+    width    : 230px;
 }
 .cart-quantity {
     display : flex;

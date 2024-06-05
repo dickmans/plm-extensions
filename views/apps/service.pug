@@ -57,6 +57,7 @@ block body
                     #cart-counter
                 .tabs#tabs(data-tab-group="tab-group-main")
                     div#tab-spare-parts.selected(data-id='items') Spare Parts
+                    div#tab-documentation(data-id='documentation') Documentation
                     div#tab-processes(data-id='processes') Problem Reports
                     div#tab-charts.hidden(data-id='charts') Maintenance
                 .panel-content.tab-group-main#items
@@ -66,6 +67,7 @@ block body
                         .button.with-icon.icon-search-list
                             input#spare-parts-search-input(placeholder="Search")
                     #items-list.list.tiles.l.no-scrollbar.surface-level-1
+                .panel-content.tab-group-main#documentation.surface-level-1
                 .panel-content.tab-group-main#processes.surface-level-1
                 .panel-content.tab-group-main#charts
                     #charts-list
