@@ -239,7 +239,7 @@ function insertAvatarDone(data) {
 
 
 // Click on Product in landing page
-function clickWorkspaceItem(e, elemClicked) {
+function clickWorkspaceItem(elemClicked, e) {
 
     let link = elemClicked.attr('data-engineering_bom');
 
