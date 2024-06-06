@@ -2545,27 +2545,27 @@ function hasBOMRestrictedFields(urn, nodes) {
 // Retrieve field value from item's grid row data
 function getGridRowValue(row, fieldId, defaultValue, property) {
 
-    for(var i = 1; i < row.rowData.length; i++) {
+    for(let iField = 1; iField < row.rowData.length; iField++) {
 
-        let field   = row.rowData[i];
+        let field   = row.rowData[iField];
         let id      = field.__self__.split('/')[10];
 
         if(id === fieldId) {
 
             let value = field.value;
 
-            if(typeof value === 'undefined') return defaultValue;
-            if(value === null) return defaultValue;
+            if(isBlank(value)) return defaultValue;
 
             if(typeof value === 'object') {
 
-                if(typeof property === 'undefined') return field.value.link;
+                if(isBlank(property)) return field.value.link;
                 else return field.value[property];
                 
             } else if(field.type.title === 'Paragraph') {
 
                 var txt = document.createElement("textarea");
                     txt.innerHTML = field.value;
+
                 return txt.value;
 
             } else {
@@ -2574,7 +2574,6 @@ function getGridRowValue(row, fieldId, defaultValue, property) {
             }
 
         }
-
     }
 
     return defaultValue;
@@ -2766,6 +2765,95 @@ function addFieldToPayload(payload, sections, elemField, fieldId, value, skipEmp
             'fields': [fieldData]
         })
     }
+
+}
+
+
+// Add all derived fields to payload, adds given section if new
+function addDerivedFieldsToPayload(payload, sections, dataDerivedFields) {
+
+    for(let section of dataDerivedFields.sections) {
+        for(let field of section.fields) {
+            let fieldId = field.__self__.split('/')[8];
+            addFieldToPayload(payload, sections, null, fieldId, field.value);
+        }
+    }
+
+}
+
+
+// Update grid rows (add, update and delete to match data provided)
+function updateGridData(link, key, data, deleteEmpty, callback) {
+
+    for(let item of data) {
+        item.addToGrid = true;
+        for(let field of item) {
+            if(field.fieldId === key) {
+                item.valueKey = field.value;
+                if(typeof item.valueKey === 'object') item.valueKey = field.value.link;
+            }
+        }
+    }
+
+    $.get('/plm/grid', { link : link }, function(response) {
+
+        let requests = [];
+
+        for(let row of response.data) {
+
+            row.hasMatch    = false;
+            row.update      = false;
+            row.valueKey    = getGridRowValue(row, key, '');
+            row.link        = row.rowData[0].__self__;
+            row.id          = row.link.split('/')[10];
+
+            if(!isBlank(row.valueKey)) {
+
+                for(let item of data) {
+                    
+                    updateRow = false;
+
+                    if(row.valueKey === item.valueKey) {
+
+                        item.addToGrid = false;
+                        row.hasMatch   = true;
+
+
+                        for(let field of item) {
+                           
+                            let valueGrid = getGridRowValue(row, field.fieldId, '');
+                            let itemValue = (typeof field.value === 'object') ? field.value.link : field.value;
+
+                            if(valueGrid !== itemValue) {
+                                row.update = true;
+                                break;
+                            }
+
+                        }
+
+                        if(row.update) requests.push($.get('/plm/update-grid-row', { link : link, rowId : row.id, data : item}))
+
+                    }
+
+                }
+
+            } else if(!deleteEmpty) row.hasMatch = true;
+
+            if(!row.hasMatch) requests.push($.get('/plm/remove-grid-row', { link : row.link}))
+
+        }
+
+        for(let item of data) {
+            if(item.addToGrid) requests.push($.get('/plm/add-grid-row', { link : link, data : item}))
+
+        }
+
+        Promise.all(requests).then(function(responses) {
+            console.log(responses);
+            callback();
+        });
+
+    });
 
 }
 
