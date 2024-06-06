@@ -5363,12 +5363,13 @@ function insertWorkflowHistory(link, params) {
     if(!isBlank(params.transitionsEx)      )       transitionsEx = params.transitionsEx;
 
     settings.workflowHistory[id]                     = {};
+    settings.workflowHistory[id].link                = link;
     settings.workflowHistory[id].showNextTransitions = showNextTransitions;
     settings.workflowHistory[id].finalStates         = finalStates;
     settings.workflowHistory[id].transitionsIn       = transitionsIn;
     settings.workflowHistory[id].transitionsEx       = transitionsEx;
 
-    let elemParent = $('#' + id)
+    let elemTop = $('#' + id)
         .addClass('workflow-history')
         .html('');
 
@@ -5376,7 +5377,7 @@ function insertWorkflowHistory(link, params) {
 
         let elemHeader = $('<div></div>', {
             id : id + '-header'
-        }).appendTo(elemParent).addClass('panel-header');
+        }).appendTo(elemTop).addClass('panel-header');
     
         if(headerToggle) {
     
@@ -5419,11 +5420,11 @@ function insertWorkflowHistory(link, params) {
 
     }
 
-    if(!header) { elemParent.addClass('no-header'); }
+    if(!header) { elemTop.addClass('no-header'); }
 
     appendProcessing(id, true);
 
-    $('<div></div>').appendTo(elemParent)
+    $('<div></div>').appendTo(elemTop)
         .attr('id', id + '-content')
         .attr('data-link', link)
         .addClass('panel-content')
@@ -5439,7 +5440,7 @@ function insertWorkflowHistoryData(id) {
     $('#' + id + '-processing').show();
 
     let elemContent = $('#' + id + '-content');
-    let link        = elemContent.attr('data-link');
+    let link        = settings.workflowHistory[id].link;
     let requests    = [ 
         $.get('/plm/workflow-history', { 'link' : link }),
         $.get('/plm/details', { 'link' : link })
