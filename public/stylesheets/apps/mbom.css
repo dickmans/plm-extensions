@@ -311,6 +311,7 @@ select.view-selector {
 /* ITEM */
 /* ----------------------------------------------------------------------------- */
 .item {
+    display : block;
     margin-top : 2px;
 }
 .item-head {
@@ -321,17 +322,20 @@ select.view-selector {
     height : 30px;
 }
 .item-toggle {
-    font-size : 20px;
-    margin-right : 5px;
-    text-align : center;
-    width : 30px;
+    font-size   : 20px;
+    text-align  : center;
+    width       : 31px;
 }
 .item-toggle > div {
     cursor : pointer;
     line-height : 28px;
 }
 .item-toggle .icon {
-    line-height : 30px;
+    line-height     : 32px;
+    width       : 100%;
+}
+.item-toggle .icon:hover {
+    color : var(--color-blue-500); 
 }
 .item-icon {
     background : var(--color-surface-level-2); 
@@ -348,25 +352,26 @@ select.view-selector {
     height: 30px;
 }
 .item-title {
-    background : var(--color-surface-level-2); 
-    border-top : 1px solid transparent;
-    border-bottom : 1px solid transparent;
-    cursor : pointer;
-    overflow : hidden;
-    padding: 0px 10px;
-    text-overflow: ellipsis;
-    white-space : nowrap;
-    width : calc(100% - 320px);
+    background      : var(--color-surface-level-2); 
+    border-top      : 1px solid transparent;
+    border-bottom   : 1px solid transparent;
+    cursor          : pointer;
+    overflow        : hidden;
+    padding         : 0px 8px;
+    text-overflow   : ellipsis;
+    white-space     : nowrap;
+    width           : calc(100% - 286px);
 }
-.item-descriptor {
-    display : inline-block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    width: calc(100% - 50px);
+.item-head-descriptor {
+    display         : inline-block;
+    overflow        : hidden;
+    text-overflow   : ellipsis;
+    width           : 100%;
 }
 .item-link {
     color : transparent;
     cursor : pointer;
+    display : none;
     float: right;
     line-height: 30px;
     font-size: 20px;
@@ -382,11 +387,11 @@ select.view-selector {
     font-weight: 800;
 }
 .item-qty {
-    background : var(--color-surface-level-2); 
-    border-top : 1px solid transparent;
-    border-right : 1px solid transparent;
-    border-bottom : 1px solid transparent;
-    width : 60px;
+    background      : var(--color-surface-level-2); 
+    border-top      : 1px solid transparent;
+    border-right    : 1px solid transparent;
+    border-bottom   : 1px solid transparent;
+    width           : 48px;
 }
 .item-qty > input {
     border: none;
@@ -397,27 +402,25 @@ select.view-selector {
     width: 48px;
     padding: 0px 0px;
 }
-.item-status {
-    border-top : 1px solid transparent;
-    border-bottom : 1px solid transparent;
-    margin : 0px 6px;
-    width : 14px;
+.item-head-status {
+    border-top      : 1px solid transparent;
+    border-bottom   : 1px solid transparent;
+    margin          : 0px 6px 0px 2px;
+    width           : 10px;
 }
 .item-actions {
-    border-top : 1px solid transparent;
-    border-bottom : 1px solid transparent;
-    display: flex;
-    gap: var(--spacer-xxs);
-    width : 108px;
+    border-top      : 1px solid transparent;
+    border-bottom   : 1px solid transparent;
+    display         : flex;
+    gap             : var(--spacer-xxs);
+    width           : 100px;
 }
 .item-action {
-    border-radius : 2px;
-    border : 1px solid var(--color-gray-600);
-    color : var(--color-font);
-    cursor : pointer;
-    height : 28px;
-    line-height : 28px;
-    text-align : center;
+    height          : 28px !important;
+    line-height     : 28px !important;
+    min-width       : 28px;
+    padding         : 0px;
+    text-align      : center;
 }
 .mbom-shortcut:hover,
 .item-action:hover {
@@ -425,8 +428,8 @@ select.view-selector {
 }
 .item-action.icon {
     font-weight : 200;
-    font-size : 22px;
-    padding : 0px 4px;
+    font-size   : 22px;
+    padding     : 0px 0px;
 }
 
 .dark-theme .item-action,
@@ -475,9 +478,13 @@ select.view-selector {
     background : var(--color-hover-background) !important;
     color : var(--color-gray-900) !important;
 }
+.item-head:hover > .item-title > .item-head-descriptor {
+    width           : calc(100% - 50px);
+}
+.item-head:hover > .item-title > .item-link { display : block; }
 .item-bom {
-    padding: 12px 0px 12px 35px;
-    overflow : auto;
+    overflow    : auto;
+    padding     : 8px 0px 8px 31px;
 }
 .item.root { border-top : none; }
 .item.root > .item-head { background : var(--color-surface-level-2); }
@@ -485,7 +492,7 @@ select.view-selector {
 .item.root > .item-head > .item-code, 
 .item.root > .item-head > .item-qty, 
 .item.root > .item-head > .item-actions,
-.item.root > .item-head > .item-status {
+.item.root > .item-head > .item-head-status {
     display : none;
 }
 .item.root > .item-bom { padding-left : 0px; }
@@ -513,11 +520,11 @@ select.view-selector {
 
 /* ITEM STATUS COLORS */
 /* ----------------------------------------------------------------------------- */
-.item.neutral    > .item-head > .item-status { background : transparent; }
-.item.additional > .item-head > .item-status { background : var(--color-status-red);    }
-.item.different  > .item-head > .item-status { background : var(--color-status-yellow); }
-.item.match      > .item-head > .item-status { background : var(--color-status-green);  }
-.item.unique     > .item-head > .item-status { background : transparent; }
+.item.neutral    > .item-head > .item-head-status { background : transparent; }
+.item.additional > .item-head > .item-head-status { background : var(--color-status-red);    }
+.item.different  > .item-head > .item-head-status { background : var(--color-status-yellow); }
+.item.match      > .item-head > .item-head-status { background : var(--color-status-green);  }
+.item.unique     > .item-head > .item-head-status { background : transparent; }
 
 
 
@@ -552,11 +559,11 @@ body.bom-panel-on .bom-panel {
     left: 0px;
 }
 #ebom-status {
-    display : flex;
-    position : absolute;
-    right : 0px;
-    bottom : 46px;
-    left : 0px;
+    display     : flex;
+    position    : absolute;
+    right       : 0px;
+    bottom      : 42px;
+    left        : 0px;
 }
 #ebom-actions {
     display : flex;
@@ -643,15 +650,18 @@ body.bom-panel-on #ebom-tree { bottom : 106px; }
 .radio-checked { display : none; }
 .selected-target > .item-head > .item-icon > .radio-unchecked { display : none; }
 .selected-target > .item-head > .item-icon > .radio-checked { display : block !important; }
-#mbom .item-title { width: calc(100% - 320px); }
-#mbom .item-qty { width : 64px; }
+#mbom .item-title { 
+    width: calc(100% - 300px); 
+}
+#mbom .item-qty {
+    width : 58px; 
+}
 #mbom .item-qty-input {
-    background : none;
-    border-bottom : 1px solid var(--color-gray-400);
-    height: 20px;
-    margin-left: 12px;
-    padding-right: 0px;
-    width: 40px;
+    background      : var(--color-surface-level-1);
+    border-bottom   : 1px solid var(--color-surface-level-5);
+    height          : 20px;
+    margin-left     : 6px;
+    width           : 46px;
 }
 #mbom .item-qty-input:focus {
     outline: 0;
@@ -808,18 +818,18 @@ select.button.view-selector { height : 36px; }
 @media only screen and (max-device-width : 1920px)  {
 
     :root {
-        /* --screen-top : 15px; */
-        --width-ebom : 800px;
-        --width-mbom : 800px;
+        --width-ebom    : 650px;
+        --width-mbom    : 650px;
         --width-details : 300px;
-        /* --padding-panel : 15px; */
     }
 
-    /* #viewer { width : 400px; } */
-    /* #divider-viewer { left : 448px; } */
-    /* #ebom { left : 479px; width : calc(50% - 278px); } */
-    /* #divider-ebom { right : calc(50% - 229px); } */
-    /* #mbom { width : calc(50% - 278px); } */
-    /* #add { width : calc(50% + 175px); } */
+}
+@media only screen and (max-device-width : 1760px)  {
+
+    :root {
+        --width-ebom    : 550px;
+        --width-mbom    : 500px;
+        --width-details : 300px;
+    }
 
 }

@@ -343,10 +343,9 @@ function insertViewOptions(suffix, tableaus) {
 
     for(tableau of tableaus) {
 
-        let elemOption = $('<option></option>');
-            elemOption.attr('value', tableau.link);
-            elemOption.html(tableau.title);
-            elemOption.appendTo($('#view-selector-' + suffix));
+        $('<option></option>').appendTo($('#view-selector-' + suffix))
+            .attr('value', tableau.link)
+            .html(tableau.title);
 
     }
 
@@ -811,7 +810,7 @@ function getBOMNode(level, urn, nodeLink, rootLink, linkEBOMRoot, descriptor, pa
         elemNodeTitle.attr('title', descriptor);
     
     let elemNodeDescriptor = $('<span></span>');
-        elemNodeDescriptor.addClass('item-descriptor');
+        elemNodeDescriptor.addClass('item-head-descriptor');
         elemNodeDescriptor.html(descriptor);
         elemNodeDescriptor.appendTo(elemNodeTitle);
 
@@ -864,10 +863,9 @@ function getBOMNode(level, urn, nodeLink, rootLink, linkEBOMRoot, descriptor, pa
         elemQtyInput.addClass('item-qty-input');
         elemQtyInput.appendTo(elemNodeQty);
     
-    let elemNodeStatus = $('<div></div>');
-        elemNodeStatus.addClass('item-status');
-        elemNodeStatus.attr('title', 'EBOM / MBOM match indicator\r\n- Green : match\r\n- Red : missing in MBOM\r\n- Orange : quantity mismatch');
-        elemNodeStatus.appendTo(elemNodeHead);
+    $('<div></div>').appendTo(elemNodeHead)
+        .addClass('item-head-status')
+        .attr('title', 'EBOM / MBOM match indicator\r\n- Green : match\r\n- Red : missing in MBOM\r\n- Orange : quantity mismatch');
     
     let elemNodeActions = $('<div></div>');
         elemNodeActions.addClass('item-actions');
@@ -963,7 +961,7 @@ function getBOMNode(level, urn, nodeLink, rootLink, linkEBOMRoot, descriptor, pa
                     let elemItem = $(this).closest('.item');
                         elemItem.addClass('to-insert');
 
-                    let itemName = elemItem.find('.item-descriptor').first().html();
+                    let itemName = elemItem.find('.item-head-descriptor').first().html();
 
                     $('#insert-item-name').html(itemName);
                     $('#dialog-insert').show();
@@ -979,7 +977,7 @@ function getBOMNode(level, urn, nodeLink, rootLink, linkEBOMRoot, descriptor, pa
                     let elemItem = $(this).closest('.item');
                         elemItem.addClass('to-convert');
 
-                    let itemName = elemItem.find('.item-descriptor').first().html();
+                    let itemName = elemItem.find('.item-head-descriptor').first().html();
 
                     $('#convert-item-name').html(itemName);
                     $('#dialog-convert').show();
@@ -1657,21 +1655,21 @@ function isMBOMLeaf(urn, level) {
 }
 function addAction(label, elemParent) {
     
-    let elemAction = $('<div></div>');
-        elemAction.addClass('item-action');
-        elemAction.html(label);
-        elemAction.appendTo(elemParent);
+    let elemAction = $('<div></div>').appendTo(elemParent)
+        .addClass('button')
+        .addClass('item-action')
+        .html(label);
     
     return elemAction;
 
 }
 function addActionIcon(icon, elemParent) {
     
-    let elemAction = $('<div></div>');
-        elemAction.addClass('item-action');
-        elemAction.addClass('icon');
-        elemAction.html(icon);
-        elemAction.appendTo(elemParent);
+    let elemAction = $('<div></div>').appendTo(elemParent)
+        .addClass('button')
+        .addClass('item-action')
+        .addClass('icon')
+        .html(icon);
     
     return elemAction;
 
@@ -1767,10 +1765,10 @@ function insertMBOMActions(elemActions) {
             event.preventDefault();
 
             let item        = $(this).closest('.item');
-            let itemName    = item.find('.item-descriptor').first().html();
+            let itemName    = item.find('.item-head-descriptor').first().html();
             let itemQty     = item.find('.item-qty-input').val();
             let target      = $(this).closest('.selected-target');
-            let targetName  = target.find('.item-descriptor').first().html();
+            let targetName  = target.find('.item-head-descriptor').first().html();
 
             $('.to-move').removeClass('to-move');
             item.addClass('to-move');
@@ -2591,10 +2589,8 @@ function insertAdditionalItem(elemHead, title, urn, link) {
         elemQtyInput.val(qty);
         elemQtyInput.appendTo(elemNodeQty);
     
-    let elemNodeStatus = $('<div></div>');
-        elemNodeStatus.addClass('item-status');
-        elemNodeStatus.appendTo(elemNodeHead);
-    
+    $('<div></div>').appendTo(elemNodeHead)
+        .addClass('item-head-status');
     
     let elemNodeActions = $('<div></div>');
         elemNodeActions.addClass('item-actions');
@@ -2751,10 +2747,6 @@ function closedViewerMarkup(markupSVG, markupState) {
     let partNumber  = $('#viewer-note').attr('data-part-number');
 
     let add = true;
-
-    console.log(note);
-    console.log(markupSVG);
-    console.log(markupState);
 
     for(instruction of instructions) {
         if(instruction.link === link) {
@@ -3018,10 +3010,10 @@ function createNewItems() {
             if(requests.length < maxRequests) {
 
                 let elemItem = $(this);
-                let title    = elemItem.find('.item-descriptor').html();
+                let title    = elemItem.find('.item-head-descriptor').html();
                 let code     = elemItem.find('.item-code').html();
                 
-                if(elemItem.find('.item-descriptor').length === 0) title = elemItem.find('.item-title').html();
+                if(elemItem.find('.item-head-descriptor').length === 0) title = elemItem.find('.item-title').html();
 
                 let params = {
                     'wsId'      : config.mbom.wsIdMBOM,
@@ -3079,9 +3071,9 @@ function createNewItems() {
                         elemItem.removeClass('pending-creation');
 
                     let elemHead = elemItem.children().first();
-                        elemHead.find('.item-descriptor').html(response.data);    
+                        elemHead.find('.item-head-descriptor').html(response.data);    
                     
-                    if(elemHead.find('.item-descriptor').length === 0) elemHead.find('.item-title').html(response.data);
+                    if(elemHead.find('.item-head-descriptor').length === 0) elemHead.find('.item-title').html(response.data);
 
                 }
 
