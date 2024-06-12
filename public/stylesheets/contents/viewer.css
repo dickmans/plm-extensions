@@ -118,7 +118,7 @@
 }
 #viewer-file-browser-panel {
     border-radius   : 4px;
-    border-width    : 30px;
+    border-width    : 40px;
     max-width       : 500px;
     min-width       : 250px;
     width           : 500px;
@@ -134,7 +134,12 @@
     font-weight : 800;
     line-height : 40px;
 }
-
+#viewer-file-browser-list {
+    margin-bottom : 20px;
+}
+#viewer-file-browser-list .tile-title {
+    line-height : 22px;
+}
 
 
 /*  APS VIEWER MARKUP */
