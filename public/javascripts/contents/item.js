@@ -2500,6 +2500,7 @@ function insertBOM(link , params) {
     let depth               = 10;        // BOM Levels to expand
     let showRestricted      = false;     // When set to true, red lock icons will be shown if an item's BOM contains items that are not accessilbe for the user due to access permissions
     let selectItems         = {};
+    let selectUnique        = true;      // Defines if only unique items should be returned based on selectItems filter, skipping following instances of the same item
     let getFlatBOM          = false;     // Retrieve Flat BOM at the same time (i.e. to get total quantities)
     let additionalRequests  = [];        // Array of additional requests which will be submitted in parallel to the BOM request
 
@@ -2529,6 +2530,7 @@ function insertBOM(link , params) {
     if(!isBlank(params.depth)             )              depth = params.depth;
     if(!isBlank(params.showRestricted)    )     showRestricted = params.showRestricted;
     if(!isBlank(params.selectItems)       )        selectItems = params.selectItems;
+    if(!isBlank(params.selectUnique)      )       selectUnique = params.selectUnique;
     if(!isBlank(params.getFlatBOM)        )         getFlatBOM = params.getFlatBOM;
     if(!isBlank(params.additionalRequests)) additionalRequests = params.additionalRequests;
 
@@ -2542,6 +2544,7 @@ function insertBOM(link , params) {
     settings.bom[id].depth              = depth;
     settings.bom[id].showRestricted     = showRestricted;
     settings.bom[id].selectItems        = selectItems;
+    settings.bom[id].selectUnique       = selectUnique;
     settings.bom[id].endItemFieldId     = null;
     settings.bom[id].endItemValue       = null;
     settings.bom[id].getFlatBOM         = getFlatBOM;
@@ -3111,16 +3114,19 @@ function insertNextBOMLevel(id, elemTable, bom, parent, parentQuantity, selected
 
                             let selectItem = true;
 
-                            for(let selectedItem of selectedItems) {
-                                if(selectedItem.node.item.link === node.item.link) {
-                                    selectItem = false;
-                                    break;
+                            if(settings.bom[id].selectUnique) {
+                                for(let selectedItem of selectedItems) {
+                                    if(selectedItem.node.item.link === node.item.link) {
+                                        selectItem = false;
+                                        break;
+                                    }
                                 }
                             }
 
                             if(selectItem) {
                                 selectedItems.push({
-                                    'node' : node
+                                    'node' : node,
+                                    'edge' : edge
                                 })
                             }
 
