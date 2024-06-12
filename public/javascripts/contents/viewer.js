@@ -125,9 +125,11 @@ function initViewer(id, viewables, params) {
     dataInstances = [];
 
     var options = {
-        logLevel    : 1,
-        env         : 'AutodeskProduction',
-        api         : 'derivativeV2',  // for models uploaded to EMEA change this option to 'derivativeV2_EU'
+        // logLevel    : 1,
+        // env         : 'AutodeskProduction',
+        // api         : 'derivativeV2',  // for models uploaded to EMEA change this option to 'derivativeV2_EU'
+        env: 'AutodeskProduction2',
+        api: 'streamingV2',   // for models uploaded to EMEA change this option to 'streamingV2_EU'
         getAccessToken  : function(onTokenReady) {
             var token = viewables[0].token;
             var timeInSeconds = 3600; 
@@ -209,6 +211,7 @@ function onViewerGeometryLoaded() {
     setViewerFeatures();
     setViewerInstancedData();
 }
+function onViewerLoadingDone() {}
 function setViewerFeatures() {
 
     if (Object.keys(applicationFeatures).length === 0) {
@@ -447,7 +450,9 @@ function getInstancePartNumber(instance) {
     return null;
 
 }
-function setViewerInstancedDataDone() {}
+function setViewerInstancedDataDone() {
+    onViewerLoadingDone();
+}
 
 
 
@@ -577,9 +582,17 @@ function viewerSelectModels(partNumbers, params) {
     if(isolate)     viewer.hideAll();
     if(resetColors) viewer.clearThemingColors();
 
-    let toolbar = $('#customSelectionToolbar');
-    if(toolbar.length > 0) {
-        highlight = toolbar.hasClass('highlight-on');
+    if(!isBlank(applicationFeatures)) {
+        if(!isBlank(applicationFeatures.viewer)) {
+            if(!isBlank(applicationFeatures.viewer.highlight)) {
+                if(applicationFeatures.viewer.highlight) {
+                    let toolbar = $('#customSelectionToolbar');
+                    if(toolbar.length > 0) {
+                        highlight = toolbar.hasClass('highlight-on');
+                    }
+                }
+            }
+        }
     }
 
     for(let dataInstance of dataInstances) {
@@ -843,7 +856,7 @@ function viewerSetColors(partNumbers, params) {
     for(let dataInstance of dataInstances) {
         for(let partNumber of partNumbers) {
             if(dataInstance.partNumber === partNumber) {
-                if(hiddenInstances.indexOf(dbId < 0)) {
+                if(hiddenInstances.indexOf(dataInstance.dbId < 0)) {
                     dbIds.push(dataInstance.dbId);
                     if(unhide) viewer.show(dataInstance.dbId);
                     viewer.setThemingColor(dataInstance.dbId, color, null, true );
