@@ -45,9 +45,13 @@ $(document).ready(function() {
     appendProcessing('details');
     appendOverlay();
 
-    insertSearchFilters();
-    setUIEvents();
-    getInitialData();   
+    getApplicationFeatures('mbom', [], function(responses) {
+
+        insertSearchFilters();
+        setUIEvents();
+        getInitialData();   
+
+    });
         
 });
 
@@ -2089,10 +2093,12 @@ function selectItem(elemItem, filter) {
 
                 if(elemMBOM.length === 1) {
                     elemItem.addClass('current-mbom');
-                    viewerSelectModel(partNumber, { 'fitToView' : false, resetColors : true });
+                    viewerSelectModel(partNumber, { 'fitToView' : false, resetColors : true, highlight : true });
                     if(!filter) selectAdjacentMBOMModels();
                 } else {
-                    viewerSelectModel(partNumber);
+                    viewerSelectModel(partNumber, {
+                        highlight : true
+                    });
                 }
 
             }
@@ -2731,12 +2737,12 @@ function initViewerDone() {
     
     viewerStarted = true;
 
-    viewerAddNoteControls();
-    viewerAddMarkupControls();   
+    // viewerAddNoteControls();
+    // viewerAddMarkupControls();   
     // viewerAddGhostingToggle();
     // viewerAddResetButton();
-    viewerAddViewsToolbar();
-
+    // viewerAddViewsToolbar();
+// 
 }
 function closedViewerMarkup(markupSVG, markupState) {
 
