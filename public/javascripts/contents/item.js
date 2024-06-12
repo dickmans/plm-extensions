@@ -2477,58 +2477,60 @@ function insertBOM(link , params) {
 
     //  Set defaults for optional parameters
     // --------------------------------------
-    let id              = 'bom';     // id of DOM element where the BOM will be inseerted
-    let title           = 'BOM';     // Title being shown on top of the BOM display
-    let compactDisplay  = false;     // Optimizes CSS settings for a compact display
-    let bomViewName     = '';        // Name of the BOM view in PLM to use (if no value is provided, the first view will be used)
-    let collapsed       = false;     // When enabled, the BOM will be collapsed at startup
-    let multiSelect     = false;     // Enables selection of multiple items and adds buttons to select / deselect all elements as well as checkboxes
-    let deselect        = true;      // Adds button to deselect selected element (not available if multiSelect is enabled)
-    let reset           = false;     // Reset the BOM view to its default layout
-    let openInPLM       = true;      // Adds button to open selected element in PLM
-    let goThere         = false;     // Adds button to open the same view for the selected element
-    let toggles         = true;      // Enables expand all / collapse all buttons on top of BOM
-    let views           = false;     // Adds drop down menu to select from the available PLM BOM views
-    let search          = true;      // Adds quick filtering using search input on top of BOM
-    let position        = true;      // When set to true, the position / find number will be displayed
-    let quantity        = false;     // When set to true, the quantity column will be displayed
-    let hideDetails     = true;      // When set to true, detail columns will be skipped, only the descriptor will be shown
-    let headers         = true;      // When set to false, the table headers will not be shown
-    let path            = true;      // Display path of selected component in BOM, enabling quick navigation to parent(s)
-    let counters        = true;      // When set to true, a footer will inidicate total items, selected items and filtered items
-    let revisionBias    = 'release'; // Set BOM configuration to expand [release, working, changeOrder, allChangeOrder]
-    let depth           = 10;        // BOM Levels to expand
-    let showRestricted  = false;     // When set to true, red lock icons will be shown if an item's BOM contains items that are not accessilbe for the user due to access permissions
-    let selectItems     = {};
-    let getFlatBOM      = false;     // Retrieve Flat BOM at the same time (i.e. to get total quantities)
+    let id                  = 'bom';     // id of DOM element where the BOM will be inseerted
+    let title               = 'BOM';     // Title being shown on top of the BOM display
+    let compactDisplay      = false;     // Optimizes CSS settings for a compact display
+    let bomViewName         = '';        // Name of the BOM view in PLM to use (if no value is provided, the first view will be used)
+    let collapsed           = false;     // When enabled, the BOM will be collapsed at startup
+    let multiSelect         = false;     // Enables selection of multiple items and adds buttons to select / deselect all elements as well as checkboxes
+    let deselect            = true;      // Adds button to deselect selected element (not available if multiSelect is enabled)
+    let reset               = false;     // Reset the BOM view to its default layout
+    let openInPLM           = true;      // Adds button to open selected element in PLM
+    let goThere             = false;     // Adds button to open the same view for the selected element
+    let toggles             = true;      // Enables expand all / collapse all buttons on top of BOM
+    let views               = false;     // Adds drop down menu to select from the available PLM BOM views
+    let search              = true;      // Adds quick filtering using search input on top of BOM
+    let position            = true;      // When set to true, the position / find number will be displayed
+    let quantity            = false;     // When set to true, the quantity column will be displayed
+    let hideDetails         = true;      // When set to true, detail columns will be skipped, only the descriptor will be shown
+    let headers             = true;      // When set to false, the table headers will not be shown
+    let path                = true;      // Display path of selected component in BOM, enabling quick navigation to parent(s)
+    let counters            = true;      // When set to true, a footer will inidicate total items, selected items and filtered items
+    let revisionBias        = 'release'; // Set BOM configuration to expand [release, working, changeOrder, allChangeOrder]
+    let depth               = 10;        // BOM Levels to expand
+    let showRestricted      = false;     // When set to true, red lock icons will be shown if an item's BOM contains items that are not accessilbe for the user due to access permissions
+    let selectItems         = {};
+    let getFlatBOM          = false;     // Retrieve Flat BOM at the same time (i.e. to get total quantities)
+    let additionalRequests  = [];        // Array of additional requests which will be submitted in parallel to the BOM request
 
 
     if(isBlank(link)) return;
     if(isBlank(params)) params = {};
 
-    if(!isBlank(params.id)              )             id = params.id;
-    if(!isEmpty(params.title)           )          title = params.title;
-    if(!isBlank(params.compactDisplay)  ) compactDisplay = params.compactDisplay;
-    if(!isBlank(params.bomViewName)     )    bomViewName = params.bomViewName;
-    if(!isBlank(params.collapsed)       )      collapsed = params.collapsed;
-    if(!isBlank(params.multiSelect)     )    multiSelect = params.multiSelect;
-    if(!isBlank(params.deselect)        )       deselect = params.deselect;
-    if(!isBlank(params.reset)           )          reset = params.reset;
-    if(!isBlank(params.openInPLM)       )      openInPLM = params.openInPLM;
-    if(!isBlank(params.goThere)         )        goThere = params.goThere;
-    if(!isBlank(params.toggles)         )        toggles = params.toggles;
-    if(!isBlank(params.views)           )          views = params.views;
-    if(!isBlank(params.search)          )         search = params.search;
-    if(!isBlank(params.position)        )       position = params.position;
-    if(!isBlank(params.quantity)        )       quantity = params.quantity;
-    if(!isBlank(params.hideDetails)     )  { hideDetails = params.hideDetails } else { hideDetails = ((bomViewName === '') && (views === false)); }
-    if(!isBlank(params.headers)         )      { headers = params.headers } else { headers = !hideDetails; }
-    if(!isBlank(params.counters)        )       counters = params.counters;
-    if(!isBlank(params.revisionBias)    )   revisionBias = params.revisionBias;
-    if(!isBlank(params.depth)           )          depth = params.depth;
-    if(!isBlank(params.showRestricted)  ) showRestricted = params.showRestricted;
-    if(!isBlank(params.selectItems)     )    selectItems = params.selectItems;
-    if(!isBlank(params.getFlatBOM)      )     getFlatBOM = params.getFlatBOM;
+    if(!isBlank(params.id)                )                 id = params.id;
+    if(!isEmpty(params.title)             )              title = params.title;
+    if(!isBlank(params.compactDisplay)    )     compactDisplay = params.compactDisplay;
+    if(!isBlank(params.bomViewName)       )        bomViewName = params.bomViewName;
+    if(!isBlank(params.collapsed)         )          collapsed = params.collapsed;
+    if(!isBlank(params.multiSelect)       )        multiSelect = params.multiSelect;
+    if(!isBlank(params.deselect)          )           deselect = params.deselect;
+    if(!isBlank(params.reset)             )              reset = params.reset;
+    if(!isBlank(params.openInPLM)         )          openInPLM = params.openInPLM;
+    if(!isBlank(params.goThere)           )            goThere = params.goThere;
+    if(!isBlank(params.toggles)           )            toggles = params.toggles;
+    if(!isBlank(params.views)             )              views = params.views;
+    if(!isBlank(params.search)            )             search = params.search;
+    if(!isBlank(params.position)          )           position = params.position;
+    if(!isBlank(params.quantity)          )           quantity = params.quantity;
+    if(!isBlank(params.hideDetails)       )      { hideDetails = params.hideDetails } else { hideDetails = ((bomViewName === '') && (views === false)); }
+    if(!isBlank(params.headers)           )          { headers = params.headers } else { headers = !hideDetails; }
+    if(!isBlank(params.counters)          )           counters = params.counters;
+    if(!isBlank(params.revisionBias)      )       revisionBias = params.revisionBias;
+    if(!isBlank(params.depth)             )              depth = params.depth;
+    if(!isBlank(params.showRestricted)    )     showRestricted = params.showRestricted;
+    if(!isBlank(params.selectItems)       )        selectItems = params.selectItems;
+    if(!isBlank(params.getFlatBOM)        )         getFlatBOM = params.getFlatBOM;
+    if(!isBlank(params.additionalRequests)) additionalRequests = params.additionalRequests;
 
 
     settings.bom[id] = {};
@@ -2543,6 +2545,7 @@ function insertBOM(link , params) {
     settings.bom[id].endItemFieldId     = null;
     settings.bom[id].endItemValue       = null;
     settings.bom[id].getFlatBOM         = getFlatBOM;
+    settings.bom[id].additionalRequests = additionalRequests;
     settings.bom[id].fieldURNPartNumber = '';
     settings.bom[id].fieldURNQuantity   = '';
     settings.bom[id].fieldURNEndItem    = '';
@@ -2895,6 +2898,8 @@ function changeBOMView(id) {
 
     if(settings.bom[id].getFlatBOM) requests.push($.get('/plm/bom-flat', params));
 
+    for(let request of settings.bom[id].additionalRequests) requests.push(request);
+
     Promise.all(requests).then(function(responses) {
 
         setBOMHeaders(id, bomView.fields);
@@ -2907,15 +2912,24 @@ function changeBOMView(id) {
         if(!elemBOM.hasClass('no-bom-path')) { $('#' + id + '-bom-path').css('display', 'flex'); }
         if(!elemBOM.hasClass('no-bom-counters')) { $('#' + id + '-bom-counters').show(); }
 
-        if(settings.bom[id].getFlatBOM) changeBOMViewDone(id, bomView.fields, responses[0].data, selectedItems, responses[1].data);
-        else                            changeBOMViewDone(id, bomView.fields, responses[0].data, selectedItems, []);
+        let dataFlatBOM     = null;
+        let dataAdditional  = [];
+        let indexAdditional = 1;
+
+        if(settings.bom[id].getFlatBOM) dataFlatBOM = responses[indexAdditional++].data;
+
+        while (indexAdditional < responses.length) {
+            dataAdditional.push(responses[indexAdditional++]);
+        } 
+
+        changeBOMViewDone(id, bomView.fields, responses[0].data, selectedItems, dataFlatBOM, dataAdditional);
         
         elemProcessing.hide();
 
     });
 
 }
-function changeBOMViewDone(id, fields, bom, selectedItems, flatBOM) {}
+function changeBOMViewDone(id, fields, bom, selectedItems, dataFlatBOM, dataAdditional) {}
 function setBOMHeaders(id, fields) {
 
     let elemBOMTableHead = $('#'+  id + '-thead');
