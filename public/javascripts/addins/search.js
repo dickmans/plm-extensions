@@ -5,7 +5,10 @@ $(document).ready(function() {
     appendProcessing('recents');
     appendProcessing('bookmarks');
 
-    insertWorkspaceViews('views', '57', '', false, 3);
+    // insertWorkspaceViews('views', '57', '', false, 3);
+    insertWorkspaceViews('57', {
+        id : 'views'
+    });
 
     setUIEvents();
 
@@ -136,7 +139,7 @@ function performSearchMaterials() {
 
             for(record of response.data.items) {
 
-                let elemTile = genTile(record.__self__, '', '', 'view_in_ar', record.descriptor, record.workspaceLongName);
+                let elemTile = genTile(record.__self__, '', 'icon-product', record.descriptor, record.workspaceLongName);
                     elemTile.appendTo(elemList);
                     elemTile.click(function(e) {
                         e.preventDefault();

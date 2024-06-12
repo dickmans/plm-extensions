@@ -6,7 +6,10 @@ $(document).ready(function() {
 
     setUIEvents();
 
-    insertWorkspaceViews('tasks', '80', 'Änderungsaufgaben', true, 3, true, true);
+    insertWorkspaceViews('80', {
+        id : 'tasks',
+        headerLabel : 'Your Change Tasks'
+    });
 
 });
 
@@ -46,7 +49,8 @@ function setUIEvents() {
         
                     let link = response.data.items[0].__self__;
 
-                    let elemTile = genTile(link, '', '', 'view_in_ar', response.data.items[0].descriptor);
+                    // let elemTile = genTile(link, '', '', 'view_in_ar', response.data.items[0].descriptor);
+                    let elemTile = genTile(link, '', '', 'icon-3d', response.data.items[0].descriptor);
                         elemTile.appendTo($('#add-root'));
                         insertTileActions('add-root');
 
@@ -131,7 +135,9 @@ function openChangeTask(elemClicked) {
     insertManagedItems(link, 'managed-items', 'settings');
     insertAttachments(link);
     insertWorkflowActions(link);
-    insertWorkflowHistory(link, 'history');
+    insertWorkflowHistory(link,  {
+        id : 'history'
+    });
 
 
 }
@@ -141,7 +147,8 @@ function insertItemDetailsDone(id) {
         let elemField = $(this);
         elemField.addClass('surface-level-1');
         let fieldId = elemField.attr('data-id');
-        if(fieldId === 'AFFECTED_ITEM') {
+        // if(fieldId === 'AFFECTED_ITEM') {
+        if(fieldId === 'REFERENCE_ITEM') {
 
             let title = elemField.html();
 

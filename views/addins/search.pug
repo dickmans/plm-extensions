@@ -20,27 +20,27 @@ block body
         .screen.surface-level-1  
 
             .tabs.surface-level-2#tabs(data-tab-group="tab-group-main")
-                .tab#tab-search Artikel
-                .tab#tab-materials Rohmaterialien
-                .tab#tab-views Ansichten
-                .tab#tab-recents Zuletzt Angesehen 
-                .tab#tab-bookmarks Lesezeichen 
+                .tab#tab-search Search
+                //- .tab#tab-materials Rohmaterialien
+                .tab#tab-views Navigate
+                .tab#tab-recents Recently Viewed
+                .tab#tab-bookmarks Bookmarks 
 
             .panel.tab-group-main#search
                 .panel-header#search-header.search-header
                 .panel-toolbar#search-actions.search-actions
-                    input#search-input.search-input.surface-level-2(placeholder='Nummer / Bezeichnung des Artikels')
-                    #search-submit.button.default Suche
+                    input#search-input.search-input.surface-level-2(placeholder='Search by item number / title')
+                    #search-submit.button.default Search
                 .panel-content#search-list.list.tiles.xxs.search-result-list.surface-level-1
-                .panel-content#search-no-results.search-result-message Keine Ergebnisse gefunden
+                .panel-content#search-no-results.search-result-message No results
 
-            .panel.tab-group-main#materials
-                .panel-header#materials-header.search-header
-                .panel-toolbar#materials-actions.search-actions
-                    input#materials-input.search-input.surface-level-2(placeholder='Nummer / Bezeichnung des Rohmaterials')
-                    #materials-submit.button.default Suche
-                .panel-content#materials-list.list.tiles.xxs.search-result-list.surface-level-1
-                .panel-content#materials-no-results.search-result-message Keine Ergebnisse gefunden
+            //- .panel.tab-group-main#materials
+            //-     .panel-header#materials-header.search-header
+            //-     .panel-toolbar#materials-actions.search-actions
+            //-         input#materials-input.search-input.surface-level-2(placeholder='Nummer / Bezeichnung des Rohmaterials')
+            //-         #materials-submit.button.default Suche
+            //-     .panel-content#materials-list.list.tiles.xxs.search-result-list.surface-level-1
+            //-     .panel-content#materials-no-results.search-result-message Keine Ergebnisse gefunden
 
             .panel.tab-group-main#views
 
