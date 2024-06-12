@@ -265,7 +265,7 @@ function insertAvatarDone(data) {
 // Click on Product in landing page
 function clickWorkspaceItem(elemClicked, e) {
 
-    let linkEBOM     = elemClicked.attr('data-engineering_bom');
+    let linkEBOM     = elemClicked.attr('data-' + config.service.productsFieldIdBOM.toLowerCase());
     let linkProduct  = elemClicked.attr('data-link');
     let splitEBOM    = linkEBOM.split('/');
     let splitProduct = linkProduct.split('/');
