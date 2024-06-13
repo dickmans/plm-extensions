@@ -95,7 +95,7 @@ body.details-on #details         { right : var(--padding-panel); }
 /* ----------------------------------------------------------------------------- */
 
 
-/* FORGE VIEWER */
+/* VIEWER */
 /* ----------------------------------------------------------------------------- */
 #navTools, 
 #toolbar-modelStructureTool, 
@@ -589,15 +589,16 @@ body.bom-panel-on .bom-panel {
 #ebom .item-has-bom > .item-head > .item-actions > div { display : block; }
 #ebom .item-has-bom > .item-head:hover .item-actions > div { display : block !important; }
 .mbom-shortcut {
-    font-weight: 200;
-    font-size: 24px;
-    border-radius: 2px;
-    border: 1px solid var(--color-gray-600);
-    width: 28px;
-    height: 28px;
-    margin: 0px;
-    line-height: 28px !important;
-    cursor: pointer;
+    border          : 1px solid var(--color-gray-600);
+    border-radius   : 2px;
+    cursor          : pointer;
+    font-size       : 22px;
+    font-weight     : 200;
+    height          : 30px;
+    line-height     : 30px !important;
+    max-width       : 25px;
+    margin          : 0px 4px 0px 0px;
+    /* width: 28px; */
 }
 .mbom-shortcut::before { content : '\ebbc'; }
 #ebom .bom-panel {
@@ -651,7 +652,7 @@ body.bom-panel-on #ebom-tree { bottom : 106px; }
 .selected-target > .item-head > .item-icon > .radio-unchecked { display : none; }
 .selected-target > .item-head > .item-icon > .radio-checked { display : block !important; }
 #mbom .item-title { 
-    width: calc(100% - 300px); 
+    width: calc(100% - 294px); 
 }
 #mbom .item-qty {
     width : 58px; 
@@ -674,6 +675,9 @@ body.bom-panel-on #ebom-tree { bottom : 106px; }
 }
 .item.operation > .item-head > .item-qty > input { display : none; }
 .item.operation > .item-head > .item-actions > .button-copy { display : none; }
+#mbom .item-action {
+    width : 28px;
+}
 body.bom-panel-on #mbom-tree { bottom : 106px; }
 .drop-hover,
 .drop-hover > div {
