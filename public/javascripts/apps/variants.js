@@ -1076,7 +1076,7 @@ function createNewVariant() {
 
 
 // Highlight item in viewer and display item details upon selection in BOM
-function clickBOMItem(e, elemClicked) {
+function clickBOMItem(elemClicked, e) {
 
     elemClicked.toggleClass('selected');
     elemClicked.siblings().removeClass('selected');
