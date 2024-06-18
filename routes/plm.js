@@ -1307,6 +1307,31 @@ router.get('/update-managed-item', function(req, res, next) {
 });
 
 
+/* ----- REMOVE MANAGED ITEM ----- */
+router.get('/remove-managed-item', function(req, res, next) {
+
+    console.log(' ');
+    console.log('  /remove-managed-items');
+    console.log(' --------------------------------------------');  
+    console.log('  req.query.wsId   = ' + req.query.wsId);
+    console.log('  req.query.dmsId  = ' + req.query.dmsId);
+    console.log('  req.query.link   = ' + req.query.link);
+    console.log('  req.query.itemId = ' + req.query.itemId);
+
+    let url =  (typeof req.query.link !== 'undefined') ? req.query.link : '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId;
+        url = 'https://' + req.session.tenant + '.autodeskplm360.net' + url + '/views/11/affected-items/' + req.query.itemId;
+
+    axios.delete(url, {
+        headers : req.session.headers
+    }).then(function(response) {
+        sendResponse(req, res, response, error);
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+    
+});
+
+
 /* ----- RELATED CHANGES ----- */
 router.get('/changes', function(req, res, next) {
     
