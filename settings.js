@@ -1,7 +1,7 @@
 // Fusion 360 Manage connection based on APS Application
 let clientId        = '';
 let clientSecret    = '';
-let tenant          = '';
+let tenant          = 'hawacloudsandbox';
 let redirectUri     = 'http://localhost:8080/callback';
 let defaultTheme    = 'light';
 
@@ -82,9 +82,9 @@ exports.config = {
     'vectors' : vectors,
 
     'configurator' : {
-        'wsIdEningeeringItems'      : '57',
+        'wsIdEningeeringItems'      : '79',
         'wsIdConfigurationFeatures' : '274',
-        'bomViewName'               : 'Configurator',
+        'bomViewName'               : 'Basic',
         'fieldIdFeatures'           : 'FEATURES',
         'fieldIdOptions'            : 'OPTIONS',
         'fieldIdInclusions'         : 'INCLUSIONS',
@@ -170,10 +170,10 @@ exports.config = {
     }],
 
     'explorer' : {
-        'bomViewName'          : 'Details',
+        'bomViewName'          : 'Basic',
         'fieldIdPRImage'       : 'IMAGE_1',
         'fieldIdPRContext'     : 'AFFECTED_ITEM',
-        'wsIdItems'            : 57,
+        'wsIdItems'            : 79,
         'wsIdProblemReports'   : 82,
         'wsIdSupplierPackages' : 147,
         'kpis' : [{
