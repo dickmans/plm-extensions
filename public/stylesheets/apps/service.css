@@ -10,7 +10,7 @@
     --height-attachments     : 196px;
     --width-request-history  : 300px;
     --width-request-details  : 440px;
-    --height-request-files   : 226px;
+    --height-request-files   : 210px;
     --padding-panel          :  24px;
 
 }
@@ -520,6 +520,7 @@
     display     : flex;
     font-size   : 14px;
     gap         : 16px;
+    width       : 100%;
 }
 .item-status {
     background      : var(--color-status-yellow);
