@@ -37,6 +37,10 @@ function setUIEvents() {
 
     
         $.get( '/plm/get-viewables', { 'wsId' : selectedManagedItem.wsId, 'dmsId' : selectedManagedItem.prev }, function(response) {
+
+
+            console.log(response);
+
     
             if(response.data.length > 0) {
     
@@ -47,9 +51,9 @@ function setUIEvents() {
                     // console.log(resourceName);
     
                     // if((resourceName.indexOf('.iam.dwf') > 0) || (resourceName.indexOf('.ipt.dwf') > 0)){
-                        $.get( '/plm/get-viewable', { 'link' : viewable.selfLink } , function(response) {        
-                            addToViewer(response.data);
-                        });
+                        // $.get( '/plm/get-viewable', { 'link' : viewable.selfLink } , function(response) {        
+                            addToViewer(response.data[0]);
+                        // });
                     // }
     
                 // }
@@ -572,89 +576,149 @@ function initViewerDone() {
 
 
 // Get viewables of selected Vault Item to init viewer
-function addToViewer(data) {
+function addToViewer(model) {
+
+    if(typeof model.offsetX === 'undefined') model.offsetX = 0;
+    if(typeof model.offsetY === 'undefined') model.offsetY = 0;
+    if(typeof model.offsetZ === 'undefined') model.offsetZ = 0;
+
+    if(typeof model.angleX === 'undefined') model.angleX = 0;
+    if(typeof model.angleY === 'undefined') model.angleY = 0;
+    if(typeof model.angleZ === 'undefined') model.angleZ = 0;
+
+
+    Autodesk.Viewing.Document.load('urn:'+ model.urn, function(doc) {
+    
+        const rotation = new THREE.Matrix4().makeRotationX(Number(model.angleX)).makeRotationY(Number(model.angleY));
+        const translation = new THREE.Matrix4().makeTranslation(Number(model.offsetX), Number(model.offsetY), Number(model.offsetZ));
+        
+        var viewable = doc.getRoot().getDefaultGeometry();
+        viewer.loadDocumentNode(doc, viewable, {
+            keepCurrentModels: true,
+            // preserveView: true,
+            // preserveView: false,
+            // keepCurrentModels: true,
+                            // placementTransform: (new THREE.Matrix4()).setPosition({x:-1000,y:1000,z:0}),
+                            // placementTransform: (new THREE.Matrix4()).makeRotationY(90).makeRotationZ(90).setPosition({x:-1000,y:1000,z:0}),
+                            // placementTransform: (new THREE.Matrix4()).makeRotationX(Number(model.angleX)).makeRotationY(Number(model.angleY)).makeRotationZ(Number(model.angleZ)).setPosition({x:Number(model.offsetX), y:Number(model.offsetY), z:Number(model.offsetZ)}),
+                            // placementTransform: translation,   // works
+                            // placementTransform: rotation, // fails
+                            // placementTransform: new THREE.Matrix4().makeRotationX(Number(model.angleX)), // works
+                            // placementTransform: new THREE.Matrix4().makeRotationX(Number(model.angleX)).makeTranslation(Number(model.offsetX), Number(model.offsetY), Number(model.offsetZ)), // fails
+            // placementTransform: rotation.multiply(translation), // works
+            // keepCurrentModels: true,
+            globalOffset: {x:0,y:0,z:0}
+        }).then(function(result) {
+            // viewer.showAll();
+            modelDiff();
+        }).catch(function(err) {
+            console.log(err);
+        });
+
+    }, onDocumentLoadFailure);
+
+
 
     // console.log(data);
 
     // if(index < documents.length) {
         
         // Autodesk.Viewing.Initializer({accessToken: accessToken}, function() {
-            Autodesk.Viewing.Document.load('urn:' + data.urn, function(document) {
+            // Autodesk.Viewing.Document.load('urn:' + data.urn, function(document) {
 
-                // console.log(document);
-                // console.log(document.getRoot());
-                // // console.log(document.getPropertyDbPath());
+            //     // console.log(document);
+            //     // console.log(document.getRoot());
+            //     // // console.log(document.getPropertyDbPath());
 
 
-                // console.log('aha');
+            //     // console.log('aha');
 
-                // var rootItem = document.getRootItem();
-                // var geometryItems3d = Autodesk.Viewing.Document.getSubItemsWithProperties(
-                //     rootItem, {
-                //         'type': 'geometry',
-                //         'role': '3d' },    
-                //     true);
+            //     // var rootItem = document.getRootItem();
+            //     // var geometryItems3d = Autodesk.Viewing.Document.getSubItemsWithProperties(
+            //     //     rootItem, {
+            //     //         'type': 'geometry',
+            //     //         'role': '3d' },    
+            //     //     true);
                 
-                // var pathCollection = [];
+            //     // var pathCollection = [];
                 
-                // geometryItems3d.forEach((item)=>{
-                //     pathCollection.push(document.getViewablePath(item));
-                // });
+            //     // geometryItems3d.forEach((item)=>{
+            //     //     pathCollection.push(document.getViewablePath(item));
+            //     // });
                 
-                var loadOptions = {
-                    keepCurrentModels : true,
-                    // globalOffset: {x:0, y:0, z:0},
-                    applyRefPoint: true,
-                    // modelNameOverride: name,
-                    applyScaling: 'mm'
-                    // placementTransform: mat , 
-                    // globalOffset:{x:0,y:0,z:0}
-                    // sharedPropertyDbPath: document.getPropertyDbPath()
-                };
+            //     var loadOptions = {
+            //         keepCurrentModels : true,
+            //         globalOffset: {x:0, y:0, z:0},
+            //         applyRefPoint: true,
+            //         modelNameOverride: name,
+            //         applyScaling: 'mm'
+            //         // placementTransform: mat , 
+            //         // globalOffset:{x:0,y:0,z:0}
+            //         // sharedPropertyDbPath: document.getPropertyDbPath()
+            //     };
                 
-                // var mat = new THREE.Matrix4();
-                // viewer.loadModel(pathCollection[0], loadOptions, function() {
-                //     loadNext();
-                // });
+            //     // var mat = new THREE.Matrix4();
+            //     // viewer.loadModel(pathCollection[0], loadOptions, function() {
+            //     //     loadNext();
+            //     // });
 
 
-                const rootItem = document.getRoot();
-                const filter = { type: 'geometry', role: '3d' };
-                const viewables = rootItem.search(filter);
+            //     const rootItem = document.getRoot();
+            //     const filter = { type: 'geometry', role: '3d' };
+            //     const viewables = rootItem.search(filter);
 
-                if (viewables.length === 0) {
-                  return onLoadModelError('Document contains no viewables.');
-                }
+            //     if (viewables.length === 0) {
+            //       return onLoadModelError('Document contains no viewables.');
+            //     }
 
-                const bubble = viewables[0];
+            //     const bubble = viewables[0];
 
-                viewer.loadDocumentNode(document, bubble, loadOptions).then(modelDiff);
+            //     viewer.loadDocumentNode(document, bubble, loadOptions).then(modelDiff);
 
   
 
 
 
                 
-            });
+            // });
         // });
         
     // }
 }
 function modelDiff() {
 
+
+    // 'application/vnd.autodesk.fusion360': { 'supports2d': true },
+    // 'application/vnd.autodesk.f3d': { 'supports2d': true },
+    // 'application/vnd.autodesk.revit': { 'supports2d': true },
+    // 'application/vnd.autodesk.r360': { 'supports2d': true },
+    // 'application/vnd.autodesk.inventor.assembly': { 'supports2d': true },
+    // 'application/vnd.autodesk.navisworks': { 'supports2d': true  },
+    // 'application/vnd.autodesk.cad': { 'supports2d': false  },
+    // 'application/vnd.autodesk.dxf': { 'supports2d': false  },
+    // 'application/vnd.autodesk.autocad.dwg': { 'supports2d': false  }
+
+    // console.log(viewer.getVisibleModels()[1]);
+
     var extensionConfig = {
+        'availableDiffModes': ['overlay', 'sidebyside'],
         'mimeType' : 'application/vnd.autodesk.inventor.assembly',
-        'primaryModels' : [viewer.getVisibleModels()[0]],
-        'diffModels' : [viewer.getVisibleModels()[1]],
+        // 'mimeType' : 'application/vnd.autodesk.cad',
+        // 'mimeType' : 'application/vnd.autodesk.autocad.dwg',
+        'primaryModels' : [viewer.getVisibleModels()[1]],
+        // 'diffadp' : true,
+        'diffadp' : false,
+        'diffModels' : [viewer.getVisibleModels()[0]],
         // 'diffMode' : 'overlay',
         'diffMode' : 'sidebyside',
+        'useSplitScreenExtension': true,
         'versionA' : '2',
         'versionB' : '1'
     }
 
     viewer.loadExtension('Autodesk.DiffTool', extensionConfig).then(function (res) {
-        //window.DIFF_EXT = viewer.getExtension('Autodesk.DiffTool');
-        //console.log(window.DIFF_EXT);
+        window.DIFF_EXT = viewer.getExtension('Autodesk.DiffTool');
+        console.log(window.DIFF_EXT);
     }).catch(function (err) {
         console.log(err);
     });
@@ -1409,11 +1473,12 @@ function getRootParents() {
 
         if(response.params.link !==  selectedManagedItem.link) return;
 
-        let counterRoots        = 0;
-        let elemTable           = $('#roots-table').find('tbody');
+        let counterRoots    = 0;
+        let elemTable       = $('#roots-table').find('tbody');
+        let urnsRoots       = [];
 
         if(response.data.hasOwnProperty('edges')) {
-            for(edge of response.data.edges) {
+            for(let edge of response.data.edges) {
 
                 if(!edge.hasOwnProperty('edgeLink')) {
 
@@ -1422,129 +1487,63 @@ function getRootParents() {
                     let edgeWSID = temp[4];
                     let wsTitle  = relatedProperty(edgeWSID, 'title');
 
-                    if(isRelated(edgeWSID)) {
+                    if(urnsRoots.indexOf(urn) < 0) {
 
-                        for(node of response.data.nodes) {
-                            if(urn === node.item.urn) {
+                        if(isRelated(edgeWSID)) {
 
-                                $.get('/plm/is-archived', { 'link' : node.item.link, 'item' : node.item }, function(response) {
+                            for(let node of response.data.nodes) {
+                                if(urn === node.item.urn) {
 
-                                    if(response.data === false) insertImpactedItem(response.params.item, wsTitle);
+                                    $.get('/plm/is-archived', { 'link' : node.item.link, 'item' : node.item }, function(response) {
 
-                                });
+                                        if(response.data === false) insertImpactedItem(response.params.item, wsTitle);
 
-                            }
-                        }
+                                    });
 
-                        urn = edge.parent;
-
-                    }
-
-                    for(node of response.data.nodes) {
-
-                        if(urn === node.item.urn) {
-
-                            counterRoots++;
-
-                            let lifecycle = '';
-                            let quantity  = '';
-
-                            for(field of node.fields) {
-                                if(field.title === 'QUANTITY') quantity = field.value;
-                                else if(field.title === 'LIFECYCLE') lifecycle = field.value;
+                                }
                             }
 
-                            let elemItem = $('<td></td>');
-                                elemItem.html(node.item.title);
-                                elemItem.addClass('tiny');
-                                elemItem.addClass('link');
-                                elemItem.click(function() {
-                                    openItemByURN($(this).closest('tr').attr('data-urn'));
-                                });
-
-                            let elemChildren = $('<td></td>');
-
-                            let elemRow = $('<tr></tr>');
-                                // elemRow.append(getItemLink(node.item.title, node.item.urn));
-                                elemRow.append(elemItem);
-                                elemRow.append('<td class="tiny">' + lifecycle + '</td>');
-                                elemRow.append('<td class="tiny align-right">' + quantity + '</td>');
-                                elemRow.append(elemChildren);
-                                elemRow.appendTo(elemTable);
-                                elemRow.attr('data-urn', node.item.urn);
-
-                            getChildren(elemChildren, response.data.edges, response.data.nodes, node.item.urn, 1);
+                            urn = edge.parent;
 
                         }
 
+                        for(let node of response.data.nodes) {
+
+                            if(node.item.urn === urn) {
+
+                                let lifecycle = '';
+
+                                for(let field of node.fields) {
+                                    if(field.title === 'LIFECYCLE') lifecycle = field.value;
+                                }
+
+                                let elemItem = $('<td></td>')
+                                    .html(node.item.title)
+                                    .addClass('tiny')
+                                    .addClass('link')
+                                    .click(function() {
+                                        openItemByURN($(this).closest('tr').attr('data-urn'));
+                                    });
+
+                                let elemChildren = $('<td></td>').addClass('roots-column-path');
+
+                                $('<tr></tr>').appendTo(elemTable)
+                                    .append('<td class="roots-column-number">' + ++counterRoots + '</td>')
+                                    .append(elemItem)
+                                    .append('<td class="tiny">' + lifecycle + '</td>')
+                                    .append(elemChildren)
+                                    .attr('data-urn', urn);
+
+                                getChildren(elemChildren, response.data.edges, response.data.nodes, urn, 1, urn.split('.').pop());
+
+                            }
+
+                        }
                     }
+
+                    urnsRoots.push(urn);
                     
                 }
-                // if(!edge.hasOwnProperty('edgeLink')) {
-
-                //     let urn      = edge.child;
-                //     let temp     = urn.split('.');
-                //     let edgeWSID = temp[4];
-                //     let wsTitle  = relatedProperty(edgeWSID, 'title');
-
-                //     if(isRelated(edgeWSID)) {
-
-                //         for(node of response.data.nodes) {
-                //             if(urn === node.item.urn) {
-
-                //                 $.get('/plm/is-archived', { 'link' : node.item.link, 'item' : node.item }, function(response) {
-
-                //                     if(response.data === false) insertImpactedItem(response.params.item, wsTitle);
-
-                //                 });
-
-                //             }
-                //         }
-
-                //         urn = edge.parent;
-
-                //     }
-
-                //     for(node of response.data.nodes) {
-
-                //         if(urn === node.item.urn) {
-
-                //             counterRoots++;
-
-                //             let lifecycle = '';
-                //             let quantity  = '';
-
-                //             for(field of node.fields) {
-                //                 if(field.title === 'QUANTITY') quantity = field.value;
-                //                 else if(field.title === 'LIFECYCLE') lifecycle = field.value;
-                //             }
-
-                //             let elemItem = $('<td></td>');
-                //                 elemItem.html(node.item.title);
-                //                 elemItem.addClass('tiny');
-                //                 elemItem.addClass('link');
-                //                 elemItem.click(function() {
-                //                     openItemByURN($(this).closest('tr').attr('data-urn'));
-                //                 });
-
-                //             let elemChildren = $('<td></td>');
-
-                //             let elemRow = $('<tr></tr>');
-                //                 // elemRow.append(getItemLink(node.item.title, node.item.urn));
-                //                 elemRow.append(elemItem);
-                //                 elemRow.append('<td class="tiny">' + lifecycle + '</td>');
-                //                 elemRow.append('<td class="tiny align-right">' + quantity + '</td>');
-                //                 elemRow.append(elemChildren);
-                //                 elemRow.appendTo(elemTable);
-                //                 elemRow.attr('data-urn', node.item.urn);
-
-                //             getChildren(elemChildren, response.data.edges, response.data.nodes, node.item.urn, 1);
-
-                //         }
-
-                //     }
-
-                // }
             }
         }
 
@@ -1555,80 +1554,89 @@ function getRootParents() {
     });
     
 }
-function getChildren(elemChildren, edges, nodes, parent, level) {
+function getChildren(elemChildren, edges, nodes, parent, level, urnPath) {
 
-    for(edge of edges) {
+    urnPath += '.' + parent.split('.').pop();
 
-        if(parent === edge.child) {
+    for(let edge of edges) {
 
-            let elemParent = $('<div></div>');
-                elemParent.addClass('parent');
+        if(edge.child === parent) {
 
-            let elemParentActions = $('<div></div>');
-                elemParentActions.addClass('parent-actions');
-                elemParentActions.appendTo(elemParent);
+            let parentExists = false;
 
-            let elemParentPath = $('<div></div>');
-                elemParentPath.addClass('parent-path');
-                elemParentPath.appendTo(elemParent);
+            elemChildren.children().each(function() {
+                let childUrn = $(this).attr('data-urn-path');
+                if(childUrn == urnPath) parentExists = true;
+            });
 
-            let isConnected = false;
+            if(!parentExists) {
 
-            for(managedItem of managedItems) {
-                if(managedItem.urn === edge.child) {
-                    isConnected = true;
-                    continue;
+                let elemParent          = $('<div></div>').addClass('parent');
+                let elemParentActions   = $('<div></div>').appendTo(elemParent).addClass('parent-actions');
+                let elemParentPath      = $('<div></div>').appendTo(elemParent).addClass('parent-path');
+                let isConnected         = false;
+
+                elemParent.attr('data-urn', edge.child);
+                elemParent.attr('data-urn-path', urnPath);
+
+                for(let managedItem of managedItems) {
+                    if(managedItem.urn === edge.child) {
+                        isConnected = true;
+                        continue;
+                    }
                 }
-            }
 
-            if(!isLocked) {
-                if(!isConnected) {
+                if(!isLocked) {
+                    if(!isConnected) {
 
-                    let elemActionAdd = $('<div></div>');
-                        elemActionAdd.addClass('button');
-                        elemActionAdd.html('Add');
-                        elemActionAdd.appendTo(elemParentActions);
-                        elemActionAdd.click(function() {
-                            $('#overlay').show();
-                            let link = $(this).closest('.parent').attr('data-link');
-                            let items = [link];
-                            $.get('/plm/add-managed-items', { 'wsId' : wsId , 'dmsId' : dmsId, 'items' : items }, function() {
-                                $('#overlay').hide();
-                                $('.parent').each(function() {
-                                    if(link === $(this).attr('data-link')) {
-                                        $(this).find('.button').remove();
-                                    }
-                                });
-                                getManagedItems();
-                            });  
-                        });
+                         $('<div></div>').appendTo(elemParentActions)
+                            .addClass('button')
+                            .html('Add')
+                            .click(function() {
+                                $('#overlay').show();
+                                let link  = $(this).closest('.parent').attr('data-link');
+                                let items = [link];
+                                $.get('/plm/add-managed-items', { 'wsId' : wsId , 'dmsId' : dmsId, 'items' : items }, function() {
+                                    $('#overlay').hide();
+                                    $('.parent').each(function() {
+                                        if(link === $(this).attr('data-link')) {
+                                            $(this).find('.button').remove();
+                                        }
+                                    });
+                                    getManagedItems();
+                                });  
+                            });
+                    }
                 }
-            }
                 
-            for(let i = level - 1; i > 0; i--) { elemParentPath.append('<span class="icon">trending_flat</span>'); }
+                for(let i = level - 2; i > 0; i--) { elemParentPath.append('<span class="icon transparent">horizontal_rule</span>'); }
 
-            for(node of nodes) {
-                if(parent === node.item.urn) {
-                    elemParent.attr('data-urn', node.item.urn);
-                    elemParent.attr('data-link', node.item.link);
-                    elemParentPath.append(node.item.title);
-                    elemParentPath.click(function() {
-                        openItemByURN($(this).parent().attr('data-urn'));
-                    })
+                elemParentPath.append('<span class="icon">subdirectory_arrow_right</span>');
+
+                for(let node of nodes) {
+                    if(parent === node.item.urn) {
+                        elemParent.attr('data-link', node.item.link);
+                        elemParentPath.append(node.item.title);
+                        elemParentPath.click(function() {
+                            openItemByURN($(this).parent().attr('data-urn'));
+                        });
+                    }
                 }
+
+                if(level   > 1) elemChildren.append(elemParent);
+                if(level === 2) elemParent.addClass('top');
+
             }
 
-            elemChildren.append(elemParent);
-            getChildren(elemChildren, edges, nodes, edge.parent, level+1);
+            getChildren(elemChildren, edges, nodes, edge.parent, level + 1, urnPath);
 
         }
-
     }
 
 }
 function isRelated(id) {
 
-    for(workspace of relatedWorkspaces) {
+    for(let workspace of relatedWorkspaces) {
         if(workspace.wsId === id) return true;
     }
 
@@ -1637,7 +1645,7 @@ function isRelated(id) {
 }
 function relatedProperty(id, property) {
 
-    for(workspace of relatedWorkspaces) {
+    for(let workspace of relatedWorkspaces) {
         if(workspace.wsId === id) return workspace[property];
     }
 
@@ -1650,7 +1658,7 @@ function getImpactedRelationships() {
 
         if(response.params.link  !== selectedManagedItem.link) return;
 
-        for(relationship of response.data) {
+        for(let relationship of response.data) {
             insertImpactedItem(relationship.item, relationship.workspace.title);
         }
         
@@ -1840,13 +1848,12 @@ function getRelated() {
 
         if(response.params.link  !== selectedManagedItem.link) return;
 
-        let elemList  = $('#related-list');
-            elemList.html('');
+        let elemList  = $('#related-list').html('');
 
         $('#related-counter').html('');
         $('#related-counter').parent().removeClass('counter-done').removeClass('counter-none').addClass('counter-work');
 
-        for(relatedItem of response.data) {
+        for(let relatedItem of response.data) {
             
             let elemItem = $('<div></div>');
                 elemItem.attr('data-title', relatedItem.title);
@@ -1858,33 +1865,28 @@ function getRelated() {
                     $(this).toggleClass('selected');
                     console.log($(this).attr('data-part-number'));
                     if($(this).hasClass('selected')) {
-                        viewerSelectModel($(this).attr('data-part-number'));
+                        viewerSelectModel($(this).attr('data-part-number'), {
+                            isolate     : true,
+                            ghosting    : false,
+                            fitToView   : false,
+                            highlight   : true,
+                            resetColors : true
+                        });
                     } else {
                         viewerResetSelection(true);
                     }
                 });
 
-            let elemItemTitle = $('<div></div>');
-                elemItemTitle.addClass('changed-item-title');
-                elemItemTitle.html(relatedItem.title);
-                elemItemTitle.appendTo(elemItem);
-
-            let elemItemLifecycle = $('<div></div>');
-                elemItemLifecycle.addClass('changed-item-detail');
-                elemItemLifecycle.html(relatedItem.lifecycle);
-                elemItemLifecycle.appendTo(elemItem);
-
-            let elemItemVersion = $('<div></div>');
-                elemItemVersion.addClass('changed-item-detail');
-                elemItemVersion.html(relatedItem.version);
-                elemItemVersion.appendTo(elemItem);
+            $('<div></div>').appendTo(elemItem).addClass('changed-item-title' ).html(relatedItem.title);
+            $('<div></div>').appendTo(elemItem).addClass('changed-item-detail').html(relatedItem.lifecycle);
+            $('<div></div>').appendTo(elemItem).addClass('changed-item-detail').html(relatedItem.version);
                 
         }
             
         setCounter('related', response.data.length);
 
         if(!isLocked) {
-            $('#related-actions').show();
+            $('#related-actions').css('display', 'flex');
         }
 
         $('#overlay').hide();

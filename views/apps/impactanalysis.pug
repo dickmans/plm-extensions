@@ -59,7 +59,7 @@ block body
                         span.label BOM Updates 
                         span#related-counter.counter.value
                     div(title='Review list of root items being impacted by expanding the usage in BOMs') 
-                        span.label Where Used
+                        span.label Root Items
                         span#roots-counter.counter.value
                     div(title='Review list of relevant items being connected via relationships tab') 
                         span.label Related
@@ -75,7 +75,7 @@ block body
                         span#orders-counter.counter.value
                 
                 .panel-content.tab-group-main.surface-level-2#logs
-                    table#logs-table.content-table
+                    table#logs-table.content-table.fixed-header
                         thead
                             tr
                                 th Date
@@ -109,13 +109,13 @@ block body
                         #related-select-all.button Select All
                         #related-deselect-all.button Deselect All  
                 .panel-content.tab-group-main.surface-level-2#roots.content
-                    table#roots-table.content-table
+                    table#roots-table.content-table.fixed-header
                         thead
                             tr
-                                th Item
+                                th.roots-column-number #
+                                th Root Item
                                 th Status
-                                th Quantity
-                                th Hierarchy
+                                th BOM Path
                         tbody
                 .panel-content.tab-group-main.surface-level-2#impacted.content
                     table#impacted-table.content-table

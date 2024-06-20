@@ -134,7 +134,7 @@ body.no-viewer #hide-viewer { display : none; }
 /* APS VIEWER */
 /* ----------------------------------------------------------------------------- */
 #navTools,
-#toolbar-modelStructureTool,
+/* #toolbar-modelStructureTool, */
 #toolbar-propertiesTool {
     display : none;
 }
@@ -355,9 +355,20 @@ body.no-viewer #bom-color-toggle {
 
 /*  END ITEMS */
 /* ----------------------------------------------------------------------------- */
+.roots-column-number {
+    max-width   : 24px;
+    text-align  : right;
+    width       : 24px;
+}
 .parent {
     display : flex;
     line-height : 22px;
+}
+.parent.top {
+    border-top : 1px solid var(--color-surface-level-1);
+}
+.parent.top:first-of-type {
+    border-top : none; 
 }
 .parent-path {
     cursor : pointer;
@@ -367,8 +378,13 @@ body.no-viewer #bom-color-toggle {
     padding : 3px 12px;
 }
 .parent-path .icon {
-    line-height: 22px;
-    margin-right: 4px;
+    color        : var(--color-font);
+    font-size    : 20px;
+    line-height  : 21px;
+    margin-right : 8px;
+}
+.parent-path .icon.transparent {
+    color : transparent;
 }
 .parent-actions {
     padding-top : 1px;
@@ -386,7 +402,7 @@ body.no-viewer #bom-color-toggle {
 /*  IMPACTED */
 /* ----------------------------------------------------------------------------- */
 #impacted-tbody input {
-    background: white;
+    /* background: white; */
     border: none;
     font-size: 14px;
     line-height: 23px;
@@ -457,7 +473,11 @@ body.no-viewer #bom-color-toggle {
 .changed-item-detail {
     font-size : 10px;
 }
-#related-actions { display : none; }
+#related-actions { 
+    display         : none; 
+    gap             : 10px;
+    justify-content : end;
+}
 
 
 

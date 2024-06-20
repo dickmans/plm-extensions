@@ -1,0 +1,112 @@
+.tile(data-name='Change Impact Analysis')
+                    .tile-image(style='background: url("images/app-impact-analysis.png") no-repeat;background-size:contain;')
+                    .tile-details
+                        .tile-title Change Impact Analysis
+                        .tile-endpoint /impactanalysis
+                        .tile-subtitle Change managers &amp; and approvers can reveal insights about the impact of changes using this dashboard. While navigating the affected items, impact on BOM, files and related items can be reviewed before approval.
+                    .instructions
+                        h1 Features
+                        p With this application, users can by far better assess the impact of changes by reviewing all details of the given 
+                            strong Change Order's 
+                            | list of 
+                            strong Affected Items
+                            |. 
+                            br
+                            | To do so, multiple information is retrieved in parallel and devided in various tables. So for each affected item, users can easily review the following information:
+                        ul  
+                            li 3D view of the attached dwf
+                            li 
+                                strong Change Log 
+                                | tab reveals the item's change log
+                            li The Item tab shows details defined in the affected items tab itself
+                            li All 
+                                strong Item Details 
+                                | can be reviewed in the Details tab 
+                            li The flat BOM can be listed in the BOM tab, where items that got changed will be highlighted by color. 
+                            li Users can select items in the BOM tab and have the given component highlighted in the 3D view
+                            li The Where Used tab will be used to retrieve all 
+                                strong End Items 
+                                | of an item (the root item nodes not having any further parents). In this view, users can also add the given nodes to the CO's list of Affected Items.
+                            li In tab Impacted, users can see all records linked to the affected item within its Relationships tab. This tab also will show all BOM root nodes which are neither managed in the 'Items and BOMs' nor in the 'Vault Items and BOMs' workspace. The latter one will for example show if a component is used within a product's BOM.
+                            li Inside the Impacted tab, users can easily link given records of interest to the current Change Order's References tab for later reuse 
+                            li In tab Changed Items, users can get the list of all BOM sub items where the working version got modified and which are not listed in the list of Affected Items yet
+                            li The item's Attachments can be opened in the Files tab
+                            li All item related change processes are listed in tab Processes
+                        h1 Configuration Changes
+                        p Peform the following changes to workspace 
+                            strong Change Orders 
+                            |to enable the impact analysis before releasing a change. In addition, you can perform the same changes in workspace 
+                            strong Change Requests 
+                            |to benefit of the exact same features while accessing impact of a proposed change.
+                        h2 Store DMSID
+                        p In order to make this dashboard work, you have to add a (hidden) field 
+                            strong DMS_ID 
+                            | to the item details tab. This field must store the dmsID of the current process. 
+                            br
+                        img(src='images/apps/impact-analysis-2.png' style='max-width:640px;')
+                        p Use the following script code at 
+                            strong Change Orders 
+                            |/ 
+                            strong Change Requests 
+                            | creation to store the given dmsID (attach this script to the initial workflow transition or the given create event):
+                        p.code item.DMS_ID = dmsID;
+                        h2 Action Button
+                        p Add a button to the 
+                            strong Item Details 
+                            |tab, enabling to open the analysis dashboard in context ...
+                        img(src='images/apps/impact-analysis-1.jpg' style='height:240px;')
+                        p ... implement this button by adding a computed field 
+                            strong Actions 
+                            |with the formula shown below. Replace the workspace ID to match yours (..wsId=84..). In a standard tenant, 84 matches the 
+                            strong Change Orders 
+                            | and 83 matches the 
+                            strong Change Requests 
+                            | workspace.
+                        p.code '&lt;a style="border: 1px solid #bec8d2;border-radius:3px;color: #0a131c;font-weight:600;line-height:32px;padding:4px 20px;text-align:center;text-decoration:none !important;white-space:nowrap;width:160px;" target="_blank" href ="LOCATIONimpactanalysis?wsId=84&dmsId='||DMS_ID||'"&gt;Impact Analysis&lt;/a&gt;'
+                        h2 Set Workspace Relationships (optional)
+                        p The impact analysis dashboard enables to connect records of interest to the current change process. For example, the dashboard will retrieve related 
+                            strong Requirements 
+                            | of each affected item - which then can be connected to the change process inside the dashboard for reference. This helps to create a comprehensive list of all data being impacted by a change.
+                            b 
+                            | This mechanism requires to allow the given workspace relationships within the 
+                            strong Workspace Manager
+                            |. For example, you may want to enable 
+                            strong Relationships 
+                            | for the change proceses to the workspaces 
+                            strong Requirements 
+                            | and 
+                            strong Supplier Packages
+                            |. The dashboard will take this workspace configuration into account and only offer to connect workspaces that are valid.
+                        img(src='images/apps/impact-analysis-3.png' style='max-width:889px;')
+                        h1 Access the Dashboard
+                        p The dashboard also can be opened by using the  
+                            strong /impactanalysis 
+                            | endpoint, followed by wsId and dmsId. If your tenant contains the standard demo dataset, you can use the following link to open the dashboard for a given Change Order:
+                        a(href='impactanalysis?wsId=84&dmsId=14993' target='_blank')
+                    .log 
+                        h1 Change Impact Analysis Change Log 
+                        table 
+                            tr 
+                                td 20. June 2024
+                                td Enhancement
+                                td Improved the root items report listing all root items (and intermediate items) being impacted
+                            tr 
+                                td 27. September 2023
+                                td Enhancement
+                                td Indicate pending supplies, production orders and available stock for Affected Items (requires given columns)
+                            tr 
+                                td 14. September 2023
+                                td Enhancement
+                                td If CR or CO is locked, changes to affected items are no longer possible
+                            tr 
+                                td 30. August 2023
+                                td New Feature
+                                td If the Affected Items tab contains columns to manage current stock, pending production orders and pending deliverables, this information will be shown and highlighted.
+                            tr 
+                                td 15. August 2023
+                                td Enhancement
+                                td When opened from a Change Request, the list of Affected Items will display the Proposed Change property value
+                            tr 
+                                td 7. July 2023
+                                td Enhancement
+                                td Styling has been adjusted to improve usability
