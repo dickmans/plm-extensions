@@ -728,44 +728,25 @@ function genPanelHeader(id, headerToggle, headerLabel) {
 }
 
 
-
-
 // Append further fields to HTML tile
 function appendTileDetails(elemTile, data) {
 
     let elemDetails = elemTile.find('.tile-details').first();
+    let elemData    = $('<div></div>').appendTo(elemDetails).addClass('tile-data');
 
-    let elemData = $('<div></div>');
-        elemData.addClass('tile-data');
-        elemData.appendTo(elemDetails);
+    for(let field of data) {
 
-    for(field of data) {
-
-        let elemAppend = $('<div></div>');
-            elemAppend.html(field[1]);
+        let elemAppend = $('<div></div>').html(field[1]);
 
         if(field[0] !== '') {
             let classNames = field[0].split(' ');
-            for(className of classNames) elemAppend.addClass(className);
-        //     elemAppend.html(field[1]);
-        // } else {
-
-        //     let elemIcon = $('<span></span>');
-        //         elemIcon.addClass('tile-data-icon');
-        //         elemIcon.addClass('icon');
-        //         elemIcon.addClass(field[0]);
-        //         elemIcon.appendTo(elemAppend);
-
-        //     let elemText = $('<span></span>');
-        //         elemText.addClass('tile-data-text');
-        //         elemText.html(field[1]);
-        //         elemText.appendTo(elemAppend);
-
+            for(let className of classNames) elemAppend.addClass(className);
         }
 
         if((field[1] !== '' ) || field[2]) elemAppend.appendTo(elemData);
     
     }
+
 }
 
 
@@ -1701,7 +1682,7 @@ function showCreateForm(wsId, params) {
     let sectionsEx      = [];           // Define list of columns to exclude by fieldId; columns in this list will not be shown at all. Keep empty to show all columns.
     let fieldsIn        = [];           // Define list of columns to include by fieldId; columns not included in this list will not be shown at all. Keep empty to show all columns.
     let fieldsEx        = [];           // Define list of columns to exclude by fieldId; columns in this list will not be shown at all. Keep empty to show all columns.
-
+    let fieldValues     = [];           // Set default values for new records by providing an array of key value pairs consisting of fieldId, value displayValue
 
     if( isBlank(params)                )          params = {};
     if(!isBlank(params.id)             )              id = params.id;
@@ -1717,8 +1698,10 @@ function showCreateForm(wsId, params) {
     if(!isBlank(params.sectionsEx)     )      sectionsEx = params.sectionsEx;
     if(!isBlank(params.fieldsIn)       )        fieldsIn = params.fieldsIn;
     if(!isBlank(params.fieldsEx)       )        fieldsEx = params.fieldsEx;
+    if(!isBlank(params.fieldValues)    )     fieldValues = params.fieldValues;
 
     settings.create[id]                = {};
+    settings.create[id].derived        = [];
     settings.create[id].hideComputed   = hideComputed;
     settings.create[id].hideReadOnly   = hideReadOnly;
     settings.create[id].hideLabels     = hideLabels;
@@ -1747,6 +1730,8 @@ function showCreateForm(wsId, params) {
             $('#' + id + '-sections').show();
             $('#' + id + '-footer').show();
             clearFields(id);
+            showCreateFormSetFieldValues($('#' + id + '-sections'), fieldValues);
+            showCreateFormDone(id, [], []);
             elemTop.show();
             return;
         }
@@ -1761,7 +1746,7 @@ function showCreateForm(wsId, params) {
 
     appendProcessing(id, false);
 
-    $('<div></div>').appendTo(elemTop)
+    let elemSections = $('<div></div>').appendTo(elemTop)
         .attr('id', id + '-sections')
         .addClass('create-sections')
         .addClass('panel-content');
@@ -1852,8 +1837,47 @@ function showCreateForm(wsId, params) {
 
     Promise.all(requests).then(function(responses) {
         insertDetailsFields(id, responses[0].data, responses[1].data, null, settings.create[id], function() {
+            showCreateFormSetFieldValues(elemSections, fieldValues);
             showCreateFormDone(id, responses[0].data, responses[1].data);
         });
+    });
+
+}
+function showCreateFormSetFieldValues(elemSections, fieldValues) {
+
+    if(isBlank(fieldValues)) return;
+    if(fieldValues.length === 0 ) return;
+
+    elemSections.find('.field-value').each(function() {
+
+        let elemField = $(this);
+        let fieldId   = elemField.attr('data-id');
+
+        if(!isBlank(fieldId)) {
+
+            for(let fieldValue of fieldValues) {
+
+                if(fieldValue.fieldId === fieldId) {
+
+                    if(elemField.hasClass('picklist')) {
+
+                        let elemSelect = elemField.children().first();
+                            elemSelect.attr('disabled', 'disabled');
+                            elemSelect.children().remove();
+
+                        $('<option></option>').appendTo(elemSelect)
+                            .attr('id', fieldValue.value)
+                            .attr('value', fieldValue.value)
+                            .attr('displayValue', fieldValue.displayValue)
+                            .html(fieldValue.displayValue);
+
+                        elemSelect.val(fieldValue.value);
+
+                    }
+                }
+            }
+        }
+
     });
 
 }
@@ -1882,6 +1906,7 @@ function clickCreateFormSubmit(id) {
     $('#' + id + '-processing').show();
 
     submitCreateForm(wsId, $('#' + id + '-sections'), null, function(response ) {
+        console.log(response);
         let link = response.data.split('.autodeskplm360.net')[1];
         submitCreateFormDone(id, link);
     });
@@ -2771,6 +2796,8 @@ function addFieldToPayload(payload, sections, elemField, fieldId, value, skipEmp
 
 // Add all derived fields to payload, adds given section if new
 function addDerivedFieldsToPayload(payload, sections, dataDerivedFields) {
+
+    if(isBlank(dataDerivedFields)) return;
 
     for(let section of dataDerivedFields.sections) {
         for(let field of section.fields) {
