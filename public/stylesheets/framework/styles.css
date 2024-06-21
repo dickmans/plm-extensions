@@ -199,11 +199,11 @@
     line-height : 64px;
 }
 
-.tiles.wide.xxl .tile-image { height : 200px; width : 356px; } .tiles.wide.xxl .tile-details { width : calc(100% - 416px); } .tiles.wide.xxl .tile-image > span { font-size : 96px; line-height : 200px; }
-.tiles.wide.xl  .tile-image { height : 200px; width : 200px; } .tiles.wide.xl  .tile-details { width : calc(100% - 260px); }
-.tiles.wide.l   .tile-image { height : 128px; width : 128px; } .tiles.wide.l   .tile-details { width : calc(100% - 188px); }
-.tiles.wide.m   .tile-image { height :  96px; width :  96px; } .tiles.wide.m   .tile-details { width : calc(100% - 156px); } .tiles.wide.m .tile-image > span { font-size : 54px; line-height : 96px; }
-.tiles.wide.s   .tile-image { height :  64px; width :  64px; } .tiles.wide.s   .tile-details { gap : 2px; margin : 16px 20px 12px; width : calc(100% -  102px); }
+.tiles.wide.xxl .tile-image { height : 200px; width : 356px; } .tiles.wide.xxl .tile-details { width : calc(100% - 416px); } .tiles.wide.xxl .tile-image > span { font-size : 192px; line-height : 200px; }
+.tiles.wide.xl  .tile-image { height : 200px; width : 200px; } .tiles.wide.xl  .tile-details { width : calc(100% - 260px); } .tiles.wide.xl  .tile-image > span { font-size : 168px; line-height : 200px; }
+.tiles.wide.l   .tile-image { height : 128px; width : 128px; } .tiles.wide.l   .tile-details { width : calc(100% - 188px); } .tiles.wide.l   .tile-image > span { font-size :  96px; line-height : 128px; }
+.tiles.wide.m   .tile-image { height :  96px; width :  96px; } .tiles.wide.m   .tile-details { width : calc(100% - 156px); } .tiles.wide.m   .tile-image > span { font-size :  72px; line-height :  96px; }
+.tiles.wide.s   .tile-image { height :  64px; width :  64px; } .tiles.wide.s   .tile-details { gap : 2px; margin : 16px 20px 12px; width : calc(100% -  102px); } .tiles.wide.s   .tile-image > span { line-height :  64px; }
 
 .tiles.list.l    .tile-image { height :  96px; width :  96px; } .tiles.list.l    .tile-details { margin : 12px 20px; width : calc(100% - 136px); } .tiles.list.l .tile-image > span { font-size : 54px; line-height : 96px; }
 .tiles.list.m    .tile-image { height :  64px; width :  64px; } .tiles.list.m    .tile-details { margin : 14px 20px; width : calc(100% - 104px); }
