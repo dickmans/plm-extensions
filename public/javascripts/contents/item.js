@@ -1297,6 +1297,7 @@ function insertDetails(link, params) {
     let headerToggle    = false;        // Enable header toggles
     let inline          = false;        // Display the grid inline with other elements
     let reload          = false;        // Enable reload button for the history panel
+    let openInPLM       = true;         // Adds button to open matching item in PLM
     let hideComputed    = false;        // Hide computed fields
     let hideReadOnly    = false;        // Hide read only fields
     let hideLabels      = false;        // Hide field labels
@@ -1315,6 +1316,7 @@ function insertDetails(link, params) {
     if(!isBlank(params.headerToggle)  )   headerToggle = params.headerToggle;
     if(!isBlank(params.inline)        )         inline = params.inline;
     if(!isBlank(params.reload)        )         reload = params.reload;
+    if(!isBlank(params.openInPLM)     )      openInPLM = params.openInPLM;
     if(!isBlank(params.hideComputed)  )   hideComputed = params.hideComputed;
     if(!isBlank(params.hideReadOnly)  )   hideReadOnly = params.hideReadOnly;
     if(!isBlank(params.hideLabels)    )     hideLabels = params.hideLabels;
@@ -1346,13 +1348,13 @@ function insertDetails(link, params) {
     if(header) {
         
         let elemHeader = genPanelHeader(id, headerToggle, headerLabel);
-            elemHeader.appendTo(elemParent);   
+            elemHeader.appendTo(elemParent);  
+            
+        let elemToolbar = $('<div></div>').appendTo(elemHeader)
+            .addClass('panel-toolbar')
+            .attr('id', id + '-toolbar');
 
         if(reload) {
-
-            let elemToolbar = $('<div></div>').appendTo(elemHeader)
-                .addClass('panel-toolbar')
-                .attr('id', id + '-toolbar');
 
             $('<div></div>').appendTo(elemToolbar)
                 .addClass('button')
@@ -1367,6 +1369,22 @@ function insertDetails(link, params) {
                 });
 
         }
+
+        if(openInPLM) {
+
+            $('<div></div>').appendTo(elemToolbar)
+                .addClass('button')
+                .addClass('icon')
+                .addClass('icon-open')
+                .addClass('xs')
+                .addClass('details-open-in-plm')
+                .attr('title', 'Open this item in PLM')
+                .click(function() {
+                    openItemByLink(link);
+                });
+    
+        }
+
     }
 
     let elemContent = $('<div></div>').appendTo(elemParent)
