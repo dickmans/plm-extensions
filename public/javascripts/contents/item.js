@@ -1070,6 +1070,37 @@ function submitCreateForm(wsIdNew, elemParent, idMarkup, callback) {
         'sections' : getSectionsPayload(elemParent) 
     };
 
+    let id = elemParent.attr('id').split('-sections')[0];
+    let requestsDerived = [];
+
+    if(!isBlank(settings.create[id])) {
+        if(!isBlank(settings.create[id].derived)) {
+
+            for(let derivedField of settings.create[id].derived) {
+
+                let source = derivedField.source;
+
+                for(let section of params.sections) {
+                    for(let field of section.fields) {
+                        if(field.fieldId === derivedField.source) {
+                   
+                            requestsDerived.push($.get('/plm/derived', {
+                                wsId        : wsIdNew,                 //'craete item wsid
+                                fieldId     : derivedField.source,   //'BASE_ITEM'
+                                pivotItemId : field.value.link.split('/')[6]   //'dmsid of selected picklist ittem;
+                            }));
+
+                            break;
+
+                        }
+                    }
+                }
+
+            }
+
+        }
+    }
+
     if(!isBlank(idMarkup)) {
 
         let elemMarkupImage = $('#' + idMarkup);
@@ -1083,12 +1114,25 @@ function submitCreateForm(wsIdNew, elemParent, idMarkup, callback) {
 
     }
 
-    $.post({
-        url         : '/plm/create', 
-        contentType : 'application/json',
-        data        : JSON.stringify(params)
-    }, function(response) {
-        callback(response);
+    if(requestsDerived.length > 0) requestsDerived.unshift($.get('/plm/sections', { wsId : wsIdNew }))
+
+    Promise.all(requestsDerived).then(function(responses) {
+
+        if(responses.length > 0) {
+            let sections = responses[0].data;
+            for(let index = 1; index < responses.length; index++) {
+                addDerivedFieldsToPayload(params.sections, sections, responses[index].data);
+            }
+        }
+
+        $.post({
+            url         : '/plm/create', 
+            contentType : 'application/json',
+            data        : JSON.stringify(params)
+        }, function(response) {
+            callback(response);
+        });
+
     });
 
 }
@@ -1335,9 +1379,11 @@ function insertDetails(link, params) {
     if(!inline) elemContent.addClass('panel-content')
 
     appendProcessing(id, true);
+    insertDetailsDone(id);
     insertDetailsData(id);
 
 }
+function insertDetailsDone(id) {}
 function insertDetailsData(id) {
 
     let timestamp    = new Date().getTime();
@@ -1381,7 +1427,7 @@ function insertDetailsData(id) {
                 }                
 
                 insertDetailsFields(id, sections, fields, responses[0].data, settings.details[id], function() {
-                    insertItemDetailsDone(id, data, sections, fields);
+                    insertDetailsDataDone(id, sections, fields, responses[0].data);
                 });
 
             }
@@ -1389,7 +1435,7 @@ function insertDetailsData(id) {
     });
 
 }
-function insertDetailsFields(id, sections, fields, data, params) {
+function insertDetailsFields(id, sections, fields, data, params, callback) {
 
     $('#' + id + '-processing').hide();
 
@@ -1402,6 +1448,31 @@ function insertDetailsFields(id, sections, fields, data, params) {
     let fieldsEx     = params.fieldsEx;
 
     cacheSections = [];
+
+    if(!isBlank(settings.create[id])) {
+        settings.create[id].derived = [];
+        for(let field of fields) {
+            if(!isBlank(field.derived)) {
+                if(field.derived) {
+                    console.log(field);
+                    let source = field.derivedFieldSource.__self__.split('/')[8];
+                    let isNew = true;
+                    for(let derived of settings.create[id].derived) {
+                        if(derived.source === source) {
+                            isNew = false;
+                            break;
+                        }
+                    }
+                    if(isNew) {
+                        settings.create[id].derived.push({
+                            fieldId : field.__self__.split('/')[6],
+                            source : source
+                        });
+                    }
+                }
+            }
+        }
+    }
 
     for(let section of sections) {
 
@@ -1491,8 +1562,10 @@ function insertDetailsFields(id, sections, fields, data, params) {
         }
     }
 
+    callback();
+
 }
-function insertDetailsDone(id, data, sections, fields) {}
+
 function insertDetailsField(id, field, data, elemFields, params) {
 
     let hideComputed  = params.hideComputed;
@@ -1807,6 +1880,7 @@ function insertDetailsField(id, field, data, elemFields, params) {
     }
 
 }
+function insertDetailsDataDone(id, sections, fields, data) {}
 
 
 // Insert attachments as tiles or table
@@ -2905,6 +2979,12 @@ function changeBOMView(id) {
 
     Promise.all(requests).then(function(responses) {
 
+        if(!isBlank(settings.bom[id].selectItems.values)) {
+            settings.bom[id].selectItems.values = settings.bom[id].selectItems.values.map(function(item) { 
+                return item.toLowerCase(); 
+              }); 
+        }
+
         setBOMHeaders(id, bomView.fields);
         insertNextBOMLevel(id, elemBOMTableBody, responses[0].data, responses[0].data.root, 1, selectedItems, bomView.fields);
         enableBOMToggles(id);
@@ -2988,7 +3068,7 @@ function insertNextBOMLevel(id, elemTable, bom, parent, parentQuantity, selected
                 }
             }
 
-            if(typeof node.restricted === 'undefined') {
+            if((typeof node.restricted === 'undefined') || (node.restricted === false)) {
 
                 node.restricted    = false;
                 node.totalQuantity = bomQuantity * parentQuantity;
@@ -3012,8 +3092,8 @@ function insertNextBOMLevel(id, elemTable, bom, parent, parentQuantity, selected
                             break;
 
                         case settings.bom[id].fieldURNSelectItems:
-                            console.log(fieldValue);
                             node.selectItems = fieldValue;
+                            edge.selectItems = fieldValue;
                             break;
 
                     }
@@ -3023,7 +3103,8 @@ function insertNextBOMLevel(id, elemTable, bom, parent, parentQuantity, selected
                 if(!isBlank(settings.bom[id].fieldURNSelectItems)) {
                     for(let fieldEdge of edge.fields) {
                         if(fieldEdge.metaData.urn === settings.bom[id].fieldURNSelectItems) {
-                            node.selectItems = (typeof fieldEdge.value === 'object') ? fieldEdge.value.title : fieldEdge.value;;
+                            edge.selectItems = (typeof fieldEdge.value === 'object') ? fieldEdge.value.title : fieldEdge.value;
+                            node.selectItems = edge.selectItems;
                         }
                     }
                 }
@@ -3108,9 +3189,8 @@ function insertNextBOMLevel(id, elemTable, bom, parent, parentQuantity, selected
                 }
 
                 if(!isBlank(settings.bom[id].selectItems.values)) {
-                    if(!isBlank(node.selectItems)) {
-                        console.log(node.selectItems);
-                        if(settings.bom[id].selectItems.values.indexOf(node.selectItems.toLowerCase()) > -1) {
+                    if(!isBlank(edge.selectItems)) {
+                        if(settings.bom[id].selectItems.values.indexOf(edge.selectItems.toLowerCase()) > -1) {
 
                             let selectItem = true;
 

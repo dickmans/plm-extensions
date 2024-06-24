@@ -1678,11 +1678,11 @@ function showCreateForm(wsId, params) {
     let hideComputed    = true;         // Hide item details computed fields
     let hideReadOnly    = true;         // Hide item details read only fields
     let hideLabels      = false;        // Hide item details field labels
+    let fieldValues     = [];           // Set default values for new records by providing an array of key value pairs consisting of fieldId, value displayValue
     let sectionsIn      = [];           // Define list of columns to include by fieldId; columns not included in this list will not be shown at all. Keep empty to show all columns.
     let sectionsEx      = [];           // Define list of columns to exclude by fieldId; columns in this list will not be shown at all. Keep empty to show all columns.
     let fieldsIn        = [];           // Define list of columns to include by fieldId; columns not included in this list will not be shown at all. Keep empty to show all columns.
     let fieldsEx        = [];           // Define list of columns to exclude by fieldId; columns in this list will not be shown at all. Keep empty to show all columns.
-    let fieldValues     = [];           // Set default values for new records by providing an array of key value pairs consisting of fieldId, value displayValue
 
     if( isBlank(params)                )          params = {};
     if(!isBlank(params.id)             )              id = params.id;
@@ -1881,7 +1881,6 @@ function showCreateFormSetFieldValues(elemSections, fieldValues) {
     });
 
 }
-
 function showCreateFormDone(id, sections, fields) {}
 function closeCreateForm(id) {
 
@@ -1906,13 +1905,70 @@ function clickCreateFormSubmit(id) {
     $('#' + id + '-processing').show();
 
     submitCreateForm(wsId, $('#' + id + '-sections'), null, function(response ) {
-        console.log(response);
         let link = response.data.split('.autodeskplm360.net')[1];
+        
         submitCreateFormDone(id, link);
     });
 
 }
-function submitCreateFormDone(id, link) {}
+function submitCreateFormDone(id, link) {
+    $('#' + id).hide();
+    $('#overlay').hide();
+    openItemByLink(link);
+}
+
+
+
+// Clone item using standard application features
+function cloneItem(link, options) {
+
+
+    link = '/api/v3/workspaces/241/items/15272';
+
+    let cloneOptions = ['ITEM_DETAILS'];
+
+    if(options.indexOf('bom'        ) > -1) cloneOptions.push('BOM_LIST');
+    if(options.indexOf('grid'       ) > -1) cloneOptions.push('PART_GRID');
+    if(options.indexOf('attachments') > -1) cloneOptions.push('PART_ATTACHMENTS');
+
+    console.log(cloneOptions);
+
+    $.get('/plm/details', { link : link }, function(response) {
+
+        console.log(response);
+
+        console.log(response.data.sections);
+
+
+// let data = [
+//     {
+//        "link":"/api/v3/workspaces/57/sections/203",
+//        "fields":[
+//           {
+//              "__self__":"/api/v3/workspaces/57/views/1/fields/NUMBER",
+//              "value":"203-501-01",
+//              "urn":"urn:adsk.plm:tenant.workspace.view.field:ADSKTENANT2023TEST07.57.1.NUMBER",
+//              "fieldMetadata":null,
+//              "dataTypeId":4,
+//              "title":"Number"
+//           }
+//         ]
+//     }]
+
+
+
+        // $.post('/plm/clone', { link : link, options : cloneOptions, itemData : response.data.sections }, function(response) {
+        $.post('/plm/clone', { link : link, options : cloneOptions, sections : response.data.sections }, function(response) {
+
+            console.log(response);
+            
+    
+        });
+
+
+    });
+
+}
 
 
 // Open given item in main screen of app, insert given dom elements before if needed

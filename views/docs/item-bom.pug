@@ -244,13 +244,14 @@
                 td This function gets invoked after the BOM panel elements have been added to the page, before BOM data is being requested from PLM
                 td id = id of the parent div element (i.e. bom)
             tr 
-                td changeBOMViewDone(id, fields, bomData, dataFlatBOM, dataAdditional) 
+                td changeBOMViewDone(id, fields, bom, selectedItems, dataFlatBOM, dataAdditional) 
                 td When BOM data has been retrieved and BOM rows have been added, this function will be invoked. This function also gets invoked when users select another BOM view in the given drop down (if enabled with parameter 'views'). dataFlatBOM will not be null only if flatBOM data is being requested as well (depends on given paramter).
                 td 
                     ul 
                         li id = id of the parent div element (i.e. bom)
                         li fields = list of fields available in the selected BOM view 
-                        li bomData = BOM data as provided by the REST API
+                        li bomD = BOM data as provided by the REST API
+                        li selectedItems = if parameter selectItems is defined, this element will contain the matching list of records
                         li dataFlatBOM = Flat BOM data as provided by the REST API
                         li dataAdditional = Data returned by addtional requests (if parameter additionalRequests is used, returns empty array otherwise)
             tr 

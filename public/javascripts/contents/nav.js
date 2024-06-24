@@ -1798,9 +1798,6 @@ function insertResults(wsId, filters, params) {
 
     settings.results[id].fields.unshift('DESCRIPTOR');
 
-    console.log(openInPLM);
-
-
     let elemTop = $('#' + id)
         .addClass('panel-top')
         .addClass('list-top')

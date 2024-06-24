@@ -164,11 +164,9 @@
                 td As further processing is required at a later stage of the viewer loading process to determine the correct features available to the users, the viewer's toolbar will be hidden at this step.
                 td event = event object
             tr 
-                td onViewerGeometryLoaded()
+                td onViewerLoadingDone()
                 td Once the viewer finished loading all data, you may want to apply some postprocessing.
-                td This function enables selected features in the viewer toolbar using setViewerFeatures() and unhides the toolbar right after.
-                    br
-                    |It also caches instance data of all components loaded in the viewer along with given part numbers in dataInstances thanks to setViewerInstancedData().
+                td This function has access to cachesd instance data of all components loaded in the viewer along with given part numbers in dataInstances thanks to setViewerInstancedData().
                 td -
             tr 
                 td setViewerInstancedDataDone()

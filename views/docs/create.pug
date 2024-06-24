@@ -88,6 +88,16 @@
                 td No
                 td false
             tr 
+                td fieldValues 
+                td Set default values for list of defined fields. Each field must be defined with keys fieldId, value and displayValue. 
+                    br
+                    |For example, if field PRODUCT_LINE should be set automatically when creating a new Product, provide this value :
+                    br
+                    |fieldValues:[{ fieldId : 'PRODUCT_LINE', value : '/api/v3/workspaces/92/items/8899', displayValue : 'PL-003 - Material Handling'}]
+                td Array
+                td No 
+                td []
+            tr 
                 td sectionsIn 
                 td List of sections to be included, identified by Section Name. Sections not included in this list will not be shown (example: ['Header', 'Details']).
                 td Array
@@ -172,3 +182,5 @@
             tr 
                 td submitCreateFormDone(id, link) 
                 td This function gets triggered once the item creation finished. It receives the parent div element's id and the API-link of the newly created record.
+                    br
+                    |Per default, this will open the given new record in PLM using function openItemByLink(link), hide the create dialog element and element #overlay.

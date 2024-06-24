@@ -156,11 +156,15 @@
                 th Event 
                 th Parameters 
             tr 
-                td insertDetailsDone(id, data, sections, fields) 
+                td insertDetailsDone(id) 
+                td This function gets invoked after the details panel elements have been added to the page, before data is being requested from PLM
+                td  id = id of the parent div element (i.e. details)
+            tr 
+                td insertDetailsDataDone(id, sections, fields, data) 
                 td Gets executed once data has been retrieved from PLM and after sections/fields got inserted to the page.
                 td 
                     ul 
                         li id = id of the parent div element (i.e. details)
-                        li data = data of /item REST API call of PLM
                         li sections = data of /sections REST API call of PLM
                         li fields = data of /fields REST API call of PLM
+                        li data = details data of /item REST API call of PLM
