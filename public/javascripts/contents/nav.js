@@ -894,6 +894,10 @@ function insertWorkspaceItemsData(id) {
             $('#' + id + '-processing').hide();
             $('#' + id + '-workspace-items-counter').html(counter);
             if(counter === 0) $('#' + id + '-no-data').show();
+
+            let elemSearch = $('#' + id + '-search-input');
+            if(elemSearch.length > 0) searchInTiles(id, elemSearch);
+
             insertWorkspaceItemsDone(id, response);
         
         }
