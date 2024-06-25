@@ -1304,6 +1304,7 @@ function insertDetails(link, params) {
     let suppressLinks   = false;        // When set to true, linking pick lists will not be shown as links, preventing users from opening the native PLM user interface
     let editable        = false;        // Display form in edit mode
     let layout          = 'normal';     // Set layout (normal, compact, narrow)
+    let collapsed       = false;        // When enabled, the sections will be collapsed at startup
     let sectionsIn      = [];           // Define list of columns to include by fieldId; columns not included in this list will not be shown at all. Keep empty to show all columns.
     let sectionsEx      = [];           // Define list of columns to exclude by fieldId; columns in this list will not be shown at all. Keep empty to show all columns.
     let fieldsIn        = [];           // Define list of columns to include by fieldId; columns not included in this list will not be shown at all. Keep empty to show all columns.
@@ -1323,6 +1324,7 @@ function insertDetails(link, params) {
     if(!isBlank(params.suppressLinks) )  suppressLinks = params.suppressLinks;
     if(!isBlank(params.editable)      )       editable = params.editable;
     if(!isBlank(params.layout)        )         layout = params.layout;
+    if(!isBlank(params.collapsed)     )      collapsed = params.collapsed;
     if(!isBlank(params.sectionsIn)    )     sectionsIn = params.sectionsIn;
     if(!isBlank(params.sectionsEx)    )     sectionsEx = params.sectionsEx;
     if(!isBlank(params.fieldsIn)      )       fieldsIn = params.fieldsIn;
@@ -1335,6 +1337,7 @@ function insertDetails(link, params) {
     settings.details[id].suppressLinks  = suppressLinks;
     settings.details[id].editable       = editable;
     settings.details[id].sectionsIn     = sectionsIn;
+    settings.details[id].collapsed      = collapsed;
     settings.details[id].sectionsEx     = sectionsEx;
     settings.details[id].fieldsIn       = fieldsIn;
     settings.details[id].fieldsEx       = fieldsEx;
@@ -1501,7 +1504,7 @@ function insertDetailsFields(id, sections, fields, data, params, callback) {
 
         let sectionId   = section.__self__.split('/')[6];
         let isNew       = true;
-        let className   = 'expanded'
+        let className   = (settings.details[id].collapsed) ? 'collapsed' : 'expanded';
 
         if(sectionsIn.length === 0 || sectionsIn.includes(section.name)) {
             if(sectionsEx.length === 0 || !sectionsEx.includes(section.name)) {
