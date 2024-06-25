@@ -156,20 +156,12 @@
 .tiles.wide.m     { gap : var(--spacer-s); }
 
 .tiles.xxl > .tile { height : 344px; width : 384px; }
-.tiles.xl  > .tile { height : 440px; width : 228px; } .tiles.xl  .tile-details { height : 270px; }
-.tiles.l   > .tile { height : 300px; width : 171px; }
-.tiles.m   > .tile { height : 300px; width : 114px; }
-.tiles.s   > .tile { height : 200px; width :  86px; }
-.tiles.xs  > .tile { height : 200px; width :  86px; }
-.tiles.xxs  > .tile { height : 200px; width :  86px; }
-
-.tiles.xxl .tile-image { height :    216px; width : 384px; }
-.tiles.xl  .tile-image { height : 128.25px; width : 228px; } 
-.tiles.l   .tile-image { height :  96.19px; width : 171px; }
-.tiles.m   .tile-image { height :  64.12px; width : 114px; }
-.tiles.s   .tile-image { height :  48.38px; width :  86px; }
-.tiles.xs  .tile-image { height :  48.38px; width :  86px; }
-.tiles.xxs .tile-image { height :  48.38px; width :  86px; }
+.tiles.xl  > .tile { height : 344px; width : 228px; } .tiles.xl  .tile-details { height : 270px; }
+.tiles.l   > .tile { height : 300px; width : 192px; }
+.tiles.m   > .tile { height : 240px; width : 192px; }
+.tiles.s   > .tile { height : 192px; width : 192px; }
+.tiles.xs  > .tile { height : 148px; width : 192px; }
+.tiles.xxs > .tile { height : 112px; width : 164px; }
 
 .tiles.wide.xxl > .tile { height : 200px; width : 800px; }
 .tiles.wide.xl  > .tile { height : 200px; width : 500px; }
@@ -199,6 +191,14 @@
     font-weight : 200;
     line-height : 64px;
 }
+
+.tiles.xxl .tile-image { height : 216px; width : 384px; line-height : 216px; } .tiles.xxl .tile-counter { font-size : 64px; } .tiles.xxl > .tile > .tile-details > .tile-subtitle { font-size : 14px; line-height : 14px; } .tiles.xxl > .tile > .tile-details > .tile-data { font-size : 14px; line-height : 18px; }
+.tiles.xl  .tile-image { height : 128px; width : 228px; line-height : 128px; } .tiles.xl  .tile-counter { font-size : 64px; } .tiles.xl  > .tile > .tile-details > .tile-subtitle { font-size : 14px; line-height : 14px; } .tiles.xl  > .tile > .tile-details > .tile-data { font-size : 14px; line-height : 18px; }
+.tiles.l   .tile-image { height :  96px; width : 192px; line-height :  96px; } .tiles.l   .tile-counter { font-size : 64px; } .tiles.l   > .tile > .tile-details > .tile-subtitle { font-size : 14px; line-height : 14px; } .tiles.l   > .tile > .tile-details > .tile-data { font-size : 14px; line-height : 18px; }
+.tiles.m   .tile-image { height :  72px; width : 192px; line-height :  72px; } .tiles.m   .tile-counter { font-size : 42px; } .tiles.m   > .tile > .tile-details > .tile-subtitle { font-size : 12px; line-height : 12px; } .tiles.m   > .tile > .tile-details > .tile-data { font-size : 12px; line-height : 16px; } .tiles.m  > .tile > .tile-details { gap : mpx; }
+.tiles.s   .tile-image { height : 104px; width : 192px; line-height : 104px; } .tiles.s   .tile-counter { font-size : 48px; } .tiles.s   > .tile > .tile-details > .tile-subtitle { font-size : 12px; line-height : 12px; } .tiles.s   > .tile > .tile-details > .tile-data { display : none; } .tiles.s  > .tile > .tile-details { gap : 6px; }
+.tiles.xs  .tile-image { height :  72px; width : 192px; line-height :  72px; } .tiles.xs  .tile-counter { font-size : 42px; } .tiles.xs  > .tile > .tile-details > .tile-subtitle { font-size : 12px; line-height : 12px; } .tiles.xs  > .tile > .tile-details > .tile-data { display : none; } .tiles.xs  > .tile > .tile-details { gap : 6px; }
+.tiles.xxs .tile-image { height :  64px; width : 164px; line-height :  64px; } .tiles.xxs .tile-counter { font-size : 32px; } .tiles.xxs > .tile > .tile-details > .tile-subtitle { display : none } .tiles.xxs  > .tile > .tile-details > .tile-data { display : none; } .tiles.xxs  > .tile > .tile-details { margin : 12px 18px; white-space : nowrap; }
 
 .tiles.wide.xxl .tile-image { height : 200px; width : 356px; line-height : 200px; } .tiles.wide.xxl .tile-counter { font-size : 64px; } .tiles.wide.xxl .tile-details { gap : 10px; margin : 30px 30px 30px; width : calc(100% - 416px); } .tiles.wide.xxl .tile-image > span { font-size : 192px; line-height : 200px; } .tiles.wide.xxl > .tile > .tile-details > .tile-subtitle { font-size : 14px; line-height : 14px; } .tiles.wide.xxl > .tile > .tile-details > .tile-data { font-size : 14px; line-height : 18px; }
 .tiles.wide.xl  .tile-image { height : 200px; width : 200px; line-height : 200px; } .tiles.wide.xl  .tile-counter { font-size : 64px; } .tiles.wide.xl  .tile-details { gap : 10px; margin : 30px 30px 30px; width : calc(100% - 260px); height : 140px; } .tiles.wide.xl  .tile-image > span { font-size : 168px; line-height : 200px; } .tiles.wide.xl > .tile > .tile-details > .tile-subtitle { font-size : 14px; line-height : 14px; } .tiles.wide.xl > .tile > .tile-details > .tile-data { font-size : 14px; line-height : 18px; }
