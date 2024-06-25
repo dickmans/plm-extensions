@@ -34,8 +34,6 @@ $(document).ready(function() {
 
             } else {
 
-                console.log(document.location.href);
-
                 if(document.location.href.indexOf('/addins/') < 0) showErrorMessage('Error when searching item', 'Could find matching item when searching for ' + partNumber + ' in field ' + config.search.fieldId);
                 else $('#create-message').show();
 
