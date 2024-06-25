@@ -1365,7 +1365,7 @@ function insertDetails(link, params) {
                 .click(function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    insertDetailsFields(id);
+                    insertDetailsData(id);
                 });
 
         }
