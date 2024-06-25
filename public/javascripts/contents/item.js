@@ -1303,7 +1303,7 @@ function insertDetails(link, params) {
     let hideLabels      = false;        // Hide field labels
     let suppressLinks   = false;        // When set to true, linking pick lists will not be shown as links, preventing users from opening the native PLM user interface
     let editable        = false;        // Display form in edit mode
-    let compactDisplay  = false;        // Enable compact display
+    let layout          = 'normal';     // Set layout (normal, compact, narrow)
     let sectionsIn      = [];           // Define list of columns to include by fieldId; columns not included in this list will not be shown at all. Keep empty to show all columns.
     let sectionsEx      = [];           // Define list of columns to exclude by fieldId; columns in this list will not be shown at all. Keep empty to show all columns.
     let fieldsIn        = [];           // Define list of columns to include by fieldId; columns not included in this list will not be shown at all. Keep empty to show all columns.
@@ -1322,7 +1322,7 @@ function insertDetails(link, params) {
     if(!isBlank(params.hideLabels)    )     hideLabels = params.hideLabels;
     if(!isBlank(params.suppressLinks) )  suppressLinks = params.suppressLinks;
     if(!isBlank(params.editable)      )       editable = params.editable;
-    if(!isBlank(params.compactDisplay)) compactDisplay = params.compactDisplay;
+    if(!isBlank(params.layout)        )         layout = params.layout;
     if(!isBlank(params.sectionsIn)    )     sectionsIn = params.sectionsIn;
     if(!isBlank(params.sectionsEx)    )     sectionsEx = params.sectionsEx;
     if(!isBlank(params.fieldsIn)      )       fieldsIn = params.fieldsIn;
@@ -1393,8 +1393,13 @@ function insertDetails(link, params) {
         .addClass('grid-content')
         .addClass('no-scrollbar');
 
-    if(compactDisplay) elemContent.addClass('compact')
     if(!inline) elemContent.addClass('panel-content')
+
+    switch(layout) {
+        case 'compact'  : elemContent.addClass('compact'); break;
+        case 'narrow'   : elemContent.addClass('narrow' ); break;
+        default         : elemContent.addClass('normal' ); break;
+    }
 
     appendProcessing(id, true);
     insertDetailsDone(id);

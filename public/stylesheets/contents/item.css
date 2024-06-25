@@ -218,6 +218,18 @@
 .compact p { margin : 0px;  padding : 0px; }
 
 
+/* ENABLE NARROW DISPLAY */
+.narrow .section-fields { padding : 4px 4px; display : flex; flex-direction : column; gap : 14px; }
+.narrow .section-fields .field { flex-direction : column; gap : 6px; }
+.narrow .section-fields .field-label { padding : 0px 6px; text-align : left; width : 100%; }
+.narrow .section-fields .field-value.image > img { max-width : 150px; }
+.narrow .section-fields .field-value.readonly input { padding : 0px 0px; }
+.narrow .section-fields .field-value.readonly div { padding : 0px 0px; }
+.narrow .section-fields .field-value.computed {  padding-top : 0px; }
+.narrow .section-fields .field-value.checkbox > input { margin : 3px 0px 0px 0px; }
+.narrow .section-fields .field .field-unit { padding : 0px; }
+.narrow p { margin : 0px;  padding : 0px; }
+
 
 /*  ATTACHMENTS */
 /* ----------------------------------------------------------------------------- */
@@ -757,11 +769,13 @@ tr.node.bom-level-10 .bom-first-col  { padding-left : 186px; }
 
 .bom.compact > .panel-content > .bom-table > .bom-thead > tr > th { font-size : 12px; padding : 6px 8px; }
 .bom.compact > .panel-content > .bom-table > .bom-tbody > tr > td { font-size : 12px; }
+.bom.compact > .panel-content > .bom-table > .bom-tbody > tr > td { padding-top : 2px ; padding-bottom : 2px; }
 .bom.compact > .panel-content > .bom-table > .bom-thead > tr > th.bom-color { width : 4px; }
 .bom.compact > .panel-content > .bom-table > .bom-tbody > tr > td.bom-color { width : 4px; }
 .bom.compact > .panel-content > .bom-table > .bom-tbody > tr > td.bom-first-col > span { font-size : 12px; padding-top : 0px; padding-bottom : 0px; }
 .bom.compact > .panel-content > .bom-table > .bom-tbody > tr > td.bom-first-col > span.icon { font-size : 16px; line-height : 8px; }
 .bom.compact > .panel-content > .bom-table .bom-nav { top : 4px; }
+.bom.compact > .panel-content > .bom-table > .bom-tbody > tr > td > .button { font-size : 12px; padding : 2px 6px; min-width : unset; }
 
 
 

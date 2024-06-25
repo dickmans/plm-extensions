@@ -2413,7 +2413,7 @@ function setItemData(id, link) {
         hideLabels      : settings.item[id].hideLabels,
         suppressLinks   : settings.item[id].suppressLinks,
         editable        : settings.item[id].editable,
-        compactDisplay  : true,
+        layout          : 'compact',
         sectionsIn      : settings.item[id].sectionsIn,
         sectionsEx      : settings.item[id].sectionsEx,
         fieldsIn        : settings.item[id].fieldsIn,

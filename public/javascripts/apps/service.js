@@ -279,8 +279,6 @@ function clickWorkspaceItem(elemClicked, e) {
 
     window.history.replaceState(null, null, '/service?wsid=' + splitEBOM[4] + '&dmsid=' + splitEBOM[6] + '&wsidproduct=' + splitProduct[4] + '&dmsidproduct=' + splitProduct[6] + '&theme=' + theme);
 
-
-
     openItem(linkEBOM, linkProduct);
 
 }
@@ -291,7 +289,6 @@ function openItem(link, linkProduct) {
     $('#cart-list').html('');
     $('#items-processing').show();
     
-
     adjustCartHeight();
 
     $.get('/plm/descriptor', { 'link' : link}, function(response) {
@@ -389,7 +386,7 @@ function openSelectedRequest(link) {
     });
     insertDetails(link, {
         'id'             : 'request-details',
-        'compactDisplay' : true,
+        layout           : 'compact',
         'suppressLinks'  : true,
         'sectionsEx'     : config.service.requestSectionsExcluded
     });
@@ -556,7 +553,8 @@ function insertNonSparePartMessage() {
                 }
             });
 
-            let elemSparePart = genTileSparePart(link, itemData.urn, itemData.partNumber, itemData.title, 1.0);
+            // let elemSparePart = genTileSparePart(link, itemData.urn, itemData.partNumber, itemData.title, 1.0);
+            let elemSparePart = genTileSparePart(link, itemData.partNumber, 1.0, itemData.title);
                 elemSparePart.insertAfter($('#custom-message'));
                 elemSparePart.addClass('spare-part-custom');
 
@@ -759,6 +757,133 @@ function insertBOMSpareParts(elemParent, selectedItems, urnsSpareParts, flatBOM)
             }
 
     }
+
+}
+function genTileSparePart(link, partNumber, quantity, title) {
+
+    let elemSparePart = $('<div></div>')
+        .addClass('tile')
+        .addClass('spare-part')
+        .attr('data-link', link)
+        .attr('data-part-number', partNumber)
+        .attr('data-qty', quantity)
+        .click(function(e) {
+            clickSparePart($(this));
+        });
+                    
+    let elemSparePartImage = $('<div></div>').appendTo(elemSparePart)
+        .addClass('spare-part-image')
+        .addClass('tile-image');
+            
+    // let linkImage = getFlatBOMCellValue(flatBOM, selectedItem.node.item.link, urnsSpareParts.image);
+
+    // getImageFromCache(elemSparePartImage, { 'link' : linkImage }, 'settings', function() {});
+
+    // if(linkImage === '') {
+        $.get('/plm/details', { 'link' : link}, function(response) {
+            linkImage  = getFirstImageFieldValue(response.data.sections);
+            $('.spare-part').each(function() {
+                if($(this).attr('data-link') === response.params.link) {
+                    let elemSparePartImage = $(this).find('.spare-part-image').first();
+                    getImageFromCache(elemSparePartImage, { 'link' : linkImage }, 'settings', function() {});
+                }
+            });
+        });
+    // }
+                
+    let elemSparePartDetails = $('<div></div>').appendTo(elemSparePart)
+        .addClass('spare-part-details')
+        .addClass('tile-details');
+
+    let elemSparePartID = $('<div></div>').appendTo(elemSparePartDetails)
+        .addClass('spare-part-identifier');
+
+    $('<div></div>').appendTo(elemSparePartID)
+        .addClass('spare-part-quantity')
+        .html(Number(quantity));
+
+    $('<div></div>').appendTo(elemSparePartID)
+        .addClass('spare-part-number')
+        .addClass('tile-title')
+        .html(partNumber);    
+
+    $('<div></div>').appendTo(elemSparePartDetails)
+        .addClass('spare-part-title')
+        .html(title);  
+
+    $('<div></div>').appendTo(elemSparePartDetails)
+        .addClass('spare-part-material')
+        .addClass('with-icon')
+        .addClass('icon-product')
+        .addClass('filled');
+        // .html(getBOMNodeValue(selectedItem.node, urnsSpareParts.material));
+        
+    let partSpec        = '';
+    // let partWeight      = getBOMNodeValue(selectedItem.node, urnsSpareParts.weight);
+    // let partDimensions  = getBOMNodeValue(selectedItem.node, urnsSpareParts.dimensions);
+            
+    // if(partWeight !== '') {
+    //     partSpec = partWeight;
+    //     if(partWeight !== '') partSpec = partWeight + ' / ' + partDimensions;
+    // } else partSpec = partDimensions
+
+    $('<div></div>').appendTo(elemSparePartDetails)
+        .addClass('spare-part-dimensions')
+        .addClass('with-icon')
+        .addClass('icon-width')
+        .html(partSpec);
+
+    let elemSparePartSide = $('<div></div>').appendTo(elemSparePart)
+        .addClass('spare-part-side');
+
+    let elemCartQuantity = $('<div></div>').appendTo(elemSparePartSide)
+        .addClass('cart-quantity')
+        .click(function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        });
+
+    $('<div></div>').appendTo(elemCartQuantity)
+        .addClass('cart-quantity-label')
+        .html('Qty');
+
+    $('<input></input>').appendTo(elemCartQuantity)
+        .addClass('cart-quantity-input')
+        .val('1');
+
+    let elemCartAdd = $('<div></div>').appendTo(elemSparePartSide)
+        .addClass('button')
+        .addClass('cart-add')
+        .click(function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            moveSparePart($(this));
+        });  
+            
+    $('<div></div>').appendTo(elemCartAdd)
+        .addClass('icon')
+        .addClass('icon-cart-add');
+
+    $('<div></div>').appendTo(elemCartAdd)
+        .html('Add to cart');
+
+    $('<div></div>').appendTo(elemSparePartSide)
+        .addClass('button')
+        .addClass('icon')
+        .addClass('icon-delete')
+        .addClass('cart-remove')
+        .click(function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            moveSparePart($(this));
+        });  
+
+        if(applicationFeatures.showStock) {
+            $('<div></div>').appendTo(elemSparePartSide).addClass('spare-part-stock');
+        }
+
+
+    return elemSparePart;
 
 }
 function setSparePartStockStatus() {
@@ -995,7 +1120,8 @@ function setSparePartsList(elemItem) {
     if(elemCustomMessage.length > 0) {   
         if(list.length > 0) {
             elemCustomMessage.hide();
-        } else if(!isNode) {
+        // } else if(!isNode) {
+        } else {
             elemCustomMessage.attr('data-link', elemItem.attr('data-link')).show();
         } 
     }
