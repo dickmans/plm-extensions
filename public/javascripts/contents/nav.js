@@ -1718,7 +1718,7 @@ function insertResults(wsId, filters, params) {
     let reload          = true;             // Enable reload button for the list
     let search          = true;             // Adds quick filtering using search input on top of list
     let placeholder     = 'Search';         // Set placeholder text for quick filtering input
-    let layout          = 'table';          // Content layout (tiles, list or table)
+    let layout          = 'table';          // Content layout (tiles, grid, list or table)
     let tileSize        = 's';              // Tile size (xxs, xs, s, m, l, xl, xxl)
     let tileIcon        = 'icon-product';   // Tile icon to use if no image is available
     let tileCounter     = false;            // When enabled, a counter will be displayed instead of the icon

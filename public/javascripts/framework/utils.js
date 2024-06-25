@@ -805,7 +805,8 @@ function genTilesList(id, items, params) {
     elemList.addClass('tiles');
     elemList.addClass(params.tileSize);
 
-    if(params.layout === 'list') elemList.addClass('list')
+         if(params.layout === 'list') elemList.addClass('list');
+    else if(params.layout === 'grid') elemList.addClass('wide');
 
     if(!isBlank(params.groupBy)) {
         sortArray(items, 'groupKey', 'string', 'ascending');
@@ -1919,56 +1920,215 @@ function submitCreateFormDone(id, link) {
 
 
 
-// Clone item using standard application features
-function cloneItem(link, options) {
+// Clone single item using standard application features
+function cloneItem(link, options, fieldsToReset, callback) {
+
+    if(isBlank(fieldsToReset)) fieldsToReset = [];
+
+    let params = {
+        link     : link,
+        options  : ['ITEM_DETAILS'],
+        sections : []
+    }
+
+    if(options.indexOf('bom'        ) > -1) params.options.push('BOM_LIST');
+    if(options.indexOf('grid'       ) > -1) params.options.push('PART_GRID');
+    if(options.indexOf('attachments') > -1) params.options.push('PART_ATTACHMENTS');
 
 
-    link = '/api/v3/workspaces/241/items/15272';
+    $.get('/plm/details', { link : link }, function(response) {
 
+        for(let section of response.data.sections) {
+
+            let linkBase    = section.link.split('/items/')[0];
+            let linkSection = linkBase + section.link.split('/views/1')[1];
+
+            let sect = {
+                'link'   : linkSection,
+                'fields' : []
+            }
+
+            if(section.hasOwnProperty('classificationId')) sect.classificationId = section.classificationId;
+
+            for(let field of section.fields) {
+
+                let fieldId = field.__self__.split('/')[10];
+
+                if(fieldsToReset.includes(fieldId)) field.value = '';
+
+                sect.fields.push({
+                    fieldId         : fieldId,
+                    fieldMetadata   : null,
+                    title           : field.title,
+                    typeId          : Number(field.type.link.split('/')[4]),
+                    value           : field.value
+                });
+
+            }
+            params.sections.push(sect);
+
+        }
+
+        $.post('/plm/clone', params, function(response) {
+            console.log(response);
+            callback(response);
+        });
+
+    });
+
+}
+
+
+
+// Clone multiple items using standard application features
+function cloneItems(links, options, fieldsToReset, callback) {
+
+    if(isBlank(fieldsToReset)) fieldsToReset = [];
+
+    let reqDetails   = [];
+    let reqClones    = [];
     let cloneOptions = ['ITEM_DETAILS'];
 
     if(options.indexOf('bom'        ) > -1) cloneOptions.push('BOM_LIST');
     if(options.indexOf('grid'       ) > -1) cloneOptions.push('PART_GRID');
     if(options.indexOf('attachments') > -1) cloneOptions.push('PART_ATTACHMENTS');
 
-    console.log(cloneOptions);
+    for(let link of links) reqDetails.push($.get('/plm/details', { link : link }));
 
-    $.get('/plm/details', { link : link }, function(response) {
+    Promise.all(reqDetails).then(function(responses) {
+        
+        for(let response of responses) {
+
+            let params = {
+                link     : response.params.link,
+                options  : cloneOptions,
+                sections : []
+            }
+
+            for(let section of response.data.sections) {
+
+                let linkBase    = section.link.split('/items/')[0];
+                let linkSection = linkBase + section.link.split('/views/1')[1];
+
+                let sect = {
+                    'link'   : linkSection,
+                    'fields' : []
+                }
+
+                if(section.hasOwnProperty('classificationId')) sect.classificationId = section.classificationId;
+
+                for(let field of section.fields) {
+
+                    let fieldId = field.__self__.split('/')[10];
+
+                    if(fieldsToReset.includes(fieldId)) field.value = '';
+
+                    sect.fields.push({
+                        fieldId         : fieldId,
+                        fieldMetadata   : null,
+                        title           : field.title,
+                        typeId          : Number(field.type.link.split('/')[4]),
+                        value           : field.value
+                    });
+
+                }
+                
+                params.sections.push(sect);
+
+            }
+
+            reqClones.push($.post('/plm/clone', params));
+
+            Promise.all(reqClones).then(function(responses) {
+                console.log(responses);
+                callback(responses);
+            });
+
+        }
+    });
+
+}
+
+
+
+// Replace multiple BOM entries with list of new items while keeping link attributes
+function replaceBOMItems(link, itemsOld, itemsNew, callback) {
+
+    console.log(' >> replaceBOMItems START ');
+    console.log(link);
+    console.log(itemsOld);
+    console.log(itemsNew);
+    console.log(' replaceBOMItems CONTINUE ');
+
+    $.get('/plm/bom', { link : link, depth : 1 }, function(response) {
+
+        let reqEdges = [];
 
         console.log(response);
 
-        console.log(response.data.sections);
+        for(let edge of response.data.edges) {
+
+            let edgeChild = edge.child.split('.').pop();
+
+            for(let itemOld of itemsOld) {
+
+                let idOld = itemOld.split('/').pop();
+
+                if(edgeChild === idOld) {
+
+                    reqEdges.push($.get('/plm/bom-edge', { edgeLink : edge.edgeLink }));
+                    break;
+
+                }
+
+            }
+
+        }
+
+        console.log(reqEdges.length);
+
+        Promise.all(reqEdges).then(function(responses) {
+
+            console.log(responses);
+            let dataEdges = responses;
+            let reqRemove = [];
+
+            for(let response of responses) {
+
+                reqRemove.push($.get('/plm/bom-remove', { edgeLink : response.params.edgeLink }));
+
+            }
+
+            console.log(reqRemove.length);
+
+            Promise.all(reqRemove).then(function(responses) {
+                console.log(responses);
+
+                let reqAdd   = [];
+                let indexNew = 0;
+
+                for(let dataEdge of dataEdges) {
+                    reqAdd.push($.get('/plm/bom-add', { linkParent : link, linkChild : itemsNew[indexNew++] }));
+                }
+
+                Promise.all(reqAdd).then(function(responses) {
+
+                    console.log(responses);
+
+                });
 
 
-// let data = [
-//     {
-//        "link":"/api/v3/workspaces/57/sections/203",
-//        "fields":[
-//           {
-//              "__self__":"/api/v3/workspaces/57/views/1/fields/NUMBER",
-//              "value":"203-501-01",
-//              "urn":"urn:adsk.plm:tenant.workspace.view.field:ADSKTENANT2023TEST07.57.1.NUMBER",
-//              "fieldMetadata":null,
-//              "dataTypeId":4,
-//              "title":"Number"
-//           }
-//         ]
-//     }]
+            })
 
 
 
-        // $.post('/plm/clone', { link : link, options : cloneOptions, itemData : response.data.sections }, function(response) {
-        $.post('/plm/clone', { link : link, options : cloneOptions, sections : response.data.sections }, function(response) {
-
-            console.log(response);
-            
-    
         });
 
 
     });
 
 }
+
 
 
 // Open given item in main screen of app, insert given dom elements before if needed
@@ -2453,8 +2613,8 @@ function getSectionFieldValue(sections, fieldId, defaultValue, property) {
     if(typeof sections === 'undefined') return defaultValue;
     if(sections === null) return defaultValue;
 
-    for(section of sections) {
-        for(field of section.fields) {
+    for(let section of sections) {
+        for(let field of section.fields) {
             let id = field.__self__.split('/')[10];
             if(id === fieldId) {
 
@@ -2941,7 +3101,7 @@ function updateGridData(link, key, data, deleteEmpty, callback) {
 }
 
 
-// Determin if given permission is granted
+// Determine if given permission is granted
 function hasPermission(permissions, id) {
 
     for(let permission of permissions) {
