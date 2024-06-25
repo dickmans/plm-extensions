@@ -1726,7 +1726,9 @@ function insertResults(wsId, filters, params) {
     let tileSize        = 's';              // Tile size (xxs, xs, s, m, l, xl, xxl)
     let tileIcon        = 'icon-product';   // Tile icon to use if no image is available
     let tileCounter     = false;            // When enabled, a counter will be displayed instead of the icon
-    let tileSubtitle    = '';               // When enabled, a counter will be displayed instead of the icon
+    let tileTitle       = 'DESCRIPTOR';     // Field ID to be used for the tile's title
+    let tileSubtitle    = '';               // Field ID to be used for the tile's subtitle
+    let tileDetails     = '';               // Field ID to be used for the tile's details element
     let tilesGroupBy    = '';               // Field ID to use for grouping of items (leave blank to disable grouping)
     let multiSelect     = false;            // Enables selection of multiple items
     let editable        = false;            // When set to true, enables modifications in editable fields
@@ -1760,7 +1762,9 @@ function insertResults(wsId, filters, params) {
     if(!isBlank(params.tileSize)      )       tileSize = params.tileSize;
     if(!isBlank(params.tileIcon)      )       tileIcon = params.tileIcon;
     if(!isBlank(params.tileCounter)   )    tileCounter = params.tileCounter;
+    if(!isBlank(params.tileTitle)     )      tileTitle = params.tileTitle;
     if(!isBlank(params.tileSubtitle)  )   tileSubtitle = params.tileSubtitle;
+    if(!isBlank(params.tileDetails)   )    tileDetails = params.tileDetails;
     if(!isBlank(params.tilesGroupBy)  )   tilesGroupBy = params.tilesGroupBy;
     if(!isBlank(params.multiSelect)   )    multiSelect = params.multiSelect;
     if(!isBlank(params.editable)      )       editable = params.editable;
@@ -1779,13 +1783,18 @@ function insertResults(wsId, filters, params) {
     if(sort.length   === 0) sort.push(filters[0].field);
     if(fields.length === 0) for(let field of filters) { fields.push(field.field); }
 
+    if(!isBlank(tileTitle)   ) { if(!fields.includes(tileTitle)   ) { fields.push(tileTitle);    } }
+    if(!isBlank(tileSubtitle)) { if(!fields.includes(tileSubtitle)) { fields.push(tileSubtitle); } }
+    if(!isBlank(tileDetails) ) { if(!fields.includes(tileDetails) ) { fields.push(tileDetails);  } }
 
     settings.results[id]                = {};
     settings.results[id].layout         = layout;
     settings.results[id].tileSize       = tileSize;
     settings.results[id].tileIcon       = tileIcon;
     settings.results[id].tileCounter    = tileCounter;
+    settings.results[id].tileTitle      = tileTitle;
     settings.results[id].tileSubtitle   = tileSubtitle;
+    settings.results[id].tileDetails    = tileDetails;
     settings.results[id].tilesGroupBy   = tilesGroupBy;
     settings.results[id].multiSelect    = multiSelect;
     settings.results[id].editable       = editable;  
@@ -2055,6 +2064,7 @@ function insertResultsData(id) {
                 item.link       = '/api/v3/workspaces/' + settings.results[id].wsId + '/items/' + item.dmsId;
                 item.title      = '';
                 item.subtitle   = '';
+                item.details    = '';
                 item.partNumber = '';
                 item.data       = [];
                 item.quantity   = '';
@@ -2065,16 +2075,16 @@ function insertResultsData(id) {
 
                     for(let field of item.fields.entry) {
 
-                        if(field.key === 'DESCRIPTOR') item.title = field.fieldData.formattedValue;
                         if(field.key === config.viewer.fieldIdPartNumber) item.partNumber = field.fieldData.value;
+                        if(field.key === settings.results[id].tileTitle) item.title = field.fieldData.value;
                         if(field.key === settings.results[id].tileSubtitle) item.subtitle = field.fieldData.value;
+                        if(field.key === settings.results[id].tileDetails ) item.details  = field.fieldData.value;
                         if(field.key === settings.results[id].tilesGroupBy) item.groupKey = field.fieldData.value;
 
                         if(field.key === column.fieldId) {
                             value = field.fieldData.value;
                             break;
                         }
-
 
                     }
 
