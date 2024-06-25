@@ -299,8 +299,10 @@
 .icon-workflow::before          { content : '\e4fd'; }
 .icon-zoom-in::before           { content : '\e8ff'; }
 
-.icon-chevron-right::before { content : '\e5cc'; }
-.icon-chevron-left::before  { content : '\e5cb'; }
+.icon-chevron-up::before        { content : '\e316'; }
+.icon-chevron-right::before     { content : '\e5cc'; }
+.icon-chevron-down::before      { content : '\e313'; }
+.icon-chevron-left::before      { content : '\e5cb'; }
 
 .icon-north::before         { content : '\f1e0'; }
 .icon-north-east::before    { content : '\f1e1'; }
