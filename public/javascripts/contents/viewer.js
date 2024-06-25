@@ -413,6 +413,18 @@ function setViewerInstancedData() {
                 }
             }
         }
+
+        for(let instance of dataInstances) {
+            instance.path = getInstanceParents(instance);
+            let pathShort = '';
+            if(instance.path.indexOf('|') > 0) {
+                let split = instance.path.split('|');
+                if(split.pop() !== instance.partNumber) instance.path += '|' + instance.partNumber;
+                pathShort = instance.path.substring(split[0].length + 1);
+            }
+            instance.pathShort = pathShort;
+        }
+
         setViewerInstancedDataDone();
     });
 
@@ -448,6 +460,27 @@ function getInstancePartNumber(instance) {
     }
     
     return null;
+
+}
+function getInstanceParents(instance) {
+
+    let result = '';
+
+    for(let property of instance.properties) {
+        if(property.attributeName === 'parent') {
+            for(let dataInstance of dataInstances) {
+                if(dataInstance.dbId === property.displayValue) {
+                    let parents = getInstanceParents(dataInstance);
+                    if(parents !== '') parents += '|';
+                    result = parents + dataInstance.partNumber;
+                    break;
+                }
+            }
+            break;
+        }
+    }
+    
+    return result;
 
 }
 function setViewerInstancedDataDone() {
@@ -558,6 +591,7 @@ function viewerSelectModels(partNumbers, params) {
     let highlight   = true;    // Highlight given partNumber(s) by defined color (colorModelSelected)
     let resetColors = true;    // Reset colors of all componente before highlighting the partNumber(s)
     let keepHidden  = true;    // Keep selectively hidden components hidden
+    let usePath     = false;   // If list of paths is provided instead of part numbers
     let color       = colorModelSelected; 
 
 
@@ -568,6 +602,7 @@ function viewerSelectModels(partNumbers, params) {
     if(!isBlank(params.highlight)  )   highlight = params.highlight;
     if(!isBlank(params.resetColors)) resetColors = params.resetColors;
     if(!isBlank(params.keepHidden) )  keepHidden = params.keepHidden;
+    if(!isBlank(params.usePath)    )     usePath = params.usePath;
     if(!isBlank(params.color)      )       color = params.color;
 
     disableViewerSelectionEvent = true;
@@ -596,9 +631,12 @@ function viewerSelectModels(partNumbers, params) {
     }
 
     for(let dataInstance of dataInstances) {
-        let isSelected = false;
+        
+        let isSelected     = false;
+        let instanceNumber =  (usePath) ? dataInstance.pathShort : dataInstance.partNumber;
+        
         for(let partNumber of partNumbers) {
-            if(dataInstance.partNumber === partNumber) {
+            if(instanceNumber === partNumber) {
                 dbIds.push(dataInstance.dbId);
                 viewer.show(dataInstance.dbId);
                 isSelected = true;
@@ -829,6 +867,7 @@ function viewerSetColors(partNumbers, params) {
     let ghosting    = false;   // Enforce ghosting of hidden components
     let fitToView   = false;   // Zoom in / out to fit selection into view 
     let resetColors = true;    // Reset colors of all componente before highlighting the partNumber(s)
+    let usePath     = false;   // If list of paths is provided instead of part numbers
     let keepHidden  = true;    // Keep selectively hidden components hidden
     let unhide      = true;    // Unhide component if it is currently hidden
     let color       = colorModelSelected; 
@@ -839,6 +878,7 @@ function viewerSetColors(partNumbers, params) {
     if(!isBlank(params.ghosting)   )    ghosting = params.ghosting;
     if(!isBlank(params.fitToView)  )   fitToView = params.fitToView;
     if(!isBlank(params.resetColors)) resetColors = params.resetColors;
+    if(!isBlank(params.usePath)    )     usePath = params.usePath;
     if(!isBlank(params.keepHidden) )  keepHidden = params.keepHidden;
     if(!isBlank(params.unhide)     )      unhide = params.unhide;
     if(!isBlank(params.color)      )       color = new THREE.Vector4(params.color[0], params.color[1], params.color[2], params.color[3]);
@@ -854,8 +894,9 @@ function viewerSetColors(partNumbers, params) {
     }
 
     for(let dataInstance of dataInstances) {
+        let instanceNumber =  (usePath) ? dataInstance.pathShort : dataInstance.partNumber;
         for(let partNumber of partNumbers) {
-            if(dataInstance.partNumber === partNumber) {
+            if(instanceNumber === partNumber) {
                 if(hiddenInstances.indexOf(dataInstance.dbId < 0)) {
                     dbIds.push(dataInstance.dbId);
                     if(unhide) viewer.show(dataInstance.dbId);
@@ -896,28 +937,44 @@ function viewerResetColors() {
 
 
 // Hide / unhide elements from viewer
-function viewerHideModel(partNumber) {
+function viewerHideModel(partNumber, params) {
 
-    viewerHideModels([partNumber]);
+    viewerHideModels([partNumber], params);
 
 }
-function viewerHideModels(partNumbers) {
+function viewerHideModels(partNumbers, params) {
 
     if(!isViewerStarted()) return;
     if(viewer.model.is2d()) return;
 
+    //  Set defaults for optional parameters
+    // --------------------------------------
+    let usePath     = false;   // If list of paths is provided instead of part numbers
+    let ghosting    = true;   // Enforce ghosting of hidden components
+
+    if( isBlank(params)        )  params = {};
+    if(!isBlank(params.ghosting)   )    ghosting = params.ghosting;
+    if(!isBlank(params.usePath)) usePath = params.usePath;
+
     for(let dataInstance of dataInstances) {
+
+        let instanceNumber =  (usePath) ? dataInstance.pathShort : dataInstance.partNumber;
+        
         for(let partNumber of partNumbers) {
-            if(dataInstance.partNumber === partNumber) {
+            if(instanceNumber === partNumber) {
                 viewer.hide(dataInstance.dbId);
+                if(usePath) break;
             }
         }
+
     }
 
-}
-function viewerUnhideModel(partNumber, fitToView) {
+    viewerSetGhosting(ghosting);
 
-    viewerUnhideModels([partNumber], fitToView);
+}
+function viewerUnhideModel(partNumber, params) {
+
+    viewerUnhideModels([partNumber], params);
 
 }
 function viewerUnhideModels(partNumbers, params) {
@@ -930,6 +987,7 @@ function viewerUnhideModels(partNumbers, params) {
     let fitToView   = true;    // Zoom in / out to fit selection into view 
     let highlight   = true;    // Highlight given partNumber(s) by defined color (colorModelSelected)
     let resetColors = true;    // Reset colors of all componente before highlighting the partNumber(s)
+    let usePath     = false;   // If list of paths is provided instead of part numbers
     let color       = colorModelSelected; 
 
 
@@ -937,18 +995,27 @@ function viewerUnhideModels(partNumbers, params) {
     if(!isBlank(params.fitToView)  )   fitToView = params.fitToView;
     if(!isBlank(params.highlight)  )   highlight = params.highlight;
     if(!isBlank(params.resetColors)) resetColors = params.resetColors;
+    if(!isBlank(params.usePath)    )     usePath = params.usePath;
     if(!isBlank(params.color)      )       color = new THREE.Vector4(params.color[0], params.color[1], params.color[2], params.color[3]);
 
     let dbIds = [];
     
     if(resetColors) viewer.clearThemingColors();
 
+
+    console.log(usePath);
+    console.log(partNumbers);
+
     for(let dataInstance of dataInstances) {
+        let instanceNumber =  (usePath) ? dataInstance.pathShort : dataInstance.partNumber;
         for(let partNumber of partNumbers) {
-            if(dataInstance.partNumber === partNumber) {
+            if(instanceNumber === partNumber) {
+                console.log('found match');
+                console.log(instanceNumber);
                 dbIds.push(dataInstance.dbId);
                 viewer.show(dataInstance.dbId);
                 if(highlight) viewer.setThemingColor(dataInstance.dbId, color, null, true );
+                if(usePath) break;
             }
         }
     }
@@ -1329,11 +1396,19 @@ function viewerAddGhostingToggle(toolbar) {
 }
 function viewerSetGhosting(value) {
 
-    let ghosting = value;
-    let toolbar  = $('#customSelectionToolbar');
+    let ghosting = value; 
 
-    if(toolbar.length > 0) {
-        ghosting = (toolbar.hasClass('ghosting'));
+    if(!isBlank(applicationFeatures)) {
+        if(!isBlank(applicationFeatures.viewer)) {
+            if(!isBlank(applicationFeatures.viewer.ghosting)) {
+                if(applicationFeatures.viewer.ghosting) {
+                    let toolbar  = $('#customSelectionToolbar');
+                    if(toolbar.length > 0) {
+                        ghosting = (toolbar.hasClass('ghosting'));
+                    }
+                }
+            }
+        }
     }
 
     viewer.setGhosting(ghosting);
@@ -1803,13 +1878,50 @@ function viewerCaptureScreenshot(id, callback) {
             }
                 
         }
-                
         viewer.getScreenShot(imageWidth, imageHeight, function (blobURL) {
             screenshot.src = blobURL;
         });
+        
     }
 
 }
+
+
+
+// Capture screenshot with markup for image upload
+function viewerCapturePerspective(view, id, callback) {
+
+    let screenshot  = new Image();
+    let imageWidth  = viewer.container.clientWidth;
+    let imageHeight = viewer.container.clientHeight;
+    let viewcuiext  = viewer.getExtension('Autodesk.ViewCubeUi');
+
+    screenshot.onload = function () {
+           
+        let canvas          = document.getElementById(id);
+            canvas.width    = viewer.container.clientWidth;
+            canvas.height   = viewer.container.clientHeight;
+
+        let context = canvas.getContext('2d');
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            context.drawImage(screenshot, 0, 0, canvas.width, canvas.height); 
+
+        callback();
+                
+    }
+
+    if((view === 'home') || (view === 'perspective')) {
+        viewer.setViewFromFile();
+    } else  viewcuiext.setViewCube(view)
+
+    setTimeout(() => {
+        viewer.getScreenShot(imageWidth, imageHeight, function (blobURL) {
+            screenshot.src = blobURL;
+        });
+    }, 800);
+
+}
+
 
 // Markup restore
 function onViewerRestore(event) {
