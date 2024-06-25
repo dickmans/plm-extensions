@@ -244,7 +244,9 @@
 .icon-list-remove::before       { content : '\eb80'; }
 .icon-lock::before              { content : '\e897'; }
 .icon-markup::before            { content : '\e560'; }
+.icon-maximize::before          { content : '\f1ce'; }
 .icon-menu::before              { content : '\e5d2'; }
+.icon-minimize::before          { content : '\f1cf'; }
 .icon-mow::before               { content : '\e85f'; }
 .icon-new-window::before        { content : '\f710'; }
 .icon-no-data::before           { content : '\e88e'; }
