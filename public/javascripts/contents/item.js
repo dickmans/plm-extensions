@@ -1480,7 +1480,6 @@ function insertDetailsFields(id, sections, fields, data, params, callback) {
         for(let field of fields) {
             if(!isBlank(field.derived)) {
                 if(field.derived) {
-                    console.log(field);
                     let source = field.derivedFieldSource.__self__.split('/')[8];
                     let isNew = true;
                     for(let derived of settings.create[id].derived) {
@@ -1504,13 +1503,19 @@ function insertDetailsFields(id, sections, fields, data, params, callback) {
 
         let sectionId   = section.__self__.split('/')[6];
         let isNew       = true;
-        let className   = (settings.details[id].collapsed) ? 'collapsed' : 'expanded';
+        let className   = 'expanded';
+
+        if(!isBlank(settings.details[id])) {
+            if(!isBlank(settings.details[id].collapsed)) {
+                className = (settings.details[id].collapsed) ? 'collapsed' : 'expanded';
+            }
+        }
 
         if(sectionsIn.length === 0 || sectionsIn.includes(section.name)) {
             if(sectionsEx.length === 0 || !sectionsEx.includes(section.name)) {
 
                 for(let cacheSection of cacheSections) {
-                    if(cacheSection.urn === section.urn) {
+                    if(cacheSection.link === section.__self__) {
                         isNew = false;
                         className = cacheSection.className;
                     }
@@ -1518,7 +1523,7 @@ function insertDetailsFields(id, sections, fields, data, params, callback) {
 
                 if(isNew) {
                     cacheSections.push({
-                        'urn' : section.urn, 'className' : 'expanded'
+                        'link' : section.__self__, 'className' : className
                     })
                 }
 
@@ -2625,6 +2630,7 @@ function insertBOM(link , params) {
     if(!isBlank(params.quantity)          )           quantity = params.quantity;
     if(!isBlank(params.hideDetails)       )      { hideDetails = params.hideDetails } else { hideDetails = ((bomViewName === '') && (views === false)); }
     if(!isBlank(params.headers)           )          { headers = params.headers } else { headers = !hideDetails; }
+    if(!isBlank(params.path)              )               path = params.path;
     if(!isBlank(params.counters)          )           counters = params.counters;
     if(!isBlank(params.revisionBias)      )       revisionBias = params.revisionBias;
     if(!isBlank(params.depth)             )              depth = params.depth;
