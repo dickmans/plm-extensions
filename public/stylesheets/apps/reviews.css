@@ -11,6 +11,9 @@ textarea:focus {
     border-color : none !important;
     box-shadow   : none !important;
 }
+.tiles.wide.xxl > .tile > .tile-details > .tile-data {
+    gap : 2px;
+}
 
 
 
