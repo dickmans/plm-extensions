@@ -131,6 +131,18 @@ h2 {
     height      : 0px !important;
     width       : 0px !important;
 }
+.tiles.xxl > .tile {
+    height : 370px;
+}
+.tile-title { 
+    font-size   : 18px;
+    font-weight : 800;
+    line-height : 20px;
+}
+.tile-subtitle {     
+    font-size   : 13px !important;
+    line-height : 16px !important;
+}
 
 
 /*  INSTRUCTIONS */
