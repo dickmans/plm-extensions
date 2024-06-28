@@ -12,7 +12,7 @@ textarea:focus {
     box-shadow   : none !important;
 }
 .tiles.wide.xxl > .tile > .tile-details > .tile-data {
-    gap : 2px;
+    gap : 3px;
 }
 
 
