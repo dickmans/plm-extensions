@@ -1351,26 +1351,20 @@ function submitRequest() {
     $('#overlay-processing').show();
 
     let params = {
-        'wsId'     : wsSparePartsRequests.id,
-        'sections' : [{
-            'id'        : wsSparePartsRequests.sections[0].urn.split('.')[5],
-            'fields'    : [{
-                'fieldId'   : 'LINKED_ITEM',
-                'value'     : { 'link' : '/api/v3/workspaces/' + wsId + '/items/' + dmsId },
-                'type'      : 'picklist'
-            }]   
-        }]
+        wsId     : wsSparePartsRequests.id,
+        sections : []
     } 
 
-    addFieldToPayload(params.sections, wsSparePartsRequests.sections, null, 'REQUESTOR_NAME', $('#request-name').val());
-    addFieldToPayload(params.sections, wsSparePartsRequests.sections, null, 'REQUESTOR_COMPANY', $('#request-company').val());
-    addFieldToPayload(params.sections, wsSparePartsRequests.sections, null, 'REQUESTOR_EMAIL', $('#request-e-mail').val());
-    addFieldToPayload(params.sections, wsSparePartsRequests.sections, null, 'REQUESTOR_ADDRESS', $('#request-address').val());
-    addFieldToPayload(params.sections, wsSparePartsRequests.sections, null, 'REQUESTOR_POSTAL_CODE', $('#request-postal').val());
-    addFieldToPayload(params.sections, wsSparePartsRequests.sections, null, 'REQUESTOR_CITY', $('#request-city').val());
-    addFieldToPayload(params.sections, wsSparePartsRequests.sections, null, 'REQUESTOR_COUNTRY_CODE', $('#request-country').val());
-    addFieldToPayload(params.sections, wsSparePartsRequests.sections, null, 'REQUEST_SHIPPING_ADDRESS', $('#request-shipping-address').val());
-    addFieldToPayload(params.sections, wsSparePartsRequests.sections, null, 'COMMENTS', $('#reqeust-comments').val());
+    addFieldToPayload(params.sections, wsSparePartsRequests.sections, null, 'LINKED_ITEM'               , { 'link' : '/api/v3/workspaces/' + wsId + '/items/' + dmsId });
+    addFieldToPayload(params.sections, wsSparePartsRequests.sections, null, 'REQUESTOR_NAME'            , $('#request-name').val());
+    addFieldToPayload(params.sections, wsSparePartsRequests.sections, null, 'REQUESTOR_COMPANY'         , $('#request-company').val());
+    addFieldToPayload(params.sections, wsSparePartsRequests.sections, null, 'REQUESTOR_EMAIL'           , $('#request-e-mail').val());
+    addFieldToPayload(params.sections, wsSparePartsRequests.sections, null, 'REQUESTOR_ADDRESS'         , $('#request-address').val());
+    addFieldToPayload(params.sections, wsSparePartsRequests.sections, null, 'REQUESTOR_CITY'            , $('#request-city').val());
+    addFieldToPayload(params.sections, wsSparePartsRequests.sections, null, 'REQUESTOR_POSTAL_CODE'     , $('#request-postal').val());
+    addFieldToPayload(params.sections, wsSparePartsRequests.sections, null, 'REQUESTOR_COUNTRY_CODE'    , $('#request-country').val());
+    addFieldToPayload(params.sections, wsSparePartsRequests.sections, null, 'REQUEST_SHIPPING_ADDRESS'  , $('#request-shipping-address').val());
+    addFieldToPayload(params.sections, wsSparePartsRequests.sections, null, 'REQUEST_COMMENTS'          , $('#reqeust-comments').val());
 
     $.post({
         url         : '/plm/create', 

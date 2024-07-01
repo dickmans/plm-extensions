@@ -121,16 +121,18 @@
             span WHEN (DMS_ID is null) THEN ''
             span ELSE '&lt;a style="color: #0a131c;border: 1px solid #bec8d2;border-radius:3px;text-align:center;text-decoration:none !important;line-height:26px;white-space:nowrap;padding:4px 20px;width:140px;font-weight:600;" target="_blank" href ="LOCATIONservice?wsId=57&dmsId='||DMS_ID||'"&gt;Service Portal&lt;/a&gt;'
             span END       
-        h1 Create Workspace Spare Parts Requests
-        p The following steps are optional. Your Service Portal should be ready by now. However, if you want to initiate requests for selected spare parts from within the portal, then continue with the steps of this chapter.
+        h1 Add New Workspace Spare Parts Requests
+        p The Service Portal can be used to initiate spare parts requests processes with reference to the currently selected spare parts. Howeever, this feature requires the given workspace to manage these requests. If you do not want to manage these requests in PLM, you may skip this chapter. 
+        p If you are using a trial or demo tenant, you can take benefit of the preview version of a Spare Parts Requests solution in the template library. Simply download this given template to your tenant and make sure that you replace the placeholder text fields with the given linking picklists (i.e. field LNKED_ITEM in the details tab and ITEM in the grid tab). Afterwards, you can proceed with the next chapter, too.
+        p In any other case perform the following steps to manually create a new workspaces for management of the spare parts requests.
         h2 Add Workspace
-        p Users can trigger requests for spare parts in the given portal. This is made possible with a new workspace named 
+        p Add a new workspace named 
             strong Spare Parts Requests 
-            | which you have to add before using all features this solution. Use the settings shown in the following screenshot when doing so.
+            | using the settings shown in the following screenshot:
         img(src='images/apps/services-portal-2.png' style='width:100%;max-width:900px;margin:10px 0px;border: 10px solid white')
         h2 Item Details Tab
-        p Add the following fields to the new workspace. Keep the layout of the initial two sections as shown in the following screenshot. You may add further fields (non-mandatory) and sections when needed.
-        img(src='images/apps/services-portal-3.png' style='width:100%;max-width:513px;margin:10px 0px 30px;')
+        p Add the following fields to the new workspace. You may add further fields (non-mandatory) and sections when needed. You may also omit 'Requestor' in all the field labels, they are just used to keep the internal Field ID identical to the label to make the setup easier.
+        img(src='images/apps/services-portal-3.png' style='width:100%;max-width:547px;margin:10px 0px 30px;')
         table(style='margin:10px 0px 30px')
             tr
                 th Label 
@@ -151,20 +153,62 @@
                 td length: 200
                 td Creation Only
             tr  
-                td Requested By 
-                td REQUESTED_BY 
-                td Single Line Text
-                td length: 200
-                td false
-            tr  
                 td Request Date 
                 td REQUEST_DATE
                 td Date
                 td -
                 td false
             tr  
-                td Comments 
-                td COMMENTS
+                td Requestor Name 
+                td REQUESTOR_NAME 
+                td Single Line Text
+                td length: 200
+                td true
+            tr  
+                td Requestor Company 
+                td REQUESTOR_COMPANY
+                td Single Line Text
+                td length: 200
+                td true
+            tr  
+                td Requestor E-Mail
+                td REQUESTOR_EMAIL
+                td Single Line Text
+                td length: 200
+                td true
+            tr  
+                td Requestor Address
+                td REQUESTOR_ADDRESS
+                td Single Line Text
+                td length: 200
+                td true
+            tr  
+                td Requestor City 
+                td REQUESTOR_CITY
+                td Single Line Text
+                td length: 200
+                td true
+            tr  
+                td Requestor Postal Code
+                td REQUESTOR_POSTAL_CODE
+                td Single Line Text
+                td length: 200
+                td true
+            tr  
+                td Requestor Country Code
+                td REQUESTOR_COUNTRY_CODE
+                td Single Line Text
+                td length: 200
+                td true
+            tr  
+                td Request Shipping Address
+                td REQUEST_SHIPPING_ADDRESS
+                td Paragraph
+                td Length: 100000
+                td true
+            tr  
+                td Request Comments 
+                td REQUEST_COMMENTS
                 td Paragraph
                 td Length: 100000
                 td true
@@ -193,7 +237,7 @@
                 td Length: 100000
                 td true
         h2 Descriptor
-        p Set the descriptor for this workspace as you like (i.e. ID - Requested By)
+        p Set the descriptor for this workspace as you like (i.e. ID - Requestor Company)
         h2 Grid Tab
         p Add the following fields to the grid tab
         img(src='images/apps/services-portal-4.png' style='width:100%;max-width:855px;margin:10px 0px 30px;')
@@ -252,7 +296,7 @@
             | with the code shown below. Make sure to select library script 
             strong getUserName 
             | in the script's imports.
-        p.code item.REQUESTED_BY = getUserName(); 
+        p.code item.REQUESTOR_NAME = getUserName(); 
             br
             span item.REQUEST_DATE = new Date();
         h2 Workflow
@@ -485,6 +529,12 @@
     .log 
         h1 Services Portal Change Log 
         table 
+            tr 
+                td 1. July 2024
+                td Enhancement 
+                td This solution is now compatible with the Spare Parts Requests template being available as preview for trial and demo tenants.
+                    br
+                    |This required adjustment of some fieldIDs, please review the installation instructions for the new Spare Parts Requests workspace and align with your setup if you used this solution before already.
             tr 
                 td 5. June 2024
                 td Enhancement 
