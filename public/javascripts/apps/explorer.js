@@ -1488,7 +1488,7 @@ function refreshKPI(kpi) {
     
             if(kpi.style === 'bars') {
                 let width = entry.count * 100 / kpi.max;
-                elemKPIValue.css('background', 'linear-gradient(90deg, ' + color + ' 0 ' + width + '%, white ' + width + '% 100%)');
+                elemKPIValue.css('background', 'linear-gradient(90deg, ' + color + ' 0 ' + width + '%, var(--color-surface-level-1) ' + width + '% 100%)');
             } else {
                 elemKPILabel.css('border-color', entry.color);
             }
