@@ -542,56 +542,12 @@ function setBOMData(bom, flatBom) {
 
     $('#items-processing').hide();
 
-
-    $('.bom-nav').click(function(e) {
-
-        e.stopPropagation();
-        e.preventDefault();
-
-        let elemItem  = $(this).closest('tr');
-        let level     = Number(elemItem.attr('data-level'));
-        let levelNext = level - 1;
-        let levelHide = 10000;
-        let elemNext  = $(this).closest('tr');
-        let doExpand  = $(this).hasClass('collapsed');
-
-        $(this).toggleClass('collapsed');
-        
-        do {
-
-            elemNext  = elemNext.next();
-            levelNext = Number(elemNext.attr('data-level'));
-
-            if(levelNext > level) {
-
-                if(doExpand) {
-
-                    if(levelHide > levelNext) {
-
-                        elemNext.show();
-
-                        let elemToggle = elemNext.children().first().find('.bom-nav');
-
-                        if(elemToggle.length > 0) {
-                            if(elemToggle.hasClass('collapsed')) {
-                                levelHide = levelNext + 1;
-                            }
-                        }
-
-                    }
-
-                } else {
-                    elemNext.hide();
-                }
-
-            }
-        } while(levelNext > level);
-
-    });
+    enableBOMToggles('bom');
 
     $('#bom-table-tree').children('tr').click(function(e) {
         selectBOMItem(e, $(this));
     });
+
     $('tr.flat-bom-row').click(function(e) {
         selectBOMItem(e, $(this));
     });
