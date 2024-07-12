@@ -176,12 +176,12 @@ function initCharts() {
                 zoom : {
                     pan : {
                         enabled : true,
-                        modifierKey : 'shift',
                         mode : 'y'
                     },
                     zoom : {
                         wheel : {
-                            enabled : true
+                            enabled : true,
+                            modifierKey : 'ctrl'
                         },
                         mode : 'y'
                     }
@@ -233,12 +233,12 @@ function initCharts() {
                 zoom : {
                     pan : {
                         enabled : true,
-                        modifierKey : 'shift',
                         mode : 'x'
                     },
                     zoom : {
                         wheel : {
-                            enabled : true
+                            enabled : true,
+                            modifierKey : 'ctrl'
                         },
                         mode : 'x'
                     }
@@ -308,12 +308,12 @@ function initCharts() {
                 zoom : {
                     pan : {
                         enabled : true,
-                        modifierKey : 'shift',
                         mode : 'xy'
                     },
                     zoom : {
                         wheel : {
-                            enabled : true
+                            enabled : true,
+                            modifierKey : 'ctrl'
                         },
                         mode : 'xy'
                     }
@@ -359,12 +359,12 @@ function initCharts() {
                 zoom : {
                     pan : {
                         enabled : true,
-                        modifierKey : 'shift',
                         mode : 'x'
                     },
                     zoom : {
                         wheel : {
-                            enabled : true
+                            enabled : true,
+                            modifierKey : 'ctrl'
                         },
                         mode : 'x'
                     }
@@ -403,12 +403,12 @@ function initCharts() {
                     },
                     pan : {
                         enabled : true,
-                        modifierKey : 'shift',
                         mode : 'y'
                     },
                     zoom : {
                         wheel : {
-                            enabled : true
+                            enabled : true,
+                            modifierKey : 'ctrl'
                         },
                         mode : 'y'
                     }
@@ -448,12 +448,12 @@ function initCharts() {
                 zoom : {
                     pan : {
                         enabled : true,
-                        modifierKey : 'shift',
                         mode : 'xy'
                     },
                     zoom : {
                         wheel : {
-                            enabled : true
+                            enabled : true,
+                            modifierKey : 'ctrl'
                         },
                         mode : 'xy'
                     }
@@ -498,12 +498,12 @@ function initCharts() {
                 zoom : {
                     pan : {
                         enabled : true,
-                        modifierKey : 'shift',
                         mode : 'x'
                     },
                     zoom : {
                         wheel : {
-                            enabled : true
+                            enabled : true,
+                            modifierKey : 'ctrl'
                         },
                         mode : 'x'
                     }
