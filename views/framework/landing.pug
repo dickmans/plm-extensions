@@ -154,64 +154,7 @@ block body
                                 td 7. July 2023
                                 td New Feature
                                 td Automatic pagination has been enabled for table reports to improve usability
-                .tile(data-name='Tenant Insights')
-                    .tile-image(style="background: url('images/app-insights.png') no-repeat;background-size:contain;")
-                    .tile-details
-                        .tile-title Tenant Insights
-                        .tile-endpoint /insights
-                        .tile-subtitle Administrators can track user activity and data modifications of a tenant using this graphic dashboard. It uses the standard system log entries and requires system admin privileges to run.
-                    .instructions
-                        h1 Prerequisites
-                        p Your user must have admin privileges in order to have access to the system Log. Please note that the dashboard will retrieve the system log information in small packages. This process takes some time. There is a progress inidicator in top right corner to inform you about the data retrieval progress.
-                        h1 Configuration Settings
-                        p To make this solution compatible with large environments, it will take into account a maximumg of 500.000 log entries. This number can be changed in file 
-                            strong settings.js
-                            |  if needed. Find the variable exports.config and adjust the value of 
-                            strong maxLogEntries
-                            |  shown below.
-                        p.code
-                            span 'insights' : {
-                            span.indent 'maxLogEntries' : 500000,
-                            span.indent 'usersExcluded' : ['Administrator', 'Import User', 'Job User', 'Integration User']
-                            span }
-                        p You can also exclude user accounts from the report by providing their display names in parameter 
-                            strong usersExcluded.
-                        h1 Access the Dashboard
-                        p You can access the dashboard with the 
-                            strong /insights
-                            |  endpoint, just click this link:
-                        a(href='insights' target='_blank')
-                    .log 
-                        h1 Tenant Insights Change Log 
-                        table 
-                            tr 
-                                td 18. March 2024
-                                td Enhancement
-                                td Improved the scale of the User Activity bubble chart
-                            tr 
-                                td 
-                                td Enhancement
-                                td Disabled (startup) animations of charts (except for the charts in the initial tab)
-                            tr 
-                                td 9. January 2023
-                                td Library Update 
-                                td The charting library chart.js has been update to most recent version
-                            tr 
-                                td 7. July 2023
-                                td Enhancement
-                                td Improved styling with tabs at bottom
-                            tr 
-                                td 
-                                td Enhancement
-                                td User's image is shown in top right corner for consistency with other apps
-                            tr 
-                                td 
-                                td Bugfix
-                                td User 'Tenant Admin' now is excluded from reports
-                            tr 
-                                td 
-                                td New Feature
-                                td An error messags is shown if the user does not have admin privileges
+                include ../docs/app-insights.pug
                 .tile(data-name='Workspace Navigator')
                     .tile-image(style="background: url('images/app-workspace-navigator.png') no-repeat;background-size:contain;")
                     .tile-details

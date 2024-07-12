@@ -4,6 +4,7 @@ block head
     
     link(rel='stylesheet', href='/stylesheets/apps/insights.css')
     script(src='https://cdn.jsdelivr.net/npm/chart.js')
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/2.0.1/chartjs-plugin-zoom.min.js')
     script(src='https://cdn.jsdelivr.net/npm/moment@^2')
     script(src='https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@^1')
     script(src='../javascripts/apps/insights.js')
@@ -54,7 +55,11 @@ block body
                     .chart
                         canvas#domains 
             .panel-content.tab-group-main.surface-level-1
-                canvas#timelineLastLogins
+                .panel-chart
+                    canvas#timelineLastLogins
+                .panel-chart-toolbar 
+                    .panel-label You can zoom in/out using the mousewheel 
+                    .panel-action.button#resetTimelineLastLogins Click to reset zoom
             .panel-content.tab-group-main.surface-level-2-5.dashboard#logins
                 #summary
                     #summary-bar
@@ -69,18 +74,41 @@ block body
                         span.text-block days
                 #summary-chart
                     .title Active users / unique logins per day 
-                    .chart
+                    .panel-chart
                         canvas#timelineLogins
+                    .panel-chart-toolbar 
+                        .panel-label You can zoom in/out using the mousewheel 
+                        .panel-action.button#resetTimelineLogins Click to reset zoom
             .panel-content.tab-group-main.surface-level-1#panelTimelineUsers
-                canvas#timelineUsers
+                .panel-chart
+                    canvas#timelineUsers
+                .panel-chart-toolbar 
+                    .panel-label You can zoom in/out using the mousewheel 
+                    .panel-action.button#resetTimelineUsers Click to reset zoom            
             .panel-content.tab-group-main.surface-level-1
-                canvas#workspaceActivities
+                .panel-chart
+                    canvas#workspaceActivities
+                .panel-chart-toolbar 
+                    .panel-label You can zoom in/out using the mousewheel 
+                    .panel-action.button#resetWorkspaceActivities Click to reset zoom            
             .panel-content.tab-group-main.surface-level-1
-                canvas#workspaces 
+                .panel-chart
+                    canvas#workspaces
+                .panel-chart-toolbar 
+                    .panel-label You can zoom in/out using the mousewheel 
+                    .panel-action.button#resetWorkspaceCount Click to reset zoom  
             .panel-content.tab-group-main.surface-level-1
-                canvas#timelineCreation
+                .panel-chart
+                    canvas#timelineCreation
+                .panel-chart-toolbar 
+                    .panel-label You can zoom in/out using the mousewheel 
+                    .panel-action.button#resetTimelineCreation Click to reset zoom  
             .panel-content.tab-group-main.surface-level-1
-                canvas#timelineEdits 
+                .panel-chart
+                    canvas#timelineEdits
+                .panel-chart-toolbar 
+                    .panel-label You can zoom in/out using the mousewheel 
+                    .panel-action.button#resetTimelineEdits Click to reset zoom  
             .panel-content.tab-group-main.surface-level-1 
                 .toolbar
                     span.select-label Select user:

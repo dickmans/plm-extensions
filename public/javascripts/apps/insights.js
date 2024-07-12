@@ -83,7 +83,7 @@ function validateAdminAccess(callback) {
 
     $.get( '/plm/me', {}, function(response) {
 
-        for(group of response.data.groups) {
+        for(let group of response.data.groups) {
             if(group.shortName === 'Administration [SYSTEM]') isAdmin = true;      
         }
 
@@ -97,9 +97,9 @@ function validateAdminAccess(callback) {
 // Set defaults for chart.js & init user interactions
 function initCharts() {
 
-   Chart.defaults.borderColor       = chartThemes[theme].axisColor;
-   Chart.defaults.color             = chartThemes[theme].fontColor;
-   Chart.defaults.scale.grid.color  = chartThemes[theme].gridColor;
+    Chart.defaults.borderColor       = chartThemes[theme].axisColor;
+    Chart.defaults.color             = chartThemes[theme].fontColor;
+    Chart.defaults.scale.grid.color  = chartThemes[theme].gridColor;
     
     chartUserStatus = new Chart($('#status'), {
         type : 'doughnut',
@@ -168,6 +168,24 @@ function initCharts() {
                     type    : 'category',
                     labels  : []
                 }
+            },
+            plugins : {
+                legend : {
+                    display : false
+                },
+                zoom : {
+                    pan : {
+                        enabled : true,
+                        modifierKey : 'shift',
+                        mode : 'y'
+                    },
+                    zoom : {
+                        wheel : {
+                            enabled : true
+                        },
+                        mode : 'y'
+                    }
+                }
             }
         }
     });
@@ -192,9 +210,6 @@ function initCharts() {
                 duration : 0
             },
             maintainAspectRatio : false,
-            legend : {
-                position : 'bottom'
-            },
             scales : {
                 x : {
                     stacked : true,
@@ -207,6 +222,25 @@ function initCharts() {
                     stacked : true,
                     ticks   : {
                         beginAtZero : true
+                    }
+                }
+            },
+            plugins : {
+                legend : {
+                    display : true,
+                    position : 'bottom'
+                },
+                zoom : {
+                    pan : {
+                        enabled : true,
+                        modifierKey : 'shift',
+                        mode : 'x'
+                    },
+                    zoom : {
+                        wheel : {
+                            enabled : true
+                        },
+                        mode : 'x'
                     }
                 }
             }
@@ -254,11 +288,6 @@ function initCharts() {
             maintainAspectRatio: false,
             responsive : true, 
             clip : 0,
-            plugins : {
-                legend : {
-                    position : 'top'
-                }
-            },
             scales : {  
                 x : {
                     type : 'time',
@@ -270,7 +299,26 @@ function initCharts() {
                     type   : 'category',
                     labels : []
                 }
-            }
+            },
+            plugins : {
+                legend : {
+                    display : true,
+                    position : 'bottom'
+                },
+                zoom : {
+                    pan : {
+                        enabled : true,
+                        modifierKey : 'shift',
+                        mode : 'xy'
+                    },
+                    zoom : {
+                        wheel : {
+                            enabled : true
+                        },
+                        mode : 'xy'
+                    }
+                }
+            }            
         }
     });
     
@@ -292,10 +340,6 @@ function initCharts() {
             },
             maintainAspectRatio : false,
             responsive : true,
-            legend : {
-                display  : true,
-                position : 'bottom'
-            },
             scales: {
                 x : {
                     stacked : true 
@@ -304,6 +348,25 @@ function initCharts() {
                     stacked : true,
                     ticks: {
                         beginAtZero: true
+                    }
+                }
+            },
+            plugins : {
+                legend : {
+                    display : true,
+                    position : 'bottom'
+                },
+                zoom : {
+                    pan : {
+                        enabled : true,
+                        modifierKey : 'shift',
+                        mode : 'x'
+                    },
+                    zoom : {
+                        wheel : {
+                            enabled : true
+                        },
+                        mode : 'x'
                     }
                 }
             }
@@ -322,16 +385,32 @@ function initCharts() {
             },
             maintainAspectRatio : false,
             responsive          : true,
-            plugins : {
-                legend : {
-                    display  : true,
-                    position : 'right'
-                }
-            },
             scales : {
                 y : {
                     ticks : {
                         beginAtZero : true
+                    }
+                }
+            },
+            plugins : {
+                legend : {
+                    display  : true,
+                    position : 'right'
+                },
+                zoom : {
+                    limits: {
+                        y: {min: 0}
+                    },
+                    pan : {
+                        enabled : true,
+                        modifierKey : 'shift',
+                        mode : 'y'
+                    },
+                    zoom : {
+                        wheel : {
+                            enabled : true
+                        },
+                        mode : 'y'
                     }
                 }
             }
@@ -348,12 +427,6 @@ function initCharts() {
                 duration : 0
             },
             maintainAspectRatio : false,
-            plugins : {
-                legend : {
-                    display  : true,
-                    position : 'right'
-                }
-            },
             scales : {
                 x : {
                     type : 'time',
@@ -366,7 +439,26 @@ function initCharts() {
                         beginAtZero : true
                     }
                 }
-            }
+            },
+            plugins : {
+                legend : {
+                    display : true,
+                    position : 'right'
+                },
+                zoom : {
+                    pan : {
+                        enabled : true,
+                        modifierKey : 'shift',
+                        mode : 'xy'
+                    },
+                    zoom : {
+                        wheel : {
+                            enabled : true
+                        },
+                        mode : 'xy'
+                    }
+                }
+            }        
         }
     });
     
@@ -379,12 +471,6 @@ function initCharts() {
         options : {
             animation : {
                 duration : 0
-            },
-            plugins : {
-                legend : {
-                    display  : true,
-                    position : 'right'
-                }
             },
             responsive: true,
             maintainAspectRatio: false,
@@ -403,9 +489,36 @@ function initCharts() {
                         unit: 'day'
                     }
                 }
-            }
+            },
+            plugins : {
+                legend : {
+                    display : true,
+                    position : 'right'
+                },
+                zoom : {
+                    pan : {
+                        enabled : true,
+                        modifierKey : 'shift',
+                        mode : 'x'
+                    },
+                    zoom : {
+                        wheel : {
+                            enabled : true
+                        },
+                        mode : 'x'
+                    }
+                }
+            }        
         }
     });
+
+    $('#resetTimelineLastLogins').click(function() { chartTimelineLastLogins.resetZoom(); })
+    $('#resetTimelineLogins').click(function() { chartTimelineLogins.resetZoom(); })
+    $('#resetTimelineUsers').click(function() { chartTimelineUsers.resetZoom(); })
+    $('#resetWorkspaceActivities').click(function() { chartWorkspaceActivities.resetZoom(); })
+    $('#resetWorkspaceCount').click(function() { chartWorkspaceCount.resetZoom(); })
+    $('#resetTimelineCreation').click(function() { chartTimelineCreation.resetZoom(); })
+    $('#resetTimelineEdits').click(function() { chartTimelineEdits.resetZoom(); })
     
 }
 function setUIEvents() {
@@ -773,14 +886,12 @@ function processSystemLog(dataset) {
     let events  = dataset.data.items;
     let now     = new Date();
 
-    console.log(events);
-        
     for(let event of events) {
             
         let urn       = event.user.urn;
         let userIndex = -1;
         let date      = new Date(event.timestamp);
-        let eventDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0,00,01);
+        let eventDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 1);
         let age       = Math.round(((now - date) / 1000 / 60 / 60 / 24), 0);
 
         for(var i = 0; i < users.length; i++) {
@@ -915,7 +1026,6 @@ function adjustBubbleChartScale() {
 
     for(let dataset of datasets) {
         for(let dataPoint of dataset.data) {
-            console.log(dataset);
             if(dataPoint.r > rMax) rMax = dataPoint.r;
         }
     }
@@ -937,7 +1047,7 @@ function addEventLog(event, date) {
     
     var elemCellDesc = $('<td></td>');
     var elemCellLink = $('<td></td>');
-        elemCellLink.addClass('no-wrap');
+        elemCellLink.addClass('nowrap');
     
     if(event.hasOwnProperty('item')) {
         
@@ -974,9 +1084,9 @@ function addEventLog(event, date) {
     
     var elemEvent = $('<tr></tr>');
         elemEvent.addClass('user');
-        elemEvent.append("<td class='no-wrap'>" + event.user.title + "</td>");
-        elemEvent.append("<td class='no-wrap'>" + event.action + "</td>");
-        elemEvent.append("<td class='no-wrap'>" + date.toLocaleString() + "</td>");
+        elemEvent.append("<td class='nowrap'>" + event.user.title + "</td>");
+        elemEvent.append("<td class='nowrap'>" + event.action + "</td>");
+        elemEvent.append("<td class='nowrap'>" + date.toLocaleString() + "</td>");
         elemEvent.append(elemCellLink);
         elemEvent.append(elemCellDesc);
         elemEvent.appendTo('#events');

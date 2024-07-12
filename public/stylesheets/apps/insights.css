@@ -28,6 +28,23 @@
     top             : 0px; 
     bottom          : 64px;
 }
+.panel-chart {
+    position    : absolute;
+    top         : 40px;
+    right       : 40px;
+    bottom      : 80px;
+    left        : 40px;
+}
+.panel-chart-toolbar {
+    display     : flex;
+    gap         : 40px;
+    line-height : 38px;
+    position    : absolute;
+    right       : 40px;
+    bottom      : 20px;
+    left        : 40px;
+    justify-content: center;
+}
 .dashboard > div { 
     padding : 25px; 
 }
@@ -154,7 +171,14 @@
     padding-left : 20px;
 }
 #summary-chart {
-    height : calc(100% - 160px);
+    position    : absolute;
+    top         : 110px;
+    left        : 0px;
+    bottom      : 0px;
+    right       : 0px;
+}
+#summary-chart > .panel-chart {
+    top : 60px;
 }
 .text-block {
     margin : 0px 5px;
