@@ -431,47 +431,66 @@ router.post('/clone', function(req, res) {
     console.log(' ');
     console.log('  /clone');
     console.log(' --------------------------------------------');
-    console.log('  req.body.link       = ' + req.body.link);
-    console.log('  req.body.sections   = ' + req.body.sections);
+    console.log('  req.body.link     = ' + req.body.link);
+    console.log('  req.body.sections = ' + req.body.sections);
+    console.log('  req.body.options  = ' + req.body.options);
     console.log();
 
     let wsId            = req.body.link.split('/')[4];
+
+    // console.log(wsId);
+    // console.log(req.body);
+
     let prefix          = '/api/v3/workspaces/' + wsId;
     let url             = 'https://' + req.session.tenant + '.autodeskplm360.net/api/v3/workspaces/' + wsId + '/items'
     let sections        = [];
     let formData        = new FormData();
-    let cloneOptions    = [ 'ITEM_DETAILS' ];
-    // 'cloneOptions'      : [ 'ITEM_DETAILS', 'PART_GRID', 'PART_ATTACHMENTS' ],
-
-
-    for(section of req.body.sections) {
+    let cloneOptions    = (typeof req.body.options === 'undefined') ? [ 'ITEM_DETAILS' ] : req.body.options;
+    
+    for(let section of req.body.sections) {
 
         let sect = {
             'link'   : (typeof section.link === 'undefined') ? prefix + '/sections/' + section.id : section.link,
             'fields' : []
         }
 
-        for(field of section.fields) {
+        if(section.hasOwnProperty('classificationId')) sect.classificationId = Number(section.classificationId);
+
+        // console.log(sect);
+
+        for(let field of section.fields) {
             
             let value = field.value;
             let type  = (typeof field.type === 'undefined') ? 'string' : field.type.toLowerCase();
             
             if(type === 'integer') value = parseInt(field.value);
+            else if (value === '') value = null;
 
             sect.fields.push({
                 '__self__'      : prefix + '/views/1/fields/' + field.fieldId,
                 'value'         : value,
                 'urn'           : 'urn:adsk.plm:tenant.workspace.view.field:' + req.session.tenant.toUpperCase() + '.' + wsId + '.1.' + field.fieldId,
                 'fieldMetadata' : null,
-                'dataTypeId'    : field.typeId,
+                'dataTypeId'    : Number(field.typeId),
                 'title'         : field.title
             });
+
+            // console.log({
+            //     '__self__'      : prefix + '/views/1/fields/' + field.fieldId,
+            //     'value'         : value,
+            //     'urn'           : 'urn:adsk.plm:tenant.workspace.view.field:' + req.session.tenant.toUpperCase() + '.' + wsId + '.1.' + field.fieldId,
+            //     'fieldMetadata' : null,
+            //     'dataTypeId'    : Number(field.typeId),
+            //     'title'         : field.title
+            // });
 
         }
 
         sections.push(sect);
 
     }
+
+    // console.log(sections);
 
     let params = {
         'sourceItemId'  : req.body.link.split('/')[6],
@@ -482,19 +501,26 @@ router.post('/clone', function(req, res) {
         }
     };
 
+    // console.log(params);
+
     formData.append('itemDetail', JSON.stringify(params), {
         filename    : 'blob',
         contentType : 'application/json'
     });
 
+    // console.log(formData);
+
     let headers = getCustomHeaders(req);
         headers['content-type'] = formData.getHeaders()['content-type'];
         headers.Accept = 'application/vnd.autodesk.plm.meta+json';
+
+    // console.log(headers);
     
     axios.post(url, formData, { headers : headers }).then(function (response) {
         console.log(response)
         sendResponse(req, res, { 'data' : response.headers.location }, false);
     }).catch(function (error) {
+        // console.log(error);
         sendResponse(req, res, error.response, true);
     });
 
@@ -606,6 +632,78 @@ router.get('/edit', function(req, res) {
     }
 
     for(let section of req.query.sections) {
+
+        let sectionId =  (typeof section.link === 'undefined') ? section.id : section.link.split('/')[6];
+
+        let sect = {
+            'link'   : prefix + '/views/1/sections/' + sectionId,
+            'fields' : []
+        }
+
+        for(field of section.fields) {
+
+            let value = field.value;
+            let type  = (typeof field.type === 'undefined') ? 'String' : field.type;
+
+            type = type.toLowerCase();
+
+            if(type === 'integer') {
+                value = parseInt(field.value);
+            } else if(type === 'multi-linking-picklist') {
+                value = [];
+                for(link of field.value) value.push({'link' : link});
+            } else if(type === 'single selection') {
+                value = { 'link' : value };
+            } else if(type === 'picklist') {
+                if(value === '') value = null;
+            }
+
+            sect.fields.push({
+                '__self__'  : prefix + '/views/1/fields/' + field.fieldId,
+                'urn'       : 'urn:adsk.plm:tenant.workspace.item.view.field:' + req.session.tenant.toUpperCase() + '.' + wsId + '.' + dmsId + '.1.' + field.fieldId,
+                'value'     : value
+            });
+
+        }
+
+        sections.push(sect);
+
+    }
+
+    axios.patch(url, {
+        'sections' : sections
+    }, { headers : req.session.headers }).then(function (response) {
+        sendResponse(req, res, response, false);
+    }).catch(function (error) {
+        sendResponse(req, res, error.response, true);
+    });
+    
+});
+router.post('/update', function(req, res) {
+
+    // this is similar to /edit, but implemented as post request to allow for larger headers (i.e. for image uploads)
+
+    console.log(' ');
+    console.log('  /update');
+    console.log(' --------------------------------------------');
+    console.log('  req.body.wsId       = ' + req.body.wsId);
+    console.log('  req.body.dmsId      = ' + req.body.dmsId);
+    console.log('  req.body.link       = ' + req.body.link);
+    console.log('  req.body.sections   = ' + req.body.sections);
+    console.log();
+
+    let prefix   = (typeof req.body.link !== 'undefined') ? req.body.link : '/api/v3/workspaces/' + req.body.wsId + '/items/' + req.body.dmsId;
+    let url      = 'https://' + req.session.tenant + '.autodeskplm360.net' + prefix;
+    let sections = [];
+    let wsId     = req.body.wsId;
+    let dmsId    = req.body.dmsId;
+
+    if (typeof req.body.link !== 'undefined') {
+        wsId  = req.body.link.split('/')[4];
+        dmsId = req.body.link.split('/')[6];
+    }
+
+    for(let section of req.body.sections) {
 
         let sectionId =  (typeof section.link === 'undefined') ? section.id : section.link.split('/')[6];
 
@@ -1311,7 +1409,7 @@ router.get('/update-managed-item', function(req, res, next) {
 router.get('/remove-managed-item', function(req, res, next) {
 
     console.log(' ');
-    console.log('  /remove-managed-items');
+    console.log('  /remove-managed-item');
     console.log(' --------------------------------------------');  
     console.log('  req.query.wsId   = ' + req.query.wsId);
     console.log('  req.query.dmsId  = ' + req.query.dmsId);
@@ -1321,9 +1419,24 @@ router.get('/remove-managed-item', function(req, res, next) {
     let url =  (typeof req.query.link !== 'undefined') ? req.query.link : '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId;
         url = 'https://' + req.session.tenant + '.autodeskplm360.net' + url + '/views/11/affected-items/' + req.query.itemId;
 
-    axios.delete(url, {
+    return axios.delete(url, {
         headers : req.session.headers
     }).then(function(response) {
+
+        let error = false;
+
+        if(typeof response.data !== undefined) {
+            if(typeof response.message === 'undefined') response.message = [];
+            if(response.data !== '') {
+                for(entry of response.data) {
+                    if(entry.result === 'FAILED') {
+                        error = true;
+                        response.message.push(entry.errorMessage);
+                    }
+                }
+            }
+        }
+
         sendResponse(req, res, response, error);
     }).catch(function(error) {
         sendResponse(req, res, error.response, true);
@@ -2052,8 +2165,10 @@ router.get('/bom', function(req, res, next) {
     let depth           = (typeof req.query.depth !== 'undefined') ? req.query.depth : 10;
     let link            = (typeof req.query.link  !== 'undefined') ? req.query.link : '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId;
     let rootId          = (typeof req.query.link  !== 'undefined') ? req.query.link.split('/')[6] : req.query.dmsId;
-    let url             = 'https://' + req.session.tenant + '.autodeskplm360.net' + link + '/bom?depth=' + depth + '&revisionBias=' + revisionBias + '&rootId=' + rootId + '&viewDefId=' + req.query.viewId;
+    let url             = 'https://' + req.session.tenant + '.autodeskplm360.net' + link + '/bom?depth=' + depth + '&revisionBias=' + revisionBias + '&rootId=' + rootId;
     let headers         = getCustomHeaders(req);
+
+    if(typeof req.query.viewId !== 'undefined') url += '&viewDefId=' + req.query.viewId;
 
     headers.Accept = 'application/vnd.autodesk.plm.bom.bulk+json';
 
@@ -2098,10 +2213,7 @@ router.get('/bom-flat', function(req, res, next) {
         sendResponse(req, res, { 'data' : result, 'status' : response.status }, false);
     }).catch(function(error) {
         sendResponse(req, res, error.response, true);
-    });
-    
-
-    
+    });   
 
 });
 
@@ -2119,6 +2231,32 @@ router.get('/bom-item', function(req, res, next) {
     console.log();
 
     let url = (typeof req.query.link !== 'undefined') ? req.query.link : 'https://' + req.session.tenant + '.autodeskplm360.net/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId + '/bom-items/' + req.query.edgeId;
+
+    console.log(url);
+
+    axios.get(url, {
+        headers : req.session.headers
+    }).then(function(response) {
+        sendResponse(req, res, response, false);
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+    
+});
+
+
+/* ----- GET BOM EDGE ----- */
+router.get('/bom-edge', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /bom-edge');
+    console.log(' --------------------------------------------');  
+    console.log('  req.query.edgeLink = ' + req.query.edgeLink);
+    console.log();
+
+    let url = 'https://' + req.session.tenant + '.autodeskplm360.net' + req.query.edgeLink;
+
+    console.log(url);
 
     axios.get(url, {
         headers : req.session.headers
@@ -2266,12 +2404,21 @@ router.get('/bom-remove', function(req, res, next) {
     console.log(' ');
     console.log('  /bom-remove');
     console.log(' --------------------------------------------');  
-    console.log('  req.query.wsId   = ' + req.query.wsId);
-    console.log('  req.query.dmsId  = ' + req.query.dmsId);
-    console.log('  req.query.edgeId = ' + req.query.edgeId);
+    console.log('  req.query.wsId     = ' + req.query.wsId);
+    console.log('  req.query.dmsId    = ' + req.query.dmsId);
+    console.log('  req.query.link     = ' + req.query.link);
+    console.log('  req.query.edgeId   = ' + req.query.edgeId);
+    console.log('  req.query.edgeLink = ' + req.query.edgeLink);
     console.log();
 
-    let url = 'https://' + req.session.tenant + '.autodeskplm360.net/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId + '/bom-items/' + req.query.edgeId;
+    let edgeLink = req.query.edgeLink;
+
+    if (typeof edgeLink === 'undefined') {
+        edgeLink  = (typeof req.query.link !== 'undefined') ? req.query.link : '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId;
+        edgeLink += '/bom-items/' + req.query.edgeId;
+    }
+    
+    let url  = 'https://' + req.session.tenant + '.autodeskplm360.net' + edgeLink;
 
     axios.delete(url, {
         headers : req.session.headers
@@ -3205,19 +3352,13 @@ router.get('/me', function(req, res, next) {
     console.log(' ');
     console.log('  /me');
     console.log(' --------------------------------------------');  
-    console.log(new Date());
     console.log();
-
-    let timerStart = new Date();
 
     let url = 'https://' + req.session.tenant + '.autodeskplm360.net/api/v3/users/@me';
 
     axios.get(url, {
         headers : req.session.headers
     }).then(function(response) {
-        let timerEnd = new Date();
-        let timerDiff = timerEnd.getTime() - timerStart.getTime();
-        if(req.app.locals.debugMode) console.log(timerDiff);
         sendResponse(req, res, response, false);
     }).catch(function(error) {
         sendResponse(req, res, error.response, true);
