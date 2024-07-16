@@ -1,6 +1,7 @@
 # plm-extensions
 
-**Important Notice**: Since the release of July 2024, you must use an Autodesk Platform Services application of type "Desktop, Mobile, Single-Page App" to enable the new authentication based on PKCE. If not done yet, please create such an app and update your clientID in settings.js (clientSecret is not required any longer).
+**Important Notice**
+> Since the release of July 2024, you must use an Autodesk Platform Services application of type "Desktop, Mobile, Single-Page App" to enable the new authentication based on PKCE. If not done yet, please create such an app and update your clientID in settings.js (clientSecret is not required any longer).
 
 ### PLM User Experiences based on Fusion Manage and Autodesk Platform Serivces
 
