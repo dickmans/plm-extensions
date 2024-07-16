@@ -97,13 +97,16 @@ function onListening() {
   console.log('  >> Using redirect Uri    ' + settings.redirectUri);
   console.log('  >> Listening on          ' + bind);
   console.log();
-  console.log('  IMPORTANT NOTICE');
-  console.log(' -------------------------------------------------------------------------------------------');
-  console.log('  Since the release of July 2024, the authentication uses PKCE instead of the clientSecret.');
-  console.log('  Make sure to use an APS application of type "Desktop, Mobile, Single-Page App" as logins');
-  console.log('  will fail with error code 401 otherwise. Provide the given clientID in settings.js');
-  console.log('  as usual.');
-  console.log('  You may have to run npm install again to download the additional module "crypto".');
+  console.log('  REMINDER');
+  console.log(' --------------------------------------------------------------------------------------------------');
+  console.log('  Since the release of July 2024, the UX server uses PKCE for authentication instead        ');
+  console.log('  of the former mechanism involving the Client Secret. This however requries an APS');
+  console.log('  application of type "Desktop, Mobile, Single-Page App" for successful authentication.');
+  console.log('    If not done so yet, create such an app at aps.autodesk.com and provide the given ');
+  console.log('  Client ID in file settings.js as in previous releases. The Client Secret now can be omitted.');
+  console.log('    If your login to the UX solutions fails with an error code 401, you most likely are still ');
+  console.log('  using an APS of another type.')
+  console.log('  Do not forget to run npm install to download the additional module "crypto" if not doney yet.');
   console.log();
 
 }
