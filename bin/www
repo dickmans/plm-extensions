@@ -103,7 +103,7 @@ function onListening() {
   console.log('  Make sure to use an APS application of type "Desktop, Mobile, Single-Page App" as logins');
   console.log('  will fail with error code 401 otherwise. Provide the given clientID in settings.js');
   console.log('  as usual.');
-  console.log('  You also must run npm install again to download the new module crypto.');
+  console.log('  You may have to run npm install again to download the additional module "crypto".');
   console.log();
 
 }
