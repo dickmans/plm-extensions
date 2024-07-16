@@ -1,6 +1,6 @@
 {
   "name": "plm-extensions",
-  "version": "2.2 December 2023",
+  "version": "July 2024",
   "private": true,
   "scripts": {
     "start": "node --max-http-header-size=16384 ./bin/www"
@@ -8,6 +8,7 @@
   "dependencies": {
     "agentkeepalive": "*",
     "axios": "*",
+    "crypto": "*",
     "express": "*",
     "express-fileupload": "*",
     "express-session": "*",

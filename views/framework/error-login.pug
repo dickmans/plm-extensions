@@ -1,0 +1,30 @@
+extends layout
+
+block head 
+
+    link(rel='stylesheet', href='/stylesheets/framework/error.css')
+
+    script.
+        code='#{code}'
+        text='#{text}'
+
+
+block body
+    body
+        .wrapper.surface-level-2
+            .error-title Login Error
+            .error-details 
+                table 
+                    tr 
+                        th Error code 
+                        th Error Description 
+                    tr 
+                        td= code
+                        td= text
+            .error-message#error-message-401
+                div.admin Message for your administrator
+                div Since the release of July 2024, you must use an Autodesk Platform Services app of type "Desktop, Mobile, Single-Page App" to enable secure logins using PKCE. This switch enforce resiliency of this solution and prevents usage of a Client ID.
+                div If you still use an app of a different type, you must create a new application as the type cannot be changed for existing applications. There will still be no charges for this application. Provide the clientID of your new application afterwards in settings.js as usual. The former clientSecret is no longer required and not contained in the current versions of settings.js any longer.
+                div To learn about PKCE, pleasae see the given  
+                    a(href="https://aps.autodesk.com/en/docs/oauth/v2/tutorials/get-3-legged-token-pkce/get-3-legged-token-pkce/" target="_blank") APS Authentication Step-by-Step Tutorial
+                div You may have to run "npm install" again if node module crypto has not been installed yet.

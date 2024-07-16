@@ -35,7 +35,6 @@ if ((process.argv.length > 2) && (!fs.existsSync('./' + fileSettings))) {
     // READ CONFIGURATION SETTINGS
     app.locals.tenant       = settings.tenant;
     app.locals.clientId     = settings.clientId;
-    app.locals.clientSecret = settings.clientSecret;
     app.locals.redirectUri  = settings.redirectUri;
     app.locals.config       = settings.config;
     app.locals.debugMode    = settings.debugMode;

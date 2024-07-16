@@ -95,7 +95,15 @@ function onListening() {
   console.log();
   console.log('  >> Using settings file   ' + fileSettings);
   console.log('  >> Using redirect Uri    ' + settings.redirectUri);
-  console.log('  >> Listening on port     ' + bind);
+  console.log('  >> Listening on          ' + bind);
+  console.log();
+  console.log('  IMPORTANT NOTICE');
+  console.log(' -------------------------------------------------------------------------------------------');
+  console.log('  Since the release of July 2024, the authentication uses PKCE instead of the clientSecret.');
+  console.log('  Make sure to use an APS application of type "Desktop, Mobile, Single-Page App" as logins');
+  console.log('  will fail with error code 401 otherwise. Provide the given clientID in settings.js');
+  console.log('  as usual.');
+  console.log('  You also must run npm install again to download the new module crypto.');
   console.log();
 
 }

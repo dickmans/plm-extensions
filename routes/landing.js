@@ -1,6 +1,19 @@
-const express       = require('express');
-const axios         = require('axios');
-const router        = express.Router();
+const express   = require('express');
+const axios     = require('axios');
+const crypto    = require('crypto');
+const router    = express.Router();
+
+
+// Encodign and encryption required for code verifier and challenge
+function base64URLEncode(str) {
+    return str.toString('base64')
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=/g, '');
+}
+function sha256(buffer) {
+    return crypto.createHash('sha256').update(buffer).digest();
+}
 
 
 
@@ -54,13 +67,16 @@ router.get('/template'      , function(req, res, next) { launch('tutorial/1-temp
 /* ------------------------------------------------------------------------------
     APPLICATIONS IN DEVELOPMENT
    ------------------------------------------------------------------------------ */
-   router.get('/assets'        , function(req, res, next) { launch('dev/assets'          , 'Asset Management'            , req, res, next); });
-   router.get('/configurator'  , function(req, res, next) { launch('dev/configurator'    , 'Product Configuration Editor', req, res, next); });
-   router.get('/control'       , function(req, res, next) { launch('dev/control'         , 'Remote Device Control'       , req, res, next); });
-   router.get('/customer'      , function(req, res, next) { launch('dev/customer'        , 'Customer Services'           , req, res, next); });
-   router.get('/editor'        , function(req, res, next) { launch('dev/editor'          , 'Content Editor'              , req, res, next); });
-   router.get('/matrix'        , function(req, res, next) { launch('dev/matrix'          , 'Portfolio Matrix'            , req, res, next); });
-   router.get('/specification' , function(req, res, next) { launch('dev/specification'   , 'Product Specification Editor', req, res, next); });
+//    router.get('/assets'        , function(req, res, next) { launch('dev/assets'          , 'Asset Management'            , req, res, next); });
+//    router.get('/browser'       , function(req, res, next) { launch('dev/browser'         , 'PLM Browser'                 , req, res, next); });
+//    router.get('/change'        , function(req, res, next) { launch('dev/change'          , 'Change Manager'              , req, res, next); });
+//    router.get('/configurator'  , function(req, res, next) { launch('dev/configurator'    , 'Product Configuration Editor', req, res, next); });
+//    router.get('/control'       , function(req, res, next) { launch('dev/control'         , 'Remote Device Control'       , req, res, next); });
+//    router.get('/customer'      , function(req, res, next) { launch('dev/customer'        , 'Customer Services'           , req, res, next); });
+//    router.get('/editor'        , function(req, res, next) { launch('dev/editor'          , 'Content Editor'              , req, res, next); });
+//    router.get('/matrix'        , function(req, res, next) { launch('dev/matrix'          , 'Portfolio Matrix'            , req, res, next); });
+//    router.get('/sbom'          , function(req, res, next) { launch('dev/sbom'            , 'Asset BOM Editor'            , req, res, next); });
+//    router.get('/specification' , function(req, res, next) { launch('dev/specification'   , 'Product Specification Editor', req, res, next); });
    
    
 
@@ -79,7 +95,7 @@ router.get('/addins/products', function(req, res, next) { launch('addins/product
 /* ------------------------------------------------------------------------------
     LAUNCH APPLICATION
    ------------------------------------------------------------------------------ */
-function launch(view, title, req, res, next) {
+function launch(appURL, appTitle, req, res, next) {
 
     let redirect = false;
     let refresh  = false;
@@ -102,12 +118,19 @@ function launch(view, title, req, res, next) {
 
     if(redirect) {
 
-        res.render('framework/redirect', { 
-            title       : title,
-            clientId    : req.app.locals.clientId,
-            redirectUri : req.app.locals.redirectUri,
-            appUrl      : encodeURIComponent(req.url)
-        });
+        req.session.code_verifier  = base64URLEncode(crypto.randomBytes(32));
+        req.session.code_challenge = base64URLEncode(sha256(req.session.code_verifier));
+
+        let redirectUri = 'https://developer.api.autodesk.com/authentication/v2/authorize'
+            + '?response_type=code'
+            + '&client_id=' + req.app.locals.clientId
+            + '&redirect_uri=' + encodeURIComponent(req.app.locals.redirectUri)
+            + '&scope=data:read'
+            + '&code_challenge=' + req.session.code_challenge
+            + '&code_challenge_method=S256'
+            + '&state=' + encodeURIComponent(req.url);
+        
+        res.redirect(redirectUri);
 
     } else {
 
@@ -134,8 +157,8 @@ function launch(view, title, req, res, next) {
 
         req.session.tenant = req.query.hasOwnProperty('tenant') ? req.query.tenant : req.app.locals.tenant;
     
-        console.log('  view         = ' + view); 
-        console.log('  title        = ' + title); 
+        console.log('  appURL       = ' + appURL); 
+        console.log('  appTitle     = ' + appTitle); 
         console.log('  tenant       = ' + req.session.tenant); 
         console.log('  wsId         = ' + reqWS); 
         console.log('  dmsId        = ' + reqDMS); 
@@ -146,7 +169,7 @@ function launch(view, title, req, res, next) {
         console.log('  theme        = ' + reqTheme); 
         console.log();
         
-        if((reqPartNumber !== '') || ((reqPartNumber === '') && (view === 'addins/item') && (reqDMS === ''))) {
+        if((reqPartNumber !== '') || ((reqPartNumber === '') && (appURL === 'addins/item') && (reqDMS === ''))) {
 
             res.render('framework/search', {
                 partNumber   : reqPartNumber,
@@ -156,8 +179,8 @@ function launch(view, title, req, res, next) {
 
         } else {
 
-            res.render(view, { 
-                title        : title, 
+            res.render(appURL, { 
+                title        : appTitle, 
                 tenant       : req.session.tenant,
                 wsId         : reqWS,
                 dmsId        : reqDMS,
@@ -184,24 +207,26 @@ router.get('/callback', function(req, res, next) {
     console.log('  /callback START');
     console.log(' --------------------------------------------');
     console.log('  Target URL = ' + req.query.state);
+    console.log();
 
-    getToken(req, req.query.code, function() {
+    getToken(req, req.query.code, res, function() {
         res.redirect(req.query.state);
     });
         
 });
-function getToken(req, code, callback) {
+function getToken(req, code, res, callback) {
     
     let data = {
-        'code'          : code,
-        'grant_type'    : 'authorization_code',
-        'redirect_uri'  : req.app.locals.redirectUri
+        code            : code,
+        code_verifier   : req.session.code_verifier,
+        grant_type      : 'authorization_code',
+        client_id       : req.app.locals.clientId,
+        redirect_uri    : req.app.locals.redirectUri
     }
 
     axios.post('https://developer.api.autodesk.com/authentication/v2/token', data, {
         headers : {
             'accept'        : 'application/json',
-            'authorization' : 'Basic ' + btoa(req.app.locals.clientId + ':' + req.app.locals.clientSecret),
             'content-type'  : 'application/x-www-form-urlencoded'
         }
     }).then(function (response) {
@@ -234,12 +259,18 @@ function getToken(req, code, callback) {
             console.log('             LOGIN FAILED');
             console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'); 
             console.log(); 
-            
-            console.log(error);
+
         }
 
     }).catch(function (error) {
-        console.log(error);
+
+        res.render('framework/error-login', {
+            title   : 'Login Error ' + error.response.status,
+            code    : error.response.status,
+            text    : error.response.data.error
+        });
+
+
     });
     
 }

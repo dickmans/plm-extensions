@@ -1,6 +1,5 @@
-// Fusion 360 Manage connection based on APS Application
+// Fusion Manage connection based on APS Application
 let clientId        = '';
-let clientSecret    = '';
 let tenant          = '';
 let redirectUri     = 'http://localhost:8080/callback';
 let defaultTheme    = 'light';
@@ -10,7 +9,6 @@ let defaultTheme    = 'light';
 // -------------------------------------------------------------------------------------------
 // OVERRIDE SETTINGS WITH ENVIRONMENT VARIABLES
 clientId     = (typeof process.env.CLIENT_ID      === 'undefined') ? clientId     : process.env.CLIENT_ID;
-clientSecret = (typeof process.env.CLIENT_SECRET  === 'undefined') ? clientSecret : process.env.CLIENT_SECRET;
 tenant       = (typeof process.env.TENANT         === 'undefined') ? tenant       : process.env.TENANT;
 redirectUri  = (typeof process.env.REDIRECT_URI   === 'undefined') ? redirectUri  : process.env.REDIRECT_URI;
 defaultTheme = (typeof process.env.DEFAUlT_THEME  === 'undefined') ? defaultTheme : process.env.DEFAUlT_THEME;
@@ -28,7 +26,6 @@ if(typeof port === 'undefined') {
 }
 
 exports.clientId        = clientId;
-exports.clientSecret    = clientSecret;
 exports.tenant          = tenant; 
 exports.redirectUri     = redirectUri;
 exports.defaultTheme    = defaultTheme;
@@ -654,14 +651,36 @@ exports.config = {
         }
     },
 
-    'variants' : {
-        'wsIdItemVariants'       : 208,
-        'variantsSectionLabel'   : 'Variant Definition',
-        'fieldIdVariantBaseItem' : 'DMS_ID_BASE_ITEM',
-        'fieldIdItemNumber'      : 'NUMBER',
-        'fieldIdItemVariants'    : 'VARIANTS',
-        'bomViewNameItems'       : 'Variant Management',
-        'bomViewNameVariants'    : 'Default View'
+    variants : {
+        wsIdItemVariants       : 208,
+        variantsSectionLabel   : 'Variant Definition',
+        fieldIdVariantBaseItem : 'DMS_ID_BASE_ITEM',
+        fieldIdItemNumber      : 'NUMBER',
+        fieldIdItemVariants    : 'VARIANTS',
+        bomViewNameItems       : 'Variant Management',
+        bomViewNameVariants    : 'Default View',
+        viewerFeatures : {
+            'cube'          : false,
+            'orbit'         : false,
+            'firstPerson'   : false,
+            'camera'        : false,
+            'measure'       : true,
+            'section'       : true,
+            'explodedView'  : true,
+            'modelBrowser'  : false,
+            'properties'    : false,
+            'settings'      : false,
+            'fullscreen'    : true,
+            'markup'        : false,
+            'hide'          : true,
+            'ghosting'      : true,
+            'highlight'     : true,
+            'single'        : true,
+            'fitToView'     : true,
+            'reset'         : true,
+            'views'         : true,
+            'selectFile'    : true
+        }
     },
 
     'viewer' : {
