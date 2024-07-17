@@ -53,6 +53,25 @@
 }
 
 
+/*  OPTIONS */
+/* ----------------------------------------------------------------------------- */
+#options {
+    margin-right : 0px;
+}
+#options-dialog {
+    height  : 600px;
+    width   : 600px;
+    top     : calc(50% - 300px);
+    left    : calc(50% - 300px);
+}
+#options-dialog table {
+    margin-top : 16px;
+}
+#options-dialog td {
+    vertical-align : top;
+}
+
+
 
 /*  PROGRESS */
 /* ----------------------------------------------------------------------------- */
@@ -63,7 +82,7 @@
     line-height : 40px;
     text-align  : right;
     position    : absolute;
-    right       : 90px;
+    right       : 320px;
     top         : 14px;
 }
 #circle-wrap {
@@ -106,6 +125,44 @@
     z-index: 100;
 }
 
+#progress-bar-complete,
+#progress-bar-pending {
+    display  : flex;
+    position : absolute;
+    top      : 0px;
+    height   : 6px;
+    
+}
+#progress-bar-complete {
+    background : var(--color-blue-500);
+    left       : 0px;
+    width      : 0%;
+    z-index    : 1;
+}
+#progress-bar-pending {
+    left        : -15%;
+    right       : -15%;
+    background  : linear-gradient(270deg, var(--color-surface-level-3) 40%, var(--color-blue-500) 50%, var(--color-surface-level-3) 60%);
+    /* background: linear-gradient(270deg, var(--color-surface-level-1) 40%, var(--color-surface-level-5) 50%, var(--color-surface-level-1) 60%); */
+    background-size: 200% 200%;
+
+    -webkit-animation: AnimationName 3s ease infinite;
+    -moz-animation: AnimationName 3s ease infinite;
+    animation: AnimationName 3s ease infinite;
+}
+@-webkit-keyframes AnimationName {
+    1000%{background-position:0% 50%}
+    0%{background-position:100% 50%}
+}
+@-moz-keyframes AnimationName {
+    100%{background-position:0% 50%}
+    0%{background-position:100% 50%}
+}
+@keyframes AnimationName { 
+    100%{background-position:0% 50%}
+    0%{background-position:100% 50%}
+}
+
 
 
 /*  SYSTEM */
@@ -117,12 +174,22 @@
     overflow    : hidden;
     padding     : 0px;
 }
+.counters {
+    display     : flex;
+    background  : none !important;
+    width       : 100%;
+    gap         : 20px;
+    padding     : 0px !important;
+}
 .counter {
-     text-align : center;
-    width : calc(25% - 65px);
+    background      : var(--color-surface-level-1);
+    border          : 25px solid var(--color-surface-level-1);
+    border-radius   : 4px;
+    text-align      : center;
+    width           : 100%;
 }
 .counter-number {
-    font-size : 60px;
+    font-size   : 60px;
     font-weight : 800;
     line-height : 0.9em;
 }
@@ -131,10 +198,93 @@
 }
 #system > .dashboard-chart {
     height : calc(100% - 200px);
-    width : calc(50% - 60px);
+    width  : calc(50% - 60px);
 }
 .chart {
     height : calc(100% - 50px);
+}
+
+
+
+/*  LAST LOGINS */
+/* ----------------------------------------------------------------------------- */
+#timelineLastLoginsChart {
+    position    : absolute;
+    top         : 0px;
+    right       : 280px;
+    bottom      : 0px;
+    left        : 0px;
+    border-radius : 4px;
+}
+#timelineLastLoginsCounters {
+    display         : flex;
+    flex-direction  : column;
+    gap             : 20px;
+    width           : 260px;
+    position        : absolute;
+    top             : 0px;
+    right           : 0px;
+    bottom          : 0px;
+}
+#timelineLastLoginsCounters > div {
+    background      : var(--color-surface-level-1);
+    border-radius   : 4px;
+    flex-grow       : 1;
+}
+#timelineLastLoginsFilter {
+    height       : 38px;
+    margin-right : 200px;
+
+}
+.panel-counter {
+    border  : 1px solid transparent;
+    cursor  : pointer;
+    display : flex;
+    gap     : 12px;
+    padding : 14px;
+}
+.panel-counter-value {
+    border-right    : 4px solid;
+    display         : grid;
+	align-items     : center;
+    font-size       : 32px;
+    font-weight     : 800;
+    text-align      : right;
+    padding-right   : 20px;
+    width           : 70px;
+}
+.panel-counter-label {
+    display     : grid;
+	align-items : center;
+    font-size   : 12px;
+    line-height : 16px;
+    width       : 110px;
+}
+
+.panel-counter:hover {
+    border-color     : var(--color-hover-border) !important;
+}
+.panel-counter.selected {
+    background-color : var(--color-selected-background) !important;
+}
+
+#logins-today   { border-color : var(--color-blue-900); }
+#logins-week    { border-color : var(--color-blue-800); }
+#logins-month   { border-color : var(--color-blue-700); }
+#logins-year    { border-color : var(--color-blue-600); }
+#logins-days7   { border-color : var(--color-blue-500); }
+#logins-days30  { border-color : var(--color-blue-400); }
+#logins-days60  { border-color : var(--color-blue-300); }
+#logins-days180 { border-color : var(--color-blue-200); }
+#logins-days365 { border-color : var(--color-blue-100); }
+
+#timelineLastLoginsToolbar {
+    display : flex;
+    justify-content: space-between;
+}
+#timelineLastLoginsReset {
+    display : flex;
+    gap : 40px;
 }
 
 
@@ -185,21 +335,6 @@
 }
 
 
-/* #timelineUsersWrapper {
-    height : 900px;
-    width : 900px;
-} */
-
-/* #panelTimelineUsers {
-/* #timelineUsers {
-    position : absolute;
-    top : 0px;
-    right : 0px;
-    bottom : 0px;
-    left : 0px;
-    background :red;
-} */
-
 
 /*  EVENTS */
 /* ----------------------------------------------------------------------------- */
@@ -228,9 +363,5 @@ td p {
     overflow-y : auto;
 }
 #select-user {
-    height : 40px;
-    /* background  : transparent;
-    color       : var(--color-font);
-    margin-left : 10px;
-    padding     : 4px 10px; */
+    height : 38px;
 }

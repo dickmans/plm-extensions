@@ -8,9 +8,21 @@ let offsetWorkspaces        = 0;
 let offsetSystemLog         = 0;
 let totalSystemLog          = -1;
 let daysCount               = 0;
-let parallelRequestsLog     = 3;
-let parallelRequestsCount   = 3;
-let logLimit                = 500;
+let parallelRequestsLog     = 5;
+let parallelRequestsCount   = 5;
+let logLimit                = 100;
+let countEventLogEntries    = 0;
+let counterLastLogins = {
+    today   : 0,
+    week    : 0,
+    month   : 0,
+    year    : 0,
+    days7   : 0,
+    days30  : 0,
+    days60  : 0,
+    days180 : 0,
+    days365 : 0
+}
 
 let chartUserStatus, chartUserDomain, chartWorkspaceCount, chartTimelineUsers, chartTimelineLastLogins, chartWorkspaceActivities, chartTimelineLogins, chartTimelineEdits, chartTimelineCreation;
 
@@ -23,6 +35,8 @@ let lastLogins          = [];
 let workspaces          = [];
 let editDates           = [];
 let editWorkspaces      = [];
+let usersExcluded       = [];
+let workspacesExcluded  = [];
 
 let colors = [
     'rgb(64, 169, 221, 0.8)',
@@ -60,8 +74,12 @@ let colorsT = [
 
 
 $(document).ready(function() {   
+
+    appendOverlay(true);
     
     $('#header-subtitle').html(tenant.toUpperCase());
+
+    setOptions();
 
     validateAdminAccess(function(isAdmin) {
         if(!isAdmin) {
@@ -74,6 +92,32 @@ $(document).ready(function() {
     });
 
 });
+
+
+// Copy settings to options dialog
+function setOptions() {
+
+    if(config.insights.maxEventLogEntries < 1) {
+        $('#tab-event-log').remove();
+    } else {
+        $('#select-user').children().first().html('- All Entries (' + config.insights.maxEventLogEntries + ' max) - ');
+    }
+
+    $('#maxLogEntries').html(config.insights.maxLogEntries);
+    $('#maxEventLogEntries').html(config.insights.maxEventLogEntries);
+
+    for(let userExcluded of config.insights.usersExcluded) {
+        $('#usersExcluded').append('<div>' + userExcluded + '</div>');
+        usersExcluded.push(userExcluded.toUpperCase());
+    }
+
+    for(let workspaceExcluded of config.insights.workspacesExcluded) {
+        $('#workspacesExcluded').append('<div>' + workspaceExcluded + '</div>');
+        workspacesExcluded.push(workspaceExcluded.toUpperCase());
+    }
+
+}
+
 
 
 // Verify access to System Logs
@@ -376,14 +420,19 @@ function initCharts() {
     chartWorkspaceCount = new Chart($('#workspaces'), {
         type : 'bar',
         data : {
-            labels   : ['Workspaces'],
-            datasets : []
+            labels : [],
+            datasets : [{
+                backgroundColor : '#6a9728',
+                label : 'Workspace Item Count',
+                data  : []
+            }]
         },
         options : {
             animation : {
                 duration : 0
             },
             maintainAspectRatio : false,
+            indexAxis           : 'y',
             responsive          : true,
             scales : {
                 y : {
@@ -394,8 +443,7 @@ function initCharts() {
             },
             plugins : {
                 legend : {
-                    display  : true,
-                    position : 'right'
+                    display  : false
                 },
                 zoom : {
                     limits: {
@@ -523,18 +571,77 @@ function initCharts() {
 }
 function setUIEvents() {
     
+
+    // Control for options review
+    $('#options').click(function() {
+        $('#overlay').show();
+        $('#options-dialog').show();
+    });
+    $('#options-close').click(function() {
+        $('#options-dialog').hide();
+        $('#overlay').hide();
+    });
+
+
+    // User Interactions in Last Login panel
+    $('#sortTimelineLastLogin').click(function() {
+        $(this).toggleClass('default').toggleClass('icon-toggle-on').toggleClass('icon-toggle-off');
+        updateLastLoginChart();
+    });
+    $('#timelineLastLoginsCounters').children().click(function() {
+        $(this).toggleClass('selected');
+        $(this).siblings().removeClass('selected');
+        updateLastLoginChart();
+    });
+
+    // Filter Event Log for selected user
     $('#select-user').on('change', function() {
         
-        var valueSelected = this.value;
+        let valueSelected = this.value;
 
-        $('#events').find('tr.user').each(function() {
-            var name = $(this).children().first().html();
-            if(name === valueSelected) {
-                $(this).removeClass('hidden');
-            } else {
-                $(this).addClass('hidden');
-            }
-        })
+        if(valueSelected === '*') {
+
+            $('tr.user').removeClass('hidden');
+
+        } else {
+
+            $('#events').find('tr.user').each(function() {
+                let name = $(this).children().first().html();
+                if(name === valueSelected) {
+                    $(this).removeClass('hidden');
+                } else {
+                    $(this).addClass('hidden');
+                }
+            });
+
+        }
+        
+    })
+
+
+
+    $('#timelineLastLoginsFilter').on('change', function() {
+        
+        let valueSelected = this.value;
+
+        console.log(valueSelected);
+
+        // if(valueSelected === '*') {
+
+        //     $('tr.user').removeClass('hidden');
+
+        // } else {
+
+        //     $('#events').find('tr.user').each(function() {
+        //         let name = $(this).children().first().html();
+        //         if(name === valueSelected) {
+        //             $(this).removeClass('hidden');
+        //         } else {
+        //             $(this).addClass('hidden');
+        //         }
+        //     });
+
+        // }
         
     })
     
@@ -562,7 +669,7 @@ function getUserDataChunk(callback) {
         offsetUsers += response.data.items.length;
         let now      = new Date();
         
-        for(user of response.data.items) {
+        for(let user of response.data.items) {
 
             let displayName = user.displayName;
             let status      = user.userStatus;
@@ -605,8 +712,9 @@ function getUserDataChunk(callback) {
                         if(typeof user.lastLoginTime !== 'undefined') {
 
                         lastLogins.push({
-                            'displayName'   : user.displayName,
-                            'lastLoginTime' : user.lastLoginTime
+                            displayName     : user.displayName,
+                            lastLoginTime   : user.lastLoginTime,
+                            filter          : [false, false, false, false, false, false, false, false, false]
                         });
 
                         }
@@ -657,7 +765,7 @@ function notExcluded(userName) {
 
     userName = userName.toUpperCase();
     
-    for(userExcluded of config.insights.usersExcluded) {
+    for(let userExcluded of config.insights.usersExcluded) {
         userExcluded = userExcluded.toUpperCase();
         if(userExcluded === userName) return false;
     }
@@ -667,20 +775,46 @@ function notExcluded(userName) {
 }
 function setLastLoginsChart() {
     
-    lastLogins.sort(function(a, b){
-        var nameA=a.lastLoginTime.toLowerCase(), nameB=b.lastLoginTime.toLowerCase()
-        if (nameA < nameB) //sort string ascending
-            return -1 
-        if (nameA > nameB)
-            return 1
-        return 0 //default return value (no sorting)
-    });
+    sortArray(lastLogins, 'lastLoginTime', 'string', 'ascending');
+
+    let now         = new Date();
+    let startWeek   = now.getDay();
+    let startMonth  = now.getDate();
+    let startYear   = new Date(1900 + now.getYear(),0,0,0,0,0);
+
+    startYear.setDate(startYear.getDate() + 1);
+
+    let diffYear = (now - startYear) / 86400000;
     
-    for(lastLogin of lastLogins) {
-        addLastLogin(lastLogin);
+    for(let lastLogin of lastLogins) {
+
+        let diff = addLastLogin(lastLogin);
+
+        if(diff <           1) { lastLogin.filter[0] = true; counterLastLogins.today++;   }
+        if(diff <=  startWeek) { lastLogin.filter[1] = true; counterLastLogins.week++;    }
+        if(diff <= startMonth) { lastLogin.filter[2] = true; counterLastLogins.month++;   }
+        if(diff <    diffYear) { lastLogin.filter[3] = true; counterLastLogins.year++;    }
+        if(diff <=          7) { lastLogin.filter[4] = true; counterLastLogins.days7++;   }
+        if(diff <=         30) { lastLogin.filter[5] = true; counterLastLogins.days30++;  }
+        if(diff <=         60) { lastLogin.filter[6] = true; counterLastLogins.days60++;  }
+        if(diff <=        180) { lastLogin.filter[7] = true; counterLastLogins.days180++; }
+        if(diff <=        365) { lastLogin.filter[8] = true; counterLastLogins.days365++; }
+
+        lastLogin.diff = diff;
+
     }
-    
-    chartTimelineLastLogins.update();
+
+    $('#logins-today'  ).html(counterLastLogins.today);
+    $('#logins-week'   ).html(counterLastLogins.week);
+    $('#logins-month'  ).html(counterLastLogins.month);
+    $('#logins-year'   ).html(counterLastLogins.year);
+    $('#logins-days7'  ).html(counterLastLogins.days7);
+    $('#logins-days30' ).html(counterLastLogins.days30);
+    $('#logins-days60' ).html(counterLastLogins.days60);
+    $('#logins-days180').html(counterLastLogins.days180);
+    $('#logins-days365').html(counterLastLogins.days365);
+
+    updateLastLoginChart();
     
 }
 function addLastLogin(user) {
@@ -691,12 +825,36 @@ function addLastLogin(user) {
     let login       = new Date(temp[0]);
     let diff        = (now - login) / 86400000;
     
-    diff = Math.round(diff, 0);
+    diff = Math.round(diff, 0) - 1;
     
-    chartTimelineLastLogins.options.scales.y.labels.push(user.displayName);
-    chartTimelineLastLogins.data.datasets[0].data.push(diff);
+    // chartTimelineLastLogins.options.scales.y.labels.push(user.displayName);
+    // chartTimelineLastLogins.data.datasets[0].data.push(diff);
+
+    return diff;
     
 }
+function updateLastLoginChart() {
+
+    let sortKey  = $('#sortTimelineLastLogin').hasClass('default') ? 'displayName' : 'lastLoginTime';
+    let selected = $('#timelineLastLoginsCounters').children('.selected');
+    let filter   = (selected.length === 0) ? null : selected.index();
+
+    sortArray(lastLogins, sortKey, 'string', 'ascending');
+
+    chartTimelineLastLogins.options.scales.y.labels = [];
+    chartTimelineLastLogins.data.datasets[0].data   = [];
+
+    for(let lastLogin of lastLogins) {
+        if((isBlank(filter)) || lastLogin.filter[filter]) {
+            chartTimelineLastLogins.options.scales.y.labels.push(lastLogin.displayName);
+            chartTimelineLastLogins.data.datasets[0].data.push(lastLogin.diff);
+        }
+    }
+
+    chartTimelineLastLogins.update();
+
+}
+
 
 
 // Init charts for workspaces: Once done, proceed with setTimelineCharts
@@ -708,13 +866,25 @@ function setWorkspacesCharts() {
     }, function(response) {
 
         $('#workspaces-count').html(response.data.totalCount);
+
+        let iWorkspace = 0;
         
-        for(workspace of response.data.items) {
+        for(let workspace of response.data.items) {
+            
+            let name = workspace.title.toUpperCase();
             let temp = workspace.urn.split('.');
-            workspaces.push({
-                'label' : workspace.title,
-                'id' : temp[temp.length - 1]
-            });
+            
+            if(!workspacesExcluded.includes(name)) {
+                workspaces.push({
+                    label   : workspace.title,
+                    id      : temp[temp.length - 1],
+                    color   : colors[iWorkspace%colors.length],
+                    colorT  : colorsT[iWorkspace%colorsT.length],
+                    items   : 0
+                });
+                iWorkspace++;
+            }
+
         }
         
         workspaces.sort(function(a, b){
@@ -726,12 +896,7 @@ function setWorkspacesCharts() {
             return 0 //default return value (no sorting)
         });
         
-        for(var i = 0; i < response.data.items.length; i++) {
-            workspaces[i].color = colors[i%colors.length];
-            workspaces[i].colorT = colorsT[i%colorsT.length];
-        }
-        
-        for(workspace of workspaces) {
+        for(let workspace of workspaces) {
 
             chartWorkspaceActivities.data.datasets[0].data.push(0);
             chartWorkspaceActivities.data.datasets[1].data.push(0);
@@ -753,39 +918,42 @@ function getWorkspaceCounts() {
     
     if(offsetWorkspaces < workspaces.length) {
         
-        var promises  = [];
+        let requests  = [];
         
-        for(var i = 0; i < parallelRequestsCount; i++) {
+        for(let i = 0; i < parallelRequestsCount; i++) {
             if((offsetWorkspaces + i) < workspaces.length) {
-                promises.push(getWorkspaceCount(offsetWorkspaces + i));
+                requests.push(getWorkspaceCount(offsetWorkspaces + i));
             }
         }
         
-        Promise.all(promises).then(function(responses){
-
-            for(var i = 0; i < responses.length; i++) {
-                chartWorkspaceCount.data.datasets.push({
-                    data : [responses[i]],
-                    label : workspaces[offsetWorkspaces + i].label,
-                    backgroundColor : workspaces[offsetWorkspaces + i].color
-                });
-            }
+        Promise.all(requests).then(function(responses) {
 
             offsetWorkspaces += parallelRequestsCount;
-            chartWorkspaceCount.update();
             progressWorkspaces = Math.round(((offsetWorkspaces + 1) * 100 / workspaces.length), 0);
             updateProgress();
             getWorkspaceCounts();
             
         });
         
+    } else {
+
+        sortArray(workspaces, 'items', 'integer', 'descending');
+
+        for(let workspace of workspaces) {
+            chartWorkspaceCount.data.labels.push(workspace.label);
+            chartWorkspaceCount.data.datasets[0].data.push(workspace.items);
+        }
+
+        chartWorkspaceCount.update();
+
     }
     
 }
 function getWorkspaceCount(index) {
     
     return new Promise(function(resolve, reject) {
-        $.get('/plm/workspace-counter', { 'wsId' : workspaces[index].id }, function(response) {
+        $.get('/plm/workspace-counter', { 'wsId' : workspaces[index].id, 'index' : index }, function(response) {
+            workspaces[index].items = (response.data === '') ? 0 : response.data.totalCount;
             return resolve(response.data.totalCount);
         });
     });
@@ -818,7 +986,10 @@ function getSystemLogs() {
         
             totalSystemLog = response.data.totalCount;
 
-            if(totalSystemLog > config.insights.maxLogEntries) totalSystemLog = config.insights.maxLogEntries;
+            if(totalSystemLog > config.insights.maxLogEntries) {
+                totalSystemLog = config.insights.maxLogEntries;
+                $('#entries-label').html('Log entries to process (limited per settings)');
+            }
             if(logLimit > config.insights.maxLogEntries) logLimit = config.insights.maxLogEntries;
 
             $('#entries-count').html(totalSystemLog);
@@ -827,26 +998,24 @@ function getSystemLogs() {
 
         });
         
-        
     } else if(offsetSystemLog < totalSystemLog) {
         
-        var promises  = [];
+        let requests = [];
         
-        for(var i = 0; i < parallelRequestsLog; i++) {
+        for(let i = 0; i < parallelRequestsLog; i++) {
             let offSetNew = offsetSystemLog + (i * logLimit);
             if(offSetNew < totalSystemLog) {
-                promises.push(getSystemLog(offSetNew, logLimit));
+                requests.push(getSystemLog(offSetNew, logLimit));
             }
         }
         
-        Promise.all(promises).then(function(response){
+        Promise.all(requests).then(function(response){
             if(totalSystemLog === 3) {
                 totalSystemLog = response.data[0].totalCount;
                 offsetSystemLog += logLimit;
 
             } else {
                 offsetSystemLog += (parallelRequestsLog * logLimit);
-    
             }
 
             processSystemLogs(response);
@@ -857,7 +1026,6 @@ function getSystemLogs() {
         });
         
     } else {
-
 
         adjustBubbleChartScale();
 
@@ -894,7 +1062,7 @@ function processSystemLog(dataset) {
         let eventDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 1);
         let age       = Math.round(((now - date) / 1000 / 60 / 60 / 24), 0);
 
-        for(var i = 0; i < users.length; i++) {
+        for(let i = 0; i < users.length; i++) {
             if(users[i].urn === urn) {
                 userIndex = i;
                 break;
@@ -1044,31 +1212,28 @@ function adjustBubbleChartScale() {
 
 
 function addEventLog(event, date) {
-    
-    var elemCellDesc = $('<td></td>');
-    var elemCellLink = $('<td></td>');
-        elemCellLink.addClass('nowrap');
-    
+
+    if(countEventLogEntries >= config.insights.maxEventLogEntries) return;
+    if(countEventLogEntries > 50000) return;
+
+    let elemCellDesc = $('<td></td>');
+    let elemCellLink = $('<td></td>').addClass('nowrap');
+
     if(event.hasOwnProperty('item')) {
         
-        var link = event.item.link.split('/');
+        let link = event.item.link.split('/');
+        let url  = 'https://' + tenant + '.autodeskplm360.net/plm/workspaces/' + link[4] + '/items/itemDetails?view=full&tab=details&mode=view&itemId=urn%60adsk,plm%60tenant,workspace,item%60' + tenant.toUpperCase() + ',' + link[4] + ',' + link[6] + '&cached=false';
         
-        var url = 'https://' + tenant + '.autodeskplm360.net/plm/workspaces/' + link[4] + '/items/itemDetails?view=full&tab=details&mode=view&itemId=urn%60adsk,plm%60tenant,workspace,item%60' + tenant.toUpperCase() + ',' + link[4] + ',' + link[6] + '&cached=false';
+        $('<a></a>').appendTo(elemCellLink)
+            .attr('target', '_blank')
+            .attr('href', url)
+            .html(event.item.title);
         
-        var elemLink = $('<a></a>');
-            elemLink.attr('target', '_blank');
-            elemLink.attr('href', url);
-            elemLink.html(event.item.title);
-        
-        elemCellLink.append(elemLink);
-        
-    } else {
-        elemCellLink.append('-');
-    }
+    } else { elemCellLink.append('-'); }
     
     if(event.description === null) {
         
-        for(detail of event.details) {
+        for(let detail of event.details) {
         
             if(elemCellDesc.html() !== '') elemCellDesc.append('<br/>');
             
@@ -1076,24 +1241,25 @@ function addEventLog(event, date) {
             
         }
         
-    } else {
-        
-        elemCellDesc.append(event.description);
-        
+    } else { elemCellDesc.append(event.description); }
+    
+    let elemEvent = $('<tr></tr>').appendTo('#events')
+        .addClass('user')
+        .append("<td class='nowrap'>" + event.user.title + "</td>")
+        .append("<td class='nowrap'>" + event.action + "</td>")
+        .append("<td class='nowrap'>" + date.toLocaleString() + "</td>")
+        .append(elemCellLink)
+        .append(elemCellDesc);
+    
+    countEventLogEntries++;
+
+    let selectedName = $('#select-user').val();
+    
+    if(selectedName !== '*') {
+        if(selectedName !== event.user.title) {
+            elemEvent.addClass('hidden');
+        }
     }
-    
-    var elemEvent = $('<tr></tr>');
-        elemEvent.addClass('user');
-        elemEvent.append("<td class='nowrap'>" + event.user.title + "</td>");
-        elemEvent.append("<td class='nowrap'>" + event.action + "</td>");
-        elemEvent.append("<td class='nowrap'>" + date.toLocaleString() + "</td>");
-        elemEvent.append(elemCellLink);
-        elemEvent.append(elemCellDesc);
-        elemEvent.appendTo('#events');
-    
-    var selectedName = $('#select-user').val();
-    
-    if(selectedName !== event.user.title) elemEvent.addClass('hidden');
     
 }
 function addUserLogin(userName, eventDate) {
@@ -1335,7 +1501,7 @@ function updateSummary() {
 
 function updateProgress() {
     
-    var value = 0;
+    let value = 0;
     
     if(progressUsers < progressWorkspaces) {
         if(progressUsers < progressLogs) {
@@ -1350,12 +1516,22 @@ function updateProgress() {
             value = progressLogs;
         } 
     }
-    
-    var progress = Math.round(value * 180 / 100, 0);
 
+    if(value < 1) value = 1;
+    
+    let progress = Math.round(value * 180 / 100, 0);
+
+    $('#progress-bar-complete').css('width', value + '%').attr('title', value + '% completed');
+    $('#progress-bar-pending').css('left', (value - 20) + '%');
     $('#percent').html(value + '%');
     $('.rotate').css('transform', 'rotate(' + progress.toString() + 'deg)');
+
+    if(totalSystemLog < offsetSystemLog) $('#processed-count').html(totalSystemLog); else $('#processed-count').html(offsetSystemLog);
     
-    if(value === 100) $('#processing').hide();
+    if(value === 100) {
+        $('#progress-bar-complete').remove();
+        $('#progress-bar-pending').remove();
+        $('#processing').hide();
+    }
     
 }

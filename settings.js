@@ -471,9 +471,11 @@ exports.config = {
         'fieldIdProductionOrdersData'       : 'PO_DATA'
     },
     
-    'insights' : {
-        'maxLogEntries' : 500000,
-        'usersExcluded' : ['Administrator', 'Import User', 'Job User', 'Integration User']
+    insights : {
+        maxLogEntries       : 500000,
+        maxEventLogEntries  : 10000, // Set this to 0 in order to disable the Event Log tab overall; a maximum of 50.000 gets applied anyway
+        usersExcluded       : ['Administrator', 'Import User', 'Job User', 'Integration User'],
+        workspacesExcluded  : ['Approval Lists', 'Change Approval Templates', 'Checklist Templates', 'Project Templates']
     },
 
     'mbom' : {

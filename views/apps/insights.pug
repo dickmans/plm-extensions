@@ -13,13 +13,17 @@ block head
 
 block body
 
-    body.surface-level-2
+    body.surface-level-2.loading
+
+        #progress-bar-complete
+        #progress-bar-pending
 
         #header
             #header-logo
             #header-title= title
             #header-subtitle
             #header-toolbar
+                .button#options.with-icon.icon-info Review Settings
                 #header-avatar
 
         #main.screen.panel
@@ -32,20 +36,24 @@ block body
                 div Item Count
                 div Item Creation
                 div Item Edits
-                div Event Log
+                div#tab-event-log Event Log
             .panel-content.tab-group-main.dashboard.surface-level-2-5#system
-                .counter
-                    #workspaces-count.counter-number ?
-                    .counter-label Workspaces 
-                .counter
-                    #users-count.counter-number ?
-                    .counter-label Active Users 
-                .counter
-                    #entries-count.counter-number ?
-                    .counter-label Log entries     
-                .counter
-                    #days-count.counter-number ?
-                    .counter-label Log days 
+                .counters
+                    .counter
+                        #workspaces-count.counter-number ?
+                        .counter-label Workspaces accessible for you
+                    .counter
+                        #users-count.counter-number ?
+                        .counter-label Active Users 
+                    .counter
+                        #entries-count.counter-number ?
+                        #entries-label.counter-label Log entries to process     
+                    .counter
+                        #processed-count.counter-number ?
+                        .counter-label Log entries processed     
+                    .counter
+                        #days-count.counter-number ?
+                        .counter-label Log days processed
                 .dashboard-chart
                     .title Users by status
                     .chart
@@ -54,12 +62,43 @@ block body
                     .title Active users by mail domain
                     .chart
                         canvas#domains 
-            .panel-content.tab-group-main.surface-level-1
-                .panel-chart
-                    canvas#timelineLastLogins
-                .panel-chart-toolbar 
-                    .panel-label Keep CTRL key pressed to zoom with your mousewheel
-                    .panel-action.button#resetTimelineLastLogins Click to reset zoom
+            .panel-content.tab-group-main
+                .panel-left.surface-level-1#timelineLastLoginsChart
+                    .panel-chart
+                        canvas#timelineLastLogins       
+                    .panel-chart-toolbar#timelineLastLoginsToolbar
+                        .panel-action.button.with-icon.icon-toggle-off#sortTimelineLastLogin Sort by name
+                        #timelineLastLoginsReset
+                            .panel-label Keep CTRL key pressed to zoom with your mousewheel
+                            .panel-action.button#resetTimelineLastLogins Click to reset zoom
+                .panel-right#timelineLastLoginsCounters
+                    .panel-counter 
+                        .panel-counter-value#logins-today ?
+                        .panel-counter-label Users logged in today 
+                    .panel-counter 
+                        .panel-counter-value#logins-week ?
+                        .panel-counter-label Users logged in this week 
+                    .panel-counter 
+                        .panel-counter-value#logins-month ?
+                        .panel-counter-label Users logged in this month 
+                    .panel-counter 
+                        .panel-counter-value#logins-year ?
+                        .panel-counter-label Users logged in this year 
+                    .panel-counter 
+                        .panel-counter-value#logins-days7 ?
+                        .panel-counter-label Users logged in last 7 days 
+                    .panel-counter 
+                        .panel-counter-value#logins-days30 ?
+                        .panel-counter-label Users logged in last 30 days  
+                    .panel-counter 
+                        .panel-counter-value#logins-days60 ?
+                        .panel-counter-label Users logged in last 60 days 
+                    .panel-counter 
+                        .panel-counter-value#logins-days180 ?
+                        .panel-counter-label Users logged in last 180 days  
+                    .panel-counter 
+                        .panel-counter-value#logins-days365 ?
+                        .panel-counter-label Users logged in last 365 days 
             .panel-content.tab-group-main.surface-level-2-5.dashboard#logins
                 #summary
                     #summary-bar
@@ -113,6 +152,7 @@ block body
                 .toolbar
                     span.select-label Select user:
                     select.button#select-user
+                        option(value='*') - All Entries -
                 .wrapper
                     table.fixed-header.row-hovering#events
                         tr
@@ -121,6 +161,25 @@ block body
                             th Date
                             th Link
                             th Description
+        #options-dialog.dialog
+            .dialog-header Dashboard Settings
+            .dialog-content
+                span The following options were defined in settings.js
+                table   
+                    tr 
+                        td Maximum Log Entries 
+                        td#maxLogEntries
+                    tr 
+                        td Maximum Event Log Entries 
+                        td#maxEventLogEntries
+                    tr 
+                        td Excluded User Accounts 
+                        td#usersExcluded
+                    tr 
+                        td Excluded Workspaces
+                        td#workspacesExcluded
+            .dialog-footer
+                #options-close.default.button Close
 
         #processing
             #circle-wrap
