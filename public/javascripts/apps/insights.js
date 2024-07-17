@@ -1518,7 +1518,7 @@ function updateProgress() {
     let progress = Math.round(value * 180 / 100, 0);
 
     $('#progress-bar-complete').css('width', value + '%').attr('title', value + '% completed');
-    $('#progress-bar-pending').css('left', (value - 20) + '%');
+    $('#progress-bar-pending').css('left', (value - 20) + '%').attr('title', value + '% completed');
     $('#percent').html(value + '%');
     $('.rotate').css('transform', 'rotate(' + progress.toString() + 'deg)');
 
