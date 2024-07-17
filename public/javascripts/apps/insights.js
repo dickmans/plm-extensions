@@ -618,8 +618,6 @@ function setUIEvents() {
         
     })
 
-
-
     $('#timelineLastLoginsFilter').on('change', function() {
         
         let valueSelected = this.value;
@@ -656,6 +654,9 @@ function getUserData() {
             getUserData(); 
         });
     } else {
+
+        console.log(lastLogins);
+
         setLastLoginsChart();
         setWorkspacesCharts();
     }
@@ -664,96 +665,89 @@ function getUserData() {
 function getUserDataChunk(callback) {    
     
     $.get('/plm/users', { 'offset' : offsetUsers }, function(response) {
-        
+
         totalUsers   = response.data.totalCount;
         offsetUsers += response.data.items.length;
-        let now      = new Date();
         
         for(let user of response.data.items) {
+
+            if(isBlank(user.displayName)) user.displayName = user.email;
 
             let displayName = user.displayName;
             let status      = user.userStatus;
             let email       = user.email;
             let domain      = email.split('@')[1];
+
+            if(notExcluded(displayName)) {
             
-            if(displayName !== ' ') {
-                if(notExcluded(displayName)) {
-                
-                    // users by domain
-                    if(status === 'Active') {
+                // users by domain
+                if(status === 'Active') {
 
-                        var isNew = true;
+                    let isNew = true;
 
-                        for(var i = 0; i < chartUserDomain.data.labels.length; i++) {
-                            if(chartUserDomain.data.labels[i] === domain) {
-                                isNew = false;
-                                chartUserDomain.data.datasets[0].data[i]++;
-                                break;
-                            }
+                    for(let i = 0; i < chartUserDomain.data.labels.length; i++) {
+                        if(chartUserDomain.data.labels[i] === domain) {
+                            isNew = false;
+                            chartUserDomain.data.datasets[0].data[i]++;
+                            break;
                         }
+                    }
 
+                    if(isNew) {
+                        chartUserDomain.data.labels.push(domain);
+                        chartUserDomain.data.datasets[0].data.push(1);
+                    }
 
-                        if(isNew) {
-                            chartUserDomain.data.labels.push(domain);
-                            chartUserDomain.data.datasets[0].data.push(1);
-                        }
+                    $('#select-user').append('<option value="' + displayName + '">' + displayName + '</option>');
 
-                        $('#select-user').append('<option value="' + displayName + '">' + displayName + '</option>');
+                    users.push({
+                        userId        : user.userId,
+                        displayName   : user.displayName,
+                        urn           : user.urn,
+                        lastLogin     : user.lastLoginTime
+                    });
 
-                        users.push({
-                            'userId'        : user.userId,
-                            'displayName'   : user.displayName,
-                            'urn'           : user.urn,
-                            'lastLogin'     : user.lastLoginTime
-                        });
-
-
-
-                        if(typeof user.lastLoginTime !== 'undefined') {
-
+                    if(!isBlank(user.lastLoginTime)) {
                         lastLogins.push({
                             displayName     : user.displayName,
                             lastLoginTime   : user.lastLoginTime,
                             filter          : [false, false, false, false, false, false, false, false, false]
                         });
-
-                        }
-
-                        $('#summary-active').html(users.length);
-
                     }
 
-                    // get users by status
-                    switch(status) {
+                    $('#summary-active').html(users.length);
 
-                        case 'Active':
-                            chartUserStatus.data.datasets[0].data[0]++; 
-                            break;   
+                }
 
-                        case 'Inactive':
-                            chartUserStatus.data.datasets[0].data[1]++; 
-                            break;    
+                // get users by status
+                switch(status) {
 
-                        case 'Deleted':
-                            chartUserStatus.data.datasets[0].data[2]++; 
-                            break;
+                    case 'Active':
+                        chartUserStatus.data.datasets[0].data[0]++; 
+                        break;   
 
-                    }
-                    
-                }   
-            }
+                    case 'Inactive':
+                        chartUserStatus.data.datasets[0].data[1]++; 
+                        break;    
+
+                    case 'Deleted':
+                        chartUserStatus.data.datasets[0].data[2]++; 
+                        break;
+
+                }
+                
+            }   
             
         }
         
         chartUserDomain.update();
         chartUserStatus.update();
         
-        
         $('#users-count').html(users.length);
         
         progressUsers = Math.round((offsetUsers * 100 / totalUsers), 0);
+
         updateProgress();
-        
         callback();
         
     });
@@ -852,6 +846,8 @@ function updateLastLoginChart() {
     }
 
     chartTimelineLastLogins.update();
+    chartTimelineLastLogins.resetZoom();
+
 
 }
 
@@ -1526,7 +1522,9 @@ function updateProgress() {
     $('#percent').html(value + '%');
     $('.rotate').css('transform', 'rotate(' + progress.toString() + 'deg)');
 
-    if(totalSystemLog < offsetSystemLog) $('#processed-count').html(totalSystemLog); else $('#processed-count').html(offsetSystemLog);
+    if(totalSystemLog > 0) {
+        if(totalSystemLog < offsetSystemLog) $('#processed-count').html(totalSystemLog); else $('#processed-count').html(offsetSystemLog);
+    }
     
     if(value === 100) {
         $('#progress-bar-complete').remove();
