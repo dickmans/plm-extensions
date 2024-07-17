@@ -104,6 +104,8 @@ function onListening() {
   console.log('  application of type "Desktop, Mobile, Single-Page App" for successful authentication.');
   console.log('    If not done so yet, create such an app at aps.autodesk.com and provide the given ');
   console.log('  Client ID in file settings.js as in previous releases. The Client Secret now can be omitted.');
+  console.log('  This new app must use the same callback URL as your previous app and end with "/callback"');
+  console.log('  (i.e. http://localhost:8080/callback).');
   console.log('    If your login to the UX solutions fails with an error code 401, you most likely are still ');
   console.log('  using an APS of another type.')
   console.log('  Do not forget to run npm install to download the additional module "crypto" if not doney yet.');
