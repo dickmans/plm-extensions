@@ -654,9 +654,6 @@ function getUserData() {
             getUserData(); 
         });
     } else {
-
-        console.log(lastLogins);
-
         setLastLoginsChart();
         setWorkspacesCharts();
     }
@@ -815,15 +812,14 @@ function addLastLogin(user) {
     
     let lastLogin   = user.lastLoginTime;
     let now         = new Date();
-    let temp        = lastLogin.split('T');
-    let login       = new Date(temp[0]);
-    let diff        = (now - login) / 86400000;
+    let login       = new Date(lastLogin.split('T')[0]);
     
-    diff = Math.round(diff, 0) - 1;
+    login.setHours(0,0,0,0);
+      now.setHours(0,0,0,0);
     
-    // chartTimelineLastLogins.options.scales.y.labels.push(user.displayName);
-    // chartTimelineLastLogins.data.datasets[0].data.push(diff);
-
+    let diff = (now.getTime() - login.getTime()) / 86400000;
+        diff = Math.round(diff, 0);
+    
     return diff;
     
 }
@@ -847,7 +843,6 @@ function updateLastLoginChart() {
 
     chartTimelineLastLogins.update();
     chartTimelineLastLogins.resetZoom();
-
 
 }
 
