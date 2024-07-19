@@ -1,0 +1,40 @@
+.tile(data-name='Projects Dashboard')
+    .tile-image(style="background: url('images/app-projects-dashboard.png') no-repeat;background-size:contain;")
+    .tile-details
+        .tile-title Projects Dashboard
+        .tile-subtitle (Project) Managers can track progression of all projects in a single, predefined dashboard
+        .tile-access 
+            .tile-endpoint /projects
+            .tile-button.button.default(href="projects" target="_blank") Open
+    .instructions
+        h1 Prerequisites
+        p Your tenant must have the latest NPI solution installed (providing the workspaces Projects, Project Tasks, Teams and so on).
+        h1 Features
+        p The dashboard will provide insights in all projects that are accessible to the current user and display the following reports:
+        ul
+            li The timeline of each projects by showing all Gates' target dates
+            li The Status Reports of each projects
+            li Current progress, project budget and progress of current phase of each project
+            li The planned effort for each project's phase
+            li Deviations of project end dates
+        h1 Configuration Settings
+        p Provide the ID of your Projects workspace in file 
+            strong settings.js.
+            |  Adjust the value of the following variable which is set to 86 to match the default Projects workspace.
+        p.code
+            span export.config = {
+            span.indent 'projects' : {
+            span.indent-2 'wsIdProjects' : '86',
+            span.indent }
+            span }   
+    .log 
+        h1 Projects Dashboard Change Log 
+        table 
+            tr 
+                td 21. November 2023
+                td Enhancement
+                td Add configuration setting config.projects.query to settings file, enabling to filter of projects
+            tr 
+                td 7. July 2023
+                td -
+                td No changes in this release

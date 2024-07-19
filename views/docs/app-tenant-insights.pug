@@ -1,0 +1,116 @@
+.tile(data-name='Tenant Insights')
+    .tile-image(style="background: url('images/app-insights.png') no-repeat;background-size:contain;")
+    .tile-details
+        .tile-title Tenant Insights
+        .tile-subtitle Administrators can track user activity and data modifications of a tenant using this graphic dashboard. It uses the standard system log entries and requires system admin privileges to run.
+        .tile-access 
+            .tile-endpoint /insights
+            .tile-button.button.default(href="insights" target="_blank") Open
+    .instructions
+        h1 Prerequisites
+        p Your user must have admin privileges to use this dashboard as it uses the system log entries which are hidden for standard users. This privilege will be validated during startup and an error message is shown if permissions are missing. Your user also must have access to the given workspaces that should be taken into account in the insights dashboard.
+        p Please note that the dashboard will retrieve the system log information in small packages. This process takes some time. There is a progress inidicator in top right corner and on top of the header to inform you about the data retrieval progress. You can also review the total number of log entries being processed in tab 'System'.
+        h1 Configuration Settings
+        p You may want to review the solution's configuration settings in file settings.js to adjust this solution to your needs. This is the default configuration:
+        p.code
+            span 'insights' : {
+            span.indent maxLogEntries : 500000,
+            span.indent maxEventLogEntries : 10000
+            span.indent usersExcluded : ['Administrator', 'Import User', 'Job User', 'Integration User']
+            span.indent workspacesExcluded : ['Approval Lists', 'Change Approval Templates', 'Checklist Templates', 'Project Templates']
+            span }
+        p See a description of these settings below. Note that you have to restart your UX server after changing any of these settings.
+        p 
+            table 
+                tr
+                    th Setting 
+                    th Default Value 
+                    th Description  
+                tr 
+                    td maxLogEntries
+                    td 500000
+                    td This defines the maximum total number of log entries that will be retrieved. If this setting applies to your report, you will find a given remark in tab System.
+                tr 
+                    td maxEventLogEntries
+                    td 10000
+                    td This defines the maximum entries in tab Event Log. This tab will show the most recent entries first. Increasing this value may impact the performance of the dashboard badly as your browser will slow down. Therefore a total maximum of 50.000 entries will never be exceeded, no matter what limit is defined in settings.js 
+                        br
+                        |By setting this value to 0 you can hide the tab Event Log in the dashboard
+                tr 
+                    td usersExcluded
+                    td ['Administrator', 'Import User', 'Job User', 'Integration User']
+                    td The users defined in this array will be exclueded from the reports
+                tr 
+                    td workspacesExcluded
+                    td ['Change Approval Templates', 'Approval Lists', 'Project Templates']
+                    td The workspaces defined in this array will be exclueded from the reports
+                tr 
+    .log 
+        h1 Tenant Insights Change Log 
+        table 
+            tr 
+                td 17. July 2024
+                td Enhancement
+                td Last Login chart now can be sorted by 'Username' or 'Days since last login'. In addition, counters to the right indicate the total logins in difined timeframes. These counters also can be clicked to filter the chart.
+            tr 
+                td 
+                td Enhancement
+                td The chart 'Item Count' has been changed from columns to bars. Entries now get sorted by item count to enable better analysis.
+            tr 
+                td 
+                td Enhancement
+                td Tab 'Event Log' now offers a new filter to display all entries of all users. This filter is selected per default and indicates the maximum number of records being displayed.
+            tr 
+                td 
+                td Enhancement
+                td The button 'Review Settings' has been added to the header toolbar, enabling to review the configuration settings defined in settings.js (i.e. to review users and workspaces being excluded)
+            tr 
+                td 
+                td Enhancement
+                td The System tab now indicates the number of entries that have been processed so far. The labels in this tab have been adjusted, for example to reflect the maximum number of records being taken into account.
+            tr 
+                td 
+                td Enhancement
+                td The new configuration setting 'maxEventLogEntries' can be used to limit the number of Event Log entries being displayed. For performance reasons, a maximum limit of 100.000 gets applied automatically. 
+                    br
+                    |You can set this limit to 0 also to hide the tab Event Log completely.
+            tr 
+                td 
+                td Enhancement
+                td The new configuration setting 'workspacesExcluded' can be used to hide defined workspaces from the charts.
+            tr 
+                td 
+                td Enhancement
+                td A new progress indicator has been added on top of the screen
+            tr 
+                td 12. July 2024
+                td Enhancement
+                td Added zoom / pan features to the charts, enabling better handling and analysis
+            tr 
+                td 18. March 2024
+                td Enhancement
+                td Improved the scale of the User Activity bubble chart
+            tr 
+                td 
+                td Enhancement
+                td Disabled (startup) animations of charts (except for the charts in the initial tab)
+            tr 
+                td 9. January 2023
+                td Library Update 
+                td The charting library chart.js has been update to most recent version
+            tr 
+                td 7. July 2023
+                td Enhancement
+                td Improved styling with tabs at bottom
+            tr 
+                td 
+                td Enhancement
+                td User's image is shown in top right corner for consistency with other apps
+            tr 
+                td 
+                td Bugfix
+                td User 'Tenant Admin' now is excluded from reports
+            tr 
+                td 
+                td New Feature
+                td An error messags is shown if the user does not have admin privileges

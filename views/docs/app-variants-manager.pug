@@ -2,8 +2,10 @@
     .tile-image(style="background: url('images/app-variant-manager.png') no-repeat;background-size:contain;")
     .tile-details
         .tile-title Variants Manager
-        .tile-endpoint /variants
         .tile-subtitle Engineers and Product Managers can define variants of an existing product design. This helps creating BOM variants based on color, material or other properties with ease.
+        .tile-access 
+            .tile-endpoint /variants
+            .tile-button.button.default(href="https://youtu.be/v6ZZN3Xo-BM" target="_blank") Play Video
     .instructions
         h1 Features 
         ul 
@@ -233,9 +235,15 @@
                     td bomViewNameVariants
                     td Default View 
                     td BOM view of item variants workspace which contains the required fields
+        h2 Configuring Viewer Features
+        include ../framework/viewer.pug
     .log 
         h1 Variant Manager Change Log 
         table 
+            tr 
+                td 28. June 2024
+                td Viewer Features Configuration
+                td Additional settings were added to settings.js enabling to select the features available in the viewer
             tr 
                 td 7. July 2023
                 td Initial Release

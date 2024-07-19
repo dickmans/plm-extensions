@@ -1,0 +1,118 @@
+.tile(data-name='Class Browser')
+    .tile-image(style="background: url('images/app-class-browser.png') no-repeat;background-size:contain;")
+    .tile-details
+        .tile-title Class Browser
+        .tile-subtitle Engineers can use item classification data to easily browse for similar components. This helps increasing reuse of existing items and thus reducing development efforts.
+        .tile-access 
+            .tile-endpoint /classes
+    .instructions
+        h1 Prerequisites
+        p You can use this solution with any workspace that has the 
+            strong Classification 
+            |section enabled. The installation instructions below describe how to enable this extension for workspace 
+            strong Items
+            |, but you can also enable it for any other workspace (including 
+            strong Items and BOMs 
+            |and 
+            strong Vault Items and BOMs
+            |).
+        h1 Required Changes
+        h2 Item Details Tab 
+        p Use the 
+            strong Workspace Manager 
+            | to add the fields described below to your context workspace. It is recommended to add all these fields to the same (new) section 
+            strong Classification Summary 
+            | and position them in a matrix, but both is not required. These fields will be set by script, so their placement does not matter. Tenants created mid 2023 or later will have all these fields already, only the last one 
+            strong Class Browser 
+            | should be missing.
+        img(src='images/apps/class-browser-1.png' style='width:100%;max-width:900px;margin:10px 0px 20px')
+        table(style='margin:10px 0px 30px')
+            tr
+                th Label 
+                th Field ID 
+                th Type 
+                th Details 
+                th Editable
+            tr
+                td DMS_ID 
+                td DMS_ID 
+                td Single Line Text 
+                td Field Length: 20; set visibility to Never 
+                td False
+            tr  
+                td Top Level Class
+                td TOP_LEVEL_CLASS
+                td Single Line Text
+                td Field Length : 200
+                td False
+            tr  
+                td Class Path
+                td CLASS_PATH 
+                td Single Line Text
+                td Field Length : 1000
+                td False
+            tr  
+                td Class Name
+                td CLASS_NAME
+                td Single Line Text
+                td Field Length : 200
+                td False
+            tr  
+                td Class Browser
+                td CLASS_BROWSER
+                td Single Line Text
+                td Insert the computed field formula shown below
+                td False
+        p.code CASE WHEN (CLASS_NAME is null) THEN '' ELSE '&lt;a style="border: 1px solid #bec8d2;border-radius:3px;padding:4px 20px;color: #0a131c;font-weight:600;line-height:26px;text-align:center;text-decoration:none !important;white-space:nowrap;width:160px;" target="_blank" href="
+            span.url http://localhost:8080
+            |classes?wsId=57&amp;dmsId='||DMS_ID||'"&gt;Find Similar Parts&lt;/a&gt;' END
+        p Note that this formula must contain the right workspace ID (..wsId=57..) to match the ID of workspace 
+            strong Items 
+            | in your tenant (57 is valid for the default tenant).
+        p Of course, the classification section also must be present in this workspace :-)
+        h2 Scripts
+        p The fields that were created just before must be updated by scripts every time a new record gets created or when it gets modified. Make sure that the following code is invoked at item creation and during item edit events. 
+            br 
+            | In the standard tenants of mid 2023 and later, this should already be included in script 
+            strong Items onCreate onEdit
+            |.
+        p.code 
+            span if(item.DMS_ID !== dmsID) item.DMS_ID = dmsID;
+            br 
+            span setClassSummary();
+            br
+            span function setClassSummary() {
+            span.indent var rootClass = "";
+            span.indent var classPath = "";
+            span.indent var className = "";
+            span.indent if(Object.keys(item.classification).length > 0) {
+            span.indent-2 var path = item.classificationSection.getClassificationPath();
+            span.indent-2 if(path.length > 0) {
+            span.indent-3  rootClass = path[0];
+            span.indent-3 className = path[path.length - 1];
+            span.indent-3 classPath = rootClass;
+            span.indent-3 if(path.length > 1) {
+            span.indent-4 for(var i = 1; i < path.length; i++) {
+            span.indent-5 classPath += ' / ' + path[i];
+            span.indent-4 }
+            span.indent-3 }
+            span.indent-2 }
+            span.indent }
+            span.indent if(item.TOP_LEVEL_CLASS !== rootClass) item.TOP_LEVEL_CLASS = rootClass;
+            span.indent if(item.CLASS_PATH !== classPath) item.CLASS_PATH = classPath;
+            span.indent if(item.CLASS_NAME !== className) item.CLASS_NAME = className;
+            span }
+        h1 Access the Class Browser
+        p From now on, once an item gets classified, there will be a button 
+            strong Find Similar Parts 
+            | in section 
+            strong Classification Summary 
+            | to open the Class Browser in a new tab:
+        img(src='images/apps/class-browser-2.png' style='margin:10px 0px;')
+    .log 
+        h1 Class Browser Change Log 
+        table 
+            tr 
+                td 7. July 2023
+                td Enhancement
+                td New default tenant now contains required fields of this extension to reduce implementation efforts and provide value for all users

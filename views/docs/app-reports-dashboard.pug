@@ -1,0 +1,50 @@
+.tile(data-name='Reports Dashboard')
+    .tile-image(style="background: url('images/app-reports-dashboard.png') no-repeat;background-size:contain;")
+    .tile-details
+        .tile-title Reports Dashboard
+        .tile-subtitle Provides (managers) easy access to real time reports of PLM. This dashboard combines multiple graphic reports and table reports. The latter ones enable to open the given records in PLM directly.
+        .tile-access 
+            .tile-endpoint /reports
+            .tile-button.button.default(href="reports" target="_blank") Open
+    .instructions
+        h1 Features
+        ul
+            li The dashboard makes use of the reports defined in PLM. Make sure that you have valid reports defined in the reports panel. 
+            li The first two out of these reports will get displayed in the dashboard automatically.
+            li The button 
+                strong Select Reports
+                |  enables users to select a different set of reports for the dashboard. Note: This given selection will not be saved.
+            li Users can click on the rows in table based reports to navigate to the given record in PLM.
+        h1 Limitations
+        p This solution only supports non-stacked column charts and pie charts. All other charts require further developoments.
+        h1 Configure Startup Reports 
+        p The dashboard will automatically load a defined set of reports at startup before users can select their preferred reports using the 
+            strong Select Reports
+            | button. These startup reports can be defined in the 
+            strong settings.js
+            | file.
+        p.code
+            span 'reports' : {
+            span.indent 'startupReportNames' : ['Audits by Workflow State', 'CR approval status', 'DR: Rework Required', 'EX: Change Requests'],
+            span.indent 'startupReportNames' : 5
+            span }
+        p The list of startup repports can be defined by their names using the setting 
+            strong startupReportNames
+            |. In addition, 
+            strong startupReportNames 
+            | can be set to define a minimum number of reports to be loaded if none of the report names match for the current user. In this case, when set to 5, the system will display the first five reports (in alphabetical order) if none of the report names were found.
+    .log 
+        h1 Reports Dashboard Change Log 
+        table 
+            tr 
+                td 9. January 2023
+                td Library Update 
+                td The charting library chart.js has been update to most recent version
+            tr 
+                td 7. July 2023
+                td New Feature 
+                td Reports can be removed from the dashboard with a new X icon
+            tr 
+                td 7. July 2023
+                td New Feature
+                td Automatic pagination has been enabled for table reports to improve usability

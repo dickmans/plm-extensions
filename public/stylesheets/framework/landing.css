@@ -32,6 +32,13 @@ h2 {
 .split-left > p {
     line-height : 18px;
 }
+
+.split.left-350 > .split-right {
+    width: calc(100% - 698px);
+}
+.split-right.padding-80  {
+    border-width : 80px  74px  80px  74px;
+}
 .button.icon {
     padding : 2px;
 }
@@ -82,19 +89,20 @@ h2 {
     border     : none !important;
 }
 .tile.max .tile-image {
-    border              : 30px solid var(--color-surface-level-2);
+    border              : 30px solid var(--color-surface-level-3);
     border-left-width   : 60px;
     position            : absolute;
     left                : calc(50% - 600px);
+    opacity             : 1.0;
 }
 .tile.max .tile-details {
-    display     : block; 
+    display     : flex; 
     margin      : 0px;
     padding     : 40px 140px 40px 40px;
     position    : absolute;
     right       : calc(50% - 600px);
     left        : calc(50% - 156px);
-    background  : var(--color-surface-level-2);
+    background  : var(--color-surface-level-3);
     height      : 196px;
 }
 .tile.max .tile-title {
@@ -115,13 +123,6 @@ h2 {
 }
 .tile.max .tile-endpoint,
 .tile.max .close-app { display : block ; }
-.tile-endpoint {
-    color       : var(--color-blue-500);
-    display     : none;
-    font-size   : 16px;
-    font-weight : 800;
-    margin      : 4px 0px 20px;
-}
 .surface-level-2 > .tiles > .tile.max,
 .tiles.xxl > .tile.max,
 .tile.max {
@@ -132,7 +133,7 @@ h2 {
     width       : 0px !important;
 }
 .tiles.xxl > .tile {
-    height : 370px;
+    height : 464px;
 }
 .tile-title { 
     font-size   : 18px;
@@ -141,7 +142,35 @@ h2 {
 }
 .tile-subtitle {     
     font-size   : 13px !important;
+    height      : 80px;
     line-height : 16px !important;
+}
+.tile-details {
+    gap     : 24px;
+    margin  : 30px 34px 24px;
+}
+.tile-access {
+    display         : flex;
+    justify-content : space-between;
+    line-height     : 36px;
+    order           : 3;
+    width           : 100%;
+}
+.tile-endpoint {
+    color       : var(--color-blue-500);
+    font-weight : 700;
+    /* margin      : 4px 0px 20px; */
+}
+
+
+.tile:has(.button:hover):hover,
+.tile.max:hover {
+    background : var(--color-surface-level-4) !important;
+    border-color : transparent !important;
+}
+.tile.max:hover .tile-image,
+.tile:has(.button:hover):hover .tile-image { 
+    opacity : 1.0; 
 }
 
 

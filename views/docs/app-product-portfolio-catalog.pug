@@ -1,0 +1,72 @@
+.tile(data-name='Product Portfolio Catalog') 
+    .tile-image(style='background: url("images/app-product-catalog.png") no-repeat;background-size:contain;')
+    .tile-details
+        .tile-title Product Portofolio Catalog
+        .tile-subtitle The sales team can browse the Product Portfolio by Product Categories and Product Lines and retrieve latest product data including technical specification, documentation and Bill of Materials
+        .tile-access 
+            .tile-endpoint /portfolio
+            .tile-button.button.default(href="portfolio" target="_blank") Open
+    .instructions
+        h1 Prerequisites
+        p Your tenant must have the 
+            strong Product Portfolio Management 
+            | app installed (providing the workspaces Product Categories, Product Lines and Products). If your tenant has been created after April 2021, changes are high that it meets this requirement.
+        h1 Features
+        p Users can navigate the various level of the portfolio from Product Categories down to Products in an easy manner. Once a product is selected, users can retrieve a couple of information: 
+        ul  
+            li The Marketing Text managed in section 'Product Catalog Definition' can be used to describe the product's features
+            li The images managed in section 'Product Catalog Images' can be opened 
+            li If Classification section is added to the Products workspace, the given technical specification can be seen 
+            li The product attachments can be downloaded 
+            li If an engineering BOM item is linked to the product, the given BOM can be accessed and the given root item's viewable will be rendered
+        h1 Adjust Workspace Products 
+        p If your tenant has been created in 2023 or later, the Products workspace should meet the following requirements already, so the following changes might not be required!
+        p Add the 
+            strong Classification 
+            | section to the 
+            strong Products 
+            | workspace. This enables the management of technical specification based on the product type. The given information will be displayed in the catalog as well.
+        img(src='images/apps/product-catalog-1.png' style='width:736px;')
+        p Set the field 
+            strong Engineering BOM 
+            | to be a pick list, enabling references to the workspace 
+            strong Items 
+            | (if existent, otherwise use 
+            strong Vault Items and BOMs
+            | ). When using the app, only if an item is selected in this field, the product catalog will be able to render the 3D design of the product (as this will render the related item's dwf). Also, this given item will be used to retrieve the product 
+            strong Bill of Materials
+            | .
+        img(src='images/apps/product-catalog-2.png' style='max-width:736px;')
+        h1 Configuration Settings
+        p A couple of settings can be adjusted in file 
+            strong settings.js 
+            | to match your environment if needed:
+        p.code
+            span export.config = {
+            span.indent 'portfolio' : {
+            span.indent-2 'bomViewName' : 'Basic',
+            span.indent-2 'hierarchy' : ['Product Categories', 'Product Lines', 'Products']
+            span.indent }
+            span }                         
+        ul 
+            li In setting 
+                strong bomViewName
+                |, provide the name of a BOM view of your items workspace which contains the Number field as column. If this column is missing, the highlighting of BOM items in the viewer will fail. Make sure that this number's Field ID is also properly defined in 
+                strong viewer.fieldIdPartNumber 
+                | within the settings file.
+            li If you renamed the standard workspaces of 
+                strong Product Portfolio Management
+                |, you can provide the new names in parameter 
+                strong hierarchy
+                |.
+    .log 
+        h1 Product Portfolio Catalog Change Log 
+        table 
+            tr 
+                td 26. September 2023
+                td Enhancement
+                td Once a product got selected, a new button in the toolbar enables to open the related Services Portal for this product
+            tr 
+                td 7. July 2023
+                td Enhancement
+                td Better demo datasets in the default tenant to match this app (i.e. Marketing Names and Marketing Texts on Product Lines and Product Categories)

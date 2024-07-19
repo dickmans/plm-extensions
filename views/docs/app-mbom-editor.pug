@@ -2,8 +2,10 @@
     .tile-image(style="background: url('images/app-mbom-editor.png') no-repeat;background-size:contain;")
     .tile-details
         .tile-title MBOM Editor
-        .tile-endpoint /mbom
         .tile-subtitle Process engineers can transform an Engineering BOM to a Manufacturing BOM with ease using this editor. It enables restructuring and addition of components even for multiple, site-specific MBOMs.
+        .tile-access 
+            .tile-endpoint /mbom
+            .tile-button.button.default(href="https://youtu.be/5s9080mmYLo" target="_blank") Play Video
     .instructions
         h1 Features 
         ul 
@@ -13,7 +15,6 @@
             li Use color codes to identify mismatches in EBOM and MBOM 
             li Access details of selected items in right hand side panel whenever needed
             li Manage multiple MBOMs per EBOM item (i.e. site specific BOMs)
-        a(href='https://youtu.be/5s9080mmYLo') See introduction video
         h1 Important - Read before proceeding
         p This editor helps in transitioning an Engineering BOM to a Manufacturing BOM. This may involve one or two item workspaces, depending on your tenant configuration and preference. If your tenant has been created before Mid 2023, your tenant will most likelly have two workspaces to manage items: 
             strong Items and BOMs 

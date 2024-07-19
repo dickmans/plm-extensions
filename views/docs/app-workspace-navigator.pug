@@ -1,0 +1,50 @@
+.tile(data-name='Workspace Navigator')
+    .tile-image(style="background: url('images/app-workspace-navigator.png') no-repeat;background-size:contain;")
+    .tile-details
+        .tile-title Workspace Navigator
+        .tile-subtitle All contributors and decison makers now can manage multiple records easily; mass edit &amp; compare properties based on the user's workspace views, bookmarks &amp; recently viewed records.
+        .tile-access 
+            .tile-endpoint /navigator
+            .tile-button.button.default(href="navigator" target="_blank") Open
+    .instructions
+        h1 Features
+        p Access data of relevance easily by having 
+            strong Workspaces Views
+            |, your 
+            strong Bookmarks
+            |, 
+            strong Recent Items 
+            | and entries of your 
+            strong My Outstanding Work 
+            | list combined in a single view. In these views, benefit from various additional features:
+        ul
+            li Item style instead of table style
+            li Filter using type ahead
+            li Mass Edit Item Details 
+            li Compare and highlight
+            li Hide / Unhide records in the views 
+            li Perform Workflow Actions on multiple records
+            li Clone items from the overviews
+            li Archive multiple records in one action
+            li Navigate to workspace of interest
+            li Bookmarks view will be selected automatically if the user bookmarks contain items of the selected workspace
+        h1 Limitations 
+        p You cannot modify fields of type Image and Multiple Picklists in this utility. Also, there are no options when cloning records.
+        h1 Access the Dashboard
+        p You can access the Workspace Navigator using the 
+            strong /navigator 
+            |  endpoint. You can also access the Workspace Navigator for a defined workspace directly by passing the given Workspace ID wihtin the URL. Changing the workspace then is still possible:
+        div(style='display:flex;gap:20px;')
+            a(href="navigator" target="_blank")
+            a(href="navigator?wsId=149" target="_blank")
+    .log 
+        h1 Workspace Navigator Change Log 
+        table 
+            tr 
+                td 7. July 2023
+                td Enhancement
+                td Read-only fields are shown as read-only now
+            tr 
+                td 
+                td Enhancement
+                td Button 'Toggle Panel' has been replaced with dedicated close buttons to improve usability

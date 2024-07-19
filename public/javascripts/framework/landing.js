@@ -121,6 +121,26 @@ $(document).ready(function() {
 
     });
 
+    $('.tile-button').click(function(e) {
+        
+        e.preventDefault();
+        e.stopPropagation();
+
+        let url = $(this).attr('href');
+
+        if(url.indexOf('//youtu') < 0) {
+
+            let location = document.location.href.split('?');
+            url = location[0] + url;
+            let concat = (url.indexOf('?') > -1) ? '&' : '?';
+            if(location.length > 1)url += concat + location[1];
+
+        }
+
+        window.open(url);
+
+    })
+
     $('#disclaimer').click(function() {
         $(this).hide();
     });

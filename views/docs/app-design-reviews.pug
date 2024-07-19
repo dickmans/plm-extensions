@@ -2,8 +2,10 @@
     .tile-image(style='background: url("images/app-design-review.png") no-repeat;background-size:contain;')
     .tile-details
         .tile-title Design Reviews
-        .tile-endpoint /reviews
         .tile-subtitle This portal can involve customers in the review process. Driven by Design Review processes in PLM, it provides feedback &amp; file sharing capabilities. Markups can be used to create corrective Design Review Tasks.
+        .tile-access 
+            .tile-endpoint /reviews
+            .tile-button.button.default(href="reviews" target="_blank") Open
     .instructions
         h1 Prerequisites
         p You must have the latest Design Review app installed from the App Store. If your tenant is based on a template past April 2021, this given app is included already. To check if your tenant contains this latest app, please verify that the workspace 
@@ -178,11 +180,6 @@
                             li tasks.states is used to determine the color highlight of actions being shown in context of a review (states 1 &amp; 2 will be shown as new, 2 &amp; 3 as pending and state 4 as complete)
         h2 Configuring Viewer Features
         include ../framework/viewer.pug
-        h1 Access the Design Review Portal
-        p You can access the design review portal with the 
-            strong /reviews 
-            | endpoint, just click this link:
-        a(href='reviews' target='_blank')
     .log 
         h1 Design Reviews Change Log 
         table 
