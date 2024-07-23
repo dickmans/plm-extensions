@@ -126,10 +126,10 @@ function initViewer(id, viewables, params) {
 
     var options = {
         // logLevel    : 1,
-        // env         : 'AutodeskProduction',
-        // api         : 'derivativeV2',  // for models uploaded to EMEA change this option to 'derivativeV2_EU'
-        env: 'AutodeskProduction2',
-        api: 'streamingV2',   // for models uploaded to EMEA change this option to 'streamingV2_EU'
+        env         : 'AutodeskProduction',
+        api         : 'derivativeV2',  // for models uploaded to EMEA change this option to 'derivativeV2_EU'
+        // env: 'AutodeskProduction2',
+        // api: 'streamingV2',   // for models uploaded to EMEA change this option to 'streamingV2_EU'
         getAccessToken  : function(onTokenReady) {
             var token = viewables[0].token;
             var timeInSeconds = 3600; 
@@ -190,6 +190,7 @@ function onDocumentLoadSuccess(doc) {
     if (viewable) {
         // viewer.loadDocumentNode(doc, viewable).then(function(result) {
         viewer.loadDocumentNode(doc, viewable, {globalOffset: {x:0,y:0,z:0}}).then(function(result) {
+            // viewer.hideAll
             viewer.setBackgroundColor(viewerSettings.backgroundColor[0], viewerSettings.backgroundColor[1], viewerSettings.backgroundColor[2], viewerSettings.backgroundColor[3], viewerSettings.backgroundColor[4], viewerSettings.backgroundColor[5]);
             viewerDone = true;
             initViewerDone();
@@ -949,17 +950,15 @@ function viewerHideModels(partNumbers, params) {
 
     //  Set defaults for optional parameters
     // --------------------------------------
-    let usePath     = false;   // If list of paths is provided instead of part numbers
     let ghosting    = true;   // Enforce ghosting of hidden components
+    let usePath     = false;   // If list of paths is provided instead of part numbers
 
-    if( isBlank(params)        )  params = {};
-    if(!isBlank(params.ghosting)   )    ghosting = params.ghosting;
-    if(!isBlank(params.usePath)) usePath = params.usePath;
+    if( isBlank(params)         )   params = {};
+    if(!isBlank(params.ghosting)) ghosting = params.ghosting;
+    if(!isBlank(params.usePath) )  usePath = params.usePath;
 
     for(let dataInstance of dataInstances) {
-
         let instanceNumber =  (usePath) ? dataInstance.pathShort : dataInstance.partNumber;
-        
         for(let partNumber of partNumbers) {
             if(instanceNumber === partNumber) {
                 viewer.hide(dataInstance.dbId);
@@ -1002,17 +1001,11 @@ function viewerUnhideModels(partNumbers, params) {
     
     if(resetColors) viewer.clearThemingColors();
 
-
-    console.log(usePath);
-    console.log(partNumbers);
-
     for(let dataInstance of dataInstances) {
         let instanceNumber =  (usePath) ? dataInstance.pathShort : dataInstance.partNumber;
         for(let partNumber of partNumbers) {
             if(instanceNumber === partNumber) {
-                console.log('found match');
-                console.log(instanceNumber);
-                dbIds.push(dataInstance.dbId);
+                                dbIds.push(dataInstance.dbId);
                 viewer.show(dataInstance.dbId);
                 if(highlight) viewer.setThemingColor(dataInstance.dbId, color, null, true );
                 if(usePath) break;
