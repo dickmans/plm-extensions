@@ -369,22 +369,22 @@ select.view-selector {
     width           : 100%;
 }
 .item-link {
-    color : transparent;
-    cursor : pointer;
-    display : none;
-    float: right;
-    line-height: 30px;
-    font-size: 20px;
+    color       : transparent;
+    cursor      : pointer;
+    display     : none;
+    float       : right;
+    line-height : 30px;
+    font-size   : 20px;
     margin-left : var(--spacer-xxs);
 }
 .item-code {
-    background : var(--color-surface-level-3); 
-    border-top : 1px solid transparent;
-    border-bottom : 1px solid transparent;
-    text-align: center;
-    width: 40px;
-    font-size: 12px;
-    font-weight: 800;
+    background      : var(--color-surface-level-3); 
+    border-top      : 1px solid transparent;
+    border-bottom   : 1px solid transparent;
+    text-align      : center;
+    width           : 40px;
+    font-size       : 12px;
+    font-weight     : 800;
 }
 .item-qty {
     background      : var(--color-surface-level-3); 
@@ -422,20 +422,10 @@ select.view-selector {
     padding         : 0px;
     text-align      : center;
 }
-.mbom-shortcut:hover,
-.item-action:hover {
-    box-shadow:  0 0 0 3px inset #e3e3e3;
-}
 .item-action.icon {
     font-weight : 200;
     font-size   : 22px;
     padding     : 0px 0px;
-}
-
-.dark-theme .item-action,
-.dark-theme #ebom-actions > div {
-    background   : var(--color-surface-level-3);
-    border-color : var(--color-surface-level-3);
 }
 
 
@@ -451,7 +441,7 @@ select.view-selector {
 .item.selected.category-product > .item-head > .item-icon,
 .item.selected.category-purchased > .item-head > .item-icon,
 .item.selected.category-sheet-metal-part > .item-head > .item-icon {
-    background : var(--color-blue-500);
+    background   : var(--color-blue-500);
     border-color : var(--color-selected-border);
 }
 .item.selected > .item-head > .item-title,
@@ -459,8 +449,7 @@ select.view-selector {
 .item.selected > .item-head > .item-qty,
 .item.selected > .item-head > .item-qty >input,
 .item.selected > .item-head > .item-qty >input.item-qty-input {
-    color : var(--color-gray-900) !important;
-    background : var(--color-selected-background);
+    background   : var(--color-selected-background);
     border-color : var(--color-selected-border);
 }
 .item-head:hover > .item-icon ,
@@ -476,7 +465,7 @@ select.view-selector {
 .item-head.selected:hover > .item-qty >input,
 .item-head.selected:hover > .item-title >span  {
     background : var(--color-hover-background) !important;
-    /* color : var(--color-gray-900) !important; */
+    color      : var(--color-font) !important;
 }
 .item-head:hover > .item-title > .item-head-descriptor {
     width           : calc(100% - 50px);
