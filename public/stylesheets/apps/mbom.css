@@ -197,6 +197,7 @@ body.details-on #details         { right : var(--padding-panel); }
 .additional-item::before {
     background : #c2cdd3;
     color : white;
+    content : '\e869';
     font: normal normal normal 14px/1 'Material Symbols Sharp';
     font-size: 24px;
     font-weight : 200;
@@ -206,7 +207,6 @@ body.details-on #details         { right : var(--padding-panel); }
     left: -10px;
     line-height: 16px;
 }
-.additional-item.deployed_code::before { content : '\f720'; }
 .item.mbom > .item-head > .item-icon > span::before,
 .additional-item.mbom::before { content: '\ebbc'; }
 .item.ebom > .item-head > .item-icon > span::before,
@@ -352,7 +352,7 @@ select.view-selector {
     height: 30px;
 }
 .item-title {
-    background      : var(--color-surface-level-2); 
+    background      : var(--color-surface-level-3); 
     border-top      : 1px solid transparent;
     border-bottom   : 1px solid transparent;
     cursor          : pointer;
@@ -378,7 +378,7 @@ select.view-selector {
     margin-left : var(--spacer-xxs);
 }
 .item-code {
-    background : var(--color-surface-level-2); 
+    background : var(--color-surface-level-3); 
     border-top : 1px solid transparent;
     border-bottom : 1px solid transparent;
     text-align: center;
@@ -387,7 +387,7 @@ select.view-selector {
     font-weight: 800;
 }
 .item-qty {
-    background      : var(--color-surface-level-2); 
+    background      : var(--color-surface-level-3); 
     border-top      : 1px solid transparent;
     border-right    : 1px solid transparent;
     border-bottom   : 1px solid transparent;
@@ -476,7 +476,7 @@ select.view-selector {
 .item-head.selected:hover > .item-qty >input,
 .item-head.selected:hover > .item-title >span  {
     background : var(--color-hover-background) !important;
-    color : var(--color-gray-900) !important;
+    /* color : var(--color-gray-900) !important; */
 }
 .item-head:hover > .item-title > .item-head-descriptor {
     width           : calc(100% - 50px);
@@ -487,7 +487,7 @@ select.view-selector {
     padding     : 8px 0px 8px 31px;
 }
 .item.root { border-top : none; }
-.item.root > .item-head { background : var(--color-surface-level-2); }
+.item.root > .item-head { background : var(--color-surface-level-3); }
 .item.root > .item-head > .item-toggle,
 .item.root > .item-head > .item-code, 
 .item.root > .item-head > .item-qty, 
@@ -508,7 +508,7 @@ select.view-selector {
 
 /* ITEM TYPES */
 /* ----------------------------------------------------------------------------- */
-.item                   > .item-head > .item-icon { background : #c2cdd3; color : #fff; }
+.item                   > .item-head > .item-icon { background : var(--color-surface-level-5); color : var(--color-font); }
 .item.type-software     > .item-head > .item-icon { background : #AD4E7E; color : #fff; }
 .item.type-packaging    > .item-head > .item-icon { background : #8c714d; color : #fff; }
 .item.type-electrical   > .item-head > .item-icon { background : #299BA6; color : #fff; }

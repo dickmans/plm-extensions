@@ -28,8 +28,8 @@ let sectionIdMBOM;
 
 
 $(document).ready(function() {
-
-    for(option of options) {
+    
+    for(let option of options) {
         let param = option.split(':');
         if(param[0].toLowerCase() === 'site') {
             siteSuffix = '_' + param[1];
@@ -45,7 +45,7 @@ $(document).ready(function() {
     appendProcessing('details');
     appendOverlay();
 
-    getApplicationFeatures('mbom', [], function(responses) {
+    getApplicationFeatures('mbom', [], function() {
 
         insertSearchFilters();
         setUIEvents();
@@ -509,13 +509,10 @@ function initEditor() {
             placeholder : "sortable-placeholder",
             stop        : function(event, ui) {
 
-                console.log('sorted!!!!');
-
                 if(elemBOMDropped !== null) {
                     $(this).sortable('cancel');
                     ui.item.appendTo(elemBOMDropped);
                     elemBOMDropped = null;
-                    console.log('sort deteced move');
                 } else {
                     updateViewer();
                     moveItemInBOM(ui.item);
@@ -886,8 +883,6 @@ function getBOMNode(level, urn, nodeLink, rootLink, linkEBOMRoot, descriptor, pa
     if(type     !== '') elemNode.addClass('type-' + type);
     
 
-    // console.log('bomType === ' + bomType);
-
     if(bomType === 'ebom') {
 
         elemNode.addClass('is-ebom-item');
@@ -917,8 +912,6 @@ function getBOMNode(level, urn, nodeLink, rootLink, linkEBOMRoot, descriptor, pa
             selectBOMItem($(this), false);
         });
 
-        // console.log('isLeaf = ' + isLeaf);
-        
         if(!isLeaf) {
             
             elemNode.addClass('item-has-bom');
@@ -1363,8 +1356,6 @@ function convertEBOMtoMBOM() {
 
         Promise.all(requests).then(function(responses) {
 
-            console.log(responses);
-
             let params = {
                 'wsId'      : wsMBOM.wsId,
                 'sections'  : []
@@ -1391,7 +1382,6 @@ function convertEBOMtoMBOM() {
                 contentType : 'application/json',
                 data        : JSON.stringify(params)
             }, function(response) {
-                console.log(response);
                 if(response.error) {
                     showErrorMessage('Error', 'Error while creating matching MBOM item, please review your server configuration and logs');
                 } else {
@@ -1402,8 +1392,6 @@ function convertEBOMtoMBOM() {
 
                     elemItem.attr('data-link-mbom', linkNew);
                     
-                    console.log(linkNew);
-
                     storeMBOMLink(link, linkNew);
                     copyBOM(wsIdParent, dmsIdParent, linkEBOMRoot, responses[1].data);
 
@@ -1473,14 +1461,10 @@ function copyBOM(wsIdParent, dmsIdParent, linkEBOMRoot, bom) {
                 
                 let childMBOMLink = getNodeLink(bom, edge.child, wsEBOM.viewColumns, config.mbom.fieldIdMBOM + siteSuffix, '');
 
-                console.log(childMBOMLink);
-
                 if(childMBOMLink !== '') {
                     params.wsIdChild  = childMBOMLink.split('/')[4];
                     params.dmsIdChild = childMBOMLink.split('/')[6];
                 }
-
-                console.log(params);
 
                 requests.push($.get('/plm/bom-add', params));
 
@@ -1489,8 +1473,6 @@ function copyBOM(wsIdParent, dmsIdParent, linkEBOMRoot, bom) {
         }
 
         Promise.all(requests).then(function(responess) {
-
-            console.log(responess);
 
             bom.edges.splice(0, maxRequests);
             copyBOM(wsIdParent, dmsIdParent, linkEBOMRoot, bom);
@@ -2495,9 +2477,9 @@ function setItemsList(idView, idList, list) {
     let elemList = $('#' + idList);
         elemList.html('');
 
-    for(item of list) {
+    for(let item of list) {
 
-        let link      =  item.hasOwnProperty('item') ? item.item.link  : item.__self__;
+        let link        = item.hasOwnProperty('item') ? item.item.link  : item.__self__;
         let urn         = item.hasOwnProperty('item') ? item.item.urn   : item.urn;
         let title       = item.hasOwnProperty('item') ? item.item.title : item.title;
         let className   = getIconClassName(link);
@@ -2508,30 +2490,25 @@ function setItemsList(idView, idList, list) {
     }
 
     let elemSelected = $('.panel-nav.selected');  
-    let idSelected = elemSelected.attr('data-id');
+    let idSelected   = elemSelected.attr('data-id');
 
     if(idSelected === idView)  $('#' + idView).show().siblings().hide();
 
 }
 function addItemListEntry(link, urn, title, className, elemParent, isProcess) {
 
-    let elemItem = $('<div></div>');
-        elemItem.addClass('additional-item');
-        elemItem.addClass(className);
-        elemItem.attr('data-link', link);
-        elemItem.attr('data-urn', urn);
-        elemItem.html(title);
-        elemItem.appendTo(elemParent);
-        elemItem.click(function() {
+    let elemItem = $('<div></div>').appendTo(elemParent)
+        .addClass('additional-item')
+        .attr('data-link', link)
+        .attr('data-urn', urn)
+        .html(title)
+        .click(function() {
             insertItemDetails($(this).attr('data-link'));
             $(this).addClass('selected');
             $(this).siblings().removeClass('selected');
         })
-        elemItem.draggable({ 
+        .draggable({ 
             scroll      : false,
-            // appendTo : 'body',
-            // containment : '#main',
-            // containment : 'html',
             appendTo    : 'body',
             containment : 'window',
             cursor      : 'move',
@@ -2548,63 +2525,51 @@ function insertAdditionalItem(elemHead, title, urn, link) {
       
     let qty         = '1';
     let elemBOM     = elemHead.next();
-    let className   = getIconClassName(link);
+    let className   = getIconClassName(link, false, false);
     
-    let elemNode = $('<div></div>');
-        elemNode.addClass('item');
-        elemNode.addClass('leaf');
-        elemNode.addClass('unique');
-        elemNode.addClass('mbom-item');
-        elemNode.addClass(className);
-        elemNode.attr('data-urn', urn);
-        elemNode.attr('data-link', link);
-        elemNode.appendTo(elemBOM);
+    let elemNode = $('<div></div>').appendTo(elemBOM)
+        .addClass('item')
+        .addClass('leaf')
+        .addClass('unique')
+        .addClass('mbom-item')
+        .addClass(className)
+        .attr('data-urn', urn)
+        .attr('data-link', link)
+        .attr('data-qty', qty);
         
-    let elemNodeHead = $('<div></div>');
-        elemNodeHead.addClass('item-head');
-        elemNodeHead.appendTo(elemNode);
+    let elemNodeHead = $('<div></div>').appendTo(elemNode)
+        .addClass('item-head')
+        .attr('data-qty', qty);
     
-    let elemNodeToggle = $('<div></div>');
-        elemNodeToggle.addClass('item-toggle');
-        elemNodeToggle.appendTo(elemNodeHead);
+    $('<div></div>').appendTo(elemNodeHead)
+        .addClass('item-toggle');
     
-    let elemNodeIcon = $('<div></div>');
-        elemNodeIcon.addClass('item-icon');
-        elemNodeIcon.html('<span class="icon">factory</span>');
-        elemNodeIcon.appendTo(elemNodeHead);
+    $('<div></div>').appendTo(elemNodeHead)
+        .addClass('item-icon')
+        .html('<span class="icon">build</span>');
     
-    let elemNodeTitle = $('<div></div>');
-        elemNodeTitle.addClass('item-title');
-        elemNodeTitle.html(title);
-        elemNodeTitle.attr('data-urn', '');
-        elemNodeTitle.appendTo(elemNodeHead);
+    $('<div></div>').appendTo(elemNodeHead)
+        .addClass('item-title')
+        .html(title)
+        .attr('data-urn', '')
+        .attr('data-qty', qty);
 
-    let elemNodeCode = $('<div></div>');
-        elemNodeCode.addClass('item-code');
-//        elemNodeCode.html(code);
-        elemNodeCode.appendTo(elemNodeHead);
+    $('<div></div>').appendTo(elemNodeHead)
+        .addClass('item-code');
     
-    let elemNodeQty = $('<div></div>');
-        elemNodeQty.addClass('item-qty');
-        elemNodeQty.appendTo(elemNodeHead);
-//        elemNodeQty.html(qty);
+    let elemNodeQty = $('<div></div>').appendTo(elemNodeHead)
+        .addClass('item-qty');
 
-    let elemQtyInput = $('<input></input>');
-        elemQtyInput.attr('type', 'number');
-        elemQtyInput.addClass('item-qty-input');
-        elemQtyInput.val(qty);
-        elemQtyInput.appendTo(elemNodeQty);
+    $('<input></input>').appendTo(elemNodeQty)
+        .attr('type', 'number')
+        .addClass('item-qty-input')
+        .val(qty);
     
     $('<div></div>').appendTo(elemNodeHead)
         .addClass('item-head-status');
     
-    let elemNodeActions = $('<div></div>');
-        elemNodeActions.addClass('item-actions');
-        elemNodeActions.appendTo(elemNodeHead);    
-    
-    elemNodeHead.attr('data-qty', qty);
-    elemNodeTitle.attr('data-qty', qty);
-    elemNode.attr('data-qty', qty);
+    let elemNodeActions = $('<div></div>').appendTo(elemNodeHead)
+        .addClass('item-actions');
     
     insertMBOMActions(elemNodeActions);
         
@@ -2615,12 +2580,16 @@ function getIconClassName(link, isProcess, isEBOMItem) {
 
     if(!singleWorkspace) {
         let id = link.split('/')[4];
-        className = (id == wsEBOM.wsId) ? 'deployed_code' : 'factory';
+        if(isBlank(isEBOMItem)) {
+            if (id !== wsEBOM.wsId) className = 'build';
+        } else if(!isEBOMItem) {
+            className = 'build';
+        }
     } else {
         if(!isBlank(isProcess)) {
             if(isProcess) return 'radio_button_unchecked';
             else if(!isBlank(isEBOMItem)) {
-                if(!isEBOMItem) return 'factory';
+                if(!isEBOMItem) return 'build';
             }
         }
     }
@@ -2746,8 +2715,6 @@ function initViewerDone() {
 }
 function closedViewerMarkup(markupSVG, markupState) {
 
-    console.log("closedViewerMarkup");
-
     let note        = $('#viewer-note').val();
     let link        = $('#viewer-note').attr('data-link');
     let partNumber  = $('#viewer-note').attr('data-part-number');
@@ -2763,7 +2730,6 @@ function closedViewerMarkup(markupSVG, markupState) {
             add = false;
         }
     }
-    console.log(add);
 
     if(add) {
         instructions.push({
@@ -2777,8 +2743,6 @@ function closedViewerMarkup(markupSVG, markupState) {
         });
     }
 
-    console.log(instructions);
-
     if(note !== '') $('#my-markup-button').addClass('highlight');
 
 }
@@ -2787,8 +2751,6 @@ function updateViewer() {
     // console.log('updateViewer START');
 
     var elemButtonView = $('.button-view.selected');
-
-    console.log(elemButtonView.length);
 
     if(elemButtonView.length > 0) {
         if(!disassembleMode) {
@@ -2957,8 +2919,6 @@ function setSaveActions() {
                 let dbQty        = elemItem.attr('data-qty');
                 let edQty        = elemItem.find('.item-qty-input').first().val();
 
-                // console.log(dbQty + ' / ' + edQty);
-
                 if(dbQty !== edQty) elemItem.addClass('pending-update');
                 else if(dbNumber !== edNumber) elemItem.addClass('pending-update');
 
@@ -3029,8 +2989,6 @@ function createNewItems() {
                 addFieldToPayload(params.sections, wsMBOM.sections, null, config.mbom.fieldIdTitle, title);
                 addFieldToPayload(params.sections, wsMBOM.sections, null, config.mbom.fieldIdIsProcess, true);
                 addFieldToPayload(params.sections, wsMBOM.sections, null, config.mbom.fieldIdProcessCode, code);
-
-                console.log(params);
 
                 if(!isBlank(config.mbom.fieldIdNumber)) {
                     if(!isBlank(config.mbom.incrementOperatonsItemNumber)) {
@@ -3205,8 +3163,6 @@ function addBOMItems() {
                     'pinned'        : config.mbom.pinMBOMItems,
                     'fields'        : []
                 };
-
-                console.log(params);
 
                 if(isEBOMItem) params.fields.push({ 'link' : linkFieldEBOMItem, 'value' : true });
                 if(!isBlank(linkEBOMRoot)) params.fields.push({ 'link' : linkFieldEBOMRootItem, 'value' : linkEBOMRoot });
