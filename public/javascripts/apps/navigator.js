@@ -68,7 +68,7 @@ function setUIEvents() {
         filterTableColumns($(this).val(), 'tableau-table')
     });
     $('#select-all').click(function() {
-        $('th.item-header:visible').addClass('selected');
+        $('th.table-column:visible').addClass('selected');
         updateToolbar();
     });
     $('#deselect-all').click(function() {
@@ -203,7 +203,7 @@ function getInitialData() {
         if(responses[0].data.permissions.indexOf('Create') > -1) $('#button-toggle-create').removeClass('disabled'); else $('#button-toggle-create').addClass('disabled');
         if(responses[0].data.permissions.indexOf('Delete') <  0) $('#archive').addClass('hidden');
 
-        for(tab of responses[4].data) {
+        for(let tab of responses[4].data) {
              if(tab.workspaceTabName === 'WORKFLOW_ACTIONS') {
                 // $('.workflow-actions').removeClass('hidden'); 
                 wsConfig.permissions.workflow = true;
@@ -212,14 +212,14 @@ function getInitialData() {
 
         insertTabLabels(responses[4].data);
 
-        for(bookmark of responses[5].data.bookmarks) {
+        for(let bookmark of responses[5].data.bookmarks) {
             let link = bookmark.item.link.split('/');
             if(link[4] === wsId) countBookmarks++;
         }
 
         sortArray(responses[1].data, 'title', 'string');
 
-        for(tableau of responses[1].data) {
+        for(let tableau of responses[1].data) {
 
             let elemOption = $('<option></option>');
                 elemOption.attr('value', tableau.link);
@@ -258,7 +258,7 @@ function getPicklists() {
 
     $('#tableau-processing').show();
 
-    for(field of (wsConfig.fields)) {
+    for(let field of (wsConfig.fields)) {
         if(field.type !== null) {
             if((field.type.title === 'Single Selection') || (field.type.title === 'Radio Button')) {
                 if(linksPicklists.indexOf(field.picklist) < 0) {
@@ -271,7 +271,7 @@ function getPicklists() {
 
     Promise.all(requests).then(function(responses) {
         
-        for(response of responses) cachePicklists.push({
+        for(let response of responses) cachePicklists.push({
             'link' : response.params.link,
             'data' : response.data
         });
@@ -293,7 +293,7 @@ function showWorkspacesList() {
 
     $.get('/plm/workspaces', function(response){
         sortArray(response.data.items, 'title', 'string', 'ascending');
-        for(workspace of response.data.items) {
+        for(let workspace of response.data.items) {
             let elemTile = genTile(workspace.link, workspace.urn, null, 'icon-folder', workspace.title, workspace.category.name);
                 elemTile.appendTo(elemParent);
                 elemTile.click(function() {
@@ -378,129 +378,117 @@ function setTableau() {
 }
 function appendHeaderCell(elemHeaderRow, indexItem, link, descriptor) {
 
-    let elemHeaderCell = $('<th></th>');
-        elemHeaderCell.appendTo(elemHeaderRow);
-        elemHeaderCell.addClass('item-header');
-        elemHeaderCell.addClass('item-' + indexItem);
-        elemHeaderCell.attr('data-index', indexItem);
-        elemHeaderCell.attr('data-link', link);
+    let elemHeaderCell = $('<th></th>').appendTo(elemHeaderRow)
+        .addClass('table-column')
+        .addClass('item-' + indexItem)
+        .attr('data-index', indexItem)
+        .attr('data-link', link);
 
-    let elemHeaderCellTop = $('<div></div>');
-        elemHeaderCellTop.addClass('item-header-top');
-        elemHeaderCellTop.appendTo(elemHeaderCell);
-        elemHeaderCellTop.click(function() {
+    let elemHeaderCellTop = $('<div></div>').appendTo(elemHeaderCell)
+        .addClass('table-column-top')
+        .click(function() {
             selectColumn($(this));
         });
 
-    let elemHeaderCellDescriptor = $('<div></div>');
-        elemHeaderCellDescriptor.addClass('item-descriptor');
-        elemHeaderCellDescriptor.appendTo(elemHeaderCellTop);
+    let elemHeaderCellDescriptor = $('<div></div>').appendTo(elemHeaderCellTop)
+        .addClass('table-column-descriptor');
 
     if(descriptor !== '') {
         let text = descriptor.split(' - ');
         if(text.length > 1) {
             elemHeaderCellDescriptor.append(text[0]).append($('<br>')).append(text[1]);
+            elemHeaderCellTop.addClass('multiline');
         } else {
             elemHeaderCellDescriptor.append(text[0]);
+            elemHeaderCellTop.removeClass('multiline');
         }
     } else {
         elemHeaderCellDescriptor.html('# ' + (indexItem + 1));
     }
 
-    let elemHeaderCelSelector = $('<div></div>');
-        elemHeaderCelSelector.addClass('item-header-selector');
-        elemHeaderCelSelector.appendTo(elemHeaderCellTop);
+    let elemHeaderCelSelector = $('<div></div>').appendTo(elemHeaderCellTop)
+        .addClass('table-column-selector');
 
-    let elemHeaderCellToggleIcon = $('<div></div>');
-        elemHeaderCellToggleIcon.attr('title', 'Select this record');
-        elemHeaderCellToggleIcon.addClass('icon');
-        elemHeaderCellToggleIcon.addClass('icon-check-box-checked');
-        elemHeaderCellToggleIcon.appendTo(elemHeaderCelSelector);
+    $('<div></div>').appendTo(elemHeaderCelSelector)
+        .attr('title', 'Select this record')
+        .addClass('icon')
+        .addClass('icon-check-box-checked');
 
-    let elemHeaderCellToggleIconAlt = $('<div></div>');
-        elemHeaderCellToggleIconAlt.attr('title', 'Deselect this record');
-        elemHeaderCellToggleIconAlt.addClass('icon');
-        elemHeaderCellToggleIconAlt.addClass('icon-check-box');
-        elemHeaderCellToggleIconAlt.appendTo(elemHeaderCelSelector);
+    $('<div></div>').appendTo(elemHeaderCelSelector)
+        .attr('title', 'Deselect this record')
+        .addClass('icon')
+        .addClass('icon-check-box');
 
-    let elemHeaderCellToolbar = $('<div></div>');
-        elemHeaderCellToolbar.addClass('item-toolbar');
-        elemHeaderCellToolbar.appendTo(elemHeaderCell);
+    let elemHeaderCellToolbar = $('<div></div>').appendTo(elemHeaderCell)
+        .addClass('table-column-toolbar');
 
-    let elemHeaderCellHide= $('<div></div>');
-        elemHeaderCellHide.attr('title', 'Hide this record');
-        elemHeaderCellHide.addClass('icon');
-        elemHeaderCellHide.addClass('button');
-        elemHeaderCellHide.addClass('icon-hide');
-        elemHeaderCellHide.appendTo(elemHeaderCellToolbar);
-        elemHeaderCellHide.click(function() {
+    $('<div></div>').appendTo(elemHeaderCellToolbar)
+        .attr('title', 'Hide this record')
+        .addClass('icon')
+        .addClass('button')
+        .addClass('icon-hide')
+        .click(function() {
             let elemHead = $(this).closest('th');
             let index = elemHead.attr('data-index');
             $('.item-' + index).addClass('invisible');
             elemHead.removeClass('selected');
         });
 
-    let elemHeaderCellUnhide= $('<div></div>');
-        elemHeaderCellUnhide.attr('title', 'Unhide this record');
-        elemHeaderCellUnhide.addClass('icon');
-        elemHeaderCellUnhide.addClass('button');
-        elemHeaderCellUnhide.addClass('icon-show');
-        elemHeaderCellUnhide.appendTo(elemHeaderCellToolbar);
-        elemHeaderCellUnhide.click(function() {
+    $('<div></div>').appendTo(elemHeaderCellToolbar)
+        .attr('title', 'Unhide this record')
+        .addClass('icon')
+        .addClass('button')
+        .addClass('icon-show')
+        .click(function() {
             let elemHead = $(this).closest('th');
             let index = elemHead.attr('data-index');
             $('.item-' + index).removeClass('invisible');
             elemHead.removeClass('selected');
         });
 
-    let elemHeaderCellCompare = $('<div></div>');
-        elemHeaderCellCompare.attr('title', 'Compare this record againt the other records in this table using colors');
-        elemHeaderCellCompare.addClass('icon');
-        elemHeaderCellCompare.addClass('button');
-        elemHeaderCellCompare.html('invert_colors');
-        elemHeaderCellCompare.appendTo(elemHeaderCellToolbar);
-        elemHeaderCellCompare.click(function() {
+     $('<div></div>').appendTo(elemHeaderCellToolbar)
+        .attr('title', 'Compare this record againt the other records in this table using colors')
+        .addClass('icon')
+        .addClass('button')
+        .html('invert_colors')
+        .click(function() {
             toggleComparison($(this));
         });
 
-    let elemHeaderCellDetails = $('<div></div>');
-        elemHeaderCellDetails.attr('title', 'Open Details Panel to the right for this record');
-        elemHeaderCellDetails.addClass('icon');
-        elemHeaderCellDetails.addClass('button');
-        elemHeaderCellDetails.html('view_sidebar');
-        elemHeaderCellDetails.appendTo(elemHeaderCellToolbar);
-        elemHeaderCellDetails.click(function() {
+    $('<div></div>').appendTo(elemHeaderCellToolbar)
+        .attr('title', 'Open Details Panel to the right for this record')
+        .addClass('icon')
+        .addClass('button')
+        .html('view_sidebar')
+        .click(function() {
             setItemDetails($(this).closest('th').attr('data-link'));
         });
 
-    let elemHeaderCellClone = $('<div></div>');
-        elemHeaderCellClone.attr('title', 'Clone this record');
-        elemHeaderCellClone.addClass('icon');
-        elemHeaderCellClone.addClass('button');
-        elemHeaderCellClone.addClass('icon-clone');
-        elemHeaderCellClone.appendTo(elemHeaderCellToolbar);
-        elemHeaderCellClone.click(function() {
+    $('<div></div>').appendTo(elemHeaderCellToolbar)
+        .attr('title', 'Clone this record')
+        .addClass('icon')
+        .addClass('button')
+        .addClass('icon-clone')
+        .click(function() {
             let link = $(this).closest('th').attr('data-link');
             showClone(link);
         });
         
-
-    let elemHeaderCellOpen = $('<div></div>');
-        elemHeaderCellOpen.attr('title', 'Open this record in PLM');
-        elemHeaderCellOpen.addClass('icon');
-        elemHeaderCellOpen.addClass('button');
-        elemHeaderCellOpen.html('open_in_new');
-        elemHeaderCellOpen.appendTo(elemHeaderCellToolbar);
-        elemHeaderCellOpen.click(function() {
+    $('<div></div>').appendTo(elemHeaderCellToolbar)
+        .attr('title', 'Open this record in PLM')
+        .addClass('icon')
+        .addClass('button')
+        .html('open_in_new')
+        .click(function() {
             openItemByLink($(this).closest('th').attr('data-link'));
         });
 
-    let elemHeaderSpacer = $('<th></th>');
-        elemHeaderSpacer.addClass('table-spacer');
-        elemHeaderSpacer.addClass('item-' + indexItem);
-        elemHeaderSpacer.appendTo(elemHeaderRow);
+    $('<th></th>').appendTo(elemHeaderRow)
+        .addClass('table-spacer')
+        .addClass('item-' + indexItem);
 
     links.push(link);
+
 }
 
 
@@ -514,7 +502,7 @@ function getWorkspaceData(elemTable, timestamp, url, key) {
 
         let requests = [];
 
-        for(entry of response.data[key]) {
+        for(let entry of response.data[key]) {
             let link = entry.item.link.split('/');
             if(link[4] === wsId) requests.push($.get('/plm/details', { 'link' : entry.item.link, 'timestamp' : timestamp }));
         }
@@ -541,16 +529,16 @@ function getWorkspaceData(elemTable, timestamp, url, key) {
 }
 function setWorkspacesFields(elemTable) {
 
-    for(section of wsConfig.sections) {
+    for(let section of wsConfig.sections) {
 
         let elemSection = $('<tr></tr>');
             elemSection.addClass('table-section');
             elemSection.html('<td>' + section.name + '</td>');
             elemSection.appendTo(elemTable);
 
-        for(sectionField of section.fields) {
+        for(let sectionField of section.fields) {
 
-            for(field of wsConfig.fields) {
+            for(let field of wsConfig.fields) {
 
                 if(field.__self__ === sectionField.link) {
 
@@ -586,19 +574,14 @@ function setWorkspacesFields(elemTable) {
 }
 function setWorkspaceRecords(elemTable, records) {
 
-    let indexItem = 0;
+    let indexItem     = 0;
+    let elemHeader    = $('#tableau-header').html('');
+    let elemHeaderRow = $('<tr></tr>').appendTo(elemHeader);
 
-    let elemHeader = $('#tableau-header');
-        elemHeader.html('');
+    $('<th></th>').appendTo(elemHeaderRow)
+        .addClass('first-col');
 
-    let elemHeaderRow = $('<tr></tr>');
-        elemHeaderRow.appendTo(elemHeader);
-
-    let elemHeaderFirstCell = $('<th></th>');
-        elemHeaderFirstCell.appendTo(elemHeaderRow);
-        elemHeaderFirstCell.addClass('first-col');
-
-    for(record of records) {
+    for(let record of records) {
 
         appendHeaderCell(elemHeaderRow, indexItem, record.data.__self__, record.data.title);
 
@@ -650,7 +633,7 @@ function setWorkspaceRecords(elemTable, records) {
 }
 function highlightChanges() {
 
-    $('th.item-header').each(function () {
+    $('th.table-column').each(function () {
 
         let elemHeader  = $(this);
         let isChanged   = false;
@@ -691,7 +674,7 @@ function setTableauRows(elemTable, tableauColumns) {
     
     $('#edit-fields').html('');
 
-    for(tableauColumn of tableauColumns) {
+    for(let tableauColumn of tableauColumns) {
 
         if(tableauColumn.hasOwnProperty('displayOrder')) {
 
@@ -716,7 +699,7 @@ function setTableauRows(elemTable, tableauColumns) {
                 
                 } else {
             
-                    for(field of wsConfig.fields) {
+                    for(let field of wsConfig.fields) {
                         if(field.__self__ === tableauColumn.field.__self__) {
                             fields.push(field);
                             insertField(field, { 'sections': [{ 'fields' : fields }] }, $('#edit-fields'), true, true, true);
@@ -739,23 +722,18 @@ function setTableauRows(elemTable, tableauColumns) {
 }
 function setTableauColumns(elemTable, tableauRecords) {
 
-    let indexItem = 0;
+    let indexItem       = 0;
+    let elemHeader      = $('#tableau-header').html('');
+    let elemHeaderRow   = $('<tr></tr>').appendTo(elemHeader);
 
-    let elemHeader = $('#tableau-header');
-        elemHeader.html('');
+    $('<th></th>').appendTo(elemHeaderRow)
+        .addClass('first-col');
 
-    let elemHeaderRow = $('<tr></tr>');
-        elemHeaderRow.appendTo(elemHeader);
-
-    let elemHeaderFirstCell = $('<th></th>');
-        elemHeaderFirstCell.appendTo(elemHeaderRow);
-        elemHeaderFirstCell.addClass('first-col');
-
-    for(tableauRecord of tableauRecords) {
+    for(let tableauRecord of tableauRecords) {
 
         let descriptor = '';
 
-        for(tableauField of tableauRecord.fields) {
+        for(let tableauField of tableauRecord.fields) {
             if(tableauField.id === 'DESCRIPTOR') descriptor = tableauField.value;
         }
 
@@ -769,7 +747,7 @@ function setTableauColumns(elemTable, tableauRecords) {
             let fieldId = link.split('/')[8];
             let value   = '';
             
-            for(tableauField of tableauRecord.fields) {
+            for(let tableauField of tableauRecord.fields) {
                 if(tableauField.id === fieldId) {
                     value = tableauField.value;
                     if(!fields[index].isSystemField) {
@@ -786,14 +764,12 @@ function setTableauColumns(elemTable, tableauRecords) {
                 }
             }
 
-            let elemCell = $('<td></td>');
-                elemCell.addClass('item-' + indexItem);
-                elemCell.addClass('table-field');
-                elemCell.appendTo($(this));
+            let elemCell = $('<td></td>').appendTo($(this))
+                .addClass('item-' + indexItem)
+                .addClass('table-field');
            
             if(fields[index].isSystemField) {
 
-                // Print descriptor column etc.
                 elemCell.html(value);
 
             } else {
@@ -811,10 +787,9 @@ function setTableauColumns(elemTable, tableauRecords) {
 
             }
 
-            let elemCellSpacer = $('<td></td>');
-                elemCellSpacer.addClass('table-spacer');
-                elemCellSpacer.addClass('item-' + indexItem);
-                elemCellSpacer.appendTo($(this));
+            $('<td></td>').appendTo($(this))
+                .addClass('table-spacer')
+                .addClass('item-' + indexItem);
 
             index++;
 
@@ -845,7 +820,7 @@ function selectColumn(elemClicked) {
 }
 function updateToolbar() {
 
-    if($('.item-header.selected').length === 0) {
+    if($('.table-column.selected').length === 0) {
         $('#deselect-all').hide(); 
         $('#edit-selected').hide(); 
         $('#archive').hide(); 
@@ -882,7 +857,7 @@ function applyEdits() {
 
                     if(elemRow.attr('data-link') === fieldData.link) {
 
-                        $('.item-header.selected').each(function() {
+                        $('.table-column.selected').each(function() {
 
                             let elemHead        = $(this);
                             let index           = elemHead.index();
@@ -963,7 +938,7 @@ function setItemDetails(link) {
 // Toggle Item Visibility
 function hideSelectedItems() {
 
-    $('.item-header.selected').each(function() {
+    $('.table-column.selected').each(function() {
 
         $(this).removeClass('selected');
 
@@ -978,7 +953,7 @@ function hideSelectedItems() {
 }
 function showSelectedItems() {
 
-    $('.item-header.selected').each(function() {
+    $('.table-column.selected').each(function() {
 
         $(this).removeClass('selected');
 
@@ -1009,7 +984,7 @@ function toggleComparison(elemClicked) {
     let index       = elemClicked.closest('th').attr('data-index');
     let isInvisible = elemClicked.closest('th').hasClass('invisible');
 
-    $('.item-toolbar').find('.active').removeClass('active');
+    $('.table-column-toolbar').find('.active').removeClass('active');
 
     elemClicked.addClass('active');
 
@@ -1037,10 +1012,6 @@ function toggleComparison(elemClicked) {
                     baseValue = baseCell.children('div').first().html();
                 }
             }
-
-            console.log(hasText);
-            console.log(hasChild);
-            console.log(baseValue);
 
             $(this).children().each(function() {
 
@@ -1089,12 +1060,12 @@ function archiveSelected() {
 
     $('#overlay').show();
 
-    $('.item-header.selected').each(function() {
+    $('.table-column.selected').each(function() {
         requests.push($.get('/plm/archive', { 'link' : $(this).attr('data-link')} ));
     });
 
     Promise.all(requests).then(function(responses) {
-        for(response of responses) {
+        for(let response of responses) {
             if(response.error) {
                 if(typeof response.data !== 'undefined') {
                     if(typeof response.data.message !== 'undefined') {
@@ -1151,7 +1122,7 @@ function performWorkflowAction() {
 
     $('#overlay').show();
 
-    let selected = $('.item-header.selected');
+    let selected = $('.table-column.selected');
 
     if(selected.length === 1) {
 
@@ -1174,7 +1145,7 @@ function setTransitionsDialog() {
     elemParent.html('');
 
     // for(item of selected) {
-    $('.item-header.selected').each(function() {
+    $('.table-column.selected').each(function() {
         let link = $(this).attr('data-link');
         requests.push($.get('/plm/transitions', { 'link' : link} ));
         requests.push($.get('/plm/descriptor',  { 'link' : link} ));
@@ -1184,53 +1155,45 @@ function setTransitionsDialog() {
 
         $('#transitions').show();
 
-        for(let i = 0; i < responses.length - 1; i+=2) {
+        for(let i = 0; i < responses.length - 1; i += 2) {
 
             let respTransitions = responses[i].data;
             let respDescriptor  = responses[i+1];
 
-            let elemItem = $('<div></div>');
-                elemItem.addClass('transition');
-                elemItem.attr('data-link', respDescriptor.params.link);
-                elemItem.appendTo(elemParent);
+            let elemItem = $('<div></div>').appendTo(elemParent)
+                .addClass('transition')
+                .attr('data-link', respDescriptor.params.link);
 
-            let elemItemDescriptor = $('<div></div>');
-                elemItemDescriptor.html(respDescriptor.data);
-                elemItemDescriptor.appendTo(elemItem);
+            $('<div></div>').appendTo(elemItem)
+                .html(respDescriptor.data);
 
-            let elemItemActions = $('<div></div>');
-                elemItemActions.appendTo(elemItem);
+            let elemItemActions = $('<div></div>').appendTo(elemItem);
 
             if(respTransitions.length > 0) {
 
-                let elemItemSelect = $('<select></select>')
+                let elemItemSelect = $('<select></select>').appendTo(elemItemActions)
                     .addClass('button')
-                    .addClass('select-transition')
-                    .appendTo(elemItemActions);
+                    .addClass('select-transition');
 
-                for(transition of respTransitions) {
-                    let elemItemOption = $('<option></option>');
-                        elemItemOption.attr('value', transition.__self__);
-                        elemItemOption.html(transition.name);
-                        elemItemOption.appendTo(elemItemSelect);
+                for(let transition of respTransitions) {
+                    $('<option></option>').appendTo(elemItemSelect)
+                        .attr('value', transition.__self__)
+                        .html(transition.name);
                 }
 
             } else {
 
-                let elemNoAction = $('<div></div>');
-                    elemNoAction.html('No workflow action available');
-                    elemNoAction.appendTo(elemItemActions);
+                $('<div></div>').appendTo(elemItemActions)
+                    .html('No workflow action available');
 
             }
 
-            let elemItemDelete = $('<div></div>');
-                elemItemDelete.addClass('button');
-                elemItemDelete.addClass('red');
-                elemItemDelete.addClass('icon');
-                elemItemDelete.addClass('icon-delete');
-                elemItemDelete.appendTo(elemItemActions);
-                elemItemDelete.click(function() {
-
+            $('<div></div>').appendTo(elemItemActions)
+                .addClass('button')
+                .addClass('red')
+                .addClass('icon')
+                .addClass('icon-delete')
+                .click(function() {
                     let transition = $(this).closest('.transition');
                     let link = transition.attr('data-link');
                     $('.item-selector.selected').each(function() {
@@ -1253,13 +1216,7 @@ function submitTransitions() {
     $('#transitions').hide();
 
     $('.select-transition').each(function() {
-
         let link = $(this).closest('.transition').attr('data-link');
-
-        console.log(link);
-        console.log($(this).val());
-        console.log($('#transitions-comment').val());
-
         requests.push($.get('/plm/transition', { 'link' : link, 'transition' : $(this).val(), 'comment' : $('#transitions-comment').val() }));
     });
 
@@ -1306,7 +1263,7 @@ function saveChanges() {
 
         let error = false;
 
-        for(response of responses) {
+        for(let response of responses) {
             if(response.error) {
                 if(!error) {
                     error = true;
@@ -1332,7 +1289,7 @@ function addFieldPayload(sections, elemCell) {
     if(fieldData.value !== null) {
         if(typeof fieldData.value !== 'undefined') {
 
-            for(section of sections) {
+            for(let section of sections) {
                 if(section.id === sectionId) {
                     isNew = false;
                     section.fields.push(fieldData);
