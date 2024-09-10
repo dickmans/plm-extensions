@@ -57,28 +57,69 @@
     border-color : var(--color-blue-500) !important; 
 }
 #customSelectionToolbar.hide-selectd #button-toggle-hide-selected .icon-remove::before { color : white !important; }
-#counter-hidden-selection {
+#hidden-instances {
     font-family     : 'ArtifaktElement';
-    background      : var(--color-yellow-500);
     border-radius   : 3px;
     color           : white;
     cursor          : pointer;
     font-size       : 14px;
-    height          : 20px;
-    line-height     : 20px;
+    gap             : 4px;
+    height          : 38px;
+    justify-content : space-between;
+    line-height     : 38px;
     margin          : auto;
-    max-width       : 240px;
-    overflow        : hidden;
+    max-width       : 420px;
     position        : relative;
-    padding         : 8px 24px;
-    text-align      : center;
-    text-overflow   : ellipsis;
+    padding         : 0px;
     top             : 10px;
     white-space     : nowrap;
+    width           : 420px;
+    z-index         : 4;
+}
+#hidden-instances-label {
+    background      : var(--color-yellow-500);
+    border          : 1px solid transparent;
+    border-radius   : 2px;
+    display         : flex;
+    flex-grow       : 1;
+    gap             : 8px;
+    margin-right    : 4px;
+    padding         : 0px 12px;
+}
+#hidden-instances-counter {
+    font-weight : 800;
+    text-align  : right;
+    width       : 20px;
+}
+#hidden-instances-list {
+    display         : flex;
+    flex-direction  : column;
+    gap             : 2px;
+    margin          : auto;
+    max-height      : 168px;
+    overflow-y      : auto;
+    position        : relative;
+    top             : 18px;
+    width           : 420px;
     z-index         : 2;
 }
-#counter-hidden-selection:hover {
-    background : var(--color-yellow-600);
+.hidden-instance {
+    display         : flex;
+    gap             : 2px;
+    line-height     : 28px;
+    justify-content : space-between;
+}
+.hidden-instance-label {
+    background  : var(--color-surface-level-3);
+    display     : flex;
+    flex-grow   : 1;
+    gap         : 8px;
+    padding     : 0px 12px;
+}
+.hidden-instance-remove.button.icon {
+    font-size       : 20px;
+    height          : 26px;
+    line-height     : 26px;
 }
 
 #button-toggle-ghosting-enable { 

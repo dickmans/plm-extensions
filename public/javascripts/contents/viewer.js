@@ -124,7 +124,7 @@ function initViewer(id, viewables, params) {
 
     dataInstances = [];
 
-    var options = {
+    let options = {
         // logLevel    : 1,
         env         : 'AutodeskProduction',
         api         : 'derivativeV2',  // for models uploaded to EMEA change this option to 'derivativeV2_EU'
@@ -564,7 +564,7 @@ function onViewerSelectionChanged(event) {
         }
     }
 
-    viewerHideSelected(event);
+    hideSelectedInstance(event);
     onViewerSelectionChangedDone(partNumbers, event);
 
 }
@@ -610,7 +610,8 @@ function viewerSelectModels(partNumbers, params) {
 
     if(!keepHidden) {
         hiddenInstances = [];
-        if($('#counter-hidden-selection').length > 0) $('#counter-hidden-selection').hide();
+        updateHiddenInstancesControls();
+        updateHiddenInstancesList();
     }
 
     let dbIds = [];
@@ -647,7 +648,7 @@ function viewerSelectModels(partNumbers, params) {
         dataInstance.selected = isSelected;
     }
 
-    for(instance of hiddenInstances) viewer.hide(instance);
+    for(instance of hiddenInstances) viewer.hide(instance.dbId);
 
     viewerSetGhosting(ghosting);
     if(fitToView) viewer.fitToView(dbIds);
@@ -680,7 +681,8 @@ function viewerSelectAll(params) {
 
     if(!keepHidden) {
         hiddenInstances = [];
-        if($('#counter-hidden-selection').length > 0) $('#counter-hidden-selection').hide();
+        updateHiddenInstancesControls();
+        updateHiddenInstancesList();
     }
     
     if(resetColors) viewer.clearThemingColors();
@@ -691,7 +693,7 @@ function viewerSelectAll(params) {
         }
     }
 
-    for(instance of hiddenInstances) viewer.hide(instance);
+    for(instance of hiddenInstances) viewer.hide(instance.dbId);
 
     if(fitToView) viewer.setViewFromFile();
 
@@ -726,7 +728,8 @@ function viewerSelectInstances(dbIds, params) {
 
     if(!keepHidden) {
         hiddenInstances = [];
-        if($('#counter-hidden-selection').length > 0) $('#counter-hidden-selection').hide();
+        updateHiddenInstancesControls();
+        updateHiddenInstancesList();
     }    
 
     if(isolate)     viewer.hideAll();
@@ -779,7 +782,8 @@ function viewerHighlightInstances(partNumber, ids, params) {
 
     if(!keepHidden) {
         hiddenInstances = [];
-        if($('#counter-hidden-selection').length > 0) $('#counter-hidden-selection').hide();
+        updateHiddenInstancesControls();
+        updateHiddenInstancesList();
     }    
     
     let dbIds   = [];
@@ -834,11 +838,12 @@ function viewerResetSelection(params) {
 
     if(keepHidden) {
         for(let instance of hiddenInstances) {
-            viewer.hide(instance);
+            viewer.hide(instance.dbId);
         }
     } else { 
         hiddenInstances = [];
-        if($('#counter-hidden-selection').length > 0) $('#counter-hidden-selection').hide();
+        updateHiddenInstancesControls();
+        updateHiddenInstancesList();
     }
     
          if(resetColors) viewer.clearThemingColors();
@@ -891,7 +896,8 @@ function viewerSetColors(partNumbers, params) {
 
     if(!keepHidden) {
         hiddenInstances = [];
-        if($('#counter-hidden-selection').length > 0) $('#counter-hidden-selection').hide();
+        updateHiddenInstancesControls();
+        updateHiddenInstancesList();
     }
 
     for(let dataInstance of dataInstances) {
@@ -1035,14 +1041,15 @@ function viewerUnhideAll(params) {
 
     if(!keepHidden) {
         hiddenInstances = [];
-        if($('#counter-hidden-selection').length > 0) $('#counter-hidden-selection').hide();
+        updateHiddenInstancesControls();
+        updateHiddenInstancesList();
     }
 
     if(resetColors) viewer.clearThemingColors();
 
     viewer.showAll();
 
-    for(let instance of hiddenInstances) viewer.hide(instance);
+    for(let instance of hiddenInstances) viewer.hide(instance.dbId);
 
     if(fitToView) viewer.setViewFromFile();
 }
@@ -1316,36 +1323,71 @@ function viewerAddHideSelected(toolbar) {
 
             let enabled     = $('#customSelectionToolbar').hasClass('hide-selectd');
             let selected    = viewer.getSelection().length;
-            let elemCounter = $('#counter-hidden-selection');
 
             if(!enabled && selected > 0) {
                 for(let dbId of viewer.getSelection()) {
-                    viewer.hide(dbId);
-                    hiddenInstances.push(dbId);
+                    hideInstance(dbId);
                 }
             } else if(enabled) {
                 $('#customSelectionToolbar').toggleClass('hide-selectd');
+                $('#hidden-instances-toggle').addClass('icon-chevron-down').removeClass('icon-chevron-up');
             } else if(selected === 0) {
                 $('#customSelectionToolbar').toggleClass('hide-selectd');
             }
 
-            elemCounter.html(hiddenInstances.length);
-
-            if(hiddenInstances.length === 0) {
-                elemCounter.hide();
-            } else {
-                elemCounter.show().html('Click to unhide ' + hiddenInstances.length + ' components');
-            }
+            updateHiddenInstancesControls();
 
         };
 
-    $('<div></div>').appendTo($('#viewer'))
-        .attr('id', 'counter-hidden-selection')
-        .hide()
+    let elemHiddenInstances = $('<div></div>').appendTo($('#viewer'))
+        .attr('id', 'hidden-instances')
+        .hide();
+
+    let elemHiddenInstancesLabel = $('<div></div>').appendTo(elemHiddenInstances)
+        .attr('id', 'hidden-instances-label');
+
+    $('<div></div>').appendTo(elemHiddenInstancesLabel)
+        .attr('id', 'hidden-instances-counter');
+
+    $('<div></div>').appendTo(elemHiddenInstancesLabel)
+        .attr('id', 'hidden-instances-text');
+
+    $('<div></div>').appendTo(elemHiddenInstances)
+        .attr('id', 'hidden-instances-undo')
+        .addClass('button')
+        .addClass('icon')
+        .addClass('icon-undo')
+        .attr('title', 'Unhide last component')
         .click(function() {
-            for(let instance of hiddenInstances) viewer.show(instance);
+            viewer.show(hiddenInstances[hiddenInstances.length - 1].dbId);
+            hiddenInstances.pop()
+            updateHiddenInstancesControls();
+            updateHiddenInstancesList();
+
+        });
+
+    $('<div></div>').appendTo(elemHiddenInstances)
+        .attr('id', 'hidden-instances-toggle')
+        .addClass('button')
+        .addClass('icon')
+        .addClass('icon-chevron-down')
+        .attr('title', 'Toggle list of hidden components')
+        .click(function() {
+            $(this).toggleClass('icon-chevron-down').toggleClass('icon-chevron-up');
+            updateHiddenInstancesList();
+        });
+
+    $('<div></div>').appendTo(elemHiddenInstances)
+        .attr('id', 'hidden-instances-clear')
+        .addClass('button')
+        .addClass('icon')
+        .addClass('icon-close')
+        .attr('title', 'Unhide all components')
+        .click(function() {
+            for(let instance of hiddenInstances) viewer.show(instance.dbId);
             hiddenInstances = [];
-            $(this).html('').hide();
+            updateHiddenInstancesControls();
+            updateHiddenInstancesList();
         });
 
 }
@@ -1355,17 +1397,120 @@ function viewerHideSelected(event) {
 
     if(toolbar.length > 0) {
         if(toolbar.hasClass('hide-selectd')) {
-            for(let dbId of event.dbIdArray) {
-                viewer.hide(dbId);
-                hiddenInstances.push(dbId);
-                $('#counter-hidden-selection').html('Click to unhide ' + hiddenInstances.length + ' components').show();
-            
-            }
+            hideSelectedInstance(event);
             return true;
         }
     }
     
     return false;
+}
+function hideSelectedInstance(event) {
+
+    let toolbar = $('#customSelectionToolbar');
+
+    if(toolbar.length > 0) {
+        if(toolbar.hasClass('hide-selectd')) {
+
+            if(hiddenInstances.length === 0) $('#hidden-instances-toggle').addClass('icon-chevron-down').removeClass('icon-chevron-up');
+
+            for(let dbId of event.dbIdArray) {
+                hideInstance(dbId)
+            }
+
+            updateHiddenInstancesControls();
+            updateHiddenInstancesList();
+
+        }
+    }
+    
+}
+function hideInstance(dbId) {
+
+    viewer.hide(dbId);
+
+    for(let instance of dataInstances) {
+        if(instance.dbId === dbId) {
+            hiddenInstances.push({
+                dbId        : dbId,
+                partNumber  : instance.partNumber,
+                name        : instance.name
+            });
+            break;
+        }
+    }
+
+}
+function updateHiddenInstancesControls() {
+
+    $('#hidden-instances-counter').html(hiddenInstances.length);
+
+    if(hiddenInstances.length === 1) $('#hidden-instances-text').html('hidden component');
+    else $('#hidden-instances-text').html('hidden components');
+
+    if(hiddenInstances.length === 0) {
+        $('#hidden-instances').hide();
+    } else {
+        $('#hidden-instances').css('display', 'flex');
+    }
+
+}
+function updateHiddenInstancesList() {
+
+    if($($('#hidden-instances-toggle')).hasClass('icon-chevron-down')) {
+
+        $('#hidden-instances-list').remove();
+
+    } else {
+        
+        let elemHiddenInstancesList = $('#hidden-instances-list');
+
+        if(elemHiddenInstancesList.length === 0) {
+            elemHiddenInstancesList = $('<div></div>').appendTo($('#viewer'))
+            .attr('id', 'hidden-instances-list')
+            .addClass('no-scrollbar');
+        } else {
+            elemHiddenInstancesList.html('');
+        }
+     
+        for(let instance of hiddenInstances) {
+
+            let elemHiddenInstance = $('<div></div>').appendTo(elemHiddenInstancesList)
+                .addClass('hidden-instance')
+                .attr('data-id', instance.dbId);
+
+            let elemHiddenInstanceLabel = $('<div></div>').appendTo(elemHiddenInstance)
+                .addClass('hidden-instance-label');
+
+            $('<div></div>').appendTo(elemHiddenInstanceLabel)
+                .addClass('hidden-instance-number')
+                .html(instance.partNumber);
+
+            $('<div></div>').appendTo(elemHiddenInstanceLabel)
+                .addClass('hidden-instance-name')
+                .html(instance.name);
+
+            $('<div></div>').appendTo(elemHiddenInstance)
+                .addClass('hidden-instance-remove')
+                .addClass('button')
+                .addClass('icon')
+                .addClass('icon-close')
+                .attr('title', 'Unhide this component')
+                .click(function() {
+                    for(let index = 0; index < hiddenInstances.length; index++) {
+                        if(hiddenInstances[index].dbId == $(this).parent().attr('data-id')) {
+                            viewer.show(hiddenInstances[index].dbId);
+                            hiddenInstances.splice(index, 1);
+                            break;
+                        }
+                    }
+                    updateHiddenInstancesControls();
+                    updateHiddenInstancesList();
+                });
+
+        }
+
+    }
+
 }
 
 
@@ -1455,7 +1600,7 @@ function toggleSelectionHighlight(enabled) {
 }
 
 
-// Custom Controls : 
+// Custom Controls : Fit first instance to view
 function viewerAddFitFirstInstance(toolbar) {
 
     let buttionFitFirst = addCustomControl(toolbar, 'button-fit-first', 'icon-first', 'Fit first instance to view');
@@ -1501,7 +1646,7 @@ function viewerAddFitToView(toolbar) {
 }
 
 
-// Custom Controls: Reset Button
+// Custom Controls : Reset Button
 function viewerAddResetButton(toolbar) {
 
 
@@ -1512,9 +1657,10 @@ function viewerAddResetButton(toolbar) {
         
 }
 function viewerClickReset() {
-    hiddenInstances = [];
-    if($('#counter-hidden-selection').length > 0) $('#counter-hidden-selection').hide();
     viewer.showAll();
+    hiddenInstances = [];
+    updateHiddenInstancesControls();
+    updateHiddenInstancesList();
     viewerResetColors();
     viewerClickResetDone();
 }
@@ -1524,7 +1670,6 @@ function viewerClickResetDone() {
     $('.flat-bom-item').removeClass('selected');
 
 }
-
 
 
 // Custom Controls : Standard Views Toolbar
@@ -1586,7 +1731,7 @@ function viewerAddNoteControls() {
 }
 
 
-// Custom Controls : Markup Controls
+// Custom Controls : Markups
 function viewerAddMarkupControls(includeSaveButton) {
 
     if(typeof includeSaveButton === 'undefined') includeSaveButton = false;
@@ -1835,6 +1980,7 @@ function viewerLeaveMarkupMode() {
 }
 function viewerSaveMarkup() {}
 
+
 // Capture screenshot with markup for image upload
 function viewerCaptureScreenshot(id, callback) {
    
@@ -1878,7 +2024,6 @@ function viewerCaptureScreenshot(id, callback) {
     }
 
 }
-
 
 
 // Capture screenshot with markup for image upload
