@@ -27,7 +27,7 @@
     bottom  : var(--padding-panel);
     left    : calc(var(--width-viewer) + var(--padding-panel));
 }
-#details, #create {
+#details {
     border-width : var(--padding-panel);
     top          : 0px;
     right        : calc(0px - (2 * var(--padding-panel)) - var(--width-panel) - 10px);

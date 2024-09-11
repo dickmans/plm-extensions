@@ -1,0 +1,83 @@
+extends ../framework/layout
+
+block head
+
+    link(rel='stylesheet', href='/stylesheets/dev/change.css')
+    script(src='/javascripts/dev/change.js')
+    script.
+        config = !{JSON.stringify(config)};
+
+block body
+
+    body.surface-level-1.text-selection-off.screen-landing
+
+        #header.dark
+            #header-logo
+            #header-title= title
+            #header-subtitle.main
+                #header-descriptor
+                #header-description
+            #header-toolbar
+                .landing#button-toggle-recents.button.with-icon.icon-history(title='Click to toggle Recently Viewed panel on/off') Toggle Recent Processes
+                //- .landing#button-toggle-bookmarks.button.with-icon.icon-bookmark(title='Click to toggle Bookmarks panel on/off') Toggle Bookmarks
+                //- .main#button-home.button.with-icon.icon-home(title='Browse availalbe products') Home
+                //- .main#button-toggle-dashboard.button.with-icon.icon-dashboard(title='Click to toggle dashboard panel on/off') Dashboard
+                //- .main#button-toggle-bom.button.with-icon.icon-bom(title='Click to switch BOM display form tree to table and back') BOM
+                //- .main#button-toggle-attachments.button.with-icon.icon-pdf(title='Click to toggle files panel on/off') Files
+                //- .main#button-toggle-details.button.with-icon.icon-panel(title='Click to toggle details panel on/off') Details
+                .main#button-toggle-managed-itesm.button.icon.icon-status(title='Click to toggle processes panel on/off')
+                .main#button-toggle-managed-itesm.button.icon.icon-list(title='Click to toggle processes panel on/off')
+                .main#button-toggle-change-tasks.button.icon.icon-panel(title='Click to toggle processes panel on/off')
+                .main#button-process-close.button.with-icon.icon-close.default(title='Click this process and return to landing page') Close
+                .main#button-process-reject.button.with-icon.icon-clear.red(title='Click this process and return to landing page') Reject
+                .main#button-process-approve.button.with-icon.icon-check.green(title='Click this process and return to landing page') Approve
+                #header-avatar
+        
+        .screen#landing
+
+            #workspace.surface-level-1
+            #recents.surface-level-2
+
+        .screen#main
+
+            #managed-items.surface-level-2
+                    
+
+            #bom.surface-level-1
+                .panel-header
+                    .panel-title Bill of Materials
+                    .panel-toolbar
+                        .button.default#save-bom-changes(title='Save changes') Save
+                        .button.icon.bom-action.icon-send#send-selected(title='Create new Supplier Package for selected items')
+                        .button.icon.bom-action.icon-north-east#go-there(title='Open explorer for selected BOM item')
+                        .button.icon.icon-clear.bom-action.xs#bom-reset(title='Click to deselect BOM item and to reset viewer')
+                        .button.with-icon.icon-filter
+                            input#bom-search-input(placeholder='Filter')
+                .panel-content#bom-tree.no-colors.no-scrollbar
+                    table#bom-table-tree(cellspacing='0')
+                .panel-content#flat-bom.no-colors
+                    table#bom-table-flat(cellspacing='0')
+
+            #viewer.viewer          
+
+            #attachments
+
+            #change-tasks.surface-level-2
+
+            .panel.surface-level-2#details
+                .panel-header   
+                    .panel-title Details 
+                    .panel-toolbar 
+                        .button.icon.icon-bookmark#bookmark
+                        .button.icon.icon-open#open
+                        .button.default#save(title='Save changes') Save
+                .panel-content.surface-level-2.no-scrollbar#details-sections
+
+            .panel.surface-level-2#processes
+            
+            .dialog#create-connect
+                .dialog-header Create Supplier Package
+                .dialog-content#create-connect-sections.no-scrollbar.surface-level-1
+                .dialog-footer
+                    #create-connect-confirm.button.default Confirm
+                    #create-connect-cancel.button Cancel

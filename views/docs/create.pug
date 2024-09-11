@@ -146,7 +146,7 @@
         table.row-hovering
             tr 
                 th Function 
-                th Event 
+                th Triggering Event 
                 th Parameters 
             tr 
                 td showCreateFormDone(id, sections, fields) 
@@ -164,23 +164,21 @@
                 td closeCreateFormDone(id) 
                 td This function gets triggered by closeCreateForm after the overlay and parent div element got hidden
                 td id = id of the parent div element (i.e. create)
-    h2 User Interactions 
-    p You can override the behavior of the Flat BOM display with the user interactions shown below. They all receive the UI element that got clicked as parameter elemClicked.
-    p 
-        table.row-hovering
-            tr 
-                th Function 
-                th Triggering Event 
             tr 
                 td clickCreateFormSubmit(id) 
                 td Gets executed once the user clicks the Submit button. This will hide certain UI elements after validating the form for mandatory inputs.
                     br
                     |It triggers submitCreateForm to perform the item creation in PLM.
+                td id = id of the parent div element (i.e. create)
             tr 
                 td submitCreateForm(id) 
                 td This gets invoked by clickCreateFormSubmit and performs the item creation. Once the item creation finished, it will invoke submitCreateFormDone(id, link).
+                td id = id of the parent div element (i.e. create)
             tr 
                 td submitCreateFormDone(id, link) 
                 td This function gets triggered once the item creation finished. It receives the parent div element's id and the API-link of the newly created record.
                     br
                     |Per default, this will open the given new record in PLM using function openItemByLink(link), hide the create dialog element and element #overlay.
+                td id = id of the parent div element (i.e. create)
+                    br
+                    |link = api link of the newly created record

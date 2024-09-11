@@ -51,10 +51,11 @@ $(document).ready(function() {
 // Get list of disabled features
 function getApplicationFeatures(app, requests, callback) {
 
-    if(!isBlank(config[app].applicationFeatures)) applicationFeatures = config[app].applicationFeatures;
-    if(!isBlank(config[app].viewerFeatures)) applicationFeatures.viewer = config[app].viewerFeatures;
+    if(!isBlank(config[app].applicationFeatures)) applicationFeatures        = config[app].applicationFeatures;
+    if(!isBlank(config[app].viewerFeatures))      applicationFeatures.viewer = config[app].viewerFeatures; 
+    if( isBlank(applicationFeatures.viewer))      applicationFeatures.viewer = {};
 
-    if(config[app].viewerFeatures.length === 0) {
+    if(applicationFeatures.viewer.length === 0) {
 
         getApplicationFeaturesDone(app);
         callback();
@@ -169,24 +170,15 @@ function appendProcessing(id, hidden) {
 
     let elemParent = $('#' + id);
 
-    let elemProcessing = $('<div></div>');
-        elemProcessing.addClass('processing');
-        elemProcessing.attr('id', id + '-processing');
-        elemProcessing.appendTo(elemParent);
+    let elemProcessing = $('<div></div>').appendTo(elemParent)
+        .addClass('processing')
+        .attr('id', id + '-processing');
 
     if(hidden) elemProcessing.hide();
 
-    let elemBoune1 = $('<div></div>');
-        elemBoune1.addClass('bounce1');
-        elemBoune1.appendTo(elemProcessing);
-
-    let elemBoune2 = $('<div></div>');
-        elemBoune2.addClass('bounce2');
-        elemBoune2.appendTo(elemProcessing);
-
-    let elemBoune3 = $('<div></div>');
-        elemBoune3.addClass('bounce3');
-        elemBoune3.appendTo(elemProcessing);
+    $('<div></div>').addClass('bounce1').appendTo(elemProcessing);
+    $('<div></div>').addClass('bounce2').appendTo(elemProcessing);
+    $('<div></div>').addClass('bounce3').appendTo(elemProcessing);
 
 }
 
@@ -849,8 +841,10 @@ function genTilesList(id, items, params) {
             icon        : params.tileIcon, 
             counter     : counter, 
             partNumber  : item.partNumber,
+            image       : item.image, 
             title       : item.title, 
-            subtitle    : item.subtitle
+            subtitle    : item.subtitle,
+            details     : item.details
         });
 
         if(isBlank(params.groupBy)) elemTile.appendTo(elemList); else elemTile.appendTo(elemGroupList);
@@ -898,14 +892,25 @@ function genSingleTile(params) {
     let elemTileDetails = $('<div></div>').appendTo(elemTile).addClass('tile-details');
     let elemTitle       = $('<div></div>').appendTo(elemTileDetails).addClass('tile-title');
 
-    if(!isBlank(params.title)) { elemTile.attr('data-title', params.title); elemTitle.html(params.title); }
     if(!isBlank(params.link)) elemTile.attr('data-link', params.link);
     if(!isBlank(params.partNumber)) elemTile.attr('data-part-number', params.partNumber);
     
+    if(!isBlank(params.title)) { 
+        elemTile.attr('data-title', params.title); 
+        elemTitle.html(params.title); 
+    }
+
     if(!isBlank(params.subtitle)) {
         $('<div></div>')
             .addClass('tile-subtitle')
             .html(params.subtitle)
+            .appendTo(elemTileDetails);
+    }
+
+    if(!isBlank(params.details)) {
+        $('<div></div>')
+            .addClass('tile-data')
+            .html(params.details)
             .appendTo(elemTileDetails);
     }
 
@@ -919,7 +924,7 @@ function genSingleTile(params) {
                 .addClass('tile-counter')
                 .html(params.counter);
         }
-    } else getImageFromCache(elemTileImage, { 'link' : image }, icon, function() {});
+    } else getImageFromCache(elemTileImage, { 'link' : params.image }, params.icon, function() {});
 
     return elemTile;
 
@@ -1906,6 +1911,7 @@ function clickCreateFormSubmit(id) {
     $('#' + id + '-processing').show();
 
     submitCreateForm(wsId, $('#' + id + '-sections'), null, function(response ) {
+        console.log(response);
         let link = response.data.split('.autodeskplm360.net')[1];
         
         submitCreateFormDone(id, link);
@@ -1986,7 +1992,6 @@ function cloneItems(links, options, fieldsToReset, callback) {
     if(isBlank(fieldsToReset)) fieldsToReset = [];
 
     let reqDetails   = [];
-    let reqClones    = [];
     let cloneOptions = ['ITEM_DETAILS'];
 
     if(options.indexOf('bom'        ) > -1) cloneOptions.push('BOM_LIST');
@@ -1996,6 +2001,8 @@ function cloneItems(links, options, fieldsToReset, callback) {
     for(let link of links) reqDetails.push($.get('/plm/details', { link : link }));
 
     Promise.all(reqDetails).then(function(responses) {
+
+        let reqClones    = [];
         
         for(let response of responses) {
 
@@ -2039,12 +2046,15 @@ function cloneItems(links, options, fieldsToReset, callback) {
 
             reqClones.push($.post('/plm/clone', params));
 
-            Promise.all(reqClones).then(function(responses) {
-                console.log(responses);
-                callback(responses);
-            });
+
 
         }
+
+        Promise.all(reqClones).then(function(responses) {
+            console.log(responses);
+            callback(responses);
+        });
+
     });
 
 }
@@ -2052,31 +2062,52 @@ function cloneItems(links, options, fieldsToReset, callback) {
 
 
 // Replace multiple BOM entries with list of new items while keeping link attributes
-function replaceBOMItems(link, itemsOld, itemsNew, callback) {
+function replaceBOMItems(link, itemsPrev, itemsNext, callback) {
 
     console.log(' >> replaceBOMItems START ');
     console.log(link);
-    console.log(itemsOld);
-    console.log(itemsNew);
+    console.log(itemsPrev);
+    console.log(itemsNext);
     console.log(' replaceBOMItems CONTINUE ');
 
+    let dataReplacements = [];
+    let index            = 0;
+
+    for(let itemPrev of itemsPrev) {
+
+        let idPrev = itemPrev.split('/').pop();
+        let idNext = itemsNext[index].split('/').pop();
+
+        dataReplacements.push({
+            linkPrev    : itemPrev,
+            linkNext    : itemsNext[index++],
+            idPrev      : idPrev,
+            idNext      : idNext,
+            edgeIdPrev  : '',
+            quantity    : 1,
+            number      : 1
+        });
+
+    }
+
+    // Get current parent item BOM
     $.get('/plm/bom', { link : link, depth : 1 }, function(response) {
 
-        let reqEdges = [];
+        let reqEdgesDetails = [];
 
         console.log(response);
 
         for(let edge of response.data.edges) {
 
-            let edgeChild = edge.child.split('.').pop();
+            let idChild = edge.child.split('.').pop();
 
-            for(let itemOld of itemsOld) {
+            for(let dataReplacement of dataReplacements) {
 
-                let idOld = itemOld.split('/').pop();
+                // let idOld = itemOld.split('/').pop();
 
-                if(edgeChild === idOld) {
+                if(idChild === dataReplacement.idPrev) {
 
-                    reqEdges.push($.get('/plm/bom-edge', { edgeLink : edge.edgeLink }));
+                    reqEdgesDetails.push($.get('/plm/bom-edge', { edgeLink : edge.edgeLink }));
                     break;
 
                 }
@@ -2085,35 +2116,50 @@ function replaceBOMItems(link, itemsOld, itemsNew, callback) {
 
         }
 
-        console.log(reqEdges.length);
+        console.log(reqEdgesDetails.length);
 
-        Promise.all(reqEdges).then(function(responses) {
+        Promise.all(reqEdgesDetails).then(function(responses) {
 
             console.log(responses);
-            let dataEdges = responses;
-            let reqRemove = [];
+            let dataEdges       = responses;
+            let reqBOMRemovals  = [];
+            let indexBOMRemoval = 0;
 
             for(let response of responses) {
 
-                reqRemove.push($.get('/plm/bom-remove', { edgeLink : response.params.edgeLink }));
+
+                console.log(response);
+
+                dataReplacements[indexBOMRemoval].quantity = response.data.quantity;
+                dataReplacements[indexBOMRemoval].number   = response.data.itemNumber;
+
+                reqBOMRemovals.push($.get('/plm/bom-remove', { edgeLink : response.params.edgeLink }));
+
+                indexBOMRemoval++;
 
             }
 
-            console.log(reqRemove.length);
+            console.log(reqBOMRemovals.length);
 
-            Promise.all(reqRemove).then(function(responses) {
+            Promise.all(reqBOMRemovals).then(function(responses) {
                 console.log(responses);
 
-                let reqAdd   = [];
-                let indexNew = 0;
+                let reqBOMAdditions   = [];
+                // let indexNew = 0;
 
-                for(let dataEdge of dataEdges) {
-                    reqAdd.push($.get('/plm/bom-add', { linkParent : link, linkChild : itemsNew[indexNew++] }));
+                for(let dataReplacement of dataReplacements) {
+                    reqBOMAdditions.push($.get('/plm/bom-add', { 
+                        linkParent : link,
+                        linkChild  : dataReplacement.linkNext, 
+                        quantity   : dataReplacement.quantity, 
+                        number     : dataReplacement.number 
+                    }));
                 }
 
-                Promise.all(reqAdd).then(function(responses) {
+                Promise.all(reqBOMAdditions).then(function(responses) {
 
                     console.log(responses);
+                    callback(responses);
 
                 });
 
