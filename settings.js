@@ -3,7 +3,7 @@ let clientId        = '';
 let clientSecret    = '';
 let tenant          = 'hawacloudsandbox';
 let redirectUri     = 'http://localhost:8080/callback';
-let defaultTheme    = 'light';
+let defaultTheme    = 'dark'; // light
 
 
 
