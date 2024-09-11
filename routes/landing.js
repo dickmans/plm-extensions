@@ -60,7 +60,6 @@ router.get('/variants'      , function(req, res, next) { launch('apps/variants' 
     TUTORIAL APPLICATIONS
    ------------------------------------------------------------------------------ */
 router.get('/template'      , function(req, res, next) { launch('tutorial/1-template'   , 'App Template Page'         , req, res, next); });
-router.get('/myapp'      , function(req, res, next) { launch('custom/myapp'   , 'My App'         , req, res, next); });
 
 
 
@@ -68,16 +67,16 @@ router.get('/myapp'      , function(req, res, next) { launch('custom/myapp'   , 
 /* ------------------------------------------------------------------------------
     APPLICATIONS IN DEVELOPMENT
    ------------------------------------------------------------------------------ */
-   router.get('/assets'        , function(req, res, next) { launch('dev/assets'          , 'Asset Management'            , req, res, next); });
-   router.get('/browser'       , function(req, res, next) { launch('dev/browser'         , 'PLM Browser'                 , req, res, next); });
-   router.get('/change'        , function(req, res, next) { launch('dev/change'          , 'Change Manager'              , req, res, next); });
-   router.get('/configurator'  , function(req, res, next) { launch('dev/configurator'    , 'Product Configuration Editor', req, res, next); });
-   router.get('/control'       , function(req, res, next) { launch('dev/control'         , 'Remote Device Control'       , req, res, next); });
-   router.get('/customer'      , function(req, res, next) { launch('dev/customer'        , 'Customer Services'           , req, res, next); });
-   router.get('/editor'        , function(req, res, next) { launch('dev/editor'          , 'Content Editor'              , req, res, next); });
-   router.get('/matrix'        , function(req, res, next) { launch('dev/matrix'          , 'Portfolio Matrix'            , req, res, next); });
-   router.get('/sbom'          , function(req, res, next) { launch('dev/sbom'            , 'Asset BOM Editor'            , req, res, next); });
-   router.get('/specification' , function(req, res, next) { launch('dev/specification'   , 'Product Specification Editor', req, res, next); });
+//    router.get('/assets'        , function(req, res, next) { launch('dev/assets'          , 'Asset Management'            , req, res, next); });
+//    router.get('/browser'       , function(req, res, next) { launch('dev/browser'         , 'PLM Browser'                 , req, res, next); });
+//    router.get('/change'        , function(req, res, next) { launch('dev/change'          , 'Change Manager'              , req, res, next); });
+//    router.get('/configurator'  , function(req, res, next) { launch('dev/configurator'    , 'Product Configuration Editor', req, res, next); });
+//    router.get('/control'       , function(req, res, next) { launch('dev/control'         , 'Remote Device Control'       , req, res, next); });
+//    router.get('/customer'      , function(req, res, next) { launch('dev/customer'        , 'Customer Services'           , req, res, next); });
+//    router.get('/editor'        , function(req, res, next) { launch('dev/editor'          , 'Content Editor'              , req, res, next); });
+//    router.get('/matrix'        , function(req, res, next) { launch('dev/matrix'          , 'Portfolio Matrix'            , req, res, next); });
+//    router.get('/sbom'          , function(req, res, next) { launch('dev/sbom'            , 'Asset BOM Editor'            , req, res, next); });
+//    router.get('/specification' , function(req, res, next) { launch('dev/specification'   , 'Product Specification Editor', req, res, next); });
    
    
 

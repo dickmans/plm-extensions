@@ -1186,8 +1186,8 @@ function initViewerDone() {
     $('#viewer-markup-image').attr('data-field-id', 'IMAGE_1');
 
 }
-function viewerClickResetDone() {
-    // viewer.showAll();
+function viewerClickReset() {
+    viewer.showAll();
     viewer.setViewFromFile();
     viewerResetSelection();
     // clickBOMDeselectAll($('#bom-action-reset'));

@@ -222,7 +222,7 @@ function getWSConfig() {
 
 
 // Click on Product in landing page
-function clickWorkspaceItem(elemClicked, e) {
+function clickWorkspaceItem(e, elemClicked) {
 
     let linkEBOM = elemClicked.attr('data-engineering_bom');
 
@@ -323,7 +323,7 @@ function insertElementLists() {
 
 
 // EBOM User Interactions
-function clickBOMItem(elemClicked, e) {
+function clickBOMItem(e, elemClicked) {
 
     if(elemClicked.hasClass('selected')) {
         elemClicked.removeClass('selected');

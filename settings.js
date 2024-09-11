@@ -509,8 +509,8 @@ exports.config = {
             // ['TYPE', { link : '/api/v3/lookups/CUSTOM_LOOKUP_ITEM_TYPES/options/34' }] 
         ],
         searches : [
-            { title : 'Purchased Parts', 'query' : 'ITEM_DETAILS:MAKE_OR_BUY%3DBuy' },
-            { title : 'Packaging Parts', 'query' : 'ITEM_DETAILS:TYPE%3DPackaging' }
+            { title : 'Purchased Parts', 'query' : 'ITEM_DETAILS:CATEGORY%3DPurchased' },
+            { title : 'Packaging Parts', 'query' : 'ITEM_DETAILS:CATEGORY%3DPackaging' }
         ],
         viewerFeatures : {
             cube          : false,

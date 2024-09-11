@@ -2,48 +2,107 @@ extends ../framework/layout
 
 block head
 
-    link(rel='stylesheet', href='/stylesheets/dev/configurator.css')
-    script(src='/javascripts/dev/configurator.js')
+    link(rel='stylesheet', href='/stylesheets/apps/configurator.css')
+    script(src='/javascripts/apps/configurator.js')
     script.
         config = !{JSON.stringify(config)};
 
 block body
 
-    body.surface-level-1.text-selection-off.mode-features.no-variants.no-feature-comparison.no-details
+    body.surface-level-1.text-selection-off.mode-features
 
         #header.dark
             #header-logo
             #header-title= title
             #header-subtitle
-                #header-descriptor
-                #header-description
             #header-toolbar
-                .button#save.default(title='Save your changes to PLM') Save
-                .button#save-image.with-icon.icon-save(title='Upload default variant images to PLM') Image
-                .button#save-views.with-icon.icon-save(title='Upload default variant images to PLM') Views
-                .button.with-icon#open-in-plm.icon-open(title='Open this variant in PLM') Go There
-                .button.with-icon#toggle-details.icon-toggle-off(title='Toggle configuration details panel on / off') Details
-                .button.with-icon#toggle-bom.icon-toggle-on.filled(title='Toggle BOM pann on / off') BOM
-                .button.with-icon#close.icon-close(title='Select another product in landing page') Close
+                //- .button.toggle.with-icon.icon-sliders#toggle-features.selected(title='Define configuration features and options') Features
+                //- .button.toggle.with-icon.icon-rules#toggle-rules(title='Set compatibility of features and options') Rules
+                //- .button.toggle.with-icon.icon-bom#toggle-bom(title='Link configuration features and options to BOM items') BOM
+                .button.toggle.with-icon.icon-sliders#toggle-features.selected(title='Define configuration features and options') Features &amp; Options
+                .button.toggle.with-icon.icon-rules#toggle-rules(title='Set compatibility of features and options') Rules
+                .button.toggle.with-icon.icon-bom#toggle-bom(title='Link configuration features and options to BOM items') BOM
+                .button.default#save Save
                 #header-avatar
         
-        #create
+        #main.screen
 
-        .screen#landing 
+            #product.surface-level-2.panel
+                .panel-header 
+                    .panel-title Product 
+                    .panel-toolbar 
+                        .button.icon.icon-bookmark#bookmark
+                        .button.icon.icon-open#open
+                .panel-content.surface-level-2.compact#product-sections
 
-            #list.surface-level-1
-            #variants.surface-level-2
+            #features 
+                .panel-header
+                    .panel-title Features
+                    .panel-toolbar
+                        .button#create-feature Create New
+                        .button#add-feature.disabled Add Existing
+                .panel-content#features-list
 
-        .screen#editor
+            #divider-features.screen-divider.vertical
 
-            #details.surface-level-2
+            #options
+                .panel-header
+                    .panel-title Single Options
+                    .panel-toolbar     
+                .panel-content#options-list
+                #options-add.surface-level-2
+                    #option-add-title Create new entry
+                    #option-add-content
+                        #option-add-identifier
+                            input#option-id(type="text" placeholder="ID")
+                            input#option-title(type="text" placeholder='Title')
+                        textarea#option-description(name="option-description", cols="30", rows="10") 
+                        #option-add-toolbar
+                            .button#option-insert Insert
 
-            #bom.surface-level-1
+            #rules
+                .panel-header
+                    .panel-title Compatibility Rules
+                table.panel-content#rules-table
+
+            #navigator
+                .panel-header
+                    .panel-title Features &amp; Options
+                    .panel-toolbar 
+                        #navigator-apply.button Apply
+                        #navigator-reset.button Reset
+                .panel-content
+                    table#navigator-table
+                        thead#navigator-table-head
+                        tbody#navigator-table-body
+
+            #divider-navigator.screen-divider.vertical
+
+            #bom
 
             #viewer
 
-            #features.surface-level-2
-                .panel-header 
-                    .panel-title Features &amp; Options 
-                    .panel-toolbar 
-                .panel-content#features-list.surface-level-2
+
+
+        #feature-editor.dialog
+            .dialog-header New Feature / Options
+            .dialog-content
+                #feature-details
+                    .header Feature
+                    input#feature-id(placeholder='ID')
+                    input#feature-title(placeholder='Title')
+                    textarea#feature-description(rows=10)
+                #feature-options-list
+                    .header Options
+                #feature-option-add.surface-level-2
+                    #feature-option-add-title Create new option
+                    #feature-option-add-content
+                        #feature-option-add-identifier
+                            input#feature-option-id(type="text" placeholder="ID")
+                            input#feature-option-title(type="text" placeholder='Title')
+                        textarea#feature-option-description(name="option-description", cols="30", rows="10") 
+                        #feature-option-add-toolbar
+                            .button#feature-option-insert Insert
+            .dialog-footer
+                #feature-editor-done.button.default Confirm
+                #feature-editor-cancel.button Cancel

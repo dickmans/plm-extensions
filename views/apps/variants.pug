@@ -20,6 +20,7 @@ block body
             #header-toolbar
                 .button#button-toggle-viewer.with-icon.icon-viewer(title='Click to toggle size of the viewer') Toggle Viewer
                 .button#button-toggle-details.with-icon.icon-panel.filled(title='Click to toggle item details panel on/off') Toggle Details
+                .button#button-new.disabled.default.with-icon.icon-create New Variant
                 #header-avatar
         
         #main.screen.wide-viewer.with-details
@@ -46,13 +47,13 @@ block body
                         .button.icon.icon-open#open
                 .panel-content.surface-level-2.compact#details-sections
 
-            .panel.surface-level-1#create
-                //- .panel-header
-                //-     .panel-title New Record
-                //-     .panel-toolbar
-                //-         .button#cancel-create(title='Cancel creation of new process') Cancel
-                //-         .button.default#save-create(title='Save new process in PLM') Create
-                //- .panel-content#create-sections.surface-level-2
+            .panel.surface-level-2#create
+                .panel-header
+                    .panel-title New Record
+                    .panel-toolbar
+                        .button#cancel-create(title='Cancel creation of new process') Cancel
+                        .button.default#save-create(title='Save new process in PLM') Create
+                .panel-content#create-sections.surface-level-2
 
         #dialog-saving.dialog
             .dialog-header Saving Changes

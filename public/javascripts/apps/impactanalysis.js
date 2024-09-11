@@ -37,6 +37,10 @@ function setUIEvents() {
 
     
         $.get( '/plm/get-viewables', { 'wsId' : selectedManagedItem.wsId, 'dmsId' : selectedManagedItem.prev }, function(response) {
+
+
+            console.log(response);
+
     
             if(response.data.length > 0) {
     
@@ -506,6 +510,11 @@ function selectManagedItem(elemClicked) {
             selectedManagedItem.prevLink = '';
             for(version of response.data.versions) {
                 if(typeof version.version !== 'undefined') {
+                    // console.log(version.version === $(this).attr('data-from-release'));
+                    // console.log(version.version === selectedManagedItem.from);
+                    // console.log(version.version );
+                    // console.log(selectedManagedItem.from);
+                    // console.log($(this).attr('data-from-release'));
                     if(version.version === selectedManagedItem.from) {
                         //$(this).attr('data-from-link', version.item.link);
                         selectedManagedItem.prev = version.item.link.split('/')[6];
@@ -678,6 +687,7 @@ function addToViewer(model) {
 }
 function modelDiff() {
 
+
     // 'application/vnd.autodesk.fusion360': { 'supports2d': true },
     // 'application/vnd.autodesk.f3d': { 'supports2d': true },
     // 'application/vnd.autodesk.revit': { 'supports2d': true },
@@ -688,6 +698,7 @@ function modelDiff() {
     // 'application/vnd.autodesk.dxf': { 'supports2d': false  },
     // 'application/vnd.autodesk.autocad.dwg': { 'supports2d': false  }
 
+    // console.log(viewer.getVisibleModels()[1]);
 
     var extensionConfig = {
         'availableDiffModes': ['overlay', 'sidebyside'],
@@ -1316,6 +1327,8 @@ function setBOMStatus(listPrevious, fields) {
 
         for(previous of listPrevious) {
 
+            // console.log(previous);
+
             let prevPartNumber = previous.item.title.split(' - ')[0];
 
             if(prevPartNumber === partNumber) {
@@ -1327,9 +1340,14 @@ function setBOMStatus(listPrevious, fields) {
                 if(previous.item.link === link) {
                     if(Number(parent.attr('data-qty')) !== previous.totalQuantity) {
                         isDifferent = true;
+                        // console.log(parent.attr('data-qty'));
+                        // console.log(previous.totalQuantity);
+
                     }
                 } else {
                     isDifferent = true;
+                    // console.log(previous.item.link);
+                    // console.log(link);
                 }
 
             } 
@@ -1399,9 +1417,15 @@ function genBOMItem(item, fields) {
     // elemRow.append('<td>' + item.occurrences.length + '</td>');
 
 
-    for(let field of fields) {
+    // console.log(item);
+
+    for(field of fields) {
+
+
+        // console.log(field);
+
         let value = '';
-        for(let property of item.occurrences[0].fields) {
+        for(property of item.occurrences[0].fields) {
             if(property.metaData.link === field.link) {
                 value = property.value;
                 break;
@@ -1700,15 +1724,16 @@ function insertImpactedItem(item, workspace) {
             elemActions.append(elemActionUpdate);
         }
 
-        $('<tr></tr>').appendTo(elemTableBody)
-            .attr('data-id', itemDMSID)
-            .attr('data-urn', item.urn)
-            .addClass('impacted-item')
-            .append(elemStatus)
-            .append('<td class="tiny">' + workspace + '</td>')
-            .append(elemTitle)
-            .append(elemInput)
-            .append(elemActions);
+        let elemImpacted = $('<tr></tr>');
+            elemImpacted.attr('data-id', itemDMSID);
+            elemImpacted.attr('data-urn', item.urn);
+            elemImpacted.addClass('impacted-item');
+            elemImpacted.append(elemStatus);
+            elemImpacted.append('<td class="tiny">' + workspace + '</td>');
+            elemImpacted.append(elemTitle);
+            elemImpacted.append(elemInput);
+            elemImpacted.append(elemActions);
+            elemImpacted.appendTo(elemTableBody);
 
         setImpactedStatus();
         setCounter('impacted', $('#impacted-tbody').children().length, true);
@@ -1769,7 +1794,7 @@ function updateRelationship(elemButton) {
 
     $('#overlay').show();
 
-    let urn  = elemButton.closest('tr').attr('data-urn');
+    let urn = elemButton.closest('tr').attr('data-urn');
     let desc = elemButton.closest('tr').find('input').val();
     let link = '';
 
@@ -1794,8 +1819,8 @@ function setImpactedStatus() {
 
     $('.impacted-item').each(function() {
         
-        let urn         = $(this).attr('data-urn');
-        let className   = 'disconnected';
+        let urn       = $(this).attr('data-urn');
+        let className = 'disconnected';
         let description = '';
 
         for(relatedItem of relatedItems) {
@@ -1963,21 +1988,22 @@ function getChangeProcesses() {
 
         let elemTable = $('#changes-table').find('tbody');
         
-        for(let process of response.data) {
+        for(process of response.data) {
          
             let dateCreate = new Date(process['first-workflow-history'].created);
             let dateUpdate = new Date(process['last-workflow-history'].created);           
 
-            $('<tr></tr>').appendTo(elemTable)
-                .append('<td>' + process.item.title + '</td>')
-                .append('<td class="tiny">' + process['workflow-state'].title + '</td>')
-                .append('<td class="tiny">' + dateCreate.toLocaleString() + '</td>')
-                .append('<td>' + process['last-workflow-history'].user.title + '</td>')
-                .append('<td class="tiny">' + dateUpdate.toLocaleString() + '</td>')
-                .append('<td>' + process['first-workflow-history'].user.title + '</td>')
-                .addClass('link')
-                .attr('data-urn', process.item.urn)
-                .click(function() {
+            let elemRow = $('<tr></tr>');
+                elemRow.append('<td>' + process.item.title + '</td>');
+                elemRow.append('<td class="tiny">' + process['workflow-state'].title + '</td>');
+                elemRow.append('<td class="tiny">' + dateCreate.toLocaleString() + '</td>');
+                elemRow.append('<td>' + process['last-workflow-history'].user.title + '</td>');
+                elemRow.append('<td class="tiny">' + dateUpdate.toLocaleString() + '</td>');
+                elemRow.append('<td>' + process['first-workflow-history'].user.title + '</td>');
+                elemRow.appendTo(elemTable);
+                elemRow.addClass('link');
+                elemRow.attr('data-urn', process.item.urn);
+                elemRow.click(function() {
                     openItemByURN($(this).attr('data-urn'));
                 });
                 
@@ -1996,15 +2022,16 @@ function getProductionOrders() {
     let elemTable = $('#orders-table').find('tbody');
         elemTable.html('');
         
-    for(let order of selectedManagedItem.productionOrders) {
+    for(order of selectedManagedItem.productionOrders) {
          
         var date = new Date(order.date);
 
-        $('<tr></tr>').appendTo(elemTable)
-            .append('<td>' + order.id + '</td>')
-            .append('<td>' + order.site + '</td>')
-            .append('<td>' + order.qty + '</td>')
-            .append('<td>' + date.toLocaleDateString() + '</td>');
+        let elemRow = $('<tr></tr>');
+            elemRow.append('<td>' + order.id + '</td>');
+            elemRow.append('<td>' + order.site + '</td>');
+            elemRow.append('<td>' + order.qty + '</td>');
+            elemRow.append('<td>' + date.toLocaleDateString() + '</td>');
+            elemRow.appendTo(elemTable);
                 
     }
         

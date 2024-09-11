@@ -1726,7 +1726,6 @@ function insertResults(wsId, filters, params) {
     let tileSize        = 's';              // Tile size (xxs, xs, s, m, l, xl, xxl)
     let tileIcon        = 'icon-product';   // Tile icon to use if no image is available
     let tileCounter     = false;            // When enabled, a counter will be displayed instead of the icon
-    let tileImage       = '';               // Field ID to be used for the tile's inage
     let tileTitle       = 'DESCRIPTOR';     // Field ID to be used for the tile's title
     let tileSubtitle    = '';               // Field ID to be used for the tile's subtitle
     let tileDetails     = '';               // Field ID to be used for the tile's details element
@@ -1763,7 +1762,6 @@ function insertResults(wsId, filters, params) {
     if(!isBlank(params.tileSize)      )       tileSize = params.tileSize;
     if(!isBlank(params.tileIcon)      )       tileIcon = params.tileIcon;
     if(!isBlank(params.tileCounter)   )    tileCounter = params.tileCounter;
-    if(!isBlank(params.tileImage)     )      tileImage = params.tileImage;
     if(!isBlank(params.tileTitle)     )      tileTitle = params.tileTitle;
     if(!isBlank(params.tileSubtitle)  )   tileSubtitle = params.tileSubtitle;
     if(!isBlank(params.tileDetails)   )    tileDetails = params.tileDetails;
@@ -1785,7 +1783,6 @@ function insertResults(wsId, filters, params) {
     if(sort.length   === 0) sort.push(filters[0].field);
     if(fields.length === 0) for(let field of filters) { fields.push(field.field); }
 
-    if(!isBlank(tileImage)   ) { if(!fields.includes(tileImage)   ) { fields.push(tileImage);    } }
     if(!isBlank(tileTitle)   ) { if(!fields.includes(tileTitle)   ) { fields.push(tileTitle);    } }
     if(!isBlank(tileSubtitle)) { if(!fields.includes(tileSubtitle)) { fields.push(tileSubtitle); } }
     if(!isBlank(tileDetails) ) { if(!fields.includes(tileDetails) ) { fields.push(tileDetails);  } }
@@ -1795,7 +1792,6 @@ function insertResults(wsId, filters, params) {
     settings.results[id].tileSize       = tileSize;
     settings.results[id].tileIcon       = tileIcon;
     settings.results[id].tileCounter    = tileCounter;
-    settings.results[id].tileImage      = tileImage;
     settings.results[id].tileTitle      = tileTitle;
     settings.results[id].tileSubtitle   = tileSubtitle;
     settings.results[id].tileDetails    = tileDetails;
@@ -2066,7 +2062,6 @@ function insertResultsData(id) {
             for(let item of items) {
 
                 item.link       = '/api/v3/workspaces/' + settings.results[id].wsId + '/items/' + item.dmsId;
-                item.image      = '';
                 item.title      = '';
                 item.subtitle   = '';
                 item.details    = '';
@@ -2081,7 +2076,6 @@ function insertResultsData(id) {
                     for(let field of item.fields.entry) {
 
                         if(field.key === config.viewer.fieldIdPartNumber) item.partNumber = field.fieldData.value;
-                        if(field.key === settings.results[id].tileImage) item.image = field.fieldData.value;
                         if(field.key === settings.results[id].tileTitle) item.title = field.fieldData.value;
                         if(field.key === settings.results[id].tileSubtitle) item.subtitle = field.fieldData.value;
                         if(field.key === settings.results[id].tileDetails ) item.details  = field.fieldData.value;
@@ -2100,8 +2094,6 @@ function insertResultsData(id) {
                     });
 
                 }
-
-                console.log(item);
 
             }
 

@@ -10,15 +10,6 @@ let linkContext     = '/api/v3/workspaces/' + wsId + '/items/' + dmsId;
 let pendingActions;
 
 
-let paramsDetails = {
-    layout       : 'compact',
-    hideComputed : true
-}
-
-let paramsCreate = {
-    id : 'create'
-
-}
 
 $(document).ready(function() {
 
@@ -30,13 +21,10 @@ $(document).ready(function() {
     appendProcessing('item-variants-list-parent', false);
     appendOverlay(true);
 
+    getInitialData();
+    insertViewer(linkContext);
+    insertItemDetails(linkContext);
     setUIEvents();
-
-    getApplicationFeatures('variants', [], function(responses) {
-        getInitialData();
-        insertViewer(linkContext);
-        insertItemDetails(linkContext);
-    });
     
 });
 
@@ -61,18 +49,9 @@ function setUIEvents() {
     });
     $('#button-new').click(function() {
         if($(this).hasClass('disabled')) return;
-        // $('#main').toggleClass('with-create');
-        // $('#main').removeClass('with-details');
-        // insertItemDetailsFields('', 'create', wsVariants.sections, wsVariants.fields, null, true, true, true);
-        // insertDetails()
-        showCreateForm(wsVariants.id , {
-            id          : 'create',
-            fieldValues : [{
-                fieldId      : 'BASE_ITEM',
-                value        : linkContext,
-                displayValue : $('#header-subtitle').html()
-            }]
-        });
+        $('#main').toggleClass('with-create');
+        $('#main').removeClass('with-details');
+        insertItemDetailsFields('', 'create', wsVariants.sections, wsVariants.fields, null, true, true, true);
         viewerResize();
     });
 
@@ -127,18 +106,7 @@ function getInitialData() {
         document.title = documentTitle + ': ' + responses[0].data.title;
 
         let variants   = getSectionFieldValue(responses[0].data.sections, config.variants.fieldIdItemVariants, '');
-        insertBOM(linkContext, { 
-            title       : 'BOM & Variants', 
-            bomViewName : config.variants.bomViewNameItems, 
-            reset       : true, 
-            hideDetails : true, 
-            quantity    : true, 
-            headers     : true ,
-            path        : false,
-            counters    : false
-        });
-
-        console.log(variants);
+        insertBOM(linkContext, { 'title' : 'BOM & Variants', 'bomViewName' : config.variants.bomViewNameItems, 'reset' : true, 'hideDetails' : true, 'quantity' : true, 'headers' : true });
 
         for(variant of variants) listVariants.push(variant);
 
@@ -259,42 +227,20 @@ function changeBOMViewDone(id) {
     $('<option></option>').appendTo(elemVariantSelector)
         .attr('value', 'all')
         .html('Show all variants');
-
-
-    $('<div></div>').prependTo($('#bom-toolbar'))
-        .addClass('button').addClass('with-icon').addClass('icon-save')
-        .addClass('default')
-        .html('Save')
-        .attr('id', 'button-save')
-        .click(function() {
+    
+    let elemVariantsSave = $('<div></div>');
+        elemVariantsSave.addClass('button').addClass('with-icon').addClass('icon-save');
+        elemVariantsSave.addClass('default');
+        elemVariantsSave.html('Update Variant BOMs');
+        elemVariantsSave.attr('id', 'button-save');
+        elemVariantsSave.prependTo($('#bom-toolbar'));
+        elemVariantsSave.click(function() {
             if($(this).hasClass('disabled')) return;
             setSaveActions();
             showSaveProcessingDialog();
         });  
 
-
-        $('<div></div>').prependTo($('#bom-toolbar'))
-        .addClass('button').addClass('with-icon').addClass('icon-create')
-        .html('Variant')
-        .attr('id', 'button-new')
-        .attr('title', 'Craete new variant for the root item')
-        .click(function() {
-            if($(this).hasClass('disabled')) return;
-            // $('#main').toggleClass('with-create');
-            // $('#main').removeClass('with-details');
-            // insertItemDetailsFields('', 'create', wsVariants.sections, wsVariants.fields, null, true, true, true);
-            // insertDetails()
-            showCreateForm(wsVariants.id , {
-                id          : 'create',
-                fieldValues : [{
-                    fieldId      : 'BASE_ITEM',
-                    value        : linkContext,
-                    displayValue : $('#header-subtitle').html()
-                }]
-            });
-            viewerResize();
-        });        
-
+    
     let requests = [];
     
     let elemTable = $('#' + id + '-table');
@@ -1127,17 +1073,13 @@ function createNewVariant() {
     });
 
 }
-function submitCreateFormDone(id, link) {
-    $('#' + id).hide();
-    $('#overlay').hide();
-    console.log(link);
-}
+
 
 // Highlight item in viewer and display item details upon selection in BOM
-function clickBOMItemDone(elemClicked, e) {
+function clickBOMItem(elemClicked, e) {
 
-    // elemClicked.toggleClass('selected');
-    // elemClicked.siblings().removeClass('selected');
+    elemClicked.toggleClass('selected');
+    elemClicked.siblings().removeClass('selected');
     
     if(elemClicked.hasClass('selected')) {
 
@@ -1147,13 +1089,13 @@ function clickBOMItemDone(elemClicked, e) {
         let link       = elemClicked.attr('data-link');
         let partNumber = elemClicked.attr('data-part-number');
 
-        insertDetails(link, paramsDetails);
+        insertItemDetails(link);
         viewerResetColors();
         viewerSelectModel(partNumber);
 
     } else {
 
-        insertDetails(linkContext, paramsDetails);
+        insertItemDetails(linkContext);
         viewerResetSelection(true);
 
     }
