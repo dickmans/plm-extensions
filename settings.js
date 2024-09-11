@@ -1,6 +1,7 @@
-// Fusion Manage connection based on APS Application
+// Fusion 360 Manage connection based on APS Application
 let clientId        = '';
-let tenant          = '';
+let clientSecret    = '';
+let tenant          = 'hawacloudsandbox';
 let redirectUri     = 'http://localhost:8080/callback';
 let defaultTheme    = 'light';
 
@@ -9,6 +10,7 @@ let defaultTheme    = 'light';
 // -------------------------------------------------------------------------------------------
 // OVERRIDE SETTINGS WITH ENVIRONMENT VARIABLES
 clientId     = (typeof process.env.CLIENT_ID      === 'undefined') ? clientId     : process.env.CLIENT_ID;
+clientSecret = (typeof process.env.CLIENT_SECRET  === 'undefined') ? clientSecret : process.env.CLIENT_SECRET;
 tenant       = (typeof process.env.TENANT         === 'undefined') ? tenant       : process.env.TENANT;
 redirectUri  = (typeof process.env.REDIRECT_URI   === 'undefined') ? redirectUri  : process.env.REDIRECT_URI;
 defaultTheme = (typeof process.env.DEFAUlT_THEME  === 'undefined') ? defaultTheme : process.env.DEFAUlT_THEME;
@@ -26,6 +28,7 @@ if(typeof port === 'undefined') {
 }
 
 exports.clientId        = clientId;
+exports.clientSecret    = clientSecret;
 exports.tenant          = tenant; 
 exports.redirectUri     = redirectUri;
 exports.defaultTheme    = defaultTheme;
@@ -79,9 +82,9 @@ exports.config = {
     'vectors' : vectors,
 
     'configurator' : {
-        'wsIdEningeeringItems'      : '57',
+        'wsIdEningeeringItems'      : '79',
         'wsIdConfigurationFeatures' : '274',
-        'bomViewName'               : 'Configurator',
+        'bomViewName'               : 'Basic',
         'fieldIdFeatures'           : 'FEATURES',
         'fieldIdOptions'            : 'OPTIONS',
         'fieldIdInclusions'         : 'INCLUSIONS',
@@ -167,10 +170,10 @@ exports.config = {
     }],
 
     'explorer' : {
-        'bomViewName'          : 'Details',
+        'bomViewName'          : 'Basic',
         'fieldIdPRImage'       : 'IMAGE_1',
         'fieldIdPRContext'     : 'AFFECTED_ITEM',
-        'wsIdItems'            : 57,
+        'wsIdItems'            : 79,
         'wsIdProblemReports'   : 82,
         'wsIdSupplierPackages' : 147,
         'kpis' : [{
@@ -356,7 +359,7 @@ exports.config = {
             'sort'      : 'value',
             'style'     : 'bars',
             'data'      : []
-                         
+
         },{
             'id'        : 'long-lead-time',
             'title'     : 'Long Lead Time',
@@ -470,25 +473,24 @@ exports.config = {
         'fieldIdPendingSupplies'            : 'PENDING_SUPPLIES',
         'fieldIdProductionOrdersData'       : 'PO_DATA'
     },
-    
-    insights : {
-        maxLogEntries       : 500000,
-        maxEventLogEntries  : 10000, // Set this to 0 in order to disable the Event Log tab overall; a maximum of 50.000 gets applied anyway
-        usersExcluded       : ['Administrator', 'Import User', 'Job User', 'Integration User'],
-        workspacesExcluded  : ['Approval Lists', 'Change Approval Templates', 'Checklist Templates', 'Project Templates']
+
+    'insights' : {
+        'maxLogEntries' : 500000,
+        'usersExcluded' : ['Administrator', 'Import User', 'Job User', 'Integration User']
     },
 
     'mbom' : {
-        'wsIdEBOM'                      : '57',
-        'wsIdMBOM'                      : '57',
+        'wsIdEBOM'                      : '79',
+        'wsIdMBOM'                      : '79',
         'bomViewNameEBOM'               : 'MBOM Transition',
         'bomViewNameMBOM'               : 'MBOM Transition',
-        'fieldIdEBOM'                   : 'EBOM',
-        'fieldIdMBOM'                   : 'MBOM',
-        'fieldIdNumber'                 : 'NUMBER',
-        'fieldIdTitle'                  : 'TITLE',
-        'fieldIdCategory'               : 'PDM_CATEGORY',
+        'fieldIdEBOM'                   : 'ENGINEERING_BOM',
+        'fieldIdMBOM'                   : 'MANUFACTURING_BOM',
+        'fieldIdNumber'                 : 'ARTIKEL', //'NUMBER',
+        'fieldIdTitle'                  : 'BENENNUNG1_DOC', //'TITLE'
+        'fieldIdCategory'               : 'CATEGORY', // 'PDM_CATEGORY',
         'fieldIdProcessCode'            : 'PROCESS_CODE',
+        'fieldIdOperationCode'          : 'OPERATION_CODE',//'PROCESS_CODE',
         'fieldIdEndItem'                : 'END_ITEM',
         'fieldIdMatchesMBOM'            : 'MATCHES_MBOM',
         'fieldIdIgnoreInMBOM'           : 'IGNORE_IN_MBOM',
@@ -497,43 +499,22 @@ exports.config = {
         'fieldIdLastUser'               : 'LAST_MBOM_USER',
         'fieldIdEBOMItem'               : 'IS_EBOM_ITEM',
         'fieldIdEBOMRootItem'           : 'EBOM_ROOT_ITEM',
-        'fieldsToCopy'                  : ['TITLE', 'DESCRIPTION'],
+        'fieldsToCopy'                  : ['BEZEICHNUNG1_ITEM','BEZEICHNUNG2_ITEM','BENENNUNG1_DOC', 'BENENNUNG2_DOC','PROJEKT','VERANTWORTLICHER_BEREICH','COMMENTS'],  //['TITLE', 'DESCRIPTION'],,
         'fieldIdInstructions'           : 'INSTRUCTIONS',
         'fieldIdMarkupSVG'              : 'MARKUP_SVG',
         'fieldIdMarkupState'            : 'MARKUP_STATE',
         'revisionBias'                  : 'working', // change to release if needed
         'pinMBOMItems'                  : false,
-        'suffixItemNumber'              : '-M',
+        'suffixItemNumber'              : 'M',
         'incrementOperatonsItemNumber'  : true,
         'newDefaults'                   : [ 
-            // ['TYPE', { 'link' : '/api/v3/lookups/CUSTOM_LOOKUP_ITEM_TYPES/options/34' }] 
+            // ['TYPE', { 'link' : '/api/v3/lookups/CUSTOM_LOOKUP_ITEM_TYPES/options/34' }]
+           ['MBOM_COPY', 'true' ]
         ],
         'searches' : [
             { 'title' : 'Purchased Parts', 'query' : 'ITEM_DETAILS:CATEGORY%3DPurchased' },
             { 'title' : 'Packaging Parts', 'query' : 'ITEM_DETAILS:CATEGORY%3DPackaging' }
-        ],
-        'viewerFeatures' : {
-            'cube'          : false,
-            'orbit'         : false,
-            'firstPerson'   : false,
-            'camera'        : false,
-            'measure'       : true,
-            'section'       : true,
-            'explodedView'  : true,
-            'modelBrowser'  : false,
-            'properties'    : false,
-            'settings'      : false,
-            'fullscreen'    : true,
-            'markup'        : true,
-            'hide'          : true,
-            'ghosting'      : true,
-            'highlight'     : false,
-            'single'        : true,
-            'fitToView'     : true,
-            'reset'         : true,
-            'views'         : true,
-            'selectFile'    : true
-        }
+        ]
     },
 
     'portfolio' : {
@@ -624,7 +605,6 @@ exports.config = {
             'homeButton'            : true,
             'toggleItemAttachments' : true,
             'toggleItemDetails'     : true,
-            'productDocumentation'  : true,
             'manageProblemReports'  : true,
             'showStock'             : true,
             'requestWorkflowActions': true
@@ -653,41 +633,20 @@ exports.config = {
         }
     },
 
-    variants : {
-        wsIdItemVariants       : 208,
-        variantsSectionLabel   : 'Variant Definition',
-        fieldIdVariantBaseItem : 'DMS_ID_BASE_ITEM',
-        fieldIdItemNumber      : 'NUMBER',
-        fieldIdItemVariants    : 'VARIANTS',
-        bomViewNameItems       : 'Variant Management',
-        bomViewNameVariants    : 'Default View',
-        viewerFeatures : {
-            'cube'          : false,
-            'orbit'         : false,
-            'firstPerson'   : false,
-            'camera'        : false,
-            'measure'       : true,
-            'section'       : true,
-            'explodedView'  : true,
-            'modelBrowser'  : false,
-            'properties'    : false,
-            'settings'      : false,
-            'fullscreen'    : true,
-            'markup'        : false,
-            'hide'          : true,
-            'ghosting'      : true,
-            'highlight'     : true,
-            'single'        : true,
-            'fitToView'     : true,
-            'reset'         : true,
-            'views'         : true,
-            'selectFile'    : true
-        }
+    'variants' : {
+        'wsIdItemVariants'       : 208,
+        'variantsSectionLabel'   : 'Variant Definition',
+        'fieldIdVariantBaseItem' : 'DMS_ID_BASE_ITEM',
+        'fieldIdItemNumber'      : 'NUMBER',
+        'fieldIdItemVariants'    : 'VARIANTS',
+        'bomViewNameItems'       : 'Variant Management',
+        'bomViewNameVariants'    : 'Default View'
     },
 
     'viewer' : {
-        'fieldIdPartNumber'       : 'NUMBER',
-        'partNumberProperties'    : ['Part Number', 'Name', 'label', 'Artikelnummer', 'Bauteilnummer'],
+        'fieldIdPartNumber'       : 'Artikel',
+       // 'partNumberProperties'    : ['Part Number', 'Name', 'label', 'Artikelnummer', 'Bauteilnummer'],
+        'partNumberProperties'    : ['Artikelnummer', 'Bauteilnummer', 'Part Number', 'Name', 'label'], // Custom
         'splitPartNumberBy'       : ' v',
         'splitPartNumberIndexes'  : [0],
         'splitPartNumberSpacer'   : '',
