@@ -670,9 +670,9 @@ body.bom-panel-on #ebom-tree { bottom : 106px; }
     box-shadow : 0px 3px 0px 0px rgba(6, 150, 215, 0.35) !important;
 }
 #mbom input:hover {
-    border-color : #929292;
-    box-shadow : 0px 3px 0px 0px #E3E3E3;
-}
+    border-color : var(--color-font);
+} 
+ 
 .item.operation > .item-head > .item-qty > input { display : none; }
 .item.operation > .item-head > .item-actions > .button-copy { display : none; }
 #mbom .item-action {
