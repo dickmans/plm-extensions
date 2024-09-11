@@ -509,7 +509,7 @@ exports.config = {
         'incrementOperatonsItemNumber'  : true,
         'newDefaults'                   : [ 
             // ['TYPE', { 'link' : '/api/v3/lookups/CUSTOM_LOOKUP_ITEM_TYPES/options/34' }]
-           ['MBOM_COPY', 'true' ]
+           ['MBOM_COPY', 'true']
         ],
         'searches' : [
             { 'title' : 'Purchased Parts', 'query' : 'ITEM_DETAILS:CATEGORY%3DPurchased' },
