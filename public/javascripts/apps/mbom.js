@@ -76,6 +76,7 @@ function setUIEvents() {
 
     // Tabs
     $('#mode-disassemble').click(function() { 
+        resetHiddenInstances();
         $('body').addClass('mode-disassemble').removeClass('mode-ebom').removeClass('mode-add').removeClass('mode-instructions');
         setTimeout(function() { 
             viewer.resize(); 
@@ -126,7 +127,15 @@ function setUIEvents() {
         });
         viewerResetSelection(true);
     });
+    $('#toggle-viewer').click(function() {
+        $('#toggle-viewer').toggleClass('icon-toggle-on').toggleClass('icon-toggle-off').toggleClass('filled');
+        $('body').toggleClass('no-viewer')
+        // viewerStatusColors = (viewerStatusColors) ? false : true;
+        // setStatusBar();
+        // setStatusBarFilter();
+    });
     $('#toggle-colors').click(function() {
+        $('#toggle-colors').toggleClass('icon-toggle-on').toggleClass('icon-toggle-off').toggleClass('filled');
         viewerStatusColors = (viewerStatusColors) ? false : true;
         setStatusBar();
         setStatusBarFilter();
@@ -186,6 +195,17 @@ function setUIEvents() {
     });
     $('#mbom-add-code').keypress(function (e) {
         insertNewProcess(e);
+    });
+
+
+    // Set End Item dialog
+    $('#end-item-cancel').click(function() { 
+        $('.item').removeClass('to-end');
+        $('#dialog-end-item').hide();
+        $('#overlay').hide();
+    });
+    $('#end-item-confirm').click(function() { 
+        setEBOMEndItem();
     });
 
 
@@ -687,9 +707,9 @@ function setStatusBar() {
     viewerResetColors();
 
     if(viewerStatusColors) {
-        viewerSetColors(listRed    , { 'resetColors' : false, 'color' : config.vectors.red}    );
-        viewerSetColors(listYellow , { 'resetColors' : false, 'color' : config.vectors.yellow} );
-        viewerSetColors(listGreen  , { 'resetColors' : false, 'color' : config.vectors.green}  );
+        viewerSetColors(listRed    , { keepHidden : true, unhide : false, resetColors : false, color : config.vectors.red}    );
+        viewerSetColors(listYellow , { keepHidden : true, unhide : false, resetColors : false, color : config.vectors.yellow} );
+        viewerSetColors(listGreen  , { keepHidden : true, unhide : false, resetColors : false, color : config.vectors.green}  );
     }
 
 }
@@ -938,10 +958,10 @@ function getBOMNode(level, urn, nodeLink, rootLink, linkEBOMRoot, descriptor, pa
         
             if(level > 1) addBOMToggle(elemNodeToggle);
 
-            let elemActionAdd = addActionIcon('checklist_rtl', elemNodeActions);
-                elemActionAdd.addClass('item-action-add-all');
-                elemActionAdd.attr('title', 'Add all subcomponents to MBOM');
-                elemActionAdd.click(function() {
+            addActionIcon('playlist_add', elemNodeActions)
+                .addClass('item-action-add-all')
+                .attr('title', 'Add all subcomponents to MBOM')
+                .click(function() {
                     let elemBOM = $(this).closest('.item-head').next();
                     elemBOM.children().each(function() {
                         if(!$(this).hasClass('match')) {
@@ -950,10 +970,26 @@ function getBOMNode(level, urn, nodeLink, rootLink, linkEBOMRoot, descriptor, pa
                     }); 
                 });
 
-            let elemActionInsert = addActionIcon('step', elemNodeActions);
-                elemActionInsert.addClass('item-action-insert');
-                elemActionInsert.attr('title', 'Add this BOM as is to the MBOM and enable given flag on the item');
-                elemActionInsert.click(function() {
+            addActionIcon('variable_add', elemNodeActions)
+                .addClass('item-action-end-item')
+                .attr('title', 'Set this to be an end item')
+                .click(function() {
+
+                    let elemItem = $(this).closest('.item');
+                        elemItem.addClass('to-end');
+
+                    let itemName = elemItem.find('.item-head-descriptor').first().html();
+
+                    $('#end-item-name').html(itemName);
+                    $('#dialog-end-item').show();
+                    $('#overlay').show();
+
+                });
+
+            addActionIcon('add_link', elemNodeActions)
+                .addClass('item-action-insert')
+                .attr('title', 'Add this BOM as is to the MBOM and enable given flag on the item')
+                .click(function() {
                     
                     let elemItem = $(this).closest('.item');
                         elemItem.addClass('to-insert');
@@ -966,10 +1002,10 @@ function getBOMNode(level, urn, nodeLink, rootLink, linkEBOMRoot, descriptor, pa
 
                 });
 
-            let elemActionConvert = addActionIcon('factory', elemNodeActions);
-                elemActionConvert.addClass('item-action-convert');
-                elemActionConvert.attr('title', 'Insert this EBOM as MBOM node to the MBOM');
-                elemActionConvert.click(function() {
+            addActionIcon('factory', elemNodeActions)
+                .addClass('item-action-convert')
+                .attr('title', 'Insert this EBOM as MBOM node to the MBOM')
+                .click(function() {
                     
                     let elemItem = $(this).closest('.item');
                         elemItem.addClass('to-convert');
@@ -1482,6 +1518,63 @@ function copyBOM(wsIdParent, dmsIdParent, linkEBOMRoot, bom) {
     }
 
 }
+function setEBOMEndItem() {
+
+    $('#dialog-end-item').hide();
+
+    let elemItem = $('.item.to-end');
+
+    if(elemItem.length > 0) {
+
+        let params = {
+            'link'      : elemItem.attr('data-link'),
+            'sections'  : []
+        };
+
+        addFieldToPayload(params.sections, wsEBOM.sections, null, config.mbom.fieldIdEndItem, true);
+
+        $.get('/plm/edit', params, function(response) {
+        
+            if(response.error) {
+
+                showErrorMessage('Error', 'Error while updating End Item flag of item ' + params.link);
+
+            } else {
+
+                let elemItem        = $('.item.to-end');
+                let elemItemHead    = elemItem.children('.item-head');
+                let elemItemToggle  = elemItemHead.children('.item-toggle');
+                let elemItemActions = elemItemHead.children('.item-actions');
+        
+                elemItem.children('.item-bom').remove();
+                elemItem.removeClass('item-has-bom');
+                elemItemToggle.children().remove();
+                elemItemActions.children().remove();
+
+                setTotalQuantities();
+
+                let elemActionAdd = addAction('Add', elemItemActions);
+                    elemActionAdd.addClass('item-action-add');
+                    elemActionAdd.attr('title', 'Add this component with matching quantity to MBOM on right hand side');
+                    elemActionAdd.click(function() {
+                        insertFromEBOMToMBOM($(this));
+                        setStatusBar();
+                        setStatusBarFilter();
+                    });
+        
+                elemActionAdd.click();
+        
+                $('#overlay').hide();
+                $('.item').removeClass('to-insert');
+
+            }
+
+        }); 
+
+    }
+
+}
+
 
 
 
@@ -1695,10 +1788,10 @@ function insertMBOMActions(elemActions) {
 
     elemActions.html('');
 
-    let elemActionVisibility = addActionIcon('visibility', elemActions);
-        elemActionVisibility.attr('title', 'Only show components in viewer required until this step');
-        elemActionVisibility.addClass('button-view');
-        elemActionVisibility.click(function(event) {
+    addActionIcon('visibility', elemActions)
+        .attr('title', 'Only show components in viewer required until this step')
+        .addClass('button-view')
+        .click(function(event) {
 
             event.stopPropagation();
             event.preventDefault();
@@ -1706,28 +1799,29 @@ function insertMBOMActions(elemActions) {
             let elemClicked = $(this).closest('.item');
             let isSelected  = $(this).hasClass('selected');
 
-            $('.button-view').removeClass('selected');
+            $('.button-view').removeClass('selected').removeClass('default');
 
             if(isSelected) {
 
                 $('#mbom-root-bom').find('.item').removeClass('invisible');
                 viewer.setGhosting(true);
                 viewer.showAll();
-          
+                
             } else {   
-
-                $(this).addClass('selected');
+                
+                $(this).addClass('default').addClass('selected');
                 $('#mbom-root-bom').find('.item').addClass('invisible');
+                resetHiddenInstances();
                 viewerHideInvisibleItems(elemClicked);
 
             }
 
         });
 
-    let elemActionRemove = addActionIcon('delete_forever', elemActions);
-        elemActionRemove.attr('title', 'Remove this component instance from MBOM');
-        elemActionRemove.addClass('button-remove');
-        elemActionRemove.click(function() {
+    addActionIcon('delete_forever', elemActions)
+        .attr('title', 'Remove this component instance from MBOM')
+        .addClass('button-remove')
+        .click(function() {
 
             event.stopPropagation();
             event.preventDefault();
@@ -1740,12 +1834,10 @@ function insertMBOMActions(elemActions) {
 
         });
 
-    let elemItem = elemActions.closest('.item');
-
-    let elemActionCopy = addActionIcon('content_copy', elemActions);
-        elemActionCopy.attr('title', 'Copy this item to selected target');
-        elemActionCopy.addClass('button-copy');
-        elemActionCopy.click(function(event) {
+    addActionIcon('content_copy', elemActions)
+        .attr('title', 'Copy this item to selected target')
+        .addClass('button-copy')
+        .click(function(event) {
         
             event.stopPropagation();
             event.preventDefault();
@@ -2634,6 +2726,8 @@ function createItem(type) {
 
 // Viewer interaction
 function onViewerSelectionChanged(event) {
+
+    if(viewerHideSelected(event)) return;
 
     if(disableViewerSelectionEvent) return;
 

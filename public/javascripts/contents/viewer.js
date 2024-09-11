@@ -1512,6 +1512,13 @@ function updateHiddenInstancesList() {
     }
 
 }
+function resetHiddenInstances() {
+
+    hiddenInstances = [];
+    updateHiddenInstancesControls();
+    updateHiddenInstancesList();
+
+}
 
 
 // Custom Controls : Ghosting Toggle

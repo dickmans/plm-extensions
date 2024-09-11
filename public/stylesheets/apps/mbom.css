@@ -78,6 +78,12 @@ body.mode-ebom .viewer { right : calc(var(--width-ebom) + var(--padding-panel));
 body.mode-ebom #viewer { display : block !important; }
 body.mode-ebom #add, body.mode-ebom #instructions { display : none; }
 
+body.mode-ebom.no-viewer .viewer { right : 100%; }
+body.mode-ebom.no-viewer #tabs { right : 50%; }
+body.mode-ebom.no-viewer #ebom { left : 0px; width : 100%; }
+body.mode-ebom.no-viewer #divider-mbom { right : calc(50% - (1 * var(--padding-panel)) - 2px); }
+body.mode-ebom.no-viewer #mbom { width : calc(50% - (3 * var(--padding-panel)) - 2px); }
+
 body.mode-add .viewer, body.mode-add #ebom, body.mode-add #instructions { display : none !important; }
 
 body.mode-instructions .viewer { display : block !important; right : 0px; }
@@ -176,13 +182,13 @@ body.details-on #details         { right : var(--padding-panel); }
     padding: 6px 36px 6px 10px;
 }
 .additional-item {
-    background : var(--color-surface-level-2);
+    background : var(--color-surface-level-3);
     border : 1px solid transparent;
     cursor : pointer;
     float : left;
     height : 30px;
     line-height : 30px;
-    margin : 0px 16px 10px 0px;
+    margin : 0px 16px 4px 0px;
     overflow : hidden;
     padding : 2px 20px 2px 10px;
     text-overflow : ellipsis;
@@ -195,8 +201,8 @@ body.details-on #details         { right : var(--padding-panel); }
     border-color : var(--color-selected-border);
 }
 .additional-item::before {
-    background : #c2cdd3;
-    color : white;
+    background: var(--color-surface-level-5);
+    color: var(--color-font);
     content : '\e869';
     font: normal normal normal 14px/1 'Material Symbols Sharp';
     font-size: 24px;
@@ -360,7 +366,6 @@ select.view-selector {
     padding         : 0px 8px;
     text-overflow   : ellipsis;
     white-space     : nowrap;
-    width           : calc(100% - 286px);
 }
 .item-head-descriptor {
     display         : inline-block;
@@ -405,7 +410,7 @@ select.view-selector {
 .item-head-status {
     border-top      : 1px solid transparent;
     border-bottom   : 1px solid transparent;
-    margin          : 0px 6px 0px 2px;
+    margin          : 0px 6px 0px 6px;
     width           : 10px;
 }
 .item-actions {
@@ -486,8 +491,8 @@ select.view-selector {
 }
 .item.root > .item-bom { padding-left : 0px; }
 .item.root > .item-head > .item-title {
-    width: calc(100% - 246px);
-    padding-right: 50px;
+    padding-right   : 258px;
+    width           : 100% !important;
 }
 .item.leaf.selected {
     border-left : none;
@@ -547,6 +552,12 @@ body.bom-panel-on .bom-panel {
     bottom : 74px;
     left: 0px;
 }
+#ebom-tree .item-title {
+    width : calc(100% - 329px);
+}
+#ebom-tree .item-actions {
+    width : 140px;
+}
 #ebom-status {
     display     : flex;
     position    : absolute;
@@ -558,13 +569,11 @@ body.bom-panel-on .bom-panel {
     display : flex;
     gap : var(--spacer-s);
     height : 41px;
+    justify-content: center;
     position : absolute;
     right : 5px;
     bottom : 0px;
     left : 5px;
-}
-#ebom-actions > div {
-    margin : 0px;
 }
 #ebom .item-action {
     display : none;
@@ -595,6 +604,8 @@ body.bom-panel-on .bom-panel {
     right : 5px;
 }
 body.bom-panel-on #ebom-tree { bottom : 106px; }
+
+
 
 
 
@@ -641,7 +652,7 @@ body.bom-panel-on #ebom-tree { bottom : 106px; }
 .selected-target > .item-head > .item-icon > .radio-unchecked { display : none; }
 .selected-target > .item-head > .item-icon > .radio-checked { display : block !important; }
 #mbom .item-title { 
-    width: calc(100% - 294px); 
+    width: calc(100% - 299px); 
 }
 #mbom .item-qty {
     width : 58px; 
@@ -685,11 +696,6 @@ body.bom-panel-on #mbom-tree { bottom : 106px; }
 }
 .button-remove {
     color : var(--color-status-red);
-}
-.button-view.selected {
-    background : black;
-    /* border-color : var(--color-selected-border); */
-    color : white;
 }
 .adjacent-prev > .item-head > .item-icon {
     background : var(--color-status-green);
@@ -769,21 +775,37 @@ select.button.view-selector { height : 36px; }
     font-weight : bold;
 }
 #copy-qty {
-    padding : 10px;
-    text-align : center;
+    background      : var(--color-surface-level-2);
+    border-bottom   : 1px solid var(--color-surface-level-5);
+    padding         : 10px;
+    text-align      : center;
+}
+
+
+/* SET END ITEM DIALOG */
+/* ----------------------------------------------------------------------------- */
+#dialog-end-item {
+    top    : calc(50% - 170px);
+    left   : calc(50% - 300px);
+    height : 340px;
+    width  : 600px;
+}
+#end-item-name {
+    display     : block;
+    font-weight : bold;
 }
 
 
 /* INSERT TO MBOM DIALOG */
 /* ----------------------------------------------------------------------------- */
 #dialog-insert {
-    top : calc(50% - 205px);
-    left : calc(50% - 300px);
-    height : 410px;
-    width : 600px;
+    top    : calc(50% - 200px);
+    left   : calc(50% - 300px);
+    height : 400px;
+    width  : 600px;
 }
 #insert-item-name {
-    display : block;
+    display     : block;
     font-weight : bold;
 }
 
