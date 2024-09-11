@@ -137,13 +137,13 @@ function launch(appURL, appTitle, req, res, next) {
         console.log(' ');
         console.log('  Launch Application START');
         console.log(' --------------------------------------------');
-        
+
         let reqWS           = ''
         let reqDMS          = '';
         let reqPartNumber   = '';
         let reqRevisionBias = 'release';
         let reqTheme        = req.app.locals.defaultTheme;
-        let reqOptions      = req.query.hasOwnProperty('options') ? req.query.options : '';
+        let reqOptions      = (typeof req.query.options === 'undefined') ? '' : req.query.options;
     
         for(key in req.query) {
             switch(key.toLowerCase()) {
@@ -155,7 +155,7 @@ function launch(appURL, appTitle, req, res, next) {
             }
         }
 
-        req.session.tenant = req.query.hasOwnProperty('tenant') ? req.query.tenant : req.app.locals.tenant;
+        req.session.tenant = (typeof req.query.tenant === 'undefined') ? req.app.locals.tenant : req.query.tenant;
     
         console.log('  appURL       = ' + appURL); 
         console.log('  appTitle     = ' + appTitle); 

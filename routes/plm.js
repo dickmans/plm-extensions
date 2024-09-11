@@ -71,7 +71,8 @@ function sendResponse(req, res, response, error) {
 
     let result = {
         'url'       : req.url,
-        'params'    : (Object.keys(req.body).length === 0) ? req.query : req.body,
+        // 'params'    : (Object.keys(req.body).length === 0) ? req.query : req.body,
+        'params'    : (typeof req.body === 'undefined') ? req.query : req.body,
         'data'      : [],
         'status'    : '',
         'message'   : '',
