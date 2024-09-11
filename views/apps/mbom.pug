@@ -53,7 +53,8 @@ block body
                     #ebom-actions
                         #add-all.button(title='Click all Add buttons in EBOM to add all missing items at once to the MBOM') Add All
                         #deselect-all.button(title='Reset item selection in viewer, EBOM and MBOM') Deselect All
-                        #toggle-colors.button(title='When enabled, the component colors in the viewer will be replaced by red, yellow and green to indicate their consumption in the MBOM') Toggle Viewer Colors
+                        #toggle-colors.button.with-icon.icon-toggle-off(title='When enabled, the component colors in the viewer will be replaced by red, yellow and green to indicate their consumption in the MBOM') Apply Colors
+                        #toggle-viewer.button.with-icon.icon-toggle-off(title='Hide / show the 3D viewer') Viewer
 
                 .panel-content.tab-group-main#add
                         .panel-left
@@ -150,6 +151,22 @@ block body
                 #copy-add.button Add Quantity
                 #copy-cancel.button Cancel
         
+        #dialog-end-item.dialog
+            .dialog-header Set End Item
+            .dialog-content
+                span The item
+                    span#end-item-name 
+                span will be added to the MBOM and it will be set as  
+                    strong End Item 
+                    |in its item's details.
+                p This will also hide this item's BOM within this editor.
+                span To undo this action, uncheck the property 
+                    strong End Item 
+                    |at any time.
+            .dialog-footer
+                #end-item-confirm.default.button Confirm
+                #end-item-cancel.button Cancel
+
         #dialog-insert.dialog
             .dialog-header Insert BOM
             .dialog-content
