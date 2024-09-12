@@ -1,6 +1,6 @@
 // Fusion 360 Manage connection based on APS Application
-let clientId        = '';
-let clientSecret    = '';
+let clientId        = '4Uc3dB1H8hg0NBFFd7jM2owRnZh9fHi95arNQgERYJnds1Wv';
+// let clientSecret    = '';
 let tenant          = 'hawacloudsandbox';
 let redirectUri     = 'http://localhost:8080/callback';
 let defaultTheme    = 'light';
@@ -10,7 +10,7 @@ let defaultTheme    = 'light';
 // -------------------------------------------------------------------------------------------
 // OVERRIDE SETTINGS WITH ENVIRONMENT VARIABLES
 clientId     = (typeof process.env.CLIENT_ID      === 'undefined') ? clientId     : process.env.CLIENT_ID;
-clientSecret = (typeof process.env.CLIENT_SECRET  === 'undefined') ? clientSecret : process.env.CLIENT_SECRET;
+// clientSecret = (typeof process.env.CLIENT_SECRET  === 'undefined') ? clientSecret : process.env.CLIENT_SECRET;
 tenant       = (typeof process.env.TENANT         === 'undefined') ? tenant       : process.env.TENANT;
 redirectUri  = (typeof process.env.REDIRECT_URI   === 'undefined') ? redirectUri  : process.env.REDIRECT_URI;
 defaultTheme = (typeof process.env.DEFAUlT_THEME  === 'undefined') ? defaultTheme : process.env.DEFAUlT_THEME;
@@ -28,7 +28,7 @@ if(typeof port === 'undefined') {
 }
 
 exports.clientId        = clientId;
-exports.clientSecret    = clientSecret;
+// exports.clientSecret    = clientSecret;
 exports.tenant          = tenant; 
 exports.redirectUri     = redirectUri;
 exports.defaultTheme    = defaultTheme;
@@ -505,7 +505,7 @@ exports.config = {
         'fieldIdMarkupState'            : 'MARKUP_STATE',
         'revisionBias'                  : 'working', // change to release if needed
         'pinMBOMItems'                  : false,
-        'suffixItemNumber'              : '-M',
+        'suffixItemNumber'              : 'M',
         'incrementOperatonsItemNumber'  : true,
         'newDefaults'                   : [ 
             // ['TYPE', { 'link' : '/api/v3/lookups/CUSTOM_LOOKUP_ITEM_TYPES/options/34' }]
