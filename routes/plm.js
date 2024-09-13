@@ -1641,7 +1641,7 @@ function parseAttachments(req, path, fileName, attachmentsList, folderName, call
         
             let attachments = attachmentsList.attachments;
             
-            for(attachment of attachments) {
+            for(let attachment of attachments) {
                 if(attachment.name === fileName) {
                     fileId = attachment.id;
                 } 
@@ -1705,7 +1705,6 @@ function createFile(req, folderId, path, fileName, callback) {
     let stats = fs.statSync(path);
     let url   = 'https://' + req.session.tenant + '.autodeskplm360.net/api/v3/workspaces/' + req.params.wsId + '/items/' + req.params.dmsId + '/attachments';
    
-    
     req.session.headers.Accept = 'application/json';
     
     if(folderId === '') folderId = null;
@@ -1724,13 +1723,11 @@ function createFile(req, folderId, path, fileName, callback) {
     },{
        headers : req.session.headers
     }).then(function (response) {
-        prepareUpload(req, response.data, function() {
-            uploadFile(req, path, response.data, function(fileId) {
-                setStatus(req, fileId, function() {
-                    callback();
-                });
-            });          
-        });
+        uploadFile(req, path, response.data, function(fileId) {
+            setStatus(req, fileId, function() {
+                callback();
+            });
+        });          
     }).catch(function (error) {
         console.log(error.message);
     }); 
@@ -1756,41 +1753,14 @@ function createVersion(req, folderId, fileId, path, fileName, callback) {
    },{
        headers : req.session.headers
    }).then(function (response) {
-       prepareUpload(req, response.data, function() {
-           uploadFile(req, path, response.data, function(fileId) {
-               setStatus(req, fileId, function() {
-                   callback();
-               });
-           });
-       });
+        uploadFile(req, path, response.data, function(fileId) {
+            setStatus(req, fileId, function() {
+                callback();
+            });
+        });
    }).catch(function (error) {
        console.log(error.message);
    });    
-   
-}
-function prepareUpload(req, fileData, callback) {
-   
-   console.log('   > Preparing file upload to S3');
-
-   axios({
-       method  : 'options',
-       url     :  fileData.url, 
-       headers : {
-           'Accept'            : '*/*',
-           'Accept-Encoding'   : 'gzip, deflate, br',
-           'Accept-Language'   : 'en-US,en;q=0.9,de;q=0.8,en-GB;q=0.7',
-           'Access-Control-Request-Headers': 'content-type,x-amz-meta-filename',
-           'Access-Control-Request-Method' : 'PUT',
-           'Host'              : 'plm360-aws-useast.s3.amazonaws.com',
-           'Origin'            : 'https://' + req.session.tenant + '.autodeskplm360.net',
-           'Sec-Fetch-Mode'    : 'cors',
-           'Sec-Fetch-Site'    : 'cross-site'
-       }
-   }).then(function (response) {
-       callback();
-   }).catch(function (error) {
-       console.log(error.message);
-   }); 
    
 }
 function uploadFile(req, path, fileData, callback) {
@@ -1798,14 +1768,6 @@ function uploadFile(req, path, fileData, callback) {
     console.log('   > Uploading file now');
 
     let headers = fileData.extraHeaders;
-        
-    headers['Accept']           = '*/*',
-    headers['Accept-Encoding']  = 'gzip, deflate, br',
-    headers['Accept-Language']  = 'en-US,en;q=0.9,de;q=0.8,en-GB;q=0.7',
-    headers['Host']             = 'plm360-aws-useast.s3.amazonaws.com',
-    headers['Origin']           = 'https://' + req.session.tenant + '.autodeskplm360.net',
-    headers['Sec-Fetch-Mode']   = 'cors',
-    headers['Sec-Fetch-Site']   = 'cross-site';
 
     axios.put(fileData.url, fs.readFileSync(path), {
        headers : headers
@@ -3639,6 +3601,31 @@ router.get('/workspace-workflow-transitions', function(req, res, next) {
     }).then(function(response) {
         console.log(response.data);
         if(response.data === "") response.data = [];
+        sendResponse(req, res, response, false);
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+
+});
+
+
+/* ----- GET SCRIPT SOURCE ----- */
+router.get('/script', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /script');
+    console.log(' --------------------------------------------');  
+    console.log('  req.query.link    = ' + req.query.link);
+    console.log('  req.query.tenant  = ' + req.query.tenant);
+    console.log();
+
+    let url = getTenantLink(req) + req.query.link;
+
+    console.log(url);
+
+    axios.get(url, {
+        headers : req.session.headers
+    }).then(function(response) {
         sendResponse(req, res, response, false);
     }).catch(function(error) {
         sendResponse(req, res, error.response, true);
