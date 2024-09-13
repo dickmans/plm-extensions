@@ -24,6 +24,12 @@ function getCustomHeaders(req) {
     }
 
     return headers;
+}
+function getTenantLink(req) {
+
+    let tenant = (typeof req.query.tenant === 'undefined') ? req.session.tenant  : req.query.tenant;
+
+    return 'https://' + tenant + '.autodeskplm360.net';
 
 }
 function runPromised(url, headers) {
@@ -69,14 +75,24 @@ function sortArray(array, key, type) {
 }
 function sendResponse(req, res, response, error) {
 
+    let params = [];
+
+    if((typeof req.body !== 'undefined')) {
+        if(JSON.stringify(req.body).length > 2) {
+            params = req.body;
+        } else params = req.query;
+    } else params = req.query;
+
+
     let result = {
-        'url'       : req.url,
         // 'params'    : (Object.keys(req.body).length === 0) ? req.query : req.body,
-        'params'    : (typeof req.body === 'undefined') ? req.query : req.body,
-        'data'      : [],
-        'status'    : '',
-        'message'   : '',
-        'error'     : error       
+        // 'params'    : (typeof req.body === 'undefined') ? req.query : req.body,
+        params    : params,
+        url       : req.url,
+        data      : [],
+        status    : '',
+        message   : '',
+        error     : error       
     }
 
     if(error) {
@@ -118,9 +134,13 @@ router.get('/tabs', function(req, res, next) {
     console.log(' ');
     console.log('  /tabs');
     console.log(' --------------------------------------------');
-    console.log('  req.query.wsId = ' + req.query.wsId);
+    console.log('  req.query.wsId   = ' + req.query.wsId);
+    console.log('  req.query.link   = ' + req.query.link);
+    console.log('  req.query.tenant = ' + req.query.tenant);
+    console.log('');
 
-    let url = 'https://' + req.session.tenant + '.autodeskplm360.net/api/v3/workspaces/' + req.query.wsId + '/tabs';
+    let wsId = (typeof req.query.link === 'undefined') ? req.query.wsId : req.query.link.split('/')[4];
+    let url  = getTenantLink(req) + '/api/v3/workspaces/' + wsId + '/tabs';
 
     axios.get(url, {
         headers : req.session.headers
@@ -139,8 +159,9 @@ router.get('/sections', function(req, res, next) {
     console.log(' ');
     console.log('  /sections');
     console.log(' --------------------------------------------');
-    console.log('  req.query.wsId = ' + req.query.wsId);
-    console.log('  req.query.link = ' + req.query.link);
+    console.log('  req.query.wsId   = ' + req.query.wsId);
+    console.log('  req.query.link   = ' + req.query.link);
+    console.log('  req.query.tenant = ' + req.query.tenant);
     console.log();
 
     let wsId = req.query.wsId;
@@ -151,7 +172,7 @@ router.get('/sections', function(req, res, next) {
         }
     }
 
-    let url = 'https://' + req.session.tenant + '.autodeskplm360.net/api/v3/workspaces/' + wsId + '/sections';
+    let url = getTenantLink(req) + '/api/v3/workspaces/' + wsId + '/sections';
     let headers = getCustomHeaders(req);
         headers.Accept = 'application/vnd.autodesk.plm.sections.bulk+json';
 
@@ -172,8 +193,10 @@ router.get('/fields', function(req, res, next) {
     console.log(' ');
     console.log('  /fields');
     console.log(' --------------------------------------------');
-    console.log('  req.query.wsId = ' + req.query.wsId);
-    console.log('  req.query.link = ' + req.query.link);
+    console.log('  req.query.wsId   = ' + req.query.wsId);
+    console.log('  req.query.link   = ' + req.query.link);
+    console.log('  req.query.tenant = ' + req.query.tenant);
+    console.log();
 
     let wsId = req.query.wsId;
 
@@ -183,7 +206,7 @@ router.get('/fields', function(req, res, next) {
         }
     }
 
-    let url = 'https://' + req.session.tenant + '.autodeskplm360.net/api/v3/workspaces/' + wsId + '/fields';
+    let url = getTenantLink(req) + '/api/v3/workspaces/' + wsId + '/fields';
     
     axios.get(url, {
         headers : req.session.headers
@@ -1151,10 +1174,11 @@ router.get('/grid-columns', function(req, res, next) {
     console.log(' ');
     console.log('  /grid-columns');
     console.log(' --------------------------------------------'); 
-    console.log('  req.query.wsId    = ' + req.query.wsId);
+    console.log('  req.query.wsId   = ' + req.query.wsId);
+    console.log('  req.query.tenant = ' + req.query.tenant);
     console.log(); 
     
-    let url  = 'https://' + req.session.tenant + '.autodeskplm360.net/api/v3/workspaces/' + req.query.wsId + '/views/13/fields';
+    let url  = getTenantLink(req) + '/api/v3/workspaces/' + req.query.wsId + '/views/13/fields';
 
     axios.get(url, {
         headers : req.session.headers
@@ -1313,10 +1337,11 @@ router.get('/managed-fields', function(req, res, next) {
     console.log(' ');
     console.log('  /managed-fields');
     console.log(' --------------------------------------------');  
-    console.log('  req.query.wsId  = ' + req.query.wsId);
+    console.log('  req.query.wsId   = ' + req.query.wsId);
+    console.log('  req.query.tenant = ' + req.query.e);
     console.log();
 
-    let url = 'https://' + req.session.tenant + '.autodeskplm360.net/api/v3/workspaces/' + req.query.wsId + '/views/11/fields';
+    let url = getTenantLink(req) + '/api/v3/workspaces/' + req.query.wsId + '/views/11/fields';
     
     axios.get(url, {
         headers : req.session.headers
@@ -2055,10 +2080,11 @@ router.get('/bom-views', function(req, res, next) {
     console.log(' --------------------------------------------');  
     console.log('  req.query.wsId   = ' + req.query.wsId);
     console.log('  req.query.link   = ' + req.query.link);
+    console.log('  req.query.tenant = ' + req.query.tenant);
     console.log();
     
     let wsId = (typeof req.query.link !== 'undefined') ? req.query.link.split('/')[4] : req.query.wsId;
-    let url = 'https://' + req.session.tenant + '.autodeskplm360.net/api/v3/workspaces/' + wsId + '/views/5';
+    let url  = getTenantLink(req) + '/api/v3/workspaces/' + wsId + '/views/5';
     
     axios.get(url, {
         headers : req.session.headers
@@ -2079,9 +2105,10 @@ router.get('/bom-views-and-fields', function(req, res, next) {
     console.log(' --------------------------------------------');  
     console.log('  req.query.wsId   = ' + req.query.wsId);
     console.log('  req.query.link   = ' + req.query.link);
+    console.log('  req.query.tenant = ' + req.query.tenant);
     
     let wsId = (typeof req.query.link !== 'undefined') ? req.query.link.split('/')[4] : req.query.wsId;
-    let url = 'https://' + req.session.tenant + '.autodeskplm360.net/api/v3/workspaces/' + wsId + '/views/5';
+    let url  = getTenantLink(req) + '/api/v3/workspaces/' + wsId + '/views/5';
     
     axios.get(url, {
         headers : req.session.headers
@@ -2091,8 +2118,8 @@ router.get('/bom-views-and-fields', function(req, res, next) {
         let requestsFields  = [];
 
         for(bomView of response.data.bomViews) {
-            requestsBasics.push(runPromised('https://' + req.session.tenant + '.autodeskplm360.net' + bomView.link, req.session.headers));
-            requestsFields.push(runPromised('https://' + req.session.tenant + '.autodeskplm360.net' + bomView.link + '/fields', req.session.headers));
+            requestsBasics.push(runPromised(getTenantLink(req) + bomView.link, req.session.headers));
+            requestsFields.push(runPromised(getTenantLink(req) + bomView.link + '/fields', req.session.headers));
         }
 
         Promise.all(requestsBasics).then(function(responses) {
@@ -3374,12 +3401,13 @@ router.get('/workspace', function(req, res, next) {
     console.log(' ');
     console.log('  /workspace');
     console.log(' --------------------------------------------');  
-    console.log('  req.query.wsId  = ' + req.query.wsId);
-    console.log('  req.query.link  = ' + req.query.link);
+    console.log('  req.query.wsId   = ' + req.query.wsId);
+    console.log('  req.query.link   = ' + req.query.link);
+    console.log('  req.query.tenant = ' + req.query.tenant);
     console.log();
 
     let wsId = (typeof req.query.wsId === 'undefined') ? req.query.link.split('/')[4] : req.query.wsId;
-    let url = 'https://' + req.session.tenant + '.autodeskplm360.net/api/v3/workspaces/' + wsId;
+    let url  = getTenantLink(req) + '/api/v3/workspaces/' + wsId;
 
     axios.get(url, {
         headers : req.session.headers
@@ -3392,21 +3420,20 @@ router.get('/workspace', function(req, res, next) {
 });
 
 
-
 /* ----- GET WORKSPACES ----- */
 router.get('/workspaces', function(req, res, next) {
     
     console.log(' ');
     console.log('  /workspaces');
     console.log(' --------------------------------------------');  
-    console.log('  req.query.offset  = ' + req.query.offset);
-    console.log('  req.query.limit   = ' + req.query.limit);
+    console.log('  req.query.offset = ' + req.query.offset);
+    console.log('  req.query.limit  = ' + req.query.limit);
+    console.log('  req.query.tenant = ' + req.query.tenant);
     console.log();
 
-    if(typeof req.query.offset === 'undefined') req.query.offset = 0;
-    if(typeof req.query.limit === 'undefined') req.query.limit = 500;
-
-    let url = 'https://' + req.session.tenant + '.autodeskplm360.net/api/v3/workspaces?offset=' + req.query.offset + '&limit=' + req.query.limit;
+    let offset = (typeof req.query.offset === 'undefined') ?   0 : req.query.offset;
+    let limit  = (typeof req.query.offset === 'undefined') ? 100 : req.query.limit;
+    let url    = getTenantLink(req) + '/api/v3/workspaces?offset=' + offset + '&limit=' + limit;
 
     axios.get(url, {
         headers : req.session.headers
@@ -3471,6 +3498,192 @@ router.get('/get-workspace-id', function(req, res, next) {
 
         sendResponse(req, res, result, false);
 
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+
+});
+
+
+/* ----- GET WORKSPACE SCRIPTS ----- */
+router.get('/workspace-scripts', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /workspace-scripts');
+    console.log(' --------------------------------------------');  
+    console.log('  req.query.wsId   = ' + req.query.wsId);
+    console.log('  req.query.link   = ' + req.query.link);
+    console.log('  req.query.tenant = ' + req.query.tenant);
+    console.log();
+
+    let wsId = (typeof req.query.wsId === 'undefined') ? req.query.link.split('/')[4] : req.query.wsId;
+    let url  = getTenantLink(req) + '/api/v3/workspaces/' + wsId + '/scripts';
+
+    axios.get(url, {
+        headers : req.session.headers
+    }).then(function(response) {
+        if(response.data === '') response.data = { scripts : [] };
+        sendResponse(req, res, response, false);
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+
+});
+
+
+/* ----- GET WORKSPACE RELATIONSHIPS ----- */
+router.get('/workspace-relationships', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /workspace-relationships');
+    console.log(' --------------------------------------------');  
+    console.log('  req.query.wsId   = ' + req.query.wsId);
+    console.log('  req.query.link   = ' + req.query.link);
+    console.log('  req.query.type   = ' + req.query.type);
+    console.log('  req.query.tenant = ' + req.query.tenant);
+    console.log();
+
+    let type = (typeof req.query.type === 'undefined') ? 'relationships' : req.query.type;
+    let view = ''
+    
+         if(type.toLowerCase().indexOf('rel')  === 0) view =  '10';
+    else if(type.toLowerCase().indexOf('bom')  === 0) view = '200';
+    else if(type.toLowerCase().indexOf('proj') === 0) view =  '16';
+    else if(type.toLowerCase().indexOf('mana') === 0) view = '100';
+    else if(type.toLowerCase().indexOf('aff')  === 0) view = '100';
+
+    let wsId = (typeof req.query.wsId === 'undefined') ? req.query.link.split('/')[4] : req.query.wsId;
+    let url  = getTenantLink(req) + '/api/v3/workspaces/' + wsId + '/views/' + view + '/related-workspaces';
+
+    axios.get(url, {
+        headers : req.session.headers
+    }).then(function(response) {
+        console.log(response.data);
+        if(response.data === "") response.data = { workspaces : [] };
+        sendResponse(req, res, response, false);
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+
+});
+
+
+/* ----- GET WORKSPACE PRINT VIEWS ----- */
+router.get('/workspace-print-views', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /workspace-print-views');
+    console.log(' --------------------------------------------');  
+    console.log('  req.query.wsId   = ' + req.query.wsId);
+    console.log('  req.query.link   = ' + req.query.link);
+    console.log('  req.query.tenant = ' + req.query.tenant);
+    console.log();
+
+    let wsId = (typeof req.query.wsId === 'undefined') ? req.query.link.split('/')[4] : req.query.wsId;
+    let url  = getTenantLink(req) + '/api/v3/workspaces/' + wsId + '/print-views?desc=type&asc=title';
+
+    axios.get(url, {
+        headers : req.session.headers
+    }).then(function(response) {
+        if(response.data === '') response.data = { links : [] };
+        sendResponse(req, res, response, false);
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+
+});
+
+
+/* ----- GET WORKSPACE WORKFLOW STATES ----- */
+router.get('/workspace-workflow-states', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  //workspace-workflow-states');
+    console.log(' --------------------------------------------');  
+    console.log('  req.query.wsId   = ' + req.query.wsId);
+    console.log('  req.query.link   = ' + req.query.link);
+    console.log('  req.query.tenant = ' + req.query.tenant);
+    console.log();
+
+    let wsId = (typeof req.query.wsId === 'undefined') ? req.query.link.split('/')[4] : req.query.wsId;
+    let url  = getTenantLink(req) + '/api/v3/workspaces/' + wsId + '/workflows/1/states';
+
+    axios.get(url, {
+        headers : req.session.headers
+    }).then(function(response) {
+        if(response.data === "") response.data = { states : [] };
+        sendResponse(req, res, response, false);
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+
+});
+
+
+/* ----- GET WORKSPACE WORKFLOW TRANSITIONS ----- */
+router.get('/workspace-workflow-transitions', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /workspace-workflow-transitions');
+    console.log(' --------------------------------------------');  
+    console.log('  req.query.wsId   = ' + req.query.wsId);
+    console.log('  req.query.link   = ' + req.query.link);
+    console.log('  req.query.tenant = ' + req.query.tenant);
+    console.log();
+
+    let wsId = (typeof req.query.wsId === 'undefined') ? req.query.link.split('/')[4] : req.query.wsId;
+    let url  = getTenantLink(req) + '/api/v3/workspaces/' + wsId + '/workflows/1/transitions';
+
+    axios.get(url, {
+        headers : req.session.headers
+    }).then(function(response) {
+        console.log(response.data);
+        if(response.data === "") response.data = [];
+        sendResponse(req, res, response, false);
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+
+});
+
+
+/* ----- GET ROLES (V1) ----- */
+router.get('/roles', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /roles');
+    console.log(' --------------------------------------------');  
+    console.log('  req.query.tenant  = ' + req.query.tenant);
+    console.log();
+
+    let url = getTenantLink(req) + '/api/rest/v1/roles';
+
+    axios.get(url, {
+        headers : req.session.headers
+    }).then(function(response) {
+        sendResponse(req, res, response, false);
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+
+});
+
+
+/* ----- GET PERMISSIONS DEFINITION (V1) ----- */
+router.get('/permissions-definition', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /permissions-definition');
+    console.log(' --------------------------------------------');  
+    console.log('  req.query.tenant  = ' + req.query.tenant);
+    console.log();
+
+    let url = getTenantLink(req) + '/api/rest/v1/permissions';
+
+    axios.get(url, {
+        headers : req.session.headers
+    }).then(function(response) {
+        sendResponse(req, res, response, false);
     }).catch(function(error) {
         sendResponse(req, res, error.response, true);
     });
