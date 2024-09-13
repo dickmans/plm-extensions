@@ -256,7 +256,7 @@
 .icon-panel::before             { content : '\f114'; }
 .icon-pdf::before               { content : '\e415'; }
 .icon-pie-chart::before         { content : '\e79b'; }
-.icon-printer::before           { content : '\e8ad'; font-variation-settings: 'FILL' 1}
+.icon-printer::before           { content : '\e8ad'; }
 .icon-problem::before           { content : '\e122'; }
 .icon-product::before           { content : '\f720'; }
 .icon-radio-checked::before     { content : '\e837'; }
@@ -268,6 +268,7 @@
 .icon-reset::before             { content : '\f053'; }
 .icon-rules::before             { content : '\f1c2'; }
 .icon-save::before              { content : '\e2c3'; }
+.icon-script::before            { content : '\f84d'; }
 .icon-search::before            { content : '\e8b6'; }
 .icon-search-list::before       { content : '\f02f'; }
 .icon-send::before              { content : '\e163'; }
