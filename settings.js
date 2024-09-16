@@ -2,7 +2,7 @@
 let clientId        = '6x2wGJAOsgfcjNvVwH2uQCspWWGBLA9bjhYv20UFiGkymhHA';
 // let clientSecret    = '';
 let tenant          = 'hawacloudsandbox';
-let redirectUri     = 'http://localhost:8080/oauth/callback/';
+let redirectUri     = 'https://wa-plm-extensions.azurewebsites.net:8080/callback/';
 let defaultTheme    = 'light';
 
 
