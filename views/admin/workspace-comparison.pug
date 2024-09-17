@@ -1,0 +1,177 @@
+extends ../framework/layout
+
+block head
+
+    link(rel='stylesheet', href='/stylesheets/admin/workspace-comparison.css')
+    script(src='/javascripts/admin/workspace-comparison.js') 
+
+block body
+
+    body
+        
+        #header.dark
+            #header-logo
+            #header-title=title
+            #header-toolbar
+                #header-avatar
+        .screen.surface-level-2#comparison
+            
+            #comparison-controls.surface-level-2
+                #comparison-text 
+                    div Align workspaces across multiple tenants using this comparison utility. Simply select the workspaces to compare and provide the tenant to compare against. Once the comparison is complete, you can click the required alignment actions to open the given administration utilities.
+                    div Please bare in mind the 
+                        a#open-limitations limitations 
+                        | of this comparison utility.
+                #comparison-options.grid.surface-level-1
+                    div
+                    div.header Base Tenant 
+                    div.header Target Tenant 
+                    div.label Tenant Name
+                    div.input
+                        input#source-tenant(type='text')
+                    div.input
+                        input#target-tenant(type='text')
+                    div.label Workspaces
+                    div.select
+                        select.button#source-workspaces
+                    div.select
+                        select.button#target-workspaces
+                #comparison-buttons.surface-level-1
+                    #comparison-start.button.with-icon.icon-start.default.disabled Start
+                    #comparison-report.button.with-icon.icon-details.disabled Report
+                    #comparison-stop.button.with-icon.icon-stop.disabled Stop
+            
+            #comparison-console.surface-level-4
+                #console-header.surface-level-4 Console                    
+                #console.surface-level-4
+                #console-toggle.button.icon.icon-chevron-right
+
+            #comparison-results.surface-level-2
+                #result-settings
+                    .result-icon.icon.icon-item
+                    .result-label Workspace Settings 
+                    .result-summary#summary-settings
+                    .result-color.icon.icon-radio-unchecked.filled
+                    .result-actions#actions-settings
+                #result-tabs
+                    .result-icon.icon.icon-tabs
+                    .result-label Workspace Tabs
+                    .result-summary#summary-tabs
+                    .result-color.icon.icon-radio-unchecked.filled
+                    .result-actions#actions-tabs
+                #result-details
+                    .result-icon.icon.icon-details
+                    .result-label Item Details Tab 
+                    .result-summary#summary-details
+                    .result-color.icon.icon-radio-unchecked.filled
+                    .result-actions#actions-details
+                #result-grid
+                    .result-icon.icon.icon-table
+                    .result-label Grid Tab
+                    .result-summary#summary-grid
+                    .result-color.icon.icon-radio-unchecked.filled
+                    .result-actions#actions-grid
+                #result-managed
+                    .result-icon.icon.icon-rules
+                    .result-label Managed Items Tab
+                    .result-summary#summary-managed
+                    .result-color.icon.icon-radio-unchecked.filled
+                    .result-actions#actions-managed
+                #result-bom
+                    .result-icon.icon.icon-bom
+                    .result-label Bill of Materials Tab
+                    .result-summary#summary-bom
+                    .result-color.icon.icon-radio-unchecked.filled
+                    .result-actions#actions-bom
+                #result-relationships
+                    .result-icon.icon.icon-link
+                    .result-label Workspace Relationships
+                    .result-summary#summary-relationships
+                    .result-color.icon.icon-radio-unchecked.filled
+                    .result-actions#actions-relationships
+                #result-print
+                    .result-icon.icon.icon-printer
+                    .result-label (Advanced) Print Views
+                    .result-summary#summary-print
+                    .result-color.icon.icon-radio-unchecked.filled
+                    .result-actions#actions-print
+                #result-behaviors
+                    .result-icon.icon.icon-status
+                    .result-label Behaviors
+                    .result-summary#summary-behaviors
+                    .result-color.icon.icon-radio-unchecked.filled
+                    .result-actions#actions-behaviors
+                #result-states
+                    .result-icon.icon.icon-workflow
+                    .result-label Workflow States
+                    .result-summary#summary-states
+                    .result-color.icon.icon-radio-unchecked.filled
+                    .result-actions#actions-states
+                #result-transitions
+                    .result-icon.icon.icon-arrow-right
+                    .result-label Workflow Transitions
+                    .result-summary#summary-transitions
+                    .result-color.icon.icon-radio-unchecked.filled
+                    .result-actions#actions-transitions
+                #result-picklists
+                    .result-icon.icon.icon-picklist
+                    .result-label Picklists
+                    .result-summary#summary-picklists
+                    .result-color.icon.icon-radio-unchecked.filled
+                    .result-actions#actions-picklists
+                #result-roles
+                    .result-icon.icon.icon-released
+                    .result-label Permissions (Roles)
+                    .result-summary#summary-roles
+                    .result-color.icon.icon-radio-unchecked.filled
+                    .result-actions#actions-roles
+                #result-scripts
+                    .result-icon.icon.icon-script
+                    .result-label Scripts Sources
+                    .result-summary#summary-scripts
+                    .result-color.icon.icon-radio-unchecked.filled
+                    .result-actions#actions-scripts
+                #result-libraries
+                    .result-icon.icon.icon-library-script
+                    .result-label Library Scripts
+                    .result-summary#summary-libraries
+                    .result-color.icon.icon-radio-unchecked.filled
+                    .result-actions#actions-libraries
+
+            #dialog-limitations.dialog
+                .dialog-header Limitations
+                .dialog-content
+                    div The comparison will be performed in context of the current user session. It can only compare tabs, sections and contents that are accessible for the current user. Before running this comparison, make sure that you have proper access permission to access all kind of data in the given tenants. In addition, as this tool uses the REST API V3 capabilities for the comparison, some configuration settings cannot be compared as the given data is not provided by the API.
+                    #limitations    
+                        .header Workspace Settings 
+                        ul
+                            li Setting Display in My Outstanding Work cannot be compared
+                            li Setting Expire My Outstanding Work cannot be compared
+                        .header Item Details Tab 
+                        ul
+                            li Setting Workflow Locking of sections is not accessible 
+                            li The section restrictions by groups are not accessible 
+                            li While computed fields can be recognized, it is not possible to compare the formulas of the given fields 
+                            li The list of Workflow Notification Fields cannot be compared
+                        .header Descriptor 
+                        .text The descriptor configuration is not accessible by the API at all and cannot be compared
+                        .header Managed Items Tab
+                        .text The formulas of computed fields cannot be compared
+                        .header Bill of Materials Tab
+                        .text 
+                        .text Only fields assigned to BOM views can be compared while the formulas of computed fields cannot be compared at all
+                        .header Advanced Print Views 
+                        .text It is only possible to compare the list of available print views, but not their contents
+                        .header Picklists 
+                        .text It is not possible to compare the definition of dynamic picklists being based on workspaces, the compare can only defined/fixed picklists
+                        .header Workflow States
+                        .text The layout of workflows cannot be compared, only the defined states and transitions
+                .dialog-footer
+                    #close-limitations.button.default Got it
+
+
+            #dialog-report.dialog
+                .dialog-header#report-header Comparison Report
+                .dialog-content#report-content
+                .dialog-footer
+                    #close-report.button.default Close

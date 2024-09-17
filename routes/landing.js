@@ -65,7 +65,8 @@ router.get('/template'      , function(req, res, next) { launch('tutorial/1-temp
 /* ------------------------------------------------------------------------------
     ADMINISTRATION UTILITIES
    ------------------------------------------------------------------------------ */
-router.get('/insights'     , function(req, res, next) { launch('admin/insights'     , 'Tenant Insights Dashboard', req, res, next); });
+router.get('/insights'            , function(req, res, next) { launch('admin/insights'            , 'Tenant Insights Dashboard', req, res, next); });
+router.get('/workspace-comparison', function(req, res, next) { launch('admin/workspace-comparison', 'Workspace Comparison'     , req, res, next); });
 
 
 

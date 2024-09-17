@@ -219,23 +219,74 @@ router.get('/fields', function(req, res, next) {
 });
 
 
+/* ----- GET ALL PICKLISTS ----- */
+router.get('/picklists', function(req, res, next) {
+
+    console.log(' ');
+    console.log('  /picklists');
+    console.log(' --------------------------------------------');
+    console.log('  req.query.tenant = ' + req.query.tenant);
+    console.log();
+
+    let url = getTenantLink(req) + '/api/rest/v1/setups/picklists';
+    
+    axios.get(url, {
+        headers : req.session.headers
+    }).then(function(response) {
+        if(response.data === "") response.data = { 'items' : [] };
+        sendResponse(req, res, response, false);
+    }).catch(function (error) {
+        sendResponse(req, res, error.response, true);
+    });
+
+});
+
+
+/* ----- GET PICKLIST DEFINITION ----- */
+router.get('/picklist-setup', function(req, res, next) {
+
+    console.log(' ');
+    console.log('  /picklist-setup');
+    console.log(' --------------------------------------------');
+    console.log('  req.query.id     = ' + req.query.id);
+    console.log('  req.query.link   = ' + req.query.link);
+    console.log('  req.query.tenant = ' + req.query.tenant);
+    console.log();
+
+    let id = (typeof req.query.id === 'undefined') ? req.query.link.split('/').pop() : req.query.id;
+
+    let url = getTenantLink(req) + '/api/rest/v1/setups/picklists/' + id;
+    
+    axios.get(url, {
+        headers : req.session.headers
+    }).then(function(response) {
+        if(response.data === "") response.data = { 'items' : [] };
+        sendResponse(req, res, response, false);
+    }).catch(function (error) {
+        sendResponse(req, res, error.response, true);
+    });
+
+});
+
+
 /* ----- GET PICKLIST ----- */
 router.get('/picklist', function(req, res, next) {
 
     console.log(' ');
     console.log('  /picklist');
     console.log(' --------------------------------------------');
-    console.log('  req.query.link = ' + req.query.link);
-    console.log('  req.query.limit = ' + req.query.limit);
+    console.log('  req.query.link   = ' + req.query.link);
+    console.log('  req.query.limit  = ' + req.query.limit);
     console.log('  req.query.offset = ' + req.query.offset);
     console.log('  req.query.filter = ' + req.query.filter);
+    console.log('  req.query.tenant = ' + req.query.tenant);
     console.log();
 
     let limit  = (typeof req.query.limit === 'undefined')  ? 100 : req.query.limit;
     let offset = (typeof req.query.offset === 'undefined') ?   0 : req.query.offset;
     let filter = (typeof req.query.filter === 'undefined') ?  '' : req.query.filter;
 
-    let url = 'https://' + req.session.tenant + '.autodeskplm360.net' + req.query.link + '?asc=title&limit=' + limit + '&offset=' + offset + '&filter=' + filter;
+    let url = getTenantLink(req) + req.query.link + '?asc=title&limit=' + limit + '&offset=' + offset + '&filter=' + filter;
     
     axios.get(url, {
         headers : req.session.headers
@@ -3609,6 +3660,28 @@ router.get('/workspace-workflow-transitions', function(req, res, next) {
 });
 
 
+/* ----- GET ALL SCRIPTS ----- */
+router.get('/scripts', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /scripts');
+    console.log(' --------------------------------------------');  
+    console.log('  req.query.tenant  = ' + req.query.tenant);
+    console.log();
+
+    let url = getTenantLink(req) + '/api/v3/scripts';
+
+    axios.get(url, {
+        headers : req.session.headers
+    }).then(function(response) {
+        sendResponse(req, res, response, false);
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+
+});
+
+
 /* ----- GET SCRIPT SOURCE ----- */
 router.get('/script', function(req, res, next) {
     
@@ -3620,8 +3693,6 @@ router.get('/script', function(req, res, next) {
     console.log();
 
     let url = getTenantLink(req) + req.query.link;
-
-    console.log(url);
 
     axios.get(url, {
         headers : req.session.headers

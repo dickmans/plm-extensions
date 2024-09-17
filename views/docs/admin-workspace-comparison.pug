@@ -1,0 +1,47 @@
+.tile(data-name='Workspace Comparison')
+    .tile-image(style="background: url('images/admin-workspace-comparison.png') no-repeat;background-size:contain;")
+    .tile-details
+        .tile-title Workspace Comparison
+        .tile-subtitle Deploy changes across multiple tenants with confidence with this automated comparison of selected workspaces
+        .tile-access 
+            .tile-endpoint /workspace-comparison
+            .tile-button.button.default(href="workspace-comparison" target="_blank") Open
+    .instructions
+        h1 Features
+        p Using the PLM REST API, this utility will analyze the configuration of a selected workspace within two defined tenants. For each difference that is found, the utitlity will provide instructions and shortcuts to perform the given action, for example by using the standard Workspace Manager. This helps to keep business processes in multiple tenants in sync.
+        p The following information will be compared: 
+        ul 
+            li Workspace Settings
+            li Workspace Tabs 
+            li Item Details Tab
+            li Grid Tab 
+            li BOM Tab 
+            li Managed Items Tab 
+            li Picklists
+            li Relationships 
+            li Advanced Print Views 
+            li On Create &amp; On Edit script 
+            li Workflow States 
+            li Workflow Transitions 
+            li Workflow Scripts
+        p As the REST API does not reveal all details about the workspace configuration, some information cannot be compared automatically (for example the formulas of computed fields). Please see the given details provided within this utility.
+        h1 Starting The Comparison
+        p In order to launch the comparison, the names of two tenants must be defined on top. The tenant which the UX Extensions server is connected to will be considered as Base Tenant automatically while the second tenant must be typed in. You can also use the same tenant name for both the Base and Target in order to compare two different workspaces within the same tenant. Once you press enter in teh tenant inputs fields, the given list of Workspaces below will be refreshed.
+        img(src='images/apps/workspace-comparison-1.png' style='max-height:150px;max-width:1200px;')
+        p As the UX server must connect to both tenants, please make sure that your APS Client ID has been whitelisted in both tenants.
+        p If you are going to use this utility often, you can also provide the Target Tenant name as option in the URL. Simpliy append '?options=adsktenant2023test07' to have the given tenant name filled. This will also load the list of workspaces in this tenant automatically.
+        p Finally, select the workspaces to compare. As you select a workspace in the Base Tenant, the utility will automatically select the matching workspaces in the Target Tenant if available. Run the comparison by clicking the blue Start button. Once the comparison is running, you can click the Stop button to end the process.
+        h1 Reviewing Results
+        p While the comparison is running, summary information will be added to the sections at bottom. These counters relate to the Base Tenant and show the nubmer of field being found for example. The color indicator reveals if the given configuration settings match with the Target Tenant.
+        img(src='images/apps/workspace-comparison-2.png' style='max-height:286px;max-width:1200px;')
+        p Next to these indicators, you will find instructions about how to sync the given workspaces. These instructions refer to the field and setting to be changed and provide the given details. You can click these instructions to open the given administration utility for the Target Tenant. Once the given change has been applied, you can click the checkbox to remind yourself about your progress.
+        img(src='images/apps/workspace-comparison-3.png' style='max-height:437px;max-width:1200px;')
+        p If you prefer a graphic report about matches and differences, click the Report button which gets enabled once the comparison is complete. This report may be helpful to when reviewing the differences.
+        img(src='images/apps/workspace-comparison-4.png' style='max-height:800px;max-width:1200px;')
+    .log 
+        h1 Tenant Insights Change Log 
+        table 
+            tr 
+                td September 17, 2024
+                td New
+                td Initial release of this solution
