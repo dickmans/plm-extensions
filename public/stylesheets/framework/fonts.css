@@ -234,6 +234,7 @@
 .icon-info::before              { content : '\e88e'; }
 .icon-item::before              { content : '\e8b8'; }
 .icon-layers::before            { content : '\e53b'; }
+.icon-library-script::before    { content : '\ef54'; }
 .icon-line-chart::before        { content : '\e6e1'; }
 .icon-line-chart-stack::before  { content : '\f22b'; }
 .icon-link::before              { content : '\e157'; }
@@ -256,6 +257,7 @@
 .icon-panel::before             { content : '\f114'; }
 .icon-pdf::before               { content : '\e415'; }
 .icon-pie-chart::before         { content : '\e79b'; }
+.icon-picklist::before          { content : '\e9bd'; }
 .icon-printer::before           { content : '\e8ad'; }
 .icon-problem::before           { content : '\e122'; }
 .icon-product::before           { content : '\f720'; }
@@ -268,7 +270,7 @@
 .icon-reset::before             { content : '\f053'; }
 .icon-rules::before             { content : '\f1c2'; }
 .icon-save::before              { content : '\e2c3'; }
-.icon-script::before            { content : '\f84d'; }
+.icon-script::before            { content : '\e86f'; }
 .icon-search::before            { content : '\e8b6'; }
 .icon-search-list::before       { content : '\f02f'; }
 .icon-send::before              { content : '\e163'; }
@@ -283,6 +285,8 @@
 .icon-starts-with::before       { content : '\ec73'; }
 .icon-status::before            { content : '\ea50'; }
 .icon-stock::before             { content : '\ebb8'; }
+.icon-stop:before               { content : '\ef71'; }
+.icon-summary:before            { content : '\f071'; }
 .icon-table::before             { content : '\e3ec'; }
 .icon-tabs::before              { content : '\e265'; }
 .icon-tag::before               { content : '\f05b'; }
