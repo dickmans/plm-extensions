@@ -1,5 +1,5 @@
 .tile(data-name='Tenant Insights')
-    .tile-image(style="background: url('images/app-insights.png') no-repeat;background-size:contain;")
+    .tile-image(style="background: url('images/admin-insights.png') no-repeat;background-size:contain;")
     .tile-details
         .tile-title Tenant Insights
         .tile-subtitle Administrators can track user activity and data modifications of a tenant using this graphic dashboard. It uses the standard system log entries and requires system admin privileges to run.
@@ -45,6 +45,11 @@
                     td ['Change Approval Templates', 'Approval Lists', 'Project Templates']
                     td The workspaces defined in this array will be exclueded from the reports
                 tr 
+        h1 Access the Dashboard
+        p You can access the dashboard with the 
+            strong /insights
+            |  endpoint, just click this link:
+        a(href='insights' target='_blank')
     .log 
         h1 Tenant Insights Change Log 
         table 

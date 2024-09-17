@@ -2,12 +2,12 @@ extends ../framework/layout
 
 block head
     
-    link(rel='stylesheet', href='/stylesheets/apps/insights.css')
+    link(rel='stylesheet', href='/stylesheets/admin/insights.css')
     script(src='https://cdn.jsdelivr.net/npm/chart.js')
     script(src='https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/2.0.1/chartjs-plugin-zoom.min.js')
     script(src='https://cdn.jsdelivr.net/npm/moment@^2')
     script(src='https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@^1')
-    script(src='../javascripts/apps/insights.js')
+    script(src='../javascripts/admin/insights.js')
     script.
         config = !{JSON.stringify(config)};
 

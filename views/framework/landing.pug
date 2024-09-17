@@ -16,7 +16,7 @@ block body
                 p Unleash the power of Fusion Manage by utilizing its REST API to provide custom built frontends based on Autodesk Platform Services. All solutions manage data in PLM only. All business rules of PLM as well as access permissions still apply.
                 div.left-toolbar
                     .button#version Version of 
-                        span#version-name September 13, 2024
+                        span#version-name September 17, 2024
                     .button#tenant Connected to 
                         span#tenant-name
                 p This  version has been optimized for the tenant template released in 2023 using a single Items workspace. While the solutions can be used with any tenant thanks to their configuration capabilities, using this new tenant reduces configuration efforts. In addition, most of the solutions can be tested with the given demo datasets immediately.
@@ -35,6 +35,10 @@ block body
                 .log#framework-changes 
                     h1 Framework Changes
                     table 
+                        tr  
+                            td September 17, 2024
+                            td Framework 
+                            td Moved files files of Tenant Insights Dashboard to new admin subfolders
                         tr 
                             td 10. September 2024
                             td Enhancement 
@@ -117,10 +121,13 @@ block body
                                 br 
                                 | These files no longer need the prefix 'settings.' but must keep the suffix '.js'.
                 .tiles-group.first
+                    .tiles-group-title Administration Utilities
+                    .tiles-group-subtitle Utilities made for Tenant Administrators only, requiring system admin privileges.
+                include ../docs/admin-insights.pug
+                .tiles-group.first
                     .tiles-group-title Ready-To-Use Applications
                     .tiles-group-subtitle Applications that do neither require configurations settings nor demo data. They will work immediately and can be used to validate the server setup.
                 include ../docs/app-reports-dashboard.pug
-                include ../docs/app-tenant-insights.pug
                 include ../docs/app-workspace-navigator.pug
                 include ../docs/app-mobile-client.pug
                 .tiles-group 
