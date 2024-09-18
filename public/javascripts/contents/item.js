@@ -2982,7 +2982,7 @@ function changeBOMView(id) {
 
     for(let workspace of cacheWorkspaces) {
         if(workspace.id === link.split('/')[4]) {
-            for(view of workspace.bomViews) {
+            for(let view of workspace.bomViews) {
                 if(view.id === Number(bomViewId)) bomView = view;
             }
         }
