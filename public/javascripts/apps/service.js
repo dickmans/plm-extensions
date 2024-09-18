@@ -54,14 +54,14 @@ $(document).ready(function() {
             let addToCache = true;
             for(let workspace of cacheWorkspaces) {
                 if(workspace.id === wsId) {
-                    workspace.bomViews = responses[1].data;
+                    workspace.bomViews = responses[0].data;
                     addToCache = false;
                 }
             }
             if(addToCache) {
                 cacheWorkspaces.push({
                     'id'       : wsId,
-                    'bomViews' : responses[1].data
+                    'bomViews' : responses[0].data
                 })
             }
         }

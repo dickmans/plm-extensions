@@ -55,34 +55,34 @@ function getApplicationFeatures(app, requests, callback) {
     if(!isBlank(config[app].viewerFeatures))      applicationFeatures.viewer = config[app].viewerFeatures; 
     if( isBlank(applicationFeatures.viewer))      applicationFeatures.viewer = {};
 
-    if(applicationFeatures.viewer.length === 0) {
+    // if(applicationFeatures.viewer.length === 0) {
 
-        getApplicationFeaturesDone(app);
-        callback();
+    //     getApplicationFeaturesDone(app);
+    //     callback();
         
-    } else {
+    // } else {
 
-        let includesGroups = false;
+    let includesGroups = false;
 
-        for(let applicationFeature of Object.keys(applicationFeatures)) {
-            if(applicationFeature !== 'viewer') {
-                if(typeof applicationFeatures[applicationFeature] === 'object') {
+    for(let applicationFeature of Object.keys(applicationFeatures)) {
+        if(applicationFeature !== 'viewer') {
+            if(typeof applicationFeatures[applicationFeature] === 'object') {
+                includesGroups = true;
+                break;
+            }
+        } else {
+            for(let viewerFeature of Object.keys(applicationFeatures.viewer)) {
+                if(typeof applicationFeatures.viewer[viewerFeature] === 'object') {
                     includesGroups = true;
                     break;
                 }
-            } else {
-                for(let viewerFeature of Object.keys(applicationFeatures.viewer)) {
-                    if(typeof applicationFeatures.viewer[viewerFeature] === 'object') {
-                        includesGroups = true;
-                        break;
-                    }
-                }
             }
         }
-
-        if(includesGroups) requests.unshift($.get('/plm/groups-assigned', {}));
-
     }
+
+    if(includesGroups) requests.push($.get('/plm/groups-assigned', {}));
+
+    // }
 
     if(requests.length === 0) {
 
@@ -106,11 +106,9 @@ function getApplicationFeatures(app, requests, callback) {
             callback();
         } else {
 
-            requests.unshift($.get('/plm/groups-assigned', {}));
-
             Promise.all(requests).then(function(responses) {
 
-                for(let group of responses[0].data) userAccount.groupsAssigned.push(group.shortName);
+                for(let group of responses[responses.length - 1].data) userAccount.groupsAssigned.push(group.shortName);
 
                 for(let applicationFeature of Object.keys(applicationFeatures)) {
                     if(applicationFeature !== 'viewer') {
