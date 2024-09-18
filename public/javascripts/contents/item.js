@@ -3712,13 +3712,13 @@ function updateBOMPath(elemClicked) {
 
         label = label.split(' - ')[0];
 
-        let elemItem = $('<div></div>').prependTo(elemPath)
+        let elemItem = $('<div></div>').appendTo(elemPath)
             .attr('data-edgeid', item.attr('data-edgeid'))
             .html(label);
 
         if(path.items.length === 1) elemItem.addClass('bom-path-selected-single');
 
-        if(index > 0) {
+        if(index < path.items.length - 1) {
             elemItem.addClass('bom-path-parent');
             elemItem.click(function() {
                 let edgeId = $(this).attr('data-edgeid');
@@ -3734,7 +3734,6 @@ function updateBOMPath(elemClicked) {
         index++;
 
     }
-
 
 }
 
