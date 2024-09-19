@@ -2892,7 +2892,7 @@ router.get('/search', function(req, res) {
        'filter'        : [],
        'sort'          : []
    };
-   
+
    setBodyFields(params, req.query.fields);
    setBodySort(params, req.query.sort);
    setBodyFilter(params, req.query.filter);
@@ -2988,18 +2988,22 @@ function setBodyFilter(body, filters) {
    
    body.filter = [];
    
-   for(var i = 0; i < filters.length; i++) {
+   for(let filter of filters) {
 
-       var filter = {
-           'fieldID'       : filters[i].field,
-           'fieldTypeID'   : filters[i].type,
-           'filterType'    : { 'filterID' : filters[i].comparator },
-           'filterValue'   : filters[i].value         
-       }
-       
-       body.filter.push(filter);
-       
-   }
+        if(typeof filter.value === 'undefined') {
+            console.log();
+            console.log('  !! ERROR !! Ignoring filter for ' + filter.field + ' as value is undefined');
+            console.log();
+        } else {
+            body.filter.push({
+                'fieldID'       : filter.field,
+                'fieldTypeID'   : filter.type,
+                'filterType'    : { 'filterID' : filter.comparator },
+                'filterValue'   : filter.value         
+            });
+        }
+        
+    }
    
 }
 
