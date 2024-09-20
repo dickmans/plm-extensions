@@ -1,0 +1,72 @@
+:root {
+
+    --width-border-v : 30px;
+    --width-border-h : 45px;
+    --width-search   : 380px;
+    --width-bom      : 500px;
+    --width-panels   : 400px;
+    --height-recents : 210px;
+    --height-files   : 210px;
+    --height-viewer  : 220px;
+
+}
+
+
+/* MASTER LAYOUT */
+/* ----------------------------------------------------------------------------- */
+#search {
+    border-width : var(--width-border-v) var(--width-border-h);
+    top          : 0px;
+    bottom       : calc(var(--height-recents) + (1.5 * var(--width-border-v) ));
+    left         : 0px;
+    width        : var(--width-search);
+}
+#recents {
+    border-width : var(--width-border-v) var(--width-border-h);
+    bottom       : 0px;
+    left         : 0px;
+    height       : var(--height-recents);
+    width        : var(--width-search);
+}
+#bom {
+    border-width : var(--width-border-v) var(--width-border-h);
+    top          : 0px;
+    bottom       : 0px;
+    left         : calc(var(--width-search) + (2 * var(--width-border-h)));
+    width        : var(--width-bom);
+}
+.viewer {
+    top          : 0px;
+    right        : calc(var(--width-panels) + (2 * var(--width-border-h)));
+    bottom       : 0px;
+    left         : calc(var(--width-search) + (4 * var(--width-border-h)) + var(--width-bom));
+}
+#details {
+    border-width : var(--width-border-v) var(--width-border-h);
+    top          : 0px;
+    right        : 0px;
+    bottom       : calc(var(--height-files) + (2 * var(--width-border-v)));
+    width        : var(--width-panels);
+}
+#attachments {
+    border-width : var(--width-border-v) var(--width-border-h);
+    right        : 0px;
+    bottom       : 0px;
+    height       : var(--height-files);
+    width        : var(--width-panels);
+}
+
+body.no-search #search,
+body.no-search #recents { left : calc(0px - var(--width-search) - (2 * var(--width-border-h))); }
+body.no-search #bom { left : 0px; }
+body.no-search .viewer { left : calc(var(--width-bom) + (2 * var(--width-border-h)));; }
+
+body.no-bom #bom { display : none !important; }
+body.no-bom .viewer { left : calc(var(--width-search) + (2 * var(--width-border-h))); }
+
+body.no-search.no-bom .viewer { left : 0px; }
+
+body.no-attachments #details { bottom : 0px; }
+body.no-attachments #attachments { bottom : calc(0px - var(--height-files) - (2 * var(--width-border-v))); }
+
+.item-panel { display : none; }
