@@ -84,14 +84,19 @@ function setUIEvents() {
 // Set workspace selectors for both tenants
 function getWorkspaces(id) {
 
+    let tenantName = $('#' + id + '-tenant').val();
+
+    if(tenantName === '') return;
+
     $('#overlay').show();
 
     let elemSelect = $('#' + id + '-workspaces');
         elemSelect.children().remove();
 
-    $.get('/plm/workspaces', { tenant : $('#' + id + '-tenant').val() }, function(response) {
+    $.get('/plm/workspaces', { tenant : tenantName }, function(response) {
 
         environments[id].workspaces = response.data.items;
+
         sortArray(environments[id].workspaces, 'title');
         
         for(let workspace of environments[id].workspaces) {
