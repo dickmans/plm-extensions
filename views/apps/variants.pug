@@ -20,7 +20,6 @@ block body
             #header-toolbar
                 .button#button-toggle-viewer.with-icon.icon-viewer(title='Click to toggle size of the viewer') Toggle Viewer
                 .button#button-toggle-details.with-icon.icon-panel.filled(title='Click to toggle item details panel on/off') Toggle Details
-                .button#button-new.disabled.default.with-icon.icon-create New Variant
                 #header-avatar
         
         #main.screen.wide-viewer.with-details
@@ -29,14 +28,14 @@ block body
             
             #bom.compact
 
-            .panel#item-variants 
+            .panel.surface-level-2#item-variants 
                 .panel-header 
                     .panel-title#item-variants-header Item Variants
                     .panel-toolbar 
                         .button.icon.icon-close#item-variants-close
                 .panel-content#item-variants-text Select from the variants of
                 .panel-content#item-variants-title
-                .panel-content.surface-level-3#item-variants-list-parent
+                .panel-content#item-variants-list-parent
                     #item-variants-list.list.tiles.m
 
             .panel.surface-level-2#details
@@ -47,13 +46,7 @@ block body
                         .button.icon.icon-open#open
                 .panel-content.surface-level-2.compact#details-sections
 
-            .panel.surface-level-2#create
-                .panel-header
-                    .panel-title New Record
-                    .panel-toolbar
-                        .button#cancel-create(title='Cancel creation of new process') Cancel
-                        .button.default#save-create(title='Save new process in PLM') Create
-                .panel-content#create-sections.surface-level-2
+            .panel.surface-level-1#create
 
         #dialog-saving.dialog
             .dialog-header Saving Changes

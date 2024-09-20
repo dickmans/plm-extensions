@@ -59,22 +59,6 @@ function setUIEvents() {
         $('#main').removeClass('with-item-variants');
         viewerResize();
     });
-    $('#button-new').click(function() {
-        if($(this).hasClass('disabled')) return;
-        // $('#main').toggleClass('with-create');
-        // $('#main').removeClass('with-details');
-        // insertItemDetailsFields('', 'create', wsVariants.sections, wsVariants.fields, null, true, true, true);
-        // insertDetails()
-        showCreateForm(wsVariants.id , {
-            id          : 'create',
-            fieldValues : [{
-                fieldId      : 'BASE_ITEM',
-                value        : linkContext,
-                displayValue : $('#header-subtitle').html()
-            }]
-        });
-        viewerResize();
-    });
 
 
     // Save Confirmation Dialog
@@ -84,19 +68,6 @@ function setUIEvents() {
             $('#overlay').hide();
             $('#dialog-saving').hide();
         }
-    });
-
-
-    // Create Panel
-    $('#cancel-create').click(function() {
-        $('#main').removeClass('with-create');
-        viewerResize();
-    });
-    $('#save-create').click(function() {
-        $('#main').removeClass('with-create');
-        if(!validateForm($('#create'))) return;
-        $('#overlay').show();
-        createNewVariant();
     });
 
 
@@ -126,7 +97,6 @@ function getInitialData() {
 
         document.title = documentTitle + ': ' + responses[0].data.title;
 
-        let variants   = getSectionFieldValue(responses[0].data.sections, config.variants.fieldIdItemVariants, '');
         insertBOM(linkContext, { 
             title       : 'BOM & Variants', 
             bomViewName : config.variants.bomViewNameItems, 
@@ -138,9 +108,9 @@ function getInitialData() {
             counters    : false
         });
 
-        console.log(variants);
+        let variants = getSectionFieldValue(responses[0].data.sections, config.variants.fieldIdItemVariants, '');
 
-        for(variant of variants) listVariants.push(variant);
+        for(let variant of variants) listVariants.push(variant);
 
         wsContext.sections  = responses[1].data;
         wsVariants.sections = responses[2].data;
@@ -156,7 +126,7 @@ function getVariantsWSConfig() {
 
     let foundSection = false;
 
-    for(section of wsVariants.sections) {
+    for(let section of wsVariants.sections) {
 
         if(section.name === config.variants.variantsSectionLabel) {
 
@@ -164,8 +134,8 @@ function getVariantsWSConfig() {
 
             wsVariants.sectionIdVariansSection = section.__self__.split('/')[6];
 
-            for(sectionField of section.fields) {
-                for(field of wsVariants.fields) {
+            for(let sectionField of section.fields) {
+                for(let field of wsVariants.fields) {
                     if(field.__self__ === sectionField.link) {
 
                         let elemControl = null;
@@ -209,12 +179,12 @@ function getVariantsWSConfig() {
     wsVariants.fieldIdVariantBaseItem   = config.variants.fieldIdVariantBaseItem;
     wsVariants.sectionIdBaseItem        = getFieldSectionId(wsVariants.sections, config.variants.fieldIdVariantBaseItem);
 
-    for(bomView of wsVariants.bomViews) {
+    for(let bomView of wsVariants.bomViews) {
         if(bomView.name === config.variants.bomViewNameVariants) {
 
             wsVariants.viewId = bomView.id;
 
-            for(field of bomView.fields) {
+            for(let field of bomView.fields) {
 
                 if(field.fieldId === config.variants.fieldIdVariantBaseItem) {
 
@@ -225,7 +195,7 @@ function getVariantsWSConfig() {
                      if(field.fieldId === 'QUANTITY'         ) wsVariants.colIdQuantity  = field.__self__.link;
                 else if(field.fieldId === 'EDGE_ID_BASE_ITEM') wsVariants.colIdRefEdgeId = field.__self__.link;
 
-                for(fieldVariant of fieldsVariant) {
+                for(let fieldVariant of fieldsVariant) {
                     if(fieldVariant.id === field.fieldId) fieldVariant.link = field.__self__.link;
                 }
 
@@ -243,11 +213,10 @@ function getVariantsWSConfig() {
 // Extend BOM table with variant columns
 function changeBOMViewDone(id) {
 
-    let elemVariantSelector = $('<select>');
-        elemVariantSelector.addClass('button');
-        elemVariantSelector.attr('id', 'variant-selector');
-        elemVariantSelector.prependTo($('#bom-toolbar'));
-        elemVariantSelector.change(function() {
+    let elemVariantSelector = $('<select>').prependTo($('#bom-toolbar'))
+        .addClass('button')
+        .attr('id', 'variant-selector')
+        .change(function() {
             if($(this).val() === 'all') {
                 $('.variant-filter').show();
             } else {
@@ -260,9 +229,10 @@ function changeBOMViewDone(id) {
         .attr('value', 'all')
         .html('Show all variants');
 
-
     $('<div></div>').prependTo($('#bom-toolbar'))
-        .addClass('button').addClass('with-icon').addClass('icon-save')
+        .addClass('button')
+        .addClass('with-icon')
+        .addClass('icon-save')
         .addClass('default')
         .html('Save')
         .attr('id', 'button-save')
@@ -272,18 +242,15 @@ function changeBOMViewDone(id) {
             showSaveProcessingDialog();
         });  
 
-
-        $('<div></div>').prependTo($('#bom-toolbar'))
-        .addClass('button').addClass('with-icon').addClass('icon-create')
+    $('<div></div>').prependTo($('#bom-toolbar'))
+        .addClass('button')
+        .addClass('with-icon')
+        .addClass('icon-create')
         .html('Variant')
         .attr('id', 'button-new')
         .attr('title', 'Craete new variant for the root item')
         .click(function() {
             if($(this).hasClass('disabled')) return;
-            // $('#main').toggleClass('with-create');
-            // $('#main').removeClass('with-details');
-            // insertItemDetailsFields('', 'create', wsVariants.sections, wsVariants.fields, null, true, true, true);
-            // insertDetails()
             showCreateForm(wsVariants.id , {
                 id          : 'create',
                 fieldValues : [{
@@ -295,25 +262,18 @@ function changeBOMViewDone(id) {
             viewerResize();
         });        
 
-    let requests = [];
-    
+    let requests  = [];
     let elemTable = $('#' + id + '-table');
     let elemTHead = $('#' + id + '-thead');
 
-    let elemTHeadRow2 = $('#' + id + '-thead').children('tr').first();
-        elemTHeadRow2.attr('id', 'table-head-row-titles');
-        
+    let elemTHeadRow2 = $('#' + id + '-thead').children('tr').first()
+        .attr('id', 'table-head-row-titles');
    
-    let elemTHeadRow1 = $('<tr></tr>');
-        elemTHeadRow1.attr('id', 'table-head-row-fields');
-        elemTHeadRow1.prependTo(elemTHead);
-        elemTHeadRow1.append('<th style="background:none" colspan="' + elemTHeadRow2.children().length + '"></th>');
-
+    let elemTHeadRow1 = $('<tr></tr>').prependTo(elemTHead)
+        .attr('id', 'table-head-row-fields')
+        .append('<th style="background:none" colspan="' + elemTHeadRow2.children().length + '"></th>');
 
     // elemTHeadRow2.children().each(function() { $(this).attr('rowspan', '2'); })
-
-    
-
 
     // let elemTableHead = $('<thead></thead>');
     //     elemTableHead.prependTo(elemTable);
@@ -348,69 +308,60 @@ function changeBOMViewDone(id) {
     //             $('.variant-index-' + $(this).val()).show();
     //         }
     //     });
+               
+    // let indexVariant   = 0;
+    let elemCellSpacer = $('<th></th>').addClass('variant-spacer').addClass('variant-filter');
 
+    for(let variant of listVariants) {
 
+        requests.push($.get('/plm/bom', { 'link' : variant.link, 'viewId' : wsVariants.viewId } ));
 
+        insertVariantColumns(variant);
 
-                
-    let indexVariant = 0;
-
-    let elemCellSpacer = $('<th></th>');
-        elemCellSpacer.addClass('variant-spacer');
-        elemCellSpacer.addClass('variant-filter');
-
-    for(variant of listVariants) {
-
-        requests.push($.get('/plm/bom', { 'link' : variant.link, 'viewId' : wsVariants.viewId } ))
-
-        let elemSpacerHead = elemCellSpacer.clone();
-            elemSpacerHead.addClass('variant-index-' + indexVariant);
+        // let elemSpacerHead = elemCellSpacer.clone().addClass('variant-index-' + indexVariant);
             
-        elemTHeadRow1.append(elemSpacerHead.clone());
-        elemTHeadRow2.append(elemSpacerHead.clone());
+        // elemTHeadRow1.append(elemSpacerHead.clone());
+        // elemTHeadRow2.append(elemSpacerHead.clone());
 
-        let elemCellHead = $('<th></th>');
-            elemCellHead.attr('colspan', fieldsVariant.length + 1);
-            elemCellHead.attr('data-link', variant.link);
-            elemCellHead.html(variant.title.toUpperCase());
-            elemCellHead.addClass('variant-head');
-            elemCellHead.addClass('variant-filter');
-            
-            elemCellHead.addClass('variant-index-' + indexVariant);
-            elemCellHead.appendTo(elemTHeadRow1);
-            elemCellHead.click(function() {
-                openItemByLink($(this).attr('data-link'));
-            });
+        // $('<th></th>').appendTo(elemTHeadRow1)
+        //     .attr('colspan', fieldsVariant.length + 1)
+        //     .attr('data-link', variant.link)
+        //     .html(variant.title.toUpperCase())
+        //     .addClass('variant-head')
+        //     .addClass('variant-filter')
+        //     .addClass('variant-index-' + indexVariant)
+        //     .click(function() {
+        //         openItemByLink($(this).attr('data-link'));
+        //     });
 
-        for(field of fieldsVariant) {
+        // for(let field of fieldsVariant) {
 
-            $('<th></th>').appendTo(elemTHeadRow2)
-                .html(field.title)
-                .addClass('variant-filter')
-                .addClass('variant-index-' + indexVariant);
+        //     $('<th></th>').appendTo(elemTHeadRow2)
+        //         .html(field.title)
+        //         .addClass('variant-filter')
+        //         .addClass('variant-index-' + indexVariant);
 
-        }
+        // }
 
-        $('<th></th>').appendTo(elemTHeadRow2)
-            .html('Item')
-            .addClass('variant-filter')
-            .addClass('variant-index-' + indexVariant);
+        // $('<th></th>').appendTo(elemTHeadRow2)
+        //     .html('Item')
+        //     .addClass('variant-filter')
+        //     .addClass('variant-index-' + indexVariant);
 
-        let elemOptionVariant = $('<option></option>');
-            elemOptionVariant.attr('value', indexVariant);
-            elemOptionVariant.html(variant.title);
-            elemOptionVariant.appendTo(elemVariantSelector);
+        // $('<option></option>').appendTo(elemVariantSelector)
+        //     .attr('value', indexVariant)
+        //     .html(variant.title);
 
-        indexVariant++;
+        // indexVariant++;
 
     }
 
-    indexVariant = 0;
+    let indexVariant = 0;
 
     // Get Variant BOMs and match with master BOM
     Promise.all(requests).then(function(responses) {
 
-        for(response of responses) {
+        for(let response of responses) {
 
             elemTable.find('.bom-item').each(function() {
 
@@ -453,24 +404,22 @@ function changeBOMViewDone(id) {
                     elemSpacerBody.addClass('variant-index-' + indexVariant);
                     elemSpacerBody.appendTo($(this));
 
-                for(fieldVariant of fieldsVariant) {
+                for(let fieldVariant of fieldsVariant) {
 
-                    let elemCellField = $('<td></td>');
-                        elemCellField.addClass('variant-filter');
-                        elemCellField.addClass('field-value');
-                        elemCellField.addClass('variant-index-' + indexVariant);
-                        elemCellField.appendTo($(this));
-
+                    let elemCellField = $('<td></td>').appendTo($(this))
+                        .addClass('variant-filter')
+                        .addClass('field-value')
+                        .addClass('variant-index-' + indexVariant);
+                        
                     let elemControl = fieldVariant.control.clone();
-                        elemControl.appendTo(elemCellField);
-                        elemControl.click(function(e) {
+                    elemControl.appendTo(elemCellField)
+                        .click(function(e) {
                             e.stopPropagation();
-                        });
-                        elemControl.change(function() {
+                        }).change(function() {
                             valueChanged($(this));
                         });
 
-                    for(field of variantItem.fields) {
+                    for(let field of variantItem.fields) {
 
                         if(field.id === fieldVariant.id) {
 
@@ -498,39 +447,38 @@ function changeBOMViewDone(id) {
                     }
                 }
 
-                let elemCellItem = $('<td></td>');
-                    elemCellItem.attr('data-link'       , variantItem.link);
-                    elemCellItem.attr('data-edgeid'     , variantItem.edgeId);
-                    elemCellItem.attr('data-edgeid-ref' , variantItem.edgeIdRef);
-                    elemCellItem.attr('data-quantity'   , variantItem.quantity);
-                    elemCellItem.attr('data-number'     , variantItem.number);
-                    elemCellItem.attr('data-link-parent', variantItem.parent);
-                    elemCellItem.attr('data-link-root'  , response.params.link);
-                    elemCellItem.addClass('variant-filter');
-                    elemCellItem.addClass('variant-index-' + indexVariant);
-                    elemCellItem.addClass('variant-item');
-                    elemCellItem.addClass(className);
-                    elemCellItem.html(variantTitle);
-                    elemCellItem.appendTo($(this));
-                    elemCellItem.click(function(e) {
+                let elemCellItem = $('<td></td>').appendTo($(this))
+                    .attr('data-link'       , variantItem.link)
+                    .attr('data-edgeid'     , variantItem.edgeId)
+                    .attr('data-edgeid-ref' , variantItem.edgeIdRef)
+                    .attr('data-quantity'   , variantItem.quantity)
+                    .attr('data-number'     , variantItem.number)
+                    .attr('data-link-parent', variantItem.parent)
+                    .attr('data-link-root'  , response.params.link)
+                    .addClass('variant-filter')
+                    .addClass('variant-index-' + indexVariant)
+                    .addClass('variant-item')
+                    .addClass(className)
+                    .html(variantTitle)
+                    .click(function(e) {
                         clickItemCell(e, $(this));
                     });
 
                 if(className === 'status-missing') {
-                    elemCellItem.addClass('icon');
-                    elemCellItem.addClass('icon-disconnect');
-                    elemCellItem.addClass('status-icon');
-                    elemCellItem.attr('title', 'No matching item in BOM yet');
+                    elemCellItem.addClass('icon')
+                        .addClass('icon-disconnect')
+                        .addClass('status-icon')
+                        .attr('title', 'No matching item in BOM yet');
                 } else if(className === 'status-identical') {
-                    elemCellItem.addClass('icon');
-                    elemCellItem.addClass('icon-link');
-                    elemCellItem.addClass('status-icon');
-                    elemCellItem.attr('title', 'Using identical item, no variant');
+                    elemCellItem.addClass('icon')
+                        .addClass('icon-link')
+                        .addClass('status-icon')
+                        .attr('title', 'Using identical item, no variant');
                 } else {
-                    elemCellItem.removeClass('icon');    
-                    elemCellItem.removeClass('icon-link');    
-                    elemCellItem.removeClass('icon-disconnect');    
-                    elemCellItem.removeClass('icon-status');    
+                    elemCellItem.removeClass('icon')    
+                        .removeClass('icon-link')   
+                        .removeClass('icon-disconnect')    
+                        .removeClass('icon-status');    
                 }
 
             });
@@ -546,10 +494,51 @@ function changeBOMViewDone(id) {
     // });
 
 }
+function insertVariantColumns(variant) {
+
+    let indexVariant   = $('variant-head').length;
+    let elemTHeadRow1  = $('#table-head-row-fields');
+    let elemTHeadRow2  = $('#table-head-row-titles');
+    let elemSpacerHead = $('<th></th>')
+        .addClass('variant-spacer')
+        .addClass('variant-filter')
+        .addClass('variant-index-' + indexVariant);
+            
+    elemTHeadRow1.append(elemSpacerHead.clone());
+    elemTHeadRow2.append(elemSpacerHead.clone());
+
+    $('<th></th>').appendTo(elemTHeadRow1)
+        .attr('colspan', fieldsVariant.length + 1)
+        .attr('data-link', variant.link)
+        .html(variant.title.toUpperCase())
+        .addClass('variant-head')
+        .addClass('variant-filter')
+        .addClass('variant-index-' + indexVariant)
+        .click(function() {
+            openItemByLink($(this).attr('data-link'));
+        });
+
+    for(let field of fieldsVariant) {
+        $('<th></th>').appendTo(elemTHeadRow2)
+            .html(field.title)
+            .addClass('variant-filter')
+            .addClass('variant-index-' + indexVariant);
+    }
+
+    $('<th></th>').appendTo(elemTHeadRow2)
+        .html('Item')
+        .addClass('variant-filter')
+        .addClass('variant-index-' + indexVariant);
+
+    $('<option></option>').appendTo($('#variant-selector'))
+        .attr('value', indexVariant)
+        .html(variant.title);
+
+}
 function getMatchingVariantItem(nodes, edges, fieldLink, value) {
 
-    for(node of nodes) {
-        for(field of node.fields) {
+    for(let node of nodes) {
+        for(let field of node.fields) {
             if(field.metaData.link === fieldLink) {
                 let fieldValue = (typeof field.value === 'object') ? field.value.link : field.value;
                 if(fieldValue === value) {
@@ -563,8 +552,8 @@ function getMatchingVariantItem(nodes, edges, fieldLink, value) {
                         'fields'    : []
                     }
 
-                    for(fieldVariant of fieldsVariant) {
-                        for(nodeField of node.fields) {
+                    for(let fieldVariant of fieldsVariant) {
+                        for(let nodeField of node.fields) {
                             if(nodeField.metaData.link === fieldVariant.link) {
                                 result.fields.push({
                                     'id' : fieldVariant.id,
@@ -574,7 +563,7 @@ function getMatchingVariantItem(nodes, edges, fieldLink, value) {
                         }
                     }
 
-                    for(edge of edges) {
+                    for(let edge of edges) {
                         if(edge.child === node.item.urn) {
                             result.number   = edge.itemNumber;
                             result.edgeId   = edge.edgeId;
@@ -597,7 +586,7 @@ function validateMatch(nodes, edges, elemRefItem) {
     let link      = elemRefItem.attr('data-link');
     let edgeIdRef = Number(elemRefItem.attr('data-edgeid'));
 
-    for(edge of edges) {
+    for(let edge of edges) {
         if(edgeIdRef === edge.edgeId) {
             return {
                 'urn'       : elemRefItem.attr('data-urn'),
@@ -613,7 +602,7 @@ function validateMatch(nodes, edges, elemRefItem) {
         }
     }
 
-    for(node of nodes) {
+    for(let node of nodes) {
         if(node.item.link === link) {
 
             let result = {
@@ -626,9 +615,9 @@ function validateMatch(nodes, edges, elemRefItem) {
                 'edgeIdRef' : ''
             }
 
-            for(edge of edges) {
+            for(let edge of edges) {
                 if(edge.child === node.item.urn) {
-                    for(edgeField of edge.fields) {
+                    for(let edgeField of edge.fields) {
                         if(edgeField.metaData.link === wsVariants.colIdRefEdgeId) {
                             if(Number(edgeField.value) === edgeIdRef) {
                                 result.number    = edge.itemNumber;
@@ -652,7 +641,7 @@ function validateMatch(nodes, edges, elemRefItem) {
 }
 function getEdgeQuantity(edge) {
 
-    for(edgeField of edge.fields) {
+    for(let edgeField of edge.fields) {
         if(edgeField.metaData.link === wsVariants.colIdQuantity) return edgeField.value;
     }
 
@@ -735,7 +724,7 @@ function insertNewVariantHeader(link, title, indexVariant) {
             openItemByLink($(this).attr('data-link'));
         });
 
-    for(field of fieldsVariant) {
+    for(let field of fieldsVariant) {
 
         let elemCellHeadField = $('<th></th>');
             elemCellHeadField.html(field.title);
@@ -760,11 +749,8 @@ function insertNewVariantHeader(link, title, indexVariant) {
 }
 function insertNewVariantFields(link, title, indexVariant) {
 
-    let elemCellSpacer = $('<th></th>');
-        elemCellSpacer.addClass('variant-spacer');
-        elemCellSpacer.addClass('variant-filter');
-
-    let elemTable = $('#bom-table');
+    let elemCellSpacer = $('<th></th>').addClass('variant-spacer').addClass('variant-filter');
+    let elemTable      = $('#bom-table');
 
     elemTable.children('tr').each(function() {
 
@@ -811,24 +797,22 @@ function insertNewVariantFields(link, title, indexVariant) {
             elemSpacerBody.addClass('variant-index-' + indexVariant);
             elemSpacerBody.appendTo($(this));
         
-        for(fieldVariant of fieldsVariant) {
+        for(let fieldVariant of fieldsVariant) {
 
-            let elemCellField = $('<td></td>');
-                elemCellField.addClass('variant-filter');
-                elemCellField.addClass('field-value');
-                elemCellField.addClass('variant-index-' + indexVariant);
-                elemCellField.appendTo($(this));
+            let elemCellField = $('<td></td>').appendTo($(this))
+                .addClass('variant-filter')
+                .addClass('field-value')
+                .addClass('variant-index-' + indexVariant);
 
-            let elemControl = fieldVariant.control.clone();
-                elemControl.appendTo(elemCellField);
-                elemControl.click(function(e) {
+            fieldVariant.control.clone().appendTo(elemCellField)
+                .click(function(e) {
                     e.stopPropagation();
-                });
-                elemControl.change(function() {
+                })
+                .change(function() {
                     valueChanged($(this));
                 });
 
-            // for(field of variantItem.fields) {
+            // for(let field of variantItem.fields) {
 
             //     if(field.id === fieldVariant.id) {
 
@@ -849,21 +833,19 @@ function insertNewVariantFields(link, title, indexVariant) {
 
         }
 
-        let elemCellItem = $('<td></td>');
-            elemCellItem.attr('data-link'       , variantItem.link);
-            elemCellItem.attr('data-edgeid'     , variantItem.edgeId);
-            elemCellItem.attr('data-edgeid-ref' , variantItem.edgeIdRef);
-            elemCellItem.attr('data-quantity'   , variantItem.quantity);
-            elemCellItem.attr('data-number'     , variantItem.number);
-            // elemCellItem.attr('data-link-parent', variantItem.parent);
-            elemCellItem.attr('data-link-root'  , link);
-            elemCellItem.addClass('variant-filter');
-            elemCellItem.addClass('variant-index-' + indexVariant);
-            elemCellItem.addClass('variant-item');
-            elemCellItem.addClass(className);
-            elemCellItem.html();
-            elemCellItem.appendTo($(this));
-            elemCellItem.click(function(e) {
+        $('<td></td>').appendTo($(this))
+            .attr('data-link'       , variantItem.link)
+            .attr('data-edgeid'     , variantItem.edgeId)
+            .attr('data-edgeid-ref' , variantItem.edgeIdRef)
+            .attr('data-quantity'   , variantItem.quantity)
+            .attr('data-number'     , variantItem.number)
+            .attr('data-link-root'  , link)
+            .addClass('variant-filter')
+            .addClass('variant-index-' + indexVariant)
+            .addClass('variant-item')
+            .addClass(className)
+            .html()
+            .click(function(e) {
                 clickItemCell(e, $(this));
             });
 
@@ -890,9 +872,9 @@ function clickItemCell(e, elemClicked) {
     e.preventDefault();
     e.stopPropagation();
 
-    let link = elemClicked.attr('data-link');
+    let link = elemClicked.closest('.bom-item').attr('data-link');
     let elemParent = $('#item-variants-list');
-    
+
     if((e.shiftKey) && !isBlank(link)) {
 
         openItemByLink(link);
@@ -907,8 +889,7 @@ function clickItemCell(e, elemClicked) {
         elemParent.html('');
         
         let elemRow         = elemClicked.closest('tr');
-        let title           = elemRow.children().first().find('.bom-tree-title').html();
-        let selectedDMSID   = elemRow.attr('data-dmsid');
+        let selectedDMSID   = elemRow.attr('data-link').split('/').pop();
 
         viewerResetColors();
         viewerSelectModel(elemRow.attr('data-part-number'));
@@ -917,7 +898,7 @@ function clickItemCell(e, elemClicked) {
         elemRow.siblings().removeClass('selected');
         elemClicked.addClass('item-cell-clicked');
         
-        $('#item-variants-title').html(title);
+        $('#item-variants-title').html(elemRow.attr('data-title'));
 
         let requestId = new Date();
             requestId = requestId.getTime();
@@ -940,20 +921,20 @@ function clickItemCell(e, elemClicked) {
             requestId : requestId
         }
 
-        for(field of fieldsVariant) { params.fields.push(field.id); }
+        for(let field of fieldsVariant) { params.fields.push(field.id); }
 
-        $.get( '/plm/search', params, function(response) {
+        $.get('/plm/search', params, function(response) {
 
             if(response.params.requestId !== elemParent.attr('data-timestamp')) return;
 
             $('#item-variants-list-parent-processing').hide();
 
-            for(entry of response.data.row) {
+            for(let entry of response.data.row) {
 
                 let title    = '';
                 let subtitle = '<table>';
 
-                for(field of entry.fields.entry) {
+                for(let field of entry.fields.entry) {
                     if(field.key === 'DESCRIPTOR') title = field.fieldData.value;
                 }
 
@@ -963,7 +944,7 @@ function clickItemCell(e, elemClicked) {
 
                     subtitle += '<tr><td class="tile-key-label">' + column.label + '</td><td class="tile-key-' + column.value + '">';
 
-                    for(field of entry.fields.entry) {
+                    for(let field of entry.fields.entry) {
                         if(field.key === column.value) subtitle += field.fieldData.value;
                     }
 
@@ -989,15 +970,15 @@ function clickItemCell(e, elemClicked) {
 }
 function insertSelectedItem(elemClicked) {
 
-    let elemCell = $('.item-cell-clicked').first();
-        elemCell.attr('data-link', elemClicked.attr('data-link'));
+    let elemCell = $('.item-cell-clicked').first()
+        .attr('data-link', elemClicked.attr('data-link'))
+        .addClass('change-item')
+        .html(getVariantNumber(elemClicked.find('.tile-title').html()));
         // elemCell.addClass('changed-item');
-        elemCell.addClass('change-item');
         // elemCell.removeClass('missing');
         // elemCell.html(elemClicked.find('.tile-title').html());
-        elemCell.html(getVariantNumber(elemClicked.find('.tile-title').html()));
 
-    let index = fieldsVariant.length - 1;
+    let index         = fieldsVariant.length - 1;
     let elemCellField = elemCell.prev();
 
     do {
@@ -1042,7 +1023,7 @@ function onViewerSelectionChanged(event) {
 
         viewer.getProperties(event.dbIdArray[0], function(data) {
 
-            for(property of data.properties) {
+            for(let property of data.properties) {
 
                 if(viewerOptions.partNumberProperties.indexOf(property.displayName) > -1) {
 
@@ -1078,59 +1059,50 @@ function onViewerSelectionChanged(event) {
     }
 
 }
-function initViewerDone() {
-
-    viewerAddGhostingToggle();
-    viewerAddViewsToolbar();
-
-}
 
 
 // Create New Variant
-function createNewVariant() {
+function submitCreateFormDone(id, link) {
 
-    submitCreateForm(wsVariants.id, $('#create-sections'), null, function(response) {
+    // let linkVariant = response.data.split('.autodeskplm360.net')[1];
 
-        let linkVariant = response.data.split('.autodeskplm360.net')[1];
+    $.get('/plm/details', { 'link' : linkContext }, function(response) {
 
-        $.get('/plm/details', { 'link' : linkContext }, function(response) {
+        let requests        = [];
+        let valueVariants   = [];
+        let listCurrent     = getSectionFieldValue(response.data.sections, config.variants.fieldIdItemVariants, []);
 
-            let requests        = [];
-            let valueVariants   = [];
-            let listCurrent     = getSectionFieldValue(response.data.sections, config.variants.fieldIdItemVariants, []);
+        console.log(listCurrent);
 
-            for(entry of listCurrent) valueVariants.push(entry.link);
+        for(let entry of listCurrent) valueVariants.push(entry.link);
 
-            valueVariants.push(linkVariant);
-            
-            let paramsVariant = {
-                'link'      : linkVariant,
-                'sections'  : [{
-                    'id' : wsVariants.sectionIdBaseItem,
-                    'fields' : [
-                        { 'fieldId' : config.variants.fieldIdVariantBaseItem, 'value' : dmsId }
-                    ]
-                }]
-            }
+        valueVariants.push(link);
+        
+        let paramsVariant = {
+            'link'      : link,
+            'sections'  : [{
+                'id' : wsVariants.sectionIdBaseItem,
+                'fields' : [
+                    { 'fieldId' : config.variants.fieldIdVariantBaseItem, 'value' : dmsId }
+                ]
+            }]
+        }
 
-            requests.push($.get('/plm/edit', paramsVariant));
+        requests.push($.get('/plm/edit', paramsVariant));
 
-            Promise.all(requests).then(function() {
-                $.get('/plm/descriptor', { 'link' : linkVariant }, function(response) {
-                    $('#overlay').hide();
-                    insertNewVariant(linkVariant, response.data);
-                });
+        Promise.all(requests).then(function() {
+
+            $.get('/plm/descriptor', { 'link' : link }, function(response) {
+                $('#' + id).hide();
+                $('#overlay').hide();
+                // insertNewVariant(link, response.data);
+                insertVariantColumns();
             });
 
         });
 
     });
 
-}
-function submitCreateFormDone(id, link) {
-    $('#' + id).hide();
-    $('#overlay').hide();
-    console.log(link);
 }
 
 // Highlight item in viewer and display item details upon selection in BOM
@@ -1400,10 +1372,10 @@ function createNewItems() {
 
         Promise.all(requests).then(function(responses) {
 
-            requests = [];
+            requests   = [];
             let errors = false;
 
-            for(response of responses) {
+            for(let response of responses) {
 
                 if(response.error) {
                     showErrorMessage('Error', response.data.message);
@@ -1423,7 +1395,7 @@ function createNewItems() {
 
                     let index = 0;
 
-                    for(response of responses) {
+                    for(let response of responses) {
 
                         let elemItem = elements[index++];
                             elemItem.html(getVariantNumber(response.data));
@@ -1508,7 +1480,7 @@ function updateItems() {
         });    
         
         Promise.all(requests).then(function(responses) {
-            for(element of elements) element.removeClass('processing-item').addClass('status-match');
+            for(let element of elements) element.removeClass('processing-item').addClass('status-match');
             updateItems(); 
         });
 
@@ -1538,7 +1510,6 @@ function deleteBOMItems() {
         
         let requests = [];
         
-
         $('.variant-item.pending-removal').each(function() {
 
             if(requests.length < maxRequests) {
@@ -1632,10 +1603,10 @@ function addBOMItems() {
 
                 requests.push($.get('/plm/bom-add', params));
                 elements.push(elemItem);
-                elemItem.removeClass('pending-update-bom');
-                elemItem.removeClass('change-properties');
-                elemItem.removeClass('change-bom');
-                elemItem.addClass('processing-item');
+                elemItem.removeClass('pending-update-bom')
+                    .removeClass('change-properties')
+                    .removeClass('change-bom')
+                    .addClass('processing-item');
 
             }
 
@@ -1762,14 +1733,13 @@ function updateBOMItems() {
 
             let index = 0;
 
-            for(response of responses) {
+            for(let response of responses) {
 
-                let elemItem = elements[index++];
-                    elemItem.removeClass('pending-update-bom');
-                    elemItem.removeClass('change-bom');
-                    elemItem.addClass('status-match');
-                    elemItem.attr('data-number', response.params.number);
-                    elemItem.attr('data-quantity', response.params.qty);
+                elements[index++].removeClass('pending-update-bom')
+                    .removeClass('change-bom')
+                    .addClass('status-match')
+                    .attr('data-number', response.params.number)
+                    .attr('data-quantity', response.params.qty);
         
             }
 

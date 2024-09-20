@@ -22,6 +22,12 @@ let wsConfigBrowser = {
     'tableau'               : ''
 }
 
+const locations = [
+    '1600 Amphitheatre Parkway, Mountain View, CA',
+    '2300 Traverwood Dr. Ann Arbor, MI',
+    '76 Ninth Avenue, New York, NY'
+];
+
 
 $(document).ready(function() {
 
@@ -44,6 +50,9 @@ $(document).ready(function() {
 
     }
 
+
+    //AIzaSyCZZ4kX1V8kdHPFELU20cEPeNPKULZrujw
+
     // $('#header-title').html(title);
 
     // document.title = title;
@@ -53,17 +62,141 @@ $(document).ready(function() {
     appendProcessing('attachments', false);
 
     appendNoDataFound('list');
+    initMap();
 
     // appendOverlay(false);
 
-    setUIEvents();
-    setStatusColumns();
-    setCalendars();
-    setChart();
+    // setUIEvents();
+    // setStatusColumns();
+    // setCalendars();
+    // setChart();
 
-    getInitialData();
+    // getInitialData();
 
 });
+
+
+
+
+function initMap() {
+
+    console.log('here');
+
+    var locations = [
+        // 'Seattle',
+        {lat:48.70944696926009, lng: 8.74084482656071, fi:'1100'},
+        {lat: -34.397, lng: 150.644},
+        {lat: -37.8136, lng: 144.9631},
+        {lat: -17.481991883862754, lng : -61.47059973251195}
+    ];
+
+    // console.log(document.getElementById('map'));
+
+
+    // const priceTag = document.createElement("div");
+
+    // priceTag.className = "price-tag";
+    // priceTag.textContent = "$2.5M"
+
+
+    var map = new google.maps.Map(document.getElementById('map'), {
+      zoom: 2,
+      center: locations[0],
+      mapId: 'DEMO_MAP_ID'
+    });
+
+
+//     // Create a pin element.
+
+console.log(locations);
+
+
+    for (let i = 0; i < locations.length; i++) {
+    // for (let i = 0; i < 1; i++) {
+
+        console.log(locations[i]);
+
+        let pin = new google.maps.marker.PinElement({
+            scale: 1.5,
+            background: "#F7D32F",
+            id : 10
+        });
+        
+
+        let marker = new google.maps.marker.AdvancedMarkerElement({
+            map : map,
+            position: locations[i],
+            // map: map,
+            content : pin.element,
+            gmpClickable: true,
+            title : 'A-1111'
+            // dmsid : '1234'
+            // content: priceTag
+        });
+        
+        marker.addListener("click", (e) => {
+        // }).addListener("click", ({fi}) => {
+        // }).addListener("click", ({ e, domEvent, latLng }) => {
+                // map.setZoom(8);
+                // // console.log(domEvent);
+                // console.log(latLng);
+                console.log(e.latLng.lat);
+                console.log(e.latLng.lng);
+                console.log(e);
+                console.log(marker.title);
+                // console.log(fi);
+                // console.log(this);
+                // console.log(this.position);
+                // map.setCenter(marker.position);
+              });
+    }
+
+$('.GMAMP-maps-pin-view').click(function() {
+    console.log('hier');
+});
+
+    // google.maps.marker.addListener("click", () => {
+    //     // map.setZoom(8);
+    //     console.log(marker.position);
+    //     map.setCenter(marker.position);
+    //   });
+
+
+
+    // let geocoder = new google.maps.Geocoder();
+    // codeAddress(geocoder, map, pin);
+}
+
+
+// function codeAddress(geocoder, map, pin) {
+//     geocoder.geocode({'address': 'zollernstrasse 10 deckenpfronn'}, function(results, status) {
+//       if (status === 'OK') {
+
+//         // map.setCenter(results[0].geometry.location);
+//         // var marker = new google.maps.Marker({
+//         //   map: map,
+//         //   position: results[0].geometry.location
+//         // });
+
+//         new google.maps.marker.AdvancedMarkerElement({
+//                     map : map,
+//                     position: results[0].geometry.location,
+//             //         position: locations[i],
+//             //         // map: map,
+//                     content : pin.element
+//             //         title : 'A-1111'
+//             //         // content: priceTag
+//                 });
+
+
+
+//       } else {
+//         alert('Geocode was not successful for the following reason: ' + status);
+//       }
+//     });
+//   }
+
+
 
 
 // Set UI controls

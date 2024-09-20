@@ -1,0 +1,57 @@
+extends ../framework/layout
+
+block head
+
+    link(rel='stylesheet', href='/stylesheets/dev/views.css')
+    script(src='/javascripts/dev/views.js') 
+
+block body
+
+    body
+        
+        #header.dark
+            #header-logo
+            #header-title=title
+            #header-subtitle Share standard workspace views with users and groups
+            #header-toolbar
+                #header-avatar
+        .screen.surface-level-1
+
+            //- #panels.surface-level-1
+            
+            #views.surface-level-1
+                .col-title Workspace Views 
+                .col-text Select the workspaces views of your user profile to be copied to the selected recipients
+                .col-controls#views-controls
+                    .surface-level-2.col-selected#views-selected
+                    .surface-level-2.col-all#views-all
+
+            #recipients.surface-level-1
+                .col-title Users &amp; Groups
+                .col-text Select the user groups and / or individual users to receive the selected views
+                .col-controls
+                    .left
+                        .surface-level-2.col-selected#groups-selected
+                        .surface-level-2.col-all#groups-all
+                    .right
+                        .surface-level-2.col-selected#users-selected
+                        .surface-level-2.col-all#users-all
+
+            #controls.surface-level-1 
+                .col-title Controls
+                .col-text Define how to treat existing views in the given user profiles and launch the copy process. Delete existing views.
+                .col-controls 
+                    .button Delete other views
+                    .button.default Start Copy
+
+            #console.surface-level-4
+                #console-header.surface-level-4 Console                    
+                #console-content.surface-level-4
+                #console-toggle.button.icon.icon-chevron-right
+
+
+            #dialog-report.dialog
+                .dialog-header#report-header Comparison Report
+                .dialog-content#report-content
+                .dialog-footer
+                    #close-report.button.default Close

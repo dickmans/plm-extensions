@@ -3118,9 +3118,12 @@ router.get('/tableaus', function(req, res, next) {
     console.log(' ');
     console.log('  /tableaus');
     console.log(' --------------------------------------------');  
-    console.log('  req.query.wsId  = ' + req.query.wsId);
-    
-    let url = 'https://' + req.session.tenant + '.autodeskplm360.net/api/v3/workspaces/' + req.query.wsId + '/tableaus';
+    console.log('  req.query.wsId   = ' + req.query.wsId);
+    console.log('  req.query.link   = ' + req.query.link);
+    console.log('  req.query.tenant = ' + req.query.tenant);
+
+    let wsId = (typeof req.query.wsId === 'undefined') ? req.query.link.split('/')[4] : req.query.wsId
+    let url  = getTenantLink(req) + '/api/v3/workspaces/' + wsId + '/tableaus';
     
     axios.get(url, {
         headers : req.session.headers
@@ -3366,19 +3369,59 @@ router.get('/report', function(req, res, next) {
 });
 
 
-/* ----- GET USERS ----- */
+/* ----- GET ALL GROUPS ----- */
+router.get('/groups', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /groups');
+    console.log(' --------------------------------------------');  
+    console.log('  req.query.bulk   = ' + req.query.bulk);
+    console.log('  req.query.tenant = ' + req.query.tenant);
+    console.log();
+
+    let bulk    = (typeof req.query.bulk === 'undefined') ? true : req.query.bulk;
+    let url     = getTenantLink(req) + '/api/v3/groups';
+    let headers = getCustomHeaders(req);
+        
+    if(bulk) headers.Accept = 'application/vnd.autodesk.plm.groups.bulk+json';
+
+    axios.get(url, {
+        headers : headers
+    }).then(function(response) {
+        sendResponse(req, res, response, false);
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+
+});
+
+
+/* ----- GET ALL USERS ----- */
 router.get('/users', function(req, res, next) {
     
     console.log(' ');
     console.log('  /users');
     console.log(' --------------------------------------------');  
-    console.log('  req.query.offset  = ' + req.query.offset);
+    console.log('  req.query.bulk       = ' + req.query.bulk);
+    console.log('  req.query.offset     = ' + req.query.offset);
+    console.log('  req.query.limit      = ' + req.query.limit);
+    console.log('  req.query.activeOnly = ' + req.query.activeOnly);
+    console.log('  req.query.tenant     = ' + req.query.tenant);
     console.log();
 
-    let url = 'https://' + req.session.tenant + '.autodeskplm360.net/api/v3/users?limit=100&activeOnly=false&sort=displayName&mappedOnly=false&offset=' + req.query.offset;
+    let bulk       = (typeof req.query.bulk       === 'undefined') ?    true : req.query.bulk;
+    let limit      = (typeof req.query.limit      === 'undefined') ?     100 : req.query.limit;
+    let offset     = (typeof req.query.offset     === 'undefined') ?       0 : req.query.offset;
+    let activeOnly = (typeof req.query.activeOnly === 'undefined') ? 'false' : req.query.activeOnly;
+
+    let url = getTenantLink(req) + '/api/v3/users?sort=displayName&mappedOnly=false'
+        + '&activeOnly=' + activeOnly
+        + '&offset=' + offset
+        + '&limit=' + limit;
 
     let headers = getCustomHeaders(req);
-        headers.Accept = 'application/vnd.autodesk.plm.users.bulk+json';
+        
+    if(bulk) headers.Accept = 'application/vnd.autodesk.plm.users.bulk+json';
 
     axios.get(url, {
         headers : headers

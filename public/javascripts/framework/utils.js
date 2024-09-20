@@ -1908,18 +1908,19 @@ function clickCreateFormSubmit(id) {
     $('#' + id + '-footer').hide();
     $('#' + id + '-processing').show();
 
-    submitCreateForm(wsId, $('#' + id + '-sections'), null, function(response ) {
-        console.log(response);
+    submitCreateForm(wsId, $('#' + id + '-sections'), null, function(response) {
         let link = response.data.split('.autodeskplm360.net')[1];
-        
         submitCreateFormDone(id, link);
     });
 
 }
 function submitCreateFormDone(id, link) {
+
     $('#' + id).hide();
     $('#overlay').hide();
+    
     openItemByLink(link);
+
 }
 
 

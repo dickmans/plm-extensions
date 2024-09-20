@@ -38,7 +38,8 @@ h3 {
     line-height : 26px;
 }
 a {
-    color : var(--color-blue-500);
+    color           : var(--color-blue-500);
+    cursor          : pointer;
     text-decoration : none;
 }
 
