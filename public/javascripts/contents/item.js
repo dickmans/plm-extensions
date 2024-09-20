@@ -1557,7 +1557,7 @@ function insertDetailsFields(id, sections, fields, data, params, callback) {
                     let fieldId = sectionField.link.split('/')[8];
 
                     if(fieldsIn.length === 0 || fieldsIn.includes(fieldId)) {
-                        if(fieldsEx.length === 0 || !sectionsEx.includes(fieldId)) {
+                        if(fieldsEx.length === 0 || !fieldsEx.includes(fieldId)) {
                             if(sectionField.type === 'MATRIX') {
                                 for(let matrix of section.matrices) {
                                     if(matrix.urn === sectionField.urn) {
