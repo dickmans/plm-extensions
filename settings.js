@@ -536,6 +536,33 @@ exports.config = {
         }
     },
 
+    portal : {
+        workspace      : 57,
+        autoClick      : true,
+        viewerFeatures : {
+            cube          : false,
+            orbit         : false,
+            firstPerson   : false,
+            camera        : false,
+            measure       : true,
+            section       : true,
+            explodedView  : true,
+            modelBrowser  : false,
+            properties    : false,
+            settings      : false,
+            fullscreen    : true,
+            markup        : false,
+            hide          : true,
+            ghosting      : true,
+            highlight     : true,
+            single        : true,
+            fitToView     : true,
+            reset         : true,
+            views         : true,
+            selectFile    : true
+        }
+    },
+
     'portfolio' : {
         'bomViewName'       : 'Basic',
         'hierarchy'         : ['Product Categories', 'Product Lines', 'Products']
