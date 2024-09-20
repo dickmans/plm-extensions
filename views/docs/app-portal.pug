@@ -33,11 +33,32 @@
                     td portal.workspace
                     td Set the workspace being searched for
                     td 57
+                tr 
+                    td portal.sectionsExcluded
+                    td Provide list of sections (by name) that should be excluded from the Details display
+                    td ['AML Summary', 'Quality Inspection', 'Sustainability', 'Compliance', 'Others']
+                tr 
+                    td portal.sectionsIncluded
+                    td Restrict the Details display to a defined list of sections (defined by name) 
+                    td []
+                tr 
+                    td portal.fieldsExcluded
+                    td Provide list of fields (by field ID) that should be excluded from the Details display
+                    td ['ESTIMATED_COST', 'PENDING_PACKAGES']
+                tr 
+                    td portal.fieldsIncluded
+                    td Restrict the Details display to a defined list of fields (defined by field ID) 
+                    td []
         p.code
             span export.config = {
             span.indent 'service' : {
             span.indent-2 workspace : 57,
             span.indent-2 autoClick : true
+            span.indent-2 sectionsExcluded : ['AML Summary', 'Quality Inspection', 'Sustainability', 'Compliance', 'Others'],
+            span.indent-2 sectionsIncluded : [],
+            span.indent-2 fieldsExcluded   : ['ESTIMATED_COST', 'PENDING_PACKAGES'],
+            span.indent-2 fieldsIncluded   : [],
+            span.indent-2 viewerFeatures   : { .. }
             span.indent }
             span }         
         h1 Configuring Viewer Features

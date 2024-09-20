@@ -537,9 +537,13 @@ exports.config = {
     },
 
     portal : {
-        workspace      : 57,
-        autoClick      : true,
-        viewerFeatures : {
+        workspace        : 57,
+        autoClick        : true,
+        sectionsExcluded : ['AML Summary', 'Quality Inspection', 'Sustainability', 'Compliance', 'Others'],
+        sectionsIncluded : [],
+        fieldsExcluded   : ['ESTIMATED_COST', 'PENDING_PACKAGES'],
+        fieldsIncluded   : [],
+        viewerFeatures   : {
             cube          : false,
             orbit         : false,
             firstPerson   : false,
@@ -561,7 +565,7 @@ exports.config = {
             views         : true,
             selectFile    : true
         }
-    },
+    },  
 
     'portfolio' : {
         'bomViewName'       : 'Basic',

@@ -67,7 +67,10 @@ function openItem(link) {
 
     insertDetails(link, {
         hideComputed : true,
-        sectionsEx   : ['AML Summary', 'Quality Inspection', 'Sustainability', 'Compliance', 'Others']
+        sectionsEx   : config.portal.sectionsExcluded,
+        sectionsIn   : config.portal.sectionsIncluded,
+        fieldsEx     : config.portal.fieldsExcluded,
+        fieldsIn     : config.portal.fieldsIncluded
     });
 
     insertAttachments(link, {
