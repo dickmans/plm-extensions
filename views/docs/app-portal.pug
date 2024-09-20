@@ -1,0 +1,55 @@
+.tile(data-name='PLM Portal')
+    .tile-image(style="background: url('images/app-portal.png') no-repeat;background-size:contain;")
+    .tile-details
+        .tile-title PLM Portal
+        .tile-subtitle Provide quick access to latest product data in PLM using a very basic frontend for casual users, working well on tablets
+        .tile-access 
+            .tile-endpoint /portal
+            .tile-button.button.default(href="portal" target="_blank") Open
+    .instructions
+        h1 Features
+        p Search for any design using its number and descriptor or access your most recent items to continue where you left. Once a design is selected, the following features are available:
+        ul
+            li 3D Viewer with exploded view
+            li Item Details
+            li Item Attachments
+            li BOM with cross-highlight
+        h1 Define Startup Item 
+        p You can pass the parameters dmsId and wsId in your URL to skip the search and let the portal open the given item direclty. Searches are still possible by using the toggle button in the main toolbar.
+        img(src='images/apps/portal-1.png' style='width:100%;max-width:1280px;margin:10px 0px 30px;')
+        h1 Configuration Settings
+        p The following settings can be adjusted in your settings file within the portal parameter to adjust the application's behavior:
+        p 
+            table 
+                tr 
+                    th Setting 
+                    th Description 
+                    th Default Value
+                tr 
+                    td portal.autoClick
+                    td When set to true and the search returns one result only, the given item will be selected automaticall
+                    td true
+                tr 
+                    td portal.workspace
+                    td Set the workspace being searched for
+                    td 57
+        p.code
+            span export.config = {
+            span.indent 'service' : {
+            span.indent-2 workspace : 57,
+            span.indent-2 autoClick : true
+            span.indent }
+            span }         
+        h1 Configuring Viewer Features
+        include ../framework/viewer.pug
+    .log 
+        h1 Workspace Navigator Change Log 
+        table 
+            tr 
+                td 7. July 2023
+                td Enhancement
+                td Read-only fields are shown as read-only now
+            tr 
+                td 
+                td Enhancement
+                td Button 'Toggle Panel' has been replaced with dedicated close buttons to improve usability

@@ -1,0 +1,32 @@
+extends ../framework/layout
+
+block head
+    
+    link(rel='stylesheet', href='/stylesheets/apps/portal.css')
+    script(src='/javascripts/apps/portal.js')
+    script.
+        config = !{JSON.stringify(config)};
+
+block body
+
+    body.surface-level-1.no-attachments.no-bom
+
+        #header.dark
+            #header-logo
+            #header-title= title
+            #header-subtitle
+            #header-toolbar
+                .button.with-icon.icon-toggle-on.filled#toggle-search Search
+                .button.with-icon.icon-toggle-off#toggle-bom BOM
+                .button.with-icon.icon-toggle-off#toggle-attachments Files
+                #header-avatar
+        
+        #main.screen
+
+            .surface-level-3#search
+            .surface-level-3#recents
+
+            .surface-level-1.item-panel#bom
+            .surface-level-1.item-panel#viewer.viewer
+            .surface-level-2.item-panel#details.compact
+            .surface-level-2.item-panel#attachments
