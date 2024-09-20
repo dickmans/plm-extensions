@@ -545,8 +545,9 @@ function compareItemDetailsTab() {
         environments.target.picklists = responses[5].data.list.picklist;
 
         for(let sectionTarget of sectionsTarget) {
-            sectionTarget.hasMatch = false;
-            let index = 1;
+            sectionTarget.hasMatch  = false;
+            sectionTarget.name      = sectionTarget.name.trim();
+            let index               = 1;
             for(let sectionField of sectionTarget.fields) {
                 for(let fieldTarget of fieldsTarget) {
                     if(fieldTarget.__self__ === sectionField.link) {
@@ -574,8 +575,9 @@ function compareItemDetailsTab() {
 
         for(let sectionSource of sectionsSource) {
 
-            let hasMatch = false;
-            let index    = 1;
+            let hasMatch        = false;
+            let index           = 1;
+            sectionSource.name  = sectionSource.name.trim();
 
             for(let sectionField of sectionSource.fields) {
                 for(let fieldSource of fieldsSource) {
@@ -585,6 +587,7 @@ function compareItemDetailsTab() {
                     }
                 }
             }
+
             for(let sourceMatrix of sectionSource.matrices) {
                 for(let matrixRow of sourceMatrix.fields) {
                     for(let matrixField of matrixRow) {
@@ -758,11 +761,20 @@ function compareItemDetailsTab() {
         }
 
         for(let fieldTarget of fieldsTarget) {
+
             fieldTarget.hasMatch = false;
             fieldTarget.valMatch = false;
             fieldTarget.id       = fieldTarget.__self__.split('/').pop();
             fieldTarget.label    = '<b>' + fieldTarget.name + ' (' + fieldTarget.id + ')</b>';
+
             for(let validation of fieldTarget.fieldValidators) validation.hasMatch = false;
+
+            if(!isBlank(fieldTarget.defaultValue)) {
+                if(typeof fieldTarget.defaultValue === 'object') {
+                    fieldTarget.defaultValue = fieldTarget.defaultValue.title;
+                }
+            }
+
         }
 
         for(let fieldSource of fieldsSource) {
@@ -772,6 +784,12 @@ function compareItemDetailsTab() {
                 let hasMatch    = false;
                 let reportMatch = false;
                 let id          = fieldSource.__self__.split('/').pop();
+
+                if(!isBlank(fieldSource.defaultValue)) {
+                    if(typeof fieldSource.defaultValue === 'object') {
+                        fieldSource.defaultValue = fieldSource.defaultValue.title;
+                    }
+                }
                 
                 for(let fieldTarget of fieldsTarget) {
 
@@ -911,7 +929,7 @@ function compareItemDetailsTab() {
                                 });
                             } else if(fieldSource.formulaField) {
                                 addActionEntry({
-                                    text : 'Review formula of field ' + fieldTarget.label + ' in section <b>' + fieldSource.section + '</b> is it cannot be compared automatically',
+                                    text : 'Review formula of field ' + fieldTarget.label + ' in section <b>' + fieldSource.section + '</b> as it cannot be compared automatically',
                                     step : step,
                                     url  : url
                                 });                                
@@ -2311,7 +2329,6 @@ function compareBehaviors() {
             }
         }
 
-
         if(!matches.create) { match = false; addLogEntry('Workspace on create scripts do not match'); }
         if(!matches.edit)   { match = false; addLogEntry('Workspace on edit scripts do not match'); }
         if(!matches.demand) { match = false; addLogEntry('Workspace on demand scripts do not match'); }
@@ -2753,19 +2770,27 @@ function comparePicklists() {
     addLogEntry('Starting Picklists comparison', 'head');
     addReportHeader('icon-picklist', 'Picklists');
 
-    let requestsSource = [];
-    let requestsTarget = [];
-
-    for(let picklist of environments.picklists) {
-        requestsSource.push($.get('/plm/picklist-setup', { link : picklist }));
-    }
-
+    let requestsSource  = [];
+    let requestsTarget  = [];
     let sourcePicklists = [];
     let targetPicklists = [];
     let url             = '/admin#section=setuphome&tab=general&item=picklistedit&params=';
     let step            = 'picklists';
 
+    for(let picklist of environments.picklists) {
+        if(picklist === '/api/v3/lookups/BOM-UOM') {
+            addActionEntry({ 
+                text : 'Please review the BOM UOM Pick List used by this workspace, it cannot be compared using the REST API', 
+                step : step, 
+                url  : '/admin#section=setuphome&tab=general&item=uomsetupedit' 
+            });
+            addLogEntry('Workspace uses BOM UOM Pick List which cannot be compared'); 
+        } else requestsSource.push($.get('/plm/picklist-setup', { link : picklist }));
+    }
+
     Promise.all(requestsSource).then(function(responses) {
+
+        console.log(responses);
 
         for(let response of responses) sourcePicklists.push(response.data.picklist);
 
