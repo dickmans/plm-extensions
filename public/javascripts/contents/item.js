@@ -1307,6 +1307,7 @@ function insertDetails(link, params) {
     let collapsed       = false;        // When enabled, the sections will be collapsed at startup
     let sectionsIn      = [];           // Define list of columns to include by fieldId; columns not included in this list will not be shown at all. Keep empty to show all columns.
     let sectionsEx      = [];           // Define list of columns to exclude by fieldId; columns in this list will not be shown at all. Keep empty to show all columns.
+    let sectionsOrder   = [];           // Define the sequence of sections in which they should be shown. Provide an array with section names. Sections that are not contained will be appended at the end in default order.
     let fieldsIn        = [];           // Define list of columns to include by fieldId; columns not included in this list will not be shown at all. Keep empty to show all columns.
     let fieldsEx        = [];           // Define list of columns to exclude by fieldId; columns in this list will not be shown at all. Keep empty to show all columns.
 
@@ -1327,6 +1328,7 @@ function insertDetails(link, params) {
     if(!isBlank(params.collapsed)     )      collapsed = params.collapsed;
     if(!isBlank(params.sectionsIn)    )     sectionsIn = params.sectionsIn;
     if(!isBlank(params.sectionsEx)    )     sectionsEx = params.sectionsEx;
+    if(!isBlank(params.sectionsOrder) )  sectionsOrder = params.sectionsOrder;
     if(!isBlank(params.fieldsIn)      )       fieldsIn = params.fieldsIn;
     if(!isBlank(params.fieldsEx)      )       fieldsEx = params.fieldsEx;
 
@@ -1339,6 +1341,7 @@ function insertDetails(link, params) {
     settings.details[id].sectionsIn     = sectionsIn;
     settings.details[id].collapsed      = collapsed;
     settings.details[id].sectionsEx     = sectionsEx;
+    settings.details[id].sectionsOrder  = sectionsOrder;
     settings.details[id].fieldsIn       = fieldsIn;
     settings.details[id].fieldsEx       = fieldsEx;
 
@@ -1497,6 +1500,29 @@ function insertDetailsFields(id, sections, fields, data, params, callback) {
                 }
             }
         }
+    }
+
+    
+    if(!isBlank(settings.details[id].sectionsOrder)) {
+
+        let sort = 1;
+
+        for(let orderedSection of settings.details[id].sectionsOrder) {
+            for(let section of sections) {
+                if(orderedSection === section.name) {
+                    section.order = sort++;
+                }
+            }
+        }
+
+        for(let section of sections) {
+            if(isBlank(section.order)) {
+                section.order = sort++;
+            }
+        }
+
+        sortArray(sections, 'order', 'Integer');
+
     }
 
     for(let section of sections) {
