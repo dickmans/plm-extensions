@@ -13,6 +13,7 @@ The following extensions are included
 - Design Review Portal
 - MBOM Editor
 - Mobile Client
+- PLM Portal
 - Process Dashboard
 - Product Portfolio Catalog
 - Product Data Explorer
@@ -21,4 +22,5 @@ The following extensions are included
 - Services Portal
 - Tenant Inisghts
 - Variants Manager
+- Workspace Comparison
 - Workspaces Navigator
