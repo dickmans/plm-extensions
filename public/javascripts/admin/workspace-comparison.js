@@ -767,7 +767,11 @@ function compareItemDetailsTab() {
             fieldTarget.id       = fieldTarget.__self__.split('/').pop();
             fieldTarget.label    = '<b>' + fieldTarget.name + ' (' + fieldTarget.id + ')</b>';
 
-            for(let validation of fieldTarget.fieldValidators) validation.hasMatch = false;
+            if(isBlank(fieldTarget.fieldValidators)) {
+                fieldTarget.fieldValidators = [];
+            } else {
+                for(let validation of fieldTarget.fieldValidators) validation.hasMatch = false;
+            } 
 
             if(!isBlank(fieldTarget.defaultValue)) {
                 if(typeof fieldTarget.defaultValue === 'object') {
@@ -948,8 +952,6 @@ function compareItemDetailsTab() {
                                     url  : url
                                 });
                             } else if(fieldSource.index !== fieldTarget.index) {
-                                console.log(fieldSource);
-                                console.log(fieldTarget);
                                 matches.fieldsOrder = false;
                                 reportMatch = false;
                                 addActionEntry({
@@ -1038,6 +1040,8 @@ function compareItemDetailsTab() {
 
 }
 function getFieldValidationsMatch(matches, fieldSource, fieldTarget, step, url) {
+
+    if(isBlank(fieldSource.fieldValidators)) return true;
 
     if(fieldSource.fieldValidators.length === 0) {
         if(fieldTarget.fieldValidators.length === 0) {
@@ -1921,7 +1925,6 @@ function compareBOMTab() {
                         }
 
                         if(!included) {
-                            console.log(fieldSource);
                             matches.fieldsViews = false;
                             addActionEntry({
                                 text : 'Add field ' + fieldSource.label + ' to BOM view <b>' + sourceFieldView.name + '</b> at position <b>' + (sourceFieldView.order) + '</b>',
@@ -2789,8 +2792,6 @@ function comparePicklists() {
     }
 
     Promise.all(requestsSource).then(function(responses) {
-
-        console.log(responses);
 
         for(let response of responses) sourcePicklists.push(response.data.picklist);
 
