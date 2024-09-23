@@ -541,6 +541,7 @@ exports.config = {
         autoClick        : true,
         sectionsExcluded : ['AML Summary', 'Quality Inspection', 'Sustainability', 'Compliance', 'Others'],
         sectionsIncluded : [],
+        sectionsOrder    : ['Basic', 'Technical Details', 'PDM Data'],
         fieldsExcluded   : ['ESTIMATED_COST', 'PENDING_PACKAGES'],
         fieldsIncluded   : [],
         viewerFeatures   : {

@@ -42,6 +42,10 @@
                     td Restrict the Details display to a defined list of sections (defined by name) 
                     td []
                 tr 
+                    td portal.sectionsOrder
+                    td Defines the order of the sections being shown, defined by an array with list of section names 
+                    td ['Basic', 'Technical Details', 'PDM Data']
+                tr 
                     td portal.fieldsExcluded
                     td Provide list of fields (by field ID) that should be excluded from the Details display
                     td ['ESTIMATED_COST', 'PENDING_PACKAGES']
@@ -56,6 +60,7 @@
             span.indent-2 autoClick : true
             span.indent-2 sectionsExcluded : ['AML Summary', 'Quality Inspection', 'Sustainability', 'Compliance', 'Others'],
             span.indent-2 sectionsIncluded : [],
+            span.indent-2 sectionsOrder    : ['Basic', 'Technical Details', 'PDM Data'],
             span.indent-2 fieldsExcluded   : ['ESTIMATED_COST', 'PENDING_PACKAGES'],
             span.indent-2 fieldsIncluded   : [],
             span.indent-2 viewerFeatures   : { .. }
