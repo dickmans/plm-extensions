@@ -3113,6 +3113,7 @@ function compareScriptSources() {
     addReportHeader('icon-script', 'Scripts Sources');
 
     let requests = [];
+    let included = [];
     let counters = { create : 0, edit : 0, demand : 0,  validation : 0, condition : 0, action : 0 };
 
     for(let script of environments.scripts) {
@@ -3120,8 +3121,13 @@ function compareScriptSources() {
         let linkSource = (isBlank(script.source.__self__)) ? script.source.link : script.source.__self__;
         let linkTarget = (isBlank(script.target.__self__)) ? script.target.link : script.target.__self__;
 
-        requests.push($.get('/plm/script', { link : linkSource, type : script.type}));
-        requests.push($.get('/plm/script', { link : linkTarget, tenant : environments.target.tenantName }));
+        if(!included.includes(linkSource)) {
+
+            included.push(linkSource);
+            
+            requests.push($.get('/plm/script', { link : linkSource, type : script.type}));
+            requests.push($.get('/plm/script', { link : linkTarget, tenant : environments.target.tenantName }));
+        }
 
     }
 
