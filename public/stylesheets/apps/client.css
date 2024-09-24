@@ -561,6 +561,10 @@
 }
 
 /* ITEM DETAILS */
+.item-content > div {
+    padding : 0px;
+    position : unset;
+}
 .section {
     margin : 10px 18px 10px;
     padding : 8px 12px;
