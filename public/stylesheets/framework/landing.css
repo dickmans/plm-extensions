@@ -151,6 +151,7 @@ h2 {
 }
 .tile-access {
     display         : flex;
+    gap             : 8px;
     justify-content : space-between;
     line-height     : 36px;
     order           : 3;
@@ -158,8 +159,14 @@ h2 {
 }
 .tile-endpoint {
     color       : var(--color-blue-500);
+    flex-grow   : 1;
     font-weight : 700;
-    /* margin      : 4px 0px 20px; */
+    white-space : nowrap;
+    overflow : hidden;
+    text-overflow: ellipsis;
+}
+.tile-access > .button.icon {
+    padding : 0px;
 }
 
 
