@@ -1,8 +1,8 @@
 // Fusion 360 Manage connection based on APS Application
-let clientId        = '6x2wGJAOsgfcjNvVwH2uQCspWWGBLA9bjhYv20UFiGkymhHA';
+let clientId        = '';
 // let clientSecret    = '';
-let tenant          = 'hawacloudsandbox';
-let redirectUri     = 'https://wa-plm-extensions.azurewebsites.net/callback/'; // https://wa-plm-extensions.azurewebsites.net:8080/callback/
+let tenant          = '';
+let redirectUri     = 'http://localhost:8080/callback'; // https://wa-plm-extensions.azurewebsites.net:8080/callback/
 let defaultTheme    = 'light';
 
 
