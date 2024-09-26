@@ -3,6 +3,8 @@ extends ../framework/layout
 block head
 
     link(rel='stylesheet', href='/stylesheets/admin/workspace-comparison.css')
+    link(rel='stylesheet', href='/stylesheets/framework/console.css')
+    script(src='/javascripts/framework/console.js') 
     script(src='/javascripts/admin/workspace-comparison.js') 
 
 block body
@@ -42,9 +44,9 @@ block body
                     #comparison-report.button.with-icon.icon-details.disabled Report
                     #comparison-stop.button.with-icon.icon-stop.disabled Stop
             
-            #comparison-console.surface-level-4
+            #console.surface-level-4
                 #console-header.surface-level-4 Console                    
-                #console.surface-level-4
+                #console-content.surface-level-4
                 #console-toggle.button.icon.icon-chevron-right
 
             #comparison-results.surface-level-2

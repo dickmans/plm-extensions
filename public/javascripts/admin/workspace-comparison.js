@@ -6,8 +6,6 @@ let environments = {
     libraries : []
 }
 
-let stopped = false;
-
 
 $(document).ready(function() {
 
@@ -50,14 +48,9 @@ function setUIEvents() {
     });
     $('#comparison-stop').click(function() {
         if($(this).hasClass('disabled')) return;
-        addLogEntry('### Comparison stopped ###', 'stop');
+        addLogStopped();
         endComparison();
      });
-
-    $('#console-toggle').click(function() {
-        $(this).toggleClass('icon-chevron-right').toggleClass('icon-chevron-left');
-        $('body').toggleClass('no-console');
-    })
 
     $('#open-limitations').click(function() {
         $('#dialog-limitations').show();
@@ -113,45 +106,37 @@ function getWorkspaces(id) {
 }
 
 
-// Add outputs
-function addLogEntry(text, type) {
+// Add Report Contents
+function addReportHeader(icon, label) {
 
-    if(stopped) return;
+    let elemParent = $('#report-content');
+    let elemHeader = $('<div></div>').appendTo(elemParent).addClass('report-header');
 
-    if(isBlank(type)) type = 'std';
-    
-    let prefix    = '';
-    let className = type;
+    $('<div></div>').appendTo(elemHeader).addClass('icon').addClass(icon);
+    $('<div></div>').appendTo(elemHeader).addClass('label').html(label);
 
-    switch(type) {
+}
+function addReportDetail(section, label, match) {
 
-        case 'diff'  : prefix = '! '; break;
-        case 'match' : prefix = '+ '; break;
-        case 'head'  : prefix = ''   ; break;
-        case 'stop'  : prefix = ''   ; break;
-        default      : prefix = ' - '; break;
+    if(isBlank(match)) match = true;
 
-    }
+    let className   = (match) ? 'match' : 'diff';
+    let classIcon   = (match) ? 'icon-check' : 'icon-block';
+    let elemParent  = $('#report-content');
+    let elemDetails = $('<div></div>').appendTo(elemParent).addClass('report-detail');
 
-    $('<div></div>').appendTo($('#console'))
-        .addClass('console-text')
+    $('<div></div>').appendTo(elemDetails).addClass('report-section').html(section);
+    $('<div></div>').appendTo(elemDetails).addClass('report-value').html(label);
+    $('<div></div>').appendTo(elemDetails)
+        .addClass('report-icon')
+        .addClass('icon')
         .addClass(className)
-        .html('<span>' + prefix + '</span>' + text);
-
-    let divElement = document.getElementById('console');
-        divElement.scrollTop = divElement.scrollHeight;
+        .addClass(classIcon);
 
 }
-function addLogSeparator() {
 
-    $('<div></div>').appendTo($('#console '))
-        .addClass('console-separator')
-        .html('----------------------------------------------------------------------------');
 
-    let divElement = document.getElementById('console');
-        divElement.scrollTop = divElement.scrollHeight;
-
-}
+// Add Action
 function addActionEntry(params) {
 
     let elemParent = $('#actions-' + params.step);
@@ -183,33 +168,6 @@ function addActionEntry(params) {
         });
 
 }
-function addReportHeader(icon, label) {
-
-    let elemParent = $('#report-content');
-    let elemHeader = $('<div></div>').appendTo(elemParent).addClass('report-header');
-
-    $('<div></div>').appendTo(elemHeader).addClass('icon').addClass(icon);
-    $('<div></div>').appendTo(elemHeader).addClass('label').html(label);
-
-}
-function addReportDetail(section, label, match) {
-
-    if(isBlank(match)) match = true;
-
-    let className   = (match) ? 'match' : 'diff';
-    let classIcon   = (match) ? 'icon-check' : 'icon-block';
-    let elemParent  = $('#report-content');
-    let elemDetails = $('<div></div>').appendTo(elemParent).addClass('report-detail');
-
-    $('<div></div>').appendTo(elemDetails).addClass('report-section').html(section);
-    $('<div></div>').appendTo(elemDetails).addClass('report-value').html(label);
-    $('<div></div>').appendTo(elemDetails)
-        .addClass('report-icon')
-        .addClass('icon')
-        .addClass(className)
-        .addClass(classIcon);
-
-}
 
 
 // Launch & stop comparison
@@ -217,7 +175,7 @@ function startComparison() {
 
     stopped = false;
 
-    $('#console').html('');
+    $('#console-content').html('');
     $('.result-summary').html('');
     $('.result-actions').html('');
     $('#report-content').html('');
@@ -267,8 +225,6 @@ function endComparison() {
     $('#comparison-start').removeClass('disabled');
     $('#comparison-stop').addClass('disabled');
     $('#comparison-report').removeClass('disabled');
-    
-    stopped = true;
 
 }
 
@@ -3328,8 +3284,8 @@ function compareLibraryScripts() {
                     $('#result-libraries').addClass('diff');
                 }
 
-                addLogEntry('### Comparison ended ###', 'stop');
                 endComparison();
+                addLogStopped();
 
             });
 
@@ -3339,7 +3295,7 @@ function compareLibraryScripts() {
         $('#summary-libraries').html('Library Scripts : ' + environments.libraries.length);
         addLogEntry('No library scripts required', 'match');
         $('#result-libraries').addClass('match');
-        addLogEntry('### Comparison ended ###', 'stop');
+        addLogEnd();
         endComparison();
     }
 

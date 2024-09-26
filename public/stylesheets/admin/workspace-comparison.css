@@ -6,7 +6,7 @@
     --panel-border-width-v : 42px;
     --panel-border-width-h : 60px;
     --width-comparison-text : 350px;
-    --width-console : 550px;
+    --width-console : 442px;
     --width-buttons : 160px;
     --width-results : 500px;
 
@@ -18,12 +18,9 @@
     right           : calc(var(--width-console) + (2 * var(--panel-border-width-h)));
     left            : 0px;
 }
-#comparison-console {
+#console {
     border-width    : var(--panel-border-width-v) var(--panel-border-width-h);
-    top             : 0px;
     right           : 0px;
-    bottom          : 0px;
-    width           : var(--width-console);
 }
 #comparison-results {
     border-width    : 0px var(--panel-border-width-h) var(--panel-border-width-v);
@@ -35,7 +32,7 @@
 
 body.no-console #comparison-controls,
 body.no-console #comparison-results { right : var(--panel-border-width-h);}
-body.no-console #comparison-console {
+body.no-console #console {
     right : calc(0px - var(--width-console) - var(--panel-border-width-h));
 }
 
@@ -109,57 +106,6 @@ body.no-console #comparison-console {
 #comparison-stop:hover.disabled,
 #comparison-stop.disabled {
     background : unset;
-}
-
-
-
-/*  COMPARISON CONSOLE */
-/* ----------------------------------------------------------------------------- */
-#comparison-console {
-    font-family : monospace;
-}
-#console-header {
-    font-size : 18px;
-}
-#console {
-    overflow-y      : auto;
-    scroll-behavior : smooth;
-    position        : absolute;
-    top             : 50px;
-    right           : 0px;
-    bottom          : 00px;
-    left            : 0px;
-}
-#console > div {
-    font-size     : 12px;
-    line-height   : 16px;
-    overflow      : hidden;
-    white-space   : nowrap;
-    text-overflow : ellipsis;
-    
-}
-.console-text.head { 
-    font-weight   : bold; 
-    margin-bottom : 4px; 
-}
-.console-text.diff  span { color : var(--color-status-red);   }
-.console-text.match span { color : var(--color-status-green); }
-.console-text b {
-    font-weight : normal !important;
-}
-.console-separator {
-    padding : 6px 0px;
-}
-.console-text.stop { 
-    font-weight   : bold; 
-    margin-top    : 24px; 
-}
-#console-toggle {
-    border          : 2px solid var(--color-surface-level-2);
-    border-radius   : 50%;
-    position        : absolute;
-    top             : -9px;
-    right           : calc(var(--width-console) - 19px + (1 * var(--panel-border-width-h)));
 }
 
 
@@ -331,6 +277,8 @@ body.no-console #comparison-console {
 }
 .report-icon.match { background  : var(--color-status-green); }
 .report-icon.diff { background  : var(--color-status-red); }
+
+
 
 @media (max-width: 1920px) {
 
