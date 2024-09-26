@@ -6,12 +6,27 @@ let defaultTheme    = 'light';
 
 
 
+// The USER SETTINGS MANAGER requires an APS application with Client ID and Client Secret
+// for 2-legged authentications. Such an application enables impersonation that is required
+// for this utility to work. Howevery, as this impacts security, its is recommended to
+// provide the following settings only if the USER SETTINGS MANAGER will be used, maybe
+// even only temporarily or in a local copy of this server.
+// All other applications will work even if the following 2 settings are not provided.
+// Note that you can also provide these settings using the given environment variables
+// ADMIN_CLIENT_ID and ADMIN_CLIENT_SECRET.
+let adminClientId     = '***********************';
+let adminClientSecret = '***********************';
+
+
+
 // -------------------------------------------------------------------------------------------
 // OVERRIDE SETTINGS WITH ENVIRONMENT VARIABLES
-clientId     = (typeof process.env.CLIENT_ID      === 'undefined') ? clientId     : process.env.CLIENT_ID;
-tenant       = (typeof process.env.TENANT         === 'undefined') ? tenant       : process.env.TENANT;
-redirectUri  = (typeof process.env.REDIRECT_URI   === 'undefined') ? redirectUri  : process.env.REDIRECT_URI;
-defaultTheme = (typeof process.env.DEFAUlT_THEME  === 'undefined') ? defaultTheme : process.env.DEFAUlT_THEME;
+clientId            = (typeof process.env.CLIENT_ID           === 'undefined') ? clientId         : process.env.CLIENT_ID;
+tenant              = (typeof process.env.TENANT              === 'undefined') ? tenant           : process.env.TENANT;
+redirectUri         = (typeof process.env.REDIRECT_URI        === 'undefined') ? redirectUri      : process.env.REDIRECT_URI;
+defaultTheme        = (typeof process.env.DEFAUlT_THEME       === 'undefined') ? defaultTheme      : process.env.DEFAUlT_THEME;
+adminClientId       = (typeof process.env.ADMIN_CLIENT_ID     === 'undefined') ? adminClientId     : process.env.ADMIN_CLIENT_ID;
+adminClientSecret   = (typeof process.env.ADMIN_CLIENT_SECRET === 'undefined') ? adminClientSecret : process.env.ADMIN_CLIENT_SECRET;
 
 let protocol  = redirectUri.split('://')[0];
     protocol  = (typeof process.env.PROTOCOL === 'undefined') ? protocol : process.env.PROTOCOL;
@@ -25,13 +40,15 @@ if(typeof port === 'undefined') {
     }
 }
 
-exports.clientId        = clientId;
-exports.tenant          = tenant; 
-exports.redirectUri     = redirectUri;
-exports.defaultTheme    = defaultTheme;
-exports.protocol        = protocol;
-exports.port            = port;
-exports.debugMode       = true;
+exports.clientId          = clientId;
+exports.tenant            = tenant; 
+exports.redirectUri       = redirectUri;
+exports.defaultTheme      = defaultTheme;
+exports.adminClientId     = adminClientId;
+exports.adminClientSecret = adminClientSecret;
+exports.protocol          = protocol;
+exports.port              = port;
+exports.debugMode         = true;
 
 
 

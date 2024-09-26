@@ -33,14 +33,16 @@ if ((process.argv.length > 2) && (!fs.existsSync('./' + fileSettings))) {
 
 
     // READ CONFIGURATION SETTINGS
-    app.locals.tenant       = settings.tenant;
-    app.locals.clientId     = settings.clientId;
-    app.locals.redirectUri  = settings.redirectUri;
-    app.locals.config       = settings.config;
-    app.locals.debugMode    = settings.debugMode;
-    app.locals.defaultTheme = settings.defaultTheme;
+    app.locals.tenant            = settings.tenant;
+    app.locals.clientId          = settings.clientId;
+    app.locals.redirectUri       = settings.redirectUri;
+    app.locals.config            = settings.config;
+    app.locals.debugMode         = settings.debugMode;
+    app.locals.defaultTheme      = settings.defaultTheme;
+    app.locals.adminClientId     = settings.adminClientId;
+    app.locals.adminClientSecret = settings.adminClientSecret;
 
-
+    
     // VIEW ENGINE SETUP
     app.set('views', path.join(__dirname, 'views'));
     app.set('view engine', 'pug');

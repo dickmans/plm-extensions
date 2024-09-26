@@ -1,0 +1,46 @@
+.tile(data-name='User Settings Manager')
+    .tile-image(style="background: url('images/admin-users.png') no-repeat;background-size:contain;")
+    .tile-details
+        .tile-title User Settings Manager
+        .tile-subtitle Set default settings for your tenant users to provide a better user experience. Share workspace views, configure the dashboard charts and set the color theme to drive user adoption.
+        .tile-access 
+            .tile-endpoint /users
+            .tile-button.button.default(href="users" target="_blank") Open
+            .tile-button.button.icon.icon-start.default(href="https://youtu.be/hJjxoovwbS8" target="_blank")
+    .instructions
+        h1 Important 
+        p This utility makes use of impersonation to adjust the views and preferences of other users. This requires a 2-legged-authentication with an APS application based on Client ID and Client Secret. As this weakenes the security, it is recommended to proivde the additional settings required by this utility only if it is going to be used. You may want to use this utility witih a local instance of the UX server only to not have the Client Secret stored on a server being accessible globally.
+        p To enable this utility, you must create an additional APS application of type 
+            strong Traditional Web App
+            |, providing a Client ID and a Client Secret. The given Client ID must be whitelisted in your tenant. Next, provide the ID and the Secret in your settings in variables 
+            strong adminClientId 
+            |and 
+            strong adminClientSecret
+            |. Do not change the standard Client ID being used by the other applications.
+        img(src='images/apps/users-1.png' style='max-height:384px;max-width:726px;')
+        p If these two setting are left blank, the UX server will work anyway and you can use all utilities except for the 
+            strong User Settings Manager 
+            |.
+        h1 Features
+        p Once you selected groups and users on the left hand side to receive the updated settings, you can use the tabs in center to select the settings to be updated.
+        h2 Theme 
+        p Set the light or dark theme for the user. If you select the option 
+            strong No Change 
+            |, the given setting will not be changed and the theme selected by the user remains active. Users can still use the standard controls to toggle the theme, this cannot be prevented with this utility.
+        h2 Workspace Views 
+        p Select from your list of workspaces views the ones to be shared with the selected groups and users. Double-click a view to automatically select all views of the same workspace. You can also set one view per workspace as default view using the given toggle next to the view.
+        p If users do not have access to the given workspace, there will be a matching output in the console and the utility will continue processing the remaining views and users.
+        p If a matching view already exists, it will only be updated if you select the 
+            strong Force Update 
+            |option. 
+        h2 Charts 
+        p From the list of charts available to you, select the ones to be shared with the selected groups and users. If a user does not have access to a given chart, the utility will continue with the next chart and user.
+        p If you select to update the user's chart, this will ALWAYS overwrite the current user preferences, the current chart selection will be cleared before the new selection gets applied.
+        p As the user dashboards can only contain a maximum of 9 charts, if you select more than 9 charts, only the first 9 once will be applied. A console output will list the charts being ignored.
+    .log 
+        h1 Tenant Insights Change Log 
+        table 
+            tr 
+                td September 26, 2024
+                td New
+                td Initial release of this utility

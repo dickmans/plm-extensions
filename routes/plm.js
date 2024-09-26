@@ -3121,12 +3121,20 @@ router.get('/tableaus', function(req, res, next) {
     console.log('  req.query.wsId   = ' + req.query.wsId);
     console.log('  req.query.link   = ' + req.query.link);
     console.log('  req.query.tenant = ' + req.query.tenant);
+    console.log('  req.query.user   = ' + req.query.user);
+    console.log();
 
-    let wsId = (typeof req.query.wsId === 'undefined') ? req.query.link.split('/')[4] : req.query.wsId
-    let url  = getTenantLink(req) + '/api/v3/workspaces/' + wsId + '/tableaus';
-    
+    let wsId    = (typeof req.query.wsId === 'undefined') ? req.query.link.split('/')[4] : req.query.wsId
+    let url     = getTenantLink(req) + '/api/v3/workspaces/' + wsId + '/tableaus';
+    let headers = getCustomHeaders(req);
+
+    if(typeof req.query.user !== 'undefined') {
+        headers['Authorization'] = req.session.admin;
+        headers['X-user-id']     = req.query.user;
+    }
+
     axios.get(url, {
-        headers : req.session.headers
+        headers : headers
     }).then(function(response) {
         let result = [];
         if(response.data !== '') result = response.data.tableaus;
@@ -3134,7 +3142,7 @@ router.get('/tableaus', function(req, res, next) {
     }).catch(function(error) {
         sendResponse(req, res, error.response, true);
     });
-    
+
 });
 
 
@@ -3159,27 +3167,42 @@ router.get('/tableau-init', function(req, res, next) {
 });
 
 
-/* ----- CREATE BASE VIEW ----- */
+/* ----- CREATE WORKSPACE VIEW ----- */
 router.get('/tableau-add', function(req, res, next) {
     
+    console.log(req);
+
     console.log(' ');
     console.log('  /tableau-add');
     console.log(' --------------------------------------------');  
-    console.log('  req.query.wsId    = ' + req.query.wsId);
-    console.log('  req.query.name    = ' + req.query.name);
-    console.log('  req.query.columns = ' + req.query.columns);
+    console.log('  req.query.wsId        = ' + req.query.wsId);
+    console.log('  req.query.name        = ' + req.query.name);
+    console.log('  req.query.columns     = ' + req.query.columns);
+    console.log('  req.query.default     = ' + req.query.default);
+    console.log('  req.query.showDeleted = ' + req.query.showDeleted);
+    console.log('  req.query.user        = ' + req.query.user);
+    console.log();
     
-    let title       = (typeof req.query.name === 'undefined') ? 'New View' : req.query.name;
+    let title       = (typeof req.query.name    === 'undefined') ? 'New View' : req.query.name;
     let columns     = (typeof req.query.columns === 'undefined') ? ['descriptor', 'created_on', 'last_modified_on'] : req.query.columns;
-    let url         = 'https://' + req.session.tenant + '.autodeskplm360.net/api/v3/workspaces/' + req.query.wsId + '/tableaus';
-    let urlFields   = 'https://' + req.session.tenant + '.autodeskplm360.net/api/v3/workspaces/' + req.query.wsId + '/fields';
+    let isDefault   = (typeof req.query.default === 'undefined') ? false : req.query.default;
+    let url         = getTenantLink(req) + '/api/v3/workspaces/' + req.query.wsId + '/tableaus';
+    let urlFields   = getTenantLink(req) + '/api/v3/workspaces/' + req.query.wsId + '/fields';
+    let headers     = getCustomHeaders(req);
     let index       = 0;
     let params      = {
         'name'          : title,
         'createdDate'   : new Date(),
-        'isDefault'     : false,
+        'isDefault'     : isDefault,
         'columns'       : []
     };
+
+    if(typeof req.query.user !== 'undefined') {
+        headers['Authorization'] = req.session.admin;
+        headers['X-user-id']     = req.query.user;
+    }
+
+    // console.log(headers;
 
     if(title.length > 30) {
 
@@ -3191,15 +3214,15 @@ router.get('/tableau-add', function(req, res, next) {
     } else {
 
         axios.get(urlFields, {
-            headers : req.session.headers
+            headers : headers
         }).then(function(response) {
 
-            for(column of columns) {
+            for(let column of columns) {
 
                 let col = {
                     'displayOrder' : index++,
-                    'field' : {},
-                    'group' : {}
+                    'field'        : {},
+                    'group'        : {}
                 }
 
                 switch(column.toLowerCase()) {
@@ -3237,7 +3260,7 @@ router.get('/tableau-add', function(req, res, next) {
                         break;
 
                     default:
-                        for(field of response.data.fields) {
+                        for(let field of response.data.fields) {
                             let fieldId = field.__self__.split('/')[8];
                             if(fieldId === column) {
                                 col.field.title     = field.name;
@@ -3253,9 +3276,11 @@ router.get('/tableau-add', function(req, res, next) {
                 params.columns.push(col);
 
             }
+
+            console.log(params);
         
-            let headers = getCustomHeaders(req);
-                headers['Content-Type'] = 'application/vnd.autodesk.plm.meta+json';
+            // let headers = getCustomHeaders(req);
+            headers['Content-Type'] = 'application/vnd.autodesk.plm.meta+json';
 
             axios.post(url, params, {
                 headers : headers
@@ -3268,6 +3293,94 @@ router.get('/tableau-add', function(req, res, next) {
         });
 
     }
+    
+});
+
+
+/* ----- CREATE WORKSPACE VIEW ----- */
+router.post('/tableau-clone', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /tableau-clone');
+    console.log(' --------------------------------------------');  
+    console.log('  req.body.wsId        = ' + req.body.wsId);
+    console.log('  req.body.name        = ' + req.body.name);
+    console.log('  req.body.columns     = ' + req.body.columns);
+    console.log('  req.body.default     = ' + req.body.default);
+    console.log('  req.body.showDeleted = ' + req.body.showDeleted);
+    console.log('  req.body.user        = ' + req.body.user);
+    console.log();
+    
+    let isDefault   = (typeof req.body.default     === 'undefined') ? false : req.body.default;
+    let showDeleted = (typeof req.body.showDeleted === 'undefined') ? false : req.body.showDeleted;
+    let url         = getTenantLink(req) + '/api/v3/workspaces/' + req.body.wsId + '/tableaus';
+    let headers     = getCustomHeaders(req);
+    let params      = {
+        name                   : req.body.name,
+        createdDate            : new Date(),
+        isDefault              : isDefault,
+        columns                : req.body.columns,
+        showOnlyDeletedRecords : showDeleted
+    };
+
+    if(typeof req.body.user !== 'undefined') {
+        headers['Authorization'] = req.session.admin;
+        headers['X-user-id']     = req.body.user;
+    }
+
+    headers['Content-Type'] = 'application/vnd.autodesk.plm.meta+json';
+
+    axios.post(url, params, {
+        headers : headers
+    }).then(function(response) {
+        sendResponse(req, res, response, false);
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+    
+});
+
+
+/* ----- UPDATE WORKSPACE VIEW ----- */
+router.post('/tableau-update', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /tableau-update');
+    console.log(' --------------------------------------------');  
+    console.log('  req.body.link        = ' + req.body.link);
+    console.log('  req.body.name        = ' + req.body.name);
+    console.log('  req.body.columns     = ' + req.body.columns);
+    console.log('  req.body.default     = ' + req.body.default);
+    console.log('  req.body.showDeleted = ' + req.body.showDeleted);
+    console.log('  req.body.user        = ' + req.body.user);
+    console.log();
+    
+    let isDefault   = (typeof req.body.default     === 'undefined') ? false : (req.body.default.toLowerCase() === 'true');
+    let showDeleted = (typeof req.body.showDeleted === 'undefined') ? false : (req.body.showDeleted.toLowerCase() === 'true');
+    let url         = getTenantLink(req) + req.body.link;
+    let headers     = getCustomHeaders(req);
+    let params      = {
+        name                    : req.body.name,
+        columns                 : req.body.columns,
+        showOnlyDeletedRecords  : showDeleted,
+        isDefault               : isDefault,
+        createdDate             : new Date(),
+    };
+
+    headers['Content-Type'] = 'application/vnd.autodesk.plm.meta+json';
+
+    if(typeof req.body.user !== 'undefined') {
+        headers['Authorization'] = req.session.admin;
+        headers['X-user-id']     = req.body.user;
+    }
+
+    axios.put(url, params, {
+        headers : headers
+    }).then(function(response) {
+        sendResponse(req, res, response, false);
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
     
 });
 
@@ -3450,6 +3563,189 @@ router.get('/me', function(req, res, next) {
         sendResponse(req, res, response, false);
     }).catch(function(error) {
         sendResponse(req, res, error.response, true);
+    });
+
+});
+
+
+/* ----- SET USER PREFERENCE ----- */
+router.get('/preference', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /preference');
+    console.log(' --------------------------------------------');  
+    console.log('  req.query.property = ' + req.query.property);
+    console.log('  req.query.value    = ' + req.query.value);
+    console.log('  req.query.user     = ' + req.query.user);
+    console.log();
+
+    let headers  = getCustomHeaders(req);
+    let url      = getTenantLink(req) + '/api/v3/users/@me';
+    let property = req.query.property.toLowerCase();
+    let value    = {};
+
+    switch(property) {
+
+        case 'theme':
+            value =  { selected : req.query.value }
+            break;
+
+    }   
+
+    if(typeof req.query.user !== 'undefined') {
+        headers['Authorization'] = req.session.admin;
+        headers['X-user-id'] = req.query.user;
+    }
+
+    axios.get(url + '/preferences', {
+        headers : headers
+    }).then(function(response) {
+        response.data[property] = value;
+        headers['Content-Type'] = "application/json-patch+json";
+        axios.patch(url, [{
+            op    : 'replace',
+            path  : '/preferences',
+            value : JSON.stringify(response.data)
+        }], {
+            headers : headers
+        }).then(function(response) {
+            sendResponse(req, res, response, false);
+        }).catch(function(error) {
+            sendResponse(req, res, error.response, true);
+        });
+
+    });
+
+});
+
+
+/* ----- GET AVAILABLE CHARTS ----- */
+router.get('/charts-available', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /charts-available');
+    console.log(' --------------------------------------------');  
+    console.log();
+
+    let url = getTenantLink(req) + '/api/v3/users/@me/available-charts';
+
+    axios.get(url, {
+        headers : req.session.headers
+    }).then(function(response) {
+        sendResponse(req, res, response, false);
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+
+});
+
+
+/* ----- SET DASHBOARD CHART ----- */
+router.get('/chart-set', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /chart-set');
+    console.log(' --------------------------------------------');  
+    console.log('  req.query.index  = ' + req.query.index);
+    console.log('  req.query.link   = ' + req.query.link);
+    console.log('  req.query.eMail  = ' + req.query.eMail);
+    console.log('  req.query.userId = ' + req.query.userId);
+    console.log();
+
+    let headers = getCustomHeaders(req);
+    let userId  = req.query.userId;
+    let url     = getTenantLink(req) + '/api/v3/users/' + userId + '/dashboard-charts/' + req.query.index;
+    let method  = (typeof req.query.link === 'undefined') ? 'delete' : 'put';
+    let params  = (typeof req.query.link === 'undefined') ? {} : { chart : { link : req.query.link } };
+
+    if(typeof req.query.userId !== 'undefined') {
+        headers['Authorization'] = req.session.admin;
+        headers['X-user-id']     = req.query.eMail;
+    }
+
+    axios({
+        method  : method,
+        url     : url,
+        data    : params,
+        headers : headers
+    }).then(function(response) {
+        sendResponse(req, res, response, false);
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+
+});
+
+
+/* ----- GET DASHBOARD CHARTS ----- */
+router.get('/charts-pinned', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /charts-pinned');
+    console.log(' --------------------------------------------');  
+    console.log('  req.query.user     = ' + req.query.user);
+    console.log();
+
+    let headers = getCustomHeaders(req);
+    let url     = getTenantLink(req) + '/api/rest/v1/reports/dashboard';
+
+    if(typeof req.query.user !== 'undefined') {
+        headers['Authorization'] = req.session.admin;
+        headers['X-user-id'] = req.query.user;
+    }
+
+    axios.get(url, {
+        headers : headers
+    }).then(function(response) {
+        if(response.data.dashboardReportList === null) response.data.dashboardReportList = { list : [] };
+        sendResponse(req, res, response, false);
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+
+});
+
+/* ----- LOGIN SYSTEM ADMIN ----- */
+router.get('/login-admin', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /login-admin');
+    console.log(' --------------------------------------------');  
+    console.log();
+   
+    let data = {
+        'grant_type' : 'client_credentials',
+        'scope'      : 'data:read'
+    }
+    
+    axios.post('https://developer.api.autodesk.com/authentication/v2/token', data, {
+        headers : {
+            'accept'        : 'application/json',
+            'authorization' : 'Basic ' + btoa(req.app.locals.adminClientId + ':' + req.app.locals.adminClientSecret),
+            'content-type'  : 'application/x-www-form-urlencoded'
+        }
+    }).then(function (response) {
+
+        if (response.status == 200) {               
+
+            req.session.admin = 'Bearer ' + response.data.access_token;
+            sendResponse(req, res, {}, false);
+
+        } else {
+
+            console.log();      
+            console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');      
+            console.log('          ADMIN LOGIN FAILED');
+            console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'); 
+            console.log(); 
+            
+            console.log(error);
+            sendResponse(req, res, {}, true);
+
+        }
+    }).catch(function (error) {
+        console.log(error);
+        sendResponse(req, res, {}, true);
     });
 
 });

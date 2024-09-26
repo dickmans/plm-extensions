@@ -67,6 +67,7 @@ router.get('/template'      , function(req, res, next) { launch('tutorial/1-temp
     ADMINISTRATION UTILITIES
    ------------------------------------------------------------------------------ */
 router.get('/insights'            , function(req, res, next) { launch('admin/insights'            , 'Tenant Insights Dashboard', req, res, next); });
+router.get('/users'               , function(req, res, next) { launch('admin/users'               , 'User Settings Manager'    , req, res, next); });
 router.get('/workspace-comparison', function(req, res, next) { launch('admin/workspace-comparison', 'Workspace Comparison'     , req, res, next); });
 
 
@@ -82,10 +83,9 @@ router.get('/workspace-comparison', function(req, res, next) { launch('admin/wor
    router.get('/customer'      , function(req, res, next) { launch('dev/customer'        , 'Customer Services'           , req, res, next); });
    router.get('/editor'        , function(req, res, next) { launch('dev/editor'          , 'Content Editor'              , req, res, next); });
    router.get('/matrix'        , function(req, res, next) { launch('dev/matrix'          , 'Portfolio Matrix'            , req, res, next); });
-
    router.get('/sbom'          , function(req, res, next) { launch('dev/sbom'            , 'Asset BOM Editor'            , req, res, next); });
    router.get('/specification' , function(req, res, next) { launch('dev/specification'   , 'Product Specification Editor', req, res, next); });
-   router.get('/views'         , function(req, res, next) { launch('dev/views'           , 'Workspace Views Manager'     , req, res, next); });
+
    
    
 

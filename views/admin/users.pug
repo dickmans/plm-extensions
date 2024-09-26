@@ -1,0 +1,93 @@
+extends ../framework/layout
+
+block head
+
+    link(rel='stylesheet', href='/stylesheets/admin/users.css')
+    link(rel='stylesheet', href='/stylesheets/framework/console.css')
+    script(src='/javascripts/framework/console.js') 
+    script(src='/javascripts/admin/users.js') 
+
+block body
+
+    body.surface-level-1
+        
+        #header.dark
+            #header-logo
+            #header-title=title
+            #header-subtitle Improve user experience for new and existing users
+            #header-toolbar
+                #header-avatar
+        .screen.surface-level-1
+
+            #recipients.surface-level-2
+                .text Select the groups and / or users that should be updated
+                .list-header.surface-level-4#groups-header 
+                    .list-title Groups 
+                    .list-toolbar 
+                        .button.icon.icon-select-all#groups-select-all(title='Select All')
+                        .button.icon.icon-deselect-all#groups-deselect-all(title='Deselect All')
+                        input.list-filter.surface-level-3#groups-filter(placeholder='Type to filter')
+                .list#groups.surface-level-1
+                .list-header.surface-level-4#users-header 
+                    .list-title Users 
+                    .list-toolbar 
+                        .button.icon.icon-select-all#users-select-all(title='Select All')
+                        .button.icon.icon-deselect-all#users-deselect-all(title='Deselect All')
+                        input.list-filter.surface-level-3#users-filter(placeholder='Type to filter')
+                .list#users.surface-level-1
+
+            #controls.surface-level-1 
+
+                #tabs.tabs(data-tab-group='control')
+                    .tab Theme
+                    .tab Workspace Views
+                    .tab Charts
+
+
+
+                .control#theme 
+                    .instructions Select the standard theme to be applied. Users can still change the theme with the icon in the main toolbar
+                    .options 
+                        .button.with-icon.icon-block.default(data-value='') No Change 
+                        .button.with-icon.icon-dark.filled(data-value='dark') Dark Theme 
+                        .button.with-icon.icon-highlight.filled(data-value='light') Light Theme 
+
+                .control#views
+                    .instructions.top
+                        div Select the views to be copied. Double-clicking a line selects all views of the same workspace.
+                        .button#views-force.with-icon.icon-toggle-off(title='When enabled, existing views will be updated') Force Update
+                    .list-header.surface-level-4#views-header 
+                        .list-title Your Views 
+                        .list-toolbar 
+                            .button.icon.icon-select-all#views-select-all(title='Select All')
+                            .button.icon.icon-deselect-all#views-deselect-all(title='Deselect All')
+                            input.list-filter.surface-level-3#views-filter(placeholder='Type to filter')
+                    .list#views-list                    
+
+                .control#charts
+                    .instructions Select the charts to be added to the users's landing page. You can select from the publicly shared charts only. If you do not select any chart, the landing page will not be modified. Once you select at least one chart, each user's landing page will be reset to display the selected chart(s) only.
+                    .list-header.surface-level-4#charts-header 
+                        .list-title Available Charts 
+                        .list-toolbar 
+                            .button.icon.icon-select-all#charts-select-all(title='Select All')
+                            .button.icon.icon-deselect-all#charts-deselect-all(title='Deselect All')
+                            input.list-filter.surface-level-3#charts-filter(placeholder='Type to filter')                            
+                    .list#charts-list
+
+            #toolbar.surface-level-1
+                .selection 
+                    #toolbar-text Changes Summary
+                    .counters#toolbar-counters 
+                        .counter#count-groups
+                        .counter#count-users
+                        .counter#count-theme 
+                        .counter#count-workspaces
+                        .counter#count-charts
+                .buttons    
+                    .button.disabled.with-icon.icon-stop#stop Stop
+                    .button.default.with-icon.icon-start#start Start
+
+            #console.surface-level-4
+                #console-header.surface-level-4 Console                    
+                #console-content.surface-level-4
+                #console-toggle.button.icon.icon-chevron-right

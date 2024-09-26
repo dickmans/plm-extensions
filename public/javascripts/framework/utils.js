@@ -48,6 +48,39 @@ $(document).ready(function() {
 });
 
 
+// Validate System Admin privileges
+function getSystemAdminSession(callback) {
+
+    showStartupDialog();
+
+    $.get('/plm/groups-assigned', {}, function (response) {
+
+        let isSystemAdmin = false;
+
+        for(let group of response.data) {
+            if(group.shortName === 'Administration [SYSTEM]') isSystemAdmin = true;
+        }
+
+        if(!isSystemAdmin) {
+            showErrorMessage('Not Permitted', 'This feature requires system admin privileges');
+            callback(isSystemAdmin);
+        } else {
+            $.get('/plm/login-admin', {}, function (response) {
+                if(response.error) {
+                    showErrorMessage('Login Error', 'Failed to login with system admin privileges. Please review your Admin Client ID settings.');
+                } else {
+                    $('#startup').fadeOut();
+                    $('body').children().removeClass('hidden');
+                    callback(true);
+                }
+            });
+        }
+
+    });
+
+}
+
+
 // Get list of disabled features
 function getApplicationFeatures(app, requests, callback) {
 
@@ -91,14 +124,7 @@ function getApplicationFeatures(app, requests, callback) {
 
     } else {
 
-        $('body').children().addClass('hidden');
-
-        $('<div></div>').appendTo('body')
-            .attr('id', 'startup')
-            .addClass(getSurfaceLevel($('body')));
-
-        $('<div></div>').appendTo($('#startup'))
-            .attr('id', 'startup-logo');
+        showStartupDialog();
 
         if(isBlank(config[app].length === 0)) {
             $('body').children().removeClass('hidden');
@@ -137,6 +163,21 @@ function getApplicationFeatures(app, requests, callback) {
 function getApplicationFeaturesDone(app) {
 
     $('#startup').remove();
+
+}
+
+
+// Startup Dialog Elements
+function showStartupDialog() {
+
+    $('body').children().addClass('hidden');
+
+    $('<div></div>').appendTo('body')
+        .attr('id', 'startup')
+        .addClass(getSurfaceLevel($('body')));
+
+    $('<div></div>').appendTo($('#startup'))
+        .attr('id', 'startup-logo');
 
 }
 
