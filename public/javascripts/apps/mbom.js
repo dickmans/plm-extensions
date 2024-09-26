@@ -459,8 +459,8 @@ function createMBOMRoot(itemDetails, callback) {
         addFieldToPayload(params.sections, wsMBOM.sections, null, config.mbom.fieldIdEBOM, { 'link' : itemDetails.__self__ } );
 
         for(let fieldToCopy of config.mbom.fieldsToCopy) {
-            let value = getSectionFieldValue(itemDetails.sections, fieldToCopy, '', 'link');
-            addFieldToPayload(params.sections, wsMBOM.sections, null, fieldToCopy, value);
+            let field = getSectionField(itemDetails.sections, fieldToCopy);
+            addFieldToPayload(params.sections, wsMBOM.sections, null, fieldToCopy, field.value);
         }
 
         if(!isBlank(config.mbom.fieldIdNumber)) {

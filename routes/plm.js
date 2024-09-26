@@ -405,15 +405,14 @@ router.post('/create', function(req, res) {
     let url      = 'https://' + req.session.tenant + '.autodeskplm360.net' + prefix + '/items';
     let sections = [];
 
-    for(section of req.body.sections) {
+    for(let section of req.body.sections) {
 
         let sect = {
             'link'   : (typeof section.link === 'undefined') ? prefix + '/sections/' + section.id : section.link,
             'fields' : []
         }
-
         
-        for(field of section.fields) {
+        for(let field of section.fields) {
             
             let value = field.value;
             let type  = (typeof field.type === 'undefined') ? 'string' : field.type.toLowerCase();
@@ -427,8 +426,6 @@ router.post('/create', function(req, res) {
         }
 
         sections.push(sect);
-
-        // console.log(sect);
 
     }
     

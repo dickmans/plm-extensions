@@ -2649,14 +2649,14 @@ function getFieldSectionId(sections, fieldId) {
 
     let result = -1;
 
-    for(section of sections) {
+    for(let section of sections) {
 
-        for(field of section.fields) {
+        for(let field of section.fields) {
 
             if(field.type === 'MATRIX') {
-                for(matrix of section.matrices) {
-                    for(matrixFields of matrix.fields) {
-                        for(matrixField  of matrixFields) {
+                for(let matrix of section.matrices) {
+                    for(let matrixFields of matrix.fields) {
+                        for(let matrixField  of matrixFields) {
                             if(matrixField !== null) {
 
                                 let temp = matrixField.link.split('/');
@@ -2677,6 +2677,7 @@ function getFieldSectionId(sections, fieldId) {
                 let id   = temp[temp.length - 1];
                     
                 if(id === fieldId) {
+
                     result = section.__self__.split('/')[6];
                     break;
                 }
@@ -2691,6 +2692,25 @@ function getFieldSectionId(sections, fieldId) {
 
 }
 
+
+
+// Retrieve field object from item's sections data
+function getSectionField(sections, fieldId) {
+
+    if(isBlank(sections)) return null;
+
+    for(let section of sections) {
+        for(let field of section.fields) {
+            let id = field.__self__.split('/')[10];
+            if(id === fieldId) {
+                return field;
+            }
+        }
+    }
+
+    return null;
+
+}
 
 
 // Retrieve field value from item's sections data
