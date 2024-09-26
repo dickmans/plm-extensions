@@ -21,6 +21,7 @@ The following extensions are included
 - Reports Dashboard
 - Services Portal
 - Tenant Inisghts
+- User Settings Manager
 - Variants Manager
 - Workspace Comparison
 - Workspaces Navigator
