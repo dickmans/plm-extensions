@@ -11,17 +11,17 @@ The following extensions are included
 - Change Impact Analysis
 - Class Browser
 - Design Review Portal
-- MBOM Editor
+- MBOM Editor [Video](https://youtu.be/5s9080mmYLo)
 - Mobile Client
-- PLM Portal [Video](https://youtu.be/tM8why6ybAU){:target="_blank"}
+- PLM Portal [Video](https://youtu.be/tM8why6ybAU)
 - Process Dashboard
 - Product Portfolio Catalog
-- Product Data Explorer
+- Product Data Explorer [Video](https://youtu.be/TA5JyBVw2Hw)
 - Projects Dashboard
 - Reports Dashboard
-- Services Portal
+- Services Portal [Video](https://youtu.be/gYAyASE3vAU)
 - Tenant Inisghts
-- User Settings Manager
+- User Settings Manager [Video](https://youtu.be/hJjxoovwbS8)
 - Variants Manager
-- Workspace Comparison
+- Workspace Comparison [Video](https://youtu.be/llQtsclH-L0)
 - Workspaces Navigator
