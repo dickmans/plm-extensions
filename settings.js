@@ -523,7 +523,8 @@ exports.config = {
         suffixItemNumber              : '-M',
         incrementOperatonsItemNumber  : true,
         newDefaults                   : [ 
-            // ['TYPE', { link : '/api/v3/lookups/CUSTOM_LOOKUP_ITEM_TYPES/options/34' }] 
+            //['TYPE',        { link : '/api/v3/lookups/CUSTOM_LOOKUP_ITEM_TYPES/options/34'      }],
+            //['MAKE_OR_BUY', { link : '/api/v3/lookups/CUSTOM_LOOKUP_ITEM_MAKE_OR_BUY/options/2' }] 
         ],
         searches : [
             { title : 'Purchased Parts', 'query' : 'ITEM_DETAILS:MAKE_OR_BUY%3DBuy' },
