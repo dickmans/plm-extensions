@@ -10,7 +10,7 @@ Disclaimer: In any case all source code of this solution is of "work in progress
 The following extensions are included
 - Change Impact Analysis
 - Class Browser
-- Design Review Portal
+- Design Review Portal [Video](https://youtu.be/AU--qJIMmlE)
 - MBOM Editor [Video](https://youtu.be/5s9080mmYLo)
 - Mobile Client
 - PLM Portal [Video](https://youtu.be/tM8why6ybAU)
@@ -18,9 +18,9 @@ The following extensions are included
 - Product Portfolio Catalog
 - Product Data Explorer [Video](https://youtu.be/TA5JyBVw2Hw)
 - Projects Dashboard
-- Reports Dashboard
+- Reports Dashboard [Video] (https://youtu.be/quNaLQLAT3Q)
 - Services Portal [Video](https://youtu.be/gYAyASE3vAU)
-- Tenant Inisghts
+- Tenant Inisghts [Video](https://youtu.be/WZXGfDKGRHY)
 - User Settings Manager [Video](https://youtu.be/hJjxoovwbS8)
 - Variants Manager
 - Workspace Comparison [Video](https://youtu.be/llQtsclH-L0)
