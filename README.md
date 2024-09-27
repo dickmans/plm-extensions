@@ -13,7 +13,7 @@ The following extensions are included
 - Design Review Portal
 - MBOM Editor
 - Mobile Client
-- PLM Portal
+- PLM Portal [Video](https://youtu.be/tM8why6ybAU)
 - Process Dashboard
 - Product Portfolio Catalog
 - Product Data Explorer
