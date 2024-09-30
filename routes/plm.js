@@ -3785,7 +3785,7 @@ router.get('/workspaces', function(req, res, next) {
     console.log();
 
     let offset = (typeof req.query.offset === 'undefined') ?   0 : req.query.offset;
-    let limit  = (typeof req.query.offset === 'undefined') ? 100 : req.query.limit;
+    let limit  = (typeof req.query.limit  === 'undefined') ? 100 : req.query.limit;
     let url    = getTenantLink(req) + '/api/v3/workspaces?offset=' + offset + '&limit=' + limit;
 
     axios.get(url, {

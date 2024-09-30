@@ -120,9 +120,9 @@ function setUIEvents() {
 // Retrieve workspace information
 function getWorkspaceIds(callback) {
 
-    $.get('/plm/workspaces', {}, function(response) {
-        for(level of config.portfolio.hierarchy) {
-            for(workspace of response.data.items) {
+    $.get('/plm/workspaces', { limit : 250 }, function(response) {
+        for(let level of config.portfolio.hierarchy) {
+            for(let workspace of response.data.items) {
                 if(workspace.title === level) {
                     workspaces.push({
                         'wsId'  : workspace.link.split('/')[4],
