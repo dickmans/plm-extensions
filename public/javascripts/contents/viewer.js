@@ -160,6 +160,10 @@ function initViewer(id, viewables, params) {
             if (startedCode > 0) {
                 console.error('Failed to create a Viewer: WebGL not supported.');
                 return;
+            }      
+            
+            if(!isBlank(applicationFeatures.viewer.contextMenu)) {
+                if(!applicationFeatures.viewer.contextMenu) viewer.setContextMenu(null);
             }
 
             Autodesk.Viewing.Document.load('urn:'+ viewables[0].urn, onDocumentLoadSuccess, onDocumentLoadFailure);
