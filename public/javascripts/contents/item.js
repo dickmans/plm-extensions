@@ -5470,7 +5470,9 @@ function insertManagedItems(link, id, icon) {
         
         $('#' + id + '-processing').hide();
 
-        for(affectedItem of response.data) {
+        if(response.statusCode === 204) {
+
+            for(let affectedItem of response.data) {
 
             let elemTile = genTile(affectedItem.item.link, '', '', icon, affectedItem.item.title);
                 elemTile.appendTo(elemParent);
@@ -5479,6 +5481,12 @@ function insertManagedItems(link, id, icon) {
                     e.stopPropagation();
                     clickManagedItem($(this));
                 });
+
+            }
+
+        } else if(response.statusCode === 403) {
+
+            showErrorMessag('No Access', response.data.message);
 
         }
 
@@ -5765,7 +5773,7 @@ function clickWorkflowAction(elemClicked) {
 
     $.get('/plm/transition', { 'link' : link, 'transition' : transition }, function(response) {
         $('#overlay').hide();
-        clickWorkflowActionDone(link, tranistion, response);
+        clickWorkflowActionDone(response.params.link, response.params.tranistion, response);
     });
 
 }
