@@ -7,6 +7,7 @@ function insertMOW(params) {
     let header       = true;                    // Hide header with setting this to false
     let headerLabel  = 'My Outstanding Work';   // Set the header text
     let headerToggle = false;                   // Enable header toggles
+    let filters      = true;                    // Enable header filter controls
     let reload       = true;                    // Enable reload button for the list
     let search       = true;                    // Enable search within the list
     let icon         = 'mow';                   // Sets the icon to be displayed for each tile
@@ -19,6 +20,7 @@ function insertMOW(params) {
     if(!isBlank(params.header)      )       header = params.header;
     if(!isBlank(params.headerLabel) )  headerLabel = params.headerLabel;
     if(!isBlank(params.headerToggle)) headerToggle = params.headerToggle;
+    if(!isBlank(params.filters)     )      filters = params.filters;
     if(!isBlank(params.reload)      )       reload = params.reload;
     if(!isBlank(params.search)      )       search = params.search;
     if(!isBlank(params.icon)        )         icon = params.icon;
@@ -27,6 +29,7 @@ function insertMOW(params) {
     if(!isBlank(params.workspacesEx)) workspacesEx = params.workspacesEx;
 
     settings.mow[id]              = {};
+    settings.mow[id].filters      = filters;
     settings.mow[id].icon         = icon;
     settings.mow[id].workspacesIn = workspacesIn;
     settings.mow[id].workspacesEx = workspacesEx;
@@ -61,13 +64,54 @@ function insertMOW(params) {
             .attr('id', id + '-title')
             .html(headerLabel);
     
-        let elemToolbar = $('<div></div>')
+        let elemToolbar = $('<div></div>').appendTo(elemHeader)
             .addClass('panel-toolbar')
             .attr('id', id + '-toolbar');
     
+        $('<div></div>').appendTo(elemToolbar)
+            .hide()
+            .addClass('button')
+            .addClass('with-icon')
+            .addClass('icon-toggle-off')
+            .html('Due Tasks')
+            .attr('id', id + '-filter-due')
+            .attr('title', 'Filter for due tasks')
+            .click(function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $(this).toggleClass('icon-toggle-off').toggleClass('icon-toggle-on').toggleClass('filled');
+                filterMOWData(id);
+            });
+
+        $('<select></select>').appendTo(elemToolbar)
+            .hide()
+            .addClass('button')
+            .attr('id', id + '-filter-type')
+            .attr('title', 'Filter by task type')
+            .append('<option>All</option>')
+            .on('change', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                filterMOWData(id);
+            });
+
+        let elemSearch = $('<div></div>').appendTo(elemToolbar)
+            .addClass('button')
+            .addClass('with-icon')
+            .addClass('icon-search-list');
+
+        $('<input></input>').appendTo(elemSearch)
+            .attr('placeholder', 'Search')
+            .attr('id', id + '-search-input')
+            .addClass('mow-search-input')
+            .keyup(function() {
+                filterMOWData(id);
+            });
+        
+        if(search) elemSearch.show(); else elemSearch.hide();
+
         if(reload) {
 
-            elemToolbar.appendTo(elemHeader);
             $('<div></div>').appendTo(elemToolbar)
                 .addClass('button')
                 .addClass('icon')
@@ -81,26 +125,6 @@ function insertMOW(params) {
                 });
 
         }
-
-        if(search) {
-
-            elemToolbar.appendTo(elemHeader);
-
-            let elemSearch = $('<div></div>').appendTo(elemToolbar)
-                .addClass('button')
-                .addClass('with-icon')
-                .addClass('icon-search-list');
-
-            $('<input></input>').appendTo(elemSearch)
-                .attr('placeholder', 'Search')
-                .attr('id', id + '-search-input')
-                .addClass('mow-search-input')
-                .keyup(function() {
-                    searchInMOW(id, $(this));
-                });
-
-        }
-    
     
     } else { elemParent.addClass('no-header'); }
 
@@ -124,10 +148,14 @@ function insertMOWData(id) {
     let timestamp  = new Date().getTime();
     let elemParent = $('#' + id)
     let elemList   = $('#' + id + '-list');  
-    let elemSearch = $('#' + id + '-search-input')
+    let elemSearch = $('#' + id + '-search-input');
+    let elemDue    = $('#' + id + '-filter-due');
+    let elemTypes  = $('#' + id + '-filter-type');
 
     elemParent.attr('data-timestamp', timestamp);
     elemList.hide();
+    elemDue.hide();
+    elemTypes.hide();
 
     if(elemSearch.length > 0) elemSearch.val('');
 
@@ -144,6 +172,12 @@ function insertMOWData(id) {
                 .addClass('mow-table');
 
             let counter = 0;
+            let workspaces  = [];
+
+            elemTypes.html('');
+            $('<option></option>').appendTo(elemTypes)
+                .attr('value', 'all')
+                .html('All');
 
             for(item of response.data.outstandingWork) {
 
@@ -151,6 +185,7 @@ function insertMOWData(id) {
                 let date        = '';
                 let workspace   = item.workspace.title;
                 let workspaceId = item.workspace.link.split('/')[4];
+                
 
                 if((settings.mow[id].workspacesIn.length === 0) || ( settings.mow[id].workspacesIn.includes(workspaceId))) {
                     if((settings.mow[id].workspacesEx.length === 0) || (!settings.mow[id].workspacesEx.includes(workspaceId))) {
@@ -161,6 +196,7 @@ function insertMOWData(id) {
                             let targetDate = new Date(item.milestoneDate);
                             date = targetDate.toLocaleDateString();
                             dateClass = 'in-time';
+                            if(settings.mow[id].filters) elemDue.show();
                         }
                         if(item.hasOwnProperty('milestoneStatus')) {
                             if(item.milestoneStatus === 'CRITICAL') dateClass = 'late';
@@ -202,9 +238,21 @@ function insertMOWData(id) {
                             .addClass('nowrap')
                             .html(workspace);
 
+                        if(!workspaces.includes(workspace)) workspaces.push(workspace);
+
                     }
                 }
 
+            }
+
+            if(settings.mow[id].filters) {
+                workspaces.sort();
+                for(let workspace of workspaces) {
+                    $('<option></option>').appendTo(elemTypes)
+                        .attr('value', workspace)
+                        .html(workspace);
+                }
+                elemTypes.show();
             }
 
             elemList.show();
@@ -222,34 +270,47 @@ function insertMOWDone(id, data) {}
 function clickMOWItem(elemClicked, e) {
     openItemByLink(elemClicked.attr('data-link'));
 }
-function searchInMOW(id, elemInput) {
+function filterMOWData(id) {
 
-    let elemTable   = $('#' + id + '-table');
-    let filterValue = elemInput.val().toLowerCase();
+    let elemTable  = $('#' + id + '-table');
+    let filterDue  = $('#' + id + '-filter-due').hasClass('icon-toggle-on');
+    let filterType = $('#' + id + '-filter-type').val();
+    let filterText = $('#' + id + '-search-input').val().toLowerCase();
 
-    if(filterValue === '') {
-       
-        elemTable.children().show();
+    elemTable.children().each(function() {
 
-    } else {
+        let show = true;
 
-        elemTable.children().hide();
+        if(filterDue) {
+            show = ($(this).find('.late').length > 0);
+        }
 
-        elemTable.children().each(function() {
+        if(show) {
+            if(filterType !== 'all') {
+                let workspace = $(this).find('.mow-workspace').html();
+                show = workspace === filterType
+            }
+        }
 
-            let elemRow = $(this);
-            let unhide  = false;
+        if(show) {
 
-            elemRow.children().each(function() {
-                let text = $(this).html().toLowerCase();
-                if(text.indexOf(filterValue) > -1) unhide = true;
-            });
+            if(filterText !== '') {
 
-            if(unhide) elemRow.show();
+                let hide = true;
 
-        });
+                $(this).children().each(function() {
+                    let text = $(this).html().toLowerCase();
+                    if(text.indexOf(filterText) > -1) hide = false;
+                });
 
-    }
+                if(hide) show = false;
+            }
+
+        }
+
+        if(show) $(this).show(); else $(this).hide();
+
+    });
 
 }
 

@@ -46,8 +46,8 @@
     text-align    : right; 
     width         : 70px;
 }
-.mow-date.in-time { background : var(--color-status-green); }
-.mow-date.late    { background : var(--color-status-red);   }
+.mow-date.in-time { background : var(--color-status-green) !important; }
+.mow-date.late    { background : var(--color-status-red  ) !important; }
 .mow-status {
     padding-left : 10px !important;
 }

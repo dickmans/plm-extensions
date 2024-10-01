@@ -322,7 +322,7 @@ a:hover {
 }
 #framework-changes { 
     background  : var(--color-surface-level-5);
-    color       : white;
+    color       : var(--color-font);
     display     : none; 
 }
 #framework-changes td {
