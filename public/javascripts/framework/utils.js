@@ -84,6 +84,8 @@ function getSystemAdminSession(callback) {
 // Get list of disabled features
 function getApplicationFeatures(app, requests, callback) {
 
+    if(isBlank(config[app])) showErrorMessage('Improper Application Configuration', 'Your server configuration does not include the required profile settings to launch this application (config.' + app + '). Please contact your administrator.')
+    
     if(!isBlank(config[app].applicationFeatures)) applicationFeatures        = config[app].applicationFeatures;
     if(!isBlank(config[app].viewerFeatures))      applicationFeatures.viewer = config[app].viewerFeatures; 
     if( isBlank(applicationFeatures.viewer))      applicationFeatures.viewer = {};

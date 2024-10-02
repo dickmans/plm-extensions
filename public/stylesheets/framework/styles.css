@@ -1387,6 +1387,7 @@ and (max-device-width : 1900px)  {
 .message-title {
     font-weight : 800;
     font-size   : 20px;
+    line-height : 24px;
 }
 .message-text {
     font-size   : 14px;
