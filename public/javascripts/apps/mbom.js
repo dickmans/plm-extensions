@@ -2480,11 +2480,25 @@ function setWorkspaceView(suffix) {
         let elemParent = $('#workspace-view-list-' + suffix);
             elemParent.html('');
 
-        $.get('/plm//tableau-data', { 'link' : $('#view-selector-' + suffix).val() }, function(response) {        
+        $.get('/plm//tableau-data', { 'link' : $('#view-selector-' + suffix).val() }, function(response) {      
+            
             $('#add-processing').hide();
-            for(let item of response.data) {
-                addItemListEntry(item.item.link, item.item.urn, item.fields[0].value, suffix, elemParent, false);
+            
+            let indexDescriptorField = 0;
+
+            if(response.data.length > 0) {
+                for(let indexField = 0; indexField < response.data[0].fields.length; indexField++) {
+                    if(response.data[0].fields[indexField].id === 'DESCRIPTOR') {
+                        indexDescriptorField = indexField;
+                        break;
+                    }
+                }
             }
+
+            for(let item of response.data) {
+                addItemListEntry(item.item.link, item.item.urn, item.fields[indexDescriptorField].value, suffix, elemParent, false);
+            }
+
         });
 
     } else {
