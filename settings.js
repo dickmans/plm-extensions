@@ -187,7 +187,7 @@ exports.config = {
         'bomViewName'          : 'Basic',  // Details
         'fieldIdPRImage'       : 'IMAGE_1',
         'fieldIdPRContext'     : 'AFFECTED_ITEM',
-        'wsIdItems'            : 79,
+        'wsIdItems'            : 79, //
         'wsIdProblemReports'   : 82,
         'wsIdSupplierPackages' : 147,
         'kpis' : [{
