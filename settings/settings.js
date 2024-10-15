@@ -4,7 +4,7 @@ let tenant          = '';
 let redirectUri     = 'http://localhost:8080/callback';
 let defaultTheme    = 'light';
 
-
+//
 
 // The USER SETTINGS MANAGER requires an APS application with Client ID and Client Secret
 // for 2-legged authentications. Such an application enables impersonation that is required
