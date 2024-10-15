@@ -96,9 +96,9 @@ exports.config = {
     'vectors' : vectors,
 
     'configurator' : {
-        'wsIdEningeeringItems'      : '57',
+        'wsIdEningeeringItems'      : '79',
         'wsIdConfigurationFeatures' : '274',
-        'bomViewName'               : 'Configurator',
+        'bomViewName'               : 'Basic', // Configurator
         'fieldIdFeatures'           : 'FEATURES',
         'fieldIdOptions'            : 'OPTIONS',
         'fieldIdInclusions'         : 'INCLUSIONS',
@@ -184,10 +184,10 @@ exports.config = {
     }],
 
     'explorer' : {
-        'bomViewName'          : 'Details',
+        'bomViewName'          : 'Basic',  // Details
         'fieldIdPRImage'       : 'IMAGE_1',
         'fieldIdPRContext'     : 'AFFECTED_ITEM',
-        'wsIdItems'            : 57,
+        'wsIdItems'            : 79,
         'wsIdProblemReports'   : 82,
         'wsIdSupplierPackages' : 147,
         'kpis' : [{
@@ -497,15 +497,15 @@ exports.config = {
     },
 
     mbom : {
-        wsIdEBOM                      : '57',
-        wsIdMBOM                      : '57',
+        wsIdEBOM                      : '79',
+        wsIdMBOM                      : '79',
         bomViewNameEBOM               : 'MBOM Transition',
         bomViewNameMBOM               : 'MBOM Transition',
-        fieldIdEBOM                   : 'EBOM',
-        fieldIdMBOM                   : 'MBOM',
-        fieldIdNumber                 : 'NUMBER',
-        fieldIdTitle                  : 'TITLE',
-        fieldIdCategory               : 'PDM_CATEGORY',
+        fieldIdEBOM                   : 'ENGINEERING_BOM', // EBOM
+        fieldIdMBOM                   : 'MANUFACTURING_BOM', // MBOM
+        fieldIdNumber                 : 'ARTIKEL', // NUMBER
+        fieldIdTitle                  : 'BENENNUNG1_DOC', // TITLE
+        fieldIdCategory               : 'CATEGORY', // PDM_CATEGORY
         fieldIdProcessCode            : 'PROCESS_CODE',
         fieldIdEndItem                : 'END_ITEM',
         fieldIdMatchesMBOM            : 'MATCHES_MBOM',
@@ -515,21 +515,24 @@ exports.config = {
         fieldIdLastUser               : 'LAST_MBOM_USER',
         fieldIdEBOMItem               : 'IS_EBOM_ITEM',
         fieldIdEBOMRootItem           : 'EBOM_ROOT_ITEM',
-        fieldsToCopy                  : ['TITLE', 'DESCRIPTION'],
+        fieldsToCopy                  : ['BEZEICHNUNG1_ITEM','BEZEICHNUNG2_ITEM','BENENNUNG1_DOC', 'BENENNUNG2_DOC','PROJEKT','VERANTWORTLICHER_BEREICH','COMMENTS'],
         fieldIdInstructions           : 'INSTRUCTIONS',
         fieldIdMarkupSVG              : 'MARKUP_SVG',
         fieldIdMarkupState            : 'MARKUP_STATE',
         revisionBias                  : 'working', // change to release if needed
         pinMBOMItems                  : false,
-        suffixItemNumber              : '-M',
+        suffixItemNumber              : 'M',
         incrementOperatonsItemNumber  : true,
         newDefaults                   : [ 
             //['TYPE',        { link : '/api/v3/lookups/CUSTOM_LOOKUP_ITEM_TYPES/options/34'      }],
             //['MAKE_OR_BUY', { link : '/api/v3/lookups/CUSTOM_LOOKUP_ITEM_MAKE_OR_BUY/options/2' }] 
+            ['MBOM_COPY', 'true' ]
         ],
         searches : [
-            { title : 'Purchased Parts', 'query' : 'ITEM_DETAILS:MAKE_OR_BUY%3DBuy' },
-            { title : 'Packaging Parts', 'query' : 'ITEM_DETAILS:TYPE%3DPackaging' }
+            { 'title' : 'Purchased Parts', 'query' : 'ITEM_DETAILS:CATEGORY="standard part"' },
+            { 'title' : 'Packaging Parts', 'query' : 'ITEM_DETAILS:CATEGORY%Packaging_Parts' }
+         //   { title : 'Purchased Parts', 'query' : 'ITEM_DETAILS:MAKE_OR_BUY%3DBuy' },
+         //   { title : 'Packaging Parts', 'query' : 'ITEM_DETAILS:TYPE%3DPackaging' }
         ],
         viewerFeatures : {
             contextMenu   : false,
@@ -742,8 +745,8 @@ exports.config = {
     },
 
     'viewer' : {
-        'fieldIdPartNumber'       : 'NUMBER',
-        'partNumberProperties'    : ['Part Number', 'Name', 'label', 'Artikelnummer', 'Bauteilnummer'],
+        'fieldIdPartNumber'       : 'Artikel', //NUMBER
+        'partNumberProperties'    : ['Artikelnummer', 'Bauteilnummer', 'Part Number', 'Name', 'label'], // 'Part Number', 'Name', 'label', 'Artikelnummer', 'Bauteilnummer'
         'splitPartNumberBy'       : ' v',
         'splitPartNumberIndexes'  : [0],
         'splitPartNumberSpacer'   : '',
