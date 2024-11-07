@@ -51,6 +51,14 @@ jobs:
         with:
           name: node-app
 
+
+      - name: debug
+        run:  |
+          echo "APP_NAME: ${{ vars.APP_NAME}}"
+          echo "AZUREAPPSERVICE_CLIENTID: ${{secrets.AZUREAPPSERVICE_CLIENTID}}"
+          echo "AZUREAPPSERVICE_TENANTID: ${{secrets.AZUREAPPSERVICE_TENANTID}}"
+          echo "AZUREAPPSERVICE_SUBSCRIPTIONID: ${{secrets.AZUREAPPSERVICE_SUBSCRIPTIONID}}"
+      
       - name: Unzip artifact for deployment
         run: unzip release.zip
       
