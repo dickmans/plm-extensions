@@ -358,7 +358,7 @@
 .panel-top.surface-level-5 > .panel-content > .attachment .attachment-version { background : var(--color-surface-level-3); }
 
 /* ----- Attachments Grid ----- */
-.tiles.grid.l   .attachment { height : 120px; max-height : 120px; }
+.tiles.grid.l   .attachment { height :  96px; max-height :  96px; }
 .tiles.grid.xl  .attachment { height : 190px; max-height : 190px; }
 .tiles.grid.xxl .attachment { height : 280px; max-height : 280px; }
 
@@ -366,13 +366,17 @@
 .tiles.grid.xs  .attachment-graphic > img { height :  16px; width :  16px; }
 .tiles.grid.s   .attachment-graphic > img { height :  24px; width :  24px; }
 .tiles.grid.m   .attachment-graphic > img { height :  36px; width :  36px; }
-.tiles.grid.l   .attachment-graphic > img { height :  34px; width :  34px; }
+.tiles.grid.l   .attachment-graphic > img { height :  64px; width :  64px; }
 .tiles.grid.xl  .attachment-graphic > img { height :  48px; width :  48px; }
 .tiles.grid.xxl .attachment-graphic > img { height : 110px; width : 110px; }
 
-.tiles.grid.l   .attachment-graphic { height :  50px; max-height :  50px; min-height :  50px; }
+.tiles.grid.l   .attachment-graphic { height :  96px; max-height :  96px; min-height :  96px; }
 .tiles.grid.xl  .attachment-graphic { height :  74px; max-height :  74px; min-height :  74px; }
 .tiles.grid.xxl .attachment-graphic { height : 150px; max-height : 150px; min-height : 150px; }
+
+.tiles.grid.l   .attachment-name { font-size : 16px; }
+.tiles.grid.xl  .attachment-name { width : 100%; }
+.tiles.grid.xxl .attachment-name { width : 100%; }
 
 .tiles.grid.xxs .attachment-details { margin-top :  0px; }
 .tiles.grid.xs  .attachment-details { margin-top :  0px; }
@@ -381,11 +385,10 @@
 
 .tiles.grid.s   .attachment-summary { flex-direction : row; gap : 8px; } 
 .tiles.grid.m   .attachment-summary { flex-direction : row; gap : 8px; } 
-.tiles.grid.l   .attachment-summary { flex-direction : row; gap : 16px; margin : auto; }
+.tiles.grid.l   .attachment-summary { gap: 4px; display: grid; grid-template-rows: 1fr 1fr; grid-template-columns: 1fr 1fr;}
 .tiles.grid.xl  .attachment-summary { width : 100%; }
 .tiles.grid.xxl .attachment-summary { width : 100%; }
 
-.tiles.grid.l   .attachment-summary > div { margin : auto; text-align : center; }
 .tiles.grid.xl  .attachment-summary > div { margin : auto; text-align : center; }
 .tiles.grid.xxl .attachment-summary > div { margin : auto; text-align : center; }
 
@@ -393,7 +396,7 @@
 .tiles.grid.s  .attachment-size, 
 .tiles.grid.s  .attachment-user { display : none; }
 .tiles.grid.m  .attachment-user, .tiles.grid.m .attachment-size { display : none; }
-.tiles.grid.l  .attachment-user, .tiles.grid.l .attachment-date { display : none; }
+.tiles.grid.l  .attachment-version { order : 1; } .tiles.grid.l  .attachment-date { order : 2; }
 .tiles.grid.xl .attachment-user { display : none; }
 
 /* ----- Attachments Row ----- */
