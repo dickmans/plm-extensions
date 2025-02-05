@@ -14,7 +14,7 @@ The following extensions are included
 - MBOM Editor [Video](https://youtu.be/5s9080mmYLo)
 - Mobile Client
 - PLM Portal [Video](https://youtu.be/tM8why6ybAU)
-- Process Dashboard
+- Process Dashboard [Video](https://youtu.be/VkxJXRQ9Pmg)
 - Product Portfolio Catalog [Video](https://youtu.be/hroRMjZzueQ)
 - Product Data Explorer [Video](https://youtu.be/TA5JyBVw2Hw)
 - Projects Dashboard
