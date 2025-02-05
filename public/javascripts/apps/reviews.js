@@ -330,10 +330,10 @@ function openSelectedItem(elemSelected) {
         tileSubtitle    : 'DESCRIPTION',
         tileDetails     : [ {icon : 'icon-calendar', fieldId : 'TARGET_COMPLETION_DATE'}],
         stateColors     : [
-            { color : '#222222', name : 'Assigned', label : 'New'      },
-            { color : '#dd2222', name : 'In Work' , label : 'In Work'  },
-            { color : '#faa21b', name : 'Review'  , label : 'Complete' },
-            { color : '#6a9728', name : 'Complete', label : 'Complete' }
+            { color : '#222222', state : 'Assigned', label : 'New'      },
+            { color : '#dd2222', state : 'In Work' , label : 'In Work'  },
+            { color : '#faa21b', state : 'Review'  , label : 'Complete' },
+            { color : '#6a9728', state : 'Complete', label : 'Complete' }
         ],
         fields : [
             'NUMBER', 

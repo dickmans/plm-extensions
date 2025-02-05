@@ -323,18 +323,23 @@ function getProcesses() {
 
         for(let item of responses[0].data) {
 
-            let status          = item.fields[3].value;
-            let descriptor      = item.fields[0].value;
-            let subtitle        = (isBlank(wsConfig.fieldIdSubtitle)) ? '' : item.fields[4].value;
-            let elemTile        = genSingleTile({ link : item.item.link, tileIcon : wsConfig.icon, title : descriptor, subtitle : subtitle, status : {
-                label : '',
-                color : ''
-            } });
-            let valueCreated    = item.fields[1].value;
-            let valueModified   = item.fields[2].value;
-            let dateNow         = new Date();
-            let diffCreated     = 0;
-            let diffModified    = 0;
+            let status     = item.fields[3].value;
+            let descriptor = item.fields[0].value;
+            let subtitle   = (isBlank(wsConfig.fieldIdSubtitle)) ? '' : item.fields[4].value;
+            let elemTile   = genSingleTile({ 
+                link       : item.item.link, 
+                tileIcon   : wsConfig.icon, 
+                title      : descriptor, 
+                subtitle   : subtitle,
+                status     : status
+            }, {
+                stateColors : wsConfig.progress
+            });
+            let valueCreated   = item.fields[1].value;
+            let valueModified  = item.fields[2].value;
+            let dateNow        = new Date();
+            let diffCreated    = 0;
+            let diffModified   = 0;
             let dateCreated;
 
             appendTileDetails(elemTile, [

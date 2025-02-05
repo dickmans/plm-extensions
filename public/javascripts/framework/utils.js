@@ -2514,9 +2514,16 @@ function genSingleTile(params, settings) {
         let label = params.status;
 
         for(let stateColor of settings.stateColors) {
-            if(stateColor.name.toLowerCase() === params.status.toLowerCase()) {
-                color = stateColor.color;
-                if(!isBlank(stateColor.label)) label = stateColor.label;
+            if(!isBlank(stateColor.state)) {
+                if(stateColor.name.toLowerCase() === params.status.toLowerCase()) {
+                    color = stateColor.color;
+                    if(!isBlank(stateColor.label)) label = stateColor.label;
+                }
+            } else if(!isBlank(stateColor.states)) {
+                if(stateColor.states.includes(params.status)) {
+                    color = stateColor.color;
+                    if(!isBlank(stateColor.label)) label = stateColor.label;
+                }
             }
         }
 

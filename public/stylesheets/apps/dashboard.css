@@ -1,13 +1,13 @@
 :root {
     
     --width-new             : 450px;
-    --margin-main           : 40px;
+    --margin-main           : 22px;
     --padding-panel         : 40px;
     --margin-item           : 30px;
     --margin-item-panels    : 24px;
     --padding-item          : 30px;
-    --width-workflow        : 240px;
-    --width-details         : 420px;
+    --width-workflow        : 220px;
+    --width-details         : 320px;
     --width-attachments     : 300px;
     --height-markups        : 140px;
     --height-attachments    : 200px;
@@ -426,8 +426,8 @@ td.selected {
 /* ----------------------------------------------------------------------------- */
 #item.problem-report {
     --height-attachments    : 220px;
-    --width-details         : 600px;
-    --width-workflow        : 300px;
+    --width-details         : 460px;
+    --width-workflow        : 180px;
 }
 #item.problem-report #details {
     top     : 0px;
@@ -460,7 +460,7 @@ td.selected {
 
 /* ITEM SUMMARY Project Tasks */
 /* ----------------------------------------------------------------------------- */
-#item.problem-report {
+#item.project-task {
     --height-attachments    : 220px;
     --width-details         : 600px;
     --width-workflow        : 300px;

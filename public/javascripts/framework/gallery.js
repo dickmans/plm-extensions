@@ -29,10 +29,10 @@ let profiles = [{
             prefix  : 'PR Source'
         }],
         stateColors : [
-            { color : '#222222', name : 'Create'                    , label : 'New'            },
-            { color : '#faa21b', name : 'Review'                    , label : 'Review'         },
-            { color : '#6a9728', name : 'Completed'                 , label : 'Complete'       },
-            { color : '#dd2222', name : 'Change Request in progress', label : 'CR in progress' }
+            { color : '#222222', state : 'Create'                    , label : 'New'            },
+            { color : '#faa21b', state : 'Review'                    , label : 'Review'         },
+            { color : '#6a9728', state : 'Completed'                 , label : 'Complete'       },
+            { color : '#dd2222', state : 'Change Request in progress', label : 'CR in progress' }
         ]
     },{
         layout : 'list'
