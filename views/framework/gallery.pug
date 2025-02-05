@@ -15,32 +15,33 @@ block body
             #header-logo
             #header-title= title
             #header-toolbar
-                .button(data-id='find'     ).icon.icon-search
                 .button(data-id='home'     title='Landing Page').icon.icon-home
-                .button(data-id='views'    title='Worspace Views and Workspace Items').icon.icon-tiles-list
+                .button(data-id='find'     ).icon.icon-search
+                .button(data-id='views'    title='Worspace Views and Workspace Items').icon.icon-table
                 .button(data-id='item-1'   ) Item
                 .button(data-id='item-2'   ) BOM
                 .button(data-id='item-3'   ) Where Used
-                .button(data-id='item-4'   ) References
-                .button(data-id='summary'  ).icon.icon-dashboard
+                .button(data-id='item-4' title='Reference data including change log').icon.icon-link
+                .button(data-id='summary'  ).icon.icon-toggle-layout
                 .button(data-id='tabs'     ).icon.icon-tabs
-                .button(data-id='lists'    ) Lists
-                .button(data-id='grids'    ) Grids
-                .button(data-id='galleries') Galleries
-                .button(data-id='rows'     ) Rows
+                .button(data-id='lists'     title='List layout in all sizes'   ).icon.icon-list
+                .button(data-id='grids'     title='Grid layout in all sizes'   ).icon.icon-tiles-list
+                .button(data-id='galleries' title='Gallery layout in all sizes').icon.icon-dashboard
+                .button(data-id='rows'      title='Rows layout in all sizes'   ).icon.icon-filter-empty
                 .button(data-id='files'    ).icon.icon-pdf
                 .button(data-id='edit'     ) Edit
                 span Select 
                     br
                     |Profile:
                 select#profiles.main
+                .button(data-id='theme').icon.icon-highlight#toggle-theme
                 #header-avatar
 
         .screen#home 
 
             .surface-level-1#mow
-            .surface-level-2#bookmarks
-            .surface-level-3#recents
+            .surface-level-1#bookmarks
+            .surface-level-1#recents
 
         .screen#views 
 

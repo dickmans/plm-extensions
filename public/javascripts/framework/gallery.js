@@ -3,9 +3,14 @@ let profiles = [{
         headerLabel  : 'Fixed Label',
         headerToggle : true
     },{ 
-        openInPLM    : true,
-        search       : true,
-        reload       : true
+        openInPLM           : true,
+        openOnDblClick      : true,
+        search              : true,
+        reload              : true,
+        filterByDueDate     : true,
+        filterByOwner       : true,
+        filterByStatus      : true,
+        filterByWorkspace   : true
     },{
         openInPLM       : true,
         openOnDblClick  : true,
@@ -33,6 +38,8 @@ let profiles = [{
         layout : 'list'
     },{
         layout : 'grid',
+    },{
+        layout : 'table',
     },{
         search           : true,
         openInPLM        : true,
@@ -63,7 +70,8 @@ $(document).ready(function() {
     $('<option></option>').appendTo($('#profiles')).attr('value', 3).html('Complex Tiles');
     $('<option></option>').appendTo($('#profiles')).attr('value', 4).html('Layout : List');
     $('<option></option>').appendTo($('#profiles')).attr('value', 5).html('Layout : Grid');
-    $('<option></option>').appendTo($('#profiles')).attr('value', 6).html('Details Tab Adjustments');
+    $('<option></option>').appendTo($('#profiles')).attr('value', 6).html('Layout : Table');
+    $('<option></option>').appendTo($('#profiles')).attr('value', 7).html('Details Tab Adjustments');
     
     setUIEvents();
 
@@ -73,6 +81,11 @@ $(document).ready(function() {
 function setUIEvents() {
 
     $('#header-toolbar').children('.button').click(function() {
+
+        if($(this).attr('id') === 'toggle-theme') {
+            $('body').toggleClass('dark-theme').toggleClass('light-theme');
+            return;
+        }
 
         $(this).addClass('default');
         $(this).siblings('.button').removeClass('default');
@@ -120,7 +133,7 @@ function setUIEvents() {
             collapsed: true
         });
     })
-               
+
     $('#header-toolbar').children('.button').first().click();
 
 }
@@ -177,7 +190,7 @@ function setItem4() {
 
     insertChangeLog(linkEmberPrinter, profiles[$('#profiles').val()]);
     insertRelationships(linkEmberPrinter, profiles[$('#profiles').val()]);
-    insertChangeProcesses(linkEmberPrinter, profiles[$('#profiles').val()]);
+    insertChangeProcesses('/api/v3/workspaces/57/items/14553', profiles[$('#profiles').val()]);
     insertManagedItems(linkChangeOrder1, profiles[$('#profiles').val()]);
 
 }
