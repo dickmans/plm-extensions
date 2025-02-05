@@ -1650,18 +1650,19 @@ function insertDetailsFields(id, sections, fields, data, settings, callback) {
             }
         }
     }
-    
-    if(!isBlank(settings.sectionsOrder)) {
+
+    if(!isBlank(settings.details[id])) {
+        if(!isBlank(settings.details[id].sectionsOrder)) {
 
         let sort = 1;
 
-        for(let orderedSection of settings.sectionsOrder) {
-            for(let section of sections) {
-                if(orderedSection === section.name) {
-                    section.order = sort++;
+            for(let orderedSection of settings.details[id].sectionsOrder) {
+                for(let section of sections) {
+                    if(orderedSection === section.name) {
+                        section.order = sort++;
+                    }
                 }
             }
-        }
 
         for(let section of sections) {
             if(isBlank(section.order)) {
