@@ -2,7 +2,8 @@
     --screen-top    : 15px;
     --width-ebom    : 850px;
     --width-mbom    : 850px;
-    --width-details : 400px;
+    --width-summary : 400px;
+    --height-files  : 280px;
     --content-top   : 55px;
     --padding-panel : 20px;
 }
@@ -10,12 +11,18 @@
 
 /*  COMMON OVERRIDES */
 /* ----------------------------------------------------------------------------- */
+#main { top : 66px; }
 .panel-title { text-align : center; }
 /* .panel-content { 
     top : var(--content-top); 
     bottom : var(--padding-panel);
 } */
-.panel-nav { padding-bottom : 8px; margin : 0px; }
+.panel-nav { 
+    display         : flex;
+    height          : 48px;
+    line-height     : 48px;
+    margin          : 0px; 
+}
 .screen-divider.vertical {
     top : var(--padding-panel);
     bottom : var(--padding-panel);
@@ -25,6 +32,7 @@
 }
 #my-markup-button.highlight .adsk-button-icon.icon-markup::before { color : white !important; }
 .viewcubeWrapper { display : none !important; }
+#summary-close { display : none; }
 
 
 
@@ -50,20 +58,33 @@
     right : calc(var(--width-mbom) + (2 * var(--padding-panel)) - 2px); 
 }
 #mbom {
-    top : var(--screen-top);
-    right : var(--padding-panel);
-    bottom : var(--padding-panel);
-    width : var(--width-mbom);
+    top     : var(--screen-top);
+    right   : var(--padding-panel);
+    bottom  : var(--padding-panel);
+    width   : var(--width-mbom);
 }
-#divider-details {
-    right : -10px;
+
+#summary {
+    top             : 0px;
+    border-width    : var(--screen-top) var(--padding-panel);
+    right           : calc(0px - var(--width-summary) - (2 * var(--padding-panel)));
+    bottom          : 0px;
+    width           : var(--width-summary);
 }
-#details {
-    top : var(--screen-top);
-    right : calc(0px - var(--width-details));
-    bottom : var(--padding-panel);
-    width : var(--width-details);
+/* #details {
+    top             : 0px;
+    border-width    : var(--screen-top) var(--padding-panel);
+    right           : calc(0px - var(--width-summary) - (2 * var(--padding-panel)));
+    bottom          : var(--height-files);
+    width           : var(--width-summary);
 }
+#attachments {
+    border-width    : var(--screen-top) var(--padding-panel);
+    right           : calc(0px - var(--width-summary) - (2 * var(--padding-panel)));
+    bottom          : 0px;
+    height          : var(--height-files);
+    width           : var(--width-summary);
+} */
 
 
 
@@ -89,16 +110,23 @@ body.mode-add .viewer, body.mode-add #ebom, body.mode-add #instructions { displa
 body.mode-instructions .viewer { display : block !important; right : 0px; }
 body.mode-instructions #ebom, body.mode-instructions #add { display : none !important; }
 
-body.details-on #tabs            { right : calc((5 * var(--padding-panel)) + var(--width-mbom) + var(--width-details)); }
-body.details-on #divider-mbom    { right : calc(var(--width-mbom) + var(--width-details) + (4 * var(--padding-panel)) - 2px); }
-body.details-on #mbom            { right : calc(var(--width-details) + (3 * var(--padding-panel))); }
-body.details-on #divider-details { right : calc(var(--width-details) + (2 * var(--padding-panel)) - 2px); }
-body.details-on #details         { right : var(--padding-panel); }
+body.details-on #tabs            { right : calc((5 * var(--padding-panel)) + var(--width-mbom) + var(--width-summary)); }
+body.details-on #divider-mbom    { right : calc(var(--width-mbom) + var(--width-summary) + (4 * var(--padding-panel)) - 2px); }
+body.details-on #mbom            { right : calc(var(--width-summary) + (3 * var(--padding-panel))); }
+body.details-on #summary         { right : 0px; }
+/* body.details-on #details         { right : 0px; } */
+/* body.details-on #attachments     { right : 0px; } */
 
 
 
 /* TAB CONTROLS */
 /* ----------------------------------------------------------------------------- */
+#tabs > .panel-header  {
+    height : 38px;
+}
+#tabs > .panel-header > div {
+    height : 34px;
+}
 
 
 /* VIEWER */
@@ -116,15 +144,11 @@ body.details-on #details         { right : var(--padding-panel); }
 
 /* ADD Panel */
 /* ----------------------------------------------------------------------------- */
-#add input {
-    background : var(--color-surface-level-2);
-    border-color : var(--color-surface-level-5);
-}
 .panel-left {
     border-right : 1px solid  var(--color-surface-level-5);
     display : flex;
     flex-direction: column;
-    gap : var(--spacer-m);
+    gap : 4px;
     position : absolute;
     top : var(--padding-panel);
     bottom : 0px;
@@ -143,11 +167,13 @@ body.details-on #details         { right : var(--padding-panel); }
     font: normal normal normal 14px/1 'Material Symbols Sharp';
     font-size : 24px;
     font-weight : 300;
-    line-height : 24px;
-    margin-left : var(--spacer-m);
-    margin-right : var(--spacer-xs);
-    position: relative;
-    top : 6px;
+    line-height : 46px;
+    /* margin-left : var(--spacer-m); */
+    /* margin-right : var(--spacer-xs); */
+    /* position: relative; */
+    /* top : 6px; */
+    text-align : center;
+    width : 48px;
 }
 #nav-search-items::before           { content : '\e8b6'; }
 .saved-search::before               { content : '\e875'; }
@@ -229,35 +255,14 @@ select.view-selector {
     overflow : hidden;
     text-overflow: ellipsis;
 }
-#create-item-sections {
+#create-item-form {
+    border-width : 24px 32px;
     position: absolute;
     top: 0px;
     left: 0px;
     bottom: 0px;
     overflow-y: auto;
-    width: calc(100% - 400px);
-    border-right: 1px solid var(--color-gray-100);
-}
-#create-item-sections .field {
-    border : none;
-    margin-bottom : 2px;
-}
-#create-item-sections .field-label {
-    font-weight : bold;
-    line-height : 24px;
-    padding : 2px 10px;
-    text-align : right;
-    width : 120px;
-}
-#create-item-sections .field-text {
-    line-height : 24px;
-    padding-left : 10px;
-}
-#create-item-sections input.field-value {
-    width : calc(100% - 230px);
-}
-#create-item-sections .with-text input.field-value {
-    width : calc(100% - 290px);
+    width: calc(100% - 470px);
 }
 #create-item-panel {
     display : flex;
@@ -362,6 +367,9 @@ select.view-selector {
     border-top      : 1px solid transparent;
     border-bottom   : 1px solid transparent;
     cursor          : pointer;
+    display         : flex;
+    flex-direction  : row;
+    gap             : var(--spacer-xs);
     overflow        : hidden;
     padding         : 0px 8px;
     text-overflow   : ellipsis;
@@ -374,13 +382,11 @@ select.view-selector {
     width           : 100%;
 }
 .item-link {
-    color       : transparent;
     cursor      : pointer;
     display     : none;
-    float       : right;
     line-height : 30px;
-    font-size   : 20px;
-    margin-left : var(--spacer-xxs);
+    font-size   : 24px;
+    font-weight : 200;
 }
 .item-code {
     background      : var(--color-surface-level-3); 
@@ -421,8 +427,8 @@ select.view-selector {
     width           : 100px;
 }
 .item-action {
-    height          : 28px !important;
-    line-height     : 28px !important;
+    height          : 30px !important;
+    line-height     : 30px !important;
     min-width       : 28px;
     padding         : 0px;
     text-align      : center;
@@ -457,7 +463,10 @@ select.view-selector {
     background   : var(--color-selected-background);
     border-color : var(--color-selected-border);
 }
-.item-head:hover > .item-icon ,
+.item-head:hover > .item-icon {
+    background : var(--color-blue-900) !important;
+    color      : var(--color-font) !important;
+}
 .item-head:hover > .item-title,
 .item-head:hover > .item-code,
 .item-head:hover > .item-qty,
@@ -472,9 +481,9 @@ select.view-selector {
     background : var(--color-hover-background) !important;
     color      : var(--color-font) !important;
 }
-.item-head:hover > .item-title > .item-head-descriptor {
-    width           : calc(100% - 50px);
-}
+/* .item-head:hover > .item-title > .item-head-descriptor {
+    width           : calc(100% - 150px);
+} */
 .item-head:hover > .item-title > .item-link { display : block; }
 .item-bom {
     overflow    : auto;
@@ -491,8 +500,7 @@ select.view-selector {
 }
 .item.root > .item-bom { padding-left : 0px; }
 .item.root > .item-head > .item-title {
-    padding-right   : 258px;
-    width           : 100% !important;
+    width : 100% !important;
 }
 .item.leaf.selected {
     border-left : none;
@@ -581,7 +589,7 @@ body.bom-panel-on .bom-panel {
 }
 #ebom .additional > div > .item-actions > .item-action-add { display : block; }
 #ebom .item.different.enable-update > div > .item-actions > .item-action-update { display : block; }
-#ebom .item-has-bom > .item-head > .item-qty > input { display : none; }
+/* #ebom .item-has-bom > .item-head > .item-qty > input { display : none; } */
 #ebom .item > .item-head > .iteqm-qty > input.item-qty-input { background : var(--color-gray-100); }
 #ebom .item.selected > .item-head > .iteqm-qty > input.item-qty-input { background : var(--color-selected-background); }
 #ebom .item-has-bom > .item-head > .item-actions > div { display : block; }
@@ -645,6 +653,9 @@ body.bom-panel-on #ebom-tree { bottom : 106px; }
 
 /* MBOM  */
 /* ----------------------------------------------------------------------------- */
+#mbom .panel-title-main {
+    font-weight : normal;
+}
 #mbom-tree {
     bottom : 75px;
 }
@@ -744,19 +755,6 @@ body.bom-panel-on #mbom-tree { bottom : 106px; }
 select.button.view-selector { height : 36px; }
 
 
-/* DETAILS PANEL */
-/* ----------------------------------------------------------------------------- */
-#details-sections { 
-    bottom : 158px; 
-}
-#attachments {
-    bottom  : 0px;
-    display : flex;
-    gap     : 4px;
-    height  : 138px;
-    top     : unset;
-}
-
 
 /* COPY / MOVE ITEM DIALOG */
 /* ----------------------------------------------------------------------------- */
@@ -835,7 +833,7 @@ select.button.view-selector { height : 36px; }
     :root {
         --width-ebom    : 650px;
         --width-mbom    : 650px;
-        --width-details : 300px;
+        --width-summary : 360px;
     }
 
 }
@@ -844,7 +842,7 @@ select.button.view-selector { height : 36px; }
     :root {
         --width-ebom    : 550px;
         --width-mbom    : 500px;
-        --width-details : 300px;
+        --width-summary : 360px;
     }
 
 }

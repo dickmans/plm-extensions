@@ -2,27 +2,38 @@ $(document).ready(function() {
     
     setUIEvents();
 
-    getApplicationFeatures('portal', [], function() {});
+    getFeatureSettings('portal', [], function() {
 
-    insertSearch({ 
-        autoClick : config.portal.autoClick,
-        workspace : config.portal.workspace,
-        size : 'xs'
+        insertSearch({ 
+            autoClick    : config.portal.autoClick,
+            inputLabel   : 'Enter part number',
+            limit        : 15,
+            number       : true,
+            tileSize     : 'xs',
+            tileSubtitle : 'Owner',
+            search       : false,
+            workspacesIn : config.portal.workspacesIn,
+            onClickItem  : function(elemClicked) { openItem(elemClicked); }
+        });
+
+        insertRecentItems({ 
+            headerLabel  : 'Recent Items',
+            search       : false,
+            reload       : true,
+            tileSize     : 'xs',
+            workspacesIn : config.portal.workspacesIn,
+            onClickItem  : function(elemClicked) { openItem(elemClicked); },
+        });
+
+        if(!isBlank(wsId) && !isBlank(dmsId)) {
+
+            $('#toggle-search').click();
+            $('#toggle-bom').click();
+            openItem('/api/v3/workspaces/' + wsId + '/items/' + dmsId);
+
+        }
+
     });
-
-    insertRecentItems({ 
-        headerLabel  : 'Recent Items',
-        size         : 'xs',
-        workspacesIn : [ config.portal.workspace ]
-    });
-
-    if(!isBlank(wsId) && !isBlank(dmsId)) {
-
-        $('#toggle-search').click();
-        $('#toggle-bom').click();
-        openItem('/api/v3/workspaces/' + wsId + '/items/' + dmsId);
-
-    }
 
 });
 
@@ -48,52 +59,68 @@ function setUIEvents() {
 
 }
 
-function clickSearchResult(elemClicked, e) { openItem(elemClicked.attr('data-link')); }
-function clickRecentItem(elemClicked,   e) { openItem(elemClicked.attr('data-link')); }
+function openItem(elemClicked) {
 
-function openItem(link) {
+    let link  = elemClicked.attr('data-link');
+    let title = elemClicked.attr('data-title');
 
     $('.item-panel').show();
+    $('#header-subtitle').html(title);
 
-    $.get('/plm/descriptor', { 'link' : link }, function(response) {
-        $('#header-subtitle').html(response.data);
-    });
+    document.title = title;
 
     insertBOM(link, {
-        compactDisplay : true
+        reload              : false,
+        openInPLM           : true,
+        toggles             : true,
+        search              : true,
+        path                : true,
+        tableColumnsLimit   : 1
     });
 
     insertViewer(link);
 
     insertDetails(link, {
-        hideComputed  : true,
-        sectionsEx    : config.portal.sectionsExcluded,
-        sectionsIn    : config.portal.sectionsIncluded,
-        sectionsOrder : config.portal.sectionsOrder,
-        fieldsEx      : config.portal.fieldsExcluded,
-        fieldsIn      : config.portal.fieldsIncluded
+        collapseContents    : true,
+        hideComputed        : true,
+        openInPLM           : true,
+        toggles             : true,
+        suppressLinks       : true,
+        expandSections      : config.portal.expandSections,
+        sectionsEx          : config.portal.sectionsExcluded,
+        sectionsIn          : config.portal.sectionsIncluded,
+        sectionsOrder       : config.portal.sectionsOrder,
+        fieldsEx            : config.portal.fieldsExcluded,
+        fieldsIn            : config.portal.fieldsIncluded
     });
 
     insertAttachments(link, {
-        layout : 'list',
-        size   : 's'
+        headerLabel : 'Files',
+        editable    : false,
+        layout      : 'list',
+        reload      : false,
+        tileSize    : 's'
     });
 
 }
 
 
-function clickBOMItemDone(elemClicked) {
+function clickBOMItem(elemClicked) {
 
     if(elemClicked.hasClass('selected')) { 
+
         let partNumber = elemClicked.attr('data-part-number');
         if(isBlank) partNumber = elemClicked.attr('data-title').split(' - ')[0];
         viewerSelectModel(partNumber, {
-            isolate : true,
-            ghosting : true,
+            isolate   : true,
+            ghosting  : true,
             highlight : true
         });
+
     } else {
+
         viewerResetSelection();
+
     }
 
 }

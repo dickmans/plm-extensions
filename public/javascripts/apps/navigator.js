@@ -1,7 +1,8 @@
-let wsConfig    = { 'permissions' : { 'workflow' : false } };
-let links       = [];
-let fields      = [];
-
+let wsConfig        = { 'permissions' : { 'workflow' : false } };
+let links           = [];
+let fields          = [];
+let tableSettings   = {};
+let formSettings    = {};
 
 $(document).ready(function() {
     
@@ -12,6 +13,22 @@ $(document).ready(function() {
     setUIEvents();
 
     $('#button-toggle-create').hide();
+
+    tableSettings = getPanelSettings('', { id : 'table'}, {}, [
+        ['editable'     , true  ],
+        ['hideLabels'   , true  ],
+        ['hideComputed' , false ],
+        ['fieldsIn'     , []    ],
+        ['fieldsEx'     , []    ]
+    ]);
+
+    formSettings = getPanelSettings('', { id : 'table'}, {}, [
+        ['editable'     , true  ],
+        ['hideLabels'   , false ],
+        ['hideComputed' , false ],
+        ['fieldsIn'     , []    ],
+        ['fieldsEx'     , []    ]
+    ]);
 
     if(wsId === '') {
         $('#main').hide();
@@ -40,11 +57,6 @@ function setUIEvents() {
         if(wsId !== '') $('#workspaces-close').show();
         showWorkspacesList();
     });
-    // $('#button-toggle-details').click(function() {
-    //     $('body').toggleClass('with-details');
-    //     $('body').removeClass('with-create');
-    //     $('body').removeClass('with-edit');
-    // });
     $('#button-toggle-create').click(function() {
         showCreateDialog();
     });
@@ -95,51 +107,10 @@ function setUIEvents() {
     });
     $('#edit-selected').click(function() {
         $('body').toggleClass('with-edit');
-        $('body').removeClass('with-create');
-        $('body').removeClass('with-details');
+        $('body').removeClass('with-summary');
     });
     $('#save').click(function() {
         saveChanges();
-    });
-    $('#close').click(function() {
-        $('body').toggleClass('with-details');
-    });
-
-
-    // Create Dialog
-    $('#cancel-create').click(function() {
-        $('#button-toggle-create').click();
-        insertItemDetailsFields('', 'create', wsConfig.sections, wsConfig.fields, null, true, true, true);
-    });
-    $('#save-create').click(function() {
-
-        if(!validateForm($('#create'))) return;
-
-        $('#overlay').show();
-
-        submitCreateForm(wsId, $('#create-sections'), null, function(response) {
-
-
-            clearFields('create-sections');
-            let newLink = response.data.split('.autodeskplm360.net')[1];
-            setItemDetails(newLink);
-            // $('#button-toggle-details').click();
-            $('#overlay').hide();
-        });
-
-    });
-
-
-    // Clone Dialog
-    $('#button-clone').click(function() {
-        let link = $('#details').attr('data-link');
-        showClone(link);
-    });
-    $('#submit-clone').click(function() {
-        clickClone($(this));
-    });
-    $('#cancel-clone').click(function() {
-        $('body').removeClass('with-clone');
     });
 
 
@@ -171,75 +142,56 @@ function setUIEvents() {
 }
 
 
-
 // Geet basic workspace information and data from PLM
 function getInitialData() {
 
     $('#overlay').show();
 
     let requests = [
-        $.get('/plm/workspace', { 'wsId' : wsId }),
-        $.get('/plm/tableaus' , { 'wsId' : wsId }),
-        $.get('/plm/sections' , { 'wsId' : wsId }),
-        $.get('/plm/fields'   , { 'wsId' : wsId }),
-        $.get('/plm/tabs'     , { 'wsId' : wsId }),
-        $.get('/plm/bookmarks', { }),
-        $.get('/plm/recent'   , { })
+        $.get('/plm/workspace', { wsId : wsId, useCache : true }),
+        $.get('/plm/tableaus' , { wsId : wsId }),
+        $.get('/plm/sections' , { wsId : wsId, useCache : true }),
+        $.get('/plm/fields'   , { wsId : wsId, useCache : true }),
+        $.get('/plm/tabs'     , { wsId : wsId, useCache : true })
     ]
 
     Promise.all(requests).then(function(responses) {
 
-        let index           = 0;
-        let countBookmarks  = 0;
         let name            = responses[0].data.name;
+        let elemBtnCreate   = $('#button-toggle-create');
+        let elemSelector    = $('#tableau-selector');
 
         $('#header-subtitle').html(responses[0].data.name);
         $('#tableau-processing').show();
         
         if(name.endsWith('s')) name = name.substring(0, name.length - 1);
         
-        $('#button-toggle-create').html('New ' + name).css('display', 'flex');
+        elemBtnCreate.html('New ' + name).css('display', 'flex');
 
-        if(responses[0].data.permissions.indexOf('Create') > -1) $('#button-toggle-create').removeClass('disabled'); else $('#button-toggle-create').addClass('disabled');
+        if(responses[0].data.permissions.indexOf('Create') > -1) elemBtnCreate.removeClass('disabled'); else elemBtnCreate.addClass('disabled');
         if(responses[0].data.permissions.indexOf('Delete') <  0) $('#archive').addClass('hidden');
 
         for(let tab of responses[4].data) {
              if(tab.workspaceTabName === 'WORKFLOW_ACTIONS') {
-                // $('.workflow-actions').removeClass('hidden'); 
                 wsConfig.permissions.workflow = true;
             }
         }
 
-        insertTabLabels(responses[4].data);
+        wsConfig.name = name;
+        wsConfig.tabs = responses[4].data;
 
-        for(let bookmark of responses[5].data.bookmarks) {
-            let link = bookmark.item.link.split('/');
-            if(link[4] === wsId) countBookmarks++;
-        }
-
-        sortArray(responses[1].data, 'title', 'string');
+        setTabLabels(responses[4].data);
+        sortArray(responses[1].data, 'title', 'string', 'descending');
 
         for(let tableau of responses[1].data) {
 
-            let elemOption = $('<option></option>');
-                elemOption.attr('value', tableau.link);
-                elemOption.attr('nane', index++);
-                elemOption.html(tableau.title);
-                elemOption.prependTo($('#tableau-selector'));
+            let elemOption = $('<option></option>').prependTo(elemSelector)
+                .attr('value', tableau.link)
+                .html(tableau.title);
 
-            if(countBookmarks === 0) {
-                if(tableau.hasOwnProperty('type')) {
-                    if(tableau.type === 'DEFAULT') {
-                        elemOption.attr('selected', true);
-                    }
-                }
-            }
+            if(tableau.type === 'DEFAULT')  elemOption.attr('selected', true);
 
         }
-
-        if(countBookmarks > 0) $('#option-bookmarks').attr('selected', true);
-
-        // if($('#tableau-selector').children().length > 1) $('#tableau-selector').show();
 
         wsConfig.sections = responses[2].data;
         wsConfig.fields   = responses[3].data;
@@ -260,9 +212,14 @@ function getPicklists() {
 
     for(let field of (wsConfig.fields)) {
         if(field.type !== null) {
-            if((field.type.title === 'Single Selection') || (field.type.title === 'Radio Button')) {
+            if((field.type.title === 'Single Selection') || (field.type.title === 'Radio Button')) {
                 if(linksPicklists.indexOf(field.picklist) < 0) {
-                    requests.push($.get( '/plm/picklist', { 'link' : field.picklist, 'limit' : 100, 'offset' : 0 }));
+                    requests.push($.get( '/plm/picklist', { 
+                        link     : field.picklist, 
+                        limit    : 100, 
+                        offset   : 0,
+                        useCache : true
+                    }));
                     linksPicklists.push(field.picklist);
                 }
             }
@@ -272,11 +229,10 @@ function getPicklists() {
     Promise.all(requests).then(function(responses) {
         
         for(let response of responses) cachePicklists.push({
-            'link' : response.params.link,
-            'data' : response.data
+            link : response.params.link,
+            data : response.data
         });
 
-        insertItemDetailsFields('', 'create', wsConfig.sections, wsConfig.fields, null, true, true, true);
         setTableau();
 
     }) ;
@@ -284,42 +240,54 @@ function getPicklists() {
 }
 
 
-
 // Render workspaces list (i.e. if wsId is empty)
 function showWorkspacesList() {
 
-    let elemParent = $('#workspaces-list');
-        elemParent.html('');
+    let elemParent = $('#workspaces-list').html('');
 
-    $.get('/plm/workspaces', function(response){
+    $.get('/plm/workspaces', { useCache : true }, function(response) {
+
         sortArray(response.data.items, 'title', 'string', 'ascending');
+
         for(let workspace of response.data.items) {
-            let elemTile = genTile(workspace.link, workspace.urn, null, 'icon-folder', workspace.title, workspace.category.name);
-                elemTile.appendTo(elemParent);
-                elemTile.click(function() {
-                    let link     = $(this).attr('data-link');
-                    let id       = link.split('/')[4];
-                    let location = document.location.href.split('/navigator');
-                    let url      = location[0] + '/navigator?wsId=' + id;
-                    document.location.href = url + '&theme=' + theme;
-                });
+            genSingleTile({
+                link     : workspace.link,
+                title    : workspace.title,
+                subtitle : workspace.category.name,
+                tileIcon : 'icon-folder'
+            })
+            .appendTo(elemParent)
+            .click(function() {
+                let link     = $(this).attr('data-link');
+                let id       = link.split('/')[4];
+                let location = document.location.href.split('/navigator');
+                let url      = location[0] + '/navigator?wsId=' + id;
+                document.location.href = url + '&theme=' + theme;
+            });
         }
+
         $('#workspaces-panel-processing').hide();
+
     });
 
 }
 
 
-
 // Render Create Dialog
 function showCreateDialog() {
 
-    $('body').toggleClass('with-create');
     $('body').removeClass('with-edit');
-    $('body').removeClass('with-details');
+
+    insertCreate(null, [wsId], { 
+        id            : 'create-dialog',
+        headerLabel   : 'Create New ' + wsConfig.name,
+        toggles       : true,
+        hideComputed  : true, 
+        collapsed     : true,
+        afterCreation : function(id, link) { setTableau(); }
+    });
     
 }   
-
 
 
 // Render table with data from standard view or workspace view
@@ -352,8 +320,8 @@ function setTableau() {
     } else {
 
         let requests = [
-            $.get('/plm/tableau-columns', { 'link' : link, 'timestamp' : timestamp }),
-            $.get('/plm/tableau-data'   , { 'link' : link, 'timestamp' : timestamp })
+            $.get('/plm/tableau-columns', { link : link, timestamp : timestamp }),
+            $.get('/plm/tableau-data'   , { link : link, timestamp : timestamp })
         ];
     
         Promise.all(requests).then(function(responses) {
@@ -380,7 +348,7 @@ function appendHeaderCell(elemHeaderRow, indexItem, link, descriptor) {
 
     let elemHeaderCell = $('<th></th>').appendTo(elemHeaderRow)
         .addClass('table-column')
-        .addClass('item-' + indexItem)
+        .addClass('column-' + indexItem)
         .attr('data-index', indexItem)
         .attr('data-link', link);
 
@@ -430,7 +398,7 @@ function appendHeaderCell(elemHeaderRow, indexItem, link, descriptor) {
         .click(function() {
             let elemHead = $(this).closest('th');
             let index = elemHead.attr('data-index');
-            $('.item-' + index).addClass('invisible');
+            $('.column-' + index).addClass('invisible');
             elemHead.removeClass('selected');
         });
 
@@ -442,7 +410,7 @@ function appendHeaderCell(elemHeaderRow, indexItem, link, descriptor) {
         .click(function() {
             let elemHead = $(this).closest('th');
             let index = elemHead.attr('data-index');
-            $('.item-' + index).removeClass('invisible');
+            $('.column-' + index).removeClass('invisible');
             elemHead.removeClass('selected');
         });
 
@@ -461,7 +429,7 @@ function appendHeaderCell(elemHeaderRow, indexItem, link, descriptor) {
         .addClass('button')
         .html('view_sidebar')
         .click(function() {
-            setItemDetails($(this).closest('th').attr('data-link'));
+            setItemSummary($(this).closest('th').attr('data-link'));
         });
 
     $('<div></div>').appendTo(elemHeaderCellToolbar)
@@ -471,7 +439,9 @@ function appendHeaderCell(elemHeaderRow, indexItem, link, descriptor) {
         .addClass('icon-clone')
         .click(function() {
             let link = $(this).closest('th').attr('data-link');
-            showClone(link);
+            insertClone(link, {
+                afterCloning : function(id, link) { setTableau(); }
+            });
         });
         
     $('<div></div>').appendTo(elemHeaderCellToolbar)
@@ -485,12 +455,11 @@ function appendHeaderCell(elemHeaderRow, indexItem, link, descriptor) {
 
     $('<th></th>').appendTo(elemHeaderRow)
         .addClass('table-spacer')
-        .addClass('item-' + indexItem);
+        .addClass('column-' + indexItem);
 
     links.push(link);
 
 }
-
 
 
 // Handle Standard Views (Bookmarks, Recents, MOW)
@@ -531,10 +500,9 @@ function setWorkspacesFields(elemTable) {
 
     for(let section of wsConfig.sections) {
 
-        let elemSection = $('<tr></tr>');
-            elemSection.addClass('table-section');
-            elemSection.html('<td>' + section.name + '</td>');
-            elemSection.appendTo(elemTable);
+        let elemSection = $('<tr></tr>').appendTo(elemTable)
+            .addClass('table-section')
+            .html('<td>' + section.name + '</td>');
 
         for(let sectionField of section.fields) {
 
@@ -557,7 +525,8 @@ function setWorkspacesFields(elemTable) {
                                 elemCell.appendTo(elemRow);
 
                             fields.push(field);
-                            insertField(field, { 'sections': [{ 'fields' : fields }] }, $('#edit-fields'), true, true, true);
+                            // insertField(field, { 'sections': [{ 'fields' : fields }] }, $('#edit-fields'), true, true, true);
+                            insertDetailsField(field, { 'sections': [{ 'fields' : fields }] }, $('#edit-fields'), false, formSettings);
 
                         } else {
                             console.log('matrix');
@@ -591,7 +560,7 @@ function setWorkspaceRecords(elemTable, records) {
 
             let elemCell = $('<td></td>');
                 elemCell.appendTo($(this));
-                elemCell.addClass('item-' + indexItem);
+                elemCell.addClass('column-' + indexItem);
                 elemCell.addClass('table-field');
                 // elemCell.hover(function () {
                 //     $('table td:nth-child(' + ($(this).index() + 1) + ')').addClass('hover');
@@ -601,7 +570,8 @@ function setWorkspaceRecords(elemTable, records) {
                 //     $('table th').removeClass('hover');
                 // });
 
-            let elemControl = insertField(fields[index], record.data, null, false, false, true, true);
+            // let elemControl = insertField(fields[index], record.data, null, false, false, true, true);
+            let elemControl = insertDetailsField(fields[index], record.data, null, tableSettings);
 
             if(typeof elemControl !== 'undefined') {
                 let fieldValue = getFieldValue(elemControl);
@@ -614,7 +584,7 @@ function setWorkspaceRecords(elemTable, records) {
 
             let elemCellSpacer = $('<td></td>');
                 elemCellSpacer.addClass('table-spacer');
-                elemCellSpacer.addClass('item-' + indexItem);
+                elemCellSpacer.addClass('column-' + indexItem);
                 elemCellSpacer.appendTo($(this));
 
             index++;
@@ -639,7 +609,7 @@ function highlightChanges() {
         let isChanged   = false;
         let index       = elemHeader.attr('data-index');   
 
-        $('td.table-field.item-' + index).each(function() {
+        $('td.table-field.column-' + index).each(function() {
 
             let elemCell    = $(this);
             let elemField   = elemCell.children('.field-value');
@@ -668,7 +638,6 @@ function highlightChanges() {
 }
 
 
-
 // Handle Workspace Views / Tableaus
 function setTableauRows(elemTable, tableauColumns) {
     
@@ -680,32 +649,26 @@ function setTableauRows(elemTable, tableauColumns) {
 
             if(tableauColumn.field.title !== 'Item Descriptor') {
 
-                let elemRow = $('<tr></tr>');
-                    elemRow.addClass('table-field');
-                    elemRow.attr('data-link', tableauColumn.field.__self__);
-                    elemRow.appendTo(elemTable);
+                let elemRow = $('<tr></tr>').appendTo(elemTable)
+                    .addClass('table-field')
+                    .attr('data-link', tableauColumn.field.__self__);
 
-                let elemCell = $('<td></td>');
-                    elemCell.addClass('first-col');
-                    elemCell.addClass('nowrap');
-                    elemCell.html(tableauColumn.field.title);
-                    elemCell.appendTo(elemRow);
+                $('<td></td>').appendTo(elemRow)
+                    .addClass('first-col')
+                    .addClass('nowrap')
+                    .html(tableauColumn.field.title);
 
                 if(tableauColumn.field.isSystemField) {
-                    
-                        fields.push({
-                            'isSystemField' : true
-                        });
-                
+                    fields.push({ 'isSystemField' : true });
                 } else {
-            
                     for(let field of wsConfig.fields) {
                         if(field.__self__ === tableauColumn.field.__self__) {
                             fields.push(field);
-                            insertField(field, { 'sections': [{ 'fields' : fields }] }, $('#edit-fields'), true, true, true);
+                            // insertField(field, { 'sections': [{ 'fields' : fields }] }, $('#edit-fields'), true, true, true);
+                            insertDetailsField(field, { 'sections': [{ 'fields' : fields }] }, $('#edit-fields'), false, formSettings);
+
                         }
                     }  
-                
                 }
             }
 
@@ -765,7 +728,7 @@ function setTableauColumns(elemTable, tableauRecords) {
             }
 
             let elemCell = $('<td></td>').appendTo($(this))
-                .addClass('item-' + indexItem)
+                .addClass('column-' + indexItem)
                 .addClass('table-field');
            
             if(fields[index].isSystemField) {
@@ -774,7 +737,9 @@ function setTableauColumns(elemTable, tableauRecords) {
 
             } else {
 
-                let elemControl = insertField(fields[index], { 'sections': [{ 'fields' : tableauRecord.fields }] }, null, false, false, true, true);
+                // let elemControl = insertField(fields[index], { 'sections': [{ 'fields' : tableauRecord.fields }] }, null, false, false, true, true);
+
+                let elemControl = insertDetailsField(fields[index], { 'sections': [{ 'fields' : tableauRecord.fields }] }, null, false, tableSettings);
 
                 if(typeof elemControl !== 'undefined') {
                     let fieldValue = getFieldValue(elemControl);
@@ -789,7 +754,7 @@ function setTableauColumns(elemTable, tableauRecords) {
 
             $('<td></td>').appendTo($(this))
                 .addClass('table-spacer')
-                .addClass('item-' + indexItem);
+                .addClass('column-' + indexItem);
 
             index++;
 
@@ -802,6 +767,70 @@ function setTableauColumns(elemTable, tableauRecords) {
 }
 
 
+// Filter tableau table
+function filterTableColumns(value, idTable) {
+
+    let elemTable = $('#' + idTable);
+
+    if(value === '') {
+        elemTable.find('th.table-column').show();
+        elemTable.find('th.table-spacer').show();
+        elemTable.find('td.table-field').show();
+        elemTable.find('td.table-spacer').show();
+        return;
+    }
+
+    elemTable.find('th.table-column').hide();
+    elemTable.find('th.table-spacer').hide();
+    elemTable.find('td.table-field').hide();
+    elemTable.find('td.table-spacer').hide();
+
+    value = value.toLowerCase();
+
+    elemTable.find('.table-column-descriptor').each(function() {
+
+        let text = $(this).html().toLowerCase();
+
+        if(text.indexOf(value) > -1) {
+
+            let index = $(this).closest('th').attr('data-index');
+            $('.column-' + index).show();
+
+        }
+
+    });
+
+    elemTable.find('td.table-field').each(function() {
+
+        if($(this).children('.image').length === 0) {
+
+            let field = $(this).children('.field-value').first();
+            let text  = field.html().toLowerCase();
+
+            if(field.children('input').length === 1) text = field.children('input').val().toLowerCase();
+            else if(field.children('select').length === 1) {
+                let elemSelect= field.children('select').first(); 
+                text = elemSelect.children('option:selected').text().toLowerCase();
+            } else if(field.children('textarea').length === 1) text = field.children('textarea').val().toLowerCase();
+
+            if(text.indexOf(value) > -1) {
+
+                let index = $(this).index();
+                    index = elemTable.find('th').eq(index).attr('data-index');
+
+                $('.column-' + index).show();
+
+            }
+
+        }
+
+    });
+
+    elemTable.find('td.first-col').show();
+    elemTable.find('th').first().show();
+
+}
+
 
 // Selection of items using checkeboxes
 function selectColumn(elemClicked) {
@@ -810,9 +839,9 @@ function selectColumn(elemClicked) {
     let index    = elemItem.attr('data-index');
 
     if(elemItem.hasClass('selected')) {
-        $('.item-' + index).removeClass('selected');
+        $('.column-' + index).removeClass('selected');
     } else {
-        $('.item-' + index).addClass('selected');
+        $('.column-' + index).addClass('selected');
     }
 
     updateToolbar();
@@ -905,31 +934,52 @@ function applyEdits() {
 
 
 // Display record details in panel on right hand side
-function setItemDetails(link) {
+function setItemSummary(link) {
 
-    $('#details-title').html('');        
-    $('#details').attr('data-link', link);
-
-    $('body').removeClass('with-create');
-    $('body').removeClass('with-clone');
     $('body').removeClass('with-edit');
-    $('body').addClass('with-details');
 
-    insertGrid(link, { 'id' : 'grid-list', 'header' : false });
-    insertViewer(link);        
-    insertItemDetails(link);
-    insertAttachments(link, { 
-        'header'    : false, 
-        'layout'    : 'list',
-        'size'      : 's', 
-        'upload'    : false, 
-    });
-
-    if(wsConfig.permissions.workflow) insertWorkflowActions(link);
-
-    $.get('/plm/descriptor', { 'link' : link }, function(response) {
-        $('#details-title').html(response.data);
-    });
+    insertItemSummary(link, {
+        id       : 'summary',
+        bookmark : true,
+        contents : [
+            { 
+                type        : 'details', 
+                params      : { 
+                    id          : 'item-details', 
+                    collapsed   : true, 
+                    editable    : true ,
+                    toggles     : true
+                } 
+            },{ 
+                type         : 'attachments', 
+                params       : { 
+                    id       : 'item-attachments',
+                    editable : true,
+                    singleToolbar : 'controls'
+                } 
+            },{ 
+                type        : 'bom', 
+                params      : { 
+                    id      : 'item-bom',
+                    search  : true
+                } 
+            },{ 
+                type        : 'workflow-history', 
+                params      : { 
+                    id      : 'summary-workflow-history' ,
+                    header  : false
+                }
+            }
+        ],
+        afterCloning    : function(id, link) { setTableau(); },
+        cloneable       : true,
+        layout          : 'tabs',
+        hideSubtitle    : true,
+        openInPLM       : true,
+        reload          : true,
+        toggleBodyClass : 'with-summary',
+        workflowActions : wsConfig.permissions.workflow
+    }); 
 
 }
 
@@ -944,7 +994,7 @@ function hideSelectedItems() {
 
         let index = $(this).attr('data-index');
 
-        $('.item-' + index).addClass('invisible');
+        $('.column-' + index).addClass('invisible');
 
         updateToolbar();
 
@@ -959,7 +1009,7 @@ function showSelectedItems() {
 
         let index = $(this).attr('data-index');
 
-        $('.item-' + index).removeClass('invisible');
+        $('.column-' + index).removeClass('invisible');
 
         updateToolbar();
 
@@ -992,7 +1042,7 @@ function toggleComparison(elemClicked) {
 
         let match       = true;
         let elemRow     = $(this);
-        let baseCell    = $(this).children('.item-' + index).first();
+        let baseCell    = $(this).children('.column-' + index).first();
         let hasText     = (baseCell.children().length === 0);
         let hasChild    = (baseCell.children('div').length > 0);
         let hasRadio    = (baseCell.children('div.radio').length > 0);
@@ -1022,7 +1072,7 @@ function toggleComparison(elemClicked) {
                     if((isInvisible && elemCell.hasClass('invisible')) || (!isInvisible && !elemCell.hasClass('invisible'))) {
 
                         if(!elemCell.hasClass('first-col')) {
-                            if(!elemCell.hasClass('item-' + index)) {
+                            if(!elemCell.hasClass('column-' + index)) {
 
                                 let value = elemCell.children().first().val();
 
@@ -1081,70 +1131,16 @@ function archiveSelected() {
 }
 
 
-// Clone from details view
-function showClone(link) {
-
-    $('body').addClass('with-clone');
-    $('body').removeClass('with-edit');
-    $('body').removeClass('with-details');
-    $('body').removeClass('with-create');
-
-    $('#clone').attr('data-link', link);
-    $('#clone-sections').html('');
-    $.get('/plm/details', { 'link' : link }, function(response) { 
-        $('#clone-title').html(response.data.title);
-        insertItemDetailsFields('', 'clone', wsConfig.sections, wsConfig.fields, response.data, true, true, true);
-    });
-
-
-}
-function clickClone(elemClicked) {
-
-    let elemPanel   = elemClicked.closest('.panel');
-    let link        = elemPanel.attr('data-link');
-
-    let params = {
-        'link'      : link,
-        'sections'  : getSectionsPayload($('#clone-sections'))
-    }
-
-    $.post('/plm/clone', params, function(response) {
-        let url = response.data.split('.autodeskplm360.net');
-        setItemDetails(url[1]);
-    });
-
-}
-
-
 
 // Perform Workflow Transitions
-function performWorkflowAction() {
-
-    $('#overlay').show();
-
-    let selected = $('.table-column.selected');
-
-    if(selected.length === 1) {
-
-        $.get('/plm/transition', { 'link' : selected.first().attr('data-link'), 'transition' : $('#workflow-actions').val()}, function() {
-            setTableau();
-        });
-
-    }
-
-}
 function setTransitionsDialog() {
     
     $('#overlay').show();
     $('#transitions-comment').val('');
 
-    let selected = $('.item-selector.selected');
-    let requests = [];
-    let elemParent = $('#transitions-list');
+    let requests   = [];
+    let elemParent = $('#transitions-list').html('');
 
-    elemParent.html('');
-
-    // for(item of selected) {
     $('.table-column.selected').each(function() {
         let link = $(this).attr('data-link');
         requests.push($.get('/plm/transitions', { 'link' : link} ));
@@ -1167,7 +1163,8 @@ function setTransitionsDialog() {
             $('<div></div>').appendTo(elemItem)
                 .html(respDescriptor.data);
 
-            let elemItemActions = $('<div></div>').appendTo(elemItem);
+            let elemItemActions = $('<div></div>').appendTo(elemItem)
+                .addClass('transition-actions')
 
             if(respTransitions.length > 0) {
 
@@ -1190,13 +1187,26 @@ function setTransitionsDialog() {
 
             $('<div></div>').appendTo(elemItemActions)
                 .addClass('button')
+                .html('Apply to all')
+                .click(function() {
+                    let elemSelect = $(this).prev();
+                    let value      = elemSelect.val();
+                    $('#transitions-list').find('select').each(function() {
+                        let elemNext = $(this);
+                        let elemOption = elemNext.children('[value="' + value + '"]');
+                        if (elemOption.length > 0) $(this).val(value);
+                    });
+                });
+
+            $('<div></div>').appendTo(elemItemActions)
+                .addClass('button')
                 .addClass('red')
                 .addClass('icon')
                 .addClass('icon-delete')
                 .click(function() {
                     let transition = $(this).closest('.transition');
                     let link = transition.attr('data-link');
-                    $('.item-selector.selected').each(function() {
+                    $('.column-selector.selected').each(function() {
                         if($(this).attr('data-link') === link) {
                             $(this).removeClass('selected');
                         }
@@ -1217,7 +1227,11 @@ function submitTransitions() {
 
     $('.select-transition').each(function() {
         let link = $(this).closest('.transition').attr('data-link');
-        requests.push($.get('/plm/transition', { 'link' : link, 'transition' : $(this).val(), 'comment' : $('#transitions-comment').val() }));
+        requests.push($.get('/plm/transition', { 
+            link        : link, 
+            transition  : $(this).val(),
+            comment     : $('#transitions-comment').val() 
+        }));
     });
 
     Promise.all(requests).then(function(responses) {
@@ -1236,26 +1250,22 @@ function saveChanges() {
 
     let requests = [];
 
-    $('th').each(function() {
+    $('th.changed').each(function() {
 
-        if($(this).hasClass('changed')) {
+        let index = $(this).attr('data-index');
 
-            let index = $(this).attr('data-index');
+        let params = { 
+            link     : $(this).attr('data-link'),
+            sections : []
+        };
 
-            let params = { 
-                'link'     : $(this).attr('data-link'),
-                'sections' : []
-            };
+        $('td.column-' + index).each(function() {
+            if($(this).hasClass('changed')) {
+                addFieldPayload(params.sections, $(this));
+            }
+        });
 
-            $('td.item-' + index).each(function() {
-                if($(this).hasClass('changed')) {
-                    addFieldPayload(params.sections, $(this));
-                }
-            });
-
-            requests.push($.get('/plm/edit', params));
-
-        }
+        requests.push($.post('/plm/edit', params));
 
     });
 

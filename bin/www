@@ -95,7 +95,9 @@ function onListening() {
   console.log();
   console.log('  >> Using settings file   ' + fileSettings);
   console.log('  >> Using redirect Uri    ' + settings.redirectUri);
+  console.log('  >> Using PLM Tenant      ' + settings.tenant);
   console.log('  >> Listening on          ' + bind);
+  console.log('  >> Cache Enabled         ' + settings.enableCache);
   console.log();
   console.log('  REMINDER');
   console.log(' --------------------------------------------------------------------------------------------------');

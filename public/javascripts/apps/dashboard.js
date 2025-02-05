@@ -3,23 +3,24 @@ let title           = 'Activity Dashboard';
 let enableMarkup    = false;
 let fieldIdsMarkup  = [];
 let wsConfig        = { 
-    'id'                    : null,
-    'sections'              : [],
-    'excludedSections'      : [],
-    'workflowHistory'       : {},
-    'fields'                : [],
-    'progress'              : null,
-    'icon'                  : 'account_tree',
-    'fieldIdSubtitle'       : '',
-    'fieldIdItem'           : '',
-    'tableauName'           : '',
-    'tableauLink'           : '',
-    'imageFieldsPrefix'     : 'MARKUP_'
+    id                    : null,
+    className             : '',
+    sections              : [],
+    excludedSections      : [],
+    workflowHistory       : {},
+    fields                : [],
+    progress              : null,
+    icon                  : 'account_tree',
+    fieldIdSubtitle       : '',
+    fieldIdItem           : '',
+    tableauName           : '',
+    tableauLink           : '',
+    markupsImageFieldsPrefix     : 'MARKUP_'
 }
 let wsConfigBrowser = {
-    'id'       : '95',
-    'viewName' : 'Product Browser',
-    'tableau'  : ''
+    id       : '95',
+    viewName : 'Product Browser',
+    tableau  : ''
 }
 
 
@@ -29,16 +30,18 @@ $(document).ready(function() {
 
         if(wsId === profile.wsId.toString()) {
 
-            wsConfig.id          = profile.wsId.toString();
-            wsConfig.progress    = profile.progress;
-            wsConfig.fieldIdItem = profile.fieldIdItem;
-            wsConfig.tableauName = (profile.title.length < 31) ? profile.title : 'Process Dashboard';
+            wsConfig.id              = profile.wsId.toString();
+            wsConfig.className       = profile.className;
+            wsConfig.contents        = profile.contents;
+            wsConfig.progress        = profile.progress;
+            wsConfig.fieldIdViewable = profile.fieldIdViewable;
+            wsConfig.tableauName     = (profile.title.length < 31) ? profile.title : 'Process Dashboard';
 
             if(!isBlank(profile.icon)) wsConfig.icon = profile.icon;
             if(!isBlank(profile.title)) title = profile.title;
             if(!isBlank(profile.fieldIdSubtitle)) wsConfig.fieldIdSubtitle = profile.fieldIdSubtitle;
             if(!isBlank(profile.workflowHistory)) wsConfig.workflowHistory = profile.workflowHistory;
-            if(!isBlank(profile.imageFieldsPrefix)) wsConfig.imageFieldsPrefix = profile.imageFieldsPrefix;
+            if(!isBlank(profile.markupsImageFieldsPrefix)) wsConfig.markupsImageFieldsPrefix = profile.markupsImageFieldsPrefix;
 
         }
 
@@ -90,10 +93,6 @@ $(document).ready(function() {
 
         document.title = title;
 
-        appendProcessing('workflow-history', false);
-        appendProcessing('details', false);
-        appendProcessing('attachments', false);
-
         appendNoDataFound('list');
 
         appendOverlay(false);
@@ -113,48 +112,9 @@ $(document).ready(function() {
 // Set UI controls
 function setUIEvents() {
 
-    // Toggle panels
-    $('.panel.toggle').find('.panel-header').click(function() {
-        $(this).closest('.panel').toggleClass('expanded');
-        $(this).closest('.panel').toggleClass('collapsed');
-    });
-
     // View Selector
     $('#view').change(function() {
         setSelectedView();
-    });
-
-    // Create new item
-    $('#continue').click(function() {
-
-        if(!validateForm($('#new-sections'))) {
-            showErrorMessage('Cannot Save', 'Field validations faild');
-            return;
-        }
-
-        $('#overlay').show();
-
-    
-        submitCreateForm(wsConfig.id, $('#new-sections'), '', function(response ) {
-
-            let newLink = response.data.split('.autodeskplm360.net')[1];
-
-            openItem(newLink);
-            clearFields('new-sections');
-
-        });
-
-    });
-
-    // Item Toolbar Actions
-    $('#workflow-actions').change(function() {
-        performWorkflowAction();
-    });
-    $('#bookmark').click(function() {
-        toggleBookmark($(this));
-    });
-    $('#item-close').click(function() {
-        $('#item').hide();
     });
 
 }
@@ -165,27 +125,24 @@ function setStatusColumns() {
 
     let elemParent = $('#progress')
 
-    for(state of wsConfig.progress) {
+    for(let state of wsConfig.progress) {
 
-        let elemState = $('<div></div>');
-            elemState.appendTo(elemParent);
+        let elemState = $('<div></div>').appendTo(elemParent);
 
-        let elemStateTitle = $('<div></div>');
-            elemStateTitle.html(state.label);
-            elemStateTitle.css('background-color', state.color);
-            elemStateTitle.addClass('progress-title');
-            elemStateTitle.appendTo(elemState);
+        $('<div></div>').appendTo(elemState)
+            .html(state.label)
+            .css('background-color', state.color)
+            .addClass('progress-title');
         
-        let elemStateList = $('<div></div>');
-            elemStateList.addClass('progress-column');
-            elemStateList.addClass('list');
-            elemStateList.addClass('surface-level-2');
-            elemStateList.addClass('tiles');
-            elemStateList.addClass('l');
-            elemStateList.attr('data-states', state.states);
-            elemStateList.attr('data-label', state.label);
-            elemStateList.attr('data-color', state.color);
-            elemStateList.appendTo(elemState);
+        $('<div></div>').appendTo(elemState)
+            .addClass('progress-column')
+            .addClass('list')
+            .addClass('surface-level-2')
+            .addClass('tiles')
+            .addClass('l')
+            .attr('data-states', state.states)
+            .attr('data-label', state.label)
+            .attr('data-color', state.color);
 
     }
 
@@ -250,12 +207,17 @@ function setChart() {
 function setSelectedView() {
 
     $('#views').children().hide();
+    $('#views').addClass('hidden');
     $('#list-no-data').addClass('hidden');
 
     let view = $('#view').val();
     $('#' + view).css('display', 'flex');
 
-    if($('#' + view).children().length === 0) $('#list-no-data').removeClass('hidden');
+    if($('#' + view).children().length === 0) {
+        $('#list-no-data').removeClass('hidden').show();
+    } else {
+        $('#views').removeClass('hidden');
+    }
 
 }
 
@@ -263,26 +225,26 @@ function setSelectedView() {
 // Retrieve WS configuration & data
 function getInitialData() {
 
-    let promises = [
-        $.get('/plm/sections'   , { 'wsId' : wsConfig.id }),
-        $.get('/plm/fields'     , { 'wsId' : wsConfig.id }),
-        $.get('/plm/tableaus'   , { 'wsId' : wsConfig.id }),
-        $.get('/plm/permissions', { 'wsId' : wsConfig.id }),
+    let requests = [
+        $.get('/plm/sections'   , { wsId : wsConfig.id, useCache : true }),
+        $.get('/plm/fields'     , { wsId : wsConfig.id, useCache : true }),
+        $.get('/plm/tableaus'   , { wsId : wsConfig.id, useCache : true }),
+        $.get('/plm/permissions', { wsId : wsConfig.id, useCache : true }),
     ];
 
-    Promise.all(promises).then(function(responses) {
+    Promise.all(requests).then(function(responses) {
 
         wsConfig.sections    = responses[0].data;
         wsConfig.fields      = responses[1].data;
         wsConfig.permissions = responses[3].data;
 
-        for(tableau of responses[2].data) {
+        for(let tableau of responses[2].data) {
             if(tableau.title === wsConfig.tableauName) {
                 wsConfig.tableauLink = tableau.link;
             }
         }
         
-        for(field of wsConfig.fields) {
+        for(let field of wsConfig.fields) {
             if(!isBlank(field.type)) {
                 if(field.type.title === 'Image') {
                     let fieldId = field.__self__.split('/')[8];
@@ -300,33 +262,34 @@ function getInitialData() {
         
         if(!enableMarkup) $('body').addClass('no-markup');
         
-        for(let permission of wsConfig.permissions){
-            if(permission.name === 'permission.shortname.add_items'){
-                $('body').removeClass('no-new');
-                insertItemDetailsFields('', 'new', wsConfig.sections, wsConfig.fields, null, true, true, true, wsConfig.excludedSections);
-            }
+        if(hasPermission(wsConfig.permissions, 'add_items')) {
+            $('body').removeClass('no-new');
+            insertCreate([], [wsConfig.id], {
+                id                  : 'new-sections',
+                hideHeader          : true,
+                hideSections        : true,
+                requiredFieldsOnly  : true,
+                cancelButton        : false,
+                createButtonLabel   : 'Continue',
+                createButtonIcon    : 'icon-chevron-right',
+                useCache            : true,
+                afterCreation       : function(id, link) { openItem(link); }
+            });
         }
-
-        $('#new-sections').find('.field.required').each(function() {
-            $(this).css('display', 'flex');
-        });
-        $('#new-sections').find('.field.editable').each(function() {
-            if($(this).children('.field-value').attr('data-id') === wsConfig.fieldIdItem) $(this).css('display', 'flex');
-        });
 
         if(wsConfig.tableauLink === '') {
 
             let params = {
-                'wsId'      : wsConfig.id, 
-                'name'      : wsConfig.tableauName,
-                'columns'   : ['descriptor', 'created_on', 'last_modified_on', 'wf_current_state']
+                wsId      : wsConfig.id, 
+                name      : wsConfig.tableauName,
+                columns   : ['descriptor', 'created_on', 'last_modified_on', 'wf_current_state']
             }
 
             if(!isBlank(wsConfig.fieldIdSubtitle)) params.columns.push(wsConfig.fieldIdSubtitle);
 
-            $.get('/plm/tableau-add', params, function(response) {
+            $.post('/plm/tableau-add', params, function() {
                 $.get('/plm/tableaus', { 'wsId' : wsConfig.id }, function(response) {
-                    for(tableau of response.data) {
+                    for(let tableau of response.data) {
                         if(tableau.title === wsConfig.tableauName) {
                             wsConfig.tableauLink = tableau.link;
                             getProcesses();
@@ -345,32 +308,30 @@ function getInitialData() {
 function getProcesses() {
 
     let requests = [
-        $.get('/plm/tableau-data', { 'link' : wsConfig.tableauLink }),
-        $.get('/plm/mow', {}),
-        $.get('/plm/recent', {}),
-        $.get('/plm/bookmarks', {})
+        $.get('/plm/tableau-data', { link : wsConfig.tableauLink }),
+        $.get('/plm/mow'         , {}),
+        $.get('/plm/recent'      , {}),
+        $.get('/plm/bookmarks'   , {})
     ];
 
     Promise.all(requests).then(function(responses) {
 
         $('#overlay').hide();
 
-        // if(responses[1].data.outstandingWork.length     === 0) $('#mow-no-data').removeClass('hidden');
-        // if(responses[2].data.recentlyViewedItems.length === 0) $('#recents-no-data').removeClass('hidden');
-        // if(responses[3].data.bookmarks.length           === 0) $('#bookmarks-no-data').removeClass('hidden');
-
         let elemTable = $('#calendar-table-body');
             elemTable.html('');
 
-        for(item of responses[0].data) {
+        for(let item of responses[0].data) {
 
             let status          = item.fields[3].value;
             let descriptor      = item.fields[0].value;
             let subtitle        = (isBlank(wsConfig.fieldIdSubtitle)) ? '' : item.fields[4].value;
-            let elemTile        = genTile(item.item.link, '', '', wsConfig.icon, descriptor, subtitle);
+            let elemTile        = genSingleTile({ link : item.item.link, tileIcon : wsConfig.icon, title : descriptor, subtitle : subtitle, status : {
+                label : '',
+                color : ''
+            } });
             let valueCreated    = item.fields[1].value;
             let valueModified   = item.fields[2].value;
-            let statusColor     = 'transparent';
             let dateNow         = new Date();
             let diffCreated     = 0;
             let diffModified    = 0;
@@ -381,15 +342,6 @@ function getProcesses() {
                 ['with-icon icon-calendar', 'Last update on ' + item.fields[2].value  , false]
             ]);
 
-            let elemTileStatus = $('<div></div>');
-                elemTileStatus.appendTo(elemTile);
-                elemTileStatus.addClass('tile-status');
-                elemTileStatus.css('background-color', statusColor);
-            
-            let elemTileStatusLabel = $('<div></div>');
-                elemTileStatusLabel.appendTo(elemTileStatus);
-                elemTileStatusLabel.addClass('tile-status-label');
-
             if(!isBlank(valueCreated)) {
 
                 if(valueCreated.indexOf('.') > -1) {
@@ -398,8 +350,8 @@ function getProcesses() {
  
                 }
                 dateCreated  = new Date(valueCreated);
-                diffCreated = dateNow.getTime() - dateCreated.getTime();
-                diffCreated = diffCreated / (1000 * 3600 * 24);
+                diffCreated  = dateNow.getTime() - dateCreated.getTime();
+                diffCreated  = diffCreated / (1000 * 3600 * 24);
                 valueCreated = dateCreated.toLocaleDateString();
             }
             
@@ -419,8 +371,8 @@ function getProcesses() {
             $('.progress-column').each(function() {
                 let states = $(this).attr('data-states').split(',');
                 if(states.indexOf(status) > -1) {
-                    elemTileStatus.css('background-color', $(this).attr('data-color'));
-                    elemTileStatusLabel.html($(this).attr('data-label'));
+                    elemTile.find('.tile-status').css('background-color', $(this).attr('data-color'));
+                    elemTile.find('.tile-status-label').html($(this).attr('data-label'));
                     $(this).append(elemTile.clone());
                 }
             });
@@ -441,21 +393,11 @@ function getProcesses() {
                 elemRow.attr('data-link', item.item.link);
                 elemRow.click(function() { openItem($(this).attr('data-link')); });
 
-            let elemCellTitle = $('<td></td>');
-                elemCellTitle.html(item.fields[0].value);
-                elemCellTitle.appendTo(elemRow);
-
-            let elemCellCreatedOn = $('<td></td>');
-                elemCellCreatedOn.html(valueCreated);
-                elemCellCreatedOn.appendTo(elemRow);
-
-            let elemCellModifiedOn = $('<td></td>');
-                elemCellModifiedOn.html(valueModified);
-                elemCellModifiedOn.appendTo(elemRow);
-
-            let elemCellStatus = $('<td></td>');
-                elemCellStatus.html(status);
-                elemCellStatus.appendTo(elemRow);
+            $('<td></td>').appendTo(elemRow).html(item.fields[0].value);
+            $('<td></td>').appendTo(elemRow).html(valueCreated);
+            $('<td></td>').appendTo(elemRow).html(valueModified);
+            $('<td></td>').appendTo(elemRow).html(status);
+                
 
             $('.calendar-day').each(function() {
                 let date = new Date($(this).attr('data-date'));
@@ -466,14 +408,11 @@ function getProcesses() {
 
             });
 
-
         }
 
         setSelectedView();
 
         $('.tile').click(function() { openItem($(this).attr('data-link')); });
-
-        // $('#chart').css('height', response.data.length * 32 + 'px');
         $('.calendar-day-current').click();
 
         chart.update();
@@ -488,124 +427,6 @@ function isContained(link, list) {
     }
 
     return false;
-
-}
-
-
-// Retrieve browser data
-function getBrowserData() {
-
-    let elemList = $('#browser-list');
-
-    $.get('/plm/tableau-data', { 'link' : wsConfigBrowser.tableau, 'size' : 500 }, function(response) {
-
-
-        for(item of response.data) {
-
-            let title = '';
-            let subtitle = '';
-            let image = '';
-    
-            for(field of item.fields) {
-                if(field.id === 'NUMBER') title = field.value;
-                else if(field.id === 'TITLE') subtitle = field.value;
-                else if(field.id === 'IMAGE') {
-                    // image = field.value;
-                    let temp = item.item.link.split('/');
-                    image = '/api/v2/workspaces/' + temp[4] + '/items/' + temp[6] + '/field-values/' + field.id + '/image/' + field.value;
-                }
-            }
-
-            console.log(image);
-
-            let elemTile = genTile(item.item.link, '', image, 'folder', title, subtitle);
-            elemTile.appendTo(elemList);
-        }
-
-        // let elemTable = $('#calendar-table-body');
-        //     elemTable.html('');
-
-        // for(item of response.data) {
-
-        //     let status          = item.fields[3].value;
-        //     let descriptor      = item.fields[0].value.split(' - ');
-        //     let elemTile        = genTile(item.item.link, '', '', wsConfig.icon, descriptor[0], descriptor[1]);
-        //     let valueCreated    = item.fields[1].value;
-        //     let valueModified   = item.fields[2].value;
-        //     let dateNow         = new Date();
-        //     let diffCreated     = 0;
-        //     let diffModified    = 0;
-        //     let dateCreated;
-            
-        //     if(!isBlank(valueCreated)) {
-        //         dateCreated  = new Date(valueCreated);
-        //         diffCreated = dateNow.getTime() - dateCreated.getTime();
-        //         diffCreated = diffCreated / (1000 * 3600 * 24);
-        //         valueCreated = dateCreated.toLocaleDateString();
-        //     }
-            
-        //     if(!isBlank(valueModified)) {
-        //         let dateModified = new Date(valueModified);
-        //         diffModified = dateNow.getTime() - dateModified.getTime();
-        //         diffModified = diffModified / (1000 * 3600 * 24);
-        //         valueModified = dateModified.toLocaleDateString();
-        //     }
-
-        //     if(isBlank(item.fields[2].value)) diffModified = diffCreated;
-
-        //     $('.progress-column').each(function() {
-        //         let states = $(this).attr('data-states').split(',');
-        //         if(states.indexOf(status) > -1) {
-        //             $(this).append(elemTile);
-        //         }
-        //     });
-
-        //     elemTile.click(function() { openItem($(this).attr('data-link')); });
-
-        //     chart.data.labels.push(descriptor[0]);
-        //     chart.data.datasets[0].data.push(diffCreated);
-        //     chart.data.datasets[1].data.push(diffModified);
-
-        //     let elemRow = $('<tr></tr>');
-        //         elemRow.appendTo(elemTable);
-        //         elemRow.attr('data-date', dateCreated);
-        //         elemRow.attr('data-link', item.item.link);
-        //         elemRow.click(function() { openItem($(this).attr('data-link')); });
-
-        //     let elemCellTitle = $('<td></td>');
-        //         elemCellTitle.html(item.fields[0].value);
-        //         elemCellTitle.appendTo(elemRow);
-
-        //     let elemCellCreatedOn = $('<td></td>');
-        //         elemCellCreatedOn.html(valueCreated);
-        //         elemCellCreatedOn.appendTo(elemRow);
-
-        //     let elemCellModifiedOn = $('<td></td>');
-        //         elemCellModifiedOn.html(valueModified);
-        //         elemCellModifiedOn.appendTo(elemRow);
-
-        //     let elemCellStatus = $('<td></td>');
-        //         elemCellStatus.html(status);
-        //         elemCellStatus.appendTo(elemRow);
-
-        //     $('.calendar-day').each(function() {
-        //         let date = new Date($(this).attr('data-date'));
-
-        //         if(date.getTime() === dateCreated.getTime()) {
-        //             $(this).addClass('calendar-highlight');
-        //         }
-
-        //     });
-
-
-        // }
-
-        // $('#chart').css('height', response.data.length * 32 + 'px');
-        // $('.calendar-day-current').click();
-
-        // chart.update();
-
-    });
 
 }
 
@@ -668,189 +489,119 @@ function selectCalendarWeek(elemClicked) {
 // Show selected process in main window
 function openItem(link) {
 
-    $('#item-descriptor').html('');
-    $('#item-status').html('');
-    $('#workflow-history-events').html('');
-    $('#markup-list').html('');
-    $('#summary').find('span').html('');
-    $('#item').attr('data-link', link);
-    $('#item').show();
-    $('#workflow-history-processing').show();
-    $('#details-processing').show();
-    $('body').addClass('no-viewer');
-
-    viewerUnloadAllModels();
-    insertWorkflowActions(link);
-
-    insertWorkflowHistory(link, {
-        'headerLabel'           : 'Activity',
-        'reload'                : false,
-        'showNextTransitions'   : wsConfig.workflowHistory.showNextActions,
-        'transitionsEx'         : wsConfig.workflowHistory.excludedTransitions,
-        'finalStates'           : wsConfig.workflowHistory.finalStates
+    insertItemSummary(link, {
+        bookmark        : true,
+        className       : wsConfig.className,
+        contents        : wsConfig.contents,
+        openInPLM       : true,
+        reload          : true,
+        layout          : 'dashboard',
+        statesColors    : wsConfig.progress,
+        surfaceLevel    : '3',
+        workflowActions : true
     });
 
-    $.get('/plm/details', { 'link' : link }, function(response) {
 
-        $('#item-descriptor').html(response.data.title);
-        $('#overlay').hide();
-        
-        let status      = response.data.currentState.title;
-        let linkItem    = getSectionFieldValue(response.data.sections, wsConfig.fieldIdItem, '', 'link');
-        let elemStatus  = $('#item-status');
+    // viewerUnloadAllModels();
+    // insertWorkflowActions(link);
 
-        insertViewer(linkItem);
-        
-        for(state of wsConfig.progress) {
-            if(state.states.indexOf(status) > -1) {
-                elemStatus.html(state.label);
-                elemStatus.css('background-color', state.color);
-            }
-        }
+    //     if(enableMarkup) {
+    //         for(fieldId of fieldIdsMarkup) {
 
-        if(enableMarkup) {
-            for(fieldId of fieldIdsMarkup) {
+    //             let elemMarkup = $('<canvas></canvas>');
+    //                 elemMarkup.attr('id', fieldId);
+    //                 elemMarkup.attr('data-fieldid', fieldId);
+    //                 elemMarkup.addClass('markup');
+    //                 elemMarkup.addClass('placeholder');
+    //                 elemMarkup.appendTo($('#markup-list'));
+    //                 elemMarkup.click(function() {
+    //                     selectMarkup($(this));
+    //                 });
 
-                let elemMarkup = $('<canvas></canvas>');
-                    elemMarkup.attr('id', fieldId);
-                    elemMarkup.attr('data-fieldid', fieldId);
-                    elemMarkup.addClass('markup');
-                    elemMarkup.addClass('placeholder');
-                    elemMarkup.appendTo($('#markup-list'));
-                    elemMarkup.click(function() {
-                        selectMarkup($(this));
-                    });
+    //             let value = getSectionFieldValue(response.data.sections, fieldId, '', 'link');
 
-                let value = getSectionFieldValue(response.data.sections, fieldId, '', 'link');
+    //             if(value !== '') {
 
-                if(value !== '') {
+    //                 $.get('/plm/image-cache', {
+    //                     'link' : value,
+    //                     'fieldId' : fieldId
+    //                 }, function(response) {
 
-                    $.get('/plm/image-cache', {
-                        'link' : value,
-                        'fieldId' : fieldId
-                    }, function(response) {
+    //                     $('#' + response.params.fieldId).removeClass('placeholder');
 
-                        $('#' + response.params.fieldId).removeClass('placeholder');
+    //                     let canvas = document.getElementById(response.params.fieldId);
+    //                         canvas.width = 200;
+    //                         canvas.height = 100;
 
-                        let canvas = document.getElementById(response.params.fieldId);
-                            canvas.width = 200;
-                            canvas.height = 100;
-
-                        let ctx  = canvas.getContext('2d');
-                        let img = new Image();
-                            img.src = response.data.url;
-                            img.onload = function() {
-                                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                            };
+    //                     let ctx  = canvas.getContext('2d');
+    //                     let img = new Image();
+    //                         img.src = response.data.url;
+    //                         img.onload = function() {
+    //                             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    //                         };
                     
-                    });
+    //                 });
 
-                }
-            }
-        }
+    //             }
+    //         }
+    //     }
 
-    });
-
-    $.get('/plm/change-summary', { 'link' : link }, function(response) {
-    
-        let dateCreated  = new Date(response.data.createdOn);
-        let dateModified = '';
-        let userModified = '';
-
-        if(!isBlank(response.data.lastModifiedOn)) dateModified = new Date(response.data.lastModifiedOn).toLocaleDateString();
-        if(!isBlank(response.data.lastModifiedBy)) userModified = response.data.lastModifiedBy.displayName;
-
-        $('#created-by').html(response.data.createdBy.displayName);
-        $('#created-on').html(dateCreated.toLocaleDateString());
-        $('#modified-by').html(userModified);
-        $('#modified-on').html(dateModified);
-
-        $('#overlay').hide();
-
-    });
-
-    getBookmarkStatus(link);
-    insertAttachments(link, { 
-        'layout'    : 'list',
-        'size'      : 'l', 
-        'upload'    : true
-    });
-    insertItemDetailsFields(link, 'details', wsConfig.sections, wsConfig.fields, null, true, false, false, wsConfig.excludedSections);
-
-}
-
-
-// Move file upload button
-function insertAttachmentsDone(id, data, update) {
-    $('#attachments-upload').prependTo('#item-toolbar').css('display', 'flex');
-}
-
-
-
-// Perform Workflow Transitions
-function performWorkflowAction() {
-
-    $('#overlay').show();
-
-    let link = $('#item').attr('data-link');
-
-    $.get('/plm/transition', { 'link' : link, 'transition' : $('#workflow-actions').val()}, function() {
-        $('#overlay').hide();
-        openItem(link);
-    });
-
-}
-
-// Viewer
-function selectMarkup(elemClicked) {
-
-    elemClicked.siblings().removeClass('selected');
-    elemClicked.toggleClass('selected');
-    if(elemClicked.hasClass('selected')) {
-        if($('#viewer-markup-toolbar').hasClass('hidden')) {
-            $('#my-markup-button').click();
-        }
-    } else if(!$('#viewer-markup-toolbar').hasClass('hidden')) {
-        viewerLeaveMarkupMode();
-    }
+    // });
 
 
 }
-function initViewerDone() {
 
-    if(enableMarkup) viewerAddMarkupControls(true);
 
-    if($('body').hasClass('no-viewer')) { $('#attachments-list').addClass('l').removeClass('xs');}
-                                   else { $('#attachments-list').addClass('xs').removeClass('l');}
+// // Viewer
+// function selectMarkup(elemClicked) {
 
-}
-function viewerSaveMarkup() {
+//     elemClicked.siblings().removeClass('selected');
+//     elemClicked.toggleClass('selected');
+//     if(elemClicked.hasClass('selected')) {
+//         if($('#viewer-markup-toolbar').hasClass('hidden')) {
+//             $('#my-markup-button').click();
+//         }
+//     } else if(!$('#viewer-markup-toolbar').hasClass('hidden')) {
+//         viewerLeaveMarkupMode();
+//     }
 
-    let fieldId = $('.markup.selected').first().attr('id');
 
-    $('#overlay').show();
+// }
+// function initViewerDone() {
 
-    viewerCaptureScreenshot(fieldId, function() {
+//     if(enableMarkup) viewerAddMarkupControls(true);
 
-        let elemMarkupImage = $('#' + fieldId);
+//     if($('body').hasClass('no-viewer')) { $('#attachments-list').addClass('l').removeClass('xs');}
+//                                    else { $('#attachments-list').addClass('xs').removeClass('l');}
 
-        let params = { 
-            'link'      : $('#item').attr('data-link'),
-            'image'     : {
-                'fieldId' : fieldId,
-                'value'   : elemMarkupImage[0].toDataURL('image/jpg')
-            }
-        };
+// }
+// function viewerSaveMarkup() {
 
-        $.post({
-            url         : '/plm/upload-image', 
-            contentType : 'application/json',
-            data        : JSON.stringify(params)
-        }, function() {
-            $('#overlay').hide();
-            elemMarkupImage.removeClass('placeholder');
-        });
+//     let fieldId = $('.markup.selected').first().attr('id');
 
-    });
+//     $('#overlay').show();
 
-}
+//     viewerCaptureScreenshot(fieldId, function() {
+
+//         let elemMarkupImage = $('#' + fieldId);
+
+//         let params = { 
+//             'link'      : $('#item').attr('data-link'),
+//             'image'     : {
+//                 'fieldId' : fieldId,
+//                 'value'   : elemMarkupImage[0].toDataURL('image/jpg')
+//             }
+//         };
+
+//         $.post({
+//             url         : '/plm/upload-image', 
+//             contentType : 'application/json',
+//             data        : JSON.stringify(params)
+//         }, function() {
+//             $('#overlay').hide();
+//             elemMarkupImage.removeClass('placeholder');
+//         });
+
+//     });
+
+// }

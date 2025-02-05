@@ -1,11 +1,17 @@
 :root {
 
-    --width-details         : 550px;
-    --width-create          : 500px;
+    --width-summary         : 700px;
     --width-edit            : 500px;
     --padding-panel         : 20px;
 
 }
+
+
+
+/* ADDITIONS */
+/* ----------------------------------------------------------------------------- */
+#tableau-table { width : unset; }
+
 
 
 /* MASTER LAYOUT */
@@ -14,67 +20,59 @@
     display : none;
 }
 #workspaces-panel {
-    top     : var(--padding-panel);
-    right   : var(--padding-panel);
-    bottom  : var(--padding-panel);
-    left    : var(--padding-panel);
+    border-width : var(--padding-panel);
+    top          : 0px;
+    right        : 0px;
+    bottom       : 0px;
+    left         : 0px;
 }
 #tableau {
-    top     : var(--padding-panel);
-    right   : var(--padding-panel);
-    bottom  : var(--padding-panel);
-    left    : var(--padding-panel);
+    border-width : var(--padding-panel);
+    top          : 0px;
+    right        : 0px;
+    bottom       : 0px;
+    left         : 0px;
 }
-#details, #clone, #create, #edit {
-    border  : var(--padding-panel) solid var(--color-surface-level-2);
-    top     : 0px;
-    right   : 0px;
-    bottom  : 0px;
-}
-#details {
-    right   : calc(0px - (2 * var(--padding-panel)) - var(--width-details));
-    width   : var(--width-details);
-}
-#clone, #create {
-    right   : calc(0px - (2 * var(--padding-panel)) - var(--width-create));
-    width   : var(--width-create);
+#summary {
+    border-width : var(--padding-panel);
+    top          : 0px;
+    right        : calc(0px - var(--width-summary) - (2 * var(--padding-panel))); 
+    bottom       : 0px;
+    width        : var(--width-summary);
 }
 #edit {
-    right   : calc(0px - (2 * var(--padding-panel)) - var(--width-edit));
-    width   : var(--width-create);
+    border-width : var(--padding-panel);
+    top          : 0px;
+    right        : calc(0px - (2 * var(--padding-panel)) - var(--width-edit));
+    bottom       : 0px;
+    width        : var(--width-edit);
+}
+#create-dialog {
+    top     : 80px;
+    bottom  : 80px;
+}
+#clone-dialog {
+    top     : 80px;
+    bottom  : 80px;
+}
+#transitions {
+    top     : 200px;
+    bottom  : 200px;
+    left    : calc(50% - 750px);
+    width   : 1500px;
 }
 
-
-body.with-details #tableau { padding-right : var(--padding-panel); right : calc((2 * var(--padding-panel)) + var(--width-details)); }
-body.with-details #tableau .panel-content { right : var(--padding-panel); } 
-body.with-details #details { right : 0px; }
-
-body.with-create #tableau { padding-right : var(--padding-panel); right : calc((2 * var(--padding-panel)) + var(--width-create)); }
-body.with-create #tableau .panel-content { right : var(--padding-panel); } 
-body.with-create #create  { right : 0px; }
-
-body.with-clone #tableau { padding-right : var(--padding-panel); right : calc((2 * var(--padding-panel)) + var(--width-create)); }
-body.with-clone #tableau .panel-content { right : var(--padding-panel); } 
-body.with-clone #clone   { right : 0px; }
+body.with-summary #tableau {  right : calc(var(--width-summary) + (2 * var(--padding-panel))); }
+body.with-summary #summary { right : 0px; }
 
 body.with-edit #tableau { padding-right : var(--padding-panel); right : calc((2 * var(--padding-panel)) + var(--width-edit)); }
-body.with-edit #tableau .panel-content { right : var(--padding-panel); } 
 body.with-edit #edit    { right : 0px; }
 
-
-#details-processing,
+#button-toggle-create,
 #deselect-all,
 #edit-selected,
-#archive {
-    display : none;
-}
-.panel {
-    overflow : hidden;
-}
-#edit-fields {
-    top : 64px;
-}
-#button-toggle-create {
+#archive,
+#summary-subtitle {
     display : none;
 }
 
@@ -82,22 +80,22 @@ body.with-edit #edit    { right : 0px; }
 
 /* TABLE TOOLBAR */
 /* ----------------------------------------------------------------------------- */
+#tableau-title {
+    padding-top    : 0px;
+    padding-bottom : 10px;
+}
+#tableau-title .panel-title-main {
+    height : 38px;
+}
 #tableau-selector {
-    background      : transparent;
-    border          : none;
-    color           : var(--color-font);
-    cursor          : pointer;
-    font-size       : 18px;
-    font-weight     : 800;
-    line-height     : 18px;
+    font-weight     : normal;
+    height          : 38px;
+    line-height     : 38px;;
     overflow        : hidden;
     padding         : 0px 10px;
     text-overflow   : ellipsis;
     white-space     : nowrap;
 }   
-#tableau-selector:hover {
-    color : var(--color-blue-500);
-}
 #archive {
     border-color     : var(--color-status-red);
     background-color : var(--color-status-red);
@@ -119,10 +117,7 @@ body.with-edit #edit    { right : 0px; }
     height  : 30px;
 }
 #tableau > .panel-content {
-    top : 64px;
-}
-table {
-    width : unset;
+    top : 60px;
 }
 #tableau-empty {
     display     : none;
@@ -198,9 +193,6 @@ th:first-child {
 
 /* TABLE HEADER */
 /* ----------------------------------------------------------------------------- */
-/* .table-column {
-    flex-direction: column;
-} */
 .table-column-top {
     background      : var(--color-surface-level-5);
     cursor          : pointer;
@@ -364,8 +356,6 @@ tr.match {
 .table-field > .field-value > input,
 .table-field > .field-value > select,
 .table-field > .field-value > textarea { 
-    /* background      : white; 
-    border-bottom   : 1px solid var(--color-gray-300); */
     border-color : var(--color-gray-400);
     font-size       : 12px;
 }
@@ -421,44 +411,8 @@ body.hidden-layer td.invisible {
 
 
 
-/* ITEM DETAILS */
-/* ----------------------------------------------------------------------------- */
-#viewer {
-    height      : 300px;
-    position    : absolute;
-    top         : 50px;
-    right       : 0px;
-    left        : 0px;
-}
-.panel-toggles {
-    position    : absolute;
-    right       : 0px;
-    bottom      : 0px;
-    left        : 0px;
-}
-#details > .panel-content {
-    bottom  : 52px;
-    top     : 350px;
-}
-.no-viewer #details > .panel-content {
-    top : 64px;
-}
-.field-value.image > img {
-    max-height  : 300px;
-    max-width   : 500px; 
-    width       : unset;
-}
-
-
-
 /* WORKFLOW ACTIONS DIALOG */
 /* ----------------------------------------------------------------------------- */
-#transitions {
-    height  : 700px;
-    left    : calc(50% - 700px);
-    top     : calc(50% - 350px);
-    width   : 1400px;
-}
 #transitions .dialog-content {
     display : flex;
     gap     : 40px;
@@ -475,7 +429,7 @@ body.hidden-layer td.invisible {
 #transitions-comment {
     background  : var(--color-surface-level-2);
     border      : none;
-    height      : 330px;
+    height      : calc(100% - 24px);
     padding     : 8px 16px;
     width       : calc(100% - 32px);
 }
@@ -495,10 +449,13 @@ body.hidden-layer td.invisible {
     display : flex;
     gap     : var(--spacer-m);
 }
+.transition-actions > *:first-child {
+    min-width  : 220px;
+    max-width  : 220px;
+    text-align : center;
+}
 select.select-transition {
     height          : 38px;
-    min-width       : 350px;
-    max-width       : 350px;
     overflow        : hidden;
     text-align      : left;
     text-overflow   : ellipsis;

@@ -1,4 +1,5 @@
 let selectDefaults  = true;
+let selectedLink    = '';
 
 
 $(document).ready(function() {  
@@ -7,11 +8,10 @@ $(document).ready(function() {
     appendProcessing('panel-completed', false);
     appendProcessing('panel-all', false);
     appendProcessing('comments', false);
-    appendProcessing('actions', false);
     appendViewerProcessing();
     appendOverlay();
     
-    getApplicationFeatures('reviews', [], function(responses) {
+    getFeatureSettings('reviews', [], function(responses) {
         
         getTasksWorkspace();
         getSectionIds(config.reviews.workspaces.reviews);
@@ -55,56 +55,11 @@ function setUIEvents() {
     });
 
 
-    // BOM list controls
-    $('#button-bom-reset').click(function() {
-        if($('.bom-item.selected').length > 0) {
-            $('#button-bom-reset').addClass('disabled');
-            $('.bom-item.selected').removeClass('selected');
-            viewerResetSelection();
-        }
-    });
-    $('#button-bom-back').click(function() {
-        $('#bom-list').removeClass('invisible');
-        $('#bom-item-details').addClass('invisible');
-        $('#button-bom-back').addClass('hidden');
-        $('#button-bom-reset').show();
-    });
-
-
     // Actions buttions
-    $('#button-action-create').click(function() {
-        removeHighlights();
-        captureScreenshot();
-        $('#actions').find('.button').toggle();
-        $('#action-create').show();
-        $('#actions-list').hide();
-        $('.image-action').css('display', 'flex');
-    });
-    $('#button-action-submit').click(function() {
-        if(validateForm()) {
-            submitCreateForm();
-        }
-    });
-    $('#button-action-cancel').click(function() {
-        $('#actions').find('.button').toggle();
-        $('#action-create').hide();
-        $('#actions-list').show();
-        $('.image-action').css('display', 'none');
-        $('#action-create').find('input').val('');
-        $('#action-create').find('textarea').val('');
-        $('#action-image').attr('src', '');
-        $('#action-thumbnail').attr('src', '');
-        
-    });
-    $('#image-delete').click(function () {
-        $('#action-image').attr('src', '');
-        $('#action-image').hide();
-        $('#action-thumbnail').attr('src', '');
-    });
-    $('#image-refresh').click(function () {
-        captureScreenshot();
-        $('#action-image').show();
-    });
+    // $('#image-refresh').click(function () {
+    //     captureScreenshot();
+    //     $('#action-image').show();
+    // });
 
 
     
@@ -166,6 +121,14 @@ function getSectionIds(workspace) {
     });
 
 }
+
+
+
+
+// function onViewerLoadingDone() {
+//     $('#button-action-create').removeClass('disabled');
+// }
+
 
 
 
@@ -250,14 +213,20 @@ function getReviews(statusFilter, id) {
             $.each(response.data.row, function(){
                 
                 let elemData = getItemData(params.fields, this.fields.entry);
-                let image    = '/api/v2/workspaces/' + config.reviews.workspaces.reviews.id + '/items/' + this.dmsId + '/field-values/' + config.reviews.fieldIdImage + '/image/' + elemData[config.reviews.fieldIdImage];
-                let elemTile = genTile('', '', image, 'rate_review', elemData[config.reviews.fieldIdItem], elemData.TITLE);
-                    elemTile.appendTo(elemTiles);
-                    elemTile.attr('data-link', '/api/v3/workspaces/' + config.reviews.workspaces.reviews.id + '/items/' + this.dmsId);
-                    elemTile.attr('data-wsId', config.reviews.workspaces.reviews.id);
-                    elemTile.attr('data-dmsId', this.dmsId);
-                    elemTile.attr('data-descriptor', elemData.DESCRIPTOR);
-                    elemTile.click(function() {
+                let elemTile = genSingleTile({
+                    link : '',
+                    imageLink : '/api/v2/workspaces/' + config.reviews.workspaces.reviews.id + '/items/' + this.dmsId + '/field-values/' + config.reviews.fieldIdImage + '/image/' + elemData[config.reviews.fieldIdImage],
+                    tileIcon : 'icon-product',
+                    title : elemData[config.reviews.fieldIdItem],
+                    subtitle : elemData.TITLE
+                });
+                    
+                elemTile.appendTo(elemTiles)
+                    .attr('data-link', '/api/v3/workspaces/' + config.reviews.workspaces.reviews.id + '/items/' + this.dmsId)
+                    .attr('data-wsId', config.reviews.workspaces.reviews.id)
+                    .attr('data-dmsId', this.dmsId)
+                    .attr('data-descriptor', elemData.DESCRIPTOR)
+                    .click(function() {
                         openSelectedItem($(this));
                     });
                 
@@ -305,6 +274,8 @@ function openSelectedItem(elemSelected) {
     let descriptor = elemSelected.attr('data-descriptor');
     let link       = elemSelected.attr('data-link');
 
+    selectedLink = link;
+
     $('#panel').attr('data-link', link);
     $('#list').hide();
     $('#header-subtitle').html(descriptor).show();
@@ -322,9 +293,6 @@ function openSelectedItem(elemSelected) {
     $('#panel').find('.processing').show();
 
     $('#comments-data').hide();
-    $('#files-list').html('');
-    $('#bom-list').html('');
-    $('#actions-list').html('');
 
     // $('.panel-toggles').children().first().click();
 
@@ -333,15 +301,55 @@ function openSelectedItem(elemSelected) {
 
     setDetails();
     getTransitions();
-    setActions(false);
+    // setActions(false);
+    
     insertAttachments(link, { 
-        'id'        : 'files',
-        'header'    : true, 
-        'headerLabel' : '',
-        'layout'    : 'list',
-        'size'      : 'l', 
-        'upload'    : true, 
+        id              : 'files',
+        hideHeaderLabel : true, 
+        editable        : true,
+        reload          : true,
+        layout          : 'list',
+        singleToolbar   : 'controls',
+        tileSize        : 'm'
     });
+    insertResults(config.reviews.workspaces.tasks.id, [{ 
+        field       : 'DESIGN_REVIEW', 
+        type        : 0, 
+        comparator  : 15, 
+        value       : $('#header-subtitle').html() 
+    }],{
+        id              : 'actions',
+        hideHeaderLabel : true,
+        openOnDblClick  : true,
+        openInPLM       : true,
+        reload          : true,
+        search          : true,
+        layout          : 'list',
+        tileSize        : 'xl',
+        tileTitle       : 'DESCRIPTOR',
+        tileSubtitle    : 'DESCRIPTION',
+        tileDetails     : [ {icon : 'icon-calendar', fieldId : 'TARGET_COMPLETION_DATE'}],
+        stateColors     : [
+            { color : '#222222', name : 'Assigned', label : 'New'      },
+            { color : '#dd2222', name : 'In Work' , label : 'In Work'  },
+            { color : '#faa21b', name : 'Review'  , label : 'Complete' },
+            { color : '#6a9728', name : 'Complete', label : 'Complete' }
+        ],
+        fields : [
+            'NUMBER', 
+            'TITLE', 
+            'DESCRIPTION',
+            'TARGET_COMPLETION_DATE',
+            'ASSIGNEE',
+            'MARKUP',
+            'MARKUPSVG',
+            'MARKUPSTATE',
+            'WF_CURRENT_STATE'
+        ],
+        sortBy           : ['NUMBER'],
+        tileImageFIeldId : 'MARKUP',
+        afterCompletion  : function(id) { insertCreateActionButton(id); }
+    })
 
     
 }
@@ -359,13 +367,12 @@ function setDetails() {
 
         insertViewer(linkItem);
         insertBOM(linkItem, { 
-            'id'        : 'bom',
-            title       : '',
-            hideDetails : true,
-            bomViewName : config.reviews.bomViewName,
-            openInPLM   : false,
-            reset       : true,
-            quantity    : true
+            id              : 'bom',
+            hideHeaderLabel : true,
+            openInPLM       : true,
+            search          : true,
+            bomViewName     : config.reviews.bomViewName,
+            onClickItem     : function(elemClicked) { onClickBOMItem(elemClicked); }
         });
         
         $('#comments-data').show();
@@ -389,239 +396,51 @@ function getTransitions() {
 }
 
 
-function setActions(update) {
-
-    if(config.reviews.workspaces.tasks.id === null) return;
-
-    let params = {
-        wsId : config.reviews.workspaces.tasks.id,
-        fields : [
-            'NUMBER', 
-            'TITLE', 
-            'DESCRIPTION',
-            'TARGET_COMPLETION_DATE',
-            'ASSIGNEE',
-            'MARKUP',
-            'MARKUPSVG',
-            'MARKUPSTATE',
-            'WF_CURRENT_STATE'
-        ],
-        sort : ['NUMBER'],
-        filter : [ { field: 'DESIGN_REVIEW', type: 0, comparator : 15, value : $('#header-subtitle').html() } ]
-    }
-
-    $.get('/plm/search/', params, function(response) {
-
-        if(response.error) {
-            showErrorMessage('Error', 'Failed to load list of actions');
-        } else {
-
-            let currentActions    = [];
-            let elemParent       = $('#actions-list');
+// function selectAction(elemSelected) {
+    
+//     if(elemSelected.hasClass("selected")){
         
-            elemParent.children('.action').each(function() {
-                $(this).removeClass('highlight');
-                currentActions.push($(this).attr('data-dmsId')); 
-            });
+//         elemSelected.removeClass("selected");
+        
+//         $("#viewer-reset-toolbar").addClass("hidden");
+//         $("#guiviewer3d-toolbar").removeClass("hidden");
+        
+//         markup.hide();
+//         markupsvg = "";
+//         viewer.restoreState(curViewerState);
+        
+//         curViewerState = "";
+        
+//     } else {
+        
+//         if(curViewerState === "") curViewerState = viewer.getState();
+        
+//         elemSelected.siblings().removeClass("selected");
+//         elemSelected.addClass("selected");
+        
+//         $("#guiviewer3d-toolbar").addClass("hidden");
+//         $("#viewer-reset-toolbar").removeClass("hidden");
+        
+//         //var markupsvg    = elemSelected.attr("data-MARKUPSVG");
+//         markupsvg    = elemSelected.attr("data-MARKUPSVG");
+//         var markupstate  = elemSelected.attr("data-MARKUPSTATE");
 
-            if(response.data.row.length > 0) {
-                
-                $.each(response.data.row, function(){
+        
+//         var viewerStatePersist = JSON.parse(markupstate);
 
-                    $('#actions-progress').hide();
-
-                    var elemData = getItemData(params.fields, this.fields.entry);
-                        elemData.dmsId = this.dmsId;
-
-                    setAction(update, currentActions, elemParent, elemData, update);
-
-                });
-
-                if(update) {
-                    $('#button-action-cancel').click();
-                    $('#actions-progress').hide();
-                }
+//         if(markupsvg === "") {
+//             viewer.restoreState(viewerStatePersist, null, false);
             
-            }
-        
-        }
+//         } else {
+//             viewer.restoreState(viewerStatePersist, null, true);
+//         }
 
-        $('#actions-processing').hide();
-        setActionsImages();
-        
-    });
+//     }
     
-}
-function setAction(update, currentActions, elemActions, data, update) {
-        
-    let classAction  = '';
-    var isNew        = true;
-    
-    switch(data.WF_CURRENT_STATE) {
-            
-        case config.reviews.workspaces.tasks.states[0]:
-        case config.reviews.workspaces.tasks.states[1]:
-            classAction = 'new';
-            break; 
-            
-        case config.reviews.workspaces.tasks.states[2]:
-        case config.reviews.workspaces.tasks.states[3]:
-            classAction = 'pending';
-            break;
-      
-        case config.reviews.workspaces.tasks.states[4]:
-            classAction = 'complete';
-            break;
-            
-    }
-    
-    for(var i = 0; i < currentActions.length; i++) {
-        if(data.dmsId === parseInt(currentActions[i])) {
-            isNew = false;
-            continue;
-        }
-    }
-    
-    if(isNew) {
-    
-        let elemAction = $('<div></div>');   
-            elemAction.addClass('action');
-            elemAction.addClass('tile');
-            elemAction.attr('data-dmsId', data.dmsId);
-            elemAction.attr('data-wsid', config.reviews.workspaces.tasks.id);
-            elemAction.attr('data-MARKUPSVG', data.MARKUPSVG);
-            elemAction.attr('data-MARKUPSTATE', data.MARKUPSTATE);
-            elemAction.prependTo(elemActions); 
-            
+// }
 
-        var elemActionImage = $('<div class="action-image"></div>'); 
-            elemActionImage.append('<span class="ms ms-3d"></span>');
 
-        var elemActionDetails = $('<div class="action-details"></div>'); 
-        
-        var elemActionStatus = $('<div class="action-status"></div>'); 
-            elemActionStatus.addClass(classAction);
 
-        var elemActionLabel = $('<div class="action-status-label"></div>'); 
-            elemActionLabel.append(data.WF_CURRENT_STATE);
-            elemActionLabel.appendTo(elemActionStatus);
-
-        if(data.MARKUP !== "") {
-            elemAction.attr('data-imageid', data.MARKUP);
-        }
-        
-        let elemActionTitle = $("<div class='action-detail action-title'></div>"); 
-            elemActionTitle.append(data.TITLE);
-            elemActionTitle.addClass('nowrap');
-            elemActionTitle.appendTo(elemActionDetails);
-
-        let elemActionDescription = $("<div class='action-detail action-description'></div>"); 
-            elemActionDescription.append(data.DESCRIPTION);
-            elemActionDescription.appendTo(elemActionDetails);
-
-        let elemActionDate = $("<div class='action-detail'></div>"); 
-            elemActionDate.addClass('with-icon');
-            elemActionDate.addClass('icon-calendar');
-            elemActionDate.append(data.TARGET_COMPLETION_DATE);
-            elemActionDate.appendTo(elemActionDetails);
-
-        let elemActionAssignee = $("<div class='action-detail'></div>"); 
-            elemActionAssignee.addClass('with-icon');
-            elemActionAssignee.addClass('icon-user');
-            elemActionAssignee.append(data.ASSIGNEE);
-            elemActionAssignee.appendTo(elemActionDetails);
-
-        elemAction.append(elemActionImage);
-        elemAction.append(elemActionDetails);
-        elemAction.append(elemActionStatus);
-        
-        
-        elemAction.click(function() {
-            selectAction($(this));
-        });
-        
-        if(update) {
-            elemAction.addClass("highlight");
-            elemActionDetails.addClass("highlight");
-        }
-        
-    }
-                       
-}
-function setActionsImages() {
- 
-    $(".action").each(function() {
-
-        let image = $(this).attr("data-imageid");
-                
-        if (typeof image !== 'undefined') {
-
-            if(image !== "") {
-
-                let params = {
-                    dmsId   : $(this).attr("data-dmsid"),
-                    wsId    : $(this).attr("data-wsid"),
-                    imageId : $(this).attr("data-imageid"),
-                    fieldId : "MARKUP"
-                }
-
-                $.get( '/plm/image', params, function(response) {
-                    
-                    let elemImage = $("<img src='data:image/png;base64," + response.data + "'>");
-                    
-                    let elemGraphic = $(".action[data-dmsid=" + params.dmsId + "]").find(".action-image").first();
-                        elemGraphic.html("");
-                        elemGraphic.append(elemImage);
-                    
-                });
-            }
-        }
-
-    });
-    
-}
-function selectAction(elemSelected) {
-    
-    if(elemSelected.hasClass("selected")){
-        
-        elemSelected.removeClass("selected");
-        
-        $("#viewer-reset-toolbar").addClass("hidden");
-        $("#guiviewer3d-toolbar").removeClass("hidden");
-        
-        markup.hide();
-        markupsvg = "";
-        viewer.restoreState(curViewerState);
-        
-        curViewerState = "";
-        
-    } else {
-        
-        if(curViewerState === "") curViewerState = viewer.getState();
-        
-        elemSelected.siblings().removeClass("selected");
-        elemSelected.addClass("selected");
-        
-        $("#guiviewer3d-toolbar").addClass("hidden");
-        $("#viewer-reset-toolbar").removeClass("hidden");
-        
-        //var markupsvg    = elemSelected.attr("data-MARKUPSVG");
-        markupsvg    = elemSelected.attr("data-MARKUPSVG");
-        var markupstate  = elemSelected.attr("data-MARKUPSTATE");
-
-        
-        var viewerStatePersist = JSON.parse(markupstate);
-
-        if(markupsvg === "") {
-            viewer.restoreState(viewerStatePersist, null, false);
-            
-        } else {
-            viewer.restoreState(viewerStatePersist, null, true);
-        }
-
-    }
-    
-}
 
 
 // Save user comments
@@ -644,12 +463,50 @@ function saveComments() {
         }]
     }
 
-    $.get('/plm/edit', params, function() {
+    $.post('/plm/edit', params, function() {
         $('#comments-data').show();
         $('#comments-processing').hide();
     });
 
 }
+
+
+function insertCreateActionButton(id) {
+
+    genPanelActionButton(id, { singleToolbar : 'controls' }, 'create', 'Create Action', 'Create new actions', function() {
+
+        insertCreate(null, [config.reviews.workspaces.tasks.id], {
+            id                  : 'create-task',
+            headerLabel         : 'Create new Design Review Task',
+            fieldsIn            : [ 'TITLE', 'DESCRIPTION',  'TARGET_COMPLETION_DATE', 'MARKUP' ],
+            // fieldsIn            : [ 'TITLE', 'DESCRIPTION', 'DESIGN_REVIEW', 'TARGET_COMPLETION_DATE', 'MARKUP' ],
+            hideSections        : true,
+            // contextId           : 'create-task',
+            // contextItem         : $('#panel').attr('data-link'),
+            // contextItemFields   : [ 'DESIGN_REVIEW' ],
+
+            fieldValues       : [{
+                fieldId       : 'DESIGN_REVIEW',
+                value         :  selectedLink
+                // value         : selectedId
+            }],
+            viewerImageFields   : [ 'MARKUP' ],
+            afterCreation       : function(createId, createLink, id) { afterChangeTaskCreation(createId, createLink, id); }
+        });
+
+
+    }).addClass('default');
+
+
+
+}
+function afterChangeTaskCreation(createId, link, id) {
+
+    settings.results['actions'].load();
+    $('#actions-action-create').removeClass('disabled');
+    
+}
+
 
 
 // Close review and retrun to list of tiles
@@ -664,30 +521,26 @@ function closeReview() {
 }
 
 
-// Get flat BOM of selected Vault Item to init viewer
-function clickBOMItemDone(elemClicked) {
-
-    if(elemClicked.hasClass('selected')) {
-        let partNumber = elemClicked.attr('data-part-number');
-        viewerSelectModel(partNumber);
-    }
-
-}
-function clickBOMDeselectAllDone(elemClicked) {
-    viewerResetSelection();
-}
-function clickBOMResetDone(elemClicked) {
-    viewerResetSelection();
-}
-
-
-
 // Forge Viewer interaction
 function initViewerDone() {
 
     $('#viewer-markup-image').attr('data-field-id', 'MARKUP');
 
 }
+
+
+
+// Click BOM Item
+function onClickBOMItem(elemClicked) {
+
+    let partNumber = elemClicked.attr('data-part-number');
+
+    if(elemClicked.hasClass('selected')) {
+        if(!isBlank(partNumber)) viewerSelectModel(partNumber);
+    } else viewerResetSelection();
+
+}
+
 
 
 
@@ -768,74 +621,34 @@ function captureScreenshot() {
 //    });
     
 }
-function submitCreateForm() {
-    
-    $('#actions-processing').show();
-    $('#action-create').hide();
-
-    let markupSVG = $("#viewer-markup-toolbar").hasClass("hidden") ? '' : markup.generateData();
-
-    let params = { 
-        'wsId' : config.reviews.workspaces.tasks.id,
-        'sections' : [{
-            'id' : config.reviews.workspaces.tasks.sections[0].id,
-            'fields' : [
-                { 'fieldId' : 'TITLE', 'value' : $('#input-task').val() },
-                { 'fieldId' : 'DESCRIPTION', 'value' : $('#input-details').val() },
-                { 'fieldId' : 'MARKUPSTATE', 'value' : JSON.stringify(viewer.getState()) },
-                { 'fieldId' : 'MARKUPSVG', 'value' : markupSVG },
-                { 'fieldId' : 'DESIGN_REVIEW', 'value' : {
-                    'link'  : $('#panel').attr('data-link') 
-                }}
-            ] 
-        },{
-            'id' : config.reviews.workspaces.tasks.sections[1].id,
-            'fields' : [
-                { 'fieldId' : 'TARGET_COMPLETION_DATE', 'value' : $("#input-end").val() }
-            ]             
-        }],
-        'image' : {
-            'fieldId' : config.reviews.fieldIdMarkup,
-            'value' : $('canvas#action-image')[0].toDataURL("image/jpg")
-        }
-    };
-
-    $.post({
-        url : '/plm/create', 
-        contentType : "application/json",
-        data : JSON.stringify(params)
-    }, function() {
-        $('#actions-processing').hide();
-        setActions(true);
-    });
         
-}
+// }
 function removeHighlights() {
     
     $("#panel").find(".highlight").removeClass("highlight");
     
 }
-function validateForm() {
+// function validateForm() {
     
-    var result = true;
+//     var result = true;
     
-   $('input,textarea,select').filter('[required]').each(function() {
+//    $('input,textarea,select').filter('[required]').each(function() {
        
-       var value = $(this).val();$
+//        var value = $(this).val();$
        
-       if(value === "") {
+//        if(value === "") {
            
-           $(this).addClass("required-empty");
-           $("<div class='validation-error'>Input is required</div>").insertAfter($(this));
-           result = false;
+//            $(this).addClass("required-empty");
+//            $("<div class='validation-error'>Input is required</div>").insertAfter($(this));
+//            result = false;
            
-       }
+//        }
        
-   });
+//    });
     
-    return result;
+//     return result;
     
-}
+// }
 
 
 // Finish Design Review

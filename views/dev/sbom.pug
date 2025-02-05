@@ -16,92 +16,19 @@ block body
             #header-title= title
             #header-subtitle
             #header-toolbar
-                //- .button#toggle-bom.with-icon.icon-bom-tree.default(title='Toggle BOM pann on / off') BOM Definition
-                //- .button#toggle-bom.with-icon.icon-package(title='Toggle BOM pann on / off') Spare Parts List
-                //- .button#toggle-bom.with-icon.icon-shipping(title='Toggle BOM pann on / off') Purchased Parts List
-                //- .button#toggle-bom.with-icon.icon-tag(title='Toggle BOM pann on / off') Serial Numbers List
+                .button#toggle-bom.with-icon.icon-bom-tree(data-panel-id='bom') Asset BOM
+                .button#toggle-spl.with-icon.icon-package( data-panel-id='spl') Spare Parts
+                .button#toggle-ppl.with-icon.icon-shipping(data-panel-id='ppl') Purchased Parts
+                .button#toggle-snl.with-icon.icon-tag(     data-panel-id='snl') Serial Numbers
                 #header-avatar
         
         .screen
 
             #viewer.viewer
 
-            #bom.surface-level-1
+            #bom.surface-level-1.panel
+            #spl.surface-level-1.panel
+            #ppl.surface-level-1.panel
+            #snl.surface-level-1.panel
 
-            #grid
-
-            //- #product.surface-level-2.panel
-            //-     .panel-header 
-            //-         .panel-title Product 
-            //-         .panel-toolbar 
-            //-             .button.icon.icon-bookmark#bookmark
-            //-             .button.icon.icon-open#open
-            //-     .panel-content.surface-level-2.compact#product-sections
-
-            //- #features 
-            //-     .panel-header
-            //-         .panel-title Features
-            //-         .panel-toolbar
-            //-             .button#create-feature Create New
-            //-             .button#add-feature.disabled Add Existing
-            //-     .panel-content#features-list
-
-            //- #divider-features.screen-divider.vertical
-
-            //- #options
-            //-     .panel-header
-            //-         .panel-title Single Options
-            //-         .panel-toolbar     
-            //-     .panel-content#options-list
-            //-     #options-add.surface-level-2
-            //-         #option-add-title Create new entry
-            //-         #option-add-content
-            //-             #option-add-identifier
-            //-                 input#option-id(type="text" placeholder="ID")
-            //-                 input#option-title(type="text" placeholder='Title')
-            //-             textarea#option-description(name="option-description", cols="30", rows="10") 
-            //-             #option-add-toolbar
-            //-                 .button#option-insert Insert
-
-            //- #rules
-            //-     .panel-header
-            //-         .panel-title Compatibility Rules
-            //-     table.panel-content#rules-table
-
-            //- #navigator
-            //-     .panel-header
-            //-         .panel-title Features &amp; Options
-            //-         .panel-toolbar 
-            //-             #navigator-apply.button Apply
-            //-             #navigator-reset.button Reset
-            //-     .panel-content
-            //-         table#navigator-table
-            //-             thead#navigator-table-head
-            //-             tbody#navigator-table-body
-
-            //- #divider-navigator.screen-divider.vertical
-
-
-
-        //- #feature-editor.dialog
-        //-     .dialog-header New Feature / Options
-        //-     .dialog-content
-        //-         #feature-details
-        //-             .header Feature
-        //-             input#feature-id(placeholder='ID')
-        //-             input#feature-title(placeholder='Title')
-        //-             textarea#feature-description(rows=10)
-        //-         #feature-options-list
-        //-             .header Options
-        //-         #feature-option-add.surface-level-2
-        //-             #feature-option-add-title Create new option
-        //-             #feature-option-add-content
-        //-                 #feature-option-add-identifier
-        //-                     input#feature-option-id(type="text" placeholder="ID")
-        //-                     input#feature-option-title(type="text" placeholder='Title')
-        //-                 textarea#feature-option-description(name="option-description", cols="30", rows="10") 
-        //-                 #feature-option-add-toolbar
-        //-                     .button#feature-option-insert Insert
-        //-     .dialog-footer
-        //-         #feature-editor-done.button.default Confirm
-        //-         #feature-editor-cancel.button Cancel
+            #grid.surface-level-5.hidden

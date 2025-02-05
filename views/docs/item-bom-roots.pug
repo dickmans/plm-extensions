@@ -1,0 +1,128 @@
+#item-bom-roots.doc-content 
+    h1 insertRootParents( link, params );
+    .definition Performs an expand of Where Used information across all levels and lists all root items as well as the BOM path of the current item
+        br
+        |This function gets included in all pages automatically and is defined in 
+        span.path /public/javascripts/contents/item.js
+        |. 
+        br
+        |Styling of the given contents is defined in 
+        span.path /public/stylesheets/contents/item.css 
+        img(src='images/docs/item-bom-roots-1.png' style='display:block;margin-top:20px;height:307px;')
+    h2 DOM Elements 
+    p Insert the following base element to your pug file to add the BOM container in your page. You can choose another id than shown here, but will then have to provide your element's id as parameter.
+    p.code #roots 
+    p Add the following optional classes to this DOM element to adjust the contents display:
+    p 
+        table.row-hovering 
+            tr 
+                th Class Name 
+                th Description
+            tr 
+                td surface-level-[1..5]
+                td Add the UI classes surface-level-1 through surface-level-5 to adjust the background color of the BOM panel 
+
+    h2 Parameters
+    p Various parameters can be provided when using insertManageItems: 
+        ul 
+            li The link parameter is required and must be provided as string to identify the record for which the data should be shown
+            li Optional configuration parameters can be provides as JSON object to configure the contents and behavior of the panel
+    p This is an example call being used for the screenshot at top of this page
+    p.code insertRootParents('/api/v3/workspaces/57/items/14672', { });
+    p The following table lists all configuration parameters that can be passed:
+    p   
+        table.parameters.row-hovering 
+            tr 
+                th.nowrap Parameter 
+                th Description
+                th Type 
+                th Required 
+                th Default 
+            tr 
+                td link 
+                td The API-link of the context item for which the root parents and paths should be displayed
+                td String
+                td Yes
+                td -
+            tr 
+                td id 
+                td ID of the DOM element where the parents should be inserted
+                td String
+                td No
+                td roots
+            tr 
+                td title 
+                td Title being shown on top of the BOM display. Pass an empty string to hide the title
+                td String
+                td No
+                td Root Parents
+            include item-parameters-1.pug                
+            tr 
+                td openInPLM 
+                td Adds button to open selected element in PLM
+                td Boolean
+                td No
+                td true
+            tr 
+                td depth 
+                td Sets the maximul level of expansion
+                td Integer
+                td No 
+                td 10
+            tr 
+                td filterByLifecycle 
+                td Enable filtering by lifecycle drop down. The drop down will only be shown if there are multiple different values to choose from.
+                td Boolean
+                td No 
+                td true
+            tr 
+                td filterByWorkspace 
+                td Enable filtering by workspace drop down. The drop down will only be shown if there are multiple different values to choose from.
+                td Boolean
+                td No 
+                td true
+            include item-parameters-2.pug   
+    h2 Examples 
+    p   
+        table.row-hovering 
+            tr 
+                th Code 
+                th Screenshot 
+                th Application 
+            tr 
+                td.code 
+                    span.indent-1 insertRootParents(link, { 
+                    span.indent-1 });
+                td
+                    img(src='images/docs/item-bom-roots-1.png' style='height:307px;')
+                td -- 
+
+    h2 Events 
+    p You can override the following functions in your code to adjust the default behavior.
+    p 
+        table.row-hovering
+            tr 
+                th Function 
+                th Event 
+                th Parameters 
+                th Default Behavior
+            tr 
+                td onItemClick 
+                td Use the parameter onItemClick to pass a function to be executed when a users clicks a table row or tile in this view
+                    br
+                    |Example : onItemClick : function(elemClicked) { elemClicked.fadeOut(); }
+                td elemClicked contains the (jquery) object being clicked
+                td Toggle panel header actions
+            tr 
+                td insertRootParentsDone(id) 
+                td Get executed when all UI elements were added to the DOM, before any data retrieval 
+                td id = id of the parent div element (ie roots)
+                td - none -
+            tr 
+                td insertRootParentsDataDone(id, data) 
+                td This gets triggered by insertRootParentsData(id) once the data has been retrieved from PLM and when the given data has been inserted to the HTML page
+                td
+                    ul 
+                        li id = id of the parent div
+                        li data = Where used data as returned by the standard API
+                td - none -

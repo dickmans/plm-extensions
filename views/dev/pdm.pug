@@ -1,0 +1,52 @@
+extends ../framework/layout
+
+block head
+
+    link(rel='stylesheet', href='/stylesheets/dev/pdm.css')
+    script(src='/javascripts/dev/pdm.js') 
+
+block body
+
+    body.dark-theme.screen-designs
+        
+        #header.dark
+            #header-logo
+            #header-title Vault
+            #header-subtitle Designs Management
+            #header-toolbar
+                #header-vaults
+                #designs-dashboard.button.with-icon.icon-product.default Designs
+                #search-dashboard.button.with-icon.icon-search Search
+                #changes-dashboard.button.with-icon.icon-problem Changes
+                #admin-dashboard.button.with-icon.icon-settings Admin
+                #header-avatar
+        .screen.surface-level-1#designs
+            //- #buttons
+            //-     .button#server Server
+            //-     .button#root-folders Get Root Folders
+            //-     .button#files  Get Files
+            //-     input#input.surface-level-2
+            //-     .button#search Search
+            //- #list.surface-level-2
+            //- #contents.surface-level-2
+            //- #thumbnail.surface-level-5
+            //- #details.surface-level-2
+
+            #vault-browser.surface-level-1
+
+
+        .screen.surface-level-2#search
+            
+            input#search-text(type="text" placeholder="Type text to begin search")
+            #search-list.surface-level-2.tiles.list.s
+
+        .screen.surface-level-3#changes
+            
+            #vault-ecos.surface-level-2
+
+        .screen.surface-level-3#admin
+
+            #vault-groups.surface-level-4
+            #vault-roles.surface-level-3
+            #vault-users.surface-level-2
+            #vault-options.surface-level-1

@@ -18,14 +18,15 @@ block body
             #header-title= title
             #header-subtitle.main
             #header-toolbar
-                .landing#button-toggle-recents.button.with-icon.icon-history(title='Click to toggle Recently Viewed panel on/off') Toggle Recently Viewed
-                .landing#button-toggle-bookmarks.button.with-icon.icon-bookmark(title='Click to toggle Bookmarks panel on/off') Toggle Bookmarks
-                .main#button-home.button.with-icon.icon-home(title='Browse availalbe products') Home
-                .main#button-toggle-dashboard.button.with-icon.icon-dashboard(title='Click to toggle dashboard panel on/off') Dashboard
-                .main#button-toggle-bom.button.with-icon.icon-bom(title='Click to switch BOM display form tree to table and back') BOM
-                .main#button-toggle-attachments.button.with-icon.icon-pdf(title='Click to toggle files panel on/off') Files
-                .main#button-toggle-details.button.with-icon.icon-panel(title='Click to toggle details panel on/off') Details
-                .main#button-toggle-processes.button.with-icon.icon-workflow(title='Click to toggle processes panel on/off') Processes
+                .landing#button-toggle-recents.button.with-icon.icon-toggle-on.filled(title='Click to toggle Recently Viewed & Bookmarks panel on/off') Show Recents &amp; Bookmarks
+                .landing#button-toggle-search.button.with-icon.icon-toggle-on.filled(title='Click to toggle Search panel on/off') Show Search
+                select.explorer#select-version.button.main
+                .explorer#button-home.button.with-icon.icon-home(title='Browse availalbe products') Home
+                .explorer#button-toggle-dashboard.button.with-icon.icon-dashboard(title='Click to toggle dashboard panel on/off') Dashboard
+                .explorer#button-toggle-bom.button.with-icon.icon-bom(title='Click to switch BOM display form tree to table and back') BOM
+                .explorer#button-toggle-attachments.button.with-icon.icon-pdf(title='Click to toggle files panel on/off') Files
+                .explorer#button-toggle-details.button.with-icon.icon-panel(title='Click to toggle details panel on/off') Details
+                .explorer#button-toggle-processes.button.with-icon.icon-workflow(title='Click to toggle processes panel on/off') Processes
                 #header-avatar
         
         .screen#landing
@@ -39,8 +40,9 @@ block body
 
             #dashboard.no-toolbar.surface-level-2
                 .panel-header
-                    .panel-title#dashboard-title Dashboard
-                    .panel-toolbar#dashboard-toolbar
+                    .panel-title
+                        .panel-title-main#dashboard-title Dashboard
+                    .panel-controls#dashboard-toolbar
                         .button.icon.xs.icon-clear#dashboard-reset
                         .button.icon.xs.icon-fold#collapse-all-kpis
                         .button.icon.xs.icon-unfold#expand-all-kpis 
@@ -51,8 +53,9 @@ block body
 
             #bom
                 .panel-header
-                    .panel-title Bill of Materials
-                    .panel-toolbar
+                    .panel-title
+                        .panel-title-main Bill of Materials
+                    .panel-controls
                         .button.default#save-bom-changes(title='Save changes') Save
                         .button.icon.bom-action.icon-send#send-selected(title='Create new Supplier Package for selected items')
                         .button.icon.bom-action.icon-north-east#go-there(title='Open explorer for selected BOM item')
@@ -66,7 +69,9 @@ block body
 
             #viewer.viewer          
 
-            #attachments
+            #attachments.surface-level-1
+
+            #create.dialog
 
             .panel.surface-level-2#details
                 .panel-header   

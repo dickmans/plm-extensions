@@ -9,43 +9,18 @@ block head
 
 block body 
 
-    body
-
-        #header.dark
-            #header-logo
-            #header-title= title
-            #header-toolbar
-                #header-avatar
+    body.addin
 
         .screen.surface-level-1  
 
-            .tabs.surface-level-2#tabs(data-tab-group="tab-group-main")
-                .tab#tab-search Search
-                //- .tab#tab-materials Rohmaterialien
-                .tab#tab-views Navigate
-                .tab#tab-recents Recently Viewed
-                .tab#tab-bookmarks Bookmarks 
-
-            .panel.tab-group-main#search
-                .panel-header#search-header.search-header
-                .panel-toolbar#search-actions.search-actions
-                    input#search-input.search-input.surface-level-2(placeholder='Search by item number / title')
-                    #search-submit.button.default Search
-                .panel-content#search-list.list.tiles.xxs.search-result-list.surface-level-1
-                .panel-content#search-no-results.search-result-message No results
-
-            //- .panel.tab-group-main#materials
-            //-     .panel-header#materials-header.search-header
-            //-     .panel-toolbar#materials-actions.search-actions
-            //-         input#materials-input.search-input.surface-level-2(placeholder='Nummer / Bezeichnung des Rohmaterials')
-            //-         #materials-submit.button.default Suche
-            //-     .panel-content#materials-list.list.tiles.xxs.search-result-list.surface-level-1
-            //-     .panel-content#materials-no-results.search-result-message Keine Ergebnisse gefunden
-
-            .panel.tab-group-main#views
-
-            .panel.tab-group-main#recents
-                .panel-content#recents-recents.tiles.list.xxs.surface-level-1
-
-            .panel.tab-group-main#bookmarks
-                .panel-content#bookmarks-bookmarks.tiles.list.xxs.surface-level-1
+            .panel-top.surface-level-1#basic-search
+                .panel-header.search-header
+                    //- .panel-toolbar.search-actions
+                    input#basic-input.search-input.surface-level-2(placeholder='Type to begin search')
+                    #basic-submit.button.default Search
+                    button(onclick="document.location.href = document.location.href") Reload
+                .panel-content#basic-list.list.tiles.xs.search-result-list.surface-level-1
+                .panel-content#basic-no-results.search-result-message No results
+                .panel-footer.hidden#basic-footer 
+                    #basic-total 
+                    #basic-next.button.default Find Next

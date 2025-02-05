@@ -1,0 +1,208 @@
+#item-relationships.doc-content 
+    h1 insertRelationships( link , params );
+    .definition Insert Relationships tab data with advanced filtering capabilities
+        br
+        |This function gets included in all pages automatically and is defined in 
+        span.path /public/javascripts/contents/item.js
+        |. 
+        img(src='images/docs/item-relationships-1.png' style='display:block;margin-top:20px;height:266px;')
+    h2 DOM Elements 
+    p Insert the following base element to your pug file to have the required container in your page. You can choose another id than shown here, but will then have to provide your element's id as parameter.
+    p.code #relationships 
+    p Add the following optional classes to this DOM element to adjust the contents display:
+    p 
+        table.row-hovering 
+            tr 
+                th Class Name 
+                th Description
+            tr 
+                td surface-level-[1..5]
+                td Add the UI classes surface-level-1 through surface-level-5 to adjust the background color of the container element 
+    h2 Parameters
+    p Various parameters can be provided when using insertRelationships. The link parameter is required and must be provided as string to identify the record for which the data should be shown. 
+        br
+        |All further parameters are optional and can be passed by using a JSON object. See this example call: 
+    p.code insertRelationships('/api/v3/workspaces/82/items/14183', { headerLabel : 'Related Items', layout : 'table' });
+    p The following table lists all parameters available inlcuding their default values:
+    p   
+        table.parameters.row-hovering 
+            tr 
+                th.nowrap Parameter 
+                th Description
+                th Type 
+                th Required 
+                th Default 
+            tr 
+                td link 
+                td The API-link of the related record in PLM
+                td String
+                td Yes
+                td -
+            tr 
+                td id 
+                td ID of the DOM element where the relationships will be inserted
+                td String
+                td No
+                td relationships 
+            tr 
+                td header 
+                td Can be used to suppress addition of the panel header element. This must be set to true if toolbar actions (i.e. reload) should be shown.
+                td Boolean
+                td No
+                td true
+            tr 
+                td headerLabel
+                td Sets the header label (if header is enabled)
+                td String
+                td No
+                td Relationships
+            tr 
+                td headerToggle 
+                td Enables collapsing and expanding the panel
+                td Boolean
+                td No 
+                td false
+            tr 
+                td compactDisplay 
+                td Enables a compact display using additional css settings
+                td Boolean
+                td No 
+                td false
+            tr 
+                td openInPLM 
+                td Adds a button to open selected element in PLM. Users can always open a given record in PLM by double-clicking the record.
+                td Boolean
+                td No 
+                td true
+            tr 
+                td filterByWorkspace 
+                td Enable filtering by workspace drop down. The drop down will only be shown if there are multiple different values to choose from.
+                td Boolean
+                td No 
+                td true
+            tr 
+                td search 
+                td Adds quick filtering using search input on top of list
+                td Boolean
+                td No
+                td true
+            tr 
+                td placeholder 
+                td Set placeholder text for quick filtering input
+                td String
+                td No
+                td Type to search
+            tr 
+                td reload 
+                td Enables / disables the reload button 
+                td Boolean
+                td No
+                td true                
+            tr 
+                td layout 
+                td Set layout (select from 'table', 'tiles' or 'list')
+                td String
+                td No
+                td list
+            tr 
+                td number 
+                td When set to true, a number will be displayed as first column or instead of the tile icon in case of tiles / list layout
+                td Boolean
+                td No
+                td true
+            tr 
+                td tileIcon 
+                td Icon to be displayed as tile image 
+                td String
+                td No
+                td icon-link
+            tr 
+                td tileSize 
+                td Tile size (gets applied only for layouts 'tiles' and 'list', select from 'xxxs', 'xxs', 'xs', 's', 'm', 'l', 'xl', 'xxl')
+                td String
+                td No
+                td xs
+            tr 
+                td tableHeaders 
+                td When set to false, the table headers will not be shown
+                td Boolean
+                td No
+                td true
+            tr 
+                td columnsIn 
+                td Restricts the columns to be displayed. If this list is not empty, only the columns in this list will be shown. Select from the standard tab columns ('Item', 'Workspace', ...).
+                td Array
+                td No 
+                td []
+            tr 
+                td columnsEx 
+                td Restricts the columns to be displayed. If this list is not empty, the columns in this list will not be shown. Select from the standard tab columns ('Item', 'Workspace', ...).
+                td Array
+                td No 
+                td []
+            tr 
+                td workspacesIn 
+                td List of workspace to be included, identified by workspace names (example: ['Change Orders'])
+                td Array
+                td No 
+                td []
+            tr 
+                td workspacesEx 
+                td List of workspace to be excluded, identified by workspace names (example: ['Problem Reports', 'Change Tasks'])
+                td Array
+                td No 
+                td []
+            tr 
+                td onItemClick 
+                td Provide a function to be executed when users click an item (table row or tile). Example : 
+                    br
+                    |onItemClick : function(elemClicked) { elemClicked.hide(); }
+                td function
+                td No 
+                td null
+    h2 Examples 
+    p   
+        table.row-hovering 
+            tr 
+                th Code 
+                th Screenshot 
+                th Application 
+            tr 
+                td.code 
+                    span.indent-1 insertRelationships( '/api/v3/workspaces/82/items/15235', {
+                    span.indent-2 headerLabel : 'Related Items',
+                    span.indent-2 layout : 'tiles',
+                    span.indent-2 size: 'xxs',
+                    span.indent-2 workspacesIn : ['Change Requests']
+                    span.indent-1 });
+                td
+                    img(src='images/docs/item-relationships-2.png' style='height:103px;')
+                td -
+
+    h2 Events 
+    p You can override the following functions in your code to adjust the default behavior.
+    p 
+        table.row-hovering
+            tr 
+                th Function 
+                th Event 
+                th Parameters 
+                th Default Behavior
+            tr 
+                td insertRelationshipsDone(id) 
+                td Gets executed once all elements got inserted into the DOM, before insertRelationshipsData(id) gets executed to request given data from PLM
+                td id of the parent div element (i.e. relationships)
+                td - none -
+            tr 
+                td insertRelationshipsData(id) 
+                td This function gets triggered after insertRelationshipsDone(id) and when users click the refresh button. It retrieves data from PLM and updates the data being displayed.
+                td id of the parent div element (i.e. relationships)
+                td Inserts relationships entries and sets filter controls. Once completed, it triggers insertRelationshipsDataDone(id, data).
+            tr 
+                td insertRelationshipsDataDone(id, data) 
+                td This gets triggered by insertRelationshipsData(id) once the data has been retrieved from PLM and when the given data has been inserted to the HTML page
+                td
+                    ul 
+                        li id = id of the parent div
+                        li data = response data of given API call
+                td - none -

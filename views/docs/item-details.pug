@@ -1,5 +1,5 @@
 #item-details.doc-content 
-    h1 insertDetails();
+    h1 insertDetails(link, params);
     .definition  Insert item details of a defined item 
         br
         |This function gets included in all pages automatically and is defined in 
@@ -47,35 +47,12 @@
                 td No
                 td details
             tr 
-                td header 
-                td Can be used to suppress addition of the panel header element. As this element is required for the file upload button parameter, it will be set to true if uploads should be enabled.
-                td Boolean
-                td No
-                td true
-            tr 
                 td headerLabel
                 td Sets the header label (if header is enabled)
                 td String
                 td No
                 td Details
-            tr 
-                td headerToggle 
-                td Enables collapsing and expanding the attachments display
-                td Boolean
-                td No 
-                td false
-            tr 
-                td inline 
-                td Display the details inline with other elements (preents absolut positioning)
-                td Boolean
-                td No
-                td false
-            tr 
-                td reload 
-                td Enables reload button for the attachments panel
-                td Boolean
-                td No
-                td false
+            include item-parameters-1.pug                
             tr 
                 td openInPLM 
                 td Adds button to open matching item in PLM
@@ -84,7 +61,7 @@
                 td true
             tr 
                 td layout 
-                td Enables a compact or narrow display of the form by adding the given css-class to the sections parent element. Select from 'normal', 'compact' and 'narrow'.
+                td Enables a narrow display of the form by adding the given css-class to the sections parent element. Select from 'normal' and 'narrow'.
                 td String
                 td No
                 td normal

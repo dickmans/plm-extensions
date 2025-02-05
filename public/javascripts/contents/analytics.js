@@ -61,13 +61,17 @@ function insertReportDefinitions(id, selectedReports) {
 
                 }
 
-                let elemTile = genTile('', '', '', icon, report.name, description);
-                    elemTile.appendTo(elemReports);
-                    elemTile.attr('data-id', report.id);
-                    elemTile.click(function() {
-                        $(this).toggleClass('selected');
-                        clickReportDefinition($(this));
-                    });
+                let elemTile = genSingleTile({
+                    tileIcon : icon,
+                    title    : report.name,
+                    subtitle : description
+                })
+                .appendTo(elemReports)
+                .attr('data-id', report.id)
+                .click(function() {
+                    $(this).toggleClass('selected');
+                    clickReportDefinition($(this));
+                });
 
                 if(selectedReports.indexOf(report.name) > -1) elemTile.addClass('selected');
 

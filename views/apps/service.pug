@@ -11,7 +11,7 @@ block head
 
 block body
 
-    body.text-selection-off.surface-level-1.screen-landing.no-attachments
+    body.text-selection-off.surface-level-1.screen-landing.no-attachments.no-details
 
         #header.dark
             #header-logo
@@ -35,17 +35,11 @@ block body
 
             #viewer.viewer.surface-level-1
 
-            #attachments           
+            #attachments.surface-level-1           
 
-            #details.panel
-                .panel-header   
-                    .panel-title Details 
-                    .panel-toolbar 
-                        .button.icon.icon-bookmark#bookmark
-                        .button.icon.icon-open#open
-                .panel-content.surface-level-2.compact#details-sections
+            #details.panel.surface-level-2
 
-            .panel#panel
+            .panel#panel.surface-level-1
                 #cart.surface-level-3.collapsed
                     #cart-header
                         #cart-title.with-icon Your Cart
@@ -61,12 +55,12 @@ block body
                     div#tab-processes(data-id='processes') Problem Reports
                     div#tab-charts.hidden(data-id='charts') Maintenance
                 .panel-content.tab-group-main#items
-                    #items-toolbar.panel-content-toolbar
+                    #items-toolbar.panel-controls
                         .button.icon.icon-viewer#filter-list(title='Display this list of items in viewer only')
                         .button.icon.icon-stock#color-stock(title='Display spare part availability in viewer')
                         .button.with-icon.icon-search-list
                             input#spare-parts-search-input(placeholder="Search")
-                    #items-list.list.tiles.l.no-scrollbar.surface-level-1
+                    #items-content.list.tiles.l.no-scrollbar.surface-level-1
                 .panel-content.tab-group-main#documentation.surface-level-1
                 .panel-content.tab-group-main#processes.surface-level-1
                 .panel-content.tab-group-main#charts
@@ -86,6 +80,8 @@ block body
                             #remote-control.button Remote Control
                             #qr-code.button 
                                 img.qr-code
+
+            #create.dialog
 
             #request-creation.dialog.surface-level-1
                 .dialog-header New Spare Parts Request
@@ -128,29 +124,4 @@ block body
                     #request-creation-submit.button.default Submit
                     #request-creation-cancel.button Cancel
 
-        .screen#request.surface-level-2 
-
-            .item-header
-                .item-title
-                    .item-descriptor 
-                    .item-details 
-                        .item-status
-                        .item-summary Created by 
-                            span.item-created-by 
-                            |  on 
-                            span.item-created-on
-                            |. Last modified by 
-                            span.item-modified-by 
-                            |  on 
-                            span.item-modified-on 
-                            |.
-                .item-toolbar.panel-toolbar#item-toolbar
-                    select.button#workflow-actions
-                    .button#bookmark.icon.icon-bookmark
-                    .button.icon.icon-close#close-item
-
-            .item-content 
-                #request-workflow-history.surface-level-1 
-                #request-details.surface-level-1 
-                #request-grid.surface-level-1 
-                #request-attachments.surface-level-1 
+        .screen#item.surface-level-2

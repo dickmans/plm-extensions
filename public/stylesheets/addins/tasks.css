@@ -1,0 +1,145 @@
+/* MASTER LAYOUT */
+/* ----------------------------------------------------------------------------- */
+#mow {
+    border-width : 14px;
+    top          : 0px;
+    right        : 0px;
+    bottom       : 0px;
+    left         : 0px;
+}
+#task {
+    border-width : 14px;
+    top          : 0px;
+    right        : 0px;
+    bottom       : 0px;
+    left         : 0px;
+}
+#add,
+#scrtask {
+    display : none;
+}
+
+
+body.display-task #scrmo   { display : none;  }
+body.display-task #scrtask { display : block; }
+
+
+
+/* OVERRIDES */
+/* ----------------------------------------------------------------------------- */
+.panel-header {
+    border : none;
+}
+
+
+/* MOW */
+/* ----------------------------------------------------------------------------- */
+#mow-controls {
+    padding-top : 8px;
+}
+#mow-content { 
+    top : 60px;
+}
+.mow-date {
+    width : 58px;
+}
+
+
+#tasks, #task {
+    top : 0px;
+}
+
+.panel-back {
+    position    : absolute;
+    top         : 82px;
+    right       : calc(-1 * var(--padding-main));
+    bottom      : calc(-1 * var(--padding-main));
+    left        : calc(-1 * var(--padding-main));
+}
+
+
+
+/* ATTACHMENTS
+/* ----------------------------------------------------------------------------- */
+/* #attachments-count {
+    background      : var(--color-status-yellow);
+    border-radius   : 50%;
+    color           : white;
+    display         : inline-block;
+    font-size       : 10px;
+    font-weight     : 800;
+    height          : 18px;
+    line-height     : 18px;
+    margin-left     : 8px;
+    width           : 18px;
+}
+#attachments-no-data {
+    flex-grow : 1;
+} */
+
+
+/* MANAGED ITEMS */
+/* ----------------------------------------------------------------------------- */
+/* #managed-items-list .tile-details {
+    width : calc(100% - 168px);
+} */ 
+
+
+
+
+
+
+
+#add {
+    box-shadow : none;
+    /* top: var(--padding-main);
+    left: var(--padding-main);
+    right: var(--padding-main);
+    bottom: var(--padding-main); */
+    left : 0px;
+    right : 0px;
+    bottom : 0px;
+    top : 112px;
+}
+.dialog > div {
+    background : transparent;
+}
+#add-list {
+    min-height : 200px;
+}
+#add .dialog-content {
+
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+}
+
+
+
+/* .tabs {
+    padding-top : 12px;
+} */
+
+
+#add-deselect, #add-select { float : left;}
+
+#add .dialog-header {
+    padding: 10px;
+    font-size: 14px;
+    font-weight: bold;
+    margin: var(--padding-main);
+    border: none;
+}
+#add .dialog-content {
+    top : 50px;
+}
+#add-root .tile-actions,
+#add-list .tile-actions {
+    right : 41px
+}
+/* 
+
+.surface-level-2 > .processing > div {
+     background-color: var(--color-blue-500);
+ } */

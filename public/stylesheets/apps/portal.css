@@ -4,9 +4,9 @@
     --width-border-h : 45px;
     --width-search   : 380px;
     --width-bom      : 500px;
-    --width-panels   : 400px;
-    --height-recents : 210px;
-    --height-files   : 210px;
+    --width-panels   : 550px;
+    --height-recents : 280px;
+    --height-files   : 280px;
     --height-viewer  : 220px;
 
 }
@@ -70,3 +70,13 @@ body.no-attachments #details { bottom : 0px; }
 body.no-attachments #attachments { bottom : calc(0px - var(--height-files) - (2 * var(--width-border-v))); }
 
 .item-panel { display : none; }
+
+#search-actions { 
+    gap           : 10px;
+    padding-left  : 0px; 
+    padding-right : 0px;
+}
+#search-search-content-input {
+    flex-grow  : 1;
+    text-align : center;
+}

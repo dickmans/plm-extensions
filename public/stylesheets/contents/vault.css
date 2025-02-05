@@ -1,0 +1,67 @@
+:root {
+
+    --width-browser-files  : 400px;
+    --width-browser-details : 400px;
+    --width-file-details : 400px;
+
+}
+
+
+.vault-browser-explorer {
+    position    : absolute;
+    top         : 0px;
+    right       : calc(60px + var(--width-browser-files) + var(--width-browser-details));
+    bottom      : 0px;
+    left        : 0px;
+}
+.vault-browser-files {
+    position    : absolute;
+    top         : 0px;
+    right       : calc(30px + var(--width-browser-details));
+    bottom      : 0px;
+    width       : var(--width-browser-files);
+}
+.vault-browser-details {
+    position    : absolute;
+    top         : 0px;
+    right       : 0px;
+    bottom      : 0px;
+    width       : var(--width-browser-details);
+}
+
+.vault-browser-explorer-content {
+    display : flex;
+    gap : 20px;
+}
+.vault-browser-explorer-content > div {
+    width : 250px;
+}
+
+
+#file {
+    border-width : 30px 40px;
+}
+#file-details {
+    position : absolute;
+    top : 120px;
+    right : 0px;
+    bottom : 0px;
+    width : var(--width-file-details);
+}
+
+
+/* PDM TILES */
+
+
+
+/* PDM TILES : CHANGE ORDERS */
+.vault-eco .tile-subtitle {
+    display        : flex;
+    gap         : 20px;
+    line-height : 16px;
+}
+
+
+.vault-eco .tile-subtitle .icon {
+    font-size : 12px;
+}

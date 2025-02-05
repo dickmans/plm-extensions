@@ -1,0 +1,46 @@
+extends layout
+
+block head
+    
+    link(rel='stylesheet', href='/stylesheets/framework/findItemByNumber.css')
+    script.
+        config = !{JSON.stringify(config)};
+    script(src='/javascripts/framework/findItemByNumber.js')
+
+block body
+    
+    body.surface-level-2
+
+        script.
+            number="#{number}"
+            title='#{title}'
+            revisionBias='#{revisionBias}' 
+            options='#{options}' 
+
+        .screen#search-screen
+
+            .processing
+                .bounce1
+                .bounce2
+                .bounce3
+            #search-message.message
+                #text Searching for item
+                #number.number= number
+            #create-message.message 
+                div Requested item 
+                    span.number= number 
+                    | does not exist in PLM
+                    span.copyFromVaultFaild  and could not be copied from Vault
+                    |. Please use the following button to create the matching record.
+                #create-action.button.default Create 
+                    span= number
+
+        .screen.panel#create-screen
+            .panel#create
+                .panel-header 
+                    .panel-title#create-title Create New
+                    .panel-toolbar
+                        .button#create-cancel Cancel 
+                        .button.default Submit
+                .panel-content#create-sections
+

@@ -9,7 +9,7 @@ block head
 
 block body
 
-    body.surface-level-1.no-panel
+    body.surface-level-1
         
         #header.dark
             #header-logo
@@ -20,9 +20,10 @@ block body
         
         #main.screen
 
-            #items.panel.with-toggles.with-toolbar
+            #items.panel-top.with-toggles.with-toolbar.surface-level-1
                 .panel-header#items-header
-                    .panel-title#items-title
+                    .panel-title
+                        .panel-title-main#items-title
                 .panel-content#items-content
                     table.row-hovering.fixed-header#items-list(cellspacing='0')
                     .panel-footer 
@@ -32,20 +33,4 @@ block body
                         .nowrap#hide-non-matching Hide Non Matching
                         .nowrap#show-matches-only Show Exact Matches Only
 
-            #item.panel.with-subtitle.surface-level-2
-                .panel-header#item-header
-                    .panel-subtitle#item-subtitle
-                    .panel-title#item-title
-                    .panel-toolbar#item-toolbar
-                        .button.icon.icon-bookmark#bookmark
-                        .button.icon.icon-open#open
-                        .button.icon.icon-close#close
-                #viewer 
-                #tabs.panel-toggles 
-                    div Details 
-                    div Files
-                
-                .panel-content.surface-level-2.compact#item-sections
-
-                .panel-content#attachments
-                    #attachments-list.tiles.list.files
+            #item.surface-level-2

@@ -3,100 +3,790 @@ let cachePicklists  = []; // keys: link, data
 let cacheSections   = [];
 let cacheWorkspaces = [];
 let selectedItems   = [];
-let urnsBOMFields   = [];
 let requestsLimit   = 5;
 
 
+/*
+// Insert grid for phases, gates and tasks
+function insertPhaseGates(link, id) {
 
-// Insert APS Viewer
-function insertViewer(link, params) {
+    if(isBlank(id)) id = 'project-phase-gates';
 
-    if(isBlank(link)) return;
+    let elemParent = $('#' + id);
+        elemParent.addClass('project-phase-gates');
+        elemParent.html('');
 
-    //  Set defaults for optional parameters
-    // --------------------------------------
-    let id              = 'viewer';    // ID of the DOM element where the viewer should be inserted
-    let fileId          = '';         // Select a specific file to be rendered by providing its unique ID
-    let filename        = '';         // Select a specific file to be rendered by providing its filename (matches the Title column in the attachments tab)
-    let extensionsIn    = [];         // Defines the list of attachment file types to take into account when requesting the possible list of viewable files. Only file types included in this list will be taken into account.
-    let extensionsEx    = [];         // Defines the list of attachment file types to exclued when requesting the possible list of viewable files. Files with an extension listed will not be considered as valid viewable.
-    let settings        = {};
-    
-    if( isBlank(params)                 )       params = {};
-    if(!isBlank(params.id)              )           id = params.id;
-    if(!isBlank(params.fileId)          )       fileId = params.fileId;
-    if(!isBlank(params.filename)        )     filename = params.filename;
-    if(!isBlank(params.extensionsIn)    ) extensionsIn = params.extensionsIn;
-    if(!isBlank(params.extensionsEx)    ) extensionsEx = params.extensionsEx;
-    
-    if(!isBlank(params.backgroundColor) )  settings.backgroundColor = params.backgroundColor;
-    if(!isBlank(params.antiAliasing)    )     settings.antiAliasing = params.antiAliasing;
-    if(!isBlank(params.ambientShadows)  )   settings.ambientShadows = params.ambientShadows;
-    if(!isBlank(params.groundReflection)) settings.groundReflection = params.groundReflection;
-    if(!isBlank(params.groundShadow)    )     settings.groundShadow = params.groundShadow;
-    if(!isBlank(params.lightPreset)     )      settings.lightPreset = params.lightPreset;
+    $.get('/plm/project', { 'link' : link}, function(response) {
 
-    let elemInstance = $('#' + id).children('.adsk-viewing-viewer');
-    if(elemInstance.length > 0) elemInstance.hide();
+        console.log(response);
 
-    $('#' + id).attr('data-link', link);
+        for(projectItem of response.data.projectItems) {
 
-    let elemProcessing = $('#' + id + '-processing')
+            let elemColumn = $('<div></div>');
+                elemColumn.appendTo(elemParent);
 
-    if(elemProcessing.length === 0) {
-        appendViewerProcessing(id, false);
-    } else {
-        elemProcessing.show();
-        $('#' + id + '-message').hide();
-    }
+            let elemHead = $('<div></div>');
+                elemHead.addClass('project-grid-head');
+                elemHead.html(projectItem.title);
+                elemHead.appendTo(elemColumn);
 
-    $.get('/plm/get-viewables', { 
-        'link'          : link, 
-        'fileId'        : fileId, 
-        'filename'      : filename, 
-        'extensionsIn'  : extensionsIn, 
-        'extensionsEx'  : extensionsEx 
-    }, function(response) {
+            if(isBlank(projectItem.projectItems)) {
 
-        if($('#' + id).attr('data-link') !== response.params.link) return;
 
-        let suffix3D = ['.iam','.ipt','.stp','.step','.sldprt'];
+            } else {
 
-        if(response.data.length > 0) {
+                elemColumn.addClass('tiles');
+                elemColumn.addClass('list');
+                elemColumn.addClass('xxxs');
 
-            let viewables = [];
+                for(task of projectItem.projectItems) {
 
-            for(let viewable of response.data) {
-                let is3D = false;
-                for(let suffix of suffix3D) {
-                    if(viewable.name.indexOf(suffix) > -1) {
-                        is3D = true;
-                        break;
+                    let elemTask;
+                    let className = 'task-not-started';
+                    let elemProgress = $('<div></div>');
+                    elemProgress.addClass('task-progress-bar');
+
+                    if(task.progress === 100) {
+                        className = 'task-completed';
+                    } else if(task.statusFlag === 'CRITICAL') {
+                        className = 'task-overdue';
                     }
+
+                    if(task.type.link === '/api/v3/project-item-type/WFM') {
+
+                        elemTask = genTile(task.item.link, '', null, 'check_circle', task.title);
+                    } else {
+                        elemTask = genTile('', '', null, 'not_started', task.title);
+
+                    }
+
+                        elemTask.addClass('project-grid-task');
+                        elemTask.addClass(className);
+                        elemTask.appendTo(elemColumn);
+
+                        elemProgress.appendTo(elemTask);
+
                 }
-                if(is3D) viewables.unshift(viewable); else viewables.push(viewable);
             }
 
-            $('body').removeClass('no-viewer');
-
-            if(elemInstance.length > 0) elemInstance.show();
-
-            insertViewerDone(id, viewables, response.data);
-            initViewer(id, viewables, settings);
-
-        } else {
-
-            $('#' + id).hide();
-            $('#' + id + '-processing').hide();
-            $('#' + id + '-message').css('display', 'flex');
-            $('body').addClass('no-viewer');
-
         }
+
+    });
+
+}*/
+
+/*// Insert Item Details
+// function insertItemDetails(link, id, data, excludeSections, excludeFields) {
+
+//     if(isBlank(link)) return;
+//     if(isBlank(id)) id = 'details';
+
+//     $('#' + id + '-processing').show();
+
+//     insertItemDetailsFields(link, id, null, null, data, false, false, false, excludeSections, excludeFields);
+
+// }
+// function insertItemDetailsFields(link, id, sections, fields, data, editable, hideComputed, hideReadOnly, excludeSections, excludeFields) {
+
+//     let requests = [];
+
+//     if(isBlank(id)) id = 'details';
+
+//     $('#' + id).attr('data-link', link);
+//     $('#' + id + '-sections').html('');
+
+//     if(isBlank(sections) || isBlank(fields)) {
+//         if(!isBlank(link)) {
+//             for(workspace of cacheWorkspaces) {
+//                 if(workspace.id === link.split('/')[4]) {
+//                     if(isBlank(sections)) sections = workspace.sections;
+//                     if(isBlank(fields)  ) fields   = workspace.fields;
+//                 }
+//             }
+//         }
+//     }
+
+//     if(!isBlank(link)) {
+//         if(isBlank(sections)) requests.push($.get('/plm/sections', { 'link' : link }));
+//         if(isBlank(fields)  ) requests.push($.get('/plm/fields'  , { 'link' : link }));
+//         if(isBlank(data)    ) requests.push($.get('/plm/details' , { 'link' : link })); 
+//     }
+
+//     if(requests.length > 0) {
+
+//         Promise.all(requests).then(function(responses) {
+
+//             if($('#' + id).attr('data-link') !== responses[0].params.link) return;
+
+//             let index      = 0;
+//             let addToCache = true;
+
+//             if(isBlank(sections)) sections  = responses[index++].data;
+//             if(isBlank(fields)  ) fields    = responses[index++].data;
+//             if(isBlank(data)    ) data      = responses[index++].data;
+
+//             for(workspace of cacheWorkspaces) {
+//                 if(workspace.id === link.split('/')[4]) {
+//                     workspace.sections = sections;
+//                     workspace.fields = fields;
+//                     addToCache = false;
+//                 }
+//             }
+
+//             if(addToCache) {
+//                 cacheWorkspaces.push({
+//                     'id'                : link.split('/')[4],
+//                     'sections'          : sections,
+//                     'fields'            : fields,
+//                     'editableFields'    : null,
+//                     'bomViews'          : null
+//                 })
+//             }
+
+//             processItemDetailsFields(id, sections, fields, data, editable, hideComputed, hideReadOnly, excludeSections, excludeFields)
+
+//         });
+
+//     } else {
+
+//         processItemDetailsFields(id, sections, fields, data, editable, hideComputed, hideReadOnly)
+
+//     }
+
+// }
+// function processItemDetailsFields(id, sections, fields, data, editable, hideComputed, hideReadOnly, excludeSections, excludeFields) {
+
+//     if(typeof id           === 'undefined') id            = 'details';
+//     if(typeof sections     === 'undefined') sections      = [];
+//     if(typeof fields       === 'undefined') fields        = [];
+//     if(typeof data         === 'undefined') data          = [];
+//     if(typeof editable     === 'undefined') editable      = false;
+//     if(typeof hideComputed === 'undefined') hideComputed  = false;
+//     if(typeof hideReadOnly === 'undefined') hideReadOnly  = false;
+
+//     if(isBlank(excludeSections)) excludeSections = [];
+//     if(isBlank(excludeFields)  ) excludeFields   = [];
+   
+//     let elemParent = $('#' + id + '-sections');
+//         elemParent.html('');
+
+//     $('#' + id + '-processing').hide();
+   
+//     for(section of sections) {
+
+//         let sectionId   = section.__self__.split('/')[6];
+//         let isNew       = true;
+//         let className   = 'expanded'
+
+//         if(excludeSections.indexOf(sectionId) === -1) {
+
+//             for(cacheSection of cacheSections) {
+//                 if(cacheSection.urn === section.urn) {
+//                     isNew = false;
+//                     className = cacheSection.className;
+//                 }
+//             }
+
+//             if(isNew) {
+//                 cacheSections.push({
+//                     'urn' : section.urn, 'className' : 'expanded'
+//                 })
+//             }
+
+//             let elemSection = $('<div></div>');
+//                 elemSection.attr('data-urn', section.urn);
+//                 elemSection.addClass('section');
+//                 elemSection.addClass(className);
+//                 elemSection.html(section.name);
+//                 elemSection.appendTo(elemParent);
+//                 elemSection.click(function() {
+                    
+//                     $(this).next().toggle();
+//                     $(this).toggleClass('expanded');
+//                     $(this).toggleClass('collapsed');
+
+//                     for(cacheSection of cacheSections) {
+//                         if(cacheSection.urn === $(this).attr('data-urn')) {
+//                             cacheSection.className = $(this).hasClass('expanded') ? 'expanded' : 'collapsed';
+//                         }
+//                     }
+
+//                 });
+
+//             let elemFields = $('<div></div>');
+//                 elemFields.addClass('section-fields');
+//                 elemFields.attr('data-id', section.__self__.split('/')[6]);
+//                 elemFields.appendTo(elemParent);
+
+//             if(className !== 'expanded') elemFields.toggle();
+
+//             for(sectionField of section.fields) {
+
+//                 if(!excludeFields.includes(sectionField.link.split('/')[8])) {
+
+//                     if(sectionField.type === 'MATRIX') {
+//                         for(matrix of section.matrices) {
+//                             if(matrix.urn === sectionField.urn) {
+//                                 for(matrixFields of matrix.fields) {
+//                                     for(matrixField  of matrixFields) {
+//                                         if(matrixField !== null) {
+//                                             for(wsField of fields) {
+//                                                 if(wsField.urn === matrixField.urn)
+//                                                     insertField(wsField, data, elemFields, hideComputed, hideReadOnly, editable);
+//                                             }
+//                                         }
+//                                     }
+//                                 }
+//                             }
+//                         }
+//                     } else {
+//                         for(wsField of fields) {
+//                             if(wsField.urn === sectionField.urn)
+//                                 insertField(wsField, data, elemFields, hideComputed, hideReadOnly, editable);
+//                         }
+//                     }
+                    
+//                 }
+//             }
+
+//             if(elemFields.children().length === 0) {
+//                 elemFields.hide();
+//                 elemSection.hide();
+//             }
+
+//         }
+
+//     }
+
+//     insertItemDetailsDone(id);
+//     processItemDetailsFieldsDone(id);
+
+// }
+// function insertItemDetailsDone(id) {}
+// function processItemDetailsFieldsDone(id) {}
+// function insertField(field, itemData, elemParent, hideComputed, hideReadOnly, editable, hideLabel, context) {
+
+//     if(typeof hideComputed === 'undefined') hideComputed = false;  // hide computed fields
+//     if(typeof hideReadOnly === 'undefined') hideReadOnly = false;  // hide read only fields
+//     if(typeof editable     === 'undefined')     editable = false;  // display editable
+//     if(typeof hideLabel    === 'undefined')    hideLabel = false;  // return value only, without label field
+//     if(typeof context      === 'undefined')      context = null;  
+
+//     if(field.visibility !== 'NEVER') {
+
+//         if(field.editability !== 'NEVER' || !hideReadOnly) {
+
+//             if(!field.formulaField || !hideComputed) {
+
+//                 let value    = null;
+//                 let urn      = field.urn.split('.');
+//                 let fieldId  = urn[urn.length - 1];
+//                 let readonly = (!editable || field.editability === 'NEVER' || (field.editability !== 'ALWAYS' && (typeof itemData === 'undefined')) || field.formulaField);
+
+//                 let elemField = $('<div></div>');
+//                     elemField.addClass('field');
+//                     // elemField.appendTo(elemParent);
+
+//                 let elemLabel = $('<div></div>');
+//                     elemLabel.addClass('field-label');
+//                     elemLabel.html(field.name);
+//                     elemLabel.appendTo(elemField);
+
+//                 let elemValue = $('<div></div>');
+//                 let elemInput = $('<input>');
+
+//                 if(!isBlank(itemData)) {
+//                     for(nextSection of itemData.sections) {
+//                         for(itemField of nextSection.fields) {
+//                             if(itemField.hasOwnProperty('urn')) {
+//                                 urn = itemField.urn.split('.');
+//                                 let itemFieldId = urn[urn.length - 1];
+//                                 if(fieldId === itemFieldId) {
+//                                     value = itemField.value;
+//                                     break;
+//                                 }
+//                             }
+//                         }
+//                     }
+//                 }
+
+//                 if(typeof value === 'undefined') value = null;
+
+//                 switch(field.type.title) {
+
+//                     case 'Auto Number':
+//                         elemValue.addClass('string');
+//                         elemValue.append(elemInput);
+//                         if(value !== null) elemInput.val(value);
+//                         break;
+
+//                     case 'Single Line Text':
+//                         if(field.formulaField) {
+//                             elemValue.addClass('computed');
+//                             elemValue.addClass('no-scrollbar');
+//                             elemValue.html($('<div></div>').html(value).text());
+//                         } else {
+//                             if(value !== null) elemInput.val(value);
+//                             if(field.fieldLength !== null) {
+//                                 elemInput.attr('maxlength', field.fieldLength);
+//                                 elemInput.css('max-width', field.fieldLength * 8 + 'px');
+//                             }
+//                             elemValue.addClass('string');
+//                             elemValue.append(elemInput);
+//                         }
+//                         break;
+
+//                     case 'Paragraph':
+//                         elemValue.addClass('paragraph');
+//                         if(editable) {
+//                             elemInput = $('<textarea></textarea>');
+//                             elemValue.append(elemInput);
+//                             // if(value !== null) elemValue.val($('<div></div>').html(value).text());
+//                             if(value !== null) elemInput.html(value);
+//                         } else {
+//                             elemValue.html($('<div></div>').html(value).text());
+//                         }
+//                         break;
+
+//                     case 'URL':
+//                         if(editable) {
+//                             elemValue.append(elemInput);
+//                             if(value !== null) elemInput.val(value);
+//                         } else {
+//                             elemInput = $('<div></div>');
+//                             elemValue.addClass('link');
+//                             elemValue.append(elemInput);
+//                             if(value !== '') {
+//                                 elemInput.attr('onclick', 'window.open("' + value + '")');
+//                                 elemInput.html(value);
+//                             }
+//                         }
+//                         break;
+
+//                     case 'Integer':
+//                         elemValue.addClass('integer');
+//                         elemValue.append(elemInput);
+//                         if(value !== null) elemInput.val(value);
+//                         break;
+                        
+//                     case 'Float':
+//                     case 'Money':
+//                         elemValue.addClass('float');
+//                         elemValue.append(elemInput);
+//                         if(value !== null) elemInput.val(value);
+//                         break;
+
+//                     case 'Date':
+//                         elemInput.attr('type', 'date');
+//                         elemValue.addClass('date');
+//                         elemValue.append(elemInput);
+//                         if(value !== null) elemInput.val(value);
+//                         break;
+                        
+//                     case 'Check Box':
+//                         elemInput.attr('type', 'checkbox');
+//                         elemValue.addClass('checkbox');
+//                         elemValue.append(elemInput);
+//                         if(value !== null) if(value === 'true') elemInput.attr('checked', true);
+//                         break;
+
+//                     case 'Single Selection':
+//                         if(editable) {
+//                             elemInput = $('<select>');
+//                             elemValue.addClass('picklist');
+//                             elemValue.append(elemInput);
+//                             if(context === null) {
+//                                  $('<option></option>').appendTo(elemInput)
+//                                     .attr('value', null);
+//                                 getOptions(elemInput, field.picklist, fieldId, 'select', value);
+//                             } else {
+//                                 $('<option></option>').appendTo(elemInput)
+//                                     .attr('value', context.link)
+//                                     .html(context.title);
+//                             }
+//                         } else {
+//                             elemValue = $('<div></div>');
+//                             elemValue.addClass('string');
+//                             if(field.type.link.split('/')[4] === '23') elemValue.addClass('link');
+//                             if(value !== null) {
+//                                 elemValue.html(value.title);
+//                                 if(field.type.link === '/api/v3/field-types/23') {
+//                                     elemValue.attr('onclick', 'openItemByURN("' + value.urn + '")');
+//                                     elemValue.attr('data-item-link', value.link);
+//                                 }
+//                             }
+//                             if(field.type.link === '/api/v3/field-types/23') elemValue.addClass('linking');
+//                         }
+//                         break;
+
+//                     case 'Multiple Selection':
+//                         elemValue.addClass('multi-picklist');
+//                         if(editable) {
+//                             if(value !== null) {
+//                                 for(optionValue of value) {
+//                                     let elemOption = $('<div></div>');
+//                                         elemOption.attr('data-link', optionValue.link);
+//                                         elemOption.addClass('field-multi-picklist-item');
+//                                         elemOption.html(optionValue.title);
+//                                         elemOption.appendTo(elemValue);
+//                                         elemOption.click(function() { openItemByLink($(this).attr('data-link')); });
+//                                 }
+//                             }
+//                         }
+//                         break;
+
+//                     case 'Filtered':
+//                         if(editable) {
+                            
+//                             elemValue.addClass('filtered-picklist');
+//                             elemValue.append(elemInput);
+//                             elemInput.attr('data-filter-list', field.picklist);
+//                             elemInput.attr('data-filter-field', field.picklistFieldDefinition.split('/')[8]);
+//                             elemInput.addClass('filtered-picklist-input');
+//                             elemInput.click(function() {
+//                                 getFilteredPicklistOptions($(this));
+//                             });
+                            
+//                             if(value !== null) elemInput.val(value);
+                            
+//                             let elemList = $('<div></div>');
+//                                 elemList.addClass('filtered-picklist-options');
+//                                 elemList.appendTo(elemValue);
+                            
+//                             let elemIcon = $('<div></div>');
+//                                 elemIcon.addClass('icon');
+//                                 elemIcon.addClass('icon-close');
+//                                 elemIcon.addClass('xxs');
+//                                 elemIcon.appendTo(elemValue);
+//                                 elemIcon.click(function() {
+//                                     clearFilteredPicklist($(this));
+//                                 });
+
+//                         } else {
+//                             elemValue = $('<div></div>');
+//                             elemValue.addClass('string');
+//                             elemValue.addClass('link');
+//                             if(value !== null) {
+//                                 elemValue.html(value.title);
+//                                 if(field.type.link === '/api/v3/field-types/23') {
+//                                     elemValue.attr('onclick', 'openItemByURN("' + value.urn + '")');
+//                                     elemValue.attr('data-item-link', value.link);
+//                                 }
+//                             }
+//                             if(field.type.link === '/api/v3/field-types/23') elemValue.addClass('linking');
+//                         }
+//                         break;
+
+//                     case 'BOM UOM Pick List':
+//                         if(editable) {
+                            
+//                             elemInput = $('<select>');
+//                             elemValue.addClass('picklist');
+//                             elemValue.append(elemInput);
+
+//                             let elemOptionBlank = $('<option></option>');
+//                                 elemOptionBlank.attr('value', null);
+//                                 elemOptionBlank.appendTo(elemInput);
+
+//                             getOptions(elemInput, field.picklist, fieldId, 'select', value);
+
+//                         } else {
+//                             elemInput = $('<div></div>');
+//                             elemValue.addClass('string');
+//                             elemValue.append(elemInput);
+
+//                             if(value !== null) {
+//                                 elemInput.html(value.title);
+//                                 if(field.type.link === '/api/v3/field-types/28') {
+//                                     elemInput.attr('data-item-link', value.link);
+//                                 }
+//                             }
+//                             if(field.type.link === '/api/v3/field-types/28') elemValue.addClass('bom-uom');
+//                         }
+//                         break;
+
+//                     case 'Image':
+//                         elemValue.addClass('drop-zone');
+//                         elemValue.addClass('image');
+//                         getImage(elemValue, value);
+//                         break;
+
+//                     case 'Radio Button':
+//                         if(editable) {
+//                             elemValue = $('<div></div>');
+//                             elemValue.addClass('radio');
+//                             getOptions(elemValue, field.picklist, fieldId, 'radio', value);
+//                         } else {
+//                             elemValue = $('<input>');
+//                             elemValue.addClass('string');
+//                             if(value !== null) elemValue.val(value.title);
+//                         }
+//                         break;
+
+//                     default:
+
+//                         if(!isBlank(field.defaultValue)) {
+//                             elemValue.val(field.defaultValue);
+//                         }
+
+//                         break;
+
+//                 }
+
+//                 elemValue.addClass('field-value');
+
+//                 elemValue.attr('data-id'        , fieldId);
+//                 elemValue.attr('data-title'     , field.name);
+//                 elemValue.attr('data-link'      , field.__self__);
+//                 elemValue.attr('data-type-id'   , field.type.link.split('/')[4]);
+
+//                 if(readonly) {
+//                     elemInput.attr('readonly', true);
+//                     elemInput.attr('disabled', true);
+//                     elemValue.addClass('readonly');    
+//                     elemField.addClass('readonly');    
+//                 } else {
+//                     elemField.addClass('editable');               
+
+//                     if(field.fieldValidators !== null) {
+//                         for(let validator of field.fieldValidators) {
+//                             if(validator.validatorName === 'required') {
+//                                 elemField.addClass('required');
+//                             } else if(validator.validatorName === 'dropDownSelection') {
+//                                 elemField.addClass('required');
+//                             } else if(validator.validatorName === 'maxlength') {
+//                                 elemValue.attr('maxlength', validator.variables.maxlength);
+//                             }
+//                         }
+//                     }
+
+//                 }
+
+//                 if(field.unitOfMeasure !== null) {
+                    
+//                     elemValue.addClass('with-unit');
+
+//                     let elemText = $('<div></div>');
+//                         elemText.addClass('field-unit');
+//                         elemText.html(field.unitOfMeasure);
+//                         elemText.appendTo(elemValue);
+
+//                 }
+                
+//                 if(hideLabel) {
+//                     if(elemParent !== null) elemValue.appendTo(elemParent); 
+//                     return elemValue;
+//                 } else {
+//                     elemValue.appendTo(elemField);
+//                     if(elemParent !== null) elemField.appendTo(elemParent);
+//                     return elemField;
+//                 }
+
+//             }
+
+//         }
+//     }
+
+// }
+// 
+// function getOptions(elemParent, link, fieldId, type, value) {
+
+//     for(let picklist of cachePicklists) {
+//         if(picklist.link === link) {
+//             insertOptions(elemParent, picklist.data, fieldId, type, value);
+//             return;
+//         }
+//     }
+
+//     $.get( '/plm/picklist', { 'link' : link, 'limit' : 100, 'offset' : 0 }, function(response) {
+
+//         if(!response.error) {
+
+//             let isNew = true;
+
+//             for(let picklist of cachePicklists) {
+//                 if(picklist.link === link) {
+//                     isNew = false;
+//                     continue;
+//                 }
+//             }
+
+//             if(isNew) {
+//                 cachePicklists.push({
+//                     'link' : link,
+//                     'data' : response.data
+//                 });
+//             }
+
+//             insertOptions(elemParent, response.data, fieldId, type, value);
+//         }
+//     });
+
+// }
+// function insertOptions(elemParent, data, fieldId, type, value) {
+
+//     for(let option of data.items) {
+       
+//         if(type === 'radio') {
+
+//             let index = $('.radio').length + 1;
+
+//             let elemRadio = $('<div></div>');
+//                 elemRadio.addClass('radio-option');
+//                 // elemRadio.attr('name', 'radio-' + index);
+//                 elemRadio.attr('name', fieldId + '-' + index);
+//                 elemRadio.appendTo(elemParent);
+
+//             let elemInput = $('<input>');
+//                 elemInput.attr('type', 'radio');
+//                 elemInput.attr('id', option.link);
+//                 elemInput.attr('value', option.link);
+//                 // elemInput.attr('name', 'radio-' + index);
+//                 elemInput.attr('name', fieldId + '-' + index);
+//                 elemInput.appendTo(elemRadio);
+
+//             let elemLabel = $('<label></label>');
+//                 elemLabel.addClass('radio-label');
+//                 // elemLabel.attr('for', option.link);
+//                 elemLabel.attr('for', fieldId + '-' + index);
+//                 elemLabel.html(option.title);
+//                 elemLabel.appendTo(elemRadio);
+
+//             if(typeof value !== 'undefined') {
+//                 if(value !== null) {
+//                     if(!value.hasOwnProperty('link')) {
+//                         if(value === option.title) elemInput.prop('checked', true);
+//                     } else if(value.link === option.link) {
+//                         elemInput.prop('checked', true);
+//                     }
+//                 }
+//             }
+
+//         } else if(type === 'select') {
+
+//             let title = option.title;
+
+//             if(!isBlank(option.version)) title += ' ' + option.version;
+
+//             let elemOption = $('<option></option>');
+//                 elemOption.attr('id', option.link);
+//                 elemOption.attr('value', option.link);
+//                 elemOption.attr('displayValue', title);
+//                 elemOption.html(title);
+//                 elemOption.appendTo(elemParent);
+
+//             if(typeof value !== 'undefined') {
+//                 if(value !== null) {
+//                     if(!value.hasOwnProperty('link')) {
+//                         if(value === option.title) elemOption.attr('selected', true);
+//                     } else if(value.link === option.link) {
+//                         elemOption.attr('selected', true);
+//                     }   
+//                 }
+//             }
+
+//         }
+    
+//     }
+// }
+// function getFilteredPicklistOptions(elemClicked) {
+
+//     closeAllFilteredPicklists();
+
+//     let listName = elemClicked.attr('data-filter-list');
+//     let elemList = elemClicked.next();
+//     let filters  = [];
+
+//     elemClicked.addClass('filter-list-refresh');
+
+//     $('.filtered-picklist-input').each(function() {
+//         if(listName === $(this).attr('data-filter-list')) {
+//             let value = $(this).val();
+//             if(!isBlank(value)) {
+//                 filters.push([ $(this).parent().attr('data-id'), $(this).val() ]);
+//             }
+//         }
+//     });
+    
+//     $.get( '/plm/filtered-picklist', { 'link' : elemClicked.parent().attr('data-link'), 'filters' : filters, 'limit' : 100, 'offset' : 0 }, function(response) {
+//         elemClicked.removeClass('filter-list-refresh');
+//         if(!response.error) {
+//             for(item of response.data.items) {
+//                 let elemOption = $('<div></div>');
+//                     elemOption.html(item)    ;
+//                     elemOption.appendTo(elemList);
+//                     elemOption.click(function() {
+//                         $(this).parent().hide();
+//                         $(this).parent().prev().val($(this).html());
+//                     });
+//             }
+//             elemList.show();
+//         }
+//     });   
+
+// }
+// function clearFilteredPicklist(elemClicked) {
+    
+//     closeAllFilteredPicklists();
+//     elemClicked.siblings('input').val('');
+
+// }
+// function closeAllFilteredPicklists() {
+
+//     $('.filtered-picklist-options').html('').hide();
+
+// }
+
+*/
+
+
+// Set tab labels and toggle tab visibility based on user permission
+function setItemTabLabels(wsId, callback) {
+
+    $.get('/plm/tabs', { wsId : wsId }, function(response) {
+        callback(setTabLabels(response.data));
     });
 
 }
-function insertViewerDone(id, viewables, viewables) {}
+function setTabLabels(data) {
 
+    let permissions = [];
+
+    $('#tabItemDetails'  ).hide();
+    $('#tabWhereUsed'    ).hide();
+    $('#tabAttachments'  ).hide();
+    $('#tabBOM'          ).hide();
+    $('#tabManagedItems' ).hide();
+    $('#tabWorkflow'     ).hide();
+    $('#tabGrid'         ).hide();
+    $('#tabProject'      ).hide();
+    $('#tabRelationships').hide();
+    $('#tabMilestones'   ).hide();
+    $('#tabChangeLog'    ).hide();
+
+    for(let tab of data) {
+
+        let label = (tab.name === null) ? tab.key : tab.name;
+
+        switch(tab.workspaceTabName) {
+            case 'ITEM_DETAILS'         : $('#tabItemDetails'  ).html(label).show(); permissions.push('itemDetails'  ); break;
+            case 'PART_ATTACHMENTS'     : $('#tabAttachments'  ).html(label).show(); permissions.push('attachments'  ); break;
+            case 'BOM_LIST'             : $('#tabBOM'          ).html(label).show(); permissions.push('bom'          ); break;
+            case 'BOM_WHERE_USED'       : $('#tabWhereUsed'    ).html(label).show(); permissions.push('whereUsed'    ); break;
+            case 'LINKEDITEMS'          : $('#tabManagedItems' ).html(label).show(); permissions.push('managedItems' ); break;
+            case 'WORKFLOW_ACTIONS'     : $('#tabWorkflow'     ).html(label).show(); permissions.push('workflow'     ); break;
+            case 'PART_GRID'            : $('#tabGrid'         ).html(label).show(); permissions.push('grid'         ); break;
+            case 'PROJECT_MANAGEMENT'   : $('#tabProject'      ).html(label).show(); permissions.push('project'      ); break;
+            case 'RELATIONSHIPS'        : $('#tabRelationships').html(label).show(); permissions.push('relationships'); break;
+            case 'PART_MILESTONES'      : $('#tabMilestones'   ).html(label).show(); permissions.push('milestons'    ); break;
+            case 'PART_HISTORY'         : $('#tabChangeLog'    ).html(label).show(); permissions.push('changeLog'    ); break;
+        }
+
+    }
+
+    return permissions;
+
+}
 
 
 // Insert Item Status
@@ -104,970 +794,387 @@ function insertItemStatus(link, id) {
 
     $('#' + id).html('');
 
-    $.get('/plm/details', { 'link' : link }, function(response) {
+    $.get('/plm/details', { link : link }, function(response) {
         $('#' + id).html(response.data.currentState.title);
     });
 
 }
 
 
-// Insert Item Details
-function insertItemDetails(link, id, data, excludeSections, excludeFields) {
+
+// Insert Workflow Actions Menu
+function insertWorkflowActions(link, params) {
 
     if(isBlank(link)) return;
-    if(isBlank(id)) id = 'details';
-
-    $('#' + id + '-processing').show();
-
-    getBookmarkStatus();
-    insertItemDetailsFields(link, id, null, null, data, false, false, false, excludeSections, excludeFields);
-
-}
-function insertItemDetailsFields(link, id, sections, fields, data, editable, hideComputed, hideReadOnly, excludeSections, excludeFields) {
-
-    let requests = [];
-
-    if(isBlank(id)) id = 'details';
-
-    $('#' + id).attr('data-link', link);
-    $('#' + id + '-sections').html('');
-
-    if(isBlank(sections) || isBlank(fields)) {
-        if(!isBlank(link)) {
-            for(workspace of cacheWorkspaces) {
-                if(workspace.id === link.split('/')[4]) {
-                    if(isBlank(sections)) sections = workspace.sections;
-                    if(isBlank(fields)  ) fields   = workspace.fields;
-                }
-            }
-        }
-    }
-
-    if(!isBlank(link)) {
-        if(isBlank(sections)) requests.push($.get('/plm/sections', { 'link' : link }));
-        if(isBlank(fields)  ) requests.push($.get('/plm/fields'  , { 'link' : link }));
-        if(isBlank(data)    ) requests.push($.get('/plm/details' , { 'link' : link })); 
-    }
-
-    if(requests.length > 0) {
-
-        Promise.all(requests).then(function(responses) {
-
-            if($('#' + id).attr('data-link') !== responses[0].params.link) return;
-
-            let index      = 0;
-            let addToCache = true;
-
-            if(isBlank(sections)) sections  = responses[index++].data;
-            if(isBlank(fields)  ) fields    = responses[index++].data;
-            if(isBlank(data)    ) data      = responses[index++].data;
-
-            for(workspace of cacheWorkspaces) {
-                if(workspace.id === link.split('/')[4]) {
-                    workspace.sections = sections;
-                    workspace.fields = fields;
-                    addToCache = false;
-                }
-            }
-
-            if(addToCache) {
-                cacheWorkspaces.push({
-                    'id'                : link.split('/')[4],
-                    'sections'          : sections,
-                    'fields'            : fields,
-                    'editableFields'    : null,
-                    'bomViews'          : null
-                })
-            }
-
-            processItemDetailsFields(id, sections, fields, data, editable, hideComputed, hideReadOnly, excludeSections, excludeFields)
-
-        });
-
-    } else {
-
-        processItemDetailsFields(id, sections, fields, data, editable, hideComputed, hideReadOnly)
-
-    }
-
-}
-function processItemDetailsFields(id, sections, fields, data, editable, hideComputed, hideReadOnly, excludeSections, excludeFields) {
-
-    if(typeof id           === 'undefined') id            = 'details';
-    if(typeof sections     === 'undefined') sections      = [];
-    if(typeof fields       === 'undefined') fields        = [];
-    if(typeof data         === 'undefined') data          = [];
-    if(typeof editable     === 'undefined') editable      = false;
-    if(typeof hideComputed === 'undefined') hideComputed  = false;
-    if(typeof hideReadOnly === 'undefined') hideReadOnly  = false;
-
-    if(isBlank(excludeSections)) excludeSections = [];
-    if(isBlank(excludeFields)  ) excludeFields   = [];
-   
-    let elemParent = $('#' + id + '-sections');
-        elemParent.html('');
-
-    $('#' + id + '-processing').hide();
-   
-    for(section of sections) {
-
-        let sectionId   = section.__self__.split('/')[6];
-        let isNew       = true;
-        let className   = 'expanded'
-
-        if(excludeSections.indexOf(sectionId) === -1) {
-
-            for(cacheSection of cacheSections) {
-                if(cacheSection.urn === section.urn) {
-                    isNew = false;
-                    className = cacheSection.className;
-                }
-            }
-
-            if(isNew) {
-                cacheSections.push({
-                    'urn' : section.urn, 'className' : 'expanded'
-                })
-            }
-
-            let elemSection = $('<div></div>');
-                elemSection.attr('data-urn', section.urn);
-                elemSection.addClass('section');
-                elemSection.addClass(className);
-                elemSection.html(section.name);
-                elemSection.appendTo(elemParent);
-                elemSection.click(function() {
-                    
-                    $(this).next().toggle();
-                    $(this).toggleClass('expanded');
-                    $(this).toggleClass('collapsed');
-
-                    for(cacheSection of cacheSections) {
-                        if(cacheSection.urn === $(this).attr('data-urn')) {
-                            cacheSection.className = $(this).hasClass('expanded') ? 'expanded' : 'collapsed';
-                        }
-                    }
-
-                });
-
-            let elemFields = $('<div></div>');
-                elemFields.addClass('section-fields');
-                elemFields.attr('data-id', section.__self__.split('/')[6]);
-                elemFields.appendTo(elemParent);
-
-            if(className !== 'expanded') elemFields.toggle();
-
-            for(sectionField of section.fields) {
-
-                if(!excludeFields.includes(sectionField.link.split('/')[8])) {
-
-                    if(sectionField.type === 'MATRIX') {
-                        for(matrix of section.matrices) {
-                            if(matrix.urn === sectionField.urn) {
-                                for(matrixFields of matrix.fields) {
-                                    for(matrixField  of matrixFields) {
-                                        if(matrixField !== null) {
-                                            for(wsField of fields) {
-                                                if(wsField.urn === matrixField.urn)
-                                                    insertField(wsField, data, elemFields, hideComputed, hideReadOnly, editable);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        for(wsField of fields) {
-                            if(wsField.urn === sectionField.urn)
-                                insertField(wsField, data, elemFields, hideComputed, hideReadOnly, editable);
-                        }
-                    }
-                    
-                }
-            }
-
-            if(elemFields.children().length === 0) {
-                elemFields.hide();
-                elemSection.hide();
-            }
-
-        }
-
-    }
-
-    insertItemDetailsDone(id);
-    processItemDetailsFieldsDone(id);
-
-}
-function insertItemDetailsDone(id) {}
-function processItemDetailsFieldsDone(id) {}
-function insertField(field, itemData, elemParent, hideComputed, hideReadOnly, editable, hideLabel, context) {
-
-    if(typeof hideComputed === 'undefined') hideComputed = false;  // hide computed fields
-    if(typeof hideReadOnly === 'undefined') hideReadOnly = false;  // hide read only fields
-    if(typeof editable     === 'undefined')     editable = false;  // display editable
-    if(typeof hideLabel    === 'undefined')    hideLabel = false;  // return value only, without label field
-    if(typeof context      === 'undefined')      context = null;  
-
-    if(field.visibility !== 'NEVER') {
-
-        if(field.editability !== 'NEVER' || !hideReadOnly) {
-
-            if(!field.formulaField || !hideComputed) {
-
-                let value    = null;
-                let urn      = field.urn.split('.');
-                let fieldId  = urn[urn.length - 1];
-                let readonly = (!editable || field.editability === 'NEVER' || (field.editability !== 'ALWAYS' && (typeof itemData === 'undefined')) || field.formulaField);
-
-                let elemField = $('<div></div>');
-                    elemField.addClass('field');
-                    // elemField.appendTo(elemParent);
-
-                let elemLabel = $('<div></div>');
-                    elemLabel.addClass('field-label');
-                    elemLabel.html(field.name);
-                    elemLabel.appendTo(elemField);
-
-                let elemValue = $('<div></div>');
-                let elemInput = $('<input>');
-
-                if(!isBlank(itemData)) {
-                    for(nextSection of itemData.sections) {
-                        for(itemField of nextSection.fields) {
-                            if(itemField.hasOwnProperty('urn')) {
-                                urn = itemField.urn.split('.');
-                                let itemFieldId = urn[urn.length - 1];
-                                if(fieldId === itemFieldId) {
-                                    value = itemField.value;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if(typeof value === 'undefined') value = null;
-
-                switch(field.type.title) {
-
-                    case 'Auto Number':
-                        elemValue.addClass('string');
-                        elemValue.append(elemInput);
-                        if(value !== null) elemInput.val(value);
-                        break;
-
-                    case 'Single Line Text':
-                        if(field.formulaField) {
-                            elemValue.addClass('computed');
-                            elemValue.addClass('no-scrollbar');
-                            elemValue.html($('<div></div>').html(value).text());
-                        } else {
-                            if(value !== null) elemInput.val(value);
-                            if(field.fieldLength !== null) {
-                                elemInput.attr('maxlength', field.fieldLength);
-                                elemInput.css('max-width', field.fieldLength * 8 + 'px');
-                            }
-                            elemValue.addClass('string');
-                            elemValue.append(elemInput);
-                        }
-                        break;
-
-                    case 'Paragraph':
-                        elemValue.addClass('paragraph');
-                        if(editable) {
-                            elemInput = $('<textarea></textarea>');
-                            elemValue.append(elemInput);
-                            // if(value !== null) elemValue.val($('<div></div>').html(value).text());
-                            if(value !== null) elemInput.html(value);
-                        } else {
-                            elemValue.html($('<div></div>').html(value).text());
-                        }
-                        break;
-
-                    case 'URL':
-                        if(editable) {
-                            elemValue.append(elemInput);
-                            if(value !== null) elemInput.val(value);
-                        } else {
-                            elemInput = $('<div></div>');
-                            elemValue.addClass('link');
-                            elemValue.append(elemInput);
-                            if(value !== '') {
-                                elemInput.attr('onclick', 'window.open("' + value + '")');
-                                elemInput.html(value);
-                            }
-                        }
-                        break;
-
-                    case 'Integer':
-                        elemValue.addClass('integer');
-                        elemValue.append(elemInput);
-                        if(value !== null) elemInput.val(value);
-                        break;
-                        
-                    case 'Float':
-                    case 'Money':
-                        elemValue.addClass('float');
-                        elemValue.append(elemInput);
-                        if(value !== null) elemInput.val(value);
-                        break;
-
-                    case 'Date':
-                        elemInput.attr('type', 'date');
-                        elemValue.addClass('date');
-                        elemValue.append(elemInput);
-                        if(value !== null) elemInput.val(value);
-                        break;
-                        
-                    case 'Check Box':
-                        elemInput.attr('type', 'checkbox');
-                        elemValue.addClass('checkbox');
-                        elemValue.append(elemInput);
-                        if(value !== null) if(value === 'true') elemInput.attr('checked', true);
-                        break;
-
-                    case 'Single Selection':
-                        if(editable) {
-                            elemInput = $('<select>');
-                            elemValue.addClass('picklist');
-                            elemValue.append(elemInput);
-                            if(context === null) {
-                                 $('<option></option>').appendTo(elemInput)
-                                    .attr('value', null);
-                                getOptions(elemInput, field.picklist, fieldId, 'select', value);
-                            } else {
-                                $('<option></option>').appendTo(elemInput)
-                                    .attr('value', context.link)
-                                    .html(context.title);
-                            }
-                        } else {
-                            elemValue = $('<div></div>');
-                            elemValue.addClass('string');
-                            if(field.type.link.split('/')[4] === '23') elemValue.addClass('link');
-                            if(value !== null) {
-                                elemValue.html(value.title);
-                                if(field.type.link === '/api/v3/field-types/23') {
-                                    elemValue.attr('onclick', 'openItemByURN("' + value.urn + '")');
-                                    elemValue.attr('data-item-link', value.link);
-                                }
-                            }
-                            if(field.type.link === '/api/v3/field-types/23') elemValue.addClass('linking');
-                        }
-                        break;
-
-                    case 'Multiple Selection':
-                        elemValue.addClass('multi-picklist');
-                        if(editable) {
-                            if(value !== null) {
-                                for(optionValue of value) {
-                                    let elemOption = $('<div></div>');
-                                        elemOption.attr('data-link', optionValue.link);
-                                        elemOption.addClass('field-multi-picklist-item');
-                                        elemOption.html(optionValue.title);
-                                        elemOption.appendTo(elemValue);
-                                        elemOption.click(function() { openItemByLink($(this).attr('data-link')); });
-                                }
-                            }
-                        }
-                        break;
-
-                    case 'Filtered':
-                        if(editable) {
-                            
-                            elemValue.addClass('filtered-picklist');
-                            elemValue.append(elemInput);
-                            elemInput.attr('data-filter-list', field.picklist);
-                            elemInput.attr('data-filter-field', field.picklistFieldDefinition.split('/')[8]);
-                            elemInput.addClass('filtered-picklist-input');
-                            elemInput.click(function() {
-                                getFilteredPicklistOptions($(this));
-                            });
-                            
-                            if(value !== null) elemInput.val(value);
-                            
-                            let elemList = $('<div></div>');
-                                elemList.addClass('filtered-picklist-options');
-                                elemList.appendTo(elemValue);
-                            
-                            let elemIcon = $('<div></div>');
-                                elemIcon.addClass('icon');
-                                elemIcon.addClass('icon-close');
-                                elemIcon.addClass('xxs');
-                                elemIcon.appendTo(elemValue);
-                                elemIcon.click(function() {
-                                    clearFilteredPicklist($(this));
-                                });
-
-                        } else {
-                            elemValue = $('<div></div>');
-                            elemValue.addClass('string');
-                            elemValue.addClass('link');
-                            if(value !== null) {
-                                elemValue.html(value.title);
-                                if(field.type.link === '/api/v3/field-types/23') {
-                                    elemValue.attr('onclick', 'openItemByURN("' + value.urn + '")');
-                                    elemValue.attr('data-item-link', value.link);
-                                }
-                            }
-                            if(field.type.link === '/api/v3/field-types/23') elemValue.addClass('linking');
-                        }
-                        break;
-
-                    case 'BOM UOM Pick List':
-                        if(editable) {
-                            
-                            elemInput = $('<select>');
-                            elemValue.addClass('picklist');
-                            elemValue.append(elemInput);
-
-                            let elemOptionBlank = $('<option></option>');
-                                elemOptionBlank.attr('value', null);
-                                elemOptionBlank.appendTo(elemInput);
-
-                            getOptions(elemInput, field.picklist, fieldId, 'select', value);
-
-                        } else {
-                            elemInput = $('<div></div>');
-                            elemValue.addClass('string');
-                            elemValue.append(elemInput);
-
-                            if(value !== null) {
-                                elemInput.html(value.title);
-                                if(field.type.link === '/api/v3/field-types/28') {
-                                    elemInput.attr('data-item-link', value.link);
-                                }
-                            }
-                            if(field.type.link === '/api/v3/field-types/28') elemValue.addClass('bom-uom');
-                        }
-                        break;
-
-                    case 'Image':
-                        elemValue.addClass('drop-zone');
-                        elemValue.addClass('image');
-                        getImage(elemValue, value);
-                        break;
-
-                    case 'Radio Button':
-                        if(editable) {
-                            elemValue = $('<div></div>');
-                            elemValue.addClass('radio');
-                            getOptions(elemValue, field.picklist, fieldId, 'radio', value);
-                        } else {
-                            elemValue = $('<input>');
-                            elemValue.addClass('string');
-                            if(value !== null) elemValue.val(value.title);
-                        }
-                        break;
-
-                    default:
-
-                        if(!isBlank(field.defaultValue)) {
-                            elemValue.val(field.defaultValue);
-                        }
-
-                        break;
-
-                }
-
-                elemValue.addClass('field-value');
-
-                elemValue.attr('data-id'        , fieldId);
-                elemValue.attr('data-title'     , field.name);
-                elemValue.attr('data-link'      , field.__self__);
-                elemValue.attr('data-type-id'   , field.type.link.split('/')[4]);
-
-                if(readonly) {
-                    elemInput.attr('readonly', true);
-                    elemInput.attr('disabled', true);
-                    elemValue.addClass('readonly');    
-                    elemField.addClass('readonly');    
-                } else {
-                    elemField.addClass('editable');               
-
-                    if(field.fieldValidators !== null) {
-                        for(let validator of field.fieldValidators) {
-                            if(validator.validatorName === 'required') {
-                                elemField.addClass('required');
-                            } else if(validator.validatorName === 'dropDownSelection') {
-                                elemField.addClass('required');
-                            } else if(validator.validatorName === 'maxlength') {
-                                elemValue.attr('maxlength', validator.variables.maxlength);
-                            }
-                        }
-                    }
-
-                }
-
-                if(field.unitOfMeasure !== null) {
-                    
-                    elemValue.addClass('with-unit');
-
-                    let elemText = $('<div></div>');
-                        elemText.addClass('field-unit');
-                        elemText.html(field.unitOfMeasure);
-                        elemText.appendTo(elemValue);
-
-                }
-                
-                if(hideLabel) {
-                    if(elemParent !== null) elemValue.appendTo(elemParent); 
-                    return elemValue;
-                } else {
-                    elemValue.appendTo(elemField);
-                    if(elemParent !== null) elemField.appendTo(elemParent);
-                    return elemField;
-                }
-
-            }
-
-        }
-    }
-
-}
-function getImage(elemParent, value) {
-
-    if(isBlank(value)) return;
-
-    $.get( '/plm/image', { 'link' : value.link }, function(response) {
-                            
-        let elemImage = $("<img class='thumbnail' src='data:image/png;base64," + response.data + "'>");
-            elemImage.appendTo(elemParent);
-                            
-    });
-
-}
-function getOptions(elemParent, link, fieldId, type, value) {
-
-    for(let picklist of cachePicklists) {
-        if(picklist.link === link) {
-            insertOptions(elemParent, picklist.data, fieldId, type, value);
-            return;
-        }
-    }
-
-    $.get( '/plm/picklist', { 'link' : link, 'limit' : 100, 'offset' : 0 }, function(response) {
-
-        if(!response.error) {
-
-            let isNew = true;
-
-            for(let picklist of cachePicklists) {
-                if(picklist.link === link) {
-                    isNew = false;
-                    continue;
-                }
-            }
-
-            if(isNew) {
-                cachePicklists.push({
-                    'link' : link,
-                    'data' : response.data
-                });
-            }
-
-            insertOptions(elemParent, response.data, fieldId, type, value);
-        }
-    });
-
-}
-function insertOptions(elemParent, data, fieldId, type, value) {
-
-    for(let option of data.items) {
-       
-        if(type === 'radio') {
-
-            let index = $('.radio').length + 1;
-
-            let elemRadio = $('<div></div>');
-                elemRadio.addClass('radio-option');
-                // elemRadio.attr('name', 'radio-' + index);
-                elemRadio.attr('name', fieldId + '-' + index);
-                elemRadio.appendTo(elemParent);
-
-            let elemInput = $('<input>');
-                elemInput.attr('type', 'radio');
-                elemInput.attr('id', option.link);
-                elemInput.attr('value', option.link);
-                // elemInput.attr('name', 'radio-' + index);
-                elemInput.attr('name', fieldId + '-' + index);
-                elemInput.appendTo(elemRadio);
-
-            let elemLabel = $('<label></label>');
-                elemLabel.addClass('radio-label');
-                // elemLabel.attr('for', option.link);
-                elemLabel.attr('for', fieldId + '-' + index);
-                elemLabel.html(option.title);
-                elemLabel.appendTo(elemRadio);
-
-            if(typeof value !== 'undefined') {
-                if(value !== null) {
-                    if(!value.hasOwnProperty('link')) {
-                        if(value === option.title) elemInput.prop('checked', true);
-                    } else if(value.link === option.link) {
-                        elemInput.prop('checked', true);
-                    }
-                }
-            }
-
-        } else if(type === 'select') {
-
-            let title = option.title;
-
-            if(!isBlank(option.version)) title += ' ' + option.version;
-
-            let elemOption = $('<option></option>');
-                elemOption.attr('id', option.link);
-                elemOption.attr('value', option.link);
-                elemOption.attr('displayValue', title);
-                elemOption.html(title);
-                elemOption.appendTo(elemParent);
-
-            if(typeof value !== 'undefined') {
-                if(value !== null) {
-                    if(!value.hasOwnProperty('link')) {
-                        if(value === option.title) elemOption.attr('selected', true);
-                    } else if(value.link === option.link) {
-                        elemOption.attr('selected', true);
-                    }   
-                }
-            }
-
-        }
-    
-    }
-}
-function getFilteredPicklistOptions(elemClicked) {
-
-    closeAllFilteredPicklists();
-
-    let listName = elemClicked.attr('data-filter-list');
-    let elemList = elemClicked.next();
-    let filters  = [];
-
-    elemClicked.addClass('filter-list-refresh');
-
-    $('.filtered-picklist-input').each(function() {
-        if(listName === $(this).attr('data-filter-list')) {
-            let value = $(this).val();
-            if(!isBlank(value)) {
-                filters.push([ $(this).parent().attr('data-id'), $(this).val() ]);
-            }
-        }
-    });
-    
-    $.get( '/plm/filtered-picklist', { 'link' : elemClicked.parent().attr('data-link'), 'filters' : filters, 'limit' : 100, 'offset' : 0 }, function(response) {
-        elemClicked.removeClass('filter-list-refresh');
-        if(!response.error) {
-            for(item of response.data.items) {
-                let elemOption = $('<div></div>');
-                    elemOption.html(item)    ;
-                    elemOption.appendTo(elemList);
-                    elemOption.click(function() {
-                        $(this).parent().hide();
-                        $(this).parent().prev().val($(this).html());
-                    });
-            }
-            elemList.show();
-        }
-    });   
-
-}
-function clearFilteredPicklist(elemClicked) {
-    
-    closeAllFilteredPicklists();
-    elemClicked.siblings('input').val('');
-
-}
-function closeAllFilteredPicklists() {
-
-    $('.filtered-picklist-options').html('').hide();
-
-}
-function clearFields(id) {
-
-    $('#' + id).find('.field-value').each(function() {
-        $(this).children().val('');
-    });
-
-    $('#' + id).find('.radio-option').each(function() {
-        $(this).children('input').first().prop('checked', false);
-    });
-
-}
-
-
-// Get controls for ediable fields of given workspace
-function getEditableFields(fields) {
-
-    let result = [];
-
-    for(let field of fields) {
-
-        if(field.editability === 'ALWAYS') {
-            if(field.type !== null) {
-
-                let elemControl = null;
-                let fieldId = ('fieldId' in field) ? field.fieldId : field.__self__.split('/')[8];
-
-                switch(field.type.title) {
-
-                    case 'Check Box': 
-                        elemControl = $('<input>');
-                        elemControl.attr('type', 'checkbox');
-
-                    case 'Float': 
-                    case 'Integer': 
-                    case 'Single Line Text': 
-                        elemControl = $('<input>');
-                        break;
-
-                    case 'Radio Button': 
-                    case 'Single Selection': 
-                        elemControl = $('<select>');
-                        elemControl.addClass('picklist');
-
-                        let elemOptionBlank = $('<option></option>');
-                            elemOptionBlank.attr('value', null);
-                            elemOptionBlank.appendTo(elemControl);
-
-                        getOptions(elemControl, field.picklist, fieldId, 'select', '');
-
-                        break;
-
-                }
-
-                result.push({
-                    'id'      : fieldId,
-                    // 'title'   : sectionField.title,
-                    'type'    : field.type.title,
-                    'control' : elemControl
-                });
-
-            }
-        }
-
-    }
-
-    return result;
-
-}
-
-
-// Insert Create Dialog
-function insertCreateForm(id, wsId, params) {
-
-    if(isBlank(id)  ) return;
-    if(isBlank(wsId)) return;
 
     //  Set defaults for optional parameters
     // --------------------------------------
-    let hideReadOnly    = true;  // Hide header with setting this to false
-    let sectionsIn      = [];    // Defines sections to be incluced (by section names)
-    let sectionsEx      = [];    // Defines sections to be excluded (by section names)
-    let fieldsIn        = [];    // Defines fields to be included (by field ID)
-    let fieldsEx        = [];    // Defines fields to be excluded (by field ID)
-    let context         = null;  // Provide context item information ( { title, link, fieldId })
+    let id               = 'workflow-actions';  // id of DOM element where the actions menu will be inserted
+    let label            = 'Change Status';     // Label that will be shown in the select control
+    let hideIfEmpty      = true;                // If set to true, the select control will be hidden if there are not workflow actions available
+    let disableAtStartup = false;               // If set to true, the select control will be disabled until the available actions have been retrieved
+    let onComplete       = function(link) {}
 
-    if( isBlank(params)             )       params = {};
-    if(!isBlank(params.hideReadOnly)) hideReadOnly = params.hideReadOnly;
-    if(!isBlank(params.sectionsIn)  )   sectionsIn = params.sectionsIn;
-    if(!isBlank(params.sectionsEx)  )   sectionsEx = params.sectionsEx;
-    if(!isBlank(params.fieldsIn)    )     fieldsIn = params.fieldsIn;
-    if(!isBlank(params.fieldsEx)    )     fieldsEx = params.fieldsEx;
-    if(!isBlank(params.context)     )      context = params.context;
+    if( isBlank(params)                 )           params = {};
+    if(!isBlank(params.id)              )               id = params.id;
+    if(!isBlank(params.label)           )            label = params.label;
+    if(!isBlank(params.hideIfEmpty)     )      hideIfEmpty = params.hideIfEmpty;
+    if(!isBlank(params.disableAtStartup)) disableAtStartup = params.disableAtStartup;
+    if(!isBlank(params.onComplete)      )       onComplete = params.onComplete;
 
-    let paramsForm = {
-        id           : id,
-        sections     : [],
-        fields       : [],
-        hideReadOnly : hideReadOnly,
-        sectionsIn   : sectionsIn,
-        sectionsEx   : sectionsEx,
-        fieldsIn     : fieldsIn,
-        fieldsEx     : fieldsEx,
-        context      : context
-    }
+    let elemActions = $('#' + id)
+        .attr('data-link', link)
+        .html('')
+        .change(function() {
+            clickWorkflowAction($(this), params);
+        });
 
-    let requests = [];
+    if(disableAtStartup) elemActions.addClass('disabled').attr('disabled', '')
 
-    wsId = wsId.toString();
-    
-    for(let workspace of cacheWorkspaces) {
-        if(workspace.id === wsId) {
-            if(!isBlank(workspace.sections)) paramsForm.sections = workspace.sections;
-            if(!isBlank(workspace.fields)  ) paramsForm.fields   = workspace.fields;
+    $('<option></option>')
+        .attr('value', '')
+        .attr('hidden', '')
+        .attr('selected', '')
+        .html(label)
+        .appendTo(elemActions);
+
+    $.get('/plm/transitions', { 'link' : link }, function(response) {
+
+        for(let action of response.data) {
+
+            $('<option></option>').appendTo(elemActions)
+                .attr('value', action.__self__)
+                .html(action.name);
+
         }
-    }
-    
-    if((paramsForm.sections.length === 0) || (paramsForm.fields.length === 0)) {
-        requests = [
-            $.get('/plm/sections', { 'wsId' : wsId } ),
-            $.get('/plm/fields',   { 'wsId' : wsId } )
-        ]
-    }
 
-    if(context !== null) {
-        if(isBlank(context.title)) {
-            requests.push($.get('/plm/details', { 'link' : context.link } ));
+        if(response.data.length > 0) {
+            elemActions.show()
+                .removeClass('disabled')
+                .removeAttr('disabled');
+        } else if(hideIfEmpty) {
+            elemActions.hide();
         }
+
+        insertWorkflowActionsDone(id, response);
+
+    });
+
+}
+function insertWorkflowActionsDone(id, data) {}
+function clickWorkflowAction(elemClicked, params) {
+
+    $('#overlay').show();
+
+    let link       = elemClicked.attr('data-link');
+    let transition = elemClicked.val();
+
+    $.get('/plm/transition', { 'link' : link, 'transition' : transition }, function(response) {
+        $('#overlay').hide();
+        clickWorkflowActionDone(response.params.link, response.params.tranistion, response);
+        params.onComplete(link);
+    });
+
+}
+function clickWorkflowActionDone(link, transition, data) {}
+
+
+
+// Insert Create
+function insertCreate(workspaceNames, workspaceIds, params) {
+
+    if(isBlank(workspaceNames) && isBlank(workspaceIds)) return;
+    if(isBlank(workspaceNames)) workspaceNames = [];
+    if(isBlank(workspaceIds)) workspaceIds = [];
+    if(isBlank(params)) params = {};
+
+    let id = isBlank(params.id) ? 'create' : params.id;
+    
+    settings.create[id] = getPanelSettings('', params, {
+        headerLabel : 'Create New',
+        layout      : 'normal'
+    }, [
+        [ 'hideComputed'        , true  ],
+        [ 'hideReadOnly'        , false ],
+        [ 'hideSections'        , false ],
+        [ 'requiredFieldsOnly'  , false ],
+        [ 'toggles'             , false ],
+        [ 'sectionsIn'          , [] ],
+        [ 'sectionsEx'          , [] ],
+        [ 'sectionsOrder'       , [] ],
+        [ 'fieldsIn'            , [] ],
+        [ 'fieldsEx'            , [] ],
+        [ 'fieldValues'         , [] ],
+        [ 'contextId'           , null ],
+        [ 'contextItem'         , null ],
+        [ 'contextItemFields'   , [] ],
+        [ 'viewerImageFields'   , [] ],
+        [ 'createButtonLabel'   , 'Create' ],
+        [ 'createButtonIcon'    , 'icon-create' ],
+        [ 'createButtonTitle'   , '' ],
+        [ 'cancelButton'        , true ],
+        [ 'cancelButtonIcon'    , '' ],
+        [ 'cancelButtonLabel'   , 'Cancel' ],
+        [ 'cancelButtonTitle'   , '' ],
+        [ 'onClickCancel'       , function(id) { } ],
+        [ 'afterCreation'       , function(id, link) { console.log('New item link : ' + link ); } ]
+    ]);
+
+    settings.create[id].wsId     = '';
+    settings.create[id].editable = true;
+    settings.create[id].derived  = [];
+    settings.create[id].load     = function() { insertCreateData(id); }
+
+    genPanelTop(id, settings.create[id], 'create');
+    genPanelHeader(id, settings.create[id]);
+    genPanelToggleButtons(id, settings.create[id], function() {
+        $('#' + id + '-content').find('.section.collapsed').click();
+    }, function() {
+        $('#' + id + '-content').find('.section.expanded').click();
+    });
+    genPanelReloadButton(id, settings.create[id]);
+
+    genPanelContents(id, settings.create[id]).addClass(settings.create[id].layout);
+
+    if(settings.create[id].cancelButton) {
+        genPanelFooterActionButton(id, settings.create[id], 'cancel', {
+
+            label   : settings.create[id].cancelButtonLabel,
+            icon    : settings.create[id].cancelButtonIcon,
+            title   : settings.create[id].cancelButtonTitle,
+
+        }, function() { 
+
+            $('#overlay').hide();
+            $('#' + id).hide();
+            settings.create[id].onClickCancel(id);
+
+        });
     }
 
-    if(requests.length > 0) {
+    genPanelFooterActionButton(id, settings.create[id], 'save', {
 
-        Promise.all(requests).then(function(responses) {
+        label   : settings.create[id].createButtonLabel,
+        icon    : settings.create[id].createButtonIcon,
+        title   : settings.create[id].createButtonTitle,
+        default : true
 
-            if(requests.length > 1) {
+    }, function() { 
 
-                let addToCache = true;
+        if(!validateForm($('#' + id + '-content'))) {
+            showErrorMessage('Error', 'Field validations do not permit creation');
+            return;
+        }
 
-                for(let workspace of cacheWorkspaces) {
-                    if(workspace.id === wsId) {
-                        workspace.sections = responses[0].data;
-                        workspace.fields   = responses[0].data;
-                        addToCache         = false;
-                    }
-                }
+        $('#' + id + '-processing').show();
+        $('#' + id + '-actions').hide();
+        $('#' + id + '-content').hide();
+        $('#' + id + '-footer').hide();
 
-                if(addToCache) {
-                    cacheWorkspaces.push({
-                        'id'        : wsId,
-                        'sections'  : responses[0].data,
-                        'fields'    : responses[1].data
-                    });
-                }
+        submitCreateForm(settings.create[id].wsId, $('#' + id + '-content'), function(response) {
 
-                paramsForm.sections = responses[0].data;
-                paramsForm.fields   = responses[1].data;
+            $('#' + id + '-processing').hide();
+            $('#' + id + '-actions').show();
+            $('#' + id + '-content').show();
+            $('#' + id + '-footer').show();
 
-            }
+            let link = response.data.split('.autodeskplm360.net')[1];
 
-            for(let response of responses) {
-                if(response.url.indexOf('/details') === 0) {
-                    paramsForm.context.title = response.data.title;
-                }
-            }
-
-            insertCreateFormFields(paramsForm);
+            insertCreateAfterCreation(id, link);
+            settings.create[id].afterCreation(id, link, settings.create[id].contextId);
 
         });
 
-    } else insertCreateFormFields(paramsForm);
-    
-}
-function insertCreateFormFields(params) {
-  
-    $('#' + params.id + '-processing').hide();
+    });
 
-    let elemSections = $('#' + params.id + '-sections');
-        elemSections.html('');
+    if(workspaceIds.length === 1) {
 
-    let contextFieldId = (isBlank(params.context)) ? '' : params.context.fieldId;
-    
-    for(let section of params.sections) {
+        settings.create[id].wsId = workspaceIds[0];
+        settings.create[id].load();
 
-        let isNew       = true;
-        let className   = 'expanded'
+    } else {
 
-        if(params.sectionsIn.length === 0 || params.sectionsIn.includes(section.name)) {
-            if(params.sectionsEx.length === 0 || !params.sectionsEx.includes(section.name)) {
+        $.get('/plm/workspaces?limit=500', { useCache : true }, function(response) {
 
-                for(let cacheSection of cacheSections) {
-                    if(cacheSection.urn === section.urn) {
-                        isNew = false;
-                        className = cacheSection.className;
+            if(workspaceNames.length === 1) {
+
+                for(let workspace of workspaces) {
+                    for(let result of response.data.items) {
+                        if(result.title.toLowerCase() === workspace.toLowerCase()) {
+                            settings.create[id].wsId = [ result.link.split('/')[4] ];
+                            settings.create[id].load();
+                        }
                     }
                 }
 
-                if(isNew) {
-                    cacheSections.push({
-                        'urn' : section.urn, 'className' : 'expanded'
-                    })
-                }
+            } else {
 
-                let elemSection = $('<div></div>')
-                    .attr('data-urn', section.urn)
-                    .addClass('section')
-                    .addClass(className)
-                    .html(section.name)
-                    .click(function() {
-                        $(this).next().toggle();
-                        $(this).toggleClass('expanded');
-                        $(this).toggleClass('collapsed');
-                        for(let cacheSection of cacheSections) {
-                            if(cacheSection.urn === $(this).attr('data-urn')) {
-                                cacheSection.className = $(this).hasClass('expanded') ? 'expanded' : 'collapsed';
-                            }
-                        }
+                let elemToolbar = genPanelToolbar(id, settings.create[id], 'actions').css('justify-content', 'center');
 
+                $('<span></span>').appendTo(elemToolbar)
+                    .html('Select workspace of new record:');
+
+                let elemSelect = $('<select></select>').appendTo(elemToolbar)
+                    .addClass('button')
+                    .addClass('main')
+                    .on('change', function() {
+                        settings.create[id].wsId = elemSelect.val();
+                        settings.create[id].load();
                     });
 
-                let elemFields = $('<div></div>')
-                    .addClass('section-fields')
-                    .attr('data-id', section.__self__.split('/')[6]);
 
-                if(className !== 'expanded') elemFields.toggle();
+                for(let result of response.data.items) {
 
-                for(let sectionField of section.fields) {
+                    let add = false;
 
-                    let fieldId = sectionField.link.split('/')[8];
-                    let context = (fieldId === contextFieldId) ? params.context : null;
-                    
-                    if(params.fieldsIn.length === 0 || params.fieldsIn.includes(fieldId)) {
-                        if(params.fieldsEx.length === 0 || !params.fieldsEx.includes(fieldId)) {
+                    if(workspaceIds.length === 0) {
 
-                            if(sectionField.type === 'MATRIX') {
-                                for(let matrix of section.matrices) {
-                                    if(matrix.urn === sectionField.urn) {
-                                        for(let matrixFields of matrix.fields) {
-                                            for(let matrixField  of matrixFields) {
-                                                if(matrixField !== null) {
-                                                    for(let wsField of params.fields) {
-                                                        if(wsField.urn === matrixField.urn) {
-                                                            let matrixFieldId = matrixField.link.split('/')[8];
-                                                            context = (matrixFieldId === contextFieldId) ? params.context : null;
-                                                            if(params.fieldsIn.length === 0 || params.fieldsIn.includes(matrixFieldId)) {
-                                                                if(params.fieldsEx.length === 0 || !params.fieldsEx.includes(matrixFieldId)) {
-                                                                    insertField(wsField, null, elemFields, params.hideComputed, params.hideReadOnly, true, null, context);
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            } else {
-                                for(let wsField of params.fields) {
-                                    if(wsField.urn === sectionField.urn)
-                                        insertField(wsField, null, elemFields, params.hideComputed, params.hideReadOnly, true, null, context);
-                                }
+                        for(let workspaceName of workspaceNames) {
+                            if(result.title.toLowerCase() === workspaceName.toLowerCase()) {
+                                add = true;
+                                break;
                             }
-                                
+                        }
+
+                    } else {
+                        for(let workspaceId of workspaceIds) {
+                            if(result.link.split('/')[4] == workspaceId) {
+                                add = true;
+                                break;
+                            }                         
                         }
                     }
+
+                    if(add) {
+                        $('<option></option>').appendTo(elemSelect)
+                            .attr('value', result.link.split('/')[4])
+                            .html(result.title);
+                    }
+
+
                 }
 
-                if(elemFields.children().length > 0) {
-                    elemSection.appendTo(elemSections);
-                    elemFields.appendTo(elemSections);
-                }
+                settings.create[id].wsId = elemSelect.children().first().attr('value');
+                settings.create[id].load();
 
+            }
+        });
+    }
+
+}
+function insertCreateData(id) {
+
+    settings.create[id].timestamp = startPanelContentUpdate(id);
+
+    let requests = [
+        $.get('/plm/sections', { wsId : settings.create[id].wsId, useCache : settings.create[id].useCache, timestamp : settings.create[id].timestamp } ),
+        $.get('/plm/fields'  , { wsId : settings.create[id].wsId, useCache : settings.create[id].useCache } )
+    ]
+
+    if(!isBlank(settings.create[id].contextItem)) {
+        requests.push($.get('/plm/details', { link : settings.create[id].contextItem }));
+    }
+
+    Promise.all(requests).then(function(responses) {
+
+        if(stopPanelContentUpdate(responses[0], settings.create[id])) return;
+
+            insertDetailsFields(id, responses[0].data, responses[1].data, null, settings.create[id], function() {
+
+            for(let contextItemField of settings.create[id].contextItemFields) {
+                settings.create[id].fieldValues.push({
+                    fieldId      : contextItemField,
+                    value        : settings.create[id].contextItem,
+                    displayValue : responses[2].data.title
+                })
+            }
+
+            for(let viewerImageField of settings.create[id].viewerImageFields) {
+                settings.create[id].fieldValues.push({
+                    fieldId      : viewerImageField,
+                    viewerImage  : 'viewer-markup-image'
+                })
+            }
+
+            insertCreateDataSetFieldValues(id, settings.create[id]);
+            finishPanelContentUpdate(id, settings.create[id]);
+            
+        });
+
+    });
+
+}
+function insertCreateDataSetFieldValues(id, settings) {
+
+    if(isBlank(settings.fieldValues)) return;
+
+    $('#' + id + '-content').find('.field-value').each(function() {
+
+        let elemField = $(this);
+        let fieldId   = elemField.attr('data-id');
+
+        if(!isBlank(fieldId)) {
+
+            for(let fieldValue of settings.fieldValues) {
+
+                if(fieldValue.fieldId === fieldId) {
+
+                    if(elemField.hasClass('picklist')) {
+
+                        let elemSelect = elemField.children().first();
+                            elemSelect.attr('disabled', 'disabled');
+                            elemSelect.children().remove();
+
+                        $('<option></option>').appendTo(elemSelect)
+                            .attr('id', fieldValue.value)
+                            .attr('value', fieldValue.value)
+                            .attr('displayValue', fieldValue.displayValue)
+                            .html(fieldValue.displayValue);
+
+                        elemSelect.val(fieldValue.value);
+
+                    } else if(!isBlank(fieldValue.viewerImage)) { 
+                        let elemCanvas = $('#viewer-markup-' + fieldValue.fieldId);
+                        if(elemCanvas.length === 0) {
+                            elemCanvas = $('<canvas>').attr('id', 'viewer-markup-' + fieldValue.fieldId).addClass('viewer-screenshot');
+                        }
+                        elemField.html('').append(elemCanvas);
+                        viewerCaptureScreenshot('viewer-markup-' + fieldValue.fieldId, function() {});
+                    } else {
+
+                        let elemInput    = elemField.children('input').first();
+                        let elemTextarea = elemField.children('textarea').first();
+
+                        if(elemInput.length   > 0) {
+                            elemInput.val(fieldValue.value);
+                            elemInput.attr('disabled', 'disabled');
+                        }
+                        if(elemTextarea.length > 0) elemTextarea.val(fieldValue.value);
+
+                    }
+                }
             }
         }
 
-    }
-
-    $('#' + params.id + '-sections').show();
-    $('#' + params.id + '-processing').hide();
+    });
 
 }
-function submitCreateForm(wsIdNew, elemParent, idMarkup, callback) {
+function insertCreateAfterCreation(id, link) {
+
+    clearAllFormFields(id);
+
+    if(settings.create[id].dialog) {
+        $('#overlay').hide();
+        $('#' + id).hide();
+    }
+
+}
+function submitCreateForm(wsIdNew, elemParent, callback) {
 
     let params = { 
-        'wsId'     : wsIdNew,
-        'sections' : getSectionsPayload(elemParent) 
+        wsId     : wsIdNew,
+        sections : getSectionsPayload(elemParent),
+        image    : getImagePayload(elemParent)
     };
 
     let id = elemParent.attr('id').split('-sections')[0];
@@ -1101,18 +1208,18 @@ function submitCreateForm(wsIdNew, elemParent, idMarkup, callback) {
         }
     }
 
-    if(!isBlank(idMarkup)) {
+    // if(!isBlank(idMarkup)) {
 
-        let elemMarkupImage = $('#' + idMarkup);
+    //     let elemMarkupImage = $('#' + idMarkup);
 
-        if(elemMarkupImage.length > 0) {
-            params.image = {
-                'fieldId' : elemParent.attr('data-field-id-markup'),
-                'value'   : elemMarkupImage[0].toDataURL('image/jpg')
-            }
-        }
+    //     if(elemMarkupImage.length > 0) {
+    //         params.image = {
+    //             'fieldId' : elemParent.attr('data-field-id-markup'),
+    //             'value'   : elemMarkupImage[0].toDataURL('image/jpg')
+    //         }
+    //     }
 
-    }
+    // }
 
     if(requestsDerived.length > 0) requestsDerived.unshift($.get('/plm/sections', { wsId : wsIdNew }))
 
@@ -1140,12 +1247,12 @@ function submitEdit(link, elemParent, callback) {
 
     let params = { 
         'link'     : link,
-        'sections' : getSectionsPayload(elemParent) 
+        'sections' : getSectionsPayload(elemParent)
     };
 
-    // console.log(params);
+    console.log(params);
 
-    $.get('/plm/edit', params, function(response) {
+    $.post('/plm/edit', params, function(response) {
         callback(response);
     });
 
@@ -1157,8 +1264,8 @@ function getSectionsPayload(elemParent) {
     elemParent.find('.section-fields').each(function() {
 
         let section = {
-            'id'        : $(this).attr('data-id'),
-            'fields'    : []
+            id     : $(this).attr('data-id'),
+            fields : []
         };
 
         $(this).find('.field.editable').each(function() {
@@ -1169,19 +1276,27 @@ function getSectionsPayload(elemParent) {
             // if(!elemField.hasClass('multi-picklist')) {
                 if(fieldData.value !== null) {
                     if(typeof fieldData.value !== 'undefined') {
-                        if(fieldData.value !== '') {
+                        // if(fieldData.value !== '') {
+                        if(fieldData.type !== 'image') {
                             section.fields.push({
-                                'fieldId'   : fieldData.fieldId,
-                                'link'      : fieldData.link,
-                                'value'     : fieldData.value,
-                                'type'      : fieldData.type,
-                                'title'     : fieldData.title,
-                                'typeId'    : fieldData.typeId,
+                                fieldId   : fieldData.fieldId,
+                                link      : fieldData.link,
+                                value     : fieldData.value,
+                                type      : fieldData.type,
+                                title     : fieldData.title,
+                                typeId    : fieldData.typeId,
                             });
                         }
                     }
                 }
             // }
+
+            if(elemField.hasClass('image')) {
+                let elemCanvas = elemField.children('canvas');
+                if(elemCanvas.length > 0) {
+                    
+                }
+            }
 
         });
 
@@ -1199,16 +1314,18 @@ function getFieldValue(elemField) {
     let hasSelect = (elemField.find('select').length > 0);
 
     let result = {
-        'fieldId'   : elemField.attr('data-id'),
-        'link'      : elemField.attr('data-link'),
-        'title'     : elemField.attr('data-title'),
-        'typeId'    : elemField.attr('data-type-id'),
-        'value'     : value,
-        'display'   : value,
-        'type'      : 'string'
+        fieldId   : elemField.attr('data-id'),
+        link      : elemField.attr('data-link'),
+        title     : elemField.attr('data-title'),
+        typeId    : elemField.attr('data-type-id'),
+        value     : value,
+        display   : value,
+        type      : 'string'
     }
 
-    if(elemField.hasClass('paragraph')) {
+    if(elemField.hasClass('image')) {
+        result.type = 'image';
+    } else if(elemField.hasClass('paragraph')) {
         value           = elemField.find('textarea').val();
         result.value    = value;
         result.display  = value;
@@ -1256,6 +1373,83 @@ function getFieldValue(elemField) {
     return result;
 
 }
+function getImagePayload(elemParent) {
+
+    let result = null;
+
+    elemParent.find('canvas.viewer-screenshot').each(function() {
+        let elemField = $(this).closest('.field-value');
+        result = {
+            fieldId : elemField.attr('data-id'),
+            value   : $(this)[0].toDataURL('image/jpg')
+        }
+    });
+
+
+    return result;
+
+
+    // if(!isBlank(idMarkup)) {
+
+    //     let elemMarkupImage = $('#' + idMarkup);
+
+    //     if(elemMarkupImage.length > 0) {
+    //         params.image = {
+    //             'fieldId' : elemParent.attr('data-field-id-markup'),
+    //             'value'   : elemMarkupImage[0].toDataURL('image/jpg')
+    //         }
+    //     }
+
+    // }
+
+
+    // let sections = [];
+
+    // elemParent.find('.section-fields').each(function() {
+
+    //     let section = {
+    //         'id'        : $(this).attr('data-id'),
+    //         'fields'    : []
+    //     };
+
+    //     $(this).find('.field.editable').each(function() {
+
+    //         let elemField = $(this).children('.field-value').first();
+    //         let fieldData = getFieldValue(elemField);
+            
+    //         // if(!elemField.hasClass('multi-picklist')) {
+    //             if(fieldData.value !== null) {
+    //                 if(typeof fieldData.value !== 'undefined') {
+    //                     if(fieldData.value !== '') {
+    //                         section.fields.push({
+    //                             fieldId   : fieldData.fieldId,
+    //                             link      : fieldData.link,
+    //                             value     : fieldData.value,
+    //                             type      : fieldData.type,
+    //                             title     : fieldData.title,
+    //                             typeId    : fieldData.typeId,
+    //                         });
+    //                     }
+    //                 }
+    //             }
+    //         // }
+
+    //         if(elemField.hasClass('image')) {
+    //             let elemCanvas = elemField.children('canvas');
+    //             if(elemCanvas.length > 0) {
+                    
+    //             }
+    //         }
+
+    //     });
+
+    //     if(section.fields.length > 0) sections.push(section);
+
+    // });
+
+    // return sections;
+
+}
 function validateForm(elemForm) {
     
     let result = true;
@@ -1263,7 +1457,7 @@ function validateForm(elemForm) {
     $('.required-empty').removeClass('required-empty');
 
     elemForm.find('.field-value').each(function() {
-       
+
         if($(this).parent().hasClass('required')) {
 
             let elemInput = $(this);
@@ -1281,233 +1475,187 @@ function validateForm(elemForm) {
     return result;
     
 }
+function clearAllFormFields(id) {
+
+    $('#' + id).find('.field-value').each(function() {
+        $(this).children().val('');
+    });
+
+    $('#' + id).find('.radio-option').each(function() {
+        $(this).children('input').first().prop('checked', false);
+    });
+
+}
 
 
 
-// Insert Details
+// Insert Item Details
 function insertDetails(link, params) {
 
     if(isBlank(link)) return;
+    if(isBlank(params)) params = {};
 
-    //  Set defaults for optional parameters
-    // --------------------------------------
-    let id              = 'details';    // ID of the DOM element where the history should be inserted
-    let header          = true;         // Can be used to suppress addition of the panel header element
-    let headerLabel     = 'Details';    // Set the header label
-    let headerToggle    = false;        // Enable header toggles
-    let inline          = false;        // Display the grid inline with other elements
-    let reload          = false;        // Enable reload button for the history panel
-    let openInPLM       = true;         // Adds button to open matching item in PLM
-    let hideComputed    = false;        // Hide computed fields
-    let hideReadOnly    = false;        // Hide read only fields
-    let hideLabels      = false;        // Hide field labels
-    let suppressLinks   = false;        // When set to true, linking pick lists will not be shown as links, preventing users from opening the native PLM user interface
-    let editable        = false;        // Display form in edit mode
-    let layout          = 'normal';     // Set layout (normal, compact, narrow)
-    let collapsed       = false;        // When enabled, the sections will be collapsed at startup
-    let sectionsIn      = [];           // Define list of columns to include by fieldId; columns not included in this list will not be shown at all. Keep empty to show all columns.
-    let sectionsEx      = [];           // Define list of columns to exclude by fieldId; columns in this list will not be shown at all. Keep empty to show all columns.
-    let sectionsOrder   = [];           // Define the sequence of sections in which they should be shown. Provide an array with section names. Sections that are not contained will be appended at the end in default order.
-    let fieldsIn        = [];           // Define list of columns to include by fieldId; columns not included in this list will not be shown at all. Keep empty to show all columns.
-    let fieldsEx        = [];           // Define list of columns to exclude by fieldId; columns in this list will not be shown at all. Keep empty to show all columns.
-
-    if( isBlank(params)               )         params = {};
-    if(!isBlank(params.id)            )             id = params.id;
-    if(!isBlank(params.header)        )         header = params.header;
-    if(!isBlank(params.headerLabel)   )    headerLabel = params.headerLabel;
-    if(!isBlank(params.headerToggle)  )   headerToggle = params.headerToggle;
-    if(!isBlank(params.inline)        )         inline = params.inline;
-    if(!isBlank(params.reload)        )         reload = params.reload;
-    if(!isBlank(params.openInPLM)     )      openInPLM = params.openInPLM;
-    if(!isBlank(params.hideComputed)  )   hideComputed = params.hideComputed;
-    if(!isBlank(params.hideReadOnly)  )   hideReadOnly = params.hideReadOnly;
-    if(!isBlank(params.hideLabels)    )     hideLabels = params.hideLabels;
-    if(!isBlank(params.suppressLinks) )  suppressLinks = params.suppressLinks;
-    if(!isBlank(params.editable)      )       editable = params.editable;
-    if(!isBlank(params.layout)        )         layout = params.layout;
-    if(!isBlank(params.collapsed)     )      collapsed = params.collapsed;
-    if(!isBlank(params.sectionsIn)    )     sectionsIn = params.sectionsIn;
-    if(!isBlank(params.sectionsEx)    )     sectionsEx = params.sectionsEx;
-    if(!isBlank(params.sectionsOrder) )  sectionsOrder = params.sectionsOrder;
-    if(!isBlank(params.fieldsIn)      )       fieldsIn = params.fieldsIn;
-    if(!isBlank(params.fieldsEx)      )       fieldsEx = params.fieldsEx;
-
-    settings.details[id]                = {};
-    settings.details[id].hideComputed   = hideComputed;
-    settings.details[id].hideReadOnly   = hideReadOnly;
-    settings.details[id].hideLabels     = hideLabels;
-    settings.details[id].suppressLinks  = suppressLinks;
-    settings.details[id].editable       = editable;
-    settings.details[id].sectionsIn     = sectionsIn;
-    settings.details[id].collapsed      = collapsed;
-    settings.details[id].sectionsEx     = sectionsEx;
-    settings.details[id].sectionsOrder  = sectionsOrder;
-    settings.details[id].fieldsIn       = fieldsIn;
-    settings.details[id].fieldsEx       = fieldsEx;
-
-    let elemParent = $('#' + id)
-        .addClass('panel-top')
-        .addClass('details')
-        .attr('data-link', link)
-        .html('');
-
-    if(header) {
-        
-        let elemHeader = genPanelHeader(id, headerToggle, headerLabel);
-            elemHeader.appendTo(elemParent);  
-            
-        let elemToolbar = $('<div></div>').appendTo(elemHeader)
-            .addClass('panel-toolbar')
-            .attr('id', id + '-toolbar');
-
-        if(reload) {
-
-            $('<div></div>').appendTo(elemToolbar)
-                .addClass('button')
-                .addClass('icon')
-                .addClass('icon-refresh')
-                .attr('id', id + '-reload')
-                .attr('title', 'Reload this view')
-                .click(function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    insertDetailsData(id);
-                });
-
-        }
-
-        if(openInPLM) {
-
-            $('<div></div>').appendTo(elemToolbar)
-                .addClass('button')
-                .addClass('icon')
-                .addClass('icon-open')
-                .addClass('xs')
-                .addClass('details-open-in-plm')
-                .attr('title', 'Open this item in PLM')
-                .click(function() {
-                    openItemByLink(link);
-                });
+    let id = isBlank(params.id) ? 'details' : params.id;
     
-        }
+    settings.details[id] = getPanelSettings(link, params, {
+        headerLabel : 'Details',
+        layout      : 'normal'
+    }, [
+        [ 'bookmark'           , false ],
+        [ 'cloneable'          , false ],
+        [ 'cloneDialog'        , false ],
+        [ 'expandSections'     , []    ],
+        [ 'hideComputed'       , false ],
+        [ 'hideLabels'         , false ],
+        [ 'hideReadOnly'       , false ],
+        [ 'hideSections'       , false ],
+        [ 'requiredFieldsOnly' , false ],
+        [ 'suppressLinks'      , false ],
+        [ 'toggles'            , false ],
+        [ 'sectionsIn'         , [] ],
+        [ 'sectionsEx'         , [] ],
+        [ 'sectionsOrder'      , [] ],
+        [ 'fieldsIn'           , [] ],
+        [ 'fieldsEx'           , [] ],
+        [ 'afterCloning'       , function(id, link) { console.log('New item link : ' + link ); } ]
+    ]);
+
+    settings.details[id].load = function() { insertDetailsData(id); }
+
+    genPanelTop(id, settings.details[id], 'details');
+    genPanelHeader(id, settings.details[id]);
+    genPanelToggleButtons(id, settings.details[id], function() {
+        $('#' + id + '-content').find('.section.collapsed').click();
+    }, function() {
+        $('#' + id + '-content').find('.section.expanded').click();
+    });
+    genPanelBookmarkButton(id, settings.details[id]);
+    genPanelCloneButton(id, settings.details[id]);
+    genPanelOpenInPLMButton(id, settings.details[id]);
+    genPanelSearchInput(id, settings.details[id]);
+    genPanelReloadButton(id, settings.details[id]);
+
+    genPanelContents(id, settings.details[id]).addClass(settings.details[id].layout);
+
+    if(settings.details[id].cloneDialog) {
+
+        genPanelFooterActionButton(id, settings.details[id], 'clone-cancel', {
+            label   : 'Cancel',
+            title   : 'Cancel',
+            default : false
+        }, function() {             
+            $('#overlay').hide();
+            $('#' + id).hide();
+        });
+
+        genPanelFooterActionButton(id, settings.details[id], 'clone-confirm', {
+            label   : 'Clone',
+            title   : 'Create clone in PLM',
+            default : true
+        }, function() {           
+            appendOverlay(false);  
+            submitClone(id, function(url) {
+                $('#overlay').hide();
+                $('#' + id).hide();
+                settings.details[id].afterCloning(id, url);
+            });
+        });
+
+    } else if(settings.details[id].editable) {
+
+        genPanelFooterActionButton(id, settings.details[id], 'save', {
+            label   : 'Save Changes',
+            title   : 'Save changes to PLM',
+            default : true
+        }, function() { 
+            appendOverlay(false);
+            submitEdit(settings.details[id].link, $('#' + id + '-content'), function() {
+                $('#overlay').hide();
+            });
+        });
 
     }
 
-    let elemContent = $('<div></div>').appendTo(elemParent)
-        .attr('id', id + '-sections')
-        // .attr('data-link', link)
-        .addClass('grid-content')
-        .addClass('no-scrollbar');
-
-    if(!inline) elemContent.addClass('panel-content')
-
-    switch(layout) {
-        case 'compact'  : elemContent.addClass('compact'); break;
-        case 'narrow'   : elemContent.addClass('narrow' ); break;
-        default         : elemContent.addClass('normal' ); break;
-    }
-
-    appendProcessing(id, true);
     insertDetailsDone(id);
-    insertDetailsData(id);
+
+    settings.details[id].load();
 
 }
 function insertDetailsDone(id) {}
 function insertDetailsData(id) {
 
-    let timestamp    = new Date().getTime();
-    let elemSections = $('#' + id + '-sections');
-    let link         = $('#' + id).attr('data-link');
-    let requests     = [ $.get('/plm/details', { 'link' : link, 'timestamp' : timestamp }) ];
-    let sections     = null;
-    let fields       = null;
+    settings.details[id].timestamp = startPanelContentUpdate(id);
 
-    $('#' + id + '-processing').show();
-    
-    elemSections.hide();
-    elemSections.attr('data-timestamp', timestamp).html('');
+    let requests = [ 
+        $.get('/plm/details' , { link : settings.details[id].link, timestamp : settings.details[id].timestamp }),
+        $.get('/plm/sections', { link : settings.details[id].link }),
+        $.get('/plm/fields'  , { link : settings.details[id].link })
+    ];
 
-    for(let workspace of cacheWorkspaces) {
-        if(workspace.id === link.split('/')[4]) {
-            sections = workspace.sections;
-            fields   = workspace.fields;
-        }
-    }
-
-    if(isBlank(sections)) requests.push($.get('/plm/sections', { 'link' : link }));
-    if(isBlank(fields)  ) requests.push($.get('/plm/fields'  , { 'link' : link }));
+    if((settings.details[id].bookmark) ) requests.push($.get('/plm/bookmarks'  , { link : settings.details[id].link }));
+    if((settings.details[id].cloneable)) requests.push($.get('/plm/permissions', { link : settings.details[id].link }));
 
     Promise.all(requests).then(function(responses) {
 
-        if(responses[0].params.timestamp === $('#' + id + '-sections').attr('data-timestamp')) {
-            if(responses[0].params.link === $('#' + id).attr('data-link')) {
+        if(stopPanelContentUpdate(responses[0], settings.details[id])) return;
 
-                if(responses.length > 1) sections  = responses[1].data;
-                if(responses.length > 2) fields    = responses[2].data;
+        settings.details[id].descriptor = responses[0].data.title;
 
-                if(responses.length > 1) {
-                    cacheWorkspaces.push({
-                        'id'                : responses[0].params.link.split('/')[4],
-                        'sections'          : sections,
-                        'fields'            : fields,
-                        'editableFields'    : null,
-                        'bomViews'          : null
-                    })
-                }                
+        setPanelBookmarkStatus(id, settings.details[id], responses);
+        setPanelCloneStatus(id, settings.details[id], responses);
 
-                insertDetailsFields(id, sections, fields, responses[0].data, settings.details[id], function() {
-                    insertDetailsDataDone(id, sections, fields, responses[0].data);
-                });
+        insertDetailsFields(id, responses[1].data, responses[2].data, responses[0].data, settings.details[id], function() {
+            finishPanelContentUpdate(id, settings.details[id]);
+            insertDetailsDataDone(id, responses[1].data, responses[2].data, responses[0].data);
+        });
 
-            }
-        }
     });
 
 }
-function insertDetailsFields(id, sections, fields, data, params, callback) {
+function insertDetailsFields(id, sections, fields, data, settings, callback) {
 
     $('#' + id + '-processing').hide();
 
-    let elemSections = $('#' + id + '-sections');
-        elemSections.show();
+    let elemContent  = $('#' + id + '-content');
+    let sectionsIn   = settings.sectionsIn;
+    let sectionsEx   = settings.sectionsEx;
+    let fieldsIn     = settings.fieldsIn;
+    let fieldsEx     = settings.fieldsEx;
+    let fieldValues  = (isBlank(settings.fieldValues)) ? [] : settings.fieldValues;
 
-    let sectionsIn   = params.sectionsIn;
-    let sectionsEx   = params.sectionsEx;
-    let fieldsIn     = params.fieldsIn;
-    let fieldsEx     = params.fieldsEx;
+    elemContent.scrollTop();
+    settings.derived = [];
 
-    cacheSections = [];
+    if(isBlank(settings.expandSections)) settings.expandSections = [];
 
-    if(!isBlank(settings.create[id])) {
-        settings.create[id].derived = [];
-        for(let field of fields) {
-            if(!isBlank(field.derived)) {
-                if(field.derived) {
-                    let source = field.derivedFieldSource.__self__.split('/')[8];
-                    let isNew = true;
-                    for(let derived of settings.create[id].derived) {
-                        if(derived.source === source) {
-                            isNew = false;
-                            break;
-                        }
+    if(!settings.editable) elemContent.addClass('readonly');
+
+    for(let field of fields) {
+        if(!isBlank(field.derived)) {
+            if(field.derived) {
+                let source = field.derivedFieldSource.__self__.split('/')[8];
+                let isNew = true;
+                for(let derived of settings.derived) {
+                    if(derived.source === source) {
+                        isNew = false;
+                        break;
                     }
-                    if(isNew) {
-                        settings.create[id].derived.push({
-                            fieldId : field.__self__.split('/')[6],
-                            source : source
-                        });
-                    }
+                }
+                if(isNew) {
+                    settings.derived.push({
+                        fieldId : field.__self__.split('/')[6],
+                        source : source
+                    });
                 }
             }
         }
     }
-
     
-    if(!isBlank(settings.details[id].sectionsOrder)) {
+    if(!isBlank(settings.sectionsOrder)) {
 
         let sort = 1;
 
-        for(let orderedSection of settings.details[id].sectionsOrder) {
+        for(let orderedSection of settings.sectionsOrder) {
             for(let section of sections) {
                 if(orderedSection === section.name) {
                     section.order = sort++;
@@ -1529,85 +1677,136 @@ function insertDetailsFields(id, sections, fields, data, params, callback) {
 
         let sectionId   = section.__self__.split('/')[6];
         let isNew       = true;
+        let sectionLock = false;
         let className   = 'expanded';
+        let elemSection = $('<div></div>');
 
-        if(!isBlank(settings.details[id])) {
-            if(!isBlank(settings.details[id].collapsed)) {
-                className = (settings.details[id].collapsed) ? 'collapsed' : 'expanded';
+        if(!isBlank(settings)) {
+            if(!isBlank(settings.collapseContents)) {
+                if(!settings.expandSections.includes(section.name)) {
+                    className = (settings.collapseContents) ? 'collapsed' : 'expanded';
+                }
+            }
+        }
+
+        if(!isBlank(data)) {
+            if(!isBlank(data.sections)) {
+                for(let dataSection of data.sections) {
+                    if(sectionId === dataSection.link.split('/')[10]) {
+                        sectionLock = dataSection.sectionLocked;
+                    }
+                }
             }
         }
 
         if(sectionsIn.length === 0 || sectionsIn.includes(section.name)) {
             if(sectionsEx.length === 0 || !sectionsEx.includes(section.name)) {
 
-                for(let cacheSection of cacheSections) {
-                    if(cacheSection.link === section.__self__) {
-                        isNew = false;
-                        className = cacheSection.className;
-                    }
-                }
+                if(!settings.hideSections) {
 
-                if(isNew) {
-                    cacheSections.push({
-                        'link' : section.__self__, 'className' : className
-                    })
-                }
-
-                let elemSection = $('<div></div>').appendTo(elemSections)
-                    .attr('data-urn', section.urn)
-                    .addClass('section')
-                    .addClass(className)
-                    .html(section.name)
-                    .click(function() {
-                        
-                        $(this).next().toggle();
-                        $(this).toggleClass('expanded');
-                        $(this).toggleClass('collapsed');
-    
-                        for(let cacheSection of cacheSections) {
-                            if(cacheSection.urn === $(this).attr('data-urn')) {
-                                cacheSection.className = $(this).hasClass('expanded') ? 'expanded' : 'collapsed';
-                            }
+                    for(let cacheSection of cacheSections) {
+                        if(cacheSection.link === id + section.__self__) {
+                            isNew     = false;
+                            className = cacheSection.className;
                         }
-    
-                    });
+                    }
 
-                let elemFields = $('<div></div>').appendTo(elemSections)
+                    if(isNew) {
+                        cacheSections.push({
+                            link      : id + section.__self__, 
+                            className : className
+                        })
+                    }
+
+                    elemSection = $('<div></div>').appendTo(elemContent)
+                        .attr('data-urn', section.urn)
+                        .attr('data-link', section.__self__)
+                        .addClass('section')
+                        .addClass(className)
+                        .html(section.name)
+                        .click(function(e) {
+                            
+                            $(this).next().toggle();
+                            $(this).toggleClass('expanded').toggleClass('collapsed');
+
+                            if (e.shiftKey) {
+                                if($(this).hasClass('expanded')) {
+                                    $(this).siblings('.section').addClass('expanded').removeClass('collapsed');
+                                    $(this).siblings('.section-fields').show();
+                                } else {
+                                    $(this).siblings('.section').removeClass('expanded').addClass('collapsed');
+                                    $(this).siblings('.section-fields').hide();
+                                }
+                            }
+        
+                            for(let cacheSection of cacheSections) {
+                                if(cacheSection.link === id + $(this).attr('data-link')) {
+                                    cacheSection.className = $(this).hasClass('expanded') ? 'expanded' : 'collapsed';
+                                }
+                            }
+
+                        });
+
+                }
+
+                let elemFields = $('<div></div>').appendTo(elemContent)
                     .addClass('section-fields')
                     .attr('data-id', sectionId);
 
                 if(className !== 'expanded') elemFields.toggle();
 
                 for(let sectionField of section.fields) {
-    
-                    let fieldId = sectionField.link.split('/')[8];
 
-                    if(fieldsIn.length === 0 || fieldsIn.includes(fieldId)) {
-                        if(fieldsEx.length === 0 || !fieldsEx.includes(fieldId)) {
-                            if(sectionField.type === 'MATRIX') {
-                                for(let matrix of section.matrices) {
-                                    if(matrix.urn === sectionField.urn) {
-                                        for(let matrixFields of matrix.fields) {
-                                            for(let matrixField  of matrixFields) {
-                                                if(matrixField !== null) {
-                                                    for(let wsField of fields) {
-                                                        if(wsField.urn === matrixField.urn)
-                                                        insertDetailsField(id, wsField, data, elemFields, params);
+                    let fieldId  = sectionField.link.split('/')[8];
+                    let included = false;
+
+                    if(sectionField.type === 'MATRIX') {
+                        for(let matrix of section.matrices) {
+                            if(matrix.urn === sectionField.urn) {
+                                for(let matrixFields of matrix.fields) {
+                                    for(let matrixField  of matrixFields) {
+                                        if(matrixField !== null) {
+                                            for(let wsField of fields) {
+                                                if(wsField.urn === matrixField.urn) {
+                                                    let matrixFieldId = matrixField.link.split('/').pop();
+                                                    if(fieldsIn.length === 0 || fieldsIn.includes(matrixFieldId)) {
+                                                        if(fieldsEx.length === 0 || !fieldsEx.includes(matrixFieldId)) {
+                                                            insertDetailsField(wsField, data, elemFields, sectionLock, settings);
+                                                            included = true;
+                                                        }
                                                     }
                                                 }
                                             }
                                         }
                                     }
                                 }
-                            } else {
-                                for(let wsField of fields) {
-                                    if(wsField.urn === sectionField.urn)
-                                        insertDetailsField(id, wsField, data, elemFields, params);
+                            }
+                        }
+                    } else {
+                        for(let wsField of fields) {
+                            if(wsField.urn === sectionField.urn) {
+                                if(fieldsIn.length === 0 || fieldsIn.includes(fieldId)) {
+                                    if(fieldsEx.length === 0 || !fieldsEx.includes(fieldId)) {
+                                        insertDetailsField(wsField, data, elemFields, sectionLock, settings);
+                                        included = true;
+                                    }
                                 }
                             }
                         }
-                        
                     }
+
+                    if(!included) {
+                        for(let fieldValue of fieldValues) {
+                            for(let wsField of fields) {
+                                if(wsField.urn === sectionField.urn) {
+                                    if(fieldValue.fieldId === fieldId) {
+                                        insertHiddenDetailsField(wsField, elemFields, fieldValue);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                 }
 
                 if(elemFields.children().length === 0) {
@@ -1622,14 +1821,26 @@ function insertDetailsFields(id, sections, fields, data, params, callback) {
     callback();
 
 }
+function insertDetailsField(field, data, elemFields, sectionLock, settings) {
 
-function insertDetailsField(id, field, data, elemFields, params) {
+    if(isBlank(settings)) {
+        settings = {
+            hideComputed   : false,
+            hideReadOnly   : false,
+            hideLabels     : false,
+            suppressLinks  : false,
+            editable       : false,
+            fieldsIn       : []
+        }
+    } else {
+        if(isBlank(settings.fieldsIn)) settings.fieldsIn = [];
+    }
 
-    let hideComputed  = params.hideComputed;
-    let hideReadOnly  = params.hideReadOnly;
-    let hideLabels    = params.hideLabels;
-    let suppressLinks = params.suppressLinks;
-    let editable      = params.editable;
+    let hideComputed    = (isBlank(settings.hideComputed )) ? false : settings.hideComputed;
+    let hideReadOnly    = (isBlank(settings.hideReadOnly )) ? false : settings.hideReadOnly;
+    let hideLabels      = (isBlank(settings.hideLabels   )) ? false : settings.hideLabels;
+    let suppressLinks   = (isBlank(settings.suppressLinks)) ? false : settings.suppressLinks;
+    let editable        = (isBlank(settings.editable     )) ? false : settings.editable;
 
     if(field.visibility === 'NEVER') return;
     if((field.editability === 'NEVER') && hideReadOnly) return;
@@ -1638,9 +1849,14 @@ function insertDetailsField(id, field, data, elemFields, params) {
     let value    = null;
     let urn      = field.urn.split('.');
     let fieldId  = urn[urn.length - 1];
-    let readonly = (!editable || field.editability === 'NEVER' || (field.editability !== 'ALWAYS' && (typeof itemData === 'undefined')) || field.formulaField);
+    let readonly = (!settings.editable || field.editability === 'NEVER' || (field.editability !== 'ALWAYS' && (typeof data === 'undefined')) || field.formulaField);
+    let required = isFieldRequiredOrSelected(field, fieldId, settings);
+    
+    if(sectionLock) { readonly = true; editable = false; }
 
-    let elemField = $('<div></div').addClass('field');
+    if(!required && settings.requiredFieldsOnly) return;
+
+    let elemField = $('<div></div').addClass('field').addClass('content-item').attr('id', 'field-' + fieldId);
     let elemValue = $('<div></div>');
     let elemInput = $('<input>');
 
@@ -1670,24 +1886,36 @@ function insertDetailsField(id, field, data, elemFields, params) {
     switch(field.type.title) {
 
         case 'Auto Number':
-            elemValue.addClass('string');
-            elemValue.append(elemInput);
-            if(value !== null) elemInput.val(value);
+            value = (value !== null) ? value : '';
+            if(editable) {            
+                elemValue.addClass('auto-number');
+                elemValue.addClass('string');
+                elemValue.append(elemInput);
+                elemInput.val(value);
+            } else {
+                elemValue.html(value);
+            }
             break;
 
         case 'Single Line Text':
+            elemValue.addClass('single-line-text');
             if(field.formulaField) {
                 elemValue.addClass('computed');
                 elemValue.addClass('no-scrollbar');
                 elemValue.html($('<div></div>').html(value).text());
             } else {
-                if(value !== null) elemInput.val(value);
-                if(field.fieldLength !== null) {
-                    elemInput.attr('maxlength', field.fieldLength);
-                    elemInput.css('max-width', field.fieldLength * 8 + 'px');
-                }
                 elemValue.addClass('string');
-                elemValue.append(elemInput);
+                value = (value === null) ? '' : value;
+                if(editable) {
+                    elemInput.val(value);
+                    if(field.fieldLength !== null) {
+                        elemInput.attr('maxlength', field.fieldLength);
+                        elemInput.css('max-width', field.fieldLength * 8 + 'px');
+                    }
+                    elemValue.append(elemInput);
+                } else {
+                    elemValue.html(value);
+                }
             }
             break;
 
@@ -1704,6 +1932,7 @@ function insertDetailsField(id, field, data, elemFields, params) {
             break;
 
         case 'URL':
+            elemValue.addClass('url');
             if(editable) {
                 elemValue.append(elemInput);
                 if(value !== null) elemInput.val(value);
@@ -1719,23 +1948,41 @@ function insertDetailsField(id, field, data, elemFields, params) {
             break;
 
         case 'Integer':
-            elemValue.addClass('integer');
-            elemValue.append(elemInput);
-            if(value !== null) elemInput.val(value);
+            if(value === null) value = '';
+            if(editable) {
+                elemValue.addClass('integer');
+                elemValue.append(elemInput);
+                elemInput.val(value);
+            } else {
+                elemValue.html(value);
+            }
             break;
             
         case 'Float':
         case 'Money':
-            elemValue.addClass('float');
-            elemValue.append(elemInput);
-            if(value !== null) elemInput.val(value);
+            if(value === null) value = '';
+            if(editable) {
+                elemValue.addClass('float');
+                elemValue.append(elemInput);
+                elemInput.val(value);
+            } else {
+                elemValue.html(value);
+            }
             break;
 
         case 'Date':
-            elemInput.attr('type', 'date');
-            elemValue.addClass('date');
-            elemValue.append(elemInput);
-            if(value !== null) elemInput.val(value);
+            if(editable) {
+                elemInput.attr('type', 'date');
+                elemValue.addClass('date');
+                elemValue.append(elemInput);
+                if(value !== null) elemInput.val(value);
+            } else {
+                if(value !== null) {
+                    var date = new Date(value);
+                    value = date.toLocaleDateString();
+                }
+                elemValue.html(value);
+            }
             break;
             
         case 'Check Box':
@@ -1746,6 +1993,7 @@ function insertDetailsField(id, field, data, elemFields, params) {
             break;
 
         case 'Single Selection':
+            elemValue.addClass('single-picklist');
             if(editable) {
                 elemInput = $('<select>');
                 elemValue.addClass('picklist');
@@ -1753,7 +2001,7 @@ function insertDetailsField(id, field, data, elemFields, params) {
                 let elemOptionBlank = $('<option></option>');
                     elemOptionBlank.attr('value', null);
                     elemOptionBlank.appendTo(elemInput);
-                getOptions(elemInput, field.picklist, fieldId, 'select', value);
+                getPickListOptions(elemInput, field.picklist, fieldId, 'select', value);
             } else {
                 elemValue = $('<div></div>');
                 elemValue.addClass('string');
@@ -1842,7 +2090,7 @@ function insertDetailsField(id, field, data, elemFields, params) {
                     elemOptionBlank.attr('value', null);
                     elemOptionBlank.appendTo(elemInput);
 
-                getOptions(elemInput, field.picklist, fieldId, 'select', value);
+                getPickListOptions(elemInput, field.picklist, fieldId, 'select', value);
 
             } else {
                 elemInput = $('<div></div>');
@@ -1862,14 +2110,14 @@ function insertDetailsField(id, field, data, elemFields, params) {
         case 'Image':
             elemValue.addClass('drop-zone');
             elemValue.addClass('image');
-            getImage(elemValue, value);
+            getImageField(elemValue, value);
             break;
 
         case 'Radio Button':
             if(editable) {
                 elemValue = $('<div></div>');
                 elemValue.addClass('radio');
-                getOptions(elemValue, field.picklist, fieldId, 'radio', value);
+                getPickListOptions(elemValue, field.picklist, fieldId, 'radio', value);
             } else {
                 elemValue = $('<input>');
                 elemValue.addClass('string');
@@ -1920,10 +2168,13 @@ function insertDetailsField(id, field, data, elemFields, params) {
         
         elemValue.addClass('with-unit');
 
-        let elemText = $('<div></div>');
-            elemText.addClass('field-unit');
-            elemText.html(field.unitOfMeasure);
-            elemText.appendTo(elemValue);
+        if(editable) {
+            $('<div></div>').appendTo(elemValue)
+                .addClass('field-unit')
+                .html(field.unitOfMeasure);
+        } else {
+            elemValue.append(' ' + field.unitOfMeasure);
+        }
 
     }
     
@@ -1935,197 +2186,503 @@ function insertDetailsField(id, field, data, elemFields, params) {
         if(elemFields !== null) elemField.appendTo(elemFields);
         return elemField;
     }
+    
+}
+function isFieldRequiredOrSelected(field, fieldId, settings) {
+
+    if(isBlank(field.fieldValidators)) return false;
+
+    if(settings.fieldsIn.includes(fieldId)) return true;
+
+    for(let validator of field.fieldValidators) {
+        if(validator.validatorName === 'required') {
+            return true;
+        } else if(validator.validatorName === 'dropDownSelection') {
+            return true;
+        }
+    }
+
+    return false;
+
+}
+function getImageField(elemParent, value) {
+
+    if(isBlank(value)) return;
+    
+    $.get( '/plm/image', { link : value.link }, function(response) {
+                                
+        $("<img class='thumbnail' src='data:image/png;base64," + response.data + "'>").appendTo(elemParent);
+                                
+    });
+    
+}
+function getEditableFields(fields) {
+
+    let result = [];
+
+    for(let field of fields) {
+
+        if(field.editability === 'ALWAYS') {
+            if(field.type !== null) {
+
+                let elemControl = null;
+                let fieldId = ('fieldId' in field) ? field.fieldId : field.__self__.split('/')[8];
+
+                switch(field.type.title) {
+
+                    case 'Check Box': 
+                        elemControl = $('<input>');
+                        elemControl.attr('type', 'checkbox');
+
+                    case 'Float': 
+                    case 'Integer': 
+                    case 'Single Line Text': 
+                        elemControl = $('<input>');
+                        break;
+
+                    case 'Radio Button': 
+                    case 'Single Selection': 
+                        elemControl = $('<select>');
+                        elemControl.addClass('picklist');
+
+                        $('<option></option>').appendTo(elemControl).attr('value', null);
+
+                        getPickListOptions(elemControl, field.picklist, fieldId, 'select', '');
+
+                        break;
+
+                }
+
+                result.push({
+                    'id'      : fieldId,
+                    'title'   : field.name,
+                    'link'    : field.__self__,
+                    'type'    : field.type.title,
+                    'typeId'  : field.type.link.split('/')[4],
+                    'control' : elemControl
+                });
+
+            }
+        }
+
+    }
+
+    return result;
+
+}
+function getPickListOptions(elemParent, link, fieldId, type, value) {
+
+    for(let picklist of cachePicklists) {
+        if(picklist.link === link) {
+            insertPickListOptions(elemParent, picklist.data, fieldId, type, value);
+            return;
+        }
+    }
+
+    $.get( '/plm/picklist', { link : link, limit : 100, offset : 0 }, function(response) {
+
+        if(!response.error) {
+
+            let isNew = true;
+
+            for(let picklist of cachePicklists) {
+                if(picklist.link === link) {
+                    isNew = false;
+                    continue;
+                }
+            }
+
+            if(isNew) {
+                cachePicklists.push({
+                    link : link,
+                    data : response.data
+                });
+            }
+
+            insertPickListOptions(elemParent, response.data, fieldId, type, value);
+        }
+    });
+
+}
+function insertPickListOptions(elemParent, data, fieldId, type, value) {
+
+    for(let option of data.items) {
+       
+        if(type === 'radio') {
+
+            let index = $('.radio').length + 1;
+
+            let elemRadio = $('<div></div>').appendTo(elemParent)
+                .addClass('radio-option')
+                .attr('name', fieldId + '-' + index);
+
+            let elemInput = $('<input>').appendTo(elemRadio)
+                .attr('type', 'radio')
+                .attr('id', option.link)
+                .attr('value', option.link)
+                .attr('name', fieldId + '-' + index);
+
+            $('<label></label>').appendTo(elemRadio)
+                .addClass('radio-label')
+                .attr('for', fieldId + '-' + index)
+                .html(option.title);
+
+            if(!isBlank(value)) {
+                if(!value.hasOwnProperty('link')) {
+                    if(value === option.title) elemInput.prop('checked', true);
+                } else if(value.link === option.link) {
+                    elemInput.prop('checked', true);
+                }
+            }
+
+        } else if(type === 'select') {
+
+            let title = option.title;
+
+            if(!isBlank(option.version)) title += ' ' + option.version;
+
+            let elemOption = $('<option></option>').appendTo(elemParent)
+                .attr('id', option.link)
+                .attr('value', option.link)
+                .attr('displayValue', title)
+                .html(title);
+
+            if(!isBlank(value)) {
+                if(!value.hasOwnProperty('link')) {
+                    if(value === option.title) elemOption.attr('selected', true);
+                } else if(value.link === option.link) {
+                    elemOption.attr('selected', true);
+                }   
+            }
+
+        }
+    
+    }
+}
+function getFilteredPicklistOptions(elemClicked) {
+
+    $('.filtered-picklist-options').html('').hide();
+
+    let listName = elemClicked.attr('data-filter-list');
+    let elemList = elemClicked.next();
+    let filters  = [];
+
+    elemClicked.addClass('filter-list-refresh');
+
+    $('.filtered-picklist-input').each(function() {
+        if(listName === $(this).attr('data-filter-list')) {
+            let value = $(this).val();
+            if(!isBlank(value)) {
+                filters.push([ $(this).parent().attr('data-id'), $(this).val() ]);
+            }
+        }
+    });
+    
+    $.get( '/plm/filtered-picklist', { 
+        link    : elemClicked.parent().attr('data-link'), 
+        filters : filters, 
+        limit   : 100, 
+        offset  : 0 
+    }, function(response) {
+        elemClicked.removeClass('filter-list-refresh');
+        if(!response.error) {
+            for(let item of response.data.items) {
+                $('<div></div>').appendTo(elemList)
+                    .html(item)
+                    .click(function() {
+                        $(this).parent().hide();
+                        $(this).parent().prev().val($(this).html());
+                    });
+            }
+            elemList.show();
+        }
+    });   
+
+}
+function insertHiddenDetailsField(field, elemFields, fieldValue) {
+
+    // insert fields that must not be shown but have predefined values to be set as defined by setting fieldValues
+
+    let elemField = $('<div></div').appendTo(elemFields)
+        .addClass('field')
+        .addClass('content-item')
+        .addClass('editable')
+        .hide();
+
+    let elemLabel = $('<div></div>').appendTo(elemField);
+
+    let elemValue = $('<div></div>').appendTo(elemField)
+        .addClass('field-value')
+        .attr('data-id', fieldValue.fieldId)
+        .attr('data-title', field.name)
+        .attr('data-link', field.__self__)
+        .attr('data-type-id', field.type.link.split('/')[4]);
+
+    let elemInput = $('<input>').val(fieldValue.value);
+
+    switch(field.type.title) {
+
+        case 'Single Line Text':
+            elemValue.addClass('single-line-text');
+            break;
+
+        case 'Single Selection':
+            elemValue.addClass('single-picklist').addClass('picklist');
+            elemInput = $('<select>');
+            $('<option></option>').appendTo(elemInput).attr('value', fieldValue);
+            break;
+
+    }
+
+    elemInput.appendTo(elemValue)
 
 }
 function insertDetailsDataDone(id, sections, fields, data) {}
 
 
+
+// Insert Clone Dialog
+function insertClone(link, params) {
+
+    console.log(link);
+    console.log(params);
+    
+    if(isBlank(link)) return;
+    if(isBlank(params)) params = {};
+
+    params.id           = 'clone-dialog';
+    params.headerLabel  = 'Clone';
+    params.bookmark     = false;
+    params.cloneable    = false;
+    params.cloneDialog  = true;
+    params.editable     = true;
+    params.layout       = 'normal';
+    params.openInPLM    = false;
+
+    params.toggles = (isBlank(params.toggles)) ? true : params.toggles;
+    
+    insertDetails(link, params);
+
+}
+function submitClone(id, callback) {
+
+    $('#' + id + '-processing').show();
+    $('#' + id + '-footer').hide();
+
+    let elemContent = $('#' + id + '-content');
+        elemContent.hide();
+
+    let params = { 
+        link     : settings.details[id].link,
+        sections : getSectionsPayload(elemContent)
+    };
+
+    $.post('/plm/clone', params, function(response) {
+        console.log(response);
+        $('#' + id + '-footer').show();
+        let url = response.data.split('.autodeskplm360.net');
+        callback(url);
+    });
+
+}
+
+
+// Insert all image field images
+function insertImages(link, params) {
+
+    if(isBlank(link)) return;
+    if(isBlank(params)) params = {};
+
+    let id = isBlank(params.id) ? 'images' : params.id;
+    
+    settings.images[id] = getPanelSettings(link, params, {
+        headerLabel : 'Images'
+    }, [
+        [ 'layout'    , 'grid' ],
+        [ 'tileSize'  , 'm'    ],
+        [ 'sectionsIn', []     ],
+        [ 'sectionsEx', []     ],
+        [ 'fieldsIn'  , []     ],
+        [ 'fieldsEx'  , []     ]
+    ]);
+
+    settings.images[id].load = function() { insertImagesData(id); }
+
+    genPanelTop(id, settings.images[id], 'images');
+    genPanelHeader(id, settings.images[id]);
+    genPanelBookmarkButton(id, settings.images[id]);
+    genPanelOpenInPLMButton(id, settings.images[id]);
+    genPanelReloadButton(id, settings.images[id]);
+    genPanelContents(id, settings.images[id]).addClass('panel-images');
+
+    insertImagesDone(id);
+
+    settings.images[id].load();
+
+}
+function insertImagesDone(id) {}
+function insertImagesData(id) {
+
+    settings.images[id].timestamp = startPanelContentUpdate(id);
+
+    let requests = [ 
+        $.get('/plm/details' , { link : settings.images[id].link, timestamp : settings.images[id].timestamp })
+    ];
+
+    if((settings.images[id].bookmark) ) requests.push($.get('/plm/bookmarks', { link : settings.images[id].link }));
+
+    Promise.all(requests).then(function(responses) {
+
+        if(stopPanelContentUpdate(responses[0], settings.images[id])) return;
+
+        let sectionsIn   = settings.images[id].sectionsIn;
+        let sectionsEx   = settings.images[id].sectionsEx;
+        let fieldsIn     = settings.images[id].fieldsIn;
+        let fieldsEx     = settings.images[id].fieldsEx;
+        let elemContent  = $('#' + id + '-content');
+
+        settings.images[id].descriptor = responses[0].data.title;
+
+        setPanelBookmarkStatus(id, settings.images[id], responses);
+
+        for(let section of responses[0].data.sections) {
+
+            if(sectionsIn.length === 0 || sectionsIn.includes(section.name)) {
+                if(sectionsEx.length === 0 || !sectionsEx.includes(section.name)) {
+
+                    for(let field of section.fields) {
+
+                        let fieldId  = field.__self__.split('/')[10];
+
+                        if(fieldsIn.length === 0 || fieldsIn.includes(fieldId)) {
+                            if(fieldsEx.length === 0 || !fieldsEx.includes(fieldId)) {
+
+                                if(field.type.link === '/api/v3/field-types/15') {
+                                    if(!isBlank(field.value)) {
+                                        let elemImage = $('<div></div>').appendTo(elemContent).addClass('content-item');
+                                        appendImageFromCache(elemImage, {
+                                            icon        : 'icon-image',
+                                            imageLink   : field.value.link,
+                                            replace     : true
+                                        });
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        finishPanelContentUpdate(id, settings.images[id]);
+        insertImagesDataDone(id, responses[0].data);
+
+    });
+
+}
+function insertImagesDataDone(id, data) {}
+
 // Insert attachments as tiles or table
 function insertAttachments(link, params) {
 
     if(isBlank(link)) return;
+    if(isBlank(params)) params = {};
 
-    //  Set defaults for optional parameters
-    // --------------------------------------
-    let id           = 'attachments';    // id of DOM element where the attachments will be inseerted
-    let header       = true;             // Hide header with setting this to false
-    let headerLabel  = 'Attachments';    // Set the header text
-    let headerToggle = false;            // Enable header toggles
-    let reload       = false;            // Enable reload button for the attachments list
-    let download     = true;             // Enable file download
-    let upload       = false;            // Enable file uploads
-    let uploadLabel  = 'Upload File';    // File upload button label
-    let layout       = 'tiles';          // Content layout (tiles, list or table)
-    let inline       = false;            // Display the attachments inline with other elements
-    let size         = 'm';              // layout size (xxs, xs, s, m, l, xl, xxl)
-    let folders      = false;            // Display folders
-    let fileVersion  = true;             // Display version of each attachment
-    let fileSize     = true;             // Display size of each attachment
-    let extensionsIn = '';               // Defines list of file extensions to be included ('.pdf,.doc')
-    let extensionsEx = '';               // Defines list of file extensions to be excluded ('.dwf,.dwfx')
-    let split        = false;
-
-    if( isBlank(params)            )       params = {};
-    if(!isBlank(params.id)          )           id = params.id;
-    if(!isBlank(params.header)      )       header = params.header;
-    if(!isBlank(params.headerLabel) )  headerLabel = params.headerLabel;
-    if(!isBlank(params.headerToggle)) headerToggle = params.headerToggle;
-    if(!isBlank(params.reload)      )       reload = params.reload;
-    if(!isBlank(params.download)    )     download = params.download;
-    if(!isBlank(params.upload)      )       upload = params.upload;
-    if(!isBlank(params.layout)      )       layout = params.layout;
-    if(!isBlank(params.inline)      )       inline = params.inline;
-    if(!isBlank(params.size)        )         size = params.size;
-    if(!isBlank(params.folders)     )      folders = params.folders;
-    if(!isBlank(params.fileVersion) )  fileVersion = params.fileVersion;
-    if(!isBlank(params.fileSize)    )     fileSize = params.fileSize;
-    if(!isBlank(params.extensionsIn)) extensionsIn = params.extensionsIn;
-    if(!isBlank(params.extensionsEx)) extensionsEx = params.extensionsEx;
-    if(!isBlank(params.split)       )        split = params.split;
+    let id = isBlank(params.id) ? 'attachments' : params.id;
     
-    if(params.hasOwnProperty('uploadLabel') ) uploadLabel = params.uploadLabel;
+    settings.attachments[id] = getPanelSettings(link, params, {
+        headerLabel : 'Attachments',
+        layout      : 'list',
+        tileIcon    : 'icon-pdf',
+        tileSize    : 's',
+    }, [
+        [ 'bookmark'          , false ],
+        [ 'filterByType'      , false ],
+        [ 'folders'           , false ],
+        [ 'fileVersion'       , true  ],
+        [ 'fileSize'          , true  ],
+        [ 'includeVaultFiles' , false ],
+        [ 'split'             , false ],
+        [ 'download'          , true  ],
+        [ 'uploadLabel'       , 'Upload File' ],
+        [ 'extensionsIn'      , [] ],
+        [ 'extensionsEx'      , [] ]
+    ]);
 
-    let timestamp = new Date().getTime();
+    settings.attachments[id].load = function() { fileUploadDone(id); }
 
-    let elemParent = $('#' + id)
-        .addClass('attachments')
-        .attr('data-link', link)
-        .attr('data-timestamp', timestamp)
-        .html('');
+    genPanelTop(id, settings.attachments[id], 'attachments');
+    genPanelHeader(id, settings.attachments[id]);
+    genPanelBookmarkButton(id, settings.attachments[id]);
+    genPanelOpenInPLMButton(id, settings.attachments[id]);
+    genPanelFilterSelect(id, settings.attachments[id], 'filterByType', 'type', 'All Types');
+    genPanelSearchInput(id, settings.attachments[id]);
+    genPanelReloadButton(id, settings.attachments[id]);
+    genPanelContents(id, settings.attachments[id]).addClass('attachments-content');
 
-    settings.attachments[id] = {};
-    settings.attachments[id].fileVersion  = fileVersion;
-    settings.attachments[id].fileSize     = fileSize;
-    settings.attachments[id].split        = split;
-    settings.attachments[id].folders      = folders;
-    settings.attachments[id].download     = download;
-    settings.attachments[id].extensionsIn = (extensionsIn === '') ? [] : extensionsIn.split(',');
-    settings.attachments[id].extensionsEx = (extensionsEx === '') ? [] : extensionsEx.split(',');
+    if(settings.attachments[id].editable) {
 
-    if(header) {
+        let elemToolbar = genPanelToolbar(id, settings.attachments[id], 'actions');
 
-        let elemHeader = $('<div></div>', {
-            id : id + '-header'
-        }).appendTo(elemParent).addClass('panel-header');
-
-        if(headerToggle) {
-
-            $('<div></div>').appendTo(elemHeader)
-                .addClass('panel-header-toggle')
-                .addClass('icon')
-                .addClass('icon-collapse');
-
-            elemHeader.addClass('with-toggle');
-            elemHeader.click(function() {
-                togglePanelHeader($(this));
+        let elemUpload = $('<div></div>').prependTo(elemToolbar)
+            .addClass('button')
+            .addClass('icon-upload')
+            .addClass('disabled')
+            .attr('id', id + '-upload')
+            .attr('title', settings.attachments[id].uploadLabel)
+            .html(settings.attachments[id].uploadLabel)
+            .click(function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                clickAttachmentsUpload(id, $(this));
             });
 
+        if(isBlank(settings.attachments[id].uploadLabel)) {
+            elemUpload.addClass('icon');
+        } else {
+            elemUpload.addClass('with-icon');
         }
 
-        $('<div></div>').appendTo(elemHeader)
-            .addClass('panel-title')
-            .attr('id', id + '-title')
-            .html(headerLabel);
+        let elemFrame  = $('#frame-upload');
+        let elemForm   = $('#uploadForm');
+        let elemSelect = $('#select-file');
+                
+        if(elemFrame.length === 0) {
+            $('<iframe>', {
+                id   : 'frame-upload',
+                name :  'frame-upload'
+            }).appendTo('body').on('load', function() {
+                fileUploadDone(id);
+            }).addClass('hidden');
+        }            
 
-        let elemToolbar = $('<div></div>')
-            .addClass('panel-toolbar')
-            .attr('id', id + '-toolbar');
+        if(elemForm.length === 0) {
+            elemForm = $('<form>', {
+                id      : 'uploadForm',
+                method  : 'post',
+                encType : 'multipart/form-data',
+                target  : 'frame-upload'
+            }).appendTo('body');
+        }            
 
-        if(reload) {
-
-            elemToolbar.appendTo(elemHeader);
-            $('<div></div>').appendTo(elemToolbar)
-                .addClass('button')
-                .addClass('icon')
-                .addClass('icon-refresh')
-                .attr('id', id + '-reload')
-                .attr('title', 'Reload this list')
-                .click(function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    fileUploadDone(id);
-                });
-
+        if(elemSelect.length === 0) {
+            elemSelect = $('<input>', {
+                id  : 'select-file',
+                type : 'file',
+                name : 'newFiles'
+            }).appendTo(elemForm)
+            .addClass('hidden')
+            .addClass('button')
+            .addClass('main')
+            .change(function() {
+                selectFileForUpload(id);
+            });
         }
 
-        if(upload) {
+    }
 
-            elemToolbar.appendTo(elemHeader);
-
-            let elemUpload = $('<div></div>').appendTo(elemToolbar)
-                .addClass('button')
-                .addClass('icon-upload')
-                .addClass('disabled')
-                .attr('id', id + '-upload')
-                .attr('title', uploadLabel)
-                .html(uploadLabel)
-                .click(function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    clickAttachmentsUpload($(this));
-                });
-
-            if(isBlank(uploadLabel)) {
-                elemUpload.addClass('icon');
-            } else {
-                elemUpload.addClass('with-icon');
-            }
-
-            let elemFrame  = $('#frame-upload');
-            let elemForm   = $('#uploadForm');
-            let elemSelect = $('#select-file');
-            
-            if(elemFrame.length === 0) {
-                $('<iframe>', {
-                    id   : 'frame-upload',
-                    name :  'frame-upload'
-                }).appendTo('body').on('load', function() {
-                    fileUploadDone(id);
-                }).addClass('hidden');
-            }            
-
-            if(elemForm.length === 0) {
-                elemForm = $('<form>', {
-                    id      : 'uploadForm',
-                    method  : 'post',
-                    encType : 'multipart/form-data',
-                    target  : 'frame-upload'
-                }).appendTo('body');
-            }            
-
-            if(elemSelect.length === 0) {
-                elemSelect = $('<input>', {
-                    id  : 'select-file',
-                    type : 'file',
-                    name : 'newFiles'
-                }).appendTo(elemForm)
-                .addClass('hidden')
-                .addClass('button')
-                .addClass('main')
-                .change(function() {
-                    selectFileForUpload(id);
-                });
-            }
-
-        }
-
-    } else { elemParent.addClass('no-header'); }
-    
-    appendProcessing(id, false);
-    appendNoDataFound(id, 'icon-no-data', 'No attachments');
-
-    let elemContent  = $('<div></div>').appendTo(elemParent)
-        .attr('id', id + '-list')
-        .addClass('attachments-list')
-        .addClass('no-scrollbar')
-        .addClass(layout);
-
-    if(!inline) elemContent.addClass('panel-content')
-    if(!isBlank(size)) elemContent.addClass(size);
-
-    $('#' + id + '-no-data').hide();
-
-    if(download) {
+    if(settings.attachments[id].download) {
         if($('#frame-download').length === 0) {
             $('<frame>').appendTo($('body'))
                 .attr('id', 'frame-download')
@@ -2134,12 +2691,448 @@ function insertAttachments(link, params) {
         }  
     }
 
-    insertAttachmentsData(id, timestamp, link, false);  
+    insertAttachmentsData(id, false);  
 
 }
+function insertAttachmentsData(id, update) {
+
+    let params = {
+        link      : settings.attachments[id].link,
+        timestamp : settings.attachments[id].timestamp
+    }
+
+    let elemContent = $('#' + id + '-content');      
+    let elemUpload  = $('#' + id + '-upload');
+    let elemSelect  = $('#' + id + '-filter-type');
+    let isTable     = elemContent.hasClass('table');
+
+    if(elemSelect.length > 0) {
+        elemSelect.children().remove();
+        elemSelect.hide();
+        $('<option></option>').appendTo(elemSelect)
+            .attr('value', 'all')
+            .html('All Types');
+
+    }
+
+    if(!update) elemContent.html(''); 
+    if(elemUpload.length > 0) elemUpload.addClass('disabled');
+
+    let requests = [
+        $.get('/plm/attachments', params),
+        $.get('/plm/permissions', { link : settings.attachments[id].link })
+    ];
+
+    elemContent.hide();
+    $('#' + id + '-processing').show();
+
+    if((settings.attachments[id].bookmark)) requests.push($.get('/plm/bookmarks', { link : settings.attachments[id].link })); 
+    if((settings.attachments[id].includeVaultFiles)) requests.push($.get('/plm/details', { link : settings.attachments[id].link })); 
+
+    Promise.all(requests).then(function(responses) {
+
+        if(stopPanelContentUpdate(responses[0], settings.attachments[id])) return;
+
+        setPanelBookmarkStatus(id, settings.attachments[id], responses);
+
+        let attachments = responses[0].data;
+        let currentIDs  = [];
+        let folders     = [];
+        let listTypes   = [];
+
+        elemContent.find('.attachment').each(function() {
+
+            let remove    = true;
+            let currentId = Number($(this).attr('data-file-id'));
+
+            $(this).removeClass('highlight');
+
+            for(let attachment of attachments) {
+                if(attachment.id === currentId) {
+                    remove = false;
+                    continue;
+                }
+            }
+
+            if(remove) $(this).remove(); else currentIDs.push(currentId);
+
+        });
+
+        for(let attachment of attachments) {
+
+            if(currentIDs.indexOf(attachment.id) > -1) continue;
+
+            let extension = attachment.type.extension.split('.').pop();
+            let included  = true;
+
+            if((settings.attachments[id].extensionsIn.length === 0) || ( settings.attachments[id].extensionsIn.includes(extension))) {
+                if((settings.attachments[id].extensionsEx.length === 0) || (!settings.attachments[id].extensionsEx.includes(extension))) { 
+
+                    let attFolder   = attachment.folder;
+                    let folderId    = '';
+                    let type        = attachment.type.fileType;
+
+                    if(!listTypes.includes(type)) listTypes.push(type);
+
+                    if(attFolder !== null) {
+                        let isNewFolder = true;
+                        folderId = attFolder.id;
+                        for (let folder of folders) {
+                            if(folder.name === attFolder.name) {
+                                isNewFolder = false;
+                            }
+                        }
+                        if(isNewFolder) folders.push(attFolder);
+                    }
+
+                    sortArray(folders, 'name');
+
+                    let date = new Date(attachment.created.timeStamp);
+
+                    let elemAttachment = $('<div></div>').appendTo(elemContent)
+                        .addClass('content-item')
+                        .addClass('attachment')
+                        .addClass('tile')
+                        .attr('data-file-id', attachment.id)
+                        .attr('data-folder-id', folderId)
+                        .attr('data-url', attachment.url)
+                        .attr('data-file-link', attachment.selfLink)
+                        .attr('data-extension', attachment.type.extension)
+                        .attr('data-filter-type', type);
+
+                    if(update) {
+                        elemAttachment.addClass('highlight');
+                        elemAttachment.prependTo(elemContent);
+                    } else {
+                        elemAttachment.appendTo(elemContent);
+                    }
+
+                    getFileGrahpic(attachment).appendTo(elemAttachment);
+
+                    let elemAttachmentDetails = $('<div></div>').appendTo(elemAttachment)
+                        .addClass('attachment-details')
+                        .addClass('tile-details');
+
+                    let elemAttachmentName = $('<div></div>').appendTo(elemAttachmentDetails)
+                        .addClass('attachment-name')
+                        .addClass('tile-title');
+
+                    if(!settings.attachments[id].split) {
+
+                        elemAttachmentName.addClass('nowrap');
+                        elemAttachmentName.html(attachment.name);
+
+                    } else {
+
+                        let filename   = attachment.name.split('.');
+                        let filePrefix = '';
+
+                        for(let i = 0; i < filename.length - 1; i++) filePrefix += filename[i];
+
+                        $('<div></div>').appendTo(elemAttachmentName)
+                            .addClass('attachment-name-prefix')
+                            .addClass('nowrap')
+                            .html(filePrefix);
+
+                        $('<div></div>').appendTo(elemAttachmentName)
+                            .addClass('attachment-name-suffix')
+                            .html('.' + filename[filename.length - 1]);
+
+                    }
+
+                    let elemAttachmentSummary = $('<div></div>').appendTo(elemAttachmentDetails)
+                        .addClass('attachment-summary')
+                        .addClass('tile-data')
+
+                    if(settings.attachments[id].fileVersion) {
+                        $('<div></div>').appendTo(elemAttachmentSummary)
+                            .addClass('attachment-version')
+                            .addClass('nowrap')
+                            .html('V' + attachment.version);
+                    }
+
+                    if(settings.attachments[id].fileSize) {
+                        let fileSize = (attachment.size / 1024 / 1024).toFixed(2);
+                        $('<div></div>').appendTo(elemAttachmentSummary)
+                            .addClass('attachment-size')
+                            .addClass('nowrap')
+                            .html(fileSize + ' MB');      
+                    }
+
+                    $('<div></div>').appendTo(elemAttachmentSummary)
+                        .addClass('attachment-date')
+                        .addClass('nowrap')
+                        .html(date.toLocaleString());
+
+                    $('<div></div>').appendTo(elemAttachmentSummary)
+                        .addClass('attachment-user')
+                        .addClass('nowrap')
+                        .html('<i class="icon icon-user filled"></i>' + attachment.created.user.title);
+
+                    if(isTable) {
+                        elemAttachmentName.appendTo(elemAttachment);
+                        elemAttachmentSummary.children().each(function() {
+                            $(this).appendTo(elemAttachment);
+                        });
+                        elemAttachmentDetails.remove();
+                        elemAttachmentSummary.remove();
+                    }
+
+                    if(settings.attachments[id].download) {
+                        if(hasPermission(responses[1].data, 'view_attachments')) {
+                            elemAttachment.click(function() {
+                                clickAttachment($(this));      
+                                if(!isBlank(settings.attachments[id].onItemClick)) settings.attachments[id].onItemClick($(this));                          
+                            }).dblclick(function() {
+                                if(!isBlank(settings.attachments[id].onItemDblClick)) settings.attachments[id].onItemDblClick($(this));                          
+                            });
+                        }
+                    }
+
+                }
+            }
+
+        }
+
+        if(settings.attachments[id].folders) {
+
+            for(let folder of folders) {
+
+                let elemFolder = $('<div></div>').appendTo(elemContent)
+                    .addClass('folder')
+                    .attr('data-folder-id', folder.id);
+                    
+                let elemFolderHeader = $('<div></div>').appendTo(elemFolder)
+                    .addClass('folder-header')
+                    .click(function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        clickFolderToggle($(this), e);
+                    })
+
+                $('<div></div>').appendTo(elemFolderHeader)
+                    .addClass('folder-toggle')
+                    .addClass('icon');
+                    // .addClass('icon-collapse')
+
+                $('<div></div>').appendTo(elemFolderHeader)
+                    .addCklass('folder-icon')
+                    .addClass('icon')
+                    .addClass('icon-folder');
+
+                $('<div></div>').appendTo(elemFolderHeader)
+                    .addClass('folder-name')
+                    .html(folder.name);
+
+                let elemFolderAttachments = $('<div></div>').appendTo(elemFolder)
+                    .addClass('folder-attachments');
+
+                elemContent.children('.attachment').each(function() {
+                    if($(this).attr('data-folder-id') === folder.id.toString()) {
+                        $(this).appendTo(elemFolderAttachments);
+                    }
+                });
+
+            }
+
+            elemContent.children('.attachment').each(function() {
+                $(this).appendTo(elemContent);
+            });
+
+        }
+
+        if(hasPermission(responses[1].data, 'add_attachments')) {
+            if(elemUpload.length > 0) elemUpload.removeClass('disabled');
+        }
+
+        insertVaultFiles(id, responses, listTypes, function() {
+
+            let mode = (elemContent.hasClass('table')) ? 'block' : 'flex';
+
+            if(isTable) {
+                let elemTable = $('<div></div').appendTo(elemContent)
+                .addClass('attachments-table');
+                $('.attachment').appendTo(elemTable);
+            }
+
+            if(elemContent.find('.attachment').length === 0) $('#' + id + '-no-data').css('display', 'flex');
+            else $('#' + id + '-no-data').hide();
+
+            elemContent.css('display', mode);
+            $('#' + id + '-processing').hide();
+
+            listTypes.sort();
+
+            setPanelFilterOptions(id, 'type', listTypes);
+            finishPanelContentUpdate(id, settings.attachments[id]);
+            insertAttachmentsDone(id, responses[0], update);
+
+        });
+
+
+    });
+
+}
+function insertVaultFiles(id, responses, listTypes, callback) {
+
+    let itemData = null;
+
+    if(!settings.attachments[id].includeVaultFiles) callback(); else {
+
+        if(isBlank(vaultId)) callback(); else {
+
+            for(let response of responses) if(response.url.indexOf('/details') === 0) itemData = response.data;
+
+            if(itemData === null) callback(); else {
+
+                if(itemData.length === 0) callback(); else {
+
+                    let number      = getSectionFieldValue(itemData.sections, config.items.fieldIdNumber, '');
+                    let pdmId       = getSectionFieldValue(itemData.sections, config.items.fieldIdPDM, '');
+                    let elemContent = $('#' + id + '-content');  
+
+
+                    // if(!isBlank(pdmId)) {
+
+                        // $.get('/vault/item-files', {
+                        //     itemId : pdmId
+                        // }, function(response) {
+                        //     console.log(response);
+                        //     // for(let result of response.data.results) insertVaultFile(id, elemContent, result, listTypes);
+                        //     // callback();
+                        // });
+                            
+                    // } else if(!isBlank(number)) {
+
+                        $.get('/vault/search-items', {
+                            query : number,
+                            limit : 1
+                        }, function(response) {
+                            if(response.data.results.length > 0) {
+                                $.get('/vault/item-files', {
+                                    link : response.data.results[0].url
+                                }, function(response) {
+                                    if(response.data.results.length > 0) {
+                                        $('<div></div>').appendTo(elemContent)
+                                            .addClass('attachments-separator')
+                                            .html('Vault Files');
+                                    }
+                                    for(let result of response.data.results) insertVaultFile(id, elemContent, result, listTypes);
+                                    callback();
+                                });
+                            } else callback();
+                        });
+
+                    // } else callback();
+
+                }
+            }
+        }
+    }
+
+}
+function insertVaultFile(id, elemContent, attachment, listTypes) {
+
+    let suffix   = attachment.file.name.split('.').pop();
+    let fileType = suffix.toUpperCase() + ' File';
+
+    switch(suffix) {
+
+        case 'docx' : fileType = 'Microsoft Word'; break;
+        case 'xlsx' : fileType = 'Microsoft Excel'; break;
+        case 'pptx' : fileType = 'Microsoft PowerPoint'; break;
+        case 'png'  : fileType = 'PNG image'; break;
+
+    }
+
+    if((settings.attachments[id].extensionsIn.length === 0) || ( settings.attachments[id].extensionsIn.includes(suffix))) {
+        if((settings.attachments[id].extensionsEx.length === 0) || (!settings.attachments[id].extensionsEx.includes(suffix))) { 
+
+            if(!listTypes.includes(fileType)) listTypes.push(fileType);
+
+            let elemAttachment = $('<div></div>').appendTo(elemContent)
+                .addClass('content-item')
+                .addClass('attachment')
+                .addClass('tile')
+                .attr('data-file-link', attachment.file.url)
+                .attr('data-filter-type', fileType)
+
+            let icon = 'icon-attachment';
+
+                 if(attachment.itemAssociationType === 'Primary' ) icon = 'icon-counter-1';
+            else if(attachment.itemAssociationType === 'Tertiary') icon = 'icon-counter-2';
+
+            $('<div></div>').appendTo(elemAttachment)
+                .addClass('attachment-graphic')
+                .append('<span class="icon ' + icon + '"></span>');
+
+            let elemAttachmentDetails = $('<div></div>').appendTo(elemAttachment)
+                .addClass('attachment-details');
+
+            $('<div></div>').appendTo(elemAttachmentDetails)
+                .addClass('attachment-name')
+                .addClass('tile-title')
+                .addClass('nowrap')
+                .html(attachment.file.name);
+
+            let elemAttachmentSummary = $('<div></div>').appendTo(elemAttachmentDetails)
+                .addClass('attachment-summary')
+                .addClass('tile-data')
+
+            if(settings.attachments[id].fileVersion) {
+                $('<div></div>').appendTo(elemAttachmentSummary)
+                    .addClass('attachment-version')
+                    .addClass('nowrap')
+                    .html('V' + attachment.file.version);
+            }
+
+            if(settings.attachments[id].fileSize) {
+                let fileSize = (attachment.file.size / 1024 / 1024).toFixed(2);
+                $('<div></div>').appendTo(elemAttachmentSummary)
+                    .addClass('attachment-size')
+                    .addClass('nowrap')
+                    .html(fileSize + ' MB');      
+            }
+
+            let date = new Date(attachment.file.lastModifiedDate);
+
+            $('<div></div>').appendTo(elemAttachmentSummary)
+                .addClass('attachment-date')
+                .addClass('nowrap')
+                .html(date.toLocaleString());
+
+            $('<div></div>').appendTo(elemAttachmentSummary)
+                .addClass('attachment-user')
+                .addClass('nowrap')
+                .html('<i class="icon icon-user filled"></i>' + attachment.file.createUserName);
+
+            if(settings.attachments[id].download) {
+                elemAttachment.click(function(e) {
+                    clickVaultFile(e, $(this));
+                });
+            }
+        }
+    }
+
+}
+function clickVaultFile(e, elemAttachment) {
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    let params = {
+        link : elemAttachment.attr('data-file-link')
+    }
+
+    $.get( '/vault/download', params, function(response) {
+        document.getElementById('frame-download').src = response.data.link;
+    })
+
+}
+function insertAttachmentsDone(id, data, update) {}
 function getFileGrahpic(attachment) {
 
-    let elemGrahpic = $("<div class='attachment-graphic'></div>");
+    let elemGrahpic = $("<div class='attachment-graphic tile-image'></div>");
 
     switch (attachment.type.extension) {
     
@@ -2296,262 +3289,6 @@ function clickAttachment(elemClicked) {
     });
 
 }
-function insertAttachmentsData(id, timestamp, link, update) {
-
-    let payload = {
-        'link'      : link,
-        'timestamp' : timestamp
-    }
-
-    let elemList    = $('#' + id + '-list');      
-    let elemUpload  = $('#' + id + '-upload');
-    let isTable     = elemList.hasClass('table');
-
-    if(!update) elemList.html(''); 
-    if(elemUpload.length > 0) elemUpload.addClass('disabled');
-
-    let requests = [
-        $.get('/plm/attachments', payload),
-        $.get('/plm/permissions', { 'link': link })
-    ];
-
-    $('#' + id + '-list').hide();
-    $('#' + id + '-processing').show();
-
-    Promise.all(requests).then(function(responses) {
-
-             if(responses[0].data.statusCode === 403) return;
-        else if(responses[0].data.statusCode === 404) return;
-
-        if(responses[0].params.timestamp === $('#' + id).attr('data-timestamp')) {
-            if(responses[0].params.link === link) {
-
-                $('#' + id + '-processing').hide();
-
-                let attachments = responses[0].data;
-                let currentIDs  = [];
-                let folders     = [];
-
-                elemList.find('.attachment').each(function() {
-
-                    let remove    = true;
-                    let currentId = Number($(this).attr('data-file-id'));
-
-                    $(this).removeClass('highlight');
-
-                    for(let attachment of attachments) {
-                        if(attachment.id === currentId) {
-                            remove = false;
-                            continue;
-                        }
-                    }
-
-                    if(remove) $(this).remove(); else currentIDs.push(currentId);
-
-                });
-
-                for(let attachment of attachments) {
-
-                    if(currentIDs.indexOf(attachment.id) > -1) continue;
-
-                    let extension = attachment.type.extension;
-                    let included  = true;
-
-                    if(settings.attachments[id].extensionsIn.length > 0) {
-                        if(settings.attachments[id].extensionsIn.indexOf(extension) < 0) included = false;
-                    }
-                    if(settings.attachments[id].extensionsEx.length > 0) {
-                        if(settings.attachments[id].extensionsEx.indexOf(extension) !== -1) included = false;
-                    }
-
-                    if(!included) continue;
-
-                    let attFolder    = attachment.folder;
-                    let folderId     = '';
-
-                    if(attFolder !== null) {
-                        let isNewFolder = true;
-                        folderId = attFolder.id;
-                        for (let folder of folders) {
-                            if(folder.name === attFolder.name) {
-                                isNewFolder = false;
-                            }
-                        }
-                        if(isNewFolder) folders.push(attFolder);
-                    }
-
-                    sortArray(folders, 'name');
-
-                    let date = new Date(attachment.created.timeStamp);
-
-                    let elemAttachment = $('<div></div>').appendTo(elemList)
-                        .addClass('attachment')
-                        .addClass('tile')
-                        .attr('data-file-id', attachment.id)
-                        .attr('data-folder-id', folderId)
-                        .attr('data-url', attachment.url)
-                        .attr('data-file-link', attachment.selfLink)
-                        .attr('data-extension', attachment.type.extension);
-
-                    if(update) {
-                        elemAttachment.addClass('highlight');
-                        elemAttachment.prependTo(elemList);
-                    } else {
-                        elemAttachment.appendTo(elemList);
-                    }
-
-                    getFileGrahpic(attachment).appendTo(elemAttachment);
-
-                    let elemAttachmentDetails = $('<div></div>').appendTo(elemAttachment)
-                        .addClass('attachment-details');
-
-                    let elemAttachmentName = $('<div></div>').appendTo(elemAttachmentDetails)
-                        .addClass('attachment-name');
-
-                    if(!settings.attachments[id].split) {
-
-                        elemAttachmentName.addClass('nowrap');
-                        elemAttachmentName.html(attachment.name);
-
-                    } else {
-
-                        let filename   = attachment.name.split('.');
-                        let filePrefix = '';
-
-                        for(let i = 0; i < filename.length - 1; i++) filePrefix += filename[i];
-
-                        $('<div></div>').appendTo(elemAttachmentName)
-                            .addClass('attachment-name-prefix')
-                            .addClass('nowrap')
-                            .html(filePrefix);
-
-                        $('<div></div>').appendTo(elemAttachmentName)
-                            .addClass('attachment-name-suffix')
-                            .html('.' + filename[filename.length - 1]);
-
-                    }
-
-                    let elemAttachmentSummary = $('<div></div>').appendTo(elemAttachmentDetails)
-                        .addClass('attachment-summary');
-
-                    if(settings.attachments[id].fileVersion) {
-                        $('<div></div>').appendTo(elemAttachmentSummary)
-                            .addClass('attachment-version')
-                            .addClass('nowrap')
-                            .html('V' + attachment.version);
-                        
-                    }
-
-                    if(settings.attachments[id].fileSize) {
-                        let fileSize = (attachment.size / 1024 / 1024).toFixed(2);
-                        $('<div></div>').appendTo(elemAttachmentSummary)
-                            .addClass('attachment-size')
-                            .addClass('nowrap')
-                            .html(fileSize + ' MB');      
-                    }
-
-                    $('<div></div>').appendTo(elemAttachmentSummary)
-                        .addClass('attachment-user')
-                        .addClass('nowrap')
-                        .html('Created by ' + attachment.created.user.title);
-
-                    $('<div></div>').appendTo(elemAttachmentSummary)
-                        .addClass('attachment-date')
-                        .addClass('nowrap')
-                        .html( date.toLocaleString());
-
-                    if(isTable) {
-                        elemAttachmentName.appendTo(elemAttachment);
-                        elemAttachmentSummary.children().each(function() {
-                            $(this).appendTo(elemAttachment);
-                        });
-                        elemAttachmentDetails.remove();
-                        elemAttachmentSummary.remove();
-                    }
-
-                    if(settings.attachments[id].download) {
-                        if(hasPermission(responses[1].data, 'view_attachments')) {
-                            elemAttachment.click(function() {
-                                clickAttachment($(this));                                
-                            });
-                        }
-                    }
-
-                }
-
-                if(settings.attachments[id].folders) {
-
-                    for(let folder of folders) {
-
-                        let elemFolder = $('<div></div>').appendTo(elemList)
-                            .addClass('folder')
-                            .attr('data-folder-id', folder.id);
-                            
-                        let elemFolderHeader = $('<div></div>').appendTo(elemFolder)
-                            .addClass('folder-header')
-                            .click(function(e) {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                clickFolderToggle($(this), e);
-                            })
-
-                        $('<div></div>').appendTo(elemFolderHeader)
-                            .addClass('folder-toggle')
-                            .addClass('icon');
-                            // .addClass('icon-collapse')
-                            
-
-                        $('<div></div>').appendTo(elemFolderHeader)
-                            .addClass('folder-icon')
-                            .addClass('icon')
-                            .addClass('icon-folder');
-
-                        $('<div></div>').appendTo(elemFolderHeader)
-                            .addClass('folder-name')
-                            .html(folder.name);
-
-                        let elemFolderAttachments = $('<div></div>').appendTo(elemFolder)
-                            .addClass('folder-attachments');
-
-                        elemList.children('.attachment').each(function() {
-                            if($(this).attr('data-folder-id') === folder.id.toString()) {
-                                $(this).appendTo(elemFolderAttachments);
-                            }
-                        });
-
-                    }
-
-                    elemList.children('.attachment').each(function() {
-                        $(this).appendTo(elemList);
-                    });
-
-                }
-
-                if(elemList.find('.attachment').length === 0) $('#' + id + '-no-data').css('display', 'flex');
-                                                             else $('#' + id + '-no-data').hide();
-
-                if(hasPermission(responses[1].data, 'add_attachments')) {
-                    if(elemUpload.length > 0) elemUpload.removeClass('disabled');
-                }
-
-                let mode = (elemList.hasClass('table')) ? 'block' : 'flex';
-                elemList.css('display', mode);
-                
-                if(isTable) {
-                    let elemTable = $('<div></div').appendTo(elemList)
-                    .addClass('attachments-table');
-                    $('.attachment').appendTo(elemTable);
-                }
-                
-                insertAttachmentsDone(id, responses[0], update);
-
-            }
-        }
-
-    });
-
-}
-function insertAttachmentsDone(id, data, update) {}
 function clickFolderToggle(elemClicked, e) {
 
     let elemFolder = elemClicked.closest('.folder');
@@ -2561,13 +3298,11 @@ function clickFolderToggle(elemClicked, e) {
     elemFolderAttachments.toggle();
 
 }
-function clickAttachmentsUpload(elemClicked) {
+function clickAttachmentsUpload(id, elemClicked) {
 
     if(elemClicked.hasClass('disabled')) return;
 
-    let id          = elemClicked.attr('id').split('-upload')[0];
-    let elemParent  = $('#' + id);
-    let link        = elemParent.attr('data-link');
+    let link = settings.attachments[id].link;
 
     let urlUpload = '/plm/upload/';
         urlUpload += link.split('/')[4] + '/';
@@ -2582,7 +3317,7 @@ function selectFileForUpload(id) {
 
     if($('#select-file').val() === '') return;
 
-    $('#' + id + '-list').hide();
+    $('#' + id + '-content').hide();
     $('#' + id + '-processing').show();
     $('#' + id + '-no-data').hide();
     
@@ -2591,13 +3326,258 @@ function selectFileForUpload(id) {
 }
 function fileUploadDone(id) {
 
-    let timestamp   = new Date().getTime();
-    let elemParent  = $('#' + id);
-    let link        = elemParent.attr('data-link');
+    settings.attachments[id].timestamp = new Date().getTime();
 
-    elemParent.attr('data-timestamp', timestamp);
+    insertAttachmentsData(id, true);
 
-    insertAttachmentsData(id, timestamp, link, true);
+}
+
+
+
+// Insert Grid table
+function insertGrid(link, params) {
+
+    if(isBlank(link)) return;
+    if(isBlank(params)) params = {};
+
+    let id = isBlank(params.id) ? 'grid' : params.id;
+    
+    settings.grid[id] = getPanelSettings(link, params, {
+        headerLabel : 'Grid',
+        layout      : 'table'
+    }, [
+        [ 'rotate'  , false ],
+        [ 'bookmark', false ]
+    ]);
+
+    settings.grid[id].layout = 'table';
+    settings.grid[id].load   = function() { insertGridData(id); }
+
+    genPanelTop(id, settings.grid[id], 'grid');
+    genPanelHeader(id, settings.grid[id]);
+    genPanelBookmarkButton(id, settings.grid[id]);
+    genPanelOpenInPLMButton(id, settings.grid[id]);
+    genPanelSearchInput(id, settings.grid[id]);
+    genPanelReloadButton(id, settings.grid[id]);
+
+    genPanelContents(id, settings.grid[id]);
+
+    if(settings.grid[id].editable) {
+
+        let elemToolbar = genPanelToolbar(id, settings.grid[id], 'controls');
+
+        $('<div></div>').prependTo(elemToolbar)
+            .addClass('button')
+            .addClass('default')
+            .attr('id', id + '-save')
+            .html('Save')
+            .hide()
+            .click(function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                saveGridData(id);
+            });
+
+    }
+
+    insertGridDone(id);
+
+    settings.grid[id].load();
+
+}
+function insertGridData(id) {
+
+    settings.grid[id].timestamp = startPanelContentUpdate(id);
+
+    let params = {
+        link      : settings.grid[id].link,
+        timestamp : settings.grid[id].timestamp
+    }
+
+    let requests    = [
+        $.get('/plm/grid',         params),
+        $.get('/plm/grid-columns', { link : settings.grid[id].link, useCache : settings.grid[id].useCache })
+    ];
+
+    if((settings.grid[id].bookmark)) requests.push($.get('/plm/bookmarks', { link : settings.grid[id].link })); 
+
+    Promise.all(requests).then(function(responses) {
+
+        if(stopPanelContentUpdate(responses[0], settings.grid[id])) return;
+
+        setPanelBookmarkStatus(id, settings.grid[id], responses);
+
+        let columns = [];
+
+        for(let field of responses[1].data.fields) {
+            if(includePanelTableColumn(field.name, settings.grid[id], columns.length)) {
+                field.fieldId = field.__self__.split('/').pop();
+                columns.push(field);
+            }
+        }
+
+        if(responses[0].data.length > 0 ) {
+
+            let elemContent    = $('#' + id + '-content');
+            let elemTable      = $('<table></table>').appendTo(elemContent).addClass('grid').addClass('row-hovering').attr('id', id + '-table');
+            let elemTHead      = $('<thead></thead>').addClass('fixed').attr('id', id + '-thead');
+            let elemTBody      = $('<tbody></tbody>').appendTo(elemTable).attr('id', id + '-tbody').attr('id', id + '-tbody');
+            let elemTHRow      = $('<tr></tr>').appendTo(elemTHead).addClass('fixed');
+            let editableFields = (settings.grid[id].editable) ? getEditableFields(columns) : [];
+
+            if(settings.grid[id].tableHeaders) elemTHead.prependTo(elemTable);
+
+            if(!settings.grid[id].rotate) {
+
+                elemTable.addClass('fixed-header');
+
+                for(let column of columns) {
+                    $('<th></th>').appendTo(elemTHRow).html(column.name);
+                }
+
+                for(let row of responses[0].data) {
+
+                    let elemTableRow = $('<tr></tr>').appendTo(elemTBody)
+                        .addClass('content-item')
+                        .click(function(e) {
+                            clickGridRow($(this), e);
+                            if(!isBlank(settings.grid[id].onItemClick)) settings.grid[id].onItemClick($(this));
+                        }).dblclick(function() {
+                            if(!isBlank(settings.grid[id].onItemDblClick)) settings.grid[id].onItemDblClick($(this));
+                        });
+
+                    for(let field of row.rowData) {
+                        if(field.title === 'Row Id') {
+                            elemTableRow.attr('data-link', field.__self__);
+                        }
+                    }
+
+                    for(let field of columns) {
+                        let value    = getGridRowValue(row, field.fieldId, '', 'title');
+                        let elemCell = $('<td></td>').appendTo(elemTableRow)
+                            .attr('data-id', field.fieldId);
+
+                        
+                        if(settings.grid[id].editable) {
+
+
+                            for(let editableField of editableFields) {
+                                
+                                if(field.fieldId === editableField.id) {
+
+                                    if(!isBlank(editableField.control)) {
+                                
+                                        elemCell.attr('data-title', editableField.title)
+                                            .attr('data-link', editableField.link)
+                                            .attr('data-type-id', editableField.typeId);
+
+                                        let elemControl = editableField.control.clone();
+                                            elemControl.appendTo(elemCell)
+                                            .attr('data-id', editableField.id)
+                                            .click(function(e) {
+                                                e.stopPropagation();
+                                            })
+                                            .dblclick(function(e) {
+                                                e.stopPropagation()
+                                            })
+                                            .change(function() {
+                                                panelTableCellValueChanged($(this));
+                                            });
+
+                                        switch (editableField.type) {
+                                            
+                                            case 'Single Selection':
+                                            // case 'Radio Button':
+                                                // console.log(field);
+                                                // value = getFlatBOMCellValue(response.data, itemLink, field.__self__.urn, 'link');
+                                                elemControl.val(value);
+                                                break;
+                
+                                            default:
+                                                elemControl.val(value);
+                                                break;
+                
+                                        }
+                
+                                        isEditable = true;
+                                    }
+                
+                                }
+                            }
+
+
+                        } else elemCell.html(value);
+                    }
+
+                }
+
+            } else {
+
+                elemTable.addClass('rotated');
+
+                for(let column of columns) {
+
+                    let elemTableRow = $('<tr></tr>').appendTo(elemTBody)
+                        .addClass('content-item')
+                        .click(function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            clickGridRow($(this), e);
+                        });
+
+                    $('<th></th>').appendTo(elemTableRow).html(column.name);
+
+                    for(let row of responses[0].data) {
+
+                        let value   = getGridRowValue(row, column.fieldId, '', 'title');
+
+                        $('<td></td>').appendTo(elemTableRow).html(value);
+
+                    }
+
+                }
+            }
+
+        }
+
+        finishPanelContentUpdate(id, settings.grid[id]);
+        insertGridDataDone(id, responses[0].data, responses[1].data);
+
+    });
+
+}
+function insertGridDone(id) {}
+function insertGridDataDone(id, rows, columns) {}
+function clickGridRow(elemClicked, e) {}
+function saveGridData(id) {
+
+    appendOverlay(false);
+
+    let requests  = [];
+    let elemTBody = $('#' + id + '-tbody');
+
+    elemTBody.children('.changed').each(function() {
+
+        let elemRow = $(this);
+        let rowId   = elemRow.attr('data-link').split('/').pop();
+        let data    = [];
+
+        elemRow.children('td').each(function() {
+            let fieldData =  getFieldValue($(this));
+            data.push({
+                fieldId : fieldData.fieldId,
+                value   : fieldData.value,
+            })
+        });
+
+        requests.push($.get('/plm/update-grid-row', { link : settings.grid[id].link, rowId : rowId, data : data }))
+
+    });
+
+    Promise.all(requests).then(function(responses) {
+        elemTBody.children().removeClass('changed');
+        $('#overlay').hide();
+    });
 
 }
 
@@ -2606,172 +3586,54 @@ function fileUploadDone(id) {
 // Insert BOM tree with selected controls
 function insertBOM(link , params) {
 
-    //  Set defaults for optional parameters
-    // --------------------------------------
-    let id                  = 'bom';     // id of DOM element where the BOM will be inseerted
-    let title               = 'BOM';     // Title being shown on top of the BOM display
-    let compactDisplay      = false;     // Optimizes CSS settings for a compact display
-    let bomViewName         = '';        // Name of the BOM view in PLM to use (if no value is provided, the first view will be used)
-    let collapsed           = false;     // When enabled, the BOM will be collapsed at startup
-    let multiSelect         = false;     // Enables selection of multiple items and adds buttons to select / deselect all elements as well as checkboxes
-    let deselect            = true;      // Adds button to deselect selected element (not available if multiSelect is enabled)
-    let reset               = false;     // Reset the BOM view to its default layout
-    let openInPLM           = true;      // Adds button to open selected element in PLM
-    let goThere             = false;     // Adds button to open the same view for the selected element
-    let toggles             = true;      // Enables expand all / collapse all buttons on top of BOM
-    let views               = false;     // Adds drop down menu to select from the available PLM BOM views
-    let search              = true;      // Adds quick filtering using search input on top of BOM
-    let position            = true;      // When set to true, the position / find number will be displayed
-    let quantity            = false;     // When set to true, the quantity column will be displayed
-    let hideDetails         = true;      // When set to true, detail columns will be skipped, only the descriptor will be shown
-    let headers             = true;      // When set to false, the table headers will not be shown
-    let path                = true;      // Display path of selected component in BOM, enabling quick navigation to parent(s)
-    let counters            = true;      // When set to true, a footer will inidicate total items, selected items and filtered items
-    let revisionBias        = 'release'; // Set BOM configuration to expand [release, working, changeOrder, allChangeOrder]
-    let depth               = 10;        // BOM Levels to expand
-    let showRestricted      = false;     // When set to true, red lock icons will be shown if an item's BOM contains items that are not accessilbe for the user due to access permissions
-    let selectItems         = {};
-    let selectUnique        = true;      // Defines if only unique items should be returned based on selectItems filter, skipping following instances of the same item
-    let getFlatBOM          = false;     // Retrieve Flat BOM at the same time (i.e. to get total quantities)
-    let additionalRequests  = [];        // Array of additional requests which will be submitted in parallel to the BOM request
-
-
     if(isBlank(link)) return;
-    if(isBlank(params)) params = {};
 
-    if(!isBlank(params.id)                )                 id = params.id;
-    if(!isEmpty(params.title)             )              title = params.title;
-    if(!isBlank(params.compactDisplay)    )     compactDisplay = params.compactDisplay;
-    if(!isBlank(params.bomViewName)       )        bomViewName = params.bomViewName;
-    if(!isBlank(params.collapsed)         )          collapsed = params.collapsed;
-    if(!isBlank(params.multiSelect)       )        multiSelect = params.multiSelect;
-    if(!isBlank(params.deselect)          )           deselect = params.deselect;
-    if(!isBlank(params.reset)             )              reset = params.reset;
-    if(!isBlank(params.openInPLM)         )          openInPLM = params.openInPLM;
-    if(!isBlank(params.goThere)           )            goThere = params.goThere;
-    if(!isBlank(params.toggles)           )            toggles = params.toggles;
-    if(!isBlank(params.views)             )              views = params.views;
-    if(!isBlank(params.search)            )             search = params.search;
-    if(!isBlank(params.position)          )           position = params.position;
-    if(!isBlank(params.quantity)          )           quantity = params.quantity;
-    if(!isBlank(params.hideDetails)       )      { hideDetails = params.hideDetails } else { hideDetails = ((bomViewName === '') && (views === false)); }
-    if(!isBlank(params.headers)           )          { headers = params.headers } else { headers = !hideDetails; }
-    if(!isBlank(params.path)              )               path = params.path;
-    if(!isBlank(params.counters)          )           counters = params.counters;
-    if(!isBlank(params.revisionBias)      )       revisionBias = params.revisionBias;
-    if(!isBlank(params.depth)             )              depth = params.depth;
-    if(!isBlank(params.showRestricted)    )     showRestricted = params.showRestricted;
-    if(!isBlank(params.selectItems)       )        selectItems = params.selectItems;
-    if(!isBlank(params.selectUnique)      )       selectUnique = params.selectUnique;
-    if(!isBlank(params.getFlatBOM)        )         getFlatBOM = params.getFlatBOM;
-    if(!isBlank(params.additionalRequests)) additionalRequests = params.additionalRequests;
+    let id          = isBlank(params.id) ? 'bom' : params.id;
+    let hideDetails = true;
+    
+    if(!isBlank(params.columnsIn)) hideDetails = false;
+    if(!isBlank(params.columnsEx)) hideDetails = false;
 
 
-    settings.bom[id] = {};
-    settings.bom[id].collapsed          = collapsed;
-    settings.bom[id].position           = position;
-    settings.bom[id].quantity           = quantity;
-    settings.bom[id].hideDetails        = hideDetails;
-    settings.bom[id].revisionBias       = revisionBias;
-    settings.bom[id].depth              = depth;
-    settings.bom[id].showRestricted     = showRestricted;
-    settings.bom[id].selectItems        = selectItems;
-    settings.bom[id].selectUnique       = selectUnique;
-    settings.bom[id].endItemFieldId     = null;
-    settings.bom[id].endItemValue       = null;
-    settings.bom[id].getFlatBOM         = getFlatBOM;
-    settings.bom[id].additionalRequests = additionalRequests;
-    settings.bom[id].fieldURNPartNumber = '';
-    settings.bom[id].fieldURNQuantity   = '';
-    settings.bom[id].fieldURNEndItem    = '';
+    settings.bom[id] = getPanelSettings(link, params, {
+        headerLabel : 'BOM'
+    }, [
+        [ 'additionalRequests'  , []    ],
+        [ 'bomViewName'         , ''    ],
+        [ 'depth'               , 10    ],
+        [ 'endItemFieldId'      , ''    ],
+        [ 'endItemValue'        , ''    ],
+        [ 'getFlatBOM'          , false ],
+        [ 'goThere'             , false ],
+        [ 'hideDetails'         , hideDetails  ],
+        [ 'path'                , false ],
+        [ 'position'            , true  ],
+        // [ 'quantity'            , false ],
+        [ 'reset'               , false ],
+        [ 'revisionBias'        , 'release' ],
+        [ 'selectItems'         , {}    ],
+        [ 'selectUnique'        , true  ],
+        [ 'showRestricted'      , false ],
+        [ 'toggles'             , false ],
+        [ 'viewSelector'        , false ],
+        [ 'viewerSelection'     , false ]
+    ]);
 
-    let elemTop = $('#' + id)
-        .attr('data-link', link)
-        .attr('data-select-mode', (multiSelect) ? 'multi' : 'single')
-        .addClass('bom')
-        .html('');
-
-    if(compactDisplay) elemTop.addClass('compact');        
+    settings.bom[id].load = function() { changeBOMView(id); }
 
     if(!isBlank(params.endItem)) {
         if(!isBlank(params.endItem.fieldId)) settings.bom[id].endItemFieldId = params.endItem.fieldId;
         if(!isBlank(params.endItem.value  )) settings.bom[id].endItemValue   = params.endItem.value;
     }
 
-    let elemHeader = $('<div></div>').appendTo(elemTop)
-        .addClass('panel-header')
-        .attr('id', id + '-header');
+    genPanelTop(id, settings.bom[id], 'bom');
+    genPanelHeader(id, settings.bom[id]);
+    genPanelOpenSelectedInPLMButton(id, settings.bom[id]);
+    genPanelSelectionControls(id, settings.bom[id]);
 
-    $('<div></div>').appendTo(elemHeader)
-        .addClass('panel-title')
-        .attr('id', id + '-title')
-        .html(title);
+    if(settings.bom[id].goThere) {
 
-    let elemToolbar = $('<div></div>').appendTo(elemHeader)
-        .addClass('panel-toolbar')
-        .attr('id', id + '-toolbar');
-
-    if(multiSelect) {
-
-        $('<div></div>').appendTo(elemToolbar)
-            .addClass('button')
-            .addClass('icon')
-            .addClass('icon-select-all')
-            .addClass('xs')
-            .attr('id', id + '-select-all')
-            .attr('title', 'Select all')
-            .click(function() {
-                clickBOMSelectAll($(this));
-            });
-
-        $('<div></div>').appendTo(elemToolbar)
-            .addClass('button')
-            .addClass('icon')
-            .addClass('icon-deselect-all')
-            .addClass('xs')
-            .addClass('bom-multi-select-action')
-            .attr('id', id + '-deselect-all')
-            .attr('title', 'Deselect all')
-            .click(function() {
-                clickBOMDeselectAll($(this));
-            });
-    
-    } else if(deselect) {
-
-        $('<div></div>').appendTo(elemToolbar)
-            .addClass('button')
-            .addClass('icon')
-            .addClass('icon-deselect')
-            .addClass('xs')
-            .addClass('bom-single-select-action')
-            .attr('id', id + '-deselect')
-            .attr('title', 'Deselect BOM item')
-            .hide()
-            .click(function() {
-                clickBOMDeselectAll($(this));
-            });
-
-    }
-
-    if(openInPLM) {
-
-        $('<div></div>').appendTo(elemToolbar)
-            .addClass('button')
-            .addClass('icon')
-            .addClass('icon-open')
-            .addClass('xs')
-            .addClass('bom-open-in-plm')
-            .addClass('bom-single-select-action')
-            .attr('title', 'Open the selected item in PLM')
-            .click(function() {
-                clickBOMOpenInPLM($(this));
-            });
-
-    }
-
-    if(goThere) {
-
-        $('<div></div>').appendTo(elemToolbar)
+        $('<div></div>').appendTo(genPanelToolbar(id, settings.bom[id], 'controls'))
             .addClass('button')
             .addClass('icon')
             .addClass('icon-go-there')
@@ -2784,33 +3646,12 @@ function insertBOM(link , params) {
 
     }
 
-    if(toggles) {
+    genPanelToggleButtons(id, settings.bom[id], 
+        function() {   expandAllNodes(id); }, 
+        function() { collapseAllNodes(id); }
+    );
 
-        $('<div></div>').appendTo(elemToolbar)
-            .addClass('button')
-            .addClass('icon')
-            .addClass('xs')
-            .attr('id', id + '-action-expand-all')
-            .attr('title', 'Expand all BOM tree nodes')
-            .html('unfold_more')
-            .click(function() {
-                clickBOMExpandAll($(this));
-            });
-
-        $('<div></div>').appendTo(elemToolbar)
-            .addClass('button')
-            .addClass('icon')
-            .addClass('xs')
-            .attr('id', id + '-action-collapse-all')
-            .attr('title', 'Collapse all BOM tree nodes')
-            .html('unfold_less')
-            .click(function() {
-                clickBOMCollapseAll($(this));
-            });
-
-    }
-
-    let elemSelect = $('<select></select>').appendTo(elemToolbar)
+    $('<select></select>').appendTo(genPanelToolbar(id, settings.bom[id], 'controls'))
         .addClass('bom-view-selector')
         .addClass('button')
         .attr('id', id + '-view-selector')
@@ -2819,26 +3660,9 @@ function insertBOM(link , params) {
             changeBOMView(id);
         });
 
-    if(search) {
+    if(settings.bom[id].reset) {
 
-        let elemSearch = $('<div></div>').appendTo(elemToolbar)
-            .addClass('button')
-            .addClass('with-icon')
-            .addClass('icon-search-list');
-
-        $('<input></input>').appendTo(elemSearch)
-            .attr('placeholder', 'Search')
-            .attr('id', id + '-search-input')
-            .addClass('bom-search-input')
-            .keyup(function() {
-                searchInBOM(id, $(this));
-            });
-
-    }
-
-    if(reset) {
-
-        $('<div></div>').appendTo(elemToolbar)
+        $('<div></div>').appendTo(genPanelToolbar(id, settings.bom[id], 'controls'))
             .addClass('button')
             .addClass('icon')
             .addClass('icon-reset')
@@ -2850,135 +3674,139 @@ function insertBOM(link , params) {
             });
 
     }
+    
 
-    $('<div></div>').appendTo(elemTop)
-        .attr('id', id + '-processing')
-        .addClass('processing')
-        .append($('<div class="bounce1"></div>'))
-        .append($('<div class="bounce2"></div>'))
-        .append($('<div class="bounce2"></div>'));
+    //  Set defaults for optional parameters
+    // --------------------------------------
+    // let additionalRequests  = [];        // Array of additional requests which will be submitted in parallel to the BOM request
+    // let bomViewName         = '';        // Name of the BOM view in PLM to use (if no value is provided, the first view will be used)
+    // let compactDisplay      = false;     // Optimizes CSS settings for a compact display
+    // let collapsed           = false;     // When enabled, the BOM will be collapsed at startup
+    // let counters            = true;      // When set to true, a footer will inidicate total items, selected items and filtered items
+    // let depth               = 10;        // BOM Levels to expand
+    // let deselect            = true;      // Adds button to deselect selected element (not available if multiSelect is enabled)
+    // let getFlatBOM          = false;     // Retrieve Flat BOM at the same time (i.e. to get total quantities)
+    // let hideDetails         = true;      // When set to true, detail columns will be skipped, only the descriptor will be shown
+    // let multiSelect         = false;     // Enables selection of multiple items and adds buttons to select / deselect all elements as well as checkboxes
+    // let path                = true;      // Display path of selected component in BOM, enabling quick navigation to parent(s)
+    // let position            = true;      // When set to true, the position / find number will be displayed
+    // let quantity            = false;     // When set to true, the quantity column will be displayed
 
-    let elemContent = $('<div></div>').appendTo(elemTop)
-        .addClass('panel-content')
-        .addClass('bom-content')
-        .attr('id', id + '-content');
+    // let revisionBias        = 'release'; // Set BOM configuration to expand [release, working, changeOrder, allChangeOrder]
+    // let selectItems         = {};
+    // let selectUnique        = true;      // Defines if only unique items should be returned based on selectItems filter, skipping following instances of the same item
+    // let showRestricted      = false;     // When set to true, red lock icons will be shown if an item's BOM contains items that are not accessilbe for the user due to access permissions
+    // let toggles             = true;      // Enables expand all / collapse all buttons on top of BOM
+    // let openInPLM           = true;      // Adds button to open selected element in PLM
+    // let views               = false;     // Adds drop down menu to select from the available PLM BOM views
+    // let search              = true;      // Adds quick filtering using search input on top of BOM
 
-    let elemBOMTable = $('<table></table').appendTo(elemContent)
-        .addClass('bom-table')
-        .addClass('fixed-header')
-        .attr('id', id + '-table');
 
-    let elemBOMTableHead = $('<thead></thead>').appendTo(elemBOMTable)
-        .addClass('bom-thead')
-        .attr('id', id + '-thead');
 
-    if(!headers) elemBOMTableHead.hide();
+    // settings.bom[id].position           = position;
+    // settings.bom[id].quantity           = quantity;
+    // settings.bom[id].hideDetails        = hideDetails;
+    // settings.bom[id].showRestricted     = showRestricted;
+    // settings.bom[id].selectItems        = selectItems;
+    // settings.bom[id].selectUnique       = selectUnique;
+    // settings.bom[id].endItemFieldId     = null;
+    // settings.bom[id].endItemValue       = null;
+    // settings.bom[id].getFlatBOM         = getFlatBOM;
+    // settings.bom[id].additionalRequests = additionalRequests;
+    // settings.bom[id].fieldURNPartNumber = '';
+    // settings.bom[id].fieldURNQuantity   = '';
+    // settings.bom[id].fieldURNEndItem    = '';
 
-    $('<tbody></tbody>').appendTo(elemBOMTable)
-        .attr('id', id + '-tbody')
-        .addClass('bom-tbody');
 
-    if(path) {
-        $('<div></div>').appendTo(elemTop)
+    // }
+    genPanelSearchInput(id, settings.bom[id]);
+    genPanelReloadButton(id, settings.bom[id]);
+
+    genPanelContents(id, settings.bom[id]);
+
+    if(settings.bom[id].path) {
+        $('<div></div>').appendTo($('#' + id))
             .attr('id', id + '-bom-path')
             .addClass('bom-path-empty')
-            .addClass('bom-path')
-            .hide();
-    } else elemTop.addClass('no-bom-path');
-
-    let elemBOMCounters = $('<div></div>').appendTo(elemTop)
-        .attr('id', id + '-bom-counters')
-        .addClass('bom-counters')
-        .hide();
-
-    if(counters) {
-
-        $('<div></div>').appendTo(elemBOMCounters)
-            .attr('id', id + '-bom-counter-total')
-            .addClass('bom-counter-total');
-        
-        $('<div></div>').appendTo(elemBOMCounters)
-            .attr('id', id + '-bom-counter-unique')
-            .addClass('bom-counter-unique');
-        
-        $('<div></div>').appendTo(elemBOMCounters)
-            .attr('id', id + '-bom-counter-filtered')
-            .addClass('bom-counter-filtered');
-        
-        $('<div></div>').appendTo(elemBOMCounters)
-            .attr('id', id + '-bom-counter-selected')
-            .addClass('bom-counter-selected');      
-
-    } else elemTop.addClass('no-bom-counters');
+            .addClass('bom-path');
+        $('#' + id).addClass('with-bom-path');
+    } 
 
     insertBOMDone(id);
+    getBOMTabViews(id, settings.bom[id]);
 
-    let bomViews        = null;
-    let fields          = null
-    let requests        = [];
+}
+function getBOMTabViews(id, settings) {
 
-    for(let workspace of cacheWorkspaces) {
-        if(workspace.id === link.split('/')[4]) {
-            bomViews        = workspace.bomViews;
-            fields          = workspace.fields;
-        }
-    }
+    let elemSelect = $('#' + id + '-view-selector');
 
-    if(isBlank(bomViews)) requests.push($.get('/plm/bom-views-and-fields', { 'link' : link }));
-    if(isBlank(fields))   if(!hideDetails) requests.push($.get('/plm/fields', { 'wsId' : link.split('/')[4] }))
+    $.get('/plm/bom-views-and-fields', { link : settings.link, useCache : settings.useCache }, function(response) {
 
-    Promise.all(requests).then(function(responses) {
+        settings.bomViews = [];
 
-        for(let response of responses) {
-            if(response.url.indexOf('/bom-views-and-fields') === 0) {
-                bomViews = response.data;
-            } else if(response.url.indexOf('/fields') === 0) {
-                fields = response.data;
-            }
-        }
+        sortArray(response.data, 'name');
 
-        if(responses.length > 0) {
-
-            let addToCache = true;
-
-            for(let workspace of cacheWorkspaces) {
-                if(workspace.id === link.split('/')[4]) {
-                    workspace.bomViews  = bomViews;
-                    if(!hideDetails) {
-                        workspace.fields = fields;
-                    }
-                    addToCache = false;
-                }
-            }
-
-            if(addToCache) {
-                cacheWorkspaces.push({
-                    'id'        : link.split('/')[4],
-                    'sections'  : null,
-                    'fields'    : fields,
-                    'bomViews'  : bomViews
-                });
-            }
-
-        }
-
-        for(let bomView of bomViews) {
+        for(let bomView of response.data) {
 
             $('<option></option>').appendTo(elemSelect)
                 .html(bomView.name)
                 .attr('value', bomView.id);
 
-            if(!isBlank(bomViewName)) {
-                if(bomView.name === bomViewName) {
+            if(!isBlank(settings.bomViewName)) {
+                if(bomView.name === settings.bomViewName) {
                     elemSelect.val(bomView.id);
                 }
             }
 
+            let view = {
+                id      : bomView.id,
+                name    : bomView.name,
+                columns : [],
+                urns    : {
+                    partNumber  : '',
+                    quantity    : '',
+                    endItem     : '',
+                    selectItems : ''
+                }
+            }
+
+            let columnsCount = 1;
+
+            for(let field of bomView.fields) {
+                
+                field.included = false;
+
+                if(field.displayName !== 'Descriptor') {
+                    if(includePanelTableColumn(field.displayName, settings, columnsCount++)) {
+                        if(!settings.hideDetails) {
+                            field.included = true;
+                        }      
+                    }
+                }
+
+                view.columns.push(field);
+
+                switch(field.fieldId) {
+                    case settings.fieldIdPartNumber   : view.urns.partNumber  = field.__self__.urn; break;
+                    case config.items.fieldIdNumber   : if(isBlank(view.urns.partNumber)) view.urns.partNumber  = field.__self__.urn; break;
+                    case 'QUANTITY'                   : view.urns.quantity    = field.__self__.urn; break;
+                    case settings.endItemFieldId      : view.urns.endItem     = field.__self__.urn; break;
+                    default:
+                        if(!isBlank(settings.selectItems)) {
+                            if(field.fieldId === settings.selectItems.fieldId) view.urns.selectItems = field.__self__.urn;
+                        }
+                        break;
+                }
+
+            }
+
+            settings.bomViews.push(view);
+        
         }
 
-        if(views) elemSelect.show();
+        if(settings.viewSelector) elemSelect.show();
 
-        changeBOMView(id);
+        settings.load();
 
     });
 
@@ -2986,50 +3814,25 @@ function insertBOM(link , params) {
 function insertBOMDone(id) {}
 function changeBOMView(id) {
 
-    let elemBOM             = $('#' + id);
-    let link                = elemBOM.attr('data-link');
-    let bomViewId           = $('#' + id + '-view-selector').val();
-    let elemProcessing      = $('#' + id + '-processing');
-    let elemBOMTableBody    = $('#' + id + '-tbody');
-    let selectedItems       = [];
-    let bomView;
-
-    elemProcessing.show();
-    elemBOMTableBody.html('');
-
+    settings.bom[id].timestamp = startPanelContentUpdate(id);
+    settings.bom[id].viewId    = $('#' +  id + '-view-selector').val();
     settings.bom[id].indexEdge = 0;
 
+    let elemBOM         = $('#' + id);
+    let selectedItems   = [];
+
     let params = {
-        'link'          : link,
-        'depth'         : settings.bom[id].depth,
-        'revisionBias'  : settings.bom[id].revisionBias,
-        'viewId'        : bomViewId
+        link          : settings.bom[id].link,
+        depth         : settings.bom[id].depth,
+        revisionBias  : settings.bom[id].revisionBias,
+        viewId        : settings.bom[id].viewId,
+        timestamp     : settings.bom[id].timestamp
     }
 
-    for(let workspace of cacheWorkspaces) {
-        if(workspace.id === link.split('/')[4]) {
-            for(let view of workspace.bomViews) {
-                if(view.id === Number(bomViewId)) bomView = view;
-            }
-        }
-    }
-
-    for(let field of bomView.fields) {
-
-        let urnField = field.__self__.urn;
-
-        switch(field.fieldId) {
-            
-            case config.viewer.fieldIdPartNumber        : settings.bom[id].fieldURNPartNumber  = urnField; break;
-            case 'QUANTITY'                             : settings.bom[id].fieldURNQuantity    = urnField; break;
-            case settings.bom[id].endItemFieldId        : settings.bom[id].fieldURNEndItem     = urnField; break;
-            case settings.bom[id].selectItems.fieldId   : settings.bom[id].fieldURNSelectItems = urnField; break;
-
-        }
-
-    }
-
-    let requests = [$.get('/plm/bom', params)];
+    let requests = [
+        $.get('/plm/bom', params),
+        $.get('/plm/workspaces', { useCache : true })
+    ];
 
     if(settings.bom[id].getFlatBOM) requests.push($.get('/plm/bom-flat', params));
 
@@ -3037,25 +3840,48 @@ function changeBOMView(id) {
 
     Promise.all(requests).then(function(responses) {
 
+        if(stopPanelContentUpdate(responses[0], settings.bom[id])) return;
+
+        for(let view of settings.bom[id].bomViews) {
+            if( settings.bom[id].viewId == view.id) {
+                settings.bom[id].columns             = view.columns;
+                settings.bom[id].fieldURNPartNumber  = view.urns.partNumber;
+                settings.bom[id].fieldURNQuantity    = view.urns.quantity;
+                settings.bom[id].fieldURNEndItem     = view.urns.endItem;
+                settings.bom[id].fieldURNSelectItems = view.urns.selectItems;
+                break;
+            }
+        }
+
+        $('#' + id + '-content').addClass('tree');
+
+        let elemTable = $('<table></table').appendTo($('#' + id + '-content'))
+            .attr('id', id + '-table')
+            .addClass('bom-table')
+            .addClass('fixed-header');
+
+        let elemTHead = $('<thead></thead>').appendTo(elemTable).attr('id', id + '-thead').addClass('bom-thead');
+        let elemTBody = $('<tbody></tbody>').appendTo(elemTable).attr('id', id + '-tbody').addClass('bom-tbody');
+            
+        if(!settings.bom[id].tableHeaders) elemTHead.hide();
+
         if(!isBlank(settings.bom[id].selectItems.values)) {
             settings.bom[id].selectItems.values = settings.bom[id].selectItems.values.map(function(item) { 
                 return item.toLowerCase(); 
-              }); 
+            }); 
         }
 
-        setBOMHeaders(id, bomView.fields);
-        insertNextBOMLevel(id, elemBOMTableBody, responses[0].data, responses[0].data.root, 1, selectedItems, bomView.fields);
+        setBOMHeaders(id, elemTHead);
+        insertNextBOMLevel(id, elemTBody, responses[0].data, responses[0].data.root, 1, selectedItems, responses[1].data.items);
         enableBOMToggles(id);
-        updateBOMCounters(id);
 
-        if(settings.bom[id].collapsed) clickBOMCollapseAll($('#' + id + '-toolbar'));
+        if(settings.bom[id].collapseContents) collapseAllNodes(id);
 
-        if(!elemBOM.hasClass('no-bom-path')) { $('#' + id + '-bom-path').css('display', 'flex'); }
         if(!elemBOM.hasClass('no-bom-counters')) { $('#' + id + '-bom-counters').show(); }
 
         let dataFlatBOM     = null;
         let dataAdditional  = [];
-        let indexAdditional = 1;
+        let indexAdditional = 2;
 
         if(settings.bom[id].getFlatBOM) dataFlatBOM = responses[indexAdditional++].data;
 
@@ -3063,47 +3889,32 @@ function changeBOMView(id) {
             dataAdditional.push(responses[indexAdditional++]);
         } 
 
-        changeBOMViewDone(id, bomView.fields, responses[0].data, selectedItems, dataFlatBOM, dataAdditional);
-        
-        elemProcessing.hide();
+        changeBOMViewDone(id, settings.bom[id], responses[0].data, selectedItems, dataFlatBOM, dataAdditional);
+        finishPanelContentUpdate(id, settings.bom[id]);
 
     });
 
 }
-function changeBOMViewDone(id, fields, bom, selectedItems, dataFlatBOM, dataAdditional) {}
-function setBOMHeaders(id, fields) {
+function changeBOMViewDone(id, settings, bom, selectedItems, dataFlatBOM, dataAdditional) {}
+function setBOMHeaders(id, elemTHead) {
 
-    let elemBOMTableHead = $('#'+  id + '-thead');
-        elemBOMTableHead.html('');
+    let elemTHRow = $('<tr></tr>').appendTo(elemTHead).attr('id', id + '-thead-row');
 
-    let elemBOMTableHeadRow = $('<tr></tr>').appendTo(elemBOMTableHead)
-        .attr('id', id + '-thead-row');
+    $('<th></th>').appendTo(elemTHRow).html('').addClass('bom-color');
+    $('<th></th>').appendTo(elemTHRow).html('Item').addClass('bom-first-col');
 
-    $('<th></th>').appendTo(elemBOMTableHeadRow).html('').addClass('bom-color');
-    $('<th></th>').appendTo(elemBOMTableHeadRow).html('Item');
-
-    if(settings.bom[id].quantity) {
-        
-        $('<th></th>').appendTo(elemBOMTableHeadRow)
-            .addClass('bom-quantity')
-            .html('Qty');
+    if(settings.bom[id].showRestricted) $('<th></th>').appendTo(elemTHRow).html('').addClass('bom-column-locks');
     
-    }
-
-    if(settings.bom[id].showRestricted) {
-        $('<th></th>').appendTo(elemBOMTableHeadRow).html('').addClass('bom-column-locks');
-    }
-
-    if(!settings.bom[id].hideDetails) {
-        for(field of fields) {
-            $('<th></th>').appendTo(elemBOMTableHeadRow)
-                .html(field.displayName)
-                .addClass('bom-column-' + field.fieldId.toLowerCase());
+    for(let column of settings.bom[id].columns) {
+        if(column.included) {
+            $('<th></th>').appendTo(elemTHRow)
+                .html(column.displayName)
+                .addClass('bom-column-' + column.fieldId.toLowerCase());
         }
     }
 
 }
-function insertNextBOMLevel(id, elemTable, bom, parent, parentQuantity, selectedItems, fields) {
+function insertNextBOMLevel(id, elemTable, bom, parent, parentQuantity, selectedItems, workspaces) {
 
     let result    = { hasChildren : false, hasRestricted : false};
     let firstLeaf = true;
@@ -3116,20 +3927,21 @@ function insertNextBOMLevel(id, elemTable, bom, parent, parentQuantity, selected
 
             if(i === settings.bom[id].indexEdge + 1) settings.bom[id].indexEdge = i;
 
-            let node;
-            let bomQuantity = getBOMEdgeValue(edge, settings.bom[id].fieldURNQuantity, null, 0);
-
+            let node = {}
+                        
             for(let bomNode of bom.nodes) {
                 if(bomNode.item.urn === edge.child) {
                     node = bomNode;
                     break;
                 }
             }
-
+            
+            node.quantity = getBOMEdgeValue(edge, settings.bom[id].fieldURNQuantity, null, 0);
+            
             if((typeof node.restricted === 'undefined') || (node.restricted === false)) {
 
                 node.restricted    = false;
-                node.totalQuantity = bomQuantity * parentQuantity;
+                node.totalQuantity = node.quantity * parentQuantity;
 
                 for(let field of node.fields) {
 
@@ -3167,7 +3979,7 @@ function insertNextBOMLevel(id, elemTable, bom, parent, parentQuantity, selected
                     }
                 }
 
-            } else node.totalQuantity += bomQuantity * parentQuantity;
+            } else node.totalQuantity += node.quantity * parentQuantity;
 
             if(node.restricted) {
 
@@ -3178,134 +3990,158 @@ function insertNextBOMLevel(id, elemTable, bom, parent, parentQuantity, selected
                 result.hasChildren  = true;
                 let urnEdgeChild    = edge.child;
                 let isEndItem       = false;
+                let workspace       = '';
+                let workspaceLink   = node.item.link.split('/items/')[0];
 
-                let elemRow = $('<tr></tr>').appendTo(elemTable)
-                    .attr('data-number',      edge.itemNumber)
-                    .attr('data-part-number', node.partNumber)
-                    .attr('data-quantity',    node.quantity)
-                    .attr('data-number',      edge.itemNumber)
-                    // .attr('data-dmsId',       node.item.link.split('/')[6])
-                    .attr('data-link',        node.item.link)
-                    .attr('data-root-link',   node.rootItem.link)
-                    .attr('data-urn',         edge.child)
-                    .attr('data-title',       node.item.title)
-                    .attr('data-edgeId',      edge.edgeId)
-                    .attr('data-edge-Link',   edge.edgeLink)
-                    .attr('data-level',       edge.depth)
-                    .addClass('bom-level-' +  edge.depth)
-                    .addClass('bom-item')
-                    .click(function (e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        clickBOMItem($(this), e);
-                        toggleBOMItemActions($(this));
-                    })
-        
+                for(let ws of workspaces) if(ws.link === workspaceLink) { workspace = ws.title; break; }
 
-                let elemColor = $('<td></td>').appendTo(elemRow).addClass('bom-color');
-                let elemCell  = $('<td></td>').appendTo(elemRow).addClass('bom-first-col');
+                if((settings.bom[id].workspacesIn.length === 0) || ( settings.bom[id].workspacesIn.includes(workspace))) {
+                    if((settings.bom[id].workspacesEx.length === 0) || (!settings.bom[id].workspacesEx.includes(workspace))) {
 
-                if(settings.bom[id].position) {
+                        let elemRow = $('<tr></tr>').appendTo(elemTable)
+                            .attr('data-number',         edge.itemNumber)
+                            .attr('data-part-number',    node.partNumber)
+                            .attr('data-quantity',       node.quantity)
+                            .attr('data-total-quantity', node.totalQuantity)
+                            .attr('data-number',         edge.itemNumber)
+                            // .attr('data-dmsId',       node.item.link.split('/')[6])
+                            .attr('data-link',           node.item.link)
+                            .attr('data-root-link',      node.rootItem.link)
+                            .attr('data-urn',            edge.child)
+                            .attr('data-title',          node.item.title)
+                            .attr('data-edgeId',         edge.edgeId)
+                            .attr('data-edge-Link',      edge.edgeLink)
+                            .attr('data-level',          edge.depth)
+                            .addClass('level-' + edge.depth)
+                            .addClass('bom-item')
+                            .addClass('tree-item')
+                            .addClass('content-item')
+                            .click(function (e) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                // toggleBOMItemActions($(this));
+                                clickContentItem($(this), e);
+                                updateBOMPath($(this));
+                                togglePanelToolbarActions($(this));
+                                updatePanelCalculations(id);
+                                if(settings.bom[id].viewerSelection) selectInViewer(id);
+                                clickBOMItem($(this), e);
+                                if(!isBlank(settings.bom[id].onClickItem)) settings.bom[id].onClickItem($(this));
+                            }).dblclick(function(e) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                if(!isBlank(settings.bom[id].onDblClickItem)) settings.bom[id].onDblClickItem($(this));
+                                else if(settings.bom[id].openOnDblClick) openItemByLink($(this).attr('data-link'));
+                            });
+                
 
-                    $('<span></span>').appendTo(elemCell)
-                        .addClass('bom-number')
-                        .html(edge.depth + '.' + edge.itemNumber);
+                        let elemColor = $('<td></td>').appendTo(elemRow).addClass('bom-color');
+                        let elemCell  = $('<td></td>').appendTo(elemRow).addClass('bom-first-col');
 
-                }
+                        if(settings.bom[id].position) {
 
-                $('<span></span>').appendTo(elemCell)
-                    .addClass('bom-descriptor')
-                    .html(node.item.title);
+                            $('<span></span>').appendTo(elemCell)
+                                .addClass('bom-number')
+                                .html(edge.depth + '.' + edge.itemNumber);
 
-                if(settings.bom[id].quantity) {
+                        }
 
-                    $('<td></td>').appendTo(elemRow)
-                        .addClass('bom-quantity')
-                        .html(bomQuantity);
+                        $('<span></span>').appendTo(elemCell)
+                            .addClass('bom-descriptor')
+                            .html(node.item.title);
 
-                }
+                        // if(settings.bom[id].quantity) {
 
-                let elemCellLocks = $('<td></td>')
-                    .addClass('bom-column-icon')
-                    .addClass('bom-column-locks');
+                        //     $('<td></td>').appendTo(elemRow)
+                        //         .addClass('bom-quantity')
+                        //         .html(bomQuantity);
 
-                if(settings.bom[id].showRestricted) elemCellLocks.appendTo(elemRow);
+                        // }
 
-                if(!settings.bom[id].hideDetails) {
-                    for(let field of fields) {
+                        let elemCellLocks = $('<td></td>')
+                            .addClass('bom-column-icon')
+                            .addClass('bom-column-locks');
 
-                        let value = ''
+                        if(settings.bom[id].showRestricted) elemCellLocks.appendTo(elemRow);
 
-                        if(field.fieldTab === 'STANDARD_BOM') value = getBOMEdgeValue(edge, field.__self__.urn, null, '');
-                        else value = getBOMCellValue(edge.child, field.__self__.urn, bom.nodes);
+                        for(let column of settings.bom[id].columns) {
 
-                        $('<td></td>').appendTo(elemRow)
-                            .html(value)
-                            .addClass('bom-column-' + field.fieldId.toLowerCase());
+                            if(column.included) {
 
-                    }
-                }
+                                let value = '';
 
-                if(!isBlank(settings.bom[id].selectItems.values)) {
-                    if(!isBlank(edge.selectItems)) {
-                        if(settings.bom[id].selectItems.values.indexOf(edge.selectItems.toLowerCase()) > -1) {
+                                if(column.fieldTab === 'STANDARD_BOM') value = getBOMEdgeValue(edge, column.__self__.urn, null, '');
+                                else value = getBOMCellValue(edge.child, column.__self__.urn, bom.nodes);
 
-                            let selectItem = true;
+                                $('<td></td>').appendTo(elemRow)
+                                    .html(value)
+                                    .addClass('bom-column-' + column.fieldId.toLowerCase());
 
-                            if(settings.bom[id].selectUnique) {
-                                for(let selectedItem of selectedItems) {
-                                    if(selectedItem.node.item.link === node.item.link) {
-                                        selectItem = false;
-                                        break;
-                                    }
-                                }
-                            }
-
-                            if(selectItem) {
-                                selectedItems.push({
-                                    'node' : node,
-                                    'edge' : edge
-                                })
                             }
 
                         }
+
+                        if(!isBlank(settings.bom[id].selectItems.values)) {
+                            if(!isBlank(edge.selectItems)) {
+                                if(settings.bom[id].selectItems.values.indexOf(edge.selectItems.toLowerCase()) > -1) {
+
+                                    let selectItem = true;
+
+                                    if(settings.bom[id].selectUnique) {
+                                        for(let selectedItem of selectedItems) {
+                                            if(selectedItem.node.item.link === node.item.link) {
+                                                selectItem = false;
+                                                break;
+                                            }
+                                        }
+                                    }
+
+                                    if(selectItem) {
+                                        selectedItems.push({
+                                            'node' : node,
+                                            'edge' : edge
+                                        })
+                                    }
+
+                                }
+                            }
+
+                        }
+
+                        if(!isBlank(settings.bom[id].fieldURNEndItem)) {
+                            isEndItem = (settings.bom[id].endItemValue.toString().toLowerCase() === node.endItem.toString().toLowerCase());
+                        }
+
+                        let itemBOM = (isEndItem) ? { hasChildren : false, hasRestricted : false } : insertNextBOMLevel(id, elemTable, bom, urnEdgeChild, node.quantity * parentQuantity, selectedItems, workspaces);
+
+                        if(!itemBOM.hasChildren) {
+
+                            elemRow.addClass('leaf');
+                            if(firstLeaf) elemRow.addClass('first-leaf');
+                            firstLeaf = false;
+
+                        } else {
+
+                            $('<span></span>').prependTo(elemCell)
+                                .addClass('bom-nav')
+                                .addClass('icon')
+
+                            elemRow.addClass('node');
+
+                        }
+
+                        if(itemBOM.hasRestricted) {
+                            if(settings.bom[id].showRestricted) {
+                                $('<span></span>').appendTo(elemCellLocks)
+                                    .addClass('bom-restricted')
+                                    .addClass('icon')
+                                    .addClass('icon-lock')
+                                    .addClass('filled')
+                                    .attr('title', 'You do not have access to all items in this BOM');
+                            }
+                        }
                     }
-
                 }
-
-                if(settings.bom[id].fieldURNEndItem !== '') {
-                    isEndItem = (settings.bom[id].endItemValue.toString().toLowerCase() === node.endItem.toString().toLowerCase());
-                }
-
-                let itemBOM = (isEndItem) ? { hasChildren : false, hasRestricted : false } : insertNextBOMLevel(id, elemTable, bom, urnEdgeChild, bomQuantity * parentQuantity, selectedItems, fields);
-
-                if(!itemBOM.hasChildren) {
-
-                    elemRow.addClass('leaf');
-                    if(firstLeaf) elemRow.addClass('first-leaf');
-                    firstLeaf = false;
-
-                } else {
-
-                    $('<span></span>').prependTo(elemCell)
-                        .addClass('bom-nav')
-                        .addClass('icon')
-
-                    elemRow.addClass('node');
-
-                }
-
-                if(itemBOM.hasRestricted) {
-                    if(settings.bom[id].showRestricted) {
-                        $('<span></span>').appendTo(elemCellLocks)
-                            .addClass('bom-restricted')
-                            .addClass('icon')
-                            .addClass('icon-lock')
-                            .addClass('filled')
-                            .attr('title', 'You do not have access to all items in this BOM');
-                    }
-                }
-
             }
         }
     }
@@ -3342,14 +4178,14 @@ function enableBOMToggles(id) {
                 if(doExpand) {
                     if(levelHide > levelNext) {
                         if((!isFiltered) || elemNext.hasClass('result') || elemNext.hasClass('result-parent')) {
-                            elemNext.removeClass('bom-hidden');
+                            elemNext.removeClass('hidden');
                             if(e.shiftKey) {
                                 elemNext.removeClass('collapsed');
                             }
                         }
                     }
                 } else {
-                    elemNext.addClass('bom-hidden');
+                    elemNext.addClass('hidden');
                     elemNext.addClass('collapsed');
                 }
             }
@@ -3369,61 +4205,16 @@ function enableBOMToggles(id) {
     });
 
 }
-function updateBOMCounters(id) {
+// function toggleBOMItemActions(elemClicked) {
 
-    let elemBOM     = $('#' + id + '-tbody');
-    let counters    = [0, 0, 0, 0];
-    let links       = [];
+//     let elemBOM             = elemClicked.closest('.bom');
+//     let actionsMultiSelect  = elemBOM.find('.bom-multi-select-action');
+//     let actionsSingleSelect = elemBOM.find('.bom-single-select-action');
 
-    elemBOM.children('.bom-item').each(function() {
-        
-        let elemItem = $(this);
-        let itemLink = elemItem.attr('data-link');
+//     if(elemBOM.find('.bom-item.selected').length === 1) actionsSingleSelect.show(); else actionsSingleSelect.hide();
+//     if(elemBOM.find('.bom-item.selected').length   > 0)  actionsMultiSelect.show(); else  actionsMultiSelect.hide();
 
-        counters[0]++;
-
-        if(links.indexOf(itemLink) < 0) {
-            counters[1]++;
-            links.push(itemLink);
-        }
-
-        if(elemItem.hasClass('result')  ) counters[2]++;
-        if(elemItem.hasClass('selected')) counters[3]++;
-
-    });
-
-    $('#' + id + '-bom-counter-total'   ).html(counters[0] + ' rows');
-    $('#' + id + '-bom-counter-unique'  ).html(counters[1] + ' unique items');
-
-    let elemCounterFiltered = $('#' + id + '-bom-counter-filtered');
-    let elemCounterSelected = $('#' + id + '-bom-counter-selected');
-
-    if(counters[2] === 0) {
-        elemCounterFiltered.removeClass('not-empty').html(''); 
-    } else {
-        elemCounterFiltered.addClass('not-empty')
-        if(counters[2] === 1) elemCounterFiltered.html(counters[2] + ' item matches');
-        else elemCounterFiltered.html(counters[2] + ' items match');
-    }
-    if(counters[3] === 0) {
-        elemCounterSelected.removeClass('not-empty').html(''); 
-    } else {
-        elemCounterSelected.addClass('not-empty');
-        if(counters[3] === 1)elemCounterSelected.html(counters[3] + ' item selected');
-        else elemCounterSelected.html(counters[3] + ' items selected');
-    }
-
-}
-function toggleBOMItemActions(elemClicked) {
-
-    let elemBOM             = elemClicked.closest('.bom');
-    let actionsMultiSelect  = elemBOM.find('.bom-multi-select-action');
-    let actionsSingleSelect = elemBOM.find('.bom-single-select-action');
-
-    if(elemBOM.find('.bom-item.selected').length === 1) actionsSingleSelect.show(); else actionsSingleSelect.hide();
-    if(elemBOM.find('.bom-item.selected').length   > 0)  actionsMultiSelect.show(); else  actionsMultiSelect.hide();
-
-}
+// }
 function clickBOMSelectAll(elemClicked) {
 
     let elemBOM = elemClicked.closest('.bom');
@@ -3448,86 +4239,89 @@ function clickBOMDeselectAll(elemClicked) {
 
 }
 function clickBOMDeselectAllDone(elemClicked) {}
-function clickBOMExpandAll(elemClicked) {
+// function clickBOMExpandAll(elemClicked) {
 
-    let elemBOM     = elemClicked.closest('.bom');
-    let id          = elemBOM.attr('id');
-    let elemContent = $('#' + id + '-tbody');
-    let elemInput   = $('#' + id + '-search-input');
-    let filterValue = elemInput.val().toLowerCase();
+//     let elemBOM     = elemClicked.closest('.bom');
+//     let id          = elemBOM.attr('id');
+//     let elemContent = $('#' + id + '-tbody');
+//     let elemInput   = $('#' + id + '-search-input');
+//     let filterValue = elemInput.val().toLowerCase();
 
-    if(!isBlank(filterValue)) {
-        searchInBOM(id, elemInput);
-    } else {
-        elemContent.children().removeClass('bom-hidden').removeClass('collapsed');
-    }
+//     if(!isBlank(filterValue)) {
+//         // searchInBOM(id, elemInput);
+//         filterPanelContent(id);
+//     } else {
+//         elemContent.children().removeClass('bom-hidden').removeClass('collapsed');
+//     }
 
-}
-function clickBOMCollapseAll(elemClicked) {
+// }
+// function clickBOMCollapseAll(elemClicked) {
 
-    let elemBOM     = elemClicked.closest('.bom');
-    let id          = elemBOM.attr('id');
-    let elemContent = $('#' + id + '-tbody');
+//     let elemBOM     = elemClicked.closest('.bom');
+//     let id          = elemBOM.attr('id');
+//     let elemContent = $('#' + id + '-tbody');
 
-    elemContent.children().each(function() {
-        if($(this).children('th').length === 0) {
-            if(!$(this).hasClass('bom-level-1')) {
-                $(this).addClass('bom-hidden');
-            }
-            if($(this).hasClass('node')) $(this).addClass('collapsed');
-        }
-    });
+//     elemContent.children().each(function() {
+//         if($(this).children('th').length === 0) {
+//             if(!$(this).hasClass('bom-level-1')) {
+//                 $(this).addClass('bom-hidden');
+//             }
+//             if($(this).hasClass('node')) $(this).addClass('collapsed');
+//         }
+//     });
 
-}
-function searchInBOM(id, elemInput) {
+// }
+// function searchInBOM(id, elemInput) {
 
-    let elemTable   = $('#' + id + '-tbody');
-    let filterValue = elemInput.val().toLowerCase();
-    let parents     = [];
+//     // TODO: REMOVE
 
-    if(filterValue === '') {
+//     let elemTable   = $('#' + id + '-tbody');
+//     let filterValue = elemInput.val().toLowerCase();
+//     let parents     = [];
 
-        elemTable.children().each(function() {
-            $(this).removeClass('bom-hidden').removeClass('result');
-        });
-        elemTable.children('.node').each(function() {
-            $(this).removeClass('collapsed').removeClass('result-parent');
-        });
+//     if(filterValue === '') {
 
-    } else {
+//         elemTable.children().each(function() {
+//             $(this).removeClass('bom-hidden').removeClass('result');
+//         });
+//         elemTable.children('.node').each(function() {
+//             $(this).removeClass('collapsed').removeClass('result-parent');
+//         });
 
-        elemTable.children('tr').each(function() {
+//     } else {
 
-            let cellValue = $(this).attr('data-title').toLowerCase();
-            let matches   = (cellValue.indexOf(filterValue) > -1);
-            let level     = Number($(this).attr('data-level'));
-            let isNode    = $(this).hasClass('node');
+//         elemTable.children('tr').each(function() {
+
+//             let cellValue = $(this).attr('data-title').toLowerCase();
+//             let matches   = (cellValue.indexOf(filterValue) > -1);
+//             let level     = Number($(this).attr('data-level'));
+//             let isNode    = $(this).hasClass('node');
             
-            if(level <= parents.length) {
-                parents.splice(level - 1);
-            }
+//             if(level <= parents.length) {
+//                 parents.splice(level - 1);
+//             }
 
-            if(matches) {
+//             if(matches) {
              
-                $(this).removeClass('bom-hidden').addClass('result');
+//                 $(this).removeClass('bom-hidden').addClass('result');
 
-                for(let parent of parents) parent.removeClass('bom-hidden').removeClass('collapsed').addClass('result-parent');
+//                 for(let parent of parents) parent.removeClass('bom-hidden').removeClass('collapsed').addClass('result-parent');
 
-            } else {
+//             } else {
 
-                $(this).addClass('bom-hidden').removeClass('result').removeClass('result-parent');
+//                 $(this).addClass('bom-hidden').removeClass('result').removeClass('result-parent');
 
-            }
+//             }
 
-            if(isNode) parents.push($(this));
+//             if(isNode) parents.push($(this));
 
-        });
+//         });
 
-    }
+//     }
 
-    updateBOMCounters(id);
+//     updateBOMCounters(id);
 
-}
+// }
 function unhideBOMParents(level, elem) {
 
     elem.prevAll().each(function() {
@@ -3552,11 +4346,11 @@ function clickBOMReset(elemClicked) {
 
     elemContent.children().removeClass('result').removeClass('selected').removeClass('bom-hidden');
     
-    if(settings.bom[id].collapsed) {
-        clickBOMCollapseAll($('#' + id + '-toolbar'));
-    } else {
-        clickBOMExpandAll($('#' + id + '-toolbar'));
-    }
+    // if(settings.bom[id].collapseContents) {
+    //     clickBOMCollapseAll($('#' + id + '-toolbar'));
+    // } else {
+    //     clickBOMExpandAll($('#' + id + '-toolbar'));
+    // }
 
     $('#' + id + '-search-input').val('');
 
@@ -3607,21 +4401,30 @@ function clickBOMGoThere(elemClicked) {
     } 
 
 }
-function clickBOMItem(elemClicked, e) {
-    
-    let elemBOM     = elemClicked.closest('.bom');
-    let selectMode  = elemBOM.attr('data-select-mode');
+function selectInViewer(id) {
 
-    if(selectMode == 'single') elemClicked.siblings().removeClass('selected');
+    let listSelected = $('#' + id).find('.content-item.selected');
 
-    elemClicked.toggleClass('selected');    
+    if(listSelected.length === 0) {
+      
+        viewerResetSelection();
+        
+    } else {
 
-    updateBOMPath(elemClicked);
-    updateBOMCounters(elemBOM.attr('id'));
-    clickBOMItemDone(elemClicked, e);
-    
+        let partNumbers = [];
+
+        listSelected.each(function() {
+            let partNumber = $(this).attr('data-part-number');
+            if(!partNumbers.includes(partNumber)) partNumbers.push(partNumber);
+            
+        });
+
+        viewerSelectModels(partNumbers);
+
+    }
+
 }
-function clickBOMItemDone(elemClicked, e) {}
+function clickBOMItem(elemClicked, e) {}
 function getBOMItemChhildren(elemClicked) {
 
 
@@ -3684,11 +4487,11 @@ function getBOMItemPath(elemItem) {
 }
 function bomDisplayItem(elemItem) {
 
-    let level   = Number(elemItem.attr('data-level'));
-    
+    let level = Number(elemItem.attr('data-level'));
+
     expandBOMParents(level - 1, elemItem);
     
-    let elemBOM = elemItem.closest('.bom-content');
+    let elemBOM = elemItem.closest('.panel-content');
     let top     = elemItem.position().top - (elemBOM.innerHeight() / 2);
     
     elemBOM.animate({ scrollTop: top }, 500);
@@ -3764,420 +4567,169 @@ function updateBOMPath(elemClicked) {
 }
 
 
+
 // Insert Flat BOM with selected controls
 function insertFlatBOM(link , params) {
 
-    //  Set defaults for optional parameters
-    // --------------------------------------
-    let id              = 'flat-bom';      // id of DOM element where the Flat BOM will be inserted
-    let header          = true;            // Hide header (and toolbar) by setting this to false
-    let headerLabel     = 'Flat BOM';      // Set the header text
-    let headerToggle    = false;           // Enable header toggles
-    let compactDisplay  = false;           // Optimizes CSS settings for a compact display
-    let openInPLM       = true;            // Adds button to open selected element in PLM
-    let reload          = true;            // Enable reload button for the list
-    let viewSelector    = false;           // Adds drop down menu to select from the available PLM BOM views
-    let search          = true;            // Adds quick filtering using search input on top of BOM
-    let placeholder     = 'Search';        // Set placeholder text for quick filtering input
-    let multiSelect     = false;           // Enables selection of multiple items
-    let editable        = false;           // When set to true, enables modifications in editable fields
-    let filterEmpty     = false;           // When set to true, adds filter for rows with empty input cells 
-    let filterSelected  = false;           // When set to true, adds filter for selected rows
-    let tableHeaders    = true;            // When set to false, the table headers will not be shown
-    let number          = true;            // When set to true, a counter will be displayed as first column
-    let descriptor      = true;            // When set to true, the descriptor will be displayed as first table column
-    let quantity        = false;           // When set to true, the quantity column will be displayed
-    let hideDetails     = false;           // When set to true, detail columns will be skipped, only the descriptor will be shown
-    let counters        = true;            // Display counters at bottom to indicate total, selected, filtered and modified items
-    let totals          = false;           // Enable automatic total calculation for numeric columns, based on selected (or all) items
-    let ranges          = false;           // Enable automatic range indicators for numeric columns, based on selected (or all) items
-    let depth           = 10;              // BOM Levels to expand
-    let revisionBias    = 'release';       // Set BOM configuration to expand [release, working, changeOrder, allChangeOrder]
-    let bomViewName     = '';              // BOM view of PLM to display (if no value is provided, bomViewId will be used)
-    let bomViewId       = '';              // BOM view of PLM to display (if no value is provided, the first view available will be used)
-    let columnsIn       = [];              // Define list of columns to include by fieldId; columns not included in this list will not be shown at all. Keep empty to show all columns.
-    let columnsEx       = [];              // Define list of columns to exclude by fieldId; columns in this list will not be shown at all. Keep empty to show all columns.
-
-
     if(isBlank(link)) return;
-    if(isBlank(params)) params = {};
 
-    if(!isBlank(params.id)            )             id = params.id;
-    if(!isBlank(params.header)        )         header = params.header;
-    if(!isBlank(params.headerLabel)   )    headerLabel = params.headerLabel;
-    if(!isBlank(params.headerToggle)  )   headerToggle = params.headerToggle;
-    if(!isBlank(params.compactDisplay)) compactDisplay = params.compactDisplay;
-    if(!isBlank(params.openInPLM)     )      openInPLM = params.openInPLM;
-    if(!isBlank(params.reload)        )         reload = params.reload;
-    if(!isBlank(params.viewSelector)  )   viewSelector = params.viewSelector;
-    if(!isBlank(params.search)        )         search = params.search;
-    if(!isBlank(params.placeholder)   )    placeholder = params.placeholder;
-    if(!isBlank(params.multiSelect)   )    multiSelect = params.multiSelect;
-    if(!isBlank(params.editable)      )       editable = params.editable;
-    if(!isBlank(params.filterEmpty)   )    filterEmpty = params.filterEmpty;
-    if(!isBlank(params.filterSelected)) filterSelected = params.filterSelected;
-    if(!isBlank(params.tableHeaders)  )   tableHeaders = params.tableHeaders;
-    if(!isBlank(params.number)        )         number = params.number;
-    if(!isBlank(params.descriptor)    )     descriptor = params.descriptor;
-    if(!isBlank(params.quantity)      )       quantity = params.quantity;
-    if(!isBlank(params.hideDetails)   )  { hideDetails = params.hideDetails } else { hideDetails = ((bomViewName === '') && (viewSelector === false)); }
-    if(!isBlank(params.counters)      )       counters = params.counters;
-    if(!isBlank(params.totals)        )         totals = params.totals;
-    if(!isBlank(params.ranges)        )         ranges = params.ranges;
-    if(!isBlank(params.depth)         )          depth = params.depth;
-    if(!isBlank(params.revisionBias)  )   revisionBias = params.revisionBias;
-    if(!isBlank(params.bomViewName)   )    bomViewName = params.bomViewName;
-    if(!isBlank(params.bomViewId)     )      bomViewId = params.bomViewId;
-    if(!isBlank(params.columnsIn)     )      columnsIn = params.columnsIn;
-    if(!isBlank(params.columnsEx)     )      columnsEx = params.columnsEx;
-
-
-    settings.flatBOM[id]                = {};
-    settings.flatBOM[id].viewSelector   = viewSelector;
-    settings.flatBOM[id].multiSelect    = multiSelect;
-    settings.flatBOM[id].editable       = editable;
-    settings.flatBOM[id].tableHeaders   = tableHeaders;
-    settings.flatBOM[id].number         = number;
-    settings.flatBOM[id].descriptor     = descriptor;
-    settings.flatBOM[id].quantity       = quantity;
-    settings.flatBOM[id].hideDetails    = hideDetails;
-    settings.flatBOM[id].totals         = totals;
-    settings.flatBOM[id].ranges         = ranges;
-    settings.flatBOM[id].link           = link;
-    settings.flatBOM[id].depth          = depth;  
-    settings.flatBOM[id].revisionBias   = revisionBias;
-    settings.flatBOM[id].bomViewName    = bomViewName;
-    settings.flatBOM[id].bomViewId      = bomViewId;
-    settings.flatBOM[id].columnsIn      = columnsIn;      
-    settings.flatBOM[id].columnsEx      = columnsEx;    
-
-
-    let elemTop = $('#' + id)
-        .addClass('panel-top')
-        .addClass('list-parent')
-        .addClass('flat-bom')
-        .attr('data-wsid', link.split('/')[4])
-        .html('');
-
-    if(multiSelect) elemTop.addClass('multi-select');
-    if(compactDisplay) elemTop.addClass('compact');
-    if(counters) elemTop.addClass('with-counters');
-
-    if(header) {
-
-        let elemHeader = $('<div></div>', {
-            id : id + '-header'
-        }).appendTo(elemTop).addClass('panel-header');
-
-        if(headerToggle) {
+    let id = isBlank(params.id) ? 'flat-bom' : params.id;
     
-            $('<div></div>').appendTo(elemHeader)
-                .addClass('panel-header-toggle')
-                .addClass('icon')
-                .addClass('icon-collapse');
-    
-            elemHeader.addClass('with-toggle');
-            elemHeader.click(function() {
-                togglePanelHeader($(this));
-            });
-    
-        }
+    settings.flatBOM[id] = getPanelSettings(link, params, {
+        headerLabel : 'Flat BOM'
+    }, [
+        [ 'viewSelector'    , false ],
+        [ 'fieldIdPartNumber'    , 'NUMBER' ],
+        // [ 'filterEmpty'     , false ],
+        // [ 'counters'        , false ],
+        // [ 'totals'          , false ],
+        // [ 'ranges'          , false ],
+        [ 'depth'           , 10 ],
+        [ 'revisionBias'    , 'release' ],
+        [ 'bomViewName'     , '' ],
+        [ 'bomViewId'       , '' ]
+    ]);
 
-        $('<div></div>').appendTo(elemHeader)
-            .addClass('panel-title')
-            .attr('id', id + '-title')
-            .html(headerLabel);
+    settings.flatBOM[id].layout = 'table';
+    settings.flatBOM[id].load   = function() { insertFlatBOMData(id); }
 
-        let elemToolbar = $('<div></div>').appendTo(elemHeader)
-            .addClass('panel-toolbar')
-            .attr('id', id + '-toolbar');
+    genPanelTop(id, settings.flatBOM[id], 'flat-bom');
+    genPanelHeader(id, settings.flatBOM[id]);
+    genPanelOpenSelectedInPLMButton(id, settings.flatBOM[id]);
+    // genPanelDeselectAllButton(id, settings.flatBOM[id]);
+    genPanelSelectionControls(id, settings.flatBOM[id]);
 
-        if(openInPLM) {
+    let elemToolbar = genPanelToolbar(id, settings.flatBOM[id], 'controls');
 
-            $('<div></div>').appendTo(elemToolbar)
-                .addClass('button')
-                .addClass('icon')
-                .addClass('icon-open')
-                .addClass('xs')
-                .addClass('list-open-in-plm')
-                .addClass('list-single-select-action')
-                .attr('title', 'Open the selected item in PLM')
-                .click(function() {
-                    clickListOpenInPLM($(this));
-                });
-    
-        }
+    $('<select></select>').appendTo(elemToolbar)
+        .addClass('flat-bom-view-selector')
+        .addClass('button')
+        .attr('id', id + '-view-selector')
+        .hide()
+        .change(function() {
+            insertFlatBOMData(id);
+        });
 
-        if(filterSelected) {
-                
-            $('<div></div>').appendTo(elemToolbar)
-                .addClass('button')
-                .addClass('icon')
-                .addClass('icon-check-box-checked')
-                .addClass('list-filter-selected')
-                .addClass('list-single-select-action')
-                .addClass('list-multi-select-action')
-                .attr('title', 'Focus on selected rows')
-                .click(function() {
-                    clickListFilterSelected($(this));
-                });
+    genPanelSearchInput(id, settings.flatBOM[id]);
+    genPanelReloadButton(id, settings.flatBOM[id] );
 
-        }
+    genPanelContents(id, settings.flatBOM[id]);
 
-        $('<div></div>').appendTo(elemToolbar)
+    if(settings.flatBOM[id].editable) {
+
+        let elemToolbar = genPanelToolbar(id, settings.flatBOM[id], 'controls');
+
+        $('<div></div>').prependTo(elemToolbar)
             .addClass('button')
-            .addClass('icon')
-            .addClass('icon-deselect-all')
-            .addClass('xs')
-            .addClass('list-multi-select-action')
-            .addClass('list-single-select-action')
-            .attr('id', id + '-deselect-all')
-            .attr('title', 'Deselect all')
-            .click(function() {
-                clickListDeselectAll($(this));
-            });        
-
-        if(editable) {
-
-            appendOverlay(true);
-
-            $('<div></div>').appendTo(elemToolbar)
-                .addClass('button')
-                .addClass('default')
-                .html('Save')
-                .hide()
-                .attr('id', id + '-save')
-                .click(function() {
-                    clickListSave($(this));
-                });
-
-            if(filterEmpty) {
-                
-                $('<div></div>').appendTo(elemToolbar)
-                    .addClass('button')
-                    .addClass('icon')
-                    .addClass('icon-filter-empty')
-                    .addClass('list-filter-empty')
-                    .attr('title', 'Focus on rows having empty inputs')
-                    .click(function() {
-                        clickListFilterEmptyInputs($(this));
-                    });
-
-            }
-
-        }
-
-        $('<select></select>').appendTo(elemToolbar)
-            .addClass('flat-bom-view-selector')
-            .addClass('button')
-            .attr('id', id + '-view-selector')
+            .addClass('default')
+            .attr('id', id + '-save')
+            .html('Save')
             .hide()
-            .change(function() {
-                settings.flatBOM[id].bomViewId = $(this).val();
-                insertFlatBOMData(id);
+            .click(function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                savePanelTableChanges(id, settings.flatBOM[id]);
             });
 
-        if(reload) {
-
-            $('<div></div>').appendTo(elemToolbar)
-                .addClass('button')
-                .addClass('icon')
-                .addClass('icon-refresh')
-                .attr('id', id + '-reload')
-                .attr('title', 'Reload this list')
-                .click(function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    insertFlatBOMData(id);
-                });
-
-        }
-
-        $('<div></div>').appendTo(elemToolbar)
-            .addClass('button') 
-            .addClass('with-icon') 
-            .addClass('icon-filter') 
-            .addClass('flat-bom-counter') 
-            .html('0 rows selected')
-            .hide()
-            .click(function() {
-                $(this).toggleClass('selected');
-                filterFlatBOMByCounter($(this));
-            });
-
-        if(search) {
-
-            let elemSearch = $('<div></div>').appendTo(elemToolbar)
-                .addClass('button')
-                .addClass('with-icon')
-                .addClass('icon-search-list');
-
-            $('<input></input>').appendTo(elemSearch)
-                .attr('placeholder', placeholder)
-                .attr('id', id + '-search-input')
-                .addClass('list-search-input')
-                .keyup(function() {
-                    searchInList(id, $(this));
-                });
-    
-        }            
-
-    } else { elemTop.addClass('no-header'); }
-
-    appendProcessing(id, false);
-    appendNoDataFound(id, 'icon-no-data', 'No Results');
-
-    $('<div></div>').appendTo(elemTop)
-        .attr('id', id + '-list')
-        .addClass('panel-content')
-        .addClass('panel-list')
-        .addClass('no-scrollbar');
-
-    let elemCounters = $('<div></div>').appendTo(elemTop)
-        .attr('id', id + '-list-counters')
-        .addClass('list-counters')
-        .hide();
-
-    if(counters) {
-
-        $('<div></div>').appendTo(elemCounters)
-            .attr('id', id + '-list-counter-total')
-            .addClass('list-counter-total');
-        
-        $('<div></div>').appendTo(elemCounters)
-            .attr('id', id + '-list-counter-filtered')
-            .addClass('list-counter-filtered');
-        
-        $('<div></div>').appendTo(elemCounters)
-            .attr('id', id + '-list-counter-selected')
-            .addClass('list-counter-selected');      
-
-        $('<div></div>').appendTo(elemCounters)
-            .attr('id', id + '-list-counter-changed')
-            .addClass('list-counter-changed');
-
-        elemCounters.show();
-
-    } 
-
-    getFlatBOMViews(id);
-    insertFlatBOMDone(id);        
-
-}
-
-function getFlatBOMViews(id) {
-   
-    let bomViews        = null;
-    let fields          = null
-    let requests        = [];
-    let addToCache      = true;
-    let elemSelect      = $('#' + id + '-view-selector');
-
-    for(let workspace of cacheWorkspaces) {
-        if(workspace.id === settings.flatBOM[id].link .split('/')[4]) {
-            bomViews        = workspace.bomViews;
-            fields          = workspace.fields;
-            editableFields  = workspace.editableFields;
-            addToCache      = false;
-        }
     }
 
-    if(isBlank(bomViews)) requests.push($.get('/plm/bom-views-and-fields', { 'link' : settings.flatBOM[id].link}));
-    if(isBlank(fields))   if(!settings.flatBOM[id].hideDetails) requests.push($.get('/plm/fields', { 'wsId' : settings.flatBOM[id].link .split('/')[4] }))
 
-    Promise.all(requests).then(function(responses) {
-
-        for(let response of responses) {
-            if(response.url.indexOf('/bom-views-and-fields') === 0) {
-                bomViews = response.data;
-            } else if(response.url.indexOf('/fields') === 0) {
-                fields = response.data;
-            }
-        }
-
-        if(addToCache) {
-            cacheWorkspaces.push({
-                'id'                : settings.flatBOM[id].link.split('/')[4],
-                'sections'          : null,
-                'fields'            : fields,
-                'editableFields'    : [],
-                'bomViews'          : bomViews
-            });
-        } else if(responses.length > 0) {
-            for(let workspace of cacheWorkspaces) {
-                if(workspace.id === link.split('/')[4]) {
-                    workspace.bomViews           = bomViews;
-                    if(!settings.flatBOM[id].hideDetails) {
-                        workspace.fields         = fields;
-                        // workspace.editableFields = editableFields;
-                    }
-                    addToCache                  = false;
-                }
-            }
-        }
-
-        for(let bomView of bomViews) {
-
-            $('<option></option>').appendTo(elemSelect)
-                .html(bomView.name)
-                .attr('value', bomView.id);
-
-            if(!isBlank(settings.flatBOM[id].bomViewName)) {
-                if(bomView.name === settings.flatBOM[id].bomViewName) {
-                    settings.flatBOM[id].bomViewId = bomView.id;
-                    elemSelect.val(bomView.id);
-                }
-            } else if(isBlank(settings.flatBOM[id].bomViewId)) settings.flatBOM[id].bomViewId = bomView.id;
-
-        }
+    insertFlatBOMDone(id);        
+    getBOMTabViews(id,  settings.flatBOM[id]);
 
 
-        if(settings.flatBOM[id].viewSelector) elemSelect.show();
+    //  Set defaults for optional parameters
+    // --------------------------------------
+  
+    // let search          = true;            // Adds quick filtering using search input on top of BOM
+    // let placeholder     = 'Search';        // Set placeholder text for quick filtering input
+    // let multiSelect     = false;           // Enables selection of multiple items
+    // let editable        = false;           // When set to true, enables modifications in editable fields
+    // let filterEmpty     = false;           // When set to true, adds filter for rows with empty input cells 
+    // let tableHeaders    = true;            // When set to false, the table headers will not be shown
+    // let number          = true;            // When set to true, a counter will be displayed as first column
+    // let descriptor      = true;            // When set to true, the descriptor will be displayed as first table column
+    // let quantity        = false;           // When set to true, the quantity column will be displayed
+    // let hideDetails     = false;           // When set to true, detail columns will be skipped, only the descriptor will be shown
+    // let counters        = true;            // Display counters at bottom to indicate total, selected, filtered and modified items
+    // let totals          = false;           // Enable automatic total calculation for numeric columns, based on selected (or all) items
+    // let ranges          = false;           // Enable automatic range indicators for numeric columns, based on selected (or all) items
+    // let depth           = 10;              // BOM Levels to expand
+    // let revisionBias    = 'release';       // Set BOM configuration to expand [release, working, changeOrder, allChangeOrder]
+    // let bomViewName     = '';              // BOM view of PLM to display (if no value is provided, bomViewId will be used)
+    // let bomViewId       = '';              // BOM view of PLM to display (if no value is provided, the first view available will be used)
+    
+    // if(!isBlank(params.viewSelector)  )   viewSelector = params.viewSelector;
+    // if(!isBlank(params.search)        )         search = params.search;
+    // if(!isBlank(params.placeholder)   )    placeholder = params.placeholder;
+    // if(!isBlank(params.multiSelect)   )    multiSelect = params.multiSelect;
+    // if(!isBlank(params.editable)      )       editable = params.editable;
+    // if(!isBlank(params.filterEmpty)   )    filterEmpty = params.filterEmpty;
+    // if(!isBlank(params.filterSelected)) filterSelected = params.filterSelected;
+    // if(!isBlank(params.tableHeaders)  )   tableHeaders = params.tableHeaders;
+    // if(!isBlank(params.number)        )         number = params.number;
+    // if(!isBlank(params.descriptor)    )     descriptor = params.descriptor;
+    // if(!isBlank(params.quantity)      )       quantity = params.quantity;
+    // if(!isBlank(params.totals)        )         totals = params.totals;
+    // if(!isBlank(params.ranges)        )         ranges = params.ranges;
 
-        insertFlatBOMData(id);
+        // $('<div></div>').appendTo($('#' + id + '-toolbar'))
+            // .addClass('button') 
+            // .addClass('with-icon') 
+            // .addClass('icon-filter') 
+            // .addClass('flat-bom-counter') 
+            // .html('0 rows selected')
+            // .hide()
+            // .click(function() {
+            //     $(this).toggleClass('selected');
+            //     filterFlatBOMByCounter($(this));
+            // });
+      
 
-    });
+    // } else { elemTop.addClass('no-header'); }
+
+
+
+    // let elemCounters = $('<div></div>').appendTo($('#' + id))
+    //     .attr('id', id + '-list-counters')
+    //     .addClass('list-counters')
+    //     .hide();
 
 }
 function insertFlatBOMDone(id) {}
 function insertFlatBOMData(id) {
 
-    let elemParent  = $('#' + id);
-    let timestamp   = new Date().getTime();
-    let elemList    = $('#' + id + '-list');
-
-    elemParent.attr('data-timestamp', timestamp);
-    elemList.html('').hide();
-    
-    $('#' + id + '-processing').show();
+    settings.flatBOM[id].timestamp = startPanelContentUpdate(id);
+    settings.flatBOM[id].viewId    = $('#' +  id + '-view-selector').val();
 
     let params = {
-        'link'          : settings.flatBOM[id].link,
-        'depth'         : settings.flatBOM[id].depth,
-        'revisionBias'  : settings.flatBOM[id].revisionBias,
-        'viewId'        : settings.flatBOM[id].bomViewId,
-        'timestamp'     : timestamp
+        link          : settings.flatBOM[id].link,
+        depth         : settings.flatBOM[id].depth,
+        revisionBias  : settings.flatBOM[id].revisionBias,
+        viewId        : settings.flatBOM[id].viewId,
+        timestamp     : settings.flatBOM[id].timestamp
     }
 
-    let bomView;
-
-    for(let workspace of cacheWorkspaces) {
-        if(workspace.id === settings.flatBOM[id].link.split('/')[4]) {
-            editableFields = workspace.editableFields;
-            if(!isBlank(workspace.bomViews)) {
-                for(let view of workspace.bomViews) {
-                    if(view.id === Number(settings.flatBOM[id].bomViewId)) bomView = view;
-                }
-            }
+    for(let view of settings.flatBOM[id].bomViews) {
+        if(params.viewId == view.id) {
+            settings.flatBOM[id].columns             = view.columns;
+            settings.flatBOM[id].fieldURNPartNumber  = view.urns.partNumber;
+            settings.flatBOM[id].fieldURNQuantity    = view.urns.quantity;
+            settings.flatBOM[id].fieldURNEndItem     = view.urns.endItem;
+            settings.flatBOM[id].fieldURNSelectItems = view.urns.selectItems;
+            break;
         }
     }
 
-    sortArray(bomView.fields, 'displayOrder', 'integer');
+    sortArray(settings.flatBOM[id].columns, 'displayOrder', 'integer');
 
-    let requests = [$.get('/plm/bom-flat', params)];
+    let requests = [
+        $.get('/plm/bom-flat', params),
+        $.get('/plm/workspaces', { useCache : true})
+    ];
 
-    for(let field of bomView.fields) {
-        if(field.fieldId === config.viewer.fieldIdPartNumber) fieldURNPartNumber = field.__self__.urn;
+    for(let field of settings.flatBOM[id].columns) {
+        // if(field.fieldId === config.items.fieldIdNumber) fieldURNPartNumber = field.__self__.urn;
         if(settings.flatBOM[id].editable) {
             if(field.visibility !== 'NEVER') {
                 if(field.editability !== 'NEVER') {
@@ -4199,67 +4751,79 @@ function insertFlatBOMData(id) {
 
     Promise.all(requests).then(function(responses) {
 
-        if(responses[0].params.timestamp === $('#' + id).attr('data-timestamp')) {
-            
-            let fields      = bomView.fields;
-            let columnsIn   = settings.flatBOM[id].columnsIn;
-            let columnsEx   = settings.flatBOM[id].columnsEx;
-            let columns     = [];
-            let items       = responses[0].data;
-            
-            for(let field of fields) {
-                let fieldId = field.fieldId;
-                if(columnsIn.length === 0 || columnsIn.includes(fieldId)) {
-                    if(columnsEx.length === 0 || !columnsEx.includes(fieldId)) {
-                        columns.push(field);
-                    }
-                }
+        if(stopPanelContentUpdate(responses[0], settings.flatBOM[id])) return;
+
+        let columns = [];
+        let items   = [];
+        let bom     = responses[0].data;
+
+        for(let view of settings.flatBOM[id].bomViews) {
+            if(settings.flatBOM[id].viewId == view.id) {
+                columns = view.columns;
+                break;
+            }
+        }
+    
+        for(let column of columns) {
+            if(includePanelTableColumn(column.displayName, settings.flatBOM[id], settings.flatBOM[id].columns.length)) {
+                settings.flatBOM[id].columns.push(column);
+            }
+        }
+
+        for(let item of bom) {
+
+            let workspace     = '';
+            let workspaceLink = item.item.link.split('/items/')[0];
+
+            for(let ws of responses[1].data.items) {
+                if(ws.link === workspaceLink) { workspace = ws.title; break; }
             }
 
-            settings.flatBOM[id].columns = columns;
+            if((settings.flatBOM[id].workspacesIn.length === 0) || ( settings.flatBOM[id].workspacesIn.includes(workspace))) {
+                if((settings.flatBOM[id].workspacesEx.length === 0) || (!settings.flatBOM[id].workspacesEx.includes(workspace))) {
 
-            for(let item of items) {
-
-                item.link       = item.item.link;
-                item.title      = item.item.title;
-                item.partNumber = '';
-                item.data       = [];
-                item.quantity   = item.totalQuantity
-
-                for(let column of settings.flatBOM[id].columns) {
-
-                    let value = '';
-
-                    for(let field of item.occurrences[0].fields) {
-                        if(field.metaData.link === column.__self__.link) {
-                            value = field.value;
-                            break;
-                        }
-                    }
-
-                    item.data.push({
-                        fieldId : column.fieldId,
-                        value   : value
+                    let contentItem = genPanelContentItem(settings.flatBOM[id], {
+                        link       : item.item.link,
+                        title      : item.item.title,
+                        quantity   : item.totalQuantity,
+                        partNumber : getFlatBOMNodeValue(item, settings.flatBOM[id].fieldURNPartNumber)
                     });
 
-                }
+                    for(let column of settings.flatBOM[id].columns) {
 
-                for(let field of item.data) {
-                    if(field.fieldId === config.viewer.fieldIdPartNumber) {
-                        item.partNumber = field.value;
-                        break;
+                        let value = '';
+
+                        for(let field of item.occurrences[0].fields) {
+                            if(field.metaData.link === column.__self__.link) {
+                                value = field.value;
+                                break;
+                            }
+                        }
+
+                        contentItem.data.push({
+                            fieldId : column.fieldId,
+                            value   : value
+                        });
+
                     }
 
-                }
+                    // for(let field of item.data) {
+                    //     if(field.fieldId === config.items.fieldIdNumber) {
+                    //         contentItem.partNumber = field.value;
+                    //         break;
+                    //     }
 
+                    // }
+
+                    items.push(contentItem);
+
+                }
             }
 
-            $('#' + id + '-processing').hide();
-
-            genTable(id ,settings.flatBOM[id], items);
-            insertFlatBOMDataDone(id, responses);
-
         }
+
+        finishPanelContentUpdate(id, settings.flatBOM[id], items);
+        insertFlatBOMDataDone(id, responses);
 
     });
 
@@ -4267,114 +4831,497 @@ function insertFlatBOMData(id) {
 function insertFlatBOMDataDone(id, data) {}
 
 
+
+
+
 // Insert Where Used immediate parents
-function insertParents(link, id, icon, enableExpand) {
+// function insertParents(link, id, icon, enableExpand) {
 
-    if(isBlank(link         )) return;
-    if(isBlank(id           ))           id = 'parents';
-    if(isBlank(icon         ))         icon = 'account_tree';
-    if(isBlank(enableExpand )) enableExpand = false;
+//     if(isBlank(link         )) return;
+//     if(isBlank(id           ))           id = 'parents';
+//     if(isBlank(icon         ))         icon = 'account_tree';
+//     if(isBlank(enableExpand )) enableExpand = false;
 
-    let timestamp = new Date().getTime();
+//     let timestamp = new Date().getTime();
 
-    let elemList = $('#' + id + '-list');
-        elemList.attr('data-timestamp', timestamp);
-        elemList.html('');
+//     let elemList = $('#' + id + '-list');
+//         elemList.attr('data-timestamp', timestamp);
+//         elemList.html('');
 
-    let elemProcessing = $('#' + id + '-processing')
-        elemProcessing.show();
+//     let elemProcessing = $('#' + id + '-processing')
+//         elemProcessing.show();
+
+//     let params = {
+//         'link'      : link,
+//         'depth'     : 1,
+//         'timestamp' : timestamp
+//     }
+
+//     $.get('/plm/where-used', params, function(response) {
+
+//         if(response.params.timestamp === $('#' + id + '-list').attr('data-timestamp')) {
+//             if(response.params.link === link) {
+        
+//                 elemProcessing.hide();
+
+//                 for(let edge of response.data.edges) {
+
+//                     let urnParent = edge.child;
+//                     let quantity  =  0;
+
+//                     for(let node of response.data.nodes) {
+
+//                         console.log(urnParent);
+//                         console.log(node.item.urn);
+
+//                         if(urnParent === node.item.urn){ 
+
+//                             console.log('hier');
+
+//                             for(field of node.fields) {
+//                                 if(field.title === 'QUANTITY') quantity = field.value;
+//                             }
+
+//                             let elemTile = genTile(node.item.link, '', '', icon, node.item.title, 'Quantity: ' + quantity);
+//                                 elemTile.appendTo(elemList);
+//                                 elemTile.addClass('parent');
+//                                 elemTile.click(function(e) {
+//                                     e.preventDefault();
+//                                     e.stopPropagation();
+//                                     clickParentItem($(this));
+//                                 });
+
+//                             if(enableExpand) {
+
+//                                 let elemToggle = $('<div></div>');
+//                                     elemToggle.addClass('icon');
+//                                     elemToggle.addClass('icon-expand');
+//                                     elemToggle.addClass('tile-toggle');
+//                                     elemToggle.prependTo(elemTile);
+//                                     elemToggle.click(function(e) {
+//                                         e.preventDefault();
+//                                         e.stopPropagation();
+//                                         clickParentItemToggle(id, $(this));
+//                                     });
+                                    
+//                             }
+
+//                         }
+//                     }
+//                 }
+
+//                 if(response.data.totalCount === 0) {
+//                     $('<div>No parents found</div>').appendTo(elemList)
+//                         .css('margin', 'auto');
+//                 }
+
+//                 insertParentsDone(id);
+
+//             }     
+//         }
+
+//     });
+    
+// }
+// function insertParentsDone(id) {}
+// function clickParentItem(elemClicked) { openItemByLink(elemClicked.attr('data-link')); }
+// function clickParentItemToggle(id, elemClicked) { 
+
+//     let elemParent = elemClicked.closest('.tile');
+//         elemParent.toggleClass('expanded');
+
+//     if(elemParent.hasClass('expanded')) {
+
+//         if(elemParent.nextUntil('.parent').length === 0) {
+        
+//         let linkParent  = elemParent.attr('data-link');
+//         let idBOM       = 'bom-' + linkParent.split('/')[6];
+//         let elemBOM     = $('<div></div>');
+        
+//         elemBOM.attr('id', idBOM);
+//         elemBOM.addClass('child');
+//         elemBOM.insertAfter(elemParent);
+        
+//         insertBOM(linkParent, {
+//             'id'        : idBOM,
+//             'title'     : '',
+//             'toggles'   : true,
+//             'search'    : true
+//         });
+
+//         } else {
+//             elemParent.nextUntil('.parent').show();
+//         }
+
+//     } else {
+        
+//         elemParent.nextUntil('.parent').hide();
+
+//     }
+
+// }
+
+
+// Insert Where Used root items
+function insertRootParents(link, params) {
+
+    if(isBlank(link)) return;
+
+    let id = isBlank(params.id) ? 'roots' : params.id;
+    
+    settings.roots[id] = getPanelSettings(link, params, {
+        headerLabel : 'Root Parents',
+        layout      : 'table',
+        tileIcon    : 'icon-link'
+    }, [
+        [ 'depth'             , 10   ],
+        [ 'filterByLifecycle' , true ],
+        [ 'filterByWorkspace' , true ]
+    ]);
+
+    settings.roots[id].load = function() { insertRootParentsData(id); }
+
+    genPanelTop(id, settings.roots[id], 'roots');
+    genPanelHeader(id, settings.roots[id]);
+    genPanelOpenSelectedInPLMButton(id, settings.roots[id]);
+    genPanelSelectionControls(id, settings.roots[id]);
+    genPanelFilterSelect(id, settings.roots[id], 'filterByLifecycle', 'lifecycle', 'All Lifecycles');
+    genPanelFilterSelect(id, settings.roots[id], 'filterByWorkspace', 'workspace', 'All Workspaces');
+    genPanelSearchInput(id, settings.roots[id]);
+    genPanelReloadButton(id, settings.roots[id], );
+
+    genPanelContents(id, settings.roots[id]);
+
+    insertRootParentsDone(id);
+    
+    settings.roots[id].load();
+
+}
+function insertRootParentsData(id) {
+
+    settings.roots[id].timestamp = startPanelContentUpdate(id);
 
     let params = {
-        'link'      : link,
-        'depth'     : 1,
-        'timestamp' : timestamp
+        link        : settings.roots[id].link,
+        depth       : settings.roots[id].depth,
+        timestamp   : settings.roots[id].timestamp
     }
 
-    $.get('/plm/where-used', params, function(response) {
+    let requests = [
+        $.get('/plm/where-used', params),
+        $.get('/plm/workspaces', { useCache : true } )
+    ]
 
-        if(response.params.timestamp === $('#' + id + '-list').attr('data-timestamp')) {
-            if(response.params.link === link) {
-        
-                elemProcessing.hide();
+    Promise.all(requests).then(function(responses) {
 
-                for(let edge of response.data.edges) {
+        if(stopPanelContentUpdate(responses[0], settings.roots[id])) return;
 
-                    let urnParent = edge.child;
-                    let quantity  =  0;
+        let items           = [];
+        let listWorkspaces  = [];
+        let listLifecycles  = [];
+        let columns         = [
+            { displayName : 'Item',      fieldId : 'item'      },
+            { displayName : 'Lifecycle', fieldId : 'lifecycle' },
+            { displayName : 'Quantity',  fieldId : 'quantity'  },
+            { displayName : 'Hierarchy', fieldId : 'hierarchy' }
+        ]
 
-                    for(let node of response.data.nodes) {
 
-                        console.log(urnParent);
-                        console.log(node.item.urn);
+        for(let column of columns) {
+            if(includePanelTableColumn(column.displayName, settings.roots[id], settings.roots[id].columns.length)) {
+                settings.roots[id].columns.push(column);
+            }
+        }
 
-                        if(urnParent === node.item.urn){ 
+        for(let edge of responses[0].data.edges) {
 
-                            console.log('hier');
+            if(!edge.hasOwnProperty('edgeLink')) {
 
-                            for(field of node.fields) {
-                                if(field.title === 'QUANTITY') quantity = field.value;
+                for(let node of responses[0].data.nodes) {
+
+                    if(edge.child === node.item.urn) {
+
+                        let workspace   = '';
+                        let linkWorkspace = node.item.link.split('/items/')[0];
+
+                        for(let ws of responses[1].data.items) {
+                            if(linkWorkspace === ws.link) {
+                                workspace = ws.title;
+                                break;
                             }
+                        }
 
-                            let elemTile = genTile(node.item.link, '', '', icon, node.item.title, 'Quantity: ' + quantity);
-                                elemTile.appendTo(elemList);
-                                elemTile.addClass('parent');
-                                elemTile.click(function(e) {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    clickParentItem($(this));
+                        if((settings.roots[id].workspacesIn.length === 0) || ( settings.roots[id].workspacesIn.includes(workspace))) {
+                            if((settings.roots[id].workspacesEx.length === 0) || (!settings.roots[id].workspacesEx.includes(workspace))) {
+
+                                let lifecycle   = '';
+                                let quantity    = '';
+
+                                for(let field of node.fields) {
+                                         if(field.title === 'QUANTITY' ) quantity  = field.value;
+                                    else if(field.title === 'LIFECYCLE') lifecycle = field.value;
+                                }
+
+                                let path = [];
+
+                                if(!listWorkspaces.includes(workspace)) listWorkspaces.push(workspace);
+                                if(!listLifecycles.includes(lifecycle)) listLifecycles.push(lifecycle);
+                                
+                                getRootChildren(path, responses[0].data.edges, responses[0].data.nodes, node.item.urn, 1);
+
+
+                                let contentItem = genPanelContentItem(settings.roots[id], {
+                                    link        : node.item.link,
+                                    title       : node.item.title,
+                                    subtitle    : workspace,
                                 });
 
-                            if(enableExpand) {
+                                contentItem.path = path;
 
-                                let elemToggle = $('<div></div>');
-                                    elemToggle.addClass('icon');
-                                    elemToggle.addClass('icon-expand');
-                                    elemToggle.addClass('tile-toggle');
-                                    elemToggle.prependTo(elemTile);
-                                    elemToggle.click(function(e) {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        clickParentItemToggle(id, $(this));
-                                    });
-                                    
+                                contentItem.data = [
+                                    { fieldId : 'item'       , value : node.item.title },
+                                    { fieldId : 'lifecycle'  , value : lifecycle       },
+                                    { fieldId : 'quantity'   , value : quantity        },
+                                    { fieldId : 'hierarchy'  , value : ''              }
+                                ];
+                    
+                                contentItem.filters = [
+                                    { key : 'lifecycle', value : lifecycle },
+                                    { key : 'workspace', value : workspace }
+                                ];                                
+
+                                items.push(contentItem);
+
                             }
+                        }
+
+                    }
+                }
+            }
+        }
+
+        if(settings.roots[id].layout.toLowerCase() === 'table') {
+            genTable(id ,items, settings.roots[id]);
+            $('#' + id + '-tbody').children().each(function() {
+                
+                let elemCell = $(this).children().last();
+                let link     = $(this).attr('data-link');
+            
+                for(let item of items) {
+
+                    if(item.link === link) {
+
+                        for(let step of item.path) {
+
+                            let elemParent     = $('<div></div>').appendTo(elemCell).addClass('roots-parent').attr('data-link', item.link);
+                            let elemParentPath = $('<div></div>').appendTo(elemParent).addClass('roots-parent-path');
+
+                            for(let i = step.level - 1; i > 0; i--) { elemParentPath.append('<span class="icon icon-east"></span>'); }
+
+                            elemParentPath.append(step.title);
+
+                        }
+
+                        break;
+
+                    }
+
+                }
+
+            });
+        } else {
+            genTilesList(id, items, settings.roots[id]);   
+            // addTilesListImages(id, settings.roots[id]);
+        }
+
+        setPanelFilterOptions(id, 'lifecycle', listLifecycles);
+        setPanelFilterOptions(id, 'workspace', listWorkspaces);
+        finishPanelContentUpdate(id, settings.roots[id]);
+        insertRootParentsDataDone(id, responses[0].data);
+           
+    });
+    
+}
+function getRootChildren(path, edges, nodes, parent, level) {
+
+    for(let edge of edges) {
+
+        if(parent === edge.child) {
+
+            for(let node of nodes) {
+                if(parent === node.item.urn) {
+                    path.push({
+                        level : level,
+                        link : node.item.link,
+                        title : node.item.title
+                    });
+                }
+            }
+
+            getRootChildren(path, edges, nodes, edge.parent, level + 1);
+
+        }
+
+    }
+
+}
+function insertRootParentsDone(id) {}
+function insertRootParentsDataDone(id, data) {}
+
+
+
+// Insert Where Used direct parents
+function insertParents(link, params) {
+
+    if(isBlank(link)) return;
+
+    let id = isBlank(params.id) ? 'parents' : params.id;
+    
+    settings.parents[id] = getPanelSettings(link, params, {
+        headerLabel : 'Parents',
+        layout      : 'list',
+        tileIcon    : 'icon-product'
+    }, [
+        [ 'expand'            , true ],
+        [ 'filterByLifecycle' , true ],
+        [ 'filterByWorkspace' , true ]
+    ]);
+
+    settings.parents[id].load = function() { insertParentsData(id); }
+
+    genPanelTop(id, settings.parents[id], 'parents');
+    genPanelHeader(id, settings.parents[id]);
+    genPanelOpenSelectedInPLMButton(id, settings.parents[id]);
+    genPanelSelectionControls(id, settings.parents[id]);
+    genPanelFilterSelect(id, settings.parents[id], 'filterByLifecycle', 'lifecycle', 'All Lifecycles');
+    genPanelFilterSelect(id, settings.parents[id], 'filterByWorkspace', 'workspace', 'All Workspaces');
+    genPanelSearchInput(id, settings.parents[id]);
+    genPanelReloadButton(id, settings.parents[id]);
+
+    genPanelContents(id, settings.parents[id]);
+
+    insertParentsDone(id);
+    
+    settings.parents[id].load();
+
+}
+function insertParentsData(id) {
+
+    settings.parents[id].timestamp = startPanelContentUpdate(id);
+
+    let params = {
+        link        : settings.parents[id].link,
+        limit       : 1,
+        timestamp   : settings.parents[id].timestamp
+    }
+
+    let requests = [
+        $.get('/plm/where-used', params),
+        $.get('/plm/workspaces'   , { useCache : true } )
+    ]
+
+    Promise.all(requests).then(function(responses) {
+
+        if(stopPanelContentUpdate(responses[0], settings.parents[id])) return;
+
+        let items           = [];
+        let listWorkspaces  = [];
+        let listLifecycles  = [];
+        let columns         = [
+            { displayName : 'Item',      fieldId : 'item'      },
+            { displayName : 'Lifecycle', fieldId : 'lifecycle' },
+            { displayName : 'Workspace', fieldId : 'workspace' }
+        ]
+
+        for(let column of columns) {
+            if(includePanelTableColumn(column.displayName, settings.parents[id], settings.parents[id].columns.length)) {
+                settings.parents[id].columns.push(column);
+            }
+        }
+
+        for(let parent of responses[0].data.edges) {
+
+            for(let node of responses[0].data.nodes) {
+
+                if(parent.child === node.item.urn){ 
+
+                    let workspace     = '';
+                    let lifecycle     = '';
+                    let linkWorkspace = node.item.link.split('/items/')[0];
+
+                    for(let ws of responses[1].data.items) {
+                        if(linkWorkspace === ws.link) {
+                            workspace = ws.title;
+                            break;
+                        }
+                    }
+
+                    if((settings.parents[id].workspacesIn.length === 0) || ( settings.parents[id].workspacesIn.includes(workspace))) {
+                        if((settings.parents[id].workspacesEx.length === 0) || (!settings.parents[id].workspacesEx.includes(workspace))) {
+
+                            for(let field of node.fields) {
+                                if(field.title === 'LIFECYCLE') lifecycle = field.value;
+                            }
+
+                            if(!listWorkspaces.includes(workspace)) listWorkspaces.push(workspace);
+                            if(!listLifecycles.includes(lifecycle)) listLifecycles.push(lifecycle);
+
+                            let contentItem = genPanelContentItem(settings.parents[id], {
+                                link        : node.item.link,
+                                subtitle    : lifecycle,
+                            });
+
+                            contentItem.data = [
+                                { fieldId : 'item'       , value : node.item.title },
+                                { fieldId : 'lifecycle'  , value : lifecycle },
+                                { fieldId : 'workspace'  , value : workspace }
+                            ];
+
+                            contentItem.filters = [
+                                { key : 'lifecycle', value : lifecycle },
+                                { key : 'workspace', value : workspace }
+                            ];
+
+                            items.push(contentItem);
 
                         }
                     }
                 }
-
-                if(response.data.totalCount === 0) {
-                    $('<div>No parents found</div>').appendTo(elemList)
-                        .css('margin', 'auto');
-                }
-
-                insertParentsDone(id);
-
-            }     
+            }
+                
         }
 
+        if(settings.parents[id].layout.toLowerCase() === 'table') {
+            genTable(id, items, settings.parents[id]);
+        } else {
+            genTilesList(id, items, settings.parents[id]);   
+            addTilesListChevrons(id, settings.parents[id], function(elemClicked) { insertParentBOM(elemClicked); });
+        }
+
+        sortArray(listLifecycles, 0);
+        sortArray(listWorkspaces, 0);
+
+        setPanelFilterOptions(id, 'lifecycle', listLifecycles);
+        setPanelFilterOptions(id, 'workspace', listWorkspaces);
+        finishPanelContentUpdate(id, settings.parents[id]);
+        insertParentsDataDone(id, responses[0].data);
+        
     });
-    
+
 }
-function insertParentsDone(id) {}
-function clickParentItem(elemClicked) { openItemByLink(elemClicked.attr('data-link')); }
-function clickParentItemToggle(id, elemClicked) { 
+function insertParentBOM(elemClicked) {
 
-    let elemParent = elemClicked.closest('.tile');
-        elemParent.toggleClass('expanded');
+    let elemParent = elemClicked.closest('.content-item');
+    let linkParent = elemParent.attr('data-link');
 
-    if(elemParent.hasClass('expanded')) {
+    if(elemClicked.hasClass('icon-collapse')) {
 
-        if(elemParent.nextUntil('.parent').length === 0) {
+        let idBOM = 'parent-bom-' + linkParent.split('/')[6];
         
-        let linkParent  = elemParent.attr('data-link');
-        let idBOM       = 'bom-' + linkParent.split('/')[6];
-        let elemBOM     = $('<div></div>');
-        
-        elemBOM.attr('id', idBOM);
-        elemBOM.addClass('child');
-        elemBOM.insertAfter(elemParent);
-        
+        $('<div></div>').insertAfter(elemParent)
+            .attr('id', idBOM)    
+            .addClass('parent-bom') 
+                
         insertBOM(linkParent, {
             'id'        : idBOM,
             'title'     : '',
@@ -4382,389 +5329,551 @@ function clickParentItemToggle(id, elemClicked) {
             'search'    : true
         });
 
-        } else {
-            elemParent.nextUntil('.parent').show();
-        }
-
     } else {
-        
-        elemParent.nextUntil('.parent').hide();
+
+        elemParent.nextUntil('.content-item').remove();
 
     }
 
 }
+function insertParentsDone(id)  {}
+function insertParentsDataDone(id, data)  {}
 
-
-// Insert Where Used root items
-function insertRoots(link, id, icon) {
-
-    if(isBlank(link)) return;
-    if(isBlank(id)  ) id   = 'roots';
-    if(isBlank(icon)) icon = 'account_tree';
-
-    let timestamp = new Date().getTime();
-
-    let elemList = $('#' + id + '-list');
-        elemList.attr('data-timestamp', timestamp);
-        elemList.html('');
-        elemList.hide();
-
-    let elemProcessing = $('#' + id + '-processing')
-        elemProcessing.show();
-
-    let params = {
-        'link'      : link,
-        'depth'     : 10,
-        'timestamp' : timestamp
-    }
-
-    let elemTable = $('<table></table>');
-        elemTable.attr('id', '#' + id + '-table');
-        elemTable.appendTo(elemList);
-
-    let elemTHead = $('<thead></thead>');
-        elemTHead.attr('id', '#' + id + '-thead');
-        elemTHead.appendTo(elemTable);
-
-    let elemTHeadRow = $('<tr></tr>');
-        elemTHeadRow.append('<th>Top Level Item</th>');
-        elemTHeadRow.append('<th>Status</th>');
-        elemTHeadRow.append('<th>Quantity</th>');
-        elemTHeadRow.append('<th>Hierarchy</th>');
-        elemTHeadRow.appendTo(elemTHead);
-
-    let elemTBody = $('<tbody></tbody>');
-        elemTBody.attr('id', '#' + id + '-tbody');
-        elemTBody.appendTo(elemTable);
-
-    $.get('/plm/where-used', params, function(response) {
-    
-        if(response.params.timestamp === $('#' + id + '-list').attr('data-timestamp')) {
-            if(response.params.link === link) {
-    
-                elemList.show();
-                elemProcessing.hide();
-
-                if(isBlank(response.data.edges)) return;
-
-                for(edge of response.data.edges) {
-        
-                    if(!edge.hasOwnProperty('edgeLink')) {
-        
-                        let urn = edge.child;
-        
-                        for(node of response.data.nodes) {
-        
-                            if(urn === node.item.urn) {
-        
-                                let lifecycle = '';
-                                let quantity  = '';
-        
-                                for(field of node.fields) {
-                                         if(field.title === 'QUANTITY' ) quantity  = field.value;
-                                    else if(field.title === 'LIFECYCLE') lifecycle = field.value;
-                                }
-        
-                                let elemItem = $('<td></td>');
-                                    elemItem.html(node.item.title);
-                                    elemItem.attr('data-link', node.item.link);
-                                    elemItem.addClass('roots-item');
-                                    elemItem.click(function(e) {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        clickRootItem($(this));
-                                    });
-        
-                                let elemChildren = $('<td></td>');
-
-                                let elemRow = $('<tr></tr>');
-                                    elemRow.append(elemItem);
-                                    elemRow.append('<td class="roots-lifecycle">' + lifecycle + '</td>');
-                                    elemRow.append('<td class="roots-quantity">' + quantity + '</td>');
-                                    elemRow.append(elemChildren);
-                                    elemRow.appendTo(elemTable);
-                                    elemRow.attr('data-urn', node.item.urn);
-        
-                                getRootChildren(elemChildren, response.data.edges, response.data.nodes, node.item.urn, 1);
-        
-                            }
-                        }
-                    }
-                }
-            }           
-        }           
-    });
-    
-}
-function getRootChildren(elemChildren, edges, nodes, parent, level) {
-
-    for(edge of edges) {
-
-        if(parent === edge.child) {
-
-            let elemParent = $('<div></div>');
-                elemParent.addClass('roots-parent');
-
-            let elemParentPath = $('<div></div>');
-                elemParentPath.addClass('roots-parent-path');
-                elemParentPath.appendTo(elemParent);
-                
-            for(let i = level - 1; i > 0; i--) { elemParentPath.append('<span class="icon roots-parent-path-icon">trending_flat</span>'); }
-
-            for(node of nodes) {
-                if(parent === node.item.urn) {
-                    elemParent.attr('data-urn', node.item.urn);
-                    elemParent.attr('data-link', node.item.link);
-                    elemParentPath.append(node.item.title);
-                    elemParent.click(function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        clickRootsPathItem($(this));
-                    });
-                }
-            }
-
-            elemChildren.append(elemParent);
-            getRootChildren(elemChildren, edges, nodes, edge.parent, level+1);
-
-        }
-
-    }
-
-}
-function clickRootItem(elemClicked) { openItemByLink(elemClicked.attr('data-link')); }
-function clickRootsPathItem(elemClicked) { openItemByLink(elemClicked.attr('data-link')); }
 
 
 // Insert BOM children which are new or have been changed
-function insertChildrenChanged(link, id, wsIdChangeProcess, icon) {
-
-
-    console.log('insertChildrenChanged');
-    console.log(link);
+function insertBOMChanges(link, params) {
 
     if(isBlank(link)) return;
-    if(isBlank(wsIdChangeProcess)) return;
-    if(isBlank(icon)) icon = 'settings';
 
-    console.log(wsIdChangeProcess);
+    let id = isBlank(params.id) ? 'changes' : params.id;
+    
+    settings.changes[id] = getPanelSettings(link, params, {
+        headerLabel : 'Changed BOM Items',
+        layout      : 'list',
+        tileIcon    : 'icon-product'
+    }, [
+        [ 'depth'             , 10   ],
+        [ 'filterByLifecycle' , true ],
+        [ 'filterByWorkspace' , true ],
+        [ 'limit'             , 250  ],
+        [ 'wsIdChangesProcess', '78' ]
+    ]);
 
-    $.get('/plm/related-items', { 'link' : link, 'relatedWSID' : wsIdChangeProcess }, function(response) {
+    settings.changes[id].load = function() { insertBOMChangesData(id); }
 
-        console.log(response);
+    genPanelTop(id, settings.changes[id], 'changes');
+    genPanelHeader(id, settings.changes[id]);
+    genPanelOpenSelectedInPLMButton(id, settings.changes[id]);
+    genPanelSelectionControls(id, settings.changes[id]);
+    genPanelFilterSelect(id, settings.changes[id], 'filterByLifecycle', 'lifecycle', 'All Lifecycles');
+    genPanelFilterSelect(id, settings.changes[id], 'filterByWorkspace', 'workspace', 'All Workspaces');
+    genPanelSearchInput(id, settings.changes[id]);
+    genPanelReloadButton(id, settings.changes[id]);
 
-        if(response.params.link  !== link) return;
+    genPanelContents(id, settings.changes[id]);
 
-        let elemList  = $('#' + id);
-            elemList.html('');
+    insertBOMChangesDone(id);
 
-        for(relatedItem of response.data) {
+    settings.changes[id].load();
 
-            let elemTile = genTile(relatedItem.link, '', '', icon, relatedItem.title);
-                elemTile.appendTo(elemList);
-                elemTile.click(function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    clickChildrenChangedItem($(this));
-            });
+}
+function insertBOMChangesData(id) {
+
+    settings.changes[id].timestamp = startPanelContentUpdate(id);
+
+    let params = {
+        link        : settings.changes[id].link,
+        limit       : settings.changes[id].limit,
+        relatedWSID : settings.changes[id].wsIdChangesProcess,
+        timestamp   : settings.changes[id].timestamp
+    }
+
+    let requests = [
+        $.get('/plm/related-items', params),
+        $.get('/plm/workspaces'   , { useCache : true } )
+    ]
+
+    Promise.all(requests).then(function(responses) {
+
+        if(stopPanelContentUpdate(responses[0], settings.changes[id])) return;
+
+        let items           = [];
+        let listWorkspaces  = [];
+        let listLifecycles  = [];
+        let columns         = [
+            { displayName : 'Item',      fieldId : 'item'      },
+            { displayName : 'Lifecycle', fieldId : 'lifecycle' },
+        ]
+
+        for(let column of columns) {
+            if(includePanelTableColumn(column.displayName, settings.changes[id], settings.changes[id].columns.length)) {
+                settings.changes[id].columns.push(column);
+            }
+        }
+
+        for(let changedItem of responses[0].data) {
+
+            let workspace     = '';
+            let linkWorkspace = changedItem.link.split('/items/')[0];
+
+            for(let ws of responses[1].data.items) {
+                if(linkWorkspace === ws.link) {
+                    workspace = ws.title;
+                    break;
+                }
+            }
+
+            
+
+            if((settings.changes[id].workspacesIn.length === 0) || ( settings.changes[id].workspacesIn.includes(workspace))) {
+                if((settings.changes[id].workspacesEx.length === 0) || (!settings.changes[id].workspacesEx.includes(workspace))) {
+
+                    if(!listWorkspaces.includes(workspace)) listWorkspaces.push(workspace);
+                    if(!listLifecycles.includes(changedItem.lifecycle)) listLifecycles.push(changedItem.lifecycle);
+
+                    let contentItem = genPanelContentItem(settings.changes[id], {
+                        link        : changedItem.link,
+                        title       : changedItem.title,
+                        subtitle    : changedItem.lifecycle,
+                    });
+
+                    contentItem.data = [
+                        { fieldId : 'item'       , value : changedItem.title },
+                        { fieldId : 'lifecycle'  , value : changedItem.lifecycle }
+                    ];
+
+                    contentItem.filters = [
+                        { key : 'lifecycle', value : changedItem.lifecycle },
+                        { key : 'workspace', value : workspace }
+                    ];
+
+                    items.push(contentItem)
+
+                }
+            }
                 
         }
 
-        insertChildrenChangedDone(id);
+        sortArray(listLifecycles, 0);
+        sortArray(listWorkspaces, 0);
+
+        setPanelFilterOptions(id, 'lifecycle', listLifecycles);
+        setPanelFilterOptions(id, 'workspace', listWorkspaces);
+        finishPanelContentUpdate(id, settings.changes[id], items);
+        insertBOMChangesDataDone(id, responses[0].data);
         
     });
 
 }
-function insertChildrenChangedDone(id) {}
-function clickChildrenChangedItem(elemClicked) {}
+function insertBOMChangesDone(id) {}
+function insertBOMChangesDataDone(id, data)  {}
 
 
 
-// Insert Grid table
-function insertGrid(link, params) {
+// Insert APS Viewer
+function insertViewer(link, params) {
 
     if(isBlank(link)) return;
 
     //  Set defaults for optional parameters
     // --------------------------------------
-    let id                  = 'grid';   // ID of the DOM element where the history should be inserted
-    let header              = true;     // Can be used to suppress addition of the panel header element
-    let headerLabel         = 'Grid';   // Set the header label
-    let headerToggle        = false;    // Enable header toggles
-    let reload              = true;     // Enable reload button for the history panel
-    let rotate              = false;    // Rotate the table display by 90 degrees
-    let inline              = false;    // Display the grid inline with other elements
-    let columnsIn           = [];       // Define list of columns to include by fieldId; columns not included in this list will not be shown at all. Keep empty to show all columns.
-    let columnsEx           = [];       // Define list of columns to exclude by fieldId; columns in this list will not be shown at all. Keep empty to show all columns.
+    let id              = 'viewer';    // ID of the DOM element where the viewer should be inserted
+    let fileId          = '';         // Select a specific file to be rendered by providing its unique ID
+    let filename        = '';         // Select a specific file to be rendered by providing its filename (matches the Title column in the attachments tab)
+    let extensionsIn    = [];         // Defines the list of attachment file types to take into account when requesting the possible list of viewable files. Only file types included in this list will be taken into account.
+    let extensionsEx    = [];         // Defines the list of attachment file types to exclued when requesting the possible list of viewable files. Files with an extension listed will not be considered as valid viewable.
+    let settings        = {};
+    
+    if( isBlank(params)                 )       params = {};
+    if(!isBlank(params.id)              )           id = params.id;
+    if(!isBlank(params.fileId)          )       fileId = params.fileId;
+    if(!isBlank(params.filename)        )     filename = params.filename;
+    if(!isBlank(params.extensionsIn)    ) extensionsIn = params.extensionsIn;
+    if(!isBlank(params.extensionsEx)    ) extensionsEx = params.extensionsEx;
+    
+    if(!isBlank(params.backgroundColor) )  settings.backgroundColor = params.backgroundColor;
+    if(!isBlank(params.antiAliasing)    )     settings.antiAliasing = params.antiAliasing;
+    if(!isBlank(params.ambientShadows)  )   settings.ambientShadows = params.ambientShadows;
+    if(!isBlank(params.groundReflection)) settings.groundReflection = params.groundReflection;
+    if(!isBlank(params.groundShadow)    )     settings.groundShadow = params.groundShadow;
+    if(!isBlank(params.lightPreset)     )      settings.lightPreset = params.lightPreset;
 
-    if( isBlank(params)             )       params = {};
-    if(!isBlank(params.id)          )           id = params.id;
-    if(!isBlank(params.header)      )       header = params.header;
-    if(!isBlank(params.headerLabel) )  headerLabel = params.headerLabel;
-    if(!isBlank(params.headerToggle)) headerToggle = params.headerToggle;
-    if(!isBlank(params.reload)      )       reload = params.reload;
-    if(!isBlank(params.rotate)      )       rotate = params.rotate;
-    if(!isBlank(params.inline)      )       inline = params.inline;
-    if(!isBlank(params.columnsIn)   )    columnsIn = params.columnsIn;
-    if(!isBlank(params.columnsEx)   )    columnsEx = params.columnsEx;
+    let elemInstance = $('#' + id).children('.adsk-viewing-viewer');
+    if(elemInstance.length > 0) elemInstance.hide();
 
-    settings.workflowHistory[id]           = {};
-    settings.workflowHistory[id].rotate    = rotate;
-    settings.workflowHistory[id].columnsIn = columnsIn;
-    settings.workflowHistory[id].columnsEx = columnsEx;
+    $('#' + id).attr('data-link', link);
 
-    let elemParent = $('#' + id)
-        .addClass('grid')
-        .html('');
+    let elemProcessing = $('#' + id + '-processing');
 
-    if(header) {
-        
-        let elemHeader = genPanelHeader(id, headerToggle, headerLabel);
-            elemHeader.appendTo(elemParent);   
+    if(elemProcessing.length === 0) {
+        appendViewerProcessing(id, false);
+    } else {
+        elemProcessing.show();
+        $('#' + id + '-message').hide();
+    }
 
-        if(reload) {
+    $.get('/plm/get-viewables', { 
+        link          : link, 
+        fileId        : fileId, 
+        filename      : filename, 
+        extensionsIn  : extensionsIn, 
+        extensionsEx  : extensionsEx 
+    }, function(response) {
 
-            let elemToolbar = $('<div></div>').appendTo(elemHeader)
-                .addClass('panel-toolbar')
-                .attr('id', id + '-toolbar');
+        if($('#' + id).attr('data-link') !== response.params.link) return;
 
-            $('<div></div>').appendTo(elemToolbar)
-                .addClass('button')
-                .addClass('icon')
-                .addClass('icon-refresh')
-                .attr('id', id + '-reload')
-                .attr('title', 'Reload this view')
-                .click(function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    insertGridData(id);
-                });
+        let suffix3D = ['.iam','.ipt','.stp','.step','.sldprt'];
 
+        if(response.data.length > 0) {
+
+            let viewables = [];
+
+            for(let viewable of response.data) {
+                let is3D = false;
+                for(let suffix of suffix3D) {
+                    if(viewable.name.indexOf(suffix) > -1) {
+                        is3D = true;
+                        break;
+                    }
+                }
+                if(is3D) viewables.unshift(viewable); else viewables.push(viewable);
+            }
+
+            $('body').removeClass('no-viewer');
+
+            if(elemInstance.length > 0) elemInstance.show();
+
+            insertViewerDone(id, response.data);
+            initViewer(id, viewables, settings);
+
+        } else {
+
+            $('#' + id).hide();
+            $('#' + id + '-processing').hide();
+            $('#' + id + '-message').css('display', 'flex');
+            $('body').addClass('no-viewer');
+
+        }
+    });
+
+}
+function insertViewerDone(id, viewables) {}
+
+
+
+// Insert Viewer and Markups
+function insertViewerMarkups(contentId, link, params, sections, fields) {
+
+    let linkViewable   = (isBlank(params.fieldIdViewable)) ? link : getSectionFieldValue(sections, params.fieldIdViewable, '', 'link');
+    let allImageFields = getAllImageFieldIDs(fields);
+    let elemTop        = $('#' + contentId);
+    // let id            = params.id;
+    // let params         = content.params;
+
+    if(isBlank(params.markupsImageFields)) params.markupsImageFields = [];
+
+    if(params.markupsImageFields.length === 0) {
+        if(!isBlank(params.markupsImageFieldsPrefix)) {
+            params.markupsImageFields = allImageFields
+        } else {
+            for(let imageField of allImageFields) {
+                console.log(imageField);
+                if(imageField.indexOf(params.markupsImageFieldsPrefix) === 0) params.markupsImageFields.push(imageField);
+            }
         }
     }
 
-    let elemContent = $('<div></div>').appendTo(elemParent)
-        .attr('id', id + '-content')
-        .attr('data-link', link)
-        .addClass('grid-content')
-        .addClass('no-scrollbar');
 
-    if(!inline) elemContent.addClass('panel-content')
 
-    appendProcessing(id, true);
-    appendNoDataFound(id, 'icon-no-data', 'No Data');
+    $('<div></div>').appendTo(elemTop)
+        .attr('id', contentId + '-viewer')
+        .addClass('viewer');
+    
+    params.id = contentId + '-viewer';
 
-    insertGridData(id);
+    viewerFeatures.markup = true;
+    insertViewer(linkViewable, params);
+    
+    let elemMarkups = $('<div></div>').appendTo(elemTop)
+        .attr('id', contentId + '-markups')
+        .addClass('item-markups');
+
+    let elemMarkupsPanel = $('<div></div>').appendTo(elemMarkups)
+        .attr('id', contentId + '-markups-panel')
+        .addClass('item-markups-panel');
+    
+    $('<div></div>').appendTo(elemMarkupsPanel)
+        .addClass('item-markups-panel-title')
+        .html('Markups');
+
+    $('<div></div>').appendTo(elemMarkupsPanel)
+        .addClass('item-markups-panel-text')
+        .html('Capture markups using the given controls within the viewer above. They will be saved in context of this process.');
+
+    let elemMarkupsList = $('<div></div>').appendTo(elemMarkups)
+        .attr('id', contentId + '-viewer-markups-list')
+        .addClass('item-markups-list');
+
+    for(let field of params.markupsImageFields) {
+
+        $('<canvas></canvas>').appendTo(elemMarkupsList)
+            .attr('id', field)
+            .attr('data-fieldid', field)
+            .addClass('markup')
+            .addClass('placeholder')
+            .click(function() {
+                selectItemMarkup($(this));
+            });
+
+        let value = getSectionFieldValue(sections, field, '', 'link');
+
+        if(value !== '') {
+
+            $.get('/plm/image-cache', {
+                imageLink : value,
+                fieldId   : field
+            }, function(response) {
+
+                $('#' + response.params.fieldId).removeClass('placeholder');
+
+                let canvas = document.getElementById(response.params.fieldId);
+                    // canvas.width  = 100;
+                    canvas.height = 80;
+
+                let ctx  = canvas.getContext('2d');
+                let img = new Image();
+                    img.src = response.data.url;
+                    img.onload = function() {
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    };
+            
+            });
+
+        }
+
+
+    }
+
+    params.id = contentId;
+
 
 }
-function insertGridData(id) {
+function selectItemMarkup(elemClicked) {
 
-    $('#' + id + '-processing').show();
+    elemClicked.siblings().removeClass('selected');
+    elemClicked.toggleClass('selected');
 
-    let elemContent = $('#' + id + '-content');
-    let link        = elemContent.attr('data-link');
-    let requests    = [
-        $.get('/plm/grid', { 'link' : link }),
-        $.get('/plm/grid-columns', { 'wsId' : link.split('/')[4] })
-    ];
+    let elemTop     = elemClicked.closest('.item-markup');
+    let elemToolbar = elemTop.find('.viewer-markup-toolbar');
+    let elemButton  = elemTop.find('.viewer-markup-button.enable-markup');
 
-    elemContent.html('');
+    if(elemClicked.hasClass('selected')) {
+        if(elemToolbar.hasClass('hidden')) {
+            elemButton.click();
+        }
+    } else if(!elemToolbar.hasClass('hidden')) {
+        viewerLeaveMarkupMode();
+    }
+
+}
+
+
+
+
+// Insert Managed Items tab
+function insertManagedItems(link, params) {
+
+    if(isBlank(link)) return;
+
+    let id = isBlank(params.id) ? 'managed-items' : params.id;
+    
+    settings.managedItems[id] = getPanelSettings(link, params, {
+        headerLabel : 'Managed Items',
+        layout      : 'table',
+        tileIcon    : 'icon-product'
+    }, [
+        [ 'filterByLifecycle', true ],
+        [ 'filterByWorkspace', true ]
+    ]);
+
+    settings.managedItems[id].load = function() { insertManagedItemsData(id); }
+
+    genPanelTop(id, settings.managedItems[id], 'managed-items');
+    genPanelHeader(id, settings.managedItems[id]);
+    genPanelOpenSelectedInPLMButton(id, settings.managedItems[id]);
+    genPanelRemoveSelectedButton(id, settings.managedItems[id], function() { removeManagedItems(id); } );
+    genPanelSelectionControls(id, settings.managedItems[id]);
+    genPanelFilterSelect(id, settings.managedItems[id], 'filterByLifecycle', 'lifecycle', 'All Lifecycle Transitions');
+    genPanelFilterSelect(id, settings.managedItems[id], 'filterByWorkspace', 'workspace', 'All Workspaces');
+    genPanelSearchInput(id, settings.managedItems[id]);
+    genPanelReloadButton(id, settings.managedItems[id]);
+
+    genPanelContents(id, settings.managedItems[id]);
+
+    insertManagedItemsDone(id);
+    
+    settings.managedItems[id].load();
+
+}
+function insertManagedItemsData(id, linkNew) {
+
+    settings.managedItems[id].timestamp = startPanelContentUpdate(id);
+
+    let params = {
+        link      : settings.managedItems[id].link,
+        timestamp : settings.managedItems[id].timestamp
+    }
+
+    let requests = [
+        $.get('/plm/manages', params),
+        $.get('/plm/managed-fields', { link : settings.managedItems[id].link, useCache : true }),
+        $.get('/plm/workspaces', { useCache : true })
+    ]
 
     Promise.all(requests).then(function(responses) {
 
-        let fields      = responses[1].data.fields;
-        let columnsIn   = settings.workflowHistory[id].columnsIn;
-        let columnsEx   = settings.workflowHistory[id].columnsEx;
-        let columns     = [];
+        if(stopPanelContentUpdate(responses[0], settings.managedItems[id])) return;
 
-        for(let field of fields) {
-            let fieldId = field.__self__.split('/').pop();
-            if(columnsIn.length === 0 || columnsIn.includes(fieldId)) {
-                if(columnsEx.length === 0 || !columnsEx.includes(fieldId)) {
-                    columns.push(field);
-                }
-            }
+        let items           = [];
+        let listWorkspaces  = [];
+        let listLifecycles  = [];
+        let columns         = [
+            { displayName : 'Item',         fieldId : 'item'        },
+            { displayName : 'Lifecycle',    fieldId : 'lifecycle'   },
+            { displayName : 'Effectivity',  fieldId : 'effectivity' },
+            { displayName : 'From',         fieldId : 'from'        },
+            { displayName : 'To',           fieldId : 'to'          }
+        ]
+
+        for(let column of responses[1].data) {
+            if(column.visibility !== 'NEVER') columns.push({ displayName : column.name, fieldId : column.__self__ })
         }
 
-        $('#' + id + '-processing').hide();
+        for(let column of columns) {
+            if(includePanelTableColumn(column.displayName, settings.managedItems[id], settings.managedItems[id].columns.length)) {
+                settings.managedItems[id].columns.push(column);
+            }
+        }                
 
-        if(responses[0].data.length > 0 ) {
+        for(let item of responses[0].data) {
 
-            let elemTable       = $('<table></table>').appendTo(elemContent).addClass('grid')
-            let elemTableBody   = $('<tbody></tbody>').appendTo(elemTable);
-            let elemTableHead   = $('<tr></tr>').appendTo(elemTableBody).addClass('fixed')
+            let lifecycle       = isBlank(item.targetTransition) ? '-' : item.targetTransition.title;
+            let effectivity     = ''
+            let workspace       = '';
+            let workspaceLink   = item.item.link.split('/items/')[0];
 
-            if(!settings.workflowHistory[id].rotate) {
+            for(let ws of responses[2].data.items) {
+                if(ws.link === workspaceLink) { workspace = ws.title; break; }
+            }
 
-                elemTable.addClass('row-hovering');
-                elemTable.addClass('fixed-header');
+            if((settings.managedItems[id].workspacesIn.length === 0) || ( settings.managedItems[id].workspacesIn.includes(workspace))) {
+                if((settings.managedItems[id].workspacesEx.length === 0) || (!settings.managedItems[id].workspacesEx.includes(workspace))) {
+            
+                    if(!isBlank(item.effectivityDate)) {
+                        let split   = item.effectivityDate.split('-');
+                        let date    = new Date(split[0], split[1], split[2]);
+                        effectivity = date.toLocaleDateString();
+                    }
 
-                for(let column of columns) {
-                    $('<th></th>').appendTo(elemTableHead).html(column.name);
-                }
+                    if(!listLifecycles.includes(lifecycle)) listLifecycles.push(lifecycle);
+                    if(!listWorkspaces.includes(workspace)) listWorkspaces.push(workspace);
 
-                for(row of responses[0].data) {
+                    let contentItem = genPanelContentItem(settings.managedItems[id], {
+                        link  : item.item.link, 
+                        title : item.item.title,
+                        subtitle    : 'Lifeycle Transition : ' + lifecycle
+                    });
 
-                    let elemTableRow = $('<tr></tr>').appendTo(elemTableBody)
-                        .click(function(e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            clickGridRow($(this), e);
-                        });
+                    contentItem.data = [
+                        { fieldId : 'item'       , value : item.item.title },
+                        { fieldId : 'lifecycle'  , value : lifecycle },
+                        { fieldId : 'effectivity', value : effectivity },
+                        { fieldId : 'from'       , value : isBlank(item.fromRelease) ? '' : item.fromRelease },
+                        { fieldId : 'to'         , value : isBlank(item.toRelease)   ? '' : item.toRelease }
+                    ];
 
-                    for(let field of row.rowData) {
-                        if(field.title === 'Row Id') {
-                            elemTableRow.attr('data-link', field.__self__);
+                    contentItem.filters = [
+                        { key : 'lifecycle', value : lifecycle },
+                        { key : 'workspace', value : workspace }
+                    ];
+
+
+                    // let newItem = {
+                    //     link        : item.item.link,
+                    //     image       : '',
+                    //     title       : item.item.title,
+                    //     subtitle    : 'Lifeycle Transition : ' + lifecycle,
+                    //     details     : '',
+                    //     partNumber  : item.item.title.split(' - ')[0],
+                    //     data        : [
+                    //         { fieldId : 'item'       , value : item.item.title },
+                    //         { fieldId : 'lifecycle'  , value : lifecycle },
+                    //         { fieldId : 'effectivity', value : effectivity },
+                    //         { fieldId : 'from'       , value : isBlank(item.fromRelease) ? '' : item.fromRelease },
+                    //         { fieldId : 'to'         , value : isBlank(item.toRelease)   ? '' : item.toRelease }
+                    //     ],
+                    //     filters : [{
+                    //         key : 'lifecycle', value : lifecycle
+                    //     }],
+                    //     quantity    : ''
+                    // };
+
+                    for(let index = 5; index < settings.managedItems[id].columns.length; index++) {
+                        for(let field of item.linkedFields) {
+                            if(field.__self__ === settings.managedItems[id].columns[index].fieldId) {
+                                contentItem.data.push({
+                                    fieldId : field.__self__,
+                                    value : field.value
+                                })
+                            }
                         }
                     }
 
-                    for(let column of columns) {
-
-                        let fieldId = column.__self__.split('/').pop();
-                        let value   = getGridRowValue(row, fieldId, '', 'title');
-
-                        $('<td></td>').appendTo(elemTableRow).html(value);
-                    }
-
-                }
-
-            } else {
-
-                elemTable.addClass('rotated');
-
-                for(let column of columns) {
-
-                    let elemTableRow = $('<tr></tr>').appendTo(elemTableBody)
-                        .click(function(e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            clickGridRow($(this), e);
-                        });
-
-                    $('<th></th>').appendTo(elemTableRow).html(column.name);
-
-                    for(let row of responses[0].data) {
-
-                        let fieldId = column.__self__.split('/').pop();
-                        let value   = getGridRowValue(row, fieldId, '', 'title');
-
-                        $('<td></td>').appendTo(elemTableRow).html(value);
-
-                    }
-
-                }
-
-            }
+                    items.push(contentItem);
+            }}
 
         }
 
-        insertGridDone(id, responses[0].data, responses[1].data);
+        // if(!isBlank(linkNew)) { 
+        //     $('#' + id + '-content').find('.content-item').each(function() {
+        //         if($(this).attr('data-link') === linkNew) $(this).click();
+        //     });
+        // }
+
+        sortArray(listLifecycles, 0);
+        sortArray(listWorkspaces, 0);
+
+        setPanelFilterOptions(id, 'lifecycle', listLifecycles);
+        setPanelFilterOptions(id, 'workspace', listWorkspaces);
+        finishPanelContentUpdate(id, settings.managedItems[id], items);
+        insertManagedItemsDataDone(id, responses[0].data, responses[1].data);
 
     });
 
 }
-function insertGridDone(id, data, columns) {}
-function clickGridRow(elemClicked, e) {}
+function removeManagedItems(id) {
+
+    let requests = [];
+
+    $('#' + id + '-content').hide();
+    $('#' + id + '-processing').show();
+
+    $('#' + id + '-content').find('.content-item.selected').each(function() {
+        requests.push($.get('/plm/remove-managed-item', { 
+            link   : settings.managedItems[id].link, 
+            itemId : $(this).attr('data-link').split('/')[6]
+        }));
+    });
+
+    Promise.all(requests).then(function(responses) {
+        insertManagedItemsData(id);
+    });
+
+}
+function insertManagedItemsDone(id) {}
+function insertManagedItemsDataDone(id, items, fields) {}
+
 
 
 // Insert related processes
@@ -4772,731 +5881,333 @@ function insertChangeProcesses(link, params) {
 
     if(isBlank(link)) return;
 
-    //  Set defaults for optional parameters
-    // --------------------------------------
-    let id                  = 'processes';     // ID of the DOM element where the processes list & create form will be inserted
-    let header              = true;            // Hide header with setting this to false
-    let headerLabel         = 'Processes';     // Sets the header label (if header is enabled)
-    let headerToggle        = false;           // Enables collapsing and expanding the panel
-    let reload              = true;            // Enable reload button for the processes list
-    let size                = 'l';             // Layout size (xxs, xs, s, m, l, xl, xxl)
-    let icon                = 'icon-workflow'; // Icon to be displayed in each tile
-    let inline              = false;           // Display the processes list with other elements
-    let workspacesIn        = [];              // List of workspace to be included, identified by workspace IDs (example: ['82'])
-    let workspacesEx        = [];              // List of workspace to be excluded, identified by workspace ID (example: ['83','84'])
-    let createWSID          = '';              // Enable creation of new records by providing the given workspace ID in which new records should be created
-    let fieldIdMarkup       = '';              // If viewer markups should be stored when creating new records, provide the given image field's ID 
-    let createSectionsIn    = [];              // If creation of new records is enabled (using parameter createWSID), this list can be used to select the sections to be shown in the create dialog (example: ['Header','Details'])
-    let createSectionsEx    = [];              // If creation of new records is enabled (using parameter createWSID), this list can be used to hide sections in the create dialog (example: ['Review'])
-    let createFieldsIn      = [];              // If creation of new records is enabled (using parameter createWSID), this list can be used to select the fields to be shown in the create dialog (example: ['Title','Description'])
-    let createFieldsEx      = [];              // If creation of new records is enabled (using parameter createWSID), this list can be used to hide fields in the create dialog. Fields of this list will not be shown (example: ['Closing Comment']).
-    let createContext       = null;            // Provide context item information if default value should be set in linking pick list field ( { title, link, fieldId })
+    let id = isBlank(params.id) ? 'processes' : params.id;
+    
+    settings.processes[id] = getPanelSettings(link, params, {
+        headerLabel : 'Processes',
+        layout      : 'list',
+        tileIcon    : 'icon-status'
+    },[
+        [ 'filterByStatus'         , false ],
+        [ 'filterByWorkspace'      , false ],
+        [ 'createId'               , 'create' ],
+        [ 'createHeaderLabel'      , 'Create Process' ],
+        [ 'createSectionsIn'       , [] ],
+        [ 'createSectionsEx'       , [] ],
+        [ 'createFieldsIn'         , [] ],
+        [ 'createFieldsEx'         , [] ],
+        [ 'createWorkspaceIds'     , [] ],
+        [ 'createWorkspaceNames'   , [] ],
+        [ 'createContextItemFields', [] ], // 'AFFECTED_ITEM'
+        [ 'createViewerImageFields', [] ], // 'IMAGE_1'
+    ]);
 
+    settings.processes[id].load = function() { insertChangeProcessesData(id); }
 
-    if( isBlank(params)                 )           params = {};
-    if(!isBlank(params.id)              )               id = params.id;
-    if(!isBlank(params.header)          )           header = params.header;
-    if(!isEmpty(params.headerLabel)     )      headerLabel = params.headerLabel;
-    if(!isBlank(params.headerToggle)    )     headerToggle = params.headerToggle;
-    if(!isBlank(params.reload)          )           reload = params.reload;
-    if(!isBlank(params.size)            )             size = params.size;
-    if(!isBlank(params.icon)            )             icon = params.icon;
-    if(!isBlank(params.workspacesIn)    )     workspacesIn = params.workspacesIn;
-    if(!isBlank(params.workspacesEx)    )     workspacesEx = params.workspacesEx;
-    if(!isBlank(params.createWSID)      )       createWSID = params.createWSID;
-    if(!isBlank(params.fieldIdMarkup)   )    fieldIdMarkup = params.fieldIdMarkup;
-    if(!isBlank(params.createSectionsIn)) createSectionsIn = params.createSectionsIn;
-    if(!isBlank(params.createSectionsEx)) createSectionsEx = params.createSectionsEx;
-    if(!isBlank(params.createFieldsIn)  )   createFieldsIn = params.createFieldsIn;
-    if(!isBlank(params.createFieldsEx)  )   createFieldsEx = params.createFieldsEx;
-    if(!isBlank(params.createContext)   )    createContext = params.createContext;
+    genPanelTop(id, settings.processes[id], 'processes');
+    genPanelHeader(id, settings.processes[id]);
+    genPanelOpenSelectedInPLMButton(id, settings.processes[id]);
+    genPanelSelectionControls(id, settings.processes[id]);
+    genPanelFilterSelect(id, settings.processes[id], 'filterByStatus'   , 'status'   , 'All States'    );
+    genPanelFilterSelect(id, settings.processes[id], 'filterByWorkspace', 'workspace', 'All Workspaces');
+    genPanelSearchInput(id, settings.processes[id]);
+    genPanelReloadButton(id, settings.processes[id]);
 
-    if(createContext !== null) {
-        if(isBlank(createContext.link)) createContext.link = link;
-    }
+    genPanelContents(id, settings.processes[id]);
 
+    if(settings.processes[id].editable) {
 
-    settings.processes[id]                  = {};
-    settings.processes[id].icon             = icon;
-    settings.processes[id].workspacesIn     = workspacesIn;
-    settings.processes[id].workspacesEx     = workspacesEx;
-    settings.processes[id].createWSID       = createWSID;
-    settings.processes[id].createSectionsIn = createSectionsIn;
-    settings.processes[id].createSectionsEx = createSectionsEx;
-    settings.processes[id].createFieldsIn   = createFieldsIn;
-    settings.processes[id].createFieldsEx   = createFieldsEx;
-    settings.processes[id].context          = createContext;
-
-    let elemParent = $('#' + id).addClass('processes').html('');
-
-    if(header) {
-        
-        let elemHeader = genPanelHeader(id, headerToggle, headerLabel);
-            elemHeader.appendTo(elemParent);   
-
-        let elemToolbar = $('<div></div>').addClass('panel-toolbar').attr('id', id + '-toolbar');
-
-        if(reload) {
-
-            elemToolbar.appendTo(elemHeader);
-
-            $('<div></div>').appendTo(elemToolbar)
-                .addClass('button')
-                .addClass('icon')
-                .addClass('icon-refresh')
-                .attr('id', id + '-reload')
-                .attr('title', 'Reload this view')
-                .click(function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    insertChangeProcessesData(id);
-                });
-
-        }
-
-        if(!isBlank(createWSID)) {
-
-            elemToolbar.appendTo(elemHeader);
-
-            $('<div></div>').appendTo(elemToolbar)
-                .addClass('button')
-                .attr('id', id + '-create')
-                .attr('title', 'Create new process')
-                .html('Create')
-                .click(function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    toggleProcessCreateForm(id, true);
-                });
-
-            $('<div></div>').appendTo(elemToolbar)
-                .addClass('button')
-                .addClass('processes-action-create')
-                .attr('id', id + '-cancel')
-                .attr('title', 'Cancel process creation')
-                .html('Cancel')
-                .click(function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    toggleProcessCreateForm(id, false);
-                });
-
-            $('<div></div>').appendTo(elemToolbar)
-                .addClass('button')
-                .addClass('processes-action-create')
-                .addClass('default')
-                .attr('id', id + '-save')
-                .attr('title', 'Submit form and create process')
-                .html('Save')
-                .click(function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    submitProcessCreateForm(id);
-                });
-
-            let elemSections = $('<div></div>').appendTo(elemParent)
-                .attr('id', id + '-sections')
-                .attr('data-wsid', createWSID)
-                .attr('data-link', link)
-                .attr('data-field-id-markup', fieldIdMarkup)
-                .addClass('form')
-                .addClass('no-scrollbar');
-
-            if(!inline) elemSections.addClass('panel-content')
-
-        }
-    }
-
-    let elemList = $('<div></div>').appendTo(elemParent)
-        .attr('id', id + '-list')
-        .attr('data-link', link)
-        .addClass('tiles')
-        .addClass('list')
-        .addClass(size)
-        .addClass('processes-content')
-        .addClass('no-scrollbar');
-
-    if(!inline) elemList.addClass('panel-content')
-
-    appendProcessing(id, true);
-    appendNoDataFound(id, 'icon-no-data', 'No Processes');
-    insertChangeProcessesData(id);
-
-}
-function toggleProcessCreateForm(id, visible) {
-
-    let elemToolbar  = $('#' + id + '-toolbar');
-    let elemList     = $('#' + id + '-list');
-    let elemNoData   = $('#' + id + '-no-data');
-    let elemSections = $('#' + id + '-sections');
-
-    if(visible) {
-
-        $('#' + id + '-processing').show();
-        
-        elemToolbar.children().hide();
-        elemToolbar.children('.processes-action-create').show();
-
-        elemSections.html('').show();
-        elemList.hide();
-        elemNoData.hide();
-
-        insertCreateForm(id, settings.processes[id].createWSID, {
-            sectionsIn : settings.processes[id].createSectionsIn,
-            sectionsEx : settings.processes[id].createSectionsEx,
-            fieldsIn   : settings.processes[id].createFieldsIn,
-            fieldsEx   : settings.processes[id].createFieldsEx,
-            context    : settings.processes[id].context
-        });
-
-    } else {
-        
-        elemToolbar.children().show();
-        elemToolbar.children('.processes-action-create').hide();
-
-        elemSections.hide();
-
-        if(elemList.children().length === 0) {
-            elemNoData.show();
-        } else {
-            elemList.show();
-        }
-
-    }
-
-    elemToolbar.show();
-
-    toggleProcessCreateFormDone(id);
-
-}
-function toggleProcessCreateFormDone(id) {}
-function submitProcessCreateForm(id) {
-
-    if(!validateForm($('#' + id + '-sections'))) return;
-
-    $('#' + id + '-toolbar').hide();
-    $('#' + id + '-sections').hide();
-    $('#' + id + '-list').hide();
-    $('#' + id + '-no-data').hide();
-    $('#' + id + '-processing').show();
-
-    viewerCaptureScreenshot(null, function() {
-
-        submitCreateForm(settings.processes[id].createWSID, $('#' + id + '-sections'), 'viewer-markup-image', function(response) {
-
-            console.log(response);
-               
-            let link    = $('#' + id + '-list').attr('data-link');
-            let newLink = response.data.split('.autodeskplm360.net')[1];
-                
-            $.get('/plm/add-managed-items', { 'link' : newLink, 'items' : [ link ] }, function(response) {
-                toggleProcessCreateForm(id, false)
-                createProcessDone(id, response);
+        genPanelActionButton(id, {}, 'create', 'Create New', 'Create new process', function() {
+            insertCreate(settings.processes[id].createWorkspaceNames, settings.processes[id].createWorkspaceIds, {
+                id                  : settings.processes[id].createId,
+                headerLabel         : settings.processes[id].createHeaderLabel,
+                sectionsIn          : settings.processes[id].createSectionsIn,
+                sectionsEx          : settings.processes[id].createSectionsEx,
+                fieldsIn            : settings.processes[id].createFieldsIn,
+                fieldsEx            : settings.processes[id].createFieldsEx,
+                contextId           : id,
+                contextItem         : settings.processes[id].link,
+                contextItemFields   : settings.processes[id].createContextItemFields,
+                viewerImageFields   : settings.processes[id].createViewerImageFields,
+                afterCreation       : function(createId, createLink, id) { onChangeProcessCreation(createId, createLink, id); }
             });
+        }).addClass('panel-action-create').addClass('default');
 
-        });
+    }
 
-    });
-
-}
-function createProcessDone(id, reponse) {
-
-    insertChangeProcessesData(id);
+    insertChangeProcessesDone(id);
+    
+    settings.processes[id].load();
 
 }
-function insertChangeProcessesData(id) {
+function insertChangeProcessesData(id, linkNew) {
 
-    $('#' + id + '-processing').show();
-    $('#' + id + '-no-data').hide();
-
-    let timestamp    = new Date().getTime();
-    let elemList    = $('#' + id + '-list');
-    let link         = elemList.attr('data-link');
-    let workspacesIn = settings.processes[id].workspacesIn;
-    let workspacesEx = settings.processes[id].workspacesEx;
-
-    elemList.attr('data-timestamp', timestamp)
-        .html('')
-        .hide();
+    settings.processes[id].timestamp = startPanelContentUpdate(id);
 
     let params = {
-        'link'      : link,
-        'timestamp' : timestamp
+        link      : settings.processes[id].link,
+        timestamp : settings.processes[id].timestamp
     }
 
-    $.get('/plm/changes', params, function(response) {
+    let requests = [
+        $.get('/plm/changes', params),
+        $.get('/plm/workspaces?limit=250', { useCache : true })
+    ]
 
-        if(response.params.link === link) {
-            if(response.params.timestamp === $('#' + id + '-list').attr('data-timestamp')) {
+    if(settings.processes[id].editable) {
+        requests.push($.get('/plm/permissions', params));
+        requests.push($.get('/plm/linked-workspaces', { link : settings.processes[id].link, useCache : true }));
+    }
 
-                     if(response.data.statusCode === 403) return;
-                else if(response.data.statusCode === 404) return;
+    Promise.all(requests).then(function(responses) {
 
-                $('#' + id + '-processing').hide();
+        if(stopPanelContentUpdate(responses[0], settings.processes[id])) return;
 
-                for(let process of response.data) {
-                    process.sort = process['last-workflow-history'].created
-                }
+        settings.processes[id].columns = [];
 
-                sortArray(response.data, 'sort', 'date', 'descending');
+        let items           = [];
+        let listWorkspaces  = [];
+        let listStates      = [];
+        let columns         = [
+            { displayName : 'Item',                 fieldId : 'item'      },
+            { displayName : 'Workspace',            fieldId : 'workspace' },
+            { displayName : 'Current State',        fieldId : 'current'   },
+            { displayName : 'Last Action',          fieldId : 'action'    },
+            { displayName : 'Date of Last Action',  fieldId : 'date'      },
+            { displayName : 'Performed By',         fieldId : 'user'      },
+            { displayName : 'Created On',           fieldId : 'created'   },
+            { displayName : 'Created By',           fieldId : 'creator'   }
+        ]
 
-                for(let process of response.data) {
-
-                    let processWSID = process.item.link.split('/')[4];
-
-                    if(workspacesIn.length === 0 || workspacesIn.includes(processWSID)) {
-                        if(workspacesEx.length === 0 || !workspacesEx.includes(processWSID)) {
-
-                            let user = process['first-workflow-history'].user.title;
-                            let date = process['first-workflow-history'].created;
-
-                            let elemProcess = $('<div></div>').appendTo(elemList)
-                                .addClass('animation')
-                                .addClass('process')
-                                .addClass('tile')
-                                .attr('data-link', process.item.link)
-                                .attr('data-urn', process.item.urn)
-                                .click(function(e) {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    clickChangeProcess($(this));
-                                });
-                    
-                            $('<div></div>').appendTo(elemProcess).addClass('tile-image');
-                    
-                            let elemProcessDetails = $('<div></div>').appendTo(elemProcess).addClass('tile-details');
-                    
-                            $('<div></div>').appendTo(elemProcessDetails).addClass('tile-title');
-                            $('<div></div>').appendTo(elemProcessDetails).addClass('tile-subtitle');
-                    
-                            let elemProcessData = $('<div></div>').appendTo(elemProcessDetails).addClass('tile-data');
-                            
-                            $('<div></div>').appendTo(elemProcessData).addClass('process-creator');
-                            $('<div></div>').appendTo(elemProcessData).addClass('process-status');
-                                
-                            $.get('/plm/details', { 'link' : process.item.link}, function(response) {
-                    
-                                $('.process').each(function() {
-                                    let elemProcess = $(this);
-                                    if(elemProcess.attr('data-link') === process.item.link) {
-                        
-                                        elemProcess.removeClass('animation');
-                        
-                                        let linkImage   = getFirstImageFieldValue(response.data.sections);
-                                        let elemImage   = elemProcess.find('.tile-image').first();
-                        
-                                        getImageFromCache(elemImage, { 'link' : linkImage }, settings.processes[id].icon, function() {});
-                    
-                                        date = date.split('T')[0].split('-');
-                                        let creationDate = new Date(date[0], date[1], date[2]);
-                        
-                                        elemProcess.find('.tile-title').first().html(response.data.title);
-                                        elemProcess.find('.tile-subtitle').first().html(response.data.workspace.title);
-                                        elemProcess.find('.process-status').first().html('Status : ' + response.data.currentState.title);
-                                        elemProcess.find('.process-creator').first().html('Created by ' + user + ' on ' + creationDate.toLocaleDateString());
-                        
-                                    }
-                                });
-                            });
-
-                        }
-                    }
-                }
-
-                if(elemList.children().length === 0) {
-                    $('#' + id + '-no-data').css('display', 'flex');
-                } else {
-                    $('#' + id + '-no-data').hide();
-                    elemList.show();
-                }
-
-                insertChangeProcessesDone(id, response.data);
-
+        for(let column of columns) {
+            if(includePanelTableColumn(column.displayName, settings.processes[id], settings.processes[id].columns.length)) {
+                settings.processes[id].columns.push(column);
             }
         }
+
+        for(let process of responses[0].data) {
+            
+            process.sort = process['last-workflow-history'].created;
+
+            let workspaceLink = process.item.link.split('/items/')[0];
+
+            for(let workspace of responses[1].data.items) {
+                if(workspace.link === workspaceLink) {
+                    process.workspace = workspace.title;
+                    break;
+                }
+            };
+
+        }
+
+        sortArray(responses[0].data, 'sort', 'date', 'descending');
+
+        for(let process of responses[0].data) {
+
+            let state       = process['workflow-state'].title;
+            let workspace   = process.workspace;
+            let workspaceId = process.__self__.split('/')[4];
+
+            if((settings.processes[id].workspacesIn.length === 0) || ( settings.processes[id].workspacesIn.includes(workspace)) || ( settings.processes[id].workspacesIn.includes(workspaceId))) {
+                if((settings.processes[id].workspacesEx.length === 0) || ((!settings.processes[id].workspacesEx.includes(workspace)) && !settings.processes[id].workspacesEx.includes(workspaceId))) {
+
+                    if(!listStates.includes(state)) listStates.push(state);
+                    if(!listWorkspaces.includes(workspace)) listWorkspaces.push(workspace);
+
+                    let dateAction   = process['last-workflow-history' ].created.split('T')[0].split('-');
+                    let actionDate   = new Date(dateAction[0], dateAction[1], dateAction[2]);
+                    let dateCreated  = process['first-workflow-history'].created.split('T')[0].split('-');
+                    let creationDate = new Date(dateCreated[0], dateCreated[1], dateCreated[2]);
+
+                    let contentItem = genPanelContentItem(settings.processes[id], {
+                        link        : process.item.link, 
+                        title       : process.item.title,
+                        subtitle    : 'Workspace : ' + workspace + ', current status: '+ process.item.currentState,
+                    });
+
+                    let userLast  = (isBlank(process['last-workflow-history'].actualUser)) ? process['last-workflow-history'].user.title : process['last-workflow-history'].actualUser.title;
+                    let userFirst = (isBlank(process['first-workflow-history'].actualUser)) ? process['first-workflow-history'].user.title : process['first-workflow-history'].actualUser.title;
+        
+                    contentItem.data = [
+                        { fieldId : 'item'      , value : process.item.title },
+                        { fieldId : 'workspace' , value : workspace },
+                        { fieldId : 'current'   , value : process['workflow-state'].title },
+                        { fieldId : 'action'    , value : process['last-workflow-history'].workflowTransition.title },
+                        { fieldId : 'date'      , value : actionDate.toLocaleDateString() },
+                        { fieldId : 'user'      , value : userLast },
+                        { fieldId : 'created'   , value : creationDate.toLocaleDateString() },
+                        { fieldId : 'creator'   , value : userFirst }
+                    ];
+        
+                    contentItem.filters = [
+                        { key : 'status'   , value : state     },
+                        { key : 'workspace', value : workspace }
+                    ];
+
+                    items.push(contentItem);
+
+                }
+            }
+        }
+
+        sortArray(listWorkspaces, 0);
+
+        setPanelFilterOptions(id, 'status', listStates);
+        setPanelFilterOptions(id, 'workspace', listWorkspaces);
+        setPanelContentActions(id, settings.processes[id], responses);
+        finishPanelContentUpdate(id, settings.processes[id], items, linkNew);
+        insertChangeProcessesDataDone(id, responses[0].data);
+
     });
     
 }
-function insertChangeProcessesDone(id, data) {}
-function clickChangeProcess(elemClicked, e) { openItemByLink(elemClicked.attr('data-link')); }
+function onChangeProcessCreation(createId, createLink, id) {
 
+    console.log('onChangeProcessCreation');
+    console.log(createId);
+    console.log(createLink);
+    console.log(settings.processes[id]);
 
-// Insert Relationship Items
-function insertRelationships(link, params) {
+    let link = settings.processes[id].link;
 
-    //  Set defaults for optional parameters
-    // --------------------------------------
-    let id              = 'relationships';  // id of DOM element where the list will be inserted
-    let header          = true;             // Hide header (and toolbar) by setting this to false
-    let headerLabel     = 'Relationships';  // Set the header text
-    let headerToggle    = false;            // Enable header toggles
-    let compactDisplay  = false;            // Optimizes CSS settings for a compact display
-    let openInPLM       = true;             // Adds button to open selected element in PLM
-    let reload          = true;             // Enable reload button for the list
-    let search          = true;             // Adds quick filtering using search input on top of list
-    let placeholder     = 'Search';         // Set placeholder text for quick filtering input
-    let layout          = 'tiles';          // Set layout from table or tiles
-    let tileIcon        = 'icon-link'       // Icon to be displayed as tile image 
-    let tableHeaders    = true;             // When set to false, the table headers will not be shown
-    let number          = true;             // When set to true, a counter will be displayed as first column
-    let hideDetails     = false;            // When set to true, detail columns will be skipped, only the descriptor will be shown
-    let sort            = '';               // Determines sorting of rows by providing an array of fieldIds
-    let columnsIn       = [];               // If creation of new records is enabled (using parameter createWSID), this list can be used to select the fields to be shown in the create dialog (example: ['Title','Description'])
-    let columnsEx       = [];               // If creation of new records is enabled (using parameter createWSID), this list can be used to hide fields in the create dialog. Fields of this list will not be shown (example: ['Closing Comment']).
-
-    if(isBlank(link)) return;
-
-    if( isBlank(params)               )         params = {};
-    if(!isBlank(params.id)            )             id = params.id;
-    if(!isBlank(params.header)        )         header = params.header;
-    if(!isBlank(params.headerLabel)   )    headerLabel = params.headerLabel;
-    if(!isBlank(params.headerToggle)  )   headerToggle = params.headerToggle;
-    if(!isBlank(params.compactDisplay)) compactDisplay = params.compactDisplay;
-    if(!isBlank(params.openInPLM)     )      openInPLM = params.openInPLM;
-    if(!isBlank(params.reload)        )         reload = params.reload;
-    if(!isBlank(params.search)        )         search = params.search;
-    if(!isBlank(params.placeholder)   )    placeholder = params.placeholder;
-    if(!isBlank(params.layout)        )         layout = params.layout;
-    if(!isBlank(params.tileIcon)      )       tileIcon = params.tileIcon;
-    if(!isBlank(params.tableHeaders)  )   tableHeaders = params.tableHeaders;
-    if(!isBlank(params.number)        )         number = params.number;
-    if(!isBlank(params.hideDetails)   )    hideDetails = params.hideDetails;
-    if(!isBlank(params.sort)          )           sort = params.sort; 
-    if(!isBlank(params.columnsIn)     )      columnsIn = params.columnsIn;
-    if(!isBlank(params.columnsEx)     )      columnsEx = params.columnsEx;
-
-
-    settings.relationships[id]                = {};
-    settings.relationships[id].openInPLM      = openInPLM; 
-    settings.relationships[id].tableHeaders   = tableHeaders; 
-    settings.relationships[id].layout         = layout; 
-    settings.relationships[id].tileIcon       = tileIcon;  
-    settings.relationships[id].number         = number;  
-    settings.relationships[id].hideDetails    = hideDetails;  
-    settings.relationships[id].sort           = sort;
-    settings.relationships[id].columnsIn      = columnsIn;
-    settings.relationships[id].columnsEx      = columnsEx;
-
-
-    let elemTop = $('#' + id)
-        .addClass('panel-top')
-        .addClass('relationships-top')
-        .addClass('relationships')
-        .attr('data-link', link)
-        .html('');
-
-    if(compactDisplay) elemTop.addClass('compact');
-
-    if(header) {
-
-        let elemHeader = $('<div></div>', {
-            id : id + '-header'
-        }).appendTo(elemTop).addClass('panel-header');
-
-        if(headerToggle) {
-
-            $('<div></div>').appendTo(elemHeader)
-                .addClass('panel-header-toggle')
-                .addClass('icon')
-                .addClass('icon-collapse');
-
-            elemHeader.addClass('with-toggle');
-            elemHeader.click(function() {
-                togglePanelHeader($(this));
-            });
-
-        }
-
-        $('<div></div>').appendTo(elemHeader)
-            .addClass('panel-title')
-            .attr('id', id + '-title')
-            .html(headerLabel);
-
-        let elemToolbar = $('<div></div>').appendTo(elemHeader)
-            .addClass('panel-toolbar')
-            .attr('id', id + '-toolbar');
-
-        if(openInPLM) {
-
-            $('<div></div>').appendTo(elemToolbar)
-                .addClass('button')
-                .addClass('icon')
-                .addClass('icon-open')
-                .addClass('xs')
-                .addClass('list-open-in-plm')
-                .addClass('list-single-select-action')
-                .attr('title', 'Open the selected item in PLM')
-                .click(function() {
-                    clickRelationshipsOpenInPLM($(this));
-                });
-    
-        }            
-
-        if(reload) {
-
-            $('<div></div>').appendTo(elemToolbar)
-                .addClass('button')
-                .addClass('icon')
-                .addClass('icon-refresh')
-                .attr('id', id + '-reload')
-                .attr('title', 'Reload this list')
-                .click(function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    insertRelationshipsData(id);
-                });
-
-        }       
-        if(search) {
-
-            let elemSearch = $('<div></div>').appendTo(elemToolbar)
-                .addClass('button')
-                .addClass('with-icon')
-                .addClass('icon-search-list');
-
-            $('<input></input>').appendTo(elemSearch)
-                .attr('placeholder', placeholder)
-                .attr('id', id + '-search-input')
-                .addClass('list-search-input')
-                .keyup(function() {
-                    searchInList(id, $(this));
-                });
-
-        }
-
-    } else { elemTop.addClass('no-header'); }
-
-    appendProcessing(id, false);
-    appendNoDataFound(id, 'icon-no-data', 'No Data');
-
-    let elemList = $('<div></div>').appendTo(elemTop)
-        .attr('id', id + '-list')
-        .addClass('panel-content')
-        .addClass('panel-list')
-        .addClass('no-scrollbar');
-
-    if(layout.toLowerCase() === 'tiles') {
-        elemList.addClass('tiles');
-        elemList.addClass('list');
-        elemList.addClass('xs');
-    }
-
-    insertRelationshipsDone(id);
-    insertRelationshipsData(id);
+               
+    // $.get('/plm/add-managed-items', { 'link' : link, 'items' : [ settings.processes[id].link ] }, function(response) {
+    $.get('/plm/add-managed-items', { link : createLink, items : [ link ] }, function(response) {
+        console.log(response);
+        // settings.processes[id].load(id, createLink);
+        insertChangeProcessesData(id, createLink);
+    });
 
 }
+function insertChangeProcessesDone(id) {}
+function insertChangeProcessesDataDone(id, data) {}
 
-function insertRelationshipsDone(id) {}
+
+
+// Insert Relationships
+function insertRelationships(link, params) {
+    
+    if(isBlank(link)) return;
+
+    let id = isBlank(params.id) ? 'relationships' : params.id;
+    
+    settings.relationships[id] = getPanelSettings(link, params, {
+        headerLabel : 'Relationships',
+        layout      : 'list',
+        tileIcon    : 'icon-link'
+    }, [
+        [ 'filterByWorkspace', true ]
+    ]);
+
+    settings.relationships[id].load = function() { insertRelationshipsData(id); }
+
+    genPanelTop(id, settings.relationships[id], 'managed-items');
+    genPanelHeader(id, settings.relationships[id]);
+    genPanelOpenSelectedInPLMButton(id, settings.relationships[id]);
+    genPanelSelectionControls(id, settings.relationships[id]);
+    genPanelFilterSelect(id, settings.relationships[id], 'filterByWorkspace', 'workspace', 'All Workspaces');
+    genPanelSearchInput(id, settings.relationships[id]);
+    genPanelReloadButton(id, settings.relationships[id]);
+
+    genPanelContents(id, settings.relationships[id]);
+
+    insertRelationshipsDone(id);
+
+    settings.relationships[id].load();
+
+}
 function insertRelationshipsData(id) {
 
-    let elemTop     = $('#' + id);
-    let link        = elemTop.attr('data-link');
-    let timestamp   = new Date().getTime();
-    let elemList    = $('#' + id + '-list');
-
-    elemTop.attr('data-timestamp', timestamp);
-    elemList.html('').hide();
-
-    $('#' + id + '-processing').show();
+    settings.relationships[id].timestamp = startPanelContentUpdate(id);
 
     let params = {
-        link        : link,
-        timestamp   : timestamp
+        link        : settings.relationships[id].link,
+        timestamp   : settings.relationships[id].timestamp
     }
 
     $.get('/plm/relationships', params, function(response) {
 
-        console.log(response);
-    
-        if(response.params.timestamp === $('#' + id).attr('data-timestamp')) {
-            if(response.params.link === link) {
+        if(stopPanelContentUpdate(response, settings.relationships[id])) return;
+
+        settings.relationships[id].columns = [];
+
+        let items           = [];
+        let listWorkspaces  = [];
+        let columns         = [
+            { displayName : 'Item',             fieldId : 'item'        },
+            { displayName : 'Workspace',        fieldId : 'workspace'   },
+            { displayName : 'Current State',    fieldId : 'current'     },
+            { displayName : 'Direction Type',   fieldId : 'direction'   },
+            { displayName : 'Description',      fieldId : 'description' }
+        ]
+
+        for(let column of columns) {
+            if(includePanelTableColumn(column.displayName, settings.relationships[id], settings.relationships[id].columns.length)) {
+                settings.relationships[id].columns.push(column);
+            }
+        }
+
+        for(let relationship of response.data) {
+            relationship.sort1 = relationship.workspace.title;
+            relationship.sort2 = relationship.item.title;
+        }
+
+        sortArray(response.data, 'sort2');
+        sortArray(response.data, 'sort1');
+
+        for(let relationship of response.data) {
+
+            let workspace = relationship.workspace.title;
+
+            if((settings.relationships[id].workspacesIn.length === 0) || ( settings.relationships[id].workspacesIn.includes(workspace))) {
+                if((settings.relationships[id].workspacesEx.length === 0) || (!settings.relationships[id].workspacesEx.includes(workspace))) {
+
+                    if(!listWorkspaces.includes(workspace)) listWorkspaces.push(workspace);
+
+                    let contentItem = genPanelContentItem(settings.relationships[id], {
+                        link        : relationship.item.link, 
+                        title       : relationship.item.title,
+                        subtitle    : workspace
+                    });
         
-                elemList.show();
+                    contentItem.data = [
+                        { fieldId : 'item'       , value : relationship.item.title },
+                        { fieldId : 'workspace'  , value : workspace },
+                        { fieldId : 'current'    , value : (isBlank(relationship.state)) ? '' : relationship.state.title },
+                        { fieldId : 'direction'  , value : relationship.direction.type },
+                        { fieldId : 'description', value : relationship.description }
+                    ];
+        
+                    contentItem.filters = [{
+                        key : 'workspace', value : workspace
+                    }];
 
-                if(settings.relationships[id].layout.toLowerCase() === 'tiles') {
-                
-                    for(let relationship of response.data) {
-
-                        let elemTile = genTile(relationship.item.link, '', '', settings.relationships[id].tileIcon, relationship.item.title, relationship.workspace.title);
-                            elemTile.appendTo(elemList);
-
-                        if(settings.relationships[id].openInPLM) {
-
-                            elemTile.click(function(e) {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                openItemByLink($(this).attr('data-link'));
-                            });
-
-                        }
-
-                    }
-
-                } else {
-
-                    let columns = [];
-
-                    addColumn(columns, 'Item', settings.relationships[id].columnsIn, settings.relationships[id].columnsEx);
-                    addColumn(columns, 'Workspace', settings.relationships[id].columnsIn, settings.relationships[id].columnsEx);
-                    addColumn(columns, 'Current State', settings.relationships[id].columnsIn, settings.relationships[id].columnsEx);
-                    addColumn(columns, 'Direction Type', settings.relationships[id].columnsIn, settings.relationships[id].columnsEx);
-                    addColumn(columns, 'Description', settings.relationships[id].columnsIn, settings.relationships[id].columnsEx);
-
-                    settings.relationships[id].columns = columns;
-
-                    let elemTable = $('<table></table>').appendTo(elemList)
-                        .addClass('list-table')
-                        .addClass('fixed-header')
-                        .attr('id', id + '-table');
-            
-                    let elemTHead = $('<thead></thead>').appendTo(elemTable)
-                        .addClass('list-thead')
-                        .attr('id', id + '-thead');
-
-                    for(let column of columns) addRelationshipsTableHeader(column);
-
-                    let elemTBody = $('<tbody></tbody>').appendTo(elemTable)
-                        .addClass('list-tbody')
-                        .attr('id', id + '-tbody');
-
-                    // genTable(id ,settings.results[id], items);
+                    items.push(contentItem);
 
                 }
+            }
 
-                $('#' + id + '-processing').hide();
-
-                insertRelationshipsDataDone(id, response);
-        
-            }           
         }
+
+        // if(settings.relationships[id].layout.toLowerCase() === 'table') {
+        //     genTable(id ,settings.relationships[id], items);
+        // } else {
+        //     genTilesList(id, items, settings.relationships[id]);   
+        // }
+
+        sortArray(listWorkspaces, 0);
+        setPanelFilterOptions(id, 'workspace', listWorkspaces);
+
+        finishPanelContentUpdate(id, settings.relationships[id], items);
+        insertRelationshipsDataDone(id, response);
+
 
     })
     
 }
-function addColumn(columns, name, columnsIn, columnsEx) {
-
-    if(columnsIn.length === 0 || columnsIn.includes(name)) {
-        if(columnsEx.length === 0 || !columnsEx.includes(name)) {
-            columns.push(name);
-        }
-    }
-
-}
+function insertRelationshipsDone(id) {}
 function insertRelationshipsDataDone(id, data) {}
 
-
-// Insert grid for phases, gates and tasks
-function insertPhaseGates(link, id) {
-
-    if(isBlank(id)) id = 'project-phase-gates';
-
-    let elemParent = $('#' + id);
-        elemParent.addClass('project-phase-gates');
-        elemParent.html('');
-
-    $.get('/plm/project', { 'link' : link}, function(response) {
-
-        console.log(response);
-
-        for(projectItem of response.data.projectItems) {
-
-            let elemColumn = $('<div></div>');
-                elemColumn.appendTo(elemParent);
-
-            let elemHead = $('<div></div>');
-                elemHead.addClass('project-grid-head');
-                elemHead.html(projectItem.title);
-                elemHead.appendTo(elemColumn);
-
-            if(isBlank(projectItem.projectItems)) {
-
-
-            } else {
-
-                elemColumn.addClass('tiles');
-                elemColumn.addClass('list');
-                elemColumn.addClass('xxxs');
-
-                for(task of projectItem.projectItems) {
-
-                    let elemTask;
-                    let className = 'task-not-started';
-                    let elemProgress = $('<div></div>');
-                    elemProgress.addClass('task-progress-bar');
-
-                    if(task.progress === 100) {
-                        className = 'task-completed';
-                    } else if(task.statusFlag === 'CRITICAL') {
-                        className = 'task-overdue';
-                    }
-
-                    if(task.type.link === '/api/v3/project-item-type/WFM') {
-
-                        elemTask = genTile(task.item.link, '', null, 'check_circle', task.title);
-                    } else {
-                        elemTask = genTile('', '', null, 'not_started', task.title);
-
-                    }
-
-                        elemTask.addClass('project-grid-task');
-                        elemTask.addClass(className);
-                        elemTask.appendTo(elemColumn);
-
-                        elemProgress.appendTo(elemTask);
-
-                }
-            }
-
-        }
-
-    });
-
-}
-
-
-// Insert managed items
-function insertManagedItems(link, id, icon) {
-
-    if(isBlank(link)) return;
-    if(isBlank(id)  ) id = 'managed-items';
-    if(isBlank(icon)) icon = '';
-
-    let elemParent = $('#' + id + '-list');
-        elemParent.html('');
-
-    $('#' + id + '-processing').show();
-
-    $.getJSON('/plm/manages', { 'link' : link }, function(response) {
-        
-        $('#' + id + '-processing').hide();
-
-        if(response.statusCode === 204) {
-
-            for(let affectedItem of response.data) {
-
-            let elemTile = genTile(affectedItem.item.link, '', '', icon, affectedItem.item.title);
-                elemTile.appendTo(elemParent);
-                elemTile.click(function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    clickManagedItem($(this));
-                });
-
-            }
-
-        } else if(response.statusCode === 403) {
-
-            showErrorMessag('No Access', response.data.message);
-
-        }
-
-        insertManagedItemsDone(id);
-        
-    });
-
-}
-function insertManagedItemsDone(id) {}
-function clickManagedItem(elemClicked) {}
 
 
 // Insert Workflow History
@@ -5504,125 +6215,57 @@ function insertWorkflowHistory(link, params) {
 
     if(isBlank(link)) return;
 
-    //  Set defaults for optional parameters
-    // --------------------------------------
-    let id                  = 'workflow-history';   // ID of the DOM element where the history should be inserted
-    let header              = true;                 // Can be used to suppress addition of the panel header element
-    let headerLabel         = 'Workflow History';   // Set the header label
-    let headerToggle        = false;                // Enable header toggles
-    let reload              = true;                 // Enable reload button for the history panel
-    let showNextTransitions = true;                 // If set to true, the list of possible next actions will be shown on top of the history entries
-    let finalStates         = ['Complete', 'Completed', 'Closed', 'Done'];  // This list may be used to define the final states of workflows. These final states will be shown with a different icon.
-    let transitionsIn       = [];                   // List of transitions that will be included in the history log and next transitions list. Transitions not included in this list will not be shown.
-    let transitionsEx       = ['Cancel', 'Delete']; // List of transitions that will be excluded in the history log and next transitions list. Transitions included in this list will not be shown.
-
-    if( isBlank(params)                    )              params = {};
-    if(!isBlank(params.id)                 )                  id = params.id;
-    if(!isBlank(params.header)             )              header = params.header;
-    if(!isBlank(params.headerLabel)        )         headerLabel = params.headerLabel;
-    if(!isBlank(params.headerToggle)       )        headerToggle = params.headerToggle;
-    if(!isBlank(params.reload)             )              reload = params.reload;
-    if(!isBlank(params.showNextTransitions)) showNextTransitions = params.showNextTransitions;
-    if(!isBlank(params.finalStates)        )         finalStates = params.finalStates;
-    if(!isBlank(params.transitionsIn)      )       transitionsIn = params.transitionsIn;
-    if(!isBlank(params.transitionsEx)      )       transitionsEx = params.transitionsEx;
-
-    settings.workflowHistory[id]                     = {};
-    settings.workflowHistory[id].link                = link;
-    settings.workflowHistory[id].showNextTransitions = showNextTransitions;
-    settings.workflowHistory[id].finalStates         = finalStates;
-    settings.workflowHistory[id].transitionsIn       = transitionsIn;
-    settings.workflowHistory[id].transitionsEx       = transitionsEx;
-
-    let elemTop = $('#' + id)
-        .addClass('workflow-history')
-        .html('');
-
-    if(header) {
-
-        let elemHeader = $('<div></div>', {
-            id : id + '-header'
-        }).appendTo(elemTop).addClass('panel-header');
+    let id = isBlank(params.id) ? 'workflow-history' : params.id;
     
-        if(headerToggle) {
-    
-            $('<div></div>').appendTo(elemHeader)
-                .addClass('panel-header-toggle')
-                .addClass('icon')
-                .addClass('icon-collapse');
-    
-            elemHeader.addClass('with-toggle');
-            elemHeader.click(function() {
-                togglePanelHeader($(this));
-            });
-    
-        }
+    settings.workflowHistory[id] = getPanelSettings(link, params, {
+        headerLabel : 'Workflow History',
+    }, [
+        [ 'showNextTransitions', true ],
+        [ 'finalStates'        , ['Complete', 'Completed', 'Closed', 'Done'] ],
+        [ 'transitionsIn'      , [] ],
+        [ 'transitionsEx'      , ['Cancel', 'Delete'] ]
+    ]);
 
-        $('<div></div>').appendTo(elemHeader)
-            .addClass('panel-title')
-            .attr('id', id + '-title')
-            .html(headerLabel);
+    settings.workflowHistory[id].load = function() { insertWorkflowHistoryData(id); }
 
-        if(reload) {
+    genPanelTop(id, settings.workflowHistory[id], 'processes');
+    genPanelHeader(id, settings.workflowHistory[id]);
+    genPanelOpenInPLMButton(id, settings.workflowHistory[id]);
+    genPanelSearchInput(id, settings.workflowHistory[id]);
+    genPanelReloadButton(id, settings.workflowHistory[id]);
 
-            let elemToolbar = $('<div></div>').appendTo(elemHeader)
-                .addClass('panel-toolbar')
-                .attr('id', id + '-toolbar');
+    genPanelContents(id, settings.workflowHistory[id]).addClass('workflow-history-content').removeClass('list');
 
-            $('<div></div>').appendTo(elemToolbar)
-                .addClass('button')
-                .addClass('icon')
-                .addClass('icon-refresh')
-                .attr('id', id + '-reload')
-                .attr('title', 'Reload this view')
-                .click(function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    insertWorkflowHistoryData(id);
-                });
+    insertWorkflowHistoryDone(id);
 
-        }
-
-    }
-
-    if(!header) { elemTop.addClass('no-header'); }
-
-    appendProcessing(id, true);
-
-    $('<div></div>').appendTo(elemTop)
-        .attr('id', id + '-content')
-        .attr('data-link', link)
-        .addClass('panel-content')
-        .addClass('workflow-history-content')
-        .addClass('no-scrollbar');
-
-    insertWorkflowHistoryData(id);
+    settings.workflowHistory[id].load();
 
 }
-
 function insertWorkflowHistoryData(id) {
 
-    $('#' + id + '-processing').show();
+    settings.workflowHistory[id].timestamp = startPanelContentUpdate(id);
 
-    let elemContent = $('#' + id + '-content');
-    let link        = settings.workflowHistory[id].link;
-    let requests    = [ 
-        $.get('/plm/workflow-history', { 'link' : link }),
-        $.get('/plm/details', { 'link' : link })
+    let params = {
+        link      : settings.workflowHistory[id].link,
+        timestamp : settings.workflowHistory[id].timestamp
+    }
+
+    let requests = [ 
+        $.get('/plm/workflow-history', params),
+        $.get('/plm/details',          params)
     ];
 
-    elemContent.html('');
-
-    if(settings.workflowHistory[id].showNextTransitions) requests.push($.get('/plm/transitions', { 'link' : link }));
+    if(settings.workflowHistory[id].showNextTransitions) requests.push($.get('/plm/transitions', params));
 
     Promise.all(requests).then(function(responses) {
 
-        $('#' + id + '-processing').hide();
+        if(stopPanelContentUpdate(responses[0], settings.workflowHistory[id])) return;
 
         let index         = 1;
         let transitionsIn = settings.workflowHistory[id].transitionsIn;
         let transitionsEx = settings.workflowHistory[id].transitionsEx;
         let currentStatus = responses[1].data.currentState.title;
+        let elemContent   = $('#' + id + '-content');
 
         if(settings.workflowHistory[id].showNextTransitions) {
             if(!settings.workflowHistory[id].finalStates.includes(currentStatus)) {
@@ -5643,7 +6286,7 @@ function insertWorkflowHistoryData(id) {
                             .addClass('workflow-next-action')
                             .html(nextTransition.name);
 
-                        }
+                    }
 
                 }
 
@@ -5666,7 +6309,13 @@ function insertWorkflowHistoryData(id) {
                     if((index === 2) && settings.workflowHistory[id].finalStates.includes(currentStatus)) icon = 'icon-finish';
                     
                     let elemEvent = $('<div></div>').appendTo(elemContent)
-                        .addClass('workflowh-history-event');
+                        .addClass('workflow-history-event')
+                        .addClass('content-item')
+                        .click(function() {
+                            if(!isBlank(settings.workflowHistory[id].onItemClick)) settings.workflowHistory[id].onItemClick($(this));
+                        }).dblclick(function() {
+                            if(!isBlank(settings.workflowHistory[id].onItemDblClick)) settings.workflowHistory[id].onItemDblClick($(this));
+                        });
 
                     let elemAction = $('<div></div>').appendTo(elemEvent)
                         .addClass('workflow-history-action');
@@ -5698,157 +6347,644 @@ function insertWorkflowHistoryData(id) {
             }
         }
 
+        finishPanelContentUpdate(id, settings.workflowHistory[id]);
         insertWorkflowHistoryDone(id, responses[0].data, responses[1].data);
 
     });
 
 }
-function insertWorkflowHistoryDone(id, dataHistory, dataItem) {}
+function insertWorkflowHistoryDone(id) {}
+function insertWorkflowHistoryDataDone(id, history, item) {}
 
 
-// Set options of defined select element to trigger workflow action
-function insertWorkflowActions(link, params) {
+
+// Insert Change Log
+function insertChangeLog(link, params) {
 
     if(isBlank(link)) return;
 
-    //  Set defaults for optional parameters
-    // --------------------------------------
-    let id               = 'workflow-actions';  // id of DOM element where the actions menu will be inserted
-    let label            = 'Select Action';     // Label that will be shown in the select control
-    let hideIfEmpty      = true;                // If set to true, the select control will be hidden if there are not workflow actions available
-    let disableAtStartup = false;               // If set to true, the select control will be disabled until the available actions have been retrieved
-
-    if( isBlank(params)                 )           params = {};
-    if(!isBlank(params.id)              )               id = params.id;
-    if(!isBlank(params.label)           )            label = params.label;
-    if(!isBlank(params.hideIfEmpty)     )      hideIfEmpty = params.hideIfEmpty;
-    if(!isBlank(params.disableAtStartup)) disableAtStartup = params.disableAtStartup;
-
-    let elemActions = $('#' + id)
-        .attr('data-link', link)
-        .html('')
-        .change(function() {
-            clickWorkflowAction($(this));
-        });
-
-    if(disableAtStartup) elemActions.addClass('disabled').attr('disabled', '')
-
-    $('<option></option>')
-        .attr('value', '')
-        .attr('hidden', '')
-        .attr('selected', '')
-        .html(label)
-        .appendTo(elemActions);
-
-    $.get('/plm/transitions', { 'link' : link }, function(response) {
-
-        for(action of response.data) {
-
-            $('<option></option>').appendTo(elemActions)
-                .attr('value', action.__self__)
-                .html(action.name);
-
-        }
-
-        if(response.data.length > 0) {
-            elemActions.show();
-            elemActions.removeClass('disabled');
-            elemActions.removeAttr('disabled');
-        } else if(hideIfEmpty) {
-            elemActions.hide();
-        }
-
-        insertWorkflowActionsDone(id, response);
-
-    });
-
-}
-function insertWorkflowActionsDone(id, data) {}
-function clickWorkflowAction(elemClicked) {
-
-    $('#overlay').show();
-
-    let link       = elemClicked.attr('data-link');
-    let transition = elemClicked.val();
-
-    $.get('/plm/transition', { 'link' : link, 'transition' : transition }, function(response) {
-        $('#overlay').hide();
-        clickWorkflowActionDone(response.params.link, response.params.tranistion, response);
-    });
-
-}
-function clickWorkflowActionDone(link, transition, data) {}
-
-
-// Togggle item bookmark
-function getBookmarkStatus(link, id) {
-
-    if(typeof id === 'undefined') id = 'bookmark';
-
-    let elemBookmark = $('#' + id);
-
-    if(elemBookmark.length === 0) return;
-
-    elemBookmark.removeClass('active');
+    let id = isBlank(params.id) ? 'change-log' : params.id;
     
-    if(typeof link === 'undefined') link = elemBookmark.closest('.panel').attr('data-link');
+    settings.changeLog[id] = getPanelSettings(link, params, {
+        headerLabel : 'Change Log',
+        textNoData  : 'No change log entries found'
+    }, [
+        [ 'filterByUser'  , true ],
+        [ 'filterByAction', true ],
+        [ 'actionsIn'     , []   ],
+        [ 'actionsEx'     , []   ],
+        [ 'usersIn'       , []   ],
+        [ 'usersEx'       , []   ],
+    ]);
 
-    elemBookmark.attr('data-link', link);
+    settings.changeLog[id].layout = 'table';
+    settings.changeLog[id].load   = function() {  insertChangeLogData(id); }
 
-    $.get('/plm/bookmarks', function(response) {
-        for(bookmark of response.data.bookmarks) {
-            if(bookmark.item.link === link) {
-                elemBookmark.addClass('active');
+    genPanelTop(id, settings.changeLog[id], 'managed-items', []);
+    genPanelHeader(id, settings.changeLog[id]);
+    genPanelOpenInPLMButton(id, settings.changeLog[id]);
+    genPanelFilterSelect(id, settings.changeLog[id], 'filterByUser', 'user', 'All Users');
+    genPanelFilterSelect(id, settings.changeLog[id], 'filterByAction', 'action', 'All Actions');
+    genPanelSearchInput(id, settings.changeLog[id]);
+    genPanelReloadButton(id, settings.changeLog[id]);
+
+    genPanelContents(id, settings.changeLog[id]);
+
+    insertChangeLogDone(id);
+
+    settings.changeLog[id].load();
+
+}
+function insertChangeLogData(id) {
+
+    settings.changeLog[id].timestamp = startPanelContentUpdate(id);
+
+    let params = {
+        link        : settings.changeLog[id].link,
+        timestamp   : settings.changeLog[id].timestamp
+    }
+
+    $.get('/plm/logs', params, function(response) {
+
+        if(stopPanelContentUpdate(response, settings.changeLog[id])) return;
+
+        let number      = 1;
+        let elemContent = $('#' + id + '-content'); 
+        let elemTable   = $('<table></table>').appendTo(elemContent).addClass('fixed-header').addClass('row-hovering');
+        let elemTHead   = $('<thead></thead>');
+        let elemTHRow   = $('<tr></tr>').appendTo(elemTHead);
+        let elemTBody   = $('<tbody></tbody>').attr('id', id + '-tbody').appendTo(elemTable);
+        let listUsers   = [];
+        let listActions = [];
+        let columns     = [ 'Date', 'User', 'Action', 'Details' ]
+        let counter     = 0;
+
+        if(settings.changeLog[id].number) $('<th></th>').appendTo(elemTHRow).html('#').addClass('change-log-number');
+
+        for(let column of columns) {
+            if(includePanelTableColumn(column, settings.changeLog[id], counter++)) {
+                $('<th></th>').appendTo(elemTHRow)
+                    .addClass('col')
+                    .html(column);
             }
         }
+
+        if(settings.changeLog[id].tableHeaders) elemTHead.appendTo(elemTable);
+
+        for(let entry of response.data) {
+
+            let user        = entry.user.title;
+            let action      = entry.action.shortName;
+            let elemDetails = $('<div></div>').addClass('change-log-details');
+
+            if((settings.changeLog[id].usersIn.length === 0) || ( settings.changeLog[id].usersIn.includes(user))) {
+                if((settings.changeLog[id].usersEx.length === 0) || (!settings.changeLog[id].usersEx.includes(user))) {
+                    if((settings.changeLog[id].actionsIn.length === 0) || ( settings.changeLog[id].actionsIn.includes(action))) {
+                        if((settings.changeLog[id].actionsEx.length === 0) || (!settings.changeLog[id].actionsEx.includes(action))) {
+
+                            if(!listUsers.includes(user)) listUsers.push(user);
+                            if(!listActions.includes(action)) listActions.push(action);
+
+                            let elemRow = $('<tr></tr>').appendTo(elemTBody)
+                                .attr('data-filter-user', user)
+                                .attr('data-filter-action', action)
+                                .addClass('content-item').click(function() {
+                                    if(!isBlank(settings.changeLog[id].onItemClick)) settings.changeLog[id].onItemClick($(this));                          
+                                }).dblclick(function() {
+                                    if(!isBlank(settings.changeLog[id].onItemDblClick)) settings.changeLog[id].onItemDblClick($(this));                          
+                                });
+
+                            if(settings.changeLog[id].number) $('<td></td>').appendTo(elemRow).html(number++).addClass('change-log-number');
+
+                            if(isBlank(entry.description)) {
+
+                                for(let detail of entry.details) {
+
+                                    let elemDetail = $('<div></div>').appendTo(elemDetails);
+                                        elemDetail.append($('<span class="change-log-detail-field">' + detail.fieldName + '</span>'));
+                                        elemDetail.append('<span>changed from</span>');
+                                        elemDetail.append($('<span class="change-log-detail-old">' + detail.oldValue + '</span>'));
+                                        elemDetail.append('<span>to</span>');
+                                        elemDetail.append($('<span class="change-log-detail-new">' + detail.newValue + '</span>'));
+
+                                }
+
+                            } else elemDetails.append(entry.description);
+
+                            counter = 0;
+
+                            for(let column of columns) {
+
+                                if(includePanelTableColumn(column, settings.changeLog[id], counter++)) {
+
+                                    let elemCell = $('<td></td>').appendTo(elemRow);
+
+                                    switch(column) {
+
+                                        case 'Date': 
+                                            let timeStamp = new Date(entry.timeStamp);
+                                            elemCell.html(timeStamp.toLocaleDateString()).addClass('change-log-date');
+                                            break;
+
+                                        case 'User': 
+                                            elemCell.html(entry.user.title).addClass('change-log-user');
+                                            break;
+
+                                        case 'Action': 
+                                            elemCell.html(entry.action.shortName).addClass('change-log-action');
+                                            break;
+
+                                        case 'Details': 
+                                            elemCell.append(elemDetails);
+                                            break;
+
+                                    }
+        
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        sortArray(listUsers, 0);
+        sortArray(listActions, 0);
+        
+        setPanelFilterOptions(id, 'user', listUsers);
+        setPanelFilterOptions(id, 'action', listActions);
+
+        finishPanelContentUpdate(id, settings.changeLog[id]);
+        insertChangeLogDataDone(id, response);
+   
+    });
+    
+}
+function insertChangeLogDone(id) {}
+function insertChangeLogDataDone(id, data) {}
+
+
+
+
+// Open given item in main screen of app, insert given dom elements before if needed
+function insertItemSummary(link, params) {
+
+    if(isBlank(link)) return;
+    if(isBlank(params)) params = {};
+
+    let id = isBlank(params.id) ? 'item' : params.id;
+
+    settings.summary[id] = getPanelSettings(link, params, {}, [
+        [ 'bookmark'        , false ],
+        [ 'className'       , ''    ],
+        [ 'cloneable'       , false ],
+        [ 'contents'        , [ { type : 'details', params : { id : 'item-section-details' } } ] ],
+        [ 'layout'          , 'tabs'],
+        [ 'hideSubtitle'    , false ],
+        [ 'hideCloseButton' , false ],
+        [ 'includeViewer'   , false ],
+        [ 'statesColors'    , []    ],
+        [ 'surfaceLevel'    , null  ],
+        [ 'toggleBodyClass' , ''    ],
+        [ 'workflowActions' , false ],
+        [ 'wrapControls'    , false ],
+        [ 'onClickClose'    , function(id, link) { } ],
+        [ 'afterCloning'    , function(id, link) { console.log('New item link : ' + link ); } ]
+    ]);
+
+    settings.summary[id].wsId    = link.split('/')[4];
+    settings.summary[id].load    = function() { setItemSummaryData(id); }
+
+    let elemItemTop = $('#' + id);
+
+    if(elemItemTop.length === 0) {
+        elemItemTop = $('<div></div>').appendTo('body')
+            .attr('id', id)    
+            .addClass('screen');
+    }
+
+    elemItemTop.attr('data-link', settings.summary[id].link);
+    elemItemTop.addClass('item')
+    elemItemTop.addClass('workspace-' + settings.summary[id].wsId);
+
+    if(isBlank(settings.summary[id].surfaceLevel)) {
+
+        settings.summary[id].surfaceLevel = getSurfaceLevel(elemItemTop, false);
+
+        if(settings.summary[id].surfaceLevel === 'surface-level-0') {
+            settings.summary[id].surfaceLevel = 'surface-level-1';
+            elemItemTop.addClass(settings.summary[id].surfaceLevel);
+        }
+
+    } else {
+
+        if(settings.summary[id].surfaceLevel.indexOf('surface-level') !== 0) settings.summary[id].surfaceLevel = 'surface-level-' + settings.summary[id].surfaceLevel;
+        elemItemTop.addClass(settings.summary[id].surfaceLevel);
+
+    }
+
+    settings.summary[id].contentSurfaceLevel = getMatchingContentSurfaceLevels(settings.summary[id].surfaceLevel);
+
+    if(!isBlank(settings.summary[id]).className) elemItemTop.addClass(settings.summary[id].className);
+
+    let elemItemHeader          = $('#' + id + '-header');
+    let elemItemTitle           = $('#' + id + '-title');
+    let elemItemDescriptor      = $('#' + id + '-descriptor');
+    let elemItemSubtitle        = $('#' + id + '-subtitle');
+    let elemItemStatus          = $('#' + id + '-status');
+    let elemItemSummary         = $('#' + id + '-summary');
+    let elemItemControls        = $('#' + id + '-controls');
+    let elemItemClose           = $('#' + id + '-close');
+    let elemItemContent         = $('#' + id + '-content');
+    let elemItemWorkflowActions = $('#' + id + '-workflow-actions');
+
+    if(elemItemHeader.length     === 0) { elemItemHeader     = $('<div></div>').attr('id', id + '-header'    ).addClass('item-header'    ).addClass('panel-header'    ).appendTo(elemItemTop);      }
+    if(elemItemTitle.length      === 0) { elemItemTitle      = $('<div></div>').attr('id', id + '-title'     ).addClass('item-title'     ).addClass('panel-title'     ).appendTo(elemItemHeader);   }
+    if(elemItemDescriptor.length === 0) { elemItemDescriptor = $('<div></div>').attr('id', id + '-descriptor').addClass('item-descriptor').addClass('panel-title-main').appendTo(elemItemTitle);    }
+    if(elemItemSubtitle.length   === 0) { elemItemSubtitle   = $('<div></div>').attr('id', id + '-subtitle'  ).addClass('item-subtitle'  ).addClass('panel-title-sub' ).appendTo(elemItemTitle);    }
+    if(elemItemStatus.length     === 0) { elemItemStatus     = $('<div></div>').attr('id', id + '-status'    ).addClass('item-status'    ).addClass('panel-status'    ).appendTo(elemItemSubtitle); }
+    if(elemItemSummary.length    === 0) { elemItemSummary    = $('<div></div>').attr('id', id + '-summary'   ).addClass('item-summary'   ).addClass('panel-summary'   ).appendTo(elemItemSubtitle); }
+    if(elemItemControls.length   === 0) { elemItemControls   = $('<div></div>').attr('id', id + '-controls'  ).addClass('item-controls'  ).addClass('panel-controls'  ).appendTo(elemItemHeader);   }
+    if(elemItemContent.length    === 0) { elemItemContent    = $('<div></div>').attr('id', id + '-content'   ).addClass('item-content'   ).addClass('panel-content'   ).appendTo(elemItemTop);      }
+
+    elemItemDescriptor.html('');
+        elemItemStatus.html('');
+       elemItemSummary.html('');
+       elemItemContent.html('');
+
+    genPanelBookmarkButton(id, settings.summary[id]);
+    genPanelCloneButton(id, settings.summary[id]);
+    genPanelOpenInPLMButton(id, settings.summary[id]);
+    genPanelReloadButton(id, settings.summary[id]);
+
+    if(settings.summary[id].workflowActions) {
+        if(elemItemWorkflowActions.length === 0) {
+            elemItemWorkflowActions = $('<select></select>').prependTo(elemItemControls)
+                .attr('id', id + '-workflow-actions')
+                .addClass('item-workflow-actions')
+                .addClass('button')
+                .hide();
+        }
+    }
+
+    if(elemItemClose.length === 0) { 
+        if(!settings.summary[id].hideCloseButton) {
+            elemItemClose = $('<div></div>').appendTo(elemItemControls)
+                .attr('id', id + '-close')
+                .addClass('button')
+                .addClass('icon')
+                .addClass('icon-close')
+                .click(function() {
+                    if(isBlank(settings.summary[id].toggleBodyClass))  $('#' + id).hide();
+                    else $('body').removeClass(settings.summary[id].toggleBodyClass);
+                    settings.summary[id].onClickClose();
+                });
+        }
+    }
+
+    switch(settings.summary[id].layout) {
+
+        case 'dashboard':
+            elemItemTop.addClass('with-panels');
+            break;
+
+        case 'tabs':
+            $('<div></div>').attr('id', id + '-tabs').addClass('panel-tabs').appendTo(elemItemTop);
+            elemItemTop.addClass('with-tabs').addClass('panel-top');
+            elemItemContent.addClass(settings.summary[id].contentSurfaceLevel);
+            break;
+
+        case 'sections':
+            elemItemTop.addClass('with-sections').addClass('panel-top');
+            elemItemContent.addClass('panel-sections');
+            break;
+
+    }
+
+    if(settings.summary[id].includeViewer) {
+        $('<div></div>').attr('id', id + '-viewer').addClass('panel-viewer').appendTo(elemItemTop);
+    }
+
+    if(!isBlank(settings.summary[id].headerTopLabel)) {
+        $('#' + id).addClass('with-top-title');
+        let elemTopTitle = $('#' + id + '-title-top');
+        if(elemTopTitle.length === 0) {
+            elemTopTitle = $('<div></div>').prependTo(elemItemTitle)
+                .addClass('panel-title-top')
+                .attr('id', id + '-title-top');
+        }
+        elemTopTitle.html(settings.summary[id].headerTopLabel);
+    }
+
+    if(settings.summary[id].wrapControls) elemItemTop.addClass('wrap-controls');
+    if(settings.summary[id].hideSubtitle) elemItemTop.addClass('no-sub-title');
+
+    if(!isBlank(settings.summary[id].toggleBodyClass)) $('body').addClass(settings.summary[id].toggleBodyClass);
+
+    insertItemSummaryDone(id);
+
+    settings.summary[id].load();
+
+}
+function setItemSummaryData(id) {
+
+    settings.summary[id].timestamp = new Date().getTime();
+
+    // let elemItemDescriptor  = $('#' + id + '-descriptor').html('').addClass('animation');
+    // let elemItemStatus      = $('#' + id + '-status').html('').addClass('animation');
+    // let elemItemSummary     = $('#' + id + '-summary').html('').addClass('animation');
+    let elemItemDescriptor  = $('#' + id + '-descriptor').html('');
+    let elemItemStatus      = $('#' + id + '-status').html('');
+    let elemItemSummary     = $('#' + id + '-summary').html('');
+    
+    $('#' + id + '-content').html('');
+    $('#' + id + '-workflow-actions').hide();
+    $('#' + id).show();
+
+    let requests = [
+        $.get('/plm/details'       , { link : settings.summary[id].link, timestamp : settings.summary[id].timestamp }),
+        $.get('/plm/change-summary', { link : settings.summary[id].link }),
+        $.get('/plm/fields'        , { link : settings.summary[id].link, useCache : true }),
+        $.get('/plm/tabs'          , { link : settings.summary[id].link, useCache : true })
+    ];
+
+    if((settings.summary[id].bookmark) ) requests.push($.get('/plm/bookmarks'  , { link : settings.summary[id].link }));
+    if((settings.summary[id].cloneable)) requests.push($.get('/plm/permissions', { link : settings.summary[id].link }));
+
+    Promise.all(requests).then(function(responses) {
+
+        if(responses[0].params.timestamp == settings.summary[id].timestamp) {
+            if(responses[0].params.link === settings.summary[id].link) {
+
+                $('.animation').removeClass('animation');
+
+                elemItemDescriptor.html(responses[0].data.title);
+
+                if(isBlank(responses[0].data.currentState)) {
+                    elemItemStatus.hide();
+                } else {
+
+                    let stateLabel = responses[0].data.currentState.title;
+                    let stateColor = '#000';
+
+                    for(let statesColor of settings.summary[id].statesColors) {
+                        if(statesColor.states.indexOf(responses[0].data.currentState.title) > -1) {
+                            if(!isBlank(statesColor.color)) stateColor = statesColor.color;
+                            if(!isBlank(statesColor.label)) stateLabel = statesColor.label;
+                            break;
+                        }
+                    }
+
+                    elemItemStatus.css('background-color', stateColor);
+                    elemItemStatus.html(stateLabel);
+        
+                }
+
+                if(responses[1].status !== 403) {
+
+                    let dateCreated  = new Date(responses[1].data.createdOn);
+
+                    let elemCreatedBy = $('<span></span>')
+                        .attr('id', '#' + id + '-created-by')
+                        .addClass('item-created-by')
+                        .html(responses[1].data.createdBy.displayName);
+
+                    let elemCreatedOn = $('<span></span>')
+                        .attr('id', '#' + id + '-created-on')
+                        .addClass('item-created-on')
+                        .html(dateCreated.toLocaleDateString());
+
+                    elemItemSummary.append('Created by ')
+                        .append(elemCreatedBy)
+                        .append(' on ')
+                        .append(elemCreatedOn);
+
+                    if(!isBlank(responses[1].data.lastModifiedBy)) {
+
+                        let elemModifiedBy = $('<span></span>')
+                            .attr('id', '#' + id + '-modified-by')
+                            .addClass('item-modified-by')
+                            .html(responses[1].data.lastModifiedBy.displayName);
+
+                        let elemModifiedOn = $('<span></span>')
+                            .attr('id', '#' + id + '-modified-on')
+                            .addClass('item-modified-on')
+                            .html(new Date(responses[1].data.lastModifiedOn).toLocaleDateString());
+
+                        elemItemSummary.append('. Last modified by ')
+                            .append(elemModifiedBy)
+                            .append(' on ')
+                            .append(elemModifiedOn);
+
+                    }
+
+                }
+
+                setPanelBookmarkStatus(id, settings.summary[id], responses);
+                setPanelCloneStatus(id, settings.summary[id], responses);
+
+                if(settings.summary[id].workflowActions) {
+                    insertWorkflowActions(settings.summary[id].link, {
+                        id : id + '-workflow-actions',
+                        onComplete : function() { settings.summary[id].load() }
+                    });
+                }
+
+                insertItemSummaryContents(id, responses[0].data, responses[2].data, responses[3].data);
+
+            }
+        }
+
     });
 
 }
-function toggleBookmark(elemBookmark) {
+function insertItemSummaryContents(id, details, fields, tabs) {
 
-    if(typeof elemBookmark === 'undefined') elemBookmark = $('#bookmark');
-    if(elemBookmark.length === 0) return;
-    
-    let dmsId = elemBookmark.attr('data-link').split('/')[6];
+    let elemItemContent = $('#' + id + '-content');
+    let elemTabs        = $('#' + id + '-tabs');
+    let tabsAccessible  = [];
+    let tabLabels       = {};
+    let isFirst         = true;
 
-    if(elemBookmark.hasClass('active')) {
-        $.get('/plm/remove-bookmark', { 'dmsId' : dmsId }, function () {
-            elemBookmark.removeClass('active');
-        });
-    } else {
-        $.get('/plm/add-bookmark', { 'dmsId' : dmsId, 'comment' : ' ' }, function () {
-            elemBookmark.addClass('active');
-        });
-    }
-
-}
-
-
-// Set tab labels and toggle visibility based on user permission
-function insertTabLabels(tabs) {
-
-    $('#tabItemDetails'  ).hide();
-    $('#tabAttachments'  ).hide();
-    $('#tabWorkflow'     ).hide();
-    $('#tabGrid'         ).hide();
-    $('#tabProject'      ).hide();
-    $('#tabRelationships').hide();
-    $('#tabChangeLog'    ).hide();
+    if(elemTabs.length > 0) elemTabs.html('');
 
     for(let tab of tabs) {
-
-        let label = (tab.name === null) ? tab.key : tab.name;
-
-        switch(tab.workspaceTabName) {
-            case 'ITEM_DETAILS'         : $('#tabItemDetails'  ).html(label).show(); break;
-            case 'PART_ATTACHMENTS'     : $('#tabAttachments'  ).html(label).show(); break;
-            case 'WORKFLOW_ACTIONS'     : $('#tabWorkflow'     ).html(label).show(); break;
-            case 'PART_GRID'            : $('#tabGrid'         ).html(label).show(); break;
-            case 'PROJECT_MANAGEMENT'   : $('#tabProject'      ).html(label).show(); break;
-            case 'RELATIONSHIPS'        : $('#tabRelationships').html(label).show(); break;
-            case 'PART_HISTORY'         : $('#tabChangeLog'    ).html(label).show(); break;
-        }
-
+        tabsAccessible.push(tab.workspaceTabName);
+        tabLabels[tab.workspaceTabName] = isBlank(tab.name) ? tab.key : tab.name;
     }
 
+    if(settings.summary[id].includeViewer) {
+        $('#' + id).addClass('includes-viewer');
+        insertViewer(settings.summary[id].link, {
+            id : id + '-viewer'
+        });
+    } else {
+        $('#' + id).removeClass('includes-viewer');
+    }
+
+    for(let content of settings.summary[id].contents) {
+
+        if(isBlank(content.params)) content.params = {};
+
+        let link      = (isBlank(content.link)) ? settings.summary[id].link : content.link;
+        let contentId = (isBlank(content.params.id)) ? 'item-' + content.type : content.params.id;
+        let className = (isBlank(content.className)) ? settings.summary[id].contentSurfaceLevel : content.className;
+        let elemTop   = $('#' + contentId);
+        
+        if(settings.summary[id].layout === 'sections') {
+            content.params.headerToggle = true;
+        }
+
+        if(elemTop.length === 0) {
+            elemTop = $('<div></div>').appendTo(elemItemContent)
+                .attr('id', contentId)
+                .addClass(className)
+                .addClass('item-' + content.type.toLowerCase());
+        }
+
+        switch(content.type.toLowerCase()) {
+
+            case 'details':
+                if(tabsAccessible.includes('ITEM_DETAILS') || (!isBlank(content.params.link))) {
+                    insertItemSummaryContentTab(id, contentId, tabLabels.ITEM_DETAILS, content.params, isFirst);  
+                    insertDetails(link, content.params);
+                }
+                break;
+
+            case 'images':
+                if(tabsAccessible.includes('ITEM_DETAILS') || (!isBlank(content.params.link))) {
+                    let headerLabel = (isBlank(content.params.headerLabel)) ? 'Images' : content.params.headerLabel;
+                    insertItemSummaryContentTab(id, contentId, headerLabel, content.params, isFirst);  
+                    insertImages(link, content.params);
+                }
+                break;
+            
+            case 'attachments':
+                if(tabsAccessible.includes('PART_ATTACHMENTS')) {
+                    insertItemSummaryContentTab(id, contentId, tabLabels.PART_ATTACHMENTS, content.params, isFirst);          
+                    insertAttachments(link, content.params);
+                }
+                break;
+
+            case 'viewer':
+                if(tabsAccessible.includes('PART_ATTACHMENTS')) {
+                    insertItemSummaryContentTab(id, contentId, 'Viewer', content.params, isFirst);          
+                    insertViewer(settings.summary[id].linkViewable, content.params);
+                }
+                break;
+
+            case 'markup':
+                if(tabsAccessible.includes('PART_ATTACHMENTS')|| (!isBlank(content.link))) {
+                    insertItemSummaryContentTab(id, contentId, 'Markup', content.params, isFirst);          
+                    insertViewerMarkups(contentId, settings.summary[id].link, content.params, details.sections, fields);
+                }      
+                break;
+
+            case 'bom':
+                if(tabsAccessible.includes('BOM_LIST')|| (!isBlank(content.link))) {
+                    insertItemSummaryContentTab(id, contentId, tabLabels.BOM_LIST, content.params, isFirst);          
+                    insertBOM(link, content.params);
+                }                
+                break;
+
+            case 'flat-bom':
+                if(tabsAccessible.includes('BOM_LIST')) {
+                    insertItemSummaryContentTab(id, contentId, 'Flat BOM', content.params, isFirst);          
+                    insertFlatBOM(link, content.params);
+                } 
+                break;
+
+            case 'root-parents':
+                if(tabsAccessible.includes('BOM_WHERE_USED')) {
+                    insertItemSummaryContentTab(id, contentId, tabLabels.BOM_WHERE_USED, content.params, isFirst);          
+                    insertRootParents(link, content.params);
+                } 
+                break;
+
+            case 'grid':
+                if(tabsAccessible.includes('PART_GRID')) {
+                    insertItemSummaryContentTab(id, contentId, tabLabels.PART_GRID, content.params, isFirst);          
+                    insertGrid(link, content.params);
+                }
+                break;
+
+            case 'relationships':
+                if(tabsAccessible.includes('RELATIONSHIPS')) {
+                    insertItemSummaryContentTab(id, contentId, tabLabels.RELATIONSHIPS, content.params, isFirst);          
+                    insertRelationships(link, content.params);
+                }
+                break;
+
+            case 'managed-items':
+                if(tabsAccessible.includes('LINKEDITEMS')) {
+                    insertItemSummaryContentTab(id, contentId, tabLabels.LINKEDITEMS, content.params, isFirst);          
+                    insertManagedItems(link, content.params);
+                }
+                break;
+
+            case 'change-processes':
+                if(tabsAccessible.includes('WORKFLOW_REFERENCES')) {
+                    insertItemSummaryContentTab(id, contentId, tabLabels.WORKFLOW_REFERENCES, content.params, isFirst);          
+                    insertChangeProcesses(link, content.params);
+                }
+                break;
+
+            case 'workflow-history':
+                if(tabsAccessible.includes('WORKFLOW_ACTIONS')) {
+                    insertItemSummaryContentTab(id, contentId, tabLabels.WORKFLOW_ACTIONS, content.params, isFirst);          
+                    insertWorkflowHistory(link, content.params);
+                }
+                break;
+
+            case 'change-log':
+                if(tabsAccessible.includes('PART_HISTORY')) {
+                    insertItemSummaryContentTab(id, contentId, tabLabels.PART_HISTORY, content.params, isFirst);          
+                    insertChangeLog(link, content.params);
+                }
+                break;
+
+        }
+
+        isFirst = false;
+    }
+
+    if(elemTabs.length > 0) elemTabs.children().first().click();
+
+    insertItemSummaryDataDone(id);
+
 }
+function insertItemSummaryContentTab(id, contentId, label, params, isFirst) {
+
+    if(settings.summary[id].layout !== 'tabs') return;
+
+    let elemTabs = $('#' + id + '-tabs');
+    let tabLabel = isBlank(params.headerLabel) ? label : params.headerLabel;
+    
+    $('<div></div>').appendTo(elemTabs)
+        .attr('data-content-id', contentId)
+        .html(tabLabel)
+        .click(function() {
+
+            $(this).addClass('selected').siblings().removeClass('selected');
+            $(this).css('background', 'var(--color-' + settings.summary[id].contentSurfaceLevel + ')') ;
+            $(this).siblings().css('background', 'none');
+
+            let contentId    = $(this).attr('data-content-id');
+            let elemContents = $('#' + id + '-content');
+
+            elemContents.children().each(function() {
+                if($(this).attr('id') === contentId) {
+                    $(this).removeClass('hidden');
+                } else {
+                    $(this).addClass('hidden');
+                }
+            });
+
+        });
+    
+    params.hideHeaderLabel = true;
+    params.hidePanel       = !isFirst;
+
+}
+function insertItemSummaryDone(id) {}
+function insertItemSummaryDataDone(id) {}

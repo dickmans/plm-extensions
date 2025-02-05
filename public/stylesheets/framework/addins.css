@@ -1,178 +1,268 @@
 :root {
 
-    --padding-main-top      : 22px;
-    --padding-main-right    : 20px;
-    --padding-main-bottom   : 20px;
-    --padding-main-left     : 20px;
-
-}
-
-.embedded {
-
-    --padding-main-top      :  6px;
+    /* --padding-main-top      :  6px;
     --padding-main-right    : 10px;
     --padding-main-bottom   :  0px;
-    --padding-main-left     : 10px;
+    --padding-main-left     : 10px; */
 
 }
 
 
-/*  MASTER LAYOUT */
+/*  GENERAL */
 /* ----------------------------------------------------------------------------- */
-.embedded #header {
-    display : none;
+body.addin, 
+.addin input, 
+.addin select,
+.addin th,
+.addin td.addin .attachment-version,
+.addin .attachment-size, 
+.addin .attachment-user, 
+.addin .attachment-date,
+.addin .attachment-version { 
+    font-size : 11px; 
 }
-.screen > div {
-    /* right : 0px;
-    left  : 0px; */
-    /* border-top-width    : var(--padding-main-top);
-    border-right-width  : var(--padding-main-right);
-    border-bottom-width : var(--padding-main-bottom);
-    border-left-width   : var(--padding-main-left); */
+.addin th,
+.addin td {
+    padding : 4px 6px;
 }
-.embedded .screen { top : 0px; }
-.panel {
-    /* top     : 0px;
-    right   : var(--padding-main-right);
-    bottom  : var(--padding-main-bottom);
-    left    : var(--padding-main-left); */
-    top     : 0px;
-    right   : 0px;
-    bottom  : 0px;
-    left     : 0px;
+.addin th {
+    height  : 20px;
 }
-.panel-header {
-    top     : var(--padding-main-top);
-    right   : var(--padding-main-right);
-    left    : var(--padding-main-left); 
+.addin td {
+    height  : 18px;
 }
-.panel-content {
-    top     : 0px;
-    right   : 0px;
-    bottom  : 0px;
-    left     : 0px;
-    padding-top     : var(--padding-main-top);
-    padding-right   : var(--padding-main-right);
-    padding-bottom  : var(--padding-main-bottom);
-    padding-left    : var(--padding-main-left); 
+.addin input  { 
+    padding : 2px 4px; 
 }
-.embedded .panel { top : 40px; }
-
-
-
-/*  INPUTS */
-/* ----------------------------------------------------------------------------- */
-body.embedded, 
-.embedded input, 
-.embedded select { font-size : 11px; }
-
-.embedded input  { padding : 2px 4px; }
-.embedded select { padding : 1px 4px; }
-
-
-
-/*  PANELS */
-/* ----------------------------------------------------------------------------- */
-.embedded .panel-header {
-    border : none;
-    padding-right: var(--padding-main-right);
-    padding-left: var(--padding-main-left);
+.addin select { 
+    height      : 24px !important; 
+    line-height : 24px !important; 
+    padding     : 1px 4px; 
 }
-.embedded .panel-title {
-    font-size   : 14px;
-    font-weight : normal;
-    line-height : 18px;
-    padding     : 10px 4px;
+.addin .screen { 
+    top : 0px;
 }
-.embedded .panel-toolbar {
-    padding-top   : 6px;
-    padding-right : 2px;
+.addin .section {
+    font-size : 12px;
+    padding   : 2px 12px;
 }
-.embedded .panel-toolbar > select {
-    height      : 24px;
-    line-height : 24px;
+.addin .section-fields .field {
+    padding: 1px 0px;
 }
-.embedded .panel-content {
-    top : 46px;
+.addin .field-label {
+    padding: 0px 12px;
 }
-.embedded .workspace-view-search-input { width : 60px; }
-.panel-subtitle {
-    background  : rebeccapurple;
-    margin      : 5px 0px;
-    padding     : 2px 10px;
-    text-align  : center;
+.addin .panel-search {
+    padding-left : 2px !important;
 }
-
-
-
-/*  TABS */
-/* ----------------------------------------------------------------------------- */
-.embedded .tabs {
-    right : 0px;
-    left  : 0px;
+.addin .panel-search-input {
+    margin-left : 2px;
+    width       : 78px;
 }
-.embedded .tabs {
-    border-right    : 12px solid var(--color-surface-level-2);
-    border-bottom   : none;
-    border-left     : 12px solid var(--color-surface-level-2);
-    font-size       : 12px;
-    line-height     : 28px;
-    padding-top     : 6px;
-    top             : 0px;
-    right           : 0px;
-    left            : 0px;
+.addin .attachments-content.list .attachment-summary {
+    gap : var(--spacer-xs);
 }
-.embedded .tabs > div {
-    border-bottom   : none;
-    border-radius   : 3px 3px 0px 0px;
-    border-top      : 2px solid transparent;
-    height          : 30px;
+.attachments-content.tiles.m {
+    gap: var(--spacer-xxxs);
 }
-.embedded .tab.selected {
-    background  : var(--color-surface-level-1);
-    border-top  : 2px solid var(--color-blue-500);
-    font-weight : normal;
-} 
-
+.addin .attachments-content.tiles .attachment-size {
+    min-width : 50px;
+    max-width : 50px;
+}
+.addin .attachments-content.list.m div {
+    line-height : 14px;
+}
+.addin .tiles.list.m .tile-title {
+    margin-bottom : 4px;
+}
 
 
 /*  BUTTONS */
 /* ----------------------------------------------------------------------------- */
-.embedded div.button {
+.addin div.button {
     font-size   : 12px;
     height      : 22px;
     line-height : 22px;
     padding     : 0px 8px;
 }
-.embedded .button.icon {
+.addin .button.icon {
     height      : 22px;
     width       : 26px;
     line-height : 22px;
     font-size   : 16px;
     padding     : 0px;
 }
-.embedded .button.with-icon { padding-left : 8px; }
-.embedded .button.with-icon::before { font-size : 20px; line-height : 20px; }
-.embedded .panel-toolbar { gap : 4px; }
-.embedded #bookmark { line-height : 22px; }
+.addin .button.with-icon { padding-left : 8px; }
+.addin .button.with-icon::before { 
+    font-size   : 20px; 
+    line-height : 22px; 
+}
+
+
+
+/*  PANEL HEADER & CONTENT */
+/* ----------------------------------------------------------------------------- */
+.addin .panel-title {
+    gap     : 2px;
+    padding : 12px 0px 0px 18px;
+}
+.addin .panel-title-main {
+    font-size   : 14px;
+    font-weight : 600;
+    height      : 16px;
+    line-height : 16px;
+}
+.addin .panel-title-sub {
+    font-size   : 11px;
+    line-height : 14px;
+}
+.addin .panel-title-sub .panel-status {
+    font-size   : 9px;
+    height      : 14px;
+}
+.addin .panel-controls {
+    gap     : 4px;
+    padding : 12px 18px 0px 0px;
+}
+.addin .panel-controls > .panel-search > .button {
+    height      : 16px;
+    font-size   : 16px;
+    line-height : 16px;
+    margin-top  : 2px;
+    width       : 16px;
+}
+.addin .panel-tabs {
+    top   : 64px;
+    right : 0px;
+    left  : 0px;
+}
+.addin .panel-top.with-tabs > .panel-content {
+    border-width : 12px;
+    top          : 90px;
+    right        : 0px;
+    bottom       : 0px;
+    left         : 0px;
+}
+.addin .panel-top.with-sub-title > .panel-header > .panel-title {
+    padding-top : 12px;
+}
+.addin .panel-top.with-tabs > .panel-content > .panel-top > .panel-header > .panel-controls {
+    padding : 0px 6px 0px 0px;
+}
+.addin .panel-top.with-tabs > .panel-content > .panel-top > .panel-content {
+    top : 34px;
+}
+
+
+/*  TABS */
+/* ----------------------------------------------------------------------------- */
+.addin .panel-tabs {
+    top : 58px;
+}
+
+
+
+/*  PANELS */
+/* ----------------------------------------------------------------------------- */
+/* .addin .panel-header {
+    border : none;
+    padding-right: var(--padding-main-right);
+    padding-left: var(--padding-main-left);
+}
+.addin .panel-title {
+    font-size   : 14px;
+    font-weight : normal;
+    line-height : 18px;
+    padding     : 10px 4px;
+}
+.addin .panel-controls { 
+    padding-top : 10px;
+    gap         : 4px; 
+}
+.addin .panel-content {
+    top : 46px;
+} */
+/* .addin .workspace-view-search-input { width : 60px; } */
+.panel-subtitle {
+    background  : rebeccapurple;
+    margin      : 5px 0px;
+    padding     : 2px 10px;
+    text-align  : center;
+}
+.panel {
+    /* top     : 0px;
+    right   : var(--padding-main-right);
+    bottom  : var(--padding-main-bottom);
+    left    : var(--padding-main-left); */
+    /* top     : 40px;
+    right   : 0px;
+    bottom  : 0px;
+    left     : 0px; */
+}
+.panel-header {
+    /* top     : var(--padding-main-top);
+    right   : var(--padding-main-right);
+    left    : var(--padding-main-left);  */
+}
+/* .addin .panel-tabs {
+    border-right    : 12px solid var(--color-surface-level-2);
+    border-left     : 12px solid var(--color-surface-level-2);
+} */
+
+.panel-content {
+    /* top     : 0px;
+    right   : 0px;
+    bottom  : 0px;
+    left     : 0px; */
+    /* padding-top     : var(--padding-main-top);
+    padding-right   : var(--padding-main-right);
+    padding-bottom  : var(--padding-main-bottom);
+    padding-left    : var(--padding-main-left);  */
+}
+
+
+.addin .no-data { 
+    margin-top  : 0px;
+    position    : absolute;
+    top         : calc(50% - 44px);
+    left        : calc(50% - 100px);
+    text-align  : center;
+    width       : 200px;
+  }
 
 
 
 /*  TILES */
 /* ----------------------------------------------------------------------------- */
-.embedded .tile-title { font-size : 12px !important;}
-.embedded .tile-subtitle { font-size : 11px !important; }
-.embedded .tiles.list.xxs .tile-details { margin: 6px 10px; }
-.embedded .tiles.wide.s { padding-top: var(--spacer-s); }
+.addin .tiles.list.xs .tile-image { width : 72px; }
+.addin .tile-title { 
+    display     : flex;
+    font-size   :  12px !important;
+    gap         : 12px;
+    line-height : 12px;
+}
+.addin .tile-entity { 
+    display     : flex; 
+    font-weight : normal;
+    gap         : 4px;
+}
+.addin .tile-entity .icon {
+    font-size   : 12px;
+    line-height : 14px;
+}
+.addin .tile-subtitle { font-size : 11px !important; }
+.addin .tiles.list.xxs .tile-details { margin: 6px 10px; }
+.addin .tiles.wide.s { padding-top: var(--spacer-s); }
 
+/* Tile Actions */
 .tile-actions {
     display      : none;
     gap          : var(--spacer-xxxs);
     margin-top   : 1px;
     margin-right : 4px;
-    /* padding-left : 10px;
-    position     : absolute;
-    right        : 10px; */
+    position     : relative;
+    top          : 0px;
+    right        : 0px;
 }
 .tile:hover .tile-actions {
     display : flex;
@@ -183,36 +273,70 @@ body.embedded,
     box-shadow   : none !important;
     color        : white;
 }
+/* .tile .tile-actions {
+    background  : var(--color-hover-background);
+} */
+.list.tiles.xs > .tile > .tile-details {
+    gap          : 2px;
+    margin-right : 8px;
+    width        : calc(100%  - 80px) !important;
+}
+.list.tiles.xs > .tile .tile-actions {
+    order       : 3;
+    padding     : 4px 0px;
+    top         : calc(-50% - 19px);
+    left        : calc(100% - 122px);
+}
+.list.tiles.xs > .tile > .tile-actions > .button {
+    font-size   : 20px;
+    height      : 26px;
+    line-height : 26px;
+    width       : 26px;
+}
+
+.field-value .tile-actions { 
+    top : -22px;
+    left : calc(100% - 112px);
+}
+
+
 
 /*  TABLES */
 /* ----------------------------------------------------------------------------- */
-.embedded th { padding : 3px 2px; }
-.embedded td { padding : 1px 2px; }
-
 
 
 /*  MOW */
 /* ----------------------------------------------------------------------------- */
-.embedded .mow-icon::before { font-size : 16px; }
 
 
 /*  BOM */
 /* ----------------------------------------------------------------------------- */
-.bom-tree-actions > div {
-    display         : none;
-    gap             : 2px;
+.addin .bom-number,
+.addin .bom-descriptor {
+    padding : 0px;
+}
+.addin .bom-nav {
+    font-size   : 16px;
+    line-height : 0px;
+    top         : 4px;
+}
+td.bom-actions {
     justify-content : end;
+    gap     : 2px;
+    padding : 2px !important;
+    height  : 22px !important;
 }
-.bom-item:hover .bom-tree-actions > div {
-    display : flex;
+.bom-actions > div {
+    height      : 20px !important;
+    line-height : 20px !important;
 }
-.bom-tree-actions .button:hover {
+
+.bom-actions .button:hover {
     background   : var(--color-blue-500) !important;
     border-color : var(--color-blue-500) !important;
     box-shadow   : none !important;
     color        : white;
 }
-
 
 /*  ATTACHMENTS */
 /* ----------------------------------------------------------------------------- */
@@ -228,249 +352,3 @@ body.embedded,
     padding-right : 20px;
     padding-left  : 20px;
 }
-
-/*  SEARCH */
-/* ----------------------------------------------------------------------------- */
-/* 
-.list-results {
-    position : absolute;
-    top : 130px;
-    right : var(--padding-main);
-    bottom : var(--padding-main);
-    left : var(--padding-main);
-}
-
- */
-
-
-
-/*  PANELS */
-/* ----------------------------------------------------------------------------- */
-/* .panel { 
-    top     : 50px;
-    right   : var(--padding-main);
-    bottom  : var(--padding-main);
-    left    : var(--padding-main);
-}
-.panel-header {
-    border : none;
-    display : flex;
-    justify-content: space-between;
-}
-.panel.with-subtitle .panel-header {
-    flex-direction: column;
-}
-.panel.with-subtitle .panel-toolbar {
-    position : absolute;
-    top : 12px;
-    right : 0px;
-}
-
-.panel-subtitle { 
-    height : 20px; 
-    padding : 0px 14px;
-}
-.panel-subtitle > span {
-    border-left : 2px solid black;
-    padding : 0px 10px;
-}
-.panel-subtitle > span:first-of-type {
-    border-left : none;
-    padding-left : 0px;
-}
-.panel-title {
-    padding-left : 0px;
-    padding-right : 0px;
-    /* font-size : 18px;
-    font-weight : 800;
-    height : 18px;
-    line-height : 18px;
-    overflow : hidden;
-    white-space: nowrap;
-    padding : 10px 14px 20px;
-    text-overflow : ellipsis; */
-/* } */
-/*.panel-title.centered {
-    text-align : center;
-    width : 100%;
-}
-
-.panel-toolbar > select {
-    background : var(--color-blue-500);
-    border-radius : 2px;
-    border : none;
-    color : white;
-    cursor : pointer;
-    font-size: 12px;
-    height: 24px;
-    line-height: 24px;
-    padding: 0px 12px;
-}
-.panel-content {
-    top : 34px;
-}
-.panel-content-top {
-    overflow-y : auto;
-    position : absolute;
-    top : 90px;
-    right : var(--padding-main);
-    bottom : calc(50% + (3 * var(--padding-main)));
-    left : var(--padding-main);
-}
-.panel-content-bottom {
-    position : absolute;
-    top : calc(50% + var(--padding-main));
-    right : var(--padding-main);
-    bottom : var(--padding-main);
-    left : var(--padding-main);
-}
-.panel-content-toggle {
-    position : absolute;
-    right : var(--padding-main);
-    bottom : 50%;
-    left : var(--padding-main);
-}
-.panel-content-toggle {
-    border: 1px solid var(--color-gray-200);
-    border-radius: 3px;
-    display: flex;
-}
-.panel-content-toggle > div {
-    border-right : 1px solid var(--color-gray-200);
-    cursor: pointer;
-    flex-grow: 1;
-    line-height: 32px;
-    padding : 0px 8px;
-    text-align: center;
-    width: 100%;
-}
-.panel-content-toggle > div:first-of-type { border-radius: 3px 0px 0px 3px; }
-.panel-content-toggle > div:last-of-type { 
-    border-radius: 0px 3px 3px 0px; 
-    border-right : none;
-}
-.panel-content-toggle > div:hover { font-weight : bold;}
-.panel-content-toggle > div.selected {
-    background : black;
-    color : white;
-    font-weight : bold;
-} */
-
-
-
-/*  TILES */
-/* ----------------------------------------------------------------------------- */
-/* .tile-title {
-    font-weight : bold;
-}
-.tiles.list.xs .tile-title {
-    font-size : 12px;
-    line-height : 14px;
-}
-
-.dark-theme .tile-actions > div {
-    background   : var(--color-surface-level-2) !important;
-    border-color : var(--color-surface-level-2) !important;
-}
-.tile-actions > div:hover {
-    background   : var(--color-blue-500) !important;
-    border-color : var(--color-blue-500) !important;
-    box-shadow   : none !important;
-    color        : white;
-}
-.icon-new-window::before {
-    content : '\e062';
-}
-.tiles.list.xxs .tile-image span { font-size : 20px; }
-.tiles.list.xxxs .tile-image span { font-size : 14px; }
-
-
-.tiles.list.xxxs .tile .tile-details { display : flex; margin : 0px; }
-.tiles.list.xxxs .tile .tile-actions { margin-top : 2px; margin-right : 2px; }
-.tiles.list.xxxs .tile .button.icon  { font-size : 14px; }
-.tiles.list.xxxs .tile-details { width : calc(100%  - 26px); }
-.tiles.list.xxxs .tile-title { line-height : 26px; padding : 0px 10px; }
-.tiles.list.xxxs  .tile-actions { right : 1px; padding-left : 0px; }
-.tiles.list.xxxs  .tile-actions > .button {
-    border-radius: 0px;
-    height : 20px;
-    line-height : 20px;
-    margin-left : 0px;
-    width : 30px;
-} */
-
-
-
-/*  MOW */
-/* ----------------------------------------------------------------------------- */
-/* .mow-row > div { border-color : #ffffff; } */
-/* .mow-row {
-    line-height : 30px;
-}
-.mow-row > div {
-    padding: 0px 10px;
-} */
-
-/*  WORKSPACE VIEWS */
-/* ----------------------------------------------------------------------------- */
-/* .workspace-view-item-descriptor {
-    font-weight : normal;
-} */
-
-
-/*  ITEM DETAILS */
-/* ----------------------------------------------------------------------------- */
-/* .section-fields .field {
-    border : none;
-    padding : 0px;
-}
-.field-label {
-    padding-top : 2px;
-}
-.field-value.computed {
-    padding-top: 2px;
-    padding-left : 10px;
-    width : calc(100% - var(--padding-field-label) - var(--width-field-label) - 10px);
-}
-.field-value > input {
-    padding-top : 4px;
-    padding-bottom : 2px;
-}
-.field-value.image > img {
-    margin-top : 10px;
-    max-width : 200px;
-} */
-
-
-
-/*  ATTACHMENTS */
-/* ----------------------------------------------------------------------------- */
-/* .attachment { display : flex; }
-.attachment-name { font-weight : bold; } */
-
-
-/*  BOM */
-/* ----------------------------------------------------------------------------- */
-/* .bom-tree-nav {
-    font-size   : 16px;
-    top         : 3px;
-}
-
-.bom-tree-actions .button {
-    font-size   : 18px !important;
-    height      : 26px !important;
-    line-height : 26px !important;
-    width       : 26px !important;
-}
-
-.dark-theme .bom-tree-actions .button {
-    background   : var(--color-surface-level-4) !important;
-    border-color : var(--color-surface-level-4) !important;
-}
-
-
-
-.dark-theme .flat-bom-item > td.changed {
-    background: var(--color-status-red-bright) !important;
-}
-div.button { min-width : 40px; } */

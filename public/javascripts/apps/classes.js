@@ -1,10 +1,54 @@
+let summaryContents = [{ 
+        type         : 'details',
+        params       : { 
+            id               : 'item-details', 
+            hideHeaderLabel  : true,
+            toggles          : true,
+            collapseContents : true
+        }
+    }, { 
+        type        : 'attachments',
+        params      : { 
+            id         : 'item-attachments',
+            hideHeader : true,
+            tileSize   : 'xl'
+        }
+    }, { 
+        type        : 'bom',
+        params      : { 
+            id      : 'item-bom',
+            hideHeaderLabel  : true,
+            search           : true,
+            toggles          : true,
+            collapseContents : true
+        }
+    }, { 
+        type        : 'relationships',
+        params      : { 
+            id         : 'item-relationships',
+            hideHeader : true
+        }
+    }, { 
+        type        : 'change-processes',
+        params      : { 
+            id         : 'item-change-processes',
+            hideHeader : true
+        }
+    }
+];
+
+
+
 $(document).ready(function() {
     
     appendProcessing('items', false);
-    appendProcessing('item', false);
 
-    getItemClassDetails();
+    getFeatureSettings('classes', [], function() {
+        getItemClassDetails();
+    });
+
     setUIEvents();
+
 
 });
 
@@ -17,7 +61,7 @@ function setUIEvents() {
         $(this).siblings().removeClass('selected');
         $(this).addClass('selected');
         
-        $('tr.item').each(function() {
+        $('tr.content-item').each(function() {
             if($(this).find('.value.diff').length > 0) $(this).hide(); else $(this).show();
         });
 
@@ -27,7 +71,7 @@ function setUIEvents() {
         $(this).siblings().removeClass('selected');
         $(this).addClass('selected');
 
-        $('tr.item').each(function() {
+        $('tr.content-item').each(function() {
             if($(this).find('.value.match').length === 0) $(this).hide(); else $(this).show();
         });
 
@@ -37,17 +81,10 @@ function setUIEvents() {
         $(this).siblings().removeClass('selected');
         $(this).addClass('selected');
 
-        $('tr.item').each(function() {
+        $('tr.content-item').each(function() {
             $(this).show();
         });
 
-    });
-
-
-    // Item selection
-    $('#close').click(function() {
-        $('body').addClass('no-panel');
-        $('tr.item.selected').removeClass('selected');
     });
 
 }
@@ -64,89 +101,78 @@ function getItemClassDetails() {
         let classFields = [];
         let className;
 
-        for(section of response.data.sections) {
+        for(let section of response.data.sections) {
 
             if(section.hasOwnProperty('classificationId')) {
 
                 className = section.classificationName;
 
-                $('#header-subtitle').html(classPath);
-                $('#items-title').html(className);
+                $('#header-subtitle').html(className);
+                $('#items-title').html(classPath);
 
-                let elemParent = $('#items-list');
-                    elemParent.html();
+                document.title = className;
 
-                let elemHeader = $('<tr></tr>');
-                    elemHeader.appendTo(elemParent);
+                let elemParent = $('#items-list').html('');
+                let elemHeader = $('<tr></tr>').appendTo(elemParent);
 
-                let elemHeaderItem = $('<th></th>');
-                    elemHeaderItem.html('Item');
-                    elemHeaderItem.appendTo(elemHeader);
+                $('<th></th>').appendTo(elemHeader).html('Item');
 
-                let elemRowRef = $('<tr></tr>');
-                    elemRowRef.addClass('item');
-                    elemRowRef.addClass('reference');
-                    elemRowRef.attr('data-link', response.data.root.link);
-                    elemRowRef.attr('data-urn', response.data.urn);
-                    elemRowRef.attr('data-title', response.data.title);
-                    elemRowRef.appendTo(elemParent);
+                let elemRowRef = $('<tr></tr>').appendTo(elemParent)
+                    .addClass('content-item')
+                    .addClass('reference')
+                    .attr('data-link', response.data.root.link)
+                    // .attr('data-urn', response.data.urn);
+                    .attr('data-title', response.data.title);
+                    
+                $('<td></td>').appendTo(elemRowRef).html(response.data.title);
 
-                let elemRefCellItem = $('<td></td>');
-                    elemRefCellItem.html(response.data.title);
-                    elemRefCellItem.appendTo(elemRowRef);
+                for(let field of section.fields) {
 
-                for(field of section.fields) {
+                    $('<th></th>').appendTo(elemHeader).html(field.title);
 
-                    let elemHeaderCell = $('<th></th>');
-                        elemHeaderCell.html(field.title);
-                        elemHeaderCell.appendTo(elemHeader);
-
-                    let elemRefCell = $('<td></td>');
-                        elemRefCell.html(getFieldDisplayValue(field.value));
-                        elemRefCell.addClass('value');
-                        elemRefCell.addClass('match');
-                        elemRefCell.appendTo(elemRowRef);
+                    $('<td></td>').appendTo(elemRowRef)
+                        .html(getFieldDisplayValue(field.value))
+                        .addClass('value')
+                        .addClass('match');
 
                     classFields.push({
-                        'id' : field.urn.split('.')[9],
-                        'value' : getFieldDisplayValue(field.value)
+                        id      : field.urn.split('.')[9],
+                        value   : getFieldDisplayValue(field.value)
                     })
 
                 }
 
                 let params = { 
-                    'wsId'   : wsId,
-                    'limit'  : 1000,
-                    'offset' : 0,
-                    'query'  : 'ITEM_DETAILS:CLASS_NAME%3D' + className
+                    wsId   : wsId,
+                    limit  : 1000,
+                    offset : 0,
+                    query  : 'ITEM_DETAILS:CLASS_NAME%3D' + className
                 }
 
                 $.get('/plm/search-bulk', params, function(response) {
 
-                    for(item of response.data.items) {
+                    for(let item of response.data.items) {
 
                         let itemDMSID = item.root.urn.split('.')[5];
 
                         if(itemDMSID !== dmsId) {
 
-                            let elemRow = $('<tr></tr>');
-                                elemRow.addClass('item');
-                                elemRow.attr('data-link', item.root.link);
-                                elemRow.attr('data-urn', item.root.urn);
-                                elemRow.attr('data-title', item.title);
-                                elemRow.appendTo(elemParent);
+                            let elemRow = $('<tr></tr>').appendTo(elemParent)
+                                .addClass('content-item')
+                                .attr('data-link', item.root.link)
+                                .attr('data-urn', item.root.urn)
+                                .attr('data-title', item.title);
 
-                            let elemCellItem = $('<td></td>');
-                                elemCellItem.html(item.title);
-                                elemCellItem.appendTo(elemRow);
+                            $('<td></td>').appendTo(elemRow)
+                                .html(item.title);
 
-                            for(classField of classFields) {
+                            for(let classField of classFields) {
 
                                 let value = '';
                                 let style = 'diff';
 
-                                for(itemSection of item.sections) {
-                                    for(field of itemSection.fields) {
+                                for(let itemSection of item.sections) {
+                                    for(let field of itemSection.fields) {
                                         let fieldId = field.urn.split('.')[9];
                                         if(fieldId === classField.id) {
                                             value = getFieldDisplayValue(field.value);
@@ -155,11 +181,10 @@ function getItemClassDetails() {
                                     }
                                 }
 
-                                let elemCell = $('<td></td>');
-                                    elemCell.html(value);
-                                    elemCell.addClass('value');
-                                    elemCell.addClass(style);
-                                    elemCell.appendTo(elemRow);
+                                $('<td></td>').appendTo(elemRow)
+                                    .html(value)
+                                    .addClass('value')
+                                    .addClass(style);
                             }
 
                         }
@@ -168,8 +193,8 @@ function getItemClassDetails() {
 
                     $('#items-processing').hide();
 
-                    $('tr.item').click(function() {                        
-                        selectItem($(this));
+                    $('tr.content-item').click(function() {                        
+                        selectItem($(this), className);
                     });
 
 
@@ -183,8 +208,8 @@ function getItemClassDetails() {
 function getFieldDisplayValue(value) {
 
     if(value !== null) {
-        if(typeof field.value === 'object') return field.value.title;
-        return field.value;
+        if(typeof value === 'object') return value.title;
+        return value;
     }
 
     return '';
@@ -193,29 +218,32 @@ function getFieldDisplayValue(value) {
 
 
 // Upon item selection display details
-function selectItem(elemClicked) {
+function selectItem(elemClicked, className) {
 
     let link = elemClicked.attr('data-link');
-
-    $('#item').attr('data-link', link);
-    $('#item-title').html(elemClicked.attr('data-title'));
 
     elemClicked.addClass('selected');
     elemClicked.siblings().removeClass('selected');
 
-    if($('body').hasClass('no-panel')) {
-        $('body').removeClass('no-panel');
-    }  
-    
-    setItemDetails(link);
-    insertAttachments(link, { 
-        'extensionsEx'  : '.dwf,.dwfx',
-        'header'        : false, 
-        'layout'        : 'list',
-        'size'          : 'm'
-    });
-    insertViewer(link);
-    getBookmarkStatus();
+    insertItemSummary(link, {
+        bookmark        : true,
+        openInPLM       : true,
+        layout          : 'tabs',
+        includeViewer   : true,
+        toggleBodyClass : 'with-panel',
+        contents        : summaryContents
+    })
+
+}
+function insertDetailsDone() {
+
+    let elemButtonClose = $('<div></div>').appendTo($('#details-controls'))
+        .addClass('button')
+        .addClass('icon')
+        .addClass('icon-close')
+        .click(function() {
+            $('body').addClass('no-panel');
+        });
 
 }
 

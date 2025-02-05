@@ -40,7 +40,7 @@ block body
             .list-actions.right-align
                 select#workspace-views.button.default
                 .button.with-icon.icon-filter
-                    input#workspace-filter.list-filter
+                    input#workspace-filter.list-filter(placeholder='Type to filter')
             .list-wrapper
                 #workspace-list.list.with-actions
         
@@ -73,11 +73,11 @@ block body
             #new-header.list-header.surface-level-2
                 .list-subtitle Create item in
                 #new-header-subtitle.list-title Select type to be created
-            .content 
-                #new-sections
-            #new-toolbar.dialog-toolbar.surface-level-2
-                #new-action-cancel.button Cancel
-                #new-action-save.button.default Save
+            #new-form.surface-level-1
+                //- #new-sections
+            //- #new-toolbar.dialog-toolbar.surface-level-2
+            //-     #new-action-cancel.button Cancel
+            //-     #new-action-save.button.default Save
 
         #bookmarks.screen
             #bookmarks-header.list-header.surface-level-2
@@ -99,7 +99,7 @@ block body
                 .list-subtitle Find across all workspaces
             #search-list.list.with-actions
             .list-actions
-                input#search-input
+                input.button#search-input(placeholder='Type text to search')
                 #search-submit.button.default Search
             #search-no-results No results found
 
@@ -145,35 +145,35 @@ block body
                 #item-header-close.button.icon close
             #item-archived ARCHIVED
                            
-            #item-details.item-content
+            #item-details.item-content.surface-level-1
                 //- #item-details-fields
                 #item-sections
             #item-viewer.item-content
                 #viewer.viewer.surface-level-1
-            #item-attachments.item-content
+            #item-attachments.item-content.surface-level-1
                 //- #item-attachments-list.list
                 //- #button-upload.panel-button.main  Upload File
 
-            #item-bom.item-content
+            #item-bom.item-content.surface-level-1
                 .list-actions.right-align 
                     .button.with-icon.icon-filter
-                        input#bom-filter.list-filter
+                        input#bom-filter.list-filter(placeholder='Type to filter')
                 #item-bom-list.list.with-actions
                 #item-bom-process.progress
                     .bounce1
                     .bounce2
                     .bounce3
-            #item-manages.item-content
+            #item-manages.item-content.surface-level-1
                 #item-manages-list.list
-            #item-processes.item-content
+            #item-processes.item-content.surface-level-1
                 #item-processes-list.list
                 #item-processes-process.progress
                     .bounce1
                     .bounce2
                     .bounce3
-            #item-related.item-content
+            #item-related.item-content.surface-level-1
                 #item-related-list.list
-            #item-change-log.item-content
+            #item-change-log.item-content.surface-level-1
                 #item-change-log-list.list
 
             #item-toolbar.toolbar.surface-level-3
@@ -204,12 +204,12 @@ block body
                     .toolbar-label History
             
             #item-menu
-                #item-action-edit.item-action 
-                    i.icon edit
-                    span Edit Properties
-                #item-action-upload.item-action
-                    i.icon cloud_upload
-                    span Upload Files
+                //- #item-action-edit.item-action 
+                //-     i.icon edit
+                //-     span Edit Properties
+                //- #item-action-upload.item-action
+                //-     i.icon cloud_upload
+                //-     span Upload Files
                 a#item-action-share.item-action(href='')
                     i.icon mail
                     span Share Link

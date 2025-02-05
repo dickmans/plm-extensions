@@ -1,16 +1,17 @@
 /*  VIEWER */
 /* ----------------------------------------------------------------------------- */
-#viewer-message {
-    display: none;
-    flex-flow: column;
-    gap: 10px;
-    justify-content: center;
-    text-align: center;
-    height: 100%;
+.viewer-message {
+    display         : none;
+    flex-flow       : column;
+    gap             : 10px;
+    justify-content : center;
+    text-align      : center;
+    /* height          : 100%; */
 }
-#viewer-message .material-symbols-sharp {
-    font-size: 100px;
-    color: var(--color-blue-500);
+.viewer-message > .icon {
+    color       : var(--color-blue-500);
+    font-size   : 56px;
+    font-weight : 200;
 }
 .no-viewer-cube .viewcubeWrapper {
     z-index : -10;
@@ -113,8 +114,16 @@
     background  : var(--color-surface-level-3);
     display     : flex;
     flex-grow   : 1;
+    max-width   : 356px;
+    min-width   : 356px;
     gap         : 8px;
     padding     : 0px 12px;
+    width       : 356px;
+}
+.hidden-instance-name {
+    overflow        : hidden;
+    text-overflow   : ellipsis;
+    white-space     : nowrap;
 }
 .hidden-instance-remove.button.icon {
     font-size       : 20px;
@@ -167,7 +176,7 @@
 #viewer-file-browser-header {
     display         : flex;
     justify-content : space-between;
-    margin-bottom   : 20px;
+    margin          : 0px 10px 20px;
 }
 #viewer-file-browser-title {
     color       : white;
@@ -180,6 +189,10 @@
 }
 #viewer-file-browser-list .tile-title {
     line-height : 22px;
+}
+#viewer-file-browser-list .tile-details {
+    gap        : 2px;
+    margin-top : 14px;
 }
 
 
@@ -204,7 +217,7 @@
     border: 1px solid white;
     color: white;
 }
-#viewer-markup-toolbar {
+.viewer-markup-toolbar {
     display : flex;
     gap : 8px;
     justify-content : center;

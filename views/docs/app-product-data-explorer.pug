@@ -104,16 +104,14 @@
         p.code
             span exports.config = {
             span.indent 'explorer' : {
-            span.indent-2 'bomViewName' : 'Details',
-            span.indent-2 'fieldIdPRImage' : 'IMAGE_1',
-            span.indent-2 'fieldIdPRContext' : 'AFFECTED_ITEM',
-            span.indent-2 'wsIdItems' : 57,
-            span.indent-2 'wsIdProblemReports' : 82,
-            span.indent-2 'wsIdSupplierPackages'      : 147,
-            span.indent-2 'kpis' : [..],
-            span.indent-2 'viewerFeatures' : {
-            span.indent-3 'cube'          : false,
-            span.indent-3 'orbit'         : false,
+            span.indent-2 bomViewName : 'Details',
+            span.indent-2 fieldIdPRImage : 'IMAGE_1',
+            span.indent-2 fieldIdPRContext : 'AFFECTED_ITEM',
+            span.indent-2 wsIdSupplierPackages      : 147,
+            span.indent-2 kpis : [..],
+            span.indent-2 viewerFeatures : {
+            span.indent-3 cube          : false,
+            span.indent-3 orbit         : false,
             span.indent-3 ..
             span.indent-2 }            
             span.indent }
@@ -137,18 +135,25 @@
                 td fieldIdPRContext
                 td New PRs can be connected to the currently selected item with this property. Provide a field ID of a linking pick list that allows to select items. The given input in the create dialog then will automatically be set to the current item.
                 td AFFECTED_ITEM
-            tr  
-                td wsIdItems
-                td The Item workspace ID. This parameter is required for loading the landing page.
-                td 57
-            tr  
-                td wsIdProblemReports
-                td The Problem Report workspace ID. This parameter is required for creation of new PRs.
-                td 82
+
             tr  
                 td wsIdSupplierPackages
                 td The Supplier Packages workspace ID. This optional parameter is required for sending selected data to suppliers using the given workspace (see the following screenshot).
                 td 147
+        p This utility also uses the following common configuration settings
+        table(style='margin:10px 0px 30px')
+            tr
+                th Setting
+                th Description
+                th Default Value 
+            tr  
+                td config.items.wsId
+                td The Items workspace ID. This parameter is required when opening a product.
+                td 57
+            tr  
+                td config.problemReports.wsId
+                td The Problem Report workspace ID. This parameter is required for creation of new PRs.
+                td 82
         p This explorer also can be used to identify items to be shared with suppliers (i.e. new or changed components). Therefore, one can provide the Workspace ID of 
             strong Supplier Packages 
             |in setting 
@@ -218,6 +223,10 @@
     .log 
         h1 Product Data Explorer Change Log 
         table 
+            tr 
+                td 18. December 2024
+                td Enhancement 
+                td A new button in the header toolbar indicates the current revision of the item. By clicking this button, users can switch to another revision of the given item.
             tr 
                 td 26. April 2024
                 td Enhancement 

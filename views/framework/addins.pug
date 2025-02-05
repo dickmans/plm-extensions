@@ -18,6 +18,7 @@ html
         link(rel='stylesheet', href='/stylesheets/contents/viewer.css')
         link(rel='stylesheet', href='https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/style.min.css')
         link(rel='stylesheet', href='/stylesheets/framework/addins.css')
+        link(rel='stylesheet', href='/stylesheets/framework/vault.css')
         
         link(rel='stylesheet', href='/stylesheets/custom.css')
 
@@ -29,17 +30,21 @@ html
         script(src='/javascripts/contents/item.js')
         script(src='/javascripts/contents/nav.js')
         script(src='/javascripts/framework/addins.js')
+        script(src='/javascripts/contents/vault.js')
         
         script(src='/javascripts/custom.js')
 
         script.
             tenant='#{tenant}'
+            theme='#{theme}' 
             wsId='#{wsId}'
             dmsId='#{dmsId}' 
+            fileId='#{fileId}' 
+            vaultId='#{vaultId}' 
             link='#{link}' 
             revisionBias='#{revisionBias}' 
-            theme='#{theme}' 
-            options='#{options}'.split(',');
+            options='#{options}'.split(',')
+            revisionBias='#{revisionBias}';
     
         block head
 

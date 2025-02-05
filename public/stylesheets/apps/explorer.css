@@ -9,17 +9,16 @@
 
 :root {
 
-    --width-recents         : 400px;
-    --width-bookmarks       : 500px;
+    --width-recents         : 360px;
+    --width-search          : 360px;
     --padding-landing-v     : 40px;
     --padding-landing-h     : 60px;
-    --height-recents        : 454px;
 
     --width-dashboard       : 450px;
     --width-bom             : 600px;
     --width-flat-bom        : 60%;
-    --width-panel           : 440px;
-    --height-attachments    : 190px;
+    --width-panel           : 500px;
+    --height-attachments    : 122px;
     --padding-dashboard     : 40px;
     --padding-panel         : 24px;
 
@@ -32,14 +31,13 @@
 #recents {
     border-width : var(--padding-landing-v) var(--padding-landing-h);
     top          : 0px;
-    /* bottom       : 0px; */
+    bottom       : 50%;
     left         : 0px;
-    height       : var(--height-recents);
     width        : var(--width-recents);
 }
-#search {
+#bookmarks {
     border-width : var(--padding-landing-v) var(--padding-landing-h);
-    top          : calc(var(--height-recents) + (2 * var(--padding-landing-v)));
+    top          : 50%;
     bottom       : 0px;
     left         : 0px;
     width        : var(--width-recents);
@@ -47,17 +45,18 @@
 #products {
     border-width : var(--padding-landing-v) var(--padding-landing-h);
     top          : 0px;
-    right        : calc(var(--width-bookmarks) + (2 * var(--padding-landing-h)));
+    right        : calc(var(--width-search) + (2 * var(--padding-landing-h)));
     bottom       : 0px;
     left         : calc(var(--width-recents) + (2 * var(--padding-landing-h)));
 }
-#bookmarks {
+#search {
     border-width : var(--padding-landing-v) var(--padding-landing-h);
-    right        : 0px;
     top          : 0px;
+    right        : 0px;
     bottom       : 0px;
-    width        : var(--width-bookmarks);
+    width        : var(--width-search);
 }
+
 
 #dashboard {
     width : var(--width-dashboard);
@@ -93,21 +92,22 @@
 
 body.screen-startup > .screen { display : none; }
 body.screen-startup .landing  { display : none; }
-body.screen-startup .main     { display : none; }
+body.screen-startup .explorer { display : none; }
 
-body.screen-landing #landing { display : block; }
-body.screen-landing .landing { display : flex;  }
-body.screen-landing #main    { display : none;  }
-body.screen-landing .main    { display : none;  }
-body.screen-main    #landing { display : none;  }
-body.screen-main    .landing { display : none;  }
-body.screen-main    #main    { display : block; }
-body.screen-main    .main    { display : flex;  }
+body.screen-landing #landing  { display : block; }
+body.screen-landing .landing  { display : flex;  }
+body.screen-landing #main     { display : none;  }
+body.screen-landing .explorer { display : none;  }
+body.screen-main    #landing  { display : none;  }
+body.screen-main    .landing  { display : none;  }
+body.screen-main    #main     { display : block; }
+body.screen-main    .explorer { display : flex;  }
 
-body.no-recents   #recents   { left : calc(0px - var(--width-recents) - (2 * var(--padding-landing-h))); }
-body.no-recents   #products  { left : 0px; }
-body.no-bookmarks #bookmarks { right : calc(0px - var(--width-bookmarks) - (2 * var(--padding-landing-h))); }
-body.no-bookmarks #products  { right : 0px; }
+body.no-recents   #recents,
+body.no-recents #bookmarks  { left : calc(0px - var(--width-recents) - (2 * var(--padding-landing-h))); }
+body.no-recents #products { left : 0px; }
+body.no-search #search { right : calc(0px - var(--width-search) - (2 * var(--padding-landing-h))); }
+body.no-search #products  { right : 0px; }
 
 
 body.no-dashboard #dashboard { left : calc(0px - var(--width-dashboard) - 100px); }
@@ -134,6 +134,17 @@ body.with-panel .viewer { right : calc(var(--width-panel) + (3 * var(--padding-p
 body.with-panel #attachments { right : calc(var(--width-panel) + (3 * var(--padding-panel))); }
 body.with-details #details { right : 0px; }
 body.with-processes #processes { right : 0px; }
+
+
+
+/* HOME */
+/* ----------------------------------------------------------------------------- */
+
+
+
+/* HEADER */
+/* ----------------------------------------------------------------------------- */
+#header-subtitle { display : none; }
 
 
 
@@ -385,8 +396,18 @@ body.no-bom-tree #bom-tree { display : none; }
 
 
 
+/* ATTACHMENTS */
+/* ----------------------------------------------------------------------------- */
+#attachments-content {
+    justify-content : center;
+}
+
+
 /* PROCESSES */
 /* ----------------------------------------------------------------------------- */
+#processes-actions {
+    flex-direction : row-reverse;
+}
 /* .process .tile-title { width : 60%; height : 20px;}
 .process .tile-subtitle { width : 100%; height : 14px;} */
 

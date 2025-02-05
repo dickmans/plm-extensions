@@ -11,42 +11,29 @@ block head
         
 block body 
 
-    body.surface-level-1
+    body.surface-level-1.with-summary
     
         #header.dark
             #header-logo
             #header-title=title
             #header-subtitle
             #header-toolbar
+                .button#button-create-variant.disabled.default(title='Create new variant') Create Variant
                 .button#button-toggle-viewer.with-icon.icon-viewer(title='Click to toggle size of the viewer') Toggle Viewer
                 .button#button-toggle-details.with-icon.icon-panel.filled(title='Click to toggle item details panel on/off') Toggle Details
                 #header-avatar
         
         #main.screen.wide-viewer.with-details
 
-            #viewer
+            #viewer.viewer
             
-            #bom.compact
+            #bom.surface-level-1
 
-            .panel.surface-level-2#item-variants 
-                .panel-header 
-                    .panel-title#item-variants-header Item Variants
-                    .panel-toolbar 
-                        .button.icon.icon-close#item-variants-close
-                .panel-content#item-variants-text Select from the variants of
-                .panel-content#item-variants-title
-                .panel-content#item-variants-list-parent
-                    #item-variants-list.list.tiles.m
+            #item.surface-level-2
 
-            .panel.surface-level-2#details
-                .panel-header 
-                    .panel-title Details
-                    .panel-toolbar 
-                        .button.icon.icon-bookmark#bookmark
-                        .button.icon.icon-open#open
-                .panel-content.surface-level-2.compact#details-sections
+            #create.dialog.surface-level-1
 
-            .panel.surface-level-1#create
+        #selector.dialog
 
         #dialog-saving.dialog
             .dialog-header Saving Changes

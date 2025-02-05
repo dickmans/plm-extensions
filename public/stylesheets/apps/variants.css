@@ -1,94 +1,60 @@
-/* ADDITIONS */
+/* OVERRIDES */
 /* ----------------------------------------------------------------------------- */
-.viewcubeWrapper { display : none !important; }
+.content-item > td { padding : 3px 3px; }
+th.bom-first-col { z-index : 6 !important; }
+.bom-color { display : none; }
+.bom-first-col { left : 0; }
 
 
 :root {
+    --padding-v         : 24px;
+    --padding-h         : 36px;
+    --height-viewer     : 400px;
+    --width-summary     : 550px;
+    --width-bom-spacer  : 12px;
     --width-viewer      : 600px;
-    --width-bom         : 500px;
-    --width-panel       : 500px;
-    --width-item-variants : 400px;
-    --padding-panel     : 25px;
-    --width-bom-spacer  : 6px;
 }
 
 
 /* MASTER LAYOUT */
 /* ----------------------------------------------------------------------------- */
-#viewer { 
-    top     : var(--padding-panel);
-    bottom  : 0px;
-    left    : var(--padding-panel);
-    width   : var(--width-viewer);
+.viewer { 
+    top     : 0px;
+    right   : 0px;
+    left    : 0px;
+    height  : var(--height-viewer);
 }
 #bom {
-    top     : var(--padding-panel);
-    right   : var(--padding-panel);
-    bottom  : var(--padding-panel);
-    left    : calc(var(--width-viewer) + var(--padding-panel));
-}
-#details {
-    border-width : var(--padding-panel);
-    top          : 0px;
-    right        : calc(0px - (2 * var(--padding-panel)) - var(--width-panel) - 10px);
+    border-width : var(--padding-v) var(--padding-h);
+    top          : var(--height-viewer);
+    right        : 0px;
     bottom       : 0px;
-    width        : var(--width-panel);
+    left         : 0px;
 }
-#item-variants {
-    border-width : var(--padding-panel);
+#item {
+    border-width : var(--padding-v) var(--padding-h) var(--padding-h) var(--padding-h);
     top          : 0px;
-    right        : calc(0px - (2 * var(--padding-panel)) - var(--width-panel) - 10px);
+    right        : calc(0px - (2 * var(--padding-h)) - var(--width-summary) - 10px);
     bottom       : 0px;
-    width        : var(--width-item-variants);
+    width        : var(--width-summary);
+}
+#selector {
+    right : calc(50% - 600px);
+    left  : calc(50% - 600px);
 }
 
 
-#main.no-viewer #viewer { left : calc(0px - var(--width-viewer)); }
-#main.no-viewer #bom  { left : var(--padding-panel); }
+.with-summary .viewer,
+.with-summary #bom  { right : calc((2 * var(--padding-h)) + var(--width-summary)); }
+.with-summary #item { right : 0px; }
 
-#main.large-viewer #viewer  { width : 50%; }
-#main.large-viewer #bom  { left : calc(50% + var(--padding-panel)); }
+.viewer-left .viewer { bottom : 0px; width : var(--width-viewer); height : unset; }
+.viewer-left #bom    { top    : 0px; left  : var(--width-viewer); }
 
-#main.wide-viewer #viewer  { 
-    bottom : unset;
-    height : 415px;
-    right  : var(--padding-panel);
-    width  : auto; 
-}
-#main.wide-viewer #bom  {
-    top     : calc(440px + var(--padding-panel));
-    left    : var(--padding-panel); 
-}
+.viewer-off .viewer { left : calc(0px - var(--width-viewer)); height : unset; }
+.viewer-off #bom    { top  : 0px; }
 
 
-/* #main.with-details.wide-viewer #viewer { right : calc(var(--width-panel) + (3 * var(--padding-panel))); }
-#main.with-details #bom { right : calc(var(--width-panel) + (3 * var(--padding-panel))); }
-#main.with-details #details { right : 0px; } */
-
-
-#main.with-create.wide-viewer #viewer,
-#main.with-details.wide-viewer #viewer,
-#main.with-item-variants.wide-viewer #viewer,
-#main.with-create #bom,
-#main.with-details #bom,
-#main.with-item-variants #bom { right : calc(var(--width-panel) + (3 * var(--padding-panel))); }
-#main.with-details #details, 
-#main.with-create #create { right : 0px; }
-
-#main.with-item-variants #item-variants  { right : var(--padding-panel); }
-
-
-
-
-/* .variant-filter.field-value {
-    background : var(--color-gray-100);
-} */
-.field-value > textarea,
-.field-value > select,
-.field-value > input {
-    border-bottom: 1px solid var(--color-gray-300);
-}
-tr.selected > .variant-spacer { background: var(--color-selected) !important; }
 
 /* BOM */
 /* ----------------------------------------------------------------------------- */
@@ -100,11 +66,27 @@ tr.selected > .variant-spacer { background: var(--color-selected) !important; }
     left: 0;
     z-index : 5;
 }
+#bom-table th {
+    padding : 6px 6px;
+}
+#bom-table th,
 #bom-table td {
+    font-size   : 12px;
     white-space : nowrap;
+}
+.top-left-table-cell {
+    background  : var(--color-surface-level-1) !important;
+    left        : 0;
+    z-index     : 6 !important;
+}
+.variant-head:hover {
+    background : var(--color-surface-level-3);
 }
 .variant-spacer {
     background  : var(--color-surface-level-1) !important;
+    padding     : 0px !important;
+    max-width   : var(--width-bom-spacer);
+    min-width   : var(--width-bom-spacer);
     width       : var(--width-bom-spacer);
 }
 .variant-column {
@@ -119,85 +101,50 @@ tr.selected > .variant-spacer { background: var(--color-selected) !important; }
 .variant-item.new {
     cursor : default;
 }
-.bom-tree-color { display : inline-block; height : 16px; width :  16px; border-radius : 50%; top : 4px; position: relative; line-height : 12px; }
-tr.complete .bom-tree-color { background : var(--color-status-green); }
-tr.existing .bom-tree-color { background : var(--color-status-yellow); }
-tr.missing  .bom-tree-color { background : var(--color-status-red); }
 
 th.variant-head { 
-    /* background : black; */
-    /* border-bottom : 1px solid white; */
     background  : var(--color-dark);
     color       : white;
     cursor      : pointer;
     text-align  : center;
 }
-th.variant-item { cursor : pointer;}
-td.variant-item.status-icon { color: white; display : table-cell; text-align : center; font-size: 16px !important; }
+th.variant-item { cursor : pointer; }
+td.variant-item { font-size : 12px; }
+td.variant-item.status-icon { color: white; font-size : 12px; display : table-cell; text-align : center; font-size: 16px !important; }
 td.variant-item.status-identical { color : var(--color-font); }
 td.variant-item.status-match     { background : var(--color-status-green-bright) !important; }
-td.variant-item.status-missing   { background : var(--color-status-red-bright) !important; }
-td.variant-item.processing-item {
-    background : var(--color-selected) !important;
-}
+td.variant-item.status-missing   { background : var(--color-status-red-bright)   !important; }
+td.variant-item.processing-item  { background : var(--color-selected)            !important; }
 
-/* td.variant-item.new-item, */
-/* td.variant-item.changed-item, */
-/* td.variant-item.replaced-item, */
 td.variant-item.change-bom,
 td.variant-item.change-properties,
 td.variant-item.change-item {
     background : var(--color-status-yellow-bright) !important;
 }
 
-#bom-table select {
-    /* border: 1px solid #808080; */
-    background : var(--color-surface-level-2);
-    font-size: 12px;
-    min-width : 100px;
-    padding: 4px;
-    width: 100%;
-}
+
 #bom-table input {
-    /* background : white; */
-    /* border : 1px solid #808080; */
-    background : var(--color-surface-level-2);
-    font-size: 12px;
-    min-width : 100px;
-    padding: 5px;
-    width: calc(100% - 12px);
+    background  : var(--color-surface-level-2);
+    border      : none;
+    font-size   : 12px;
+    max-width   : 100px !important;
+    min-width   : 60px;
+    padding     : 4px;
+    width       : calc(100% - 8px);
+}
+#bom-table select {
+    background  : var(--color-surface-level-2);
+    border      : none;
+    font-size   : 12px;
+    max-width   : 100px !important;
+    min-width   : 60px;
+    padding     : 3px;
+    width       : 100%;
 }
 
 
-/* LIST OF ITEM VARIANTS */
+/* SELECTOR */
 /* ----------------------------------------------------------------------------- */
-#item-variants-text,
-#item-variants-title {
-    overflow: hidden;
-    padding : 16px;
-    white-space: nowrap;
-}
-#item-variants-title {
-    font-weight : 700;
-    top : 74px;
-}
-#item-variants-list-parent {
-    top : 130px;
-}
-#item-variants-list .tile table {
-    width : auto;
-}
-#item-variants-list td {
-    border : none;
-    padding : 2px 0px;
-}
-.tile-key-label {
-    padding-right : 10px !important;
-}
-#item-variants-list .tile,
-#item-variants-list .tile-image {
-    height : auto;
-}
-#item-variants-list .tile-image > span {
-    line-height : initial;
+#selector-table th {
+    padding : 6px 3px;
 }

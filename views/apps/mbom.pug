@@ -19,7 +19,7 @@ block body
             #header-title=title
             #header-subtitle
             #header-toolbar
-                #toggle-details.button.with-icon.icon-panel(title='Click to toggle details panel on/off')  Toggle Details
+                #toggle-details.button.with-icon.icon-toggle-off(title='Click to toggle details panel on/off')  Toggle Details
                 #reset.button.with-icon.icon-refresh(title='Reset all changes by reloading the editor') Reset
                 #save.button.default(title='Apply changes to the database') Save
                 #header-avatar
@@ -72,10 +72,10 @@ block body
                                     i.icon search
                                 #search-items-list.panel-list
                             #create-item
-                                #create-item-sections.surface-level-2
+                                #create-item-form.surface-level-2
                                 #create-item-panel 
-                                    #create-operation.button.default(title="New item will be considered as operation, consisting of sub MBOM items to define a manufacturing process") Save As Node
-                                    #create-end-item.button(title="New item will be considered as end item beinb consumed in a manufacturing process") Save As End Item
+                                    //- #create-operation.button.default(title="New item will be considered as operation, consisting of sub MBOM items to define a manufacturing process") Save As Node
+                                    //- #create-end-item.button(title="New item will be considered as end item beinb consumed in a manufacturing process") Save As End Item
                                     .list-header New Items 
                                     #create-item-list.list
                             //- #saved-search
@@ -116,7 +116,8 @@ block body
             
             .panel#mbom
                 .panel-header
-                    .panel-title Manufacturing BOM
+                    .panel-title
+                        .panel-title-main Manufacturing BOM
                 .panel-content#mbom-tree
                 #mbom-add-operation.surface-level-3
                     span#mbom-add-text Add Process
@@ -126,16 +127,9 @@ block body
                     span Total Quantity : 
                     span#mbom-total-qty
 
-            #divider-details.screen-divider.vertical
-
-            .panel#details
-                .panel-header
-                    .panel-title Details
-                    .panel-toolbar
-                        .button.icon.icon-bookmark#bookmark
-                        .button.icon.icon-open#open
-                .panel-content#details-sections.surface-level-2.compact
-                .panel-content#attachments
+            .panel.surface-level-3#summary
+            //- .panel.surface-level-3#details
+            //- .panel.surface-level-3#attachments
 
         #dialog-copy.dialog
             .dialog-header Copy / Move Item

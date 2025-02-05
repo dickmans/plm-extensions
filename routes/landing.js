@@ -4,18 +4,6 @@ const crypto    = require('crypto');
 const router    = express.Router();
 
 
-// Encodign and encryption required for code verifier and challenge
-function base64URLEncode(str) {
-    return str.toString('base64')
-        .replace(/\+/g, '-')
-        .replace(/\//g, '_')
-        .replace(/=/g, '');
-}
-function sha256(buffer) {
-    return crypto.createHash('sha256').update(buffer).digest();
-}
-
-
 
 /* ------------------------------------------------------------------------------
     DEFAULT LANDING PAGE & DOCUMENTATION
@@ -32,12 +20,25 @@ router.get('/docs', function(req, res, next) {
         theme : (typeof req.query.theme === 'undefined') ? req.app.locals.defaultTheme : req.query.theme
     });
 });
+router.get('/troubleshooting', function(req, res, next) {
+    res.render('framework/troubleshooting.pug', {
+        title : 'PLM UX Troubleshooting Guide',
+        theme : (typeof req.query.theme === 'undefined') ? req.app.locals.defaultTheme : req.query.theme
+    });
+});
+
+
+
+/* ------------------------------------------------------------------------------
+    CUSTOM APPLICATIONS
+    router.get('/<endpoint>', function(req, res, next) { launch('<pug filename in /views>', '<page title>', req, res, next); });
+   ------------------------------------------------------------------------------ */
+//    router.get('/template', function(req, res, next) { launch('custom/template', 'App Title', req, res, next); });
 
 
 
 /* ------------------------------------------------------------------------------
     STANDARD APPLICATIONS
-    router.get('/<endpoint>', function(req, res, next) { launch('<pug filename in /views>', '<page title>', req, res, next); });
    ------------------------------------------------------------------------------ */
 router.get('/classes'       , function(req, res, next) { launch('apps/classes'         , 'Classification Browser'       , req, res, next); });
 router.get('/client'        , function(req, res, next) { launch('apps/client'          , 'Mobile PLM Client'            , req, res, next); });
@@ -57,48 +58,53 @@ router.get('/variants'      , function(req, res, next) { launch('apps/variants' 
 
 
 /* ------------------------------------------------------------------------------
-    TUTORIAL APPLICATIONS
-   ------------------------------------------------------------------------------ */
-router.get('/template'      , function(req, res, next) { launch('tutorial/1-template'   , 'App Template Page'         , req, res, next); });
+ADMINISTRATION UTILITIES
+------------------------------------------------------------------------------ */
+router.get('/helpers'             , function(req, res, next) { launch('admin/helpers'             , 'Administration Helper Utilities', req, res, next); });
+router.get('/insights'            , function(req, res, next) { launch('admin/insights'            , 'Tenant Insights Dashboard'      , req, res, next); });
+router.get('/users'               , function(req, res, next) { launch('admin/users'               , 'User Settings Manager'          , req, res, next); });
+router.get('/workspace-comparison', function(req, res, next) { launch('admin/workspace-comparison', 'Workspace Comparison'           , req, res, next); });
 
 
 
 /* ------------------------------------------------------------------------------
-    ADMINISTRATION UTILITIES
-   ------------------------------------------------------------------------------ */
-router.get('/insights'            , function(req, res, next) { launch('admin/insights'            , 'Tenant Insights Dashboard', req, res, next); });
-router.get('/users'               , function(req, res, next) { launch('admin/users'               , 'User Settings Manager'    , req, res, next); });
-router.get('/workspace-comparison', function(req, res, next) { launch('admin/workspace-comparison', 'Workspace Comparison'     , req, res, next); });
+INVENTOR ADDINS
+------------------------------------------------------------------------------ */
+router.get('/addins/context' , function(req, res, next) { launch('addins/context' , 'Context Browser'   , req, res, next); });
+router.get('/addins/item'    , function(req, res, next) { launch('addins/item'    , 'Item Master'       , req, res, next); });
+router.get('/addins/login'   , function(req, res, next) { launch('addins/login'   , 'PLM Login'         , req, res, next); });
+router.get('/addins/navigate', function(req, res, next) { launch('addins/navigate', 'Data Navigator'    , req, res, next); });
+router.get('/addins/search'  , function(req, res, next) { launch('addins/search'  , 'Search'            , req, res, next); });
+router.get('/addins/tasks'   , function(req, res, next) { launch('addins/tasks'   , 'Task Management'   , req, res, next); });
 
 
 
 /* ------------------------------------------------------------------------------
-    APPLICATIONS IN DEVELOPMENT
-   ------------------------------------------------------------------------------ */
-   router.get('/assets'        , function(req, res, next) { launch('dev/assets'          , 'Asset Management'            , req, res, next); });
-   router.get('/browser'       , function(req, res, next) { launch('dev/browser'         , 'PLM Browser'                 , req, res, next); });
-   router.get('/change'        , function(req, res, next) { launch('dev/change'          , 'Change Manager'              , req, res, next); });
-   router.get('/configurator'  , function(req, res, next) { launch('dev/configurator'    , 'Product Configuration Editor', req, res, next); });
-   router.get('/control'       , function(req, res, next) { launch('dev/control'         , 'Remote Device Control'       , req, res, next); });
-   router.get('/customer'      , function(req, res, next) { launch('dev/customer'        , 'Customer Services'           , req, res, next); });
-   router.get('/editor'        , function(req, res, next) { launch('dev/editor'          , 'Content Editor'              , req, res, next); });
-   router.get('/matrix'        , function(req, res, next) { launch('dev/matrix'          , 'Portfolio Matrix'            , req, res, next); });
-   router.get('/sbom'          , function(req, res, next) { launch('dev/sbom'            , 'Asset BOM Editor'            , req, res, next); });
-   router.get('/specification' , function(req, res, next) { launch('dev/specification'   , 'Product Specification Editor', req, res, next); });
+UX DEVELOPERS APPLICATIONS
+------------------------------------------------------------------------------ */
+router.get('/gallery' , function(req, res, next) { launch('framework/gallery'   , 'UX Components Gallery', req, res, next); });
+router.get('/template', function(req, res, next) { launch('tutorial/1-template' , 'App Template Page'    , req, res, next); });
 
-   
-   
+
 
 /* ------------------------------------------------------------------------------
-    INVENTOR ADDINS
-   ------------------------------------------------------------------------------ */
-router.get('/addins/change'  , function(req, res, next) { launch('addins/change'  , 'Change Management'               , req, res, next); });
-router.get('/addins/context' , function(req, res, next) { launch('addins/context' , 'Context Browser'                 , req, res, next); });
-router.get('/addins/item'    , function(req, res, next) { launch('addins/item'    , 'Item Master'                     , req, res, next); });
-router.get('/addins/search'  , function(req, res, next) { launch('addins/search'  , 'Search'                          , req, res, next); });
-router.get('/addins/products', function(req, res, next) { launch('addins/products', 'Product Configuration Management', req, res, next); });
+APPLICATIONS IN DEVELOPMENT
+------------------------------------------------------------------------------ */
+router.get('/assets'        , function(req, res, next) { launch('dev/assets'          , 'Asset Management'                  , req, res, next); });
+router.get('/browser'       , function(req, res, next) { launch('dev/browser'         , 'PLM Browser'                       , req, res, next); });
+router.get('/change'        , function(req, res, next) { launch('dev/change'          , 'Change Manager'                    , req, res, next); });
+router.get('/configurator'  , function(req, res, next) { launch('dev/configurator'    , 'Product Configuration Editor'      , req, res, next); });
+router.get('/control'       , function(req, res, next) { launch('dev/control'         , 'Remote Device Control'             , req, res, next); });
+router.get('/customer'      , function(req, res, next) { launch('dev/customer'        , 'Customer Services'                 , req, res, next); });
+router.get('/editor'        , function(req, res, next) { launch('dev/editor'          , 'Content Editor'                    , req, res, next); });
+router.get('/matrix'        , function(req, res, next) { launch('dev/matrix'          , 'Portfolio Matrix'                  , req, res, next); });
+router.get('/pdm'           , function(req, res, next) { launch('dev/pdm'             , 'Vault Browser'                     , req, res, next); });
+router.get('/pdm-explorer'  , function(req, res, next) { launch('dev/pdm-explorer'    , 'PDM Explorer'                      , req, res, next); });
+router.get('/pnd'           , function(req, res, next) { launch('dev/pnd'             , 'Product Data & Processes Explorer' , req, res, next); });
+router.get('/sbom'          , function(req, res, next) { launch('dev/sbom'            , 'Asset BOM Editor'                  , req, res, next); });
+router.get('/specification' , function(req, res, next) { launch('dev/specification'   , 'Product Specification Editor'      , req, res, next); });
 
-
+      
 
 /* ------------------------------------------------------------------------------
     LAUNCH APPLICATION
@@ -124,6 +130,8 @@ function launch(appURL, appTitle, req, res, next) {
         redirect = true;
     }
 
+    if(typeof req.session.cache === 'undefined') req.session.cache = [];
+
     if(redirect) {
 
         req.session.code_verifier  = base64URLEncode(crypto.randomBytes(32));
@@ -142,63 +150,128 @@ function launch(appURL, appTitle, req, res, next) {
 
     } else {
 
-        console.log(' ');
-        console.log('  Launch Application START');
-        console.log(' --------------------------------------------');
-
+        let reqTheme        = req.app.locals.defaultTheme;
         let reqWS           = ''
         let reqDMS          = '';
-        let reqPartNumber   = '';
+        let reqNumber       = '';
+        let reqFileId       = '';
+        let reqOptions      = '';
         let reqRevisionBias = 'release';
-        let reqTheme        = req.app.locals.defaultTheme;
-        let reqOptions      = (typeof req.query.options === 'undefined') ? '' : req.query.options;
-    
-        for(key in req.query) {
+        
+        for(let key in req.query) {
             switch(key.toLowerCase()) {
+                case 'theme'        :        reqTheme = req.query[key]; break;
                 case 'wsid'         :           reqWS = req.query[key]; break;
                 case 'dmsid'        :          reqDMS = req.query[key]; break;
-                case 'partnumber'   :   reqPartNumber = req.query[key]; break;
+                case 'number'       :       reqNumber = req.query[key]; break;
+                case 'fileid'       :       reqFileId = req.query[key]; break;
+                case 'options'      :      reqOptions = req.query[key]; break;
                 case 'revisionbias' : reqRevisionBias = req.query[key]; break;
-                case 'theme'        :        reqTheme = req.query[key]; break;
             }
         }
 
-        req.session.tenant = (typeof req.query.tenant === 'undefined') ? req.app.locals.tenant : req.query.tenant;
-    
-        console.log('  appURL       = ' + appURL); 
-        console.log('  appTitle     = ' + appTitle); 
-        console.log('  tenant       = ' + req.session.tenant); 
-        console.log('  wsId         = ' + reqWS); 
-        console.log('  dmsId        = ' + reqDMS); 
-        console.log('  partNumber   = ' + reqPartNumber); 
-        console.log('  options      = ' + reqOptions); 
-        console.log('  revisionBias = ' + reqRevisionBias); 
-        console.log('  defaultTheme = ' + req.app.locals.defaultTheme); 
-        console.log('  theme        = ' + reqTheme); 
-        console.log();
-        
-        if((reqPartNumber !== '') || ((reqPartNumber === '') && (appURL === 'addins/item') && (reqDMS === ''))) {
+        getVaultId(req, function() {
 
-            res.render('framework/search', {
-                partNumber   : reqPartNumber,
-                revisionBias : reqRevisionBias,
-                theme        : reqTheme
-            });
-
-        } else {
-
-            res.render(appURL, { 
-                title        : appTitle, 
-                tenant       : req.session.tenant,
-                wsId         : reqWS,
-                dmsId        : reqDMS,
-                revisionBias : reqRevisionBias,
-                theme        : reqTheme,
-                options      : reqOptions,
-                config       : req.app.locals.config
-            });    
+            console.log(' ');
+            console.log('  Launching Application');
+            console.log(' --------------------------------------------');
+            console.log('  appURL           = ' + appURL); 
+            console.log('  appTitle         = ' + appTitle); 
+            console.log('  clientId         = ' + req.app.locals.clientId.substring(0, 4) + '...'); 
+            console.log('  redirectUri      = ' + req.app.locals.redirectUri); 
+            console.log('  tenant           = ' + req.app.locals.tenant); 
+            console.log('  tenantLink       = ' + req.app.locals.tenantLink); 
+            console.log('  defaultTheme     = ' + req.app.locals.defaultTheme); 
+            console.log('  vaultGatewayLink = ' + req.app.locals.vaultGatewayLink); 
+            console.log('  vaultName        = ' + req.app.locals.vaultName); 
+            console.log('  vaultId          = ' + req.session.vaultId); 
+            console.log('  theme            = ' + reqTheme); 
+            console.log('  wsId             = ' + reqWS); 
+            console.log('  dmsId            = ' + reqDMS); 
+            console.log('  number           = ' + reqNumber); 
+            console.log('  fileId           = ' + reqFileId); 
+            console.log('  options          = ' + reqOptions); 
+            console.log('  revisionBias     = ' + reqRevisionBias); 
+            console.log();
             
-        }
+            if((reqNumber !== '') || ((reqNumber === '') && (appURL === 'addins/item') && (reqDMS === ''))) {
+
+                res.render('framework/findItemByNumber', {
+                    number       : reqNumber,
+                    revisionBias : reqRevisionBias,
+                    theme        : reqTheme,
+                    options      : reqOptions.split(',')
+                });
+
+            } else {
+
+                res.render(appURL, { 
+                    title        : appTitle, 
+                    tenant       : req.app.locals.tenant,
+                    tenantLink   : req.app.locals.tenantLink,
+                    theme        : reqTheme,
+                    wsId         : reqWS,
+                    dmsId        : reqDMS,
+                    fileId       : reqFileId,
+                    vaultId      : req.session.vaultId,
+                    options      : reqOptions.split(','),
+                    revisionBias : reqRevisionBias,
+                    config       : req.app.locals.config
+                });    
+                
+            }
+        });
+
+    }
+
+}
+function base64URLEncode(str) {
+    return str.toString('base64')
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=/g, '');
+}
+function sha256(buffer) {
+    return crypto.createHash('sha256').update(buffer).digest();
+}
+
+
+
+/* ------------------------------------------------------------------------------
+    DETERMINE VAULT ID BASED ON GATEWAY & APS LOGIN
+   ------------------------------------------------------------------------------ */
+function getVaultId(req, callback) {
+
+    if(typeof req.query.vaultId !== 'undefined') {
+        req.session.vaultId = req.query.vaultId;
+        callback();
+    } else if((req.app.locals.vaultGatewayLink === '') || (req.app.locals.vaultName === '')) {
+        req.session.vaultId = '';
+        callback();
+    } else if((typeof req.session.vaultId !== 'undefined') && (req.session.vaultId !== '')) {
+        callback();
+    } else {
+
+        console.log(' ');
+        console.log('  Validating Vault Settings');
+        console.log(' --------------------------------------------');
+
+        let url = req.app.locals.vaultGatewayLink + '/AutodeskDM/Services/api/vault/v2/vaults';
+
+        axios.get(url).then(function(response) {
+            for(let vault of response.data.results) {
+                if(vault.name === req.app.locals.vaultName) {
+                    req.session.vaultId = vault.id;
+                    console.log('  Found Vault ' +  req.app.locals.vaultName + ' with id ' + req.session.vaultId); 
+                    break;
+                }
+            }
+            console.log(' ');
+            callback();
+        }).catch(function(error) {
+            console.log('error');
+            console.log(error);
+        });
 
     }
 

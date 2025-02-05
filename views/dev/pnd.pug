@@ -1,0 +1,35 @@
+extends ../framework/layout
+
+block head
+
+    link(rel='stylesheet', href='/stylesheets/dev/pnd.css')
+    script(src='/javascripts/dev/pnd.js') 
+
+block body
+
+    body.dark-theme.screen-designs
+        
+        #header.dark
+            #header-logo
+            #header-title Autodesk
+            #header-subtitle=title
+            #header-toolbar
+                //- #header-vaults
+                //- #designs-dashboard.button.with-icon.icon-product.default Designs
+                //- #search-dashboard.button.with-icon.icon-search Search
+                //- #changes-dashboard.button.with-icon.icon-problem Changes
+                //- #admin-dashboard.button.with-icon.icon-settings Admin
+                #header-avatar
+        .screen.surface-level-1
+            #pdm.surface-level-1
+
+                .tabs
+                    .tab Project Explorer 
+                    .tab Search 
+                    .tab Change Processes
+
+                .panel
+
+            #plm.surface-level-2
+
+                .empty No PDM item selected

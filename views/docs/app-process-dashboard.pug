@@ -23,52 +23,54 @@
         p This dashboard can be used with any workspace but requires the matching configuration in file 
             strong settings.js
             |. This application is preconfigured for the workspaces 
-            strong Problem Reports 
+            strong Change Requests
             |, 
-            strong Change Requests 
-            | and 
+            strong Non Conformances
+            |, 
+            strong Problem Reports
+            |, 
             strong Project Tasks 
-            |of default tenants. Additional workspace configuration profiles can be added by copying one of the existing configurations shown below.
+            | and 
+            strong Supplier Packages 
+            | of default tenants. Additional workspace configuration profiles can be added by copying one of the existing configurations shown below.
         p.code
-            span 'dashboard' : [{
-            span.indent 'title'             : 'Problem Reporting Dashboard',
-            span.indent 'wsId'              : 82,
-            span.indent 'icon'              : 'account_tree', // Use https://fonts.google.com/icons to search for icons
-            span.indent 'fieldIdSubtitle'   : 'DESCRIPTION',
-            span.indent 'fieldIdItem'       : 'AFFECTED_ITEM',
-            span.indent 'imageFieldsPrefix' : 'IMAGE_',
-            span.indent 'workflowHistory'   : {
-            span.indent-2 'showNextActions'       : true,
-            span.indent-2 'excludedTransitions'   : ['Close Report'],
-            span.indent-2 'finalStates'           : ['Completed']
-            span.indent  },
-            span.indent 'progress' : [
-            span.indent-2 { 'label' : 'New',         'color' : colors.red,    'states' : ['Create'] },
-            span.indent-2 { 'label' : 'Analysis',    'color' : colors.yellow, 'states' : ['Review', 'Technical Analysis'] },
-            span.indent-2 { 'label' : 'Improvement', 'color' : colors.yellow, 'states' : ['CAPA in progress', 'Change Request in progress'] },
-            span.indent-2 { 'label' : 'Completed',   'color' : colors.green,  'states' : ['Completed'] }
+            span dashboard : [{
+            span.indent title       : 'Change Requests Management',
+            span.indent wsId        : 83,
+            span.indent className   : 'change-request',
+            span.indent contents    : [ 
+            span.indent-2 { type : 'details'         , params : { id : 'details', collapseContents : true, editable : true, toggles : true, singleToolbar : 'controls' } },
+            span.indent-2 { type : 'attachments'     , params : { id : 'attachments', editable : true, headerLabel : 'Files', singleToolbar : 'controls', layout : 'list', tileSize : 'xs' } },
+            span.indent-2 { type : 'managed-items'   , params : { id : 'managed-items', editable : true, columnsIn : [ 'Item', 'Lifecycle', 'Problem Description', 'Proposed Change'], openInPLM : true } },
+            span.indent-2 { type : 'workflow-history', params : { id : 'workflow-history' } }
+            span.indent ],
+            span.indent icon     : 'icon-workflow',
+            span.indent progress : [
+            span.indent-2 { label : 'Planning',    color : '#000000',     states : ['Create']  },
+            span.indent-2 { label : 'Review',      color : colors.red,    states : ['Review & Impact Analysis', 'Peform Tasks', 'Change Control Board Review']  },
+            span.indent-2 { label : 'In Work',     color : colors.yellow, states : ['Change Order in progress']   },
+            span.indent-2 { label : 'Completed',   color : colors.green,  states : ['Completed'] }
+            span.indent ]
+            span }, {
+            span.indent title       : 'Non Conformances Tracking Dashboard',
+            span.indent wsId        : 98,
+            span.indent className   : 'non-conformance',
+            span.indent contents    : [ 
+            span.indent-2 { type : 'workflow-history', params : { id : 'workflow-history' } },
+            span.indent-2 { type : 'details'         , params : { id : 'details', collapseContents : true, editable : true, toggles : true, singleToolbar : 'controls' } },
+            span.indent-2 { type : 'markup'          , params : { id : 'markup', fieldIdViewable : 'NONCONFORMING_ITEM', markupsImageFieldsPrefix : 'IMAGE_' } },
+            span.indent-2  { type : 'attachments'     , params : { id : 'attachments', editable : true, headerLabel : 'Files', singleToolbar : 'controls', layout : 'list', tileSize : 'xs' } }
+            span.indent ],
+            span.indent icon            : 'icon-rules',
+            span.indent fieldIdSubtitle : 'DESCRIPTION',
+            span.indent progress : [
+            span.indent-2 { label : 'New',         color : colors.red,    states : ['Identification In Progress'] },
+            span.indent-2 { label : 'Analysis',    color : colors.yellow, states : ['Under Review'] },
+            span.indent-2 { label : 'Improvement', color : colors.yellow, states : ['Disposition In Progress', 'CAPA In Progress'] },
+            span.indent-2 { label : 'Closed',      color : colors.green,  states : ['Closed'] }
             span.indent ]
             span },{
-            span.indent 'title' : 'Change Requests Management',
-            span.indent 'wsId'  : 83,
-            span.indent 'icon'  : 'rebase_edit',
-            span.indent 'progress' : [
-            span.indent-2 { 'label' : 'Planning',    'color' : '#000000',     'states' : ['Create']  },
-            span.indent-2 { 'label' : 'Review',      'color' : colors.red,    'states' : ['Review & Impact Analysis', 'Peform Tasks', 'Change Control Board Review']  },
-            span.indent-2 { 'label' : 'In Work',     'color' : colors.yellow, 'states' : ['Change Order in progress']   },
-            span.indent-2 { 'label' : 'Completed',   'color' : colors.green,  'states' : ['Completed'] }
-            span.indent ]
-            span },{
-            span.indent 'title' : 'Project Actitivity Management',
-            span.indent 'wsId'  : 90,
-            span.indent 'icon'  : 'account_tree',
-            span.indent 'progress' : [
-            span.indent-2 { 'label' : 'Planning',    'color' : colors.red,    'states' : ['Planning']  },
-            span.indent-2 { 'label' : 'Assigned',    'color' : colors.red,    'states' : ['Assigned']  },
-            span.indent-2 { 'label' : 'In Work',     'color' : colors.yellow, 'states' : ['In Work']   },
-            span.indent-2 { 'label' : 'Review',      'color' : colors.green,  'states' : ['Review']    },
-            span.indent-2 { 'label' : 'Completed',   'color' : colors.green,  'states' : ['Completed'] }
-            span.indent ]
+            span.indent ...
             span }]
         p Each profile requires the settings listed below.
             table   
@@ -78,36 +80,28 @@
                     th Description
                 tr 
                     td title 
-                    td Problem Reporting Dashboard
+                    td Change Requests Management
                     td Sets the application title shown in the main toolbar and tab name 
                 tr 
                     td wsId 
-                    td 82
+                    td 83
                     td ID of PLM workspace to use for the dashboard
                 tr 
+                    td className 
+                    td change-request
+                    td This class name will be added to the item-element in the HTML page when opening the details of a selected process. This enables custom styling per process type.
+                tr 
                     td icon 
-                    td account_tree
-                    td Google font icon to use for the business process type (Use https://fonts.google.com/icons to search for icons)
+                    td icon-workflow
+                    td The icon to be used for the processe and the profile selector in the Dashboard Landing Page (which opens if no process profile is defined). See the developer guide for available icons.
                 tr 
-                    td fieldIdSubtitle 
-                    td DESCRIPTION
-                    td Use this setting to select the field which will be used as subtitle for the tiles of business processes
-                tr 
-                    td fieldIdItem 
-                    td AFFECTED_ITEM
-                    td Provide ID of the field that is used to connect the business process to a context item. If this optional field is defined and has a value, the given item's viewable will be shown to the right.
-                tr 
-                    td imageFieldsPrefix 
-                    td IMAGE_
-                    td Provide the prefix of Image fields to be used to store markups. If this setting is omitted, the markup feature will not be enabled when opening a selected process.
+                    td contents 
+                    td [..]
+                    td Defines the panels being displayed when opening a selected process. See the developer guide about insertItemSummary for configuration options.
                 tr 
                     td progress 
                     td [..]
                     td Maps the business process workflow states to a linear sequene of steps to provide a better overview of the process progression. Each entry of this array must contain a label that will be used in the applcation, a color code to use for this state as well as the list of workflow 'states' that match to this step.
-                tr 
-                    td workflowHistory 
-                    td {..}
-                    td These optional parameters can be used to suppress the workflow history display. It also enables to hide certain transitions and to define the final states (which will be shown with a different icon).
                 
         h1 Access the Dashboard
         p You can access the process dashboard with the 

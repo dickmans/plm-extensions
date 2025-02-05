@@ -1,5 +1,8 @@
 /*  EXTRAS */
 /* ----------------------------------------------------------------------------- */
+#header-subtitle {
+    display : none;
+}
 #dialog {
     height   : 350px;
     left     : calc(50% - 225px);
@@ -11,10 +14,13 @@ textarea:focus {
     border-color : none !important;
     box-shadow   : none !important;
 }
-.tiles.wide.xxl > .tile > .tile-details > .tile-data {
-    gap : 3px;
+.section-fields {
+    margin-bottom : 10px;
+    padding       : 0px;
 }
-
+.section-fields > .field {
+    order : 2;
+}
 
 
 /*  MAIN LAYOUT */
@@ -61,16 +67,19 @@ textarea:focus {
     padding : 40px; 
 }
 #list .tile {
-    height : 180px;
-    width  : 700px;
+    max-height  : 424px;
+    min-height  : 424px;
+    height      : 424px;
 }
-#list .tile-image { 
-    height : 180px;
-    width  : 180px; 
+#list .tile-data {
+    width : 100%;
 }
-#list .tile-details {
-    margin : 26px 30px 20px 30px;
-    width  : 460px; 
+#list .tile-data > div {
+    line-height     : 16px;
+    margin          : auto;
+    overflow        : hidden;
+    text-overflow   : ellipsis;
+    white-space     : nowrap;
 }
 #empty {
     display     : none;
@@ -96,29 +105,28 @@ textarea:focus {
 
 
 
-/*  VIEWER */
-/* ----------------------------------------------------------------------------- */
-.viewcubeUI,
-.viewcubeWrapper,
-#navTools { display: none !important; }
-
-
-
 /*  REVIEW PANEL */
 /* ----------------------------------------------------------------------------- */
 #panel > .panel-header {
-    gap : var(--spacer-xxs);
+    border  : none;
+    gap     : var(--spacer-xxs);
 }
 #panel > .panel-header > .panel-subtitle {
     padding : 0px;
 }
 #panel > .panel-header > .panel-title {
     font-size : 20px;
-    padding : 0px 0px 24px 0px;
+    padding   : 0px 0px 24px 0px;
 }
 #comments input,
 #comments textarea {
-    background: var(--color-surface-level-2);
+    background : var(--color-surface-level-2);
+}
+#comments .panel-content-toolbar {
+    position : absolute;
+    right    : 0px;
+    bottom   : 0px;
+    bottom   : 0px;
 }
 #panel textarea {
     font-family : sans-serif;
@@ -136,168 +144,73 @@ textarea:focus {
     transition  : all ease 0.25s;
 }
 .form-header {
-    border-bottom   : 2px solid var(--color-surface-level-5);
-    cursor          : pointer;
-    font-size       : 16px;
-    padding         : 30px 20px 10px 10px;
+    border-top  : 2px solid var(--color-surface-level-5);
+    font-size   : 18px;
+    font-weight : bold;
+    margin-top  : 24px;
+    padding     : 18px 14px 0px 14px;
 }
 .form-header.first {
+    border      : none;
     padding-top : 4px;
 }
 .form-hint {
-    color       : var(--color-gray-500);
-    display     : none;
-    font-size   : 10px;
+    color       : var(--color-font);
+    font-size   : 14px;
+    padding     : 6px 14px 10px 14px;
 }
-textare:focus { outline: none; }
-.panel-toolbar {
-    /* padding : 20px 0px;
-    top     :auto;
-    bottom  : 0px;
-    right   : 0px; */
-}
-#bom-item-details-header {
-    font-size   : 16px;
-    padding     : 12px 24px;
-    font-weight : 800;
-}
-.field-value .thumbnail {
-    max-height  : 200px;
-    max-width   : 200px;
-}
-#comments > .panel-content-data {
-    overflow-x  : hidden;
-    top         : 10px;
-}
-
 
 
 /*  ATTACHMENTS */
 /* ----------------------------------------------------------------------------- */
-#files-title {
-    display : none;
+#files-header {
+    border : none;
 }
-#files-toolbar {
-    top : 4px;
+#files-controls {
+    top : 8px;
 }
-#files-list {
+#files-content {
     top : 60px;
 }
+
 
 
 /*  BOM */
 /* ----------------------------------------------------------------------------- */
-#bom-toolbar {
-    top : 4px;
+#bom-header {
+    border : none;
+}
+#bom-controls {
+    top : 8px;
 }
 #bom-content {
     top : 60px;
 }
-.flat-bom-number { max-width :  40px; width :  40px; }
-.flat-bom-title  { max-width : 440px; width : 440px; }
-.flat-bom-qty    { max-width :  50px; width :  50px; }
+
 
 
 /*  ACTIONS */
 /* ----------------------------------------------------------------------------- */
-#action-create, 
-#button-action-submit, 
-#button-action-cancel {
-    display : none;
+#actions-header {
+    border : none;
 }
-.action {
-    cursor      : pointer;
-    height      : 110px !important;
-    overflow    : hidden;
-    padding     : 0px;
+#actions-controls {
+    top : 8px;
 }
-.action-image {
-    height      : 110px;
-    text-align  : center;
-    width       : 110px;
+#actions-content {
+    top : 60px;
 }
-.action-image img {
-    height      : 100%;
-    object-fit  : cover;;
-    width       : 100%;
+#actions .tile-details {
+    gap : 4px;
+    margin-top : 8px;
 }
-.action-image .ms {
-    line-height : 110px;
-    font-size   : 64px;
+#actions-controls {
+    top : 8px;
+    z-index : 1;
 }
-.action-details {
-    padding : 16px 30px;
-    width   : calc(100% - 190px);
-}
-.action-detail.ms::before {
-    margin-right : var(--spacer-xxs);
-    position     : relative;
-    top          : 2px;
-}
-.action-title {
-    font-weight : 800;
-}
-.action-user {
-    margin-left : 16px;
-}
-.action-status {
-    width : 20px;
-}
-.action-status-label {
-    color           : white;
-    display         : inline-block;
-    font-size       : 12px;
-    position        : relative;
-    top             : 45px;
-    left            : -45px;
-    text-align      : center;
-    text-overflow   : ellipsis;
-    text-transform  : uppercase;
-    transform       : rotate(90deg);
-    width           : 110px;
-}
-.action-status.new      { background : var(--color-status-red);    }
-.action-status.pending  { background : var(--color-status-yellow); }
-.action-status.complete { background : var(--color-status-green);  }
-#action-create {
-    display         : flex;
-    flex-direction  : column;
-    gap             : 12px;
-}
-#action-image {
-    max-width : 100%;
-}
-.image-toolbar > div {
-    float        : left;
-    margin-left  : 0px;
-    margin-right : var(--spacer-s);
-}
-#action-create .label {
-    font-size   : 14px;
-    font-weight : 600;
-    padding     : 10px 15px 0px 0px;
-    text-align  : right;
-    width       : 100px;
-}
-#action-create textarea,
-#action-create .input {
-    background   : var(--color-surface-level-2);
-    border-color : var(--color-surface-level-5);
-}
-#action-create .input {
-    padding : 11px;
-    width   : calc(100% - 150px);
-}
-#panel input[type="date"] { 
-    padding : 9px;
-}
-#input-details {
-    height : 52px;
-}
-.validation-error {
-    color       : var(--color-status-red);
-    font-size   : 12px;
-    padding     : 8px;
+#field-MARKUP {
+    max-height : 300px;
+    order      : 1;
 }
 
 

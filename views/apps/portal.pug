@@ -16,17 +16,17 @@ block body
             #header-title= title
             #header-subtitle
             #header-toolbar
-                .button.with-icon.icon-toggle-on.filled#toggle-search Search
-                .button.with-icon.icon-toggle-off#toggle-bom BOM
-                .button.with-icon.icon-toggle-off#toggle-attachments Files
+                .button.with-icon.icon-toggle-on.filled#toggle-search(title='Toggle search panel') Search
+                .button.with-icon.icon-toggle-off#toggle-bom(title='Toggle BOM panel') BOM
+                .button.with-icon.icon-toggle-off#toggle-attachments(title='Toggle files panel') Files
                 #header-avatar
         
         #main.screen
 
-            .surface-level-3#search
-            .surface-level-3#recents
+            .surface-level-2#search
+            .surface-level-2#recents
 
             .surface-level-1.item-panel#bom
             .surface-level-1.item-panel#viewer.viewer
-            .surface-level-2.item-panel#details.compact
+            .surface-level-2.item-panel#details
             .surface-level-2.item-panel#attachments

@@ -6,44 +6,54 @@ let projectItems    = [];
 $(document).ready(function() {
 
     links.asset = '/api/v3/workspaces/' + wsId + '/items/' + dmsId;
- 
+
     appendOverlay(true);
-    getInitialData();
-    setUIEvents();
+
+    getFeatureSettings('sbom', [], function() {
+
+        getInitialData();
+        setUIEvents();
+
+    });
 
 });
 
 
 function setUIEvents() {
 
-    // $('#button-new').click(function() {
-    //     showCreateForm(95, {
-    //         headerLabel     : 'Create new configuration',
-    //         sectionsEx      : ['Product Marketing','Product Catalog Images'],
-    //         compactDisplay  : false
-    //     });
-    // });
+    $('#header-toolbar').children('.button').click(function() {
+        
+        $(this).siblings().removeClass('main');
+        $(this).addClass('main');
+        
+        $('.panel').hide();
 
-    // $('#toggle-bom').click(function() {
-    //     $('body').toggleClass('no-bom');
-    //     $(this).toggleClass('icon-toggle-on').toggleClass('icon-toggle-off').toggleClass('filled');
-    //     viewerResize(250);
-    // });
+        let panelId = $(this).attr('data-panel-id');
 
-    // $('#toggle-details').click(function() {
-    //     $('body').toggleClass('no-details');
-    //     $(this).toggleClass('icon-toggle-on').toggleClass('icon-toggle-off').toggleClass('filled');
-    //     viewerResize(250);
-    // });
+        console.log(links);
 
-    // $('#home').click(function() {
-    //     $('body').removeClass('editor-mode');
-    // });
+        if(panelId === 'snl') {
+            insertFlatBOM(links.serials, {
+                counters    : true,
+                headerLabel : 'Serial Numbers',
+                id          : 'snl',
+                editable    : true,
+                columnsEx   : ['Descriptor', 'Asset Item'],
+                reload      : true,
+                search      : true,
+                useCache    : false,
+                fieldIdPartNumber : 'ITEM_NUMBER',
+                onItemClick : function(elemClicked) { onSerialNumberClick(elemClicked); } 
+                // filterBySelection : true,
+                // multiSelect : true
+            });
+        }
 
+        $('#' + panelId).show();
 
-    // $('#button-save-features').click(function() {
-    //     saveConfigurationFeatures();
-    // });
+    });
+
+    $('#header-toolbar').children('.button').first().click();
 
 }
 
@@ -53,19 +63,22 @@ function getInitialData() {
 
     let requests = [
         $.get('/plm/details', { link : links.asset }),
-        $.get('/plm/fields', { wsId : wsId }),
+        $.get('/plm/fields' , { wsId : wsId        }),
         $.get('/plm/project', { link : links.asset })
     ];
 
     Promise.all(requests).then(function(responses) {
 
+        console.log(responses);
+
         $('#header-subtitle').html(responses[0].data.title);
 
-        console.log(responses[2]);
+        links.ebom    = getSectionFieldValue(responses[0].data.sections, config.sbom.fieldIdAssetEBOM,    '', 'link');
+        links.mbom    = getSectionFieldValue(responses[0].data.sections, config.sbom.fieldIdAssetMBOM,    '', 'link');
+        links.sbom    = getSectionFieldValue(responses[0].data.sections, config.sbom.fieldIdAssetSBOM,    '', 'link');
+        links.serials = getSectionFieldValue(responses[0].data.sections, config.sbom.fieldIdAssetSERIALS, '', 'link');
 
-        links.ebom = getSectionFieldValue(responses[0].data.sections, config.sbom.fieldIdAssetEBOM, '', 'link');
-        links.mbom = getSectionFieldValue(responses[0].data.sections, config.sbom.fieldIdAssetEBOM, '', 'link');
-        links.sbom = getSectionFieldValue(responses[0].data.sections, config.sbom.fieldIdAssetSBOM, '', 'link');
+        console.log(links);
 
         for(let field of responses[1].data) {
             let fieldId = field.__self__.split('/')[8];
@@ -74,8 +87,6 @@ function getInitialData() {
                 break;
             }
         }
-
-        console.log(projectItems);
 
         insertViewer(links.ebom); 
 
@@ -133,6 +144,10 @@ function getInitialData() {
                 }
             }
 
+            links.tableau = setTableau(wsAssetItems.id, 'Asset Serial Numbers', ['descriptor', 'ASSET', 'grid.ID', 'grid.SERIAL', 'last_modified_on'], [
+                { fieldId : 'ASSET', match : 'ALL', filters : [['Is', $('#header-subtitle').html()]] }
+            ]);
+
             if(isBlank(links.sbom)) {
                 createRootAssetItem(links.mbom, responses[3].data, function() {
                     insertEditor();
@@ -184,7 +199,7 @@ function linkRootAssetItem(wsAssetsSections) {
         addFieldToPayload(params.sections, wsAssetsSections, null, config.sbom.fieldIdAssetSBOM, { 'link' : links.sbom });
         addDerivedFieldsToPayload(params.sections, wsAssetsSections, response.data);
 
-        $.get('/plm/edit', params, function(response) {
+        $.post('/plm/edit', params, function(response) {
             // console.log(response);
         });
 
@@ -199,15 +214,15 @@ function insertEditor() {
         additionalRequests.push($.get('/plm/manages', { link : projectItem.link }));
     }
 
-
     insertBOM(links.mbom, {
-        headers             : true,
-        compactDisplay      : true,
-        hideDetails         : true,
-        quantity            : true,
-        multiSelect         : false,
+        headerLabel         : 'Asset BOM',
+        // compactDisplay      : false,
+        columnsIn           : ['Quantity'],
+        search              : true,
+        toggles             : true,
         bomViewName         : config.sbom.bomViewNameItems,
-        additionalRequests  : additionalRequests
+        additionalRequests  : additionalRequests,
+        onItemClick         : function(elemClicked) { onBOMItemClick(elemClicked); }
     }); 
 
 }
@@ -216,17 +231,6 @@ function insertEditor() {
 function insertBOMDone(id) {
 
     $('#' + id).attr('data-link-sbom', links.sbom);
-
-    // $('<div><div>').prependTo($('#' + id + '-toolbar'))
-    //     .addClass('button')    
-    //     .addClass('with-icon')
-    //     .addClass('icon-toggle-off')
-    //     .html('Serial Numbers')
-    //     .click(function(e) {
-    //         $(this).toggleClass('filled').toggleClass('icon-toggle-off').toggleClass('icon-toggle-on');
-    //         $('body').toggleClass('with-grid');
-    //         viewerResize(250);
-    //     });
 
     // $('<div><div>').prependTo($('#' + id + '-toolbar'))
     //     .addClass('button')    
@@ -262,54 +266,47 @@ function insertBOMDone(id) {
     //         }
     //     });
 
-    $('<div><div>').prependTo($('#' + id + '-toolbar'))
+    $('<div><div>').prependTo($('#' + id + '-controls'))
         .addClass('button')    
         .addClass('with-icon')
         .addClass('icon-toggle-off')
-        .html('Deliveries')
+        .html('Deliveries Assignment')
         .click(function(e) {
             $(this).toggleClass('filled').toggleClass('icon-toggle-off').toggleClass('icon-toggle-on');
             $('body').toggleClass('with-processes');
             viewerResize(250);
         });
 
-    $('<div><div>').prependTo($('#' + id + '-toolbar'))
+    $('<div><div>').prependTo($('#' + id + '-controls'))
         .attr('id', 'button-create-items')
         .addClass('button')    
         .addClass('bom-multi-select-action')
         .html('Create Items')
         .click(function(e) {
             saveChanges();
-            // $(this).toggleClass('filled').toggleClass('icon-toggle-off').toggleClass('icon-toggle-on');
         });
 
-    $('<div><div>').prependTo($('#' + id + '-toolbar'))
+    $('<div><div>').prependTo($('#' + id + '-controls'))
         .attr('id', 'button-save-changes')
         .addClass('button')    
         .addClass('default')    
         .html('Save Changes')
         .click(function(e) {
             saveChanges();
-            // $(this).toggleClass('filled').toggleClass('icon-toggle-off').toggleClass('icon-toggle-on');
         });
 
 }
 
 
-function changeBOMViewDone(id, fields, bomData, selectedItems, dataFlatBOM, dataAdditional) {
+function changeBOMViewDone(id, settings, bomData, selectedItems, dataFlatBOM, dataAdditional) {
 
-    console.log(dataAdditional);
-
-    for(let field of fields) {
+    for(let field of settings.columns) {
         switch(field.fieldId) {
             case 'END_ITEM'         : wsItems.linkEndItem   = field.__self__.link; break;
             case 'SPARE_WEAR_PART'  : wsItems.linkSparePart = field.__self__.link; break;
             case 'PDM_CATEGORY'     : wsItems.linkPurchased = field.__self__.link; break;
         }
     }
-
-
-    $('#overlay').hide();
 
     let sbom = dataAdditional[0].data;
     let elemTHeadRow = $('#' + id + '-thead-row');
@@ -405,12 +402,10 @@ function changeBOMViewDone(id, fields, bomData, selectedItems, dataFlatBOM, data
                         switch(field.metaData.link) {
 
                             case wsItems.linkSparePart:
-                                console.log(field.value);
                                 if(config.service.fieldValues.indexOf(field.value.toLowerCase()) >= 0) isSparePart = true;
                                 break;
 
                             case wsItems.linkPurchased:
-                                console.log(field.value);
                                 if(field.value.toLowerCase() === 'purchased part') isPurchased = true;
                                 break;
 
@@ -568,16 +563,56 @@ function changeBOMViewDone(id, fields, bomData, selectedItems, dataFlatBOM, data
 }
 
 
-// Selection of item in BOM
-function clickBOMItemDone(elemClicked, e) {
+function insertGridDataDone(id) {
 
-    if(elemClicked.hasClass('selected')) { 
-        viewerSelectModel(elemClicked.attr('data-part-number'));
-        let linkSBOM = elemClicked.attr('data-link-sbom');
-        if(!isBlank(linkSBOM)) insertGrid(linkSBOM);
-    } else viewerResetSelection();
+    console.log('   insertGridDataDone   ---');
+
+    let elemTHRow = $('#grid-thead').children().first();
+    let elemTBody = $('#grid-tbody');
+
+    elemTHRow.prepend($('<th></th>'));
+
+    elemTBody.children().each(function() {
+
+        let elemRow = $(this);
+
+        let elemCell = $('<td></td>').prependTo(elemRow);
+        let elemButton = $('<div></div>').appendTo(elemCell)
+            .addClass('button')
+            .addClass('select-in-viewer')
+            .addClass('icon')
+            .addClass('icon-link')
+            .click(function() {
+                $('.select-in-viewer').removeClass('main');
+                let selection = viewerGetSelectedComponentPaths();
+                if(selection.length === 1) {
+                    let elemRow = $(this).closest('tr');
+                    elemRow.find('input').each(function() {
+                        if($(this).attr('data-id') === 'LOCATION') {
+                            $(this).val(selection[0]);
+                            viewerResetSelection({
+                                fitToView : false,
+                                resetView : false,
+                                resetColors : false,
+                                keepHidden : true,
+                                showAll : false
+                            });
+                        }
+                    });
+                } else {
+                    $(this).addClass('main');
+                }
+
+            });
+
+    });
+
 
 }
+
+
+
+
 
 
 function clickCreateAssetItem(elemClicked) {
@@ -624,12 +659,10 @@ function clickCreateAssetItem(elemClicked) {
             if(isBlank(linkSBOM)) {
 
                 for(let response of responses) {
-
                     if(response.params.link === linkItem) {
                         dataDerivedFields = response.data;
                         break;
                     }
-
                 }
 
                 let params = {
@@ -645,6 +678,7 @@ function clickCreateAssetItem(elemClicked) {
                 addFieldToPayload(params.sections, wsAssetItems.sections, null, 'SPARE_WEAR_PART', item.hasClass('is-spare-part') );
                 addFieldToPayload(params.sections, wsAssetItems.sections, null, 'PURCHASED', item.hasClass('is-purchased') );
                 addFieldToPayload(params.sections, wsAssetItems.sections, null, 'SERIAL', item.hasClass('is-serial') );
+                addFieldToPayload(params.sections, wsAssetItems.sections, null, 'INSTANCE_COUNT', item.attr('data-total-quantity') );
 
                 addDerivedFieldsToPayload(params.sections, wsAssetItems.sections, dataDerivedFields);
 
@@ -720,12 +754,12 @@ function saveChanges() {
 
                 let params = { 'link' : linkSBOM, 'sections'   : [] }
 
-                addFieldToPayload(params.sections, wsAssetItems.sections, null, 'END_ITEM', elemItem.hasClass('is-end-item'));
+                addFieldToPayload(params.sections, wsAssetItems.sections, null, 'END_ITEM'       , elemItem.hasClass('is-end-item'));
                 addFieldToPayload(params.sections, wsAssetItems.sections, null, 'SPARE_WEAR_PART', elemItem.hasClass('is-spare-part'));
-                addFieldToPayload(params.sections, wsAssetItems.sections, null, 'PURCHASED', elemItem.hasClass('is-purchased'));
-                addFieldToPayload(params.sections, wsAssetItems.sections, null, 'SERIL', elemItem.hasClass('is-serial'));
+                addFieldToPayload(params.sections, wsAssetItems.sections, null, 'PURCHASED'      , elemItem.hasClass('is-purchased'));
+                addFieldToPayload(params.sections, wsAssetItems.sections, null, 'SERIAL'         , elemItem.hasClass('is-serial'));
             
-                requests.push($.get('/plm/edit', params));
+                requests.push($.post('/plm/edit', params));
 
             }
 
@@ -801,5 +835,45 @@ function openAssetItem(elemClicked) {
     let linkSBOM = elemItem.attr('data-link-sbom');
 
     if(!isBlank(linkSBOM)) openItemByLink(linkSBOM);
+
+}
+
+
+
+// Selection of item in BOM
+function onBOMItemClick(elemClicked) {
+
+    // $('#grid').addClass('hidden');
+
+    let partNumber = elemClicked.attr('data-part-number');
+    // let linkSBOM   = elemClicked.attr('data-link-sbom');
+
+    if(elemClicked.hasClass('selected')) { 
+
+        viewerSelectModel(partNumber);
+
+        // if(!isBlank(linkSBOM)) {
+        //     $('#grid').removeClass('hidden');    
+        //     insertGrid(linkSBOM, {
+        //         compactDisplay : true,
+        //         editable : true,
+        //         headerLabel : 'Serial Numbers',
+        //         useCache : true
+        //     });
+        // } 
+
+    } else viewerResetSelection();
+
+}
+
+
+function onSerialNumberClick(elemClicked) {
+
+    if(elemClicked.hasClass('selected')) {
+        let partNumber = elemClicked.attr('data-part-number');
+        viewerSelectModel(partNumber);
+    } else {
+        viewerResetSelection();
+    }
 
 }

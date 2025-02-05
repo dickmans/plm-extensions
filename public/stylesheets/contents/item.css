@@ -1,7 +1,7 @@
 :root {
 
     --width-field-label :  180px;
-    --padding-field-label : 20px;
+    --padding-field-label : 16px;
 
 }
 
@@ -42,13 +42,15 @@
 .section.expanded::before  { content : '\e5cf'; }
 /* Section Fields */
 .section-fields {
-    padding     : 10px 20px;
-    transition  : all 3s ease;
+    display         : flex;
+    flex-direction  : column;
+    gap             : 8px;
+    padding         : 8px 0px;
 }
 .section-fields .field {
     border-bottom   : 1px solid transparent;
     display         : flex;
-    padding         : 6px 0px;
+    /* padding         : 6px 0px; */
 }
 .section-fields .field:last-child { 
     border-bottom : none; 
@@ -58,14 +60,14 @@
 }
 /* Section Field Label */
 .field-label {
-    padding: 4px var(--padding-field-label) 0px 0px;
-    min-width: var(--width-field-label);
-    width: var(--width-field-label);
-    text-align: right;
-    font-weight : bold;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    font-weight     : bold;
+    min-width       : var(--width-field-label);
+    padding         : 5px var(--padding-field-label) 0px var(--padding-field-label);
+    text-align      : right;
+    width           : var(--width-field-label);
+    overflow        : hidden;
+    text-overflow   : ellipsis;
+    white-space     : nowrap;
 }
 /* Section Field Value (Inputs) */
 .field-value {
@@ -106,8 +108,11 @@
     color : var(--color-blue-500);
     cursor : pointer;
 }
-.field-value.image { padding : 0px; }
-.field-value.image > img { width : 100% }
+.field-value.image > img { 
+    margin-top  : 4px;
+    max-width   : 180px;
+    width       : 100% 
+}
 .field-value.computed,
 .field-value.image,
 .field-value.radio { background : none; }
@@ -127,7 +132,10 @@
     resize          : none;
     text-overflow   : ellipsis;
 }
-
+.field-value > canvas.viewer-screenshot {
+    max-height : 100%;
+    max-width  : 100%;
+}
 
 /* MULTI-PICKLIST ITEM LINKS DISPLAY */
 .field-multi-picklist-item {
@@ -186,19 +194,29 @@
 .surface-level-4 > div > .section:hover { background : var(--color-surface-level-3); }
 .surface-level-5 > div > .section:hover { background : var(--color-surface-level-4); }
 
-.surface-level-1 > .section-fields > .field.editable > .field-value > * { background : var(--color-surface-level-2); }
-.surface-level-2 > .section-fields > .field.editable > .field-value > * { background : var(--color-surface-level-1); }
-.surface-level-3 > .section-fields > .field.editable > .field-value > * { background : var(--color-surface-level-1); }
-.surface-level-3 > .section-fields > .field.editable > .field-value > * { background : var(--color-surface-level-1); }
-.surface-level-5 > .section-fields > .field.editable > .field-value > * { background : var(--color-surface-level-1); }
+.surface-level-1 > .panel-content > .section-fields > .field.editable > .field-value > * { background : var(--color-surface-level-2); }
+.surface-level-2 > .panel-content > .section-fields > .field.editable > .field-value > * { background : var(--color-surface-level-1); }
+.surface-level-3 > .panel-content > .section-fields > .field.editable > .field-value > * { background : var(--color-surface-level-1); }
+.surface-level-3 > .panel-content > .section-fields > .field.editable > .field-value > * { background : var(--color-surface-level-1); }
+.surface-level-5 > .panel-content > .section-fields > .field.editable > .field-value > * { background : var(--color-surface-level-1); }
 
-.surface-level-1 > .section-fields > .field.editable > .field-value > .radio-option > input { background : var(--color-surface-level-2); }
-.surface-level-2 > .section-fields > .field.editable > .field-value > .radio-option > input { background : var(--color-surface-level-1); }
-.surface-level-3 > .section-fields > .field.editable > .field-value > .radio-option > input { background : var(--color-surface-level-1); }
-.surface-level-4 > .section-fields > .field.editable > .field-value > .radio-option > input { background : var(--color-surface-level-1); }
-.surface-level-5 > .section-fields > .field.editable > .field-value > .radio-option > input { background : var(--color-surface-level-1); }
+.surface-level-1 > .panel-content > .section-fields > .field.editable > .field-value > .radio-option > input { background : var(--color-surface-level-2); }
+.surface-level-2 > .panel-content > .section-fields > .field.editable > .field-value > .radio-option > input { background : var(--color-surface-level-1); }
+.surface-level-3 > .panel-content > .section-fields > .field.editable > .field-value > .radio-option > input { background : var(--color-surface-level-1); }
+.surface-level-4 > .panel-content > .section-fields > .field.editable > .field-value > .radio-option > input { background : var(--color-surface-level-1); }
+.surface-level-5 > .panel-content > .section-fields > .field.editable > .field-value > .radio-option > input { background : var(--color-surface-level-1); }
 
-.radio-option { background : transparent !important; }
+.radio-option { 
+    background : transparent !important; 
+    display    : flex;
+}
+.radio-label {
+    max-width       : calc(100% - 34px);
+    overflow        : hidden;
+    text-overflow   : ellipsis;
+    white-space     : nowrap;
+}
+
 .section-fields > .field.editable > .field-value.multi-picklist > div { background : none !important; }
 
 
@@ -215,6 +233,13 @@
     width : unset;
 }
 
+/* READ-ONLY DISPLAY */
+.panel-content.readonly > .section-fields {
+    gap : 4px;
+}
+.panel-content.readonly > .section-fields > .field > .field-label {
+    padding-top  : 0px;
+}
 
 /* ENABLE COMPACT DISPLAY */
 .compact .section-fields { padding : 4px 10px; }
@@ -231,9 +256,11 @@
 
 
 /* ENABLE NARROW DISPLAY */
-.narrow .section-fields { padding : 4px 4px; display : flex; flex-direction : column; gap : 14px; }
-.narrow .section-fields .field { flex-direction : column; gap : 6px; }
-.narrow .section-fields .field-label { font-weight : normal; padding : 0px 6px; text-align : left; width : 100%; }
+.narrow.panel-content.readonly .section-fields,
+.narrow .section-fields { padding : 0px; display : flex; flex-direction : column; gap : 0px; }
+.narrow .section-fields .field.readonly,
+.narrow .section-fields .field { flex-direction : column; gap : 2px; padding : 8px 12px; }
+.narrow .section-fields .field-label { font-weight : bold; padding : 0px; text-align : left; width : 100%; }
 .narrow .section-fields .field-value.image > img { max-width : 150px; }
 .narrow .section-fields .field-value.readonly input { padding : 0px 6px; }
 .narrow .section-fields .field-value.readonly div { padding : 0px 0px; }
@@ -242,18 +269,25 @@
 .narrow .section-fields .field-value.radio { padding-left : 6px; padding-right : 6px; }
 .narrow .section-fields .field .field-unit { padding : 0px; }
 .narrow p { margin : 0px;  padding : 0px; }
+.narrow .field:nth-child(odd)  { background : var(--color-surface-level-1); }
+.narrow .field:nth-child(even) { background : var(--color-surface-level-2); }
+
 
 
 /*  ATTACHMENTS */
 /* ----------------------------------------------------------------------------- */
-.attachments-list {
-    display     : flex;
-    gap         : var(--spacer-xs);  
-    overflow-y  : auto;
-}
-.no-header > .attachments-list {
+.no-header > .attachments-content {
     top : 0px;
 }
+#frame-download {
+    display : none;
+}
+
+/* ----- Processing ----- */
+.attachments > .processing { top : calc(50% + 18px); }
+.attachments.no-header > .processing { top : calc(50% - 15px); } 
+
+/* ----- Folder ----- */
 .folder {
     background    : var(--color-surface-level-2);
     margin-bottom : 10px;
@@ -282,34 +316,16 @@
 .folder.collapsed .folder-toggle::before {
     content : '\e5cc';
 }
-.attachment {
-    cursor  : pointer;
-    padding : 8px 20px 8px 10px;
-}
+
+/* ----- Attachment ----- */
 .attachment-graphic { 
     display         : flex;
     flex-direction  : column;
     justify-content : center;
-    min-width       : 64px;
-    width           : 64px;
 }
 .attachment-graphic > img { 
-    height      : 80%;
+    margin      : auto;
     object-fit  : contain;
-    width       : 80%;
-}
-.attachment-details {
-    overflow    : hidden;
-    max-width   : calc(100% - 90px);
-}
-.attachment-name {
-    font-weight : 700;
-    line-height : 24px;
-}
-.attachment-version {
-    background      : var(--color-surface-level-5);
-    border-radius   : 3px;
-    padding         : 0px 6px;
 }
 .attachment-version, 
 .attachment-size, 
@@ -318,146 +334,160 @@
     font-size   : 12px;
     line-height : 16px;
 }
-#frame-download {
-    display : none;
+.attachment-version {
+    background      : var(--color-surface-level-5);
+    border-radius   : 3px;
+    max-width       : 26px;
+    min-width       : 26px;
+    padding         : 0px 6px;
+    text-align      : center;
 }
-.xxxs .attachment {
-    padding : 4px 10px;
+.attachment-date {
+    width : 130px;
 }
-.xxxs .attachment-user,
-.xxxs .attachment-date {
-    display : none;
+.attachment-user {
+    display : flex;
+    gap : 4px;
+}
+.attachment-user > .icon {
+    font-size   : 16px;
+    line-height : 14px;
 }
 
-.no-attachments-header > .attachments {
-    top : 0px;
-}
+/* ----- Theme ----- */
+.panel-top.surface-level-5 > .panel-content > .attachment .attachment-version { background : var(--color-surface-level-3); }
 
-.attachments-list.tiles {
-    flex-direction  : row;
-    flex-wrap       : nowrap;
-    gap             : var(--spacer-xxxs);
-    overflow-y      : auto;
+/* ----- Attachments Grid ----- */
+.tiles.grid.l   .attachment { height : 120px; max-height : 120px; }
+.tiles.grid.xl  .attachment { height : 190px; max-height : 190px; }
+.tiles.grid.xxl .attachment { height : 280px; max-height : 280px; }
+
+.tiles.grid.xxs .attachment-graphic > img { height :  12px; width :  12px; }
+.tiles.grid.xs  .attachment-graphic > img { height :  16px; width :  16px; }
+.tiles.grid.s   .attachment-graphic > img { height :  24px; width :  24px; }
+.tiles.grid.m   .attachment-graphic > img { height :  36px; width :  36px; }
+.tiles.grid.l   .attachment-graphic > img { height :  34px; width :  34px; }
+.tiles.grid.xl  .attachment-graphic > img { height :  48px; width :  48px; }
+.tiles.grid.xxl .attachment-graphic > img { height : 110px; width : 110px; }
+
+.tiles.grid.l   .attachment-graphic { height :  50px; max-height :  50px; min-height :  50px; }
+.tiles.grid.xl  .attachment-graphic { height :  74px; max-height :  74px; min-height :  74px; }
+.tiles.grid.xxl .attachment-graphic { height : 150px; max-height : 150px; min-height : 150px; }
+
+.tiles.grid.xxs .attachment-details { margin-top :  0px; }
+.tiles.grid.xs  .attachment-details { margin-top :  0px; }
+.tiles.grid.s   .attachment-details { margin-top :  4px; }
+.tiles.grid.m   .attachment-details { margin-top : 10px; }
+
+.tiles.grid.s   .attachment-summary { flex-direction : row; gap : 8px; } 
+.tiles.grid.m   .attachment-summary { flex-direction : row; gap : 8px; } 
+.tiles.grid.l   .attachment-summary { flex-direction : row; gap : 16px; margin : auto; }
+.tiles.grid.xl  .attachment-summary { width : 100%; }
+.tiles.grid.xxl .attachment-summary { width : 100%; }
+
+.tiles.grid.l   .attachment-summary > div { margin : auto; text-align : center; }
+.tiles.grid.xl  .attachment-summary > div { margin : auto; text-align : center; }
+.tiles.grid.xxl .attachment-summary > div { margin : auto; text-align : center; }
+
+.tiles.grid.s  .attachment-name { line-height : 22px; font-size : 12px; font-weight : bold; }
+.tiles.grid.s  .attachment-size, 
+.tiles.grid.s  .attachment-user { display : none; }
+.tiles.grid.m  .attachment-user, .tiles.grid.m .attachment-size { display : none; }
+.tiles.grid.l  .attachment-user, .tiles.grid.l .attachment-date { display : none; }
+.tiles.grid.xl .attachment-user { display : none; }
+
+/* ----- Attachments Row ----- */
+.tiles.row.l   .attachment { height : 120px; max-height : 120px; }
+.tiles.row.xl  .attachment { height : 190px; max-height : 190px; }
+.tiles.row.xxl .attachment { height : 280px; max-height : 280px; }
+
+.tiles.row.xxs .attachment-graphic > img { height :  12px; width :  12px; }
+.tiles.row.xs  .attachment-graphic > img { height :  16px; width :  16px; }
+.tiles.row.s   .attachment-graphic > img { height :  24px; width :  24px; }
+.tiles.row.m   .attachment-graphic > img { height :  36px; width :  36px; }
+.tiles.row.l   .attachment-graphic > img { height :  34px; width :  34px; }
+.tiles.row.xl  .attachment-graphic > img { height :  48px; width :  48px; }
+.tiles.row.xxl .attachment-graphic > img { height : 110px; width : 110px; }
+
+.tiles.row.l   .attachment-graphic { height :  50px; max-height :  50px; min-height :  50px; }
+.tiles.row.xl  .attachment-graphic { height :  74px; max-height :  74px; min-height :  74px; }
+.tiles.row.xxl .attachment-graphic { height : 150px; max-height : 150px; min-height : 150px; }
+
+.tiles.row.xxs .attachment-details { margin-top :  0px; }
+.tiles.row.xs  .attachment-details { margin-top :  0px; }
+.tiles.row.s   .attachment-details { margin-top :  4px; }
+.tiles.row.m   .attachment-details { margin-top : 10px; }
+
+.tiles.row.s   .attachment-summary { flex-direction : row; gap : 8px; } 
+.tiles.row.m   .attachment-summary { flex-direction : row; gap : 8px; } 
+.tiles.row.l   .attachment-summary { flex-direction : row; gap : 16px; margin : auto; }
+.tiles.row.xl  .attachment-summary { width : 100%; }
+.tiles.row.xxl .attachment-summary { width : 100%; }
+
+.tiles.row.l   .attachment-summary > div { margin : auto; text-align : center; }
+.tiles.row.xl  .attachment-summary > div { margin : auto; text-align : center; }
+.tiles.row.xxl .attachment-summary > div { margin : auto; text-align : center; }
+
+.tiles.row.s  .attachment-name { line-height : 22px; font-size : 12px; font-weight : bold; }
+.tiles.row.s  .attachment-size, 
+.tiles.row.s  .attachment-user { display : none; }
+.tiles.row.m  .attachment-user, .tiles.row.m .attachment-size { display : none; }
+.tiles.row.l  .attachment-user, .tiles.row.l .attachment-date { display : none; }
+.tiles.row.xl .attachment-user { display : none; }
+
+/* ----- Attachments List ----- */
+.tiles.list.xxs .attachment-graphic > img { height : 12px; width :  12px; }
+.tiles.list.xs  .attachment-graphic > img { height : 18px; width :  18px; }
+.tiles.list.s   .attachment-graphic > img { height : 28px; width :  28px; }
+.tiles.list.m   .attachment-graphic > img { height : 42px; width :  42px; }
+.tiles.list.l   .attachment-graphic > img { height : 52px; width :  52px; }
+.tiles.list.xl  .attachment-graphic > img { height : 68px; width :  68px; }
+.tiles.list.xxl .attachment-graphic > img { height : 90px; width :  90px; }
+
+.tiles.list.xxs .attachment-details { flex-direction : row; justify-content: space-between; }
+.tiles.list.xs  .attachment-details { flex-direction : row; justify-content: space-between; }
+.tiles.list.s   .attachment-details { flex-direction : row; justify-content: space-between; }
+.tiles.list.xl  .attachment-details { margin-top : 8px; }
+.tiles.list.xxl .attachment-details { margin-top : 8px; }
+
+.tiles.list.xxs .attachment-name { width : calc(100% - 134px); }
+.tiles.list.xs  .attachment-name { width : calc(100% - 134px); font-size : 12px; }
+.tiles.list.s   .attachment-name { width : calc(100% -  58px); }
+
+.tiles.list.xxs .attachment-summary { width : 120px; min-width : 120px; max-width : 120px; flex-direction : row; justify-content: space-between; }
+.tiles.list.xs  .attachment-summary { width : 120px; min-width : 120px; max-width : 120px; flex-direction : row; justify-content: space-between; }
+.tiles.list.s   .attachment-summary { width :  38px; min-width :  38px; max-width :  38px; flex-direction : row; justify-content: space-between; }
+.tiles.list.m   .attachment-summary { gap : 12px; flex-direction : row; justify-content: space-between; }
+.tiles.list.l   .attachment-summary { gap : 16px; flex-direction : row; justify-content: space-between; }
+.tiles.list.xl  .attachment-summary { gap : 4px; display: grid; grid-template-rows: 1fr 1fr; grid-template-columns: 1fr 1fr; }
+.tiles.list.xxl .attachment-summary { gap : 2px; }
+
+.tiles.list.xxs .attachment-summary > div { line-height : 18px; margin-top :  4px; }
+.tiles.list.xs  .attachment-summary > div { line-height : 18px; margin-top :  8px; }
+.tiles.list.s   .attachment-summary > div { line-height : 28px; margin-top : 10px; }
+
+.tiles.list.xxs .attachment-user, .tiles.list.xxs .attachment-date { display : none; }
+.tiles.list.xs  .attachment-user, .tiles.list.xs  .attachment-date { display : none; }
+.tiles.list.s   .attachment-user, .tiles.list.s   .attachment-date, .tiles.list.s  .attachment-size { display : none; }
+
+.tiles.list.xl  .attachment-version { order : 1; }
+.tiles.list.xl  .attachment-size    { order : 3; }
+.tiles.list.xl  .attachment-date    { order : 2; }
+.tiles.list.xl  .attachment-user    { order : 4; }
+
+
+.attachments-separator {
+    border-bottom   : 1px solid var(--color-surface-level-3);
+    margin          : 8px 0px 2px;
+    padding         : 4px 0px 4px;
+    text-align      : center;
 }
-.attachments-list.tiles .attachment {
-    height      : unset;
-    padding     : 8px 16px 8px 16px;
-    text-align  : center;
-}
-.attachments-list.tiles .attachment-graphic {
-    display         : flex;
-    flex-direction  : column;
-    justify-content : center;
-    width           : 100% !important;
-}
-.attachments-list.tiles .attachment-graphic > img {
-    width : 100% !important;
-}
-.attachments-list.tiles.xxs > .attachment { min-width : 120px; width : 120px; }
-.attachments-list.tiles.xs  > .attachment { min-width : 120px; width : 120px; }
-.attachments-list.tiles.s   > .attachment { min-width : 160px; width : 160px; }
-.attachments-list.tiles.m   > .attachment { min-width : 160px; width : 160px; }
-.attachments-list.tiles.l   > .attachment { min-width : 180px; width : 180px; }
-.attachments-list.tiles.xl  > .attachment { min-width : 200px; width : 200px; }
-.attachments-list.tiles.xxl > .attachment { min-width : 220px; width : 220px; }
-.attachments-list.tiles.xxs .attachment-graphic, .attachments-list.tiles.xxs .attachment-graphic > img { height :  16px; min-width:  16px; width :  16px; }
-.attachments-list.tiles.xs  .attachment-graphic, .attachments-list.tiles.xs  .attachment-graphic > img { height :  24px; min-width:  24px; width :  24px; }
-.attachments-list.tiles.s   .attachment-graphic, .attachments-list.tiles.s   .attachment-graphic > img { height :  32px; min-width:  32px; width :  32px; }
-.attachments-list.tiles.m   .attachment-graphic, .attachments-list.tiles.m   .attachment-graphic > img { height :  48px; min-width:  48px; width :  48px; }
-.attachments-list.tiles.l   .attachment-graphic, .attachments-list.tile0s.l  .attachment-graphic > img { height :  64px; min-width:  64px; width :  64px; }
-.attachments-list.tiles.xl  .attachment-graphic, .attachments-list.tiles.xl  .attachment-graphic > img { height :  96px; min-width:  96px; width :  96px; }
-.attachments-list.tiles.xxl .attachment-graphic, .attachments-list.tiles.xxl .attachment-graphic > img { height : 128px; min-width: 128px; width : 128px; }
-.attachments-list.tiles .attachment-details {
-    max-width : 100%;
-}
-.attachments-list.tiles .attachment-version {
+.attachment-graphic > .icon {
+    font-weight : 200;
     margin      : auto;
-    max-width   : 26px;
-}
-.attachments-list.tiles.xxs .attachment-user,
-.attachments-list.tiles.xs .attachment-user,
-.attachments-list.tiles.xxs .attachment-date,
-.attachments-list.tiles.xs .attachment-date {
-    display : none;
 }
 
-.attachments-list.list {
-    display         : flex;
-    flex-direction  : column;
-    gap             : var(--spacer-xxxs);
-    overflow-x      : auto;
-}
-.attachments-list.list .attachment {
-    display     : flex;
-    gap         : var(--spacer-s);
-    padding     : var(--spacer-s);
-    width       : unset !important;
-}
-.attachments-list.list .attachment-details {
-    max-width : calc(100% - 52px);
-    width     : calc(100% - 52px);
-}
-.attachments-list.list .attachment-name {
-    display     : inline-flex;
-    font-weight : bold;
-}
-.attachments-list.list .attachment-summary {
-    display         : flex;
-    flex-direction  : row;
-    gap             : var(--spacer-m);
-}
-
-.attachments-list.list.xxl,
-.attachments-list.list.xl {
-    gap : var(--spacer-xxs);
-}
-
-.attachments-list.list.xxs > .attachment { padding: var(--spacer-xxs); height : 12px ! important; min-height : 12px ! important; }
-.attachments-list.list.xs >  .attachment { padding: var(--spacer-xs);  height : 18px ! important; min-height : 18px ! important; }
-.attachments-list.list.s >   .attachment { padding: var(--spacer-s);   height : 24px ! important; min-height : 24px ! important; }
-.attachments-list.list.m >   .attachment { padding: var(--spacer-s);   height : 32px ! important; min-height : 32px ! important; }
-.attachments-list.list.l >   .attachment { padding: var(--spacer-s);   height : 36px ! important; min-height : 36px ! important; }
-.attachments-list.list.xl >  .attachment { padding: var(--spacer-m);   height : 42px ! important; min-height : 42px ! important; }
-.attachments-list.list.xxl > .attachment { padding: var(--spacer-m);   height : 48px ! important; min-height : 48px ! important; }
-
-.attachments-list.list.xxs .attachment-graphic, .attachments-list.list.xxs .attachment-graphic > img { height : 12px; min-width: 12px; width : 12px; }
-.attachments-list.list.xs  .attachment-graphic, .attachments-list.list.xs  .attachment-graphic > img { height : 18px; min-width: 18px; width : 18px; }
-.attachments-list.list.s   .attachment-graphic, .attachments-list.list.s   .attachment-graphic > img { height : 24px; min-width: 24px; width : 24px; }
-.attachments-list.list.m   .attachment-graphic, .attachments-list.list.m   .attachment-graphic > img { height : 32px; min-width: 32px; width : 32px; }
-.attachments-list.list.l   .attachment-graphic, .attachments-list.list.l   .attachment-graphic > img { height : 36px; min-width: 16px; width : 36px; }
-.attachments-list.list.xl  .attachment-graphic, .attachments-list.list.xl  .attachment-graphic > img { height : 42px; min-width: 16px; width : 42px; }
-.attachments-list.list.xxl .attachment-graphic, .attachments-list.list.xxl .attachment-graphic > img { height : 48px; min-width: 16px; width : 48px; }
-
-.attachments-list.list.xxs div { line-height : 12px; }
-.attachments-list.list.xs  div { line-height : 18px; }
-.attachments-list.list.s   div { line-height : 24px; }
-.attachments-list.list.m   div { line-height : 16px; }
-.attachments-list.list.l   div { line-height : 18px; }
-.attachments-list.list.xl  div { line-height : 21px; }
-.attachments-list.list.xxl div { line-height : 24px; }
-
-.attachments-list.list.xxl  .attachment-name,
-.attachments-list.list.xl   .attachment-name,
-.attachments-list.list.xxl  .attachment-summary > div,
-.attachments-list.list.xl   .attachment-summary > div {
-    font-size : 14px;
-}  
-
-.attachments-list.list.xxs .attachment-user, .attachments-list.list.xxs .attachment-date,
-.attachments-list.list.xs .attachment-user, .attachments-list.list.xs .attachment-date {
-    display : none;
-}
-.attachments-list.list.xxs .attachment-details,
-.attachments-list.list.xs .attachment-details,
-.attachments-list.list.s .attachment-details {
-    display         : flex;
-    flex-direction  : row;
-    gap             : var(--spacer-xxs);
-    justify-content : space-between;
-}
-
-
-.attachments-list.table {
+.attachments-content.table {
     display : block;
 }
 .attachments-table {
@@ -468,47 +498,38 @@
     width   : auto;
 }
 .attachments-table > .attachment > div {
-    border-bottom : 2px solid white;
+    border-bottom : 2px solid transparent;
     display : table-cell;
 }
 
-.attachments-list.table.xxs .attachment-graphic, .attachments-list.table.xxs .attachment-graphic > img { height : 12px; min-width: 12px; width : 12px; }
-.attachments-list.table.xs  .attachment-graphic, .attachments-list.table.xs  .attachment-graphic > img { height : 12px; min-width: 12px; width : 12px; }
-.attachments-list.table.s   .attachment-graphic, .attachments-list.table.s   .attachment-graphic > img { height : 16px; min-width: 16px; width : 16px; }
-.attachments-list.table.m   .attachment-graphic, .attachments-list.table.m   .attachment-graphic > img { height : 16px; min-width: 16px; width : 16px; }
-.attachments-list.table.l   .attachment-graphic, .attachments-list.table.l   .attachment-graphic > img { height : 16px; min-width: 16px; width : 16px; }
-.attachments-list.table.xl  .attachment-graphic, .attachments-list.table.xl  .attachment-graphic > img { height : 16px; min-width: 16px; width : 16px; }
-.attachments-list.table.xxl .attachment-graphic, .attachments-list.table.xxl .attachment-graphic > img { height : 16px; min-width: 16px; width : 16px; }
+.attachments-content.table.xxs .attachment-graphic, .attachments-content.table.xxs .attachment-graphic > img { height : 12px; min-width: 12px; width : 12px; }
+.attachments-content.table.xs  .attachment-graphic, .attachments-content.table.xs  .attachment-graphic > img { height : 12px; min-width: 12px; width : 12px; }
+.attachments-content.table.s   .attachment-graphic, .attachments-content.table.s   .attachment-graphic > img { height : 16px; min-width: 16px; width : 16px; }
+.attachments-content.table.m   .attachment-graphic, .attachments-content.table.m   .attachment-graphic > img { height : 16px; min-width: 16px; width : 16px; }
+.attachments-content.table.l   .attachment-graphic, .attachments-content.table.l   .attachment-graphic > img { height : 16px; min-width: 16px; width : 16px; }
+.attachments-content.table.xl  .attachment-graphic, .attachments-content.table.xl  .attachment-graphic > img { height : 16px; min-width: 16px; width : 16px; }
+.attachments-content.table.xxl .attachment-graphic, .attachments-content.table.xxl .attachment-graphic > img { height : 16px; min-width: 16px; width : 16px; }
 
-.attachments-list.table.xxs .attachment > div { font-size : 12px; height : 16px; line-height : 16px; padding : 2px  8px; }
-.attachments-list.table.xs  .attachment > div { font-size : 12px; height : 18px; line-height : 18px; padding : 4px  8px; }
-.attachments-list.table.s   .attachment > div { font-size : 14px; height : 24px; line-height : 24px; padding : 2px 10px; }
-.attachments-list.table.m   .attachment > div { font-size : 14px; height : 32px; line-height : 32px; padding : 2px 10px; }
-.attachments-list.table.l   .attachment > div { font-size : 14px; height : 36px; line-height : 36px; padding : 2px 10px; }
-.attachments-list.table.xl  .attachment > div { font-size : 14px; height : 42px; line-height : 42px; padding : 2px 10px; }
-.attachments-list.table.xxi .attachment > div { font-size : 14px; height : 64px; line-height : 64px; padding : 4px 14px; }
+.attachments-content.table.xxs .attachment > div { font-size : 12px; height : 16px; line-height : 16px; padding : 2px  8px; }
+.attachments-content.table.xs  .attachment > div { font-size : 12px; height : 18px; line-height : 18px; padding : 4px  8px; }
+.attachments-content.table.s   .attachment > div { font-size : 14px; height : 24px; line-height : 24px; padding : 2px 10px; }
+.attachments-content.table.m   .attachment > div { font-size : 14px; height : 32px; line-height : 32px; padding : 2px 10px; }
+.attachments-content.table.l   .attachment > div { font-size : 14px; height : 36px; line-height : 36px; padding : 2px 10px; }
+.attachments-content.table.xl  .attachment > div { font-size : 14px; height : 42px; line-height : 42px; padding : 2px 10px; }
+.attachments-content.table.xxi .attachment > div { font-size : 14px; height : 64px; line-height : 64px; padding : 4px 14px; }
 
 .attachments-table > .attachment > .attachment-version { border-radius : 0px; }
 .attachments-table > .attachment > .attachment-size { text-align : right; }
 
 
-.surface-level-1 .attachment { background-color : var(--color-surface-level-3); }
-.surface-level-2 .attachment { background-color : var(--color-surface-level-4); }
-.surface-level-3 .attachment { background-color : var(--color-surface-level-5); }
-.surface-level-4 .attachment { background-color : var(--color-surface-level-2); }
-.surface-level-5 .attachment { background-color : var(--color-surface-level-2); }
-.surface-level-1 .attachment:hover { background-color : var(--color-surface-level-4); }
-.surface-level-2 .attachment:hover { background-color : var(--color-surface-level-5); }
-.surface-level-3 .attachment:hover { background-color : var(--color-surface-level-4); }
-.surface-level-4 .attachment:hover { background-color : var(--color-surface-level-3); }
-.surface-level-5 .attachment:hover { background-color : var(--color-surface-level-3); }
-
-.attachments > .processing { top : calc(50% + 18px); }
-.attachments.no-header > .processing { top : calc(50% - 15px); }
+/* .panel-top.surface-level-1 > .panel-content > div > .attachment > div { border-color : var(--color-surface-level-1); }
+.panel-top.surface-level-2 > .panel-content > div > .attachment > div { border-color : var(--color-surface-level-2); }
+.panel-top.surface-level-3 > .panel-content > div > .attachment > div { border-color : var(--color-surface-level-3); }
+.panel-top.surface-level-4 > .panel-content > div > .attachment > div { border-color : var(--color-surface-level-4); }
+.panel-top.surface-level-5 > .panel-content > div > .attachment > div { border-color : var(--color-surface-level-5); } */
 
 
-
-/*  BOM */
+/*  BOM / TREE DISPLAY */
 /* ----------------------------------------------------------------------------- */
 .bom-multi-select-action,
 .bom-single-select-action {
@@ -520,36 +541,37 @@
 .bom-table {
     table-layout: fixed;
 }
-.bom-item {
+.content-item {
     cursor : pointer;
 }
-.bom-item > td {
-    padding : 4px 6px;
+.content-item > td {
+    padding     : 8px 8px;
+    white-space : nowrap;
 }
-.bom-item > td:first-child {
+.content-item > td:first-child {
     border-left : 1px solid transparent;
 }
-.bom-item > td:last-child {
+.content-item > td:last-child {
     border-right : 1px solid transparent;
 }
-.bom-item.result > td.bom-color { 
+.content-item.result > td.bom-color { 
     background : var(--color-status-yellow); 
 }
 
-.bom-item.selected > td {
+.content-item.selected > td {
     background : var(--color-selected-background);
 }
-.bom-item:hover td {
+.content-item:hover td {
     background-color : var(--color-hover-background) !important;
     border-color     : var(--color-blue-500) !important;
-}
-.bom-hidden {
-    display : none !important;
 }
 .bom-color {
     background  : transparent;
     padding     : 0px !important;
     width       : 6px;
+    position    : sticky;
+    left        : 0;
+    z-index     : 6;
 }
 .bom-nav {
     cursor          : pointer;
@@ -563,7 +585,7 @@
 .bom-nav:before { 
     content: '\e5cf';
  }
-.bom-item.collapsed .bom-nav:before { 
+.content-item.collapsed .bom-nav:before { 
     content: '\e5cc'; 
 }
 .bom-nav:hover { 
@@ -573,21 +595,28 @@
     white-space     : nowrap;
     overflow        : hidden;
     text-overflow   : ellipsis;
+    position        : sticky;
+    left            : 1px;
+    z-index         : 6;
 }
 .bom-number {
     min-width   : 28px;
-    padding     : 5px;
+    padding     : 0px 5px;
     font-weight : bold;
     display     : inline-block;
 }   
 .bom-descriptor {
-    padding : 4px;
+    padding : 0px 4px;
+}
+.bom-actions {
+    display : flex;
+    gap     : 4px;
 }
 .bom-actions > div {
     display : none;
 }
-.bom-item:hover .bom-actions > div {
-    display : flex;
+.content-item:hover .bom-actions > div {
+    display : block;
 }
 .bom-column-icon {
     padding     : 2px 0px 0px !important;
@@ -602,12 +631,10 @@
     color       : var(--color-status-red);
 }
 .bom-column-quantity {
-    text-align : right;
-}
-.bom-quantity {
     font-weight : bold;
     text-align  : right;
-    width       : 50px;
+    max-width   : 60px;
+    width       : 60px;
 }
 .bom-content {
     bottom : 73px;
@@ -615,13 +642,14 @@
 
 
 .bom-path {
+    display         : flex;
     font-size       : 12px;
     gap             : 36px;
     padding         : 0px;
     justify-content : flex-start;
     position        : absolute;
     right           : 0px;
-    bottom          : 38px;
+    bottom          : 0px;
     left            : 0px;
 }
 .bom-path-parent {
@@ -708,18 +736,15 @@
     background  : var(--color-surface-level-5);
     padding     : 16px;
 }
-.no-bom-path .bom-content {
-    bottom : 42px;
-} 
 .no-bom-counters .bom-content {
     bottom : 34px;
 }
 .no-bom-counters .bom-path {
     bottom : 0px;
 }
-.no-bom-path.no-bom-counters .bom-content {
-    bottom : 0px;
-}
+.panel-top.with-bom-path > .panel-content { bottom : 38px; }
+.panel-top.with-panel-counters.with-bom-path > .bom-path { bottom : 38px; }
+.panel-top.with-panel-counters.with-bom-path > .panel-content { bottom : 76px; }
 
 
 
@@ -756,29 +781,30 @@
 .bom-counter-selected.not-empty {
     border-color : var(--color-hover-border) !important;
 }
+.bom .panel-counter-changed { display : none; }
 
 
-.bom-level-1  .bom-first-col { padding-left :  25px; }
-.bom-level-2  .bom-first-col { padding-left :  46px; }
-.bom-level-3  .bom-first-col { padding-left :  66px; }
-.bom-level-4  .bom-first-col { padding-left :  86px; }
-.bom-level-5  .bom-first-col { padding-left : 106px; }
-.bom-level-6  .bom-first-col { padding-left : 126px; }
-.bom-level-7  .bom-first-col { padding-left : 146px; }
-.bom-level-8  .bom-first-col { padding-left : 166px; }
-.bom-level-9  .bom-first-col { padding-left : 186px; }
-.bom-level-10 .bom-first-col { padding-left : 206px; }
+.level-1  .bom-first-col { padding-left :  25px; }
+.level-2  .bom-first-col { padding-left :  46px; }
+.level-3  .bom-first-col { padding-left :  66px; }
+.level-4  .bom-first-col { padding-left :  86px; }
+.level-5  .bom-first-col { padding-left : 106px; }
+.level-6  .bom-first-col { padding-left : 126px; }
+.level-7  .bom-first-col { padding-left : 146px; }
+.level-8  .bom-first-col { padding-left : 166px; }
+.level-9  .bom-first-col { padding-left : 186px; }
+.level-10 .bom-first-col { padding-left : 206px; }
 
-tr.node.bom-level-1  .bom-first-col  { padding-left :   4px; }
-tr.node.bom-level-2  .bom-first-col  { padding-left :  26px; }
-tr.node.bom-level-3  .bom-first-col  { padding-left :  46px; }
-tr.node.bom-level-4  .bom-first-col  { padding-left :  66px; }
-tr.node.bom-level-5  .bom-first-col  { padding-left :  86px; }
-tr.node.bom-level-6  .bom-first-col  { padding-left : 106px; }
-tr.node.bom-level-7  .bom-first-col  { padding-left : 126px; }
-tr.node.bom-level-8  .bom-first-col  { padding-left : 146px; }
-tr.node.bom-level-9  .bom-first-col  { padding-left : 166px; }
-tr.node.bom-level-10 .bom-first-col  { padding-left : 186px; }
+tr.node.level-1  .bom-first-col  { padding-left :   4px; }
+tr.node.level-2  .bom-first-col  { padding-left :  26px; }
+tr.node.level-3  .bom-first-col  { padding-left :  46px; }
+tr.node.level-4  .bom-first-col  { padding-left :  66px; }
+tr.node.level-5  .bom-first-col  { padding-left :  86px; }
+tr.node.level-6  .bom-first-col  { padding-left : 106px; }
+tr.node.level-7  .bom-first-col  { padding-left : 126px; }
+tr.node.level-8  .bom-first-col  { padding-left : 146px; }
+tr.node.level-9  .bom-first-col  { padding-left : 166px; }
+tr.node.level-10 .bom-first-col  { padding-left : 186px; }
 
 .bom.compact > .panel-content > .bom-table > .bom-thead > tr > th { font-size : 12px; padding : 6px 8px; }
 .bom.compact > .panel-content > .bom-table > .bom-tbody > tr > td { font-size : 12px; }
@@ -792,15 +818,42 @@ tr.node.bom-level-10 .bom-first-col  { padding-left : 186px; }
 
 
 
+/*  WHERE USED ROOT ITEMS */
+/* ----------------------------------------------------------------------------- */
+.roots-parent {
+    display     : flex;
+    line-height : 22px;
+}
+.parent.top {
+    border-top : 1px solid var(--color-surface-level-1);
+}
+.parent.top:first-of-type {
+    border-top : none; 
+}
+.roots-parent-path {
+    cursor : pointer;
+    color : var(--color-blue-500);
+    display : flex;
+    margin-left : 8px;
+    padding : 3px 12px;
+}
+.roots-parent-path .icon {
+    color        : var(--color-font);
+    font-size    : 20px;
+    line-height  : 21px;
+    margin-right : 8px;
+}
+
+
 /*  LIST */
 /* ----------------------------------------------------------------------------- */
 .with-counters > .panel-list {
     bottom : 40px;
 }
-.list-single-select-action,
+/* .list-single-select-action,
 .list-multi-select-action {
     display : none;
-}
+} */
 .list-filter-empty.selected,
 .list-filter-selected.selected {
     background   : var(--color-status-yellow) !important;
@@ -955,10 +1008,10 @@ tr.list-item > td.changed > select {
 
 /*  FLAT BOM */
 /* ----------------------------------------------------------------------------- */
-/* .flat-bom-item:last-of-type {
+/* .flat-content-item:last-of-type {
     border-bottom : none;
 }
-.flat-bom-item.unread { 
+.flat-content-item.unread { 
     font-weight : bold; 
 }
 .flat-bom-title {
@@ -979,16 +1032,18 @@ tr.list-item > td.changed > select {
     margin-left: var(--spacer-s);
     text-align: center;
 }
-.flat-bom-item:hover .flat-bom-actions > span {
+.flat-content-item:hover .flat-bom-actions > span {
     display : block;
 } */
-/* .flat-bom-item > td:first-of-type {
+/* .flat-content-item > td:first-of-type {
     border-left : 1px solid transparent;
 } */
-/* .flat-bom-item > td:last-of-type {
+/* .flat-content-item > td:last-of-type {
     border-right : 1px solid transparent;
 } */
 /* .no-actions .flat-bom-title { width : calc(100% - 50px); } */
+.flat-bom .panel-counter-unique { display : none; }
+
 
 
 /*  CHANGE PROCESSES */
@@ -1036,7 +1091,10 @@ tr.list-item > td.changed > select {
 
 /*  WORKFLOW */
 /* ----------------------------------------------------------------------------- */
-.workflowh-history-event {
+.workflow-history-content {
+    flex-direction : column;
+}
+.workflow-history-event {
     border-bottom   : none;
     border-left     : 1px solid var(--color-gray-300);
     margin-bottom   : -4px;
@@ -1050,7 +1108,6 @@ tr.list-item > td.changed > select {
     font-weight : 800;
     gap         : 4px;
     line-height : 24px;
-    margin      : 3px 0px 1px;
     position    : relative;
     left        : -27px;
 }
@@ -1087,8 +1144,58 @@ tr.list-item > td.changed > select {
     padding         : 14px 20px;
     border-radius   : 4px;
     margin          : 0px 0px 20px 0px;
+    width           : calc(100% - 40px);
 }
 .workflow-next-title {
     font-weight     : bold;
     margin-bottom   : 4px;
 }
+.panel-top.surface-level-1 > .panel-content > .workflow-history-event .workflow-history-action-icon::before { background : var(--color-surface-level-1); }
+.panel-top.surface-level-2 > .panel-content > .workflow-history-event .workflow-history-action-icon::before { background : var(--color-surface-level-2); }
+.panel-top.surface-level-3 > .panel-content > .workflow-history-event .workflow-history-action-icon::before { background : var(--color-surface-level-3); }
+.panel-top.surface-level-4 > .panel-content > .workflow-history-event .workflow-history-action-icon::before { background : var(--color-surface-level-4); }
+.panel-top.surface-level-5 > .panel-content > .workflow-history-event .workflow-history-action-icon::before { background : var(--color-surface-level-5); }
+
+
+
+/*  CHANGE LOG */
+/* ----------------------------------------------------------------------------- */
+.change-log-number {
+    max-width   : 34px;
+    text-align  : right;
+    width       : 34px;
+}
+.change-log-date {
+    max-width   : 70px;
+    width       : 70px;
+}
+.change-log-user {
+    max-width   : 160px;
+    width       : 160px;
+}
+.change-log-action {
+    max-width   : 160px;
+    width       : 160px;
+}
+.change-log-details {
+    display         : flex;
+    flex-direction  : column;
+    gap             : 6px;
+    padding         : 4px;
+}
+.change-log-details > div {
+    display     : flex;
+    white-space : nowrap;
+}
+.change-log-details span { 
+    border-radius   : 4px; 
+    line-height     : 22px;
+    padding         : 0px 10px; 
+}
+.change-log-details p {
+    margin  : 0px;
+    padding : 0px;
+}
+.change-log-detail-field { font-size : 12px; background : var(--color-surface-level-1);  }
+.change-log-detail-old   { font-size : 12px; background : var(--color-status-red);      color : white; }
+.change-log-detail-new   { font-size : 12px; background : var(--color-status-green);    color : white; }

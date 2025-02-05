@@ -1,0 +1,42 @@
+/* LOGIN PAGE */
+/* ----------------------------------------------------------------------------- */
+body.embedded {
+    font-size   : 14px;
+    line-height : 20px;
+}
+#validation-title {
+    max-width   : 150px;
+    position    : absolute;
+    text-align  : center;
+    top         : calc(50% - 72px);
+    left        : calc(50% - 75px);
+    width       : 150px;
+}
+#validation {
+    top         : 0px;
+    right       : 0px;
+    bottom      : 0px;
+    left        : 0px;
+}
+.processing > div {
+    background-color : var(--color-blue-500) !important;
+}
+.error { 
+    border          : 16px solid var(--color-surface-level-1);
+    display         : flex; 
+    align-items     : center;
+    flex-direction  : column;
+    justify-content : center;
+    gap             : 8px;
+    height          : 150px;
+    padding         : 40px;
+    text-align      : center;
+    top             : calc(50% - 131px);
+    left            : calc(50% - 151px);
+    width           : 190px;
+}
+.error .icon {
+    color       : var(--color-status-red-bright);
+    font-size   : 60px;
+    font-weight : 200;
+}

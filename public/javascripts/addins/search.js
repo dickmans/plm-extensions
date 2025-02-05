@@ -1,200 +1,113 @@
+
 $(document).ready(function() {
 
-    appendProcessing('search');
-    appendProcessing('materials');
-    appendProcessing('recents');
-    appendProcessing('bookmarks');
+    appendOverlay(true);
+    appendProcessing('basic-search');
 
-    // insertWorkspaceViews('views', '57', '', false, 3);
-    insertWorkspaceViews('57', {
-        id : 'views'
-    });
+    // let elemList = $('<ul></ul>').appendTo($('#basic-list'));
 
+    // if(typeof chrome.webview                    === 'undefined') elemList.append('<li>1 chrome.webview does not exist</li>');
+    // if(typeof window.hostObjects                === 'undefined') elemList.append('<li>2 window.hostObjects does not exist</li>');
+    // if(typeof window.plmAddin                   === 'undefined') elemList.append('<li>3 window.plmAddin does not exist</li>');
+    // if(typeof window.webview                    === 'undefined') elemList.append('<li>4 window.webview does not exist</li>');
+    // if(typeof window.JavascriptObjectRepository === 'undefined') elemList.append('<li>5 window.JavascriptObjectRepository does not exist</li>');
+    // if(typeof window.JavaScriptInterop          === 'undefined') elemList.append('<li>6 window.JavaScriptInterop does not exist</li>');
+    // if(typeof JavaScriptInterop                 === 'undefined') elemList.append('<li>7 JavaScriptInterop does not exist</li>');
+    // if(typeof JavascriptObjectRepository        === 'undefined') elemList.append('<li>8 JavascriptObjectRepository does not exist</li>');
+
+
+    
+
+    // $('#basic-list').append($('<button onclick="document.location.href = document.location.href">Reload</button>'));
+    // $('#basic-list').append($('<button onclick="test01();">CefSharp</button>'));
+    // $('#basic-list').append($('<button onclick="test02();">gotoVaultFolder</button>'));
+
+    
     setUIEvents();
 
 });
 
 
-
 function setUIEvents() {
 
-    // Items search tab
-    $('#tab-search').click(function() {
-        $('#search-input').focus();
-    });
-    $('#search-input').keypress(function(e) {
+    $('#basic-input').focus();
+    $('#basic-input').keypress(function(e) {
         if(e.which == 13) {
-            performSearchItems();
+            performBasicSearch();
         }
     });
-    $('#search-submit').click(function() {
-        performSearchItems();
-    });
-
-
-    // Materials search tab
-    $('#tab-materials').click(function() {
-        $('#materials-input').focus();
-    });
-    $('#materials-input').keypress(function(e) {
-        if(e.which == 13) {
-            performSearchMaterials();
-        }
-    });
-    $('#materials-submit').click(function() {
-        performSearchMaterials();
-    });
-
-
-    // Recents tab
-    $('#tab-recents').click(function() {
-        insertRecentItems('recents', ['57'], 'view_in_ar');
-    });
-
-
-    // Bookmarks tab
-    $('#tab-bookmarks').click(function() {
-        insertBookmarks('bookmarks', ['57'], 'view_in_ar');
-    });
-
-
-    $('.tab').first().click();
+    $('#basic-submit').click(function() { performBasicSearch(false); });    
+    $('#basic-next'  ).click(function() { performBasicSearch(true);  });
 
 }
 
 
-// Perform searches
-function performSearchItems() {
 
-    let elemList = $('#search-list');
-        elemList.html('');
+// Perform Basic Search
+function performBasicSearch(next) {
 
-    $('#search-processing').show();
-    $('#search-no-results').hide();
+    let timestamp = new Date().getTime();
+    let elemInput = $('#basic-input');
+    let elemList  = $('#basic-list');
+    let value     = elemInput.val();
+    let url       = '/vault/search';
+    let params    = { timestamp : timestamp };
 
-    let params = {
-        'wsId'  : 57,
-        'query' : $('#search-input').val(),
-        'limit' : 30
+    if(value === '') return;
+
+    if(!next) {
+        elemList.html(''); 
+        params.query       = value,
+        params.placeholder = true,
+        params.extended    = false,
+        params.limit       = 20,
+        params.timestamp   = timestamp
+    } else {
+        url = '/vault/continue-search'
+        params.next = elemList.attr('data-next');
     }
 
-    $.get('/plm/search-descriptor', params, function(response) {
+    elemList.attr('data-timestamp', timestamp);
+    elemList.hide();
 
-        if((typeof response.data.items === 'undefined') || (response.data.items.length === 0)) {
+    $('#basic-search-processing').show();
+    $('#basic-no-results').hide();
+    $('#basic-footer').addClass('hidden');
+    $('#basic-next').hide();
 
-            $('#search-no-results').show();
+    $.get(url, params, function(response)  {       
 
-        } else {
+        if($('#basic-list').attr('data-timestamp') == response.params.timestamp) {
 
-            for(record of response.data.items) {
+            $('#basic-search-processing').hide();
 
-                let elemTile = genTile(record.__self__, '', '', 'view_in_ar', record.descriptor, record.workspaceLongName);
-                    elemTile.appendTo(elemList);
-                    elemTile.click(function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        // clickSearchResult($(this));
+            if(response.data.results.length === 0) {
+
+                $('#basic-no-results').show();
+    
+            } else {
+
+                for(let result of response.data.results) {
+                    let elemTile = genPDMTile(result, {
+                        tileNumber : elemList.children().length + 1
                     });
+                    if(elemTile !== null) elemTile.appendTo(elemList);
+                }
 
-            }
+                var counter = elemList.children().length;
+                let nextUrl = (isBlank(response.data.pagination.nextUrl)) ? '' : response.data.pagination.nextUrl;
 
-            // $('#search-list').children().each(function() {
-            //     insertTileAction($(this));
-            // });
+                elemList.attr('data-next', nextUrl);
+                elemList.show();
+                $('#basic-total').html(counter + ' of ' + response.data.pagination.totalResults + ' total results');
+                $('#basic-footer').removeClass('hidden');
 
-        }
-
-        $('#search-processing').hide();
-        insertTileActions('search-list');
-        
-    });
-
-}
-
-
-// Search for raw materials
-function performSearchMaterials() {
-
-    let elemList = $('#materials-list');
-        elemList.html('');
-
-    $('#materials-processing').show();
-    $('#materials-no-results').hide();
-
-    let params = {
-        'wsId'  : 57,
-        'query' : $('#materials-input').val(),
-        'limit' : 30
-    }
-
-    $.get('/plm/search-descriptor', params, function(response) {
-
-        elemList.html('');
-
-        if((typeof response.data.items === 'undefined') || (response.data.items.length === 0)) {
-
-            $('#materials-no-results').show();
-
-        } else {
-
-            for(record of response.data.items) {
-
-                let elemTile = genTile(record.__self__, '', 'icon-product', record.descriptor, record.workspaceLongName);
-                    elemTile.appendTo(elemList);
-                    elemTile.click(function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        // clickSearchResult($(this));
-                    });
+                if(!isBlank(nextUrl)) $('#basic-next').show();
 
             }
 
         }
-
-        // > Rohmaterial aktuellem Body zuweisen :: assignMaterial(descriptor);
-        // + Im fenster auswählen
-        // - in neuem fenster öffnen
-        // - in aktiver sizung hinzuladen
-        // + neues fenster
-
-        $('#materials-processing').hide();
-        insertTileActions('materials-list');
         
     });
 
 }
-function clickSearchResult(elemClicked) {
-
-    let title = elemClicked.attr('data-title');
-    let tabId = elemClicked.closest('.tab-group-main').attr('id');
-
-    if(tabId === 'search') {
-
-        let partNumber = title.split(' - ')[0];
-        openComponent(partNumber);
-
-    } else if(tabId === 'materials'){
-
-        selectComponents([title]);
-
-    }
-
-}
-
-
-function clickWorkspaceViewItem(elemClicked) { openItem(elemClicked); }
-function clickRecentItem(elemClicked)        { openItem(elemClicked); }
-function clickBookmarkItem(elemClicked)      { openItem(elemClicked); }
-function openItem(elemClicked) {
-
-    let title       = elemClicked.attr('data-title');
-    let partNumber  = title.split(' - ')[0];
-
-    openComponent(partNumber);
-
-}
-
-
-function changeWorkspaceViewDone(id) {}
-function insertRecentItemsDone(id) { insertTileActions(id + '-recents'); }
-function insertBookmarksDone(id) { insertTileActions(id + '-bookmarks'); }

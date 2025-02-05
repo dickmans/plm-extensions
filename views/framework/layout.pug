@@ -8,7 +8,6 @@ html
         meta(charset='utf-8')
     
         link(rel='stylesheet', href='/stylesheets/framework/basic.css')
-        link(rel='stylesheet', href='/stylesheets/framework/colors.css')
         link(rel='stylesheet', href='/stylesheets/framework/dialogs.css')
         link(rel='stylesheet', href='/stylesheets/framework/fonts.css')
         link(rel='stylesheet', href='/stylesheets/framework/styles.css')
@@ -17,12 +16,13 @@ html
         link(rel='stylesheet', href='/stylesheets/contents/nav.css')
         link(rel='stylesheet', href='/stylesheets/contents/analytics.css')
         link(rel='stylesheet', href='/stylesheets/contents/viewer.css')
-        link(rel='stylesheet', href='https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/style.min.css')
+        link(rel='stylesheet', href='/stylesheets/contents/vault.css')
+        link(rel='stylesheet', href='https://developer.api.autodesk.com/modelderivative/v2/viewers/7.60.1/style.min.css')
         
         link(rel='stylesheet', href='/stylesheets/framework/colors.css')
         link(rel='stylesheet', href='/stylesheets/custom.css')
     
-        script(src='https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.min.js') 
+        script(src='https://developer.api.autodesk.com/modelderivative/v2/viewers/7.60.1/viewer3D.min.js') 
         script(src='/javascripts/libs/jquery-3.6.1.min')
 
         script(src='/javascripts/framework/utils.js')
@@ -30,17 +30,21 @@ html
         script(src='/javascripts/contents/viewer.js')
         script(src='/javascripts/contents/item.js')
         script(src='/javascripts/contents/nav.js')
+        script(src='/javascripts/contents/vault.js')
         
         script(src='/javascripts/custom.js')
 
         script.
             documentTitle='#{title}'
             tenant='#{tenant}'
+            tenantLink='#{tenantLink}'
+            theme='#{theme}' 
             wsId='#{wsId}'
             dmsId='#{dmsId}' 
-            revisionBias='#{revisionBias}' 
-            theme='#{theme}' 
-            options='#{options}'.split(',');
+            fileId='#{fileId}' 
+            vaultId='#{vaultId}' 
+            options='#{options}'.split(',')
+            revisionBias='#{revisionBias}';
     
         block head
 

@@ -6,6 +6,14 @@
 .report.chart {
     width: calc(33% - 78px);
 }
+.tiles.grid.m > .tile {
+    max-width   : 400px;
+    min-width   : 400px;
+    width       : 400px;
+}
+.tile-subtitle {
+    white-space : nowrap;
+}
 
 /*  DIALOG */
 /* ----------------------------------------------------------------------------- */

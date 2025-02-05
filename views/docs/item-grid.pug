@@ -1,5 +1,5 @@
 #item-grid.doc-content 
-    h1 insertGrid();
+    h1 insertGrid( link, params );
     .definition  Insert dynamic grid of a defined item 
         br
         |This function gets included in all pages automatically and is defined in 
@@ -7,7 +7,7 @@
         |. 
         img(src='images/docs/item-grid-1.png' style='display:block;margin-top:20px;height:238px;')
     h2 DOM Elements 
-    p Insert the following base element to your pug file to add the grid container in your page. You can choose another id than shown here, but will then have to provide your element's id as parameter.
+    p Insert the following base element to your pug file to have the required container in your page. You can choose another id than shown here, but will then have to provide your element's id as parameter.
     p.code #grid 
     p Add the following optional classes to this DOM element to adjust the contents display:
     p 
@@ -19,8 +19,13 @@
                 td surface-level-[1..5]
                 td Add the UI classes surface-level-1 through surface-level-5 to adjust the background color of the grid element 
     h2 Parameters
-    p Various parameters can be provided when using insertGrid. The link parameter is required specifically and must be provided as string. All further parameters must be passed by using a JSON object. See this example call: 
+    p Various parameters can be provided when using insertGrid: 
+        ul 
+            li The link parameter is required and must be provided as string to identify the record for which the data should be shown
+            li Optional configuration parameters can be provides as JSON object to configure the contents and behavior of the panel
+    p This is an example call being used for the screenshot at top of this page    
     p.code insertGrid('/api/v3/workspaces/82/items/4810', { 'headerLabel' : 'Part List', 'columnsEx' : ['ID'] });
+    p The following table lists all configuration parameters that can be passed:
     p   
         table.parameters.row-hovering 
             tr 
@@ -42,29 +47,12 @@
                 td No
                 td grid
             tr 
-                td header 
-                td Can be used to suppress addition of the panel header element. As this element is required for the file upload button parameter, it will be set to true if uploads should be enabled.
-                td Boolean
-                td No
-                td true
-            tr 
                 td headerLabel
                 td Sets the header label (if header is enabled)
                 td String
                 td No
                 td Grid
-            tr 
-                td headerToggle 
-                td Enables collapsing and expanding the attachments display
-                td Boolean
-                td No 
-                td false
-            tr 
-                td reload 
-                td Enables reload button for the attachments panel
-                td Boolean
-                td No
-                td true
+            include item-parameters-1.pug
             tr 
                 td rotate 
                 td Rotate the table display by 90 degrees
@@ -72,20 +60,14 @@
                 td No
                 td false
             tr 
-                td inline 
-                td Display the grid inline with other elements
-                td Boolean
-                td No
-                td false
-            tr 
                 td columnsIn 
-                td List of grid columns to be included, identified by internal ID. Grid columns not included in this list will not be shown (example: ['TITLE', 'DESCRIPTION']).
+                td List of grid columns to be included, identified by name. Grid columns not included in this list will not be shown (example: ['Title', 'Description']).
                 td Array
                 td No 
                 td []
             tr 
                 td columnsEx 
-                td List of grid columns to be excluded, identified by internal ID. Grid columns in this list will not be shown (example: ['ID']).
+                td List of grid columns to be excluded, identified by name. Grid columns in this list will not be shown (example: ['Sort']).
                 td Array
                 td No 
                 td []
@@ -126,12 +108,16 @@
                 th Event 
                 th Parameters 
             tr 
-                td insertGridDone(id, data, update) 
+                td insertGridDone(id) 
+                td Gets executed when all HTML elements of the panel were added, before any data retrieval from PLM
+                td id = id of the parent div element (i.e. grid)
+            tr 
+                td insertGridDataDone(id, rows, columns) 
                 td Gets executed once grid information has been retrieved from PLM and after data has been inserted to the page.
                 td 
                     ul 
                         li id = id of the parent div element (i.e. grid)
-                        li data = data of /grid REST API call of PLM
+                        li rows = data of /grid REST API call of PLM
                         li columns = grid column configuration as provided by REST API call of PLM
             tr 
                 td clickGridRow(elemClicked, e) 

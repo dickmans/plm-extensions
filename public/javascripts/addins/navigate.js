@@ -869,7 +869,7 @@ function clickModuleAddVariant(elemClicked) {
 
             let requests = [
                 $.get('/plm/bom-add', params),
-                $.get('/plm/edit', paramsEdit)
+                $.post('/plm/edit', paramsEdit)
 
             ];
 
@@ -1147,7 +1147,7 @@ function removeFeatureItem(elemClicked) {
 
     // addFieldToPayload(params.sections, wsProducts.sections, null, 'RULES', JSON.stringify(rules));
 
-    // $.get('/plm/edit', params, function(response) {
+    // $.post('/plm/edit', params, function(response) {
     //     $('#overlay').hide();
     // });
 
@@ -1198,7 +1198,7 @@ function saveRules() {
 
     addFieldToPayload(params.sections, wsProducts.sections, null, 'RULES', JSON.stringify(rules));
 
-    $.get('/plm/edit', params, function(response) {
+    $.post('/plm/edit', params, function(response) {
         $('#overlay').hide();
     });
 

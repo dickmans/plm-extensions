@@ -6,23 +6,18 @@ let isPhone     = (navigator.userAgent.match(/Android/i) || navigator.userAgent.
 $(document).ready(function() {
 
     appendProcessing('workspaces');
+    appendProcessing('workspace');
     appendProcessing('mow');
     appendProcessing('create');
     appendProcessing('recents');
     appendProcessing('bookmarks');
     appendProcessing('search');
 
-    appendProcessing('item-details');
-    appendProcessing('item-attachments');
     appendProcessing('item-manages');
     appendProcessing('item-related');
     appendProcessing('item-change-log');
 
-    appendProcessing('item-edit');
-    appendProcessing('new');
-
     appendViewerProcessing();
-
     appendOverlay(true);
 
     setWorkspaces(function() {
@@ -104,7 +99,7 @@ function setUIEvents() {
 
     // Workspace View Selector and Filter
     $('#workspace-views').change(function() {
-        getWorkspaceViewData();
+        getWorkspaceViewData([]);
     });
     $('#workspace-filter').keyup(function() {
         // console.log($('#workspace-filter').val());
@@ -171,16 +166,16 @@ function setUIEvents() {
         let ws = getWorkspaceDefinition($('#item').attr('data-wsid'));
         setItemAttachments($('#item').attr('data-link'));
     });
-    $("#item-action-upload").click(function() {
+    // $("#item-action-upload").click(function() {
     
-        let urlUpload = "/plm/upload/";
-            urlUpload += $('#item').attr('data-wsId') + "/";
-            urlUpload += $('#item').attr('data-dmsId');
+    //     let urlUpload = "/plm/upload/";
+    //         urlUpload += $('#item').attr('data-wsId') + "/";
+    //         urlUpload += $('#item').attr('data-dmsId');
     
-        $("#uploadForm").attr("action", urlUpload);    
-        $("#select-file").click();
+    //     $("#uploadForm").attr("action", urlUpload);    
+    //     $("#select-file").click();
         
-    }); 
+    // }); 
     $("#select-file").change(function() {
         
         var file = document.getElementById("select-file")//All files
@@ -220,9 +215,9 @@ function setUIEvents() {
     $('#item-attachments-upload-files').click(function() {
 
     });
-    $('#item-action-edit').click(function() {
-        openItemEditor();
-    });
+    // $('#item-action-edit').click(function() {
+    //     openItemEditor();
+    // });
     $('#item-edit-cancel').click(function() {
         $('#item-edit').hide();
         $('#item-edit-toolbar').hide();
@@ -296,17 +291,14 @@ function setWorkspaces(callback) {
     $('#workspaces-processing').show();
     $('#create-processing').show();
 
-    let elemList = $('#workspaces-list');
-        elemList.html('');
+    let elemList       = $('#workspaces-list').html('');
+    let elemListCreate = $('#create-list').html('');
 
-    let elemListCreate = $('#create-list');
-        elemListCreate.html('');
-
-    $.get('/plm/workspaces', {}, function(response) {
+    $.get('/plm/workspaces', { useCache : true }, function(response) {
 
         workspaces = [];
 
-        for(workspace of response.data.items) {
+        for(let workspace of response.data.items) {
 
             workspaces.push({
                 'id'            : workspace.link.split('/')[4],
@@ -329,41 +321,34 @@ function setWorkspaces(callback) {
             })
         }
 
-        workspaces.sort(function(a, b){
-            var nameA=a.title.toLowerCase(), nameB=b.title.toLowerCase()
-            if (nameA < nameB) //sort string ascending
-                return -1 
-            if (nameA > nameB)
-                return 1
-            return 0 //default return value (no sorting)
-        });
+        sortArray(workspaces, 'title', 'String', 'ascending');
 
-        for(workspace of workspaces) {
+        for(let workspace of workspaces) {
 
-            let elemWorkspace = $('<div></div>');
-                elemWorkspace.html(workspace.title);
-                elemWorkspace.attr('data-id', workspace.id);
-                elemWorkspace.appendTo(elemList);
-                elemWorkspace.click(function() {
+            workspace.picklists = [];
+
+            $('<div></div>').appendTo(elemList)
+                .html(workspace.title)
+                .attr('data-id', workspace.id)
+                .click(function() {
                     openWorkspaceView($(this).attr('data-id'));
                 });
 
             if(workspace.create) {
-                workspace.picklists = [];
+
                 $('#button-create').show();
-                let elemCreate = $('<div></div>');
-                    elemCreate.attr('data-id', workspace.id);
-                    elemCreate.html(workspace.title);
-                    elemCreate.appendTo(elemListCreate);
-                    elemCreate.click(function() {
-                        showCreateDialog($(this).attr('data-id'), null);
+
+                $('<div></div>').appendTo(elemListCreate)
+                    .attr('data-id', workspace.id)
+                    .html(workspace.title)
+                    .click(function() {
+                        // showCreateDialog($(this).attr('data-id'), null);
+                        showCreateDialog(workspace.title, workspace.id, null);
+
+                        
+
                     });
 
-                // let elemChevronCreate = $('<div></div>');
-                //     elemChevronCreate.addClass('chevron');
-                //     elemChevronCreate.addClass('zmdi');
-                //     elemChevronCreate.addClass('zmdi-chevron-right');
-                //     elemChevronCreate.appendTo(elemCreate);
             }
         }
 
@@ -381,8 +366,7 @@ function setWorkspaces(callback) {
 // Set mow counter
 function setMOW() {
 
-    let elemList = $('#mow-list');
-        elemList.html('');
+    let elemList = $('#mow-list').html('');
 
     $('#mow-processing').show();
 
@@ -632,25 +616,23 @@ function getWorkspaceViewColumnms() {
 }
 function getWorkspaceViewData(columns) {
 
-    $('#workspace-process').show();
+    $('#workspace-list').hide();
+    $('#workspace-processing').show();
 
     let count    = 3;
     let link     = $('#workspace-views').val();
     let elemList = $('#workspace-list');
         elemList.html('');
 
-
     if(columns.length > 0) {
 
-        let elemHeaderRow = $('<div></div>');
-            elemHeaderRow.appendTo(elemList);
+        let elemHeaderRow = $('<div></div>').appendTo(elemList);
 
-        for(column of columns) {
+        for(let column of columns) {
 
-            let elemHeaderCell = $('<div></div>');
-                elemHeaderCell.addClass('table-header-cell');
-                elemHeaderCell.html(column.field.title);
-                elemHeaderCell.appendTo(elemHeaderRow);
+            $('<div></div>').appendTo(elemHeaderRow)
+                .addClass('table-header-cell')
+                .html(column.field.title);
 
         }
 
@@ -658,12 +640,11 @@ function getWorkspaceViewData(columns) {
 
     $.get('/plm/tableau-data', { 'link' : link }, function(response) {
 
-        for(record of response.data) {
+        for(let record of response.data) {
 
-            let elemItem = $('<div></div>');
-                elemItem.attr('data-link', record.item.link);
-                elemItem.appendTo(elemList);
-                elemItem.click(function() { openItem($(this).attr('data-link')); });
+            let elemItem = $('<div></div>').appendTo(elemList)
+                .attr('data-link', record.item.link)
+                .click(function() { openItem($(this).attr('data-link')); });
 
             let limit = (count > record.fields.length) ? record.fields.length : count;
 
@@ -671,28 +652,27 @@ function getWorkspaceViewData(columns) {
 
                 let field = record.fields[i];
 
-                let elemField = $('<div></div>');
-                    elemField.html(field.value);
-                    elemField.addClass('field');
-                    elemField.appendTo(elemItem);
+                let elemField = $('<div></div>').appendTo(elemItem)
+                    .html(field.value)
+                    .addClass('field');
 
-                if(field.id === 'WF_CURRENT_STATE') elemField.addClass('item-status');
+                     if(field.id === 'WF_CURRENT_STATE') elemField.addClass('item-status');
+                else if(field.id === 'DESCRIPTOR'      ) elemField.addClass('link');
                 if(field.value.indexOf('&lt;') > -1) elemField.html($('<div></div>').html(field.value).text());
-
-                if(field.id === 'DESCRIPTOR') elemField.addClass('link');
 
             }
 
         }
 
-        $('#workspace-process').hide();
+        $('#workspace-list').show();
+        $('#workspace-processing').hide();
 
     });
 
 }
 function getWorkspaceDefinition(wsId) {
 
-    for(workspace of workspaces) {
+    for(let workspace of workspaces) {
         if(wsId === workspace.id) {
             return workspace;
         }
@@ -719,47 +699,36 @@ function filterList(id, value) {
 // Search 
 function performSearch() {
 
-    let elemList = $('#search-list');
-        elemList.html('');
+    let elemList = $('#search-list').html('');
 
     $('#search-processing').show();
     $('#search-no-results').hide();
 
     $.get('/plm/search-descriptor', { 'query' : $('#search-input').val(), 'limit' : 50, 'bulk' : 'false' }, function(response) {
 
-        if(typeof response.data.items !== 'undefined') {
+        if(!isBlank(response.data.items)) {
 
-            for(record of response.data.items) {
+            for(let record of response.data.items) {
 
-                console.log(record);
+                let elemItem = $('<div></div>').appendTo(elemList)
+                    .attr('data-link', record.__self__)
+                    .click(function() { openItem($(this).attr('data-link')); });
 
-                let elemItem = $('<div></div>');
-                    elemItem.attr('data-link', record.__self__);
-                    elemItem.appendTo(elemList);
-                    elemItem.click(function() { openItem($(this).attr('data-link')); });
+                $('<div></div>').appendTo(elemItem)
+                    .html(record.descriptor)
+                    .addClass('link')
+                    .addClass('nowrap');
 
-                let elemItemDescriptor = $('<div></div>');
-                    // elemItemDescriptor.html(record.title);
-                    elemItemDescriptor.html(record.descriptor);
-                    elemItemDescriptor.addClass('link');
-                    elemItemDescriptor.addClass('nowrap');
-                    elemItemDescriptor.appendTo(elemItem);
-
-                let elemItemWorkspace = $('<div></div>');
-                    elemItemWorkspace.addClass('item-workspace');
-                    // elemItemWorkspace.html(record.workspace.title);
-                    elemItemWorkspace.html(record.workspaceLongName);
-                    elemItemWorkspace.appendTo(elemItem);
+                $('<div></div>').appendTo(elemItem)
+                    .addClass('item-workspace')
+                    .html(record.workspaceLongName);
 
             }
 
-        } else {
-
-            $('#search-no-results').show();
-
-        }
+        } else  $('#search-no-results').show();
 
         $('#search-processing').hide();
+
     });
 
 }
@@ -768,7 +737,6 @@ function performSearch() {
 // Open item defined by wsid and dmsid parameters
 function gotoItem() {
 
-
     // http://localhost:8080/client?wsId=79&dmsId=11143
 
     if(!isBlank(wsId)) {
@@ -776,17 +744,6 @@ function gotoItem() {
             openItem('/api/v3/workspaces/' + wsId + '/items/' + dmsId, 'item-button-details');
         }
     }
-
-
-
-    // if(typeof urlWSID !== 'undefined') {
-    //     if(urlWSID !== '') {
-    //         if(urlDMSID !== '') {
-    //             let link = '/api/v3/workspaces/' + urlWSID + '/items/' + urlDMSID;
-    //             openItem(link, 'item-button-details');
-    //         }
-    //     }
-    // }
 
 }
 
@@ -805,6 +762,8 @@ function openItem(link, buttonView) {
     }
 
     $('body').addClass('no-viewer');
+
+    $('#new').hide();
 
     $('#item').show().attr('data-link', link).attr('data-wsId', wsId).attr('data-dmsId', dmsId);
     $('#item').find('.processing').show();
@@ -834,17 +793,12 @@ function openItem(link, buttonView) {
     if(ws.permissions.length === 0) {
 
         let promises = [
-            $.get( '/plm/permissions', { 'wsId' : wsId }),
-            $.get( '/plm/fields', { 'wsId' : wsId }),
-            $.get( '/plm/bom-views-and-fields', { 'wsId' : wsId }),
-            $.get( '/plm/linked-workspaces', { 'wsId' : wsId })
+            $.get( '/plm/permissions'           , { wsId : wsId, useCache : true }),
+            $.get( '/plm/fields'                , { wsId : wsId, useCache : true }),
+            $.get( '/plm/bom-views-and-fields'  , { wsId : wsId, useCache : true }),
+            $.get( '/plm/linked-workspaces'     , { wsId : wsId, useCache : true }),
+            $.get( '/plm/sections'              , { wsId : wsId, useCache : true })
         ]
-
-        if(ws.sections.length === 0) {
-
-            promises.push($.get( '/plm/sections', { 'wsId' : wsId }));
-
-        }
 
         Promise.all(promises).then(function(responses) {
 
@@ -859,12 +813,14 @@ function openItem(link, buttonView) {
 
         });
 
-    } else {  showItem(ws, link, buttonView); }
+    } else { showItem(ws, link, buttonView); }
 
 }
 function showItem(ws, link, buttonView) {
 
     setItemDetails(ws, link);
+
+    $('#item-details').html('');
 
     if(hasPermission(ws.permissions, 'view_attachments')) {
         setItemAttachments(link);
@@ -898,7 +854,7 @@ function insertViewerDone() {
 // Render Item Details Page
 function setItemDetails(ws, link) {
 
-    $('#item-details-processing').show();
+    // $('#item-details-processing').show();
 
     let elemParent  = $('#item-sections');
         elemParent.html('');
@@ -920,11 +876,11 @@ function setItemDetails(ws, link) {
 
         if(!item.itemLocked) {
             if(hasEditableSection(item)) {
-                if(ws.update) {
-                    if(hasPermission(ws.permissions, 'edit_items')) {
-                        $('#item-action-edit').show();
-                    }
-                }
+                // if(ws.update) {
+                    // if(hasPermission(ws.permissions, 'edit_items')) {
+                    //     $('#item-action-edit').show();
+                    // }
+                // }
             }
             if(item.editable) {
                 if(hasPermission(ws.permissions, 'add_attachments')) {
@@ -946,14 +902,22 @@ function setItemDetails(ws, link) {
 
         $('#item-header-descriptor').html(item.title);
         $('#item-header-workspace').html(item.workspace.title).show();
-        $('#item-details-processing').hide();
+        // $('#item-details-processing').hide();
 
         let url = document.location.href.split('/client')[0];
             url += '/client?wsId=' + ws.id + '%26dmsId=' + link.split('/')[6];
 
         $('#item-action-share').attr('href', 'mailto:?body=' + url + '&subject=' + item.title);
 
-        insertItemDetailsFields(link, 'item', ws.sections, ws.fields, item, false, false, false);
+        insertDetails(link, {
+            hideHeaderLabel : true,
+            id              : 'item-details',
+            collapsed       : true,
+            editable        : true,
+            reload          : true,
+            singleToolbar   : 'controls',
+            toggles         : true
+        })
 
         $('.linking').click(function() {
             openItem($(this).attr('data-item-link'));
@@ -1003,17 +967,20 @@ function setItemAttachments(link) {
     $('#files-counter').hide();
 
     insertAttachments(link, { 
-        'id'        : 'item-attachments',
-        'header'    : false, 
-        'layout'    : 'list',
-        'size'      : 'xl', 
-        'upload'    : false, 
+        hideHeaderLabel : true,
+        editable        : true,
+        id              : 'item-attachments',
+        layout          : 'list',
+        reload          : true,
+        singleToolbar   : 'controls',
+        size            : 'xl',
+        onLoadComplete  : function(id) { setItemAttachmentsCounter(id); }
     });
 
 }
-function insertAttachmentsDone () {
+function setItemAttachmentsCounter (id) {
 
-    let count = $('#item-attachments-list').children().length;
+    let count = $('#item-attachments-content').children('.content-item').length;
 
     if(count > 0) {
         $('#files-counter').html(count).show();
@@ -1081,15 +1048,14 @@ function setItemBOM(ws, link) {
 // Get related processes
 function setProcesses(link) {
 
-    let elemParent = $('#item-processes-list');
-        elemParent.html('');
+    let elemParent = $('#item-processes-list').html('');
 
     $('#item-button-processes').show();
     $('#item-processes-process').show();
 
     $.getJSON('/plm/changes', { 'link' : link }, function(response) {
         
-        for(process of response.data) {
+        for(let process of response.data) {
 
             //let timeStamp       = new Date(process['last-workflow-history'].created.timeStamp);
             let timeStamp       = new Date(process['last-workflow-history'].created);
@@ -1097,13 +1063,7 @@ function setProcesses(link) {
             let status          = '';
             let wsId            = process.item.link.split('/')[4];
 
-// console.log(process['last-workflow-history']);
-// console.log(process['last-workflow-history'].created);
-// console.log(process['last-workflow-history'].created.timeStamp);
-// console.log(timeStamp);
-// console.log(timeStamp.toDateString());
-
-            for(workspace of workspaces) {
+            for(let workspace of workspaces) {
                 if(workspace.id === wsId) {
                     workspaceName = workspace.title;
                 }
@@ -1462,7 +1422,7 @@ function setItemCreateList(ws, link) {
     
     $('#item').attr('data-linked-workspaces', linkedProcesses);
 
-    for(entry of list) {
+    for(let entry of list) {
 
         let elemProcess = $('<div></div>');
             elemProcess.addClass('item-action');
@@ -1489,44 +1449,58 @@ function setItemCreateList(ws, link) {
 
 
 // Open edit mode of current item and save changes
-function openItemEditor() {
+// function openItemEditor() {
 
-    $('#item-edit-processing').show();
-    $('#item-edit').show();
-    $('#item-edit-sections').html('');
-    $('#item-edit-toolbar').css('display', 'flex');
+//     $('#item-edit-processing').show();
+//     $('#item-edit').show();
+//     $('#item-edit-sections').html('');
+//     $('#item-edit-toolbar').css('display', 'flex');
 
-    insertItemDetailsFields($('#item').attr('data-link'), 'item-edit', null, null, null, true, false, false);
+//     insertItemDetailsFields($('#item').attr('data-link'), 'item-edit', null, null, null, true, false, false);
 
-}
-function saveChanges() {
+// }
+// function saveChanges() {
 
-    $('#overlay').show();
-    submitEdit($('#item').attr('data-link'), $('#item-edit-sections'), function(response) {
-        $('#overlay').hide();
-        $('#item-edit').hide();
-        $('#item-viewer').hide();
-        $('#item-details').show();
-        $('#item-edit-toolbar').hide();
-        $('#item-button-details').click();
-        // openItem($('#item').attr('data-link'));
-        insertItemDetailsFields($('#item').attr('data-link'), 'item', null, null, null, false, false, false);
-        if(response.error) {
-            showErrorMessage(response.data.message);
-        }
-    });
+//     $('#overlay').show();
+//     submitEdit($('#item').attr('data-link'), $('#item-edit-sections'), function(response) {
+//         $('#overlay').hide();
+//         $('#item-edit').hide();
+//         $('#item-viewer').hide();
+//         $('#item-details').show();
+//         $('#item-edit-toolbar').hide();
+//         $('#item-button-details').click();
+//         // openItem($('#item').attr('data-link'));
+//         insertItemDetailsFields($('#item').attr('data-link'), 'item', null, null, null, false, false, false);
+//         if(response.error) {
+//             showErrorMessage(response.data.message);
+//         }
+//     });
 
-}
+// }
 
 
 // Item create dialog
-function showCreateDialog(id, source) {
+// function showCreateDialog(id, source) {
+function showCreateDialog(wsTitle, wsId, source) {
 
-    let ws = getWorkspaceDefinition(id);
+    // let ws = getWorkspaceDefinition(id);
 
-    $('#new').attr('data-wsid', id).show();
-    $('#new-header-subtitle').html(ws.title);
-    $('#new-processing').show();
+    // $('#new').attr('data-wsid', id).show();
+    $('#new-header-subtitle').html(wsTitle);
+    $('#new').show();
+    // $('#new-processing').show();
+
+    // insertCreate([workspace.title], [workspace.id], {
+    insertCreate([wsTitle], [wsId], {
+        id              : 'new-form',
+        hideHeader      : true,
+        onCancel        : function() {  $('#new').hide(); },
+        afterCreation   : function(id, link) { openItem(link); }
+
+    });
+
+
+    return;
 
     let elemParent = $('#new-sections');
         elemParent.html('');

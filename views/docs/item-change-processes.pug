@@ -1,6 +1,6 @@
 #item-change-processes.doc-content 
-    h1 insertChangeProcesses();
-    .definition  Insert related change processes and include create capabilities 
+    h1 insertChangeProcesses( link, params);
+    .definition Insert related change processes with advanced filtering and create capabilities 
         br
         |This function gets included in all pages automatically and is defined in 
         span.path /public/javascripts/contents/item.js
@@ -19,8 +19,9 @@
                 td surface-level-[1..5]
                 td Add the UI classes surface-level-1 through surface-level-5 to adjust the background color of the grid element 
     h2 Parameters
-    p Various parameters can be provided when using insertGrid. The link parameter is required specifically and must be provided as string. All further parameters must be passed by using a JSON object. See this example call: 
-    p.code insertChangeProcesses('/api/v3/workspaces/57/items/4810', { 'headerLabel' : 'Problem Reports', 'createWSID' : '82', 'workspacesIn' : ['82'] });
+    p Various parameters can be provided when using insertGrid. The link parameter is required and must be provided as string to identify the record for which the related processes should be shown. 
+    p.code insertChangeProcesses('/api/v3/workspaces/57/items/4810', { headerLabel : 'Problem Reports', actions : ['create'], workspacesIn : ['Problem Reports'] });
+    p The following table lists all parameters available inlcuding their default values:
     p   
         table.parameters.row-hovering 
             tr 
@@ -60,29 +61,101 @@
                 td No 
                 td false
             tr 
-                td reload 
-                td Enable reload button for the processes list
+                td compactDisplay 
+                td Enables a compact display using additional css settings
+                td Boolean
+                td No 
+                td false
+            tr 
+                td openInPLM 
+                td Adds a button to open selected element in PLM. Users can always open a given record in PLM by double-clicking the record. 
+                td Boolean
+                td No 
+                td true
+            tr 
+                td filterByWorkspace 
+                td Enable filtering by workspace drop down. The drop down will only be shown if there are multiple different values to choose from.
+                td Boolean
+                td No 
+                td true
+            tr 
+                td search 
+                td Adds quick filtering using search input on top of list
                 td Boolean
                 td No
                 td true
             tr 
-                td size 
-                td Tile size (xxs, xs, s, m, l, xl, xxl)
+                td placeholder 
+                td Set placeholder text for quick filtering input
                 td String
                 td No
-                td l
+                td Type to search
             tr 
-                td icon 
-                td Icon to be displayed in each tile
-                td String
-                td No
-                td icon-workflow
-            tr 
-                td inline 
-                td Display the processes list inline with other elements
+                td reload 
+                td Enables / disables the reload button 
                 td Boolean
                 td No
-                td false
+                td true    
+            tr 
+                td actions 
+                td Defines the available actions to modify the list (ie ['create']). Currenlty, only 'create' is supported.
+                td Array
+                td No
+                td []
+            tr 
+                td layout 
+                td Set layout (select from 'table', 'tiles' or 'list')
+                td String
+                td No
+                td list
+            tr 
+                td number 
+                td When set to true, a number will be displayed as first column or instead of the tile icon in case of tiles / list layout
+                td Boolean
+                td No
+                td true
+            tr 
+                td tileIcon 
+                td Icon to be displayed as tile image 
+                td String
+                td No
+                td icon-status
+            tr 
+                td tileSize 
+                td Tile size (gets applied only for layouts 'tiles' and 'list', select from 'xxxs', 'xxs', 'xs', 's', 'm', 'l', 'xl', 'xxl')
+                td String
+                td No
+                td xs
+            tr 
+                td tableHeaders 
+                td When set to false, the table headers will not be shown
+                td Boolean
+                td No
+                td true
+            tr 
+                td columnsIn 
+                td Restricts the columns to be displayed. If this list is not empty, only the columns in this list will be shown. Select from the standard tab columns ('Workflow Item', 'Workspace', ...).
+                td Array
+                td No 
+                td []
+            tr 
+                td columnsEx 
+                td Restricts the columns to be displayed. If this list is not empty, the columns in this list will not be shown. Select from the standard tab columns ('Workflow Item', 'Workspace', ...).
+                td Array
+                td No 
+                td []
+            tr 
+                td workspacesIn 
+                td List of workspace to be included, identified by workspace names (example: ['Change Orders'])
+                td Array
+                td No 
+                td []
+            tr 
+                td workspacesEx 
+                td List of workspace to be excluded, identified by workspace names (example: ['Problem Reports', 'Change Tasks'])
+                td Array
+                td No 
+                td []
             tr 
                 td workspacesIn 
                 td List of workspace to be included, identified by workspace IDs. Workspaces not included in this list will not be shown (example: ['82']).
@@ -94,43 +167,45 @@
                 td List of workspace to be excluded, identified by workspace ID. Workspacess in this list will not be shown (example: ['83','84']).
                 td Array
                 td No 
-                td []
+                td []               
             tr 
-                td createWSID 
-                td Enable creation of new records by providing the given workspace ID in which new records should be created. This given workspace must allow connections to the context item in managed items tab as the given relationship will be created automatically. If this parameter is omitted, the create button will not be shown.
-                td String
-                td No
-                td - empty -                
-            tr 
-                td fieldIdImage 
-                td If viewer markups should be stored when creating new records, provide the given image field's ID 
-                td String
-                td No
-                td - empty -                
+                td createHeaderLabel 
+                td If creation of new records is enabled (using parameter createWSID), this option sets the create dialog header.
+                td Array
+                td No 
+                td 'Create Process'
             tr 
                 td createSectionsIn 
-                td If creation of new records is enabled (using parameter createWSID), this list can be used to select the sections to be shown in the create dialog. Only sections of this list will be shown (example: ['Header','Details']).
+                td If creation of new records is enabled (using parameter action), this list can be used to select the sections to be shown in the create dialog. Only sections of this list will be shown (example: ['Header','Details']).
                 td Array
                 td No 
                 td []
             tr 
                 td createSectionsEx 
-                td If creation of new records is enabled (using parameter createWSID), this list can be used to hide sections in the create dialog. Sections of this list will not be shown (example: ['Review']).
+                td If creation of new records is enabled (using parameter action), this list can be used to hide sections in the create dialog. Sections of this list will not be shown (example: ['Review']).
                 td Array
                 td No 
                 td []
             tr 
                 td createFieldsIn 
-                td If creation of new records is enabled (using parameter createWSID), this list can be used to select the fields to be shown in the create dialog. Only fields of this list will be shown (example: ['Title','Description']).
+                td If creation of new records is enabled (using parameter action), this list can be used to select the fields to be shown in the create dialog. Only fields of this list will be shown (example: ['Title','Description']).
                 td Array
                 td No 
                 td []
             tr 
                 td createFieldsEx 
-                td If creation of new records is enabled (using parameter createWSID), this list can be used to hide fields in the create dialog. Fields of this list will not be shown (example: ['Closing Comment']).
+                td If creation of new records is enabled (using parameter action), this list can be used to hide fields in the create dialog. Fields of this list will not be shown (example: ['Closing Comment']).
                 td Array
                 td No 
                 td []
+            tr 
+                td onItemClick 
+                td Provide a function to be executed when users click an item (table row or tile). Example : 
+                    br
+                    |onItemClick : function(elemClicked) { elemClicked.hide(); }
+                td function
+                td No 
+                td null                
             tr 
                 td createContext 
                 td Provide context item information if default value should be set in linking pick list field
@@ -149,10 +224,10 @@
             tr 
                 td.code 
                     span.indent-1 insertChangeProcesses( link, {
-                    span.indent-2 'headerLabel'      : '',
-                    span.indent-2 'createWSID'       : '82',
-                    span.indent-2 'createSectionsEx' : ['Review', 'Technical Analysis'],
-                    span.indent-2 'workspacesEx'     : ['83','84']
+                    span.indent-2 headerLabel     : '',
+                    span.indent-2 actions       : ['create'],
+                    span.indent-2 createSectionsEx : ['Review', 'Technical Analysis'],
+                    span.indent-2 workspacesIn     : ['Problem Reports']
                     span.indent-1 });
                 td
                     img(src='images/docs/item-change-processes-1.png' style='height:202px;')
@@ -176,20 +251,15 @@
                         li data = data of /change-processes REST API call of PLM
                 td - none -
             tr 
-                td toggleProcessCreateFormDone(id) 
-                td This function is called when users click the create or cancel button in the toolbar. It passes the div element's id.
-                td id = id of the parent div
-                td - none -
+                td insertChangeProcessesData(id) 
+                td This function gets triggered after insertChangeProcessesDone(id) and when users click the refresh button. It retrieves data from PLM and updates the data being displayed.
+                td id of the parent div element (i.e. processes)
+                td Inserts processes data and sets filter controls. Once completed, it triggers insertChangeProcessesDataDone(id, data).
             tr 
-                td createProcessDone(id, response) 
-                td This gets triggered when the creation process has finished. It will refresh the processes list per default.
-                td id = id of the parent div; response = response of the create API call
-                td.code insertChangeProcessesData(id)
-            tr 
-                td clickChangeProcess(elemClicked, e) 
-                td When users click a process in the list, this function gets invoked. It will open the given process in PLM.
-                td 
+                td insertChangeProcessesDataDone(id, data) 
+                td This gets triggered by insertChangeProcessesData(id) once the data has been retrieved from PLM and when the given data has been inserted to the HTML page
+                td
                     ul 
-                        li elemClicked = jQuery element of tile that got clicked
-                        li e = click event object
-                td.code openItemByLink(elemClicked.attr('data-link')); 
+                        li id = id of the parent div
+                        li data = response data of given API call
+                td - none -

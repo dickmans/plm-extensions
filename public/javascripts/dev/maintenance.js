@@ -343,7 +343,7 @@ function changeBOMViewDone(id, fields, viewBOM, viewFlatBOM) {
     for(field of fields) {
     
              if(field.fieldId === 'NUMBER')                             urns.partNumber     = field.__self__.urn;
-        else if(field.fieldId === config.viewer.fieldIdPartNumber)      urns.partNumber     = field.__self__.urn;
+        else if(field.fieldId === config.items.fieldIdNumber)           urns.partNumber     = field.__self__.urn;
         else if(field.fieldId === 'THUMBNAIL')                          urns.thumbnail      = field.__self__.urn;
         else if(field.fieldId === 'TITLE')                              urns.title          = field.__self__.urn;
         else if(field.fieldId === 'DESCRIPTION')                        urns.description    = field.__self__.urn;
@@ -831,7 +831,7 @@ function onViewerSelectionChanged(event) {
             let partNumber = data.name.split(':')[0];
             let propertyMatch = false;
 
-            for(partNumberProperty of config.viewer.partNumberProperties) {
+            for(partNumberProperty of config.viewer.numberProperties) {
                 for(property of data.properties) {
                     if(property.displayName === partNumberProperty) {
                         partNumber = property.displayValue;

@@ -8,164 +8,174 @@ block head
 block body
 
     body
-        .split.left-350
-            .split-left.padding-100.surface-level-2(style='overflow-y:auto')
-                h1#title Custom PLM 
-                    br
-                    |User Experiences
-                p Unleash the power of Fusion Manage by utilizing its REST API to provide custom built frontends based on Autodesk Platform Services. All solutions manage data in PLM only. All business rules of PLM as well as access permissions still apply.
-                div.left-toolbar
-                    .button#version Version of 
-                        span#version-name October 1st, 2024
-                    .button#tenant Connected to 
-                        span#tenant-name
-                p This  version has been optimized for the tenant template released in 2023 using a single Items workspace. While the solutions can be used with any tenant thanks to their configuration capabilities, using this new tenant reduces configuration efforts. In addition, most of the solutions can be tested with the given demo datasets immediately.
-                p#themes 
-                    span Select Theme:
-                    select#theme-selector.button 
-                        option(value='light-theme') Light Theme
-                        option(value='dark-theme') Dark Theme
-                        option(value='black-theme') Black Theme
-                p#disclaimer These solutions are provided by Autodesk Technical Sales without warranty and support. There should be no assumption that updates, patches, bug fixes and / or new features will be delivered to you. There will also be no support available either through Autodesk Support channels or by the Autodesk Pre-sales Technical Team. Please feel free to take the source code and ideas from this tool to develop your own production ready tool and products. Change and reuse the source code as you like.
-                p Reuse this framework and its examples to build your own custom solutions. The Developer Guide provides documentation for key library functionality, the main framework asset and includes tutorials to get started quickly:
-                div.left-toolbar
-                    .button#docs Explore the    
-                        span#docs-name Developer Guide
-            .split-right.tiles.xxl.padding-80.surface-level-2.no-scrollbar
-                .log#framework-changes 
-                    h1 Framework Changes
-                    table 
-                        tr  
-                            td October 1, 2024
-                            td Framework
-                            td Added parameter 
-                                span.code filters 
-                                |to 
-                                span.code insertMOW() 
-                                |enabling type and due date filtering
-                        tr  
-                            td September 26, 2024
-                            td New Utility 
-                            td The new utility User Settings Manager enables definition of standards for new and existing users. This includes setting the theme, sharing workspace views and selection of dashboard charts. See the utility's documentation for additional installation steps required for this utility specifically.
-                        tr  
-                            td September 20, 2024
-                            td New Utility 
-                            td The new utility PLM Portal provides quick access to PLM data for the shopfloor
-                        tr  
-                            td September 17, 2024
-                            td New Utility 
-                            td The new utility Workspace Comparison helps keeping workspaces (in different tenants) in sync
-                        tr  
-                            td 
-                            td Framework 
-                            td Moved files files of Tenant Insights Dashboard to new admin subfolders
-                        tr 
-                            td 10. September 2024
-                            td Enhancement 
-                            td When components get hidden in the viewer, advanced controls now enable to unhide selected components or the last one
-                        tr 
-                            td 16. July 2024
-                            td Major Update 
-                            td The UX server now uses PKCE for authentication instead of the former mechanism involving the Client Secret. 
-                                br 
-                                |This now requries an APS application of type "Desktop, Mobile, Single-Page App" for successful authentication.
-                                br
-                                |If not done so yet, create such an app at aps.autodesk.com and provide the given Client ID in file settings.js as in previous releases. The Client Secret now can be omitted.
-                                br
-                                |This new app must use the same callback URL as your previous app and end with "/callback" (i.e. http://localhost:8080/callback).
-                                br
-                                |If your login to the UX solutions fails with an error code 401, you most likely are still using an APS of another type.  
-                                br
-                                |Do not forget to run npm install to download the additional module "crypto" if not doney yet after this update.
-                        tr 
-                            td 2. May 2024
-                            td Enhancement 
-                            td Users can now switch between 3D and 2D viewables within the viewer if given files exist in the item's attachment tab and if this feature has not been disabled for the given user with setting 
-                                span.code selectFile
-                        tr 
-                            td 29. April 2024
-                            td Enhancement 
-                            td Paramter 
-                                span.code path 
-                                |has been added to 
-                                span.code insertBOM() 
-                                |enabling quick navigation to currently selected component's parent(s). This feature now is available in the apps Design Review and Service Portal.
-                        tr 
-                            td 18. April 2024
-                            td Enhancement 
-                            td insertAttachments() now can display folders as well, depending on parameter folders (true / false)
-                        tr 
-                            td 
-                            td Enhancement 
-                            td insertBookmarks() and insertRecentItems() now can display tile images for given records by reetrieving the first image field having a value.
-                        tr 
-                            td 11. April 2024
-                            td Enhancement 
-                            td Default theme now can be defined in settings.js. Select from light, dark and black.
-                        tr 
-                            td 15. March 2024
-                            td Framework 
-                            td Most standard apps now can be extended easier thanks to dedicated css and js files in subfolders custom. 
-                                br
-                                |Override standard javascript code and css  by adding your custom contents to these empty files in /javascripts/custom as well as /stylesheets/custom. 
-                                br
-                                |For example, if the styling of the MBOM-Editor should be adjusted, add your custom css styling to /public/stylesheets/custom/mbom.css. 
-                        tr 
-                            td 29. February 2024
-                            td BOM Displays 
-                            td New options have been added to collapse the BOM at startup and to prevent expansion of defined items (parameter endItem)
-                        tr 
-                            td 
-                            td BOM Displays
-                            td If users do not have access to sub items, the parent item BOM will display a lock icon with tooltip
-                        tr 
-                            td 
-                            td Attachments
-                            td The attachments panels have been reworked and provide new configurable features like version information, various layouts and sizes. See the developer documentation for details.
-                        tr 
-                            td 15. February 2024
-                            td BOM Displays 
-                            td New options have been added to the BOM display (counters) and the Flat BOM display (filterEmpty)
-                        tr 
-                            td 10. January 2024
-                            td Theme Support
-                            td Use alternate color for this landing page and all the apps by passing the parameter 'theme' when accessing an application. You can choose from the following themes: dark,black and light. The latter one is default if no theme parameter is provided.
-                        tr 
-                            td 13. December 2023
-                            td File Management
-                            td To allow further additions, files in folders public and views have been moved to new folders. Some css and js files in folder public got renamed.
-                        tr 
-                            td 
-                            td Settings Files
-                            td Alternate settings files enabling to switch between multiple tenants now must be stored in folder settings. 
-                                br 
-                                | These files no longer need the prefix 'settings.' but must keep the suffix '.js'.
-                .tiles-group.first
-                    .tiles-group-title Administration Utilities
-                    .tiles-group-subtitle Utilities made for Tenant Administrators only, requiring system admin privileges.
-                include ../docs/admin-insights.pug
-                include ../docs/admin-workspace-comparison.pug
-                include ../docs/admin-users.pug
-                .tiles-group.first
-                    .tiles-group-title Ready-To-Use Applications
-                    .tiles-group-subtitle Applications that do neither require configurations settings nor demo data. They will work immediately and can be used to validate the server setup.
-                include ../docs/app-portal.pug
-                include ../docs/app-reports-dashboard.pug
-                include ../docs/app-workspace-navigator.pug
-                include ../docs/app-mobile-client.pug
-                .tiles-group 
-                    .tiles-group-title Preconfigured Applications
-                    .tiles-group-subtitle Applications requiring demo data and basic configuration in settings file. However, they will work immediately when using the default demo tenant.
-                include ../docs/app-product-data-explorer.pug
-                include ../docs/app-process-dashboard.pug
-                include ../docs/app-product-portfolio-catalog.pug
-                include ../docs/app-projects-dashboard.pug
-                .tiles-group 
-                    .tiles-group-title Setup Required
-                    .tiles-group-subtitle Applications requiring configuration changes using the Workspace Manager and/or even changes to scripts. 
-                include ../docs/app-design-reviews.pug
-                include ../docs/app-service-portal.pug
-                include ../docs/app-change-impact-analysis.pug                
-                include ../docs/app-mbom-editor.pug
-                include ../docs/app-variants-manager.pug
-                include ../docs/app-class-browser.pug
+        #side.surface-level-2
+            #side-title Custom PLM 
+                br
+                |User Experiences
+            p Unleash the power of Fusion Manage by utilizing its REST API to provide custom built frontends based on Autodesk Platform Services. All solutions manage data in PLM only. All business rules of PLM as well as access permissions still apply.
+            div.side-toolbar
+                .button#version Review changes by 
+                    span#version-name February 4, 2025
+                .button#tenant Connected to 
+                    span#tenant-name
+            p This  version has been optimized for the tenant template released in 2023 using a single Items workspace. While the solutions can be used with any tenant thanks to their configuration capabilities, using this new tenant reduces configuration efforts. In addition, most of the solutions can be tested with the given demo datasets immediately.
+            p#themes 
+                span Select Theme:
+                select#theme-selector.button 
+                    option(value='light-theme') Light Theme
+                    option(value='dark-theme') Dark Theme
+                    option(value='black-theme') Black Theme
+            p#disclaimer These solutions are provided by Autodesk Technical Sales without warranty and support. There should be no assumption that updates, patches, bug fixes and / or new features will be delivered to you. There will also be no support available either through Autodesk Support channels or by the Autodesk Pre-sales Technical Team. Please feel free to take the source code and ideas from this tool to develop your own production ready tool and products. Change and reuse the source code as you like.
+            p Reuse this framework and its examples to build your own custom solutions. The Developer Guide provides documentation for key library functionality, the main framework asset and includes tutorials to get started quickly:
+            div.side-toolbar
+                .button#docs Explore the    
+                    span#docs-name Developer Guide
+                .button#troubleshooting Having issues? Use the    
+                    span#troubleshooting-name Troubleshooting 
+                    |Guide
+        #main.surface-level-2
+            .log#framework-changes 
+                h1 Framework Changes
+                table 
+                    tr  
+                        td February 4, 2025
+                        td Framework
+                        td A key update to all files, libraries, configuration files and settings has been applied. The applications now share much more common code and make use of extended &amp; standardised configuration parameters for table views, list views and tab contents. See the gallery in the developer guide for examples. In addition, optional caching and Vault connectivity were added.
+                    tr  
+                        td October 1, 2024
+                        td Framework
+                        td Added parameter 
+                            span.code filters 
+                            |to 
+                            span.code insertMOW() 
+                            |enabling type and due date filtering
+                    tr  
+                        td September 26, 2024
+                        td New Utility 
+                        td The new utility User Settings Manager enables definition of standards for new and existing users. This includes setting the theme, sharing workspace views and selection of dashboard charts. See the utility's documentation for additional installation steps required for this utility specifically.
+                    tr  
+                        td September 20, 2024
+                        td New Utility 
+                        td The new utility PLM Portal provides quick access to PLM data for the shopfloor
+                    tr  
+                        td September 17, 2024
+                        td New Utility 
+                        td The new utility Workspace Comparison helps keeping workspaces (in different tenants) in sync
+                    tr  
+                        td 
+                        td Framework 
+                        td Moved files files of Tenant Insights Dashboard to new admin subfolders
+                    tr 
+                        td 10. September 2024
+                        td Enhancement 
+                        td When components get hidden in the viewer, advanced controls now enable to unhide selected components or the last one
+                    tr 
+                        td 16. July 2024
+                        td Major Update 
+                        td The UX server now uses PKCE for authentication instead of the former mechanism involving the Client Secret. 
+                            br 
+                            |This now requries an APS application of type "Desktop, Mobile, Single-Page App" for successful authentication.
+                            br
+                            |If not done so yet, create such an app at aps.autodesk.com and provide the given Client ID in file settings.js as in previous releases. The Client Secret now can be omitted.
+                            br
+                            |This new app must use the same callback URL as your previous app and end with "/callback" (i.e. http://localhost:8080/callback).
+                            br
+                            |If your login to the UX solutions fails with an error code 401, you most likely are still using an APS of another type.  
+                            br
+                            |Do not forget to run npm install to download the additional module "crypto" if not doney yet after this update.
+                    tr 
+                        td 2. May 2024
+                        td Enhancement 
+                        td Users can now switch between 3D and 2D viewables within the viewer if given files exist in the item's attachment tab and if this feature has not been disabled for the given user with setting 
+                            span.code selectFile
+                    tr 
+                        td 29. April 2024
+                        td Enhancement 
+                        td Paramter 
+                            span.code path 
+                            |has been added to 
+                            span.code insertBOM() 
+                            |enabling quick navigation to currently selected component's parent(s). This feature now is available in the apps Design Review and Service Portal.
+                    tr 
+                        td 18. April 2024
+                        td Enhancement 
+                        td insertAttachments() now can display folders as well, depending on parameter folders (true / false)
+                    tr 
+                        td 
+                        td Enhancement 
+                        td insertBookmarks() and insertRecentItems() now can display tile images for given records by reetrieving the first image field having a value.
+                    tr 
+                        td 11. April 2024
+                        td Enhancement 
+                        td Default theme now can be defined in settings.js. Select from light, dark and black.
+                    tr 
+                        td 15. March 2024
+                        td Framework 
+                        td Most standard apps now can be extended easier thanks to dedicated css and js files in subfolders custom. 
+                            br
+                            |Override standard javascript code and css  by adding your custom contents to these empty files in /javascripts/custom as well as /stylesheets/custom. 
+                            br
+                            |For example, if the styling of the MBOM-Editor should be adjusted, add your custom css styling to /public/stylesheets/custom/mbom.css. 
+                    tr 
+                        td 29. February 2024
+                        td BOM Displays 
+                        td New options have been added to collapse the BOM at startup and to prevent expansion of defined items (parameter endItem)
+                    tr 
+                        td 
+                        td BOM Displays
+                        td If users do not have access to sub items, the parent item BOM will display a lock icon with tooltip
+                    tr 
+                        td 
+                        td Attachments
+                        td The attachments panels have been reworked and provide new configurable features like version information, various layouts and sizes. See the developer documentation for details.
+                    tr 
+                        td 15. February 2024
+                        td BOM Displays 
+                        td New options have been added to the BOM display (counters) and the Flat BOM display (filterEmpty)
+                    tr 
+                        td 10. January 2024
+                        td Theme Support
+                        td Use alternate color for this landing page and all the apps by passing the parameter 'theme' when accessing an application. You can choose from the following themes: dark,black and light. The latter one is default if no theme parameter is provided.
+                    tr 
+                        td 13. December 2023
+                        td File Management
+                        td To allow further additions, files in folders public and views have been moved to new folders. Some css and js files in folder public got renamed.
+                    tr 
+                        td 
+                        td Settings Files
+                        td Alternate settings files enabling to switch between multiple tenants now must be stored in folder settings. 
+                            br 
+                            | These files no longer need the prefix 'settings.' but must keep the suffix '.js'.
+            .tiles-group.first
+                .tiles-group-title Administration Utilities
+                .tiles-group-subtitle Utilities made for Tenant Administrators only, requiring system admin privileges.
+                .tiles-group-list
+                    include ../docs/admin-insights.pug
+                    include ../docs/admin-workspace-comparison.pug
+                    include ../docs/admin-users.pug
+            .tiles-group.first
+                .tiles-group-title Ready-To-Use Applications
+                .tiles-group-subtitle Applications that do neither require configurations settings nor demo data. They will work immediately and can be used to validate the server setup.
+                .tiles-group-list
+                    include ../docs/app-portal.pug
+                    include ../docs/app-reports-dashboard.pug
+                    include ../docs/app-workspace-navigator.pug
+                    include ../docs/app-mobile-client.pug
+            .tiles-group 
+                .tiles-group-title Preconfigured Applications
+                .tiles-group-subtitle Applications requiring demo data and basic configuration in settings file. However, they will work immediately when using the default demo tenant.
+                .tiles-group-list
+                    include ../docs/app-product-data-explorer.pug
+                    include ../docs/app-process-dashboard.pug
+                    include ../docs/app-product-portfolio-catalog.pug
+                    include ../docs/app-projects-dashboard.pug
+            .tiles-group 
+                .tiles-group-title Setup Required
+                .tiles-group-subtitle Applications requiring configuration changes using the Workspace Manager and/or even changes to scripts. 
+                .tiles-group-list
+                    include ../docs/app-design-reviews.pug
+                    include ../docs/app-service-portal.pug
+                    include ../docs/app-change-impact-analysis.pug                
+                    include ../docs/app-mbom-editor.pug
+                    include ../docs/app-variants-manager.pug
+                    include ../docs/app-class-browser.pug

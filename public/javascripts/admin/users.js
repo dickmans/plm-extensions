@@ -1,8 +1,9 @@
 let maxRequests = 5;
-let workspaces = [];
-let dataUsers  = [];
-let users      = [];
-let views      = [];
+let workspaces  = [];
+let dataUsers   = [];
+let users       = [];
+let views       = [];
+let deleteViews = false;
 
 
 $(document).ready(function() {
@@ -98,9 +99,39 @@ function setUIEvents() {
             .toggleClass('filled');
 
     });
+    $('#views-my-defaults').click(function() {
+        $('.is-my-default').each(function() {
+            if(!$(this).hasClass('is-default')) {
+                $(this).find('.default-view').click();
+            }
+        });
+    });    
+    $('#views-clear-defaults').click(function() {
+        $('.is-default').each(function() {
+            $(this).find('.default-view').click();
+        });
+    });    
+    $('.views-delete-check').click(function() {
+        $('#views-check-box').toggleClass('icon-check-box').toggleClass('icon-check-box-checked');
+        $('#views-confirm').toggleClass('hidden')
+            .removeClass('icon-toggle-on')
+            .removeClass('filled')
+            .addClass('icon-toggle-off');
+    });
+    $('#views-confirm').click(function() {
+        if($('#views-confirm').hasClass('disabled')) return;
+        $('#views-confirm').toggleClass('icon-toggle-on')
+            .toggleClass('icon-toggle-off')
+            .toggleClass('filled');
+    })
 
 
     // Charts buttons
+    $('#charts-my-defaults').click(function() {
+        $('.is-pinned').each(function() {
+            $(this).addClass('selected');
+        });
+    });  
     $('#charts-select-all').click(function() {
         $('#charts-list').children(':visible').addClass('selected');
         updateCounters();
@@ -141,7 +172,11 @@ function getUsers() {
 
     $('#users').html('');
 
-    $.get('/plm/users', { bulk : false }, function(response) {
+    $.get('/plm/users', { 
+        bulk       : false,
+        activeOnly : true, 
+        mappedOnly : true
+    }, function(response) {
 
         for(let user of response.data.items) {
             user.displayName = (user.displayName === ' ') ? user.email : user.displayName;
@@ -153,32 +188,35 @@ function getUsers() {
 
             if(!user.tenantAdmin) {
 
-                dataUsers.push(user);
+                if(userAccount.email !== user.id) {
 
-                let elemNew = $('<div></div>').appendTo($('#users'))
-                    .addClass('surface-level-3')
-                    .attr('data-sort', user.displayName)
-                    .attr('data-id', user.userId)
-                    .attr('data-email', user.eMail)
-                    .click(function() {
-                        $(this).toggleClass('selected');
-                        updateCounters();
-                    });
-                
-                $('<div></div>').appendTo(elemNew)
-                    .addClass('icon')
-                    .addClass('icon-check-box')
-                    .addClass('surface-level-4');
+                    dataUsers.push(user);
 
-                $('<div></div>').appendTo(elemNew)
-                    .addClass('label')
-                    .html(user.displayName);
+                    let elemNew = $('<div></div>').appendTo($('#users'))
+                        .addClass('surface-level-3')
+                        .attr('data-sort', user.displayName)
+                        .attr('data-id', user.userId)
+                        .attr('data-email', user.eMail)
+                        .click(function() {
+                            $(this).toggleClass('selected');
+                            updateCounters();
+                        });
+                    
+                    $('<div></div>').appendTo(elemNew)
+                        .addClass('icon')
+                        .addClass('icon-check-box')
+                        .addClass('surface-level-4');
 
-                $('<div></div>').appendTo(elemNew)
-                    .addClass('icon')
-                    .addClass('icon-user')
-                    .addClass('filled');
+                    $('<div></div>').appendTo(elemNew)
+                        .addClass('label')
+                        .html(user.displayName);
 
+                    $('<div></div>').appendTo(elemNew)
+                        .addClass('icon')
+                        .addClass('icon-user')
+                        .addClass('filled');
+
+                }
             }
 
         }
@@ -287,7 +325,11 @@ function getWorkspaceViews(iWorkspace) {
                             }
                             updateCounters();
                         });
-                    
+                        
+                    if(!isBlank(view.type)) {
+                        if(view.type === 'DEFAULT') elemNew.addClass('is-my-default');
+                    }
+
                     $('<div></div>').appendTo(elemNew)
                         .addClass('icon')
                         .addClass('icon-check-box')
@@ -344,14 +386,21 @@ function getCharts() {
 
     $('#charts-list').html('');
 
-    $.get('/plm/charts-available', {}, function(response) {      
+    let requests = [
+        $.get('/plm/charts-available', {}),
+        $.get('/plm/charts-pinned', {})
+    ];
 
-        for(let chart of response.data) chart.workspace = chart.workspace.title;
+    Promise.all(requests).then(function(responses) {
 
-        sortArray(response.data, 'title');
-        sortArray(response.data, 'workspace');
+        for(let chart of responses[0].data) chart.workspace = chart.workspace.title;
 
-        for(let chart of response.data) {
+        sortArray(responses[0].data, 'title');
+        sortArray(responses[0].data, 'workspace');
+
+        for(let chart of responses[0].data) {
+
+            let reportId = chart.report.link.split('/').pop();
 
             let elemNew = $('<div></div>').appendTo($('#charts-list'))
                 .addClass('surface-level-3')
@@ -372,6 +421,12 @@ function getCharts() {
                     $(this).toggleClass('selected');
                     updateCounters();
                 });
+
+            for(let pinnedChart of responses[1].data.dashboardReportList.list) {
+                if(pinnedChart.id == reportId) {
+                    elemNew.addClass('is-pinned');
+                }
+            }
             
             $('<div></div>').appendTo(elemNew)
                 .addClass('icon')
@@ -380,6 +435,7 @@ function getCharts() {
 
             $('<div></div>').appendTo(elemNew)
                 .addClass('label')
+                .addClass('report-name')
                 .html(chart.workspace);
 
             $('<div></div>').appendTo(elemNew)
@@ -441,13 +497,15 @@ function updateCounters() {
 function startProcessing() {
 
     $('#console-content').html('');
+    $('#views-confirm').addClass('disabled');
     $('#stop').removeClass('disabled');
     $('#start').addClass('disabled');
 
-    groups  = [];
-    users   = [];
-    views   = [];
-    stopped = false;
+    groups      = [];
+    users       = [];
+    views       = [];
+    stopped     = false;
+    deleteViews = $('#views-confirm').hasClass('icon-toggle-on');
 
     addLogSeparator();
     addLogEntry('Getting list of users', 'head');
@@ -480,6 +538,8 @@ function startProcessing() {
             });
         }
 
+        if(userAccount.email === dataUser.id) add = false;
+
         if(add) {
             users.push({
                 name   : dataUser.displayName,
@@ -495,10 +555,14 @@ function startProcessing() {
     if(users.length > 0) {
         sortArray(users,  'name');
         setTheme();
-    } else addLogEnd();        
+    } else {
+        addLogEnd();        
+        endProcessing();        
+    }
 }
 function endProcessing() {
 
+    $('#views-confirm').removeClass('disabled');
     $('#stop').addClass('disabled');
     $('#start').removeClass('disabled');
 
@@ -665,10 +729,12 @@ function updateUserWorkspaceViews(indexUser, indexView) {
                 } else {
 
                     for(let curView of response.data) {
+                        let isAdditional = true;
                         for(let view of views) {
                             if(view.wsId === params.wsId) {
                                 if(curView.title === view.title) {
                                     view.hasMatch = true;
+                                    isAdditional  = false;
                                     if(view.force) {
                                         let paramsUpdate = {
                                             link         : curView.link,
@@ -684,6 +750,15 @@ function updateUserWorkspaceViews(indexUser, indexView) {
                                         addLogEntry('Skipping existing view ' + view.title, 'notice');
                                     }
                                 }
+                            }
+                        }
+                        if(isAdditional) {
+                            if(deleteViews) {
+                                requests.push($.post('/plm/tableau-delete', {
+                                    link : curView.link,
+                                    user : user.eMail
+                                }));
+                                addLogEntry('Deleting existing view ' + curView.title, 'notice');
                             }
                         }
                     }
@@ -772,7 +847,7 @@ function updateUserCharts(index) {
 
         addLogEntry(user.name, 'count', index + 1);
 
-        $.get('/plm/charts-pinned', { user : user.eMail}, function(response) {
+        $.get('/plm/charts-pinned', { user : user.eMail }, function(response) {
 
             let count = response.data.dashboardReportList.list.length;
 

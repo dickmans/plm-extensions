@@ -1,0 +1,24 @@
+extends ../framework/addins
+
+block head
+
+    link(rel='stylesheet', href='/stylesheets/addins/login.css')
+    script.
+        config = !{JSON.stringify(config)};
+    script(src='/javascripts/addins/login.js')
+
+block body 
+
+    body.addin
+
+        .screen.surface-level-3
+            #validation 
+                #validation-title Logging in to 
+                    br 
+                    |Vault PLM
+            .error#error-1.hidden.surface-level-2
+                .icon.icon-important
+                .text Your server is not configured properly. Please contact your Administrator.
+            .error#error-2.hidden.surface-level-2
+                .icon.icon-important
+                .text Your Autodesk account must be linked to one Vault user account. Please contact your Vault administrator.

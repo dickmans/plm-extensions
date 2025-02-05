@@ -31,19 +31,19 @@ block body
                 #tab-reviews-all All Reviews
         
             .panel-content.surface-level-2#panel-pending.main-tab
-                #list-pending.tiles.wide.xxl
+                #list-pending.tiles.grid.xxl
                 #empty 
                     .icon.icon.icon-info.xxxl
                     p There are now reviews in this view   
             
             .panel-content.surface-level-2#panel-completed.main-tab
-                #list-completed.tiles.wide.xxl
+                #list-completed.tiles.grid.xxl
                 #empty 
                     .icon.icon.icon-info.xxxl
                     p There are now reviews in this view   
             
             .panel-content.surface-level-2#panel-all.main-tab
-                #list-all.tiles.wide.xxl
+                #list-all.tiles.grid.xxl
                 #empty 
                     .icon.icon.icon-info.xxxl
                     p There are now reviews in this view   
@@ -51,10 +51,6 @@ block body
         #review.screen
 
             #viewer.viewer.surface-level-2
-            //- #viewer-messages.viewer.surface-level-2
-            //-     #viewer-empty
-            //-         span.icon view_in_ar
-            //-         span No Viewble Found
             
             #panel.panel.with-subtitle.with-toggles.compact 
 
@@ -83,58 +79,21 @@ block body
                         .form-hint Let us know if there are concerns about functionality or quality of the current design
                         textarea#concerns(rows="6")
                         .form-header Alternatives
-                        .form-hint You got an alternative in mind that we should review? Please describe your proposal here
+                        .form-hint You got an alternative in mind that we should review? Please describe your proposal
                         textarea#alternatives(rows="6")
                         .form-header Deficiencies
                         .form-hint Any deficiency should go in here
                         textarea#deficiencies(rows="6")
                         .form-hint.last Please note that you can use the tab Files to upload documents with additional contents or even define a given action for us to follow up in the Actions tab.
                 
-                .panel-content.with-toolbar#files
+                .panel-content.with-toolbar#files.surface-level-1
 
-                    .panel-content-toolbar
-                        #button-upload.button.default  Upload File
-                    
-                    .panel-content-empty There are no files attached
-                    .panel-content-data#files-list.tiles.list.files
+                .panel-content.with-toolbar#bom.surface-level-1
 
-                .panel-content.with-toolbar.compact#bom
+                .panel-content.with-toolbar#actions.surface-level-1
 
-                    .panel-content-toolbar
-                        #button-bom-reset.button.disabled Reset
-                        #button-bom-back.button.with-icon.icon-chevron-left.hidden Back
-                    .panel-content-data#bom-list.flat-bom.hide-left
-                    .panel-content-data#bom-item-details.surface-level-2.invisible.hide-right
-                        #bom-item-details-header
-                        #bom-item-details-sections.surface-level-2
+        #create-task.dialog
 
-                .panel-content.with-toolbar#actions
-
-                    .panel-content-toolbar
-                        #button-action-create.button.default Create Action
-                        #button-action-submit.button.default Save
-                        #button-action-cancel.button Cancel
-                    .panel-content-data#action-create
-                        canvas#action-image
-                        canvas#action-thumbnail.hidden
-                        div.columns
-                            .label Image 
-                            .image-toolbar
-                                #image-delete.image-action.button.with-icon.icon-delete
-                                    span Delete
-                                #image-refresh.image-action.button.with-icon.icon-refresh
-                                    span Refresh
-                        div.columns
-                            .label.first Task
-                            input#input-task.input(type="text", placeholder="What task has to be performed?", name="task", required)
-                        div.columns
-                            .label Description
-                            textarea#input-details.input(rows="6", placeholder="Describe the task in more details here", name="details")
-                        div.columns
-                            .label Target Date
-                            input#input-end.input(type="date", name="end")
-                    .panel-content-data#actions-list.surface-level-1.tiles.list.l
-               
         #dialog.dialog
             .dialog-header Finish Design Review
             .dialog-content Do you really want to finish this Design Review? If you confirm with Yes, you may still access the review later on and review all its data and actions, but you will not be able to edit it any longer.

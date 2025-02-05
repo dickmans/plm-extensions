@@ -1,0 +1,140 @@
+#item-managed-items.doc-content 
+    h1 insertManagedItems( link, params);
+    .definition Inserts list of managed items / affected items with advanced filtering capabilities
+        br
+        |This function gets included in all pages automatically and is defined in 
+        span.path /public/javascripts/contents/item.js
+        |. 
+        img(src='images/docs/item-managed-items-1.png' style='display:block;margin-top:20px;height:265px;')
+    h2 DOM Elements 
+    p Insert the following base element to your pug file to have the required container in your page. You can choose another id than shown here, but will then have to provide your element's id as parameter.
+    p.code #managed-items 
+    p Add the following optional classes to this DOM element to adjust the contents display:
+    p 
+        table.row-hovering 
+            tr 
+                th Class Name 
+                th Description
+            tr 
+                td surface-level-[1..5]
+                td Add the UI classes surface-level-1 through surface-level-5 to adjust the background color of the grid element 
+    h2 Parameters
+    p Various parameters can be provided when using insertManageItems: 
+        ul 
+            li The link parameter is required and must be provided as string to identify the record for which the data should be shown
+            li Optional configuration parameters can be provides as JSON object to configure the contents and behavior of the panel
+    p This is an example call being used for the screenshot at top of this page
+    p.code insertManagedItems('/api/v3/workspaces/84/items/16332', { number : false, columnsEx : ['Change performed', 'Proposed Change', 'In Stock Quantity', 'Loation', 'Value', 'Stock Quantity', 'PENDING_SUPPLIES', 'NEXT_PO_QUANTITY'] });
+    p The following table lists all configuration parameters that can be passed:
+    p   
+        table.parameters.row-hovering 
+            tr 
+                th.nowrap Parameter 
+                th Description
+                th Type 
+                th Required 
+                th Default 
+            tr 
+                td link 
+                td The API-link of the item to be displayed
+                td String
+                td Yes
+                td -
+            tr 
+                td id 
+                td ID of the DOM element where the processes list &amp; create form will be inserted
+                td String
+                td No
+                td managed-items 
+            tr 
+                td headerLabel
+                td Sets the header label (if header is enabled)
+                td String
+                td No
+                td Managed Items
+            include item-parameters-1.pug
+            tr 
+                td openInPLM 
+                td Adds a button to open selected element in PLM. Users can always open a given record in PLM by double-clicking the record. 
+                td Boolean
+                td No 
+                td true
+            tr 
+                td filterByLifecycle 
+                td Enable filtering by lifecycle transition drop down. The drop down will only be shown if there are multiple different values to choose from.
+                td Boolean
+                td No 
+                td true
+            tr 
+                td layout 
+                td Set layout (select from 'table', 'tiles' or 'list')
+                td String
+                td No
+                td list
+            tr 
+                td number 
+                td When set to true, a number will be displayed as first column or instead of the tile icon in case of tiles / list layout
+                td Boolean
+                td No
+                td true
+            tr 
+                td tileSize 
+                td Tile size (gets applied only for layouts 'tiles' and 'list', select from 'xxxs', 'xxs', 'xs', 's', 'm', 'l', 'xl', 'xxl')
+                td String
+                td No
+                td xs                
+            tr 
+                td tileIcon 
+                td Icon to be displayed as tile image 
+                td String
+                td No
+                td icon-product    
+            include item-parameters-2.pug         
+    h2 Examples 
+    p   
+        table.row-hovering 
+            tr 
+                th Code 
+                th Screenshot 
+                th Application 
+            tr 
+                td.code 
+                    span.indent-1 insertManagedItems( '/api/v3/workspaces/84/items/16332', {
+                    span.indent-2 layout     : 'list',
+                    span.indent-2 search     : false,
+                    span.indent-2 filterByLifecycle : false
+                    span.indent-1 });
+                td
+                    img(src='images/docs/item-managed-items-2.png' style='height:336px;')
+                td none
+
+    h2 Events 
+    p You can override the following functions in your code to adjust the default behavior.
+    p 
+        table.row-hovering
+            tr 
+                th Function 
+                th Event 
+                th Parameters 
+                th Default Behavior
+            tr 
+                td onItemClick 
+                td Use the parameter onItemClick to pass a function to be executed when a users clicks a table row or tile in this view
+                    br
+                    |Example : onItemClick : function(elemClicked) { elemClicked.fadeOut(); }
+                td elemClicked contains the (jquery) object being clicked
+                td Toggle panel header actions
+            tr 
+                td insertManagedItemsDone(id) 
+                td Get executed when all UI elements were added to the DOM, before any data retrieval 
+                td id = id of the parent div element (ie managed-items)
+                td - none -
+            tr 
+                td insertManagedItemsDataDone(id, items, fields) 
+                td This gets triggered by insertManagedItemsData(id) once the data has been retrieved from PLM and when the given data has been inserted to the HTML page
+                td
+                    ul 
+                        li id = id of the parent div
+                        li items = response data of given API call with all managed items 
+                        li fields = response data of given API call with all managed items tab fields
+                td - none -

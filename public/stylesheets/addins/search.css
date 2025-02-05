@@ -1,17 +1,28 @@
-#tabs {
-
-}
 .panel {
-    top : 80px;
+    top : 60px;
 }
 
-/*  SEARCH */
+/*  MASTER LAYOUT */
 /* ----------------------------------------------------------------------------- */
-#search-header { display : none; }
-.search-actions {
-    display         : flex;
-    gap             : 10px !important;
+#basic-search {
+    border-width    : 14px;
+    top             : 0px;
+    right           : 0px;
+    bottom          : 0px;
+    left            : 0px;
+}
+
+
+/*  BASIC SEARCH */
+/* ----------------------------------------------------------------------------- */
+#basic-search > .panel-header {
+    border          : none;
     justify-content : center;
+    padding         : 12px;
+}
+#basic-search > .panel-content {
+    top    : 60px;
+    bottom : 40px;
 }
 .search-input { 
     max-width   : 300px;
@@ -23,43 +34,14 @@
     padding-top : 100px;
     text-align  : center;
 }
-.search-result-list {
-    top : 44px !important;
-}
-#search-list .tile-details {
-    width : calc(100% - 180px);
-}
-.search-result-list .tile-actions { margin-top : 6px; }
 #materials-list .tile-details {
     width : calc(100% - 150px);
 }
-
-
-/*  WORKSPACE VIEWS */
-/* ----------------------------------------------------------------------------- */
-#views-content {
-    top     : 46px;
-    right   : 0px;
-    bottom  : 0px;
-    left    : 0px;
+#basic-list {
+    gap : 4px;
+}
+#basic-list .vault-tile-user,
+#basic-list .vault-tile-date {
+    display : none;
 }
 
-
-/*  RECENTS */
-/* ----------------------------------------------------------------------------- */
-#recents-recents {
-    top     : 0px;
-    right   : 0px;
-    bottom  : 0px;
-    left    : 0px;
-}
-
-
-/*  BOOKMARKS */
-/* ----------------------------------------------------------------------------- */
-#bookmarks-bookmarks {
-    top     : 0px;
-    right   : 0px;
-    bottom  : 0px;
-    left    : 0px;
-}

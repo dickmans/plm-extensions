@@ -1,0 +1,17 @@
+extends layout
+
+block head
+
+    link(rel='stylesheet', href='/stylesheets/framework/troubleshooting.css')
+
+block body
+
+    body.surface-level-1
+        .content
+            .title Troubleshooting Guide
+            .error Error when starting an application 
+            p When starting an application, you may encounter the following error message showing '400 - Invalid redirect_uri'
+            img(src='images/troubleshooting/error-100.png' style='display:block;max-height:328px;')
+            p This error is caused by a mismatch of the callback URL of your APS app and the url you provided in your settings.file
+            img(src='images/troubleshooting/error-101.jpg' style='display:block;max-height:471px;')
+            p To prevent this error, copy the given callback from your APS defintion and paste it as is to your settings file. After aligning these values, please restart the server for the changes to be taken into account.

@@ -50,7 +50,7 @@
 body.no-console #controls, 
 body.no-console #toolbar { right : var(--panel-border-width-h); }
 body.no-console { --width-users : 600px; }
-body.no-console #console { right : calc(0px - var(--width-console) - var(--panel-border-width-h)); }
+body.no-console #console { right : calc(-10px - var(--width-console) - var(--panel-border-width-h)); }
 
 
 
@@ -119,8 +119,8 @@ body.no-console #console { right : calc(0px - var(--width-console) - var(--panel
     right      : 0px;
     left       : 0px;
 }
-#groups-header  { top : 40px; }
-#groups         { top : 80px; bottom : 60%; }
+#groups-header  { top : 68px; }
+#groups         { top : 108px; bottom : 60%; }
 #users-header   { top : calc(40% + 32px); }
 #users          { top : calc(40% + 72px); bottom : 0px; }
 
@@ -130,7 +130,7 @@ body.no-console #console { right : calc(0px - var(--width-console) - var(--panel
 .instructions {
     display         : flex;
     height          : 38px;
-    line-height     : 38px;
+    /* line-height     : 38px; */
     gap             : 20px;
     justify-content : space-between;
     padding         : 10px 0px;
@@ -165,6 +165,11 @@ body.no-console #console { right : calc(0px - var(--width-console) - var(--panel
     font-size   : 64px;
     line-height : 48px;
 }
+#views-force {
+    max-width : 120px;
+    min-width : 120px;
+    width     : 120px;
+}
 #views-force.icon-toggle-on {
     background   : var(--color-status-green);
     border-color : var(--color-status-green);
@@ -180,7 +185,7 @@ body.no-console #console { right : calc(0px - var(--width-console) - var(--panel
 }
 #views-list {
     top    : 99px;
-    bottom : 0px;
+    bottom : 52px;
 }
 #views-list > div.is-default > .default-view::before {
     content : '\e9f6';
@@ -193,6 +198,28 @@ body.no-console #console { right : calc(0px - var(--width-console) - var(--panel
 .default-view {
     padding-left : 20px;
     width        : 108px;
+}
+.list-footer {
+    display         : flex;
+    gap             : 8px;
+    height          : 38px;
+    line-height     : 38px;
+    justify-content : center;
+    position        : absolute;
+    right           : 0px;
+    bottom          : 0px;
+    left            : 0px;
+}
+.views-delete-check {
+    cursor      : pointer;
+    line-height : 38px;
+}
+#views-label {
+    flex-grow : 1;
+}
+#views-confirm.filled {
+    background   : var(--color-status-red);
+    border-color : var(--color-status-red);
 }
 #charts {
     display : flex;
@@ -209,6 +236,28 @@ body.no-console #console { right : calc(0px - var(--width-console) - var(--panel
     bottom : 0px;
 }
 #charts-list .label { width : calc(50% - 54px - 24px); }
+.is-my-default .workspace-name::after,
+.is-pinned .report-name::after {
+    font-family: 'Material Symbols Sharp';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 14px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    font-variation-settings: 'FILL' 1;
+    margin: 0px 0px 0px 4px;
+    position: relative;
+    top : 2px;
+    content: '\e838';
+}
+
 
 
 /*  TOOLBAR */
@@ -246,4 +295,18 @@ body.no-console #console { right : calc(0px - var(--width-console) - var(--panel
 #stop {
     background   : var(--color-status-red);
     border-color : var(--color-status-red);
+}
+
+
+@media (max-width : 1760px)  {
+
+    body.no-console {
+        --width-users: 380px;
+    }
+
+    .control {
+        right : calc(50% - 340px) !important;
+        left  : calc(50% - 340px) !important;
+    }
+
 }

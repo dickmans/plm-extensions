@@ -38,6 +38,15 @@ $(document).ready(function() {
 
     });
 
+    $('#troubleshooting').click(function() {
+        let href = document.location.href.split('?');
+        let base = href[0] += 'troubleshooting';
+
+        if(href.length > 1) base += '?' + href[1];
+        
+        window.open(base);
+    });
+
     $('#docs').click(function() {
         let href = document.location.href.split('?');
         let base = href[0] += 'docs';
@@ -49,37 +58,31 @@ $(document).ready(function() {
 
     $('.tile').click(function(e) {
 
-        if(e.shiftKey) {
-            if($(this).hasClass('max')) return;
-            e.stopPropagation();
-            e.preventDefault();
-            window.open($(this).find('a').attr('href'), '_blank');
-        } else {
-            $(this).siblings().hide().addClass('hidden');
-            $(this).addClass('max');
-            $('body').removeClass('logs');
-            $('.with-log').removeClass('with-log');
-            $('.with-troubleshooting').removeClass('with-troubleshooting');
-            $('.tiles').addClass('surface-level-1').removeClass('surface-level-2');
-        }
+        $('.tiles-group-title').addClass('hidden');
+        $('.tiles-group-subtitle').addClass('hidden');
+        $('.tile').addClass('hidden');
+        $(this).removeClass('hidden').addClass('max');
+        $('body').removeClass('logs');
+        $('.with-log').removeClass('with-log');
+        $('.with-troubleshooting').removeClass('with-troubleshooting');
+        $('#main').addClass('surface-level-1').removeClass('surface-level-2');
+    
     });
 
     $('.tile').each(function() {
 
-        let elemButtonClose = $('<div></div>');
-            elemButtonClose.addClass('button');
-            elemButtonClose.addClass('icon');
-            elemButtonClose.addClass('icon-close');
-            elemButtonClose.addClass('close-app');
-            elemButtonClose.appendTo($(this).children('.tile-details').first());
-            elemButtonClose.click(function(e) {
-                $('.tiles-group').removeClass('hidden');
-                $('.tiles').children('.tile').show();
-                $('.tiles').children('.tiles-group').show();
-                $('.tile').removeClass('max');
+        $('<div></div>').appendTo($(this).children('.tile-details').first())
+            .addClass('button')
+            .addClass('icon')
+            .addClass('icon-close')
+            .addClass('close-app')
+            .click(function(e) {
+                $('.tiles-group-title').removeClass('hidden');
+                $('.tiles-group-subtitle').removeClass('hidden');
                 $('.tile').removeClass('hidden');
+                $('.tile').removeClass('max');
                 $('.tile').removeClass('with-log');
-                $('.tiles').removeClass('surface-level-1').addClass('surface-level-2');
+                $('#main').removeClass('surface-level-1').addClass('surface-level-2');
                 e.preventDefault();
                 e.stopPropagation();
             });
@@ -104,14 +107,13 @@ $(document).ready(function() {
 
         }
 
-        let elemButtonLog = $('<div></div>');
-            elemButtonLog.attr('title', 'Toggle Change Log');
-            elemButtonLog.addClass('button');
-            elemButtonLog.addClass('icon');
-            elemButtonLog.addClass('icon-history');
-            elemButtonLog.addClass('change-log');
-            elemButtonLog.appendTo($(this).children('.tile-details').first());
-            elemButtonLog.click(function(e) {
+        $('<div></div>').appendTo($(this).children('.tile-details').first())
+            .attr('title', 'Toggle Change Log')
+            .addClass('button')
+            .addClass('icon')
+            .addClass('icon-history')
+            .addClass('change-log')
+            .click(function(e) {
                 e.preventDefault();
                 e.stopPropagation();
                 let elemTile = $(this).closest('.tile');

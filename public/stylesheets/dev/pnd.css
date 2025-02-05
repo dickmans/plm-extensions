@@ -1,0 +1,173 @@
+:root {
+
+    --margin-h : 40px;
+    --margin-v : 30px;
+
+    --width-files   : 400px;
+    --width-details : 500px;
+
+    --height-thumbnail : 200px;
+
+
+    --width-ecos : 600px;
+
+}
+
+
+#pdm {
+    border-width : 32px 48px;
+    top : 0px;
+    right : 50%;
+    bottom : 0px;
+    left : 0px;
+}
+#plm {
+    border-width : 32px 48px;
+    top : 0px;
+    right : 0px;
+    bottom : 0px;
+    left : 50%;
+}
+
+
+
+/* .screen {
+    display : none;
+} */
+
+
+
+
+
+#vault-browser {
+    border-width : 30px 50px;
+    top : 0px;
+    right : 0px;
+    bottom : 0px;
+    left : 0px;
+}
+#vault-ecos {
+    border-width : 30px 50px;
+    width : var(--width-ecos);
+    top : 0px;
+    bottom : 0px;
+    left : 0px;
+}
+
+#vault-groups {
+    left : 0px;
+}
+#vault-roles {
+    left : 25%;
+}
+#vault-users {
+    right : 25%;
+}
+#vault-options {
+    right : 0px;
+}
+#admin > div {
+    border-width : 30px 50px;
+    width : calc(25% - 100px);
+    top : 0px;
+    bottom : 0px;
+}
+
+
+
+
+/* SEARCH */
+/* ----------------------------------------------------------------------------- */
+#search-text {
+    position : absolute;
+    top : 40px;
+    left : calc(50% - 200px);
+    padding : 20px 40px;
+    width : 400px;
+}
+#search-list {
+    position : absolute;
+    border-width : 40px;
+    justify-content : center;
+    top : 100px;
+    right : 0px;
+    bottom : 0px;
+    left : 00px;
+}
+
+
+
+#buttons {
+    display : flex;
+    gap : 20px;
+    padding : 40px;
+}
+
+
+#list {
+    display : flex;
+    position : absolute;
+    top : 120px;
+    right : calc(var(--width-files) + var(--width-details) + (5 * var(--margin-h)));
+    bottom : 40px;
+    left : 40px;
+    padding : 20px;
+    overflow-y : auto;
+    gap : 10px;
+}
+
+#contents {
+    position : absolute;
+    top : 120px;
+    right : calc(var(--width-details) + (3 * var(--margin-h)));
+    bottom : var(--margin-v);
+    width : var(--width-files);
+    padding : 20px;
+    overflow-y : auto;
+}
+
+
+
+#thumbnail {
+    position : absolute;
+    top : 120px;
+    right : 40px;
+    height : var(--height-thumbnail);
+    width : var(--width-details);
+}
+
+
+#details {
+    position : absolute;
+    top : calc(120px + var(--height-thumbnail));
+    right : 40px;
+    bottom : 40px;
+    width : var(--width-details);
+    padding : 20px;
+    overflow-y : auto;
+    display : flex;
+    flex-direction: column;
+    gap : 10px;
+}
+
+.field {
+    display : flex;
+    /* flex-direction: column; */
+    gap : 2px;
+}
+
+.field-label  {
+    font-weight : bold;
+    /* width : 100px; */
+    /* text-align : right; */
+}
+
+
+#list > div > div,
+#contents > div {
+    cursor : pointer;
+}
+#list > div > div:hover,
+#contents > div:hover {
+    background : var(--color-hover-background);
+}

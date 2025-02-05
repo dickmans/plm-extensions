@@ -5,8 +5,9 @@
     --padding-h    : 36px;
     --padding-v    : 24px;
 
-    --width-viewer : 800px;
+    /* --width-viewer : 800px; */
     --width-grid   : 600px;
+    --width-bom : 1000px;
 
 
     /* --padding-list-h    : 50px;
@@ -25,27 +26,33 @@
 /* ----------------------------------------------------------------------------- */
 #viewer {
     top     : 0px;
+    right   : calc(var(--width-bom) + (2 * var(--padding-h)));
     bottom  : 0px;
     left    : 0px;
-    width   : var(--width-viewer);
 }
-#bom {
-    top     : var(--padding-v);
-    right   : var(--padding-h);
-    bottom  : var(--padding-v);
-    left    : calc(var(--width-viewer) + var(--padding-h));
+.panel {
+    display : none;
+    border-width : var(--padding-v) var(--padding-h);
+    top     : 0px;
+    right   : 0px;
+    bottom  : 0px;
+    width   : var(--width-bom);
 }
 #grid {
+    border-width : var(--padding-v) var(--padding-h);
     top     : var(--padding-v);
-    right   : calc(0px - var(--width-grid) - (2 * var(--padding-h)));
-    bottom  : var(--padding-v);
-    width   : var(--width-grid);
+    /* right   : calc(0px - var(--width-grid) - (2 * var(--padding-h))); */
+    left : var(--padding-h);
+    /* bottom  : var(--padding-v); */
+    width   : calc(var(--width-viewer) - (4 * var(--padding-h)));
+
 }
 
 
 body.with-grid { --width-viewer : 600px; }
 body.with-grid #bom { right : calc(var(--width-grid) + (2 * var(--padding-h))); }
 body.with-grid #grid { right : var(--padding-h); }
+
 
 
 /*  BOM */
@@ -65,19 +72,21 @@ th { padding : 10px 6px; }
     border-left  : 2px solid var(--color-surface-level-1); 
     border-right : 2px solid var(--color-surface-level-1); 
     text-align   : center;
-    width        : 140px; 
+    width        : 120px; 
 }
-.column-end-item   { text-align : center; width : 52px; padding-left : 22px !important; }
-.column-spare-part { text-align : center; width : 52px; }
-.column-purchased  { text-align : center; width : 52px; }
-.column-serial     { text-align : center; width : 52px; padding-right : 22px !important; border-right: 2px solid var(--color-surface-level-1); }
+.column-end-item   { text-align : center; width : 54px; padding-left : 16px !important; }
+.column-spare-part { text-align : center; width : 54px; }
+.column-purchased  { text-align : center; width : 54px; }
+.column-serial     { text-align : center; width : 54px; padding-right : 16px !important; border-right: 2px solid var(--color-surface-level-1); }
 .column-process    { text-align : center; }
 td.column-toggles .icon { 
     font-size : 20px; 
     font-weight : 100;
     line-height : 26px;
 }
-
+td.column-id {
+    color : var(--color-blue-500);
+}
 
 .button.create-asset-item { padding : 5px 0px !important; }
 
@@ -103,3 +112,14 @@ body.with-processes .column-process { display : table-cell; }
     display : none;
 }
 #bom.changed #button-save-changes { display : block; }
+
+
+/*  Serial Numbers */
+/* ----------------------------------------------------------------------------- */
+#grid {
+    opacity : 0.85;
+    z-index : 5;
+}
+#grid-content {
+    position: unset;
+}

@@ -100,6 +100,9 @@ a.button:hover {
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
 }
+.nav-toolbar {
+    padding-bottom : 18px;
+}
 
 #doc-contents {
     overflow-x : hidden;
@@ -167,6 +170,9 @@ span.ref {
     color       : var(--color-blue-500);
     font-weight : bold;
 }
+.button span {
+    color : var(--color-blue-500);
+}
 
 
 
@@ -195,5 +201,6 @@ span.ref {
 }
 .with-icon::before {
     font-size    : 48px;
+    font-weight  : 300;
     margin-right : 10px;
 }

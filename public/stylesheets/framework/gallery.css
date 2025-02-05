@@ -1,0 +1,135 @@
+.screen {
+    display : none;
+}
+.screen > div {
+    border-width : 24px 36px;
+    position     : absolute;
+}
+#header-toolbar .button {
+    min-width : unset;
+}
+#header-toolbar span {
+    font-size   : 12px;
+    line-height : 16px;
+    padding     : 5px 0px 0px 24px;
+    text-align  : right;
+}
+#header-toolbar select {
+    background      : var(--color-red-700);
+    height          : 38px;
+    line-height     : 36px;
+    margin-top      : 2px;
+    max-width       : 120px;
+    padding-left    : 10px;
+    padding-right   : 10px;
+}
+
+
+#mow       { top : 0px; right : 0px; bottom : 50%; left : 0px; }
+#bookmarks { top : 50%; right : 60%; bottom : 0px; left : 0px; }
+#recents   { top : 50%; right : 0px; bottom : 0px; left : 40%; }
+
+#search  { top : 0px; right : 0px; bottom : 50%; left : 0px; }
+#results { top : 50%; right : 0px; bottom : 0px; left : 0px; }
+
+#workspace-views { top : 0px; right : 0px; bottom : 50%; left : 0px; }
+#workspace-items { top : 50%; right : 0px; bottom : 0px; left : 0px; }
+
+#bom      { top   : 0px; right : calc(55% - 72px); bottom :   0px; left :   0px; }
+#flat-bom { top   : 0px; right : 0px;              bottom : 400px; left : calc(45% + 72px); }
+
+/* #item-tabs   { top :  0px; right : 0px;              left  : 0px; height : 20px; display : flex; gap : 20px; }  */
+#item-status { top : 68px; right : calc(50% - 72px); left  : 0px; height : 20px; } 
+#workflow { top : 136px; left  : 0px; right : calc(50% - 72px); height : 20px; } 
+
+#roots   { top : 0px; right : 0px; bottom : 60%; left : 0px; } 
+#parents { top : 50%; right : 0px; bottom : 0px; left : 50%; }
+#changes { top : 50%; right : 50%; bottom : 0px; left : 0px; }
+
+.viewer   { top : 0px; right : 60%; bottom : 50%; left : 0px; } 
+#bom      { top : 0px; right : 0px; bottom : 50%; left : 40%; }
+#flat-bom { top : 50%; right : 0px; bottom : 0px; left : 0px; }
+
+#details          { top : 0px; right : 70%; bottom : 0px; left : 0px; } 
+#attachments      { top : 0px; right : 20%; bottom : 50%; left : 30%; }
+#grid             { top : 50%; right : 20%; bottom : 0px; left : 30%; }
+#workflow-history { top : 0px; right : 0px; bottom : 0px; left : 80%; } 
+
+#change-log    { top : 0px; right : 25%; bottom : 50%; left : 0px; }
+#relationships { top : 0px; right : 0px; bottom : 50%; left : 75%; }
+#processes     { top : 50%; right : 65%; bottom : 0px; left : 0px; }
+#managed-items { top : 50%; right : 0px; bottom : 0px; left : 35%; }
+
+#list-xxs { top : 0px; right : 75%; left : 0px; bottom : 50%; }
+#list-xs  { top : 0px; right : 50%; left : 25%; bottom : 50%; }
+#list-s   { top : 0px; right : 25%; left : 50%; bottom : 50%; }
+#list-m   { top : 0px; right : 0px; left : 75%; bottom : 50%; }
+#list-l   { top : 50%; right : 66%; left : 0px; bottom : 0px; }
+#list-xl  { top : 50%; right : 33%; left : 33%; bottom : 0px; }
+#list-xxl { top : 50%; right : 0px; left : 66%; bottom : 0px; }
+
+#grid-xxs { top : 0px; right : 80%; left : 0px; bottom : 50%; }
+#grid-xs  { top : 0px; right : 55%; left : 20%; bottom : 50%; }
+#grid-s   { top : 0px; right : 30%; left : 45%; bottom : 50%; }
+#grid-m   { top : 0px; right : 0px; left : 70%; bottom : 50%; }
+#grid-l   { top : 50%; right : 66%; left : 0px; bottom : 0px; }
+#grid-xl  { top : 50%; right : 33%; left : 33%; bottom : 0px; }
+#grid-xxl { top : 50%; right : 0px; left : 66%; bottom : 0px; }
+
+#gallery-xxs { top : 0px; right : 75%; left : 0px; bottom : 50%; }
+#gallery-xs  { top : 0px; right : 50%; left : 25%; bottom : 50%; }
+#gallery-s   { top : 0px; right : 25%; left : 50%; bottom : 50%; }
+#gallery-m   { top : 0px; right : 0px; left : 75%; bottom : 50%; }
+#gallery-l   { top : 50%; right : 66%; left : 0px; bottom : 0px; }
+#gallery-xl  { top : 50%; right : 33%; left : 33%; bottom : 0px; }
+#gallery-xxl { top : 50%; right : 0px; left : 66%; bottom : 0px; }
+
+#row-xxs { top :   0px; right : 50%; left : 0px; height : 150px; }
+#row-xs  { top :   0px; right : 0px; left : 50%; height : 150px; }
+#row-s   { top : 150px; right : 50%; left : 0px; height : 200px; }
+#row-m   { top : 150px; right : 0px; left : 50%; height : 200px; }
+#row-l   { top : 350px; right : 50%; left : 0px; height : 350px; }
+#row-xl  { top : 350px; right : 0px; left : 50%; height : 350px; }
+#row-xxl { right : 0px; left : 0px; bottom : 0px; height : 460px;}
+
+#files > div { border-width : 10px; }
+
+#files-row-xxs { top :       0px; right : 30%; left : 40%; height :  86px; }
+#files-row-xs  { top :       0px; right : 0px; left : 70%; height :  94px; }
+#files-row-s   { bottom :  972px; right : 0px; left : 70%; height : 110px; }
+#files-row-m   { bottom :  830px; right : 0px; left : 70%; height : 122px; }
+#files-row-l   { bottom :  630px; right : 0px; left : 70%; height : 180px; }
+#files-row-xl  { bottom :  360px; right : 0px; left : 70%; height : 250px; }
+#files-row-xxl { bottom :    0px; right : 0px; left : 70%; height : 340px; }
+
+#files-list-xxs { top :   0px; right : 80%; left : 0px; height : 112px; }
+#files-list-xs  { top : 132px; right : 80%; left : 0px; height : 128px; }
+#files-list-s   { top : 280px; right : 80%; left : 0px; height : 156px; }
+#files-list-m   { top : 456px; right : 80%; left : 0px; height : 188px; }
+#files-list-l   { top : 664px; right : 80%; left : 0px; height : 220px; }
+#files-list-xl  { top : 904px; right : 80%; left : 0px; height : 300px; }
+#files-list-xxl { top :   0px; right : 60%; left : 20%; height : 380px; }
+
+#files-grid-xxs { top : 106px; right : 30%; left : 40%; height : 118px; }
+#files-grid-xs  { top : 244px; right : 30%; left : 40%; height : 132px; }
+#files-grid-s   { top : 396px; right : 55%; left : 20%; height : 160px; }
+#files-grid-m   { top : 578px; right : 55%; left : 20%; height : 220px; }
+#files-grid-l   { top : 780px; right : 55%; left : 20%; height : 424px; }
+#files-grid-xl  { top : 396px; right : 30%; left : 45%; height : 420px; }
+#files-grid-xxl { top : 780px; right : 30%; left : 45%; height : 424px; }
+
+
+#itemedit   { top :   0px;  bottom : 0px; left :   0px; width : 380px; }
+#itemcreate { top :   0px;  bottom : 0px; left : 452px; width : 480px; }
+#showcreate { top :  40px;  right : 40px; }
+#showclone  { top : 140px;  right : 40px; }
+
+#summary                  { border-width : 36px 36px 24px; }
+#summary-workflow-history { border-width : 30px; top : 0px; bottom : 0px; left :   0px; width : 360px; }
+#summary-details          { border-width : 30px; top : 0px; bottom : 0px; left : 440px; right : 440px; }
+#summary-attachments      { border-width : 30px; top : 0px; bottom : 0px; right :  0px; width : 360px; }
+
+#item-tabs     { top : 0px; right : 50%; bottom : 0px; left : 0px; }
+
+
+#item-sections { top : 0px; right : 0px; bottom : 0px; left : 50%; }

@@ -6,17 +6,13 @@
     --margin-item           : 30px;
     --margin-item-panels    : 24px;
     --padding-item          : 30px;
-    --width-workflow        : 200px;
-    --width-details         : 360px;
+    --width-workflow        : 240px;
+    --width-details         : 420px;
     --width-attachments     : 300px;
     --height-markups        : 140px;
-    --height-attachments    : 160px;
+    --height-attachments    : 200px;
 
 }
-
-/* .processing { position: unset;} */
-
-
 
 /* ADDITIONS */
 /* ----------------------------------------------------------------------------- */
@@ -28,64 +24,64 @@
 .panel.collapsed .panel-title { padding-bottom : 14px; }
 .panel.collapsed .panel-content { display : none !important; }
 /* .panel-title > .icon { margin-right : 8px; } */
-.panel-content { position: unset; }
-#attachments-upload { display : none; }
-.attachments-list {
-    top     : 76px;
-    right   : var(--padding-item);
-    bottom  : var(--padding-item);
-    left    : var(--padding-item);
-}
-
+/* .panel-content { position: unset; } */
+/* #attachments-upload { display : none; } */
 #progress .tile-status {
     display : none;
 }
+#view { max-width : unset; }
+#views > .tiles .tile-data { flex-direction : row; }
 
 
 /* MASTER LAYOUT */
 /* ----------------------------------------------------------------------------- */
-body.no-viewer {
-    --margin-item-panels : 24px;
-    --width-workflow     : 240px;
-    --width-details      : 650px;
-    --width-attachments  : 420px;
-}
 #profiles { display : none; }
-#new {
-    width   : var(--width-new);
-    top     : 0px;
-    right   : 0px;
-    bottom  : 0px;
-}
 #list {
-    top     : var(--margin-main);
-    right   : calc(var(--width-new) + (3 * var(--margin-main)) + 4px);
-    bottom  : var(--margin-main);
-    left    : var(--margin-main);
+    border-width : var(--margin-main);
+    top          : 0px;
+    right        : calc(var(--width-new) + (2 * var(--margin-main)));
+    bottom       : 0px;
+    left         : 0px;
 }
-#item {
-    display : none;
+#new {
+    border-width : var(--margin-main);
+    top          : 0px;
+    right        : 0px;
+    bottom       : 0px;
+    width        : var(--width-new);
 }
+#item { 
+    border-width : var(--margin-main);
+    display      : none; 
+}
+
+
+
+/* ITEM SUMMARY LAYOUT */
+/* ----------------------------------------------------------------------------- */
 #workflow-history {
-    left    : var(--margin-item);
-    right   : unset;
+    top     : 0px;
+    bottom  : 0px;
+    left    : 0px;
     width   : var(--width-workflow);
 }
 #details {
-    bottom  : calc(var(--height-attachments) + 40px + (2 * var(--margin-item))) !important;
-    left    : calc(var(--width-workflow) + var(--margin-item) + var(--margin-item-panels) + (2 * var(--padding-item)));
+    top     : 0px;
+    bottom  : 0px;
+    left    : calc(var(--width-workflow) + (2 * var(--item-content-border-h)) + (1 * var(--item-content-gap)));
     width   : var(--width-details);
 }
-#attachments {
-    top : unset !important;
-    left : calc(var(--width-workflow) + var(--margin-item) + var(--margin-item-panels) + (2 * var(--padding-item)));
-    width : var(--width-details);
-    height: var(--height-attachments);
-}
-#design {
-    left : calc(var(--width-workflow) + var(--width-details) + var(--margin-item) + (2 * var(--margin-item-panels)) + (4 * var(--padding-item)));
-    right : var(--margin-item);
-    
+/* #attachments {
+    top     : 0px;
+    right   : 0px;
+    left    : calc(var(--width-workflow) + var(--width-details) + (4 * var(--item-content-border-h)) + (2 * var(--item-content-gap)));
+    height  : var(--height-attachments);
+} */
+#grid {
+    top     : calc(var(--height-attachments) + (2 * var(--item-content-border-v)) + (1 * var(--item-content-gap)));
+    right   : 0px;
+    bottom  : 0px;
+    left    : calc(var(--width-workflow) + var(--width-details) + (4 * var(--item-content-border-h)) + (2 * var(--item-content-gap)));
 }
 #viewer {
     top     : 0px !important;
@@ -102,42 +98,11 @@ body.no-viewer {
 }
 
 
-body.no-viewer #workflow-history {
-    left : unset;
-    right : calc(50% + (var(--width-details) / 2) + var(--margin-item-panels) + var(--padding-item) + ((var(--width-attachments) - var(--width-workflow)) / 2));
-}
-body.no-viewer #details {
-    left    : calc(50% - (var(--width-details) / 2) - var(--padding-item) - ((var(--width-attachments) - var(--width-workflow)) / 2));
-    bottom  : var(--margin-item) !important;
-}
-body.no-viewer #attachments {
-    height  : unset;
-    top     : 0px !important;
-    left    : calc(50% + (var(--width-details) / 2) + var(--margin-item-panels) + var(--padding-item) - ((var(--width-attachments) - var(--width-workflow)) / 2));
-    width   : var(--width-attachments);
-}
-body.no-viewer #design {
-    display : none;
-}
+
 #details-sections .section-fields .field-label {
     width : unset;
 }
-body.no-viewer #details-sections .section-fields .field {
-    flex-direction : row;
-}
-body.no-viewer #details-sections .section-fields .field .field-label {
-    text-align : right;
-    width: var(--width-field-label);
-}
-body.no-viewer .attachment { height : 58px !important; }
-body.no-viewer .attachment-details > div { display : block; }
-body.no-viewer .attachment-graphic { width : 64px; }
-body.no-viewer .tiles.list.files { gap: var(--spacer-xs); }
 
-body.no-markup #viewer { bottom : 0px !important; }
-body.no-markup #markups { display : none; }
-body.no-new #new {    display: none;}
-body.no-new #list {right : var(--margin-main);}
 
 body.no-profile #header,
 body.no-profile #main,
@@ -188,68 +153,51 @@ body.no-profile #profiles { display : block; }
 
 /* NEW */
 /* ----------------------------------------------------------------------------- */
-#new {
-    border-width : var(--margin-main) 
-}
 .panel-message {
-    padding: 20px 14px;
-    margin: 0px 0px;
-    border-radius: 4px;
-    line-height: 18px;
+    border-radius   : 4px;
+    line-height     : 18px;
+    margin          : 0px 0px;
+    padding         : 20px 14px;
 }
 #new-sections {
-    /* border-top : 16px solid #f5f5f5; */
-    /* border-bottom : 16px solid #f5f5f5; */
-    overflow-y: auto;
-    padding: 16px;
-    position : absolute;
-    top: 140px;
-    right : 0px;
-    bottom: 54px;
-    left: 0px;
+    overflow-y  : auto;
+    top         : 160px;
+    right       : 14px;
+    left        : 14px;
 }
 #new-sections .section-fields {
+    gap     : 12px;
     padding : 0px;
 }
 #new-sections .field {
-    border : none;
-    padding : 6px 0px;
+    border          : none;
+    flex-direction  : column;
 }
 #new-sections .field-label {
-    color : var(--color-font) !important;
-    width : 120px
-}
-#new-sections .field-value {
-    width : calc(100% - var(--padding-field-label) - 120px);
-}
-#new-sections .section,
-#new-sections .field {
-    display : none;
+    color       : var(--color-font) !important;
+    padding     : 10px 6px;
+    text-align  : left;
+    width       : 100%;
 }
 #new .panel-toolbar {
-    padding : 0px;
+    padding     : 0px;
+    position    : absolute;
+    right       : 0px;
+    bottom      : 0px;
+}
+#new-sections-action-save {
+    min-width   : 150px;
+    width       : 150px;
+}
+#new-sections-action-save::before {
     position : absolute;
-    right : 0px;
-    bottom : 0px;
-}
-#continue {
-    display : flex;
-    margin : 0px;
-    padding-left : 30px;
-}
-#continue::after {
-    font-size: 24px;
-    font-weight: 200;
-    line-height: 20px;
-    content: '\e5cc';
-    font-family: 'Material Symbols Sharp';
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
+    top      : 10px;
+    right    : 10px;
 }
 
 
 
-/* LIST */
+/* LANDING PAGE LIST */
 /* ----------------------------------------------------------------------------- */
 #list {
     display         : flex;
@@ -260,6 +208,26 @@ body.no-profile #profiles { display : block; }
 #list > .panel-content > div {
     display : none;
 }
+#list .tile-details {
+    margin-top : 10px;
+}
+.tile-title {
+    line-height : 22px;
+}
+.tile-title,
+.tile-subtitle {
+    white-space     : nowrap;
+    overflow        : hidden;
+    text-overflow   : ellipsis;
+}
+.tile-data {
+    font-size : 12px;
+}
+.tiles.l > .tile > .tile-details > .tile-data {
+    font-size   : 12px;
+    line-height : 14px;
+}
+
 
 
 /* PROGRESS COLUMNS */
@@ -283,10 +251,10 @@ body.no-profile #profiles { display : block; }
     border-right : none;
 }
 .progress-title {
-    color : white;
+    color       : white;
     font-weight : bold;
-    padding : var(--spacer-xxs);
-    text-align : center;
+    padding     : var(--spacer-xxs);
+    text-align  : center;
 }
 .progress-column {
     margin-top : 8px;
@@ -301,13 +269,7 @@ body.no-profile #profiles { display : block; }
 .progress-column.tiles.list.l .tile-details {
     width : calc(100% - 74px);
 }
-.tile-title,
-.tile-subtitle {
-    white-space : nowrap;
-    overflow : hidden;
-    text-overflow: ellipsis;
-}
-
+.progress-column .icon-calendar { display : none; }
 
 
 /* CALENDAR */
@@ -390,147 +352,179 @@ td.selected {
 
 
 
-/* ITEM */
+/* ITEM SUMMARY Change Requests */
 /* ----------------------------------------------------------------------------- */
-#item-header {
-    display : flex;
-    justify-content: space-between;
-    padding : 20px var(--margin-item);
-    position : absolute;
-    top : 0px;
-    right : 0px;
-    left : 0px;
+#item.change-request {
+    --height-attachments    : 220px;
+    --width-details         : 600px;
+    --width-workflow        : 300px;
 }
-#item-descriptor {
-    font-size : 22px;
-    font-weight : 800;
-    margin : 6px 0px 10px 0px;
+#item.change-request #details {
+    top     : 0px;
+    right   : unset;
+    bottom  : calc(var(--height-attachments) + (2 * var(--item-content-border-v)) + (1 * var(--item-content-border-h)));
+    left    : 0px;
+    width   : var(--width-details);
 }
-#item-details {
-    display: flex;
-    font-size : 14px;
-    gap: 16px;
+#item.change-request #attachments {
+    right   : unset;
+    bottom  : 0px;
+    left    : 0px;
+    height  : var(--height-attachments);
+    width   : var(--width-details);
 }
-#item-summary > span {
-    font-weight : bold;
+#item.change-request #managed-items {
+    top     : 0px;
+    right   : calc(var(--width-workflow) + (3 * var(--item-content-border-h)));
+    bottom  : 0px;
+    left    : calc(var(--width-details) + (3 * var(--item-content-border-h)));
 }
-#item-status {
-    border-radius : 3px;
-    color : white;
-    font-size : 12px;
-    padding : 0px 12px;
-}
-#item-toolbar {
-    margin-top : 10px;
-}
-#workflow-actions {
-    padding : 8px 12px;
-}
-#item-content {
-    position : absolute;
-    top      : 96px;
-    right    : 0px;
-    bottom   : 0px;
-    left     : 0px;   
-}
-#item-content > div {
-    padding         : 20px var(--padding-item);
-    position        : absolute;
-    top             : 0px;
-    bottom          : var(--margin-item);
-    transition      : all ease 0.25s;
-}
-#item-content > div > .panel-content {
-    overflow-y  : auto;
-    position    : absolute;
-    top         : 76px;
-    right       : var(--padding-item);
-    bottom      : var(--padding-item);
-    left        : var(--padding-item);
-}
-#details-sections .section-fields .field .field-label {
-    text-align : left;
-}
-#details-sections .section-fields .field {
-    border : none;
-    flex-direction : column;
-    padding : 8px 0px;
-}
-.field-value {
-    width : 100%;
-}
-.workflow-history-action-icon::before {
-    background : var(--color-surface-level-1)
-}
-.workflowh-history-event {
-    border-color : var(--color-surface-level-4);
+#item.change-request #workflow-history {
+    top     : 0px;
+    right   : 0px;
+    bottom  : 0px;
+    left    : unset;
 }
 
 
-/* ATTACHMENTS */
+/* ITEM SUMMARY Non Conformances */
 /* ----------------------------------------------------------------------------- */
-.attachment {
-    height : 20px !important;
+#item.non-conformance {
+    --height-attachments    : 220px;
+    --width-details         : 600px;
+    --width-workflow        : 300px;
 }
-.attachment-graphic {
-    width : 32px;
+#item.non-conformance #details {
+    top     : 0px;
+    right   : unset;
+    bottom  : calc(var(--height-attachments) + (2 * var(--item-content-border-v)) + (1 * var(--item-content-border-h)));
+    left    : 0px;
+    width   : var(--width-details);
 }
-.attachment-user,
-.attachment-date {
-    display : none;
-} 
-.tiles.list.files {
-    gap: var(--spacer-xxxs);
+#item.non-conformance #attachments {
+    right   : unset;
+    bottom  : 0px;
+    left    : 0px;
+    height  : var(--height-attachments);
+    width   : var(--width-details);
+}
+#item.non-conformance #markup {
+    top     : 0px;
+    right   : calc(var(--width-workflow) + (3 * var(--item-content-border-h)));
+    bottom  : 0px;
+    left    : calc(var(--width-details) + (3 * var(--item-content-border-h)));
+}
+#item.non-conformance #workflow-history {
+    top     : 0px;
+    right   : 0px;
+    bottom  : 0px;
+    left    : unset;
 }
 
 
-/* DESIGN */
+/* ITEM SUMMARY Problem Reports */
 /* ----------------------------------------------------------------------------- */
-#design {
-    padding : 0px;
-} 
+#item.problem-report {
+    --height-attachments    : 220px;
+    --width-details         : 600px;
+    --width-workflow        : 300px;
+}
+#item.problem-report #details {
+    top     : 0px;
+    right   : unset;
+    bottom  : calc(var(--height-attachments) + (2 * var(--item-content-border-v)) + (1 * var(--item-content-border-h)));
+    left    : 0px;
+    width   : var(--width-details);
+}
+#item.problem-report #attachments {
+    right   : unset;
+    bottom  : 0px;
+    left    : 0px;
+    height  : var(--height-attachments);
+    width   : var(--width-details);
+}
+#item.problem-report #markup {
+    top     : 0px;
+    right   : calc(var(--width-workflow) + (3 * var(--item-content-border-h)));
+    bottom  : 0px;
+    left    : calc(var(--width-details) + (3 * var(--item-content-border-h)));
+}
+#item.problem-report #workflow-history {
+    top     : 0px;
+    right   : 0px;
+    bottom  : 0px;
+    left    : unset;
+}
 
 
-/* MAKRUPS */
+
+/* ITEM SUMMARY Project Tasks */
 /* ----------------------------------------------------------------------------- */
-#markups {
-    background  : var(--color-dark);
-    color       : white;
-    display     : flex;
+#item.problem-report {
+    --height-attachments    : 220px;
+    --width-details         : 600px;
+    --width-workflow        : 300px;
 }
-#markups > div {
-    padding : var(--padding-item) calc(2 * var(--padding-item));
+#item.project-task #details {
+    top     : 0px;
+    right   : unset;
+    bottom  : calc(var(--height-attachments) + (2 * var(--item-content-border-v)) + (1 * var(--item-content-border-h)));
+    left    : 0px;
+    width   : var(--width-details);
 }
-#markup-panel {
-    min-width : 240px;
-    width : 240px;
+#item.project-task #attachments {
+    right   : unset;
+    bottom  : 0px;
+    left    : 0px;
+    height  : var(--height-attachments);
+    width   : var(--width-details);
 }
-#markup-title {
-    font-size    : 18px;
-    font-weight  : 800;
-    line-height  : 30px;
+#item.project-task #grid {
+    top     : 0px;
+    right   : calc(var(--width-workflow) + (3 * var(--item-content-border-h)));
+    bottom  : 50%;
+    left    : calc(var(--width-details) + (3 * var(--item-content-border-h)));
 }
-#markup-subtitle {
-    font-size : 12px;
-    line-height : 16px;
+#item.project-task #relationships {
+    top     : calc(50% + var(--item-content-border-h));
+    right   : calc(var(--width-workflow) + (3 * var(--item-content-border-h)));
+    bottom  : 0px;
+    left    : calc(var(--width-details) + (3 * var(--item-content-border-h)));
 }
-#markup-list {
-    display      : flex;
-    gap          : 10px;
-    padding-left : 0px !important;
-    overflow-x   : auto;
-    overflow-y   : hidden;
+#item.project-task #workflow-history {
+    top     : 0px;
+    right   : 0px;
+    bottom  : 0px;
+    left    : unset;
 }
-.markup {
-    border-radius : 3px;
-    border : 3px solid transparent;
-    cursor : pointer;
-    height : 80px;
+
+
+
+/* ITEM SUMMARY Supplier Packages */
+/* ----------------------------------------------------------------------------- */
+#item.supplier-package {
+    --height-attachments    : 220px;
+    --width-details         : 600px;
+    --width-attachments     : 600px;
 }
-.markup.placeholder {
-    border : 2px dashed var(--color-gray-400);
-    width : 80px;
+#item.supplier-package #details {
+    top     : 0px;
+    right   : unset;
+    bottom  : 0px;
+    left    : 0px;
+    width   : var(--width-details);
 }
-.markup.selected {
-    border-color : var(--color-blue-500);
-};
+#item.supplier-package #attachments {
+    top     : 0px !important;
+    right   : unset;
+    bottom  : 0px;
+    left    : calc(var(--width-details) + (3 * var(--item-content-border-h)));
+    height  : unset;
+    width   : var(--width-attachments);
+}
+#item.supplier-package #grid {
+    top     : 0px;
+    right   : 0px;
+    bottom  : 0px;
+    left    : calc(var(--width-details) + var(--width-attachments) + (6 * var(--item-content-border-h)));
+}

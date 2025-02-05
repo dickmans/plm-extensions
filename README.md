@@ -8,7 +8,7 @@
 Disclaimer: In any case all source code of this solution is of "work in progress" character. Neither of the contributors nor Autodesk represent that theses code samples are reliable, accurate, complete, or otherwise valid. Accordingly, those configuration samples are provided “as is” with no warranty of any kind and you use the applications at your own risk. 
 
 The following extensions are included
-- Change Impact Analysis
+- Change Impact Analysis [Video](https://youtu.be/6A9ZNCxqRKg)
 - Class Browser
 - Design Review Portal [Video](https://youtu.be/AU--qJIMmlE)
 - MBOM Editor [Video](https://youtu.be/5s9080mmYLo)

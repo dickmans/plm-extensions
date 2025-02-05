@@ -37,8 +37,8 @@
     height : 204px;
 }
 .report-no-data {
-    color: var(--color-status-red);
-    font-size: 12px;
+    color     : var(--color-blue-500);
+    font-size : 12px;
 }
 
 

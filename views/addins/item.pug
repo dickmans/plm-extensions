@@ -9,58 +9,7 @@ block head
 
 block body  
 
-    body
+    body.addin
 
-        #header.dark
-            #header-logo
-            #header-title= title
-            #header-subtitle
-            #header-toolbar
-                #header-avatar
-
-        .screen.surface-level-1  
-
-            .viewer#viewer
-
-            .tabs.surface-level-2(data-tab-group="tab-group-main")
-                .tab Item Details
-                .tab#tab-bom BOM 
-                //- .tab Kolorierung 
-                .tab Files
-            
-            .panel.tab-group-main#details
-                .panel-header   
-                    .panel-title
-                    .panel-toolbar 
-                        .button.icon.icon-bookmark#bookmark
-                        .button.icon.icon-open#open
-                .panel-content.compact#details-sections
-
-            .panel.tab-group-main#flat-bom
-            
-            .panel.tab-group-main#master-bom
-                .panel#item-variants 
-                    .panel-header 
-                        .panel-title#item-variants-header Item Variants
-                        .panel-toolbar 
-                            .button.icon.icon-close#item-variants-close
-                    .panel-content#item-variants-text Select from the variants of
-                    .panel-content#item-variants-title
-                    .panel-content.surface-level-3#item-variants-list-parent
-                        #item-variants-list.list.tiles.m
-
-            .panel.tab-group-main#attachments
-                .panel-header   
-                    .panel-title
-                    .panel-toolbar 
-                        .button.with-icon.icon-upload.default#upload Datei hochladen
-                .panel-content#attachments-list.attachments.list.tiles.xxxs
-
-
-            //- .dialog#dialog-variants
-            //-     .dialog-header Farbwelten wählen
-            //-     .dialog-content.tiles.wide.s#dialog-variants-list.surface-level-1 
-            //-     .dialog-footer
-            //-         .button.clear Deselect All
-            //-         .button.default#dialog-variants-apply Apply 
-            //-         .button.cancel#dialog-variants-cancel Cancel
+        .screen.surface-level-2
+            #item.surface-level-2

@@ -1,0 +1,69 @@
+extends ../framework/layout
+
+block head
+
+    link(rel='stylesheet', href='/stylesheets/dev/pdm-explorer.css')
+    //- link(rel='stylesheet', href='/stylesheets/custom/pdm-explorer.css')
+    script(src='/javascripts/dev/pdm-explorer.js')
+    //- script(src='/javascripts/custom/explorer.js')
+    script.
+        config = !{JSON.stringify(config)};
+
+block body
+
+    body.surface-level-1.text-selection-off.no-attachments.screen-startup.with-panel.no-properties
+
+        #header.dark
+            #header-logo
+            #header-title= title
+            #header-subtitle.main
+            #header-toolbar
+                //- .landing#button-toggle-recents.button.with-icon.icon-history(title='Click to toggle Recently Viewed panel on/off') Toggle Recently Viewed
+                //- .landing#button-toggle-bookmarks.button.with-icon.icon-bookmark(title='Click to toggle Bookmarks panel on/off') Toggle Bookmarks
+                //- .main#button-home.button.with-icon.icon-home(title='Browse availalbe products') Home
+                #button-toggle-kpis.button.with-icon.icon-toggle-on.filled(title='Click to toggle dashboard panel with KPIs on/off') Dashboard
+                #button-toggle-properties.button.with-icon.icon-toggle-off(title='Click to toggle properties panel on/off') Properties
+                //- .main#button-toggle-bom.button.with-icon.icon-bom(title='Click to switch BOM display form tree to table and back') BOM
+                //- .main#button-toggle-attachments.button.with-icon.icon-pdf(title='Click to toggle files panel on/off') Files
+                //- .main#button-toggle-properties.button.with-icon.icon-panel(title='Click to toggle properties panel on/off') Properties
+                //- .main#button-toggle-processes.button.with-icon.icon-workflow(title='Click to toggle processes panel on/off') Processes
+                #header-avatar
+        
+        //- .screen#landing
+
+        //-     #recents.surface-level-2
+        //-     #search.surface-level-2
+        //-     #products.surface-level-1
+        //-     #bookmarks.surface-level-2
+
+        .screen#main
+
+            //- #dashboard.no-toolbar.surface-level-2
+            //-     .panel-header
+            //-         .panel-title#dashboard-title Dashboard
+            //-         .panel-toolbar#dashboard-toolbar
+            //-             .button.icon.xs.icon-clear#dashboard-reset
+            //-             .button.icon.xs.icon-fold#collapse-all-kpis
+            //-             .button.icon.xs.icon-unfold#expand-all-kpis 
+            //-             .button.icon.xs.icon-refresh#dashboard-refresh(title='Click to reload KPIs')
+            //-     #dashboard-panel.no-scrollbar
+            //-     #dashboard-counter
+                    
+            #kpis.surface-level-2
+
+            #file-bom.surface-level-1
+
+            #viewer.viewer.surface-level-1          
+
+            //- #attachments
+
+            #file-properties.surface-level-2
+
+            //- .panel.surface-level-2#processes
+            
+            .dialog#create-connect
+                .dialog-header Create Supplier Package
+                .dialog-content#create-connect-sections.no-scrollbar.surface-level-1
+                .dialog-footer
+                    #create-connect-confirm.button.default Confirm
+                    #create-connect-cancel.button Cancel

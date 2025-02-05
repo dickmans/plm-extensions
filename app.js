@@ -1,6 +1,6 @@
 let fileSettings = (process.argv.length > 2) ? './settings/' + process.argv[2] + '.js' : './settings.js';
 
-const fs  = require('fs');
+const fs = require('fs');
 
 if ((process.argv.length > 2) && (!fs.existsSync('./' + fileSettings))) {
 
@@ -26,6 +26,7 @@ if ((process.argv.length > 2) && (!fs.existsSync('./' + fileSettings))) {
     const bodyParser  = require('body-parser');
     const landing     = require('./routes/landing');
     const plm         = require('./routes/plm');
+    const vault       = require('./routes/pdm');
     const services    = require('./routes/services');
     const { fchmodSync } = require('fs');
     const settings    = require(fileSettings);
@@ -33,14 +34,18 @@ if ((process.argv.length > 2) && (!fs.existsSync('./' + fileSettings))) {
 
 
     // READ CONFIGURATION SETTINGS
-    app.locals.tenant            = settings.tenant;
     app.locals.clientId          = settings.clientId;
     app.locals.redirectUri       = settings.redirectUri;
-    app.locals.config            = settings.config;
-    app.locals.debugMode         = settings.debugMode;
+    app.locals.tenant            = settings.tenant;
+    app.locals.tenantLink        = 'https://' + settings.tenant + '.autodeskplm360.net';
     app.locals.defaultTheme      = settings.defaultTheme;
+    app.locals.enableCache       = settings.enableCache;
     app.locals.adminClientId     = settings.adminClientId;
     app.locals.adminClientSecret = settings.adminClientSecret;
+    app.locals.vaultGatewayLink  = (settings.vaultGateway === '') ? '' : 'https://' + settings.vaultGateway + '.vg.autodesk.com';
+    app.locals.vaultName         = settings.vaultName;
+    app.locals.config            = settings.config;
+    app.locals.debugMode         = settings.debugMode;
 
     
     // VIEW ENGINE SETUP
@@ -54,8 +59,8 @@ if ((process.argv.length > 2) && (!fs.existsSync('./' + fileSettings))) {
     app.use(session({
         secret: "XASDSEDR",
         proxy: true,
-        resave: true,
-        saveUninitialized: true
+        resave: false,
+        saveUninitialized: false
     }));
     app.use(bodyParser.json({limit: "50mb"}));
     app.use(bodyParser.urlencoded({limit: "50mb", extended: true, parameterLimit:50000}));
@@ -65,6 +70,7 @@ if ((process.argv.length > 2) && (!fs.existsSync('./' + fileSettings))) {
     // ROUTING
     app.use('/', landing);
     app.use('/plm', plm);
+    app.use('/vault', vault);
     app.use('/services', services);
 
 

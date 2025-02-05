@@ -439,7 +439,7 @@ function getInitialData() {
 
             if(!isBlank(wsConfig.fieldIdSubtitle)) params.columns.push(wsConfig.fieldIdSubtitle);
 
-            $.get('/plm/tableau-add', params, function(response) {
+            $.post('/plm/tableau-add', params, function(response) {
                 $.get('/plm/tableaus', { 'wsId' : wsConfig.id }, function(response) {
                     for(tableau of response.data) {
                         if(tableau.title === wsConfig.tableauName) {

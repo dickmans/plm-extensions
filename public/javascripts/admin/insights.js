@@ -39,20 +39,20 @@ let usersExcluded       = [];
 let workspacesExcluded  = [];
 
 let colors = [
-    'rgb(64, 169, 221, 0.8)',
-    'rgb(250, 177, 28, 0.8)',
-    'rgb(119, 189, 13, 0.8)',
-    'rgb(226, 88, 11, 0.8)',
+    'rgb( 64, 169, 221, 0.8)',
+    'rgb(250, 177,  28, 0.8)',
+    'rgb(119, 189,  13, 0.8)',
+    'rgb(226,  88,  11, 0.8)',
     'rgb(114, 114, 114, 0.8)',
     'rgb(156, 115, 221, 0.8)',
-    'rgb(206, 112, 87, 0.8)',
-    'rgb(64, 169, 221, 0.4)',
-    'rgb(250, 177, 28, 0.4)',
-    'rgb(119, 189, 13, 0.4)',
-    'rgb(226, 88, 11, 0.4)',
+    'rgb(206, 112,  87, 0.8)',
+    'rgb( 64, 169, 221, 0.4)',
+    'rgb(250, 177,  28, 0.4)',
+    'rgb(119, 189,  13, 0.4)',
+    'rgb(226,  88,  11, 0.4)',
     'rgb(114, 114, 114, 0.4)',
     'rgb(156, 115, 221, 0.4)',
-    'rgb(206, 112, 87, 0.4)'
+    'rgb(206, 112,  87, 0.4)'
 ];
 
 let colorsT = [
@@ -125,7 +125,7 @@ function validateAdminAccess(callback) {
 
     let isAdmin = false;
 
-    $.get( '/plm/me', {}, function(response) {
+    $.get('/plm/me', {}, function(response) {
 
         for(let group of response.data.groups) {
             if(group.shortName === 'Administration [SYSTEM]') isAdmin = true;      
@@ -622,7 +622,7 @@ function setUIEvents() {
         
         let valueSelected = this.value;
 
-        console.log(valueSelected);
+        // console.log(valueSelected);
 
         // if(valueSelected === '*') {
 
@@ -852,8 +852,8 @@ function updateLastLoginChart() {
 function setWorkspacesCharts() {
     
     $.get('/plm/workspaces', { 
-        'offset' : 0,
-        'limit'  : 500
+        offset : 0,
+        limit  : 500
     }, function(response) {
 
         $('#workspaces-count').html(response.data.totalCount);
@@ -956,7 +956,7 @@ function getWorkspaceCount(index) {
 function setTimelineCharts() {
     
     chartTimelineUsers.options.scales.y.labels.push(' ');
-    for(user of users) {
+    for(let user of users) {
         let userName = user.displayName;
         if(userName !== ' ') chartTimelineUsers.options.scales.y.labels.push(userName);
     }
@@ -971,8 +971,8 @@ function getSystemLogs() {
     if(totalSystemLog < 0) {
 
         $.get('/plm/system-logs', { 
-            'offset' : 0,
-            'limit' : 1
+            offset : 0,
+            limit  : 1
         }, function(response) {
         
             totalSystemLog = response.data.totalCount;
@@ -996,20 +996,20 @@ function getSystemLogs() {
         for(let i = 0; i < parallelRequestsLog; i++) {
             let offSetNew = offsetSystemLog + (i * logLimit);
             if(offSetNew < totalSystemLog) {
-                requests.push(getSystemLog(offSetNew, logLimit));
+                requests.push($.get('/plm/system-logs', { offset : offSetNew, limit  : logLimit }));
             }
         }
         
-        Promise.all(requests).then(function(response){
+        Promise.all(requests).then(function(responses) {
             if(totalSystemLog === 3) {
-                totalSystemLog = response.data[0].totalCount;
+                totalSystemLog = responses.data[0].totalCount;
                 offsetSystemLog += logLimit;
-
             } else {
                 offsetSystemLog += (parallelRequestsLog * logLimit);
             }
 
-            processSystemLogs(response);
+            for(let response of responses) processSystemLog(response);
+
             progressLogs = Math.round((offsetSystemLog * 100 / totalSystemLog), 0);
             updateProgress();
             getSystemLogs();
@@ -1023,30 +1023,13 @@ function getSystemLogs() {
     }      
 
 }
-function getSystemLog(offset, limit) {
+function processSystemLog(response) {
     
-    return new Promise(function(resolve, reject) {
-        $.get('/plm/system-logs', { 
-            'offset'    : offset,
-            'limit'     : limit
-        }, function(data) {
-            return resolve(data);
-        });
-    });
-    
-}
-function processSystemLogs(data) {
-    for(dataset of data) {
-        processSystemLog(dataset);
-    }
-}
-function processSystemLog(dataset) {
-    
-    let events  = dataset.data.items;
+    let events  = response.data.items;
     let now     = new Date();
 
     for(let event of events) {
-            
+
         let urn       = event.user.urn;
         let userIndex = -1;
         let date      = new Date(event.timestamp);

@@ -31,10 +31,6 @@
                     td When set to true and the search returns one result only, the given item will be selected automaticall
                     td true
                 tr 
-                    td portal.workspace
-                    td Set the workspace being searched for
-                    td 57
-                tr 
                     td portal.sectionsExcluded
                     td Provide list of sections (by name) that should be excluded from the Details display
                     td ['AML Summary', 'Quality Inspection', 'Sustainability', 'Compliance', 'Others']
@@ -57,7 +53,6 @@
         p.code
             span export.config = {
             span.indent 'service' : {
-            span.indent-2 workspace : 57,
             span.indent-2 autoClick : true
             span.indent-2 sectionsExcluded : ['AML Summary', 'Quality Inspection', 'Sustainability', 'Compliance', 'Others'],
             span.indent-2 sectionsIncluded : [],
@@ -66,7 +61,17 @@
             span.indent-2 fieldsIncluded   : [],
             span.indent-2 viewerFeatures   : { .. }
             span.indent }
-            span }         
+            span }  
+        p This utility also uses the following common configuration settings
+        table(style='margin:10px 0px 30px')
+            tr
+                th Setting
+                th Description
+                th Default Value 
+            tr  
+                td config.items.wsId
+                td The Items workspace ID
+                td 57       
         h1 Configuring Viewer Features
         include ../framework/viewer.pug
     .log 

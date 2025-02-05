@@ -1,7 +1,7 @@
 $(document).ready(function() {
 
-    $('#demo').click(function() {
-        alert('Hello World');
+    $('#gallery').click(function() {
+        document.location.href = document.location.href.split('/docs')[0] + '/gallery';
     })
 
     $('.nav-header').click(function() {

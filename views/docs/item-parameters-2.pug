@@ -1,0 +1,39 @@
+
+tr 
+    td tableHeaders 
+    td When set to false, the table headers will not be shown
+    td Boolean
+    td No
+    td true
+tr 
+    td columnsIn 
+    td Restricts the columns to be displayed. If this list is not empty, only the columns in this list will be shown. Select from the standard tab columns ('Workflow Item', 'Workspace', ...).
+    td Array
+    td No 
+    td []
+tr 
+    td columnsEx 
+    td Restricts the columns to be displayed. If this list is not empty, the columns in this list will not be shown. Select from the standard tab columns ('Workflow Item', 'Workspace', ...).
+    td Array
+    td No 
+    td []
+tr 
+    td workspacesIn 
+    td List of workspace to be included, identified by workspace names (example: ['Change Orders'])
+    td Array
+    td No 
+    td []
+tr 
+    td workspacesEx 
+    td List of workspace to be excluded, identified by workspace names (example: ['Problem Reports', 'Change Tasks'])
+    td Array
+    td No 
+    td []          
+tr 
+    td onItemClick 
+    td Provide a function to be executed when users click an item (table row or tile). Example : 
+        br
+        |onItemClick : function(elemClicked) { elemClicked.hide(); }
+    td function
+    td No 
+    td null                

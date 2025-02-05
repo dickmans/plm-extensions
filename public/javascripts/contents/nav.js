@@ -1,1092 +1,371 @@
 // Insert user's MY OUTSTANDING WORK (filter for defined workspaces if needed)
 function insertMOW(params) {
 
-    //  Set defaults for optional parameters
-    // --------------------------------------
-    let id           = 'mow';                   // id of DOM element where the list will be inserted
-    let header       = true;                    // Hide header with setting this to false
-    let headerLabel  = 'My Outstanding Work';   // Set the header text
-    let headerToggle = false;                   // Enable header toggles
-    let filters      = true;                    // Enable header filter controls
-    let reload       = true;                    // Enable reload button for the list
-    let search       = true;                    // Enable search within the list
-    let icon         = 'mow';                   // Sets the icon to be displayed for each tile
-    let size         = 'm';                     // layout size (xxs, xs, s, m, l, xl, xxl)
-    let workspacesIn = [];                      // List of workspace IDs to be included. Items from other workspaces will not be shown.
-    let workspacesEx = [];                      // List of workspace IDs to be excluded. Items of these workspaces will not be shown.
+    if(isBlank(params)) params = {};
 
-    if( isBlank(params)             )       params = {};
-    if(!isBlank(params.id)          )           id = params.id;
-    if(!isBlank(params.header)      )       header = params.header;
-    if(!isBlank(params.headerLabel) )  headerLabel = params.headerLabel;
-    if(!isBlank(params.headerToggle)) headerToggle = params.headerToggle;
-    if(!isBlank(params.filters)     )      filters = params.filters;
-    if(!isBlank(params.reload)      )       reload = params.reload;
-    if(!isBlank(params.search)      )       search = params.search;
-    if(!isBlank(params.icon)        )         icon = params.icon;
-    if(!isBlank(params.size)        )         size = params.size;
-    if(!isBlank(params.workspacesIn)) workspacesIn = params.workspacesIn;
-    if(!isBlank(params.workspacesEx)) workspacesEx = params.workspacesEx;
+    let id = isBlank(params.id) ? 'mow' : params.id;
 
-    settings.mow[id]              = {};
-    settings.mow[id].filters      = filters;
-    settings.mow[id].icon         = icon;
-    settings.mow[id].workspacesIn = workspacesIn;
-    settings.mow[id].workspacesEx = workspacesEx;
+    settings.mow[id] = getPanelSettings('', params, {
+        headerLabel : 'My Outstanding Work',
+        layout      : 'table'
+    }, [
+        [ 'filterByDueDate'  , false ],
+        [ 'filterByWorkspace', false ]
+    ]);
 
-    let elemParent = $('#' + id)
-        .addClass('mow')
-        .html('')
-        .show();
+    settings.mow[id].load = function() { insertMOWData(id); }
 
-    if(header) {
-
-        let elemHeader = $('<div></div>', {
-            id : id + '-header'
-        }).appendTo(elemParent).addClass('panel-header');
+    genPanelTop(id, settings.mow[id], 'mow');
+    genPanelHeader(id, settings.mow[id]);
+    genPanelOpenSelectedInPLMButton(id, settings.mow[id]);
+    genPanelSelectionControls(id, settings.mow[id]);
+    genPanelFilterToggle(id, settings.mow[id], 'filterByDueDate', 'due', 'Due Tasks');
+    genPanelFilterSelect(id, settings.mow[id], 'filterByWorkspace', 'workspace', 'All Workspaces');
+    genPanelSearchInput(id, settings.mow[id]);
+    genPanelReloadButton(id, settings.mow[id]);
     
-        if(headerToggle) {
-    
-            $('<div></div>').appendTo(elemHeader)
-                .addClass('panel-header-toggle')
-                .addClass('icon')
-                .addClass('icon-collapse');
-    
-            elemHeader.addClass('with-toggle');
-            elemHeader.click(function() {
-                togglePanelHeader($(this));
-            });
-    
-        }
-    
-        $('<div></div>').appendTo(elemHeader)
-            .addClass('panel-title')
-            .attr('id', id + '-title')
-            .html(headerLabel);
-    
-        let elemToolbar = $('<div></div>').appendTo(elemHeader)
-            .addClass('panel-toolbar')
-            .attr('id', id + '-toolbar');
-    
-        $('<div></div>').appendTo(elemToolbar)
-            .hide()
-            .addClass('button')
-            .addClass('with-icon')
-            .addClass('icon-toggle-off')
-            .html('Due Tasks')
-            .attr('id', id + '-filter-due')
-            .attr('title', 'Filter for due tasks')
-            .click(function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                $(this).toggleClass('icon-toggle-off').toggleClass('icon-toggle-on').toggleClass('filled');
-                filterMOWData(id);
-            });
+    genPanelContents(id, settings.mow[id]);
 
-        $('<select></select>').appendTo(elemToolbar)
-            .hide()
-            .addClass('button')
-            .attr('id', id + '-filter-type')
-            .attr('title', 'Filter by task type')
-            .append('<option>All</option>')
-            .on('change', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                filterMOWData(id);
-            });
+    insertMOWDone(id);
 
-        let elemSearch = $('<div></div>').appendTo(elemToolbar)
-            .addClass('button')
-            .addClass('with-icon')
-            .addClass('icon-search-list');
 
-        $('<input></input>').appendTo(elemSearch)
-            .attr('placeholder', 'Search')
-            .attr('id', id + '-search-input')
-            .addClass('mow-search-input')
-            .keyup(function() {
-                filterMOWData(id);
-            });
-        
-        if(search) elemSearch.show(); else elemSearch.hide();
-
-        if(reload) {
-
-            $('<div></div>').appendTo(elemToolbar)
-                .addClass('button')
-                .addClass('icon')
-                .addClass('icon-refresh')
-                .attr('id', id + '-reload')
-                .attr('title', 'Reload this list')
-                .click(function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    insertMOWData(id);
-                });
-
-        }
-    
-    } else { elemParent.addClass('no-header'); }
-
-    appendProcessing(id, false);
-    appendNoDataFound(id, 'icon-no-data', 'No Entries');
-
-    $('#' + id + '-no-data').hide();
-
-    $('<div></div>').appendTo(elemParent)
-        .attr('id', id + '-list')
-        .addClass('panel-content')
-        .addClass('mow-list')
-        .addClass('no-scrollbar')
-        .addClass(size);
-
-    insertMOWData(id);
+    settings.mow[id].load();
 
 }
 function insertMOWData(id) {
 
-    let timestamp  = new Date().getTime();
-    let elemParent = $('#' + id)
-    let elemList   = $('#' + id + '-list');  
-    let elemSearch = $('#' + id + '-search-input');
-    let elemDue    = $('#' + id + '-filter-due');
-    let elemTypes  = $('#' + id + '-filter-type');
+    settings.mow[id].timestamp = startPanelContentUpdate(id);
 
-    elemParent.attr('data-timestamp', timestamp);
-    elemList.hide();
-    elemDue.hide();
-    elemTypes.hide();
+    $.get('/plm/mow', { timestamp : settings.mow[id].timestamp }, function(response) {
 
-    if(elemSearch.length > 0) elemSearch.val('');
+        if(stopPanelContentUpdate(response, settings.mow[id])) return;
 
-    $('#' + id + '-processing').show();
+        settings.mow[id].columns = [];
 
-    $.get('/plm/mow', { 'timestamp' : timestamp }, function(response) {
+        let items           = [];
+        let listWorkspaces  = [];
+        let enableDueToggle = false;
+        let columns         = [
+            { displayName : 'Due Date'      , fieldId : 'due'      },
+            { displayName : 'Item'          , fieldId : 'item'      },
+            { displayName : 'Workspace'     , fieldId : 'workspace' },
+            { displayName : 'State'         , fieldId : 'current'   },
+            { displayName : 'State Set On'  , fieldId : 'date'      },
+            { displayName : 'State Set By'  , fieldId : 'user'      }
+        ]
 
-        if(response.params.timestamp === $('#' + id).attr('data-timestamp')) {
+        for(let column of columns) {
+            if(includePanelTableColumn(column.displayName, settings.mow[id], settings.mow[id].columns.length)) {
+                settings.mow[id].columns.push(column);
+            }
+        }
 
-            elemList.html('');
+        for(let item of response.data.outstandingWork) {
+
+            let dateClass   = '';
+            let date        = '';
+            let dueFilter   = '';
+            let workspace   = item.workspace.title;
             
-            let elemTable = $('<div></div>').appendTo(elemList) 
-                .attr('id', id + '-table')
-                .addClass('mow-table');
+            if((settings.mow[id].workspacesIn.length === 0) || ( settings.mow[id].workspacesIn.includes(workspace))) {
+                if((settings.mow[id].workspacesEx.length === 0) || (!settings.mow[id].workspacesEx.includes(workspace))) {
 
-            let counter = 0;
-            let workspaces  = [];
+                    if(!listWorkspaces.includes(workspace)) listWorkspaces.push(workspace);
 
-            elemTypes.html('');
-            $('<option></option>').appendTo(elemTypes)
-                .attr('value', 'all')
-                .html('All');
-
-            for(item of response.data.outstandingWork) {
-
-                let dateClass   = '';
-                let date        = '';
-                let workspace   = item.workspace.title;
-                let workspaceId = item.workspace.link.split('/')[4];
-                
-
-                if((settings.mow[id].workspacesIn.length === 0) || ( settings.mow[id].workspacesIn.includes(workspaceId))) {
-                    if((settings.mow[id].workspacesEx.length === 0) || (!settings.mow[id].workspacesEx.includes(workspaceId))) {
-
-                        counter++;
-
-                        if(item.hasOwnProperty('milestoneDate')) {
+                    if(item.hasOwnProperty('milestoneDate')) {
                             let targetDate = new Date(item.milestoneDate);
                             date = targetDate.toLocaleDateString();
                             dateClass = 'in-time';
                             if(settings.mow[id].filters) elemDue.show();
-                        }
-                        if(item.hasOwnProperty('milestoneStatus')) {
-                            if(item.milestoneStatus === 'CRITICAL') dateClass = 'late';
-                        }
-
-                        let elemItem = $('<div></div>').appendTo(elemTable)
-                            .addClass('mow-row')
-                            .attr('data-link', item.item.link)
-                            .attr('data-title', item.item.title)
-                            .click(function(e) { 
-                                e.preventDefault();
-                                e.stopPropagation();
-                                clickMOWItem($(this), e);
-                            });
-
-                        $('<div></div>').appendTo(elemItem)
-                            .addClass('mow-icon')
-                            .addClass('icon')
-                            .addClass('icon-' + settings.mow[id].icon);
-
-                        $('<div></div>').appendTo(elemItem)
-                            .addClass('link')
-                            .addClass('nowrap')
-                            .addClass('mow-descriptor')
-                            .html(item.item.title);
-
-                        $('<div></div>').appendTo(elemItem)
-                            .addClass('mow-date')
-                            .addClass(dateClass)
-                            .html(date);
-
-                        $('<div></div>').appendTo(elemItem)
-                            .addClass('mow-status')
-                            .addClass('nowrap')
-                            .html(item.workflowStateName);
-                            
-                        $('<div></div>').appendTo(elemItem)
-                            .addClass('mow-workspace')
-                            .addClass('nowrap')
-                            .html(workspace);
-
-                        if(!workspaces.includes(workspace)) workspaces.push(workspace);
-
                     }
+                    if(item.hasOwnProperty('milestoneStatus')) {
+                        if(item.milestoneStatus === 'CRITICAL') {
+                            dateClass       = 'late';
+                            dueFilter       = 'yes';
+                            enableDueToggle = true;
+                        }
+                    }
+
+                    items.push({
+                        link        : item.item.link,
+                        image       : '',
+                        title       : item.item.title,
+                        subtitle    : workspace,
+                        details     : '',
+                        partNumber  : item.item.title.split(' - ')[0],
+                        data        : [
+                            { fieldId : 'due'        , value : date, classNames : ['mow-date', dateClass]},
+                            { fieldId : 'item'       , value : item.item.title },
+                            { fieldId : 'workspace'  , value : workspace },
+                            { fieldId : 'current'    , value : item.workflowStateName },
+                            { fieldId : 'date'       , value : date },
+                            { fieldId : 'user'       , value : item.workflowUser.title }
+                        ],
+                        filters : [
+                            { key : 'due', value : dueFilter },
+                            { key : 'workspace', value : workspace }
+                        ],
+                        quantity    : '',
+                        classNames  : []
+                    });
+
                 }
-
             }
-
-            if(settings.mow[id].filters) {
-                workspaces.sort();
-                for(let workspace of workspaces) {
-                    $('<option></option>').appendTo(elemTypes)
-                        .attr('value', workspace)
-                        .html(workspace);
-                }
-                elemTypes.show();
-            }
-
-            elemList.show();
-            $('#' + id + '-processing').hide();
-            $('#' + id + '-mow-ounter').html(counter);
-            if(counter === 0) $('#' + id + '-no-data').show();
-            insertMOWDone(id, response);
 
         }
+
+        if(enableDueToggle) $('#' + id + '-filter-due').show();
+
+        sortArray(listWorkspaces, 0);
+        setPanelFilterOptions(id, 'workspace', listWorkspaces);
+        finishPanelContentUpdate(id, settings.mow[id], items);
+        insertMOWDataDone(id, response);
 
     });
 
 }
-function insertMOWDone(id, data) {}
-function clickMOWItem(elemClicked, e) {
-    openItemByLink(elemClicked.attr('data-link'));
-}
-function filterMOWData(id) {
-
-    let elemTable  = $('#' + id + '-table');
-    let filterDue  = $('#' + id + '-filter-due').hasClass('icon-toggle-on');
-    let filterType = $('#' + id + '-filter-type').val();
-    let filterText = $('#' + id + '-search-input').val().toLowerCase();
-
-    elemTable.children().each(function() {
-
-        let show = true;
-
-        if(filterDue) {
-            show = ($(this).find('.late').length > 0);
-        }
-
-        if(show) {
-            if(filterType !== 'all') {
-                let workspace = $(this).find('.mow-workspace').html();
-                show = workspace === filterType
-            }
-        }
-
-        if(show) {
-
-            if(filterText !== '') {
-
-                let hide = true;
-
-                $(this).children().each(function() {
-                    let text = $(this).html().toLowerCase();
-                    if(text.indexOf(filterText) > -1) hide = false;
-                });
-
-                if(hide) show = false;
-            }
-
-        }
-
-        if(show) $(this).show(); else $(this).hide();
-
-    });
-
-}
+function insertMOWDone(id) {}
+function insertMOWDataDone(id, data) {}
 
 
 
 // Insert user's RECENTLY VIEWED ITEMS (filter for defined workspaces if needed)
 function insertRecentItems(params) {
 
-    //  Set defaults for optional parameters
-    // --------------------------------------
-    let id           = 'recents';               // id of DOM element where the list will be inserted
-    let header       = true;                    // Hide header with setting this to false
-    let headerLabel  = 'Recently Viewed Items'; // Set the header text
-    let headerToggle = false;                   // Enable header toggles
-    let reload       = true;                    // Enable reload button for the list
-    let icon         = 'icon-history';          // Sets the icon to be displayed for each tile
-    let images       = true;                    // Display first image field as tile image
-    let size         = 'xs';                    // layout size (xxs, xs, s, m, l, xl, xxl)
-    let workspacesIn = [];                      // List of workspace IDs to be included. Items from other workspaces will not be shown.
-    let workspacesEx = [];                      // List of workspace IDs to be excluded. Items of these workspaces will not be shown.
+    if(isBlank(params)) params = {};
 
-    if( isBlank(params)             )       params = {};
-    if(!isBlank(params.id)          )           id = params.id;
-    if(!isBlank(params.header)      )       header = params.header;
-    if(!isBlank(params.headerLabel) )  headerLabel = params.headerLabel;
-    if(!isBlank(params.headerToggle)) headerToggle = params.headerToggle;
-    if(!isBlank(params.reload)      )       reload = params.reload;
-    if(!isBlank(params.icon)        )         icon = params.icon;
-    if(!isBlank(params.images)      )       images = params.images;
-    if(!isBlank(params.size)        )         size = params.size;
-    if(!isBlank(params.workspacesIn)) workspacesIn = params.workspacesIn;
-    if(!isBlank(params.workspacesEx)) workspacesEx = params.workspacesEx;
+    let id = isBlank(params.id) ? 'recents' : params.id;
 
-    settings.recents[id]              = {};
-    settings.recents[id].icon         = icon;
-    settings.recents[id].images       = images;
-    settings.recents[id].workspacesIn = workspacesIn;
-    settings.recents[id].workspacesEx = workspacesEx;
+    settings.recents[id] = getPanelSettings('', params, {
+        headerLabel : 'Recently Viewed Items',
+        layout      : 'list',
+        tileIcon    : 'icon-history',
+        tileSize    : 'xs'
+    },[
+        [ 'filterByWorkspace', false ]
+    ]);
 
-    let elemParent = $('#' + id)
-        .addClass('recents')
-        .html('')        
-        .show();
+    settings.recents[id].load = function() { insertRecentItemsData(id); }
 
-    if(header) {
-
-        let elemHeader = $('<div></div>', {
-            id : id + '-header'
-        }).appendTo(elemParent).addClass('panel-header');
+    genPanelTop(id, settings.recents[id], 'recents');
+    genPanelHeader(id, settings.recents[id]);
+    genPanelOpenSelectedInPLMButton(id, settings.recents[id]);
+    genPanelSelectionControls(id, settings.recents[id]);
+    genPanelFilterSelect(id, settings.recents[id].filterByWorkspace, 'workspace', 'All Workspaces');
+    genPanelSearchInput(id, settings.recents[id]);
+    genPanelReloadButton(id, settings.recents[id]);
     
-        if(headerToggle) {
-    
-            $('<div></div>').appendTo(elemHeader)
-                .addClass('panel-header-toggle')
-                .addClass('icon')
-                .addClass('icon-collapse');
-    
-            elemHeader.addClass('with-toggle');
-            elemHeader.click(function() {
-                togglePanelHeader($(this));
-            });
-    
-        }
-    
-        $('<div></div>').appendTo(elemHeader)
-            .addClass('panel-title')
-            .attr('id', id + '-title')
-            .html(headerLabel);
-    
-        let elemToolbar = $('<div></div>')
-            .addClass('panel-toolbar')
-            .attr('id', id + '-toolbar');
-    
-        if(reload) {
+    genPanelContents(id, settings.recents[id]);
 
-            elemToolbar.appendTo(elemHeader);
-            $('<div></div>').appendTo(elemToolbar)
-                .addClass('button')
-                .addClass('icon')
-                .addClass('icon-refresh')
-                .attr('id', id + '-reload')
-                .attr('title', 'Reload this list')
-                .click(function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    insertRecentItemsData(id);
-                });
-
-        }
+    insertRecentItemsDone(id);
     
-    
-    } else { elemParent.addClass('no-header'); }
-
-    appendProcessing(id, false);
-    appendNoDataFound(id, 'icon-no-data', 'No Entries');
-
-    $('#' + id + '-no-data').hide();
-
-    $('<div></div>').appendTo(elemParent)
-        .attr('id', id + '-list')
-        .addClass('recents-list')
-        .addClass('no-scrollbar')
-        .addClass('panel-content')
-        .addClass('tiles')
-        .addClass('list')
-        .addClass(size);
-
-    insertRecentItemsData(id);
+    settings.recents[id].load();
 
 }
 function insertRecentItemsData(id) {
 
-    let timestamp  = new Date().getTime();
-    let elemParent = $('#' + id)
-    let elemList   = $('#' + id + '-list');  
+    settings.recents[id].timestamp = startPanelContentUpdate(id);
 
-    elemParent.attr('data-timestamp', timestamp);
-    elemList.hide();
+    $.get('/plm/recent', { timestamp : settings.recents[id].timestamp }, function(response) {
 
-    $('#' + id + '-processing').show();
-    $('#' + id + '-no-data').hide();
+        if(stopPanelContentUpdate(response, settings.recents[id])) return;
 
-    $.get('/plm/recent', { 'timestamp' : timestamp }, function(response) {
+        settings.recents[id].columns = [];
 
-        if(response.params.timestamp === $('#' + id).attr('data-timestamp')) {
+        let items           = [];
+        let listWorkspaces  = [];
+        let columns         = [
+            { displayName : 'Item'          , fieldId : 'item'      },
+            { displayName : 'Workspace'     , fieldId : 'workspace' }
+        ]
 
-            elemList.html('');
+        for(let column of columns) {
+            if(includePanelTableColumn(column.displayName, settings.recents[id], settings.recents[id].columns.length)) {
+                settings.recents[id].columns.push(column);
+            }
+        }
 
-            let counter = 0;
+        for(let item of response.data.recentlyViewedItems) {
 
-            for(recent of response.data.recentlyViewedItems) {
+            let workspace   = item.workspace.title;
+            let workspaceId = item.workspace.link.split('/')[4];
 
-                let workspaceId = Number(recent.item.link.split('/')[4]);
+            if(includePanelWorkspace(settings.recents[id], workspace, workspaceId)) {
 
-                if((settings.recents[id].workspacesIn.length === 0) || ( settings.recents[id].workspacesIn.includes(workspaceId))) {
-                    if((settings.recents[id].workspacesEx.length === 0) || (!settings.recents[id].workspacesEx.includes(workspaceId))) {
+                if(!listWorkspaces.includes(workspace)) listWorkspaces.push(workspace);
 
-                        counter++;
-
-                        let elemTile = genTile(recent.item.link, '', '', settings.recents[id].icon, recent.item.title, recent.workspace.title);
-                            elemTile.appendTo(elemList);
-                            elemTile.click(function(e) {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                clickRecentItem($(this), e);
-                            });
-
-                        if(settings.recents[id].images) getTileImage(elemTile, settings.recents[id].icon);
-
-                    }
-                }
+                items.push({
+                    link        : item.item.link,
+                    image       : '',
+                    title       : item.item.title,
+                    subtitle    : workspace,
+                    details     : '',
+                    partNumber  : item.item.title.split(' - ')[0],
+                    data        : [
+                        { fieldId : 'item'       , value : item.item.title },
+                        { fieldId : 'workspace'  , value : workspace }
+                    ],
+                    filters : [
+                        { key : 'workspace', value : workspace }
+                    ],
+                    quantity    : '',
+                    classNames  : []
+                });                        
 
             }
 
-            elemList.show();
-            $('#' + id + '-processing').hide();
-            $('#' + id + '-counter').html(counter);
-            if(counter === 0) $('#' + id + '-no-data').show();
-            insertRecentItemsDone(id, response);
-            
         }
 
-    });
-
-}
-function getTileImage(elemTile, icon) {
-
-    let linkTile = elemTile.attr('data-link');
-
-    if(isBlank(linkTile)) return;
-
-    $.get('/plm/details', { 'link' : linkTile}, function(response) {
-
-        let linkImage  = getFirstImageFieldValue(response.data.sections);
-
-        if(isBlank(linkImage)) return;
-
-        let elemTileImage = elemTile.find('.tile-image').first();
-        getImageFromCache(elemTileImage, { 'link' : linkImage }, icon, function() {});
+        sortArray(listWorkspaces, 0);
+        setPanelFilterOptions(id, 'workspace', listWorkspaces);
+        finishPanelContentUpdate(id, settings.recents[id], items);
+        insertRecentItemsDataDone(id, response);
 
     });
-    
+
 }
-function insertRecentItemsDone(id, data) {}
-function clickRecentItem(elemClicked) {
-    openItemByLink(elemClicked.attr('data-link'));
-}
+function insertRecentItemsDone(id) {}
+function insertRecentItemsDataDone(id, data) {}
 
 
 
 // Insert user's BOOKMARKED ITEMS (filter for defined workspaces if needed)
 function insertBookmarks(params) {
 
-    //  Set defaults for optional parameters
-    // --------------------------------------
-    let id           = 'bookmarks';         // id of DOM element where the list will be inserted
-    let header       = true;                // Hide header with setting this to false
-    let headerLabel  = 'Bookmarked Items';  // Set the header text
-    let headerToggle = false;               // Enable header toggles
-    let reload       = true;                // Enable reload button for the list
-    let tileCounter  = false;               // A counter can be displayed in each tile instead of an icon to let users remember given search results easieer
-    let icon         = 'icon-bookmark';     // Sets the icon to be displayed for each tile
-    let images       = false;               // Display first image field as tile image
-    let size         = 'm';                 // layout size (xxs, xs, s, m, l, xl, xxl)
-    let workspacesIn = [];                  // List of workspace IDs to be included. Items from other workspaces will not be shown.
-    let workspacesEx = [];                  // List of workspace IDs to be excluded. Items of these workspaces will not be shown.
+    if(isBlank(params)) params = {};
 
-    if( isBlank(params)             )       params = {};
-    if(!isBlank(params.id)          )           id = params.id;
-    if(!isBlank(params.header)      )       header = params.header;
-    if(!isBlank(params.headerLabel) )  headerLabel = params.headerLabel;
-    if(!isBlank(params.headerToggle)) headerToggle = params.headerToggle;
-    if(!isBlank(params.reload)      )       reload = params.reload;
-    if(!isBlank(params.tileCounter) )  tileCounter = params.tileCounter;
-    if(!isBlank(params.icon)        )         icon = params.icon;
-    if(!isBlank(params.images)      )       images = params.images;
-    if(!isBlank(params.size)        )         size = params.size;
-    if(!isBlank(params.workspacesIn)) workspacesIn = params.workspacesIn;
-    if(!isBlank(params.workspacesEx)) workspacesEx = params.workspacesEx;
+    let id = isBlank(params.id) ? 'bookmarks' : params.id;
 
-    settings.bookmarks[id]              = {};
-    settings.bookmarks[id].tileCounter  = tileCounter;
-    settings.bookmarks[id].icon         = icon;
-    settings.bookmarks[id].images       = images;
-    settings.bookmarks[id].workspacesIn = workspacesIn;
-    settings.bookmarks[id].workspacesEx = workspacesEx;    
+    settings.bookmarks[id] = getPanelSettings('', params, {
+        headerLabel : 'Bookmarks',
+        layout      : 'list',
+        tileImage   : true,
+        tileSize    : 'xxs'
+    }, [
+        [ 'filterByWorkspace', false ]
+    ]);
 
-    let elemParent = $('#' + id)
-        .addClass('bookmarks')
-        .html('')
-        .show();
+    settings.bookmarks[id].load = function() { insertBookmarksData(id); }
 
-    if(header) {
-
-        let elemHeader = $('<div></div>', {
-            id : id + '-header'
-        }).appendTo(elemParent).addClass('panel-header');
+    genPanelTop(id, settings.bookmarks[id], 'bookmarks');
+    genPanelHeader(id, settings.bookmarks[id]);
+    genPanelOpenSelectedInPLMButton(id, settings.bookmarks[id]);
+    genPanelSelectionControls(id, settings.bookmarks[id]);
+    genPanelFilterSelect(id, settings.bookmarks[id], 'filterByWorkspace', 'workspace', 'All Workspaces');
+    genPanelSearchInput(id, settings.bookmarks[id]);
+    genPanelReloadButton(id, settings.bookmarks[id]);
     
-        if(headerToggle) {
-    
-            $('<div></div>').appendTo(elemHeader)
-                .addClass('panel-header-toggle')
-                .addClass('icon')
-                .addClass('icon-collapse');
-    
-            elemHeader.addClass('with-toggle');
-            elemHeader.click(function() {
-                togglePanelHeader($(this));
-            });
-    
-        }
-    
-        $('<div></div>').appendTo(elemHeader)
-            .addClass('panel-title')
-            .attr('id', id + '-title')
-            .html(headerLabel);
-    
-        let elemToolbar = $('<div></div>')
-            .addClass('panel-toolbar')
-            .attr('id', id + '-toolbar');
-    
-        if(reload) {
+    genPanelContents(id, settings.bookmarks[id]);
 
-            elemToolbar.appendTo(elemHeader);
-            $('<div></div>').appendTo(elemToolbar)
-                .addClass('button')
-                .addClass('icon')
-                .addClass('icon-refresh')
-                .attr('id', id + '-reload')
-                .attr('title', 'Reload this list')
-                .click(function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    insertBookmarksData(id);
-                });
+    insertBookmarksDone(id);
 
-        }
-    
-    
-    } else { elemParent.addClass('no-header'); }
+    settings.bookmarks[id].load();
 
-    appendProcessing(id, false);
-    appendNoDataFound(id, 'icon-no-data', 'No Bookmarks');
-
-    $('#' + id + '-no-data').hide();
-
-    $('<div></div>').appendTo(elemParent)
-        .attr('id', id + '-list')
-        .addClass('bookmarks-list')
-        .addClass('no-scrollbar')
-        .addClass('panel-content')
-        .addClass('tiles')
-        .addClass('list')
-        .addClass(size);
-
-    insertBookmarksData(id);
 }
 function insertBookmarksData(id) {
 
-    let timestamp  = new Date().getTime();
-    let elemParent = $('#' + id)
-    let elemList   = $('#' + id + '-list');  
+    settings.bookmarks[id].timestamp = startPanelContentUpdate(id);
 
-    elemParent.attr('data-timestamp', timestamp);
-    elemList.hide();
+    $.get('/plm/bookmarks', { timestamp : settings.bookmarks[id].timestamp, useCache : settings.bookmarks[id].useCache }, function(response) {
 
-    $('#' + id + '-processing').show();
+        if(stopPanelContentUpdate(response, settings.bookmarks[id])) return;
 
-    $.get('/plm/bookmarks', { 'timestamp' : timestamp }, function(response) {
+        settings.bookmarks[id].columns = [];
 
-        if(response.params.timestamp === $('#' + id).attr('data-timestamp')) {
+        let items           = [];
+        let listWorkspaces  = [];
+        let columns         = [
+            { displayName : 'Item'          , fieldId : 'item'      },
+            { displayName : 'Workspace'     , fieldId : 'workspace' },
+            { displayName : 'Comment'       , fieldId : 'comment'   }
+        ]
 
-            elemList.html('');
+        for(let column of columns) {
+            if(includePanelTableColumn(column.displayName, settings.bookmarks[id], settings.bookmarks[id].columns.length)) {
+                settings.bookmarks[id].columns.push(column);
+            }
+        }
 
-            let counter = 0;
+        for(let item of response.data.bookmarks) {
 
-            for(bookmark of response.data.bookmarks) {
+            let workspace = item.workspace.title;
+            let workspaceId = item.workspace.link.split('/')[4];
 
-                let workspaceId = Number(bookmark.item.link.split('/')[4]);
+            if(includePanelWorkspace(settings.bookmarks[id], workspace, workspaceId)) {
 
-                if((settings.bookmarks[id].workspacesIn.length === 0) || ( settings.bookmarks[id].workspacesIn.includes(workspaceId))) {
-                    if((settings.bookmarks[id].workspacesEx.length === 0) || (!settings.bookmarks[id].workspacesEx.includes(workspaceId))) {
+                if(!listWorkspaces.includes(workspace)) listWorkspaces.push(workspace);
 
-                        counter++;
-
-                        let elemTile = genTile(bookmark.item.link, '', '', settings.bookmarks[id].icon, bookmark.item.title, bookmark.workspace.title);
-                            elemTile.appendTo(elemList);
-                            elemTile.click(function(e) {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                clickBookmarkItem($(this), e);
-                            });
-
-                        if(settings.bookmarks[id].tileCounter) {
-                            let elemImage = elemTile.find('.tile-image');
-                            elemImage.html('');
-    
-                            $('<div></div>').appendTo(elemImage)
-                                .addClass('tile-counter')
-                                .html(counter);
-                        }
-
-                        if(settings.bookmarks[id].images) getTileImage(elemTile, settings.bookmarks[id].icon);
-
-                    }
-                }
+                items.push({
+                    link        : item.item.link,
+                    image       : '',
+                    title       : item.item.title,
+                    subtitle    : workspace,
+                    details     : '',
+                    partNumber  : item.item.title.split(' - ')[0],
+                    data        : [
+                        { fieldId : 'item'       , value : item.item.title },
+                        { fieldId : 'workspace'  , value : workspace },
+                        { fieldId : 'comment'    , value : item.message }
+                    ],
+                    filters : [
+                        { key : 'workspace', value : workspace }
+                    ],
+                    quantity    : '',
+                    classNames  : []
+                });
 
             }
-
-            elemList.show();
-            $('#' + id + '-processing').hide();
-            $('#' + id + '-bookmarks-ounter').html(counter);
-            if(counter === 0) $('#' + id + '-no-data').show();
-            insertBookmarksDone(id, response);
-
         }
+
+        sortArray(listWorkspaces, 0);
+        setPanelFilterOptions(id, 'workspace', listWorkspaces);
+        finishPanelContentUpdate(id, settings.bookmarks[id], items);
+        insertBookmarksDataDone(id, response);
 
     });
 
 }
-function insertBookmarksDone(id, data) {}
-function clickBookmarkItem(elemClicked, e) {
-    openItemByLink(elemClicked.attr('data-link'));
-}
-
-
-
-// Display ALL RECORDS of defined workspace
-function insertWorkspaceItems(wsId, params) {
-
-    //  Set defaults for optional parameters
-    // --------------------------------------
-    let id                  = 'list';           // id of DOM element where the list will be inserted
-    let header              = true;             // Hide header with setting this to false
-    let headerLabel         = 'Items';          // Set the header text
-    let headerToggle        = false;            // Enable header toggles
-    let reload              = true;             // Enable reload button for the list
-    let search              = true;             // Adds quick filtering using search input on top of the list
-    let icon                = 'icon-settings';  // Tile icon to use if no image is available
-    let size                = 's';              // layout size (xxs, xs, s, m, l, xl, xxl)
-    let filter              = '';               // Define optional filters by providing the matching query string (copy the full query string from advanced search)
-    let sortBy              = '';               // Field ID to use for sorting (if parameter is omitted, items will be sorted by descriptor automatically)
-    let groupBy             = '';               // Field ID to use for grouping of items (leave blank to disable grouping)
-    let fieldIdImage        = '';               // ID of field to use as tile image
-    let fieldIdTitle        = '';               // ID of field to use as tile title
-    let fieldIdSubtitle     = '';               // ID of field to use as tile subtitle
-    let fieldIdsDetails     = [];               // List of field IDs to be displayed as tile details
-    let fieldIdsAttributes  = [];               // List of field IDs whose values will be stored in the DOM attributes of the tiles to allow for further user interactions
-
-    if(isBlank(wsId)) return;
-    if(isBlank(params)) params = {};
-
-    if(!isBlank(params.id)                )                 id = params.id;
-    if(!isBlank(params.header)            )             header = params.header;
-    if(!isBlank(params.headerLabel)       )        headerLabel = params.headerLabel;
-    if(!isBlank(params.headerToggle)      )       headerToggle = params.headerToggle;
-    if(!isBlank(params.reload)            )             reload = params.reload;
-    if(!isBlank(params.search)            )             search = params.search;
-    if(!isBlank(params.icon)              )               icon = params.icon;
-    if(!isBlank(params.size)              )               size = params.size;
-    if(!isBlank(params.filter)            )             filter = params.filter;
-    if(!isBlank(params.sortBy)            )             sortBy = params.sortBy;            
-    if(!isBlank(params.groupBy)           )            groupBy = params.groupBy;           
-    if(!isBlank(params.fieldIdImage)      )       fieldIdImage = params.fieldIdImage;      
-    if(!isBlank(params.fieldIdTitle)      )       fieldIdTitle = params.fieldIdTitle;      
-    if(!isBlank(params.fieldIdSubtitle)   )    fieldIdSubtitle = params.fieldIdSubtitle;   
-    if(!isBlank(params.fieldIdsDetails)   )    fieldIdsDetails = params.fieldIdsDetails;   
-    if(!isBlank(params.fieldIdsAttributes)) fieldIdsAttributes = params.fieldIdsAttributes;
-
-
-    let elemParent = $('#' + id)
-        .addClass('workspace-items')
-        .html('');
-
-    if(elemParent.length === 0) {
-        showErrorMessage('View Definition Error', 'Could not find view element with id "' + id + '" in page. Please contact your administrator');
-        return;
-    }
-
-    let surfaceLevel = getSurfaceLevel(elemParent);
-
-    settings.workspaceItems[id]                     = {};
-    settings.workspaceItems[id].wsId                = wsId;
-    settings.workspaceItems[id].filter              = filter;
-    settings.workspaceItems[id].icon                = icon;
-    settings.workspaceItems[id].size                = size;
-    settings.workspaceItems[id].filter              = filter;
-    settings.workspaceItems[id].sortBy              = sortBy;
-    settings.workspaceItems[id].groupBy             = groupBy;
-    settings.workspaceItems[id].fieldIdImage        = fieldIdImage;
-    settings.workspaceItems[id].fieldIdTitle        = fieldIdTitle;
-    settings.workspaceItems[id].fieldIdSubtitle     = fieldIdSubtitle;
-    settings.workspaceItems[id].fieldIdsDetails     = fieldIdsDetails;
-    settings.workspaceItems[id].fieldIdsAttributes  = fieldIdsAttributes;
-    settings.workspaceItems[id].surfaceLevel        = surfaceLevel;
-
-    if(header) {
-
-        let elemHeader = $('<div></div>', {
-            id : id + '-header'
-        }).appendTo(elemParent).addClass('panel-header');
-    
-        if(headerToggle) {
-    
-            $('<div></div>').appendTo(elemHeader)
-                .addClass('panel-header-toggle')
-                .addClass('icon')
-                .addClass('icon-collapse');
-    
-            elemHeader.addClass('with-toggle');
-            elemHeader.click(function() {
-                togglePanelHeader($(this));
-            });
-    
-        }
-    
-        $('<div></div>').appendTo(elemHeader)
-            .addClass('panel-title')
-            .attr('id', id + '-title')
-            .html(headerLabel);
-    
-        let elemToolbar = $('<div></div>')
-            .addClass('panel-toolbar')
-            .attr('id', id + '-toolbar');
-    
-        if(reload) {
-
-            elemToolbar.appendTo(elemHeader);
-            $('<div></div>').appendTo(elemToolbar)
-                .addClass('button')
-                .addClass('icon')
-                .addClass('icon-refresh')
-                .attr('id', id + '-reload')
-                .attr('title', 'Reload this list')
-                .click(function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    insertWorkspaceItemsData(id);
-                });
-
-        }
-
-        if(search) {
-
-            elemToolbar.appendTo(elemHeader);
-
-            let elemSearch = $('<div></div>').appendTo(elemToolbar)
-                .addClass('button')
-                .addClass('with-icon')
-                .addClass('icon-search-list');
-
-            $('<input></input>').appendTo(elemSearch)
-                .attr('placeholder', 'Search')
-                .attr('id', id + '-search-input')
-                .addClass('workspace-items-search-input')
-                .click(function(e){
-                    e.preventDefault();
-                    e.stopPropagation();
-                })
-                .keyup(function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    searchInTiles(id, $(this));
-                });
-
-        }
-    
-    
-    } else { elemParent.addClass('no-header'); }
-
-    appendProcessing(id, false);
-    appendNoDataFound(id, 'icon-no-data', 'No Entries');
-
-    $('#' + id + '-no-data').hide();
-
-    let elemList = $('<div></div>').appendTo(elemParent)
-        .attr('id', id + '-list')
-        .addClass('workspace-items-list')
-        .addClass('panel-content')
-        .addClass('no-scrollbar')
-        .addClass('tiles')
-        .addClass('wide')
-        .addClass(size);
-
-    if(isBlank(groupBy)) {
-        elemList.addClass('tiles');
-        elemList.addClass(surfaceLevel);
-    } else {
-        elemList.addClass('workspace-items-groups');
-    }
-
-    insertWorkspaceItemsData(id);
-
-}
-function insertWorkspaceItemsData(id) {
-
-    let timestamp  = new Date().getTime();
-    let elemParent = $('#' + id)
-    let elemList   = $('#' + id + '-list');  
-    let url         = (isBlank(settings.workspaceItems[id].filter)) ? '/plm/items' : '/plm/search-bulk';
-
-    elemParent.attr('data-timestamp', timestamp);
-    elemList.hide();
-
-    $('#' + id + '-processing').show();
-
-    $.get(url, { 
-        'timestamp' : timestamp, 
-        'wsId'      : settings.workspaceItems[id].wsId,
-        'query'     : settings.workspaceItems[id].filter,
-        'bulk'      : true
-    }, function(response) {
-
-        if(response.params.timestamp === $('#' + id).attr('data-timestamp')) {
-
-            elemList.html('');
-
-            let counter = 0;
-
-            for(item of response.data.items) {
-                item.sortKey = getSectionFieldValue(item.sections, settings.workspaceItems[id].sortBy, '', 'ttile');
-            }
-            sortArray(response.data.items, 'sortKey', 'string', 'ascending');
-
-            if(!isBlank(settings.workspaceItems[id].groupBy)) {
-                for(item of response.data.items) {
-                    if(settings.workspaceItems[id].groupBy === 'status') {
-                        item.groupKey = item.currentState.title;
-                    } else {
-                        item.groupKey = getSectionFieldValue(item.sections, settings.workspaceItems[id].groupBy, '', 'title');
-                    }
-                }
-                sortArray(response.data.items, 'groupKey', 'string', 'ascending');
-            }
-
-            let groupName = null;
-            let elemGroupList;
-
-            for(let item of response.data.items) {
-
-                counter++;
-
-                if(!isBlank(settings.workspaceItems[id].groupBy)) {
-
-                    if(groupName !== item.groupKey) {
-
-                        let elemGroup = $('<div></div>');
-                            elemGroup.addClass('workspace-items-group');
-                            elemGroup.appendTo(elemList);
-
-                        $('<div></div>').appendTo(elemGroup)
-                            .addClass('workspace-items-group-name')
-                            .html(item.groupKey);
-
-                        elemGroupList = $('<div></div>').appendTo(elemGroup)
-                            .addClass('workspace-items-group-list')
-                            .addClass('tiles')
-                            .addClass('wide')
-                            .addClass(settings.workspaceItems[id].surfaceLevel)
-                            .addClass(settings.workspaceItems[id].size);
-
-                    }
-
-                    groupName = item.groupKey;
-
-                }
-
-                let image    = (settings.workspaceItems[id].fieldIdImage === '') ? null : getSectionFieldValue(item.sections, settings.workspaceItems[id].fieldIdImage, '', 'link');
-                let title    = getSectionFieldValue(item.sections, settings.workspaceItems[id].fieldIdTitle, '', 'title');
-                let subtitle = (settings.workspaceItems[id].fieldIdSubtitle === '') ? null : getSectionFieldValue(item.sections, settings.workspaceItems[id].fieldIdSubtitle, '', 'title');
-                let details  = [];
-
-                let elemTile = genTile(item.__self__, '', image, settings.workspaceItems[id].icon, title, subtitle);
-                    if(isBlank(settings.workspaceItems[id].groupBy)) elemTile.appendTo(elemList); else elemTile.appendTo(elemGroupList);
-                    elemTile.click(function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        clickWorkspaceItem($(this), e);
-                    });
-
-
-                for(let fieldidDetail of settings.workspaceItems[id].fieldIdsDetails) {
-                    details.push([
-                        fieldidDetail[0],
-                        getSectionFieldValue(item.sections, fieldidDetail[1], '', 'title'),
-                        fieldidDetail[2]
-                    ]);
-                }
-
-                for(let fieldAttribute of settings.workspaceItems[id].fieldIdsAttributes) {
-                    if(!isBlank(fieldAttribute)) {
-                        elemTile.attr('data-' + fieldAttribute.toLowerCase(), getSectionFieldValue(item.sections, fieldAttribute, '', 'link'),)
-                    }
-                }
-
-                if(details.length > 0) appendTileDetails(elemTile, details);
-
-            }
-
-            
-            elemList.show();
-            $('#' + id + '-processing').hide();
-            $('#' + id + '-workspace-items-counter').html(counter);
-            if(counter === 0) $('#' + id + '-no-data').show();
-
-            let elemSearch = $('#' + id + '-search-input');
-            if(elemSearch.length > 0) searchInTiles(id, elemSearch);
-
-            insertWorkspaceItemsDone(id, response);
-        
-        }
-
-    });
-
-}
-function insertWorkspaceItemsDone(id, response) {}
-function clickWorkspaceItem(elemClicked, e) {
-
-    elemClicked.toggleClass('selected');
-    elemClicked.siblings().removeClass('selected');
-
-    openItemByLink(elemClicked.attr('data-link'));
-
-}
+function insertBookmarksDone(id) {}
+function insertBookmarksDataDone(id, data) {}
 
 
 
 // Insert user's WORKSPACE VIEWS for given workspace (optionally add BOOKMARKS & RECENTS in same control)
 function insertWorkspaceViews(wsId, params) {
 
-    //  Set defaults for optional parameters
-    // --------------------------------------
-    let id                  = 'workspace';      // id of DOM element where the list will be inserted
-    let header              = true;             // Hide header with setting this to false
-    let headerLabel         = 'Items';          // Set the header text
-    let headerToggle        = false;            // Enable header toggles
-    let reload              = true;             // Enable reload button for the list
-    let search              = true;             // Adds quick filtering using search input on top of the list
-    let views               = true;             // Enables view selector when set to true
-    let layout              = 'table';          // Content layout (tiles, list or table)
-    let size                = 's';              // layout size (xxs, xs, s, m, l, xl, xxl)
-    let icon                = 'icon-settings';  // Tile icon to use if no image is available
-    let groupBy             = '';               // Field ID to use for grouping of items (leave blank to disable grouping)
-    let columnLimit         = 25;               // Sets the maximum number of columns being displayed for the selected workspace view
-    let includeMOW          = false             // Includes users MY OUTSTANDING VIEW 
-    let includeBookmarks    = false             // Includes users BOOKMARKED ITEMS
-    let includeRecents      = false             // Includes users RECENTLY VIEWED ITEMS
-    let startupView         = '';               // Select default view at startup ('', 'mow', 'bookmarks' or 'recents')
-    let fieldIdImage        = '';               // ID of field to use as tile image
-    let fieldIdTitle        = '';               // ID of field to use as tile title
-    let fieldIdSubtitle     = '';               // ID of field to use as tile subtitle
-    let fieldIdsDetails     = [];               // List of field IDs to be displayed as tile details
-    let fieldIdsAttributes  = [];               // List of field IDs whose values will be stored in the DOM attributes of the tiles to allow for further user interactions
-
-    if(isBlank(wsId)) return;
     if(isBlank(params)) params = {};
 
-    if(!isBlank(params.id)                )                 id = params.id;
-    if(!isBlank(params.header)            )             header = params.header;
-    if(!isBlank(params.headerLabel)       )        headerLabel = params.headerLabel;
-    if(!isBlank(params.headerToggle)      )       headerToggle = params.headerToggle;
-    if(!isBlank(params.reload)            )             reload = params.reload;
-    if(!isBlank(params.search)            )             search = params.search;
-    if(!isBlank(params.views)             )              views = params.views;
-    if(!isBlank(params.layout)            )             layout = params.layout;
-    if(!isBlank(params.size)              )               size = params.size;
-    if(!isBlank(params.icon)              )               icon = params.icon;
-    if(!isBlank(params.columnLimit)       )        columnLimit = params.columnLimit;
-    if(!isBlank(params.groupBy)           )            groupBy = params.groupBy;           
-    if(!isBlank(params.includeMOW)        )         includeMOW = params.includeMOW;           
-    if(!isBlank(params.includeBookmarks)  )   includeBookmarks = params.includeBookmarks;           
-    if(!isBlank(params.includeRecents)    )     includeRecents = params.includeRecents;           
-    if(!isBlank(params.startupView)       )        startupView = params.startupView;           
-    if(!isBlank(params.fieldIdImage)      )       fieldIdImage = params.fieldIdImage;      
-    if(!isBlank(params.fieldIdTitle)      )       fieldIdTitle = params.fieldIdTitle;      
-    if(!isBlank(params.fieldIdSubtitle)   )    fieldIdSubtitle = params.fieldIdSubtitle;   
-    if(!isBlank(params.fieldIdsDetails)   )    fieldIdsDetails = params.fieldIdsDetails;   
-    if(!isBlank(params.fieldIdsAttributes)) fieldIdsAttributes = params.fieldIdsAttributes;
+    let id = isBlank(params.id) ? 'workspace-views' : params.id;
 
+    settings.workspaceViews[id] = getPanelSettings('', params, {
+        headerLabel     : '',
+        layout          : 'table',
+        tileSize        : 'm',
+        tileTitle       : 'DESCRIPTOR',
+        tileSubtitle    : 'WF_CURRENT_STATE'
+    }, [
+        [ 'viewSelector'        , true  ],
+        [ 'startupView'         , ''    ],
+        [ 'includeMOW'          , false ],
+        [ 'includeBookmarks'    , false ],
+        [ 'includeRecents'      , false ],
+        [ 'columnLimit'         , 20 ],
+        [ 'groupBy'             , '' ],
+        [ 'tileImageFieldId'    , '' ],
+        [ 'workspacesIn'        , [wsId] ]
+    ]);
 
-    let elemParent = $('#' + id)
-        .addClass('workspace-view')
-        .html('');
+    settings.workspaceViews[id].wsId = wsId;
+    settings.workspaceViews[id].load = function() { changeWorkspaceView(id); }
 
-    if(elemParent.length === 0) {
-        showErrorMessage('View Definition Error', 'Could not find html element with id "' + id + '" in page. Please contact your administrator');
-        return;
-    }
+    genPanelTop(id, settings.workspaceViews[id], 'workspace-views');
+    genPanelHeader(id, settings.workspaceViews[id]);
+    genPanelOpenSelectedInPLMButton(id, settings.workspaceViews[id]);
+    genPanelSelectionControls(id, settings.workspaceViews[id]);
 
-    let surfaceLevel = getSurfaceLevel(elemParent);
+    let elemToolbar = genPanelToolbar(id, settings.workspaceViews[id], 'controls');
 
-    if(layout === 'table') groupBy = '';
-
-    settings.workspaceViews[id]                     = {};
-    settings.workspaceViews[id].wsId                = wsId.toString();
-    settings.workspaceViews[id].icon                = icon;
-    settings.workspaceViews[id].layout              = layout;
-    settings.workspaceViews[id].size                = size;
-    settings.workspaceViews[id].columnLimit         = columnLimit;
-    settings.workspaceViews[id].groupBy             = groupBy;
-    settings.workspaceViews[id].fieldIdImage        = fieldIdImage;
-    settings.workspaceViews[id].fieldIdTitle        = fieldIdTitle;
-    settings.workspaceViews[id].fieldIdSubtitle     = fieldIdSubtitle;
-    settings.workspaceViews[id].fieldIdsDetails     = fieldIdsDetails;
-    settings.workspaceViews[id].fieldIdsAttributes  = fieldIdsAttributes;
-    settings.workspaceViews[id].surfaceLevel        = surfaceLevel;
-
-
-    let elemHeader = $('<div></div>', {
-        id : id + '-header'
-    }).appendTo(elemParent).addClass('panel-header');
-
-    if(headerToggle) {
-
-        $('<div></div>').appendTo(elemHeader)
-            .addClass('panel-header-toggle')
-            .addClass('icon')
-            .addClass('icon-collapse');
-
-        elemHeader.addClass('with-toggle');
-        elemHeader.click(function() {
-            togglePanelHeader($(this));
-        });
-
-    }
-
-    $('<div></div>').appendTo(elemHeader)
-        .addClass('panel-title')
-        .attr('id', id + '-title')
-        .html(headerLabel);
-
-    let elemToolbar = $('<div></div>')
-        .addClass('panel-toolbar')
-        .attr('id', id + '-toolbar');
-
-    let elemSelect = $('<select></select>').appendTo(elemToolbar)
+    $('<select></select>').appendTo(elemToolbar)
         .attr('id', id + '-view-selector')
         .addClass('workspace-view-selector')
         .addClass('button')
@@ -1101,539 +380,405 @@ function insertWorkspaceViews(wsId, params) {
             changeWorkspaceView(id);
         });
 
-    if(reload) {
-
-        elemToolbar.appendTo(elemHeader);
-        $('<div></div>').appendTo(elemToolbar)
-            .addClass('button')
-            .addClass('icon')
-            .addClass('icon-refresh')
-            .attr('id', id + '-reload')
-            .attr('title', 'Reload this view')
-            .click(function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                changeWorkspaceView(id);
-            });
-
-    }
-
-    if(search) {
-
-        elemToolbar.appendTo(elemHeader);
-
-        let elemSearch = $('<div></div>').appendTo(elemToolbar)
-            .addClass('button')
-            .addClass('with-icon')
-            .addClass('icon-search-list')
-            .hide()
-
-        $('<input></input>').appendTo(elemSearch)
-            .attr('placeholder', 'Search')
-            .attr('id', id + '-search-input')
-            .addClass('workspace-view-search-input')
-            .click(function(e){
-                e.preventDefault();
-                e.stopPropagation();
-            })
-            .keyup(function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                searchInWorkspaceView(id, $(this));
-                searchInMOW(id + '-mow', $(this));
-            });
-
-    }
+    genPanelSearchInput(id, settings.workspaceViews[id]);
+    genPanelReloadButton(id, settings.workspaceViews[id]);
     
-    if(!header) { elemParent.addClass('no-header'); }
+    setWorkspaceViewsSelector(id);
 
-    appendProcessing(id, true);
-    appendNoDataFound(id, 'icon-no-data', 'No Entries');
+    genPanelContents(id, settings.workspaceViews[id]).addClass(getSurfaceLevel($('#' + id)));
 
-    $('#' + id + '-no-data').hide();
+}
+function setWorkspaceViewsSelector(id) {
 
-    let elemList = $('<div></div>').appendTo(elemParent)
-        .attr('id', id + '-list')
-        .addClass('panel-content')
-        .addClass('workspace-view-list')
-        .addClass('no-scrollbar')
-        .addClass(layout)
-        .addClass(size);
+    let elemSelect = $('#' + id + '-view-selector');
 
-    if(layout === 'list') elemList.addClass('list').addClass('wide');
+    let requests = [
+        $.get('/plm/tableaus'  , { 'wsId' : settings.workspaceViews[id].wsId }),
+        $.get('/plm/workspaces', { } )
+    ]
 
-    if(isBlank(groupBy)) {
-        elemList.addClass('tiles');
-        elemList.addClass(surfaceLevel);
-    } else {
-        elemList.addClass('workspace-view-groups');
-    }
+    Promise.all(requests).then(function(responses) {
 
-    if(includeMOW) {
+        if(settings.workspaceViews[id].viewSelector) elemSelect.show();
 
-        $('<option></option>').appendTo(elemSelect)
-            .html('My Outstanding Work')
-            .attr('value', 'mow');
+        if(responses[0].error) {
 
-        $('<div></div>').appendTo(elemList)
-            .addClass('mow-table')
-            .addClass(surfaceLevel)
-            .attr('id', id + '-mow');
-
-    }
-
-    if(includeBookmarks) {
-
-        $('<option></option>').appendTo(elemSelect)
-            .html('My Bookmarks')
-            .attr('value', 'bookmarks');
-
-        $('<div></div>').appendTo(elemList)
-            .addClass('tiles')
-            .addClass('list')
-            .addClass('xs')
-            .addClass(surfaceLevel)
-            .attr('id', id + '-bookmarks');
-
-    }
-    
-    if(includeRecents) {
-
-        $('<option></option>').appendTo(elemSelect)
-            .html('Recently Viewed')
-            .attr('value', 'recents');
-
-        $('<div></div>').appendTo(elemList)
-            .addClass('tiles')
-            .addClass('list')
-            .addClass('xs')
-            .addClass(surfaceLevel)
-            .attr('id', id + '-recents');
-
-    }   
-
-    $.get('/plm/tableaus' , { 'wsId' : settings.workspaceViews[id].wsId }, function(response) {
-
-        if(views) elemSelect.show();
-
-        if(response.error) {
-
-            showErrorMessage('Error when accessing workspace with id ' + settings.workspaceViews[id].wsId, response.data.message);
+            showErrorMessage('Error when accessing workspace with id ' + settings.workspaceViews[id].wsId, responses[0].data.message);
 
         } else {
 
-            let selectDefault = true;
+            let elemTitle                           = $('#' + id + '-title');
+            let selectDefault                       = true;
+            settings.workspaceViews[id].workspace   = getWorkspaceName(settings.workspaceViews[id].wsId, responses[1]);
 
-                 if(includeMOW       && (startupView.toLowerCase() === 'mow')      ) { selectDefault = false; elemSelect.val('mow'); }
-            else if(includeBookmarks && (startupView.toLowerCase() === 'bookmarks')) { selectDefault = false; elemSelect.val('bookmarks'); }
-            else if(includeRecents   && (startupView.toLowerCase() === 'recents')  ) { selectDefault = false; elemSelect.val('recents'); }
+            if(isBlank(settings.workspaceViews[id].headerLabel)) {
+                elemTitle.html('');
+                $('<div></div>').appendTo(elemTitle)
+                    .attr('id',  id + '-title-main')
+                    .addClass('panel-title-main')
+                    .html(settings.workspaceViews[id].workspace);
+            }
 
-            for(let tableau of response.data) {
+                 if(settings.workspaceViews[id].includeMOW       && (settings.workspaceViews[id].startupView.toLowerCase() === 'mow')      ) { selectDefault = false; elemSelect.val('mow'); }
+            else if(settings.workspaceViews[id].includeBookmarks && (settings.workspaceViews[id].startupView.toLowerCase() === 'bookmarks')) { selectDefault = false; elemSelect.val('bookmarks'); }
+            else if(settings.workspaceViews[id].includeRecents   && (settings.workspaceViews[id].startupView.toLowerCase() === 'recents')  ) { selectDefault = false; elemSelect.val('recents'); }
+
+            for(let tableau of responses[0].data) {
 
                 let  = $('<option></option>').appendTo(elemSelect)
                     .html(tableau.title)
                     .attr('value', tableau.link);
 
-                if(!isBlank(tableau.type) && selectDefault) {
-                    if(tableau.type.toLowerCase() === 'default') {
+                if(selectDefault) {
+                    if(settings.workspaceViews[id].startupView.toLowerCase() === tableau.title.toLowerCase()) {
                         elemSelect.val(tableau.link);
+                    } else if(settings.workspaceViews[id].startupView.toLowerCase() === '') {
+                        if(!isBlank(tableau.type)) {
+                            if(tableau.type.toLowerCase() === 'default') {
+                                elemSelect.val(tableau.link);
+                            }
+                        }
                     }
                 }
-    
+
             }
+
+            if(settings.workspaceViews[id].includeMOW)       $('<option></option>').appendTo(elemSelect).html('My Outstanding Work').attr('value', 'mow');       
+            if(settings.workspaceViews[id].includeBookmarks) $('<option></option>').appendTo(elemSelect).html('My Bookmarks').attr('value', 'bookmarks');
+            if(settings.workspaceViews[id].includeRecents)   $('<option></option>').appendTo(elemSelect).html('Recently Viewed').attr('value', 'recents');
     
-            insertWorkspaceViewsDone(id, response);
-            changeWorkspaceView(id);
+            insertWorkspaceViewsDone(id, responses[0]);
+            settings.workspaceViews[id].load();
 
         }
 
     });
 
 }
-function insertWorkspaceViewsDone(id, data) {}
-function searchInWorkspaceView(id, elemInput) {
-
-    let elemTable   = $('#' + id + '-tbody');
-    let filterValue = elemInput.val().toLowerCase();
-
-    elemTable.children('tr').removeClass('result');
-
-    if(filterValue === '') {
-
-        elemTable.children().each(function() {
-            $(this).show();
-        });
-
-    } else {
-
-        elemTable.children().each(function() {
-            $(this).hide();
-        });
-
-        elemTable.children().each(function() {
-
-            let elemRow = $(this);
-            let unhide  = false;
-
-            elemRow.children().each(function() {
-
-                if($(this).children('.image').length === 0) {
-        
-                    let text = $(this).html().toLowerCase();
-        
-                    if($(this).children('input').length === 1) text = $(this).children('input').val().toLowerCase();
-                    else if($(this).children('textarea').length === 1) text = $(this).children('textarea').val().toLowerCase();
-        
-                    if(text.indexOf(filterValue) > -1) {
-        
-                        unhide = true;
-        
-                    }
-                }
-        
-            });
-
-            if(unhide) elemRow.show();
-
-        });
-
-    }
-
-}
 function changeWorkspaceView(id) {
 
-    let elemList    = $('#' + id + '-list');
     let elemSelect  = $('#' + id + '-view-selector');
-    let elemSearch  = $('#' + id + '-search-input').parent();
     let linkView    = elemSelect.val();
+    let params      = { 
+        id              : id + '-content', 
+        header          : false, 
+        openInPLM       : settings.workspaceViews[id].openInPLM,
+        onItemClick     : settings.workspaceViews[id].onItemClick,
+        onItemDblClick  : settings.workspaceViews[id].onItemDblClick,
+        workspacesIn    : [settings.workspaceViews[id].wsId]
+     }
 
-    if(elemSearch.length > 0 ) elemSearch.hide();
-
-    elemList.children().hide();
-
-           if(linkView === 'mow'      ) {         insertMOW({ 'id' : id + '-mow'      , 'header' : false, 'workspacesIn' : [settings.workspaceViews[id].wsId] });      
-    } else if(linkView === 'bookmarks') {   insertBookmarks({ 'id' : id + '-bookmarks', 'header' : false, 'workspacesIn' : [settings.workspaceViews[id].wsId] });  
-    } else if(linkView === 'recents'  ) { insertRecentItems({ 'id' : id + '-recents'  , 'header' : false, 'workspacesIn' : [settings.workspaceViews[id].wsId] });  
+           if(linkView === 'mow'      ) {         insertMOW(params);      
+    } else if(linkView === 'bookmarks') {   insertBookmarks(params);  
+    } else if(linkView === 'recents'  ) { insertRecentItems(params);  
     } else { 
-        if(elemSearch.length > 0 ) elemSearch.show();
         insertWorkspaceViewData(id); 
     }
 
 }
 function insertWorkspaceViewData(id) {
 
-    let timestamp  = new Date().getTime();
-    let elemParent = $('#' + id)
-    let elemList   = $('#' + id + '-list');  
-    let elemSelect = $('#' + id + '-view-selector');
-    let linkView   = elemSelect.val();
-
-    elemParent.attr('data-timestamp', timestamp);
-    elemList.hide()
-    elemList.children('table').remove();
-    elemList.children('.tile').remove();
-    elemList.children('.workspace-view-group').remove();
-
-    $('#' + id + '-processing').show();
+    settings.workspaceViews[id].timestamp = startPanelContentUpdate(id);
+    settings.workspaceViews[id].link      = $('#' + id + '-view-selector').val();
 
     let requests = [
-        $.get('/plm/tableau-columns', { 'link' : linkView, 'timestamp' : timestamp }),
-        $.get('/plm/tableau-data'   , { 'link' : linkView, 'timestamp' : timestamp })
+        $.get('/plm/tableau-columns', { link : settings.workspaceViews[id].link , timestamp : settings.workspaceViews[id].timestamp }),
+        $.get('/plm/tableau-data'   , { link : settings.workspaceViews[id].link , timestamp : settings.workspaceViews[id].timestamp })
     ];
 
     Promise.all(requests).then(function(responses) {
 
-        if(responses[0].params.timestamp === $('#' + id).attr('data-timestamp')) {
+        if(stopPanelContentUpdate(responses[0], settings.workspaceViews[id])) return;
 
-            if(settings.workspaceViews[id].layout === 'table') {
+        let items = [];
 
-                let elemTable = $('<table></table>').appendTo(elemList)
-                    .attr('id', id + '-table')
-                    .addClass('workspace-view-table')
-                    .addClass('fixed-header');
+        for(let column of responses[0].data) {
+            if(!isBlank(column.displayOrder)) {
+                if(includePanelTableColumn(column.field.title, settings.workspaceViews[id], settings.workspaceViews[id].columns.length)) {
+                    settings.workspaceViews[id].columns.push({
+                        displayName : column.field.title,
+                        fieldId     : column.field.__self__.split('/').pop()    
+                    });    
+                }
+            }
+        }
 
-                let elemTHead = $('<thead></thead>').appendTo(elemTable)
-                    .addClass('workspace-view-thead')
-                    .attr('id', id + '-thead');
+        for(let row of responses[1].data) {
 
-                let elemTBody = $('<tbody></tbody>').appendTo(elemTable)
-                    .addClass('workspace-view-tbody')
-                    .attr('id', id + '-tbody');
+            let item = genPanelContentItem(settings.workspaceViews[id], { link : row.item.link} );
 
-                if(responses[1].data.length > 0) {
-                    setWorkspaceViewColumns(id, elemTHead, responses[0].data);
-                    setWorkspaceViewRows   (id, elemTBody, responses[1].data);
+            for(let column of  settings.workspaceViews[id].columns) {
+                for(let field of row.fields) {
+                    if(field.id === column.fieldId) {
+                        item.data.push({
+                            fieldId : field.id,
+                            value   : field.value
+                        });
+                    }
+                }
+            }
+
+            for(let field of row.fields) {
+
+                if(field.id === settings.workspaceViews[id].tileTitle   ) item.title      = field.value;
+                if(field.id === settings.workspaceViews[id].tileSubtitle) item.subtitle   = field.value;
+                if(field.id === settings.workspaceViews[id].tileImage   ) item.image      = field.value;
+                if(field.id === settings.workspaceViews[id].groupBy       ) item.group      = field.value;
+                if(field.id === config.items.fieldIdNumber                     ) item.partNumber = field.value;
+
+                if(settings.workspaceViews[id].additionalData.includes(field.id)) {
+                    item.attributes.push({
+                        key : field.id.toLowerCase(),
+                        value : field.value
+                    });
                 }
 
-            } else {
-
-                setWorkspaceViewTiles(id, elemList, responses[1].data);
+                for(let detail of item.details) if(detail.id === field.id) detail.value = field.value;
 
             }
 
-            $('#' + id + '-processing').hide();
-            elemList.show();
-
-            if(responses[1].data.length === 0) $('#' + id + '-no-data').show();
-
-            changeWorkspaceViewDone(id, responses[0], responses[1]);
-
+            items.push(item);
+    
         }
+
+        finishPanelContentUpdate(id, settings.workspaceViews[id], items);
+        changeWorkspaceViewDone(id, responses[0], responses[1]);
 
     });
 
 }
-function setWorkspaceViewColumns(id, elemTHead, columns) {
+function insertWorkspaceViewsDone(id, data) {}
+function changeWorkspaceViewDone(id, columns, data) {}
 
-    let index        = 0;
-    let elemTHeadRow = $('<tr></tr>').appendTo(elemTHead);
 
-    for(let column of columns) {
 
-        if(!isBlank(column.displayOrder)) {
+// Display ALL RECORDS of defined workspace
+function insertWorkspaceItems(wsId, params) {
 
-            if(index < settings.workspaceViews[id].columnLimit) {
-                $('<th></th>').appendTo(elemTHeadRow)
-                    .addClass('workspace-view-head')
-                    .html(column.field.title);
+    if(isBlank(params)) params = {};
 
-                index++;
-            }
+    let id = isBlank(params.id) ? 'workspace-items' : params.id;
 
-        }
+    settings.workspaceItems[id] = getPanelSettings('', params, {
+        headerLabel : 'Workspace Items',
+        layout      : 'grid',
+        tileSize    : 's'
+    }, [
+        [ 'filter'  , '' ],
+        [ 'sortBy'  , 'DESCRIPTOR' ],
+        [ 'groupBy' , '' ]
+    ]);
 
-    }
+    settings.workspaceItems[id].wsId   = wsId;
+    settings.workspaceItems[id].load = function() { insertWorkspaceItemsData(id); }
 
-}
-function setWorkspaceViewRows(id, elemTBody, rows) {
+    genPanelTop(id, settings.workspaceItems[id], 'bookmarks');
+    genPanelHeader(id, settings.workspaceItems[id]);
+    genPanelOpenSelectedInPLMButton(id, settings.workspaceItems[id]);
+    genPanelSelectionControls(id, settings.workspaceItems[id]);
+
+    genPanelSearchInput(id, settings.workspaceItems[id]);
+    genPanelReloadButton(id, settings.workspaceItems[id]);
     
-    for(let row of rows) {
+    genPanelContents(id, settings.workspaceItems[id]);
 
-        let index = 0;
-
-        let elemRow = $('<tr></tr>').appendTo(elemTBody)
-            .addClass('workspace-view-item')
-            .attr('data-link', row.item.link)
-            .click(function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                clickWorkspaceViewItem($(this), e);
-            })
-
-        for(let field of row.fields) {
-
-            if(field.id === 'DESCRIPTOR') elemRow.attr('data-title', field.value);
-
-            let elemCell = $('<td></td>').html($('<div></div>').html(field.value).text());
-
-            if(index < settings.workspaceViews[id].columnLimit) elemCell.appendTo(elemRow);
-
-            index++;
-
-        }
-
-    }
-
+    settings.workspaceItems[id].load();
+    
 }
-function setWorkspaceViewTiles(id, elemList, rows) {
+function insertWorkspaceItemsData(id) {
 
-    let elemGroupList;
-    let counter = 0;
-    let groupName = null;
+    settings.workspaceItems[id].timestamp = startPanelContentUpdate(id);
 
-    if(!isBlank(settings.workspaceViews[id].groupBy)) {
-        for(let row of rows) {
-            row.groupKey = getWorkspaceViewRowValue(row, settings.workspaceViews[id].groupBy, '', 'title');
-        }
-        sortArray(rows, 'groupKey', 'string', 'ascending');
+    let url = (isBlank(settings.workspaceItems[id].filter)) ? '/plm/items' : '/plm/search-bulk';
 
+    switch(typeof settings.workspaceItems[id].tileImage) {
+        case 'boolean': if(settings.workspaceItems[id].tileImage) url = '/plm/search-bulk'; break;
+        case 'string' : url = '/plm/search-bulk'; break;
     }
 
-    for(let row of rows) {
+    $.get(url, { 
+        timestamp : settings.workspaceItems[id].timestamp, 
+        wsId      : settings.workspaceItems[id].wsId,
+        query     : (isBlank(settings.workspaceItems[id].filter)) ? '*' : settings.workspaceItems[id].filter,
+        useCache  : settings.workspaceItems[id].useCache,
+        bulk      : false,
+        useCace   : true,
+        limit     : 250
+    }, function(response) {
+        
+        if(stopPanelContentUpdate(response, settings.workspaceItems[id])) return;
 
-        counter++;
+        let items                           = [];
+        let columns                         = []
+        settings.workspaceItems[id].columns = [];
 
-        if(!isBlank(settings.workspaceViews[id].groupBy)) {
+        if(!isBlank(settings.workspaceItems[id].tileTitle)) {
+            columns.push({
+                displayName : 'Item',
+                fieldId     : settings.workspaceItems[id].tileTitle 
+            }); 
+        };
 
-            if(groupName !== row.groupKey) {
+        if(!isBlank(settings.workspaceItems[id].tileSubtitle)) {
+            columns.push({
+                displayName : '',
+                fieldId     : settings.workspaceItems[id].tileSubtitle 
+            }); 
+        };
 
-                let elemGroup = $('<div></div>').appendTo(elemList)
-                    .addClass('workspace-view-group');
-
-                $('<div></div>').appendTo(elemGroup)
-                    .addClass('workspace-view-group-name')
-                    .html(row.groupKey);
-
-                elemGroupList = $('<div></div>').appendTo(elemGroup)
-                    .addClass('workspace-view-group-list')
-                    .addClass('tiles')
-                    .addClass(settings.workspaceViews[id].size)
-                    .addClass(settings.workspaceViews[id].surfaceLevel);
-
-                if(settings.workspaceViews[id].layout === 'list') elemGroupList.addClass('wide')
-
-            }
-
-            groupName = row.groupKey;
-
+        for(let detail of settings.workspaceItems[id].tileDetails) {
+            columns.push({
+                displayName : detail[1],
+                fieldId     : detail[2] 
+            });         
         }
 
-        let image    = (settings.workspaceViews[id].fieldIdImage === '') ? null : getWorkspaceViewRowValue(row, settings.workspaceViews[id].fieldIdImage, '', 'link');
-        let title    = getWorkspaceViewRowValue(row, settings.workspaceViews[id].fieldIdTitle, '', 'title');
-        let subtitle = (settings.workspaceViews[id].fieldIdSubtitle === '') ? null : getWorkspaceViewRowValue(row, settings.workspaceViews[id].fieldIdSubtitle, '', 'title');
-        let details  = [];
+        for(let column of columns) {
+            if(includePanelTableColumn(column.displayName, settings.workspaceItems[id], settings.workspaceItems[id].columns.length)) {
+                settings.workspaceItems[id].columns.push(column);    
+            }
+        }
 
-        let elemTile = genTile(row.item.link, '', image, settings.workspaceViews[id].icon, title, subtitle);
-            if(isBlank(settings.workspaceViews[id].groupBy)) elemTile.appendTo(elemList); else elemTile.appendTo(elemGroupList);
-            elemTile.click(function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                clickWorkspaceViewItem($(this), e);
+        if(!isBlank(settings.workspaceItems[id].sortBy)) {
+            for(let item of response.data.items) {
+                item.sortKey = getSectionFieldValue(item.sections, settings.workspaceItems[id].sortBy, '', 'title');
+            }
+            sortArray(response.data.items, 'sortKey', 'string', 'ascending');
+        }
+
+        for(let item of response.data.items) {
+
+            let contentItem = genPanelContentItem(settings.workspaceItems[id], {
+                link  : item.__self__, 
+                title : item.title
             });
 
+            for(let column of  settings.workspaceItems[id].columns) {
 
-        for(let fieldidDetail of settings.workspaceViews[id].fieldIdsDetails) {
-            details.push([
-                fieldidDetail[0],
-                getWorkspaceViewRowValue(row, fieldidDetail[1], '', 'title'),
-                fieldidDetail[2]
-            ]);
+                if(column.fieldId === 'DESCRIPTOR') {
+                    if(settings.workspaceItems[id].tileTitle    === column.fieldId) contentItem.title    = item.title;
+                    if(settings.workspaceItems[id].tileSubtitle === column.fieldId) contentItem.subtitle = item.title;
+                    if(settings.workspaceItems[id].groupBy        === column.fieldId) contentItem.group    = item.title;
+                    contentItem.data.push({
+                        fieldId : column.fieldId,
+                        value   : item.title
+                    });
+                } else if(column.fieldId === 'WF_CURRENT_STATE') {
+                    if(settings.workspaceItems[id].tileTitle    === column.fieldId) contentItem.title    = item.currentState.title;
+                    if(settings.workspaceItems[id].tileSubtitle === column.fieldId) contentItem.subtitle = item.currentState.title;
+                    if(settings.workspaceItems[id].groupBy        === column.fieldId) contentItem.group    = item.currentState.title;
+                    contentItem.data.push({
+                        fieldId : column.fieldId,
+                        value   : item.currentState.title
+                    });
+                } else {
+
+                    let value = getSectionFieldValue(item.sections, column.fieldId, '', 'title');
+
+                    contentItem.data.push({
+                        fieldId : column.fieldId,
+                        value   : value
+                    });
+
+                }
+            }
+
+            for(let section of item.sections) {
+                for(let field of section.fields) {
+
+                    let fieldId = field.__self__.split('/').pop();
+                    let value   = isBlank(field.value) ? '' : field.value;
+
+                    if(typeof value === 'object') value = value.title;
+
+                    if(fieldId === settings.workspaceItems[id].tileTitle   ) contentItem.title      = value;
+                    if(fieldId === settings.workspaceItems[id].tileSubtitle) contentItem.subtitle   = value
+                    if(fieldId === settings.workspaceItems[id].tileImage   ) contentItem.imageLink  = (isBlank(field.value)) ? '' : field.value.link;
+                    if(fieldId === settings.workspaceItems[id].groupBy     ) contentItem.group      = value;
+                    if(fieldId === config.items.fieldIdNumber              ) contentItem.partNumber = value;
+
+                    if(settings.workspaceItems[id].additionalData.includes(fieldId)) {
+
+                        let attributeValue = isBlank(field.value) ? '' : field.value;
+                        if(typeof attributeValue === 'object') attributeValue = attributeValue.link;
+
+                        contentItem.attributes.push({
+                            key   : fieldId.toLowerCase(),
+                            value : attributeValue
+                        });
+                    }
+
+                    for(let detail of contentItem.details) if(detail.id === fieldId) detail.value = value;
+
+                }
+            }
+
+            // console.log(contentItem);
+
+            items.push(contentItem);
+
         }
 
-        for(let fieldAttribute of settings.workspaceViews[id].fieldIdsAttributes) {
-            elemTile.attr('data-' + fieldAttribute.toLowerCase(), getWorkspaceViewRowValue(row, fieldAttribute, '', 'link'),)
-        }
+        finishPanelContentUpdate(id, settings.workspaceItems[id], items);
+        insertWorkspaceItemsDataDone(id, response);
 
-        if(details.length > 0) appendTileDetails(elemTile, details);
-
-    }
-
-    $('#' + id + '-workspace-view-counter').html(counter);
+    });
 
 }
-function changeWorkspaceViewDone(id, columns, data) {}
-function clickWorkspaceViewItem(elemClicked, e) {
+function insertWorkspaceItemsDataDone(id, response) {}
 
-    openItemByLink(elemClicked.attr('data-link'));
 
-}
+
 
 
 
 // Insert basic SEARCH capability
 function insertSearch(params) {
 
-    //  Set defaults for optional parameters
-    // --------------------------------------
-    let id           = 'search';            // id of DOM element where the list will be inserted
-    let header       = true;                // Hide header with setting this to false
-    let headerLabel  = 'Search';            // Set the header text
-    let headerToggle = false;               // Enable header toggles
-    let placeholder  = 'Enter search critieria'; // Provide placeholder text for search input
-    let buttonLabel  = 'Submit';            // Set the search button text
-    let reset        = true;                // Enable reset button
-    let tileCounter  = false;               // When enabled, a counter will be displayed instead of the icon
-    let icon         = 'icon-checkmark';    // Sets the icon to be displayed for each tile
-    let images       = false;               // Display first image field as tile image
-    let size         = 'm';                 // layout size (xxs, xs, s, m, l, xl, xxl)
-    let limit        = 50;                  // Set maximum limit of search results
-    let workspace    = '';                  // Set workspace for the search
-    let baseQuery    = '';                  // Set base query string to be appended
-    let exactMatch   = false;               // If set to true, no wildcards will be added
-    let autoClick    = false;               // Trigger click on first result in case of one single hit only
+    if(isBlank(params)) params = {};
 
-    if( isBlank(params)             )       params = {};
-    if(!isBlank(params.id)          )           id = params.id;
-    if(!isBlank(params.header)      )       header = params.header;
-    if(!isBlank(params.headerLabel) )  headerLabel = params.headerLabel;
-    if(!isBlank(params.headerToggle)) headerToggle = params.headerToggle;
-    if(!isBlank(params.placeholder) )  placeholder = params.placeholder;
-    if(!isBlank(params.buttonLabel) )  buttonLabel = params.buttonLabel;
-    if(!isBlank(params.reset)       )        reset = params.reset;
-    if(!isBlank(params.tileCounter) )  tileCounter = params.tileCounter;
-    if(!isBlank(params.icon)        )         icon = params.icon;
-    if(!isBlank(params.images)      )       images = params.images;
-    if(!isBlank(params.size)        )         size = params.size;
-    if(!isBlank(params.limit)       )        limit = params.limit;
-    if(!isBlank(params.workspace)   )    workspace = params.workspace;
-    if(!isBlank(params.baseQuery)   )    baseQuery = params.baseQuery;
-    if(!isBlank(params.exactMatch)  )   exactMatch = params.exactMatch;
-    if(!isBlank(params.autoClick)   )    autoClick = params.autoClick;
+    let id = isBlank(params.id) ? 'search' : params.id;
 
-    settings.search[id]             = {};
-    settings.search[id].tileCounter = tileCounter;
-    settings.search[id].icon        = icon;
-    settings.search[id].images      = images;
-    settings.search[id].limit       = limit;
-    settings.search[id].workspace   = workspace;    
-    settings.search[id].baseQuery   = baseQuery;    
-    settings.search[id].exactMatch  = exactMatch;    
-    settings.search[id].autoClick   = autoClick;    
+    settings.search[id] = getPanelSettings('', params, {
+        headerLabel  : 'Search',
+        placeholder  : 'Filter results' ,
+        layout       : 'list',
+        tileSize     : 'xs',
+        tileTitle    : 'Descriptor',
+        tileSubtitle : 'Workspace'
+    }, [
+        [ 'inputLabel'          , 'Enter search critieria' ],
+        [ 'buttonIcon'          , 'icon-search' ],
+        [ 'buttonLabel'         , 'Search' ],
+        [ 'limit'               , 25 ],
+        [ 'baseQuery'           , '' ],
+        [ 'groupBy'        , '' ],
+        [ 'sortBy'              , '' ],
+        [ 'workspaceIds'        , [] ],
+        [ 'exactMatch'          , false ],
+        [ 'autoClick'           , false ],
+        [ 'filterByOwner'       , true ],
+        [ 'filterByWorkspace'   , true ]
+    ]);
 
-    let elemParent = $('#' + id)
-        .addClass('search')
-        .html('')
-        .show();
+    settings.search[id].load = function() { resetSearch(id, true); }
 
-    if(header) {
+    genPanelTop(id, settings.search[id], 'search');
+    genPanelHeader(id, settings.search[id]);
+    genPanelOpenSelectedInPLMButton(id, settings.search[id]);
+    genPanelSelectionControls(id, settings.search[id]);
+    genPanelFilterSelect(id, settings.search[id].filterByOwner, 'owner', 'All Owners');
+    genPanelFilterSelect(id, settings.search[id].filterByWorkspace, 'workspace', 'All Workspaces');
+    genPanelSearchInput(id, settings.search[id]).hide();
+    genPanelReloadButton(id, settings.search[id]);
 
-        let elemHeader = $('<div></div>', {
-            id : id + '-header'
-        }).appendTo(elemParent).addClass('panel-header');
-    
-        if(headerToggle) {
-    
-            $('<div></div>').appendTo(elemHeader)
-                .addClass('panel-header-toggle')
-                .addClass('icon')
-                .addClass('icon-collapse');
-    
-            elemHeader.addClass('with-toggle');
-            elemHeader.click(function() {
-                togglePanelHeader($(this));
-            });
-    
-        }
-    
-        $('<div></div>').appendTo(elemHeader)
-            .addClass('panel-title')
-            .attr('id', id + '-title')
-            .html(headerLabel);
-    
-        let elemToolbar = $('<div></div>')
-            .addClass('panel-toolbar')
-            .attr('id', id + '-toolbar');
-    
-        if(reset) {
+    genPanelToolbar(id, settings.search[id], 'actions');
 
-            elemToolbar.appendTo(elemHeader);
-            $('<div></div>').appendTo(elemToolbar)
-                .addClass('button')
-                .addClass('icon')
-                .addClass('icon-refresh')
-                .attr('id', id + '-reset')
-                .attr('title', 'Reset the search panel')
-                .click(function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    resetSearch(id);
-                });
-
-        }
-    
-    } else { elemParent.addClass('no-header'); }
-
-
-    $('#' + id + '-no-data').hide();
-
-    let elemListToolbar = $('<div></div>').appendTo(elemParent)
-        .attr('id', id + '-list-toolbar')
-        .addClass('search-list-toolbar');
-
-    $('<input></input>').appendTo(elemListToolbar)
-        .attr('placeholder', placeholder)
-        .attr('id', id + '-search-list-input')
-        .addClass('search-list-input')
+    $('<input></input>').appendTo($('#' + id + '-actions'))
+        .attr('placeholder', settings.search[id].inputLabel)
+        .attr('id', id + '-search-content-input')
+        .addClass('search-content-input')
+        // .hide()
         .click(function(e){
             e.preventDefault();
             e.stopPropagation();
@@ -1644,120 +789,159 @@ function insertSearch(params) {
             }
         });
 
-    $('<div></div>').appendTo(elemListToolbar)
-        .attr('id', id + '-search-list-button')
-        .addClass('search-list-button')
+    let elemButton = $('<div></div>').appendTo($('#' + id + '-actions'))
+        .attr('id', id + '-search-content-button')
+        .addClass('search-content-button')
         .addClass('button')
         .addClass('default')
-        .html(buttonLabel)
+        .addClass('disabled')
+        // .hide()
+        .html(settings.search[id].buttonLabel)
         .click(function(e) {
             e.preventDefault();
             e.stopPropagation();
+            resetSearch(id, false);
             insertSearchData(id);
         });
 
-    $('<div></div>').appendTo(elemParent)
-        .attr('id', id + '-list')
-        .addClass('search-list')
-        .addClass('no-scrollbar')
-        .addClass('panel-content')
-        .addClass('tiles')
-        .addClass('list')
-        .addClass(size);
+    if(!isBlank(settings.search[id].buttonIcon)) elemButton.addClass('with-icon').addClass(settings.search[id].buttonIcon);
 
-    appendProcessing(id, true);
-    appendNoDataFound(id, 'icon-no-data', 'No Search Results');
+    genPanelContents(id, settings.search[id]);
+
+    getWorkspaceIdsFromNames(settings.search[id], function(workspaceIds) {
+        settings.search[id].workspaceIds = workspaceIds;
+        settings.search[id].load();
+    });
 
     insertSearchDone(id);
 
+
 }
 function insertSearchDone(id) {}
-function resetSearch(id) {
+function resetSearch(id, resetInput) {
 
-    $('#' + id + '-search-list-input').val('').focus();
-    $('#' + id + '-list').hide();
+    if(resetInput) $('#' + id + '-search-content-input').val('').focus();
+    
+    $('.search-filter').hide();
+    $('#' + id + '-search').hide();
+    $('#' + id + '-content').hide();
     $('#' + id + '-processing').hide();
     $('#' + id + '-no-data').hide();
+    $('#' + id + '-no-data').hide();
+    $('#' + id + '-search-content-button').removeClass('disabled');
 
 }
 function insertSearchData(id) {
 
-    let timestamp  = new Date().getTime();
-    let elemParent = $('#' + id)
-    let elemList   = $('#' + id + '-list');  
-
-    elemParent.attr('data-timestamp', timestamp);
-    elemList.hide();
-
-    $('#' + id + '-no-data').hide();
-    $('#' + id + '-processing').show();
+    settings.search[id].timestamp = startPanelContentUpdate(id);
 
     let params = {
-        'query'     : $('#' + id + '-search-list-input').val(),
-        'limit'     : settings.search[id].limit,
-        'timestamp' : timestamp
+        query     : $('#' + id + '-search-content-input').val(),
+        limit     : settings.search[id].limit,
+        timestamp : settings.search[id].timestamp
     }
 
-
-    if(!isBlank(settings.search[id].baseQuery)) params.query += '+AND+' + settings.search[id].baseQuery;
-    if(!isBlank(settings.search[id].workspace)) params.wsId = settings.search[id].workspace;
-    if(settings.search[id].exactMatch) params.wildcard = false;
+    if(!isBlank(settings.search[id].baseQuery)   ) params.query     += '+AND+' + settings.search[id].baseQuery;
+    if(!isBlank(settings.search[id].workspaceIds)) params.workspaces = settings.search[id].workspaceIds;
+    if(settings.search[id].exactMatch            ) params.wildcard   = false;
 
     $.get('/plm/search-descriptor', params, function(response) {
 
-        if(response.params.timestamp === $('#' + id).attr('data-timestamp')) {
-
-            elemList.html('').show();
-
-            $('#' + id + '-processing').hide();
+        if(stopPanelContentUpdate(response, settings.search[id])) return;
             
-            if((typeof response.data.items === 'undefined') || (response.data.items.length === 0)) {
+        let items           = [];
+        let listWorkspaces  = [];
+        let listOwners      = [];
 
-                $('#' + id + '-no-data').show();
-            
-            } else {
+        settings.search[id].columns = [];
 
-                elemList.show();
+        let columns = [
+            { displayName : 'Descriptor', fieldId : 'descriptor' },
+            { displayName : 'Category'  , fieldId : 'category'   },
+            { displayName : 'Creator'   , fieldId : 'creator'    },
+            { displayName : 'Owner'     , fieldId : 'owner'      },
+            { displayName : 'Workspace' , fieldId : 'workspaceLongName'  }
+        ]; 
 
-                let counter = 1;
+        for(let column of columns) {
+            if(includePanelTableColumn(column.displayName, settings.search[id], settings.search[id].columns.length)) {
+                settings.search[id].columns.push(column);    
+            }
+        }
 
-                for(record of response.data.items) {
+        for(let record of response.data.items) {
 
-                    let elemTile = genTile(record.__self__, '', '',  settings.search[id].icon, record.descriptor, record.workspaceLongName);
-                        elemTile.appendTo(elemList);
-                        elemTile.click(function(e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            clickSearchResult($(this), e);
-                        });
+            if(!listOwners.includes(record.owner)) listOwners.push(record.owner);
+            if(!listWorkspaces.includes(record.workspaceLongName)) listWorkspaces.push(record.workspaceLongName);
 
-                    if(settings.search[id].tileCounter) {
-                        let elemImage = elemTile.find('.tile-image');
-                        elemImage.html('');
+            record.tileTitle    = '';
+            record.tileSubitle  = '';
+            record.group        = (settings.search[id].groupBy === '') ? '' : record[settings.search[id].groupBy];
 
-                        $('<div></div>').appendTo(elemImage)
-                            .addClass('tile-counter')
-                            .html(counter++);
-                    }
-                
-                    if((response.data.items.length === 1) && (settings.search[id].autoClick)) {
-                        elemTile.click();
-                    } else if(settings.search[id].images) getTileImage(elemTile, settings.search[id].icon);
+            for(let column of columns) {
 
-                }
+                if(settings.search[id].tileTitle === column.displayName) record.tileTitle = record[column.fieldId];
+                if(settings.search[id].tileSubtitle === column.displayName) record.tileSubitle = record[column.fieldId];
 
-                if(response.data.items.length < response.data.totalCount) {
-
-                    $('<div></div>').appendTo(elemList)
-                        .addClass('search-list-status')
-                        .html('Showing ' + response.data.items.length + ' out of ' + response.data.totalCount + ' total matches');
-
-                }
             }
 
-            insertSearchDataDone(id, response);
+            let contentItem = genPanelContentItem(settings.search[id], {
+                link     : record.__self__,
+                title    : record.tileTitle,
+                subtitle : record.tileSubitle,
+                group    : record.group
+            });
+
+            contentItem.data = [
+                { fieldId : 'descriptor', value : record.descriptor,},
+                { fieldId : 'category'  , value : record.category },
+                { fieldId : 'creator'   , value : record.creator },
+                { fieldId : 'owner'     , value : record.owner },
+                { fieldId : 'workspaceLongName' , value : record.workspaceLongName }
+            ],
+
+            contentItem.filters = [
+                { key : 'owner', value : record.owner },
+                { key : 'workspace', value : record.workspaceLongName }
+            ]
+
+            items.push(contentItem);
 
         }
+
+        // if(response.data.items.length === 0) {
+        //     $('#' + id + '-no-data').show();
+        //     $('#' + id + '-content').hide();
+        // } else {
+        //     if(settings.search[id].search) $('#' + id + '-search').show();
+        //     if(settings.search[id].autoClick) {
+        //         $('#' + id + '-content').find('.content-item').first().click();
+        //     }
+        // }
+
+        // if(response.data.items.length < response.data.totalCount) {
+
+        //     $('<div></div>').appendTo($('#' + id + '-content'))
+        //         .addClass('search-content-status')
+        //         .html('Showing ' + response.data.items.length + ' out of ' + response.data.totalCount + ' total matches');
+
+        // }
+
+        sortArray(listOwners, 0);
+        sortArray(listWorkspaces, 0);
+        
+        setPanelFilterOptions(id, 'owner', listOwners);
+        setPanelFilterOptions(id, 'workspace', listWorkspaces);
+        finishPanelContentUpdate(id, settings.search[id], items);
+
+        if(settings.search[id].autoClick) {
+            if($('#' + id + '-content').find('.content-item').length === 1) {
+                $('#' + id + '-content').find('.content-item').first().click();
+            }
+        }
+
+
+        insertSearchDataDone(id, response);
 
     });
 
@@ -1772,331 +956,102 @@ function clickSearchResult(elemClicked, e) {
 // Insert advanced SEARCH results
 function insertResults(wsId, filters, params) {
 
-    //  Set defaults for optional parameters
-    // --------------------------------------
-    let id              = 'results';        // id of DOM element where the list will be inserted
-    let header          = true;             // Hide header (and toolbar) by setting this to false
-    let headerLabel     = 'Results';        // Set the header text
-    let headerToggle    = false;            // Enable header toggles
-    let compactDisplay  = false;            // Optimizes CSS settings for a compact display
-    let openInPLM       = true;             // Adds button to open selected element in PLM
-    let reload          = true;             // Enable reload button for the list
-    let search          = true;             // Adds quick filtering using search input on top of list
-    let placeholder     = 'Search';         // Set placeholder text for quick filtering input
-    let layout          = 'table';          // Content layout (tiles, grid, list or table)
-    let tileSize        = 's';              // Tile size (xxs, xs, s, m, l, xl, xxl)
-    let tileIcon        = 'icon-product';   // Tile icon to use if no image is available
-    let tileCounter     = false;            // When enabled, a counter will be displayed instead of the icon
-    let tileImage       = '';               // Field ID to be used for the tile's inage
-    let tileTitle       = 'DESCRIPTOR';     // Field ID to be used for the tile's title
-    let tileSubtitle    = '';               // Field ID to be used for the tile's subtitle
-    let tileDetails     = '';               // Field ID to be used for the tile's details element
-    let tilesGroupBy    = '';               // Field ID to use for grouping of items (leave blank to disable grouping)
-    let multiSelect     = false;            // Enables selection of multiple items
-    let editable        = false;            // When set to true, enables modifications in editable fields
-    let filterEmpty     = false;            // When set to true, adds filter for rows with empty input cells 
-    let filterSelected  = false;            // When set to true, adds filter for selected rows
-    let tableHeaders    = true;             // When set to false, the table headers will not be shown
-    let number          = true;             // When set to true, a counter will be displayed as first column
-    let descriptor      = true;             // When set to true, the descriptor will be displayed as first table column
-    let hideDetails     = false;            // When set to true, detail columns will be skipped, only the descriptor will be shown
-    let tableCounters   = true;             // Display counters at bottom to indicate total, selected, filtered and modified items
-    let totals          = false;            // Enable automatic total calculation for numeric columns, based on selected (or all) items
-    let ranges          = false;            // Enable automatic range indicators for numeric columns, based on selected (or all) items
-    let fields          = [];               // Set columns to be display by providing an array of fieldIds
-    let sort            = [];               // Determines sorting of rows by providing an array of fieldIds
+    if(isBlank(params)) params = {};
 
+    let id = isBlank(params.id) ? 'results' : params.id;
 
-    if(isBlank(wsId)) return;
-    if(isBlank(filters)) return;
+    settings.results[id] = getPanelSettings('', params, {
+        headerLabel  : 'Results',
+        layout       : 'table',
+        tileSize     : 'xs',
+        tileTitle    : 'DESCRIPTOR',
+        tileSubtitle : ''
+    }, [
+        [ 'wsId'            , wsId ],
+        [ 'filters'         , filters ],
+        [ 'fields'          , ['DESCRIPTOR'] ],
+        [ 'sortBy'          , ['DESCRIPTOR'] ],
+        [ 'groupBy'         , '' ],
+        [ 'editable'        , false ],
+        [ 'filterEmpty'     , false ],
+        [ 'tileImageFIeldId', '' ]
+    ]);
 
-    if( isBlank(params)               )         params = {};
-    if(!isBlank(params.id)            )             id = params.id;
-    if(!isBlank(params.header)        )         header = params.header;
-    if(!isBlank(params.headerLabel)   )    headerLabel = params.headerLabel;
-    if(!isBlank(params.headerToggle)  )   headerToggle = params.headerToggle;
-    if(!isBlank(params.compactDisplay)) compactDisplay = params.compactDisplay;
-    if(!isBlank(params.openInPLM)     )      openInPLM = params.openInPLM;
-    if(!isBlank(params.reload)        )         reload = params.reload;
-    if(!isBlank(params.search)        )         search = params.search;
-    if(!isBlank(params.placeholder)   )    placeholder = params.placeholder;
-    if(!isBlank(params.layout)        )         layout = params.layout;
-    if(!isBlank(params.tileSize)      )       tileSize = params.tileSize;
-    if(!isBlank(params.tileIcon)      )       tileIcon = params.tileIcon;
-    if(!isBlank(params.tileCounter)   )    tileCounter = params.tileCounter;
-    if(!isBlank(params.tileImage)     )      tileImage = params.tileImage;
-    if(!isBlank(params.tileTitle)     )      tileTitle = params.tileTitle;
-    if(!isBlank(params.tileSubtitle)  )   tileSubtitle = params.tileSubtitle;
-    if(!isBlank(params.tileDetails)   )    tileDetails = params.tileDetails;
-    if(!isBlank(params.tilesGroupBy)  )   tilesGroupBy = params.tilesGroupBy;
-    if(!isBlank(params.multiSelect)   )    multiSelect = params.multiSelect;
-    if(!isBlank(params.editable)      )       editable = params.editable;
-    if(!isBlank(params.filterEmpty)   )    filterEmpty = params.filterEmpty;
-    if(!isBlank(params.filterSelected)) filterSelected = params.filterSelected;
-    if(!isBlank(params.tableHeaders)  )   tableHeaders = params.tableHeaders;
-    if(!isBlank(params.number)        )         number = params.number;
-    if(!isBlank(params.descriptor)    )     descriptor = params.descriptor;
-    if(!isBlank(params.hideDetails)   )    hideDetails = params.hideDetails;
-    if(!isBlank(params.tableCounters) )  tableCounters = params.tableCounters;
-    if(!isBlank(params.totals)        )         totals = params.totals;
-    if(!isBlank(params.ranges)        )         ranges = params.ranges;
-    if(!isBlank(params.fields)        )         fields = params.fields;
-    if(!isBlank(params.sort)          )           sort = params.sort; 
+    if(!settings.results[id].fields.includes('DESCRIPTOR')) settings.results[id].fields.unshift('DESCRIPTOR');
+    settings.results[id].load = function() { insertResultsData(id, true); }
 
-    if(sort.length   === 0) sort.push(filters[0].field);
-    if(fields.length === 0) for(let field of filters) { fields.push(field.field); }
-
-    if(!isBlank(tileImage)   ) { if(!fields.includes(tileImage)   ) { fields.push(tileImage);    } }
-    if(!isBlank(tileTitle)   ) { if(!fields.includes(tileTitle)   ) { fields.push(tileTitle);    } }
-    if(!isBlank(tileSubtitle)) { if(!fields.includes(tileSubtitle)) { fields.push(tileSubtitle); } }
-    if(!isBlank(tileDetails) ) { if(!fields.includes(tileDetails) ) { fields.push(tileDetails);  } }
-
-    settings.results[id]                = {};
-    settings.results[id].layout         = layout;
-    settings.results[id].tileSize       = tileSize;
-    settings.results[id].tileIcon       = tileIcon;
-    settings.results[id].tileCounter    = tileCounter;
-    settings.results[id].tileImage      = tileImage;
-    settings.results[id].tileTitle      = tileTitle;
-    settings.results[id].tileSubtitle   = tileSubtitle;
-    settings.results[id].tileDetails    = tileDetails;
-    settings.results[id].tilesGroupBy   = tilesGroupBy;
-    settings.results[id].multiSelect    = multiSelect;
-    settings.results[id].editable       = editable;  
-    settings.results[id].tableHeaders   = tableHeaders; 
-    settings.results[id].number         = number;  
-    settings.results[id].descriptor     = descriptor;  
-    settings.results[id].hideDetails    = hideDetails;  
-    settings.results[id].totals         = totals;  
-    settings.results[id].ranges         = ranges;  
-    settings.results[id].wsId           = wsId; 
-    settings.results[id].filters        = filters;    
-    settings.results[id].fields         = fields;
-    settings.results[id].sort           = sort;
-
-    settings.results[id].fields.unshift('DESCRIPTOR');
-
-    let elemTop = $('#' + id)
-        .addClass('panel-top')
-        .addClass('list-top')
-        .addClass('results')
-        .attr('data-wsid', wsId)
-        .html('');
-
-    if(multiSelect) elemTop.addClass('multi-select');
-    if(compactDisplay) elemTop.addClass('compact');
-    if(layout.toLowerCase() !== 'table') tableCounters = false;
-    if(tableCounters) elemTop.addClass('with-counters');
-
-    if(header) {
-
-        let elemHeader = $('<div></div>', {
-            id : id + '-header'
-        }).appendTo(elemTop).addClass('panel-header');
-
-        if(headerToggle) {
-
-            $('<div></div>').appendTo(elemHeader)
-                .addClass('panel-header-toggle')
-                .addClass('icon')
-                .addClass('icon-collapse');
-
-            elemHeader.addClass('with-toggle');
-            elemHeader.click(function() {
-                togglePanelHeader($(this));
-            });
-
+    if(!isBlank(settings.results[id].groupBy)) {
+        if(!settings.results[id].fields.includes(settings.results[id].groupBy)) {
+            settings.results[id].fields.push(settings.results[id].groupBy);
         }
+    }
 
-        $('<div></div>').appendTo(elemHeader)
-            .addClass('panel-title')
-            .attr('id', id + '-title')
-            .html(headerLabel);
-
-        let elemToolbar = $('<div></div>').appendTo(elemHeader)
-            .addClass('panel-toolbar')
-            .attr('id', id + '-toolbar');
-
-        if(openInPLM) {
-
-            $('<div></div>').appendTo(elemToolbar)
-                .addClass('button')
-                .addClass('icon')
-                .addClass('icon-open')
-                .addClass('xs')
-                .addClass('list-open-in-plm')
-                .addClass('list-single-select-action')
-                .attr('title', 'Open the selected item in PLM')
-                .click(function() {
-                    clickListOpenInPLM($(this));
-                });
-    
-        }            
-
-        if(filterSelected) {
-                
-            $('<div></div>').appendTo(elemToolbar)
-                .addClass('button')
-                .addClass('icon')
-                .addClass('icon-check-box-checked')
-                .addClass('list-filter-selected')
-                .addClass('list-single-select-action')
-                .addClass('list-multi-select-action')
-                .attr('title', 'Focus on selected rows')
-                .click(function() {
-                    clickListFilterSelected($(this));
-                });
-
+    if(!isBlank(settings.results[id].tileSubtitle)) {
+        if(!settings.results[id].fields.includes(settings.results[id].tileSubtitle)) {
+            settings.results[id].fields.push(settings.results[id].tileSubtitle);
         }
+    }
 
-        $('<div></div>').appendTo(elemToolbar)
-            .addClass('button')
-            .addClass('icon')
-            .addClass('icon-deselect-all')
-            .addClass('xs')
-            .addClass('list-multi-select-action')
-            .addClass('list-single-select-action')
-            .attr('id', id + '-deselect-all')
-            .attr('title', 'Deselect all')
-            .click(function() {
-                clickListDeselectAll($(this));
-            });
-
-        if(editable) {
-
-            appendOverlay(true);
-
-            $('<div></div>').appendTo(elemToolbar)
-                .addClass('button')
-                .addClass('default')
-                .html('Save')
-                .hide()
-                .attr('id', id + '-save')
-                .click(function() {
-                    clickListSave($(this));
-                });
-
-            if(filterEmpty) {
-                
-                $('<div></div>').appendTo(elemToolbar)
-                    .addClass('button')
-                    .addClass('icon')
-                    .addClass('icon-filter-empty')
-                    .addClass('list-filter-empty')
-                    .attr('title', 'Focus on rows having empty inputs')
-                    .click(function() {
-                        clickListFilterEmptyInputs($(this));
-                    });
-
+    if(!isBlank(settings.results[id].tileDetails)) {
+        for(let tileDetail of settings.results[id].tileDetails) {
+            if(!isBlank(tileDetail.fieldId)) {
+                if(!settings.results[id].fields.includes(tileDetail.fieldId)) {
+                    settings.results[id].fields.push(tileDetail.fieldId);
+                }
             }
-
-        } 
-
-        if(reload) {
-
-            $('<div></div>').appendTo(elemToolbar)
-                .addClass('button')
-                .addClass('icon')
-                .addClass('icon-refresh')
-                .attr('id', id + '-reload')
-                .attr('title', 'Reload this list')
-                .click(function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    insertResultsData(id);
-                });
-
         }
+    }
 
-        $('<div></div>').appendTo(elemToolbar)
-            .addClass('button') 
-            .addClass('with-icon') 
-            .addClass('icon-filter') 
-            .addClass('flat-bom-counter') 
-            .html('0 rows selected')
-            .hide()
-            .click(function() {
-                $(this).toggleClass('selected');
-                filterFlatBOMByCounter($(this));
-            }); 
-        
-        if(search) {
-
-            let elemSearch = $('<div></div>').appendTo(elemToolbar)
-                .addClass('button')
-                .addClass('with-icon')
-                .addClass('icon-search-list');
-
-            $('<input></input>').appendTo(elemSearch)
-                .attr('placeholder', placeholder)
-                .attr('id', id + '-search-input')
-                .addClass('list-search-input')
-                .keyup(function() {
-                    searchInList(id, $(this));
-                });
-
+    if(!isBlank(settings.results[id].stateColors)) {
+        if(!settings.results[id].fields.includes('WF_CURRENT_STATE')) {
+            settings.results[id].fields.push('WF_CURRENT_STATE');
         }
+    }
 
-    } else { elemTop.addClass('no-header'); }
+    genPanelTop(id, settings.results[id], 'results');
+    genPanelHeader(id, settings.results[id]);
+    genPanelOpenSelectedInPLMButton(id, settings.results[id]);
+    genPanelSelectionControls(id, settings.results[id]);
+    genPanelFilterToggleEmpty(id, settings.results[id]);
+    genPanelSearchInput(id, settings.results[id]);
+    genPanelReloadButton(id, settings.results[id]);
 
-    appendProcessing(id, false);
-    appendNoDataFound(id, 'icon-no-data', 'No Results');
+    genPanelContents(id, settings.results[id]);
 
-    $('<div></div>').appendTo(elemTop)
-        .attr('id', id + '-list')
-        .addClass('panel-content')
-        .addClass('panel-list')
-        .addClass('no-scrollbar');
-
-    let elemCounters = $('<div></div>').appendTo(elemTop)
-        .attr('id', id + '-list-counters')
-        .addClass('list-counters')
-        .hide();
-
-    if(tableCounters) {
-
-        $('<div></div>').appendTo(elemCounters)
-            .attr('id', id + '-list-counter-total')
-            .addClass('list-counter-total');
+    if(settings.results[id].editable) {
         
-        $('<div></div>').appendTo(elemCounters)
-            .attr('id', id + '-list-counter-filtered')
-            .addClass('list-counter-filtered');
+        $('<div></div>').prependTo($('#' + id + '-toolbar'))
+        .addClass('button')
+        .addClass('default')
+        .addClass('panel-action')
+        .attr('id', id + '-action-save')
+        .attr('title', 'Save changes')
+        .html('Save')
+        .hide()
+        .click(function() {
+            savePanelTableChanges(id, settings.results[id]);
+        });
         
-        $('<div></div>').appendTo(elemCounters)
-            .attr('id', id + '-list-counter-selected')
-            .addClass('list-counter-selected');      
-
-        $('<div></div>').appendTo(elemCounters)
-            .attr('id', id + '-list-counter-changed')
-            .addClass('list-counter-changed');
-
-        elemCounters.show();
-
-    } 
-
+    }
+    
     insertResultsDone(id);
-    insertResultsData(id);
+    settings.results[id].load();
 
 }
-function insertResultsDone(id) {}
 function insertResultsData(id) {
 
-    let elemParent  = $('#' + id);
-    let timestamp   = new Date().getTime();
-    let elemList    = $('#' + id + '-list');
-    
-    elemParent.attr('data-timestamp', timestamp);
-    elemList.html('').hide();
+    settings.results[id].timestamp = startPanelContentUpdate(id);
 
-    $('#' + id + '-processing').show();
+    let elemCounters =  $('#' + id + '-content-counters');
+    
+    if(elemCounters.length > 0) elemCounters.children().each(function() { $(this).html('').removeClass('not-empty'); })
 
     let params = {
         wsId        : settings.results[id].wsId,
         filter      : settings.results[id].filters,
         fields      : settings.results[id].fields,
-        sort        : settings.results[id].sort,
-        timestamp   : timestamp
+        sort        : settings.results[id].sortBy,
+        timestamp   : settings.results[id].timestamp
     }
 
     let requests = [
@@ -2106,84 +1061,90 @@ function insertResultsData(id) {
 
     Promise.all(requests).then(function(responses) {
 
-        if(responses[0].params.timestamp === $('#' + id).attr('data-timestamp')) {
+        if(stopPanelContentUpdate(responses[0], settings.results[id])) return;
 
-            let items   = responses[0].data.row;
-            let columns = [];
-                
-            for(let column of settings.results[id].fields) {
-                for(let field of responses[1].data) {
-                    let fieldId = field.__self__.split('/').pop();
-                    if(column === fieldId) {
-                        field.displayName = field.name;
-                        field.fieldId = column;
-                        columns.push(field);
+        let items = [];
+
+        settings.results[id].columns = [];
+
+        for(let column of settings.results[id].fields) {
+            if(includePanelTableColumn(column, settings.results[id], settings.results[id].columns.length)) {
+                if(column === 'DESCRIPTOR') {
+                    settings.results[id].columns.push({
+                        'displayName' : 'Descriptor',
+                        'fieldId'     : 'DESCRIPTOR'
+                    });
+                } else if(column === 'WF_CURRENT_STATE') {
+                    settings.results[id].columns.push({
+                        'displayName' : 'Current Status',
+                        'fieldId'     : 'WF_CURRENT_STATE'
+                    });
+                } else {
+                    for(let field of responses[1].data) {
+                        let fieldId = field.__self__.split('/').pop();
+                        if(column === fieldId) {
+                            field.displayName = field.name;
+                            field.fieldId = column;
+                            settings.results[id].columns.push(field);
+                        }
+                    }  
+                }  
+            }
+        }
+
+        for(let row of responses[0].data.row) {
+
+            let contentItem = genPanelContentItem(settings.results[id], {
+                link : '/api/v3/workspaces/' + settings.results[id].wsId + '/items/' + row.dmsId
+            })
+
+            for(let field of row.fields.entry) {
+
+                if(field.key === config.items.fieldIdNumber       ) contentItem.partNumber = field.fieldData.value;
+                if(field.key === settings.results[id].tileImage   ) contentItem.image      = field.fieldData.value;
+                if(field.key === settings.results[id].tileTitle   ) contentItem.title      = field.fieldData.value;
+                if(field.key === settings.results[id].tileSubtitle) contentItem.subtitle   = field.fieldData.value;
+                if(field.key === settings.results[id].groupBy     ) contentItem.group      = field.fieldData.value;
+                if(field.key === 'WF_CURRENT_STATE'               ) contentItem.status     = field.fieldData.value;
+
+                for(let tileDetail of contentItem.details) {
+                    if(field.key === tileDetail.fieldId) {
+                        tileDetail.value = field.fieldData.value;
                     }
                 }
-            }
-
-            settings.results[id].columns = columns;
-
-            for(let item of items) {
-
-                item.link       = '/api/v3/workspaces/' + settings.results[id].wsId + '/items/' + item.dmsId;
-                item.image      = '';
-                item.title      = '';
-                item.subtitle   = '';
-                item.details    = '';
-                item.partNumber = '';
-                item.data       = [];
-                item.quantity   = '';
 
                 for(let column of settings.results[id].columns) {
 
-                    let value = '';
-
-                    for(let field of item.fields.entry) {
-
-                        if(field.key === config.viewer.fieldIdPartNumber) item.partNumber = field.fieldData.value;
-                        if(field.key === settings.results[id].tileImage) item.image = field.fieldData.value;
-                        if(field.key === settings.results[id].tileTitle) item.title = field.fieldData.value;
-                        if(field.key === settings.results[id].tileSubtitle) item.subtitle = field.fieldData.value;
-                        if(field.key === settings.results[id].tileDetails ) item.details  = field.fieldData.value;
-                        if(field.key === settings.results[id].tilesGroupBy) item.groupKey = field.fieldData.value;
-
-                        if(field.key === column.fieldId) {
-                            value = field.fieldData.value;
-                            break;
+                    if(field.key === column.fieldId) {
+                    
+                        let value = field.fieldData.value;
+                    
+                        if(field.fieldData.dataType === 'Check Box') {
+                            value = (field.fieldData.value === 't');
                         }
+                    
+                        contentItem.data.push({
+                            fieldId : column.fieldId,
+                            value   : value
+                        });
 
+                        break;
                     }
-
-                    item.data.push({
-                        fieldId : column.fieldId,
-                        value   : value
-                    });
 
                 }
 
-                console.log(item);
 
             }
 
-            if(settings.results[id].layout === 'table') {                
-                
-                genTable(id ,settings.results[id], items);
-                
-            } else {
-
-                genTilesList(id, items, settings.results[id]);
-
-            }
-
-            if(items.length === 0) $('#' + id + '-no-data').show();
-            $('#' + id + '-processing').hide();
-            elemList.show();
-            insertResultsDataDone(id, responses);
+            items.push(contentItem);
 
         }
+
+        finishPanelContentUpdate(id, settings.results[id], items);
+        insertResultsDataDone(id, responses);
 
     });
 
 }
+function insertResultsDone(id) {}
 function insertResultsDataDone(id, data) {}

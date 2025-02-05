@@ -2,11 +2,11 @@ let managedItems        = [];
 let selectedManagedItem = {};
 let bomViews            = [];
 let bomItemsByStatus    = [];
-let selectedURN         = '';
+// let selectedURN         = '';
 let relatedWorkspaces   = [];
 let relatedItems        = [];
 let isRevisioningWS     = false;
-let isLocked            = true;
+let isEditable          = false;
 
 
 $(document).ready(function() {   
@@ -17,9 +17,14 @@ $(document).ready(function() {
     appendOverlay(true);
 
     setUIEvents();
-    setHeaderSubtitle();
-    getWorkspaceConfiguration();
-    getRelationships(function() {});
+
+    getFeatureSettings('impactanalysis', [], function(responses) {
+
+        getLockStatusAndSubtitle();
+        getWorkspaceConfiguration();
+        getRelationships(function() {});
+
+    });
 
 });
 
@@ -29,8 +34,19 @@ function setUIEvents() {
        
 
     // Header Actions
-    $('#toggle-nav').click(function() {
+    $('#toggle-list').click(function() {
         $('body').toggleClass('no-nav');
+        $(this).toggleClass('icon-toggle-on').toggleClass('icon-toggle-off').toggleClass('filled');
+        if(typeof viewer !== 'undefined') { setTimeout(function() { viewer.resize(); }, 250); }
+    });
+    $('#toggle-tabs').click(function() {
+        $('body').toggleClass('no-tabs');
+        $(this).toggleClass('icon-toggle-on').toggleClass('icon-toggle-off').toggleClass('filled');
+        if(typeof viewer !== 'undefined') { setTimeout(function() { viewer.resize(); }, 250); }
+    });
+    $('#toggle-side').click(function() {
+        $('body').toggleClass('no-side');
+        $(this).toggleClass('icon-toggle-on').toggleClass('icon-toggle-off').toggleClass('filled');
         if(typeof viewer !== 'undefined') { setTimeout(function() { viewer.resize(); }, 250); }
     });
     $('#toggle-comparison').click(function() {
@@ -88,14 +104,11 @@ function setUIEvents() {
         $('body').toggleClass('no-viewer');
         if(typeof viewer !== 'undefined') { setTimeout(function() { viewer.resize(); }, 250); }
     });
-    $('#toggle-tabs').click(function() {
-        $('body').toggleClass('no-tabs');
-        if(typeof viewer !== 'undefined') { setTimeout(function() { viewer.resize(); }, 250); }
-    });
-    $('#toggle-details').click(function() {
-        $('body').toggleClass('with-details');
-        if(typeof viewer !== 'undefined') { setTimeout(function() { viewer.resize(); }, 250); }
-    });
+
+    // $('#toggle-details').click(function() {
+    //     $('body').toggleClass('with-details');
+    //     if(typeof viewer !== 'undefined') { setTimeout(function() { viewer.resize(); }, 250); }
+    // });
 
 
     // Item Actions
@@ -154,6 +167,13 @@ function setUIEvents() {
     $('#related-add-all').click(function() {
         addManagedItem(true);
     });
+
+    // $('#tabs').children().click(function() {
+    //     $(this).addClass('selected');
+    //     $(this).siblings().removeClass('selected');
+
+    // });
+    // $('#tabs').children().first().click();
 
 
 }
@@ -224,37 +244,77 @@ function setCounter(id, value, total) {
 }
 
 
-// Insert descriptor in header subtitle
-function setHeaderSubtitle() {
-    
-    $.get('/plm/details', { 'wsId' : wsId, 'dmsId' : dmsId}, function(response) {
+// Get user access permission
+function getLockStatusAndSubtitle() {
 
-        let description = getSectionFieldValue(response.data.sections, 'DESCRIPTION', '', '');
-        let elem = $('<span></span>');
-            elem.html(description);
+    let requests = [
+        $.get('/plm/details',     { wsId : wsId, dmsId : dmsId }),
+        $.get('/plm/permissions', { wsId : wsId, dmsId : dmsId })
+    ]
 
-        isLocked = response.data.itemLocked;
+    Promise.all(requests).then(function(responses) {
 
-        if(!isLocked) $('#save').show();
+        let description = getSectionFieldValue(responses[0].data.sections, 'DESCRIPTION', '', '');
+        let elem        = $('<span></span>').html(description);
 
         $('#header-description').append(elem.text());
-        $('#header-descriptor').html(response.data.title);
+        $('#header-descriptor').html(responses[0].data.title);
+
+        let isLocked = responses[0].data.itemLocked;
+
+        if(!isLocked) {
+            if(hasPermission(responses[1].data, 'edit_workflow_items')) {
+                isEditable = true;
+                $('#save').show();
+            }
+        }
 
         getManagedFields();
 
-    });    
+    });
+
+    // $.get('/plm/permissions', { wsId : wsId, dmsId : dmsId }, function(response) {
+    //     if(hasPermission(response.data, 'edit_workflow_items')) {
+    //         isEditable = true;
+    //         $('#save').show();
+    //     }
+    //     getManagedFields();
+    // });
+
 }
+
+
+// Insert descriptor in header subtitle
+// function setHeaderSubtitle() {
+
+//     $.get('/plm/details', { 'wsId' : wsId, 'dmsId' : dmsId}, function(response) {
+
+//         let description = getSectionFieldValue(response.data.sections, 'DESCRIPTION', '', '');
+//         let elem = $('<span></span>');
+//             elem.html(description);
+
+//         isLocked = response.data.itemLocked;
+
+//         if(!isLocked) $('#save').show();
+
+//         $('#header-description').append(elem.text());
+//         $('#header-descriptor').html(response.data.title);
+
+//         getManagedFields();
+
+//     });    
+// }
 
 
 // Get columns of managed items tab of Change Order
 function getManagedFields() {
     
-    $.get('/plm/managed-fields', { 'wsId' : wsId }, function(response) {
+    $.get('/plm/managed-fields', { wsId : wsId, useCache : true }, function(response) {
 
-        let elemFields = $('#item-change');
+        let elemFields = $('#change');
 
-        for(field of response.data) {
-            insertField(field, null, elemFields, false, false, !isLocked, false);
+        for(let field of response.data) {
+            insertDetailsField(field, null, elemFields, false, { editable : isEditable });
         }
 
         $('#overlay').hide();
@@ -283,138 +343,89 @@ function getWorkspaceConfiguration() {
             });
         }
 
-        getManagedItems();
+        // TODO : REMOVE
+        // getManagedItems();
+
+        insertManagedItems('/api/v3/workspaces/' + wsId + '/items/' + dmsId, {
+            headerLabel     : 'Affected Items',
+            layout          : 'list',
+            tileSize        : 'm',
+            number          :  true,
+            openInPLM       : true,
+            reload          : true,
+            search          : true,
+            singleToolbar   : 'actions',
+            counters        : true,
+            onClickItem     : function(elemClicked) { selectManagedItem(elemClicked); }
+        });
 
     });
 
 }
+function insertManagedItemsDataDone(id, items, fields) {
 
+    for(let item of items) {
+        
+        let countStock       = 0;
+        let countOrders      = 0;
+        let countSupplies    = 0;
+        let productionOrders = [];
+        let transitionLink   = (isBlank(item.targetTransition)) ? '' : item.targetTransition.link;
 
-// Retrieve related items
-function getRelationships(callback) {
+        for(let field of item.linkedFields) {
+                    
+            let fieldId = field.__self__.split('/')[8];
 
-    relatedItems = [];
+            switch(fieldId) {
 
-    $.get('/plm/relationships', { wsId : wsId, dmsId: dmsId}, function(response) {
+                case config.impactanalysis.fieldIdStockQuantity              : countStock        = field.value; break;
+                case config.impactanalysis.fieldIdNextProductionOrderQantity : countOrders       = field.value; break;
+                case config.impactanalysis.fieldIdPendingSupplies            : countSupplies     = (field.value === 'true') ? 1 : 0; break;
+                case config.impactanalysis.fieldIdProductionOrdersData       : productionOrders  = field.value; break;
 
-        if(response.error) showErrorMessage('Error', response.data.message);
-        else {
-
-            for(relationship of response.data) {
-                relatedItems.push({
-                    'urn'           : relationship.item.urn,
-                    'link'          : relationship.__self__,
-                    'description'   : relationship.description
-                });
             }
 
-            callback();
+            if(fieldId === config.impactanalysis.fieldIdProposedChange) transition = field.value;
+
         }
 
-    });
+        if(!isBlank(productionOrders)) {
+            if(!Array.isArray(productionOrders)) {
+                productionOrders = productionOrders.replace(/&#34;/g, '"');
+                productionOrders = JSON.parse(productionOrders);
+            }
+        } else { productionOrders = []; }        
 
-}
+        if(countStock   > 1000) countStock   = Math.floor(countStock   / 1000) + ' k';
+        if(countOrders  > 1000) countOrders  = Math.floor(countOrders  / 1000) + ' k';
 
+        managedItems.push({
+            link              : item.item.link,
+            affected          : item.__self__,
+            wsId              : item.item.link.split('/')[4],
+            fields            : item.linkedFields,
+            from              : item.fromRelease,
+            transition        : transitionLink,
+            prev              : null,
+            prevLink          : null,
+            productionOrders  : productionOrders
+        });
 
-// Get managed items of Change Order
-function getManagedItems() {
-    
-    $.get('/plm/manages', { 'dmsId' : dmsId, 'wsId' : wsId }, function(response) {
+        if(!isRevisioningWS) {
+            transition === '';
+            for(field of affectedItem.linkedFields) {
+                let fieldId = field.__self__.split('/')[8];
+                if(fieldId === config.impactanalysis.fieldIdProposedChange) transition = field.value;
+            }
+        }
 
-        $('#nav-counter').html(response.data.length);
-        $('#nav-processing').hide();
+        $('#managed-items-content').children().each(function() {
 
-        let isUpdate = $('.nav-item').length > 0;
+            let elemTile = $(this);
 
-        for(var i = 0; i < response.data.length; i++) {
-            
-            var affectedItem    = response.data[i];
-            var itemData        = affectedItem.item.link.split('/');
-            var transition      = (affectedItem.hasOwnProperty("targetTransition")) ? affectedItem.targetTransition.title : "- not defined -";
-            let transitionLink  = (affectedItem.hasOwnProperty('targetTransition')) ? affectedItem.targetTransition.link : '';
-            let revision        = "";
-            let fromRelease     = (affectedItem.hasOwnProperty("fromRelease")) ? affectedItem.fromRelease : "";
-            let toRelease       = (affectedItem.hasOwnProperty("toRelease")) ? affectedItem.toRelease : "";
+            if(elemTile.attr('data-link') === item.item.link) {
 
-            let add              = true;
-            let countStock       = 0;
-            let countOrders      = 0;
-            let countSupplies    = 0;
-            let productionOrders = [];
-
-            $('.nav-item').each(function() {
-                if($(this).attr('data-urn') === affectedItem.item.urn) add = false;
-            });
-
-
-            if(add) {
-
-                if(fromRelease !== "") {
-                    revision = "from Rev " + fromRelease + " to Rev " + toRelease;    
-                } else if(toRelease !== "") {
-                    revision = "Release as Rev " + toRelease;           
-                } else {
-                    revision = " - not defined -"          
-                }
-
-                if(transition !== '- not defined -') transition += ' ' + revision;
-
-                for(field of affectedItem.linkedFields) {
-                    
-                    let fieldId = field.__self__.split('/')[8];
-
-                    switch(fieldId) {
-
-                        case config.impactanalysis.fieldIdStockQuantity              : countStock        = field.value; break;
-                        case config.impactanalysis.fieldIdNextProductionOrderQantity : countOrders       = field.value; break;
-                        case config.impactanalysis.fieldIdPendingSupplies            : countSupplies     = (field.value === 'true') ? 1 : 0; break;
-                        case config.impactanalysis.fieldIdProductionOrdersData       : productionOrders  = field.value; break;
-
-                    }
-
-                    if(fieldId === config.impactanalysis.fieldIdProposedChange) transition = field.value;
-
-                }
-
-                if(!isBlank(productionOrders)) {
-                    if(!Array.isArray(productionOrders)) {
-                        productionOrders = productionOrders.replace(/&#34;/g, '"');
-                        productionOrders = JSON.parse(productionOrders);
-                    }
-                } else { productionOrders = []; }
-
-                if(countStock   > 1000) countStock   = Math.floor(countStock   / 1000) + ' k';
-                if(countOrders  > 1000) countOrders  = Math.floor(countOrders  / 1000) + ' k';
-
-                managedItems.push({
-                    'urn'               : affectedItem.item.urn,
-                    'affected'          : affectedItem.__self__,
-                    'link'              : affectedItem.item.link,
-                    'wsId'              : itemData[4],
-                    'dmsId'             : itemData[6],
-                    'fields'            : affectedItem.linkedFields,
-                    'from'              : affectedItem.fromRelease,
-                    'transition'        : transitionLink,
-                    'prev'              : null,
-                    'prevLink'          : null,
-                    'productionOrders'  : productionOrders
-                });
-
-                if(!isRevisioningWS) {
-                    transition === '';
-                    for(field of affectedItem.linkedFields) {
-                        let fieldId = field.__self__.split('/')[8];
-                        if(fieldId === config.impactanalysis.fieldIdProposedChange) transition = field.value;
-                    }
-                }
-
-                let elemTile = genTile(affectedItem.item.link, affectedItem.item.urn, '', 'icon-item', affectedItem.item.title, transition);
-                    elemTile.addClass('nav-item');
-                    elemTile.addClass('unread');
-                    elemTile.appendTo("#nav-list").fadeIn();
-                    elemTile.click(function() {
-                        selectManagedItem($(this));
-                    });
+                elemTile.addClass('unread');
 
                 let elemStatus = $('<div></div>').appendTo(elemTile)
                     .addClass('tile-item-status');
@@ -452,20 +463,200 @@ function getManagedItems() {
                     .addClass('value')
                     .html(countSupplies);
                     
-
                 if(countStock    !== 0) elemStatusStock.addClass('highlight-stock');
                 if(countOrders   !== 0) elemStatusOrders.addClass('highlight-orders');
                 if(countSupplies !== 0) elemStatusSuppliers.addClass('highlight-suppliers');
 
             }
 
-        }
+        });
 
-        if(!isUpdate) $('.nav-item').first().click();
-        
-    });  
+
+    }
+
+    $('#managed-items-content').children().first().click();
 
 }
+
+
+// Retrieve related items
+function getRelationships(callback) {
+
+    relatedItems = [];
+
+    $.get('/plm/relationships', { wsId : wsId, dmsId: dmsId}, function(response) {
+
+        if(response.error) showErrorMessage('Error', response.data.message);
+        else {
+
+            for(relationship of response.data) {
+                relatedItems.push({
+                    'urn'           : relationship.item.urn,
+                    'link'          : relationship.__self__,
+                    'description'   : relationship.description
+                });
+            }
+
+            callback();
+        }
+
+    });
+
+}
+
+
+
+// TODO : REMOVE
+// Get managed items of Change Order
+// function getManagedItems() {
+    
+//     $.get('/plm/manages', { 'dmsId' : dmsId, 'wsId' : wsId }, function(response) {
+
+//         $('#nav-counter').html(response.data.length);
+//         $('#nav-processing').hide();
+
+//         let isUpdate = $('.nav-item').length > 0;
+
+//         for(var i = 0; i < response.data.length; i++) {
+            
+//             var affectedItem    = response.data[i];
+//             var itemData        = affectedItem.item.link.split('/');
+//             var transition      = (affectedItem.hasOwnProperty("targetTransition")) ? affectedItem.targetTransition.title : "- not defined -";
+//             let transitionLink  = (affectedItem.hasOwnProperty('targetTransition')) ? affectedItem.targetTransition.link : '';
+//             let revision        = "";
+//             let fromRelease     = (affectedItem.hasOwnProperty("fromRelease")) ? affectedItem.fromRelease : "";
+//             let toRelease       = (affectedItem.hasOwnProperty("toRelease")) ? affectedItem.toRelease : "";
+
+//             let add              = true;
+//             let countStock       = 0;
+//             let countOrders      = 0;
+//             let countSupplies    = 0;
+//             let productionOrders = [];
+
+//             $('.nav-item').each(function() {
+//                 if($(this).attr('data-urn') === affectedItem.item.urn) add = false;
+//             });
+
+
+//             if(add) {
+
+//                 if(fromRelease !== "") {
+//                     revision = "from Rev " + fromRelease + " to Rev " + toRelease;    
+//                 } else if(toRelease !== "") {
+//                     revision = "Release as Rev " + toRelease;           
+//                 } else {
+//                     revision = " - not defined -"          
+//                 }
+
+//                 if(transition !== '- not defined -') transition += ' ' + revision;
+
+//                 for(field of affectedItem.linkedFields) {
+                    
+//                     let fieldId = field.__self__.split('/')[8];
+
+//                     switch(fieldId) {
+
+//                         case config.impactanalysis.fieldIdStockQuantity              : countStock        = field.value; break;
+//                         case config.impactanalysis.fieldIdNextProductionOrderQantity : countOrders       = field.value; break;
+//                         case config.impactanalysis.fieldIdPendingSupplies            : countSupplies     = (field.value === 'true') ? 1 : 0; break;
+//                         case config.impactanalysis.fieldIdProductionOrdersData       : productionOrders  = field.value; break;
+
+//                     }
+
+//                     if(fieldId === config.impactanalysis.fieldIdProposedChange) transition = field.value;
+
+//                 }
+
+//                 if(!isBlank(productionOrders)) {
+//                     if(!Array.isArray(productionOrders)) {
+//                         productionOrders = productionOrders.replace(/&#34;/g, '"');
+//                         productionOrders = JSON.parse(productionOrders);
+//                     }
+//                 } else { productionOrders = []; }
+
+//                 if(countStock   > 1000) countStock   = Math.floor(countStock   / 1000) + ' k';
+//                 if(countOrders  > 1000) countOrders  = Math.floor(countOrders  / 1000) + ' k';
+
+//                 managedItems.push({
+//                     'urn'               : affectedItem.item.urn,
+//                     'affected'          : affectedItem.__self__,
+//                     'link'              : affectedItem.item.link,
+//                     'wsId'              : itemData[4],
+//                     'dmsId'             : itemData[6],
+//                     'fields'            : affectedItem.linkedFields,
+//                     'from'              : affectedItem.fromRelease,
+//                     'transition'        : transitionLink,
+//                     'prev'              : null,
+//                     'prevLink'          : null,
+//                     'productionOrders'  : productionOrders
+//                 });
+
+//                 if(!isRevisioningWS) {
+//                     transition === '';
+//                     for(field of affectedItem.linkedFields) {
+//                         let fieldId = field.__self__.split('/')[8];
+//                         if(fieldId === config.impactanalysis.fieldIdProposedChange) transition = field.value;
+//                     }
+//                 }
+
+//                 let elemTile = genTile(affectedItem.item.link, affectedItem.item.urn, '', 'icon-item', affectedItem.item.title, transition);
+//                     elemTile.addClass('nav-item');
+//                     elemTile.addClass('unread');
+//                     elemTile.appendTo("#nav-list").fadeIn();
+//                     elemTile.click(function() {
+//                         selectManagedItem($(this));
+//                     });
+
+//                 let elemStatus = $('<div></div>').appendTo(elemTile)
+//                     .addClass('tile-item-status');
+
+//                 let elemStatusStock = $('<div></div>').appendTo(elemStatus)
+//                     .attr('title', 'In Stock Quantity');
+                
+//                 $('<div></div>').appendTo(elemStatusStock)
+//                     .addClass('icon')
+//                     .addClass('icon-stock');
+            
+//                 $('<div></div>').appendTo(elemStatusStock)
+//                     .addClass('value')
+//                     .html(countStock);
+
+//                 let elemStatusOrders = $('<div></div>').appendTo(elemStatus)
+//                     .attr('title', 'Next Production Order Quantity');
+                
+//                 $('<div></div>').appendTo(elemStatusOrders)
+//                     .addClass('icon')
+//                     .addClass('icon-order-in-work');
+                
+//                 $('<div></div>').appendTo(elemStatusOrders)
+//                     .addClass('value')
+//                     .html(countOrders);
+
+//                 let elemStatusSuppliers = $('<div></div>').appendTo(elemStatus)
+//                     .attr('title', 'Supplier Packages Pending');
+                
+//                 $('<div></div>').appendTo(elemStatusSuppliers)
+//                     .addClass('icon')
+//                     .addClass('icon-shipping');
+                
+//                 $('<div></div>').appendTo(elemStatusSuppliers)
+//                     .addClass('value')
+//                     .html(countSupplies);
+                    
+
+//                 if(countStock    !== 0) elemStatusStock.addClass('highlight-stock');
+//                 if(countOrders   !== 0) elemStatusOrders.addClass('highlight-orders');
+//                 if(countSupplies !== 0) elemStatusSuppliers.addClass('highlight-suppliers');
+
+//             }
+
+//         }
+
+//         if(!isUpdate) $('.nav-item').first().click();
+        
+//     });  
+
+// }
 
 
 // Get information for selected managed item
@@ -473,8 +664,6 @@ function selectManagedItem(elemClicked) {
 
     $('#overlay').hide();
 
-    elemClicked.addClass('selected');
-    elemClicked.siblings().removeClass('selected');
     elemClicked.removeClass('unread');
 
     let link = elemClicked.attr('data-link');
@@ -484,31 +673,39 @@ function selectManagedItem(elemClicked) {
     $('#item').attr('data-link', link);
     $('#item-title').html(elemClicked.find('.tile-title').html());
 
-    selectedURN = elemClicked.attr('data-urn');
-
-    for(managedItem of managedItems) {
-        if(managedItem.urn === selectedURN) selectedManagedItem = managedItem;
+    for(let managedItem of managedItems) {
+        if(managedItem.link === link) selectedManagedItem = managedItem;
     }
 
     insertViewer(link);
-    getChangeLog();
+    insertDetails(link, {
+        hideHeaderLabel  : true,
+        collapseContents : true,
+        layout           : 'narrow',
+        toggles          : true
+    })
+    insertChangeLog(link, {
+        hideHeader      : true,
+        filterByUser    : true,
+        filterByAction  : true,
+        singleToolbar   : 'actions'
+    });
     setAffectedItemFields();
     getRootParents();
     getRelated();
     getImpactedRelationships();
     getChangeProcesses();
     getProductionOrders();
-    getBookmarkStatus();
 
     if(selectedManagedItem.prev === null) {
-        $.get('/plm/versions', { 'link' : selectedManagedItem.link }, function(response) {
+        $.get('/plm/versions', { link : selectedManagedItem.link }, function(response) {
             selectedManagedItem.prev = '';
             selectedManagedItem.prevLink = '';
-            for(version of response.data.versions) {
-                if(typeof version.version !== 'undefined') {
+            for(let version of response.data.versions) {
+                if(!isBlank(version.version)) {
                     if(version.version === selectedManagedItem.from) {
                         //$(this).attr('data-from-link', version.item.link);
-                        selectedManagedItem.prev = version.item.link.split('/')[6];
+                        selectedManagedItem.prev     = version.item.link.split('/')[6];
                         selectedManagedItem.prevLink = version.item.link;
                     }
                 }
@@ -534,7 +731,6 @@ function reset() {
     $('#tabs').children().removeClass('count-done');
     $('#tabs').children().addClass('count-work');
     $('#tabs').find('.counter').html('');
-
 
     $('#bom-table').html('');
     $('.content-table').find('tbody').children().remove();
@@ -716,66 +912,16 @@ function modelDiff() {
 
 
 
-
-// [1] Display Change Log
-function getChangeLog() {
-    
-    $.getJSON('/plm/logs', { 'link' : selectedManagedItem.link }, function(response) {
-        
-        if(response.params.link !== selectedManagedItem.link) return;
-
-        let elemTable   = $('#logs-table').find('tbody');
-
-        for(log of response.data) {
-            
-            let elemDesc = $('<td><table><tr><td>' + log.description + '</td></tr></table></td>');
-
-            if(log.description === null) {
-
-                elemDesc = $('<td></td>');
-
-                if(log.details.length > 0) {
-
-                    let elemChanges = $('<table></table>');
-                    let elemChange = $('<tr></tr>');
-                        elemChange.appendTo(elemChanges);
-                        elemChange.append('<td>' + log.details[0].fieldName + ' changed from<td>');
-                        elemChange.append('<td class="text"> ' + log.details[0].oldValue + '<td>');
-                        elemChange.append('<td>to<td>');
-                        elemChange.append('<td class="text"> ' + log.details[0].newValue + '<td>');
-
-                    elemDesc.append(elemChanges);
-                    
-                }
-
-            }
-
-            let timeStamp = new Date(log.timeStamp);
-                
-            var elemRow = $('<tr></tr>');
-                elemRow.append('<td class="tiny">' + timeStamp.toDateString() + '</td>');
-                elemRow.append('<td class="tiny">' + log.user.title + '</td>');
-                elemRow.append('<td class="tiny">' + log.action.shortName + '</td>');
-                elemRow.append(elemDesc);
-                elemRow.appendTo(elemTable);
-                
-        }
-        
-    });
-    
-}
-
-
 // [2] Set managed items tab fields
 function setAffectedItemFields() {
 
-    let elemParent = $('#item-change');
-
-    elemParent.find('.field-value').each(function() {
+    $('#change').find('.field-value').each(function() {
         $(this).children().first().val('');
     });
 
-    for(field of selectedManagedItem.fields) setFieldValue(field);
+    $.get('/plm/managed-item', { link : selectedManagedItem.affected}, function(response) {
+        for(let field of response.data.linkedFields) setFieldValue(field);
+    });
 
 }
 function setFieldValue(field) {
@@ -807,48 +953,29 @@ function updateManagedItem() {
 
     $('#overlay').show();
 
-    for(managedItem of managedItems) {
-        if(managedItem.urn === selectedURN) {
-            
-            let params = {
-                'link'          : managedItem.affected,
-                'fields'        : [],
-                'transition'    : managedItem.transition
-            }
-
-            $('#item-change .field-value').each(function() {
-
-                let fieldData = getFieldValue($(this));
-
-                params.fields.push({
-                    '__self__' : $(this).attr('data-link'),
-                    'value' : fieldData.value
-                });
-                let newField = true;
-                for(field of managedItem.fields) {
-                    if(field.__self__ === $(this).attr('data-link')) {
-                        field.value = fieldData.value;
-                        newField = false;
-                    }
-                }
-                if(newField) {
-                    managedItem.fields.push({
-                        '__self__' : $(this).attr('data-link'),
-                        'value' : fieldData.value
-                    });
-                }
-
-            });
-
-            $.get('/plm/update-managed-item', params, function(response) {
-                if(response.error) {
-                    showErrorMessage('Error', response.data.message);
-                }
-                $('#overlay').hide();
-            });
-
-        }
+    let params = {
+        link       : selectedManagedItem.affected,
+        fields     : [],
+        transition : selectedManagedItem.transition
     }
+
+    $('#change .field-value').each(function() {
+
+        let fieldData = getFieldValue($(this));
+
+        params.fields.push({
+            __self__ : $(this).attr('data-link'),
+            value    : fieldData.value
+        });
+
+    });
+
+    $.get('/plm/update-managed-item', params, function(response) {
+        if(response.error) {
+            showErrorMessage('Error', response.data.message);
+            }
+        $('#overlay').hide();
+    });
 
 }
 
@@ -891,7 +1018,7 @@ function getItemDetails() {
 
         $('#details-processing').hide();
 
-        insertItemDetailsFields('', 'details', responses[0].data, responses[1].data, responses[2].data, false, false, false);
+        // insertItemDetailsFields('', 'details', responses[0].data, responses[1].data, responses[2].data, false, false, false);
 
 
         if(requests.length > 3) {
@@ -1042,11 +1169,11 @@ function getBOM() {
 
     if(proceed) {
 
-        $.get( '/plm/bom-views-and-fields', { 'wsId' : selectedManagedItem.wsId }, function(response) {
+        $.get('/plm/bom-views-and-fields', { link : selectedManagedItem.link, useCache : true }, function(response) {
 
             let totalViews = response.data.length;
 
-            for(view of response.data) {
+            for(let view of response.data) {
 
                 bomViews.push({
                     'wsId'      : selectedManagedItem.wsId,
@@ -1170,22 +1297,21 @@ function selectBOMView(elemClicked) {
 }
 function setBOMTable(viewId) {
     
-    let selectedManagedItem;
+    // let selectedManagedItem;
     let fields  = [];
     let columns = '';
 
-    for(managedItem of managedItems) {
-        if(managedItem.urn === selectedURN) selectedManagedItem = managedItem;
-    }
+    // for(let managedItem of managedItems) {
+    //     if(managedItem.urn === selectedURN) selectedManagedItem = managedItem;
+    // }
 
     let params = {
-        'wsId'          : selectedManagedItem.wsId,
-        'dmsId'         : selectedManagedItem.dmsId,
-        'revisionBias'  : 'changeOrder',
-        'viewId'     : viewId
+        link          : selectedManagedItem.link,
+        revisionBias  : 'changeOrder',
+        viewId        : viewId
     }
 
-    for(bomView of bomViews) {
+    for(let bomView of bomViews) {
         if(bomView.id === Number(viewId)) {
             fields = bomView.fields;
             for(field of bomView.fields) {
@@ -1200,7 +1326,7 @@ function setBOMTable(viewId) {
 
 
         //if(data.bom.root.link.indexOf('/api/v3/workspaces/' + selectedManagedItem.wsId + '/items/' + selectedManagedItem.dmsId) < 0) return;
-        if(response.params.dmsId !== params.dmsId) return;
+        if(response.params.link !== params.link) return;
 
 
         let counter     = 0;
@@ -1562,7 +1688,7 @@ function getChildren(elemChildren, edges, nodes, parent, level, urnPath) {
                     }
                 }
 
-                if(!isLocked) {
+                if(isEditable) {
                     if(!isConnected) {
 
                          $('<div></div>').appendTo(elemParentActions)
@@ -1830,15 +1956,13 @@ function getRelated() {
 
         for(let relatedItem of response.data) {
             
-            let elemItem = $('<div></div>');
-                elemItem.attr('data-title', relatedItem.title);
-                elemItem.attr('data-part-number', relatedItem.title.split(' - ')[0]);
-                elemItem.attr('data-link', relatedItem.link);
-                elemItem.addClass('changed-item');
-                elemItem.appendTo(elemList);
-                elemItem.click(function() {
+            let elemItem = $('<div></div>').appendTo(elemList)
+                .attr('data-title', relatedItem.title)
+                .attr('data-part-number', relatedItem.title.split(' - ')[0])
+                .attr('data-link', relatedItem.link)
+                .addClass('changed-item')
+                .click(function() {
                     $(this).toggleClass('selected');
-                    console.log($(this).attr('data-part-number'));
                     if($(this).hasClass('selected')) {
                         viewerSelectModel($(this).attr('data-part-number'), {
                             isolate     : true,
@@ -1860,7 +1984,7 @@ function getRelated() {
             
         setCounter('related', response.data.length);
 
-        if(!isLocked) {
+        if(isEditable) {
             $('#related-actions').css('display', 'flex');
         }
 

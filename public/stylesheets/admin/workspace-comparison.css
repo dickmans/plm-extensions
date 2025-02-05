@@ -127,26 +127,34 @@ body.no-console #console {
     height      : 36px;
     line-height : 36px;
     text-align  : center;
+    max-width   : 60px;
+    min-width   : 60px;
     width       : 60px;
 }
 .result-label { 
     height      : 36px;
     line-height : 36px;
+    max-width   : 190px;
+    min-width   : 190px;
     width       : 190px;
 }
 .result-summary {
     font-size   : 12px;
     line-height : 36px;
     text-align  : right;
-    width       : 210px;
+    max-width   : 250px;
+    min-width   : 250px;
+    width       : 250px;
 }
 .result-color {
     color       : var(--color-surface-level-1);
     padding-right : 10px;
     text-align  : center;
-    width       : 48px;
     height      : 36px;
     line-height : 36px;
+    max-width   : 48px;
+    min-width   : 48px;
+    width       : 48px;
 }
 .match  .icon-radio-unchecked::before { color : var(--color-status-green)  !important; }
 .diff   .icon-radio-unchecked::before { color : var(--color-status-red)    !important; }
@@ -156,7 +164,9 @@ body.no-console #console {
     flex-direction  : column;
     flex-grow       : 1;
     gap             : 1px;
-    max-width       : calc(100% - 518px);    
+    max-width       : calc(100% - 558px);    
+    min-width       : calc(100% - 558px);    
+    width           : calc(100% - 558px);    
 }
 .action {
     display : flex;

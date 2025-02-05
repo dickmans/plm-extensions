@@ -22,6 +22,9 @@ block body
                     .nav-content(data-id='tutorial-5') #5 Item Details &amp; Attachments
                     .nav-content(data-id='tutorial-6') #6 Context Application
                     .nav-content(data-id='tutorial-7') #7 Viewer Interactions
+                .nav-toolbar 
+                    .button#gallery See examples in the 
+                        span demo gallery
                 .nav-header Framework
                 .nav-description Use standard building blocks in your own apps
                 .nav-contents
@@ -29,6 +32,7 @@ block body
                     .nav-content(data-id='buttons') Buttons
                     .nav-content(data-id='icons') Icons
                     .nav-content(data-id='create') Create Items
+                    .nav-content(data-id='workflow-actions') Workflow Actions Menu
                 .nav-header Navigation Views
                 .nav-description The capabilities of nav.js enable displaying multiple records to let users navigate to information of interest
                 .nav-contents
@@ -39,7 +43,7 @@ block body
                     .nav-content(data-id='nav-workspace-items') Workspace Items
                     .nav-content(data-id='nav-results') Search Results
                     .nav-content(data-id='nav-search') Search
-                .nav-header Item Contents
+                .nav-header Item Tab Contents
                 .nav-description Insert data of a given record using the functions defined in item.js
                 .nav-contents
                     .nav-content(data-id='item-details') Details
@@ -47,18 +51,23 @@ block body
                     .nav-content(data-id='item-viewer') Viewer
                     .nav-content(data-id='item-bom') BOM
                     .nav-content(data-id='item-flat-bom') Flat BOM
+                    .nav-content(data-id='item-bom-parents') BOM Parents
+                    .nav-content(data-id='item-bom-roots') BOM Roots
                     .nav-content(data-id='item-grid') Grid
+                    .nav-content(data-id='item-managed-items') Managed Items
+                    .nav-content(data-id='item-bom-changes') BOM Changes
                     .nav-content(data-id='item-change-processes') Change Processes
-                    .nav-content(data-id='item-workflow-actions') Workflow Actions
+                    .nav-content(data-id='item-relationships') Relationships
+                    .nav-content(data-id='item-change-log') Change Log
                     .nav-content(data-id='item-workflow-history') Workflow History
                     .nav-content(data-id='item-summary') Summary
-                .nav-header Viewer
+                .nav-header Viewer Interactions
                 .nav-description Enable interactions with the viewer using functionality of viewer.js
                 .nav-contents
-                    .nav-content(data-id='viewer-basics') Basics
-                    .nav-content(data-id='viewer-selection') Selection
-                    .nav-content(data-id='viewer-colors') Colors
-                    .nav-content(data-id='viewer-visibility') Visibility
+                    .nav-content(data-id='viewer-basics') Basic Events
+                    .nav-content(data-id='viewer-selection') Component Selection
+                    .nav-content(data-id='viewer-colors') Viewer Colors
+                    .nav-content(data-id='viewer-visibility') Component Visibility
             #doc-contents.split-right.padding-80.surface-level-1.no-scrollbar(name='doc-contents')
                 include ../docs/tutorial-1.pug
                 include ../docs/tutorial-2.pug
@@ -71,6 +80,7 @@ block body
                 include ../docs/buttons.pug
                 include ../docs/icons.pug
                 include ../docs/create.pug
+                include ../docs/workflow-actions.pug
                 include ../docs/nav-mow.pug
                 include ../docs/nav-recent-items.pug
                 include ../docs/nav-bookmarks.pug
@@ -83,9 +93,14 @@ block body
                 include ../docs/item-viewer.pug
                 include ../docs/item-bom.pug
                 include ../docs/item-flat-bom.pug
+                include ../docs/item-bom-parents.pug
+                include ../docs/item-bom-roots.pug
                 include ../docs/item-grid.pug
+                include ../docs/item-managed-items.pug
+                include ../docs/item-bom-changes.pug
                 include ../docs/item-change-processes.pug
-                include ../docs/item-workflow-actions.pug
+                include ../docs/item-relationships.pug
+                include ../docs/item-change-log.pug
                 include ../docs/item-workflow-history.pug
                 include ../docs/item-summary.pug
                 include ../docs/viewer-basics.pug

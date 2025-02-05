@@ -32,16 +32,16 @@ block body
 
             #new.panel.surface-level-2
                 .panel-header
-                    .panel-title Initiate New Process
+                    .panel-title
+                        .panel-title-main Initiate New Process
                 .panel-message You encountered an issue? Please provide a few details below and let us fix the problem. You can provide more details and also upload files in the next step.
                 .panel-content#new-sections
-                .panel-toolbar
-                    .button.default#continue Continue
 
-            #list
+            #list.surface-level-1
                 .panel-header
-                    .panel-title Track Your Processes
-                    .panel-toolbar
+                    .panel-title
+                        .panel-title-main Track Your Processes
+                    .panel-controls
                         select.button#view(name='view') 
                             option(value='recents') List Recent Proceses
                             option(value='bookmarks') List Pinned Proceses
@@ -77,38 +77,4 @@ block body
                                         th Status
                                 tbody#calendar-table-body
 
-        #item.screen.surface-level-2 
-
-            #item-header
-                #item-title
-                    #item-descriptor 
-                    #item-details 
-                        #item-status
-                        #item-summary Created by 
-                            span#created-by 
-                            |  on 
-                            span#created-on
-                            |. Last modified by 
-                            span#modified-by 
-                            |  on 
-                            span#modified-on 
-                            |.
-                #item-toolbar.panel-toolbar
-                    select.button#workflow-actions(label='Select Action')
-                    .button#bookmark.icon.icon-bookmark
-                    .button.icon.icon-close#item-close
-
-            #item-content 
-                #workflow-history.surface-level-1 
-                #details.surface-level-1 
-                    .panel-header 
-                        .panel-title Details 
-                    .panel-content#details-sections.no-scrollbar.surface-level-1
-                #design.surface-level-1 
-                    .panel-content#viewer.viewer
-                    .panel-content.surface-level-3#markups
-                        #markup-panel
-                            #markup-title Markups
-                            #markup-subtitle Capture markups using the given controls within the viewer above. They will be saved in context of this process.
-                        #markup-list
-                #attachments.surface-level-1 
+        #item.screen

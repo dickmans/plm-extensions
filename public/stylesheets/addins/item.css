@@ -1,158 +1,30 @@
 :root {
     
-    --width-viewer  : 700px;
-    --width-panel   : 1160px;
-    --padding-panel : 20px;
+    --width-field-label : 128px;
 
 }
-
 
 
 /* MASTER LAYOUT */
 /* ----------------------------------------------------------------------------- */
-#viewer { 
-    top     : var(--padding-panel);
-    bottom  : var(--padding-panel);
-    left    : var(--padding-panel);
-    right : calc(var(--width-panel) + (2 * var(--padding-panel)));
-    /* width   : var(--width-viewer); */
-}
-.standalone .tabs { 
-    background : transparent !important;
-    top         :var(--padding-panel) !important; 
-    right       : var(--padding-panel);
-    width : var(--width-panel);
-    /* left     : calc(var(--width-viewer) + (2 * var(--padding-panel))); */
-}
-.standalone .tab-group-main {
-    border-top : 10px solid var(--color-surface-level-2);
-    top     : 70px !important;
-    right   : var(--padding-panel);
-    width : var(--width-panel);
-    bottom  : var(--padding-panel);
-    left : unset;
-    /* left     : calc(var(--width-viewer) + (2 * var(--padding-panel))); */
-}
-.standalone .tab-group-main > .panel-header {
-    border : none;
-}
-
-.standalone table input, .standalone table select, .standalone table td { font-size : 12px; line-height : 14px;}
-.standalone table input { padding : 4px 8px; }
-.standalone table select { padding : 2px 4px; }
-.standalone table th { font-size : 12px; }
-.standalone table td { padding : 5px; }
-.standalone .flat-bom-column-number, .standalone .flat-bom-column-number input { max-width : 100px; }
-.standalone .flat-bom-column-title, .standalone .flat-bom-column-title input { min-width : 240px; }
-.standalone #flat-bom-content {
-    padding-top : 0px;
-    top : 50px !important;
-}
-.standalone .variant-spacer { background : var(--color-surface-level-2) !important; width : 1px; padding-left : 2px; padding-right : 2px;}
-.flat-bom-title {
-    max-width : 170px;
+#item {
+    border-top-width : 6px;
+    top     : 0px;
+    right   : 0px;
+    bottom  : 0px;
+    left    : 0px;
 }
 
 
-/* Isolate toggle */
-.isolate-off::before { content : '\e9f5'; }
-.isolate-on::before  { content : '\e9f6'; }
-.isolate-on, 
-.filter-selected { 
-    background   : var(--color-status-yellow) !important;
-    border-color : var(--color-status-yellow) !important;
-}
-.panel { top : 40px !important; }
-.panel-content { top: 32px !important; }
-
-
-#details > .panel-header {
-    height  : 0px;
-    /* padding : 0px; */
-}
-
-
-/* Flat BOM Check Box toggles */
-/* #bom-flat-tbody tr.selected td.flat-bom-check .icon-check-box::before { content : '\e834'; } */
-
-
-.flat-bom-item {
-    background : var(--color-surface-level-4);
-}
-.flat-bom-item input,
-.flat-bom-item select {
-    
-    background : var(--color-surface-level-2);
-}
-
-.flat-bom-item.selected input,
-.flat-bom-item.selected select {
-    background : var(--color-blue-500);
-}
-.flat-bom-item td.changed,
-.flat-bom-item td.changed input,
-.flat-bom-item td.changed select {
-    background : var(--color-status-red);
-}
-.flat-bom-column-model_year > select {
-    width : 70px;
-}
-.icon-check-box {
-    font-size : 14px !important;
-    line-height : 14px;
-    position: relative;
-    top: 2px;
-    left: 2px;
-}
-
-/* Dialog */
-.dialog {
-    width : 1180px;
-    top : 120px;
-    bottom : 120px;
-    left:calc(50% - 590px);
-}
-.button.clear {
-    float : left;
-    margin-left : 0px;
-}
-
-.flat-bom-search-input { font-size : 12px; }
-th.variant-head.variant-column {
-    border-bottom   : 1px solid var(--color-surface-level-1);
-    max-width       : 300px;
-    text-align      : center;
-    width           : 300px;
-}
-
-#master-bom-tbody select { background : var(--color-surface-level-2); }
-#master-bom-tbody .bom-item.selected select { background : var(--color-blue-500); }
-
-/* tr.selected td.changed-properties,
-td.changed-properties {
-    background : var(--color-status-red) !important;
-} */
-
-tr.selected td.changed-properties select,
-td.changed-properties select {
-    background : var(--color-status-red) !important;
-}
-
-
-
-/* VARIANTS SELECTION */
+/* OVERRIDE */
 /* ----------------------------------------------------------------------------- */
-#dialog-variants {
-    top     : 50px;
-    right   : calc(50% - 200px);
-    bottom  : 50px;
-    left    : calc(50% - 200px);
-    width   : unset;
+#item-close,
+#theadfields {
+    display : none;
 }
-#dialog-variants-list-content {
-    top : 50px !important;
+#theadfields {
+    display : none;
 }
-.variant-spacer {
-    background: var(--color-surface-level-1) !important;
-    width: 10px;
+.section-fields .field {
+    padding : 4px 0px;
 }

@@ -1,0 +1,187 @@
+#item-change-log.doc-content 
+    h1 insertChangeLog( link , params );
+    .definition Insert Change Log with advanced filtering capabilities
+        br
+        |This function gets included in all pages automatically and is defined in 
+        span.path /public/javascripts/contents/item.js
+        |. 
+        img(src='images/docs/item-change-log-1.png' style='display:block;margin-top:20px;height:770px;')
+    h2 DOM Elements 
+    p Insert the following base element to your pug file to have the required container in your page. You can choose another id than shown here, but will then have to provide your element's id as parameter.
+    p.code #change-log 
+    p Add the following optional classes to this DOM element to adjust the contents display:
+    p 
+        table.row-hovering 
+            tr 
+                th Class Name 
+                th Description
+            tr 
+                td surface-level-[1..5]
+                td Add the UI classes surface-level-1 through surface-level-5 to adjust the background color of the container element 
+    h2 Parameters
+    p Various parameters can be provided when using insertChangeLog. The link parameter is required and must be provided as string to identify the record for which the Change Log should be shown. 
+        br
+        |All further parameters are optional and can be passed by using a JSON object. See this example call: 
+    p.code insertChangeLog('/api/v3/workspaces/82/items/14183', { headerLabel : 'History', usersEx : ['Integration User', 'Job User'] });
+    p The following table lists all parameters available inlcuding their default values:
+    p   
+        table.parameters.row-hovering 
+            tr 
+                th.nowrap Parameter 
+                th Description
+                th Type 
+                th Required 
+                th Default 
+            tr 
+                td link 
+                td The API-link of the related record in PLM
+                td String
+                td Yes
+                td -
+            tr 
+                td id 
+                td ID of the DOM element where the change log will be inserted
+                td String
+                td No
+                td change-log 
+            tr 
+                td header 
+                td Can be used to suppress addition of the panel header element. This must be set to true if toolbar actions (i.e. reload) should be shown.
+                td Boolean
+                td No
+                td true
+            tr 
+                td headerLabel
+                td Sets the header label (if header is enabled)
+                td String
+                td No
+                td Change Log
+            tr 
+                td headerToggle 
+                td Enables collapsing and expanding the panel
+                td Boolean
+                td No 
+                td false
+            tr 
+                td compactDisplay 
+                td Enables a compact display using additional css settings
+                td Boolean
+                td No 
+                td false
+            tr 
+                td filterByUser 
+                td Enable filtering by user drop down. The drop down will only be shown if there are multiple different values to choose from.
+                td Boolean
+                td No
+                td true
+            tr 
+                td filterByAction 
+                td Enable filtering by action drop down. The drop down will only be shown if there are multiple different values to choose from.
+                td Boolean
+                td No 
+                td true
+            tr 
+                td search 
+                td Adds quick filtering using search input on top of list
+                td Boolean
+                td No
+                td true
+            tr 
+                td placeholder 
+                td Set placeholder text for quick filtering input
+                td String
+                td No
+                td Search
+            tr 
+                td reload 
+                td Enables / disables the reload button 
+                td Boolean
+                td No
+                td false
+            tr 
+                td number 
+                td When set to true, a number will be displayed as first column
+                td Boolean
+                td No 
+                td true
+            tr 
+                td columnsIn 
+                td Restricts the columns to be displayed. If this list is not empty, only the columns in this list will be shown. Select from columns (Date, User, Action, Details).
+                td Array
+                td No 
+                td []
+            tr 
+                td columnsEx 
+                td Restricts the columns to be displayed. If this list is not empty, the columns in this list will not be shown. Select from columns (Date, User, Action, Details).
+                td Array
+                td No 
+                td []
+            tr 
+                td actionsIn 
+                td Restricts the log entries to be displayed. If this list is not empty, only the action types in this list will be shown. Use the action titles being used in the standard Change Log for filtering (ie ['Edit Item', 'Add Attachment']).
+                td Array
+                td No 
+                td []
+            tr 
+                td actionsEx 
+                td Restricts the log entries to be displayed. If this list is not empty, the action types in this list will not be shown. Use the action titles being used in the standard Change Log for filtering (ie ['Edit Item', 'Add Attachment']).
+                td Array
+                td No 
+                td []
+            tr 
+                td usersIn 
+                td Restricts the log entries to be displayed. If this list is not empty, only the events triggered by the defined users will be shown. Use the user names in the standard Change Log for filtering (ie ['Engineer 1', 'Engineer 2']).
+                td Array
+                td No 
+                td []
+            tr 
+                td usersEx 
+                td Restricts the log entries to be displayed. If this list is not empty, the events triggered by the defined users will not be shown. Use the user names in the standard Change Log for filtering (ie ['Integration User']).
+                td Array
+                td No 
+                td []
+    h2 Examples 
+    p   
+        table.row-hovering 
+            tr 
+                th Code 
+                th Screenshot 
+                th Application 
+            tr 
+                td.code 
+                    span.indent-1 insertChangeLog( '/api/v3/workspaces/82/items/14183', {
+                    span.indent-2 placeholder : 'Type to search',
+                    span.indent-2 actionsIn: ['Edit Item','Edit Milestone'],
+                    span.indent-2 usersEx : ['Vault Integration']
+                    span.indent-1 });
+                td
+                    img(src='images/docs/item-change-log-2.png' style='height:200px;')
+                td -
+
+    h2 Events 
+    p You can override the following functions in your code to adjust the default behavior.
+    p 
+        table.row-hovering
+            tr 
+                th Function 
+                th Event 
+                th Parameters 
+                th Default Behavior
+            tr 
+                td insertChangeLogDone(id) 
+                td Gets executed once all elements got inserted into the DOM, before insertChangeLogData(id) gets executed to request given data from PLM
+                td id of the parent div element (i.e. change-log)
+                td - none -
+            tr 
+                td insertChangeLogData(id) 
+                td This function gets triggered after insertChangeLogDone(id) and when users click the refresh button. It retrieves data from PLM and updates the log data display.
+                td id of the parent div element (i.e. change-log)
+                td Inserts change log entries and sets filter controls. Once completed, it triggers insertChangeLogDataDone(id, data).
+            tr 
+                td insertChangeLogDataDone(id, data) 
+                td This gets triggered by insertChangeLogData(id) once the Change Log data has been retrieved from PLM and when the given data has been inserted to the HTML page
+                td
+                    ul 
+                        li id = id of the parent div
+                        li data = response data of given API call
+                td - none -

@@ -1,0 +1,164 @@
+extends layout
+
+block head
+
+    link(rel='stylesheet', href='/stylesheets/framework/gallery.css')
+    script(src='/javascripts/framework/gallery.js')
+    script.
+        config = !{JSON.stringify(config)};
+
+block body
+
+    body.surface-level-1
+
+        #header.dark
+            #header-logo
+            #header-title= title
+            #header-toolbar
+                .button(data-id='find'     ).icon.icon-search
+                .button(data-id='home'     title='Landing Page').icon.icon-home
+                .button(data-id='views'    title='Worspace Views and Workspace Items').icon.icon-tiles-list
+                .button(data-id='item-1'   ) Item
+                .button(data-id='item-2'   ) BOM
+                .button(data-id='item-3'   ) Where Used
+                .button(data-id='item-4'   ) References
+                .button(data-id='summary'  ).icon.icon-dashboard
+                .button(data-id='tabs'     ).icon.icon-tabs
+                .button(data-id='lists'    ) Lists
+                .button(data-id='grids'    ) Grids
+                .button(data-id='galleries') Galleries
+                .button(data-id='rows'     ) Rows
+                .button(data-id='files'    ).icon.icon-pdf
+                .button(data-id='edit'     ) Edit
+                span Select 
+                    br
+                    |Profile:
+                select#profiles.main
+                #header-avatar
+
+        .screen#home 
+
+            .surface-level-1#mow
+            .surface-level-2#bookmarks
+            .surface-level-3#recents
+
+        .screen#views 
+
+            .surface-level-1#workspace-views
+            .surface-level-2#workspace-items
+
+        .screen#find
+
+            .surface-level-2#search
+            .surface-level-1#results
+
+        .screen#item-1
+
+            .surface-level-2#details
+            .surface-level-1#attachments
+            .surface-level-1#grid
+            .surface-level-3#workflow-history
+
+        .screen#item-2
+
+            .surface-level-1#viewer.viewer            
+            .surface-level-1#bom            
+            .surface-level-2#flat-bom            
+
+        .screen#item-3
+
+
+            .surface-level-1#roots           
+            .surface-level-1#parents          
+            .surface-level-1#changes  
+
+        .screen#item-4
+
+            .surface-level-1#change-log
+            .surface-level-1#relationships
+            .surface-level-1#processes
+            .surface-level-1#managed-items
+
+        .screen#edit 
+
+            .surface-level-2#itemedit
+            .surface-level-3#itemcreate 
+            .button.default#showcreate Create Item
+            .button.default#showclone Clone Item
+
+        .screen#summary.surface-level-1
+
+        .screen#tabs
+        
+            .surface-leel-2#item-tabs
+            .surface-levl-2#item-sections
+
+        .screen#lists 
+
+            .surface-level-1#list-xxs
+            .surface-level-1#list-xs
+            .surface-level-1#list-s
+            .surface-level-1#list-m
+            .surface-level-1#list-l
+            .surface-level-1#list-xl
+            .surface-level-1#list-xxl
+
+        .screen#grids 
+
+            .surface-level-1#grid-xxs
+            .surface-level-1#grid-xs
+            .surface-level-1#grid-s
+            .surface-level-1#grid-m
+            .surface-level-1#grid-l
+            .surface-level-1#grid-xl
+            .surface-level-1#grid-xxl
+
+        .screen#galleries 
+
+            .surface-level-1#gallery-xxs
+            .surface-level-1#gallery-xs
+            .surface-level-1#gallery-s
+            .surface-level-1#gallery-m
+            .surface-level-1#gallery-l
+            .surface-level-1#gallery-xl
+            .surface-level-1#gallery-xxl
+
+        .screen#rows 
+
+            .surface-level-1#row-xxs
+            .surface-level-1#row-xs
+            .surface-level-1#row-s
+            .surface-level-1#row-m
+            .surface-level-1#row-l
+            .surface-level-1#row-xl
+            .surface-level-1#row-xxl
+
+        .screen#files
+
+            .surface-level-1#files-row-xxs
+            .surface-level-1#files-row-xs
+            .surface-level-1#files-row-s
+            .surface-level-1#files-row-m
+            .surface-level-1#files-row-l
+            .surface-level-1#files-row-xl
+            .surface-level-1#files-row-xxl
+
+            .surface-level-1#files-list-xxs
+            .surface-level-1#files-list-xs
+            .surface-level-1#files-list-s
+            .surface-level-1#files-list-m
+            .surface-level-1#files-list-l
+            .surface-level-1#files-list-xl
+            .surface-level-1#files-list-xxl
+
+            .surface-level-1#files-grid-xxs
+            .surface-level-1#files-grid-xs
+            .surface-level-1#files-grid-s
+            .surface-level-1#files-grid-m
+            .surface-level-1#files-grid-l
+            .surface-level-1#files-grid-xl
+            .surface-level-1#files-grid-xxl
+
+        .dialog#create-dialog
+        
+        .dialog#clone-dialog

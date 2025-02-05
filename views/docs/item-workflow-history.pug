@@ -94,8 +94,7 @@
             tr 
                 td.code 
                     span.indent-1 insertWorkflowHistory(link, {
-                    span.indent-2 'id'      : 'request-workflow-history',
-                    span.indent-2 'reload'  : true
+                    span.indent-2 id      : 'request-workflow-history'
                     span.indent-1 });
                 td
                     img(src='images/docs/item-workflow-history-2.png' style='height:332px;')
@@ -103,11 +102,11 @@
             tr 
                 td.code 
                     span.indent-1 insertWorkflowHistory(link, {
-                    span.indent-2 'headerLabel'           : 'Activity',
-                    span.indent-2 'reload'                : false,
-                    span.indent-2 'showNextTransitions'   : wsConfig.workflowHistory.showNextActions,
-                    span.indent-2 'transitionsEx'         : wsConfig.workflowHistory.excludedTransitions,
-                    span.indent-2 'finalStates'           : wsConfig.workflowHistory.finalStates
+                    span.indent-2 headerLabel           : 'Activity',
+                    span.indent-2 reload                : false,
+                    span.indent-2 showNextTransitions   : wsConfig.workflowHistory.showNextActions,
+                    span.indent-2 transitionsEx         : wsConfig.workflowHistory.excludedTransitions,
+                    span.indent-2 finalStates           : wsConfig.workflowHistory.finalStates
                     span.indent-1 });
                 td
                     img(src='images/docs/item-workflow-history-1.png' style='height:438px;')
@@ -121,7 +120,12 @@
                 th Event 
                 th Parameters 
             tr 
-                td insertWorkflowHistoryDone(id, dataHistory, dataItem) 
+                td insertWorkflowHistoryDone(id) 
+                td This function gets invoked once the HTML elements were added, just before data gets retrieved by the API
+                td id = ID of the DOM element
+
+            tr 
+                td insertWorkflowHistoryDataDone(id, dataHistory, dataItem) 
                 td This function gets invoked once the history panel has finished loading
                 td
                     ul 

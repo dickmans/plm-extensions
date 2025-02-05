@@ -1,0 +1,249 @@
+/*  MASTER LAYOUT */
+/* ----------------------------------------------------------------------------- */
+:root {
+
+    --panel-border-width-v  : 34px;
+    --panel-border-width-h  : 42px;
+    --panel-border-width-b  : 24px;
+    --width-users           : 380px;
+    --width-console         : 440px;
+
+}
+
+
+#recipients {
+    border-width    : var(--panel-border-width-v) var(--panel-border-width-h) var(--panel-border-width-b);
+    top             : 0px;
+    bottom          : 0px;
+    left            : 0px;
+    width           : var(--width-users);
+}
+#controls {
+    border-width    : var(--panel-border-width-v) var(--panel-border-width-h) var(--panel-border-width-b);
+    bottom          : 86px;
+    top             : 0px;
+    right           : calc(var(--width-console) + (2 * var(--panel-border-width-h)));
+    left            : calc(var(--width-users) + (2 * var(--panel-border-width-h)));
+}
+.control {
+    position : absolute;
+    top      : 60px;
+    right    : calc(50% - 400px);
+    bottom   : 0px;
+    left     : calc(50% - 400px);
+}
+#toolbar {
+    border-width    : var(--panel-border-width-b) var(--panel-border-width-h) var(--panel-border-width-v);
+    right           : calc(var(--width-console) + (2 * var(--panel-border-width-h)));
+    bottom          : 0px;
+    left            : calc(var(--width-users) + (2 * var(--panel-border-width-h)));
+}
+#console {
+    border-width    : var(--panel-border-width-v) var(--panel-border-width-h);
+    top             : 0px;
+    right           : 0px;
+    bottom          : 0px;
+    width           : var(--width-console);
+}
+
+
+body.no-console #controls, 
+body.no-console #toolbar { right : var(--panel-border-width-h); }
+body.no-console { --width-users : 600px; }
+body.no-console #console { right : calc(0px - var(--width-console) - var(--panel-border-width-h)); }
+
+
+
+/*  LIST DISPLAY */
+/* ----------------------------------------------------------------------------- */
+.list {
+    display         : flex;
+    flex-direction  : column;
+    gap             : 1px;
+    overflow-y      : auto;
+}
+.list > div {
+    border       : 1px solid transparent;
+    cursor       : pointer;
+    display      : flex;
+    gap          : 6px;
+    line-height  : 26px;
+}
+.list > div:hover {
+    border-color : var(--color-hover-border);
+    background   : var(--color-hover-background);
+}
+.list .icon {
+    font-size   : 18px;
+    font-weight : 300;
+    line-height : 26px;
+    text-align  : center;
+    width       : 28px;
+}
+.list .label {
+    flex-grow    : 1;
+    padding-left : 6px;
+}
+.list > div.selected {
+    background : var(--color-selected-background);
+}
+.list > div.selected > .icon-check-box {
+    background : var(--color-selected-image);
+}
+.list > div.selected > .icon-check-box::before {
+    content : '\e834' !important;
+}
+.list-header {
+    display         : flex;
+    gap             : 10px;
+    justify-content : space-between;
+}
+.list-header > .list-title {
+    line-height : 38px;
+    padding : 0px 0px 0px 20px;
+}
+.list-toolbar {
+    display : flex;
+    height  : 38px;
+}
+.list-filter {
+    padding-left : 20px;
+    width        : 100px;
+}
+
+
+/*  USER SELECTION */
+/* ----------------------------------------------------------------------------- */
+#groups-header, #groups, #users-header, #users {
+    position   : absolute;
+    right      : 0px;
+    left       : 0px;
+}
+#groups-header  { top : 40px; }
+#groups         { top : 80px; bottom : 60%; }
+#users-header   { top : calc(40% + 32px); }
+#users          { top : calc(40% + 72px); bottom : 0px; }
+
+
+/*  CONTROLS */
+/* ----------------------------------------------------------------------------- */
+.instructions {
+    display         : flex;
+    height          : 38px;
+    line-height     : 38px;
+    gap             : 20px;
+    justify-content : space-between;
+    padding         : 10px 0px;
+    position        : absolute;
+    top             : 0px;
+    right           : 0px;
+    left            : 0px;
+    width           : unset;
+}
+#theme > .instructions {
+    display    : block;
+    text-align : center;
+}
+#theme > .options {
+    display         : flex;
+    gap             : 40px;
+    justify-content : center;
+    position        : absolute;
+    top             : 100px;
+    right           : 0px;
+    left            : 0px;
+}
+#theme > .options > div {
+    display         : flex;
+    flex-direction  : column;
+    gap             : 16px;
+    height          : 80px;
+    padding         : 40px;
+    width           : 120px;
+}
+#theme > .options > div::before {
+    font-size   : 64px;
+    line-height : 48px;
+}
+#views-force.icon-toggle-on {
+    background   : var(--color-status-green);
+    border-color : var(--color-status-green);
+    color        : white;
+}
+#views-header, #views-list, #charts-header, #charts-list {
+    position    : absolute;
+    right       : 0px;
+    left        : 0px;
+}
+#views-header {
+    top : 60px;
+}
+#views-list {
+    top    : 99px;
+    bottom : 0px;
+}
+#views-list > div.is-default > .default-view::before {
+    content : '\e9f6';
+}
+#views-list .label { width : calc(50% - 54px - 24px); }
+.view.is-default .default-view { 
+    background : var(--color-status-green);  
+    color      : white;
+}
+.default-view {
+    padding-left : 20px;
+    width        : 108px;
+}
+#charts {
+    display : flex;
+    gap : 20px;
+}
+#charts > .instructions {
+    line-height : 20px;
+}
+#charts-header {
+    top : 90px;
+}
+#charts-list {
+    top    : 129px;
+    bottom : 0px;
+}
+#charts-list .label { width : calc(50% - 54px - 24px); }
+
+
+/*  TOOLBAR */
+/* ----------------------------------------------------------------------------- */
+#toolbar {
+    display         : flex;
+    justify-content : space-between;
+    gap             : 40px;
+}
+#toolbar > .selection {
+    display         : flex;
+    flex-direction  : column;
+    gap             : 8px;
+}
+#toolbar > .buttons {
+    align-items : flex-end;
+    display     : flex;
+    gap         : 16px;
+}
+#toolbar-text {
+    display : none;
+}
+#toolbar-counters {
+    display : flex;
+    gap     : 8px;
+}
+.counter {
+    background      : var(--color-status-yellow);
+    border-radius   : 4px;
+    color           : white;
+    display         : none;
+    font-size       : 12px;
+    padding         : 2px 12px;
+}
+#stop {
+    background   : var(--color-status-red);
+    border-color : var(--color-status-red);
+}

@@ -2,70 +2,226 @@ let isolate = false;
 
 $(document).ready(function() {
 
-    if(typeof chrome.webview !== 'undefined') {
-        $('body').addClass('embedded');
-        const plmAddin = chrome.webview.hostObjects.plmAddin;
-              plmAddin.confirmLogin(document.location.href);
-    } else if(window.window.innerWidth > 1200) { 
-        $('body').addClass('standalone');
-    } else {
-        $('body').addClass('embedded');
-    }
+    // TODO (REMOVE)
+    // if(typeof chrome.webview !== 'undefined') {
+    //     $('body').addClass('embedded');
+    //     const plmAddin = chrome.webview.hostObjects.plmAddin;
+    //           plmAddin.confirmLogin(document.location.href);
+    // } else if(window.window.innerWidth > 1200) { 
+    //     $('body').addClass('standalone');
+    // } else {
+    //     $('body').addClass('embedded');
+    // }
 
 });
 
 
 
-// Assign selected raw material to body
-async function assignMaterial(descriptor) {
+// Confirm successful login
+function loginCompleted() {
 
-    console.log('assignMaterial START');
-    console.log(descriptor);
+    console.log('--> START loginCompleted()');
 
     if(typeof chrome.webview === 'undefined') return;
 
-    const plmAddin = chrome.webview.hostObjects.plmAddin;
-    await plmAddin.assignMaterial(descriptor);
+    chrome.webview.postMessage('Login successful');
+
+}
+
+
+// Insert entity type icon to tiles
+
+
+
+// Insert action buttons to tiles
+function insertAddinTileActions(elemTile) {
+
+    let elemDetails = elemTile.find('.tile-details');
+    let elemActions = $('<div></div>').appendTo(elemDetails).addClass('tile-actions');
+
+    if(elemTile.hasClass('component')) {
+
+        insertAddinTileAction(elemActions, 'icon-select', 'Select in active window').click(function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            invokeAddinAction([$(this)], 'select');
+        });
+
+        insertAddinTileAction(elemActions, 'icon-zoom-in', 'Isolate in active window').click(function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            invokeAddinAction([$(this)], 'isolate');
+        });
+
+        insertAddinTileAction(elemActions, 'icon-clone', 'Open in new window').click(function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            invokeAddinAction([$(this)], 'open');
+        });
+
+        insertAddinTileAction(elemActions, 'icon-create', 'Add to active window').click(function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            invokeAddinAction([$(this)], 'add');
+        });
+
+    } else if(elemTile.hasClass('vault-folder')) {}
+
+}
+function insertAddinTileAction(elemActions, icon, tooltip) {
+
+    let elemAction = $('<div></div>').appendTo(elemActions)
+        .addClass('button')
+        .addClass('icon')
+        .addClass(icon)
+        .attr('title', tooltip);
+
+    return elemAction;
 
 }
 
 
 
+// Perform single tile action
+async function invokeAddinAction(elements, action) {
+
+    console.log('--> START invokeAddinAction()');
+    
+    let selection = getSelectionData(elements);
+
+    console.log(' action     : ' + action);
+    console.log(' parameters : ' + selection.toString());
+    
+    switch(action) {
+
+        // case 'select'           : await plmAddin.selectComponents(selection);  break; // raus
+        // case 'isolate'          : await plmAddin.isolateComponents(selection); break; // raus
+        // case 'open'             : await plmAddin.openComponents(selection);    break;
+        // case 'add'              : await plmAddin.addComponents(selection);     break;
+
+        case 'addComponent'     : CefSharp.PostMessage("addComponent:"    + selection.toString()); break;
+        case 'openComponent'    : CefSharp.PostMessage("openComponent:"   + selection.toString()); break;
+        case 'gotoVaultFolder'  : CefSharp.PostMessage("gotoVaultFolder:" + selection.toString()); break;
+        case 'gotoVaultFile'    : CefSharp.PostMessage("gotoVaultFile:"   + selection.toString()); break;
+        case 'gotoVaultItem'    : CefSharp.PostMessage("gotoVaultItem:"   + selection.toString()); break;
+        case 'gotoVaultECO'     : CefSharp.PostMessage("gotoVaultECO:"    + selection.toString()); break;
+
+    }
+
+}
+function getSelectionData(elements) {
+
+    let selection = [];
+
+    for(let element of elements) {
+
+        let selected     = '';
+        let elemSelected = element.closest('.content-item');
+
+        if(elemSelected.hasClass('plm-item')) {
+
+            selected = 'plm-item;' + elemSelected.attr('data-part-number') + ';' + elemSelected.attr('data-title') + ';' + elemSelected.attr('data-link');
+
+        } else if(elemSelected.hasClass('vault-folder')) {
+
+            selected = 'folder;' + elemSelected.attr('data-id') + ';' + elemSelected.attr('data-name') + ';' + elemSelected.attr('data-path');
+
+        } else if(elemSelected.hasClass('vault-file')) {
+
+            selected = 'file;' + elemSelected.attr('data-id') + ';' + elemSelected.attr('data-name') + ';' + elemSelected.attr('data-folder');
+
+        } else if(elemSelected.hasClass('vault-item')) {
+
+            selected = 'item;' + elemSelected.attr('data-id') + ';' + elemSelected.attr('data-name') + ';';
+
+        }
+
+        selection.push(selected);
+
+    }
+
+    return selection;
+
+}
+
+
+
+
+
 // Select or isolate parts in Inventor
-function select3D(partNumbers) {
+function select3D() {
+
+
+    let numbers = [
+        {
+            entityType     : 'file',
+            id             : '174166',
+            name           : '01-1918.dwg',
+            parentFolderId : '173998'
+        },
+        {
+            entityType     : 'item',
+            id             : '174181',
+            name           : '01-1918',
+            parentFolderId : ''
+        }
+
+    ];
+
 
     console.log('select3D START');
-    console.log('select3D isolate : ' + isolate);
-    console.log(partNumbers);
+    // console.log('select3D isolate : ' + isolate);
+    console.log(numbers);
 
     if(typeof chrome.webview === 'undefined') {
-        let selectNumbers = [];
-        for(let selectNumber of partNumbers) {
-            let numbers = selectNumber.split('|');
-            let number = numbers[numbers.length - 1];
-            selectNumbers.push(number.split(':')[0]);
-        }
-        viewerSelectModels(selectNumbers, false, true);
+        // let selectNumbers = [];
+        // for(let selectNumber of partNumbers) {
+        //     let numbers = selectNumber.split('|');
+        //     let number = numbers[numbers.length - 1];
+        //     selectNumbers.push(number.split(':')[0]);
+        // }
+        // viewerSelectModels(selectNumbers, false, true);
         // $('#bom-tbody').children().each(function() {
         //     let partNumber = $(this).attr('data-part-number');
         //     if(selectNumbers.indexOf(partNumber) < 0) $(this).removeClass('selected');
         //     else $(this).addClass('selected');
         // });
-    } else if(isolate) isolateComponents(partNumbers);
-    else selectComponents(partNumbers);
+    // } else if(isolate) isolateComponents(partNumbers);
+    } else selectComponents(numbers);
 }
-async function selectComponents(partNumbers) {
+async function selectComponents() {
+
+    let numbers = [
+        {
+            entityType     : 'file',
+            id             : '174166',
+            name           : '01-1918.dwg',
+            parentFolderId : '173998'
+        },
+        {
+            entityType     : 'item',
+            id             : '174181',
+            name           : '01-1918',
+            parentFolderId : ''
+        }
+
+    ];
+
+
+    numbers = [
+        "file;174166,01-1918.dwg;173998",
+        "item;174181,01-1918;"
+    ];
 
     console.log('selectComponents STARTING');
-    console.log(partNumbers.length);
-    console.log(partNumbers);
-
-    if(typeof chrome.webview === 'undefined') {      
+    console.log(numbers.length);
+    console.log(numbers);
+    if(typeof chrome.webview === 'undefined') {
 
     } else  {
 
         const plmAddin = chrome.webview.hostObjects.plmAddin;
-        await plmAddin.selectComponents(partNumbers);
+        await plmAddin.selectComponents(numbers);
 
     }
 
@@ -75,6 +231,33 @@ async function isolateComponents(partNumbers) {
     console.log('isolateComponents START');
     console.log(partNumbers.length);
     console.log(partNumbers);
+
+    if(typeof chrome.webview === 'undefined') return;
+
+    const plmAddin = chrome.webview.hostObjects.plmAddin;
+    await plmAddin.isolateComponents(partNumbers);
+
+}
+
+
+// Vault Integration
+async function gotoVaultFolder(partNumbers) {
+
+    console.log('gotoVaultFolder START');
+
+    alert('gotoVaultFolder START');
+
+    if(typeof chrome.webview === 'undefined') alert('webview does not exist');
+    else alert('webview exists');
+
+    if(typeof window.hostObjects                === 'undefined') alert('window.hostObjects does not exist');
+    if(typeof window.plmAddin                   === 'undefined') alert('window.plmAddin does not exist');
+    if(typeof window.webview                    === 'undefined') alert('window.webview does not exist');
+    if(typeof window.JavascriptObjectRepository === 'undefined') alert('window.JavascriptObjectRepository does not exist');
+    if(typeof JavascriptObjectRepository        === 'undefined') alert('JavascriptObjectRepository does not exist');
+    // if(typeof window.hostObjects === 'undefined') alert('window.hostObjects does not exist');
+    // if(typeof window.hostObjects === 'undefined') alert('window.hostObjects does not exist');
+
 
     if(typeof chrome.webview === 'undefined') return;
 
@@ -187,7 +370,7 @@ async function getActiveDocument(context) {
 
     console.log('GetActiveDocument START');
 
-    if(isBlank(getActiveDocument)) context = '-';
+    if(isBlank(context)) context = '-';
 
     console.log(context);
 
@@ -198,6 +381,8 @@ async function getActiveDocument(context) {
     let partNumber = await plmAddin.getActiveDocument(context);
 
     console.log(partNumber);
+
+    if(isBlank(partNumber)) partNumber = '01-0712';
 
     return partNumber;
 
@@ -311,8 +496,6 @@ function insertTileActions(id) {
     let btnOpen   = false;
     let btnAdd    = false;
     let btnPLM    = false;
-
-    console.log(id);
 
     switch(id) {
 
