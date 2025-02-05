@@ -240,7 +240,7 @@ function insertBookmarks(params) {
         headerLabel : 'Bookmarks',
         layout      : 'list',
         tileImage   : true,
-        tileSize    : 'xxs'
+        tileSize    : 'xs'
     }, [
         [ 'filterByWorkspace', false ]
     ]);
