@@ -15,13 +15,13 @@ The following extensions are included
 - Mobile Client
 - PLM Portal [Video](https://youtu.be/tM8why6ybAU)
 - Process Dashboard
-- Product Portfolio Catalog
+- Product Portfolio Catalog [Video](https://youtu.be/hroRMjZzueQ)
 - Product Data Explorer [Video](https://youtu.be/TA5JyBVw2Hw)
 - Projects Dashboard
 - Reports Dashboard [Video](https://youtu.be/quNaLQLAT3Q)
 - Services Portal [Video](https://youtu.be/gYAyASE3vAU)
 - Tenant Inisghts [Video](https://youtu.be/WZXGfDKGRHY)
 - User Settings Manager [Video](https://youtu.be/hJjxoovwbS8)
-- Variants Manager
+- Variants Manager [Video](https://youtu.be/v6ZZN3Xo-BM)
 - Workspace Comparison [Video](https://youtu.be/llQtsclH-L0)
-- Workspaces Navigator
+- Workspaces Navigator [Video](https://youtu.be/jHBkAuEh32g)
