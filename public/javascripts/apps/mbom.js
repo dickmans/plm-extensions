@@ -303,14 +303,14 @@ function selectTab(elemClicked) {
 function getInitialData() {
 
     let requests = [
-        $.get('/plm/versions'               , { 'wsId' : wsId, 'dmsId'  : dmsId }),
-        $.get('/plm/details'                , { 'wsId' : wsId, 'dmsId'  : dmsId }),
-        $.get('/plm/bom-views-and-fields'   , { 'wsId' : wsEBOM.wsId }),
-        $.get('/plm/sections'               , { 'wsId' : wsEBOM.wsId }),
-        $.get('/plm/sections'               , { 'wsId' : wsMBOM.wsId }),
-        $.get('/plm/workspace'              , { 'wsId' : wsEBOM.wsId }),
-        $.get('/plm/tableaus'               , { 'wsId' : wsEBOM.wsId }),
-        $.get('/plm/fields'                 , { 'wsId' : wsMBOM.wsId })
+        $.get('/plm/versions'               , { wsId : wsId, dmsId : dmsId }),
+        $.get('/plm/details'                , { wsId : wsId, dmsId : dmsId }),
+        $.get('/plm/bom-views-and-fields'   , { wsId : wsEBOM.wsId, useCache : true }),
+        $.get('/plm/sections'               , { wsId : wsEBOM.wsId, useCache : true }),
+        $.get('/plm/sections'               , { wsId : wsMBOM.wsId, useCache : true }),
+        $.get('/plm/workspace'              , { wsId : wsEBOM.wsId, useCache : true }),
+        $.get('/plm/tableaus'               , { wsId : wsEBOM.wsId }),
+        $.get('/plm/fields'                 , { wsId : wsMBOM.wsId, useCache : true })
     ];
 
     if(wsEBOM.wsId === wsMBOM.wsId) {
@@ -320,9 +320,9 @@ function getInitialData() {
 
     } else {
 
-        requests.push($.get('/plm/bom-views-and-fields' , { 'wsId' : wsMBOM.wsId }));
-        requests.push($.get('/plm/workspace'            , { 'wsId' : wsMBOM.wsId }));
-        requests.push($.get('/plm/tableaus'             , { 'wsId' : wsMBOM.wsId }));
+        requests.push($.get('/plm/bom-views-and-fields' , { wsId : wsMBOM.wsId, useCache : true }));
+        requests.push($.get('/plm/workspace'            , { wsId : wsMBOM.wsId, useCache : true }));
+        requests.push($.get('/plm/tableaus'             , { wsId : wsMBOM.wsId, useCache : true }));
 
     }
 
@@ -2895,8 +2895,6 @@ function closedViewerMarkup(markupSVG, markupState) {
 }
 function updateViewer() {
 
-    // console.log('updateViewer START');
-
     var elemButtonView = $('.button-view.selected');
 
     if(elemButtonView.length > 0) {
@@ -2982,7 +2980,7 @@ function setStatusBarFilter() {
     
     if(elemSelected.length === 0) return;
 
-    let dbIds = [];  
+    let dbIds          = [];  
     let selectedFilter = elemSelected.attr('data-filter');
 
     $('.item.leaf').each(function() {
@@ -3053,20 +3051,20 @@ function setSaveActions() {
         }
 
         elemBOM.children('.item').each(function()  {
-            let elemItem = $(this);
-                elemItem.attr('data-number', number++);
-            let edge = elemItem.attr('data-edge');
+            
+            let elemItem = $(this).attr('data-number', number++);
+            let edge     = elemItem.attr('data-edge');
+            
             if(typeof edge === 'undefined') edge = '';
+            
             if(edges.indexOf($(this).attr('data-edge')) < 0) {
                 $(this).addClass('pending-addition');
             } else {
 
-                let dbNumber     = elemItem.attr('data-number-db');
-                let edNumber     = elemItem.attr('data-number');
-                let dbQty        = elemItem.attr('data-qty');
-                let edQty        = elemItem.find('.item-qty-input').first().val();
-
-                // console.log('Is ' + dbQty + ' equal to ' + edQty + ' for ' + elemItem.attr('data-part-number') + '? ' + (dbQty === edQty));
+                let dbNumber = elemItem.attr('data-number-db');
+                let edNumber = elemItem.attr('data-number');
+                let dbQty    = elemItem.attr('data-qty');
+                let edQty    = elemItem.find('.item-qty-input').first().val();
 
                 if(dbQty !== edQty) elemItem.addClass('pending-update');
                 else if(dbNumber !== edNumber) elemItem.addClass('pending-update');
@@ -3445,8 +3443,6 @@ function updateBOMItems() {
                         }
                     }
                 }
-
-                // console.log(params);
 
                 requests.push($.get('/plm/bom-update', params));
                 elements.push(elemItem);

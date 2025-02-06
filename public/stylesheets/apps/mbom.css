@@ -825,6 +825,17 @@ select.button.view-selector { height : 36px; }
 }
 
 
+/* ITEM SUMMARY */
+/* ----------------------------------------------------------------------------- */
+#summary-header {
+    margin-top : 14px;
+}
+#summary-title {
+    flex-direction: column;
+    text-align: left;
+    gap: 2px;
+}
+
 
 /* RESPONSIVE LAYOUT */
 /* ----------------------------------------------------------------------------- */
