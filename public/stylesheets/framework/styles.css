@@ -402,8 +402,8 @@
 .tiles.grid.s   .tile-title { font-size : 14px; font-weight : normal; line-height : 48px; }
 .tiles.grid.m   .tile-title { font-size : 14px; line-height : 24px; }
 .tiles.grid.l   .tile-title { font-size : 15px; font-weight : 800; line-height : 26px; }
-.tiles.grid.xl  .tile-title { font-size : 14px; font-weight : 800; line-height : 24px; }
-.tiles.grid.xxl .tile-title { font-size : 16px; font-weight : 800; line-height : 24px; }
+.tiles.grid.xl  .tile-title { font-size : 16px; font-weight : 800; line-height : 24px; width : 100%; }
+.tiles.grid.xxl .tile-title { font-size : 18px; font-weight : 800; line-height : 24px; width : 100%; }
 
 .tiles.grid.xxs .tile-subtitle { display : none; }
 .tiles.grid.xs  .tile-subtitle { display : none; }
