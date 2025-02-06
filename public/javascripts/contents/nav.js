@@ -977,12 +977,19 @@ function insertResults(wsId, filters, params) {
         [ 'tileImageFIeldId', '' ]
     ]);
 
-    if(!settings.results[id].fields.includes('DESCRIPTOR')) settings.results[id].fields.unshift('DESCRIPTOR');
-    settings.results[id].load = function() { insertResultsData(id, true); }
+    if(!settings.results[id].fields.includes('DESCRIPTOR')) {
+        settings.results[id].fields.unshift('DESCRIPTOR');
+    }
 
     if(!isBlank(settings.results[id].groupBy)) {
         if(!settings.results[id].fields.includes(settings.results[id].groupBy)) {
             settings.results[id].fields.push(settings.results[id].groupBy);
+        }
+    }
+
+    if(!isBlank(settings.results[id].tileTitle)) {
+        if(!settings.results[id].fields.includes(settings.results[id].tileTitle)) {
+            settings.results[id].fields.push(settings.results[id].tileTitle);
         }
     }
 
@@ -1002,11 +1009,13 @@ function insertResults(wsId, filters, params) {
         }
     }
 
-    if(!isBlank(settings.results[id].stateColors)) {
+    if(settings.results[id].stateColors.length > 0) {
         if(!settings.results[id].fields.includes('WF_CURRENT_STATE')) {
             settings.results[id].fields.push('WF_CURRENT_STATE');
         }
     }
+
+    settings.results[id].load = function() { insertResultsData(id, true); }
 
     genPanelTop(id, settings.results[id], 'results');
     genPanelHeader(id, settings.results[id]);
@@ -1051,12 +1060,13 @@ function insertResultsData(id) {
         filter      : settings.results[id].filters,
         fields      : settings.results[id].fields,
         sort        : settings.results[id].sortBy,
-        timestamp   : settings.results[id].timestamp
+        timestamp   : settings.results[id].timestamp,
+        useCache    : settings.results[id].useCache
     }
 
     let requests = [
         $.get( '/plm/search', params),
-        $.get( '/plm/fields', { 'wsId' : settings.results[id].wsId }),
+        $.get( '/plm/fields', params),
     ]
 
     Promise.all(requests).then(function(responses) {
@@ -1105,6 +1115,7 @@ function insertResultsData(id) {
                 if(field.key === settings.results[id].tileTitle   ) contentItem.title      = field.fieldData.value;
                 if(field.key === settings.results[id].tileSubtitle) contentItem.subtitle   = field.fieldData.value;
                 if(field.key === settings.results[id].groupBy     ) contentItem.group      = field.fieldData.value;
+                if(field.key === 'DESCRIPTOR'                     ) contentItem.descriptor = field.fieldData.value;
                 if(field.key === 'WF_CURRENT_STATE'               ) contentItem.status     = field.fieldData.value;
 
                 for(let tileDetail of contentItem.details) {

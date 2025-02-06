@@ -2407,6 +2407,7 @@ function genTilesList(id, items, settings) {
 
         let elemTile = genSingleTile({
             link        : item.link, 
+            descriptor  : item.descriptor, 
             tileIcon    : settings.tileIcon, 
             tileNumber  : number++, 
             number      : settings.number, 
@@ -2475,6 +2476,10 @@ function genSingleTile(params, settings) {
     if(!isBlank(params.link)) elemTile.attr('data-link', params.link);
     if(!isBlank(params.partNumber)) elemTile.attr('data-part-number', params.partNumber);
     
+    if(!isBlank(params.descriptor)) { 
+        elemTile.attr('data-descriptor', params.descriptor); 
+    }
+
     if(!isBlank(params.title)) { 
         elemTile.attr('data-title', params.title); 
         elemTitle.html(params.title); 
