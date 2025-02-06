@@ -378,8 +378,8 @@
 .tiles.grid.s   .tile-counter { line-height :  48px; font-size : 20px; }
 .tiles.grid.m   .tile-counter { line-height :  64px; font-size : 24px; }
 .tiles.grid.l   .tile-counter { line-height : 106px; font-size : 32px; }
-.tiles.grid.xl  .tile-counter { line-height : 200px; font-size : 48px; }
-.tiles.grid.xxl .tile-counter { line-height : 260px; font-size : 48px; }
+.tiles.grid.xl  .tile-counter { line-height : 200px; font-size : 72px; }
+.tiles.grid.xxl .tile-counter { line-height : 260px; font-size : 96px; }
 
 .tiles.grid.xxs .tile-image { height :  26px; line-height :  26px; font-size :  20px; min-height :  26px; max-width :  26px; min-width :  26px; width :  26px; }
 .tiles.grid.xs  .tile-image { height :  34px; line-height :  34px; font-size :  24px; min-height :  34px; max-width :  34px; min-width :  34px; width :  34px; } 
