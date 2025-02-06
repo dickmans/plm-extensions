@@ -3,9 +3,7 @@ let product     = {};
 
 $(document).ready(function() {   
     
-    appendProcessing('landing', false);
     appendProcessing('search', false);
-    appendProcessing('products', false);
     appendOverlay();
 
     getBrowserLanguage();
@@ -15,7 +13,6 @@ $(document).ready(function() {
         getWorkspaceIds(function() {
             getProductCatgories();
             getRecentProducts();
-            getProductLines();
             getBookmarkProducts();
         });
     });
@@ -97,6 +94,7 @@ function setUIEvents() {
     $('#lines-back').click(function() {
         $('#landing').show();
         $('#lines').hide();
+        $('#header-subtitle').hide();
     });
 
 
@@ -104,6 +102,7 @@ function setUIEvents() {
     $('#products-back').click(function() {
         $('#lines').show();
         $('#products').hide();
+        $('#header-description').html('').hide();
     });
 
 
@@ -118,13 +117,13 @@ function setUIEvents() {
 // Retrieve workspace information
 function getWorkspaceIds(callback) {
 
-    $.get('/plm/workspaces', { limit : 250 }, function(response) {
+    $.get('/plm/workspaces', { limit : 250, useCache : true }, function(response) {
         for(let level of config.portfolio.hierarchy) {
             for(let workspace of response.data.items) {
                 if(workspace.title === level) {
                     workspaces.push({
-                        'wsId'  : workspace.link.split('/')[4],
-                        'title' : workspace.title
+                        wsId  : workspace.link.split('/')[4],
+                        title : workspace.title
                     })
                 }
             }
@@ -138,53 +137,35 @@ function getWorkspaceIds(callback) {
 // Retrieve Landing Page Data
 function getProductCatgories() {
 
-    $.get('/plm/search-bulk', { 'query' : '*', 'wsId' : workspaces[0].wsId }, function(response) {
-
-        $('#landing-processing').hide();
-
-        let elemParent = $('#landing-lines-tiles').html('');
-
-        for(let item of response.data.items) {
-
-            let imageIds   = getMarketingImages(item.sections);
-            let title      = getSectionFieldValue(item.sections, 'MARKETING_NAME_' + languageId, '');
-            let subtitle   = getSectionFieldValue(item.sections, 'MARKETING_TEXT_' + languageId, '');
-            let imageLink  = getSectionFieldValue(item.sections, 'IMAGE', '');
-
-            if(title    === '') title    = getSectionFieldValue(item.sections, 'MARKETING_NAME_1', '');
-            if(subtitle === '') subtitle = getSectionFieldValue(item.sections, 'MARKETING_TEXT_1', '');
-
-            let elemTile = genSingleTile({
-                link        : item.__self__,
-                imageLink   : imageLink,
-                tileIcon    : 'icon-folder',
-                title       : title,
-                subtitle    : subtitle
-            });
-            
-            elemTile.appendTo(elemParent);
-            elemTile.click(function() {
-                selectProductCategory($(this));
-            });
-
-            if(imageIds.length > 0) elemTile.attr('data-imageIds', imageIds);
-
-        }
-
+    insertResults(workspaces[0].wsId, [{
+        field       : 'NUMBER',
+        type        : 0,
+        comparator  : 21,
+        value       : ''
+    }], {
+        id               : 'landing-lines-tiles',
+        hideHeader       : true,
+        layout           : 'grid',
+        tileSize         : 'xxl',
+        tileImage        : true,
+        tileImageFIeldId : 'IMAGE',
+        tileTitle        : 'MARKETING_NAME_' + languageId,
+        tileSubtitle     : 'MARKETING_TEXT_' + languageId,
+        useCache         : true,
+        onClickItem      : function(elemClicked) { selectProductCategory(elemClicked); }
     });
 
 }
 function selectProductCategory(elemClicked) {
 
-    let idParent = elemClicked.attr('data-link');
+    let descriptor = elemClicked.attr('data-descriptor');
 
     $('#landing').hide();
     $('#lines').show();
-    $('#lines').find('.tile').hide();
 
-    $('#lines').find('.tile').each(function() {
-        if($(this).attr('data-parent') === idParent) $(this).show();
-    });
+    $('#header-descriptor').html(elemClicked.attr('data-title')).show();
+    $('#header-description').html('').hide();
+    $('#header-subtitle').show();
 
     $('#lines-image').html('').hide();
     $('#lines-images').html('').hide();
@@ -199,6 +180,24 @@ function selectProductCategory(elemClicked) {
     }
 
     setMarketingImages(elemClicked, $('#lines-images'));
+
+    insertResults(workspaces[1].wsId, [{
+        field       : 'PRODUCT_CATEGORY',
+        type        : 0,
+        comparator  : 15,
+        value       : descriptor
+    }], {
+        id               : 'lines-tiles',
+        hideHeader       : true,
+        layout           : 'list',
+        tileSize         : 'xxl',
+        tileImage        : true,
+        tileImageFIeldId : 'IMAGE',
+        tileTitle        : 'MARKETING_NAME_' + languageId,
+        tileSubtitle     : 'MARKETING_TEXT_' + languageId,
+        useCache         : true,
+        onClickItem      : function(elemClicked) { selectProductLine(elemClicked); }
+    });    
 
 }
 function setMarketingImages(elemClicked, elemParent) {
@@ -341,50 +340,14 @@ function addProductTile(item, elemParent) {
 }
 
 
-// Retrieve data for first level of navigation
-function getProductLines() {
-
-    $.get('/plm/search-bulk', { 'query' : '*', 'wsId' : workspaces[1].wsId }, function(response) {
-
-        let elemParent = $('#lines-tiles').html('');
-
-        for(let item of response.data.items) {
-
-            let imageIds    = getMarketingImages(item.sections);
-            let title       = getSectionFieldValue(item.sections, 'MARKETING_NAME_' + languageId, '');
-            let subtitle    = getSectionFieldValue(item.sections, 'MARKETING_TEXT_' + languageId, '');
-            let imageLink   = getSectionFieldValue(item.sections, 'IMAGE', '');
-
-            if(title === '') title = getSectionFieldValue(item.sections, 'MARKETING_NAME_1', '');
-            if(subtitle  === '') subtitle  = getSectionFieldValue(item.sections, 'MARKETING_TEXT_1', '');
-
-            let elemTile = genSingleTile({
-                link        : item.__self__,
-                imageLink   : imageLink,
-                tileIcon    : 'icon-folder',
-                title       : title,
-                subtitle    : subtitle
-            });
-
-            elemTile.attr('data-parent', getSectionFieldValue(item.sections, 'PRODUCT_CATEGORY', ''));
-            elemTile.attr('data-title', item.title);
-            elemTile.appendTo(elemParent);
-            elemTile.click(function() {
-                selectProductLine($(this));
-            });
-
-            if(imageIds.length > 0) elemTile.attr('data-imageIds', imageIds);
-
-        }
-
-    });
-
-}
+// Retrieve list of products of selected line
 function selectProductLine(elemClicked) {
 
     $('#lines').hide();
     $('#products').show();
     $('#products-processing').show();
+
+    $('#header-description').html(elemClicked.attr('data-title')).show();
 
     $('#products-image').html('').hide();
     $('#products-images').html('').show();
@@ -401,24 +364,22 @@ function selectProductLine(elemClicked) {
 
     setMarketingImages(elemClicked, $('#products-images'));
 
-    let parentName = elemClicked.attr('data-title');
-    let elemParent = $('#products-tiles').html('');
-
-    let params = {
-        wsId    : workspaces[2].wsId,
-        offset  : 0,
-        limit   : 20,
-        query   : 'ITEM_DETAILS:PRODUCT_LINE%3D%22' + parentName + '%22'
-    }
-
-    $.get('/plm/search-bulk', params, function(response) {
-
-        $('#products-processing').hide();
-
-        for(let item of response.data.items) {
-            addProductTile(item, elemParent)
-        }
-
+    insertResults(workspaces[2].wsId, [{
+        field       : 'PRODUCT_LINE',
+        type        : 0,
+        comparator  : 15,
+        value       : elemClicked.attr('data-descriptor')
+    }], {
+        id               : 'products-tiles',
+        hideHeader       : true,
+        layout           : 'grid',
+        tileSize         : 'xxl',
+        tileImage        : true,
+        tileImageFIeldId : 'IMAGE',
+        tileTitle        : 'MARKETING_NAME_' + languageId,
+        tileSubtitle     : 'MARKETING_TEXT_' + languageId,
+        useCache         : false,
+        onClickItem      : function(elemClicked) { selectProduct(elemClicked); }
     });
 
 }

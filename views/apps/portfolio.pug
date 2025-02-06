@@ -16,6 +16,9 @@ block body
         #header.dark
             #header-logo
             #header-title=title
+            #header-subtitle
+                #header-descriptor
+                #header-description
             #header-toolbar
                 #header-search-icon.icon.xs search
                 input#header-search
@@ -28,7 +31,8 @@ block body
                 #landing-tiles-recents.nav-tiles.tiles.grid.xxl.surface-level-1
             #landing-lines.nav.selected 
                 #landing-title.nav-title
-                #landing-lines-tiles.nav-tiles.tiles.grid.xxl.surface-level-1
+                //- #landing-lines-tiles.nav-tiles.tiles.grid.xxl.surface-level-1
+                #landing-lines-tiles.nav-tiles.surface-level-1
             #landing-pinned.nav 
                 .nav-title Pinned Products
                 #landing-tiles-pinned.nav-tiles.tiles.grid.xxl.surface-level-1
@@ -54,7 +58,7 @@ block body
                 #lines-text.screen-text
             #lines-back.button.screen-back
             #lines-header.screen-header
-            #lines-tiles.screen-tiles.tiles.list.xl
+            #lines-tiles.screen-tiles.surface-level-1
 
         #products.screen.with-panel.surface-level-1 
             .screen-panel.surface-level-2
@@ -65,7 +69,7 @@ block body
                 #products-text.screen-text
             #products-back.button.screen-back
             #products-header.screen-header
-            #products-tiles.screen-tiles.tiles.grid.xxl
+            #products-tiles.screen-tiles.tiles.surface-level-1
 
         #product.screen.panel.surface-level-1
             #viewer.viewer.surface-level-1
