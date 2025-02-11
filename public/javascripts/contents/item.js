@@ -2724,6 +2724,7 @@ function insertAttachmentsData(id, update) {
     ];
 
     elemContent.hide();
+    $('#' + id + '-no-data').hide();
     $('#' + id + '-processing').show();
 
     if((settings.attachments[id].bookmark)) requests.push($.get('/plm/bookmarks', { link : settings.attachments[id].link })); 
