@@ -239,7 +239,7 @@ function compareWorkspacesSettings() {
     addReportHeader('icon-item', 'Workspace Settings');
 
     let requests = [
-        $.get('/plm/workspace', { link : environments.source.workspace.link }),
+        $.get('/plm/workspace', { link : environments.source.workspace.link, tenant : environments.source.tenantName }),
         $.get('/plm/workspace', { link : environments.target.workspace.link, tenant : environments.target.tenantName })
     ]
 
@@ -335,7 +335,7 @@ function compareWorkspaceTabs() {
     addReportHeader('icon-tabs', 'Workspace Tabs Labels and Sequence');
 
     let requests = [
-        $.get('/plm/tabs', { link : environments.source.workspace.link }),
+        $.get('/plm/tabs', { link : environments.source.workspace.link, tenant : environments.source.tenantName }),
         $.get('/plm/tabs', { link : environments.target.workspace.link, tenant : environments.target.tenantName })
     ]
 
@@ -453,9 +453,9 @@ function compareItemDetailsTab() {
     addReportHeader('icon-details', 'Item Details Sections and Fields');
 
     let requests = [
-        $.get('/plm/sections' , { wsId : environments.source.workspace.wsId }),
-        $.get('/plm/fields'   , { wsId : environments.source.workspace.wsId }),
-        $.get('/plm/picklists', { }),
+        $.get('/plm/sections' , { tenant : environments.source.tenantName, wsId : environments.source.workspace.wsId }),
+        $.get('/plm/fields'   , { tenant : environments.source.tenantName, wsId : environments.source.workspace.wsId }),
+        $.get('/plm/picklists', { tenant : environments.source.tenantName }),
         $.get('/plm/sections' , { wsId : environments.target.workspace.wsId, tenant : environments.target.tenantName }),
         $.get('/plm/fields'   , { wsId : environments.target.workspace.wsId, tenant : environments.target.tenantName }),
         $.get('/plm/picklists', { tenant : environments.target.tenantName })
@@ -1125,7 +1125,7 @@ function compareGridTab() {
     addReportHeader('icon-table', 'Grid Tab Fields');
 
     let requests = [
-        $.get('/plm/grid-columns', { wsId : environments.source.workspace.wsId }),
+        $.get('/plm/grid-columns', { wsId : environments.source.workspace.wsId, tenant : environments.source.tenantName }),
         $.get('/plm/grid-columns', { wsId : environments.target.workspace.wsId, tenant : environments.target.tenantName })
     ]
 
@@ -1352,7 +1352,7 @@ function compareManagedItemsTab() {
     addReportHeader('icon-rules', 'Managed Items Tab Fields');
 
     let requests = [
-        $.get('/plm/managed-fields', { wsId : environments.source.workspace.wsId }),
+        $.get('/plm/managed-fields', { wsId : environments.source.workspace.wsId, tenant : environments.source.tenantName }),
         $.get('/plm/managed-fields', { wsId : environments.target.workspace.wsId, tenant : environments.target.tenantName })
     ]
 
@@ -1604,7 +1604,7 @@ function compareBOMTab() {
     addLogEntry('Starting Bill of Materials Tab comparison', 'head');
 
     let requests = [
-        $.get('/plm/bom-views-and-fields', { wsId : environments.source.workspace.wsId }),
+        $.get('/plm/bom-views-and-fields', { wsId : environments.source.workspace.wsId, tenant : environments.source.tenantName }),
         $.get('/plm/bom-views-and-fields', { wsId : environments.target.workspace.wsId, tenant : environments.target.tenantName })
     ]
 
@@ -1978,14 +1978,14 @@ function compareWorkspaceRelationships() {
     addReportHeader('icon-link', 'Workspace Relationships');
 
     let requests = [
-        $.get('/plm/workspace-relationships', { wsId : environments.source.workspace.wsId, type : 'relationships' }),
-        $.get('/plm/workspace-relationships', { wsId : environments.source.workspace.wsId, type : 'project' }),
-        $.get('/plm/workspace-relationships', { wsId : environments.source.workspace.wsId, type : 'managed' }),
-        $.get('/plm/workspace-relationships', { wsId : environments.source.workspace.wsId, type : 'bom' }),
+        $.get('/plm/workspace-relationships', { wsId : environments.source.workspace.wsId, type : 'relationships', tenant : environments.source.tenantName }),
+        $.get('/plm/workspace-relationships', { wsId : environments.source.workspace.wsId, type : 'project',       tenant : environments.source.tenantName }),
+        $.get('/plm/workspace-relationships', { wsId : environments.source.workspace.wsId, type : 'managed',       tenant : environments.source.tenantName }),
+        $.get('/plm/workspace-relationships', { wsId : environments.source.workspace.wsId, type : 'bom',           tenant : environments.source.tenantName }),
         $.get('/plm/workspace-relationships', { wsId : environments.target.workspace.wsId, type : 'relationships', tenant : environments.target.tenantName }),
-        $.get('/plm/workspace-relationships', { wsId : environments.target.workspace.wsId, type : 'project', tenant : environments.target.tenantName }),
-        $.get('/plm/workspace-relationships', { wsId : environments.target.workspace.wsId, type : 'managed', tenant : environments.target.tenantName }),
-        $.get('/plm/workspace-relationships', { wsId : environments.target.workspace.wsId, type : 'bom', tenant : environments.target.tenantName })
+        $.get('/plm/workspace-relationships', { wsId : environments.target.workspace.wsId, type : 'project',       tenant : environments.target.tenantName }),
+        $.get('/plm/workspace-relationships', { wsId : environments.target.workspace.wsId, type : 'managed',       tenant : environments.target.tenantName }),
+        $.get('/plm/workspace-relationships', { wsId : environments.target.workspace.wsId, type : 'bom',           tenant : environments.target.tenantName })
     ]
 
     Promise.all(requests).then(function(responses) {
@@ -2076,7 +2076,7 @@ function comparePrintViews() {
     addReportHeader('icon-printer', 'Advanced Print Views');
 
     let requests = [
-        $.get('/plm/workspace-print-views', { wsId : environments.source.workspace.wsId }),
+        $.get('/plm/workspace-print-views', { wsId : environments.source.workspace.wsId, tenant : environments.source.tenantName }),
         $.get('/plm/workspace-print-views', { wsId : environments.target.workspace.wsId, tenant : environments.target.tenantName })
     ]
 
@@ -2179,7 +2179,7 @@ function compareBehaviors() {
     addReportHeader('icon-status', 'Behaviors');
 
     let requests = [
-        $.get('/plm/workspace-scripts', { wsId : environments.source.workspace.wsId }),
+        $.get('/plm/workspace-scripts', { wsId : environments.source.workspace.wsId, tenant : environments.source.tenantName }),
         $.get('/plm/workspace-scripts', { wsId : environments.target.workspace.wsId, tenant : environments.target.tenantName })
     ]
 
@@ -2326,7 +2326,7 @@ function compareWorkflowStates() {
     addReportHeader('icon-workflow', 'Workflow States');
 
     let requests = [
-        $.get('/plm/workspace-workflow-states', { wsId : environments.source.workspace.wsId }),
+        $.get('/plm/workspace-workflow-states', { wsId : environments.source.workspace.wsId, tenant : environments.source.tenantName }),
         $.get('/plm/workspace-workflow-states', { wsId : environments.target.workspace.wsId, tenant : environments.target.tenantName })
     ]
 
@@ -2469,7 +2469,7 @@ function compareWorkflowTransistions() {
     addReportHeader('icon-arrow-right', 'Workflow Transitions');
 
     let requests = [
-        $.get('/plm/workspace-workflow-transitions', { wsId : environments.source.workspace.wsId }),
+        $.get('/plm/workspace-workflow-transitions', { wsId : environments.source.workspace.wsId, tenant : environments.source.tenantName }),
         $.get('/plm/workspace-workflow-transitions', { wsId : environments.target.workspace.wsId, tenant : environments.target.tenantName })
     ]
 
@@ -2744,7 +2744,7 @@ function comparePicklists() {
                 url  : '/admin#section=setuphome&tab=general&item=uomsetupedit' 
             });
             addLogEntry('Workspace uses BOM UOM Pick List which cannot be compared'); 
-        } else requestsSource.push($.get('/plm/picklist-setup', { link : picklist }));
+        } else requestsSource.push($.get('/plm/picklist-setup', { link : picklist, tenant : environments.source.tenantName }));
     }
 
     Promise.all(requestsSource).then(function(responses) {
@@ -2898,9 +2898,9 @@ function comparePermissions() {
     addReportHeader('icon-released', 'Permissions (Roles)');
 
     let requests = [
-        $.get('/plm/roles', { }),
+        $.get('/plm/roles', { tenant : environments.source.tenantName }),
         $.get('/plm/roles', { tenant : environments.target.tenantName }),
-        $.get('/plm/permissions-definition', { })
+        $.get('/plm/permissions-definition', { tenant : environments.source.tenantName })
     ]
 
     Promise.all(requests).then(function(responses) {
@@ -3081,7 +3081,7 @@ function compareScriptSources() {
 
             included.push(linkSource);
             
-            requests.push($.get('/plm/script', { link : linkSource, type : script.type}));
+            requests.push($.get('/plm/script', { link : linkSource, tenant : environments.source.tenantName, type : script.type}));
             requests.push($.get('/plm/script', { link : linkTarget, tenant : environments.target.tenantName }));
         }
 
@@ -3219,7 +3219,7 @@ function compareLibraryScripts() {
                 for(let target of response.data.scripts) {
                     if(source.title === target.uniqueName) {
                         hasMatch = true;
-                        requests.push($.get('/plm/script', { link : source.link}));
+                        requests.push($.get('/plm/script', { link : source.link,     tenant : environments.source.tenantName }));
                         requests.push($.get('/plm/script', { link : target.__self__, tenant : environments.target.tenantName }));
                         break;
                     }
