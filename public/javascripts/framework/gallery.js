@@ -2,6 +2,10 @@ let profiles = [{
     },{
         headerLabel  : 'Fixed Label',
         headerToggle : true
+    },{
+        openInPLM           : true,
+        openOnDblClick      : true,
+        reload              : true
     },{ 
         openInPLM           : true,
         openOnDblClick      : true,
@@ -66,12 +70,13 @@ $(document).ready(function() {
     
     $('<option></option>').appendTo($('#profiles')).attr('value', 0).html('Default');
     $('<option></option>').appendTo($('#profiles')).attr('value', 1).html('Fixed label and toggles');
-    $('<option></option>').appendTo($('#profiles')).attr('value', 2).html('Additional controls');
-    $('<option></option>').appendTo($('#profiles')).attr('value', 3).html('Complex Tiles');
-    $('<option></option>').appendTo($('#profiles')).attr('value', 4).html('Layout : List');
-    $('<option></option>').appendTo($('#profiles')).attr('value', 5).html('Layout : Grid');
-    $('<option></option>').appendTo($('#profiles')).attr('value', 6).html('Layout : Table');
-    $('<option></option>').appendTo($('#profiles')).attr('value', 7).html('Details Tab Adjustments');
+    $('<option></option>').appendTo($('#profiles')).attr('value', 2).html('Enable open in PLM and reload');
+    $('<option></option>').appendTo($('#profiles')).attr('value', 3).html('Additional controls');
+    $('<option></option>').appendTo($('#profiles')).attr('value', 4).html('Complex Tiles');
+    $('<option></option>').appendTo($('#profiles')).attr('value', 5).html('Layout : List');
+    $('<option></option>').appendTo($('#profiles')).attr('value', 6).html('Layout : Grid');
+    $('<option></option>').appendTo($('#profiles')).attr('value', 7).html('Layout : Table');
+    $('<option></option>').appendTo($('#profiles')).attr('value', 8).html('Details Tab Adjustments');
     
     setUIEvents();
 
