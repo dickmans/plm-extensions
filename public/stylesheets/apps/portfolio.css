@@ -308,6 +308,9 @@
     text-align      : left;
     width           : 640px;
 }
+#products-tiles .tile-counter {
+    line-height : 200px;
+}
 #products-tiles  .tile-image {
     font-size   : 164px;
     height      : 200px;
