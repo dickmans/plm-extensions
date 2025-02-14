@@ -18,7 +18,9 @@
     line-height : 36px;
 }
 .tiles.grid.xxl .tile-subtitle {
-    max-height      : 106px;
+    height          : 112px;
+    max-height      : 112px;
+    min-height      : 112px;
     overflow-y      : auto;
     text-overflow   : ellipsis;
     white-space     : wrap;

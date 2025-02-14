@@ -30,6 +30,7 @@ let settings = {
     mow               : {},
     search            : {},
     results           : {},
+    viewer            : {},
     workspaceViews    : {},
     workspaceItems    : {},
     workflowHistory   : {},
@@ -2488,6 +2489,7 @@ function genSingleTile(params, settings) {
     if(!isBlank(params.subtitle)) {
         $('<div></div>')
             .addClass('tile-subtitle')
+            .addClass('no-scrollbar')
             .html(params.subtitle)
             .appendTo(elemTileDetails);
     }
