@@ -143,6 +143,8 @@ body.no-console #console { right : calc(-10px - var(--width-console) - var(--pan
 #theme > .instructions {
     display    : block;
     text-align : center;
+    left       : calc(50% - 200px);
+    right      : calc(50% - 200px);
 }
 #theme > .options {
     display         : flex;
@@ -181,10 +183,10 @@ body.no-console #console { right : calc(-10px - var(--width-console) - var(--pan
     left        : 0px;
 }
 #views-header {
-    top : 60px;
+    top : 90px;
 }
 #views-list {
-    top    : 99px;
+    top    : 129px;
     bottom : 52px;
 }
 #views-list > div.is-default > .default-view::before {
