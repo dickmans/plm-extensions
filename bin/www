@@ -110,7 +110,6 @@ function onListening() {
   console.log('  (i.e. http://localhost:8080/callback).');
   console.log('    If your login to the UX solutions fails with an error code 401, you most likely are still ');
   console.log('  using an APS of another type.')
-  console.log('  Do not forget to run npm install to download the additional module "crypto" if not doney yet.');
   console.log();
 
 }

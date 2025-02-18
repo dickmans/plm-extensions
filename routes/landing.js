@@ -1,7 +1,7 @@
-const express   = require('express');
-const axios     = require('axios');
-const crypto    = require('crypto');
-const router    = express.Router();
+const express = require('express');
+const axios   = require('axios');
+const crypto  = require('node:crypto');
+const router  = express.Router();
 
 
 
