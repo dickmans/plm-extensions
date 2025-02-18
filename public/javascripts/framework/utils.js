@@ -1001,35 +1001,40 @@ function genPanelBookmarkButton(id, settings) {
 
     let elemButtonBookmark = $('#' + id + '-bookmark');
 
-    if(elemButtonBookmark.length > 0) return elemButtonBookmark;
+    if(elemButtonBookmark.length === 0) {
 
-    let elemToolbar = genPanelToolbar(id, settings, 'controls');
+        let elemToolbar = genPanelToolbar(id, settings, 'controls');
 
-    elemButtonBookmark = $('<div></div>').prependTo(elemToolbar)
-        .attr('id', id + '-bookmark')
-        .attr('data-dmsid', settings.link.split('/')[6])
-        .addClass('disabled')
-        .addClass('button')
-        .addClass('icon')
-        .addClass('icon-bookmark')
-        .click(function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            let elemButton = $(this);
-            if(elemButton.hasClass('disabled')) return;
-            elemButton.addClass('disabled')
-            if(elemButton.hasClass('main')) {
-                $.get('/plm/remove-bookmark', { dmsId : elemButton.attr('data-dmsid') }, function () {
-                    elemButton.removeClass('main');
-                    elemButton.removeClass('disabled');
-                });
-            } else {
-                $.get('/plm/add-bookmark', { dmsId : elemButton.attr('data-dmsid'), comment : ' ' }, function () {
-                    elemButton.addClass('main');
-                    elemButton.removeClass('disabled');
-                });
-            }
-        });
+        elemButtonBookmark = $('<div></div>').prependTo(elemToolbar)
+            .attr('id', id + '-bookmark')
+            .addClass('disabled')
+            .addClass('button')
+            .addClass('icon')
+            .addClass('icon-bookmark')
+            .click(function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                let elemButton = $(this);
+                if(elemButton.hasClass('disabled')) return;
+                elemButton.addClass('disabled')
+                if(elemButton.hasClass('main')) {
+                    $.get('/plm/remove-bookmark', { dmsId : elemButton.attr('data-dmsid') }, function () {
+                        elemButton.removeClass('main');
+                        elemButton.removeClass('disabled');
+                    });
+                } else {
+                    $.get('/plm/add-bookmark', { dmsId : elemButton.attr('data-dmsid'), comment : ' ' }, function () {
+                        elemButton.addClass('main');
+                        elemButton.removeClass('disabled');
+                    });
+                }
+            });
+
+    }
+
+    elemButtonBookmark.attr('data-dmsid', settings.link.split('/')[6])
+        .removeClass('main')
+        .addClass('disabled');
 
     return elemButtonBookmark;
 
@@ -1084,7 +1089,7 @@ function genPanelOpenInPLMButton(id, settings) {
         .click(function(e) {
             e.preventDefault();
             e.stopPropagation();
-            openItemByLink(settings.link);
+            openItemByLink($(this).closest('.panel-top').attr('data-link'));
         });
 
     return elemButtonOpenInPLM;
@@ -1660,9 +1665,13 @@ function stopPanelContentUpdate(response, settings) {
 }
 function setPanelBookmarkStatus(id, settings, responses) {
 
+    console.log(id);
+    console.log(settings);
+    console.log(responses);
+
     if(!settings.bookmark) return;
 
-    $('#' + id + '-bookmark').removeClass('disabled');
+    $('#' + id + '-bookmark').removeClass('disabled').removeClass('main');
 
     for(let response of responses) {
         if(response.url.indexOf('/bookmarks?') === 0) {

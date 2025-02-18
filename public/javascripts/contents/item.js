@@ -6571,9 +6571,10 @@ function insertItemSummary(link, params) {
             .addClass('screen');
     }
 
-    elemItemTop.attr('data-link', settings.summary[id].link);
-    elemItemTop.addClass('item')
-    elemItemTop.addClass('workspace-' + settings.summary[id].wsId);
+    elemItemTop.attr('data-link', settings.summary[id].link)
+        .addClass('item')
+        .addClass('panel-top')
+        .addClass('workspace-' + settings.summary[id].wsId);
 
     if(isBlank(settings.summary[id].surfaceLevel)) {
 
