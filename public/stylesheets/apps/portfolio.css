@@ -10,9 +10,6 @@
 #header-subtitle {
     display : none;
 }
-.tiles.grid.xxl .tile {
-    height : 456px;
-}
 .tiles.grid.xxl .tile-title {
     font-size   : 20px;
     line-height : 36px;
@@ -268,6 +265,12 @@
     height : 580px;
 }
 
+
+/*  CATEGORIES */
+/* ----------------------------------------------------------------------------- */
+#landing-lines-tiles-content .tile {
+    height : 456px;
+}
 
 
 /*  LINES */

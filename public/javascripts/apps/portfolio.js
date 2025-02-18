@@ -137,8 +137,10 @@ function getWorkspaceIds(callback) {
 // Retrieve Landing Page Data
 function getProductCatgories() {
 
+    console.log(workspaces);
+
     insertResults(workspaces[0].wsId, [{
-        field       : 'NUMBER',
+        field       : 'TITLE',
         type        : 0,
         comparator  : 21,
         value       : ''
@@ -148,7 +150,7 @@ function getProductCatgories() {
         layout           : 'grid',
         tileSize         : 'xxl',
         tileImage        : true,
-        tileImageFIeldId : 'IMAGE',
+        tileImageFieldId : 'IMAGE',
         tileTitle        : 'MARKETING_NAME_' + languageId,
         tileSubtitle     : 'MARKETING_TEXT_' + languageId,
         useCache         : true,
