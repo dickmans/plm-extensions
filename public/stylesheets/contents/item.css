@@ -648,12 +648,16 @@
     display         : flex;
     font-size       : 12px;
     gap             : 36px;
+    overflow-y      : auto;
     padding         : 0px;
     justify-content : flex-start;
     position        : absolute;
     right           : 0px;
     bottom          : 0px;
     left            : 0px;
+}
+.bom-path > div {
+    white-space : nowrap;
 }
 .bom-path-parent {
     background  : var(--color-surface-level-3);
