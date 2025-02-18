@@ -137,8 +137,6 @@ function getWorkspaceIds(callback) {
 // Retrieve Landing Page Data
 function getProductCatgories() {
 
-    console.log(workspaces);
-
     insertResults(workspaces[0].wsId, [{
         field       : 'TITLE',
         type        : 0,
