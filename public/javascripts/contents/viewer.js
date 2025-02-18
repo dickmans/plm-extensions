@@ -133,6 +133,8 @@ function initViewer(id, viewables, params) {
         // logLevel    : 1,
         env         : 'AutodeskProduction',
         api         : 'derivativeV2',  // for models uploaded to EMEA change this option to 'derivativeV2_EU'
+        // region : 'EMEA',
+        // api         : 'derivativeV2_EU',  // for models uploaded to EMEA change this option to 'derivativeV2_EU'
         // env: 'AutodeskProduction2',
         // api: 'streamingV2',   // for models uploaded to EMEA change this option to 'streamingV2_EU'
         getAccessToken  : function(onTokenReady) {
@@ -172,7 +174,16 @@ function initViewer(id, viewables, params) {
                 if(!viewerFeatures.contextMenu) viewer.setContextMenu(null);
             }
 
-            Autodesk.Viewing.Document.load('urn:'+ viewables[0].urn, onDocumentLoadSuccess, onDocumentLoadFailure);
+            if(viewables[0].type === 'Adobe PDF') {
+                viewer.loadExtension('Autodesk.PDF').then( () => {
+                    viewerFeatures.markup = true;
+                    viewer.setBackgroundColor(viewerSettings.backgroundColor[0], viewerSettings.backgroundColor[1], viewerSettings.backgroundColor[2], viewerSettings.backgroundColor[3], viewerSettings.backgroundColor[4], viewerSettings.backgroundColor[5]);
+                    viewer.loadModel(viewables[0].link, viewer, onPDFLoadSuccess, onDocumentLoadFailure);
+                });
+
+            } else {
+                Autodesk.Viewing.Document.load('urn:'+ viewables[0].urn, onDocumentLoadSuccess, onDocumentLoadFailure);
+            }
             
         });
     
@@ -184,6 +195,10 @@ function initViewer(id, viewables, params) {
 
     } 
     
+}
+function onPDFLoadSuccess(doc) {
+
+    setViewerFeatures();
 }
 function onDocumentLoadSuccess(doc) {
 

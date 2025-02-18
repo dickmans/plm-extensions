@@ -3729,7 +3729,8 @@ function insertBOM(link , params) {
         $('<div></div>').appendTo($('#' + id))
             .attr('id', id + '-bom-path')
             .addClass('bom-path-empty')
-            .addClass('bom-path');
+            .addClass('bom-path')
+            .addClass('no-scrollbar');
         $('#' + id).addClass('with-bom-path');
     } 
 
@@ -5482,23 +5483,27 @@ function insertViewer(link, params) {
     let id              = 'viewer';    // ID of the DOM element where the viewer should be inserted
     let fileId          = '';         // Select a specific file to be rendered by providing its unique ID
     let filename        = '';         // Select a specific file to be rendered by providing its filename (matches the Title column in the attachments tab)
-    let extensionsIn    = [];         // Defines the list of attachment file types to take into account when requesting the possible list of viewable files. Only file types included in this list will be taken into account.
-    let extensionsEx    = [];         // Defines the list of attachment file types to exclued when requesting the possible list of viewable files. Files with an extension listed will not be considered as valid viewable.
-    let settings        = {};
-    
+ 
+    settings.viewer[id]           = {};
+    settings.viewer[id].link      = link;
+    settings.viewer[id].timeStamp = new Date().getTime();
+
     if( isBlank(params)                 )       params = {};
     if(!isBlank(params.id)              )           id = params.id;
     if(!isBlank(params.fileId)          )       fileId = params.fileId;
     if(!isBlank(params.filename)        )     filename = params.filename;
-    if(!isBlank(params.extensionsIn)    ) extensionsIn = params.extensionsIn;
-    if(!isBlank(params.extensionsEx)    ) extensionsEx = params.extensionsEx;
-    
-    if(!isBlank(params.backgroundColor) )  settings.backgroundColor = params.backgroundColor;
-    if(!isBlank(params.antiAliasing)    )     settings.antiAliasing = params.antiAliasing;
-    if(!isBlank(params.ambientShadows)  )   settings.ambientShadows = params.ambientShadows;
-    if(!isBlank(params.groundReflection)) settings.groundReflection = params.groundReflection;
-    if(!isBlank(params.groundShadow)    )     settings.groundShadow = params.groundShadow;
-    if(!isBlank(params.lightPreset)     )      settings.lightPreset = params.lightPreset;
+
+    settings.viewer[id].extensionsIn = ['dwf','dwfx','iam','ipt','stp','step','sldprt','pdf'];
+    settings.viewer[id].extensionsEx = [];
+
+    if(!isBlank(params.extensionsIn)    ) settings.viewer[id].extensionsIn     = params.extensionsIn;
+    if(!isBlank(params.extensionsEx)    ) settings.viewer[id].extensionsEx     = params.extensionsEx;
+    if(!isBlank(params.backgroundColor) ) settings.viewer[id].backgroundColor  = params.backgroundColor;
+    if(!isBlank(params.antiAliasing)    ) settings.viewer[id].antiAliasing     = params.antiAliasing;
+    if(!isBlank(params.ambientShadows)  ) settings.viewer[id].ambientShadows   = params.ambientShadows;
+    if(!isBlank(params.groundReflection)) settings.viewer[id].groundReflection = params.groundReflection;
+    if(!isBlank(params.groundShadow)    ) settings.viewer[id].groundShadow     = params.groundShadow;
+    if(!isBlank(params.lightPreset)     ) settings.viewer[id].lightPreset      = params.lightPreset;
 
     let elemInstance = $('#' + id).children('.adsk-viewing-viewer');
     if(elemInstance.length > 0) elemInstance.hide();
@@ -5518,11 +5523,13 @@ function insertViewer(link, params) {
         link          : link, 
         fileId        : fileId, 
         filename      : filename, 
-        extensionsIn  : extensionsIn, 
-        extensionsEx  : extensionsEx 
+        extensionsIn  : settings.viewer[id].extensionsIn, 
+        extensionsEx  : settings.viewer[id].extensionsEx, 
+        timeStamp     : settings.viewer[id].timeStamp
     }, function(response) {
 
-        if($('#' + id).attr('data-link') !== response.params.link) return;
+        if(settings.viewer[id].link !== response.params.link) return;
+        if(settings.viewer[id].timeStamp != response.params.timeStamp) return;
 
         let suffix3D = ['.iam','.ipt','.stp','.step','.sldprt'];
 

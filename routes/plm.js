@@ -44,6 +44,24 @@ function runPromised(url, headers) {
     });
 
 }
+function downloadFileToCache(url, filename) {
+
+    return axios.get(url, {
+        responseType     : 'arraybuffer',
+        responseEncoding : 'binary',
+    }).then(function(response) {
+        fs.appendFileSync('public/cache/' + filename, response.data);
+        return { 
+            filename : filename,
+            success  : true
+        };
+    }).catch(function(error) {
+        console.log('error');
+        console.log(error);
+        return { success : false };
+    });
+
+}
 function sortArray(array, key, type) {
 
     if(typeof type === 'undefine') type = 'string';
@@ -1063,23 +1081,22 @@ router.get('/image-cache', function(req, res) {
     console.log('  req.query.link      = ' + req.query.link);
     console.log();
    
-    let wsId    = (typeof req.query.wsId    === 'undefined') ? '' : req.query.wsId ;
-    let dmsId   = (typeof req.query.dmsId   === 'undefined') ? '' : req.query.dmsId ;
-    let fieldId = (typeof req.query.fieldId === 'undefined') ? '' : req.query.fieldId ;
-    let imageId = (typeof req.query.imageId === 'undefined') ? '' : req.query.imageId ;
+    let wsId      = req.query.wsId      || '';
+    let dmsId     = req.query.dmsId     || '';
+    let fieldId   = req.query.fieldId   || '';
+    let imageId   = req.query.imageId   || '';
+    let imageLink = req.query.imageLink || '';
 
-    if(typeof req.query.imageLink === 'undefined') {
+    if(typeof req.query.link !== 'undefined') {
+        wsId  = (wsId  === '') ? req.query.link.split('/')[4] : wsId;
+        dmsId = (dmsId === '') ? req.query.link.split('/')[6] : dmsId;
+    }
 
-        if(typeof req.query.link !== 'undefined') {
-            wsId  = (wsId  === '') ? req.query.link.split('/')[4] : wsId;
-            dmsId = (dmsId === '') ? req.query.link.split('/')[6] : dmsId;
-        }
+    if(imageLink === '') {
 
         imageLink = '/api/v2/workspaces/' + wsId + '/items/' + dmsId + '/field-values/' + fieldId + '/image/' + imageId;
 
     } else {
-
-        imageLink = req.query.imageLink;
 
         let split = imageLink.split('/');
 
@@ -2152,21 +2169,21 @@ router.get('/get-viewables', function(req, res, next) {
 
                     if(include) {
                         viewables.push({
-                            'id'            : attachment.id,
-                            'description'   : attachment.description,
-                            'version'       : attachment.version,
-                            'name'          : attachment.resourceName,
-                            'user'          : attachment.created.user.title,
-                            'type'          : attachment.type.fileType,
-                            'extension'     : attachment.type.extension,
-                            'status'        : '',
-                            'fileUrn'       : '',
-                            'thumbnail'     : attachment.thumbnails.large,
-                            'token'         : req.session.headers.token
+                            id            : attachment.id,
+                            description   : attachment.description,
+                            version       : attachment.version,
+                            name          : attachment.resourceName,
+                            user          : attachment.created.user.title,
+                            type          : attachment.type.fileType,
+                            extension     : attachment.type.extension,
+                            status        : '',
+                            fileUrn       : '',
+                            thumbnail     : attachment.thumbnails.large,
+                            token         : req.session.headers.token
                         });
                     }
+                    
                 }
-
             }
 
             headers.Accept = 'application/vnd.autodesk.plm.attachment.viewable+json';
@@ -2186,11 +2203,15 @@ function getViewables(req, res, headers, link, viewables, attempt) {
     let requests = [];
 
     for(let viewable of viewables) {
-
         if(viewable.status !== 'DONE') {
-            let url = req.app.locals.tenantLink + link + '/attachments/' + viewable.id;
-            if(viewable.status === 'FAILED') url += '?force=true';
-            requests.push(runPromised(url, headers));
+            if(viewable.type === 'Adobe PDF') {
+                viewable.filename = viewable.name.split('.pdf')[0] + '-V' + viewable.version + '.pdf';
+                requests.push(downloadFileToCache(viewable.thumbnail, viewable.filename));
+            } else {
+                let url = req.app.locals.tenantLink + link + '/attachments/' + viewable.id;
+                if(viewable.status === 'FAILED') url += '?force=true';
+                requests.push(runPromised(url, headers));
+            }
         }
     }
 
@@ -2200,16 +2221,22 @@ function getViewables(req, res, headers, link, viewables, attempt) {
 
         for(let viewable of viewables) {
 
-            for(let response of responses) {
+            if(viewable.type !== 'Adobe PDF') {
 
-                if((viewable.name === response.fileName) || ((viewable.name + viewable.extension) === response.fileName)) {
-                    if(response.status !== 'DONE') {
-                        success = false;
-                        break
+                for(let response of responses) {
+
+                    if((viewable.name === response.fileName) || ((viewable.name + viewable.extension) === response.fileName)) {
+                        if(response.status !== 'DONE') {
+                            success = false;
+                            break
+                        }
+                        viewable.status = response.status;
+                        viewable.urn    = response.fileUrn;
                     }
-                    viewable.status = response.status;
-                    viewable.urn    = response.fileUrn;
                 }
+
+            } else {
+                viewable.link = '/cache/' + viewable.filename;
             }
 
         }
