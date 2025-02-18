@@ -5480,21 +5480,21 @@ function insertViewer(link, params) {
 
     //  Set defaults for optional parameters
     // --------------------------------------
-    let id              = 'viewer';    // ID of the DOM element where the viewer should be inserted
-    let fileId          = '';         // Select a specific file to be rendered by providing its unique ID
-    let filename        = '';         // Select a specific file to be rendered by providing its filename (matches the Title column in the attachments tab)
- 
-    settings.viewer[id]           = {};
-    settings.viewer[id].link      = link;
-    settings.viewer[id].timeStamp = new Date().getTime();
+    let id          = 'viewer';
+    let fileId      = '';         // Select a specific file to be rendered by providing its unique ID
+    let filename    = '';         // Select a specific file to be rendered by providing its filename (matches the Title column in the attachments tab) 
 
-    if( isBlank(params)                 )       params = {};
-    if(!isBlank(params.id)              )           id = params.id;
-    if(!isBlank(params.fileId)          )       fileId = params.fileId;
-    if(!isBlank(params.filename)        )     filename = params.filename;
+    if( isBlank(params)         )   params = {};
+    if(!isBlank(params.id)      )       id = params.id;
+    if(!isBlank(params.fileId)  )   fileId = params.fileId;
+    if(!isBlank(params.filename)) filename = params.filename;
 
-    settings.viewer[id].extensionsIn = ['dwf','dwfx','iam','ipt','stp','step','sldprt','pdf'];
-    settings.viewer[id].extensionsEx = [];
+    settings.viewer[id]               = {};
+    settings.viewer[id].link          = link;
+    settings.viewer[id].timeStamp     = new Date().getTime();
+    settings.viewer[id].extensionsIn  = ['dwf','dwfx','iam','ipt','stp','step','sldprt','pdf'];
+    settings.viewer[id].extensionsEx  = [];
+    settings.viewer[id].restartViewer = params.restartViewer || false;
 
     if(!isBlank(params.extensionsIn)    ) settings.viewer[id].extensionsIn     = params.extensionsIn;
     if(!isBlank(params.extensionsEx)    ) settings.viewer[id].extensionsEx     = params.extensionsEx;
@@ -5553,7 +5553,7 @@ function insertViewer(link, params) {
             if(elemInstance.length > 0) elemInstance.show();
 
             insertViewerDone(id, response.data);
-            initViewer(id, viewables, settings);
+            initViewer(id, viewables, settings.viewer[id]);
 
         } else {
 
@@ -5576,8 +5576,6 @@ function insertViewerMarkups(contentId, link, params, sections, fields) {
     let linkViewable   = (isBlank(params.fieldIdViewable)) ? link : getSectionFieldValue(sections, params.fieldIdViewable, '', 'link');
     let allImageFields = getAllImageFieldIDs(fields);
     let elemTop        = $('#' + contentId);
-    // let id            = params.id;
-    // let params         = content.params;
 
     if(isBlank(params.markupsImageFields)) params.markupsImageFields = [];
 
@@ -5586,21 +5584,25 @@ function insertViewerMarkups(contentId, link, params, sections, fields) {
             params.markupsImageFields = allImageFields
         } else {
             for(let imageField of allImageFields) {
-                console.log(imageField);
                 if(imageField.indexOf(params.markupsImageFieldsPrefix) === 0) params.markupsImageFields.push(imageField);
             }
         }
     }
 
+    let elemViewer = $('#' + contentId + '-viewer');
 
+    if(elemViewer.length === 0) {
 
-    $('<div></div>').appendTo(elemTop)
-        .attr('id', contentId + '-viewer')
-        .addClass('viewer');
+        $('<div></div>').appendTo(elemTop)
+            .attr('id', contentId + '-viewer')
+            .addClass('viewer');
+
+    }
     
-    params.id = contentId + '-viewer';
-
+    params.id             = contentId + '-viewer';
+    params.restartViewer  = true;
     viewerFeatures.markup = true;
+
     insertViewer(linkViewable, params);
     
     let elemMarkups = $('<div></div>').appendTo(elemTop)
@@ -5660,11 +5662,9 @@ function insertViewerMarkups(contentId, link, params, sections, fields) {
 
         }
 
-
     }
 
     params.id = contentId;
-
 
 }
 function selectItemMarkup(elemClicked) {

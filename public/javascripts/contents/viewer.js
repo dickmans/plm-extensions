@@ -130,7 +130,7 @@ function initViewer(id, viewables, params) {
     dataInstances = [];
 
     let options = {
-        // logLevel    : 1,
+        logLevel    : 1,
         env         : 'AutodeskProduction',
         api         : 'derivativeV2',  // for models uploaded to EMEA change this option to 'derivativeV2_EU'
         // region : 'EMEA',
@@ -144,7 +144,7 @@ function initViewer(id, viewables, params) {
         }
     }; // see https://aps.autodesk.com/en/docs/viewer/v7/reference/globals/TypeDefs/InitOptions/
 
-    if(typeof viewer === 'undefined') { 
+    if((typeof viewer === 'undefined') || (params.restartViewer)) { 
 
         splitPartNumberBy      = (isBlank(config.viewer.splitPartNumberBy))      ? ''  : config.viewer.splitPartNumberBy;
         splitPartNumberIndexes = (isBlank(config.viewer.splitPartNumberIndexes)) ? [0] : config.viewer.splitPartNumberIndexes;
@@ -211,7 +211,7 @@ function onDocumentLoadSuccess(doc) {
     viewer.setProgressiveRendering(true);
 
     let viewable = doc.getRoot().getDefaultGeometry();
-
+    
     if (viewable) {
         viewer.loadDocumentNode(doc, viewable).then(function(result) {
         // viewer.loadDocumentNode(doc, viewable, {globalOffset: {x:0,y:0,z:0}}).then(function(result) {
