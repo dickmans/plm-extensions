@@ -799,6 +799,7 @@ function getPanelSettings(link, params, defaults, additional) {
         tileSize          : isBlank(params.tileSize)          ? defaults.tileSize  : params.tileSize,
         tileIcon          : isBlank(params.tileIcon)          ? defaults.tileIcon  : params.tileIcon,
         tileImage         : isBlank(params.tileImage)         ? defaults.tileImage : params.tileImage,
+        tileImageFieldId  : '',
         tileTitle         : isBlank(params.tileTitle)         ? defaults.tileTitle : params.tileTitle,
         tileSubtitle      : isBlank(params.tileSubtitle)      ? defaults.tileSubtitle : params.tileSubtitle,
         tileDetails       : isBlank(params.tileDetails)       ? defaults.tileDetails : params.tileDetails,
@@ -2560,20 +2561,19 @@ function genSingleTile(params, settings) {
 
     // }
 
-    // if(isBlank(params.imageId) && isBlank(params.imageLink)) {
     if(isBlank(params.imageId) && isBlank(params.imageLink)) elemTile.addClass('no-image');
-        // elemTile.addClass('no-image');
-        if(params.number) {
-            $('<div></div>').appendTo(elemTileImage)
-                .addClass('tile-counter')
-                .html(params.tileNumber);
-        } else {
-            $('<span></span>').appendTo(elemTileImage)
-            .addClass('icon')
-            .addClass(params.tileIcon);
-        }
-    // } else
-    appendImageFromCache(elemTileImage, params, function() {});
+    
+    if(params.number) {
+        $('<div></div>').appendTo(elemTileImage)
+            .addClass('tile-counter')
+            .html(params.tileNumber);
+    } else {
+        $('<span></span>').appendTo(elemTileImage)
+        .addClass('icon')
+        .addClass(params.tileIcon);
+    }
+    
+    appendImageFromCache(elemTileImage, settings, params, function() {});
 
     return elemTile;
 
@@ -2590,7 +2590,7 @@ function addTilesListImages(id, settings) {
         $.get('/plm/details', { link : elemTile.attr('data-link'), useCache : true }, function(response) {
             let linkImage   = getFirstImageFieldValue(response.data.sections);
             let elemImage   = elemTile.find('.tile-image').first();
-            appendImageFromCache(elemImage, { 
+            appendImageFromCache(elemImage, settings, { 
                 imageLink   : linkImage, 
                 number      : settings.number,
                 icon        : settings.tileIcon,
@@ -4091,7 +4091,7 @@ function getFirstImageFieldValue(sections) {
 
 
 // Display image from cache, use defined placeholder icon while processing
-function appendImageFromCache(elemParent, params, onclick) {
+function appendImageFromCache(elemParent, settings, params, onclick) {
     
     if(isBlank(params)) return;
     if(isBlank(params.replace)) params.replace = true;
@@ -4119,7 +4119,12 @@ function appendImageFromCache(elemParent, params, onclick) {
 
     let urlBase = (params.link.indexOf('/vault/') > -1) ? '/vault' : '/plm';
 
-    $.get(urlBase + '/image-cache', params, function(response) {
+    $.get(urlBase + '/image-cache', {
+        link        : params.link,
+        imageId     : params.imageId,
+        imageLink   : params.imageLink,
+        fieldId     : settings.tileImageFieldId
+    }, function(response) {
 
         if(response.error) return;
 

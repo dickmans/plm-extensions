@@ -987,6 +987,13 @@ function insertResults(wsId, filters, params) {
         }
     }
 
+    if(typeof settings.results[id].tileImage == 'string') {
+        settings.results[id].tileImageFieldId = settings.results[id].tileImage;
+        if(!settings.results[id].fields.includes(settings.results[id].tileImage)) {
+            settings.results[id].fields.push(settings.results[id].tileImage);
+        }      
+    }
+
     if(!isBlank(settings.results[id].tileTitle)) {
         if(!settings.results[id].fields.includes(settings.results[id].tileTitle)) {
             settings.results[id].fields.push(settings.results[id].tileTitle);
@@ -1110,13 +1117,13 @@ function insertResultsData(id) {
 
             for(let field of row.fields.entry) {
 
-                if(field.key === config.items.fieldIdNumber       ) contentItem.partNumber = field.fieldData.value;
-                if(field.key === settings.results[id].tileImage   ) contentItem.image      = field.fieldData.value;
-                if(field.key === settings.results[id].tileTitle   ) contentItem.title      = field.fieldData.value;
-                if(field.key === settings.results[id].tileSubtitle) contentItem.subtitle   = field.fieldData.value;
-                if(field.key === settings.results[id].groupBy     ) contentItem.group      = field.fieldData.value;
-                if(field.key === 'DESCRIPTOR'                     ) contentItem.descriptor = field.fieldData.value;
-                if(field.key === 'WF_CURRENT_STATE'               ) contentItem.status     = field.fieldData.value;
+                if(field.key === config.items.fieldIdNumber           ) contentItem.partNumber = field.fieldData.value;
+                if(field.key === settings.results[id].tileImageFieldId) contentItem.imageId    = field.fieldData.value;
+                if(field.key === settings.results[id].tileTitle       ) contentItem.title      = field.fieldData.value;
+                if(field.key === settings.results[id].tileSubtitle    ) contentItem.subtitle   = field.fieldData.value;
+                if(field.key === settings.results[id].groupBy         ) contentItem.group      = field.fieldData.value;
+                if(field.key === 'DESCRIPTOR'                         ) contentItem.descriptor = field.fieldData.value;
+                if(field.key === 'WF_CURRENT_STATE'                   ) contentItem.status     = field.fieldData.value;
 
                 for(let tileDetail of contentItem.details) {
                     if(field.key === tileDetail.fieldId) {

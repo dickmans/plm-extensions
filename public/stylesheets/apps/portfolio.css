@@ -261,14 +261,10 @@
     line-height     : 15px;
     padding         : 0px;
 }
-.product {
-    height : 580px;
-}
-
-
-/*  CATEGORIES */
-/* ----------------------------------------------------------------------------- */
-#landing-lines-tiles-content .tile {
+#landing-tiles-recents .tile,
+#landing-lines-tiles-content .tile,
+#landing-tiles-pinned .tile,
+#products-tiles-content .tile {
     height : 456px;
 }
 
@@ -315,15 +311,6 @@
 }
 #products-tiles .tile-counter {
     line-height : 200px;
-}
-#products-tiles  .tile-image {
-    font-size   : 164px;
-    height      : 200px;
-    line-height : 200px;
-    min-height  : 200px;
-    max-width   : 320px;
-    min-width   : 320px;
-    width       : 320px;
 }
 #products-tiles .tile-details {
     margin : 20px 30px;
