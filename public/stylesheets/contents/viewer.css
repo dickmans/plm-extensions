@@ -35,7 +35,6 @@
     border : none !important;
     box-shadow : none !important;
 }
-#toolbar-sectionToolarrow { display : none !important; }
 .adsk-control-tooltip {  
     font-family : 'Artifakt Element';
     padding : 8px 16px !important;
