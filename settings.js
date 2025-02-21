@@ -661,7 +661,7 @@ exports.config = {
 clientId          = (typeof process.env.CLIENT_ID           === 'undefined') ? clientId          : process.env.CLIENT_ID;
 tenant            = (typeof process.env.TENANT              === 'undefined') ? tenant            : process.env.TENANT;
 redirectUri       = (typeof process.env.REDIRECT_URI        === 'undefined') ? redirectUri       : process.env.REDIRECT_URI;
-defaultTheme      = (typeof process.env.DEFAUlT_THEME       === 'undefined') ? defaultTheme      : process.env.DEFAUlT_THEME;
+defaultTheme      = (typeof process.env.DEFAULT_THEME       === 'undefined') ? defaultTheme      : process.env.DEFAULT_THEME;
 enableCache       = (typeof process.env.ENABLE_CACHE        === 'undefined') ? enableCache       : process.env.ENABLE_CACHE;
 adminClientId     = (typeof process.env.ADMIN_CLIENT_ID     === 'undefined') ? adminClientId     : process.env.ADMIN_CLIENT_ID;
 adminClientSecret = (typeof process.env.ADMIN_CLIENT_SECRET === 'undefined') ? adminClientSecret : process.env.ADMIN_CLIENT_SECRET;
