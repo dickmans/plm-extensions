@@ -2525,32 +2525,36 @@ function genSingleTile(params, settings) {
 
     if(!isBlank(settings.stateColors)) {
 
-        if(isBlank(params.status)) params.status = '';
+        if(settings.stateColors.length > 0) {
 
-        let color = 'transparent';
-        let label = params.status;
+            if(isBlank(params.status)) params.status = '';
 
-        for(let stateColor of settings.stateColors) {
-            if(!isBlank(stateColor.state)) {
-                if(stateColor.name.toLowerCase() === params.status.toLowerCase()) {
-                    color = stateColor.color;
-                    if(!isBlank(stateColor.label)) label = stateColor.label;
-                }
-            } else if(!isBlank(stateColor.states)) {
-                if(stateColor.states.includes(params.status)) {
-                    color = stateColor.color;
-                    if(!isBlank(stateColor.label)) label = stateColor.label;
+            let color = 'transparent';
+            let label = params.status;
+
+            for(let stateColor of settings.stateColors) {
+                if(!isBlank(stateColor.state)) {
+                    if(stateColor.name.toLowerCase() === params.status.toLowerCase()) {
+                        color = stateColor.color;
+                        if(!isBlank(stateColor.label)) label = stateColor.label;
+                    }
+                } else if(!isBlank(stateColor.states)) {
+                    if(stateColor.states.includes(params.status)) {
+                        color = stateColor.color;
+                        if(!isBlank(stateColor.label)) label = stateColor.label;
+                    }
                 }
             }
-        }
 
-        let elemTileStatus = $('<div></div>').appendTo(elemTile)
-            .addClass('tile-status')
-            .css('background-color', color);
-            
-        $('<div></div>').appendTo(elemTileStatus)
-            .addClass('tile-status-label')
-            .html(label);
+            let elemTileStatus = $('<div></div>').appendTo(elemTile)
+                .addClass('tile-status')
+                .css('background-color', color);
+                
+            $('<div></div>').appendTo(elemTileStatus)
+                .addClass('tile-status-label')
+                .html(label);
+
+        }
 
     }
 
