@@ -1616,6 +1616,8 @@ function insertDetailsFields(id, sections, fields, data, settings, callback) {
 
     $('#' + id + '-processing').hide();
 
+    if(isBlank(settings)) settings = {};
+
     let elemContent  = $('#' + id + '-content');
     let sectionsIn   = settings.sectionsIn;
     let sectionsEx   = settings.sectionsEx;
@@ -1626,7 +1628,8 @@ function insertDetailsFields(id, sections, fields, data, settings, callback) {
     elemContent.scrollTop();
     settings.derived = [];
 
-    if(isBlank(settings.expandSections)) settings.expandSections = [];
+    if(isBlank(settings.expandSections))   settings.expandSections   = [];
+    if(isBlank(settings.collapseContents)) settings.collapseContents = false;
 
     if(!settings.editable) elemContent.addClass('readonly');
 
@@ -1678,14 +1681,12 @@ function insertDetailsFields(id, sections, fields, data, settings, callback) {
         let sectionId   = section.__self__.split('/')[6];
         let isNew       = true;
         let sectionLock = false;
-        let className   = 'expanded';
+        let className   = (settings.collapseContents) ? 'collapsed' : 'expanded';
         let elemSection = $('<div></div>');
 
-        if(!isBlank(settings)) {
-            if(!isBlank(settings.collapseContents)) {
-                if(!settings.expandSections.includes(section.name)) {
-                    className = (settings.collapseContents) ? 'collapsed' : 'expanded';
-                }
+        if(!isBlank(settings.expandSections)) {
+            if(settings.expandSections.length > 0) {
+                className = (settings.expandSections.includes(section.name)) ? 'expanded' : 'collapsed';
             }
         }
 
@@ -3588,6 +3589,7 @@ function saveGridData(id) {
 function insertBOM(link , params) {
 
     if(isBlank(link)) return;
+    if(isBlank(params)) params = {};
 
     let id          = isBlank(params.id) ? 'bom' : params.id;
     let hideDetails = true;
