@@ -84,7 +84,7 @@ exports.config = {
 
     colors            : colors,
     vectors           : vectors,
-    printViewSettings : false,
+    printViewSettings : false,     // Enables printout of view configuration settings to console for debugging purposes
     
     // Provide key workspaces information
     items          : { wsId : 57, fieldIdNumber : 'NUMBER', name : 'Items', fieldIdPDM : 'PDM_ITEM_ID' },
