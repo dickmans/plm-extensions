@@ -44,7 +44,7 @@
             tr 
                 td type 
                 td Provide the type of this filter. If the search is to be performed within the Item Details, provide 0. See the list of field types in the 
-                    a(href="https://help.autodesk.com/view/PLM/ENU/?guid=PLM_360_REST_APIv1_Resource_Endpoints_Item_Search_items_search_field_types_GET_List_workspace_field_types_html") Online Documentation
+                    a(target="_blank" href="https://help.autodesk.com/view/PLM/ENU/?guid=PLM_360_REST_APIv1_Resource_Endpoints_Item_Search_items_search_field_types_GET_List_workspace_field_types_html") Online Documentation
                 td
                     ul 
                         li  0 = Item Details 
@@ -62,8 +62,10 @@
                 td 0 
             tr 
                 td comparator 
-                td Sets the comparator to be used when performing the search. 
+                td Sets the comparator to be used when performing the search. See how to get the full list of available comparators in the 
+                    a(target="_blank" href="https://help.autodesk.com/view/PLM/ENU/?guid=PLM_360_REST_APIv1_Resource_Endpoints_Item_Search_items_search_filter_types_GET_List_field_data_type_filters_html") Online Documentation
                 td 
+                    span Text Fields Comparison
                     ul 
                         li  2 = Contains 
                         li  3 = Starts With 
@@ -72,6 +74,28 @@
                         li 15 = Is
                         li 20 = Is Blank 
                         li 21 = Not Blank
+                    span Date Fields Comparison
+                    ul 
+                        li 16 = Equal To
+                        li 17 = Not Equql To
+                        li 18 = Later Than
+                        li 19 = Earlier Than
+                        li 22 = Is Blank
+                        li 23 = Not Blank
+                        li 24 = Today 
+                        li 25 = This Week 
+                        li 26 = Last Week 
+                        li 27 = Next Week 
+                        li 28 = This Month 
+                        li 29 = Last Month 
+                        li 30 = Next Month 
+                        li 31 = This Year 
+                        li 32 = Last Year 
+                        li 33 = Next Year 
+                        li 34 = Is in the Last NUMBER of Days
+                        li 35 = Is In the Next NUMBER of Days 
+                        li 36 = Earlier Than Today +/- NUMBER of Days
+                        li 37 = Later Than Today +/- NUMBER of Days
                 td 2
             tr 
                 td value 
