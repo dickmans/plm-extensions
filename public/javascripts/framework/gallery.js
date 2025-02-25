@@ -161,11 +161,17 @@ function setViews() {
 function setSearch() {
 
     insertSearch(profiles[$('#profiles').val()]);
+    // insertResults('82', [{
+    //     field       : 'TITLE',       
+    //     type        : 0,
+    //     comparator  : 21,
+    //     value       : ''
+    // }],profiles[$('#profiles').val()]);
     insertResults('82', [{
-        field       : 'TITLE',       
+        field       : 'TARGET_RESOLUTION_DATE',       
         type        : 0,
-        comparator  : 21,
-        value       : ''
+        comparator  : 19,
+        value       : '2024/12/31'
     }],profiles[$('#profiles').val()]);
 
 }
