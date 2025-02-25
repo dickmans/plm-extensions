@@ -1348,6 +1348,7 @@ and (max-device-width : 1900px)  {
     display : none;
 }
 .content-column-number {
+    font-weight     : 800;
     max-width       : 38px;
     padding-right   : 12px !important;
     padding-left    : 12px !important;

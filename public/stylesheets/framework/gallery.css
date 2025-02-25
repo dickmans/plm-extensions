@@ -35,8 +35,8 @@
 #workspace-views { top : 0px; right : 0px; bottom : 50%; left : 0px; }
 #workspace-items { top : 50%; right : 0px; bottom : 0px; left : 0px; }
 
-#bom      { top   : 0px; right : calc(55% - 72px); bottom :   0px; left :   0px; }
-#flat-bom { top   : 0px; right : 0px;              bottom : 400px; left : calc(45% + 72px); }
+#bom       { top   : 0px; right : calc(55% - 72px); bottom :   0px; left :   0px; }
+#flat-bom  { top   : 0px; right : 0px;              bottom : 400px; left : calc(45% + 72px); }
 
 /* #item-tabs   { top :  0px; right : 0px;              left  : 0px; height : 20px; display : flex; gap : 20px; }  */
 #item-status { top : 68px; right : calc(50% - 72px); left  : 0px; height : 20px; } 
@@ -46,9 +46,10 @@
 #parents { top : 50%; right : 0px; bottom : 0px; left : 50%; }
 #changes { top : 50%; right : 50%; bottom : 0px; left : 0px; }
 
-.viewer   { top : 0px; right : 60%; bottom : 50%; left : 0px; } 
-#bom      { top : 0px; right : 0px; bottom : 50%; left : 40%; }
-#flat-bom { top : 50%; right : 0px; bottom : 0px; left : 0px; }
+.viewer         { top : 0px; right : 60%; bottom : 50%; left : 0px; } 
+#bom            { top : 0px; right : 0px; bottom : 50%; left : 40%; }
+#flat-bom       { top : 50%; right : 40%; bottom : 0px; left : 0px; }
+#bom-parts-list { top : 50%; right : 0px; bottom : 0px; left : 60%; }
 
 #details          { top : 0px; right : 70%; bottom : 0px; left : 0px; } 
 #attachments      { top : 0px; right : 20%; bottom : 50%; left : 30%; }

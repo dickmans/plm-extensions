@@ -188,6 +188,7 @@ function setItem2() {
     insertViewer(linkEmberPrinter);
     insertBOM(linkEmberPrinter, profiles[$('#profiles').val()]);
     insertFlatBOM(linkEmberPrinter, profiles[$('#profiles').val()]);
+    insertBOMPartsList(linkEmberPrinter, { bomViewName : 'Service', selectItems : { fieldId : 'SPARE_WEAR_PART', values : ['Yes', 'yes', 'Spare Part']}});
 
 }
 function setItem3() {

@@ -4572,6 +4572,142 @@ function updateBOMPath(elemClicked) {
 
 
 
+// Insert selected BOM items in flat list
+function insertBOMPartsList(link , params) {
+
+    if(isBlank(link)) return;
+    if(isBlank(params)) params = {};
+
+    let id = isBlank(params.id) ? 'bom-parts-list' : params.id;
+    
+    settings.partList[id] = getPanelSettings(link, params, {
+        headerLabel : 'BOM Parts List'
+    }, [
+        [ 'bomViewName'     , 'Default View' ],
+        [ 'depth'           , 10             ],
+        [ 'hideParents'     , false          ],
+        [ 'revisionBias'    , 'release'      ],
+        [ 'selectItems'     , {}             ]
+    ]);
+
+    settings.partList[id].load = function() { insertBOMPartsListData(id); }
+
+    genPanelTop(id, settings.partList[id], 'partList');
+    genPanelHeader(id, settings.partList[id]);
+    genPanelOpenSelectedInPLMButton(id, settings.partList[id]);
+    genPanelSelectionControls(id, settings.partList[id]);
+    genPanelSearchInput(id, settings.partList[id]);
+    genPanelReloadButton(id, settings.partList[id]);
+    genPanelContents(id, settings.partList[id]);
+
+    insertBOMPartsListDone(id);
+
+    getBOMViewId(settings.partList[id]);
+
+}
+function insertBOMPartsListDone(id) {}
+function getBOMViewId( settings) {
+
+    $.get('/plm/bom-views-and-fields', { link : settings.link, useCache : settings.useCache }, function(response) {
+
+        for(let bomView of response.data) {
+            if(bomView.name === settings.bomViewName) {
+                settings.viewId = bomView.id;
+                settings.viewFields = bomView.fields;
+                settings.load();
+            }
+        }
+
+    });
+
+}
+function insertBOMPartsListData(id) {
+
+    settings.partList[id].timestamp = startPanelContentUpdate(id);
+    settings.partList[id].columns   = [];
+
+    let params = {
+        link          : settings.partList[id].link,
+        depth         : settings.partList[id].depth,
+        revisionBias  : settings.partList[id].revisionBias,
+        viewId        : settings.partList[id].viewId,
+        timestamp     : settings.partList[id].timestamp
+    }
+
+    $.get('/plm/bom', params, function(response) {
+
+        if(stopPanelContentUpdate(response, settings.partList[id])) return;
+
+        let parts = getBOMPartsList(settings.partList[id], response.data);
+        let items = [];
+
+        if(parts.length > 0) {
+            for(let field of parts[0].fields) {
+                if(includePanelTableColumn(field.displayName, settings.partList[id], settings.partList[id].columns.length)) {
+                    settings.partList[id].columns.push(field);
+                }
+            }
+        }
+
+        console.log(parts);
+
+        for(let part of parts) {
+
+            if((!settings.partList[id].hideParents) || (!part.hasChildren)) {
+
+                let contentItem = genPanelContentItem(settings.partList[id], {
+                    link  : part.link,
+                    title : part.title
+                });
+
+                for(let field of part.fields) {
+                
+                    if(field.fieldId === config.items.fieldIdNumber            ) contentItem.partNumber = field.value;
+                    if(field.fieldId === settings.partList[id].tileImageFieldId) contentItem.imageId    = field.value;
+                    if(field.fieldId === settings.partList[id].tileTitle       ) contentItem.title      = field.value;
+                    if(field.fieldId === settings.partList[id].tileSubtitle    ) contentItem.subtitle   = field.value;
+                    if(field.fieldId === settings.partList[id].groupBy         ) contentItem.group      = field.value;
+                    if(field.fieldId === 'DESCRIPTOR'                          ) contentItem.descriptor = field.value;
+                    if(field.fieldId === 'WF_CURRENT_STATE'                    ) contentItem.status     = field.value;
+                
+                    for(let tileDetail of contentItem.details) {
+                        if(field.fieldId === tileDetail.fieldId) {
+                            tileDetail.value = field.fieldData.value;
+                        }
+                    }
+                    for(let column of settings.partList[id].columns) {
+
+                        if(field.fieldId === column.fieldId) {
+                        
+                            let value = field.value;
+                        
+                            contentItem.data.push({
+                                fieldId : column.fieldId,
+                                value   : value
+                            });
+
+                        }
+
+                    }
+
+                }
+
+                items.push(contentItem);
+            }
+
+        }
+
+        insertBOMPartsListDataDone(id, response);
+        finishPanelContentUpdate(id, settings.partList[id], items);
+
+    });
+
+}
+function insertBOMPartsListDataDone(id, response) {}
+
+
+
+
 // Insert Flat BOM with selected controls
 function insertFlatBOM(link , params) {
 

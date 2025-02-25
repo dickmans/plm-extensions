@@ -15,6 +15,7 @@ let settings = {
     images            : {},
     attachments       : {},
     bom               : {},
+    partList          : {},
     flatBOM           : {},
     roots             : {},
     parents           : {},
@@ -1664,10 +1665,6 @@ function stopPanelContentUpdate(response, settings) {
 
 }
 function setPanelBookmarkStatus(id, settings, responses) {
-
-    console.log(id);
-    console.log(settings);
-    console.log(responses);
 
     if(!settings.bookmark) return;
 
@@ -3913,6 +3910,113 @@ function getBOMNodeLink(id, nodes) {
         }
     }
     return '';
+}
+function getBOMPartsList(settings, data) {
+
+    let parts = [];
+
+    settings.iEdge = 0;
+    settings.urns  = [];
+
+    for(let field of settings.viewFields) {
+        if(field.fieldId === 'QUANTITY') {
+            settings.urns.quantity = field.__self__.urn;
+        } else if(field.fieldId === config.items.fieldIdNumber) {
+            settings.urns.partNumber = field.__self__.urn;
+        }
+        if(!isBlank(settings.selectItems)) {
+            if(field.fieldId === settings.selectItems.fieldId) settings.urns.selectItems = field.__self__.urn;
+        }
+    }
+
+    getBOMParts(settings, parts, data.root, data.edges, data.nodes, 1.0, []);
+
+    return parts;
+
+}
+function getBOMParts(settings, parts, parent, edges, nodes, quantity, path) {
+
+    let result = { hasChildren : false };
+
+    for(let i = settings.iEdge; i < edges.length; i++) {
+
+        let edge = edges[i];
+
+        if(edge.parent === parent) {
+
+            if(i === settings.iEdge + 1) settings.iEdge = i;
+
+            let node = { 
+                quantity    : getBOMEdgeValue(edge, settings.urns.quantity, null, 0) * quantity,
+                path        : path,
+                fields      : []
+            }
+
+            result.hasChildren = true;
+
+            for(let bomNode of nodes) {
+
+                if(bomNode.item.urn === edge.child) {
+
+                    node.link       = bomNode.item.link;
+                    node.title      = bomNode.item.title;
+                    node.partNumber = getBOMCellValue(edge.child, settings.urns.partNumber, nodes);
+
+                    for(let field of settings.viewFields) {
+
+                        let fieldData = {
+                            fieldId     : field.fieldId,
+                            name        : field.name,
+                            displayName : field.displayName,
+                            urn         : field.__self__.urn,
+                            value       : ''
+                        }
+
+                        for(let nodeField of bomNode.fields) {
+                            if(nodeField.metaData.urn === fieldData.urn) {
+                                fieldData.value = nodeField.value;
+                            }
+                        }
+                            
+                        node.fields.push(fieldData);
+
+                    }
+
+                    break;
+
+                }
+            }
+
+            if(!isBlank(settings.selectItems)) {
+                let selectValue = getBOMCellValue(edge.child, settings.urns.selectItems, nodes);
+                if(settings.selectItems.values.includes(selectValue)) parts.push(node);
+            } else {
+                parts.push(node);
+            }
+
+            let nodeBOM = getBOMParts(settings, parts, edge.child, edges, nodes, node.quantity, path);
+
+            node.hasChildren = nodeBOM.hasChildren;
+
+        }
+
+    }
+
+    return result;
+
+}
+
+
+
+function onSerialNumberClick(elemClicked) {
+
+    if(elemClicked.hasClass('selected')) {
+        let partNumber = elemClicked.attr('data-part-number');
+        viewerSelectModel(partNumber);
+    } else {
+        viewerResetSelection();
+    }
+
 }
 
 
