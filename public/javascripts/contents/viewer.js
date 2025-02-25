@@ -818,11 +818,13 @@ function viewerHighlightInstances(partNumber, ids, params) {
     if(isolate)     viewer.hideAll();
     if(resetColors) viewer.clearThemingColors();
 
-    for(let dataInstance of dataInstances) {
-        if(dataInstance.partNumber === partNumber) {
-            if(hiddenInstances.indexOf(dbId < 0)) {
-                dbIds.push(dataInstance.dbId);
-                viewer.show(dataInstance.dbId);
+    for(let dbId of ids) {
+        for(let dataInstance of dataInstances) {
+            if(dataInstance.partNumber === partNumber) {
+                if(hiddenInstances.indexOf(dbId < 0)) {
+                    dbIds.push(dataInstance.dbId);
+                    viewer.show(dataInstance.dbId);
+                }
             }
         }
     }
