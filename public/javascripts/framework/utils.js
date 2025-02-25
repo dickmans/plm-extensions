@@ -753,7 +753,7 @@ function getPanelSettings(link, params, defaults, additional) {
     if(isBlank(defaults.groupBy)          ) defaults.groupBy           = '';
     if(isBlank(defaults.groupLayout)      ) defaults.groupLayout       = 'column';
     if(isBlank(defaults.additionalData)   ) defaults.additionalData    = [];
-    if(isBlank(defaults.tileSize)         ) defaults.tileSize          = 'xs';
+    if(isBlank(defaults.contentSize)      ) defaults.contentSize       = 'xs';
     if(isBlank(defaults.tileIcon)         ) defaults.tileIcon          = 'icon-product';
     if(isBlank(defaults.tileImage)        ) defaults.tileImage         = true;
     if(isBlank(defaults.tileTitle)        ) defaults.tileTitle         = 'DESCRIPTOR';
@@ -797,7 +797,7 @@ function getPanelSettings(link, params, defaults, additional) {
         groupLayout       : isBlank(params.groupLayout)       ? defaults.groupLayout : params.groupLayout,
         additionalData    : isBlank(params.additionalData)    ? defaults.additionalData : params.additionalData,
         number            : isBlank(params.number)            ? true : params.number,
-        tileSize          : isBlank(params.tileSize)          ? defaults.tileSize  : params.tileSize,
+        contentSize       : isBlank(params.contentSize)       ? defaults.contentSize  : params.contentSize,
         tileIcon          : isBlank(params.tileIcon)          ? defaults.tileIcon  : params.tileIcon,
         tileImage         : isBlank(params.tileImage)         ? defaults.tileImage : params.tileImage,
         tileImageFieldId  : '',
@@ -826,7 +826,7 @@ function getPanelSettings(link, params, defaults, additional) {
         columns           : [],
     }
 
-    if(isBlank(settings.tileSize)) settings.tileSize = 'xs';
+    if(isBlank(settings.contentSize)) settings.contentSize = 'xs';
 
     if(settings.collapsePanel) settings.headerToggle = true;
 
@@ -1450,7 +1450,7 @@ function genPanelContents(id, settings) {
         .attr('id', id + '-content')
         .addClass('panel-content')
         .addClass('no-scrollbar')
-        .addClass(settings.tileSize);
+        .addClass(settings.contentSize);
 
          if(settings.layout === 'table'  ) elemContent.addClass('table');
     else if(settings.layout === 'gallery') elemContent.addClass('tiles').addClass('gallery');
@@ -1458,7 +1458,7 @@ function genPanelContents(id, settings) {
     else if(settings.layout === 'list'   ) elemContent.addClass('tiles').addClass('list');
     else if(settings.layout === 'row'    ) {
         elemContent.addClass('tiles').addClass('row');
-        switch(settings.tileSize) {
+        switch(settings.contentSize) {
             case 'xxs':
             case 'xs':
             case 's':
@@ -2381,7 +2381,7 @@ function genTilesList(id, items, settings) {
                     .addClass('tiles-group-list')
                     .addClass('tiles')
                     .addClass(settings.layout)
-                    .addClass(settings.tileSize)
+                    .addClass(settings.contentSize)
                     .addClass(settings.surfaceLevel)
                     .addClass(getSurfaceLevel(elemContent));
 
@@ -3948,9 +3948,12 @@ function getBOMParts(settings, parts, parent, edges, nodes, quantity, path) {
 
             let node = { 
                 quantity    : getBOMEdgeValue(edge, settings.urns.quantity, null, 0) * quantity,
-                path        : path,
+                partNumber  : getBOMCellValue(edge.child, settings.urns.partNumber, nodes),
+                path        : path.slice(),
                 fields      : []
             }
+
+            node.path.push(node.partNumber);
 
             result.hasChildren = true;
 
@@ -3960,7 +3963,6 @@ function getBOMParts(settings, parts, parent, edges, nodes, quantity, path) {
 
                     node.link       = bomNode.item.link;
                     node.title      = bomNode.item.title;
-                    node.partNumber = getBOMCellValue(edge.child, settings.urns.partNumber, nodes);
 
                     for(let field of settings.viewFields) {
 
@@ -3994,7 +3996,9 @@ function getBOMParts(settings, parts, parent, edges, nodes, quantity, path) {
                 parts.push(node);
             }
 
-            let nodeBOM = getBOMParts(settings, parts, edge.child, edges, nodes, node.quantity, path);
+
+
+            let nodeBOM = getBOMParts(settings, parts, edge.child, edges, nodes, node.quantity, node.path);
 
             node.hasChildren = nodeBOM.hasChildren;
 
@@ -4061,8 +4065,12 @@ function getGridRowValue(row, fieldId, defaultValue, property) {
 
             if(typeof value === 'object') {
 
-                if(isBlank(property)) return field.value.link;
-                else return field.value[property];
+                if(isBlank(property)) { return field.value.link;
+                } else if(property == 'title') { 
+                    let result = field.value.title;
+                    if(!isBlank(field.value.version)) result += ' ' + field.value.version;
+                    return result;
+                } else return field.value[property];
                 
             } else if(field.type.title === 'Paragraph') {
 

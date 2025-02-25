@@ -20,7 +20,7 @@ let profiles = [{
         openOnDblClick  : true,
         search          : true,
         layout          : 'list' ,   
-        tileSize        : 'xxl',
+        contentSize     : 'xxl',
         tileTitle       : 'DESCRIPTOR',
         tileSubtitle    : 'DESCRIPTION',
         tileDetails     : [{
@@ -262,7 +262,7 @@ function setTabs() {
             { type : 'details'     , params : { id : 'item-section-details', hideSections : true, sectionsIn: ['Details'], headerLabel : 'Datenblatt' } },
             { type : 'grid'        , params : { id : 'item-section-grid' } },
             { type : 'images'      , params : { id : 'item-section-images' , layout : 'row'} },
-            { type : 'attachments' , params : { id : 'item-section-attachments', editable : false, tileSize : 'xs' , singleToolbar : 'controls'} },
+            { type : 'attachments' , params : { id : 'item-section-attachments', editable : false, contentSize : 'xs' , singleToolbar : 'controls'} },
         ],
         layout       : 'sections',
         hideSubtitle : true,
@@ -280,73 +280,73 @@ function setTabs() {
 }      
 function setLists() {
 
-    insertBookmarks({ id : 'list-xxs', layout : 'list', tileSize : 'xxs', tileImage : true, useCache : true, headerLabel : 'layout:list, tileSize:xxs' });
-    insertBookmarks({ id : 'list-xs' , layout : 'list', tileSize :  'xs', tileImage : true, useCache : true, headerLabel : 'layout:list, tileSize:xs'  });
-    insertBookmarks({ id : 'list-s'  , layout : 'list', tileSize :   's', tileImage : true, useCache : true, headerLabel : 'layout:list, tileSize:s'   });
-    insertBookmarks({ id : 'list-m'  , layout : 'list', tileSize :   'm', tileImage : true, useCache : true, headerLabel : 'layout:list, tileSize:m'   });
-    insertBookmarks({ id : 'list-l'  , layout : 'list', tileSize :   'l', tileImage : true, useCache : true, headerLabel : 'layout:list, tileSize:l'   });
-    insertBookmarks({ id : 'list-xl' , layout : 'list', tileSize :  'xl', tileImage : true, useCache : true, headerLabel : 'layout:list, tileSize:xl'  });
-    insertBookmarks({ id : 'list-xxl', layout : 'list', tileSize : 'xxl', tileImage : true, useCache : true, headerLabel : 'layout:list, tileSize:xxl' });
+    insertBookmarks({ id : 'list-xxs', layout : 'list', contentSize : 'xxs', tileImage : true, useCache : true, headerLabel : 'layout:list, contentSize:xxs' });
+    insertBookmarks({ id : 'list-xs' , layout : 'list', contentSize :  'xs', tileImage : true, useCache : true, headerLabel : 'layout:list, contentSize:xs'  });
+    insertBookmarks({ id : 'list-s'  , layout : 'list', contentSize :   's', tileImage : true, useCache : true, headerLabel : 'layout:list, contentSize:s'   });
+    insertBookmarks({ id : 'list-m'  , layout : 'list', contentSize :   'm', tileImage : true, useCache : true, headerLabel : 'layout:list, contentSize:m'   });
+    insertBookmarks({ id : 'list-l'  , layout : 'list', contentSize :   'l', tileImage : true, useCache : true, headerLabel : 'layout:list, contentSize:l'   });
+    insertBookmarks({ id : 'list-xl' , layout : 'list', contentSize :  'xl', tileImage : true, useCache : true, headerLabel : 'layout:list, contentSize:xl'  });
+    insertBookmarks({ id : 'list-xxl', layout : 'list', contentSize : 'xxl', tileImage : true, useCache : true, headerLabel : 'layout:list, contentSize:xxl' });
 
 }
 function setGrids() {
 
-    insertBookmarks({ id : 'grid-xxs', layout : 'grid', tileSize : 'xxs', tileImage : true, useCache : true, headerLabel : 'layout:grid, tileSize:xxs' });
-    insertBookmarks({ id : 'grid-xs' , layout : 'grid', tileSize :  'xs', tileImage : true, useCache : true, headerLabel : 'layout:grid, tileSize:xs'  });
-    insertBookmarks({ id : 'grid-s'  , layout : 'grid', tileSize :   's', tileImage : true, useCache : true, headerLabel : 'layout:grid, tileSize:s'   });
-    insertBookmarks({ id : 'grid-m'  , layout : 'grid', tileSize :   'm', tileImage : true, useCache : true, headerLabel : 'layout:grid, tileSize:m'   });
-    insertBookmarks({ id : 'grid-l'  , layout : 'grid', tileSize :   'l', tileImage : true, useCache : true, headerLabel : 'layout:grid, tileSize:l'   });
-    insertBookmarks({ id : 'grid-xl' , layout : 'grid', tileSize :  'xl', tileImage : true, useCache : true, headerLabel : 'layout:grid, tileSize:xl'  });
-    insertBookmarks({ id : 'grid-xxl', layout : 'grid', tileSize : 'xxl', tileImage : true, useCache : true, headerLabel : 'layout:grid, tileSize:xxl' });
+    insertBookmarks({ id : 'grid-xxs', layout : 'grid', contentSize : 'xxs', tileImage : true, useCache : true, headerLabel : 'layout:grid, contentSize:xxs' });
+    insertBookmarks({ id : 'grid-xs' , layout : 'grid', contentSize :  'xs', tileImage : true, useCache : true, headerLabel : 'layout:grid, contentSize:xs'  });
+    insertBookmarks({ id : 'grid-s'  , layout : 'grid', contentSize :   's', tileImage : true, useCache : true, headerLabel : 'layout:grid, contentSize:s'   });
+    insertBookmarks({ id : 'grid-m'  , layout : 'grid', contentSize :   'm', tileImage : true, useCache : true, headerLabel : 'layout:grid, contentSize:m'   });
+    insertBookmarks({ id : 'grid-l'  , layout : 'grid', contentSize :   'l', tileImage : true, useCache : true, headerLabel : 'layout:grid, contentSize:l'   });
+    insertBookmarks({ id : 'grid-xl' , layout : 'grid', contentSize :  'xl', tileImage : true, useCache : true, headerLabel : 'layout:grid, contentSize:xl'  });
+    insertBookmarks({ id : 'grid-xxl', layout : 'grid', contentSize : 'xxl', tileImage : true, useCache : true, headerLabel : 'layout:grid, contentSize:xxl' });
 
 }
 function setGalleries() {
 
-    insertBookmarks({ id : 'gallery-xxs', layout : 'gallery', tileSize : 'xxs', tileImage : true, useCache : true, headerLabel : 'layout:gallery, tileSize:xxs' });
-    insertBookmarks({ id : 'gallery-xs' , layout : 'gallery', tileSize :  'xs', tileImage : true, useCache : true, headerLabel : 'layout:gallery, tileSize:xs'  });
-    insertBookmarks({ id : 'gallery-s'  , layout : 'gallery', tileSize :   's', tileImage : true, useCache : true, headerLabel : 'layout:gallery, tileSize:s'   });
-    insertBookmarks({ id : 'gallery-m'  , layout : 'gallery', tileSize :   'm', tileImage : true, useCache : true, headerLabel : 'layout:gallery, tileSize:m'   });
-    insertBookmarks({ id : 'gallery-l'  , layout : 'gallery', tileSize :   'l', tileImage : true, useCache : true, headerLabel : 'layout:gallery, tileSize:l'   });
-    insertBookmarks({ id : 'gallery-xl' , layout : 'gallery', tileSize :  'xl', tileImage : true, useCache : true, headerLabel : 'layout:gallery, tileSize:xl'  });
-    insertBookmarks({ id : 'gallery-xxl', layout : 'gallery', tileSize : 'xxl', tileImage : true, useCache : true, headerLabel : 'layout:gallery, tileSize:xxl' });
+    insertBookmarks({ id : 'gallery-xxs', layout : 'gallery', contentSize : 'xxs', tileImage : true, useCache : true, headerLabel : 'layout:gallery, contentSize:xxs' });
+    insertBookmarks({ id : 'gallery-xs' , layout : 'gallery', contentSize :  'xs', tileImage : true, useCache : true, headerLabel : 'layout:gallery, contentSize:xs'  });
+    insertBookmarks({ id : 'gallery-s'  , layout : 'gallery', contentSize :   's', tileImage : true, useCache : true, headerLabel : 'layout:gallery, contentSize:s'   });
+    insertBookmarks({ id : 'gallery-m'  , layout : 'gallery', contentSize :   'm', tileImage : true, useCache : true, headerLabel : 'layout:gallery, contentSize:m'   });
+    insertBookmarks({ id : 'gallery-l'  , layout : 'gallery', contentSize :   'l', tileImage : true, useCache : true, headerLabel : 'layout:gallery, contentSize:l'   });
+    insertBookmarks({ id : 'gallery-xl' , layout : 'gallery', contentSize :  'xl', tileImage : true, useCache : true, headerLabel : 'layout:gallery, contentSize:xl'  });
+    insertBookmarks({ id : 'gallery-xxl', layout : 'gallery', contentSize : 'xxl', tileImage : true, useCache : true, headerLabel : 'layout:gallery, contentSize:xxl' });
 
 }
 function setRows() {
 
-    insertBookmarks({ id : 'row-xxs', layout : 'row', tileSize : 'xxs', tileImage : true, useCache : true, headerLabel : 'layout:row, tileSize:xxs' });
-    insertBookmarks({ id : 'row-xs' , layout : 'row', tileSize :  'xs', tileImage : true, useCache : true, headerLabel : 'layout:row, tileSize:xs'  });
-    insertBookmarks({ id : 'row-s'  , layout : 'row', tileSize :   's', tileImage : true, useCache : true, headerLabel : 'layout:row, tileSize:s'   });
-    insertBookmarks({ id : 'row-m'  , layout : 'row', tileSize :   'm', tileImage : true, useCache : true, headerLabel : 'layout:row, tileSize:m'   });
-    insertBookmarks({ id : 'row-l'  , layout : 'row', tileSize :   'l', tileImage : true, useCache : true, headerLabel : 'layout:row, tileSize:l'   });
-    insertBookmarks({ id : 'row-xl' , layout : 'row', tileSize :  'xl', tileImage : true, useCache : true, headerLabel : 'layout:row, tileSize:xl'  });
-    insertBookmarks({ id : 'row-xxl', layout : 'row', tileSize : 'xxl', tileImage : true, useCache : true, headerLabel : 'layout:row, tileSize:xxl' });
+    insertBookmarks({ id : 'row-xxs', layout : 'row', contentSize : 'xxs', tileImage : true, useCache : true, headerLabel : 'layout:row, contentSize:xxs' });
+    insertBookmarks({ id : 'row-xs' , layout : 'row', contentSize :  'xs', tileImage : true, useCache : true, headerLabel : 'layout:row, contentSize:xs'  });
+    insertBookmarks({ id : 'row-s'  , layout : 'row', contentSize :   's', tileImage : true, useCache : true, headerLabel : 'layout:row, contentSize:s'   });
+    insertBookmarks({ id : 'row-m'  , layout : 'row', contentSize :   'm', tileImage : true, useCache : true, headerLabel : 'layout:row, contentSize:m'   });
+    insertBookmarks({ id : 'row-l'  , layout : 'row', contentSize :   'l', tileImage : true, useCache : true, headerLabel : 'layout:row, contentSize:l'   });
+    insertBookmarks({ id : 'row-xl' , layout : 'row', contentSize :  'xl', tileImage : true, useCache : true, headerLabel : 'layout:row, contentSize:xl'  });
+    insertBookmarks({ id : 'row-xxl', layout : 'row', contentSize : 'xxl', tileImage : true, useCache : true, headerLabel : 'layout:row, contentSize:xxl' });
 
 }
 function setFiles() {
 
-    insertAttachments(linkEmberPrinter, { id : 'files-row-xxs', layout : 'row',  tileSize : 'xxs', headerLabel : 'layout:row;tileSize:xxs' });
-    insertAttachments(linkEmberPrinter, { id : 'files-row-xs',  layout : 'row',  tileSize : 'xs',  headerLabel : 'layout:row;tileSize:xs'  });
-    insertAttachments(linkEmberPrinter, { id : 'files-row-s',   layout : 'row',  tileSize : 's',   headerLabel : 'layout:row;tileSize:s'   });
-    insertAttachments(linkEmberPrinter, { id : 'files-row-m',   layout : 'row',  tileSize : 'm',   headerLabel : 'layout:row;tileSize:m'   });
-    insertAttachments(linkEmberPrinter, { id : 'files-row-l',   layout : 'row',  tileSize : 'l',   headerLabel : 'layout:row;tileSize:l'   });
-    insertAttachments(linkEmberPrinter, { id : 'files-row-xl',  layout : 'row',  tileSize : 'xl',  headerLabel : 'layout:row;tileSize:xl'  });
-    insertAttachments(linkEmberPrinter, { id : 'files-row-xxl', layout : 'row',  tileSize : 'xxl', headerLabel : 'layout:row;tileSize:xxl' });
+    insertAttachments(linkEmberPrinter, { id : 'files-row-xxs', layout : 'row',  contentSize : 'xxs', headerLabel : 'layout:row;contentSize:xxs' });
+    insertAttachments(linkEmberPrinter, { id : 'files-row-xs',  layout : 'row',  contentSize : 'xs',  headerLabel : 'layout:row;contentSize:xs'  });
+    insertAttachments(linkEmberPrinter, { id : 'files-row-s',   layout : 'row',  contentSize : 's',   headerLabel : 'layout:row;contentSize:s'   });
+    insertAttachments(linkEmberPrinter, { id : 'files-row-m',   layout : 'row',  contentSize : 'm',   headerLabel : 'layout:row;contentSize:m'   });
+    insertAttachments(linkEmberPrinter, { id : 'files-row-l',   layout : 'row',  contentSize : 'l',   headerLabel : 'layout:row;contentSize:l'   });
+    insertAttachments(linkEmberPrinter, { id : 'files-row-xl',  layout : 'row',  contentSize : 'xl',  headerLabel : 'layout:row;contentSize:xl'  });
+    insertAttachments(linkEmberPrinter, { id : 'files-row-xxl', layout : 'row',  contentSize : 'xxl', headerLabel : 'layout:row;contentSize:xxl' });
 
-    insertAttachments(linkEmberPrinter, { id : 'files-list-xxs', layout : 'list', tileSize : 'xxs', headerLabel : 'layout:list;tileSize:xxs' });
-    insertAttachments(linkEmberPrinter, { id : 'files-list-xs',  layout : 'list', tileSize : 'xs',  headerLabel : 'layout:list;tileSize:xs'  });
-    insertAttachments(linkEmberPrinter, { id : 'files-list-s',   layout : 'list', tileSize : 's',   headerLabel : 'layout:list;tileSize:s'   });
-    insertAttachments(linkEmberPrinter, { id : 'files-list-m',   layout : 'list', tileSize : 'm',   headerLabel : 'layout:list;tileSize:m'   });
-    insertAttachments(linkEmberPrinter, { id : 'files-list-l',   layout : 'list', tileSize : 'l',   headerLabel : 'layout:list;tileSize:l'   });
-    insertAttachments(linkEmberPrinter, { id : 'files-list-xl',  layout : 'list', tileSize : 'xl',  headerLabel : 'layout:list;tileSize:xl'  });
-    insertAttachments(linkEmberPrinter, { id : 'files-list-xxl', layout : 'list', tileSize : 'xxl', headerLabel : 'layout:list;tileSize:xxl' });
+    insertAttachments(linkEmberPrinter, { id : 'files-list-xxs', layout : 'list', contentSize : 'xxs', headerLabel : 'layout:list;contentSize:xxs' });
+    insertAttachments(linkEmberPrinter, { id : 'files-list-xs',  layout : 'list', contentSize : 'xs',  headerLabel : 'layout:list;contentSize:xs'  });
+    insertAttachments(linkEmberPrinter, { id : 'files-list-s',   layout : 'list', contentSize : 's',   headerLabel : 'layout:list;contentSize:s'   });
+    insertAttachments(linkEmberPrinter, { id : 'files-list-m',   layout : 'list', contentSize : 'm',   headerLabel : 'layout:list;contentSize:m'   });
+    insertAttachments(linkEmberPrinter, { id : 'files-list-l',   layout : 'list', contentSize : 'l',   headerLabel : 'layout:list;contentSize:l'   });
+    insertAttachments(linkEmberPrinter, { id : 'files-list-xl',  layout : 'list', contentSize : 'xl',  headerLabel : 'layout:list;contentSize:xl'  });
+    insertAttachments(linkEmberPrinter, { id : 'files-list-xxl', layout : 'list', contentSize : 'xxl', headerLabel : 'layout:list;contentSize:xxl' });
 
-    insertAttachments(linkEmberPrinter, { id : 'files-grid-xxs', layout : 'grid', tileSize : 'xxs', headerLabel : 'layout:grid;tileSize:xxs' });
-    insertAttachments(linkEmberPrinter, { id : 'files-grid-xs',  layout : 'grid', tileSize : 'xs',  headerLabel : 'layout:grid;tileSize:xs'  });
-    insertAttachments(linkEmberPrinter, { id : 'files-grid-s',   layout : 'grid', tileSize : 's',   headerLabel : 'layout:grid;tileSize:s'   });
-    insertAttachments(linkEmberPrinter, { id : 'files-grid-m',   layout : 'grid', tileSize : 'm',   headerLabel : 'layout:grid;tileSize:m'   });
-    insertAttachments(linkEmberPrinter, { id : 'files-grid-l',   layout : 'grid', tileSize : 'l',   headerLabel : 'layout:grid;tileSize:l'   });
-    insertAttachments(linkEmberPrinter, { id : 'files-grid-xl',  layout : 'grid', tileSize : 'xl',  headerLabel : 'layout:grid;tileSize:xl'  });
-    insertAttachments(linkEmberPrinter, { id : 'files-grid-xxl', layout : 'grid', tileSize : 'xxl', headerLabel : 'layout:grid;tileSize:xxl' });
+    insertAttachments(linkEmberPrinter, { id : 'files-grid-xxs', layout : 'grid', contentSize : 'xxs', headerLabel : 'layout:grid;contentSize:xxs' });
+    insertAttachments(linkEmberPrinter, { id : 'files-grid-xs',  layout : 'grid', contentSize : 'xs',  headerLabel : 'layout:grid;contentSize:xs'  });
+    insertAttachments(linkEmberPrinter, { id : 'files-grid-s',   layout : 'grid', contentSize : 's',   headerLabel : 'layout:grid;contentSize:s'   });
+    insertAttachments(linkEmberPrinter, { id : 'files-grid-m',   layout : 'grid', contentSize : 'm',   headerLabel : 'layout:grid;contentSize:m'   });
+    insertAttachments(linkEmberPrinter, { id : 'files-grid-l',   layout : 'grid', contentSize : 'l',   headerLabel : 'layout:grid;contentSize:l'   });
+    insertAttachments(linkEmberPrinter, { id : 'files-grid-xl',  layout : 'grid', contentSize : 'xl',  headerLabel : 'layout:grid;contentSize:xl'  });
+    insertAttachments(linkEmberPrinter, { id : 'files-grid-xxl', layout : 'grid', contentSize : 'xxl', headerLabel : 'layout:grid;contentSize:xxl' });
 
 }
 function setEdit() {

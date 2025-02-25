@@ -30,7 +30,7 @@ $(document).ready(function() {
                     search              : true,
                     filterByType        : true,
                     singleToolbar       : 'controls',
-                    tileSize            : 'm'
+                    contentSize         : 'm'
                 } 
             },{ 
                 type      : 'bom', 

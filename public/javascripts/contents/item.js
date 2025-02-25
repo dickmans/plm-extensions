@@ -2234,6 +2234,12 @@ function getEditableFields(fields) {
                     case 'Check Box': 
                         elemControl = $('<input>');
                         elemControl.attr('type', 'checkbox');
+                        break;
+
+                    case 'Date':
+                        elemControl = $('<input>');
+                        elemControl.attr('type', 'date');
+                        break;
 
                     case 'Float': 
                     case 'Integer': 
@@ -2255,12 +2261,12 @@ function getEditableFields(fields) {
                 }
 
                 result.push({
-                    'id'      : fieldId,
-                    'title'   : field.name,
-                    'link'    : field.__self__,
-                    'type'    : field.type.title,
-                    'typeId'  : field.type.link.split('/')[4],
-                    'control' : elemControl
+                    id      : fieldId,
+                    title   : field.name,
+                    link    : field.__self__,
+                    type    : field.type.title,
+                    typeId  : field.type.link.split('/')[4],
+                    control : elemControl
                 });
 
             }
@@ -2596,7 +2602,7 @@ function insertAttachments(link, params) {
         headerLabel : 'Attachments',
         layout      : 'list',
         tileIcon    : 'icon-pdf',
-        tileSize    : 's',
+        contentSize : 's',
     }, [
         [ 'bookmark'          , false ],
         [ 'filterByType'      , false ],
@@ -3434,7 +3440,9 @@ function insertGridData(id) {
                 elemTable.addClass('fixed-header');
 
                 for(let column of columns) {
-                    $('<th></th>').appendTo(elemTHRow).html(column.name);
+                    $('<th></th>').appendTo(elemTHRow)
+                        .addClass('column-' + column.fieldId)
+                        .html(column.name);
                 }
 
                 for(let row of responses[0].data) {
@@ -3443,9 +3451,9 @@ function insertGridData(id) {
                         .addClass('content-item')
                         .click(function(e) {
                             clickGridRow($(this), e);
-                            if(!isBlank(settings.grid[id].onItemClick)) settings.grid[id].onItemClick($(this));
+                            if(!isBlank(settings.grid[id].onClickItem)) settings.grid[id].onClickItem($(this));
                         }).dblclick(function() {
-                            if(!isBlank(settings.grid[id].onItemDblClick)) settings.grid[id].onItemDblClick($(this));
+                            if(!isBlank(settings.grid[id].onDblClickItem)) settings.grid[id].onDblClickItem($(this));
                         });
 
                     for(let field of row.rowData) {
@@ -3490,9 +3498,12 @@ function insertGridData(id) {
                                             
                                             case 'Single Selection':
                                             // case 'Radio Button':
-                                                // console.log(field);
-                                                // value = getFlatBOMCellValue(response.data, itemLink, field.__self__.urn, 'link');
-                                                elemControl.val(value);
+                                                let linkValue = getGridRowValue(row, field.fieldId, '', 'link');
+                                                let elemValue = $('<option></option>')
+                                                    .attr('value', linkValue)
+                                                    .html(value)
+                                                elemControl.append(elemValue);
+                                                elemControl.val(linkValue);
                                                 break;
                 
                                             default:
@@ -3541,6 +3552,8 @@ function insertGridData(id) {
             }
 
         }
+
+        console.log('10');
 
         finishPanelContentUpdate(id, settings.grid[id]);
         insertGridDataDone(id, responses[0].data, responses[1].data);

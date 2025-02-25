@@ -9,9 +9,9 @@ let summaryContents = [{
     }, { 
         type        : 'attachments',
         params      : { 
-            id         : 'item-attachments',
-            hideHeader : true,
-            tileSize   : 'xl'
+            id          : 'item-attachments',
+            hideHeader  : true,
+            contentSize : 'xl'
         }
     }, { 
         type        : 'bom',

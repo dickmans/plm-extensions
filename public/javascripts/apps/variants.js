@@ -28,9 +28,9 @@ let paramsSummary = {
         params      : { 
             id         : 'item-attachments',
             hideHeaderLabel : true,
-            editable : true,
-            singleToolbar : 'controls',
-            tileSize   : 'xl'
+            editable        : true,
+            singleToolbar   : 'controls',
+            contentSize     : 'xl'
         }
     }, { 
         type        : 'bom',

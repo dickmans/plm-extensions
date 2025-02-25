@@ -349,7 +349,7 @@ function getWorkspaceConfiguration() {
         insertManagedItems('/api/v3/workspaces/' + wsId + '/items/' + dmsId, {
             headerLabel     : 'Affected Items',
             layout          : 'list',
-            tileSize        : 'm',
+            contentSize     : 'm',
             number          :  true,
             openInPLM       : true,
             reload          : true,

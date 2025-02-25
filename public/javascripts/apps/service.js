@@ -29,7 +29,7 @@ let paramsAttachments = {
     headerLabel     : 'Item Attachments',
     layout          : 'row',
     reload          : false,
-    tileSize        : 'l'
+    contentSize     : 'l'
 }
 
 let paramsProcesses = { 
@@ -108,7 +108,7 @@ $(document).ready(function() {
                 groupBy         : config.service.productsGroupBy,
                 groupLayout     : 'horizontal',
                 additionalData  : [ config.service.productsFieldIdBOM ],
-                tileSize        : 'l',
+                contentSize     : 'l',
                 tileImage       : config.service.productsFieldIdImage, 
                 tileTitle       : config.service.productsFieldIdTitle, 
                 tileSubtitle    : config.service.productsFieldIdSubtitle, 

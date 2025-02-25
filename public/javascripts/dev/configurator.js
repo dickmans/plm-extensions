@@ -298,7 +298,7 @@ function insertVariants(title) {
         tileTitle       : 'NUMBER',
         tileSubtitle    : 'TITLE',
         tileDetails     : 'DESCRIPTION',
-        tileSize        : 'xl',
+        contentSize     : 'xl',
         tableCounters   : false
     }
 

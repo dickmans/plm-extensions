@@ -157,7 +157,7 @@ function openTask(elemClicked) {
                     editable        : true,
                     layout          : 'list',
                     singleToolbar   : 'controls',
-                    tileSize        : 'm'
+                    contentSize     : 'm'
                 } 
             },{ 
                 type      : 'managed-items', 

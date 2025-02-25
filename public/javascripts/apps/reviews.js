@@ -310,7 +310,7 @@ function openSelectedItem(elemSelected) {
         reload          : true,
         layout          : 'list',
         singleToolbar   : 'controls',
-        tileSize        : 'm'
+        contentSize     : 'm'
     });
     insertResults(config.reviews.workspaces.tasks.id, [{ 
         field       : 'DESIGN_REVIEW', 
@@ -325,7 +325,7 @@ function openSelectedItem(elemSelected) {
         reload          : true,
         search          : true,
         layout          : 'list',
-        tileSize        : 'xl',
+        contentSize     : 'xl',
         tileTitle       : 'DESCRIPTOR',
         tileSubtitle    : 'DESCRIPTION',
         tileDetails     : [ {icon : 'icon-calendar', fieldId : 'TARGET_COMPLETION_DATE'}],

@@ -9,7 +9,7 @@ $(document).ready(function() {
             inputLabel   : 'Enter part number',
             limit        : 15,
             number       : true,
-            tileSize     : 'xs',
+            contentSize  : 'xs',
             tileSubtitle : 'Owner',
             search       : false,
             workspacesIn : config.portal.workspacesIn,
@@ -20,7 +20,7 @@ $(document).ready(function() {
             headerLabel  : 'Recent Items',
             search       : false,
             reload       : true,
-            tileSize     : 'xs',
+            contentSize  : 'xs',
             workspacesIn : config.portal.workspacesIn,
             onClickItem  : function(elemClicked) { openItem(elemClicked); },
         });
@@ -99,7 +99,7 @@ function openItem(elemClicked) {
         editable    : false,
         layout      : 'list',
         reload      : false,
-        tileSize    : 's'
+        contentSize : 's'
     });
 
 }

@@ -21,7 +21,7 @@ let paramsDetails = {
 let paramsAttachments = { 
     editable      : true,
     layout        : 'row',
-    tileSize      : 'm', 
+    contentSize   : 'm', 
     reload        : false,
     extensionsEx  : ['.dwf', '.dwfx'],
     filterByType  : true,
@@ -35,7 +35,7 @@ let paramsProcesses = {
     reload              : false,
     editable            : true,
     openOnDblClick      : true,
-    tileSize            : 'm',
+    contentSize         : 'm',
     createWSID          : '' ,
     fieldIdMarkup       : ''
 }
@@ -65,14 +65,14 @@ $(document).ready(function() {
         insertRecentItems({
             headerLabel  : 'Recently Viewed',
             reload       : true,
-            tileSize     : 'xs',
+            contentSize  : 'xs',
             workspacesIn : [ wsItems.id ],
             onClickItem : function(elemClicked) { openSelectedItem(elemClicked); }
         });
 
         insertSearch({
             autoClick    : false,
-            tileSize     : 'xs',
+            contentSize  : 'xs',
             images       : true,
             limit        : 20,
             workspaceIds : [ wsItems.id ],
@@ -93,9 +93,9 @@ $(document).ready(function() {
         insertBookmarks({
             headerLabel  : 'Bookmarks',
             reload       : true,
-            tileSize     : 'xs',
+            contentSize  : 'xs',
             workspacesIn : [ wsItems.id ],
-            onClickItem : function(elemClicked) { openSelectedItem(elemClicked); }
+            onClickItem  : function(elemClicked) { openSelectedItem(elemClicked); }
         });
 
         getInitialData(function() {
