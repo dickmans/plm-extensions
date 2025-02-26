@@ -1,29 +1,29 @@
-let maxRequests        = 4;
-let wsEBOM             = { 'id' : '', 'sections' : [], 'fields' : [], 'viewId' : '', 'viewColumns' : [] };
-let wsMBOM             = { 'id' : '', 'sections' : [], 'fields' : [], 'viewId' : '', 'viewColumns' : [] };
-let singleWorkspace    = false;
+let maxRequests     = 4;
+let wsEBOM          = { id : '', sections : [], fields : [], viewId : '', viewColumns : [] };
+let wsMBOM          = { id : '', sections : [], fields : [], viewId : '', viewColumns : [] };
+let singleWorkspace = false;
+let links           = {};
 
 let paramsSummary = {
     id       : 'summary',
-    contents : [
-        { 
-            type      : 'details', 
-            params : {
-                id               : 'summary-details', 
-                collapseContents : true, 
-                hideHeader       : true,
-                layout           : 'narrow'
-            }
-        },{
-            type : 'attachments',
-            params : { 
-            id : 'summary-attachments', 
-            editable : true , 
+    contents : [ { 
+        type   : 'details', 
+        params : {
+            id               : 'summary-details', 
+            collapseContents : true, 
+            hideHeader       : true,
+            layout           : 'narrow'
+        }
+    },{
+        type   : 'attachments',
+        params : { 
+            id            : 'summary-attachments', 
+            editable      : true , 
             singleToolbar : 'controls'
-        } },
-    ],
-    layout       : 'tabs',
-    openInPLM    : true
+        }
+    }],
+    layout    : 'tabs',
+    openInPLM : true
 }
 
 let eBOM         = {};
@@ -52,8 +52,9 @@ $(document).ready(function() {
         }
     }
 
-    wsEBOM.wsId = config.mbom.wsIdEBOM;
-    wsMBOM.wsId = config.mbom.wsIdMBOM;
+    wsEBOM.wsId   = config.mbom.wsIdEBOM;
+    wsMBOM.wsId   = config.mbom.wsIdMBOM;
+    links.start = '/api/v3/workspaces/' + wsId + '/items/' + dmsId;
 
     appendProcessing('ebom', false);
     appendProcessing('mbom', false);
@@ -66,13 +67,18 @@ $(document).ready(function() {
         setUIEvents();
 
         // Start from context object (i.e. Asset)
-        if((wsId !== wsEBOM.wsId) && (wsId !== wsEBOM.wsId)) {
+        if((wsId !== wsEBOM.wsId) && (wsId !== wsMBOM.wsId)) {            
 
-            $.get('/plm/details', { wsId : wsId, dmsId : dmsId }, function(response) {
+            $.get('/plm/details', { link : links.start }, function(response) {
                 
-                let ebom = getSectionFieldValue(response.data.sections, config.mbom.fieldIdEBOM, '', 'link');
-                wsId     = ebom.split('/')[4];
-                dmsId    = ebom.split('/')[6];
+                links.ebom    = getSectionFieldValue(response.data.sections, config.mbom.fieldIdEBOM, '', 'link');
+                links.mbom    = getSectionFieldValue(response.data.sections, config.mbom.fieldIdMBOM + siteSuffix, '', 'link');
+                
+                if(isBlank(links.mbom)) links.context = links.start;
+                
+                links.start   = links.ebom;
+                wsId          = links.ebom.split('/')[4];
+                dmsId         = links.ebom.split('/')[6];
 
                 getInitialData(); 
 
@@ -303,8 +309,8 @@ function selectTab(elemClicked) {
 function getInitialData() {
 
     let requests = [
-        $.get('/plm/versions'               , { wsId : wsId, dmsId : dmsId }),
-        $.get('/plm/details'                , { wsId : wsId, dmsId : dmsId }),
+        $.get('/plm/versions'               , { link : links.start }),
+        $.get('/plm/details'                , { link : links.start }),
         $.get('/plm/bom-views-and-fields'   , { wsId : wsEBOM.wsId, useCache : true }),
         $.get('/plm/sections'               , { wsId : wsEBOM.wsId, useCache : true }),
         $.get('/plm/sections'               , { wsId : wsMBOM.wsId, useCache : true }),
@@ -322,7 +328,7 @@ function getInitialData() {
 
         requests.push($.get('/plm/bom-views-and-fields' , { wsId : wsMBOM.wsId, useCache : true }));
         requests.push($.get('/plm/workspace'            , { wsId : wsMBOM.wsId, useCache : true }));
-        requests.push($.get('/plm/tableaus'             , { wsId : wsMBOM.wsId, useCache : true }));
+        requests.push($.get('/plm/tableaus'             , { wsId : wsMBOM.wsId }));
 
     }
 
@@ -341,7 +347,7 @@ function getInitialData() {
 
         wsEBOM.tableaus = responses[6].data;
 
-        insertViewOptions('ebom', wsEBOM.tableaus);
+        insertWorkspaceViewsOptions('ebom', wsEBOM.tableaus);
 
         if(wsEBOM.wsId === wsMBOM.wsId) {
         
@@ -361,7 +367,7 @@ function getInitialData() {
 
             wsMBOM.tableaus = responses[10].data;
 
-            insertViewOptions('mbom', wsMBOM.tableaus);
+            insertWorkspaceViewsOptions('mbom', wsMBOM.tableaus);
 
         }
 
@@ -386,12 +392,11 @@ function getInitialData() {
 
         if(responses[0].error) showErrorMessage('Error at startup', responses[0].data.message);
 
-        let linkLatest  = responses[0].data.versions[0].item.link;
-        let dmsIDLatest = linkLatest.split('/')[6];
+        links.latest = responses[0].data.versions[0].item.link;
 
-        if(dmsId !== dmsIDLatest) {
-            dmsId = dmsIDLatest;
-            $.get('/plm/details', { 'wsId' : wsId, 'dmsId' : dmsId }, function(response) {
+        if(links.start !== links.latest) {
+            links.start = links.latest;
+            $.get('/plm/details', { link : links.start }, function(response) {
                 processItemData(response.data);
             });
         } else {
@@ -401,7 +406,7 @@ function getInitialData() {
     });
 
 }
-function insertViewOptions(suffix, tableaus) {
+function insertWorkspaceViewsOptions(suffix, tableaus) {
 
     for(let tableau of tableaus) {
 
@@ -421,21 +426,24 @@ function processItemData(itemDetails) {
 
     $('#header-subtitle').html(itemDetails.title);
 
-    linkEBOM = getSectionFieldValue(itemDetails.sections, config.mbom.fieldIdEBOM, '', 'link');
-    linkMBOM = getSectionFieldValue(itemDetails.sections, config.mbom.fieldIdMBOM + siteSuffix, '', 'link');
+    let valueEBOM = getSectionFieldValue(itemDetails.sections, config.mbom.fieldIdEBOM, '', 'link');
+    let valueMBOM = getSectionFieldValue(itemDetails.sections, config.mbom.fieldIdMBOM + siteSuffix, '', 'link');
     
-    if(linkEBOM !== '') {
+    if(valueEBOM !== '') {
         
-        linkMBOM = '/api/v3/workspaces/' + wsId + '/items/' + dmsId;
+        links.mbom = links.start;
+        links.ebom = valueEBOM;
 
-        $.get('/plm/details', { 'link' : linkEBOM}, function(response) {
+        $.get('/plm/details', { link : links.ebom}, function(response) {
             basePartNumber = getSectionFieldValue(response.data.sections, config.mbom.fieldIdNumber, '', null);
             processRoots(itemDetails);
         });
 
     } else {
 
-        linkEBOM = '/api/v3/workspaces/' + wsId + '/items/' + dmsId;
+        links.ebom = links.start;
+        links.mbom = valueMBOM;
+
         basePartNumber = getSectionFieldValue(itemDetails.sections, config.mbom.fieldIdNumber, '', null);
         processRoots(itemDetails);
 
@@ -443,37 +451,40 @@ function processItemData(itemDetails) {
 }
 function processRoots(itemDetails) {
 
+    insertViewer(links.ebom);
+
     createMBOMRoot(itemDetails, function() {
 
         let requests = [];
 
         requests.push($.get('/plm/bom', {     
-            'link'          : linkEBOM,
-            'viewId'        : wsEBOM.viewId,
-            'depth'         : 10,
-            'revisionBias'  : config.mbom.revisionBias
+            link          : links.ebom,
+            viewId        : wsEBOM.viewId,
+            depth         : 10,
+            revisionBias  : config.mbom.revisionBias
         }));
 
         requests.push($.get('/plm/bom', {     
-            'link'          : linkMBOM,
-            'viewId'        : wsMBOM.viewId,
-            'depth'         : 10,
-            'revisionBias'  : config.mbom.revisionBias
+            link          : links.mbom,
+            viewId        : wsMBOM.viewId,
+            depth         : 10,
+            revisionBias  : config.mbom.revisionBias
         }));
+
+        storeContextMBOMLink();
 
         Promise.all(requests).then(function(responses) {
 
             eBOM = responses[0].data;
             mBOM = responses[1].data;
 
-            linkEBOM = '/api/v3/workspaces/' + wsEBOM.wsId + '/items/' + eBOM.root.split('.')[5];
-            linkMBOM = '/api/v3/workspaces/' + wsMBOM.wsId + '/items/' + mBOM.root.split('.')[5];
+            links.ebom = '/api/v3/workspaces/' + wsEBOM.wsId + '/items/' + eBOM.root.split('.')[5];
+            links.mbom = '/api/v3/workspaces/' + wsMBOM.wsId + '/items/' + mBOM.root.split('.')[5];
 
             eBOM.edges.sort(function(a, b){ return a.itemNumber - b.itemNumber });
             mBOM.edges.sort(function(a, b){ return a.itemNumber - b.itemNumber });
 
-            insertViewer(linkEBOM);
-            insertItemSummary(linkEBOM, paramsSummary);
+            insertItemSummary(links.ebom, paramsSummary);
             initEditor();
 
         });
@@ -483,15 +494,15 @@ function processRoots(itemDetails) {
 }
 function createMBOMRoot(itemDetails, callback) {
 
-    if(linkMBOM !== '') {
+    if(links.mbom !== '') {
         
         callback();
         
     } else {
 
         let params = {
-            'wsId'      : wsMBOM.wsId,
-            'sections'  : []
+            wsId      : wsMBOM.wsId,
+            sections  : []
         };
 
         addFieldToPayload(params.sections, wsMBOM.sections, null, config.mbom.fieldIdEBOM, { 'link' : itemDetails.__self__ } );
@@ -520,8 +531,8 @@ function createMBOMRoot(itemDetails, callback) {
             if(response.error) {
                 showErrorMessage('Error', 'Error while creating MBOM root item, the editor cannot be used at this time. Please review your server configuration.');
             } else {
-                linkMBOM = response.data.split('.autodeskplm360.net')[1];
-                storeMBOMLink(linkEBOM, linkMBOM);
+                links.mbom = response.data.split('.autodeskplm360.net')[1];
+                storeMBOMLink(links.ebom, links.mbom);
                 callback();
             }
         }); 
@@ -529,17 +540,43 @@ function createMBOMRoot(itemDetails, callback) {
     }
     
 }
-function storeMBOMLink(ebomLink, mbomLink) {
+function storeMBOMLink(linkUpdate, linkMBOM) {
 
     let timestamp  = new Date();
     let value      = timestamp.getFullYear() + '-' + (timestamp.getMonth()+1) + '-' + timestamp.getDate();
-    let paramsEBOM = { 'link' : ebomLink, 'sections'   : [] }
+    let params     = { link : linkUpdate, sections : [] }
 
-    addFieldToPayload(paramsEBOM.sections, wsEBOM.sections, null, config.mbom.fieldIdMBOM     + siteSuffix, { 'link' : mbomLink });
-    addFieldToPayload(paramsEBOM.sections, wsEBOM.sections, null, config.mbom.fieldIdLastSync + siteSuffix, value);
-    addFieldToPayload(paramsEBOM.sections, wsEBOM.sections, null, config.mbom.fieldIdLastUser + siteSuffix, userAccount.displayName);
+    addFieldToPayload(params.sections, wsEBOM.sections, null, config.mbom.fieldIdMBOM     + siteSuffix, { link : linkMBOM });
+    addFieldToPayload(params.sections, wsEBOM.sections, null, config.mbom.fieldIdLastSync + siteSuffix, value);
+    addFieldToPayload(params.sections, wsEBOM.sections, null, config.mbom.fieldIdLastUser + siteSuffix, userAccount.displayName);
 
-    $.post('/plm/edit', paramsEBOM, function() {});
+    $.post('/plm/edit', params, function() {});
+
+}
+function storeContextMBOMLink() {
+
+    if(isBlank(links.context)) return;
+
+    let requests = [
+        $.get('/plm/details' , { link : links.context }),
+        $.get('/plm/sections', { link : links.context })
+    ]
+
+    Promise.all(requests).then(function(responses) {
+
+        let valueMBOM = getSectionFieldValue(responses[0].data.sections, config.mbom.fieldIdMBOM, '', 'link');
+        
+        if(isBlank(valueMBOM)) {
+
+            let params = { link : links.context, sections : [] }
+
+            addFieldToPayload(params.sections, responses[1].data, null, config.mbom.fieldIdMBOM + siteSuffix, { link : links.mbom });
+
+            $.post('/plm/edit', params, function() {});
+
+        }
+
+    });
 
 }
 function initEditor() {
