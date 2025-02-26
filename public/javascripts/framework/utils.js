@@ -754,6 +754,7 @@ function getPanelSettings(link, params, defaults, additional) {
     if(isBlank(defaults.groupLayout)      ) defaults.groupLayout       = 'column';
     if(isBlank(defaults.additionalData)   ) defaults.additionalData    = [];
     if(isBlank(defaults.contentSize)      ) defaults.contentSize       = 'xs';
+    if(isBlank(defaults.contentSizes)     ) defaults.contentSizes      = [];
     if(isBlank(defaults.tileIcon)         ) defaults.tileIcon          = 'icon-product';
     if(isBlank(defaults.tileImage)        ) defaults.tileImage         = true;
     if(isBlank(defaults.tileTitle)        ) defaults.tileTitle         = 'DESCRIPTOR';
@@ -770,6 +771,8 @@ function getPanelSettings(link, params, defaults, additional) {
     if(isBlank(defaults.disconnectLabel)  ) defaults.disconnectLabel   = 'Remove';
     if(isBlank(defaults.disconnectIcon)   ) defaults.disconnectIcon    = 'icon-disconnect';
     if(isBlank(defaults.afterCompletion)  ) defaults.afterCompletion   = function (id) {};
+
+    if(!isBlank(params.contentSizes)) params.contentSize = params.contentSizes[0];
 
     let settings = {
         link              : link,
@@ -798,6 +801,7 @@ function getPanelSettings(link, params, defaults, additional) {
         additionalData    : isBlank(params.additionalData)    ? defaults.additionalData : params.additionalData,
         number            : isBlank(params.number)            ? true : params.number,
         contentSize       : isBlank(params.contentSize)       ? defaults.contentSize  : params.contentSize,
+        contentSizes      : isBlank(params.contentSizes)      ? defaults.contentSizes  : params.contentSizes,
         tileIcon          : isBlank(params.tileIcon)          ? defaults.tileIcon  : params.tileIcon,
         tileImage         : isBlank(params.tileImage)         ? defaults.tileImage : params.tileImage,
         tileImageFieldId  : '',
@@ -1365,6 +1369,31 @@ function panelToggleSearchMode(id, elemClicked) {
     elemClicked.siblings('.icon-continue').css('z-index', '-1');  
 
     filterPanelContent(id);
+
+}
+function genPanelResizeButton(id, settings) {
+
+    if(settings.contentSizes.length === 0) return;
+
+    let elemButtonResize = $('#' + id + '-resize');
+
+    if(elemButtonResize.length > 0) return elemButtonResize;
+
+    let elemToolbar = genPanelToolbar(id, settings, 'controls');
+
+    elemButtonResize = $('<div></div>').appendTo(elemToolbar)
+        .addClass('button')
+        .addClass('icon')
+        .addClass('icon-resize')
+        .attr('id', id + '-resize')
+        .attr('title', 'Cycle through alternate display sizes')
+        .click(function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            panelResizeContents(id, settings.contentSizes);
+        });
+
+    return elemButtonResize;
 
 }
 function genPanelReloadButton(id, settings) {
@@ -2349,6 +2378,23 @@ function searchInTiles(id, elemInput) {
 }
 
 
+// Cycle through defined content sizes
+function panelResizeContents(id, contentSizes) {
+
+    let elemContent = $('#' + id + '-content');
+
+    for(let index = 0; index < contentSizes.length; index++) {
+        if(elemContent.hasClass(contentSizes[index])) {
+            elemContent.removeClass(contentSizes[index]);
+            let indexNew = (index + 1) % contentSizes.length;
+            elemContent.addClass(contentSizes[indexNew]);
+            return;
+        }
+    }
+
+}
+
+
 // Generate list of tiles
 function genTilesList(id, items, settings) {
 
@@ -2444,6 +2490,9 @@ function genTilesList(id, items, settings) {
             togglePanelToolbarActions($(this));
             updatePanelCalculations(id);
             if(!isBlank(settings.onClickItem)) settings.onClickItem($(this));
+            if(!isBlank(settings.viewerSelection)) {
+                if(settings.viewerSelection) selectInViewer(id);
+            }
         }).dblclick(function(e) {
             e.preventDefault();
             e.stopPropagation();
@@ -2843,6 +2892,9 @@ function genTableRows(id, elemTBody, settings, items, editableFields) {
                 togglePanelToolbarActions($(this));
                 updatePanelCalculations(id);
                 if(!isBlank(settings.onClickItem)) settings.onClickItem($(this));
+                if(!isBlank(settings.viewerSelection)) {
+                    if(settings.viewerSelection) selectInViewer(id);
+                }
             }).dblclick(function(e) {
                 e.preventDefault();
                 e.stopPropagation();
@@ -3929,12 +3981,12 @@ function getBOMPartsList(settings, data) {
         }
     }
 
-    getBOMParts(settings, parts, data.root, data.edges, data.nodes, 1.0, []);
+    getBOMParts(settings, parts, data.root, data.edges, data.nodes, 1.0, 2, []);
 
     return parts;
 
 }
-function getBOMParts(settings, parts, parent, edges, nodes, quantity, path) {
+function getBOMParts(settings, parts, parent, edges, nodes, quantity, level, path) {
 
     let result = { hasChildren : false };
 
@@ -3949,8 +4001,12 @@ function getBOMParts(settings, parts, parent, edges, nodes, quantity, path) {
             let node = { 
                 quantity    : getBOMEdgeValue(edge, settings.urns.quantity, null, 0) * quantity,
                 partNumber  : getBOMCellValue(edge.child, settings.urns.partNumber, nodes),
+                linkParent  : edge.edgeLink.split('/bom-items')[0],
+                parent      : path[path.length - 1],
+                level       : level,
                 path        : path.slice(),
-                fields      : []
+                fields      : [],
+                edgeId      : edge.edgeId
             }
 
             node.path.push(node.partNumber);
@@ -3961,8 +4017,9 @@ function getBOMParts(settings, parts, parent, edges, nodes, quantity, path) {
 
                 if(bomNode.item.urn === edge.child) {
 
-                    node.link       = bomNode.item.link;
-                    node.title      = bomNode.item.title;
+                    node.link   = bomNode.item.link;
+                    node.title  = bomNode.item.title;
+                    node.root   = bomNode.rootItem.link;
 
                     for(let field of settings.viewFields) {
 
@@ -3998,7 +4055,7 @@ function getBOMParts(settings, parts, parent, edges, nodes, quantity, path) {
 
 
 
-            let nodeBOM = getBOMParts(settings, parts, edge.child, edges, nodes, node.quantity, node.path);
+            let nodeBOM = getBOMParts(settings, parts, edge.child, edges, nodes, node.quantity, level + 1, node.path);
 
             node.hasChildren = nodeBOM.hasChildren;
 

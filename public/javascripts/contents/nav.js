@@ -22,8 +22,8 @@ function insertMOW(params) {
     genPanelFilterToggle(id, settings.mow[id], 'filterByDueDate', 'due', 'Due Tasks');
     genPanelFilterSelect(id, settings.mow[id], 'filterByWorkspace', 'workspace', 'All Workspaces');
     genPanelSearchInput(id, settings.mow[id]);
+    genPanelResizeButton(id, settings.mow[id]);
     genPanelReloadButton(id, settings.mow[id]);
-    
     genPanelContents(id, settings.mow[id]);
 
     insertMOWDone(id);
@@ -153,6 +153,7 @@ function insertRecentItems(params) {
     genPanelSelectionControls(id, settings.recents[id]);
     genPanelFilterSelect(id, settings.recents[id].filterByWorkspace, 'workspace', 'All Workspaces');
     genPanelSearchInput(id, settings.recents[id]);
+    genPanelResizeButton(id, settings.recents[id]);
     genPanelReloadButton(id, settings.recents[id]);
     
     genPanelContents(id, settings.recents[id]);
@@ -253,6 +254,7 @@ function insertBookmarks(params) {
     genPanelSelectionControls(id, settings.bookmarks[id]);
     genPanelFilterSelect(id, settings.bookmarks[id], 'filterByWorkspace', 'workspace', 'All Workspaces');
     genPanelSearchInput(id, settings.bookmarks[id]);
+    genPanelResizeButton(id, settings.bookmarks[id]);
     genPanelReloadButton(id, settings.bookmarks[id]);
     
     genPanelContents(id, settings.bookmarks[id]);
@@ -381,6 +383,7 @@ function insertWorkspaceViews(wsId, params) {
         });
 
     genPanelSearchInput(id, settings.workspaceViews[id]);
+    genPanelResizeButton(id, settings.workspaceViews[id]);
     genPanelReloadButton(id, settings.workspaceViews[id]);
     
     setWorkspaceViewsSelector(id);
@@ -578,6 +581,7 @@ function insertWorkspaceItems(wsId, params) {
     genPanelSelectionControls(id, settings.workspaceItems[id]);
 
     genPanelSearchInput(id, settings.workspaceItems[id]);
+    genPanelResizeButton(id, settings.workspaceItems[id]);
     genPanelReloadButton(id, settings.workspaceItems[id]);
     
     genPanelContents(id, settings.workspaceItems[id]);
@@ -729,9 +733,6 @@ function insertWorkspaceItemsDataDone(id, response) {}
 
 
 
-
-
-
 // Insert basic SEARCH capability
 function insertSearch(params) {
 
@@ -752,7 +753,7 @@ function insertSearch(params) {
         [ 'buttonLabel'         , 'Search' ],
         [ 'limit'               , 25 ],
         [ 'baseQuery'           , '' ],
-        [ 'groupBy'        , '' ],
+        [ 'groupBy'             , '' ],
         [ 'sortBy'              , '' ],
         [ 'workspaceIds'        , [] ],
         [ 'exactMatch'          , false ],
@@ -770,6 +771,7 @@ function insertSearch(params) {
     genPanelFilterSelect(id, settings.search[id].filterByOwner, 'owner', 'All Owners');
     genPanelFilterSelect(id, settings.search[id].filterByWorkspace, 'workspace', 'All Workspaces');
     genPanelSearchInput(id, settings.search[id]).hide();
+    genPanelResizeButton(id, settings.search[id]);
     genPanelReloadButton(id, settings.search[id]);
 
     genPanelToolbar(id, settings.search[id], 'actions');
@@ -1030,6 +1032,7 @@ function insertResults(wsId, filters, params) {
     genPanelSelectionControls(id, settings.results[id]);
     genPanelFilterToggleEmpty(id, settings.results[id]);
     genPanelSearchInput(id, settings.results[id]);
+    genPanelResizeButton(id, settings.results[id]);
     genPanelReloadButton(id, settings.results[id]);
 
     genPanelContents(id, settings.results[id]);

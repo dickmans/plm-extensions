@@ -932,6 +932,7 @@ function insertCreate(workspaceNames, workspaceIds, params) {
     }, function() {
         $('#' + id + '-content').find('.section.expanded').click();
     });
+    genPanelResizeButton(id, settings.create[id]);
     genPanelReloadButton(id, settings.create[id]);
 
     genPanelContents(id, settings.create[id]).addClass(settings.create[id].layout);
@@ -1533,6 +1534,7 @@ function insertDetails(link, params) {
     genPanelCloneButton(id, settings.details[id]);
     genPanelOpenInPLMButton(id, settings.details[id]);
     genPanelSearchInput(id, settings.details[id]);
+    genPanelResizeButton(id, settings.details[id]);
     genPanelReloadButton(id, settings.details[id]);
 
     genPanelContents(id, settings.details[id]).addClass(settings.details[id].layout);
@@ -2451,9 +2453,6 @@ function insertDetailsDataDone(id, sections, fields, data) {}
 // Insert Clone Dialog
 function insertClone(link, params) {
 
-    console.log(link);
-    console.log(params);
-    
     if(isBlank(link)) return;
     if(isBlank(params)) params = {};
 
@@ -2590,6 +2589,8 @@ function insertImagesData(id) {
 }
 function insertImagesDataDone(id, data) {}
 
+
+
 // Insert attachments as tiles or table
 function insertAttachments(link, params) {
 
@@ -2625,6 +2626,7 @@ function insertAttachments(link, params) {
     genPanelOpenInPLMButton(id, settings.attachments[id]);
     genPanelFilterSelect(id, settings.attachments[id], 'filterByType', 'type', 'All Types');
     genPanelSearchInput(id, settings.attachments[id]);
+    genPanelResizeButton(id, settings.attachments[id]);
     genPanelReloadButton(id, settings.attachments[id]);
     genPanelContents(id, settings.attachments[id]).addClass('attachments-content');
 
@@ -3366,6 +3368,7 @@ function insertGrid(link, params) {
     genPanelBookmarkButton(id, settings.grid[id]);
     genPanelOpenInPLMButton(id, settings.grid[id]);
     genPanelSearchInput(id, settings.grid[id]);
+    genPanelResizeButton(id, settings.grid[id]);
     genPanelReloadButton(id, settings.grid[id]);
 
     genPanelContents(id, settings.grid[id]);
@@ -3553,8 +3556,6 @@ function insertGridData(id) {
 
         }
 
-        console.log('10');
-
         finishPanelContentUpdate(id, settings.grid[id]);
         insertGridDataDone(id, responses[0].data, responses[1].data);
 
@@ -3736,6 +3737,7 @@ function insertBOM(link , params) {
 
     // }
     genPanelSearchInput(id, settings.bom[id]);
+    genPanelResizeButton(id, settings.bom[id]);
     genPanelReloadButton(id, settings.bom[id]);
 
     genPanelContents(id, settings.bom[id]);
@@ -4600,7 +4602,8 @@ function insertBOMPartsList(link , params) {
         [ 'depth'           , 10             ],
         [ 'hideParents'     , false          ],
         [ 'revisionBias'    , 'release'      ],
-        [ 'selectItems'     , {}             ]
+        [ 'selectItems'     , {}             ],
+        [ 'viewerSelection' , false          ]
     ]);
 
     settings.partList[id].load = function() { insertBOMPartsListData(id); }
@@ -4610,6 +4613,7 @@ function insertBOMPartsList(link , params) {
     genPanelOpenSelectedInPLMButton(id, settings.partList[id]);
     genPanelSelectionControls(id, settings.partList[id]);
     genPanelSearchInput(id, settings.partList[id]);
+    genPanelResizeButton(id, settings.partList[id]);
     genPanelReloadButton(id, settings.partList[id]);
     genPanelContents(id, settings.partList[id]);
 
@@ -4661,8 +4665,6 @@ function insertBOMPartsListData(id) {
                 }
             }
         }
-
-        console.log(parts);
 
         for(let part of parts) {
 
@@ -4720,7 +4722,6 @@ function insertBOMPartsListDataDone(id, response) {}
 
 
 
-
 // Insert Flat BOM with selected controls
 function insertFlatBOM(link , params) {
 
@@ -4764,6 +4765,7 @@ function insertFlatBOM(link , params) {
         });
 
     genPanelSearchInput(id, settings.flatBOM[id]);
+    genPanelResizeButton(id, settings.flatBOM[id]);
     genPanelReloadButton(id, settings.flatBOM[id] );
 
     genPanelContents(id, settings.flatBOM[id]);
@@ -4985,8 +4987,6 @@ function insertFlatBOMDataDone(id, data) {}
 
 
 
-
-
 // Insert Where Used immediate parents
 // function insertParents(link, id, icon, enableExpand) {
 
@@ -5141,7 +5141,8 @@ function insertRootParents(link, params) {
     genPanelFilterSelect(id, settings.roots[id], 'filterByLifecycle', 'lifecycle', 'All Lifecycles');
     genPanelFilterSelect(id, settings.roots[id], 'filterByWorkspace', 'workspace', 'All Workspaces');
     genPanelSearchInput(id, settings.roots[id]);
-    genPanelReloadButton(id, settings.roots[id], );
+    genPanelResizeButton(id, settings.roots[id]);
+    genPanelReloadButton(id, settings.roots[id]);
 
     genPanelContents(id, settings.roots[id]);
 
@@ -5349,6 +5350,7 @@ function insertParents(link, params) {
     genPanelFilterSelect(id, settings.parents[id], 'filterByLifecycle', 'lifecycle', 'All Lifecycles');
     genPanelFilterSelect(id, settings.parents[id], 'filterByWorkspace', 'workspace', 'All Workspaces');
     genPanelSearchInput(id, settings.parents[id]);
+    genPanelResizeButton(id, settings.parents[id]);
     genPanelReloadButton(id, settings.parents[id]);
 
     genPanelContents(id, settings.parents[id]);
@@ -5522,6 +5524,7 @@ function insertBOMChanges(link, params) {
     genPanelFilterSelect(id, settings.changes[id], 'filterByLifecycle', 'lifecycle', 'All Lifecycles');
     genPanelFilterSelect(id, settings.changes[id], 'filterByWorkspace', 'workspace', 'All Workspaces');
     genPanelSearchInput(id, settings.changes[id]);
+    genPanelResizeButton(id, settings.changes[id]);
     genPanelReloadButton(id, settings.changes[id]);
 
     genPanelContents(id, settings.changes[id]);
@@ -5866,6 +5869,7 @@ function insertManagedItems(link, params) {
     genPanelFilterSelect(id, settings.managedItems[id], 'filterByLifecycle', 'lifecycle', 'All Lifecycle Transitions');
     genPanelFilterSelect(id, settings.managedItems[id], 'filterByWorkspace', 'workspace', 'All Workspaces');
     genPanelSearchInput(id, settings.managedItems[id]);
+    genPanelResizeButton(id, settings.managedItems[id]);
     genPanelReloadButton(id, settings.managedItems[id]);
 
     genPanelContents(id, settings.managedItems[id]);
@@ -6070,6 +6074,7 @@ function insertChangeProcesses(link, params) {
     genPanelFilterSelect(id, settings.processes[id], 'filterByStatus'   , 'status'   , 'All States'    );
     genPanelFilterSelect(id, settings.processes[id], 'filterByWorkspace', 'workspace', 'All Workspaces');
     genPanelSearchInput(id, settings.processes[id]);
+    genPanelResizeButton(id, settings.processes[id]);
     genPanelReloadButton(id, settings.processes[id]);
 
     genPanelContents(id, settings.processes[id]);
@@ -6266,6 +6271,7 @@ function insertRelationships(link, params) {
     genPanelSelectionControls(id, settings.relationships[id]);
     genPanelFilterSelect(id, settings.relationships[id], 'filterByWorkspace', 'workspace', 'All Workspaces');
     genPanelSearchInput(id, settings.relationships[id]);
+    genPanelResizeButton(id, settings.relationships[id]);
     genPanelReloadButton(id, settings.relationships[id]);
 
     genPanelContents(id, settings.relationships[id]);
@@ -6391,6 +6397,7 @@ function insertWorkflowHistory(link, params) {
     genPanelHeader(id, settings.workflowHistory[id]);
     genPanelOpenInPLMButton(id, settings.workflowHistory[id]);
     genPanelSearchInput(id, settings.workflowHistory[id]);
+    genPanelResizeButton(id, settings.workflowHistory[id]);
     genPanelReloadButton(id, settings.workflowHistory[id]);
 
     genPanelContents(id, settings.workflowHistory[id]).addClass('workflow-history-content').removeClass('list');
@@ -6545,6 +6552,7 @@ function insertChangeLog(link, params) {
     genPanelFilterSelect(id, settings.changeLog[id], 'filterByUser', 'user', 'All Users');
     genPanelFilterSelect(id, settings.changeLog[id], 'filterByAction', 'action', 'All Actions');
     genPanelSearchInput(id, settings.changeLog[id]);
+    genPanelResizeButton(id, settings.changeLog[id]);
     genPanelReloadButton(id, settings.changeLog[id]);
 
     genPanelContents(id, settings.changeLog[id]);

@@ -10,6 +10,7 @@ let profiles = [{
         openInPLM           : true,
         openOnDblClick      : true,
         search              : true,
+        contentSizes        : ['xxs', 'xs', 's', 'm', 'l', 'xl', 'xxl'],
         reload              : true,
         filterByDueDate     : true,
         filterByOwner       : true,
