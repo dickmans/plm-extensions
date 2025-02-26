@@ -277,6 +277,7 @@
 .icon-released::before          { content : '\e031'; }
 .icon-remove::before            { content : '\e644'; }
 .icon-reset::before             { content : '\f053'; }
+.icon-resize::before            { content : '\ea10'; }
 .icon-rules::before             { content : '\f1c2'; }
 .icon-save::before              { content : '\e2c3'; }
 .icon-script::before            { content : '\e86f'; }
