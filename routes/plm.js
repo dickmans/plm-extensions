@@ -4435,6 +4435,31 @@ router.get('/script', function(req, res, next) {
 });
 
 
+/* ----- RUN ONDEMAND SCRIPT FOR ITEM ----- */
+router.get('/run-item-script', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /run-item-script');
+    console.log(' --------------------------------------------');  
+    console.log('  req.query.link      = ' + req.query.link);
+    console.log('  req.query.script    = ' + req.query.script);
+    console.log('  req.query.scriptId  = ' + req.query.scriptId);
+    console.log('  req.query.tenant    = ' + req.query.tenant);
+    console.log();
+
+    let scriptId = req.query.scriptId || req.query.script.split('/').pop();
+    let url      = getTenantLink(req) + req.query.link + '/scripts/' + scriptId;
+
+    axios.post(url, {}, {
+        headers : req.session.headers
+    }).then(function(response) {
+        sendResponse(req, res, response, false);
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+
+});
+
 /* ----- GET ROLES (V1) ----- */
 router.get('/roles', function(req, res, next) {
     
