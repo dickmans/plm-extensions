@@ -3598,6 +3598,23 @@ function openItemByID(wsId, dmsId) {
 }
 
 
+// Generate item url for opening the matching record
+function genItemURL(params) {
+
+    if(isBlank(params.wsId) ) params.wsId  = params.link.split('/')[4];
+    if(isBlank(params.dmsId)) params.dmsId = params.link.split('/')[6];
+    if(isBlank(params.tab)  ) params.tab   = 'detail';
+
+    let url  = 'https://' + tenant + '.autodeskplm360.net';
+        url += '/plm/workspaces/' + params.wsId;
+        url += '/items/itemDetails?view=full&tab=' + params.tab + '&mode=view&itemId=urn%60adsk,plm%60tenant,workspace,item%60';
+        url += tenant.toUpperCase() + ',' + params.wsId + ',' + params.dmsId;
+
+    return url;
+
+}
+
+
 
 // Get workspace name based on workspace id and vice versa
 function getWorkspaceIdsFromNames(settings, callback) {
