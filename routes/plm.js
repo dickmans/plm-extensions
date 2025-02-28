@@ -3083,35 +3083,40 @@ router.get('/search', function(req, res) {
     console.log(' ');
     console.log('  /search');
     console.log(' --------------------------------------------');
-    console.log('  req.query.wsId   = ' + req.query.wsId);
-    console.log('  req.query.latest = ' + req.query.latest);
-    console.log('  req.query.sort   = ' + req.query.sort);
-    console.log('  req.query.fields = ' + req.query.fields);
-    console.log('  req.query.filter = ' + req.query.filter);
+    console.log('  req.query.wsId        = ' + req.query.wsId);
+    console.log('  req.query.link        = ' + req.query.link);
+    console.log('  req.query.latest      = ' + req.query.latest);
+    console.log('  req.query.sort        = ' + req.query.sort);
+    console.log('  req.query.fields      = ' + req.query.fields);
+    console.log('  req.query.filter      = ' + req.query.filter);
+    console.log('  req.query.pageNo      = ' + req.query.pageNo);
+    console.log('  req.query.pageSize    = ' + req.query.pageSize);
+    console.log('  req.query.logicClause = ' + req.query.logicClause);
     console.log();
 
-   let url = req.app.locals.tenantLink + '/api/rest/v1/workspaces/' + req.query.wsId + '/items/search';
+    let wsId = (typeof req.query.wsId === 'undefined') ? req.query.link.split('/')[4] : req.query.wsId;
+    let url  = req.app.locals.tenantLink + '/api/rest/v1/workspaces/' + wsId + '/items/search';
    
-   let params = {
-       'pageNo'        : 1,
-       'pageSize'      : 100,
-       'logicClause'   : 'AND',
-       'fields'        : [],
-       'filter'        : [],
-       'sort'          : []
-   };
+    let params = {
+       pageNo        : req.query.pageNo || 1,
+       pageSize      : Number(req.query.pageSize) || 100,
+       logicClause   : req.query.logicClause || 'AND',
+       fields        : [],
+       filter        : [],
+       sort          : []
+    };
 
-   setBodyFields(params, req.query.fields);
-   setBodySort(params, req.query.sort);
-   setBodyFilter(params, req.query.filter);
+    setBodyFields(params, req.query.fields);
+    setBodySort(params, req.query.sort);
+    setBodyFilter(params, req.query.filter || []);
 
     if(typeof req.query.latest !== 'undefined') {
         if(req.query.latest) {
             params.filter.push({ 
-                'fieldID'       : 'LC_RELEASE_LETTER',
-                'fieldTypeID'   : '10',
-                'filterType'    : { 'filterID' : 20 },
-                'filterValue'   : 'true'      
+                fieldID       : 'LC_RELEASE_LETTER',
+                fieldTypeID   : '10',
+                filterType    : { 'filterID' : 20 },
+                filterValue   : 'true'      
             }); 
         }
     }
@@ -3158,17 +3163,32 @@ function getFieldType(fieldID) {
    
    switch(fieldID) {
            
-       case 'WF_CURRENT_STATE':
-           fieldType = 1;
-           break;
+        case 'OWNER_USERID':
+        case 'CREATED_ON':
+        case 'CREATED_BY_USERID': 
+        case 'LAST_MODIFIED_ON': 
+        case 'LAST_MODIFIED_BY': 
+            fieldType = 3; 
+            break;
+       
+       case 'LATEST_RELEASE': 
+       case 'WORKING': 
+       case 'LC_RELEASE_LETTER': 
+       case 'LIFECYCLE_NAME': 
+            fieldType = 10; 
+            break;
+
+        case 'WF_CURRENT_STATE': 
+        case 'WF_LAST_TRANS': 
+        case 'WF_LAST_COMMENTS': 
+            fieldType = 1; 
+            break;
     
-       case 'DESCRIPTOR':
-           fieldType = 15;
-           break;
+        case 'DESCRIPTOR': fieldType = 15;    break;
            
-   }
+    }
    
-   return fieldType;
+    return fieldType;
    
 }
 function setBodySort(body, sorts) {
@@ -3195,7 +3215,7 @@ function setBodyFilter(body, filters) {
 //    console.log(' > START setBodyFilter');
    
    body.filter = [];
-   
+
    for(let filter of filters) {
 
         if(typeof filter.value === 'undefined') {
@@ -3212,7 +3232,7 @@ function setBodyFilter(body, filters) {
         }
         
     }
-   
+
 }
 
 
@@ -4174,9 +4194,11 @@ router.get('/workspace-counter', function(req, res, next) {
     console.log('  /workspace-counter');
     console.log(' --------------------------------------------');  
     console.log('  req.query.wsId = ' + req.query.wsId);
+    console.log('  req.query.link = ' + req.query.link);
     console.log();
 
-    let url = req.app.locals.tenantLink + '/api/v3/search-results?limit=1&offset=0&query=workspaceId%3D' + req.query.wsId;
+    let wsId = (typeof req.query.wsId === 'undefined') ? req.query.link.split('/')[4] : req.query.wsId;
+    let url  = req.app.locals.tenantLink + '/api/v3/search-results?limit=1&offset=0&query=workspaceId%3D' + wsId;
 
     axios.get(url, {
         headers : req.session.headers
