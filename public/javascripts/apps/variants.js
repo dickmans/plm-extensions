@@ -6,7 +6,7 @@ let listVariants    = [];
 let fieldsVariant   = [];
 let classesViewer   = [ 'standard', 'viewer-left', 'viewer-off'];
 let modeViewer      = 0;
-let linkContext     = '/api/v3/workspaces/' + wsId + '/items/' + dmsId;
+let urlParameters   = getURLParameters();
 let pendingActions;
 
 let paramsSummary = {
@@ -81,8 +81,8 @@ $(document).ready(function() {
 
     getFeatureSettings('variants', [$.get( '/plm/search', params)], function(responses) {
         getInitialData(responses[0]);
-        insertViewer(linkContext);
-        insertItemSummary(linkContext, paramsSummary);
+        insertViewer(urlParameters.link);
+        insertItemSummary(urlParameters.link, paramsSummary);
     });
     
 });
@@ -238,7 +238,7 @@ function getVariantsWSConfig() {
 
     $('#button-create-variant').removeClass('disabled');
 
-    insertBOM(linkContext, { 
+    insertBOM(urlParameters.link, { 
         headerLabel      : 'BOM & Variants', 
         bomViewName      : config.variants.bomViewNameItems, 
         reset            : true, 
@@ -695,7 +695,7 @@ function getVariantNumber(descriptor) {
 // Update item summary after item selection
 function setItemSummary(elemClicked) {
 
-    let link = (elemClicked.hasClass('selected')) ? elemClicked.attr('data-link') : linkContext;
+    let link = (elemClicked.hasClass('selected')) ? elemClicked.attr('data-link') : urlParameters.link;
 
     insertItemSummary(link, paramsSummary);
 
