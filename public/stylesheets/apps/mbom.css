@@ -114,8 +114,10 @@ body.details-on #tabs            { right : calc((5 * var(--padding-panel)) + var
 body.details-on #divider-mbom    { right : calc(var(--width-mbom) + var(--width-summary) + (4 * var(--padding-panel)) - 2px); }
 body.details-on #mbom            { right : calc(var(--width-summary) + (3 * var(--padding-panel))); }
 body.details-on #summary         { right : 0px; }
-/* body.details-on #details         { right : 0px; } */
-/* body.details-on #attachments     { right : 0px; } */
+
+body.details-on.no-viewer #tabs         { right : calc(50% + (var(--width-summary) / 2) + (2 * var(--padding-panel)) ); }
+body.details-on.no-viewer #divider-mbom { right : calc(50% + (var(--width-summary) / 2) + var(--padding-panel)); }
+body.details-on.no-viewer #mbom         { width : calc(50% - (3 * var(--padding-panel)) - 2px - (var(--width-summary) / 2)); }
 
 
 
