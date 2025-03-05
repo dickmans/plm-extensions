@@ -215,6 +215,28 @@ function reloadPage(ret) {
 }
 
 
+// Parse URL options and return JSON
+function getURLParameters() {
+
+    let result = {
+        link  : '/api/v3/workspaces/' + wsId + '/items/' + dmsId,
+        wsId  : wsId,
+        dmsId : dmsId
+    };
+
+    for(let option of options) {
+
+        let split   = option.split(':');
+        let key     = split[0].toLowerCase();
+        result[key] = split[1];
+
+    }
+
+    return result;
+
+}
+
+
 // Validate if given variable is null or empty
 function isBlank(value) {
 
