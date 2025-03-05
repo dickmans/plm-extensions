@@ -240,6 +240,14 @@ exports.config = {
         fieldIdPRContext     : 'AFFECTED_ITEM',
         wsIdSupplierPackages : 147,
         kpis : [
+            // ------------------------------------------------------------------------------------------------------------------
+            // Use the following parameters to define the KPIs:
+            //  - fieldId       : Field / selectable containing the value of the KPI
+            //  - sortBy        : value (numeric value), label (text being displayed) or count (item count). Default is count
+            //  - sortDirection : ascending or descending. Default is descending
+            //  - title         : Label being displayed as KPI title
+            //  - type          : non-empty (validates if value is set or not), value, days
+            // ------------------------------------------------------------------------------------------------------------------
             { id : 'lifecycle', title : 'Item Lifecycle', fieldId : 'LIFECYCLE', type : 'value', style : 'counters', data : [
                 { value : 'Working',     color : colors.list[0], vector : vectors.red    },
                 { value : 'Pre-Release', color : colors.list[2], vector : vectors.yellow },
@@ -256,13 +264,13 @@ exports.config = {
                 { value : 'Working'   , color : colors.list[2], vector : vectors.yellow },
                 { value : 'Latest'    , color : colors.list[4], vector : vectors.green  }
             ]},   
-            { id : 'release-date', title : 'Release Date', fieldId : 'RELEASE_DATE', type : 'days', style : 'bars', data : [] },
+            { id : 'release-date', title : 'Release Date', fieldId : 'RELEASE_DATE', type : 'days', style : 'bars', data : [], sortBy : 'value', sortDirection : 'ascending' },
             { id : 'type', title : 'Type', fieldId : 'TYPE', type : 'value', style : 'bars', data : [] },
             { id : 'top-level-class-name', title : 'Top Level Class', fieldId : 'TOP_LEVEL_CLASS', type : 'value', style : 'bars', data : [] },
             { id : 'class-name', title : 'Class', fieldId : 'CLASS_NAME', type : 'value', style : 'bars', data : [] },
             { id : 'pdm-category', title : 'PDM Category', fieldId : 'PDM_CATEGORY', type : 'value', style : 'bars', data : [] },
             { id : 'pdm-location', title : 'PDM Location', fieldId : 'PDM_LOCATION', type : 'value', style : 'bars', data : [] },
-            { id : 'pdm-last-modification-date', title : 'PDM Last Modification', fieldId : 'PDM_LAST_MODIFICATION_DATE', type : 'days', style : 'bars', data : [] },
+            { id : 'pdm-last-modification-date', title : 'PDM Last Modification', fieldId : 'PDM_LAST_MODIFICATION_DATE', type : 'days', style : 'bars', data : [], sortBy : 'value', sortDirection : 'ascending' },
             { id : 'responsible-designer', title : 'Responsible Designer', fieldId : 'RESPONSIBLE_DESIGNER', type : 'value', style : 'bars', data : [] },
             { id : 'spare-part', title : 'Spare Part', fieldId : 'SPARE_WEAR_PART', type : 'value', style : 'counters', data : [
                 { value : '-'        , color : colors.list[0], vector : vectors.red },
@@ -282,7 +290,7 @@ exports.config = {
             { id : 'vendor', title : 'Vendor', fieldId : 'VENDOR', type : 'value', style : 'bars', data : [] },
             { id : 'country', title : 'Country', fieldId : 'COUNTRY', type : 'value', style : 'bars', data : [] },
             { id : 'total-cost', title : 'Total Cost', fieldId : 'TOTAL_COST', type : 'value', style : 'bars', data : [] },
-            { id : 'lead-time', title : 'Lead Time', fieldId : 'LEAD_TIME', type : 'value', sort : 'value', style : 'bars', data : [] },
+            { id : 'lead-time', title : 'Lead Time', fieldId : 'LEAD_TIME', type : 'value', sortBy : 'value', style : 'bars', data : [] },
             { id : 'long-lead-time', title : 'Long Lead Time', fieldId : 'LONG_LEAD_TIME', type : 'value', style : 'counters', data : [
                 { value : 'Yes' , color : colors.list[0], vector : vectors.red },
                 { value : '-'   , color : colors.list[2], vector : vectors.yellow },

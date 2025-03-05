@@ -634,36 +634,39 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom) {
             for(let kpi of kpis) {
 
                 let kpiValue = getBOMCellValue(edge.child, kpi.urn, bom.nodes, 'title');
+                let kpiLabel = kpiValue;
 
                 if(kpi.type === 'non-empty') {
                     kpiValue = (kpiValue === '' ) ? 'No' : 'Yes';
-                } else if(kpi.type === 'days') {
-                    if(kpiValue === '') kpiValue = '-'
-                    else {
+                    kpiLabel = kpiValue;
+                } else if(kpi.type == 'days') {
+                    if(kpiValue === '') {
+                        kpiLabel = '-';
+                    } else {
                         let day  = kpiValue.split(' ')[0].split('-');
                         let date = new Date(day[0], day[1], day[2].split('T')[0]);
                         var diff = now.getTime() - date.getTime();
                         kpiValue = diff / (1000 * 3600 * 24);
                         kpiValue = Math.round(kpiValue, 0);
-                        kpiValue = kpiValue + ' days ago';
+                        kpiLabel = kpiValue + ' days ago';
                     }
                 } else if(kpi.type === 'value') {
-                    kpiValue = (kpiValue === '' ) ? '-' : kpiValue;
+                    kpiLabel = (kpiValue === '' ) ? '-' : kpiValue;
                 }
 
                 newBOMItem[kpi.id] = kpiValue;
-                parseKPI(kpi, kpiValue);
+                parseKPI(kpi, kpiValue, kpiLabel);
     
             }
 
-            for(bomItem of bomItems) {
+            for(let bomItem of bomItems) {
 
                 if(bomItem.urn === edge.child) { newItem = false; break; }
             }
 
             if(newItem) bomItems.push(newBOMItem);
 
-            for(node of bom.nodes) {
+            for(let node of bom.nodes) {
                 if(node.item.urn === edge.child) {
                     elemRow.attr('data-dmsId',      node.item.link.split('/')[6]);
                     elemRow.attr('data-link',       node.item.link);
@@ -1008,7 +1011,7 @@ function valueChanged(elemControl) {
     })
 
 }
-function parseKPI(kpi, value) {
+function parseKPI(kpi, value, label) {
 
     let isNew = true;
 
@@ -1021,10 +1024,11 @@ function parseKPI(kpi, value) {
     }
 
     if(isNew) kpi.data.push({ 
-        'value'     : value, 
-        'count'     : 1, 
-        'color'     : config.colors.list[ kpi.data.length % config.colors.list.length ],
-        'vector'    : config.vectors.list[kpi.data.length % config.vectors.list.length] 
+        value     : value, 
+        label     : label,
+        count     : 1, 
+        color     : config.colors.list[ kpi.data.length % config.colors.list.length ],
+        vector    : config.vectors.list[kpi.data.length % config.vectors.list.length] 
     });
 
 }
@@ -1032,47 +1036,44 @@ function insertKPI(kpi) {
 
     let elemDashboard = $('#dashboard-panel');
     
-    let elemKPI = $('<div></div>');
-        elemKPI.attr('data-kpi-id', kpi.id);
-        elemKPI.addClass('kpi');
-        elemKPI.appendTo(elemDashboard);
-        // elemKPI.click(function() {
-        //     $(this).toggleClass('collapsed');
-        //     $(this).find('.kpi-values').toggle();
-        // });
+    let elemKPI = $('<div></div>').appendTo(elemDashboard)
+        .attr('data-kpi-id', kpi.id)
+        .addClass('kpi');
 
-    let elemKPISelect = $('<div></div>');
-        elemKPISelect.addClass('kpi-selector');
-        elemKPISelect.appendTo(elemKPI);
-        elemKPISelect.click(function(e) {
+    $('<div></div>').appendTo(elemKPI)
+        .addClass('kpi-selector')
+        .click(function(e) {
             e.preventDefault();
             e.stopPropagation();
             selectKPI($(this).parent());
         });
 
-    let elemKPIHeader = $('<div></div>');
-        elemKPIHeader.addClass('kpi-header');
-        elemKPIHeader.html(kpi.title);
-        elemKPIHeader.appendTo(elemKPI);
-        elemKPIHeader.click(function() {
+    $('<div></div>').appendTo(elemKPI)
+        .addClass('kpi-header')
+        .html(kpi.title)
+        .click(function() {
             $(this).parent().toggleClass('collapsed');
             $(this).parent().find('.kpi-values').toggle();
         });
 
-    let elemKPIValues = $('<div></div>');
-        elemKPIValues.addClass('kpi-values');
-        elemKPIValues.addClass(kpi.style);
-        elemKPIValues.appendTo(elemKPI);
+    let elemKPIValues = $('<div></div>').appendTo(elemKPI)
+        .addClass('kpi-values')
+        .addClass(kpi.style);
+        
 
     if(kpi.style === 'bars') {
 
-        let sort = (typeof kpi.sort === 'undefined') ? 'count' : kpi.sort;
+        let sortBy        = kpi.sortBy        || 'count';
+        let sortDirection = kpi.sortDirection || 'descending';
 
-        sortArray(kpi.data, sort, 'number', 'descending');
+        sortBy        = sortBy.toLowerCase();
+        sortDirection = sortDirection.toLowerCase();
+
+        sortArray(kpi.data, sortBy, 'number', sortDirection);
 
         let max = 1; 
 
-        for(entry of kpi.data) {
+        for(let entry of kpi.data) {
             if(entry.count > max) max = entry.count;
         }
 
@@ -1083,13 +1084,14 @@ function insertKPI(kpi) {
     for(let entry of kpi.data) {
 
         let color =  entry.color;
-        let label = (entry.value === '') ? '-' : entry.value;
+        let label = entry.label || entry.value;
 
-        let elemKPIValue = $('<div></div>');
-            elemKPIValue.attr('data-filter', entry.value);
-            elemKPIValue.addClass('kpi-value');
-            elemKPIValue.appendTo(elemKPIValues);
-            elemKPIValue.click(function(e) {
+        if(label === '') label = '-';
+
+        let elemKPIValue = $('<div></div>').appendTo(elemKPIValues)
+            .attr('data-filter', entry.value)
+            .addClass('kpi-value')
+            .click(function(e) {
                 e.preventDefault();
                 e.stopPropagation();
                 selectKPIValue(e, $(this));
@@ -1134,7 +1136,7 @@ function selectKPI(elemClicked) {
 
     if(isSelected) return; 
         
-    for(kpi of kpis) {
+    for(let kpi of kpis) {
         if(kpi.id === id) {
             kpiData = kpi.data;
             break;
@@ -1156,8 +1158,8 @@ function selectKPI(elemClicked) {
         let vector      = null;
         let partNumbers = [];
 
-        for(entry of kpiData) {
-            if(entry.value === filter) {
+        for(let entry of kpiData) {
+            if(entry.value == filter) {
                 color  = entry.color;
                 vector = entry.vector;
                 break;
@@ -1169,13 +1171,13 @@ function selectKPI(elemClicked) {
             let value   = null;
             let urn     = $(this).attr('data-urn');
 
-            for (bomItem of bomItems) {
+            for (let bomItem of bomItems) {
                 if(bomItem.urn === urn) {
-                    value = bomItem[id];
+                    value = bomItem[id].toString();
                 }
             }
 
-            if(value === filter) {
+            if(value == filter) {
                 partNumbers.push($(this).attr('data-part-number'));
                 $(this).find('.bom-color').css('background', color);
             }
@@ -1231,7 +1233,7 @@ function applyFilters() {
         let value   = $(this).attr('data-filter');
         let isNew   = true;
 
-        for(filter of filters) {
+        for(let filter of filters) {
             if(filter.id === id) {
                 filter.values.push(value);
                 isNew = false;
@@ -1239,8 +1241,8 @@ function applyFilters() {
         }
 
         if(isNew) filters.push({
-            'id'     : id,
-            'values' : [value]
+            id     : id,
+            values : [value]
         });
 
     });
@@ -1252,10 +1254,10 @@ function applyFilters() {
         let isVisible   = true;
         let urn         = $(this).attr('data-urn');
 
-        for(bomItem of bomItems) {
+        for(let bomItem of bomItems) {
             if(bomItem.urn === urn) {
-                for(filter of filters) {
-                    let value = bomItem[filter.id];
+                for(let filter of filters) {
+                    let value = bomItem[filter.id].toString();
                     if(filter.values.indexOf(value) < 0) isVisible = false;
                 }
                 break;

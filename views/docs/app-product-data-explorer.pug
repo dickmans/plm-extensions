@@ -202,11 +202,14 @@
                     td fieldId 
                     td ID of the given item details field to retrieve the given value - or the id of the given BOM column 
                 tr 
-                    td urn 
-                    td Is set during runtime, leave it blank 
+                    td sortBy 
+                    td Select value (KPI label value), label (text being displayed in the KPI's bar / element) or count (KPI item count). Default is count.
+                tr 
+                    td sortDirection
+                    td Select ascending or descending. Default is descending.
                 tr  
                     td type 
-                    td Defines if the KPI should be based on the given value (value) or if it should just indiate if the given field is not empty (non-empty)
+                    td Defines if the KPI should be based on the given value (value) or if it should just indiate if the given field is not empty (non-empty). Use 'days' when comparing date fields.
                 tr  
                     td style 
                     td Select if the KPI should be presented as counters or colored bars with value. No matter which style you choose, users will be able to filter using the given KPI anyway.
@@ -223,6 +226,10 @@
     .log 
         h1 Product Data Explorer Change Log 
         table 
+            tr 
+                td 5. March 2025
+                td Enhancement 
+                td The definition of KPIs now also supports parameters sortBy and sortDirection. With these settings, KPIs can be sorted in ascending order (see Release Date in example configuration).
             tr 
                 td 18. December 2024
                 td Enhancement 
