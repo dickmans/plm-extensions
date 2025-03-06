@@ -580,7 +580,8 @@ function setBOMData(bom, flatBom) {
         else {
             for(let kpi of kpis) {
                 if(field.fieldId === kpi.fieldId) {
-                    kpi.urn = field.__self__.urn;
+                    kpi.urn       = field.__self__.urn;
+                    kpi.fieldType = field.type.title;
                 }
             }
         }
@@ -1014,6 +1015,11 @@ function valueChanged(elemControl) {
 function parseKPI(kpi, value, label) {
 
     let isNew = true;
+    let type  = kpi.fieldType;
+
+    if(value !== '') {
+        if(type === 'Float') value = parseFloat(value);
+    }
 
     for(let entry of kpi.data) {
         if(entry.value == value) {
