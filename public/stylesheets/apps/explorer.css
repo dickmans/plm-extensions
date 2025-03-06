@@ -390,12 +390,6 @@ body.no-bom-tree #bom-tree { display : none; }
 #save-bom-changes { display : none; }
 
 
-/* VIEWER */
-/* ----------------------------------------------------------------------------- */
-#navTools { display : none; }
-
-
-
 /* ATTACHMENTS */
 /* ----------------------------------------------------------------------------- */
 #attachments-content {
