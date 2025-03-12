@@ -3468,6 +3468,7 @@ function insertGridData(id) {
                     for(let field of columns) {
                         let value    = getGridRowValue(row, field.fieldId, '', 'title');
                         let elemCell = $('<td></td>').appendTo(elemTableRow)
+                            .addClass('column-' + field.fieldId)
                             .attr('data-id', field.fieldId);
 
                         
