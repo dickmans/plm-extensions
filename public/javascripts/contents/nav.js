@@ -506,7 +506,7 @@ function insertWorkspaceViewData(id) {
             }
         }
 
-        for(let row of responses[1].data) {
+        for(let row of responses[1].data.items) {
 
             let item = genPanelContentItem(settings.workspaceViews[id], { link : row.item.link} );
 
@@ -545,7 +545,7 @@ function insertWorkspaceViewData(id) {
         }
 
         finishPanelContentUpdate(id, settings.workspaceViews[id], items);
-        changeWorkspaceViewDone(id, responses[0], responses[1]);
+        changeWorkspaceViewDone(id, responses[0], responses[1].data);
 
     });
 

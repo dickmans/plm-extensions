@@ -979,6 +979,39 @@ router.get('/change-summary', function(req, res, next) {
 });
 
 
+/* ----- SET ITEM OWNER ----- */
+router.post('/set-owner', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /set-owner');
+    console.log(' --------------------------------------------');
+    console.log('  req.body.wsId   = ' + req.body.wsId);
+    console.log('  req.body.dmsId  = ' + req.body.dmsId);
+    console.log('  req.body.link   = ' + req.body.link);
+    console.log('  req.body.owner  = ' + req.body.owner);
+    console.log('  req.body.notify = ' + req.body.notify);
+    console.log(' ');
+        
+    let link   = (typeof req.body.link !== 'undefined') ? req.body.link : '/api/v3/workspaces/' + req.body.wsId + '/items/' + req.body.dmsId;
+    let url    = req.app.locals.tenantLink + link + '/owners';
+    let notify = req.body.notify || false;
+
+    axios.put(url, [{
+        notify    : notify,
+        ownerType : 'PRIMARY',
+        __self__  : link + '/owners/' + req.body.owner
+    }],{
+        headers : req.session.headers
+    }).then(function(response) {
+        sendResponse(req, res, response, false);
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+    
+});
+
+
+
 /* ----- ITEM DETAILS ----- */
 router.get('/details', function(req, res, next) {
     
@@ -3793,10 +3826,17 @@ router.get('/tableau-data', function(req, res, next) {
     axios.get(url, {
         headers : req.session.headers
     }).then(function(response) {
-        let result = [];
-        if(response.data !== '') result = response.data.items;
-        if(typeof result === 'undefined') result = [];
-        sendResponse(req, res, { 'data' : result, 'status' : response.status }, false);
+        if(response.data !== '') {
+            if(typeof response.data.items === 'undefined') {
+                response.data.items = [];
+            }
+        } else {
+            response.data = {
+                items : []
+            };
+
+        }
+        sendResponse(req, res, response, false);
     }).catch(function(error) {
         sendResponse(req, res, error.response, true);
     });

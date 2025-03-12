@@ -321,7 +321,7 @@ function getProcesses() {
         let elemTable = $('#calendar-table-body');
             elemTable.html('');
 
-        for(let item of responses[0].data) {
+        for(let item of responses[0].data.items) {
 
             let status     = item.fields[3].value;
             let descriptor = item.fields[0].value;

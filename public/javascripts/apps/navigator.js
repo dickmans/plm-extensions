@@ -330,9 +330,9 @@ function setTableau() {
 
                 $('#tableau-processing').hide();
 
-                if(responses[1].data.length > 0) {
+                if(responses[1].data.items.length > 0) {
                     setTableauRows(elemTable, responses[0].data);
-                    setTableauColumns(elemTable, responses[1].data);
+                    setTableauColumns(elemTable, responses[1].data.items);
                 } else {
                     $('#tableau-empty').show();
                 }
@@ -704,7 +704,7 @@ function setTableauColumns(elemTable, tableauRecords) {
 
         let index = 0;
 
-        elemTable.find('tr').each(function() {
+        elemTable.children('tr').each(function() {
 
             let link    = $(this).attr('data-link');
             let fieldId = link.split('/')[8];

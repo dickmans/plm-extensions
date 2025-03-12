@@ -576,8 +576,6 @@ function getWorkspaceViewColumnms() {
 
     $.get('/plm/tableau-columns', { 'link' : link }, function(response) {
 
-        console.log(response);
-
         getWorkspaceViewData(response.data);
 
         // for(record of response.data) {
@@ -640,7 +638,7 @@ function getWorkspaceViewData(columns) {
 
     $.get('/plm/tableau-data', { 'link' : link }, function(response) {
 
-        for(let record of response.data) {
+        for(let record of response.data.items) {
 
             let elemItem = $('<div></div>').appendTo(elemList)
                 .attr('data-link', record.item.link)
