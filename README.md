@@ -10,6 +10,7 @@ Disclaimer: In any case all source code of this solution is of "work in progress
 The following extensions are included
 - Change Impact Analysis [Video](https://youtu.be/6A9ZNCxqRKg)
 - Class Browser
+- Data Manager [Video](https://youtu.be/hL4UblHbXw0)
 - Design Review Portal [Video](https://youtu.be/AU--qJIMmlE)
 - MBOM Editor [Video](https://youtu.be/5s9080mmYLo)
 - Mobile Client

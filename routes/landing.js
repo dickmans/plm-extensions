@@ -58,8 +58,9 @@ router.get('/variants'      , function(req, res, next) { launch('apps/variants' 
 
 
 /* ------------------------------------------------------------------------------
-ADMINISTRATION UTILITIES
------------------------------------------------------------------------------- */
+    ADMINISTRATION UTILITIES
+   ------------------------------------------------------------------------------ */
+router.get('/data'                , function(req, res, next) { launch('admin/data'                , 'Data Manager'                   , req, res, next); });
 router.get('/helpers'             , function(req, res, next) { launch('admin/helpers'             , 'Administration Helper Utilities', req, res, next); });
 router.get('/insights'            , function(req, res, next) { launch('admin/insights'            , 'Tenant Insights Dashboard'      , req, res, next); });
 router.get('/users'               , function(req, res, next) { launch('admin/users'               , 'User Settings Manager'          , req, res, next); });
@@ -68,8 +69,8 @@ router.get('/workspace-comparison', function(req, res, next) { launch('admin/wor
 
 
 /* ------------------------------------------------------------------------------
-INVENTOR ADDINS
------------------------------------------------------------------------------- */
+    INVENTOR ADDINS
+   ------------------------------------------------------------------------------ */
 router.get('/addins/context' , function(req, res, next) { launch('addins/context' , 'Context Browser'   , req, res, next); });
 router.get('/addins/item'    , function(req, res, next) { launch('addins/item'    , 'Item Master'       , req, res, next); });
 router.get('/addins/login'   , function(req, res, next) { launch('addins/login'   , 'PLM Login'         , req, res, next); });
@@ -80,17 +81,18 @@ router.get('/addins/tasks'   , function(req, res, next) { launch('addins/tasks' 
 
 
 /* ------------------------------------------------------------------------------
-UX DEVELOPERS APPLICATIONS
------------------------------------------------------------------------------- */
+    UX DEVELOPERS APPLICATIONS
+   ------------------------------------------------------------------------------ */
 router.get('/gallery' , function(req, res, next) { launch('framework/gallery'   , 'UX Components Gallery', req, res, next); });
 router.get('/template', function(req, res, next) { launch('tutorial/1-template' , 'App Template Page'    , req, res, next); });
 
 
 
 /* ------------------------------------------------------------------------------
-APPLICATIONS IN DEVELOPMENT
------------------------------------------------------------------------------- */
+    APPLICATIONS IN DEVELOPMENT
+   ------------------------------------------------------------------------------ */
 router.get('/assets'        , function(req, res, next) { launch('dev/assets'          , 'Asset Management'                  , req, res, next); });
+// router.get('/asset-services', function(req, res, next) { launch('dev/asset-services'  , 'Asset Services Portal'             , req, res, next); });
 router.get('/browser'       , function(req, res, next) { launch('dev/browser'         , 'PLM Browser'                       , req, res, next); });
 router.get('/change'        , function(req, res, next) { launch('dev/change'          , 'Change Manager'                    , req, res, next); });
 router.get('/configurator'  , function(req, res, next) { launch('dev/configurator'    , 'Product Configuration Editor'      , req, res, next); });
@@ -98,6 +100,7 @@ router.get('/control'       , function(req, res, next) { launch('dev/control'   
 router.get('/customer'      , function(req, res, next) { launch('dev/customer'        , 'Customer Services'                 , req, res, next); });
 router.get('/editor'        , function(req, res, next) { launch('dev/editor'          , 'Content Editor'                    , req, res, next); });
 router.get('/matrix'        , function(req, res, next) { launch('dev/matrix'          , 'Portfolio Matrix'                  , req, res, next); });
+// router.get('/mbom-upgrade'  , function(req, res, next) { launch('dev/mbom-upgrade'    , 'MBOM Upgrade Editor'               , req, res, next); });
 router.get('/pdm'           , function(req, res, next) { launch('dev/pdm'             , 'Vault Browser'                     , req, res, next); });
 router.get('/pdm-explorer'  , function(req, res, next) { launch('dev/pdm-explorer'    , 'PDM Explorer'                      , req, res, next); });
 router.get('/pnd'           , function(req, res, next) { launch('dev/pnd'             , 'Product Data & Processes Explorer' , req, res, next); });

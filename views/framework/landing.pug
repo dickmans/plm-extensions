@@ -15,7 +15,7 @@ block body
             p Unleash the power of Fusion Manage by utilizing its REST API to provide custom built frontends based on Autodesk Platform Services. All solutions manage data in PLM only. All business rules of PLM as well as access permissions still apply.
             div.side-toolbar
                 .button#version Review changes by 
-                    span#version-name 5. March 2025
+                    span#version-name March 7, 2025
                 .button#tenant Connected to 
                     span#tenant-name
             p This  version has been optimized for the tenant template released in 2023 using a single Items workspace. While the solutions can be used with any tenant thanks to their configuration capabilities, using this new tenant reduces configuration efforts. In addition, most of the solutions can be tested with the given demo datasets immediately.
@@ -37,6 +37,10 @@ block body
             .log#framework-changes 
                 h1 Framework Changes
                 table 
+                    tr  
+                        td March 7, 2025
+                        td Framework
+                        td The new Data Manager utility helps administrators in cleaning up the data in PLM. This is especially helpful when changing existing workspaces or importing data. The utility can be used immediately without any configuration changes.
                     tr  
                         td February 4, 2025
                         td Framework
@@ -148,8 +152,9 @@ block body
                             | These files no longer need the prefix 'settings.' but must keep the suffix '.js'.
             .tiles-group.first
                 .tiles-group-title Administration Utilities
-                .tiles-group-subtitle Utilities made for Tenant Administrators only, requiring system admin privileges.
+                .tiles-group-subtitle Utilities made for Tenant Administrators only, partially requiring system admin privileges.
                 .tiles-group-list
+                    include ../docs/admin-data.pug
                     include ../docs/admin-insights.pug
                     include ../docs/admin-workspace-comparison.pug
                     include ../docs/admin-users.pug

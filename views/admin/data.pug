@@ -1,0 +1,281 @@
+extends ../framework/layout
+
+block head
+
+    link(rel='stylesheet', href='/stylesheets/admin/data.css')
+    link(rel='stylesheet', href='/stylesheets/framework/console.css')
+    script(src='/javascripts/framework/console.js') 
+    script(src='/javascripts/admin/data.js') 
+    script.
+        config = !{JSON.stringify(config)};
+
+block body
+
+    body.surface-level-1
+        
+        #header.dark
+            #header-logo
+            #header-title=title
+            #header-subtitle Perform data cleansing operations with ease
+            #header-toolbar
+                .button.with-icon.icon-delete#clear-console Clear Console
+                .button.with-icon.icon-stop#stop Stop
+                .button.with-icon.icon-start.default#start Start
+                #header-avatar
+        .screen.surface-level-1
+
+            #progress.hidden 
+                #progress-done 
+                #progress-current
+                #progress-pending
+                #progress-text
+
+            #filters.surface-level-1
+            
+                .header Select Data
+                .content.no-scrollbar#filters-content
+
+                    .group.surface-level-2
+                        .text Select the data to process by this utility. 
+                            br
+                            |Start by selecting the given workspace.
+                        .filter-workspace
+                            .label Workspace 
+                            select.value.default.button#workspace           
+                    
+                    .group.surface-level-2
+                        .text Select a workspace view here or use the filters below.
+                        .filter#filter-view
+                            .label Workspace View 
+                            select.value.button#workspace-view         
+
+                    .group.surface-level-2.ws-type-2
+                        
+                        .text Filter using Workflow Status
+
+                        .filter#filter-status
+                            .label Status Is
+                            .value 
+                                select.button#status-in.select-status
+
+                        .filter#filter-status
+                            .label Status Is Not
+                            .value 
+                                select.button#status-ex.select-status
+
+                    .group.surface-level-2.ws-type-6
+                        
+                        .text Filter based on Lifecycle
+
+                        .filter#filter-status
+                            .label Release Status 
+                            .value 
+                                select.button#release
+                                    option(value='--') Any
+                                    option(value='w') Working Version Only
+                                    option(value='r') Released Data Only
+
+                        .filter#filter-status
+                            .label Revision History
+                            .value 
+                                select.button#revision
+                                    option(value='--') Any
+                                    option(value='t') Latest Only
+
+                    .group.surface-level-2#filter-properties
+                        .text#text-properties You can also filter by multiple property values. Select a property in the selector below to add it to the list of filters.
+                        .filter
+                            .label#label-properties Select property to add
+                            .value
+                                select.button#properties.select-field
+
+                    .group.surface-level-2.permission-summary
+                        
+                        .text Filter using item summary data
+
+                        .filter#filter-creation
+                            .label Creation Date 
+                            .value
+                                select.button#creation(data-field-id='CREATED_ON')
+                                    option(value='--') Any
+                                    option(value='to') Today
+                                    option(value='nt') Not Today
+                                    option(value='tw') This Week
+                                    option(value='tm') This Month
+                                    option(value='ty') This Year
+                                    option(value='lw') Last Week
+                                    option(value='lm') Last Month
+                                    option(value='ly') Last Year
+                                    //- option(value='nw') Next Week
+                                    //- option(value='nm') Next Month
+                                    //- option(value='ny') Next Year
+                                    option(value='ib') Is Blank
+                                    option(value='et') Equal To
+                                    option(value='ne') Not Equal To
+                                    option(value='-d') In Last Number Of Days
+                                    //- option(value='+d') In Next Number Of Days
+                                    option(value='bw') Between
+                                .inputs
+                                    input.date-1.hidden#creation-day1(type='date')
+                                    input.date-2.hidden#creation-day2(type='date')
+                                    input.number.hidden#creation-days(placeholder='# of days')
+
+                        .filter#filter-modification
+                            .label Last Modification Date 
+                            .value
+                                select.button#modification(data-field-id='LAST_MODIFIED_ON')
+                                    option(value='--') Any
+                                    option(value='to') Today
+                                    option(value='nt') Not Today
+                                    option(value='tw') This Week
+                                    option(value='tm') This Month
+                                    option(value='ty') This Year
+                                    option(value='lw') Last Week
+                                    option(value='lm') Last Month
+                                    option(value='ly') Last Year
+                                    //- option(value='nw') Next Week
+                                    //- option(value='nm') Next Month
+                                    //- option(value='ny') Next Year
+                                    option(value='ib') Is Blank
+                                    option(value='et') Equal To
+                                    option(value='ne') Not Equal To
+                                    option(value='-d') In Last Number Of Days
+                                    //- option(value='+d') In Next Number Of Days
+                                    option(value='bw') Between
+                                .inputs
+                                    input.date-1.hidden#modification-day1(type='date')
+                                    input.date-2.hidden#modification-day2(type='date')
+                                    input.number.hidden#modification-days(placeholder='# of days')
+
+                        .filter#filter-creator
+                            .label Created By
+                            .value 
+                                select.button#creator.select-user
+
+                        .filter#filter-modifier
+                            .label Last Modified By
+                            .value 
+                                select.button#modifier.select-user
+
+                        .filter#filter-owner
+                            .label Owned By
+                            .value 
+                                select.button#owner.select-user
+                        
+                        .filter#filter-not-owner
+                            .label Not Owned By
+                            .value 
+                                select.button#not-owner.select-user
+
+
+
+            #actions.surface-level-2
+
+                .header Choose Action
+                .content.no-scrollbar
+                    .text Select the action to be performed on the selected data
+                    #actions-list.tiles.list.xl.surface-level-2
+
+                        .tile.action.permission-edit#store-dmsid
+                            .title.tile-image Store DMSID
+                            .details   
+                                .description Stores the given record's DMSID in the selected property
+                                select.select-field.field-editable.button.options-list#select-store-dmsid(data-empty-label='Select Editable Field')
+
+                        .tile.action.permission-edit#set-value  
+                            .title.tile-image Set Field Value
+                            .details   
+                                .description Update the selected field for all records (only fields of supported types are listed)
+                                .definition
+                                    select.select-field.field-editable.button.options-list#select-set-value(data-empty-label='Select Editable Field')
+                                    input#input-set-value(placeholder="Enter value to be set")
+                                    select.button.options-list#plist-set-value.hidden
+
+                        .tile.action.permission-edit#copy-value  
+                            .title.tile-image Copy Field Value
+                            .details   
+                                .description Copy the value of one field to another (only fields of supported types are listed)
+                                .definition
+                                    select.select-field.button.options-list#select-copy-from(data-empty-label='Select Field To Copy')
+                                    select.select-field.field-editable.button.options-list#select-copy-to(data-empty-label='Select Target Field')
+
+                        .tile.action.permission-edit#clear-field  
+                            .title.tile-image Clear Field
+                            .details   
+                                .description Select the field to be cleared for each record
+                                select.select-field.field-editable.button.options-list#select-clear-field(data-empty-label='Select Editable Field')
+
+                        .tile.action.permission-edit#set-owner  
+                            .title.tile-image Set Owner
+                            .details   
+                                .description Assign ownership to the selected user
+                                select.select-user.button.options-list#select-set-owner
+
+                        .tile.action.ws-type-2#perform-transition  
+                            .title.tile-image Transition
+                            .details   
+                                .description Change the status by performing the selected workflow action
+                                .definition
+                                    select.select-transition.button.options-list#select-perform-transition(data-empty-label='Select Editable Field')
+                                    input#input-perform-transition(placeholder="Enter comment")
+
+                        .tile.action.permission-edit#run-script  
+                            .title.tile-image Run Script
+                            .details   
+                                .description Select an onDemand script to be executed aginst the defined records
+                                select.select-script.button.options-list#select-run-script(data-empty-label='Select OnDemand Script')
+
+                        .tile.action.permission-edit.no-select#archive
+                            .title.tile-image Archive
+                            .details   
+                                .description Archive the defined records
+            
+            #options.surface-level-1 
+
+                .header Options
+                .content.no-scrollbar
+                    .text Once a given record has been processed, it might not be returned by your filters anymore. This impacts the processing logic of this utility. Please define if the selected action (including follow-up action defined below) will change the data selection results. 
+                    .options
+                        .option
+                            .label Selected Data ...
+                            select.button.options-list.default#mode
+                                option(value='continue') ... does not change at runtime
+                                option(value='restart') ... gets reduced by the filters
+                    .text.permission-edit In alignment to this option, select an optional follow-up action upon item processing completion:
+                    .options.permission-edit
+                        .option
+                            .label Save Completion Date
+                            select.select-field.field-editable.field-type-date.button.options-list#save-date
+                        .option
+                            .label Tick Checkbox
+                            select.select-field.field-editable.field-type-check.button.options-list#save-check
+                        .option
+                            .label Untick Checkbox
+                            select.select-field.field-editable.field-type-check.button.options-list#save-uncheck
+                        .option
+                            .label Clear Field Value
+                            select.select-field.field-editable.button.options-list#save-clear
+                    .text Adjust runtime settings below to improve processing time (only in case of issues)
+                    .options#options-runtime
+                        .option
+                            .label Test Run Only
+                            .button.icon.icon-toggle-off.toggle#test-run
+                        .option
+                            .label Requests Count
+                            input.button#requestsCount(type='number' value=3)     
+                        .option
+                            .label Dynamic requests count
+                            .button.icon.icon-toggle-on.filled.toggle#auto-tune
+                        .option
+                            .label Maximum Errors
+                            input.button#maxErrors(type='number' value=5)     
+                        .option
+                            .label Search Size
+                            input.button#pageSize(type='number' value=100)     
+
+            #console.surface-level-4
+                .header.surface-level-4 Console  
+                .content#console-content.surface-level-4
+                #console-toggle.button.icon.icon-chevron-right
+
+            #overlay

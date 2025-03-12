@@ -1,0 +1,1232 @@
+let maxRequestsCount = 25;
+let wsConfig         = {};
+let options          = {};
+let run              = {};
+let records          = null;
+
+
+// let actions = [
+//     // { id : 'add-owner'    , class : 'permisson-edit'   , title : 'Add Owner', subtitle : "Update selected field values" },
+//     // { id : 'remove-owner' , class : 'permisson-edit'   , title : 'Remove Owner', subtitle : "Update selected field values" },
+//     // { id : 'clear-owners' , class : 'permisson-edit'   , title : 'Clear All Additional Owners', subtitle : "Update selected field values" },
+//     // { id : 'replace-owner', class : 'permisson-edit'   , title : 'Replace Owner', subtitle : "Update selected field values" },
+//     { id : 'bom-pin'      , class : 'permisson-edit'   , title : 'Change BOM Pin', subtitle : "Enables or disables the pin of all BOM children" },
+// ]
+
+
+$(document).ready(function() {
+
+    setUIEvents();
+    
+    let requests = [
+        $.get('/plm/workspaces', {}),
+        $.get('/plm/users',      {})
+    ]
+
+    getFeatureSettings('items', requests, function(responses) {
+        setWorkspaces(responses[0]);
+        setUserSelectors(responses[1]);
+    });
+
+});
+
+function setUIEvents() {
+
+    // Filter Panel
+    $('#workspace').on('change', function() { 
+        updatefilters();
+    });
+    $('#workspace-view').on('change', function() { 
+        setFilters();
+    });
+    $('.filter select').on('change', function() { 
+        if($(this).attr('id') !== 'properties') {
+            getMatches();
+        }
+    });
+    $('.filter .inputs input').on('change', function() { 
+        getMatches();
+    });
+    $('#properties').on('change', function() { 
+        insertPropertyFilter() 
+    });
+
+
+    // Actions
+    $('.action').click(function() {
+        $(this).addClass('selected');
+        $(this).siblings().removeClass('selected');
+        run.actionId  = $(this).attr('id');
+    });
+    $('#select-set-value').on('change', function() {
+
+        $('#select-set-value').siblings().addClass('hidden');
+
+        let elemSelected = $(this).children('option:selected');
+        let type         = elemSelected.attr('data-type');
+        let picklist     = elemSelected.attr('data-picklist');
+
+        switch(type) {
+            case 'Date'             : $('#input-set-value').removeClass('hidden').attr('type', 'date'); break;
+            case 'Check Box'        : $('#input-set-value').removeClass('hidden').attr('type', 'checkbox'); break;
+            case 'Single Selection' : $('#plist-set-value').removeClass('hidden'); setPicklistValues($('#plist-set-value'), picklist); break;
+            default                 : $('#input-set-value').removeClass('hidden').removeAttr('type'); break;
+        }
+    });
+    $('#select-perform-transition').on('change', function() {
+        let comments = $(this).children('option:selected').attr('data-comments');
+        switch(comments) {
+            case 'REQUIRED' : 
+            case 'OPTIONAL' : $('#input-perform-transition').removeClass('hidden'); break;
+            default         : $('#input-perform-transition').addClass('hidden'); break;
+        }
+    });
+
+
+    // Common Options
+    $('.toggle').click(function() {
+        $(this).toggleClass('filled').toggleClass('icon-toggle-on').toggleClass('icon-toggle-off');
+    })
+
+
+    // Header Toolbar Controls
+    $('#clear-console').click(function() {
+        $('#console-content').html('');
+    });
+    $('#start').click(function() {
+        if($(this).hasClass('disabled')) return;
+        startProcessing();
+    });
+    $('#stop').click(function() {
+        if(!$(this).hasClass('red')) return;
+        addLogStopped(); 
+        addLogSeparator();
+        endProcessing();
+    });
+
+}
+
+
+// During startup retrieve all workspaces and users
+function setWorkspaces(response) {
+
+    sortArray(response.data.items, 'title');
+
+    let elemSelect = $('#workspace');
+
+    for(let workspace of response.data.items) {
+
+        $('<option></option>').appendTo(elemSelect)    
+            .html(workspace.title)
+            .attr('value', workspace.link);
+
+    }
+
+    updatefilters();
+
+}
+function setUserSelectors(response) {
+
+    sortArray(response.data.items, 'displayName');
+
+    $('.select-user').each(function() {
+
+        let isAction = $(this).closest('.action').length > 0;
+        let label    = (isAction) ? 'Select User' : 'Any';
+
+        if(typeof $(this).attr('data-empty-label') !== 'undefined') label = $(this).attr('data-empty-label');
+
+        $('<option></option>').appendTo($(this))
+            .html(label)
+            .attr('value', '--');
+
+        for(let user of response.data.items) {
+
+            $('<option></option>').appendTo($(this))
+                .attr('data-id', user.userId)
+                .attr('data-login', user.loginName)
+                .attr('value', user.displayName)
+                .html(user.displayName);
+            
+        }
+
+    });
+
+}
+
+
+// When selecting workspace, enable matching filters
+function updatefilters() {
+
+    wsConfig.link = $('#workspace').val();
+    stopped = false;
+
+    addLogSeparator();
+    addLogEntry('Selected workspace ' + $('#workspace').children('option:selected').html(), 'head');
+    
+    let requests = [
+        $.get('/plm/workspace'  , { link : wsConfig.link }),
+        $.get('/plm/permissions', { link : wsConfig.link }),
+        $.get('/plm/sections'   , { link : wsConfig.link }),
+        $.get('/plm/fields'     , { link : wsConfig.link }),
+        $.get('/plm/workspace-scripts'        , { link : wsConfig.link }),
+        $.get('/plm/workspace-workflow-states', { link : wsConfig.link }),
+        $.get('/plm/tableaus'     , { link : wsConfig.link }),
+        $.get('/plm/workspace-workflow-transitions', { link : wsConfig.link }),
+    ];
+
+    $('#overlay').show();
+    $('#workspace-view').children().remove();
+    $('.ws-type-2').addClass('hidden');
+    $('.ws-type-6').addClass('hidden');
+    $('.permission-archive').addClass('hidden');
+    $('.permission-edit').addClass('hidden');
+    $('.permission-summary').addClass('hidden');
+    $('.select-status').children().remove();
+    $('.select-script').children().remove();
+    $('.select-field').children().remove();
+    $('#filter-properties').addClass('hidden');
+    $('.property-filter').remove();
+
+    $('.select-user').each(function() {
+        $(this).val('--');
+    });
+
+    Promise.all(requests).then(function(responses) {
+
+        wsConfig.type        = responses[0].data.type.split('/').pop();
+        wsConfig.permissions = responses[1].data;
+        wsConfig.sections    = responses[2].data;
+        wsConfig.fields      = [];
+        wsConfig.scripts     = responses[4].data.scripts;
+        wsConfig.states      = responses[5].data.states;
+        wsConfig.views       = responses[6].data;
+        wsConfig.transitions = responses[7].data;
+
+        for(let field of responses[3].data) {
+            if(field.name !== null) wsConfig.fields.push(field);
+        }
+
+        sortArray(wsConfig.fields     , 'name');
+        sortArray(wsConfig.states     , 'name');
+        sortArray(wsConfig.views      , 'title');
+        sortArray(wsConfig.transitions, 'name');
+    
+        $('#overlay').hide();
+        $('#filter-properties').removeClass('hidden');
+
+        switch(wsConfig.type) {
+
+            case '2': // Workflow
+            case '7': // Revisioning
+                $('.ws-type-2').removeClass('hidden');
+                break;
+
+            case '6': // Revision Controlled
+                $('.ws-type-6').removeClass('hidden');
+                break;
+
+        }
+
+        for(let permission of responses[1].data) {
+
+            let permissionLabel = permission.name.split('.shortname.')[1];
+
+            switch(permissionLabel) {
+
+                case 'edit_items'  : $('.permission-edit'   ).removeClass('hidden'); break;
+                case 'delete_items': $('.permission-archive').removeClass('hidden'); break;
+                case 'view_owner_and_change_summary_section': $('.permission-summary').removeClass('hidden'); break;
+            }
+
+        }
+
+        setWorkspaceViewSelector();
+        setWorkflowStateSelectors();
+        setWorkflowTransitionSelectors();
+        setPropertySelectors();
+        setScriptSelectors();
+        getMatches();
+
+    });
+
+}
+function setWorkspaceViewSelector() {
+
+    let elemSelect = $('#workspace-view');
+
+    $('<option></option>').appendTo(elemSelect)
+        .attr('value', '--')
+        .html('None, use the filters below');
+
+    for(let view of wsConfig.views) {
+
+        $('<option></option>').appendTo(elemSelect)
+            .attr('value', view.link)
+            .html(view.title);
+
+    }
+
+    $('#filter-view').removeClass('hidden');
+
+}
+function setWorkflowStateSelectors() {
+
+    $('.select-status').each(function() {
+
+        let elemSelect = $(this);
+
+        $('<option></option>').appendTo(elemSelect)
+            .attr('value', '--')
+            .html('Any');
+
+        for(let status of wsConfig.states) {
+
+            $('<option></option>').appendTo(elemSelect)
+                .attr('value', status.name)
+                .html(status.name + ' (' + status.customLabel + ')');
+
+        }
+
+    });
+
+}
+function setWorkflowTransitionSelectors() {
+
+    $('.select-transition').each(function() {
+
+        let elemSelect = $(this);
+            elemSelect.children().remove();
+
+        $('<option></option>').appendTo(elemSelect)
+            .attr('value', '--')
+            .html('Select Transition');
+
+        for(let transition of wsConfig.transitions) {
+
+            $('<option></option>').appendTo(elemSelect)
+                .attr('data-comments', transition.comments)
+                .attr('value', transition.__self__)
+                .html(transition.name + ' (' + transition.customLabel + ') to state ' + transition.toState.title);
+
+        }
+
+    });
+
+}
+function setScriptSelectors() {
+
+    $('.select-script').each(function() {
+
+        let elemSelect = $(this);
+        let label      = 'Select Script';
+
+        if(typeof elemSelect.attr('data-empty-label') !== 'undefined') label = elemSelect.attr('data-empty-label');
+
+        $('<option></option>').appendTo(elemSelect)
+            .attr('value', '--')
+            .html(label);
+
+        for(let script of wsConfig.scripts) {
+
+            $('<option></option>').appendTo(elemSelect)
+                .attr('value', script.__self__)
+                .html(script.uniqueName);
+
+        }
+
+    });
+
+}
+function setPropertySelectors() {
+
+    $('.select-field').each(function() {
+
+        let elemSelect     = $(this);
+        let onlyDateFields = elemSelect.hasClass('field-type-date');
+        let onlyCheckboxes = elemSelect.hasClass('field-type-check');
+        let onlyEditable   = elemSelect.hasClass('field-editable');
+        let label          = 'Select Field';
+
+        if(typeof $(this).attr('data-empty-label') !== 'undefined') label = $(this).attr('data-empty-label');
+
+        $('<option></option>').appendTo(elemSelect)
+            .attr('value', '--')
+            .html(label);
+
+        for(let field of wsConfig.fields) {
+
+            let fieldId = field.__self__.split('/').pop();
+            let type    = field.type.title;
+            let add     = true;
+
+            field.id = fieldId;
+
+            if(onlyDateFields) { if(type !== 'Date') add = false; }
+            if(onlyCheckboxes) { if(type !== 'Check Box') add = false; }
+            if(onlyEditable)   { if(field.editability !== 'ALWAYS') add = false; }
+            if(onlyEditable)   { if(type === 'Multiple Selection') add = false; }
+
+            if(add) {
+                
+
+                $('<option></option>').appendTo(elemSelect)
+                    .attr('value', fieldId)
+                    .attr('data-type', field.type.title)
+                    .attr('data-picklist', field.picklist)
+                    .html(field.name + ' (' + fieldId + ')');
+                
+            }
+        }
+
+    });
+
+}
+function insertPropertyFilter() {
+
+    let value = $('#properties').val();
+
+    for(let field of wsConfig.fields) {
+
+        if(field.id === value) {
+            
+            let elemFilter = $('<div></div>').appendTo($('#filter-properties'))
+                .addClass('property-filter')
+                .addClass('filter')
+                .attr('data-id', field.id);
+            
+            let elemFilterName = $('<div></div>').appendTo(elemFilter)
+                .addClass('property-name')
+
+            $('<div></div>').appendTo(elemFilterName)
+                .addClass('property-label')
+                .addClass('label')
+                .html(field.name);
+
+            $('<div></div>').appendTo(elemFilterName)
+                .addClass('button')
+                .addClass('icon')
+                .addClass('icon-delete')
+                .click(function() {
+                    $(this).closest('.property-filter').remove();
+                    getMatches();
+                });
+
+            let elemValue = $('<div></div>').appendTo(elemFilter)
+                .addClass('property-value')
+                .addClass('value');
+
+            let elemSelect = $('<select></select').appendTo(elemValue)
+                .addClass('button')
+                .attr('id', 'fieldid-' + field.id)
+                .attr('data-type', field.type.title)
+                .attr('data-field-id', field.id)
+                .on('change', function() { 
+                    getMatches()
+                });
+                
+            $('<option></option>').appendTo(elemSelect)
+                .attr('value', '--')
+                .html('Any Value');   
+
+            $('<option></option>').appendTo(elemSelect).attr('value', 'ib').html('Is Blank');  
+            $('<option></option>').appendTo(elemSelect).attr('value', 'nb').html('Is Not Blank');  
+
+            switch(field.type.title) {
+
+                case 'Single Line Text':
+                    $('<option></option>').appendTo(elemSelect).attr('value', 'text-is').html('Is');  
+                    $('<option></option>').appendTo(elemSelect).attr('value', 'text-sw').html('Starts With');  
+                    $('<option></option>').appendTo(elemSelect).attr('value', 'text-ew').html('Ends With');  
+                    $('<option></option>').appendTo(elemSelect).attr('value', 'text-co').html('Contains');
+                    $('<option></option>').appendTo(elemSelect).attr('value', 'text-dn').html('Does Not Contain');  
+                    $('<input></input>').appendTo(elemValue).attr('placeholder', 'Enter Text').addClass('hidden').on('change', function() { getMatches(); });
+                    break;
+
+                case 'Date':
+                    $('<option></option>').appendTo(elemSelect).attr('value', 'to').html('Today');  
+                    $('<option></option>').appendTo(elemSelect).attr('value', 'nt').html('Not Today');  
+                    $('<option></option>').appendTo(elemSelect).attr('value', 'tw').html('This Week');  
+                    $('<option></option>').appendTo(elemSelect).attr('value', 'tm').html('This Month');  
+                    $('<option></option>').appendTo(elemSelect).attr('value', 'ty').html('This Year');  
+                    $('<option></option>').appendTo(elemSelect).attr('value', 'lw').html('Last Week');  
+                    $('<option></option>').appendTo(elemSelect).attr('value', 'lm').html('Last Month');  
+                    $('<option></option>').appendTo(elemSelect).attr('value', 'ly').html('Last Year');  
+                    $('<option></option>').appendTo(elemSelect).attr('value', 'nw').html('Next Week');  
+                    $('<option></option>').appendTo(elemSelect).attr('value', 'nm').html('Next Month');  
+                    $('<option></option>').appendTo(elemSelect).attr('value', 'ny').html('Next Year');  
+                    $('<option></option>').appendTo(elemSelect).attr('value', 'et').html('Equal To');  
+                    $('<option></option>').appendTo(elemSelect).attr('value', 'ne').html('Not Equal To');  
+                    $('<option></option>').appendTo(elemSelect).attr('value', '-d').html('In Last Number Of Days');  
+                    $('<option></option>').appendTo(elemSelect).attr('value', '+d').html('In Next Number Of Days');  
+                    $('<option></option>').appendTo(elemSelect).attr('value', 'bw').html('Between');  
+                    let elemInputs = $('<div></div>').appendTo(elemValue).addClass('inputs');
+                    $('<input></input>').appendTo(elemInputs).attr('type', 'date').addClass('hidden').addClass('date-1').on('change', function() { getMatches(); });
+                    $('<input></input>').appendTo(elemInputs).attr('type', 'date').addClass('hidden').addClass('date-2').on('change', function() { getMatches(); });
+                    $('<input></input>').appendTo(elemInputs).attr('type', 'number').addClass('hidden').addClass('number').attr('placeholder', '# of days').on('change', function() { getMatches(); });
+                    break;
+
+            }
+
+        }
+    }
+
+    $('#properties').val('--');
+
+}
+function setFilters() {
+
+    let elemSelect = $('#workspace-view');
+    let value      = elemSelect.val();
+    let groups     = elemSelect.closest('.group').nextAll();
+
+    if(value === '--') {
+
+        groups.each(function() {
+
+            let elemGroup = $(this);
+
+            if(elemGroup.hasClass('ws-type-2')) {
+                     if(wsConfig.type == 2) elemGroup.removeClass('hidden');
+                else if(wsConfig.type == 7) elemGroup.removeClass('hidden');
+            } else if(elemGroup.hasClass('ws-type-6')) {
+                if(wsConfig.type == 6) elemGroup.removeClass('hidden');
+            } else {
+                elemGroup.removeClass('hidden');
+            }
+
+        });
+
+    } else {
+        groups.addClass('hidden');
+    }
+
+}
+
+
+// Upon filter selection run query to get matching records count
+function getMatches() {
+
+    let elemSelectWSView = $('#workspace-view');
+    let timestamp        = new Date().getTime();
+    let params           = {
+        timestamp  : timestamp,
+        workspace  : $('#workspace').children('option:selected').html()
+    }
+
+    if(elemSelectWSView.val() === '--') {
+        
+        let filters   = getSearchFilters();
+        stopped       = false;
+
+        params.link     = $('#workspace').val();
+        params.pageSize = 1;
+        params.filter   = filters;
+        params.fields   = [ 'DESCRIPTOR' ];
+        params.sort     = [ 'DESCRIPTOR' ];
+
+        $.get('/plm/search', params, function(response) {
+            if(timestamp !== params.timestamp) return;
+            addLogEntry('There are ' + (response.data.totalResultCount || 0)+ ' matching records in workspace ' + response.params.workspace);
+        });
+
+    } else {
+
+        params.link = elemSelectWSView.val();
+
+        $.get('/plm/tableau-data', params, function(response) {
+            if(timestamp !== params.timestamp) return;
+            addLogEntry('There are ' + (response.data.total || 0)+ ' matching records in workspace ' + response.params.workspace);
+        });
+        
+    }
+
+}   
+function getSearchFilters() {
+
+    let filters = [];
+
+    $('.filter select').each(function() {
+
+        let elemSelect  = $(this);
+        let elemFilter  = $(this).closest('.filter');
+        let filterId    = elemSelect.attr('id');
+        let filterValue = elemSelect.children('option:selected').val();
+
+        elemFilter.find('input').addClass('hidden');
+        elemSelect.siblings('.inputs').addClass('hidden');
+        
+        if(!isBlank(filterValue)) {
+            if(filterValue !== '--') {
+
+                let filter = { value : '' };
+
+                switch(filterValue) {
+
+                    case 'et': 
+                    case 'ne': 
+                        elemSelect.siblings('.inputs').removeClass('hidden');
+                        elemFilter.find('input.date-1').removeClass('hidden'); 
+                        break;
+
+                    case 'bw': 
+                        elemSelect.siblings('.inputs').removeClass('hidden');
+                        elemFilter.find('input.date-1').removeClass('hidden'); 
+                        elemFilter.find('input.date-2').removeClass('hidden'); 
+                        break;
+
+                    case '-d': 
+                    case '+d': 
+                        elemSelect.siblings('.inputs').removeClass('hidden');
+                        elemFilter.find('input.number').removeClass('hidden'); 
+                        break;
+
+                    default:
+                        break;
+
+                }
+
+                if(filterValue.indexOf('text-') === 0) {
+                    elemSelect.siblings().removeClass('hidden');
+                }
+
+                switch(filterId) {
+
+                    case 'creation':
+                        filter = getDateFilter(elemSelect, 3, filterValue);
+                        if(filterValue === 'bw') {
+                            filters.push(getDateFilter(elemSelect, 3, 'br'));
+                        }
+                        break;
+                        
+                    case 'modification':
+                        filter = getDateFilter(elemSelect, 3, filterValue);
+                        if(filterValue === 'bw') {
+                            filters.push(getDateFilter(elemSelect, 3, 'br'));
+                        }
+                        break;
+
+                    case 'creator':
+                        filter.field        = 'CREATED_BY_USERID';
+                        filter.type         =  3;
+                        filter.comparator   =  15;
+                        filter.value        = filterValue;
+                        break;
+
+                    case 'modifier':
+                        filter.field        = 'LAST_MODIFIED_BY';
+                        filter.type         =  3;
+                        filter.comparator   =  15;
+                        filter.value        = filterValue;
+                        break;
+
+                    case 'owner':
+                        filter.field        = 'OWNER_USERID';
+                        filter.type         =  3;
+                        filter.comparator   =  15;
+                        filter.value        = filterValue;
+                        break;
+
+                    case 'not-owner':
+                        filter.field        = 'OWNER_USERID';
+                        filter.type         =  3;
+                        filter.comparator   =  5;
+                        filter.value        = filterValue;
+                        break;
+
+                    case 'status-in':
+                        filter.field        = 'WF_CURRENT_STATE';
+                        filter.type         = 1;
+                        filter.comparator   = 15;
+                        filter.value        = filterValue;
+                        break;
+
+                    case 'status-ex':
+                        filter.field        = 'WF_CURRENT_STATE';
+                        filter.type         = 1;
+                        filter.comparator   = 5;
+                        filter.value        = filterValue;
+                        break;
+
+                    case 'release':
+                        filter.field = 'WORKING';
+                        filter.type  = 10;
+                        if(filterValue === 'w') filter.comparator =  13;
+                        else if(filterValue === 'r') filter.comparator =  14;
+                        break;
+
+                    case 'revision':
+                        filter.field      = 'LATEST_RELEASE';
+                        filter.type       = 10;
+                        filter.comparator = 13
+                        break;
+
+                    default:
+                        if(elemSelect.attr('data-type') === 'Date') {
+                            filter = getDateFilter(elemSelect, 0, filterValue);
+                            if(filterValue === 'bw') {
+                                filters.push(getDateFilter(elemSelect, 0, 'br'));
+                            }
+                        } else {
+                            filter = getPropertyFilter(elemSelect, filterValue);
+                        }
+                        break;
+
+                }
+
+                if(!isBlank(filter)) filters.push(filter);
+
+            }
+        }
+
+    });
+
+    return filters;
+
+}
+function getDateFilter(elemSelect, fieldType, filterValue) {
+
+    let fieldId = elemSelect.attr('data-field-id');
+
+    let filter = {
+        field : fieldId,
+        type  : fieldType,
+        value : ''
+    };
+
+    let date       = new Date();
+    let dateToday  = date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + date.getDate();
+    let date1      = '';
+    let date2      = '';
+    let elemInputs = elemSelect.siblings('.inputs');
+
+    let valueDay1 = elemInputs.children('.date-1').val();
+    let valueDay2 = elemInputs.children('.date-2').val();
+    let valueDays = elemInputs.children('.number').val();
+
+    if(valueDay1 !== '') { 
+        let d1 = new Date(valueDay1); 
+        date1  = d1.getFullYear() + '/' + (d1.getMonth() + 1) + '/' + d1.getDate();
+    }
+
+    if(valueDay2 !== '') { 
+        let d2 = new Date(valueDay2); 
+        date2  = d2.getFullYear() + '/' + (d2.getMonth() + 1) + '/' + d2.getDate();
+    }
+
+    switch(filterValue) {
+        
+        case 'to': filter.comparator = 24; filter.value = ''; break;
+        case 'tw': filter.comparator = 25; filter.value = ''; break;
+        case 'tm': filter.comparator = 28; filter.value = ''; break;
+        case 'ty': filter.comparator = 31; filter.value = ''; break;
+        case 'lw': filter.comparator = 26; filter.value = ''; break;
+        case 'lm': filter.comparator = 29; filter.value = ''; break;
+        case 'ly': filter.comparator = 32; filter.value = ''; break;
+        case 'nw': filter.comparator = 27; filter.value = ''; break;
+        case 'nm': filter.comparator = 30; filter.value = ''; break;
+        case 'ny': filter.comparator = 33; filter.value = ''; break;
+        case 'ib': filter.comparator = 22; filter.value = ''; break;
+        case 'nb': filter.comparator = 23; filter.value = ''; break;
+        
+        case 'nt': filter.comparator = 17; filter.value = dateToday; break;
+
+        case 'et': if(valueDay1 !== '') { filter.comparator = 16; filter.value = date1;     } else filter = null; break;
+        case 'ne': if(valueDay1 !== '') { filter.comparator = 17; filter.value = date1;     } else filter = null; break;
+        case '-d': if(valueDays !== '') { filter.comparator = 34; filter.value = valueDays; } else filter = null; break;
+        case '+d': if(valueDays !== '') { filter.comparator = 35; filter.value = valueDays; } else filter = null; break;
+        case 'bw': if(valueDay1 !== '') { filter.comparator = 18; filter.value = date1;     } else filter = null; break;
+        case 'br': if(valueDay2 !== '') { filter.comparator = 19; filter.value = date2;     } else filter = null; break;  // Upper range of between
+
+    }
+
+    return filter;
+
+}
+function getPropertyFilter(elemSelect, filterValue) {
+
+    let filter = {
+        field : elemSelect.attr('data-field-id'),
+        type  : 0,
+        value : ''
+    };
+
+    let elemInput = elemSelect.next('input');
+
+    if(elemInput.length > 0) filter.value = elemInput.val();
+
+    switch(filterValue) {
+
+        case 'ib': filter.comparator = 20; break;
+        case 'nb': filter.comparator = 21; break;
+        
+        case 'text-is': filter.comparator = 15; break;
+        case 'text-sw': filter.comparator =  3; break;
+        case 'text-ew': filter.comparator =  4; break;
+        case 'text-co': filter.comparator =  2; break;
+        case 'text-dn': filter.comparator =  5; break;
+
+    }
+
+    return filter;
+
+}
+
+
+// Update picklist value selectors
+function setPicklistValues(elemSelect, link) {
+
+    elemSelect.children().remove();
+
+    let timestamp = new Date().getTime();
+
+    $.get('/plm/picklist', { link : link, timestamp : timestamp }, function(response) {
+
+        if(response.params.timestamp != timestamp) return;
+
+        sortArray(response.data.items, 'title');
+
+        for(let item of response.data.items) {
+
+            $('<option></option>').appendTo(elemSelect)
+                .attr('value', item.link)
+                .html(item.title);
+
+        }
+
+    });
+
+}
+
+
+// Perform the selected action on the matching records
+function startProcessing() {
+
+    $('#stop').addClass('red');
+    $('#start').addClass('disabled');
+    $('#overlay').show();
+
+    options.mode          = $('#mode').val() || 'continue';
+
+    options.saveDate      = $('#save-date'   ).val() || '';
+    options.saveCheck     = $('#save-check'  ).val() || '';
+    options.saveUncheck   = $('#save-uncheck').val() || '';
+    options.saveClear     = $('#save-clear'  ).val() || '';
+
+    options.testRun       = $('#test-run').hasClass('icon-toggle-on');
+    options.requestsCount = $('#requestsCount').val() || 5;
+    options.autoTune      = $('#auto-tune').hasClass('icon-toggle-on');
+    options.maxErrors     = $('#maxErrors').val() || 10;
+
+    run.active       = true;
+    run.counter      = 1;
+    run.done         = 0;
+    run.total        = -1;
+    run.success      = 0;
+    run.errors       = [];
+
+    run.params = {
+        pageNo    : 0,
+        pageSize  : Number($('#pageSize').val()) || 100,
+        size      : Number($('#pageSize').val()) || 100,
+        workspace : $('#workspace').children('option:selected').html()
+    }
+
+    stopped = false;
+
+    addLogSpacer();
+    addLogSeparator();
+    addLogEntry('### START ###', 'head');
+    addLogSpacer();
+
+    let view = $('#workspace-view').val();
+
+    if(view === '--') {
+
+        run.url           = '/plm/search';
+        run.params.link   = $('#workspace').val();
+        run.params.filter = getSearchFilters();
+        run.params.fields = [ 'DESCRIPTOR' ];
+        run.params.sort   = [ 'DESCRIPTOR' ];
+
+    } else {
+
+        run.url         = '/plm/tableau-data';
+        run.params.link = view;
+        
+    }
+
+    getNextRecords();
+
+
+}
+function getNextRecords() {
+
+    run.params.pageNo = (options.mode === 'continue') ? (run.params.pageNo + 1) : 1;
+    run.params.page   = run.params.pageNo;
+
+    if(run.errors.length === options.maxErrors) stopped = true;
+
+    if(stopped) return;
+
+    $.get(run.url, run.params, function(response) {
+
+        if(run.total < 0) {
+            run.total = response.data.totalResultCount || response.data.total;
+            $('#progress').removeClass('hidden');
+        }
+
+        if(isBlank(run.total)) run.total = 0;
+
+        updateProgress();
+        setRecordsData(response);
+
+        if(records.length === 0) {
+            endProcessing();
+        } else {
+            addLogEntry('Found next ' + records.length + ' records to process');
+            processNextRecords();
+        }
+
+    });
+
+}
+function setRecordsData(response) {
+
+    records = response.data.row || response.data.items;
+
+    for(let record of records) {
+
+        if(run.url === '/plm/search') {
+
+            record.link      = wsConfig.link + '/items/' + record.dmsId;
+            record.dmsId      = record.dmsId.toString();
+            record.descriptor = record.fields.entry[0].fieldData.value;
+
+        } else {
+
+            record.link       = record.item.link;
+            record.dmsId      = record.item.link.split('/').pop();
+            record.descriptor = record.dmsId;
+
+            for(let field of record.fields) {
+                if(field.id === 'DESCRIPTOR') {
+                    record.descriptor = field.value;
+                    break;
+                } 
+            }
+    
+
+        }
+
+    }
+    
+}
+function processNextRecords() {
+
+    let limit = (records.length < options.requestsCount) ? records.length : options.requestsCount;
+
+    if(limit > maxRequestsCount) limit = maxRequestsCount;
+    if(options.requestsCount > maxRequestsCount) options.requestsCount = maxRequestsCount;
+
+    let requests = genRequests(limit);
+
+    if(stopped) return;
+
+    updateProgress();
+
+    if(requests.length === 0) {
+
+        getNextRecords();
+
+    } else if(options.testRun) {
+
+        run.done += requests.length;
+        records.splice(0, limit);
+        processNextRecords();
+
+    } else {
+
+        run.start = new Date().getTime()/1000;
+
+        Promise.all(requests).then(function(responses) {
+
+            let updateRequests = genUpdateRequests(responses);
+
+            Promise.all(updateRequests).then(function(responsesUpdate) {
+
+                run.done += requests.length;
+
+                let completionRequests = (updateRequests.length === 0) ? genCompletionRequests(responses) : genCompletionRequests(responsesUpdate);
+                let now  = new Date().getTime()/1000;
+                let diff = now - run.start;
+                
+                if(stopped) return;
+                if(run.done === run.total) options.autoTune = false;
+
+                Promise.all(completionRequests).then(function() {
+
+                    records.splice(0, limit);
+
+                    if(options.autoTune) {
+
+                        let threshold = (requests.length + updateRequests.length) * diff / 18;
+                        let value     = Math.round(diff * 10000) / 10000;
+        
+                        if(threshold < 1) {
+                            if(options.requestsCount < maxRequestsCount) {
+                                options.requestsCount++;
+                                addLogEntry('Increasing requests count to ' + options.requestsCount + ' (' + value + ' s / request)', 'success');
+                            }
+                        } else {
+                            options.requestsCount--;
+                            addLogEntry('Decreasing requests count to ' + options.requestsCount + ' (' + value + ' s / request)', 'notice');
+                        }
+        
+                    }
+
+                    processNextRecords();
+
+                });
+
+            });
+
+        });
+
+    }
+
+}
+function genRequests(limit) {
+
+    let requests = [];
+
+    for(let i = 0; i < limit; i++) {
+
+        let record = records[i];
+
+        let params = {
+            link       : record.link,
+            descriptor : record.descriptor,
+            sections   : []
+        }
+
+        let link    = genItemURL({ link : params.link});
+        let message = (options.testRun) ? 'Would process' : 'Processing';
+
+        addLogEntry(message + ' <a target="_blank" href="' + link + '">' + params.descriptor + '</a>', 'count', run.counter++)
+
+        if((options.testRun) || stopped) {
+
+            requests.push({ link : link });
+
+        } else {
+
+            if(run.actionId === 'store-dmsid') {
+
+                addFieldToPayload(params.sections, wsConfig.sections, null, $('#select-store-dmsid').val(), record.dmsId);
+                requests.push($.post('/plm/edit', params));
+            
+            } else if(run.actionId === 'set-value') {
+
+                let type  = $('#select-set-value').children('option:selected').attr('data-type');
+                let value = $('#input-set-value').val();
+
+                if(type === 'Check Box') {
+                    value = $('#input-set-value').is(":checked")
+                } else if(type === 'Single Selection') {
+                    value = { link : $('#plist-set-value').val() };
+                }
+
+                addFieldToPayload(params.sections, wsConfig.sections, null, $('#select-set-value').val(), value, false);
+                requests.push($.post('/plm/edit', params));
+
+            } else if(run.actionId === 'copy-value') {
+
+                requests.push($.get('/plm/details', params));
+
+            } else if(run.actionId === 'clear-field') {
+
+                addFieldToPayload(params.sections, wsConfig.sections, null, $('#select-clear-field').val(), null, false);
+                requests.push($.post('/plm/edit', params));
+
+            } else if(run.actionId === 'set-owner') {
+
+                params.owner = $('#select-set-owner').children('option:selected').attr('data-id');
+
+                requests.push($.post('/plm/set-owner', params));
+
+            } else if(run.actionId === 'perform-transition') {
+
+                params.transition = $('#select-perform-transition').val();
+                let elemComment = $('#input-perform-transition');
+                if(!elemComment.hasClass('hidden'))params.comment = elemComment.val();
+                requests.push($.get('/plm/transition', params));
+
+            } else if(run.actionId === 'run-script') {
+
+                params.script = $('#select-run-script').val();
+                requests.push($.get('/plm/run-item-script', params));
+
+            } else if(run.actionId === 'archive') {
+
+                requests.push($.get('/plm/archive', params));
+
+            }
+
+        }
+
+    }
+
+    return requests;
+    
+}
+function genUpdateRequests(responses) {
+
+    let requests = [];
+
+    for(let response of responses) {
+
+        let params = {
+            link       : response.params.link,
+            descriptor : response.params.descriptor,
+            sections   : []
+        }
+
+        if(run.actionId === 'copy-value') {
+
+            let value = getSectionFieldValue(response.data.sections, $('#select-copy-from').val(), '');
+            let fieldId = $('#select-copy-to').val();
+
+            addFieldToPayload(params.sections, wsConfig.sections, null, fieldId, value, false);
+
+            requests.push($.post('/plm/edit', params));
+
+        }
+
+    }
+
+    return requests;
+
+}
+function genCompletionRequests(responses) {
+
+    let requests = [];
+
+    for(let response of responses) {
+
+        if(response.error) {
+
+            run.errors.push({
+                link       : response.params.link,
+                descriptor : response.params.descriptor
+            });
+
+            let link = genItemURL({ link : response.params.link });
+
+            addLogEntry('Error while processing  <a target="_blank" href="' + link + '">' + response.params.descriptor + '</a>', 'error');
+            if(response.message !== '') addLogEntry('Error message: "' + response.message + '"', 'indent');
+
+        } else {
+
+            run.success++;
+
+            let params = {
+                link       : response.params.link,
+                sections   : []
+            }
+
+            let date = new Date();
+            let now  = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
+
+            if(options.saveDate    !== '--') addFieldToPayload(params.sections, wsConfig.sections, null, options.saveDate   , now     );
+            if(options.saveCheck   !== '--') addFieldToPayload(params.sections, wsConfig.sections, null, options.saveCheck  , 'true'  );
+            if(options.saveUncheck !== '--') addFieldToPayload(params.sections, wsConfig.sections, null, options.saveUncheck, 'false' );
+            if(options.saveClear   !== '--') addFieldToPayload(params.sections, wsConfig.sections, null, options.saveClear  , null    );
+
+            if(params.sections.length > 0) requests.push($.post('/plm/edit', params));
+        }
+
+        if(run.errors.length > options.maxErrors) {
+            addLogStoppedByErrors(run.errors);
+            endProcessing();
+            requests = [];
+        }
+
+    }
+
+    return requests;
+
+}
+function updateProgress() {
+
+    let widthDone    = run.done * 100 / run.total;
+    let widthCurrent = options.requestsCount * 100 / run.total;
+
+    $('#progress-done').css('width', widthDone + '%');
+    $('#progress-current').css('width', widthCurrent + '%');
+    $('#progress-current').css('left', widthDone + '%');
+    $('#progress-text').html('Processed ' + run.done + ' of ' + run.total);
+
+}
+function endProcessing() {
+
+    if(!run.active) return;
+
+    run.active = false;
+
+    $('#stop').removeClass('red');
+    $('#start').removeClass('disabled');
+    $('#progress').addClass('hidden');
+    $('#overlay').hide();
+
+    addLogSpacer();
+
+    if(!options.testRun) {
+
+        addLogSpacer();
+        addLogEntry('SUMMARY', 'head');
+
+        $('<div></div>').appendTo($('#console-content')).addClass('console-spacer');
+
+        let elemTable = $('<table></table>').appendTo($('#console-content'));
+        
+        insertLogSummaryRow(elemTable, 'Total items to process', run.total);
+        insertLogSummaryRow(elemTable, 'Processed items (success and failure)', run.done);
+        insertLogSummaryRow(elemTable, 'Successful items', run.success);
+        insertLogSummaryRow(elemTable, 'Failed items', run.errors.length);
+
+        $('<div></div>').appendTo($('#console-content')).addClass('console-spacer');
+
+        if(run.errors.length > 0) {
+        
+            addLogSpacer();
+            addLogSpacer();
+
+            addLogEntry('LIST OF FAILED ITEMS', 'head');
+
+            for(let error of run.errors) {
+                addLogEntry('<a target="_blank" href="' + genItemURL({ link : error.link}) + '">' + error.descriptor + '</a>', 'error')
+            }
+
+            addLogSpacer();
+
+        }
+
+    }
+
+    addLogEnd();
+    addLogSeparator();
+    addLogSpacer();
+
+    let divElement = document.getElementById('console-content');
+        divElement.scrollTop = divElement.scrollHeight
+
+}
+function insertLogSummaryRow(elemTable, label, value) {
+
+    let elemRow = $('<tr></tr>').appendTo(elemTable);
+
+    elemRow.append($('<td>' + label + '</td>'));
+    elemRow.append($('<td style="text-align:right">' + value + '</td>'));
+
+}

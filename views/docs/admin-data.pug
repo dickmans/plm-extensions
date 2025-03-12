@@ -1,0 +1,126 @@
+.tile(data-name='Tenant Insights')
+    .tile-image(style="background: url('images/admin-data.png') no-repeat;background-size:contain;")
+    .tile-details
+        .tile-title Data Manager
+        .tile-subtitle When existing workspaces with data get modified or when data gets imported, administrators often have to cleanup and adjust the data afterwards. With this utlity, such changes can be performed in batch to improve data quatliy.
+        .tile-access 
+            .tile-endpoint /data
+            .tile-button.button.default(href="data" target="_blank") Open
+    .instructions
+        h1 Features
+        p This utility enables various batch operations in order to fix inconsistencies of the data in PLM. This includes setting standard values for existing records, transitioning defined records or running a defined script against a selected set of records. Administrators can select the datasets to be processed by using workspaces views or search filters. The batch process can be tracked in the console, providing information about the success and failure of operations. 
+        p The following batch processes are provided with this utlity: 
+        table 
+            tr 
+                th Action 
+                th Description 
+            tr 
+                td Store DMSID
+                td Stores the given record's dmsId in a selected property. This is useful if computed fields must access the dmsId of a record.
+            tr 
+                td Set Field Value
+                td Set a standard value for a selected field in item details
+            tr 
+                td Copy Field Value
+                td Copy the value of one item details field to another one
+            tr 
+                td Clear Field
+                td Clear a selected field in item details
+            tr 
+                td Set Owner
+                td Update the owner of records with the selected user
+            tr 
+                td Transition
+                td Change the status of records by performing a selected workflow action
+            tr 
+                td Run Script
+                td Execute a selected onDemand script against the defined records
+            tr 
+                td Archive
+                td Archive the defined records
+        h1 Using the utility
+        h2 Select Data 
+        p First, you have to select the data to be processed. As the utility can only process data within a single workspace only, you have to select the given workspace first. Once the workspace selector changes, the screen will reload to reflect the given workspace's configuration.
+        p Next, you have to filter for the data in this workspace by either using one of your workspace views or search filters. Once you select a workspace view, the filters will be hidden as it is not possible to combine both mechanism. Note that you can use any workspace view, the columns do not matter as the utility will only make use of the view's filters.
+        p If you do not select a workspace view, the following filter sections will be available (depending on the selected workspace's type): 
+        ul 
+            li Workflow Status
+            li Lifecycle Status 
+            li Item Details Field Value 
+            li Item Summary Data (creation, modification, owner)
+        p As you change the options in the data selection panel, the console will continuously determine the number of matching records and display the counter. This counter update may take some time, but helps validating the filter settings:
+        img.border(src='images/apps/admin-data-1.png' style='width:100%;max-width:482px')
+        h2 Choose Action 
+        p The list of possible actions gets refreshed upon workspace selection as it takes into account the user's permission as well as the workspace's configuration.
+        p You can only select on action at a time and must proivde the given inputs shown within the selection action (i.e. select the impacted field).
+        p If you do not find an action that meets your requirement, you can use the action 
+            strong Run Script 
+            |enabling you to run your custom onDemand script of the given workspace. The utility will launch the script for you per record and you can perform the required changes within your script. The usage of scripts is also recommended if the batch processes fail to perform the required update due to permission restrictions. As scripts are executed as super user, they may be able to perform the changes that might not be possible with the API in your user context.
+        h2 Options : Selected Data
+        p Before launching the batch job, you may want to adjust the options allowing you to perform follow-up actions per record and to adjust the runtime settings. While you will most probably never adjust most of the options, the first settings is very important: 
+        img.border(src='images/apps/admin-data-2.png' style='width:100%;max-width:343px')
+        p The setting for 
+            strong Selected Data 
+            |impacts the data retrieval: In order to run the batch jobs, the utility will search for the next set of (100) records which will then be processed before the next set of (100) records will be retrieved. The data retrievel will be based on the filters or workspace view that you selected in section 
+            strong Select Data 
+            |. Once the inintial set of records got processed, these filters might return different results. For example, if you filter by items which do not have a value in field 
+            strong Type 
+            |and then set a value for this field using this utility, the items which got processed already won't be returned by the intial filters any longer. This is important as the data retrieval will always continue retrieving the next records in sequence - and this sequence might change.
+        p So if the batch processing modifies the records in a way so that they would no longer be retrieved, you must select the option 
+            strong ... gets reduced by filters 
+            |. Only if the search results do not change by the batch operations, you can keep the default setting 
+            strong ... does not change at runtime 
+            |.
+        h2 Options : Follow-Up Action
+        p Once the records got processed, you can let the utility update one or multiple checkbox or date properties. This can be used to trigger a follow-up edit event or to set a flag that helps filtering out the given record during the next run.
+        img.border(src='images/apps/admin-data-3.png' style='width:100%;max-width:317px')
+        h2 Options : Runtime Settings
+        p Finally, multiple settings can be used to adjust the batch process execution:
+        img.border(src='images/apps/admin-data-4.png' style='width:100%;max-width:317px')
+        table 
+            tr 
+                th Setting 
+                th Default Value
+                th Description 
+            tr 
+                td Test Run Only 
+                td off
+                td When enabled, data will not be modified. Instead, the utility will only list the names of all records that would be modified as they match the search criteria. This is helpful to validate the filters.
+            tr 
+                td Requests Count
+                td 3
+                td For performance reasons, the utility can process mutiple records in parallel. This counter determines the number of parallel requests. Please note that you must keep the workload of your tenant in a defined range before it might be considered a DDoS attack.
+            tr 
+                td Dynamic Requests Count
+                td on
+                td As stated before, the utility processes multiple records in parallel and you must keep the workload at a reasonable limit. This toggle will let the utility adjust the Requests Count dynamically by measuring the request processing time and increasing / decreasing the requests in single steps when possible / needed.
+            tr 
+                td Maximum Errors
+                td 5
+                td Once the utility encounters more errors than the given threshold limit, it will stop processing.
+            tr 
+                td Search Size
+                td 100
+                td This identifies the total number of records to be searched before processing them in smaller packages (based on the Requests Count value).
+        h1 The Console &amp; Controls 
+        p While the processes are running, the console will indicate the progression and display success and error messages. 
+            br
+            |Please note that the item names can be clicked to open the given record in PLM for validation or troubleshooting purposes.
+        img.border(src='images/apps/admin-data-5.png' style='width:100%;max-width:527px')
+        p Once the processes finish, a summary will be displayed, indicating the total number of records and failures.
+            br
+            |Using the button in the main toolbar, you can stop running processes (when the stop button is shown in red) at anytime. Use 
+            strong Clear Console 
+            |to clear the contents of the console panel. This does not impact the data processing.
+        h1 Access the utility
+        p You can access the utlity with the 
+            strong /data
+            |  endpoint, just click this link:
+        a(href='data' target='_blank')
+    .log 
+        h1 Data Manager Change Log 
+        table 
+            tr 
+                td March 7, 2025
+                td Initial Release
+                td The very first version of this utility

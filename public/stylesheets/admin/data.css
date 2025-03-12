@@ -1,0 +1,479 @@
+/*  MASTER LAYOUT */
+/* ----------------------------------------------------------------------------- */
+:root {
+
+    --border-top        : 34px;
+    --border-bottom     : 18px;
+    --border-h          : 56px;
+    --width-filters     : 460px;
+    --width-options     : 320px;
+    --width-console     : 440px;
+
+}
+
+#progress {
+    top     : 0px;
+    right   : 0px;
+    left    : 0px;
+    height  : 20px;
+}
+#filters {
+    border-width    : var(--border-top) var(--border-h) var(--border-bottom);
+    top             : 0px;
+    bottom          : 0px;
+    left            : 0px;
+    width           : var(--width-filters);
+}
+#actions {
+    border-width    : var(--border-top) var(--border-h) var(--border-bottom);
+    top             : 0px;
+    right           : calc(var(--width-console) + var(--width-options) + (4 * var(--border-h)));
+    bottom          : 0px;
+    left            : calc(var(--width-filters) + (2 * var(--border-h))); 
+}
+#options {
+    border-width    : var(--border-top) var(--border-h) var(--border-bottom);
+    top             : 0px;
+    right           : calc(var(--width-console) + (2 * var(--border-h)));
+    bottom          : 0px;
+    width           : var(--width-options);
+}
+#console {
+    border-width    : var(--border-top) var(--border-h) var(--border-bottom);
+    top             : 0px;
+    right           : 0px;
+    bottom          : 0px;
+    width           : var(--width-console) !important;
+}
+#overlay {
+    background : rgba(26, 31, 38, 0.4) !important;
+    right      : calc(var(--width-console) + (2 * var(--border-h)));
+
+}
+
+body.no-console #actions {  right : calc(var(--width-options) + (3 * var(--border-h)));}
+body.no-console #options,
+body.no-console #overlay  { right : var(--border-h); }
+body.no-console #console  { right : calc(0px - var(--width-console) - var(--border-h)); }
+
+
+
+/*  DEFAULTS */
+/* ----------------------------------------------------------------------------- */
+select.button {
+    height     : 38px;
+    text-align : left;
+}
+
+
+/*  PROGRESS */
+/* ----------------------------------------------------------------------------- */
+#progress {
+    background : var(--color-blue-500);
+    z-index    : 10;
+}
+#progress-done,
+#progress-current,
+#progress-pending {
+    display    : flex;
+    position   : absolute;
+    top        : 0px;
+    height     : 20px;
+    transition : all ease 0.2s;
+}
+#progress-done {
+    background : var(--color-blue-500);
+    left       : 0px;
+    width      : 0%;
+    z-index    : 1;
+}
+#progress-current {
+    background : var(--color-yellow-600);
+    left       : 0px;
+    width      : 10%;
+    z-index    : 1;
+}
+#progress-text {
+    font-size   : 12px;
+    position    : absolute;
+    top         : 0px;
+    right       : 0px;
+    left        : 0px;
+    height      : 20px;
+    line-height : 20px;
+    text-align  : center;
+    z-index     : 2;
+}
+#progress-pending {
+    left        : -15%;
+    right       : -15%;
+    background  : linear-gradient(270deg, var(--color-blue-900) 40%, var(--color-blue-300) 50%, var(--color-blue-900) 60%);
+    background-size: 200% 200%;
+
+    -webkit-animation: AnimationName 3s ease infinite;
+    -moz-animation: AnimationName 3s ease infinite;
+    animation: AnimationName 3s ease infinite;
+}
+@-webkit-keyframes AnimationName {
+    1000%{background-position:0% 50%}
+    0%{background-position:100% 50%}
+}
+@-moz-keyframes AnimationName {
+    100%{background-position:0% 50%}
+    0%{background-position:100% 50%}
+}
+@keyframes AnimationName { 
+    100%{background-position:0% 50%}
+    0%{background-position:100% 50%}
+}
+
+
+/*  ELEMENTS */
+/* ----------------------------------------------------------------------------- */
+.header {
+    border-bottom   : 2px solid var(--color-surface-level-5);
+    font-size       : 18px;
+    font-weight     : 800;
+    line-height     : 24px;
+    padding         : 0px 8px 16px;
+    text-align      : center;
+}
+.content {
+    display         : flex;
+    flex-direction  : column;
+    overflow-y      : auto;
+    position        : absolute;
+    top             : 60px;
+    right           : 0px;
+    bottom          : 0px;
+    left            : 0px;
+}
+
+
+/*  FILTERS */
+/* ----------------------------------------------------------------------------- */
+#filters .group {
+    display         : flex;
+    flex-direction  : column;
+    gap             : 6px;
+    padding         : 16px 24px;
+}
+#filters .group .text {
+    border-bottom   : 1px solid var(--color-surface-level-1);
+    margin-bottom   : 8px;
+    padding-bottom  : 12px;
+    text-align      : center;
+}
+#filters > .content {
+    gap : 10px;
+}
+.filter-workspace,
+.filter {
+    display     : flex;
+    gap         : 8px;
+    line-height : 38px;
+}
+.filter-workspace > .label,
+.filter > .label {
+    padding-right   : 10px;
+    max-width       : 156px;
+    min-width       : 156px;
+    width           : 156px;
+}
+.filter > .value {
+    display         : flex;
+    flex-direction  : column;
+    gap             : 4px;
+}
+.filter > .value > .inputs { 
+    display : flex; 
+    gap     : 4px; }
+.filter > .value {
+    flex-grow : 1;
+    max-width : 238px;
+}
+.filter > .value select,
+select#workspace {
+    width : 100%;
+}
+.inputs input {
+    flex-grow : 1;
+    padding   : 8px 20px;
+    width     : 100%;
+}
+.filter .icon-delete {
+    font-weight : 200 !important;
+}
+#properties {
+    background    : var(--color-yellow-600) !important;
+    border-color  : var(--color-yellow-600) !important;
+    margin-bottom : 4px;
+}
+#properties:hover {
+    background    : var(--color-yellow-700) !important;
+    border-color  : var(--color-yellow-700) !important;
+}
+.property-name {
+    display   : flex;
+    gap       : 8px;
+    max-width : 166px;
+    min-width : 166px;
+    width     : 166px;
+}
+.property-label {
+    flex-grow : 1;
+}
+.property-value > input {
+    padding : 8px 16px;
+}
+
+
+/*  ACTIONS */
+/* ----------------------------------------------------------------------------- */
+#actions-list {
+    margin-top : 14px;
+}
+.action {
+    background   : var(--color-surface-level-1);
+    border-color : var(--color-surface-level-2) !important;
+}
+.action .title {
+    background  : var(--color-surface-level-3) !important;
+    font-size   : 16px !important;
+    font-weight : 800;
+    line-height : 64px;
+    padding     : 0px 16px;
+    white-space : normal;
+    max-width   : 140px !important;
+    min-width   : 140px !important;
+    width       : 140px !important;
+}
+.action .details {
+    background      : var(--color-surface-level-1);
+    display         : flex;
+    flex-direction  : column;
+    gap             : 8px;
+    padding         : 14px 16px 12px 0px;
+    width           : calc(100% - 220px);
+}
+.action .details select,
+.action .details input {
+    background : var(--color-surface-level-4);
+    border     : none;
+}
+.action.no-select .details {
+    line-height : 64px;
+}
+.action:hover .details,
+.action.selected, 
+.action.selected .details {
+    background : var(--color-blue-500);
+}
+.tile.selected select,
+.tile.selected input {
+    background-color: var(--color-blue-800) !important;
+}
+.action:hover .title,
+.action:hover .title-image,
+.action.selected:hover .title,
+.action.selected:hover .title-image,
+.action.selected select:hover,
+.action.selected input:hover {
+    background-color: var(--color-blue-900) !important;
+    opacity : 1.0;
+}
+.tile .definition {
+    display : flex;
+    gap     : 10px;
+}
+.tile .definition input {
+    min-width   : 160px;
+    padding     : 8px 16px;
+}
+
+
+
+/*  OPTIONS */
+/* ----------------------------------------------------------------------------- */
+.options {
+    display         : flex;
+    flex-direction  : column;
+    gap             : 12px;
+    padding         : 20px 0px;
+}
+.option {
+    display         : flex;
+    flex-direction  : column;
+    gap             : 0px;
+}
+.option > .label {
+    background  : var(--color-surface-level-3);
+    line-height : 38px;
+    padding     : 0px 19px; 
+}
+.options-list > div {
+    display : flex;
+    gap     : 6px;
+}
+.button.selected {
+    border-color : var(--color-blue-500);
+    background : var(--color-selected-image);
+}
+.button.selected:hover {
+    background-color : var(--color-blue-500) !important;
+    border-color : var(--color-blue-500) !important;
+}
+#options-runtime > .option {
+    flex-direction : row;
+}
+#options-runtime {
+    gap : 2px;
+}
+#options-runtime > .option > .label {
+    flex-grow : 1;
+    
+} 
+#options-runtime > .option > .button {
+    border-radius   : 0px;
+    max-width       : 70px;
+    min-width       : 70px;
+    width           : 70px;
+}
+#options-runtime > .option > .button.icon {
+    padding-left  : 8px;
+    padding-right : 8px;
+}
+#options-runtime > .option > input.button {
+    padding-left  : 16px; 
+    padding-right : 0px;
+}
+
+
+
+
+
+/*  CONSOLE */
+/* ----------------------------------------------------------------------------- */
+#console-content {
+    scroll-behavior : smooth;
+}
+#console-toggle {
+    right   : unset;
+    left    : calc(0px - var(--border-h) - 20px);
+    z-index : 10;
+}
+#console-content {
+    top : unset;
+}
+#console-content > div {
+    overflow : visible !important;
+}
+.console-text.red {
+    white-space : normal;
+    overflow    : unset;
+}
+.console-text.red span,
+.console-text.red a {
+    font-weight : bold;
+    color : var(--color-status-red);
+}
+.console-spacer {
+    max-height : 8px !important;
+    min-height : 8px !important;
+    height     : 8px !important;
+}
+#console table {
+    width : 440px;
+}
+#console td {
+    background : var(--color-surface-level-3);
+    font-size  : 12px;
+}
+
+
+@media (max-width: 1920px) {
+
+    :root {
+        --border-h      : 32px;
+        --width-filters : 340px;
+        --width-options : 290px;
+        /* --width-console : 400px; */
+    }
+
+    .filter,
+    .setting {
+        flex-direction : column;
+        gap            : 0px;
+    }
+
+    .filter-workspace {
+        gap : 0px;
+    }
+    .filter-workspace > .label,
+    .filter > .label ,
+    .filter > .property-name {
+        background  : var(--color-surface-level-3);
+        line-height : 38px;
+        padding     : 0px 20px;
+        text-align  : left;
+    }
+    .filter-workspace > .label {
+        max-width : 90px;
+        min-width : 90px;
+            width : 90px;
+    }
+    .filter > .label {
+        flex-grow : 1;
+        max-width : calc(100% - 40px);
+        min-width : calc(100% - 40px);
+           width  : calc(100% - 40px);
+    }
+
+    .filter > .value {
+        max-width : unset;
+    }
+
+    .property-name {
+        padding     : 0px 0px 0px 20px !important;
+        max-width   : calc(100% - 20px);
+        min-width   : calc(100% - 20px);
+            width   : calc(100% - 20px);
+    }
+
+    .filter .icon-delete {
+        height      : 28px;
+        line-height : 28px;
+        margin      : 4px;
+        width       : 28px;
+    }
+
+    .tile {
+        flex-direction : column;
+    }
+
+    .action .title {
+        line-height : 24px !important;
+        max-width   : 100% !important;
+        padding     : 8px 24px;
+        text-align  : left;
+        width       : 100% !important;
+    }
+
+    .tiles.list.xl {
+        gap : 12px;
+    }
+
+    .tiles.list.xl > .tile {
+        gap    : 0px;
+        height : unset;
+    }
+    .tiles.list.xl .tile-image {
+        height : 24px;
+    }
+
+    .action .details {
+        padding : 12px 24px;
+        width   : calc(100% - 48px);
+    }
+
+}
