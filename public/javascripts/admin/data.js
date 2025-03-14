@@ -814,9 +814,11 @@ function startProcessing() {
     options.saveClear     = $('#save-clear'  ).val() || '';
 
     options.testRun       = $('#test-run').hasClass('icon-toggle-on');
-    options.requestsCount = $('#requestsCount').val() || 5;
+    options.requestsCount = Number($('#requestsCount').val()) || 5;
     options.autoTune      = $('#auto-tune').hasClass('icon-toggle-on');
     options.maxErrors     = $('#maxErrors').val() || 10;
+
+    if(options.requestsCount > maxRequestsCount) options.requestsCount = maxRequestsCount;
 
     run.active       = true;
     run.counter      = 1;
@@ -848,6 +850,8 @@ function startProcessing() {
         run.params.filter = getSearchFilters();
         run.params.fields = [ 'DESCRIPTOR' ];
         run.params.sort   = [ 'DESCRIPTOR' ];
+
+        if(run.actionId === 'store-dmsid') run.params.fields.push($('#select-store-dmsid').val());
 
     } else {
 
@@ -899,7 +903,7 @@ function setRecordsData(response) {
 
         if(run.url === '/plm/search') {
 
-            record.link      = wsConfig.link + '/items/' + record.dmsId;
+            record.link       = wsConfig.link + '/items/' + record.dmsId;
             record.dmsId      = record.dmsId.toString();
             record.descriptor = record.fields.entry[0].fieldData.value;
 
@@ -924,76 +928,64 @@ function setRecordsData(response) {
 }
 function processNextRecords() {
 
-    let limit = (records.length < options.requestsCount) ? records.length : options.requestsCount;
-
-    if(limit > maxRequestsCount) limit = maxRequestsCount;
-    if(options.requestsCount > maxRequestsCount) options.requestsCount = maxRequestsCount;
-
+    run.start    = new Date().getTime()/1000;
+    let limit    = (records.length < options.requestsCount) ? records.length : options.requestsCount;
     let requests = genRequests(limit);
 
     if(stopped) return;
 
     updateProgress();
 
-    if(requests.length === 0) {
+    Promise.all(requests).then(function(responses) {
 
-        getNextRecords();
+        let updateRequests = genUpdateRequests(responses);
 
-    } else if(options.testRun) {
+        Promise.all(updateRequests).then(function(responsesUpdate) {
+            
+            run.done += limit;
+            
+            if(stopped) return;
 
-        run.done += requests.length;
-        records.splice(0, limit);
-        processNextRecords();
+            let completionRequests = (updateRequests.length === 0) ? genCompletionRequests(limit, responses) : genCompletionRequests(limit, responsesUpdate);
+            let now  = new Date().getTime()/1000;
+            let diff = now - run.start;
 
-    } else {
+            if(run.done === run.total) options.autoTune = false;
 
-        run.start = new Date().getTime()/1000;
+            Promise.all(completionRequests).then(function() {
 
-        Promise.all(requests).then(function(responses) {
-
-            let updateRequests = genUpdateRequests(responses);
-
-            Promise.all(updateRequests).then(function(responsesUpdate) {
-
-                run.done += requests.length;
-
-                let completionRequests = (updateRequests.length === 0) ? genCompletionRequests(responses) : genCompletionRequests(responsesUpdate);
-                let now  = new Date().getTime()/1000;
-                let diff = now - run.start;
-                
                 if(stopped) return;
-                if(run.done === run.total) options.autoTune = false;
 
-                Promise.all(completionRequests).then(function() {
+                if(options.autoTune) {
 
-                    records.splice(0, limit);
-
-                    if(options.autoTune) {
-
-                        let threshold = (requests.length + updateRequests.length) * diff / 18;
-                        let value     = Math.round(diff * 10000) / 10000;
-        
-                        if(threshold < 1) {
-                            if(options.requestsCount < maxRequestsCount) {
-                                options.requestsCount++;
-                                addLogEntry('Increasing requests count to ' + options.requestsCount + ' (' + value + ' s / request)', 'success');
-                            }
-                        } else {
-                            options.requestsCount--;
-                            addLogEntry('Decreasing requests count to ' + options.requestsCount + ' (' + value + ' s / request)', 'notice');
+                    let threshold = (requests.length + updateRequests.length) * diff / 18;
+                    let value     = Math.round(diff * 10000) / 10000;
+    
+                    if(threshold < 1) {
+                        if(options.requestsCount < maxRequestsCount) {
+                            options.requestsCount++;
+                            addLogEntry('Increasing requests count to ' + options.requestsCount + ' (' + value + ' s / request)', 'success');
                         }
-        
+                    } else {
+                        options.requestsCount--;
+                        addLogEntry('Decreasing requests count to ' + options.requestsCount + ' (' + value + ' s / request)', 'notice');
                     }
+    
+                }
+            
+                records.splice(0, limit);
 
+                if(records.length === 0) {
+                    getNextRecords();
+                } else {
                     processNextRecords();
-
-                });
+                }
 
             });
 
         });
 
-    }
+    });
 
 }
 function genRequests(limit) {
@@ -1013,18 +1005,23 @@ function genRequests(limit) {
         let link    = genItemURL({ link : params.link});
         let message = (options.testRun) ? 'Would process' : 'Processing';
 
-        addLogEntry(message + ' <a target="_blank" href="' + link + '">' + params.descriptor + '</a>', 'count', run.counter++)
+        addLogEntry(message + ' <a target="_blank" href="' + link + '">' + params.descriptor + '</a>', 'count', run.counter++);
 
-        if((options.testRun) || stopped) {
-
-            requests.push({ link : link });
+        if((options.testRun) || stopped) {
 
         } else {
 
             if(run.actionId === 'store-dmsid') {
 
-                addFieldToPayload(params.sections, wsConfig.sections, null, $('#select-store-dmsid').val(), record.dmsId);
-                requests.push($.post('/plm/edit', params));
+                let fieldId = $('#select-store-dmsid').val();
+                let value   = (run.url === '/plm/search') ? getSearchResultFieldValue(record, fieldId, '') : getWorkspaceViewRowValue(record, fieldId, '');
+
+                if(value != record.dmsId) {
+                    addFieldToPayload(params.sections, wsConfig.sections, null, fieldId, record.dmsId);
+                    requests.push($.post('/plm/edit', params));
+                } else {
+                    addLogEntry('Right dmsId is already set for <a target="_blank" href="' + link + '">' + params.descriptor + '</a>', 'notice');
+                }
             
             } else if(run.actionId === 'set-value') {
 
@@ -1108,30 +1105,54 @@ function genUpdateRequests(responses) {
     return requests;
 
 }
-function genCompletionRequests(responses) {
+function genCompletionRequests(limit, responses) {
 
     let requests = [];
 
-    for(let response of responses) {
 
-        if(response.error) {
+    for(let i = 0; i < limit; i++) {
 
-            run.errors.push({
-                link       : response.params.link,
-                descriptor : response.params.descriptor
-            });
+        let record  = records[i];
+        let success = true;
 
-            let link = genItemURL({ link : response.params.link });
+        for(let response of responses) {
 
-            addLogEntry('Error while processing  <a target="_blank" href="' + link + '">' + response.params.descriptor + '</a>', 'error');
-            if(response.message !== '') addLogEntry('Error message: "' + response.message + '"', 'indent');
+            if(record.link === response.params.link) {
 
-        } else {
+                if(response.error) {
 
-            run.success++;
+                    console.log(response);
+
+                    success = false;
+
+                    run.errors.push({
+                        link       : response.params.link,
+                        descriptor : response.params.descriptor
+                    });
+
+                    let link = genItemURL({ link : response.params.link });
+
+                    addLogEntry('Error while processing  <a target="_blank" href="' + link + '">' + response.params.descriptor + '</a>', 'error');
+                    if(response.message !== '') addLogEntry('Error message: "' + response.message + '"', 'indent');
+
+                }
+
+            }
+
+        }
+
+        if(run.errors.length > options.maxErrors) {
+            addLogStoppedByErrors(run.errors);
+            endProcessing();
+            return [];
+        }
+
+        if(success) {
+            
+            run.success++;;
 
             let params = {
-                link       : response.params.link,
+                link       : record.link,
                 sections   : []
             }
 
@@ -1144,12 +1165,6 @@ function genCompletionRequests(responses) {
             if(options.saveClear   !== '--') addFieldToPayload(params.sections, wsConfig.sections, null, options.saveClear  , null    );
 
             if(params.sections.length > 0) requests.push($.post('/plm/edit', params));
-        }
-
-        if(run.errors.length > options.maxErrors) {
-            addLogStoppedByErrors(run.errors);
-            endProcessing();
-            requests = [];
         }
 
     }

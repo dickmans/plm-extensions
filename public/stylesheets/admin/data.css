@@ -221,7 +221,11 @@ select#workspace {
     width     : 166px;
 }
 .property-label {
-    flex-grow : 1;
+    flex-grow       : 1;
+    max-width       : 120px;
+    overflow        : hidden;
+    text-overflow   : ellipsis;
+    white-space     : nowrap;
 }
 .property-value > input {
     padding : 8px 16px;
@@ -264,10 +268,11 @@ select#workspace {
 .action.no-select .details {
     line-height : 64px;
 }
+.action:hover,
 .action:hover .details,
 .action.selected, 
 .action.selected .details {
-    background : var(--color-blue-500);
+    background : var(--color-blue-500) !important;
 }
 .tile.selected select,
 .tile.selected input {
