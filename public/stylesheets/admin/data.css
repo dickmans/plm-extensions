@@ -234,7 +234,7 @@ select#workspace {
     margin-top : 14px;
 }
 .action {
-    background   : var(--color-surface-level-1);
+    background   : var(--color-surface-level-1) !important;
     border-color : var(--color-surface-level-2) !important;
 }
 .action .title {
