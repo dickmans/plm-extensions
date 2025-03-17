@@ -611,7 +611,16 @@ function updateUserTheme(index) {
 
         }
 
-        Promise.all(requests).then(function() {
+        Promise.all(requests).then(function(responses) {
+            for(let response of responses) {
+                if(response.error) {
+                    let message = (response.status === 401) ? 'Could not login as system admin, please review adminClientId and adminClientSecret in your settings file.': response.data.message;
+                    showErrorMessage('Error when setting theme', message);
+                    stopped = true;
+                    endProcessing();
+                    return;
+                }
+            }
             updateUserTheme(index);
         });
  

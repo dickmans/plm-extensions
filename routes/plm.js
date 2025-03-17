@@ -4025,7 +4025,8 @@ router.get('/preference', function(req, res, next) {
         }).catch(function(error) {
             sendResponse(req, res, error.response, true);
         });
-
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
     });
 
 });
