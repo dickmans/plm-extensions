@@ -574,7 +574,7 @@
     width       : 6px;
     position    : sticky;
     left        : 0;
-    z-index     : 6;
+    z-index     : 4;
 }
 .bom-nav {
     cursor          : pointer;
@@ -600,7 +600,7 @@
     text-overflow   : ellipsis;
     position        : sticky;
     left            : 1px;
-    z-index         : 6;
+    z-index         : 4;
 }
 .bom-number {
     min-width   : 28px;
