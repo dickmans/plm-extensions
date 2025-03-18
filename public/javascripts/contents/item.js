@@ -3626,7 +3626,6 @@ function insertBOM(link , params) {
         [ 'hideDetails'         , hideDetails  ],
         [ 'path'                , false ],
         [ 'position'            , true  ],
-        // [ 'quantity'            , false ],
         [ 'reset'               , false ],
         [ 'revisionBias'        , 'release' ],
         [ 'selectItems'         , {}    ],
@@ -3708,16 +3707,13 @@ function insertBOM(link , params) {
     // let multiSelect         = false;     // Enables selection of multiple items and adds buttons to select / deselect all elements as well as checkboxes
     // let path                = true;      // Display path of selected component in BOM, enabling quick navigation to parent(s)
     // let position            = true;      // When set to true, the position / find number will be displayed
-    // let quantity            = false;     // When set to true, the quantity column will be displayed
 
     // let revisionBias        = 'release'; // Set BOM configuration to expand [release, working, changeOrder, allChangeOrder]
     // let selectItems         = {};
     // let selectUnique        = true;      // Defines if only unique items should be returned based on selectItems filter, skipping following instances of the same item
     // let showRestricted      = false;     // When set to true, red lock icons will be shown if an item's BOM contains items that are not accessilbe for the user due to access permissions
-    // let toggles             = true;      // Enables expand all / collapse all buttons on top of BOM
     // let openInPLM           = true;      // Adds button to open selected element in PLM
     // let views               = false;     // Adds drop down menu to select from the available PLM BOM views
-    // let search              = true;      // Adds quick filtering using search input on top of BOM
 
 
 
@@ -4091,7 +4087,7 @@ function insertNextBOMLevel(id, elemTable, bom, parent, parentQuantity, selected
                                 let value = '';
 
                                 if(column.fieldTab === 'STANDARD_BOM') value = getBOMEdgeValue(edge, column.__self__.urn, null, '');
-                                else value = getBOMCellValue(edge.child, column.__self__.urn, bom.nodes);
+                                else value = getBOMCellValue(edge.child, column.__self__.urn, bom.nodes, 'title');
 
                                 $('<td></td>').appendTo(elemRow)
                                     .html(value)
