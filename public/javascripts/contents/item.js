@@ -2504,12 +2504,12 @@ function insertImages(link, params) {
     settings.images[id] = getPanelSettings(link, params, {
         headerLabel : 'Images'
     }, [
-        [ 'layout'    , 'grid' ],
-        [ 'tileSize'  , 'm'    ],
-        [ 'sectionsIn', []     ],
-        [ 'sectionsEx', []     ],
-        [ 'fieldsIn'  , []     ],
-        [ 'fieldsEx'  , []     ]
+        [ 'layout'     , 'grid' ],
+        [ 'contentSize', 'm'    ],
+        [ 'sectionsIn' , []     ],
+        [ 'sectionsEx' , []     ],
+        [ 'fieldsIn'   , []     ],
+        [ 'fieldsEx'   , []     ]
     ]);
 
     settings.images[id].load = function() { insertImagesData(id); }
@@ -2566,7 +2566,7 @@ function insertImagesData(id) {
                                 if(field.type.link === '/api/v3/field-types/15') {
                                     if(!isBlank(field.value)) {
                                         let elemImage = $('<div></div>').appendTo(elemContent).addClass('content-item');
-                                        appendImageFromCache(elemImage, {
+                                        appendImageFromCache(elemImage, settings.images[id], {
                                             icon        : 'icon-image',
                                             imageLink   : field.value.link,
                                             replace     : true

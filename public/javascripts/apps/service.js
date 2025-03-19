@@ -639,11 +639,11 @@ function insertBOMSpareParts(elemParent, selectedItems, urnsSpareParts, flatBOM)
                 $('.spare-part').each(function() {
                     if($(this).attr('data-link') === response.params.link) {
                         let elemImage = $(this).find('.spare-part-image').first();
-                        appendImageFromCache(elemImage, params, function() {});
+                        appendImageFromCache(elemImage, {}, params, function() {});
                     }
                 });
             });
-        } else appendImageFromCache(elemSparePartImage, params, function() {});
+        } else appendImageFromCache(elemSparePartImage, {}, params, function() {});
                     
         let elemSparePartDetails = $('<div></div>').appendTo(elemSparePart)
             .addClass('spare-part-details')

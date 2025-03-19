@@ -212,7 +212,7 @@ function setMarketingImages(elemClicked, elemParent) {
 
         let elemDiv = $('<div></div>').appendTo(elemParent);
 
-        appendImageFromCache(elemDiv, {
+        appendImageFromCache(elemDiv, {}, {
             icon        : 'icon-image',
             imageLink   : imageLink,
             link        : '',
@@ -418,14 +418,14 @@ function selectProduct(elemClicked) {
             contents    : [
                 { type : 'details'     , className : 'surface-level-1', params : { id : 'item-section-details', hideSections : true, sectionsIn: ['Specification'], headerLabel : 'Technical Specification' } },
                 { type : 'grid'        , className : 'surface-level-1', params : { id : 'item-section-grid'   , headerLabel : 'Variants', columnsIn : ['Title', 'Region', 'SKU', 'Target Launch'] } },
-                { type : 'images'      , className : 'surface-level-1', params : { id : 'item-section-images' , layout : 'grid'} },
+                { type : 'images'      , className : 'surface-level-1', params : { id : 'item-section-images' , layout : 'grid', contentSize : 'm'} },
                 { type : 'attachments' , className : 'surface-level-1', params : { id : 'item-section-attachments', editable : false, contentSize : 's' , singleToolbar : 'controls'} },
                 { type : 'bom'         , className : 'surface-level-1', params : { 
-                    id           : 'item-section-bom', 
-                    bomViewName  : config.portfolio.bomViewName,
-                    collapsed    : true , 
-                    hideDetails  : true,
-                    tableHeaders : false,
+                    id                  : 'item-section-bom', 
+                    bomViewName         : config.portfolio.bomViewName,
+                    collapseContents    : true, 
+                    hideDetails         : true,
+                    tableHeaders        : false,
                     onClickItem  : function(elemClicked) { onClickBOMItem(elemClicked); }
                 }, link : product.ebom }
             ],
