@@ -7218,6 +7218,13 @@ function insertItemSummaryContents(id, details, fields, tabs) {
                 }
                 break;
 
+            case 'sourcing':
+                if(tabsAccessible.includes('SOURCING')) {
+                    insertItemSummaryContentTab(id, contentId, tabLabels.SOURCING, content.params, isFirst);          
+                    insertSourcing(link, content.params);
+                }
+                break;
+
             case 'relationships':
                 if(tabsAccessible.includes('RELATIONSHIPS')) {
                     insertItemSummaryContentTab(id, contentId, tabLabels.RELATIONSHIPS, content.params, isFirst);          
