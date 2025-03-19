@@ -280,6 +280,7 @@
 .icon-resize::before            { content : '\ea10'; }
 .icon-rules::before             { content : '\f1c2'; }
 .icon-save::before              { content : '\e2c3'; }
+.icon-screenshot::before        { content : '\e412'; }
 .icon-script::before            { content : '\e86f'; }
 .icon-search::before            { content : '\e8b6'; }
 .icon-search-list::before       { content : '\f02f'; }
