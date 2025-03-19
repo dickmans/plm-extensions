@@ -182,6 +182,7 @@ function setItem1() {
     insertAttachments(linkEmberPrinter, profiles[$('#profiles').val()]);
     insertGrid(linkChangeOrder1, profiles[$('#profiles').val()]);
     insertWorkflowHistory(linkChangeOrder1, profiles[$('#profiles').val()]);
+    insertSourcing(linkSubComponent, profiles[$('#profiles').val()]);
 
 }
 function setItem2() {

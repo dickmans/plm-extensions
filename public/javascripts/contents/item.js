@@ -5839,7 +5839,6 @@ function selectItemMarkup(elemClicked) {
 
 
 
-
 // Insert Managed Items tab
 function insertManagedItems(link, params) {
 
@@ -6369,6 +6368,152 @@ function insertRelationshipsData(id) {
 }
 function insertRelationshipsDone(id) {}
 function insertRelationshipsDataDone(id, data) {}
+
+
+
+// Insert Sourcing tab
+function insertSourcing(link, params) {
+
+    if(isBlank(link)) return;
+    if(isBlank(params)) params = {};
+
+    let id = isBlank(params.id) ? 'sourcing' : params.id;
+    
+    settings.sourcing[id] = getPanelSettings(link, params, {
+        headerLabel : 'Sourcing',
+        layout      : 'table'
+    }, [
+        [ 'filterBySupplier'    , false ],
+        [ 'filterByManufacturer', false ],
+        [ 'groupBy'             , ''    ]
+    ]);
+
+    settings.sourcing[id].load   = function() { insertSourcingData(id); }
+
+    genPanelTop(id, settings.sourcing[id], 'sourcing');
+    genPanelHeader(id, settings.sourcing[id]);
+    genPanelBookmarkButton(id, settings.sourcing[id]);
+    genPanelOpenInPLMButton(id, settings.sourcing[id]);
+    genPanelFilterSelect(id, settings.sourcing[id], 'filterBySupplier', 'supplier', 'All Suppliers');
+    genPanelFilterSelect(id, settings.sourcing[id], 'filterByManufacturer', 'manufacturer', 'All Manufacturers');
+    genPanelSearchInput(id, settings.sourcing[id]);
+    genPanelResizeButton(id, settings.sourcing[id]);
+    genPanelReloadButton(id, settings.sourcing[id]);
+
+    genPanelContents(id, settings.sourcing[id]);
+
+    insertSourcingDone(id);
+
+    settings.sourcing[id].load();
+
+}
+function insertSourcingData(id) {
+
+    settings.sourcing[id].timestamp = startPanelContentUpdate(id);
+
+    let requests    = [
+        $.get('/plm/quotes', {
+            link      : settings.sourcing[id].link,
+            timestamp : settings.sourcing[id].timestamp
+        }),
+    ];
+
+    if((settings.sourcing[id].bookmark)) requests.push($.get('/plm/bookmarks', { link : settings.sourcing[id].link })); 
+
+    Promise.all(requests).then(function(responses) {
+
+        if(stopPanelContentUpdate(responses[0], settings.sourcing[id])) return;
+
+        setPanelBookmarkStatus(id, settings.sourcing[id], responses);
+
+        settings.sourcing[id].columns = [];
+
+        let items             = [];
+        let listSuppliers     = [];
+        let listManufacturers = [];
+        let columns           = [
+            { displayName : 'Supplier'                , fieldId : 'supplier'        },
+            { displayName : 'Supplier Part Number'    , fieldId : 'supplier-pn'     },
+            { displayName : 'Manufacturer'            , fieldId : 'manufacturer'    },
+            { displayName : 'Manufacturer Part Number', fieldId : 'manufacturer-pn' },
+            { displayName : 'Lead Time'               , fieldId : 'lead-time'       },
+            { displayName : 'Unit Cost'               , fieldId : 'unit-cost'       }
+        ]
+
+        for(let column of columns) {
+            if(includePanelTableColumn(column.displayName, settings.sourcing[id], settings.sourcing[id].columns.length)) {
+                settings.sourcing[id].columns.push(column);
+            }
+        }
+
+        for(let supplier of responses[0].data.suppliers) {
+            supplier.sort = supplier.supplier.title;
+        }
+
+        sortArray(responses[0].data.suppliers, 'sort');
+
+        for(let source of responses[0].data.suppliers) {
+
+            let supplierName     = source.supplier.title;
+            let manufacturerName = source.manufacturer;
+
+            if(!listSuppliers.includes(supplierName)) listSuppliers.push(supplierName);
+            if(!listManufacturers.includes(manufacturerName)) listManufacturers.push(manufacturerName);
+
+            for(let quote of source.quotes.data) {
+
+                let contentItem = genPanelContentItem(settings.sourcing[id], {
+                    title : source.supplierPartNumber + ' ' + supplierName + ' | ' + manufacturerName,
+                    subtitle : quote.unitPrice
+                });
+    
+                contentItem.data = [
+                    { fieldId : 'supplier'       , value : supplierName },
+                    { fieldId : 'supplier-pn'    , value : source.supplierPartNumber },
+                    { fieldId : 'manufacturer'   , value : manufacturerName },
+                    { fieldId : 'manufacturer-pn', value : source.manufacturerPartNumber },
+                    { fieldId : 'lead-time'      , value : quote.leadTime },
+                    { fieldId : 'unit-cost'      , value : quote.unitPrice }
+                ];
+    
+                switch(settings.sourcing[id].groupBy) {
+
+                    case 'supplier':
+                        contentItem.group = supplierName;
+                        contentItem.title = source.supplierPartNumber + ' | ' + manufacturerName;
+                        break;
+
+                    case 'manufacturer':
+                        contentItem.group = manufacturerName;
+                        contentItem.title = source.supplierPartNumber + ' ' + supplierName;
+                        break;
+
+                }
+
+                contentItem.filters = [
+                    { key : 'supplier', value : supplierName },
+                    { key : 'manufacturer', value : manufacturerName }
+                ];
+
+                items.push(contentItem);
+
+            }
+
+        }
+
+        sortArray(listSuppliers, 0);
+        sortArray(listManufacturers, 0);
+        setPanelFilterOptions(id, 'supplier', listSuppliers);
+        setPanelFilterOptions(id, 'manufacturer', listManufacturers);
+
+        finishPanelContentUpdate(id, settings.sourcing[id], items);
+        insertSourcingDataDone(id, responses[0]);        
+ 
+    });
+
+}
+function insertSourcingDone(id) {}
+function insertSourcingDataDone(id, rows, columns) {}
 
 
 

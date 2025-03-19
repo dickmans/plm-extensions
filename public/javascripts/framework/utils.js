@@ -24,6 +24,7 @@ let settings = {
     managedItems      : {},
     processes         : {},
     relationships     : {},
+    sourcing          : {},
     changeLog         : {},
     summary           : {},
     recents           : {},
@@ -2601,10 +2602,13 @@ function genSingleTile(params, settings) {
             let label = params.status;
 
             for(let stateColor of settings.stateColors) {
+                console.log(settings);
                 if(!isBlank(stateColor.state)) {
-                    if(stateColor.name.toLowerCase() === params.status.toLowerCase()) {
-                        color = stateColor.color;
-                        if(!isBlank(stateColor.label)) label = stateColor.label;
+                    if(!isBlank(params.status)) {
+                        if(stateColor.name.toLowerCase() === params.status.toLowerCase()) {
+                            color = stateColor.color;
+                            if(!isBlank(stateColor.label)) label = stateColor.label;
+                        }
                     }
                 } else if(!isBlank(stateColor.states)) {
                     if(stateColor.states.includes(params.status)) {

@@ -54,7 +54,8 @@
 #details          { top : 0px; right : 70%; bottom : 0px; left : 0px; } 
 #attachments      { top : 0px; right : 20%; bottom : 50%; left : 30%; }
 #grid             { top : 50%; right : 20%; bottom : 0px; left : 30%; }
-#workflow-history { top : 0px; right : 0px; bottom : 0px; left : 80%; } 
+#workflow-history { top : 0px; right : 0px; bottom : 50%; left : 80%; } 
+#sourcing         { top : 50%; right : 0px; bottom : 0px; left : 80%; } 
 
 #change-log    { top : 0px; right : 25%; bottom : 50%; left : 0px; }
 #relationships { top : 0px; right : 0px; bottom : 50%; left : 75%; }
