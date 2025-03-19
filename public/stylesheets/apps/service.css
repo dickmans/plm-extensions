@@ -117,7 +117,7 @@
 .no-bom .viewer      { left : 0px; }
 .no-bom #attachments { left : 0px; }
 
-.no-attachments .viewer      { bottom : var(--padding-panel); }
+.no-attachments .viewer      { bottom : 0px; }
 .no-attachments #attachments { bottom : calc(2 * var(--height-attachments) * -1); }
 
 
