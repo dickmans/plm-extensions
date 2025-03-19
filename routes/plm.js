@@ -1403,6 +1403,110 @@ router.get('/grid-columns', function(req, res, next) {
 });
 
 
+/* ----- SOURCING : Get all suppliers ----- */
+router.get('/sources', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /sources');
+    console.log(' --------------------------------------------'); 
+    console.log('  req.query.wsId    = ' + req.query.wsId);
+    console.log('  req.query.dmsId   = ' + req.query.dmsId);
+    console.log('  req.query.link    = ' + req.query.link);
+    console.log(); 
+    
+    let url =  (typeof req.query.link !== 'undefined') ? req.query.link : '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId;
+        url  = req.app.locals.tenantLink + url;
+        url += '/views/8/suppliers';
+
+    axios.get(url, {
+        headers : req.session.headers
+    }).then(function(response) {
+        sendResponse(req, res, response, false);
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+    
+});
+
+
+/* ----- SOURCING : Get single quote ----- */
+router.get('/quote', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /quote');
+    console.log(' --------------------------------------------'); 
+    console.log('  req.query.link    = ' + req.query.link);
+    console.log(); 
+    
+    let url = req.app.locals.tenantLink + req.query.link;
+
+    axios.get(url, {
+        headers : req.session.headers
+    }).then(function(response) {
+        sendResponse(req, res, response, false);
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+    
+});
+
+
+/* ----- SOURCING : Get all quotes ----- */
+router.get('/quotes', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /quotes');
+    console.log(' --------------------------------------------'); 
+    console.log('  req.query.wsId    = ' + req.query.wsId);
+    console.log('  req.query.dmsId   = ' + req.query.dmsId);
+    console.log('  req.query.link    = ' + req.query.link);
+    console.log(); 
+    
+    let url =  (typeof req.query.link !== 'undefined') ? req.query.link : '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId;
+        url  = req.app.locals.tenantLink + url;
+        url += '/views/8/suppliers';
+
+    axios.get(url, {
+        headers : req.session.headers
+    }).then(function(response) {
+        
+        let requests = [];
+
+        for (let supplier of response.data.suppliers) {
+            requests.push(runPromised(getTenantLink(req) + supplier.quotes.link, req.session.headers));
+        }
+
+        Promise.all(requests).then(function(responses) {
+
+            for (let supplier of response.data.suppliers) {
+
+                let linkQuotes = supplier.quotes.link;
+                let result     = [];
+
+                for(let quotes of responses) {
+                    for(let quote of quotes) {
+                        if(quote.__self__.indexOf(linkQuotes) === 0) {
+                            result.push(quote);
+                        }
+                    }
+                }
+
+                supplier.quotes.data = result;
+
+            }
+
+            sendResponse(req, res, response, false);
+            
+        });
+
+
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+    
+});
+
+
 /* ----- RELATIONSHIPS ----- */
 router.get('/relationships', function(req, res, next) {
     
