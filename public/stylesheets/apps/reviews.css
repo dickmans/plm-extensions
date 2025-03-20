@@ -130,9 +130,9 @@ textarea:focus {
 }
 #panel textarea {
     font-family : sans-serif;
-    padding     : 10px;
+    padding     : 18px;
     resize      : vertical;
-    width       : calc(100% - 16px);
+    width       : calc(100% - 36px);
 }
 .panel-data {
     overflow-y  : auto;
@@ -144,20 +144,22 @@ textarea:focus {
     transition  : all ease 0.25s;
 }
 .form-header {
-    border-top  : 2px solid var(--color-surface-level-5);
+    background  : var(--color-surface-level-5);
     font-size   : 18px;
     font-weight : bold;
-    margin-top  : 24px;
-    padding     : 18px 14px 0px 14px;
-}
-.form-header.first {
-    border      : none;
-    padding-top : 4px;
+    margin-top  : 6px;
+    padding     : 18px 18px 0px 18px;
 }
 .form-hint {
+    background  : var(--color-surface-level-5);
     color       : var(--color-font);
-    font-size   : 14px;
-    padding     : 6px 14px 10px 14px;
+    font-size   : 12px;
+    padding     : 2px 18px 10px 18px;
+}
+.form-message {
+    color           : var(--color-yellow-500);
+    padding         : 18px;
+    margin-bottom   : 18px;
 }
 
 

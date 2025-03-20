@@ -68,8 +68,8 @@ block body
 
                     .panel-content-toolbar
                         #button-save-comments.button.default Save
-                    .panel-content-data#comments-data
-                        .form-header.first Requirements
+                    .panel-content-data#comments-data.no-scrollbar
+                        .form-header Requirements
                         .form-hint Define additional requirements that are not met by the design
                         textarea#requirements(rows="6")
                         .form-header Issues
@@ -84,7 +84,7 @@ block body
                         .form-header Deficiencies
                         .form-hint Any deficiency should go in here
                         textarea#deficiencies(rows="6")
-                        .form-hint.last Please note that you can use the tab Files to upload documents with additional contents or even define a given action for us to follow up in the Actions tab.
+                        .form-message Please note that you can use the tab Files to upload documents with additional contents or even define a given action for us to follow up in the Actions tab.
                 
                 .panel-content.with-toolbar#files.surface-level-1
 
