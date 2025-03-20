@@ -974,6 +974,7 @@ function insertResults(wsId, filters, params) {
         [ 'fields'          , ['DESCRIPTOR'] ],
         [ 'sortBy'          , ['DESCRIPTOR'] ],
         [ 'groupBy'         , '' ],
+        [ 'autoClick'       , false ],
         [ 'editable'        , false ],
         [ 'filterEmpty'     , false ],
         [ 'tileImageFIeldId', '' ]
@@ -1171,6 +1172,13 @@ function insertResultsData(id) {
         }
 
         finishPanelContentUpdate(id, settings.results[id], items);
+
+        if(settings.results[id].autoClick) {
+            if($('#' + id + '-content').find('.content-item').length > 0) {
+                $('#' + id + '-content').find('.content-item').first().click();
+            }
+        }
+
         insertResultsDataDone(id, responses);
 
     });
