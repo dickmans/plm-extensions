@@ -7178,8 +7178,7 @@ function insertItemSummaryContents(id, details, fields, tabs) {
 
             case 'viewer':
                 if(tabsAccessible.includes('PART_ATTACHMENTS')) {
-                    insertItemSummaryContentTab(id, contentId, 'Viewer', content.params, isFirst);          
-                    insertViewer(settings.summary[id].linkViewable, content.params);
+                    insertItemSummaryContentTab(id, contentId, 'Viewer', content.params, isFirst);  
                 }
                 break;
 
@@ -7296,6 +7295,10 @@ function insertItemSummaryContentTab(id, contentId, label, params, isFirst) {
                     $(this).addClass('hidden');
                 }
             });
+
+            if(label === 'Viewer') {
+                insertViewer(settings.summary[id].link, params);
+            }
 
         });
     
