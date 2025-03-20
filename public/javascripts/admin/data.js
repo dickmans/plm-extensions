@@ -182,6 +182,7 @@ function updatefilters() {
     $('.permission-archive').addClass('hidden');
     $('.permission-edit').addClass('hidden');
     $('.permission-summary').addClass('hidden');
+    $('.permission-attachments').addClass('hidden');
     $('.select-status').children().remove();
     $('.select-script').children().remove();
     $('.select-field').children().remove();
@@ -233,9 +234,9 @@ function updatefilters() {
             let permissionLabel = permission.name.split('.shortname.')[1];
 
             switch(permissionLabel) {
-
-                case 'edit_items'  : $('.permission-edit'   ).removeClass('hidden'); break;
-                case 'delete_items': $('.permission-archive').removeClass('hidden'); break;
+                case 'edit_items'        : $('.permission-edit'       ).removeClass('hidden'); break;
+                case 'delete_items'      : $('.permission-archive'    ).removeClass('hidden'); break;
+                case 'delete_attachments': $('.permission-attachments').removeClass('hidden'); break;
                 case 'view_owner_and_change_summary_section': $('.permission-summary').removeClass('hidden'); break;
             }
 
@@ -1002,7 +1003,7 @@ function genRequests(limit) {
             sections   : []
         }
 
-        let link    = genItemURL({ link : params.link});
+        let link    = genItemURL({ link : params.link });
         let message = (options.testRun) ? 'Would process' : 'Processing';
 
         addLogEntry(message + ' <a target="_blank" href="' + link + '">' + params.descriptor + '</a>', 'count', run.counter++);
@@ -1052,6 +1053,10 @@ function genRequests(limit) {
 
                 requests.push($.post('/plm/set-owner', params));
 
+            } else if(run.actionId === 'delete-attachments') {
+
+                requests.push($.get('/plm/attachments', params));
+
             } else if(run.actionId === 'perform-transition') {
 
                 params.transition = $('#select-perform-transition').val();
@@ -1097,6 +1102,35 @@ function genUpdateRequests(responses) {
             addFieldToPayload(params.sections, wsConfig.sections, null, fieldId, value, false);
 
             requests.push($.post('/plm/edit', params));
+                
+        } else if(run.actionId === 'delete-attachments') {
+
+            if(response.data.length > 0) {
+
+                params.fileIds = [];
+
+                for(let attachment of response.data) {
+
+                    let filename    = attachment.name.toLowerCase();
+                    let filenamesIn = $('#input-delete-attachments-in').val().toLowerCase();
+                    let filenamesEx = $('#input-delete-attachments-ex').val().toLowerCase();
+                    let deleteFile  = false;
+
+                    if((filenamesIn === '') || (filename.indexOf(filenamesIn) < 0)) {
+                        if((filenamesEx === '') || (filename.indexOf(filenamesEx) > -1)) {
+                            params.fileIds.push(attachment.id); 
+                            deleteFile = true;
+                        }
+                    }
+
+                    if(deleteFile) addLogEntry('DELETING file ' + attachment.name + ' of ' + params.descriptor, 'notice');
+                              else addLogEntry('KEEPING  file ' + attachment.name + ' of ' + params.descriptor, 'notice');
+                    
+                }
+
+                if(params.fileIds.length > 0) requests.push($.get('/plm/delete-attachments', params));
+
+            }
 
         }
 

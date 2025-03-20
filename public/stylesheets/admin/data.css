@@ -295,7 +295,9 @@ select#workspace {
     min-width   : 160px;
     padding     : 8px 16px;
 }
-
+#delete-attachments input {
+    width : 50%;
+}
 
 
 /*  OPTIONS */

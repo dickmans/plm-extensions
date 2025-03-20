@@ -219,6 +219,14 @@ block body
                                     select.select-transition.button.options-list#select-perform-transition(data-empty-label='Select Editable Field')
                                     input#input-perform-transition(placeholder="Enter comment")
 
+                        .tile.action.permission-attachments#delete-attachments  
+                            .title.tile-image Delete Files
+                            .details   
+                                .description Deletes files in attachments tab (all or the ones matching / not matching the filters below)
+                                .definition
+                                    input#input-delete-attachments-in(placeholder="Filenames to keep")
+                                    input#input-delete-attachments-ex(placeholder="Filenames to delete")
+
                         .tile.action.permission-edit#run-script  
                             .title.tile-image Run Script
                             .details   
