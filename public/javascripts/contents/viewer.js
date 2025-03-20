@@ -198,6 +198,7 @@ function initViewer(id, viewables, params) {
 }
 function onPDFLoadSuccess(doc) {
 
+    viewerDone = true;
     setViewerFeatures();
 }
 function onDocumentLoadSuccess(doc) {
@@ -382,7 +383,6 @@ function insertFileBrowser() {
             for(let viewerFile of viewerFiles) {
 
                 let elemFile = $('<div></div>').appendTo(elemFilesList)
-                    .attr('data-urn', viewerFile.urn)
                     .addClass('tile')
                     .click(function(e) {
                         e.preventDefault();
@@ -390,14 +390,18 @@ function insertFileBrowser() {
                         $(this).siblings().removeClass('selected');
                         $(this).addClass('selected');
                         $('#viewer-file-browser').hide();
-                        viewerSwitchFile($(this));
+                        viewerSwitchFile($(this).index());
                     })
 
                 let elemFileThumbnail = $('<div></div>').appendTo(elemFile)
                     .addClass('tile-image');
 
-                $('<img></img>').appendTo(elemFileThumbnail)
-                    .attr('src', viewerFile.thumbnail);
+                if(viewerFile.type === 'Adobe PDF') {
+                    elemFileThumbnail.addClass('icon').addClass('icon-pdf');
+                } else {                    
+                    $('<img></img>').appendTo(elemFileThumbnail)
+                        .attr('src', viewerFile.thumbnail);
+                }
 
                 let elemFileDetails = $('<div></div>').appendTo(elemFile)
                     .addClass('tile-details');
@@ -412,8 +416,10 @@ function insertFileBrowser() {
                 $('<div></div>').appendTo(elemFileDetails)
                     .html('Version : ' + viewerFile.version);
                 
+                let creationDate = new Date(viewerFile.timestamp);
+
                 $('<div></div>').appendTo(elemFileDetails)
-                    .html('Date : ' + viewerFile.timestamp);
+                    .html('Date : ' + creationDate.toLocaleString());
 
             }
 
@@ -522,32 +528,44 @@ function setViewerInstancedDataDone() {
 
 
 // Switch to other file
-function viewerSwitchFile(elemFile) {
+function viewerSwitchFile(index) {
 
-    let urn     = elemFile.attr('data-urn');
+    let viewerFile = viewerFiles[index];
+
     newInstance = false;
-    viewerDone  = false;
-    
+
     viewer.toolbar.setVisible(false);
     viewerUnloadAllModels();
-    
-    Autodesk.Viewing.Document.load('urn:'+ urn, function(doc) {
 
-        let viewable = doc.getRoot().getDefaultGeometry();
+    viewerDone  = false;
 
-        if (viewable) {
-            // viewer.loadDocumentNode(doc, viewable).then(function(result) {
-            viewer.loadDocumentNode(doc, viewable, {globalOffset: {x:0,y:0,z:0}}).then(function(result) {
-                viewer.setBackgroundColor(viewerSettings.backgroundColor[0], viewerSettings.backgroundColor[1], viewerSettings.backgroundColor[2], viewerSettings.backgroundColor[3], viewerSettings.backgroundColor[4], viewerSettings.backgroundColor[5]);
-                viewerDone = true;
-                // initViewerDone();
-            }).catch(function(err) {
-                console.log(err);
-            });
-        }
+    if(viewerFile.type === 'Adobe PDF') {
 
+        viewer.loadExtension('Autodesk.PDF').then( () => {
+            viewerFeatures.markup = true;
+            viewer.setBackgroundColor(viewerSettings.backgroundColor[0], viewerSettings.backgroundColor[1], viewerSettings.backgroundColor[2], viewerSettings.backgroundColor[3], viewerSettings.backgroundColor[4], viewerSettings.backgroundColor[5]);
+            viewer.loadModel(viewerFile.link, viewer, onPDFLoadSuccess, onDocumentLoadFailure);
+        });    
 
-    });
+    } else {
+
+        Autodesk.Viewing.Document.load('urn:' + viewerFile.urn, function(doc) {
+            
+            let viewable = doc.getRoot().getDefaultGeometry();
+            
+            if (viewable) {
+                viewer.loadDocumentNode(doc, viewable, {globalOffset: {x:0,y:0,z:0}}).then(function(result) {
+                    viewer.setBackgroundColor(viewerSettings.backgroundColor[0], viewerSettings.backgroundColor[1], viewerSettings.backgroundColor[2], viewerSettings.backgroundColor[3], viewerSettings.backgroundColor[4], viewerSettings.backgroundColor[5]);
+                    viewerDone = true;
+                }).catch(function(err) {
+                    console.log(err);
+                });
+            }
+                
+                
+        });
+            
+    }
 
 }
 
@@ -2010,6 +2028,8 @@ function viewerLeaveMarkupMode() {
 
     markup.leaveEditMode();
     markup.hide();
+
+    setViewerFeatures();
 
     restoreMarkupSVG   = '';
     restoreMarkupState = '';
