@@ -1511,6 +1511,7 @@ function insertDetails(link, params) {
         [ 'hideReadOnly'       , false ],
         [ 'hideSections'       , false ],
         [ 'requiredFieldsOnly' , false ],
+        [ 'saveButtonLabel'    , 'Save' ],
         [ 'suppressLinks'      , false ],
         [ 'toggles'            , false ],
         [ 'sectionsIn'         , [] ],
@@ -1566,7 +1567,7 @@ function insertDetails(link, params) {
     } else if(settings.details[id].editable) {
 
         genPanelFooterActionButton(id, settings.details[id], 'save', {
-            label   : 'Save Changes',
+            label   : settings.details[id].saveButtonLabel,
             title   : 'Save changes to PLM',
             default : true
         }, function() { 
