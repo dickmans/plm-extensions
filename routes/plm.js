@@ -2316,6 +2316,7 @@ router.get('/get-viewables', function(req, res, next) {
                             status        : '',
                             fileUrn       : '',
                             thumbnail     : attachment.thumbnails.large,
+                            timestamp     : attachment.created.timeStamp,
                             token         : req.session.headers.token
                         });
                     }
