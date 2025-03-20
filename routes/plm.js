@@ -2155,6 +2155,44 @@ function setStatus(req, fileId, callback) {
 }
 
 
+
+/* ----- ATTACHMENTS : Delete defined attachments ----- */
+router.get('/delete-attachments', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /delete-attachments');
+    console.log(' --------------------------------------------');  
+    console.log('  req.query.wsId    = ' + req.query.wsId);
+    console.log('  req.query.dmsId   = ' + req.query.dmsId);
+    console.log('  req.query.link    = ' + req.query.link);
+    console.log('  req.query.fileIds = ' + req.query.fileIds);
+    console.log();
+
+    let fileIds     = req.query.fileIds || [];
+    let attachments = [];
+    let url         =  (typeof req.query.link !== 'undefined') ? req.query.link : '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId;
+        url         = req.app.locals.tenantLink + url + '/attachments';
+    
+    for(let fileId of fileIds) {
+        attachments.push({
+            op    : 'replace',
+            path  : '/attachments/' + fileId + '/status/name', 
+            value : 'Delete'
+        });
+    }
+
+    axios.patch(url, attachments, {
+        headers : req.session.headers
+    }).then(function(response) {
+        sendResponse(req, res, response, false);
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+    
+});
+
+
+
 /* ----- LIST ALL VIEWABLE ATTACHMENTS ----- */
 // removed in jan 2023, use get viewables instead
 // router.get('/list-viewables', function(req, res, next) {
