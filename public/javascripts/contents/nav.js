@@ -1137,11 +1137,20 @@ function insertResultsData(id) {
                 for(let column of settings.results[id].columns) {
 
                     if(field.key === column.fieldId) {
-                    
+
                         let value = field.fieldData.value;
-                    
-                        if(field.fieldData.dataType === 'Check Box') {
-                            value = (field.fieldData.value === 't');
+                        let type  = field.fieldData.dataType;
+
+                        switch(type) {
+
+                            case 'Check Box':
+                                value = (field.fieldData.value === 't');
+                                break;
+
+                            case 'Date':
+                                value = field.fieldData.formattedValue;
+                                break;
+
                         }
                     
                         contentItem.data.push({
