@@ -84,6 +84,10 @@ function setUIEvents() {
 
 
     // Common Options
+    $('#save-text').on('change', function() {
+        if($(this).val() === '--') $('#save-text-value').addClass('hidden');
+        else $('#save-text-value').removeClass('hidden');
+    });
     $('.toggle').click(function() {
         $(this).toggleClass('filled').toggleClass('icon-toggle-on').toggleClass('icon-toggle-off');
     })
@@ -93,9 +97,13 @@ function setUIEvents() {
     $('#clear-console').click(function() {
         $('#console-content').html('');
     });
+    $('#test-run').click(function() {
+        if($(this).hasClass('disabled')) return;
+        $(this).toggleClass('filled').toggleClass('icon-toggle-on').toggleClass('icon-toggle-off');
+    });
     $('#start').click(function() {
         if($(this).hasClass('disabled')) return;
-        startProcessing();
+        validateInputs();
     });
     $('#stop').click(function() {
         if(!$(this).hasClass('red')) return;
@@ -183,11 +191,13 @@ function updatefilters() {
     $('.permission-edit').addClass('hidden');
     $('.permission-summary').addClass('hidden');
     $('.permission-attachments').addClass('hidden');
+    $('.permission-bom-view').addClass('hidden');
     $('.select-status').children().remove();
     $('.select-script').children().remove();
     $('.select-field').children().remove();
     $('#filter-properties').addClass('hidden');
     $('.property-filter').remove();
+    $('#save-text-value').addClass('hidden');
 
     $('.select-user').each(function() {
         $(this).val('--');
@@ -237,6 +247,7 @@ function updatefilters() {
                 case 'edit_items'        : $('.permission-edit'       ).removeClass('hidden'); break;
                 case 'delete_items'      : $('.permission-archive'    ).removeClass('hidden'); break;
                 case 'delete_attachments': $('.permission-attachments').removeClass('hidden'); break;
+                case 'view_bom'          : $('.permission-bom-view').removeClass('hidden'); break;
                 case 'view_owner_and_change_summary_section': $('.permission-summary').removeClass('hidden'); break;
             }
 
@@ -345,6 +356,7 @@ function setPropertySelectors() {
 
         let elemSelect     = $(this);
         let onlyDateFields = elemSelect.hasClass('field-type-date');
+        let onlyTextFields = elemSelect.hasClass('field-type-text');
         let onlyCheckboxes = elemSelect.hasClass('field-type-check');
         let onlyEditable   = elemSelect.hasClass('field-editable');
         let label          = 'Select Field';
@@ -364,6 +376,7 @@ function setPropertySelectors() {
             field.id = fieldId;
 
             if(onlyDateFields) { if(type !== 'Date') add = false; }
+            if(onlyTextFields) { if(type !== 'Single Line Text') add = false; }
             if(onlyCheckboxes) { if(type !== 'Check Box') add = false; }
             if(onlyEditable)   { if(field.editability !== 'ALWAYS') add = false; }
             if(onlyEditable)   { if(type === 'Multiple Selection') add = false; }
@@ -430,42 +443,51 @@ function insertPropertyFilter() {
                 .attr('value', '--')
                 .html('Any Value');   
 
-            $('<option></option>').appendTo(elemSelect).attr('value', 'ib').html('Is Blank');  
-            $('<option></option>').appendTo(elemSelect).attr('value', 'nb').html('Is Not Blank');  
+            if(field.type.title === 'Check Box') {
 
-            switch(field.type.title) {
+                $('<option></option>').appendTo(elemSelect).attr('value', 'it').html('True');  
+                $('<option></option>').appendTo(elemSelect).attr('value', 'if').html('False');  
 
-                case 'Single Line Text':
-                    $('<option></option>').appendTo(elemSelect).attr('value', 'text-is').html('Is');  
-                    $('<option></option>').appendTo(elemSelect).attr('value', 'text-sw').html('Starts With');  
-                    $('<option></option>').appendTo(elemSelect).attr('value', 'text-ew').html('Ends With');  
-                    $('<option></option>').appendTo(elemSelect).attr('value', 'text-co').html('Contains');
-                    $('<option></option>').appendTo(elemSelect).attr('value', 'text-dn').html('Does Not Contain');  
-                    $('<input></input>').appendTo(elemValue).attr('placeholder', 'Enter Text').addClass('hidden').on('change', function() { getMatches(); });
-                    break;
+            } else {
 
-                case 'Date':
-                    $('<option></option>').appendTo(elemSelect).attr('value', 'to').html('Today');  
-                    $('<option></option>').appendTo(elemSelect).attr('value', 'nt').html('Not Today');  
-                    $('<option></option>').appendTo(elemSelect).attr('value', 'tw').html('This Week');  
-                    $('<option></option>').appendTo(elemSelect).attr('value', 'tm').html('This Month');  
-                    $('<option></option>').appendTo(elemSelect).attr('value', 'ty').html('This Year');  
-                    $('<option></option>').appendTo(elemSelect).attr('value', 'lw').html('Last Week');  
-                    $('<option></option>').appendTo(elemSelect).attr('value', 'lm').html('Last Month');  
-                    $('<option></option>').appendTo(elemSelect).attr('value', 'ly').html('Last Year');  
-                    $('<option></option>').appendTo(elemSelect).attr('value', 'nw').html('Next Week');  
-                    $('<option></option>').appendTo(elemSelect).attr('value', 'nm').html('Next Month');  
-                    $('<option></option>').appendTo(elemSelect).attr('value', 'ny').html('Next Year');  
-                    $('<option></option>').appendTo(elemSelect).attr('value', 'et').html('Equal To');  
-                    $('<option></option>').appendTo(elemSelect).attr('value', 'ne').html('Not Equal To');  
-                    $('<option></option>').appendTo(elemSelect).attr('value', '-d').html('In Last Number Of Days');  
-                    $('<option></option>').appendTo(elemSelect).attr('value', '+d').html('In Next Number Of Days');  
-                    $('<option></option>').appendTo(elemSelect).attr('value', 'bw').html('Between');  
-                    let elemInputs = $('<div></div>').appendTo(elemValue).addClass('inputs');
-                    $('<input></input>').appendTo(elemInputs).attr('type', 'date').addClass('hidden').addClass('date-1').on('change', function() { getMatches(); });
-                    $('<input></input>').appendTo(elemInputs).attr('type', 'date').addClass('hidden').addClass('date-2').on('change', function() { getMatches(); });
-                    $('<input></input>').appendTo(elemInputs).attr('type', 'number').addClass('hidden').addClass('number').attr('placeholder', '# of days').on('change', function() { getMatches(); });
-                    break;
+                $('<option></option>').appendTo(elemSelect).attr('value', 'ib').html('Is Blank');  
+                $('<option></option>').appendTo(elemSelect).attr('value', 'nb').html('Is Not Blank');  
+
+                switch(field.type.title) {
+
+                    case 'Single Line Text':
+                        $('<option></option>').appendTo(elemSelect).attr('value', 'text-is').html('Is');  
+                        $('<option></option>').appendTo(elemSelect).attr('value', 'text-sw').html('Starts With');  
+                        $('<option></option>').appendTo(elemSelect).attr('value', 'text-ew').html('Ends With');  
+                        $('<option></option>').appendTo(elemSelect).attr('value', 'text-co').html('Contains');
+                        $('<option></option>').appendTo(elemSelect).attr('value', 'text-dn').html('Does Not Contain');  
+                        $('<input></input>').appendTo(elemValue).attr('placeholder', 'Enter Text').addClass('hidden').on('change', function() { getMatches(); });
+                        break;
+
+                    case 'Date':
+                        $('<option></option>').appendTo(elemSelect).attr('value', 'to').html('Today');  
+                        $('<option></option>').appendTo(elemSelect).attr('value', 'nt').html('Not Today');  
+                        $('<option></option>').appendTo(elemSelect).attr('value', 'tw').html('This Week');  
+                        $('<option></option>').appendTo(elemSelect).attr('value', 'tm').html('This Month');  
+                        $('<option></option>').appendTo(elemSelect).attr('value', 'ty').html('This Year');  
+                        $('<option></option>').appendTo(elemSelect).attr('value', 'lw').html('Last Week');  
+                        $('<option></option>').appendTo(elemSelect).attr('value', 'lm').html('Last Month');  
+                        $('<option></option>').appendTo(elemSelect).attr('value', 'ly').html('Last Year');  
+                        $('<option></option>').appendTo(elemSelect).attr('value', 'nw').html('Next Week');  
+                        $('<option></option>').appendTo(elemSelect).attr('value', 'nm').html('Next Month');  
+                        $('<option></option>').appendTo(elemSelect).attr('value', 'ny').html('Next Year');  
+                        $('<option></option>').appendTo(elemSelect).attr('value', 'et').html('Equal To');  
+                        $('<option></option>').appendTo(elemSelect).attr('value', 'ne').html('Not Equal To');  
+                        $('<option></option>').appendTo(elemSelect).attr('value', '-d').html('In Last Number Of Days');  
+                        $('<option></option>').appendTo(elemSelect).attr('value', '+d').html('In Next Number Of Days');  
+                        $('<option></option>').appendTo(elemSelect).attr('value', 'bw').html('Between');  
+                        let elemInputs = $('<div></div>').appendTo(elemValue).addClass('inputs');
+                        $('<input></input>').appendTo(elemInputs).attr('type', 'date').addClass('hidden').addClass('date-1').on('change', function() { getMatches(); });
+                        $('<input></input>').appendTo(elemInputs).attr('type', 'date').addClass('hidden').addClass('date-2').on('change', function() { getMatches(); });
+                        $('<input></input>').appendTo(elemInputs).attr('type', 'number').addClass('hidden').addClass('number').attr('placeholder', '# of days').on('change', function() { getMatches(); });
+                        break;
+
+                }
 
             }
 
@@ -758,6 +780,9 @@ function getPropertyFilter(elemSelect, filterValue) {
 
     switch(filterValue) {
 
+        case 'it': filter.comparator = 13; break;
+        case 'if': filter.comparator = 14; break;
+
         case 'ib': filter.comparator = 20; break;
         case 'nb': filter.comparator = 21; break;
         
@@ -801,25 +826,52 @@ function setPicklistValues(elemSelect, link) {
 
 
 // Perform the selected action on the matching records
+function validateInputs() {
+
+    let elemAction = $('.action.selected');
+    let proceed    = true;
+
+    if(elemAction.length === 0) { 
+        proceed = false;  addLogEntry('Cannot start, no action is selected', 'error') 
+    } else {
+        if(elemAction.attr('id') !== 'delete-attachments') {
+            elemAction.find('select').each(function() {
+                if($(this).val() === '--') {
+                    addLogEntry('Cannot start: Action options are not set', 'error') ;
+                    proceed = false;
+                }
+            });
+        }
+    }
+
+    if(proceed) startProcessing();
+
+}
 function startProcessing() {
 
     $('#stop').addClass('red');
+    $('#test-run').addClass('disabled');
     $('#start').addClass('disabled');
     $('#overlay').show();
 
     options.mode          = $('#mode').val() || 'continue';
 
-    options.saveDate      = $('#save-date'   ).val() || '';
-    options.saveCheck     = $('#save-check'  ).val() || '';
-    options.saveUncheck   = $('#save-uncheck').val() || '';
-    options.saveClear     = $('#save-clear'  ).val() || '';
+    options.includeBOM    = $('#include-bom').val();
+
+    options.saveDate      = $('#save-date'   ).val() || '--';
+    options.saveCheck     = $('#save-check'  ).val() || '--';
+    options.saveUncheck   = $('#save-uncheck').val() || '--';
+    options.saveText      = $('#save-text'   ).val() || '--';
+    options.saveClear     = $('#save-clear'  ).val() || '--';
 
     options.testRun       = $('#test-run').hasClass('icon-toggle-on');
     options.requestsCount = Number($('#requestsCount').val()) || 5;
     options.autoTune      = $('#auto-tune').hasClass('icon-toggle-on');
     options.maxErrors     = $('#maxErrors').val() || 10;
+    options.searchSize    = Number($('#pageSize').val()) || 100;
 
     if(options.requestsCount > maxRequestsCount) options.requestsCount = maxRequestsCount;
+    if(options.includeBOM !== '--') options.searchSize = 1;
 
     run.active       = true;
     run.counter      = 1;
@@ -827,11 +879,12 @@ function startProcessing() {
     run.total        = -1;
     run.success      = 0;
     run.errors       = [];
+    run.ids          = [];
 
     run.params = {
         pageNo    : 0,
-        pageSize  : Number($('#pageSize').val()) || 100,
-        size      : Number($('#pageSize').val()) || 100,
+        pageSize  : options.searchSize,
+        size      : options.searchSize,
         workspace : $('#workspace').children('option:selected').html()
     }
 
@@ -883,13 +936,14 @@ function getNextRecords() {
 
         if(isBlank(run.total)) run.total = 0;
 
-        updateProgress();
+        updateProgress(0);
         setRecordsData(response);
 
         if(records.length === 0) {
             endProcessing();
         } else {
-            addLogEntry('Found next ' + records.length + ' records to process');
+            if(records.length === 1) addLogEntry('Found next record to process');
+            else addLogEntry('Found next ' + records.length + ' records to process');
             processNextRecords();
         }
 
@@ -924,18 +978,24 @@ function setRecordsData(response) {
 
         }
 
+        record.includeBOM = options.includeBOM;
+        run.ids.push(record.dmsId);
+
     }
     
 }
 function processNextRecords() {
 
-    run.start    = new Date().getTime()/1000;
-    let limit    = (records.length < options.requestsCount) ? records.length : options.requestsCount;
+    run.start = new Date().getTime()/1000;
+    let limit = (records.length < options.requestsCount) ? records.length : options.requestsCount;
+
+    if(options.includeBOM === 'aa') limit = 1;
+
     let requests = genRequests(limit);
 
     if(stopped) return;
 
-    updateProgress();
+    updateProgress(requests.length);
 
     Promise.all(requests).then(function(responses) {
 
@@ -951,7 +1011,9 @@ function processNextRecords() {
             let now  = new Date().getTime()/1000;
             let diff = now - run.start;
 
-            if(run.done === run.total) options.autoTune = false;
+            if(records[0].includeBOM === '--') {
+                if(run.done === run.total) options.autoTune = false;
+            }
 
             Promise.all(completionRequests).then(function() {
 
@@ -973,13 +1035,21 @@ function processNextRecords() {
                     }
     
                 }
-            
-                records.splice(0, limit);
 
-                if(records.length === 0) {
-                    getNextRecords();
+                if(records[0].includeBOM !== '--') {
+
+                    getBOMRecords();
+
                 } else {
-                    processNextRecords();
+
+                    records.splice(0, limit);
+
+                    if(records.length === 0) {
+                        getNextRecords();
+                    } else {
+                        processNextRecords();
+                    }
+
                 }
 
             });
@@ -1015,8 +1085,8 @@ function genRequests(limit) {
             if(run.actionId === 'store-dmsid') {
 
                 let fieldId = $('#select-store-dmsid').val();
-                let value   = (run.url === '/plm/search') ? getSearchResultFieldValue(record, fieldId, '') : getWorkspaceViewRowValue(record, fieldId, '');
-
+                let value   = getRecordFieldValue(record, fieldId, '');
+                
                 if(value != record.dmsId) {
                     addFieldToPayload(params.sections, wsConfig.sections, null, fieldId, record.dmsId);
                     requests.push($.post('/plm/edit', params));
@@ -1082,6 +1152,16 @@ function genRequests(limit) {
     return requests;
     
 }
+function getRecordFieldValue(record, fieldId, value) {
+
+    if(isBlank(value)) value = '';
+
+         if(record.hasOwnProperty('rowId' )) value = getSearchResultFieldValue(record, fieldId, '');
+    else if(record.hasOwnProperty('fields')) value =  getWorkspaceViewRowValue(record, fieldId, '');
+
+    return value;
+
+}
 function genUpdateRequests(responses) {
 
     let requests = [];
@@ -1143,7 +1223,6 @@ function genCompletionRequests(limit, responses) {
 
     let requests = [];
 
-
     for(let i = 0; i < limit; i++) {
 
         let record  = records[i];
@@ -1154,8 +1233,6 @@ function genCompletionRequests(limit, responses) {
             if(record.link === response.params.link) {
 
                 if(response.error) {
-
-                    console.log(response);
 
                     success = false;
 
@@ -1196,9 +1273,11 @@ function genCompletionRequests(limit, responses) {
             if(options.saveDate    !== '--') addFieldToPayload(params.sections, wsConfig.sections, null, options.saveDate   , now     );
             if(options.saveCheck   !== '--') addFieldToPayload(params.sections, wsConfig.sections, null, options.saveCheck  , 'true'  );
             if(options.saveUncheck !== '--') addFieldToPayload(params.sections, wsConfig.sections, null, options.saveUncheck, 'false' );
+            if(options.saveText    !== '--') addFieldToPayload(params.sections, wsConfig.sections, null, options.saveText   , $('#save-text-value').val() );
             if(options.saveClear   !== '--') addFieldToPayload(params.sections, wsConfig.sections, null, options.saveClear  , null    );
 
             if(params.sections.length > 0) requests.push($.post('/plm/edit', params));
+
         }
 
     }
@@ -1206,10 +1285,152 @@ function genCompletionRequests(limit, responses) {
     return requests;
 
 }
-function updateProgress() {
+function getBOMRecords() {
+
+    let link   = records[0].link;
+    let count  = 0;
+    let params = { link : link }
+
+    addLogEntry('Getting BOM items of ' + records[0].descriptor, 'notice');
+
+    switch(records[0].includeBOM) {
+
+        case 'w1': params.depth =  1; params.revisionBias = 'working'; break;
+        case 'wa': params.depth = 10; params.revisionBias = 'working'; break;
+        case 'r1': params.depth =  1; params.revisionBias = 'release'; break;
+        case 'ra': params.depth = 10; params.revisionBias = 'release'; break;
+        case 'a1': params.depth =  1; params.revisionBias = 'release'; break;
+        case 'aa': params.depth =  1; params.revisionBias = 'release'; break;
+
+    }
+
+    $.get('/plm/bom', params, function(response) {
+
+        let nodesNew = [];
+
+        for(let node of response.data.nodes) {
+
+            let dmsId = node.item.link.split('/').pop();           
+
+            if(!run.ids.includes(dmsId)) {
+
+                count++;
+                run.ids.push(dmsId);
+
+                let record = {
+                    link        : node.item.link,
+                    dmsId       : dmsId,
+                    descriptor  : node.item.title,
+                };
+
+                switch(records[0].includeBOM) {
+
+                    case 'w1': 
+                    case 'wa': 
+                    case 'r1': 
+                    case 'ra': 
+                    case 'a1': record.includeBOM = '--'; break;
+                    case 'aa': record.includeBOM = 'aa'; break;
+            
+                }
+
+                records.push(record);
+                nodesNew.push(node);
+
+            }
+
+        }
+
+        addLogEntry(count + ' BOM items added to queue for ' + records[0].descriptor, 'notice');
+
+        run.total += count;
+
+        if(records[0].includeBOM.indexOf('a') === 0) {
+
+            addLogEntry('Getting all revisions of ' +  nodesNew + ' BOM items', 'notice');
+            getBOMNodesRevisions(nodesNew, 0, 0);
+
+        } else {
+
+            records.splice(0, 1);
+            if(records.length === 0) getNextRecords(); else processNextRecords();
+
+        }
+
+    });
+
+}
+function getBOMNodesRevisions(nodesNew, index, count) {
+
+    let remaining   = nodesNew.length - index;
+    let limit       = (remaining < options.requestsCount) ? remaining : options.requestsCount;
+    let requests    = [];
+    let i           = 0;
+
+    for(i; i < limit; i++) {
+        let node = nodesNew[index + i];
+        requests.push($.get('/plm/versions', { link : node.item.link}));
+    }
+
+    Promise.all(requests).then(function(responses) {
+
+        for(let response of responses) {
+            for(let version of response.data.versions) {
+
+                let dmsId = version.item.link.split('/').pop();           
+
+                if(!run.ids.includes(dmsId)) {
+
+                    run.ids.push(dmsId);
+                    count++;
+
+                    let record = {
+                        link        : version.item.link,
+                        dmsId       : dmsId,
+                        descriptor  : version.item.title,
+                    };
+
+                    switch(records[0].includeBOM) {
+
+                        case 'w1': 
+                        case 'wa': 
+                        case 'r1': 
+                        case 'ra': 
+                        case 'a1': record.includeBOM = '--'; break;
+                        case 'aa': record.includeBOM = 'aa'; break;
+                
+                    }
+
+                    records.push(record);
+
+                } else {
+
+                    console.log('Skipping duplicate dmsId : ' + dmsId);
+                }
+
+            }
+        }
+
+        if(nodesNew.length > (index + i)) {
+
+            getBOMNodesRevisions(nodesNew, index + i, count);
+
+        } else {
+
+            addLogEntry(count + ' revs added for ' + records[0].descriptor, 'notice');
+            run.total += count;
+            records.splice(0, 1);
+            if(records.length === 0) getNextRecords(); else processNextRecords();
+
+        }
+
+    });
+
+}
+function updateProgress(current) {
 
     let widthDone    = run.done * 100 / run.total;
-    let widthCurrent = options.requestsCount * 100 / run.total;
+    let widthCurrent = current * 100 / run.total;
 
     $('#progress-done').css('width', widthDone + '%');
     $('#progress-current').css('width', widthCurrent + '%');
@@ -1224,6 +1445,7 @@ function endProcessing() {
     run.active = false;
 
     $('#stop').removeClass('red');
+    $('#test-run').removeClass('disabled');
     $('#start').removeClass('disabled');
     $('#progress').addClass('hidden');
     $('#overlay').hide();
@@ -1245,6 +1467,17 @@ function endProcessing() {
         insertLogSummaryRow(elemTable, 'Failed items', run.errors.length);
 
         $('<div></div>').appendTo($('#console-content')).addClass('console-spacer');
+
+        if(!stopped) {
+            if(options.mode === 'continue') {
+                if(run.total > run.done) {
+                    addLogSpacer();
+                    addLogEntry('Not all items were processed');
+                    addLogEntry('Did the action possible impact the filter results?');
+                    addLogSpacer();
+                }
+            }
+        }
 
         if(run.errors.length > 0) {
         

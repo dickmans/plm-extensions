@@ -74,6 +74,37 @@
             |. Only if the search results do not change by the batch operations, you can keep the default setting 
             strong ... does not change at runtime 
             |.
+        h2 Options : Expand &amp; Include BOMs
+        p If the user has access to the BOM tab in the select workspace, an additional option will be displayed next. By selecting from the options listed below, the user can also let the BOM items be processed by the same action. 
+        img.border(src='images/apps/admin-data-6.png' style='width:100%;max-width:362px')
+        table 
+            tr 
+                th Option 
+                th Description 
+            tr 
+                td No
+                td The BOM tab data will be ignored, only the search / workspace entries will be processed
+            tr 
+                td.nowrap Working Revisions 1st level
+                td The BOM will be expanded by one level using the Working Revisions configuration. All items of this next / first BOM level will be included.
+            tr 
+                td.nowrap Working Revisions all levels
+                td The BOM will be expanded by 10 levels using the Working Revisions configuration. All items of all these levels will be included (duplicates will be skipped automatically).
+            tr 
+                td.nowrap Released Revisions 1st level
+                td The BOM will be expanded by one level using the Released Revisions configuration. All items of this next / first BOM level will be included.
+            tr 
+                td.nowrap Released Revisions all levels
+                td The BOM will be expanded by 10 levels using the Released Revisions configuration. All items of all these levels will be included (duplicates will be skipped automatically).
+            tr 
+                td.nowrap All releases 1 level
+                td The BOM will be expanded by one level using the Released Revisions configuration. All items of this next / first BOM level will be included. In addition, all revisions of these items will be processed as well.
+            tr 
+                td.nowrap All releasess all levels
+                td The BOM will be expanded by 10 levels using the Released Revisions configuration. All items of all these levels will be included. In addition, all revisions of these items will be processed as well. Duplicates will be skipped automatically.
+        p If the BOM items will be included, the 
+            strong Search Size 
+            |option mentioned further below will be set to 1 automatically.
         h2 Options : Follow-Up Action
         p Once the records got processed, you can let the utility update one or multiple checkbox or date properties. This can be used to trigger a follow-up edit event or to set a flag that helps filtering out the given record during the next run.
         img.border(src='images/apps/admin-data-3.png' style='width:100%;max-width:317px')
@@ -85,10 +116,6 @@
                 th Setting 
                 th Default Value
                 th Description 
-            tr 
-                td Test Run Only 
-                td off
-                td When enabled, data will not be modified. Instead, the utility will only list the names of all records that would be modified as they match the search criteria. This is helpful to validate the filters.
             tr 
                 td Requests Count
                 td 3
@@ -123,6 +150,18 @@
     .log 
         h1 Data Manager Change Log 
         table 
+            tr 
+                td March 24, 2025
+                td New Feature
+                td A new option enables to process the BOM tab contents as well, not only the items being retrived by the search or workspace view.
+            tr 
+                td 
+                td Enhancement
+                td The option to perform a test run has been replaced by a dedicated action button in the global toolbar for easier accessibility
+            tr 
+                td 
+                td Enhancement
+                td Before starting data processing, the utility now will validate a proper action selection and definition
             tr 
                 td March 20, 2025
                 td New Feature

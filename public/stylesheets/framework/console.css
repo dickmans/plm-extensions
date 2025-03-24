@@ -40,6 +40,7 @@
 .console-text.head { 
     font-weight   : bold; 
     margin-bottom : 4px; 
+    text-align    : center;
 }
 .console-text.red   span { color : var(--color-status-red);   }
 .console-text.green span { color : var(--color-status-green); }
@@ -56,4 +57,5 @@
 .console-text.final { 
     font-weight   : bold; 
     margin-top    : 24px; 
+    text-align    : center;
 }

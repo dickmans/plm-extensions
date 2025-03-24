@@ -19,8 +19,9 @@ block body
             #header-subtitle Perform data cleansing operations with ease
             #header-toolbar
                 .button.with-icon.icon-delete#clear-console Clear Console
-                .button.with-icon.icon-stop#stop Stop
+                .button.with-icon.icon-toggle-off#test-run(title="When enabled, the utility will not modify any data, but list the records that would be impacted. This helps validating the data filters.") Test Run Only
                 .button.with-icon.icon-start.default#start Start
+                .button.with-icon.icon-stop#stop Stop
                 #header-avatar
         .screen.surface-level-1
 
@@ -85,9 +86,8 @@ block body
                     .group.surface-level-2#filter-properties
                         .text#text-properties You can also filter by multiple property values. Select a property in the selector below to add it to the list of filters.
                         .filter
-                            .label#label-properties Select property to add
                             .value
-                                select.button#properties.select-field
+                                select.button#properties.select-field(data-empty-label='Select property to add')
 
                     .group.surface-level-2.permission-summary
                         
@@ -106,14 +106,10 @@ block body
                                     option(value='lw') Last Week
                                     option(value='lm') Last Month
                                     option(value='ly') Last Year
-                                    //- option(value='nw') Next Week
-                                    //- option(value='nm') Next Month
-                                    //- option(value='ny') Next Year
                                     option(value='ib') Is Blank
                                     option(value='et') Equal To
                                     option(value='ne') Not Equal To
                                     option(value='-d') In Last Number Of Days
-                                    //- option(value='+d') In Next Number Of Days
                                     option(value='bw') Between
                                 .inputs
                                     input.date-1.hidden#creation-day1(type='date')
@@ -133,14 +129,10 @@ block body
                                     option(value='lw') Last Week
                                     option(value='lm') Last Month
                                     option(value='ly') Last Year
-                                    //- option(value='nw') Next Week
-                                    //- option(value='nm') Next Month
-                                    //- option(value='ny') Next Year
                                     option(value='ib') Is Blank
                                     option(value='et') Equal To
                                     option(value='ne') Not Equal To
                                     option(value='-d') In Last Number Of Days
-                                    //- option(value='+d') In Next Number Of Days
                                     option(value='bw') Between
                                 .inputs
                                     input.date-1.hidden#modification-day1(type='date')
@@ -166,8 +158,6 @@ block body
                             .label Not Owned By
                             .value 
                                 select.button#not-owner.select-user
-
-
 
             #actions.surface-level-2
 
@@ -249,7 +239,19 @@ block body
                             select.button.options-list.default#mode
                                 option(value='continue') ... does not change at runtime
                                 option(value='restart') ... will be different after the action
-                    .text.permission-edit In alignment to this option, select an optional follow-up action upon item processing completion:
+                    .text.permission-bom-view Should the matching records' BOMs be expanded to process their items as well?
+                    .options#options-bom.permission-bom-view 
+                        .option 
+                            .label Expand &amp; Include BOMs
+                            select.button#include-bom
+                                option(value='--') No
+                                option(value='w1') Working Revisions 1st level
+                                option(value='wa') Working Revisions all levels
+                                option(value='r1') Released Revisions 1st level
+                                option(value='ra') Released Revisions all levels
+                                option(value='a1') All releases 1st level
+                                option(value='aa') All releases all levels
+                    .text.permission-edit Select an optional follow-up action upon item processing completion:
                     .options.permission-edit
                         .option
                             .label Save Completion Date
@@ -261,13 +263,19 @@ block body
                             .label Untick Checkbox
                             select.select-field.field-editable.field-type-check.button.options-list#save-uncheck
                         .option
+                            .label Set Text Field Value
+                            select.select-field.field-editable.field-type-text.button#save-text
+                            input#save-text-value(placeholder='Enter text to save')
+                        .option
                             .label Clear Field Value
                             select.select-field.field-editable.button.options-list#save-clear
-                    .text Adjust runtime settings below to improve processing time (only in case of issues)
+
+                    .text Adjust runtime settings below to improve processing time (only in case of issues). Note that 
+                        strong Search Size 
+                        |will be set to 1 at runtime if option 
+                        strong Expand &amp; Include BOMs 
+                        |is enabled.
                     .options#options-runtime
-                        .option
-                            .label Test Run Only
-                            .button.icon.icon-toggle-off.toggle#test-run
                         .option
                             .label Requests Count
                             input.button#requestsCount(type='number' value=3)     

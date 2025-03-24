@@ -94,6 +94,7 @@ select.button {
     z-index    : 1;
 }
 #progress-text {
+    color       : white;
     font-size   : 12px;
     position    : absolute;
     top         : 0px;
@@ -204,6 +205,9 @@ select#workspace {
 .filter .icon-delete {
     font-weight : 200 !important;
 }
+#filter-properties .value {
+    max-width : unset;
+}
 #properties {
     background    : var(--color-yellow-600) !important;
     border-color  : var(--color-yellow-600) !important;
@@ -242,7 +246,7 @@ select#workspace {
     border-color : var(--color-surface-level-2) !important;
 }
 .action .title {
-    background  : var(--color-surface-level-3) !important;
+    background  : var(--color-surface-level-4) !important;
     font-size   : 16px !important;
     font-weight : 800;
     line-height : 64px;
@@ -273,10 +277,12 @@ select#workspace {
 .action.selected, 
 .action.selected .details {
     background : var(--color-blue-500) !important;
+    color      : white;
 }
 .tile.selected select,
 .tile.selected input {
-    background-color: var(--color-blue-800) !important;
+    background-color : var(--color-blue-800) !important;
+    color            : white;
 }
 .action:hover .title,
 .action:hover .title-image,
@@ -284,8 +290,9 @@ select#workspace {
 .action.selected:hover .title-image,
 .action.selected select:hover,
 .action.selected input:hover {
-    background-color: var(--color-blue-900) !important;
-    opacity : 1.0;
+    background-color : var(--color-blue-900) !important;
+    color            : white;
+    opacity          : 1.0;
 }
 .tile .definition {
     display : flex;
@@ -314,9 +321,12 @@ select#workspace {
     gap             : 0px;
 }
 .option > .label {
-    background  : var(--color-surface-level-3);
+    background  : var(--color-surface-level-2);
     line-height : 38px;
-    padding     : 0px 19px; 
+    padding     : 0px 20px; 
+}
+.option select {
+    border-radius : 0px;
 }
 .options-list > div {
     display : flex;
@@ -329,6 +339,10 @@ select#workspace {
 .button.selected:hover {
     background-color : var(--color-blue-500) !important;
     border-color : var(--color-blue-500) !important;
+}
+#save-text-value {
+    background : var(--color-surface-level-3);
+    padding    : 10px 20px;
 }
 #options-runtime > .option {
     flex-direction : row;
@@ -398,7 +412,7 @@ select#workspace {
 }
 
 
-@media (max-width: 1920px) {
+@media (max-width: 2160px) {
 
     :root {
         --border-h      : 32px;
@@ -407,10 +421,18 @@ select#workspace {
         /* --width-console : 400px; */
     }
 
+    #workspace {
+        border-radius : 0px;
+    }
+
     .filter,
     .setting {
         flex-direction : column;
         gap            : 0px;
+    }
+
+    .filter select {
+        border-radius : 0px;
     }
 
     .filter-workspace {
@@ -445,6 +467,10 @@ select#workspace {
         max-width   : calc(100% - 20px);
         min-width   : calc(100% - 20px);
             width   : calc(100% - 20px);
+    }
+
+    .property-label {
+        max-width : unset;
     }
 
     .filter .icon-delete {
