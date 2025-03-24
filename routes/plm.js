@@ -831,12 +831,12 @@ router.post('/edit', function(req, res) {
                 value = { 'link' : value };
             } else if(type === 'picklist') {
                 if(value === '') value = null;
-            }
+            } else if(value === '') value = null;
 
             sect.fields.push({
-                '__self__'  : prefix + '/views/1/fields/' + field.fieldId,
-                'urn'       : 'urn:adsk.plm:tenant.workspace.item.view.field:' + req.app.locals.tenantLink.toUpperCase() + '.' + wsId + '.' + dmsId + '.1.' + field.fieldId,
-                'value'     : value
+                __self__  : prefix + '/views/1/fields/' + field.fieldId,
+                urn       : 'urn:adsk.plm:tenant.workspace.item.view.field:' + req.app.locals.tenantLink.toUpperCase() + '.' + wsId + '.' + dmsId + '.1.' + field.fieldId,
+                value     : value
             });
 
         }
@@ -1377,7 +1377,6 @@ router.get('/remove-grid-row', function(req, res, next) {
 });
 
 
-
 /* ----- GET ALL GRID COLUMNS ----- */
 router.get('/grid-columns', function(req, res, next) {
     
@@ -1646,7 +1645,6 @@ router.get('/manages', function(req, res, next) {
     });
     
 });
-
 
 
 /* ----- GET MANAGED ITEM DETAILS ----- */
