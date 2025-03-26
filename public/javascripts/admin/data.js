@@ -17,15 +17,22 @@ let records          = null;
 $(document).ready(function() {
 
     setUIEvents();
-    
-    let requests = [
-        $.get('/plm/workspaces', {}),
-        $.get('/plm/users',      {})
-    ]
 
-    getFeatureSettings('items', requests, function(responses) {
-        setWorkspaces(responses[0]);
-        setUserSelectors(responses[1]);
+    validateSystemAdminAccess(function(isAdmin) {
+
+        if(isAdmin) {
+
+            let requests = [
+                $.get('/plm/workspaces', {}),
+                $.get('/plm/users',      {})
+            ]
+        
+            getFeatureSettings('items', requests, function(responses) {
+                setWorkspaces(responses[0]);
+                setUserSelectors(responses[1]);
+            });
+
+        }
     });
 
 });

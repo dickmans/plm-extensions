@@ -60,7 +60,32 @@ $(document).ready(function() {
 });
 
 
-// Validate System Admin privileges
+// Validate System Admin permission
+function validateSystemAdminAccess(callback) {
+
+    showStartupDialog();
+
+    $.get('/plm/groups-assigned', {}, function (response) {
+
+        let isSystemAdmin = false;
+
+        for(let group of response.data) {
+            if(group.shortName === 'Administration [SYSTEM]') isSystemAdmin = true;
+        }
+
+        if(!isSystemAdmin) {
+            showErrorMessage('Not Permitted', 'This feature requires system admin privileges');
+        } else {
+            hideStartupDialog();
+        }
+        callback(isSystemAdmin);
+
+    });
+
+}
+
+
+// Login as System Admin if permitted
 function getSystemAdminSession(callback) {
 
     showStartupDialog();
@@ -200,6 +225,13 @@ function showStartupDialog() {
 
     $('<div></div>').appendTo($('#startup'))
         .attr('id', 'startup-logo');
+
+}
+function hideStartupDialog() {
+
+    $('#startup').remove();
+    $('#startup-logo').remove();
+    $('body').children().removeClass('hidden');
 
 }
 
@@ -513,7 +545,7 @@ function getSurfaceLevel(elem, includeParents) {
 
     }
 
-    return 'surface-level-0';
+    return 'surface-level-1';
 
 }
 
@@ -691,14 +723,14 @@ function insertCalendarMonth(id, currentDate) {
     elemMonthName.addClass('calendar-month-name');
     elemMonthName.html(currentDate.toLocaleString('default', { month: 'long' }));
 
-    elemRowDays.append('<th></th>');
-    elemRowDays.append('<th>Mo</th>');
-    elemRowDays.append('<th>Tu</th>');
-    elemRowDays.append('<th>We</th>');
-    elemRowDays.append('<th>Th</th>');
-    elemRowDays.append('<th>Fr</th>');
-    elemRowDays.append('<th>Sa</th>');
-    elemRowDays.append('<th>Su</th>');
+    elemRowDays.append('<th class="calendar-day-name"></th>');
+    elemRowDays.append('<th class="calendar-day-name">Mo</th>');
+    elemRowDays.append('<th class="calendar-day-name">Tu</th>');
+    elemRowDays.append('<th class="calendar-day-name">We</th>');
+    elemRowDays.append('<th class="calendar-day-name">Th</th>');
+    elemRowDays.append('<th class="calendar-day-name">Fr</th>');
+    elemRowDays.append('<th class="calendar-day-name">Sa</th>');
+    elemRowDays.append('<th class="calendar-day-name">Su</th>');
   
     elemTable.addClass('calendar');
 
@@ -709,19 +741,20 @@ function insertCalendarMonth(id, currentDate) {
     let currentDay      = firstDay;
     let startDay        = firstDay.getDay() - 1;
     let onejan          = new Date(currentYear, 0, 1);
+    let today           = new Date();
     
     while (currentDay <= lastDay) {
 
         let week = Math.ceil((((currentDay.getTime() - onejan.getTime()) / 86400000) + onejan.getDay() + 1) / 7);
     
-        let weekRow = $('<tr></tr>');
-            weekRow.appendTo(elemBody);
+        let weekRow = $('<tr></tr>').appendTo(elemBody)
+            .addClass('calendar-week')
+            .attr('data-week', week);
         
-        let weekCell = $('<td></td>');
-            weekCell.addClass('calendar-week');
-            weekCell.attr('data-date', currentDay);
-            weekCell.html(week);
-            weekCell.appendTo(weekRow);
+        $('<td></td>').appendTo(weekRow)
+            .addClass('calendar-week-number')
+            .attr('data-date', currentDay)
+            .html(week)
 
         for (let i = 0; i < 7; i++) {
 
@@ -729,23 +762,39 @@ function insertCalendarMonth(id, currentDate) {
             let iDay    = currentDay.getDay();
             
             if(i >= startDay) {
-
                 dayCell.attr('data-date', currentDay);
+                dayCell.addClass('calender-week-day-' + i);
                 if (currentDay >= firstDay && currentDay <= lastDay) {
+                    dayCell.addClass('calendar-day');
                     if((iDay === 0) || (iDay === 6)) dayCell.addClass('calendar-weekend');
+
+                    switch(iDay) {
+                        case 0 : dayCell.attr('title', 'Sunday'   ); break;
+                        case 1 : dayCell.attr('title', 'Monday'   ); break;
+                        case 2 : dayCell.attr('title', 'Tuesday'  ); break;
+                        case 3 : dayCell.attr('title', 'Wednesday'); break;
+                        case 4 : dayCell.attr('title', 'Thursday' ); break;
+                        case 5 : dayCell.attr('title', 'Friday'   ); break;
+                        case 6 : dayCell.attr('title', 'Saturday' ); break;
+                    }
+
+                    dayCell.attr('data-date', iDay);
                     dayCell.html(currentDay.getDate());
                     if (currentDay.toDateString() === new Date().toDateString()) {
                         dayCell.addClass('calendar-day-current');
                         weekRow.addClass('calendar-week-current');
+                    } else if(today.getTime() < currentDay.getTime()) {
+                        dayCell.addClass('calendar-future');
+                    } else {
+                        dayCell.addClass('calendar-past');
                     }
-                }
+                } else dayCell.addClass('calendar-day-next-month');
                 startDay = -1;
                 currentDay.setDate(currentDay.getDate() + 1);
-            }   
+            } else dayCell.addClass('calendar-day-prev-month'); 
 
             dayCell.appendTo(weekRow);
-            dayCell.addClass('calendar-day');
-
+           
         }
     
     }

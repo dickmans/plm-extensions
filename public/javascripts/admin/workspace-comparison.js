@@ -12,15 +12,24 @@ $(document).ready(function() {
     $('#source-tenant').val(tenant);
 
     setUIEvents();
-    appendOverlay(false);
-    getWorkspaces('source');
 
-    if(!isBlank(options)) {
-        if(options.length > 0) {
-            $('#target-tenant').val(options[0]);
-            getWorkspaces('target');
+    validateSystemAdminAccess(function(isAdmin) {
+
+        if(isAdmin) {
+
+            appendOverlay(false);
+            getWorkspaces('source');
+        
+            if(!isBlank(options)) {
+                if(options.length > 0) {
+                    $('#target-tenant').val(options[0]);
+                    getWorkspaces('target');
+                }
+            }
+
         }
-    }
+
+    });
 
 });
 
