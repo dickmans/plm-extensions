@@ -43,6 +43,14 @@ function setUIEvents() {
     });
 
 
+    // Toggle panel on left side
+    $('#toggle-panel').click(function() { 
+        $(this).toggleClass('filled').toggleClass('icon-toggle-on').toggleClass('icon-toggle-off');
+        $('body').toggleClass('no-panel');
+        viewerResize(200);
+     });
+
+     
     // Close current Design Review, return to previous page
     $('#review-close').click(function() { 
         closeReview();
@@ -77,7 +85,6 @@ function setUIEvents() {
     });
     
 }
-
 
 
 // Init at startup
@@ -121,7 +128,6 @@ function getSectionIds(workspace) {
     });
 
 }
-
 
 
 
@@ -281,8 +287,8 @@ function openSelectedItem(elemSelected) {
     $('#header-subtitle').html(descriptor).show();
 
     $('#review').show();
-    $('#review-close').removeClass('hidden');
-    $('#review-finish').removeClass('hidden').addClass('disabled');
+    $('#header-toolbar').children('.button').removeClass('hidden');
+    $('#review-finish').addClass('disabled');
 
     viewerUnloadAllModels();
     viewerLeaveMarkupMode();
@@ -330,10 +336,9 @@ function openSelectedItem(elemSelected) {
         tileSubtitle    : 'DESCRIPTION',
         tileDetails     : [ {icon : 'icon-calendar', fieldId : 'TARGET_COMPLETION_DATE'}],
         stateColors     : [
-            { color : '#222222', state : 'Assigned', label : 'New'      },
-            { color : '#dd2222', state : 'In Work' , label : 'In Work'  },
-            { color : '#faa21b', state : 'Review'  , label : 'Complete' },
-            { color : '#6a9728', state : 'Complete', label : 'Complete' }
+            { color : '#dd2222', state : 'Assigned', label : 'New'     },
+            { color : '#ed8d16', state : 'In Work' , label : 'In Work' },
+            { color : '#6a9728', states : ['Review', 'Complete'], label : 'Complete' }
         ],
         fields : [
             'NUMBER', 
@@ -367,12 +372,16 @@ function setDetails() {
 
         insertViewer(linkItem);
         insertBOM(linkItem, { 
-            id              : 'bom',
-            hideHeaderLabel : true,
-            openInPLM       : true,
-            search          : true,
-            bomViewName     : config.reviews.bomViewName,
-            onClickItem     : function(elemClicked) { onClickBOMItem(elemClicked); }
+            id               : 'bom',
+            hideHeaderLabel  : true,
+            openInPLM        : true,
+            search           : true,
+            toggles          : true,
+            bomViewName      : config.reviews.bomViewName,
+            collapseContents : true,
+            path             : true,
+            counters         : true,
+            onClickItem      : function(elemClicked) { onClickBOMItem(elemClicked); }
         });
         
         $('#comments-data').show();
@@ -507,15 +516,13 @@ function afterChangeTaskCreation(createId, link, id) {
     
 }
 
-
-
 // Close review and retrun to list of tiles
 function closeReview() {
 
     $('#list').show();
     $('#review').hide();
-    $('#review-close').addClass('hidden');
-    $('#review-finish').addClass('hidden').removeClass('default');
+    $('#header-toolbar').children('.button').addClass('hidden');
+    $('#review-finish').removeClass('default');
     $('#header-subtitle').hide();
 
 }
@@ -529,7 +536,6 @@ function initViewerDone() {
 }
 
 
-
 // Click BOM Item
 function onClickBOMItem(elemClicked) {
 
@@ -540,8 +546,6 @@ function onClickBOMItem(elemClicked) {
     } else viewerResetSelection();
 
 }
-
-
 
 
 // Forge Viewer Screenshots
@@ -621,34 +625,14 @@ function captureScreenshot() {
 //    });
     
 }
-        
+    
+
 // }
 function removeHighlights() {
     
     $("#panel").find(".highlight").removeClass("highlight");
     
 }
-// function validateForm() {
-    
-//     var result = true;
-    
-//    $('input,textarea,select').filter('[required]').each(function() {
-       
-//        var value = $(this).val();$
-       
-//        if(value === "") {
-           
-//            $(this).addClass("required-empty");
-//            $("<div class='validation-error'>Input is required</div>").insertAfter($(this));
-//            result = false;
-           
-//        }
-       
-//    });
-    
-//     return result;
-    
-// }
 
 
 // Finish Design Review
@@ -658,13 +642,13 @@ function transitionDesignReview() {
     $('#overlay').show();
 
     let params = { 
-        'link'       : $('#panel').attr('data-link'), 
-        'transition' : $('#review-finish').attr('data-link'),
-        'comment'    : 'Closed by Design Review Portal'
+        link       : selectedLink, 
+        transition : $('#review-finish').attr('data-link'),
+        comment    : 'Closed by Design Review Portal'
     }
-
-    $.get( '/plm/transition', params, function() {
-        $('#review-close').click();
+    $.get('/plm/transition', params, function(response) {
+        if(response.error) showErrorMessage('Error while finishing review', response.data.message);
+        closeReview();
         $('#overlay').hide();
         $('#main-tabs').find('.selected').click();
     });

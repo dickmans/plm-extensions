@@ -60,6 +60,9 @@ textarea:focus {
 }
 
 
+.no-panel #panel  { left : calc(0px - var(--width-panel) - (2 * var(--padding-panel))); }
+.no-panel .viewer { left : 0px; }
+
 
 /*  TILES */
 /* ----------------------------------------------------------------------------- */
@@ -144,14 +147,14 @@ textarea:focus {
     transition  : all ease 0.25s;
 }
 .form-header {
-    background  : var(--color-surface-level-5);
+    background  : var(--color-surface-level-3);
     font-size   : 18px;
     font-weight : bold;
     margin-top  : 6px;
     padding     : 18px 18px 0px 18px;
 }
 .form-hint {
-    background  : var(--color-surface-level-5);
+    background  : var(--color-surface-level-3);
     color       : var(--color-font);
     font-size   : 12px;
     padding     : 2px 18px 10px 18px;
@@ -217,17 +220,10 @@ textarea:focus {
 
 
 @keyframes highlight {
- 	0% {
- 		background  : #fff; 
- 		color       : #000; 
- 	} 
-    30% {
- 		background  : #FCCA7E; 
- 	}
- 	100% {
- 		background  : #fff;
- 	}
+ 	  0% { background : var(--color-yellow-600); }
+     80% { background : var(--color-yellow-300); }
+ 	100% { background : var(--color-yellow-600); }
 }
 .highlight {
-    animation: highlight 3s;
+    animation: highlight 2s ease;
 }

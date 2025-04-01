@@ -250,6 +250,8 @@ function processViewerFeaturesAndData() {
 function onViewerLoadingDone() {}
 function setViewerFeatures() {
 
+    if(viewer.model === null) return;
+
     if (Object.keys(viewerFeatures).length === 0) {
         viewer.toolbar.setVisible(true);
         return;
