@@ -23,8 +23,8 @@ let enableCache     = false;
 // However, as this impacts security, its is recommended to provide the following settings only if the USER SETTINGS MANAGER will be used, maybe even only temporarily or in a local copy of this server.
 // All other applications will work even if the following 2 settings are not provided as they use the clientId variable instead. 
 // Note that you can also provide these settings using the given environment variables ADMIN_CLIENT_ID and ADMIN_CLIENT_SECRET.
-let adminClientId     = '***********************';
-let adminClientSecret = '***********************';
+let adminClientId     = '';
+let adminClientSecret = '';
 
 
 

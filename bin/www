@@ -93,23 +93,42 @@ function onListening() {
     : 'port ' + addr.port;
 
   console.log();
-  console.log('  >> Using settings file   ' + fileSettings);
-  console.log('  >> Using redirect Uri    ' + settings.redirectUri);
-  console.log('  >> Using PLM Tenant      ' + settings.tenant);
-  console.log('  >> Listening on          ' + bind);
-  console.log('  >> Cache Enabled         ' + settings.enableCache);
+  console.log('  >> Using settings file     ' + fileSettings);
+  console.log('  >> Using Client ID         ' + settings.clientId.substring(0, 8) + '...');
+  console.log('  >> Using redirect Uri      ' + settings.redirectUri);
+  console.log('  >> Using PLM Tenant        ' + settings.tenant);
+  console.log('  >> Listening on            ' + bind);
+  console.log('  >> Cache Enabled?          ' + settings.enableCache);
+  console.log('  >> Using Default Theme     ' + settings.defaultTheme);
+
+  if((settings.adminClientId === '') || (settings.adminClientSecret === '')) {
+    console.log();
+    console.log('  The USER SETTINGS MANAGER cannot be used as Admin Client ID/Secret is missing');
+  } else {
+    console.log('  >> Using Admin Client ID   ' + settings.adminClientId.substring(0, 8) + '...');
+  }
+  
+  if((settings.vaultGateway === '') || (settings.vaultGateway === '')) {
+    console.log();
+    console.log('  Not connected to Vault as Vault Gateway and/or Vault Name are not defined');
+  } else {
+    console.log('  >> Using Vault Gateway     ' + settings.vaultGateway);
+    console.log('  >> Using Vault Name        ' + settings.vaultGateway);
+  }
+
   console.log();
   console.log('  REMINDER');
   console.log(' --------------------------------------------------------------------------------------------------');
-  console.log('  Since the release of July 2024, the UX server uses PKCE for authentication instead        ');
-  console.log('  of the former mechanism involving the Client Secret. This however requries an APS');
-  console.log('  application of type "Desktop, Mobile, Single-Page App" for successful authentication.');
+  console.log('  Since the release of July 2024, the UX server uses PKCE for authentication instead of the');
+  console.log('  former mechanism involving the Client Secret. This requries an APS application of type');
+  console.log('  "Desktop, Mobile, Single-Page App" for successful authentication.');
   console.log('    If not done so yet, create such an app at aps.autodesk.com and provide the given ');
   console.log('  Client ID in file settings.js as in previous releases. The Client Secret now can be omitted.');
   console.log('  This new app must use the same callback URL as your previous app and end with "/callback"');
   console.log('  (i.e. http://localhost:8080/callback).');
   console.log('    If your login to the UX solutions fails with an error code 401, you most likely are still ');
   console.log('  using an APS of another type.')
+  console.log();
   console.log();
 
 }
