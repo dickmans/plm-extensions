@@ -458,6 +458,8 @@ function appendNoDataFound(id, icon, text) {
         .addClass('no-data-text')
         .html(text);
 
+    return elemNoData;
+
 }
 
 
@@ -1543,9 +1545,9 @@ function genPanelRemoveSelectedButton(id, settings, callback) {
 function genPanelContents(id, settings) {
 
     appendProcessing(id, false);
-    appendNoDataFound(id, 'icon-no-data', settings.textNoData);
 
-    $('#' + id + '-no-data').hide();
+    elemNoData = appendNoDataFound(id, 'icon-no-data', settings.textNoData);
+    elemNoData.addClass(settings.layout).hide();
 
     let elemTop = $('#' + id);
 
@@ -1561,6 +1563,7 @@ function genPanelContents(id, settings) {
     else if(settings.layout === 'list'   ) elemContent.addClass('tiles').addClass('list');
     else if(settings.layout === 'row'    ) {
         elemContent.addClass('tiles').addClass('row');
+        if(!isBlank(settings.contentSize)) elemNoData.addClass(settings.contentSize);
         switch(settings.contentSize) {
             case 'xxs':
             case 'xs':

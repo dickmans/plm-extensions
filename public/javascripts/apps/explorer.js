@@ -10,12 +10,13 @@ let wsSupplierPackages  = { id : ''  , sections : [], fields : [] };
 let kpis                = [];
 
 let paramsDetails = { 
-    bookmark   : true,
-    collapsed  : true,
-    editable   : true,
-    openInPLM  : true,
-    sectionsEx : ['Others'],
-    toggles    : true
+    bookmark        : true,
+    editable        : true,
+    openInPLM       : true,
+    sectionsEx      : ['AML Summary', 'Sourcing Summary', 'Others'],
+    expandSections  : ['Basic'],
+    fieldsEx        : ['ACTIONS'],
+    toggles         : true
 
 }
 let paramsAttachments = { 

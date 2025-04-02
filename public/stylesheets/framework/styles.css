@@ -1716,6 +1716,26 @@ tr.selected > td.content-item-check-box > .icon::before {
 .with-panel-actions > .no-data {
     margin-top : 96px;
 }
+.no-data.row {
+    flex-direction  : row;
+    gap             : 8px;
+    justify-content : center;
+    margin-top      : 0px;
+    position        : absolute;
+    top             : 56px;
+    right           : 0px;
+    left            : 0px;
+}
+.no-data.row > div {
+    padding : 0px;
+}
+.no-data.row.xxs > div { line-height :  26px; } .no-data.row.xxs > .no-data-icon { font-size : 24px; } 
+.no-data.row.xs  > div { line-height :  36px; } .no-data.row.xs  > .no-data-icon { font-size : 32px; } 
+.no-data.row.s   > div { line-height :  48px; }
+.no-data.row.m   > div { line-height :  64px; }
+.no-data.row.l   > div { line-height : 120px; }
+.no-data.row.xl  > div { line-height : 190px; }
+.no-data.row.xxl > div { line-height : 280px; }
 
 
 /*  TABS */
