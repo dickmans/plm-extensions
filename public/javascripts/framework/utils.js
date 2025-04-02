@@ -953,6 +953,8 @@ function genPanelTop(id, settings, className) {
     if(settings.hidePanel     ) { elemTop.addClass('hidden'); }
     if(settings.hideHeader    ) { elemTop.addClass('no-header'); }
 
+    if(!isBlank(settings.link)) elemTop.attr('data-link', settings.link);
+
     return elemTop;
 
 }
