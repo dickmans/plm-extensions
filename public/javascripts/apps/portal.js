@@ -75,6 +75,7 @@ function openItem(elemClicked) {
         toggles             : true,
         search              : true,
         path                : true,
+        counters            : true,
         tableColumnsLimit   : 1
     });
 
