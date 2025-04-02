@@ -464,7 +464,7 @@ function changeWorkspaceView(id) {
     let linkView    = elemSelect.val();
     let params      = { 
         id              : id + '-content', 
-        header          : false, 
+        hideHeader      : true, 
         openInPLM       : settings.workspaceViews[id].openInPLM,
         onItemClick     : settings.workspaceViews[id].onItemClick,
         onItemDblClick  : settings.workspaceViews[id].onItemDblClick,
