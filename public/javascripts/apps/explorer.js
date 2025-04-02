@@ -310,7 +310,6 @@ function setUIEvents() {
 }
 
 
-
 // Retrieve Workspace Details, BOM and details
 function getInitialData(callback) {
 
@@ -359,7 +358,6 @@ function getInitialData(callback) {
 }
 
 
-
 // Open by id or click in landing page
 function openSelectedItem(elemClicked) { openItem(elemClicked.attr('data-link')); }
 function openItem(link) {
@@ -387,6 +385,7 @@ function openItem(link) {
         selectItemVersion();
 
     });
+
 }
 function selectItemVersion() {
 
@@ -423,8 +422,6 @@ function selectItemVersion() {
     insertChangeProcesses(linkVersion, paramsProcesses);
 
 }
-
-
 
 
 // Get viewable and init Forge viewer
@@ -489,7 +486,6 @@ function initViewerDone() {
     $('#viewer-markup-image').attr('data-field-id', config.explorer.fieldIdProblemReportImage);
 
 }
-
 
 
 // Insert Selected item's data
@@ -655,6 +651,8 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom) {
                 } else if(kpi.type === 'value') {
                     kpiLabel = (kpiValue === '' ) ? '-' : kpiValue;
                 }
+
+                if(kpiValue === '') kpiValue = '-';
 
                 newBOMItem[kpi.id] = kpiValue;
                 parseKPI(kpi, kpiValue, kpiLabel);
@@ -1018,7 +1016,7 @@ function parseKPI(kpi, value, label) {
     let isNew = true;
     let type  = kpi.fieldType;
 
-    if(value !== '') {
+    if(value !== '-') {
         if(type === 'Float') value = parseFloat(value);
     }
 
@@ -1122,7 +1120,6 @@ function insertKPI(kpi) {
     }
 
 }
-
 
 
 // KPI Handling
@@ -1489,7 +1486,6 @@ function refreshKPI(kpi) {
     
 }
  
-
 
 // Display create & connect dialog
 // function showCreateDialog() {
