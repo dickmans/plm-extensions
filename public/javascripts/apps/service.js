@@ -127,7 +127,6 @@ $(document).ready(function() {
                 onClickItem       : function(elemClicked) { openRequest(elemClicked); }
             });
 
-
         }
 
         if(!isBlank(dmsId)) {
@@ -357,7 +356,7 @@ function openRequest(elemClicked) {
         bookmark : false,
         contents : [
             { type : 'workflow-history', className : 'surface-level-1', params : { id : 'request-workflow-history' } },
-            { type : 'details'         , className : 'surface-level-1', params : { id : 'request-details', collapsed : true, suppressLinks : true, sectionsEx : config.service.requestSectionsExcluded } },
+            { type : 'details'         , className : 'surface-level-1', params : { id : 'request-details', expandSections : config.service.requestSectionsExpanded, suppressLinks : true, sectionsEx : config.service.requestSectionsExcluded } },
             { type : 'grid'            , className : 'surface-level-1', params : { id : 'request-grid', headerLabel : 'Part List', columnsEx : config.service.requestColumnsExcluded } },
             { type : 'attachments'     , className : 'surface-level-1', params : { id : 'request-attachments', editable : true, layout : 'tiles', singleToolbar : 'controls' } },
         ],
