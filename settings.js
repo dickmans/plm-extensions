@@ -619,7 +619,8 @@ exports.config = {
 
         wsIdProblemReports     : 82,
         wsIdSparePartsRequests : 241,
-        requestSectionsExcluded: [ 'Real Time KPIs', 'Workflow Activity' ],
+        requestSectionsExcluded: [ 'Planning & Tracking', 'Request Confirmation', 'Quote Submission & Response', 'Real Time KPIs', 'Workflow Activity', 'Quote Summary', 'Order Processing', 'Related Processes' ],
+        requestSectionsExpanded: [ 'Requestor Contact Details', 'Request Details' ],
         requestColumnsExcluded : [ 'Line Item Cost', 'Availability [%]', 'Manufacturer', 'Manufacturer P/N', 'Unit Cost', 'Total Cost', 'Make or Buy', 'Lead Time (w)', 'Long Lead Time'],
 
 
