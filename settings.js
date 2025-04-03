@@ -238,6 +238,7 @@ exports.config = {
         bomViewName          : 'Details',
         fieldIdPRImage       : 'IMAGE_1',
         fieldIdPRContext     : 'AFFECTED_ITEM',
+        rollupTotalCost      : false,
         wsIdSupplierPackages : 147,
         kpis : [
             // ------------------------------------------------------------------------------------------------------------------

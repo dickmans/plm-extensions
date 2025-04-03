@@ -135,7 +135,10 @@
                 td fieldIdPRContext
                 td New PRs can be connected to the currently selected item with this property. Provide a field ID of a linking pick list that allows to select items. The given input in the create dialog then will automatically be set to the current item.
                 td AFFECTED_ITEM
-
+            tr  
+                td rollupTotalCost
+                td When set to true and when the 'Total Cost' column of the sourcing tab is included in the selected BOM view, a cost roll up bar will be displayed in the BOM tree
+                td false
             tr  
                 td wsIdSupplierPackages
                 td The Supplier Packages workspace ID. This optional parameter is required for sending selected data to suppliers using the given workspace (see the following screenshot).
@@ -226,6 +229,10 @@
     .log 
         h1 Product Data Explorer Change Log 
         table 
+            tr 
+                td April 3, 2025
+                td Enhancement 
+                td Added configuation setting rollupTotalCost to display a total cost bar in the BOM tree. This requires to have the BOM column 'Total Cost' of the sourcing tab in the given BOM view.
             tr 
                 td 5. March 2025
                 td Enhancement 

@@ -8,6 +8,7 @@ let wsItems             = { id : wsId, sections : [], fields : [], viewId : '' }
 let wsProblemReports    = { id : ''  , sections : [], fields : [] };
 let wsSupplierPackages  = { id : ''  , sections : [], fields : [] };
 let kpis                = [];
+let rollupTotalCost    = false;
 
 let paramsDetails = { 
     bookmark        : true,
@@ -49,6 +50,7 @@ $(document).ready(function() {
     wsSupplierPackages.id           = config.explorer.wsIdSupplierPackages;
     paramsProcesses.createWSID      = config.problemReports.wsId;
     paramsProcesses.fieldIdMarkup   = config.explorer.fieldIdPRImage;
+    rollupTotalCost                 = config.explorer.rollupTotalCost;
     paramsProcesses.createContext   = { fieldId : config.explorer.fieldIdPRContext };
 
     let link = '/api/v3/workspaces/' + wsId + '/items/' + dmsId;
@@ -571,9 +573,13 @@ function setFlatBOMHeader() {
 function setBOMData(bom, flatBom) {
 
     let elemRoot = $('#bom-table-tree').html('');
+    let costRoot = 0;
 
     for(let field of wsItems.viewColumns) {
         if(field.fieldId === config.items.fieldIdNumber) urns.partNumber = field.__self__.urn;
+        else if(field.fieldId === 'TOTAL_COST') {
+            if(field.fieldTab === 'STANDARD_SOURCING') urns.totalCost = field.__self__.urn;
+        }
         else {
             for(let kpi of kpis) {
                 if(field.fieldId === kpi.fieldId) {
@@ -584,7 +590,10 @@ function setBOMData(bom, flatBom) {
         }
     }
 
-    insertNextBOMLevel(bom, elemRoot, bom.root, flatBom);
+    if(!isBlank(urns.totalCost)) costRoot = getBOMCellValue(bom.root, urns.totalCost, bom.nodes);
+    else rollupTotalCost = false;
+
+    insertNextBOMLevel(bom, elemRoot, bom.root, flatBom, costRoot);
     insertFlatBOM(flatBom);
 
     for(let kpi of kpis) insertKPI(kpi);
@@ -602,7 +611,7 @@ function setBOMData(bom, flatBom) {
     });
 
 }
-function insertNextBOMLevel(bom, elemRoot, parent, flatBom) {
+function insertNextBOMLevel(bom, elemRoot, parent, flatBom, costParent) {
 
     let result = false;
 
@@ -613,7 +622,8 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom) {
             result = true;
 
             let title       = getBOMItem(edge.child, bom.nodes);
-            let partNumber  = getBOMCellValue(edge.child, urns.partNumber , bom.nodes);
+            let partNumber  = getBOMCellValue(edge.child, urns.partNumber, bom.nodes);
+            let totalCost   = getBOMCellValue(edge.child, urns.totalCost, bom.nodes);
             let link        = getBOMNodeLink(edge.child, bom.nodes);
             let newBOMItem  = { 'urn' : edge.child, 'part-number' : partNumber };
             let newItem     = true;
@@ -693,7 +703,27 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom) {
                 elemCellTitle.html(title);
                 elemCellTitle.appendTo(elemCell);
 
-            let hasChildren = insertNextBOMLevel(bom, elemRoot, edge.child, flatBom);
+            if(rollupTotalCost) {
+
+                let elemCellCost = $('<td></td>').appendTo(elemRow).addClass('bom-column-total-cost');
+
+                if(!isBlank(totalCost)) {
+
+                    let width = 0;
+                    let elemBar = $('<div></div>').appendTo(elemCellCost)
+                        .addClass('bom-column-total-cost-bar')
+                        .html(totalCost);
+
+                    if(totalCost > 0) {
+                        width = 100 - (totalCost * 100 / costParent);
+                        elemBar.css('background', 'linear-gradient(to right, var(--color-surface-level-3) ' + width + '%, var(--color-surface-level-4) ' + width + '%)');
+                    }
+                
+                }
+
+            }
+
+            let hasChildren = insertNextBOMLevel(bom, elemRoot, edge.child, flatBom, totalCost);
 
             elemRow.children().first().each(function() {
                 
@@ -716,7 +746,6 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom) {
             });
 
         }
-
     }
 
     return result;
