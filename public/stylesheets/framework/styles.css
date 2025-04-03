@@ -252,7 +252,7 @@
 
 /* ----- Themes ----- */
              .surface-level-1 > .tile,              .surface-level-1 > .tiles > .tile { background : var(--color-surface-level-3); border-color : var(--color-surface-level-1); }
-             .surface-level-2 > .tile,              .surface-level-2 > .tiles > .tile { background : var(--color-surface-level-4); border-color : var(--color-surface-level-2); }
+             .surface-level-2 > .tile,              .surface-level-2 > .tiles > .tile { background : var(--color-surface-level-3); border-color : var(--color-surface-level-2); }
  .dark-theme .surface-level-3 > .tile,  .dark-theme .surface-level-3 > .tiles > .tile { background : var(--color-surface-level-1); border-color : var(--color-surface-level-3); }
 .black-theme .surface-level-3 > .tile, .black-theme .surface-level-3 > .tiles > .tile { background : var(--color-surface-level-1); border-color : var(--color-surface-level-3); }
 .light-theme .surface-level-3 > .tile, .light-theme .surface-level-3 > .tiles > .tile { background : var(--color-surface-level-4); border-color : var(--color-surface-level-3); }
@@ -260,7 +260,7 @@
              .surface-level-5 > .tile,              .surface-level-5 > .tiles > .tile { background : var(--color-surface-level-1); border-color : var(--color-surface-level-5); }
 
              .surface-level-1 > .tile > .tile-image, .surface-level-1 > .tiles > .tile > .tile-image { background : var(--color-surface-level-4); }
-             .surface-level-2 > .tile > .tile-image, .surface-level-2 > .tiles > .tile > .tile-image  { background : var(--color-surface-level-5); }
+             .surface-level-2 > .tile > .tile-image, .surface-level-2 > .tiles > .tile > .tile-image { background : var(--color-surface-level-4); }
  .dark-theme .surface-level-3 .tile-image,  .dark-theme .surface-level-3 > .tiles > .tile > .tile-image { background : var(--color-surface-level-2); }
 .black-theme .surface-level-3 .tile-image, .black-theme .surface-level-3 > .tiles > .tile > .tile-image { background : var(--color-surface-level-2); }
 .light-theme .surface-level-3 .tile-image, .light-theme .surface-level-3 > .tiles > .tile > .tile-image { background : var(--color-surface-level-5); }

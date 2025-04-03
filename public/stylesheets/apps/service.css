@@ -10,7 +10,7 @@
     --height-attachments     : 176px;
     --width-request-history  : 300px;
     --width-request-details  : 500px;
-    --padding-panel          :  24px;
+    --padding-panel          :  32px;
 
 }
 .screen { display : none; }
@@ -85,7 +85,7 @@
     height       : var(--height-attachments);
 }
 #panel {
-    border-width : var(--padding-panel);
+    border-width : var(--padding-panel) 0px var(--padding-panel) var(--padding-panel);
     right        : calc(var(--width-details) + (2 * var(--padding-panel)));;
     width        : var(--width-panel);
 }
@@ -93,6 +93,7 @@
     border-width : var(--padding-panel);
     right        : 0px;
     width        : var(--width-details); 
+    z-index      : 4;
 }
 
 .screen-landing #landing { display : block; }
@@ -110,7 +111,7 @@
 
 .no-details .viewer,
 .no-details #attachments { right  :  calc(var(--width-panel) + (2 * var(--padding-panel))); }
-.no-details #panel { right : 0px; }
+.no-details #panel { right : 0px; border-width : var(--padding-panel); }
 .no-details #details { right : calc(0px - var(--width-details) - (2 * var(--padding-panel))); }
 
 .no-bom #bom         { left : calc(0px - var(--width-bom) - (2 * var(--padding-panel))); }
@@ -348,16 +349,15 @@
     width           : 24px;
 }
 #cart-list {
-    gap         : var(--spacer-xxxs) !important;
     position    : absolute;
     top         : 80px;
     left        : 30px;
     right       : 30px;
 }
 #cart-list .tile-details {
-    margin   : 14px 20px;
+    margin   : 12px 0px;
     overflow : hidden;
-    width    : 230px;
+    width    : 260px;
 }
 .cart-quantity {
     display : flex;
