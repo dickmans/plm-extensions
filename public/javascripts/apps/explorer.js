@@ -715,8 +715,10 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom, costParent) {
                         .html(totalCost);
 
                     if(totalCost > 0) {
-                        width = 100 - (totalCost * 100 / costParent);
-                        elemBar.css('background', 'linear-gradient(to right, var(--color-surface-level-3) ' + width + '%, var(--color-surface-level-4) ' + width + '%)');
+                        // width = 100 - (totalCost * 100 / costParent);
+                        width = (totalCost * 100 / costParent);
+                        // elemBar.css('background', 'linear-gradient(to right, var(--color-surface-level-3) ' + width + '%, var(--color-surface-level-4) ' + width + '%)');
+                        elemBar.css('background', 'linear-gradient(to right, var(--color-surface-level-5) ' + width + '%, var(--color-surface-level-3) ' + width + '%)');
                     }
                 
                 }

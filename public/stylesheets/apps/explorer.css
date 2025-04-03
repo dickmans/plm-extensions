@@ -288,6 +288,9 @@ body.with-processes #processes { right : 0px; }
 
 /* BOM */
 /* ----------------------------------------------------------------------------- */
+td.bom-column-total-cost {
+    border-left : 2px solid var(--color-surface-level-1);
+}
 #flat-bom { 
     display : none; 
 }

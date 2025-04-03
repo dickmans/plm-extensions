@@ -639,6 +639,16 @@
     max-width   : 60px;
     width       : 60px;
 }
+td.bom-column-total-cost {
+    padding     : 0px;
+    width       : 120px;
+    text-align  : right;
+}
+.bom-column-total-cost-bar {
+    height      : 34px;
+    line-height : 34px;
+    padding     : 0px 10px;
+}
 .bom-content {
     bottom : 73px;
 }
