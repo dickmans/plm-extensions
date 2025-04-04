@@ -648,7 +648,6 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom, parentRollUps) {
 
             let title        = getBOMItem(edge.child, bom.nodes);
             let partNumber   = getBOMCellValue(edge.child, urns.partNumber, bom.nodes);
-            let link         = getBOMNodeLink(edge.child, bom.nodes);
             let newBOMItem   = { 'urn' : edge.child, 'part-number' : partNumber };
             let newItem      = true;
             let rollUpValues = getBOMRollUpValues(bom, urns.rollUps, edge.child, edge);
