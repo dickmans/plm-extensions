@@ -4162,6 +4162,48 @@ function getBOMParts(settings, parts, parent, edges, nodes, quantity, level, pat
     return result;
 
 }
+function getBOMRollUpValues(bom, rollUps, nodeId, edge) {
+
+    let result = [];
+
+    for(let rollUp of rollUps) {
+
+        let value = 0.0;
+
+        switch(rollUp.fieldTab) {
+
+            case 'CUSTOM_BOM':
+                if(nodeId === bom.root) {
+                    for(let bomEdge of bom.edges) {
+                        if(bomEdge.parent === bom.root) {
+                            let rowValue = getBOMEdgeValue(bomEdge, rollUp.urn, null, 0.0);
+                            value += parseFloat(rowValue);
+                        }
+                    }
+                } else value = getBOMEdgeValue(edge, rollUp.urn, null, 0.0);
+                break;
+
+            default: 
+                value = getBOMCellValue(nodeId, rollUp.urn, bom.nodes);
+                break;
+
+        }
+
+        if(isBlank(value))      value = '0.00';
+        else if(value ===  '0') value = '0.00';
+        else if(value ===    0) value = '0.00';
+        else if(value ===  0.0) value = '0.00';
+        else if(value === 0.00) value = '0.00';
+        else value = Math.round(value * 100) / 100;
+
+        result.push(value);
+
+    }
+
+    return result;
+
+}
+
 
 
 

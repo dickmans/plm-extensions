@@ -1,5 +1,5 @@
 let maxRequests         = 5;
-let urns                = { partNumber : '' }
+let urns                = { partNumber : '', rollUps : [] }
 let now                 = new Date();
 let bomItems            = [];
 let editableFields      = [];
@@ -8,7 +8,7 @@ let wsItems             = { id : wsId, sections : [], fields : [], viewId : '' }
 let wsProblemReports    = { id : ''  , sections : [], fields : [] };
 let wsSupplierPackages  = { id : ''  , sections : [], fields : [] };
 let kpis                = [];
-let rollupTotalCost    = false;
+let rollUpFields        = [];
 
 let paramsDetails = { 
     bookmark        : true,
@@ -50,7 +50,7 @@ $(document).ready(function() {
     wsSupplierPackages.id           = config.explorer.wsIdSupplierPackages;
     paramsProcesses.createWSID      = config.problemReports.wsId;
     paramsProcesses.fieldIdMarkup   = config.explorer.fieldIdPRImage;
-    rollupTotalCost                 = config.explorer.rollupTotalCost;
+    rollUpFields                    = config.explorer.rollUpFields;
     paramsProcesses.createContext   = { fieldId : config.explorer.fieldIdPRContext };
 
     let link = '/api/v3/workspaces/' + wsId + '/items/' + dmsId;
@@ -573,27 +573,52 @@ function setFlatBOMHeader() {
 function setBOMData(bom, flatBom) {
 
     let elemRoot = $('#bom-table-tree').html('');
-    let costRoot = 0;
 
     for(let field of wsItems.viewColumns) {
+
         if(field.fieldId === config.items.fieldIdNumber) urns.partNumber = field.__self__.urn;
-        else if(field.fieldId === 'TOTAL_COST') {
-            if(field.fieldTab === 'STANDARD_SOURCING') urns.totalCost = field.__self__.urn;
+
+        if(rollUpFields.includes(field.fieldId)) {
+            urns.rollUps.push({
+                fieldId     : field.fieldId, 
+                fieldTab    : field.fieldTab,
+                displayName : field.displayName,
+                urn         : field.__self__.urn
+            });
         }
-        else {
-            for(let kpi of kpis) {
-                if(field.fieldId === kpi.fieldId) {
-                    kpi.urn       = field.__self__.urn;
-                    kpi.fieldType = field.type.title;
-                }
+
+        for(let kpi of kpis) {
+            if(field.fieldId === kpi.fieldId) {
+                kpi.urn       = field.__self__.urn;
+                kpi.fieldType = field.type.title;
             }
         }
+
     }
 
-    if(!isBlank(urns.totalCost)) costRoot = getBOMCellValue(bom.root, urns.totalCost, bom.nodes);
-    else rollupTotalCost = false;
+    let rollUpValues = getBOMRollUpValues(bom, urns.rollUps, bom.root);
 
-    insertNextBOMLevel(bom, elemRoot, bom.root, flatBom, costRoot);
+    if(urns.rollUps.length > 0) {
+
+        $('#bom-table-tree').addClass('fixed-header');
+
+        let elemHead = $('<tr></tr>').appendTo($('#bom-table-tree'));
+
+        $('<th></th>').appendTo(elemHead).addClass('bom-color');
+        $('<th></th>').appendTo(elemHead).addClass('bom-first-col');
+
+        for(let rollUp of urns.rollUps) {
+
+            $('<th></th>').appendTo(elemHead)
+                .addClass('bom-column-roll-up')
+                .addClass('column-' + rollUp.fieldId)
+                .html(rollUp.displayName);
+
+        }
+
+    }
+
+    insertNextBOMLevel(bom, elemRoot, bom.root, flatBom, rollUpValues);
     insertFlatBOM(flatBom);
 
     for(let kpi of kpis) insertKPI(kpi);
@@ -611,7 +636,7 @@ function setBOMData(bom, flatBom) {
     });
 
 }
-function insertNextBOMLevel(bom, elemRoot, parent, flatBom, costParent) {
+function insertNextBOMLevel(bom, elemRoot, parent, flatBom, parentRollUps) {
 
     let result = false;
 
@@ -621,12 +646,14 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom, costParent) {
 
             result = true;
 
-            let title       = getBOMItem(edge.child, bom.nodes);
-            let partNumber  = getBOMCellValue(edge.child, urns.partNumber, bom.nodes);
-            let totalCost   = getBOMCellValue(edge.child, urns.totalCost, bom.nodes);
-            let link        = getBOMNodeLink(edge.child, bom.nodes);
-            let newBOMItem  = { 'urn' : edge.child, 'part-number' : partNumber };
-            let newItem     = true;
+            let title        = getBOMItem(edge.child, bom.nodes);
+            let partNumber   = getBOMCellValue(edge.child, urns.partNumber, bom.nodes);
+            let link         = getBOMNodeLink(edge.child, bom.nodes);
+            let newBOMItem   = { 'urn' : edge.child, 'part-number' : partNumber };
+            let newItem      = true;
+            let rollUpValues = [];
+
+            for(let rollUp of urns.rollUps) rollUpValues.push(getBOMCellValue(edge.child, rollUp.urn, bom.nodes));
 
             if(partNumber === '') partNumber = title.split(' - ')[0];
 
@@ -687,45 +714,58 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom, costParent) {
                     elemRow.addClass('level-' + edge.depth);
                 }
             }
-            $('<td></td>').appendTo(elemRow)
-                .addClass('bom-color');
+            
+            $('<td></td>').appendTo(elemRow).addClass('bom-color');
 
             let elemCell = $('<td></td>').appendTo(elemRow)
                 .addClass('bom-first-col');
 
-            let elemCellNumber = $('<span></span>');
-                elemCellNumber.addClass('bom-number');
-                elemCellNumber.html(edge.depth + '.' + edge.itemNumber);
-                elemCellNumber.appendTo(elemCell);
+            $('<span></span>').appendTo(elemCell)
+                .addClass('bom-number')
+                .html(edge.depth + '.' + edge.itemNumber);
 
-            let elemCellTitle = $('<span></span>');
-                elemCellTitle.addClass('bom-title');
-                elemCellTitle.html(title);
-                elemCellTitle.appendTo(elemCell);
+            $('<span></span>').appendTo(elemCell)
+                .addClass('bom-title')
+                .html(title);
 
-            if(rollupTotalCost) {
+            if(urns.rollUps.length > 0) {
 
-                let elemCellCost = $('<td></td>').appendTo(elemRow).addClass('bom-column-total-cost');
+                let rollUpValues = getBOMRollUpValues(bom, urns.rollUps, edge.child, edge);
 
-                if(!isBlank(totalCost)) {
+                for(let index in urns.rollUps) {
 
-                    let width = 0;
-                    let elemBar = $('<div></div>').appendTo(elemCellCost)
-                        .addClass('bom-column-total-cost-bar')
-                        .html(totalCost);
+                    let elemCellRollUp = $('<td></td>').appendTo(elemRow)
+                        .addClass('bom-column-roll-up')
+                        .addClass('column-' + urns.rollUps[index].fieldId);
 
-                    if(totalCost > 0) {
-                        // width = 100 - (totalCost * 100 / costParent);
-                        width = (totalCost * 100 / costParent);
-                        // elemBar.css('background', 'linear-gradient(to right, var(--color-surface-level-3) ' + width + '%, var(--color-surface-level-4) ' + width + '%)');
-                        elemBar.css('background', 'linear-gradient(to right, var(--color-surface-level-5) ' + width + '%, var(--color-surface-level-3) ' + width + '%)');
+                    let rollUpValue = rollUpValues[index];
+
+                    if(!isBlank(rollUpValue)) {
+
+                        let elemBar = $('<div></div>').appendTo(elemCellRollUp).addClass('bom-column-roll-up-bar');
+                        let noValue = false;
+
+                             if(rollUpValue ===      0) noValue = true;
+                        else if(rollUpValue ===    '0') noValue = true;
+                        else if(rollUpValue ===  '0.0') noValue = true;
+                        else if(rollUpValue === '0.00') noValue = true;
+
+                        if(noValue) {
+                            elemBar.css('color', 'var(--color-surface-level-1)');
+                            elemBar.html('0.00');
+                        } else {
+                            let width = (rollUpValue * 100 / parentRollUps[index]);
+                            elemBar.html(rollUpValue);
+                            elemBar.css('background', 'linear-gradient(to right, var(--color-green-600) ' + width + '%, var(--color-surface-level-3) ' + width + '%)');
+                        }
+                    
                     }
-                
+
                 }
 
             }
 
-            let hasChildren = insertNextBOMLevel(bom, elemRoot, edge.child, flatBom, totalCost);
+            let hasChildren = insertNextBOMLevel(bom, elemRoot, edge.child, flatBom, rollUpValues);
 
             elemRow.children().first().each(function() {
                 
