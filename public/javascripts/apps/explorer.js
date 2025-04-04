@@ -651,7 +651,7 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom, parentRollUps) {
             let link         = getBOMNodeLink(edge.child, bom.nodes);
             let newBOMItem   = { 'urn' : edge.child, 'part-number' : partNumber };
             let newItem      = true;
-            let rollUpValues = [];
+            let rollUpValues = getBOMRollUpValues(bom, urns.rollUps, edge.child, edge);
 
             for(let rollUp of urns.rollUps) rollUpValues.push(getBOMCellValue(edge.child, rollUp.urn, bom.nodes));
 
@@ -729,8 +729,6 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom, parentRollUps) {
                 .html(title);
 
             if(urns.rollUps.length > 0) {
-
-                let rollUpValues = getBOMRollUpValues(bom, urns.rollUps, edge.child, edge);
 
                 for(let index in urns.rollUps) {
 
