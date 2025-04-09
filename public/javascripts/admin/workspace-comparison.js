@@ -540,9 +540,10 @@ function compareItemDetailsTab() {
 
         for(let sectionSource of sectionsSource) {
 
-            let hasMatch        = false;
-            let index           = 1;
-            sectionSource.name  = sectionSource.name.trim();
+            let hasMatch            = false;
+            let index               = 1;
+            sectionSource.name      = sectionSource.name.trim();
+            sectionSource.collapsed = sectionSource.collapsed || false;
 
             for(let sectionField of sectionSource.fields) {
                 for(let fieldSource of fieldsSource) {
@@ -572,8 +573,9 @@ function compareItemDetailsTab() {
 
                 if(sectionSource.name === sectionTarget.name) {
                     
-                    hasMatch               = true;
-                    sectionTarget.hasMatch = true;
+                    hasMatch                = true;
+                    sectionTarget.hasMatch  = true;
+                    sectionTarget.collapsed = sectionTarget.collapsed || false;
 
                     if(sectionSource.description !== sectionTarget.description) {
                         matches.sectionsDescriptions = false;
@@ -594,6 +596,7 @@ function compareItemDetailsTab() {
                     }
 
                     if(sectionSource.collapsed !== sectionTarget.collapsed) {
+
                         matches.sectionsCollapsed = false;
                         let label = (sectionSource.collapsed) ? ' ' : ' not ';
                         addActionEntry({
