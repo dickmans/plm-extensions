@@ -110,6 +110,10 @@ function getWorkspaces(id) {
         if(id === 'target') $('#comparison-start').removeClass('disabled');
         $('#overlay').hide();
 
+        if(id === 'target') {
+            $('#target-workspaces').val($('#source-workspaces').val());
+        }
+
     });
 
 }
@@ -3224,6 +3228,8 @@ function compareLibraryScripts() {
 
         $.get('/plm/scripts', { tenant : environments.target.tenantName }, function(response) {
 
+            if(stopped) return;
+
             for(let source of environments.libraries) {
 
                 let hasMatch = true
@@ -3297,7 +3303,6 @@ function compareLibraryScripts() {
                 }
 
                 endComparison();
-                addLogStopped();
 
             });
 
