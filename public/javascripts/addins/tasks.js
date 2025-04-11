@@ -7,22 +7,21 @@ $(document).ready(function() {
     appendOverlay();
 
     insertMOW({
-        headerLabel         : 'My Outstanding Work List',
-        size                : 'xxs',
-        openInPLM           : true,
-        search              : true,
+        headerLabel         : 'My Work List',
         number              : true,
-        columnsEx           : ['State Set On', 'State Set By', 'Workspace'],
         filterByDueDate     : true,
-        filterByWorkspace   : false,
+        filterByWorkspace   : true,
+        reload              : true,
+        search              : false,
+        contentSize         : 'xxs',
+        columnsEx           : ['State Set On', 'State Set By', 'State'],
         workspacesIn        : [
             'Change Tasks',
             'Change Requests',
             'Change Orders',
             'Problem Reports'
         ],
-        onItemClick  : function(elemClicked) { openTask(elemClicked); }
-        // onItemDblClick  : function(elemClicked) { openTask(elemClicked); }
+        onClickItem : function(elemClicked) { openTask(elemClicked); }
     });
 
 });
@@ -81,10 +80,6 @@ function setUIEvents() {
 
     });
 
-    // $('#workflow-actions').change(function() {
-    //     performWorkflowAction($(this));
-    // });
-
     $('#add-select').click(function() {
         $('#add-list').children().addClass('selected');
     });
@@ -113,199 +108,128 @@ function setUIEvents() {
 
     });
 
-
-    // $('#dev').click(function() {
-
-    //     console.log(new Date().getTime());
-
-    //     $.get('/plm/workspaces', {}, function(response) {
-    //         console.log(response);
-    //         console.log(new Date().getTime());
-    //     });
-
-    // });
-
 }
 
 
 
-// Click entry in the tasks list
+// Click entry in the My Outstanding Work list
 function openTask(elemClicked) {
 
-    let link = elemClicked.attr('data-link');
+    linkTask = elemClicked.attr('data-link');
 
-    linkTask = link;
-
-    insertItemSummary(link, {
-        id       : 'task',
-        bookmark : true,
-        contents : [
-            { 
-                type      : 'details', 
-                className : 'surface-level-1', 
-                params : { 
-                    id        : 'task-details', 
-                    collapsed : true, 
-                    editable  : true ,
-                    toggles   : true
-                } 
-            },{ 
-                type      : 'attachments', 
-                className : 'surface-level-1', 
-                params : { 
-                    id              : 'task-attachments',
-                    editable        : true,
-                    layout          : 'list',
-                    singleToolbar   : 'controls',
-                    contentSize     : 'm'
-                } 
-            },{ 
-                type      : 'managed-items', 
-                className : 'surface-level-1', 
-                params : { 
-                    id     : 'task-managed-items',
-                    layout : 'list',
-                    search : true,
-                    onLoadComplete : function(id) { genPLMItemsAddinActions(id); }
-                } 
-            },{ 
-                type      : 'workflow-history', 
-                className : 'surface-level-1', 
-                params : { 
-                    id     : 'task-workflow-history'
-                } 
-            }
-        ],
-        statesColors : [
-            { label : 'Planning',    color : '#000000', states : ['Create']  },
-            { label : 'Review',      color : '#ffa600', states : ['Review', 'Review & Impact Analysis', 'Peform Tasks', 'Change Control Board Review']  },
-            { label : 'In Work',     color : '#ee4444', states : ['Change Order in progress']   },
-            { label : 'Completed',   color : '#8fc844', states : ['Completed'] }
-        ],
+    insertItemSummary(linkTask, {
+        id              : 'task',
+        bookmark        : false,
         layout          : 'tabs',
         openInPLM       : true,
         reload          : true,
         toggleBodyClass : 'display-task',
-        workflowActions : true
+        workflowActions : true,
+        contents        : [{ 
+            type   : 'details', 
+            params : { 
+                id              : 'task-details', 
+                // layout : 'narrow',
+                expandSections  : ['Task Details', 'Header', 'Details'], 
+                editable        : true,
+                toggles         : true,
+                afterCompletion : function(id) { setPicklistActions(id); }
+            } 
+        },{ 
+            type   : 'attachments', 
+            params : { 
+                id              : 'task-attachments',
+                editable        : true,
+                layout          : 'list',
+                singleToolbar   : 'controls',
+                contentSize     : 'm'
+            } 
+        },{ 
+            type   : 'managed-items', 
+            params : { 
+                id     : 'task-managed-items',
+                layout : 'list',
+                search : true,
+                afterCompletion : function(id) { setManagedItemsActions(id); }
+            } 
+        },{ 
+            type      : 'workflow-history', 
+            params : { 
+                id     : 'task-workflow-history'
+            } 
+        }],
+        statesColors : [
+            { label : 'Planning',    color : '#000000', states : ['Create']  },
+            { label : 'Review',      color : '#ffa600', states : ['Review', 'Review & Impact Analysis', 'Peform Tasks', 'Change Control Board Review']  },
+            { label : 'In Work',     color : '#ee4444', states : ['Change Order in progress', 'Assigned', 'In Work']   },
+            { label : 'Completed',   color : '#8fc844', states : ['Completed'] }
+        ]
+
     });  
 
-
-
-    // insertItemSummary()
-
-
-    // $('#overlay').show();
-
-    // setItemTabLabels(link.split('/')[4], function(permissions) {
-
-    //     $('#overlay').hide();
-    //     $('#mow').hide();
-    //     $('#task').show();
-    //     $('#attachments-count').hide();
-    //     $('.screen').removeClass('surface-level-1');
-    //     $('.screen').addClass('surface-level-2');
-        
-    //     // $('.is-selected').removeClass('is-selected');
-    //     // elemClicked.addClass('is-selected');
-    
-    
-    
-    //     $('#task-title').html(elemClicked.attr('data-title'));
-    //     $('#add-affected-item').attr('data-context-descriptor', elemClicked.attr('data-title'));
-        
-    //     insertDetails(link, {
-    //         compactDisplay  : true,
-    //         header      : false
-    //         // layout          : 'narrow'
-    //     });
-    //     insertItemStatus(link, 'task-status');
-    //     insertWorkflowActions(link);
-
-    //     if(permissions.includes('attachments')) insertAttachments(link, {
-    //             id      : 'attachments',
-    //             header  : true,
-    //             layout  : 'list',
-    //             size    : 'xs',
-    //             upload  : true
-    //         });
-
-    //     if(permissions.includes('managedItems')) insertManagedItems(link, {
-    //         layout      : 'list',
-    //         headerLabel : ''
-    //     });
-
-    //     if(permissions.includes('workflow'))insertWorkflowHistory(link, { 
-    //         header               : false,
-    //         id                   : 'history',
-    //         showNextTransitions : false
-    //     });
-
-    // });
-
-
-    // insertItemStatus(link, 'task-status');
-    // insertWorkflowActions(link);
-    // 
-    // insertManagedItems(link, 'managed-items', 'settings');
-    // 
-    // insertWorkflowHistory(link, { 
-    //     header               : false,
-    //     id                   : 'history',
-    //     showNextTransitions : false
-    // });
-
-
 }
-
-function insertItemDetailsDone(id) {
-
-    $('.linking.field-value').each(function() {
+function setPicklistActions(id) {
+    
+    $('.field-multi-picklist-item').each(function() {
         
-        let elemField  = $(this);
-        let fieldLink  = elemField.attr('data-item-link');
+        let elemFieldItem  = $(this);
+        let fieldItemLink  = elemFieldItem.attr('data-link');
 
-        if(!isBlank(fieldLink)) {
+        elemFieldItem.hide();
+        
+        if(!isBlank(fieldItemLink)) {
 
-            let wsId = fieldLink.split('/')[4];
+            let wsId       = fieldItemLink.split('/')[4];
+            let elemParent = elemFieldItem.parent();
 
             if(wsId == config.items.wsId) {
 
-                elemField.addClass('surface-level-1').html('');
+                elemParent.addClass('tiles').addClass('list').addClass('xxs').addClass('surface-level-2');
 
-                $.get('/plm/details', { link : fieldLink} , function(response) {
+                $.get('/plm/details', { link : fieldItemLink} , function(response) {
 
-                    let itemNumber  = getSectionFieldValue(response.data.sections, config.items.fieldIdNumber, '');
+                    let partNumber  = getSectionFieldValue(response.data.sections, config.items.fieldIdNumber, '');
                     let pdmFileName = getSectionFieldValue(response.data.sections, 'PRIMARY_FILE_NAME', '');
                     let pdmLocation = getSectionFieldValue(response.data.sections, 'PDM_LOCATION', '');
-                    let elemTile    = genTile(elemField.attr('data-item-link'), '', '', 'icon-product', response.data.title);
+
+                    let elemTile    = genSingleTile({
+                        link        : fieldItemLink,
+                        partNumber  : partNumber,
+                        subtitle    : pdmFileName,
+                        tileIcon    : 'icon-product',
+                        title       : response.data.title
+                    },{});
                         
-                    elemField.addClass('tiles').addClass('list').addClass('xxxs');
-                    elemField.attr('id', 'field-AFFECTED_ITEM');
-                    elemTile.appendTo(elemField);
+                    elemTile.appendTo(elemParent);
                     elemTile.css('color', 'var(--color-font)')
                         .addClass('plm-item')
                         .addClass('component')
-                        .attr('data-id'    , itemNumber)
+                        .attr('data-type'  , 'plm-item')
+                        .attr('data-id'    , partNumber)
                         .attr('data-name'  , pdmFileName)
                         .attr('data-folder', pdmLocation);
 
-                    insertAddinTileActions(elemTile);
+                    genAddinTileActions(elemTile);
 
-                        // insertTileAction(elemTile, false, true, true, true, true);
-
+                    elemFieldItem.remove();
 
                 });
             }
+
         }
 
     });
 
 }
-function insertManagedItemsDone() {
+function setManagedItemsActions(id) {
 
-    insertTileActions('managed-items-list');
+    let elemContent = $('#' + id + '-content');
 
-    $('<div></div>').insertBefore($('#managed-items-filter-lifecycle'))
+    elemContent.children('.tile').each(function() { $(this).attr('data-type', 'plm-item'); });
+
+    genAddinTilesActions(elemContent); 
+
+    $('<div></div>').appendTo($('#task-managed-items-controls'))
         .addClass('button')
         .addClass('with-icon')
         .addClass('icon-link')
@@ -313,17 +237,6 @@ function insertManagedItemsDone() {
         .html('Add Active Document')
         .click(function() {
             addActiveDocument();
-            // getActiveDocument().then(function(partNumber) {
-            // getActiveDocument('-').then(partNumber => {
-                // console.log(partNumber);
-            // });
-
-            // viewerGetSelectedComponentPaths().then(function(selectedComponentPaths) {
-                // addSelectedFeatureItems(elemFeature, selectedComponentPaths)
-            // });
-
-
-
         });
 
 }
@@ -413,62 +326,3 @@ function addActiveDocument() {
     });
 
 }
-
-
-function insertAttachmentsDone() {
-
-    $('#attachments-upload').prependTo($('#task-toolbar'));
-    $('#attachments-header').remove();
-    
-    let count = $('#attachments-list').children().length;
-
-    if(count > 0)  $('#attachments-count').show();
-
-}
-
-
-
-// Perform selected workflow action
-function performWorkflowAction(elemAction) {
-
-    $('#overlay').show();
-
-    let link = elemAction.attr('data-link');
-
-    $.get('/plm/transition', { 'link' : link, 'transition' : elemAction.val()}, function() {
-        $('#overlay').hide();
-        $('.is-selected').click();
-    });
-
-}
-
-
-
-function clickManagedItem(elemClicked) {
-
-    let title = elemClicked.attr('data-title');
-    let partNumber = title.split(' - ')[0];
-
-    openComponent(partNumber);
-
-}
-
-
-
-function clickWorkflowActionDone() {
-    insertItemStatus(linkTask, 'task-status');
-        insertWorkflowActions(linkTask);
-
-    insertManagedItems(linkTask, {
-        layout      : 'list',
-        headerLabel : ''
-    });
-
-}
-
-
-function insertChildrenChangedDone(id) { 
-    insertTileActions(id); 
-    $('#' + id).children().addClass('selected');
-}
-function clickChildrenChangedItem(elemClicked) { elemClicked.toggleClass('selected'); }

@@ -25,71 +25,16 @@ body.display-task #scrtask { display : block; }
 
 
 
-/* OVERRIDES */
-/* ----------------------------------------------------------------------------- */
-.panel-header {
-    border : none;
-}
-
-
 /* MOW */
 /* ----------------------------------------------------------------------------- */
-#mow-controls {
-    padding-top : 8px;
-}
-#mow-content { 
-    top : 60px;
-}
 .mow-date {
-    width : 58px;
-}
-
-
-#tasks, #task {
-    top : 0px;
-}
-
-.panel-back {
-    position    : absolute;
-    top         : 82px;
-    right       : calc(-1 * var(--padding-main));
-    bottom      : calc(-1 * var(--padding-main));
-    left        : calc(-1 * var(--padding-main));
+    width : 56px;
 }
 
 
 
-/* ATTACHMENTS
+/* ADD MANAGED ITEMS DIALOG */
 /* ----------------------------------------------------------------------------- */
-/* #attachments-count {
-    background      : var(--color-status-yellow);
-    border-radius   : 50%;
-    color           : white;
-    display         : inline-block;
-    font-size       : 10px;
-    font-weight     : 800;
-    height          : 18px;
-    line-height     : 18px;
-    margin-left     : 8px;
-    width           : 18px;
-}
-#attachments-no-data {
-    flex-grow : 1;
-} */
-
-
-/* MANAGED ITEMS */
-/* ----------------------------------------------------------------------------- */
-/* #managed-items-list .tile-details {
-    width : calc(100% - 168px);
-} */ 
-
-
-
-
-
-
-
 #add {
     box-shadow : none;
     /* top: var(--padding-main);
@@ -114,14 +59,6 @@ body.display-task #scrtask { display : block; }
     gap: 10px;
 
 }
-
-
-
-/* .tabs {
-    padding-top : 12px;
-} */
-
-
 #add-deselect, #add-select { float : left;}
 
 #add .dialog-header {
@@ -138,8 +75,3 @@ body.display-task #scrtask { display : block; }
 #add-list .tile-actions {
     right : 41px
 }
-/* 
-
-.surface-level-2 > .processing > div {
-     background-color: var(--color-blue-500);
- } */

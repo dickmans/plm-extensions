@@ -1,25 +1,16 @@
-:root {
-
-    /* --padding-main-top      :  6px;
-    --padding-main-right    : 10px;
-    --padding-main-bottom   :  0px;
-    --padding-main-left     : 10px; */
-
-}
-
-
 /*  GENERAL */
 /* ----------------------------------------------------------------------------- */
-body.addin, 
+.addin, 
 .addin input, 
+.addin textarea,
 .addin select,
 .addin th,
 .addin td.addin .attachment-version,
 .addin .attachment-size, 
 .addin .attachment-user, 
-.addin .attachment-date,
-.addin .attachment-version { 
-    font-size : 11px; 
+.addin .attachment-date { 
+    font-size   : 11px; 
+    line-height : 16px;
 }
 .addin th,
 .addin td {
@@ -69,11 +60,11 @@ body.addin,
     min-width : 50px;
     max-width : 50px;
 }
-.addin .attachments-content.list.m div {
-    line-height : 14px;
-}
-.addin .tiles.list.m .tile-title {
-    margin-bottom : 4px;
+.addin-actions .button:hover {
+    background   : var(--color-blue-500) !important;
+    border-color : var(--color-blue-500) !important;
+    box-shadow   : none !important;
+    color        : white;
 }
 
 
@@ -103,8 +94,10 @@ body.addin,
 /*  PANEL HEADER & CONTENT */
 /* ----------------------------------------------------------------------------- */
 .addin .panel-title {
-    gap     : 2px;
-    padding : 12px 0px 0px 18px;
+    gap       : 10px;
+    padding   : 12px 0px 0px 18px;
+    min-width : calc(100% - 36px);
+    width     : calc(100% - 36px);
 }
 .addin .panel-title-main {
     font-size   : 14px;
@@ -120,9 +113,19 @@ body.addin,
     font-size   : 9px;
     height      : 14px;
 }
+.addin .panel-summary {
+    overflow        : hidden;
+    text-overflow   : ellipsis;
+    min-width       : unset;
+    width           : unset;
+}
 .addin .panel-controls {
-    gap     : 4px;
-    padding : 12px 18px 0px 0px;
+    gap      : 4px;
+    padding  : 8px 18px;
+    position : absolute;
+    top      : 0px;
+    right    : 0px;
+    z-index  : 5;
 }
 .addin .panel-controls > .panel-search > .button {
     height      : 16px;
@@ -130,18 +133,6 @@ body.addin,
     line-height : 16px;
     margin-top  : 2px;
     width       : 16px;
-}
-.addin .panel-tabs {
-    top   : 64px;
-    right : 0px;
-    left  : 0px;
-}
-.addin .panel-top.with-tabs > .panel-content {
-    border-width : 12px;
-    top          : 90px;
-    right        : 0px;
-    bottom       : 0px;
-    left         : 0px;
 }
 .addin .panel-top.with-sub-title > .panel-header > .panel-title {
     padding-top : 12px;
@@ -156,71 +147,28 @@ body.addin,
 
 /*  TABS */
 /* ----------------------------------------------------------------------------- */
+.addin .item.with-tabs > .panel-tabs,
 .addin .panel-tabs {
-    top : 58px;
+    top : 66px;
+}
+.addin .panel-top.with-tabs > .panel-content {
+    border-width : 12px;
+    top          : 100px;
+    right        : 0px;
+    bottom       : 0px;
+    left         : 0px;
 }
 
 
 
 /*  PANELS */
 /* ----------------------------------------------------------------------------- */
-/* .addin .panel-header {
-    border : none;
-    padding-right: var(--padding-main-right);
-    padding-left: var(--padding-main-left);
-}
-.addin .panel-title {
-    font-size   : 14px;
-    font-weight : normal;
-    line-height : 18px;
-    padding     : 10px 4px;
-}
-.addin .panel-controls { 
-    padding-top : 10px;
-    gap         : 4px; 
-}
-.addin .panel-content {
-    top : 46px;
-} */
-/* .addin .workspace-view-search-input { width : 60px; } */
 .panel-subtitle {
     background  : rebeccapurple;
     margin      : 5px 0px;
     padding     : 2px 10px;
     text-align  : center;
 }
-.panel {
-    /* top     : 0px;
-    right   : var(--padding-main-right);
-    bottom  : var(--padding-main-bottom);
-    left    : var(--padding-main-left); */
-    /* top     : 40px;
-    right   : 0px;
-    bottom  : 0px;
-    left     : 0px; */
-}
-.panel-header {
-    /* top     : var(--padding-main-top);
-    right   : var(--padding-main-right);
-    left    : var(--padding-main-left);  */
-}
-/* .addin .panel-tabs {
-    border-right    : 12px solid var(--color-surface-level-2);
-    border-left     : 12px solid var(--color-surface-level-2);
-} */
-
-.panel-content {
-    /* top     : 0px;
-    right   : 0px;
-    bottom  : 0px;
-    left     : 0px; */
-    /* padding-top     : var(--padding-main-top);
-    padding-right   : var(--padding-main-right);
-    padding-bottom  : var(--padding-main-bottom);
-    padding-left    : var(--padding-main-left);  */
-}
-
-
 .addin .no-data { 
     margin-top  : 0px;
     position    : absolute;
@@ -237,7 +185,7 @@ body.addin,
 .addin .tiles.list.xs .tile-image { width : 72px; }
 .addin .tile-title { 
     display     : flex;
-    font-size   :  12px !important;
+    font-size   : 11px !important;
     gap         : 12px;
     line-height : 12px;
 }
@@ -251,18 +199,14 @@ body.addin,
     line-height : 14px;
 }
 .addin .tile-subtitle { font-size : 11px !important; }
-.addin .tiles.list.xxs .tile-details { margin: 6px 10px; }
 .addin .tiles.wide.s { padding-top: var(--spacer-s); }
 
 /* Tile Actions */
 .tile-actions {
-    display      : none;
-    gap          : var(--spacer-xxxs);
-    margin-top   : 1px;
-    margin-right : 4px;
-    position     : relative;
-    top          : 0px;
-    right        : 0px;
+    display         : none;
+    gap             : 4px;
+    justify-content : end;
+    position        : relative;
 }
 .tile:hover .tile-actions {
     display : flex;
@@ -273,82 +217,115 @@ body.addin,
     box-shadow   : none !important;
     color        : white;
 }
-/* .tile .tile-actions {
-    background  : var(--color-hover-background);
-} */
-.list.tiles.xs > .tile > .tile-details {
-    gap          : 2px;
-    margin-right : 8px;
-    width        : calc(100%  - 80px) !important;
-}
-.list.tiles.xs > .tile .tile-actions {
-    order       : 3;
-    padding     : 4px 0px;
-    top         : calc(-50% - 19px);
-    left        : calc(100% - 122px);
-}
-.list.tiles.xs > .tile > .tile-actions > .button {
-    font-size   : 20px;
-    height      : 26px;
-    line-height : 26px;
-    width       : 26px;
-}
 
-.field-value .tile-actions { 
-    top : -22px;
-    left : calc(100% - 112px);
-}
+.addin .tiles.list.m > .tile { gap: 14px; height: 48px; }
+.addin .tiles.list.m .tile-counter { line-height : 48px; font-size : 22px; }
+.addin .tiles.list.m .tile-image { height: 48px; line-height: 48px; font-size: 28px; max-width: 48px; min-width: 48px; width: 48px; }
+.addin .tiles.list.m .attachment-graphic > img { height: 28px; width: 28px; }
+.addin .tiles.list.m .tile-details { margin: 6px 12px 0px 0px; }
+.addin .tiles.list.m .tile-title { line-height: 20px; }
+
+.addin .tiles.list.xxs .tile-actions { top :  1px; right :  2px; gap : 2px; }
+.addin .tiles.list.xs  .tile-actions { top :  5px; right :  5px; gap : 5px; }
+.addin .tiles.list.m   .tile-actions { top : 12px; right : 12px;            }
+
 
 
 
 /*  TABLES */
 /* ----------------------------------------------------------------------------- */
+.addin .content-column-number {
+    max-width : 28px;
+    width     : 28px;
+}
 
-
-/*  MOW */
-/* ----------------------------------------------------------------------------- */
 
 
 /*  BOM */
 /* ----------------------------------------------------------------------------- */
+.addin .bom-nav {
+    font-size   : 16px;
+    line-height : 26px;
+    top         : 0px;
+}
+.addin .bom-first-col {
+    display        : flex;
+    height         : 24px;
+    line-height    : 24px;
+    padding-top    : 0px;
+    padding-bottom : 0px;
+}
+.addin .table-actions {
+    display  : none;
+    gap      : 2px;
+    position : absolute;
+    right    : 4px;
+    z-index  : 5;
+}
+.addin .tree-item:hover .table-actions {
+    display : flex;
+}
 .addin .bom-number,
 .addin .bom-descriptor {
     padding : 0px;
 }
-.addin .bom-nav {
-    font-size   : 16px;
-    line-height : 0px;
-    top         : 4px;
+.addin .panel-counters {
+    font-size : 11px;
+    padding   : 2px 12px;
 }
-td.bom-actions {
-    justify-content : end;
-    gap     : 2px;
-    padding : 2px !important;
-    height  : 22px !important;
+.addin .panel-top.with-panel-counters.with-bom-path > .panel-content {
+    bottom : 64px;
 }
-.bom-actions > div {
-    height      : 20px !important;
-    line-height : 20px !important;
+.addin .panel-top.with-panel-counters.with-bom-path > .bom-path {
+    bottom : 30px;
 }
 
-.bom-actions .button:hover {
-    background   : var(--color-blue-500) !important;
-    border-color : var(--color-blue-500) !important;
-    box-shadow   : none !important;
-    color        : white;
+
+
+/*  DETAILS */
+/* ----------------------------------------------------------------------------- */
+.addin .section-fields {
+    gap : 4px;
 }
+.addin .field-value.radio {
+    display         : flex;
+    flex-direction  : column;
+    gap             : 4px;
+}
+.addin .radio-label {
+    top : 0px;
+}
+
+
 
 /*  ATTACHMENTS */
 /* ----------------------------------------------------------------------------- */
-.embedded .attachment {
-    width : calc(100% - 22px) !important;
+.addin .attachment-version, 
+.addin .attachment-size, 
+.addin .attachment-user, 
+.addin .attachment-date {
+    font-size   : 10px;
+    line-height : 12px;
+}
+.addin .attachment-user > .icon {
+    font-size   : 10px;
+    line-height : 12px;
+}
+.addin .attachments-separator {
+    margin-top : 16px;
+    width      : 100%;
 }
 
 
-
-/*  DIALOGS */
+/*  ROOT PARENTS */
 /* ----------------------------------------------------------------------------- */
-.embedded .dialog-content {
-    padding-right : 20px;
-    padding-left  : 20px;
+.content-tbody > .content-item:hover .path-actions > div {
+    color : white;
+}
+.path-actions {
+    display : flex;
+    gap     : 4px;
+}
+.path-actions > div {
+    color : var(--color-surface-level-4);
 }

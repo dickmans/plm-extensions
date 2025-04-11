@@ -117,9 +117,6 @@ function insertFilePropertiesDataDone(id, response) {}
 
 
 
-
-
-
 // Render search results tiles
 function genPDMTile(record, params) {
 
@@ -127,9 +124,10 @@ function genPDMTile(record, params) {
 
     if(isBlank(params)) params = {};
 
-    params.number        = (isBlank(params.number       )) ? ''    : params.number;
-    params.tileNumber    = (isBlank(params.tileNumber   )) ? ''    : params.tileNumber;
-    params.displayEntity = (isBlank(params.displayEntity)) ? false : params.displayEntity;
+    params.number         = (isBlank(params.number       ))  ? ''    : params.number;
+    params.tileNumber     = (isBlank(params.tileNumber   ))  ? ''    : params.tileNumber;
+    params.displayEntity  = (isBlank(params.displayEntity))  ? false : params.displayEntity;
+    params.addTileActions = (isBlank(params.addTileActions)) ? false : params.addTileActions;
 
     switch(record.entityType) {
 
@@ -141,7 +139,6 @@ function genPDMTile(record, params) {
                 .attr('data-path', record.fullName)
                 .attr('data-type', 'vault-folder');
             elemTile.find('.icon-folder').addClass('filled');
-            genAddinTileActions(elemTile);
             break;
 
         case 'FileVersion':
@@ -151,7 +148,6 @@ function genPDMTile(record, params) {
                 .attr('data-name', record.name)
                 .attr('data-folder', record.parentFolderId)
                 .attr('data-type', 'vault-file');
-            genAddinTileActions(elemTile);
             break;
 
         case 'ItemVersion':
@@ -160,7 +156,6 @@ function genPDMTile(record, params) {
                 .attr('data-id', record.id)
                 .attr('data-name', record.name)
                 .attr('data-type', 'vault-item');
-            genAddinTileActions(elemTile);
             break;
 
         case 'ChangeOrder':
@@ -169,7 +164,7 @@ function genPDMTile(record, params) {
                 .attr('data-id', record.id)
                 .attr('data-name', record.name)
                 .attr('data-type', 'vault-eco');
-            genAddinTileActions(elemTile);
+                
             break;
 
         default:
@@ -179,31 +174,8 @@ function genPDMTile(record, params) {
     }
 
     if(elemTile !== null) {
-        
-        // elemTile.click(function(e) {
-            
-        //     e.preventDefault();
-        //     e.stopPropagation();
-
-        //     switch($(this).attr('data-type')) {
-
-        //         case 'vault-folder': invokeAddinAction([$(this)], 'gotoVaultFolder'); break;
-        //         case 'vault-file'  : invokeAddinAction([$(this)], 'gotoVaultFile');   break;
-        //         case 'vault-item'  : invokeAddinAction([$(this)], 'gotoVaultItem');   break;
-        //         case 'vault-eco'   : invokeAddinAction([$(this)], 'gotoVaultECO');    break;
-
-        //     }
-
-        // });
-
-        // elemTile.dblclick(function(e) {
-        //     e.preventDefault();
-        //     e.stopPropagation();
-        //     console.log('dblclick');
-        // });
-
         if(params.displayEntity) insertEntityTypeIcon(elemTile);
-
+        if(params.addTileActions) genAddinTileActions(elemTile);
     }
 
     return elemTile;
@@ -296,97 +268,6 @@ function insertEntityTypeIcon(elemTile) {
     } else if(elemTile.hasClass('vault-eco')) { 
         elemIcon.addClass('icon-status'); 
         elemLabel.html('Item'); 
-    }
-
-}
-
-
-function genAddinTileActions(elemTile) {
-
-    let elemDetails = elemTile.find('.tile-details');
-    let elemActions = $('<div></div>').appendTo(elemDetails).addClass('tile-actions');
-
-    switch(elemTile.attr('data-type')) {
-
-        case 'vault-folder': 
-            genAddinTileAction(elemActions, 'gotoVaultFolder', 'icon-folder', 'Navigate to folder in Vault'); 
-            break;
-
-        case 'vault-file': 
-        case 'vault-item': 
-            genAddinTileAction(elemActions, 'gotoVaultFile', 'icon-product', 'Navigate to file in Vault'); 
-            genAddinTileAction(elemActions, 'gotoVaultItem', 'icon-item', 'Navigate to item in Vault'); 
-            genAddinTileAction(elemActions, 'addComponent' , 'icon-create', 'Add selected component'); 
-            genAddinTileAction(elemActions, 'openComponent', 'icon-clone', 'Open selected component'); 
-            break;
-
-        case 'vault-eco':
-            genAddinTileAction(elemActions, 'gotoVaultECO', 'icon-select', 'Navigate to ECO in Vault');
-            break;
-
-    }
-
-}
-function genAddinTileAction(elemActions, action, icon, tooltip) {
-
-    let elemAction = $('<div></div>').appendTo(elemActions)
-        .addClass('button')
-        .addClass('icon')
-        .addClass(icon)
-        .attr('title', tooltip)
-        .click(function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            invokeAddinAction([$(this)], action);
-        });
-
-    return elemAction;
-
-}
-
-
-// Add addin actions to PLM item list displays
-function genPLMItemsAddinActions(id) {
-
-    let elemContent = $('#' + id + '-content');
-
-    if(elemContent.hasClass('tree')) {
-
-        console.log('BOM');
-
-        $('#' + id + '-thead-row').append('<th class="bom-actions"></th>');
-
-        elemContent.find('tr.content-item').each(function() {
-
-            let elemItem    = $(this);
-            let elemActions = $('<td></td>').appendTo(elemItem).addClass('bom-actions');
-
-            elemItem.addClass('plm-item');
-
-            genAddinTileAction(elemActions, 'gotoVaultFile', 'icon-product', 'Navigate to file in Vault' ); 
-            genAddinTileAction(elemActions, 'gotoVaultItem', 'icon-item'   , 'Navigate to item in Vault' ); 
-            genAddinTileAction(elemActions, 'addComponent' , 'icon-create' , 'Add selected component'    ); 
-            genAddinTileAction(elemActions, 'openComponent', 'icon-clone'  , 'Open selected component'   );    
-
-        });
-
-    } else if(elemContent.hasClass('tiles')) {
-
-        elemContent.children().each(function() {
-
-            let elemTile    = $(this);
-            let elemDetails = elemTile.find('.tile-details');
-            let elemActions = $('<div></div>').appendTo(elemDetails).addClass('tile-actions');
-
-            elemTile.addClass('plm-item');
-
-            genAddinTileAction(elemActions, 'gotoVaultFile', 'icon-product', 'Navigate to file in Vault'); 
-            genAddinTileAction(elemActions, 'gotoVaultItem', 'icon-item', 'Navigate to item in Vault'); 
-            genAddinTileAction(elemActions, 'addComponent' , 'icon-create', 'Add selected component'); 
-            genAddinTileAction(elemActions, 'openComponent', 'icon-clone', 'Open selected component');    
-
-        });
-
     }
 
 }

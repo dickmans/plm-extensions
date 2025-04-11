@@ -69,12 +69,12 @@ router.get('/workspace-comparison', function(req, res, next) { launch('admin/wor
 
 
 /* ------------------------------------------------------------------------------
-    INVENTOR ADDINS
+    Vault & INVENTOR ADDINS
    ------------------------------------------------------------------------------ */
 router.get('/addins/context' , function(req, res, next) { launch('addins/context' , 'Context Browser'   , req, res, next); });
 router.get('/addins/item'    , function(req, res, next) { launch('addins/item'    , 'Item Master'       , req, res, next); });
 router.get('/addins/login'   , function(req, res, next) { launch('addins/login'   , 'PLM Login'         , req, res, next); });
-router.get('/addins/navigate', function(req, res, next) { launch('addins/navigate', 'Data Navigator'    , req, res, next); });
+router.get('/addins/projects', function(req, res, next) { launch('addins/projects', 'PLM Projects'      , req, res, next); });
 router.get('/addins/search'  , function(req, res, next) { launch('addins/search'  , 'Search'            , req, res, next); });
 router.get('/addins/tasks'   , function(req, res, next) { launch('addins/tasks'   , 'Task Management'   , req, res, next); });
 
@@ -92,7 +92,8 @@ router.get('/template', function(req, res, next) { launch('tutorial/1-template' 
     APPLICATIONS IN DEVELOPMENT
    ------------------------------------------------------------------------------ */
 router.get('/assets'        , function(req, res, next) { launch('dev/assets'          , 'Asset Management'                  , req, res, next); });
-// router.get('/asset-services', function(req, res, next) { launch('dev/asset-services'  , 'Asset Services Portal'             , req, res, next); });
+router.get('/asset-services', function(req, res, next) { launch('dev/asset-services'  , 'Asset Services Portal'             , req, res, next); });
+router.get('/mpe'           , function(req, res, next) { launch('dev/mpe'             , 'Manufacturing Process Editor'      , req, res, next); });
 router.get('/browser'       , function(req, res, next) { launch('dev/browser'         , 'PLM Browser'                       , req, res, next); });
 router.get('/change'        , function(req, res, next) { launch('dev/change'          , 'Change Manager'                    , req, res, next); });
 router.get('/configurator'  , function(req, res, next) { launch('dev/configurator'    , 'Product Configuration Editor'      , req, res, next); });
@@ -100,12 +101,14 @@ router.get('/control'       , function(req, res, next) { launch('dev/control'   
 router.get('/customer'      , function(req, res, next) { launch('dev/customer'        , 'Customer Services'                 , req, res, next); });
 router.get('/editor'        , function(req, res, next) { launch('dev/editor'          , 'Content Editor'                    , req, res, next); });
 router.get('/matrix'        , function(req, res, next) { launch('dev/matrix'          , 'Portfolio Matrix'                  , req, res, next); });
-// router.get('/mbom-upgrade'  , function(req, res, next) { launch('dev/mbom-upgrade'    , 'MBOM Upgrade Editor'               , req, res, next); });
+router.get('/mbom-upgrade'  , function(req, res, next) { launch('dev/mbom-upgrade'    , 'MBOM Upgrade Editor'               , req, res, next); });
 router.get('/pdm'           , function(req, res, next) { launch('dev/pdm'             , 'Vault Browser'                     , req, res, next); });
 router.get('/pdm-explorer'  , function(req, res, next) { launch('dev/pdm-explorer'    , 'PDM Explorer'                      , req, res, next); });
 router.get('/pnd'           , function(req, res, next) { launch('dev/pnd'             , 'Product Data & Processes Explorer' , req, res, next); });
+router.get('/resources'     , function(req, res, next) { launch('dev/resources'       , 'Resource Allocation'               , req, res, next); });
 router.get('/sbom'          , function(req, res, next) { launch('dev/sbom'            , 'Asset BOM Editor'                  , req, res, next); });
 router.get('/specification' , function(req, res, next) { launch('dev/specification'   , 'Product Specification Editor'      , req, res, next); });
+router.get('/transmittals'  , function(req, res, next) { launch('dev/transmittals'    , 'Transmittals Client'               , req, res, next); });
 
       
 
@@ -217,8 +220,8 @@ function launch(appURL, appTitle, req, res, next) {
                     dmsId        : reqDMS,
                     fileId       : reqFileId,
                     vaultId      : req.session.vaultId,
-                    options      : reqOptions.split(','),
                     revisionBias : reqRevisionBias,
+                    options      : reqOptions.split(','),
                     config       : req.app.locals.config
                 });    
                 

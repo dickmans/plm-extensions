@@ -1,9 +1,5 @@
 /* LOGIN PAGE */
 /* ----------------------------------------------------------------------------- */
-body.embedded {
-    font-size   : 14px;
-    line-height : 20px;
-}
 #validation-title {
     max-width   : 150px;
     position    : absolute;
@@ -17,9 +13,6 @@ body.embedded {
     right       : 0px;
     bottom      : 0px;
     left        : 0px;
-}
-.processing > div {
-    background-color : var(--color-blue-500) !important;
 }
 .error { 
     border          : 16px solid var(--color-surface-level-1);

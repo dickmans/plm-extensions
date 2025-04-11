@@ -3,13 +3,13 @@ extends ../framework/addins
 block head
     
     link(rel='stylesheet', href='/stylesheets/addins/item.css')
+    script(src='/javascripts/addins/item.js')
     script.
         config = !{JSON.stringify(config)};
-    script(src='/javascripts/addins/item.js')
 
 block body  
 
     body.addin
 
-        .screen.surface-level-2
-            #item.surface-level-2
+        .screen.surface-level-1
+            #item.surface-level-1

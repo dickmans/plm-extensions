@@ -1,17 +1,14 @@
-/* CONTEXT BROWSER */
+/* MASTER LAYOUT */
 /* ----------------------------------------------------------------------------- */
-#parents > .panel-content { top : 0px; }
-#parents-list { flex-direction: row; }
-
-
-
-.child.bom { width : 100%; }
-.child.bom .panel-content { 
-    padding-left : calc(3 * var(--padding-main-left));
-    padding-right : 0px;
-    position : unset; 
+#item {
+    border-top-width : 6px;
+    top     : 0px;
+    right   : 0px;
+    bottom  : 0px;
+    left    : 0px;
 }
-/* .child.bom > .panel-content { position : unset; } */
-.child.bom .bom-tbody tr:last-of-type td { border-bottom : 1px solid transparent; }
 
-#roots-list { top : 0px; }
+
+/* OVERRIDE */
+/* ----------------------------------------------------------------------------- */
+ #item-close { display : none; }

@@ -3,54 +3,13 @@ extends ../framework/addins
 block head
     
     link(rel='stylesheet', href='/stylesheets/addins/context.css')
+    script(src='/javascripts/addins/context.js')
     script.
         config = !{JSON.stringify(config)};
-    script(src='/javascripts/addins/context.js')
 
 block body 
 
-    body.embedded
-
-        #header.dark
-            #header-logo
-            #header-title= title
-            #header-toolbar
-                #header-avatar
+    body.addin
 
         .screen.surface-level-1  
-
-            .tabs.surface-level-2(data-tab-group="tab-group-main")
-                .tab#tab-parents Baugruppen
-                .tab#tab-roots Endknoten
-                .tab#tab-relationships Relationen 
-                .tab#tab-processes Änderungen
-                .tab#tab-mbom MBOM 
-
-            .panel.tab-group-main#parents
-                .panel-header   
-                    .panel-title
-                    .panel-toolbar 
-                .panel-content#parents-list.tiles.list.xs.surface-level-1
-
-            .panel.tab-group-main#roots
-                .panel-content#roots-list.tiles.list.l
-
-            .panel.tab-group-main#relationships
-                .panel-header   
-                    .panel-title
-                    .panel-toolbar 
-                .panel-content#relationships-list.tiles.list.xs
-
-            .panel.tab-group-main#processes
-                .panel-header   
-                    .panel-title
-                    .panel-toolbar 
-                        .button.with-icon.icon-create Neuer Änderungsantrag
-                        .button.default.with-icon.icon-create Neuer Änderungsauftrag
-                .panel-content#processes-list.tiles.list.l.surface-level-1
-
-            .panel.tab-group-main#mbom
-                .panel-header   
-                    .panel-title
-                    .panel-toolbar 
-                .panel-content#mbom-editor.tiles.list.l.surface-level-1
+            #item.surface-level-1

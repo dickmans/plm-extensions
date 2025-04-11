@@ -1,9 +1,3 @@
-.panel {
-    top : 60px;
-}
-
-/*  MASTER LAYOUT */
-/* ----------------------------------------------------------------------------- */
 #basic-search {
     border-width    : 14px;
     top             : 0px;
@@ -11,37 +5,37 @@
     bottom          : 0px;
     left            : 0px;
 }
-
-
-/*  BASIC SEARCH */
-/* ----------------------------------------------------------------------------- */
 #basic-search > .panel-header {
     border          : none;
+    gap             : 10px;
+    height          : 22px;
     justify-content : center;
-    padding         : 12px;
+    padding         : 14px 0px;
 }
 #basic-search > .panel-content {
     top    : 60px;
-    bottom : 40px;
+    bottom : 38px;
 }
-.search-input { 
-    max-width   : 300px;
-    text-align  : center;
-    width       : calc(100% - 180px); 
+#basic-input { 
+    background    : var(--color-surface-level-2);
+    border-bottom : 1px solid var(--color-surface-level-3);
+    height        : 24px;
+    line-height   : 24px;
+    max-width     : 300px;
+    padding       : 0px 4px;
+    text-align    : center;
+    width         : calc(100% - 180px); 
 }
 .search-result-message {
     display     : none;
     padding-top : 100px;
     text-align  : center;
 }
-#materials-list .tile-details {
-    width : calc(100% - 150px);
-}
-#basic-list {
-    gap : 4px;
-}
 #basic-list .vault-tile-user,
 #basic-list .vault-tile-date {
     display : none;
 }
-
+#basic-total {
+    height      : 24px;
+    line-height : 24px;
+}

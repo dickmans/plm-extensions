@@ -1,12 +1,9 @@
 $(document).ready(function() {
 
-    appendProcessing('validation');
-    $('#validation-processing').show();
-
+    appendProcessing('validation', false);
     validateVaultConnection();
 
 });
-
 
 
 function validateVaultConnection() {

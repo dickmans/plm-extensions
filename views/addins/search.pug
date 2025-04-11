@@ -3,9 +3,9 @@ extends ../framework/addins
 block head
 
     link(rel='stylesheet', href='/stylesheets/addins/search.css')
+    script(src='/javascripts/addins/search.js')
     script.
         config = !{JSON.stringify(config)};
-    script(src='/javascripts/addins/search.js')
 
 block body 
 
@@ -15,11 +15,10 @@ block body
 
             .panel-top.surface-level-1#basic-search
                 .panel-header.search-header
-                    //- .panel-toolbar.search-actions
-                    input#basic-input.search-input.surface-level-2(placeholder='Type to begin search')
+                    input#basic-input.search-input(placeholder='Type to begin search')
                     #basic-submit.button.default Search
-                    button(onclick="document.location.href = document.location.href") Reload
-                .panel-content#basic-list.list.tiles.xs.search-result-list.surface-level-1
+                    #basic-reload.button.icon.icon-refresh(onclick="document.location.href = document.location.href")
+                .panel-content#basic-list.list.tiles.m.search-result-list.surface-level-1.no-scrollbar
                 .panel-content#basic-no-results.search-result-message No results
                 .panel-footer.hidden#basic-footer 
                     #basic-total 

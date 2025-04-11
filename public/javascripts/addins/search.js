@@ -2,27 +2,7 @@
 $(document).ready(function() {
 
     appendOverlay(true);
-    appendProcessing('basic-search');
-
-    // let elemList = $('<ul></ul>').appendTo($('#basic-list'));
-
-    // if(typeof chrome.webview                    === 'undefined') elemList.append('<li>1 chrome.webview does not exist</li>');
-    // if(typeof window.hostObjects                === 'undefined') elemList.append('<li>2 window.hostObjects does not exist</li>');
-    // if(typeof window.plmAddin                   === 'undefined') elemList.append('<li>3 window.plmAddin does not exist</li>');
-    // if(typeof window.webview                    === 'undefined') elemList.append('<li>4 window.webview does not exist</li>');
-    // if(typeof window.JavascriptObjectRepository === 'undefined') elemList.append('<li>5 window.JavascriptObjectRepository does not exist</li>');
-    // if(typeof window.JavaScriptInterop          === 'undefined') elemList.append('<li>6 window.JavaScriptInterop does not exist</li>');
-    // if(typeof JavaScriptInterop                 === 'undefined') elemList.append('<li>7 JavaScriptInterop does not exist</li>');
-    // if(typeof JavascriptObjectRepository        === 'undefined') elemList.append('<li>8 JavascriptObjectRepository does not exist</li>');
-
-
-    
-
-    // $('#basic-list').append($('<button onclick="document.location.href = document.location.href">Reload</button>'));
-    // $('#basic-list').append($('<button onclick="test01();">CefSharp</button>'));
-    // $('#basic-list').append($('<button onclick="test02();">gotoVaultFolder</button>'));
-
-    
+    appendProcessing('basic-search');  
     setUIEvents();
 
 });
@@ -75,8 +55,8 @@ function performBasicSearch(next) {
     $('#basic-footer').addClass('hidden');
     $('#basic-next').hide();
 
-    $.get(url, params, function(response)  {       
-
+    $.get(url, params, function(response)  {      
+        
         if($('#basic-list').attr('data-timestamp') == response.params.timestamp) {
 
             $('#basic-search-processing').hide();
@@ -89,7 +69,8 @@ function performBasicSearch(next) {
 
                 for(let result of response.data.results) {
                     let elemTile = genPDMTile(result, {
-                        tileNumber : elemList.children().length + 1
+                        tileNumber : elemList.children().length + 1,
+                        addTileActions : true
                     });
                     if(elemTile !== null) elemTile.appendTo(elemList);
                 }

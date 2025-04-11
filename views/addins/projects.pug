@@ -1,0 +1,16 @@
+extends ../framework/addins
+
+block head
+    
+    link(rel='stylesheet', href='/stylesheets/addins/projects.css')
+    script(src='/javascripts/addins/projects.js')
+    script.
+        config = !{JSON.stringify(config)};
+
+block body 
+
+    body.addin
+    
+        .screen
+            #projects.surface-level-2
+            #project.surface-level-1

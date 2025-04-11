@@ -841,10 +841,24 @@ tr.node.level-10 .bom-first-col  { padding-left : 186px; }
 
 
 
+/*  WHERE USED PARENTS */
+/* ----------------------------------------------------------------------------- */
+.parent-bom {
+    width : 100%;
+}
+.parent-bom > div {
+    padding  : 10px;
+    position : unset;
+}
+.parent-bom > .processing {
+    padding    : 40px;
+    text-align : center;
+}
+
+
 /*  WHERE USED ROOT ITEMS */
 /* ----------------------------------------------------------------------------- */
 .roots-parent {
-    display     : flex;
     line-height : 22px;
 }
 .parent.top {
@@ -860,11 +874,15 @@ tr.node.level-10 .bom-first-col  { padding-left : 186px; }
     margin-left : 8px;
     padding : 3px 12px;
 }
-.roots-parent-path .icon {
+.roots-parent-path .path-icon {
     color        : var(--color-font);
     font-size    : 20px;
     line-height  : 21px;
     margin-right : 8px;
+}
+.roots-parent-path .path-child {
+    flex-grow : 1;
+    width : 100%;
 }
 
 

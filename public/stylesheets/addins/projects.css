@@ -1,8 +1,7 @@
 :root {
     
-    --width-bom     : 550px;
-    --width-tabs    : 700px;
-    --padding-panel : 20px;
+    --border-v     : 12px;
+    --border-h     : 18px;
 
 }
 
@@ -12,13 +11,29 @@
 
 /* MASTER LAYOUT */
 /* ----------------------------------------------------------------------------- */
+#project,
+#projects {
+    border-width : var(--border-v) var(--border-h);
+    top     : 0px;
+    right   : 0px;
+    bottom  : 0px;
+    left    : 0px;
+}
+
+
+ #project { display : none; }
+.display-project #project { display : block; }
+.display-project #projects { display : none; }
+
+
+
+
 #viewer { 
     top     : 80px;
     bottom  : var(--padding-panel);
     left    : var(--padding-panel);
     width   : calc(100% - (3 * var(--padding-panel)) - var(--width-tabs));
 }
-.embedded .tabs { top : 40px !important; }
 .standalone .tabs { 
     top         : 88px !important; 
     right       : var(--padding-panel);
@@ -62,16 +77,6 @@
 
 /* PRODUCTS */
 /* ----------------------------------------------------------------------------- */
-.embedded #products-content {
-    flex-direction: column;
-    gap : 4px;
-}
-.embedded #products-content > .tile { width : calc(100% - 2px); }
-.embedded #products-content > .tile .tile-details { width : calc(100% - 218px); }
-.embedded #products-content > .tile .tile-action { 
-    height : 62px;
-    line-height : 62px;
- }
 .standalone #products-content { padding-top : 20px; top : 74px; }
 .standalone .tiles.wide.s > .tile { width : 550px; }
 
@@ -148,7 +153,6 @@
 
 /* DETAILS */
 /* ----------------------------------------------------------------------------- */
-.embedded #details > .panel-header { border : none; }
 #details > .panel-content {
     top : 78px;
 }
@@ -171,14 +175,6 @@
     border-right-color  : transparent !important;
     border-left-color   : transparent !important;
     border-bottom-color : white !important;
-}
-
-
-
-.embedded .button input {
-    padding: 2px 4px;
-    line-height: 16px;
-    height: 17px;
 }
 
 
@@ -470,7 +466,7 @@
 .configuration-action {
     display : none;
 }
-.embedded #select-configuration {
+#select-configuration {
     height : 24px;
 }
 .standalone #select-configuration {
