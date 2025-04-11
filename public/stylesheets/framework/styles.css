@@ -137,8 +137,10 @@
 
 /* ----- Tile Toggles ----- */
 .tile-toggle {
-    text-align  : center;
-    width       : 30px;
+    font-size    : 20px;
+    padding-left : 10px;
+    text-align   : center;
+    width        : 30px;
 }
 .tile-toggle:hover {
     color : var(--color-blue-500);
@@ -985,6 +987,11 @@ and (max-device-width : 1900px)  {
     justify-content : end;
     padding-right   : 14px;
 }
+.panel-top.surface-level-1 > .panel-header > .panel-controls { background : var(--color-surface-level-1); }
+.panel-top.surface-level-2 > .panel-header > .panel-controls { background : var(--color-surface-level-2); }
+.panel-top.surface-level-3 > .panel-header > .panel-controls { background : var(--color-surface-level-3); }
+.panel-top.surface-level-4 > .panel-header > .panel-controls { background : var(--color-surface-level-4); }
+.panel-top.surface-level-5 > .panel-header > .panel-controls { background : var(--color-surface-level-5); }
 
 .panel-controls > .button.material-symbols-sharp {
     line-height: 36px;

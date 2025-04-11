@@ -2606,17 +2606,18 @@ function insertAttachments(link, params) {
         tileIcon    : 'icon-pdf',
         contentSize : 's',
     }, [
-        [ 'bookmark'          , false ],
-        [ 'filterByType'      , false ],
-        [ 'folders'           , false ],
-        [ 'fileVersion'       , true  ],
-        [ 'fileSize'          , true  ],
-        [ 'includeVaultFiles' , false ],
-        [ 'split'             , false ],
-        [ 'download'          , true  ],
-        [ 'uploadLabel'       , 'Upload File' ],
-        [ 'extensionsIn'      , [] ],
-        [ 'extensionsEx'      , [] ]
+        [ 'bookmark'           , false ],
+        [ 'filterByType'       , false ],
+        [ 'folders'            , false ],
+        [ 'fileVersion'        , true  ],
+        [ 'fileSize'           , true  ],
+        [ 'includeVaultFiles'  , false ],
+        [ 'includeRelatedFiles', false ],
+        [ 'split'              , false ],
+        [ 'download'           , true  ],
+        [ 'uploadLabel'        , 'Upload File' ],
+        [ 'extensionsIn'       , [] ],
+        [ 'extensionsEx'       , [] ]
     ]);
 
     settings.attachments[id].load = function() { fileUploadDone(id); }
@@ -2737,8 +2738,9 @@ function insertAttachmentsData(id, update) {
     $('#' + id + '-no-data').hide();
     $('#' + id + '-processing').show();
 
-    if((settings.attachments[id].bookmark)) requests.push($.get('/plm/bookmarks', { link : settings.attachments[id].link })); 
-    if((settings.attachments[id].includeVaultFiles)) requests.push($.get('/plm/details', { link : settings.attachments[id].link })); 
+    if((settings.attachments[id].includeRelatedFiles)) requests.push($.get('/plm/related-attachments', { link : settings.attachments[id].link })); 
+    if((settings.attachments[id].bookmark           )) requests.push($.get('/plm/bookmarks', { link : settings.attachments[id].link })); 
+    if((settings.attachments[id].includeVaultFiles  )) requests.push($.get('/plm/details', { link : settings.attachments[id].link })); 
 
     Promise.all(requests).then(function(responses) {
 
@@ -2750,6 +2752,7 @@ function insertAttachmentsData(id, update) {
         let currentIDs  = [];
         let folders     = [];
         let listTypes   = [];
+        let listRelated = false;
 
         elemContent.find('.attachment').each(function() {
 
@@ -2768,6 +2771,11 @@ function insertAttachmentsData(id, update) {
             if(remove) $(this).remove(); else currentIDs.push(currentId);
 
         });
+
+
+        if((settings.attachments[id].includeRelatedFiles)) {
+            for(let related of responses[2].data) attachments.push(related);
+        }
 
         for(let attachment of attachments) {
 
@@ -2799,6 +2807,15 @@ function insertAttachmentsData(id, update) {
                     sortArray(folders, 'name');
 
                     let date = new Date(attachment.created.timeStamp);
+                    
+                    if(attachment.hasOwnProperty('relatedTabs')) {
+                        if(!listRelated) {
+                            $('<div></div>').appendTo(elemContent)
+                                .addClass('attachments-separator')
+                                .html('Related Files');
+                        }
+                        listRelated = true;
+                    }
 
                     let elemAttachment = $('<div></div>').appendTo(elemContent)
                         .addClass('content-item')
@@ -3075,10 +3092,12 @@ function insertVaultFile(id, elemContent, attachment, listTypes) {
 
             $('<div></div>').appendTo(elemAttachment)
                 .addClass('attachment-graphic')
+                .addClass('tile-image')
                 .append('<span class="icon ' + icon + '"></span>');
 
             let elemAttachmentDetails = $('<div></div>').appendTo(elemAttachment)
-                .addClass('attachment-details');
+                .addClass('attachment-details')
+                .addClass('tile-details');
 
             $('<div></div>').appendTo(elemAttachmentDetails)
                 .addClass('attachment-name')
@@ -5221,7 +5240,6 @@ function insertRootParentsData(id) {
                                 
                                 getRootChildren(path, responses[0].data.edges, responses[0].data.nodes, node.item.urn, 1);
 
-
                                 let contentItem = genPanelContentItem(settings.roots[id], {
                                     link        : node.item.link,
                                     title       : node.item.title,
@@ -5265,12 +5283,20 @@ function insertRootParentsData(id) {
 
                         for(let step of item.path) {
 
-                            let elemParent     = $('<div></div>').appendTo(elemCell).addClass('roots-parent').attr('data-link', item.link);
+                            let elemParent     = $('<div></div>').appendTo(elemCell)
+                                .addClass('roots-parent')
+                                .addClass('content-item')
+                                .attr('data-link', item.link)
+                                .attr('data-part-number', item.title.split(' - ')[0])
+                                .attr('data-title', item.title);
+
                             let elemParentPath = $('<div></div>').appendTo(elemParent).addClass('roots-parent-path');
 
-                            for(let i = step.level - 1; i > 0; i--) { elemParentPath.append('<span class="icon icon-east"></span>'); }
+                            for(let i = step.level - 1; i > 0; i--) { elemParentPath.append('<div class="path-icon icon icon-east"></div>'); }
 
-                            elemParentPath.append(step.title);
+                            $('<div></div>').appendTo(elemParentPath)
+                                .addClass('path-child')
+                                .html(step.title);
 
                         }
 
@@ -5334,11 +5360,13 @@ function insertParents(link, params) {
         layout      : 'list',
         tileIcon    : 'icon-product'
     }, [
-        [ 'expand'            , true ],
-        [ 'filterByLifecycle' , true ],
-        [ 'filterByWorkspace' , true ]
+        [ 'displayParentsBOM', false ],
+        [ 'filterByLifecycle', false ],
+        [ 'filterByWorkspace', false ],
+        [ 'afterParentBOMCompletion', function(id) {} ]
     ]);
 
+    settings.parents[id].expand = settings.parents[id].displayParentsBOM;
     settings.parents[id].load = function() { insertParentsData(id); }
 
     genPanelTop(id, settings.parents[id], 'parents');
@@ -5421,6 +5449,7 @@ function insertParentsData(id) {
 
                             let contentItem = genPanelContentItem(settings.parents[id], {
                                 link        : node.item.link,
+                                title       : node.item.title,
                                 subtitle    : lifecycle,
                             });
 
@@ -5448,7 +5477,7 @@ function insertParentsData(id) {
             genTable(id, items, settings.parents[id]);
         } else {
             genTilesList(id, items, settings.parents[id]);   
-            addTilesListChevrons(id, settings.parents[id], function(elemClicked) { insertParentBOM(elemClicked); });
+            addTilesListChevrons(id, settings.parents[id], function(elemClicked) { insertParentBOM(id, elemClicked); });
         }
 
         sortArray(listLifecycles, 0);
@@ -5462,7 +5491,7 @@ function insertParentsData(id) {
     });
 
 }
-function insertParentBOM(elemClicked) {
+function insertParentBOM(id, elemClicked) {
 
     let elemParent = elemClicked.closest('.content-item');
     let linkParent = elemParent.attr('data-link');
@@ -5473,13 +5502,14 @@ function insertParentBOM(elemClicked) {
         
         $('<div></div>').insertAfter(elemParent)
             .attr('id', idBOM)    
-            .addClass('parent-bom') 
+            .addClass('parent-bom');
                 
         insertBOM(linkParent, {
-            'id'        : idBOM,
-            'title'     : '',
-            'toggles'   : true,
-            'search'    : true
+            id               : idBOM,
+            hideHeader       : true,
+            title            : '',
+            collapseContents : true,
+            afterCompletion  : function() { settings.parents[id].afterParentBOMCompletion(idBOM); }
         });
 
     } else {
@@ -5491,6 +5521,7 @@ function insertParentBOM(elemClicked) {
 }
 function insertParentsDone(id)  {}
 function insertParentsDataDone(id, data)  {}
+
 
 
 
@@ -7137,11 +7168,17 @@ function insertItemSummaryContents(id, details, fields, tabs) {
 
         if(isBlank(content.params)) content.params = {};
 
-        let link      = (isBlank(content.link)) ? settings.summary[id].link : content.link;
+        let link      = settings.summary[id].link;
         let contentId = (isBlank(content.params.id)) ? 'item-' + content.type : content.params.id;
         let className = (isBlank(content.className)) ? settings.summary[id].contentSurfaceLevel : content.className;
         let elemTop   = $('#' + contentId);
         
+        if(!isBlank(content.link)) {
+            if(content.link.indexOf('/') < 0) {
+                link = getSectionFieldValue(details.sections, content.link, '', 'link');
+            } else link = content.link;
+        }
+
         if(settings.summary[id].layout === 'sections') {
             content.params.headerToggle = true;
         }
@@ -7201,6 +7238,13 @@ function insertItemSummaryContents(id, details, fields, tabs) {
                 if(tabsAccessible.includes('BOM_LIST')) {
                     insertItemSummaryContentTab(id, contentId, 'Flat BOM', content.params, isFirst);          
                     insertFlatBOM(link, content.params);
+                } 
+                break;
+
+            case 'parents':
+                if(tabsAccessible.includes('BOM_WHERE_USED')) {
+                    insertItemSummaryContentTab(id, contentId, tabLabels.BOM_WHERE_USED, content.params, isFirst);          
+                    insertParents(link, content.params);
                 } 
                 break;
 

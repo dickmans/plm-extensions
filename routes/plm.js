@@ -1878,6 +1878,35 @@ router.get('/attachments', function(req, res, next) {
 });
 
 
+/* ----- RELATED ATTACHMENT ----- */
+router.get('/related-attachments', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /related-attachments');
+    console.log(' --------------------------------------------');  
+    console.log('  req.query.wsId  = ' + req.query.wsId);
+    console.log('  req.query.dmsId = ' + req.query.dmsId);
+    console.log('  req.query.link  = ' + req.query.link);
+    console.log();
+
+    let url =  (typeof req.query.link !== 'undefined') ? req.query.link : '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId;
+        url = req.app.locals.tenantLink + url + '/related-attachments?asc=name';
+    
+    // let headers = getCustomHeaders(req);
+    //     headers.Accept = 'application/vnd.autodesk.plm.attachments.bulk+json';
+
+    axios.get(url, {
+        headers : req.session.headers
+    }).then(function(response) {
+        response.data = (response.data === '') ? [] : response.data;
+        sendResponse(req, res, response, false);
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+    
+});
+
+
 /* ----- ATTACHMENT DOWNLOAD ----- */
 router.get('/download', function(req, res, next) {
    
