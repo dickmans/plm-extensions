@@ -237,6 +237,7 @@ function updatefilters() {
 
             case '2': // Workflow
             case '7': // Revisioning
+            case '8': // Suppliers
                 $('.ws-type-2').removeClass('hidden');
                 break;
 
