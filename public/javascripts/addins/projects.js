@@ -3,14 +3,16 @@ $(document).ready(function() {
 
     setUIEvents();
 
-    insertResults('213', [{
+    let workspaceId = config.addins.project.workspaceId;
+
+    insertResults(workspaceId, [{
         field       : 'WF_CURRENT_STATE',       
         type        : 1,
         comparator  : 5,
-        value       : 'Completed'
+        value       : config.addins.project.stateCompleted
     }], {
         id          : 'projects',
-        headerLabel : 'Engineering Projects',
+        headerLabel : config.addins.project.headerLabelProjects,
         reload      : true,
         search      : true,
         layout      : 'list',
@@ -35,10 +37,10 @@ function openProject(elemClicked) {
         toggleBodyClass : 'display-project',
         contents        : [{ 
             type   : 'bom', 
-            link   : 'DELIVERABLE_4',
+            link   : config.addins.project.fieldIdBOM,
             params : { 
                 id               : 'project-bom',
-                headerLabel      : 'BOM',
+                headerLabel      : config.addins.project.tabNameBOM,
                 collapseContents : true,
                 search           : true,
                 toggles          : true,
@@ -60,10 +62,10 @@ function openProject(elemClicked) {
             params : { 
                 id              : 'project-details', 
                 hideHeader      : true,
-                headerLabel     : 'Details',
-                sectionsEx      : ['Project Schedule', 'Closure'],
+                headerLabel     : config.addins.project.tabNameDetails,
+                sectionsEx      : config.addins.project.projectDetailsSectionsEx,
                 fieldsEx        : ['TIMELINE'],
-                expandSections  : ['Task Details', 'Header', 'Details'], 
+                expandSections  : config.addins.project.projectDetailsExpandSections, 
                 editable        : false
             } 
 

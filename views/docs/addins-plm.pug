@@ -1,0 +1,145 @@
+.tile(data-name='Tenant Insights')
+    .tile-image(style="background: url('images/addins-plm.png') no-repeat;background-size:contain;")
+    .tile-details
+        .tile-title PLM Addins
+        .tile-subtitle Multiple panels enable direct access to item master data including files and BOM, but also Where Used information and related Project Data. Users also can access their tasks list and provide feedback.
+        .tile-access 
+    .instructions.no-scrollbar
+        p The following addins are provided and ready to use. You can adjust these addins' contents by using the configuration settings listed at the end of this page.
+        //- p When using Autodesk Inventor 2026 and Vault 2026 or later, you can use this panel withiin the given applications for quick access to PLM data. See the example configuration and setup instructions provided by Markus Koechl at 
+        //-     span.tile-endpoint https://github.com/koechlm/Autodesk.TS.PlmDesktopExtensions
+        table 
+            tr 
+                td(style='padding:32px;vertical-align:top;') 
+                    h2(style='border:none;padding:0px;margin-top:0px;') Engineering Projects
+                    |Users can browse the list of active 
+                    strong Engineering Projects 
+                    |and navigate to the project's BOM in order to locate a BOM item of interest. When selecting a project, following details will be shown: 
+                    ul 
+                        li The 
+                            strong Details 
+                            | tab provides access to the project properties. Few sections will be hidden as they are not considered being relevant.
+                        li Users can use the 
+                            strong Files 
+                            |tab to access the project's files and related attachments. Users also can upload new files or updated versions of existing files.
+                        li If an 
+                            strong Engineering BOM 
+                            | is linked to the project (in field DELIVERABLE_4), users can navigate the given BOM.
+                    |Users also can use the favorite toggle and access the given project in the PLM native user interface.
+                    p You can access this addin with the 
+                        strong /addins/projects 
+                        | endpoint, just click this link:
+                    a(href='addins/projects' target='_blank')
+                td
+                    img.border(src='images/apps/addin-projects.png' style='margin:8px 0px;width:100%;max-width:495px;min-width:495px;')
+            tr 
+                td(style='padding:32px;vertical-align:top;') 
+                    h2(style='border:none;padding:0px;margin-top:0px;') Item Master Data
+                    |By passing a part number or a dmsId with wsId, users can access information of the related item in PLM. This panel includes the details page and files tab in edit mode. Users also can navigate the given BOM and Related Change Processes.
+                    |Users also can use the favorite toggle and access the given item in the PLM native user interface.
+                    p You can access this addin with the 
+                        strong /addins/item?number=9410-000 
+                        | endpoint, just click this link:
+                    a(href='addins/item?number=9410-000' target='_blank')
+                td
+                    img.border(src='images/apps/addin-item.png' style='margin:8px 0px;width:100%;max-width:495px;min-width:495px;')
+            tr 
+                td(style='padding:32px;vertical-align:top;') 
+                    h2(style='border:none;padding:0px;margin-top:0px;') Item Where Used
+                    |By passing a part number or a dmsId with wsId, users can access Where Used information of the related item in PLM.
+                    |The tabs enable access to the immediate parents and their BOM as well as the root parents and relationships.
+                    p You can access this addin with the 
+                        strong /addins/context?number=WG1-6062 
+                        | endpoint, just click this link:
+                    a(href='addins/context?number=WG1-6062' target='_blank')
+                td
+                    img.border(src='images/apps/addin-context.png' style='margin:8px 0px;width:100%;max-width:495px;min-width:495px;')
+            tr 
+                td(style='padding:32px;vertical-align:top;') 
+                    h2(style='border:none;padding:0px;margin-top:0px;') My Tasks List
+                    |Users can access their My Outstanding Work list in this panel. It will display all tasks of all Change Management workspaces. By clicking a process, users can review more details and provide feedback using Workflow Actions.
+                    p You can access this addin with the 
+                        strong /addins/tasks 
+                        | endpoint, just click this link:
+                    a(href='addins/tasks' target='_blank')
+                td
+                    img.border(src='images/apps/addin-tasks.png' style='margin:8px 0px;width:100%;max-width:495px;min-width:495px;')
+        p
+        h2 Configuration Settings 
+        p The following parameters can be changed in your settings file to adjust these panels to your needs.
+        table 
+            tr 
+                th Addin
+                th Setting 
+                th Default Value 
+                th Description
+            tr 
+                td(rowspan="3") Item Master Data
+                td(style="border-left:1px solid var(--color-surface-level-1);") config.addins.item.expandSections
+                td [ 'Basic', 'Technical Details' ]
+                td Select the sections to be expanded in the Item Details. All sections not contained will be collapsed.
+            tr 
+                td config.addins.item.sectionsEx 
+                td [ 'Others' ]
+                td Defines sections to be excluded in the Item Details page. Leave this array blank to show all sections.
+            tr 
+                td config.addins.item.fieldsEx 
+                td [ 'ACTIONS' ]
+                td Defines fieldIDs to exclude in the Item Details page. Leave this array blank to show all fields.
+            tr 
+                td(rowspan="8") Engineering Projects
+                td(style="border-left:1px solid var(--color-surface-level-1);") config.addins.projects.workspaceId 
+                td 213
+                td The workspace ID of your Engineering Projects workspace
+            tr 
+                td config.addins.projects.stateCompleted 
+                td 'Completed'
+                td The final state of your Engineering Projects. Projects in this status will not be displayed.
+            tr 
+                td config.addins.projects.headerLabelProjects 
+                td 'Engineering Projects'
+                td Sets the label being displayed on top of the list of Engineering Projects
+            tr 
+                td config.addins.projects.fieldIdBOM 
+                td 'DELIVERABLE_4'
+                td The fieldId of Engineering Projects that stores the link to the Engineering BOM
+            tr 
+                td config.addins.projects.tabNameBOM 
+                td 'BOM'
+                td Label of the tab providing access to the Engineering Project's BOM
+            tr 
+                td config.addins.projects.tabNameDetails 
+                td 'Details'
+                td Label of the tab with the Engineering Project details
+            tr 
+                td config.addins.projects.projectDetailsSectionsEx 
+                td [ 'Project Schedule', 'Closure' ]
+                td Defines sections to be excluded in the Item Details page. Leave this array blank to show all sections.
+            tr 
+                td config.addins.projects.projectDetailsExpandSections 
+                td [ 'Task Details', 'Header', 'Details' ]
+                td Defines sections to be expanded in the Item Details page.
+            tr 
+                td(rowspan="4") My Tasks List
+                td(style="border-left:1px solid var(--color-surface-level-1);") config.addins.tasks.headerLabelTasks 
+                td 'My Work List'
+                td Sets the label being displayed on top of the list of tasks
+            tr 
+                td config.addins.tasks.columnsExTasks 
+                td [ 'State Set On', 'State Set By', 'State' ]
+                td Columns to be hidden in the tasks list
+            tr 
+                td config.addins.tasks.workspacesInTasks 
+                td [ 'Change Tasks', 'Change Requests', 'Change Orders', 'Problem Reports' ]
+                td List of workspaces to be included in the tasks list. Workspaces not contained in this list will not be displayed.
+            tr 
+                td config.addins.tasks.expandSectionsTask 
+                td [ 'Task Details', 'Header', 'Details' ]
+                td Sections to be expanded when details of a task are displayed
+    .log 
+        h1 PLM Addin Change Log 
+        table 
+            tr 
+                td April 16, 2025
+                td Initial Release
+                td The very first version of this application

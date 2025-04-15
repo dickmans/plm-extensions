@@ -17,8 +17,9 @@ $(document).ready(function() {
                 collapsed       : true, 
                 editable        : true,
                 toggles         : true,
-                expandSections  : ['Basic'],
-                fieldsEx        : ['ACTIONS']
+                expandSections  : config.addins.item.expandSections,
+                sectionsEx      : config.addins.item.sectionsEx,
+                fieldsEx        : config.addins.item.fieldsEx
             } 
         },{ 
             type   : 'attachments', 

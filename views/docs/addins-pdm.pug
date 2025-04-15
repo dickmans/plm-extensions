@@ -1,0 +1,29 @@
+.tile(data-name='Tenant Insights')
+    .tile-image(style="background: url('images/admin-data.png') no-repeat;background-size:contain;")
+    .tile-details
+        .tile-title Vault Addin
+        .tile-subtitle This very first version of the Addins includes a single panel to access Vault information using a search dialog.
+        .tile-access 
+            .tile-endpoint /addins/pdm-search
+            .tile-button.button.default(href="addins/pdm-search" target="_blank") Open
+    .instructions
+        p This addin provides quick access to Vault data by using a quick search for folders, files and items. It also provides actions when hovering a search result. These actions enable interactions which must be implemented by the host application using the Chrome Webview library.
+        p The panel uses the Vault Data API and requires proper configuration of the following settings in file settings.js: 
+        ul 
+            li vaultGateway
+            li Vault Name
+        //- p When using Autodesk Inventor 2026 and Vault 2026 or later, you can use this panel withiin the given applications for quick access to data. See the example configuration and setup instructions provided by Markus Koechl at 
+        //-     span.tile-endpoint https://github.com/koechlm/Autodesk.TS.PlmDesktopExtensions
+        img.border(src='images/apps/addin-pdm-search.png' style='width:100%;max-width:495px;min-width:495px;margin-bottom:42px;')
+        h1 Access the utility
+        p You can access the utlity with the 
+            strong /addins/pdm-search
+            |  endpoint, just click this link:
+        a(href='addins/pdm-search' target='_blank')
+    .log 
+        h1 Vault Addin Change Log 
+        table 
+            tr 
+                td April 16, 2025
+                td Initial Release
+                td The very first version of this application

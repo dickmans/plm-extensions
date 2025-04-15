@@ -71,12 +71,12 @@ router.get('/workspace-comparison', function(req, res, next) { launch('admin/wor
 /* ------------------------------------------------------------------------------
     Vault & INVENTOR ADDINS
    ------------------------------------------------------------------------------ */
-router.get('/addins/context'   , function(req, res, next) { launch('addins/context'   , 'Context Browser', req, res, next); });
-router.get('/addins/item'      , function(req, res, next) { launch('addins/item'      , 'Item Master'    , req, res, next); });
-router.get('/addins/login'     , function(req, res, next) { launch('addins/login'     , 'Autodesk Login' , req, res, next); });
-router.get('/addins/pdm-search', function(req, res, next) { launch('addins/pdm-search', 'PDM Search'     , req, res, next); });
-router.get('/addins/projects'  , function(req, res, next) { launch('addins/projects'  , 'PLM Projects'   , req, res, next); });
-router.get('/addins/tasks'     , function(req, res, next) { launch('addins/tasks'     , 'My Tasks'       , req, res, next); });
+router.get('/addins/context' , function(req, res, next) { launch('addins/context' , 'Context Browser'   , req, res, next); });
+router.get('/addins/item'    , function(req, res, next) { launch('addins/item'    , 'Item Master'       , req, res, next); });
+router.get('/addins/login'   , function(req, res, next) { launch('addins/login'   , 'PLM Login'         , req, res, next); });
+router.get('/addins/projects', function(req, res, next) { launch('addins/projects', 'PLM Projects'      , req, res, next); });
+router.get('/addins/search'  , function(req, res, next) { launch('addins/search'  , 'Search'            , req, res, next); });
+router.get('/addins/tasks'   , function(req, res, next) { launch('addins/tasks'   , 'Task Management'   , req, res, next); });
 
 
 

@@ -658,6 +658,38 @@ exports.config = {
             views         : true,
             selectFile    : true
         }
+    },
+
+    addins : {
+
+        item : {
+            expandSections : [ 'Basic', 'Technical Details' ],
+            sectionsEx     : [ 'Others' ],
+            fieldsEx       : [ 'ACTIONS' ]
+        },
+
+        projects : {
+
+            workspaceId                  : 213,
+            stateCompleted               : 'Completed',
+            headerLabelProjects          : 'Engineering Projects',
+            fieldIdBOM                   : 'DELIVERABLE_4',
+            tabNameBOM                   : 'BOM',
+            tabNameDetails               : 'Details',
+            projectDetailsSectionsEx     : [ 'Project Schedule', 'Closure' ],
+            projectDetailsExpandSections : [ 'Task Details', 'Header', 'Details' ]
+
+        },
+
+        tasks : {
+
+            headerLabelTasks    : 'My Work List',
+            columnsExTasks      : [ 'State Set On', 'State Set By', 'State' ],
+            workspacesInTasks   : [ 'Change Tasks', 'Change Requests', 'Change Orders', 'Problem Reports' ],
+            expandSectionsTask  : [ 'Task Details', 'Header', 'Details' ]
+
+        }
+
     }
 
 }

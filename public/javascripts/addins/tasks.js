@@ -7,20 +7,15 @@ $(document).ready(function() {
     appendOverlay();
 
     insertMOW({
-        headerLabel         : 'My Work List',
-        number              : true,
-        filterByDueDate     : true,
-        filterByWorkspace   : true,
-        reload              : true,
-        search              : false,
-        contentSize         : 'xxs',
-        columnsEx           : ['State Set On', 'State Set By', 'State'],
-        workspacesIn        : [
-            'Change Tasks',
-            'Change Requests',
-            'Change Orders',
-            'Problem Reports'
-        ],
+        headerLabel       : config.addins.tasks.headerLabelTasks,
+        number            : true,
+        filterByDueDate   : true,
+        filterByWorkspace : true,
+        reload            : true,
+        search            : false,
+        contentSize       : 'xxs',
+        columnsEx         : config.addins.tasks.columnsExTasks,
+        workspacesIn      : config.addins.tasks.workspacesInTasks,
         onClickItem : function(elemClicked) { openTask(elemClicked); }
     });
 
@@ -38,7 +33,6 @@ function setUIEvents() {
 
         $('#add-root').html('');
 
-        console.log('getting active document');
 
         getActiveDocument($(this).attr('data-context-descriptor')).then(partNumber => {
         
@@ -111,7 +105,6 @@ function setUIEvents() {
 }
 
 
-
 // Click entry in the My Outstanding Work list
 function openTask(elemClicked) {
 
@@ -129,8 +122,7 @@ function openTask(elemClicked) {
             type   : 'details', 
             params : { 
                 id              : 'task-details', 
-                // layout : 'narrow',
-                expandSections  : ['Task Details', 'Header', 'Details'], 
+                expandSections  : config.addins.tasks.expandSectionsTask, 
                 editable        : true,
                 toggles         : true,
                 afterCompletion : function(id) { setPicklistActions(id); }
