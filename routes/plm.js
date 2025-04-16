@@ -1011,6 +1011,181 @@ router.post('/set-owner', function(req, res, next) {
 });
 
 
+/* ----- ADD ADDITIONAL OWNER ----- */
+router.post('/add-owner', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /add-owner');
+    console.log(' --------------------------------------------');
+    console.log('  req.body.wsId   = ' + req.body.wsId);
+    console.log('  req.body.dmsId  = ' + req.body.dmsId);
+    console.log('  req.body.link   = ' + req.body.link);
+    console.log('  req.body.user   = ' + req.body.user);
+    console.log('  req.body.group  = ' + req.body.group);
+    console.log(' ');
+        
+    let userId  = (typeof req.body.user  !== 'undefined') ? req.body.user : '';
+    let groupId = (typeof req.body.group !== 'undefined') ? req.body.group.split('/').pop() : '';
+    let link    = (typeof req.body.link  !== 'undefined') ? req.body.link : '/api/v3/workspaces/' + req.body.wsId + '/items/' + req.body.dmsId;
+    let url     = req.app.locals.tenantLink + link + '/owners';
+
+    axios.get(url,{
+        headers : req.session.headers
+    }).then(function(response) {
+
+        let owners     = response.data.owners;
+        let isNewUser  = (userId  !== '');
+        let isNewGroup = (groupId !== '');
+
+        for(let owner of owners) {
+            if(userId !== '') {
+                if(owner.ownerType === 'ADDITIONAL_USER') {
+                    if(owner.detailsLink.split('/').pop() === userId) isNewUser = false;
+                }
+            }
+            if(groupId !== '') {
+                if(owner.ownerType === 'ADDITIONAL_GROUP') {
+                    if(owner.detailsLink === req.body.group) isNewGroup = false;
+                }
+            }
+        }
+
+        if(isNewUser) {
+            owners.push({
+                ownerType : 'ADDITIONAL_USER',
+                __self__  : link + '/owners/' + userId
+            });
+        }
+
+        if(isNewGroup) {
+            owners.push({
+                ownerType : 'ADDITIONAL_GROUP',
+                __self__  : link + '/owners/' + groupId
+            });
+        }
+
+        if(isNewUser || isNewGroup) {
+
+            axios.put(url, owners,{
+                headers : req.session.headers
+            }).then(function(response) {
+                sendResponse(req, res, response, false);
+            }).catch(function(error) {
+                sendResponse(req, res, error.response, true);
+            });
+
+        } else {
+            sendResponse(req, res, response, false);
+        }
+
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+    
+});
+
+
+/* ----- REMOVE ADDITIONAL OWNER ----- */
+router.post('/remove-owner', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /remove-owner');
+    console.log(' --------------------------------------------');
+    console.log('  req.body.wsId   = ' + req.body.wsId);
+    console.log('  req.body.dmsId  = ' + req.body.dmsId);
+    console.log('  req.body.link   = ' + req.body.link);
+    console.log('  req.body.user   = ' + req.body.user);
+    console.log('  req.body.group  = ' + req.body.group);
+    console.log(' ');
+        
+    let userId  = (typeof req.body.user  !== 'undefined') ? req.body.user : '';
+    let groupId = (typeof req.body.group !== 'undefined') ? req.body.group.split('/').pop() : '';
+    let link    = (typeof req.body.link  !== 'undefined') ? req.body.link : '/api/v3/workspaces/' + req.body.wsId + '/items/' + req.body.dmsId;
+    let url     = req.app.locals.tenantLink + link + '/owners';
+
+    axios.get(url,{
+        headers : req.session.headers
+    }).then(function(response) {
+
+        let owners     = response.data.owners;
+        let newOwners  = [owners[0]];
+
+        for(let owner of owners) {
+            let ownerId = owner.detailsLink.split('/').pop();
+            if(owner.ownerType === 'ADDITIONAL_USER') {
+                if(userId !== ownerId) {
+                    newOwners.push(owner);
+                }
+            } else if(owner.ownerType === 'ADDITIONAL_GROUP') {
+                if(groupId !== ownerId) {
+                    newOwners.push(owner);
+                }
+            }
+        }
+
+        if(owners.length !== newOwners.length) {
+
+            axios.put(url, newOwners,{
+                headers : req.session.headers
+            }).then(function(response) {
+                sendResponse(req, res, response, false);
+            }).catch(function(error) {
+                sendResponse(req, res, error.response, true);
+            });
+
+        } else {
+            sendResponse(req, res, response, false);
+        }
+
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+    
+});
+
+
+/* ----- CLEAR ADDITIONAL OWNER ----- */
+router.post('/clear-owners', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /clear-owners');
+    console.log(' --------------------------------------------');
+    console.log('  req.body.wsId   = ' + req.body.wsId);
+    console.log('  req.body.dmsId  = ' + req.body.dmsId);
+    console.log('  req.body.link   = ' + req.body.link);
+    console.log(' ');
+        
+    let link    = (typeof req.body.link  !== 'undefined') ? req.body.link : '/api/v3/workspaces/' + req.body.wsId + '/items/' + req.body.dmsId;
+    let url     = req.app.locals.tenantLink + link + '/owners';
+
+    axios.get(url,{
+        headers : req.session.headers
+    }).then(function(response) {
+
+        let owners = response.data.owners;
+
+        if(owners.length > 1) {
+
+            owners.splice(1);
+
+            axios.put(url, owners,{
+                headers : req.session.headers
+            }).then(function(response) {
+                sendResponse(req, res, response, false);
+            }).catch(function(error) {
+                sendResponse(req, res, error.response, true);
+            });
+
+        } else {
+            sendResponse(req, res, response, false);
+        }
+
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+    
+});
+
 
 /* ----- ITEM DETAILS ----- */
 router.get('/details', function(req, res, next) {

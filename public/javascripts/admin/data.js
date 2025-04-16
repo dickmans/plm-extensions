@@ -24,12 +24,14 @@ $(document).ready(function() {
 
             let requests = [
                 $.get('/plm/workspaces', {}),
-                $.get('/plm/users',      {})
+                $.get('/plm/users',      {}),
+                $.get('/plm/groups',     {})
             ]
         
             getFeatureSettings('items', requests, function(responses) {
                 setWorkspaces(responses[0]);
                 setUserSelectors(responses[1]);
+                setGroupSelectors(responses[2]);
             });
 
         }
@@ -168,6 +170,32 @@ function setUserSelectors(response) {
     });
 
 }
+function setGroupSelectors(response) {
+
+    sortArray(response.data.items, 'shortName');
+
+    $('.select-group').each(function() {
+
+        let isAction = $(this).closest('.action').length > 0;
+        let label    = (isAction) ? 'Select Group' : 'Any';
+
+        if(typeof $(this).attr('data-empty-label') !== 'undefined') label = $(this).attr('data-empty-label');
+
+        $('<option></option>').appendTo($(this))
+            .html(label)
+            .attr('value', '--');
+
+        for(let group of response.data.items) {
+
+            $('<option></option>').appendTo($(this))
+                .attr('value', group.__self__)
+                .html(group.shortName);
+            
+        }
+
+    });
+
+}
 
 
 // When selecting workspace, enable matching filters
@@ -187,7 +215,7 @@ function updatefilters() {
         $.get('/plm/workspace-scripts'        , { link : wsConfig.link }),
         $.get('/plm/workspace-workflow-states', { link : wsConfig.link }),
         $.get('/plm/tableaus'     , { link : wsConfig.link }),
-        $.get('/plm/workspace-workflow-transitions', { link : wsConfig.link }),
+        $.get('/plm/workspace-workflow-transitions', { link : wsConfig.link })
     ];
 
     $('#overlay').show();
@@ -206,9 +234,8 @@ function updatefilters() {
     $('.property-filter').remove();
     $('#save-text-value').addClass('hidden');
 
-    $('.select-user').each(function() {
-        $(this).val('--');
-    });
+    $('.select-user' ).each(function() { $(this).val('--'); });
+    $('.select-group').each(function() { $(this).val('--'); });
 
     Promise.all(requests).then(function(responses) {
 
@@ -842,10 +869,24 @@ function validateInputs() {
     if(elemAction.length === 0) { 
         proceed = false;  addLogEntry('Cannot start, no action is selected', 'error') 
     } else {
-        if(elemAction.attr('id') !== 'delete-attachments') {
+        if(elemAction.attr('id') === 'add-owner') {
+            if($('#select-add-owner-user').val() === '--') {
+                if($('#select-add-owner-group').val() === '--') {
+                    addLogEntry('Cannot start: Action options are not set', 'error');
+                    proceed = false;
+                }
+            }
+        } else if(elemAction.attr('id') === 'remove-owner') {
+            if($('#select-remove-owner-user').val() === '--') {
+                if($('#select-remove-owner-group').val() === '--') {
+                    addLogEntry('Cannot start: Action options are not set', 'error');
+                    proceed = false;
+                }
+            }
+        } else if(elemAction.attr('id') !== 'delete-attachments') {
             elemAction.find('select').each(function() {
                 if($(this).val() === '--') {
-                    addLogEntry('Cannot start: Action options are not set', 'error') ;
+                    addLogEntry('Cannot start: Action options are not set', 'error');
                     proceed = false;
                 }
             });
@@ -1130,6 +1171,30 @@ function genRequests(limit) {
                 params.owner = $('#select-set-owner').children('option:selected').attr('data-id');
 
                 requests.push($.post('/plm/set-owner', params));
+
+            } else if(run.actionId === 'add-owner') {
+
+                let user  = $('#select-add-owner-user' ).children('option:selected').attr('data-id');
+                let group = $('#select-add-owner-group').val();
+                
+                if(user  !== '--') params.user  = user;
+                if(group !== '--') params.group = group;
+
+                requests.push($.post('/plm/add-owner', params));
+            
+            } else if(run.actionId === 'remove-owner') {
+
+                let user  = $('#select-remove-owner-user' ).children('option:selected').attr('data-id');
+                let group = $('#select-remove-owner-group').val();
+                
+                if(user  !== '--') params.user  = user;
+                if(group !== '--') params.group = group;
+
+                requests.push($.post('/plm/remove-owner', params));
+
+            } else if(run.actionId === 'clear-owners') {
+
+                requests.push($.post('/plm/clear-owners', params));
 
             } else if(run.actionId === 'delete-attachments') {
 

@@ -269,9 +269,6 @@ select#workspace {
     background : var(--color-surface-level-4);
     border     : none;
 }
-.action.no-select .details {
-    line-height : 64px;
-}
 .action:hover,
 .action:hover .details,
 .action.selected, 
