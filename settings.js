@@ -584,6 +584,7 @@ exports.config = {
         productsFieldIdTitle   : 'TITLE',
         productsFieldIdSubtitle: 'DESCRIPTION',
         productsFieldIdBOM     : 'ENGINEERING_BOM',
+        revisionBias           : 'release',
         viewerFeatures : {
             contextMenu   : false,
             cube          : false,

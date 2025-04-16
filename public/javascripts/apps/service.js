@@ -339,7 +339,7 @@ function openItem(link, linkProduct) {
         counters      : true,
         getFlatBOM    : true, 
         showRestricted: false,
-        revisionBias  : 'working',
+        revisionBias  : config.service.revisionBias,
         endItem       : config.service.endItemFilter,
         search        : true,
         selectItems   : { fieldId : config.service.fieldId, values : config.service.fieldValues },

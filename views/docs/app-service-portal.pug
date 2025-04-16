@@ -452,11 +452,15 @@
                     td Serviceable Products
                     td Defines the header being shown on top of the products list in the landing page
                 tr 
+                    td revisionBias
+                    td 'release'
+                    td Select the revision bias when expanding the BOM. Select 'working' or 'release'.
+                tr 
                     td wsIdProducts
-                    td 95
+                    td 82
                     td Provide the workspace ID of 
-                        strong Products 
-                        | to let users browse for the product of interest when no dmsId is provided in the URL (95 matches the default tenant configuration)
+                        strong Problem Reports 
+                        | to enable creation of new processes from within the application (82 matches the default tenant configuration)
                 tr 
                     td wsIdProblemReports
                     td 82
@@ -532,6 +536,10 @@
     .log 
         h1 Services Portal Change Log 
         table 
+            tr 
+                td April 16, 2025
+                td Enhancement 
+                td Added configuration setting 'revisionBias' to allow for expansion of the BOM with working or release configuration
             tr 
                 td 10. September 2024
                 td Enhancement 
