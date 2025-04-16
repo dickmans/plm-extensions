@@ -996,14 +996,26 @@ router.post('/set-owner', function(req, res, next) {
     let url    = req.app.locals.tenantLink + link + '/owners';
     let notify = req.body.notify || false;
 
-    axios.put(url, [{
-        notify    : notify,
-        ownerType : 'PRIMARY',
-        __self__  : link + '/owners/' + req.body.owner
-    }],{
+    axios.get(url,{
         headers : req.session.headers
     }).then(function(response) {
-        sendResponse(req, res, response, false);
+
+        let owners     = response.data.owners;
+        
+        owners[0] = {
+            notify    : notify,
+            ownerType : 'PRIMARY',
+            __self__  : link + '/owners/' + req.body.owner
+        };
+
+        axios.put(url, owners,{
+            headers : req.session.headers
+        }).then(function(response) {
+            sendResponse(req, res, response, false);
+        }).catch(function(error) {
+            sendResponse(req, res, error.response, true);
+        });
+
     }).catch(function(error) {
         sendResponse(req, res, error.response, true);
     });
