@@ -162,6 +162,7 @@ function launch(appURL, appTitle, req, res, next) {
         let reqNumber       = '';
         let reqFileId       = '';
         let reqOptions      = '';
+        let reqHost         = '';
         let reqRevisionBias = 'release';
         
         for(let key in req.query) {
@@ -172,6 +173,7 @@ function launch(appURL, appTitle, req, res, next) {
                 case 'number'       :       reqNumber = req.query[key]; break;
                 case 'fileid'       :       reqFileId = req.query[key]; break;
                 case 'options'      :      reqOptions = req.query[key]; break;
+                case 'host'         :         reqHost = req.query[key]; break;
                 case 'revisionbias' : reqRevisionBias = req.query[key]; break;
             }
         }
@@ -192,6 +194,7 @@ function launch(appURL, appTitle, req, res, next) {
             console.log('  vaultName        = ' + req.app.locals.vaultName); 
             console.log('  vaultId          = ' + req.session.vaultId); 
             console.log('  theme            = ' + reqTheme); 
+            console.log('  host             = ' + reqHost); 
             console.log('  wsId             = ' + reqWS); 
             console.log('  dmsId            = ' + reqDMS); 
             console.log('  number           = ' + reqNumber); 
@@ -206,6 +209,7 @@ function launch(appURL, appTitle, req, res, next) {
                     number       : reqNumber,
                     revisionBias : reqRevisionBias,
                     theme        : reqTheme,
+                    host         : reqHost,
                     options      : reqOptions.split(',')
                 });
 
@@ -216,6 +220,7 @@ function launch(appURL, appTitle, req, res, next) {
                     tenant       : req.app.locals.tenant,
                     tenantLink   : req.app.locals.tenantLink,
                     theme        : reqTheme,
+                    host         : reqHost,
                     wsId         : reqWS,
                     dmsId        : reqDMS,
                     fileId       : reqFileId,
