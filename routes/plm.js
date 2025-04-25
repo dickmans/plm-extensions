@@ -4286,7 +4286,7 @@ router.get('/users', function(req, res, next) {
     console.log();
 
     let bulk       = (typeof req.query.bulk       === 'undefined') ?    true : req.query.bulk;
-    let limit      = (typeof req.query.limit      === 'undefined') ?     100 : req.query.limit;
+    let limit      = (typeof req.query.limit      === 'undefined') ?    1000 : req.query.limit;
     let offset     = (typeof req.query.offset     === 'undefined') ?       0 : req.query.offset;
     let activeOnly = (typeof req.query.activeOnly === 'undefined') ? 'false' : req.query.activeOnly;
     let mappedOnly = (typeof req.query.mappedOnly === 'undefined') ? 'false' : req.query.mappedOnly;
