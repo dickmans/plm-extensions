@@ -6,9 +6,6 @@ let records          = null;
 
 
 // let actions = [
-//     // { id : 'add-owner'    , class : 'permisson-edit'   , title : 'Add Owner', subtitle : "Update selected field values" },
-//     // { id : 'remove-owner' , class : 'permisson-edit'   , title : 'Remove Owner', subtitle : "Update selected field values" },
-//     // { id : 'clear-owners' , class : 'permisson-edit'   , title : 'Clear All Additional Owners', subtitle : "Update selected field values" },
 //     // { id : 'replace-owner', class : 'permisson-edit'   , title : 'Replace Owner', subtitle : "Update selected field values" },
 //     { id : 'bom-pin'      , class : 'permisson-edit'   , title : 'Change BOM Pin', subtitle : "Enables or disables the pin of all BOM children" },
 // ]
