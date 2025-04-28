@@ -1,8 +1,8 @@
-let maxRequests     = 4;
-let wsEBOM          = { id : '', sections : [], fields : [], viewId : '', viewColumns : [] };
-let wsMBOM          = { id : '', sections : [], fields : [], viewId : '', viewColumns : [] };
-let singleWorkspace = false;
-let links           = {};
+let maxRequests        = 4;
+let wsEBOM             = { 'id' : '', 'sections' : [], 'fields' : [], 'viewId' : '', 'viewColumns' : [] };
+let wsMBOM             = { 'id' : '', 'sections' : [], 'fields' : [], 'viewId' : '', 'viewColumns' : [] };
+let singleWorkspace    = false;
+let links              = {};
 
 let paramsSummary = {
     id       : 'summary',
@@ -22,14 +22,17 @@ let paramsSummary = {
             singleToolbar : 'controls'
         }
     }],
-    layout    : 'tabs',
-    openInPLM : true
+    layout       : 'tabs',
+    openInPLM    : true
 }
 
-let eBOM         = {};
-let mBOM         = {};
+let eBOM            = {};
+let mBOM            = {};
+let uBOM            = {};
 let urlParameters   = getURLParameters();
-let instructions = [];
+let instructions    = [];
+let itemsToValidate = [];
+let bomListPrevious  = [];
 
 let basePartNumber      = '';
 let viewerStatusColors  = false;
@@ -44,19 +47,17 @@ let sectionIdMBOM;
 
 
 $(document).ready(function() {
-
+    
     for(let option of options) {
-        console.log(option);
         let param = option.split(':');
         if(param[0].toLowerCase() === 'site') {
             siteSuffix = '_' + param[1];
-            siteLabel   = param[1];
+            siteLabel = param[1];
         }
     }
 
-    wsEBOM.wsId   = config.mbom.wsIdEBOM;
-    wsMBOM.wsId   = config.mbom.wsIdMBOM;
-    links.start = '/api/v3/workspaces/' + wsId + '/items/' + dmsId;
+    wsEBOM.wsId = config.mbom.wsIdEBOM;
+    wsMBOM.wsId = config.mbom.wsIdMBOM;
 
     appendProcessing('ebom', false);
     appendProcessing('mbom', false);
@@ -69,21 +70,39 @@ $(document).ready(function() {
         setUIEvents();
 
         // Start from context object (i.e. Asset)
-        if((wsId !== wsEBOM.wsId) && (wsId !== wsMBOM.wsId)) {            
+        if((wsId !== wsEBOM.wsId) && (wsId !== wsEBOM.wsId)) {
 
-            $.get('/plm/details', { link : links.start }, function(response) {
+            $.get('/plm/details', { link : urlParameters.link }, function(response) {
+
+                console.log(response);
+                console.log(urlParameters);
                 
+                let ebom = getSectionFieldValue(response.data.sections, config.mbom.fieldIdEBOM, '', 'link');
+                wsId     = ebom.split('/')[4];
+                dmsId    = ebom.split('/')[6];
+
                 let contextFieldIdEBOM = urlParameters.contextfieldidebom || config.mbom.fieldIdEBOM;
                 let contextFieldIdMBOM = urlParameters.contextfieldidmbom || config.mbom.fieldIdMBOM;
+                let contextFieldIdPREV = urlParameters.contextfieldidprev || config.mbom.fieldIdPREV;
 
-                links.ebom    = getSectionFieldValue(response.data.sections, contextFieldIdEBOM, '', 'link');
-                links.mbom    = getSectionFieldValue(response.data.sections, contextFieldIdMBOM + siteSuffix, '', 'link');
+                links.ebom     = getSectionFieldValue(response.data.sections, contextFieldIdEBOM, '', 'link');
+                links.mbom     = getSectionFieldValue(response.data.sections, contextFieldIdMBOM + siteSuffix, '', 'link');
+                links.previous = getSectionFieldValue(response.data.sections, contextFieldIdPREV, '', 'link');
                 
-                if(isBlank(links.mbom)) links.context = links.start;
+                console.log(contextFieldIdPREV);
+
+                if(isBlank(links.mbom)) links.context = urlParameters.link;
                 
+                // links.ebom    = getSectionFieldValue(response.data.sections, config.mbom.fieldIdEBOM, '', 'link');
+                // links.mbom    = getSectionFieldValue(response.data.sections, config.mbom.fieldIdMBOM, '', 'link');
+                // links.previous = getSectionFieldValue(response.data.sections, 'EBOM_ADDITION_1',       '', 'link');
+
+
                 links.start   = links.ebom;
                 wsId          = links.ebom.split('/')[4];
                 dmsId         = links.ebom.split('/')[6];
+
+                console.log(links);
 
                 getInitialData(); 
 
@@ -333,7 +352,7 @@ function getInitialData() {
 
         requests.push($.get('/plm/bom-views-and-fields' , { wsId : wsMBOM.wsId, useCache : true }));
         requests.push($.get('/plm/workspace'            , { wsId : wsMBOM.wsId, useCache : true }));
-        requests.push($.get('/plm/tableaus'             , { wsId : wsMBOM.wsId }));
+        requests.push($.get('/plm/tableaus'             , { wsId : wsMBOM.wsId, useCache : true }));
 
     }
 
@@ -352,7 +371,7 @@ function getInitialData() {
 
         wsEBOM.tableaus = responses[6].data;
 
-        insertWorkspaceViewsOptions('ebom', wsEBOM.tableaus);
+        insertViewOptions('ebom', wsEBOM.tableaus);
 
         if(wsEBOM.wsId === wsMBOM.wsId) {
         
@@ -372,7 +391,7 @@ function getInitialData() {
 
             wsMBOM.tableaus = responses[10].data;
 
-            insertWorkspaceViewsOptions('mbom', wsMBOM.tableaus);
+            insertViewOptions('mbom', wsMBOM.tableaus);
 
         }
 
@@ -397,6 +416,18 @@ function getInitialData() {
 
         if(responses[0].error) showErrorMessage('Error at startup', responses[0].data.message);
 
+        // let linkLatest  = responses[0].data.versions[0].item.link;
+        // let dmsIDLatest = linkLatest.split('/')[6];
+
+        // if(dmsId !== dmsIDLatest) {
+        //     dmsId = dmsIDLatest;
+        //     $.get('/plm/details', { 'wsId' : wsId, 'dmsId' : dmsId }, function(response) {
+        //         processItemData(response.data);
+        //     });
+        // } else {
+        //     processItemData(responses[1].data);
+        // }
+
         links.latest = responses[0].data.versions[0].item.link;
 
         if(links.start !== links.latest) {
@@ -411,7 +442,7 @@ function getInitialData() {
     });
 
 }
-function insertWorkspaceViewsOptions(suffix, tableaus) {
+function insertViewOptions(suffix, tableaus) {
 
     for(let tableau of tableaus) {
 
@@ -434,6 +465,9 @@ function processItemData(itemDetails) {
     let valueEBOM = getSectionFieldValue(itemDetails.sections, config.mbom.fieldIdEBOM, '', 'link');
     let valueMBOM = getSectionFieldValue(itemDetails.sections, config.mbom.fieldIdMBOM + siteSuffix, '', 'link');
     
+    console.log(valueEBOM);
+    console.log(valueMBOM);
+
     if(valueEBOM !== '') {
         
         links.mbom = links.start;
@@ -478,10 +512,31 @@ function processRoots(itemDetails) {
 
         storeContextMBOMLink();
 
+        if(!isBlank(links.previous)) {
+
+            requests.push($.get('/plm/bom', {     
+                link          : links.previous,
+                viewId        : wsEBOM.viewId,
+                depth         : 10,
+                revisionBias  : config.mbom.revisionBias
+            }));
+
+        }
+
         Promise.all(requests).then(function(responses) {
+
+            console.log(responses);
 
             eBOM = responses[0].data;
             mBOM = responses[1].data;
+
+            if(!isBlank(links.previous)) uBOM = responses[2].data;
+
+            console.log(uBOM);
+            console.log(mBOM);
+
+            // linkEBOM = '/api/v3/workspaces/' + wsEBOM.wsId + '/items/' + eBOM.root.split('.')[5];
+            // linkMBOM = '/api/v3/workspaces/' + wsMBOM.wsId + '/items/' + mBOM.root.split('.')[5];
 
             links.ebom = '/api/v3/workspaces/' + wsEBOM.wsId + '/items/' + eBOM.root.split('.')[5];
             links.mbom = '/api/v3/workspaces/' + wsMBOM.wsId + '/items/' + mBOM.root.split('.')[5];
@@ -498,6 +553,9 @@ function processRoots(itemDetails) {
         
 }
 function createMBOMRoot(itemDetails, callback) {
+
+    console.log('createMBOMRoot');
+    console.log(links);
 
     if(links.mbom !== '') {
         
@@ -527,6 +585,8 @@ function createMBOMRoot(itemDetails, callback) {
         for(let newDefault of config.mbom.newDefaults) {
             addFieldToPayload(params.sections, wsMBOM.sections, null, newDefault[0], newDefault[1]);
         }
+
+        console.log(params);
 
         $.post({
             url         : '/plm/create', 
@@ -558,6 +618,19 @@ function storeMBOMLink(linkUpdate, linkMBOM) {
     $.post('/plm/edit', params, function() {});
 
 }
+// function storeMBOMLink(ebomLink, mbomLink) {
+
+//     let timestamp  = new Date();
+//     let value      = timestamp.getFullYear() + '-' + (timestamp.getMonth()+1) + '-' + timestamp.getDate();
+//     let paramsEBOM = { 'link' : ebomLink, 'sections'   : [] }
+
+//     addFieldToPayload(paramsEBOM.sections, wsEBOM.sections, null, config.mbom.fieldIdMBOM     + siteSuffix, { 'link' : mbomLink });
+//     addFieldToPayload(paramsEBOM.sections, wsEBOM.sections, null, config.mbom.fieldIdLastSync + siteSuffix, value);
+//     addFieldToPayload(paramsEBOM.sections, wsEBOM.sections, null, config.mbom.fieldIdLastUser + siteSuffix, userAccount.displayName);
+
+//     $.post('/plm/edit', paramsEBOM, function() {});
+
+// }
 function storeContextMBOMLink() {
 
     if(isBlank(links.context)) return;
@@ -567,15 +640,21 @@ function storeContextMBOMLink() {
         $.get('/plm/sections', { link : links.context })
     ]
 
+    console.log(links.mbom);
+
     Promise.all(requests).then(function(responses) {
 
-        let valueMBOM = getSectionFieldValue(responses[0].data.sections, config.mbom.fieldIdMBOM, '', 'link');
+        let contextFieldIdMBOM = urlParameters.contextfieldidmbom || config.mbom.fieldIdMBOM
+
+        let valueMBOM = getSectionFieldValue(responses[0].data.sections, contextFieldIdMBOM, '', 'link');
         
         if(isBlank(valueMBOM)) {
 
             let params = { link : links.context, sections : [] }
 
-            addFieldToPayload(params.sections, responses[1].data, null, config.mbom.fieldIdMBOM + siteSuffix, { link : links.mbom });
+            addFieldToPayload(params.sections, responses[1].data, null, contextFieldIdMBOM, { link : links.mbom });
+
+            console.log(params);
 
             $.post('/plm/edit', params, function() {});
 
@@ -845,7 +924,7 @@ function setEBOM(elemParent, urn, level, qty) {
 
     if(ignoreMBOM !== 'true') {
     
-        let elemNode = getBOMNode(level, urn, nodeLink, rootLink, rootLink, descriptor, partNumber, category, type, code, icon, qty, 'ebom', hasMBOM, isLeaf);
+        let elemNode = getBOMNode(level, urn, nodeLink, rootLink, rootLink, descriptor, partNumber, category, type, code, icon, qty, 'ebom', hasMBOM, isLeaf, level);
             elemNode.appendTo(elemParent);
             
         if(hasMBOM !== '') elemNode.attr('data-link-mbom', hasMBOM);
@@ -877,7 +956,7 @@ function isEBOMLeaf(level, urn, hasMBOM) {
     return true;
     
 }
-function getBOMNode(level, urn, nodeLink, rootLink, linkEBOMRoot, descriptor, partNumber, category, type, code, icon, qty, bomType, bomMatch, isLeaf) {
+function getBOMNode(level, urn, nodeLink, rootLink, linkEBOMRoot, descriptor, partNumber, category, type, code, icon, qty, bomType, bomMatch, isLeaf, level) {
     
     category = category.replace(/ /g, '-').toLowerCase();
     type     = type.replace(/ /g, '-').toLowerCase();
@@ -887,10 +966,17 @@ function getBOMNode(level, urn, nodeLink, rootLink, linkEBOMRoot, descriptor, pa
         .attr('category', category)
         .attr('data-code', code)
         .attr('data-urn', urn)
+        .attr('data-level', level)
         .attr('data-link', nodeLink)
         .attr('data-root', rootLink)
         .attr('data-ebom-root', linkEBOMRoot)
         .attr('data-part-number', partNumber);
+
+    if(bomType === 'ebom') {
+        if(level === 2) {
+            itemsToValidate.push(elemNode);
+        }
+    }
     
     let elemNodeHead = $('<div></div>').appendTo(elemNode)
         .addClass('item-head');
@@ -1758,7 +1844,16 @@ function setMBOM(elemParent, urn, level, qty, urnParent, additionalItem) {
         elemNode.attr('data-edges', edges.toString());
         
     }
+    console.log(uBOM);
     
+    bomListPrevious = getBOMPartsList({
+        viewFields : wsEBOM.viewColumns
+    }, uBOM);
+
+    console.log(bomListPrevious);
+
+    applyUpgradeFilter();
+
     return elemNode;
     
 }
@@ -1958,6 +2053,74 @@ function hasNodeInstructions(edge, partNumber, nodeLink) {
     }
 
     return false;
+
+}
+
+
+
+function applyUpgradeFilter() {
+
+    if(isBlank(links.previous)) return;
+
+    console.log(itemsToValidate.length);
+
+    if(itemsToValidate.length === 0) return;
+
+
+    console.log(itemsToValidate.length);
+    console.log(bomListPrevious.length);
+
+    let nextItemsToValidate = [];
+
+    for(let item of itemsToValidate) {
+
+        let level      = item.attr('data-level');
+        let link       = item.attr('data-link');
+        let root       = item.attr('data-root');
+        let partNumber = item.attr('data-part-number');
+        let parent     = item.parent().closest('.item').attr('data-part-number');
+        let isMatch    = false;
+
+        console.log(level);
+        console.log(root);
+        console.log(parent);
+        console.log(link);
+
+        for(let previous of bomListPrevious) {
+
+            if(previous.level == level) {
+                if(previous.root == root) {
+                    if((previous.parent == parent) || (level == 2)) {
+                        if(previous.link == link) {
+                            isMatch = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        if(isMatch) {
+            // item.addClass('matches-previous').addClass('hidden');
+            item.remove();
+        } else {
+
+            let elemBOM = item.children('.item-bom');
+
+            if(elemBOM.length > 0) {
+
+                elemBOM.children('.item').each(function() {
+                    nextItemsToValidate.push($(this));
+                });
+
+            }
+
+        }
+        
+
+    }
+
+    itemsToValidate = nextItemsToValidate.slice();
+    applyUpgradeFilter();
 
 }
 
@@ -2603,7 +2766,7 @@ function setWorkspaceView(suffix) {
 
             if(response.data.items.length > 0) {
                 for(let indexField = 0; indexField < response.data.items[0].fields.length; indexField++) {
-                    if(response.data.items[0].fields[indexField].id === 'DESCRIPTOR') {
+                    if(response.data[0].fields[indexField].id === 'DESCRIPTOR') {
                         indexDescriptorField = indexField;
                         break;
                     }

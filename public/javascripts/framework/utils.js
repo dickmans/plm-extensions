@@ -4106,6 +4106,7 @@ function getBOMParts(settings, parts, parent, edges, nodes, quantity, level, pat
             }
 
             node.path.push(node.partNumber);
+            node.details = {};
 
             result.hasChildren = true;
 
@@ -4126,13 +4127,16 @@ function getBOMParts(settings, parts, parent, edges, nodes, quantity, level, pat
                             urn         : field.__self__.urn,
                             value       : ''
                         }
+                        
+                        node.details[field.fieldId] = null;
 
                         for(let nodeField of bomNode.fields) {
                             if(nodeField.metaData.urn === fieldData.urn) {
                                 fieldData.value = nodeField.value;
+                                node.details[field.fieldId] = nodeField.value;
                             }
                         }
-                            
+                        
                         node.fields.push(fieldData);
 
                     }

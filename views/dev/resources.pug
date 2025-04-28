@@ -1,0 +1,38 @@
+extends ../framework/layout
+
+block head
+
+    link(rel='stylesheet', href='/stylesheets/dev/resources.css')
+    script(src='/javascripts/dev/resources.js')
+    script.
+        config = !{JSON.stringify(config)};
+
+block body
+
+    body.surface-level-1.no-details
+        
+        #header.dark
+            #header-logo
+            #header-title= title
+            #header-subtitle Order 123
+            #header-toolbar
+                .button#toggle-details.with-icon.icon-toggle-off Toggle Details
+                .button#block-earliest.with-icon.icon-starts-with(title='Block the earliest slots available') Block Earliest
+                .button#block-latest.with-icon.icon-ends-with(title='Block the latest slots available') Block Lastest
+                .button#block-sequence.with-icon.icon-width(title='Block the latest slots available') Block Sequence
+                #header-avatar
+        
+        #main.screen
+
+            #items.surface-level-3 
+            #schedule.surface-level-1
+                .panel-header
+                    .panel-title 
+                        .panel-title-main Available Production Slots
+                    .panel-controls
+                .panel-content#schedule-content
+                    #month-1
+                    #month-2
+                    #month-3
+                    #month-4
+            #item.surface-level-2
