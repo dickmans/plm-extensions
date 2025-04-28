@@ -1,0 +1,29 @@
+extends ../framework/layout
+
+block head
+    
+    link(rel='stylesheet', href='/stylesheets/dev/transmittals.css')
+    script(src='/javascripts/dev/transmittals.js')
+    script.
+        config = !{JSON.stringify(config)};
+
+block body
+
+    body.surface-level-1.no-attachments.no-bom
+
+        #header.dark
+            #header-logo
+            #header-title= title
+            #header-subtitle Access and confirm the transmittals sent to you
+            #header-toolbar
+                #header-avatar
+        
+        #main.screen
+
+            .surface-level-1#inbox
+                #tabs.tabs
+                    .tab(value='new') Pending Confirmation 
+                    .tab(value='done') Confirmation Complete 
+                    .tab(value='all') All
+                #list.surface-level-1
+            .surface-level-2#panel
