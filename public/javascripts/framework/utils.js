@@ -1371,6 +1371,8 @@ function genPanelFilterToggleEmpty(id, settings) {
 }
 function genPanelSearchInput(id, settings) {
 
+    if(!settings.search) return;
+
     let elemToolbar = genPanelToolbar(id, settings, 'controls');
 
     let elemSearch = $('<div></div>').appendTo(elemToolbar)
@@ -1432,10 +1434,6 @@ function genPanelSearchInput(id, settings) {
         .attr('id', id + '-filter').click(function() {
             panelContinueSearch(id, 'next');
         });
-
-    if(!settings.search) elemSearch.hide();
-
-    return elemSearch;
 
 }
 function panelToggleSearchMode(id, elemClicked) {
@@ -4106,6 +4104,7 @@ function getBOMParts(settings, parts, parent, edges, nodes, quantity, level, pat
             }
 
             node.path.push(node.partNumber);
+            node.details = {};
 
             result.hasChildren = true;
 
@@ -4126,13 +4125,16 @@ function getBOMParts(settings, parts, parent, edges, nodes, quantity, level, pat
                             urn         : field.__self__.urn,
                             value       : ''
                         }
+                        
+                        node.details[field.fieldId] = null;
 
                         for(let nodeField of bomNode.fields) {
                             if(nodeField.metaData.urn === fieldData.urn) {
                                 fieldData.value = nodeField.value;
+                                node.details[field.fieldId] = nodeField.value;
                             }
                         }
-                            
+                        
                         node.fields.push(fieldData);
 
                     }
