@@ -34,12 +34,49 @@
         p Add the following fields to section 
             strong Basic
             |:
-            ol  
-                li Number (id: NUMBER, Single Line Text, length : 20, Visibility : Always, Editable: false)
-                li Index (id: VARIANT_INDEX, Single Line Text, length : 5, Visibility : Always, Editable: false)
-                li Title (id: TITLE, Single Line Text, length: 200, Editable: true)
-                li Base Item (id: BASE_ITEM, Picklist to [WS] Items, single selection, Editable: false)
-                li DMS_ID_BASE_ITEM (id: DMS_ID_BASE_ITEM, Single Line Text, length : 20, Visibility : Never, Editable: true)
+            table   
+                tr 
+                    th Field name
+                    th Field ID
+                    th Data Type
+                    th Field length
+                    th Visibility
+                    th Editable
+                tr 
+                    td Number
+                    td NUMBER
+                    td Single Line Text
+                    td 20
+                    td Always
+                    td False
+                tr 
+                    td Index
+                    td VARIANT_INDEX
+                    td Single Line Text
+                    td 5
+                    td Always
+                    td False
+                tr 
+                    td Title
+                    td TITLE
+                    td Single Line Text
+                    td 200
+                    td Always
+                    td True
+                tr 
+                    td Base Item
+                    td BASE_ITEM
+                    td Picklist to [WS] Items
+                    td Single Selection
+                    td Always
+                    td False
+                tr 
+                    td DMS_ID_BASE_ITEM
+                    td DMS_ID_BASE_ITEM
+                    td Single Line Text
+                    td 20
+                    td Never
+                    td True
         p In section 
             strong Variant Definition
             |, add all the fields that will be used to define a variant, for example Colour and Material. This section may include any type of field, including pick lists (with single selection).
@@ -139,13 +176,13 @@
             span.indent item.BASE_ITEM = elemBase;
             span }
         img.border(src='images/apps/variant-manager-7.png' style='max-width:1082px;')
-        h1 Action Button 
-        p Enable access to the 
-            strong Variants Manager 
-            | app by adding a new computed field to your 
-            strong Items 
-            | workspace. Use the following formula for the new field: 
-        p.code '&lt;a style="border: 1px solid #bec8d2;border-radius:3px;color: #0a131c;font-weight:600;line-height:32px;padding:4px 20px;text-align:center;text-decoration:none !important;white-space:nowrap;" target="_blank" href ="LOCATIONvariants?wsId=57&dmsId='||DMS_ID||'"&gt;Variant Manager&lt;/a&gt;'
+        h2 Server Settings File 
+        p The Workspace ID of this new workspace 
+            strong Item Variants 
+            |must be provided in the server settings file. Locate the property 
+            span.code config.variants.wsIdItemVariants 
+            |and update the given value. Default value is 274.
+        img.border(src='images/apps/variant-manager-9.png' style='max-width:511px;')
         h1 Adjust Items Workspace
         h2 Add field Variants
         p In the 
@@ -164,6 +201,13 @@
             |Tenants created mid 2023 or later have this field and script already.
         p.code  
             span item.DMS_ID = dmsID;
+        h2 Add Computed Field with Action Button 
+        p Enable access to the 
+            strong Variants Manager 
+            | app by adding a new computed field to your 
+            strong Items 
+            | workspace. Use the following formula for the new field: 
+        p.code '&lt;a style="border: 1px solid #bec8d2;border-radius:3px;color: #0a131c;font-weight:600;line-height:32px;padding:4px 20px;text-align:center;text-decoration:none !important;white-space:nowrap;" target="_blank" href ="LOCATIONvariants?wsId=57&dmsId='||DMS_ID||'"&gt;Variant Manager&lt;/a&gt;'
         h2 Configure BOM View 
         p The application requires a BOM view with the following columns: 
             table   
@@ -192,19 +236,20 @@
         h1 Optional: Enable Product Variants 
         p To better integrate the new workspace for the item variants with the Products workspace, you may adjust the grid tab of workspace Products. The BOM column now can be changed to allow for selection of the given variant BOM: 
         img.border(src='images/apps/variant-manager-8.png' style='max-width:1422px;')
-        h1 Server Settings File 
+        h1 Server Settings File Details
         p If you require usage of different field names, table names etc, please have a look at the settings.js file and locate section variants, listing all possible configurable settings as shown below. Review the first option 
             strong wsIdItemVariants 
             |which must contain the workspace ID of your newly created workspace. You can retrieve this ID from your browser's URL when navigating to this workspace using the workspaces menu.
         p.code  
             span export.config = {
-            span.indent 'variants' : {
-            span.indent-2 'wsIdItemVariants' : 208
-            span.indent-2 'variantsSectionLabel' : 'Variant Definition',
-            span.indent-2 'fieldIdVariantBaseItem' : 'DMS_ID_BASE_ITEM',
-            span.indent-2 'fieldIdItemVariants' : 'VARIANTS',
-            span.indent-2 'bomViewNameItems' : 'Variant Management',
-            span.indent-2 'bomViewNameVariants' : 'Default View'
+            span.indent variants : {
+            span.indent-2 wsIdItemVariants : 208
+            span.indent-2 variantsSectionLabel : 'Variant Definition',
+            span.indent-2 fieldIdVariantBaseItem : 'DMS_ID_BASE_ITEM',
+            span.indent-2 fieldIdItemVariants : 'VARIANTS',
+            span.indent-2 bomViewNameItems : 'Variant Management',
+            span.indent-2 bomViewNameVariants : 'Default View'
+            span.indent-2 viewerFeatures : {..}
             span.indent }
             span }
         p Adjust these settings if needed and restart your server afterwards to apply the given changes.
