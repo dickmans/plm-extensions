@@ -1,0 +1,68 @@
+:root {
+
+    --width-border-v : 30px;
+    --width-border-h : 45px;
+    --width-panel    : 46%;
+
+}
+
+
+/* MASTER LAYOUT */
+/* ----------------------------------------------------------------------------- */
+#inbox {
+    border-width : var(--width-border-v) var(--width-border-h);
+    top          : 0px;
+    right        : calc(var(--width-panel) + (2 * var(--width-border-h)));
+    bottom       : 0px;
+    left         : 0px;
+}
+#tabs {
+    position : absolute;
+    top      : 0px;
+    right    : 0px;
+    left     : 0px;
+    height   : 38px;
+}
+#list {
+    position : absolute;
+    top      : 50px;
+    right    : 0px;
+    bottom   : 0px;
+    left     : 0px;
+}
+#panel {
+    border-width : var(--width-border-v) var(--width-border-h);
+    top          : 0px;
+    bottom       : 0px;
+    right        : 0px;
+    width        : var(--width-panel);
+}
+
+
+/* LIST */
+/* ----------------------------------------------------------------------------- */
+#list-actions {
+    justify-content : flex-end;
+}
+.list-column-wf_current_state, 
+.content-column-wf_current_state {
+    display : none;
+}
+
+
+
+/* PANEL */
+/* ----------------------------------------------------------------------------- */
+#transmittal-remarks-content .field-label {
+    display : none;
+
+}
+#transmittal-remarks-content .field-value,
+#transmittal-remarks-content textarea {
+    height      : unset;
+    position    : absolute;
+    top         : 0px;
+    right       : 0px;
+    bottom      : 0px;
+    left        : 0px;
+}

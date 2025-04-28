@@ -1,0 +1,121 @@
+:root {
+    
+    --border-v       : 24px;
+    --border-h       : 36px;
+    --width-viewer   : 500px;
+    --width-services : 500px;
+    --width-summary  : 600px;
+    --width-panel      : 600px;
+}
+
+
+/* MASTER LAYOUT */
+/* ----------------------------------------------------------------------------- */
+.viewer {
+    border-width : 0px;
+    top     : 0px;
+    /* right   : calc(var(--width-assets) + var(--width-services) + (4 * var(--border-h))); */
+    bottom  : 0px;
+    left    : 0px;
+    width : var(--width-viewer);
+}
+#tree {
+    border-width : var(--border-v) var(--border-h);
+    top     : 0px;
+    right   : calc(var(--width-panel) + (2 * var(--border-h)));
+    bottom  : 0px;
+    left   : calc(var(--width-viewer) + (0 * var(--border-h)));
+}
+#panel {
+    border-width : var(--border-v) var(--border-h);
+    top     : 0px;
+    right   : 0px;
+    bottom  : 0px;
+    width   : var(--width-panel);
+}
+.panel {
+    border-width : var(--border-v) var(--border-h);
+    top     : 0px;
+    right   : 0px;
+    bottom  : 0px;
+    width   : var(--width-panel);
+}
+
+
+#component { display : none; }
+
+
+
+/* BOM */
+/* ----------------------------------------------------------------------------- */
+.column-icon {
+    max-width : 32px;
+    width     : 32px;
+}
+.column-icon > .icon {
+    font-weight : 100;
+}
+.column-status {
+    max-width: 0px;
+    width: 0px;
+    border-left: 2px solid;
+    border-right: 2px solid;
+}
+.status-red,
+tr:hover .status-red {
+    background : var(--color-status-red) !important;
+}
+th.column-status { background : var(--color-surface-level-2) !important; }
+
+
+/* ASSEMBLY */
+/* ----------------------------------------------------------------------------- */
+#assembly-content > div, 
+.assembly-panel-content {
+    position : absolute;
+    right    : 0px;
+    left     : 0px;
+}
+#assembly-instructions {
+    top : 0px;
+    height : 200px;
+}
+#assembly-parts {
+    top    : 240px;
+    bottom : 422px;
+}
+#assembly-process {
+    bottom : 0px;
+    height : 390px;
+}
+.assembly-panel-content {
+    top : 30px;
+    bottom : 0px;
+}
+#assembly-instructions .assembly-panel-content {
+    display : flex;
+    flex-direction : column;
+}
+#assembly-instructions-images {
+    /* display                 : grid;
+    grid-template-columns   : 1fr 1fr;
+    grid-template-rows      : 1fr 1fr; */
+    display : flex;
+    width                   : 200px;
+
+}
+#assembly-instructions-images .icon-screenshot {
+    font-size   : 36px;
+    font-weight : 200;
+    height      : 148px;
+    line-height : 148px;
+    width       : 148px;
+}
+#assembly-parts td:first-of-type {
+    background : var(--color-surfacel-level-1);
+}
+
+
+
+/* COMPONENT */
+/* ----------------------------------------------------------------------------- */

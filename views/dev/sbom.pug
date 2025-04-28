@@ -9,26 +9,35 @@ block head
 
 block body
 
-    body.surface-level-1.text-selection-off.mode-features.no-details
+    body.surface-level-1.text-selection-off.no-details
 
         #header.dark
             #header-logo
             #header-title= title
             #header-subtitle
             #header-toolbar
-                .button#toggle-bom.with-icon.icon-bom-tree(data-panel-id='bom') Asset BOM
-                .button#toggle-spl.with-icon.icon-package( data-panel-id='spl') Spare Parts
-                .button#toggle-ppl.with-icon.icon-shipping(data-panel-id='ppl') Purchased Parts
-                .button#toggle-snl.with-icon.icon-tag(     data-panel-id='snl') Serial Numbers
+                .button#toggle-viewer.with-icon.icon-toggle-on Toggle Viewer
+                .button#toggle-details.with-icon.icon-toggle-on Toggle Details
+                .button#save.with-icon.default.icon-save Save Changes
                 #header-avatar
         
         .screen
 
-            #viewer.viewer
+            #viewer.viewer.surface-level-1
+            #bom.surface-level-1
+            #panel.surface-level-2.panel-top 
+                #panel-header.panel-header 
+                    .panel-title 
+                        .panel-title-main Service Offerings 
+                    .panel-controls
+                        #add-service-offering.button.default.with-icon.icon-create New
+                .panel-content#serivce-offerings
+            #details.surface-level-1
 
-            #bom.surface-level-1.panel
-            #spl.surface-level-1.panel
-            #ppl.surface-level-1.panel
-            #snl.surface-level-1.panel
-
-            #grid.surface-level-5.hidden
+                //- #tabs 
+                //-     .tab Service Offerings 
+                //-     .tab Spare Parts List 
+                
+                //- #contents 
+                //-     #services 
+                //-     #spare-parts
