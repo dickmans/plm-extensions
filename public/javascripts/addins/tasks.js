@@ -226,17 +226,17 @@ function setManagedItemsActions(id) {
         .addClass('with-icon')
         .addClass('icon-link')
         .addClass('default')
-        .html('Add Selected')
+        .html('Add Active Document')
         .click(function() {
-            addSelected();
+            addActiveDocument();
         });
 
 }
-function addSelected() {
+function addActiveDocument() {
 
     $('#add-root').html('');
 
-    // console.log('getting active document');
+    console.log('getting active document');
 
     getActiveDocument($(this).attr('data-context-descriptor')).then(partNumber => {
     
