@@ -79,7 +79,7 @@ $(document).ready(function() {
         }]
     }
 
-    getFeatureSettings('variants', [$.get( '/plm/search', params)], function(responses) {
+    getFeatureSettings('variants', [$.post( '/plm/search', params)], function(responses) {
         getInitialData(responses[0]);
         insertViewer(urlParameters.link);
         insertItemSummary(urlParameters.link, paramsSummary);

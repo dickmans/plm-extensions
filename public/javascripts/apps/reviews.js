@@ -201,7 +201,7 @@ function getReviews(statusFilter, id) {
     let elemProcessing = $('#panel-' + id).find('.processing').first();
         elemProcessing.show();
 
-    $.get( '/plm/search', params, function(response) {
+    $.post( '/plm/search', params, function(response) {
 
         elemProcessing.hide();
         

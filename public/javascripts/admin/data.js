@@ -580,7 +580,7 @@ function getMatches() {
         params.fields   = [ 'DESCRIPTOR' ];
         params.sort     = [ 'DESCRIPTOR' ];
 
-        $.get('/plm/search', params, function(response) {
+        $.post('/plm/search', params, function(response) {
             if(timestamp !== params.timestamp) return;
             addLogEntry('There are ' + (response.data.totalResultCount || 0)+ ' matching records in workspace ' + response.params.workspace);
         });
@@ -946,6 +946,7 @@ function startProcessing() {
     if(view === '--') {
 
         run.url           = '/plm/search';
+        run.method        = 'post';
         run.params.link   = $('#workspace').val();
         run.params.filter = getSearchFilters();
         run.params.fields = [ 'DESCRIPTOR' ];
@@ -956,6 +957,7 @@ function startProcessing() {
     } else {
 
         run.url         = '/plm/tableau-data';
+        run.method      = 'get';
         run.params.link = view;
         
     }
@@ -973,26 +975,31 @@ function getNextRecords() {
 
     if(stopped) return;
 
-    $.get(run.url, run.params, function(response) {
+    $.ajax({
+        url     : run.url,
+        type    : run.method,
+        data    : run.params, 
+        success : function(response) {
 
-        if(run.total < 0) {
-            run.total = response.data.totalResultCount || response.data.total;
-            $('#progress').removeClass('hidden');
+            if(run.total < 0) {
+                run.total = response.data.totalResultCount || response.data.total;
+                $('#progress').removeClass('hidden');
+            }
+
+            if(isBlank(run.total)) run.total = 0;
+
+            updateProgress(0);
+            setRecordsData(response);
+
+            if(records.length === 0) {
+                endProcessing();
+            } else {
+                if(records.length === 1) addLogEntry('Found next record to process');
+                else addLogEntry('Found next ' + records.length + ' records to process');
+                processNextRecords();
+            }
+            
         }
-
-        if(isBlank(run.total)) run.total = 0;
-
-        updateProgress(0);
-        setRecordsData(response);
-
-        if(records.length === 0) {
-            endProcessing();
-        } else {
-            if(records.length === 1) addLogEntry('Found next record to process');
-            else addLogEntry('Found next ' + records.length + ' records to process');
-            processNextRecords();
-        }
-
     });
 
 }

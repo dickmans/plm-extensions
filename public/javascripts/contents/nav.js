@@ -1076,9 +1076,9 @@ function insertResultsData(id) {
     }
 
     let requests = [
-        $.get( '/plm/search', params),
-        $.get( '/plm/fields', params),
-    ]
+        $.post( '/plm/search', params),
+        $.get( '/plm/fields',  { wsId : settings.results[id].wsId} ),
+    ];
 
     Promise.all(requests).then(function(responses) {
 

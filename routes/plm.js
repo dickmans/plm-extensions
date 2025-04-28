@@ -3468,40 +3468,40 @@ router.get('/items', function(req, res) {
 
 
 /* ----- SEARCH ----- */
-router.get('/search', function(req, res) {
-   
+router.post('/search', function(req, res) {
+
     console.log(' ');
     console.log('  /search');
     console.log(' --------------------------------------------');
-    console.log('  req.query.wsId        = ' + req.query.wsId);
-    console.log('  req.query.link        = ' + req.query.link);
-    console.log('  req.query.latest      = ' + req.query.latest);
-    console.log('  req.query.sort        = ' + req.query.sort);
-    console.log('  req.query.fields      = ' + req.query.fields);
-    console.log('  req.query.filter      = ' + req.query.filter);
-    console.log('  req.query.pageNo      = ' + req.query.pageNo);
-    console.log('  req.query.pageSize    = ' + req.query.pageSize);
-    console.log('  req.query.logicClause = ' + req.query.logicClause);
+    console.log('  req.body.wsId        = ' + req.body.wsId);
+    console.log('  req.body.link        = ' + req.body.link);
+    console.log('  req.body.latest      = ' + req.body.latest);
+    console.log('  req.body.sort        = ' + req.body.sort);
+    console.log('  req.body.fields      = ' + req.body.fields);
+    console.log('  req.body.filter      = ' + req.body.filter);
+    console.log('  req.body.pageNo      = ' + req.body.pageNo);
+    console.log('  req.body.pageSize    = ' + req.body.pageSize);
+    console.log('  req.body.logicClause = ' + req.body.logicClause);
     console.log();
 
-    let wsId = (typeof req.query.wsId === 'undefined') ? req.query.link.split('/')[4] : req.query.wsId;
+    let wsId = (typeof req.body.wsId === 'undefined') ? req.body.link.split('/')[4] : req.body.wsId;
     let url  = req.app.locals.tenantLink + '/api/rest/v1/workspaces/' + wsId + '/items/search';
    
     let params = {
-       pageNo        : req.query.pageNo || 1,
-       pageSize      : Number(req.query.pageSize) || 100,
-       logicClause   : req.query.logicClause || 'AND',
+       pageNo        : req.body.pageNo || 1,
+       pageSize      : Number(req.body.pageSize) || 100,
+       logicClause   : req.body.logicClause || 'AND',
        fields        : [],
        filter        : [],
        sort          : []
     };
 
-    setBodyFields(params, req.query.fields);
-    setBodySort(params, req.query.sort);
-    setBodyFilter(params, req.query.filter || []);
+    setBodyFields(params, req.body.fields      );
+    setBodySort(params  , req.body.sort        );
+    setBodyFilter(params, req.body.filter || []);
 
-    if(typeof req.query.latest !== 'undefined') {
-        if(req.query.latest) {
+    if(typeof req.body.latest !== 'undefined') {
+        if(req.body.latest) {
             params.filter.push({ 
                 fieldID       : 'LC_RELEASE_LETTER',
                 fieldTypeID   : '10',
