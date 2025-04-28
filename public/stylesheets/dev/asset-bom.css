@@ -1,0 +1,138 @@
+/* VARIABLES */
+/* ----------------------------------------------------------------------------- */
+:root {
+
+    --border-h    : 36px;
+    --border-v    : 24px;
+
+    /* --width-viewer : 800px; */
+    --width-grid   : 600px;
+    --width-bom : 1000px;
+
+    --height-grid : 400px;
+
+
+    /* --padding-list-h    : 50px;
+    --padding-list-v    : 30px;
+
+    --width-bom             : 400px;
+    --width-features        : 400px;
+    --width-configurations  : 400px;
+    --width-details         : 400px;
+    --height-attachments  :  300px; */
+
+}
+
+/* Serial Numbers table */
+td.column-LOCATION { width : 80px; min-width:80px; max-width:80px; overflow : hidden; }
+td.column-LOCATION input,
+td.column-ITEM select { pointer-events:none; background : var(--color-surface-3); }
+.column-VIEWER_DBID { display : none; }
+.content-item > td { padding-top : 2px; padding-bottom : 2px; }
+
+
+/*  MASTER LAYOUT */
+/* ----------------------------------------------------------------------------- */
+#viewer {
+    top     : 0px;
+    right   : calc(var(--width-bom) + (2 * var(--border-h)));
+    bottom  : 0px;
+    left    : 0px;
+}
+.panel {
+    display : none;
+    border-width : var(--border-v) var(--border-h) var(--border-h);
+    top     : 0px;
+    right   : 0px;
+    bottom  : calc(var(--height-grid) + var(--border-h) + var(--border-v)); 
+    width   : var(--width-bom);
+}
+#grid {
+    border-width : var(--border-h) var(--border-h) var(--border-v);
+    right : 0px;
+    bottom : 0px;
+    height : var(--height-grid);
+    width   : var(--width-bom);
+    /* top     : var(--border-v);
+    /* right   : calc(0px - var(--width-grid) - (2 * var(--border-h))); */
+    /* left : var(--border-h); */
+    /* bottom  : var(--border-v); */
+    /* width   : calc(var(--width-viewer) - (4 * var(--border-h))); */
+
+}
+
+
+body.no-grid .panel { bottom : 0px; }
+body.no-grid #grid  { bottom : calc(0px - var(--height-grid) - (2 * var(--border-v))); }
+
+body.with-grid { --width-viewer : 600px; }
+body.with-grid #bom { right : calc(var(--width-grid) + (2 * var(--border-h))); }
+body.with-grid #grid { right : var(--border-h); }
+
+
+
+/*  BOM */
+/* ----------------------------------------------------------------------------- */
+th { padding : 10px 6px; }
+.bom-item.missing > td.column-id { padding : 0px !important; }
+.bom-item.missing > .bom-color { background : var(--color-status-red); }
+.bom-item.match > .bom-color { background : var(--color-status-green); }
+.bom-item.match .button.create-asset-item { display : none; }
+.bom-first-col { min-width : 200px; }
+.bom-quantity { 
+    padding-right   : 22px !important;
+    text-align      : right;  
+    width           : 80px; 
+}
+.column-id { 
+    border-left  : 2px solid var(--color-surface-level-1); 
+    border-right : 2px solid var(--color-surface-level-1); 
+    text-align   : center;
+    width        : 120px; 
+}
+.column-end-item   { text-align : center; width : 54px; padding-left : 16px !important; }
+.column-spare-part { text-align : center; width : 54px; }
+.column-purchased  { text-align : center; width : 54px; }
+.column-serial     { text-align : center; width : 54px; padding-right : 16px !important; border-right: 2px solid var(--color-surface-level-1); }
+.column-process    { text-align : center; }
+td.column-toggles .icon { 
+    font-size : 20px; 
+    font-weight : 100;
+    line-height : 26px;
+}
+td.column-id {
+    color : var(--color-blue-500);
+}
+
+.button.create-asset-item { padding : 5px 0px !important; }
+
+.bom-item > td.column-toggles.changed { color : var(--color-status-yellow); }
+.bom-item > td.column-toggles > .icon::before { content:'\e835';  }
+.bom-item.is-end-item   > td.column-end-item   > .icon::before, 
+.bom-item.is-spare-part > td.column-spare-part > .icon::before, 
+.bom-item.is-purchased  > td.column-purchased  > .icon::before, 
+.bom-item.is-serial     > td.column-serial     > .icon::before { content :'\e834'; font-variation-settings : 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48 }
+
+.column-process { display : none; width : 120px; }
+.bom-item > td.column-process > .icon::before { content:'\e836';  }
+.bom-item > td.column-process.is-managed > .icon::before { content :'\e837'; }
+
+body.with-processes .column-end-item,
+body.with-processes .column-spare-part,
+body.with-processes .column-purchased,
+body.with-processes .column-serial { display : none; }
+body.with-processes .column-process { display : table-cell; }
+
+
+#button-save-changes {
+    display : none;
+}
+#bom.changed #button-save-changes { display : block; }
+
+
+/*  Serial Numbers */
+/* ----------------------------------------------------------------------------- */
+/* #grid {
+    opacity : 0.85;
+    z-index : 5;
+} */
