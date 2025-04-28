@@ -3522,7 +3522,6 @@ router.get('/search', function(req, res) {
         }
         sendResponse(req, res, { 'data' : result, 'status' : response.status }, false);
     }).catch(function (error) {
-        error.response.data = { row : [] };
         sendResponse(req, res, error.response, true);
     });
    
@@ -3615,10 +3614,10 @@ function setBodyFilter(body, filters) {
             console.log();
         } else {
             body.filter.push({
-                fieldID       : filter.field,
-                fieldTypeID   : filter.type,
-                filterType    : { filterID : filter.comparator },
-                filterValue   : filter.value         
+                'fieldID'       : filter.field,
+                'fieldTypeID'   : filter.type,
+                'filterType'    : { 'filterID' : filter.comparator },
+                'filterValue'   : filter.value         
             });
         }
         

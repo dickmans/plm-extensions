@@ -13,6 +13,8 @@ function loginCompleted() {
 }
 
 
+// Insert action buttons to tiles
+
 // Insert actions into tile lists
 function genAddinTilesActions(elemContent) {
 
@@ -34,9 +36,9 @@ function genAddinTileActions(elemTile) {
         case 'vault-file': 
         case 'vault-item': 
             genAddinTileAction(elemActions, 'gotoVaultFile', 'icon-product', 'Navigate to file in Vault'); 
-            genAddinTileAction(elemActions, 'gotoVaultItem', 'icon-item'   , 'Navigate to item in Vault'); 
-            genAddinTileAction(elemActions, 'addComponent' , 'icon-create' , 'Add selected component'   ); 
-            genAddinTileAction(elemActions, 'openComponent', 'icon-clone'  , 'Open selected component'  ); 
+            genAddinTileAction(elemActions, 'gotoVaultItem', 'icon-item', 'Navigate to item in Vault'); 
+            genAddinTileAction(elemActions, 'addComponent' , 'icon-create', 'Add selected component'); 
+            genAddinTileAction(elemActions, 'openComponent', 'icon-clone', 'Open selected component'); 
             break;
 
         case 'vault-eco':
@@ -146,30 +148,6 @@ function genAddinPLMBOMActions(id) {
         genAddinPLMItemTileActions(elemActions);
     
     });
-
-}
-
-
-// Get current active document to be added to BOM
-async function getActiveDocument(context) {
-
-    console.log('GetActiveDocument START');
-
-    if(isBlank(context)) context = '-';
-
-    console.log(context);
-
-    if(typeof chrome.webview === 'undefined') return;
-    
-
-    const plmAddin = chrome.webview.hostObjects.plmAddin;
-    let partNumber = await plmAddin.getActiveDocument(context);
-
-    console.log(partNumber);
-
-    if(isBlank(partNumber)) partNumber = '01-0712';
-
-    return partNumber;
 
 }
 
@@ -574,68 +552,96 @@ async function getActiveDocument(context) {
 // }
 
 
+// Get current active document to be added to BOM
+async function getActiveDocument(context) {
 
+    console.log('GetActiveDocument START');
+
+    if(isBlank(context)) context = '-';
+
+    console.log(context);
+
+    if(typeof chrome.webview === 'undefined') return;
+    
+
+    const plmAddin = chrome.webview.hostObjects.plmAddin;
+    let partNumber = await plmAddin.getActiveDocument(context);
+
+    console.log(partNumber);
+
+    if(isBlank(partNumber)) partNumber = '01-0712';
+
+    return partNumber;
+
+}
 
 
 // Get currently selected components including their path to assign them to a given configuration feature option
-// async function getSelectedComponentPaths() {
+async function getSelectedComponentPaths() {
 
-//     console.log('getSelectedComponentPaths START');
+    console.log('getSelectedComponentPaths START');
 
-//     if(typeof chrome.webview === 'undefined') {
+    if(typeof chrome.webview === 'undefined') {
 
-//         console.log('Standalone');
+        console.log('Standalone');
 
 
 
         
-//         // return await viewerGetSelectedComponentPaths();
-//         //  viewerGetSelectedComponentPaths().then(function(data) {
-//             // console.log('hier');
-//             // return data;
-//         // });
+        // return await viewerGetSelectedComponentPaths();
+        //  viewerGetSelectedComponentPaths().then(function(data) {
+            // console.log('hier');
+            // return data;
+        // });
 
-//     } else {
+    } else {
 
-//         console.log('plugin starten');
+        console.log('plugin starten');
 
-//         const plmAddin = chrome.webview.hostObjects.plmAddin;
-//         let selectedComponentPaths = await plmAddin.getSelectedComponentPaths('-');
+        const plmAddin = chrome.webview.hostObjects.plmAddin;
+        let selectedComponentPaths = await plmAddin.getSelectedComponentPaths('-');
     
-//         console.log(selectedComponentPaths);
+        console.log(selectedComponentPaths);
     
-//         return selectedComponentPaths;
+        return selectedComponentPaths;
 
 
-//         // return new Promise(function(resolve, reject) {
+        // return new Promise(function(resolve, reject) {
 
-//         //     const plmAddin = chrome.webview.hostObjects.plmAddin;
-//         //     let selectedComponentPaths = plmAddin.getSelectedComponentPaths();
+        //     const plmAddin = chrome.webview.hostObjects.plmAddin;
+        //     let selectedComponentPaths = plmAddin.getSelectedComponentPaths();
         
-//         //     console.log(selectedComponentPaths);
+        //     console.log(selectedComponentPaths);
         
-//         //     resolve(selectedComponentPaths);
+        //     resolve(selectedComponentPaths);
     
-//         // });
 
-//     }
 
-// }
+    
+        // });
+
+
+
+    }
+
+
+
+}
 
 
 // Get list of part numbers locked in Inventor to prevent changes in PLM
-// async function getComponentsLocked(partNumbers) {
+async function getComponentsLocked(partNumbers) {
 
-//     console.log('getComponentsLocked START');
-//     console.log(partNumbers);
+    console.log('getComponentsLocked START');
+    console.log(partNumbers);
 
-//     const plmAddin  = chrome.webview.hostObjects.plmAddin;
-//     let itemsLocked = await plmAddin.getComponentsLocked(partNumbers);
+    const plmAddin  = chrome.webview.hostObjects.plmAddin;
+    let itemsLocked = await plmAddin.getComponentsLocked(partNumbers);
 
-//     console.log(itemsLocked);
-//     return itemsLocked;
+    console.log(itemsLocked);
+    return itemsLocked;
 
-// }
+}
 
 
 // async function setLifecycleState(name, state) {

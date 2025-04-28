@@ -28,7 +28,6 @@ let paramsSummary = {
 
 let eBOM         = {};
 let mBOM         = {};
-let urlParameters   = getURLParameters();
 let instructions = [];
 
 let basePartNumber      = '';
@@ -44,13 +43,12 @@ let sectionIdMBOM;
 
 
 $(document).ready(function() {
-
+    
     for(let option of options) {
-        console.log(option);
         let param = option.split(':');
         if(param[0].toLowerCase() === 'site') {
             siteSuffix = '_' + param[1];
-            siteLabel   = param[1];
+            siteLabel = param[1];
         }
     }
 
@@ -73,11 +71,8 @@ $(document).ready(function() {
 
             $.get('/plm/details', { link : links.start }, function(response) {
                 
-                let contextFieldIdEBOM = urlParameters.contextfieldidebom || config.mbom.fieldIdEBOM;
-                let contextFieldIdMBOM = urlParameters.contextfieldidmbom || config.mbom.fieldIdMBOM;
-
-                links.ebom    = getSectionFieldValue(response.data.sections, contextFieldIdEBOM, '', 'link');
-                links.mbom    = getSectionFieldValue(response.data.sections, contextFieldIdMBOM + siteSuffix, '', 'link');
+                links.ebom    = getSectionFieldValue(response.data.sections, config.mbom.fieldIdEBOM, '', 'link');
+                links.mbom    = getSectionFieldValue(response.data.sections, config.mbom.fieldIdMBOM + siteSuffix, '', 'link');
                 
                 if(isBlank(links.mbom)) links.context = links.start;
                 
@@ -2601,16 +2596,16 @@ function setWorkspaceView(suffix) {
             
             let indexDescriptorField = 0;
 
-            if(response.data.items.length > 0) {
-                for(let indexField = 0; indexField < response.data.items[0].fields.length; indexField++) {
-                    if(response.data.items[0].fields[indexField].id === 'DESCRIPTOR') {
+            if(response.data.length > 0) {
+                for(let indexField = 0; indexField < response.data[0].fields.length; indexField++) {
+                    if(response.data[0].fields[indexField].id === 'DESCRIPTOR') {
                         indexDescriptorField = indexField;
                         break;
                     }
                 }
             }
 
-            for(let item of response.data.items) {
+            for(let item of response.data) {
                 addItemListEntry(item.item.link, item.item.urn, item.fields[indexDescriptorField].value, suffix, elemParent, false);
             }
 

@@ -135,11 +135,6 @@ function setUIEvents() {
 // Get item details to pull further information from PLM
 function getInitialData(variants) {
 
-    if(variants.error) {
-        showErrorMessage('Startup Error', 'An error occoured when searching for variants in workspace ' + variants.params.wsId + '. Your admin will find all search parameters and response data in the browser console.');
-        console.log(variants);
-    }
-
     let requests = [
         $.get('/plm/details'              , { wsId : wsContext.id,  dmsId    : dmsId }),
         $.get('/plm/sections'             , { wsId : wsContext.id,  useCache : true  }),
