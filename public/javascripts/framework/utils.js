@@ -1371,8 +1371,6 @@ function genPanelFilterToggleEmpty(id, settings) {
 }
 function genPanelSearchInput(id, settings) {
 
-    if(!settings.search) return;
-
     let elemToolbar = genPanelToolbar(id, settings, 'controls');
 
     let elemSearch = $('<div></div>').appendTo(elemToolbar)
@@ -1434,6 +1432,10 @@ function genPanelSearchInput(id, settings) {
         .attr('id', id + '-filter').click(function() {
             panelContinueSearch(id, 'next');
         });
+
+    if(!settings.search) elemSearch.hide();
+
+    return elemSearch;
 
 }
 function panelToggleSearchMode(id, elemClicked) {

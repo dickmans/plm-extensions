@@ -346,7 +346,9 @@
 #summary-content {
     top : 110px;
 }
-
+#summary-content .panel-controls {
+    display : none;
+}
 
 /*  SEARCH */
 /* ----------------------------------------------------------------------------- */
