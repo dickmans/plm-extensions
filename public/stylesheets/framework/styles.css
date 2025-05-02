@@ -669,8 +669,8 @@
 /* ----------------------------------------------------------------------------- */
 #header {
     display     : flex;
-    height      : 28px;
-    padding     : 20px 56px 20px; 
+    height      : 68px;
+    padding     : 0px; 
     position    : absolute;
     top         : 0px;
     right       : 0px;
@@ -681,10 +681,10 @@
     background-size     : 66px;
     cursor              : pointer;
     height              : 28px;
-    width               : 48px;
-    position            : absolute;
-    top                 : 18px;
-    left                : 8px;
+    margin              : 18px 0px 22px 8px;
+    max-width           : 56px;
+    min-width           : 56px;
+    width               : 56px;
 }
 .light-theme #header-logo {
     background-image: url(../../images/autodesk-logo-black.png);
@@ -693,33 +693,43 @@
     cursor      : pointer;
     font-size   : 22px;
     font-weight : 800;
-    line-height : 28px;
+    line-height : 68px;
     margin-left : 10px;
+    white-space : nowrap;
 }
 #header-subtitle {
     border-left     : 1px solid var(--color-font);
     cursor          : pointer;
     font-size       : 20px;
-    line-height     : 28px;
-    margin-left     : 24px;
+    height          : 36px;
+    line-height     : 36px;
+    margin          : 16px 24px 16px 24px;
+    min-width       : 100px;
     padding-left    : 24px;
 }
 #header-descriptor {
     font-size   : 18px;
     font-weight : 700;
-    line-height : 16px;
+    line-height : 20px;
+    white-space : nowrap;
 }
 #header-description {
     font-size   : 12px;
-    line-height : 18px;
+    line-height : 16px;
+}
+#header-subtitle,
+#header-subtitle > div {
+    overflow      : hidden;
+    text-overflow : ellipsis;
+    white-space   : nowrap;
 }
 #header-toolbar {
-    display     : flex;
-    gap         : var(--spacer-xs);
-    position    : absolute;
-    top         : 13px;
-    right       : 32px;
-    height      : 42px;
+    display         : flex;
+    flex-grow       : 1;
+    gap             : var(--spacer-xs);
+    height          : 42px;
+    justify-content : end;
+    margin          : 13px 32px 0px 0px;
 }
 #header-toolbar select {
     height  : 38px;
