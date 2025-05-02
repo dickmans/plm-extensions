@@ -1402,7 +1402,7 @@ router.get('/image-cache', function(req, res) {
 
         if(err === null) {
             
-            sendResponse(req, res, { 'data' : { 'url' : 'cache/' + fileName } }, false);
+            sendResponse(req, res, { data : { url : '/storage/cache/' + fileName } }, false);
 
         } else if(err.code == 'ENOENT') {
 
@@ -1415,7 +1415,7 @@ router.get('/image-cache', function(req, res) {
                 }
             }).then(function (response) {
                 fs.appendFileSync('storage/cache/' + fileName, response.data);
-                sendResponse(req, res, { 'data' : { 'url' : 'cache/' + fileName }  }, false);
+                sendResponse(req, res, { data : { url : '/storage/cache/' + fileName }  }, false);
             }).catch(function (error) {
                 sendResponse(req, res, error.response, true);   
             });
@@ -2769,7 +2769,7 @@ function getViewables(req, res, headers, link, viewables, attempt) {
                 }
 
             } else {
-                viewable.link = '/cache/' + viewable.filename;
+                viewable.link = '/storage/cache/' + viewable.filename;
             }
 
         }
