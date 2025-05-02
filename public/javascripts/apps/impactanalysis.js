@@ -2,17 +2,18 @@ let managedItems        = [];
 let selectedManagedItem = {};
 let bomViews            = [];
 let bomItemsByStatus    = [];
-// let selectedURN         = '';
 let relatedWorkspaces   = [];
 let relatedItems        = [];
 let isRevisioningWS     = false;
 let isEditable          = false;
+let urlParameters       = getURLParameters();
 
 
 $(document).ready(function() {   
 
     appendProcessing('nav', false);
     appendProcessing('details', false);
+    appendProcessing('change', false);
     appendViewerProcessing();
     appendOverlay(true);
 
@@ -105,13 +106,8 @@ function setUIEvents() {
         if(typeof viewer !== 'undefined') { setTimeout(function() { viewer.resize(); }, 250); }
     });
 
-    // $('#toggle-details').click(function() {
-    //     $('body').toggleClass('with-details');
-    //     if(typeof viewer !== 'undefined') { setTimeout(function() { viewer.resize(); }, 250); }
-    // });
 
-
-    // Item Actions
+    // Update Manage Item in given CO tab
     $('#save').click(function() {
         updateManagedItem();
     });
@@ -309,13 +305,15 @@ function getLockStatusAndSubtitle() {
 // Get columns of managed items tab of Change Order
 function getManagedFields() {
     
-    $.get('/plm/managed-fields', { wsId : wsId, useCache : true }, function(response) {
+    $.get('/plm/managed-fields', { wsId : urlParameters.wsId, useCache : true }, function(response) {
 
         let elemFields = $('#change');
 
         for(let field of response.data) {
             insertDetailsField(field, null, elemFields, false, { editable : isEditable });
         }
+
+        elemFields.children('.field').hide();
 
         $('#overlay').hide();
 
@@ -328,8 +326,8 @@ function getManagedFields() {
 function getWorkspaceConfiguration() {
 
     let requests = [
-        $.get('/plm/workspace', { 'wsId' : wsId }),
-        $.get('/plm/related-workspaces', { 'wsId' : wsId, 'view' : '10'})
+        $.get('/plm/workspace',          { wsId : urlParameters.wsId, useCache : true }),
+        $.get('/plm/related-workspaces', { wsId : urlParameters.wsId, useCache : true, view : '10'})
     ];
 
     Promise.all(requests).then(function(responses) {
@@ -346,17 +344,17 @@ function getWorkspaceConfiguration() {
         // TODO : REMOVE
         // getManagedItems();
 
-        insertManagedItems('/api/v3/workspaces/' + wsId + '/items/' + dmsId, {
+        insertManagedItems(urlParameters.link, {
             headerLabel     : 'Affected Items',
             layout          : 'list',
             contentSize     : 'm',
-            number          :  true,
-            openInPLM       : true,
+            number          : true,
             reload          : true,
             search          : true,
             singleToolbar   : 'actions',
             counters        : true,
-            onClickItem     : function(elemClicked) { selectManagedItem(elemClicked); }
+            onClickItem     : function(elemClicked) { selectManagedItem(elemClicked); },
+            onDblClickItem  : function(elemClicked) { openItemByLink(elemClicked.attr('data-link')); }
         });
 
     });
@@ -665,6 +663,10 @@ function selectManagedItem(elemClicked) {
     $('#overlay').hide();
 
     elemClicked.removeClass('unread');
+    elemClicked.addClass('selected');
+    
+    $('#change-processing').show();
+    $('#change').children('.field').hide();
 
     let link = elemClicked.attr('data-link');
 
@@ -920,6 +922,8 @@ function setAffectedItemFields() {
     });
 
     $.get('/plm/managed-item', { link : selectedManagedItem.affected}, function(response) {
+        $('#change-processing').hide();
+        $('#change').children('.field').show();
         for(let field of response.data.linkedFields) setFieldValue(field);
     });
 
@@ -970,7 +974,7 @@ function updateManagedItem() {
 
     });
 
-    $.get('/plm/update-managed-item', params, function(response) {
+    $.post('/plm/update-managed-item', params, function(response) {
         if(response.error) {
             showErrorMessage('Error', response.data.message);
             }
@@ -984,8 +988,6 @@ function updateManagedItem() {
 // [3] Get details of selected item
 function getItemDetails() {
 
-
-
     // let promises = [
     //     $.get('/plm/sections', { 'wsId' : wsId }),
     //     $.get('/plm/fields', { 'wsId' : wsId }),
@@ -995,7 +997,6 @@ function getItemDetails() {
     // Promise.all(promises).then(function(responses) {
     //     $.get('/plm/details', { 'link' : link }, function(response) {
     //         insertItemDetails(elemParent, responses[0].data, responses[1].data, responses[2].data, false, false, false);
-
 
     $('#details-processing').show();
     $('#details-sections').html('');
@@ -1020,18 +1021,10 @@ function getItemDetails() {
 
         // insertItemDetailsFields('', 'details', responses[0].data, responses[1].data, responses[2].data, false, false, false);
 
-
         if(requests.length > 3) {
-
-
-            insertItemDetailsFields('', 'details-prev', responses[0].data, responses[1].data, responses[3].data, false, false, false);
-
-            markItemDetailsChanges();
-
+            // insertItemDetailsFields('', 'details-prev', responses[0].data, responses[1].data, responses[3].data, false, false, false);
+            // markItemDetailsChanges();
             elemParentPrev.html('');
-
-            
-
         }
 
     });
@@ -1300,10 +1293,6 @@ function setBOMTable(viewId) {
     // let selectedManagedItem;
     let fields  = [];
     let columns = '';
-
-    // for(let managedItem of managedItems) {
-    //     if(managedItem.urn === selectedURN) selectedManagedItem = managedItem;
-    // }
 
     let params = {
         link          : selectedManagedItem.link,
@@ -1777,53 +1766,49 @@ function insertImpactedItem(item, workspace) {
 
     if(isRelated(itemWSID)) {
 
-        let elemTitle = $('<td></td>');
-            elemTitle.addClass('link');
-            elemTitle.addClass('tiny');
-            elemTitle.html(item.title);
-            elemTitle.click(function() {
+        let elemTitle = $('<td></td>')
+            .addClass('link')
+            .addClass('tiny')
+            .html(item.title)
+            .click(function() {
                 openItemByURN($(this).closest('tr').attr('data-urn'));
             });
 
-        let elemStatus = $('<td class="impacted-status tiny"><span class="icon">link</span></td>');
+        let elemStatus  = $('<td class="impacted-status tiny"><span class="icon">link</span></td>');
+        let elemInput   = $('<td></td>').html('<input class="rel-desc" value="">');
+        let elemActions = $('<td></td>').addClass('impacted-actions');
 
-        let elemInput = $('<td></td>');
-            elemInput.html('<input class="rel-desc" value="">');
+        if(!isEditable) {
 
-        if(isLocked) elemInput.html('<input disabled class="rel-desc" value="">');
+            elemInput.html('<input disabled class="rel-desc" value="">');
 
-        let elemActionLink = $('<div></div>');
-            elemActionLink.addClass('button');
-            elemActionLink.addClass('default');
-            elemActionLink.addClass('impacted-connect');
-            elemActionLink.html('Connect');
-            elemActionLink.click(function() {
-                addRelationship($(this));
-            });
+        } else {
+
+            $('<div></div>').appendTo(elemActions)
+                .addClass('button')
+                .addClass('default')
+                .addClass('impacted-connect')
+                .html('Connect')
+                .click(function() {
+                    addRelationship($(this));
+                });
                 
-        let elemActionUnlink = $('<div></div>');
-            elemActionUnlink.addClass('button');
-            elemActionUnlink.addClass('impacted-disconnect');
-            elemActionUnlink.html('Disconnect');
-            elemActionUnlink.click(function() {
-                removeRelationship($(this));
-            });
+            $('<div></div>').appendTo(elemActions)
+                .addClass('button')
+                .addClass('impacted-disconnect')
+                .html('Disconnect')
+                .click(function() {
+                    removeRelationship($(this));
+                });
 
-        let elemActionUpdate = $('<div></div>');
-            elemActionUpdate.addClass('button');
-            elemActionUpdate.addClass('impacted-update');
-            elemActionUpdate.html('Update');
-            elemActionUpdate.click(function() {
-                updateRelationship($(this));
-            });
-
-        let elemActions = $('<td></td>');
-            elemActions.addClass('impacted-actions');
-
-        if(!isLocked) {
-            elemActions.append(elemActionLink);
-            elemActions.append(elemActionUnlink);
-            elemActions.append(elemActionUpdate);
+            $('<div></div>').appendTo(elemActions)
+                .addClass('button')
+                .addClass('impacted-update')
+                .html('Update')
+                .click(function() {
+                    updateRelationship($(this));
+                });
+        
         }
 
         $('<tr></tr>').appendTo(elemTableBody)

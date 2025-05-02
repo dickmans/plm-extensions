@@ -5,6 +5,9 @@
 .bom-item { display: revert; }
 .panel-actions { justify-content: end; }
 .tabs > .selected { font-weight : 700; }
+.surface-level-2 td {
+    background: var(--color-surface-level-3);
+}
 
 
 /*  MAIN LAYOUT */
@@ -259,8 +262,7 @@ body.no-viewer #hide-viewer { display : none; }
     bottom : 50px;
 }
 #item-contents > div { 
-    border-width : 20px;
-    top          : 0px; 
+    top : 0px; 
 }
 .panel-content-actions {
     padding : 10px 20px;
@@ -327,11 +329,12 @@ tr.removed .bom-status {
     width: calc(100% - 120px);
 }
 .bom-view {
-    background : white;
-    font-size : 11px !important;
-    height : 11px;
+    background  : var(--color-surface-level-2);
+    color       : var(--color-font);
+    font-size   : 11px !important;
+    height      : 11px;
     line-height : 11px !important;
-    padding : 4px 6px;
+    padding     : 4px 6px;
     white-space : nowrap;
 }
 .bom-view.first {
@@ -368,9 +371,9 @@ tr.removed .bom-status {
 #bom-color-toggle { font-size : 11px; width : 120px; }
 
 .bar {
-    border : 5px solid #f5f5f5;
+    border        : 5px solid var(--color-surface-level-2);
     border-radius : 3px;
-    cursor : pointer;
+    cursor        : pointer;
 }
 #bom-status-additional.selected, #bom-status-additional:hover {
     border-color : var(--color-status-red-brighter);
@@ -453,11 +456,12 @@ body.no-viewer #bom-color-toggle {
 }
 #impacted-tbody input:disabled { background : none; }
 #impacted-tbody tr:hover td {
-    background :transparent !important;
+    background-color : var(--color-hover-background) !important;
+    border-color     : var(--color-hover-border) !important;
 }
-#impacted-tbody tr.disconnected .material-symbols-sharp {
+/* #impacted-tbody tr.disconnected .material-symbols-sharp {
     display : none;
-}
+} */
 .impacted-status {
     font-size : 24px;
     text-align : center;

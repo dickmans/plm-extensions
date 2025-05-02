@@ -2006,24 +2006,24 @@ router.get('/add-managed-items', function(req, res, next) {
 
 
 /* ----- UPDATE MANAGED ITEM COLUMNS ----- */
-router.get('/update-managed-item', function(req, res, next) {
+router.post('/update-managed-item', function(req, res, next) {
     
     console.log(' ');
     console.log('  /update-managed-item');
     console.log(' --------------------------------------------');  
-    console.log('  req.query.link       = ' + req.query.link);
-    console.log('  req.query.fields     = ' + req.query.fields);
-    console.log('  req.query.transition = ' + req.query.transition);
+    console.log('  req.body.link       = ' + req.body.link);
+    console.log('  req.body.fields     = ' + req.body.fields);
+    console.log('  req.body.transition = ' + req.body.transition);
 
-    let url = req.app.locals.tenantLink + req.query.link;
+    let url = req.app.locals.tenantLink + req.body.link;
     
     let params = {
-        'linkedFields' : req.query.fields
+        'linkedFields' : req.body.fields
     }
 
-    if(typeof req.query.transition !== undefined) {
-        if(req.query.transition !== '') {
-            params.targetTransition = { 'link' : req.query.transition }
+    if(typeof req.body.transition !== undefined) {
+        if(req.body.transition !== '') {
+            params.targetTransition = { 'link' : req.body.transition }
         }
     }
 
