@@ -23,6 +23,7 @@ if ((process.argv.length > 2) && (!fs.existsSync('./' + fileSettings))) {
     const path        = require('path');
     const favicon     = require('serve-favicon');
     const morgan      = require('morgan');
+    const serveIndex  = require('serve-index');
     const bodyParser  = require('body-parser');
     const landing     = require('./routes/landing');
     const plm         = require('./routes/plm');
@@ -65,13 +66,14 @@ if ((process.argv.length > 2) && (!fs.existsSync('./' + fileSettings))) {
     app.use(bodyParser.json({limit: "50mb"}));
     app.use(bodyParser.urlencoded({limit: "50mb", extended: true, parameterLimit:50000}));
     app.use(express.static(path.join(__dirname, 'public')));
-
-
+    
+    
     // ROUTING
     app.use('/', landing);
     app.use('/plm', plm);
     app.use('/vault', vault);
     app.use('/services', services);
+    app.use('/storage', express.static(__dirname + '/storage'), serveIndex(__dirname + '/storage', { icons: true }));
 
 
     // CATCH 404 AND FORWARD TO ERROR HANDLER

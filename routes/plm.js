@@ -50,7 +50,7 @@ function downloadFileToCache(url, filename) {
         responseType     : 'arraybuffer',
         responseEncoding : 'binary',
     }).then(function(response) {
-        fs.appendFileSync('public/cache/' + filename, response.data);
+        fs.appendFileSync('storage/cache/' + filename, response.data);
         return { 
             filename : filename,
             success  : true
@@ -60,6 +60,74 @@ function downloadFileToCache(url, filename) {
         console.log(error);
         return { success : false };
     });
+
+}
+function downloadFileToServer(root, attachment, fileName, folder, clearExistingFolder) {
+
+    if(fileName            === null) fileName = attachment.resourceName + attachment.type.extension;
+    if(clearExistingFolder === null) clearExistingFolder = false;
+
+    let path = 'storage/' + root;
+
+    if(folder !== null) {
+        if(folder !== '') {
+            path += '/' + folder;
+        }
+    }
+
+    createServerFolderPath(path, clearExistingFolder);
+
+    return axios.get(attachment.url, {
+        responseType     : 'arraybuffer',
+        responseEncoding : 'binary',
+    }).then(function(response) {
+        fs.appendFileSync(path + '/' + fileName, response.data);
+        return { 
+            fileName : fileName,
+            success  : true
+        };
+    }).catch(function(error) {
+        console.log('error');
+        console.log(error);
+        return { success : false };
+    });
+
+}
+function createServerFolderPath(path, clearExistingFolder) {
+
+    if(path === null) return;
+    if(path === ''  ) return;
+    
+    if(clearExistingFolder) {
+        if(fs.existsSync(path)) {
+            fs.rmSync(path, { recursive: true, force: true });
+        }
+    }
+
+    let folders    = path.split('/');
+    let folderPath = '';
+
+    for(let folder of folders) {
+        
+        folderPath = folderPath + folder;
+
+        if(!fs.existsSync(folderPath)) {
+            fs.mkdirSync(folderPath);
+        }
+
+        folderPath += '/';
+
+    }
+
+}
+function deleteServerFolderPath(path) {
+
+    if(path === null) return;
+    if(path === ''  ) return;
+    
+    if(fs.existsSync(path)) {
+        fs.rmSync(path, { recursive: true, force: true });
+    }
 
 }
 function sortArray(array, key, type) {
@@ -1330,7 +1398,7 @@ router.get('/image-cache', function(req, res) {
     let url      = req.app.locals.tenantLink + imageLink;
     let fileName = wsId + '-' + dmsId + '-' + fieldId + '-' + imageId + '.jpg';
 
-    fs.stat('public/cache/' + fileName, function(err, stat) {
+    fs.stat('storage/cache/' + fileName, function(err, stat) {
 
         if(err === null) {
             
@@ -1346,7 +1414,7 @@ router.get('/image-cache', function(req, res) {
                     'Accept'        : 'image/avif,image/webp,image/apng,image/*,*/*;q=0.8'
                 }
             }).then(function (response) {
-                fs.appendFileSync('public/cache/' + fileName, response.data);
+                fs.appendFileSync('storage/cache/' + fileName, response.data);
                 sendResponse(req, res, { 'data' : { 'url' : 'cache/' + fileName }  }, false);
             }).catch(function (error) {
                 sendResponse(req, res, error.response, true);   
@@ -2122,6 +2190,81 @@ router.get('/download', function(req, res, next) {
     }).then(function (response) {
         sendResponse(req, res, response, false);
     }).catch(function (error) {
+        sendResponse(req, res, error.response, true);
+    });
+
+});
+
+
+/* ----- EXPORT ATTACHMENTS ----- */
+router.get('/export-attachments', function(req, res, next) {
+   
+    console.log(' ');
+    console.log('  /export-attachments');
+    console.log(' --------------------------------------------');  
+    console.log('  req.query.wsId        = ' + req.query.wsId);
+    console.log('  req.query.dmsId       = ' + req.query.dmsId);
+    console.log('  req.query.link        = ' + req.query.link);
+    console.log('  req.query.folder      = ' + req.query.folder);
+    console.log('  req.query.filenamesIn = ' + req.query.filenamesIn);
+    console.log('  req.query.filenamesEx = ' + req.query.filenamesEx);
+    console.log();
+
+    let url =  (typeof req.query.link !== 'undefined') ? req.query.link : '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId;
+        url = req.app.locals.tenantLink + url + '/attachments?asc=name';
+
+    let subFolder   = req.query.folder + '/' || '';
+    let filenamesIn = (typeof req.query.filenamesIn === 'undefined') ? '' : req.query.filenamesIn;
+    let filenamesEx = (typeof req.query.filenamesEx === 'undefined') ? '' : req.query.filenamesEx;
+
+    filenamesIn = filenamesIn || '';
+    filenamesEx = filenamesEx || '';
+
+    let headers = getCustomHeaders(req);
+        headers.Accept = 'application/vnd.autodesk.plm.attachments.bulk+json';
+
+    axios.get(url, {
+        headers : headers
+    }).then(function(response) {
+
+        let success  = true;
+        let data     = [];
+        
+        if(response.status === 200) {
+
+            let requests    = [];
+            let attachments = (response.data === '') ? [] : response.data.attachments;
+            let folder      = subFolder + response.data.item.title;
+
+            for(let attachment of attachments) {
+
+                let fileName = attachment.resourceName + attachment.type.extension;
+
+                if((filenamesIn === '') || (fileName.indexOf(filenamesIn) >= 0)) {
+                    if((filenamesEx === '') || (fileName.indexOf(filenamesEx) < 0)) {
+                        requests.push(downloadFileToServer('exports', attachment, null, folder, true));
+                    }
+                }
+
+            }
+
+            Promise.all(requests).then(function(responses) {
+        
+                for(let response of responses) {
+                    if(!response.success) success = false;
+                    data.push(response.fileName);
+                }
+        
+                sendResponse(req, res, { data : data }, !success);
+
+            }).catch(function(error) {
+                sendResponse(req, res, error.response, true,);
+            });
+
+        } else sendResponse(req, res, { data : data }, false);
+
+        // sendResponse(req, res, { 'data' : result, 'status' : response.status }, false);
+    }).catch(function(error) {
         sendResponse(req, res, error.response, true);
     });
 

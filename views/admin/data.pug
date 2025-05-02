@@ -230,6 +230,15 @@ block body
                                     select.select-transition.button.options-list#select-perform-transition(data-empty-label='Select Editable Field')
                                     input#input-perform-transition(placeholder="Enter comment")
 
+                        .tile.action.permission-attachments#export-attachments  
+                            .title.tile-image Export Files
+                            .details   
+                                .description Downloads all attachments to defined folder
+                                .definition
+                                    input#input-export-attachments-in(placeholder="Filename pattern to include")
+                                    input#input-export-attachments-ex(placeholder="Filename pattern to exclude")
+                                .reference#export-attachments-link
+
                         .tile.action.permission-attachments#delete-attachments  
                             .title.tile-image Delete Files
                             .details   

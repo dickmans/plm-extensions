@@ -1,8 +1,9 @@
 /keys/*.pem
 /node_modules
-/public/cache/*
 /uploads/*
 /settings/*
+/storage/cache/*
+/storage/exports/*
 /views/custom/*
 /views/.DS_Store
 package-lock.json

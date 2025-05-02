@@ -199,10 +199,11 @@ function setGroupSelectors(response) {
 function updatefilters() {
 
     wsConfig.link = $('#workspace').val();
-    stopped = false;
+    wsConfig.name = $('#workspace').children('option:selected').html();
+    stopped       = false;
 
     addLogSeparator();
-    addLogEntry('Selected workspace ' + $('#workspace').children('option:selected').html(), 'head');
+    addLogEntry('Selected workspace ' + wsConfig.name, 'head');
     
     let requests = [
         $.get('/plm/workspace'  , { link : wsConfig.link }),
@@ -230,6 +231,7 @@ function updatefilters() {
     $('#filter-properties').addClass('hidden');
     $('.property-filter').remove();
     $('#save-text-value').addClass('hidden');
+    $('#export-attachments-link').html('All Files will be stored in folder ' + wsConfig.name + ' Files. This folder will be created on the server once the first file gets downloaded.<p><a class="button" target="_blank" href="/storage/exports/' + wsConfig.name + ' Files">Open Folder</a></p>');
 
     $('.select-user' ).each(function() { $(this).val('--'); });
     $('.select-group').each(function() { $(this).val('--'); });
@@ -926,6 +928,7 @@ function startProcessing() {
     run.success      = 0;
     run.errors       = [];
     run.ids          = [];
+    run.storage      = '';
 
     run.params = {
         pageNo    : 0,
@@ -960,6 +963,12 @@ function startProcessing() {
         run.method      = 'get';
         run.params.link = view;
         
+    }
+
+    if(run.actionId === 'export-attachments') {
+        run.storage = '/storage/exports/' + $('#workspace').children('option:selected').html() + ' Files';
+        addLogEntry('Files will be stored at  <a target="_blank" href="' + run.storage + '">' + $('#workspace').children('option:selected').html() + '</a>');
+        addLogSpacer();
     }
 
     getNextRecords();
@@ -1129,13 +1138,13 @@ function genRequests(limit) {
         let link    = genItemURL({ link : params.link });
         let message = (options.testRun) ? 'Would process' : 'Processing';
 
-        addLogEntry(message + ' <a target="_blank" href="' + link + '">' + params.descriptor + '</a>', 'count', run.counter++);
+        addLogEntry(message + ' <a target="_blank" href="' + link + '">' + params.descriptor + '</a>', 'notice');
 
         if((options.testRun) || stopped) {
 
         } else {
 
-            if(run.actionId === 'store-dmsid') {
+                   if(run.actionId === 'store-dmsid') {
 
                 let fieldId = $('#select-store-dmsid').val();
                 let value   = getRecordFieldValue(record, fieldId, '');
@@ -1199,6 +1208,14 @@ function genRequests(limit) {
             } else if(run.actionId === 'clear-owners') {
 
                 requests.push($.post('/plm/clear-owners', params));
+
+            } else if(run.actionId === 'export-attachments') {
+
+                params.folder      = $('#workspace').children('option:selected').html() + ' Files';
+                params.filenamesIn = $('#input-export-attachments-in').val().toLowerCase();
+                params.filenamesEx = $('#input-export-attachments-ex').val().toLowerCase();
+
+                requests.push($.get('/plm/export-attachments', params));
 
             } else if(run.actionId === 'delete-attachments') {
 
@@ -1571,11 +1588,18 @@ function endProcessing() {
 
         }
 
+        if(run.actionId === 'export-attachments') {
+            addLogSpacer();
+            addLogEntry('Files are available at  <a target="_blank" href="' + run.storage + '">' + $('#workspace').children('option:selected').html() + '</a>');
+        }
+
     }
 
     addLogEnd();
     addLogSeparator();
     addLogSpacer();
+
+
 
     let divElement = document.getElementById('console-content');
         divElement.scrollTop = divElement.scrollHeight

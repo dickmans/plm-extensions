@@ -1,6 +1,6 @@
 {
   "name": "plm-extensions",
-  "version": "April 2025",
+  "version": "May 2025",
   "private": true,
   "scripts": {
     "start": "node --max-http-header-size=16384 ./bin/www"
@@ -15,6 +15,7 @@
     "form-data": "*",
     "morgan": "*",
     "pug": "*",
-    "serve-favicon": "*"
+    "serve-favicon": "*",
+    "serve-index": "^1.9.1"
   }
 }
