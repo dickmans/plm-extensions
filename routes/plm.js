@@ -1478,26 +1478,26 @@ router.get('/grid', function(req, res, next) {
 
 
 /* ----- ADD GRID ROW ----- */
-router.get('/add-grid-row', function(req, res, next) {
+router.post('/add-grid-row', function(req, res, next) {
     
     console.log(' ');
     console.log('  /add-grid-row');
     console.log(' --------------------------------------------'); 
-    console.log('  req.query.wsId    = ' + req.query.wsId);
-    console.log('  req.query.dmsId   = ' + req.query.dmsId);
-    console.log('  req.query.link    = ' + req.query.link);
-    console.log('  req.query.data    = ' + req.query.data);
+    console.log('  req.body.wsId    = ' + req.body.wsId);
+    console.log('  req.body.dmsId   = ' + req.body.dmsId);
+    console.log('  req.body.link    = ' + req.body.link);
+    console.log('  req.body.data    = ' + req.body.data);
     console.log(); 
     
-    let wsId = (typeof req.query.wsId !== 'undefined') ? req.query.wsId : req.query.link.split('/')[4];
+    let wsId = (typeof req.body.wsId !== 'undefined') ? req.body.wsId : req.body.link.split('/')[4];
 
-    let url =  (typeof req.query.link !== 'undefined') ? req.query.link : '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId;
+    let url =  (typeof req.body.link !== 'undefined') ? req.body.link : '/api/v3/workspaces/' + req.body.wsId + '/items/' + req.body.dmsId;
         url  = req.app.locals.tenantLink + url;
         url += '/views/13/rows';
 
     let rowData = [];
 
-    for(let field of req.query.data) {
+    for(let field of req.body.data) {
         rowData.push({
             '__self__' : '/api/v3/workspaces/' + wsId + '/views/13/fields/' + field.fieldId,
             'value' : field.value
