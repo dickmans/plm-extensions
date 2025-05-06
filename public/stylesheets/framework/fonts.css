@@ -175,41 +175,34 @@
     text-rendering          : optimizeLegibility;
     -webkit-font-smoothing  : antialiased;
 }
-
 .icon.filled,
-.with-icon.filled::before,
-.button.with-icon.icon-toggle-on::after {
+.with-icon.filled::before {
     font-variation-settings : 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48
 }
 
 
-.button.with-icon.icon-toggle-on,
-.button.with-icon.icon-toggle-off {
+/* Buttons with on/off toggles */
+.button.with-toggle {
+    display         : flex;
     justify-content : space-between;
 }
-
-.button.with-icon.icon-toggle-on::before,
-.button.with-icon.icon-toggle-off::before { 
-    content : ''; 
-    display : none; 
-    margin  : 0px;
-}
-
-.button.with-icon.icon-toggle-on::after,
-.button.with-icon.icon-toggle-off::after {
+.button.with-toggle::after {
+    content                 : '\e9f5';
     font-family             : 'Material Symbols Sharp';
     font-size               : 24px;
     font-weight             : 200;
     line-height             : 19px;
     margin-left             : var(--spacer-s);
     text-rendering          : optimizeLegibility;
-    -webkit-font-smoothing  : antialiased;
+    -webkit-font-smoothing  : antialiased; 
+}
+.button.with-toggle.toggle-on::after {
+    content                 : '\e9f6';
+    font-variation-settings : 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48
 }
 
-.button.with-icon.icon-toggle-on::after { content : '\e9f6'; }
-.button.with-icon.icon-toggle-off::after { content : '\e9f5'; }
 
-
+/* Icons */
 .icon-3d::before                { content : '\e9fe'; }
 .icon-activity::before          { content : '\e53f'; }
 .icon-arrow-right::before       { content : '\f81d'; }
@@ -274,6 +267,7 @@
 .icon-line-chart-stack::before  { content : '\f22b'; }
 .icon-link::before              { content : '\e157'; }
 .icon-link-add::before          { content : '\e178'; }
+.icon-link-update::before       { content : '\f6b9'; }
 .icon-list::before              { content : '\e896'; }
 .icon-list-edit::before         { content : '\e745'; }
 .icon-list-add::before          { content : '\e03b'; }
