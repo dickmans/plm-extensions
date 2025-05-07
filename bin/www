@@ -113,7 +113,7 @@ function onListening() {
     console.log('  Not connected to Vault as Vault Gateway and/or Vault Name are not defined');
   } else {
     console.log('  >> Using Vault Gateway     ' + settings.vaultGateway);
-    console.log('  >> Using Vault Name        ' + settings.vaultGateway);
+    console.log('  >> Using Vault Name        ' + settings.vaultName);
   }
 
   console.log();
