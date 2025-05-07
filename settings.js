@@ -629,13 +629,14 @@ exports.config = {
     },
 
     variants : {
-        wsIdItemVariants       : 274,
-        variantsSectionLabel   : 'Variant Definition',
-        fieldIdVariantBaseItem : 'DMS_ID_BASE_ITEM',
-        fieldIdItemNumber      : 'NUMBER',
-        fieldIdItemVariants    : 'VARIANTS',
-        bomViewNameItems       : 'Variant Management',
-        bomViewNameVariants    : 'Default View',
+        wsIdItemVariants               : 274,
+        sectionLabelVariantDefinition  : 'Variant Definition',
+        fieldIdBaseItem                : 'BASE_ITEM',
+        fieldIdBaseItemNumber          : 'BASE_ITEM_NUMBER',
+        fieldIdRootItemDmsId           : 'ROOT_ITEM_DMS_ID',
+        bomViewNameItems               : 'Variant Manager',
+        bomViewNameVariants            : 'Variant Manager',
+        maxBOMLevels                   : 4,
         viewerFeatures : {
             contextMenu   : false,
             cube          : false,

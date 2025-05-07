@@ -15,7 +15,7 @@
             li Manage multiple variants at the same time or focus a single variant only
             li Dynamically define the properties that define a variant
         h1 New Workspace Item Variants 
-        p A new workspace is required to manage items and BOMs that are specific for a given variant. These item variants will refer to the given base item to allow for data reuse by using derived fields, but will also have additional fields that define a variant (i.e. color, material, dimeions, serial #, ...). Customers can choose any properties they like for these variant specific properties, the application will adjust accordingly.
+        p A new workspace is required to manage the item variants and their BOMs. These item variants in this new workspace will refer to the given base item to allow for data reuse by using derived fields, but will also have additional fields that define a variant (i.e. color, material, dimeions, serial #, ...). Customers can choose any properties they like for these variant specific properties, the application will adjust accordingly.
         h2 Create new workspace
         p Use the 
             strong Workspace Manager 
@@ -24,13 +24,13 @@
             |as revision controlled workspace. 
             img.border(src='images/apps/variant-manager-1.png' style='max-width:1092px;')
         h2 Set Item Details of new workspace
-        p Create 3 sections in 
+        p Create the following 3 sections in tab 
             strong Item Details 
-            | tab: 
+            |: 
         ul
-            li  Basic
+            li Basic
             li Variant Definition
-            li Base Item 
+            li Base Item Details
         p Add the following fields to section 
             strong Basic
             |:
@@ -43,8 +43,15 @@
                     th Visibility
                     th Editable
                 tr 
-                    td Number
-                    td NUMBER
+                    td Base Item
+                    td BASE_ITEM
+                    td Picklist to [WS] Items
+                    td Single Selection
+                    td Always
+                    td True
+                tr 
+                    td Base Item Number 
+                    td BASE_ITEM_NUMBER
                     td Single Line Text
                     td 20
                     td Always
@@ -55,7 +62,7 @@
                     td Single Line Text
                     td 5
                     td Always
-                    td False
+                    td True
                 tr 
                     td Title
                     td TITLE
@@ -64,15 +71,15 @@
                     td Always
                     td True
                 tr 
-                    td Base Item
-                    td BASE_ITEM
-                    td Picklist to [WS] Items
-                    td Single Selection
+                    td Number
+                    td NUMBER
+                    td Single Line Text
+                    td 20
                     td Always
-                    td False
+                    td Creation Only
                 tr 
-                    td DMS_ID_BASE_ITEM
-                    td DMS_ID_BASE_ITEM
+                    td ROOT_ITEM_DMS_ID
+                    td ROOT_ITEM_DMS_ID
                     td Single Line Text
                     td 20
                     td Never
@@ -83,14 +90,14 @@
         p All data that should be derived from the 
             strong Base Item 
             | must be defined in section 
-            strong Base Item Data
-            |. Make use of derived fields to copy data from the given base item. This may for example include Type, Description, Image and further fields of your items workspace.
+            strong Base Item Details
+            |. Make use of derived fields to copy data from the given base item. This may for example include Type and Description. Note that Image fields are not supported.
         img.border(src='images/apps/variant-manager-4.png' style='max-width:737px;')
         h2 Descriptor
         p Set the workspace's 
             strong Descriptor 
-            | to display the fields Number, Index and Title:
-        img.border(src='images/apps/variant-manager-5.png' style='max-width:493px;')
+            | to display the fields Base Item Number, Index and Title:
+        img.border(src='images/apps/variant-manager-5.png' style='max-width:502px;')
         h2 Workspace Relationships
         p Enable required relationships in the BOM tab:
         img.border(src='images/apps/variant-manager-2.png' style='max-width:862px;')
@@ -122,79 +129,63 @@
             |Make sure that users also can access the working versions of records.
         img.border(src='images/apps/variant-manager-3.png' style='max-width:351px;')
         h2 Bill of Materials tab
-        p Add the following BOM field in workspace 
-            strong Item Variants
-            |:
-            br
-        table 
-            tr 
-                th Field ID 
-                th Field Type 
-                th Field Settings
-                th Editable
-            tr 
-                td EDGE_ID_BASE_ITEM
-                td Single Line Text
-                td Length : 20, Visibility: Never
-                td true
-        p Add the following columns to the 
-            strong Default View 
-            | (sequence does not matter):
+        p Create a new view 
+            strong Variant Manager 
+            |with the following columns (sequence does not matter):
             table   
                 tr 
                     th Field ID
                     th Field Source 
                 tr 
-                    td EDGE_ID_BASE_ITEM
+                    td Descriptor
+                    td System Fields
+                tr 
+                    td Quantity
                     td BOM Fields
                 tr 
-                    td DMS_ID_BASE_ITEM
+                    td Base Item Number 
+                    td Item Details Fields
+                tr 
+                    td ROOT_ITEM_DMS_ID
                     td Item Details Fields
         p In addition, add all fields of section 
             strong Variant Definition 
             |to this table (for example Colour and Material).
+        img.border(src='images/apps/variant-manager-10.png' style='max-width:1200px;')
         h2 Scripts
-        p In order to link the variant items with the given base items, a script is required. Create a new action script 
-            strong Item Variants onCreate onEdit 
-            | and attach this script to the create and edit event of workspace 
+        p As the variant items should receive some key information from the base item (like the number), a script is required to coopy given information. 
+            br
+            |Create a new action script 
+            strong Item Variants onCreate 
+            | and attach this script to the create event of workspace 
             strong Item Variants
             |:
         p.code
-            span linkBaseItem();
+            span setNumber();
+            span setBaseItemDetails();
             br
-            span function linkBaseItem() {
-            span.indent if(item.BASE_ITEM !== null) return;
-            span.indent if(item.DMS_ID_BASE_ITEM === null) return;
-            span.indent var elemBase = loadItem(item.DMS_ID_BASE_ITEM);
-            span.indent var listVariants = elemBase.VARIANTS;
-            span.indent if(listVariants === null) {
-            span.indent-2 listVariants = []; 
-            span.indent-2 elemBase.VARIANTS = item; 
-            span.indent } else  elemBase.VARIANTS.add(item);
-            span.indent item.NUMBER         = elemBase.NUMBER;
-            span.indent item.VARIANT_INDEX  = ('00' + listVariants.length).toString().slice(-2);
-            span.indent item.BASE_ITEM = elemBase;
+            span function setNumber() {
+            span.indent var seq     = new Sequencer("Item Variants");
+            span.indent item.NUMBER = "VAR-" + ('000000' + seq.nextValue().toString()).slice(-6);
             span }
-        img.border(src='images/apps/variant-manager-7.png' style='max-width:1082px;')
+            br
+            span function setBaseItemDetails() {
+            span.indent var elemBase = item.BASE_ITEM;
+            span.indent if(elemBase === null) return;
+            span.indent item.BASE_ITEM_NUMBER = elemBase.NUMBER;
+            span.indent if(item.TITLE === null) item.TITLE = elemBase.TITLE;
+            span }
+        img.border(src='images/apps/variant-manager-7.png' style='max-width:1073px;')
         h2 Server Settings File 
         p The Workspace ID of this new workspace 
             strong Item Variants 
             |must be provided in the server settings file. Locate the property 
             span.code config.variants.wsIdItemVariants 
             |and update the given value. Default value is 274.
-        img.border(src='images/apps/variant-manager-9.png' style='max-width:511px;')
+        img.border(src='images/apps/variant-manager-9.png' style='max-width:523px;')
         h1 Adjust Items Workspace
-        h2 Add field Variants
-        p In the 
-            strong Item Details 
-            | tab of workspace Items, add a linking picklist field 
-            strong Variants 
-            | allowing multiple selection. This field should link to the new 
-            strong Item Variants 
-            | workspace created before. Set this field visible and editable.
-        img.border(src='images/apps/variant-manager-6.png' style='max-width:851px;')
         h2 Add field to store dmsID
-        p The items workspace (from where the app will be launched) also must have a field containing the item's dmsID. If not present yet, add a new single line text field with id 
+        p The items workspace (from where the app will be launched) must have a field containing the item's dmsID. If not present yet, add a new single line text field with id 
             strong DMS_ID 
             | in the items workspace (hidden). Let this field be set automatically at item creation by script as shown below. 
             br
@@ -224,12 +215,12 @@
                     td Number
                     td Item Details Fields
         p You may add a new view 
-            strong Variant Management 
+            strong Variant Manager 
             | with these columns or reuse an existing BOM view containing these columns (the view may also contain further columns of course). If you prefer to use a BOM view that is not named 
-            strong Variant Management
+            strong Variant Manager
             | , you have to speficfy this view's name in the server's settings file in parameter.
         p.code 
-            span config.variants.bomViewNameVariants : 'Variant Management'
+            span config.variants.bomViewNameItems : 'Variant Manager'
         p See next chapter 
             strong Server Settings File 
             |for details.
@@ -243,12 +234,14 @@
         p.code  
             span export.config = {
             span.indent variants : {
-            span.indent-2 wsIdItemVariants : 208
-            span.indent-2 variantsSectionLabel : 'Variant Definition',
-            span.indent-2 fieldIdVariantBaseItem : 'DMS_ID_BASE_ITEM',
-            span.indent-2 fieldIdItemVariants : 'VARIANTS',
-            span.indent-2 bomViewNameItems : 'Variant Management',
-            span.indent-2 bomViewNameVariants : 'Default View'
+            span.indent-2 wsIdItemVariants : 274
+            span.indent-2 sectionLabelVariantDefinition : 'Variant Definition',
+            span.indent-2 fieldIdBaseItem : 'BASE_ITEM',
+            span.indent-2 fieldIdBaseItemNumber : 'BASE_ITEM_NUMBER',
+            span.indent-2 fieldIdRootItemDmsId : 'ROOT_ITEM_DMS_ID',
+            span.indent-2 bomViewNameItems : 'Variant Manager',
+            span.indent-2 bomViewNameVariants : 'Variant Manager'
+            span.indent-2 maxBOMLevels : 4
             span.indent-2 viewerFeatures : {..}
             span.indent }
             span }
@@ -265,26 +258,44 @@
                         strong Item Variants 
                         |workspace
                 tr  
-                    td variantsSectionLabel
+                    td sectionLabelVariantDefinition
                     td Variant Definition 
-                    td Name of section in the Item Variants workspace which contians all the fields that define a variant. This section will drive the columns of the manager dialog.
+                    td Name of section in the Item Variants workspace which contians all the fields that define a variant. 
+                        br
+                        |This section will drive the columns of the Variant Manager display.
                 tr 
-                    td fieldIdItemVariants
-                    td VARIANTS 
-                    td Field ID of your Items workspaces which contians the linking picklist to item variants, to allow for retrieval of existing variants.
+                    td fieldIdBaseItem
+                    td BASE_ITEM 
+                    td Field ID of the Item Variants workspace that links to the matching base item (single select picklist)
+                tr 
+                    td fieldIdBaseItemNumber
+                    td BASE_ITEM_NUMBER 
+                    td Field ID of the Item Variants workspace that stores the part number of the matching base item
+                tr 
+                    td fieldIdRootItemDmsId
+                    td ROOT_ITEM_DMS_ID 
+                    td Field ID of your Item Variants workspace that stores the dmsId of the matching base item's root item
                 tr 
                     td bomViewNameItems
-                    td Variant Management 
-                    td BOM view of items workspace which contains the required fields
+                    td Variant Manager 
+                    td BOM view of Items workspace which contains the required fields
                 tr 
                     td bomViewNameVariants
-                    td Default View 
-                    td BOM view of item variants workspace which contains the required fields
+                    td Variant Manager 
+                    td BOM view of Item Variants workspace which contains the required fields
+                tr 
+                    td maxBOMLevels
+                    td 4
+                    td This integer defines the maximum levels to be expanded in the BOM
         h2 Configuring Viewer Features
         include ../framework/viewer.pug
     .log 
         h1 Variant Manager Change Log 
         table 
+            tr 
+                td 7. May 2025
+                td Quality
+                td The quality and reliability of this solutions has been enhanced. Please follow the revised setup instructions before using this solution.
             tr 
                 td 28. June 2024
                 td Viewer Features Configuration

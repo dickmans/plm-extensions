@@ -2,8 +2,8 @@
 /* ----------------------------------------------------------------------------- */
 .content-item > td { padding : 3px 3px; }
 th.bom-first-col { z-index : 6 !important; }
-.bom-color { display : none; }
 .bom-first-col { left : 0; }
+.content-item:hover td { background : var(--color-hover-border) !important; border-color : transparent !important; }
 
 
 :root {
@@ -80,7 +80,7 @@ th.bom-first-col { z-index : 6 !important; }
     z-index     : 6 !important;
 }
 .variant-head:hover {
-    background : var(--color-surface-level-3);
+    background : var(--color-hover-border);
 }
 .variant-spacer {
     background  : var(--color-surface-level-1) !important;
@@ -110,11 +110,21 @@ th.variant-head {
 }
 th.variant-item { cursor : pointer; }
 td.variant-item { font-size : 12px; }
-td.variant-item.status-icon { color: white; font-size : 12px; display : table-cell; text-align : center; font-size: 16px !important; }
-td.variant-item.status-identical { color : var(--color-font); }
-td.variant-item.status-match     { background : var(--color-status-green-bright) !important; }
-td.variant-item.status-missing   { background : var(--color-status-red-bright)   !important; }
-td.variant-item.processing-item  { background : var(--color-selected)            !important; }
+td.variant-item.status-icon { 
+    color       : var(--color-font);
+    display     : table-cell; 
+    font-size   : 16px !important;
+    text-align  : center; 
+}
+
+td.variant-item.status-new       { color      : var(--color-status-red);                     }
+td.variant-item.status-match     { background : var(--color-status-green)        !important; }
+td.variant-item.status-missing   { background : var(--color-status-red)          !important; }
+td.variant-item.status-changed   { background : var(--color-status-yellow)       !important; }
+td.variant-item.status-replaced  { background : var(--color-status-yellow)       !important; }
+td.variant-item.status-update    { background : var(--color-status-yellow)       !important; }
+td.variant-item.processing-item  { color      : var(--color-selected-background) !important; }
+
 
 td.variant-item.change-bom,
 td.variant-item.change-properties,
@@ -147,4 +157,11 @@ td.variant-item.change-item {
 /* ----------------------------------------------------------------------------- */
 #selector-table th {
     padding : 6px 3px;
+}
+
+/* CREATE VARIANT DIALOG */
+/* ----------------------------------------------------------------------------- */
+#create {
+    top    : calc(50% - 200px);
+    bottom : calc(50% - 200px);
 }
