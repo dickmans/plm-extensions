@@ -1904,7 +1904,9 @@ function setPanelContentActions(id, settings, responses) {
     });
 
 }
-function finishPanelContentUpdate(id, settings, items, linkNew) {
+function finishPanelContentUpdate(id, settings, items, linkNew, data) {
+
+    if(isBlank(data)) data = {};
 
     // Set dynamic panel header
     if(!isBlank(settings.headerLabel)) {
@@ -1937,7 +1939,7 @@ function finishPanelContentUpdate(id, settings, items, linkNew) {
     highlightNewPanelContent(id, linkNew);
 
     if(settings.counters) updatePanelCalculations(id);
-    if(!isBlank(settings.afterCompletion)) settings.afterCompletion(id);
+    if(!isBlank(settings.afterCompletion)) settings.afterCompletion(id, data);
 
 }
 function highlightNewPanelContent(id, linkNew) {
@@ -3609,7 +3611,7 @@ function replaceBOMItems(link, itemsPrev, itemsNext, callback) {
                 // let indexNew = 0;
 
                 for(let dataReplacement of dataReplacements) {
-                    reqBOMAdditions.push($.get('/plm/bom-add', { 
+                    reqBOMAdditions.push($.post('/plm/bom-add', { 
                         linkParent : link,
                         linkChild  : dataReplacement.linkNext, 
                         quantity   : dataReplacement.quantity, 
@@ -4061,12 +4063,13 @@ function getBOMNodeLink(id, nodes) {
 }
 function getBOMPartsList(settings, data) {
 
-    let parts = [];
+    let parts  = [];
+    let fields = settings.viewFields || settings.columns;
 
     settings.iEdge = 0;
     settings.urns  = [];
 
-    for(let field of settings.viewFields) {
+    for(let field of fields) {
         if(field.fieldId === 'QUANTITY') {
             settings.urns.quantity = field.__self__.urn;
         } else if(field.fieldId === config.items.fieldIdNumber) {
@@ -4077,14 +4080,15 @@ function getBOMPartsList(settings, data) {
         }
     }
 
-    getBOMParts(settings, parts, data.root, data.edges, data.nodes, 1.0, 2, []);
+    getBOMParts(settings, parts, data.root, data.edges, data.nodes, 1.0, 1, '', []);
 
     return parts;
 
 }
-function getBOMParts(settings, parts, parent, edges, nodes, quantity, level, path) {
+function getBOMParts(settings, parts, parent, edges, nodes, quantity, level, numberPath, path) {
 
     let result = { hasChildren : false };
+    let fields = settings.viewFields || settings.columns;
 
     for(let i = settings.iEdge; i < edges.length; i++) {
 
@@ -4095,18 +4099,21 @@ function getBOMParts(settings, parts, parent, edges, nodes, quantity, level, pat
             if(i === settings.iEdge + 1) settings.iEdge = i;
 
             let node = { 
-                quantity    : getBOMEdgeValue(edge, settings.urns.quantity, null, 0) * quantity,
+                quantity    : getBOMEdgeValue(edge, settings.urns.quantity, null, 0),
                 partNumber  : getBOMCellValue(edge.child, settings.urns.partNumber, nodes),
                 linkParent  : edge.edgeLink.split('/bom-items')[0],
                 parent      : path[path.length - 1],
                 level       : level,
                 path        : path.slice(),
                 fields      : [],
-                edgeId      : edge.edgeId
+                edgeId      : edge.edgeId,
+                number      : edge.itemNumber,
+                numberPath  : numberPath + edge.itemNumber,
+                details     : {}
             }
 
             node.path.push(node.partNumber);
-            node.details = {};
+            node.totalQuantity = node.quantity * quantity;
 
             result.hasChildren = true;
 
@@ -4118,7 +4125,7 @@ function getBOMParts(settings, parts, parent, edges, nodes, quantity, level, pat
                     node.title  = bomNode.item.title;
                     node.root   = bomNode.rootItem.link;
 
-                    for(let field of settings.viewFields) {
+                    for(let field of fields) {
 
                         let fieldData = {
                             fieldId     : field.fieldId,
@@ -4147,15 +4154,15 @@ function getBOMParts(settings, parts, parent, edges, nodes, quantity, level, pat
             }
 
             if(!isBlank(settings.selectItems)) {
-                let selectValue = getBOMCellValue(edge.child, settings.urns.selectItems, nodes);
-                if(settings.selectItems.values.includes(selectValue)) parts.push(node);
+                if(settings.selectItems.hasOwnProperty('values')) {
+                    let selectValue = getBOMCellValue(edge.child, settings.urns.selectItems, nodes);
+                    if(settings.selectItems.values.includes(selectValue)) parts.push(node);
+                } else parts.push(node);
             } else {
                 parts.push(node);
             }
 
-
-
-            let nodeBOM = getBOMParts(settings, parts, edge.child, edges, nodes, node.quantity, level + 1, node.path);
+            let nodeBOM = getBOMParts(settings, parts, edge.child, edges, nodes, node.totalQuantity, level + 1, numberPath + edge.itemNumber + '.', node.path);
 
             node.hasChildren = nodeBOM.hasChildren;
 
@@ -4597,7 +4604,7 @@ function updateGridData(link, key, data, deleteEmpty, callback) {
         }
 
         for(let item of data) {
-            if(item.addToGrid) requests.push($.get('/plm/add-grid-row', { link : link, data : item}))
+            if(item.addToGrid) requests.push($.post('/plm/add-grid-row', { link : link, data : item}))
 
         }
 

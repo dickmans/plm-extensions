@@ -233,7 +233,7 @@ function setUIEvents() {
         $('#overlay').show();
 
     
-        submitCreateForm(wsConfig.id, $('#new-sections'), '', function(response ) {
+        submitCreateForm(wsConfig.id, $('#new-sections'), '', {}, function(response ) {
 
             let newLink = response.data.split('.autodeskplm360.net')[1];
 
@@ -477,7 +477,7 @@ function getProcesses() {
         let elemTable = $('#calendar-table-body');
             elemTable.html('');
 
-        for(item of responses[0].data) {
+        for(item of responses[0].data.items) {
 
             let status          = item.fields[3].value;
             let descriptor      = item.fields[0].value;
@@ -615,7 +615,7 @@ function getBrowserData() {
     $.get('/plm/tableau-data', { 'link' : wsConfigBrowser.tableau, 'size' : 500 }, function(response) {
 
 
-        for(item of response.data) {
+        for(let item of response.data.items) {
 
             let title = '';
             let subtitle = '';

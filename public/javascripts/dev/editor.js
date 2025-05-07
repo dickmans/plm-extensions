@@ -180,7 +180,7 @@ function setUIEvents() {
     
             let link = $('#processes').attr('data-link');
     
-            submitCreateForm(wsProblemReports.id, $('#processes-sections'), 'viewer-markup-image', function(response ) {
+            submitCreateForm(wsProblemReports.id, $('#processes-sections'), 'viewer-markup-image', {}, function(response ) {
 
                 let newLink = response.data.split('.autodeskplm360.net')[1];
 
@@ -210,7 +210,7 @@ function setUIEvents() {
 
         $('#create-connect').hide();
 
-        submitCreateForm(wsSupplierPackages.id, $('#create-connect-sections'), null, function(response ) {
+        submitCreateForm(wsSupplierPackages.id, $('#create-connect-sections'), null, {}, function(response ) {
             $('#overlay').hide();
         });
         

@@ -122,7 +122,7 @@ function setUIEvents() {
         $('#overlay').show();
 
     
-        submitCreateForm(wsConfig.id, $('#new-sections'), '', function(response ) {
+        submitCreateForm(wsConfig.id, $('#new-sections'), '', {}, function(response ) {
 
             let newLink = response.data.split('.autodeskplm360.net')[1];
 

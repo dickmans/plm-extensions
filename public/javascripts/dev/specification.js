@@ -176,7 +176,7 @@ function setUIEvents() {
     
             let link = $('#processes-list').attr('data-source');
     
-            submitCreateForm(wsProblemReports.id, $('#processes-sections'), 'viewer-markup-image', function(response ) {
+            submitCreateForm(wsProblemReports.id, $('#processes-sections'), 'viewer-markup-image', {}, function(response ) {
 
                 let newLink = response.data.split('.autodeskplm360.net')[1];
                 $.get('/plm/add-managed-items', { 'link' : newLink, 'items' : [ link ] }, function(response) {

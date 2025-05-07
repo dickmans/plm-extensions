@@ -115,7 +115,7 @@ function setUIEvents() {
         let wsIdNew = $('#new').attr('data-wsid');
         let linkedWorkspaces = [];
 
-        submitCreateForm(wsIdNew, $('#new-sections'), null, function(response) {
+        submitCreateForm(wsIdNew, $('#new-sections'), null, {}, function(response) {
             
             $('#overlay').hide();
 

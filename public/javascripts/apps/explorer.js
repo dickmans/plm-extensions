@@ -303,7 +303,7 @@ function setUIEvents() {
 
         $('#create-connect').hide();
 
-        submitCreateForm(wsSupplierPackages.id, $('#create-connect-sections'), null, function(response ) {
+        submitCreateForm(wsSupplierPackages.id, $('#create-connect-sections'), null, {}, function(response ) {
             $('#overlay').hide();
         });
         

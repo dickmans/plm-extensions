@@ -972,7 +972,7 @@ function insertCreate(workspaceNames, workspaceIds, params) {
         $('#' + id + '-content').hide();
         $('#' + id + '-footer').hide();
 
-        submitCreateForm(settings.create[id].wsId, $('#' + id + '-content'), function(response) {
+        submitCreateForm(settings.create[id].wsId, $('#' + id + '-content'), settings.create[id], function(response) {
 
             $('#' + id + '-processing').hide();
             $('#' + id + '-actions').show();
@@ -1097,6 +1097,8 @@ function insertCreateData(id) {
                 })
             }
 
+            console.log(settings.create[id]);
+
             insertCreateDataSetFieldValues(id, settings.create[id]);
             finishPanelContentUpdate(id, settings.create[id]);
             
@@ -1170,7 +1172,9 @@ function insertCreateAfterCreation(id, link) {
     }
 
 }
-function submitCreateForm(wsIdNew, elemParent, callback) {
+function submitCreateForm(wsIdNew, elemParent, settings, callback) {
+
+    if(isBlank(settings)) settings = {};
 
     let params = { 
         wsId     : wsIdNew,
@@ -1178,23 +1182,20 @@ function submitCreateForm(wsIdNew, elemParent, callback) {
         image    : getImagePayload(elemParent)
     };
 
-    let id = elemParent.attr('id').split('-sections')[0];
     let requestsDerived = [];
 
-    if(!isBlank(settings.create[id])) {
-        if(!isBlank(settings.create[id].derived)) {
+    if(!isBlank(settings)) {
+        if(!isBlank(settings.derived)) {
 
-            for(let derivedField of settings.create[id].derived) {
-
-                let source = derivedField.source;
+            for(let derivedField of settings.derived) {
 
                 for(let section of params.sections) {
                     for(let field of section.fields) {
                         if(field.fieldId === derivedField.source) {
                    
                             requestsDerived.push($.get('/plm/derived', {
-                                wsId        : wsIdNew,                 //'craete item wsid
-                                fieldId     : derivedField.source,   //'BASE_ITEM'
+                                wsId        : wsIdNew,                         //'create item wsid
+                                fieldId     : derivedField.source,             //'BASE_ITEM'
                                 pivotItemId : field.value.link.split('/')[6]   //'dmsid of selected picklist ittem;
                             }));
 
@@ -1639,24 +1640,28 @@ function insertDetailsFields(id, sections, fields, data, settings, callback) {
     for(let field of fields) {
         if(!isBlank(field.derived)) {
             if(field.derived) {
+
                 let source = field.derivedFieldSource.__self__.split('/')[8];
-                let isNew = true;
+                let isNew  = true;
+
                 for(let derived of settings.derived) {
                     if(derived.source === source) {
                         isNew = false;
                         break;
                     }
                 }
+
                 if(isNew) {
                     settings.derived.push({
-                        fieldId : field.__self__.split('/')[6],
-                        source : source
+                        fieldId : field.__self__.split('/').pop(),
+                        source  : source
                     });
                 }
+                
             }
         }
     }
-    
+
     if(!isBlank(settings.sectionsOrder)) {
 
         let sort = 1;
@@ -1798,6 +1803,10 @@ function insertDetailsFields(id, sections, fields, data, settings, callback) {
                             }
                         }
                     }
+
+                    // console.log(sectionField);
+
+                    // if(sectionField.derived) included = false;
 
                     if(!included) {
                         for(let fieldValue of fieldValues) {
@@ -3632,7 +3641,6 @@ function insertBOM(link , params) {
     if(!isBlank(params.columnsIn)) hideDetails = false;
     if(!isBlank(params.columnsEx)) hideDetails = false;
 
-
     settings.bom[id] = getPanelSettings(link, params, {
         headerLabel : 'BOM'
     }, [
@@ -3644,6 +3652,7 @@ function insertBOM(link , params) {
         [ 'getFlatBOM'          , false ],
         [ 'goThere'             , false ],
         [ 'hideDetails'         , hideDetails  ],
+        [ 'includeOMPartList'   , false ],
         [ 'path'                , false ],
         [ 'position'            , true  ],
         [ 'reset'               , false ],
@@ -3716,11 +3725,7 @@ function insertBOM(link , params) {
     //  Set defaults for optional parameters
     // --------------------------------------
     // let additionalRequests  = [];        // Array of additional requests which will be submitted in parallel to the BOM request
-    // let bomViewName         = '';        // Name of the BOM view in PLM to use (if no value is provided, the first view will be used)
     // let compactDisplay      = false;     // Optimizes CSS settings for a compact display
-    // let collapsed           = false;     // When enabled, the BOM will be collapsed at startup
-    // let counters            = true;      // When set to true, a footer will inidicate total items, selected items and filtered items
-    // let depth               = 10;        // BOM Levels to expand
     // let deselect            = true;      // Adds button to deselect selected element (not available if multiSelect is enabled)
     // let getFlatBOM          = false;     // Retrieve Flat BOM at the same time (i.e. to get total quantities)
     // let hideDetails         = true;      // When set to true, detail columns will be skipped, only the descriptor will be shown
@@ -3735,8 +3740,6 @@ function insertBOM(link , params) {
     // let openInPLM           = true;      // Adds button to open selected element in PLM
     // let views               = false;     // Adds drop down menu to select from the available PLM BOM views
 
-
-
     // settings.bom[id].position           = position;
     // settings.bom[id].quantity           = quantity;
     // settings.bom[id].hideDetails        = hideDetails;
@@ -3747,12 +3750,8 @@ function insertBOM(link , params) {
     // settings.bom[id].endItemValue       = null;
     // settings.bom[id].getFlatBOM         = getFlatBOM;
     // settings.bom[id].additionalRequests = additionalRequests;
-    // settings.bom[id].fieldURNPartNumber = '';
-    // settings.bom[id].fieldURNQuantity   = '';
-    // settings.bom[id].fieldURNEndItem    = '';
 
 
-    // }
     genPanelSearchInput(id, settings.bom[id]);
     genPanelResizeButton(id, settings.bom[id]);
     genPanelReloadButton(id, settings.bom[id]);
@@ -3908,7 +3907,7 @@ function changeBOMView(id) {
         }
 
         setBOMHeaders(id, elemTHead);
-        insertNextBOMLevel(id, elemTBody, responses[0].data, responses[0].data.root, 1, selectedItems, responses[1].data.items);
+        insertNextBOMLevel(id, elemTBody, responses[0].data, responses[0].data.root, 1, '', selectedItems, responses[1].data.items);
         enableBOMToggles(id);
 
         if(settings.bom[id].collapseContents) collapseAllNodes(id);
@@ -3925,8 +3924,12 @@ function changeBOMView(id) {
             dataAdditional.push(responses[indexAdditional++]);
         } 
 
+        let responseData = {};
+
+        if(settings.bom[id].includeOMPartList) responseData.bomPartsList = getBOMPartsList(settings.bom[id], responses[0].data)
+
         changeBOMViewDone(id, settings.bom[id], responses[0].data, selectedItems, dataFlatBOM, dataAdditional);
-        finishPanelContentUpdate(id, settings.bom[id]);
+        finishPanelContentUpdate(id, settings.bom[id], null, null, responseData);
 
     });
 
@@ -3950,7 +3953,7 @@ function setBOMHeaders(id, elemTHead) {
     }
 
 }
-function insertNextBOMLevel(id, elemTable, bom, parent, parentQuantity, selectedItems, workspaces) {
+function insertNextBOMLevel(id, elemTable, bom, parent, parentQuantity, numberPath, selectedItems, workspaces) {
 
     let result    = { hasChildren : false, hasRestricted : false};
     let firstLeaf = true;
@@ -4036,6 +4039,7 @@ function insertNextBOMLevel(id, elemTable, bom, parent, parentQuantity, selected
 
                         let elemRow = $('<tr></tr>').appendTo(elemTable)
                             .attr('data-number',         edge.itemNumber)
+                            .attr('data-number-path',    numberPath + edge.itemNumber)
                             .attr('data-part-number',    node.partNumber)
                             .attr('data-quantity',       node.quantity)
                             .attr('data-total-quantity', node.totalQuantity)
@@ -4148,7 +4152,7 @@ function insertNextBOMLevel(id, elemTable, bom, parent, parentQuantity, selected
                             isEndItem = (settings.bom[id].endItemValue.toString().toLowerCase() === node.endItem.toString().toLowerCase());
                         }
 
-                        let itemBOM = (isEndItem) ? { hasChildren : false, hasRestricted : false } : insertNextBOMLevel(id, elemTable, bom, urnEdgeChild, node.quantity * parentQuantity, selectedItems, workspaces);
+                        let itemBOM = (isEndItem) ? { hasChildren : false, hasRestricted : false } : insertNextBOMLevel(id, elemTable, bom, urnEdgeChild, node.quantity * parentQuantity, numberPath + edge.itemNumber + '.', selectedItems, workspaces);
 
                         if(!itemBOM.hasChildren) {
 
@@ -4461,8 +4465,9 @@ function selectInViewer(id) {
 
 }
 function clickBOMItem(elemClicked, e) {}
-function getBOMItemChhildren(elemClicked) {
+function getBOMItemChildren(elemClicked, firstLevelOnly) {
 
+    if(isBlank(firstLevelOnly)) firstLevelOnly = false;
 
     let level     = Number(elemClicked.attr('data-level'));
     let levelNext = level - 1;
@@ -4475,7 +4480,11 @@ function getBOMItemChhildren(elemClicked) {
         levelNext = Number(elemNext.attr('data-level'));
 
         if(levelNext > level) {
-            children.push(elemNext);
+            if(firstLevelOnly) {
+                if((levelNext - level) === 1 ) {
+                    children.push(elemNext); 
+                }
+            } else children.push(elemNext);
         }
 
     } while(levelNext > level);

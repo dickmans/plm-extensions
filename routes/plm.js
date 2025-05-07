@@ -3031,53 +3031,53 @@ router.get('/bom-edge', function(req, res, next) {
 
 
 /* ----- ADD BOM ITEM ----- */
-router.get('/bom-add', function(req, res, next) {
+router.post('/bom-add', function(req, res, next) {
     
     console.log(' ');
     console.log('  /bom-add');
     console.log(' --------------------------------------------');  
-    console.log('  req.query.wsIdParent  = ' + req.query.wsIdParent);
-    console.log('  req.query.wsIdChild   = ' + req.query.wsIdChild);
-    console.log('  req.query.dmsIdParent = ' + req.query.dmsIdParent);
-    console.log('  req.query.dmsIdChild  = ' + req.query.dmsIdChild);
-    console.log('  req.query.linkParent  = ' + req.query.linkParent);
-    console.log('  req.query.linkChild   = ' + req.query.linkChild);
-    console.log('  req.query.quantity    = ' + req.query.quantity);
-    console.log('  req.query.pinned      = ' + req.query.pinned);
-    console.log('  req.query.number      = ' + req.query.number);
-    console.log('  req.query.fields      = ' + req.query.fields);
+    console.log('  req.body.wsIdParent  = ' + req.body.wsIdParent);
+    console.log('  req.body.wsIdChild   = ' + req.body.wsIdChild);
+    console.log('  req.body.dmsIdParent = ' + req.body.dmsIdParent);
+    console.log('  req.body.dmsIdChild  = ' + req.body.dmsIdChild);
+    console.log('  req.body.linkParent  = ' + req.body.linkParent);
+    console.log('  req.body.linkChild   = ' + req.body.linkChild);
+    console.log('  req.body.quantity    = ' + req.body.quantity);
+    console.log('  req.body.pinned      = ' + req.body.pinned);
+    console.log('  req.body.number      = ' + req.body.number);
+    console.log('  req.body.fields      = ' + req.body.fields);
     console.log();
     
-    let linkParent = (typeof req.query.linkParent !== 'undefined') ? req.query.linkParent : '/api/v3/workspaces/' + req.query.wsIdParent + '/items/' + req.query.dmsIdParent;
-    let linkChild  = (typeof  req.query.linkChild !== 'undefined') ? req.query.linkChild  : '/api/v3/workspaces/' + req.query.wsIdChild  + '/items/' + req.query.dmsIdChild;
-    let quantity   = (typeof   req.query.quantity === 'undefined') ? 1 : req.query.quantity;
-    let isPinned   = (typeof     req.query.pinned === 'undefined') ? false : req.query.pinned;
+    let linkParent = (typeof req.body.linkParent !== 'undefined') ? req.body.linkParent : '/api/v3/workspaces/' + req.body.wsIdParent + '/items/' + req.body.dmsIdParent;
+    let linkChild  = (typeof req.body.linkChild  !== 'undefined') ? req.body.linkChild  : '/api/v3/workspaces/' + req.body.wsIdChild  + '/items/' + req.body.dmsIdChild;
+    let isPinned   = (typeof req.body.pinned     === 'undefined') ? false : (req.body.pinned.toLowerCase() == 'true');
+    let quantity   = (typeof req.body.quantity   === 'undefined') ? 1 : req.body.quantity;
     
     let url = req.app.locals.tenantLink + linkParent + '/bom-items';
     
     let params = {
-        'quantity'  : quantity,
-        'isPinned'  : isPinned,
-        'item'      : { 
-            'link'  : linkChild
+        quantity  : parseFloat(quantity),
+        isPinned  : isPinned,
+        item      : { 
+            link  : linkChild
         }
     };
 
-    if(typeof req.query.number !== 'undefined') params.itemNumber = req.query.number;
+    if(typeof req.body.number !== 'undefined') params.itemNumber = Number(req.body.number);
 
-    if(typeof req.query.fields !== 'undefined') {
+    if(typeof req.body.fields !== 'undefined') {
 
-        if(req.query.fields.length > 0) {
+        if(req.body.fields.length > 0) {
 
             params.fields = [];
 
-            for(field of req.query.fields) {
+            for(field of req.body.fields) {
 
                 params.fields.push({
-                    'metaData' : {
-                        'link' : field.link
+                    metaData : {
+                        link : field.link
                     },
-                    'value' : field.value
+                    value : field.value
                 });
 
             }
@@ -3085,10 +3085,12 @@ router.get('/bom-add', function(req, res, next) {
 
     }
 
+    console.log(params);
+
     axios.post(url, params, {
         headers : req.session.headers
     }).then(function(response) {
-        sendResponse(req, res, { 'data' : response.headers.location, 'status' : response.status }, false);
+        sendResponse(req, res, { data : response.headers.location, status : response.status }, false);
     }).catch(function(error) {
         sendResponse(req, res, error.response, true);
     });
@@ -3097,50 +3099,54 @@ router.get('/bom-add', function(req, res, next) {
 
 
 /* ----- UPDATE BOM ITEM ----- */
-router.get('/bom-update', function(req, res, next) {
+router.post('/bom-update', function(req, res, next) {
     
     console.log(' ');
     console.log('  /bom-update');
     console.log(' --------------------------------------------');  
-    console.log('  req.query.wsIdParent  = ' + req.query.wsIdParent);
-    console.log('  req.query.wsIdChild   = ' + req.query.wsIdChild);
-    console.log('  req.query.dmsIdParent = ' + req.query.dmsIdParent);
-    console.log('  req.query.dmsIdChild  = ' + req.query.dmsIdChild);
-    console.log('  req.query.edgeId      = ' + req.query.edgeId);
-    console.log('  req.query.qty         = ' + req.query.qty);
-    console.log('  req.query.pinned      = ' + req.query.pinned);
-    console.log('  req.query.number      = ' + req.query.number);
-    console.log('  req.query.fields      = ' + req.query.fields);
+    console.log('  req.body.wsIdParent  = ' + req.body.wsIdParent);
+    console.log('  req.body.wsIdChild   = ' + req.body.wsIdChild);
+    console.log('  req.body.dmsIdParent = ' + req.body.dmsIdParent);
+    console.log('  req.body.dmsIdChild  = ' + req.body.dmsIdChild);
+    console.log('  req.body.linkParent  = ' + req.body.linkParent);
+    console.log('  req.body.linkChild   = ' + req.body.linkChild);
+    console.log('  req.body.edgeId      = ' + req.body.edgeId);
+    console.log('  req.body.quantity    = ' + req.body.quantity);
+    console.log('  req.body.pinned      = ' + req.body.pinned);
+    console.log('  req.body.number      = ' + req.body.number);
+    console.log('  req.body.fields      = ' + req.body.fields);
     console.log();
 
-    let url = req.app.locals.tenantLink + '/api/v3/workspaces/' + req.query.wsIdParent + '/items/' + req.query.dmsIdParent + '/bom-items/' + req.query.edgeId;
-
-    let isPinned = (typeof req.query.pinned === 'undefined') ? false : req.query.pinned;
-
+    let linkParent = (typeof req.body.linkParent !== 'undefined') ? req.body.linkParent : '/api/v3/workspaces/' + req.body.wsIdParent + '/items/' + req.body.dmsIdParent;
+    let linkChild  = (typeof req.body.linkChild  !== 'undefined') ? req.body.linkChild  : '/api/v3/workspaces/' + req.body.wsIdChild  + '/items/' + req.body.dmsIdChild;
+    let isPinned   = (typeof req.body.pinned     === 'undefined') ? false : (req.body.pinned.toLowerCase() == 'true');
+    let quantity   = (typeof req.body.quantity   === 'undefined') ? 1 : req.body.quantity;
+    
+    let url = req.app.locals.tenantLink + linkParent + '/bom-items/' + req.body.edgeId;
+    
     let params = {
-        'quantity'  : req.query.qty,
-        'isPinned'  : isPinned,
-        'item'      : { 
-            'link'  : '/api/v3/workspaces/' + req.query.wsIdChild + '/items/' + req.query.dmsIdChild
+        quantity  : parseFloat(quantity),
+        isPinned  : isPinned,
+        item      : { 
+            link  : linkChild
         }
     };
 
-    if(typeof req.query.number !== 'undefined') params.itemNumber = req.query.number;
+    if(typeof req.body.number !== 'undefined') params.itemNumber = Number(req.body.number);
     
-    if(typeof req.query.fields !== 'undefined') {
+    if(typeof req.body.fields !== 'undefined') {
 
-        if(req.query.fields.length > 0) {
+        if(req.body.fields.length > 0) {
 
             params.fields = [];
 
-
-            for(field of req.query.fields) {
+            for(field of req.body.fields) {
 
                 params.fields.push({
-                    'metaData' : {
-                        'link' : field.link
+                    metaData : {
+                        link : field.link
                     },
-                    'value' : field.value
+                    value : field.value
                 });
 
             }
@@ -3151,7 +3157,7 @@ router.get('/bom-update', function(req, res, next) {
     axios.patch(url, params, {
         headers : req.session.headers
     }).then(function(response) {
-        sendResponse(req, res, { 'data' : true, 'status' : response.status }, false);
+        sendResponse(req, res, { data : true, status : response.status }, false);
     }).catch(function(error) {
         sendResponse(req, res, error.response, true);
     });
