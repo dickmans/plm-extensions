@@ -2053,39 +2053,37 @@ function insertDetailsField(field, data, elemFields, sectionLock, settings) {
         case 'Filtered':
             if(editable) {
                 
-                elemValue.addClass('filtered-picklist');
-                elemValue.append(elemInput);
-                elemInput.attr('data-filter-list', field.picklist);
-                elemInput.attr('data-filter-field', field.picklistFieldDefinition.split('/')[8]);
-                elemInput.addClass('filtered-picklist-input');
-                elemInput.click(function() {
-                    getFilteredPicklistOptions($(this));
-                });
+                elemValue.addClass('filtered-picklist').append(elemInput);
+                elemInput.attr('data-filter-list', field.picklist)
+                    .attr('data-filter-field', field.picklistFieldDefinition.split('/')[8])
+                    .addClass('filtered-picklist-input')
+                    .click(function() {
+                        getFilteredPicklistOptions($(this));
+                    });
                 
                 if(value !== null) elemInput.val(value);
                 
-                let elemList = $('<div></div>');
-                    elemList.addClass('filtered-picklist-options');
-                    elemList.appendTo(elemValue);
+                $('<div></div>').appendTo(elemValue)
+                    .addClass('filtered-picklist-options');
                 
-                let elemIcon = $('<div></div>');
-                    elemIcon.addClass('icon');
-                    elemIcon.addClass('icon-close');
-                    elemIcon.addClass('xxs');
-                    elemIcon.appendTo(elemValue);
-                    elemIcon.click(function() {
+                $('<div></div>').appendTo(elemValue)
+                    .addClass('icon')
+                    .addClass('icon-close')
+                    .addClass('xxs')
+                    .click(function() {
                         clearFilteredPicklist($(this));
                     });
 
             } else {
                 elemValue = $('<div></div>');
-                elemValue.addClass('string');
-                elemValue.addClass('link');
+                elemValue.addClass('string')
                 if(value !== null) {
-                    elemValue.html(value.title);
+                    if(typeof value === 'string') elemValue.html(value);
+                    else elemValue.html(value.title);
                     if(field.type.link === '/api/v3/field-types/23') {
-                        elemValue.attr('onclick', 'openItemByURN("' + value.urn + '")');
-                        elemValue.attr('data-item-link', value.link);
+                        elemValue.attr('onclick', 'openItemByURN("' + value.urn + '")')
+                            .attr('data-item-link', value.link)
+                            .addClass('link');
                     }
                 }
                 if(field.type.link === '/api/v3/field-types/23') elemValue.addClass('linking');
