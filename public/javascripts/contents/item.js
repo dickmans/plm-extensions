@@ -979,10 +979,17 @@ function insertCreate(workspaceNames, workspaceIds, params) {
             $('#' + id + '-content').show();
             $('#' + id + '-footer').show();
 
-            let link = response.data.split('.autodeskplm360.net')[1];
+            if(response.error) {
 
-            insertCreateAfterCreation(id, link);
-            settings.create[id].afterCreation(id, link, settings.create[id].contextId);
+                showErrorMessage('Error creating item', response.data.errorMessage);
+
+            } else {
+
+                let link = response.data.split('.autodeskplm360.net')[1];
+                insertCreateAfterCreation(id, link);
+                settings.create[id].afterCreation(id, link, settings.create[id].contextId);
+
+            }
 
         });
 
@@ -3640,7 +3647,8 @@ function insertBOM(link , params) {
     if(!isBlank(params.columnsEx)) hideDetails = false;
 
     settings.bom[id] = getPanelSettings(link, params, {
-        headerLabel : 'BOM'
+        headerLabel : 'BOM',
+        contentSize : 'l',
     }, [
         [ 'additionalRequests'  , []    ],
         [ 'bomViewName'         , ''    ],
@@ -4538,6 +4546,21 @@ function bomDisplayItem(elemItem) {
     let top     = elemItem.position().top - (elemBOM.innerHeight() / 2);
     
     elemBOM.animate({ scrollTop: top }, 500);
+
+}
+function bomDisplayItemByPartNumber(number, select, deselect) {
+
+    if(isBlank(select  )) select   = true;
+    if(isBlank(deselect)) deselect = true;
+
+    $('.bom-item').each(function() {
+        if(number === $(this).attr('data-part-number')) {
+            bomDisplayItem($(this));
+            if(select) $(this).addClass('selected');
+        } else {
+            if(deselect) $(this).removeClass('selected');
+        }
+    });
 
 }
 function expandBOMParents(level, elem) {
