@@ -2,8 +2,7 @@
 /node_modules
 /uploads/*
 /settings/*
-/storage/cache/*
-/storage/exports/*
+/storage
 /views/custom/*
 /views/.DS_Store
 package-lock.json

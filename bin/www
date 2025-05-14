@@ -52,6 +52,9 @@ if ((process.argv.length < 2) || (fs.existsSync('.' + fileSettings))) {
 
 }
 
+if(!fs.existsSync('storage'      )) fs.mkdirSync('storage'      );
+if(!fs.existsSync('storage/cache')) fs.mkdirSync('storage/cache');
+
 
 /**
  * Event listener for HTTP server "error" event.
