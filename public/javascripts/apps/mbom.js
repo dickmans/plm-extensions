@@ -1569,7 +1569,7 @@ function copyBOM(wsIdParent, dmsIdParent, linkEBOMRoot, bom) {
                     params.dmsIdChild = childMBOMLink.split('/')[6];
                 }
 
-                requests.push($.get('/plm/bom-add', params));
+                requests.push($.post('/plm/bom-add', params));
 
             }
 
@@ -3356,7 +3356,7 @@ function addBOMItems() {
                 if(isEBOMItem) params.fields.push({ 'link' : linkFieldEBOMItem, 'value' : true });
                 if(!isBlank(linkEBOMRoot)) params.fields.push({ 'link' : linkFieldEBOMRootItem, 'value' : linkEBOMRoot });
 
-                requests.push($.get('/plm/bom-add', params));
+                requests.push($.post('/plm/bom-add', params));
                 elements.push(elemItem);
 
             }
@@ -3460,7 +3460,7 @@ function updateBOMItems() {
                     'dmsIdChild'  : paramsChild[6],
                     'edgeId'      : elemItem.attr('data-edge'),
                     'number'      : edNumber,
-                    'qty'         : edQty,
+                    'quantity'    : edQty,
                     'pinned'      : config.mbom.pinMBOMItems
                 };
 
@@ -3486,7 +3486,7 @@ function updateBOMItems() {
                     }
                 }
 
-                requests.push($.get('/plm/bom-update', params));
+                requests.push($.post('/plm/bom-update', params));
                 elements.push(elemItem);
 
             }
