@@ -624,6 +624,35 @@ function onViewerSelectionChangedDone(partNumbers, event) {}
 
 
 
+// Get part number of selected component
+function viewerGetSelectedPartNumber(event, callback) {
+
+    if(event.dbIdArray.length === 1) {
+
+        viewer.getProperties(event.dbIdArray[0], function(data) {
+
+            let partNumber = data.name.split(':')[0];
+
+            for(let partNumberProperty of config.viewer.numberProperties) {
+                for(let property of data.properties) {
+                    if(property.displayName === partNumberProperty) {
+                        partNumber = property.displayValue;
+                        if(partNumber.indexOf(':') > -1) { partNumber = partNumber.split(':')[0]; }
+                        
+                    }
+                }
+            }
+
+            callback(partNumber);
+
+        });
+
+    } else return '';
+
+}
+
+
+
 // Select / deselect items in the viewer
 function viewerSelectModel(partNumber, params) {
 
