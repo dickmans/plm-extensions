@@ -248,8 +248,10 @@ body.details-on.no-viewer #mbom         { width : calc(50% - (3 * var(--padding-
 .item.settings > .item-head > .item-icon > span::before,
 .additional-item.settings::before { content: '\e8b8'; }
 #search-input {
-    max-width : 300px;
-    width : calc(100% - 152px);
+    background   : var(--color-surface-level-2);
+    border-color : var(--color-surface-level-4);
+    max-width    : 300px;
+    width        : calc(100% - 152px);
 }
 select.view-selector {
     margin-right : 20px;
@@ -313,7 +315,10 @@ select.view-selector {
 #recent-items-list > div {
     width : calc(100% - 32px);
 }
-.list-filter { border-color : var(--color-gray-400); }
+.list-filter { 
+    background   : var(--color-surface-level-2);
+    border-color : var(--color-surface-level-4);
+}
 #workspace-view-list-mbom > div,
 #workspace-view-list-ebom > div {
     max-width : calc(50% - 50px);
@@ -437,7 +442,7 @@ select.view-selector {
 }
 .item-action.icon {
     font-weight : 200;
-    font-size   : 22px;
+    font-size   : 20px;
     padding     : 0px 0px;
 }
 
@@ -586,8 +591,9 @@ body.bom-panel-on .bom-panel {
     left : 5px;
 }
 #ebom .item-action {
-    display : none;
-    width : 100%;
+    display   : none;
+    min-width : unset;
+    width     : 100%;
 }
 #ebom .additional > div > .item-actions > .item-action-add { display : block; }
 #ebom .item.different.enable-update > div > .item-actions > .item-action-update { display : block; }
@@ -689,7 +695,9 @@ body.bom-panel-on #ebom-tree { bottom : 106px; }
 .item.operation > .item-head > .item-qty > input { display : none; }
 .item.operation > .item-head > .item-actions > .button-copy { display : none; }
 #mbom .item-action {
-    width : 28px;
+    max-width : 28px;
+    min-width : 28px;
+    width     : 28px;
 }
 body.bom-panel-on #mbom-tree { bottom : 106px; }
 .drop-hover,
@@ -726,33 +734,38 @@ body.bom-panel-on #mbom-tree { bottom : 106px; }
 /* MBOM ADD OPERATION CONTROLS */
 /* ----------------------------------------------------------------------------- */
 #mbom-add-operation {
-    padding     : 15px;
+    display     : flex;
+    gap         : 12px;
+    padding     : 15px 30px;
     position    : absolute;
     right       : 0px;
     bottom      : 0px;
     left        : 0px;
 }
+#mbom-add-operation > * {
+    line-height    : 30px;
+    padding-top    : 0px;
+    padding-bottom : 0px;
+}
 #mbom-add-text {
     font-weight     : 800;
-    padding         : 6px 20px 6px 20px;
-    height          : 30px;
-    line-height     : 30px;
-    text-align      : center;
+    padding-right   : 20px;
 }
 #mbom-add-name {
+    flex-grow    : 1;
     margin-right : 10px;
-    width        : calc(100% - 270px);
 }
 #mbom-add-code {
     text-align  : center;
+    max-width   : 50px;
+    min-width   : 50px;
     width       : 50px;
 }
 #mbom-add-name,
 #mbom-add-code {
     border-color : var(--color-surface-level-5);
     height       : 30px;
-    line-height  : 30px;
-    padding      : 1px 15px;
+    padding      : 0px 15px;
 }
 select.button.view-selector { height : 36px; }
 
