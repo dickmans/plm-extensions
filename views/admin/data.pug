@@ -164,98 +164,106 @@ block body
                 .header Choose Action
                 .content.no-scrollbar
                     .text Select the action to be performed on the selected data
-                    #actions-list.tiles.list.xl.no-scrollbar.surface-level-2
+                    #actions-list.no-scrollbar.surface-level-2
 
-                        .tile.action.permission-edit#store-dmsid
-                            .title.tile-image Store DMSID
-                            .details   
+                        .action.permission-edit#store-dmsid
+                            .action-title Store DMSID
+                            .action-details   
                                 .description Stores the given record's DMSID in the selected property
                                 select.select-field.field-editable.button.options-list#select-store-dmsid(data-empty-label='Select Editable Field')
 
-                        .tile.action.permission-edit#set-value  
-                            .title.tile-image Set Field Value
-                            .details   
+                        .action.permission-edit#set-value  
+                            .action-title Set Field Value
+                            .action-details
                                 .description Update the selected field for all records (only fields of supported types are listed)
                                 .definition
                                     select.select-field.field-editable.button.options-list#select-set-value(data-empty-label='Select Editable Field')
                                     input#input-set-value(placeholder="Enter value to be set")
                                     select.button.options-list#plist-set-value.hidden
 
-                        .tile.action.permission-edit#copy-value  
-                            .title.tile-image Copy Field Value
-                            .details   
+                        .action.permission-edit#copy-value  
+                            .action-title Copy Field Value
+                            .action-details   
                                 .description Copy the value of one field to another (only fields of supported types are listed)
                                 .definition
                                     select.select-field.button.options-list#select-copy-from(data-empty-label='Select Field To Copy')
                                     select.select-field.field-editable.button.options-list#select-copy-to(data-empty-label='Select Target Field')
 
-                        .tile.action.permission-edit#clear-field  
-                            .title.tile-image Clear Field
-                            .details   
+                        .action.permission-edit#clear-field  
+                            .action-title Clear Field
+                            .action-details   
                                 .description Select the field to be cleared for each record
                                 select.select-field.field-editable.button.options-list#select-clear-field(data-empty-label='Select Editable Field')
 
-                        .tile.action.permission-edit#set-owner  
-                            .title.tile-image Set Owner
-                            .details   
+                        .action.permission-edit#set-owner  
+                            .action-title Set Owner
+                            .action-details   
                                 .description Assign ownership to the selected user
                                 select.select-user.button.options-list#select-set-owner
 
-                        .tile.action.permission-edit#add-owner  
-                            .title.tile-image Add Additional Owner
-                            .details   
+                        .action.permission-edit#add-owner  
+                            .action-title Add Additional Owner
+                            .action-details   
                                 .description Adds selected user and/or group to list of additional owners
                                 .definition
                                     select.select-user.button.options-list#select-add-owner-user
                                     select.select-group.button.options-list#select-add-owner-group
                        
-                        .tile.action.permission-edit#remove-owner  
-                            .title.tile-image Remove Additional Owner
-                            .details   
+                        .action.permission-edit#remove-owner  
+                            .action-title Remove Additional Owner
+                            .action-details   
                                 .description Removes selected user and/or group from list of additional owners
                                 .definition
                                     select.select-user.button.options-list#select-remove-owner-user
                                     select.select-group.button.options-list#select-remove-owner-group
                         
-                        .tile.action.permission-edit#clear-owners
-                            .title.tile-image Clear Additional Owners
-                            .details   
+                        .action.permission-edit#clear-owners
+                            .action-title Clear Additional Owners
+                            .action-details   
                                 .description Removes all additional owners (users and groups)
 
-                        .tile.action.ws-type-2#perform-transition  
-                            .title.tile-image Transition
-                            .details   
+                        .action.ws-type-2#perform-transition  
+                            .action-title Transition
+                            .action-details   
                                 .description Change the status by performing the selected workflow action
                                 .definition
                                     select.select-transition.button.options-list#select-perform-transition(data-empty-label='Select Editable Field')
                                     input#input-perform-transition(placeholder="Enter comment")
 
-                        .tile.action.permission-attachments#export-attachments  
-                            .title.tile-image Export Files
-                            .details   
+                        .action.permission-attachments#export-attachments  
+                            .action-title Export Files
+                            .action-details   
                                 .description Downloads all attachments to defined folder
-                                .definition
-                                    input#input-export-attachments-in(placeholder="Filename pattern to include")
-                                    input#input-export-attachments-ex(placeholder="Filename pattern to exclude")
+                                .definition.grid
+                                    //- .action-option
+                                    .label Folder Name
+                                    select#select-export-attachments-dmsid.button
+                                        option(value='no') Do not include dmsId in folder name
+                                        option(value='prefix') Prefix folder name with dmsId ([1234] Descriptor)
+                                        option(value='suffix') Append dmsId to folder name (Descriptor [1234])
+                                    .label Files Included
+                                    input#input-export-attachments-in(placeholder="Enter filename pattern")
+                                    .label Files Excluded
+                                    input#input-export-attachments-ex(placeholder="Enter filename pattern")
                                 .reference#export-attachments-link
 
-                        .tile.action.permission-attachments#delete-attachments  
-                            .title.tile-image Delete Files
-                            .details   
+                        .action.permission-attachments#delete-attachments  
+                            .action-title Delete Files
+                            .action-details   
                                 .description Deletes files in attachments tab (all or the ones matching / not matching the filters below)
                                 .definition
                                     input#input-delete-attachments-in(placeholder="Filenames to keep")
                                     input#input-delete-attachments-ex(placeholder="Filenames to delete")
 
-                        .tile.action#run-script  
-                            .title.tile-image Run Script
-                            .details   
+                        .action#run-script  
+                            .action-title Run Script
+                            .action-details   
                                 .description Select an onDemand script to be executed aginst the defined records
                                 select.select-script.button.options-list#select-run-script(data-empty-label='Select OnDemand Script')
 
-                        .tile.action.permission-edit.no-select#archive
-                            .title.tile-image Archive
-                            .details   
+                        .action.permission-edit.no-select#archive
+                            .action-title Archive
+                            .action-details   
                                 .description Archive the defined records
             
             #options.surface-level-1 

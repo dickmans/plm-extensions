@@ -62,26 +62,53 @@ function downloadFileToCache(url, filename) {
     });
 
 }
-function downloadFileToServer(root, attachment, fileName, folder, clearExistingFolder) {
+function downloadFileToServer(rootFolder, subFolder, itemFolder, itemTitle, attachment, fileName, clearExistingFolder, indexFile) {
 
+    if(typeof subFolder === 'undefined') subFolder = '';
+
+    if(subFolder           !== ''  ) subFolder += '/';
     if(fileName            === null) fileName = attachment.resourceName + attachment.type.extension;
     if(clearExistingFolder === null) clearExistingFolder = false;
 
-    let path = 'storage/' + root;
+    let rootPath  = 'storage/' + rootFolder;
+    let indexPath = rootPath + '/' + subFolder + 'list.txt';
+    let itemPath  = rootPath + '/' + subFolder;
 
-    if(folder !== null) {
-        if(folder !== '') {
-            path += '/' + folder;
+    if(itemFolder !== null) {
+        if(itemFolder !== '') {
+            itemPath += itemFolder;
         }
     }
 
-    createServerFolderPath(path, clearExistingFolder);
+    createServerFolderPath(itemPath, clearExistingFolder);
 
     return axios.get(attachment.url, {
         responseType     : 'arraybuffer',
         responseEncoding : 'binary',
     }).then(function(response) {
-        fs.appendFileSync(path + '/' + fileName, response.data);
+        fs.appendFileSync(itemPath + '/' + fileName, response.data);
+
+        if(indexFile) {
+            let fileLink = attachment.selfLink.split('/');
+            
+            let fileData = fileLink[4] + ';' + fileLink[6] + ';' + itemTitle + ';' 
+                    + fileLink[8] + ';' + attachment.name + ';' + attachment.version + ';'
+                    + attachment.resourceName+ ';' + attachment.type.extension + ';' + attachment.type.fileType + ';'
+                    + attachment.created.user.title + ';' + attachment.created.timeStamp + ';' + attachment.size + ';' + attachment.status.label + ';'
+                    + itemPath + '/' + fileName;
+            
+            if(!fs.existsSync(indexPath)) {
+                let fileHeader = 'Workspace ID;DMS ID;Descriptor;'
+                    + 'Attachment ID;Attachment Filename;Attachment Version;'
+                    + 'Attachment Name;Attachment Extension;Attachment Type;'
+                    + 'Created By;Creation Timestamp;Attachment Size;Attachment Status'
+                    + 'Full Path';
+                fs.appendFileSync(indexPath, fileHeader + '\r\n');
+            }
+
+            fs.appendFileSync(indexPath, fileData + '\r\n');
+        }
+
         return { 
             fileName : fileName,
             success  : true
@@ -2197,25 +2224,37 @@ router.get('/download', function(req, res, next) {
 
 
 /* ----- EXPORT ATTACHMENTS ----- */
-router.get('/export-attachments', function(req, res, next) {
+router.post('/export-attachments', function(req, res, next) {
    
     console.log(' ');
     console.log('  /export-attachments');
     console.log(' --------------------------------------------');  
-    console.log('  req.query.wsId        = ' + req.query.wsId);
-    console.log('  req.query.dmsId       = ' + req.query.dmsId);
-    console.log('  req.query.link        = ' + req.query.link);
-    console.log('  req.query.folder      = ' + req.query.folder);
-    console.log('  req.query.filenamesIn = ' + req.query.filenamesIn);
-    console.log('  req.query.filenamesEx = ' + req.query.filenamesEx);
+    console.log('  req.body.wsId         = ' + req.body.wsId);
+    console.log('  req.body.dmsId        = ' + req.body.dmsId);
+    console.log('  req.body.link         = ' + req.body.link);
+    console.log('  req.body.rootFolder   = ' + req.body.rootFolder);
+    console.log('  req.body.folder       = ' + req.body.folder);
+    console.log('  req.body.clearFolder  = ' + req.body.clearFolder);
+    console.log('  req.body.includeDMSID = ' + req.body.includeDMSID);
+    console.log('  req.body.filenamesIn  = ' + req.body.filenamesIn);
+    console.log('  req.body.filenamesEx  = ' + req.body.filenamesEx);
+    console.log('  req.body.indexFile    = ' + req.body.indexFile);
     console.log();
 
-    let url =  (typeof req.query.link !== 'undefined') ? req.query.link : '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId;
+    let url =  (typeof req.body.link !== 'undefined') ? req.body.link : '/api/v3/workspaces/' + req.body.wsId + '/items/' + req.body.dmsId;
         url = req.app.locals.tenantLink + url + '/attachments?asc=name';
 
-    let subFolder   = req.query.folder + '/' || '';
-    let filenamesIn = (typeof req.query.filenamesIn === 'undefined') ? '' : req.query.filenamesIn;
-    let filenamesEx = (typeof req.query.filenamesEx === 'undefined') ? '' : req.query.filenamesEx;
+    let rootFolder   = req.body.rootFolder || 'exports';
+    let subFolder    = req.body.folder || '';
+    let includeDMSID = req.body.includeDMSID || 'no';
+    let dmsID        = req.body.dmsId || req.body.link.split('/').pop();
+    let filenamesIn  = (typeof req.body.filenamesIn === 'undefined') ? '' : req.body.filenamesIn;
+    let filenamesEx  = (typeof req.body.filenamesEx === 'undefined') ? '' : req.body.filenamesEx;
+    let clearFolder  = false;
+    let indexFile    = true;
+
+    if(typeof req.body.clearFolder !== 'undefined') clearFolder = (req.body.clearFolder.toLowerCase() === 'true');
+    if(typeof req.body.indexFile   !== 'undefined') indexFile   = (  req.body.indexFile.toLowerCase() === 'true');
 
     filenamesIn = filenamesIn || '';
     filenamesEx = filenamesEx || '';
@@ -2223,26 +2262,40 @@ router.get('/export-attachments', function(req, res, next) {
     let headers = getCustomHeaders(req);
         headers.Accept = 'application/vnd.autodesk.plm.attachments.bulk+json';
 
+
+    if(subFolder !== '') {
+        if(clearFolder) {
+            createServerFolderPath('storage/' + rootFolder + '/' + subFolder, true);
+        }
+    }
+
     axios.get(url, {
         headers : headers
     }).then(function(response) {
 
-        let success  = true;
-        let data     = [];
+        let success   = true;
+        let data      = [];
         
         if(response.status === 200) {
 
             let requests    = [];
             let attachments = (response.data === '') ? [] : response.data.attachments;
-            let folder      = subFolder + response.data.item.title;
-
+            
             for(let attachment of attachments) {
 
-                let fileName = attachment.resourceName + attachment.type.extension;
+                let fileName  = attachment.resourceName + attachment.type.extension;
+                let itemTitle = response.data.item.title;
 
                 if((filenamesIn === '') || (fileName.indexOf(filenamesIn) >= 0)) {
                     if((filenamesEx === '') || (fileName.indexOf(filenamesEx) < 0)) {
-                        requests.push(downloadFileToServer('exports', attachment, null, folder, true));
+
+                        let itemFolder = response.data.item.title;
+
+                             if(includeDMSID === 'prefix') itemFolder  = '[' + dmsID + '] ' + response.data.item.title;
+                        else if(includeDMSID === 'suffix') itemFolder += ' [' + dmsID + ']';
+
+                        requests.push(downloadFileToServer(rootFolder, subFolder, itemFolder, itemTitle, attachment, null, true, indexFile));
+
                     }
                 }
 
@@ -3084,8 +3137,6 @@ router.post('/bom-add', function(req, res, next) {
         }
 
     }
-
-    console.log(params);
 
     axios.post(url, params, {
         headers : req.session.headers

@@ -239,77 +239,98 @@ select#workspace {
 /*  ACTIONS */
 /* ----------------------------------------------------------------------------- */
 #actions-list {
-    margin-top : 14px;
-}
-.action {
-    background   : var(--color-surface-level-1) !important;
-    border-color : var(--color-surface-level-2) !important;
-    height       : unset !important;
-}
-.action .title {
-    background  : var(--color-surface-level-3) !important;
-    font-size   : 14px !important;
-    font-weight : 700;
-    line-height : 64px;
-    height      : unset !important;
-    padding     : 0px 16px;
-    white-space : normal;
-    max-width   : 140px !important;
-    min-width   : 140px !important;
-    width       : 140px !important;
-}
-.action .details {
-    background      : var(--color-surface-level-1);
     display         : flex;
     flex-direction  : column;
     gap             : 8px;
-    padding         : 14px 16px 12px 0px;
-    width           : calc(100% - 220px);
+    margin-top      : 16px;
 }
-.action .tile-image {
-    line-height     : 18px !important;
-    display         : flex;
-    align-items     : center;
-    justify-content : center;
-    padding         : 16px;
+.action {
+    background     : var(--color-surface-level-1);
+    border         : 1px solid transparent;
+    border-color   : var(--color-surface-level-2);
+    cursor         : pointer;
+    display        : flex;
+    flex-direction : column;
 }
-.action .details select,
-.action .details input {
+.action:hover {
+    border-color : var(--color-hover-border) !important;
+}
+.action-title {
+    background  : var(--color-surface-level-3); 
+    font-size   : 14px;
+    font-weight : 700;
+    line-height : 24px;
+    padding     : 8px 24px;
+    max-width   : calc(100% - 48px);
+    min-width   : calc(100% - 48px);
+    width       : calc(100% - 48px);
+}
+.action-details {
+    background      : var(--color-surface-level-1);
+    display         : none;
+    flex-direction  : column;
+    gap             : 8px;
+    padding         : 14px 20px;
+}
+.action-details select,
+.action-details input {
     background : var(--color-surface-level-4);
     border     : none;
 }
 .action:hover,
-.action:hover .details,
+.action:hover .action-details,
 .action.selected, 
-.action.selected .details {
+.action.selected .action-details {
     background : var(--color-blue-500) !important;
     color      : white;
 }
-.tile.selected select,
-.tile.selected input {
+.action.selected select,
+.action.selected input {
     background-color : var(--color-blue-800) !important;
     color            : white;
 }
-.action:hover .title,
-.action:hover .title-image,
-.action.selected:hover .title,
-.action.selected:hover .title-image,
+.action:hover .action-title,
+.action.selected:hover .action-title,
 .action.selected select:hover,
 .action.selected input:hover {
     background-color : var(--color-blue-900) !important;
     color            : white;
     opacity          : 1.0;
 }
-.tile .definition {
+.action.selected .action-title {
+    background : var(--color-selected-background) !important;
+}
+.action.selected .action-details {
+    display : flex;
+}
+.action .definition {
     display : flex;
     gap     : 10px;
 }
-.tile .definition input {
-    min-width   : 190px;
-    padding     : 8px 16px;
+.action .definition input {
+    min-width : 190px;
+    padding   : 8px 16px;
 }
 #delete-attachments input {
     width : 50%;
+}
+.definition.grid {
+    column-gap              : 0px;
+    display                 : grid;
+    grid-template-columns   : auto 1fr;
+    row-gap                 : 1px;
+}
+.definition .label {
+    background  : var(--color-selected-background);
+    line-height : 36px;
+    padding     : 0px 20px;
+    text-align  : right;
+}
+.definition .value {
+    line-height : 36px;
+    padding     : 0px 20px;
+    width       : calc(100% - 40px);
+    min-width   : unset;
 }
 
 
@@ -484,36 +505,6 @@ select#workspace {
         line-height : 28px;
         margin      : 4px;
         width       : 28px;
-    }
-
-    .tile {
-        flex-direction : column;
-    }
-
-    .action .title {
-        display     : block;
-        line-height : 24px !important;
-        max-width   : 100% !important;
-        padding     : 8px 24px;
-        text-align  : left;
-        width       : calc(100% - 48px) !important;
-    }
-
-    .tiles.list.xl {
-        gap : 20px;
-    }
-
-    .tiles.list.xl > .tile {
-        gap    : 0px;
-        height : unset;
-    }
-    .tiles.list.xl .tile-image {
-        height : 24px;
-    }
-
-    .action .details {
-        padding : 12px 24px;
-        width   : calc(100% - 48px);
     }
 
 }

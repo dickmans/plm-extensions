@@ -1211,11 +1211,12 @@ function genRequests(limit) {
 
             } else if(run.actionId === 'export-attachments') {
 
-                params.folder      = $('#workspace').children('option:selected').html() + ' Files';
-                params.filenamesIn = $('#input-export-attachments-in').val().toLowerCase();
-                params.filenamesEx = $('#input-export-attachments-ex').val().toLowerCase();
+                params.folder       = $('#workspace').children('option:selected').html() + ' Files';
+                params.includeDMSID = $('#select-export-attachments-dmsid').val().toLowerCase();
+                params.filenamesIn  = $('#input-export-attachments-in').val().toLowerCase();
+                params.filenamesEx  = $('#input-export-attachments-ex').val().toLowerCase();
 
-                requests.push($.get('/plm/export-attachments', params));
+                requests.push($.post('/plm/export-attachments', params));
 
             } else if(run.actionId === 'delete-attachments') {
 
