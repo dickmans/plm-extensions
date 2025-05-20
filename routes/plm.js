@@ -3509,6 +3509,41 @@ router.get('/workflow-history', function(req, res, next) {
 });
 
 
+/* ----- PERFORM LIFECYCLE TRANSITION ----- */
+router.get('/lifecycle-transition', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /lifecycle-transition');
+    console.log(' --------------------------------------------');  
+    console.log('  req.query.wsId       = ' + req.query.wsId);
+    console.log('  req.query.dmsId      = ' + req.query.dmsId);
+    console.log('  req.query.link       = ' + req.query.link);
+    console.log('  req.query.transition = ' + req.query.transition);
+    console.log('  req.query.revision    = ' + req.query.revision);
+    console.log();
+
+    let wsId         = (typeof req.query.wsId !== 'undefined') ? req.query.wsId : req.query.link.split('/')[4];
+    let dmsId        = (typeof req.query.dmsId !== 'undefined') ? req.query.dmsId : req.query.link.split('/')[6];
+    let transitionId = req.query.transition.split('/').pop();
+    let url          = req.app.locals.tenantLink + '/api/rest/v1/workspaces/' + wsId + '/items/' + dmsId + '/lifecycles/transitions/' + transitionId;
+
+    let custHeaders = getCustomHeaders(req);
+        custHeaders['Content-Type'] = 'application/xml';
+
+    let body = '<dmsVersionItem><release>' + req.query.revision + '</release></dmsVersionItem>';
+
+    axios.put(url, body, {
+        headers : custHeaders
+    }).then(function(response) {
+        sendResponse(req, res, response, false);
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+    
+});
+
+
+
 /* ----- MY OUTSTANDING WORK ----- */
 router.get('/mow', function(req, res, next) {
     
@@ -4980,6 +5015,35 @@ router.get('/workspace-workflow-transitions', function(req, res, next) {
         headers : req.session.headers
     }).then(function(response) {
         console.log(response.data);
+        if(response.data === "") response.data = [];
+        sendResponse(req, res, response, false);
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+
+});
+
+
+/* ----- GET WORKSPACE LIFECYCLE TRANSITIONS ----- */
+router.get('/workspace-lifecycle-transitions', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /workspace-lifecycle-transitions');
+    console.log(' --------------------------------------------');  
+    console.log('  req.query.wsId   = ' + req.query.wsId);
+    console.log('  req.query.link   = ' + req.query.link);
+    console.log('  req.query.tenant = ' + req.query.tenant);
+    console.log();
+
+    let wsId    = (typeof req.query.wsId === 'undefined') ? req.query.link.split('/')[4] : req.query.wsId;
+    let url     = getTenantLink(req) + '/api/v3/workspaces/' + wsId + '/transitions';
+    let headers = getCustomHeaders(req);
+
+    headers.Accept = 'application/vnd.autodesk.plm.transitions.bulk+json';
+
+    axios.get(url, {
+        headers : headers
+    }).then(function(response) {
         if(response.data === "") response.data = [];
         sendResponse(req, res, response, false);
     }).catch(function(error) {

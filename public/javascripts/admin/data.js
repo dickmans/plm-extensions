@@ -213,7 +213,8 @@ function updatefilters() {
         $.get('/plm/workspace-scripts'        , { link : wsConfig.link }),
         $.get('/plm/workspace-workflow-states', { link : wsConfig.link }),
         $.get('/plm/tableaus'     , { link : wsConfig.link }),
-        $.get('/plm/workspace-workflow-transitions', { link : wsConfig.link })
+        $.get('/plm/workspace-workflow-transitions', { link : wsConfig.link }),
+        $.get('/plm/workspace-lifecycle-transitions', { link : wsConfig.link })
     ];
 
     $('#overlay').show();
@@ -225,6 +226,7 @@ function updatefilters() {
     $('.permission-summary').addClass('hidden');
     $('.permission-attachments').addClass('hidden');
     $('.permission-bom-view').addClass('hidden');
+    $('.permission-lifecycle').addClass('hidden');
     $('.select-status').children().remove();
     $('.select-script').children().remove();
     $('.select-field').children().remove();
@@ -246,15 +248,17 @@ function updatefilters() {
         wsConfig.states      = responses[5].data.states;
         wsConfig.views       = responses[6].data;
         wsConfig.transitions = responses[7].data;
+        wsConfig.lifecycles  = responses[8].data;
 
         for(let field of responses[3].data) {
             if(field.name !== null) wsConfig.fields.push(field);
         }
 
-        sortArray(wsConfig.fields     , 'name');
-        sortArray(wsConfig.states     , 'name');
+        sortArray(wsConfig.fields     , 'name' );
+        sortArray(wsConfig.states     , 'name' );
         sortArray(wsConfig.views      , 'title');
-        sortArray(wsConfig.transitions, 'name');
+        sortArray(wsConfig.transitions, 'name' );
+        sortArray(wsConfig.lifecycles , 'name' );
     
         $('#overlay').hide();
         $('#filter-properties').removeClass('hidden');
@@ -290,6 +294,7 @@ function updatefilters() {
         setWorkspaceViewSelector();
         setWorkflowStateSelectors();
         setWorkflowTransitionSelectors();
+        setLifecycleTransitionSelectors();
         setPropertySelectors();
         setScriptSelectors();
         getMatches();
@@ -346,7 +351,7 @@ function setWorkflowTransitionSelectors() {
 
         $('<option></option>').appendTo(elemSelect)
             .attr('value', '--')
-            .html('Select Transition');
+            .html('Select Workflow Transition');
 
         for(let transition of wsConfig.transitions) {
 
@@ -354,6 +359,28 @@ function setWorkflowTransitionSelectors() {
                 .attr('data-comments', transition.comments)
                 .attr('value', transition.__self__)
                 .html(transition.name + ' (' + transition.customLabel + ') to state ' + transition.toState.title);
+
+        }
+
+    });
+
+}
+function setLifecycleTransitionSelectors() {
+
+    $('.select-lifecycle').each(function() {
+
+        let elemSelect = $(this);
+            elemSelect.children().remove();
+
+        $('<option></option>').appendTo(elemSelect)
+            .attr('value', '--')
+            .html('Select Lifeycle Transition');
+
+        for(let lifecycle of wsConfig.lifecycles) {
+
+            $('<option></option>').appendTo(elemSelect)
+                .attr('value', lifecycle.__self__)
+                .html(lifecycle.name + ' ( ' + lifecycle.fromState.title + ' >> ' + lifecycle.toState.title + ' )');
 
         }
 
@@ -1226,8 +1253,17 @@ function genRequests(limit) {
 
                 params.transition = $('#select-perform-transition').val();
                 let elemComment = $('#input-perform-transition');
-                if(!elemComment.hasClass('hidden'))params.comment = elemComment.val();
+                if(!elemComment.hasClass('hidden')) params.comment = elemComment.val();
                 requests.push($.get('/plm/transition', params));
+            } else if(run.actionId === 'perform-lifecycle-transition') {
+
+                params.transition = $('#select-perform-lifecycle-transition').val();
+                let elemRevision = $('#input-perform-lifecycle-transition');
+                if(!elemRevision.hasClass('hidden')) params.revision = elemRevision.val();
+
+                console.log(params);
+
+                requests.push($.get('/plm/lifecycle-transition', params));
 
             } else if(run.actionId === 'run-script') {
 

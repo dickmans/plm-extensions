@@ -223,12 +223,20 @@ block body
                                 .description Removes all additional owners (users and groups)
 
                         .action.ws-type-2#perform-transition  
-                            .action-title Transition
+                            .action-title Perform Workflow Transition
                             .action-details   
                                 .description Change the status by performing the selected workflow action
                                 .definition
                                     select.select-transition.button.options-list#select-perform-transition(data-empty-label='Select Editable Field')
                                     input#input-perform-transition(placeholder="Enter comment")
+                     
+                        .action.ws-type-6#perform-lifecycle-transition  
+                            .action-title Change Lifecycle
+                            .action-details   
+                                .description Perform a lifecycle transition without change process, allowing to instantly release items
+                                .definition
+                                    select.select-lifecycle.button.options-list#select-perform-lifecycle-transition(data-empty-label='Select Lifecycle Transition')
+                                    input#input-perform-lifecycle-transition(placeholder="Enter Release Letter")
 
                         .action.permission-attachments#export-attachments  
                             .action-title Export Files
