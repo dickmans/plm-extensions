@@ -806,38 +806,43 @@ td.bom-column-roll-up {
 }
 .bom .panel-counter-changed { display : none; }
 
+.bom > .panel-content.xxs th { padding :  2px  2px; font-size : 11px; }
+.bom > .panel-content.xs  th { padding :  4px  4px; font-size : 12px; }
+.bom > .panel-content.s   th { padding :  6px  4px; }
+.bom > .panel-content.m   th { padding :  8px  6px; }
+.bom > .panel-content.l   th { padding : 10px  8px; }
+.bom > .panel-content.xl  th { padding : 12px 10px; }
+.bom > .panel-content.xxl th { padding : 14px 12px; }
 
-.level-1  .bom-first-col { padding-left :  25px; }
-.level-2  .bom-first-col { padding-left :  46px; }
-.level-3  .bom-first-col { padding-left :  66px; }
-.level-4  .bom-first-col { padding-left :  86px; }
-.level-5  .bom-first-col { padding-left : 106px; }
-.level-6  .bom-first-col { padding-left : 126px; }
-.level-7  .bom-first-col { padding-left : 146px; }
-.level-8  .bom-first-col { padding-left : 166px; }
-.level-9  .bom-first-col { padding-left : 186px; }
-.level-10 .bom-first-col { padding-left : 206px; }
+.bom > .panel-content.xxs .content-item td { padding :  1px  2px; font-size : 11px; }
+.bom > .panel-content.xs  .content-item td { padding :  3px  4px; font-size : 12px; }
+.bom > .panel-content.s   .content-item td { padding :  4px  4px; }
+.bom > .panel-content.m   .content-item td { padding :  6px  6px; }
+.bom > .panel-content.l   .content-item td { padding :  8px  8px; }
+.bom > .panel-content.xl  .content-item td { padding : 10px 10px; }
+.bom > .panel-content.xxl .content-item td { padding : 12px 12px; }
 
-tr.node.level-1  .bom-first-col  { padding-left :   4px; }
-tr.node.level-2  .bom-first-col  { padding-left :  26px; }
-tr.node.level-3  .bom-first-col  { padding-left :  46px; }
-tr.node.level-4  .bom-first-col  { padding-left :  66px; }
-tr.node.level-5  .bom-first-col  { padding-left :  86px; }
-tr.node.level-6  .bom-first-col  { padding-left : 106px; }
-tr.node.level-7  .bom-first-col  { padding-left : 126px; }
-tr.node.level-8  .bom-first-col  { padding-left : 146px; }
-tr.node.level-9  .bom-first-col  { padding-left : 166px; }
-tr.node.level-10 .bom-first-col  { padding-left : 186px; }
+.level-1  .bom-first-col { padding-left :  25px!important; }
+.level-2  .bom-first-col { padding-left :  46px!important; }
+.level-3  .bom-first-col { padding-left :  66px!important; }
+.level-4  .bom-first-col { padding-left :  86px!important; }
+.level-5  .bom-first-col { padding-left : 106px!important; }
+.level-6  .bom-first-col { padding-left : 126px!important; }
+.level-7  .bom-first-col { padding-left : 146px!important; }
+.level-8  .bom-first-col { padding-left : 166px!important; }
+.level-9  .bom-first-col { padding-left : 186px!important; }
+.level-10 .bom-first-col { padding-left : 206px!important; }
 
-.bom.compact > .panel-content > .bom-table > .bom-thead > tr > th { font-size : 12px; padding : 6px 8px; }
-.bom.compact > .panel-content > .bom-table > .bom-tbody > tr > td { font-size : 12px; }
-.bom.compact > .panel-content > .bom-table > .bom-tbody > tr > td { padding-top : 2px ; padding-bottom : 2px; }
-.bom.compact > .panel-content > .bom-table > .bom-thead > tr > th.bom-color { width : 4px; }
-.bom.compact > .panel-content > .bom-table > .bom-tbody > tr > td.bom-color { width : 4px; }
-.bom.compact > .panel-content > .bom-table > .bom-tbody > tr > td.bom-first-col > span { font-size : 12px; padding-top : 0px; padding-bottom : 0px; }
-.bom.compact > .panel-content > .bom-table > .bom-tbody > tr > td.bom-first-col > span.icon { font-size : 16px; line-height : 8px; }
-.bom.compact > .panel-content > .bom-table .bom-nav { top : 4px; }
-.bom.compact > .panel-content > .bom-table > .bom-tbody > tr > td > .button { font-size : 12px; padding : 2px 6px; min-width : unset; }
+tr.node.level-1  .bom-first-col  { padding-left :   4px!important; }
+tr.node.level-2  .bom-first-col  { padding-left :  26px!important; }
+tr.node.level-3  .bom-first-col  { padding-left :  46px!important; }
+tr.node.level-4  .bom-first-col  { padding-left :  66px!important; }
+tr.node.level-5  .bom-first-col  { padding-left :  86px!important; }
+tr.node.level-6  .bom-first-col  { padding-left : 106px!important; }
+tr.node.level-7  .bom-first-col  { padding-left : 126px!important; }
+tr.node.level-8  .bom-first-col  { padding-left : 146px!important; }
+tr.node.level-9  .bom-first-col  { padding-left : 166px!important; }
+tr.node.level-10 .bom-first-col  { padding-left : 186px!important; }
 
 
 
