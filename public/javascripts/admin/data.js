@@ -376,12 +376,14 @@ function setLifecycleTransitionSelectors() {
             .attr('value', '--')
             .html('Select Lifeycle Transition');
 
-        for(let lifecycle of wsConfig.lifecycles) {
+        if(wsConfig.type == "6") {
+            for(let lifecycle of wsConfig.lifecycles) {
 
-            $('<option></option>').appendTo(elemSelect)
-                .attr('value', lifecycle.__self__)
-                .html(lifecycle.name + ' ( ' + lifecycle.fromState.title + ' >> ' + lifecycle.toState.title + ' )');
+                $('<option></option>').appendTo(elemSelect)
+                    .attr('value', lifecycle.__self__)
+                    .html(lifecycle.name + ' ( ' + lifecycle.fromState.title + ' >> ' + lifecycle.toState.title + ' )');
 
+            }
         }
 
     });
