@@ -244,12 +244,14 @@
 .icon-equals::before            { content : '\f77b'; }
 .icon-expand::before            { content : '\e5cc'; }
 .icon-factory::before           { content : '\ebbc'; }
+.icon-file::before              { content : '\e66d'; }
 .icon-filter::before            { content : '\e152'; }
 .icon-filter-empty::before      { content : '\f703'; }
 .icon-finish::before            { content : '\eaf8'; }
 .icon-first::before             { content : '\e400'; font-variation-settings: 'FILL' 1 }
 .icon-fold::before              { content : '\e5d6'; }
 .icon-folder::before            { content : '\e2c7'; }
+.icon-folder-open::before       { content : '\e2c8'; }
 .icon-go-there::before          { content : '\e5da'; }
 .icon-group::before             { content : '\e7ef'; }
 .icon-help::before              { content : '\f1c0'; }
