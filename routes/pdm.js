@@ -21,6 +21,8 @@ function getCustomHeaders(req) {
 
 function sendResponse(req, res, response, error) {
 
+    if(typeof req.body === 'undefined') req.body = {};
+
     let result = {
         'url'       : req.url,
         'params'    : (Object.keys(req.body).length === 0) ? req.query : req.body,

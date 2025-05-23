@@ -178,6 +178,8 @@ function launch(appURL, appTitle, req, res, next) {
             }
         }
 
+        reqHost = reqHost.toLowerCase();
+
         getVaultId(req, function() {
 
             console.log(' ');

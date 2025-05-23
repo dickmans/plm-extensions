@@ -55,9 +55,9 @@ function performBasicSearch(next) {
     $('#basic-footer').addClass('hidden');
     $('#basic-next').hide();
 
-    $.get(url, params, function(response)  {      
+    $.get(url, params, function(response)  {   
         
-        if($('#basic-list').attr('data-timestamp') == response.params.timestamp) {
+        if(timestamp == response.params.timestamp) {
 
             $('#basic-search-processing').hide();
 
@@ -68,11 +68,13 @@ function performBasicSearch(next) {
             } else {
 
                 for(let result of response.data.results) {
-                    let elemTile = genPDMTile(result, {
-                        tileNumber : elemList.children().length + 1,
-                        addTileActions : true
-                    });
-                    if(elemTile !== null) elemTile.appendTo(elemList);
+                    if(result.entityType !== 'Folder') {
+                        let elemTile = genPDMTile(result, {
+                            tileNumber : elemList.children().length + 1,
+                            addTileActions : true
+                        });
+                        if(elemTile !== null) elemTile.appendTo(elemList);
+                    }
                 }
 
                 var counter = elemList.children().length;

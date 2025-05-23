@@ -39,6 +39,7 @@ $(document).ready(function() {
                 id               : 'item-bom',
                 bomViewName      : 'Basic',
                 collapseContents : true,
+                contentSize      : 'xs',
                 counters         : true,
                 openInPLM        : true,
                 path             : true,

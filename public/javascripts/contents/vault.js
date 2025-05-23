@@ -206,7 +206,7 @@ function genPDMTileFileVersion(file, params) {
     params.link         = file.url;
     params.title        = file.name + ' [' + file.revision + ']',
     params.subtitle     = subtitle
-    params.tileIcon     = 'icon-product';   
+    params.tileIcon     = 'icon-file';   
     params.imageFile    = file.file.id + '-' + file.version;
     params.details      = 'data';
 
