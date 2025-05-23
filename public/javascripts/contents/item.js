@@ -4586,9 +4586,11 @@ function expandBOMParents(level, elem) {
 }
 function updateBOMPath(elemClicked) {
     
-    let elemBOM     = elemClicked.closest('.bom');
-    let id          = elemBOM.attr('id');
-    let elemPath    = $('#' + id + '-bom-path');
+    let elemBOM  = elemClicked.closest('.bom');
+    let id       = elemBOM.attr('id');
+    let elemPath = $('#' + id + '-bom-path');
+
+    if(elemPath.length === 0) return;
     
     elemPath.html('').addClass('bom-path-empty');
     
@@ -4630,6 +4632,15 @@ function updateBOMPath(elemClicked) {
 
     }
 
+}
+function resetBOMPath(id) {
+
+    let elemPath = $('#' + id + '-bom-path');
+
+    if(elemPath.length === 0) return;
+    
+    elemPath.html('').addClass('bom-path-empty');
+    
 }
 
 
