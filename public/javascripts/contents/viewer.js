@@ -632,13 +632,17 @@ function viewerGetSelectedPartNumber(event, callback) {
         viewer.getProperties(event.dbIdArray[0], function(data) {
 
             let partNumber = data.name.split(':')[0];
+            let match      = false;
 
             for(let partNumberProperty of config.viewer.numberProperties) {
-                for(let property of data.properties) {
-                    if(property.displayName === partNumberProperty) {
-                        partNumber = property.displayValue;
-                        if(partNumber.indexOf(':') > -1) { partNumber = partNumber.split(':')[0]; }
-                        
+                if(!match) {
+                    for(let property of data.properties) {
+                        if(property.displayName === partNumberProperty) {
+                            partNumber = property.displayValue;
+                            if(partNumber.indexOf(':') > -1) { partNumber = partNumber.split(':')[0]; }
+                            match = true;
+                            break;
+                        }
                     }
                 }
             }
