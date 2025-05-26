@@ -23,7 +23,7 @@ let saveActions = {
         label       : 'Deleting BOM entries',
         className   : 'pending-remove',
         selector    : '',
-        maxRequests : 5,
+        maxRequests : 4,
     },
     add : {
         label        : 'Adding Service BOM items',
@@ -35,7 +35,7 @@ let saveActions = {
         label       : 'Renaming existing BOM nodes',
         className   : 'pending-rename',
         selector    : '',
-        maxRequests : 5,
+        maxRequests : 4,
     }, 
     update : {
         label       : 'Updating existing BOM entries',

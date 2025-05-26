@@ -144,10 +144,9 @@ td.spr i { background: var(--color-status-green ); }
     cursor       : pointer;
 }
 .group-header {
-    display         : flex;
-    gap             : 10px;
-    height          : 38px;
-    /* justify-content : space-between; */
+    display : flex;
+    gap     : 10px;
+    height  : 38px;
 }
 .group-toggle {
     height      : 36px;
