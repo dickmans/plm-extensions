@@ -4553,14 +4553,19 @@ function bomDisplayItemByPartNumber(number, select, deselect) {
     if(isBlank(select  )) select   = true;
     if(isBlank(deselect)) deselect = true;
 
+    let bomItemLinks = [];
+
     $('.bom-item').each(function() {
         if(number === $(this).attr('data-part-number')) {
             bomDisplayItem($(this));
+            bomItemLinks.push($(this).attr('data-link'));
             if(select) $(this).addClass('selected');
         } else {
             if(deselect) $(this).removeClass('selected');
         }
     });
+
+    return bomItemLinks;
 
 }
 function expandBOMParents(level, elem) {
