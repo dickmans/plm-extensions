@@ -222,6 +222,7 @@ body.no-console #console { right : calc(-10px - var(--width-console) - var(--pan
 #views-confirm.filled {
     background   : var(--color-status-red);
     border-color : var(--color-status-red);
+    color        : white;
 }
 #charts {
     display : flex;
