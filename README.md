@@ -20,6 +20,7 @@ The following extensions are included
 - Product Data Explorer [Video](https://youtu.be/TA5JyBVw2Hw)
 - Projects Dashboard
 - Reports Dashboard [Video](https://youtu.be/quNaLQLAT3Q)
+- Service BOM Editor [Video](https://youtu.be/zVnsrQyO-1o)
 - Services Portal [Video](https://youtu.be/gYAyASE3vAU)
 - Tenant Inisghts [Video](https://youtu.be/WZXGfDKGRHY)
 - User Settings Manager [Video](https://youtu.be/hJjxoovwbS8)
