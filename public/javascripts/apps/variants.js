@@ -101,12 +101,18 @@ $(document).ready(function() {
 
     getFeatureSettings('variants', [$.get( '/plm/details', { link : urlParameters.link })], function(responses) {
 
-        urlParameters.root = responses[0].data.root.link;
+        if(!isBlank(urlParameters.fieldidebom)) {
+            urlParameters.product = urlParameters.link;
+            urlParameters.link = getSectionFieldValue(responses[0].data.sections, urlParameters.fieldidebom, '', 'link');
+            $.get( '/plm/details', { link : urlParameters.link }, function(response) {
+                urlParameters.root = response.data.root.link;
+                initEditor();
+            });
+        } else {
+            urlParameters.root = responses[0].data.root.link;
+            initEditor();
+        }
 
-        getInitialData(responses[0].data.root.link.split('/').pop());
-        insertViewer(urlParameters.link);
-        insertItemSummary(urlParameters.link, paramsSummary);
-        
     });
     
 });
@@ -162,6 +168,11 @@ function setUIEvents() {
 
 
 // Get item details to pull further information from PLM
+function initEditor() {
+    getInitialData(urlParameters.root.split('/').pop());
+    insertViewer(urlParameters.link);
+    insertItemSummary(urlParameters.link, paramsSummary);
+}
 function getInitialData(rootDmsId) {
 
     let requests = [
@@ -558,7 +569,7 @@ function setVariantItemStyle(elemCell, status) {
 }
 
 
-// Function after new variant creation add it to the table
+// Sfter new variant creation add it to the table and the product's grid
 function addNewVariant(link) {
 
     let index = $('.variant-head').length + 1;
@@ -578,6 +589,20 @@ function addNewVariant(link) {
             }
         });
     });
+
+    if(!isBlank(urlParameters.product)) {
+
+        let params = {
+            link : urlParameters.product,
+            data : [{
+                fieldId : 'BOM',
+                value : { link : link}
+            }]
+        }
+
+        $.post('/plm/add-grid-row', params, function() {});
+    }
+
 
 }
 
@@ -636,7 +661,10 @@ function getEdgeQuantity(edge) {
 }
 function valueChanged(elemControl) {
 
-    let elemVariant  = elemControl.parent().nextAll('.variant-item').first();
+    let elemVariant = elemControl;
+
+    if(!elemVariant.hasClass('variant-item')) elemVariant  = elemControl.parent().nextAll('.variant-item').first();
+
     let index        = elemVariant.index();
     let elemBaseItem = elemVariant.closest('tr');
     let levelNext    = Number(elemBaseItem.attr('data-level')) - 1;
@@ -760,6 +788,8 @@ function insertSelectedItem(elemSelected) {
 
     let elemCell = $('.item-cell-clicked').first();
         elemCell.attr('data-link', elemSelected.attr('data-link'));
+
+    valueChanged(elemCell);
 
     setVariantItemStyle(elemCell, 'replaced');
 
@@ -1210,7 +1240,7 @@ function addBOMItems(action) {
                 let linkItem    = elemItem.attr('data-link');
                 let baseItem    = elemItem.closest('tr');
 
-                if(elemItem.hasClass('status-missing')) {
+                if(elemItem.hasClass('status-missing') || elemItem.hasClass('status-identical')) {
                     linkItem = baseItem.attr('data-link');
                     elemItem.attr('data-link', linkItem);
                 }
@@ -1237,8 +1267,11 @@ function addBOMItems(action) {
 
             for(let response of responses) {
 
+                console.log(response);
+
+
                 if(response.error) {
-                    showErrorMessage('Error when adding BOM entries', response.data[0].message);
+                    showErrorMessage('Error when adding BOM entries', response.data.message);
                     return;
                 }
 

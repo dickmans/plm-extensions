@@ -3353,6 +3353,170 @@ function filterList(value, elemList) {
 }
 
 
+
+// Save Dialogs with progress bars
+function resetSaveActions() {
+
+    let index = 1;
+
+    for(let key of Object.keys(saveActions)) {
+        $('.' + saveActions[key].className).removeClass(saveActions[key].className);
+        saveActions[key].index = index++;
+        saveActions[key].count = 0;
+    }
+
+}
+function showSaveDialog(id) {
+
+
+
+    if(isBlank(id)) id = 'dialog-save';
+
+    let elemDialog = $('#' + id);
+
+    if(elemDialog.length === 0) {
+
+        elemDialog = $('<div></div>').appendTo($('body'))
+            .addClass('dialog')
+            .attr('id', id);
+
+        $('<div></div>').appendTo(elemDialog)
+            .addClass('dialog-header')    
+            .html('Saving Changes');
+
+        let elemContent = $('<div></div>').appendTo(elemDialog)
+            .addClass('dialog-content');
+
+        let elemFooter = $('<div></div>').appendTo(elemDialog)
+            .addClass('dialog-footer');
+
+        $('<div></div>').appendTo(elemFooter)
+            .addClass('button')
+            .addClass('default')
+            // .addClass('disabled')
+            .addClass('confirm-save')
+            .css('float', 'unset')
+            .css('margin', 'auto')
+            .css('width', '50%')
+            .attr('id', 'confirm-save')
+            .html('Close')
+            .click(function() {
+                if($(this).hasClass('disabled')) return;
+                else {
+                    $('#overlay').hide();
+                    $(this).closest('.dialog').hide();
+                }
+            });
+
+        for(let key of Object.keys(saveActions)) {     
+            
+            let saveAction = saveActions[key];
+
+            let elemStep = $('<div></div>').appendTo(elemContent)
+                .addClass('step')
+                .attr('id', 'step-1' + saveAction.index);
+
+            $('<div></div>').appendTo(elemStep)
+                .addClass('step-label')
+                .attr('id', 'step-label-' + saveAction.index)
+                .html(saveAction.label);
+
+            let elemStepProgress = $('<div></div>').appendTo(elemStep)
+                .addClass('step-progress');
+            
+            $('<div></div>').appendTo(elemStepProgress)
+                .addClass('step-bar')
+                .attr('id', 'step-bar-' + saveAction.index)
+            
+            $('<div></div>').appendTo(elemStep)
+                .addClass('step-counter')
+                .attr('id', 'step-counter-' + saveAction.index);
+
+        }
+
+    }
+
+    $('.step-bar').addClass('transition-stopper')
+    $('.step-bar').css('width', '0%');
+    $('#overlay').show();
+    elemDialog.find('.confirm-save').addClass('disabled').removeClass('default');
+    elemDialog.find('.in-work').removeClass('in-work');
+    $('#step-1').addClass('in-work');
+    $('.step-bar').removeClass('transition-stopper');
+
+    for(let key of Object.keys(saveActions)) {
+        saveActions[key].count = $('.' + saveActions[key].className).length;
+        $('#step-counter-' + saveActions[key].index).html('0 of ' + saveActions[key].count);
+        $('#step-label-'   + saveActions[key].index).html(saveActions[key].label);
+    }
+
+    elemDialog.show();
+
+}
+function updateSaveProgressBar(action) {
+
+    let pending  = $(action.selector + '.' + action.className);
+    let progress = (action.count - pending.length) * 100 / action.count;
+
+    $('#step-bar-'     + action.index).css('width', progress + '%');
+    $('#step-counter-' + action.index).html((action.count - pending.length) + ' of ' + action.count);
+
+    if(pending.length === 0) {
+
+        let elemStep = $('#step-bar-' + action.index).closest('.step');
+
+        $('#step-bar-' + action.index).css('width', '100%');
+        elemStep.removeClass('in-work');
+        elemStep.next().addClass('in-work');
+        $('#step-counter-' + action.index).html(action.count + ' of ' + action.count);
+
+    }
+
+    return pending;
+
+}
+function storeNewItemLinks(action, elements, responses) {
+
+    let index = 0;
+
+    for(let element of elements) {
+        
+        let link = responses[index++].data.split('.autodeskplm360.net')[1];
+        
+        element.attr('data-link', link);
+        element.removeClass(action.className);
+
+    }
+
+}
+function storeNewBOMEdgeId(action, elements, responses) {
+
+    let index = 0;
+
+    for(let element of elements) {
+        
+        let edgeId = responses[index++].data.split('/bom-items/')[1];
+        
+        element.attr('data-edgeid', edgeId);
+        element.removeClass(action.className);
+
+    }
+
+}
+function endSaveProcessing(id) {
+
+    if(isBlank(id)) id = 'dialog-save';
+
+    let elemDialog = $('#' + id);
+
+    elemDialog.find('.confirm-save').removeClass('disabled').addClass('default');
+    elemDialog.find('.in-work').removeClass('in-work');    
+
+}
+
+
+
+
 // Tableau Management
 function setTableau(wsId, name, columns, filters) {
 

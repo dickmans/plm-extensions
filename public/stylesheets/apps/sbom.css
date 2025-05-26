@@ -1,0 +1,302 @@
+/* VARIABLES */
+/* ----------------------------------------------------------------------------- */
+:root {
+
+    --border-h       : 40px;
+    --border-v       : 20px;
+    --width-bom-min  : 520px;
+    --width-bom      : 860px;
+    --width-panel    : 680px;
+    --width-details  : 300px;
+
+}
+
+
+/*  MASTER LAYOUT */
+/* ----------------------------------------------------------------------------- */
+.viewer {
+    top     : 0px;
+    right   : calc(var(--width-bom-min) + var(--width-panel) + var(--width-details) + (6 * var(--border-h)));
+    bottom  : 0px;
+    left    : 0px;
+}
+#bom {
+    border-width : var(--border-v) var(--border-h) var(--border-v);
+    top     : 0px;
+    right   : calc(var(--width-panel) + var(--width-details) + (4 * var(--border-h)));
+    bottom  : 0px;
+    width   : var(--width-bom-min);
+    z-index : 5;
+}
+#panel {
+    border-width : var(--border-v) var(--border-h) var(--border-v);
+    top     : 0px;
+    right   : calc(var(--width-details) + (2 * var(--border-h)));
+    bottom  : 0px;
+    width   : var(--width-panel);
+}
+#details {
+    border-width : var(--border-v) var(--border-h) var(--border-v);
+    top     : 0px;
+    right   : 0px;
+    bottom  : 0px;
+    width   : var(--width-details);
+}
+#dialog-save {
+    top    : calc(50% - 230px);
+    bottom : calc(50% - 140px);
+}
+
+
+.no-viewer #bom   { left : 0px; right : unset ; width : calc(50% - (var(--width-details) / 2) - (3 * var(--border-h))); }
+.no-viewer #panel { left : unset; right : calc(var(--width-details) + (2 * var(--border-h)));;  width  : calc(50% - (var(--width-details) / 2) - (3 * var(--border-h))); }
+
+.no-details .viewer  { right : calc(var(--width-bom) + var(--width-panel) + (4 * var(--border-h))); }
+.no-details #bom     { right : calc(var(--width-panel) + (2 * var(--border-h)));  width : var(--width-bom); }
+.no-details #panel   { right : 0px; }
+.no-details #details { right : calc(-1px - var(--width-details) - (2 * var(--border-h))); }
+
+.no-details.no-viewer #bom     { left : 0px; right:  50%; width : unset; }
+.no-details.no-viewer #panel   { left : 50%; right : 0px; width : unset; }
+.no-details.no-viewer #details { right : calc(-1px - var(--width-details) - (2 * var(--border-h))); }
+
+.viewcubeWrapper { display : none !important; }
+
+#panel .panel-actions { 
+    justify-content : end;
+    top             : 0px; 
+}
+#panel .panel-content > .panel-content { 
+    top             : 72px; 
+}
+.tiles.list.xs .tile-counter {
+    line-height : 38px;
+}
+
+
+/*  BOM */
+/* ----------------------------------------------------------------------------- */
+.bom-column-recommended {
+    width : 86px;
+}
+th.type .icon {
+    font-size   : 18px;
+    font-weight : 300;
+    margin-top  : 6px;
+}
+th.type,
+td.type {
+    padding     : 0px !important;
+    text-align  : center;
+    width       : 30px;
+}
+td.type i {
+    border-radius   : 3px;
+    color           : white;
+    font-size       : 18px;
+    font-weight     : 300;
+    line-height     : 18px;
+    padding         : 4px;
+    text-align      : center;
+}
+td.srv i { background: var(--color-status-red   ); }
+td.kit i { background: var(--color-status-yellow); }
+td.spr i { background: var(--color-status-green ); }
+
+
+
+/*  TABS */
+/* ----------------------------------------------------------------------------- */
+#tabs > div {
+    gap             : 2px;
+    justify-content : center;
+}
+#tabs > div::before {
+    font-weight : 300 !important;
+}
+#tabs > div.selected { 
+    font-weight : normal; 
+}
+#tab-services.selected { border-color: var(--color-status-red   ); }
+    #tab-kits.selected { border-color: var(--color-status-yellow); }
+   #tab-parts.selected { border-color: var(--color-status-green ); }
+
+
+
+/*  SERVICES & KITS */
+/* ----------------------------------------------------------------------------- */
+.service,
+.kit {
+    padding : 12px;
+}
+.service,
+.group.operation,
+.group.kit {
+    border : 1px solid transparent;
+}
+.groups {
+    display         : flex;
+    flex-direction  : column;
+    gap             : 6px;
+}
+.group {
+    background : var(--color-surface-level-1);
+    cursor       : pointer;
+}
+.group-header {
+    display         : flex;
+    gap             : 10px;
+    height          : 38px;
+    /* justify-content : space-between; */
+}
+.group-toggle {
+    height      : 36px;
+    line-height : 36px;
+    text-align  : center;
+    width       : 36px;
+}
+.group-header input {
+    background   : var(--color-surface-level-2);
+    border-color : var(--color-surface-level-4);
+    flex-grow    : 1;
+    font-size    : 14px;
+    padding-left : 12px;
+    padding-right: 12px;
+}
+.group-header input:focus,
+.list-item-quantity:focus {
+    border-color : var(--color-blue-500) !important;
+    box-shadow   : 0px 3px 0px 0px rgba(6, 150, 215, 0.35) !important;
+    outline      : 0;
+}
+.group-actions {
+    display     : none;
+    gap         : 4px;
+}
+.group > .operations {
+    margin      : 0px;
+    padding-top : 12px;
+}
+.operation {
+    padding : 12px 0px 0px 48px;
+}
+.group > .kit-items {
+    margin : 24px 0px 12px 48px;
+}
+.operations {
+    display         : flex;
+    flex-direction  : column;
+    gap             : 6px;
+}
+.service-items {
+    padding : 8px 0px 8px 36px;
+    width : 100%;
+}
+
+.group:hover > .group-header > .group-actions {
+    display : flex;
+}
+
+.service.collapsed .operations,
+.service.collapsed .service-header {
+    display : none;
+}
+.operation.collapsed .items-list,
+      .kit.collapsed .items-list {
+    display : none;
+}
+
+.operation-items {
+    margin : 18px 0px;
+}
+
+  .service.expanded > .group-header > .group-toggle::before,
+.operation.expanded > .group-header > .group-toggle::before,
+      .kit.expanded > .group-header > .group-toggle::before { content: '\e313'; }
+  .service.collapsed > .group-header > .group-toggle::before,
+.operation.collapsed > .group-header > .group-toggle::before,
+      .kit.collapsed > .group-header > .group-toggle::before { content: '\e5cc'; }
+
+.service.min > .group-header > .group-actions > .toggle-maximize::before,
+    .kit.min > .group-header > .group-actions > .toggle-maximize::before { content: '\f1ce'; }
+.service.max > .group-header > .group-actions > .toggle-maximize::before,
+    .kit.max > .group-header > .group-actions > .toggle-maximize::before { content: '\f1cf'; }
+.service.max > .group-header > .group-actions,
+    .kit.max > .group-header > .group-actions { display : flex; }
+.service.max,
+    .kit.max {
+    position    : absolute;
+    top         : 0px;
+    right       : 0px;
+    bottom      : 0px;
+    left        : 0px;
+}
+.service.max > .operations {
+    position    : absolute;
+    top         : 80px;
+    right       : 20px;
+    bottom      : 20px;
+    left        : 20px;
+}
+.items-list-row {
+    display : flex;
+    gap     : 12px;
+    width   : 100%;
+}
+.list-item-quantity {
+    background   : var(--color-surface-level-2);
+    border-color : var(--color-surface-level-4);
+    max-width   : 36px;
+    min-width   : 36px;
+    padding     : 4px 12px;
+    width       : 37px;
+    text-align  : right;
+}
+.items-list-row > .tile {
+    flex-grow   : 1;
+    gap         : 12px;
+    height      : 37px;
+    width       : unset !important;
+}
+.items-list-row > .tile > .tile-image {
+    height      : 38px !important;
+    line-height : 38px !important;
+    max-width   : 52px !important;
+    min-width   : 52px !important;
+    width       : 52px !important;
+}
+.items-list-row > .tile .tile-title {
+    height      : 37px !important;
+    line-height : 37px !important;
+}
+.kit-items,
+#spare-parts {
+    gap : 2px !important;
+}
+#spare-parts .list-item-quantity {
+    display : none;
+}
+.operation.drag-hover,
+.kit.drag-hover {
+    border-color : var(--color-hover-border) !important;
+}
+#spare-parts.drag-hover {
+    background : var(--color-hover-background) !important;
+}
+
+
+
+/* RESPONSIVE LAYOUT */
+/* ----------------------------------------------------------------------------- */
+@media only screen and (max-device-width : 1920px)  {
+
+    :root {
+        --border-h       : 28px;
+        --border-v       : 20px;
+        --width-bom-min  : 520px;
+        --width-bom      : 720px;
+        --width-panel    : 580px;
+        --width-details  : 300px;
+    }
+
+}

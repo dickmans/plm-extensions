@@ -565,6 +565,44 @@ exports.config = {
         }
     },
 
+    sbom : {
+        fieldIdSBOM          : 'SERVICE_BOM',
+        fieldIdEBOM          : 'ENGINEERING_BOM',
+        bomViewName          : 'Service',
+        fieldIdItemType      : 'TYPE',
+        picklistItemTypes    : 'CUSTOM_LOOKUP_ITEM_TYPES',
+        typeServiceBOM       : 'Service BOM',
+        typeServiceOffering  : 'Service Offering',
+        typeServiceOperation : 'Service Operation',
+        typeServiceKit       : 'Service Kit',
+        fieldIdSparePart     : 'SPARE_WEAR_PART',
+        valuesSparePart      : ['spare', 'spare part', 'yes', 'x', 'y', 'true'],
+        basePosNumbers       : [ 101, 201, 301 ],
+        viewerFeatures : {
+            contextMenu   : false,
+            cube          : false,
+            orbit         : false,
+            firstPerson   : false,
+            camera        : false,
+            measure       : true,
+            section       : true,
+            explodedView  : true,
+            modelBrowser  : false,
+            properties    : false,
+            settings      : false,
+            fullscreen    : true,
+            markup        : false,
+            hide          : true,
+            ghosting      : true,
+            highlight     : true,
+            single        : true,
+            fitToView     : true,
+            reset         : true,
+            views         : true,
+            selectFile    : false
+        }
+    },
+
     service : {
         applicationFeatures : {
             homeButton            : true,

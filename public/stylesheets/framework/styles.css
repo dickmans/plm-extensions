@@ -1048,10 +1048,12 @@ and (max-device-width : 1900px)  {
     width       : 96px;
 }
 .panel-controls > .panel-search > .button {
-    height      : 22px;
-    width       : 22px;
-    line-height : 22px;
     font-size   : 22px;
+    height      : 22px;
+    line-height : 22px;
+    max-width   : 22px;
+    min-width   : 22px;
+    width       : 22px;
 }
 
 
@@ -1919,7 +1921,7 @@ select.button.main:hover {
     font-weight : 300;
     height      : 36px;
     line-height : 36px;
-    min-width   : auto;
+    min-width   : 36px;
     padding     : 0px;
     width       : 36px;
     text-rendering          : optimizeLegibility;

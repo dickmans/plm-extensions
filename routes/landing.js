@@ -52,6 +52,7 @@ router.get('/portfolio'     , function(req, res, next) { launch('apps/portfolio'
 router.get('/projects'      , function(req, res, next) { launch('apps/projects'        , 'Projects Dashboard'           , req, res, next); });
 router.get('/reports'       , function(req, res, next) { launch('apps/reports'         , 'Reports Dashboard'            , req, res, next); });
 router.get('/reviews'       , function(req, res, next) { launch('apps/reviews'         , 'Design Reviews'               , req, res, next); });
+router.get('/sbom'          , function(req, res, next) { launch('apps/sbom'            , 'Service BOM Editor'           , req, res, next); });
 router.get('/service'       , function(req, res, next) { launch('apps/service'         , 'Services Portal'              , req, res, next); });
 router.get('/variants'      , function(req, res, next) { launch('apps/variants'        , 'Variant Manager'              , req, res, next); });
 
@@ -106,7 +107,6 @@ router.get('/pdm'           , function(req, res, next) { launch('dev/pdm'       
 router.get('/pdm-explorer'  , function(req, res, next) { launch('dev/pdm-explorer'    , 'PDM Explorer'                      , req, res, next); });
 router.get('/pnd'           , function(req, res, next) { launch('dev/pnd'             , 'Product Data & Processes Explorer' , req, res, next); });
 router.get('/resources'     , function(req, res, next) { launch('dev/resources'       , 'Resource Allocation'               , req, res, next); });
-router.get('/sbom'          , function(req, res, next) { launch('dev/sbom'            , 'Product Services & Spare Parts'    , req, res, next); });
 router.get('/specification' , function(req, res, next) { launch('dev/specification'   , 'Product Specification Editor'      , req, res, next); });
 router.get('/transmittals'  , function(req, res, next) { launch('dev/transmittals'    , 'Transmittals Client'               , req, res, next); });
 

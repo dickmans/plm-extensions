@@ -1,0 +1,87 @@
+extends ../framework/layout
+
+block head
+
+    link(rel='stylesheet', href='/stylesheets/dev/mpe.css')
+    script(src='/javascripts/dev/mpe.js')
+    script.
+        config = !{JSON.stringify(config)};
+
+block body
+
+    body.surface-level-1.no-assets.no-spl.no-snl
+
+        #header.dark
+            #header-logo
+            #header-title=title
+            #header-subtitle
+            #header-toolbar
+                .button#toggle-pe.with-icon.icon-package.default( data-panel-id='spl') Process Definition
+                .button#toggle-pe.with-icon.icon-details(data-panel-id='ppl') Parts Report
+                #header-avatar
+
+        #main.screen 
+
+            #viewer.viewer.surface-level-1 
+            #tree.surface-level-2
+            #panel.surface-level-3
+            #assembly.panel.surface-level-3
+                #assembly-header.panel-header.single-line 
+                    #assembly-title.panel-title    
+                        #assembly-name.panel-title-main
+                    #assembly-controls.panel-controls 
+                        #assembly-save.button.default Save
+                #assembly-content.panel-content.no-scrollbar
+                    #assembly-instructions
+                        .assembly-panel-header Instructions
+                        .assembly-panel-content.surface-level-2
+                            textarea#assembly-instructions-text
+                            #assembly-instructions-images 
+                                div#assembly-instructions-image-1
+                                    .button.icon.icon-screenshot
+                                div#assembly-instructions-image-2
+                                    .button.icon.icon-screenshot
+                                div#assembly-instructions-image-3
+                                    .button.icon.icon-screenshot
+                                div#assembly-instructions-image-4
+                                    .button.icon.icon-screenshot
+
+                    #assembly-parts
+                        .assembly-panel-header Parts
+                        .assembly-panel-content.surface-level-2
+                            table
+                                tr 
+                                    td Number 
+                                    td 002952-100 - Base
+                                    td 002952-560 - Carrier Right
+                                tr 
+                                    td Title
+                                    td 002952-100 - Base
+                                    td 002952-560 - Carrier Right
+                                tr 
+                                    td Image 
+                                    td 
+                                    td
+                                tr 
+                                    td Source 
+                                    td PRC-0001
+                                    td PRC-0002
+                                tr 
+                                    td Consumption
+                                    td 0/1
+                                    td 0/1
+                    #assembly-process
+                        .assembly-panel-header Assembly Process
+                        .assembly-panel-content.surface-level-2
+            #component.panel.surface-level-3
+                //- #component-header.panel-header.single-line 
+                //-     #component-title.panel-title    
+                //-         #component-name.panel-title-main Component ABC
+                //-     #component-controls.panel-controls 
+                //- #component-content.panel-content.no-scrollbar
+                //-     #component-process.surface-level-1 
+                //-     #component-sources.surface-level-2
+                //-         #component-sources-title Source 
+                //-         #component-sources-content 
+                //-             div a
+                //-             div b

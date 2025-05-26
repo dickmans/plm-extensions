@@ -298,7 +298,7 @@ select#workspace {
     opacity          : 1.0;
 }
 .action.selected .action-title {
-    background : var(--color-selected-background) !important;
+    background : var(--color-blue-800) !important;
 }
 .action.selected .action-details {
     display : flex;

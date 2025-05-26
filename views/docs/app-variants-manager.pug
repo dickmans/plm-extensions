@@ -60,7 +60,7 @@
                     td Index
                     td VARIANT_INDEX
                     td Single Line Text
-                    td 5
+                    td 20
                     td Always
                     td True
                 tr 
@@ -99,8 +99,8 @@
             | to display the fields Base Item Number, Index and Title:
         img.border(src='images/apps/variant-manager-5.png' style='max-width:502px;')
         h2 Workspace Relationships
-        p Enable required relationships in the BOM tab:
-        img.border(src='images/apps/variant-manager-2.png' style='max-width:862px;')
+        p Enable required relationships in the BOM and Relationships tabs:
+        img.border(src='images/apps/variant-manager-2.png' style='max-width:895px;')
         p As 
             strong Item Variants 
             |are revision controlled, add this new workspace to the 
@@ -166,7 +166,9 @@
             br
             span function setNumber() {
             span.indent var seq     = new Sequencer("Item Variants");
-            span.indent item.NUMBER = "VAR-" + ('000000' + seq.nextValue().toString()).slice(-6);
+            span.indent var num = ('000000' + seq.nextValue().toString()).slice(-6);
+            span.indent item.NUMBER = "VAR-" + num;
+            span.indent if(item.VARIANT_INDEX === null) item.VARIANT_INDEX = num;
             span }
             br
             span function setBaseItemDetails() {
@@ -174,6 +176,7 @@
             span.indent if(elemBase === null) return;
             span.indent item.BASE_ITEM_NUMBER = elemBase.NUMBER;
             span.indent if(item.TITLE === null) item.TITLE = elemBase.TITLE;
+            span.indent item.relationships.addRelated(elemBase, 'Cross-Reference', 'Bi-Directional', 'Variant Management');
             span }
         img.border(src='images/apps/variant-manager-7.png' style='max-width:1073px;')
         h2 Server Settings File 

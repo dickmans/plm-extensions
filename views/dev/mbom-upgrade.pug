@@ -1,0 +1,216 @@
+extends ../framework/layout
+
+block head
+    
+    link(rel='stylesheet', href='/stylesheets/apps/mbom.css')
+    link(rel='stylesheet', href='/stylesheets/custom/mbom.css')
+    script(src='/javascripts/libs/jquery-ui-1.12.1/jquery-ui.min.js')
+    script(src='/javascripts/dev/mbom-upgrade.js')
+    script(src='/javascripts/custom/mbom.js')
+    script.
+        config = !{JSON.stringify(config)};
+
+block body
+
+    body.surface-level-1.text-selection-off.mode-ebom
+
+        #header.dark
+            #header-logo
+            #header-title=title
+            #header-subtitle
+            #header-toolbar
+                #toggle-details.button.with-icon.icon-toggle-off(title='Click to toggle details panel on/off')  Toggle Details
+                #reset.button.with-icon.icon-refresh(title='Reset all changes by reloading the editor') Reset
+                #save.button.default(title='Apply changes to the database') Save
+                #header-avatar
+
+        #main.screen
+
+            .panel#tabs 
+
+                .panel-header.tabs.no-auto-select
+                    #mode-disassemble(data-id='disassemble') Disassemble
+                    #mode-ebom.selected(data-id='ebom') EBOM Alignment
+                    #mode-add(data-id='add') Add Items 
+                    //- #mode-instructions(data-id='instructions') Instructions ** custom
+
+                .panel-content.tab-group-main.viewer#viewer.surface-level-1
+                
+                .panel-content.tab-group-main#ebom
+                    #ebom-tree
+                    .bom-panel
+                        span Total Quantity : 
+                        span#ebom-total-qty
+                    .progress
+                        .bounce1
+                        .bounce2
+                        .bounce3
+                    #ebom-status
+                        #status-progress.bar
+                        #status-additional.bar(data-filter="additional" title='Click to filter EBOM for items not containted in MBOM yet')
+                        #status-different.bar(data-filter="different" title='Click to filter EBOM and MBOM for items where total quantity does not match')
+                        #status-match.bar(data-filter="match" title='Click to filter EBOM and MBOM for items that match')
+                    #ebom-actions
+                        #add-all.button(title='Click all Add buttons in EBOM to add all missing items at once to the MBOM') Add All
+                        #deselect-all.button(title='Reset item selection in viewer, EBOM and MBOM') Deselect All
+                        #toggle-colors.button.with-icon.icon-toggle-off(title='When enabled, the component colors in the viewer will be replaced by red, yellow and green to indicate their consumption in the MBOM') Apply Colors
+                        #toggle-viewer.button.with-icon.icon-toggle-off(title='Hide / show the 3D viewer') Viewer
+
+                .panel-content.tab-group-main#add
+                        .panel-left
+                            #nav-search-items.panel-nav(data-id='search-items') Search
+                            #nav-workspace-views-ebom.panel-nav.blank(data-id='workspace-views-ebom') Workspace Views
+                            #nav-workspace-views-mbom.panel-nav.blank(data-id='workspace-views-mbom') MBOM Workspace
+                            #nav-bookmark-items.panel-nav.blank(data-id='bookmark-items') Bookmarks
+                            #nav-recent-items.panel-nav.blank(data-id='recent-items') Recents
+                            #nav-create-assembly.panel-nav.blank(data-id='create-item') New
+                        .panel-right#add-views
+                            #search-items
+                                .panel-list-toolbar
+                                    span Search for:
+                                    input#search-input
+                                    i.icon search
+                                #search-items-list.panel-list
+                            #create-item
+                                #create-item-form.surface-level-2
+                                #create-item-panel 
+                                    //- #create-operation.button.default(title="New item will be considered as operation, consisting of sub MBOM items to define a manufacturing process") Save As Node
+                                    //- #create-end-item.button(title="New item will be considered as end item beinb consumed in a manufacturing process") Save As End Item
+                                    .list-header New Items 
+                                    #create-item-list.list
+                            //- #saved-search
+                            //-     .panel-list-toolbar
+                            //-         span Filter List:
+                            //-         input.list-filter
+                            //-         i.icon filter_list
+                            //-     #saved-search-list.panel-list
+                            #workspace-views-mbom(data-link='')
+                                .panel-list-toolbar
+                                    span Select View:
+                                    select.button.view-selector#view-selector-mbom
+                                    span Filter List:
+                                    input.list-filter
+                                    i.icon filter_list
+                                #workspace-view-list-mbom.panel-list
+                            #workspace-views-ebom(data-link='/api/v3/workspaces/79/tableaus')
+                                .panel-list-toolbar
+                                    span Select View:
+                                    select.button.view-selector#view-selector-ebom
+                                    span Filter List:
+                                    input.list-filter
+                                    i.icon filter_list
+                                #workspace-view-list-ebom.panel-list
+                            #bookmark-items
+                                #bookmark-items-list.panel-list
+                            #recent-items
+                                #recent-items-list.panel-list
+                        .panel-right#add-processing
+                            .processing
+                                .bounce1
+                                .bounce2
+                                .bounce3
+        
+                .panel-content#instructions
+
+            #divider-mbom.screen-divider.vertical 
+            
+            .panel#mbom
+                .panel-header
+                    .panel-title
+                        .panel-title-main Manufacturing BOM
+                .panel-content#mbom-tree
+                #mbom-add-operation.surface-level-3
+                    span#mbom-add-text Add Process
+                    input#mbom-add-name(placeholder="Title")
+                    input#mbom-add-code(placeholder="Code")
+                .bom-panel
+                    span Total Quantity : 
+                    span#mbom-total-qty
+
+            .panel.surface-level-3#summary
+            //- .panel.surface-level-3#details
+            //- .panel.surface-level-3#attachments
+
+        #dialog-copy.dialog
+            .dialog-header Copy / Move Item
+            .dialog-content
+                span Define quantity of 
+                span#move-item-name.nowrap
+                span to be moved / copied to 
+                span#move-target-name.nowrap
+                p
+                    input#copy-qty
+            .dialog-footer
+                #copy-move.button.default Move Quantity
+                #copy-add.button Add Quantity
+                #copy-cancel.button Cancel
+        
+        #dialog-end-item.dialog
+            .dialog-header Set End Item
+            .dialog-content
+                span The item
+                    span#end-item-name 
+                span will be added to the MBOM and it will be set as  
+                    strong End Item 
+                    |in its item's details.
+                p This will also hide this item's BOM within this editor.
+                span To undo this action, uncheck the property 
+                    strong End Item 
+                    |at any time.
+            .dialog-footer
+                #end-item-confirm.default.button Confirm
+                #end-item-cancel.button Cancel
+
+        #dialog-insert.dialog
+            .dialog-header Insert BOM
+            .dialog-content
+                span The EBOM of item 
+                    span#insert-item-name 
+                span will be inserted as is to the MBOM. In addition, the flag 
+                    strong Matches MBOM 
+                    |will be set in the item's details.
+                p This will automatically hide this item's BOM within this editor as it must not be modified any longer. Same applies to all other instances of this item.
+                span To undo this action, uncheck the property 
+                    strong Matches MBOM 
+                    |at any time.
+            .dialog-footer
+                #insert-confirm.default.button Confirm
+                #insert-cancel.button Cancel
+
+        #dialog-convert.dialog
+            .dialog-header Create and insert MBOM
+            .dialog-content
+                span This will create a matching MBOM for 
+                    span#convert-item-name 
+                p If you confirm, the given MBOM will be created immediately and inserted to the selected target. The items of this EBOM that were added to the MBOM already will not get removed.
+                p After the MBOM creation operation completed, the sub-items of this EBOM will be removed from this view.
+                span This action cannot be undone within this editor.
+            .dialog-footer
+                #convert-confirm.default.button Confirm
+                #convert-cancel.button Cancel
+
+        #dialog-saving.dialog
+            .dialog-header Saving Changes
+            .dialog-content
+                #step1.step 
+                    .step-label Creating new items
+                    .step-progress
+                        #step-bar1.step-bar
+                    #step-counter1.step-counter 
+                #step2.step 
+                    .step-label Removing BOM entries 
+                    .step-progress
+                        #step-bar2.step-bar
+                    #step-counter2.step-counter 
+                #step3.step 
+                    .step-label Adding new BOM entries
+                    .step-progress
+                        #step-bar3.step-bar
+                    #step-counter3.step-counter 
+                #step4.step 
+                    .step-label Updating existing BOM entries
+                    .step-progress
+                        #step-bar4.step-bar
+                    #step-counter4.step-counter 
+            .dialog-footer
+                #confirm-saving.button.disabled Close            
