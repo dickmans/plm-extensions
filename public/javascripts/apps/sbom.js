@@ -346,9 +346,9 @@ function insertBOMIndicators() {
 }
 function updateBOMIndicators() {
 
-    let serviceItems = $('.service-item');
-    let kitItems     = $('.kit-item');
-    let spareParts   = $('.spare-part');
+    let serviceItems = $('.sbom-node:not(.hidden)').find('.operation:not(.hidden)').find('.items-list-row:not(.hidden)');
+    let kitItems     = $('#kits').find('.item-group:not(.hidden)').find('.items-list-row:not(.hidden)');
+    let spareParts   = $('#spare-parts').children(':not(.hidden)');
 
     $('#bom-tbody').children('.content-item').each(function() {
 
@@ -646,6 +646,7 @@ function insertService(link, title, edgeId, parent, number) {
         .click(function() {
             $(this).closest('.group').addClass('hidden');
             updatePosNumbers();
+            updateBOMIndicators();
         });
 
     $('<div></div>').appendTo(elemService)
@@ -722,6 +723,7 @@ function insertOperation(elemService, link, title, edgeId, number) {
         .click(function() {
             $(this).closest('.group').addClass('hidden');
             updatePosNumbers();
+            updateBOMIndicators();
         });     
 
     $('<div></div>').appendTo(elemOperation)
@@ -811,6 +813,7 @@ function insertKit(part) {
         .click(function() {
             $(this).closest('.group').addClass('hidden');
             updatePosNumbers();
+            updateBOMIndicators();
         });
 
     $('<div></div>').appendTo(elemKit)
