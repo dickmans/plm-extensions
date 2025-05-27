@@ -227,9 +227,27 @@
         p See next chapter 
             strong Server Settings File 
             |for details.
-        h1 Optional: Enable Product Variants 
-        p To better integrate the new workspace for the item variants with the Products workspace, you may adjust the grid tab of workspace Products. The BOM column now can be changed to allow for selection of the given variant BOM: 
+        h1 Optional: Integrate With Products Workspace
+        p Instead of starting the Variant Manager from an EBOM, you can also start it from a product. In this case, the product's 
+            strong Engineering BOM 
+            |will be used as a basis and all variants will be stored within the product's list of variants (the grid tab). Perform the following steps to enable this integrated feature.
+        h2 Adjust grid tab of workspace Products
+        p Add a column BOM to the grid based on a pick list for workspace Item Variants: 
         img.border(src='images/apps/variant-manager-8.png' style='max-width:1422px;')
+        h2 Add field to store dmsID
+        p Workspace Products must have a field containing the dmsID of each record. If not present yet, add a new Single Line Text field with id 
+            strong DMS_ID 
+            | in the Products workspace (hidden). Let this field be set automatically at first workflow transition by script using this code: 
+        p.code  
+            span item.DMS_ID = dmsID;
+        h2 Add Computed Field with Action Button 
+        p Enable access to the 
+            strong Variants Manager 
+            | app by using the following computed field formula:
+        p.code '&lt;a style="border: 1px solid #bec8d2;border-radius:3px;color: #0a131c;font-weight:600;line-height:32px;padding:4px 20px;text-align:center;text-decoration:none !important;white-space:nowrap;" target="_blank" href ="LOCATIONvariants?wsId=95&dmsId='||DMS_ID||'&options=fieldIdEBOM:ENGINEERING_BOM"&gt;Variant Manager&lt;/a&gt;'
+        p You can either add a new field with this formula or add this formula to the existing field 
+            strong Actions
+            |. In any case, please update the wsId reference (95) and fieldId (ENGINEERING_BOM) of this formula if needed.
         h1 Server Settings File Details
         p If you require usage of different field names, table names etc, please have a look at the settings.js file and locate section variants, listing all possible configurable settings as shown below. Review the first option 
             strong wsIdItemVariants 
