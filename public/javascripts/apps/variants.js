@@ -289,6 +289,8 @@ function getVariantsWSConfig() {
         }
     }
 
+    if(isBlank(wsVariants.columns)) showErrorMessage('Error loading workspace configuration', 'Cannot find BOM view with name "' + config.variants.bomViewNameVariants + '" in workspace ' +  config.variants.wsIdItemVariants + ' (wsIdItemVariants)');
+
     $('#button-create-variant').removeClass('disabled');
 
     insertBOM(urlParameters.link, { 
@@ -569,7 +571,7 @@ function setVariantItemStyle(elemCell, status) {
 }
 
 
-// Sfter new variant creation add it to the table and the product's grid
+// After new variant creation add it to the table and the product's grid
 function addNewVariant(link) {
 
     let index = $('.variant-head').length + 1;
