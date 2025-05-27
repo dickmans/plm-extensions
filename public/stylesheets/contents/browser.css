@@ -1,0 +1,10 @@
+.browser-contents {
+    position    : absolute;
+    top         : 58px;
+    right       : 0px;
+    bottom      : 0px;
+    left        : 0px;
+}
+.browser-contents > .panel-top > .panel-header {
+    border : none;
+}
