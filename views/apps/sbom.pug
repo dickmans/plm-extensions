@@ -16,6 +16,9 @@ block body
             #header-title= title
             #header-subtitle
             #header-toolbar
+                select#mode.button 
+                    option(value='ebom') Insert from EBOM 
+                    option(value='lib') Insert from Library
                 .button#save.default Save Changes
                 .button#toggle-viewer.with-toggle.toggle-on Toggle Viewer
                 .button#toggle-details.with-toggle Toggle Details
@@ -23,8 +26,9 @@ block body
         
         .screen
 
-            #viewer.viewer.surface-level-1
-            #bom.surface-level-1
+            #viewer.viewer.surface-level-1.mode-ebom
+            #bom.surface-level-1.mode-ebom
+            #browser.hidden.surface-level-1.mode-lib
             #panel.surface-level-2
 
                 .tabs#tabs(data-tab-group="tab-group-main")

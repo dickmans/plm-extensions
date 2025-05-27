@@ -19,6 +19,7 @@
     right   : calc(var(--width-bom-min) + var(--width-panel) + var(--width-details) + (6 * var(--border-h)));
     bottom  : 0px;
     left    : 0px;
+    display : none;
 }
 #bom {
     border-width : var(--border-v) var(--border-h) var(--border-v);
@@ -27,6 +28,14 @@
     bottom  : 0px;
     width   : var(--width-bom-min);
     z-index : 5;
+    display : none;
+}
+#browser {
+    border-width : var(--border-v) var(--border-h) var(--border-v);
+    top     : 0px;
+    right   : calc(var(--width-panel) + var(--width-details) + (4 * var(--border-h)));
+    bottom  : 0px;
+    left    : 0px;
 }
 #panel {
     border-width : var(--border-v) var(--border-h) var(--border-v);
@@ -53,6 +62,7 @@
 
 .no-details .viewer  { right : calc(var(--width-bom) + var(--width-panel) + (4 * var(--border-h))); }
 .no-details #bom     { right : calc(var(--width-panel) + (2 * var(--border-h)));  width : var(--width-bom); }
+.no-details #browser { right : calc(var(--width-panel) + (2 * var(--border-h))); }
 .no-details #panel   { right : 0px; }
 .no-details #details { right : calc(-1px - var(--width-details) - (2 * var(--border-h))); }
 

@@ -59,6 +59,11 @@ $(document).ready(function() {
 
 function setUIEvents() {
 
+    $('#mode').on('change', function() {
+        if($('#mode').val() === 'ebom') { $('.mode-ebom').removeClass('hidden'); $('.mode-lib').addClass('hidden'); }
+        else { $('.mode-ebom').addClass('hidden'); $('.mode-lib').removeClass('hidden'); }
+    })
+
     $('#toggle-viewer').click(function() {
         $(this).toggleClass('toggle-on');
         $('body').toggleClass('no-viewer');
@@ -138,6 +143,45 @@ function getInitialData() {
                 break;
             }
         }
+
+        insertBrowser('browser', [{
+            label    : 'Bookmarks', 
+            type     : 'bookmarks',
+            settings : {
+                reload       : true,
+                workspacesIn : [ config.items.wsId ]
+            }
+        },{
+            label    : 'Recent', 
+            type     : 'recents',
+            settings : {
+                reload       : true,
+                workspacesIn : [ config.items.wsId ]
+            }
+        },{
+            label   : 'All Items', 
+            type    : 'views',
+            id      : 'browser-views',
+            wsId    : config.items.wsId,
+            settings : { 
+                reload : true
+            }
+        },{
+            label   : 'Search', 
+            type    : 'search',
+            settings : {
+                id          : 'browser-search',
+                workspaceId : [ config.items.wsId ],
+            }
+        }], {
+            enableDragging  : true,
+            enableDetails   : true,
+            settingsDetails : paramsDetails
+            // ondragstart : function(event) { dragStartHandler(event); },
+            // ondragend : function(event) { dragEndHandler(event); }
+        });
+
+        enableDropTarget($('#spare-parts'));
 
         insertViewer(links.ebom); 
 
@@ -947,7 +991,6 @@ function clickGroupToggle(e, elemClicked) {
     e.preventDefault();
     e.stopPropagation();
 
-    // elemClicked.toggleClass('icon-chevron-right').toggleClass('icon-chevron-down');
     elemClicked.closest('.group').toggleClass('collapsed').toggleClass('expanded');
 
 }
@@ -990,8 +1033,6 @@ function enableBOMItemDragging() {
             elemRow.attr('ondragend'  , 'dragEndHandler(event)');
 
     });
-
-    enableDropTarget($('#spare-parts'));
 
 }
 function enableDropTarget(elem) {
@@ -1044,6 +1085,7 @@ function dropHandler(e) {
     let className   = '';
     let level       = '1';
     let fromBOM     = elemDragged.is('tr');
+    let fromBrowser = (elemDragged.hasClass('tile') && elemDragged.hasClass('content-item'))
     let onItem      = null;
 
     if(elemTarget.hasClass('operation')) { className = 'service-item'; level = '1'; }
@@ -1070,6 +1112,22 @@ function dropHandler(e) {
             },
             edgeId      : '', 
             quantity    : elemDragged.attr('data-quantity')
+        }
+
+        let newItem = insertItem(elemTarget, className, level, part);
+
+        if(onItem !== null) newItem.insertBefore(onItem);
+    
+    } else  if(fromBrowser) {
+
+        let part = {
+            link        : elemDragged.attr('data-link'), 
+            title       : elemDragged.attr('data-title'),  
+            details     : {
+                NUMBER  : elemDragged.attr('data-part-number')
+            },
+            edgeId      : '', 
+            quantity    : '1.0'
         }
 
         let newItem = insertItem(elemTarget, className, level, part);
