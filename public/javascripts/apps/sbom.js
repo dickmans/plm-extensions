@@ -848,7 +848,7 @@ function insertItem(elemParent, className, surfaceLevel, part) {
                 $(this).appendTo(elemItemsList).removeClass('hidden');
             }
             addItem = false;
-            return 0;
+            return $(this);
         }
     })
 
@@ -861,7 +861,11 @@ function insertItem(elemParent, className, surfaceLevel, part) {
         .attr('data-link', link)
         .attr('data-edgeid', edgeId)
         .attr('data-number', number)
-        .attr('data-quantity', quantity);
+        .attr('data-quantity', quantity)
+        .attr('ondragenter', 'dragEnterItem(event)')
+        .attr('ondragover' , 'dragEnterItem(event)')
+        .attr('ondragleave', 'dragLeaveHandler(event)')
+        .attr('ondrop'     , 'dropHandler(event)');
 
     $('<input>').appendTo(elemRow)
         .addClass('list-item-quantity')
@@ -874,6 +878,9 @@ function insertItem(elemParent, className, surfaceLevel, part) {
         .attr('data-link', link)
         .attr('data-edgeid', edgeId)
         .attr('data-part-number', partNumber)
+        .attr('draggable', 'true')
+        .attr('ondragstart', 'dragStartHandler(event)')
+        .attr('ondragend', 'dragEndHandler(event)')
         .click(function() {
             let isSelected = $(this).hasClass('selected');
             $('.sbom-item').removeClass('selected');
@@ -904,7 +911,7 @@ function insertItem(elemParent, className, surfaceLevel, part) {
         });
 
     let elemImage = $('<div></div>').appendTo(elemItem)
-        .addClass('tile-image');
+        .addClass('tile-image')
 
     $('<div></div>').appendTo(elemImage).addClass('tile-counter').html(number);
 
@@ -932,6 +939,8 @@ function insertItem(elemParent, className, surfaceLevel, part) {
 
         });
 
+    return elemRow;
+
 }
 function clickGroupToggle(e, elemClicked) {
 
@@ -955,6 +964,17 @@ function clickMaximizeToggle(e, elemClicked) {
     if(elemGroup.hasClass('max')) {
         elemGroup.removeClass('collapsed').addClass('expanded');
     }
+
+}
+function dragEnterItem(e) {
+
+    e.preventDefault();
+
+    let elemTarget = $(e.target);
+
+    if(!elemTarget.hasClass('items-list-row')) elemTarget = elemTarget.closest('.items-list-row');
+
+    elemTarget.addClass('drag-hover');
 
 }
 
@@ -1006,7 +1026,7 @@ function dragOverHandler(e) {
 }
 function dragLeaveHandler(e) {
 
-    $(e.target).removeClass('drag-hover');
+    $('.drag-hover').removeClass('drag-hover');
 
 }
 function dragEndHandler(e) {
@@ -1017,27 +1037,55 @@ function dragEndHandler(e) {
 function dropHandler(e) {
 
     e.preventDefault();
+    e.stopPropagation();
 
     let elemTarget  = $(e.target);
     let elemDragged = $('.dragged').first();
     let className   = '';
     let level       = '1';
+    let fromBOM     = elemDragged.is('tr');
+    let onItem      = null;
 
     if(elemTarget.hasClass('operation')) { className = 'service-item'; level = '1'; }
     else if(elemTarget.hasClass('kit')) { className = 'kit-item'; level = '1'; }
-    else {elemTarget = $('#parts'); className = 'spare-part'; level = '2';}
+    else if(elemTarget.attr('id') === 'spare-parts') { className = 'spare-part'; level = '2'; elemTarget = $('#parts');}
+    else {
 
-    let part = {
-        link        : elemDragged.attr('data-link'), 
-        title       : elemDragged.attr('data-title'),  
-        details     : {
-            NUMBER  : elemDragged.attr('data-part-number')
-        },
-        edgeId      : '', 
-        quantity    : elemDragged.attr('data-quantity')
+        onItem     = elemTarget.closest('.items-list-row');
+        elemTarget = elemTarget.closest('.items-list').parent();
+        className  = 'spare-part';
+
+             if(onItem.hasClass('service-item')) className = 'service-item';
+        else if(onItem.hasClass('kit-item'    )) className = 'kit-item';
+        
     }
 
-    insertItem(elemTarget, className, level, part)
+    if(fromBOM) {
+
+        let part = {
+            link        : elemDragged.attr('data-link'), 
+            title       : elemDragged.attr('data-title'),  
+            details     : {
+                NUMBER  : elemDragged.attr('data-part-number')
+            },
+            edgeId      : '', 
+            quantity    : elemDragged.attr('data-quantity')
+        }
+
+        let newItem = insertItem(elemTarget, className, level, part);
+
+        if(onItem !== null) newItem.insertBefore(onItem);
+
+    } else {
+        
+        elemDragged = elemDragged.closest('.items-list-row');
+
+        if(e.shiftKey) elemDragged = elemDragged.clone();
+
+        if(onItem !== null) elemDragged.insertBefore(onItem);
+        else elemDragged.appendTo(elemTarget);
+
+    }
 
     $('.dragged'   ).removeClass('dragged');
     $('.drag-hover').removeClass('drag-hover');

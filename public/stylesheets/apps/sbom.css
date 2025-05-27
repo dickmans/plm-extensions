@@ -282,6 +282,13 @@ td.spr i { background: var(--color-status-green ); }
 #spare-parts.drag-hover {
     background : var(--color-hover-background) !important;
 }
+.items-list-row.drag-hover .tile-image {  
+    background : var(--color-yellow-800) ; 
+}
+.items-list-row.drag-hover .tile,
+.items-list-row.drag-hover .tile-details {  
+    background : var(--color-yellow-700) ; 
+}
 
 
 
