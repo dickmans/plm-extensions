@@ -353,6 +353,7 @@ function updateBOMIndicators() {
     $('#bom-tbody').children('.content-item').each(function() {
 
         let elemBOMItem = $(this);
+        let title       = elemBOMItem.attr('data-title');
         let linkBOM     = elemBOMItem.attr('data-link');
         let cellSrv     = elemBOMItem.children('.type.srv').first();
         let cellKit     = elemBOMItem.children('.type.kit').first();
@@ -372,7 +373,8 @@ function updateBOMIndicators() {
                 $('<i></i>').appendTo(cellSrv)
                     .addClass('icon')
                     .addClass('isbom')
-                    .addClass('icon-service');
+                    .addClass('icon-service')
+                    .attr('title', title + ' is included in at least one Service Offering');
                 return false;
             }
 
@@ -388,7 +390,8 @@ function updateBOMIndicators() {
                 $('<i></i>').appendTo(cellKit)
                     .addClass('icon')
                     .addClass('isbom')
-                    .addClass('icon-package');
+                    .addClass('icon-package')
+                    .attr('title', title + ' is included in at least one Kit');
                 return false;
             }
 
@@ -404,7 +407,8 @@ function updateBOMIndicators() {
                 $('<i></i>').appendTo(cellSpr)
                     .addClass('icon')
                     .addClass('isbom')
-                    .addClass('icon-details');
+                    .addClass('icon-details')
+                    .attr('title', title + ' is included in list of Spare Parts');
                 return false;
             }
 
