@@ -1104,8 +1104,6 @@ function insertCreateData(id) {
                 })
             }
 
-            console.log(settings.create[id]);
-
             insertCreateDataSetFieldValues(id, settings.create[id]);
             finishPanelContentUpdate(id, settings.create[id]);
             
