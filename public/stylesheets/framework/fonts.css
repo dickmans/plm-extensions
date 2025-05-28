@@ -228,6 +228,7 @@
 .icon-clone::before             { content : '\e14d'; }
 .icon-close::before             { content : '\e5cd'; }
 .icon-collapse::before          { content : '\e5cf'; }
+.icon-columns::before           { content : '\e8f3'; }
 .icon-contains::before          { content : '\f525'; }
 .icon-counter-1::before         { content : '\f784'; }
 .icon-counter-2::before         { content : '\f783'; }
@@ -329,11 +330,13 @@
 .icon-target::before            { content : '\f70c'; }
 .icon-tiles::before             { content : '\e9b0'; }
 .icon-tiles-list::before        { content : '\e875'; }
+.icon-timeline::before          { content : '\eb85'; }
 .icon-toggle-collapse::before   { content : '\e5c7'; }
 .icon-toggle-expand::before     { content : '\e5c5'; }
 .icon-toggle-off::before        { content : '\e9f5'; }
 .icon-toggle-on::before         { content : '\e9f6'; }
 .icon-toggle-layout::before     { content : '\e42a'; }
+.icon-trend-chart::before       { content : '\f190'; }
 .icon-type::before              { content : '\e574'; }
 .icon-undelete::before          { content : '\e938'; }
 .icon-undo::before              { content : '\e166'; }
