@@ -11,6 +11,7 @@ $(document).ready(function() {
     appendOverlay(true);
 
     setUIEvents();
+    insertMenu();
 
     $('#button-toggle-create').hide();
 

@@ -15,7 +15,7 @@ block body
             p Unleash the power of Fusion Manage by utilizing its REST API to provide custom built frontends based on Autodesk Platform Services. All solutions manage data in PLM only. All business rules of PLM as well as access permissions still apply.
             div.side-toolbar
                 .button#version Review changes by 
-                    span#version-name May 26, 2025
+                    span#version-name May 28, 2025
                 .button#tenant Connected to 
                     span#tenant-name
             p This  version has been optimized for the tenant template released in 2023 using a single Items workspace. While the solutions can be used with any tenant thanks to their configuration capabilities, using this new tenant reduces configuration efforts. In addition, most of the solutions can be tested with the given demo datasets immediately.
@@ -37,6 +37,14 @@ block body
             .log#framework-changes 
                 h1 Framework Changes
                 table 
+                    tr  
+                        td May 28, 2025
+                        td *NEW* Main Menu
+                        td Applications that do not require a specific dmsId in the URL now can be accessed with a new menu button in top left corner. This makes it easier to switch between the UX extensions. This menu can be configured and disbled with the new variable  
+                            br
+                            span.code exports.menu = []
+                            br
+                            |in the settings file.
                     tr  
                         td May 26, 2025
                         td *NEW* Service BOM Editor

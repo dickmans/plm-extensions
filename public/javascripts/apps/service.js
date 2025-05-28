@@ -56,6 +56,7 @@ $(document).ready(function() {
 
     appendProcessing('items');
     appendOverlay();
+    insertMenu();
 
     let requests = [];
 

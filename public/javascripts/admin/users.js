@@ -13,6 +13,7 @@ $(document).ready(function() {
         if(response) {
 
             setUIEvents();
+            insertMenu();
             appendOverlay(true);
 
             getWorkspaces();

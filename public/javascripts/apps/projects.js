@@ -6,6 +6,7 @@ $(document).ready(function() {
 
     appendOverlay(false);
     getData();
+    insertMenu();
 
 });
 

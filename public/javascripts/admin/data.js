@@ -14,6 +14,7 @@ let records          = null;
 $(document).ready(function() {
 
     setUIEvents();
+    insertMenu();
 
     validateSystemAdminAccess(function(isAdmin) {
 

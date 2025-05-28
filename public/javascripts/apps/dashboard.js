@@ -47,6 +47,8 @@ $(document).ready(function() {
 
     }
 
+    insertMenu();
+
     if(isBlank(wsConfig.id)) {
 
         $('body').addClass('no-profile');

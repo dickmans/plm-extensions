@@ -236,6 +236,121 @@ function hideStartupDialog() {
 }
 
 
+// Insert Main Menu to switch utilities
+function insertMenu() {
+
+    if(menu.length === 0) return;
+
+    $(document).click(function() { $('#menu').fadeOut(150); })
+
+    $('<div></div>').insertBefore($('#header-logo'))
+        .attr('id', 'menu-button')
+        .addClass('icon')
+        .addClass('icon-menu')
+        .addClass('button')
+        .click(function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $('#menu').fadeIn(150);
+        });
+
+    let elemMenu = $('<div></div>').appendTo($('body'))
+        .attr('id', 'menu')
+        .click(function(e) {
+            e.preventDefault();
+            e.stopPropagation();     
+        })
+
+    $('<div></div>').appendTo(elemMenu)
+        .attr('id', 'menu-icon')
+        .addClass('icon')
+        .addClass('icon-menu')
+        .click(function() {
+            $('#menu').fadeOut(150);
+        });
+
+    let elemColumns = $('<div></div>').appendTo(elemMenu).attr('id', 'menu-columns');
+
+    for(let column of menu) {
+
+        let elemColumn = $('<div></div>').appendTo(elemColumns)
+
+        $('<div></div>').appendTo(elemColumn)
+            .addClass('menu-title')
+            .html(column.label);
+
+        let elemCommands = $('<div></div>').appendTo(elemColumn)
+            .addClass('menu-commands');
+
+        for(let command of column.commands) {
+
+            let elemCommand = $('<div></div>').appendTo(elemCommands)
+                .addClass('menu-command')
+                .attr('data-url', command.url)
+                .click(function(e) {
+                    clickMenuCommand($(this));
+                });
+
+            $('<div></div>').appendTo(elemCommand)
+                .addClass('menu-command-icon')
+                .addClass('icon')
+                .addClass(command.icon);
+
+            let elemCommandName = $('<div></div>').appendTo(elemCommand)
+                .addClass('menu-command-name');
+
+            $('<div></div>').appendTo(elemCommandName)
+                .addClass('menu-command-title')
+                .html(command.title);
+
+            $('<div></div>').appendTo(elemCommandName)
+                .addClass('menu-command-subtitle')
+                .html(command.subtitle);
+
+        }
+    }
+
+}
+function clickMenuCommand(elemCommand) {
+
+    let url        = elemCommand.attr('data-url');
+    let location   = document.location.href.split('?');
+    let newParams  = (url.indexOf('?') > -1) ? url.split('?')[1].split('&') : [];
+    let keepParams = ['theme']
+
+    if(location.length > 1) {
+        
+        let curParams = location[1].split('&');
+
+        for(let curParam of curParams) {
+
+            let curName = curParam.split('=')[0];
+            let add = keepParams.includes(curName);
+
+            for(let newParam of newParams) {
+
+                let newName = newParam.split('=')[0];
+
+                if(newName.toLowerCase() === curName.toLowerCase()) {
+                    add = false;
+                    break;
+                }
+
+            }
+
+            if(add) {
+                url += (url.indexOf('?') > 0) ? '&' : '?';
+                url += curParam;
+            }
+
+        }
+    }
+
+    document.location.href = url;
+
+}
+
+
 // Reset current page
 function reloadPage(ret) {
 

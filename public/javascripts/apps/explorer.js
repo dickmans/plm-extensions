@@ -60,6 +60,7 @@ $(document).ready(function() {
     appendProcessing('details', false);
     appendViewerProcessing();
     appendOverlay(false);
+    insertMenu();
 
     if(isBlank(wsItems.id)) wsItems.id = config.items.wsId;
 

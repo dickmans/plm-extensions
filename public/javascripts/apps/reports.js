@@ -2,6 +2,7 @@ $(document).ready(function() {
 
     appendOverlay(false);
     setUIEvents();
+    insertMenu();
     insertReportDefinitions('list', config.reports.startupReportNames);
 
 });

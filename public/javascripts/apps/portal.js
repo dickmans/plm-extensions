@@ -1,6 +1,7 @@
 $(document).ready(function() {
     
     setUIEvents();
+    insertMenu();
 
     getFeatureSettings('portal', [], function() {
 

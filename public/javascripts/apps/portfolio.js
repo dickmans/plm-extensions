@@ -9,6 +9,7 @@ $(document).ready(function() {
     getBrowserLanguage();
     setLabels();
     setUIEvents();
+    insertMenu();
     getFeatureSettings('portfolio', [], function() {
         getWorkspaceIds(function() {
             getProductCatgories();

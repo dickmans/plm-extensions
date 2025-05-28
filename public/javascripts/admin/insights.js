@@ -80,6 +80,7 @@ $(document).ready(function() {
     $('#header-subtitle').html(tenant.toUpperCase());
 
     setOptions();
+    insertMenu();
 
     validateAdminAccess(function(isAdmin) {
         if(!isAdmin) {

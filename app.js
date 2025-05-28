@@ -46,6 +46,7 @@ if ((process.argv.length > 2) && (!fs.existsSync('./' + fileSettings))) {
     app.locals.vaultGatewayLink  = (settings.vaultGateway === '') ? '' : 'https://' + settings.vaultGateway + '.vg.autodesk.com';
     app.locals.vaultName         = settings.vaultName;
     app.locals.config            = settings.config;
+    app.locals.menu              = settings.menu;
     app.locals.debugMode         = settings.debugMode;
 
     

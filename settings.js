@@ -737,6 +737,88 @@ exports.config = {
 
 
 // ---------------------------------------------------------------------------------------------------------------------------
+//  MAIN MENU CONFIGURATION
+// ---------------------------------------------------------------------------------------------------------------------------
+// Configure the main menu for the main toolbar enabling users to quickly switch the UX utilities
+// Set exports.menu = [] to disable the menu in all utilities
+exports.menu = [
+    {
+        label : 'Business Applications',
+        commands : [{
+            icon     : 'icon-3d',
+            title    : 'Portal',
+            subtitle : 'Quick access to all product data',
+            url      : '/portal'
+        },{
+            icon     : 'icon-trend-chart',
+            title    : 'Product Data Explorer',
+            subtitle : 'Track design maturity using defined KPIs',
+            url      : '/explorer'
+        },{
+            icon     : 'icon-important',
+            title    : 'Problem Reporting Dashboard',
+            subtitle : 'Capture and resolve problem reports',
+            url      : '/dashboard?wsId=82'
+        },{
+            icon     : 'icon-released',
+            title    : 'Non Conformances Dashboard',
+            subtitle : 'Capture and resolve quality issues',
+            url      : '/dashboard?wsId=98'
+        },{
+            icon     : 'icon-columns',
+            title    : 'Workspace Navigator',
+            subtitle : 'Manage your master data easily',
+            url      : '/navigator'
+        },{
+            icon     : 'icon-tiles',
+            title    : 'Product Portfolio',
+            subtitle : 'Browse your current product portfolio',
+            url      : '/portfolio'
+        },{
+            icon     : 'icon-dashboard',
+            title    : 'Reports Dashboard',
+            subtitle : 'Gain insights using your PLM reports',
+            url      : '/reports'
+        },{
+            icon     : 'icon-timeline',
+            title    : 'Projects Dashboard',
+            subtitle : 'Review timeline of NPI projects in progress',
+            url      : '/projects'
+        },{
+            icon     : 'icon-service',
+            title    : 'Service Portal',
+            subtitle : 'Real time spare parts information',
+            url      : '/service'
+        }]
+    },{
+        label : 'Administration Utilities',
+        commands : [{
+            icon     : 'icon-status',
+            title    : 'Data Manager',
+            subtitle : 'Automate data processing tasks',
+            url      : '/data'
+        },{
+            icon     : 'icon-group',
+            title    : 'User Settings Manager',
+            subtitle : 'Configure standards for new and existing users',
+            url      : '/users'
+        },{
+            icon     : 'icon-rules',
+            title    : 'Workspace Comparison',
+            subtitle : 'Deploy changes securely with automated comparison',
+            url      : '/workspace-comparison'
+        },{
+            icon     : 'icon-bar-chart-stack',
+            title    : 'Tenant Insights',
+            subtitle : 'Track user activity and data creation in your tenant',
+            url      : '/insights'
+        }]
+    }
+]
+
+
+
+// ---------------------------------------------------------------------------------------------------------------------------
 //  OVERRIDE SETTINGS WITH ENVIRONMENT VARIABLES
 // ---------------------------------------------------------------------------------------------------------------------------
 // Do not modify the following lines!

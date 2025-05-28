@@ -229,7 +229,8 @@ function launch(appURL, appTitle, req, res, next) {
                     vaultId      : req.session.vaultId,
                     revisionBias : reqRevisionBias,
                     options      : reqOptions.split(','),
-                    config       : req.app.locals.config
+                    config       : req.app.locals.config,
+                    menu         : req.app.locals.menu
                 });    
                 
             }

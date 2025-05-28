@@ -12,6 +12,7 @@ $(document).ready(function() {
     $('#source-tenant').val(tenant);
 
     setUIEvents();
+    insertMenu();
 
     validateSystemAdminAccess(function(isAdmin) {
 
