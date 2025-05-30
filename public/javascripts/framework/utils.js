@@ -241,6 +241,21 @@ function insertMenu() {
 
     if(menu.length === 0) return;
 
+    let curUrl   = document.location.href;
+    let showMenu = false;
+    let endpoint = curUrl.split('/').pop();
+    
+    for(let category of menu) {
+        for(let command of category.commands) {
+            if(command.url.indexOf('/' + endpoint) === 0) {
+                showMenu = true;
+                break;
+            }
+        }
+    }
+
+    if(!showMenu) return;
+
     $(document).click(function() { $('#menu').fadeOut(150); })
 
     $('<div></div>').insertBefore($('#header-logo'))
