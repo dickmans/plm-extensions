@@ -117,12 +117,14 @@ async function invokeAddinAction(elements, action) {
     
     switch(action) {
 
-        case 'addComponent'     : chrome.webview.postMessage("addComponent:"    + selection.toString()); break;
-        case 'openComponent'    : chrome.webview.postMessage("openComponent:"   + selection.toString()); break;
-        case 'gotoVaultFolder'  : chrome.webview.postMessage("gotoVaultFolder:" + selection.toString()); break;
-        case 'gotoVaultFile'    : chrome.webview.postMessage("gotoVaultFile:"   + selection.toString()); break;
-        case 'gotoVaultItem'    : chrome.webview.postMessage("gotoVaultItem:"   + selection.toString()); break;
-        case 'gotoVaultECO'     : chrome.webview.postMessage("gotoVaultECO:"    + selection.toString()); break;
+        case 'addComponent'     : chrome.webview.postMessage("addComponent:"     + selection.toString()); break;
+        case 'openComponent'    : chrome.webview.postMessage("openComponent:"    + selection.toString()); break;
+        case 'gotoVaultFolder'  : chrome.webview.postMessage("gotoVaultFolder:"  + selection.toString()); break;
+        case 'gotoVaultFile'    : chrome.webview.postMessage("gotoVaultFile:"    + selection.toString()); break;
+        case 'gotoVaultItem'    : chrome.webview.postMessage("gotoVaultItem:"    + selection.toString()); break;
+        case 'gotoVaultECO'     : chrome.webview.postMessage("gotoVaultECO:"     + selection.toString()); break;
+        case 'selectComponent'  : chrome.webview.postMessage("selectComponent:"  + selection.toString()); break;
+        case 'isolateComponent' : chrome.webview.postMessage("isolateComponent:" + selection.toString()); break;
 
     }
 
