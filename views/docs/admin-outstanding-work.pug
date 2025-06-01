@@ -1,0 +1,31 @@
+.tile(data-name='Outstanding Work Report')
+    .tile-image(style="background: url('images/admin-outstanding-work.png') no-repeat;background-size:contain;")
+    .tile-details
+        .tile-title Outstanding Work Report
+        .tile-subtitle Review the outstanding work lists of other users and take action if needed to keep the processing going
+        .tile-access 
+            .tile-endpoint /outstanding-work
+            .tile-button.button.default(href="outstanding-work" target="_blank") Open
+    .instructions
+        h1 Important 
+        p This utility makes use of impersonation to get the outstanding work lists of other users. This requires a 2-legged-authentication with an APS application based on Client ID and Client Secret. As this weakenes the security, it is recommended to proivde the additional settings required by this utility only if it is going to be used. You may want to use this utility witih a local instance of the UX server only to not have the Client Secret stored on a server being accessible globally.
+        p To enable this utility, you must create an additional APS application of type 
+            strong Traditional Web App
+            |, providing a Client ID and a Client Secret. The given Client ID must be whitelisted in your tenant. Next, provide the ID and the Secret in your settings in variables 
+            strong adminClientId 
+            |and 
+            strong adminClientSecret
+            |. Do not change the standard Client ID being used by the other applications.
+        img(src='images/apps/users-1.png' style='max-height:384px;max-width:726px;')
+        p If these two setting are left blank, the UX server will work anyway and you can use all utilities except for the 
+            strong User Settings Manager 
+            |.
+        h1 Features
+        p Open the outstanding work list for any active user of your PLM tenant and update each of the given processes to ensure that they progress.
+    .log 
+        h1 Outstanding Work Report Change Log 
+        table 
+            tr 
+                td June 1st, 2024
+                td New
+                td Initial release of this utility

@@ -1,0 +1,62 @@
+/*  MASTER LAYOUT */
+/* ----------------------------------------------------------------------------- */
+:root {
+
+    --panel-border-width-t  : 34px;
+    --panel-border-width-h  : 42px;
+    --panel-border-width-b  : 24px;
+    --width-users           : 440px;
+    --width-item            : 540px;
+
+}
+
+
+#panel {
+    border-width    : var(--panel-border-width-t) var(--panel-border-width-h) var(--panel-border-width-b);
+    top             : 0px;
+    bottom          : 0px;
+    left            : 0px;
+    width           : var(--width-users);
+}
+#users {
+    position : absolute;
+    top      : 64px;
+    right    : 0px;
+    bottom   : 0px;
+    left     : 0px;
+}
+#mow {
+    border-width    : var(--panel-border-width-t) var(--panel-border-width-h) var(--panel-border-width-b);
+    top             : 0px;
+    right           : calc(var(--width-item) + (2 * var(--panel-border-width-h)));
+    bottom          : 0px;
+    left            : calc(var(--width-users) + (2 * var(--panel-border-width-h)));
+}
+#item {
+    border-width    : var(--panel-border-width-t) var(--panel-border-width-h) var(--panel-border-width-b);
+    top             : 0px;
+    right           : 0px;
+    bottom          : 0px;
+    width           : var(--width-item);
+}
+
+
+#panel .text { text-align : center; }
+
+
+/*  INSTRUCTIONS */
+/* ----------------------------------------------------------------------------- */
+.instructions {
+    display         : flex;
+    flex-direction  : column;
+    gap             : 12px;
+    text-align      : center;
+    margin          : auto;
+    margin-top      : 160px;
+    width           : 240px;
+}
+.instructions-icon {
+    color       : var(--color-blue-500);
+    font-size   : 48px;
+    font-weight : 200;
+}

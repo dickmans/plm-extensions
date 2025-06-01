@@ -742,7 +742,7 @@ exports.config = {
 // Configure the main menu for the main toolbar enabling users to quickly switch the UX utilities
 // Set exports.menu = [] to disable the menu in all utilities
 exports.menu = [
-    {
+    [{
         label : 'Business Applications',
         commands : [{
             icon     : 'icon-3d',
@@ -790,18 +790,13 @@ exports.menu = [
             subtitle : 'Real time spare parts information',
             url      : '/service'
         }]
-    },{
+    }], [{
         label : 'Administration Utilities',
         commands : [{
             icon     : 'icon-status',
             title    : 'Data Manager',
             subtitle : 'Automate data processing tasks',
             url      : '/data'
-        },{
-            icon     : 'icon-group',
-            title    : 'User Settings Manager',
-            subtitle : 'Configure standards for new and existing users',
-            url      : '/users'
         },{
             icon     : 'icon-rules',
             title    : 'Workspace Comparison',
@@ -813,7 +808,20 @@ exports.menu = [
             subtitle : 'Track user activity and data creation in your tenant',
             url      : '/insights'
         }]
-    }
+    },{
+        label : 'Advanced Administration Utilities',
+        commands : [{
+            icon     : 'icon-problem',
+            title    : 'Outstanding Work Report',
+            subtitle : 'Review &amp update Outstanding Work lists of users',
+            url      : '/outstanding-work'
+        },{
+            icon     : 'icon-group',
+            title    : 'User Settings Manager',
+            subtitle : 'Configure standards for new and existing users',
+            url      : '/users'
+        }]
+    }]
 ]
 
 

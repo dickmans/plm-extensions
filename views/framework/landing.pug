@@ -15,7 +15,7 @@ block body
             p Unleash the power of Fusion Manage by utilizing its REST API to provide custom built frontends based on Autodesk Platform Services. All solutions manage data in PLM only. All business rules of PLM as well as access permissions still apply.
             div.side-toolbar
                 .button#version Review changes by 
-                    span#version-name May 28, 2025
+                    span#version-name June 1, 2025
                 .button#tenant Connected to 
                     span#tenant-name
             p This  version has been optimized for the tenant template released in 2023 using a single Items workspace. While the solutions can be used with any tenant thanks to their configuration capabilities, using this new tenant reduces configuration efforts. In addition, most of the solutions can be tested with the given demo datasets immediately.
@@ -37,6 +37,10 @@ block body
             .log#framework-changes 
                 h1 Framework Changes
                 table 
+                    tr  
+                        td June 1, 2025
+                        td *NEW* Outstanding Work Report
+                        td This utility made for administrators provides access to the Outstanding Work List of selected users to update the given processes if given users are not available.
                     tr  
                         td May 28, 2025
                         td *NEW* Main Menu
@@ -172,11 +176,16 @@ block body
                             | These files no longer need the prefix 'settings.' but must keep the suffix '.js'.
             .tiles-group.first
                 .tiles-group-title Administration Utilities
-                .tiles-group-subtitle Utilities made for Tenant Administrators only, partially requiring system admin privileges.
+                .tiles-group-subtitle Utilities made for Tenant Administrators only.
                 .tiles-group-list
                     include ../docs/admin-data.pug
                     include ../docs/admin-insights.pug
                     include ../docs/admin-workspace-comparison.pug
+            .tiles-group.first
+                .tiles-group-title Advanced Administration Utilities
+                .tiles-group-subtitle Utilities made for Tenant Administrators only and requiring system admin privileges based on 2-legged authentication
+                .tiles-group-list
+                    include ../docs/admin-outstanding-work.pug
                     include ../docs/admin-users.pug
             .tiles-group
                 .tiles-group-title Ready-To-Use Applications

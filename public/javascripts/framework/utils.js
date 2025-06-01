@@ -36,7 +36,8 @@ let settings = {
     workspaceViews    : {},
     workspaceItems    : {},
     workflowHistory   : {},
-    pdmFileProperties : {}
+    pdmFileProperties : {},
+    users             : {}
 }
 
 const includesAny = (arr, values) => values.some(v => arr.includes(v));
@@ -245,11 +246,13 @@ function insertMenu() {
     let showMenu = false;
     let endpoint = curUrl.split('/').pop();
     
-    for(let category of menu) {
-        for(let command of category.commands) {
-            if(command.url.indexOf('/' + endpoint) === 0) {
-                showMenu = true;
-                break;
+    for(let column of menu) {
+        for(let category of column) {
+            for(let command of category.commands) {
+                if(command.url.indexOf('/' + endpoint) === 0) {
+                    showMenu = true;
+                    break;
+                }
             }
         }
     }
@@ -289,38 +292,47 @@ function insertMenu() {
     for(let column of menu) {
 
         let elemColumn = $('<div></div>').appendTo(elemColumns)
+        let first      = true;
 
-        $('<div></div>').appendTo(elemColumn)
-            .addClass('menu-title')
-            .html(column.label);
+        for(let category of column) {
 
-        let elemCommands = $('<div></div>').appendTo(elemColumn)
-            .addClass('menu-commands');
+            let elemTitle = $('<div></div>').appendTo(elemColumn)
+                .addClass('menu-title')
+                .html(category.label);
 
-        for(let command of column.commands) {
+            if(!first) elemTitle.css('margin-top', '78px');
 
-            let elemCommand = $('<div></div>').appendTo(elemCommands)
-                .addClass('menu-command')
-                .attr('data-url', command.url)
-                .click(function(e) {
-                    clickMenuCommand($(this));
-                });
+            let elemCommands = $('<div></div>').appendTo(elemColumn)
+                .addClass('menu-commands');
 
-            $('<div></div>').appendTo(elemCommand)
-                .addClass('menu-command-icon')
-                .addClass('icon')
-                .addClass(command.icon);
+            for(let command of category.commands) {
 
-            let elemCommandName = $('<div></div>').appendTo(elemCommand)
-                .addClass('menu-command-name');
+                let elemCommand = $('<div></div>').appendTo(elemCommands)
+                    .addClass('menu-command')
+                    .attr('data-url', command.url)
+                    .click(function(e) {
+                        clickMenuCommand($(this));
+                    });
 
-            $('<div></div>').appendTo(elemCommandName)
-                .addClass('menu-command-title')
-                .html(command.title);
+                $('<div></div>').appendTo(elemCommand)
+                    .addClass('menu-command-icon')
+                    .addClass('icon')
+                    .addClass(command.icon);
 
-            $('<div></div>').appendTo(elemCommandName)
-                .addClass('menu-command-subtitle')
-                .html(command.subtitle);
+                let elemCommandName = $('<div></div>').appendTo(elemCommand)
+                    .addClass('menu-command-name');
+
+                $('<div></div>').appendTo(elemCommandName)
+                    .addClass('menu-command-title')
+                    .html(command.title);
+
+                $('<div></div>').appendTo(elemCommandName)
+                    .addClass('menu-command-subtitle')
+                    .html(command.subtitle);
+
+            }
+
+            first = false;
 
         }
     }
@@ -952,12 +964,13 @@ function getPanelSettings(link, params, defaults, additional) {
     if(isBlank(defaults.multiSelect)      ) defaults.multiSelect       = false;
     if(isBlank(defaults.filterBySelection)) defaults.filterBySelection = false;
     if(isBlank(defaults.layout)           ) defaults.layout            = 'list';
+    if(isBlank(defaults.number)           ) defaults.number            = true;
     if(isBlank(defaults.collapsePanel)    ) defaults.collapsePanel     = false;
     if(isBlank(defaults.collapseContents) ) defaults.collapseContents  = false;
     if(isBlank(defaults.groupBy)          ) defaults.groupBy           = '';
     if(isBlank(defaults.groupLayout)      ) defaults.groupLayout       = 'column';
     if(isBlank(defaults.additionalData)   ) defaults.additionalData    = [];
-    if(isBlank(defaults.contentSize)      ) defaults.contentSize       = 'xs';
+    if(isBlank(defaults.contentSize)      ) defaults.contentSize       = 'm';
     if(isBlank(defaults.contentSizes)     ) defaults.contentSizes      = [];
     if(isBlank(defaults.tileIcon)         ) defaults.tileIcon          = 'icon-product';
     if(isBlank(defaults.tileImage)        ) defaults.tileImage         = true;
@@ -1003,7 +1016,7 @@ function getPanelSettings(link, params, defaults, additional) {
         groupBy           : isBlank(params.groupBy)           ? defaults.groupBy : params.groupBy,
         groupLayout       : isBlank(params.groupLayout)       ? defaults.groupLayout : params.groupLayout,
         additionalData    : isBlank(params.additionalData)    ? defaults.additionalData : params.additionalData,
-        number            : isBlank(params.number)            ? true : params.number,
+        number            : isBlank(params.number)            ? defaults.number : params.number,
         contentSize       : isBlank(params.contentSize)       ? defaults.contentSize  : params.contentSize,
         contentSizes      : isBlank(params.contentSizes)      ? defaults.contentSizes  : params.contentSizes,
         tileIcon          : isBlank(params.tileIcon)          ? defaults.tileIcon  : params.tileIcon,
@@ -1280,6 +1293,23 @@ function genPanelCloneButton(id, settings) {
         });
 
     return elemButtonClone;
+
+}
+function genPanelWorkflowActions(id, settings) {
+
+
+    if(isBlank(settings.workflowActions)) return;
+    if(!settings.workflowActions) return;
+
+    let elemToolbar = genPanelToolbar(id, settings, 'controls');
+
+    let elemWorkflowActions = $('<select></select>').prependTo(elemToolbar)
+        .attr('id', id + '-workflow-actions')
+        .addClass('item-workflow-actions')
+        .addClass('button')
+        .hide();
+    
+    return elemWorkflowActions;
 
 }
 function genPanelOpenInPLMButton(id, settings) {
@@ -2935,10 +2965,10 @@ function addTilesListChevrons(id, settings, callback) {
 function genTable(id, items, settings) {
 
     if(isBlank(settings.multiSelect)) settings.multiSelect = false;
-    if(isBlank(settings.editable)   )    settings.editable = false;
-    if(isBlank(settings.position)   )    settings.position = false;
-    if(isBlank(settings.descriptor) )  settings.descriptor = false;
-    if(isBlank(settings.quantity)   )    settings.quantity = false;
+    if(isBlank(settings.editable)   ) settings.editable    = false;
+    if(isBlank(settings.position)   ) settings.position    = false;
+    if(isBlank(settings.descriptor) ) settings.descriptor  = false;
+    if(isBlank(settings.quantity)   ) settings.quantity    = false;
     if(isBlank(settings.hideDetails)) settings.hideDetails = false;
 
     let elemContent = $('#' + id + '-content');

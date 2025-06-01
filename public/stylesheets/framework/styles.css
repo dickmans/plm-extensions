@@ -1475,7 +1475,7 @@ and (max-device-width : 1900px)  {
 }
 
 .surface-level-1 td.content-column-number { background : var(--color-surface-level-4); }
-.surface-level-2 td.content-column-number { background : var(--color-surface-level-3); }
+.surface-level-2 td.content-column-number { background : var(--color-surface-level-5); }
 .surface-level-3 td.content-column-number { background : var(--color-surface-level-3); }
 .surface-level-4 td.content-column-number { background : var(--color-surface-level-1); }
 .surface-level-5 td.content-column-number { background : var(--color-surface-level-1); }
