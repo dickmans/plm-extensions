@@ -80,12 +80,12 @@ function insertUsersData(id) {
                 }
 
                 users.push({
-                    link     : user.email,
-                    image    : user.image.large,
-                    title    : user.displayName,
-                    subtitle : '',
-                    details  : '',
-                    data     : [
+                    link      : user.email,
+                    imageLink : user.image.large,
+                    title     : user.displayName,
+                    subtitle  : 'Last Login at ' + lastLogin.toLocaleDateString(),
+                    details   : '',
+                    data      : [
                         { fieldId : 'user', value : user.displayName},
                         { fieldId : 'firstName', value : user.firstName},
                         { fieldId : 'lastName', value : user.lastName},

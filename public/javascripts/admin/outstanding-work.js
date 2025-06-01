@@ -11,7 +11,9 @@ $(document).ready(function() {
                 hideHeaderLabel : true,
                 search          : true,
                 reload          : true,
-                onClickItem : function(elemClicked) { selectUser(elemClicked); }
+                layout          : 'list',
+                contentSizes    : ['m', 's', 'xs','xxs'],
+                onClickItem     : function(elemClicked) { selectUser(elemClicked); }
             });
 
         }

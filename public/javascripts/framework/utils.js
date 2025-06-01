@@ -2863,7 +2863,10 @@ function genSingleTile(params, settings) {
 
     if(isBlank(params.imageId) && isBlank(params.imageLink)) elemTile.addClass('no-image');
     
-    if(params.number) {
+    if(params.imageLink.indexOf('https://images.profile.autodesk.com') === 0) {
+        $('<img>').appendTo(elemTileImage)
+            .attr('src', params.imageLink);
+    } else if(params.number) {
         $('<div></div>').appendTo(elemTileImage)
             .addClass('tile-counter')
             .html(params.tileNumber);
