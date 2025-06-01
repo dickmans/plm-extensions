@@ -10,7 +10,8 @@ function insertMOW(params) {
         layout      : 'table'
     }, [
         [ 'filterByDueDate'  , false ],
-        [ 'filterByWorkspace', false ]
+        [ 'filterByWorkspace', false ],
+        [ 'userId'           , ''    ]
     ]);
 
     settings.mow[id].load = function() { insertMOWData(id); }
@@ -28,7 +29,6 @@ function insertMOW(params) {
 
     insertMOWDone(id);
 
-
     settings.mow[id].load();
 
 }
@@ -36,7 +36,10 @@ function insertMOWData(id) {
 
     settings.mow[id].timestamp = startPanelContentUpdate(id);
 
-    $.get('/plm/mow', { timestamp : settings.mow[id].timestamp }, function(response) {
+    $.get('/plm/mow', { 
+        timestamp : settings.mow[id].timestamp,
+        userId    : settings.mow[id].userId
+     }, function(response) {
 
         if(stopPanelContentUpdate(response, settings.mow[id])) return;
 
