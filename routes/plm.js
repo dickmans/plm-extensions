@@ -3549,14 +3549,22 @@ router.get('/mow', function(req, res, next) {
     
     console.log(' ');
     console.log('  /mow');
-    console.log(' --------------------------------------------');  
+    console.log(' --------------------------------------------'); 
+    console.log('  req.query.userId       = ' + req.query.userId);     
     console.log('  ');
-    
-    let url = req.app.locals.tenantLink + '/api/v3/users/@me/outstanding-work';
-    
+
+    let url      = req.app.locals.tenantLink + '/api/v3/users/@me/outstanding-work';
+    let headers  = getCustomHeaders(req);
+
+    if(req.query.userId !== '') {
+        headers['Authorization'] = req.session.admin;
+        headers['X-user-id']     = req.query.userId;
+    }
+
     axios.get(url, {
-        headers : req.session.headers
+        headers : headers
     }).then(function(response) {
+        if(response.data === '') response.data = { outstandingWork : [] };
         sendResponse(req, res, response, false);
     }).catch(function(error) {
         sendResponse(req, res, error.response, true);
