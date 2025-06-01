@@ -17,10 +17,10 @@ let enableCache     = false;
 // ---------------------------------------------------------------------------------------------------------------------------
 //  OPTIONAL ADDITIONAL CLIENT ID FOR 2-LEGGED AUTHENTICATION
 // ---------------------------------------------------------------------------------------------------------------------------
-// The application USER SETTINGS MANAGER requires an APS application with Client ID and Client Secret for 2-legged authentications, please proivde the given settings in the next variables.
-// This application must be different from the one provided in clientId as this time, a Client Secret is required whereas the previous application must not require a Client Secret.
-// Only 2-legged applications enables impersonation - which is required for the USER SETTINGS MANAGER utility to work. 
-// However, as this impacts security, its is recommended to provide the following settings only if the USER SETTINGS MANAGER will be used, maybe even only temporarily or in a local copy of this server.
+// The applications OUTSTANDING WORK REPORT and  USER SETTINGS MANAGER require an APS application with Client ID and Client Secret for 2-legged authentications, please proivde the given settings in the next variables.
+// This APS application must be different from the one provided in clientId above as this one must require a Client Secret, to be provided ad adminClientSecret.
+// Only 2-legged applications enable impersonation - which is required for the two advanced admin applications (OUTSTANDING WORK REPORT and USER SETTINGS MANAGER). 
+// However, as this impacts security, its is recommended to provide the following settings only if these advanced admin utilities will be used, maybe even only temporarily or in a local copy of this server.
 // All other applications will work even if the following 2 settings are not provided as they use the clientId variable instead. 
 // Note that you can also provide these settings using the given environment variables ADMIN_CLIENT_ID and ADMIN_CLIENT_SECRET.
 let adminClientId     = '';
