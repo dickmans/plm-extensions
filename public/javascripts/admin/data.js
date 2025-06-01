@@ -1212,6 +1212,7 @@ function genRequests(limit) {
             } else if(run.actionId === 'set-owner') {
 
                 params.owner = $('#select-set-owner').children('option:selected').attr('data-id');
+                params.notify = ($('#select-notify-new-owner').val() === 'y');
 
                 requests.push($.post('/plm/set-owner', params));
 

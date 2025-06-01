@@ -197,10 +197,16 @@ block body
                                 select.select-field.field-editable.button.options-list#select-clear-field(data-empty-label='Select Editable Field')
 
                         .action.permission-edit#set-owner  
-                            .action-title Set Owner
+                            .action-title Change Owner
                             .action-details   
                                 .description Assign ownership to the selected user
-                                select.select-user.button.options-list#select-set-owner
+                                .definition.grid
+                                    .label New Owner 
+                                    select.select-user.button.options-list#select-set-owner
+                                    .label Send Notification
+                                    select.button.options-list#select-notify-new-owner
+                                        option(value='n') Do not notify new owner by Mail
+                                        option(value='y') Notify new owner by Mail
 
                         .action.permission-edit#add-owner  
                             .action-title Add Additional Owner
