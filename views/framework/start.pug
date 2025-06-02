@@ -1,0 +1,14 @@
+extends layout
+
+block head
+
+    link(rel='stylesheet', href='/stylesheets/framework/start.css')
+    script(src='/javascripts/framework/start.js') 
+    script.
+        menu = !{JSON.stringify(menu)};
+
+block body
+
+    body.surface-level-1
+        #content
+            #title=title 

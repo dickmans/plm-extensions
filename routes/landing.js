@@ -26,6 +26,12 @@ router.get('/troubleshooting', function(req, res, next) {
         theme : (typeof req.query.theme === 'undefined') ? req.app.locals.defaultTheme : req.query.theme
     });
 });
+router.get('/start', function(req, res, next) {
+    res.render('framework/start.pug', {
+        title : 'PLM UX Extensions',
+        theme : (typeof req.query.theme === 'undefined') ? req.app.locals.defaultTheme : req.query.theme
+    });
+});
 
 
 
