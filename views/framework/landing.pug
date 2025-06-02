@@ -179,6 +179,37 @@ block body
                             br 
                             | These files no longer need the prefix 'settings.' but must keep the suffix '.js'.
             .tiles-group.first
+                .tiles-group-title Data Exploration &amp; Management
+                .tiles-group-subtitle Ready-To-Use applications that do neither require configurations settings nor demo data. They will work immediately and can be used to validate the server setup.
+                .tiles-group-list
+                    include ../docs/app-portal.pug
+                    include ../docs/app-product-portfolio-catalog.pug
+                    include ../docs/app-workspace-navigator.pug
+                    include ../docs/app-mobile-client.pug
+            .tiles-group 
+                .tiles-group-title Dashboards
+                .tiles-group-subtitle Gain valuable insights using PLM data. These applications require demo data, but will work immediately when using the default demo tenant.
+                .tiles-group-list
+                    include ../docs/app-process-dashboard.pug
+                    include ../docs/app-product-data-explorer.pug
+                    include ../docs/app-reports-dashboard.pug
+                    include ../docs/app-projects-dashboard.pug
+            .tiles-group 
+                .tiles-group-title Item &amp; BOM Management
+                .tiles-group-subtitle Manage multiple Bill of Materials based on your initial Engineering BOM. These Applications require configuration changes using the Workspace Manager and/or even changes to scripts. 
+                .tiles-group-list
+                    include ../docs/app-mbom-editor.pug
+                    include ../docs/app-sbom-editor.pug
+                    include ../docs/app-variants-manager.pug
+                    include ../docs/app-class-browser.pug
+            .tiles-group 
+                .tiles-group-title Managing Change
+                .tiles-group-subtitle Establish collaborative processes based on engineering data to keep all stakeholders in sync. These Applications require configuration changes using the Workspace Manager and/or even changes to scripts. 
+                .tiles-group-list
+                    include ../docs/app-design-reviews.pug
+                    include ../docs/app-change-impact-analysis.pug                
+                    include ../docs/app-service-portal.pug
+            .tiles-group
                 .tiles-group-title Administration Utilities
                 .tiles-group-subtitle Utilities made for Tenant Administrators only.
                 .tiles-group-list
@@ -191,34 +222,6 @@ block body
                 .tiles-group-list
                     include ../docs/admin-outstanding-work.pug
                     include ../docs/admin-users.pug
-            .tiles-group
-                .tiles-group-title Ready-To-Use Applications
-                .tiles-group-subtitle Applications that do neither require configurations settings nor demo data. They will work immediately and can be used to validate the server setup.
-                .tiles-group-list
-                    include ../docs/app-portal.pug
-                    include ../docs/app-reports-dashboard.pug
-                    include ../docs/app-workspace-navigator.pug
-                    include ../docs/app-mobile-client.pug
-            .tiles-group 
-                .tiles-group-title Preconfigured Applications
-                .tiles-group-subtitle Applications requiring demo data and basic configuration in settings file. However, they will work immediately when using the default demo tenant.
-                .tiles-group-list
-                    include ../docs/app-product-data-explorer.pug
-                    include ../docs/app-process-dashboard.pug
-                    include ../docs/app-product-portfolio-catalog.pug
-                    include ../docs/app-projects-dashboard.pug
-            .tiles-group 
-                .tiles-group-title Setup Required
-                .tiles-group-subtitle Applications requiring configuration changes using the Workspace Manager and/or even changes to scripts. 
-                .tiles-group-list
-
-                    include ../docs/app-design-reviews.pug
-                    include ../docs/app-service-portal.pug
-                    include ../docs/app-change-impact-analysis.pug                
-                    include ../docs/app-mbom-editor.pug
-                    include ../docs/app-variants-manager.pug
-                    include ../docs/app-class-browser.pug
-                    include ../docs/app-sbom-editor.pug
             .tiles-group 
                 .tiles-group-title Addins
                 .tiles-group-subtitle Access PDM &amp; PLM data with these applications using a narrow display and enabling host application interactions
