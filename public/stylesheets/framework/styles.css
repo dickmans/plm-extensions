@@ -169,7 +169,7 @@
     background : var(--color-gray-100);
 }
 .menu-command:hover .menu-command-icon {
-    background : var(--color-gray-200);
+    background : var(--color-gray-400);
 }
 
 
