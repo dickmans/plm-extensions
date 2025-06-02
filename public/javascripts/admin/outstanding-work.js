@@ -10,7 +10,6 @@ $(document).ready(function() {
                 columnsIn       : ['First Name', 'Last Name', 'Last Login'],
                 hideHeaderLabel : true,
                 search          : true,
-                reload          : true,
                 layout          : 'list',
                 contentSizes    : ['m', 's', 'xs','xxs'],
                 onClickItem     : function(elemClicked) { selectUser(elemClicked); }
@@ -32,7 +31,7 @@ function selectUser(elemClicked) {
         headerLabel         : elemClicked.attr('data-title'),
         filterByWorkspace   : true,
         filterByDueDate     : true,
-        openInPLM           : true,
+        openInPLM           : false,
         search              : true,
         reload              : true,
         onClickItem         : function(elemClicked) { selectMOWEntry(elemClicked); },
@@ -51,6 +50,7 @@ function selectMOWEntry(elemClicked) {
         headerLabel     : 'descriptor',
         bookmark        : true,
         editable        : true,
+        collapseContents : true,
         toggles         : true,
         openInPLM       : true,
         workflowActions : true

@@ -43,6 +43,10 @@
 
 #panel .text { text-align : center; }
 
+#users-header   { gap : 0px; justify-content: center; }
+#users-title    { display : none; }
+#users-controls { padding : 0px; }
+
 
 /*  INSTRUCTIONS */
 /* ----------------------------------------------------------------------------- */
@@ -59,4 +63,16 @@
     color       : var(--color-blue-500);
     font-size   : 48px;
     font-weight : 200;
+}
+
+@media (max-width: 1920px) {
+
+    :root {
+        --width-users           : 300px;
+        --width-item            : 480px;
+        --panel-border-width-t  : 28px;
+        --panel-border-width-h  : 36px;
+        --panel-border-width-b  : 16px;
+    }
+
 }
