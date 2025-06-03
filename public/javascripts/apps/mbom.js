@@ -2837,30 +2837,19 @@ function onViewerSelectionChanged(event) {
 
     if(disableViewerSelectionEvent) return;
 
-    if (event.dbIdArray.length === 1) {
+    if(event.dbIdArray.length === 1) {
+
+        viewerGetSelectedPartNumber(event, function(partNumber) {
 
         let updateBOMPanels = true;
-
-        viewer.getProperties(event.dbIdArray[0], function(data) {
-
-            let partNumber = data.name.split(':')[0];
-            let propertyMatch = false;
-
-            for(let partNumberProperty of config.viewer.numberProperties) {
-                for(let property of data.properties) {
-                    if(property.displayName === partNumberProperty) {
-                        partNumber = property.displayValue;
-                        if(partNumber.indexOf(':') > -1) { partNumber = partNumber.split(':')[0]; }
-                        propertyMatch = true;
-                        break;
-                    }
-                }
-                if(propertyMatch) break;
-            }
 
             if(disassembleMode) {
 
                 if((event.mouseButton === 0) || isBlank(event.mouseButton)) {
+
+                    disableViewerSelectionEvent = true;
+                    viewerHideModel(partNumber);
+                    disableViewerSelectionEvent = false;
                     $('#ebom').find('.item.leaf').each(function() {
                         let elemEBOM = $(this);
                         if(elemEBOM.attr('data-part-number') === partNumber) {
@@ -2869,8 +2858,9 @@ function onViewerSelectionChanged(event) {
                             
                         }
                     });
-                    viewerHideModel(partNumber);
+
                 }
+
             } else {
 
                 $('.item.leaf').hide();
@@ -2889,7 +2879,7 @@ function onViewerSelectionChanged(event) {
 
             }
 
-        });
+         });
 
     } else {
 
