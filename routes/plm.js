@@ -3556,9 +3556,11 @@ router.get('/mow', function(req, res, next) {
     let url      = req.app.locals.tenantLink + '/api/v3/users/@me/outstanding-work';
     let headers  = getCustomHeaders(req);
 
-    if(req.query.userId !== '') {
-        headers['Authorization'] = req.session.admin;
-        headers['X-user-id']     = req.query.userId;
+    if(typeof req.query.userId !== 'undefined') {
+        if(req.query.userId !== '') {
+            headers['Authorization'] = req.session.admin;
+            headers['X-user-id']     = req.query.userId;
+        }
     }
 
     axios.get(url, {
