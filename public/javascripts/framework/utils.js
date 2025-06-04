@@ -2762,7 +2762,8 @@ function genSingleTile(params, settings) {
 
     if(isBlank(settings)) settings = {};
     if(isBlank(params  ))   params = {};
-    if(isBlank(params.tileIcon)) params.tileIcon = 'icon-product';
+    if(isBlank(params.tileIcon )) params.tileIcon  = 'icon-product';
+    if(isBlank(params.imageLink)) params.imageLink = '';
 
     let elemTile        = $('<div></div>').addClass('tile').addClass('content-item');
     let elemTileImage   = $('<div></div>').appendTo(elemTile).addClass('tile-image');
