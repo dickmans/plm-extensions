@@ -18,11 +18,11 @@ The following extensions are included
 - PLM Portal [Video](https://youtu.be/tM8why6ybAU)
 - Process Dashboard [Video](https://youtu.be/VkxJXRQ9Pmg)
 - Product Portfolio Catalog [Video](https://youtu.be/hroRMjZzueQ)
-- Product Data Explorer [Video](https://youtu.be/TA5JyBVw2Hw)
+- Product Data Explorer [Video](https://youtu.be/hLNB3z_lp2k)
 - Projects Dashboard
 - Reports Dashboard [Video](https://youtu.be/quNaLQLAT3Q)
 - Service BOM Editor [Video](https://youtu.be/zVnsrQyO-1o)
-- Services Portal [Video](https://youtu.be/gYAyASE3vAU)
+- Services Portal [Video](https://youtu.be/VV68HAJaeF4)
 - Tenant Inisghts [Video](https://youtu.be/WZXGfDKGRHY)
 - User Settings Manager [Video](https://youtu.be/hJjxoovwbS8)
 - Variants Manager [Video](https://youtu.be/v6ZZN3Xo-BM)
