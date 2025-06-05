@@ -12,7 +12,7 @@ The following extensions are included
 - Class Browser
 - Data Manager [Video](https://youtu.be/hL4UblHbXw0)
 - Design Review Portal [Video](https://youtu.be/AU--qJIMmlE)
-- MBOM Editor [Video](https://youtu.be/5s9080mmYLo)
+- MBOM Editor [Video](https://youtu.be/qVhhKlrf1S0)
 - Mobile Client
 - Outstandingn Work Report [Video](https://youtu.be/zUIfiiAVwVQ)
 - PLM Portal [Video](https://youtu.be/tM8why6ybAU)
