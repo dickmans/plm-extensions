@@ -245,6 +245,7 @@ function insertMenu() {
     let curUrl   = document.location.href;
     let showMenu = false;
     let endpoint = curUrl.split('/').pop();
+        endpoint = endpoint.split('?')[0];
     
     for(let column of menu) {
         for(let category of column) {
@@ -949,6 +950,7 @@ function insertCalendarMonth(id, currentDate) {
 // Generate default settings object for item based and navigation views using genPanel*
 function getPanelSettings(link, params, defaults, additional) {
 
+    if(isBlank(defaults.counters)         ) defaults.counters          = false;
     if(isBlank(defaults.hidePanel)        ) defaults.hidePanel         = false;
     if(isBlank(defaults.hideHeader)       ) defaults.hideHeader        = false;
     if(isBlank(defaults.hideHeaderLabel)  ) defaults.hideHeaderLabel   = false;
@@ -982,7 +984,6 @@ function getPanelSettings(link, params, defaults, additional) {
     if(isBlank(defaults.tableRanges)      ) defaults.tableRanges       = false;
     if(isBlank(defaults.textNoData)       ) defaults.textNoData        = 'No Entries';
     if(isBlank(defaults.stateColors)      ) defaults.stateColors       = [];
-    if(isBlank(defaults.counters)         ) defaults.counters          = false;
     if(isBlank(defaults.useCache)         ) defaults.useCache          = false;
     if(isBlank(defaults.singleToolbar)    ) defaults.singleToolbar     = '';
     if(isBlank(defaults.disconnectLabel)  ) defaults.disconnectLabel   = 'Remove';
