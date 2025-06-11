@@ -1,0 +1,21 @@
+:root {
+
+    --border-h      : 32px;
+    --border-v      : 24px;
+    --width-bom     : 500px;
+    --height-viewer : 400px;
+}
+
+#bom {
+    border-width    : var(--border-v) var(--border-h);
+    top             : 0px;
+    bottom          : 0px;
+    left            : 0px;
+    width           : var(--width-bom);
+}
+.viewer {
+    top     : 0px;
+    right   : 0px;
+    left    : calc(var(--width-bom) + (2 * var(--border-h)));
+    height  : var(--height-viewer);
+}

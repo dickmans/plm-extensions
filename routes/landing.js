@@ -101,6 +101,7 @@ router.get('/template', function(req, res, next) { launch('tutorial/1-template' 
    ------------------------------------------------------------------------------ */
 router.get('/assets'        , function(req, res, next) { launch('dev/assets'          , 'Asset Management'                  , req, res, next); });
 router.get('/asset-services', function(req, res, next) { launch('dev/asset-services'  , 'Asset Services Portal'             , req, res, next); });
+router.get('/asset-editor'  , function(req, res, next) { launch('dev/asset-editor'    , 'Asset Specification Editor'        , req, res, next); });
 router.get('/mpe'           , function(req, res, next) { launch('dev/mpe'             , 'Manufacturing Process Editor'      , req, res, next); });
 router.get('/browser'       , function(req, res, next) { launch('dev/browser'         , 'PLM Browser'                       , req, res, next); });
 router.get('/change'        , function(req, res, next) { launch('dev/change'          , 'Change Manager'                    , req, res, next); });
