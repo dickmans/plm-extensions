@@ -833,7 +833,6 @@ function insertWorkflowActions(link, params) {
 
     $('<option></option>')
         .attr('value', '')
-        .attr('hidden', '')
         .attr('selected', '')
         .html(label)
         .appendTo(elemActions);
@@ -1609,6 +1608,8 @@ function insertDetailsData(id) {
 
     Promise.all(requests).then(function(responses) {
 
+        console.log(responses);
+
         if(stopPanelContentUpdate(responses[0], settings.details[id])) return;
 
         settings.details[id].descriptor = responses[0].data.title;
@@ -1780,6 +1781,13 @@ function insertDetailsFields(id, sections, fields, data, settings, callback) {
                     .attr('data-id', sectionId);
 
                 if(className !== 'expanded') elemFields.toggle();
+
+                let sectionFields = section.fields;
+
+                if(section.type === 'CLASSIFICATION') {
+
+                    
+                }
 
                 for(let sectionField of section.fields) {
 

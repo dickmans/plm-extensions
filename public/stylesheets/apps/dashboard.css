@@ -32,6 +32,7 @@
 #view { max-width : unset; }
 #views > .tiles .tile-data { flex-direction : row; }
 .tiles.list.m .tile-details { gap : 3px; }
+.item-workflow-actions { width : unset; max-width : unset; }
 
 
 /* MASTER LAYOUT */
