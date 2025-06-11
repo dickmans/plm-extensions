@@ -43,6 +43,8 @@ $(document).ready(function() {
             if(!isBlank(profile.workflowHistory)) wsConfig.workflowHistory = profile.workflowHistory;
             if(!isBlank(profile.markupsImageFieldsPrefix)) wsConfig.markupsImageFieldsPrefix = profile.markupsImageFieldsPrefix;
 
+            $('#main').addClass(wsConfig.className);
+
         }
 
     }

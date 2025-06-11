@@ -163,6 +163,25 @@ exports.config = {
             { label : 'Completed',   color : colors.green,  states : ['Completed'] }
         ]
     }, {
+        title       : 'Change Tasks Dashboard',
+        wsId        : 80,
+        className   : 'change-task',
+        contents    : [ 
+            { type : 'details'         , params : { id : 'details', expandSections : ['Task Details', 'Follow-Up & Status Updates'], editable : true, toggles : true, singleToolbar : 'controls' } },
+            { type : 'attachments'     , params : { id : 'attachments', editable : true, headerLabel : 'Files', singleToolbar : 'controls', layout : 'row', contentSize : 'l' } },
+            { type : 'grid'            , params : { id : 'grid', editable : true, headerLabel : 'Efforts'} },
+            { type : 'relationships'   , params : { id : 'relationships', headerLabel : 'Deliverables', editable : true, columnsIn : [ 'Item', 'Lifecycle', 'Problem Description', 'Proposed Change'], openInPLM : true } },
+            { type : 'workflow-history', params : { id : 'workflow-history' } }
+        ],
+        icon     : 'icon-mow',
+        progress : [
+            { label : 'Planned',      color : '#000000',     states : ['Planned' ]},
+            { label : 'New',          color : colors.red,    states : ['Assigned']},
+            { label : 'In Work',      color : colors.yellow, states : ['In Work' ]},
+            { label : 'Owner Review', color : colors.green,  states : ['On Hold', 'Review']},
+            { label : 'Done',         color : '#000000',     states : ['Completed']}
+        ]
+    }, {
         title       : 'Non Conformances Tracking Dashboard',
         wsId        : 98,
         className   : 'non-conformance',
@@ -764,6 +783,11 @@ exports.menu = [
             title    : 'Non Conformances Dashboard',
             subtitle : 'Capture and resolve quality issues',
             url      : '/dashboard?wsId=98'
+        },{
+            icon     : 'icon-mow',
+            title    : 'Change Tasks Dashboard',
+            subtitle : 'Review, perform and complete assigned tasks',
+            url      : '/dashboard?wsId=80'    
         },{
             icon     : 'icon-columns',
             title    : 'Workspace Navigator',

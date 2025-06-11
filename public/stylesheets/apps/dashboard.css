@@ -31,6 +31,7 @@
 }
 #view { max-width : unset; }
 #views > .tiles .tile-data { flex-direction : row; }
+.tiles.list.m .tile-details { gap : 3px; }
 
 
 /* MASTER LAYOUT */
@@ -385,6 +386,57 @@ td.selected {
     bottom  : 0px;
     left    : unset;
 }
+
+
+
+/* ITEM SUMMARY Change Tasks */
+/* ----------------------------------------------------------------------------- */
+#main.change-task #new {
+    display : none;
+}
+#main.change-task #list {
+    right : 0px;
+}
+#item.change-task {
+    --height-attachments    : 180px;
+    --height-relationships  : 220px;
+    --width-details         : 500px;
+    --width-workflow        : 300px;
+}
+#item.change-task #details {
+    top     : 0px;
+    right   : unset;
+    bottom  : 0px;
+    left    : 0px;
+    width   : var(--width-details);
+}
+#item.change-task #attachments {
+    top     : 0px;
+    right   : calc(var(--width-workflow) + (3 * var(--item-content-border-h)));
+    bottom  : unset;
+    left    : calc(var(--width-details) + (3 * var(--item-content-border-h)));
+    height  : var(--height-attachments);
+}
+#item.change-task #grid {
+    top     : calc(0px + var(--height-attachments) + (4 * var(--item-content-border-v)));
+    right   : calc(var(--width-workflow) + (3 * var(--item-content-border-h)));
+    bottom  : calc(0px + var(--height-relationships) + (4 * var(--item-content-border-v)));
+    left    : calc(var(--width-details) + (3 * var(--item-content-border-h)));
+}
+#item.change-task #relationships {
+    top     : unset;
+    right   : calc(var(--width-workflow) + (3 * var(--item-content-border-h)));
+    bottom  : 0px;
+    left    : calc(var(--width-details) + (3 * var(--item-content-border-h)));
+    height  : var(--height-relationships);
+}
+#item.change-task #workflow-history {
+    top     : 0px;
+    right   : 0px;
+    bottom  : 0px;
+    left    : unset;
+}
+
 
 
 /* ITEM SUMMARY Non Conformances */
