@@ -51,6 +51,9 @@ function setUIEvents() {
             getMatches();
         }
     });
+    $('.filter .value input').on('change', function() { 
+        getMatches();
+    });
     $('.filter .inputs input').on('change', function() { 
         getMatches();
     });
@@ -238,6 +241,7 @@ function updatefilters() {
 
     $('.select-user' ).each(function() { $(this).val('--'); });
     $('.select-group').each(function() { $(this).val('--'); });
+    $('#lifecycle').val('');
 
     Promise.all(requests).then(function(responses) {
 
@@ -767,6 +771,21 @@ function getSearchFilters() {
         }
 
     });
+
+    if(wsConfig.type === '6') {
+
+        let valueLifecycle = $('#lifecycle').val();
+
+        if(!isBlank(valueLifecycle)) {
+
+            filters.push({ 
+                field        : 'LIFECYCLE_NAME',
+                type         : 10,
+                comparator   : 15,
+                value        : valueLifecycle
+            });
+        }
+    }
 
     return filters;
 

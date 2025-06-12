@@ -84,6 +84,11 @@ block body
                                     option(value='--') Any
                                     option(value='t') Latest Only
 
+                        .filter#filter-lifecycle
+                            .label Lifecycle Name 
+                            .value 
+                                input#lifecycle(placeholder='Enter state name')
+
                     .group.surface-level-2#filter-properties
                         .text#text-properties You can also filter by multiple property values. Select a property in the selector below to add it to the list of filters.
                         .filter

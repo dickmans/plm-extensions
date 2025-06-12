@@ -197,6 +197,9 @@ select.button {
 select#workspace {
     width : 100%;
 }
+.filter > .value > input {
+    padding : 8px 20px;
+}
 .inputs input {
     flex-grow : 1;
     padding   : 8px 20px;
