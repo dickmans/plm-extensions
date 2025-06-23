@@ -250,6 +250,45 @@ block body
                                     select.select-lifecycle.button.options-list#select-perform-lifecycle-transition(data-empty-label='Select Lifecycle Transition')
                                     input#input-perform-lifecycle-transition(placeholder="Enter Release Letter")
 
+                        .action.permission-attachments#import-attachments  
+                            .action-title Import Files
+                            .action-details   
+                                .description Uploads files from selected folder to matching records in PLM. You have to upload the given files to a folder in /storage/imports first before this given folder can be selected as 
+                                    strong Source Storage Folder
+                                    |. This action does not use the data filters in the panel to left and will instead process all files in the selected source folder and find the matching items in PLM using the match options selected below.  It uses the files' names and matches them to the field selected below to locate the matching records in PLM.
+                                    br
+                                    |The source folder may also contain sub folders with all files belonging to the same record for easy upload of multiple files per item. In this case, the sub folders name will be matched  to the selected field.
+                                .definition.grid
+                                    .label Source Storage Folder
+                                    select#select-import-folder.button.select-folder(data-empty-label='- Select folder containing the files to import -')
+                                    .label Match against Field ID
+                                    select.select-field.field-editable.button.options-list#select-import-field(data-with-descriptor='true')
+                                    .label Match including File Suffix 
+                                    select#select-import-suffix.button
+                                        option(value='true') Yes
+                                        option(value='false') No
+                                    .label.ws-type-6 Match Release Status
+                                    select#select-import-release.button.ws-type-6
+                                        option(value='w') Working Version
+                                        option(value='r') Latest Release
+                                    .label Update Existing Attachments
+                                    select#select-import-update.button
+                                        option(value='n') No
+                                        option(value='y') Yes
+                                    .label Attachments Folder Name
+                                    input#input-import-folder-name(placeholder="Provide optional folder name to use in attachments tab in PLM")                                        
+                                    .label After successful import
+                                    select#select-import-on-success.button
+                                        option(value='move') Move file
+                                        option(value='delete') Delete file
+                                        //- option(value='') Do nothing
+                                    .label After failed import
+                                    select#select-import-on-failure.button
+                                        option(value='move') Move file
+                                        option(value='delete') Delete file
+                                        //- option(value='') Do nothing
+                                .description This action does not support multiple requests and the dynamic requests count adjustment due to the file upload durations.
+
                         .action.permission-attachments#export-attachments  
                             .action-title Export Files
                             .action-details   

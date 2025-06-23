@@ -2330,17 +2330,19 @@ router.post('/upload/:wsId/:dmsId', function(req, res) {
     console.log(' ');
     console.log('  /upload');
     console.log(' --------------------------------------------');  
-    console.log('  req.params.wsId       = ' + req.params.wsId);
-    console.log('  req.params.dmsId      = ' + req.params.dmsId);
-    console.log('  req.params.folderName = ' + req.params.folderName);
+    console.log('  req.params.wsId           = ' + req.params.wsId);
+    console.log('  req.params.dmsId          = ' + req.params.dmsId);
+    console.log('  req.params.folderName     = ' + req.params.folderName);
+    console.log('  req.params.updateExisting = ' + req.params.updateExisting);
     console.log();
 
     if (!req.files)
         sendResponse(req, res, { 'data' : [], 'status' : 400 }, false);
     //    return res.status(400).send('No files were uploaded.');
 
-    let files = [];
-    let folderName = (typeof req.params.folderName === 'undefined') ? '' : req.params.folderName;
+    let files          = [];
+    let folderName     = (typeof req.params.folderName === 'undefined') ? '' : req.params.folderName;
+    let updateExisting = (typeof req.params.updateExisting === 'undefined') ? true : (req.params.updateExisting == 'true');
 
     if(Array.isArray(req.files.newFiles)) {
         files = req.files.newFiles;
@@ -2357,18 +2359,18 @@ router.post('/upload/:wsId/:dmsId', function(req, res) {
         console.log('   > Moved files to folder uploads');
            
         getAttachments(req, function(attachmentsList) {
-            processFiles(req, res, attachmentsList, folderName, files);
+            processFiles(req, res, attachmentsList, folderName, files, updateExisting);
         });
        
     });
    
 });
-function processFiles(req, res, attachmentsList, folderName, files) {
+function processFiles(req, res, attachmentsList, folderName, files, updateExisting) {
     
     if(files.length === 0) {
         sendResponse(req, res, { 'data' : 'success' }, false);
     } else {
-        parseAttachments(req, pathUploads + files[0].name, files[0].name, attachmentsList, folderName, function() {
+        parseAttachments(req, pathUploads + files[0].name, files[0].name, attachmentsList, folderName, updateExisting, function() {
             fs.unlinkSync(pathUploads + files[0].name);
             files.splice(0, 1);
             processFiles(req, res, attachmentsList, folderName, files);
@@ -2395,12 +2397,13 @@ function getAttachments(req, callback) {
     });  
    
 }
-function parseAttachments(req, path, fileName, attachmentsList, folderName, callback) {
+function parseAttachments(req, path, fileName, attachmentsList, folderName, updateExisting, callback) {
    
     console.log('   > Checking list of attachments');
    
     let folderId    = '';
     let fileId      = '';
+    let update      = updateExisting || true;
 
     if(attachmentsList !== '') {
         if(typeof attachmentsList !== 'undefined') {
@@ -2422,22 +2425,24 @@ function parseAttachments(req, path, fileName, attachmentsList, folderName, call
     }
 
     if(fileId !== '') {
-        createVersion(req, folderId, fileId, path, fileName, function() {
-            callback();
-        });
+        if(updateExisting) {
+            createVersion(req, folderId, fileId, path, fileName, function() {
+                callback({ action : 'version', message : 'Version created' });
+            });
+        } else callback({ action : 'exists', message : 'No action, file exits' });
     } else if(folderName === '') {
         createFile(req, null, path, fileName, function() {
-            callback();
+            callback({ action : 'new', message : 'New file uploaded '});
         });
     } else if(folderId === '') {
         createFolder(req, folderName, function(data) {
             createFile(req, {'id':data}, path, fileName, function() {
-                callback();
+                callback({ action : 'new folder', message : 'Uploaded new file to new folder' });
             });
         });
     } else {
         createFile(req, folderId, path, fileName, function() {
-            callback();
+            callback({ action : 'new file in folder', message : 'Uploaded new file to existing folder' });
         });
     }
    
@@ -2562,6 +2567,258 @@ function setStatus(req, fileId, callback) {
         console.log(error.message);
     }); 
    
+}
+
+
+
+/* ----- ATTACHMENT IMPORT ----- */
+router.post('/import-attachment', function(req, res) {
+   
+    console.log(' ');
+    console.log('  /import-attachment');
+    console.log(' --------------------------------------------');  
+    console.log('  req.body.wsId              = ' + req.body.wsId);
+    console.log('  req.body.link              = ' + req.body.link);
+    console.log('  req.body.title             = ' + req.body.title);
+    console.log('  req.body.path              = ' + req.body.path);
+    console.log('  req.body.fieldId           = ' + req.body.fieldId);
+    console.log('  req.body.fieldValue        = ' + req.body.fieldValue);
+    console.log('  req.body.release           = ' + req.body.release);
+    console.log('  req.body.fileName          = ' + req.body.fileName);
+    console.log('  req.body.folderName        = ' + req.body.folderName);
+    console.log('  req.body.attachmentsFolder = ' + req.body.attachmentsFolder);
+    console.log('  req.body.includeSuffix     = ' + req.body.includeSuffix);
+    console.log('  req.body.onFailure         = ' + req.body.onFailure);
+    console.log('  req.body.onSuccess         = ' + req.body.onSuccess);
+    console.log('  req.body.pathFailure       = ' + req.body.pathFailure);
+    console.log('  req.body.pathSuccess       = ' + req.body.pathSuccess);
+    console.log('  req.body.pathSkipped       = ' + req.body.pathSkipped);
+    console.log();
+
+  
+    let url               = req.app.locals.tenantLink + '/api/rest/v1/workspaces/' + req.body.wsId + '/items/search';
+    let fieldId           = req.body.fieldId;
+    let fileName          = req.body.fileName;
+    let folderName        = req.body.folderName || '';
+    let attachmentsFolder = req.body.attachmentsFolder || '';
+    let pathFile          = (folderName === '') ? 'storage/' + req.body.path + '/' + fileName : 'storage/' + req.body.path + '/' + folderName + '/' + fileName;
+    
+    let link           = (typeof req.body.link           === 'undefined') ? ''          : req.body.link;
+    let fieldValue     = (typeof req.body.fieldValue     === 'undefined') ? fileName    : req.body.fieldValue;
+    let release        = (typeof req.body.release        === 'undefined') ? ''          : req.body.release;
+    let includeSuffix  = (typeof req.body.includeSuffix  === 'undefined') ? true        : (req.body.includeSuffix == 'true');
+    let updateExisting = (typeof req.body.updateExisting === 'undefined') ? true        : (req.body.updateExisting == 'true');
+    let onFailure      = (typeof req.body.onFailure      === 'undefined') ? 'move'      : req.body.onFailure;
+    let onSuccess      = (typeof req.body.onSuccess      === 'undefined') ? 'move'      : req.body.onSuccess;
+    let pathFailure    = (typeof req.body.pathFailure    === 'undefined') ? '__failed'  : req.body.pathFailure;
+    let pathSuccess    = (typeof req.body.pathSuccess    === 'undefined') ? '__success' : req.body.pathSuccess;
+    let pathSkipped    = (typeof req.body.pathSkipped    === 'undefined') ? '__skipped' : req.body.pathSkipped;
+
+    pathFailure = 'storage/' + req.body.path + '/' + pathFailure;
+    pathSuccess = 'storage/' + req.body.path + '/' + pathSuccess;
+    pathSkipped = 'storage/' + req.body.path + '/' + pathSkipped;
+
+    if(onFailure === 'move') createServerFolderPath(pathFailure, false);  
+    if(onSuccess === 'move') createServerFolderPath(pathSuccess, false);
+    if(!updateExisting)      createServerFolderPath(pathSkipped, false);
+
+    if(link === '') {
+
+        if(!includeSuffix) {
+            let index = fieldValue.lastIndexOf('.');
+            if(index > -1) fieldValue = fieldValue.substr(0, index);
+        }
+
+        let params = {
+            pageNo        : 1,
+            pageSize      : 1,
+            logicClause   : req.body.logicClause || 'AND',
+            fields        : [
+                { fieldID : 'DESCRIPTOR'    , fieldTypeID : 15 }
+            ],
+        filter : [],
+        sort : [{
+                fieldID        : 'DESCRIPTOR',
+                fieldTypeID    : 15,
+                sortDescending : false
+            }]
+        };
+
+        let filter = {
+            fieldID     : req.body.fieldId,
+            filterType  : { filterID : 2 },
+            fieldTypeID : 0,
+            filterValue : fieldValue
+        };
+
+        if(fieldId === 'DESCRIPTOR') {
+            filter.fieldID     = 'DESCRIPTOR';
+            filter.fieldTypeID = 15;
+        } else {
+            params.fields.push({ fieldID : fieldId, fieldTypeID : 0 });
+        }
+
+        params.filter.push(filter);
+
+        if(release !== '') {
+
+            let filterRelease = {
+                fieldID : 'WORKING',
+                fieldTypeID  : 10,
+                filterValue : ''
+            };
+                 if(release === 'w') filterRelease.filterType = { filterID : 13 };
+            else if(release === 'r') filterRelease.filterType = { filterID : 14 };
+
+            params.filter.push(filterRelease);
+
+            if(release === 'r') {
+                params.filter.push({
+                    fieldID     : 'LATEST_RELEASE',
+                    fieldTypeID : 10,
+                    filterType  : { filterID : 13 },
+                    filterValue : ''
+                })
+            }
+
+        }
+
+        axios.post(url, params, { 
+            headers : req.session.headers
+        }).then(function (response) {
+
+            if(response.status === 204) {
+
+                let result = { 
+                    data    : [], 
+                    status  : response.status,
+                    message : 'No match for ' + fileName
+                };
+
+                if(onFailure == 'move'  ) {
+                    pathFailure = (folderName === '') ? pathFailure + '/' + folderName : pathFailure;
+                    createServerFolderPath(pathFailure, false);
+                    fs.renameSync(pathFile, pathFailure + '/' + fileName);
+                } else if(onFailure == 'delete') fs.unlinkSync(pathFile);
+
+                sendResponse(req, res, result, true);
+
+            } else {
+
+                let title = '';
+
+                for(let field of response.data.row[0].fields.entry) {
+                    if(field.key === 'DESCRIPTOR') {
+                        title = field.fieldData.value;
+                        break;
+                    }
+                }
+
+                req.params = {
+                    wsId  : req.body.wsId,
+                    dmsId : response.data.row[0].dmsId,
+                    link  : '/api/v3/workspaces/' + req.body.wsId + '/items/' + response.data.row[0].dmsId,
+                    title : title,
+                };
+
+                importAttachment(req, res, folderName, pathFile, pathSuccess, pathSkipped, fileName, attachmentsFolder, updateExisting, onSuccess);
+
+            }
+
+        }).catch(function (error) {
+            sendResponse(req, res, error.response, true);
+        });
+
+
+    } else {
+
+        let split = link.split('/');
+        req.params = {
+            wsId  : split[4],
+            dmsId : split[6],
+            link  : link,
+            title : req.body.title
+        }
+        
+        importAttachment(req, res, folderName, pathFile, pathSuccess, pathSkipped, fileName, attachmentsFolder, updateExisting, onSuccess);
+
+    }
+
+});
+function importAttachment(req, res, folderName, pathFile, pathSuccess, pathSkipped, fileName, attachmentsFolder, updateExisting, onSuccess) {
+
+    let pathRoot = 'storage/' + req.body.path;
+    
+    getAttachments(req, function(attachmentsList) {
+
+        parseAttachments(req, pathFile, fileName, attachmentsList, attachmentsFolder, updateExisting, function(response) {
+
+            let result = { 
+                data    : {
+                    title       : req.params.title,
+                    link        : req.params.link,
+                    pathSource  : pathFile,
+                    action      : response.action,
+                    message     : response.message
+                }
+            };
+
+
+            if(folderName !== '') pathSuccess += '/' + folderName;
+            if(folderName !== '') pathSkipped += '/' + folderName;
+
+            if(response.action === 'exists') {
+
+                result.data.pathSkipped = pathSkipped + '/' + fileName;
+
+                if(onSuccess == 'move'  ) {
+                    createServerFolderPath(pathSkipped, false);
+                    fs.renameSync(pathFile, pathSkipped + '/' + fileName);
+                }
+
+            } else {
+
+                result.data.pathSuccess = pathSuccess + '/' + fileName;
+
+                if(onSuccess == 'move'  ) {
+                    createServerFolderPath(pathSuccess, false);
+                    fs.renameSync(pathFile, pathSuccess + '/' + fileName);
+                } else if(onSuccess == 'delete') fs.unlinkSync(pathFile);
+
+            }
+
+
+            if(folderName !== '') {
+                
+                let contents = fs.readdirSync(pathRoot + '/' + folderName, { withFileTypes: true });
+                let empty    = (contents.length === 0);
+
+                if(!empty) {
+                    empty = true;
+                    for(let content of contents) {
+                        if(!content.isDirectory()) {
+                            if(content.name.indexOf('.') > 0) {
+                                empty = false;
+                            }
+                        }
+                    }
+                }
+                
+                if(empty) {
+                    fs.rm(pathRoot + '/' + folderName, { recursive: true, force: true }, err => {
+                        if (err) {
+                        }
+                    });
+                }
+
+            }
+
+            sendResponse(req, res, result, false);
+            
+        });
+
+    });
+
 }
 
 

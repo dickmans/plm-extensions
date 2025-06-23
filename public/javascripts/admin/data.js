@@ -6,7 +6,6 @@ let records          = null;
 
 
 // let actions = [
-//     // { id : 'replace-owner', class : 'permisson-edit'   , title : 'Replace Owner', subtitle : "Update selected field values" },
 //     { id : 'bom-pin'      , class : 'permisson-edit'   , title : 'Change BOM Pin', subtitle : "Enables or disables the pin of all BOM children" },
 // ]
 
@@ -23,13 +22,15 @@ $(document).ready(function() {
             let requests = [
                 $.get('/plm/workspaces', {}),
                 $.get('/plm/users',      {}),
-                $.get('/plm/groups',     {})
+                $.get('/plm/groups',     {}),
+                $.get('/services/storage/folders', { path : 'imports' })
             ]
         
             getFeatureSettings('items', requests, function(responses) {
                 setWorkspaces(responses[0]);
                 setUserSelectors(responses[1]);
                 setGroupSelectors(responses[2]);
+                setStorageFolderSelectors(responses[3]);
             });
 
         }
@@ -90,6 +91,51 @@ function setUIEvents() {
             case 'OPTIONAL' : $('#input-perform-transition').removeClass('hidden'); break;
             default         : $('#input-perform-transition').addClass('hidden'); break;
         }
+    });
+    $('#select-import-folder').on('change', function() {
+
+        let value     = $(this).val();
+        let timestamp = new Date().getTime();
+        let params    = {
+            path      : 'imports/' + value,
+            timestamp : timestamp
+        }
+
+        if(value !== '--') {
+
+            $.get('/services/storage/contents', params, function(response) {
+                
+                if(timestamp !== params.timestamp) return;
+                
+                let message = 'There';
+                let countFilesRoot = response.contents.length - response.totalCountFolders;
+                let countFilesSubs = response.totalCountFiles - countFilesRoot;
+                
+                if(countFilesRoot === 0) message += ' are NO files ';
+                if(countFilesRoot === 1) message += ' is 1 file ';
+                if(countFilesRoot   > 1) message += ' are ' + countFilesRoot + ' files ';
+                
+                message += 'and ';
+                message += (response.totalCountFolders === 0) ? 'NO folders ' : response.totalCountFolders;
+
+                if(response.totalCountFolders === 1) message += ' folder ';
+                if(response.totalCountFolders   > 1) message += ' folders ';
+
+                message += 'with ';
+
+                if(countFilesSubs === 0) message += ' NO files ';
+                if(countFilesSubs === 1) message += ' 1 file ';
+                if(countFilesSubs   > 1) message += ' ' + countFilesSubs + ' files ';
+
+                message += 'to import';
+            
+                addLogSeparator();
+                addLogEntry('Selected folder ' + value, 'head');
+                addLogEntry(message);
+
+            });
+        }
+
     });
 
 
@@ -192,6 +238,29 @@ function setGroupSelectors(response) {
                 .attr('value', group.__self__)
                 .html(group.shortName);
             
+        }
+
+    });
+
+}
+function setStorageFolderSelectors(response) {
+
+    $('.select-folder').each(function() {
+
+        if(typeof $(this).attr('data-empty-label') !== 'undefined') {
+
+            let label = $(this).attr('data-empty-label');
+
+            $('<option></option>').appendTo($(this))
+                .html(label)
+                .attr('value', '--');
+
+        }
+
+        for(let folder of response.folders) {
+            $('<option></option>').appendTo($(this))
+                .attr('value', folder)
+                .html(folder);
         }
 
     });
@@ -428,11 +497,13 @@ function setPropertySelectors() {
         let onlyCheckboxes = elemSelect.hasClass('field-type-check');
         let onlyEditable   = elemSelect.hasClass('field-editable');
         let label          = 'Select Field';
+        let value          = '--'
 
         if(typeof $(this).attr('data-empty-label') !== 'undefined') label = $(this).attr('data-empty-label');
+        if(typeof $(this).attr('data-with-descriptor') !== 'undefined') { label = 'DESCRIPTOR'; value = 'DESCRIPTOR'; }
 
         $('<option></option>').appendTo(elemSelect)
-            .attr('value', '--')
+            .attr('value', value)
             .html(label);
 
         for(let field of wsConfig.fields) {
@@ -978,6 +1049,7 @@ function startProcessing() {
     run.errors       = [];
     run.ids          = [];
     run.storage      = '';
+    run.prev         = {};
 
     run.params = {
         pageNo    : 0,
@@ -1014,7 +1086,21 @@ function startProcessing() {
         
     }
 
-    if(run.actionId === 'export-attachments') {
+    if(run.actionId === 'import-attachments') {
+
+        run.url          = '/services/storage/contents';
+        run.method       = 'get';
+        run.params.path  = 'imports/' + $('#select-import-folder').val();
+        // run.params.limit = 2;
+        run.prev = {
+            name : '',
+            link : ''
+        }
+
+        options.autoTune      = false;
+        options.requestsCount = 1;
+
+    } else if(run.actionId === 'export-attachments') {
         run.storage = '/storage/exports/' + $('#workspace').children('option:selected').html() + ' Files';
         addLogEntry('Files will be stored at  <a target="_blank" href="' + run.storage + '">' + $('#workspace').children('option:selected').html() + '</a>');
         addLogSpacer();
@@ -1040,7 +1126,8 @@ function getNextRecords() {
         success : function(response) {
 
             if(run.total < 0) {
-                run.total = response.data.totalResultCount || response.data.total;
+                if(run.actionId === 'import-attachments') run.total = response.totalCountFiles;
+                else run.total = response.data.totalResultCount || response.data.total;
                 $('#progress').removeClass('hidden');
             }
 
@@ -1052,7 +1139,11 @@ function getNextRecords() {
             if(records.length === 0) {
                 endProcessing();
             } else {
-                if(records.length === 1) addLogEntry('Found next record to process');
+                if(run.actionId === 'import-attachments') {
+                    let record = records[0];
+                    if(record.type == 'file') addLogEntry('Next file : ' + record.name);
+                    else addLogEntry('Next file : ' + record.name + '/' + record.files[0].name);
+                } else if(records.length === 1) addLogEntry('Found next record to process');
                 else addLogEntry('Found next ' + records.length + ' records to process');
                 processNextRecords();
             }
@@ -1062,6 +1153,12 @@ function getNextRecords() {
 
 }
 function setRecordsData(response) {
+
+    if(run.actionId === 'import-attachments') {
+        records = response.contents;
+        if(response.totalCountFiles === 0) records = [];
+        return;
+    }
 
     records = response.data.row || response.data.items;
 
@@ -1147,7 +1244,7 @@ function processNextRecords() {
     
                 }
 
-                if(records[0].includeBOM !== '--') {
+                if((typeof records[0].includeBOM !== 'undefined') && (records[0].includeBOM !== '--')){
 
                     getBOMRecords();
 
@@ -1177,17 +1274,19 @@ function genRequests(limit) {
     for(let i = 0; i < limit; i++) {
 
         let record = records[i];
+        let params = {};
 
-        let params = {
-            link       : record.link,
-            descriptor : record.descriptor,
-            sections   : []
+        if(run.actionId !== 'import-attachments') {
+            params.link       = record.link;
+            params.descriptor = record.descriptor;
+            params.sections   = [];
+
+            let link    = genItemURL({ link : params.link });
+            let message = (options.testRun) ? 'Would process' : 'Processing';
+
+            addLogEntry(message + ' <a target="_blank" href="' + link + '">' + params.descriptor + '</a>', 'notice');
+
         }
-
-        let link    = genItemURL({ link : params.link });
-        let message = (options.testRun) ? 'Would process' : 'Processing';
-
-        addLogEntry(message + ' <a target="_blank" href="' + link + '">' + params.descriptor + '</a>', 'notice');
 
         if((options.testRun) || stopped) {
 
@@ -1258,6 +1357,37 @@ function genRequests(limit) {
             } else if(run.actionId === 'clear-owners') {
 
                 requests.push($.post('/plm/clear-owners', params));
+
+            } else if(run.actionId === 'import-attachments') {
+
+                params.wsId              = wsConfig.link.split('/').pop();
+                params.fieldId           = $('#select-import-field').val();
+                params.includeSuffix     = $('#select-import-suffix').val();
+                params.attachmentsFolder = $('#input-import-folder-name').val();
+                params.onFailure         = $('#select-import-on-failure').val();
+                params.onSuccess         = $('#select-import-on-success').val();
+                params.updateExisting    = ($('#select-import-update').val() === 'y');
+                params.fieldValue        = record.name;
+                params.path              = run.params.path;
+                params.link              = '';
+                params.release           = (wsConfig.type === '6') ? $('#select-import-release').val() : '';
+
+                if(record.type == 'folder') {
+                    params.fileName   = record.files[0].name;
+                    params.folderName = record.name;
+
+                } else {
+                    params.fileName = record.name;
+                }
+
+                if(!isBlank(run.prev.title)) {
+                    if(run.prev.title === params.fieldValue) {
+                        params.link  = run.prev.link;
+                        params.title = run.prev.title;
+                    }
+                }
+
+                requests.push($.post('/plm/import-attachment', params));
 
             } else if(run.actionId === 'export-attachments') {
 
@@ -1384,7 +1514,35 @@ function genCompletionRequests(limit, responses) {
 
         for(let response of responses) {
 
-            if(record.link === response.params.link) {
+            if(response.url.indexOf('/import-attachment') === 0) {
+
+                if(response.error) {
+
+                    success = false;
+
+                    let urlBase = document.location.href.split('/data')[0];
+                    let link    = urlBase + '/storage/' + run.params.path + '/__failed/' + record;
+
+                    addLogEntry('Error while processing file <a target="_blank" href="' + link + '">' + record + '</a>', 'error');
+                    if(response.message !== '') addLogEntry('Error message: "' + response.message + '"', 'indent');
+
+                } else {
+
+                    let link = genItemURL({ link : response.data.link });
+
+                    run.prev.link  = response.data.link;
+                    run.prev.title = response.data.title;
+                    record.link    = response.data.link;
+
+                    if(response.data.action == 'exists') {
+                        addLogEntry('Skipped update of existing file of <a target="_blank" href="' + link + '">' + response.data.title + '</a>', 'notice');
+                    } else {
+                        addLogEntry('Uploaded to <a target="_blank" href="' + link + '">' + response.data.title + '</a>', 'success');
+                    }
+
+                }
+
+            } else if(record.link === response.params.link) {
 
                 if(response.error) {
 

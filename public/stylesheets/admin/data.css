@@ -323,6 +323,9 @@ select#workspace {
     grid-template-columns   : auto 1fr;
     row-gap                 : 1px;
 }
+.definition.grid .button {
+    border-radius : 0px;
+}
 .definition .label {
     background  : var(--color-selected-background);
     line-height : 36px;
