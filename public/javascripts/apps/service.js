@@ -130,7 +130,8 @@ $(document).ready(function() {
                 includeRecents    : true,
                 reload            : true,
                 startupView       : '',
-                columnsEx         : ['Requested By'],
+                columnsEx         : ['Requested By', 'Status'],
+                tableColumnsLimit : 4,
                 onClickItem       : function(elemClicked) { openRequest(elemClicked); }
             });
 
