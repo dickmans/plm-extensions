@@ -666,6 +666,7 @@ td.bom-column-roll-up {
     gap             : 36px;
     overflow-y      : auto;
     padding         : 0px;
+    height          : 32px;
     justify-content : flex-start;
     position        : absolute;
     right           : 0px;
@@ -673,12 +674,14 @@ td.bom-column-roll-up {
     left            : 0px;
 }
 .bom-path > div {
+    height      : 32px;
+    line-height : 32px;
+    padding     : 0px 2px;
     white-space : nowrap;
 }
 .bom-path-parent {
     background  : var(--color-surface-level-3);
     cursor      : pointer;
-    padding     : 6px 2px;
     position    : relative;
 }
 .bom-path-parent:first-of-type {
@@ -699,8 +702,8 @@ td.bom-column-roll-up {
 	border-color        : rgba(136, 183, 213, 0);
 	border-right-color  : var(--color-surface-level-3);
 	border-bottom-color : var(--color-surface-level-3);
-	border-width        : 16px;
-	margin-top          : -16px;
+	border-width        : 17px;
+	margin-top          : -17px;
 }
 .bom-path-parent:after {
 	left                : 100%;
@@ -714,8 +717,8 @@ td.bom-column-roll-up {
 	border-color        : rgba(136, 183, 213, 0);
 	border-left-color   : var(--color-surface-level-3);
 	border-top-color    : var(--color-surface-level-3);
-	border-width        : 16px;
-	margin-top          : -16px;
+	border-width        : 17px;
+	margin-top          : -17px;
 }
 .bom-path-parent:hover {
     background : var(--color-surface-level-4);
@@ -746,18 +749,17 @@ td.bom-column-roll-up {
 	border-color        : rgba(136, 183, 213, 0);
 	border-right-color  : var(--color-surface-level-5);
 	border-bottom-color : var(--color-surface-level-5);
-	border-width        : 16px;
-	margin-top          : -16px;
+	border-width        : 17px;
+	margin-top          : -17px;
 }
 .bom-path-selected-single {
-    padding-left : 12px;
+    padding-left : 16px !important;
 }
 .bom-path-selected-single:before {
     border : none !important;
 }
 .bom-path.bom-path-empty {
     background  : var(--color-surface-level-5);
-    padding     : 16px;
 }
 .no-bom-counters .bom-content {
     bottom : 34px;
