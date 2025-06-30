@@ -14,7 +14,7 @@ The following extensions are included
 - Design Review Portal [Video](https://youtu.be/AU--qJIMmlE)
 - MBOM Editor [Video](https://youtu.be/qVhhKlrf1S0)
 - Mobile Client
-- Outstandingn Work Report [Video](https://youtu.be/zUIfiiAVwVQ)
+- Outstanding Work Report [Video](https://youtu.be/zUIfiiAVwVQ)
 - PLM Portal [Video](https://youtu.be/tM8why6ybAU)
 - Process Dashboard [Video](https://youtu.be/VkxJXRQ9Pmg)
 - Product Portfolio Catalog [Video](https://youtu.be/hroRMjZzueQ)
