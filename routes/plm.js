@@ -3611,7 +3611,6 @@ router.get('/project', function(req, res, next) {
     axios.get(url, {
         headers : req.session.headers
     }).then(function(response) {
-        console.log(response);
         if(response.data === '') response.data = { projectItems : [] };
         sendResponse(req, res, response, false);
     }).catch(function(error) {
@@ -3980,27 +3979,35 @@ router.post('/search', function(req, res) {
     console.log('  req.body.latest      = ' + req.body.latest);
     console.log('  req.body.sort        = ' + req.body.sort);
     console.log('  req.body.fields      = ' + req.body.fields);
+    console.log('  req.body.grid        = ' + req.body.grid);
     console.log('  req.body.filter      = ' + req.body.filter);
     console.log('  req.body.pageNo      = ' + req.body.pageNo);
     console.log('  req.body.pageSize    = ' + req.body.pageSize);
     console.log('  req.body.logicClause = ' + req.body.logicClause);
     console.log();
 
-    let wsId = (typeof req.body.wsId === 'undefined') ? req.body.link.split('/')[4] : req.body.wsId;
-    let url  = req.app.locals.tenantLink + '/api/rest/v1/workspaces/' + wsId + '/items/search';
+    let fields = (typeof req.body.fields === 'undefined') ? [] : req.body.fields;
+    let grid   = (typeof req.body.grid   === 'undefined') ? [] : req.body.grid;
+    let filter = (typeof req.body.filter === 'undefined') ? [] : req.body.filter;
+    let sort   = (typeof req.body.sort   === 'undefined') ? [] : req.body.sort;
+    let wsId   = (typeof req.body.wsId   === 'undefined') ? req.body.link.split('/')[4] : req.body.wsId;
+    let url    = req.app.locals.tenantLink + '/api/rest/v1/workspaces/' + wsId + '/items/search';
    
+
+    if(!fields.includes('DESCRIPTOR')) fields.push('DESCRIPTOR');
+
     let params = {
-       pageNo        : req.body.pageNo || 1,
-       pageSize      : Number(req.body.pageSize) || 100,
-       logicClause   : req.body.logicClause || 'AND',
-       fields        : [],
-       filter        : [],
-       sort          : []
+       pageNo      : req.body.pageNo || 1,
+       pageSize    : Number(req.body.pageSize) || 100,
+       logicClause : req.body.logicClause || 'AND',
+       fields      : [],
+       filter      : [],
+       sort        : []
     };
 
-    setBodyFields(params, req.body.fields      );
-    setBodySort(params  , req.body.sort        );
-    setBodyFilter(params, req.body.filter || []);
+    setBodyFields(params, fields, grid);
+    setBodySort(params  , sort);
+    setBodyFilter(params, filter);
 
     if(typeof req.body.latest !== 'undefined') {
         if(req.body.latest) {
@@ -4029,24 +4036,29 @@ router.post('/search', function(req, res) {
     });
    
 });
-function setBodyFields(body, fields) {
+function setBodyFields(body, fields, grid) {
    
 //    console.log('/setBodyFields : START');
    
-   if(fields === null) return;
-   
-   for(var i = 0; i < fields.length; i++) {
+   for(let field of fields) {
+       body.fields.push({
+           fieldID     : field,
+           fieldTypeID : getFieldType(field)   
+       });
+   }
 
-       var fieldID = fields[i];
-       var fieldTypeID = getFieldType(fieldID);
-       
-       var field = {
-           'fieldID' : fieldID,
-           'fieldTypeID' : fieldTypeID   
-       }
-       
-       body.fields.push(field);
-       
+    if(fields.length === 0) {
+        body.fields.push({
+            fieldID     : 'DESCRIPTOR',
+            fieldTypeID : 15
+        });
+    }
+
+   for(let column of grid) {
+        body.fields.push({
+           fieldID     : column,
+           fieldTypeID : 2
+        });
    }
    
 }
@@ -4086,20 +4098,29 @@ function getFieldType(fieldID) {
 }
 function setBodySort(body, sorts) {
    
-   if(sorts === null) return;
+   if(sorts.length === 0) {
+
+        body.sort.push({
+            fieldID       : 'DESCRIPTOR',
+            fieldTypeID   : 15,
+            sortAscending : true
+        });
+
+   } else {
    
-   for(var i = 0; i < sorts.length; i++) {
+        for(var i = 0; i < sorts.length; i++) {
 
-       var sort = {
-           'fieldID'           : sorts[i],
-           'fieldTypeID'       : 0,
-           'sortDescending'    : false    
-       }
+            var sort = {
+                fieldID           : sorts[i],
+                fieldTypeID       : 0,
+                sortDescending    : false    
+            }
 
-       if(sort.fieldID === 'DESCRIPTOR') sort.fieldTypeID = 15;
-       
-       body.sort.push(sort);
-       
+            if(sort.fieldID === 'DESCRIPTOR') sort.fieldTypeID = 15;
+            
+            body.sort.push(sort);
+            
+        }
    }
    
 }
@@ -4107,8 +4128,6 @@ function setBodyFilter(body, filters) {
    
 //    console.log(' > START setBodyFilter');
    
-   body.filter = [];
-
    for(let filter of filters) {
 
         if(typeof filter.value === 'undefined') {
@@ -4118,7 +4137,7 @@ function setBodyFilter(body, filters) {
         } else {
             body.filter.push({
                 fieldID       : filter.field,
-                fieldTypeID   : filter.type,
+                fieldTypeID   : Number(filter.type),
                 filterType    : { filterID : filter.comparator },
                 filterValue   : filter.value         
             });
