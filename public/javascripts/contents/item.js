@@ -1087,21 +1087,21 @@ function insertCreateData(id) {
 
         if(stopPanelContentUpdate(responses[0], settings.create[id])) return;
 
-            insertDetailsFields(id, responses[0].data, responses[1].data, null, settings.create[id], function() {
+        insertDetailsFields(id, responses[0].data, responses[1].data, null, settings.create[id], function() {
 
             for(let contextItemField of settings.create[id].contextItemFields) {
                 settings.create[id].fieldValues.push({
                     fieldId      : contextItemField,
                     value        : settings.create[id].contextItem,
                     displayValue : responses[2].data.title
-                })
+                });
             }
 
             for(let viewerImageField of settings.create[id].viewerImageFields) {
                 settings.create[id].fieldValues.push({
                     fieldId      : viewerImageField,
                     viewerImage  : 'viewer-markup-image'
-                })
+                });
             }
 
             insertCreateDataSetFieldValues(id, settings.create[id]);
@@ -1608,8 +1608,6 @@ function insertDetailsData(id) {
 
     Promise.all(requests).then(function(responses) {
 
-        console.log(responses);
-
         if(stopPanelContentUpdate(responses[0], settings.details[id])) return;
 
         settings.details[id].descriptor = responses[0].data.title;
@@ -1782,31 +1780,64 @@ function insertDetailsFields(id, sections, fields, data, settings, callback) {
 
                 if(className !== 'expanded') elemFields.toggle();
 
-                let sectionFields = section.fields;
+                if((section.type === 'CLASSIFICATION') && (!isBlank(data))) {
 
-                if(section.type === 'CLASSIFICATION') {
+                    let sectionId = section.__self__.split('/').pop();
 
+                    for(let dataSection of data.sections) {
+
+                        let dataSectionId = dataSection.link.split('/').pop();
+
+                        if(dataSectionId === sectionId) {
+
+                            elemSection.html(section.name + ' : ' + dataSection.classificationName);
+
+                            for(let dataSectionField of dataSection.fields) {
+
+                                let fieldId = dataSectionField.__self__.split('/').pop();
+
+                                if(fieldsIn.length === 0 || fieldsIn.includes(fieldId)) {
+                                    if(fieldsEx.length === 0 || !fieldsEx.includes(fieldId)) {
+
+                                        let wsField = {
+                                            name            : dataSectionField.title,
+                                            type            : dataSectionField.type,
+                                            unitOfMeasure   : null,
+                                            urn             : dataSectionField.urn,
+                                            value           : dataSectionField.value,
+                                            visibility      : 'ALWAYS'
+                                        };
+
+                                        wsField.type.title = 'Single Line Text';
+                                        insertDetailsField(wsField, data, elemFields, sectionLock, settings);
+
+                                    }
+                                }
+                            }
+                        }
+                    }
                     
-                }
+                } else {
 
-                for(let sectionField of section.fields) {
+                    for(let sectionField of section.fields) {
 
-                    let fieldId  = sectionField.link.split('/')[8];
-                    let included = false;
+                        let fieldId  = sectionField.link.split('/')[8];
+                        let included = false;
 
-                    if(sectionField.type === 'MATRIX') {
-                        for(let matrix of section.matrices) {
-                            if(matrix.urn === sectionField.urn) {
-                                for(let matrixFields of matrix.fields) {
-                                    for(let matrixField  of matrixFields) {
-                                        if(matrixField !== null) {
-                                            for(let wsField of fields) {
-                                                if(wsField.urn === matrixField.urn) {
-                                                    let matrixFieldId = matrixField.link.split('/').pop();
-                                                    if(fieldsIn.length === 0 || fieldsIn.includes(matrixFieldId)) {
-                                                        if(fieldsEx.length === 0 || !fieldsEx.includes(matrixFieldId)) {
-                                                            insertDetailsField(wsField, data, elemFields, sectionLock, settings);
-                                                            included = true;
+                        if(sectionField.type === 'MATRIX') {
+                            for(let matrix of section.matrices) {
+                                if(matrix.urn === sectionField.urn) {
+                                    for(let matrixFields of matrix.fields) {
+                                        for(let matrixField  of matrixFields) {
+                                            if(matrixField !== null) {
+                                                for(let wsField of fields) {
+                                                    if(wsField.urn === matrixField.urn) {
+                                                        let matrixFieldId = matrixField.link.split('/').pop();
+                                                        if(fieldsIn.length === 0 || fieldsIn.includes(matrixFieldId)) {
+                                                            if(fieldsEx.length === 0 || !fieldsEx.includes(matrixFieldId)) {
+                                                                insertDetailsField(wsField, data, elemFields, sectionLock, settings);
+                                                                included = true;
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -1815,36 +1846,39 @@ function insertDetailsFields(id, sections, fields, data, settings, callback) {
                                     }
                                 }
                             }
-                        }
-                    } else {
-                        for(let wsField of fields) {
-                            if(wsField.urn === sectionField.urn) {
-                                if(fieldsIn.length === 0 || fieldsIn.includes(fieldId)) {
-                                    if(fieldsEx.length === 0 || !fieldsEx.includes(fieldId)) {
-                                        insertDetailsField(wsField, data, elemFields, sectionLock, settings);
-                                        included = true;
+                        } else {
+                            for(let wsField of fields) {
+                                if(wsField.urn === sectionField.urn) {
+                                    if(fieldsIn.length === 0 || fieldsIn.includes(fieldId)) {
+                                        if(fieldsEx.length === 0 || !fieldsEx.includes(fieldId)) {
+                                            insertDetailsField(wsField, data, elemFields, sectionLock, settings);
+                                            included = true;
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
+
+                    
 
                     // console.log(sectionField);
 
                     // if(sectionField.derived) included = false;
 
-                    if(!included) {
-                        for(let fieldValue of fieldValues) {
-                            for(let wsField of fields) {
-                                if(wsField.urn === sectionField.urn) {
-                                    if(fieldValue.fieldId === fieldId) {
-                                        insertHiddenDetailsField(wsField, elemFields, fieldValue);
+                        if(!included) {
+                            for(let fieldValue of fieldValues) {
+                                for(let wsField of fields) {
+                                    if(wsField.urn === sectionField.urn) {
+                                        if(fieldValue.fieldId === fieldId) {
+                                            insertHiddenDetailsField(wsField, elemFields, fieldValue);
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
 
+
+                    }
                 }
 
                 if(elemFields.children().length === 0) {
@@ -1917,6 +1951,10 @@ function insertDetailsField(field, data, elemFields, sectionLock, settings) {
                 }
             }
         }
+    }
+
+    if(isBlank(value)) {
+        if(field.hasOwnProperty('value')) value = field.value;
     }
 
     if(typeof value === 'undefined') value = null;
@@ -4554,6 +4592,24 @@ function getBOMItemPath(elemItem) {
     return result;
 
 }
+function getBOMItemByEdgeId(id, edgeId) {
+
+    let elemTop = $('#' + id);
+    let result  = null;
+
+    elemTop.find('tr.content-item').each(function() {
+        let bomEdgeId = $(this).attr('data-edgeid');
+        if(!isBlank(bomEdgeId)) {
+            if(bomEdgeId == edgeId) {
+                result = $(this);
+                return false;
+            }
+        }
+    });
+
+    return result;
+
+}
 function bomDisplayItem(elemItem) {
 
     let level = Number(elemItem.attr('data-level'));
@@ -4571,19 +4627,23 @@ function bomDisplayItemByPartNumber(number, select, deselect) {
     if(isBlank(select  )) select   = true;
     if(isBlank(deselect)) deselect = true;
 
-    let bomItemLinks = [];
+    let result = {
+        elements : [],
+        links    : []
+    }
 
     $('.bom-item').each(function() {
         if(number === $(this).attr('data-part-number')) {
             bomDisplayItem($(this));
-            bomItemLinks.push($(this).attr('data-link'));
+            result.links.push($(this).attr('data-link'));
+            result.elements.push($(this));
             if(select) $(this).addClass('selected');
         } else {
             if(deselect) $(this).removeClass('selected');
         }
     });
 
-    return bomItemLinks;
+    return result;
 
 }
 function expandBOMParents(level, elem) {
