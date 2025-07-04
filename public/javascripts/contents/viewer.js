@@ -153,7 +153,8 @@ function initViewer(id, viewables, params) {
         Autodesk.Viewing.Initializer(options, function() {
 
             var htmlDiv = document.getElementById(viewerId);
-            viewer = new Autodesk.Viewing.Private.GuiViewer3D(htmlDiv, { 
+            // viewer = new Autodesk.Viewing.Private.GuiViewer3D(htmlDiv, { 
+            viewer = new Autodesk.Viewing.GuiViewer3D(htmlDiv, { 
                 modelBrowserExcludeRoot     : false,
                 modelBrowserStartCollapsed  : true
             });
@@ -193,7 +194,7 @@ function initViewer(id, viewables, params) {
         newInstance = false;
         Autodesk.Viewing.Document.load('urn:'+ viewables[0].urn, onDocumentLoadSuccess, onDocumentLoadFailure);
 
-    } 
+    }  
     
 }
 function onPDFLoadSuccess(doc) {
@@ -341,16 +342,23 @@ function setViewerFeatures() {
 function insertFileBrowser() {
 
     let elemFileBrowser = $('#viewer-file-browser');
+    let elemFileToolbar = $('#customFileBrowserToolbar');
 
     if(viewerFiles.length > 1) {
 
-        let fileBrowserToolbar = new Autodesk.Viewing.UI.ControlGroup('customFileBrowserToolbar');
-            viewer.toolbar.addControl(fileBrowserToolbar);
+        if(elemFileToolbar.length === 0) {
 
-        let button = addCustomControl(fileBrowserToolbar, 'button-file-browser', 'icon-folder', 'Switch viewable file');
-            button.onClick = function() { 
-                $('#viewer-file-browser').css('display', 'flex');
-            };
+            let fileBrowserToolbar = new Autodesk.Viewing.UI.ControlGroup('customFileBrowserToolbar');
+                viewer.toolbar.addControl(fileBrowserToolbar);
+
+            let button = addCustomControl(fileBrowserToolbar, 'button-file-browser', 'icon-folder', 'Switch viewable file');
+                button.onClick = function() { 
+                    $('#viewer-file-browser').css('display', 'flex');
+                };
+
+        } else elemFileToolbar.show();
+
+        elemFileToolbar.appendTo($('#guiviewer3d-toolbar'));
 
         if(elemFileBrowser.length === 0) {
 
@@ -366,7 +374,7 @@ function insertFileBrowser() {
 
             $('<div></div>').appendTo(elemFilesHeader)
                 .attr('id', 'viewer-file-browser-title')
-                .html('Select Viewing File')
+                .html('Select Viewing File');
 
             $('<div></div>').appendTo(elemFilesHeader)
                 .addClass('button')
@@ -374,7 +382,7 @@ function insertFileBrowser() {
                 .addClass('icon-close')
                 .click(function() {
                     $('#viewer-file-browser').hide();
-                })
+                });
            
             let elemFilesList = $('<div></div>').appendTo(elemFileBrowserPanel)
                 .addClass('tiles')    
@@ -428,7 +436,8 @@ function insertFileBrowser() {
             elemFilesList.children('.tile').first().addClass('selected');
 
         }
-    }
+
+    } else if(elemFileToolbar.length > 0) elemFileToolbar.hide();
 
 }
 
@@ -534,12 +543,14 @@ function viewerSwitchFile(index) {
 
     let viewerFile = viewerFiles[index];
 
-    newInstance = false;
+    newInstance             = false;
+    viewerDone              = false;
+    viewerGeometryLoaded    = false;
+    viewerObjectTreeCreated = false;
 
     viewer.toolbar.setVisible(false);
+    
     viewerUnloadAllModels();
-
-    viewerDone  = false;
 
     if(viewerFile.type === 'Adobe PDF') {
 
@@ -551,21 +562,20 @@ function viewerSwitchFile(index) {
 
     } else {
 
-        Autodesk.Viewing.Document.load('urn:' + viewerFile.urn, function(doc) {
-            
-            let viewable = doc.getRoot().getDefaultGeometry();
-            
-            if (viewable) {
-                viewer.loadDocumentNode(doc, viewable, {globalOffset: {x:0,y:0,z:0}}).then(function(result) {
-                    viewer.setBackgroundColor(viewerSettings.backgroundColor[0], viewerSettings.backgroundColor[1], viewerSettings.backgroundColor[2], viewerSettings.backgroundColor[3], viewerSettings.backgroundColor[4], viewerSettings.backgroundColor[5]);
-                    viewerDone = true;
-                }).catch(function(err) {
-                    console.log(err);
-                });
-            }
-                
-                
-        });
+        Autodesk.Viewing.Document.load('urn:'+ viewerFile.urn, onDocumentLoadSuccess, onDocumentLoadFailure);
+
+        // Autodesk.Viewing.Document.load('urn:' + viewerFile.urn, function(doc) { 
+        //     let viewable = doc.getRoot().getDefaultGeometry(); 
+        //     if (viewable) {
+        //         // viewer.loadDocumentNode(doc, viewable, {globalOffset: {x:0,y:0,z:0}}).then(function(result) {
+        //         viewer.loadDocumentNode(doc, viewable).then(function(result) {
+        //             viewer.setBackgroundColor(viewerSettings.backgroundColor[0], viewerSettings.backgroundColor[1], viewerSettings.backgroundColor[2], viewerSettings.backgroundColor[3], viewerSettings.backgroundColor[4], viewerSettings.backgroundColor[5]);
+        //             viewerDone = true;
+        //         }).catch(function(err) {
+        //             console.log(err);
+        //         });
+        //     }                
+        // });
             
     }
 
