@@ -3457,6 +3457,7 @@ function insertGrid(link, params) {
     genPanelHeader(id, settings.grid[id]);
     genPanelBookmarkButton(id, settings.grid[id]);
     genPanelOpenInPLMButton(id, settings.grid[id]);
+    genPanelSelectionControls(id, settings.grid[id]);
     genPanelSearchInput(id, settings.grid[id]);
     genPanelResizeButton(id, settings.grid[id]);
     genPanelReloadButton(id, settings.grid[id]);
@@ -3532,6 +3533,26 @@ function insertGridData(id) {
 
                 elemTable.addClass('fixed-header');
 
+                if(settings.grid[id].editable && settings.grid[id].multiSelect) {
+
+                    let elemToggleAll = $('<div></div>')
+                        .attr('id', id + '-select-all')
+                        .addClass('content-select-all')
+                        .addClass('icon')
+                        .addClass('icon-check-box')
+                        .addClass('xxs')
+                        .click(function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            clickTableToggleAll($(this));
+                        });
+
+
+                    $('<th></th>').appendTo(elemTHRow).append(elemToggleAll);
+
+                }
+
+
                 for(let column of columns) {
                     $('<th></th>').appendTo(elemTHRow)
                         .addClass('column-' + column.fieldId)
@@ -3553,6 +3574,19 @@ function insertGridData(id) {
                         if(field.title === 'Row Id') {
                             elemTableRow.attr('data-link', field.__self__);
                         }
+                    }
+
+                    if(settings.grid[id].editable && settings.grid[id].multiSelect) {
+
+                        $('<td></td>').appendTo(elemTableRow)
+                            .html('<div class="icon icon-check-box xxs"></div>')
+                            .addClass('content-item-check-box')
+                            .click(function(e) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                clickContentItemSelect($(this));
+                            });
+                
                     }
 
                     for(let field of columns) {
@@ -3670,14 +3704,16 @@ function saveGridData(id) {
         let data    = [];
 
         elemRow.children('td').each(function() {
-            let fieldData =  getFieldValue($(this));
-            data.push({
-                fieldId : fieldData.fieldId,
-                value   : fieldData.value,
-            })
+            if(!$(this).hasClass('content-item-check-box')) {
+                let fieldData =  getFieldValue($(this));
+                data.push({
+                    fieldId : fieldData.fieldId,
+                    value   : (fieldData.value === null) ? 'null' : fieldData.value,
+                });
+            }
         });
 
-        requests.push($.get('/plm/update-grid-row', { link : settings.grid[id].link, rowId : rowId, data : data }))
+        requests.push($.post('/plm/update-grid-row', { link : settings.grid[id].link, rowId : rowId, data : data }))
 
     });
 
@@ -3714,7 +3750,7 @@ function insertBOM(link , params) {
         [ 'getFlatBOM'          , false ],
         [ 'goThere'             , false ],
         [ 'hideDetails'         , hideDetails  ],
-        [ 'includeOMPartList'   , false ],
+        [ 'includeBOMPartList'  , false ],
         [ 'path'                , false ],
         [ 'position'            , true  ],
         [ 'reset'               , false ],
@@ -3988,7 +4024,9 @@ function changeBOMView(id) {
 
         let responseData = {};
 
-        if(settings.bom[id].includeOMPartList) responseData.bomPartsList = getBOMPartsList(settings.bom[id], responses[0].data)
+        console.log(settings.bom[id]);
+
+        if(settings.bom[id].includeBOMPartList) responseData.bomPartsList = getBOMPartsList(settings.bom[id], responses[0].data)
 
         changeBOMViewDone(id, settings.bom[id], responses[0].data, selectedItems, dataFlatBOM, dataAdditional);
         finishPanelContentUpdate(id, settings.bom[id], null, null, responseData);
@@ -4891,7 +4929,6 @@ function insertFlatBOM(link , params) {
     genPanelTop(id, settings.flatBOM[id], 'flat-bom');
     genPanelHeader(id, settings.flatBOM[id]);
     genPanelOpenSelectedInPLMButton(id, settings.flatBOM[id]);
-    // genPanelDeselectAllButton(id, settings.flatBOM[id]);
     genPanelSelectionControls(id, settings.flatBOM[id]);
 
     let elemToolbar = genPanelToolbar(id, settings.flatBOM[id], 'controls');
@@ -4929,18 +4966,13 @@ function insertFlatBOM(link , params) {
 
     }
 
-
     insertFlatBOMDone(id);        
     getBOMTabViews(id,  settings.flatBOM[id]);
 
 
     //  Set defaults for optional parameters
     // --------------------------------------
-  
-    // let search          = true;            // Adds quick filtering using search input on top of BOM
-    // let placeholder     = 'Search';        // Set placeholder text for quick filtering input
     // let multiSelect     = false;           // Enables selection of multiple items
-    // let editable        = false;           // When set to true, enables modifications in editable fields
     // let filterEmpty     = false;           // When set to true, adds filter for rows with empty input cells 
     // let tableHeaders    = true;            // When set to false, the table headers will not be shown
     // let number          = true;            // When set to true, a counter will be displayed as first column
@@ -4959,7 +4991,6 @@ function insertFlatBOM(link , params) {
     // if(!isBlank(params.search)        )         search = params.search;
     // if(!isBlank(params.placeholder)   )    placeholder = params.placeholder;
     // if(!isBlank(params.multiSelect)   )    multiSelect = params.multiSelect;
-    // if(!isBlank(params.editable)      )       editable = params.editable;
     // if(!isBlank(params.filterEmpty)   )    filterEmpty = params.filterEmpty;
     // if(!isBlank(params.filterSelected)) filterSelected = params.filterSelected;
     // if(!isBlank(params.tableHeaders)  )   tableHeaders = params.tableHeaders;
@@ -4983,13 +5014,6 @@ function insertFlatBOM(link , params) {
       
 
     // } else { elemTop.addClass('no-header'); }
-
-
-
-    // let elemCounters = $('<div></div>').appendTo($('#' + id))
-    //     .attr('id', id + '-list-counters')
-    //     .addClass('list-counters')
-    //     .hide();
 
 }
 function insertFlatBOMDone(id) {}

@@ -950,45 +950,46 @@ function insertCalendarMonth(id, currentDate) {
 // Generate default settings object for item based and navigation views using genPanel*
 function getPanelSettings(link, params, defaults, additional) {
 
-    if(isBlank(defaults.counters)         ) defaults.counters          = false;
-    if(isBlank(defaults.hidePanel)        ) defaults.hidePanel         = false;
-    if(isBlank(defaults.hideHeader)       ) defaults.hideHeader        = false;
-    if(isBlank(defaults.hideHeaderLabel)  ) defaults.hideHeaderLabel   = false;
-    if(isBlank(defaults.headerTopLabel)   ) defaults.headerTopLabel    = '';
-    if(isBlank(defaults.headerLabel)      ) defaults.headerLabel       = '';
-    if(isBlank(defaults.headerSubLabel)   ) defaults.headerSubLabel    = '';
-    if(isBlank(defaults.openInPLM)        ) defaults.openInPLM         = false;
-    if(isBlank(defaults.openOnDblClick)   ) defaults.openOnDblClick    = false;
-    if(isBlank(defaults.search)           ) defaults.search            = false;
-    if(isBlank(defaults.placeholder)      ) defaults.placeholder       = 'Type to search';
-    if(isBlank(defaults.editable)         ) defaults.editable          = false;
-    if(isBlank(defaults.reload  )         ) defaults.reload            = false;
-    if(isBlank(defaults.multiSelect)      ) defaults.multiSelect       = false;
-    if(isBlank(defaults.filterBySelection)) defaults.filterBySelection = false;
-    if(isBlank(defaults.layout)           ) defaults.layout            = 'list';
-    if(isBlank(defaults.number)           ) defaults.number            = true;
-    if(isBlank(defaults.collapsePanel)    ) defaults.collapsePanel     = false;
-    if(isBlank(defaults.collapseContents) ) defaults.collapseContents  = false;
-    if(isBlank(defaults.groupBy)          ) defaults.groupBy           = '';
-    if(isBlank(defaults.groupLayout)      ) defaults.groupLayout       = 'column';
-    if(isBlank(defaults.additionalData)   ) defaults.additionalData    = [];
-    if(isBlank(defaults.contentSize)      ) defaults.contentSize       = 'm';
-    if(isBlank(defaults.contentSizes)     ) defaults.contentSizes      = [];
-    if(isBlank(defaults.tileIcon)         ) defaults.tileIcon          = 'icon-product';
-    if(isBlank(defaults.tileImage)        ) defaults.tileImage         = true;
-    if(isBlank(defaults.tileTitle)        ) defaults.tileTitle         = 'DESCRIPTOR';
-    if(isBlank(defaults.tileSubtitle)     ) defaults.tileSubtitle      = 'WF_CURRENT_STATE';
-    if(isBlank(defaults.tileDetails)      ) defaults.tileDetails       = [];
-    if(isBlank(defaults.tableColumnsLimit)) defaults.tableColumnsLimit = 100;
-    if(isBlank(defaults.tableTotals)      ) defaults.tableTotals       = false;
-    if(isBlank(defaults.tableRanges)      ) defaults.tableRanges       = false;
-    if(isBlank(defaults.textNoData)       ) defaults.textNoData        = 'No Entries';
-    if(isBlank(defaults.stateColors)      ) defaults.stateColors       = [];
-    if(isBlank(defaults.useCache)         ) defaults.useCache          = false;
-    if(isBlank(defaults.singleToolbar)    ) defaults.singleToolbar     = '';
-    if(isBlank(defaults.disconnectLabel)  ) defaults.disconnectLabel   = 'Remove';
-    if(isBlank(defaults.disconnectIcon)   ) defaults.disconnectIcon    = 'icon-disconnect';
-    if(isBlank(defaults.afterCompletion)  ) defaults.afterCompletion   = function (id) {};
+    if(isBlank(defaults.counters)          ) defaults.counters           = false;
+    if(isBlank(defaults.hidePanel)         ) defaults.hidePanel          = false;
+    if(isBlank(defaults.hideHeader)        ) defaults.hideHeader         = false;
+    if(isBlank(defaults.hideHeaderControls)) defaults.hideHeaderControls = false;
+    if(isBlank(defaults.hideHeaderLabel)   ) defaults.hideHeaderLabel    = false;
+    if(isBlank(defaults.headerTopLabel)    ) defaults.headerTopLabel     = '';
+    if(isBlank(defaults.headerLabel)       ) defaults.headerLabel        = '';
+    if(isBlank(defaults.headerSubLabel)    ) defaults.headerSubLabel     = '';
+    if(isBlank(defaults.openInPLM)         ) defaults.openInPLM          = false;
+    if(isBlank(defaults.openOnDblClick)    ) defaults.openOnDblClick     = false;
+    if(isBlank(defaults.search)            ) defaults.search             = false;
+    if(isBlank(defaults.placeholder)       ) defaults.placeholder        = 'Type to search';
+    if(isBlank(defaults.editable)          ) defaults.editable           = false;
+    if(isBlank(defaults.reload  )          ) defaults.reload             = false;
+    if(isBlank(defaults.multiSelect)       ) defaults.multiSelect        = false;
+    if(isBlank(defaults.filterBySelection) ) defaults.filterBySelection  = false;
+    if(isBlank(defaults.layout)            ) defaults.layout             = 'list';
+    if(isBlank(defaults.number)            ) defaults.number             = true;
+    if(isBlank(defaults.collapsePanel)     ) defaults.collapsePanel      = false;
+    if(isBlank(defaults.collapseContents)  ) defaults.collapseContents   = false;
+    if(isBlank(defaults.groupBy)           ) defaults.groupBy            = '';
+    if(isBlank(defaults.groupLayout)       ) defaults.groupLayout        = 'column';
+    if(isBlank(defaults.additionalData)    ) defaults.additionalData     = [];
+    if(isBlank(defaults.contentSize)       ) defaults.contentSize        = 'm';
+    if(isBlank(defaults.contentSizes)      ) defaults.contentSizes       = [];
+    if(isBlank(defaults.tileIcon)          ) defaults.tileIcon           = 'icon-product';
+    if(isBlank(defaults.tileImage)         ) defaults.tileImage          = true;
+    if(isBlank(defaults.tileTitle)         ) defaults.tileTitle          = 'DESCRIPTOR';
+    if(isBlank(defaults.tileSubtitle)      ) defaults.tileSubtitle       = 'WF_CURRENT_STATE';
+    if(isBlank(defaults.tileDetails)       ) defaults.tileDetails        = [];
+    if(isBlank(defaults.tableColumnsLimit) ) defaults.tableColumnsLimit  = 100;
+    if(isBlank(defaults.tableTotals)       ) defaults.tableTotals        = false;
+    if(isBlank(defaults.tableRanges)       ) defaults.tableRanges        = false;
+    if(isBlank(defaults.textNoData)        ) defaults.textNoData         = 'No Entries';
+    if(isBlank(defaults.stateColors)       ) defaults.stateColors        = [];
+    if(isBlank(defaults.useCache)          ) defaults.useCache           = false;
+    if(isBlank(defaults.singleToolbar)     ) defaults.singleToolbar      = '';
+    if(isBlank(defaults.disconnectLabel)   ) defaults.disconnectLabel    = 'Remove';
+    if(isBlank(defaults.disconnectIcon)    ) defaults.disconnectIcon     = 'icon-disconnect';
+    if(isBlank(defaults.afterCompletion)   ) defaults.afterCompletion    = function (id) {};
 
     if(!isBlank(params.contentSizes)) params.contentSize = params.contentSizes[0];
 
@@ -996,6 +997,7 @@ function getPanelSettings(link, params, defaults, additional) {
         link              : link,
         hidePanel         : isBlank(params.hidePanel)         ? defaults.hidePanel : params.hidePanel,
         hideHeader        : isBlank(params.hideHeader)        ? defaults.hideHeader : params.hideHeader,
+        hideHeaderControls: isBlank(params.hideHeaderControls)? defaults.hideHeaderControls : params.hideHeaderControls,
         hideHeaderLabel   : isBlank(params.hideHeaderLabel)   ? defaults.hideHeaderLabel : params.hideHeaderLabel,
         headerTopLabel    : isBlank(params.headerTopLabel)    ? defaults.headerTopLabel : params.headerTopLabel,
         headerLabel       : isBlank(params.headerLabel)       ? defaults.headerLabel : params.headerLabel,
@@ -1119,6 +1121,7 @@ function genPanelToolbar(id, settings, name) {
 
         case 'controls': 
             elemToolbar.appendTo($('#' + id + '-header')).addClass('panel-controls'); 
+            if(settings.hideHeaderControls) elemToolbar.addClass('hidden');
             break;
 
         case 'actions': 
@@ -1979,7 +1982,7 @@ function includePanelTableColumn (name, settings, counter) {
 function includePanelWorkspace (settings, name, id) {
 
     let included = false;
-    let excluded = true;
+    let excluded = false;
 
     if(settings.workspacesIn.length === 0) {
         included = true;
@@ -3340,7 +3343,7 @@ function clickContentItemSelect(elemCheckbox, e) {
     clickContentItemSelectDone(elemClicked, e);
 
 }
-function clickContentItemDone(elemClicked, e) {}
+function clickContentItemSelectDone(elemClicked, e) {}
 function clickContentItem(elemClicked, e) {
 
     let elemTop  = elemClicked.closest('.panel-top');
@@ -4546,6 +4549,42 @@ function getBOMRollUpValues(bom, rollUps, nodeId, edge) {
 
 
 
+// Process bomPartsList structure
+function getBOMPartsListChildren(bomPartsList, partNumber, edgeId, levels, includeParent) {
+
+    if(isBlank(bomPartsList )) return;
+    if(isBlank(partNumber   )) partNumber    = '';
+    if(isBlank(edgeId       )) edgeId        = '';
+    if(isBlank(levels       )) levels        = 1;
+    if(isBlank(includeParent)) includeParent = true;
+
+    let result = [];
+    let level  = -1;
+
+    for(let bomPart of bomPartsList) {
+
+        if(bomPart.edgeId == edgeId) {
+
+            if(includeParent) result.push(bomPart);
+            level = bomPart.level;
+
+        } else if(level > -1) {
+
+            if(bomPart.level <= level) {
+                return result;
+            } else if(bomPart.level = (level + levels)) {
+                result.push(bomPart);
+            }
+
+        }
+
+    }
+
+    return result;
+
+}
+
+
 
 function onSerialNumberClick(elemClicked) {
 
@@ -4920,7 +4959,7 @@ function updateGridData(link, key, data, deleteEmpty, callback) {
 
                         }
 
-                        if(row.update) requests.push($.get('/plm/update-grid-row', { link : link, rowId : row.id, data : item}))
+                        if(row.update) requests.push($.post('/plm/update-grid-row', { link : link, rowId : row.id, data : item}))
 
                     }
 

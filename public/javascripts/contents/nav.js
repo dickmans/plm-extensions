@@ -10,6 +10,7 @@ function insertMOW(params) {
         layout      : 'table'
     }, [
         [ 'filterByDueDate'  , false ],
+        [ 'filterByStatus'   , false ],
         [ 'filterByWorkspace', false ],
         [ 'userId'           , ''    ]
     ]);
@@ -21,6 +22,7 @@ function insertMOW(params) {
     genPanelOpenSelectedInPLMButton(id, settings.mow[id]);
     genPanelSelectionControls(id, settings.mow[id]);
     genPanelFilterToggle(id, settings.mow[id], 'filterByDueDate', 'due', 'Due Tasks');
+    genPanelFilterSelect(id, settings.mow[id], 'filterByStatus', 'status', 'All States');
     genPanelFilterSelect(id, settings.mow[id], 'filterByWorkspace', 'workspace', 'All Workspaces');
     genPanelSearchInput(id, settings.mow[id]);
     genPanelResizeButton(id, settings.mow[id]);
@@ -46,6 +48,7 @@ function insertMOWData(id) {
         settings.mow[id].columns = [];
 
         let items           = [];
+        let listStates      = [];
         let listWorkspaces  = [];
         let enableDueToggle = false;
         let columns         = [
@@ -73,6 +76,7 @@ function insertMOWData(id) {
             if((settings.mow[id].workspacesIn.length === 0) || ( settings.mow[id].workspacesIn.includes(workspace))) {
                 if((settings.mow[id].workspacesEx.length === 0) || (!settings.mow[id].workspacesEx.includes(workspace))) {
 
+                    if(!listStates.includes(item.workflowStateName)) listStates.push(item.workflowStateName);
                     if(!listWorkspaces.includes(workspace)) listWorkspaces.push(workspace);
 
                     if(item.hasOwnProperty('milestoneDate')) {
@@ -96,6 +100,7 @@ function insertMOWData(id) {
                         subtitle    : workspace,
                         details     : '',
                         partNumber  : item.item.title.split(' - ')[0],
+                        status      : item.workflowStateName,
                         data        : [
                             { fieldId : 'due'        , value : date, classNames : ['mow-date', dateClass]},
                             { fieldId : 'item'       , value : item.item.title },
@@ -106,7 +111,8 @@ function insertMOWData(id) {
                         ],
                         filters : [
                             { key : 'due', value : dueFilter },
-                            { key : 'workspace', value : workspace }
+                            { key : 'status', value : item.workflowStateName },
+                            { key : 'workspace', value : workspace },
                         ],
                         quantity    : '',
                         classNames  : []
@@ -119,7 +125,9 @@ function insertMOWData(id) {
 
         if(enableDueToggle) $('#' + id + '-filter-due').show();
 
+        sortArray(listStates, 0);
         sortArray(listWorkspaces, 0);
+        setPanelFilterOptions(id, 'status', listStates);
         setPanelFilterOptions(id, 'workspace', listWorkspaces);
         finishPanelContentUpdate(id, settings.mow[id], items);
         insertMOWDataDone(id, response);
@@ -154,7 +162,7 @@ function insertRecentItems(params) {
     genPanelHeader(id, settings.recents[id]);
     genPanelOpenSelectedInPLMButton(id, settings.recents[id]);
     genPanelSelectionControls(id, settings.recents[id]);
-    genPanelFilterSelect(id, settings.recents[id].filterByWorkspace, 'workspace', 'All Workspaces');
+    genPanelFilterSelect(id, settings.recents[id], 'filterByWorkspace', 'workspace', 'All Workspaces');
     genPanelSearchInput(id, settings.recents[id]);
     genPanelResizeButton(id, settings.recents[id]);
     genPanelReloadButton(id, settings.recents[id]);
@@ -354,7 +362,6 @@ function insertWorkspaceViews(wsId, params) {
         [ 'includeMOW'          , false ],
         [ 'includeBookmarks'    , false ],
         [ 'includeRecents'      , false ],
-        [ 'columnLimit'         , 20 ],
         [ 'groupBy'             , '' ],
         [ 'tileImageFieldId'    , '' ],
         [ 'workspacesIn'        , [wsId] ]
@@ -980,7 +987,7 @@ function insertResults(wsId, filters, params) {
         [ 'autoClick'       , false ],
         [ 'editable'        , false ],
         [ 'filterEmpty'     , false ],
-        [ 'tileImageFIeldId', '' ]
+        [ 'tileImageFieldId', '' ]
     ]);
 
     if(!settings.results[id].fields.includes('DESCRIPTOR')) {
