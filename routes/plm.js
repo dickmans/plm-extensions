@@ -1596,31 +1596,36 @@ router.post('/add-grid-row', function(req, res, next) {
 
 
 /* ----- UPDATE GRID ROW ----- */
-router.get('/update-grid-row', function(req, res, next) {
+router.post('/update-grid-row', function(req, res, next) {
     
     console.log(' ');
     console.log('  /update-grid-row');
     console.log(' --------------------------------------------'); 
-    console.log('  req.query.wsId    = ' + req.query.wsId);
-    console.log('  req.query.dmsId   = ' + req.query.dmsId);
-    console.log('  req.query.link    = ' + req.query.link);
-    console.log('  req.query.rowId   = ' + req.query.rowId);
-    console.log('  req.query.data    = ' + req.query.data);
+    console.log('  req.body.wsId    = ' + req.body.wsId);
+    console.log('  req.body.dmsId   = ' + req.body.dmsId);
+    console.log('  req.body.link    = ' + req.body.link);
+    console.log('  req.body.rowId   = ' + req.body.rowId);
+    console.log('  req.body.data    = ' + req.body.data);
     console.log(); 
     
-    let url =  (typeof req.query.link !== 'undefined') ? req.query.link : '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId;
+
+    let wsId = (typeof req.body.wsId !== 'undefined') ? req.body.wsId : '';
+
+    if(wsId === '') {
+        if(typeof req.body.link !== 'undefined') wsId = req.body.link.split('/')[4];
+    }
+
+    let url =  (typeof req.body.link !== 'undefined') ? req.body.link : '/api/v3/workspaces/' + wsId + '/items/' + req.body.dmsId;
         url  = req.app.locals.tenantLink + url;
-        url += '/views/13/rows/' + req.query.rowId;
+        url += '/views/13/rows/' + req.body.rowId;
 
     let rowData = [];
 
-    for(let field of req.query.data) {
-
+    for(let field of req.body.data) {
         rowData.push({
-            '__self__' : '/api/v3/workspaces/' + req.query.wsId + '/views/13/fields/' + field.fieldId,
-            'value' : field.value
+            '__self__' : '/api/v3/workspaces/' + wsId + '/views/13/fields/' + field.fieldId,
+            'value'    : (field.value === 'null') ? null : field.value
         });
-
     }
 
     axios.put(url, {
