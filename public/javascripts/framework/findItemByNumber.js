@@ -1,7 +1,6 @@
 $(document).ready(function() {
 
     setUIEvents();
-
     appendProcessing('create');
 
     if(number === '') { 
@@ -12,23 +11,11 @@ $(document).ready(function() {
     } else {
 
         let params = {
-            'wsId'      : config.items.wsId,
-            'limit'     : 1,
-            'query'     : number,
-            'wildcard'  : false
+            wsId     : config.items.wsId,
+            limit    : 1,
+            query    : number,
+            wildcard : false
         }
-
-//   http://localhost:8080/addins/item?number=002771&options=autoCreate
-/*
-
-
-
-http://localhost:8080/addins/item?number=12345678&options=autoCreate
-
-http://localhost:8080/addins/item?number=01-1918&options=autoCreate
-
-
-*/
 
         $.get('/plm/search-descriptor', params, function(response) {
 
@@ -42,6 +29,8 @@ http://localhost:8080/addins/item?number=01-1918&options=autoCreate
                 let url  = window.location.href.split('?')[0];
                     url += '?dmsId=' + link.split('/')[6];
                     url += '&wsId='  + link.split('/')[4];
+                    
+                if(!isBlank(options)) url += '&options=' + options;
 
                 if(theme !== '') url += '&theme=' + theme;
 
