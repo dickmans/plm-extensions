@@ -215,7 +215,7 @@ function sendResponse(req, res, response, error, fromCache) {
         if(error) {
 
             console.log();
-            console.log(' ERROR REQUESTING ' + req.url);
+            console.log(' ERROR REQUESTING : ' + req.url);
 
             if(typeof response !== 'undefined') {
                 if(typeof response.message !== 'undefined') {
@@ -223,13 +223,21 @@ function sendResponse(req, res, response, error, fromCache) {
                     result.message = response.message;
                 }
                 if(typeof response.data !== 'undefined') {
-                    if(response.data.length > 0) {
-                        if(typeof response.data === 'string') result.message = response.data;
-                        else if(Array.isArray(response.data)) {
+                    if(typeof response.data === 'string') {
+                        result.message = response.data;
+                    } else if(Array.isArray(response.data)) {
+                        if(response.data.length > 0) {
                             if('message' in response.data[0]) result.message = response.data[0].message;
                         }
+                    } else if(typeof response.data.message !== 'undefined') {
+                        result.message = response.data.message;
                     }
                 }
+            }
+
+            if(result.message !== '') {
+                console.log(' ERROR MESSAGE    : ' + result.message);
+                console.log();
             }
 
         } else if(!fromCache) {
