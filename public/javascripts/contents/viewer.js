@@ -1260,8 +1260,8 @@ function viewerGetComponentsInstances(partNumbers) {
 
     for(let partNumber of partNumbers) {
         result.push({
-            'partNumber' : partNumber,
-            'instances'  : viewerGetComponentInstances(partNumber)
+            partNumber : partNumber,
+            instances  : viewerGetComponentInstances(partNumber)
         });
     };
 
@@ -1277,36 +1277,82 @@ function viewerGetComponentInstances(partNumber) {
 
     for(let dataInstance of dataInstances) {
         if(dataInstance.partNumber === partNumber) {
-            result.push({
-                'dbId' : dataInstance.dbId,
-                'path' : getComponentPath(dataInstance.dbId)  
-            });
+
+            let instance = {
+                dbId        : dataInstance.dbId,
+                parents     : [],
+                path        : '',
+                instanceId  : ''
+            };
+
+            getComponentPath(dataInstance.dbId, instance.parents);
+
+            instance.path       = instance.parents.map(function(parent) { return parent.partNumber }).join('|');
+            instance.instanceId = instance.parents.map(function(parent) { return parent.name       }).join('|');
+
+            result.push(instance);
+
         }
     }
+
+    sortArray(result, 'instanceId');
 
     return result;
 
 }
-function getComponentPath(id) {
-
-    let result = ';'
+function getComponentPath(id, componentPath) {
 
     for(let dataInstance of dataInstances) {
         if(dataInstance.dbId === id) {
-            result = dataInstance.partNumber + ';xx' + dataInstance.name;
+            componentPath.unshift({
+                partNumber : dataInstance.partNumber,
+                name       : dataInstance.name
+            });
             for(let property of dataInstance.properties) {
                 if(property.attributeName === 'parent') {
-                    let partNumber = getComponentPath(property.displayValue);
-                    result = partNumber.split('.iam')[0] + '|' + result;
+                    getComponentPath(property.displayValue, componentPath);
                 }
             }
 
         }
     }
 
-    return result;
-
 }
+// function getComponentPath(id) {
+
+//     let result = '|'
+
+//     for(let dataInstance of dataInstances) {
+//         if(dataInstance.dbId === id) {
+//             console.log(dataInstance.name);
+//             result = dataInstance.partNumber + ';' + dataInstance.name;
+//             // result = dataInstance.name;
+//             for(let property of dataInstance.properties) {
+//                 if(property.attributeName === 'parent') {
+//                     let partNumber = getComponentPath(property.displayValue);
+//                     result = partNumber.split('.iam')[0] + '|' + result;
+//                 }
+//             }
+
+//         }
+//     }
+//     // for(let dataInstance of dataInstances) {
+//     //     if(dataInstance.dbId === id) {
+//     //         console.log(dataInstance.name);
+//     //         result = dataInstance.partNumber + ';xx' + dataInstance.name;
+//     //         for(let property of dataInstance.properties) {
+//     //             if(property.attributeName === 'parent') {
+//     //                 let partNumber = getComponentPath(property.displayValue);
+//     //                 result = partNumber.split('.iam')[0] + '|' + result;
+//     //             }
+//     //         }
+
+//     //     }
+//     // }
+
+//     return result;
+
+// }
 function getComponentParents(id) {
 
     let result = []

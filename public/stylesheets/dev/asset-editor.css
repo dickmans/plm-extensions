@@ -1,11 +1,17 @@
+/*  VARIABLES */
+/* ----------------------------------------------------------------------------- */
 :root {
 
     --border-h      : 32px;
     --border-v      : 24px;
-    --width-bom     : 500px;
+    --width-bom     : 600px;
+    --width-viewer  : 600px;
     --height-viewer : 400px;
 }
 
+
+/*  MASTER LAYOUT */
+/* ----------------------------------------------------------------------------- */
 #bom {
     border-width    : var(--border-v) var(--border-h);
     top             : 0px;
@@ -16,6 +22,121 @@
 .viewer {
     top     : 0px;
     right   : 0px;
+    bottom  : 60%;
     left    : calc(var(--width-bom) + (2 * var(--border-h)));
-    height  : var(--height-viewer);
 }
+#contents {
+    border-width    : var(--border-v) var(--border-h);
+    top             : 40%;
+    right           : 0px;
+    left            : calc(var(--width-bom) + (2 * var(--border-h)));
+    bottom          : 0px;
+}
+#items {
+    position : absolute;
+    top      : 58px;
+    right    : 0px;
+    left     : 0px;
+    bottom   : 0px;
+}
+
+
+.layout-h .viewer {
+    right  : unset;
+    bottom : 0px;
+    width  : var(--width-viewer);
+}
+.layout-h #contents {
+    top  : 0px;
+    left : calc(var(--width-bom) + var(--width-viewer) + (2 * var(--border-h)));
+}
+
+.no-bom #bom { left : calc(-1px - var(--width-bom) - (2 * var(--border-h))); }
+.no-bom .viewer,
+.no-bom #contents {
+    left : 0px;
+}
+
+.no-bom.layout-h #contents {
+    left : calc(var(--width-viewer) + (1 * var(--border-h)));
+}
+
+
+/*  BOM */
+/* ----------------------------------------------------------------------------- */
+.column-icon {
+    text-align  : center;
+    width       : 34px;
+}
+td.column-icon {
+    font-size       : 22px;
+    font-weight     : 200;
+    line-height     : 34px;
+    padding-bottom  : 0px !important;
+    padding-top     : 0px !important;
+}
+
+
+
+/*  TABS */
+/* ----------------------------------------------------------------------------- */
+#tabs > div {
+    display         : flex;
+    gap             : 6px;
+    justify-content : center;
+}
+#tabs > div::before {
+    font-weight : 300;
+} 
+
+
+
+/*  ITEMS */
+/* ----------------------------------------------------------------------------- */
+ table.row-hovering tr.highlighted:hover > td,
+table.row-hovering tbody tr.highlighte:hover > td,
+tr.highlighted > td {
+    border-color : var(--color-status-red) !important;
+    background   : var(--color-status-red) !important;
+}
+#items .panel-actions {
+    justify-content : end;
+}
+
+#items .column-NUMBER {
+    max-width : 76px;
+}
+#items .column-SERIAL {
+    max-width : 120px;
+}
+#items .column-INSTALLATION_DATE {
+    max-width : 50px;
+}
+#items .column-INSTANCE_ID {
+    display : none;
+}
+/*
+#items td {
+    background : var(--color-surface-level-2);
+
+}
+#items td input {
+    background : var(--color-surface-level-2);
+    width : auto;
+}
+
+#items .column-INSTANCE_ID {
+    display : none;
+}
+#items .column-BOM_PATH {
+    min-width : 26px;
+}
+#items .column-BOM_PATH input {
+    min-width : 260px;
+}
+#items .table.s td {
+    padding : 2px !important;
+}
+#items .table.s input {
+    padding : 4px;
+} */

@@ -4412,12 +4412,14 @@ function getBOMPartsList(settings, data) {
         }
     }
 
-    getBOMParts(settings, parts, data.root, data.edges, data.nodes, 1.0, 1, '', []);
+    let rootPartNumber = getBOMCellValue(data.root, settings.urns.partNumber, data.nodes);
+
+    getBOMParts(settings, parts, data.root, data.edges, data.nodes, 1.0, 1, '', [rootPartNumber]);
 
     return parts;
 
 }
-function getBOMParts(settings, parts, parent, edges, nodes, quantity, level, numberPath, path) {
+function getBOMParts(settings, parts, parent, edges, nodes, quantity, level, numberPath, parents) {
 
     let result = { hasChildren : false };
     let fields = settings.viewFields || settings.columns;
@@ -4434,9 +4436,9 @@ function getBOMParts(settings, parts, parent, edges, nodes, quantity, level, num
                 quantity    : getBOMEdgeValue(edge, settings.urns.quantity, null, 0),
                 partNumber  : getBOMCellValue(edge.child, settings.urns.partNumber, nodes),
                 linkParent  : edge.edgeLink.split('/bom-items')[0],
-                parent      : path[path.length - 1],
                 level       : level,
-                path        : path.slice(),
+                parent      : parents[parents.length - 1],
+                parents     : parents.slice(),
                 fields      : [],
                 edgeId      : edge.edgeId,
                 number      : edge.itemNumber,
@@ -4444,8 +4446,11 @@ function getBOMParts(settings, parts, parent, edges, nodes, quantity, level, num
                 details     : {}
             }
 
-            node.path.push(node.partNumber);
             node.totalQuantity = node.quantity * quantity;
+
+            node.path = node.parents.map(function(parent) {
+                return parent;
+            }).join('|') + '|' + node.partNumber;
 
             result.hasChildren = true;
 
@@ -4494,7 +4499,10 @@ function getBOMParts(settings, parts, parent, edges, nodes, quantity, level, num
                 parts.push(node);
             }
 
-            let nodeBOM = getBOMParts(settings, parts, edge.child, edges, nodes, node.totalQuantity, level + 1, numberPath + edge.itemNumber + '.', node.path);
+            let nextParents = parents.slice();
+                nextParents.push(node.partNumber);
+
+            let nodeBOM = getBOMParts(settings, parts, edge.child, edges, nodes, node.totalQuantity, level + 1, numberPath + edge.itemNumber + '.', nextParents);
 
             node.hasChildren = nodeBOM.hasChildren;
 
