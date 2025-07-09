@@ -2224,14 +2224,16 @@ function insertDetailsField(field, data, elemFields, sectionLock, settings) {
     } else {
         elemField.addClass('editable');               
 
-        if(field.fieldValidators !== null) {
-            for(let validator of field.fieldValidators) {
-                if(validator.validatorName === 'required') {
-                    elemField.addClass('required');
-                } else if(validator.validatorName === 'dropDownSelection') {
-                    elemField.addClass('required');
-                } else if(validator.validatorName === 'maxlength') {
-                    elemValue.attr('maxlength', validator.variables.maxlength);
+        if(field.hasOwnProperty('fieldValidators')) {
+            if(field.fieldValidators !== null) {
+                for(let validator of field.fieldValidators) {
+                    if(validator.validatorName === 'required') {
+                        elemField.addClass('required');
+                    } else if(validator.validatorName === 'dropDownSelection') {
+                        elemField.addClass('required');
+                    } else if(validator.validatorName === 'maxlength') {
+                        elemValue.attr('maxlength', validator.variables.maxlength);
+                    }
                 }
             }
         }
@@ -3446,8 +3448,9 @@ function insertGrid(link, params) {
         headerLabel : 'Grid',
         layout      : 'table'
     }, [
-        [ 'rotate'  , false ],
-        [ 'bookmark', false ]
+        [ 'filterEmpty', false ],
+        [ 'rotate'     , false ],
+        [ 'bookmark'   , false ]
     ]);
 
     settings.grid[id].layout = 'table';
@@ -3458,6 +3461,7 @@ function insertGrid(link, params) {
     genPanelBookmarkButton(id, settings.grid[id]);
     genPanelOpenInPLMButton(id, settings.grid[id]);
     genPanelSelectionControls(id, settings.grid[id]);
+    genPanelFilterToggleEmpty(id, settings.grid[id]);
     genPanelSearchInput(id, settings.grid[id]);
     genPanelResizeButton(id, settings.grid[id]);
     genPanelReloadButton(id, settings.grid[id]);
@@ -3529,6 +3533,14 @@ function insertGridData(id) {
 
             if(settings.grid[id].tableHeaders) elemTHead.prependTo(elemTable);
 
+            if(!isBlank(settings.grid[id].groupBy)) {
+                for(let row of responses[0].data) {
+                    row.group = getGridRowValue(row, settings.grid[id].groupBy, '', 'title');
+                }
+                sortArray(responses[0].data, 'group', 'string', 'ascending');
+            }
+
+
             if(!settings.grid[id].rotate) {
 
                 elemTable.addClass('fixed-header');
@@ -3540,7 +3552,7 @@ function insertGridData(id) {
                         .addClass('content-select-all')
                         .addClass('icon')
                         .addClass('icon-check-box')
-                        .addClass('xxs')
+                        .addClass('table-check-box')
                         .click(function(e) {
                             e.preventDefault();
                             e.stopPropagation();
@@ -3552,14 +3564,49 @@ function insertGridData(id) {
 
                 }
 
-
                 for(let column of columns) {
-                    $('<th></th>').appendTo(elemTHRow)
+                    let elemCell = $('<th></th>').appendTo(elemTHRow)
                         .addClass('column-' + column.fieldId)
                         .html(column.name);
+                    if(settings.grid[id].editable) {
+                        if(column.editability === 'ALWAYS') elemCell.addClass('column-editable');
+                    }
                 }
 
+                let groupName = null;
+                let groupSpan = columns.length;
+
+                if(settings.grid[id].editable && settings.grid[id].multiSelect) groupSpan++;
+
                 for(let row of responses[0].data) {
+
+                    if(!isBlank(settings.grid[id].groupBy)) {
+
+                        if(groupName !== row.group) {
+
+                            let elemGroup = $('<tr></tr>').appendTo(elemTBody)
+                                .addClass('table-group');
+
+                            let elemGroupTitle = $('<td></td>').appendTo(elemGroup)
+                                .addClass('table-group-title')
+                                .attr('colspan', groupSpan)
+                                .html(isBlank(row.group) ? 'n/a' : row.group)
+                                .click(function() {
+                                    $(this).toggleClass('collapsed');
+                                    if($(this).hasClass('collapsed')) {
+                                        $(this).parent().nextUntil('.table-group').hide();
+                                    } else {
+                                        $(this).parent().nextUntil('.table-group').show();
+                                    }
+                                });
+
+                            if(settings.grid[id].collapseContents) elemGroupTitle.addClass('collapsed');
+
+                        }
+
+                        groupName = row.group;
+
+                    }
 
                     let elemTableRow = $('<tr></tr>').appendTo(elemTBody)
                         .addClass('content-item')
@@ -3576,10 +3623,16 @@ function insertGridData(id) {
                         }
                     }
 
+                    if(settings.grid[id].collapseContents) {
+                        if(!isBlank(settings.grid[id].groupBy)) {
+                            elemTableRow.hide();
+                        }
+                    }
+
                     if(settings.grid[id].editable && settings.grid[id].multiSelect) {
 
                         $('<td></td>').appendTo(elemTableRow)
-                            .html('<div class="icon icon-check-box xxs"></div>')
+                            .html('<div class="icon icon-check-box table-check-box"></div>')
                             .addClass('content-item-check-box')
                             .click(function(e) {
                                 e.preventDefault();
@@ -3598,6 +3651,7 @@ function insertGridData(id) {
                         
                         if(settings.grid[id].editable) {
 
+                            elemCell.addClass('column-editable');
 
                             for(let editableField of editableFields) {
                                 
@@ -4991,7 +5045,6 @@ function insertFlatBOM(link , params) {
     // if(!isBlank(params.search)        )         search = params.search;
     // if(!isBlank(params.placeholder)   )    placeholder = params.placeholder;
     // if(!isBlank(params.multiSelect)   )    multiSelect = params.multiSelect;
-    // if(!isBlank(params.filterEmpty)   )    filterEmpty = params.filterEmpty;
     // if(!isBlank(params.filterSelected)) filterSelected = params.filterSelected;
     // if(!isBlank(params.tableHeaders)  )   tableHeaders = params.tableHeaders;
     // if(!isBlank(params.number)        )         number = params.number;
