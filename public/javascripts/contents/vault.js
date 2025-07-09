@@ -206,7 +206,7 @@ function genPDMTileFileVersion(file, params) {
     params.link         = file.url;
     params.title        = file.name + ' [' + file.revision + ']',
     params.subtitle     = subtitle
-    params.tileIcon     = 'icon-file';   
+    params.tileIcon     = 'icon-folder';   
     params.imageFile    = file.file.id + '-' + file.version;
     params.details      = 'data';
 
@@ -229,7 +229,7 @@ function genPDMTileItemVersion(item, params) {
         image       : item.url,
         number      : params.number,
         tileNumber  : params.tileNumber,
-        tileIcon    : 'icon-item',
+        tileIcon    : 'icon-vault-item',
         title       : item.number + ' ' + item.title + ' [' + item.revision + ']',
         subtitle    : subtitle,
         imageFile   : item.item.id + '-' + item.version,

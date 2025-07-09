@@ -31,6 +31,7 @@ $(document).ready(function() {
                     url += '&wsId='  + link.split('/')[4];
                     
                 if(!isBlank(options)) url += '&options=' + options;
+                if(!isBlank(host))    url += '&host='    + host;
 
                 if(theme !== '') url += '&theme=' + theme;
 

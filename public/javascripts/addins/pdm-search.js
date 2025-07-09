@@ -59,34 +59,39 @@ function performBasicSearch(next) {
         
         if(timestamp == response.params.timestamp) {
 
-            $('#basic-search-processing').hide();
-
-            if(response.data.results.length === 0) {
-
-                $('#basic-no-results').show();
-    
+            if(response.error) {
+                showErrorMessage('Error when searching', response.data.detail);
             } else {
 
-                for(let result of response.data.results) {
-                    if(result.entityType !== 'Folder') {
-                        let elemTile = genPDMTile(result, {
-                            tileNumber : elemList.children().length + 1,
-                            addTileActions : true
-                        });
-                        if(elemTile !== null) elemTile.appendTo(elemList);
+                $('#basic-search-processing').hide();
+
+                if(response.data.results.length === 0) {
+
+                    $('#basic-no-results').show();
+        
+                } else {
+
+                    for(let result of response.data.results) {
+                        if(result.entityType !== 'Folder') {
+                            let elemTile = genPDMTile(result, {
+                                tileNumber : elemList.children().length + 1,
+                                addTileActions : true
+                            });
+                            if(elemTile !== null) elemTile.appendTo(elemList);
+                        }
                     }
+
+                    var counter = elemList.children().length;
+                    let nextUrl = (isBlank(response.data.pagination.nextUrl)) ? '' : response.data.pagination.nextUrl;
+
+                    elemList.attr('data-next', nextUrl);
+                    elemList.show();
+                    $('#basic-total').html(counter + ' of ' + response.data.pagination.totalResults + ' total results');
+                    $('#basic-footer').removeClass('hidden');
+
+                    if(!isBlank(nextUrl)) $('#basic-next').show();
+
                 }
-
-                var counter = elemList.children().length;
-                let nextUrl = (isBlank(response.data.pagination.nextUrl)) ? '' : response.data.pagination.nextUrl;
-
-                elemList.attr('data-next', nextUrl);
-                elemList.show();
-                $('#basic-total').html(counter + ' of ' + response.data.pagination.totalResults + ' total results');
-                $('#basic-footer').removeClass('hidden');
-
-                if(!isBlank(nextUrl)) $('#basic-next').show();
-
             }
 
         }

@@ -25,8 +25,6 @@ function genAddinTileActions(elemTile) {
 
     let elemActions = $('<div></div>').appendTo(elemTile).addClass('tile-actions');
 
-    console.log(host);
-    
     switch(elemTile.attr('data-type')) {
 
         case 'vault-folder': 
@@ -40,15 +38,15 @@ function genAddinTileActions(elemTile) {
         case 'vault-file': 
         case 'vault-item': 
             if(host === 'inventor') {
-                genAddinTileAction(elemActions, 'gotoVaultFile', 'icon-folder-open', 'Go To Folder'); 
-                genAddinTileAction(elemActions, 'gotoVaultItem', 'icon-open'       , 'Go To Item'); 
-                genAddinTileAction(elemActions, 'addComponent' , 'icon-select'     , 'Place Component'); 
-                genAddinTileAction(elemActions, 'openComponent', 'icon-product'    , 'Open Component'); 
+                genAddinTileAction(elemActions, 'gotoVaultFile', 'icon-goto-folder', 'Go To Folder'); 
+                genAddinTileAction(elemActions, 'gotoVaultItem', 'icon-vault-item' , 'Go To Item'); 
+                genAddinTileAction(elemActions, 'openComponent', 'icon-folder-open', 'Open Component'); 
+                genAddinTileAction(elemActions, 'addComponent' , 'icon-product'    , 'Place Component'); 
             } else {
-                genAddinTileAction(elemActions, 'gotoVaultFile', 'icon-folder-open', 'Go To Folder'); 
-                genAddinTileAction(elemActions, 'gotoVaultItem', 'icon-open'       , 'Go To Item'); 
-                genAddinTileAction(elemActions, 'addComponent' , 'icon-select'     , 'Insert into CAD'); 
-                genAddinTileAction(elemActions, 'openComponent', 'icon-product'    , 'Open in CAD'); 
+                genAddinTileAction(elemActions, 'gotoVaultFile', 'icon-goto-folder', 'Go To Folder'); 
+                genAddinTileAction(elemActions, 'gotoVaultItem', 'icon-vault-item' , 'Go To Item'); 
+                genAddinTileAction(elemActions, 'openComponent', 'icon-folder-open', 'Open in CAD'); 
+                genAddinTileAction(elemActions, 'addComponent' , 'icon-product'    , 'Insert into CAD'); 
             }
             break;
 
@@ -68,22 +66,16 @@ function genAddinTileActions(elemTile) {
 }
 function genAddinPLMItemTileActions(elemActions) {
 
-    console.log(host);
-
     if(host === 'inventor') {   
-        genAddinTileAction(elemActions, 'selectComponent' , 'icon-select-circle', 'Select in Window'); 
-        genAddinTileAction(elemActions, 'isolateComponent', 'icon-3d'           , 'Isolate in Window'); 
-        genAddinTileAction(elemActions, 'addComponent'    , 'icon-select'       , 'Place Component'); 
-        genAddinTileAction(elemActions, 'openComponent'   , 'icon-product'      , 'Open Component');  
+        genAddinTileAction(elemActions, 'gotoVaultFile', 'icon-goto-folder', 'Go To Folder'); 
+        genAddinTileAction(elemActions, 'gotoVaultItem', 'icon-vault-item' , 'Go To Item'); 
+        genAddinTileAction(elemActions, 'openComponent', 'icon-folder-open', 'Open Component');  
+        genAddinTileAction(elemActions, 'addComponent' , 'icon-product'    , 'Place Component'); 
     } else {
-        // genAddinTileAction(elemActions, 'gotoVaultFile', 'icon-product', 'Navigate to file in Vault');
-        // genAddinTileAction(elemActions, 'gotoVaultItem', 'icon-item'   , 'Navigate to item in Vault');
-        // genAddinTileAction(elemActions, 'addComponent' , 'icon-create' , 'Add to active window');
-        // genAddinTileAction(elemActions, 'openComponent', 'icon-clone'  , 'Open in new window');
-        genAddinTileAction(elemActions, 'gotoVaultFile', 'icon-folder-open', 'Go To Folder'); 
-        genAddinTileAction(elemActions, 'gotoVaultItem', 'icon-open'       , 'Go To Item'); 
-        genAddinTileAction(elemActions, 'addComponent' , 'icon-select'     , 'Insert into CAD'); 
-        genAddinTileAction(elemActions, 'openComponent', 'icon-product'    , 'Open in CAD'); 
+        genAddinTileAction(elemActions, 'gotoVaultFile', 'icon-goto-folder', 'Go To Folder'); 
+        genAddinTileAction(elemActions, 'gotoVaultItem', 'icon-vault-item' , 'Go To Item'); 
+        genAddinTileAction(elemActions, 'openComponent', 'icon-folder-open', 'Open in CAD'); 
+        genAddinTileAction(elemActions, 'addComponent' , 'icon-product'    , 'Insert into CAD'); 
     }
 
 }
@@ -94,7 +86,7 @@ function genAddinTileAction(elemActions, action, icon, tooltip) {
     let elemAction = $('<div></div>').appendTo(elemActions)
         .addClass('button')
         .addClass('icon')
-        .addClass('filled')
+        // .addClass('filled')
         .addClass(icon)
         .attr('title', tooltip)
         .click(function(e) {
