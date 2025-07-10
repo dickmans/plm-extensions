@@ -104,6 +104,53 @@ exports.config = {
         lightPreset             : 4
     },
 
+    assetEditor : {
+        bomViewName : 'PDM Data',
+        fieldIdBOM  : 'EBOM',
+        workspaces  : [{
+            label       : 'Serial Numbers',
+            fieldId     : 'SERIAL_NUMBERS_LIST',
+            workspaceId : 275,
+            colorIndex  : 1,
+            bomIcon     : 'icon-tag',
+            columnsIn   : ['Serial #', 'Installation Date', 'Location', 'Item Number', 'Instance ID'],
+            columnsDef  : {
+                partNumber   : 'NUMBER',
+                path         : 'LOCATION',
+                instanceId   : 'INSTANCE_ID',
+                bomReference : 'BOM_REFERENCE'
+            },
+            groupBy     : 'NUMBER',
+            filter      : {
+                fieldId : 'SERIAL_NUMBER',
+                value   : true
+            }
+        }],
+        viewerFeatures : {
+            contextMenu   : false,
+            cube          : false,
+            orbit         : false,
+            firstPerson   : false,
+            camera        : false,
+            measure       : true,
+            section       : true,
+            explodedView  : true,
+            modelBrowser  : false,
+            properties    : false,
+            settings      : false,
+            fullscreen    : true,
+            markup        : true,
+            hide          : true,
+            ghosting      : true,
+            highlight     : true,
+            single        : true,
+            fitToView     : false,
+            reset         : true,
+            views         : true,
+            selectFile    : false
+        }
+    },
+
     classes : {
         viewerFeatures : {
             contextMenu   : false,
