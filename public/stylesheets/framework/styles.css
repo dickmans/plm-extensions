@@ -758,11 +758,13 @@
 .table-group-title::before {
     content                 : '\e5cf';
     font-family             : 'Material Symbols Sharp';
-    line-height             : 1;
+    line-height             : 1px;
     margin-right            : var(--spacer-xxs);
     position                : relative;
     text-rendering          : optimizeLegibility;
-    top                     : 2px;
+    font-size               : 24px;
+    top                     : 7px;
+    left                    : 4px;
     -webkit-font-smoothing  : antialiased;
 }
 .table-group-title.collapsed::before { content : '\e5cc'; }

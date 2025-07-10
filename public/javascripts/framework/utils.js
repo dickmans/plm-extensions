@@ -1866,10 +1866,12 @@ function genPanelFooterActionButton(id, settings, suffix, params, callback) {
 // Start & finish update of panel contents to display right contents
 function startPanelContentUpdate(id) {
 
-    let elemSearch   = $('#' + id + '-search-input');
-    let elemSelects  = $('.' + id + '-filter');
-    let elemToggles  = $('.' + id + '-filter-toggle');
-    let elemCounters = $('#' + id + '-counters');
+    let elemSearch         = $('#' + id + '-search-input');
+    let elemSelects        = $('.' + id + '-filter');
+    let elemToggles        = $('.' + id + '-filter-toggle');
+    let elemFilterSelected = $('#' + id + '-filter-selected-only');
+    let elemFilterEmpty    = $('#' + id + '-filter-empty-only');
+    let elemCounters       = $('#' + id + '-counters');
 
     if(elemSelects.length > 0) {
 
@@ -1900,6 +1902,10 @@ function startPanelContentUpdate(id) {
                 .hide();
         })
     }
+
+    if(elemFilterSelected.length > 0) elemFilterSelected.removeClass('icon-toggle-on').addClass('icon-toggle-off').removeClass('filled');
+
+    if(elemFilterEmpty.length > 0) elemFilterEmpty.removeClass('icon-toggle-on').addClass('icon-toggle-off').removeClass('filled');
 
     if(elemCounters.length > 0) elemCounters.children().each(function() {
         $(this).html('').removeClass('not-empty');
@@ -2194,7 +2200,6 @@ function filterPanelContent(id) {
         }
     }
 
-
     elemContent.find('.content-item').each(function() {
 
         let elemContentItem = $(this);
@@ -2254,13 +2259,17 @@ function filterPanelContent(id) {
                         });
                     }
                 } else {
-                    elemContentItem.children().each(function() {
+                    elemContentItem.children('.column-editable').each(function() {
                         let elemCell = $(this);
                         if(elemCell.children().length === 0) {
                             hasEmptyContent = (elemCell.html() === '');
                         } else if(elemCell.children('.icon').length < 0) {
                             let fieldData = getFieldValue(elemCell);
                             hasEmptyContent = (isBlank(fieldData.value));
+                        } else {
+                            let elemControl = elemCell.children().first();
+                            let value = elemControl.val();
+                            if(isBlank(value)) hasEmptyContent = true;
                         }
                     
                     });
@@ -2270,7 +2279,6 @@ function filterPanelContent(id) {
 
             }
         }
-
 
         if(!showContentItem) {
             elemContentItem.hide(); 
@@ -2475,8 +2483,13 @@ function panelDeselectAll(id, elemClicked) {
     $('#' + id + '-content').find('.content-item').removeClass('selected');
     $('#' + id + '-content').find('.content-select-all').removeClass('icon-check-box-checked').addClass('icon-check-box');
 
+    let elemFilterSelected = $('#' + id + '-filter-selected-only');
+
+    if(elemFilterSelected.length > 0) elemFilterSelected.removeClass('icon-toggle-on').addClass('icon-toggle-off').removeClass('filled');
+
     togglePanelToolbarActions(elemClicked);
     updatePanelCalculations(id);
+    filterPanelContent(id);
     panelDeselectAllDone(elemClicked);
 
 }
