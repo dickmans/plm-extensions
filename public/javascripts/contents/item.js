@@ -3547,11 +3547,7 @@ function insertGridData(id) {
 
                 if(settings.grid[id].editable && settings.grid[id].multiSelect) {
 
-                    let elemToggleAll = $('<div></div>')
-                        .attr('id', id + '-select-all')
-                        .addClass('content-select-all')
-                        .addClass('icon')
-                        .addClass('icon-check-box')
+                    let elemHeadCell = $('<th></th>').appendTo(elemTHRow)
                         .addClass('table-check-box')
                         .click(function(e) {
                             e.preventDefault();
@@ -3559,8 +3555,11 @@ function insertGridData(id) {
                             clickTableToggleAll($(this));
                         });
 
-
-                    $('<th></th>').appendTo(elemTHRow).append(elemToggleAll);
+                    let elemHeadIcon = $('<div></div>').appendTo(elemHeadCell)
+                        .attr('id', id + '-select-all')
+                        .addClass('content-select-all')
+                        .addClass('icon')
+                        .addClass('icon-check-box');
 
                 }
 
@@ -3632,8 +3631,9 @@ function insertGridData(id) {
                     if(settings.grid[id].editable && settings.grid[id].multiSelect) {
 
                         $('<td></td>').appendTo(elemTableRow)
-                            .html('<div class="icon icon-check-box table-check-box"></div>')
+                            .html('<div class="icon icon-check-box"></div>')
                             .addClass('content-item-check-box')
+                            .addClass('table-check-box')
                             .click(function(e) {
                                 e.preventDefault();
                                 e.stopPropagation();
@@ -4077,8 +4077,6 @@ function changeBOMView(id) {
         } 
 
         let responseData = {};
-
-        console.log(settings.bom[id]);
 
         if(settings.bom[id].includeBOMPartList) responseData.bomPartsList = getBOMPartsList(settings.bom[id], responses[0].data)
 
@@ -4736,6 +4734,58 @@ function bomDisplayItemByPartNumber(number, select, deselect) {
     });
 
     return result;
+
+}
+function bomDisplayItemByPath(path, select, deselect) {
+
+    if(isBlank(select  )) select   = true;
+    if(isBlank(deselect)) deselect = true;
+
+    let split    = path.split('|');
+    let result   = {
+        elements : [],
+        links    : []
+    }
+
+    if(deselect) $('.bom-item').removeClass('selected');
+
+    $('.bom-item.level-1').each(function() {
+
+        let partNumber = $(this).attr('data-part-number');
+
+        if(partNumber === split[1]) {
+            getBOMPathElements(split, 1, result, $(this), select, deselect);
+        }
+
+    });    
+
+    return result;
+
+}
+function getBOMPathElements(path, index, result, elemItem, select, deselect) {
+
+    result.elements.push(elemItem);
+    result.links.push(elemItem.attr('data-link'));
+
+    if(index === (path.length - 1)) {
+
+        if(select) elemItem.addClass('selected');
+        bomDisplayItem(elemItem);
+
+    } else {
+        
+        let children = getBOMItemChildren(elemItem, true);
+
+        for(let child of children) {
+
+            let partNumber = child.attr('data-part-number');
+
+            if(partNumber === path[index + 1]) {
+                getBOMPathElements(path, index + 1, result, child, select, deselect);
+            }
+
+        }
+    }
 
 }
 function expandBOMParents(level, elem) {

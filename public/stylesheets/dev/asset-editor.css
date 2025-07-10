@@ -104,13 +104,19 @@ tr.highlighted > td {
 }
 
 #items .column-NUMBER {
-    max-width : 76px;
+    max-width : 140px;
+    min-width : 140px;
+    width     : 140px;
 }
 #items .column-SERIAL {
-    max-width : 120px;
+    max-width : 140px;
+    min-width : 140px;
+    width     : 140px;
 }
 #items .column-INSTALLATION_DATE {
-    max-width : 50px;
+    max-width : 106px;
+    min-width : 106px;
+    width     : 106px;
 }
 #items .column-INSTANCE_ID {
     display : none;

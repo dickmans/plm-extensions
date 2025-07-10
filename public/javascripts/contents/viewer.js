@@ -453,28 +453,37 @@ function setViewerInstancedData() {
     for(let i = 1; i < instanceTree.objectCount; i++) promises.push(getPropertiesAsync(i));
 
     Promise.all(promises).then(function(instances) {
+
         for(let instance of instances) {
             if(!isBlank(instance.name)) {
                 let partNumber = getInstancePartNumber(instance);
                 if(partNumber !== null) {
                     instance.partNumber = partNumber;
+                    instance.parents    = [];
                     dataInstances.push(instance);
                 }
             }
         }
 
         for(let instance of dataInstances) {
-            instance.path = getInstanceParents(instance);
-            let pathShort = '';
-            if(instance.path.indexOf('|') > 0) {
-                let split = instance.path.split('|');
-                if(split.pop() !== instance.partNumber) instance.path += '|' + instance.partNumber;
-                pathShort = instance.path.substring(split[0].length + 1);
-            }
-            instance.pathShort = pathShort;
+            // instance.path = getInstanceParents(instance);
+            // let pathShort = '';
+            // if(instance.path.indexOf('|') > 0) {
+            //     let split = instance.path.split('|');
+            //     if(split.pop() !== instance.partNumber) instance.path += '|' + instance.partNumber;
+            //     pathShort = instance.path.substring(split[0].length + 1);
+            // }
+            
+            getComponentPath(instance.dbId, instance.parents);
+            
+            instance.path       = instance.parents.map(function(parent) { return parent.partNumber }).join('|');
+            // instance.pathShort  = instna;
+            instance.instanceId = instance.parents.map(function(parent) { return parent.name       }).join('|');
+
         }
 
         setViewerInstancedDataDone();
+
     });
 
 }
@@ -511,27 +520,45 @@ function getInstancePartNumber(instance) {
     return null;
 
 }
-function getInstanceParents(instance) {
+function getComponentPath(id, componentPath) {
 
-    let result = '';
-
-    for(let property of instance.properties) {
-        if(property.attributeName === 'parent') {
-            for(let dataInstance of dataInstances) {
-                if(dataInstance.dbId === property.displayValue) {
-                    let parents = getInstanceParents(dataInstance);
-                    if(parents !== '') parents += '|';
-                    result = parents + dataInstance.partNumber;
-                    break;
+    for(let dataInstance of dataInstances) {
+        if(dataInstance.dbId === id) {
+            componentPath.unshift({
+                partNumber : dataInstance.partNumber,
+                name       : dataInstance.name
+            });
+            for(let property of dataInstance.properties) {
+                if(property.attributeName === 'parent') {
+                    getComponentPath(property.displayValue, componentPath);
                 }
             }
-            break;
+
         }
     }
-    
-    return result;
 
 }
+// function getInstanceParents(instance) {
+
+//     let result = '';
+
+//     for(let property of instance.properties) {
+//         if(property.attributeName === 'parent') {
+//             for(let dataInstance of dataInstances) {
+//                 if(dataInstance.dbId === property.displayValue) {
+//                     let parents = getInstanceParents(dataInstance);
+//                     if(parents !== '') parents += '|';
+//                     result = parents + dataInstance.partNumber;
+//                     break;
+//                 }
+//             }
+//             break;
+//         }
+//     }
+    
+//     return result;
+
+// }
 function setViewerInstancedDataDone() {
     onViewerLoadingDone();
 }
@@ -725,7 +752,8 @@ function viewerSelectModels(partNumbers, params) {
     for(let dataInstance of dataInstances) {
         
         let isSelected     = false;
-        let instanceNumber =  (usePath) ? dataInstance.pathShort : dataInstance.partNumber;
+        // let instanceNumber =  (usePath) ? dataInstance.pathShort : dataInstance.partNumber;
+        let instanceNumber =  (usePath) ? dataInstance.path : dataInstance.partNumber;
         
         for(let partNumber of partNumbers) {
             if(instanceNumber === partNumber) {
@@ -839,14 +867,14 @@ function viewerSelectInstances(dbIds, params) {
     disableViewerSelectionEvent = false;
 
 }
-function viewerHighlightInstances(partNumber, ids, params) {
+function viewerHighlightInstances(partNumber, dbIds, instanceIds, params) {
     
     // Select all occurences of a partNumber and highlight defined instance IDs
 
     if(!isViewerStarted()) return;
     if(isBlank(partNumber)) return;
-    if(isBlank(ids)) return;
     if(viewer.model.is2d()) return;
+    if(isBlank(dbIds)) { if(isBlank(instanceIds)) return; else dbIds = []; }
 
     //  Set defaults for optional parameters
     // --------------------------------------
@@ -876,31 +904,43 @@ function viewerHighlightInstances(partNumber, ids, params) {
         updateHiddenInstancesList();
     }    
     
-    let dbIds   = [];
+    let matchingdbIds   = [];
 
     if(isolate)     viewer.hideAll();
     if(resetColors) viewer.clearThemingColors();
 
-    for(let dbId of ids) {
-        for(let dataInstance of dataInstances) {
-            if(dataInstance.partNumber === partNumber) {
-                if(hiddenInstances.indexOf(dbId < 0)) {
-                    dbIds.push(dataInstance.dbId);
-                    viewer.show(dataInstance.dbId);
+    if(dbIds.length === 0) {
+        if(!isBlank(instanceIds)) {
+            for(let instanceId of instanceIds) {
+                for(let dataInstance of dataInstances) {
+                    if(dataInstance.instanceId === instanceId) {
+                        dbIds.push(dataInstance.dbId);
+                    }
                 }
             }
         }
     }
 
     for(let dbId of dbIds) {
+        for(let dataInstance of dataInstances) {
+            if(dataInstance.partNumber === partNumber) {
+                if(hiddenInstances.indexOf(dbId < 0)) {
+                    matchingdbIds.push(dataInstance.dbId);
+                    viewer.show(dataInstance.dbId);
+                }
+            }
+        }
+    }
+
+    for(let dbId of matchingdbIds) {
         viewer.setThemingColor(Number(dbId), colorModelSelected, null, true );
     }
-    for(let dbIdHighlight of ids) {
+    for(let dbIdHighlight of dbIds) {
         viewer.setThemingColor(Number(dbIdHighlight), colorModelHighlighted, null, true );
     }
      
     viewerSetGhosting(ghosting);
-    if(fitToView) viewer.fitToView(dbIds);
+    if(fitToView) viewer.fitToView(matchingdbIds);
     
     disableViewerSelectionEvent = false;
 
@@ -995,7 +1035,8 @@ function viewerSetColors(partNumbers, params) {
     }
 
     for(let dataInstance of dataInstances) {
-        let instanceNumber =  (usePath) ? dataInstance.pathShort : dataInstance.partNumber;
+        // let instanceNumber =  (usePath) ? dataInstance.pathShort : dataInstance.partNumber;
+        let instanceNumber =  (usePath) ? dataInstance.path : dataInstance.partNumber;
         for(let partNumber of partNumbers) {
             if(instanceNumber === partNumber) {
                 if(hiddenInstances.indexOf(dataInstance.dbId < 0)) {
@@ -1058,7 +1099,8 @@ function viewerHideModels(partNumbers, params) {
     if(!isBlank(params.usePath) )  usePath = params.usePath;
 
     for(let dataInstance of dataInstances) {
-        let instanceNumber =  (usePath) ? dataInstance.pathShort : dataInstance.partNumber;
+        // let instanceNumber =  (usePath) ? dataInstance.pathShort : dataInstance.partNumber;
+        let instanceNumber =  (usePath) ? dataInstance.path : dataInstance.partNumber;
         for(let partNumber of partNumbers) {
             if(instanceNumber === partNumber) {
                 viewer.hide(dataInstance.dbId);
@@ -1102,7 +1144,8 @@ function viewerUnhideModels(partNumbers, params) {
     if(resetColors) viewer.clearThemingColors();
 
     for(let dataInstance of dataInstances) {
-        let instanceNumber =  (usePath) ? dataInstance.pathShort : dataInstance.partNumber;
+        // let instanceNumber =  (usePath) ? dataInstance.pathShort : dataInstance.partNumber;
+        let instanceNumber =  (usePath) ? dataInstance.path : dataInstance.partNumber;
         for(let partNumber of partNumbers) {
             if(instanceNumber === partNumber) {
                                 dbIds.push(dataInstance.dbId);
@@ -1278,19 +1321,25 @@ function viewerGetComponentInstances(partNumber) {
     for(let dataInstance of dataInstances) {
         if(dataInstance.partNumber === partNumber) {
 
-            let instance = {
-                dbId        : dataInstance.dbId,
-                parents     : [],
-                path        : '',
-                instanceId  : ''
-            };
+            result.push({
+                dbId : dataInstance.dbId,
+                path : dataInstance.path,
+                instanceId : dataInstance.instanceId
+            });
 
-            getComponentPath(dataInstance.dbId, instance.parents);
+            // let instance = {
+            //     dbId        : dataInstance.dbId,
+            //     parents     : [],
+            //     path        : '',
+            //     instanceId  : ''
+            // };
 
-            instance.path       = instance.parents.map(function(parent) { return parent.partNumber }).join('|');
-            instance.instanceId = instance.parents.map(function(parent) { return parent.name       }).join('|');
+            // getComponentPath(dataInstance.dbId, instance.parents);
 
-            result.push(instance);
+            // instance.path       = instance.parents.map(function(parent) { return parent.partNumber }).join('|');
+            // instance.instanceId = instance.parents.map(function(parent) { return parent.name       }).join('|');
+
+            // result.push(instance);
 
         }
     }
@@ -1298,24 +1347,6 @@ function viewerGetComponentInstances(partNumber) {
     sortArray(result, 'instanceId');
 
     return result;
-
-}
-function getComponentPath(id, componentPath) {
-
-    for(let dataInstance of dataInstances) {
-        if(dataInstance.dbId === id) {
-            componentPath.unshift({
-                partNumber : dataInstance.partNumber,
-                name       : dataInstance.name
-            });
-            for(let property of dataInstance.properties) {
-                if(property.attributeName === 'parent') {
-                    getComponentPath(property.displayValue, componentPath);
-                }
-            }
-
-        }
-    }
 
 }
 // function getComponentPath(id) {

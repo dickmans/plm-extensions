@@ -226,8 +226,8 @@ function insertTabContents() {
                 collapseContents  : workspace.collapseContents || false,
                 textNoData        : 'No items found. Use the EBOM sync to update this table.',
                 contentSizes      : ['s', 'xs', 'xxs', 'xxl', 'xl', 'l', 'm'],
-                afterCompletion   : function(id) { setGridViewerIDs(id); },
-                onClickItem       : function(elemClicked) { onSelectGridItem(elemClicked); }
+                afterCompletion   : function(id) { afterGridCompletion(id); },
+                // onClickItem       : function(elemClicked) { onSelectGridItem(elemClicked); }
             });
         }
 
@@ -378,6 +378,7 @@ function onSelectBOMItem(elemClicked) {
     if(selected === 0) {
 
         $('#items').find('tr.content-item').removeClass('hidden');
+        $('#items').find('tr.table-group').removeClass('hidden');
         viewerResetSelection();
         applyViewerColors();
 
@@ -396,8 +397,13 @@ function onSelectBOMItem(elemClicked) {
                 let elemRow = $(this);
                 let gridRow = getGridRowDetails(elemRow, workspace.columnsDef);
 
-                if(gridRow.bomPath.indexOf(path.string) < 0) elemRow.addClass('hidden');
-                else elemRow.removeClass('hidden');
+                if(gridRow.path.indexOf(path.string) < 0) {
+                    elemRow.addClass('hidden');
+                    elemRow.prev('.table-group').addClass('hidden');
+                } else {
+                    elemRow.removeClass('hidden');
+                    elemRow.prev('.table-group').removeClass('hidden');
+                }
 
             });
         
@@ -411,52 +417,41 @@ function onSelectBOMItem(elemClicked) {
 
 
 
-function setGridViewerIDs(id) {
-
-    console.log(id);
+// Highlight viewer instances upon selection of item in tabs
+function afterGridCompletion(id) {
 
     let elemTable = $('#' + id);
 
-    // elemTable.find('tr.content-item').each(function() {
-
-
-
-    // });
+    elemTable.find('input').click(function() {
+        selectGridItem($(this).closest('tr'));
+    });
 
 }
-
-
-// Highlight viewer instances upon selection of item in tabs
-function onSelectGridItem(elemClicked) {
+function selectGridItem(elemClicked) {
 
     let isSelected = elemClicked.hasClass('highlighted');
     let elemPanel  = elemClicked.closest('.panel-top');
     let index      = elemPanel.index();
     let rowData    = getGridRowDetails(elemClicked, workspaces[index].columnsDef);
 
-    console.log(isSelected);
-    console.log(rowData);
-
     $('.highlighted').removeClass('highlighted');
+
+    elemPanel.find('tr.selected').each(function() { $(this).removeClass('selected') });
+
 
     if(isSelected) {
 
-        elemPanel.find('tr.selected').each(function() { $(this).removeClass('selected') });;
         viewerResetSelection();
 
     } else {
 
         elemClicked.addClass('highlighted');
 
-        console.log(rowData);
+        viewerHighlightInstances(rowData.partNumber, [], [rowData.instanceId], {});
+        bomDisplayItemByPath(rowData.path);
 
-        viewerHighlightInstances(rowData.partNumber, [rowData.instanceId], {});
-        bomDisplayItemByPartNumber(rowData.partNumber);
-
-        elemClicked.siblings('.content-item').each(function() {
-            let siblingData = getGridRowDetails($(this), workspaces[index].columnsDef);
-            if(siblingData.bomPath === rowData.bomPath) $(this).addClass('selected');
-        });
+        elemClicked.prevUntil('.table-group').each(function() { $(this).addClass('related'); })
+        elemClicked.nextUntil('.table-group').each(function() { $(this).addClass('related'); })
 
     }
 
@@ -542,17 +537,12 @@ function syncItemsList() {
 
             item.instances = [];
 
-            console.log(item);
+            let viewerInstances = viewerGetComponentsInstances([item.partNumber])[0];
 
-            let instancesViewer = viewerGetComponentsInstances([item.partNumber])[0];
-            console.log(instancesViewer);
-
-            for(let instanceViewer of instancesViewer.instances) {
-                if(instanceViewer.path === item.path) {
-                    item.instances.push(instanceViewer);
-                    // item.instances.push({
-                        // dbId : instanceViewer.dbId
-                // });
+            for(let viewerInstance of viewerInstances.instances) {
+                if(viewerInstance.path === item.path) {
+                    console.log('found match');
+                    item.instances.push(viewerInstance);
                 }
             } 
 
@@ -560,17 +550,16 @@ function syncItemsList() {
 
         for(let item of workspace.items) {
 
-            console.log(item);
-            console.log(gridRows);
-
             for(let gridRow of gridRows) {
                 if(item.partNumber === gridRow.partNumber) {
-                    if(item.path === gridRow.bomPath) {
-                        for(let instanceId of item.instanceIds) {
-                            if(instanceId == gridRow.instanceId) {
-                                item.instanceIds.splice(item.instanceIds.indexOf(instanceId), 1);
+                    if(item.path === gridRow.path) {
+                        let index = 0;
+                        for(let instance of item.instances) {
+                            if(instance.instanceId == gridRow.instanceId) {
+                                item.instances.splice(index, 1);
                                 break;
                             }
+                            index++;
                         }
                     }
                 }
@@ -583,7 +572,7 @@ function syncItemsList() {
                     link : workspace.link,
                     data : [
                         { fieldId : workspace.columnsDef.partNumber, value : item.partNumber     },
-                        { fieldId : workspace.columnsDef.bomPath   , value : item.path           },
+                        { fieldId : workspace.columnsDef.path      , value : item.path           },
                         { fieldId : workspace.columnsDef.instanceId, value : instance.instanceId }
                     ]
                 }
@@ -606,7 +595,7 @@ function getGridRows(index) {
     let elemTBody = $('#table-' + index + '-tbody');
     let columns   = workspaces[index].columnsDef;
 
-    elemTBody.children().each(function() {
+    elemTBody.children('.content-item').each(function() {
 
         let gridRow = getGridRowDetails($(this), columns);
         gridRow.elem = $(this);
@@ -621,7 +610,7 @@ function getGridRowDetails(elemRow, columns) {
 
     let gridRow  =  {
         partNumber : '',
-        bomPath    : '',
+        path       : '',
         instanceId : ''
     }
 
@@ -638,8 +627,8 @@ function getGridRowDetails(elemRow, columns) {
                     gridRow.partNumber = elemCell.children().first().val();
                     break;
 
-                case columns.bomPath:
-                    gridRow.bomPath = elemCell.children().first().val();
+                case columns.path:
+                    gridRow.path = elemCell.children().first().val();
                     break;
 
                 case columns.instanceId:

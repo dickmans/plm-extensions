@@ -740,16 +740,18 @@
 .panel-content.xl  > table > tbody > tr > td { padding : 10px 10px; }
 .panel-content.xxl > table > tbody > tr > td { padding : 12px 12px; } */
 
-.panel-content.xxs .table-check-box { font-size : 16px; max-width : 26px; min-width : 26px; width : 26px; position : relative; top : 2px; }
-.panel-content.xs  .table-check-box { font-size : 16px; max-width : 26px; min-width : 26px; width : 26px; position : relative; top : 3px; }
-.panel-content.s   .table-check-box { font-size : 18px; max-width : 26px; min-width : 26px; width : 26px; position : relative; top : 4px; }
-.panel-content.m   .table-check-box { font-size : 18px; max-width : 26px; min-width : 26px; width : 26px; position : relative; top : 4px; }
-.panel-content.l   .table-check-box { font-size : 22px; max-width : 26px; min-width : 26px; width : 26px; position : relative; top : 6px; }
-.panel-content.xl  .table-check-box { font-size : 22px; max-width : 26px; min-width : 26px; width : 26px; position : relative; top : 6px; }
-.panel-content.xxl .table-check-box { font-size : 22px; max-width : 26px; min-width : 26px; width : 26px; position : relative; top : 6px; }
+.panel-content.xxs .table-check-box > .icon{ font-size : 16px; position : relative; top : 4px; }
+.panel-content.xs  .table-check-box > .icon{ font-size : 16px; position : relative; top : 4px; }
+.panel-content.s   .table-check-box > .icon{ font-size : 18px; position : relative; top : 4px; }
+.panel-content.m   .table-check-box > .icon{ font-size : 18px; position : relative; top : 4px; }
+.panel-content.l   .table-check-box > .icon{ font-size : 22px; position : relative; top : 6px; }
+.panel-content.xl  .table-check-box > .icon{ font-size : 22px; position : relative; top : 6px; }
+.panel-content.xxl .table-check-box > .icon{ font-size : 22px; position : relative; top : 6px; } 
 
 .table-check-box {
-    font-weight : 300;
+    max-width   : 30px;
+    min-width   : 30px;
+    width       : 30px;
     text-align  : center;
 }
 
@@ -1472,7 +1474,7 @@ and (max-device-width : 1900px)  {
     text-align      : center;
     text-overflow   : ellipsis;
     white-space     : nowrap;
-    /* width           : 25%; */
+    width           : 25%;  /* enabled on 10. July 2025 for Asset-Editor */
 }
 .panel-counter-filtered.not-empty {
     border-color : var(--color-status-yellow) !important;
