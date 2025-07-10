@@ -544,12 +544,14 @@ function syncItemsList() {
 
     $('#overlay').show();
 
-    let index    = 0;
+    let iWS      = 0;
     let requests = [];
+    let grids    = [];
 
     for(let workspace of workspaces) {
 
-        let gridRows = getGridRows(index++);
+        let gridRows = getGridRows(iWS);
+        let refresh  = false;
 
         for(let item of workspace.items) {
 
@@ -596,13 +598,21 @@ function syncItemsList() {
                 }
 
                 requests.push($.post('/plm/add-grid-row', params));
+                refresh = true;
 
             }
 
         }
+
+        if(refresh) grids.push(iWS);
+        iWS++;
+
     }
 
     Promise.all(requests).then(function(responses) {
+        for(let grid of grids) {
+            settings.grid['table-' + grid].load();
+        }
         $('#overlay').hide();
     });
 
