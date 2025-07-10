@@ -1437,9 +1437,9 @@ and (max-device-width : 1900px)  {
 .content-item.search-match {
     color : var(--color-blue-500);
 }
-.content-item.changed > td > * { 
-    background : var(--color-status-red) !important;
- }
+.content-item > td.changed > * { 
+    background : var(--color-status-red-bright);
+}
 
 .panel-footer {
     display         : flex;

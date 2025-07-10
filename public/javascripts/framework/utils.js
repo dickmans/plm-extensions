@@ -3263,8 +3263,6 @@ function panelTableCellValueChanged(elemControl) {
     let index   = elemControl.parent().index();
     let value   = elemControl.val();
 
-    console.log(id);
-
     elemControl.parent().addClass('changed');
     elemControl.closest('tr').addClass('changed');
 

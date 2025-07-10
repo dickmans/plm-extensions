@@ -3772,8 +3772,10 @@ function saveGridData(id) {
     });
 
     Promise.all(requests).then(function(responses) {
-        elemTBody.children().removeClass('changed');
+        elemTBody.find('.changed').removeClass('changed');
         $('#overlay').hide();
+        updateListCalculations(id);
+        updatePanelCalculations(id);
     });
 
 }
