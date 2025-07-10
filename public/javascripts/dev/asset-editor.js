@@ -436,7 +436,7 @@ function selectGridItem(elemClicked) {
 
     $('.highlighted').removeClass('highlighted');
 
-    elemPanel.find('tr.selected').each(function() { $(this).removeClass('selected') });
+    // elemPanel.find('tr.selected').each(function() { $(this).removeClass('selected') });
 
 
     if(isSelected) {
