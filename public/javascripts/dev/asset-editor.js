@@ -2,6 +2,13 @@ let urlParameters   = getURLParameters();
 let links           = {};
 let workspaces      = [];
 
+let paramsDetails = {
+    headerLabel     : 'descriptor',
+    expandSections  : ['Basic'],
+    layout          : 'narrow',
+    toggles         : true
+}
+
 
 $(document).ready(function() {
 
@@ -20,6 +27,8 @@ $(document).ready(function() {
 
             links.ebom = getSectionFieldValue(responses[0].data.sections, config.assetEditor.fieldIdBOM, '', 'link');
 
+            insertDetails(links.ebom, paramsDetails);
+
             insertBOM(links.ebom, {
                 search              : true,
                 path                : true,
@@ -30,6 +39,7 @@ $(document).ready(function() {
                 viewerSelection     : false,
                 includeBOMPartList  : true,
                 bomViewName         : config.assetEditor.bomViewName,
+                columnsIn           : ['Quantity', 'Qty'],
                 contentSize         : 'm',
                 afterCompletion     : function(id, data) { afterBOMCompletion(id, data) },
                 onClickItem         : function(elemClicked) { onSelectBOMItem(elemClicked); }
@@ -64,6 +74,11 @@ function setUIEvents() {
     });
     $('#toggle-bom').click(function() {
         $('body').toggleClass('no-bom');
+        $(this).toggleClass('toggle-on');
+        viewerResize(200);
+    });
+    $('#toggle-details').click(function() {
+        $('body').toggleClass('no-details');
         $(this).toggleClass('toggle-on');
         viewerResize(200);
     });
@@ -382,6 +397,8 @@ function onSelectBOMItem(elemClicked) {
         viewerResetSelection();
         applyViewerColors();
 
+        insertDetails(links.ebom, paramsDetails);
+
     } else {
 
         let path       = getBOMItemPath(elemClicked);
@@ -410,6 +427,7 @@ function onSelectBOMItem(elemClicked) {
         }
 
         viewerSelectModel(partNumber);
+        insertDetails(elemClicked.attr('data-link'), paramsDetails);
 
     }
 

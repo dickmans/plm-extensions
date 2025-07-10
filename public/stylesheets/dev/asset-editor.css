@@ -5,6 +5,7 @@
     --border-h      : 32px;
     --border-v      : 24px;
     --width-bom     : 600px;
+    --width-details : 400px;
     --width-viewer  : 600px;
     --height-viewer : 400px;
 }
@@ -18,18 +19,26 @@
     bottom          : 0px;
     left            : 0px;
     width           : var(--width-bom);
+    z-index         : 1;
+}
+#details {
+    border-width    : var(--border-v) var(--border-h) var(--border-v) 0px;
+    top             : 0px;
+    bottom          : 0px;
+    left            : calc(var(--width-bom) + (2 * var(--border-h)));;
+    width           : var(--width-details);
 }
 .viewer {
     top     : 0px;
     right   : 0px;
     bottom  : 60%;
-    left    : calc(var(--width-bom) + (2 * var(--border-h)));
+    left    : calc(var(--width-bom) + var(--width-details) + (3 * var(--border-h)));
 }
 #contents {
     border-width    : var(--border-v) var(--border-h);
     top             : 40%;
     right           : 0px;
-    left            : calc(var(--width-bom) + (2 * var(--border-h)));
+    left            : calc(var(--width-bom) + var(--width-details) + (3 * var(--border-h)));
     bottom          : 0px;
 }
 #items {
@@ -51,15 +60,24 @@
     left : calc(var(--width-bom) + var(--width-viewer) + (2 * var(--border-h)));
 }
 
-.no-bom #bom { left : calc(-1px - var(--width-bom) - (2 * var(--border-h))); }
 .no-bom .viewer,
-.no-bom #contents {
-    left : 0px;
-}
+.no-bom #contents { left : calc(var(--width-details) + (2 * var(--border-h))); }
+.no-bom #bom      { left : calc(-1px - var(--width-bom) - (2 * var(--border-h))); }
+.no-bom #details  { left : 0px; border-left-width : var(--border-h); }
 
 .no-bom.layout-h #contents {
     left : calc(var(--width-viewer) + (1 * var(--border-h)));
 }
+
+.no-details #details  { left : calc(-1px - var(--width-details) - (2 * var(--border-h)));}
+.no-details .viewer   { left : calc(var(--width-bom) + (2 * var(--border-h)));}
+.no-details #contents { left : calc(var(--width-bom) + (2 * var(--border-h)));}
+
+.no-bom.no-details .viewer,
+.no-bom.no-details #contents {
+    left : 0px;
+}
+.no-bom.no-details #bom { left : calc(-1px - var(--width-bom) - (2 * var(--border-h))); }
 
 
 /*  BOM */
