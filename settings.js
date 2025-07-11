@@ -105,9 +105,10 @@ exports.config = {
     },
 
     assetEditor : {
-        bomViewName : 'PDM Data',
-        fieldIdBOM  : 'EBOM',
-        workspaces  : [{
+        bomViewName     : 'PDM Data',
+        fieldIdBOM      : 'EBOM',
+        exportFileName  : 'Serial Numbers',
+        workspaces      : [{
             label       : 'Serial Numbers',
             fieldId     : 'SERIAL_NUMBERS_LIST',
             workspaceId : 275,

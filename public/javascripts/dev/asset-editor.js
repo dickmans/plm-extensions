@@ -17,13 +17,17 @@ $(document).ready(function() {
 
     getFeatureSettings('assetEditor', [], function() {
 
-    workspaces = config.assetEditor.workspaces;
+        workspaces = config.assetEditor.workspaces;
 
         let requests = [ $.get('/plm/details', { link : urlParameters.link}) ];
 
         for(let workspace of workspaces) requests.push($.get('/plm/grid-columns', { wsId : workspace.workspaceId }));
 
         Promise.all(requests).then(function(responses) {
+
+            urlParameters.title = responses[0].data.title;
+
+            $('#header-subtitle').html(urlParameters.title);
 
             links.ebom = getSectionFieldValue(responses[0].data.sections, config.assetEditor.fieldIdBOM, '', 'link');
 
@@ -53,6 +57,8 @@ $(document).ready(function() {
                     workspace.link    = getSectionFieldValue(responses[0].data.sections, workspace.fieldId, '', 'link');
             }
 
+            $('#excel-export').removeClass('disabled');
+
         });
 
     });
@@ -66,6 +72,35 @@ function setUIEvents() {
     // Header Toolbar Buttons
     $('#bom-sync').click(function() {
         syncItemsList();
+    });
+    $('#excel-export').click(function() {
+
+        if($(this).hasClass('disabled')) return;
+
+        $('#overlay').show();
+
+        let sheets = [];
+
+        for(let workspace of workspaces) {
+            sheets.push({ 
+                type      : 'grid',
+                link      : workspace.link,
+                name      : workspace.label,
+                color     : config.colors.list[workspace.colorIndex].split('#')[1],
+                columnsEx : [],
+                colWidths : []
+            });
+        }
+
+        $.post('/plm/excel-export', {
+            fileName   : config.assetEditor.exportFileName + ' ' + urlParameters.title.split(' - ')[0] + '.xlsx',
+            sheets     : sheets
+        }, function(response) {
+            $('#overlay').hide();
+            let url = document.location.href.split('/asset-editor')[0] + '/' + response.data.fileUrl;
+            document.getElementById('frame-download').src = url;
+        });
+        
     });
     $('#toggle-layout').click(function() {
         $('body').toggleClass('layout-h');

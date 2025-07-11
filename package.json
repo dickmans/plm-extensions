@@ -9,6 +9,7 @@
     "agentkeepalive": "*",
     "axios": "*",
     "body-parser": "*",
+    "exceljs": "^4.4.0",
     "express": "*",
     "express-fileupload": "*",
     "express-session": "*",

@@ -14,9 +14,10 @@ block body
         #header.dark
             #header-logo
             #header-title= title
+            #header-subtitle
             #header-toolbar
                 #bom-sync.button.default.with-icon.icon-refresh Sync with EBOM
-                #export.button.with-icon.icon-download Download Excel
+                #excel-export.button.with-icon.icon-download.disabled Download Excel
                 #toggle-layout.button Toggle Layout
                 #toggle-bom.button.with-toggle.toggle-on Display BOM
                 #toggle-details.button.with-toggle.toggle-off Display Details
@@ -30,3 +31,5 @@ block body
             #contents.surface-level-1
                 #tabs.tabs
                 #items
+
+            iframe#frame-download(name='frame-download' style="display:none")

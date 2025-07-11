@@ -4,6 +4,7 @@ const axios         = require('axios');
 const querystring   = require('querystring');
 const fs            = require('fs');
 const fileUpload    = require('express-fileupload');
+const ExcelJS       = require('exceljs/dist/es5');
 const FormData      = require('form-data');
 const { Console }   = require('console');
 const pathUploads   = 'uploads/';
@@ -5557,6 +5558,195 @@ router.get('/system-logs', function(req, res) {
     });
 
 });
+
+
+/* ----- EXCEL EXPORT ----- */
+router.post('/excel-export', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /excel-export');
+    console.log(' --------------------------------------------');
+    console.log('  req.body.fileName      = ' + req.body.fileName);
+    console.log('  req.body.sheets.length = ' + req.body.sheets.length);
+    console.log(' ');
+    
+    let path = 'storage/excel-export';
+    
+    console.log('  >> Excel export files will be stored at ' + path);
+    console.log(' ');
+       
+    createServerFolderPath(path, false);
+
+    for(let sheet of req.body.sheets) {
+        
+        sheet.pending = true;
+        sheet.columns = [];
+        sheet.rows    = [];
+
+        if(typeof sheet.autoFilter  === 'undefined') sheet.autoFilter  = true;
+        if(typeof sheet.rowHeight   === 'undefined') sheet.rowHeight   = 24;
+        if(typeof sheet.borderColor === 'undefined') sheet.borderColor = 'dddddd';
+        if(typeof sheet.columnsIn   === 'undefined') sheet.columnsIn   = [];
+        if(typeof sheet.columnsEx   === 'undefined') sheet.columnsEx   = [];
+        if(typeof sheet.colWidths   === 'undefined') sheet.colWidths   = [];
+
+    }
+    
+    getExcelExportData(req, res, path);
+
+});
+async function getExcelExportData(req, res, path) {
+
+    let proceed = true;
+
+    for(let sheet of req.body.sheets) {
+
+        if(sheet.pending) {
+            
+            proceed = false;
+
+            switch(sheet.type) {
+
+                case 'grid': 
+                    getExcelExportGrid(req, res, path, sheet);
+                    break;
+
+            }
+
+            break;
+
+        }
+
+    }
+
+    if(proceed) {
+
+        let workbook = new ExcelJS.Workbook();
+
+        for(let sheet of req.body.sheets) {
+
+            let sheetProperties = {
+                pageSetup  : { paperSize: 9, orientation : 'landscape' },
+                properties : { defaultRowHeight : sheet.rowHeight },
+                views      : [{
+                    state           : 'frozen',
+                    xSplit          : 0, 
+                    ySplit          : 1,
+                    showGridLines   : false
+                }]
+            }
+
+            if(sheet.hasOwnProperty('color')) sheetProperties.properties.tabColor = { argb : sheet.color }
+
+            let worksheet = workbook.addWorksheet(sheet.name, sheetProperties);
+                
+            for(let column of sheet.columns) {
+                column.style = {
+                    alignment : { vertical : 'middle'},
+                    font      : { size : 12}
+                }
+            }
+            worksheet.columns = sheet.columns;
+            
+            for(let row of sheet.rows) worksheet.addRow(row);
+
+            if(sheet.autoFilter) {
+                worksheet.autoFilter = {
+                    from: 'A1',
+                    to: {
+                        row: sheet.rows.length,
+                        column: sheet.columns.length
+                    }
+                };
+            }
+            
+            worksheet.eachRow(function(row, rowNumber) {
+
+                row.height = sheet.rowHeight;
+
+                for(let i = 1; i <= sheet.columns.length; i++) {
+                    row.getCell(i).border = {
+                        bottom : { 
+                            color : { argb : sheet.borderColor},
+                            style : 'hair'
+                        }
+                    }
+                }
+
+            });
+
+            worksheet.getRow(1).height = 46;
+            worksheet.getRow(1).style  = { font : { bold : true }};
+
+            worksheet.getColumn(1).fill = {
+                type    : 'pattern',
+                pattern : 'solid',
+                fgColor : { argb : 'eeeeee' }
+            }
+
+        }
+
+        await workbook.xlsx.writeFile(path + '/' + req.body.fileName);
+
+        console.log('1');
+
+        sendResponse(req, res, { data : { fileUrl : path + '/' + req.body.fileName} } , false);
+
+    }
+
+}
+function getExcelExportGrid(req, res, path, sheet) {
+
+    let baseURL = getTenantLink(req);
+    
+    let requests = [ 
+        axios.get(baseURL + sheet.link + '/views/13/fields', { headers : req.session.headers }),
+        axios.get(baseURL + sheet.link + '/views/13/rows'  , { headers : req.session.headers }) 
+    ];
+
+    axios.all(requests).then(function(responses) {
+
+        let colIndex = 0;
+
+        for(let field of responses[0].data.fields) {
+
+            let fieldId  = field.urn.split('.').pop();
+
+            if((sheet.columnsIn.length === 0) || ( sheet.columnsIn.includes(fieldId))) {
+                if((sheet.columnsEx.length === 0) || (!sheet.columnsEx.includes(fieldId))) {
+
+                    let width = (colIndex <= sheet.colWidths.length) ? sheet.colWidths[colIndex++] : 20;
+
+                    sheet.columns.push({
+                        header : field.name,
+                        key    : fieldId,
+                        width  : width
+                    });
+
+                }
+            }
+        }
+
+        for(let row of responses[1].data.rows) {
+
+            let params = {};
+
+            for(let field of row.rowData) {
+                let fieldId     = field.urn.split('.').pop();
+                let value       = field.value;
+                params[fieldId] = value;
+            }
+
+            sheet.rows.push(params);
+
+        }
+
+        sheet.pending = false;
+        getExcelExportData(req, res, path);
+
+    });
+
+}
 
 
 module.exports = router;
