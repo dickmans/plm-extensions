@@ -17,6 +17,8 @@ let profiles = [{
         filterByStatus      : true,
         filterByWorkspace   : true
     },{
+        editable : true
+    },{
         openInPLM       : true,
         openOnDblClick  : true,
         search          : true,
@@ -73,11 +75,12 @@ $(document).ready(function() {
     $('<option></option>').appendTo($('#profiles')).attr('value', 1).html('Fixed label and toggles');
     $('<option></option>').appendTo($('#profiles')).attr('value', 2).html('Enable open in PLM and reload');
     $('<option></option>').appendTo($('#profiles')).attr('value', 3).html('Additional controls');
-    $('<option></option>').appendTo($('#profiles')).attr('value', 4).html('Complex Tiles');
-    $('<option></option>').appendTo($('#profiles')).attr('value', 5).html('Layout : List');
-    $('<option></option>').appendTo($('#profiles')).attr('value', 6).html('Layout : Grid');
-    $('<option></option>').appendTo($('#profiles')).attr('value', 7).html('Layout : Table');
-    $('<option></option>').appendTo($('#profiles')).attr('value', 8).html('Details Tab Adjustments');
+    $('<option></option>').appendTo($('#profiles')).attr('value', 4).html('Editable');
+    $('<option></option>').appendTo($('#profiles')).attr('value', 5).html('Complex Tiles');
+    $('<option></option>').appendTo($('#profiles')).attr('value', 6).html('Layout : List');
+    $('<option></option>').appendTo($('#profiles')).attr('value', 7).html('Layout : Grid');
+    $('<option></option>').appendTo($('#profiles')).attr('value', 8).html('Layout : Table');
+    $('<option></option>').appendTo($('#profiles')).attr('value', 9).html('Details Tab Adjustments');
     
     setUIEvents();
 
