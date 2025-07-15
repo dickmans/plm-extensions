@@ -86,7 +86,6 @@ function genAddinTileAction(elemActions, action, icon, tooltip) {
     let elemAction = $('<div></div>').appendTo(elemActions)
         .addClass('button')
         .addClass('icon')
-        // .addClass('filled')
         .addClass(icon)
         .attr('title', tooltip)
         .click(function(e) {
@@ -136,7 +135,7 @@ function getSelectionData(elements) {
 
         } else if(elemSelected.hasClass('vault-file')) {
 
-            selected = 'file;' + elemSelected.attr('data-id') + ';' + elemSelected.attr('data-name') + ';' + elemSelected.attr('data-folder');
+            selected = 'file;' + elemSelected.attr('data-id') + ';' + elemSelected.attr('data-name') + ';' + elemSelected.attr('data-file-id');
 
         } else if(elemSelected.hasClass('vault-item')) {
 

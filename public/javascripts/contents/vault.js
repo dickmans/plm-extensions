@@ -147,6 +147,7 @@ function genPDMTile(record, params) {
                 .attr('data-id', record.id)
                 .attr('data-name', record.name)
                 .attr('data-folder', record.parentFolderId)
+                .attr('data-file-id', record.file.id)
                 .attr('data-type', 'vault-file');
             break;
 

@@ -56,7 +56,7 @@ function performBasicSearch(next) {
     $('#basic-next').hide();
 
     $.get(url, params, function(response)  {   
-        
+
         if(timestamp == response.params.timestamp) {
 
             if(response.error) {
