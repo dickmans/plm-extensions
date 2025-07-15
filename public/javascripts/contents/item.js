@@ -2302,7 +2302,7 @@ function getEditableFields(fields) {
             if(field.type !== null) {
 
                 let elemControl = null;
-                let required    = false;
+                let required    = field.required || false;
                 let maxLength   = null;
                 let fieldId     = ('fieldId' in field) ? field.fieldId : field.__self__.split('/')[8];
 
@@ -2351,16 +2351,13 @@ function getEditableFields(fields) {
                     }
                 }
 
-                if(field.hasOwnProperty('validators')) {
-                    if(field.validators !== null) required = true;
-                }
-
                 result.push({
                     id          : fieldId,
                     title       : field.name,
                     link        : field.__self__,
                     type        : field.type.title,
                     typeId      : field.type.link.split('/')[4],
+                    validators  : field.validators || '',
                     required    : required,
                     maxLength   : maxLength,
                     control     : elemControl
@@ -3584,8 +3581,12 @@ function insertGridData(id) {
     }
 
     let requests    = [
-        $.get('/plm/grid',         params),
-        $.get('/plm/grid-columns', { link : settings.grid[id].link, useCache : settings.grid[id].useCache }),
+        $.get('/plm/grid', params),
+        $.get('/plm/grid-columns', { 
+            link            : settings.grid[id].link, 
+            useCache        : settings.grid[id].useCache,
+            getValidations  : settings.grid[id].editable
+        })
         
     ];
 
@@ -3599,6 +3600,8 @@ function insertGridData(id) {
         setPanelBookmarkStatus(id, settings.grid[id], responses);
 
         settings.grid[id].columns = [];
+
+        console.log(responses[1].data);
 
         for(let field of responses[1].data.fields) {
             if(includePanelTableColumn(field.name, settings.grid[id], settings.grid[id].columns.length)) {
@@ -3616,6 +3619,8 @@ function insertGridData(id) {
         settings.grid[id].editableFields = (settings.grid[id].editable) ? getEditableFields(settings.grid[id].columns) : [];
 
         if(settings.grid[id].tableHeaders) elemTHead.prependTo(elemTable);
+
+        console.log(settings.grid[id].editableFields);
 
 
         if(responses[0].data.length > 0 ) {
@@ -3663,7 +3668,7 @@ function insertGridData(id) {
                     .html(column.name);
                 if(settings.grid[id].editable) {
                     if(column.editability === 'ALWAYS') elemCell.addClass('column-editable');
-                    if(column.validators  !==  null   ) elemCell.addClass('column-required');
+                    if(column.required) elemCell.addClass('column-required');
                 }
             }
 
