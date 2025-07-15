@@ -1534,9 +1534,10 @@ router.post('/add-grid-row', function(req, res, next) {
     let rowData = [];
 
     for(let field of req.body.data) {
+        let value = (field.value === 'null') ? null : field.value;
         rowData.push({
             '__self__' : '/api/v3/workspaces/' + wsId + '/views/13/fields/' + field.fieldId,
-            'value' : field.value
+            'value' : value
         });
     }
 
@@ -1545,8 +1546,7 @@ router.post('/add-grid-row', function(req, res, next) {
     }, {
         headers : req.session.headers
     }).then(function(response) {
-        let result = (response.data === '') ? [] : response.data.rows;
-        sendResponse(req, res, { 'data' : result, 'status' : response.status }, false);
+        sendResponse(req, res, { 'data' : response.headers.location, 'status' : response.status }, false);
     }).catch(function(error) {
         sendResponse(req, res, error.response, true);
     });
@@ -1652,15 +1652,15 @@ router.post('/update-grid-row', function(req, res, next) {
 
 
 /* ----- REMOVE GRID ROW ----- */
-router.get('/remove-grid-row', function(req, res, next) {
+router.post('/remove-grid-row', function(req, res, next) {
     
     console.log(' ');
     console.log('  /remove-grid-row');
     console.log(' --------------------------------------------'); 
-    console.log('  req.query.link    = ' + req.query.link);
+    console.log('  req.body.link    = ' + req.body.link);
     console.log(); 
 
-    let url  = req.app.locals.tenantLink + req.query.link;
+    let url  = req.app.locals.tenantLink + req.body.link;
     
     axios.delete(url, {
         headers : req.session.headers

@@ -740,19 +740,16 @@
 .panel-content.xl  > table > tbody > tr > td { padding : 10px 10px; }
 .panel-content.xxl > table > tbody > tr > td { padding : 12px 12px; } */
 
-.panel-content.xxs .table-check-box > .icon{ font-size : 16px; position : relative; top : 4px; }
-.panel-content.xs  .table-check-box > .icon{ font-size : 16px; position : relative; top : 4px; }
-.panel-content.s   .table-check-box > .icon{ font-size : 18px; position : relative; top : 4px; }
-.panel-content.m   .table-check-box > .icon{ font-size : 18px; position : relative; top : 4px; }
-.panel-content.l   .table-check-box > .icon{ font-size : 22px; position : relative; top : 6px; }
-.panel-content.xl  .table-check-box > .icon{ font-size : 22px; position : relative; top : 6px; }
-.panel-content.xxl .table-check-box > .icon{ font-size : 22px; position : relative; top : 6px; } 
 
+/* MULTI SELECT CHECKBOXES */
 .table-check-box {
     max-width   : 30px;
     min-width   : 30px;
     width       : 30px;
     text-align  : center;
+}
+tr.selected > td.content-item-check-box > .icon::before {
+    content : '\e834';
 }
 
 .table-group-title::before {
@@ -801,9 +798,16 @@
 .panel-content.xl  tr.content-item > td > input {  width : calc(100% - 36px); }
 .panel-content.xxl tr.content-item > td > input {  width : calc(100% - 40px); }
 
-.panel-content > table > tbody > tr > td.column-editable { padding-left : 0px !important; padding-right : 0px !important; }
-.surface-level-1 > table > tbody > tr > td.column-editable { padding-left : 0px !important; padding-right : 0px !important; }
+.panel-content.xxs th.table-check-box > .icon, .panel-content.xxs tr.content-item > td > .icon {  font-size : 15px; font-weight : 200; position : relative; top : 3px; }
+.panel-content.xs  th.table-check-box > .icon, .panel-content.xs  tr.content-item > td > .icon {  font-size : 17px; font-weight : 200; position : relative; top : 3px; }
+.panel-content.s   th.table-check-box > .icon, .panel-content.s   tr.content-item > td > .icon {  font-size : 19px; font-weight : 200; position : relative; top : 5px; }
+.panel-content.m   th.table-check-box > .icon, .panel-content.m   tr.content-item > td > .icon {  font-size : 21px; font-weight : 200; position : relative; top : 6px; }
+.panel-content.l   th.table-check-box > .icon, .panel-content.l   tr.content-item > td > .icon {  font-size : 22px; font-weight : 200; position : relative; top : 6px; }
+.panel-content.xl  th.table-check-box > .icon, .panel-content.xl  tr.content-item > td > .icon {  font-size : 24px; font-weight : 200; position : relative; top : 7px; }
+.panel-content.xxl th.table-check-box > .icon, .panel-content.xxl tr.content-item > td > .icon {  font-size : 26px; font-weight : 200; position : relative; top : 8px; }
 
+.panel-content   > table > tbody > tr > td.column-editable { padding-left : 0px !important; padding-right : 0px !important; }
+.surface-level-1 > table > tbody > tr > td.column-editable { padding-left : 0px !important; padding-right : 0px !important; }
 
 .surface-level-1 td.column-editable { background : var(--color-surface-level-2); border-right : 1px solid var(--color-surface-level-1); } 
 .surface-level-2 td.column-editable { background : var(--color-surface-level-3); border-right : 1px solid var(--color-surface-level-2); } 
@@ -811,11 +815,15 @@
 .surface-level-4 td.column-editable { background : var(--color-surface-level-1); border-right : 1px solid var(--color-surface-level-4); } 
 .surface-level-5 td.column-editable { background : var(--color-surface-level-1); border-right : 1px solid var(--color-surface-level-5); } 
 
-.surface-level-1 td > input { background : var(--color-surface-level-2); border-bottom : none; } 
-.surface-level-2 td > input { background : var(--color-surface-level-3); border-bottom : none; } 
-.surface-level-3 td > input { background : var(--color-surface-level-2); border-bottom : none; } 
-.surface-level-4 td > input { background : var(--color-surface-level-1); border-bottom : none; } 
-.surface-level-5 td > input { background : var(--color-surface-level-1); border-bottom : none; } 
+.surface-level-1 td > input { background : var(--color-surface-level-2); border-bottom : none; border-left : 2px solid var(--color-surface-level-1); } 
+.surface-level-2 td > input { background : var(--color-surface-level-3); border-bottom : none; border-left : 2px solid var(--color-surface-level-1); } 
+.surface-level-3 td > input { background : var(--color-surface-level-2); border-bottom : none; border-left : 2px solid var(--color-surface-level-1); } 
+.surface-level-4 td > input { background : var(--color-surface-level-1); border-bottom : none; border-left : 2px solid var(--color-surface-level-1); } 
+.surface-level-5 td > input { background : var(--color-surface-level-1); border-bottom : none; border-left : 2px solid var(--color-surface-level-1); } 
+
+th.column-required,
+td.column-required > * { border-left : 2px solid var(--color-status-red) !important; }
+
 
 
 /*  THUMBNAILS */
@@ -1564,10 +1572,6 @@ and (max-device-width : 1900px)  {
 .surface-level-5 td.content-column-number { background : var(--color-surface-level-1); }
 
 
-/* MULTI SELECT CHECKBOXES */
-tr.selected > td.content-item-check-box > .icon::before {
-    content : '\e834';
-}
 
 /* COMPACT DISPLAY */
 .panel-top.compact > .panel-header {
@@ -1637,10 +1641,6 @@ tr.selected > td.content-item-check-box > .icon::before {
 }
 .panel-top.compact .panel-content table tbody td {
     padding : 3px 6px;   
-}
-.panel-content table thead th .content-select-all.icon.xxs,
-.panel-content table tbody td.content-item-check-box .icon.xxs {
-    font-size : 12px;
 }
 
 

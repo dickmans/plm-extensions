@@ -1379,20 +1379,6 @@ function genPanelSelectionControls(id, settings) {
         $('<div></div>').appendTo(elemToolbar)
             .addClass('button')
             .addClass('icon')
-            .addClass('icon-select-all')
-            .addClass('xs')
-            .attr('id', id + '-select-all')
-            .attr('title', 'Select all')
-            .click(function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                panelSelectAll(id, $(this));
-            });
-
-
-        $('<div></div>').appendTo(elemToolbar)
-            .addClass('button')
-            .addClass('icon')
             .addClass('icon-deselect-all')
             .addClass('xs')
             .addClass('multi-select-action')
@@ -1403,6 +1389,19 @@ function genPanelSelectionControls(id, settings) {
                 e.stopPropagation();
                 panelDeselectAll(id, $(this));
             });
+
+        $('<div></div>').appendTo(elemToolbar)
+            .addClass('button')
+            .addClass('icon')
+            .addClass('icon-select-all')
+            .addClass('xs')
+            .attr('id', id + '-select-all')
+            .attr('title', 'Select all')
+            .click(function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                panelSelectAll(id, $(this));
+            });            
 
         if(settings.filterBySelection) {
 
@@ -3348,6 +3347,8 @@ function clickContentItemSelect(elemCheckbox, e) {
     
     elemClicked.toggleClass('selected');
 
+    if(!elemClicked.hasClass('selected')) resetTableSelectAllCheckBox(elemClicked);
+
     if(!elemTop.hasClass('multi-select')) elemClicked.siblings().removeClass('selected');
     updateListCalculations(elemTop.attr('id'));
     togglePanelToolbarActions(elemClicked);
@@ -3370,6 +3371,15 @@ function clickContentItem(elemClicked, e) {
 
 }
 function clickContentItemDone(elemClicked, e) {}
+function resetTableSelectAllCheckBox(elemRef) {
+
+    let elemPanel = elemRef.closest('.panel-top');
+    let elemCheck = elemPanel.find('th.table-check-box');
+    let elemChild = elemCheck.children('.icon-check-box-checked');
+
+    if(elemChild.length > 0) elemChild.removeClass('icon-check-box-checked').addClass('icon-check-box');
+
+}
 function updateListCalculations(id) {
 
     let elemTop         = $('#' + id);
@@ -4645,6 +4655,8 @@ function hasBOMRestrictedFields(urn, nodes) {
 // Retrieve field value from item's grid row data
 function getGridRowValue(row, fieldId, defaultValue, property) {
 
+    if(isBlank(row)) return defaultValue;
+
     for(let iField = 1; iField < row.rowData.length; iField++) {
 
         let field   = row.rowData[iField];
@@ -4986,7 +4998,7 @@ function updateGridData(link, key, data, deleteEmpty, callback) {
 
             } else if(!deleteEmpty) row.hasMatch = true;
 
-            if(!row.hasMatch) requests.push($.get('/plm/remove-grid-row', { link : row.link}))
+            if(!row.hasMatch) requests.push($.post('/plm/remove-grid-row', { link : row.link}))
 
         }
 

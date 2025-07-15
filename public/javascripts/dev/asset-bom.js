@@ -861,7 +861,7 @@ function syncSerialNumberWithAssetBOM() {
             console.log(index);
             let viewerdbId = (index < viewerInstances.length + 1) ? viewerInstances[index-1].dbId : '';
             // console.log(viewerdbId);
-            requestsAddItem.push($.get('/plm/add-grid-row', {
+            requestsAddItem.push($.post('/plm/add-grid-row', {
                 link : itemLinkSBOM,
                 data : [
                     { fieldId : 'ID'   , value : index            },
@@ -884,7 +884,7 @@ function syncSerialNumberWithAssetBOM() {
             // console.log(data);
 
 
-            requestsAddList.push($.get('/plm/add-grid-row', {
+            requestsAddList.push($.post('/plm/add-grid-row', {
                 link : links.serials,
                 data : [
                     { fieldId : 'ASSET_ITEM'  , value : { link : itemLinkSBOM          }},
@@ -956,7 +956,7 @@ function syncSerialNumbersWithAssetBOM() {
 
             for(let i = 0; i < count; i++) {
                 let viewerdbId = (i < viewerInstances.length) ? viewerInstances[i].dbId : '';
-                requests.push($.get('/plm/add-grid-row', {
+                requests.push($.post('/plm/add-grid-row', {
                     link : links.serials,
                     data : [
                         { fieldId : 'LOCATION'   , value : path                },

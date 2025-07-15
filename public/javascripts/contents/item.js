@@ -2302,7 +2302,9 @@ function getEditableFields(fields) {
             if(field.type !== null) {
 
                 let elemControl = null;
-                let fieldId = ('fieldId' in field) ? field.fieldId : field.__self__.split('/')[8];
+                let required    = false;
+                let maxLength   = null;
+                let fieldId     = ('fieldId' in field) ? field.fieldId : field.__self__.split('/')[8];
 
                 switch(field.type.title) {
 
@@ -2335,13 +2337,33 @@ function getEditableFields(fields) {
 
                 }
 
+                if(field.hasOwnProperty('fieldValidators')) {
+                    if(field.fieldValidators !== null) {
+                        for(let validator of field.fieldValidators) {
+                            if(validator.validatorName === 'required') {
+                                required = true;
+                            } else if(validator.validatorName === 'dropDownSelection') {
+                                required = true;
+                            } else if(validator.validatorName === 'maxlength') {
+                                maxLength = validator.variables.maxlength;
+                            }
+                        }
+                    }
+                }
+
+                if(field.hasOwnProperty('validators')) {
+                    if(field.validators !== null) required = true;
+                }
+
                 result.push({
-                    id      : fieldId,
-                    title   : field.name,
-                    link    : field.__self__,
-                    type    : field.type.title,
-                    typeId  : field.type.link.split('/')[4],
-                    control : elemControl
+                    id          : fieldId,
+                    title       : field.name,
+                    link        : field.__self__,
+                    type        : field.type.title,
+                    typeId      : field.type.link.split('/')[4],
+                    required    : required,
+                    maxLength   : maxLength,
+                    control     : elemControl
                 });
 
             }
@@ -3448,9 +3470,12 @@ function insertGrid(link, params) {
         headerLabel : 'Grid',
         layout      : 'table'
     }, [
-        [ 'filterEmpty', false ],
-        [ 'rotate'     , false ],
-        [ 'bookmark'   , false ]
+        [ 'filterEmpty'     , false ],
+        [ 'hideActionAdd'   , false ],
+        [ 'hideActionClone' , false ],
+        [ 'hideActionRemove', false ],
+        [ 'rotate'          , false ],
+        [ 'bookmark'        , false ]
     ]);
 
     settings.grid[id].layout = 'table';
@@ -3470,19 +3495,77 @@ function insertGrid(link, params) {
 
     if(settings.grid[id].editable) {
 
-        let elemToolbar = genPanelToolbar(id, settings.grid[id], 'controls');
+        let elemToolbar = genPanelToolbar(id, settings.grid[id], 'actions');
 
-        $('<div></div>').prependTo(elemToolbar)
+        $('<div></div>').appendTo(elemToolbar)
             .addClass('button')
             .addClass('default')
-            .attr('id', id + '-save')
-            .html('Save')
-            .hide()
+            .attr('id', id + '-action-save')
+            .html('Save Changes')
+            .addClass('hidden')
             .click(function(e) {
                 e.preventDefault();
                 e.stopPropagation();
                 saveGridData(id);
             });
+
+        if(!settings.grid[id].hideActionAdd) {
+
+            $('<div></div>').appendTo(elemToolbar)
+                .addClass('button')
+                .addClass('with-icon')
+                .addClass('icon-list-add')
+                .attr('id', id + '-action-add')
+                .html('Add Row')
+                .addClass('hidden')
+                .click(function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    insertGridRow(id, null);
+                    $('#' + id + '-no-data').hide();
+                    $('#' + id + '-content').show();
+                    resetTableSelectAllCheckBox($(this));
+                });
+        }
+
+        if(!settings.grid[id].hideActionClone) {
+
+            $('<div></div>').appendTo(elemToolbar)
+                .addClass('button')
+                .addClass('with-icon')
+                .addClass('icon-clone')
+                .addClass('grid-action-clone')
+                .attr('id', id + '-action-clone')
+                .html('Clone Selected')
+                .addClass('hidden')
+                .addClass('multi-select-action')
+                .click(function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    cloneGridRows(id);
+                    resetTableSelectAllCheckBox($(this));
+                });
+
+        }
+
+        if(!settings.grid[id].hideActionRemove) {
+
+            $('<div></div>').appendTo(elemToolbar)
+                .addClass('button')
+                .addClass('with-icon')
+                .addClass('icon-list-remove')
+                .addClass('grid-action-remove')
+                .attr('id', id + '-action-remove')
+                .html('Delete Selected')
+                .addClass('hidden')
+                .addClass('multi-select-action')
+                .click(function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    deleteGridRows(id);
+                });  
+            
+        }
 
     }
 
@@ -3502,9 +3585,11 @@ function insertGridData(id) {
 
     let requests    = [
         $.get('/plm/grid',         params),
-        $.get('/plm/grid-columns', { link : settings.grid[id].link, useCache : settings.grid[id].useCache })
+        $.get('/plm/grid-columns', { link : settings.grid[id].link, useCache : settings.grid[id].useCache }),
+        
     ];
 
+    if((settings.grid[id].editable)) requests.push($.get('/plm/permissions', params));
     if((settings.grid[id].bookmark)) requests.push($.get('/plm/bookmarks', { link : settings.grid[id].link })); 
 
     Promise.all(requests).then(function(responses) {
@@ -3513,25 +3598,27 @@ function insertGridData(id) {
 
         setPanelBookmarkStatus(id, settings.grid[id], responses);
 
-        let columns = [];
+        settings.grid[id].columns = [];
 
         for(let field of responses[1].data.fields) {
-            if(includePanelTableColumn(field.name, settings.grid[id], columns.length)) {
+            if(includePanelTableColumn(field.name, settings.grid[id], settings.grid[id].columns.length)) {
                 field.fieldId = field.__self__.split('/').pop();
-                columns.push(field);
+                settings.grid[id].columns.push(field);
             }
         }
 
+        let elemContent    = $('#' + id + '-content');
+        let elemTable      = $('<table></table>').appendTo(elemContent).addClass('grid').addClass('row-hovering').attr('id', id + '-table');
+        let elemTHead      = $('<thead></thead>').addClass('fixed').attr('id', id + '-thead');
+        let elemTBody      = $('<tbody></tbody>').appendTo(elemTable).attr('id', id + '-tbody').attr('id', id + '-tbody');
+        let elemTHRow      = $('<tr></tr>').appendTo(elemTHead).addClass('fixed');
+        
+        settings.grid[id].editableFields = (settings.grid[id].editable) ? getEditableFields(settings.grid[id].columns) : [];
+
+        if(settings.grid[id].tableHeaders) elemTHead.prependTo(elemTable);
+
+
         if(responses[0].data.length > 0 ) {
-
-            let elemContent    = $('#' + id + '-content');
-            let elemTable      = $('<table></table>').appendTo(elemContent).addClass('grid').addClass('row-hovering').attr('id', id + '-table');
-            let elemTHead      = $('<thead></thead>').addClass('fixed').attr('id', id + '-thead');
-            let elemTBody      = $('<tbody></tbody>').appendTo(elemTable).attr('id', id + '-tbody').attr('id', id + '-tbody');
-            let elemTHRow      = $('<tr></tr>').appendTo(elemTHead).addClass('fixed');
-            let editableFields = (settings.grid[id].editable) ? getEditableFields(columns) : [];
-
-            if(settings.grid[id].tableHeaders) elemTHead.prependTo(elemTable);
 
             if(!isBlank(settings.grid[id].groupBy)) {
                 for(let row of responses[0].data) {
@@ -3540,199 +3627,118 @@ function insertGridData(id) {
                 sortArray(responses[0].data, 'group', 'string', 'ascending');
             }
 
+        }
 
-            if(!settings.grid[id].rotate) {
+        if(!settings.grid[id].rotate) {
 
-                elemTable.addClass('fixed-header');
+            elemTable.addClass('fixed-header');
+            
+            if(settings.grid[id].editable || settings.grid[id].multiSelect) {
 
-                if(settings.grid[id].editable && settings.grid[id].multiSelect) {
+                let elemHeadCell = $('<th></th>').appendTo(elemTHRow);
+                
+                if(settings.grid[id].multiSelect) {
 
-                    let elemHeadCell = $('<th></th>').appendTo(elemTHRow)
-                        .addClass('table-check-box')
+                    elemHeadCell.addClass('table-check-box');
+
+                    $('<div></div>').appendTo(elemHeadCell)
+                        .attr('id', id + '-select-all')
+                        .addClass('content-select-all')
+                        .addClass('icon')
+                        .addClass('icon-check-box')
+                        .addClass('xxs')
                         .click(function(e) {
                             e.preventDefault();
                             e.stopPropagation();
                             clickTableToggleAll($(this));
                         });
 
-                    let elemHeadIcon = $('<div></div>').appendTo(elemHeadCell)
-                        .attr('id', id + '-select-all')
-                        .addClass('content-select-all')
-                        .addClass('icon')
-                        .addClass('icon-check-box');
-
                 }
 
-                for(let column of columns) {
-                    let elemCell = $('<th></th>').appendTo(elemTHRow)
-                        .addClass('column-' + column.fieldId)
-                        .html(column.name);
-                    if(settings.grid[id].editable) {
-                        if(column.editability === 'ALWAYS') elemCell.addClass('column-editable');
-                    }
-                }
+            }
 
-                let groupName = null;
-                let groupSpan = columns.length;
-
-                if(settings.grid[id].editable && settings.grid[id].multiSelect) groupSpan++;
-
-                for(let row of responses[0].data) {
-
-                    if(!isBlank(settings.grid[id].groupBy)) {
-
-                        if(groupName !== row.group) {
-
-                            let elemGroup = $('<tr></tr>').appendTo(elemTBody)
-                                .addClass('table-group');
-
-                            let elemGroupTitle = $('<td></td>').appendTo(elemGroup)
-                                .addClass('table-group-title')
-                                .attr('colspan', groupSpan)
-                                .html(isBlank(row.group) ? 'n/a' : row.group)
-                                .click(function() {
-                                    $(this).toggleClass('collapsed');
-                                    if($(this).hasClass('collapsed')) {
-                                        $(this).parent().nextUntil('.table-group').hide();
-                                    } else {
-                                        $(this).parent().nextUntil('.table-group').show();
-                                    }
-                                });
-
-                            if(settings.grid[id].collapseContents) elemGroupTitle.addClass('collapsed');
-
-                        }
-
-                        groupName = row.group;
-
-                    }
-
-                    let elemTableRow = $('<tr></tr>').appendTo(elemTBody)
-                        .addClass('content-item')
-                        .click(function(e) {
-                            clickGridRow($(this), e);
-                            if(!isBlank(settings.grid[id].onClickItem)) settings.grid[id].onClickItem($(this));
-                        }).dblclick(function() {
-                            if(!isBlank(settings.grid[id].onDblClickItem)) settings.grid[id].onDblClickItem($(this));
-                        });
-
-                    for(let field of row.rowData) {
-                        if(field.title === 'Row Id') {
-                            elemTableRow.attr('data-link', field.__self__);
-                        }
-                    }
-
-                    if(settings.grid[id].collapseContents) {
-                        if(!isBlank(settings.grid[id].groupBy)) {
-                            elemTableRow.hide();
-                        }
-                    }
-
-                    if(settings.grid[id].editable && settings.grid[id].multiSelect) {
-
-                        $('<td></td>').appendTo(elemTableRow)
-                            .html('<div class="icon icon-check-box"></div>')
-                            .addClass('content-item-check-box')
-                            .addClass('table-check-box')
-                            .click(function(e) {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                clickContentItemSelect($(this));
-                            });
-                
-                    }
-
-                    for(let field of columns) {
-                        let value    = getGridRowValue(row, field.fieldId, '', 'title');
-                        let elemCell = $('<td></td>').appendTo(elemTableRow)
-                            .addClass('column-' + field.fieldId)
-                            .attr('data-id', field.fieldId);
-
-                        
-                        if(settings.grid[id].editable) {
-
-                            elemCell.addClass('column-editable');
-
-                            for(let editableField of editableFields) {
-                                
-                                if(field.fieldId === editableField.id) {
-
-                                    if(!isBlank(editableField.control)) {
-                                
-                                        elemCell.attr('data-title', editableField.title)
-                                            .attr('data-link', editableField.link)
-                                            .attr('data-type-id', editableField.typeId);
-
-                                        let elemControl = editableField.control.clone();
-                                            elemControl.appendTo(elemCell)
-                                            .attr('data-id', editableField.id)
-                                            .click(function(e) {
-                                                e.stopPropagation();
-                                            })
-                                            .dblclick(function(e) {
-                                                e.stopPropagation()
-                                            })
-                                            .change(function() {
-                                                panelTableCellValueChanged($(this));
-                                            });
-
-                                        switch (editableField.type) {
-                                            
-                                            case 'Single Selection':
-                                            // case 'Radio Button':
-                                                let linkValue = getGridRowValue(row, field.fieldId, '', 'link');
-                                                let elemValue = $('<option></option>')
-                                                    .attr('value', linkValue)
-                                                    .html(value)
-                                                elemControl.append(elemValue);
-                                                elemControl.val(linkValue);
-                                                break;
-                
-                                            default:
-                                                elemControl.val(value);
-                                                break;
-                
-                                        }
-                
-                                        isEditable = true;
-                                    }
-                
-                                }
-                            }
-
-
-                        } else elemCell.html(value);
-                    }
-
-                }
-
-            } else {
-
-                elemTable.addClass('rotated');
-
-                for(let column of columns) {
-
-                    let elemTableRow = $('<tr></tr>').appendTo(elemTBody)
-                        .addClass('content-item')
-                        .click(function(e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            clickGridRow($(this), e);
-                        });
-
-                    $('<th></th>').appendTo(elemTableRow).html(column.name);
-
-                    for(let row of responses[0].data) {
-
-                        let value   = getGridRowValue(row, column.fieldId, '', 'title');
-
-                        $('<td></td>').appendTo(elemTableRow).html(value);
-
-                    }
-
+            for(let column of settings.grid[id].columns) {
+                let elemCell = $('<th></th>').appendTo(elemTHRow)
+                    .addClass('column-' + column.fieldId)
+                    .html(column.name);
+                if(settings.grid[id].editable) {
+                    if(column.editability === 'ALWAYS') elemCell.addClass('column-editable');
+                    if(column.validators  !==  null   ) elemCell.addClass('column-required');
                 }
             }
 
+            let groupName = null;
+            let groupSpan = settings.grid[id].columns.length;
+
+            if(settings.grid[id].editable && settings.grid[id].multiSelect) groupSpan++;
+
+            for(let row of responses[0].data) {
+
+                if(!isBlank(settings.grid[id].groupBy)) {
+
+                    if(groupName !== row.group) {
+
+                        let elemGroup = $('<tr></tr>').appendTo(elemTBody)
+                            .addClass('table-group');
+
+                        let elemGroupTitle = $('<td></td>').appendTo(elemGroup)
+                            .addClass('table-group-title')
+                            .attr('colspan', groupSpan)
+                            .html(isBlank(row.group) ? 'n/a' : row.group)
+                            .click(function() {
+                                $(this).toggleClass('collapsed');
+                                if($(this).hasClass('collapsed')) {
+                                    $(this).parent().nextUntil('.table-group').hide();
+                                } else {
+                                    $(this).parent().nextUntil('.table-group').show();
+                                }
+                            });
+
+                        if(settings.grid[id].collapseContents) elemGroupTitle.addClass('collapsed');
+
+                    }
+
+                    groupName = row.group;
+
+                }
+
+                insertGridRow(id, row);
+
+            }
+
+        } else {
+
+            elemTable.addClass('rotated');
+
+            for(let column of settings.grid[id].columns) {
+
+                let elemTableRow = $('<tr></tr>').appendTo(elemTBody)
+                    .addClass('content-item')
+                    .click(function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        clickGridRow($(this), e);
+                    });
+
+                $('<th></th>').appendTo(elemTableRow).html(column.name);
+
+                for(let row of responses[0].data) {
+
+                    let value   = getGridRowValue(row, column.fieldId, '', 'title');
+
+                    $('<td></td>').appendTo(elemTableRow).html(value);
+
+                }
+
+            }
+        }
+
+        if(settings.grid[id].editable) {
+            let permissions = responses[2].data;
+            if(hasPermission(permissions, 'edit_grid'       )) { $('#' + id + '-action-save'  ).removeClass('hidden'); } else { $('#' + id + '-action-save'  ).remove(); }
+            if(hasPermission(permissions, 'add_to_grid'     )) { $('#' + id + '-action-add'   ).removeClass('hidden'); } else { $('#' + id + '-action-add'   ).remove(); }
+            if(hasPermission(permissions, 'add_to_grid'     )) { $('#' + id + '-action-clone' ).removeClass('hidden'); } else { $('#' + id + '-action-clone' ).remove(); }
+            if(hasPermission(permissions, 'delete_from_grid')) { $('#' + id + '-action-remove').removeClass('hidden'); } else { $('#' + id + '-action-remove').remove(); }
         }
 
         finishPanelContentUpdate(id, settings.grid[id]);
@@ -3743,13 +3749,201 @@ function insertGridData(id) {
 }
 function insertGridDone(id) {}
 function insertGridDataDone(id, rows, columns) {}
-function clickGridRow(elemClicked, e) {}
+function clickGridRow(elemClicked, e) {
+
+    clickContentItemSelect(elemClicked);
+
+}
+function insertGridRow(id, row) {
+
+    let elemTBody = $('#' + id + '-tbody');
+
+    let elemTableRow = $('<tr></tr>').appendTo(elemTBody)
+        .addClass('content-item')
+        .attr('data-link', '')
+        .click(function(e) {
+            clickGridRow($(this), e);
+            if(!isBlank(settings.grid[id].onClickItem)) settings.grid[id].onClickItem($(this));
+        }).dblclick(function() {
+            if(!isBlank(settings.grid[id].onDblClickItem)) settings.grid[id].onDblClickItem($(this));
+        });
+
+    if(isBlank(row)) {
+        elemTableRow.addClass('new');
+    } else {
+        for(let field of row.rowData) {
+            if(field.title === 'Row Id') {
+                elemTableRow.attr('data-link', field.__self__);
+            }
+        }
+    }
+
+    if(settings.grid[id].collapseContents) {
+        if(!isBlank(settings.grid[id].groupBy)) {
+            elemTableRow.hide();
+        }
+    }
+
+    if(settings.grid[id].editable || settings.grid[id].multiSelect) {
+
+        $('<td></td>').appendTo(elemTableRow)
+            .html('<div class="icon icon-check-box"></div>')
+            .addClass('content-item-check-box')
+            .addClass('table-check-box')
+            .click(function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                clickContentItemSelect($(this));
+            });
+
+    }
+
+    for(let field of settings.grid[id].columns) {
+
+        let value = getGridRowValue(row, field.fieldId, '', 'title');
+
+        let elemCell = $('<td></td>').appendTo(elemTableRow)
+            .addClass('column-' + field.fieldId)
+            .attr('data-id', field.fieldId);
+
+        if(settings.grid[id].editable) {
+
+            for(let editableField of settings.grid[id].editableFields) {
+
+                if(field.fieldId === editableField.id) {
+
+                    if(!isBlank(editableField.control)) {
+
+                        elemCell.attr('data-title', editableField.title)
+                            .attr('data-link', editableField.link)
+                            .attr('data-type-id', editableField.typeId)
+                            .addClass('column-editable');
+
+                        if(editableField.required) elemCell.addClass('column-required');
+
+                        let elemControl = editableField.control.clone();
+                            elemControl.appendTo(elemCell)
+                            .attr('data-id', editableField.id)
+                            .click(function(e) {
+                                $(this).select();
+                                $(this).closest('tr').removeClass('selected');
+                            })
+                            .dblclick(function(e) {
+                                e.stopPropagation()
+                            })
+                            .change(function() {
+                                panelTableCellValueChanged($(this));
+                            });
+
+                        switch (editableField.type) {
+                            
+                            case 'Single Selection':
+                            // case 'Radio Button':
+                                let linkValue = getGridRowValue(row, field.fieldId, '', 'link');
+                                let elemValue = $('<option></option>')
+                                    .attr('value', linkValue)
+                                    .html(value)
+                                elemControl.append(elemValue);
+                                elemControl.val(linkValue);
+                                break;
+
+                            default:
+                                elemControl.val(value);
+                                break;
+
+                        }
+
+                        isEditable = true;
+                    }
+
+                }
+            }
+
+
+        } else elemCell.html(value);
+    } 
+
+    return elemTableRow;
+
+
+}
+function cloneGridRows(id) {
+
+    let elemTBody = $('#' + id + '-tbody');
+
+    elemTBody.find('tr.selected').each(function() {
+    
+        let elemNew = $(this).clone().appendTo(elemTBody);
+        
+        elemNew.removeClass('selected')
+            .attr('data-link', '')
+            .addClass('new');
+
+    });
+
+}
+function deleteGridRows(id) {
+
+    let elemTBody = $('#' + id + '-tbody');
+    let elemPanel = $('#' + id);
+
+    elemTBody.find('tr.selected').each(function() {
+        
+        $(this).addClass('hidden')
+            .removeClass('new')
+            .removeClass('changed')
+            .removeClass('selected');
+
+    });
+
+    elemPanel.find('.multi-select-action').hide();
+
+}
 function saveGridData(id) {
 
     appendOverlay(false);
 
-    let requests  = [];
-    let elemTBody = $('#' + id + '-tbody');
+    let requests    = [];
+    let elemTBody   = $('#' + id + '-tbody');
+    let rowsNew     = [];
+    let index       = 0;
+
+    elemTBody.children('.hidden').each(function() {
+
+        let elemRow = $(this);
+        let link    = elemRow.attr('data-link');
+
+        if(link !== '') requests.push($.post('/plm/remove-grid-row', { link : link }));
+        
+        elemRow.remove();
+
+    });
+
+    elemTBody.children('.new').each(function() {
+
+        let elemRow = $(this);
+        let data    = [];
+
+        elemRow.removeClass('changed').attr('data-new-row-' + index);
+
+        elemRow.children('td').each(function() {
+            if(!$(this).hasClass('content-item-check-box')) {
+                if($(this).hasClass('column-editable')) {
+                    let fieldData =  getFieldValue($(this));
+                    data.push({
+                        fieldId : fieldData.fieldId,
+                        value   : (fieldData.value === null) ? 'null' : fieldData.value,
+                    });
+                }
+            }
+
+        });
+
+        rowsNew.push(elemRow);
+
+        requests.push($.post('/plm/add-grid-row', { link : settings.grid[id].link, data : data, index : index++ }))
+
+    });
 
     elemTBody.children('.changed').each(function() {
 
@@ -3757,25 +3951,45 @@ function saveGridData(id) {
         let rowId   = elemRow.attr('data-link').split('/').pop();
         let data    = [];
 
-        elemRow.children('td').each(function() {
-            if(!$(this).hasClass('content-item-check-box')) {
-                let fieldData =  getFieldValue($(this));
-                data.push({
-                    fieldId : fieldData.fieldId,
-                    value   : (fieldData.value === null) ? 'null' : fieldData.value,
-                });
-            }
-        });
+        if(!elemRow.hasClass('new')) {
 
-        requests.push($.post('/plm/update-grid-row', { link : settings.grid[id].link, rowId : rowId, data : data }))
+            elemRow.children('td').each(function() {
+                if(!$(this).hasClass('content-item-check-box')) {
+                    let fieldData =  getFieldValue($(this));
+                    data.push({
+                        fieldId : fieldData.fieldId,
+                        value   : (fieldData.value === null) ? null : fieldData.value,
+                    });
+                }
+            });
+
+            requests.push($.post('/plm/update-grid-row', { link : settings.grid[id].link, rowId : rowId, data : data }));
+
+        }
 
     });
 
     Promise.all(requests).then(function(responses) {
+
+        for(let response of responses) {
+
+            if(response.error) {
+                showErrorMessage('Error when saving', responses.data.message);
+            } else {
+                if(response.url.indexOf('/add-grid-row') === 0) {
+                    let index = Number(response.params.index);
+                    rowsNew[index].attr('data-link', response.data);
+                    rowsNew[index].removeClass('new');
+                }
+            }
+
+        }
+
         elemTBody.find('.changed').removeClass('changed');
         $('#overlay').hide();
         updateListCalculations(id);
         updatePanelCalculations(id);
+        
     });
 
 }

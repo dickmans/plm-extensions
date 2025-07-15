@@ -562,7 +562,10 @@
 }
 
 .content-item.selected > td {
-    background : var(--color-selected-background);
+    background   : var(--color-selected-background);
+}
+.grid .content-item.selected > td {
+    border-color : var(--color-selected-background);
 }
 .content-item:hover td {
     background-color : var(--color-hover-background) !important;

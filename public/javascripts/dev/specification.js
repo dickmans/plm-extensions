@@ -858,7 +858,7 @@ function saveFlatBOMChangesDone() {
 
         console.log(params);
 
-        requests.push($.get('/plm/add-grid-row', params));
+        requests.push($.post('/plm/add-grid-row', params));
 
         
 

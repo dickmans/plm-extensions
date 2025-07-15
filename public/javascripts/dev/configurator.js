@@ -944,7 +944,7 @@ function submitCreateFormDone22(id, link) {
         let linkFeature = elemFeature.attr('data-link');
         let linkOption  = elemOption.attr('data-link');
 
-        requests.push($.get('/plm/add-grid-row', {
+        requests.push($.post('/plm/add-grid-row', {
             link : linkVariant,
             'data' : [
                 { fieldId : 'FEATURE', value : { link : linkFeature } },

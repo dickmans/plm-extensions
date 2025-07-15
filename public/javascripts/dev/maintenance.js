@@ -1027,7 +1027,7 @@ function submitRequest() {
                     ]
                 }
                 
-                $.get('/plm/add-grid-row', params, function(response) {});
+                $.post('/plm/add-grid-row', params, function(response) {});
 
             });
 
