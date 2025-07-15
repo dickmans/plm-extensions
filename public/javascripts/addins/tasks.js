@@ -148,6 +148,7 @@ function openTask(elemClicked) {
             type   : 'grid', 
             params : { 
                 id          : 'task-grid',
+                contentSize : 's',
                 editable    : true,
                 multiSelect : true
             } 

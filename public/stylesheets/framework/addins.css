@@ -142,7 +142,9 @@
     padding : 0px 6px 0px 0px;
 }
 .addin .panel-top.with-tabs > .panel-content > .panel-top > .panel-actions {
-    padding : 0px 0px 0px 6px;
+    left    : 6px;
+    right   : unset;
+    padding : 0px;
 }
 .addin .panel-top.with-tabs > .panel-content > .panel-top > .panel-content {
     top : 34px;
