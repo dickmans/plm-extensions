@@ -798,6 +798,14 @@ tr.selected > td.content-item-check-box > .icon::before {
 .panel-content.xl  tr.content-item > td > input {  width : calc(100% - 36px); }
 .panel-content.xxl tr.content-item > td > input {  width : calc(100% - 40px); }
 
+.panel-content.xxs tr.content-item > td > select {  width : 100%; }
+.panel-content.xs  tr.content-item > td > select {  width : 100%; }
+.panel-content.s   tr.content-item > td > select {  width : 100%; }
+.panel-content.m   tr.content-item > td > select {  width : 100%; }
+.panel-content.l   tr.content-item > td > select {  width : 100%; }
+.panel-content.xl  tr.content-item > td > select {  width : 100%; }
+.panel-content.xxl tr.content-item > td > select {  width : 100%; }
+
 .panel-content.xxs th.table-check-box > .icon, .panel-content.xxs tr.content-item > td > .icon {  font-size : 15px; font-weight : 200; position : relative; top : 3px; }
 .panel-content.xs  th.table-check-box > .icon, .panel-content.xs  tr.content-item > td > .icon {  font-size : 17px; font-weight : 200; position : relative; top : 3px; }
 .panel-content.s   th.table-check-box > .icon, .panel-content.s   tr.content-item > td > .icon {  font-size : 19px; font-weight : 200; position : relative; top : 5px; }
@@ -815,11 +823,11 @@ tr.selected > td.content-item-check-box > .icon::before {
 .surface-level-4 td.column-editable { background : var(--color-surface-level-1); border-right : 1px solid var(--color-surface-level-4); } 
 .surface-level-5 td.column-editable { background : var(--color-surface-level-1); border-right : 1px solid var(--color-surface-level-5); } 
 
-.surface-level-1 td > input { background : var(--color-surface-level-2); border-bottom : none; border-left : 2px solid var(--color-surface-level-1); } 
-.surface-level-2 td > input { background : var(--color-surface-level-3); border-bottom : none; border-left : 2px solid var(--color-surface-level-1); } 
-.surface-level-3 td > input { background : var(--color-surface-level-2); border-bottom : none; border-left : 2px solid var(--color-surface-level-1); } 
-.surface-level-4 td > input { background : var(--color-surface-level-1); border-bottom : none; border-left : 2px solid var(--color-surface-level-1); } 
-.surface-level-5 td > input { background : var(--color-surface-level-1); border-bottom : none; border-left : 2px solid var(--color-surface-level-1); } 
+.surface-level-1 td > input, .surface-level-1 td > select { background : var(--color-surface-level-2); border-bottom : none; border-left : 2px solid var(--color-surface-level-1); } 
+.surface-level-2 td > input, .surface-level-2 td > select { background : var(--color-surface-level-3); border-bottom : none; border-left : 2px solid var(--color-surface-level-2); } 
+.surface-level-3 td > input, .surface-level-3 td > select { background : var(--color-surface-level-2); border-bottom : none; border-left : 2px solid var(--color-surface-level-3); } 
+.surface-level-4 td > input, .surface-level-4 td > select { background : var(--color-surface-level-1); border-bottom : none; border-left : 2px solid var(--color-surface-level-4); } 
+.surface-level-5 td > input, .surface-level-5 td > select { background : var(--color-surface-level-1); border-bottom : none; border-left : 2px solid var(--color-surface-level-5); } 
 
 th.column-required,
 td.column-required > * { border-left : 2px solid var(--color-status-red) !important; }
