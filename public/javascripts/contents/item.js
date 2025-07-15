@@ -3760,13 +3760,7 @@ function insertGridRow(id, row) {
 
     let elemTableRow = $('<tr></tr>').appendTo(elemTBody)
         .addClass('content-item')
-        .attr('data-link', '')
-        .click(function(e) {
-            clickGridRow($(this), e);
-            if(!isBlank(settings.grid[id].onClickItem)) settings.grid[id].onClickItem($(this));
-        }).dblclick(function() {
-            if(!isBlank(settings.grid[id].onDblClickItem)) settings.grid[id].onDblClickItem($(this));
-        });
+        .attr('data-link', '');
 
     if(isBlank(row)) {
         elemTableRow.addClass('new');
@@ -3789,12 +3783,7 @@ function insertGridRow(id, row) {
         $('<td></td>').appendTo(elemTableRow)
             .html('<div class="icon icon-check-box"></div>')
             .addClass('content-item-check-box')
-            .addClass('table-check-box')
-            .click(function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                clickContentItemSelect($(this));
-            });
+            .addClass('table-check-box');
 
     }
 
@@ -3824,16 +3813,7 @@ function insertGridRow(id, row) {
                         let elemControl = editableField.control.clone();
                             elemControl.appendTo(elemCell)
                             .attr('data-id', editableField.id)
-                            .click(function(e) {
-                                $(this).select();
-                                $(this).closest('tr').removeClass('selected');
-                            })
-                            .dblclick(function(e) {
-                                e.stopPropagation()
-                            })
-                            .change(function() {
-                                panelTableCellValueChanged($(this));
-                            });
+                            .addClass('table-input-control');
 
                         switch (editableField.type) {
                             
@@ -3863,8 +3843,43 @@ function insertGridRow(id, row) {
         } else elemCell.html(value);
     } 
 
+    setGridRowEvents(id, elemTableRow);
+
     return elemTableRow;
 
+
+}
+function setGridRowEvents(id, elemRow) {
+
+    elemRow.click(function(e) {
+        clickGridRow($(this), e);
+        if(!isBlank(settings.grid[id].onClickItem)) settings.grid[id].onClickItem($(this));
+    }).dblclick(function() {
+        if(!isBlank(settings.grid[id].onDblClickItem)) settings.grid[id].onDblClickItem($(this));
+    });
+
+    let elemCheckbox = elemRow.children('td.table-check-box');
+
+    if(elemCheckbox.length > 0) {
+        elemCheckbox.click(function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            clickContentItemSelect($(this));
+        });
+    }
+
+    elemRow.find('.table-input-control').each(function() {
+        $(this).click(function(e) {
+            $(this).select();
+            $(this).closest('tr').removeClass('selected');
+        })
+        .dblclick(function(e) {
+            e.stopPropagation()
+        })
+        .change(function() {
+            panelTableCellValueChanged($(this));
+        });
+    });
 
 }
 function cloneGridRows(id) {
@@ -3878,6 +3893,8 @@ function cloneGridRows(id) {
         elemNew.removeClass('selected')
             .attr('data-link', '')
             .addClass('new');
+
+        setGridRowEvents(id, elemNew);
 
     });
 
