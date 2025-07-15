@@ -97,6 +97,13 @@ router.get('/template', function(req, res, next) { launch('tutorial/1-template' 
 
 
 /* ------------------------------------------------------------------------------
+    CUSTOM APPLICATIONS
+   ------------------------------------------------------------------------------ */
+router.get('/playground' , function(req, res, next) { launch('custom/playground'   , 'UX Playground', req, res, next); });
+
+
+
+/* ------------------------------------------------------------------------------
     APPLICATIONS IN DEVELOPMENT
    ------------------------------------------------------------------------------ */
 router.get('/assets'        , function(req, res, next) { launch('dev/assets'          , 'Asset Management'                  , req, res, next); });
@@ -111,6 +118,7 @@ router.get('/customer'      , function(req, res, next) { launch('dev/customer'  
 router.get('/editor'        , function(req, res, next) { launch('dev/editor'          , 'Content Editor'                    , req, res, next); });
 router.get('/matrix'        , function(req, res, next) { launch('dev/matrix'          , 'Portfolio Matrix'                  , req, res, next); });
 router.get('/mbom-upgrade'  , function(req, res, next) { launch('dev/mbom-upgrade'    , 'MBOM Upgrade Editor'               , req, res, next); });
+router.get('/pbom'          , function(req, res, next) { launch('dev/pbom'            , 'Manufacturing Process Editor'      , req, res, next); });
 router.get('/pdm'           , function(req, res, next) { launch('dev/pdm'             , 'Vault Browser'                     , req, res, next); });
 router.get('/pdm-explorer'  , function(req, res, next) { launch('dev/pdm-explorer'    , 'PDM Explorer'                      , req, res, next); });
 router.get('/pnd'           , function(req, res, next) { launch('dev/pnd'             , 'Product Data & Processes Explorer' , req, res, next); });
