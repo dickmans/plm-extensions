@@ -1679,21 +1679,77 @@ router.get('/grid-columns', function(req, res, next) {
     console.log(' ');
     console.log('  /grid-columns');
     console.log(' --------------------------------------------'); 
-    console.log('  req.query.wsId   = ' + req.query.wsId);
-    console.log('  req.query.link   = ' + req.query.link);
-    console.log('  req.query.tenant = ' + req.query.tenant);
+    console.log('  req.query.wsId           = ' + req.query.wsId);
+    console.log('  req.query.link           = ' + req.query.link);
+    console.log('  req.query.tenant         = ' + req.query.tenant);
+    console.log('  req.query.getValidations = ' + req.query.getValidations);
+    console.log('  req.query.useCache       = ' + req.query.useCache);
     console.log(); 
-    
-    let wsId = (typeof req.query.wsId !== 'undefined') ? req.query.wsId : req.query.link.split('/')[4];
-    let url  = getTenantLink(req) + '/api/v3/workspaces/' + wsId + '/views/13/fields';
 
-    axios.get(url, {
-        headers : req.session.headers
-    }).then(function(response) {
-        sendResponse(req, res, response, false);
-    }).catch(function(error) {
-        sendResponse(req, res, error.response, true);
-    });
+    if(notCached(req, res)) {
+    
+        let getValidations  = (typeof req.query.getValidations !== 'undefined') ? (req.query.getValidations.toLowerCase() == 'true') : false;
+        let wsId            = (typeof req.query.wsId !== 'undefined') ? req.query.wsId : req.query.link.split('/')[4];
+        let url             = getTenantLink(req) + '/api/v3/workspaces/' + wsId + '/views/13/fields';
+
+        axios.get(url, {
+            headers : req.session.headers
+        }).then(function(response) {
+
+            let validations = [];
+            let requests = [];
+
+            if(getValidations) {
+                for(let field of response.data.fields) {
+                    if(typeof field.validators !== 'undefined') {
+                        if(field.validators !== null) {
+                            if(field.validators !== '') validations.push(field.validators);
+                        }
+                    }
+                }
+            }
+
+            if(validations.length > 0) {
+                for(let validation of validations) {
+                    requests.push(runPromised(getTenantLink(req) + validation, req.session.headers));
+                }
+            }
+
+            Promise.all(requests).then(function(responses) {
+
+                for(let field of response.data.fields) {
+
+                    field.validations = [];
+                    field.required    = false;
+                    
+                    if(typeof field.validators !== 'undefined') {
+                        if(field.validators !== null) {
+                            for(let response of responses) {
+                                if(response.length > 0) {
+                                    if(response[0].__self__.indexOf(field.validators) === 0) {
+                                        field.validations = response;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    for(let validator of field.validations) {
+                        if(validator.validatorName === 'required') field.required = true;
+                    }
+                        
+                }
+
+                sendResponse(req, res, response, false);
+
+            });
+            
+        }).catch(function(error) {
+            sendResponse(req, res, error.response, true);
+        });
+
+    }
     
 });
 
