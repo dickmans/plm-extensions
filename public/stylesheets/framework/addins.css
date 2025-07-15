@@ -25,7 +25,7 @@
 .addin input  { 
     padding : 2px 4px; 
 }
-.addin select { 
+.addin select.button { 
     height      : 24px !important; 
     line-height : 24px !important; 
     padding     : 1px 4px; 
