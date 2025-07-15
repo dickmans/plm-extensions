@@ -145,6 +145,13 @@ function openTask(elemClicked) {
                 afterCompletion : function(id) { setManagedItemsActions(id); }
             } 
         },{ 
+            type   : 'grid', 
+            params : { 
+                id          : 'task-grid',
+                editable    : true,
+                multiSelect : true
+            } 
+        },{ 
             type      : 'workflow-history', 
             params : { 
                 id     : 'task-workflow-history'

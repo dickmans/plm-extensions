@@ -119,7 +119,8 @@
     min-width       : unset;
     width           : unset;
 }
-.addin .panel-controls {
+.addin .panel-controls,
+.addin .panel-actions {
     gap      : 4px;
     padding  : 8px 18px;
     position : absolute;
@@ -139,6 +140,9 @@
 }
 .addin .panel-top.with-tabs > .panel-content > .panel-top > .panel-header > .panel-controls {
     padding : 0px 6px 0px 0px;
+}
+.addin .panel-top.with-tabs > .panel-content > .panel-top > .panel-actions {
+    padding : 0px 0px 0px 6px;
 }
 .addin .panel-top.with-tabs > .panel-content > .panel-top > .panel-content {
     top : 34px;
