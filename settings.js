@@ -105,7 +105,7 @@ exports.config = {
     },
 
     assetEditor : {
-        bomViewName     : 'PDM Data',
+        bomViewName     : 'Basic',
         fieldIdBOM      : 'EBOM',
         exportFileName  : 'Serial Numbers',
         workspaces      : [{
@@ -119,7 +119,7 @@ exports.config = {
                 partNumber   : 'NUMBER',
                 path         : 'LOCATION',
                 instanceId   : 'INSTANCE_ID',
-                bomReference : 'BOM_REFERENCE'
+                bomReference : 'ITEM_REFERENCE'
             },
             groupBy     : 'NUMBER',
             filter      : {
