@@ -38,8 +38,8 @@ function genAddinTileActions(elemTile) {
         case 'vault-file': 
         case 'vault-item': 
             if(host === 'inventor') {
-                genAddinTileAction(elemActions, 'gotoVaultFile', 'icon-goto-folder', 'Go To Folder'); 
-                genAddinTileAction(elemActions, 'gotoVaultItem', 'icon-vault-item' , 'Go To Item'); 
+                // genAddinTileAction(elemActions, 'gotoVaultFile', 'icon-goto-folder', 'Go To Folder'); 
+                // genAddinTileAction(elemActions, 'gotoVaultItem', 'icon-vault-item' , 'Go To Item'); 
                 genAddinTileAction(elemActions, 'openComponent', 'icon-folder-open', 'Open Component'); 
                 genAddinTileAction(elemActions, 'addComponent' , 'icon-product'    , 'Place Component'); 
             } else {
@@ -67,8 +67,8 @@ function genAddinTileActions(elemTile) {
 function genAddinPLMItemTileActions(elemActions) {
 
     if(host === 'inventor') {   
-        genAddinTileAction(elemActions, 'gotoVaultFile', 'icon-goto-folder', 'Go To Folder'); 
-        genAddinTileAction(elemActions, 'gotoVaultItem', 'icon-vault-item' , 'Go To Item'); 
+        // genAddinTileAction(elemActions, 'gotoVaultFile', 'icon-goto-folder', 'Go To Folder'); 
+        // genAddinTileAction(elemActions, 'gotoVaultItem', 'icon-vault-item' , 'Go To Item'); 
         genAddinTileAction(elemActions, 'openComponent', 'icon-folder-open', 'Open Component');  
         genAddinTileAction(elemActions, 'addComponent' , 'icon-product'    , 'Place Component'); 
     } else {
