@@ -269,6 +269,9 @@ function insertTabContents() {
                 search            : true,
                 filterEmpty       : true,
                 filterBySelection : true,
+                hideActionAdd     : true,
+                hideActionClone   : true,
+                hideActionRemove  : false,
                 singleToolbar     : 'actions',
                 columnsIn         : workspace.columnsIn,
                 columnsEx         : workspace.columnsEx,
@@ -596,7 +599,6 @@ function syncItemsList() {
 
             for(let viewerInstance of viewerInstances.instances) {
                 if(viewerInstance.path === item.path) {
-                    console.log('found match');
                     item.instances.push(viewerInstance);
                 }
             } 

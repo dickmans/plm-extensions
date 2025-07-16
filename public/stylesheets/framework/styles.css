@@ -1645,6 +1645,16 @@ and (max-device-width : 1900px)  {
 .panel-top.compact .panel-content table tbody td {
     padding : 3px 6px;   
 }
+.panel-action-remove {
+    order : -2;
+}
+.panel-action-remove::before { 
+    color : var(--color-red-500);
+}
+.panel-action-clone {
+    order : -1;
+}
+
 
 
 
