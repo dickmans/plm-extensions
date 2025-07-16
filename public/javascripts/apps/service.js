@@ -948,13 +948,11 @@ function clickBOMItem(elemClicked, e) {
         // updateViewer(elemClicked.attr('data-part-number'));
     }
 
-    // updateBOMPath(elemClicked);
-    // updateBOMCounters(elemClicked.closest('.bom').attr('id'));
-
-
 }
-function clickBOMDeselectAllDone() {
-    
+// function clickBOMDeselectAllDone() { resetBOMSeletion(); }
+// function clickBOMResetDone() { resetBOMSeletion(); }
+function panelResetDone() {
+
     let link = $('#bom').attr('data-link');
 
     if(applicationFeatures.toggleItemDetails) insertDetails(link, paramsDetails);
@@ -1214,8 +1212,6 @@ function onViewerSelectionChanged(event) {
                                 $(this).addClass('selected');
                                 bomDisplayItem($(this));
                                 setSparePartsList($(this));
-                                toggleBOMItemActions($(this));
-                                // updateBOMCounters('bom');
                                 if(applicationFeatures.toggleItemDetails)     insertDetails(linkItem, paramsDetails);
                                 if(applicationFeatures.toggleItemAttachments) insertAttachments(linkItem, paramsAttachments);
                                 if(applicationFeatures.manageProblemReports)  insertChangeProcesses(linkItem, paramsProcesses);
@@ -1233,14 +1229,14 @@ function onViewerSelectionChanged(event) {
 
         if(elemContext.length === 0) {
             resetSparePartsList();
+            resetBOMPath('bom');
         } else {
     
             let linkItem = elemContext.attr('data-link');
             elemContext.addClass('selected');
             bomDisplayItem(elemContext);
             setSparePartsList(elemContext);
-            toggleBOMItemActions(elemContext);
-            // updateBOMCounters('bom');
+            updateBOMPath($(this));
             if(applicationFeatures.toggleItemDetails)     insertDetails(linkItem, paramsDetails);
             if(applicationFeatures.toggleItemAttachments) insertAttachments(linkItem, paramsAttachments);
             if(applicationFeatures.manageProblemReports)  insertChangeProcesses(linkItem, paramsProcesses);            
@@ -1252,6 +1248,8 @@ function onViewerSelectionChanged(event) {
         resetSparePartsList();
         
     }
+
+    updatePanelCalculations('bom');
 
 }
 function getFirstBOMParent() {

@@ -960,10 +960,11 @@ function getPanelSettings(link, params, defaults, additional) {
     if(isBlank(defaults.headerSubLabel)    ) defaults.headerSubLabel     = '';
     if(isBlank(defaults.openInPLM)         ) defaults.openInPLM          = false;
     if(isBlank(defaults.openOnDblClick)    ) defaults.openOnDblClick     = false;
-    if(isBlank(defaults.search)            ) defaults.search             = false;
     if(isBlank(defaults.placeholder)       ) defaults.placeholder        = 'Type to search';
+    if(isBlank(defaults.reload)            ) defaults.reload             = false;
+    if(isBlank(defaults.reset)             ) defaults.reset              = false;
+    if(isBlank(defaults.search)            ) defaults.search             = false;
     if(isBlank(defaults.editable)          ) defaults.editable           = false;
-    if(isBlank(defaults.reload  )          ) defaults.reload             = false;
     if(isBlank(defaults.multiSelect)       ) defaults.multiSelect        = false;
     if(isBlank(defaults.filterBySelection) ) defaults.filterBySelection  = false;
     if(isBlank(defaults.layout)            ) defaults.layout             = 'list';
@@ -1006,9 +1007,10 @@ function getPanelSettings(link, params, defaults, additional) {
         compactDisplay    : isBlank(params.compactDisplay)    ? false : params.compactDisplay,
         openInPLM         : isBlank(params.openInPLM)         ? defaults.openInPLM : params.openInPLM,
         openOnDblClick    : isBlank(params.openOnDblClick)    ? defaults.openOnDblClick : params.openOnDblClick,
-        search            : isBlank(params.search)            ? defaults.search : params.search,
         placeholder       : isBlank(params.placeholder)       ? defaults.placeholder : params.placeholder,
         reload            : isBlank(params.reload)            ? defaults.reload : params.reload,
+        reset             : isBlank(params.reset)             ? defaults.reset : params.reset,
+        search            : isBlank(params.search)            ? defaults.search : params.search,
         editable          : isBlank(params.editable)          ? defaults.editable : params.editable,
         multiSelect       : isBlank(params.multiSelect)       ? defaults.multiSelect : params.multiSelect,
         filterBySelection : isBlank(params.filterBySelection) ? defaults.filterBySelection : params.filterBySelection,
@@ -1660,6 +1662,31 @@ function genPanelReloadButton(id, settings) {
     return elemButtonReload;
 
 }
+function genPanelResetButton(id, settings) {
+
+    if(!settings.reset) return;
+
+    let elemButtonReset = $('#' + id + '-reset');
+
+    if(elemButtonReset.length > 0) return elemButtonReset;
+
+    let elemToolbar = genPanelToolbar(id, settings, 'controls');
+
+    elemButtonReset = $('<div></div>').appendTo(elemToolbar)
+        .addClass('button')
+        .addClass('icon')
+        .addClass('icon-starts-with')
+        .attr('id', id + '-reload')
+        .attr('title', 'Reset selection and filters of view')
+        .click(function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            panelReset(id, $(this));
+        });
+
+    return elemButtonReset;
+
+}
 function genPanelActionButton(id, settings, suffix, label, title, callback) {
 
     let elemToolbar      = genPanelToolbar(id, settings, 'actions');
@@ -1929,12 +1956,26 @@ function stopPanelContentUpdate(response, settings) {
     // if(response.params.link      !== settings.link     ) return true;
 
     if(response.status === 403) {
-        showErrorMessage('No Permission', 'Current user does not have access to the given tab of this workspace');
+
+        let tabName   = 'given';
+        let endpoint  = response.url.split('?')[0];
+        let workspace = response.params.link.split('/')[4];
+
+        switch(endpoint) {
+
+            case '/quotes': tabName = 'Sourcing'; break;
+
+        }
+    
+        showErrorMessage('No Permission', 'Current user does not have access to the ' + tabName + ' tab in workspace ' + workspace);
         return true;
+
     } else if((response.status !== 200) && (response.status !== 204)) {
+
         showErrorMessage('Error ' + response.status, 'Failed to retrieve data from PLM for panel ' + settings.headerLabel + '. Please contact your administrator.');
         return true;
-    }    
+        
+    }
 
     return false;
 
@@ -2468,31 +2509,75 @@ function updatePanelCalculations(id) {
 // Panel Selection Controls
 function panelSelectAll(id, elemClicked) {
 
-    $('#' + id + '-content').find('.content-item').addClass('selected');
-    $('#' + id + '-content').find('.content-select-all').addClass('icon-check-box-checked').removeClass('icon-check-box');
+    let elemTop            = $('#' + id );
+    let elemContent        = $('#' + id + '-content');
 
-    togglePanelToolbarActions(elemClicked);
+    elemContent.find('.content-item').addClass('selected');
+    elemContent.find('.content-select-all').addClass('icon-check-box-checked').removeClass('icon-check-box');
+
     updatePanelCalculations(id);
-    panelSelectAllDone(elemClicked);
+    togglePanelToolbarActions(elemClicked);
+
+    if(elemTop.hasClass('bom')) {
+        updateBOMPath(elemClicked);
+        if(settings.bom[id].viewerSelection) selectInViewer(id);
+    }
+
+    panelSelectAllDone(id, elemClicked);
 
 }
-function panelSelectAllDone(elemClicked) {}
+function panelSelectAllDone(id, elemClicked) {}
 function panelDeselectAll(id, elemClicked) {
 
-    $('#' + id + '-content').find('.content-item').removeClass('selected');
-    $('#' + id + '-content').find('.content-select-all').removeClass('icon-check-box-checked').addClass('icon-check-box');
-
+    let elemTop            = $('#' + id );
+    let elemContent        = $('#' + id + '-content');
     let elemFilterSelected = $('#' + id + '-filter-selected-only');
+
+    elemContent.find('.content-item').removeClass('selected');
+    elemContent.find('.content-select-all').removeClass('icon-check-box-checked').addClass('icon-check-box');
 
     if(elemFilterSelected.length > 0) elemFilterSelected.removeClass('icon-toggle-on').addClass('icon-toggle-off').removeClass('filled');
 
-    togglePanelToolbarActions(elemClicked);
-    updatePanelCalculations(id);
     filterPanelContent(id);
-    panelDeselectAllDone(elemClicked);
+    updatePanelCalculations(id);
+    togglePanelToolbarActions(elemClicked);
+
+    if(elemTop.hasClass('bom')) {
+        updateBOMPath(elemClicked);
+        if(settings.bom[id].viewerSelection) selectInViewer(id);
+    }
+
+    panelDeselectAllDone(id, elemClicked);
 
 }
-function panelDeselectAllDone(elemClicked) {}
+function panelDeselectAllDone(id, elemClicked) {}
+
+
+
+// Panel reset (selection & filters)
+function panelReset(id, elemClicked) {
+
+    let elemTop     = $('#' + id );
+    let elemContent = $('#' + id + '-content');
+    let elemSearch  = $('#' + id + '-search-input');
+
+    elemContent.find('.content-item').removeClass('result').removeClass('selected').removeClass('hidden');
+    
+    if(elemSearch.length > 0) elemSearch.val('');
+
+    filterPanelContent(id);
+    updatePanelCalculations(id);
+    togglePanelToolbarActions(elemClicked);
+
+    if(elemTop.hasClass('bom')) {
+        updateBOMPath(elemClicked);
+        if(settings.bom[id].viewerSelection) selectInViewer(id);
+    }
+
+    panelResetDone(id, elemClicked);
+
+}
+function panelResetDone(id, elemClicked) {}
 
 
 

@@ -345,20 +345,18 @@ function clickBOMItem(elemClicked, e) {
         
     }
 
-    updateBOMCounters(elemClicked.closest('.bom').attr('id'));
-
 }
-function clickBOMResetDone() {
+// function clickBOMResetDone() {
     
-    $('.application-data-instance').show();
+//     $('.application-data-instance').show();
 
-    let link = $('#bom').attr('data-link');
+//     let link = $('#bom').attr('data-link');
     
-    insertItemDetails(link);
-    insertAttachments(link, paramsAttachments);
-    updateViewer();
+//     insertItemDetails(link);
+//     insertAttachments(link, paramsAttachments);
+//     updateViewer();
 
-}
+// }
 function filterPartList(elemClicked) {
 
     let children = getBOMItemChhildren(elemClicked);

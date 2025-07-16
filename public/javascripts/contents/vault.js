@@ -467,7 +467,7 @@ function insertFileBOMData(id) {
         setFileBOMHeaders(id);
         insertNextFileBOMLevel(id, elemBOMTableBody, responses[0].data.results, settings.pdmFileBOM[id].link.split('/').pop(), 1, 1, selectedItems);
         enableBOMToggles(id);
-        updateBOMCounters(id);
+        // updateBOMCounters(id);
 
         if(settings.pdmFileBOM[id].collapsed) clickBOMCollapseAll($('#' + id + '-toolbar'));
 
@@ -730,7 +730,7 @@ function searchInFileBOM(id, elemInput) {
 
     }
 
-    updateBOMCounters(id);
+    // updateBOMCounters(id);
 
 }
 function toggleFileBOMItemActions(elemClicked) {

@@ -663,8 +663,6 @@ function clickBOMItem(e, elemClicked) {
         updateViewer(elemClicked.attr('data-part-number'));
     }
 
-    updateBOMCounters(elemClicked.closest('.bom').attr('id'));
-
     // if(maintenanceMode) {
     //     viewerSetColors(listRed     , new THREE.Vector4(1,   0, 0, 0.5));
     //     viewerSetColors(listYellow  , new THREE.Vector4(1, 0.5, 0, 0.5));
@@ -674,18 +672,18 @@ function clickBOMItem(e, elemClicked) {
     // }
 
 }
-function clickBOMResetDone() {
+// function clickBOMResetDone() {
     
-    let link = $('#bom').attr('data-link');
+//     let link = $('#bom').attr('data-link');
     
-    $('.spare-part').removeClass('zoom');
+//     $('.spare-part').removeClass('zoom');
 
-    insertItemDetails(link);
-    insertAttachments(link, paramsAttachments);
-    resetSparePartsList();
-    updateViewer();
+//     insertItemDetails(link);
+//     insertAttachments(link, paramsAttachments);
+//     resetSparePartsList();
+//     updateViewer();
 
-}
+// }
 
 
 // Manage Spare Parts List Panel
@@ -817,8 +815,8 @@ function initViewerDone() {
 function viewerClickReset() {
     viewer.showAll();
     viewer.setViewFromFile();
-    clickBOMDeselectAll($('#bom-action-reset'));
-    clickBOMResetDone();
+    // clickBOMDeselectAll($('#bom-action-reset'));
+    // clickBOMResetDone();
 }
 function onViewerSelectionChanged(event) {
 

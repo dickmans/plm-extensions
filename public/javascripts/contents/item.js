@@ -898,6 +898,7 @@ function insertCreate(workspaceNames, workspaceIds, params) {
         [ 'hideReadOnly'        , false ],
         [ 'hideSections'        , false ],
         [ 'requiredFieldsOnly'  , false ],
+        [ 'firstSectionOnly'    , false ],
         [ 'toggles'             , false ],
         [ 'sectionsIn'          , [] ],
         [ 'sectionsEx'          , [] ],
@@ -1638,18 +1639,19 @@ function insertDetailsFields(id, sections, fields, data, settings, callback) {
 
     if(isBlank(settings)) settings = {};
 
-    let elemContent  = $('#' + id + '-content');
-    let sectionsIn   = settings.sectionsIn;
-    let sectionsEx   = settings.sectionsEx;
-    let fieldsIn     = settings.fieldsIn;
-    let fieldsEx     = settings.fieldsEx;
-    let fieldValues  = (isBlank(settings.fieldValues)) ? [] : settings.fieldValues;
+    let elemContent = $('#' + id + '-content');
+    let sectionsIn  = settings.sectionsIn;
+    let sectionsEx  = settings.sectionsEx;
+    let fieldsIn    = settings.fieldsIn;
+    let fieldsEx    = settings.fieldsEx;
+    let fieldValues = (isBlank(settings.fieldValues)) ? [] : settings.fieldValues;
 
     elemContent.scrollTop();
     settings.derived = [];
 
     if(isBlank(settings.expandSections))   settings.expandSections   = [];
     if(isBlank(settings.collapseContents)) settings.collapseContents = false;
+    if(isBlank(settings.firstSectionOnly)) settings.firstSectionOnly = false;
 
     if(!settings.editable) elemContent.addClass('readonly');
 
@@ -1697,6 +1699,29 @@ function insertDetailsFields(id, sections, fields, data, settings, callback) {
         }
 
         sortArray(sections, 'order', 'Integer');
+
+    }
+
+    if(settings.firstSectionOnly) {
+
+        if(sectionsIn.length > 0) {
+            
+            sectionsIn.splice(1, sectionsIn.length - 1);
+            
+        } else if(sectionsEx.length > 0) {
+
+            for(let section of sections) {
+                if(!sectionsEx.includes(section.name)) {
+                    sectionsIn.push(section.name);
+                    break;
+                }
+            }
+
+        } else {
+
+            sectionsIn.push(sections[0].name);
+
+        }
 
     }
 
@@ -4045,7 +4070,6 @@ function insertBOM(link , params) {
         [ 'includeBOMPartList'  , false ],
         [ 'path'                , false ],
         [ 'position'            , true  ],
-        [ 'reset'               , false ],
         [ 'revisionBias'        , 'release' ],
         [ 'selectItems'         , {}    ],
         [ 'selectUnique'        , true  ],
@@ -4095,22 +4119,7 @@ function insertBOM(link , params) {
         .change(function() {
             changeBOMView(id);
         });
-
-    if(settings.bom[id].reset) {
-
-        $('<div></div>').appendTo(genPanelToolbar(id, settings.bom[id], 'controls'))
-            .addClass('button')
-            .addClass('icon')
-            .addClass('icon-reset')
-            .addClass('xs')
-            .attr('id', id + '-action-reset')
-            .attr('title', 'Reset BOM view')
-            .click(function() {
-                clickBOMReset($(this));
-            });
-
-    }
-    
+   
 
     //  Set defaults for optional parameters
     // --------------------------------------
@@ -4119,7 +4128,6 @@ function insertBOM(link , params) {
     // let deselect            = true;      // Adds button to deselect selected element (not available if multiSelect is enabled)
     // let getFlatBOM          = false;     // Retrieve Flat BOM at the same time (i.e. to get total quantities)
     // let hideDetails         = true;      // When set to true, detail columns will be skipped, only the descriptor will be shown
-    // let multiSelect         = false;     // Enables selection of multiple items and adds buttons to select / deselect all elements as well as checkboxes
     // let path                = true;      // Display path of selected component in BOM, enabling quick navigation to parent(s)
     // let position            = true;      // When set to true, the position / find number will be displayed
 
@@ -4142,8 +4150,9 @@ function insertBOM(link , params) {
     // settings.bom[id].additionalRequests = additionalRequests;
 
 
-    genPanelSearchInput(id, settings.bom[id]);
     genPanelResizeButton(id, settings.bom[id]);
+    genPanelSearchInput(id, settings.bom[id]);
+    genPanelResetButton(id, settings.bom[id]);
     genPanelReloadButton(id, settings.bom[id]);
 
     genPanelContents(id, settings.bom[id]);
@@ -4260,12 +4269,17 @@ function changeBOMView(id) {
     ];
 
     if(settings.bom[id].getFlatBOM) requests.push($.get('/plm/bom-flat', params));
+    if(settings.bom[id].headerLabel == 'descriptor') requests.push($.get('/plm/descriptor', params));
 
     for(let request of settings.bom[id].additionalRequests) requests.push(request);
 
     Promise.all(requests).then(function(responses) {
 
         if(stopPanelContentUpdate(responses[0], settings.bom[id])) return;
+
+        for(let response of responses) {
+            if(response.url.indexOf('/descriptor?') === 0) settings.bom[id].descriptor = response.data;
+        }
 
         for(let view of settings.bom[id].bomViews) {
             if( settings.bom[id].viewId == view.id) {
@@ -4645,30 +4659,42 @@ function enableBOMToggles(id) {
 //     if(elemBOM.find('.bom-item.selected').length   > 0)  actionsMultiSelect.show(); else  actionsMultiSelect.hide();
 
 // }
-function clickBOMSelectAll(elemClicked) {
+// function clickBOMSelectAll(elemClicked) {
 
-    let elemBOM = elemClicked.closest('.bom');
+//     let elemBOM = elemClicked.closest('.bom');
 
-    elemBOM.find('.bom-item').addClass('selected');
+//     elemBOM.find('.bom-item').addClass('selected');
 
-    toggleBOMItemActions(elemClicked);
-    updateBOMCounters(elemBOM.attr('id'));
+//     toggleBOMItemActions(elemClicked);
+//     updateBOMCounters(elemBOM.attr('id'));
 
-}
-function clickBOMDeselectAll(elemClicked) {
+// }
+// function clickBOMDeselectAll(elemClicked) {
 
-    let elemBOM = elemClicked.closest('.bom');
+//     // let elemBOM = elemClicked.closest('.bom');
 
-    elemBOM.find('.bom-item').removeClass('selected');
+//     // elemBOM.find('.bom-item').removeClass('selected');
 
-    toggleBOMItemActions(elemClicked);
-    updateBOMPath(elemClicked);
-    updateBOMCounters(elemBOM.attr('id'));
+//     // toggleBOMItemActions(elemClicked);
+//     // updateBOMPath(elemClicked);
+//     // updateBOMCounters(elemBOM.attr('id'));
 
-    clickBOMDeselectAllDone(elemClicked);
 
-}
-function clickBOMDeselectAllDone(elemClicked) {}
+
+//     let id          = elemClicked.closest('.bom').attr('id');
+//     let elemContent = elemClicked.closest('.bom').find('.bom-tbody');
+
+//     elemContent.children().removeClass('selected');
+
+//     updateBOMPath(elemClicked);
+//     togglePanelToolbarActions($(this));
+//     updatePanelCalculations(id);
+//     if(settings.bom[id].viewerSelection) selectInViewer(id);
+     
+//     clickBOMDeselectAllDone(elemClicked);
+
+// }
+// function clickBOMDeselectAllDone(elemClicked) {}
 // function clickBOMExpandAll(elemClicked) {
 
 //     let elemBOM     = elemClicked.closest('.bom');
@@ -4701,57 +4727,6 @@ function clickBOMDeselectAllDone(elemClicked) {}
 //     });
 
 // }
-// function searchInBOM(id, elemInput) {
-
-//     // TODO: REMOVE
-
-//     let elemTable   = $('#' + id + '-tbody');
-//     let filterValue = elemInput.val().toLowerCase();
-//     let parents     = [];
-
-//     if(filterValue === '') {
-
-//         elemTable.children().each(function() {
-//             $(this).removeClass('bom-hidden').removeClass('result');
-//         });
-//         elemTable.children('.node').each(function() {
-//             $(this).removeClass('collapsed').removeClass('result-parent');
-//         });
-
-//     } else {
-
-//         elemTable.children('tr').each(function() {
-
-//             let cellValue = $(this).attr('data-title').toLowerCase();
-//             let matches   = (cellValue.indexOf(filterValue) > -1);
-//             let level     = Number($(this).attr('data-level'));
-//             let isNode    = $(this).hasClass('node');
-            
-//             if(level <= parents.length) {
-//                 parents.splice(level - 1);
-//             }
-
-//             if(matches) {
-             
-//                 $(this).removeClass('bom-hidden').addClass('result');
-
-//                 for(let parent of parents) parent.removeClass('bom-hidden').removeClass('collapsed').addClass('result-parent');
-
-//             } else {
-
-//                 $(this).addClass('bom-hidden').removeClass('result').removeClass('result-parent');
-
-//             }
-
-//             if(isNode) parents.push($(this));
-
-//         });
-
-//     }
-
-//     updateBOMCounters(id);
-
-// }
 function unhideBOMParents(level, elem) {
 
     elem.prevAll().each(function() {
@@ -4769,36 +4744,32 @@ function unhideBOMParents(level, elem) {
     });
 
 }
-function clickBOMReset(elemClicked) {
+// function clickBOMReset(elemClicked) {
 
-    let id          = elemClicked.closest('.bom').attr('id');
-    let elemContent = elemClicked.closest('.bom').find('.bom-tbody');
+//     let id          = elemClicked.closest('.bom').attr('id');
+//     let elemContent = elemClicked.closest('.bom').find('.bom-tbody');
 
-    elemContent.children().removeClass('result').removeClass('selected').removeClass('bom-hidden');
+//     elemContent.children().removeClass('result').removeClass('selected').removeClass('bom-hidden');
     
-    // if(settings.bom[id].collapseContents) {
-    //     clickBOMCollapseAll($('#' + id + '-toolbar'));
-    // } else {
-    //     clickBOMExpandAll($('#' + id + '-toolbar'));
-    // }
+//     $('#' + id + '-search-input').val('');
 
-    $('#' + id + '-search-input').val('');
+//     updateBOMPath(elemClicked);
+//     togglePanelToolbarActions($(this));
+//     updatePanelCalculations(id);
+//     if(settings.bom[id].viewerSelection) selectInViewer(id);
 
-    toggleBOMItemActions(elemClicked);
-    updateBOMPath(elemClicked);
-    updateBOMCounters(id);
-    clickBOMResetDone(elemClicked);
+//     clickBOMResetDone(elemClicked);
 
-}
-function clickBOMResetDone(elemClicked) {}
-function clickBOMOpenInPLM(elemClicked) {
+// }
+// function clickBOMResetDone(elemClicked) {}
+// function clickBOMOpenInPLM(elemClicked) {
 
-    let elemBOM   = elemClicked.closest('.bom');
-    let elemItem  = elemBOM.find('.bom-item.selected').first();
+//     let elemBOM   = elemClicked.closest('.bom');
+//     let elemItem  = elemBOM.find('.bom-item.selected').first();
     
-    openItemByLink(elemItem.attr('data-link'));
+//     openItemByLink(elemItem.attr('data-link'));
 
-}
+// }
 function clickBOMGoThere(elemClicked) {
 
     let elemBOM   = elemClicked.closest('.bom');
@@ -4941,6 +4912,8 @@ function getBOMItemByEdgeId(id, edgeId) {
 function bomDisplayItem(elemItem) {
 
     let level = Number(elemItem.attr('data-level'));
+    let panel = elemItem.closest('.panel-top');
+    let id    = panel.attr('id');
 
     expandBOMParents(level - 1, elemItem);
     
@@ -4948,6 +4921,8 @@ function bomDisplayItem(elemItem) {
     let top     = elemItem.position().top - (elemBOM.innerHeight() / 2);
     
     elemBOM.animate({ scrollTop: top }, 500);
+
+    if(settings.bom[id].path) updateBOMPath(elemItem);
 
 }
 function bomDisplayItemByPartNumber(number, select, deselect) {
