@@ -1044,11 +1044,6 @@ and (max-device-width : 1900px)  {
     #header-toolbar .button.with-icon > span {
         display : none;
     }
-    #header-toolbar .button.with-icon > span.material-symbols-sharp {
-        display : block;
-        margin : 0px;
-    }
-
 
 }
 
@@ -1094,6 +1089,7 @@ and (max-device-width : 1900px)  {
     gap             : var(--spacer-s);
     height          : 48px;
     justify-content : space-between;
+    padding         : 0px 14px;
 }
  .dark-theme .panel-header { border-color : var(--color-surface-level-4); }
 .black-theme .panel-header { border-color : var(--color-surface-level-4); }
@@ -1119,9 +1115,8 @@ and (max-device-width : 1900px)  {
     display         : flex;
     flex-direction  : column;
     flex-grow       : 1;
+    height          : 38px;
     overflow        : hidden;
-    gap             : 8px;
-    padding         : 10px 0px 20px 14px;
 }
 .panel-title  > div {
     overflow        : hidden;
@@ -1131,24 +1126,32 @@ and (max-device-width : 1900px)  {
 .panel-title-main {
     font-size       : 18px;
     font-weight     : 700;
-    height          : 18px;
-    line-height     : 16px;
+    height          : 38px;
+    line-height     : 38px;
     min-width       : 120px;
 }
 .panel-title-top, 
 .panel-title-sub {
     font-size   : 14px;
-    line-height : 20px;
+    line-height : 14px;
+    height      : 16px;
     min-width   : 80px;
 }
-.multi-line  > .panel-title    { padding :  0px 14px 10px; }
-.multi-line  > .panel-controls { margin-top : 2px; }
-
+.multi-line > .panel-title {
+    gap : 4px;
+}
+.multi-line > .panel-title > .panel-title-main {
+    height      : 20px;
+    line-height : 18px;
+}
 .panel-title-sub { 
     display : flex;
-    gap     : var(--spacer-s);
-    height  : 20px; 
-    padding : 0px;
+    gap     : 16px;
+}
+.panel-title-sub > * {
+    font-size   : 14px;
+    line-height : 14px;
+    height      : 16px;
 }
 .panel-title-sub > span {
     border-left : 2px solid var(--color-font);
@@ -1158,12 +1161,12 @@ and (max-device-width : 1900px)  {
     border-left  : none;
     padding-left : 0px;
 }
-.panel-title-sub > .panel-status {
-    border-radius   : 3px;
+/* .panel-title-sub > .panel-status {
+    border-radius   : 4px;
     padding         : 0px 10px;
     min-width       : 60px;
     text-align      : center;
-}
+} */
 
 .panel-top.no-header-title > .panel-header > .panel-title > div {
     display : none;
@@ -1192,24 +1195,16 @@ and (max-device-width : 1900px)  {
 .panel-controls {
     display         : flex;
     gap             : var(--spacer-xs);
+    height          : 38px;
     justify-content : end;
-    padding-right   : 14px;
 }
+
 .panel-top.surface-level-1 > .panel-header > .panel-controls { background : var(--color-surface-level-1); }
 .panel-top.surface-level-2 > .panel-header > .panel-controls { background : var(--color-surface-level-2); }
 .panel-top.surface-level-3 > .panel-header > .panel-controls { background : var(--color-surface-level-3); }
 .panel-top.surface-level-4 > .panel-header > .panel-controls { background : var(--color-surface-level-4); }
 .panel-top.surface-level-5 > .panel-header > .panel-controls { background : var(--color-surface-level-5); }
 
-.panel-controls > .button.material-symbols-sharp {
-    line-height: 36px;
-    width: 36px;
-    height: 36px;
-    min-width : auto;
-    padding: 0px;
-    margin: 0px 0px 0px 8px;
-    text-align : center;
-}
 .panel-controls > select,
 .panel-actions  > select {
     font-size   : 14px;
@@ -1659,11 +1654,23 @@ and (max-device-width : 1900px)  {
     display : none;
     z-index : 8;
 }
-.item-summary > span {
-    font-weight : bold;
+.item-title {
+    gap     : 4px;
+    height  : 52px;
+}
+.item-descriptor {
+    font-size   : 22px;
+    line-height : 22px;
+    height      : 28px;
+}
+.item-subtitle,
+.item-subtitle  > * {
+    font-size   : 16px;
+    line-height : 18px;
+    height      : 20px;
 }
 .item-status {
-    border-radius   : 3px;
+    border-radius   : 4px;
     color           : white;
     font-size       : 12px;
     min-width       : 80px;
@@ -1672,6 +1679,9 @@ and (max-device-width : 1900px)  {
 }
 .item-summary {
     min-width       : 420px;
+}
+.item-summary > span {
+    font-weight : bold;
 }
 .item-workflow-actions {
     height      : 38px !important;
@@ -1687,7 +1697,6 @@ and (max-device-width : 1900px)  {
 .item-content .section-fields .field.readonly {
     padding : 0px;
 }
-
 .item-workflow-history {
     left  : 0px;
     width : 300px;
@@ -1767,29 +1776,9 @@ and (max-device-width : 1900px)  {
     gap     : 48px; 
     height  : 64px;
     top     : 0px;
-    right   : 14px;
-    left    : 28px;
+    right   : 0px;
+    left    : 0px;
 }
-.item.with-panels > .item-header > .item-title {
-    display         : flex;
-    flex-direction  : column;
-    flex-grow       : 1;
-    gap             : 8px;
-    padding         : 0px;
-}
-.item.with-panels > .item-header > .item-title > .panel-title-main {
-    font-size   : 22px;
-    height      : 22px;
-    line-height : 22px;
-    min-width   : 400px;
-}
-.item.with-panels > .item-header > .item-title > .panel-title-sub {
-    display     : flex;
-    font-size   : 14px;
-    gap         : 16px;
-    height      : 22px;
-    line-height : 22px;
-} 
 .item.with-panels > .item-content {
     top    : 76px;
     right  : 0px;

@@ -459,9 +459,6 @@ body.no-viewer #bom-color-toggle {
     background-color : var(--color-hover-background) !important;
     border-color     : var(--color-hover-border) !important;
 }
-/* #impacted-tbody tr.disconnected .material-symbols-sharp {
-    display : none;
-} */
 .impacted-status {
     font-size : 24px;
     text-align : center;

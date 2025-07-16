@@ -253,7 +253,6 @@
 .viewer-markup-toggle { width : 36px; }
 .viewer-markup-toggle.selected { border-color : white !important; }
 .viewer-markup-button { width : 76px; }
-.viewer-markup-button.material-symbols-sharp { width : 36px; }
 
 .light-theme .viewer-markup-toggle, 
 .light-theme .viewer-markup-button {

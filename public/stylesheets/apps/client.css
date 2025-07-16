@@ -208,13 +208,6 @@
 .list-actions input {
     width: 100%;
 }
-.list-actions .material-symbols-sharp {
-    color : var(--color-gray-600);
-    position: relative;
-    left: 30px;
-    font-size: 20px;
-    top: 2px;
-}
 .list-actions select.button {
     flex-grow   : 1;
     float       : none;
@@ -495,13 +488,6 @@
     left: 0px;
     right: 0px;
     top: 74px;
-}
-#item-archived .material-symbols-sharp {
-    position: relative;
-    top: 4px;
-    line-height: 0px;
-    font-size: 18px;
-    margin-right: 4px;
 }
 #item.archived .item-content {
     top : 106px;

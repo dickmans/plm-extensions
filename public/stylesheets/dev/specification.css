@@ -496,11 +496,6 @@ td.instance-path { display : none;}
     padding : 5px;
     text-align : center;
 }
-.wear-part-image .material-symbols-sharp {
-    font-size: 80px;
-    text-align: center;
-    line-height: 100px;
-}
 .wear-part-image img {
     cursor : pointer;
     width: 100%;
