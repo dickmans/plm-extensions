@@ -15,6 +15,7 @@ block body
             #header-logo
             #header-title= title
             #header-toolbar
+                .button(data-id='columns'     title='Columns').icon.icon-columns
                 .button(data-id='home'     title='Landing Page').icon.icon-home
                 .button(data-id='find'     ).icon.icon-search
                 .button(data-id='views'    title='Worspace Views and Workspace Items').icon.icon-table
@@ -36,6 +37,12 @@ block body
                 select#profiles.main
                 .button(data-id='theme').icon.icon-highlight#toggle-theme
                 #header-avatar
+
+        .screen#columns 
+
+            .surface-level-1#left
+            .surface-level-1#center
+            .surface-level-1#right
 
         .screen#home 
 

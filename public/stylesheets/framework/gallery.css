@@ -24,6 +24,10 @@
     padding-right   : 10px;
 }
 
+#left   { top : 0px; width : 33%; bottom : 0px; left : 0px; } 
+#center { top : 0px; right : 35%; bottom : 0px; left : 35%; }
+#right  { top : 0px; right : 0px; bottom : 0px; width : 33%; }
+
 
 #mow       { top : 0px; right : 0px; bottom : 50%; left : 0px; }
 #bookmarks { top : 50%; right : 60%; bottom : 0px; left : 0px; }

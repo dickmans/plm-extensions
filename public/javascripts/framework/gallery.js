@@ -12,6 +12,7 @@ let profiles = [{
         search              : true,
         contentSizes        : ['xxs', 'xs', 's', 'm', 'l', 'xl', 'xxl'],
         reload              : true,
+        reset               : true,
         filterByDueDate     : true,
         filterByOwner       : true,
         filterByStatus      : true,
@@ -105,6 +106,7 @@ function setUIEvents() {
         div.show();
         div.siblings('.screen').hide();
 
+        if(id === 'columns'  ) setColumns();
         if(id === 'home'     ) setHome();
         if(id === 'views'    ) setViews();
         if(id === 'find'     ) setSearch();
@@ -149,6 +151,13 @@ function setUIEvents() {
 
 
 
+function setColumns() {
+
+    insertDetails(linkEmberPrinter, { id : 'left'  , collapseContents : true, toggles : true, headerLabel : 'Main Title pp' });
+    insertDetails(linkEmberPrinter, { id : 'center', collapseContents : true, toggles : true, headerLabel : 'Main Title pp', headerTopLabel : 'Top Label' });
+    insertDetails(linkEmberPrinter, { id : 'right' , collapseContents : true, toggles : true, headerLabel : 'Main Title pp', headerSubLabel : 'Sub Label' });
+
+}
 function setHome() {
 
     insertMOW(profiles[$('#profiles').val()]);
