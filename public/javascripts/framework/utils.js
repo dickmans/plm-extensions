@@ -395,16 +395,23 @@ function reloadPage(ret) {
 function getURLParameters() {
 
     let result = {
-        link  : '/api/v3/workspaces/' + wsId + '/items/' + dmsId,
+        link  : '',
         wsId  : wsId,
         dmsId : dmsId
     };
+
+    if(!isBlank(wsId)) {
+        if(!isBlank(dmsId)) {
+            result.link = '/api/v3/workspaces/' + wsId + '/items/' + dmsId
+        }
+    }
 
     for(let option of options) {
 
         let split   = option.split(':');
         let key     = split[0].toLowerCase();
-        result[key] = split[1];
+
+        if(key !== '') result[key] = split[1];
 
     }
 
@@ -4964,7 +4971,7 @@ function appendImageFromCache(elemParent, settings, params, onclick) {
 
 
 // Add new field to sections payload, adds given section if new
-function addFieldToPayload(payload, sections, elemField, fieldId, value, skipEmpty) {
+function addFieldToPayload(payloadSections, workspaceSections, elemField, fieldId, value, skipEmpty, type) {
 
     if(isBlank(skipEmpty)) skipEmpty = true;
 
@@ -4976,36 +4983,36 @@ function addFieldToPayload(payload, sections, elemField, fieldId, value, skipEmp
         }
     }
 
-    let sectionId   = null;
-    let isNew       = true;
-    let fieldData   = {};
+    let sectionId    = null;
+    let isNewSection = true;
+    let fieldData    = {};
 
     if(!isBlank(elemField)) {
         fieldData  = getFieldValue(elemField);
-        console.log(fieldData);
-        sectionId  = getFieldSectionId(sections, fieldData.fieldId);
+        sectionId  = getFieldSectionId(workspaceSections, fieldData.fieldId);
     } else {
-        sectionId  = getFieldSectionId(sections, fieldId);
+        sectionId  = getFieldSectionId(workspaceSections, fieldId);
         fieldData  = {
-            'fieldId' : fieldId,
-            'value'   : value
+            fieldId : fieldId,
+            value   : value
         };
+        if(!isBlank(type)) fieldData.type = type;
     }
 
     if(sectionId === -1) return;
 
-    for(section of payload) {
+    for(let section of payloadSections) {
         if(section.id === sectionId) {
-            isNew = false;
+            isNewSection = false;
             section.fields.push(fieldData);
         }
     }
 
-    if(isNew) {
-        payload.push({
-            'id'    : sectionId,
-            'fields': [fieldData]
-        })
+    if(isNewSection) {
+        payloadSections.push({
+            id     : sectionId,
+            fields : [fieldData]
+        });
     }
 
 }
