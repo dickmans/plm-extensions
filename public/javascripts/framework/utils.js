@@ -3449,15 +3449,17 @@ function clickContentItemSelect(elemCheckbox, e) {
 }
 function clickContentItemSelectDone(elemClicked, e) {}
 function clickContentItem(elemClicked, e) {
-
-    let elemTop  = elemClicked.closest('.panel-top');
-
+    
     elemClicked.toggleClass('selected');
     elemClicked.siblings().removeClass('last');
+    
+    let elemTop    = elemClicked.closest('.panel-top');
+    let isSelected = elemClicked.hasClass('selected');
 
-    if(elemClicked.hasClass('selected')) elemClicked.addClass('last'); else elemClicked.removeClass('last');
+    if(!elemTop.hasClass('multi-select')) elemTop.find('.content-item').removeClass('selected').removeClass('last');
 
-    if(!elemTop.hasClass('multi-select')) elemClicked.siblings().removeClass('selected').removeClass('last');
+    if(isSelected) elemClicked.addClass('selected').addClass('last');
+
     // updateListCalculations(elemTop.attr('id'));
     clickContentItemDone(elemClicked, e);
 
