@@ -908,6 +908,7 @@ function insertCreate(workspaceNames, workspaceIds, params) {
         [ 'fieldValues'         , [] ],
         [ 'contextId'           , null ],
         [ 'contextItem'         , null ],
+        [ 'contextItems'        , [] ],
         [ 'contextItemFields'   , [] ],
         [ 'viewerImageFields'   , [] ],
         [ 'createButtonLabel'   , 'Create' ],
@@ -1080,24 +1081,44 @@ function insertCreateData(id) {
         $.get('/plm/fields'  , { wsId : settings.create[id].wsId, useCache : settings.create[id].useCache } )
     ]
 
+    for(let contextItem of settings.create[id].contextItems) {
+        requests.push($.get('/plm/details', { link : contextItem }));
+    }
+
     if(!isBlank(settings.create[id].contextItem)) {
         requests.push($.get('/plm/details', { link : settings.create[id].contextItem }));
     }
-
+    
     Promise.all(requests).then(function(responses) {
 
         if(stopPanelContentUpdate(responses[0], settings.create[id])) return;
 
         insertDetailsFields(id, responses[0].data, responses[1].data, null, settings.create[id], function() {
 
-            for(let contextItemField of settings.create[id].contextItemFields) {
-                settings.create[id].fieldValues.push({
-                    fieldId      : contextItemField,
-                    value        : settings.create[id].contextItem,
-                    displayValue : responses[2].data.title
-                });
-            }
+            if(settings.create[id].contextItems.length === settings.create[id].contextItemFields.length) {
+            
+                let index = 0;
 
+                for(let contextItemField of settings.create[id].contextItemFields) {
+                    settings.create[id].fieldValues.push({
+                        fieldId      : contextItemField,
+                        value        : settings.create[id].contextItems[index],
+                        displayValue : responses[2 + index++].data.title
+                    });
+                }
+
+            } else {
+                
+                for(let contextItemField of settings.create[id].contextItemFields) {
+                    settings.create[id].fieldValues.push({
+                        fieldId      : contextItemField,
+                        value        : settings.create[id].contextItem,
+                        displayValue : responses[responses.length - 1].data.title
+                    });
+                }
+
+            }
+            
             for(let viewerImageField of settings.create[id].viewerImageFields) {
                 settings.create[id].fieldValues.push({
                     fieldId      : viewerImageField,
@@ -6549,18 +6570,20 @@ function insertChangeProcesses(link, params) {
         layout      : 'list',
         tileIcon    : 'icon-status'
     },[
-        [ 'filterByStatus'         , false ],
-        [ 'filterByWorkspace'      , false ],
-        [ 'createId'               , 'create' ],
-        [ 'createHeaderLabel'      , 'Create Process' ],
-        [ 'createSectionsIn'       , [] ],
-        [ 'createSectionsEx'       , [] ],
-        [ 'createFieldsIn'         , [] ],
-        [ 'createFieldsEx'         , [] ],
-        [ 'createWorkspaceIds'     , [] ],
-        [ 'createWorkspaceNames'   , [] ],
-        [ 'createContextItemFields', [] ], // 'AFFECTED_ITEM'
-        [ 'createViewerImageFields', [] ], // 'IMAGE_1'
+        [ 'filterByStatus'           , false ],
+        [ 'filterByWorkspace'        , false ],
+        [ 'createId'                 , 'create' ],
+        [ 'createHeaderLabel'        , 'Create Process' ],
+        [ 'createSectionsIn'         , [] ],
+        [ 'createSectionsEx'         , [] ],
+        [ 'createFieldsIn'           , [] ],
+        [ 'createFieldsEx'           , [] ],
+        [ 'createWorkspaceIds'       , [] ],
+        [ 'createWorkspaceNames'     , [] ],
+        [ 'createContextItems'       , [] ], // ['/api/v3/workspaces/57/items/12345']
+        [ 'createContextItemFields'  , [] ], // ['AFFECTED_ITEM']
+        [ 'createViewerImageFields'  , [] ], // 'IMAGE_1'
+        [ 'createConnectAffectedItem', true ]
     ]);
 
     settings.processes[id].load = function() { insertChangeProcessesData(id); }
@@ -6589,9 +6612,10 @@ function insertChangeProcesses(link, params) {
                 fieldsEx            : settings.processes[id].createFieldsEx,
                 contextId           : id,
                 contextItem         : settings.processes[id].link,
+                contextItems        : settings.processes[id].createContextItems,
                 contextItemFields   : settings.processes[id].createContextItemFields,
                 viewerImageFields   : settings.processes[id].createViewerImageFields,
-                afterCreation       : function(createId, createLink, id) { onChangeProcessCreation(createId, createLink, id); }
+                afterCreation       : function(createId, createLink, id) { afterChangeProcessCreation(createId, createLink, id); }
             });
         }).addClass('panel-action-create').addClass('default');
 
@@ -6723,20 +6747,13 @@ function insertChangeProcessesData(id, linkNew) {
     });
     
 }
-function onChangeProcessCreation(createId, createLink, id) {
+function afterChangeProcessCreation(createId, createLink, id) {
 
-    console.log('onChangeProcessCreation');
-    console.log(createId);
-    console.log(createLink);
-    console.log(settings.processes[id]);
+    if(!settings.processes[id].createConnectAffectedItem) return;
 
     let link = settings.processes[id].link;
 
-               
-    // $.get('/plm/add-managed-items', { 'link' : link, 'items' : [ settings.processes[id].link ] }, function(response) {
-    $.get('/plm/add-managed-items', { link : createLink, items : [ link ] }, function(response) {
-        console.log(response);
-        // settings.processes[id].load(id, createLink);
+    $.post('/plm/add-managed-items', { link : createLink, items : [ link ] }, function(response) {
         insertChangeProcessesData(id, createLink);
     });
 
