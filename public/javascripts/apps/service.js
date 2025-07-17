@@ -71,11 +71,11 @@ $(document).ready(function() {
 
     getFeatureSettings('service', requests, function(responses) {
     
-        paramsProcesses.createWSID    = config.service.wsIdProblemReports;
-        paramsProcesses.workspacesIn  = [config.service.wsIdProblemReports.toString()];
-        paramsProcesses.fieldIdMarkup = config.service.fieldIdPRImage;
-        wsProblemReports.id           = config.service.wsIdProblemReports;
-        wsSparePartsRequests.id       = config.service.wsIdSparePartsRequests;
+        paramsProcesses.createWSID    = config.service.problemReports.workspaceId;
+        paramsProcesses.workspacesIn  = [config.service.problemReports.workspaceId.toString()];
+        paramsProcesses.fieldIdMarkup = config.service.problemReports.fieldIdImage;
+        wsProblemReports.id           = config.service.problemReports.workspaceId;
+        wsSparePartsRequests.id       = config.service.sparePartsRequests.workspaceId;
 
         if(!applicationFeatures.homeButton) {
             $('#home').remove();
@@ -108,25 +108,21 @@ $(document).ready(function() {
 
         if(applicationFeatures.homeButton) {
             
-            if(!isBlank(config.service.wsIdProducts)) insertWorkspaceItems(config.service.wsIdProducts, {
-                id              : 'products', 
-                headerLabel     : config.service.productsListHeader, 
+            if(!isBlank(config.service.products.workspaceId)) insertResults(config.service.products.workspaceId, config.service.products.filter ,{
+                id              : 'products',
+                headerLabel     : config.service.products.headerLabel, 
+                icon            : config.service.products.icon,
+                groupBy         : config.service.products.groupBy,
+                contentSize     : config.service.products.contentSize,
+                // sortBy          : config.service.products.sortBy, 
+                tileImage       : config.service.products.fieldIdTileImage, 
+                tileTitle       : config.service.products.fieldIdTileTitle, 
+                tileSubtitle    : config.service.products.fieldIdTileSubtitle, 
                 search          : true,
-                icon            : 'icon-product', 
                 layout          : 'grid',
-                number          : false,
-                filter          : config.service.productsFilter,
-                sortBy          : config.service.productsSortBy, 
-                groupBy         : config.service.productsGroupBy,
                 groupLayout     : 'horizontal',
-                additionalData  : [ config.service.productsFieldIdBOM ],
-                contentSize     : 'l',
-                tileImage       : config.service.productsFieldIdImage, 
-                tileTitle       : config.service.productsFieldIdTitle, 
-                tileSubtitle    : config.service.productsFieldIdSubtitle, 
-                useCache        : false,
-                onClickItem     : function(elemClicked) { openProduct(elemClicked); }
-            }); 
+                onClickItem : function(elemClicked) { openProduct(elemClicked); }
+            });
 
             insertWorkspaceViews(wsSparePartsRequests.id, {
                 id                : 'requests',
@@ -290,21 +286,29 @@ function insertAvatarDone(data) {
 // Click on Product in landing page
 function openProduct(elemClicked) {
 
-    links.bom        = elemClicked.attr('data-' + config.service.productsFieldIdBOM.toLowerCase());
-    links.product    = elemClicked.attr('data-link');
-    let splitBOM     = links.bom.split('/');
-    let splitProduct = links.product.split('/');
+    $('#overlay').show();
 
-    if(isBlank(links.bom)) {
-        showErrorMessage('Invalid Product Data', 'BOM of the selected product is not availalbe, please contact your administrator');
-        return;
-    }
+    links.product = elemClicked.attr('data-link');
+    
+    $.get('/plm/details', { link : links.product }, function(response) {
 
-    $('body').addClass('screen-main').removeClass('screen-landing').removeClass('screen-request');
+        links.bom = getSectionFieldValue(response.data.sections, config.service.products.fieldIdBOM, '', 'link');
+        
+        if(isBlank(links.bom)) {
+            showErrorMessage('Invalid Product Data', 'BOM of the selected product is not availalbe, please contact your administrator');
+            return;
+        }
 
-    window.history.replaceState(null, null, '/service?wsid=' + splitBOM[4] + '&dmsid=' + splitBOM[6] + '&wsidproduct=' + splitProduct[4] + '&dmsidproduct=' + splitProduct[6] + '&theme=' + theme);
+        $('body').addClass('screen-main').removeClass('screen-landing').removeClass('screen-request');
 
-    openItem();
+        let splitBOM     = links.bom.split('/');
+        let splitProduct = links.product.split('/');
+
+        window.history.replaceState(null, null, '/service?wsid=' + splitBOM[4] + '&dmsid=' + splitBOM[6] + '&wsidproduct=' + splitProduct[4] + '&dmsidproduct=' + splitProduct[6] + '&theme=' + theme);
+
+        openItem();
+
+    });
 
 }
 function openItem() {
@@ -313,12 +317,14 @@ function openItem() {
     $('#items-content').html('');
     $('#cart-list').html('');
     $('#items-processing').show();
+    $('#overlay').hide();
     
     adjustCartHeight();
 
     $.get('/plm/descriptor', { link : (links.product || links.bom)}, function(response) {
         $('#header-subtitle').html(response.data);
         document.title = documentTitle + ': ' + response.data;
+    
     });
 
     if(!isBlank(links.product)) {
@@ -337,27 +343,35 @@ function openItem() {
 
     if(isBlank(sections)) getInitialData(links.bom.split('/')[4]);
     insertBOM(links.bom, { 
-        bomViewName   : config.service.bomViewName, 
-        collapsed     : true,
-        columnsIn     : [ 'Item' , 'Quantity' ],
-        reset         : true, 
-        path          : true, 
-        hideDetails   : true, 
-        quantity      : true,
-        counters      : true,
-        getFlatBOM    : true, 
-        showRestricted: false,
-        revisionBias  : config.service.revisionBias,
-        endItem       : config.service.endItemFilter,
-        search        : true,
-        selectItems   : { fieldId : config.service.fieldId, values : config.service.fieldValues },
-        toggles       : true
+        bomViewName         : config.service.items.bmoViewName, 
+        collapseContents    : true,
+        columnsIn           : [ 'Item' , 'Quantity' ],
+        reset               : true, 
+        path                : true, 
+        hideDetails         : true, 
+        quantity            : true,
+        counters            : true,
+        getFlatBOM          : true, 
+        showRestricted      : false,
+        toggles             : true,
+        revisionBias        : config.service.items.bomRevisionBias,
+        endItem             : config.service.items.endItemFilter,
+        search              : true,
+        selectItems         : { fieldId : config.service.items.fieldIdSparePart, values : config.service.items.fieldValuesSparePart }
     });
     insertViewer(links.bom);
     updateRelatedPanels(links.bom);
 
 }
 function updateRelatedPanels(link) {
+
+    paramsProcesses.createContextItems      = [link];
+    paramsProcesses.createContextItemFields = ['AFFECTED_ITEM'];
+
+    if(!isBlank(links.product)) {
+        paramsProcesses.createContextItems.push(links.product);
+        paramsProcesses.createContextItemFields.push('AFFECTED_PRODUCT');
+    }
 
     if(applicationFeatures.toggleItemDetails    )         insertDetails(link, paramsDetails    );
     if(applicationFeatures.toggleItemAttachments)     insertAttachments(link, paramsAttachments);
@@ -375,8 +389,8 @@ function openRequest(elemClicked) {
         bookmark : false,
         contents : [
             { type : 'workflow-history', className : 'surface-level-1', params : { id : 'request-workflow-history' } },
-            { type : 'details'         , className : 'surface-level-1', params : { id : 'request-details', expandSections : config.service.requestSectionsExpanded, suppressLinks : true, sectionsEx : config.service.requestSectionsExcluded } },
-            { type : 'grid'            , className : 'surface-level-1', params : { id : 'request-grid', headerLabel : 'Part List', columnsEx : config.service.requestColumnsExcluded } },
+            { type : 'details'         , className : 'surface-level-1', params : { id : 'request-details', expandSections : config.service.sparePartsRequests.sectionsExpanded, suppressLinks : true, sectionsEx : config.service.sparePartsRequests.sectionsExcluded } },
+            { type : 'grid'            , className : 'surface-level-1', params : { id : 'request-grid', headerLabel : 'Part List', columnsEx : config.service.sparePartsRequests.gridColumnsExcluded } },
             { type : 'attachments'     , className : 'surface-level-1', params : { id : 'request-attachments', editable : true, layout : 'tiles', singleToolbar : 'controls' } },
         ],
         statesColors    : [
@@ -423,10 +437,10 @@ function getInitialData(wsId) {
             fields                          = responses[1].data;
             wsProblemReports.sections       = responses[2].data;
             wsProblemReports.fields         = responses[3].data;
-            wsProblemReports.fieldIdImage   = config.service.fieldIdPRImage;
+            wsProblemReports.fieldIdImage   = config.service.problemReports.fieldIdImage;
             wsSparePartsRequests.sections   = responses[4].data;
 
-            if(isBlank(config.service.fieldIdPRImage)) {
+            if(isBlank(config.service.problemReports.fieldIdImage)) {
                 wsProblemReports.fieldIdImage = getFirstImageFieldID(wsProblemReports.fields);
                 paramsProcesses.fieldIdMarkup = wsProblemReports.fieldIdImage;
                 if(applicationFeatures.manageProblemReports) insertChangeProcesses(link, paramsProcesses);
@@ -449,7 +463,7 @@ function changeBOMViewDone(id, settings, bom, selectedItems, flatBOM) {
 
     let fields          = [];
     let urnsSpareParts  = [];
-    let fieldIdImage    = config.service.fieldIdSparePartImage;
+    let fieldIdImage    = config.service.items.fieldIdImage;
 
     for(let bomView of settings.bomViews) {
         if(bomView.id == settings.viewId) {
@@ -465,15 +479,15 @@ function changeBOMViewDone(id, settings, bom, selectedItems, flatBOM) {
         let urnField = field.__self__.urn;
 
         switch(field.fieldId) {
-            case 'NUMBER'                           : urnsSpareParts.partNumber   = urnField; break;
-            case 'TITLE'                            : urnsSpareParts.title        = urnField; break;
-            case 'DESCRIPTION'                      : urnsSpareParts.description  = urnField; break;
-            case fieldIdImage                       : urnsSpareParts.image        = urnField; break;
-            case config.items.fieldIdNumber         : urnsSpareParts.partNumber   = urnField; break;
-            case config.service.fieldId             : urnsSpareParts.spareWearPart= urnField; break;
-            case config.service.spartPartDetails[0] : urnsSpareParts.material     = urnField; break;
-            case config.service.spartPartDetails[1] : urnsSpareParts.weight       = urnField; break;
-            case config.service.spartPartDetails[2] : urnsSpareParts.dimensions   = urnField; break;
+            case 'NUMBER'                                     : urnsSpareParts.partNumber   = urnField; break;
+            case 'TITLE'                                      : urnsSpareParts.title        = urnField; break;
+            case 'DESCRIPTION'                                : urnsSpareParts.description  = urnField; break;
+            case fieldIdImage                                 : urnsSpareParts.image        = urnField; break;
+            case config.items.fieldIdNumber                   : urnsSpareParts.partNumber   = urnField; break;
+            case config.service.fieldId                       : urnsSpareParts.spareWearPart= urnField; break;
+            case config.service.items.sparePartTileDetails[0] : urnsSpareParts.material     = urnField; break;
+            case config.service.items.sparePartTileDetails[1] : urnsSpareParts.weight       = urnField; break;
+            case config.service.items.sparePartTileDetails[2] : urnsSpareParts.dimensions   = urnField; break;
         }
 
     }
@@ -504,8 +518,8 @@ function changeBOMViewDone(id, settings, bom, selectedItems, flatBOM) {
 }
 function insertNonSparePartMessage() {
 
-    if(isBlank(config.service.enableCustomRequests)) return;
-    if(!config.service.enableCustomRequests) return;
+    if(isBlank(config.service.applicationFeatures.enableCustomRequests)) return;
+    if(!config.service.applicationFeatures.enableCustomRequests) return;
 
     let elemMessage = $('<div></div>')
         .addClass('surface-level-3')

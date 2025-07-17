@@ -319,11 +319,11 @@
         p Various configuration settings drive this landing page: productsFilter, productsSortBy, productsGroupBy, productsFieldImage, ... wsIdProducts. See their description in the next chapter.
         p The default configuration of the landing page uses the following settings: 
             ol 
-                li All products of workspace 95 will be shown (settings wsIdProducts and productsFilter)
-                li These products will be sorted by Title and grouped by Product Line (settings proudctsSortBy and productsGroupBy)
-                li Each product tile will show the image of field IMAGE as well as the products' TITLE and DESCRIPTION property values (settings productsFieldIdImage, productsFieldIdTitle, productsFieldIdSubtitle)
-                li When users click a product, its field ENGINEERING_BOM will be used to open the related EBOM and to open the matching Service Portal for this item (setting productsFieldIdBOM)
-                li The header of the landing page's list of products is set to 'Serviceable Products' (settings productsListHeader)
+                li All products of workspace 95 having an Engineering BOM will be shown (settings products.workspaceId and products.filter)
+                li These products will be grouped by Product Line (setting products.groupBy)
+                li Each product tile will show the image of field IMAGE as well as the products' TITLE and DESCRIPTION property values (settings products.fieldIdTileImage , products.fieldIdTileTitle and products.fieldIdTileSubtitle)
+                li When users click a product, its field ENGINEERING_BOM will be used to open the related BOM and to open the matching Service Portal for this item (setting products.fieldIdBOM)
+                li The header of the landing page's list of products is set to 'Serviceable Products' (settings products.headerLabel)
         p You can disable access to this landing page with the home button by setting 'features.homeButton = false'. See chapter 
             strong Feature Availability 
             |for details.
@@ -333,40 +333,44 @@
             | before using the application:
         p.code
             span export.config = {
-            span.indent 'service' : {
-            span.indent-2 'bomViewName' : 'Service',
-            span.indent-2 'enableCustomRequests' : true,
-            span.indent-2 'endItemFilter' : { 'fieldId' : 'SBOM_END_ITEM', 'value' : true },
-            span.indent-2 'fieldId' : 'SPARE_WEAR_PART',
-            span.indent-2 'fieldValues' : ['spare part', 'yes', 'x', 'y', 'wear part'],
-            span.indent-2 'fieldIdSparePartImage'  : 'IMAGE',
-            span.indent-2 'spartPartDetails' : ['MATERIAL', 'ITEM_WEIGHT', 'DIMENSIONS'],
-            span.indent-2 'fieldIdPRImage' : 'IMAGE_1',
-            span.indent-2 'productsFilter' : '',
-            span.indent-2 'productsSortBy' : 'TITLE',
-            span.indent-2 'productsGroupBy' : 'PRODUCT_LINE',
-            span.indent-2 'productsFieldIdImage' : 'IMAGE',
-            span.indent-2 'productsFieldIdTitle' : 'TITLE',
-            span.indent-2 'productsFieldIdSubtitle' : 'DESCRIPTION',
-            span.indent-2 'productsFieldIdBOM' : 'ENGINEERING_BOM',
-            span.indent-2 'productsListHeader' : 'Serviceable Products',
-            span.indent-2 'wsIdProducts' : 95,
-            span.indent-2 'wsIdProblemReports' : 82,
-            span.indent-2 'wsIdSparePartsRequests' : 208,
-            span.indent-2 'requestSectionsExcluded': ['Workflow Activity'],
-            span.indent-2 'requestColumnsExcluded' : ['UNIT_COST', 'TOTAL_COST', 'MAKE_OR_BUY', 'MANUFACTURER', 'MANUFACTURER_PN', 'LEAD_TIME', 'LONG_LEAD_TIME'],
-            span.indent-2 'applicationFeatures' : {
-            span.indent-3     'homeButton'            : true,
-            span.indent-3     'toggleItemAttachments' : true,
-            span.indent-3     'toggleItemDetails'     : true,
-            span.indent-3     'manageProblemReports'  : true,
-            span.indent-3     'showStock'             : true,
-            span.indent-3     'requestWorkflowActions': true
+            span.indent service : {
+            span.indent-2 applicationFeatures : {
+            span.indent-3     homeButton            : true,
+            span.indent-3     toggleItemAttachments : true,
+            span.indent-3     toggleItemDetails     : true,
+            span.indent-3     ..
+            span.indent-3     enableCustomRequests     : true
             span.indent-2 },
-            span.indent-2 'viewerFeatures' : {
-            span.indent-3 'cube'          : false,
-            span.indent-3 'orbit'         : false,
+            span.indent-2 products : {
+            span.indent-3     workspaceId            : 95,
+            span.indent-3     icon : 'icon-product',
+            span.indent-3     headerLabel     : 'Serviceable Products',
+            span.indent-3     ..
+            span.indent-3     filter     : [..]
+            span.indent-2 },
+            span.indent-2 items : {
+            span.indent-3     bmoViewName            : 'Service',
+            span.indent-3     bomRevisionBias : 'release',
+            span.indent-3     fieldIdImage     : 'IMAGE',
+            span.indent-3     ..
+            span.indent-3     sparePartTileDetails     : ['MATERIAL', 'ITEM_WEIGHT', 'DIMENSIONS']
+            span.indent-2 },
+            span.indent-2 problemReports : {
+            span.indent-3     workspaceId            : 82,
+            span.indent-3     fieldIdImage : 'IMAGE_1',
+            span.indent-2 },
+            span.indent-2 sparePartsRequests : {
+            span.indent-3     workspaceId            : 241,
+            span.indent-3     sectionsExpanded : [ 'Requestor Contact Details', 'Request Details' ],
+            span.indent-3     sectionsExcluded     : [ 'Planning &amp; Tracking', 'Request Confirmation', 'Quote Submission &amp; Response', 'Real Time KPIs', 'Workflow Activity', 'Quote Summary', 'Order Processing', 'Related Processes' ],
+            span.indent-3     gridColumnsExcluded     : [ 'Line Item Cost', 'Availability [%]', 'Manufacturer', 'Manufacturer P/N', 'Unit Cost', 'Total Cost', 'Make or Buy', 'Lead Time (w)', 'Long Lead Time']
+            span.indent-2 },
+            span.indent-2 viewerFeatures : {
+            span.indent-3 contextMenu   : false,
+            span.indent-3 cube          : false,
+            span.indent-3 orbit         : false,
             span.indent-3 ..
+            span.indent-3 selectFile    : true
             span.indent-2 } 
             span.indent }
             span }                         
@@ -378,15 +382,69 @@
                     th Default Value 
                     th Description  
                 tr 
-                    td bomViewName
-                    td Service
-                    td Provide name of the BOM view that has been created in the previous steps (a change should not be required)
+                    td products.workspaceId
+                    td 95
+                    td Provide the workspace ID of 
+                        strong Products 
+                        | to enable navigation to given product BOM via a landing page
                 tr 
-                    td enableCustomRequests
-                    td true
-                    td When set to true, users can add non-spare-parts to service requests as well
+                    td products.icon
+                    td 'icon-product'
+                    td The icon to use for products in the landing page if no image is available
                 tr 
-                    td endItemFilter
+                    td products.headerLabel
+                    td Serviceable Products
+                    td Defines the header being shown on top of the products list in the landing page
+                tr 
+                    td products.groupBy
+                    td 'PRODUCT_LINE'
+                    td This optional setting enables to group the prdoducts in the landing page based on the given field's values                    
+                tr 
+                    td products.contentSize
+                    td 'l'
+                    td Defines the size of tiles in the products landing page
+                tr 
+                    td products.fieldIdTileImage
+                    td 'IMAGE'
+                    td The field ID to use for retrieving the products' images in the landing page
+                tr 
+                    td products.fieldIdTileTitle
+                    td 'TITLE'
+                    td The field ID to use for the products' tiles title in the landing page
+                tr 
+                    td products.fieldIdTileSubtitle
+                    td 'DESCRIPTION'
+                    td The field ID to use for the products' tiles subtitles in the landing page
+                tr 
+                    td products.fieldIdBOM
+                    td ENGINEERING_BOM
+                    td Field of Products workspace that links the given BOM that will be used to retrive product information once a user clicks on a product tile
+                tr 
+                    td products.filter
+                    td [..]
+                    td List of filters to determine the products displayed in the landing page. The default filter will search for all records having a value in field ENGINEERING_BOM.
+                tr 
+                    td items.bomViewName
+                    td 'Service'
+                    td Provide name of the BOM view that has been created in the previous steps
+                tr 
+                    td items.bomRevisionBias
+                    td 'release'
+                    td Select the revision bias when expanding the BOM. Select 'working' or 'release'.
+                tr 
+                    td items.fieldIdImage
+                    td IMAGE
+                    td ID of field containing the item image being used for the spare parts list panel
+                tr 
+                    td items.fieldIdSparePart
+                    td SPARE_WEAR_PART
+                    td ID of field being used to identify spare parts (the next setting defines the possible values of this field)
+                tr 
+                    td items.fieldValuesSparePart
+                    td ['spare part', 'yes', 'x', 'y', 'wear part']
+                    td List of values (for the previous field) which are used to identify spare parts 
+                tr 
+                    td items.endItemFilter
                     td { 'fieldId' : 'SBOM_END_ITEM', 'value' : true }
                     td BOM items having the given value in the defined field will be considered as end nodes. Users will not be able to see the items below.
                         br
@@ -398,89 +456,37 @@
                         br
                         |In any case, this field must be included in the BOM view being used by the Service Portal (default is 'Service').
                 tr 
-                    td fieldId
-                    td SPARE_WEAR_PART
-                    td ID of field being used to identify spare parts (the next setting defines the possible values of this field)
-                tr 
-                    td fieldValues
-                    td ['spare part', 'yes', 'x', 'y', 'wear part']
-                    td List of values (for the previous field) which are used to identify spare parts 
-                tr 
-                    td fieldIdSparePartImage
-                    td IMAGE
-                    td ID of field containing the item image
-                tr 
-                    td sparePartDetails
+                    td items.sparePartDetails
                     td ['MATERIAL', 'ITEM_WEIGHT', 'DIMENSIONS']
                     td Each spare part tile can show 3 additional fields. If other fields than the default fields are relevent, change this list. However, make sure that there are exactly 3 entries and these fields also must be contained in the given BOM view.
                 tr 
-                    td fieldIdPRImage
+                    td problemReports.workspaceId
+                    td 82
+                    td Provide the workspace ID of 
+                        strong Problem Reports 
+                        | to enable creation of new processes from within the application (82 matches the default tenant configuration)
+                tr 
+                    td problemReports.fieldIdImage
                     td IMAGE_1
                     td Provide image field ID to be use for storing the markup image of new Problem Reports
                 tr 
-                    td productsFilter
-                    td (empty)
-                    td Provide a query string to filter the list of products being shown in the landing page. Only products matching this search criteria will be display.
-                        br
-                        |For example, you could add a checkbox field 'SERVICES_PORTAL' and provide the following filter to only show products where this given checkbox is enabled: ITEM_DETAILS:SERVICES_PORTAL=TRUE
-                tr 
-                    td productsSortBy
-                    td TITLE
-                    td Set the field being used to sort the products in the landing page
-                tr 
-                    td productsGroupBy
-                    td PRODUCT_LINE
-                    td This optional setting enables to group the prdoducts in the landing page based on the given field's values
-                tr 
-                    td productsFieldIdImage
-                    td IMAGE
-                    td Field being used to render the image for the product tiles in the landing page
-                tr 
-                    td productsFieldIdTitle
-                    td TITLE
-                    td Field being used as primary name for the product tiles in the landing page
-                tr 
-                    td productsFieldIdSubtitle
-                    td DESCRIPTION
-                    td Field being used as subtitle for the product tiles in the landing page
-                tr 
-                    td productsFieldIdBOM
-                    td ENGINEERING_BOM
-                    td Field of Products workspace that links the given EBOM that will be used to retrive product information once a user clicks on a product tile
-                tr 
-                    td productsListHeader
-                    td Serviceable Products
-                    td Defines the header being shown on top of the products list in the landing page
-                tr 
-                    td revisionBias
-                    td 'release'
-                    td Select the revision bias when expanding the BOM. Select 'working' or 'release'.
-                tr 
-                    td wsIdProducts
-                    td 82
-                    td Provide the workspace ID of 
-                        strong Problem Reports 
-                        | to enable creation of new processes from within the application (82 matches the default tenant configuration)
-                tr 
-                    td wsIdProblemReports
-                    td 82
-                    td Provide the workspace ID of 
-                        strong Problem Reports 
-                        | to enable creation of new processes from within the application (82 matches the default tenant configuration)
-                tr 
-                    td wsIdSparePartsRequests
+                    td sparePartsRequests.workspaceId
                     td ?
                     td Provide ID of the new workspace 
                         strong Spare Parts Requests 
                         | to enable creation of new requests from within the application
                 tr 
-                    td requestSectionsExcluded
-                    td ['Workflow Activity']
+                    td sparePartsRequests.sectionsExpanded
+                    td [ 'Requestor Contact Details', 'Request Details' ]
+                    td Defines sections to be expandend in Spare Part Request details pages. Sections not listed will be collapsed automatically.
+                tr 
+                    td sparePartsRequests.sectionsExcluded
+                    td [ 'Planning &amp; Tracking', 'Request Confirmation', 'Quote Submission &amp; Response', 'Real Time KPIs', 'Workflow Activity', 'Quote Summary', 'Order Processing', 'Related Processes' ]
                     td Defines sections to be hidden from Spare Part Request details display.
                 tr 
-                    td requestColumnsExcluded
+                    td sparePartsRequests.gridColumnsExcluded
                     td ['UNIT_COST', 'TOTAL_COST', 'MAKE_OR_BUY', 'MANUFACTURER', 'MANUFACTURER_PN', 'LEAD_TIME', 'LONG_LEAD_TIME']
-                    td Defines columns to be hidden from Part List when users open a given request within the portal to track its progression.
+                    td Defines columns to be hidden from Part List when users open a given spare part request within the portal to track its progression.
         h2 Configuring Application Features
         p Selected application features can be restricted using the applicationFeatures property in settings.js. In general, if a property equals true, the given feature will be available for the user. You can use basic boolean values, but also make use of groups to grant access for defined user groups only. Examples: 
             ul 
@@ -522,6 +528,10 @@
                     td features.requestWorkflowActions 
                     td Enables display of workflow actions menu when opening a spare part request from the landing page
                     td true
+                tr 
+                    td features.enableCustomRequests 
+                    td When set to true, users can add non-spare-parts to service requests as well
+                    td true
 
         h2 Configuring Viewer Features
         include ../framework/viewer.pug
@@ -536,6 +546,14 @@
     .log 
         h1 Services Portal Change Log 
         table 
+            tr 
+                td 17. July 2025
+                td Enhancement
+                td If the portal is opened in context of a product (for example from the landing page), the new Problem Reports being created will also be connected to this product using the standard field 'AFFECTED_PRODUCT'
+            tr 
+                td 
+                td New Settings 
+                td The configuration settings of this solutions have been changed to improve the Products landing page.
             tr 
                 td April 16, 2025
                 td Enhancement 

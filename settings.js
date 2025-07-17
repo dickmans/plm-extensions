@@ -672,24 +672,51 @@ exports.config = {
 
     service : {
         applicationFeatures : {
-            homeButton            : true,
-            toggleItemAttachments : true,
-            toggleItemDetails     : true,
-            productDocumentation  : true,
-            manageProblemReports  : true,
-            showStock             : true,
-            requestWorkflowActions: true
+            homeButton             : true,
+            toggleItemAttachments  : true,
+            toggleItemDetails      : true,
+            productDocumentation   : true,
+            manageProblemReports   : true,
+            showStock              : true,
+            requestWorkflowActions : true,
+            enableCustomRequests   : true
         },
-        wsIdProducts           : 95,
-        productsListHeader      : 'Serviceable Products',
-        productsFilter         : '',
-        productsSortBy         : 'NUMBER',
-        productsGroupBy        : 'PRODUCT_LINE',
-        productsFieldIdImage   : 'IMAGE',
-        productsFieldIdTitle   : 'TITLE',
-        productsFieldIdSubtitle: 'DESCRIPTION',
-        productsFieldIdBOM     : 'ENGINEERING_BOM',
-        revisionBias           : 'release',
+        products : {
+            workspaceId         : 95,
+            icon                : 'icon-product',
+            headerLabel         : 'Serviceable Products',
+            groupBy             : 'PRODUCT_LINE',
+            contentSize         : 'l',
+            fieldIdTileImage    : 'IMAGE',
+            fieldIdTileTitle    : 'TITLE',
+            fieldIdTileSubtitle : 'DESCRIPTION',
+            fieldIdBOM          : 'ENGINEERING_BOM',
+            filter              : [{
+                field       : 'ENGINEERING_BOM',
+                type        : 0,
+                comparator  : 21,
+                value       : ''
+            }]
+        },
+        items : {
+            bmoViewName          : 'Service',
+            bomRevisionBias      : 'release',
+            fieldIdImage         : 'IMAGE',
+            fieldIdSparePart     : 'SPARE_WEAR_PART',
+            fieldValuesSparePart : ['spare part', 'yes', 'x', 'y', 'wear part'],
+            endItemFilter        : { fieldId : 'SBOM_END_ITEM', value : true },
+            sparePartTileDetails : ['MATERIAL', 'ITEM_WEIGHT', 'DIMENSIONS']
+        },
+        problemReports : {
+            workspaceId  : 82,
+            fieldIdImage : 'IMAGE_1'
+        },
+        sparePartsRequests : {
+            workspaceId         : 241,
+            sectionsExpanded    : [ 'Requestor Contact Details', 'Request Details' ],
+            sectionsExcluded    : [ 'Planning & Tracking', 'Request Confirmation', 'Quote Submission & Response', 'Real Time KPIs', 'Workflow Activity', 'Quote Summary', 'Order Processing', 'Related Processes' ],
+            gridColumnsExcluded : [ 'Line Item Cost', 'Availability [%]', 'Manufacturer', 'Manufacturer P/N', 'Unit Cost', 'Total Cost', 'Make or Buy', 'Lead Time (w)', 'Long Lead Time'],
+        },
         viewerFeatures : {
             contextMenu   : false,
             cube          : false,
@@ -712,25 +739,7 @@ exports.config = {
             reset         : true,
             views         : true,
             selectFile    : true
-        },
-
-
-        bomViewName            : 'Service',
-        enableCustomRequests   : true,
-        endItemFilter          : { fieldId : 'SBOM_END_ITEM', value : true },
-        fieldId                : 'SPARE_WEAR_PART',
-        fieldValues            : ['spare part', 'yes', 'x', 'y', 'wear part'],
-        fieldIdSparePartImage  : 'IMAGE',
-        spartPartDetails       : ['MATERIAL', 'ITEM_WEIGHT', 'DIMENSIONS'],
-        fieldIdPRImage         : 'IMAGE_1',
-
-        wsIdProblemReports     : 82,
-        wsIdSparePartsRequests : 241,
-        requestSectionsExcluded: [ 'Planning & Tracking', 'Request Confirmation', 'Quote Submission & Response', 'Real Time KPIs', 'Workflow Activity', 'Quote Summary', 'Order Processing', 'Related Processes' ],
-        requestSectionsExpanded: [ 'Requestor Contact Details', 'Request Details' ],
-        requestColumnsExcluded : [ 'Line Item Cost', 'Availability [%]', 'Manufacturer', 'Manufacturer P/N', 'Unit Cost', 'Total Cost', 'Make or Buy', 'Lead Time (w)', 'Long Lead Time'],
-
-
+        }
     },
 
     variants : {
