@@ -951,12 +951,14 @@ function clickBOMItem(elemClicked, e) {
 }
 // function clickBOMDeselectAllDone() { resetBOMSeletion(); }
 // function clickBOMResetDone() { resetBOMSeletion(); }
-function panelResetDone() {
+function panelResetDone(id, elemClicked) {
 
-    let link = $('#bom').attr('data-link');
+    let link = $('#' + id).attr('data-link');
 
-    if(applicationFeatures.toggleItemDetails) insertDetails(link, paramsDetails);
+    if(applicationFeatures.toggleItemDetails)     insertDetails(link, paramsDetails);
     if(applicationFeatures.toggleItemAttachments) insertAttachments(link, paramsAttachments);
+    if(applicationFeatures.manageProblemReports)  insertChangeProcesses(link, paramsProcesses);
+    
     resetSparePartsList();
     updateViewer();
 
