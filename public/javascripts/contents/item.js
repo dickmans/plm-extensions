@@ -1600,8 +1600,8 @@ function insertDetailsData(id) {
 
     let requests = [ 
         $.get('/plm/details' , { link : settings.details[id].link, timestamp : settings.details[id].timestamp }),
-        $.get('/plm/sections', { link : settings.details[id].link }),
-        $.get('/plm/fields'  , { link : settings.details[id].link })
+        $.get('/plm/sections', { wsId : settings.details[id].link.split('/')[4], useCache : settings.details[id].useCache }),
+        $.get('/plm/fields'  , { wsId : settings.details[id].link.split('/')[4], useCache : settings.details[id].useCache })
     ];
 
     if((settings.details[id].bookmark) ) requests.push($.get('/plm/bookmarks'  , { link : settings.details[id].link }));
