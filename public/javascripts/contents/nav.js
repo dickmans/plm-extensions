@@ -987,7 +987,8 @@ function insertResults(wsId, filters, params) {
         [ 'autoClick'       , false ],
         [ 'editable'        , false ],
         [ 'filterEmpty'     , false ],
-        [ 'tileImageFieldId', '' ]
+        [ 'tileImageFieldId', ''    ],
+        [ 'tileSubtitle'    , ''    ]
     ]);
 
     if(!settings.results[id].fields.includes('DESCRIPTOR')) {
@@ -997,6 +998,14 @@ function insertResults(wsId, filters, params) {
     if(!isBlank(settings.results[id].groupBy)) {
         if(!settings.results[id].fields.includes(settings.results[id].groupBy)) {
             settings.results[id].fields.push(settings.results[id].groupBy);
+        }
+    }
+
+    if(!isBlank(settings.results[id].additionalData)) {
+        for(let additionalData of settings.results[id].additionalData) {
+            if(!settings.results[id].fields.includes(additionalData)) {
+                settings.results[id].fields.push(additionalData);
+            }
         }
     }
 
@@ -1143,6 +1152,13 @@ function insertResultsData(id) {
                     if(field.key === tileDetail.fieldId) {
                         tileDetail.value = field.fieldData.value;
                     }
+                }
+
+                if(settings.results[id].additionalData.includes(field.key)) {
+                    contentItem.attributes.push({
+                        key   : field.key.toLowerCase(),
+                        value : field.fieldData.value
+                    });
                 }
 
                 for(let column of settings.results[id].columns) {

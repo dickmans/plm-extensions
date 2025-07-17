@@ -957,6 +957,7 @@ function insertCalendarMonth(id, currentDate) {
 // Generate default settings object for item based and navigation views using genPanel*
 function getPanelSettings(link, params, defaults, additional) {
 
+    if(isBlank(defaults.additionalData)    ) defaults.additionalData     = [];
     if(isBlank(defaults.counters)          ) defaults.counters           = false;
     if(isBlank(defaults.hidePanel)         ) defaults.hidePanel          = false;
     if(isBlank(defaults.hideHeader)        ) defaults.hideHeader         = false;
@@ -980,7 +981,6 @@ function getPanelSettings(link, params, defaults, additional) {
     if(isBlank(defaults.collapseContents)  ) defaults.collapseContents   = false;
     if(isBlank(defaults.groupBy)           ) defaults.groupBy            = '';
     if(isBlank(defaults.groupLayout)       ) defaults.groupLayout        = 'column';
-    if(isBlank(defaults.additionalData)    ) defaults.additionalData     = [];
     if(isBlank(defaults.contentSize)       ) defaults.contentSize        = 'm';
     if(isBlank(defaults.contentSizes)      ) defaults.contentSizes       = [];
     if(isBlank(defaults.tileIcon)          ) defaults.tileIcon           = 'icon-product';
@@ -1003,6 +1003,7 @@ function getPanelSettings(link, params, defaults, additional) {
 
     let settings = {
         link              : link,
+        additionalData    : isBlank(params.additionalData)    ? defaults.additionalData : params.additionalData,
         hidePanel         : isBlank(params.hidePanel)         ? defaults.hidePanel : params.hidePanel,
         hideHeader        : isBlank(params.hideHeader)        ? defaults.hideHeader : params.hideHeader,
         hideHeaderControls: isBlank(params.hideHeaderControls)? defaults.hideHeaderControls : params.hideHeaderControls,
@@ -1027,7 +1028,6 @@ function getPanelSettings(link, params, defaults, additional) {
         collapseContents  : isBlank(params.collapseContents)  ? defaults.collapseContents : params.collapseContents,
         groupBy           : isBlank(params.groupBy)           ? defaults.groupBy : params.groupBy,
         groupLayout       : isBlank(params.groupLayout)       ? defaults.groupLayout : params.groupLayout,
-        additionalData    : isBlank(params.additionalData)    ? defaults.additionalData : params.additionalData,
         number            : isBlank(params.number)            ? defaults.number : params.number,
         contentSize       : isBlank(params.contentSize)       ? defaults.contentSize  : params.contentSize,
         contentSizes      : isBlank(params.contentSizes)      ? defaults.contentSizes  : params.contentSizes,
