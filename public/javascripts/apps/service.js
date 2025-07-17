@@ -1,6 +1,8 @@
 let fields, sections, wsIdRequests, sectionIdRequests;
 let listSpareParts  = [];
 let listWearParts   = [];
+let urlParameters   = getURLParameters();
+let links           = {};
 let link            = '/api/v3/workspaces/' + wsId + '/items/' + dmsId;
 let urns = {
     'thumbnail'     : '', 
@@ -15,14 +17,15 @@ let urns = {
 
 // let bom, flatBOM;
 let selectedBOMContext      = '';
-let wsProblemReports        = { 'id' : '', 'sections' : [], 'fields' : [] };
-let wsSparePartsRequests    = { 'id' : '', 'sections' : [], 'fields' : [] };
+let wsProblemReports        = { id : '', sections : [], fields : [] };
+let wsSparePartsRequests    = { id : '', sections : [], fields : [] };
 
 let paramsDetails = {
-    collapseContents : true,
     headerLabel      : 'descriptor',
     layout           : 'narrow',
+    collapseContents : true,
     toggles          : true,
+    useCache         : true,
     fieldsEx         : ['ACTIONS'],
     sectionsEx       : ['Sourcing Summary','Others'],
     expandSections   : ['Basic']
@@ -60,8 +63,10 @@ $(document).ready(function() {
 
     let requests = [];
 
+    links.bom = urlParameters.link;
+
     if(!isBlank(wsId)) { if(!isBlank(dmsId)) {
-        requests.push($.get('/plm/bom-views-and-fields', { wsId : wsId, useCache : true }))
+        requests.push($.get('/plm/bom-views-and-fields', { wsId : urlParameters.wsId, useCache : true }))
     }}
 
     getFeatureSettings('service', requests, function(responses) {
@@ -142,7 +147,7 @@ $(document).ready(function() {
             $('body').addClass('screen-main').removeClass('screen-landing').removeClass('screen-request');
 
             let params       = document.location.href.split('?')[1].split('&');
-            let linkProduct  = null;
+            // let linkProduct  = null;
             let wsIdProduct  = null;
             let dmsIdProduct = null;
 
@@ -153,11 +158,12 @@ $(document).ready(function() {
 
             if(!isBlank(wsIdProduct)) {
                 if(!isBlank(dmsIdProduct)) {
-                 linkProduct = '/api/v3/workspaces/' + wsIdProduct + '/items/' + dmsIdProduct;
+                //  linkProduct = '/api/v3/workspaces/' + wsIdProduct + '/items/' + dmsIdProduct;
+                    links.product = '/api/v3/workspaces/' + wsIdProduct + '/items/' + dmsIdProduct;
                 }
             }
 
-            openItem(link, linkProduct);
+            openItem();
 
         } else $('#landing').show();
 
@@ -284,24 +290,24 @@ function insertAvatarDone(data) {
 // Click on Product in landing page
 function openProduct(elemClicked) {
 
-    let linkEBOM     = elemClicked.attr('data-' + config.service.productsFieldIdBOM.toLowerCase());
-    let linkProduct  = elemClicked.attr('data-link');
-    let splitEBOM    = linkEBOM.split('/');
-    let splitProduct = linkProduct.split('/');
+    links.bom        = elemClicked.attr('data-' + config.service.productsFieldIdBOM.toLowerCase());
+    links.product    = elemClicked.attr('data-link');
+    let splitBOM     = links.bom.split('/');
+    let splitProduct = links.product.split('/');
 
-    if(isBlank(linkEBOM)) {
+    if(isBlank(links.bom)) {
         showErrorMessage('Invalid Product Data', 'BOM of the selected product is not availalbe, please contact your administrator');
         return;
     }
 
     $('body').addClass('screen-main').removeClass('screen-landing').removeClass('screen-request');
 
-    window.history.replaceState(null, null, '/service?wsid=' + splitEBOM[4] + '&dmsid=' + splitEBOM[6] + '&wsidproduct=' + splitProduct[4] + '&dmsidproduct=' + splitProduct[6] + '&theme=' + theme);
+    window.history.replaceState(null, null, '/service?wsid=' + splitBOM[4] + '&dmsid=' + splitBOM[6] + '&wsidproduct=' + splitProduct[4] + '&dmsidproduct=' + splitProduct[6] + '&theme=' + theme);
 
-    openItem(linkEBOM, linkProduct);
+    openItem();
 
 }
-function openItem(link, linkProduct) {
+function openItem() {
 
     $('#header-subtitle').html('');
     $('#items-content').html('');
@@ -310,15 +316,15 @@ function openItem(link, linkProduct) {
     
     adjustCartHeight();
 
-    $.get('/plm/descriptor', { 'link' : link}, function(response) {
+    $.get('/plm/descriptor', { link : (links.product || links.bom)}, function(response) {
         $('#header-subtitle').html(response.data);
         document.title = documentTitle + ': ' + response.data;
     });
 
-    if(!isBlank(linkProduct)) {
+    if(!isBlank(links.product)) {
         if(applicationFeatures.productDocumentation) {
             $('#tab-documentation').show();
-            insertAttachments(linkProduct, {
+            insertAttachments(links.product, {
                 id              : 'documentation',
                 hideHeader      : true,
                 layout          : 'list',
@@ -329,8 +335,8 @@ function openItem(link, linkProduct) {
 
     $('#tabs').children().first().click();
 
-    if(isBlank(sections)) getInitialData(link.split('/')[4]);
-    insertBOM(link, { 
+    if(isBlank(sections)) getInitialData(links.bom.split('/')[4]);
+    insertBOM(links.bom, { 
         bomViewName   : config.service.bomViewName, 
         collapsed     : true,
         columnsIn     : [ 'Item' , 'Quantity' ],
@@ -347,10 +353,15 @@ function openItem(link, linkProduct) {
         selectItems   : { fieldId : config.service.fieldId, values : config.service.fieldValues },
         toggles       : true
     });
-    insertViewer(link);
-    if(applicationFeatures.toggleItemDetails)     insertDetails(link, paramsDetails);
-    if(applicationFeatures.toggleItemAttachments) insertAttachments(link, paramsAttachments);
-    if(applicationFeatures.manageProblemReports)  insertChangeProcesses(link, paramsProcesses);
+    insertViewer(links.bom);
+    updateRelatedPanels(links.bom);
+
+}
+function updateRelatedPanels(link) {
+
+    if(applicationFeatures.toggleItemDetails    )         insertDetails(link, paramsDetails    );
+    if(applicationFeatures.toggleItemAttachments)     insertAttachments(link, paramsAttachments);
+    if(applicationFeatures.manageProblemReports ) insertChangeProcesses(link, paramsProcesses  );
 
 }
 
@@ -916,51 +927,32 @@ function clickBOMItem(elemClicked, e) {
 
     $('.bom-item').removeClass('selected-context');
 
+    let link = elemClicked.attr('data-link');
+
     if(elemClicked.hasClass('selected')) {
-        // elemClicked.removeClass('selected');
-        if(applicationFeatures.toggleItemDetails)     insertDetails(elemClicked.attr('data-link'), paramsDetails);
-        if(applicationFeatures.toggleItemAttachments) insertAttachments(elemClicked.attr('data-link'), paramsAttachments);
-        if(applicationFeatures.manageProblemReports)  insertChangeProcesses(elemClicked.attr('data-link'), paramsProcesses);
         
         setSparePartsList(elemClicked);
-        // updateViewer();
-        viewerSelectModel(elemClicked.attr('data-part-number'), {
-            highlight : false
-        });
+        viewerSelectModel(elemClicked.attr('data-part-number'), { highlight : false });
+        updateRelatedPanels(link);
 
     } else {
-        // $('tr.selected').removeClass('selected');
-        elemClicked.addClass('selected-context');
-        if(applicationFeatures.toggleItemDetails)     insertDetails(elemClicked.attr('data-link'), paramsDetails);
-        if(applicationFeatures.toggleItemAttachments) insertAttachments(elemClicked.attr('data-link'), paramsAttachments);
-        if(applicationFeatures.manageProblemReports)  insertChangeProcesses(elemClicked.attr('data-link'), paramsProcesses);
 
-        if(applicationFeatures.toggleItemDetails)     insertDetails('/api/v3/workspaces/' + wsId + '/items/' + dmsId, paramsDetails);
-        if(applicationFeatures.toggleItemAttachments) insertAttachments('/api/v3/workspaces/' + wsId + '/items/' + dmsId, paramsAttachments);
-        if(applicationFeatures.manageProblemReports)  insertChangeProcesses('/api/v3/workspaces/' + wsId + '/items/' + dmsId, paramsProcesses);
+        elemClicked.addClass('selected-context');
 
         resetSparePartsList();
         viewerResetSelection({
             fitToView : true
         });
+        updateRelatedPanels(links.bom);
 
-
-        // updateViewer(elemClicked.attr('data-part-number'));
     }
 
 }
-// function clickBOMDeselectAllDone() { resetBOMSeletion(); }
-// function clickBOMResetDone() { resetBOMSeletion(); }
 function panelResetDone(id, elemClicked) {
-
-    let link = $('#' + id).attr('data-link');
-
-    if(applicationFeatures.toggleItemDetails)     insertDetails(link, paramsDetails);
-    if(applicationFeatures.toggleItemAttachments) insertAttachments(link, paramsAttachments);
-    if(applicationFeatures.manageProblemReports)  insertChangeProcesses(link, paramsProcesses);
-    
+   
     resetSparePartsList();
     updateViewer();
+    updateRelatedPanels(links.bom);
 
 }
 
@@ -1182,14 +1174,13 @@ function initViewerDone() {
 
 }
 function viewerClickReset() {
+
     viewer.showAll();
     viewer.setViewFromFile();
     viewerResetSelection();
-    // clickBOMDeselectAll($('#bom-action-reset'));
-    // clickBOMResetDone();
+
 }
 function onViewerSelectionChanged(event) {
-
 
     if(viewerHideSelected(event)) return;
 
@@ -1214,9 +1205,7 @@ function onViewerSelectionChanged(event) {
                                 $(this).addClass('selected');
                                 bomDisplayItem($(this));
                                 setSparePartsList($(this));
-                                if(applicationFeatures.toggleItemDetails)     insertDetails(linkItem, paramsDetails);
-                                if(applicationFeatures.toggleItemAttachments) insertAttachments(linkItem, paramsAttachments);
-                                if(applicationFeatures.manageProblemReports)  insertChangeProcesses(linkItem, paramsProcesses);
+                                updateRelatedPanels(linkItem);
                             }
                         }
                     });
@@ -1239,9 +1228,7 @@ function onViewerSelectionChanged(event) {
             bomDisplayItem(elemContext);
             setSparePartsList(elemContext);
             updateBOMPath($(this));
-            if(applicationFeatures.toggleItemDetails)     insertDetails(linkItem, paramsDetails);
-            if(applicationFeatures.toggleItemAttachments) insertAttachments(linkItem, paramsAttachments);
-            if(applicationFeatures.manageProblemReports)  insertChangeProcesses(linkItem, paramsProcesses);            
+            updateRelatedPanels(linkItem);           
 
         }
 
