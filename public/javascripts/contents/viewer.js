@@ -1977,53 +1977,57 @@ function viewerAddMarkupControls() {
     newButton.addClass('enable-markup');
     newButton.onClick = function() {
 
-        if(restoreMarkupState !== '') {
+        var promise = viewer.loadExtension('Autodesk.Viewing.MarkupsCore');
+    
+        promise.then(function(extension){ markup = extension; 
 
-            markupsvg = restoreMarkupSVG;
-            viewer.restoreState(restoreMarkupState, null, true);
+            if(restoreMarkupState !== '') {
 
-        }
+                markupsvg = restoreMarkupSVG;
+                viewer.restoreState(restoreMarkupState, null, true);
 
-        markup.enterEditMode();
-        markup.show();
-
-        // let markupsId   = viewerId.split('-viewer')[0] + '-markups-list';
-        let elemMarkups = $('#' + viewerId + '-markups-list');
-
-        if(elemMarkups.length > 0) {
-            if(elemMarkups.children('.selected').length === 0) {
-                let placeholders = elemMarkups.children('.placeholder');
-                if(placeholders.length === 0) elemMarkups.children().first().addClass('selected');
-                else placeholders.first().addClass('selected');
             }
-        }
 
-        baseStrokeWidth = markup.getStyle()['stroke-width'];
+            markup.enterEditMode();
+            markup.show();
+
+            // let markupsId   = viewerId.split('-viewer')[0] + '-markups-list';
+            let elemMarkups = $('#' + viewerId + '-markups-list');
+
+            if(elemMarkups.length > 0) {
+                if(elemMarkups.children('.selected').length === 0) {
+                    let placeholders = elemMarkups.children('.placeholder');
+                    if(placeholders.length === 0) elemMarkups.children().first().addClass('selected');
+                    else placeholders.first().addClass('selected');
+                }
+            }
+
+            baseStrokeWidth = markup.getStyle()['stroke-width'];
+                
+            if($('#' + viewerId + '-markup-toolbar').hasClass('set-defaults')) {
+                $('.viewer-markup-toggle.color').first().click();
+                $('.viewer-markup-toggle.width').first().click();
+                $('.viewer-markup-toggle.shape').first().click();
+                $('#viewer-markup-toolbar').removeClass('set-defaults');
+            } else {
+                $('.viewer-markup-toggle.color.selected').click();
+                $('.viewer-markup-toggle.width.selected').click();
+                $('.viewer-markup-toggle.shape.selected').click();
+            }
             
-        if($('#' + viewerId + '-markup-toolbar').hasClass('set-defaults')) {
-            $('.viewer-markup-toggle.color').first().click();
-            $('.viewer-markup-toggle.width').first().click();
-            $('.viewer-markup-toggle.shape').first().click();
-            $('#viewer-markup-toolbar').removeClass('set-defaults');
-        } else {
-            $('.viewer-markup-toggle.color.selected').click();
-            $('.viewer-markup-toggle.width.selected').click();
-            $('.viewer-markup-toggle.shape.selected').click();
-        }
+            $('#' + viewerId + '-markup-toolbar').toggleClass('hidden');
+
+            let elemNoteControl = $('#' + viewerId+ '-note-toolbar');
+
+            if(elemNoteControl.length > 0) elemNoteControl.toggleClass('hidden');
+
         
-        $('#' + viewerId + '-markup-toolbar').toggleClass('hidden');
-
-        let elemNoteControl = $('#' + viewerId+ '-note-toolbar');
-
-        if(elemNoteControl.length > 0) elemNoteControl.toggleClass('hidden');
+        });
 
     };
 
     viewer.toolbar.addControl(newToolbar);
-    
-    var promise = viewer.loadExtension('Autodesk.Viewing.MarkupsCore');
-    
-    promise.then(function(extension){ markup = extension; });
+
 
 }
 function addMarkupControlGroup(elemParent, id, label) {
@@ -2151,6 +2155,8 @@ function viewerLeaveMarkupMode() {
     markup.leaveEditMode();
     markup.hide();
 
+    viewer.unloadExtension('Autodesk.Viewing.MarkupsCore');
+
     setViewerFeatures();
 
     restoreMarkupSVG   = '';
@@ -2277,6 +2283,8 @@ function viewerCapturePerspective(view, id, callback) {
 
 // Markup restore
 function onViewerRestore(event) {
+
+    if(typeof markup === 'undefined') return;
      
     markup.unloadMarkupsAllLayers();
     

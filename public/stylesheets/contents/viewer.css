@@ -25,9 +25,18 @@
     box-shadow : none !important;
     margin     : 0px 4px !important;
 }
+
+body.dark-theme  #guiviewer3d-toolbar #toolbar-measureTool-done.adsk-button:hover,
+#toolbar-measureTool-done, 
+#toolbar-measureTool-done > label,
+#toolbar-measureTool-done > label:hover,
+#toolbar-measureTool-done:hover {
+    background  : var(--color-blue-500) !important;
+    border-color  : var(--color-blue-500) !important;
+    
+}
 #toolbar-measureTool-done, #toolbar-measureTool-done > label {
-    background : #0696D7 !important;
-    padding : 5px 10px;
+    padding : 6px 10px;
 }
 #toolbar-panTool,
 #toolbar-zoomTool { display : none !important; }
@@ -48,6 +57,9 @@
 [class*=" adsk-icon-"]:before, [class^=adsk-icon-]:before, [data-icon]:before { font-weight : 100; }
 #guiviewer3d-toolbar .adsk-button .adsk-button-icon::before { font-weight : 300; }
 
+.adsk-toolbar .measure-toolbar-seperator {
+    margin : 14px 10px !important;
+}
 
 
 /*  APS VIEWER CUSTOM TOOLBARS */
@@ -197,6 +209,9 @@
 
 /*  APS VIEWER MARKUP */
 /* ----------------------------------------------------------------------------- */
+#viewer-markup-button {
+    line-height : 30px;
+}
 #viewer-markup-image {
     height : 800px;
     width  : 800px;
