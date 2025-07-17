@@ -1687,7 +1687,7 @@ function getChildren(elemChildren, edges, nodes, parent, level, urnPath) {
                                 $('#overlay').show();
                                 let link  = $(this).closest('.parent').attr('data-link');
                                 let items = [link];
-                                $.get('/plm/add-managed-items', { 'wsId' : wsId , 'dmsId' : dmsId, 'items' : items }, function() {
+                                $.post('/plm/add-managed-items', { 'wsId' : wsId , 'dmsId' : dmsId, 'items' : items }, function() {
                                     $('#overlay').hide();
                                     $('.parent').each(function() {
                                         if(link === $(this).attr('data-link')) {
@@ -1995,7 +1995,7 @@ function addManagedItem(all) {
 
     $('#overlay').show();
 
-    $.get('/plm/add-managed-items', { 'wsId' : wsId , 'dmsId' : dmsId, 'items' : items }, function() {
+    $.post('/plm/add-managed-items', { 'wsId' : wsId , 'dmsId' : dmsId, 'items' : items }, function() {
         getRelated();
         getManagedItems();
     });    

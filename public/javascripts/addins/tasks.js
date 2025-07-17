@@ -36,10 +36,6 @@ function setUIEvents() {
 
         getActiveDocument($(this).attr('data-context-descriptor')).then(partNumber => {
         
-            // let partNumber = 'CAD_30000096';
-
-            console.log(partNumber);
-
             let params = {
                 'wsId'  : config.search.wsId,
                 'limit' : 1,
@@ -50,8 +46,6 @@ function setUIEvents() {
             
                 if(response.data.items.length > 0) {
 
-                    console.log(response.data.items[0]);
-        
                     let link = response.data.items[0].__self__;
 
                     // let elemTile = genTile(link, '', '', 'view_in_ar', response.data.items[0].descriptor);
@@ -92,11 +86,7 @@ function setUIEvents() {
             items.push($(this).attr('data-link'));
         });
 
-        console.log(items);
-
-        $.get('/plm/add-managed-items', { 'link' : $('#task').attr('data-link'), 'items' : items }, function(response) {
-            console.log(response);
-            // $('.is-selected').click();
+        $.post('/plm/add-managed-items', { 'link' : $('#task').attr('data-link'), 'items' : items }, function(response) {
             insertManagedItems($('#task').attr('data-link'), 'managed-items', 'settings');
         });
 
@@ -257,8 +247,6 @@ function addSelected() {
 
         Promise.all(requests).then(function(responses) {
 
-            console.log(responses);
-
             let plmItems    = responses[0].data.items;
             let plmSections = responses[1].data;
             let vaultItems  = responses[2].data.results;
@@ -279,8 +267,6 @@ function addSelected() {
 
             }
 
-            console.log(params);
-        
             if(plmItems.length === 0) {
 
                 params.wsId = config.items.wsId;
@@ -289,7 +275,7 @@ function addSelected() {
 
                     let link = response.data.split('.autodeskplm360.net')[1];
 
-                    $.get('/plm/add-managed-items', { link : linkTask, items : [link] }, function(response) {
+                    $.post('/plm/add-managed-items', { link : linkTask, items : [link] }, function(response) {
                         insertManagedItems(linkTask, {
                             layout      : 'list',
                             headerLabel : ''
@@ -304,12 +290,10 @@ function addSelected() {
 
                 let requestsUpdate = [
                     $.post('/plm/edit', params),
-                    $.get('/plm/add-managed-items', { link : linkTask, items : [params.link] })
+                    $.post('/plm/add-managed-items', { link : linkTask, items : [params.link] })
                 ]
 
                 Promise.all(requestsUpdate).then(function(responses) {
-
-                    console.log(responses);
 
                     insertManagedItems(linkTask, {
                         layout      : 'list',

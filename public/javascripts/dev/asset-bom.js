@@ -480,7 +480,7 @@ function saveChanges() {
 
         if(projectItem.items.length > 0) {
             // console.log(projectItem.items);
-            requests.push($.get('/plm/add-managed-items', { link : projectItem.link, items : projectItem.items }))
+            requests.push($.post('/plm/add-managed-items', { link : projectItem.link, items : projectItem.items }))
         }
 
     }

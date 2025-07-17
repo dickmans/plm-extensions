@@ -176,7 +176,7 @@ function setUIEvents() {
             submitCreateForm(wsProblemReports.id, $('#processes-sections'), 'viewer-markup-image', {}, function(response ) {
 
                 let newLink = response.data.split('.autodeskplm360.net')[1];
-                $.get('/plm/add-managed-items', { 'link' : newLink, 'items' : [ link ] }, function(response) {
+                $.post('/plm/add-managed-items', { 'link' : newLink, 'items' : [ link ] }, function(response) {
                 // $.get('/plm/add-relationship', { 'link' : newLink, 'relatedId' : link.split('/')[6] }, function(response) {
                     setProcesses($('#processes-list').attr('data-source'));
                     $('.process-dialog').hide();

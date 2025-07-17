@@ -486,7 +486,7 @@ router.get('/picklist', function(req, res, next) {
 
     if(notCached(req, res)) {
 
-        let limit  = (typeof req.query.limit === 'undefined')  ? 100 : req.query.limit;
+        let limit  = (typeof req.query.limit  === 'undefined') ? 100 : req.query.limit;
         let offset = (typeof req.query.offset === 'undefined') ?   0 : req.query.offset;
         let filter = (typeof req.query.filter === 'undefined') ?  '' : req.query.filter;
 
@@ -612,11 +612,13 @@ router.post('/create', function(req, res) {
     console.log('  req.body.wsId       = ' + req.body.wsId);
     console.log('  req.body.sections   = ' + req.body.sections);
     console.log('  req.body.image      = ' + req.body.image);
+    console.log('  req.body.getDetails = ' + req.body.getDetails);
     console.log(' ');
 
-    let prefix   = '/api/v3/workspaces/' + req.body.wsId;
-    let url      = req.app.locals.tenantLink + prefix + '/items';
-    let sections = [];
+    let getDetails = (typeof req.body.getDetails === 'undefined') ? false : req.body.getDetails;
+    let prefix     = '/api/v3/workspaces/' + req.body.wsId;
+    let url        = req.app.locals.tenantLink + prefix + '/items';
+    let sections   = [];
 
     for(let section of req.body.sections) {
 
@@ -641,17 +643,43 @@ router.post('/create', function(req, res) {
         sections.push(sect);
 
     }
-    
+
     axios.post(url, {
         'sections' : sections
     }, { headers : req.session.headers }).then(function (response) {
+
         if((typeof req.body.image !== 'undefined') && (req.body.image !== null)) {
+
             uploadImage(req, response.headers.location, function() {
-                sendResponse(req, res, { 'data' : response.headers.location }, false);
+                if(getDetails) {
+                    axios.get(req.app.locals.tenantLink + response.headers.location, { 
+                        headers : req.session.headers 
+                    }).then(function (response) {
+                        sendResponse(req, res, response, false);
+                    }).catch(function (error) {
+                        sendResponse(req, res, error.response, true);
+                    });
+                } else {
+                    sendResponse(req, res, { 'data' : response.headers.location }, false);
+                }
             });
+
+        } else if(getDetails) {
+
+            axios.get(response.headers.location, { 
+                headers : req.session.headers 
+            }).then(function (response) {
+                sendResponse(req, res, response, false);
+            }).catch(function (error) {
+                sendResponse(req, res, error.response, true);
+            });
+
         } else {
+
             sendResponse(req, res, { 'data' : response.headers.location }, false);
+            
         }
+
     }).catch(function (error) {
         sendResponse(req, res, error.response, true);
     });
@@ -2060,23 +2088,23 @@ router.get('/managed-fields', function(req, res, next) {
 
 
 /* ----- ADD MANAGED ITEMS ----- */
-router.get('/add-managed-items', function(req, res, next) {
+router.post('/add-managed-items', function(req, res, next) {
 
     console.log(' ');
     console.log('  /add-managed-items');
     console.log(' --------------------------------------------');  
-    console.log('  req.query.wsId   = ' + req.query.wsId);
-    console.log('  req.query.dmsId  = ' + req.query.dmsId);
-    console.log('  req.query.link   = ' + req.query.link);
-    console.log('  req.query.items  = ' + req.query.items);
+    console.log('  req.body.wsId   = ' + req.body.wsId);
+    console.log('  req.body.dmsId  = ' + req.body.dmsId);
+    console.log('  req.body.link   = ' + req.body.link);
+    console.log('  req.body.items  = ' + req.body.items);
 
-    let url =  (typeof req.query.link !== 'undefined') ? req.query.link : '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId;
+    let url =  (typeof req.body.link !== 'undefined') ? req.body.link : '/api/v3/workspaces/' + req.body.wsId + '/items/' + req.body.dmsId;
         url = req.app.locals.tenantLink + url + '/affected-items';
 
     let custHeaders = getCustomHeaders(req);
         custHeaders.Accept = 'application/vnd.autodesk.plm.affected.items.bulk+json';
 
-    axios.post(url, req.query.items, {
+    axios.post(url, req.body.items, {
         headers : custHeaders
     }).then(function(response) {
 

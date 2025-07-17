@@ -137,7 +137,7 @@ function setUIEvents() {
 
                 if(linkedWorkspaces.indexOf(wsIdNew) > -1) {
                     console.log('adding');
-                    $.get('/plm/add-managed-items', { 'link' : link, 'items' : [ $('#item').attr('data-link') ] }, function() {
+                    $.post('/plm/add-managed-items', { 'link' : link, 'items' : [ $('#item').attr('data-link') ] }, function() {
                         openItem(link);
                     });
                 } else {
