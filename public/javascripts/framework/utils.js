@@ -2519,7 +2519,7 @@ function panelSelectAll(id, elemClicked) {
     let elemTop            = $('#' + id );
     let elemContent        = $('#' + id + '-content');
 
-    elemContent.find('.content-item').addClass('selected');
+    elemContent.find('.content-item').addClass('selected').addClass('checked');
     elemContent.find('.content-select-all').addClass('icon-check-box-checked').removeClass('icon-check-box');
 
     updatePanelCalculations(id);
@@ -2540,7 +2540,7 @@ function panelDeselectAll(id, elemClicked) {
     let elemContent        = $('#' + id + '-content');
     let elemFilterSelected = $('#' + id + '-filter-selected-only');
 
-    elemContent.find('.content-item').removeClass('selected');
+    elemContent.find('.content-item').removeClass('selected').removeClass('checked');
     elemContent.find('.content-select-all').removeClass('icon-check-box-checked').addClass('icon-check-box');
 
     if(elemFilterSelected.length > 0) elemFilterSelected.removeClass('icon-toggle-on').addClass('icon-toggle-off').removeClass('filled');
@@ -3159,9 +3159,9 @@ function clickTableToggleAll(elemClicked) {
     elemClicked.toggleClass('icon-check-box').toggleClass('icon-check-box-checked');
 
     if(elemClicked.hasClass('icon-check-box-checked')) {
-        elemTop.find('.content-item').addClass('selected');
+        elemTop.find('.content-item').addClass('checked').addClass('selected');
     } else {
-        elemTop.find('.content-item').removeClass('selected');
+        elemTop.find('.content-item').removeClass('checked').removeClass('selected');
     }
 
     togglePanelToolbarActions(elemClicked);
@@ -3372,7 +3372,7 @@ function panelTableCellValueChanged(elemControl) {
 
     $('#' + id + '-save').show();
 
-    elemTop.find('.content-item.selected').each(function() {
+    elemTop.find('.content-item.checked').each(function() {
         $(this).addClass('changed');
         $(this).children().eq(index).addClass('changed');
         $(this).children().eq(index).children().first().val(value);
@@ -3432,16 +3432,26 @@ function togglePanelToolbarActions(elemClicked) {
 // }
 
 function clickListToggleAllDone(elemClicked) {}
-function clickContentItemSelect(elemCheckbox, e) {
+function clickContentItemSelect(elemClicked, e) {
 
-    let elemTop     = elemCheckbox.closest('.panel-top');
-    let elemClicked = elemCheckbox.closest('.content-item');
     
-    elemClicked.toggleClass('selected');
+    if(elemClicked.hasClass('checked')) elemClicked.addClass('selected'); else elemClicked.toggleClass('selected');
+    
+    let elemTop    = elemClicked.closest('.panel-top');
+    let isSelected = elemClicked.addClass('selected');;
+    // let elemClicked = elemCheckbox.closest('.content-item');
 
     if(!elemClicked.hasClass('selected')) resetTableSelectAllCheckBox(elemClicked);
 
-    if(!elemTop.hasClass('multi-select')) elemClicked.siblings().removeClass('selected');
+    elemTop.find('.content-item').each(function() {
+        if(!$(this).hasClass('checked')) {
+            $(this).removeClass('selected');
+        }
+    });
+
+    if(isSelected) elemClicked.addClass('selected');
+
+    // if(!elemTop.hasClass('multi-select')) elemClicked.siblings().removeClass('selected');
     updateListCalculations(elemTop.attr('id'));
     togglePanelToolbarActions(elemClicked);
     clickContentItemSelectDone(elemClicked, e);

@@ -548,8 +548,10 @@
     cursor : pointer;
 }
 .content-item > td {
-    padding     : 8px 8px;
-    white-space : nowrap;
+    overflow      : hidden;
+    padding       : 8px 8px;
+    text-overflow : ellipsis;
+    white-space   : nowrap;
 }
 /* .content-item > td:first-child {
     border-left : 1px solid transparent;

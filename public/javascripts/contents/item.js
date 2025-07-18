@@ -2338,9 +2338,11 @@ function getImageField(elemParent, value) {
     });
     
 }
-function getEditableFields(fields) {
+function getEditableFields(fields, insertOptions) {
 
     let result = [];
+
+    if(typeof insertOptions === 'undefined') insertOptions = true;
 
     for(let field of fields) {
 
@@ -2370,15 +2372,18 @@ function getEditableFields(fields) {
                         elemControl = $('<input>');
                         break;
 
+                    case 'Paragraph':
+                        elemControl = $('<textarea>');
+                        break;
+
                     case 'Radio Button': 
                     case 'Single Selection': 
                         elemControl = $('<select>');
                         elemControl.addClass('picklist');
-
-                        $('<option></option>').appendTo(elemControl).attr('value', null);
-
-                        getPickListOptions(elemControl, field.picklist, fieldId, 'select', '');
-
+                        if(insertOptions) {
+                            $('<option></option>').appendTo(elemControl).attr('value', null);
+                            getPickListOptions(elemControl, field.picklist, fieldId, 'select', '');
+                        }
                         break;
 
                 }
@@ -2406,6 +2411,7 @@ function getEditableFields(fields) {
                     validators  : field.validators || '',
                     required    : required,
                     maxLength   : maxLength,
+                    picklist    : field.picklist || '',
                     control     : elemControl
                 });
 
@@ -2419,6 +2425,10 @@ function getEditableFields(fields) {
 }
 function getPickListOptions(elemParent, link, fieldId, type, value) {
 
+    console.log('getPickListOptions');
+    console.log(link);
+    console.log(cachePicklists);
+
     for(let picklist of cachePicklists) {
         if(picklist.link === link) {
             insertPickListOptions(elemParent, picklist.data, fieldId, type, value);
@@ -2427,6 +2437,8 @@ function getPickListOptions(elemParent, link, fieldId, type, value) {
     }
 
     $.get( '/plm/picklist', { link : link, limit : 100, offset : 0 }, function(response) {
+
+        console.log(response);
 
         if(!response.error) {
 
@@ -3633,173 +3645,186 @@ function insertGridData(id) {
     }
 
     let requests    = [
-        $.get('/plm/grid', params),
+        $.get('/plm/grid'        , params),
+        $.get('/plm/permissions' , params),
         $.get('/plm/grid-columns', { 
             link            : settings.grid[id].link, 
             useCache        : settings.grid[id].useCache,
             getValidations  : settings.grid[id].editable
         })
-        
     ];
 
-    if((settings.grid[id].editable)) requests.push($.get('/plm/permissions', params));
     if((settings.grid[id].bookmark)) requests.push($.get('/plm/bookmarks', { link : settings.grid[id].link })); 
 
     Promise.all(requests).then(function(responses) {
 
         if(stopPanelContentUpdate(responses[0], settings.grid[id])) return;
 
+        let rows        = responses[0].data;
+        let permissions = responses[1].data;
+        let columns     = responses[2].data;
+        let picklists   = [];
+            requests    = [];
+
         setPanelBookmarkStatus(id, settings.grid[id], responses);
 
-        settings.grid[id].columns = [];
+        if(!hasPermission(permissions, 'edit_grid')) settings.grid[id].editable = false;
 
-        console.log(responses[1].data);
+        settings.grid[id].columns   = [];
+        settings.grid[id].picklists = [];
 
-        for(let field of responses[1].data.fields) {
+        for(let field of columns.fields) {
             if(includePanelTableColumn(field.name, settings.grid[id], settings.grid[id].columns.length)) {
                 field.fieldId = field.__self__.split('/').pop();
                 settings.grid[id].columns.push(field);
-            }
-        }
-
-        let elemContent    = $('#' + id + '-content');
-        let elemTable      = $('<table></table>').appendTo(elemContent).addClass('grid').addClass('row-hovering').attr('id', id + '-table');
-        let elemTHead      = $('<thead></thead>').addClass('fixed').attr('id', id + '-thead');
-        let elemTBody      = $('<tbody></tbody>').appendTo(elemTable).attr('id', id + '-tbody').attr('id', id + '-tbody');
-        let elemTHRow      = $('<tr></tr>').appendTo(elemTHead).addClass('fixed');
-        
-        settings.grid[id].editableFields = (settings.grid[id].editable) ? getEditableFields(settings.grid[id].columns) : [];
-
-        if(settings.grid[id].tableHeaders) elemTHead.prependTo(elemTable);
-
-        console.log(settings.grid[id].editableFields);
-
-
-        if(responses[0].data.length > 0 ) {
-
-            if(!isBlank(settings.grid[id].groupBy)) {
-                for(let row of responses[0].data) {
-                    row.group = getGridRowValue(row, settings.grid[id].groupBy, '', 'title');
-                }
-                sortArray(responses[0].data, 'group', 'string', 'ascending');
-            }
-
-        }
-
-        if(!settings.grid[id].rotate) {
-
-            elemTable.addClass('fixed-header');
-            
-            if(settings.grid[id].editable || settings.grid[id].multiSelect) {
-
-                let elemHeadCell = $('<th></th>').appendTo(elemTHRow);
-                
-                if(settings.grid[id].multiSelect) {
-
-                    elemHeadCell.addClass('table-check-box');
-
-                    $('<div></div>').appendTo(elemHeadCell)
-                        .attr('id', id + '-select-all')
-                        .addClass('content-select-all')
-                        .addClass('icon')
-                        .addClass('icon-check-box')
-                        .addClass('xxs')
-                        .click(function(e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            clickTableToggleAll($(this));
-                        });
-
-                }
-
-            }
-
-            for(let column of settings.grid[id].columns) {
-                let elemCell = $('<th></th>').appendTo(elemTHRow)
-                    .addClass('column-' + column.fieldId)
-                    .html(column.name);
                 if(settings.grid[id].editable) {
-                    if(column.editability === 'ALWAYS') elemCell.addClass('column-editable');
-                    if(column.required) elemCell.addClass('column-required');
+                    if(!isBlank(field.picklist)) {
+                        if(!picklists.includes(field.picklist)) picklists.push(field.picklist);
+                    }
+                }
+            }
+        }
+
+        for(let picklist of picklists) requests.push($.get('/plm/picklist', { link : picklist, useCache : true }));
+
+        Promise.all(requests).then(function(responses) {
+
+            let elemContent    = $('#' + id + '-content');
+            let elemTable      = $('<table></table>').appendTo(elemContent).addClass('grid').addClass('row-hovering').attr('id', id + '-table');
+            let elemTHead      = $('<thead></thead>').addClass('fixed').attr('id', id + '-thead');
+            let elemTBody      = $('<tbody></tbody>').appendTo(elemTable).attr('id', id + '-tbody').attr('id', id + '-tbody');
+            let elemTHRow      = $('<tr></tr>').appendTo(elemTHead).addClass('fixed');
+
+            for(let response of responses) settings.grid[id].picklists.push(response.data);
+            
+            settings.grid[id].editableFields = (settings.grid[id].editable) ? getEditableFields(settings.grid[id].columns, false) : [];
+
+            if(settings.grid[id].tableHeaders) elemTHead.prependTo(elemTable);
+
+            if(rows.length > 0 ) {
+                if(!isBlank(settings.grid[id].groupBy)) {
+                    for(let row of rows) {
+                        row.group = getGridRowValue(row, settings.grid[id].groupBy, '', 'title');
+                    }
+                    sortArray(rows, 'group', 'string', 'ascending');
                 }
             }
 
-            let groupName = null;
-            let groupSpan = settings.grid[id].columns.length;
+            if(!settings.grid[id].rotate) {
 
-            if(settings.grid[id].editable && settings.grid[id].multiSelect) groupSpan++;
+                elemTable.addClass('fixed-header');
+                
+                if(settings.grid[id].editable || settings.grid[id].multiSelect) {
 
-            for(let row of responses[0].data) {
+                    let elemHeadCell = $('<th></th>').appendTo(elemTHRow);
+                    
+                    if(settings.grid[id].multiSelect) {
 
-                if(!isBlank(settings.grid[id].groupBy)) {
+                        elemHeadCell.addClass('table-check-box');
 
-                    if(groupName !== row.group) {
-
-                        let elemGroup = $('<tr></tr>').appendTo(elemTBody)
-                            .addClass('table-group');
-
-                        let elemGroupTitle = $('<td></td>').appendTo(elemGroup)
-                            .addClass('table-group-title')
-                            .attr('colspan', groupSpan)
-                            .html(isBlank(row.group) ? 'n/a' : row.group)
-                            .click(function() {
-                                $(this).toggleClass('collapsed');
-                                if($(this).hasClass('collapsed')) {
-                                    $(this).parent().nextUntil('.table-group').hide();
-                                } else {
-                                    $(this).parent().nextUntil('.table-group').show();
-                                }
+                        $('<div></div>').appendTo(elemHeadCell)
+                            .attr('id', id + '-select-all')
+                            .addClass('content-select-all')
+                            .addClass('icon')
+                            .addClass('icon-check-box')
+                            .addClass('xxs')
+                            .click(function(e) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                clickTableToggleAll($(this));
                             });
-
-                        if(settings.grid[id].collapseContents) elemGroupTitle.addClass('collapsed');
 
                     }
 
-                    groupName = row.group;
+                }
+
+                for(let column of settings.grid[id].columns) {
+                    let elemCell = $('<th></th>').appendTo(elemTHRow)
+                        .addClass('column-' + column.fieldId)
+                        .html(column.name);
+                    if(settings.grid[id].editable) {
+                        if(column.editability === 'ALWAYS') elemCell.addClass('column-editable');
+                        if(column.required) elemCell.addClass('column-required');
+                    }
+                }
+
+                let groupName = null;
+                let groupSpan = settings.grid[id].columns.length;
+
+                if(settings.grid[id].editable && settings.grid[id].multiSelect) groupSpan++;
+
+                for(let row of rows) {
+
+                    if(!isBlank(settings.grid[id].groupBy)) {
+
+                        if(groupName !== row.group) {
+
+                            let elemGroup = $('<tr></tr>').appendTo(elemTBody)
+                                .addClass('table-group');
+
+                            let elemGroupTitle = $('<td></td>').appendTo(elemGroup)
+                                .addClass('table-group-title')
+                                .attr('colspan', groupSpan)
+                                .html(isBlank(row.group) ? 'n/a' : row.group)
+                                .click(function() {
+                                    $(this).toggleClass('collapsed');
+                                    if($(this).hasClass('collapsed')) {
+                                        $(this).parent().nextUntil('.table-group').hide();
+                                    } else {
+                                        $(this).parent().nextUntil('.table-group').show();
+                                    }
+                                });
+
+                            if(settings.grid[id].collapseContents) elemGroupTitle.addClass('collapsed');
+
+                        }
+
+                        groupName = row.group;
+
+                    }
+
+                    insertGridRow(id, row);
 
                 }
 
-                insertGridRow(id, row);
+            } else {
 
-            }
+                elemTable.addClass('rotated');
 
-        } else {
+                for(let column of settings.grid[id].columns) {
 
-            elemTable.addClass('rotated');
+                    let elemTableRow = $('<tr></tr>').appendTo(elemTBody)
+                        .addClass('content-item')
+                        .click(function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            clickGridRow($(this), e);
+                        });
 
-            for(let column of settings.grid[id].columns) {
+                    $('<th></th>').appendTo(elemTableRow).html(column.name);
 
-                let elemTableRow = $('<tr></tr>').appendTo(elemTBody)
-                    .addClass('content-item')
-                    .click(function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        clickGridRow($(this), e);
-                    });
+                    for(let row of responses[0].data) {
 
-                $('<th></th>').appendTo(elemTableRow).html(column.name);
+                        let value   = getGridRowValue(row, column.fieldId, '', 'title');
 
-                for(let row of responses[0].data) {
+                        $('<td></td>').appendTo(elemTableRow).html(value);
 
-                    let value   = getGridRowValue(row, column.fieldId, '', 'title');
-
-                    $('<td></td>').appendTo(elemTableRow).html(value);
+                    }
 
                 }
-
             }
-        }
 
-        if(settings.grid[id].editable) {
-            let permissions = responses[2].data;
-            if(hasPermission(permissions, 'edit_grid'       )) { $('#' + id + '-action-save'  ).removeClass('hidden'); } else { $('#' + id + '-action-save'  ).remove(); }
-            if(hasPermission(permissions, 'add_to_grid'     )) { $('#' + id + '-action-add'   ).removeClass('hidden'); } else { $('#' + id + '-action-add'   ).remove(); }
-            if(hasPermission(permissions, 'add_to_grid'     )) { $('#' + id + '-action-clone' ).removeClass('hidden'); } else { $('#' + id + '-action-clone' ).remove(); }
-            if(hasPermission(permissions, 'delete_from_grid')) { $('#' + id + '-action-remove').removeClass('hidden'); } else { $('#' + id + '-action-remove').remove(); }
-        }
+            if(settings.grid[id].editable) {
+                if(hasPermission(permissions, 'edit_grid'       )) { $('#' + id + '-action-save'  ).removeClass('hidden'); } else { $('#' + id + '-action-save'  ).remove(); }
+                if(hasPermission(permissions, 'add_to_grid'     )) { $('#' + id + '-action-add'   ).removeClass('hidden'); } else { $('#' + id + '-action-add'   ).remove(); }
+                if(hasPermission(permissions, 'add_to_grid'     )) { $('#' + id + '-action-clone' ).removeClass('hidden'); } else { $('#' + id + '-action-clone' ).remove(); }
+                if(hasPermission(permissions, 'delete_from_grid')) { $('#' + id + '-action-remove').removeClass('hidden'); } else { $('#' + id + '-action-remove').remove(); }
+            }
 
-        finishPanelContentUpdate(id, settings.grid[id]);
-        insertGridDataDone(id, responses[0].data, responses[1].data);
+            finishPanelContentUpdate(id, settings.grid[id]);
+            insertGridDataDone(id, rows, columns);
+
+        });
 
     });
 
@@ -3862,6 +3887,7 @@ function insertGridRow(id, row) {
 
                         elemCell.attr('data-title', editableField.title)
                             .attr('data-link', editableField.link)
+                            .attr('data-type', editableField.type)
                             .attr('data-type-id', editableField.typeId)
                             .addClass('column-editable');
 
@@ -3872,15 +3898,23 @@ function insertGridRow(id, row) {
                             .attr('data-id', editableField.id)
                             .addClass('table-input-control');
 
+                        if(editableField.type === 'Paragraph') elemCell.addClass('data-type-paragraph');
+
                         switch (editableField.type) {
                             
                             case 'Single Selection':
                             // case 'Radio Button':
+                                if(editableField.picklist !== '') {
+                                    $('<option></option>').attr('value', null).html('').appendTo(elemControl);
+                                    for(let picklist of settings.grid[id].picklists) {
+                                        if(picklist.__self__.indexOf(editableField.picklist) === 0) {         
+                                            for(let item of picklist.items) {
+                                                $('<option></option>').attr('value', item.link).html(item.title).appendTo(elemControl);
+                                            }                                   
+                                        }
+                                    }
+                                }
                                 let linkValue = getGridRowValue(row, field.fieldId, '', 'link');
-                                let elemValue = $('<option></option>')
-                                    .attr('value', linkValue)
-                                    .html(value)
-                                elemControl.append(elemValue);
                                 elemControl.val(linkValue);
                                 break;
 
@@ -3921,14 +3955,19 @@ function setGridRowEvents(id, elemRow) {
         elemCheckbox.click(function(e) {
             e.preventDefault();
             e.stopPropagation();
-            clickContentItemSelect($(this));
+            let elemContentItem = $(this).closest('.content-item');
+                elemContentItem.toggleClass('checked');
+            clickContentItemSelect(elemContentItem);
+            resetTableSelectAllCheckBox(elemContentItem);
         });
     }
 
     elemRow.find('.table-input-control').each(function() {
         $(this).click(function(e) {
+            // e.preventDefault();
+            // e.stopPropagation();
             $(this).select();
-            $(this).closest('tr').removeClass('selected');
+            // $(this).closest('tr').removeClass('selected');
         })
         .dblclick(function(e) {
             e.stopPropagation()
@@ -4027,12 +4066,13 @@ function saveGridData(id) {
 
         if(!elemRow.hasClass('new')) {
 
-            elemRow.children('td').each(function() {
+            elemRow.children('td.column-editable').each(function() {
                 if(!$(this).hasClass('content-item-check-box')) {
                     let fieldData =  getFieldValue($(this));
                     data.push({
                         fieldId : fieldData.fieldId,
                         value   : (fieldData.value === null) ? null : fieldData.value,
+                        type    : $(this).attr('data-type')
                     });
                 }
             });

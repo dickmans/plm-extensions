@@ -426,19 +426,24 @@ router.get('/picklists', function(req, res, next) {
     console.log(' ');
     console.log('  /picklists');
     console.log(' --------------------------------------------');
-    console.log('  req.query.tenant = ' + req.query.tenant);
+    console.log('  req.query.tenant   = ' + req.query.tenant);
+    console.log('  req.query.useCache = ' + req.query.useCache);
     console.log();
 
-    let url = getTenantLink(req) + '/api/rest/v1/setups/picklists';
-    
-    axios.get(url, {
-        headers : req.session.headers
-    }).then(function(response) {
-        if(response.data === "") response.data = { 'items' : [] };
-        sendResponse(req, res, response, false);
-    }).catch(function (error) {
-        sendResponse(req, res, error.response, true);
-    });
+    if(notCached(req, res)) {
+
+        let url = getTenantLink(req) + '/api/rest/v1/setups/picklists';
+        
+        axios.get(url, {
+            headers : req.session.headers
+        }).then(function(response) {
+            if(response.data === "") response.data = { 'items' : [] };
+            sendResponse(req, res, response, false);
+        }).catch(function (error) {
+            sendResponse(req, res, error.response, true);
+        });
+
+    }
 
 });
 
@@ -1553,83 +1558,50 @@ router.post('/add-grid-row', function(req, res, next) {
     console.log('  req.body.data    = ' + req.body.data);
     console.log(); 
     
-    let wsId = (typeof req.body.wsId !== 'undefined') ? req.body.wsId : req.body.link.split('/')[4];
-
-    let url =  (typeof req.body.link !== 'undefined') ? req.body.link : '/api/v3/workspaces/' + req.body.wsId + '/items/' + req.body.dmsId;
+    let url  = (typeof req.body.link !== 'undefined') ? req.body.link : '/api/v3/workspaces/' + req.body.wsId + '/items/' + req.body.dmsId;
         url  = req.app.locals.tenantLink + url;
         url += '/views/13/rows';
 
-    let rowData = [];
-
-    for(let field of req.body.data) {
-        let value = (field.value === 'null') ? null : field.value;
-        rowData.push({
-            '__self__' : '/api/v3/workspaces/' + wsId + '/views/13/fields/' + field.fieldId,
-            'value' : value
-        });
-    }
+    let rowData = genGridRowData(req);
 
     axios.post(url, {
-        'rowData' : rowData
+        rowData : rowData
     }, {
         headers : req.session.headers
     }).then(function(response) {
-        sendResponse(req, res, { 'data' : response.headers.location, 'status' : response.status }, false);
+        sendResponse(req, res, { data : response.headers.location, status : response.status }, false);
     }).catch(function(error) {
         sendResponse(req, res, error.response, true);
     });
     
 });
+function genGridRowData(req) {
 
+    let result = [];
+    let wsId   = (typeof req.body.wsId !== 'undefined') ? req.body.wsId : req.body.link.split('/')[4];
 
-/* ----- ADD GRID ROWS ----- */
-// router.get('/add-grid-rows', function(req, res, next) {
-    
-//     console.log(' ');
-//     console.log('  /add-grid-row');
-//     console.log(' --------------------------------------------'); 
-//     console.log('  req.query.wsId    = ' + req.query.wsId);
-//     console.log('  req.query.dmsId   = ' + req.query.dmsId);
-//     console.log('  req.query.link    = ' + req.query.link);
-//     console.log('  req.query.data    = ' + req.query.data);
-//     console.log(); 
-    
+    for(let field of req.body.data) {
+        
+        let value = (field.value === 'null') ? null : field.value;
+        let type  = (typeof field.type === 'undefined') ? 'string' : field.type.toLowerCase();
 
-//     let url =  (typeof req.query.link !== 'undefined') ? req.query.link : '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId;
-//         url  = req.app.locals.tenantLink + url;
-//         url += '/views/13/rows';
+        if(value === '') value = null;
 
-//     let rowData = [];
+        if(value !== null) {
+            if(type === 'integer') value = parseInt(field.value);
+        }
 
-//     for(field of req.query.data) {
+        result.push({
+            __self__ : '/api/v3/workspaces/' + wsId + '/views/13/fields/' + field.fieldId,
+            value    : value
+        });
 
-//         rowData.push({
-//             '__self__' : '/api/v3/workspaces/' + req.query.wsId + '/views/13/fields/' + field.fieldId,
-//             'value' : field.value
-//         });
+    }
 
-//     }
+    return result;
 
+}
 
-//     console.log(rowData);
-
-
-//     let rows = [];
-
-//     let headers = getCustomHeaders(req);
-//         headers['Accept'] = 'application/vnd.autodesk.plm.grid.rows.bulk+json';
-
-
-//     axios.post(url, rows, {
-//         headers : headers
-//     }).then(function(response) {
-//         let result = (response.data === '') ? [] : response.data.rows;
-//         sendResponse(req, res, { 'data' : result, 'status' : response.status }, false);
-//     }).catch(function(error) {
-//         sendResponse(req, res, error.response, true);
-//     });
-    
-// });
 
 
 /* ----- UPDATE GRID ROW ----- */
@@ -1644,34 +1616,20 @@ router.post('/update-grid-row', function(req, res, next) {
     console.log('  req.body.rowId   = ' + req.body.rowId);
     console.log('  req.body.data    = ' + req.body.data);
     console.log(); 
-    
 
-    let wsId = (typeof req.body.wsId !== 'undefined') ? req.body.wsId : '';
-
-    if(wsId === '') {
-        if(typeof req.body.link !== 'undefined') wsId = req.body.link.split('/')[4];
-    }
-
-    let url =  (typeof req.body.link !== 'undefined') ? req.body.link : '/api/v3/workspaces/' + wsId + '/items/' + req.body.dmsId;
+    let url  = (typeof req.body.link !== 'undefined') ? req.body.link : '/api/v3/workspaces/' + req.body.wsId + '/items/' + req.body.dmsId;
         url  = req.app.locals.tenantLink + url;
-        url += '/views/13/rows/' + req.body.rowId;
+        url += '/views/13/rows/'  + req.body.rowId;
 
-    let rowData = [];
-
-    for(let field of req.body.data) {
-        rowData.push({
-            '__self__' : '/api/v3/workspaces/' + wsId + '/views/13/fields/' + field.fieldId,
-            'value'    : (field.value === 'null') ? null : field.value
-        });
-    }
+    let rowData = genGridRowData(req);
 
     axios.put(url, {
-        'rowData' : rowData
+        rowData : rowData
     }, {
         headers : req.session.headers
     }).then(function(response) {
         let result = (response.data === '') ? [] : response.data.rows;
-        sendResponse(req, res, { 'data' : result, 'status' : response.status }, false);
+        sendResponse(req, res, { data : result, status : response.status }, false);
     }).catch(function(error) {
         sendResponse(req, res, error.response, true);
     });

@@ -748,7 +748,7 @@
     width       : 30px;
     text-align  : center;
 }
-tr.selected > td.content-item-check-box > .icon::before {
+tr.checked > td.content-item-check-box > .icon::before {
     content : '\e834';
 }
 
@@ -782,18 +782,20 @@ tr.selected > td.content-item-check-box > .icon::before {
 .panel-content.xl  .table-group-title::before { margin-right : 24px; }
 .panel-content.xxl .table-group-title::before { margin-right : 24px; }
 
-.panel-content.xxs thead th, .panel-content.xxs tr > td, .panel-content.xxs tr.content-item > td > input {  height : 22px; line-height : 22px; padding : 0px  6px; }
-.panel-content.xs  thead th, .panel-content.xs  tr > td, .panel-content.xs  tr.content-item > td > input {  height : 26px; line-height : 26px; padding : 0px 10px; }
-.panel-content.s   thead th, .panel-content.s   tr > td, .panel-content.s   tr.content-item > td > input {  height : 30px; line-height : 30px; padding : 0px 14px; }
-.panel-content.m   thead th, .panel-content.m   tr > td, .panel-content.m   tr.content-item > td > input {  height : 34px; line-height : 34px; padding : 0px 16px; }
-.panel-content.l   thead th, .panel-content.l   tr > td, .panel-content.l   tr.content-item > td > input {  height : 38px; line-height : 38px; padding : 0px 16px; }
-.panel-content.xl  thead th, .panel-content.xl  tr > td, .panel-content.xl  tr.content-item > td > input {  height : 42px; line-height : 42px; padding : 0px 18px; }
-.panel-content.xxl thead th, .panel-content.xxl tr > td, .panel-content.xxl tr.content-item > td > input {  height : 46px; line-height : 46px; padding : 0px 20px; }
+.panel-content.xxs thead th, .panel-content.xxs tr > td, .panel-content.xxs tr.content-item > td > input, .panel-content.xxs tr.content-item > td > select, .panel-content.xxs tr.content-item > td > textarea {  height : 22px; line-height : 22px; padding : 0px  6px; }
+.panel-content.xs  thead th, .panel-content.xs  tr > td, .panel-content.xs  tr.content-item > td > input, .panel-content.xs  tr.content-item > td > select, .panel-content.xs  tr.content-item > td > textarea {  height : 26px; line-height : 26px; padding : 0px 10px; }
+.panel-content.s   thead th, .panel-content.s   tr > td, .panel-content.s   tr.content-item > td > input, .panel-content.s   tr.content-item > td > select, .panel-content.s   tr.content-item > td > textarea {  height : 30px; line-height : 30px; padding : 0px 14px; }
+.panel-content.m   thead th, .panel-content.m   tr > td, .panel-content.m   tr.content-item > td > input, .panel-content.m   tr.content-item > td > select, .panel-content.m   tr.content-item > td > textarea {  height : 34px; line-height : 34px; padding : 0px 16px; }
+.panel-content.l   thead th, .panel-content.l   tr > td, .panel-content.l   tr.content-item > td > input, .panel-content.l   tr.content-item > td > select, .panel-content.l   tr.content-item > td > textarea {  height : 38px; line-height : 38px; padding : 0px 16px; }
+.panel-content.xl  thead th, .panel-content.xl  tr > td, .panel-content.xl  tr.content-item > td > input, .panel-content.xl  tr.content-item > td > select, .panel-content.xl  tr.content-item > td > textarea {  height : 42px; line-height : 42px; padding : 0px 18px; }
+.panel-content.xxl thead th, .panel-content.xxl tr > td, .panel-content.xxl tr.content-item > td > input, .panel-content.xxl tr.content-item > td > select, .panel-content.xxl tr.content-item > td > textarea {  height : 46px; line-height : 46px; padding : 0px 20px; }
+
+.panel-content td.data-type-paragraph { line-height : 0px !important; }
 
 .panel-content.xxs tr.content-item > td > input {  width : calc(100% - 12px); }
 .panel-content.xs  tr.content-item > td > input {  width : calc(100% - 20px); }
 .panel-content.s   tr.content-item > td > input {  width : calc(100% - 28px); }
-.panel-content.m   tr.content-item > td > input {  width : calc(100% - 32px); }
+.panel-content.m   tr.content-item > td > input, .panel-content.m   tr.content-item > td > textarea {  width : calc(100% - 32px); }
 .panel-content.l   tr.content-item > td > input {  width : calc(100% - 32px); }
 .panel-content.xl  tr.content-item > td > input {  width : calc(100% - 36px); }
 .panel-content.xxl tr.content-item > td > input {  width : calc(100% - 40px); }
@@ -817,20 +819,33 @@ tr.selected > td.content-item-check-box > .icon::before {
 .panel-content   > table > tbody > tr > td.column-editable { padding-left : 0px !important; padding-right : 0px !important; }
 .surface-level-1 > table > tbody > tr > td.column-editable { padding-left : 0px !important; padding-right : 0px !important; }
 
-.surface-level-1 td.column-editable { background : var(--color-surface-level-2); border-right : 1px solid var(--color-surface-level-1); } 
-.surface-level-2 td.column-editable { background : var(--color-surface-level-3); border-right : 1px solid var(--color-surface-level-2); } 
-.surface-level-3 td.column-editable { background : var(--color-surface-level-2); border-right : 1px solid var(--color-surface-level-3); } 
-.surface-level-4 td.column-editable { background : var(--color-surface-level-1); border-right : 1px solid var(--color-surface-level-4); } 
-.surface-level-5 td.column-editable { background : var(--color-surface-level-1); border-right : 1px solid var(--color-surface-level-5); } 
+.surface-level-1 table.grid td { border-right : 1px solid var(--color-surface-level-1); } 
+.surface-level-2 table.grid td { border-right : 1px solid var(--color-surface-level-2); } 
+.surface-level-3 table.grid td { border-right : 1px solid var(--color-surface-level-3); } 
+.surface-level-4 table.grid td { border-right : 1px solid var(--color-surface-level-4); } 
+.surface-level-5 table.grid td { border-right : 1px solid var(--color-surface-level-5); } 
+.surface-level-1 table.grid td.column-editable { background : var(--color-surface-level-2); } 
+.surface-level-2 table.grid td.olumn-editabled { background : var(--color-surface-level-3); } 
+.surface-level-3 table.grid td.olumn-editabled { background : var(--color-surface-level-2); } 
+.surface-level-4 table.grid td.column-editable { background : var(--color-surface-level-1); } 
+.surface-level-5 table.grid td.column-editable { background : var(--color-surface-level-1); } 
 
-.surface-level-1 td > input, .surface-level-1 td > select { background : var(--color-surface-level-2); border-bottom : none; border-left : 2px solid var(--color-surface-level-1); } 
-.surface-level-2 td > input, .surface-level-2 td > select { background : var(--color-surface-level-3); border-bottom : none; border-left : 2px solid var(--color-surface-level-2); } 
-.surface-level-3 td > input, .surface-level-3 td > select { background : var(--color-surface-level-2); border-bottom : none; border-left : 2px solid var(--color-surface-level-3); } 
-.surface-level-4 td > input, .surface-level-4 td > select { background : var(--color-surface-level-1); border-bottom : none; border-left : 2px solid var(--color-surface-level-4); } 
-.surface-level-5 td > input, .surface-level-5 td > select { background : var(--color-surface-level-1); border-bottom : none; border-left : 2px solid var(--color-surface-level-5); } 
+.surface-level-1 td > input, .surface-level-1 td > select, .surface-level-1 td > textarea { background : var(--color-surface-level-2); border-bottom : none; } 
+.surface-level-2 td > input, .surface-level-2 td > select, .surface-level-2 td > textarea { background : var(--color-surface-level-3); border-bottom : none; } 
+.surface-level-3 td > input, .surface-level-3 td > select, .surface-level-3 td > textarea { background : var(--color-surface-level-2); border-bottom : none; } 
+.surface-level-4 td > input, .surface-level-4 td > select, .surface-level-4 td > textarea { background : var(--color-surface-level-1); border-bottom : none; } 
+.surface-level-5 td > input, .surface-level-5 td > select, .surface-level-5 td > textarea { background : var(--color-surface-level-1); border-bottom : none; } 
+/* .surface-level-1 td > input, .surface-level-1 td > select, .surface-level-1 td > textarea { background : var(--color-surface-level-2); border-bottom : none; border-left : 2px solid var(--color-surface-level-1); } 
+.surface-level-2 td > input, .surface-level-2 td > select, .surface-level-2 td > textarea { background : var(--color-surface-level-3); border-bottom : none; border-left : 2px solid var(--color-surface-level-2); } 
+.surface-level-3 td > input, .surface-level-3 td > select, .surface-level-3 td > textarea { background : var(--color-surface-level-2); border-bottom : none; border-left : 2px solid var(--color-surface-level-3); } 
+.surface-level-4 td > input, .surface-level-4 td > select, .surface-level-4 td > textarea { background : var(--color-surface-level-1); border-bottom : none; border-left : 2px solid var(--color-surface-level-4); } 
+.surface-level-5 td > input, .surface-level-5 td > select, .surface-level-5 td > textarea { background : var(--color-surface-level-1); border-bottom : none; border-left : 2px solid var(--color-surface-level-5); }  */
 
 th.column-required,
 td.column-required > * { border-left : 2px solid var(--color-status-red) !important; }
+.content-item.search-match { color : var(--color-blue-500);}
+.content-item > td.changed > * { background : var(--color-status-red-bright) !important; }
+/* .content-item.selected > td.column-editable > * { background : var(--color-blue-600); } */
 
 
 
@@ -1447,13 +1462,6 @@ and (max-device-width : 1900px)  {
 .panel-images.xxl > div { line-height : 320px; max-height : 320px; min-height : 320px; height : 320px; max-width : 320px; min-width : 320px; width : 320px; }
 
 
-.content-item.search-match {
-    color : var(--color-blue-500);
-}
-.content-item > td.changed > * { 
-    background : var(--color-status-red-bright);
-}
-
 .panel-footer {
     display         : flex;
     gap             : 14px;
@@ -1645,16 +1653,9 @@ and (max-device-width : 1900px)  {
 .panel-top.compact .panel-content table tbody td {
     padding : 3px 6px;   
 }
-.panel-action-remove {
-    order : -2;
-}
 .panel-action-remove::before { 
     color : var(--color-red-500);
 }
-.panel-action-clone {
-    order : -1;
-}
-
 
 
 
