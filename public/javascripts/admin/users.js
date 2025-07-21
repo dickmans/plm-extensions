@@ -598,6 +598,8 @@ function updateUserTheme(index) {
         let remaining   = users.length - index;
         let limit       = (remaining > maxRequests) ? maxRequests : remaining;
 
+        limit += index;
+
         for(let i = index; i < limit; i++) {
 
             let user = users[i];
