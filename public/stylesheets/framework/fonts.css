@@ -215,6 +215,7 @@
 .icon-bom::before               { content : '\e242'; }
 .icon-bom-tree::before          { content : '\e94b'; }
 .icon-calendar::before          { content : '\ebcc'; }
+.icon-cancel::before            { content : '\e5c9'; }
 .icon-cart-add::before          { content : '\e854'; }
 .icon-cart-remove::before       { content : '\e928'; }
 .icon-cart-clear::before        { content : '\f4f7'; }
