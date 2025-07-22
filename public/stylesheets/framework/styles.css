@@ -52,6 +52,42 @@
 
 
 
+/*  LAYOUT : ABSOLULTE POSITIONING */
+/* ----------------------------------------------------------------------------- */
+.pos-abs-max {
+    position    : absolute;
+    top         : 0px;
+    right       : 0px;
+    bottom      : 0px;
+    left        : 0px;
+}
+.pos-abs-top {
+    position    : absolute;
+    top         : 0px;
+    right       : 0px;
+    left        : 0px;
+}
+.pos-abs-right {
+    position    : absolute;
+    top         : 0px;
+    bottom      : 0px;
+    left        : 0px;
+}
+.pos-abs-bottom {
+    position    : absolute;
+    right       : 0px;
+    bottom      : 0px;
+    left        : 0px;
+}
+.pos-abs-left {
+    position    : absolute;
+    top         : 0px;
+    bottom      : 0px;
+    left        : 0px;
+}
+
+
+
 /*  LAYOUT : SPLIT (Landing Page) */
 /* ----------------------------------------------------------------------------- */
 .split {
@@ -2108,7 +2144,7 @@ select.button.main:hover {
 .button.icon {
     font-family : 'Material Symbols Sharp';
     font-size   : 24px;
-    font-weight : 300;
+    font-weight : 200;
     height      : 36px;
     line-height : 36px;
     min-width   : 36px;
