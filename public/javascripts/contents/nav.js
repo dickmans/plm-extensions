@@ -1016,15 +1016,31 @@ function insertResults(wsId, filters, params) {
         }      
     }
 
-    if(!isBlank(settings.results[id].tileTitle)) {
-        if(!settings.results[id].fields.includes(settings.results[id].tileTitle)) {
-            settings.results[id].fields.push(settings.results[id].tileTitle);
+    if(typeof settings.results[id].tileTitle == 'string') {
+        if(!isBlank(settings.results[id].tileTitle)) {
+            if(!settings.results[id].fields.includes(settings.results[id].tileTitle)) {
+                settings.results[id].fields.push(settings.results[id].tileTitle);
+            }
+        }
+    } else if(typeof settings.results[id].tileTitle == 'object') {
+        for(let tileTitle of settings.results[id].tileTitle) {
+            if(!settings.results[id].fields.includes(tileTitle)) {
+                settings.results[id].fields.push(tileTitle);
+            }
         }
     }
 
-    if(!isBlank(settings.results[id].tileSubtitle)) {
-        if(!settings.results[id].fields.includes(settings.results[id].tileSubtitle)) {
-            settings.results[id].fields.push(settings.results[id].tileSubtitle);
+    if(typeof settings.results[id].tileSubtitle == 'string') {
+        if(!isBlank(settings.results[id].tileSubtitle)) {
+            if(!settings.results[id].fields.includes(settings.results[id].tileSubtitle)) {
+                settings.results[id].fields.push(settings.results[id].tileSubtitle);
+            }
+        }
+    } else if(typeof settings.results[id].tileSubtitle == 'object') {
+        for(let tileSubtitle of settings.results[id].tileSubtitle) {
+            if(!settings.results[id].fields.includes(tileSubtitle)) {
+                settings.results[id].fields.push(tileSubtitle);
+            }
         }
     }
 
@@ -1138,15 +1154,42 @@ function insertResultsData(id) {
                 link : '/api/v3/workspaces/' + settings.results[id].wsId + '/items/' + row.dmsId
             })
 
+            if(typeof settings.results[id].tileTitle == 'object') {
+                contentItem.tileTitles = [];
+                for(let tileTitle of settings.results[id].tileTitle) {
+                    contentItem.tileTitles[tileTitle] = '';
+                }
+            }
+            if(typeof settings.results[id].tileSubtitle == 'object') {
+                contentItem.tileSubtitles = [];
+                for(let tileSubtitle of settings.results[id].tileSubtitle) {
+                    contentItem.tileSubtitles[tileSubtitle] = '';
+                }
+            }
+
             for(let field of row.fields.entry) {
 
                 if(field.key === config.items.fieldIdNumber           ) contentItem.partNumber = field.fieldData.value;
                 if(field.key === settings.results[id].tileImageFieldId) contentItem.imageId    = field.fieldData.value;
-                if(field.key === settings.results[id].tileTitle       ) contentItem.title      = field.fieldData.value;
-                if(field.key === settings.results[id].tileSubtitle    ) contentItem.subtitle   = field.fieldData.value;
                 if(field.key === settings.results[id].groupBy         ) contentItem.group      = field.fieldData.value;
                 if(field.key === 'DESCRIPTOR'                         ) contentItem.descriptor = field.fieldData.value;
                 if(field.key === 'WF_CURRENT_STATE'                   ) contentItem.status     = field.fieldData.value;
+
+                if(typeof settings.results[id].tileTitle == 'string') {
+                    if(field.key === settings.results[id].tileTitle) contentItem.title = field.fieldData.value;
+                } else if(typeof settings.results[id].tileTitle == 'object') {
+                    for(let tileTitle of settings.results[id].tileTitle) {
+                        if(field.key === tileTitle) contentItem.tileTitles[tileTitle] = field.fieldData.value;
+                    }
+                }
+
+                if(typeof settings.results[id].tileSubtitle == 'string') {
+                    if(field.key === settings.results[id].tileSubtitle) contentItem.subtitle = field.fieldData.value;
+                } else if(typeof settings.results[id].tileSubtitle == 'object') {
+                    for(let tileSubtitle of settings.results[id].tileSubtitle) {
+                        if(field.key === tileSubtitle) contentItem.tileSubtitles[tileSubtitle] = field.fieldData.value;
+                    }
+                } 
 
                 for(let tileDetail of contentItem.details) {
                     if(field.key === tileDetail.fieldId) {
@@ -1190,7 +1233,23 @@ function insertResultsData(id) {
 
                 }
 
+            }
 
+            if(typeof settings.results[id].tileTitle == 'object') {
+                for(let tileTitle of settings.results[id].tileTitle) {
+                    if(contentItem.tileTitles[tileTitle] !== '') {
+                        contentItem.title = contentItem.tileTitles[tileTitle];
+                        break;
+                    }
+                }
+            }
+            if(typeof settings.results[id].tileSubtitle == 'object') {
+                for(let tileSubtitle of settings.results[id].tileSubtitle) {
+                    if(contentItem.tileSubtitles[tileSubtitle] !== '') {
+                        contentItem.subtitle = contentItem.tileSubtitles[tileSubtitle];
+                        break;
+                    }
+                }
             }
 
             items.push(contentItem);
