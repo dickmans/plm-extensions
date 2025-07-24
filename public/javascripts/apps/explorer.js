@@ -18,12 +18,10 @@ let paramsDetails = {
     expandSections  : ['Basic'],
     fieldsEx        : ['ACTIONS'],
     toggles         : true
-
 }
 let paramsAttachments = { 
     editable      : true,
     layout        : 'row',
-    contentSize   : 'm', 
     reload        : false,
     extensionsEx  : ['.dwf', '.dwfx'],
     filterByType  : true,
@@ -37,7 +35,6 @@ let paramsProcesses = {
     reload              : false,
     editable            : true,
     openOnDblClick      : true,
-    contentSize         : 'm',
     createWSID          : '' ,
     fieldIdMarkup       : ''
 }
