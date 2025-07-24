@@ -226,6 +226,7 @@
 .icon-check-box-checked::before { content : '\e834'; }
 .icon-check-circle-add::before  { content : '\f23a'; }
 .icon-clear::before             { content : '\e14b'; }
+.icon-clipboard-add::before     { content : '\f848'; }
 .icon-clone::before             { content : '\e14d'; }
 .icon-close::before             { content : '\e5cd'; }
 .icon-collapse::before          { content : '\e5cf'; }
