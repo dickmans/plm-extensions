@@ -229,67 +229,6 @@ function setUIEvents() {
     });
 
 
-    // Process Creation
-    // $('#create-process').click(function() {
-        
-    //     let elemParent = $('#processes-sections');
-    //         elemParent.html('');
-    //         elemParent.show();
-
-    //     $(this).siblings().show();
-    //     $(this).hide();
-
-    //     $('#processes-list').hide();
-
-    //     insertItemDetailsFields('', 'processes', wsProblemReports.sections, wsProblemReports.fields, null, true, true, true);
-
-    // });
-    // $('#cancel-process').click(function() {
-
-    //     $('.process-dialog').hide();
-    //     $('#create-process').show();
-    //     $('#processes-list').show();
-    //     $('#processes-sections').hide();
-
-    // });
-    // $('#save-process').click(function() {
-
-    //     $('#processes-processing').show();
-    //     $('#processes-processing').siblings('.panel-content').hide();
-
-    //     if(!validateForm($('#processes-sections'))) {
-    //         showErrorMessage('Cannot Save', 'Field validations faild');
-    //         return;
-    //     }
-
-    //     viewerCaptureScreenshot(null, function() {
-
-    //         $('#processes-sections').hide();
-    //         $('#processes-list').html('');
-    //         $('#processes-list').show('');
-    //         $('#processes-sections');
-    
-    //         let link = $('#processes').attr('data-link');
-    
-    //         submitCreateForm(wsProblemReports.id, $('#processes-sections'), 'viewer-markup-image', function(response ) {
-
-    //             let newLink = response.data.split('.autodeskplm360.net')[1];
-
-    //             $.get('/plm/add-managed-items', { 'link' : newLink, 'items' : [ link ] }, function(response) {
-
-    //                 insertChangeProcesses(link, paramsProcesses);
-    //                 $('.process-dialog').hide();
-    //                 $('#create-process').show();
-    //                 $('#processes-list').show();
-    //             });
-
-    //         });
-
-    //     });
-
-    // });
-
-
     // Create Connect Dialog
     $('#create-connect-cancel').click(function() {
         $('#overlay').hide();
@@ -412,8 +351,6 @@ function selectItemVersion() {
 
     kpis = [];
 
-    // for(let kpi of config.explorer.kpis) kpis.push(kpi);
-
     viewerLeaveMarkupMode();
     getBOMData(linkVersion, revBias);
     insertViewer(linkVersion);
@@ -462,10 +399,6 @@ function onViewerSelectionChanged(event) {
                                     if($(this).attr('data-part-number') === partNumber) {
                                         found = true;
                                         $(this).click();
-                                        // if(!$(this).hasClass('selected')) {
-
-                                        // }
-                                        
                                     }
                                 }
                             });
@@ -530,11 +463,8 @@ function getBOMData(link, revBias) {
 }
 function setFlatBOMHeader() {
 
-    let elemFlatBOMTHead = $('<thead></thead>');
-        elemFlatBOMTHead.appendTo($('#bom-table-flat'));
-
-    let elemFlatBOMHead = $('<tr></tr>');
-        elemFlatBOMHead.appendTo(elemFlatBOMTHead);
+    let elemFlatBOMTHead = $('<thead></thead>').appendTo($('#bom-table-flat'));
+    let elemFlatBOMHead  = $('<tr></tr>').appendTo(elemFlatBOMTHead);
     
     let elemFlatBOMHeadCheck = $('<th></th>');
         elemFlatBOMHeadCheck.html('<div id="flat-bom-select-all" class="icon flat-bom-check-box xxs"></div>');
@@ -543,29 +473,23 @@ function setFlatBOMHeader() {
             toggleSelectAll();
         });
 
-    let elemFlatBOMHeadNumber = $('<th></th>');
-        elemFlatBOMHeadNumber.html('Nr');
-        elemFlatBOMHeadNumber.addClass('sticky');
-        elemFlatBOMHeadNumber.appendTo(elemFlatBOMHead);
+    $('<th></th>').appendTo(elemFlatBOMHead)
+        .html('Nr')
+        .addClass('sticky');
 
-    let elemFlatBOMHeadItem = $('<th></th>');
-        elemFlatBOMHeadItem.html('Item');
-        elemFlatBOMHeadItem.addClass('sticky');
-        elemFlatBOMHeadItem.appendTo(elemFlatBOMHead);
+    $('<th></th>').appendTo(elemFlatBOMHead)
+        .html('Item')
+        .addClass('sticky');
 
-    let elemFlatBOMHeadQty = $('<th></th>');
-        elemFlatBOMHeadQty.html('Qty');
-        elemFlatBOMHeadQty.appendTo(elemFlatBOMHead); 
+    $('<th></th>').appendTo(elemFlatBOMHead).html('Qty');
 
-    for(kpi of kpis) {
+    for(let kpi of kpis) {
         let elemFlatBOMHeadCell = $('<th></th>');
             elemFlatBOMHeadCell.html(kpi.title);
             elemFlatBOMHeadCell.appendTo(elemFlatBOMHead);       
     }
    
-    let elemFlatBOMTBody = $('<tbody></tbody>');
-        elemFlatBOMTBody.attr('id', 'bom-table-flat-tbody');
-        elemFlatBOMTBody.appendTo($('#bom-table-flat'));
+    $('<tbody></tbody>').appendTo($('#bom-table-flat')).attr('id', 'bom-table-flat-tbody');
 
 }
 function setBOMData(bom, flatBom) {
