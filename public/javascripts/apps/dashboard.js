@@ -17,11 +17,6 @@ let wsConfig        = {
     tableauLink           : '',
     markupsImageFieldsPrefix     : 'MARKUP_'
 }
-let wsConfigBrowser = {
-    id       : '95',
-    viewName : 'Product Browser',
-    tableau  : ''
-}
 
 
 $(document).ready(function() {
@@ -31,6 +26,8 @@ $(document).ready(function() {
         if(wsId === profile.wsId.toString()) {
 
             wsConfig.id              = profile.wsId.toString();
+            wsConfig.newHeader       = profile.newHeader || 'Initiate New Process';
+            wsConfig.newMessage      = profile.newMessage || 'You encountered an issue? Please provide a few details below and let us fix the problem. You can provide more details and also upload files in the next step.';
             wsConfig.className       = profile.className;
             wsConfig.contents        = profile.contents;
             wsConfig.progress        = profile.progress;
@@ -94,11 +91,12 @@ $(document).ready(function() {
     } else {
 
         $('#header-title').html(title);
+        $('#new-header').html(wsConfig.newHeader);
+        $('#new-message').html(wsConfig.newMessage);
 
         document.title = title;
 
         appendNoDataFound('list');
-
         appendOverlay(false);
 
         setUIEvents();

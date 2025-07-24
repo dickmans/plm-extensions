@@ -250,6 +250,8 @@ exports.config = {
     },{
         title       : 'Problem Reporting Dashboard',
         wsId        : 82,
+        newHeader   : 'Create new Problem Report',
+        newMessage  : 'You encountered an issue? Help us improving our products by submitting a new problem report. This will inform our engineering team automatically.',
         className   : 'problem-report',
         contents    : [ 
             { type : 'workflow-history', params : { id : 'workflow-history' } },
