@@ -622,35 +622,11 @@ router.post('/create', function(req, res) {
 
     let getDetails = (typeof req.body.getDetails === 'undefined') ? false : req.body.getDetails;
     let prefix     = '/api/v3/workspaces/' + req.body.wsId;
-    let url        = req.app.locals.tenantLink + prefix + '/items';
-    let sections   = [];
-
-    for(let section of req.body.sections) {
-
-        let sect = {
-            'link'   : (typeof section.link === 'undefined') ? prefix + '/sections/' + section.id : section.link,
-            'fields' : []
-        }
-        
-        for(let field of section.fields) {
-            
-            let value = field.value;
-            let type  = (typeof field.type === 'undefined') ? 'string' : field.type.toLowerCase();
-            
-            if(type === 'integer') value = parseInt(field.value);
-
-            sect.fields.push({
-                '__self__'  : prefix + '/views/1/fields/' + field.fieldId,
-                'value'     : value
-            });
-        }
-
-        sections.push(sect);
-
-    }
+    let url        = getTenantLink(req) + prefix + '/items';
+    let sections   = parseSectionPayload(req, prefix, 'create');
 
     axios.post(url, {
-        'sections' : sections
+        sections : sections
     }, { headers : req.session.headers }).then(function (response) {
 
         if((typeof req.body.image !== 'undefined') && (req.body.image !== null)) {
@@ -691,6 +667,64 @@ router.post('/create', function(req, res) {
 
 
 });
+function parseSectionPayload(req, prefix, mode) {
+
+    let sections  = [];
+    let insertion = (mode === 'edit') ? '/views/1' : '';
+
+    for(let section of req.body.sections) {
+
+        let sectionId = (typeof section.id !== 'undefined') ? section.id : section.link.split('/')[6];
+
+        let sect = {
+            link   : prefix + insertion + '/sections/' + sectionId,
+            fields : []
+        }
+
+        for(let field of section.fields) {
+
+            let value = field.value;
+            let type  = (typeof field.type === 'undefined') ? 'string' : field.type.toLowerCase();
+
+            switch(type) {
+
+                case 'integer':
+                    value = parseInt(field.value);
+                    break;
+
+                case 'multi-linking-picklist':
+                    value = [];
+                    for(let link of field.value) value.push({ link : link });
+                    break;
+
+                case 'single selection':
+                    value = { link : value };
+                    break;
+
+                // case 'picklist':
+                //     value = parseInt(field.value);
+                //     break;
+
+                default:
+                    if(value === '') value = null;
+                    break;
+
+            }
+
+            sect.fields.push({
+                __self__  : prefix + '/views/1/fields/' + field.fieldId,
+                value     : value
+            });
+
+        }
+
+        sections.push(sect);
+
+    }
+
+    return sections;
+
+}
 function uploadImage(req, url, callback) {
     
     console.log(' ');
@@ -932,55 +966,54 @@ router.post('/edit', function(req, res) {
     console.log('  req.body.sections   = ' + req.body.sections);
     console.log();
 
-    let prefix   = (typeof req.body.link !== 'undefined') ? req.body.link : '/api/v3/workspaces/' + req.body.wsId + '/items/' + req.body.dmsId;
-    let url      = req.app.locals.tenantLink + prefix;
-    let sections = [];
-    let wsId     = req.body.wsId;
-    let dmsId    = req.body.dmsId;
+    let prefix   = (typeof req.body.link  !== 'undefined') ? req.body.link  : '/api/v3/workspaces/' + req.body.wsId + '/items/' + req.body.dmsId;
+    let url      = getTenantLink(req) + prefix;
+    let sections = parseSectionPayload(req, prefix, 'edit');
+    // let dmsId    = req.body.dmsId;
 
-    if (typeof req.body.link !== 'undefined') {
-        wsId  = req.body.link.split('/')[4];
-        dmsId = req.body.link.split('/')[6];
-    }
+    // if (typeof req.body.link !== 'undefined') {
+        // wsId  = req.body.link.split('/')[4];
+        // dmsId = req.body.link.split('/')[6];
+    // }
 
-    for(let section of req.body.sections) {
+    // for(let section of req.body.sections) {
 
-        let sectionId =  (typeof section.link === 'undefined') ? section.id : section.link.split('/')[6];
+    //     let sectionId =  (typeof section.link === 'undefined') ? section.id : section.link.split('/')[6];
 
-        let sect = {
-            link   : prefix + '/views/1/sections/' + sectionId,
-            fields : []
-        }
+    //     let sect = {
+    //         link   : prefix + '/views/1/sections/' + sectionId,
+    //         fields : []
+    //     }
 
-        for(let field of section.fields) {
+    //     for(let field of section.fields) {
 
-            let value = field.value;
-            let type  = (typeof field.type === 'undefined') ? 'String' : field.type;
+    //         let value = field.value;
+    //         let type  = (typeof field.type === 'undefined') ? 'String' : field.type;
 
-            type = type.toLowerCase();
+    //         type = type.toLowerCase();
 
-            if(type === 'integer') {
-                value = parseInt(field.value);
-            } else if(type === 'multi-linking-picklist') {
-                value = [];
-                for(let link of field.value) value.push({'link' : link});
-            } else if(type === 'single selection') {
-                value = { 'link' : value };
-            } else if(type === 'picklist') {
-                if(value === '') value = null;
-            } else if(value === '') value = null;
+    //         if(type === 'integer') {
+    //             value = parseInt(field.value);
+    //         } else if(type === 'multi-linking-picklist') {
+    //             value = [];
+    //             for(let link of field.value) value.push({'link' : link});
+    //         } else if(type === 'single selection') {
+    //             value = { 'link' : value };
+    //         } else if(type === 'picklist') {
+    //             if(value === '') value = null;
+    //         } else if(value === '') value = null;
 
-            sect.fields.push({
-                __self__  : prefix + '/views/1/fields/' + field.fieldId,
-                urn       : 'urn:adsk.plm:tenant.workspace.item.view.field:' + req.app.locals.tenantLink.toUpperCase() + '.' + wsId + '.' + dmsId + '.1.' + field.fieldId,
-                value     : value
-            });
+    //         sect.fields.push({
+    //             __self__  : prefix + '/views/1/fields/' + field.fieldId,
+    //             urn       : 'urn:adsk.plm:tenant.workspace.item.view.field:' + req.app.locals.tenantLink.toUpperCase() + '.' + wsId + '.' + dmsId + '.1.' + field.fieldId,
+    //             value     : value
+    //         });
 
-        }
+    //     }
 
-        sections.push(sect);
+    //     sections.push(sect);
 
-    }
+    // }
 
     axios.patch(url, {
         sections : sections
