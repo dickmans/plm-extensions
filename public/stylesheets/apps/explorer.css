@@ -80,14 +80,11 @@
     height  : var(--height-attachments);
 }
 .panel {
-    /* top     : var(--padding-panel); */
-    /* right   : calc(0px - var(--width-panel) - 100px); */
-    border  : var(--padding-panel) solid var(--color-surface-level-2);
-    top     : 0px;
-    right   : calc(0px - (2 * var(--padding-panel)) - var(--width-panel));
-    bottom  : 0px;
-    width   : var(--width-panel);
-
+    border-width  : var(--padding-panel);
+    top           : 0px;
+    right         : calc(0px - (2 * var(--padding-panel)) - var(--width-panel));
+    bottom       : 0px;
+    width        : var(--width-panel);
 }
 
 body.screen-startup > .screen { display : none; }
