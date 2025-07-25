@@ -186,20 +186,20 @@ function getInitialData() {
         insertViewer(links.ebom); 
 
         insertBOM(links.ebom, {
-            collapseContents  : false,
-            counters          : true,
-            search            : true,
-            path              : true,
-            toggles           : true,
-            viewerSelection   : true,
-            includeOMPartList : true,
-            headerLabel       : 'Product BOM',
-            hideHeaderLabel   : true,
-            contentSize       : 'l',
-            columnsIn         : ['Quantity'],
-            bomViewName       : config.sbom.bomViewName,
-            onClickItem       : function(elemClicked) { insertDetails(elemClicked.attr('data-link'), paramsDetails); },
-            afterCompletion   : function(id, data)    { 
+            collapseContents   : false,
+            counters           : true,
+            search             : true,
+            path               : true,
+            toggles            : true,
+            viewerSelection    : true,
+            includeBOMPartList : true,
+            headerLabel        : 'Product BOM',
+            hideHeaderLabel    : true,
+            contentSize        : 'l',
+            columnsIn          : ['Quantity'],
+            bomViewName        : config.sbom.bomViewName,
+            onClickItem        : function(elemClicked) { insertDetails(elemClicked.attr('data-link'), paramsDetails); },
+            afterCompletion    : function(id, data)    { 
                 partsEBOM = data.bomPartsList; 
                 insertBOMItemFilter();
                 insertBOMIndicators(); 
