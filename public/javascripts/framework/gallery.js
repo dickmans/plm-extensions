@@ -106,22 +106,24 @@ function setUIEvents() {
         div.show();
         div.siblings('.screen').hide();
 
-        if(id === 'columns'  ) setColumns();
-        if(id === 'home'     ) setHome();
-        if(id === 'views'    ) setViews();
-        if(id === 'find'     ) setSearch();
-        if(id === 'item-1'   ) setItem1();
-        if(id === 'item-2'   ) setItem2();
-        if(id === 'item-3'   ) setItem3();
-        if(id === 'item-4'   ) setItem4();
-        if(id === 'summary'  ) setSummary();
-        if(id === 'lists'    ) setLists();
-        if(id === 'grids'    ) setGrids();
-        if(id === 'galleries') setGalleries();
-        if(id === 'rows'     ) setRows();
-        if(id === 'files'    ) setFiles();
-        if(id === 'tabs'     ) setTabs();
-        if(id === 'edit'     ) setEdit();
+        if(id === 'item-colors') setItemColors();
+        if(id === 'bom-colors' ) setBOMColors();
+        if(id === 'columns'    ) setColumns();
+        if(id === 'home'       ) setHome();
+        if(id === 'views'      ) setViews();
+        if(id === 'find'       ) setSearch();
+        if(id === 'item-1'     ) setItem1();
+        if(id === 'item-2'     ) setItem2();
+        if(id === 'item-3'     ) setItem3();
+        if(id === 'item-4'     ) setItem4();
+        if(id === 'summary'    ) setSummary();
+        if(id === 'lists'      ) setLists();
+        if(id === 'grids'      ) setGrids();
+        if(id === 'galleries'  ) setGalleries();
+        if(id === 'rows'       ) setRows();
+        if(id === 'files'      ) setFiles();
+        if(id === 'tabs'       ) setTabs();
+        if(id === 'edit'       ) setEdit();
 
     });
 
@@ -151,6 +153,23 @@ function setUIEvents() {
 
 
 
+function setItemColors() {
+
+    insertDetails(linkEmberPrinter, { id : 'item-color-1', editable : true });
+    insertDetails(linkEmberPrinter, { id : 'item-color-2', editable : true });
+    insertDetails(linkEmberPrinter, { id : 'item-color-3', editable : true });
+    insertDetails(linkEmberPrinter, { id : 'item-color-4', editable : true });
+    insertDetails(linkEmberPrinter, { id : 'item-color-5', editable : true });
+}
+function setBOMColors() {
+
+    insertBOM(linkEmberPrinter, { id : 'bom-color-1'});
+    insertBOM(linkEmberPrinter, { id : 'bom-color-2'});
+    insertBOM(linkEmberPrinter, { id : 'bom-color-3'});
+    insertBOM(linkEmberPrinter, { id : 'bom-color-4'});
+    insertBOM(linkEmberPrinter, { id : 'bom-color-5'});
+
+}
 function setColumns() {
 
     insertDetails(linkEmberPrinter, { id : 'left'  , collapseContents : true, toggles : true, headerLabel : 'Main Title pp' });

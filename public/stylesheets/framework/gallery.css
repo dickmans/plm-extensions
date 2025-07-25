@@ -24,6 +24,12 @@
     padding-right   : 10px;
 }
 
+.panel-20  { top : 0px; bottom : 0px; left : 0px; right : 80%; } 
+.panel-40  { top : 0px; bottom : 0px; left : 20%; right : 60%; } 
+.panel-60  { top : 0px; bottom : 0px; left : 40%; right : 40%; } 
+.panel-80  { top : 0px; bottom : 0px; left : 60%; right : 20%; } 
+.panel-100 { top : 0px; bottom : 0px; left : 80%; right :  0%; } 
+
 #left   { top : 0px; width : 33%; bottom : 0px; left : 0px; } 
 #center { top : 0px; right : 35%; bottom : 0px; left : 35%; }
 #right  { top : 0px; right : 0px; bottom : 0px; width : 33%; }

@@ -15,28 +15,46 @@ block body
             #header-logo
             #header-title= title
             #header-toolbar
-                .button(data-id='columns'     title='Columns').icon.icon-columns
-                .button(data-id='home'     title='Landing Page').icon.icon-home
-                .button(data-id='find'     ).icon.icon-search
-                .button(data-id='views'    title='Worspace Views and Workspace Items').icon.icon-table
-                .button(data-id='item-1'   ) Item
-                .button(data-id='item-2'   ) BOM
-                .button(data-id='item-3'   ) Where Used
-                .button(data-id='item-4' title='Reference data including change log').icon.icon-link
-                .button(data-id='summary'  ).icon.icon-toggle-layout
-                .button(data-id='tabs'     ).icon.icon-tabs
-                .button(data-id='lists'     title='List layout in all sizes'   ).icon.icon-list
-                .button(data-id='grids'     title='Grid layout in all sizes'   ).icon.icon-tiles-list
-                .button(data-id='galleries' title='Gallery layout in all sizes').icon.icon-dashboard
-                .button(data-id='rows'      title='Rows layout in all sizes'   ).icon.icon-filter-empty
-                .button(data-id='files'    ).icon.icon-pdf
-                .button(data-id='edit'     ) Edit
+                .button(data-id='item-colors') Item Colors
+                .button(data-id='bom-colors' ) BOM Colors
+                .button(data-id='columns'    title='Columns').icon.icon-columns
+                .button(data-id='home'       title='Landing Page').icon.icon-home
+                .button(data-id='find'       ).icon.icon-search
+                .button(data-id='views'      title='Worspace Views and Workspace Items').icon.icon-table
+                .button(data-id='item-1'     ) Item
+                .button(data-id='item-2'     ) BOM
+                .button(data-id='item-3'     ) Where Used
+                .button(data-id='item-4'     title='Reference data including change log').icon.icon-link
+                .button(data-id='summary'    ).icon.icon-toggle-layout
+                .button(data-id='tabs'       ).icon.icon-tabs
+                .button(data-id='lists'      title='List layout in all sizes'   ).icon.icon-list
+                .button(data-id='grids'      title='Grid layout in all sizes'   ).icon.icon-tiles-list
+                .button(data-id='galleries'  title='Gallery layout in all sizes').icon.icon-dashboard
+                .button(data-id='rows'       title='Rows layout in all sizes'   ).icon.icon-filter-empty
+                .button(data-id='files'      ).icon.icon-pdf
+                .button(data-id='edit'       ) Edit
                 span Select 
                     br
                     |Profile:
                 select#profiles.main
                 .button(data-id='theme').icon.icon-highlight#toggle-theme
                 #header-avatar
+
+        .screen#item-colors 
+
+            #item-color-1.surface-level-1.panel-20
+            #item-color-2.surface-level-2.panel-40
+            #item-color-3.surface-level-3.panel-60
+            #item-color-4.surface-level-4.panel-80
+            #item-color-5.surface-level-5.panel-100
+
+        .screen#bom-colors 
+
+            #bom-color-1.surface-level-1.panel-20
+            #bom-color-2.surface-level-2.panel-40
+            #bom-color-3.surface-level-3.panel-60
+            #bom-color-4.surface-level-4.panel-80
+            #bom-color-5.surface-level-5.panel-100
 
         .screen#columns 
 
