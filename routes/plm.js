@@ -1716,53 +1716,58 @@ router.get('/grid-columns', function(req, res, next) {
         }).then(function(response) {
 
             let validations = [];
-            let requests = [];
+            let requests    = [];
 
-            if(getValidations) {
-                for(let field of response.data.fields) {
-                    if(typeof field.validators !== 'undefined') {
-                        if(field.validators !== null) {
-                            if(field.validators !== '') validations.push(field.validators);
+            if(response.data !== '') {
+
+                if(getValidations) {
+                    for(let field of response.data.fields) {
+                        if(typeof field.validators !== 'undefined') {
+                            if(field.validators !== null) {
+                                if(field.validators !== '') validations.push(field.validators);
+                            }
                         }
                     }
                 }
-            }
-
-            if(validations.length > 0) {
-                for(let validation of validations) {
-                    requests.push(runPromised(getTenantLink(req) + validation, req.session.headers));
+                
+                if(validations.length > 0) {
+                    for(let validation of validations) {
+                        requests.push(runPromised(getTenantLink(req) + validation, req.session.headers));
+                    }
                 }
-            }
+            
+                Promise.all(requests).then(function(responses) {
 
-            Promise.all(requests).then(function(responses) {
+                    for(let field of response.data.fields) {
 
-                for(let field of response.data.fields) {
-
-                    field.validations = [];
-                    field.required    = false;
-                    
-                    if(typeof field.validators !== 'undefined') {
-                        if(field.validators !== null) {
-                            for(let response of responses) {
-                                if(response.length > 0) {
-                                    if(response[0].__self__.indexOf(field.validators) === 0) {
-                                        field.validations = response;
-                                        break;
+                        field.validations = [];
+                        field.required    = false;
+                        
+                        if(typeof field.validators !== 'undefined') {
+                            if(field.validators !== null) {
+                                for(let response of responses) {
+                                    if(response.length > 0) {
+                                        if(response[0].__self__.indexOf(field.validators) === 0) {
+                                            field.validations = response;
+                                            break;
+                                        }
                                     }
                                 }
                             }
                         }
+
+                        for(let validator of field.validations) {
+                            if(validator.validatorName === 'required') field.required = true;
+                        }
+                            
                     }
 
-                    for(let validator of field.validations) {
-                        if(validator.validatorName === 'required') field.required = true;
-                    }
-                        
-                }
+                    sendResponse(req, res, response, false);
 
-                sendResponse(req, res, response, false);
+                });
 
-            });
+            } else sendResponse(req, res, response, false);
+            
             
         }).catch(function(error) {
             sendResponse(req, res, error.response, true);
@@ -5310,7 +5315,6 @@ router.get('/workspace-relationships', function(req, res, next) {
     axios.get(url, {
         headers : req.session.headers
     }).then(function(response) {
-        console.log(response.data);
         if(response.data === "") response.data = { workspaces : [] };
         sendResponse(req, res, response, false);
     }).catch(function(error) {
