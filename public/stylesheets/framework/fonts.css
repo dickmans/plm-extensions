@@ -328,6 +328,7 @@
 .icon-status::before            { content : '\ea50'; }
 .icon-stock::before             { content : '\ebb8'; }
 .icon-stop:before               { content : '\ef71'; }
+.icon-stopwatch:before          { content : '\e425'; }
 .icon-summary:before            { content : '\f071'; }
 .icon-table::before             { content : '\e3ec'; }
 .icon-tabs::before              { content : '\e265'; }
