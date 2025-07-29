@@ -1,0 +1,53 @@
+extends ../framework/layout
+
+block head
+
+    link(rel='stylesheet', href='/stylesheets/admin/shortcuts.css')
+    script(src='/javascripts/admin/shortcuts.js') 
+    script.
+        menu = !{JSON.stringify(menu)};
+
+block body
+
+    body.surface-level-1
+        
+        #header.dark
+            #header-logo
+            #header-title=title
+            #header-subtitle Save time when configuring your PLM tenant
+            #header-toolbar
+                input#search.button.input(placeholder='Type to filter the list items')
+                #settings.button.with-icon.icon-settings(title='Launch the General Settings') Settings
+                #wsm.button.with-icon.icon-list-edit(title='Launch the Workspace Manager') Workspaces
+                #mmd.button.with-icon.icon-bom-tree(title='Launch the Main Menu Designer') Main Menu
+                #lce.button.with-icon.icon-workflow(title='Launch the Lifecycle Editor') Lifecycle
+                #header-avatar
+        .screen.surface-level-1
+
+            #workspaces.panel-top.surface-level-1
+                .panel-header 
+                    .panel-title 
+                        .panel-title-main Workspaces 
+                    .panel-controls
+                .panel-content.tiles.list.no-scrollbar#workspaces-list
+
+            #scripts.surface-level-1
+                .panel-header 
+                    .panel-title 
+                        .panel-title-main Scripts
+                    .panel-controls
+                .panel-content.tiles.list.no-scrollbar#scripts-list
+
+            #picklists.surface-level-1
+                .panel-header 
+                    .panel-title 
+                        .panel-title-main Picklists
+                    .panel-controls
+                .panel-content.tiles.list.no-scrollbar#picklists-list
+
+            #roles.surface-level-1
+                .panel-header 
+                    .panel-title 
+                        .panel-title-main Roles 
+                    .panel-controls
+                .panel-content.tiles.list.no-scrollbar#roles-list

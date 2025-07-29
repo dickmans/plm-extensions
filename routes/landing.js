@@ -71,6 +71,7 @@ router.get('/data'                , function(req, res, next) { launch('admin/dat
 router.get('/helpers'             , function(req, res, next) { launch('admin/helpers'             , 'Administration Helper Utilities', req, res, next); });
 router.get('/insights'            , function(req, res, next) { launch('admin/insights'            , 'Tenant Insights Dashboard'      , req, res, next); });
 router.get('/outstanding-work'    , function(req, res, next) { launch('admin/outstanding-work'    , 'Outstanding Work Report'        , req, res, next); });
+router.get('/shortcuts'           , function(req, res, next) { launch('admin/shortcuts'           , 'Admin Shortcuts Panel'          , req, res, next); });
 router.get('/users'               , function(req, res, next) { launch('admin/users'               , 'User Settings Manager'          , req, res, next); });
 router.get('/workspace-comparison', function(req, res, next) { launch('admin/workspace-comparison', 'Workspace Comparison'           , req, res, next); });
 

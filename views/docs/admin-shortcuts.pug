@@ -1,0 +1,24 @@
+.tile(data-name='Administration Shortcuts')
+    .tile-image(style="background: url('images/admin-shortcuts.png') no-repeat;background-size:contain;")
+    .tile-details
+        .tile-title Administration Shortcuts
+        .tile-subtitle Use this dashboard to quickly navigate to tenant administration capabilities including workspace configuration, picklist setup, script editing and role definition.
+        .tile-access 
+            .tile-endpoint /shortcuts
+            .tile-button.button.default(href="shortcuts" target="_blank") Open
+    .instructions
+        h1 Features
+        p On a single page, this utility provides access to all the workspace manager utilities, but also to all scripts, roles and picklists of your tenant. Clicking the given items will launch the matching utility in PLM. Administrators also can acces the where used information for scripts and pick lists.
+        p Users can filter all the lists in this panel using the search input in the global header toolbar. This helps locating all worksapces, scripts, picklists and roles that belong together, for example everything that relates to 'Change'.
+        h1 Access the utility
+        p You can access the utlity with the 
+            strong /shortcuts
+            |  endpoint, just click this link:
+        a(href='shortcuts' target='_blank')
+    .log 
+        h1 Administration Shortcuts Change Log 
+        table 
+            tr 
+                td 29. July 2025
+                td Initial Release
+                td The very first version of this utility

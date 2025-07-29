@@ -1,0 +1,177 @@
+/*  MASTER LAYOUT */
+/* ----------------------------------------------------------------------------- */
+:root {
+
+    --border-top      : 24px;
+    --border-bottom   : 24px;
+    --border-h        : 40px;
+    --height-tile     : 32px;
+    --height-action   : 32px;
+    --width-scripts   : 420px;
+    --width-picklists : 380px;
+    --width-roles     : 350px;
+
+}
+
+.screen > div {
+    border-width : var(--border-top) var(--border-h) var(--border-bottom);
+    top          : 0px;
+    bottom       : 0px;
+}
+#workspaces {
+    right     : calc(50% + 285px); 
+    max-width : 700px;
+    min-width : 700px;
+    width     : 700px;
+}
+#scripts {
+    left   : calc(50% - 285px - (1 * var(--border-h))); 
+    width  : var(--width-scripts);
+}
+#picklists {
+    left   : calc(50% + 175px - (1 * var(--border-h)));
+    width  : var(--width-picklists);
+}
+#roles {
+    left : calc(50% + 175px + var(--width-picklists));
+    width : var(--width-roles);
+}
+
+
+/* Search in Header */
+#search {
+    border-bottom   : 1px solid var(--color-blue-500) !important;
+    margin-right    : 48px;
+    width           : 200px !important
+}
+
+
+/* Tiles */
+.tile {
+    background : var(--color-surface-level-2) !important;
+}
+.tile-title {
+    font-size   : 14px; 
+    font-weight : normal !important;
+    line-height : var(--height-tile);
+    padding     : 0px 10px;
+    flex-grow   : 1;
+    flex-shrink : inherit;
+}
+.tile-icon {
+    background  : var(--color-surface-level-4);
+    font-size   : 22px;
+    font-weight : 200;
+    line-height : var(--height-tile);
+    height      : var(--height-tile);
+    max-width   : var(--height-tile);
+    min-width   : var(--height-tile);
+    width       : var(--height-tile);
+    text-align  : center;
+}
+
+
+/* Workspaces */
+.tile-workspace-title {
+    flex-grow : unset;
+    max-width : 240px;
+    min-width : 240px;
+    width     : 240px;
+}
+.tile-workspace-details {
+    display : flex;
+}
+.tile:hover .tile-workspace-details { 
+    display : none; 
+}
+.tile-workspace {
+    max-width : 368px;
+    min-width : 368px;
+    width     : 368px;
+}
+.tile-workspace-name {
+    color       : #999;
+    max-width   : 240px;
+}
+.tile-workspace-id {
+    color        : #999;
+    font-weight  : 800 !important;
+    text-align   : right;
+    max-width    : 42px;
+    min-width    : 42px;
+    width        : 42px;
+}
+
+
+/* Actions */
+.tile-actions {
+    display : none;
+    gap     : 2px;
+}
+.tile-actions > div {
+    background  : var(--color-surface-level-4);
+    cursor      : pointer;
+    font-weight : 200;
+    line-height : var(--height-action);
+    max-height  : var(--height-action);
+    min-height  : var(--height-action);
+    height      : var(--height-action);
+    text-align  : center;
+    max-width   : var(--height-action);
+    min-width   : var(--height-action);
+    width       : var(--height-action);
+}
+.tile-actions > div:hover {
+    background : var(--color-surface-level-5);
+}
+.tile:hover .tile-actions { 
+    display : flex; 
+}
+
+
+/* Pinning */
+.icon-bookmark-toggle {
+    background : none;
+}
+.icon-bookmark {
+    color : var(--color-yellow-500);
+}
+.icon-bookmark-off {
+    display : none;
+}
+.tile:hover .icon-bookmark-off {
+    display : block;
+}
+
+
+@media (max-width: 1920px) {
+    
+    :root {
+        --border-bottom   : 24px;
+        --border-h        : 24px;
+        --width-scripts   : 410px;
+        --width-picklists : 360px;
+        --width-roles     : 280px;
+    }
+
+    #workspaces { 
+        right     : calc(var(--width-scripts) + var(--width-picklists) + var(--width-roles) + (3 * var(--border-h)));
+        left      : var(--border-h);
+        max-width : unset; 
+        min-width : unset; 
+        width     : unset; 
+    }
+    #scripts {
+        right  : calc(var(--width-picklists) + var(--width-roles) + (3 * var(--border-h)));
+        left   : unset;
+    }
+    #picklists {
+        right  : calc(var(--width-roles) + (2 * var(--border-h)));
+        left   : unset;
+    }
+    #roles {
+        right : var(--border-h);
+        left  : unset;
+    }
+
+}

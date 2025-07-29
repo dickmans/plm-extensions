@@ -890,6 +890,11 @@ exports.menu = [
             title    : 'Tenant Insights',
             subtitle : 'Track user activity and data creation in your tenant',
             url      : '/insights'
+        },{
+            icon     : 'icon-stopwatch',
+            title    : 'Shortcuts Panel',
+            subtitle : 'Provides quick access to frequently used admin panels',
+            url      : '/shortcuts'
         }]
     },{
         label : 'Advanced Administration Utilities',
