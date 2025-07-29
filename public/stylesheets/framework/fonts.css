@@ -307,6 +307,7 @@
 .icon-remove::before            { content : '\e644'; }
 .icon-reset::before             { content : '\f053'; }
 .icon-resize::before            { content : '\ea10'; }
+.icon-role::before              { content : '\ea67'; }
 .icon-rules::before             { content : '\f1c2'; }
 .icon-save::before              { content : '\e2c3'; }
 .icon-screenshot::before        { content : '\e412'; }
