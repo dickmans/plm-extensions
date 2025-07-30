@@ -3719,6 +3719,51 @@ router.get('/project', function(req, res, next) {
 });
 
 
+/* ----- ADD PROJECT TAB ENTRIES ----- */
+router.post('/add-project-item', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /add-project-item');
+    console.log(' --------------------------------------------');  
+    console.log('  req.body.link         = ' + req.body.link);
+    console.log('  req.body.item         = ' + req.body.item);
+    console.log('  req.body.title        = ' + req.body.title);
+    console.log('  req.body.startDate    = ' + req.body.startDate);
+    console.log('  req.body.startDate    = ' + req.body.endDate);
+    console.log('  req.body.progress     = ' + req.body.progress);
+    console.log('  req.body.predecessors = ' + req.body.predecessors);
+
+    console.log();
+
+    let url          = getTenantLink(req) + req.body.link + '/views/16';
+    let predecessors = [];
+    let now          = new Date();
+    let date         = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDay();
+
+    if(typeof req.body.predecessors !== 'undefined') predecessors = req.body.predecessors.split(',');
+
+    let params = {
+        title        : req.body.title || '',
+        startDate    : req.body.startDate || date,
+        endDate      : req.body.endDate || date,
+        progress     : req.body.progress || 0,
+        predecessors : predecessors
+    };
+
+    let custHeaders = getCustomHeaders(req);
+        custHeaders['content-location'] = req.body.link + '/views/16/linkable-items/' + req.body.item.split('/').pop();
+
+    axios.post(url, params, {
+        headers : custHeaders
+    }).then(function(response) {
+        sendResponse(req, res, response, false);
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+    
+});
+
+
 /* ----- REMOVE PROJECT TAB ENTRIES ----- */
 router.post('/remove-project-item', function(req, res, next) {
     
