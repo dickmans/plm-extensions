@@ -1,4 +1,5 @@
 let chart;
+let urlParameters   = getURLParameters();
 let title           = 'Activity Dashboard';
 let enableMarkup    = false;
 let fieldIdsMarkup  = [];
@@ -103,6 +104,8 @@ $(document).ready(function() {
         setStatusColumns();
         setCalendars();
         setChart();
+
+        if(!isBlank(urlParameters.link)) openItem(urlParameters.link);
 
         getInitialData();
 
@@ -496,6 +499,15 @@ function selectCalendarWeek(elemClicked) {
 // Show selected process in main window
 function openItem(link) {
 
+    $('#overlay').show(); 
+
+    $.get('/plm/descriptor', { link : link }, function(response) {
+        document.title = response.data;
+        let split = link.split('/')
+        window.history.replaceState(null, null, '/dashboard?wsid=' + split[4] + '&dmsid=' + split[6] + '&theme=' + theme);    
+        $('#overlay').hide();        
+    });
+
     insertItemSummary(link, {
         bookmark        : true,
         className       : wsConfig.className,
@@ -505,7 +517,12 @@ function openItem(link) {
         layout          : 'dashboard',
         statesColors    : wsConfig.progress,
         surfaceLevel    : '3',
-        workflowActions : true
+        workflowActions : true,
+        onClickClose    : function(id, link) { 
+            document.title = title;
+            let split = link.split('/')
+            window.history.replaceState(null, null, '/dashboard?wsid=' + split[4] + '&theme=' + theme);   
+        }
     });
 
 
