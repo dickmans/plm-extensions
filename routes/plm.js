@@ -3714,6 +3714,28 @@ router.get('/project', function(req, res, next) {
 });
 
 
+/* ----- REMOVE PROJECT TAB ENTRIES ----- */
+router.post('/remove-project-item', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /remove-project-item');
+    console.log(' --------------------------------------------');  
+    console.log('  req.body.link = ' + req.body.link);
+    console.log();
+
+    let url = getTenantLink(req) + req.body.link;
+    
+    axios.delete(url, {
+        headers : req.session.headers
+    }).then(function(response) {
+        sendResponse(req, res, response, false);
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+    
+});
+
+
 /* ----- CHANGE LOG ----- */
 router.get('/logs', function(req, res, next) {
     
