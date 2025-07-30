@@ -559,21 +559,26 @@ router.get('/related-workspaces', function(req, res, next) {
     console.log(' ');
     console.log('  /related-workspaces');
     console.log(' --------------------------------------------');  
-    console.log('  req.query.wsId   = ' + req.query.wsId);
-    console.log('  req.query.view   = ' + req.query.view);
+    console.log('  req.query.wsId     = ' + req.query.wsId);
+    console.log('  req.query.view     = ' + req.query.view);
+    console.log('  req.query.useCache = ' + req.query.useCache);
     console.log();
     
-    let url = req.app.locals.tenantLink + '/api/v3/workspaces/' + req.query.wsId + '/views/' + req.query.view + '/related-workspaces';
-    
-    axios.get(url, {
-        headers : req.session.headers
-    }).then(function(response) {
-        let result = (response.data.hasOwnProperty('workspaces')) ? response.data.workspaces : [];
-        sendResponse(req, res, { 'data' : result, 'status' : response.status }, false);
-    }).catch(function(error) {
-        console.log(error);
-        sendResponse(req, res, error.response, true);
-    });
+    if(notCached(req, res)) {
+
+        let url = req.app.locals.tenantLink + '/api/v3/workspaces/' + req.query.wsId + '/views/' + req.query.view + '/related-workspaces';
+        
+        axios.get(url, {
+            headers : req.session.headers
+        }).then(function(response) {
+            let result = (response.data.hasOwnProperty('workspaces')) ? response.data.workspaces : [];
+            sendResponse(req, res, { 'data' : result, 'status' : response.status }, false);
+        }).catch(function(error) {
+            console.log(error);
+            sendResponse(req, res, error.response, true);
+        });
+
+    }
     
 });
 
