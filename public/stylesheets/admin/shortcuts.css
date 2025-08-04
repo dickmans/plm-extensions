@@ -142,17 +142,15 @@
 
 
 /* Pinning */
-.icon-bookmark-toggle {
+.icon-pin {
     background : none;
+    color      : transparent;
 }
-.icon-bookmark {
+.icon-pin-on {
     color : var(--color-yellow-500);
 }
-.icon-bookmark-off {
-    display : none;
-}
-.tile:hover .icon-bookmark-off {
-    display : block;
+.tile:hover .icon-pin {
+    color : var(--color-font);
 }
 
 
@@ -239,14 +237,14 @@
     }
     #scripts {
         left  : 0px;
-        right : 64%;
+        right : calc(67% - var(--border-h));
     }
     #picklists {
-        left  : calc(33% + var(--border-h));
-        right : calc(33% + var(--border-h));
+        left  : 33%;
+        right : calc(33% - var(--border-h));
     }
     #roles {
-        left : 64%;
+        left : 67%;
         right : 0px;
     }
 
@@ -254,6 +252,42 @@
 
 @media (max-width: 920px) {
 
-    #header-title { display : none; }
+    #header-title {
+        overflow : hidden;
+        text-overflow : ellipsis;
+    }
+
+    #header-toolbar > .button.with-icon { display : none; }
+
+}
+
+@media (max-width: 600px) {
+
+    .screen {
+        display        : flex;
+        flex-direction : column;
+        overflow       : auto;
+    }
+
+    .screen > div {
+        position : unset;
+    }
+
+    #workspaces {
+        height : unset;
+    }
+
+    .tile-workspace-id,
+    .tile-workspace-title {
+        display : none;
+    }
+
+    .tile-workspace-name {
+        color : var(--color-font);
+    }
+
+    .panel-content {
+        position : unset;
+    }
 
 }

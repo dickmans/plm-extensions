@@ -119,7 +119,7 @@ function filterList(id,) {
 
         elemList.children().each(function() {
 
-            let isPinned = $(this).find('.icon-bookmark').length > 0;
+            let isPinned = $(this).find('.icon-pin-on').length > 0;
             let title    = $(this).find('.tile-title').html().toLowerCase();
 
             if(isPinned) {
@@ -445,13 +445,12 @@ function insertPinButton(elemTile) {
     $('<div></div>').appendTo(elemTile)
         .addClass('tile-icon')
         .addClass('icon')
-        .addClass('icon-bookmark-toggle')
-        .addClass('icon-bookmark-off')
+        .addClass('icon-pin')
         .attr('title', 'Pin this item to keep it visible while searching')
         .click(function(e) {
             e.preventDefault();
             e.stopPropagation();
-            $(this).toggleClass('icon-bookmark').toggleClass('icon-bookmark-off');
+            $(this).toggleClass('icon-pin-on').toggleClass('filled');
         }); 
 
 }
