@@ -2,39 +2,48 @@
 /* ----------------------------------------------------------------------------- */
 :root {
 
-    --border-top      : 24px;
-    --border-bottom   : 24px;
-    --border-h        : 40px;
-    --height-tile     : 32px;
-    --height-action   : 32px;
-    --width-scripts   : 420px;
-    --width-picklists : 380px;
-    --width-roles     : 350px;
-
+    --border-top       : 24px;
+    --border-bottom    : 24px;
+    --border-h         : 24px;
+    --border-h-wide    : 46px;
+    --height-tile      : 32px;
+    --height-action    : 32px;
+    --width-workspaces : 690px;
+    --width-scripts    : 440px;
+    --width-picklists  : 440px;
+    --width-roles      : 380px;
+    --width-total      : calc(var(--width-workspaces) + var(--width-picklists) + var(--width-picklists) + var(--width-roles));
+    --width-half       : calc(var(--width-total) / 2);
+    --width-offset     : calc((var(--width-workspaces) + var(--width-picklists)) - var(--width-half));
 }
 
 .screen > div {
-    border-width : var(--border-top) var(--border-h) var(--border-bottom);
-    top          : 0px;
-    bottom       : 0px;
+    border-top-width    : var(--border-top);
+    border-bottom-width : var(--border-bottom);
+    top                 : 0px;
+    bottom              : 0px;
 }
 #workspaces {
-    right     : calc(50% + 285px); 
-    max-width : 700px;
-    min-width : 700px;
-    width     : 700px;
+    border-left-width  : 2560px;
+    border-right-width : var(--border-h-wide);
+    right     : calc(50% + (1.0 * var(--border-h-wide)) - (0.5 * var(--border-h)) + var(--width-scripts) - var(--width-offset)); 
+    max-width : var(--width-workspaces);
+    min-width : var(--width-workspaces);
+    width     : var(--width-workspaces);
 }
 #scripts {
-    left   : calc(50% - 285px - (1 * var(--border-h))); 
+    right  : calc(50% - (0.5 * var(--border-h)) - var(--width-offset)); 
     width  : var(--width-scripts);
 }
 #picklists {
-    left   : calc(50% + 175px - (1 * var(--border-h)));
+    left   : calc(50% + (1.5 * var(--border-h)) + var(--width-offset));
     width  : var(--width-picklists);
 }
 #roles {
-    left : calc(50% + 175px + var(--width-picklists));
-    width : var(--width-roles);
+    left      : calc(50% + (2.5 * var(--border-h)) + var(--width-offset) + var(--width-picklists));
+    max-width : var(--width-roles);
+    min-width : var(--width-roles);
+    width     : var(--width-roles);
 }
 
 
@@ -47,9 +56,6 @@
 
 
 /* Tiles */
-.tile {
-    background : var(--color-surface-level-2) !important;
-}
 .tile-title {
     font-size   : 14px; 
     font-weight : normal !important;
@@ -69,14 +75,20 @@
     width       : var(--height-tile);
     text-align  : center;
 }
+.tile.selected {
+    background : var(--color-selected-background);
+}
+.tile.selected .tile-icon {
+    background  : var(--color-selected-image) !important;
+}
 
 
 /* Workspaces */
 .tile-workspace-title {
     flex-grow : unset;
-    max-width : 240px;
-    min-width : 240px;
-    width     : 240px;
+    max-width : calc(var(--width-workspaces) - 430px);
+    min-width : calc(var(--width-workspaces) - 430px);
+    width     : calc(var(--width-workspaces) - 430px);
 }
 .tile-workspace-details {
     display : flex;
@@ -85,9 +97,9 @@
     display : none; 
 }
 .tile-workspace {
-    max-width : 368px;
-    min-width : 368px;
-    width     : 368px;
+    max-width : 340px;
+    min-width : 340px;
+    width     : 340px;
 }
 .tile-workspace-name {
     color       : #999;
@@ -147,31 +159,101 @@
 @media (max-width: 1920px) {
     
     :root {
-        --border-bottom   : 24px;
-        --border-h        : 24px;
-        --width-scripts   : 410px;
-        --width-picklists : 360px;
-        --width-roles     : 280px;
+        --border-bottom    : 24px;
+        --border-h         : 24px;
+        --border-h-wide    : 32px;
+        --width-workspaces : 700px;
+        --width-scripts    : 380px;
+        --width-picklists  : 360px;
+        --width-roles      : 280px;
     }
 
-    #workspaces { 
-        right     : calc(var(--width-scripts) + var(--width-picklists) + var(--width-roles) + (3 * var(--border-h)));
-        left      : var(--border-h);
-        max-width : unset; 
-        min-width : unset; 
-        width     : unset; 
+}
+@media (max-width: 1680px) {
+    
+    :root {
+        --border-bottom    : 24px;
+        --border-h         : 12px;
+        --border-h-wide    : 24px;
+        --width-workspaces : 640px;
+        --width-scripts    : 320px;
+        --width-picklists  : 280px;
+        --width-roles      : 260px;
+    } 
+
+} 
+@media (max-width: 1280px) {
+    
+    :root {
+        --border-bottom     : 18px;
+        --border-h          : 18px;
+        --border-h-wide     : 24px;
+        --width-workspaces  : 140px;
+        --width-scripts     : 320px;
+        --width-picklists   : 280px;
+        --width-roles       : 260px;
+        --height-workspaces : 300px;
+    } 
+
+    
+    #header-subtitle {
+        display : none;
+    }
+
+    #search {
+        margin  : unset;
+        padding : 8px;
+        width   : 90px !important;
+    }
+
+    #mod {
+        min-width : unset;
+        width     : 38px;
+    }
+
+    #workspaces {
+        border-width : var(--border-bottom) var(--border-h);
+        left      : 0px;
+        right     : 0px;
+        height    : var(--height-workspaces);
+        max-width : unset;
+        min-width : unset;
+        width     : unset;
+    }
+
+    .tile-workspace-title {
+        flex-grow : unset;
+        max-width : calc(100% - 430px);
+        min-width : calc(100% - 430px);
+        width     : calc(100% - 430px);
+    }
+
+    #scripts,
+    #picklists,
+    #roles {
+        border-width : var(--border-bottom) var(--border-h);
+        top :  calc(var(--height-workspaces) + (2 * var(--border-bottom)));
+        max-width : unset;
+        min-width : unset;
+        width :    unset;
     }
     #scripts {
-        right  : calc(var(--width-picklists) + var(--width-roles) + (3 * var(--border-h)));
-        left   : unset;
+        left  : 0px;
+        right : 64%;
     }
     #picklists {
-        right  : calc(var(--width-roles) + (2 * var(--border-h)));
-        left   : unset;
+        left  : calc(33% + var(--border-h));
+        right : calc(33% + var(--border-h));
     }
     #roles {
-        right : var(--border-h);
-        left  : unset;
+        left : 64%;
+        right : 0px;
     }
+
+} 
+
+@media (max-width: 920px) {
+
+    #header-title { display : none; }
 
 }

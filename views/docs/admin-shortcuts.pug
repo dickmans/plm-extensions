@@ -10,6 +10,11 @@
         h1 Features
         p On a single page, this utility provides access to all the workspace manager utilities, but also to all scripts, roles and picklists of your tenant. Clicking the given items will launch the matching utility in PLM. Administrators also can acces the where used information for scripts and pick lists.
         p Users can filter all the lists in this panel using the search input in the global header toolbar. This helps locating all worksapces, scripts, picklists and roles that belong together, for example everything that relates to 'Change'.
+        img.border(src='images/apps/admin-shortcuts-3.png' style='width:100%;max-width:1260px') 
+        p When a workspaces is selected, all lists to the right will be filtered automatically to only show items being related to the selected workspace. The text filter entered in the global header also still applies (if used).
+        img.border(src='images/apps/admin-shortcuts-2.png' style='width:100%;max-width:1260px') 
+        p Per default, the links will be opened in new browser tabs. As an alternative, users can select to open the links in dedicated browser panels / instances. When positioning this application with such panels side-by-side, admins get direct access to required panels easily: 
+        img.border(src='images/apps/admin-shortcuts-1.png' style='width:100%;max-width:1260px') 
         h1 Access the utility
         p You can access the utlity with the 
             strong /shortcuts
@@ -18,6 +23,22 @@
     .log 
         h1 Administration Shortcuts Change Log 
         table 
+            tr 
+                td 4. August 2025
+                td Enhancement
+                td When a workspace is selected, the lists of scripts, picklists and roles are filtered automatically, only showing items related to the selected workspace
+            tr 
+                td 
+                td Enhancement
+                td Links can be opened in new browser tabs but also a single or multiple panels
+            tr 
+                td 
+                td Enhancement
+                td Caching has been enabled for better response times. Users can enforce a cache reset when access to latest schema configuration is needed.
+            tr 
+                td 
+                td CSS
+                td Application is now more responsive, providing a better experience for lower resolutions
             tr 
                 td 29. July 2025
                 td Initial Release

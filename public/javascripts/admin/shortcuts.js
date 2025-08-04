@@ -1,4 +1,10 @@
+let allSccrips = [];
+let completed  = 0;
+
+
 $(document).ready(function() {
+
+    appendOverlay(false);
 
     setUIEvents();
     insertMenu();
@@ -9,30 +15,101 @@ $(document).ready(function() {
 
 });
 
+
 function setUIEvents() {
 
-    $('#search').on('keyup', function() { filterItems(); });
+    $('#search').on('keyup', function() { filterLists(); });
 
-    $('#settings').click(function() { openURL('/admin#section=setuphome&tab=general&item=configparams'); });
-    $('#wsm'     ).click(function() { openURL('/admin#section=setuphome&tab=workspaces'               ); });
-    $('#mmd'     ).click(function() { openURL('/admin#section=setuphome&tab=general&item=categories'  ); });
-    $('#lce'     ).click(function() { openURL('/lifecycleEditorView.form'                             ); });
-
-}
-
-function filterItems() {
-
-    let value = $('#search').val().toLowerCase();
-
-    filterList('workspaces-list', value);
-    filterList('scripts-list'   , value);
-    filterList('picklists-list' , value);
-    filterList('roles-list'     , value);
+    $('#settings').click(function() { openURL('', '/admin#section=setuphome&tab=general&item=configparams'); });
+    $('#wsm'     ).click(function() { openURL('', '/admin#section=setuphome&tab=workspaces'               ); });
+    $('#mmd'     ).click(function() { openURL('', '/admin#section=setuphome&tab=general&item=categories'  ); });
+    $('#lce'     ).click(function() { openURL('', '/lifecycleEditorView.form'                             ); });
+   
+   
+    $('#clc').click(function() { 
+        $(this).addClass('disabled').removeClass('red');
+        $.post('/plm/clear-cache', {}, function() {
+            $('#clc').removeClass('disabled');
+        });
+    });
 
 }
-function filterList(id, value) {
+
+
+function filterLists() {
+
+    filterList('workspaces-list');
+    filterList('scripts-list'   );
+    filterList('picklists-list' );
+    filterList('roles-list'     );
+
+    let elemWorksapce = $('.workspace.selected');
+    let workspaceId   = (elemWorksapce.length === 0) ? '' : elemWorksapce.attr('data-id');
+
+    if(workspaceId !== '') {
+
+        $('#overlay').show();
+        
+        let timestamp     = new Date().getTime();
+        let picklists     = [];
+        let scripts       = [];
+        let requests      = [
+            $.get('/plm/workspace-scripts'             , { wsId : workspaceId, useCache : true, timestamp : timestamp }),
+            $.get('/plm/workspace-workflow-transitions', { wsId : workspaceId, useCache : true, timestamp : timestamp }),
+            $.get('/plm/fields'                        , { wsId : workspaceId, useCache : true, timestamp : timestamp })
+        ]
+
+        Promise.all(requests).then(function(responses) {
+
+            if(responses[0].params.timestamp != timestamp) return;
+
+            $('#overlay').hide();
+
+            let wsScripts     = responses[0].data;
+            let wsTransitions = responses[1].data;
+            let wsFields      = responses[2].data;
+
+            for(let script of wsScripts.scripts) if(!scripts.includes(script.__self__)) scripts.push(script.__self__);
+
+            for(let transition of wsTransitions) {
+                if(!isBlank(transition.conditionScript )) { if(!scripts.includes(transition.conditionScript.link )) scripts.push(transition.conditionScript.link ); }
+                if(!isBlank(transition.validationScript)) { if(!scripts.includes(transition.validationScript.link)) scripts.push(transition.validationScript.link); }
+                if(!isBlank(transition.actionScript    )) { if(!scripts.includes(transition.actionScript.link    )) scripts.push(transition.actionScript.link    ); }
+            }
+
+            for(let field of wsFields) {
+                if(!isBlank(field.picklist)) {
+                    let picklist = field.picklist.split('/').pop();
+                    if(!picklists.includes(picklist)) {
+                        picklists.push(picklist);
+                    }
+                }
+            }
+
+            $('#scripts-list').children().each(function() {
+                let link = $(this).attr('data-link');
+                if(!scripts.includes(link)) $(this).addClass('hidden');
+            });
+
+            $('#picklists-list').children().each(function() {
+                let elemPicklist = $(this);
+                let idPickklist = elemPicklist.attr('data-id');
+                if(!picklists.includes(idPickklist)) elemPicklist.addClass('hidden');
+            });
+
+            $('#roles-list').children().each(function() {
+                if($(this).attr('data-wsid') !== workspaceId) $(this).addClass('hidden');
+            });
+
+        });
+
+    }
+
+}
+function filterList(id,) {
 
     let elemList = $('#' + id);
+    let value    = $('#search').val().toLowerCase();
 
     if(isBlank(value)) {
 
@@ -43,6 +120,7 @@ function filterList(id, value) {
         elemList.children().each(function() {
 
             let isPinned = $(this).find('.icon-bookmark').length > 0;
+            let title    = $(this).find('.tile-title').html().toLowerCase();
 
             if(isPinned) {
 
@@ -50,7 +128,6 @@ function filterList(id, value) {
 
             } else {
 
-                let title = $(this).find('.tile-title').html().toLowerCase();
                 if(title.indexOf(value) >= 0) $(this).removeClass('hidden'); else $(this).addClass('hidden');
 
             }
@@ -64,9 +141,11 @@ function filterList(id, value) {
 
 function insertWorkspaces() {
 
-    $.get('/plm/workspaces', { limit : 1000 }, function(response) {
+    $.get('/plm/workspaces', { limit : 1000, useCache : true }, function(response) {
 
         let workspaces = response.data.items;
+
+        if(completed++ === 3) $('#overlay').hide();
 
         sortArray(workspaces, 'title');
 
@@ -74,7 +153,13 @@ function insertWorkspaces() {
 
             let elemTile = $('<div></div>').appendTo($('#workspaces-list'))
                 .attr('data-id', workspace.urn.split('.').pop())
-                .addClass('tile');
+                .addClass('tile')
+                .addClass('workspace')
+                .click(function() {
+                    $(this).siblings().removeClass('selected');
+                    $(this).toggleClass('selected');
+                    filterLists();
+                });
 
             $('<div></div>').appendTo(elemTile)
                 .addClass('tile-icon')
@@ -108,7 +193,7 @@ function insertWorkspaces() {
                 .click(function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    openURL('/admin#section=setuphome&tab=workspaces&item=workspaceedit&params={"workspaceID":"' + $(this).closest('.tile').attr('data-id') + '"}');
+                    openURL('workspace', '/admin#section=setuphome&tab=workspaces&item=workspaceedit&params={"workspaceID":"' + $(this).closest('.tile').attr('data-id') + '"}');
                 });                
 
             $('<div></div>').appendTo(elemActions)
@@ -119,7 +204,7 @@ function insertWorkspaces() {
                 .click(function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    openURL('/admin#section=setuphome&tab=workspaces&item=itemdetails&params={"metaType":"D","workspaceID":"' + $(this).closest('.tile').attr('data-id') + '"}');
+                    openURL('workspace', '/admin#section=setuphome&tab=workspaces&item=itemdetails&params={"metaType":"D","workspaceID":"' + $(this).closest('.tile').attr('data-id') + '"}');
                 });                
 
             $('<div></div>').appendTo(elemActions)
@@ -130,7 +215,7 @@ function insertWorkspaces() {
                 .click(function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    openURL('/admin#section=setuphome&tab=workspaces&item=descriptor&params={"workspaceID":"' + $(this).closest('.tile').attr('data-id') + '"}');
+                    openURL('workspace', '/admin#section=setuphome&tab=workspaces&item=descriptor&params={"workspaceID":"' + $(this).closest('.tile').attr('data-id') + '"}');
                 });          
 
             $('<div></div>').appendTo(elemActions)
@@ -141,7 +226,7 @@ function insertWorkspaces() {
                 .click(function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    openURL('/admin#section=setuphome&tab=workspaces&item=grid&params={"metaType":"G","workspaceID":"' + $(this).closest('.tile').attr('data-id') + '"}');
+                    openURL('workspace', '/admin#section=setuphome&tab=workspaces&item=grid&params={"metaType":"G","workspaceID":"' + $(this).closest('.tile').attr('data-id') + '"}');
                 });                
 
             $('<div></div>').appendTo(elemActions)
@@ -152,7 +237,7 @@ function insertWorkspaces() {
                 .click(function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    openURL('/admin#section=setuphome&tab=workspaces&item=workflowitems&params={"metaType":"L","workspaceID":"' + $(this).closest('.tile').attr('data-id') + '"}');
+                    openURL('workspace', '/admin#section=setuphome&tab=workspaces&item=workflowitems&params={"metaType":"L","workspaceID":"' + $(this).closest('.tile').attr('data-id') + '"}');
                 });  
 
             $('<div></div>').appendTo(elemActions)
@@ -163,7 +248,7 @@ function insertWorkspaces() {
                 .click(function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    openURL('/admin#section=setuphome&tab=workspaces&item=bom&params={"metaType":"B","workspaceID":"' + $(this).closest('.tile').attr('data-id') + '"}');
+                    openURL('workspace', '/admin#section=setuphome&tab=workspaces&item=bom&params={"metaType":"B","workspaceID":"' + $(this).closest('.tile').attr('data-id') + '"}');
                 });          
 
             $('<div></div>').appendTo(elemActions)
@@ -174,7 +259,7 @@ function insertWorkspaces() {
                 .click(function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    openURL('/admin#section=setuphome&tab=workspaces&item=relationship&params={"workspaceID":"' + $(this).closest('.tile').attr('data-id') + '"}');
+                    openURL('workspace', '/admin#section=setuphome&tab=workspaces&item=relationship&params={"workspaceID":"' + $(this).closest('.tile').attr('data-id') + '"}');
                 });    
                 
             $('<div></div>').appendTo(elemActions)
@@ -185,7 +270,7 @@ function insertWorkspaces() {
                 .click(function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    openURL('/admin#section=setuphome&tab=workspaces&item=tabsedit&params={"workspaceID":"' + $(this).closest('.tile').attr('data-id') + '"}');
+                    openURL('workspace', '/admin#section=setuphome&tab=workspaces&item=tabsedit&params={"workspaceID":"' + $(this).closest('.tile').attr('data-id') + '"}');
                 });     
 
             $('<div></div>').appendTo(elemActions)
@@ -196,7 +281,7 @@ function insertWorkspaces() {
                 .click(function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    openURL('/admin#section=setuphome&tab=workspaces&item=behavior&params={"workspaceID":"' + $(this).closest('.tile').attr('data-id') + '"}');
+                    openURL('workspace', '/admin#section=setuphome&tab=workspaces&item=behavior&params={"workspaceID":"' + $(this).closest('.tile').attr('data-id') + '"}');
                 });   
 
             $('<div></div>').appendTo(elemActions)
@@ -207,7 +292,7 @@ function insertWorkspaces() {
                 .click(function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    openURL('/workflowEditor.form?workspaceId=' + $(this).closest('.tile').attr('data-id'));
+                    openURL('workspace', '/workflowEditor.form?workspaceId=' + $(this).closest('.tile').attr('data-id'));
                 });  
 
             insertPinButton(elemTile);
@@ -221,19 +306,22 @@ function insertWorkspaces() {
 
 function insertScripts() {
 
-    $.get('/plm/scripts', {}, function(response) {
+    $.get('/plm/scripts', { useCache : true }, function(response) {
 
-        let scripts = response.data.scripts;
+        allScripts = response.data.scripts;
 
-        sortArray(scripts, 'uniqueName');
+        if(completed++ === 3) $('#overlay').hide();
 
-        for(let script of scripts) {
+        sortArray(allScripts, 'uniqueName');
+
+        for(let script of allScripts) {
 
             let elemTile = $('<div></div>').appendTo($('#scripts-list'))
                 .attr('data-id', script.__self__.split('/').pop())
+                .attr('data-link', script.__self__)
                 .addClass('tile')
                 .click(function() {
-                    openURL('/script.form?ID=' + $(this).attr('data-id'));
+                    openURL('script', '/script.form?ID=' + $(this).attr('data-id'));
                 });
 
             $('<div></div>').appendTo(elemTile)
@@ -254,7 +342,7 @@ function insertScripts() {
                 .click(function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    openURL('/script/whereused.form?ID=' + $(this).closest('.tile').attr('data-id'));
+                    openURL('scriptwu', '/script/whereused.form?ID=' + $(this).closest('.tile').attr('data-id'));
                 });
 
             insertPinButton(elemTile);
@@ -268,9 +356,11 @@ function insertScripts() {
 
 function insertPicklists() {
 
-    $.get('/plm/picklists', {}, function(response) {
+    $.get('/plm/picklists', { useCache : true }, function(response) {
 
         let picklists = response.data.list.picklist;
+
+        if(completed++ === 3) $('#overlay').hide();
 
         sortArray(picklists, 'name');
 
@@ -280,7 +370,7 @@ function insertPicklists() {
                 .attr('data-id', picklist.id)
                 .addClass('tile')
                 .click(function() {
-                    openURL('/admin#section=setuphome&tab=general&item=picklistedit&params={"name":"' + $(this).attr('data-id') + '"}');
+                    openURL('workspace', '/admin#section=setuphome&tab=general&item=picklistedit&params={"name":"' + $(this).attr('data-id') + '"}');
                 });
 
             $('<div></div>').appendTo(elemTile)
@@ -300,7 +390,7 @@ function insertPicklists() {
                 .click(function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    openURL('/pickListWhereUsed.do?name=' + $(this).closest('.tile').attr('data-id'));
+                    openURL('picklistwu', '/pickListWhereUsed.do?name=' + $(this).closest('.tile').attr('data-id'));
                 });
 
             insertPinButton(elemTile);
@@ -314,9 +404,11 @@ function insertPicklists() {
 
 function insertRoles() {
 
-    $.get('/plm/roles', {}, function(response) {
+    $.get('/plm/roles', { useCache : true }, function(response) {
 
         let roles = response.data.list.role;
+
+        if(completed++ === 3) $('#overlay').hide();
 
         sortArray(roles, 'name');
 
@@ -325,8 +417,9 @@ function insertRoles() {
             let elemTile = $('<div></div>').appendTo($('#roles-list'))
                 .addClass('tile')
                 .attr('data-id', role.id)
+                .attr('data-wsid', role.workspaceID)
                 .click(function() {
-                    openURL('/adminRolePermissionsManage.do?roleId=' + $(this).attr('data-id'));
+                    openURL('role', '/adminRolePermissionsManage.do?roleId=' + $(this).attr('data-id'));
                 });
 
             $('<div></div>').appendTo(elemTile)
@@ -364,12 +457,26 @@ function insertPinButton(elemTile) {
 }
 
 
-function openURL(url) {
+function openURL(panelName, url) {
 
     if(url === '') return;
-
+    
     url  = 'https://' + tenant + '.autodeskplm360.net' + url;
 
-    window.open(url, '_blank');
+    let mode = $('#mod').val();
+
+    if((panelName === '') || (mode === 'nt')) { window.open(url, '_blank'); return; }
+
+    if(mode === 'sp') panelName = 'PLM';
+
+    let height  = screen.height;
+    let width   = screen.width / 2;
+    let left    = width;
+    let options = 'height=' + height
+        + ',width=' + width 
+        + ',top=0,left=' + left
+        + ',toolbar=1,Location=0,Directxories=0,Status=0,menubar=1,Scrollbars=1,Resizable=1';
+
+    window.open(url, panelName, options);
 
 }

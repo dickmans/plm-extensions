@@ -16,15 +16,20 @@ block body
             #header-title=title
             #header-subtitle Save time when configuring your PLM tenant
             #header-toolbar
-                input#search.button.input(placeholder='Type to filter the list items')
+                input#search.button.input(placeholder='Type to filter')
                 #settings.button.with-icon.icon-settings(title='Launch the General Settings') Settings
                 #wsm.button.with-icon.icon-list-edit(title='Launch the Workspace Manager') Workspaces
                 #mmd.button.with-icon.icon-bom-tree(title='Launch the Main Menu Designer') Main Menu
                 #lce.button.with-icon.icon-workflow(title='Launch the Lifecycle Editor') Lifecycle
+                select#mod.button.main
+                    option(value='nt') Open New Tabs
+                    option(value='sp') Use Single Panel
+                    option(value='dp') Use Dedicated Panels
+                #clc.button.icon.icon-clear-cache(title='Clear the cache of PLM requests')
                 #header-avatar
         .screen.surface-level-1
 
-            #workspaces.panel-top.surface-level-1
+            #workspaces.panel-top.surface-level-2
                 .panel-header 
                     .panel-title 
                         .panel-title-main Workspaces 
