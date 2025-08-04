@@ -4,7 +4,7 @@
     font-family: 'Material Symbols Sharp';
     font-style: normal;
     font-weight: 100 700;
-    src: url(../../fonts/MaterialSymbolsSharp.ttf) format('truetype');
+    src: url(../../fonts/Material_Symbols_Sharp/MaterialSymbolsSharp-VariableFont_FILL,GRAD,opsz,wght.ttf) format('truetype');
 }
 @font-face {
     font-family: ArtifaktElement;
@@ -226,6 +226,7 @@
 .icon-check-box-checked::before { content : '\e834'; }
 .icon-check-circle-add::before  { content : '\f23a'; }
 .icon-clear::before             { content : '\e14b'; }
+.icon-clear-cache::before       { content : '\f414'; }
 .icon-clipboard-add::before     { content : '\f848'; }
 .icon-clone::before             { content : '\e14d'; }
 .icon-close::before             { content : '\e5cd'; }
