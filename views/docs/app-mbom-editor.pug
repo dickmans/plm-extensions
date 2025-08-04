@@ -321,6 +321,17 @@
             span.indent-2 ...
             span.indent }
             span }  
+        h1 Launching the MBOM Editor in context 
+        p The editor cannot only be launched from an item, but also from context records which refer to both an Engineering BOM and a Manufacturing BOM. For example, you may want to launch the MBOM Editor from a Product, a Project or an Asset to transform its EBOM to a MBOM. This can be accomplished by adding the link for starting the MBOM Editor to the Item Details of the given workspace as well.
+        p The given context workspace only requires the two fields to link the EBOM and MBOM. It does not require any adjustments to the BOM tab and its permissions as the editor will determine the base EBOM and from there use the Items workspace configuration settings. Note that the editor can only be launched in context if either the EBOM or MBOM is selected for the context object (Product, Project, Asset). If the EBOM item is found, but the matching MBOM item does not exist yet, the latter one will be created and linked to the context object automatically.
+        p Assuming your context workspace (Products, Projects or Asset) uses the same fields defined for linkig the E/MBOM items as your Items workspace (EBOM + MBOM), simply use the folloowing computed field formlua for adding an Action field which launches the MBOM Editor (this time, pass the workspace ID of your context object, for example 95 for Products).          
+        p.code  '&lt;a style="color: #0a131c;border: 1px solid #bec8d2;border-radius:3px;text-align:center;text-decoration:none !important;line-height:32px;white-space:nowrap;padding:4px 20px;width:140px;font-weight:600;" target="_blank" href ="LOCATIONmbom?wsId=95&dmsId='||DMS_ID||'"&gt;Edit MBOM&lt;/a&gt;'
+        p However, if your context object uses other fields for the E/MBOM links than defined by the settings fieldIdEBOM and fieldIdMBOM, you will instead have to also pass these given fieldIds using additional parameters in the URL. See the following example including the parameters 
+            strong contextFieldIdEBOM=ENGINEEERING_BOM 
+            | and 
+            strong contextFieldIdMBOM=MANUFACTURING_BOM 
+            |:
+        p.code  '&lt;a style="color: #0a131c;border: 1px solid #bec8d2;border-radius:3px;text-align:center;text-decoration:none !important;line-height:32px;white-space:nowrap;padding:4px 20px;width:140px;font-weight:600;" target="_blank" href ="LOCATIONmbom?wsId=95&dmsId='||DMS_ID||'&amp;contextFieldIdEBOM=ENGINEERING_BOM&amp;contextFieldIdMBOM=MANUFACTURING_BOM"&gt;Edit MBOM&lt;/a&gt;'
         h1 Support for multiple sites
         p With the standard configuration steps above, there will be only one MBOM per EBOM. However, the setup can be changed to support multiple MBOMs, for example to have site specific MBOMs. To achieve this setup, the fields that were created formerly must be cloned for each site.
         p By following the steps below, the existing fields will be kept in order to have a 'standard' base MBOM. In addition, further fields will be added to capture the MBOM for 'Site 1' and 'Site 2'. 
