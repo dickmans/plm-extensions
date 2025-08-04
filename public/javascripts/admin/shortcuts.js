@@ -88,17 +88,26 @@ function filterLists() {
 
             $('#scripts-list').children().each(function() {
                 let link = $(this).attr('data-link');
-                if(!scripts.includes(link)) $(this).addClass('hidden');
+                let isPinned = $(this).find('.icon-pin-on').length > 0;
+                if(!scripts.includes(link)) {
+                    if(!isPinned) $(this).addClass('hidden');
+                }
             });
 
             $('#picklists-list').children().each(function() {
                 let elemPicklist = $(this);
                 let idPickklist = elemPicklist.attr('data-id');
-                if(!picklists.includes(idPickklist)) elemPicklist.addClass('hidden');
+                let isPinned    = $(this).find('.icon-pin-on').length > 0;
+                if(!picklists.includes(idPickklist)) {
+                    if(!isPinned) $(this).addClass('hidden');
+                }
             });
 
             $('#roles-list').children().each(function() {
-                if($(this).attr('data-wsid') !== workspaceId) $(this).addClass('hidden');
+                let isPinned    = $(this).find('.icon-pin-on').length > 0;
+                if($(this).attr('data-wsid') !== workspaceId) {
+                    if(!isPinned) $(this).addClass('hidden');
+                }
             });
 
         });

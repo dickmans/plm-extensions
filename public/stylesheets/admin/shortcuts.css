@@ -65,7 +65,6 @@
     flex-shrink : inherit;
 }
 .tile-icon {
-    background  : var(--color-surface-level-4);
     font-size   : 22px;
     font-weight : 200;
     line-height : var(--height-tile);
@@ -75,10 +74,13 @@
     width       : var(--height-tile);
     text-align  : center;
 }
+.tile-icon:first-of-type {
+    background  : var(--color-surface-level-4);
+}
 .tile.selected {
     background : var(--color-selected-background);
 }
-.tile.selected .tile-icon {
+.tile.selected .tile-icon:first-of-type {
     background  : var(--color-selected-image) !important;
 }
 
