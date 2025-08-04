@@ -313,6 +313,22 @@ function getCacheEntry(req) {
 }
 
 
+/* ----- CLEAR CACHE ENTRIES ----- */
+router.post('/clear-cache', function(req, res) {
+   
+    console.log(' ');
+    console.log('  /clear-cache');
+    console.log(' --------------------------------------------');
+    console.log();
+
+    req.session.cache = [];
+    req.session.save();
+
+    sendResponse(req, res, {}, false);
+
+});
+
+
 /* ----- GET WORKSPACE TABS ----- */
 router.get('/tabs', function(req, res, next) {
     
@@ -5521,17 +5537,22 @@ router.get('/scripts', function(req, res, next) {
     console.log('  /scripts');
     console.log(' --------------------------------------------');  
     console.log('  req.query.tenant  = ' + req.query.tenant);
+    console.log('  req.query.useCache  = ' + req.query.useCache);
     console.log();
 
-    let url = getTenantLink(req) + '/api/v3/scripts';
+    if(notCached(req, res)) {    
 
-    axios.get(url, {
-        headers : req.session.headers
-    }).then(function(response) {
-        sendResponse(req, res, response, false);
-    }).catch(function(error) {
-        sendResponse(req, res, error.response, true);
-    });
+        let url = getTenantLink(req) + '/api/v3/scripts';
+
+        axios.get(url, {
+            headers : req.session.headers
+        }).then(function(response) {
+            sendResponse(req, res, response, false);
+        }).catch(function(error) {
+            sendResponse(req, res, error.response, true);
+        });
+
+    }
 
 });
 
@@ -5590,18 +5611,23 @@ router.get('/roles', function(req, res, next) {
     console.log(' ');
     console.log('  /roles');
     console.log(' --------------------------------------------');  
-    console.log('  req.query.tenant  = ' + req.query.tenant);
+    console.log('  req.query.tenant   = ' + req.query.tenant);
+    console.log('  req.query.useCache = ' + req.query.useCache);
     console.log();
 
-    let url = getTenantLink(req) + '/api/rest/v1/roles';
+    if(notCached(req, res)) {    
 
-    axios.get(url, {
-        headers : req.session.headers
-    }).then(function(response) {
-        sendResponse(req, res, response, false);
-    }).catch(function(error) {
-        sendResponse(req, res, error.response, true);
-    });
+        let url = getTenantLink(req) + '/api/rest/v1/roles';
+
+        axios.get(url, {
+            headers : req.session.headers
+        }).then(function(response) {
+            sendResponse(req, res, response, false);
+        }).catch(function(error) {
+            sendResponse(req, res, error.response, true);
+        });
+
+    }
 
 });
 
