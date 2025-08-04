@@ -5340,22 +5340,27 @@ router.get('/workspace-scripts', function(req, res, next) {
     console.log(' ');
     console.log('  /workspace-scripts');
     console.log(' --------------------------------------------');  
-    console.log('  req.query.wsId   = ' + req.query.wsId);
-    console.log('  req.query.link   = ' + req.query.link);
-    console.log('  req.query.tenant = ' + req.query.tenant);
+    console.log('  req.query.wsId     = ' + req.query.wsId);
+    console.log('  req.query.link     = ' + req.query.link);
+    console.log('  req.query.tenant   = ' + req.query.tenant);
+    console.log('  req.query.useCache = ' + req.query.useCache);
     console.log();
 
-    let wsId = (typeof req.query.wsId === 'undefined') ? req.query.link.split('/')[4] : req.query.wsId;
-    let url  = getTenantLink(req) + '/api/v3/workspaces/' + wsId + '/scripts';
+    if(notCached(req, res)) {    
 
-    axios.get(url, {
-        headers : req.session.headers
-    }).then(function(response) {
-        if(response.data === '') response.data = { scripts : [] };
-        sendResponse(req, res, response, false);
-    }).catch(function(error) {
-        sendResponse(req, res, error.response, true);
-    });
+        let wsId = (typeof req.query.wsId === 'undefined') ? req.query.link.split('/')[4] : req.query.wsId;
+        let url  = getTenantLink(req) + '/api/v3/workspaces/' + wsId + '/scripts';
+
+        axios.get(url, {
+            headers : req.session.headers
+        }).then(function(response) {
+            if(response.data === '') response.data = { scripts : [] };
+            sendResponse(req, res, response, false);
+        }).catch(function(error) {
+            sendResponse(req, res, error.response, true);
+        });
+        
+    }
 
 });
 
@@ -5457,20 +5462,25 @@ router.get('/workspace-workflow-transitions', function(req, res, next) {
     console.log('  req.query.wsId   = ' + req.query.wsId);
     console.log('  req.query.link   = ' + req.query.link);
     console.log('  req.query.tenant = ' + req.query.tenant);
+    console.log('  req.query.useCache = ' + req.query.useCache);
     console.log();
 
-    let wsId = (typeof req.query.wsId === 'undefined') ? req.query.link.split('/')[4] : req.query.wsId;
-    let url  = getTenantLink(req) + '/api/v3/workspaces/' + wsId + '/workflows/1/transitions';
+    if(notCached(req, res)) {    
 
-    axios.get(url, {
-        headers : req.session.headers
-    }).then(function(response) {
-        console.log(response.data);
-        if(response.data === "") response.data = [];
-        sendResponse(req, res, response, false);
-    }).catch(function(error) {
-        sendResponse(req, res, error.response, true);
-    });
+        let wsId = (typeof req.query.wsId === 'undefined') ? req.query.link.split('/')[4] : req.query.wsId;
+        let url  = getTenantLink(req) + '/api/v3/workspaces/' + wsId + '/workflows/1/transitions';
+
+        axios.get(url, {
+            headers : req.session.headers
+        }).then(function(response) {
+            console.log(response.data);
+            if(response.data === "") response.data = [];
+            sendResponse(req, res, response, false);
+        }).catch(function(error) {
+            sendResponse(req, res, error.response, true);
+        });
+
+    }
 
 });
 
