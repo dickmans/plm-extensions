@@ -124,23 +124,23 @@ body.no-console #console {
 }
 .result-icon {
     font-weight : 200;
-    height      : 36px;
-    line-height : 36px;
+    height      : 38px;
+    line-height : 38px;
     text-align  : center;
     max-width   : 60px;
     min-width   : 60px;
     width       : 60px;
 }
 .result-label { 
-    height      : 36px;
-    line-height : 36px;
+    height      : 38px;
+    line-height : 38px;
     max-width   : 190px;
     min-width   : 190px;
     width       : 190px;
 }
 .result-summary {
     font-size   : 12px;
-    line-height : 36px;
+    line-height : 38px;
     text-align  : right;
     max-width   : 250px;
     min-width   : 250px;
@@ -150,23 +150,29 @@ body.no-console #console {
     color       : var(--color-surface-level-1);
     padding-right : 10px;
     text-align  : center;
-    height      : 36px;
-    line-height : 36px;
+    height      : 38px;
+    line-height : 38px;
     max-width   : 48px;
     min-width   : 48px;
     width       : 48px;
 }
-.match  .icon-radio-unchecked::before { color : var(--color-status-green)  !important; }
-.diff   .icon-radio-unchecked::before { color : var(--color-status-red)    !important; }
-.varies .icon-radio-unchecked::before { color : var(--color-status-yellow) !important; }
+.match  .comparison-result::before { color : var(--color-status-green)  !important; content : '\e86c'; }
+.diff   .comparison-result::before { color : var(--color-status-red)    !important; content : '\e5c9'; }
+.varies .comparison-result::before { color : var(--color-status-yellow) !important; content : '\e5c9'; }
 .result-actions {
     display         : flex;
     flex-direction  : column;
     flex-grow       : 1;
     gap             : 1px;
-    max-width       : calc(100% - 558px);    
-    min-width       : calc(100% - 558px);    
-    width           : calc(100% - 558px);    
+    max-width       : calc(100% - 606px);    
+    min-width       : calc(100% - 606px);    
+    width           : calc(100% - 606px);    
+}
+.result-compare {
+    background    : var(--color-surface-level-2);
+    display       : none;
+    padding-left  : 8px;
+    padding-right : 2px;
 }
 .action {
     display : flex;
