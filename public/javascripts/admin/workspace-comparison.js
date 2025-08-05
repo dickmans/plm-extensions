@@ -229,14 +229,12 @@ function addActionEntry(params) {
             .click(function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('2');
 
                 let height  = screen.height * 0.6;
                 let width   = screen.width / 2 * 0.6;
                 let options = 'height=' + height
                     + ',width=' + width 
-                    + ',top=0';
-                    // ,toolbar=1,Location=0,Directxories=0,Status=0,menubar=1,Scrollbars=1,Resizable=1';
+                    + ',top=0,toolbar=1,Location=0,Directxories=0,Status=0,menubar=1,Scrollbars=1,Resizable=1';
 
                 window.open('https://' + environments.source.tenantName + '.autodeskplm360.net' + params.comp.source, 'comparisonLeft' , options + ',left=0'       );
                 window.open('https://' + environments.target.tenantName + '.autodeskplm360.net' + params.comp.target, 'comparisonRight', options + ',left=' + width);
