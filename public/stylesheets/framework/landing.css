@@ -313,7 +313,7 @@ th {
     text-align : left;
 }
 td {
-    border-bottom : 1px solid #eee;
+    border-bottom : 1px solid var(--color-surface-level-3);
 }
 th, td {
     padding : 5px 10px;
