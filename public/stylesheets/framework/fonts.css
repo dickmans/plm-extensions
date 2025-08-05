@@ -214,6 +214,7 @@
 .icon-bookmark-off::before      { content : '\e838'; }
 .icon-bom::before               { content : '\e242'; }
 .icon-bom-tree::before          { content : '\e94b'; }
+.icon-bottom::before            { content : '\e258'; }
 .icon-calendar::before          { content : '\ebcc'; }
 .icon-cancel::before            { content : '\e5c9'; }
 .icon-cart-add::before          { content : '\e854'; }
@@ -344,6 +345,7 @@
 .icon-toggle-off::before        { content : '\e9f5'; }
 .icon-toggle-on::before         { content : '\e9f6'; }
 .icon-toggle-layout::before     { content : '\e42a'; }
+.icon-top::before               { content : '\e25a'; }
 .icon-trend-chart::before       { content : '\f190'; }
 .icon-type::before              { content : '\e574'; }
 .icon-undelete::before          { content : '\e938'; }
