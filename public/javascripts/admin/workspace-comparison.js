@@ -45,6 +45,12 @@ function setUIEvents() {
     $('#target-tenant').keydown(function (e) {
         if (e.keyCode == 13) {
             getWorkspaces('target');
+            $('.result-summary').html('');
+            $('.result-actions').html('');
+            $('.result-compare').hide();
+            $('#comparison-results').children().each(function() {
+                $(this).removeClass('match').removeClass('info').removeClass('diff').removeClass('varies').removeClass('disabled');
+            });
         }
     });
 
@@ -56,7 +62,6 @@ function setUIEvents() {
 
         let height  = screen.height * 0.6;
         let width   = screen.width / 2 * 0.6;
-        let left    = width;
         let options = 'height=' + height
             + ',width=' + width 
             + ',top=0,toolbar=1,Location=0,Directxories=0,Status=0,menubar=1,Scrollbars=1,Resizable=1';
@@ -212,6 +217,34 @@ function addActionEntry(params) {
             window.open(url, '_blank');
         });       
 
+    if(!isBlank(params.comp)) {
+
+        $('<div></div>').appendTo(elemNew)
+            .addClass('action-icon')
+            .addClass('button')
+            .addClass('icon')
+            .addClass('icon-compare')
+            .attr('link-source', params.comp.source)
+            .attr('link-target', params.comp.target)
+            .click(function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('2');
+
+                let height  = screen.height * 0.6;
+                let width   = screen.width / 2 * 0.6;
+                let options = 'height=' + height
+                    + ',width=' + width 
+                    + ',top=0';
+                    // ,toolbar=1,Location=0,Directxories=0,Status=0,menubar=1,Scrollbars=1,Resizable=1';
+
+                window.open('https://' + environments.source.tenantName + '.autodeskplm360.net' + params.comp.source, 'comparisonLeft' , options + ',left=0'       );
+                window.open('https://' + environments.target.tenantName + '.autodeskplm360.net' + params.comp.target, 'comparisonRight', options + ',left=' + width);
+
+            });
+
+    }
+    
     $('<div></div>').appendTo(elemText)
         .addClass('action-instructions')
         .html(params.text);
@@ -3033,6 +3066,7 @@ function comparePermissions() {
                     hasMatch        = true;
                     reportMatch     = true;
                     target.hasMatch = true;
+                    target.sourceId = source.id;
 
                     if(source.description !== target.description) {
                         matches.description = false;
@@ -3102,6 +3136,10 @@ function comparePermissions() {
                             text : 'Remove permission <b>' + getPermissionLabel(definitions, permission.id) + '</b> from role <b>' + target.name + '</b>', 
                             step : step,
                             url  : url
+                            // comp : {
+                            //     source : '/adminRolePermissionsManage.do?roleId=' + target.sourceId,
+                            //     target : '/adminRolePermissionsManage.do?roleId=' + target.id
+                            // }
                         });
                     }
                 }
@@ -3229,7 +3267,11 @@ function compareScriptSources() {
                 addActionEntry({ 
                     text : 'Update source code of <b>' + source.data.uniqueName + '</b>', 
                     step : step,
-                    url  : '/script.form?ID=' + source.params.link.split('/').pop()
+                    url  : '/script.form?ID=' + source.params.link.split('/').pop(),
+                    comp : {
+                        source : '/script.form?ID=' + source.params.link.split('/').pop(),
+                        target : '/script.form?ID=' + target.params.link.split('/').pop()
+                    }
                 });
             }
 
@@ -3240,7 +3282,11 @@ function compareScriptSources() {
                 addActionEntry({ 
                     text : text, 
                     step : step,
-                    url  : '/script.form?ID=' + source.params.link.split('/').pop()
+                    url  : '/script.form?ID=' + source.params.link.split('/').pop(),
+                    comp : {
+                        source : '/script.form?ID=' + source.params.link.split('/').pop(),
+                        target : '/script.form?ID=' + target.params.link.split('/').pop()
+                    }
                 });
             }
 
@@ -3355,7 +3401,11 @@ function compareLibraryScripts() {
                         addActionEntry({ 
                             text : 'Update source code of <b>' + source.data.uniqueName + '</b>', 
                             step : step,
-                            url  : '/script.form?ID=' + source.params.link.split('/').pop()
+                            url  : '/script.form?ID=' + source.params.link.split('/').pop(),
+                            comp : {
+                                source : '/script.form?ID=' + source.params.link.split('/').pop(),
+                                target : '/script.form?ID=' + target.params.link.split('/').pop()
+                            }
                         });
                     } 
 

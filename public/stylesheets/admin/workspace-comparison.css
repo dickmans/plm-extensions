@@ -176,7 +176,7 @@ body.no-console #console {
 }
 .action {
     display : flex;
-    gap     : 0px;
+    gap     : 1px;
 }
 .action-text.button {
     background      : var(--color-surface-level-3);
