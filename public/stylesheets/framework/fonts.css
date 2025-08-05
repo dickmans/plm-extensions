@@ -233,6 +233,7 @@
 .icon-close::before             { content : '\e5cd'; }
 .icon-collapse::before          { content : '\e5cf'; }
 .icon-columns::before           { content : '\e8f3'; }
+.icon-compare::before           { content : '\f459'; }
 .icon-contains::before          { content : '\f525'; }
 .icon-counter-1::before         { content : '\f784'; }
 .icon-counter-2::before         { content : '\f783'; }
