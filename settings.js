@@ -635,18 +635,64 @@ exports.config = {
     },
 
     sbom : {
-        fieldIdSBOM          : 'SERVICE_BOM',
-        fieldIdEBOM          : 'ENGINEERING_BOM',
-        bomViewName          : 'Service',
-        fieldIdItemType      : 'TYPE',
-        picklistItemTypes    : 'CUSTOM_LOOKUP_ITEM_TYPES',
-        typeServiceBOM       : 'Service BOM',
-        typeServiceOffering  : 'Service Offering',
-        typeServiceOperation : 'Service Operation',
-        typeServiceKit       : 'Service Kit',
-        fieldIdSparePart     : 'SPARE_WEAR_PART',
-        valuesSparePart      : ['spare', 'spare part', 'yes', 'x', 'y', 'true'],
-        basePosNumbers       : [ 101, 201, 301 ],
+        appTitle  : 'Service BOM Editor',
+        sourceBOM : {
+            fieldId     : 'EBOM',
+            bomViewName : 'Service',
+            headerLabel : 'Engineering BOM'
+        },
+        targetBOM : {
+            fieldId       : 'SERVICE_BOM',
+            bomViewName   : 'Service',
+            itemTypeValue : 'Service BOM',
+            prefixTitle   : 'Service BOM of ',
+            filterLabelIn : 'Show items contained in Service BOM only',
+            filterLabelEx : 'Hide items contained in Service BOM'
+        },
+        itemType : {
+            fieldId    : 'TYPE',
+            picklistId : 'CUSTOM_LOOKUP_ITEM_TYPES'
+        },
+        itemHighlight : {
+            fieldId        : 'SPARE_WEAR_PART',
+            fieldValues    : ['spare', 'spare part', 'yes', 'x', 'y', 'true'],
+            bomColumnTitle : 'Spare/Wear',
+            filterLabelIn  : 'Show Recommended Spare Parts Only',
+            filterLabelEx  : 'Hide Recommended Spare Parts'
+        },
+        bomTypes : [{
+            mode          : 'list',
+            tabLabel      : 'Spare Parts',
+            buttonLabels  : ['Add all recommended'],
+            bomItemTypes  : ['Spare Parts List'],
+            icon          : 'icon-details',
+            color         : colors.red,
+            filterLabelIn : 'Show Spare Parts List Items Only',
+            filterLabelEx : 'Hide Spare Parts List Items',
+            basePosNumber : 301,
+            hideQuantity  : true
+        },{
+            mode          : '1-level-bom',
+            tabLabel      : 'Maintenance Kits',
+            buttonLabels  : ['New Kit'],
+            bomItemTypes  : ['Service Kit'],
+            icon          : 'icon-product',
+            color         : colors.green,
+            filterLabelIn : 'Show Maintenance Kit Items Only',
+            filterLabelEx : 'Hide Maintenance Items',
+            basePosNumber : 201
+        },{
+            mode          : '2-levels-bom',
+            tabLabel      : 'Services',
+            buttonLabels  : ['New Service', 'New Operation'],
+            bomItemTypes  : ['Service Offering', 'Service Operation'],
+            icon          : 'icon-service',
+            color         : colors.yellow,
+            filterLabelIn : 'Show Services Items Only',
+            filterLabelEx : 'Hide Services Items',
+            basePosNumber : 101
+        }],
+        enableBOMPin : false,
         viewerFeatures : {
             contextMenu   : false,
             cube          : false,

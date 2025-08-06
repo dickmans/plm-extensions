@@ -72,27 +72,17 @@
 
 .viewcubeWrapper { display : none !important; }
 
-#panel .panel-actions { 
-    justify-content : end;
-    top             : 0px; 
-}
-#panel .panel-content > .panel-content { 
-    top             : 72px; 
-}
-.tiles.list.xs .tile-counter {
-    line-height : 38px;
-}
 
 
 /*  BOM */
 /* ----------------------------------------------------------------------------- */
-.bom-column-recommended {
+.bom-column-highlighted {
     width : 86px;
 }
 th.type .icon {
+    display     : block;
     font-size   : 18px;
     font-weight : 300;
-    margin-top  : 6px;
 }
 th.type,
 td.type {
@@ -105,17 +95,20 @@ td.type i {
     color           : white;
     font-size       : 18px;
     font-weight     : 300;
-    line-height     : 18px;
-    padding         : 4px;
     text-align      : center;
 }
 td.srv i { background: var(--color-status-red   ); }
 td.kit i { background: var(--color-status-yellow); }
 td.spr i { background: var(--color-status-green ); }
+#select-bom-filter {
+    text-overflow : ellipsis;
+    white-space   : nowrap;
+    width         : 160px;
+}
 
 
 
-/*  TABS */
+/*  TABS & PANELS */
 /* ----------------------------------------------------------------------------- */
 #tabs > div {
     gap             : 2px;
@@ -127,44 +120,51 @@ td.spr i { background: var(--color-status-green ); }
 #tabs > div.selected { 
     font-weight : normal; 
 }
-#tab-services.selected { border-color: var(--color-status-red   ); }
-    #tab-kits.selected { border-color: var(--color-status-yellow); }
-   #tab-parts.selected { border-color: var(--color-status-green ); }
+.tab-group-main {
+    position : absolute;
+    top      : 56px;
+    right    : 0px;
+    bottom   : 0px;
+    left     : 0px;
+}
+#panel .panel-actions { 
+    justify-content : end;
+    top             : 0px; 
+}
+#panel .panel-content { top : 68px; }
+#panel input:focus {
+    border-color : var(--color-blue-500) !important;
+    box-shadow   : 0px 3px 0px 0px rgba(6, 150, 215, 0.35) !important;
+    outline      : 0;
+}
 
 
 
-/*  SERVICES & KITS */
+/*  NODES */
 /* ----------------------------------------------------------------------------- */
-.service,
-.kit {
-    padding : 12px;
-}
-.service,
-.group.operation,
-.group.kit {
-    border : 1px solid transparent;
-}
-.groups {
+.nodes {
     display         : flex;
     flex-direction  : column;
     gap             : 6px;
 }
-.group {
-    background : var(--color-surface-level-1);
-    cursor       : pointer;
+.nodes-list {
+    display         : flex;
+    flex-direction  : column;
+    gap             : 2px;
+    padding         : 12px 0px;
 }
-.group-header {
+.panel-content > .node {
+    padding : 12px;
+}
+.nodes-list > .node {
+    padding : 0px 0px 0px 48px;
+}
+.node-header {
     display : flex;
     gap     : 10px;
     height  : 38px;
 }
-.group-toggle {
-    height      : 36px;
-    line-height : 36px;
-    text-align  : center;
-    width       : 36px;
-}
-.group-header input {
+.node-title {
     background   : var(--color-surface-level-2);
     border-color : var(--color-surface-level-4);
     flex-grow    : 1;
@@ -172,100 +172,67 @@ td.spr i { background: var(--color-status-green ); }
     padding-left : 12px;
     padding-right: 12px;
 }
-.group-header input:focus,
-.list-item-quantity:focus {
-    border-color : var(--color-blue-500) !important;
-    box-shadow   : 0px 3px 0px 0px rgba(6, 150, 215, 0.35) !important;
-    outline      : 0;
+.node-title.node-title-empty {
+    border-color : var(--color-status-red);
 }
-.group-actions {
+.node-actions {
     display     : none;
     gap         : 4px;
 }
-.group > .operations {
-    margin      : 0px;
-    padding-top : 12px;
+.node .items-list.tiles.list.xs {
+    gap        : 2px;
+    min-height : 38px;
+    padding    : 12px 0px 12px 48px;
 }
-.operation {
-    padding : 12px 0px 0px 48px;
-}
-.group > .kit-items {
-    margin : 24px 0px 12px 48px;
-}
-.operations {
-    display         : flex;
-    flex-direction  : column;
-    gap             : 6px;
-}
-.service-items {
-    padding : 8px 0px 8px 36px;
-    width : 100%;
-}
-
-.group:hover > .group-header > .group-actions {
+.node:hover > .node-header > .node-actions {
     display : flex;
 }
-
-.service.collapsed .operations,
-.service.collapsed .service-header {
+.node.expanded  > .node-header > .node-toggle::before { content: '\e313'; }
+.node.collapsed > .node-header > .node-toggle::before { content: '\e5cc'; }
+.node.collapsed > .node-children {
     display : none;
 }
-.operation.collapsed .items-list,
-      .kit.collapsed .items-list {
-    display : none;
+.panel-content.items-list.tiles.list.xs {
+    gap : 2px;
+    padding : 12px;
+}
+.node.drag-hover,
+.panel-content.items-list.drag-hover {
+    border-color : var(--color-hover-border) !important;
+    background   : var(--color-hover-background) !important;
 }
 
-.operation-items {
-    margin : 18px 0px;
-}
 
-  .service.expanded > .group-header > .group-toggle::before,
-.operation.expanded > .group-header > .group-toggle::before,
-      .kit.expanded > .group-header > .group-toggle::before { content: '\e313'; }
-  .service.collapsed > .group-header > .group-toggle::before,
-.operation.collapsed > .group-header > .group-toggle::before,
-      .kit.collapsed > .group-header > .group-toggle::before { content: '\e5cc'; }
 
-.service.min > .group-header > .group-actions > .toggle-maximize::before,
-    .kit.min > .group-header > .group-actions > .toggle-maximize::before { content: '\f1ce'; }
-.service.max > .group-header > .group-actions > .toggle-maximize::before,
-    .kit.max > .group-header > .group-actions > .toggle-maximize::before { content: '\f1cf'; }
-.service.max > .group-header > .group-actions,
-    .kit.max > .group-header > .group-actions { display : flex; }
-.service.max,
-    .kit.max {
-    position    : absolute;
-    top         : 0px;
-    right       : 0px;
-    bottom      : 0px;
-    left        : 0px;
-}
-.service.max > .operations {
-    position    : absolute;
-    top         : 80px;
-    right       : 20px;
-    bottom      : 20px;
-    left        : 20px;
-}
+/*  ITEMS */
+/* ----------------------------------------------------------------------------- */
 .items-list-row {
-    display : flex;
-    gap     : 12px;
-    width   : 100%;
+    background : transparent;
+    display    : flex;
+    gap        : 2px;
+    width      : 100%;
+}
+.items-list-row > .tile {
+    border-color : var(--color-surface-level-3);
+    flex-grow    : 1;
+    gap          : 12px;
+    max-height   : 36px;
+    min-height   : 36px;
+    height       : 36px;
+    width        : unset !important;
 }
 .list-item-quantity {
     background   : var(--color-surface-level-2);
     border-color : var(--color-surface-level-4);
-    max-width   : 36px;
-    min-width   : 36px;
-    padding     : 4px 12px;
-    width       : 37px;
-    text-align  : right;
-}
-.items-list-row > .tile {
-    flex-grow   : 1;
-    gap         : 12px;
-    height      : 37px;
-    width       : unset !important;
+    max-height   : 30px;
+    min-height   : 30px;
+    height       : 30px;
+    line-height  : 30px;
+    max-width    : 36px;
+    min-width    : 36px;
+    padding      : 4px 12px 3px;
+    width        : 36px;
+    text-align   : right;
 }
 .items-list-row > .tile > .tile-image {
     height      : 38px !important;
@@ -274,23 +241,8 @@ td.spr i { background: var(--color-status-green ); }
     min-width   : 52px !important;
     width       : 52px !important;
 }
-.items-list-row > .tile .tile-title {
-    height      : 37px !important;
-    line-height : 37px !important;
-}
-.kit-items,
-#spare-parts {
-    gap : 2px !important;
-}
-#spare-parts .list-item-quantity {
-    display : none;
-}
-.operation.drag-hover,
-.kit.drag-hover {
-    border-color : var(--color-hover-border) !important;
-}
-#spare-parts.drag-hover {
-    background : var(--color-hover-background) !important;
+.tiles.list.xs .tile-counter {
+    line-height : 38px;
 }
 .items-list-row.drag-hover .tile-image {  
     background : var(--color-yellow-800) ; 
@@ -298,6 +250,12 @@ td.spr i { background: var(--color-status-green ); }
 .items-list-row.drag-hover .tile,
 .items-list-row.drag-hover .tile-details {  
     background : var(--color-yellow-700) ; 
+}
+.panel-content > .items-list-row > .list-item-quantity {
+    background : var(--color-surface-level-1);
+}
+.panel-content.no-quantity > .items-list-row > .list-item-quantity {
+    display : none;
 }
 
 

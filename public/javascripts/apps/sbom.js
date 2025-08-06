@@ -1,9 +1,10 @@
-let links           = {}
-let wsConfig        = {};
-let bomCompleted    = 0;
-let urlParameters   = getURLParameters();
-let partsEBOM       = [];
-let paramsDetails   = {
+let urlParameters      = getURLParameters();
+let links              = {}
+let wsConfigItems      = {};
+let bomCompleted       = 0;
+let partsListSourceBOM = [];
+let bomTypes           = [];
+let paramsDetails      = {
     editable       : false,
     openInPLM      : true,
     bookmark       : true,
@@ -14,9 +15,10 @@ let paramsDetails   = {
 
 let saveActions = {
     create : {
-        label       : 'Creating new SBOM items',
+        label       : 'Creating new BOM items',
         className   : 'pending-create',
-        selector    : '.sbom-node',
+        // selector    : '.sbom-node',
+        selector    : '.node',
         maxRequests : 1,
     },
     remove : {
@@ -26,7 +28,7 @@ let saveActions = {
         maxRequests : 4,
     },
     add : {
-        label        : 'Adding Service BOM items',
+        label        : 'Adding BOM items',
         className   : 'pending-add',
         selector    : '',
         maxRequests : 5,
@@ -47,118 +49,26 @@ let saveActions = {
 
 $(document).ready(function() {
 
-    appendOverlay(false);
+    appendOverlay(true);
+    appendProcessing('panel', false);
 
-    getFeatureSettings('sbom', [], function() {
-        getInitialData();
-        setUIEvents();
-        insertDetails(urlParameters.link, paramsDetails);
-    });
-
-});
-
-function setUIEvents() {
-
-    $('#mode').on('change', function() {
-        if($('#mode').val() === 'ebom') { $('.mode-ebom').removeClass('hidden'); $('.mode-lib').addClass('hidden'); }
-        else { $('.mode-ebom').addClass('hidden'); $('.mode-lib').removeClass('hidden'); }
-    })
-
-    $('#toggle-viewer').click(function() {
-        $(this).toggleClass('toggle-on');
-        $('body').toggleClass('no-viewer');
-        viewerResize(100);
-    });
-
-    $('#toggle-details').click(function() {
-        $(this).toggleClass('toggle-on');
-        $('body').toggleClass('no-details');
-        viewerResize(100);
-    });
-
-    $('#add-service-offering').click(function() {
-        insertService();
-        updatePosNumbers();
-    });
-
-    $('#add-service-kit').click(function() {
-        insertKit({ details : {}});
-        updatePosNumbers();
-    });
-
-    $('#filterSpareParts').click(function() {
-        filterItemsList($('#spare-parts'));
-    });
-
-    $('#add-all-recommended').click(function() {
-        addAllRecommended();
-    });
-
-    $('#save').click(function() {
-        saveChanges();
-    }); 
-
-}
-
-
-// Get current Product data
-function getInitialData() {
+    $('#header-title').html(config.sbom.appTitle);
 
     let requests = [
         $.get('/plm/details'             , { link : urlParameters.link }),
-        $.get('/plm/picklist'            , { link : '/api/v3/lookups/' + config.sbom.picklistItemTypes }),
+        $.get('/plm/picklist'            , { link : '/api/v3/lookups/' + config.sbom.itemType.picklistId }),
         $.get('/plm/sections'            , { wsId : urlParameters.wsId }),
         $.get('/plm/sections'            , { wsId : config.items.wsId }),
         $.get('/plm/bom-views-and-fields', { wsId : config.items.wsId })
-    ];
+    ]; 
 
-    Promise.all(requests).then(function(responses) {
-        
-        $('#overlay').hide();
-        $('#header-subtitle').html(responses[0].data.title);
-        appendProcessing('serivce-offerings', false);
+    getFeatureSettings('sbom', requests, function(responses) {
 
-        links.ebom = getSectionFieldValue(responses[0].data.sections, config.sbom.fieldIdEBOM, '', 'link');
-        links.sbom = getSectionFieldValue(responses[0].data.sections, config.sbom.fieldIdSBOM, '', 'link');
-
-        wsConfig.sections         = responses[3].data;
-        wsConfig.fieldIdSparePart = config.sbom.fieldIdSparePart;
-        wsConfig.valuesSparePart  = [];
-
-        for(let value of config.sbom.valuesSparePart) wsConfig.valuesSparePart.push(value.toLowerCase());
-        
-        for(let type of responses[1].data.items) {
-            switch(type.title) {
-                case config.sbom.typeServiceBOM      : wsConfig.linkTypeSBOM      = type.link; break;
-                case config.sbom.typeServiceOffering : wsConfig.linkTypeService   = type.link; break;
-                case config.sbom.typeServiceOperation: wsConfig.linkTypeOperation = type.link; break;
-                case config.sbom.typeServiceKit      : wsConfig.linkTypeKit       = type.link; break;
-            }
-        }
-        
-        for(let bomView of responses[4].data) {
-            if(bomView.name === config.sbom.bomViewName) {
-                wsConfig.bomViewId     = bomView.id;
-                wsConfig.bomViewFields = bomView.fields;
-                break;
-            }
-        }
+        initEditor(responses);
+        setUIEvents();
+        insertDetails(urlParameters.link, paramsDetails);
 
         insertBrowser('browser', [{
-            label    : 'Bookmarks', 
-            type     : 'bookmarks',
-            settings : {
-                reload       : true,
-                workspacesIn : [ config.items.wsId ]
-            }
-        },{
-            label    : 'Recent', 
-            type     : 'recents',
-            settings : {
-                reload       : true,
-                workspacesIn : [ config.items.wsId ]
-            }
-        },{
             label   : 'All Items', 
             type    : 'views',
             id      : 'browser-views',
@@ -173,6 +83,20 @@ function getInitialData() {
                 id          : 'browser-search',
                 workspaceId : [ config.items.wsId ],
             }
+        },{
+            label    : 'Bookmarks', 
+            type     : 'bookmarks',
+            settings : {
+                reload       : true,
+                workspacesIn : [ config.items.wsId ]
+            }
+        },{
+            label    : 'Recent', 
+            type     : 'recents',
+            settings : {
+                reload       : true,
+                workspacesIn : [ config.items.wsId ]
+            }
         }], {
             enableDragging  : true,
             enableDetails   : true,
@@ -181,52 +105,193 @@ function getInitialData() {
             // ondragend : function(event) { dragEndHandler(event); }
         });
 
-        enableDropTarget($('#spare-parts'));
+    });
 
-        insertViewer(links.ebom); 
+});
 
-        insertBOM(links.ebom, {
-            collapseContents   : false,
-            counters           : true,
-            search             : true,
-            path               : true,
-            toggles            : true,
-            viewerSelection    : true,
-            includeBOMPartList : true,
-            headerLabel        : 'Product BOM',
-            hideHeaderLabel    : true,
-            contentSize        : 'l',
-            columnsIn          : ['Quantity'],
-            bomViewName        : config.sbom.bomViewName,
-            onClickItem        : function(elemClicked) { insertDetails(elemClicked.attr('data-link'), paramsDetails); },
-            afterCompletion    : function(id, data)    { 
-                partsEBOM = data.bomPartsList; 
-                insertBOMItemFilter();
-                insertBOMIndicators(); 
-                enableBOMItemDragging();
+function setUIEvents() {
+
+    $('#mode').on('change', function() {
+        if($('#mode').val() === 'ebom') { 
+            $('.mode-ebom').removeClass('hidden'); 
+            $('.mode-lib').addClass('hidden'); 
+        } else { 
+            $('.mode-ebom').addClass('hidden'); 
+            $('.mode-lib').removeClass('hidden'); 
+        }
+    })
+
+    $('#toggle-viewer').click(function() {
+        $(this).toggleClass('toggle-on');
+        $('body').toggleClass('no-viewer');
+        viewerResize(100);
+    });
+
+    $('#toggle-details').click(function() {
+        $(this).toggleClass('toggle-on');
+        $('body').toggleClass('no-details');
+        viewerResize(100);
+    });
+
+    $('#save').click(function() {
+        if($(this).hasClass('disabled')) return;
+        saveChanges();
+    }); 
+
+}
+
+
+// Get current Product data
+function initEditor(responses) {
+
+    $('#header-subtitle').html(responses[0].data.title);
+
+    links.sourceBOM = getSectionFieldValue(responses[0].data.sections, config.sbom.sourceBOM.fieldId, '', 'link');
+    links.targetBOM = getSectionFieldValue(responses[0].data.sections, config.sbom.targetBOM.fieldId, '', 'link');
+
+    wsConfigItems.sections         = responses[3].data;
+    wsConfigItems.fieldIdHighlight = config.sbom.itemHighlight.fieldId;
+    wsConfigItems.valuesHighlight  = [];
+
+    for(let value of config.sbom.itemHighlight.fieldValues) wsConfigItems.valuesHighlight.push(value.toLowerCase());
+    
+    for(let type of responses[1].data.items) {
+        if(type.title === config.sbom.targetBOM.itemTypeValue) wsConfigItems.linkTypeTargetBOM = type.link;
+    }
+    
+    for(let bomView of responses[4].data) {
+        if(bomView.name === config.sbom.targetBOM.bomViewName) {
+            wsConfigItems.bomViewId     = bomView.id;
+            wsConfigItems.bomViewFields = bomView.fields;
+            break;
+        }
+    }
+
+    bomTypes = config.sbom.bomTypes;
+
+    for(let bomType of bomTypes) {
+
+        let index = $('#tabs').children().length;
+
+        $('<div></div>').appendTo($('#tabs'))
+            .addClass('with-icon')
+            .addClass(bomType.icon)
+            .attr('data-id', 'bom-type-' + index)
+            .html(bomType.tabLabel);
+
+        let elemTab = $('<div></div>').appendTo($('#panel'))
+            .addClass('tab-group-main')
+            .addClass('hidden')
+            .addClass('surface-level-2');
+
+        let elemActions = $('<div></div>').appendTo(elemTab).addClass('panel-actions');
+        let elemContent = $('<div></div>').appendTo(elemTab).addClass('panel-content');
+
+        if(!isBlank(bomType.hideQuantity)) {
+            if(bomType.hideQuantity) elemContent.addClass('no-quantity');
+        }
+
+        bomType.picklistLinks = [];
+        bomType.elemContent   = elemContent;
+        bomType.className     = 'type-' + index;
+
+        if(bomType.mode != 'list') {
+
+            $('<div></div>').appendTo(elemActions)
+                .addClass('button')
+                .addClass('default')
+                .addClass('with-icon')
+                .addClass('icon-create')
+                .html(bomType.buttonLabels[0] || 'Create')
+                .click(function() {
+                    insertNode(bomType, bomType.elemContent, 0, null);
+                    updatePosNumbers();        
+                });     
+
+            elemContent.addClass('nodes');
+
+        } else {
+
+            $('<div></div>').appendTo(elemActions)
+                .addClass('button')
+                .addClass('with-icon')
+                .addClass('icon-list-add')
+                .html(bomType.buttonLabels[0] || 'Create')
+                .click(function() {
+                    addAllHighlighted();
+                }) ; 
+
+            elemContent.addClass('items-list')
+                .addClass('items-list')
+                .addClass('tiles')
+                .addClass('list')
+                .addClass('xs');
+
+        }
+
+        $('<div></div>').appendTo(elemActions)
+            .addClass('button')
+            .addClass('icon')
+            .addClass('icon-3d')
+            .attr('title', 'Highlight items of this list in viewer and in BOM')
+            .click(function() {
+                filterByItemsList($(this));
+            });
+
+        for(let bomItemType of bomType.bomItemTypes) {
+            for(let type of responses[1].data.items) {
+                if(type.title.toLowerCase() === bomItemType.toLowerCase()) {
+                    bomType.picklistLinks.push(type.link);
+                } 
             }
-        }); 
-        
-        createServiceBOM(responses[0].data, responses[2].data, function() {
-            getServiceBOM();
-        });
+        }
 
+    }
+
+    insertViewer(links.sourceBOM); 
+
+    insertBOM(links.sourceBOM, {
+        collapseContents   : false,
+        counters           : true,
+        search             : true,
+        path               : true,
+        toggles            : true,
+        viewerSelection    : true,
+        openInPLM          : true,
+        includeBOMPartList : true,
+        headerLabel        : config.sbom.sourceBOM.headerLabel,
+        hideHeaderLabel    : (config.sbom.sourceBOM.headerLabel === ''),
+        contentSize        : 'l',
+        fieldsIn           : ['Quantity'],
+        bomViewName        : config.sbom.sourceBOM.bomViewName,
+        onClickItem        : function(elemClicked) { insertDetails(elemClicked.attr('data-link'), paramsDetails); },
+        afterCompletion    : function(id, data)    { 
+            partsListSourceBOM = data.bomPartsList; 
+            insertBOMItemFilter();
+            insertBOMIndicators(); 
+            enableBOMItemDragging();
+            $('#save').removeClass('disabled').addClass('default');
+        }
+    }); 
+    
+    createTargetBOM(responses[0].data, responses[2].data, function() {
+        getTargetBOM();
     });
 
 }
-function createServiceBOM(contextDetails, contextSections, callback) {
+function createTargetBOM(contextDetails, contextSections, callback) {
 
-     if(isBlank(links.sbom)) {
+    if(isBlank(links.targetBOM)) {
 
         let params = {
             wsId      : config.items.wsId,
             sections  : []
         };
     
-        let title = 'SBOM of ' + getSectionFieldValue(contextDetails.sections, 'TITLE', '');
+        let title = config.sbom.targetBOM.prefixTitle + getSectionFieldValue(contextDetails.sections, 'TITLE', '');
 
-        addFieldToPayload(params.sections, wsConfig.sections, null, 'TITLE', title );
-        addFieldToPayload(params.sections, wsConfig.sections, null, config.sbom.fieldIdItemType, { 'link' : wsConfig.linkTypeSBOM } );
+        addFieldToPayload(params.sections, wsConfigItems.sections, null, 'TITLE', title );
+        addFieldToPayload(params.sections, wsConfigItems.sections, null, config.sbom.itemType.fieldId, { link : wsConfigItems.linkTypeTargetBOM } );
 
         $.post({
             url         : '/plm/create', 
@@ -234,85 +299,128 @@ function createServiceBOM(contextDetails, contextSections, callback) {
             data        : JSON.stringify(params)
         }, function(response) {
             if(response.error) {
-                showErrorMessage('Error', 'Error while creating Service BOM root item, the editor cannot be used at this time. Please review your server configuration.');
+                showErrorMessage('Error', 'Error while creating Target BOM root item, the editor cannot be used at this time. Please review your server configuration.');
             } else {
-                links.sbom = response.data.split('.autodeskplm360.net')[1];
-                storeSBOMLink(contextSections);
+                links.targetBOM = response.data.split('.autodeskplm360.net')[1];
+                storeTargetBOMLink(contextSections);
                 callback();
             }
         }); 
 
-
     } else callback();
 
 }
-function storeSBOMLink(contextSections) {
+function storeTargetBOMLink(contextSections) {
 
     let params = { link : urlParameters.link, sections : [] }
 
-    addFieldToPayload(params.sections, contextSections, null, config.sbom.fieldIdSBOM, { link : links.sbom });
+    addFieldToPayload(params.sections, contextSections, null, config.sbom.targetBOM.fieldId, { link : links.targetBOM} );
 
     $.post('/plm/edit', params, function() {});
 
 }
-function getServiceBOM() {
+function getTargetBOM() {
 
-    if(isBlank(links.sbom)) return;
+    if(isBlank(links.targetBOM)) return;
 
-    let bomSettings = { viewFields : wsConfig.bomViewFields };
+    let bomSettings = { viewFields : wsConfigItems.bomViewFields };
 
     let params = {
-        link    : links.sbom,
+        link    : links.targetBOM,
         depth   : 3,
-        viewId  : wsConfig.bomViewId
+        viewId  : wsConfigItems.bomViewId
     }
-
-    $('#spare-parts').attr('data-link', links.sbom);
 
     $.get('/plm/bom', params, function(response) {
 
-        $('#serivce-offerings-processing').remove();
-        
-        let partsSBOM    = getBOMPartsList(bomSettings, response.data);
-        let skipChildren = false;
-        let elemService, elemOperation, elemKit;
+        let partsListTargetBOM  = getBOMPartsList(bomSettings, response.data);
+        let indexType           = null;
+        let mode                = '';
 
-        for(let part of partsSBOM) {
+        for(let part of partsListTargetBOM) {
 
-            let type = part.details.TYPE || { title : '' };
+            let type  = part.details[config.sbom.itemType.fieldId] || { title : '' };
+            let level = part.level;
 
-                   if(type.title === config.sbom.typeServiceOffering) {
-                elemService = insertService(part.link, part.details.TITLE, part.edgeId, part.linkParent, part.number);
-                skipChildren = false
-            } else if(type.title === config.sbom.typeServiceOperation) {
-                elemOperation = insertOperation(elemService, part.link, part.details.TITLE, part.edgeId, part.number);
-                skipChildren = false
-            } else if(type.title === config.sbom.typeServiceKit) {
-                elemKit = insertKit(part);
-                skipChildren = false
-            } else if(part.level === 1) {
-                insertItem($('#parts'), 'spare-part', '2', part);
-                skipChildren = true;
-            } else if((part.level === 3) && !skipChildren) {
-                insertItem(elemOperation, 'service-item', '1', part);
-            } else if((part.level === 2) && !skipChildren) {
-                insertItem(elemKit, 'kit-item', '1', part);
+            if(level === 1) {
+                mode = '';
+                for(let index in bomTypes) {
+                    if(bomTypes[index].bomItemTypes[0] == type.title) {
+                        indexType = index;
+                        mode      = bomTypes[index].mode;
+                        if(mode === 'list') bomTypes[index].linkRoot = part.link;
+                        break;
+                    }
+                }
+            }
+
+            let bomType = bomTypes[indexType];
+
+            switch(mode) {
+
+                case '2-levels-bom':
+                    if(level === 1) {
+                        bomType.elemRoot = insertNode(bomType, bomType.elemContent, 0, part);
+                    } else if(level === 2) {
+                        bomType.elemNode = insertNode(bomType, bomType.elemRoot.children('.nodes-list').first(), 1, part);
+                    } else if(level === 3) {
+                        insertItem(bomType.elemNode, part);
+                    }
+                    break;
+
+                case '1-level-bom':
+                    if(level === 1) {
+                        bomType.elemNode = insertNode(bomType, bomType.elemContent, 0, part);
+                    } else if(level === 2) {
+                        insertItem(bomType.elemNode, part);
+                    }
+                    break;
+
+                case 'list':
+                    if(level === 1) {
+                        bomType.elemContent.attr('data-link', bomType.linkRoot)
+                            .attr('ondragenter', 'dragEnterList(event)'   )
+                            .attr('ondragover' , 'dragEnterList(event)'   )
+                            .attr('ondragleave', 'dragLeaveHandler(event)')
+                            .attr('ondrop'     , 'dropHandler(event)'     );  
+                    } else if(level === 2) insertItem(bomType.elemContent, part);
+                    break;
 
             }
 
         }
 
-        insertBOMIndicators();
-        updatePosNumbers();
+        createListParents(function() {
+            insertBOMIndicators();
+            updatePosNumbers();
+        });
         
+
     });
         
 }
 function insertBOMItemFilter() {
 
+    let filters = [];
+
+    if(!isBlank(config.sbom.itemHighlight)) {
+        if(!isBlank(config.sbom.itemHighlight.filterLabelIn)) filters.push({ type : 'in', className : 'highlighted', label : config.sbom.itemHighlight.filterLabelIn })
+        if(!isBlank(config.sbom.itemHighlight.filterLabelEx)) filters.push({ type : 'ex', className : 'highlighted', label : config.sbom.itemHighlight.filterLabelEx })
+    }
+
+    if(!isBlank(config.sbom.targetBOM.filterLabelIn)) filters.push({ type : 'in', className : 'in-use', label : config.sbom.targetBOM.filterLabelIn })
+    if(!isBlank(config.sbom.targetBOM.filterLabelEx)) filters.push({ type : 'ex', className : 'in-use', label : config.sbom.targetBOM.filterLabelEx })
+
+    for(let bomType of bomTypes) {
+        if(!isBlank(bomType.filterLabelIn)) filters.push({ type : 'in', className : bomType.className, label : bomType.filterLabelIn })
+        if(!isBlank(bomType.filterLabelEx)) filters.push({ type : 'ex', className : bomType.className, label : bomType.filterLabelEx })
+    }
+
+    sortArray(filters, 'label');
+
     let elemSelect = $('<select></select>').prependTo($('#bom-controls'))
         .addClass('button')
-        .attr('id', 'select-contents')
+        .attr('id', 'select-bom-filter')
         .on('change', function() {
             applyBOMItemFilter();
         });
@@ -321,29 +429,73 @@ function insertBOMItemFilter() {
         .attr('value', '--')
         .html('Display All');
 
-    $('<option></option>').appendTo(elemSelect)
-        .attr('value', 'srv')
-        .html('Service items only');
+    for(let filter of filters) {
+        $('<option></option>').appendTo(elemSelect)
+        .attr('value', filter.type + '.' + filter.className)
+        .html(filter.label);
+    }
 
-    $('<option></option>').appendTo(elemSelect)
-        .attr('value', 'kit')
-        .html('Kit items only');
+}
+function createListParents(callback) {
 
-    $('<option></option>').appendTo(elemSelect)
-        .attr('value', 'spr')
-        .html('Spare Parts only');
+    let requests = [];
+    let types    = [];
 
-    $('<option></option>').appendTo(elemSelect)
-        .attr('value', 'rec')
-        .html('Recommended');
+    for(let bomType of bomTypes) {
 
-    $('<option></option>').appendTo(elemSelect)
-        .attr('value', 'isbom')
-        .html('In SBOM');
+        if(bomType.mode == 'list') {
 
-    $('<option></option>').appendTo(elemSelect)
-        .attr('value', 'nisbom')
-        .html('Not in SBOM');
+            if(isBlank(bomType.linkRoot)) {
+
+                let params = {
+                    wsId      : config.items.wsId,
+                    sections  : []
+                };
+        
+                let title = bomType.bomItemTypes[0];
+
+                addFieldToPayload(params.sections, wsConfigItems.sections, null, 'TITLE', title );
+                addFieldToPayload(params.sections, wsConfigItems.sections, null, config.sbom.itemType.fieldId, { link : bomType.picklistLinks[0] } );
+
+                requests.push($.post({
+                    url         : '/plm/create', 
+                    contentType : 'application/json',
+                    data        : JSON.stringify(params)
+                }));
+
+                types.push(bomType);
+
+            }
+            
+        }
+
+    }
+
+    Promise.all(requests).then(function(responses) {
+
+        requests = [];
+
+        for(let index in responses) {
+
+            let response = responses[index];
+            let link     = response.data.split('plm360.net')[1];
+
+            let params = {
+                linkParent : links.targetBOM,
+                linkChild  : link,
+                quantity   : 1,
+                pinned     : config.sbom.enableBOMPin
+            }
+
+            requests.push($.post('/plm/bom-add', params));
+            types[index].linkRoot = link;
+        }
+
+        Promise.all(requests).then(function(responses) {
+            callback();
+        });
+
+    });
 
 }
 function insertBOMIndicators() {
@@ -352,34 +504,45 @@ function insertBOMIndicators() {
 
     if(bomCompleted > 1) {       
 
-        $('#bom-thead-row').append($('<th class="bom-column-recommended">Spare/Wear</th>'))
-            .append($('<th class="type"><i class="icon icon-service"></i></th>'))
-            .append($('<th class="type"><i class="icon icon-package"></i></th>'))
-            .append($('<th class="type"><i class="icon icon-details"></i></th>'));
+        $('#panel-processing').remove();
+        enableTabs();
 
+        let elemTHRow = $('#bom-thead-row');
+        
+        if(!isBlank(config.sbom.itemHighlight)) {
+            $('<th></th>').appendTo(elemTHRow) 
+                .addClass('bom-column-highlighted')
+                .html(config.sbom.itemHighlight.bomColumnTitle);
+        }
+
+        for(let bomType of bomTypes) {
+            elemTHRow.append($('<th class="type"><i class="icon ' + bomType.icon + '"></i></th>'))
+        }
+            
         $('#bom-tbody').children('.content-item').each(function() {
 
-            let elemCellRecommended = $('<td class="bom-column-recommended"></td>');
-            let isRecommendedSpare  = false;
+            let elemCellHighlighted = $('<td class="bom-column-highlighted"></td>');
+            let isHighlighted       = false;
 
-            for(let part of partsEBOM) {
+            for(let part of partsListSourceBOM) {
                 if(part.link === $(this).attr('data-link')) {
-                    elemCellRecommended.html(part.details[wsConfig.fieldIdSparePart]);
+                    if(elemCellHighlighted.length > 0) elemCellHighlighted.html(part.details[wsConfigItems.fieldIdHighlight]);
 
-                    if(!isBlank(part.details[wsConfig.fieldIdSparePart])) {
-                        let fieldValue = part.details[wsConfig.fieldIdSparePart].toLowerCase();
-                        if(wsConfig.valuesSparePart.includes(fieldValue)) isRecommendedSpare = true;
+                    if(!isBlank(part.details[wsConfigItems.fieldIdHighlight])) {
+                        let fieldValue = part.details[wsConfigItems.fieldIdHighlight].toLowerCase();
+                        if(wsConfigItems.valuesHighlight.includes(fieldValue)) isHighlighted = true;
                     }
 
                 }
             }
 
-            if(isRecommendedSpare) $(this).addClass('recommended-spare-part');
+            if(isHighlighted) $(this).addClass('highlighted');
 
-            $(this).append(elemCellRecommended)
-                .append($('<td class="type srv">-</td>'))
-                .append($('<td class="type kit">-</td>'))
-                .append($('<td class="type spr">-</td>'));     
+            if(elemCellHighlighted.length > 0) elemCellHighlighted.appendTo($(this));
+
+            for(let index in bomTypes) {
+                $('<td class="type">-</td>').appendTo($(this)).addClass('type-' + index);
+            }
 
         });
 
@@ -390,143 +553,113 @@ function insertBOMIndicators() {
 }
 function updateBOMIndicators() {
 
-    let serviceItems = $('.sbom-node:not(.hidden)').find('.operation:not(.hidden)').find('.items-list-row:not(.hidden)');
-    let kitItems     = $('#kits').find('.item-group:not(.hidden)').find('.items-list-row:not(.hidden)');
-    let spareParts   = $('#spare-parts').children(':not(.hidden)');
+    for(let bomType of bomTypes) {
+
+        let elemContent = bomType.elemContent;
+
+        bomType.itemsList = [];
+
+        elemContent.find('.node:not(.hidden)').find('.items-list-row:not(.hidden)').each(function() {
+            bomType.itemsList.push($(this));
+        });
+
+        if(elemContent.hasClass('items-list')) {
+            elemContent.children('.items-list-row:not(.hidden)').each(function() {
+                bomType.itemsList.push($(this));
+            });
+        }
+
+    }
 
     $('#bom-tbody').children('.content-item').each(function() {
 
         let elemBOMItem = $(this);
-        let title       = elemBOMItem.attr('data-title');
         let linkBOM     = elemBOMItem.attr('data-link');
-        let cellSrv     = elemBOMItem.children('.type.srv').first();
-        let cellKit     = elemBOMItem.children('.type.kit').first();
-        let cellSpr     = elemBOMItem.children('.type.spr').first();
         
-        cellSrv.html('-');
-        cellKit.html('-');
-        cellSpr.html('-');
+        elemBOMItem.removeClass('in-use');
 
-        serviceItems.each(function() {
+        for(let bomType of bomTypes) {
 
-            let elemServiceItem = $(this);
-            let linkSrv         = elemServiceItem.attr('data-link');
+            let elemCell = elemBOMItem.children('.type.' + bomType.className).first();
 
-            if(linkBOM === linkSrv) {
-                cellSrv.html('');
-                $('<i></i>').appendTo(cellSrv)
-                    .addClass('icon')
-                    .addClass('isbom')
-                    .addClass('icon-service')
-                    .attr('title', title + ' is included in at least one Service Offering');
-                return false;
+            elemCell.html('-');
+
+            elemBOMItem.removeClass(bomType.className);
+
+            for(let listItem of bomType.itemsList) {
+
+                let link = listItem.attr('data-link');
+                if(!isBlank(link)) {
+                    if(link === linkBOM) {
+                        elemBOMItem.addClass(bomType.className);
+                        elemBOMItem.addClass('in-use');
+                        elemCell.html('');
+                        $('<i></i>').appendTo(elemCell)
+                            .addClass('icon')
+                            .addClass(bomType.icon)
+                            .css('background', bomType.color)
+                            .attr('title', bomType.tabLabel);
+                    }
+                }
+
             }
-
-        });
-
-        kitItems.each(function() {
-
-            let elemKitItem = $(this);
-            let linkKit     = elemKitItem.attr('data-link');
-
-            if(linkBOM === linkKit) {
-                cellKit.html('');
-                $('<i></i>').appendTo(cellKit)
-                    .addClass('icon')
-                    .addClass('isbom')
-                    .addClass('icon-package')
-                    .attr('title', title + ' is included in at least one Kit');
-                return false;
-            }
-
-        });
-
-        spareParts.each(function() {
-
-            let elemSparePart = $(this);
-            let linkSpr       = elemSparePart.attr('data-link');
-
-            if(linkBOM === linkSpr) {
-                cellSpr.html('');
-                $('<i></i>').appendTo(cellSpr)
-                    .addClass('icon')
-                    .addClass('isbom')
-                    .addClass('icon-details')
-                    .attr('title', title + ' is included in list of Spare Parts');
-                return false;
-            }
-
-        });
-
+        }
     });
+
+    return;
 
 }
 function updatePosNumbers() {
 
-    let baseService   = config.sbom.basePosNumbers[0];
-    let baseKit       = config.sbom.basePosNumbers[1];
-    let baseSparePart = config.sbom.basePosNumbers[2];
+    for(let bomType of bomTypes) {
 
-    $('.service').each(function() {
+        let basePosNumber = bomType.basePosNumber;
+        let elemContent   = bomType.elemContent;
+        let topLevelNodes = elemContent.children('.node');
 
-        let elemService   = $(this);
-        let baseOperation = 1;
+        if(elemContent.hasClass('items-list')) updateItemListPosNumbers(elemContent.parent());
 
-        if(!elemService.hasClass('hidden')) {
-            
-            elemService.attr('data-number-new', baseService++);
-            elemService.find('.operation').each(function() {
+        topLevelNodes.each(function() {
 
-                let elemOperation   = $(this);
-                let baseServiceItem = 1;
+            if(!$(this).hasClass('hidden')) {
 
-                if(!elemOperation.hasClass('hidden')) {
+                $(this).attr('data-number', basePosNumber++);
 
-                    elemOperation.attr('data-number-new', baseOperation++);
-                    elemOperation.find('.items-list-row.service-item').each(function() {
+                updateItemListPosNumbers($(this));
 
-                        let elemItem = $(this);
-                        let elemCounter = $(this).find('.tile-counter');
+                let nodesList = $(this).children('.nodes-list');
 
-                        if(!elemItem.hasClass('hidden')) elemCounter.html(baseServiceItem++);
-
-                    });   
+                if(nodesList.length > 0) {
+                    nodesList.children().each(function() {
+                        updateItemListPosNumbers($(this));
+                    });
                 }
 
-            });
+            }
 
-        }
+        });
+    }
 
-    });
+}
+function updateItemListPosNumbers(elemParent) {
 
-    $('.group.kit').each(function() {
+    let elemItemsList = elemParent.children('.items-list');
+    let number        = 1;
 
-        let elemKit      = $(this);
-        let baseKitItems = 1;
+    if(elemItemsList.length > 0) {
 
-        if(!elemKit.hasClass('hidden')) {
+        elemItemsList.children('.list-item').each(function() {
 
-            elemKit.attr('data-number-new', baseKit++);
-            elemKit.find('.items-list-row.kit-item').each(function() {
+            if(!$(this).hasClass('hidden')) {
 
-                let elemItem = $(this);
                 let elemCounter = $(this).find('.tile-counter');
+                    elemCounter.html(number++);
 
-                if(!elemItem.hasClass('hidden')) elemCounter.html(baseKitItems++);
+            }
+            
+        });
 
-            })
-        }
-
-    });
-
-    $('.items-list-row.spare-part').each(function() {
-
-        let elemItem    = $(this);
-        let elemCounter = $(this).find('.tile-counter');
-
-        if(!elemItem.hasClass('hidden')) elemCounter.html(baseSparePart++);
-
-    });
+    }
 
 }
 
@@ -534,69 +667,38 @@ function updatePosNumbers() {
 // Filter Viewer and BOM for matching items
 function applyBOMItemFilter() {
 
-    let value       = $('#select-contents').val();
-    let partNumbers = [];
-
+    let value = $('#select-bom-filter').val();
+    
     if(value === '--') {
 
         $('#bom-tbody').children().show();
         viewerResetSelection();
 
-    } else if(value === 'nisbom') {
+    } else {
 
+        let partNumbers = [];
+        let split       = value.split('.');
 
         $('#bom-tbody').children().each(function() {
 
-            let elemRow    = $(this);
-            let sbomItems  = elemRow.find('.isbom').length;
-            let partNumber = elemRow.attr('data-part-number');
-            
-            if(sbomItems === 0) {
-                elemRow.show();
-                if(elemRow.hasClass('leaf')) partNumbers.push(partNumber);
+            let elemItem = $(this);
 
-            } else elemRow.hide();
-    
+            if(elemItem.hasClass(split[1])) {
+                if(split[0] === 'in') {
+                    elemItem.show(); 
+                    if(elemItem.hasClass('leaf')) partNumbers.push(elemItem.attr('data-part-number'));
+                } else elemItem.hide();
+            } else {
+                if(split[0] === 'in') {
+                    elemItem.hide(); 
+                } else {
+                    elemItem.show();
+                    if(elemItem.hasClass('leaf')) partNumbers.push(elemItem.attr('data-part-number'));
+                }
+            }
+
         });
 
-        viewerSelectModels(partNumbers);
-
-    } else if(value === 'rec') {
-
-        $('#bom-tbody').children().hide();
-
-        $('#bom-tbody').find('.recommended-spare-part').each(function() {
-
-            let partNumber = $(this).attr('data-part-number');
-            
-            $(this).show();
-            partNumbers.push(partNumber);
-    
-        });
-    
-        viewerSelectModels(partNumbers);       
-        
-
-    } else {
-
-        $('#bom-tbody').children().hide();
-
-        let classFilter = '.icon-service';
-
-             if(value === 'kit'  ) classFilter = '.icon-package';
-        else if(value === 'spr'  ) classFilter = '.icon-details';
-        else if(value === 'isbom') classFilter = '.isbom';
-
-        $('#bom-tbody').find(classFilter).each(function() {
-
-            let elemRow    = $(this).closest('.content-item');
-            let partNumber = elemRow.attr('data-part-number');
-            
-            elemRow.show();
-            partNumbers.push(partNumber);
-    
-        });
-    
         viewerSelectModels(partNumbers);
 
     }
@@ -604,152 +706,83 @@ function applyBOMItemFilter() {
 }
 
 
-// Insert UI elements for Service BOM definition
-function insertService(link, title, edgeId, parent, number) {
+// Insert UI elements for root item definition
+function insertNode(bomType, elemParent, level, part) {
 
-    if(isBlank(link)  ) link   = '';
-    if(isBlank(title) ) title  = '';
-    if(isBlank(edgeId)) edgeId = '';
-    if(isBlank(parent)) parent = '';
-    if(isBlank(number)) number = '';
+    if(isBlank(part)) {
+        part = {
+            link    : '',
+            edgeId  : '',
+            number  : '',
+            details : { TITLE : '' }
+        }
+    }
 
-    let elemService = $('<div></div>').appendTo($('#serivce-offerings'))
-        .addClass('group')
-        .addClass('sbom-node')
-        .addClass('service')
-        .addClass('min')
-        .addClass('surface-level-1')
-        .attr('data-link', link)
-        .attr('data-title', title)
-        .attr('data-edgeid', edgeId)
-        .attr('data-number', number)
-        .attr('data-parent', parent)
-        .attr('data-link-type', wsConfig.linkTypeService);
+    let hasItems = ((level > 0) || (bomType.mode != '2-levels-bom'));
 
-    if(link === '') elemService.addClass('expanded'); else elemService.addClass('collapsed');
-
-    let elemHeader = $('<div></div>').appendTo(elemService)
-        .addClass('group-header');        
-
-    $('<div></div>').appendTo(elemHeader)
-        .addClass('group-toggle')
-        .addClass('icon')
-        .addClass('button')
-        .click(function(e) {
-            clickGroupToggle(e, $(this));
-        });
-
-    let elemTitle = $('<input>').appendTo(elemHeader)
-        .addClass('group-title')
-        .attr('placeholder', 'Enter Service Name');
-
-    if(!isBlank(title)) elemTitle.val(title);
-
-    let elemActions = $('<div></div>').appendTo(elemHeader)
-        .addClass('group-actions');
-
-    $('<div></div>').appendTo(elemActions)
-        .addClass('button')
-        .addClass('with-icon')
-        .addClass('default')
-        .addClass('icon-create')
-        .html('Operation')
-        .click(function(e) {
-            insertOperation($(this).closest('.service'));
-            updatePosNumbers();
-        });
-
-    $('<div></div>').appendTo(elemActions)
-        .addClass('button')
-        .addClass('icon')
-        .addClass('toggle-maximize')
-        .click(function(e) {
-            clickMaximizeToggle(e, $(this));
-        });
-
-    $('<div></div>').appendTo(elemActions)
-        .addClass('button')
-        .addClass('icon')
-        .addClass('icon-3d')
-        .click(function() {
-            filterItemsList($(this).closest('.service'));
-        });
-
-    $('<div></div>').appendTo(elemActions)
-        .addClass('button')
-        .addClass('icon')
-        .addClass('icon-open')        
-        .click(function() {
-            openItemByLink($(this).closest('.service').attr('data-link'));
-        })
-
-    $('<div></div>').appendTo(elemActions)
-        .addClass('button')
-        .addClass('icon')
-        .addClass('icon-delete')
-        .click(function() {
-            $(this).closest('.group').addClass('hidden');
-            updatePosNumbers();
-            updateBOMIndicators();
-        });
-
-    $('<div></div>').appendTo(elemService)
-        .addClass('operations');
-
-    if(link === '') elemTitle.focus();
-
-    return elemService;
-
-}
-function insertOperation(elemService, link, title, edgeId, number) {
-
-    if(isBlank(link)  ) link   = '';
-    if(isBlank(title) ) title  = '';
-    if(isBlank(edgeId)) edgeId = '';
-    if(isBlank(number)) number = '';
-
-    let elemContent = elemService.find('.operations').first();
-
-    let elemOperation  = $('<div></div>').appendTo(elemContent)
-        .addClass('group')
-        .addClass('sbom-node')
-        .addClass('operation')
+    let elemNode  = $('<div></div>').appendTo(elemParent)
+        .addClass('node')
         .addClass('expanded')
         .addClass('surface-level-1')
-        .attr('data-link', link)
-        .attr('data-title', title)
-        .attr('data-edgeid', edgeId)
-        .attr('data-number', number)
-        .attr('data-link-type', wsConfig.linkTypeOperation);
+        .attr('data-link', part.link)
+        .attr('data-edgeid', part.edgeId)
+        .attr('data-number', part.number)
+        .attr('data-title', part.details.TITLE)
+        .attr('data-link-type', bomType.picklistLinks[level])
+        .attr('ondragenter', 'dragEnterNode(event)')
+        .attr('ondragover', 'dragEnterNode(event)')
+        .attr('ondragleave', 'dragLeaveHandler(event)')
+        .attr('ondrop', 'dropHandler(event)');  
 
-    enableDropTarget(elemOperation);
 
-    let elemHeader = $('<div></div>').appendTo(elemOperation)
-        .addClass('group-header');  
+    let elemHeader = $('<div></div>').appendTo(elemNode)
+        .addClass('node-header');  
 
     $('<div></div>').appendTo(elemHeader)
-        .addClass('group-toggle')
+        .addClass('node-toggle')
         .addClass('icon')
         .addClass('button')
         .click(function(e) {
-            clickGroupToggle(e, $(this));
+            clickNodeToggle(e, $(this));
         });
 
     let elemTitle = $('<input>').appendTo(elemHeader)
-        .addClass('group-title')
-        .attr('placeholder', 'Enter Operation Name');      
-        
-    if(!isBlank(title)) elemTitle.val(title);        
+        .addClass('node-title')
+        .attr('placeholder', 'Enter Name')
+        .val(part.details.TITLE)
+        .on('keyup', function() {
+            if($(this).val() === '') $(this).addClass('node-title-empty'); else $(this).removeClass('node-title-empty'); 
+        });
 
+    if(elemTitle.val() === '') elemTitle.addClass('node-title-empty');
+        
     let elemActions = $('<div></div>').appendTo(elemHeader)
-        .addClass('group-actions');
+        .addClass('node-actions');
+
+    if(bomType.mode == '2-levels-bom') {
+
+        if(level === 0) {
+            $('<div></div>').appendTo(elemActions)
+                .addClass('button')
+                .addClass('default')
+                .addClass('with-icon')
+                .addClass('icon-create')
+                .html(bomType.buttonLabels[level +1] || 'Create')
+                .click(function(e) {
+                    let elemNodesList = $(this).closest('.node').find('.nodes-list').first();
+                    insertNode(bomType, elemNodesList, level + 1, null);
+                    updatePosNumbers();
+                });
+        }
+
+    }
 
     $('<div></div>').appendTo(elemActions)
         .addClass('button')
         .addClass('icon')
         .addClass('icon-3d')
         .click(function() {
-            filterItemsList($(this));
+            filterByItemsList($(this));
         });
 
     $('<div></div>').appendTo(elemActions)
@@ -757,7 +790,7 @@ function insertOperation(elemService, link, title, edgeId, number) {
         .addClass('icon')
         .addClass('icon-open')        
         .click(function() {
-            openItemByLink($(this).closest('.service').attr('data-link'));
+            openItemByLink($(this).closest('.node').attr('data-link'));
         })  
         
         $('<div></div>').appendTo(elemActions)
@@ -765,129 +798,42 @@ function insertOperation(elemService, link, title, edgeId, number) {
         .addClass('icon')
         .addClass('icon-delete')
         .click(function() {
-            $(this).closest('.group').addClass('hidden');
+            $(this).closest('.node').addClass('hidden');
             updatePosNumbers();
             updateBOMIndicators();
         });     
 
-    $('<div></div>').appendTo(elemOperation)
-        .addClass('items-list')
-        .addClass('operation-items')
-        .addClass('tiles')
-        .addClass('list')
-        .addClass('xs');
+    if(hasItems) {
 
-    if(link === '') elemTitle.focus();
+        $('<div></div>').appendTo(elemNode)
+            .addClass('node-children')
+            .addClass('items-list')
+            .addClass('tiles')
+            .addClass('list')
+            .addClass('xs');
 
-    return elemOperation;
+    } else {
 
-}
-function insertKit(part) {
+        $('<div></div>').appendTo(elemNode)
+            .addClass('node-children')
+            .addClass('nodes-list');
 
-    let link   = part.link || '';
-    let title  = part.details.TITLE || '';
-    let edgeId = part.edgeId || '';
-    let number = part.number || '';
+    }
 
-    let elemKit = $('<div></div>').appendTo($('#kits'))
-        .addClass('group')
-        .addClass('item-group')
-        .addClass('sbom-node')
-        .addClass('kit')
-        .addClass('min')
-        .addClass('surface-level-1')
-        .attr('data-link', link)
-        .attr('data-title', title)
-        .attr('data-edgeid', edgeId)
-        .attr('data-number', number)
-        .attr('data-link-type', wsConfig.linkTypeKit);
-        
-    enableDropTarget(elemKit);      
+    if(part.link === '') elemTitle.focus();
 
-    if(link === '') elemKit.addClass('expanded'); else elemKit.addClass('collapsed');        
-
-    let elemHeader = $('<div></div>').appendTo(elemKit)
-        .addClass('group-header');        
-
-    $('<div></div>').appendTo(elemHeader)
-        .addClass('group-toggle')
-        .addClass('icon')
-        .addClass('button')
-        .click(function(e) {
-            clickGroupToggle(e, $(this));
-        });
-
-    let elemTitle = $('<input>').appendTo(elemHeader)
-        .addClass('group-title')
-        .attr('placeholder', 'Enter Kit Name');
-
-    if(!isBlank(title)) elemTitle.val(title);
-
-    let elemActions = $('<div></div>').appendTo(elemHeader)
-        .addClass('group-actions');
-
-    $('<div></div>').appendTo(elemActions)
-        .addClass('button')
-        .addClass('icon')
-        .addClass('toggle-maximize')
-        .click(function(e) {
-            clickMaximizeToggle(e, $(this));
-        });
-
-    $('<div></div>').appendTo(elemActions)
-        .addClass('button')
-        .addClass('icon')
-        .addClass('icon-3d')
-        .click(function() {
-            filterItemsList($(this).closest('.kit'));
-        });
-
-    $('<div></div>').appendTo(elemActions)
-        .addClass('button')
-        .addClass('icon')
-        .addClass('icon-open')        
-        .click(function() {
-            openItemByLink($(this).closest('.sbom-node').attr('data-link'));
-        })
-
-    $('<div></div>').appendTo(elemActions)
-        .addClass('button')
-        .addClass('icon')
-        .addClass('icon-delete')
-        .click(function() {
-            $(this).closest('.group').addClass('hidden');
-            updatePosNumbers();
-            updateBOMIndicators();
-        });
-
-    $('<div></div>').appendTo(elemKit)
-        .addClass('items-list')
-        .addClass('kit-items')
-        .addClass('tiles') 
-        .addClass('list')
-        .addClass('xs');
-
-    if(link === '') elemTitle.focus();
-
-    return elemKit;
+    return elemNode;
 
 }
-function insertItem(elemParent, className, surfaceLevel, part) {
+function insertItem(elemParent, part) {
 
-    if(isBlank(surfaceLevel)) surfaceLevel = '1';
-
-    let link        = part.link || '';
-    let title       = part.title || '';
-    let edgeId      = part.edgeId || '';
-    let number      = part.number || '';
-    let partNumber  = part.details.NUMBER || '';
-    let quantity    = part.quantity || 1.0;
-
-    let elemItemsList = elemParent.find('.items-list').first();
+    let elemItemsList = (elemParent.hasClass('items-list')) ? elemParent : elemParent.find('.items-list').first();
     let addItem       = true;
 
+    if(elemParent.hasClass('no-quantity')) part.quantity = '1.0';
+
     elemItemsList.children().each(function() {
-        if($(this).attr('data-link') === link) {
+        if($(this).attr('data-link') === part.link) {
             if($(this).hasClass('hidden')) {
                 $(this).appendTo(elemItemsList).removeClass('hidden');
             }
@@ -900,12 +846,12 @@ function insertItem(elemParent, className, surfaceLevel, part) {
 
     let elemRow = $('<div></div>').appendTo(elemItemsList)
         .addClass('items-list-row')
-        .addClass(className)
-        .addClass('surface-level-' + surfaceLevel)
-        .attr('data-link', link)
-        .attr('data-edgeid', edgeId)
-        .attr('data-number', number)
-        .attr('data-quantity', quantity)
+        .addClass('list-item')
+        .addClass('surface-level-1')
+        .attr('data-link', part.link)
+        .attr('data-edgeid', part.edgeId)
+        .attr('data-number', part.number)
+        .attr('data-quantity', part.quantity)
         .attr('ondragenter', 'dragEnterItem(event)')
         .attr('ondragover' , 'dragEnterItem(event)')
         .attr('ondragleave', 'dragLeaveHandler(event)')
@@ -913,15 +859,13 @@ function insertItem(elemParent, className, surfaceLevel, part) {
 
     $('<input>').appendTo(elemRow)
         .addClass('list-item-quantity')
-        .val(quantity);
+        .val(part.quantity);
 
     let elemItem  = $('<div></div>').appendTo(elemRow)
-        .addClass(className)
         .addClass('tile')
-        .addClass('sbom-item')
-        .attr('data-link', link)
-        .attr('data-edgeid', edgeId)
-        .attr('data-part-number', partNumber)
+        .attr('data-link', part.link)
+        .attr('data-edgeid', part.edgeId)
+        .attr('data-part-number', part.partNumber)
         .attr('draggable', 'true')
         .attr('ondragstart', 'dragStartHandler(event)')
         .attr('ondragend', 'dragEndHandler(event)')
@@ -957,14 +901,14 @@ function insertItem(elemParent, className, surfaceLevel, part) {
     let elemImage = $('<div></div>').appendTo(elemItem)
         .addClass('tile-image')
 
-    $('<div></div>').appendTo(elemImage).addClass('tile-counter').html(number);
+    $('<div></div>').appendTo(elemImage).addClass('tile-counter').html(part.number);
 
     let elemDetails = $('<div></div>').appendTo(elemItem)
         .addClass('tile-details');    
 
     $('<div></div>').appendTo(elemDetails)
         .addClass('tile-title')
-        .html(title);
+        .html(part.title);
 
     $('<div></div>').appendTo(elemRow)
         .addClass('button')
@@ -986,38 +930,12 @@ function insertItem(elemParent, className, surfaceLevel, part) {
     return elemRow;
 
 }
-function clickGroupToggle(e, elemClicked) {
+function clickNodeToggle(e, elemClicked) {
 
     e.preventDefault();
     e.stopPropagation();
 
-    elemClicked.closest('.group').toggleClass('collapsed').toggleClass('expanded');
-
-}
-function clickMaximizeToggle(e, elemClicked) {
-
-    e.preventDefault();
-    e.stopPropagation();
-
-    let elemGroup = elemClicked.closest('.group');
-
-    // elemClicked.toggleClass('icon-chevron-right').toggleClass('icon-chevron-down');
-    elemClicked.closest('.group').toggleClass('max').toggleClass('min');
-
-    if(elemGroup.hasClass('max')) {
-        elemGroup.removeClass('collapsed').addClass('expanded');
-    }
-
-}
-function dragEnterItem(e) {
-
-    e.preventDefault();
-
-    let elemTarget = $(e.target);
-
-    if(!elemTarget.hasClass('items-list-row')) elemTarget = elemTarget.closest('.items-list-row');
-
-    elemTarget.addClass('drag-hover');
+    elemClicked.closest('.node').toggleClass('collapsed').toggleClass('expanded');
 
 }
 
@@ -1035,14 +953,6 @@ function enableBOMItemDragging() {
     });
 
 }
-function enableDropTarget(elem) {
-
-    elem.attr('ondragenter', 'dragEnterHandler(event)');
-    elem.attr('ondragover' , 'dragOverHandler(event)' );
-    elem.attr('ondragleave', 'dragLeaveHandler(event)');
-    elem.attr('ondrop'     , 'dropHandler(event)'     );  
-
-}
 function dragStartHandler(e) {
     
     $('.dragged').removeClass('dragged');
@@ -1054,15 +964,39 @@ function dragStartHandler(e) {
     e.dataTransfer.setData('text/plain', elemDragged.attr('data-link'));
 
 }
-function dragEnterHandler(e) {
+function dragEnterNode(e) {
 
     e.preventDefault();
+    e.stopPropagation();
+
+    let elemTarget = $(e.target);
+
+    if(elemTarget.hasClass('items-list')) {
+        elemTarget.addClass('drag-hover');
+        elemTarget.closest('.node').addClass('drag-hover');
+    } else if(elemTarget.children('items-list').length > 0) {
+        elemTarget.addClass('drag-hover');
+    }
+
+}
+function dragEnterList(e) {
+
+    e.preventDefault();
+    e.stopPropagation();
+
     $(e.target).addClass('drag-hover');
 
 }
-function dragOverHandler(e) {
+function dragEnterItem(e) {
 
     e.preventDefault();
+    e.stopPropagation();
+
+    let elemTarget = $(e.target);
+
+    if(!elemTarget.hasClass('items-list-row')) elemTarget = elemTarget.closest('.items-list-row');
+
+    elemTarget.addClass('drag-hover');
 
 }
 function dragLeaveHandler(e) {
@@ -1085,54 +1019,39 @@ function dropHandler(e) {
     let className   = '';
     let level       = '1';
     let fromBOM     = elemDragged.is('tr');
-    let fromBrowser = (elemDragged.hasClass('tile') && elemDragged.hasClass('content-item'))
-    let onItem      = null;
-
-    if(elemTarget.hasClass('operation')) { className = 'service-item'; level = '1'; }
-    else if(elemTarget.hasClass('kit')) { className = 'kit-item'; level = '1'; }
-    else if(elemTarget.attr('id') === 'spare-parts') { className = 'spare-part'; level = '2'; elemTarget = $('#parts');}
-    else {
-
-        onItem     = elemTarget.closest('.items-list-row');
-        elemTarget = elemTarget.closest('.items-list').parent();
-        className  = 'spare-part';
-
-             if(onItem.hasClass('service-item')) className = 'service-item';
-        else if(onItem.hasClass('kit-item'    )) className = 'kit-item';
-        
-    }
+    let fromBrowser = (elemDragged.hasClass('tile') && elemDragged.hasClass('content-item'));
+    let elemItem    = elemTarget.closest('.items-list-row');
+    let onItem      = elemItem.length > 0;
 
     if(fromBOM) {
 
         let part = {
             link        : elemDragged.attr('data-link'), 
+            partNumber  : elemDragged.attr('data-part-number'),  
             title       : elemDragged.attr('data-title'),  
-            details     : {
-                NUMBER  : elemDragged.attr('data-part-number')
-            },
             edgeId      : '', 
             quantity    : elemDragged.attr('data-quantity')
         }
 
-        let newItem = insertItem(elemTarget, className, level, part);
+        if(onItem) elemTarget = elemTarget.closest('.items-list');
 
-        if(onItem !== null) newItem.insertBefore(onItem);
-    
-    } else  if(fromBrowser) {
+        let newItem = insertItem(elemTarget, part);
+
+        if(onItem) newItem.insertBefore(elemItem);
+
+    } else if(fromBrowser) {
 
         let part = {
             link        : elemDragged.attr('data-link'), 
+            partNumber  : elemDragged.attr('data-part-number'),  
             title       : elemDragged.attr('data-title'),  
-            details     : {
-                NUMBER  : elemDragged.attr('data-part-number')
-            },
             edgeId      : '', 
             quantity    : '1.0'
         }
 
-        let newItem = insertItem(elemTarget, className, level, part);
+        let newItem = insertItem(elemTarget, part);
 
-        if(onItem !== null) newItem.insertBefore(onItem);
+        if(onItem) newItem.insertBefore(elemItem);
 
     } else {
         
@@ -1140,7 +1059,7 @@ function dropHandler(e) {
 
         if(e.shiftKey) elemDragged = elemDragged.clone();
 
-        if(onItem !== null) elemDragged.insertBefore(onItem);
+        if(onItem) elemDragged.insertBefore(elemItem);
         else elemDragged.appendTo(elemTarget);
 
     }
@@ -1155,20 +1074,23 @@ function dropHandler(e) {
 
 
 // Add all recommended items to the Spare Parts list
-function addAllRecommended() {
+function addAllHighlighted() {
 
-    let listRecommended = $('.recommended-spare-part');
-    let listSpareParts  = $('#spare-parts').children();
+    let listHighlighted = $('.bom-item.highlighted');
+    let elemTarget      = $('.panel-content.items-list');
 
-    listRecommended.each(function() {
+    if(elemTarget.length === 0) return;
 
-        let add = true;
-        let elemRecommended = $(this);
-        let linkRecommended = $(this).attr('data-link');
+    listHighlighted.each(function() {
 
-        listSpareParts.each(function() {
-            let linkSparePart = $(this).attr('data-link');
-            if(linkRecommended === linkSparePart) {
+        let add             = true;
+        let elemHighlighted = $(this);
+        let linkHighlighted = $(this).attr('data-link');
+
+        elemTarget.children('.items-list-row').each(function() {
+            let linkListItem = $(this).attr('data-link');
+            if(linkHighlighted === linkListItem) {
+                $(this).removeClass('hidden');
                 add = false;
                 return 0;
             }
@@ -1177,16 +1099,14 @@ function addAllRecommended() {
         if(add) {
 
             let part = {
-                link        : linkRecommended, 
-                title       : elemRecommended.attr('data-title'),  
-                details     : {
-                    NUMBER  : elemRecommended.attr('data-part-number')
-                },
+                link        : linkHighlighted, 
+                title       : elemHighlighted.attr('data-title'),  
+                partNumber  : elemHighlighted.attr('data-part-number'),
                 edgeId      : '', 
-                quantity    : elemRecommended.attr('data-quantity')
+                quantity    : elemHighlighted.attr('data-quantity')
             };
 
-            insertItem($('#parts'), 'spare-part', '2', part);
+            insertItem(elemTarget, part);
 
         }
 
@@ -1199,13 +1119,18 @@ function addAllRecommended() {
 
 
 /* Filter for items of given contenxt */
-function filterItemsList(elemParent) {
+function filterByItemsList(elemClicked) {
 
-    let partNumbers = [];
+    let partNumbers  = [];
+    let elemParent   = elemClicked.parent();
+    let elemContext  = elemParent.parent();
+
+    if(elemContext.hasClass('node-header')) elemContext = elemContext.next();
+
     $('.bom-item').removeClass('result');
     
-    elemParent.find('.tile').each(function() {
-        let partNumber = $(this).attr('data-part-number');
+    elemContext.find('.items-list-row:not(.hidden)').each(function() {
+        let partNumber = $(this).children('.tile').attr('data-part-number');
         partNumbers.push(partNumber);
         $('.bom-item').each(function() {
             if($(this).attr('data-part-number') === partNumber) $(this).addClass('result');
@@ -1213,34 +1138,6 @@ function filterItemsList(elemParent) {
     });
     
     viewerSelectModels(partNumbers);
-
-}
-
-
-function selectOperations(elemButton, mode) {
-
-    let elemParent = elemButton.closest('.service');
-    let elemOperations = elemParent.find('.service-operation');
-
-    elemOperations.each(function() {
-
-        if(mode === 'all') $(this).addClass('selected');
-        else $(this).removeClass('selected');
-
-    });
-
-}
-function selectItems(elemButton, mode) {
-
-    let elemParent = elemButton.closest('.service');
-    let elemServiceItems = elemParent.find('.service-item');
-
-    elemServiceItems.each(function() {
-
-        if(mode === 'all') $(this).addClass('selected');
-        else $(this).removeClass('selected');
-
-    });
 
 }
 
@@ -1264,16 +1161,22 @@ function onViewerSelectionChanged(event) {
 function saveChanges() {
     
     resetSaveActions();
+    hideMessage();
 
-    $('.sbom-node').each(function() {
+    if($('.node-title-empty').length > 0) {
+        showErrorMessage('Missing Data', 'Cannot save changes as names are missing');
+        return;
+    }
+
+    $('#panel').find('.node').each(function() {
 
         let link   = $(this).attr('data-link');
         let edgeId = $(this).attr('data-edgeid');
         let title  = $(this).attr('data-title');
-        let label  = $(this).find('.group-title').val();
-        let hidden = $(this).hasClass('hidden');
         let posCur = $(this).attr('data-number');
         let posNew = $(this).attr('data-number-new');
+        let label  = $(this).find('.node-title').val();
+        let hidden = $(this).hasClass('hidden');
 
         if(hidden) {
             if(edgeId === '') $(this).remove();
@@ -1299,6 +1202,9 @@ function saveChanges() {
         let posCur      = $(this).attr('data-number');
         let posNew      = getPosNumber($(this));
 
+        console.log(quantity);
+        console.log(parseFloat(quantity) !== parseFloat(elemItemRow.attr('data-quantity')));
+
         if(elemItemRow.hasClass('hidden')) elemItemRow.addClass(saveActions.remove.className);
         else if(edgeId === '') elemItemRow.addClass(saveActions.add.className);
         else if(parseFloat(quantity) !== parseFloat(elemItemRow.attr('data-quantity'))) {
@@ -1319,45 +1225,6 @@ function saveChanges() {
     createNewItems(saveActions.create);
 
 }
-function getParentLink(elemItem) {
-
-    if(elemItem.hasClass('service'   )) return links.sbom;
-    if(elemItem.hasClass('operation' )) return elemItem.closest('.service').attr('data-link');
-    if(elemItem.hasClass('kit'       )) return links.sbom;
-    if(elemItem.hasClass('spare-part')) return links.sbom;
-    
-    let elemParent = elemItem.closest('.items-list').parent();
-
-    return elemParent.attr('data-link');
-
-}
-function getPosNumber(elemItem) {
-
-    let isItem      = elemItem.hasClass('items-list-row');
-    let elemCounter = elemItem.find('.tile-counter');
-    let valueNew    = elemItem.attr('data-number-new');
-    // let elemParent   = elemItem.closest('.items-list');
-
-    if(isItem) { if(elemCounter.length > 0) return elemCounter.html(); }
-    if(!isBlank(valueNew)) return valueNew;
-    
-
-
-    // if(elemParent.attr('id') === 'spare-parts') return 1.0;
-
-    return ;
-
-}
-function getItemQuantity(elemItem) {
-
-    let elemQuantity = elemItem.find('.list-item-quantity');
-    let elemParent   = elemItem.closest('.items-list');
-
-    if(elemParent.attr('id') === 'spare-parts') return 1.0;
-
-    return elemQuantity.val();
-
-}
 function createNewItems(action) {
 
     let pending  = updateSaveProgressBar(action);
@@ -1376,11 +1243,11 @@ function createNewItems(action) {
                     sections  : []
                 };
 
-                let title = $(this).find('.group-title').first().val();
+                let title = $(this).find('.node-title').first().val();
                 let type  = $(this).attr('data-link-type');
 
-                addFieldToPayload(params.sections, wsConfig.sections, null, 'TITLE', title);
-                addFieldToPayload(params.sections, wsConfig.sections, null, 'TYPE' , { link : type });
+                addFieldToPayload(params.sections, wsConfigItems.sections, null, 'TITLE', title);
+                addFieldToPayload(params.sections, wsConfigItems.sections, null, config.sbom.itemType.fieldId, { link : type });
     
                 requests.push($.post('/plm/create', params));
                 elements.push($(this));
@@ -1424,6 +1291,9 @@ function removeBOMItems(action) {
                 let linkParent = getParentLink(elemItem);
                 let edgeId     = elemItem.attr('data-edgeid');
 
+                console.log(linkParent);
+                console.log(edgeId);
+
                 if(!isBlank(linkParent)) {
                     requests.push($.get('/plm/bom-remove', {
                         link   : linkParent,
@@ -1458,6 +1328,8 @@ function addBOMItems(action) {
                 let elemItem = $(this);
                 let quantity = getItemQuantity(elemItem);
 
+                console.log(elemItem.hasClass('node'));
+
                 let params = {
                     linkParent : getParentLink(elemItem),
                     number     : getPosNumber(elemItem),
@@ -1465,6 +1337,8 @@ function addBOMItems(action) {
                     quantity   : quantity,
                     pinned     : false
                 }
+
+                console.log(params);
 
                 requests.push($.post('/plm/bom-add', params));
                 elements.push(elemItem);
@@ -1498,7 +1372,6 @@ function renameItems(action) {
     let pending  = updateSaveProgressBar(action);
     let requests = [];
 
-
     if(pending.length === 0) { updateBOMItems(saveActions.update); }
     else {
         
@@ -1512,9 +1385,9 @@ function renameItems(action) {
                     sections : []
                 };
 
-                let title = elemItem.find('.group-title').first().val();
+                let title = elemItem.find('.node-title').first().val();
 
-                addFieldToPayload(params.sections, wsConfig.sections, null, 'TITLE', title);
+                addFieldToPayload(params.sections, wsConfigItems.sections, null, 'TITLE', title);
 
                 requests.push($.post('/plm/edit', params));
                 elemItem.removeClass(action.className);
@@ -1569,4 +1442,42 @@ function updateBOMItems(action) {
 
     }
     
+}
+function getParentLink(elemItem) {
+
+    let isRoot = elemItem.parent().hasClass('panel-content');
+
+    if(isRoot) {
+        if(elemItem.hasClass('node')) return links.targetBOM;
+        else return elemItem.parent().attr('data-link');
+    }
+
+    let elemParentNode = elemItem.closest('.node-children').closest('.node');
+
+    return elemParentNode.attr('data-link');
+
+}
+function getPosNumber(elemItem) {
+
+    let isItem      = elemItem.hasClass('items-list-row');
+    let elemCounter = elemItem.find('.tile-counter');
+    let valueNew    = elemItem.attr('data-number-new');
+
+    if(isItem) { if(elemCounter.length > 0) return elemCounter.html(); }
+    if(!isBlank(valueNew)) return valueNew;
+    
+    return ;
+
+}
+function getItemQuantity(elemItem) {
+
+    if(elemItem.hasClass('node')) return 1.0;
+
+    let elemQuantity = elemItem.find('.list-item-quantity');
+    let elemParent   = elemItem.closest('.items-list');
+
+    if(elemParent.attr('id') === 'spare-parts') return 1.0;
+
+    return elemQuantity.val();
+
 }

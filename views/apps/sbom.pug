@@ -13,13 +13,13 @@ block body
 
         #header.dark
             #header-logo
-            #header-title= title
+            #header-title
             #header-subtitle
             #header-toolbar
+                .button#save.disabled Save Changes
                 select#mode.button 
-                    option(value='ebom') Insert from EBOM 
+                    option(value='ebom') Insert from BOM 
                     option(value='lib') Insert from Library
-                .button#save.default Save Changes
                 .button#toggle-viewer.with-toggle.toggle-on Toggle Viewer
                 .button#toggle-details.with-toggle Toggle Details
                 #header-avatar
@@ -32,22 +32,5 @@ block body
             #panel.surface-level-2
 
                 .tabs#tabs(data-tab-group="tab-group-main")
-                    div#tab-services.with-icon.icon-service.selected(data-id='services') Services
-                    div#tab-kits.with-icon.icon-product(data-id='kits') Kits
-                    div#tab-parts.with-icon.icon-details(data-id='parts') Spare Parts
-
-                .panel-content.tab-group-main#services.surface-level-2
-                    .panel-actions 
-                        #add-service-offering.button.default.with-icon.icon-create Service
-                    .panel-content.groups#serivce-offerings
-                .panel-content.tab-group-main.surface-level-2
-                    .panel-actions 
-                        #add-service-kit.button.default.with-icon.icon-create Kit
-                    .panel-content.groups#kits
-                .panel-content.tab-group-main#parts.surface-level-2
-                    .panel-actions 
-                        #filterSpareParts.button.icon.icon-3d
-                        #add-all-recommended.button.with-icon.icon-list-add Add All Recommended
-                    .panel-content.items-list.tiles.list.xs.surface-level-2#spare-parts
 
             #details.surface-level-1
