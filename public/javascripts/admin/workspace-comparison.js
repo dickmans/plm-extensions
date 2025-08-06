@@ -219,6 +219,8 @@ function addActionEntry(params) {
 
     if(!isBlank(params.comp)) {
 
+        elemNew.addClass('with-comparison-button');
+
         $('<div></div>').appendTo(elemNew)
             .addClass('action-icon')
             .addClass('button')
@@ -2997,7 +2999,12 @@ function comparePicklistValues(sourcePicklist, targetPicklist, step, urlPicklist
     for(let target of targetPicklist.values) {
         if(!target.hasMatch) {
             match = false;
-            addActionEntry({ text : 'Remove value <b>' + target.label + '</b> from list <b>' + targetPicklist.label + '</b>', step : step, url  : urlPicklist });
+            addActionEntry({ text : 'Remove value <b>' + target.label + '</b> from list <b>' + targetPicklist.label + '</b>', step : step, url  : urlPicklist,
+                comp : {
+                    source : '/admin#section=setuphome&tab=general&item=picklistedit&params={"name":"' + targetPicklist.id + '"}',
+                    target : '/admin#section=setuphome&tab=general&item=picklistedit&params={"name":"' + targetPicklist.id + '"}'
+                }
+            });
         }
     }
 

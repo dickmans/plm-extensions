@@ -156,9 +156,9 @@ body.no-console #console {
     min-width   : 48px;
     width       : 48px;
 }
-.match  .comparison-result::before { color : var(--color-status-green)  !important; content : '\e86c'; }
-.diff   .comparison-result::before { color : var(--color-status-red)    !important; content : '\e5c9'; }
-.varies .comparison-result::before { color : var(--color-status-yellow) !important; content : '\e5c9'; }
+.match  .comparison-result::before, .match  > span { color : var(--color-status-green)  !important; content : '\e86c'; }
+.diff   .comparison-result::before, .diff   > span { color : var(--color-status-red)    !important; content : '\e5c9'; }
+.varies .comparison-result::before, .varies > span { color : var(--color-status-yellow) !important; content : '\e5c9'; }
 .result-actions {
     display         : flex;
     flex-direction  : column;
@@ -182,7 +182,10 @@ body.no-console #console {
     background      : var(--color-surface-level-3);
     border-color    : var(--color-surface-level-3);
     border-radius   :  0px;
-    max-width       : calc(100% - 96px);
+    max-width       : calc(100% - 72px);
+}
+.action.with-comparison-button > .action-text.button {
+    max-width       : calc(100% - 112px);
 }
 .action-instructions {
     overflow        : hidden;
@@ -192,7 +195,6 @@ body.no-console #console {
     background    : var(--color-surface-level-4);
     border-color  : var(--color-surface-level-4);
     border-radius : 0px;
-    width         : 60px;
 }
 .action-text {
     display : flex;
@@ -291,8 +293,8 @@ body.no-console #console {
     font-size   : 22px;
     font-weight : 200;
 }
-.report-icon.match { background  : var(--color-status-green); }
-.report-icon.diff { background  : var(--color-status-red); }
+.report-icon.match { background : var(--color-status-green); }
+.report-icon.diff  { background : var(--color-status-red);   }
 
 
 
@@ -318,6 +320,5 @@ body.no-console #console {
         gap: 20px;
         width : unset;
     }
-  
 
 }
