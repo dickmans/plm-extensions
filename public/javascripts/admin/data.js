@@ -465,6 +465,8 @@ function setLifecycleTransitionSelectors() {
 }
 function setScriptSelectors() {
 
+    let existing = [];
+
     $('.select-script').each(function() {
 
         let elemSelect = $(this);
@@ -478,9 +480,18 @@ function setScriptSelectors() {
 
         for(let script of wsConfig.scripts) {
 
-            $('<option></option>').appendTo(elemSelect)
-                .attr('value', script.__self__)
-                .html(script.uniqueName);
+            if(script.scriptBehaviorType === 'ON_DEMAND') {
+
+                if(!existing.includes(script.__self__)){
+
+                    $('<option></option>').appendTo(elemSelect)
+                        .attr('value', script.__self__)
+                        .html(script.uniqueName);
+
+                    existing.push(script.__self__);
+
+                }
+            }
 
         }
 
