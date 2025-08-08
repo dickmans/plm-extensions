@@ -18,7 +18,7 @@ $(document).ready(function() {
 
 function setUIEvents() {
 
-    $('#search').on('keyup', function() { filterLists(); });
+    $('#search').on('keyup', function() { $('.workspace').removeClass('selected'); filterLists(); });
 
     $('#settings').click(function() { openURL('', '/admin#section=setuphome&tab=general&item=configparams'); });
     $('#wsm'     ).click(function() { openURL('', '/admin#section=setuphome&tab=workspaces'               ); });
