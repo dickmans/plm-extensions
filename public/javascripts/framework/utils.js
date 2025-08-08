@@ -662,6 +662,11 @@ function showMessage(type, title, message) {
     $('#overlay').hide();
 
 }
+function hideMessage() {
+
+    $('#message').remove();
+
+}
 
 
 // Get CSS class defining the element's surface level
@@ -1982,6 +1987,14 @@ function stopPanelContentUpdate(response, settings) {
         showErrorMessage('Error ' + response.status, 'Failed to retrieve data from PLM for panel ' + settings.headerLabel + '. Please contact your administrator.');
         return true;
         
+    }
+
+    if(!isBlank(response.data)) {
+        if(!isBlank(response.data.currentState)) {
+            settings.elemTop.addClass('status-' + response.data.currentState.title.toUpperCase());
+        } else if(!isBlank(response.data.lifecycle)) {
+            settings.elemTop.addClass('status-' + response.data.lifecycle.title.toUpperCase());
+        }
     }
 
     return false;
@@ -3661,8 +3674,6 @@ function resetSaveActions() {
 }
 function showSaveDialog(id) {
 
-
-
     if(isBlank(id)) id = 'dialog-save';
 
     let elemDialog = $('#' + id);
@@ -4385,6 +4396,21 @@ function getSectionFieldValue(sections, fieldId, defaultValue, property) {
     }
 
     return defaultValue;
+
+}
+
+
+
+// Functions to handle BOM configuration data
+function getBOMViewDefinition(data, bomViewName, wsConfig) {
+
+    for(let bomView of data) {
+        if(bomView.name == bomViewName) {
+            wsConfig.bomViewId     = bomView.id;
+            wsConfig.bomViewFields = bomView.fields;
+            break;
+        }
+    }
 
 }
 
