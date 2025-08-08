@@ -92,8 +92,14 @@
     min-width : calc(var(--width-workspaces) - 430px);
     width     : calc(var(--width-workspaces) - 430px);
 }
+.tile-workspace-category {
+    display : none;
+}
 .tile-workspace-details {
-    display : flex;
+    color       : #999;
+    display     : flex;
+    gap         : 8px;
+    line-height : var(--height-tile);
 }
 .tile:hover .tile-workspace-details { 
     display : none; 
@@ -104,16 +110,14 @@
     width     : 340px;
 }
 .tile-workspace-name {
-    color       : #999;
     max-width   : 240px;
 }
 .tile-workspace-id {
-    color        : #999;
     font-weight  : 800 !important;
     text-align   : right;
-    max-width    : 42px;
-    min-width    : 42px;
-    width        : 42px;
+    max-width    : 38px;
+    min-width    : 38px;
+    width        : 38px;
 }
 
 

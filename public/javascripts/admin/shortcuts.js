@@ -185,13 +185,15 @@ function insertWorkspaces() {
             let elemActions  = $('<div></div>').appendTo(elemExtended).addClass('tile-actions');
                 
             $('<div></div>').appendTo(elemDetails)
+                .addClass('tile-workspace-category')
+                .html(workspace.category.name);
+
+            $('<div></div>').appendTo(elemDetails)
                 .addClass('tile-workspace-id')
-                .addClass('tile-title')
                 .html(workspace.link.split('/').pop());
   
             $('<div></div>').appendTo(elemDetails)
                 .addClass('tile-workspace-name')
-                .addClass('tile-title')
                 .html(workspace.systemName);
 
             $('<div></div>').appendTo(elemActions)
