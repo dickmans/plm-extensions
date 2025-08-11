@@ -489,9 +489,10 @@ function createListParents(callback) {
 
             requests.push($.post('/plm/bom-add', params));
             types[index].linkRoot = link;
+            types[index].elemContent.attr('data-link', link);
         }
 
-        Promise.all(requests).then(function(responses) {
+        Promise.all(requests).then(function() {
             callback();
         });
 
@@ -1202,9 +1203,6 @@ function saveChanges() {
         let posCur      = $(this).attr('data-number');
         let posNew      = getPosNumber($(this));
 
-        console.log(quantity);
-        console.log(parseFloat(quantity) !== parseFloat(elemItemRow.attr('data-quantity')));
-
         if(elemItemRow.hasClass('hidden')) elemItemRow.addClass(saveActions.remove.className);
         else if(edgeId === '') elemItemRow.addClass(saveActions.add.className);
         else if(parseFloat(quantity) !== parseFloat(elemItemRow.attr('data-quantity'))) {
@@ -1328,8 +1326,6 @@ function addBOMItems(action) {
                 let elemItem = $(this);
                 let quantity = getItemQuantity(elemItem);
 
-                console.log(elemItem.hasClass('node'));
-
                 let params = {
                     linkParent : getParentLink(elemItem),
                     number     : getPosNumber(elemItem),
@@ -1337,8 +1333,6 @@ function addBOMItems(action) {
                     quantity   : quantity,
                     pinned     : false
                 }
-
-                console.log(params);
 
                 requests.push($.post('/plm/bom-add', params));
                 elements.push(elemItem);
