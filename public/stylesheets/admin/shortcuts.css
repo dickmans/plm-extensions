@@ -172,8 +172,17 @@
         --width-roles      : 280px;
     }
 
+    #header-toolbar > .button.with-icon {
+        max-width : 22px;
+        overflow  : hidden;
+        padding   : 8px;
+    }
+    #header-toolbar > .button.with-icon::before {
+        margin-right : 30px;
+    }
+
 }
-@media (max-width: 1680px) {
+@media (max-width: 1780px) {
     
     :root {
         --border-bottom    : 24px;
