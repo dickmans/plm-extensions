@@ -231,6 +231,7 @@
 .icon-clipboard-add::before     { content : '\f848'; }
 .icon-clone::before             { content : '\e14d'; }
 .icon-close::before             { content : '\e5cd'; }
+.icon-close-window::before      { content : '\f745'; }
 .icon-collapse::before          { content : '\e5cf'; }
 .icon-columns::before           { content : '\e8f3'; }
 .icon-compare::before           { content : '\f459'; }
