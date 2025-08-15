@@ -1,11 +1,14 @@
-let allSccrips = [];
-let completed  = 0;
-
+let urlParameters = getURLParameters();
+let tenants       = []
+let windows       = [];
+let allSccrips    = [];
+let completed     = 0;
 
 $(document).ready(function() {
 
     appendOverlay(false);
 
+    setTenants();
     setUIEvents();
     insertMenu();
     insertWorkspaces();
@@ -15,6 +18,19 @@ $(document).ready(function() {
 
 });
 
+function setTenants() {
+
+    if(isBlank(urlParameters.tenants)) return;
+
+    tenants = urlParameters.tenants.split(';');
+
+    $('<option></option>').prependTo($('#mod'))
+        .attr('value', 'cp')
+        .html('Compare Tenants');
+
+    $('#mod').val('cp');
+
+}
 
 function setUIEvents() {
 
@@ -31,6 +47,11 @@ function setUIEvents() {
         $.post('/plm/clear-cache', {}, function() {
             $('#clc').removeClass('disabled');
         });
+    });
+
+    $('#clw').click(function() { 
+        for(let elemWindow of windows) elemWindow.elem.close();
+        windows = [];
     });
 
 }
@@ -470,23 +491,73 @@ function insertPinButton(elemTile) {
 function openURL(panelName, url) {
 
     if(url === '') return;
-    
-    url  = 'https://' + tenant + '.autodeskplm360.net' + url;
 
     let mode = $('#mod').val();
 
-    if((panelName === '') || (mode === 'nt')) { window.open(url, '_blank'); return; }
+    if(mode === 'cp') {
 
-    if(mode === 'sp') panelName = 'PLM';
+        let index = 0;
 
-    let height  = screen.height;
-    let width   = screen.width / 2;
-    let left    = width;
-    let options = 'height=' + height
-        + ',width=' + width 
-        + ',top=0,left=' + left
-        + ',toolbar=1,Location=0,Directxories=0,Status=0,menubar=1,Scrollbars=1,Resizable=1';
+        for(let panelName of tenants)  {
 
-    window.open(url, panelName, options);
+            let panelURL = 'https://' + panelName + '.autodeskplm360.net' + url;
+            let top      = screen.height * 0.3;
+            let height   = screen.height * 0.6;
+            let width    = screen.width / tenants.length;
+            let left     = (width * index++);
+            let options  = 'height=' + height
+                + ',width=' + width 
+                + ',top='   + top
+                + ',left='  + left
+                + ',toolbar=0,Location=0,Directxories=0,Status=0,menubar=1,Scrollbars=1,Resizable=1';
+
+            let newWindow = window.open(panelURL, panelName, options);
+
+            addNewWindow(panelName, newWindow);
+
+        }
+
+    } else {
+
+        url  = 'https://' + tenant + '.autodeskplm360.net' + url;
+
+        if((panelName === '') || (mode === 'nt')) { window.open(url, '_blank'); return; }
+
+        if(mode === 'sp') panelName = 'PLM';
+
+        let top      = screen.height * 0.3;
+        let height   = screen.height * 0.6;
+        let width   = screen.width / 2;
+        let left    = width;
+        let options = 'height=' + height
+            + ',width=' + width 
+            + ',top='   + top
+            + ',left='  + left
+            + ',toolbar=0,Location=0,Directxories=0,Status=0,menubar=1,Scrollbars=1,Resizable=1';
+
+        let newWindow = window.open(url, panelName, options);
+
+        addNewWindow(panelName, newWindow);
+
+    }
+
+}
+
+function addNewWindow(panelName, newWindow) {
+
+    let isNew = true;
+
+    for(let elemWindow of windows) {
+
+        if(elemWindow.name === panelName) {
+            isNew = false;
+        }
+
+    }
+
+    if(isNew) windows.push({
+        name : panelName,
+        elem : newWindow
+    })
 
 }
