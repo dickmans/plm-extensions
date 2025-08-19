@@ -1117,6 +1117,8 @@ function genPanelTop(id, settings, className) {
 
     if(!isBlank(settings.link)) elemTop.attr('data-link', settings.link);
 
+    settings.elemTop = elemTop;
+
     return elemTop;
 
 }
