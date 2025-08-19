@@ -476,9 +476,10 @@ function setViewerInstancedData() {
             
             getComponentPath(instance.dbId, instance.parents);
             
-            instance.path       = instance.parents.map(function(parent) { return parent.partNumber }).join('|');
-            // instance.pathShort  = instna;
-            instance.instanceId = instance.parents.map(function(parent) { return parent.name       }).join('|');
+            let parentPartNumbers = instance.parents.filter(a => a.partNumber.indexOf('Pattern') < 0);
+            instance.path         =  instance.parents.map(function(parent) { return parent.partNumber }).join('|');
+            instance.pathNumbers  = parentPartNumbers.map(function(parent) { return parent.partNumber }).join('|');
+            instance.instanceId   =  instance.parents.map(function(parent) { return parent.name       }).join('|');
 
         }
 
@@ -524,6 +525,7 @@ function getComponentPath(id, componentPath) {
 
     for(let dataInstance of dataInstances) {
         if(dataInstance.dbId === id) {
+            // if(dataInstance.partNumber.indexOf('Compon') === 0) { console.log(dataInstance);}
             componentPath.unshift({
                 partNumber : dataInstance.partNumber,
                 name       : dataInstance.name
@@ -1322,9 +1324,10 @@ function viewerGetComponentInstances(partNumber) {
         if(dataInstance.partNumber === partNumber) {
 
             result.push({
-                dbId : dataInstance.dbId,
-                path : dataInstance.path,
-                instanceId : dataInstance.instanceId
+                dbId        : dataInstance.dbId,
+                path        : dataInstance.path,
+                pathNumbers : dataInstance.pathNumbers,
+                instanceId  : dataInstance.instanceId
             });
 
             // let instance = {
