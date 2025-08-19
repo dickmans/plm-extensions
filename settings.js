@@ -451,6 +451,7 @@ exports.config = {
     },
     
     insights : {
+        hideUserNames       : false,
         maxLogEntries       : 500000, // The total number of log entries being processed. Increasing this value may impact performance.
         maxEventLogEntries  : 10000, // Set this to 0 in order to disable the Event Log tab overall; a maximum of 50.000 gets applied anyway
         usersExcluded       : ['Administrator', 'Import User', 'Job User', 'Integration User'],

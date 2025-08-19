@@ -13,7 +13,8 @@
         h1 Configuration Settings
         p You may want to review the solution's configuration settings in file settings.js to adjust this solution to your needs. This is the default configuration:
         p.code
-            span 'insights' : {
+            span insights : {
+            span.indent hideUserNames : false,
             span.indent maxLogEntries : 500000,
             span.indent maxEventLogEntries : 10000
             span.indent usersExcluded : ['Administrator', 'Import User', 'Job User', 'Integration User']
@@ -26,6 +27,10 @@
                     th Setting 
                     th Default Value 
                     th Description  
+                tr 
+                    td hideUserNames
+                    td false
+                    td When set to true, real user names will not be displayed
                 tr 
                     td maxLogEntries
                     td 500000
@@ -53,6 +58,10 @@
     .log 
         h1 Tenant Insights Change Log 
         table 
+            tr 
+                td 18. August 2025
+                td Enhancement
+                td New setting hideUserNames can be used to hide real user names in the dashboard (default will still display the user names). If names should not be displayed any longer, just set it to true and restart your server.
             tr 
                 td 17. July 2024
                 td Enhancement

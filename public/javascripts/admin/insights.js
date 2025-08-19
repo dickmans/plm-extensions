@@ -104,6 +104,7 @@ function setOptions() {
         $('#select-user').children().first().html('- All Entries (' + config.insights.maxEventLogEntries + ' max) - ');
     }
 
+    $('#hideUserNames').html(config.insights.hideUserNames);
     $('#maxLogEntries').html(config.insights.maxLogEntries);
     $('#maxEventLogEntries').html(config.insights.maxEventLogEntries);
 
@@ -607,7 +608,7 @@ function setUIEvents() {
         } else {
 
             $('#events').find('tr.user').each(function() {
-                let name = $(this).children().first().html();
+                let name = $(this).attr('data-user');
                 if(name === valueSelected) {
                     $(this).removeClass('hidden');
                 } else {
@@ -666,17 +667,22 @@ function getUserDataChunk(callback) {
 
         totalUsers   = response.data.totalCount;
         offsetUsers += response.data.items.length;
+
+        let index = 1;
         
         for(let user of response.data.items) {
 
             if(isBlank(user.displayName)) user.displayName = user.email;
 
             let displayName = user.displayName;
+            let userName    = user.displayName;
             let status      = user.userStatus;
             let email       = user.email;
             let domain      = email.split('@')[1];
 
             if(notExcluded(displayName)) {
+
+                if(config.insights.hideUserNames) userName = 'User ' + index++;
             
                 // users by domain
                 if(status === 'Active') {
@@ -696,18 +702,20 @@ function getUserDataChunk(callback) {
                         chartUserDomain.data.datasets[0].data.push(1);
                     }
 
-                    $('#select-user').append('<option value="' + displayName + '">' + displayName + '</option>');
+                    $('#select-user').append('<option value="' + displayName + '">' + userName + '</option>');
 
                     users.push({
                         userId        : user.userId,
-                        displayName   : user.displayName,
+                        displayName   : displayName,
+                        userName      : userName,
                         urn           : user.urn,
                         lastLogin     : user.lastLoginTime
                     });
 
                     if(!isBlank(user.lastLoginTime)) {
                         lastLogins.push({
-                            displayName     : user.displayName,
+                            displayName     : displayName,
+                            userName        : userName,
                             lastLoginTime   : user.lastLoginTime,
                             filter          : [false, false, false, false, false, false, false, false, false]
                         });
@@ -837,7 +845,7 @@ function updateLastLoginChart() {
 
     for(let lastLogin of lastLogins) {
         if((isBlank(filter)) || lastLogin.filter[filter]) {
-            chartTimelineLastLogins.options.scales.y.labels.push(lastLogin.displayName);
+            chartTimelineLastLogins.options.scales.y.labels.push(lastLogin.userName);
             chartTimelineLastLogins.data.datasets[0].data.push(lastLogin.diff);
         }
     }
@@ -958,7 +966,7 @@ function setTimelineCharts() {
     
     chartTimelineUsers.options.scales.y.labels.push(' ');
     for(let user of users) {
-        let userName = user.displayName;
+        let userName = user.userName;
         if(userName !== ' ') chartTimelineUsers.options.scales.y.labels.push(userName);
     }
     chartTimelineUsers.options.scales.y.labels.push(' ');
@@ -1029,6 +1037,8 @@ function processSystemLog(response) {
     let events  = response.data.items;
     let now     = new Date();
 
+    if(config.insights.hideUserNames) $('th#userName').remove(); else $('th#userName').removeClass('hidden');
+
     for(let event of events) {
 
         let urn       = event.user.urn;
@@ -1046,7 +1056,7 @@ function processSystemLog(response) {
 
         if(userIndex > -1) {
             
-            let userName = users[userIndex].displayName;
+            let userName = users[userIndex].userName;
 
             if(age > daysCount) {
                 daysCount = age;
@@ -1220,16 +1230,18 @@ function addEventLog(event, date) {
     
     let elemEvent = $('<tr></tr>').appendTo('#events')
         .addClass('user')
-        .append("<td class='nowrap'>" + event.user.title + "</td>")
+        .attr('data-user', event.user.title)
         .append("<td class='nowrap'>" + event.action + "</td>")
         .append("<td class='nowrap'>" + date.toLocaleString() + "</td>")
         .append(elemCellLink)
         .append(elemCellDesc);
     
+    if(!config.insights.hideUserNames) elemEvent.prepend("<td class='nowrap'>" + event.user.title + "</td>")
+
     countEventLogEntries++;
 
     let selectedName = $('#select-user').val();
-    
+
     if(selectedName !== '*') {
         if(selectedName !== event.user.title) {
             elemEvent.addClass('hidden');

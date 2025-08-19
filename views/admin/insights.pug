@@ -157,7 +157,7 @@ block body
                 .wrapper
                     table.fixed-header.row-hovering#events
                         tr
-                            th User
+                            th#userName.hidden User
                             th Event
                             th Date
                             th Link
@@ -167,6 +167,9 @@ block body
             .dialog-content
                 span The following options were defined in settings.js
                 table   
+                    tr 
+                        td Hide User Names
+                        td#hideUserNames
                     tr 
                         td Maximum Log Entries 
                         td#maxLogEntries
