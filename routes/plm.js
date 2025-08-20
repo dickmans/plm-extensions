@@ -5489,7 +5489,6 @@ router.get('/workspace-workflow-transitions', function(req, res, next) {
         axios.get(url, {
             headers : req.session.headers
         }).then(function(response) {
-            console.log(response.data);
             if(response.data === "") response.data = [];
             sendResponse(req, res, response, false);
         }).catch(function(error) {
