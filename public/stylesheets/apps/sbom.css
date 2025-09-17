@@ -128,6 +128,7 @@ td.spr i { background: var(--color-status-green ); }
     left     : 0px;
 }
 #panel .panel-actions { 
+    gap             : 4px;
     justify-content : end;
     top             : 0px; 
 }

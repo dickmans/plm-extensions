@@ -114,8 +114,8 @@ exports.config = {
             workspaceId : 275,
             colorIndex  : 1,
             bomIcon     : 'icon-tag',
-            columnsIn   : ['Serial #', 'Installation Date', 'Location', 'Item Number', 'Instance ID'],
-            columnsDef  : {
+            fieldsIn    : ['Serial #', 'Installation Date', 'Location', 'Item Number', 'Instance ID'],
+            fieldsList  : {
                 partNumber   : 'NUMBER',
                 path         : 'LOCATION',
                 instanceId   : 'INSTANCE_ID',
@@ -638,7 +638,7 @@ exports.config = {
     sbom : {
         appTitle  : 'Service BOM Editor',
         sourceBOM : {
-            fieldId     : 'EBOM',
+            fieldId     : 'ENGINEERING_BOM',
             bomViewName : 'Service',
             headerLabel : 'Engineering BOM'
         },
@@ -647,8 +647,8 @@ exports.config = {
             bomViewName   : 'Service',
             itemTypeValue : 'Service BOM',
             prefixTitle   : 'Service BOM of ',
-            filterLabelIn : 'Show items contained in Service BOM only',
-            filterLabelEx : 'Hide items contained in Service BOM'
+            filterLabelIn : 'Show Items contained in Service BOM only',
+            filterLabelEx : 'Hide Items contained in Service BOM'
         },
         itemType : {
             fieldId    : 'TYPE',
@@ -670,7 +670,7 @@ exports.config = {
             color         : colors.red,
             filterLabelIn : 'Show Spare Parts List Items Only',
             filterLabelEx : 'Hide Spare Parts List Items',
-            basePosNumber : 301,
+            basePosNumber : 101,
             hideQuantity  : true
         },{
             mode          : '1-level-bom',
@@ -691,7 +691,7 @@ exports.config = {
             color         : colors.yellow,
             filterLabelIn : 'Show Services Items Only',
             filterLabelEx : 'Hide Services Items',
-            basePosNumber : 101
+            basePosNumber : 301
         }],
         enableBOMPin : false,
         viewerFeatures : {

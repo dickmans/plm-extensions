@@ -206,7 +206,23 @@ function initEditor(responses) {
                 .click(function() {
                     insertNode(bomType, bomType.elemContent, 0, null);
                     updatePosNumbers();        
-                });     
+                });    
+
+            $('<div></div>').appendTo(elemActions)
+                .addClass('button')
+                .addClass('icon')
+                .addClass('icon-unfold')
+                .click(function() {
+                    $(this).parent().next().children('.node').addClass('expanded').removeClass('collapsed');
+                }); 
+
+            $('<div></div>').appendTo(elemActions)
+                .addClass('button')
+                .addClass('icon')
+                .addClass('icon-fold')
+                .click(function() {
+                    $(this).parent().next().children('.node').removeClass('expanded').addClass('collapsed');    
+                });
 
             elemContent.addClass('nodes');
 
@@ -248,31 +264,39 @@ function initEditor(responses) {
 
     }
 
-    insertViewer(links.sourceBOM); 
+    if(isBlank(links.sourceBOM)) {
 
-    insertBOM(links.sourceBOM, {
-        collapseContents   : false,
-        counters           : true,
-        search             : true,
-        path               : true,
-        toggles            : true,
-        viewerSelection    : true,
-        openInPLM          : true,
-        includeBOMPartList : true,
-        headerLabel        : config.sbom.sourceBOM.headerLabel,
-        hideHeaderLabel    : (config.sbom.sourceBOM.headerLabel === ''),
-        contentSize        : 'l',
-        fieldsIn           : ['Quantity'],
-        bomViewName        : config.sbom.sourceBOM.bomViewName,
-        onClickItem        : function(elemClicked) { insertDetails(elemClicked.attr('data-link'), paramsDetails); },
-        afterCompletion    : function(id, data)    { 
-            partsListSourceBOM = data.bomPartsList; 
-            insertBOMItemFilter();
-            insertBOMIndicators(); 
-            enableBOMItemDragging();
-            $('#save').removeClass('disabled').addClass('default');
+        showErrorMessage('Failure when loading Source BOM', 'Could not find the source BOM item in field ' + config.sbom.sourceBOM.fieldId + '. Please contact your administrator to review your server settings file.')
+
+    } else {
+
+        insertViewer(links.sourceBOM); 
+
+        insertBOM(links.sourceBOM, {
+            collapseContents   : false,
+            counters           : true,
+            search             : true,
+            path               : true,
+            toggles            : true,
+            viewerSelection    : true,
+            openInPLM          : true,
+            includeBOMPartList : true,
+            headerLabel        : config.sbom.sourceBOM.headerLabel,
+            hideHeaderLabel    : (config.sbom.sourceBOM.headerLabel === ''),
+            contentSize        : 'l',
+            fieldsIn           : ['Quantity'],
+            bomViewName        : config.sbom.sourceBOM.bomViewName,
+            onClickItem        : function(elemClicked) { insertDetails(elemClicked.attr('data-link'), paramsDetails); },
+            afterCompletion    : function(id, data)    { 
+                partsListSourceBOM = data.bomPartsList; 
+                insertBOMItemFilter();
+                insertBOMIndicators(); 
+                enableBOMItemDragging();
+                $('#save').removeClass('disabled').addClass('default');
+            }
+        }); 
+
         }
-    }); 
     
     createTargetBOM(responses[0].data, responses[2].data, function() {
         getTargetBOM();
@@ -484,12 +508,14 @@ function createListParents(callback) {
                 linkParent : links.targetBOM,
                 linkChild  : link,
                 quantity   : 1,
+                number     : types[index].basePosNumber,
                 pinned     : config.sbom.enableBOMPin
             }
 
             requests.push($.post('/plm/bom-add', params));
             types[index].linkRoot = link;
             types[index].elemContent.attr('data-link', link);
+            types[index].basePosNumber++;
         }
 
         Promise.all(requests).then(function() {
@@ -624,7 +650,7 @@ function updatePosNumbers() {
 
             if(!$(this).hasClass('hidden')) {
 
-                $(this).attr('data-number', basePosNumber++);
+                $(this).attr('data-number-new', basePosNumber++);
 
                 updateItemListPosNumbers($(this));
 
@@ -734,7 +760,6 @@ function insertNode(bomType, elemParent, level, part) {
         .attr('ondragover', 'dragEnterNode(event)')
         .attr('ondragleave', 'dragLeaveHandler(event)')
         .attr('ondrop', 'dropHandler(event)');  
-
 
     let elemHeader = $('<div></div>').appendTo(elemNode)
         .addClass('node-header');  
@@ -872,7 +897,7 @@ function insertItem(elemParent, part) {
         .attr('ondragend', 'dragEndHandler(event)')
         .click(function() {
             let isSelected = $(this).hasClass('selected');
-            $('.sbom-item').removeClass('selected');
+            $('.items-list-row').children().removeClass('selected');
             if(!isSelected) {
                 $(this).addClass('selected');
                 let link = $(this).attr('data-link');
@@ -1186,11 +1211,14 @@ function saveChanges() {
         else if(link === '')  $(this).addClass(saveActions.create.className).addClass(saveActions.add.className);
         else if(title !== label) $(this).addClass(saveActions.rename.className);
 
-        if(!isBlank(posNew)) {
-            if(posNew !== posCur) {
-                $(this).addClass(saveActions.update.className);
+        if(edgeId !== '') {
+            if(!isBlank(posNew)) {
+                if(posNew !== posCur) {
+                    if(!$(this).hasClass('hidden')) {
+                        $(this).addClass(saveActions.update.className);
+                    }
+                }
             }
-
         }
 
     });
@@ -1203,7 +1231,7 @@ function saveChanges() {
         let posCur      = $(this).attr('data-number');
         let posNew      = getPosNumber($(this));
 
-        if(elemItemRow.hasClass('hidden')) elemItemRow.addClass(saveActions.remove.className);
+        if(elemItemRow.hasClass('hidden')) elemItemRow.addClass(saveActions.remove.className).removeClass(saveActions.update.className);
         else if(edgeId === '') elemItemRow.addClass(saveActions.add.className);
         else if(parseFloat(quantity) !== parseFloat(elemItemRow.attr('data-quantity'))) {
             elemItemRow.addClass(saveActions.update.className);
@@ -1212,7 +1240,9 @@ function saveChanges() {
         if(edgeId !== '') {
             if(posNew !== '') {
                 if(posNew !== posCur) {
-                    $(this).addClass(saveActions.update.className);
+                    if(!elemItemRow.hasClass('hidden')) {
+                        $(this).addClass(saveActions.update.className);
+                    }
                 }
             }
         }
@@ -1288,9 +1318,6 @@ function removeBOMItems(action) {
                 let elemItem   = $(this);
                 let linkParent = getParentLink(elemItem);
                 let edgeId     = elemItem.attr('data-edgeid');
-
-                console.log(linkParent);
-                console.log(edgeId);
 
                 if(!isBlank(linkParent)) {
                     requests.push($.get('/plm/bom-remove', {
