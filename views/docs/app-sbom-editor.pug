@@ -84,6 +84,7 @@
             ul  
                 li Descriptor 
                 li Number
+                li Title
                 li Type 
                 li Quantity
                 li Spare / Wear Part (This field provided by standard tenants can be used by engineering to predefine spare parts within the EBOM)
@@ -149,7 +150,8 @@
             span.indent-2 appTitle          : 'Service BOM Editor',
             span.indent-2 sourceBOM          : { .. },
             span.indent-2 targetBOM          : { .. },
-            span.indent-2 itemType       : { .. },
+            span.indent-2 itemsFieldIds : { .. },
+            span.indent-2 picklistIdItemType : 'CUSTOM_LOOKUP_ITEM_TYPES',
             span.indent-2 itemHighlight       : { .. },
             span.indent-2 bomTypes       : [{ .. },{ .. }],
             span.indent-2 enableBOMPin          : false,
@@ -195,10 +197,6 @@
                     td 'Service BOM'
                     td The value of field Type to set for the Target BOM root node if it will be created by the Service BOM Editor
                 tr 
-                    td targetBOM.prefixTitle
-                    td 'Service BOM of '
-                    td If the Service BOM Editor created the root Target BOM node, it will reuse the reference BOM root node's title and use this defined prefix in front
-                tr 
                     td targetBOM.filterLabelIn
                     td 'Show items contained in Service BOM only'
                     td Provide a name for the filter option above the BOM tree enabling users to filter for items contained in the target BOM (optional)
@@ -207,24 +205,40 @@
                     td 'Hide items contained in Service BOM'
                     td Provide a name for the filter option above the BOM tree enabling users to filter for items NOT  contained in the target BOM (optional)
                 tr 
-                    td itemType.fieldId
-                    td 'TYPE',
-                    td The fieldID to use for determining the type of items
+                    td targetBOM.defaults
+                    td {..}
+                    td This property defines default values for the creation of the new target BOM root node which will be created automatically if it does not exist yet. The Number, Title and Description can be copied from the context product or the related BOM item and be extended by a prefix and/or suffix. Leave the properties copyFrom blank to disable this capability.
                 tr 
-                    td itemType.picklistId
-                    td 'CUSTOM_LOOKUP_ITEM_TYPES',
-                    td The picklistID related to the field defined in the previous setting
+                    td itemsFieldIds.number
+                    td 'NUMBER',
+                    td The Item's workspace fieldID for the item Number
+                tr 
+                    td itemsFieldIds.title
+                    td 'TITLE',
+                    td The Item's workspace fieldID for the item Title. This field must be included in the BOM view defined by targetBOM.bomViewName.
+                tr 
+                    td itemsFieldIds.description
+                    td 'DESCRIPTION',
+                    td The Item's workspace fieldID for the item Description
+                tr 
+                    td itemsFieldIds.type
+                    td 'TYPE',
+                    td The Item's workspace fieldID to use for determining the type of items. This field must be included in the BOM view defined by targetBOM.bomViewName.
+                tr 
+                    td picklistIdItemType
+                    td 'CUSTOM_LOOKUP_ITEM_TYPES'
+                    td The Item's workspace picklistID related to the type field
                 tr 
                     td itemHighlight.fieldId
-                    td 'SPARE_WEAR_PART',
+                    td 'SPARE_WEAR_PART'
                     td If source BOM entries should be highlighted in a dedicated BOM column, provide the fieldID which determines if an item should be highlighted
                 tr 
                     td itemHighlight.fieldValues
-                    td 'SPARE_WEAR_PART',
+                    td ['spare', 'spare part', 'yes', 'x', 'y', 'true']
                     td If source BOM entries should be highlighted in a dedicated BOM column, provide the values of the defined field to recognize items to highlight
                 tr 
                     td itemHighlight.bomColumnTitle
-                    td 'Spare/Wear',
+                    td 'Spare/Wear'
                     td Sets the highlight BOM column's title
                 tr 
                     td itemHighlight.filterLabelIn

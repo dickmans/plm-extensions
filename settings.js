@@ -648,12 +648,20 @@ exports.config = {
             itemTypeValue : 'Service BOM',
             prefixTitle   : 'Service BOM of ',
             filterLabelIn : 'Show Items contained in Service BOM only',
-            filterLabelEx : 'Hide Items contained in Service BOM'
+            filterLabelEx : 'Hide Items contained in Service BOM',
+            defaults : {
+                number      : { copyFrom : 'bom.NUMBER'     , prefix  : ''               , suffix : '-SBOM' },
+                title       : { copyFrom : 'ctx.TITLE'      , prefix  : 'Service BOM of ', suffix : ''      },
+                description : { copyFrom : 'bom.DESCRIPTION', prefix  : ''               , suffix : ''      },
+            }
         },
-        itemType : {
-            fieldId    : 'TYPE',
-            picklistId : 'CUSTOM_LOOKUP_ITEM_TYPES'
+        itemsFieldIds : {
+            number      : 'NUMBER',
+            title       : 'TITLE',
+            description : 'DESCRIPTION',
+            type        : 'TYPE'
         },
+        picklistIdItemType : 'CUSTOM_LOOKUP_ITEM_TYPES',
         itemHighlight : {
             fieldId        : 'SPARE_WEAR_PART',
             fieldValues    : ['spare', 'spare part', 'yes', 'x', 'y', 'true'],
