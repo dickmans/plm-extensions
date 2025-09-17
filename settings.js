@@ -875,6 +875,11 @@ exports.menu = [
             subtitle : 'Quick access to all product data',
             url      : '/portal'
         },{
+            icon     : 'icon-tiles',
+            title    : 'Product Portfolio Catalog',
+            subtitle : 'Browse your current product portfolio',
+            url      : '/portfolio'
+        },{
             icon     : 'icon-trend-chart',
             title    : 'Product Data Explorer',
             subtitle : 'Track design maturity using defined KPIs',
@@ -899,11 +904,6 @@ exports.menu = [
             title    : 'Workspace Navigator',
             subtitle : 'Manage your master data easily',
             url      : '/navigator'
-        },{
-            icon     : 'icon-tiles',
-            title    : 'Product Portfolio',
-            subtitle : 'Browse your current product portfolio',
-            url      : '/portfolio'
         },{
             icon     : 'icon-dashboard',
             title    : 'Reports Dashboard',
@@ -939,7 +939,7 @@ exports.menu = [
             url      : '/insights'
         },{
             icon     : 'icon-stopwatch',
-            title    : 'Shortcuts Panel',
+            title    : 'Administration Shortcuts',
             subtitle : 'Provides quick access to frequently used admin panels',
             url      : '/shortcuts'
         }]
