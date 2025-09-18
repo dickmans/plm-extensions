@@ -163,13 +163,15 @@ function updateLinks() {
         let href = $(this).attr('href');
 
         if(href.indexOf('youtu.be') < 0) {
+            if(href.indexOf('https://github.com') < 0) {
 
-            let url = location[0] + href;
-            if($(this).html() === '') $(this).html(url);
-            let concat = (url.indexOf('?') > -1) ? '&' : '?';
-            if(location.length > 1)url += concat + location[1];
-            $(this).attr('href', url);
-            
+                let url = location[0] + href;
+                if($(this).html() === '') $(this).html(url);
+                let concat = (url.indexOf('?') > -1) ? '&' : '?';
+                if(location.length > 1)url += concat + location[1];
+                $(this).attr('href', url);
+                
+            }
         }
 
     });

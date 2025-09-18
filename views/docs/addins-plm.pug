@@ -1,37 +1,20 @@
 .tile(data-name='Tenant Insights')
     .tile-image(style="background: url('images/addins-plm.png') no-repeat;background-size:contain;")
     .tile-details
-        .tile-title PLM Addins
-        .tile-subtitle Multiple panels enable direct access to item master data including files and BOM, but also Where Used information and related Project Data. Users also can access their tasks list and provide feedback.
+        .tile-title Vault &amp; Inventor Addins
+        .tile-subtitle Multiple panels provide direct access to PLM data inside Vault &amp; Inventor for seamless Item Master management, BOM navigation and integrated Task management
         .tile-access 
     .instructions.no-scrollbar
-        p The following addins are provided and ready to use. You can adjust these addins' contents by using the configuration settings listed at the end of this page.
-        //- p When using Autodesk Inventor 2026 and Vault 2026 or later, you can use this panel withiin the given applications for quick access to PLM data. See the example configuration and setup instructions provided by Markus Koechl at 
-        //-     span.tile-endpoint https://github.com/koechlm/Autodesk.TS.PlmDesktopExtensions
+        p The addins listed below are provided with this package and can be adjusted by using the configuration settings shown at bottom of this page.
+        p These addins are ready to use and compliant with the 
+            span(style="font-weight:bold") PLM Desktop Extensions              
+            | provided by Markus Koechl on Github. His extensions embed these interactive panels in your Vault and Inventor applications for a best in class user experience.
+            br
+            a(target="_blank" href="https://github.com/koechlm/Autodesk.TS.PlmDesktopExtensions") Download the PLM Desktop Extensions
+            a(target="_blank" href="https://github.com/koechlm/Autodesk.TS.PlmDesktopExtensions/raw/refs/heads/master/Autodesk.TS.VaultPlmClientExtensions.pptx" style="margin-left:10px;") Open the PLM Desktop Extensions Setup Instructions
+            br
+            br
         table 
-            tr 
-                td(style='padding:32px;vertical-align:top;') 
-                    h2(style='border:none;padding:0px;margin-top:0px;') Engineering Projects
-                    |Users can browse the list of active 
-                    strong Engineering Projects 
-                    |and navigate to the project's BOM in order to locate a BOM item of interest. When selecting a project, following details will be shown: 
-                    ul 
-                        li The 
-                            strong Details 
-                            | tab provides access to the project properties. Few sections will be hidden as they are not considered being relevant.
-                        li Users can use the 
-                            strong Files 
-                            |tab to access the project's files and related attachments. Users also can upload new files or updated versions of existing files.
-                        li If an 
-                            strong Engineering BOM 
-                            | is linked to the project (in field DELIVERABLE_4), users can navigate the given BOM.
-                    |Users also can use the favorite toggle and access the given project in the PLM native user interface.
-                    p You can access this addin with the 
-                        strong /addins/projects 
-                        | endpoint, just click this link:
-                    a(href='addins/projects' target='_blank')
-                td
-                    img.border(src='images/apps/addin-projects.png' style='margin:8px 0px;width:100%;max-width:495px;min-width:495px;')
             tr 
                 td(style='padding:32px;vertical-align:top;') 
                     h2(style='border:none;padding:0px;margin-top:0px;') Item Master Data
@@ -64,6 +47,29 @@
                     a(href='addins/tasks' target='_blank')
                 td
                     img.border(src='images/apps/addin-tasks.png' style='margin:8px 0px;width:100%;max-width:495px;min-width:495px;')
+            tr 
+                td(style='padding:32px;vertical-align:top;') 
+                    h2(style='border:none;padding:0px;margin-top:0px;') Engineering Projects
+                    |Users can browse the list of active 
+                    strong Engineering Projects 
+                    |and navigate to the project's BOM in order to locate a BOM item of interest. When selecting a project, following details will be shown: 
+                    ul 
+                        li The 
+                            strong Details 
+                            | tab provides access to the project properties. Few sections will be hidden as they are not considered being relevant.
+                        li Users can use the 
+                            strong Files 
+                            |tab to access the project's files and related attachments. Users also can upload new files or updated versions of existing files.
+                        li If an 
+                            strong Engineering BOM 
+                            | is linked to the project (in field DELIVERABLE_4), users can navigate the given BOM.
+                    |Users also can use the favorite toggle and access the given project in the PLM native user interface.
+                    p You can access this addin with the 
+                        strong /addins/projects 
+                        | endpoint, just click this link:
+                    a(href='addins/projects' target='_blank')
+                td
+                    img.border(src='images/apps/addin-projects.png' style='margin:8px 0px;width:100%;max-width:495px;min-width:495px;')
         p
         h2 Configuration Settings 
         p The following parameters can be changed in your settings file to adjust these panels to your needs.
