@@ -6242,24 +6242,21 @@ function insertViewer(link, params) {
         timeStamp     : settings.viewer[id].timeStamp
     }, function(response) {
 
-        if(settings.viewer[id].link !== response.params.link) return;
-        if(settings.viewer[id].timeStamp != response.params.timeStamp) return;
-
-        let suffix3D = ['.iam','.ipt','.stp','.step','.sldprt'];
+        if(settings.viewer[id].link      !== response.params.link     ) return;
+        if(settings.viewer[id].timeStamp !=  response.params.timeStamp) return;
 
         if(response.data.length > 0) {
 
+            sortArray(response.data, 'size', 'integer', 'descending');
+
             let viewables = [];
+            let foundDWF  = false;
 
             for(let viewable of response.data) {
-                let is3D = false;
-                for(let suffix of suffix3D) {
-                    if(viewable.name.indexOf(suffix) > -1) {
-                        is3D = true;
-                        break;
-                    }
-                }
-                if(is3D) viewables.unshift(viewable); else viewables.push(viewable);
+                if((viewable.type == 'DWF File') && !foundDWF) {
+                    foundDWF = true;
+                    viewables.unshift(viewable);
+                } else viewables.push(viewable);
             }
 
             $('body').removeClass('no-viewer');
@@ -6277,6 +6274,7 @@ function insertViewer(link, params) {
             $('body').addClass('no-viewer');
 
         }
+        
     });
 
 }

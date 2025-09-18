@@ -3127,12 +3127,14 @@ router.get('/get-viewables', function(req, res, next) {
                     if(include) {
                         viewables.push({
                             id            : attachment.id,
+                            name          : attachment.name,
+                            resourceName  : attachment.resourceName,
                             description   : attachment.description,
                             version       : attachment.version,
-                            name          : attachment.resourceName,
                             user          : attachment.created.user.title,
                             type          : attachment.type.fileType,
                             extension     : attachment.type.extension,
+                            size          : attachment.size,
                             status        : '',
                             fileUrn       : '',
                             thumbnail     : attachment.thumbnails.large,
