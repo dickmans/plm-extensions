@@ -131,7 +131,7 @@ $(document).ready(function() {
                 includeRecents    : true,
                 reload            : true,
                 startupView       : '',
-                columnsEx         : ['Requested By', 'Status'],
+                fieldsEx          : ['Requested By', 'Status'],
                 tableColumnsLimit : 4,
                 onClickItem       : function(elemClicked) { openRequest(elemClicked); }
             });
@@ -143,18 +143,16 @@ $(document).ready(function() {
             $('body').addClass('screen-main').removeClass('screen-landing').removeClass('screen-request');
 
             let params       = document.location.href.split('?')[1].split('&');
-            // let linkProduct  = null;
             let wsIdProduct  = null;
             let dmsIdProduct = null;
 
             for(let param of params) {
-                if(param.toLowerCase().indexOf('wsidproduct=') === 0) { wsIdProduct = param.split('=')[1]; }
+                     if(param.toLowerCase().indexOf('wsidproduct=' ) === 0) { wsIdProduct  = param.split('=')[1]; }
                 else if(param.toLowerCase().indexOf('dmsidproduct=') === 0) { dmsIdProduct = param.split('=')[1]; }
             }
 
             if(!isBlank(wsIdProduct)) {
                 if(!isBlank(dmsIdProduct)) {
-                //  linkProduct = '/api/v3/workspaces/' + wsIdProduct + '/items/' + dmsIdProduct;
                     links.product = '/api/v3/workspaces/' + wsIdProduct + '/items/' + dmsIdProduct;
                 }
             }
@@ -345,7 +343,7 @@ function openItem() {
     insertBOM(links.bom, { 
         bomViewName         : config.service.items.bmoViewName, 
         collapseContents    : true,
-        columnsIn           : [ 'Item' , 'Quantity' ],
+        fieldsIn            : [ 'Item' , 'Quantity' ],
         reset               : true, 
         path                : true, 
         hideDetails         : true, 
@@ -390,7 +388,7 @@ function openRequest(elemClicked) {
         contents : [
             { type : 'workflow-history', className : 'surface-level-1', params : { id : 'request-workflow-history' } },
             { type : 'details'         , className : 'surface-level-1', params : { id : 'request-details', expandSections : config.service.sparePartsRequests.sectionsExpanded, suppressLinks : true, sectionsEx : config.service.sparePartsRequests.sectionsExcluded } },
-            { type : 'grid'            , className : 'surface-level-1', params : { id : 'request-grid', headerLabel : 'Part List', columnsEx : config.service.sparePartsRequests.gridColumnsExcluded } },
+            { type : 'grid'            , className : 'surface-level-1', params : { id : 'request-grid', headerLabel : 'Part List', fieldsEx : config.service.sparePartsRequests.gridColumnsExcluded } },
             { type : 'attachments'     , className : 'surface-level-1', params : { id : 'request-attachments', editable : true, layout : 'tiles', singleToolbar : 'controls' } },
         ],
         statesColors    : [
