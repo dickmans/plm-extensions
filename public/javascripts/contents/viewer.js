@@ -189,7 +189,8 @@ function initViewer(id, viewables, params) {
         });
     
     } else {
-
+        
+        viewerLeaveMarkupMode();
         viewerUnloadAllModels();
         newInstance = false;
         Autodesk.Viewing.Document.load('urn:'+ viewables[0].urn, onDocumentLoadSuccess, onDocumentLoadFailure);

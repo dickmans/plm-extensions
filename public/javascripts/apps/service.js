@@ -172,6 +172,8 @@ function setUIEvents() {
     // Close current product display and return to landing page
     if(applicationFeatures.homeButton) {
         $('#home').click(function() {
+            viewerLeaveMarkupMode();
+            viewerUnloadAllModels();
             $('body').addClass('screen-landing').removeClass('screen-main').removeClass('screen-request');
             document.title = documentTitle;
             window.history.replaceState(null, null, '/service?theme=' + theme);
