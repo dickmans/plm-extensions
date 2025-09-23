@@ -18,17 +18,13 @@ $(document).ready(function() {
     tableSettings = getPanelSettings('', { id : 'table'}, {}, [
         ['editable'     , true  ],
         ['hideLabels'   , true  ],
-        ['hideComputed' , false ],
-        ['fieldsIn'     , []    ],
-        ['fieldsEx'     , []    ]
+        ['hideComputed' , false ]
     ]);
 
     formSettings = getPanelSettings('', { id : 'table'}, {}, [
         ['editable'     , true  ],
         ['hideLabels'   , false ],
-        ['hideComputed' , false ],
-        ['fieldsIn'     , []    ],
-        ['fieldsEx'     , []    ]
+        ['hideComputed' , false ]
     ]);
 
     if(wsId === '') {
