@@ -61,7 +61,7 @@ function insertMOWData(id) {
         ]
 
         for(let column of columns) {
-            if(includePanelTableColumn(column.displayName, settings.mow[id], settings.mow[id].columns.length)) {
+            if(includePanelTableColumn(column.fieldId, column.displayName, settings.mow[id], settings.mow[id].columns.length)) {
                 settings.mow[id].columns.push(column);
             }
         }
@@ -507,11 +507,14 @@ function insertWorkspaceViewData(id) {
 
         for(let column of responses[0].data) {
             if(!isBlank(column.displayOrder)) {
-                if(includePanelTableColumn(column.field.title, settings.workspaceViews[id], settings.workspaceViews[id].columns.length)) {
-                    settings.workspaceViews[id].columns.push({
-                        displayName : column.field.title,
-                        fieldId     : column.field.__self__.split('/').pop()    
-                    });    
+                if(!isBlank(column.field.urn)) {
+                    let fieldId = column.field.urn.split('.').pop();
+                    if(includePanelTableColumn(fieldId, column.field.title, settings.workspaceViews[id], settings.workspaceViews[id].columns.length)) {
+                        settings.workspaceViews[id].columns.push({
+                            displayName : column.field.title,
+                            fieldId     : fieldId
+                        });    
+                    }
                 }
             }
         }
@@ -1054,6 +1057,14 @@ function insertResults(wsId, filters, params) {
         }
     }
 
+    if(!isBlank(settings.results[id].fieldsIn)) {
+        for(let fieldId of settings.results[id].fieldsIn) {
+            if(!settings.results[id].fields.includes(fieldId)) {
+                settings.results[id].fields.push(fieldId);
+            }
+        }
+    }
+
     if(settings.results[id].stateColors.length > 0) {
         if(!settings.results[id].fields.includes('WF_CURRENT_STATE')) {
             settings.results[id].fields.push('WF_CURRENT_STATE');
@@ -1074,18 +1085,20 @@ function insertResults(wsId, filters, params) {
     genPanelContents(id, settings.results[id]);
 
     if(settings.results[id].editable) {
-        
-        $('<div></div>').prependTo($('#' + id + '-toolbar'))
-        .addClass('button')
-        .addClass('default')
-        .addClass('panel-action')
-        .attr('id', id + '-action-save')
-        .attr('title', 'Save changes')
-        .html('Save')
-        .hide()
-        .click(function() {
-            savePanelTableChanges(id, settings.results[id]);
-        });
+
+        let elemToolbar = genPanelToolbar(id, settings.results[id], 'controls');
+
+        $('<div></div>').prependTo(elemToolbar)
+            .addClass('button')
+            .addClass('default')
+            .addClass('panel-action')
+            .attr('id', id + '-action-save')
+            .attr('title', 'Save changes')
+            .html('Save')
+            .hide()
+            .click(function() {
+                savePanelTableChanges(id, settings.results[id]);
+            });
         
     }
     
@@ -1123,25 +1136,28 @@ function insertResultsData(id) {
 
         settings.results[id].columns = [];
 
-        for(let column of settings.results[id].fields) {
-            if(includePanelTableColumn(column, settings.results[id], settings.results[id].columns.length)) {
-                if(column === 'DESCRIPTOR') {
+        for(let fieldId of settings.results[id].fields) {
+            if(includePanelTableColumn(fieldId, '', settings.results[id], settings.results[id].columns.length)) {
+                if(fieldId === 'DESCRIPTOR') {
                     settings.results[id].columns.push({
                         'displayName' : 'Descriptor',
                         'fieldId'     : 'DESCRIPTOR'
                     });
-                } else if(column === 'WF_CURRENT_STATE') {
+                } else if(fieldId === 'WF_CURRENT_STATE') {
                     settings.results[id].columns.push({
                         'displayName' : 'Current Status',
                         'fieldId'     : 'WF_CURRENT_STATE'
                     });
                 } else {
-                    for(let field of responses[1].data) {
-                        let fieldId = field.__self__.split('/').pop();
-                        if(column === fieldId) {
-                            field.displayName = field.name;
-                            field.fieldId = column;
-                            settings.results[id].columns.push(field);
+                    for(let workspaceField of responses[1].data) {
+                        let workspaceFieldId = workspaceField.__self__.split('/').pop();
+                        if(fieldId === workspaceFieldId) {
+                            // field.displayName = field.name;
+                            // field.fieldId = column;
+                            settings.results[id].columns.push({
+                                displayName : workspaceField.name,
+                                fieldId : workspaceFieldId,
+                            });
                         }
                     }  
                 }  
