@@ -231,10 +231,10 @@ function setSelectedView() {
 function getInitialData() {
 
     let requests = [
-        $.get('/plm/sections'   , { wsId : wsConfig.id, useCache : true }),
-        $.get('/plm/fields'     , { wsId : wsConfig.id, useCache : true }),
-        $.get('/plm/tableaus'   , { wsId : wsConfig.id, useCache : true }),
-        $.get('/plm/permissions', { wsId : wsConfig.id, useCache : true }),
+        $.get('/plm/sections'   , { wsId : wsConfig.id, useCache : true  }),
+        $.get('/plm/fields'     , { wsId : wsConfig.id, useCache : true  }),
+        $.get('/plm/tableaus'   , { wsId : wsConfig.id, useCache : false }),
+        $.get('/plm/permissions', { wsId : wsConfig.id, useCache : true  }),
     ];
 
     Promise.all(requests).then(function(responses) {
@@ -246,6 +246,7 @@ function getInitialData() {
         for(let tableau of responses[2].data) {
             if(tableau.title === wsConfig.tableauName) {
                 wsConfig.tableauLink = tableau.link;
+                break;
             }
         }
         
@@ -291,9 +292,9 @@ function getInitialData() {
             }
 
             if(!isBlank(wsConfig.fieldIdSubtitle)) params.columns.push(wsConfig.fieldIdSubtitle);
-
+            
             $.post('/plm/tableau-add', params, function() {
-                $.get('/plm/tableaus', { 'wsId' : wsConfig.id }, function(response) {
+                $.get('/plm/tableaus', { wsId : wsConfig.id }, function(response) {
                     for(let tableau of response.data) {
                         if(tableau.title === wsConfig.tableauName) {
                             wsConfig.tableauLink = tableau.link;
@@ -422,7 +423,7 @@ function getProcesses() {
 
         setSelectedView();
 
-        $('.tile').click(function() { openItem($(this).attr('data-link')); });
+        $('#main').find('.tile').click(function() { openItem($(this).attr('data-link')); });
         $('.calendar-day-current').click();
 
         chart.update();
