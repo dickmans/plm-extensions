@@ -108,6 +108,7 @@ router.get('/playground' , function(req, res, next) { launch('custom/playground'
     APPLICATIONS IN DEVELOPMENT
    ------------------------------------------------------------------------------ */
 router.get('/assets'        , function(req, res, next) { launch('dev/assets'          , 'Asset Management'                  , req, res, next); });
+router.get('/asset-bom'     , function(req, res, next) { launch('dev/asset-bom'       , 'Asset BOM Editor'                  , req, res, next); });
 router.get('/asset-services', function(req, res, next) { launch('dev/asset-services'  , 'Asset Services Portal'             , req, res, next); });
 router.get('/asset-editor'  , function(req, res, next) { launch('dev/asset-editor'    , 'Asset Specification Editor'        , req, res, next); });
 router.get('/browser'       , function(req, res, next) { launch('dev/browser'         , 'PLM Browser'                       , req, res, next); });
