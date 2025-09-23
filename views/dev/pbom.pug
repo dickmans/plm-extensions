@@ -1,0 +1,151 @@
+extends ../framework/layout
+
+block head
+
+    link(rel='stylesheet', href='/stylesheets/dev/pbom.css')
+    script(src='/javascripts/dev/pbom.js')
+    script.
+        config = !{JSON.stringify(config)};
+
+block body
+
+    body.surface-level-1.no-details
+
+        #header.dark.hidden
+            #header-logo
+            #header-title=title
+            #header-subtitle
+            #header-toolbar
+                .button#select-root-process.with-icon.icon-select-circle Select Manufacturing Process
+                .button#toggle-bom.with-toggle.toggle-on Display Bill of Materials
+                .button#toggle-details.with-toggle Display Details Panel
+                #header-avatar
+
+        #main.screen.hidden 
+
+            #bom.surface-level-2
+            #viewer.viewer.surface-level-1
+            #materials.surface-level-1
+            #panel.surface-level-2
+
+                #process-selection.hidden.absolute-max.surface-level-2
+
+                    #process-selection-header
+                        #process-selection-message There is no Manufacturing Process defined for 
+                        #process-selection-item 
+                    #process-selection-create.surface-level-3
+                    //- .process-selection-separator OR 
+                    #process-selection-processes.surface-level
+                    //- .process-selection-separator OR 
+                    #process-selection-sources.surface-level
+                    #process-selection-close.button.icon.icon-close
+                
+                #process.item.with-panels.hidden
+                    
+                    #process-header.item-header.panel-header.single-line
+                        .item-title.panel-title    
+                            .panel-title-top Manufacturing Process
+                            #process-title.item-descriptor.panel-title-main
+                            #process-subtitle
+                        .item-controls.panel-controls 
+                            #process-save-instructions.button.default Save Process
+                            #process-upload.button.with-icon.icon-upload Add File
+                            #process-open.button.icon.icon-open
+                            #process-replace.button.with-icon.icon-link-update Replace
+                    
+                    //- #process-tabs.panel-tabs.surface-level-1  
+                    //-     div Process Description
+                    //-     div List of Operations
+                    //-     div Process Data Sheet
+                    //-     div Preview
+
+                    //- #process-content.item-content.panel-content.no-scrollbar.no-preview.surface-level-2
+
+                    #process-description
+                        //- .process-content-controls 
+                        //-     #process-save-instructions.button.default Save Changes
+                        //- #process-description-top
+                        #process-images 
+                            .process-description-label#process-images-label Images
+                            .process-description-value#process-images-list 
+                                div.process-image(data-id='canvas-image-1')#process-image-1.no-canvas
+                                    canvas#canvas-image-1
+                                    .process-image-actions
+                                        .button.icon.icon-screenshot
+                                        .button.icon.icon-delete.red
+                                //- #process-images
+                                #process-images-small
+                                    div.process-image(data-id='canvas-image-2')#process-image-2.no-canvas.small
+                                        canvas#canvas-image-2
+                                        .process-image-actions
+                                            .button.icon.icon-screenshot
+                                            .button.icon.icon-delete.red
+                                    div.process-image(data-id='canvas-image-3')#process-image-3.no-canvas.small
+                                        canvas#canvas-image-3
+                                        .process-image-actions
+                                            .button.icon.icon-screenshot
+                                            .button.icon.icon-delete.red
+                                    div.process-image(data-id='canvas-image-4')#process-image-4.no-canvas.small
+                                        canvas#canvas-image-4
+                                        .process-image-actions
+                                            .button.icon.icon-screenshot
+                                            .button.icon.icon-delete.red
+                                    //- div.process-image(data-id='canvas-image-5')#process-image-5.no-canvas.small
+                                    //-     canvas#canvas-image-5
+                                    //-     .process-image-actions
+                                    //-         .button.icon.icon-screenshot
+                                    //-         .button.icon.icon-delete.red                                   
+                        #process-instructions
+                            .process-description-label#process-instructions-label Instructions
+                            textarea.process-description-value#process-instructions-text(placeholder='Provide instructions to describe the manufacturing process')
+                        #process-files
+                            .process-description-label#process-files-label Files
+                            .process-description-value#process-files-list.surface-level-1
+
+                    #process-operations
+                        #process-operations-header 
+                            #process-operations-title.panel-title
+                                .panel-title-top List of Operations
+                                #process-operations-title-main.panel-title-main
+                            #process-operations-controls 
+                                #process-save-operations.button.default Save Operations
+                                #process-add-operation.button.with-icon.icon-create Insert New
+                                #process-insert-operation.button.with-icon.icon-list-add Insert Existing
+                                #process-apply-template.button.icon.icon-summary(title='Copy Template')
+                                #process-operations-unfold.button.icon.icon-unfold
+                                #process-operations-fold.button.icon.icon-fold
+                                #process-operations-max.button.icon.icon-maximize
+                                #process-operations-open.button.icon.icon-open
+                        #process-operations-nav.hidden
+                            .button#process-operations-first.with-icon.icon-starts-with First
+                            .button#process-operations-prev.with-icon.icon-west Previous
+                            .button#process-operations-next.with-icon.icon-east Next
+                            .button#process-operations-last.with-icon.icon-ends-with Last
+                        #process-operations-list
+
+            #details.surface-level-3
+
+        #root-selection.dialog.with-subtitle.no-footer.surface-level-1 
+            .dialog-header.surface-level-1 
+                .dialog-title Select Manufacturing Process
+                .dialog-subtitle You can use this editor to create a new Manufacturing Process or to edit an existing process by selecting from the list below
+                .dialog-close.icon.icon-close.button#root-selection-close
+            .dialog-content.surface-level-1
+                #root-create.surface-level-2
+                #root-separator OR
+                #root-processes.surface-level-2
+            //- .dialog-footer
+            //-     #root-selection-confirm.button.default Confirm
+
+        #source-selection.dialog.with-subtitle.surface-level-1 
+            .dialog-header#source-selection-header
+                .dialog-title#source-selection-title
+                .dialog-subtitle Select from exising manufacturing proceses and sources or define a new manufacturing process
+                .dialog-close.icon.icon-close.button#source-selection-close
+            .dialog-content
+                #source-create.surface-level-2
+                #source-processes.surface-level-2
+                #source-vendors.surface-level-2
+            .dialog-footer
+                #source-selection-confirm.button.default Confirm
+                #source-selection-cancel.button Cancel
