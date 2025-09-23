@@ -21,12 +21,10 @@
         p If these two setting are left blank, the UX server will work anyway and you can use all utilities except for the 
             strong User Settings Manager 
             |.
-        h1 Features
+        h1 Set User Defaults
         p Once you selected groups and users on the left hand side to receive the updated settings, you can use the tabs in center to select the settings to be updated.
-        h2 Theme 
-        p Set the light or dark theme for the user. If you select the option 
-            strong No Change 
-            |, the given setting will not be changed and the theme selected by the user remains active. Users can still use the standard controls to toggle the theme, this cannot be prevented with this utility.
+        h2 Groups 
+        p Select the groups to be assigned or unassigned from the selected users / group members. Use the Skip option in order to not perform any changes to the given group. Note that you can apply the default action to all roles using the icons in the group list header toolbar. 
         h2 Workspace Views 
         p Select from your list of workspaces views the ones to be shared with the selected groups and users. Double-click a view to automatically select all views of the same workspace. You can also set one view per workspace as default view using the given toggle next to the view.
         p If users do not have access to the given workspace, there will be a matching output in the console and the utility will continue processing the remaining views and users.
@@ -37,9 +35,39 @@
         p From the list of charts available to you, select the ones to be shared with the selected groups and users. If a user does not have access to a given chart, the utility will continue with the next chart and user.
         p If you select to update the user's chart, this will ALWAYS overwrite the current user preferences, the current chart selection will be cleared before the new selection gets applied.
         p As the user dashboards can only contain a maximum of 9 charts, if you select more than 9 charts, only the first 9 once will be applied. A console output will list the charts being ignored.
+        h2 Theme 
+        p Set the light or dark theme for the user. If you select the option 
+            strong No Change 
+            |, the given setting will not be changed and the theme selected by the user remains active. Users can still use the standard controls to toggle the theme, this cannot be prevented with this utility.
+        h1 Manage Users and Assignments 
+        p Use the icons in the main toolbar to manage your tenant's users and their group assignment before setting the default settings in the main screen. The following features are available:  
+        ul 
+            li Add New User: Add single users one by one and assign the selected groups in the same step 
+            li Add Multiple Users: To onboard multiple users, use this utility allowing to easily apply the same group assignment to multiple users. You can enter single mail addresses in the given input fields for the creation of new users or paste a list of mail addresses (separated by semicolon, comma, space or line break).
+            li Group Assignment: Once users have been created, review and update their group assignment. Using the Shift key while clicking, you can also select a range of users and groups.
     .log 
         h1 Tenant Insights Change Log 
         table 
+            tr 
+                td 19. September 2025
+                td New Feature
+                td Admins can create new user accounts with selected rows in this utility now
+            tr 
+                td 
+                td New Feature
+                td Admins can create multiple users with selected roles in one step now
+            tr 
+                td 
+                td New Feature
+                td Groups can be assigned to / unassigned from selected users
+            tr 
+                td 
+                td Enhancement
+                td The list of users now can be filtered by selected group and for users who never logged in yet
+            tr 
+                td 
+                td Enhancement
+                td The list of users now can be filtered by mail addresses as well and indicates new user accounts
             tr 
                 td December 16, 2024
                 td Enhancement

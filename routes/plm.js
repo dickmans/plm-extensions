@@ -4952,151 +4952,6 @@ router.get('/report', function(req, res, next) {
 });
 
 
-/* ----- GET ALL GROUPS ----- */
-router.get('/groups', function(req, res, next) {
-    
-    console.log(' ');
-    console.log('  /groups');
-    console.log(' --------------------------------------------');  
-    console.log('  req.query.bulk     = ' + req.query.bulk);
-    console.log('  req.query.tenant   = ' + req.query.tenant);
-    console.log();
-
-    let bulk    = (typeof req.query.bulk === 'undefined') ? true : req.query.bulk;
-    let url     = getTenantLink(req) + '/api/v3/groups';
-    let headers = getCustomHeaders(req);
-        
-    if(bulk) headers.Accept = 'application/vnd.autodesk.plm.groups.bulk+json';
-
-    axios.get(url, {
-        headers : headers
-    }).then(function(response) {
-        sendResponse(req, res, response, false);
-    }).catch(function(error) {
-        sendResponse(req, res, error.response, true);
-    });
-
-});
-
-
-/* ----- GET ALL USERS ----- */
-router.get('/users', function(req, res, next) {
-    
-    console.log(' ');
-    console.log('  /users');
-    console.log(' --------------------------------------------');  
-    console.log('  req.query.bulk       = ' + req.query.bulk);
-    console.log('  req.query.offset     = ' + req.query.offset);
-    console.log('  req.query.limit      = ' + req.query.limit);
-    console.log('  req.query.activeOnly = ' + req.query.activeOnly);
-    console.log('  req.query.mappedOnly = ' + req.query.mappedOnly);
-    console.log('  req.query.tenant     = ' + req.query.tenant);
-    console.log();
-
-    let bulk       = (typeof req.query.bulk       === 'undefined') ?    true : req.query.bulk;
-    let limit      = (typeof req.query.limit      === 'undefined') ?    1000 : req.query.limit;
-    let offset     = (typeof req.query.offset     === 'undefined') ?       0 : req.query.offset;
-    let activeOnly = (typeof req.query.activeOnly === 'undefined') ? 'false' : req.query.activeOnly;
-    let mappedOnly = (typeof req.query.mappedOnly === 'undefined') ? 'false' : req.query.mappedOnly;
-    let url = getTenantLink(req) + '/api/v3/users?sort=displayName'
-        + '&activeOnly=' + activeOnly
-        + '&mappedOnly=' + mappedOnly
-        + '&offset='     + offset
-        + '&limit='      + limit;
-
-    let headers = getCustomHeaders(req);
-        
-    if(bulk) headers.Accept = 'application/vnd.autodesk.plm.users.bulk+json';
-
-    axios.get(url, {
-        headers : headers
-    }).then(function(response) {
-        sendResponse(req, res, response, false);
-    }).catch(function(error) {
-        sendResponse(req, res, error.response, true);
-    });
-
-});
-
-
-/* ----- GET USER PROFILE ----- */
-router.get('/me', function(req, res, next) {
-    
-    console.log(' ');
-    console.log('  /me');
-    console.log(' --------------------------------------------'); 
-    console.log('  req.query.useCache = ' + req.query.useCache);  
-    console.log();
-
-    if(notCached(req, res)) {
-    
-        let url = req.app.locals.tenantLink + '/api/v3/users/@me';
-
-        axios.get(url, {
-            headers : req.session.headers
-        }).then(function(response) {
-            sendResponse(req, res, response, false);
-        }).catch(function(error) {
-            sendResponse(req, res, error.response, true);
-        });
-
-    }
-
-});
-
-
-/* ----- SET USER PREFERENCE ----- */
-router.get('/preference', function(req, res, next) {
-    
-    console.log(' ');
-    console.log('  /preference');
-    console.log(' --------------------------------------------');  
-    console.log('  req.query.property = ' + req.query.property);
-    console.log('  req.query.value    = ' + req.query.value);
-    console.log('  req.query.user     = ' + req.query.user);
-    console.log();
-
-    let headers  = getCustomHeaders(req);
-    let url      = getTenantLink(req) + '/api/v3/users/@me';
-    let property = req.query.property.toLowerCase();
-    let value    = {};
-
-    switch(property) {
-
-        case 'theme':
-            value =  { selected : req.query.value }
-            break;
-
-    }   
-
-    if(typeof req.query.user !== 'undefined') {
-        headers['Authorization'] = req.session.admin;
-        headers['X-user-id']     = req.query.user;
-    }
-
-    axios.get(url + '/preferences', {
-        headers : headers
-    }).then(function(response) {
-        response.data[property] = value;
-        headers['Content-Type'] = "application/json-patch+json";
-        axios.patch(url, [{
-            op    : 'replace',
-            path  : '/preferences',
-            value : JSON.stringify(response.data)
-        }], {
-            headers : headers
-        }).then(function(response) {
-            sendResponse(req, res, response, false);
-        }).catch(function(error) {
-            sendResponse(req, res, error.response, true);
-        });
-    }).catch(function(error) {
-        sendResponse(req, res, error.response, true);
-    });
-
-});
-
-
 /* ----- GET AVAILABLE CHARTS ----- */
 router.get('/charts-available', function(req, res, next) {
     
@@ -5637,18 +5492,171 @@ router.get('/roles', function(req, res, next) {
 });
 
 
-/* ----- GET PERMISSIONS DEFINITION (V1) ----- */
-router.get('/permissions-definition', function(req, res, next) {
+/* ----- GET ALL GROUPS ----- */
+router.get('/groups', function(req, res, next) {
     
     console.log(' ');
-    console.log('  /permissions-definition');
+    console.log('  /groups');
     console.log(' --------------------------------------------');  
-    console.log('  req.query.tenant  = ' + req.query.tenant);
+    console.log('  req.query.limit    = ' + req.query.limit);
+    console.log('  req.query.offset   = ' + req.query.offset);
+    console.log('  req.query.bulk     = ' + req.query.bulk);
+    console.log('  req.query.tenant   = ' + req.query.tenant);
     console.log();
 
-    let url = getTenantLink(req) + '/api/rest/v1/permissions';
+    let limit   = (typeof req.query.limit  === 'undefined') ? 100  : req.query.limit;
+    let offset  = (typeof req.query.offset === 'undefined') ? 0    : req.query.offset;
+    let bulk    = (typeof req.query.bulk   === 'undefined') ? true : (req.query.bulk == 'true');
+    let url     = getTenantLink(req) + '/api/v3/groups?offset=' + offset + '&limit=' + limit;
+
+    let headers = getCustomHeaders(req);
+    
+    if(bulk) headers.Accept = 'application/vnd.autodesk.plm.groups.bulk+json';
+
+    // let headers = {
+    //     'Authorization' : req.session.headers.Authorization,
+    //     'Accept' : 'application/vnd.autodesk.plm.groups.bulk+json'
+    // }
 
     axios.get(url, {
+        headers : headers
+    }).then(function(response) {
+        console.log(response.data);
+        console.log(response.data.items[0].users.length);
+        sendResponse(req, res, response, false);
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+
+});
+
+
+/* ----- GET ALL USERS ----- */
+router.get('/users', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /users');
+    console.log(' --------------------------------------------');  
+    console.log('  req.query.bulk       = ' + req.query.bulk);
+    console.log('  req.query.offset     = ' + req.query.offset);
+    console.log('  req.query.limit      = ' + req.query.limit);
+    console.log('  req.query.activeOnly = ' + req.query.activeOnly);
+    console.log('  req.query.mappedOnly = ' + req.query.mappedOnly);
+    console.log('  req.query.tenant     = ' + req.query.tenant);
+    console.log();
+
+    let bulk       = (typeof req.query.bulk       === 'undefined') ?    true : req.query.bulk;
+    let limit      = (typeof req.query.limit      === 'undefined') ?    1000 : req.query.limit;
+    let offset     = (typeof req.query.offset     === 'undefined') ?       0 : req.query.offset;
+    let activeOnly = (typeof req.query.activeOnly === 'undefined') ? 'false' : req.query.activeOnly;
+    let mappedOnly = (typeof req.query.mappedOnly === 'undefined') ? 'false' : req.query.mappedOnly;
+    let url = getTenantLink(req) + '/api/v3/users?sort=displayName'
+        + '&activeOnly=' + activeOnly
+        + '&mappedOnly=' + mappedOnly
+        + '&offset='     + offset
+        + '&limit='      + limit;
+
+    let headers = getCustomHeaders(req);
+        
+    if(bulk) headers.Accept = 'application/vnd.autodesk.plm.users.bulk+json';
+
+    axios.get(url, {
+        headers : headers
+    }).then(function(response) {
+        sendResponse(req, res, response, false);
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+
+});
+
+
+/* ----- ADD NEW USER ----- */
+router.post('/add-user', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /add-user');
+    console.log(' --------------------------------------------');  
+    console.log('  req.body.mail     = ' + req.body.mail);
+    console.log('  req.body.uom      = ' + req.body.uom);
+    console.log('  req.body.timezone = ' + req.body.timezone);
+    console.log('  req.body.groups   = ' + req.body.groups);
+    console.log();
+
+    let uom      = (typeof req.body.uom      === 'undefined') ? 'Metric'    : req.body.uom;
+    let timezone = (typeof req.body.timezone === 'undefined') ? 'Etc/GMT+1' : req.body.timezone;
+    let groups   = (typeof req.body.groups   === 'undefined') ? []          : req.body.groups;
+    let url      = getTenantLink(req) + '/api/v3/users';
+
+    axios.post(url, {
+        email         : req.body.mail,
+        thumbnailPref : 'Yes',
+        uomPref       : uom,
+        timezone      : timezone,
+        licenseType   : {
+            licenseCode: 'S'   // P: Participant, S: Professional
+        }   
+    },{
+        headers : req.session.headers
+    }).then(function(response) {
+
+        if(typeof response.data === 'undefined') response.data = {};
+        
+        let userId = response.headers.location.split('/').pop();
+
+        response.data.userId = userId;
+
+        if(groups.length === 0) sendResponse(req, res, response, false); else {
+            url += '/' + userId + '/groups';
+            axios.post(url, groups, { headers : req.session.headers }).then(function() {
+                sendResponse(req, res, response, false);
+            });
+        }
+        
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+
+});
+
+
+/* ----- ASSIGN GROUPS ----- */
+router.post('/assign-groups', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /assign-groups');
+    console.log(' --------------------------------------------');  
+    console.log('  req.body.userId = ' + req.body.userId);
+    console.log('  req.body.groups = ' + req.body.groups);
+    console.log();
+
+    let url = getTenantLink(req) + '/api/v3/users/' + req.body.userId + '/groups';
+
+    axios.post(url, req.body.groups, {
+        headers : req.session.headers
+    }).then(function(response) {
+        console.log(response);
+        sendResponse(req, res, response, false);
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+
+});
+
+
+/* ----- UNASSIGN GROUP ----- */
+router.post('/unassign-group', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /unassign-group');
+    console.log(' --------------------------------------------');  
+    console.log('  req.body.userId  = ' + req.body.userId);
+    console.log('  req.body.groupId = ' + req.body.groupId);
+    console.log();
+
+    let url = getTenantLink(req) + '/api/rest/v1/users/' + req.body.userId + '/groups/' + req.body.groupId;
+
+    axios.delete(url, {
         headers : req.session.headers
     }).then(function(response) {
         sendResponse(req, res, response, false);
@@ -5681,6 +5689,106 @@ router.get('/groups-assigned', function(req, res, next) {
         });
 
     }
+
+});
+
+
+/* ----- GET USER PROFILE ----- */
+router.get('/me', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /me');
+    console.log(' --------------------------------------------'); 
+    console.log('  req.query.useCache = ' + req.query.useCache);  
+    console.log();
+
+    if(notCached(req, res)) {
+    
+        let url = req.app.locals.tenantLink + '/api/v3/users/@me';
+
+        axios.get(url, {
+            headers : req.session.headers
+        }).then(function(response) {
+            sendResponse(req, res, response, false);
+        }).catch(function(error) {
+            sendResponse(req, res, error.response, true);
+        });
+
+    }
+
+});
+
+
+/* ----- SET USER PREFERENCE ----- */
+router.get('/preference', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /preference');
+    console.log(' --------------------------------------------');  
+    console.log('  req.query.property = ' + req.query.property);
+    console.log('  req.query.value    = ' + req.query.value);
+    console.log('  req.query.user     = ' + req.query.user);
+    console.log();
+
+    let headers  = getCustomHeaders(req);
+    let url      = getTenantLink(req) + '/api/v3/users/@me';
+    let property = req.query.property.toLowerCase();
+    let value    = {};
+
+    switch(property) {
+
+        case 'theme':
+            value =  { selected : req.query.value }
+            break;
+
+    }   
+
+    if(typeof req.query.user !== 'undefined') {
+        headers['Authorization'] = req.session.admin;
+        headers['X-user-id']     = req.query.user;
+    }
+
+    axios.get(url + '/preferences', {
+        headers : headers
+    }).then(function(response) {
+        response.data[property] = value;
+        headers['Content-Type'] = "application/json-patch+json";
+        axios.patch(url, [{
+            op    : 'replace',
+            path  : '/preferences',
+            value : JSON.stringify(response.data)
+        }], {
+            headers : headers
+        }).then(function(response) {
+            sendResponse(req, res, response, false);
+        }).catch(function(error) {
+            sendResponse(req, res, error.response, true);
+        });
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+
+});
+
+
+/* ----- GET PERMISSIONS DEFINITION (V1) ----- */
+router.get('/permissions-definition', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /permissions-definition');
+    console.log(' --------------------------------------------');  
+    console.log('  req.query.tenant  = ' + req.query.tenant);
+    console.log();
+
+    let url = getTenantLink(req) + '/api/rest/v1/permissions';
+
+    axios.get(url, {
+        headers : req.session.headers
+    }).then(function(response) {
+        sendResponse(req, res, response, false);
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
 
 });
 

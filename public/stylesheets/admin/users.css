@@ -52,6 +52,13 @@ body.no-console #toolbar { right : var(--panel-border-width-h); }
 body.no-console { --width-users : 600px; }
 body.no-console #console { right : calc(-10px - var(--width-console) - var(--panel-border-width-h)); }
 
+#console-toggle { border-color : var(--color-surface-level-4) !important; }
+.dialog-content {
+    border       : 1px solid var(--color-surface-level-1);
+    border-width : 30px 40px 0px 30px;
+    padding      : 0px;
+}
+
 
 
 /*  LIST DISPLAY */
@@ -78,6 +85,8 @@ body.no-console #console { right : calc(-10px - var(--width-console) - var(--pan
     font-weight : 300;
     line-height : 26px;
     text-align  : center;
+    max-width   : 28px;
+    min-width   : 28px;
     width       : 28px;
 }
 .list .label {
@@ -103,26 +112,54 @@ body.no-console #console { right : calc(-10px - var(--width-console) - var(--pan
     padding : 0px 0px 0px 20px;
 }
 .list-toolbar {
-    display : flex;
-    height  : 38px;
+    background   : var(--color-surface-level-2);
+    display      : flex;
+    gap          : 2px;
+    height       : 38px;
+    padding-left : 2px;
 }
 .list-filter {
     padding-left : 20px;
     width        : 100px;
 }
+.list-toolbar > .button {
+    background    : var(--color-surface-level-4) !important;
+    border-radius : 0px;
+    border        : none;
+    height        : 38px;
+    min-width     : 38px;
+}
+.list-toolbar > .button.active {
+    background    : var(--color-yellow-500) !important;
+}
 
 
 /*  USER SELECTION */
 /* ----------------------------------------------------------------------------- */
-#groups-header, #groups, #users-header, #users {
+#groups-header, #groups, #users-header, #users-group-filter, #users {
     position   : absolute;
     right      : 0px;
     left       : 0px;
 }
-#groups-header  { top : 68px; }
-#groups         { top : 108px; bottom : 60%; }
-#users-header   { top : calc(40% + 32px); }
-#users          { top : calc(40% + 72px); bottom : 0px; }
+#groups-header      { top : 68px; }
+#groups             { top : 108px; bottom : 60%; }
+#users-header       { top : calc(40% +  32px); }
+#users-group-filter { top : calc(40% +  72px); height : 38px; text-align : left; }
+#users              { top : calc(40% + 112px); bottom : 0px; }
+
+.user-login { 
+    display         : flex;
+    font-size       : 12px; 
+    justify-content : space-between;
+    text-align      : right; 
+    max-width       : 68px; 
+    min-width       : 68px; 
+    width           : 68px; 
+
+}
+.user-login > div {
+    text-align : center;
+}
 
 
 /*  CONTROLS */
@@ -177,7 +214,7 @@ body.no-console #console { right : calc(-10px - var(--width-console) - var(--pan
     border-color : var(--color-status-green);
     color        : white;
 }
-#views-header, #views-list, #charts-header, #charts-list {
+#views-header, #views-list, #charts-header, #charts-list, #assignment-header, #assignment-list {
     position    : absolute;
     right       : 0px;
     left        : 0px;
@@ -260,7 +297,53 @@ body.no-console #console { right : calc(-10px - var(--width-console) - var(--pan
     top : 2px;
     content: '\e838';
 }
-
+#assignment-header {
+    top : 90px;
+}
+#assignment-list {
+    top    : 129px;
+    bottom : 0px;
+}
+#assignment-list > div {
+    gap : 2px;
+}
+#assignment-list .group-name {
+    padding-left : 12px;
+}
+.group-assignment .button {
+    height          : 24px;
+    justify-content : center;
+    line-height     : 24px;
+    min-width       : 84px;
+    padding         : 0px 10px;
+}
+.group-assignment .button::before {
+    font-size   : 16px;
+    line-height : 24px;
+}
+.group-assignment.action-remove .button-group-keep,
+.group-assignment.action-remove .button-group-add {
+    color : var(--color-surface-level-1);
+}
+.group-assignment.action-keep .button-group-remove,
+.group-assignment.action-keep .button-group-add {
+    color : var(--color-surface-level-1);
+}
+.group-assignment.action-add .button-group-remove,
+.group-assignment.action-add .button-group-keep {
+    color : var(--color-surface-level-1);
+}
+.group-assignment.action-remove .button-group-remove {
+    background   : var(--color-status-red);
+    border-color : var(--color-status-red);
+}
+.group-assignment.action-add .button-group-add {
+    background   : var(--color-status-green);
+    border-color : var(--color-status-green);
+}
+#assignment-list .icon-radio-unchecked::before {
+    font-weight : 100;
+}
 
 
 /*  TOOLBAR */
@@ -298,6 +381,338 @@ body.no-console #console { right : calc(-10px - var(--width-console) - var(--pan
 #stop {
     background   : var(--color-status-red);
     border-color : var(--color-status-red);
+}
+
+
+
+/*  ADD NEW USER */
+/* ----------------------------------------------------------------------------- */
+#new-single-user {
+    top    : calc(50% - 360px);
+    right  : calc(50% - 520px);
+    bottom : calc(50% - 360px);
+    left   : calc(50% - 520px);
+}
+#new-single-user-mail {
+    display : flex;
+}
+.dialog-label {
+    background  : var(--color-surface-level-3);
+    height      : 38px;
+    line-height : 38px;
+    padding     : 0px 20px;
+    min-width   : 180px;
+}
+#mail {
+    background : var(--color-surface-level-2);
+    padding    : 8px 16px;
+    width      : calc(100% - 32px);
+}
+#new-single-user-groups {
+    position   : absolute;
+    top        : 82px;
+    right      : 40px;
+    bottom     : 0px;
+    left       : 40px;
+    overflow-y : hidden;
+}
+#new-single-user-groups-list {
+    position   : absolute;
+    top        : 38px;
+    right      : 0px;
+    bottom     : 0px;
+    left       : 0px;
+    overflow-y : auto;
+}
+#new-single-user-groups .groups-filter {
+    background  : var(--color-surface-level-4);
+}
+.group-name {
+    max-width     : 180px;
+    min-width     : 180px;
+    width         : 180px;
+    overflow      : hidden;
+    text-overflow : ellipsis;
+    white-space   : nowrap;
+}
+.group-description {
+    overflow      : hidden;
+    text-overflow : ellipsis;
+    white-space   : nowrap;
+}
+.group-count {
+    max-width  : 36px;
+    min-width  : 36px;
+    width      : 36px;
+    text-align : right;
+}
+.group-icon {
+    max-width : 28px;
+    min-width : 28px;
+    width     : 28px;
+}
+.dialog-footer > div {
+    float  : unset;
+    margin : 0px;
+}
+.dialog-footer {
+    display : flex;
+    gap     : 10px;
+    justify-content : end;
+}
+#new-single-user-status {
+    flex-grow    : 1;
+    font-weight  : bold;
+    line-height  : 16px;
+    padding      : 3px 6px;
+}
+.success { color : var(--color-status-green); }
+.error   { color : var(--color-status-red  ); }
+
+
+
+/*  ADD MULTIPLE USERS */
+/* ----------------------------------------------------------------------------- */
+#new-multi-users {
+    top    : 26px;
+    right  : 120px;
+    bottom : 90px;
+    left   : 120px;
+}
+#new-multi-users-list {
+    width : unset;
+}
+.mail-column {
+    padding   : 0px;
+    max-width : 380px;
+    min-width : 380px;
+    width     : 380px;
+}
+th.mail-column {
+    font-weight    : normal;
+    padding        : 24px;
+    vertical-align : bottom;
+    white-space    : unset;
+    max-width      : 332px;
+    min-width      : 332px;
+    width          : 332px;
+}
+td.mail-column {
+    background : var(--color-surface-level-2);
+    display : flex;
+}
+th.mail-column{
+    background : var(--color-surface-level-1);
+}
+.group-column {
+    border-left : 1px solid var(--color-surface-level-1);
+    height      : 260px;
+    padding     : 0px;
+    max-width   : 30px;
+    min-width   : 30px;
+    width       : 30px;
+}
+.group-column-content {
+    align-items     : center;
+    display         : flex;
+    flex-direction  : column-reverse;
+}
+.group-column-wrapper {
+    display         : flex;
+    gap             : 10px;
+    justify-content : space-between;
+    transform       : rotate(-90deg);
+    width           : 240px;
+}
+.group-column-toggle,
+.group-column-filter,
+.user-groups-filter {
+    color       : var(--color-surface-level-1);
+    cursor      : pointer;
+    font-weight : 200;
+    font-size   : 22px;
+}
+.group-column-toggle:hover,
+.group-column-filter:hover {
+    color : var(--color-blue-500);
+}
+.group-column-name { 
+    flex-grow     : 1;
+    overflow      : hidden;
+    text-overflow : ellipsis;
+    white-space   : nowrap;
+}
+.group-column-users {  
+    font-size   : 12px;
+    font-weight : 400;
+    text-align  : right;
+    width       : 30px; 
+}
+#new-multi-users-list td {
+    border-left : 1px solid var(--color-surface-level-1);
+    height      : 32px;
+    padding     : 0px;
+}
+#new-multi-users-tbody input {
+    background  : var(--color-surface-level-2);
+    border      : none;
+    height      : 32px;
+    line-height : 32px;
+    padding     : 0px 10px;
+    max-width   : 360px;
+    min-width   : 360px;
+    width       : 360px;
+}
+.row-actions {
+    display  : none;
+    gap      : 2px;
+    position : relative;
+    top      : 0px;
+    right    : 169px;
+}
+tr:hover .row-actions {
+    display : flex;
+}
+.row-actions > .button {
+    height      : 30px;
+    line-height : 30px;
+    max-width   : 30px;
+    min-width   : 30px;
+    width       : 30px;
+}
+.group-toggle {
+    font-weight : 200;
+    font-size   : 22px;
+    max-height  : 30px;
+    max-width   : 30px;
+    min-width   : 30px;
+    text-align  : center;
+    width       : 30px;
+}
+.group-toggle > * {
+    font-size   : 22px;
+    line-height : 32px;
+}
+.group-toggle > *::before {
+    font-weight : 100;
+}
+.group-toggle > .icon-check-box-checked {
+   font-variation-settings : 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48;
+}
+#new-multi-users-tbody .failed > .mail-column > input {
+    max-width   : 328px;
+    min-width   : 328px;
+    width       : 328px; 
+}
+#new-multi-users-tbody .icon.user-creation-error {
+    background  : var(--color-status-red);
+    color       : white;
+    text-align  : center;
+    max-height  : 32px ;
+    height      : 32px ;
+    max-width   : 32px ;
+    min-width   : 32px ;
+    width       : 32px ;
+}
+.user-groups-filter {
+    height : 30px;
+    width : 30px;
+    line-height : 30px;
+    padding : 0px 6px;
+    border-left : none !important;
+}
+
+
+/*  USERS GROUPS GRID */
+/* ----------------------------------------------------------------------------- */
+#users-groups-grid {
+    top    : 26px;
+    right  : 120px;
+    bottom : 90px;
+    left   : 120px;
+}
+#users-groups-grid > * > table {
+    width : unset;
+}
+#users-groups-grid td {
+    border-left : 1px solid var(--color-surface-level-1);
+    height      : 30px;
+    padding     : 0px;
+}
+.user-group-toggle {
+    text-align : center;
+}
+.user-group-checkbox {
+    cursor : pointer;
+    background : var(--color-surface-level-4) !important;
+    text-align : center;
+    max-width : 32px;
+    min-width : 32px;
+    width : 32px;
+    
+}
+.user-group-checkbox > .icon {
+    font-size : 20px;
+    line-height : 30px;
+}
+#users-groups-grid td.user-group-name { padding : 0px 48px 0px 12px; }
+.user-group-name {
+    max-width : 200px;
+    min-width : 200px;
+    width : 200px;
+    overflow : hidden;
+    text-overflow : ellipsis;
+    white-space: nowrap;
+}
+.user-group-toggle > .icon {
+    cursor : pointer;
+        line-height : 30px;
+        max-width : 30px;
+    min-width : 30px;
+    max-height : 30px;
+    min-height : 30px;
+    font-size : 20px;
+}
+.user-group-toggle:hover > div{
+    color : var(--color-blue-500);
+
+}
+.users-groups-grid-first {
+    background : var(--color-surface-level-1) !important;
+    padding : 0px;
+    vertical-align: bottom;
+}
+#users-groups-grid-filter {
+    height : 38px;
+    width : 100%;
+    background : var(--color-surface-level-4);
+}
+.icon-radio-unchecked {
+
+    color : var(--color-surface-level-1);
+}
+.user-group-toggle.changed {
+    background : var(--color-status-red);
+}
+.user-group-toggle.changed .icon-radio-unchecked {
+    color : white !important;
+}
+#users-groups-grid-thead .group-column-wrapper {
+    gap : 2px;
+}
+#users-groups-grid-thead .group-column-name {
+    padding-left : 8px;
+}
+.icon-ends-with.active,
+.icon-starts-with.active {
+    color : var(--color-status-yellow);
+}
+.user-group-toggle .icon-check {
+    font-variation-settings : 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48
+}
+#users-groups-grid-tbody tr:hover td.user-group-name {
+    color    : var(--color-hover-border) !important;
+    /* cursor          : pointer; */
 }
 
 

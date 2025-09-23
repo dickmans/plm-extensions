@@ -18,41 +18,51 @@ block body
             #header-title=title
             #header-subtitle Improve user experience for new and existing users
             #header-toolbar
+                #show-new-single-user.button.with-icon.icon-create(title="Create new single user in your tenant") Add New User
+                #show-new-multi-users.button.with-icon.icon-create-multiple(title="Create multiple new users in your tenant") Add Multiple Users
+                #show-users-groups-grid.button.with-icon.icon-table(title="Review and adjust the groups assigned to the users") Group Assignment
                 #header-avatar
         .screen.surface-level-1
 
             #recipients.surface-level-2
-                .text Select the groups and / or users that should be updated.<br>Your account is not shown as it will never be updated.
+                .text Select the groups and / or users that should be updated.<br>Your account is excluded as it will never be updated.
                 .list-header.surface-level-4#groups-header 
                     .list-title Groups 
                     .list-toolbar 
-                        .button.icon.icon-select-all#groups-select-all(title='Select All')
-                        .button.icon.icon-deselect-all#groups-deselect-all(title='Deselect All')
-                        input.list-filter.surface-level-3#groups-filter(placeholder='Type to filter')
+                        .button.icon.icon-select-all.groups-select-all(title='Select All')
+                        .button.icon.icon-deselect-all.groups-deselect-all(title='Deselect All')
+                        input.list-filter.surface-level-3.groups-filter(placeholder='Type to filter')
                 .list#groups.surface-level-1
                 .list-header.surface-level-4#users-header 
                     .list-title Users 
                     .list-toolbar 
                         .button.icon.icon-select-all#users-select-all(title='Select All')
                         .button.icon.icon-deselect-all#users-deselect-all(title='Deselect All')
+                        .button.icon.icon-contains#users-filter-new(title='Filter for new users that never logged in yet')
                         input.list-filter.surface-level-3#users-filter(placeholder='Type to filter')
+                select#users-group-filter.button(name="")
                 .list#users.surface-level-1
 
             #controls.surface-level-1 
 
                 #tabs.tabs(data-tab-group='control')
-                    .tab Theme
+                    .tab Groups
                     .tab Workspace Views
                     .tab Charts
+                    .tab Theme
 
-
-
-                .control#theme 
-                    .instructions Select the standard theme to be applied. Users can still change the theme with the icon in the main toolbar.
-                    .options 
-                        .button.with-icon.icon-block.default(data-value='') No Change 
-                        .button.with-icon.icon-dark.filled(data-value='dark') Dark Theme 
-                        .button.with-icon.icon-highlight.filled(data-value='light') Light Theme 
+                .control#assignment 
+                    .instructions For each group, select if the selected users should be assigned or removed.
+                        br
+                        |Per default, the user list of each group will not be changed at all.
+                    .list-header.surface-level-4#assignment-header 
+                        .list-title Groups 
+                        .list-toolbar 
+                            .button.icon.icon-remove#assignment-remove-all(title='Remove All Groups')
+                            .button.icon.icon-check#assignment-reset-all(title='Reset All Groups')
+                            .button.icon.icon-create#assignment-add-all(title='Add All Groups')
+                            input.list-filter.surface-level-3#assignment-filter(placeholder='Type to filter')
+                    .list#assignment-list   
 
                 .control#views
                     .instructions.top
@@ -83,15 +93,25 @@ block body
                             input.list-filter.surface-level-3#charts-filter(placeholder='Type to filter')                            
                     .list#charts-list
 
+ 
+
+                .control#theme 
+                    .instructions Select the standard theme to be applied. Users can still change the theme with the icon in the main toolbar.
+                    .options 
+                        .button.with-icon.icon-block.default(data-value='') No Change 
+                        .button.with-icon.icon-dark.filled(data-value='dark') Dark Theme 
+                        .button.with-icon.icon-highlight.filled(data-value='light') Light Theme 
+
             #toolbar.surface-level-1
                 .selection 
                     #toolbar-text Changes Summary
                     .counters#toolbar-counters 
                         .counter#count-groups
                         .counter#count-users
-                        .counter#count-theme 
                         .counter#count-workspaces
                         .counter#count-charts
+                        .counter#count-assignments
+                        .counter#count-theme 
                 .buttons    
                     .button.disabled.with-icon.icon-stop#stop Stop
                     .button.default.with-icon.icon-start#start Start
@@ -100,3 +120,69 @@ block body
                 #console-header.surface-level-4 Console                    
                 #console-content.surface-level-4
                 #console-toggle.button.icon.icon-chevron-right
+
+
+            #new-single-user.dialog
+                .dialog-header 
+                    .dialog-title Add New User
+                .dialog-content.surface-level-1.no-scrollbar
+                    #new-single-user-mail
+                        .dialog-label.surface-level-3 Mail Address
+                        input#mail(placeholder="Enter valid E-Mail Address")
+                    #new-single-user-groups                       
+                        .list-header.surface-level-3
+                            .list-title Assign Groups 
+                            .list-toolbar 
+                                .button.icon.icon-select-all.groups-select-all(title='Select All')
+                                .button.icon.icon-deselect-all.groups-deselect-all(title='Deselect All')
+                                input.list-filter.surface-level-3.groups-filter(placeholder='Type to filter')
+                        .list#new-single-user-groups-list.surface-level-1.no-scrollbar
+
+                .dialog-footer
+                    #new-single-user-status
+                    .button.click-close-dialog Cancel
+                    #new-single-user-next.button Save &amp; Add Another
+                    #new-single-user-save.button.default Save &amp; Close
+
+                #new-single-user-processing.dialog-processing.surface-level-1 
+                    .processing
+                        .bounce1
+                        .bounce2
+                        .bounce3
+
+            #new-multi-users.dialog
+                .dialog-header 
+                    .dialog-title Add Multiple Users
+                .dialog-content.surface-level-1.no-scrollbar
+                    table#new-multi-users-list.fixed-header.row-hovering
+                        thead#new-multi-users-thead
+                        tbody#new-multi-users-tbody
+
+                .dialog-footer
+                    .button.click-close-dialog Cancel
+                    #new-multi-users-submit.button.default Submit
+
+                #new-multi-users-processing.dialog-processing.surface-level-1 
+                    .processing
+                        .bounce1
+                        .bounce2
+                        .bounce3
+
+            #users-groups-grid.dialog
+                .dialog-header 
+                    .dialog-title Users Groups Assignment
+                .dialog-content.surface-level-1.no-scrollbar
+                    table.fixed-header.row-shovering
+                        thead#users-groups-grid-thead
+                        tbody#users-groups-grid-tbody
+
+                .dialog-footer
+                    .button.click-close-dialog Cancel
+                    #users-groups-grid-apply.button Save
+                    #users-groups-grid-save.button.default Save &amp; Close
+
+                #users-groups-grid-processing.dialog-processing.surface-level-1 
+                    .processing
+                        .bounce1
+                        .bounce2
+                        .bounce3
