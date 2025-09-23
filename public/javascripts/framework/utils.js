@@ -23,6 +23,7 @@ let settings = {
     grid              : {},
     managedItems      : {},
     processes         : {},
+    project           : {},
     relationships     : {},
     sourcing          : {},
     changeLog         : {},
@@ -52,7 +53,7 @@ $(document).ready(function() {
     insertAvatar();  
     enableTabs();
     enablePanelToggles();
-    // enableOpenInNew();
+    setFormEvents();
 
     $('#header-logo'    ).click(function() { reloadPage(true); });
     $('#header-title'   ).click(function() { reloadPage(false); });
@@ -858,6 +859,44 @@ function clickPanelToggle(elemSelected) {
 }
 
 
+// Add event listeners for form controls
+function setFormEvents() {
+
+    // Handle picklist controls
+    $(document).on('keydown', function(e) {
+        if(e.key == 'Escape') {
+           $('.picklist').addClass('hidden');
+        } else  if(e.key == 'Tab') {
+           $('.picklist').addClass('hidden');
+       }
+    });
+    $(document).click(function(e) { 
+
+        let elemClicked        = $(e.target);
+        let clickedInPicklist  = (elemClicked.closest('.picklist').length > 0);
+        let elemPicklist       = elemClicked.next('.picklist');
+
+        if(elemPicklist.length === 0) {
+            if(elemClicked.hasClass('pickklist-open-shortcuts')) {
+                elemPicklist = elemClicked.parent().next('.picklist');
+            }
+        }
+        
+        if(clickedInPicklist) return;
+        else if(elemClicked.is('input')) {
+            elemClicked.select();
+        }
+
+        $('.picklist').addClass('hidden');
+
+        if(elemPicklist.length > 0) elemPicklist.removeClass('hidden');
+
+    });
+
+}
+
+
+
 // Insert Calendar Controls
 function insertCalendarMonth(id, currentDate) {
     
@@ -962,106 +1001,112 @@ function insertCalendarMonth(id, currentDate) {
 // Generate default settings object for item based and navigation views using genPanel*
 function getPanelSettings(link, params, defaults, additional) {
 
-    if(isBlank(defaults.additionalData)    ) defaults.additionalData     = [];
-    if(isBlank(defaults.counters)          ) defaults.counters           = false;
-    if(isBlank(defaults.hidePanel)         ) defaults.hidePanel          = false;
-    if(isBlank(defaults.hideHeader)        ) defaults.hideHeader         = false;
-    if(isBlank(defaults.hideHeaderControls)) defaults.hideHeaderControls = false;
-    if(isBlank(defaults.hideHeaderLabel)   ) defaults.hideHeaderLabel    = false;
-    if(isBlank(defaults.headerTopLabel)    ) defaults.headerTopLabel     = '';
-    if(isBlank(defaults.headerLabel)       ) defaults.headerLabel        = '';
-    if(isBlank(defaults.headerSubLabel)    ) defaults.headerSubLabel     = '';
-    if(isBlank(defaults.openInPLM)         ) defaults.openInPLM          = false;
-    if(isBlank(defaults.openOnDblClick)    ) defaults.openOnDblClick     = false;
-    if(isBlank(defaults.placeholder)       ) defaults.placeholder        = 'Type to search';
-    if(isBlank(defaults.reload)            ) defaults.reload             = false;
-    if(isBlank(defaults.reset)             ) defaults.reset              = false;
-    if(isBlank(defaults.search)            ) defaults.search             = false;
-    if(isBlank(defaults.editable)          ) defaults.editable           = false;
-    if(isBlank(defaults.multiSelect)       ) defaults.multiSelect        = false;
-    if(isBlank(defaults.filterBySelection) ) defaults.filterBySelection  = false;
-    if(isBlank(defaults.layout)            ) defaults.layout             = 'list';
-    if(isBlank(defaults.number)            ) defaults.number             = true;
-    if(isBlank(defaults.collapsePanel)     ) defaults.collapsePanel      = false;
-    if(isBlank(defaults.collapseContents)  ) defaults.collapseContents   = false;
-    if(isBlank(defaults.groupBy)           ) defaults.groupBy            = '';
-    if(isBlank(defaults.groupLayout)       ) defaults.groupLayout        = 'column';
-    if(isBlank(defaults.contentSize)       ) defaults.contentSize        = 'm';
-    if(isBlank(defaults.contentSizes)      ) defaults.contentSizes       = [];
-    if(isBlank(defaults.tileIcon)          ) defaults.tileIcon           = 'icon-product';
-    if(isBlank(defaults.tileImage)         ) defaults.tileImage          = true;
-    if(isBlank(defaults.tileTitle)         ) defaults.tileTitle          = 'DESCRIPTOR';
-    if(isBlank(defaults.tileSubtitle)      ) defaults.tileSubtitle       = 'WF_CURRENT_STATE';
-    if(isBlank(defaults.tileDetails)       ) defaults.tileDetails        = [];
-    if(isBlank(defaults.tableColumnsLimit) ) defaults.tableColumnsLimit  = 100;
-    if(isBlank(defaults.tableTotals)       ) defaults.tableTotals        = false;
-    if(isBlank(defaults.tableRanges)       ) defaults.tableRanges        = false;
-    if(isBlank(defaults.textNoData)        ) defaults.textNoData         = 'No Entries';
-    if(isBlank(defaults.stateColors)       ) defaults.stateColors        = [];
-    if(isBlank(defaults.useCache)          ) defaults.useCache           = false;
-    if(isBlank(defaults.singleToolbar)     ) defaults.singleToolbar      = '';
-    if(isBlank(defaults.disconnectLabel)   ) defaults.disconnectLabel    = 'Remove';
-    if(isBlank(defaults.disconnectIcon)    ) defaults.disconnectIcon     = 'icon-disconnect';
-    if(isBlank(defaults.afterCompletion)   ) defaults.afterCompletion    = function (id) {};
+    if(isBlank(defaults.additionalData)         ) defaults.additionalData           = [];
+    if(isBlank(defaults.counters)               ) defaults.counters                 = false;
+    if(isBlank(defaults.createButtonIcon)       ) defaults.createButtonIcon         = 'icon-create';
+    if(isBlank(defaults.createButtonLabel)      ) defaults.createButtonLabel        = 'Create';
+    if(isBlank(defaults.disconnectButtonIcon)   ) defaults.disconnectButtonIcon     = 'icon-list-remove';
+    if(isBlank(defaults.disconnectButtonLabel)  ) defaults.disconnectButtonLabel    = 'Remove Selected';
+    if(isBlank(defaults.editable)               ) defaults.editable                 = false;
+    if(isBlank(defaults.hidePanel)              ) defaults.hidePanel                = false;
+    if(isBlank(defaults.hideHeader)             ) defaults.hideHeader               = false;
+    if(isBlank(defaults.hideHeaderControls)     ) defaults.hideHeaderControls       = false;
+    if(isBlank(defaults.hideHeaderLabel)        ) defaults.hideHeaderLabel          = false;
+    if(isBlank(defaults.headerTopLabel)         ) defaults.headerTopLabel           = '';
+    if(isBlank(defaults.headerLabel)            ) defaults.headerLabel              = '';
+    if(isBlank(defaults.headerSubLabel)         ) defaults.headerSubLabel           = '';
+    if(isBlank(defaults.openInPLM)              ) defaults.openInPLM                = false;
+    if(isBlank(defaults.openOnDblClick)         ) defaults.openOnDblClick           = false;
+    if(isBlank(defaults.placeholder)            ) defaults.placeholder              = 'Type to search';
+    if(isBlank(defaults.reload)                 ) defaults.reload                   = false;
+    if(isBlank(defaults.reset)                  ) defaults.reset                    = false;
+    if(isBlank(defaults.search)                 ) defaults.search                   = false;
+    if(isBlank(defaults.showInDialog)           ) defaults.showInDialog             = false;
+    if(isBlank(defaults.multiSelect)            ) defaults.multiSelect              = false;
+    if(isBlank(defaults.filterBySelection)      ) defaults.filterBySelection        = false;
+    if(isBlank(defaults.layout)                 ) defaults.layout                   = 'list';
+    if(isBlank(defaults.number)                 ) defaults.number                   = true;
+    if(isBlank(defaults.collapsePanel)          ) defaults.collapsePanel            = false;
+    if(isBlank(defaults.collapseContents)       ) defaults.collapseContents         = false;
+    if(isBlank(defaults.groupBy)                ) defaults.groupBy                  = '';
+    if(isBlank(defaults.groupLayout)            ) defaults.groupLayout              = 'column';
+    if(isBlank(defaults.contentSize)            ) defaults.contentSize              = 'm';
+    if(isBlank(defaults.contentSizes)           ) defaults.contentSizes             = [];
+    if(isBlank(defaults.tileIcon)               ) defaults.tileIcon                 = 'icon-product';
+    if(isBlank(defaults.tileImage)              ) defaults.tileImage                = true;
+    if(isBlank(defaults.tileTitle)              ) defaults.tileTitle                = 'DESCRIPTOR';
+    if(isBlank(defaults.tileSubtitle)           ) defaults.tileSubtitle             = 'WF_CURRENT_STATE';
+    if(isBlank(defaults.tileDetails)            ) defaults.tileDetails              = [];
+    if(isBlank(defaults.tableColumnsLimit)      ) defaults.tableColumnsLimit        = 100;
+    if(isBlank(defaults.tableTotals)            ) defaults.tableTotals              = false;
+    if(isBlank(defaults.tableRanges)            ) defaults.tableRanges              = false;
+    if(isBlank(defaults.textNoData)             ) defaults.textNoData               = 'No Entries';
+    if(isBlank(defaults.stateColors)            ) defaults.stateColors              = [];
+    if(isBlank(defaults.useCache)               ) defaults.useCache                 = false;
+    if(isBlank(defaults.singleToolbar)          ) defaults.singleToolbar            = '';
+    if(isBlank(defaults.afterCompletion)        ) defaults.afterCompletion          = function (id) {};
 
     if(!isBlank(params.contentSizes)) params.contentSize = params.contentSizes[0];
 
     let settings = {
-        link              : link,
-        additionalData    : isBlank(params.additionalData)    ? defaults.additionalData : params.additionalData,
-        hidePanel         : isBlank(params.hidePanel)         ? defaults.hidePanel : params.hidePanel,
-        hideHeader        : isBlank(params.hideHeader)        ? defaults.hideHeader : params.hideHeader,
-        hideHeaderControls: isBlank(params.hideHeaderControls)? defaults.hideHeaderControls : params.hideHeaderControls,
-        hideHeaderLabel   : isBlank(params.hideHeaderLabel)   ? defaults.hideHeaderLabel : params.hideHeaderLabel,
-        headerTopLabel    : isBlank(params.headerTopLabel)    ? defaults.headerTopLabel : params.headerTopLabel,
-        headerLabel       : isBlank(params.headerLabel)       ? defaults.headerLabel : params.headerLabel,
-        headerSubLabel    : isBlank(params.headerSubLabel)    ? defaults.headerSubLabel : params.headerSubLabel,
-        headerToggle      : isBlank(params.headerToggle)      ? false : params.headerToggle,
-        compactDisplay    : isBlank(params.compactDisplay)    ? false : params.compactDisplay,
-        openInPLM         : isBlank(params.openInPLM)         ? defaults.openInPLM : params.openInPLM,
-        openOnDblClick    : isBlank(params.openOnDblClick)    ? defaults.openOnDblClick : params.openOnDblClick,
-        placeholder       : isBlank(params.placeholder)       ? defaults.placeholder : params.placeholder,
-        reload            : isBlank(params.reload)            ? defaults.reload : params.reload,
-        reset             : isBlank(params.reset)             ? defaults.reset : params.reset,
-        search            : isBlank(params.search)            ? defaults.search : params.search,
-        editable          : isBlank(params.editable)          ? defaults.editable : params.editable,
-        multiSelect       : isBlank(params.multiSelect)       ? defaults.multiSelect : params.multiSelect,
-        filterBySelection : isBlank(params.filterBySelection) ? defaults.filterBySelection : params.filterBySelection,
-        actions           : isBlank(params.actions)           ? [] : params.actions,
-        layout            : isBlank(params.layout)            ? defaults.layout : params.layout,
-        collapsePanel     : isBlank(params.collapsePanel)     ? defaults.collapsePanel : params.collapsePanel,
-        collapseContents  : isBlank(params.collapseContents)  ? defaults.collapseContents : params.collapseContents,
-        groupBy           : isBlank(params.groupBy)           ? defaults.groupBy : params.groupBy,
-        groupLayout       : isBlank(params.groupLayout)       ? defaults.groupLayout : params.groupLayout,
-        number            : isBlank(params.number)            ? defaults.number : params.number,
-        contentSize       : isBlank(params.contentSize)       ? defaults.contentSize  : params.contentSize,
-        contentSizes      : isBlank(params.contentSizes)      ? defaults.contentSizes  : params.contentSizes,
-        tileIcon          : isBlank(params.tileIcon)          ? defaults.tileIcon  : params.tileIcon,
-        tileImage         : isBlank(params.tileImage)         ? defaults.tileImage : params.tileImage,
-        tileImageFieldId  : '',
-        tileTitle         : isBlank(params.tileTitle)         ? defaults.tileTitle : params.tileTitle,
-        tileSubtitle      : isBlank(params.tileSubtitle)      ? defaults.tileSubtitle : params.tileSubtitle,
-        tileDetails       : isBlank(params.tileDetails)       ? defaults.tileDetails : params.tileDetails,
-        tableHeaders      : isBlank(params.tableHeaders)      ? true : params.tableHeaders,
-        tableColumnsLimit : isBlank(params.tableColumnsLimit) ? defaults.tableColumnsLimit : params.tableColumnsLimit,
-        tableTotals       : isBlank(params.tableTotals)       ? defaults.tableTotals : params.tableTotals,
-        tableRanges       : isBlank(params.tableRanges)       ? defaults.tableRanges : params.tableRanges,
-        stateColors       : isBlank(params.stateColors)       ? defaults.stateColors : params.stateColors,
-        counters          : isBlank(params.counters)          ? defaults.counters : params.counters,
-        useCache          : isBlank(params.useCache)          ? defaults.useCache : params.useCache,
-        textNoData        : isBlank(params.textNoData)        ? defaults.textNoData : params.textNoData,
-        disconnectLabel   : isBlank(params.disconnectLabel)   ? defaults.disconnectLabel : params.disconnectLabel,
-        disconnectIcon    : isBlank(params.disconnectIcon)    ? defaults.disconnectIcon : params.disconnectIcon,
-        columnsIn         : isBlank(params.columnsIn)         ? [] : params.columnsIn,
-        columnsEx         : isBlank(params.columnsEx)         ? [] : params.columnsEx,
-        workspacesIn      : isBlank(params.workspacesIn)      ? [] : params.workspacesIn,
-        workspacesEx      : isBlank(params.workspacesEx)      ? [] : params.workspacesEx,
-        singleToolbar     : isBlank(params.singleToolbar)     ? defaults.singleToolbar : params.singleToolbar,
-        onClickItem       : isBlank(params.onClickItem)       ? null : params.onClickItem,
-        onDblClickItem    : isBlank(params.onDblClickItem)    ? null : params.onDblClickItem,
-        afterCompletion   : isBlank(params.afterCompletion)   ? defaults.afterCompletion : params.afterCompletion,
-        createWorkspaces  : [],
-        columns           : [],
+        link                    : link,
+        additionalData          : isBlank(params.additionalData)        ? defaults.additionalData : params.additionalData,
+        createButtonIcon        : isBlank(params.createButtonIcon)      ? defaults.createButtonIcon : params.createButtonIcon,
+        createButtonLabel       : isBlank(params.createButtonLabel)     ? defaults.createButtonLabel : params.createButtonLabel,
+        disconnectButtonIcon    : isBlank(params.disconnectButtonIcon)  ? defaults.disconnectButtonIcon : params.disconnectButtonIcon,
+        disconnectButtonLabel   : isBlank(params.disconnectButtonLabel) ? defaults.disconnectButtonLabel : params.disconnectButtonLabel,
+        editable                : isBlank(params.editable)              ? defaults.editable : params.editable,
+        hidePanel               : isBlank(params.hidePanel)             ? defaults.hidePanel : params.hidePanel,
+        hideHeader              : isBlank(params.hideHeader)            ? defaults.hideHeader : params.hideHeader,
+        hideHeaderControls      : isBlank(params.hideHeaderControls)    ? defaults.hideHeaderControls : params.hideHeaderControls,
+        hideHeaderLabel         : isBlank(params.hideHeaderLabel)       ? defaults.hideHeaderLabel : params.hideHeaderLabel,
+        headerTopLabel          : isBlank(params.headerTopLabel)        ? defaults.headerTopLabel : params.headerTopLabel,
+        headerLabel             : isBlank(params.headerLabel)           ? defaults.headerLabel : params.headerLabel,
+        headerSubLabel          : isBlank(params.headerSubLabel)        ? defaults.headerSubLabel : params.headerSubLabel,
+        headerToggle            : isBlank(params.headerToggle)          ? false : params.headerToggle,
+        compactDisplay          : isBlank(params.compactDisplay)        ? false : params.compactDisplay,
+        openInPLM               : isBlank(params.openInPLM)             ? defaults.openInPLM : params.openInPLM,
+        openOnDblClick          : isBlank(params.openOnDblClick)        ? defaults.openOnDblClick : params.openOnDblClick,
+        placeholder             : isBlank(params.placeholder)           ? defaults.placeholder : params.placeholder,
+        reload                  : isBlank(params.reload)                ? defaults.reload : params.reload,
+        reset                   : isBlank(params.reset)                 ? defaults.reset : params.reset,
+        search                  : isBlank(params.search)                ? defaults.search : params.search,
+        showInDialog            : isBlank(params.showInDialog)          ? defaults.showInDialog : params.showInDialog,
+        multiSelect             : isBlank(params.multiSelect)           ? defaults.multiSelect : params.multiSelect,
+        filterBySelection       : isBlank(params.filterBySelection)     ? defaults.filterBySelection : params.filterBySelection,
+        actions                 : isBlank(params.actions)               ? [] : params.actions,
+        layout                  : isBlank(params.layout)                ? defaults.layout : params.layout,
+        collapsePanel           : isBlank(params.collapsePanel)         ? defaults.collapsePanel : params.collapsePanel,
+        collapseContents        : isBlank(params.collapseContents)      ? defaults.collapseContents : params.collapseContents,
+        groupBy                 : isBlank(params.groupBy)               ? defaults.groupBy : params.groupBy,
+        groupLayout             : isBlank(params.groupLayout)           ? defaults.groupLayout : params.groupLayout,
+        number                  : isBlank(params.number)                ? defaults.number : params.number,
+        contentSize             : isBlank(params.contentSize)           ? defaults.contentSize  : params.contentSize,
+        contentSizes            : isBlank(params.contentSizes)          ? defaults.contentSizes  : params.contentSizes,
+        tileIcon                : isBlank(params.tileIcon)              ? defaults.tileIcon  : params.tileIcon,
+        tileImage               : isBlank(params.tileImage)             ? defaults.tileImage : params.tileImage,
+        tileImageFieldId        : '',
+        tileTitle               : isBlank(params.tileTitle)             ? defaults.tileTitle : params.tileTitle,
+        tileSubtitle            : isBlank(params.tileSubtitle)          ? defaults.tileSubtitle : params.tileSubtitle,
+        tileDetails             : isBlank(params.tileDetails)           ? defaults.tileDetails : params.tileDetails,
+        tableHeaders            : isBlank(params.tableHeaders)          ? true : params.tableHeaders,
+        tableColumnsLimit       : isBlank(params.tableColumnsLimit)     ? defaults.tableColumnsLimit : params.tableColumnsLimit,
+        tableTotals             : isBlank(params.tableTotals)           ? defaults.tableTotals : params.tableTotals,
+        tableRanges             : isBlank(params.tableRanges)           ? defaults.tableRanges : params.tableRanges,
+        stateColors             : isBlank(params.stateColors)           ? defaults.stateColors : params.stateColors,
+        counters                : isBlank(params.counters)              ? defaults.counters : params.counters,
+        useCache                : isBlank(params.useCache)              ? defaults.useCache : params.useCache,
+        textNoData              : isBlank(params.textNoData)            ? defaults.textNoData : params.textNoData,
+        fieldsIn                : isBlank(params.fieldsIn)              ? [] : params.fieldsIn,
+        fieldsEx                : isBlank(params.fieldsEx)              ? [] : params.fieldsEx,
+        workspacesIn            : isBlank(params.workspacesIn)          ? [] : params.workspacesIn,
+        workspacesEx            : isBlank(params.workspacesEx)          ? [] : params.workspacesEx,
+        singleToolbar           : isBlank(params.singleToolbar)         ? defaults.singleToolbar : params.singleToolbar,
+        onClickItem             : isBlank(params.onClickItem)           ? null : params.onClickItem,
+        onDblClickItem          : isBlank(params.onDblClickItem)        ? null : params.onDblClickItem,
+        afterCompletion         : isBlank(params.afterCompletion)       ? defaults.afterCompletion : params.afterCompletion,
+        createWorkspaceIds      : [],
+        columns                 : [],
     }
 
     if(isBlank(settings.contentSize)) settings.contentSize = 'xs';
@@ -1106,9 +1151,9 @@ function genPanelTop(id, settings, className) {
 
     }
 
-    settings.dialog = elemTop.hasClass('dialog');
+    if(elemTop.hasClass('dialog')) settings.showInDialog = true;
 
-    if(settings.dialog        ) { elemTop.addClass('surface-level-1'); appendOverlay(false); }
+    if(settings.showInDialog  ) { elemTop.addClass('surface-level-1').addClass('dialog'); appendOverlay(false); }
     if(settings.compactDisplay) { elemTop.addClass('compact'); }
     if(settings.counters      ) { elemTop.addClass('with-panel-counters'); }
     if(settings.multiSelect   ) { elemTop.addClass('multi-select'); }
@@ -1217,7 +1262,7 @@ function genPanelHeader(id, settings) {
 }
 function genPanelHeaderCloseButton(id, settings) {
 
-    if(!settings.dialog) return;
+    if(!settings.showInDialog) return;
 
     if(isBlank(settings.onClickCancel)) settings.onClickCancel = function() {};
 
@@ -1724,26 +1769,80 @@ function genPanelActionButton(id, settings, suffix, label, title, callback) {
     return elemActionButton;
 
 }
-function genPanelRemoveSelectedButton(id, settings, callback) {
+function genPanelCreateButton(id, settings, callback) {
 
     if(!settings.editable) return;
 
+    if(isBlank(settings.hideButtonCreate)) settings.hideButtonCreate = false;
+    if(isBlank(settings.createId)        ) settings.createId         = 'create';
+
+    if(settings.hideButtonCreate) return;
+
     let elemToolbar = genPanelToolbar(id, settings, 'actions');
 
-    let elemButtonRemoveSelected = $('<div></div>').appendTo(elemToolbar)
-        .addClass('red')
+    let elemButtonCreate = $('<div></div>').appendTo(elemToolbar)
+        .addClass('button')
+        .addClass('default')
+        .addClass('with-icon')
+        .addClass('panel-action-create')
+        .addClass(settings.createButtonIcon)
+        .attr('id', id + '-action-create')
+        .attr('title', 'Create new record and add it to this view')
+        .html(settings.createButtonLabel)
+        .click(function(e) {
+            
+            e.preventDefault();
+            e.stopPropagation();
+
+            insertCreate(settings.createWorkspaceNames, settings.createWorkspaceIds, {
+                id                  : settings.createId,
+                headerLabel         : settings.createHeaderLabel,
+                sectionsIn          : settings.createSectionsIn,
+                sectionsEx          : settings.createSectionsEx,
+                fieldsIn            : settings.createFieldsIn,
+                fieldsEx            : settings.createFieldsEx,
+                contextId           : id,
+                contextItem         : settings.link,
+                contextItems        : settings.createContextItems,
+                contextItemFields   : settings.createContextItemFields,
+                viewerImageFields   : settings.createViewerImageFields,
+                useCache            : settings.useCache,
+                afterCreation       : function(createId, createLink, id) { callback(createId, createLink, id); }
+            });
+            
+        });
+
+    return elemButtonCreate;
+
+}
+function genPanelDisconnectButton(id, settings, callback) {
+
+    if(!settings.editable) return;
+
+    if(isBlank(settings.hideButtonDisconnect)) settings.hideButtonDisconnect = false;
+
+    if(settings.hideButtonDisconnect) return;
+
+    let elemToolbar = genPanelToolbar(id, settings, 'actions');
+
+    let elemButtonDisconnect = $('<div></div>').appendTo(elemToolbar)
         .addClass('button')
         .addClass('with-icon')
-        .addClass(settings.disconnectIcon)
+        .addClass('panel-action-remove')
+        .addClass(settings.disconnectButtonIcon)
         .addClass('xs')
         .addClass('single-select-action')
         .addClass('multi-select-action')
-        .html(settings.disconnectLabel)
-        .click(function() {
-            callback();
+        .attr('id', id + '-action-disconnect')
+        .attr('title', 'Removes the selected elements from the view. The given items will remain in the database.')
+        .html(settings.disconnectButtonLabel)
+        .click(function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            callback($(this));
         });
 
-    return elemButtonRemoveSelected;
+    return elemButtonDisconnect;
 
 }
 function genPanelContents(id, settings) {
@@ -1760,6 +1859,13 @@ function genPanelContents(id, settings) {
         .addClass('panel-content')
         .addClass('no-scrollbar')
         .addClass(settings.contentSize);
+
+         if(elemTop.hasClass('surface-level-1')) elemContent.addClass('surface-level-1');
+    else if(elemTop.hasClass('surface-level-2')) elemContent.addClass('surface-level-2');
+    else if(elemTop.hasClass('surface-level-3')) elemContent.addClass('surface-level-3');
+    else if(elemTop.hasClass('surface-level-4')) elemContent.addClass('surface-level-4');
+    else if(elemTop.hasClass('surface-level-5')) elemContent.addClass('surface-level-5');
+
 
          if(settings.layout === 'table'  ) elemContent.addClass('table');
     else if(settings.layout === 'gallery') elemContent.addClass('tiles').addClass('gallery');
@@ -1813,12 +1919,14 @@ function genPanelContentItem(settings, params) {
     if(isBlank(params)) params = {};
 
     if(isBlank(params.link)    ) params.link     = '';
+    if(isBlank(params.edge)    ) params.edge     = '';
     if(isBlank(params.title)   ) params.title    = ''; else if (isBlank(params.partNumber)) params.partNumber = params.title.split(' - ')[0];
     if(isBlank(params.group)   ) params.group    = '';
     if(isBlank(params.subtitle)) params.subtitle = '';
 
     let item = {
         link        : params.link,
+        edge        : params.edge,
         partNumber  : params.partNumber,
         imageId     : '',
         imageLink   : '',
@@ -2034,11 +2142,11 @@ function setPanelCloneStatus(id, settings, responses) {
     }
 
 }
-function includePanelTableColumn (name, settings, counter) {
+function includePanelTableColumn (fieldId, fieldName, settings, counter) {
 
     if(settings.tableColumnsLimit > counter) {
-        if((settings.columnsIn.length === 0) || ( settings.columnsIn.includes(name))) {
-            if((settings.columnsEx.length === 0) || (!settings.columnsEx.includes(name))) {
+        if((settings.fieldsIn.length === 0) || ( settings.fieldsIn.includes(fieldId)) || ( settings.fieldsIn.includes(fieldName))) {
+            if((settings.fieldsEx.length === 0) || ((!settings.fieldsEx.includes(fieldId)) && (!settings.fieldsEx.includes(fieldName)))) {
                 return true;
             }
         }
@@ -2105,8 +2213,9 @@ function setPanelContentActions(id, settings, responses) {
     let showActions         = false;
 
     for(let response of responses) {
-             if(response.url.indexOf('/permissions')       === 0) dataPermissions = response.data;
-        else if(response.url.indexOf('/linked-workspaces') === 0) dataWorkspaces  = response.data;
+             if(response.url.indexOf('/permissions')        === 0) dataPermissions = response.data;
+        else if(response.url.indexOf('/linked-workspaces')  === 0) dataWorkspaces  = response.data;
+        else if(response.url.indexOf('/related-workspaces') === 0) dataWorkspaces  = response.data;
     }
 
     if(!hasPermission(dataPermissions, 'edit_items')) {
@@ -2125,11 +2234,32 @@ function setPanelContentActions(id, settings, responses) {
     }
 
     Promise.all(requestsPermissions).then(function(responses) {
-        for(let response of responses) {
-            if(hasPermission(response.data, 'add_items')) {
-                $('#' + id + '-action-create').removeClass('disabled');
-                // showActions = true;
-                settings.createWorkspaceIds.push(response.params.link.split('/')[4]);
+        if(settings.createWorkspaceIds.length === 0) {
+            for(let response of responses) {
+                if(hasPermission(response.data, 'add_items')) {
+                    $('#' + id + '-action-create').removeClass('disabled');
+                    // showActions = true;
+                    settings.createWorkspaceIds.push(response.params.link.split('/')[4]);
+                }
+            }
+        } else {
+            let index = 0;
+            for(let workspaceId of settings.createWorkspaceIds) {
+                workspaceId = workspaceId.toString();
+                let keep = false;
+                for(let response of responses) {
+                    if(hasPermission(response.data, 'add_items')) {
+                        let permitted = response.params.link.split('/')[4];
+                        if(permitted == workspaceId) {
+                            keep = true;
+                            break;
+                        }
+                    }
+                }
+                if(!keep) {
+                    settings.createWorkspaceIds.splice(index, 1);
+                } else $('#' + id + '-action-create').removeClass('disabled');
+                index++;
             }
         }
         // if(showActions) $('#' + id).addClass('with-panel-actions'); else $('#' + id).removeClass('with-panel-actions');
@@ -2823,6 +2953,7 @@ function genTilesList(id, items, settings) {
 
         let elemTile = genSingleTile({
             link        : item.link, 
+            edge        : item.edge, 
             descriptor  : item.descriptor, 
             tileIcon    : settings.tileIcon, 
             tileNumber  : number++, 
@@ -2894,6 +3025,7 @@ function genSingleTile(params, settings) {
     let elemTitle       = $('<div></div>').appendTo(elemTileDetails).addClass('tile-title');
 
     if(!isBlank(params.link)) elemTile.attr('data-link', params.link);
+    if(!isBlank(params.edge)) elemTile.attr('data-edge', params.edge);
     if(!isBlank(params.partNumber)) elemTile.attr('data-part-number', params.partNumber);
     
     if(!isBlank(params.descriptor)) { 
@@ -3135,7 +3267,6 @@ function genTableHeaders(id, elemTHead, params) {
             .addClass('content-select-all')
             .addClass('icon')
             .addClass('icon-check-box')
-            .addClass('xxs')
             .click(function(e) {
                 e.preventDefault();
                 e.stopPropagation();
@@ -3143,7 +3274,7 @@ function genTableHeaders(id, elemTHead, params) {
             });
 
 
-        $('<th></th>').appendTo(elemTHeadRow).append(elemToggleAll);
+        $('<th></th>').addClass('table-check-box').appendTo(elemTHeadRow).append(elemToggleAll);
 
     }
 
@@ -3256,7 +3387,7 @@ function genTableRows(id, elemTBody, settings, items, editableFields) {
             .click(function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                clickContentItem($(this), e);
+                clickContentItemSelect($(this), e);
                 togglePanelToolbarActions($(this));
                 updatePanelCalculations(id);
                 if(!isBlank(settings.onClickItem)) settings.onClickItem($(this));
@@ -3270,16 +3401,26 @@ function genTableRows(id, elemTBody, settings, items, editableFields) {
                 else if(settings.openOnDblClick) openItemByLink($(this).attr('data-link'));
             });
 
+        if(!isBlank(item.edge)) elemRow.attr('data-edge', item.edge);
+
         if(settings.editable && settings.multiSelect) {
 
             $('<td></td>').appendTo(elemRow)
                 .html('<div class="icon icon-check-box xxs"></div>')
                 .addClass('content-item-check-box')
+                .addClass('table-check-box')
                 .click(function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    clickContentItemSelect($(this));
+                    let elemContentItem = $(this).closest('.content-item');
+                        elemContentItem.toggleClass('checked');
+                    clickContentItemSelect(elemContentItem);
+                    resetTableSelectAllCheckBox(elemContentItem);
                 })
+                .dblclick(function(e){
+                    e.preventDefault();
+                    e.stopPropagation();
+                });
     
         }
 
@@ -3449,11 +3590,10 @@ function togglePanelToolbarActions(elemClicked) {
 function clickListToggleAllDone(elemClicked) {}
 function clickContentItemSelect(elemClicked, e) {
 
-    
     if(elemClicked.hasClass('checked')) elemClicked.addClass('selected'); else elemClicked.toggleClass('selected');
     
     let elemTop    = elemClicked.closest('.panel-top');
-    let isSelected = elemClicked.addClass('selected');;
+    let isSelected = elemClicked.hasClass('selected');;
     // let elemClicked = elemCheckbox.closest('.content-item');
 
     if(!elemClicked.hasClass('selected')) resetTableSelectAllCheckBox(elemClicked);
