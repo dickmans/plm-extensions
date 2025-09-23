@@ -528,7 +528,7 @@ exports.config = {
         sectionsExcluded : ['AML Summary', 'Quality Inspection', 'Sustainability', 'Compliance', 'Others'],
         sectionsIncluded : [],
         sectionsOrder    : ['Basic', 'Technical Details', 'PDM Data'],
-        fieldsExcluded   : ['ESTIMATED_COST', 'PENDING_PACKAGES'],
+        fieldsExcluded   : ['CLASS_DATA', 'ESTIMATED_COST', 'PENDING_PACKAGES'],
         fieldsIncluded   : [],
         suppressLinks    : false,
         viewerFeatures   : {
