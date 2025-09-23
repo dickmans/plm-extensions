@@ -307,7 +307,7 @@ function getVariantsWSConfig() {
         counters          : false,
         collapseContents  : true,
         viewerSelection   : true,
-        columnsIn         : ['Item', 'Quantity'],
+        fieldsIn          : ['Item', 'Quantity'],
         depth             : config.variants.maxBOMLevels,
         onClickItem       : function(elemClicked) { setItemSummary(elemClicked); },
         afterCompletion   : function (id, data) { insertVariants(id, data); }
