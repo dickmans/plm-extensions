@@ -4333,31 +4333,31 @@ function setBodyFilter(body, filters) {
 
 
 /* ----- SEARCH DESCRIPTOR ----- */
-router.get('/search-descriptor', function(req, res, next) {
+router.post('/search-descriptor', function(req, res, next) {
     
     console.log(' ');
     console.log('  /search-descriptor');
     console.log(' --------------------------------------------'); 
-    console.log('  req.query.wsId       = ' + req.query.wsId);
-    console.log('  req.query.workspaces = ' + req.query.workspaces);
-    console.log('  req.query.query      = ' + req.query.query);
-    console.log('  req.query.limit      = ' + req.query.limit);
-    console.log('  req.query.offset     = ' + req.query.offset); 
-    console.log('  req.query.bulk       = ' + req.query.bulk); 
-    console.log('  req.query.page       = ' + req.query.page); 
-    console.log('  req.query.revision   = ' + req.query.revision); 
-    console.log('  req.query.wildcard   = ' + req.query.wildcard); 
+    console.log('  req.body.wsId       = ' + req.body.wsId);
+    console.log('  req.body.workspaces = ' + req.body.workspaces);
+    console.log('  req.body.query      = ' + req.body.query);
+    console.log('  req.body.limit      = ' + req.body.limit);
+    console.log('  req.body.offset     = ' + req.body.offset); 
+    console.log('  req.body.bulk       = ' + req.body.bulk); 
+    console.log('  req.body.page       = ' + req.body.page); 
+    console.log('  req.body.revision   = ' + req.body.revision); 
+    console.log('  req.body.wildcard   = ' + req.body.wildcard); 
     console.log();
 
-    let limit       = (typeof req.query.limit    === 'undefined') ?   100    : req.query.limit;
-    let offset      = (typeof req.query.offset   === 'undefined') ?   0      : req.query.offset;
-    let bulk        = (typeof req.query.bulk     === 'undefined') ?  'false' : req.query.bulk;
-    let page        = (typeof req.query.page     === 'undefined') ?   '1'    : req.query.page;
-    let revision    = (typeof req.query.revision === 'undefined') ?   '1'    : req.query.revision;
-    let wildcard    = (typeof req.query.wildcard === 'undefined') ?   true   : (req.query.wildcard.toLowerCase() === 'true');
+    let limit       = (typeof req.body.limit    === 'undefined') ?   100    : req.body.limit;
+    let offset      = (typeof req.body.offset   === 'undefined') ?   0      : req.body.offset;
+    let bulk        = (typeof req.body.bulk     === 'undefined') ?  'false' : req.body.bulk;
+    let page        = (typeof req.body.page     === 'undefined') ?   '1'    : req.body.page;
+    let revision    = (typeof req.body.revision === 'undefined') ?   '1'    : req.body.revision;
+    let wildcard    = (typeof req.body.wildcard === 'undefined') ?   true   : (req.body.wildcard.toLowerCase() === 'true');
 
-    let url    = req.app.locals.tenantLink + '/api/v3/search-results?limit=' + limit + '&offset=' + offset + '&page=' + page + '&revision=' + revision + '&query=';
-    let values = req.query.query.split(' ');
+    let url    = req.app.locals.tenantLink + '/api/v3/search-results?limit=' + limit + '&offset=' + offset + '&page=' + page + '&query=';
+    let values = req.body.query.split(' ');
     
     if(values.length > 1) {
         let query  = '';
@@ -4370,17 +4370,17 @@ router.get('/search-descriptor', function(req, res, next) {
         }
         url += '(' + query + ')';
     } else if(!wildcard) {
-        url += 'itemDescriptor%3D%22' + req.query.query + '%22';
+        url += 'itemDescriptor%3D%22' + req.body.query + '%22';
     } else {
-        url += 'itemDescriptor%3D*' + req.query.query + '*';
+        url += 'itemDescriptor%3D*' + req.body.query + '*';
     }
 
-    if(typeof req.query.wsId !== 'undefined') url += '+AND+(workspaceId%3D' + req.query.wsId + ')';
+    if(typeof req.body.wsId !== 'undefined') url += '+AND+(workspaceId%3D' + req.body.wsId + ')';
 
-    if(typeof req.query.workspaces !== 'undefined') {
+    if(typeof req.body.workspaces !== 'undefined') {
         url += '+AND+(';
         let isFirst = true;
-        for(let workspace of req.query.workspaces) {
+        for(let workspace of req.body.workspaces) {
             if(!isFirst) url += '+OR+';
             url += 'workspaceId%3D' + workspace;
             isFirst = false;
@@ -4388,12 +4388,14 @@ router.get('/search-descriptor', function(req, res, next) {
         url += ')';
     }
 
+    url += '&revision=' + revision;
+
     let headers = getCustomHeaders(req);
 
     if(bulk !== 'false') headers.Accept = 'application/vnd.autodesk.plm.items.bulk+json';
 
     axios.get(url, {
-        'headers' : headers
+        headers : headers
     }).then(function(response) {
         if(response.data === "") response.data = { 'items' : [] }
         sendResponse(req, res, response, false);

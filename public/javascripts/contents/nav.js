@@ -857,7 +857,7 @@ function insertSearchData(id) {
     if(!isBlank(settings.search[id].workspaceIds)) params.workspaces = settings.search[id].workspaceIds;
     if(settings.search[id].exactMatch            ) params.wildcard   = false;
 
-    $.get('/plm/search-descriptor', params, function(response) {
+    $.post('/plm/search-descriptor', params, function(response) {
 
         if(stopPanelContentUpdate(response, settings.search[id])) return;
             

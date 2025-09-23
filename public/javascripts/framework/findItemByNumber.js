@@ -17,7 +17,7 @@ $(document).ready(function() {
             wildcard : false
         }
 
-        $.get('/plm/search-descriptor', params, function(response) {
+        $.post('/plm/search-descriptor', params, function(response) {
 
             if(response.data.items.length > 0) {
 

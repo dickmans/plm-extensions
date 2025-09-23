@@ -702,7 +702,7 @@ function performSearch() {
     $('#search-processing').show();
     $('#search-no-results').hide();
 
-    $.get('/plm/search-descriptor', { 'query' : $('#search-input').val(), 'limit' : 50, 'bulk' : 'false' }, function(response) {
+    $.post('/plm/search-descriptor', { 'query' : $('#search-input').val(), 'limit' : 50, 'bulk' : 'false' }, function(response) {
 
         if(!isBlank(response.data.items)) {
 
