@@ -61,7 +61,7 @@ function insertUsersData(id) {
         ]
 
         for(let column of columns) {
-            if(includePanelTableColumn(column.displayName, panelSettings, panelSettings.columns.length)) {
+            if(includePanelTableColumn(column.fieldId, column.displayName, panelSettings, panelSettings.columns.length)) {
                 panelSettings.columns.push(column);
             }
         }
@@ -79,11 +79,15 @@ function insertUsersData(id) {
                     image = '<img src="' + user.image.large + '">';
                 }
 
+                if(isBlank(user.lastLoginTime)) {
+                    lastLogin = 'Never logged in yet';
+                } else lastLogin = lastLogin.toLocaleDateString();
+
                 users.push({
                     link      : user.email,
                     imageLink : user.image.large,
                     title     : user.displayName,
-                    subtitle  : 'Last Login at ' + lastLogin.toLocaleDateString(),
+                    subtitle  : (isBlank(user.lastLoginTime)) ? lastLogin : 'Last Login at ' + lastLogin,
                     details   : '',
                     data      : [
                         { fieldId : 'user', value : user.displayName},
@@ -93,7 +97,7 @@ function insertUsersData(id) {
                         { fieldId : 'country', value : user.country},
                         { fieldId : 'city', value : user.city},
                         { fieldId : 'address', value : user.address1},
-                        { fieldId : 'lastLogin', value : lastLogin.toLocaleDateString()},
+                        { fieldId : 'lastLogin', value : lastLogin},
                         { fieldId : 'image', value : image}
                     ]
                 });

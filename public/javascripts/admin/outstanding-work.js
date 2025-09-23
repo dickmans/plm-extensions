@@ -7,7 +7,7 @@ $(document).ready(function() {
             insertMenu();
             appendOverlay(true);
             insertUsers({
-                columnsIn       : ['First Name', 'Last Name', 'Last Login'],
+                fieldsIn        : ['First Name', 'Last Name', 'Last Login'],
                 hideHeaderLabel : true,
                 search          : true,
                 layout          : 'list',
