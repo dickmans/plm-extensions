@@ -7,7 +7,7 @@ $(document).ready(function() {
 
         insertSearch({ 
             autoClick    : config.portal.autoClick,
-            inputLabel   : 'Enter part number',
+            inputLabel   : config.portal.searchInputText,
             limit        : 15,
             number       : true,
             contentSize  : 'xs',
@@ -87,7 +87,7 @@ function openItem(elemClicked) {
         hideComputed        : true,
         openInPLM           : true,
         toggles             : true,
-        suppressLinks       : true,
+        suppressLinks       : config.portal.suppressLinks,
         expandSections      : config.portal.expandSections,
         sectionsEx          : config.portal.sectionsExcluded,
         sectionsIn          : config.portal.sectionsIncluded,

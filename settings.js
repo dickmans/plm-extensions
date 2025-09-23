@@ -522,6 +522,7 @@ exports.config = {
 
     portal : {
         autoClick        : true,
+        searchInputText  : 'Enter part number', 
         workspacesIn     : ['Items'],
         expandSections   : ['Basic'],
         sectionsExcluded : ['AML Summary', 'Quality Inspection', 'Sustainability', 'Compliance', 'Others'],
@@ -529,6 +530,7 @@ exports.config = {
         sectionsOrder    : ['Basic', 'Technical Details', 'PDM Data'],
         fieldsExcluded   : ['ESTIMATED_COST', 'PENDING_PACKAGES'],
         fieldsIncluded   : [],
+        suppressLinks    : false,
         viewerFeatures   : {
             contextMenu   : false,
             cube          : false,

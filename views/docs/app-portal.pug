@@ -28,8 +28,20 @@
                     th Default Value
                 tr 
                     td portal.autoClick
-                    td When set to true and the search returns one result only, the given item will be selected automaticall
+                    td When set to true and the search returns one result only, the given item will be selected automatically
                     td true
+                tr 
+                    td portal.searchInputText
+                    td Placeholder text to be displayed in search input field at startup
+                    td 'Enter part number'
+                tr 
+                    td portal.workspacesIn
+                    td Defines the list of workspaces to search in. In addition, only recently viewed items of the defined workspaces will be displayed in the panel Recent Items.
+                    td ['Items']
+                tr 
+                    td portal.expandSections
+                    td Defines sections to be expanded per default in the item details panel. All other sections will be collapsed.
+                    td ['Basic']
                 tr 
                     td portal.sectionsExcluded
                     td Provide list of sections (by name) that should be excluded from the Details display
@@ -50,15 +62,23 @@
                     td portal.fieldsIncluded
                     td Restrict the Details display to a defined list of fields (defined by field ID) 
                     td []
+                tr 
+                    td portal.suppressLinks
+                    td When set to false, the details pages will not contain the links to open related PLM data 
+                    td []
         p.code
             span export.config = {
-            span.indent 'service' : {
+            span.indent 'portal' : {
             span.indent-2 autoClick : true
+            span.indent-2 searchInputText  : 'Enter part number'
+            span.indent-2 workspacesIn     : ['Items'],
+            span.indent-2 expandSections   : ['Basic'],
             span.indent-2 sectionsExcluded : ['AML Summary', 'Quality Inspection', 'Sustainability', 'Compliance', 'Others'],
             span.indent-2 sectionsIncluded : [],
             span.indent-2 sectionsOrder    : ['Basic', 'Technical Details', 'PDM Data'],
             span.indent-2 fieldsExcluded   : ['ESTIMATED_COST', 'PENDING_PACKAGES'],
             span.indent-2 fieldsIncluded   : [],
+            span.indent-2 suppressLinks    : false,
             span.indent-2 viewerFeatures   : { .. }
             span.indent }
             span }  
@@ -77,6 +97,14 @@
     .log 
         h1 PLM Portal Change Log 
         table 
+            tr 
+                td 23. September 2025
+                td Enhancement
+                td Added setting 'searchInputText' configure the placeholder text in the search input field
+            tr 
+                td 
+                td Enhancement
+                td Added setting 'suppressLinks' to enable / disable item details pages links
             tr 
                 td September 23, 2024
                 td Enhancement
