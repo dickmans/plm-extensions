@@ -83,7 +83,7 @@ $(document).ready(function() {
 
         insertWorkspaceViews(wsItems.id, {
             id          : 'products',
-            columnsEx   : [ 'Image', 'PDM Status' ],
+            fieldsEx    : [ 'Image', 'PDM Status' ],
             headerLabel : 'Items Workspace',
             number      : true,
             search      : true,
