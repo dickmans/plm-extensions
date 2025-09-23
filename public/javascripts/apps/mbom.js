@@ -60,7 +60,7 @@ $(document).ready(function() {
     appendProcessing('ebom', false);
     appendProcessing('mbom', false);
     appendProcessing('details');
-    appendOverlay();
+    appendOverlay(true);
 
     getFeatureSettings('mbom', [], function() {
 
@@ -388,6 +388,7 @@ function getInitialData() {
             cancelButton    : false,
             id              : 'create-item-form',
             header          : false,
+            showInDialog    : false,
             hideComputed    : true,
             hideReadOnly    : true,
             sectionsIn      : config.mbom.sectionInCreateForm,
@@ -432,7 +433,7 @@ function processItemData(itemDetails) {
 
     let valueEBOM = getSectionFieldValue(itemDetails.sections, config.mbom.fieldIdEBOM, '', 'link');
     let valueMBOM = getSectionFieldValue(itemDetails.sections, config.mbom.fieldIdMBOM + siteSuffix, '', 'link');
-    
+
     if(valueEBOM !== '') {
         
         links.mbom = links.start;
@@ -488,6 +489,7 @@ function processRoots(itemDetails) {
             eBOM.edges.sort(function(a, b){ return a.itemNumber - b.itemNumber });
             mBOM.edges.sort(function(a, b){ return a.itemNumber - b.itemNumber });
 
+            
             insertItemSummary(links.ebom, paramsSummary);
             initEditor();
 
@@ -595,7 +597,7 @@ function initEditor() {
     $('#mbom-tree').find('.item').first().addClass('selected-target');
     
     $('#status-progress').remove();
-    
+
     setTotalQuantities();
     setStatusBar();
 
