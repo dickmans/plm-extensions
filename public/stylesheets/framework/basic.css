@@ -52,8 +52,6 @@ input, textarea {
     border          : none;
     border-bottom   : 1px solid transparent;
 }
-
-
 input { 
     padding : 8px;
 }
@@ -79,10 +77,15 @@ input[type='radio'] {
 }
 input[type='radio']:focus,
 input[type='radio']:checked {
-    background-color: var(--color-gray-400) !important;
+    background-color: white !important;
     border-color    : var(--color-surface-level-5) !important;
     box-shadow      : none !important;
 }
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+}
+
 
 .dark-theme ::placeholder { color: var(--color-gray-500); opacity: 1; }
 
@@ -136,15 +139,15 @@ td.link {
 }
 
 .surface-level-1 th { background : var(--color-surface-level-5); border-color : var(--color-surface-level-1); } 
-.surface-level-1 td { background : var(--color-surface-level-3); border-color : var(--color-surface-level-1); } 
+.surface-level-1 td { background : var(--color-surface-level-3); border-top-color : var(--color-surface-level-1); } 
 .surface-level-2 th { background : var(--color-surface-level-5); border-color : var(--color-surface-level-2); } 
-.surface-level-2 td { background : var(--color-surface-level-4); border-color : var(--color-surface-level-2); } 
+.surface-level-2 td { background : var(--color-surface-level-3); border-top-color : var(--color-surface-level-2); } 
 .surface-level-3 th { background : var(--color-surface-level-5); border-color : var(--color-surface-level-3); } 
-.surface-level-3 td { background : var(--color-surface-level-4); border-color : var(--color-surface-level-3); } 
+.surface-level-3 td { background : var(--color-surface-level-4); border-top-color : var(--color-surface-level-3); } 
 .surface-level-4 th { background : var(--color-surface-level-3); border-color : var(--color-surface-level-4); } 
-.surface-level-4 td { background : var(--color-surface-level-2); border-color : var(--color-surface-level-4); } 
+.surface-level-4 td { background : var(--color-surface-level-2); border-top-color : var(--color-surface-level-4); } 
 .surface-level-5 th { background : var(--color-surface-level-3); border-color : var(--color-surface-level-3); } 
-.surface-level-5 td { background : var(--color-surface-level-2); border-color : var(--color-surface-level-3); } 
+.surface-level-5 td { background : var(--color-surface-level-2); border-top-color : var(--color-surface-level-3); } 
 
 .surface-level-1 .panel-content th:first-child, .surface-level-1 .panel-content td:first-child { border-left : 1px solid var(--color-surface-level-1); }
 .surface-level-2 .panel-content th:first-child, .surface-level-2 .panel-content td:first-child { border-left : 1px solid var(--color-surface-level-2); }
@@ -163,9 +166,6 @@ td.link {
 .surface-level-3 td.table-group-title { background : var(--color-surface-level-4); } 
 .surface-level-4 td.table-group-title { background : var(--color-surface-level-3); } 
 .surface-level-5 td.table-group-title { background : var(--color-surface-level-3); } 
-
-.surface-level-2 > table > thead > tr > th { border-bottom-color : var(--color-surface-level-2); }
-.surface-level-2 > table > tbody > tr > td { border-bottom-color : var(--color-surface-level-2); }
 
 table.grid.rotated th {
     padding : 5px 16px;
