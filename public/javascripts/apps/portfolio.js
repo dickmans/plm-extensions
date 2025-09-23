@@ -417,11 +417,11 @@ function selectProduct(elemClicked) {
             id          : 'summary',
             bookmark    : true,
             contents    : [
-                { type : 'details'     , className : 'surface-level-1', params : { id : 'item-section-details', hideSections : true, sectionsIn: ['Specification'], headerLabel : 'Technical Specification' } },
-                { type : 'grid'        , className : 'surface-level-1', params : { id : 'item-section-grid'   , headerLabel : 'Variants', columnsIn : ['Title', 'Region', 'SKU', 'Target Launch'] } },
-                { type : 'images'      , className : 'surface-level-1', params : { id : 'item-section-images' , layout : 'grid', contentSize : 'm'} },
-                { type : 'attachments' , className : 'surface-level-1', params : { id : 'item-section-attachments', editable : false, contentSize : 's' , singleToolbar : 'controls'} },
-                { type : 'bom'         , className : 'surface-level-1', params : { 
+                { type : 'details'     , className : 'surface-level-2', params : { id : 'item-section-details', hideSections : true, sectionsIn: ['Specification'], headerLabel : 'Technical Specification' } },
+                { type : 'grid'        , className : 'surface-level-2', params : { id : 'item-section-grid'   , headerLabel : 'Variants', fieldsIn : ['Title', 'Region', 'SKU', 'Target Launch'] } },
+                { type : 'images'      , className : 'surface-level-2', params : { id : 'item-section-images' , layout : 'grid', contentSize : 'm'} },
+                { type : 'attachments' , className : 'surface-level-2', params : { id : 'item-section-attachments', editable : false, contentSize : 's' , singleToolbar : 'controls'} },
+                { type : 'bom'         , className : 'surface-level-2', params : { 
                     id                  : 'item-section-bom', 
                     bomViewName         : config.portfolio.bomViewName,
                     collapseContents    : true, 

@@ -22,35 +22,12 @@
     text-overflow   : ellipsis;
     white-space     : wrap;
 }
-.panel-sections > div > .panel-header {
-    background : var(--color-surface-level-5) !important;
-}
-.panel-sections > div > .panel-header:hover {
-    background : var(--color-surface-level-4) !important;
-}
 #item-section-images {
     background : none;
 }
 #item-section-images-content {
     justify-content: flex-start;
     overflow-y : hidden;
-}
-#item-section-grid-tbody td,
-#item-section-bom-tbody  td {
-    background   : var(--color-surface-level-1) ;
-    border-color : var(--color-surface-level-3) ;
-}
-#item-section-grid-thead th,
-#item-section-bom-thead  th {
-    background   : var(--color-surface-level-2) ;
-    border-color : var(--color-surface-level-3);
-}
-.attachment-graphic {
-    background : var(--color-surface-level-2) !important;    
-}
-.attachment {
-    background   : var(--color-surface-level-2) !important;
-    border-color : var(--color-surface-level-3) !important;
 }
 
 
@@ -64,7 +41,7 @@
     left    : 0px;
 }
 #summary {
-    border-width    : 20px 30px; 
+    border-width    : 32px 48px; 
     top             : 0px;
     right           : 0px;
     bottom          : 0px;
@@ -326,7 +303,8 @@
     z-index: 3;
 }
 #summary-header {
-    height : 96px;
+    height  : 58px;
+    padding : 0px;
 }
 #summary-title {
     padding-left : 0px;
@@ -344,7 +322,7 @@
     line-height : 24px;
 }
 #summary-content {
-    top : 110px;
+    top : 60px;
 }
 #summary-content .panel-controls {
     display : none;
