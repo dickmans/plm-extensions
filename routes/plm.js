@@ -1636,8 +1636,9 @@ function genGridRowData(req) {
 
     for(let field of req.body.data) {
         
-        let value = (field.value === 'null') ? null : field.value;
         let type  = (typeof field.type === 'undefined') ? 'string' : field.type.toLowerCase();
+        
+        let value = (field.value === 'null') ? null : field.value;
 
         if(value === '') value = null;
 
@@ -3184,7 +3185,6 @@ function getViewables(req, res, headers, link, viewables, attempt) {
             if(viewable.type !== 'Adobe PDF') {
 
                 for(let response of responses) {
-
                     if((viewable.name === response.fileName) || ((viewable.name + viewable.extension) === response.fileName)) {
                         if(response.status !== 'DONE') {
                             success = false;
@@ -5183,6 +5183,7 @@ router.get('/charts-pinned', function(req, res, next) {
 
 });
 
+
 /* ----- LOGIN SYSTEM ADMIN ----- */
 router.get('/login-admin', function(req, res, next) {
     
@@ -5608,6 +5609,7 @@ router.get('/run-item-script', function(req, res, next) {
 
 });
 
+
 /* ----- GET ROLES (V1) ----- */
 router.get('/roles', function(req, res, next) {
     
@@ -5776,8 +5778,8 @@ router.post('/excel-export', function(req, res, next) {
         if(typeof sheet.autoFilter  === 'undefined') sheet.autoFilter  = true;
         if(typeof sheet.rowHeight   === 'undefined') sheet.rowHeight   = 24;
         if(typeof sheet.borderColor === 'undefined') sheet.borderColor = 'dddddd';
-        if(typeof sheet.columnsIn   === 'undefined') sheet.columnsIn   = [];
-        if(typeof sheet.columnsEx   === 'undefined') sheet.columnsEx   = [];
+        if(typeof sheet.fieldsIn    === 'undefined') sheet.fieldsIn    = [];
+        if(typeof sheet.fieldsEx    === 'undefined') sheet.fieldsEx    = [];
         if(typeof sheet.colWidths   === 'undefined') sheet.colWidths   = [];
 
     }
@@ -5900,10 +5902,11 @@ function getExcelExportGrid(req, res, path, sheet) {
 
         for(let field of responses[0].data.fields) {
 
-            let fieldId  = field.urn.split('.').pop();
+            let fieldId   = field.urn.split('.').pop();
+            let fieldName = field.name;
 
-            if((sheet.columnsIn.length === 0) || ( sheet.columnsIn.includes(fieldId))) {
-                if((sheet.columnsEx.length === 0) || (!sheet.columnsEx.includes(fieldId))) {
+            if((sheet.fieldsIn.length === 0) || (sheet.fieldsIn.includes(fieldId)) || (sheet.fieldsIn.includes(fieldName))) {
+                if((sheet.fieldsEx.length === 0) || ((!sheet.fieldsEx.includes(fieldId)) && (!sheet.fieldsEx.includes(fieldName))) ) {
 
                     let width = (colIndex <= sheet.colWidths.length) ? sheet.colWidths[colIndex++] : 20;
 
