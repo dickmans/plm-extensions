@@ -239,6 +239,7 @@
 .icon-counter-1::before         { content : '\f784'; }
 .icon-counter-2::before         { content : '\f783'; }
 .icon-create::before            { content : '\e147'; }
+.icon-create-multiple::before   { content : '\e7e5'; }
 .icon-dark::before              { content : '\f03d'; }
 .icon-dashboard::before         { content : '\e871'; }
 .icon-delete::before            { content : '\e872'; }
@@ -263,6 +264,7 @@
 .icon-go-there::before          { content : '\e5da'; }
 .icon-goto-folder::before       { content : '\e675'; }
 .icon-group::before             { content : '\e7ef'; }
+.icon-group-add::before         { content : '\e7f0'; }
 .icon-help::before              { content : '\f1c0'; }
 .icon-hide::before              { content : '\e8f5'; }
 .icon-highlight::before         { content : '\e518'; }
@@ -296,6 +298,7 @@
 .icon-order-in-work::before     { content : '\f811'; }
 .icon-package::before           { content : '\f569'; }
 .icon-panel::before             { content : '\f114'; }
+.icon-paste-below::before       { content : '\e861'; }
 .icon-pdf::before               { content : '\e415'; }
 .icon-picklist::before          { content : '\e9bd'; }
 .icon-pie-chart::before         { content : '\e79b'; }
@@ -355,6 +358,7 @@
 .icon-unfold::before            { content : '\e5d7'; }
 .icon-upload::before            { content : '\e2c3'; }
 .icon-user::before              { content : '\e7fd'; }
+.icon-user-info::before         { content : '\f567'; }
 .icon-vault-item::before        { content : '\e991'; }
 .icon-viewer::before            { content : '\e9fe'; }
 .icon-width::before             { content : '\f730'; }
