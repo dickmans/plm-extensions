@@ -1036,7 +1036,7 @@ function uploadImage() {
 
         addFieldToPayload(params.sections, wsConfig.variants.sections, null, 'IMAGE'  , value);
 
-        $.post('/plm/update', params, function(response) {
+        $.post('/plm/edit', params, function(response) {
             $('#overlay').hide();
         });
 
@@ -1083,7 +1083,7 @@ function uploadImages() {
                         addFieldToPayload(params.sections, wsConfig.variants.sections, null, 'IMAGE_3', values[3]);
                         addFieldToPayload(params.sections, wsConfig.variants.sections, null, 'IMAGE_4', values[4]);
                 
-                        $.post('/plm/update', params, function(response) {
+                        $.post('/plm/edit', params, function(response) {
                             $('#overlay').hide();
                         });
     

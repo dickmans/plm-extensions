@@ -10,7 +10,7 @@ $(document).ready(function() {
 
     appendOverlay(true);
 
-    getFeatureSettings('sbom', [], function() {
+    getFeatureSettings('assetBOM', [], function() {
 
         getInitialData();
         setUIEvents();
@@ -76,7 +76,7 @@ function setUIEvents() {
                 reload      : true,
                 search      : true,
                 // columnsEx : ['Purchased', 'Location', 'Installation Date', 'Notes'],
-                columnsEx : ['Purchased', 'Location', 'Notes'],
+                fieldsEx : ['Purchased', 'Location', 'Notes'],
                 // useCache    : false,
                 // fieldIdPartNumber : 'ITEM_NUMBER',
                 // onClickItem : function(elemClicked) { console.log('1'); onSerialNumberClick(elemClicked); } 
@@ -108,19 +108,19 @@ function getInitialData() {
 
         $('#header-subtitle').html(responses[0].data.title);
 
-        let fieldIdEBOM = urlParameters.fieldidebom || config.sbom.fieldIdAssetEBOM;
-        let fieldIdMBOM = urlParameters.fieldidmbom || config.sbom.fieldIdAssetMBOM;
+        let fieldIdEBOM = urlParameters.fieldidebom || config.assetBOM.fieldIdAssetEBOM;
+        let fieldIdMBOM = urlParameters.fieldidmbom || config.assetBOM.fieldIdAssetMBOM;
 
         links.ebom    = getSectionFieldValue(responses[0].data.sections, fieldIdEBOM, '', 'link');
-        links.mbom    = getSectionFieldValue(responses[0].data.sections, fieldIdMBOM, '', 'link');
-        links.abom    = getSectionFieldValue(responses[0].data.sections, config.sbom.fieldIdAssetABOM, '', 'link');
-        links.serials = getSectionFieldValue(responses[0].data.sections, config.sbom.fieldIdAssetSERIALS, '', 'link');
+        links.mbom    = getSectionFieldValue(responses[0].data.sections, fieldIdEBOM, '', 'link');
+        links.abom    = getSectionFieldValue(responses[0].data.sections, config.assetBOM.fieldIdAssetABOM, '', 'link');
+        links.serials = getSectionFieldValue(responses[0].data.sections, config.assetBOM.fieldIdAssetSERIALS, '', 'link');
 
         console.log(links);
 
         for(let field of responses[1].data) {
             let fieldId = field.__self__.split('/')[8];
-            if(fieldId === config.sbom.fieldIdAssetABOM) {
+            if(fieldId === config.assetBOM.fieldIdAssetABOM) {
                 wsAssetItems.id = field.picklistFieldDefinition.split('/')[4];
                 break;
             }
@@ -153,11 +153,13 @@ function getInitialData() {
             $.get('/plm/bom-views-and-fields', { wsId : wsAssetItems.id, useCache : false })
         ]
 
+        console.log(links);
+
         if(isBlank(links.abom)) {
             requests.push($.get('/plm/derived', {
                 link        : links.mbom,
                 wsId        : wsAssetItems.id,
-                fieldId     : config.sbom.fieldIdAssetItemItem,
+                fieldId     : config.assetBOM.fieldIdAssetItemItem,
                 pivotItemId : links.mbom.split('/')[6],
             }));
             requests.push($.get('/plm/sections', { wsId : wsId }));
@@ -168,7 +170,7 @@ function getInitialData() {
             if(!isBlank(projectItem.item)) {
                 let projectItemLink = projectItem.item.link;
                 let projectItemWSID = projectItemLink.split('/')[4];
-                if(projectItemWSID === config.sbom.wsIdAssetDeliveries) {
+                if(projectItemWSID === config.assetBOM.wsIdAssetDeliveries) {
                     projectItems.push({
                         link  : projectItemLink,
                         title : projectItem.title,
@@ -235,8 +237,8 @@ function createRootAssetItem(linkItem, dataDerived, callback) {
         sections : []
     };
 
-    addFieldToPayload(params.sections, wsAssetItems.sections, null, config.sbom.fieldIdAssetItemAsset, { link : links.asset });
-    addFieldToPayload(params.sections, wsAssetItems.sections, null, config.sbom.fieldIdAssetItemItem,  { link : linkItem    });
+    addFieldToPayload(params.sections, wsAssetItems.sections, null, config.assetBOM.fieldIdAssetItemAsset, { link : links.asset });
+    addFieldToPayload(params.sections, wsAssetItems.sections, null, config.assetBOM.fieldIdAssetItemItem,  { link : linkItem    });
     
     addDerivedFieldsToPayload(params.sections, wsAssetItems.sections, dataDerived);
 
@@ -254,7 +256,7 @@ function linkRootAssetItem(wsAssetsSections) {
 
         link        : links.abom,
         wsId        : wsId,
-        fieldId     : config.sbom.fieldIdAssetABOM,
+        fieldId     : config.assetBOM.fieldIdAssetABOM,
         pivotItemId : links.abom.split('/')[6],
 
     }, function(response) {
@@ -264,7 +266,7 @@ function linkRootAssetItem(wsAssetsSections) {
             sections : [] 
         }
 
-        addFieldToPayload(params.sections, wsAssetsSections, null, config.sbom.fieldIdAssetABOM, { 'link' : links.abom });
+        addFieldToPayload(params.sections, wsAssetsSections, null, config.assetBOM.fieldIdAssetABOM, { 'link' : links.abom });
         addDerivedFieldsToPayload(params.sections, wsAssetsSections, response.data);
 
         $.post('/plm/edit', params, function(response) {
@@ -284,13 +286,13 @@ function insertEditor() {
 
     insertBOM(links.mbom, {
         headerLabel         : 'Asset BOM',
-        columnsIn           : ['Quantity'],
+        fieldsIn            : ['Quantity'],
         collapseContents    : true,
         openInPLM           : true,
         search              : true,
         reload              : true,
         toggles             : true,
-        bomViewName         : config.sbom.bomViewNameItems,
+        bomViewName         : config.assetBOM.bomViewNameItems,
         additionalRequests  : additionalRequests,
         onClickItem         : function(elemClicked) { onBOMItemClick(elemClicked); }
     }); 
@@ -319,7 +321,7 @@ function onBOMItemClick(elemClicked) {
                 // columnsEx   : ['Item Number'],
                 editable    : true,
                 headerLabel : itemNumber + ': Serial Numbers',
-                columnsEx   : ['Status', 'Supplier', 'Remarks', 'Previous Serial #', 'Previous Item Rev'],
+                fieldsEx    : ['Status', 'Supplier', 'Remarks', 'Previous Serial #', 'Previous Item Rev'],
                 // headerLabel : 'descriptor',
                 reload      : true,
                 useCache    : false,
@@ -1090,7 +1092,7 @@ function clickCreateAssetItem(elemClicked) {
             let params = {
                 link        : linkItem,
                 wsId        : wsAssetItems.id,
-                fieldId     : config.sbom.fieldIdAssetItemItem,
+                fieldId     : config.assetBOM.fieldIdAssetItemItem,
                 pivotItemId : linkItem.split('/')[6],
                 index       : item.index()
             };
@@ -1126,8 +1128,8 @@ function clickCreateAssetItem(elemClicked) {
                     'index'     : item.index()
                 };
 
-                addFieldToPayload(params.sections, wsAssetItems.sections, null, config.sbom.fieldIdAssetItemAsset, { 'link' : links.asset } );
-                addFieldToPayload(params.sections, wsAssetItems.sections, null, config.sbom.fieldIdAssetItemItem, { 'link' : item.attr('data-link') } );
+                addFieldToPayload(params.sections, wsAssetItems.sections, null, config.assetBOM.fieldIdAssetItemAsset, { 'link' : links.asset } );
+                addFieldToPayload(params.sections, wsAssetItems.sections, null, config.assetBOM.fieldIdAssetItemItem, { 'link' : item.attr('data-link') } );
                 addFieldToPayload(params.sections, wsAssetItems.sections, null, 'ITEM_EDGE_ID', item.attr('data-edgeid') );
                 addFieldToPayload(params.sections, wsAssetItems.sections, null, 'END_ITEM', item.hasClass('is-end-item') );
                 addFieldToPayload(params.sections, wsAssetItems.sections, null, 'SPARE_WEAR_PART', item.hasClass('is-spare-part') );
@@ -1161,7 +1163,7 @@ function clickCreateAssetItem(elemClicked) {
                     .addClass('match');
 
                 requestsUpdate.push($.get('/plm/details', { link : linkAssetItem, index : response.params.index }));
-                requestsUpdate.push($.get('/plm/bom-add', { linkParent : linkAssetParent, linkChild : linkAssetItem, number : elemBOMItem.attr('data-number'), quantity : elemBOMItem.attr('data-total-quantity') }));
+                requestsUpdate.push($.post('/plm/bom-add', { linkParent : linkAssetParent, linkChild : linkAssetItem, number : elemBOMItem.attr('data-number'), quantity : elemBOMItem.attr('data-total-quantity') }));
 
             }
 

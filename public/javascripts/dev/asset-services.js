@@ -183,7 +183,7 @@ function selectAssetService(elemClicked) {
                     suppressLinks : true, 
                     sectionsEx : ['Images']
                 }},
-                { type : 'grid'            ,  params : { id : 'request-grid', columnsEx : ['Comments', 'Required Tools'], layout : 'list', hideHeader : true} },
+                { type : 'grid'            ,  params : { id : 'request-grid', fieldsEx : ['Comments', 'Required Tools'], layout : 'list', hideHeader : true} },
                 { type : 'managed-items'   ,  params : { 
                         id : 'request-managed',
                         layout : 'list', 

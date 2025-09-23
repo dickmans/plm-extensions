@@ -139,6 +139,12 @@ tr.highlighted > td {
 #items .column-INSTANCE_ID {
     display : none;
 }
+.panel-action-remove {
+    order : -2;
+}
+.panel-action-clone {
+    order : -1;
+}
 /*
 #items td {
     background : var(--color-surface-level-2);

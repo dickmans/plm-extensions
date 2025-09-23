@@ -6,6 +6,7 @@ let paramsDetails = {
     headerLabel     : 'descriptor',
     expandSections  : ['Basic'],
     layout          : 'narrow',
+    openInPLM       : true,
     toggles         : true
 }
 
@@ -43,7 +44,7 @@ $(document).ready(function() {
                 viewerSelection     : false,
                 includeBOMPartList  : true,
                 bomViewName         : config.assetEditor.bomViewName,
-                columnsIn           : ['Quantity', 'Qty'],
+                fieldsIn            : ['Quantity', 'Qty'],
                 contentSize         : 'm',
                 afterCompletion     : function(id, data) { afterBOMCompletion(id, data) },
                 onClickItem         : function(elemClicked) { onSelectBOMItem(elemClicked); }
@@ -87,7 +88,8 @@ function setUIEvents() {
                 link      : workspace.link,
                 name      : workspace.label,
                 color     : config.colors.list[workspace.colorIndex].split('#')[1],
-                columnsEx : [],
+                fieldsIn  : workspace.fieldsIn || [],
+                fieldsEx  : workspace.fieldsEx || [],
                 colWidths : []
             });
         }
@@ -238,8 +240,8 @@ function insertTabHeaders() {
 
             let id = column.__self__.split('/').pop();
 
-            if((workspace.columnsIn.length === 0) || ( workspace.columnsIn.includes(id))) {
-                if((workspace.columnsEx.length === 0) || (!workspace.columnsEx.includes(id))) {
+            if((workspace.fieldsIn.length === 0) || ( workspace.fieldsIn.includes(id))) {
+                if((workspace.fieldsEx.length === 0) || (!workspace.fieldsEx.includes(id))) {
                     $('<th></th>').appendTo(elemTHRow)
                         .addClass('grid-column-' + id)
                         .html(column.name);
@@ -266,15 +268,14 @@ function insertTabContents() {
                 hideHeader        : true,
                 multiSelect       : true,
                 reload            : true,
-                search            : true,
-                filterEmpty       : true,
+                search            : false,
+                filterEmpty       : false,
                 filterBySelection : true,
-                hideActionAdd     : true,
-                hideActionClone   : true,
-                hideActionRemove  : false,
+                hideButtonCreate  : true,
+                hideButtonClone   : true,
                 singleToolbar     : 'actions',
-                columnsIn         : workspace.columnsIn,
-                columnsEx         : workspace.columnsEx,
+                fieldsIn          : workspace.fieldsIn,
+                fieldsEx          : workspace.fieldsEx,
                 groupBy           : workspace.groupBy || '',
                 collapseContents  : workspace.collapseContents || false,
                 textNoData        : 'No items found. Use the EBOM sync to update this table.',
@@ -337,8 +338,7 @@ function insertTabContents() {
 
     //                     let columnId = column.__self__.split('/').pop();
 
-    //                     if((workspace.columnsIn.length === 0) || ( workspace.columnsIn.includes(columnId))) {
-    //                         if((workspace.columnsEx.length === 0) || (!workspace.columnsEx.includes(columnId))) {
+
                                 
     //                             let elemCell = $('<td></td>').appendTo(eleTBRow)
     //                                 .addClass('grid-column-' + columnId)
@@ -357,11 +357,7 @@ function insertTabContents() {
 
     //                             }
 
-    //                             // if(id === 'NUMBER') {
-                                    
-    //                             // }
-    //                         }
-    //                     }
+
     //                 }
     //             }
 
@@ -389,7 +385,6 @@ function addBOMToolbarActions() {
         .click(function() {
             $(this).toggleClass('main');
             applyViewerColors();
-
         });
 
 }
@@ -450,7 +445,7 @@ function onSelectBOMItem(elemClicked) {
             elemGrid.find('tr.content-item').each(function() {
 
                 let elemRow = $(this);
-                let gridRow = getGridRowDetails(elemRow, workspace.columnsDef);
+                let gridRow = getGridRowDetails(elemRow, workspace.fieldsList);
 
                 if(gridRow.path.indexOf(path.string) < 0) {
                     elemRow.addClass('hidden');
@@ -488,12 +483,12 @@ function selectGridItem(elemClicked) {
     let isSelected = elemClicked.hasClass('highlighted');
     let elemPanel  = elemClicked.closest('.panel-top');
     let index      = elemPanel.index();
-    let rowData    = getGridRowDetails(elemClicked, workspaces[index].columnsDef);
+    let rowData    = getGridRowDetails(elemClicked, workspaces[index].fieldsList);
+
+    console.log(rowData);
+    console.log(isSelected);
 
     $('.highlighted').removeClass('highlighted');
-
-    // elemPanel.find('tr.selected').each(function() { $(this).removeClass('selected') });
-
 
     if(isSelected) {
 
@@ -585,7 +580,7 @@ function syncItemsList() {
     let iWS      = 0;
     let requests = [];
     let grids    = [];
-
+    
     for(let workspace of workspaces) {
 
         let gridRows = getGridRows(iWS);
@@ -597,11 +592,15 @@ function syncItemsList() {
 
             let viewerInstances = viewerGetComponentsInstances([item.partNumber])[0];
 
+            console.log(viewerInstances);
+
             for(let viewerInstance of viewerInstances.instances) {
-                if(viewerInstance.path === item.path) {
+                if(viewerInstance.pathNumbers === item.path) {
                     item.instances.push(viewerInstance);
                 }
             } 
+
+            console.log(item);
 
         }     
 
@@ -628,9 +627,9 @@ function syncItemsList() {
                     wsId : workspace.workspaceId,
                     link : workspace.link,
                     data : [
-                        { fieldId : workspace.columnsDef.partNumber, value : item.partNumber     },
-                        { fieldId : workspace.columnsDef.path      , value : item.path           },
-                        { fieldId : workspace.columnsDef.instanceId, value : instance.instanceId }
+                        { fieldId : workspace.fieldsList.partNumber, value : item.partNumber     },
+                        { fieldId : workspace.fieldsList.path      , value : item.path           },
+                        { fieldId : workspace.fieldsList.instanceId, value : instance.instanceId }
                     ]
                 }
 
@@ -658,7 +657,7 @@ function getGridRows(index) {
 
     let results   = [];
     let elemTBody = $('#table-' + index + '-tbody');
-    let columns   = workspaces[index].columnsDef;
+    let columns   = workspaces[index].fieldsList;
 
     elemTBody.children('.content-item').each(function() {
 
