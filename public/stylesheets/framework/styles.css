@@ -71,7 +71,7 @@
     position    : absolute;
     top         : 0px;
     bottom      : 0px;
-    left        : 0px;
+    right        : 0px;
 }
 .pos-abs-bottom {
     position    : absolute;
@@ -85,7 +85,6 @@
     bottom      : 0px;
     left        : 0px;
 }
-
 
 
 /*  LAYOUT : SPLIT (Landing Page) */
@@ -130,6 +129,13 @@
 .split-right.padding-100 { border-width : 100px 100px 100px 100px; }
 
 
+
+/*  LAYOUT : FLEX DISPLAY */
+/* ----------------------------------------------------------------------------- */
+.display-flex-column {
+    display        : flex;
+    flex-direction : column;
+}
 
 /*  MENU */
 /* ----------------------------------------------------------------------------- */
@@ -1542,6 +1548,11 @@ and (max-device-width : 1900px)  {
 .panel-counter-changed.not-empty {
     border-color : var(--color-status-red) !important;
 }
+.surface-level-1 > .panel-counters { background : var(--color-surface-level-5); }
+.surface-level-2 > .panel-counters { background : var(--color-surface-level-5); }
+.surface-level-3 > .panel-counters { background : var(--color-surface-level-5); }
+.surface-level-4 > .panel-counters { background : var(--color-surface-level-3); }
+.surface-level-5 > .panel-counters { background : var(--color-surface-level-3); }
 
 
 /* ENABLE PANEL TOGGLES */
@@ -1738,9 +1749,9 @@ and (max-device-width : 1900px)  {
 .item-content {
     position : absolute;
 }
-.item-content .section-fields {
+/* .item-content .section-fields {
     padding : 10px 0px;
-}
+} */
 .item-content .section-fields .field.readonly {
     padding : 0px;
 }
@@ -1868,7 +1879,7 @@ and (max-device-width : 1900px)  {
 .panel-sections {
     display         : flex;
     flex-direction  : column;
-    gap             : 32px;
+    gap             : 20px;
     top             : 86px;
 }
 .item.no-sub-title > .panel-sections {
@@ -1877,15 +1888,12 @@ and (max-device-width : 1900px)  {
 .panel-sections > .panel-top {
     height : unset;
 }
-.panel-sections > div > .panel-header {
+.panel-sections > .panel-top > .panel-header {
     border      : none !important;
     gap         : 10px;
-}
-.panel-sections > div > .panel-header > .panel-header-toggle {
-    padding-top : 12px;
-}
-.panel-sections > div > .panel-header > .panel-title {
-    padding : 16px 12px 0px 0px;
+    max-height  : 38px;
+    min-height  : 38px;
+    height      : 38px;
 }
 .panel-sections > div > .panel-header .panel-title-main {
     font-size : 16px;
@@ -1898,12 +1906,17 @@ and (max-device-width : 1900px)  {
     position    : unset;
     text-align  : center;
 }
-.surface-level-1 > .panel-sections > .panel-top > .panel-header { background  : var(--color-surface-level-3); }
-.surface-level-2 > .panel-sections > .panel-top > .panel-header { background  : var(--color-surface-level-4); }
-.surface-level-3 > .panel-sections > .panel-top > .panel-header { background  : var(--color-surface-level-4); }
-.surface-level-4 > .panel-sections > .panel-top > .panel-header { background  : var(--color-surface-level-5); }
-.surface-level-5 > .panel-sections > .panel-top > .panel-header { background  : var(--color-surface-level-3); }
+.panel-sections > .surface-level-1 > .panel-header { background  : var(--color-surface-level-4); }
+.panel-sections > .surface-level-2 > .panel-header { background  : var(--color-surface-level-5); }
+.panel-sections > .surface-level-3 > .panel-header { background  : var(--color-surface-level-5); }
+.panel-sections > .surface-level-4 > .panel-header { background  : var(--color-surface-level-3); }
+.panel-sections > .surface-level-5 > .panel-header { background  : var(--color-surface-level-3); }
 
+.panel-sections > .surface-level-1 > .panel-header:hover { background  : var(--color-surface-level-4); }
+.panel-sections > .surface-level-2 > .panel-header:hover { background  : var(--color-surface-level-4); }
+.panel-sections > .surface-level-3 > .panel-header:hover { background  : var(--color-surface-level-4); }
+.panel-sections > .surface-level-4 > .panel-header:hover { background  : var(--color-surface-level-5); }
+.panel-sections > .surface-level-5 > .panel-header:hover { background  : var(--color-surface-level-4); }
 
 
 .item .panel-content .field.editable input,
@@ -2099,8 +2112,8 @@ and (max-device-width : 1900px)  {
 } 
 
 .button.default {
-    background   : var(--color-blue-500); 
-    border-color : var(--color-blue-500); 
+    background   : var(--color-blue-500) !important; 
+    border-color : var(--color-blue-500) !important; 
     color        : white; 
 }
 .button.default:hover {
@@ -2128,6 +2141,11 @@ select.button.main:hover {
     border-color : var(--color-green-700) !important; 
     color        : white; 
 }
+
+ .dark-theme .surface-level-4 .button { background : var(--color-surface-level-1); border-color : var(--color-surface-level-1); }
+.black-theme .surface-level-4 .button { background : var(--color-surface-level-1); border-color : var(--color-surface-level-1); }
+ .dark-theme .surface-level-4 .button:hover { background : var(--color-surface-level-2); border-color : var(--color-surface-level-2); }
+.black-theme .surface-level-4 .button:hover { background : var(--color-surface-level-2); border-color : var(--color-surface-level-2); }
 
  .dark-theme .surface-level-5 .button { background : var(--color-surface-level-1); border-color : var(--color-surface-level-1); }
 .black-theme .surface-level-5 .button { background : var(--color-surface-level-1); border-color : var(--color-surface-level-1); }
