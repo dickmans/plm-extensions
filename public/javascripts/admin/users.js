@@ -1023,7 +1023,7 @@ function insertUsersGroupsGrid() {
             .click(function(e) {
                 
                 let elemIcon = $(this);
-                let index    = $(this).closest('th').index() + 1;
+                let index    = $(this).closest('th').index() + 3;
 
                 elemIcon.toggleClass('selected-all');
 
@@ -1475,11 +1475,6 @@ function updateUserGroupsAssignments(close) {
                 let selected   = elemChange.find('.icon-check').length > 0;
                 let elemGroup  = $('#users-groups-grid-thead').find('th:nth-child(' + index + ')');
 
-                console.log(index);
-                console.log(elemGroup.attr('data-sort'));
-                console.log(elemGroup.attr('data-urn'));
-                console.log(elemGroup.attr('data-link'));
-
                 if(selected) {
                     change.add.push(elemGroup.attr('data-urn'));
                 } else {
@@ -1501,11 +1496,6 @@ function updateUserGroupsAssignments(close) {
 }
 function applyUsersGroupsChanges(changes, close) {
 
-    console.log(changes);
-    console.log(iProgress);
-
-    // return;
-
     if(iProgress < changes.length) {
 
         let change   = changes[iProgress];
@@ -1514,14 +1504,9 @@ function applyUsersGroupsChanges(changes, close) {
 
         if(change.add.length > 0) requests.push($.post('/plm/assign-groups', { userId : change.userId, groups : change.add}));
 
-        console.log(change);
-
         for(let groupdId of change.remove) requests.push($.post('/plm/unassign-group', { userId : change.userId, groupId : groupdId}));
 
-        console.log(requests.length);
-
         Promise.all(requests).then(function(responses) {
-            console.log(responses);
             iProgress++;
             elemRow.find('.changed').removeClass('changed');
             applyUsersGroupsChanges(changes, close);
@@ -1529,8 +1514,6 @@ function applyUsersGroupsChanges(changes, close) {
 
 
     } else {
-
-        console.log('refresh screen');
 
         getUsers();
         getGroups();
@@ -1541,8 +1524,6 @@ function applyUsersGroupsChanges(changes, close) {
             $('.dialog').hide();
             $('#overlay').hide();
         }
-
-
 
     }
 
