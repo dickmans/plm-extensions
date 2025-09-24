@@ -2155,8 +2155,9 @@ select.button.main:hover {
 
  .dark-theme .button.disabled,
 .black-theme .button.disabled {
-    background  : var(--color-surface-level-3) !important;
-    color       : var(--color-surface-level-1) !important;
+    background   : var(--color-surface-level-3) !important;
+    color        : var(--color-surface-level-1) !important;
+    border-color : var(--color-surface-level-3) !important;
 }
 
 .button.icon {
