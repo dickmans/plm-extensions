@@ -54,6 +54,10 @@ function setUIEvents() {
         windows = [];
     });
 
+    $('#workspace-categories').on('change', function() { filterLists(); });
+    $('#script-types'        ).on('change', function() { filterLists(); });
+    $('#picklist-types'      ).on('change', function() { filterLists(); });
+
 }
 
 
@@ -66,6 +70,9 @@ function filterLists() {
 
     let elemWorksapce = $('.workspace.selected');
     let workspaceId   = (elemWorksapce.length === 0) ? '' : elemWorksapce.attr('data-id');
+    let category      = $('#workspace-categories').val();
+    let scriptType    = $('#script-types').val();
+    let picklistType  = $('#picklist-types').val();
 
     if(workspaceId !== '') {
 
@@ -135,6 +142,53 @@ function filterLists() {
 
     }
 
+    if(category !== '---') {
+
+        $('#workspaces-list').children().each(function() {
+
+            let value = $(this).attr('data-category');
+            if(value !== category) $(this).addClass('hidden'); 
+
+        });
+
+    }
+
+    if(scriptType !== '---') {
+
+        $('#scripts-list').children().each(function() {
+
+            let type = $(this).attr('data-type');
+
+            switch(type) {
+
+                case 'action'    : if(scriptType !== 'act') $(this).addClass('hidden'); break;
+                case 'validation': if(scriptType !== 'val') $(this).addClass('hidden'); break;
+                case 'condition' : if(scriptType !== 'con') $(this).addClass('hidden'); break;
+                case 'library'   : if(scriptType !== 'lib') $(this).addClass('hidden'); break;
+
+            }
+
+        });
+
+    }
+
+    if(picklistType !== '---') {
+
+        $('#picklists-list').children().each(function() {
+
+            let type = $(this).attr('data-view');
+
+            switch(type) {
+
+                case 'true' : if(picklistType !== 'dyn') $(this).addClass('hidden'); break;
+                case 'false': if(picklistType !== 'fix') $(this).addClass('hidden'); break;
+
+            }
+
+        });
+
+    }
+
 }
 function filterList(id,) {
 
@@ -174,6 +228,7 @@ function insertWorkspaces() {
     $.get('/plm/workspaces', { limit : 1000, useCache : true }, function(response) {
 
         let workspaces = response.data.items;
+        let categories = [];
 
         if(completed++ === 3) $('#overlay').hide();
 
@@ -181,8 +236,11 @@ function insertWorkspaces() {
 
         for(let workspace of workspaces) {
 
+            if(!categories.includes(workspace.category.name)) categories.push(workspace.category.name);
+
             let elemTile = $('<div></div>').appendTo($('#workspaces-list'))
                 .attr('data-id', workspace.urn.split('.').pop())
+                .attr('data-category', workspace.category.name)
                 .addClass('tile')
                 .addClass('workspace')
                 .click(function() {
@@ -331,6 +389,18 @@ function insertWorkspaces() {
 
         }
 
+
+        categories.sort();
+
+        for(let category of categories) {
+
+            $('<option></option>').appendTo($('#workspace-categories'))
+                .attr('value', category)
+                .html(category)
+
+        }
+        
+
     });
 
 }
@@ -351,6 +421,7 @@ function insertScripts() {
             let elemTile = $('<div></div>').appendTo($('#scripts-list'))
                 .attr('data-id', script.__self__.split('/').pop())
                 .attr('data-link', script.__self__)
+                .attr('data-type', script.scriptType.toLowerCase())
                 .addClass('tile')
                 .click(function() {
                     openURL('script', '/script.form?ID=' + $(this).attr('data-id'));
@@ -400,6 +471,7 @@ function insertPicklists() {
 
             let elemTile = $('<div></div>').appendTo($('#picklists-list'))
                 .attr('data-id', picklist.id)
+                .attr('data-view', picklist.view)
                 .addClass('tile')
                 .click(function() {
                     openURL('workspace', '/admin#section=setuphome&tab=general&item=picklistedit&params={"name":"' + $(this).attr('data-id') + '"}');

@@ -35,6 +35,8 @@ block body
                     .panel-title 
                         .panel-title-main Workspaces 
                     .panel-controls
+                        select#workspace-categories.button
+                            option(value='---') All Categories
                 .panel-content.tiles.list.no-scrollbar#workspaces-list
 
             #scripts.surface-level-1
@@ -42,6 +44,12 @@ block body
                     .panel-title 
                         .panel-title-main Scripts
                     .panel-controls
+                        select#script-types.button
+                            option(value='---') All Script Types
+                            option(value='act') Action Scripts
+                            option(value='con') Condition Scripts
+                            option(value='val') Validation Scripts
+                            option(value='lib') Library Scripts
                 .panel-content.tiles.list.no-scrollbar#scripts-list
 
             #picklists.surface-level-1
@@ -49,6 +57,10 @@ block body
                     .panel-title 
                         .panel-title-main Picklists
                     .panel-controls
+                        select#picklist-types.button
+                            option(value='---') All Types
+                            option(value='dyn') Dynamic
+                            option(value='fix') Fixed
                 .panel-content.tiles.list.no-scrollbar#picklists-list
 
             #roles.surface-level-1
