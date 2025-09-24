@@ -2144,7 +2144,7 @@ function compareWorkspaceRelationship(relSource, relTarget, url, step, label) {
         let hasMatch = false;
         
         for(let target of relTarget) {
-            if(source.link === target.link) hasMatch = true;
+            if(source.title === target.title) hasMatch = true;
         }
 
         if(!hasMatch) {
@@ -2161,7 +2161,7 @@ function compareWorkspaceRelationship(relSource, relTarget, url, step, label) {
         let hasMatch = false;
     
         for(let source of relSource) {
-            if(source.link === target.link) hasMatch = true;
+            if(source.title === target.title) hasMatch = true;
         }
 
         if(!hasMatch) {
