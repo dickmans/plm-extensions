@@ -14,6 +14,19 @@ The following extensions are included in this package. Each application can be a
 <img src="public/images/addins-plm.png" width="48"> -->
 
 
+
+### PLM Portal
+Provide quick access to latest product data in PLM using a very basic frontend for casual users, working well on tablets
+[See Video](https://youtu.be/6A9ZNCxqRKg)
+<img src="public/images/app-portal.jpg" width="512"> -->
+
+### Product Portfolio Catalog
+The sales team can browse the Product Portfolio by Product Categories and Product Lines and retrieve latest product data including technical specification, documentation and Bill of Materials
+[See Video](https://youtu.be/hroRMjZzueQ)
+<img src="public/images/app-product-catalog.png" width="400"> -->
+
+
+
 - Change Impact Analysis [Video](https://youtu.be/6A9ZNCxqRKg)
 - Class Browser
 - Data Manager [Video](https://youtu.be/hL4UblHbXw0)
