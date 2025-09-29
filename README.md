@@ -12,16 +12,16 @@ Disclaimer: In any case all source code of this solution is of "work in progress
 The following extensions are included in this package. Each application can be accessed by a dedicated endpoint but also by using the [integrated menu](https://youtu.be/ImnXV0HF3PA). This given menu can be configured in the landing page while the list of available endpoints / applications is defined in file routes/landing.js
 
 
-
-### PLM Portal
+### Data Exploration &amp; Management
+#### PLM Portal
 <img src="public/images/app-portal.jpg">
 Provide quick access to latest product data in PLM using a very basic frontend for casual users, working well on tablets. See video at https://youtu.be/6A9ZNCxqRKg.
 
-### Product Portfolio Catalog
+#### Product Portfolio Catalog
 <img src="public/images/app-product-catalog.png">
 The sales team can browse the Product Portfolio by Product Categories and Product Lines and retrieve latest product data including technical specification, documentation and Bill of Materials. See video at (https://youtu.be/hroRMjZzueQ).
 
-### Workspace Navigator
+#### Workspace Navigator
 <img src="public/images/app-workspace-navigator.png">
 All contributors and decison makers now can manage multiple records easily; mass edit & compare properties based on the user's workspace views, bookmarks & recently viewed records. See video at https://youtu.be/jHBkAuEh32g.
 
