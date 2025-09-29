@@ -5,14 +5,16 @@
         .tile-subtitle Multiple panels provide direct access to PLM data inside Vault &amp; Inventor for seamless Item Master management, BOM navigation and integrated Task management
         .tile-access 
     .instructions.no-scrollbar
-        p The addins listed below are provided with this package and can be adjusted by using the configuration settings shown at bottom of this page.
-        p These addins are ready to use and compliant with the 
+        p The addins listed below are provided with this package and can be adjusted by using the configuration settings shown at bottom of this page. They are ready to use and compliant with the 
             span(style="font-weight:bold") PLM Desktop Extensions              
             | provided by Markus Koechl on Github. His extensions embed these interactive panels in your Vault and Inventor applications for a best in class user experience.
             br
             a(target="_blank" href="https://github.com/koechlm/Autodesk.TS.PlmDesktopExtensions") Download the PLM Desktop Extensions
             a(target="_blank" href="https://github.com/koechlm/Autodesk.TS.PlmDesktopExtensions/raw/refs/heads/master/Autodesk.TS.VaultPlmClientExtensions.pptx" style="margin-left:10px;") Open the PLM Desktop Extensions Setup Instructions
             br
+            br
+        p In order to use these addins with the PLM Desktop Extensions mentioned above, you must provide bour your Vault Gateway and Vault Name in your settings file:
+            img.border(src='images/apps/addins-plm-1.png' style='margin:8px 0px;width:100%;max-width:967px;min-width:967px;')
             br
         table 
             tr 
@@ -80,8 +82,8 @@
                 th Default Value 
                 th Description
             tr 
-                td(rowspan="3") Item Master Data
-                td(style="border-left:1px solid var(--color-surface-level-1);") config.addins.item.expandSections
+                td(rowspan="3" style="border-right:1px solid var(--color-surface-level-1);") Item Master Data
+                td config.addins.item.expandSections
                 td [ 'Basic', 'Technical Details' ]
                 td Select the sections to be expanded in the Item Details. All sections not contained will be collapsed.
             tr 
@@ -93,8 +95,8 @@
                 td [ 'ACTIONS' ]
                 td Defines fieldIDs to exclude in the Item Details page. Leave this array blank to show all fields.
             tr 
-                td(rowspan="8") Engineering Projects
-                td(style="border-left:1px solid var(--color-surface-level-1);") config.addins.projects.workspaceId 
+                td(rowspan="8" style="border-right:1px solid var(--color-surface-level-1);") Engineering Projects
+                td config.addins.projects.workspaceId 
                 td 213
                 td The workspace ID of your Engineering Projects workspace
             tr 
@@ -126,8 +128,8 @@
                 td [ 'Task Details', 'Header', 'Details' ]
                 td Defines sections to be expanded in the Item Details page.
             tr 
-                td(rowspan="4") My Tasks List
-                td(style="border-left:1px solid var(--color-surface-level-1);") config.addins.tasks.headerLabelTasks 
+                td(rowspan="4" style="border-right:1px solid var(--color-surface-level-1);") My Tasks List
+                td config.addins.tasks.headerLabelTasks 
                 td 'My Work List'
                 td Sets the label being displayed on top of the list of tasks
             tr 
