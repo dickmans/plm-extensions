@@ -74,11 +74,11 @@ Change managers & and approvers can reveal insights about the impact of changes 
 Service teams get online access to latest product data and spare parts information. Users can navigate the BOM, download documentation and create Spare Part Requests & Problem Reports in PLM. See video at https://youtu.be/VV68HAJaeF4.
 
 ## Administration Utilities Included
-Reduce deployment and administration efforts with the following utilities addressing the needs of administrators specifically.
+Reduce deployment and administration efforts with the following utilities addressing the needs of administrators specifically. The utilities require administration permission, in some cases even a specific APS application type is needed.
 
 ### Data Manager
 <img src="public/images/admin-data.png">
-When existing workspaces with data get modified or when data gets imported, administrators often have to cleanup and adjust the data afterwards. With this utlity, such changes can be performed in batch to improve data quatliy. See video at https://youtu.be/hL4UblHbXw.
+When existing workspaces with data get modified or when data gets imported, administrators often have to cleanup and adjust the data afterwards. With this utlity, such changes can be performed in batch to improve data quatliy. See video at https://youtu.be/hL4UblHbXw0.
 
 ### Tenant Insights
 <img src="public/images/admin-insights.png">
