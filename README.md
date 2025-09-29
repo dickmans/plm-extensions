@@ -1,6 +1,7 @@
 # plm-extensions
 ## New User Experiences based on Fusion Manage
-Improve adoption of your PLM solution and increase end user efficiency with these dedicated applications running on top of Fusion Manage and Autodesk Platform Services. These addon application use date of Fusion Manage and update data in Fusion Manage using its REST API, but do not store any data outside of PLM. 
+Improve adoption of your PLM solution and increase end user efficiency with these dedicated applications running on top of Fusion Manage and Autodesk Platform Services. These addon applications use the REST APIs of Fusion Manage to retrieve and update PLM data, but do not store any data outside of PLM. 
+
 All applications included in this extensions package are hosted by a single web server to keep deployment effort at a mininum. A single settings file enables adjustments of the applications and alignment with individual tenant configurations. All applications can be displayed in light and dark theme. 
 
 Disclaimer: In any case all source code of this solution is of "work in progress" character. Neither of the contributors nor Autodesk represent that theses code samples are reliable, accurate, complete, or otherwise valid. Accordingly, those configuration samples are provided “as is” with no warranty of any kind and you use the applications at your own risk. 
@@ -9,12 +10,12 @@ Disclaimer: In any case all source code of this solution is of "work in progress
 > Since the release of July 2024, you must use an Autodesk Platform Services application of type "Desktop, Mobile, Single-Page App" to enable the new authentication based on PKCE. If not done yet, please create such an app and update your clientID in settings.js (clientSecret is not required any longer).
 
 
-## End User Applications Overview
+## End User Applications Included
 The following extensions are included in this package. Each application can be accessed by a dedicated endpoint but also by using the [integrated menu](https://youtu.be/ImnXV0HF3PA). This given menu can be configured in the landing page while the list of available endpoints / applications is defined in file routes/landing.js
 
 ### PLM Portal
 <img src="public/images/app-portal.jpg">
-Provide quick access to latest product data in PLM using a very basic frontend for casual users, working well on tablets. See video at https://youtu.be/6A9ZNCxqRKg.
+Provide quick access to latest product data in PLM using a very basic frontend for casual users, working well on tablets. See video at https://youtu.be/tM8why6ybAU.
 
 ### Product Portfolio Catalog
 <img src="public/images/app-product-catalog.png">
@@ -72,9 +73,8 @@ Change managers & and approvers can reveal insights about the impact of changes 
 <img src="public/images/app-service-portal.png">
 Service teams get online access to latest product data and spare parts information. Users can navigate the BOM, download documentation and create Spare Part Requests & Problem Reports in PLM. See video at https://youtu.be/VV68HAJaeF4.
 
-## Administration Utilities
+## Administration Utilities Included
 Reduce deployment and administration efforts with the following utilities addressing the needs of administrators specifically.
-
 
 ### Data Manager
 <img src="public/images/admin-data.png">
