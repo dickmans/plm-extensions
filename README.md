@@ -1,13 +1,19 @@
 # plm-extensions
+## New User Experiences based on Fusion Manage
+Improve adoption of your PLM solution and increase end user efficiency with these dedicated applications running on top of Fusion Manage and Autodesk Platform Services. All  applications included in this extensions package are hosted by a single web server to keep deployment effort at a mininum. A single settings file enables adjustments of the applications and alignment with individual tenant configurations. All applications can be displayed in light and dark theme.
+
+Disclaimer: In any case all source code of this solution is of "work in progress" character. Neither of the contributors nor Autodesk represent that theses code samples are reliable, accurate, complete, or otherwise valid. Accordingly, those configuration samples are provided “as is” with no warranty of any kind and you use the applications at your own risk. 
 
 > **Important Notice**
 > Since the release of July 2024, you must use an Autodesk Platform Services application of type "Desktop, Mobile, Single-Page App" to enable the new authentication based on PKCE. If not done yet, please create such an app and update your clientID in settings.js (clientSecret is not required any longer).
 
-### PLM User Experiences based on Fusion Manage and Autodesk Platform Serivces
 
-Disclaimer: In any case all source code of this solution is of "work in progress" character. Neither of the contributors nor Autodesk represent that theses code samples are reliable, accurate, complete, or otherwise valid. Accordingly, those configuration samples are provided “as is” with no warranty of any kind and you use the applications at your own risk. 
+## Application Overview
+The following extensions are included in this package. Each application can be accessed by a dedicated endpoint but also by using the [integrated menu](https://youtu.be/ImnXV0HF3PA). This given menu can be configured in the landing page while the list of available endpoints / applications is defined in file routes/landing.js
+### Change Impact Analysis
+<img src="/images/addins-plm.png" width="48">
 
-The following extensions are included
+
 - Change Impact Analysis [Video](https://youtu.be/6A9ZNCxqRKg)
 - Class Browser
 - Data Manager [Video](https://youtu.be/hL4UblHbXw0)
@@ -31,7 +37,7 @@ The following extensions are included
 - Administration Shortcuts [Video](https://youtu.be/D_qFX90CGAI)
 
 
-![PLM Addins](public/images/addins-plm.png)
+<!-- ![PLM Addins](public/images/addins-plm.png) -->
 
 
 
