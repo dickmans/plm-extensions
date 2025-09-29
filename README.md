@@ -70,7 +70,7 @@ This portal can involve customers in the review process. Driven by Design Review
 Change managers & and approvers can reveal insights about the impact of changes using this dashboard. While navigating the affected items, impact on BOM, files and related items can be reviewed before approval. See video at https://youtu.be/6A9ZNCxqRKg.
 
 ### Service Portal
-<img src="public/images/app-service-portal.png">
+<img src="public/images/app-services-portal.png">
 Service teams get online access to latest product data and spare parts information. Users can navigate the BOM, download documentation and create Spare Part Requests & Problem Reports in PLM. See video at https://youtu.be/VV68HAJaeF4.
 
 ## Administration Utilities Included
