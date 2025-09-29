@@ -29,6 +29,22 @@ All contributors and decison makers now can manage multiple records easily; mass
 <img src="public/images/app-mobile-client.png">
 Have PLM with you all the time in your pocket. Visualize product data, enrich data, manage documents, perform workflow actions and trigger new processes whenever needed.
 
+### Process Dashboard
+<img src="public/images/app-process-dashboard.png">
+Manufacturing, Services, Suppliers and Customers can be involved in business processes easily with this application focussing on management of one defined business process only (i.e. to capture PRs). See video at https://youtu.be/VkxJXRQ9Pmg.
+
+### Product Data Explorer
+<img src="public/images/app-product-data-explorer.png">
+Even Non-Engineers now can review the design using dynamic KPIs driving charts and visual filtering & highlighting. In addition, product data can be enriched using (mass) edit capabilites. See video at https://youtu.be/hLNB3z_lp2k.
+
+### Reports Dashboard
+<img src="public/images/app-reports-dashboard.png">
+Provides (managers) easy access to real time reports of PLM. This dashboard combines multiple graphic reports and table reports. The latter ones enable to open the given records in PLM directly. See video at https://youtu.be/quNaLQLAT3Q.
+
+### Projects Dashboard
+<img src="public/images/app-projects-dashboard.png">
+(Project) Managers can track progression of all projects in a single, predefined dashboard.
+
 
 
 - Change Impact Analysis [Video](https://youtu.be/6A9ZNCxqRKg)
@@ -38,10 +54,6 @@ Have PLM with you all the time in your pocket. Visualize product data, enrich da
 - MBOM Editor [Video](https://youtu.be/qVhhKlrf1S0)
 - Outstanding Work Report [Video](https://youtu.be/zUIfiiAVwVQ)
 - PLM Portal [Video](https://youtu.be/tM8why6ybAU)
-- Process Dashboard [Video](https://youtu.be/VkxJXRQ9Pmg)
-- Product Data Explorer [Video](https://youtu.be/hLNB3z_lp2k)
-- Projects Dashboard
-- Reports Dashboard [Video](https://youtu.be/quNaLQLAT3Q)
 - Service BOM Editor [Video](https://youtu.be/zVnsrQyO-1o)
 - Services Portal [Video](https://youtu.be/VV68HAJaeF4)
 - Tenant Inisghts [Video](https://youtu.be/WZXGfDKGRHY)
