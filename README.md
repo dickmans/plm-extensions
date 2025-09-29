@@ -30,4 +30,9 @@ The following extensions are included
 - Workspaces Navigator [Video](https://youtu.be/jHBkAuEh32g)
 - Administration Shortcuts [Video](https://youtu.be/D_qFX90CGAI)
 
+
+![PLM Addins](public/images/addins-plm.png)
+
+
+
 The release of May 2025 added a main menu feature, making the various applications easier to use. See this [Video](https://youtu.be/ImnXV0HF3PA). This menu can be configured (and disabled) with the variable export.menu in the settings file.
