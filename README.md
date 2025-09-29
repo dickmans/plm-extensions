@@ -1,6 +1,7 @@
 # plm-extensions
 ## New User Experiences based on Fusion Manage
-Improve adoption of your PLM solution and increase end user efficiency with these dedicated applications running on top of Fusion Manage and Autodesk Platform Services. All  applications included in this extensions package are hosted by a single web server to keep deployment effort at a mininum. A single settings file enables adjustments of the applications and alignment with individual tenant configurations. All applications can be displayed in light and dark theme.
+Improve adoption of your PLM solution and increase end user efficiency with these dedicated applications running on top of Fusion Manage and Autodesk Platform Services. These addon application use date of Fusion Manage and update data in Fusion Manage using its REST API, but do not store any data outside of PLM. 
+All applications included in this extensions package are hosted by a single web server to keep deployment effort at a mininum. A single settings file enables adjustments of the applications and alignment with individual tenant configurations. All applications can be displayed in light and dark theme. 
 
 Disclaimer: In any case all source code of this solution is of "work in progress" character. Neither of the contributors nor Autodesk represent that theses code samples are reliable, accurate, complete, or otherwise valid. Accordingly, those configuration samples are provided “as is” with no warranty of any kind and you use the applications at your own risk. 
 
@@ -8,7 +9,7 @@ Disclaimer: In any case all source code of this solution is of "work in progress
 > Since the release of July 2024, you must use an Autodesk Platform Services application of type "Desktop, Mobile, Single-Page App" to enable the new authentication based on PKCE. If not done yet, please create such an app and update your clientID in settings.js (clientSecret is not required any longer).
 
 
-## Application Overview
+## End User Applications Overview
 The following extensions are included in this package. Each application can be accessed by a dedicated endpoint but also by using the [integrated menu](https://youtu.be/ImnXV0HF3PA). This given menu can be configured in the landing page while the list of available endpoints / applications is defined in file routes/landing.js
 
 ### PLM Portal
@@ -59,14 +60,42 @@ Engineers and Product Managers can define variants of an existing product design
 <img src="public/images/app-class-browser.png">
 Engineers can use item classification data to easily browse for similar components. This helps increasing reuse of existing items and thus reducing development efforts.
 
+### Design Reviews Portal
+<img src="public/images/app-design-review.png">
+This portal can involve customers in the review process. Driven by Design Review processes in PLM, it provides feedback & file sharing capabilities. Markups can be used to create corrective Design Review Tasks. See video at https://youtu.be/AU--qJIMmlE.
 
-- Change Impact Analysis [Video](https://youtu.be/6A9ZNCxqRKg)
-- Data Manager [Video](https://youtu.be/hL4UblHbXw0)
-- Design Review Portal [Video](https://youtu.be/AU--qJIMmlE)
-- Outstanding Work Report [Video](https://youtu.be/zUIfiiAVwVQ)
-- PLM Portal [Video](https://youtu.be/tM8why6ybAU)
-- Services Portal [Video](https://youtu.be/VV68HAJaeF4)
-- Tenant Inisghts [Video](https://youtu.be/WZXGfDKGRHY)
-- User Settings Manager [Video](https://youtu.be/hJjxoovwbS8)
-- Workspace Comparison [Video](https://youtu.be/llQtsclH-L0)
-- Administration Shortcuts [Video](https://youtu.be/D_qFX90CGAI)
+### Change Impact Analysis
+<img src="public/images/app-impact-analysis.png">
+Change managers & and approvers can reveal insights about the impact of changes using this dashboard. While navigating the affected items, impact on BOM, files and related items can be reviewed before approval. See video at https://youtu.be/6A9ZNCxqRKg.
+
+### Service Portal
+<img src="public/images/app-service-portal.png">
+Service teams get online access to latest product data and spare parts information. Users can navigate the BOM, download documentation and create Spare Part Requests & Problem Reports in PLM. See video at https://youtu.be/VV68HAJaeF4.
+
+## Administration Utilities
+Reduce deployment and administration efforts with the following utilities addressing the needs of administrators specifically.
+
+
+### Data Manager
+<img src="public/images/admin-data.png">
+When existing workspaces with data get modified or when data gets imported, administrators often have to cleanup and adjust the data afterwards. With this utlity, such changes can be performed in batch to improve data quatliy. See video at https://youtu.be/hL4UblHbXw.
+
+### Tenant Insights
+<img src="public/images/admin-insights.png">
+Administrators can track user activity and data modifications of a tenant using this graphic dashboard. It uses the standard system log entries and requires system admin privileges to run. See video at https://youtu.be/WZXGfDKGRHY.
+
+### Workspace Comparison
+<img src="public/images/admin-workspace-comparison.png">
+Deploy changes across multiple tenants with confidence with this automated comparison of selected workspaces. See video at https://youtu.be/llQtsclH-L0.
+
+### Administration Shortcuts
+<img src="public/images/admin-shortcuts.png">
+Use this dashboard to quickly navigate to tenant administration capabilities including workspace configuration, picklist setup, script editing and role definition. See video at https://youtu.be/D_qFX90CGAI.
+
+### Outstanding Work Report
+<img src="public/images/admin-outstanding-work.png">
+Review the outstanding work lists of other users and take action if needed to keep the processing going. See video at https://youtu.be/zUIfiiAVwVQ
+
+### User Settings Manager
+<img src="public/images/admin-users.png">
+Set default settings for your tenant users to provide a better user experience. Share workspace views, configure the dashboard charts and set the color theme to drive user adoption. See video at https://youtu.be/hJjxoovwbS8.
