@@ -13,7 +13,7 @@ The following extensions are included in this package. Each application can be a
 
 ### PLM Portal
 <img src="public/images/app-portal.jpg">
-Provide quick access to latest product data in PLM using a very basic frontend for casual users, working well on tablets. [See video](https://youtu.be/6A9ZNCxqRKg).
+Provide quick access to latest product data in PLM using a very basic frontend for casual users, working well on tablets. See video at https://youtu.be/6A9ZNCxqRKg.
 
 ### Product Portfolio Catalog
 <img src="public/images/app-product-catalog.png">
@@ -43,19 +43,30 @@ Provides (managers) easy access to real time reports of PLM. This dashboard comb
 <img src="public/images/app-projects-dashboard.png">
 (Project) Managers can track progression of all projects in a single, predefined dashboard.
 
+### Manufacturing BOM Editor
+<img src="public/images/app-mbom-editor.png">
+Process engineers can transform an Engineering BOM to a Manufacturing BOM with ease using this editor. It enables restructuring and addition of components even for multiple, site-specific MBOMs. See video at https://youtu.be/qVhhKlrf1S0.
+
+### Service BOM Editor
+<img src="public/images/app-sbom-editor.png">
+Users can define Spare Parts and Service Kits easily based on an Engineering BOM and define dedicated Service Offerings on top. See video at https://youtu.be/zVnsrQyO-1o.
+
+### Variants BOM Editor
+<img src="public/images/app-variant-manager.png">
+Engineers and Product Managers can define variants of an existing product design. This helps creating BOM variants based on color, material or other properties with ease. See video at https://youtu.be/v6ZZN3Xo-BM.
+
+### Classification Browser
+<img src="public/images/app-class-browser.png">
+Engineers can use item classification data to easily browse for similar components. This helps increasing reuse of existing items and thus reducing development efforts.
 
 
 - Change Impact Analysis [Video](https://youtu.be/6A9ZNCxqRKg)
-- Class Browser
 - Data Manager [Video](https://youtu.be/hL4UblHbXw0)
 - Design Review Portal [Video](https://youtu.be/AU--qJIMmlE)
-- MBOM Editor [Video](https://youtu.be/qVhhKlrf1S0)
 - Outstanding Work Report [Video](https://youtu.be/zUIfiiAVwVQ)
 - PLM Portal [Video](https://youtu.be/tM8why6ybAU)
-- Service BOM Editor [Video](https://youtu.be/zVnsrQyO-1o)
 - Services Portal [Video](https://youtu.be/VV68HAJaeF4)
 - Tenant Inisghts [Video](https://youtu.be/WZXGfDKGRHY)
 - User Settings Manager [Video](https://youtu.be/hJjxoovwbS8)
-- Variants Manager [Video](https://youtu.be/v6ZZN3Xo-BM)
 - Workspace Comparison [Video](https://youtu.be/llQtsclH-L0)
 - Administration Shortcuts [Video](https://youtu.be/D_qFX90CGAI)
