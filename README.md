@@ -15,12 +15,19 @@ The following extensions are included in this package. Each application can be a
 
 ### PLM Portal
 <img src="public/images/app-portal.jpg">
-Provide quick access to latest product data in PLM using a very basic frontend for casual users, working well on tablets. See Video at https://youtu.be/6A9ZNCxqRKg.
+Provide quick access to latest product data in PLM using a very basic frontend for casual users, working well on tablets. See video at https://youtu.be/6A9ZNCxqRKg.
 
 ### Product Portfolio Catalog
 <img src="public/images/app-product-catalog.png">
-The sales team can browse the Product Portfolio by Product Categories and Product Lines and retrieve latest product data including technical specification, documentation and Bill of Materials
-[See Video](https://youtu.be/hroRMjZzueQ)
+The sales team can browse the Product Portfolio by Product Categories and Product Lines and retrieve latest product data including technical specification, documentation and Bill of Materials. See video at (https://youtu.be/hroRMjZzueQ).
+
+### Workspace Navigator
+<img src="public/images/app-workspace-navigator.png">
+All contributors and decison makers now can manage multiple records easily; mass edit & compare properties based on the user's workspace views, bookmarks & recently viewed records. See video at https://youtu.be/jHBkAuEh32g.
+
+### Mobile Client
+<img src="public/images/app-mobile-client.png">
+Have PLM with you all the time in your pocket. Visualize product data, enrich data, manage documents, perform workflow actions and trigger new processes whenever needed.
 
 
 
@@ -29,11 +36,9 @@ The sales team can browse the Product Portfolio by Product Categories and Produc
 - Data Manager [Video](https://youtu.be/hL4UblHbXw0)
 - Design Review Portal [Video](https://youtu.be/AU--qJIMmlE)
 - MBOM Editor [Video](https://youtu.be/qVhhKlrf1S0)
-- Mobile Client
 - Outstanding Work Report [Video](https://youtu.be/zUIfiiAVwVQ)
 - PLM Portal [Video](https://youtu.be/tM8why6ybAU)
 - Process Dashboard [Video](https://youtu.be/VkxJXRQ9Pmg)
-- Product Portfolio Catalog [Video](https://youtu.be/hroRMjZzueQ)
 - Product Data Explorer [Video](https://youtu.be/hLNB3z_lp2k)
 - Projects Dashboard
 - Reports Dashboard [Video](https://youtu.be/quNaLQLAT3Q)
@@ -43,12 +48,4 @@ The sales team can browse the Product Portfolio by Product Categories and Produc
 - User Settings Manager [Video](https://youtu.be/hJjxoovwbS8)
 - Variants Manager [Video](https://youtu.be/v6ZZN3Xo-BM)
 - Workspace Comparison [Video](https://youtu.be/llQtsclH-L0)
-- Workspaces Navigator [Video](https://youtu.be/jHBkAuEh32g)
 - Administration Shortcuts [Video](https://youtu.be/D_qFX90CGAI)
-
-
-<!-- ![PLM Addins](public/images/addins-plm.png) -->
-
-
-
-The release of May 2025 added a main menu feature, making the various applications easier to use. See this [Video](https://youtu.be/ImnXV0HF3PA). This menu can be configured (and disabled) with the variable export.menu in the settings file.
