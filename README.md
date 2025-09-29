@@ -10,8 +10,8 @@ Disclaimer: In any case all source code of this solution is of "work in progress
 
 ## Application Overview
 The following extensions are included in this package. Each application can be accessed by a dedicated endpoint but also by using the [integrated menu](https://youtu.be/ImnXV0HF3PA). This given menu can be configured in the landing page while the list of available endpoints / applications is defined in file routes/landing.js
-### Change Impact Analysis
-<img src="public/images/addins-plm.png" width="48">
+<!-- ### Change Impact Analysis
+<img src="public/images/addins-plm.png" width="48"> -->
 
 
 - Change Impact Analysis [Video](https://youtu.be/6A9ZNCxqRKg)
