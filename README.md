@@ -16,7 +16,6 @@ The following extensions are included in this package. Each application can be a
 ### PLM Portal
 Provide quick access to latest product data in PLM using a very basic frontend for casual users, working well on tablets
 [See Video](https://youtu.be/6A9ZNCxqRKg)
-<br clear="left"/>
 <img src="public/images/app-portal.jpg" style="float:right" width="512"> -->
 
 ### Product Portfolio Catalog
