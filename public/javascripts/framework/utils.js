@@ -3117,22 +3117,35 @@ function genSingleTile(params, settings) {
 
     // }
 
-    if(isBlank(params.imageId) && isBlank(params.imageLink)) elemTile.addClass('no-image');
-    
+    if(isBlank(params.imageId)) {
+        if(isBlank(params.imageLink)) {
+            if(!isBlank(params.link)) {
+                if(isBlank(params.link.indexOf('@') < 0)) {
+                    elemTile.addClass('no-image');
+                }
+            }
+        }
+    } 
+
     if(params.imageLink.indexOf('https://images.profile.autodesk.com') === 0) {
-        $('<img>').appendTo(elemTileImage)
-            .attr('src', params.imageLink);
-    } else if(params.number) {
-        $('<div></div>').appendTo(elemTileImage)
-            .addClass('tile-counter')
-            .html(params.tileNumber);
+
+        $('<img>').appendTo(elemTileImage).attr('src', params.imageLink);
+        
     } else {
-        $('<span></span>').appendTo(elemTileImage)
-        .addClass('icon')
-        .addClass(params.tileIcon);
-    }
+
+        if(params.number) {
+            $('<div></div>').appendTo(elemTileImage)
+                .addClass('tile-counter')
+                .html(params.tileNumber);
+        } else {
+            $('<span></span>').appendTo(elemTileImage)
+                .addClass('icon')
+                .addClass(params.tileIcon);
+        }
     
-    appendImageFromCache(elemTileImage, settings, params, function() {});
+        appendImageFromCache(elemTileImage, settings, params, function() {});
+
+    }
 
     return elemTile;
 
@@ -5097,7 +5110,7 @@ function appendImageFromCache(elemParent, settings, params, onclick) {
     
     if(isBlank(params)) return;
     if(isBlank(params.replace)) params.replace = true;
-    if(isBlank(params.link   )) params.link    = '/plm';
+    if(isBlank(params.link   )) params.link    = '/plm'; else if(params.link.indexOf('@') > -1) return;
 
     if(elemParent.children().length === 0) {
     
@@ -5120,7 +5133,7 @@ function appendImageFromCache(elemParent, settings, params, onclick) {
     }
 
     let urlBase = (params.link.indexOf('/vault/') > -1) ? '/vault' : '/plm';
-
+    
     $.get(urlBase + '/image-cache', {
         link        : params.link,
         imageId     : params.imageId,
