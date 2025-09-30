@@ -1432,7 +1432,7 @@ function genRequests(limit) {
             } else if(run.actionId === 'run-script') {
 
                 params.script = $('#select-run-script').val();
-                requests.push($.get('/plm/run-item-script', params));
+                requests.push($.post('/plm/run-item-script', params));
 
             } else if(run.actionId === 'archive') {
 

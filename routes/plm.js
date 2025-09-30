@@ -28,7 +28,14 @@ function getCustomHeaders(req) {
 }
 function getTenantLink(req) {
 
-    let tenant = (typeof req.query.tenant === 'undefined') ? req.app.locals.tenant  : req.query.tenant;
+    let tenant = req.app.locals.tenant;
+    
+    if(typeof req.body !== 'undefined') {
+        if(typeof req.body.tenant !== 'undefined')  tenant = req.body.tenant;
+    }
+    if(typeof req.query !== 'undefined') {
+        if(typeof req.query.tenant !== 'undefined')  tenant = req.query.tenant;
+    }
 
     return 'https://' + tenant + '.autodeskplm360.net';
 
@@ -5440,24 +5447,38 @@ router.get('/script', function(req, res, next) {
 
 
 /* ----- RUN ONDEMAND SCRIPT FOR ITEM ----- */
-router.get('/run-item-script', function(req, res, next) {
+router.post('/run-item-script', function(req, res, next) {
     
     console.log(' ');
     console.log('  /run-item-script');
     console.log(' --------------------------------------------');  
-    console.log('  req.query.link      = ' + req.query.link);
-    console.log('  req.query.script    = ' + req.query.script);
-    console.log('  req.query.scriptId  = ' + req.query.scriptId);
-    console.log('  req.query.tenant    = ' + req.query.tenant);
+    console.log('  req.body.link       = ' + req.body.link);
+    console.log('  req.body.script     = ' + req.body.script);
+    console.log('  req.body.scriptId   = ' + req.body.scriptId);
+    console.log('  req.body.tenant     = ' + req.body.tenant);
+    console.log('  req.body.getDetails = ' + req.body.getDetails);
     console.log();
 
-    let scriptId = req.query.scriptId || req.query.script.split('/').pop();
-    let url      = getTenantLink(req) + req.query.link + '/scripts/' + scriptId;
+    let scriptId   = req.body.scriptId || req.body.script.split('/').pop();
+    let url        = getTenantLink(req) + req.body.link + '/scripts/' + scriptId;
+    let getDetails = (typeof req.body.getDetails === 'undefined') ? false : (req.body.getDetails.toLowerCase() === 'true');
 
     axios.post(url, {}, {
         headers : req.session.headers
     }).then(function(response) {
-        sendResponse(req, res, response, false);
+
+        if(getDetails) {
+
+            axios.get(getTenantLink(req) + req.body.link, { 
+                headers : req.session.headers 
+            }).then(function (response) {
+                sendResponse(req, res, response, false);
+            }).catch(function (error) {
+                sendResponse(req, res, error.response, true);
+            });
+
+        } else sendResponse(req, res, response, false);
+
     }).catch(function(error) {
         sendResponse(req, res, error.response, true);
     });
