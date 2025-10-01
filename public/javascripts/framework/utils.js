@@ -3117,10 +3117,11 @@ function genSingleTile(params, settings) {
 
     // }
 
+
     if(isBlank(params.imageId)) {
         if(isBlank(params.imageLink)) {
             if(!isBlank(params.link)) {
-                if(isBlank(params.link.indexOf('@') < 0)) {
+                if(params.link.indexOf('@') < 0) {
                     elemTile.addClass('no-image');
                 }
             }
