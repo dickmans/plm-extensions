@@ -14,25 +14,51 @@ block body
         #header.dark
             #header-logo
             #header-title= title
-            #header-subtitle Order 123
+            #header-subtitle
             #header-toolbar
-                .button#toggle-details.with-icon.icon-toggle-off Toggle Details
-                .button#block-earliest.with-icon.icon-starts-with(title='Block the earliest slots available') Block Earliest
-                .button#block-latest.with-icon.icon-ends-with(title='Block the latest slots available') Block Lastest
-                .button#block-sequence.with-icon.icon-width(title='Block the latest slots available') Block Sequence
+                .button.with-icon.icon-toggle-off#toggle-details Details Panel
+                .button.with-icon.icon-toggle-off#toggle-compact Compact Display
+                .button.with-icon.icon-create#button-create-plan Create Resource Plan
+                //- .button#block-earliest.with-icon.icon-starts-with(title='Block the earliest slots available') Block Earliest
+                //- .button#block-latest.with-icon.icon-ends-with(title='Block the latest slots available') Block Lastest
+                //- .button#block-sequence.with-icon.icon-width(title='Block the latest slots available') Block Sequence
                 #header-avatar
         
         #main.screen
 
-            #items.surface-level-3 
-            #schedule.surface-level-1
-                .panel-header
-                    .panel-title 
-                        .panel-title-main Available Production Slots
-                    .panel-controls
-                .panel-content#schedule-content
-                    #month-1
-                    #month-2
-                    #month-3
-                    #month-4
-            #item.surface-level-2
+            .surface-level-1#activities-header.header 
+                #activities-header-fixed.header-fixed.fixed-width
+                    #activities-header-title.header-title
+                    #activities-header-toolbar.header-toolbar 
+                        .button.icon.icon-fold#activities-collapse
+                        .button.icon.icon-unfold#activities-expand
+            .surface-level-1#activities.header 
+            .surface-level-2#resources-header.header 
+                #resources-header-fixed.header-fixed.fixed-width
+                    #resources-header-title.header-title
+                    #resources-header-toolbar.header-toolbar 
+                        .button.icon.icon-fold#resources-collapse
+                        .button.icon.icon-unfold#resources-expand            
+            .surface-level-2#resources 
+
+            .surface-level-3#details
+
+            #create-plan.dialog
+
+            //- .surface-level-1#activities 
+            //- .surface-level-1#timeline 
+            //- .surface-level-2#resources 
+            //- .surface-level-2#allocations
+
+            //- #items.surface-level-3 
+            //- #schedule.surface-level-1
+            //-     .panel-header
+            //-         .panel-title 
+            //-             .panel-title-main Available Production Slots
+            //-         .panel-controls
+            //-     .panel-content#schedule-content
+            //-         #month-1
+            //-         #month-2
+            //-         #month-3
+            //-         #month-4
+            //- #item.surface-level-2
