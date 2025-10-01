@@ -373,16 +373,16 @@
 }
 
 /* ----- Themes ----- */
-             .surface-level-1 > .tile,              .surface-level-1 > .tiles > .tile { background : var(--color-surface-level-3); border-color : var(--color-surface-level-1); }
-             .surface-level-2 > .tile,              .surface-level-2 > .tiles > .tile { background : var(--color-surface-level-3); border-color : var(--color-surface-level-2); }
+             .surface-level-1 > .tile,              .surface-level-1 > .tiles > .tile { background : var(--color-surface-level-2); border-color : var(--color-surface-level-1); }
+             .surface-level-2 > .tile,              .surface-level-2 > .tiles > .tile { background : var(--color-surface-level-1); border-color : var(--color-surface-level-2); }
  .dark-theme .surface-level-3 > .tile,  .dark-theme .surface-level-3 > .tiles > .tile { background : var(--color-surface-level-1); border-color : var(--color-surface-level-3); }
 .black-theme .surface-level-3 > .tile, .black-theme .surface-level-3 > .tiles > .tile { background : var(--color-surface-level-1); border-color : var(--color-surface-level-3); }
 .light-theme .surface-level-3 > .tile, .light-theme .surface-level-3 > .tiles > .tile { background : var(--color-surface-level-4); border-color : var(--color-surface-level-3); }
              .surface-level-4 > .tile,              .surface-level-4 > .tiles > .tile { background : var(--color-surface-level-1); border-color : var(--color-surface-level-4); }
              .surface-level-5 > .tile,              .surface-level-5 > .tiles > .tile { background : var(--color-surface-level-1); border-color : var(--color-surface-level-5); }
 
-             .surface-level-1 > .tile > .tile-image, .surface-level-1 > .tiles > .tile > .tile-image { background : var(--color-surface-level-4); }
-             .surface-level-2 > .tile > .tile-image, .surface-level-2 > .tiles > .tile > .tile-image { background : var(--color-surface-level-4); }
+             .surface-level-1 > .tile > .tile-image, .surface-level-1 > .tiles > .tile > .tile-image { background : var(--color-surface-level-3); }
+             .surface-level-2 > .tile > .tile-image, .surface-level-2 > .tiles > .tile > .tile-image { background : var(--color-surface-level-3); }
  .dark-theme .surface-level-3 .tile-image,  .dark-theme .surface-level-3 > .tiles > .tile > .tile-image { background : var(--color-surface-level-2); }
 .black-theme .surface-level-3 .tile-image, .black-theme .surface-level-3 > .tiles > .tile > .tile-image { background : var(--color-surface-level-2); }
 .light-theme .surface-level-3 .tile-image, .light-theme .surface-level-3 > .tiles > .tile > .tile-image { background : var(--color-surface-level-5); }
@@ -766,13 +766,13 @@
 /* .panel-content.xl  > table > thead > tr > th { padding : 10px 10px; }
 .panel-content.xxl > table > thead > tr > th { padding : 12px 12px; } */
 
-/* .panel-content.xxs > table > thead > tr > th.column-editable { padding-left :  8px; }
-.panel-content.xs  > table > thead > tr > th.column-editable { padding-left : 10px; }
-.panel-content.s   > table > thead > tr > th.column-editable { padding-left : 10px; }
-.panel-content.m   > table > thead > tr > th.column-editable { padding-left : 12px; } */
-/* .panel-content.l   > table > thead > tr > th.column-editable { padding-left : 14px; } */
-/* .panel-content.xl  > table > thead > tr > th.column-editable { padding-left : 16px; }
-.panel-content.xxl > table > thead > tr > th.column-editable { padding-left : 18px; } */
+/* .panel-content.xxs > table > thead > tr > th.field-editable { padding-left :  8px; }
+.panel-content.xs  > table > thead > tr > th.field-editable { padding-left : 10px; }
+.panel-content.s   > table > thead > tr > th.field-editable { padding-left : 10px; }
+.panel-content.m   > table > thead > tr > th.field-editable { padding-left : 12px; } */
+/* .panel-content.l   > table > thead > tr > th.field-editable { padding-left : 14px; } */
+/* .panel-content.xl  > table > thead > tr > th.field-editable { padding-left : 16px; }
+.panel-content.xxl > table > thead > tr > th.field-editable { padding-left : 18px; } */
 
 /* .panel-content.xxs > table > tbody > tr > td { padding :  1px  1px; }
 .panel-content.xs  > table > tbody > tr > td { padding :  2px  2px; }
