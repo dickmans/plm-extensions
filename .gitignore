@@ -2,10 +2,10 @@
 /node_modules
 /uploads/*
 /settings/*
-/storage/cache/
-/storage/excel-export/
-/storage/exports/
-/storage/imports/
+/storage/cache/*
+/storage/excel-export/*
+/storage/exports/*
+/storage/imports/*
 /views/custom/*
 /views/.DS_Store
 package-lock.json
