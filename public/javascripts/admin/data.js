@@ -868,7 +868,7 @@ function getSearchFilters() {
             });
         }
     }
-
+    
     return filters;
 
 }
@@ -1286,13 +1286,14 @@ function genRequests(limit) {
 
         let record = records[i];
         let params = {};
+        let link   = genItemURL({ link : record.link });
 
         if(run.actionId !== 'import-attachments') {
+            
             params.link       = record.link;
             params.descriptor = record.descriptor;
             params.sections   = [];
-
-            let link    = genItemURL({ link : params.link });
+            
             let message = (options.testRun) ? 'Would process' : 'Processing';
 
             addLogEntry(message + ' <a target="_blank" href="' + link + '">' + params.descriptor + '</a>', 'notice');
@@ -1303,7 +1304,7 @@ function genRequests(limit) {
 
         } else {
 
-                   if(run.actionId === 'store-dmsid') {
+            if(run.actionId === 'store-dmsid') {
 
                 let fieldId = $('#select-store-dmsid').val();
                 let value   = getRecordFieldValue(record, fieldId, '');
@@ -1424,8 +1425,6 @@ function genRequests(limit) {
                 params.transition = $('#select-perform-lifecycle-transition').val();
                 let elemRevision = $('#input-perform-lifecycle-transition');
                 if(!elemRevision.hasClass('hidden')) params.revision = elemRevision.val();
-
-                console.log(params);
 
                 requests.push($.get('/plm/lifecycle-transition', params));
 
