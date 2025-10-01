@@ -75,7 +75,7 @@
     text-align  : center;
 }
 .tile-icon:first-of-type {
-    background  : var(--color-surface-level-4);
+    background  : var(--color-surface-level-3);
 }
 .tile.selected {
     background : var(--color-selected-background);
