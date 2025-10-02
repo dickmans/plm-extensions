@@ -17,7 +17,6 @@ let saveActions = {
     create : {
         label       : 'Creating new BOM items',
         className   : 'pending-create',
-        // selector    : '.sbom-node',
         selector    : '.node',
         maxRequests : 1,
     },
@@ -101,8 +100,6 @@ $(document).ready(function() {
             enableDragging  : true,
             enableDetails   : true,
             settingsDetails : paramsDetails
-            // ondragstart : function(event) { dragStartHandler(event); },
-            // ondragend : function(event) { dragEndHandler(event); }
         });
 
     });
