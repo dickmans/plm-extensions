@@ -6245,16 +6245,20 @@ function insertViewer(link, params) {
         if(settings.viewer[id].link      !== response.params.link     ) return;
         if(settings.viewer[id].timeStamp !=  response.params.timeStamp) return;
 
+        
         if(response.data.length > 0) {
-
+            
             sortArray(response.data, 'size', 'integer', 'descending');
-
-            let viewables = [];
-            let foundDWF  = false;
+            
+            let formats3D  = config.viewer.preferredFileSuffixes || ['.ipt.dwf', '.iam.dwf'];
+            let viewables  = [];
+            let found3DDWF = false;
 
             for(let viewable of response.data) {
-                if((viewable.type == 'DWF File') && !foundDWF) {
-                    foundDWF = true;
+                if((viewable.type == 'DWF File') && !found3DDWF) {
+                    for(let format of formats3D) {
+                        if(viewable.name.toLowerCase().indexOf(format.toLowerCase()) > -1) found3DDWF = true;
+                    }
                     viewables.unshift(viewable);
                 } else viewables.push(viewable);
             }

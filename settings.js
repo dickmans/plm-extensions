@@ -92,6 +92,7 @@ exports.config = {
     
     // Set default settings for all viewer instances
     viewer  : {
+        preferredFileSuffixes   : ['.ipt.dwf', '.iam.dwf'],   // case does not matter
         numberProperties        : ['Part Number', 'Name', 'label', 'Artikelnummer', 'Bauteilnummer'],
         splitPartNumberBy       : ' v',
         splitPartNumberIndexes  : [0],
