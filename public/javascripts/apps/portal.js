@@ -18,12 +18,13 @@ $(document).ready(function() {
         });
 
         insertRecentItems({ 
-            headerLabel  : 'Recent Items',
-            search       : false,
-            reload       : true,
-            contentSize  : 'xs',
-            workspacesIn : config.portal.workspacesIn,
-            onClickItem  : function(elemClicked) { openItem(elemClicked); },
+            headerLabel     : 'Recent Items',
+            search          : false,
+            reload          : true,
+            contentSize     : 'xs',
+            workspacesIn    : config.portal.workspacesIn,
+            afterCompletion : function(id) { openMostRecentItem(); },
+            onClickItem     : function(elemClicked) { openItem(elemClicked); },
         });
 
         if(!isBlank(wsId) && !isBlank(dmsId)) {
@@ -43,20 +44,33 @@ function setUIEvents() {
 
     $('#toggle-search').click(function() {
         $('body').toggleClass('no-search');
-        $(this).toggleClass('icon-toggle-off').toggleClass('icon-toggle-on').toggleClass('filled');
+        $(this).toggleClass('toggle-off').toggleClass('toggle-on').toggleClass('filled');
         viewerResize();
     });
 
     $('#toggle-bom').click(function() {
         $('body').toggleClass('no-bom');
-        $(this).toggleClass('icon-toggle-off').toggleClass('icon-toggle-on').toggleClass('filled');
+        $(this).toggleClass('toggle-off').toggleClass('toggle-on').toggleClass('filled');
         viewerResize();
     });
 
     $('#toggle-attachments').click(function() {
         $('body').toggleClass('no-attachments');
-        $(this).toggleClass('icon-toggle-off').toggleClass('icon-toggle-on').toggleClass('filled');
+        $(this).toggleClass('toggle-off').toggleClass('toggle-on').toggleClass('filled');
     });
+
+}
+
+function openMostRecentItem() {
+
+    if(config.portal.openMostRecent) {
+        
+        let elemMostRecent = $('#recents').find('.content-item').first();
+        if(elemMostRecent.length > 0) openItem(elemMostRecent);
+
+    }
+
+    $('#search-search-content-input').focus();
 
 }
 
@@ -65,8 +79,11 @@ function openItem(elemClicked) {
     let link  = elemClicked.attr('data-link');
     let title = elemClicked.attr('data-title');
 
+    $('.content-item').removeClass('selected');
+    elemClicked.addClass('selected');
+
     $('.item-panel').show();
-    $('#header-subtitle').html(title);
+    $('#header-subtitle').html(title).show();
 
     document.title = title;
 

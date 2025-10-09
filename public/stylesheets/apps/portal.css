@@ -1,11 +1,13 @@
 :root {
 
-    --width-border-v : 30px;
-    --width-border-h : 45px;
-    --width-search   : 380px;
-    --width-bom      : 500px;
-    --width-panels   : 550px;
-    --height-recents : 280px;
+    --width-border-v    : 30px;
+    --width-border-h    : 45px;
+    --width-search      : 380px;
+    --width-bom         : 500px;
+    --width-panels      : 550px;
+    --width-field-label : 240px;
+
+    --height-recents : 320px;
     --height-files   : 280px;
     --height-viewer  : 220px;
 
@@ -71,12 +73,19 @@ body.no-attachments #attachments { bottom : calc(0px - var(--height-files) - (2 
 
 .item-panel { display : none; }
 
+#header-subtitle { display : none; }
+
 #search-actions { 
     gap           : 10px;
     padding-left  : 0px; 
     padding-right : 0px;
 }
+
 #search-search-content-input {
-    flex-grow  : 1;
-    text-align : center;
+    background  : var(--color-surface-level-1);
+    border-top  : none;
+    flex-grow   : 1;
+    line-height : 38px;
+    height      : 38px;
+    text-align  : center;
 }

@@ -523,6 +523,7 @@ exports.config = {
 
     portal : {
         autoClick        : true,
+        openMostRecent   : true,
         searchInputText  : 'Enter part number', 
         workspacesIn     : ['Items'],
         expandSections   : ['Basic'],

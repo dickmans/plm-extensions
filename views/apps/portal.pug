@@ -17,9 +17,9 @@ block body
             #header-title= title
             #header-subtitle
             #header-toolbar
-                .button.with-icon.icon-toggle-on.filled#toggle-search(title='Toggle search panel') Search
-                .button.with-icon.icon-toggle-off#toggle-bom(title='Toggle BOM panel') BOM
-                .button.with-icon.icon-toggle-off#toggle-attachments(title='Toggle files panel') Files
+                .button.with-toggle.toggle-on.filled#toggle-search(title='Toggle search panel') Search Panel
+                .button.with-toggle.toggle-off#toggle-bom(title='Toggle BOM panel') BOM
+                .button.with-toggle.toggle-off#toggle-attachments(title='Toggle files panel') Files
                 #header-avatar
         
         #main.screen
@@ -29,5 +29,5 @@ block body
 
             .surface-level-1.item-panel#bom
             .surface-level-1.item-panel#viewer.viewer
-            .surface-level-2.item-panel#details
-            .surface-level-2.item-panel#attachments
+            .surface-level-1.item-panel#details
+            .surface-level-1.item-panel#attachments
