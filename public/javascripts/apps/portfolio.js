@@ -426,7 +426,11 @@ function selectProduct(elemClicked) {
                     bomViewName         : config.portfolio.bomViewName,
                     collapseContents    : true, 
                     hideDetails         : true,
+                    openInPLM           : true,
+                    search              : true,
+                    singleToolbar       : 'actions',
                     tableHeaders        : false,
+                    toggles             : true,
                     onClickItem  : function(elemClicked) { onClickBOMItem(elemClicked); }
                 }, link : product.ebom }
             ],
