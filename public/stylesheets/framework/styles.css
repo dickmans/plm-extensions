@@ -747,11 +747,14 @@
 }
 
 @keyframes highlight {
-    from { background  : var(--color-yellow-500); } 
-      to { background  : var(--color-yellow-200); }
+      0% { color  : var(--color-font-);      } 
+     20% { color  : var(--color-yellow-700); } 
+     50% { color  : var(--color-yellow-500); } 
+     80% { color  : var(--color-yellow-700); } 
+    100% { color  : var(--color-font-);      }
 }
 .highlight {
-   animation: highlight 1s ease;
+   animation : highlight 2s ease;
 }
 
 
