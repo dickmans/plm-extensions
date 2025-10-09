@@ -19,8 +19,8 @@ block body
             #header-title= title
             #header-subtitle.main
             #header-toolbar
-                .landing#button-toggle-recents.button.with-icon.icon-toggle-on.filled(title='Click to toggle Recently Viewed & Bookmarks panel on/off') Show Recents &amp; Bookmarks
-                .landing#button-toggle-search.button.with-icon.icon-toggle-on.filled(title='Click to toggle Search panel on/off') Show Search
+                .landing.button.with-toggle.toggle-on.filled#button-toggle-recents(title='Click to toggle Recently Viewed & Bookmarks panel on/off') Show Recently Viewed &amp; Bookmarks
+                .landing.button.with-toggle.toggle-on.filled#button-toggle-search(title='Click to toggle Search panel on/off') Show Search
                 select.explorer#select-version.button.main
                 .explorer#button-home.button.with-icon.icon-home(title='Browse availalbe products') Home
                 .explorer#button-toggle-dashboard.button.with-icon.icon-dashboard(title='Click to toggle dashboard panel on/off') Dashboard

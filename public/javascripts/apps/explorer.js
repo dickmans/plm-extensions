@@ -125,11 +125,11 @@ function setUIEvents() {
     });
     $('#button-toggle-recents').click(function() {
         $('body').toggleClass('no-recents');
-        $(this).toggleClass('icon-toggle-on').toggleClass('icon-toggle-off').toggleClass('filled');
+        $(this).toggleClass('toggle-on').toggleClass('toggle-off').toggleClass('filled');
     });
     $('#button-toggle-search').click(function() {
         $('body').toggleClass('no-search');
-        $(this).toggleClass('icon-toggle-on').toggleClass('icon-toggle-off').toggleClass('filled');
+        $(this).toggleClass('toggle-on').toggleClass('toggle-off').toggleClass('filled');
 
     });
     $('#button-home').click(function() {
@@ -240,7 +240,7 @@ function setUIEvents() {
 
         $('#create-connect').hide();
 
-        submitCreateForm(wsSupplierPackages.id, $('#create-connect-sections'), null, {}, function(response ) {
+        submitCreate(wsSupplierPackages.id, $('#create-connect-sections'), null, {}, function(response ) {
             $('#overlay').hide();
         });
         
