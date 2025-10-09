@@ -1284,9 +1284,9 @@ function genRequests(limit) {
 
     for(let i = 0; i < limit; i++) {
 
+        
         let record = records[i];
         let params = {};
-        let link   = genItemURL({ link : record.link });
 
         if(run.actionId !== 'import-attachments') {
             
@@ -1295,6 +1295,7 @@ function genRequests(limit) {
             params.sections   = [];
             
             let message = (options.testRun) ? 'Would process' : 'Processing';
+            let link    = genItemURL({ link : record.link });
 
             addLogEntry(message + ' <a target="_blank" href="' + link + '">' + params.descriptor + '</a>', 'notice');
 
@@ -1313,6 +1314,7 @@ function genRequests(limit) {
                     addFieldToPayload(params.sections, wsConfig.sections, null, fieldId, record.dmsId);
                     requests.push($.post('/plm/edit', params));
                 } else {
+                    let link = genItemURL({ link : record.link });
                     addLogEntry('Right dmsId is already set for <a target="_blank" href="' + link + '">' + params.descriptor + '</a>', 'notice');
                 }
             
