@@ -1519,6 +1519,30 @@ function genPanelToggleButtons(id, settings, callbackExpand, callbackCollapse) {
         });
 
 }
+function genPanelAutoSaveToggle(id, settings) {
+
+    if(!settings.autoSave) return;
+
+    let elemToolbar = genPanelToolbar(id, settings, 'controls');
+
+    let elemToggle =  $('<div></div>').appendTo(elemToolbar)
+        .addClass('button')
+        .addClass('with-toggle')
+        .addClass(id + '-auto-save-toggle')
+        .html('Auto Save')
+        .attr('id', id + '-auto-save')
+        .click(function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(this).toggleClass('toggle-off').toggleClass('toggle-on').toggleClass('filled');
+            settings.autoSave = $(this).hasClass('toggle-on');
+        });
+
+    settings.autoSave = false;
+
+    return elemToggle;
+
+}
 function genPanelFilterSelect(id, settings, property, suffix, label) {
 
     if(!settings[property]) return;
