@@ -106,6 +106,8 @@ exports.config = {
     },
 
     assetEditor : {
+        workspaceId     : 312,
+        landingHeader   : 'Select From Exsiting Assets',
         bomViewName     : 'Basic',
         fieldIdBOM      : 'EBOM',
         exportFileName  : 'Serial Numbers',
