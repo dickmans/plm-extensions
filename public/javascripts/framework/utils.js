@@ -396,9 +396,10 @@ function reloadPage(ret) {
 function getURLParameters() {
 
     let result = {
-        link  : '',
-        wsId  : wsId,
-        dmsId : dmsId
+        link        : '',
+        wsId        : wsId,
+        dmsId       : dmsId,
+        descriptor  : descriptor || ''
     };
 
     if(!isBlank(wsId)) {
@@ -409,8 +410,8 @@ function getURLParameters() {
 
     for(let option of options) {
 
-        let split   = option.split(':');
-        let key     = split[0].toLowerCase();
+        let split = option.split(':');
+        let key   = split[0].toLowerCase();
 
         if(key !== '') result[key] = split[1];
 

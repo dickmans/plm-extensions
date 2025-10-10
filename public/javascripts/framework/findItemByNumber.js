@@ -27,8 +27,9 @@ $(document).ready(function() {
                 let link = response.data.items[0].__self__;
 
                 let url  = window.location.href.split('?')[0];
-                    url += '?dmsId=' + link.split('/')[6];
-                    url += '&wsId='  + link.split('/')[4];
+                    url += '?dmsId='      + link.split('/')[6];
+                    url += '&wsId='       + link.split('/')[4];
+                    url += '&descriptor=' + response.data.items[0].descriptor;
                     
                 if(!isBlank(options)) url += '&options=' + options;
                 if(!isBlank(host))    url += '&host='    + host;
@@ -47,7 +48,6 @@ $(document).ready(function() {
                     extended    : true,
                     limit       : 1
                 }, function(response) {
-                    console.log(response);
 
                     if(response.data.results.length === 0) {
 
@@ -59,7 +59,6 @@ $(document).ready(function() {
                     } else {
                         console.log('Copying item from Vault');
                     }
-
 
                 });
             } else {
