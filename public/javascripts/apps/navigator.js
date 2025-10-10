@@ -1,6 +1,7 @@
 let wsConfig        = { 'permissions' : { 'workflow' : false } };
 let links           = [];
 let fields          = [];
+let picklistsData   = [];
 let tableSettings   = {};
 let formSettings    = {};
 
@@ -113,7 +114,7 @@ function setUIEvents() {
 
     // Edit Selected Records
     $('#clear-edits').click(function(){ 
-        clearFields('edit-fields');
+        clearAllFormFields('edit-fields');
     });
     $('#apply-edits').click(function(){ 
         applyEdits();
@@ -209,7 +210,8 @@ function getPicklists() {
 
     for(let field of (wsConfig.fields)) {
         if(field.type !== null) {
-            if((field.type.title === 'Single Selection') || (field.type.title === 'Radio Button')) {
+            // if((field.type.title === 'Single Selection') || (field.type.title === 'Radio Button')) {
+            if(field.type.title === 'Radio Button') {
                 if(linksPicklists.indexOf(field.picklist) < 0) {
                     requests.push($.get( '/plm/picklist', { 
                         link     : field.picklist, 
@@ -225,9 +227,10 @@ function getPicklists() {
 
     Promise.all(requests).then(function(responses) {
         
-        for(let response of responses) cachePicklists.push({
-            link : response.params.link,
-            data : response.data
+        for(let response of responses) picklistsData.push({
+                link       : response.params.link,
+                items      : response.data.items,
+                totalCount : response.data.totalCount
         });
 
         setTableau();
@@ -255,6 +258,7 @@ function showWorkspacesList() {
             })
             .appendTo(elemParent)
             .click(function() {
+                appendOverlay(false);
                 let link     = $(this).attr('data-link');
                 let id       = link.split('/')[4];
                 let location = document.location.href.split('/navigator');
@@ -290,22 +294,15 @@ function showCreateDialog() {
 // Render table with data from standard view or workspace view
 function setTableau() {
 
-    $('#filter').children('input').val('');
+    let timestamp = new Date().getTime();
+    let link      = $('#tableau-selector').val();
+    let elemTable = $('#tableau-body').html('');
 
+    $('#filter').children('input').val('');
     $('#tableau-empty').hide();  
     $('#tableau-processing').show();  
-
-    let timestamp = new Date().getTime();
-
     $('#tableau-selector').attr('data-timestamp', timestamp);
-
-    let link = $('#tableau-selector').val();
-
-    let elemHeader = $('#tableau-header');
-        elemHeader.html('');
-    
-    let elemTable = $('#tableau-body');
-        elemTable.html('');
+    $('#tableau-header').html('');
 
     fields = [];
 
@@ -328,7 +325,7 @@ function setTableau() {
                 $('#tableau-processing').hide();
 
                 if(responses[1].data.items.length > 0) {
-                    setTableauRows(elemTable, responses[0].data);
+                    setTableauRows(responses[0].data);
                     setTableauColumns(elemTable, responses[1].data.items);
                 } else {
                     $('#tableau-empty').show();
@@ -470,7 +467,7 @@ function getWorkspaceData(elemTable, timestamp, url, key) {
 
         for(let entry of response.data[key]) {
             let link = entry.item.link.split('/');
-            if(link[4] === wsId) requests.push($.get('/plm/details', { 'link' : entry.item.link, 'timestamp' : timestamp }));
+            if(link[4] === wsId) requests.push($.get('/plm/details', { link : entry.item.link, timestamp : timestamp }));
         }
 
         if(requests.length === 0) {
@@ -497,7 +494,7 @@ function setWorkspacesFields(elemTable) {
 
     for(let section of wsConfig.sections) {
 
-        let elemSection = $('<tr></tr>').appendTo(elemTable)
+        $('<tr></tr>').appendTo(elemTable)
             .addClass('table-section')
             .html('<td>' + section.name + '</td>');
 
@@ -510,31 +507,32 @@ function setWorkspacesFields(elemTable) {
                     if(field.visibility !== 'NEVER') {
                         if(field.__self__.indexOf('/MATRIX_BLANK_') < 0) {
 
-                            let elemRow = $('<tr></tr>');
-                                elemRow.addClass('table-field');
-                                elemRow.attr('data-link', field.__self__);
-                                elemRow.appendTo(elemTable);
+                            if(field.type.title !== 'Multiple Selection') {
 
-                            let elemCell = $('<td></td>');
-                                elemCell.addClass('first-col');
-                                elemCell.addClass('nowrap');
-                                elemCell.html(field.name);
-                                elemCell.appendTo(elemRow);
+                                let elemRow = $('<tr></tr>').appendTo(elemTable)
+                                    .addClass('table-field')
+                                    .attr('data-link', field.__self__);
 
-                            fields.push(field);
-                            // insertField(field, { 'sections': [{ 'fields' : fields }] }, $('#edit-fields'), true, true, true);
-                            insertDetailsField(field, { 'sections': [{ 'fields' : fields }] }, $('#edit-fields'), false, formSettings);
+                                $('<td></td>').appendTo(elemRow)
+                                    .addClass('first-col')
+                                    .addClass('nowrap')
+                                    .html(field.name);
 
-                        } else {
-                            console.log('matrix');
-                        }
+                                fields.push(field);
+
+                                // console.log(field);
+
+                                // insertField(field, { 'sections': [{ 'fields' : fields }] }, $('#edit-fields'), true, true, true);
+                                // insertDetailsField(field, { 'sections': [{ 'fields' : fields }] }, $('#edit-fields'), false, formSettings);
+                                // insertField(fieldSettings, elemCell, field);
+
+                            }
+
+                        } else console.log('matrix');
                     }
-
                 }
             }
-
         }
-
     }
 
 }
@@ -544,8 +542,7 @@ function setWorkspaceRecords(elemTable, records) {
     let elemHeader    = $('#tableau-header').html('');
     let elemHeaderRow = $('<tr></tr>').appendTo(elemHeader);
 
-    $('<th></th>').appendTo(elemHeaderRow)
-        .addClass('first-col');
+    $('<th></th>').appendTo(elemHeaderRow).addClass('first-col');
 
     for(let record of records) {
 
@@ -555,34 +552,18 @@ function setWorkspaceRecords(elemTable, records) {
 
         elemTable.children('tr.table-field').each(function() {
 
-            let elemCell = $('<td></td>');
-                elemCell.appendTo($(this));
-                elemCell.addClass('column-' + indexItem);
-                elemCell.addClass('table-field');
-                // elemCell.hover(function () {
-                //     $('table td:nth-child(' + ($(this).index() + 1) + ')').addClass('hover');
-                //     $('table th:nth-child(' + ($(this).index() + 1) + ')').addClass('hover');
-                // }, function () {
-                //     $('table td:nth-child(' + ($(this).index() + 1) + ')').removeClass('hover');
-                //     $('table th').removeClass('hover');
-                // });
+            let elemCell = $('<td></td>').appendTo($(this))
+                .addClass('column-' + indexItem)
+                .addClass('table-field');
+            
+            elemRow.attr('data-field-id', field.id);
 
-            // let elemControl = insertField(fields[index], record.data, null, false, false, true, true);
-            let elemControl = insertDetailsField(fields[index], record.data, null, tableSettings);
+            insertField({ editable : true }, elemCell, fields[index], record.data, picklistsData);
 
-            if(typeof elemControl !== 'undefined') {
-                let fieldValue = getFieldValue(elemControl);
-                elemControl.appendTo(elemCell);
-                elemControl.attr('data-db-value', fieldValue.display);
-                elemControl.change(function() {
-                    highlightChanges();
-                });
-            }
-
-            let elemCellSpacer = $('<td></td>');
-                elemCellSpacer.addClass('table-spacer');
-                elemCellSpacer.addClass('column-' + indexItem);
-                elemCellSpacer.appendTo($(this));
+            $('<td></td>').appendTo($(this))
+                .addClass('table-spacer')
+                .addClass('column-' + indexItem);
+                
 
             index++;
 
@@ -598,46 +579,48 @@ function setWorkspaceRecords(elemTable, records) {
 
 
 }
-function highlightChanges() {
+// function highlightChanges() {
 
-    $('th.table-column').each(function () {
+//     $('th.table-column').each(function () {
 
-        let elemHeader  = $(this);
-        let isChanged   = false;
-        let index       = elemHeader.attr('data-index');   
+//         let elemHeader  = $(this);
+//         let isChanged   = false;
+//         let index       = elemHeader.attr('data-index');   
 
-        $('td.table-field.column-' + index).each(function() {
+//         $('td.table-field.column-' + index).each(function() {
 
-            let elemCell    = $(this);
-            let elemField   = elemCell.children('.field-value');
+//             let elemCell    = $(this);
+//             let elemField   = elemCell.children('.field-value');
 
-            if(elemField.length > 0) {
+//             if(elemField.length > 0) {
 
-                let elemControl = elemField.first();
-                let fieldData   = getFieldValue(elemControl);
+//                 let elemControl = elemField.first();
+//                 let fieldData   = getFieldValue(elemControl);
 
-                if(!elemField.hasClass('readonly')) {
-                    if(fieldData.display === elemField.attr('data-db-value')) {
-                        elemCell.removeClass('changed');
-                    } else {
-                        elemCell.addClass('changed');
-                        isChanged = true;
-                    }
-                }
-            }
+//                 if(!elemField.hasClass('readonly')) {
+//                     if(fieldData.display === elemField.attr('data-db-value')) {
+//                         elemCell.removeClass('changed');
+//                     } else {
+//                         elemCell.addClass('changed');
+//                         isChanged = true;
+//                     }
+//                 }
+//             }
 
-        });
+//         });
 
-        if(isChanged) elemHeader.addClass('changed'); else elemHeader.removeClass('changed');
+//         if(isChanged) elemHeader.addClass('changed'); else elemHeader.removeClass('changed');
         
-    });
+//     });
 
-}
+// }
 
 
 // Handle Workspace Views / Tableaus
-function setTableauRows(elemTable, tableauColumns) {
+function setTableauRows(tableauColumns) {
     
+    let elemTable = $('#tableau-body').html('');
+
     $('#edit-fields').html('');
 
     for(let tableauColumn of tableauColumns) {
@@ -646,38 +629,39 @@ function setTableauRows(elemTable, tableauColumns) {
 
             if(tableauColumn.field.title !== 'Item Descriptor') {
 
-                let elemRow = $('<tr></tr>').appendTo(elemTable)
-                    .addClass('table-field')
-                    .attr('data-link', tableauColumn.field.__self__);
+                let includeField = (tableauColumn.field.isSystemField) || (tableauColumn.field.type.title !== 'Multiple Selection');
 
-                $('<td></td>').appendTo(elemRow)
-                    .addClass('first-col')
-                    .addClass('nowrap')
-                    .html(tableauColumn.field.title);
+                if(includeField) {
 
-                if(tableauColumn.field.isSystemField) {
-                    fields.push({ 'isSystemField' : true });
-                } else {
-                    for(let field of wsConfig.fields) {
-                        if(field.__self__ === tableauColumn.field.__self__) {
-                            fields.push(field);
-                            // insertField(field, { 'sections': [{ 'fields' : fields }] }, $('#edit-fields'), true, true, true);
-                            insertDetailsField(field, { 'sections': [{ 'fields' : fields }] }, $('#edit-fields'), false, formSettings);
+                    let elemRow = $('<tr></tr>').appendTo(elemTable)
+                        .addClass('table-field')
+                        .attr('data-link', tableauColumn.field.__self__);
 
-                        }
-                    }  
+                    $('<td></td>').appendTo(elemRow)
+                        .addClass('first-col')
+                        .addClass('nowrap')
+                        .html(tableauColumn.field.title);
+
+                    if(tableauColumn.field.isSystemField) {
+                        fields.push({ 
+                            isSystemField : true, 
+                            id : tableauColumn.field.__self__.split('/').pop()
+                        });
+                    } else {
+                        for(let field of wsConfig.fields) {
+                            if(field.__self__ === tableauColumn.field.__self__) {
+                                field.visible = true;
+                                field.id = field.__self__.split('/').pop();
+                                fields.push(field);
+                                insertDetailsField(field, null, $('#edit-fields'), { editable : true }, null, null, null, picklistsData);
+                                elemRow.attr('data-field-id', field.id);
+                            }
+                        }  
+                    }
                 }
             }
-
         }
-
     }
-
-    $('#edit-fields').find('.field-value').each(function() {
-        $(this).change(function() {
-            applyEdits();
-        });
-    });
 
 }
 function setTableauColumns(elemTable, tableauRecords) {
@@ -686,8 +670,7 @@ function setTableauColumns(elemTable, tableauRecords) {
     let elemHeader      = $('#tableau-header').html('');
     let elemHeaderRow   = $('<tr></tr>').appendTo(elemHeader);
 
-    $('<th></th>').appendTo(elemHeaderRow)
-        .addClass('first-col');
+    $('<th></th>').appendTo(elemHeaderRow).addClass('first-col');
 
     for(let tableauRecord of tableauRecords) {
 
@@ -703,15 +686,15 @@ function setTableauColumns(elemTable, tableauRecords) {
 
         elemTable.children('tr').each(function() {
 
-            let link    = $(this).attr('data-link');
-            let fieldId = link.split('/')[8];
+            let field   = fields[index];
             let value   = '';
             
             for(let tableauField of tableauRecord.fields) {
-                if(tableauField.id === fieldId) {
+                if(tableauField.id === field.id) {
+                    data = tableauField;
                     value = tableauField.value;
-                    if(!fields[index].isSystemField) {
-                        if(fields[index].type.title === 'Image') {
+                    if(!field.isSystemField) {
+                        if(field.type.title === 'Image') {
                             if(value !== '') {
                                 let linkItem = tableauRecord.item.link.split('/');
                                 tableauField.value = {
@@ -727,25 +710,27 @@ function setTableauColumns(elemTable, tableauRecords) {
             let elemCell = $('<td></td>').appendTo($(this))
                 .addClass('column-' + indexItem)
                 .addClass('table-field');
-           
-            if(fields[index].isSystemField) {
-
+                
+            if(field.isSystemField) {
+                    
                 elemCell.html(value);
 
             } else {
 
+                insertField({ editable : true}, elemCell, field, tableauRecord.fields, picklistsData);
+
                 // let elemControl = insertField(fields[index], { 'sections': [{ 'fields' : tableauRecord.fields }] }, null, false, false, true, true);
 
-                let elemControl = insertDetailsField(fields[index], { 'sections': [{ 'fields' : tableauRecord.fields }] }, null, false, tableSettings);
+                // let elemControl = insertDetailsField(fields[index], { 'sections': [{ 'fields' : tableauRecord.fields }] }, null, false, tableSettings);
 
-                if(typeof elemControl !== 'undefined') {
-                    let fieldValue = getFieldValue(elemControl);
-                    elemControl.appendTo(elemCell);
-                    elemControl.attr('data-db-value', fieldValue.display);
-                    elemControl.change(function() {
-                        highlightChanges();
-                    });
-                }
+                // if(typeof elemControl !== 'undefined') {
+                //     let fieldValue = getFieldValue(elemControl);
+                //     elemControl.appendTo(elemCell);
+                //     elemControl.attr('data-db-value', fieldValue.display);
+                //     elemControl.change(function() {
+                //         highlightChanges();
+                //     });
+                // }
 
             }
 
@@ -871,60 +856,36 @@ function applyEdits() {
 
     $('#edit-fields').find('.field-value').each(function() {
 
+
         let elemField   = $(this);
         let fieldData   = getFieldValue(elemField);
 
-        if(fieldData.value !== null) {
-            if(fieldData.value !== '') {
+        if(!isBlank(fieldData.value)) {
 
-                $('#tableau-body').children().each(function() {
-                    
-                    let elemRow = $(this);
+            $('#tableau-body').children().each(function() {
+                
+                let elemRow = $(this);
 
-                    if(elemRow.attr('data-link') === fieldData.link) {
+                if(elemRow.attr('data-link') === fieldData.link) {
 
-                        $('.table-column.selected').each(function() {
+                    $('.table-column.selected').each(function() {
 
-                            let elemHead        = $(this);
-                            let index           = elemHead.index();
-                            let elemFieldTable  = elemRow.children().eq(index).children('.field-value').first();
-                            let fieldDataTable  = getFieldValue(elemFieldTable);
+                        let elemHead        = $(this);
+                        let index           = elemHead.index();
+                        let elemFieldTable  = elemRow.children().eq(index);
 
-                            if(fieldDataTable.value !== fieldData.value) {
+                        if(!isBlank(fieldData.value)) {
+                            setFieldValue(elemFieldTable, fieldData.value, fieldData.display);
+                            elemFieldTable.addClass('changed');
+                        }
 
-                                if(elemFieldTable.find('.radio-option').length > 0) {
-                                    elemFieldTable.find('.radio-option').each(function() {
-                                        let elemInput = $(this).children('input');
-                                            elemInput.prop('checked', false);
-                                        if(elemInput.attr('value') === fieldData.value.link) {
-                                            elemInput.prop('checked', true);
-                                        }
-                                    });           
-                                } else if(elemFieldTable.find('option').length > 0) {
-                                    elemFieldTable.find('option').each(function() {
-                                        let elemInput = $(this);
-                                        if(elemInput.attr('value') === fieldData.value.link) {
-                                            elemInput.attr('selected', true);
-                                        } else {
-                                            elemInput.attr('selected', false);
-                                        }
-                                    });
-                                } else {
-                                    elemFieldTable.children().val(fieldData.value);
-                                }
-
-                            }
-
-                        });
-                    }
-
-                });
-            }
+                    });
+                }
+            });
         }
-
     });
 
-    highlightChanges();
+    // highlightChanges();
 
 }
 
@@ -1245,26 +1206,33 @@ function saveChanges() {
 
     $('#overlay').show();
 
-    let requests = [];
+    let requests   = [];
+    let listParams = [];
 
-    $('th.changed').each(function() {
+    $('td.field-editable.changed').each(function() {
 
-        let index = $(this).attr('data-index');
+        let index = $(this).index();
+        let link  = links[(index - 1) / 2];
+        let add   = null;
 
-        let params = { 
-            link     : $(this).attr('data-link'),
-            sections : []
-        };
+        for(let params of listParams) if(params.link === link) { add = params; break; }
 
-        $('td.column-' + index).each(function() {
-            if($(this).hasClass('changed')) {
-                addFieldPayload(params.sections, $(this));
-            }
-        });
+        if(add === null) {
+            add = {
+                link     : link,
+                sections : wsConfig.sections,
+                fields   : []
+            };
+            listParams.push(add);
+        }
 
-        requests.push($.post('/plm/edit', params));
+        let field = getFieldValue($(this));
+
+        add.fields.push(field);
 
     });
+
+    for(let params of listParams) requests.push($.post('/plm/edit', params));
 
     Promise.all(requests).then(function(responses) {
 

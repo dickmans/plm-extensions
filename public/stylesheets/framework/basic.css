@@ -138,8 +138,8 @@ td.link {
     cursor : pointer;
 }
 
-.surface-level-1 th { background : var(--color-surface-level-5); border-color : var(--color-surface-level-1); } 
-.surface-level-1 td { background : var(--color-surface-level-3); border-top-color : var(--color-surface-level-1); } 
+.surface-level-1 th { background : var(--color-surface-level-3); border-color : var(--color-surface-level-1); } 
+.surface-level-1 td { background : var(--color-surface-level-2); border-top-color : var(--color-surface-level-1); } 
 .surface-level-2 th { background : var(--color-surface-level-5); border-color : var(--color-surface-level-2); } 
 .surface-level-2 td { background : var(--color-surface-level-3); border-top-color : var(--color-surface-level-2); } 
 .surface-level-3 th { background : var(--color-surface-level-5); border-color : var(--color-surface-level-3); } 
@@ -183,11 +183,14 @@ table.grid.rotated th {
 }
 table.row-hovering tr:hover td,
 table.row-hovering tbody tr:hover td {
-    background      : var(--color-hover-background) !important;
     border-color    : var(--color-hover-border) !important;
     cursor          : pointer;
 }
-tr.selected td {
+table.row-hovering tr:hover td.field-readonly,
+table.row-hovering tbody tr:hover td.field-readonly {
+    background      : var(--color-hover-background) !important;
+}
+tr.selected td.field-readonly {
     background   : var(--color-selected-background) !important;
 }
  

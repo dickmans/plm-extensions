@@ -238,7 +238,7 @@ function setUIEvents() {
             let newLink = response.data.split('.autodeskplm360.net')[1];
 
             openItem(newLink);
-            clearFields('new-sections');
+            clearAllFormFields('new-sections');
 
         });
 

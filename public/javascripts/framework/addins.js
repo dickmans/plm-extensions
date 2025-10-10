@@ -1,4 +1,5 @@
-let isolate = false;
+let isolate  = false;
+let messages = [];
 
 
 // Confirm successful login
@@ -108,14 +109,14 @@ async function invokeAddinAction(elements, action) {
     
     switch(action) {
 
-        case 'addComponent'     : chrome.webview.postMessage("addComponent:"     + selection.toString()); break;
-        case 'openComponent'    : chrome.webview.postMessage("openComponent:"    + selection.toString()); break;
-        case 'gotoVaultFolder'  : chrome.webview.postMessage("gotoVaultFolder:"  + selection.toString()); break;
-        case 'gotoVaultFile'    : chrome.webview.postMessage("gotoVaultFile:"    + selection.toString()); break;
-        case 'gotoVaultItem'    : chrome.webview.postMessage("gotoVaultItem:"    + selection.toString()); break;
-        case 'gotoVaultECO'     : chrome.webview.postMessage("gotoVaultECO:"     + selection.toString()); break;
-        case 'selectComponent'  : chrome.webview.postMessage("selectComponent:"  + selection.toString()); break;
-        case 'isolateComponent' : chrome.webview.postMessage("isolateComponent:" + selection.toString()); break;
+        case 'addComponent'     : chrome.webview.postMessage("addComponent:"     + getNewMessageID(null) + selection.toString()); break;
+        case 'openComponent'    : chrome.webview.postMessage("openComponent:"    + getNewMessageID(null) + selection.toString()); break;
+        case 'gotoVaultFolder'  : chrome.webview.postMessage("gotoVaultFolder:"  + getNewMessageID(null) + selection.toString()); break;
+        case 'gotoVaultFile'    : chrome.webview.postMessage("gotoVaultFile:"    + getNewMessageID(null) + selection.toString()); break;
+        case 'gotoVaultItem'    : chrome.webview.postMessage("gotoVaultItem:"    + getNewMessageID(null) + selection.toString()); break;
+        case 'gotoVaultECO'     : chrome.webview.postMessage("gotoVaultECO:"     + getNewMessageID(null) + selection.toString()); break;
+        case 'selectComponent'  : chrome.webview.postMessage("selectComponent:"  + getNewMessageID(null) + selection.toString()); break;
+        case 'isolateComponent' : chrome.webview.postMessage("isolateComponent:" + getNewMessageID(null) + selection.toString()); break;
 
     }
 
@@ -154,6 +155,16 @@ function getSelectionData(elements) {
     }
 
     return selection;
+
+}
+function getNewMessageID(elements) {
+
+    let now = new Date();
+    let id  = now.getTime();
+    
+    messages.push({ id : id, elements : elements });
+
+    return id + ';';
 
 }
 

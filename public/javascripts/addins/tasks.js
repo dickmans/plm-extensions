@@ -14,7 +14,7 @@ $(document).ready(function() {
         reload            : true,
         search            : false,
         contentSize       : 'xxs',
-        columnsEx         : config.addins.tasks.columnsExTasks,
+        fieldsEx          : config.addins.tasks.columnsExTasks,
         workspacesIn      : config.addins.tasks.workspacesInTasks,
         onClickItem : function(elemClicked) { openTask(elemClicked); }
     });
@@ -42,7 +42,7 @@ function setUIEvents() {
                 'query' : partNumber
             }        
 
-            $.get('/plm/search-descriptor', params, function(response) {
+            $.post('/plm/search-descriptor', params, function(response) {
             
                 if(response.data.items.length > 0) {
 
@@ -86,7 +86,7 @@ function setUIEvents() {
             items.push($(this).attr('data-link'));
         });
 
-        $.post('/plm/add-managed-items', { 'link' : $('#task').attr('data-link'), 'items' : items }, function(response) {
+        $.post('/plm/add-managed-items', { link : $('#task').attr('data-link'), items : items }, function(response) {
             insertManagedItems($('#task').attr('data-link'), 'managed-items', 'settings');
         });
 
@@ -160,7 +160,7 @@ function openTask(elemClicked) {
 }
 function setPicklistActions(id) {
     
-    $('.field-multi-picklist-item').each(function() {
+    $('.picklist-selected-item').each(function() {
         
         let elemFieldItem  = $(this);
         let fieldItemLink  = elemFieldItem.attr('data-link');
@@ -240,7 +240,7 @@ function addSelected() {
         $('#managed-items-processing').show();
 
         let requests = [
-            $.get('/plm/search-descriptor'  , { wsId : config.items.wsId, limit : 1, query : partNumber }),
+            $.post('/plm/search-descriptor' , { wsId : config.items.wsId, limit : 1, query : partNumber }),
             $.get('/plm/sections'           , { wsId : config.items.wsId }  ),
             $.get('/vault/search-items'     , { query : partNumber }),
         ]

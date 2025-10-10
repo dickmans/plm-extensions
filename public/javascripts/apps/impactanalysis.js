@@ -310,7 +310,7 @@ function getManagedFields() {
         let elemFields = $('#change');
 
         for(let field of response.data) {
-            insertDetailsField(field, null, elemFields, false, { editable : isEditable });
+            insertDetailsField(field, null, elemFields, { editable : isEditable }, false,);
         }
 
         elemFields.children('.field').hide();

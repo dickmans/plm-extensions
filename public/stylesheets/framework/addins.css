@@ -23,7 +23,9 @@
     height  : 18px;
 }
 .addin input  { 
-    padding : 2px 4px; 
+    max-height : 22px;
+    min-height : 22px;
+    height     : 22px;
 }
 .addin select.button { 
     height      : 24px !important; 
@@ -34,8 +36,13 @@
     top : 0px;
 }
 .addin .section {
-    font-size : 12px;
-    padding   : 2px 12px;
+    font-size   : 12px;
+    padding     : 2px 12px;
+}
+.addin .section,
+.addin .section::before {
+    height      : 22px !important;
+    line-height : 22px !important;
 }
 .addin .section-fields .field {
     padding: 1px 0px;
@@ -78,10 +85,12 @@
 }
 .addin .button.icon {
     height      : 22px;
-    width       : 26px;
     line-height : 22px;
     font-size   : 16px;
     padding     : 0px;
+    max-width   : 22px;
+    min-width   : 22px;
+    width       : 22px;
 }
 .addin .button.with-icon { padding-left : 8px; }
 .addin .button.with-icon::before { 
@@ -112,6 +121,7 @@
 .addin .panel-title-sub .panel-status {
     font-size   : 9px;
     height      : 14px;
+    line-height : 14px;
 }
 .addin .panel-summary {
     overflow        : hidden;
@@ -122,7 +132,7 @@
 .addin .panel-controls,
 .addin .panel-actions {
     gap      : 4px;
-    padding  : 8px 18px;
+    padding  : 8px 18px 0px;
     position : absolute;
     top      : 0px;
     right    : 0px;
@@ -139,6 +149,7 @@
     padding-top : 12px;
 }
 .addin .panel-top.with-tabs > .panel-content > .panel-top > .panel-header > .panel-controls {
+    height  : 22px;
     padding : 0px 6px 0px 0px;
 }
 .addin .panel-top.with-tabs > .panel-content > .panel-top > .panel-actions {
@@ -290,9 +301,6 @@
 
 /*  DETAILS */
 /* ----------------------------------------------------------------------------- */
-.addin .section-fields {
-    gap : 4px;
-}
 .addin .field-value.radio {
     display         : flex;
     flex-direction  : column;
@@ -300,6 +308,11 @@
 }
 .addin .radio-label {
     top : 0px;
+}
+.addin .field-label,
+.addin .field-value {
+    height      : 22px;
+    line-height : 22px !important;
 }
 
 
