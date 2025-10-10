@@ -814,6 +814,7 @@ td.field-editable > .picklist-controls > .picklist-input {
 .narrow .section-fields .field .field-unit { padding : 0px; }
 .narrow .section-fields .field-value.field-readonly { padding : 0px !important; }
 .narrow .section-fields .field-value.field-editable { margin-bottom : 0px; }
+.narrow .field .picklist { left : 18px; right : 18px; }
 .narrow p { margin : 0px;  padding : 0px; }
 
 .surface-level-1 .narrow .section-fields { background : var(--color-surface-level-3); }
