@@ -517,7 +517,7 @@ function openItem(link) {
         reload          : true,
         layout          : 'dashboard',
         statesColors    : wsConfig.progress,
-        surfaceLevel    : '3',
+        surfaceLevel    : '1',
         workflowActions : true,
         onClickClose    : function(id, link) { 
             document.title = title;
