@@ -651,7 +651,7 @@ router.post('/create', function(req, res) {
 
     let prefix     = '/api/v3/workspaces/' + req.body.wsId;
     let url        = getTenantLink(req) + prefix + '/items';
-    let sections   = genPayloadSections(req, prefix, 'create');
+    let sections   = genPayloadSectionsFields(req, prefix, 'create');
     let getDetails = (typeof req.body.getDetails === 'undefined') ? false : req.body.getDetails;
 
     axios.post(url, {
@@ -696,7 +696,7 @@ router.post('/create', function(req, res) {
 
 
 });
-function genPayloadSections(req, prefix, mode) {
+function genPayloadSectionsFields(req, prefix, mode) {
 
     if(typeof req.body.fields === 'undefined') return parseSectionPayload(req, prefix, mode); // For compatibility
 
@@ -946,7 +946,7 @@ router.post('/edit', function(req, res) {
 
     let prefix     = (typeof req.body.link  !== 'undefined') ? req.body.link  : '/api/v3/workspaces/' + req.body.wsId + '/items/' + req.body.dmsId;
     let url        = getTenantLink(req) + prefix;
-    let sections   = genPayloadSections(req, prefix, 'edit');
+    let sections   = genPayloadSectionsFields(req, prefix, 'edit');
     let getDetails = (typeof req.body.getDetails === 'undefined') ? false : (req.body.getDetails.toLowerCase() === 'true');
 
     axios.patch(url, {
@@ -1644,7 +1644,7 @@ router.post('/add-grid-row', function(req, res, next) {
         url  = req.app.locals.tenantLink + url;
         url += '/views/13/rows';
 
-    let rowData = genGridRowData(req);
+    let rowData = genPayloadGridFields(req);
 
     axios.post(url, {
         rowData : rowData
@@ -1657,28 +1657,16 @@ router.post('/add-grid-row', function(req, res, next) {
     });
     
 });
-function genGridRowData(req) {
+function genPayloadGridFields(req) {
 
     let result = [];
     let wsId   = (typeof req.body.wsId !== 'undefined') ? req.body.wsId : req.body.link.split('/')[4];
 
     for(let field of req.body.data) {
-        
-        let type  = (typeof field.type === 'undefined') ? 'string' : field.type.toLowerCase();
-        
-        let value = (field.value === 'null') ? null : field.value;
-
-        if(value === '') value = null;
-
-        if(value !== null) {
-            if(type === 'integer') value = parseInt(field.value);
-        }
-
         result.push({
             __self__ : '/api/v3/workspaces/' + wsId + '/views/13/fields/' + field.fieldId,
-            value    : value
+            value    : getFieldValue(field)
         });
-
     }
 
     return result;
@@ -1704,7 +1692,7 @@ router.post('/update-grid-row', function(req, res, next) {
         url  = req.app.locals.tenantLink + url;
         url += '/views/13/rows/'  + req.body.rowId;
 
-    let rowData = genGridRowData(req);
+    let rowData = genPayloadGridFields(req);
 
     axios.put(url, {
         rowData : rowData
