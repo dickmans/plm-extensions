@@ -1,12 +1,5 @@
 /* EXTRAS */
 /* ----------------------------------------------------------------------------- */
-.section:first-of-type { 
-    margin-top : 18px; 
-}
-#header-toolbar { 
-    top   : 7px; 
-    right : 14px; 
-}
 #header-avatar { 
     margin-left : 10px; 
 }
@@ -40,20 +33,26 @@
 /* HEADER */
 /* ----------------------------------------------------------------------------- */
 #header {
-    height  : 20px;
-    padding : 18px 56px 18px;
+    height : 56px;
 }
 #header-logo {
     background-size : 56px;
     height          : 24px;
+    margin          : 14px 0px;
     left            : 2px;
     top             : 14px;
     width           : 40px;
 }
 #header-title {
     font-size   : 20px;
-    line-height : 20px;
+    line-height : 56px;
     margin-left : 0px;
+}
+#header-toolbar { 
+    margin   : 0px;
+    position : absolute;
+    top      : 8px; 
+    right    : 8px; 
 }
 #header-toolbar > .button {
     border-radius : 50%;
@@ -79,14 +78,14 @@
 /* TOOLBAR */
 /* ----------------------------------------------------------------------------- */
 .toolbar {
-    border-top      : 1px solid var(--color-surface-level-1);
-    display         : flex;
-    height          : 80px;
-    padding         : 0px;
-    position        : absolute;
-    right           : 0px;
-    bottom          : 0px;
-    left            : 0px;
+    border-top : 1px solid var(--color-surface-level-1);
+    display    : flex;
+    height     : 80px;
+    padding    : 0px;
+    position   : absolute;
+    right      : 0px;
+    bottom     : 0px;
+    left       : 0px;
 }
 .toolbar > div {
     flex-basis  : 0;
@@ -441,7 +440,7 @@
     content : '\e01f';
 }
 #item-header .button {
-    font-size   : 20px;
+    font-size   : 24px;
     height      : 32px;
     line-height : 32px;
     margin      : 0px;
@@ -461,11 +460,7 @@
     right : 18px;
 }
 .item-content {
-    /* background  : var(--color-surface-level-1);
-    overflow-x  : hidden;
-    overflow-y  : auto;
-    position    : absolute; */
-    border-width : 14px 20px;
+    border-width : 10px;
     top          : 74px;
     right        : 0px;
     bottom       : 80px;
@@ -518,7 +513,7 @@
 }
 .panel-controls .button.icon,
 .panel-controls .button.with-icon::before {
-    font-size   : 20px;
+    font-size   : 24px;
     line-height : 32px;
     max-width   : 32px;
     min-width   : 32px;
@@ -723,9 +718,9 @@ textarea.field-value {
 /* ITEM PROCESSES */
 #item-processes-list > div {
     border-bottom : none;
-    border-left : 6px solid var(--color-status-red);
-    padding: 4px 16px;
-    margin: 0px 8px 10px 24px;
+    border-left   : 6px solid var(--color-status-red);
+    margin        : 0px 8px 10px 2px;
+    padding       : 4px 16px;
 }
 .process.completed {
     border-color : var(--color-status-green);
@@ -737,23 +732,27 @@ textarea.field-value {
 /* ITEM CHANGE LOG */
 #item-change-log-list > div {
     border-bottom : none;
-    border-left : 1px solid var(--color-gray-200);
-    margin-left : 32px;
+    border-left   : 1px solid var(--color-gray-600);
+    margin-left   : 18px;
+    padding-right : 10px;
 }
 .change-log-action {
-    font-weight : bold;
-    margin : 3px 0px 1px;
+    font-weight  : bold;
+    margin       : 3px 0px 1px;
+    padding-left : 10px;
 }
 .change-log-description {
-    padding : 0px 0px 15px;
+    padding : 0px 0px 10px 10px;
 }
 .change-log-details {
-    color   : var(--color-blue-500);
-    display : flex;
+    color          : var(--color-blue-500);
+    display        : flex;
+    flex-direction : row;
+    padding        : 0px;
 }
 .change-log-details::before, 
 .change-log-user::before {
-    font: normal normal normal 14px/1 'Material Symbols Sharp';
+    font : normal normal normal 14px/1 'Material Symbols Sharp';
 }
 .change-log-details::before {
     background  : var(--color-surface-level-1);
@@ -761,19 +760,19 @@ textarea.field-value {
     font-size   : 26px;
     position    : relative;
     top         : -4px;
-    left        : -28px;
+    left        : -30px;
 }
 .change-log-date {
     position    : relative;
     left        : -22px;
 }
 .change-log-user::before {
-    content: '\e7fd';
-    margin-left : 0px;
-    font-size : 14px;
-    margin-right : 8px;
-    position: relative;
-    top : 2px;  
+    content      : '\e7fd';
+    font-size    : 14px;
+    margin-right : 4px;
+    margin-left  : 10px;
+    position     : relative;
+    top          : 3px;  
 }
 
 /* ITEM EDIT */
