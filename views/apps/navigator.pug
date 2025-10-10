@@ -19,7 +19,7 @@ block body
             #header-title= title
             #header-subtitle
             #header-toolbar
-                #button-toggle-create.button.with-icon.icon-create.filled(title='Click to create new record') 
+                #button-toggle-create.button.with-icon.icon-create(title='Click to create new record') 
                 #button-change-workspace.button.with-icon.icon-tiles.filled(title='Switch to another workspace') Select Workspace
                 #header-avatar
 
@@ -56,7 +56,7 @@ block body
                         thead#tableau-header
                         tbody#tableau-body
 
-            .panel.surface-level-2#summary
+            .panel.surface-level-1#summary
 
             .panel.surface-level-2#edit
                 .panel-header
@@ -66,10 +66,10 @@ block body
                         .button#apply-edits(title='Apply given changes to selected items') Apply
                         .button#clear-edits.icon.icon-clear(title='Clear all the inputs in this form') 
                         .button#close-edits.icon.icon-close(title='Close this panel')
-                .panel-content#edit-fields.surface-level-2.section-fields
+                .panel-content#edit-fields.surface-level-2.section-fields.m
 
         #workspaces.screen 
-            .panel-top#workspaces-panel.surface-level-2 
+            .panel-top#workspaces-panel.surface-level-1 
                 .panel-header   
                     .panel-title 
                         .panel-title-main Select Workspace

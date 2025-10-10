@@ -1,8 +1,8 @@
 :root {
 
-    --width-summary         : 700px;
-    --width-edit            : 500px;
-    --padding-panel         : 20px;
+    --width-summary : 680px;
+    --width-edit    : 500px;
+    --padding-panel : 28px;
 
 }
 
@@ -11,6 +11,7 @@
 /* ADDITIONS */
 /* ----------------------------------------------------------------------------- */
 #tableau-table { width : unset; }
+
 
 
 
@@ -34,8 +35,8 @@
     left         : 0px;
 }
 #summary {
-    border-width : var(--padding-panel);
-    top          : 0px;
+    /* border-width : var(--padding-panel); */
+    top          : var(--padding-panel);
     right        : calc(0px - var(--width-summary) - (2 * var(--padding-panel))); 
     bottom       : 0px;
     width        : var(--width-summary);
@@ -62,7 +63,7 @@
     width   : 1500px;
 }
 
-body.with-summary #tableau {  right : calc(var(--width-summary) + (2 * var(--padding-panel))); }
+body.with-summary #tableau {  right : var(--width-summary); }
 body.with-summary #summary { right : 0px; }
 
 body.with-edit #tableau { padding-right : var(--padding-panel); right : calc((2 * var(--padding-panel)) + var(--width-edit)); }
@@ -147,14 +148,15 @@ body.with-edit #edit    { right : 0px; }
 #tableau-header > tr > th,
 #tableau-body > tr > td {
     border      : none;
-    max-width   : 240px;
-    min-width   : 180px;
+    max-width   : 200px;
+    min-width   : 200px;
 }
 #tableau-body > tr > td {
-    height      : 16px;
-    overflow-x  : auto;
-    overflow-y  : hidden;
-    padding     : 5px 12px;
+    border-bottom : 1px solid var(--color-surface-level-1);
+    height        : 16px;
+    overflow-x    : auto;
+    overflow-y    : hidden;
+    padding       : 5px 12px;
 }
 #tableau-body > tr:last-of-type > td {
     border-bottom : none;
@@ -170,16 +172,12 @@ body.with-edit #edit    { right : 0px; }
 #tableau-body > tr.table-section:hover > td { 
     background : var(--color-surface-level-2); 
 }
-
-#tableau-body > tr:last-of-type > td.table-field {
-    padding-bottom : 10px;
-}
 th.table-spacer,
 td.table-spacer {
     background  : var(--color-surface-level-1);
     padding     : 0px !important;
-    min-width   : 16px !important;
-    width       : 16px;
+    min-width   : 10px !important;
+    width       : 10px;
 }
 .table-spacer:last-of-type {
     border-right : none !important;
@@ -243,8 +241,8 @@ th.changed .table-column-top {
     display : none;
 }
 .table-column-toolbar {
-    background      : var(--color-surface-level-3);
-    border-bottom   : 4px solid var(--color-surface-level-1);
+    background      : var(--color-surface-level-4);
+    border-bottom   : 1px solid var(--color-surface-level-1);
     display         : flex;
     height          : 24px;
     gap             : var(--spacer-xxs);
@@ -291,14 +289,14 @@ th.changed .table-column-top {
 /* ----------------------------------------------------------------------------- */
 th.first-col,
 td.first-col  {
-    background  : var(--color-surface-level-1);
-    font-weight : bold;
-    min-width   : 100px !important;
-    padding     : 2px 20px 2px 10px !important;
-    position    : sticky;
-    left        : 0;
-    z-index     : 1;
-    text-align  : right;
+    background    : var(--color-surface-level-1);
+    font-weight   : bold;
+    min-width     : 100px !important;
+    padding-right : 20px !important;
+    position      : sticky;
+    left          : 0;
+    z-index       : 1;
+    text-align    : right;
 }
 
 #tableau .field-value {
@@ -350,8 +348,6 @@ tr.match {
 #tableau-body > tr > td.match    { border-left : 4px solid var(--color-status-green-bright) !important; }
 #tableau-body > tr > td.base     { border-left : 4px solid var(--color-gray-400)            !important; }
 
-#tableau-body > tr:first-of-type > td { padding-top : 10px; }
-
 .table-field > .field-value > date,
 .table-field > .field-value > input,
 .table-field > .field-value > select,
@@ -368,7 +364,47 @@ tr.match {
     top         : -3px;
     white-space : nowrap;
 }
-
+#tableau-body td.field-editable {
+    padding : 0px;
+}
+#tableau-body td.field-editable input {
+    background  : var(--color-surface-level-3);
+    font-size   : 12px;
+    height      : 20px;
+    line-height : 20px;
+    padding     : 4px 12px;
+    max-height  : 20px;
+    min-height  : 20px;
+    max-width   : calc(100% - 24px);
+    min-width   : calc(100% - 24px);
+    width       : calc(100% - 24px);
+}
+#tableau-body .field-editable.field-type-checkbox {
+    background   : var(--color-surface-level-3);
+    padding-left : 9px !important;
+    text-align   : left;
+}
+#tableau-body .field-type-checkbox .icon::before {
+    font-size   : 20px;
+    font-weight : 300;
+}
+td.field-editable .picklist-actions,
+#tableau-body .field-editable > .button, .field-editable > .picklist-controls > .picklist-actions > .button {
+    font-size   : 20px;
+    line-height : 27px;
+    max-height  : 27px;
+    min-height  : 27px;
+    height      : 27px;
+    max-width   : 27px;
+    min-width   : 27px;
+    width       : 27px;
+}
+td.field-editable .picklist-actions {
+    right : 27px;
+}
+#tableau-body .picklist {
+    margin-top : 30px;
+}
 
 
 /* VISIBILITY CONTROLS */
@@ -461,3 +497,14 @@ select.select-transition {
     text-overflow   : ellipsis;
     white-space     : nowrap;
 }
+
+
+/* SUMMARY */
+/* ----------------------------------------------------------------------------- */
+#summary { display : block; }
+#summary-descriptor {
+    height      : 38px;
+    line-height : 38px;
+}
+#summary-header  { padding-right : 24px; }
+#summary-content { border-width  : 24px; }
