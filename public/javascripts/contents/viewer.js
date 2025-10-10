@@ -7,10 +7,12 @@ let viewerId                    = 'viewer';
 let viewerDone                  = false;
 let viewerGeometryLoaded        = false;
 let viewerObjectTreeCreated     = false;
+let viewerInstanceDataSet       = false;
 let viewerFiles                 = [];
 let dataInstances               = [];
 let hiddenInstances             = [];
 let markupStyle                 = {};
+let viewerCacheBoundingBoxes    = false;
 
 let viewer, markup, markupsvg, curViewerState, restoreMarkupSVG, restoreMarkupState, baseStrokeWidth;
 let splitPartNumberBy, splitPartNumberIndexes, splitPartNumberSpacer;
@@ -75,6 +77,7 @@ function initViewer(id, viewables, params) {
     viewerFiles             = viewables;
     viewerGeometryLoaded    = false;
     viewerObjectTreeCreated = false;
+    viewerInstanceDataSet   = false;
 
     let surfaceLevel = getSurfaceLevel($('#' + viewerId)).split('surface-')[1];
     viewerSettings.backgroundColor = viewerBGColors[theme][surfaceLevel];
@@ -459,21 +462,21 @@ function setViewerInstancedData() {
             if(!isBlank(instance.name)) {
                 let partNumber = getInstancePartNumber(instance);
                 if(partNumber !== null) {
-                    instance.partNumber = partNumber;
-                    instance.parents    = [];
+                    instance.partNumber  = partNumber;
+                    instance.parents     = [];
+                    instance.boundingBox = {};
+                    if(viewerCacheBoundingBoxes) {
+                        viewer.select(instance.dbId);
+                        instance.boundingBox = viewer.utilities.getBoundingBox();
+                    }
                     dataInstances.push(instance);
                 }
             }
         }
 
+        if(viewerCacheBoundingBoxes) viewer.clearSelection();
+
         for(let instance of dataInstances) {
-            // instance.path = getInstanceParents(instance);
-            // let pathShort = '';
-            // if(instance.path.indexOf('|') > 0) {
-            //     let split = instance.path.split('|');
-            //     if(split.pop() !== instance.partNumber) instance.path += '|' + instance.partNumber;
-            //     pathShort = instance.path.substring(split[0].length + 1);
-            // }
             
             getComponentPath(instance.dbId, instance.parents);
             
@@ -484,7 +487,7 @@ function setViewerInstancedData() {
 
         }
 
-        setViewerInstancedDataDone();
+        setViewerInstanceDataDone();
 
     });
 
@@ -562,7 +565,8 @@ function getComponentPath(id, componentPath) {
 //     return result;
 
 // }
-function setViewerInstancedDataDone() {
+function setViewerInstanceDataDone() {
+    viewerInstanceDataSet = true;
     onViewerLoadingDone();
 }
 
@@ -642,6 +646,7 @@ function isViewerStarted() {
 // Event listener for user selecting geometry in the viewer
 function onViewerSelectionChanged(event) {
 
+    if(!viewerInstanceDataSet)      return;
     if(disableViewerSelectionEvent) return;
     if(dataInstances.length  === 0) return;
 
@@ -1328,22 +1333,9 @@ function viewerGetComponentInstances(partNumber) {
                 dbId        : dataInstance.dbId,
                 path        : dataInstance.path,
                 pathNumbers : dataInstance.pathNumbers,
-                instanceId  : dataInstance.instanceId
+                instanceId  : dataInstance.instanceId,
+                boundingBox : dataInstance.boundingBox
             });
-
-            // let instance = {
-            //     dbId        : dataInstance.dbId,
-            //     parents     : [],
-            //     path        : '',
-            //     instanceId  : ''
-            // };
-
-            // getComponentPath(dataInstance.dbId, instance.parents);
-
-            // instance.path       = instance.parents.map(function(parent) { return parent.partNumber }).join('|');
-            // instance.instanceId = instance.parents.map(function(parent) { return parent.name       }).join('|');
-
-            // result.push(instance);
 
         }
     }
