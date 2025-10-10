@@ -489,7 +489,7 @@ let categories = [
     name        : 'picklistLimit',
     description : 'Defines the number of items being retrieved for picklist fields',
     type        : 'Integer',
-    default     : 15,
+    default     : 10,
     supportedBy : ['item-details']
 },{
     name        : 'picklistShortcuts',
