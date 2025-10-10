@@ -13,6 +13,13 @@
 
 /*  MASTER LAYOUT */
 /* ----------------------------------------------------------------------------- */
+#results {
+    border-width    : var(--border-v) var(--border-h);
+    top             : 0px;
+    bottom          : 0px;
+    left            : 0px;  
+    right : 0px;
+}
 #bom {
     border-width    : var(--border-v) var(--border-h);
     top             : 0px;
@@ -78,6 +85,29 @@
     left : 0px;
 }
 .no-bom.no-details #bom { left : calc(-1px - var(--width-bom) - (2 * var(--border-h))); }
+
+.screen-landing #main,
+.screen-landing #header-subtitle,
+.screen-landing #header-toolbar .button { display : none; }
+.screen-main #landing { display : none; }
+
+.embedded #bom { display : none; }
+.embedded .viewer {  right : unset; bottom : 0px; left : 0px; width : 400px; }
+.embedded #contents { top : 0px; left : 400px; }
+.embedded #message { 
+    right   : 0px; 
+    bottom  : 0px; 
+    left    : 0px; 
+    padding : 10px 20px 10px 64px;
+}
+.embedded #message::after {
+    font-size   : 30px;
+    font-weight : 200;
+    top         : 16px;
+    left        : 16px;
+}
+
+.panel-actions .with-toggle::after { line-height : 36px; }
 
 
 /*  BOM */
@@ -145,6 +175,9 @@ tr.highlighted > td {
 .panel-action-clone {
     order : -1;
 }
+.sync-status > .icon-remove { color : var(--color-status-red   ); }
+.sync-status > .icon-info   { color : var(--color-status-yellow); }
+.sync-status > .icon-check  { color : var(--color-status-green ); }
 /*
 #items td {
     background : var(--color-surface-level-2);

@@ -1,6 +1,8 @@
 let urlParameters   = getURLParameters();
 let links           = {};
 let workspaces      = [];
+let messages        = [];
+let embedded        = false;
 
 let paramsDetails = {
     headerLabel     : 'descriptor',
@@ -15,56 +17,90 @@ $(document).ready(function() {
 
     appendOverlay(true);
     setUIEvents();
+    setEmbeddedMode();
+
+    viewerCacheBoundingBoxes = true;
 
     getFeatureSettings('assetEditor', [], function() {
 
         workspaces = config.assetEditor.workspaces;
+        
+        if(urlParameters.wsId != config.assetEditor.workspaceId) {
 
-        let requests = [ $.get('/plm/details', { link : urlParameters.link}) ];
-
-        for(let workspace of workspaces) requests.push($.get('/plm/grid-columns', { wsId : workspace.workspaceId }));
-
-        Promise.all(requests).then(function(responses) {
-
-            urlParameters.title = responses[0].data.title;
-
-            $('#header-subtitle').html(urlParameters.title);
-
-            links.ebom = getSectionFieldValue(responses[0].data.sections, config.assetEditor.fieldIdBOM, '', 'link');
-
-            insertDetails(links.ebom, paramsDetails);
-
-            insertBOM(links.ebom, {
-                search              : true,
-                path                : true,
-                counters            : true,
-                openInPLM           : true,
-                collapseContents    : true,
-                toggles             : true,
-                viewerSelection     : false,
-                includeBOMPartList  : true,
-                bomViewName         : config.assetEditor.bomViewName,
-                fieldsIn            : ['Quantity', 'Qty'],
-                contentSize         : 'm',
-                afterCompletion     : function(id, data) { afterBOMCompletion(id, data) },
-                onClickItem         : function(elemClicked) { onSelectBOMItem(elemClicked); }
+            insertResults(config.assetEditor.workspaceId, [{
+                field       : config.assetEditor.fieldIdBOM,       
+                type        : 0,
+                comparator  : 3,
+                value       : urlParameters.descriptor
+            }], {
+                headerLabel : config.assetEditor.landingHeader || 'Select Asset',
+                layout      : 'list',
+                contentSize : 'xs',
+                onClickItem : function(elemClicked) { selectResult(elemClicked); }
             });
 
-            insertViewer(links.ebom);
-
-            for(let index = 1; index < responses.length; index++) {
-                let workspace         = workspaces[index-1];
-                    workspace.columns = responses[index].data.fields;
-                    workspace.link    = getSectionFieldValue(responses[0].data.sections, workspace.fieldId, '', 'link');
-            }
-
-            $('#excel-export').removeClass('disabled');
-
-        });
+        } else openEditor(urlParameters.link);
 
     });
 
 });
+function selectResult(elemClicked) {
+
+    openEditor(elemClicked.attr('data-link'));
+
+}
+function openEditor(link) {
+
+    appendOverlay(false);
+
+    let requests = [ $.get('/plm/details', { link : link }) ];
+
+    for(let workspace of workspaces) requests.push($.get('/plm/grid-columns', { wsId : workspace.workspaceId }));
+
+    Promise.all(requests).then(function(responses) {
+
+        urlParameters.title = responses[0].data.title;
+
+        $('body').addClass('screen-main').removeClass('screen-landing');
+        $('#header-subtitle').html(urlParameters.title);
+        $('#overlay').hide();
+
+        links.ebom = getSectionFieldValue(responses[0].data.sections, config.assetEditor.fieldIdBOM, '', 'link');
+
+        insertDetails(links.ebom, paramsDetails);
+
+        insertBOM(links.ebom, {
+            search              : true,
+            path                : true,
+            counters            : true,
+            openInPLM           : true,
+            collapseContents    : true,
+            toggles             : true,
+            viewerSelection     : false,
+            includeBOMPartList  : true,
+            bomViewName         : config.assetEditor.bomViewName,
+            fieldsIn            : ['Quantity', 'Qty'],
+            contentSize         : 'm',
+            afterCompletion     : function(id, data) { afterBOMCompletion(id, data) },
+            onClickItem         : function(elemClicked) { onSelectBOMItem(elemClicked); }
+        });
+
+        insertViewer(links.ebom);
+
+        for(let index = 1; index < responses.length; index++) {
+            let workspace         = workspaces[index-1];
+                workspace.columns = responses[index].data.fields;
+                workspace.link    = getSectionFieldValue(responses[0].data.sections, workspace.fieldId, '', 'link');
+                workspace.index   = index - 1;
+        }
+
+        console.log(workspaces);
+
+        $('#excel-export').removeClass('disabled');
+
+    });
+
+}
 
 
 // Set UI controls
@@ -119,6 +155,60 @@ function setUIEvents() {
         $(this).toggleClass('toggle-on');
         viewerResize(200);
     });
+
+}
+
+
+// Enable embedded mode to support usage as addin
+function setEmbeddedMode() {
+
+    if(typeof chrome !== 'undefined') {
+        if(typeof chrome.webview !== 'undefined') {
+
+            embedded = true;
+            
+            chrome.webview.addEventListener('message', arg => { 
+
+                // 'response:title:text'
+                // 'selectInstance:instanceId'
+
+                let response      = arg.data.split(':');
+                let messageType   = response[0];
+
+                $('#overlay').hide();
+
+                switch(messageType) {
+
+                    case 'response': 
+                        let messageTitle = response[1];
+                        let messageText  = (response.length > 2) ? response[2] : 'Please contact your administrator';
+                        if(messageTitle != 'success') showErrorMessage(messageTitle, messageText);
+                        break;
+
+                    case 'selectInstance':
+                        let instanceId = (response.length > 1) ? response[1] : '';
+                        selectInstance(instanceId);
+                        break;
+
+                    default: break;
+
+                }
+
+            });
+
+        }
+    }
+
+    console.log('embedded : ' + embedded);
+    // embedded = true;
+
+    if(embedded) {
+        $('body').addClass('embedded');
+        $('#bom').addClass('hidden');
+        $('#toggle-layout').remove();
+        $('#toggle-bom').remove();
+        $('#toggle-details').remove();
+    }
 
 }
 
@@ -263,7 +353,8 @@ function insertTabContents() {
             
             insertGrid(workspace.link, {
                 id                : 'table-' + index++,
-                counters          : true,
+                autoSave          : true,
+                counters          : false,
                 editable          : true,
                 hideHeader        : true,
                 multiSelect       : true,
@@ -467,14 +558,66 @@ function onSelectBOMItem(elemClicked) {
 }
 
 
-
 // Highlight viewer instances upon selection of item in tabs
 function afterGridCompletion(id) {
 
-    let elemTable = $('#' + id);
+    let elemTable  = $('#' + id);
+    let elemTHead  = $('#' + id + '-thead');
+    let elemTHRow  = elemTHead.children().first();
+    let elemTBody  = $('#' + id + '-tbody');
+
+    let partNumber       = '';
+    let viewerInstances  = [];
 
     elemTable.find('input').click(function() {
         selectGridItem($(this).closest('tr'));
+    });
+
+    $('<th></th>').insertAfter(elemTHRow.children().first())
+        .addClass('sync-status')
+        .html('');
+
+
+    elemTBody.children().each(function() {
+
+        let elemRow = $(this);
+
+        if(elemRow.hasClass('table-group')) {
+
+            let elemCellGroup = elemRow.children().first(); 
+                elemCellGroup.attr('colspan', elemTHRow.children().length);
+
+            partNumber      = elemCellGroup.html();
+            viewerInstances = viewerGetComponentsInstances([partNumber])[0].instances;
+
+        } else {
+            
+            let instanceId  = elemRow.find('.field-id-INSTANCE_ID').children().first().val();
+            let boundingBox = elemRow.find('.field-id-INSTANCE_BOUNDING_BOX').children().first().val();
+            let elemCell    = $('<td></td>').insertAfter(elemRow.children().first()).addClass('sync-status').addClass('match');;
+            let elemIcon    = $('<div></div>').appendTo(elemCell).addClass('icon').addClass('filled');
+            let statusIcon  = 'icon-remove';
+            let statusTitle = 'No matching instance';
+
+            for(let viewerInstance of viewerInstances) {
+                if(viewerInstance.instanceId == instanceId) {
+                    
+                    if(JSON.stringify(viewerInstance.boundingBox) === boundingBox) {
+                        statusIcon  = 'icon-check';
+                        statusTitle = 'Found matching instance ID at right position';
+                    } else {
+                        statusIcon  = 'icon-info';
+                        statusTitle = 'Found matching instance ID at different position';
+                    }
+                    break;
+                }
+            }
+
+            elemCell.attr('title', statusTitle);
+            elemIcon.addClass(statusIcon);
+
+        }
+
     });
 
 }
@@ -485,8 +628,8 @@ function selectGridItem(elemClicked) {
     let index      = elemPanel.index();
     let rowData    = getGridRowDetails(elemClicked, workspaces[index].fieldsList);
 
-    console.log(rowData);
-    console.log(isSelected);
+    // console.log(rowData);
+    // console.log(isSelected);
 
     $('.highlighted').removeClass('highlighted');
 
@@ -499,11 +642,58 @@ function selectGridItem(elemClicked) {
         elemClicked.addClass('highlighted');
 
         viewerHighlightInstances(rowData.partNumber, [], [rowData.instanceId], {});
-        bomDisplayItemByPath(rowData.path);
+
+        if(embedded) {
+            console.log('post Message to ' + host);
+            console.log(rowData);
+            let selection = 'plm-item;' + rowData.partNumber + ';' + '--' + ';' + elemClicked.attr('data-link')+ ';' + rowData.instanceId;
+            console.log(selection);
+            $('#overlay').show();
+            chrome.webview.postMessage("selectInstance:"  + getNewAddinMessageID(elemClicked) + selection.toString()); 
+        } else bomDisplayItemByPath(rowData.path);
 
         elemClicked.prevUntil('.table-group').each(function() { $(this).addClass('related'); })
         elemClicked.nextUntil('.table-group').each(function() { $(this).addClass('related'); })
 
+    }
+
+}
+function getNewAddinMessageID(elements) {
+
+    let now = new Date();
+    let id  = now.getTime();
+    
+    messages.push({ id : id, elements : elements });
+
+    return id + ';';
+
+}
+
+
+// Highlight matching instance upon selection in Inventor
+// selectInstance('002771.iam|Build Assembly:1|94500A231:2')
+function selectInstance(instanceId) {
+
+    if(isBlank(instanceId)) return;
+
+    for(let workspace of workspaces) {
+
+        let fieldId = workspace.fieldsList.instanceId;
+        let tableId = 'table-' + workspace.index;
+
+        $('#' + tableId + '-table').find('.field-id-' + fieldId).each(function() {
+
+            let elemInput = $(this).children('input');
+            let value     = elemInput.val();
+
+            if(value === instanceId) {
+                selectGridItem(elemInput.closest('tr'));
+                $('#tabs').children().eq(workspace.index).click();
+                return;
+            }
+                
+        });
+            
     }
 
 }
@@ -512,6 +702,7 @@ function selectGridItem(elemClicked) {
 // Highlight matching items upon selection in viewer
 function onViewerSelectionChanged(event) {
 
+    if(!viewerInstanceDataSet) return;
     if(viewerHideSelected(event)) return;
 
     viewerGetSelectedPartNumber(event, function(partNumber) {
@@ -543,8 +734,6 @@ function onViewerSelectionChanged(event) {
     });
 
 }
-
-
 function selectContentRow(elemRow) {
 
     console.log('selectContentRow');
@@ -627,11 +816,14 @@ function syncItemsList() {
                     wsId : workspace.workspaceId,
                     link : workspace.link,
                     data : [
-                        { fieldId : workspace.fieldsList.partNumber, value : item.partNumber     },
-                        { fieldId : workspace.fieldsList.path      , value : item.path           },
-                        { fieldId : workspace.fieldsList.instanceId, value : instance.instanceId }
+                        { fieldId : workspace.fieldsList.partNumber , value : item.partNumber      },
+                        { fieldId : workspace.fieldsList.path       , value : item.path            },
+                        { fieldId : workspace.fieldsList.instanceId , value : instance.instanceId  },
+                        { fieldId : workspace.fieldsList.boundingBox, value : JSON.stringify(instance.boundingBox) }
                     ]
                 }
+
+                console.log(params);
 
                 requests.push($.post('/plm/add-grid-row', params));
                 refresh = true;
