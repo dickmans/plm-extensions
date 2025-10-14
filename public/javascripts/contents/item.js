@@ -1210,7 +1210,8 @@ function insertDetailsFields(id, sections, fields, data, settings, bookmarks, re
     if(isBlank(settings.firstSectionOnly)) settings.firstSectionOnly = false;
     if(isBlank(settings.editable        )) settings.editable         = false;
 
-    if(!settings.editable) elemContent.addClass('readonly');    
+    if(!settings.editable   ) elemContent.addClass('readonly');    
+    if(settings.hideSections) elemContent.addClass('sections-hidden');    
 
     if(!isBlank(settings.sectionsOrder)) {
 
@@ -7537,18 +7538,19 @@ function insertProject(link, params) {
         [ 'multiSelect'            , true ],
         [ 'createId'               , 'create' ],
         [ 'createHeaderLabel'      , 'Create Process' ],
+        [ 'createHideSections'     , false ],
         [ 'createSectionsIn'       , [] ],
         [ 'createSectionsEx'       , [] ],
         [ 'createFieldsIn'         , [] ],
         [ 'createFieldsEx'         , [] ],
         [ 'createWorkspaceIds'     , [] ],
         [ 'createWorkspaceNames'   , [] ],
+        [ 'createContextItemField' , null ], // ['/api/v3/workspaces/57/items/12345']
         [ 'createContextItems'     , [] ], // ['/api/v3/workspaces/57/items/12345']
         [ 'createContextItemFields', [] ], // ['AFFECTED_ITEM']
-        [ 'createViewerImageFields', [] ] // 'IMAGE_1'
+        [ 'createViewerImageFields', [] ], // 'IMAGE_1'
+        [ 'createToggles'          , false ]    
     ]);
-
-console.log(settings.project[id]);
 
     if(settings.project[id].stateColors.length === 0) {
         settings.project[id].stateColors = [
@@ -7575,7 +7577,7 @@ console.log(settings.project[id]);
 
     if(settings.project[id].editable) {
 
-        genPanelCreateButton(id, settings.project[id], function(createId, createLink, id) { afterProjectItemCreation(createId, createLink, id); });
+        genPanelCreateButton(id, settings.project[id], function(createId, createLink, data, id) { afterProjectItemCreation(createId, createLink, data, id); });
         genPanelDisconnectButton(id, settings.project[id], function() { disconnectProjectItems(id); });
 
     }
@@ -7728,7 +7730,7 @@ function getProjectItemFlag(projectItem) {
     return 'Planned';
 
 }
-function afterProjectItemCreation(createId, createLink, id) {
+function afterProjectItemCreation(createId, createLink, data, id) {
 
     $.post('/plm/add-project-item', { link : settings.project[id].link, item : createLink }, function(response) {
         $('#overlay').hide();
@@ -8437,8 +8439,6 @@ function insertItemSummary(link, params) {
        elemItemSummary.html('');
        elemItemContent.html('');
 
-       console.log(settings.summary[id]);
-
     genPanelBookmarkButton(id, settings.summary[id]);
     genPanelCloneButton(id, settings.summary[id]);
     genPanelOpenInPLMButton(id, settings.summary[id]);
@@ -8702,8 +8702,16 @@ function insertItemSummaryContents(id, details, fields, tabs) {
                 break;
 
             case 'viewer':
-                if(tabsAccessible.includes('PART_ATTACHMENTS')) {
-                    insertItemSummaryContentTab(id, contentId, 'Viewer', content.params, isFirst);  
+                if(isBlank(content.params.fieldIdViewable)) {
+                    if(tabsAccessible.includes('PART_ATTACHMENTS')) {
+                        insertItemSummaryContentTab(id, contentId, 'Viewer', content.params, isFirst);
+                        if(settings.summary[id].layout !== 'tabs') insertViewer(settings.summary[id].link, content.params);
+                    }
+                } else {
+                    settings.summary[id].linkViewable = getSectionFieldValue(details.sections, content.params.fieldIdViewable, '', 'link');
+                    insertItemSummaryContentTab(id, contentId, 'Viewer', content.params, isFirst);
+                    viewerFeatures.markup = true;
+                    if(settings.summary[id].layout !== 'tabs') insertViewer(settings.summary[id].linkViewable, content.params);
                 }
                 break;
 
@@ -8836,7 +8844,8 @@ function insertItemSummaryContentTab(id, contentId, label, params, isFirst) {
             });
 
             if(label === 'Viewer') {
-                insertViewer(settings.summary[id].link, params);
+                if(isBlank(settings.summary[id].linkViewable)) insertViewer(settings.summary[id].link, params);
+                else insertViewer(settings.summary[id].linkViewable, params);
             }
 
         });

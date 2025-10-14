@@ -197,60 +197,6 @@ exports.config = {
     },
 
     dashboard : [{
-        title       : 'Change Requests Management',
-        wsId        : 83,
-        className   : 'change-request',
-        contents    : [ 
-            { type : 'details'         , params : { id : 'details', collapseContents : true, editable : true, toggles : true, singleToolbar : 'controls' } },
-            { type : 'attachments'     , params : { id : 'attachments', editable : true, headerLabel : 'Files', singleToolbar : 'controls', layout : 'list', tileSize : 'xs' } },
-            { type : 'managed-items'   , params : { id : 'managed-items', editable : true, columnsIn : [ 'Item', 'Lifecycle', 'Problem Description', 'Proposed Change'], openInPLM : true } },
-            { type : 'workflow-history', params : { id : 'workflow-history' } }
-        ],
-        icon     : 'icon-workflow',
-        progress : [
-            { label : 'Planning',    color : '#000000',     states : ['Create']  },
-            { label : 'Review',      color : colors.red,    states : ['Review & Impact Analysis', 'Peform Tasks', 'Change Control Board Review']  },
-            { label : 'In Work',     color : colors.yellow, states : ['Change Order in progress']   },
-            { label : 'Completed',   color : colors.green,  states : ['Completed'] }
-        ]
-    }, {
-        title       : 'Change Tasks Dashboard',
-        wsId        : 80,
-        className   : 'change-task',
-        contents    : [ 
-            { type : 'details'         , params : { id : 'details', expandSections : ['Task Details', 'Follow-Up & Status Updates'], editable : true, toggles : true, singleToolbar : 'controls' } },
-            { type : 'attachments'     , params : { id : 'attachments', editable : true, headerLabel : 'Files', singleToolbar : 'controls', layout : 'row', contentSize : 'l' } },
-            { type : 'grid'            , params : { id : 'grid', editable : true, headerLabel : 'Efforts'} },
-            { type : 'relationships'   , params : { id : 'relationships', headerLabel : 'Deliverables', editable : true, columnsIn : [ 'Item', 'Lifecycle', 'Problem Description', 'Proposed Change'], openInPLM : true } },
-            { type : 'workflow-history', params : { id : 'workflow-history' } }
-        ],
-        icon     : 'icon-mow',
-        progress : [
-            { label : 'Planned',      color : '#000000',     states : ['Planned' ]},
-            { label : 'New',          color : colors.red,    states : ['Assigned']},
-            { label : 'In Work',      color : colors.yellow, states : ['In Work' ]},
-            { label : 'Owner Review', color : colors.green,  states : ['On Hold', 'Review']},
-            { label : 'Done',         color : '#000000',     states : ['Completed']}
-        ]
-    }, {
-        title       : 'Non Conformances Tracking Dashboard',
-        wsId        : 98,
-        className   : 'non-conformance',
-        contents    : [ 
-            { type : 'workflow-history', params : { id : 'workflow-history' } },
-            { type : 'details'         , params : { id : 'details', collapseContents : true, editable : true, toggles : true, singleToolbar : 'controls' } },
-            { type : 'markup'          , params : { id : 'markup', fieldIdViewable : 'NONCONFORMING_ITEM', markupsImageFieldsPrefix : 'IMAGE_' } },
-            { type : 'attachments'     , params : { id : 'attachments', editable : true, headerLabel : 'Files', singleToolbar : 'controls', layout : 'list', tileSize : 'xs' } }
-        ],
-        icon            : 'icon-rules',
-        fieldIdSubtitle : 'DESCRIPTION',
-        progress : [
-            { label : 'New',         color : colors.red,    states : ['Identification In Progress'] },
-            { label : 'Analysis',    color : colors.yellow, states : ['Under Review'] },
-            { label : 'Improvement', color : colors.yellow, states : ['Disposition In Progress', 'CAPA In Progress'] },
-            { label : 'Closed',      color : colors.green,  states : ['Closed'] }
-        ]
-    },{
         title       : 'Problem Reporting Dashboard',
         wsId        : 82,
         newHeader   : 'Create new Problem Report',
@@ -269,6 +215,81 @@ exports.config = {
             { label : 'Analysis',    color : colors.yellow, states : ['Review', 'Technical Analysis'] },
             { label : 'Improvement', color : colors.yellow, states : ['CAPA in progress', 'Change Request in progress'] },
             { label : 'Completed',   color : colors.green,  states : ['Completed'] }
+        ]
+    },{
+        title       : 'Change Requests Management',
+        wsId        : 83,
+        className   : 'change-request',
+        contents    : [ 
+            { type : 'details'         , params : { id : 'details', collapseContents : true, editable : true, toggles : true, singleToolbar : 'controls' } },
+            { type : 'attachments'     , params : { id : 'attachments', editable : true, headerLabel : 'Files', singleToolbar : 'controls', layout : 'list', tileSize : 'xs' } },
+            { type : 'managed-items'   , params : { id : 'managed-items', editable : true, columnsIn : [ 'Item', 'Lifecycle', 'Problem Description', 'Proposed Change'], openInPLM : true } },
+            { type : 'workflow-history', params : { id : 'workflow-history' } }
+        ],
+        icon     : 'icon-workflow',
+        progress : [
+            { label : 'Planning',    color : '#000000',     states : ['Create']  },
+            { label : 'Review',      color : colors.red,    states : ['Review & Impact Analysis', 'Peform Tasks', 'Change Control Board Review']  },
+            { label : 'In Work',     color : colors.yellow, states : ['Change Order in progress']   },
+            { label : 'Completed',   color : colors.green,  states : ['Completed'] }
+        ]
+    },{
+        title       : 'Change Orders Dashboard',
+        wsId        : 84,
+        newHeader   : 'Create new Change Order',
+        newMessage  : 'Initiate a new Change Order involving the engineering team by providing the key information below first.',
+        className   : 'change-order',
+        contents    : [ 
+            { type : 'details'     , params : { id : 'details', collapseContents : true, editable : true, toggles : true, singleToolbar : 'controls', expandSections : ['Summary'] } },
+            { type : 'attachments' , params : { id : 'attachments', editable : true, headerLabel : 'Files', singleToolbar : 'controls', layout : 'list', tileSize : 'xs' } },
+            { type : 'viewer'      , params : { id : 'viewer', fieldIdViewable : 'AFFECTED_ITEM' } },
+            { type : 'project'     , params : { id : 'project', headerLabel : 'Change Tasks', createViewerImageFields : ['IMAGE_1'] , editable : true, openInPLM : true, openOnDblClick : true, multiSelect : false, createWorkspaceIds : ['80'], createHeaderLabel : 'New Task', createToggles : true, createHideSections : true, createContextItemField : 'CHANGE_ORDER', createFieldsIn : ['TITLE', 'DESCRIPTION', 'ASSIGNEE', 'TARGET_COMPLETION_DATE', 'IMAGE_1', 'CHANGE_ORDER'] } },
+        ],
+        icon            : 'icon-markup',
+        fieldIdSubtitle : 'DESCRIPTION',
+        progress : [
+            { label : 'Preparation'    , color : colors.blue  , states : ['Preparation'] },
+            { label : 'Change Action'  , color : colors.yellow, states : ['Perform Change', 'Results Review'] },
+            { label : 'Change Review'  , color : colors.red   , states : ['Change Control Board Review', 'External Review'] },
+            { label : 'Acknowledgement', color : colors.green , states : ['Released'] },
+            { label : 'Completed'      , color : colors.green , states : ['Implemented'] }
+        ]
+    },{
+        title       : 'Change Tasks Dashboard',
+        wsId        : 80,
+        className   : 'change-task',
+        contents    : [ 
+            { type : 'details'         , params : { id : 'details', expandSections : ['Task Details', 'Follow-Up & Status Updates'], editable : true, toggles : true, singleToolbar : 'controls' } },
+            { type : 'attachments'     , params : { id : 'attachments', editable : true, headerLabel : 'Files', singleToolbar : 'controls', layout : 'row', contentSize : 'l' } },
+            { type : 'grid'            , params : { id : 'grid', editable : true, headerLabel : 'Efforts'} },
+            { type : 'relationships'   , params : { id : 'relationships', headerLabel : 'Deliverables', editable : true, columnsIn : [ 'Item', 'Lifecycle', 'Problem Description', 'Proposed Change'], openInPLM : true } },
+            { type : 'workflow-history', params : { id : 'workflow-history' } }
+        ],
+        icon     : 'icon-mow',
+        progress : [
+            { label : 'Planned',      color : '#000000',     states : ['Planned' ]},
+            { label : 'New',          color : colors.red,    states : ['Assigned']},
+            { label : 'In Work',      color : colors.yellow, states : ['In Work' ]},
+            { label : 'Owner Review', color : colors.green,  states : ['On Hold', 'Review']},
+            { label : 'Done',         color : '#000000',     states : ['Completed']}
+        ]
+    },{
+        title       : 'Non Conformances Tracking Dashboard',
+        wsId        : 98,
+        className   : 'non-conformance',
+        contents    : [ 
+            { type : 'workflow-history', params : { id : 'workflow-history' } },
+            { type : 'details'         , params : { id : 'details', collapseContents : true, editable : true, toggles : true, singleToolbar : 'controls' } },
+            { type : 'markup'          , params : { id : 'markup', fieldIdViewable : 'NONCONFORMING_ITEM', markupsImageFieldsPrefix : 'IMAGE_' } },
+            { type : 'attachments'     , params : { id : 'attachments', editable : true, headerLabel : 'Files', singleToolbar : 'controls', layout : 'list', tileSize : 'xs' } }
+        ],
+        icon            : 'icon-rules',
+        fieldIdSubtitle : 'DESCRIPTION',
+        progress : [
+            { label : 'New',         color : colors.red,    states : ['Identification In Progress'] },
+            { label : 'Analysis',    color : colors.yellow, states : ['Under Review'] },
+            { label : 'Improvement', color : colors.yellow, states : ['Disposition In Progress', 'CAPA In Progress'] },
+            { label : 'Closed',      color : colors.green,  states : ['Closed'] }
         ]
     },{
         title       : 'Project Tasks Management',
@@ -908,6 +929,16 @@ exports.menu = [
             title    : 'Non Conformances Dashboard',
             subtitle : 'Capture and resolve quality issues',
             url      : '/dashboard?wsId=98'
+        },{
+            icon     : 'icon-workflow',
+            title    : 'Change Requests Dashboard',
+            subtitle : 'Create and manage Change Requests',
+            url      : '/dashboard?wsId=83'
+        },{
+            icon     : 'icon-markup',
+            title    : 'Change Orders Dashboard',
+            subtitle : 'Create and manage Change Orders & Tasks',
+            url      : '/dashboard?wsId=84'
         },{
             icon     : 'icon-mow',
             title    : 'Change Tasks Dashboard',

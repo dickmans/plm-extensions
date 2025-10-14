@@ -1822,6 +1822,7 @@ function genPanelCreateButton(id, settings, callback) {
             insertCreate(settings.createWorkspaceNames, settings.createWorkspaceIds, {
                 id                  : settings.createId,
                 headerLabel         : settings.createHeaderLabel,
+                hideSections        : settings.createHideSections,
                 sectionsIn          : settings.createSectionsIn,
                 sectionsEx          : settings.createSectionsEx,
                 fieldsIn            : settings.createFieldsIn,
@@ -1829,10 +1830,12 @@ function genPanelCreateButton(id, settings, callback) {
                 contextId           : id,
                 contextItem         : settings.link,
                 contextItems        : settings.createContextItems,
+                contextItemField    : settings.createContextItemField,
                 contextItemFields   : settings.createContextItemFields,
                 viewerImageFields   : settings.createViewerImageFields,
+                toggles             : settings.createToggles,
                 useCache            : settings.useCache,
-                afterCreation       : function(createId, createLink, id) { callback(createId, createLink, id); }
+                afterCreation       : function(createId, createLink, data, contextId) { callback(createId, createLink, data, contextId); }
             });
             
         });
@@ -3121,6 +3124,8 @@ function genSingleTile(params, settings) {
             $('<div></div>').appendTo(elemTileStatus)
                 .addClass('tile-status-label')
                 .html(label);
+
+            elemTile.addClass('with-status');
 
         }
 
@@ -5101,8 +5106,10 @@ function getAllImageFieldIDs(fields) {
     let imageFields = [];
 
     for(let field of fields) {
-        if(field.type.title === 'Image') {
-            imageFields.push(field.__self__.split('/').pop());
+        if(!isBlank(field.type)) {
+            if(field.type.title === 'Image') {
+                imageFields.push(field.__self__.split('/').pop());
+            }
         }
     }
 

@@ -12,6 +12,7 @@
     --width-workflow        : 220px;
     --width-details         : 320px;
     --width-attachments     : 300px;
+    --width-project         : 400px;
     --height-markups        : 140px;
     --height-attachments    : 200px;
 
@@ -90,10 +91,10 @@
     left    : calc(var(--width-workflow) + var(--width-details) + (4 * var(--item-content-border-h)) + (2 * var(--item-content-gap)));
 }
 #viewer {
-    top     : 0px !important;
-    right   : 0px !important;
-    bottom  : var(--height-markups) !important;
-    left    : 0px !important;
+    top     : 0px;
+    right   : 0px;
+    bottom  : var(--height-markups);
+    left    : 0px;
 }
 #markups {
     top     : unset !important;
@@ -353,6 +354,48 @@ td.selected {
 
 
 
+/* ITEM SUMMARY Problem Reports */
+/* ----------------------------------------------------------------------------- */
+#item.problem-report {
+    --height-attachments    : 220px;
+    --width-details         : 460px;
+    --width-workflow        : 180px;
+}
+#item.problem-report #details {
+    top     : 0px;
+    right   : unset;
+    bottom  : calc(var(--height-attachments) + (2 * var(--item-content-border-v)) + (1 * var(--item-content-border-h)));
+    left    : 0px;
+    width   : var(--width-details);
+}
+#item.problem-report #attachments {
+    right   : unset;
+    bottom  : 0px;
+    left    : 0px;
+    height  : var(--height-attachments);
+    width   : var(--width-details);
+}
+#item.problem-report #markup {
+    top     : 0px;
+    right   : calc(var(--width-workflow) + 480px + (3 * var(--item-content-border-h)));
+    bottom  : 0px;
+    left    : calc(var(--width-details) + (3 * var(--item-content-border-h)));
+}
+#item.problem-report #project {
+    top     : 0px;
+    right   : calc(var(--width-workflow) + 0px + (3 * var(--item-content-border-h)));;
+    bottom  : 0px;
+    width   : 400px;
+    left    : unset;
+}
+#item.problem-report #workflow-history {
+    top     : 0px;
+    right   : 0px;
+    bottom  : 0px;
+    left    : unset;
+}
+
+
 /* ITEM SUMMARY Change Requests */
 /* ----------------------------------------------------------------------------- */
 #item.change-request {
@@ -384,6 +427,44 @@ td.selected {
     top     : 0px;
     right   : 0px;
     bottom  : 0px;
+    left    : unset;
+}
+
+
+
+/* ITEM SUMMARY Change Orders */
+/* ----------------------------------------------------------------------------- */
+#item.change-order {
+    --height-attachments    : 320px;
+    --width-details         : 520px;
+}
+#item.change-order #details {
+    top     : 0px;
+    right   : unset;
+    bottom  : calc(var(--height-attachments) + (2 * var(--item-content-border-v)) + (1 * var(--item-content-border-h)));
+    left    : 0px;
+    width   : var(--width-details);
+}
+#item.change-order #attachments {
+    right   : unset;
+    bottom  : 0px;
+    left    : 0px;
+    height  : var(--height-attachments);
+    width   : var(--width-details);
+}
+#item.change-order #viewer,
+#item.change-order .viewer {
+    border-width : 0px;
+    top     : 0px;
+    right   : calc(var(--width-project) + (3 * var(--item-content-border-h)));
+    bottom  : 0px;
+    left    : calc(var(--width-details) + (3 * var(--item-content-border-h)));
+}
+#item.change-order #project {
+    top     : 0px;
+    right   : 0px;
+    bottom  : 0px;
+    width   : var(--width-project);
     left    : unset;
 }
 
@@ -467,49 +548,6 @@ td.selected {
     left    : calc(var(--width-details) + (3 * var(--item-content-border-h)));
 }
 #item.non-conformance #workflow-history {
-    top     : 0px;
-    right   : 0px;
-    bottom  : 0px;
-    left    : unset;
-}
-
-
-/* ITEM SUMMARY Problem Reports */
-/* ----------------------------------------------------------------------------- */
-#item.problem-report {
-    --height-attachments    : 220px;
-    --width-details         : 460px;
-    --width-workflow        : 180px;
-}
-#item.problem-report #details {
-    top     : 0px;
-    right   : unset;
-    bottom  : calc(var(--height-attachments) + (2 * var(--item-content-border-v)) + (1 * var(--item-content-border-h)));
-    left    : 0px;
-    width   : var(--width-details);
-}
-#item.problem-report #attachments {
-    right   : unset;
-    bottom  : 0px;
-    left    : 0px;
-    height  : var(--height-attachments);
-    width   : var(--width-details);
-}
-#item.problem-report #markup {
-    top     : 0px;
-    right   : calc(var(--width-workflow) + 480px + (3 * var(--item-content-border-h)));
-    bottom  : 0px;
-    left    : calc(var(--width-details) + (3 * var(--item-content-border-h)));
-}
-#item.problem-report #project {
-    top     : 0px;
-    right   : calc(var(--width-workflow) + 0px + (3 * var(--item-content-border-h)));;
-    bottom  : 0px;
-    width   : 400px;
-    left    : unset;
-}
-
-#item.problem-report #workflow-history {
     top     : 0px;
     right   : 0px;
     bottom  : 0px;
