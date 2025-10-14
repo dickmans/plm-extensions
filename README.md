@@ -10,6 +10,10 @@ Disclaimer: In any case all source code of this solution is of "work in progress
 > Since the release of July 2024, you must use an Autodesk Platform Services application of type "Desktop, Mobile, Single-Page App" to enable the new authentication based on PKCE. If not done yet, please create such an app and update your clientID in settings.js (clientSecret is not required any longer).
 
 
+## Introduction and Setup
+This package is not an official Autodesk product and the features listed below are not included in a standard Autodesk solution. Instead, they are made available by running a node.js based server that connects to any Fusion Manage tenant using the given REST APIs. This server must be hosted on customer infrastructure, it can also be deployed directly from this repository using a cloud based platform like AWS, Azure or Google. See the following video describing the setup using Google Cloud Run: https://youtu.be/9EtlCDzmWWE. This code is provided as is for free with all sources and can be adjusted as needed.
+
+
 ## End User Applications Included
 The following extensions are included in this package. Each application can be accessed by a dedicated endpoint but also by using the [integrated menu](https://youtu.be/ImnXV0HF3PA). This given menu can be configured in the landing page while the list of available endpoints / applications is defined in file routes/landing.js
 
@@ -55,6 +59,7 @@ Provides (managers) easy access to real time reports of PLM. This dashboard comb
 ### Manufacturing BOM Editor
 <img src="public/images/app-mbom-editor.png">
 Process engineers can transform an Engineering BOM to a Manufacturing BOM with ease using this editor. It enables restructuring and addition of components even for multiple, site-specific MBOMs. See video at https://youtu.be/qVhhKlrf1S0.
+
 
 ### Service BOM Editor
 <img src="public/images/app-sbom-editor.png">
