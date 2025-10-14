@@ -22,6 +22,10 @@
     display        : flex; 
     flex-direction : column;
 }
+.sections.sections-hidden { 
+    gap     : 0px; 
+    padding : 10px 0px;
+}
 .sections.xxs { gap : 1px; }
 .sections.xs  { gap : 1px; }
 .sections.s   { gap : 1px; }
@@ -87,6 +91,9 @@
 }
 .section-fields > .field.required > .field-label { 
     color : var(--color-red-600); 
+}
+.sections-hidden > .section-fields {
+    padding : 0px;
 }
 .panel-content.xxs .field > * { line-height : 16px; font-size : 12px; }
 .panel-content.xs  .field > * { line-height : 16px; font-size : 12px; }
@@ -190,16 +197,18 @@
     border-color : var(--color-hover-border) !important;
     box-shadow   : 0px 3px 0px 0px rgba(6, 150, 215, 0.35);
 }
+.field-value input {
+    text-overflow : ellipsis;
+    max-width     : calc(100% - 16px);
+    min-width     : calc(100% - 16px);
+    width         : calc(100% - 16px);
+}
 .field-editable input {
     max-height    : 20px;
     min-height    : 20px;
     height        : 20px;
     line-height   : 20px;
     padding       : 6px 8px;
-    text-overflow : ellipsis;
-    max-width     : calc(100% - 16px);
-    min-width     : calc(100% - 16px);
-    width         : calc(100% - 16px);
 }
 .field-value > select {
     width : 100%;
@@ -352,6 +361,7 @@ td.field-type-email.field-readonly {
 /* IMAGE */
 .field-type-image {
     line-height : 0px !important;
+    padding     : 8px 0px;
 }
 .field-type-image > img {
     max-width  : 100%;

@@ -339,7 +339,9 @@
     display         : flex;
     flex-direction  : column;
     justify-content : center;
-    width           : 26px;
+    max-width       : 24px;
+    min-width       : 24px;
+    width           : 24px;
 }
 .tile-status-label {
     color           : white;
@@ -413,6 +415,7 @@
     text-overflow   : ellipsis;
     white-space     : nowrap;
 }
+.tiles.list > .with-status .tile-details { margin-right : 0px !important; }
 
 .tiles.list.xxs { gap : 0px; }
 .tiles.list.xs  { gap : 0px; }
