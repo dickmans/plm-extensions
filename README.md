@@ -11,7 +11,8 @@ Disclaimer: In any case all source code of this solution is of "work in progress
 
 
 ## Introduction and Setup
-This package is not an official Autodesk product and the features listed below are not included in a standard Autodesk solution. Instead, they are made available by running a node.js based server that connects to any Fusion Manage tenant using the given REST APIs. This server must be hosted on customer infrastructure, but it can also be deployed directly from this repository using a cloud based platform like AWS, Azure or Google. See the following video describing the setup using Google Cloud Run: https://youtu.be/9EtlCDzmWWE. This code is provided as is for free with all sources and can be adjusted as needed.
+This package is not an official Autodesk product and the features listed below are not included in a standard Autodesk solution. Instead, they are made available by running a node.js based server that connects to any Fusion Manage tenant using the given REST APIs. This server must be hosted on customer infrastructure, but it can also be deployed directly from this repository using a cloud based platform like AWS, Azure or Google. See the following video for a quick introduction and specifically the setup using Google Cloud Run: https://youtu.be/9EtlCDzmWWE.
+This source code is provided as is for free and can be adjusted, integrated, extended, reused and shared as needed.
 
 
 ## End User Applications Included
