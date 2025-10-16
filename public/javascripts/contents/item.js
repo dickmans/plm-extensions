@@ -8359,6 +8359,7 @@ function insertItemSummary(link, params) {
     if(isBlank(params)) params = {};
 
     let id = isBlank(params.id) ? 'item' : params.id;
+    let selectedTab = (isBlank(settings.summary[id])) ? '' : settings.summary[id].selectedTab;
 
     settings.summary[id] = getPanelSettings(link, params, {}, [
         [ 'bookmark'        , false ],
@@ -8369,6 +8370,7 @@ function insertItemSummary(link, params) {
         [ 'hideSubtitle'    , false ],
         [ 'hideCloseButton' , false ],
         [ 'includeViewer'   , false ],
+        [ 'saveTabSelection', false ],
         [ 'statesColors'    , []    ],
         [ 'surfaceLevel'    , null  ],
         [ 'toggleBodyClass' , ''    ],
@@ -8378,8 +8380,9 @@ function insertItemSummary(link, params) {
         [ 'afterCloning'    , function(id, link) { console.log('New item link : ' + link ); } ]
     ]);
 
-    settings.summary[id].wsId    = link.split('/')[4];
-    settings.summary[id].load    = function() { setItemSummaryData(id); }
+    settings.summary[id].wsId        = link.split('/')[4];
+    settings.summary[id].load        = function() { setItemSummaryData(id); }
+    settings.summary[id].selectedTab = selectedTab;
 
     let elemItemTop = $('#' + id);
 
@@ -8811,7 +8814,19 @@ function insertItemSummaryContents(id, details, fields, tabs) {
         isFirst = false;
     }
 
-    if(elemTabs.length > 0) elemTabs.children().first().click();
+    if(elemTabs.length > 0) {
+        let selectFirst = true;
+        if(settings.summary[id].saveTabSelection) {
+            elemTabs.children().each(function() {
+                if($(this).attr('data-content-id') === settings.summary[id].selectedTab) {
+                    selectFirst = false;
+                    $(this).click();
+                }
+            });
+        }
+        if(selectFirst) elemTabs.children().first().click();
+
+    }
 
     insertItemSummaryDataDone(id);
 
@@ -8823,6 +8838,8 @@ function insertItemSummaryContentTab(id, contentId, label, params, isFirst) {
     let elemTabs = $('#' + id + '-tabs');
     let tabLabel = isBlank(params.headerLabel) ? label : params.headerLabel;
     
+
+
     $('<div></div>').appendTo(elemTabs)
         .attr('data-content-id', contentId)
         .html(tabLabel)
@@ -8834,6 +8851,8 @@ function insertItemSummaryContentTab(id, contentId, label, params, isFirst) {
 
             let contentId    = $(this).attr('data-content-id');
             let elemContents = $('#' + id + '-content');
+
+            settings.summary[id].selectedTab = contentId;
 
             elemContents.children().each(function() {
                 if($(this).attr('id') === contentId) {

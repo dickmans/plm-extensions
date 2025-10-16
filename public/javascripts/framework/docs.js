@@ -642,6 +642,12 @@ let categories = [
     default     : 'false',
     supportedBy : []
 },{
+    name        : 'saveTabSelection',
+    description : 'When switching between records, the summary will automatically select the previously selected tab if layout "tabs" is used',
+    type        : 'Boolean',
+    default     : 'false',
+    supportedBy : ['item-summary']
+},{
     name        : 'wrapControls',
     description : 'Prevent wrapping of controls in summary header',
     type        : 'Boolean',
