@@ -289,7 +289,12 @@ function insertMenu() {
             $('#menu').fadeOut(150);
         });
 
-    let elemColumns = $('<div></div>').appendTo(elemMenu).attr('id', 'menu-columns');
+    insertMenuContents(elemMenu, 'menu-columns');
+
+}
+function insertMenuContents(elemParent, id) {
+
+    let elemColumns = $('<div></div>').appendTo(elemParent).attr('id', id);
 
     for(let column of menu) {
 
@@ -338,6 +343,18 @@ function insertMenu() {
 
         }
     }
+
+    let elemLastColumn = elemColumns.children().last();
+
+    $('<div></div>').appendTo(elemLastColumn)
+        .addClass('button')
+        .css('margin', '62px 10px 0px 10px')
+        .css('gap', '6px')
+        .css('padding', '12px')
+        .html('Fusion Manage Home')
+        .click(function() {
+            document.location.href = 'https://' + tenant + '.autodeskplm360.net';
+        });
 
 }
 function clickMenuCommand(elemCommand) {
