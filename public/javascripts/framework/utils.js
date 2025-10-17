@@ -4580,6 +4580,7 @@ function getSectionFieldValue(sections, fieldId, defaultValue, property) {
 
                     if(Array.isArray(value)) return value;
                     else if(typeof property === 'undefined') return field.value.link;
+                    else if(property === 'object') return field.value;
                     else return field.value[property];
                     
                 } else if(field.type.title === 'Paragraph') {
