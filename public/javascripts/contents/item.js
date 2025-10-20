@@ -3411,18 +3411,20 @@ function insertAttachments(link, params) {
         tileIcon    : 'icon-pdf',
         contentSize : 'm',
     }, [
-        [ 'bookmark'           , false ],
-        [ 'filterByType'       , false ],
-        [ 'folders'            , false ],
-        [ 'fileVersion'        , true  ],
-        [ 'fileSize'           , true  ],
-        [ 'includeVaultFiles'  , false ],
-        [ 'includeRelatedFiles', false ],
-        [ 'split'              , false ],
-        [ 'download'           , true  ],
-        [ 'uploadLabel'        , 'Upload File' ],
-        [ 'extensionsIn'       , [] ],
-        [ 'extensionsEx'       , [] ]
+        [ 'bookmark'              , false ],
+        [ 'filterByType'          , false ],
+        [ 'folders'               , false ],
+        [ 'fileVersion'           , true  ],
+        [ 'fileSize'              , true  ],
+        [ 'includeVaultFiles'     , false ],
+        [ 'includeRelatedFiles'   , false ],
+        [ 'split'                 , false ],
+        [ 'download'              , true  ],
+        [ 'uploadScreenshot'      , false ],
+        [ 'uploadScreenshotLabel' , 'Save Screenshot' ],
+        [ 'uploadFileLabel'       , 'Upload File' ],
+        [ 'extensionsIn'          , [] ],
+        [ 'extensionsEx'          , [] ]
     ]);
 
     settings.attachments[id].load = function() { fileUploadDone(id); }
@@ -3494,6 +3496,34 @@ function insertAttachments(link, params) {
             .change(function() {
                 selectFileForUpload(id);
             });
+        }
+        
+        if(settings.attachments[id].uploadScreenshot) {
+
+            let elemSaveScreenshot = $('<div></div>').prependTo(elemToolbar)
+                .addClass('button')
+                .addClass('icon-screenshot')
+                .attr('id', id + '-screenshot')
+                .attr('title', settings.attachments[id].uploadScreenshotLabel)
+                .html(settings.attachments[id].uploadScreenshotLabel)
+                .click(function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    clickScreenshotUpload(id, $(this));
+                });
+
+            if(isBlank(settings.attachments[id].uploadScreenshotLabel)) {
+                elemSaveScreenshot.addClass('icon');
+            } else {
+                elemSaveScreenshot.addClass('with-icon');
+            }
+
+            if($('#' + id + '-screenshot-canvas').length === 0) {
+                $('<canvas></canvas>').appendTo($('body'))
+                    .attr('id', id + '-screenshot-canvas')
+                    .css('display', 'none');
+            }              
+
         }
 
     }
@@ -4164,6 +4194,38 @@ function fileUploadDone(id) {
     settings.attachments[id].timestamp = new Date().getTime();
 
     insertAttachmentsData(id, true);
+
+}
+function clickScreenshotUpload(id, elemClicked) {
+
+    if(!isViewerStarted()) return;
+
+    $('#overlay').show();
+
+    let idCanvas = id + '-screenshot-canvas';
+
+    viewerCaptureScreenshot(idCanvas, function() {
+
+        let elemScreenshot = $('#' + idCanvas);
+
+        let params = { 
+            link      : settings.attachments[id].link,
+            image     : {
+                fieldId : 'markup',
+                value   : elemScreenshot[0].toDataURL('image/jpg')
+            }
+        };
+
+        $.post({
+            url         : '/plm/upload-screenshot', 
+            contentType : 'application/json',
+            data        : JSON.stringify(params)
+        }, function() {
+            insertAttachmentsData(id, true);
+            $('#overlay').hide();
+        });
+
+    });
 
 }
 
