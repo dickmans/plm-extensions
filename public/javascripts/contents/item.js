@@ -4186,6 +4186,7 @@ function insertGrid(link, params) {
         [ 'hideButtonCreate'    , false ],
         [ 'hideButtonClone'     , false ],
         [ 'hideButtonDisconnect', false ],
+        [ 'hideButtonLabels'    , false ],
         [ 'rotate'              , false ],
         [ 'bookmark'            , false ],
         [ 'picklistLimit'       , 10    ],
@@ -4213,7 +4214,7 @@ function insertGrid(link, params) {
 
         let elemToolbar = genPanelToolbar(id, settings.grid[id], 'actions');
 
-        $('<div></div>').appendTo(elemToolbar)
+        $('<div></div>').prependTo(elemToolbar)
             .addClass('button')
             .addClass('default')
             .attr('id', id + '-action-save') 
@@ -4228,13 +4229,11 @@ function insertGrid(link, params) {
 
         if(!settings.grid[id].hideButtonCreate) {
 
-            $('<div></div>').appendTo(elemToolbar)
+            let elemButtonAdd = $('<div></div>').prependTo(elemToolbar)
                 .addClass('button')
-                .addClass('with-icon')
                 .addClass('icon-list-add')
                 .attr('id', id + '-action-add')
                 .attr('title', 'Insert new row')
-                .html('Insert Row')
                 .addClass('hidden')
                 .click(function(e) {
                     e.preventDefault();
@@ -4244,19 +4243,20 @@ function insertGrid(link, params) {
                     $('#' + id + '-content').show();
                     resetTableSelectAllCheckBox($(this));
                 });
+
+            if(settings.grid[id].hideButtonLabels) elemButtonAdd.addClass('icon'); else elemButtonAdd.addClass('with-icon').html('Insert Row');
+
         }
 
         if(!settings.grid[id].hideButtonClone) {
 
-            $('<div></div>').appendTo(elemToolbar)
+            let elemButtonClone = $('<div></div>').prependTo(elemToolbar)
                 .addClass('button')
-                .addClass('with-icon')
                 .addClass('icon-clone')
                 .addClass('panel-action-clone')
                 .addClass('grid-action-clone')
                 .attr('title', 'Clones the selected rows')
                 .attr('id', id + '-action-clone')
-                .html('Clone Selected')
                 .addClass('hidden')
                 .addClass('multi-select-action')
                 .click(function(e) {
@@ -4266,10 +4266,15 @@ function insertGrid(link, params) {
                     resetTableSelectAllCheckBox($(this));
                 });
 
+            if(settings.grid[id].hideButtonLabels) elemButtonClone.addClass('icon'); else elemButtonClone.addClass('with-icon').html('Clone Selected');                
+
         }
 
         let elemDisconnect = genPanelDisconnectButton(id, settings.grid[id], function() { deleteGridRows(id); });
             elemDisconnect.attr('title', 'Removes the selected rows from the view with the next Save operation');
+            elemDisconnect.prependTo(elemToolbar);
+
+        if(settings.grid[id].hideButtonLabels) elemDisconnect.removeClass('with-icon').addClass('icon').html('');
 
     }
 
@@ -4529,7 +4534,7 @@ function insertGridRow(id, row, picklistsData) {
 function setGridRowEvents(id, elemRow) {
 
     elemRow.click(function(e) {
-        // clickContentItemSelect($(this), e);
+        clickContentItemSelect($(this), e);
         if(!isBlank(settings.grid[id].onClickItem)) settings.grid[id].onClickItem($(this));
     }).dblclick(function() {
         if(!isBlank(settings.grid[id].onDblClickItem)) settings.grid[id].onDblClickItem($(this));
