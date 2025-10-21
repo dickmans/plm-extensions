@@ -786,7 +786,9 @@ function getFieldValue(field) {
         case 'radio':
         case 'buom':
         case 'single-select':
-            value = { link : value };
+            if(value !== null) {
+                if(typeof value !== 'object') value = { link : value };
+            }
             break;
 
         case 'multi-select':
@@ -804,6 +806,11 @@ function getFieldValue(field) {
             break;
 
     }
+
+    console.log('-------');
+    console.log(field.fieldId);
+    console.log(field.type);
+    console.log(field.value);
 
     return value;
 
@@ -3419,6 +3426,7 @@ router.get('/bom', function(req, res, next) {
     console.log('  req.query.link           = ' + req.query.link);
     console.log('  req.query.depth          = ' + req.query.depth);
     console.log('  req.query.revisionBias   = ' + req.query.revisionBias);
+    console.log('  req.query.effectiveDate  = ' + req.query.effectiveDate);
     console.log('  req.query.viewId         = ' + req.query.viewId);
     
     let revisionBias    = (typeof req.query.revisionBias !== 'undefined') ? req.query.revisionBias : 'release';
@@ -3428,7 +3436,8 @@ router.get('/bom', function(req, res, next) {
     let url             = req.app.locals.tenantLink + link + '/bom?depth=' + depth + '&revisionBias=' + revisionBias + '&rootId=' + rootId;
     let headers         = getCustomHeaders(req);
 
-    if(typeof req.query.viewId !== 'undefined') url += '&viewDefId=' + req.query.viewId;
+    if(typeof req.query.viewId        !== 'undefined') url += '&viewDefId='     + req.query.viewId;
+    if(typeof req.query.effectiveDate !== 'undefined') url += '&effectiveDate=' + req.query.effectiveDate;
 
     headers.Accept = 'application/vnd.autodesk.plm.bom.bulk+json';
 
