@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>PLM UX Extensions Options</title>
+    <style>
+      body {
+        background : #f1f1f1;
+        width       : 400px;
+        font-family : Arial, sans-serif;
+        padding     : 16px;
+      }
+      button {
+        border      : none;
+        border-radius : 3px;
+        background  : #0696d7;
+        color       : white;
+        height      : 38px;
+        line-height : 38px;
+        padding     : 0px;
+        text-align  : center;
+        width       : 100%;
+      }
+      #options {
+        display        : flex;
+        flex-direction : column;
+        gap            : 4px;
+        margin-top     : 18px;
+        margin-bottom  : 24px;
+      }
+      .option {
+        display : flex;
+        gap     : 10px;
+      }
+      .option-label {
+        line-height : 30px;
+        height      : 30px;
+        width       : 100px;
+      }
+      input {
+        background-color : '#aaa' !important;
+        background       : '#cccccc' !important;
+        border           : none;
+        border-bottom    : 1px solid #bbbbbb;
+        padding          : 4px 16px;
+        line-height      : 20px;
+        height           : 20px;
+        width            : 254px;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>PLM UX Extensions Options</h2>
+    <p>Changes will only get applied after a refresh of the Fusion Manage page</p>
+    <div id="options">
+        <div class="option">
+          <div class="option-label">UX Server URL</div>
+          <input type="text" id="serverUrl" placeholder="Enter UX server URL" value="http://localhost:8080">
+        </div>
+    </div>
+    <button id="saveButton">Save</button>
+    <script src="options.js"></script>
+  </body>
+</html>

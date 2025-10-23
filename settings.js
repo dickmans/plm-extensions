@@ -1007,6 +1007,78 @@ exports.menu = [
 
 
 // ---------------------------------------------------------------------------------------------------------------------------
+//  CHOROME EXTENSION CONFIGURATION
+// ---------------------------------------------------------------------------------------------------------------------------
+// Configure the commands to be added to the Fusion Manage main menu and the buttons to be added to matching item's header
+exports.chrome = {
+    commands : [{
+        id    : 'insights',
+        url   : '/insights',
+        label : 'Tenant Insights',
+        icon  : 'data:image/svg+xml;utf8,<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="10" width="4" height="10" fill="black"/><rect x="10" y="6" width="4" height="14" fill="black"/><rect x="16" y="2" width="4" height="18" fill="black"/></svg>',
+        order : 101
+    },{
+        id    : 'users',
+        url   : '/users',
+        label : 'User Settings Manager',
+        icon  : 'data:image/svg+xml;utf8,<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="8" r="4" fill="black"/><path d="M12 14c-5.33 0-8 2.67-8 5v1h16v-1c0-2.33-2.67-5-8-5z" fill="black"/></svg>',
+        order : 102
+    },{
+        id    : 'outstanding-work',
+        url   : '/outstanding-work',
+        label : 'Outstanding Work Report',
+        icon  : 'data:image/svg+xml;utf8,<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="7" cy="7" r="3" fill="black"/><path d="M7 13c-3 0-5 1.5-5 3v1h10v-1c0-1.5-2-3-5-3z" fill="black"/><rect x="14" y="5" width="6" height="1.5" fill="black"/><rect x="14" y="9" width="6" height="1.5" fill="black"/><rect x="14" y="13" width="6" height="1.5" fill="black"/><rect x="14" y="17" width="6" height="1.5" fill="black"/></svg>',
+        order : 103
+    },{
+        id    : 'data',
+        url   : '/data',
+        label : 'Data Manager',
+        icon  : 'data:image/svg+xml;utf8,<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="4" height="4" fill="black"/><rect x="9" y="2" width="4" height="4" fill="black"/><rect x="16" y="2" width="4" height="4" fill="black"/><rect x="2" y="9" width="4" height="4" fill="black"/><rect x="9" y="9" width="4" height="4" fill="black"/><rect x="16" y="9" width="4" height="4" fill="black"/><rect x="2" y="16" width="4" height="4" fill="black"/><rect x="9" y="16" width="4" height="4" fill="black"/><rect x="16" y="16" width="4" height="4" fill="black"/><path d="M12 10l-1-1h2v2h-1V10z" fill="blue"/><path d="M13 13h1v2h-2l1-1z" fill="blue"/></svg>',
+        order : 104
+    },{
+        id    : 'workspace-comparison',
+        url   : '/workspace-comparison',
+        label : 'Workspace Comparison',
+        icon  : 'data:image/svg+xml;utf8,<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="4" height="4" fill="black"/><rect x="9" y="2" width="4" height="4" fill="black"/><rect x="16" y="2" width="4" height="4" fill="black"/><rect x="2" y="9" width="4" height="4" fill="black"/><rect x="9" y="9" width="4" height="4" fill="black"/><rect x="16" y="9" width="4" height="4" fill="black"/><rect x="2" y="16" width="4" height="4" fill="black"/><rect x="9" y="16" width="4" height="4" fill="black"/><rect x="16" y="16" width="4" height="4" fill="black"/><path d="M12 10l-1-1h2v2h-1V10z" fill="blue"/><path d="M13 13h1v2h-2l1-1z" fill="blue"/></svg>',
+        order : 104
+    }], 
+    buttons : [{
+        id         : 'pde',
+        url        : '/explorer?',
+        label      : 'Data Explorer',
+        workspaces : ['items']
+    },{
+        id         : 'mbom',
+        url        : '/mbom?',
+        label      : 'MBOM Editor',
+        workspaces : ['items']
+    },{
+        id         : 'cia',
+        url        : '/impactanalysis?',
+        label      : 'Impact Analysis',
+        workspaces : ['cr', 'co']
+    },{
+        id         : 'items-variants',
+        url        : '/variants?',
+        label      : 'Variants Manager',
+        workspaces : ['items']
+    },{
+        id         : 'product-variants',
+        url        : '/variants?options=fieldIdEBOM:ENGINEERING_BOM&',
+        label      : 'Variants Manager',
+        workspaces : ['products']
+    }],
+    workspaces : {
+        items    : 57,
+        cr       : 83,
+        co       : 84,
+        products : 95
+    }
+}
+
+
+
+// ---------------------------------------------------------------------------------------------------------------------------
 //  OVERRIDE SETTINGS WITH ENVIRONMENT VARIABLES
 // ---------------------------------------------------------------------------------------------------------------------------
 // Do not modify the following lines!
