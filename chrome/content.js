@@ -83,9 +83,12 @@ function insertExtensionsCommand(elemMenu, command) {
             elemButtonItem.className = 'hamburger-menu-item';
 
         let elemButtonIcon = document.createElement('div');
-            elemButtonIcon.className = 'hamburger-menu-item-icon';
-            elemButtonIcon.style.setProperty('filter', 'var(--filter-bg)');
-            elemButtonIcon.style.backgroundImage = "url('" + command.icon + "')";
+            elemButtonIcon.classList.add('zmdi');
+            elemButtonIcon.classList.add(command.icon);
+            elemButtonIcon.style.setProperty('font-size', '24px');
+            elemButtonIcon.style.setProperty('margin-right', '12px');
+            elemButtonIcon.style.setProperty('position', 'relative');
+            elemButtonIcon.style.setProperty('top', '-1px');
 
         let elemButtonText = document.createElement('p');
             elemButtonText.textContent = command.label;
@@ -200,16 +203,25 @@ function insertItemHeaderButtons() {
 
                     let elemButton = document.createElement('button');
 
-                    elemButton.className   = 'plm-extensions-button';
-                    elemButton.textContent = button.label;
-                    elemButton.id          = 'plm-extensions-button-' + button.id;
+                    elemButton.className = 'plm-extensions-button';
+                    elemButton.id        = 'plm-extensions-button-' + button.id;
                     
                     elemButton.style.setProperty('background', 'transparent');
                     elemButton.style.setProperty('border-radius', '3px');
                     elemButton.style.setProperty('border', '1px solid #bababa');
                     elemButton.style.setProperty('line-height', '20px');
-                    elemButton.style.setProperty('padding', '4px 14px');
                     elemButton.style.setProperty('margin-top', '2px');
+
+                    if(typeof button.icon === 'undefined') {
+                        elemButton.textContent = button.label;
+                        elemButton.style.setProperty('padding', '4px 14px');
+                    } else {
+                        elemButton.classList.add('zmdi');
+                        elemButton.classList.add(button.icon);
+                        elemButton.style.setProperty('font-size', '20px');
+                        elemButton.style.setProperty('padding', '4px 8px');
+                        elemButton.setAttribute('title', button.label);
+                    }
 
                     elemButton.onclick = function() {
 
@@ -223,15 +235,6 @@ function insertItemHeaderButtons() {
 
                     }
 
-                    // let elemIcon = document.createElement('span');
-                    //     elemIcon.classList.add('zmdi');
-                    //     elemIcon.classList.add('zmdi-open-in-new');
-                    //     elemIcon.style.setProperty('margin-left', '10px');
-                    //     elemIcon.style.setProperty('font-size', '16px');
-                    //     elemIcon.style.setProperty('position', 'relative');
-                    //     elemIcon.style.setProperty('top', '2px');
-
-                    // elemButton.appendChild(elemIcon);
                     elemToolbar.appendChild(elemButton);
                     elemHeader.appendChild(elemToolbar);
 
