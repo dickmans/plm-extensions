@@ -85,10 +85,14 @@ function insertExtensionsCommand(elemMenu, command) {
         let elemButtonIcon = document.createElement('div');
             elemButtonIcon.classList.add('zmdi');
             elemButtonIcon.classList.add(command.icon);
-            elemButtonIcon.style.setProperty('font-size', '24px');
-            elemButtonIcon.style.setProperty('margin-right', '12px');
+            elemButtonIcon.style.setProperty('font-size', '23px');
+            elemButtonIcon.style.setProperty('margin-right', '10px');
             elemButtonIcon.style.setProperty('position', 'relative');
+            elemButtonIcon.style.setProperty('text-align', 'center');
             elemButtonIcon.style.setProperty('top', '-1px');
+            elemButtonIcon.style.setProperty('max-width', '23px');
+            elemButtonIcon.style.setProperty('min-width', '23px');
+            elemButtonIcon.style.setProperty('width', '23px');
 
         let elemButtonText = document.createElement('p');
             elemButtonText.textContent = command.label;

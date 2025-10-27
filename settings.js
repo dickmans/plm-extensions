@@ -1015,32 +1015,32 @@ exports.chrome = {
         id    : 'users',
         url   : '/users',
         label : 'User Settings Manager',
-        icon  : 'zmdi-accounts-list-alt',
+        icon  : 'zmdi-accounts-list',
         order : 101
-    },{
-        id    : 'outstanding-work',
-        url   : '/outstanding-work',
-        label : 'Outstanding Work Report',
-        icon  : 'zmdi-account-box-mail',
-        order : 102
     },{
         id    : 'data',
         url   : '/data',
         label : 'Data Manager',
         icon  : 'zmdi-storage',
-        order : 103
+        order : 102
     },{
         id    : 'workspace-comparison',
         url   : '/workspace-comparison',
         label : 'Workspace Comparison',
         icon  : 'zmdi-blur-linear',
-        order : 104
+        order : 103
     },{   
         id    : 'insights',
         url   : '/insights',
         label : 'Tenant Insights',
         icon  : 'zmdi-graphic-eq',
-        order : 105
+        order : 104
+    },{
+        id    : 'outstanding-work',
+        url   : '/outstanding-work',
+        label : 'Outstanding Work Report',
+        icon  : 'zmdi-assignment-account',
+        order : 105 
     }],  
     buttons : [{
         id         : 'mbom',
