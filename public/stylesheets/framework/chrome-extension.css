@@ -1,0 +1,30 @@
+body {
+    overflow-y : auto;
+}
+.content {
+    margin      : 60px auto;
+    max-width   : 1280px;
+}
+.title {
+    font-size     : 32px;
+    font-weight   : 800;
+    line-height   : 64px;
+    margin-bottom : 30px;
+    padding       : 10px 20px;
+    text-align    : center;
+}
+h2 {
+    border-top  : 2px solid var(--color-surface-level-5);
+    margin-top  : 52px;
+    padding-top : 24px;
+}
+h3 {
+    margin-top : 42px;
+}
+p {
+    padding : 2px 0px;
+}
+img {
+    margin    : 20px 0px;
+    max-width : 1280px;
+}

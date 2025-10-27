@@ -14,6 +14,12 @@ router.get('/', function(req, res, next) {
         theme : (typeof req.query.theme === 'undefined') ? req.app.locals.defaultTheme : req.query.theme
     });
 });
+router.get('/chrome-extension', function(req, res, next) {
+    res.render('framework/chrome-extension', {
+        title : 'PLM UX Chrome Extension',
+        theme : (typeof req.query.theme === 'undefined') ? req.app.locals.defaultTheme : req.query.theme
+    });
+});
 router.get('/docs', function(req, res, next) {
     res.render('framework/docs', {
         title : 'PLM UX Developer Guide',

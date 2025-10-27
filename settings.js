@@ -1091,7 +1091,8 @@ exports.chrome = {
         cr       : 83,
         co       : 84,
         products : 95
-    }
+    },
+    customStyle : true
 }
 
 

@@ -10,18 +10,20 @@ let serverUrl = 'http://localhost:8080';
 
 
 
-let commands   = [];
-let buttons    = [];
-let workspaces = {};
-let maxLevel   = 0;
+let commands    = [];
+let buttons     = [];
+let workspaces  = {};
+let maxLevel    = 0;
+let customStyle = false;
 
 
 // Retrieve command and button settings from UX Server based on settings.js (see exports.chrome)
 chrome.runtime.sendMessage({ action: 'fetchData', url : serverUrl + '/services/chrome' }, (response) => {
     if (response.success) {
-        commands   = response.data.commands;
-        buttons    = response.data.buttons;
-        workspaces = response.data.workspaces;
+        commands    = response.data.commands;
+        buttons     = response.data.buttons;
+        workspaces  = response.data.workspaces;
+        customStyle = response.data.customStyle;
     } else {
         console.log('Error getting extensions settings from ' + serverUrl + '/services/chrome');
         console.log(response.error);
@@ -78,6 +80,12 @@ function insertExtensionsCommand(elemMenu, command) {
         elemButton.classList.add('plm-extensions-command');
         elemButton.setAttribute('href', serverUrl + command.url);
         elemButton.style.setProperty('order', command.order);
+
+        if(customStyle) {
+            elemButton.style.setProperty('background', '#f1f1f1');
+            elemButton.style.setProperty('border-top', '1px solid white');
+            elemButton.style.setProperty('color', 'white');
+        }
 
         let elemButtonItem = document.createElement('div');
             elemButtonItem.className = 'hamburger-menu-item';
@@ -193,7 +201,7 @@ function insertItemHeaderButtons() {
             let elemToolbar = document.createElement('div');
 
             elemToolbar.style.display = 'flex';
-            elemToolbar.style.setProperty('gap', '8px');
+            elemToolbar.style.setProperty('gap', '6px');
             elemToolbar.style.setProperty('position', 'absolute');
             elemToolbar.style.setProperty('right', '30px');
 
@@ -209,10 +217,8 @@ function insertItemHeaderButtons() {
 
                     elemButton.className = 'plm-extensions-button';
                     elemButton.id        = 'plm-extensions-button-' + button.id;
-                    
-                    elemButton.style.setProperty('background', 'transparent');
+
                     elemButton.style.setProperty('border-radius', '3px');
-                    elemButton.style.setProperty('border', '1px solid #bababa');
                     elemButton.style.setProperty('line-height', '20px');
                     elemButton.style.setProperty('margin-top', '2px');
 
@@ -224,7 +230,18 @@ function insertItemHeaderButtons() {
                         elemButton.classList.add(button.icon);
                         elemButton.style.setProperty('font-size', '20px');
                         elemButton.style.setProperty('padding', '4px 8px');
+                        elemButton.style.setProperty('max-width', '40px');
+                        elemButton.style.setProperty('min-width', '40px');
+                        elemButton.style.setProperty('width', '40px');
                         elemButton.setAttribute('title', button.label);
+                    }
+
+                    if(customStyle) {
+                        elemButton.style.setProperty('background', 'var(--color-bg)');
+                        elemButton.style.setProperty('border', '1px solid var(--color-bg)');
+                    } else {
+                        elemButton.style.setProperty('background', 'transparent');
+                        elemButton.style.setProperty('border', '1px solid var(--button-border-color)');
                     }
 
                     elemButton.onclick = function() {

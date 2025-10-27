@@ -15,17 +15,20 @@ block body
             p Unleash the power of Fusion Manage by utilizing its REST API to provide custom built frontends based on Autodesk Platform Services. All solutions manage data in PLM only. All business rules of PLM as well as access permissions still apply.
             div.side-toolbar
                 .button#version Review changes by 
-                    span#version-name 10. October 2025
+                    span#version-name 27. October 2025
                 .button#tenant Connected to 
                     span#tenant-name
             p This  version has been optimized for the tenant template released in 2023 using a single Items workspace. While the solutions can be used with any tenant thanks to their configuration capabilities, using this new tenant reduces configuration efforts. In addition, most of the solutions can be tested with the given demo datasets immediately.
+            p#disclaimer These solutions are provided by Autodesk Technical Sales without warranty and support. There should be no assumption that updates, patches, bug fixes and / or new features will be delivered to you. There will also be no support available either through Autodesk Support channels or by the Autodesk Pre-sales Technical Team. Please feel free to take the source code and ideas from this tool to develop your own production ready tool and products. Change and reuse the source code as you like.
+            div.side-toolbar
+                .button#chrome Setup the matching 
+                    span#chrome-extension Chrome Extension
             p#themes 
                 span Select Theme:
                 select#theme-selector.button 
                     option(value='light-theme') Light Theme
                     option(value='dark-theme') Dark Theme
                     option(value='black-theme') Black Theme
-            p#disclaimer These solutions are provided by Autodesk Technical Sales without warranty and support. There should be no assumption that updates, patches, bug fixes and / or new features will be delivered to you. There will also be no support available either through Autodesk Support channels or by the Autodesk Pre-sales Technical Team. Please feel free to take the source code and ideas from this tool to develop your own production ready tool and products. Change and reuse the source code as you like.
             p Reuse this framework and its examples to build your own custom solutions. The Developer Guide provides documentation for key library functionality, the main framework asset and includes tutorials to get started quickly:
             div.side-toolbar
                 .button#docs Explore the    
@@ -37,6 +40,10 @@ block body
             .log#framework-changes 
                 h1 Framework Changes
                 table 
+                    tr  
+                        td 27. October
+                        td New Feature
+                        td Initial release of the Chrome Extensions reducing implementation efforts and improving accessibiliy of the UX extensions both for Administrators and End Users
                     tr  
                         td 10. October
                         td Enhancement

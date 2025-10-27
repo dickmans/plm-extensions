@@ -14,6 +14,15 @@ $(document).ready(function() {
         window.open('https://' + tenant + '.autodeskplm360.net');
     });
 
+    $('#chrome').click(function() {
+        let href = document.location.href.split('?');
+        let base = href[0] += 'chrome-extension';
+
+        if(href.length > 1) base += '?' + href[1];
+        
+        window.open(base);
+    }); 
+
     $('#theme-selector').change(function() {
 
         $('body').removeClass('dark-theme');
