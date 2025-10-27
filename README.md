@@ -19,8 +19,9 @@ This source code is provided as is for free and can be adjusted, integrated, ext
 </p>
 
 ## Chrome Extension
-Accessibility of the User Experiences can be further improved by installing the Chrome Extension contained in folder <a href="https://github.com/dickmans/plm-extensions/tree/main/chrome" target="_blank">chrome</a>. This Chrome Extension can be use with Google Chrome and Microsoft Edge only. Once installed, additional controls will be added to the standard Fusion Manage user interface dynamically, based on the server settings file. See the given instructions in the PLM UX server's landing page.
-<img src="public/images/docs/chrome-01.png" style="margin:20px">
+Accessibility of the User Experiences can be further improved by installing the Chrome Extension contained in folder <a href="https://github.com/dickmans/plm-extensions/tree/main/chrome" target="_blank">chrome</a>. This Chrome Extension can be use with Google Chrome and Microsoft Edge only. Once installed, additional controls will be added to the standard Fusion Manage user interface dynamically, based on the server settings file. See the PLM UX server's landing page for details about the setup and configuration of these capabilities.
+<img src="public/images/docs/chrome-01.png">
+
 
 ## End User Applications Included
 The following extensions are included in this package. Each application can be accessed by a dedicated endpoint but also by using the [integrated menu](https://youtu.be/ImnXV0HF3PA). This given menu can be configured in the landing page while the list of available endpoints / applications is defined in file routes/landing.js
