@@ -22,6 +22,22 @@
     overflow-y      : auto;
     width           : var(--width-side);
 }
+#toggle {
+    border-radius : 50%;
+    font-size     : 32px;
+    position      : absolute;
+    top           : 78px;
+    left          : calc(var(--width-side) + 160px - 22px);
+    z-index       : 2;
+}
+#layout {
+    border-radius : 50%;
+    font-size     : 28px;
+    position      : absolute;
+    top           : 128px;
+    left          : calc(var(--width-side) + 160px - 22px);
+    z-index       : 2;
+}
 #main {
     border-width    : 60px 60px;
     position        : absolute;
@@ -31,6 +47,49 @@
     left            : 0px;
     overflow-y      : auto;
     left            : calc(var(--width-side) + 160px);
+}
+
+body > div { transition  : all ease 0.2s; }
+
+body.no-side-panel #toggle,
+body.no-side-panel #layout { left : 12px; }
+body.no-side-panel #side   { left : calc(34px - var(--width-side) - 160px); }
+body.no-side-panel #main   { left : 34px; }
+
+body.layout-tiles-list .tiles-group-list {
+    flex-wrap      : unset;
+    flex-direction : column;
+    gap            : 8px;
+}
+body.layout-tiles-list .tile.min {
+    flex-direction : row;
+    height         : 116px;
+    min-width      : unset;
+    width          : unset;
+}
+body.layout-tiles-list .tile.min .tile-image {
+    min-width : 204px;
+    width     : 204px;    
+}
+body.layout-tiles-list .tile.min .tile-title {
+    font-size   : 18px;
+    line-height : 24px;
+}
+body.layout-tiles-list .tile.min .tile-details {
+    gap    : 4px;
+    margin : 12px 24px; 
+    width  : 100%;
+}
+body.layout-tiles-list .tile.min .tile-subtitle {
+    height        : 22px;
+    overflow      : hidden;
+    text-overflow : ellipsis;
+    white-space   : nowrap !important;
+}
+body.layout-tiles-list .tile.min .tile-access {
+    max-height : 38px;
+    min-height : 38px;
+    height     : 38px;
 }
 
 
@@ -52,8 +111,7 @@
 #themes {
     display         : flex;
     justify-content : space-between;
-    margin-bottom   : 20px;
-    padding-top     : 20px;
+    padding-top     : 0px;
 }
 #themes span {
     line-height   : 38px;

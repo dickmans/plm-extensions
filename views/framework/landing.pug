@@ -18,9 +18,6 @@ block body
                     span#version-name 27. October 2025
                 .button#tenant Connected to 
                     span#tenant-name
-            p This  version has been optimized for the tenant template released in 2023 using a single Items workspace. While the solutions can be used with any tenant thanks to their configuration capabilities, using this new tenant reduces configuration efforts. In addition, most of the solutions can be tested with the given demo datasets immediately.
-            p#disclaimer These solutions are provided by Autodesk Technical Sales without warranty and support. There should be no assumption that updates, patches, bug fixes and / or new features will be delivered to you. There will also be no support available either through Autodesk Support channels or by the Autodesk Pre-sales Technical Team. Please feel free to take the source code and ideas from this tool to develop your own production ready tool and products. Change and reuse the source code as you like.
-            div.side-toolbar
                 .button#chrome Setup the matching 
                     span#chrome-extension Chrome Extension
             p#themes 
@@ -28,7 +25,9 @@ block body
                 select#theme-selector.button 
                     option(value='light-theme') Light Theme
                     option(value='dark-theme') Dark Theme
-                    option(value='black-theme') Black Theme
+                    option(value='black-theme') Black Theme                        
+            p This  version has been optimized for the tenant template released in 2023 using a single Items workspace. While the solutions can be used with any tenant thanks to their configuration capabilities, using this new tenant reduces configuration efforts. In addition, most of the solutions can be tested with the given demo datasets immediately.
+            p#disclaimer These solutions are provided by Autodesk Technical Sales without warranty and support. There should be no assumption that updates, patches, bug fixes and / or new features will be delivered to you. There will also be no support available either through Autodesk Support channels or by the Autodesk Pre-sales Technical Team. Please feel free to take the source code and ideas from this tool to develop your own production ready tool and products. Change and reuse the source code as you like.
             p Reuse this framework and its examples to build your own custom solutions. The Developer Guide provides documentation for key library functionality, the main framework asset and includes tutorials to get started quickly:
             div.side-toolbar
                 .button#docs Explore the    
@@ -36,7 +35,11 @@ block body
                 .button#troubleshooting Having issues? Use the    
                     span#troubleshooting-name Troubleshooting 
                     |Guide
-        #main.surface-level-2.no-scrollbar
+
+        #toggle.button.icon.icon-chevron-left(title="Hide / unhide side panel")
+        #layout.button.icon.icon-tiles(title="Toggle tiles display")
+
+        #main.surface-level-1.no-scrollbar
             .log#framework-changes 
                 h1 Framework Changes
                 table 
