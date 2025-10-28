@@ -66,7 +66,7 @@ router.get('/reports'       , function(req, res, next) { launch('apps/reports'  
 router.get('/reviews'       , function(req, res, next) { launch('apps/reviews'         , 'Design Reviews'               , req, res, next); });
 router.get('/sbom'          , function(req, res, next) { launch('apps/sbom'            , 'Service BOM Editor'           , req, res, next); });
 router.get('/service'       , function(req, res, next) { launch('apps/service'         , 'Services Portal'              , req, res, next); });
-router.get('/variants'      , function(req, res, next) { launch('apps/variants'        , 'Variant Manager'              , req, res, next); });
+router.get('/variants'      , function(req, res, next) { launch('apps/variants'        , 'Variants Manager'             , req, res, next); });
 
 
 

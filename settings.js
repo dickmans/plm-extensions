@@ -827,14 +827,25 @@ exports.config = {
     },
 
     variants : {
-        wsIdItemVariants               : 274,
-        sectionLabelVariantDefinition  : 'Variant Definition',
-        fieldIdBaseItem                : 'BASE_ITEM',
-        fieldIdBaseItemNumber          : 'BASE_ITEM_NUMBER',
-        fieldIdRootItemDmsId           : 'ROOT_ITEM_DMS_ID',
-        bomViewNameItems               : 'Variant Manager',
-        bomViewNameVariants            : 'Variant Manager',
-        maxBOMLevels                   : 4,
+        workspaceItems  : {
+            bomViewName : 'Basic'
+        },
+        workspaceItemVariants : {
+            workspaceId       : 571,
+            sectionLabel      : 'Variant Definition',
+            fieldIds          : {
+                baseItem      : 'BASE_ITEM',
+                title         : 'TITLE',
+                rootDMSId     : 'BASE_ROOT_DMS_ID',
+            },
+            bomFieldIdBaseBOMPath : 'BASE_BOM_PATH',
+            bomViewName           : 'Variant Manager'
+        },
+        newItemVariantsTitle : {
+            fieldsToConcatenate : ['COLOUR', 'MATERIAL'],
+            separator           : ' / '
+        },
+        maxBOMLevels : 4,
         viewerFeatures : {
             contextMenu   : false,
             cube          : false,

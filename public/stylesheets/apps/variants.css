@@ -3,13 +3,16 @@
 .content-item > td { padding : 3px 3px; }
 th.bom-first-col { z-index : 6 !important; }
 .bom-first-col { left : 0; }
-.content-item:hover td { background : var(--color-hover-border) !important; border-color : transparent !important; }
+.panel-content.xs thead th { height: 26px; line-height: 26px; padding: 0px 4px; }
+.surface-level-1 > table > tbody > tr > td.field-editable { border-left : 1px solid var(--color-surface-level-1); }
+td > .picklist-controls > .picklist { min-width: 320px; }
 
 
 :root {
     --padding-v         : 24px;
     --padding-h         : 36px;
     --height-viewer     : 400px;
+    --height-row        : 26px;
     --width-summary     : 550px;
     --width-bom-spacer  : 12px;
     --width-viewer      : 600px;
@@ -66,12 +69,9 @@ th.bom-first-col { z-index : 6 !important; }
     left: 0;
     z-index : 5;
 }
-#bom-table th {
-    padding : 6px 6px;
-}
 #bom-table th,
 #bom-table td {
-    font-size   : 12px;
+    padding     : 0px 4px;
     white-space : nowrap;
 }
 .top-left-table-cell {
@@ -79,9 +79,11 @@ th.bom-first-col { z-index : 6 !important; }
     left        : 0;
     z-index     : 6 !important;
 }
-.variant-head:hover {
-    background : var(--color-hover-border);
+
+#table-head-row-titles th {
+    top : 26px;
 }
+
 .variant-spacer {
     background  : var(--color-surface-level-1) !important;
     padding     : 0px !important;
@@ -89,6 +91,17 @@ th.bom-first-col { z-index : 6 !important; }
     min-width   : var(--width-bom-spacer);
     width       : var(--width-bom-spacer);
 }
+
+.surface-level-1 > .bom-table th.variant-head { 
+    background  : var(--color-surface-level-4);
+    color       : white;
+    cursor      : pointer;
+    text-align  : center;
+}
+.surface-level-1 > .bom-table th.variant-head:hover {
+    background  : var(--color-surface-level-5);
+}
+
 .variant-column {
     background : var(--color-gray-300);
 }
@@ -102,12 +115,45 @@ th.bom-first-col { z-index : 6 !important; }
     cursor : default;
 }
 
-th.variant-head { 
-    background  : var(--color-dark);
-    color       : white;
-    cursor      : pointer;
-    text-align  : center;
+tr.content-item > td {
+    padding : 0px 4px;
 }
+tr.content-item > td,
+td.field-editable input,
+td.field-editable .picklist-actions,
+td.field-editable .picklist-actions > div {
+    max-height  : var(--height-row) !important;
+    min-height  : var(--height-row)  !important;
+    height      : var(--height-row)  !important;
+    line-height : var(--height-row)  !important;
+
+}
+td.field-editable .picklist-actions {
+    display: none !important;
+}
+
+th.bom-color,
+td.bom-color { display : none; }
+
+.content-item:hover td.bom-color, 
+.content-item:hover td.bom-first-col, 
+.content-item:hover td.bom-column-quantity,
+.content-item:hover td.field-value,
+.content-item:hover td.variant-item {
+    background   : var(--color-hover-border) !important; 
+    border-color : transparent !important; 
+}
+.content-item:hover td.variant-spacer {
+    background   : var(--color-surface-level-1) !important; 
+    border-color : var(--color-surface-level-1) !important; 
+}
+
+tr.selected > td.bbom-color,
+tr.selected > td.bom-first-col,
+tr.selected > td.bom-column-quantity {
+    background : var(--color-selected-background) !important;
+}
+
 th.variant-item { cursor : pointer; }
 td.variant-item { font-size : 12px; }
 td.variant-item.status-icon { 
@@ -125,7 +171,6 @@ td.variant-item.status-replaced  { background : var(--color-status-yellow)      
 td.variant-item.status-update    { background : var(--color-status-yellow)       !important; }
 td.variant-item.processing-item  { color      : var(--color-selected-background) !important; }
 
-
 td.variant-item.change-bom,
 td.variant-item.change-properties,
 td.variant-item.change-item {
@@ -139,7 +184,7 @@ td.variant-item.change-item {
     font-size   : 12px;
     max-width   : 100px !important;
     min-width   : 60px;
-    padding     : 4px;
+    padding     : 0px 4px;
     width       : calc(100% - 8px);
 }
 #bom-table select {
@@ -150,6 +195,10 @@ td.variant-item.change-item {
     min-width   : 60px;
     padding     : 3px;
     width       : 100%;
+}
+
+.picklist { 
+    margin-top : calc(var(--height-row) + 2px); 
 }
 
 
