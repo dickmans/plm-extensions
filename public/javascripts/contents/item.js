@@ -642,27 +642,17 @@ function submitCreate(wsIdNew, sections, elemParent, settings, callback) {
 
         if(!isBlank(settings)) {
             if(!isBlank(settings.derived)) {
-
                 for(let derivedField of settings.derived) {
-
-                    for(let section of params.sections) {
-                        for(let field of section.fields) {
-                            if(field.fieldId === derivedField.source) {
-                    
-                                requestsDerived.push($.get('/plm/derived', {
-                                    wsId        : wsIdNew,                         //'create item wsid
-                                    fieldId     : derivedField.source,             //'BASE_ITEM'
-                                    pivotItemId : field.value.link.split('/')[6]   //'dmsid of selected picklist ittem;
-                                }));
-
-                                break;
-
-                            }
+                    for(let field of params.fields) {
+                        if(field.fieldId === derivedField.source) {
+                            requestsDerived.push($.get('/plm/derived', {
+                                wsId        : wsIdNew,                         //'create item wsid
+                                fieldId     : derivedField.source,             //'BASE_ITEM'
+                                pivotItemId : field.value.split('/').pop()   //'dmsid of selected picklist ittem;
+                            }));
                         }
                     }
-
                 }
-
             }
         }
 
@@ -679,14 +669,16 @@ function submitCreate(wsIdNew, sections, elemParent, settings, callback) {
 
     // }
 
-        if(requestsDerived.length > 0) requestsDerived.unshift($.get('/plm/sections', { wsId : wsIdNew }))
-
         Promise.all(requestsDerived).then(function(responses) {
 
-            if(responses.length > 0) {
-                let sections = responses[0].data;
-                for(let index = 1; index < responses.length; index++) {
-                    addDerivedFieldsToPayload(params.sections, sections, responses[index].data);
+            for(let response of responses) {
+                for(let section of response.data.sections) {
+                    for(let field of section.fields) {
+                        params.fields.push({
+                            fieldId : field.__self__.split('/').pop(),
+                            value : field.value
+                        })
+                    }
                 }
             }
 
@@ -697,8 +689,8 @@ function submitCreate(wsIdNew, sections, elemParent, settings, callback) {
             }, function(response) {
 
                 if(response.error) {
-                    showErrorMessage('Error creating item', response.data.errorMessage);
-                    callback();
+                    showErrorMessage('Error creating item', response.message);
+                    callback(response);
                 } else {
                     let result = {};
                     result.link = (settings.getDetails) ? response.data.__self__ : response.data.split('.autodeskplm360.net')[1];
@@ -1293,13 +1285,11 @@ function insertDetailsFields(id, sections, fields, data, settings, bookmarks, re
     getFieldsPicklistsData(settings, fields, function(picklistsData) {
 
         if(settings.editable) {
-
             for(let field of fields) {
-
                 if(!isBlank(field.derived)) {
                     if(field.derived) {
 
-                        let source = field.derivedFieldSource.__self__.split('/')[8];
+                        let source = field.derivedFieldSource.__self__.split('/').pop();
                         let isNew  = true;
 
                         for(let derived of settings.derived) {
@@ -1315,23 +1305,10 @@ function insertDetailsFields(id, sections, fields, data, settings, bookmarks, re
                                 source  : source
                             });
                         }
-                        
                     }
                 }
-
             }
         }
-
-
-    // Promise.all(picklistsRequests).then(function(responses) {
-       
-        // for(let response of responses) {
-            // picklistsData.push({
-                // link       : response.params.link,
-                // items      : response.data.items,
-                // totalCount : response.data.totalCount
-            // })
-        // }
 
         for(let section of sections) {
 
@@ -1555,6 +1532,8 @@ function getFieldsPicklistsData(settings, fields, callback) {
     
     if(!settings.editable) { callback([]); return; }
     if(isBlank(settings.contextItemFields)) settings.contextItemFields = [];
+    if(isBlank(settings.fieldsIn         )) settings.fieldsIn          = [];
+    if(isBlank(settings.fieldsEx         )) settings.fieldsEx          = [];
 
     let picklistsData     = [];
     let picklistsLinks    = [];
@@ -2078,14 +2057,11 @@ function insertField(settings, elemParent, field, data, picklistsData, bookmarks
     let editable  = (isBlank(settings.editable)) ? false : settings.editable;
     let elemInput = $('<input>').attr('data-id', field.id);
 
-    
     settings.readonly = (field.editability === 'NEVER') || (field.formulaField) || (field.type.title === 'Image') || false;
 
     if(settings.readonly) editable = false;
 
     setFieldDataAndClasses(elemParent, field, settings.editable);
-
-        // console.log(value + ' : ' + editable + ' : ' + field.type.title);
 
     if(!editable) {
 
@@ -2211,11 +2187,17 @@ function insertField(settings, elemParent, field, data, picklistsData, bookmarks
 
             case 'Single Line Text':
                 elemInput.appendTo(elemParent).addClass('single-line-text');
+                elemInput.on('focus', function() {
+                    let elemField = $(this).parent();
+                    if(!elemField.hasClass('changed')) $(this).attr('data-initial-value', $(this).val());
+                });
                 elemInput.on('keyup', function() { 
-                    $(this).parent().addClass('changed');
+                    let elemField = $(this).parent();
+                    if($(this).val() !== $(this).attr('data-initial-value')) elemField.addClass('changed');
+                    else elemField.removeClass('changed');
                     if($(this).val() !== '') $(this).parent().removeClass('required-empty');
                 });
-                if(!isBlank(value)) elemInput.val(value);
+                if(!isBlank(value)) elemInput.val(value).attr('data-initial-value', value);
                 break;            
 
             case 'Date':
@@ -2327,8 +2309,13 @@ function setFieldValue(elemField, value, display) {
     if(elemField.hasClass('field-type-single-select')) {
         
         let elemInput = elemField.find('.picklist-input');
-            elemInput.val(display).attr('data-value', value);
 
+        if(value === null) {
+            elemInput.val('').attr('data-value', '');
+        } else if(typeof value === 'object') {
+            elemInput.val(value.title).attr('data-value', value.link)
+        }
+        else elemInput.val(display).attr('data-value', value);
 
     } else if(elemField.hasClass('field-type-radio')) {
 
@@ -2365,9 +2352,13 @@ function getFieldValueFromResponseData(fieldId, data) {
 
     } else {
         for(let field of data) {
-            let id = '';
-            if(!isBlank(field.urn)) id = field.urn.split('.').pop();
-            else if(!isBlank(field.__self__)) id = field.__self__.split('/').pop();
+            let id = field.id || '';
+            if(isBlank(id)) {
+                     if(!isBlank(field.fieldId )) id = field.fieldId;
+                else if(!isBlank(field.__self__)) id = field.__self__.split('/').pop();
+                else if(!isBlank(field.urn     )) id = field.urn.split('.').pop();
+                field.id = id;
+            }
             if(id === fieldId) return field.value;
         }
     }
@@ -2522,6 +2513,7 @@ function insertFieldPicklistControls(settings, field, elemParent, value, bookmar
             updatePickListOptions($(this), 0, true);
         })
         .focus(function() {
+            $('.picklist').addClass('hidden');
             elemInput.next().removeClass('hidden');
         });
 
@@ -2788,7 +2780,9 @@ function updatePickListOptionsList(elemPicklist, picklistData, offset, filter) {
             .attr('id', option.link)
             .attr('value', option.link)
             .attr('displayValue', title)
-            .click(function() {
+            .click(function(e) {
+                e.preventDefault();
+                e.stopPropagation();
                 selectPicklistValue($(this));
             });
 
@@ -4448,10 +4442,9 @@ function insertGridData(id) {
 
                 for(let column of settings.grid[id].columns) {
                     let elemCell = $('<th></th>').appendTo(elemTHRow).html(column.name);
-                        setFieldDataAndClasses(elemCell, column, settings.grid[id].editable);
+                    setFieldDataAndClasses(elemCell, column, settings.grid[id].editable);
                     if(column.preserve) elemCell.addClass('hidden');
                     if(column.required) elemCell.addClass('required');
-                    // console.log(column);
                 }
 
                 let groupName = null;
@@ -5680,8 +5673,8 @@ function getBOMItemParent(elemItem) {
 function getBOMItemPath(elemItem) {
 
     let result = {
-        'string' : elemItem.attr('data-part-number'),
-        'items'  : [elemItem]
+        string : elemItem.attr('data-part-number'),
+        items  : [elemItem]
     }
 
     let level = Number(elemItem.attr('data-level'));
