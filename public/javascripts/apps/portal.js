@@ -88,6 +88,7 @@ function openItem(elemClicked) {
     document.title = title;
 
     insertBOM(link, {
+        contentSizes        : ['m', 'l', 'xl', 'xs', 's'],
         reload              : false,
         openInPLM           : true,
         toggles             : true,
