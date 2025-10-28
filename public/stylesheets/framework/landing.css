@@ -308,6 +308,9 @@ h2 {
     bottom      : 0px;
     left        : calc(50% - 600px);
 }
+.instructions::-webkit-scrollbar {
+    display: none;
+}
 .instructions img {
     display     : block;
     margin      : 20px 0px;
@@ -325,7 +328,8 @@ h2 {
     margin-top : 40px;
 }
 .tile.max h3 {
-    margin-top : 30px;
+    font-weight : 800;
+    margin-top  : 30px;
 }
 .tile.max h1:first-of-type {
     margin-top : 0px;
