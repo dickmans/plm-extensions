@@ -1066,8 +1066,8 @@ exports.chrome = {
     },{
         id         : 'cia',
         url        : '/impactanalysis?',
-        label      : 'Impact Analysis',
-        workspaces : ['cr', 'co']
+        label      : 'Change Impact Analysis',
+        workspaces : ['pr', 'cr', 'co']
     },{
         id         : 'items-variants',
         url        : '/variants?',
@@ -1099,6 +1099,7 @@ exports.chrome = {
     }],
     workspaces : {
         items    : 57,
+        pr       : 82,
         cr       : 83,
         co       : 84,
         products : 95
