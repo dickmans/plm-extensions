@@ -827,14 +827,25 @@ exports.config = {
     },
 
     variants : {
-        wsIdItemVariants               : 274,
-        sectionLabelVariantDefinition  : 'Variant Definition',
-        fieldIdBaseItem                : 'BASE_ITEM',
-        fieldIdBaseItemNumber          : 'BASE_ITEM_NUMBER',
-        fieldIdRootItemDmsId           : 'ROOT_ITEM_DMS_ID',
-        bomViewNameItems               : 'Variant Manager',
-        bomViewNameVariants            : 'Variant Manager',
-        maxBOMLevels                   : 4,
+        workspaceItems  : {
+            bomViewName : 'Basic'
+        },
+        workspaceItemVariants : {
+            workspaceId       : 571,
+            sectionLabel      : 'Variant Definition',
+            fieldIds          : {
+                baseItem      : 'BASE_ITEM',
+                title         : 'TITLE',
+                rootDMSId     : 'BASE_ROOT_DMS_ID',
+            },
+            bomFieldIdBaseBOMPath : 'BASE_BOM_PATH',
+            bomViewName           : 'Variant Manager'
+        },
+        newItemVariantsTitle : {
+            fieldsToConcatenate : ['COLOUR', 'MATERIAL'],
+            separator           : ' / '
+        },
+        maxBOMLevels : 4,
         viewerFeatures : {
             contextMenu   : false,
             cube          : false,
@@ -1003,6 +1014,98 @@ exports.menu = [
         }]
     }]
 ]
+
+
+
+// ---------------------------------------------------------------------------------------------------------------------------
+//  CHOROME EXTENSION CONFIGURATION
+// ---------------------------------------------------------------------------------------------------------------------------
+// Configure the commands to be added to the Fusion Manage main menu and the buttons to be added to matching item's header
+exports.chrome = {
+    commands : [{
+        id    : 'users',
+        url   : '/users',
+        label : 'User Settings Manager',
+        icon  : 'zmdi-accounts-list',
+        order : 101
+    },{
+        id    : 'data',
+        url   : '/data',
+        label : 'Data Manager',
+        icon  : 'zmdi-storage',
+        order : 102
+    },{
+        id    : 'workspace-comparison',
+        url   : '/workspace-comparison',
+        label : 'Workspace Comparison',
+        icon  : 'zmdi-blur-linear',
+        order : 103
+    },{   
+        id    : 'insights',
+        url   : '/insights',
+        label : 'Tenant Insights',
+        icon  : 'zmdi-graphic-eq',
+        order : 104
+    },{
+        id    : 'outstanding-work',
+        url   : '/outstanding-work',
+        label : 'Outstanding Work Report',
+        icon  : 'zmdi-assignment-account',
+        order : 105 
+    }],  
+    buttons : [{
+        id         : 'mbom',
+        url        : '/mbom?',
+        label      : 'MBOM Editor',
+        workspaces : ['items']
+    },{
+        id         : 'sbom',
+        url        : '/sbom?',
+        label      : 'Service BOM Editor',
+        workspaces : ['products']
+    },{
+        id         : 'cia',
+        url        : '/impactanalysis?',
+        label      : 'Change Impact Analysis',
+        workspaces : ['pr', 'cr', 'co']
+    },{
+        id         : 'items-variants',
+        url        : '/variants?',
+        label      : 'Variants Manager',
+        workspaces : ['items']
+    },{
+        id         : 'pde',
+        url        : '/explorer?',
+        label      : 'Product Data Explorer',
+        icon       : 'zmdi-chart',
+        workspaces : ['items']
+    },{
+        id         : 'class-browser',
+        url        : '/classes?',
+        label      : 'Classification Browser',
+        icon       : 'zmdi-library',
+        workspaces : ['items']
+    },{
+        id         : 'product-variants',
+        url        : '/variants?options=fieldIdEBOM:ENGINEERING_BOM&',
+        label      : 'Variants Manager',
+        workspaces : ['products']
+    },{
+        id         : 'service-portal',
+        url        : '/service?',
+        label      : 'Service Portal',
+        icon       : 'zmdi-wrench',
+        workspaces : ['items']
+    }],
+    workspaces : {
+        items    : 57,
+        pr       : 82,
+        cr       : 83,
+        co       : 84,
+        products : 95
+    },
+    customStyle : true
+}
 
 
 

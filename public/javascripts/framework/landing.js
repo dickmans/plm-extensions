@@ -14,6 +14,15 @@ $(document).ready(function() {
         window.open('https://' + tenant + '.autodeskplm360.net');
     });
 
+    $('#chrome').click(function() {
+        let href = document.location.href.split('?');
+        let base = href[0] += 'chrome-extension';
+
+        if(href.length > 1) base += '?' + href[1];
+        
+        window.open(base);
+    }); 
+
     $('#theme-selector').change(function() {
 
         $('body').removeClass('dark-theme');
@@ -56,16 +65,27 @@ $(document).ready(function() {
         window.open(base);
     });
 
+    $('#toggle').click(function() {
+        $(this).toggleClass('icon-chevron-left').toggleClass('icon-chevron-right');
+        $('body').toggleClass('no-side-panel');
+    });  
+
+    $('#layout').click(function() {
+        $(this).toggleClass('icon-tiles').toggleClass('icon-tiles-list');
+        $('body').toggleClass('layout-tiles-list');
+    });    
+
+    $('.tile').addClass('min');
+
     $('.tile').click(function(e) {
 
         $('.tiles-group-title').addClass('hidden');
         $('.tiles-group-subtitle').addClass('hidden');
         $('.tile').addClass('hidden');
-        $(this).removeClass('hidden').addClass('max');
+        $(this).removeClass('hidden').addClass('max').removeClass('min');
         $('body').removeClass('logs');
         $('.with-log').removeClass('with-log');
         $('.with-troubleshooting').removeClass('with-troubleshooting');
-        $('#main').addClass('surface-level-1').removeClass('surface-level-2');
     
     });
 
@@ -80,9 +100,9 @@ $(document).ready(function() {
                 $('.tiles-group-title').removeClass('hidden');
                 $('.tiles-group-subtitle').removeClass('hidden');
                 $('.tile').removeClass('hidden');
+                $('.tile').addClass('min');
                 $('.tile').removeClass('max');
                 $('.tile').removeClass('with-log');
-                $('#main').removeClass('surface-level-1').addClass('surface-level-2');
                 e.preventDefault();
                 e.stopPropagation();
             });

@@ -119,6 +119,11 @@ function onListening() {
     console.log('  >> Using Vault Name        ' + settings.vaultName);
   }
 
+  if(typeof settings.chrome === 'undefined') {
+    console.log();
+    console.log('  !! The CHROME EXTENSION cannot be used as exports.chrome does not exist in ' + fileSettings);
+  }
+
   console.log();
   console.log('  REMINDER');
   console.log(' --------------------------------------------------------------------------------------------------');

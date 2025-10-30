@@ -1246,13 +1246,12 @@ tr.content-item {
     z-index     : 4;
 }
 .bom-nav {
-    cursor          : pointer;
-    font-size       : 20px;
-    line-height     : 5px;
-    padding-right   : 4px;
-    width           : 16px;
-    position        : relative;
-    top             : 5px;
+    cursor        : pointer;
+    font-size     : 20px;
+    padding       : 0px;
+    position      : unset !important;
+    text-align    : center;
+    width         : 16px;
 }
 .bom-nav:before { 
     content: '\e5cf';
@@ -1264,21 +1263,20 @@ tr.content-item {
     color : var(--color-hover-border); 
 }
 .bom-first-col {
-    white-space     : nowrap;
-    overflow        : hidden;
-    text-overflow   : ellipsis;
-    position        : sticky;
-    left            : 1px;
-    z-index         : 4;
+    display       : flex;
+    white-space   : nowrap;
+    overflow      : hidden;
+    text-overflow : ellipsis;
+    position      : sticky;
+    left          : 1px;
+    z-index       : 4;
 }
 .bom-number {
-    min-width   : 28px;
-    padding     : 0px 5px;
+    padding     : 0px;
     font-weight : bold;
-    display     : inline-block;
 }   
 .bom-descriptor {
-    padding : 0px 4px;
+    padding : 0px;
 }
 .bom-actions {
     display : flex;

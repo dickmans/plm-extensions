@@ -360,131 +360,155 @@ let categories = [
         default     : '-',
         supportedBy : ['nav-mow', 'nav-recent-items']  
     },{
-    name        : 'hideCloseButton',
-    description : 'This will hide the given button, enabling dedicated toggles in the main header toolbar for example',
-    type        : 'Boolean',
-    default     : 'false',
-    supportedBy : []
-},{
-    name        : 'hideButtonCreate',
-    description : '',
-    type        : 'Boolean',
-    default     : 'false',
-    supportedBy : []
-},{
-    name        : 'hideButtonAdd',
-    description : '',
-    type        : 'Boolean',
-    default     : 'false',
-    supportedBy : []
-},{
-    name        : 'hideButtonClone',
-    description : '',
-    type        : 'Boolean',
-    default     : 'false',
-    supportedBy : []
-},{
-    name        : 'hideButtonDisconnect',
-    description : 'This will hide the button to disconnect selected item from the given view',
-    type        : 'Boolean',
-    default     : 'false',
-    supportedBy : []
-},{
-    name        : 'editable',
-    description : 'Enables edit capabilities within the panel',
-    type        : 'Boolean',
-    default     : 'false',
-    supportedBy : []
-},{
-    name        : 'cloneable',
-    description : 'Enables cloning capabilities within the panel',
-    type        : 'Boolean',
-    default     : 'false',
-    supportedBy : []
-},{
-    name        : 'contextId',
-    description : 'Provide additional Id of element invoking the create dialog to access its settings and enable refresh using the afterCreation event',
-    type        : 'String',
-    default     : 'false',
-    supportedBy : []
-},{
-    name        : 'contextItem',
-    description : 'Provide the API-Link of the context item to create a link in defined pick list fields (see seeting contextItemFields)',
-    type        : 'String',
-    default     : 'false',
-    supportedBy : []
-},{
-    name        : 'contextItems',
-    description : 'Provide the API-Link of multiple context items to create links in defined pick list fields (see seeting contextItemFields which must be of same array length)',
-    type        : 'String',
-    default     : 'false',
-    supportedBy : []
-},{
-    name        : 'contextItemFields',
-    description : 'List of fieldIds which should be set to current context item (ie AFFECTED_ITEM)',
-    type        : 'String',
-    default     : '',
-    supportedBy : []
-},{
-    name        : 'createContextItem',
-    description : '',
-    type        : 'String',
-    default     : '',
-    supportedBy : ['item-change-processes']
-},{
-    name        : 'createContextItems',
-    description : '',
-    type        : 'String',
-    default     : '',
-    supportedBy : ['item-change-processes']
-},{
-    name        : 'createContextItemFields',
-    description : 'List of fieldIds which should be set to current context item (ie AFFECTED_ITEM)',
-    type        : 'String',
-    default     : '',
-    supportedBy : ['item-change-processes']
-},{
-    name        : 'createViewerImageFields',
-    description : 'List of fieldIds which should be seto a screenshot of the current viewer session',
-    type        : 'String',
-    default     : '',
-    supportedBy : ['item-change-processes']
-},{
-    name        : 'createConnectAffectedItem',
-    description : 'Once the new change process has been created, the related item can be connected as affected item automatically',
-    type        : 'Boolean',
-    default     : true,
-    supportedBy : ['item-change-processes']
-},{
-    name        : 'createHeaderLabel',
-    description : 'Sets the header label of the create dialog',
-    type        : 'String',
-    default     : 'Create Process',
-    supportedBy : []
-},{
-    name        : 'createButtonLabel',
-    description : 'Sets the label of the create button',
-    type        : 'String',
-    default     : 'Create',
-    supportedBy : []
-},{
-    name        : 'fieldValues',
-    description : 'Set and fix values for defined fields. Provide fieldid / value pairs (see variant management and design reviews)',
-    type        : 'Array',
-    default     : '[]',
-    supportedBy : []
-},{
-    name        : 'disconnectLabel',
-    description : 'Sets the label of the disconnect button',
-    type        : 'String',
-    default     : 'Remove',
-    supportedBy : []
-},{
-    name        : 'disconnectIcon',
-    description : 'Sets the icon of the disconnect button (select from the icons provided by this framework as listed in the given page)',
-    type        : 'String',
-    default     : 'icon-disconnect',
-    supportedBy : []
+        name        : 'hideCloseButton',
+        description : 'This will hide the given button, enabling dedicated toggles in the main header toolbar for example',
+        type        : 'Boolean',
+        default     : 'false',
+        supportedBy : []
+    },{
+        name        : 'hideButtonCreate',
+        description : '',
+        type        : 'Boolean',
+        default     : 'false',
+        supportedBy : []
+    },{
+        name        : 'hideButtonAdd',
+        description : '',
+        type        : 'Boolean',
+        default     : 'false',
+        supportedBy : []
+    },{
+        name        : 'hideButtonClone',
+        description : '',
+        type        : 'Boolean',
+        default     : 'false',
+        supportedBy : []
+    },{
+        name        : 'hideButtonDisconnect',
+        description : 'This will hide the button to disconnect selected item from the given view',
+        type        : 'Boolean',
+        default     : 'false',
+        supportedBy : []
+    },{
+        name        : 'editable',
+        description : 'Enables edit capabilities within the panel',
+        type        : 'Boolean',
+        default     : 'false',
+        supportedBy : []
+    },{
+        name        : 'cloneable',
+        description : 'Enables cloning capabilities within the panel',
+        type        : 'Boolean',
+        default     : 'false',
+        supportedBy : []
+    },{
+        name        : 'contextId',
+        description : 'Provide additional Id of element invoking the create dialog to access its settings and enable refresh using the afterCreation event',
+        type        : 'String',
+        default     : 'false',
+        supportedBy : []
+    },{
+        name        : 'contextItem',
+        description : 'Provide the API-Link of the context item to create a link in defined pick list fields (see seeting contextItemFields)',
+        type        : 'String',
+        default     : 'false',
+        supportedBy : []
+    },{
+        name        : 'contextItems',
+        description : 'Provide the API-Link of multiple context items to create links in defined pick list fields (see seeting contextItemFields which must be of same array length)',
+        type        : 'String',
+        default     : 'false',
+        supportedBy : []
+    },{
+        name        : 'contextItemFields',
+        description : 'List of fieldIds which should be set to current context item (ie AFFECTED_ITEM)',
+        type        : 'String',
+        default     : '',
+        supportedBy : []
+    },{
+        name        : 'createContextItem',
+        description : '',
+        type        : 'String',
+        default     : '',
+        supportedBy : ['item-change-processes']
+    },{
+        name        : 'createContextItems',
+        description : '',
+        type        : 'String',
+        default     : '',
+        supportedBy : ['item-change-processes']
+    },{
+        name        : 'createContextItemFields',
+        description : 'List of fieldIds which should be set to current context item (ie AFFECTED_ITEM)',
+        type        : 'String',
+        default     : '',
+        supportedBy : ['item-change-processes']
+    },{
+        name        : 'createViewerImageFields',
+        description : 'List of fieldIds which should be seto a screenshot of the current viewer session',
+        type        : 'String',
+        default     : '',
+        supportedBy : ['item-change-processes']
+    },{
+        name        : 'createConnectAffectedItem',
+        description : 'Once the new change process has been created, the related item can be connected as affected item automatically',
+        type        : 'Boolean',
+        default     : true,
+        supportedBy : ['item-change-processes']
+    },{
+        name        : 'createHeaderLabel',
+        description : 'Sets the header label of the create dialog',
+        type        : 'String',
+        default     : 'Create Process',
+        supportedBy : []
+    },{
+        name        : 'createButtonLabel',
+        description : 'Sets the label of the create button',
+        type        : 'String',
+        default     : 'Create',
+        supportedBy : []
+    },{
+        name        : 'fieldValues',
+        description : 'Set and fix values for defined fields. Provide fieldid / value pairs (see variant management and design reviews)',
+        type        : 'Array',
+        default     : '[]',
+        supportedBy : []
+    },{
+        name        : 'disconnectLabel',
+        description : 'Sets the label of the disconnect button',
+        type        : 'String',
+        default     : 'Remove',
+        supportedBy : []
+    },{
+        name        : 'disconnectIcon',
+        description : 'Sets the icon of the disconnect button (select from the icons provided by this framework as listed in the given page)',
+        type        : 'String',
+        default     : 'icon-disconnect',
+        supportedBy : []
+    },{
+        name        : 'uploadFileLabel',
+        description : 'Sets the label for the file upload button',
+        type        : 'String',
+        default     : 'Upload File',
+        supportedBy : ['item-acttachments']
+    },{
+        name        : 'uploadScreenshotLabel',
+        description : 'Sets the label for the viewer screenshot upload button',
+        type        : 'String',
+        default     : 'Save Screenshot',
+        supportedBy : ['item-acttachments']        
+    },{
+        name        : 'uploadScreenshot',
+        description : "When viewer is contained in application and this setting is true, users can upload the current viewer's display as screenshot",
+        type        : 'Boolean',
+        default     : 'false',
+        supportedBy : ['item-acttachments']        
+    },{
+        name        : 'hideButtonLabels',
+        description : "When set to true, only icons of buttons will be displayed and labels will be shown as tooltips only",
+        type        : 'Boolean',
+        default     : 'false',
+        supportedBy : ['item-grid']        
 },{
     name        : 'picklistLimit',
     description : 'Defines the number of items being retrieved for picklist fields',

@@ -1,0 +1,106 @@
+extends layout
+
+block head
+
+    link(rel='stylesheet', href='/stylesheets/framework/chrome-extension.css')
+
+block body
+
+    body.surface-level-1
+        .content
+            .title Chrome Extension
+            h2 Introduction
+            p Users of Microsoft Edge and Google Chrome can use a browser extension which integrates most PLM UX Extensions with the standard Fusion Manage user interface. The extension will add a defined list of commands to the main menu for Administrators and add a dynamic list of buttons in the header of given records. This mechansim requires installation of the browser extension on each client, but can be configured on the PLM UX Extensions server to only provide the commands / buttons of interest. The given controls will use a slightly different styling to highlight these features being custom controls.
+            img(src='images/docs/chrome-01.png' style='display:block;max-width:800px;')
+            h2 Chrome Extension Installation
+            p The installation files of the browser extension can be found in folder 
+                strong chrome 
+                | contained in the PLM UX Extensions server folder. This folder also contains the file manifest.json which defines the access permssion / security of this extension that will be applied by your browser. For example, this file also defines the pages that can be accessed in the background to drive dynmic contents. As the additional commands and buttons are dynamically driven by the PLM UX Extensions server, you must ensure that your PLM UX Extensions server is listed as permitted host. So open the file /chrome/manifest.json and review of servers in host_permissions: 
+            img(src='images/docs/chrome-10.png' style='display:block;max-width:640px;')
+            p Ensure that the URL of your PLM UX Extensions server is listed in here. Note that while you can list multiple PLM UX Extensions servers in here, only one can be active. The active server is selected in the options dialog of the Chrome Extension as described in a later step. To install this package as next step, open the Extensions control of your browser by opening the address 
+                strong chrome://extensions 
+                |either in Google Chrome or Microsoft Edge: 
+            img(src='images/docs/chrome-02.png' style='display:block;max-width:1280px;')
+            p Next, enable the 
+                strong Developer Mode 
+                |by clicking the given control of your browser: 
+            img(src='images/docs/chrome-03.png' style='display:block;max-width:1280px;')
+            p This will enable the features to install an extension from local disk and provide the new button 
+                strong Load Unpacked
+                |:
+            img(src='images/docs/chrome-04.png' style='display:block;max-width:1280px;')
+            p Click this button and browse for the folder /chrome of this PLM UX Extensions package and click Select: 
+            img(src='images/docs/chrome-05.png' style='display:block;max-width:640px;')
+            p The addon now is ready and will be launched anytime you open a site at autodeskplm360.net
+            img(src='images/docs/chrome-06.png' style='display:block;max-width:1280px;')
+            p Note that all changes to the files in folder /chrome require a relaod of the given extension. For example, if you change the default PLM UX Extensions server URL in file content.js, you have to return to this list of extensions and enforce a reload using the given controls:
+            img(src='images/docs/chrome-07.png' style='display:block;max-width:1280px;')
+
+            h2 Setting PLM UX Extension Server URL 
+            p Once the Chrome Extension is installed and active on your computer, you can open the extension's options by clicking the browser's Extensions button and then clicking the PLM UX Extensions in the list of browser Extensions:
+            img(src='images/docs/chrome-08.png' style='display:block;max-width:1280px;')
+            p The options dialog now enables you to enter the PLM UX Extensions server URL. It is set to http://localhost:8080 per default, so you only have to change this when not running the server locally. Keep in mind that the URL entered in here also must be listed in the host_permissions of file 
+                strong /chrome/manifest.json 
+                |as described in the initial step.
+            img(src='images/docs/chrome-09.png' style='display:block;max-width:1280px;')
+            h2 Content Configuration
+            p A new section in file settings.js enables Adminstrators to define the main menu entries and header buttons to be added by the browser extension. It contains the following properties: 
+            ul 
+                li 
+                    strong commands 
+                    | defines the entries being added to the main menu 
+                li 
+                    strong buttons 
+                    |defines the list of buttons being added to the headers of PLM items 
+                li 
+                    strong workspaces 
+                    |is used to define the required workspace IDs of the PLM tenant
+            |As with all changes in settings.js, changes to these settings require a restart of your PLM UX Extensions server. 
+            br
+            |However, the clients only must refresh the Fusion Manage pages for the changes to take effect, the browser extension does not require an update.
+            img(src='images/docs/chrome-11.png' style='display:block;max-width:1024px;')   
+            h3 Main Menu Entries       
+            p The commands property defines the list of commamds being added to the main menu of Fusion Manage. These commands will only be shown if the user has admin permission in the tenant as this list contains the Administration Utilities of the PLM UX Extensions only. Each command is defined by the following settings: 
+            table.row-hovering
+                tr 
+                    td id 
+                    td Unique id for the command (choose any)
+                tr 
+                    td url 
+                    td Sets the URL to be opened when users click the command
+                tr 
+                    td label
+                    td Defines the label of the command shown in the menu
+                tr 
+                    td icon
+                    td Sets the icon to be shown along with the command (see reference at https://fonts.thembay.com/material-design-iconic)
+                tr 
+                    td order
+                    td Controls the sequence of the new commands in the main menu
+            img(src='images/docs/chrome-12.png' style='display:block;max-width:1024px;')   
+            h3 Item Header Buttons 
+            p The buttons property defines the buttons being added to the headers of items of defined workspaces in Fusion Manage. Each button is defined by the following properties:
+            table.row-hovering
+                tr 
+                    td id 
+                    td Unique id for the button (choose any)
+                tr 
+                    td url 
+                    td Sets the URL to be opened when users click the button
+                tr 
+                    td label
+                    td Defines the label of the button (if no icon is defined) as well as its tooltip
+                tr 
+                    td icon (optional)
+                    td Sets the icon to be shown instead of the button's label (see reference at https://fonts.thembay.com/material-design-iconic)
+                tr 
+                    td workspaces
+                    td Visibility of the button is controlled by this settings. 
+                        br
+                        |Each value listed in here will be mapped to the matching workspace ID using the property workspaces that follows the list of buttons.
+            img(src='images/docs/chrome-13.png' style='display:block;max-width:640px;')           
+            h3 Disable Custom Styling 
+            p If the new controls should match the default controls styling, set the property 
+                strong customStyle 
+                |to false and restart your PLM UX Extensions server:
+            img(src='images/docs/chrome-14.png' style='display:block;max-width:1024px;')    

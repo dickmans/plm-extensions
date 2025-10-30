@@ -75,7 +75,7 @@ $(document).ready(function() {
             autoClick    : false,
             contentSize  : 'xs',
             images       : true,
-            limit        : 20,
+            limit        : 50,
             workspaceIds : [ wsItems.id ],
             tileCounter  : true,
             onClickItem  : function(elemClicked) { openSelectedItem(elemClicked); }

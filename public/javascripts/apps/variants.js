@@ -1,5 +1,5 @@
 let wsContext        = { id : '', sections  : [], fields : [] }
-let wsVariants       = { id : '', sections  : [], fields : [], bomViews : [], viewId : '' }
+let wsVariants       = { id : '', sections  : [], fields : [], bomViews : [], viewId : '', bomViewLinks : [] }
 let listVariants     = [];
 let fieldsVariant    = [];
 let variantBOMClenup = [];
@@ -94,7 +94,7 @@ let paramsSummary = {
 $(document).ready(function() {
 
     wsContext.id  = wsId;
-    wsVariants.id = config.variants.wsIdItemVariants;
+    wsVariants.id = config.variants.workspaceItemVariants.workspaceId;
 
     appendOverlay(true);
     setUIEvents();
@@ -102,15 +102,22 @@ $(document).ready(function() {
     getFeatureSettings('variants', [$.get( '/plm/details', { link : urlParameters.link })], function(responses) {
 
         if(!isBlank(urlParameters.fieldidebom)) {
+
             urlParameters.product = urlParameters.link;
-            urlParameters.link = getSectionFieldValue(responses[0].data.sections, urlParameters.fieldidebom, '', 'link');
+            urlParameters.link    = getSectionFieldValue(responses[0].data.sections, urlParameters.fieldidebom, '', 'link');
+
             $.get( '/plm/details', { link : urlParameters.link }, function(response) {
-                urlParameters.root = response.data.root.link;
+                urlParameters.root       = response.data.root.link.split('/').pop();
+                urlParameters.partNumber = getSectionFieldValue(response.data.sections, config.items.fieldIdNumber, '');
                 initEditor();
             });
+
         } else {
-            urlParameters.root = responses[0].data.root.link;
+
+            urlParameters.root       = responses[0].data.root.link.split('/').pop();
+            urlParameters.partNumber = getSectionFieldValue(responses[0].data.sections, config.items.fieldIdNumber, '');
             initEditor();
+
         }
 
     });
@@ -128,19 +135,17 @@ function setUIEvents() {
             id                : 'create',
             createButtonIcon  : '',
             createButtonLabel : 'Submit',
-            headerLabel       : 'Create new variant',
+            headerLabel       : 'Create new variant for ' + urlParameters.partNumber,
             hideComputed      : true,
-            fieldsIn          : ['TITLE', config.variants.fieldIdBaseItem],
+            fieldsIn          : ['TITLE', config.variants.workspaceItemVariants.fieldIds.baseItem],
             contextItem       : urlParameters.link,
-            contextItemFields : [ config.variants.fieldIdBaseItem ],
+            contextItemFields : [ config.variants.workspaceItemVariants.fieldIds.baseItem ],
             fieldValues       : [{
-                fieldId       : config.variants.fieldIdRootItemDmsId,
-                value         : urlParameters.root.split('/').pop()
-                // fieldId       : config.variants.fieldIdVariantBaseItem,
-                // value         : dmsId
+                fieldId  : config.variants.workspaceItemVariants.fieldIds.rootDMSId,
+                value    : urlParameters.root
             }],
             hideSections      : true,
-            afterCreation     : function(id, link) { addNewVariant(link); }
+            afterCreation     : function(id, link, data, contextId) { addNewVariant(link); }
         });
 
     });
@@ -169,29 +174,31 @@ function setUIEvents() {
 
 // Get item details to pull further information from PLM
 function initEditor() {
-    getInitialData(urlParameters.root.split('/').pop());
+
+    getInitialData();
     insertViewer(urlParameters.link);
     insertItemSummary(urlParameters.link, paramsSummary);
 }
-function getInitialData(rootDmsId) {
+
+function getInitialData() {
 
     let requests = [
         $.get('/plm/details'              , { link : urlParameters.link }),
-        $.get('/plm/sections'             , { wsId : wsContext.id,  useCache : true  }),
-        $.get('/plm/sections'             , { wsId : wsVariants.id, useCache : true  }),
-        $.get('/plm/fields'               , { wsId : wsVariants.id, useCache : true  }),
-        $.get('/plm/bom-views-and-fields' , { wsId : wsVariants.id, useCache : true  })
+        $.get('/plm/sections'             , { wsId : wsContext.id,  useCache : true }),
+        $.get('/plm/sections'             , { wsId : wsVariants.id, useCache : true }),
+        $.get('/plm/fields'               , { wsId : wsVariants.id, useCache : true }),
+        $.get('/plm/bom-views-and-fields' , { wsId : wsVariants.id, useCache : true })
     ];
 
     requests.push($.post( '/plm/search', {
         wsId   : wsVariants.id,
-        fields : [ 'TITLE', config.variants.fieldIdRootItemDmsId ],
-        sort   : ['TITLE'],
+        fields : [ 'TITLE', config.variants.workspaceItemVariants.fieldIds.rootDMSId ],
+        sort   : [ 'TITLE' ],
         filter : [{
-            field       : config.variants.fieldIdRootItemDmsId,
+            field       : config.variants.workspaceItemVariants.fieldIds.rootDMSId,
             type        : 0,
             comparator  : 15,
-            value       : rootDmsId
+            value       : urlParameters.root
         }]
     }));
 
@@ -215,10 +222,11 @@ function getInitialData(rootDmsId) {
             });
         }
 
-        wsContext.sections  = responses[1].data;
-        wsVariants.sections = responses[2].data;
-        wsVariants.fields   = responses[3].data;
-        wsVariants.bomViews = responses[4].data;
+        wsContext.sections   = responses[1].data;
+        wsVariants.sections  = responses[2].data;
+        wsVariants.fields    = responses[3].data;
+        wsVariants.bomViews  = responses[4].data;
+        wsVariants.picklists = [];
 
         getVariantsWSConfig();
 
@@ -230,34 +238,16 @@ function getVariantsWSConfig() {
     let foundSection = false;
 
     for(let section of wsVariants.sections) {
-        if(section.name === config.variants.sectionLabelVariantDefinition) {
+        if(section.name === config.variants.workspaceItemVariants.sectionLabel) {
             
             foundSection = true;
-            wsVariants.sectionIdVariantDefinition = section.__self__.split('/')[6];
             
             for(let sectionField of section.fields) {
                 for(let field of wsVariants.fields) {
                     if(field.__self__ === sectionField.link) {
-                        
-                        let elemControl = insertDetailsField(
-                            field, 
-                            null,  
-                            null, 
-                            false, 
-                            {
-                                editable      : true,
-                                hideLabels    : true,
-                                suppressLinks : true
-                            }
-                        );
-                        
-                        fieldsVariant.push({
-                            id      : field.__self__.split('/')[8],
-                            title   : sectionField.title,
-                            type    : field.type.title,
-                            control : elemControl
-                        });
-                        
+                        field.id    = field.__self__.split('/').pop();
+                        fieldsVariant.push(field);
+                        break;
                     }
                 }  
             }
@@ -265,20 +255,19 @@ function getVariantsWSConfig() {
         }
     }
 
-    if(!foundSection) showErrorMessage('Error loading data', 'Cannot find section with name  ' + config.variants.variantsSectionLabel + ' in workspace ' +  config.variants.wsIdItemVariants + ' (wsIdItemVariants)');
-
-    wsVariants.fieldIdVariantBaseItem   = config.variants.fieldIdVariantBaseItem;
-    wsVariants.sectionIdBaseItem        = getFieldSectionId(wsVariants.sections, config.variants.fieldIdBaseItem);
+    if(!foundSection) showErrorMessage('Error loading data', 'Cannot find section with name  ' + config.variants.workspaceItemVariants.sectionLabel + ' in workspace ' +  config.variants.workspaceItemVariants.workspaceId + ' (wsIdItemVariants)');
 
     for(let bomView of wsVariants.bomViews) {
-        if(bomView.name === config.variants.bomViewNameVariants) {
+        if(bomView.name === config.variants.workspaceItemVariants.bomViewName) {
 
-            wsVariants.viewId  = bomView.id;
-            wsVariants.columns = bomView.fields;
+            wsVariants.viewId       = bomView.id;
+            wsVariants.columns      = bomView.fields;
+            wsVariants.bomViewLinks = [];
 
             for(let field of bomView.fields) {
 
-                if(field.fieldId === 'QUANTITY') wsVariants.colIdQuantity  = field.__self__.link;
+                if(field.fieldId === 'QUANTITY') wsVariants.bomViewLinks.quality  = field.__self__.link;
+                if(field.fieldId === config.variants.workspaceItemVariants.bomFieldIdBaseBOMPath) wsVariants.bomViewLinks.baseBOMPath  = field.__self__.link;
 
                 for(let fieldVariant of fieldsVariant) {
                     if(fieldVariant.id === field.fieldId) fieldVariant.link = field.__self__.link;
@@ -289,28 +278,34 @@ function getVariantsWSConfig() {
         }
     }
 
-    if(isBlank(wsVariants.columns)) showErrorMessage('Error loading workspace configuration', 'Cannot find BOM view with name "' + config.variants.bomViewNameVariants + '" in workspace ' +  config.variants.wsIdItemVariants + ' (wsIdItemVariants)');
+    if(isBlank(wsVariants.columns)) showErrorMessage('Error loading workspace configuration', 'Cannot find BOM view with name "' + config.variants.workspaceItemVariants.bomViewName + '" in workspace ' +  config.variants.workspaceItemVariants.workspaceId + ' (wsIdItemVariants)');
 
     $('#button-create-variant').removeClass('disabled');
 
-    insertBOM(urlParameters.link, { 
-        headerLabel       : 'BOM & Variants', 
-        bomViewName       : config.variants.bomViewNameItems, 
-        reload            : true, 
-        hideDetails       : false, 
-        includeOMPartList : true, 
-        quantity          : true, 
-        headers           : true,
-        search            : true,
-        toggles           : true,
-        path              : true,
-        counters          : false,
-        collapseContents  : true,
-        viewerSelection   : true,
-        fieldsIn          : ['Item', 'Quantity'],
-        depth             : config.variants.maxBOMLevels,
-        onClickItem       : function(elemClicked) { setItemSummary(elemClicked); },
-        afterCompletion   : function (id, data) { insertVariants(id, data); }
+    getFieldsPicklistsData({editable : true}, fieldsVariant, function(response) {
+
+        wsVariants.picklists = response;
+
+        insertBOM(urlParameters.link, { 
+            headerLabel       : 'BOM & Variants', 
+            bomViewName       : config.variants.workspaceItems.bomViewName, 
+            contentSize       : 'xs',
+            reload            : true, 
+            hideDetails       : false, 
+            includeOMPartList : true, 
+            quantity          : true, 
+            headers           : true,
+            search            : true,
+            toggles           : true,
+            path              : true,
+            counters          : false,
+            collapseContents  : true,
+            viewerSelection   : true,
+            fieldsIn          : ['Item', 'Quantity', 'Qty'],
+            depth             : config.variants.maxBOMLevels,
+            onClickItem       : function(elemClicked) { setItemSummary(elemClicked); },
+            afterCompletion   : function (id, data) { insertVariants(id, data); }
+        });
     });
 
 }
@@ -355,7 +350,6 @@ function insertVariants(id, data) {
     $('<tr></tr>').prependTo(elemTHead)
         .attr('id', 'table-head-row-fields')
         .append('<th class="top-left-table-cell" colspan="2"></th>')
-        .append('<th style="background:none" ></th>')
   
 
     let requests = [];
@@ -407,13 +401,14 @@ function insertVariantHeaderColumns(variant, index) {
         .addClass('variant-head')
         .addClass('variant-filter')
         .addClass('variant-index-' + index)
+        .attr('title', 'Click to open variant ' + variant.label + ' in new tab')
         .click(function() {
             openItemByLink($(this).attr('data-link'));
         });
 
     for(let fieldVariant of fieldsVariant) {
         $('<th></th>').appendTo(elemTHeadTitles)
-            .html(fieldVariant.title)
+            .html(fieldVariant.name)
             .addClass('variant-filter')
             .addClass('variant-index-' + index)
             .addClass('field-id-' + fieldVariant.id.toLowerCase());
@@ -437,7 +432,6 @@ function insertVariantTableCells(variant, index, response) {
         let className      = 'status-missing';
         let elemBaseItem   = $(this);
         let baseRootLink   = $(this).attr('data-root-link');
-        let basePartNumber = $(this).attr('data-part-number');
         let baseQuantity   = $(this).attr('data-quantity');
         let status         = 'missing';
         let variantItem    = getVariantBOMItem(elemBaseItem, variantBOMPartsList);
@@ -447,7 +441,7 @@ function insertVariantTableCells(variant, index, response) {
                 status = 'update';
             } else if(baseRootLink === variantItem.root) {
                 status = 'identical';
-            } else if(basePartNumber === variantItem.details[config.variants.fieldIdBaseItemNumber]) {
+            } else if(baseRootLink.split('/').pop() === variantItem.details[config.variants.workspaceItemVariants.fieldIds.rootDMSId]) {
                 status = 'match';
             } 
         }
@@ -461,45 +455,54 @@ function insertVariantTableCells(variant, index, response) {
                 .addClass('field-value')
                 .addClass('field-id-' + fieldVariant.id.toLowerCase())
                 .addClass('variant-index-' + index);
-                
-            let elemControl = fieldVariant.control.clone();
 
-            elemControl.appendTo(elemCellField)
-                .click(function(e) {
+                let elemInput = insertField({ editable : true}, elemCellField, fieldVariant, variantItem.fields, wsVariants.picklists, [], []);
+
+                elemInput.click(function(e) {
                     e.stopPropagation();
                 }).change(function() {
                     valueChanged($(this));
                 });
+                
+            // let elemControl = fieldVariant.control.clone();
 
-            for(let field of variantItem.fields) {
+            // elemControl.appendTo(elemCellField)
+            //     .click(function(e) {
+            //         e.stopPropagation();
+            //     }).change(function() {
+            //         valueChanged($(this));
+            //     });
 
-                if(field.fieldId === fieldVariant.id) {
-                    let elemInput = elemControl.children().first();
-                    switch (fieldVariant.type) {
+            // for(let field of variantItem.fields) {
 
-                        case 'Single Selection':
-                            elemInput.val(field.value.link);
-                            break;
+            //     if(field.fieldId === fieldVariant.id) {
+            //         let elemInput = elemControl.children().first();
+            //         switch (fieldVariant.type) {
 
-                        default:
-                            elemInput.val(field.value);
-                            break;
+            //             case 'Single Selection':
+            //                 elemInput.val(field.value.link);
+            //                 break;
 
-                    }
-                }
-            }
+            //             default:
+            //                 elemInput.val(field.value);
+            //                 break;
+
+            //         }
+            //     }
+            // }
 
         }
 
         let elemCellItem = $('<td></td>').appendTo($(this))
-            .attr('data-link'       , variantItem.link)
-            .attr('data-edgeid'     , variantItem.edgeId)
-            .attr('data-edgeid-ref' , variantItem.edgeIdRef)
-            .attr('data-quantity'   , variantItem.quantity)
-            .attr('data-number'     , variantItem.number)
-            .attr('data-link-parent', variantItem.parent)
-            .attr('data-link-root'  , response.params.link)
-            .attr('data-variant-id' , index)
+            .attr('data-link'        , variantItem.link)
+            .attr('data-edgeid'      , variantItem.edgeId)
+            .attr('data-edgeid-ref'  , variantItem.edgeIdRef)
+            .attr('data-quantity'    , variantItem.quantity)
+            .attr('data-number'      , variantItem.number)
+            .attr('data-link-parent' , variantItem.parent)
+            .attr('data-root-link'   , variantItem.root)
+            .attr('data-variant-link', response.params.link)
+            .attr('data-variant-id'  , index)
             .attr('title', 'Use shift-click to open the related item in a new window')
             .addClass('variant-filter')
             .addClass('variant-index-' + index)
@@ -521,6 +524,8 @@ function insertVariantTableCells(variant, index, response) {
             });
         }
     }
+
+    insertAllPicklistData({}, wsVariants.picklists, $('#bom-tbody'));
 
 }
 function setVariantItemStyle(elemCell, status) {
@@ -576,7 +581,7 @@ function addNewVariant(link) {
 
     let index = $('.variant-head').length + 1;
 
-    $.get('/plm/details', { link : link}, function(response) {
+    $.get('/plm/details', { link : link }, function(response) {
         let label = response.data.title.split(' - ').pop();
         insertVariant({
             link :  link,
@@ -603,14 +608,23 @@ function addNewVariant(link) {
         }
 
         $.post('/plm/add-grid-row', params, function() {});
+
     }
 
+    $.get('/plm/add-relationship', {
+        link        : link,
+        relatedId   : urlParameters.dmsId,
+        description : 'Base Item',
+        type        : 'uni'
+    }, function() {});
 
 }
 
 
 // Match table cells to BOM rows
-function getVariantBOMItem(elemBaseItem, variantBOMPartsList) {
+function getVariantBOMItem(elemBaseItem, variantBOMPartsList, prefixNumberPath) {
+
+    if(isBlank(prefixNumberPath)) prefixNumberPath = '';
 
     let baseNumberPath = elemBaseItem.attr('data-number-path');
 
@@ -628,7 +642,7 @@ function getVariantBOMItem(elemBaseItem, variantBOMPartsList) {
 
     for(let variantBOMItem of variantBOMPartsList) {
 
-        if(baseNumberPath === variantBOMItem.numberPath) {
+        if(baseNumberPath === prefixNumberPath + variantBOMItem.numberPath) {
 
             result.link       = variantBOMItem.link;
             result.root       = variantBOMItem.root;
@@ -655,7 +669,7 @@ function getVariantBOMItem(elemBaseItem, variantBOMPartsList) {
 function getEdgeQuantity(edge) {
 
     for(let edgeField of edge.fields) {
-        if(edgeField.metaData.link === wsVariants.colIdQuantity) return edgeField.value;
+        if(edgeField.metaData.link === wsVariants.bomViewLinks.quality) return edgeField.value;
     }
 
     return 0;
@@ -665,16 +679,16 @@ function valueChanged(elemControl) {
 
     let elemVariant = elemControl;
 
-    if(!elemVariant.hasClass('variant-item')) elemVariant  = elemControl.parent().nextAll('.variant-item').first();
+    if(!elemVariant.hasClass('variant-item')) elemVariant = elemControl.parent().nextAll('.variant-item').first();
 
-    let index        = elemVariant.index();
-    let elemBaseItem = elemVariant.closest('tr');
-    let levelNext    = Number(elemBaseItem.attr('data-level')) - 1;
-    let elemPrev     = elemBaseItem.prev();
-    let linkBaseItem = elemVariant.closest('tr').attr('data-link');
-    let linkVariant  = elemVariant.attr('data-link');
+    let index            = elemVariant.index();
+    let elemBaseItem     = elemVariant.closest('tr');
+    let levelNext        = Number(elemBaseItem.attr('data-level')) - 1;
+    let elemPrev         = elemBaseItem.prev();
+    let linkBaseItemRoot = elemBaseItem.attr('data-root-link');
+    let linkVariantRoot  = elemVariant.attr('data-root-link');
 
-    if(linkBaseItem === linkVariant) {
+    if(linkBaseItemRoot === linkVariantRoot) {
         setVariantItemStyle(elemVariant, 'new');
     } else {
         setVariantItemStyle(elemVariant, 'changed');
@@ -682,7 +696,9 @@ function valueChanged(elemControl) {
 
     while(levelNext > 0) {
         
-        let linkBasePrev = elemPrev.attr('data-link');
+        let linkBaseItemParentRoot = elemPrev.attr('data-root-link');
+
+        console.log(console.log(levelNext));
 
         if(elemPrev.length > 0) {
 
@@ -690,11 +706,15 @@ function valueChanged(elemControl) {
 
             if(level === levelNext) {
 
-                levelNext--;
-                let elemVariantParent = elemPrev.children().eq(index);
-                let linkVariantParent = elemVariantParent.attr('data-link');
+                console.log('found Parent');
 
-                if(linkBasePrev === linkVariantParent) {
+                console.log(index);
+
+                levelNext--;
+                let elemVariantParent     = elemPrev.children().eq(index);
+                let linkVariantParentRoot = elemVariantParent.attr('data-root-link');
+
+                if(linkBaseItemParentRoot === linkVariantParentRoot) {
                     setVariantItemStyle(elemVariantParent, 'new');
                 }
 
@@ -748,12 +768,10 @@ function clickItemCell(e, elemClicked) {
         insertResults(
             wsVariants.id, 
             [{
-                // field       : config.variants.fieldIdVariantBaseItem,
-                field       : config.variants.fieldIdBaseItemNumber,
-                type        : 0,
-                comparator  : 15,
-                // value       : linkItem.split('/').pop()
-                value       : elemClicked.closest('tr').attr('data-part-number')
+                field      : config.variants.workspaceItemVariants.fieldIds.rootDMSId,
+                type       : 0,
+                comparator : 15,
+                value      : elemClicked.closest('tr').attr('data-root-link').split('/').pop()
             }], {
                 id              : 'selector',
                 headerLabel     : 'Variants of ' + elemClicked.closest('tr').attr('data-title'),
@@ -788,71 +806,116 @@ function insertSelectedItem(elemSelected) {
 
     $('#selector').hide();
 
-    let elemCell = $('.item-cell-clicked').first();
-        elemCell.attr('data-link', elemSelected.attr('data-link'));
+    let elemCell     = $('.item-cell-clicked').first();
+    let elemBaseItem = elemCell.closest('tr');
+    let level        = Number(elemBaseItem.attr('data-level'));
+    let linkCurrent  = elemCell.attr('data-link');
+    let linkNew      = elemSelected.attr('data-link');
 
-    valueChanged(elemCell);
-
-    setVariantItemStyle(elemCell, 'replaced');
-
-    $.get('/plm/details', { link : elemSelected.attr('data-link')}, function(response) {
-    
+    if(linkCurrent === linkNew) {
         $('#overlay').hide();
-    
-        let index         = fieldsVariant.length - 1;
-        let elemCellField = elemCell.prev();
+        return;
+    }
+
+    elemCell.attr('data-link', linkNew);
+
+    let requests = [
+        $.get('/plm/details', { link : linkNew }),
+        $.get('/plm/bom',     { 
+            link   : linkNew, 
+            depth  : config.variants.maxBOMLevels - level,
+            viewId : wsVariants.viewId 
+        })
+    ];
+
+    Promise.all(requests).then(function(responses) {
+
+        $('#overlay').hide();
+
+        let index           = fieldsVariant.length - 1;
+        let elemField       = elemCell.prev();
+        let baseNumberPath  = elemBaseItem.attr('data-number-path') + '.';
+        let newBOMPartsList = getBOMPartsList({ columns : wsVariants.columns }, responses[1].data);
+        let indexVariant    = elemCell.index();
+
+        elemCell.attr('data-root-link', responses[0].data.root.link).removeClass('item-cell-clicked');
 
         do {
 
-            let elemControl = elemCellField.children().first();
-            let elemInput   = elemControl.children().first();
-            let fieldId     = elemControl.attr('data-id');
-            // let picklist    = elemControl.hasClass('picklist');
-            let value       = getSectionFieldValue(response.data.sections, fieldId, '', 'link');
+            let fieldId = elemField.attr('data-id');
+            let value   = getSectionFieldValue(responses[0].data.sections, fieldId, '', 'object');
+            
+            setFieldValue(elemField, value);
 
-            elemInput.val(value);
-
-            // switch (fieldVariant.type) {
-
-            //     case 'Single Selection':
-            //         elemInput.val(field.value.link);
-            //         break;
-
-            //     default:
-            //         elemInput.val(field.value);
-            //         break;
-
-            // }
-
-
-
-
-
-    //     let value           = '';
-    //     let elemCellValue   = elemClicked.find('.tile-key-' + fieldsVariant[index].id);
-    //     let elemInput       = elemCellField.children().first();
-
-    //     if(elemCellValue.length > 0) value = elemCellValue.html();
-
-    //     if(elemInput.is('select')) {
-    //         elemInput.children('option').each(function() {
-    //             if($(this).attr('displayValue') === value) {
-    //                 value = $(this).attr('value');
-    //             }
-    //         });
-    //     }
-        
-    //     elemInput.val(value);
             index--;
-            elemCellField = elemCellField.prev();
+            elemField = elemField.prev();
 
         } while (index >= 0);
 
-        elemCell.removeClass('item-cell-clicked');
+        setVariantItemStyle(elemCell, 'replaced');
+
+        if(newBOMPartsList.length === 0) return;
+
+        elemBaseItem.nextAll().each(function() {
+
+            let nextLevel = Number($(this).attr('data-level'));
+
+            if(nextLevel > level) {
+
+                let baseRootLink   = $(this).attr('data-root-link');
+                let baseQuantity   = $(this).attr('data-quantity');
+                let status         = 'missing';
+                let variantItem    = getVariantBOMItem($(this), newBOMPartsList, baseNumberPath);
+                let elemCellItem   = $(this).children().eq(indexVariant);
+
+                if(variantItem.edgeId !== '') {
+                    if(baseQuantity != variantItem.quantity) {
+                        status = 'update';
+                    } else if(baseRootLink === variantItem.root) {
+                        status = 'identical';
+                    } else if(baseRootLink.split('/').pop() === variantItem.details[config.variants.workspaceItemVariants.fieldIds.rootDMSId]) {
+                        status = 'match';
+                    } 
+                }
+
+                setVariantItemStyle(elemCellItem, status);
+                setVariantItemCell(elemCellItem, variantItem);
+                setVariantItemFields(elemCellItem, variantItem);
+
+            } else return false;
+        });
 
     });
 
 }
+function setVariantItemCell(elemCellItem, variantItem) {
+
+    elemCellItem.attr('data-link',      variantItem.link    );
+    elemCellItem.attr('data-root-link', variantItem.root    );
+    elemCellItem.attr('data-edgeId',    variantItem.edgeId  );
+    elemCellItem.attr('data-quantity',  variantItem.quantity);
+    elemCellItem.attr('data-number',    variantItem.number  );
+
+}
+function setVariantItemFields(elemCellVariant, variantItem) {
+
+    let index     = fieldsVariant.length - 1;
+    let elemField = elemCellVariant.prev();
+
+    do {
+
+        let fieldId = elemField.attr('data-id');
+        let value   = isBlank(variantItem.details) ? null : variantItem.details[fieldId];
+            
+        setFieldValue(elemField, value);
+
+        index--;
+        elemField = elemField.prev();
+
+    } while (index >= 0);
+
+}
+
 
 
 // Apply Changes to PLM
@@ -1004,7 +1067,7 @@ function getDerivedData(action) {
 
                 requests.push($.get('/plm/derived', {
                     wsId        : wsVariants.id,                            //'create item wsid
-                    fieldId     : config.variants.fieldIdBaseItem,               //'BASE_ITEM'
+                    fieldId     : config.variants.workspaceItemVariants.fieldIds.baseItem,               //'BASE_ITEM'
                     pivotItemId : $(this).attr('data-link').split('/')[6],  //'dmsid of selected picklist ittem;
                     link        : $(this).attr('data-link')
                 }));
@@ -1055,48 +1118,67 @@ function createNewItems(action) {
 
                 let elemBaseItem    = $(this).closest('tr');
                 let elemCellControl = $(this).prev();
+                let fieldValues     = {};
+                let title           = '';
 
                 let params = {
-                    wsId       : wsVariants.id,
-                    sections   : [{
-                        id     : wsVariants.sectionIdBaseItem,
-                        fields : [{ 
-                            fieldId : config.variants.fieldIdBaseItem, 
-                            value   : elemBaseItem.attr('data-link').split('/')[6] 
-                        },{
-                            fieldId : config.variants.fieldIdRootItemDmsId,
-                            value   : elemBaseItem.attr('data-root-link').split('/').pop()
-                        }]
+                    wsId        : wsVariants.id,
+                    sections    : wsVariants.sections,
+                    getDetails  : true,
+                    fields      : [{
+                        fieldId : config.variants.workspaceItemVariants.fieldIds.baseItem,
+                        value   : elemBaseItem.attr('data-link')
                     },{
-                        id     : wsVariants.sectionIdVariantDefinition,
-                        fields : []          
+                        fieldId : config.variants.workspaceItemVariants.fieldIds.rootDMSId,
+                        value   : elemBaseItem.attr('data-root-link').split('/').pop()
                     }]
                 };
 
                 for(let index = fieldsVariant.length - 1; index >= 0; index--) {
 
-                    // let field = fieldsVariant[index];
-                    let data  = getFieldValue(elemCellControl.children().first());
-                    // let value = elemCellControl.children().first().val();
+                    let data  = getFieldValue(elemCellControl);
 
-                    // if(field.type === 'Single Selection') value = { 'link' : value };
-
-                    params.sections[1].fields.push({
+                    params.fields.push({
                         fieldId : data.fieldId,
                         value   : data.value
                     });
 
-                    // let fieldValue = getFieldValue(elemCellControl.children().first());
-                    // console.log(fieldValue);
-
-                    elemCellControl = elemCellControl.prev();
+                    elemCellControl           = elemCellControl.prev();
+                    fieldValues[data.fieldId] = (typeof data.value === 'object') ? data.value.title : data.value;
 
                 }
 
+                if(config.variants.newItemVariantsTitle.fieldsToConcatenate.length === 0) {
+
+                    for(let fieldValue of fieldValues) {
+                        if(title !== '') title += config.variants.newItemVariantsTitle.separator;
+                        title += fieldValue.value;
+                    }
+
+                } else {
+                    for(let fieldId of config.variants.newItemVariantsTitle.fieldsToConcatenate) {
+                        if(title !== '') title += config.variants.newItemVariantsTitle.separator;
+                        title += fieldValues[fieldId];
+                    }
+                }
+
+                if(title === '') title = elemBaseItem.attr('data-title');
+
+                params.fields.push({
+                    fieldId : config.variants.workspaceItemVariants.fieldIds.title,
+                    value   : title
+                })
+
                 for(let derived of derivedData) {
                     if(derived.params.link === elemBaseItem.attr('data-link')) {
-                        addDerivedFieldsToPayload(params.sections, wsVariants.sections, derived.data);
-                        break;
+                          for(let section of derived.data.sections) {
+                            for(let field of section.fields) {
+                                params.fields.push({
+                                    fieldId : field.__self__.split('/').pop(),
+                                    value : field.value,
+                                })
+                            }
+                        }
                     }
                 }
 
@@ -1109,39 +1191,36 @@ function createNewItems(action) {
 
         Promise.all(requests).then(function(responses) {
 
-            requests   = [];
             let errors = false;
 
             for(let response of responses) {
-
                 if(response.error) {
                     showErrorMessage('Error', response.data.message);
                     errors = true;
-                } else {
-                    requests.push($.get('/plm/descriptor', {
-                        link : response.data.split('.autodeskplm360.net')[1]
-                    }));
                 }
             }
 
             if(errors) { endProcessing(); } else {
 
-                Promise.all(requests).then(function(responses) {
+                let index = 0;
 
-                    let index = 0;
+                for(let response of responses) {
 
-                    for(let response of responses) {
+                    let elemCell = elements[index++];
+                        elemCell.attr('data-link', response.data.__self__).removeClass(action.className);
 
-                        let elemCell = elements[index++];
-                            elemCell.attr('data-link', response.params.link).removeClass(action.className);
+                    setVariantItemStyle(elemCell, 'changed');
 
-                        setVariantItemStyle(elemCell, 'changed');
+                    $.get('/plm/add-relationship', {
+                        link        : response.data.__self__,
+                        relatedId   : urlParameters.dmsId,
+                        description : 'Base Item',
+                        type        : 'uni'
+                    }, function() {});
 
-                    }
+                }
 
-                    createNewItems(action); 
-
-                });
+                createNewItems(action); 
 
             } 
 
@@ -1180,7 +1259,7 @@ function cleanupVariantBOM(action) {
             cleanupVariantBOM(action);
         });
 
-    } else  removeBOMItems(saveActions.removal);
+    } else removeBOMItems(saveActions.removal);
 
 }
 function removeBOMItems(action) {
@@ -1252,8 +1331,14 @@ function addBOMItems(action) {
                     linkChild  : linkItem,
                     quantity   : baseItem.attr('data-quantity'),
                     number     : baseItem.attr('data-number'),
-                    pinned     : true
+                    pinned     : true,
+                    fields     : []
                 }
+
+                params.fields.push({
+                    link  : wsVariants.bomViewLinks.baseBOMPath,
+                    value : getBOMItemPath(baseItem).string
+                })
 
                 requests.push($.post('/plm/bom-add', params));
                 elements.push(elemItem);
@@ -1268,9 +1353,6 @@ function addBOMItems(action) {
             let index = 0;
 
             for(let response of responses) {
-
-                console.log(response);
-
 
                 if(response.error) {
                     showErrorMessage('Error when adding BOM entries', response.data.message);
@@ -1309,7 +1391,7 @@ function getParentLink(elemItem) {
     let index       = elemItem.index();
     let result      = '';
 
-    if(level === 0) return elemItem.attr('data-link-root');
+    if(level === 0) return elemItem.attr('data-variant-link');
 
     elemRefItem.prevAll('tr').each(function() {
         let newLevel = Number($(this).attr('data-level'));
@@ -1397,5 +1479,6 @@ function endProcessing() {
     $('#overlay').show();
     $('#confirm-saving').removeClass('disabled').addClass('default');
     $('.in-work').removeClass('in-work');    
+    $('td').removeClass('changed');    
 
 }

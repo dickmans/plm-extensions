@@ -6,6 +6,7 @@
 /storage/excel-export/*
 /storage/exports/*
 /storage/imports/*
+/storage/uploads/*
 /views/custom/*
 /views/.DS_Store
 package-lock.json

@@ -101,7 +101,6 @@ router.get('/resupply', function(req, res, next) {
 });
 
 
-
 // Get list of folders in /storage
 router.get('/storage/folders', function(req, res, next) {
 
@@ -131,7 +130,6 @@ router.get('/storage/folders', function(req, res, next) {
     } else { res.json(response); }
 
 });
-
 
 
 // Get list of files in defined foleder within /storage
@@ -174,7 +172,6 @@ router.get('/storage/files', function(req, res, next) {
     }
 
 });
-
 
 
 // Get list of files and folders in defined foleder within /storage
@@ -267,6 +264,22 @@ router.get('/storage/contents', function(req, res, next) {
         res.json(response); 
     }
 
+});
+
+
+
+// Get list of files and folders in defined foleder within /storage
+router.get('/chrome', function(req, res, next) {
+
+    console.log(' ');
+    console.log('  /chrome');
+    console.log(' --------------------------------------------');
+    console.log('  # commands = ' + req.app.locals.chrome.commands.length);
+    console.log('  # buttons  = ' + req.app.locals.chrome.buttons.length);
+    console.log();
+
+    res.json(req.app.locals.chrome);
+    
 });
 
 

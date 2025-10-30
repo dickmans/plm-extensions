@@ -786,7 +786,9 @@ function getFieldValue(field) {
         case 'radio':
         case 'buom':
         case 'single-select':
-            value = { link : value };
+            if(value !== null) {
+                if(typeof value !== 'object') value = { link : value };
+            }
             break;
 
         case 'multi-select':
@@ -804,6 +806,11 @@ function getFieldValue(field) {
             break;
 
     }
+
+    console.log('-------');
+    console.log(field.fieldId);
+    console.log(field.type);
+    console.log(field.value);
 
     return value;
 
@@ -2703,6 +2710,64 @@ function setStatus(req, fileId, callback) {
 
 
 
+/* ----- SCREENSHOT UPLOAD ----- */
+router.post('/upload-screenshot', function(req, res) {
+   
+    console.log(' ');
+    console.log('  /upload-screenshot');
+    console.log(' --------------------------------------------');  
+    console.log('  req.body.wsId           = ' + req.body.wsId);
+    console.log('  req.body.dmsId          = ' + req.body.dmsId);
+    console.log('  req.body.link           = ' + req.body.link);
+    console.log('  req.body.folderName     = ' + req.body.folderName);
+    console.log();
+
+    let link      = (typeof req.body.link !== 'undefined') ? req.body.link : '/api/v3/workspaces/' + req.body.wsId + '/items/' + req.body.dmsId;
+    let url       = req.app.locals.tenantLink + link + '/attachments';
+    let folderId  = null;
+    let timestamp = new Date().getTime();
+    let fileName  = 'screenshot-' + timestamp + '.jpg';
+    let data      = req.body.image.value.replace(/^data:image\/\w+;base64,/, '');
+    let stream    = new Buffer.from(data, 'base64');
+    let path      = 'storage/uploads';
+
+    createServerFolderPath(path, false);
+
+    path += '/' + fileName;
+    
+    fs.appendFileSync(path, stream);
+
+    let stats = fs.statSync(path);
+   
+    axios.post(url, {
+        description   : fileName,
+        name          : fileName,
+        resourceName  : fileName,
+        folder        : folderId,
+        size          : stats.size
+    },{
+       headers : req.session.headers
+    }).then(function (response) {
+        uploadFile(req, path, response.data, function(fileId) {
+            axios.patch(url + '/' + fileId, {
+                status : { name : 'CheckIn' }
+            },{
+                headers : req.session.headers
+            }).then(function (response) {
+                sendResponse(req, res, { data : { fileId : fileId} }, false);
+            }).catch(function (error) {
+                sendResponse(req, res, error.response, true);
+            }); 
+        });          
+    }).catch(function (error) {
+        sendResponse(req, res, error.response, true);
+    }); 
+   
+});
+
+
+
+
 /* ----- ATTACHMENT IMPORT ----- */
 router.post('/import-attachment', function(req, res) {
    
@@ -3361,6 +3426,7 @@ router.get('/bom', function(req, res, next) {
     console.log('  req.query.link           = ' + req.query.link);
     console.log('  req.query.depth          = ' + req.query.depth);
     console.log('  req.query.revisionBias   = ' + req.query.revisionBias);
+    console.log('  req.query.effectiveDate  = ' + req.query.effectiveDate);
     console.log('  req.query.viewId         = ' + req.query.viewId);
     
     let revisionBias    = (typeof req.query.revisionBias !== 'undefined') ? req.query.revisionBias : 'release';
@@ -3370,7 +3436,8 @@ router.get('/bom', function(req, res, next) {
     let url             = req.app.locals.tenantLink + link + '/bom?depth=' + depth + '&revisionBias=' + revisionBias + '&rootId=' + rootId;
     let headers         = getCustomHeaders(req);
 
-    if(typeof req.query.viewId !== 'undefined') url += '&viewDefId=' + req.query.viewId;
+    if(typeof req.query.viewId        !== 'undefined') url += '&viewDefId='     + req.query.viewId;
+    if(typeof req.query.effectiveDate !== 'undefined') url += '&effectiveDate=' + req.query.effectiveDate;
 
     headers.Accept = 'application/vnd.autodesk.plm.bom.bulk+json';
 
