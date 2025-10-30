@@ -715,27 +715,31 @@ exports.config = {
             filterLabelEx : 'Hide Sales Parts List Items', //Hide Spare Parts List Items
             basePosNumber : 1, //101
             hideQuantity  : true //false
+        },
+		/*
+		{
+            mode          : '1-level-bom',
+            tabLabel      : 'Vertriebs BOM', //Maintenance Kits
+            buttonLabels  : ['New V-Level'], //New Kit
+            bomItemTypes  : ['Sales Assembly'], //Service Kit
+            icon          : 'icon-product',
+            color         : colors.green,
+            filterLabelIn : 'Show Maintenance Kit Items Only',
+            filterLabelEx : 'Hide Maintenance Items',
+            basePosNumber : 1 //201
         },{
-//            mode          : '1-level-bom',
-//            tabLabel      : 'Vertriebs BOM', //Maintenance Kits
-//            buttonLabels  : ['New V-Level'], //New Kit
-//            bomItemTypes  : ['Sales Assembly'], //Service Kit
-//            icon          : 'icon-product',
-//            color         : colors.green,
-//            filterLabelIn : 'Show Maintenance Kit Items Only',
-//            filterLabelEx : 'Hide Maintenance Items',
-//            basePosNumber : 1 //201
-//        },{
-//            mode          : '2-levels-bom',
-//            tabLabel      : 'Services',
-//            buttonLabels  : ['New Service', 'New Operation'],
-//            bomItemTypes  : ['Service Offering', 'Service Operation'],
-//            icon          : 'icon-service',
-//            color         : colors.yellow,
-//            filterLabelIn : 'Show Services Items Only',
-//            filterLabelEx : 'Hide Services Items',
-//            basePosNumber : 301
-        }],
+            mode          : '2-levels-bom',
+            tabLabel      : 'Services',
+            buttonLabels  : ['New Service', 'New Operation'],
+            bomItemTypes  : ['Service Offering', 'Service Operation'],
+            icon          : 'icon-service',
+            color         : colors.yellow,
+            filterLabelIn : 'Show Services Items Only',
+            filterLabelEx : 'Hide Services Items',
+            basePosNumber : 301
+        }
+		*/
+		],
         enableBOMPin : true,
         viewerFeatures : {
             contextMenu   : true,
