@@ -706,37 +706,37 @@ exports.config = {
         },
         bomTypes : [{
             mode          : 'list',
-            tabLabel      : 'Spare Parts',
+            tabLabel      : 'Vertriebs BOM', //Spare Parts
             buttonLabels  : ['Add all recommended'],
-            bomItemTypes  : ['Spare Parts List', 'Part'],
+            bomItemTypes  : ['Spare Parts List', 'Part', 'Sales Assembly'],
             icon          : 'icon-details',
             color         : colors.red,
-            filterLabelIn : 'Show Spare Parts List Items Only',
-            filterLabelEx : 'Hide Spare Parts List Items',
-            basePosNumber : 101,
-            hideQuantity  : false
+            filterLabelIn : 'Show Sales List Items Only', //Show Spare Parts List Items Only
+            filterLabelEx : 'Hide Sales Parts List Items', //Hide Spare Parts List Items
+            basePosNumber : 1, //101
+            hideQuantity  : true //false
         },{
-            mode          : '1-level-bom',
-            tabLabel      : 'Vertriebs BOM', //Maintenance Kits
-            buttonLabels  : ['New V-Level'], //New Kit
-            bomItemTypes  : ['Sales Assembly'], //Service Kit
-            icon          : 'icon-product',
-            color         : colors.green,
-            filterLabelIn : 'Show Maintenance Kit Items Only',
-            filterLabelEx : 'Hide Maintenance Items',
-            basePosNumber : 1 //201
-        },{
-            mode          : '2-levels-bom',
-            tabLabel      : 'Services',
-            buttonLabels  : ['New Service', 'New Operation'],
-            bomItemTypes  : ['Service Offering', 'Service Operation'],
-            icon          : 'icon-service',
-            color         : colors.yellow,
-            filterLabelIn : 'Show Services Items Only',
-            filterLabelEx : 'Hide Services Items',
-            basePosNumber : 301
+//            mode          : '1-level-bom',
+//            tabLabel      : 'Vertriebs BOM', //Maintenance Kits
+//            buttonLabels  : ['New V-Level'], //New Kit
+//            bomItemTypes  : ['Sales Assembly'], //Service Kit
+//            icon          : 'icon-product',
+//            color         : colors.green,
+//            filterLabelIn : 'Show Maintenance Kit Items Only',
+//            filterLabelEx : 'Hide Maintenance Items',
+//            basePosNumber : 1 //201
+//        },{
+//            mode          : '2-levels-bom',
+//            tabLabel      : 'Services',
+//            buttonLabels  : ['New Service', 'New Operation'],
+//            bomItemTypes  : ['Service Offering', 'Service Operation'],
+//            icon          : 'icon-service',
+//            color         : colors.yellow,
+//            filterLabelIn : 'Show Services Items Only',
+//            filterLabelEx : 'Hide Services Items',
+//            basePosNumber : 301
         }],
-        enableBOMPin : false,
+        enableBOMPin : true,
         viewerFeatures : {
             contextMenu   : true,
             cube          : true,
