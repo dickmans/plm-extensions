@@ -680,7 +680,7 @@ exports.config = {
         targetBOM : {
             fieldId       : 'SALES_VBOM', // SALES_BOM
             bomViewName   : 'MBOM Transition', //Service
-            itemTypeValue : 'Product',
+            itemTypeValue : 'Sales BOM',
             prefixTitle   : 'Vertriebs BOM of ', // Service BOM of 
             filterLabelIn : 'Show items contained in Sales BOM only', //Show items contained in Service BOM only
             filterLabelEx : 'Hide items contained in Sales BOM', //Hide items contained in Service BOM
@@ -708,13 +708,13 @@ exports.config = {
             mode          : 'list',
             tabLabel      : 'Vertriebs BOM', //Spare Parts
             buttonLabels  : ['Add all recommended'],
-            bomItemTypes  : ['Spare Parts List', 'Part', 'Sales Assembly'],
+            bomItemTypes  : ['Spare Parts List', 'Part', 'Sales Assembly', 'Assembly'],
             icon          : 'icon-details',
             color         : colors.red,
             filterLabelIn : 'Show Sales List Items Only', //Show Spare Parts List Items Only
             filterLabelEx : 'Hide Sales Parts List Items', //Hide Spare Parts List Items
             basePosNumber : 1, //101
-            hideQuantity  : true //false
+            hideQuantity  : false //false
         },
 		/*
 		{
