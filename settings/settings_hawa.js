@@ -678,15 +678,15 @@ exports.config = {
             headerLabel : 'Engineering BOM'
         },
         targetBOM : {
-            fieldId       : 'SALES_BOM',
+            fieldId       : 'SALES_VBOM', // SALES_BOM
             bomViewName   : 'MBOM Transition', //Service
             itemTypeValue : 'Product',
-            prefixTitle   : 'Service BOM of ',
+            prefixTitle   : 'Vertriebs BOM of ', // Service BOM of 
             filterLabelIn : 'Show items contained in Sales BOM only', //Show items contained in Service BOM only
             filterLabelEx : 'Hide items contained in Sales BOM', //Hide items contained in Service BOM
 			defaults : {
                 number      : { copyFrom : 'bom.ARTIKEL'     , prefix  : ''               , suffix : 'V' }, //-SBOM
-                title       : { copyFrom : 'ctx.TITLE'      , prefix  : 'Service BOM of ', suffix : ''      }, // ctx für context, Inhalt aus Produkt
+                title       : { copyFrom : 'ctx.TITLE'      , prefix  : 'Vertriebs BOM of ', suffix : ''      }, // ctx für context, Inhalt aus Produkt / Service BOM of
                 description : { copyFrom : 'bom.DESCRIPTION', prefix  : ''               , suffix : ''      }
             }
         },
