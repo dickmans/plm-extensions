@@ -686,7 +686,7 @@ exports.config = {
             filterLabelEx : 'Hide items contained in Sales BOM', //Hide items contained in Service BOM
 			defaults : {
                 number      : { copyFrom : 'bom.ARTIKEL'     , prefix  : ''               , suffix : 'V' }, //-SBOM
-                title       : { copyFrom : 'ctx.BEZEICHNUNG1_ITEM'      , prefix  : 'Vertriebs BOM of ', suffix : ''      }, // ctx für context, Inhalt aus Produkt / Service BOM of
+                title       : { copyFrom : 'bom.BEZEICHNUNG1_ITEM'      , prefix  : 'Vertriebs BOM of ', suffix : ''      }, // ctx für context, Inhalt aus Produkt / Service BOM of
                 description : { copyFrom : 'bom.BEZEICHNUNG2_ITEM', prefix  : ''               , suffix : ''      }
             }
         },
@@ -698,7 +698,7 @@ exports.config = {
         },
         picklistIdItemType : 'CUSTOM_LOOKUP_WS_ARTICLE_CATEGORY', //CUSTOM_LOOKUP_ITEM_TYPES
         itemHighlight : {
-            fieldId        : 'SPARE_WEAR_PART',
+            fieldId        : 'SPARE WEAR PART',
             fieldValues    : ['spare', 'spare part', 'yes', 'x', 'y', 'true'],
             bomColumnTitle : 'Spare/Wear',
             filterLabelIn  : 'Show Recommended Spare Parts Only',
@@ -713,7 +713,7 @@ exports.config = {
             color         : colors.red,
             filterLabelIn : 'Show Sales List Items Only', //Show Spare Parts List Items Only
             filterLabelEx : 'Hide Sales Parts List Items', //Hide Spare Parts List Items
-            basePosNumber : 1, //101
+         //   basePosNumber : 1, //101
             hideQuantity  : false //false
         },
 		/*
