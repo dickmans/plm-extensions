@@ -681,9 +681,9 @@ exports.config = {
             fieldId       : 'SALES_VBOM', // SALES_BOM
             bomViewName   : 'MBOM Transition', //Service
             itemTypeValue : 'Sales BOM',
-            prefixTitle   : 'Vertriebs BOM of ', // Service BOM of 
-            filterLabelIn : 'Show items contained in Sales BOM only', //Show items contained in Service BOM only
-            filterLabelEx : 'Hide items contained in Sales BOM', //Hide items contained in Service BOM
+            prefixTitle   : 'VBOM ', // Service BOM of 
+            filterLabelIn : 'Show items contained in Sales VBOM only', //Show items contained in Service BOM only
+            filterLabelEx : 'Hide items contained in Sales VBOM', //Hide items contained in Service BOM
 			defaults : {
                 number      : { copyFrom : 'bom.ARTIKEL'     , prefix  : ''               , suffix : 'V' }, //-SBOM
                 title       : { copyFrom : 'bom.BEZEICHNUNG1_ITEM'      , prefix  : 'Vertriebs BOM of ', suffix : ''      }, // ctx für context, Inhalt aus Produkt / Service BOM of
@@ -713,7 +713,7 @@ exports.config = {
             color         : colors.red,
             filterLabelIn : 'Show Sales List Items Only', //Show Spare Parts List Items Only
             filterLabelEx : 'Hide Sales Parts List Items', //Hide Spare Parts List Items
-         //   basePosNumber : 1, //101
+            basePosNumber : 1, //101
             hideQuantity  : false //false
         },
 		/*
