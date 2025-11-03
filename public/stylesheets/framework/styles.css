@@ -2567,6 +2567,98 @@ select.button.main:hover {
 
 
 
+/*  OVERRIDES WHEN LAUNCHED AS ADDIN */
+/* ----------------------------------------------------------------------------- */
+body.is-addin { 
+    font-size : 12px;
+}
+.is-addin #header { display : none; }
+.is-addin .screen { top : 0px; }
+.is-addin .panel-header, 
+.is-addin .panel-title { 
+    height : 30px;
+}
+.is-addin .panel-title-main { 
+    font-size   : 14px;
+    font-weight : 600px;
+    height      : 22px;
+    line-height : 22px;
+}
+.is-addin .panel-content {
+    top : 40px;
+}
+.is-addin .tiles.list.xs .tile-title {
+    font-size : 12px;
+}
+.is-addin .tabs {
+    font-size   : 12px;
+    padding-top : 0px;
+}
+.is-addin .tabs,
+.is-addin .tabs > div {
+    height : 28px;
+}
+.is-addin .tabs  > .selected {
+    font-weight : 700;
+}
+.is-addin .panel-actions {
+    gap     : 4px;
+    height  : 24px;
+    padding : 0px;
+}
+.is-addin .button {
+    height      : 22px;
+    line-height : 22px;
+    font-size   : 12px;
+}
+.is-addin .button.icon {
+    padding   : 0px;
+    max-width : 22px;
+    min-width : 22px;
+    width     : 22px;
+} 
+.is-addin .button.icon,
+.is-addin .button.with-icon::before,
+.is-addin .button.with-toggle::after {
+    font-size   : 16px;
+    line-height : 22px;
+}
+.is-addin .panel-top.with-panel-actions.no-header > .panel-content {
+    top : 32px;
+}
+.is-addin .panel-content.s thead th {
+    height      : 22px;
+    line-height : 22px;
+    padding     : 0px 4px;
+}
+.is-addin .table-check-box {
+    max-width : 24px;
+    min-width : 24px;
+    width     : 24px;
+}
+.is-addin .panel-content.s th.table-check-box > .icon,
+.is-addin .panel-content.s tr.content-item > td > .icon {
+    font-size : 16px;
+}
+.is-addin .panel-content.s tr > td, 
+.is-addin .panel-content.s tr.content-item > td > input, 
+.is-addin .panel-content.s tr.content-item > td > select, 
+.is-addin .panel-content.s tr.content-item > td > textarea {
+    font-size   : 12px;
+    height      : 24px;
+    line-height : 24px;
+    padding     : 0px 4px;
+    min-height  : 24px;
+    max-width   : calc(100% - 8px);
+    min-width   : calc(100% - 8px);
+    width       : calc(100% - 8px);
+}
+.is-addin .table-group-title::before {
+    font-size : 16px;
+    top       : 4px;
+}
+
+
 /*  PREVIEW */
 /* ----------------------------------------------------------------------------- */
 /* #preview {
