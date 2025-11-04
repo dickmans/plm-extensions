@@ -1292,7 +1292,7 @@ tr.content-item.selected > td {
     display : block;
 }
 .bom-column-icon {
-    padding     : 2px 0px 0px !important;
+    /* padding     : 2px 0px 0px !important; */
     text-align  : center;
     width       : 26px;   
 }

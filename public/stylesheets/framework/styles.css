@@ -1068,13 +1068,13 @@ tr.checked > td.content-item-check-box > .icon::before {
 .panel-content.xl  tr.content-item > td > select {  width : 100%; }
 .panel-content.xxl tr.content-item > td > select {  width : 100%; }
 
-.panel-content.xxs th.table-check-box > .icon, .panel-content.xxs tr.content-item > td > .icon {  font-size : 15px; font-weight : 200; position : relative; top : 3px; }
-.panel-content.xs  th.table-check-box > .icon, .panel-content.xs  tr.content-item > td > .icon {  font-size : 17px; font-weight : 200; position : relative; top : 3px; }
-.panel-content.s   th.table-check-box > .icon, .panel-content.s   tr.content-item > td > .icon {  font-size : 19px; font-weight : 200; position : relative; top : 5px; }
-.panel-content.m   th.table-check-box > .icon, .panel-content.m   tr.content-item > td > .icon {  font-size : 21px; font-weight : 200; position : relative; top : 6px; }
-.panel-content.l   th.table-check-box > .icon, .panel-content.l   tr.content-item > td > .icon {  font-size : 22px; font-weight : 200; position : relative; top : 6px; }
-.panel-content.xl  th.table-check-box > .icon, .panel-content.xl  tr.content-item > td > .icon {  font-size : 24px; font-weight : 200; position : relative; top : 7px; }
-.panel-content.xxl th.table-check-box > .icon, .panel-content.xxl tr.content-item > td > .icon {  font-size : 26px; font-weight : 200; position : relative; top : 8px; }
+.panel-content.xxs th.table-check-box > .icon, .panel-content.xxs tr.content-item > td > .icon {  font-size : 15px; font-weight : 200; line-height : 20px; display : block; }
+.panel-content.xs  th.table-check-box > .icon, .panel-content.xs  tr.content-item > td > .icon {  font-size : 17px; font-weight : 200; line-height : 26px; display : block; }
+.panel-content.s   th.table-check-box > .icon, .panel-content.s   tr.content-item > td > .icon {  font-size : 19px; font-weight : 200; line-height : 30px; display : block; }
+.panel-content.m   th.table-check-box > .icon, .panel-content.m   tr.content-item > td > .icon {  font-size : 21px; font-weight : 200; line-height : 32px; display : block; }
+.panel-content.l   th.table-check-box > .icon, .panel-content.l   tr.content-item > td > .icon {  font-size : 22px; font-weight : 200; line-height : 34px; display : block; }
+.panel-content.xl  th.table-check-box > .icon, .panel-content.xl  tr.content-item > td > .icon {  font-size : 24px; font-weight : 200; line-height : 38px; display : block; }
+.panel-content.xxl th.table-check-box > .icon, .panel-content.xxl tr.content-item > td > .icon {  font-size : 26px; font-weight : 200; line-height : 42px; display : block; }
 
 .panel-content   > table > tbody > tr > td.field-editable { padding-left : 0px !important; padding-right : 0px !important; }
 .surface-level-1 > table > tbody > tr > td.field-editable { padding-left : 0px !important; padding-right : 0px !important; }
@@ -2214,7 +2214,7 @@ and (max-device-width : 1900px)  {
 }
 .tabs > .selected {
     border-color : var(--color-blue-500);
-    font-weight : 800;
+    font-weight  : 700;
 }
 .tabs.dark > .selected {
     border-color : black;
