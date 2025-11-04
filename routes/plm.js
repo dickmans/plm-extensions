@@ -318,6 +318,15 @@ function getCacheEntry(req) {
     return cache;
 
 }
+function isBlank(value) {
+
+    if(typeof value === 'undefined') return true;
+    if(       value === null       ) return true;
+    if(       value === ''         ) return true;
+
+    return false;
+
+}
 
 
 /* ----- CLEAR CACHE ENTRIES ----- */
@@ -806,11 +815,6 @@ function getFieldValue(field) {
             break;
 
     }
-
-    console.log('-------');
-    console.log(field.fieldId);
-    console.log(field.type);
-    console.log(field.value);
 
     return value;
 
@@ -2716,17 +2720,18 @@ router.post('/upload-screenshot', function(req, res) {
     console.log(' ');
     console.log('  /upload-screenshot');
     console.log(' --------------------------------------------');  
-    console.log('  req.body.wsId           = ' + req.body.wsId);
-    console.log('  req.body.dmsId          = ' + req.body.dmsId);
-    console.log('  req.body.link           = ' + req.body.link);
-    console.log('  req.body.folderName     = ' + req.body.folderName);
+    console.log('  req.body.wsId       = ' + req.body.wsId);
+    console.log('  req.body.dmsId      = ' + req.body.dmsId);
+    console.log('  req.body.link       = ' + req.body.link);
+    console.log('  req.body.fileName   = ' + req.body.fileName);
+    console.log('  req.body.folderName = ' + req.body.folderName);
     console.log();
 
     let link      = (typeof req.body.link !== 'undefined') ? req.body.link : '/api/v3/workspaces/' + req.body.wsId + '/items/' + req.body.dmsId;
     let url       = req.app.locals.tenantLink + link + '/attachments';
     let folderId  = null;
     let timestamp = new Date().getTime();
-    let fileName  = 'screenshot-' + timestamp + '.jpg';
+    let fileName  = (typeof req.body.fileName === 'undefined') ? 'screenshot-' + timestamp + '.jpg' : req.body.fileName;
     let data      = req.body.image.value.replace(/^data:image\/\w+;base64,/, '');
     let stream    = new Buffer.from(data, 'base64');
     let path      = 'storage/uploads';
@@ -3421,20 +3426,23 @@ router.get('/bom', function(req, res, next) {
     console.log(' ');
     console.log('  /bom');
     console.log(' --------------------------------------------');  
-    console.log('  req.query.wsId           = ' + req.query.wsId);
-    console.log('  req.query.dmsId          = ' + req.query.dmsId);
-    console.log('  req.query.link           = ' + req.query.link);
-    console.log('  req.query.depth          = ' + req.query.depth);
-    console.log('  req.query.revisionBias   = ' + req.query.revisionBias);
-    console.log('  req.query.effectiveDate  = ' + req.query.effectiveDate);
-    console.log('  req.query.viewId         = ' + req.query.viewId);
+    console.log('  req.query.wsId            = ' + req.query.wsId);
+    console.log('  req.query.dmsId           = ' + req.query.dmsId);
+    console.log('  req.query.link            = ' + req.query.link);
+    console.log('  req.query.depth           = ' + req.query.depth);
+    console.log('  req.query.revisionBias    = ' + req.query.revisionBias);
+    console.log('  req.query.effectiveDate   = ' + req.query.effectiveDate);
+    console.log('  req.query.viewId          = ' + req.query.viewId);
+    console.log('  req.query.getBOMPartsList = ' + req.query.getBOMPartsList);
+
     
-    let revisionBias    = (typeof req.query.revisionBias !== 'undefined') ? req.query.revisionBias : 'release';
-    let depth           = (typeof req.query.depth !== 'undefined') ? req.query.depth : 10;
-    let link            = (typeof req.query.link  !== 'undefined') ? req.query.link : '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId;
-    let rootId          = (typeof req.query.link  !== 'undefined') ? req.query.link.split('/')[6] : req.query.dmsId;
-    let url             = req.app.locals.tenantLink + link + '/bom?depth=' + depth + '&revisionBias=' + revisionBias + '&rootId=' + rootId;
-    let headers         = getCustomHeaders(req);
+    let revisionBias = (typeof req.query.revisionBias !== 'undefined') ? req.query.revisionBias : 'release';
+    let depth        = (typeof req.query.depth !== 'undefined') ? req.query.depth : 10;
+    let getPartsList = (typeof req.query.getBOMPartsList !== 'undefined') ? req.query.getBOMPartsList : false;
+    let link         = (typeof req.query.link  !== 'undefined') ? req.query.link : '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId;
+    let rootId       = (typeof req.query.link  !== 'undefined') ? req.query.link.split('/')[6] : req.query.dmsId;
+    let url          = req.app.locals.tenantLink + link + '/bom?depth=' + depth + '&revisionBias=' + revisionBias + '&rootId=' + rootId;
+    let headers      = getCustomHeaders(req);
 
     if(typeof req.query.viewId        !== 'undefined') url += '&viewDefId='     + req.query.viewId;
     if(typeof req.query.effectiveDate !== 'undefined') url += '&effectiveDate=' + req.query.effectiveDate;
@@ -3444,9 +3452,24 @@ router.get('/bom', function(req, res, next) {
     axios.get(url, {
         headers : headers
     }).then(function(response) {
+
         sortArray(response.data.edges, 'itemNumber', '');
         sortArray(response.data.edges, 'depth', '');
-        sendResponse(req, res, response, false);
+
+        if(getPartsList) {
+
+            let workspaceId = link.split('/')[4];
+            let urlFields   = req.app.locals.tenantLink + '/api/v3/workspaces/' + workspaceId + '/views/5/viewdef/' + req.query.viewId + '/fields';
+
+            axios.get(urlFields, {
+                headers : req.session.headers
+            }).then(function(bomViewFields) {
+                response.data.bomPartsList = getBOMPartsList(response.data, bomViewFields.data, null);
+                sendResponse(req, res, response, false);
+            });
+
+        } else sendResponse(req, res, response, false);
+
     }).catch(function(error) {
         sendResponse(req, res, error.response, true);
     });
@@ -5994,11 +6017,10 @@ async function getExcelExportData(req, res, path) {
             
             proceed = false;
 
-            switch(sheet.type) {
+            switch(sheet.type.toLowerCase()) {
 
-                case 'grid': 
-                    getExcelExportGrid(req, res, path, sheet);
-                    break;
+                case 'bom'  : getExcelExportBOM (req, res, path, sheet); break;
+                case 'grid' : getExcelExportGrid(req, res, path, sheet); break;
 
             }
 
@@ -6014,13 +6036,16 @@ async function getExcelExportData(req, res, path) {
 
         for(let sheet of req.body.sheets) {
 
+            if(Array.isArray(sheet.freezeCols)) sheet.freezeCols = sheet.freezeCols.length;
+            if(Array.isArray(sheet.freezeRows)) sheet.freezeRows = sheet.freezeRows.length;
+
             let sheetProperties = {
                 pageSetup  : { paperSize: 9, orientation : 'landscape' },
                 properties : { defaultRowHeight : sheet.rowHeight },
                 views      : [{
                     state           : 'frozen',
-                    xSplit          : 0, 
-                    ySplit          : 1,
+                    xSplit          : sheet.freezeCols | 0, 
+                    ySplit          : sheet.freezeRows | 1,
                     showGridLines   : false
                 }]
             }
@@ -6077,12 +6102,378 @@ async function getExcelExportData(req, res, path) {
 
         await workbook.xlsx.writeFile(path + '/' + req.body.fileName);
 
-        console.log('1');
-
         sendResponse(req, res, { data : { fileUrl : path + '/' + req.body.fileName} } , false);
 
     }
 
+}
+function getExcelExportBOM(req, res, path, sheet) {
+
+    if(typeof sheet.hideRoot     === 'undefined') sheet.hideRoot     = false;
+    if(typeof sheet.bomView      === 'undefined') sheet.bomView      = '';
+    if(typeof sheet.depth        === 'undefined') sheet.depth        = 10;
+    if(typeof sheet.revisionBias === 'undefined') sheet.revisionBias = 'release';
+    if(typeof sheet.selectItems  === 'undefined') sheet.selectItems  = '{}';
+
+    let baseURL       = getTenantLink(req);
+    let viewsURL      = baseURL + '/api/v3/workspaces/' + sheet.link.split('/')[4] + '/views/5';
+    let bomURL        = baseURL + sheet.link + '/bom?depth' + sheet.depth + '&revisionBias=' + sheet.revisionBias;
+    let bomViewId     = null;
+    let bomViewFields = [];
+
+    axios.get(viewsURL, { headers : req.session.headers }).then(function(response) {
+
+        let requestsBasics  = [];
+        let requestsFields  = [];
+
+        for(let bomView of response.data.bomViews) {
+            requestsBasics.push(runPromised(baseURL + bomView.link, req.session.headers));
+            requestsFields.push(runPromised(baseURL + bomView.link + '/fields', req.session.headers));
+        }
+
+        Promise.all(requestsBasics).then(function(responses) {
+
+            let views = responses;
+            let index = 0;
+
+            Promise.all(requestsFields).then(function(fields) {
+
+                for(let view of views) {
+                    if(view.name === sheet.bomView) {
+                        bomViewId = view.id;
+                        bomViewFields = fields[index];
+                        break;
+                    } else if(view.isDefault) {
+                        bomViewId = view.id;
+                        bomViewFields = fields[index];
+                    }
+                    index++;
+                }
+
+                let headers        = getCustomHeaders(req);
+                    headers.Accept = 'application/vnd.autodesk.plm.bom.bulk+json';
+
+                axios.get(bomURL + '&viewDefId=' + bomViewId, {
+                    headers : headers
+                }).then(function(response) {
+
+                    sortArray(response.data.edges, 'itemNumber', '');
+                    sortArray(response.data.edges, 'depth', '');
+
+                    let bomPartsList = getBOMPartsList(response.data, bomViewFields, sheet.selectItems, sheet.hideRoot);
+                    let colIndex     = 0;
+                    let colSort      = (Array.isArray(sheet.freezeCols)) ? sheet.freezeCols.length : sheet.freezeCols;
+
+                    // colSort += 100;
+
+                    for(let field of bomViewFields) {
+
+                        if((sheet.fieldsIn.length === 0) || (sheet.fieldsIn.includes(field.fieldId)) || (sheet.fieldsIn.includes(field.name))) {
+                            if((sheet.fieldsEx.length === 0) || ((!sheet.fieldsEx.includes(field.fieldId)) && (!sheet.fieldsEx.includes(field.name))) ) {
+
+                                let width = (colIndex <= sheet.colWidths.length) ? sheet.colWidths[colIndex++] : 20;
+
+                                sheet.columns.push({
+                                    header : field.name,
+                                    key    : field.fieldId,
+                                    width  : width,
+                                    sort   : ++colSort
+                                });
+
+                                field.sort = colSort;
+
+                            }
+                        }
+                    }
+
+                    if(!isBlank(sheet.totalQty)) {
+
+                        let totalQtySort = Number(sheet.totalQty.column) || ++colSort;
+                        
+                        for(let sheetCol of sheet.columns) {
+                            if(sheetCol.sort >= totalQtySort) {
+                                sheetCol.sort = sheetCol.sort + 1;
+                            }
+                        }
+
+                        for(let bomViewField of bomViewFields) {
+                            if(bomViewField.sort >= totalQtySort) {
+                                bomViewField.sort = bomViewField.sort + 1;
+                            }
+                        }
+
+                        bomViewFields.push({
+                            fieldId : 'totalQuantity',
+                            sort    : totalQtySort
+                        })
+                        
+                        sheet.columns.push({
+                            header : sheet.totalQty.label || 'Total Qty',
+                            key    : 'totalQuantity',
+                            width  : 16,
+                            sort   : totalQtySort
+                        });
+
+                        sortArray(bomViewFields, 'sort', 'integer');
+                        sortArray(sheet.columns, 'sort', 'integer');
+
+                    }
+
+                    if(!isBlank(sheet.freezeCols)) {
+                        if(Array.isArray(sheet.freezeCols)) {
+                            
+                            let index = 1;
+                            for(let freezeCol of sheet.freezeCols) {
+                                for(let sheetCol of sheet.columns) {
+                                    if(freezeCol === sheetCol.key) sheetCol.sort = index;
+                                    else if(freezeCol === sheetCol.header) sheetCol.sort = index;
+
+                                }
+                                index++;
+                            }
+                            sortArray(sheet.columns, 'sort', 'integer');
+                        }
+                    }
+
+                    for(let bomPart of bomPartsList) {
+
+                        let params = {};
+
+                        for(let field of bomViewFields) {
+                            if(field.fieldId === 'totalQuantity') {
+                                params.totalQuantity = bomPart.totalQuantity;
+                            } else {
+
+                                let value = bomPart.details[field.fieldId];
+                                if(!isBlank(value)) {
+                                    if(typeof value === 'object') value = value.title;
+                                }
+                                params[field.fieldId] = value;
+                            }
+                        }
+
+                        sheet.rows.push(params);
+
+                    }
+
+                    sheet.pending = false;
+                    getExcelExportData(req, res, path);
+
+                });
+            });
+        });
+    });
+
+}
+function getBOMPartsList(data, fields, selectItems, hideRoot) {
+
+    if(isBlank(hideRoot)) hideRoot = false;
+
+    let parts   = [];
+    let iEdge   = 0;
+    let urns    = {};
+    let urnRoot = data.root;
+
+    for(let field of fields) {
+        if(field.fieldId === 'QUANTITY') {
+            urns.quantity = field.__self__.urn;
+        } else if(field.fieldId === 'NUMBER') {
+            urns.partNumber = field.__self__.urn;
+        }
+        if(!isBlank(selectItems)) {
+            if(field.fieldId === selectItems.fieldId) urns.selectItems = field.__self__.urn;
+        }
+    }
+
+   
+
+    let node = { 
+        quantity      : '0',
+        partNumber    : getBOMCellValue(data.root, urns.partNumber, data.nodes),
+        linkParent    : '',
+        level         : 0,
+        parent        : '',
+        parents       : [],
+        fields        : [],
+        edgeId        : null,
+        number        : null,
+        numberPath    : '',
+        details       : {},
+        totalQuantity : 0,
+        hasChildren   : (data.edges.length > 0)
+    }
+
+    node.path = node.partNumber;
+
+    for(let bomNode of data.nodes) {
+        if(bomNode.item.urn === urnRoot) {
+            insertBOMPartDetails(fields, node, bomNode, null);
+            break;
+        }
+    }
+
+    if(!hideRoot) parts.push(node);
+
+    getBOMParts(fields, selectItems, iEdge, urns, parts, data.root, data.edges, data.nodes, 1.0, 1, '', [node.partNumber]);
+
+    return parts;
+
+}
+function getBOMParts(fields, selectItems, iEdge, urns, parts, parent, edges, nodes, quantity, level, numberPath, parents) {
+
+    let result = { hasChildren : false };
+
+    for(let i = iEdge; i < edges.length; i++) {
+
+        let edge = edges[i];
+
+        if(edge.parent === parent) {
+
+            if(i === iEdge + 1) iEdge = i;
+
+            let node = { 
+                quantity    : getBOMEdgeValue(edge, urns.quantity, null, 0),
+                partNumber  : getBOMCellValue(edge.child, urns.partNumber, nodes),
+                linkParent  : edge.edgeLink.split('/bom-items')[0],
+                level       : level,
+                parent      : parents[parents.length - 1],
+                parents     : parents.slice(),
+                fields      : [],
+                edgeId      : edge.edgeId,
+                number      : edge.itemNumber,
+                numberPath  : numberPath + edge.itemNumber,
+                details     : {}
+            }
+
+            node.totalQuantity = node.quantity * quantity;
+
+            node.path = node.parents.map(function(parent) {
+                return parent;
+            }).join('|') + '|' + node.partNumber;
+
+            result.hasChildren = true;
+
+            for(let bomNode of nodes) {
+
+                if(bomNode.item.urn === edge.child) {
+                    insertBOMPartDetails(fields, node, bomNode, edge);
+                    break;
+                }
+            }
+
+            if(!isBlank(selectItems)) {      
+                if(selectItems.hasOwnProperty('values')) {
+                    let selectValue = getBOMCellValue(edge.child, urns.selectItems, nodes);
+                    if(selectValue === '') selectValue = getBOMEdgeValue(edge, urns.selectItems, 'title', '');
+                    if(selectItems.values.includes(selectValue)) parts.push(node);
+                } else parts.push(node);
+            } else {
+                parts.push(node);
+            }
+
+            let nextParents = parents.slice();
+                nextParents.push(node.partNumber);
+
+            let nodeBOM = getBOMParts(fields, selectItems, iEdge, urns, parts, edge.child, edges, nodes, node.totalQuantity, level + 1, numberPath + edge.itemNumber + '.', nextParents);
+
+            node.hasChildren = nodeBOM.hasChildren;
+
+        }
+
+    }
+
+    return result;
+
+}
+function insertBOMPartDetails(fields, node, bomNode, edge) {
+
+    node.link     = bomNode.item.link;
+    node.title    = bomNode.item.title;
+    node.revision = bomNode.item.version;
+    node.root     = bomNode.rootItem.link;
+
+    for(let field of fields) {
+
+        let fieldData = {
+            fieldId     : field.fieldId,
+            name        : field.name,
+            displayName : field.displayName,
+            urn         : field.__self__.urn,
+            value       : ''
+        }
+                        
+        node.details[field.fieldId] = null;
+
+        for(let nodeField of bomNode.fields) {
+            if(nodeField.metaData.urn === fieldData.urn) {
+                let value = (typeof nodeField.value === 'object') ? nodeField.value.title : nodeField.value;
+                fieldData.value = nodeField.value;
+                node.details[field.fieldId] = value;
+            }
+        }
+
+        if(!isBlank(edge)) {
+            for(let edgeField of edge.fields) {
+                if(edgeField.metaData.urn === fieldData.urn) {
+                    let value = (typeof edgeField.value === 'object') ? edgeField.value.title : edgeField.value;
+                    fieldData.value = edgeField.value;
+                    node.details[field.fieldId] = value;
+                }
+            }
+        }
+                        
+        node.fields.push(fieldData);
+
+    }
+
+}
+function getBOMCellValue(urn, key, nodes, property) {
+
+    if(urn === '') return '';
+
+    for(let node of nodes) {
+        if(node.item.urn === urn) {
+
+            for(let field of node.fields) {
+                if((field.metaData.urn === key) || (field.metaData.link === key)) {
+
+                    if(field.value === null) { return '';
+                    } else if(typeof field.value === 'object') {
+                        if(typeof property === 'undefined') return field.value.link;
+                        else return field.value[property];
+                    } else if(typeof field.value !== 'undefined') {
+                        return field.value;
+                    } else {
+                        return '';
+                    }
+
+                }
+            }
+        }
+    }
+
+    return '';
+    
+}
+function getBOMEdgeValue(edge, key, property, defaultValue) {
+
+    if(typeof defaultValue === 'undefined') defaultValue = '';
+
+    for(let field of edge.fields) {
+        if(field.metaData.urn === key) {
+            if(typeof field.value === 'object') {
+                if(typeof property === 'undefined') return field.value.link;
+                else return field.value[property];
+            } else if(typeof field.value !== 'undefined') {
+                return field.value;
+            } else {
+                return defaultValue;
+            }
+        }
+    }
+
+    return defaultValue;
+    
 }
 function getExcelExportGrid(req, res, path, sheet) {
 
