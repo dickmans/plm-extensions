@@ -1,5 +1,64 @@
-let isolate  = false;
-let messages = [];
+let isolate       = false;
+let isAddin       = false;
+let messagesAddin = [];
+
+
+
+// Register listener for CAD/PDM events
+function setAddinEvents() {
+
+    console.log('setAddinEvents START');
+
+    if(typeof chrome !== 'undefined') {
+        if(typeof chrome.webview !== 'undefined') {
+
+            console.log('setAddinEvents : adding Event Listener');
+            
+            $('body').addClass('addin');
+            $('body').addClass('is-addin');
+            isAddin = true;
+
+            window.chrome.webview.addEventListener('message', arg => { 
+
+                console.log('---------------------------------------------------');
+                console.log('Received message from Inventor');
+
+                // 'response:title:text'
+                // 'selectInstance:partNumber:instanceId'
+                // selectInstance:94500A231:002771.iam|Build Assembly: 1|94500A231:1
+                // selectComponent:94500A231
+                // selectInstance('002771.iam|Build Assembly:1|94500A231:6');
+
+                $('#overlay').hide();
+
+                switch(messageType) {
+
+                    case 'response': 
+                        let messageTitle = response[1];
+                        let messageText  = (response.length > 2) ? response[2] : 'Please contact your administrator';
+                        if(messageTitle != 'success') showErrorMessage(messageTitle, messageText);
+                        break;
+
+                    case 'selectInstance':
+                        let instanceId = (response.length > 2) ? response[2] : '';
+                        selectInstance(instanceId);
+                        break;
+
+                    case 'selectComponent':
+                        let partNumber = (response.length > 1) ? response[1] : '';
+                        selectComponent(partNumber);
+                        break;
+
+                    default: break;
+
+                }
+
+            });
+
+        }
+    }
+
+}
 
 
 // Confirm successful login
@@ -162,7 +221,7 @@ function getNewMessageID(elements) {
     let now = new Date();
     let id  = now.getTime();
     
-    messages.push({ id : id, elements : elements });
+    messagesAddin.push({ id : id, elements : elements });
 
     return id + ';';
 
