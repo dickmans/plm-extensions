@@ -1266,13 +1266,17 @@ tr.content-item.selected > td {
     color : var(--color-hover-border); 
 }
 .bom-first-col {
-    display       : flex;
-    white-space   : nowrap;
     overflow      : hidden;
     text-overflow : ellipsis;
+    white-space   : nowrap;
+}
+th.bom-first-col {
     position      : sticky;
     left          : 1px;
     z-index       : 4;
+}
+td.bom-first-col {
+    display       : flex;
 }
 .bom-number {
     padding     : 0px;
