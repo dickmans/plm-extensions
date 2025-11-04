@@ -481,6 +481,14 @@
 .tiles.list.xl  .tile-subtitle { font-size : 14px; line-height : 18px; }
 .tiles.list.xxl .tile-subtitle { font-size : 14px; line-height : 18px; }
 
+.tiles.list.xxs .tile-status-label { display : none; }
+.tiles.list.xs  .tile-status-label { display : none; }
+.tiles.list.s   .tile-status-label { width :  40px; }
+.tiles.list.m   .tile-status-label { width :  56px; }
+.tiles.list.l   .tile-status-label { width :  70px; }
+.tiles.list.xl  .tile-status-label { width :  86px; }
+.tiles.list.xxl .tile-status-label { width : 116px; }
+
 /* ----- Tiles Grid ----- */
 .tiles.grid.xxs { gap : 4px; }
 .tiles.grid.xs  { gap : 4px; }
