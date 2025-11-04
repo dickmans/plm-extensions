@@ -888,6 +888,7 @@ function setFormEvents() {
            $('.picklist').addClass('hidden');
        }
     });
+
     $(document).click(function(e) { 
 
         let elemClicked        = $(e.target);
@@ -1030,6 +1031,7 @@ function getPanelSettings(link, params, defaults, additional) {
     if(isBlank(defaults.hideHeader)             ) defaults.hideHeader               = false;
     if(isBlank(defaults.hideHeaderControls)     ) defaults.hideHeaderControls       = false;
     if(isBlank(defaults.hideHeaderLabel)        ) defaults.hideHeaderLabel          = false;
+    if(isBlank(defaults.hideButtonLabels)       ) defaults.hideButtonLabels         = false;
     if(isBlank(defaults.headerTopLabel)         ) defaults.headerTopLabel           = '';
     if(isBlank(defaults.headerLabel)            ) defaults.headerLabel              = '';
     if(isBlank(defaults.headerSubLabel)         ) defaults.headerSubLabel           = '';
@@ -1078,6 +1080,7 @@ function getPanelSettings(link, params, defaults, additional) {
         hideHeader              : isBlank(params.hideHeader)            ? defaults.hideHeader : params.hideHeader,
         hideHeaderControls      : isBlank(params.hideHeaderControls)    ? defaults.hideHeaderControls : params.hideHeaderControls,
         hideHeaderLabel         : isBlank(params.hideHeaderLabel)       ? defaults.hideHeaderLabel : params.hideHeaderLabel,
+        hideButtonLabels        : isBlank(params.hideButtonLabels)      ? defaults.hideButtonLabels : params.hideButtonLabels,
         headerTopLabel          : isBlank(params.headerTopLabel)        ? defaults.headerTopLabel : params.headerTopLabel,
         headerLabel             : isBlank(params.headerLabel)           ? defaults.headerLabel : params.headerLabel,
         headerSubLabel          : isBlank(params.headerSubLabel)        ? defaults.headerSubLabel : params.headerSubLabel,
@@ -3463,6 +3466,7 @@ function genTableRows(id, elemTBody, settings, items, editableFields) {
             });
 
         if(!isBlank(item.edge)) elemRow.attr('data-edge', item.edge);
+        if(!isBlank(item.root)) elemRow.attr('data-root-link', item.root);
 
         if(settings.editable && settings.multiSelect) {
 
