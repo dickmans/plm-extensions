@@ -226,6 +226,7 @@
 .icon-check-box::before         { content : '\e835'; }
 .icon-check-box-checked::before { content : '\e834'; }
 .icon-check-circle-add::before  { content : '\f23a'; }
+.icon-city::before              { content : '\e527'; }
 .icon-clear::before             { content : '\e14b'; }
 .icon-clear-cache::before       { content : '\f414'; }
 .icon-clipboard-add::before     { content : '\f848'; }
@@ -234,6 +235,7 @@
 .icon-close-window::before      { content : '\f745'; }
 .icon-collapse::before          { content : '\e5cf'; }
 .icon-columns::before           { content : '\e8f3'; }
+.icon-country::before           { content : '\e7e4'; }
 .icon-compare::before           { content : '\f459'; }
 .icon-contains::before          { content : '\f525'; }
 .icon-counter-1::before         { content : '\f784'; }
@@ -255,6 +257,7 @@
 .icon-equals::before            { content : '\f77b'; }
 .icon-expand::before            { content : '\e5cc'; }
 .icon-factory::before           { content : '\ebbc'; }
+.icon-flag::before              { content : '\f40f'; }
 .icon-file::before              { content : '\e66d'; }
 .icon-filter::before            { content : '\e152'; }
 .icon-filter-empty::before      { content : '\f703'; }
