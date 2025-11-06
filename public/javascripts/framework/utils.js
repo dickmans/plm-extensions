@@ -413,10 +413,11 @@ function reloadPage(ret) {
 function getURLParameters() {
 
     let result = {
-        link        : '',
-        wsId        : wsId,
-        dmsId       : dmsId,
-        descriptor  : descriptor || ''
+        link       : '',
+        wsId       : wsId,
+        dmsId      : dmsId,
+        descriptor : descriptor || '',
+        type       : type || ''
     };
 
     if(!isBlank(wsId)) {
@@ -431,6 +432,23 @@ function getURLParameters() {
         let key   = split[0].toLowerCase();
 
         if(key !== '') result[key] = split[1];
+
+    }
+
+    let params = document.location.href.split('?');
+
+    if(params.length > 1) {
+
+        params = params[1].split('&');
+
+        for(let param of params) {
+
+            let split = param.split('=');
+            let key   = split[0].toLowerCase();
+
+            if(key !== 'options') result[key] = split[1];
+
+        }
 
     }
 

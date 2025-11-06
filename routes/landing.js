@@ -185,6 +185,7 @@ function launch(appURL, appTitle, req, res, next) {
         let reqDescriptor   = '';
         let reqNumber       = '';
         let reqFileId       = '';
+        let reqType         = '';
         let reqOptions      = '';
         let reqHost         = '';
         let reqRevisionBias = 'release';
@@ -197,6 +198,7 @@ function launch(appURL, appTitle, req, res, next) {
                 case 'descriptor'   :   reqDescriptor = req.query[key]; break;
                 case 'number'       :       reqNumber = req.query[key]; break;
                 case 'fileid'       :       reqFileId = req.query[key]; break;
+                case 'type'         :         reqType = req.query[key]; break;
                 case 'options'      :      reqOptions = req.query[key]; break;
                 case 'host'         :         reqHost = req.query[key]; break;
                 case 'revisionbias' : reqRevisionBias = req.query[key]; break;
@@ -227,6 +229,7 @@ function launch(appURL, appTitle, req, res, next) {
             console.log('  descriptor       = ' + reqDescriptor); 
             console.log('  number           = ' + reqNumber); 
             console.log('  fileId           = ' + reqFileId); 
+            console.log('  type             = ' + reqType); 
             console.log('  options          = ' + reqOptions); 
             console.log('  revisionBias     = ' + reqRevisionBias); 
             console.log();
@@ -254,6 +257,7 @@ function launch(appURL, appTitle, req, res, next) {
                     descriptor   : reqDescriptor,
                     fileId       : reqFileId,
                     vaultId      : req.session.vaultId,
+                    type         : reqType,
                     revisionBias : reqRevisionBias,
                     options      : reqOptions.split(','),
                     config       : req.app.locals.config,
