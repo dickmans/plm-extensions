@@ -715,27 +715,32 @@ function genPayloadSectionsFields(req, prefix, mode) {
     for(let field of req.body.fields) {
 
         let fieldSection = getFieldSection(req.body.sections, field);
-        let sectionLink  = prefix + insertion + '/sections/' + fieldSection.__self__.split('/').pop();;
-        let isNewSection = true;
 
-        let fieldData    = {
-            __self__ : prefix   + '/views/1/fields/' + field.fieldId,
-            value    : getFieldValue(field)
-        }
+        if(fieldSection !== null) {
 
-        for(let section of sections) {
-            if(section.link === sectionLink) {
-                isNewSection = false;
-                section.fields.push(fieldData);
-                break;
+            let sectionLink  = prefix + insertion + '/sections/' + fieldSection.__self__.split('/').pop();;
+            let isNewSection = true;
+
+            let fieldData = {
+                __self__ : prefix   + '/views/1/fields/' + field.fieldId,
+                value    : getFieldValue(field)
             }
-        }
 
-        if(isNewSection) {
-            sections.push({
-                link   : sectionLink,
-                fields : [fieldData]
-            });
+            for(let section of sections) {
+                if(section.link === sectionLink) {
+                    isNewSection = false;
+                    section.fields.push(fieldData);
+                    break;
+                }
+            }
+
+            if(isNewSection) {
+                sections.push({
+                    link   : sectionLink,
+                    fields : [fieldData]
+                });
+            }
+
         }
 
     }
@@ -3315,21 +3320,52 @@ router.get('/bom-views', function(req, res, next) {
     console.log(' ');
     console.log('  /bom-views');
     console.log(' --------------------------------------------');  
-    console.log('  req.query.wsId   = ' + req.query.wsId);
-    console.log('  req.query.link   = ' + req.query.link);
-    console.log('  req.query.tenant = ' + req.query.tenant);
+    console.log('  req.query.wsId     = ' + req.query.wsId);
+    console.log('  req.query.link     = ' + req.query.link);
+    console.log('  req.query.tenant   = ' + req.query.tenant);
+    console.log('  req.query.useCache = ' + req.query.useCache);
     console.log();
+
+    if(notCached(req, res)) {
     
-    let wsId = (typeof req.query.link !== 'undefined') ? req.query.link.split('/')[4] : req.query.wsId;
-    let url  = getTenantLink(req) + '/api/v3/workspaces/' + wsId + '/views/5';
-    
-    axios.get(url, {
-        headers : req.session.headers
-    }).then(function(response) {
-        sendResponse(req, res, { 'data' : response.data.bomViews, 'status' : response.status }, false, 'bom-views');
-    }).catch(function(error) {
-        sendResponse(req, res, error.response, true, 'bom-views');
-    });
+        let wsId = (typeof req.query.link !== 'undefined') ? req.query.link.split('/')[4] : req.query.wsId;
+        let url  = getTenantLink(req) + '/api/v3/workspaces/' + wsId + '/views/5';
+        
+        axios.get(url, {
+            headers : req.session.headers
+        }).then(function(response) {
+
+            let requests = [];
+
+            for(let bomView of response.data.bomViews) requests.push(runPromised(getTenantLink(req) + bomView.link, req.session.headers));
+
+            Promise.all(requests).then(function(results) {
+
+                sortArray(results, 'name', 'string');
+
+                response.data.bomViews = [];
+
+                for(let result of results) {
+                    response.data.bomViews.push({
+                        id        : result.id,
+                        name      : result.name,
+                        isDefault : result.isDefault,
+                        link      : result.__self__.link,
+                        urn       : result.__self__.urn,
+                    })
+                }
+
+                sendResponse(req, res, response, false);
+
+            }).catch(function(error) {
+                sendResponse(req, res, error.response, true);
+            });        
+
+        }).catch(function(error) {
+            sendResponse(req, res, error.response, true, 'bom-views');
+        });
+
+    }
     
 });
 
@@ -3358,7 +3394,7 @@ router.get('/bom-views-and-fields', function(req, res, next) {
             let requestsBasics  = [];
             let requestsFields  = [];
 
-            for(bomView of response.data.bomViews) {
+            for(let bomView of response.data.bomViews) {
                 requestsBasics.push(runPromised(getTenantLink(req) + bomView.link, req.session.headers));
                 requestsFields.push(runPromised(getTenantLink(req) + bomView.link + '/fields', req.session.headers));
             }
@@ -3416,6 +3452,66 @@ router.get('/bom-view-fields', function(req, res, next) {
     }).catch(function(error) {
         sendResponse(req, res, error.response, true);
     });
+    
+});
+
+
+/* ----- GET BOM VIEW BY NAME ----- */
+router.get('/bom-view-by-name', function(req, res, next) {
+        
+    console.log(' ');
+    console.log('  /bom-view-by-name');
+    console.log(' --------------------------------------------');  
+    console.log('  req.query.wsId     = ' + req.query.wsId);
+    console.log('  req.query.link     = ' + req.query.link);
+    console.log('  req.query.tenant   = ' + req.query.tenant);
+    console.log('  req.query.name     = ' + req.query.name);
+    console.log('  req.query.useCache = ' + req.query.useCache);
+    console.log();
+
+    if(notCached(req, res)) {
+    
+        let wsId = (typeof req.query.link !== 'undefined') ? req.query.link.split('/')[4] : req.query.wsId;
+        let url  = getTenantLink(req) + '/api/v3/workspaces/' + wsId + '/views/5';
+        
+        axios.get(url, {
+            headers : req.session.headers
+        }).then(function(response) {
+
+            let requests = [];
+
+            for(let bomView of response.data.bomViews) requests.push(runPromised(getTenantLink(req) + bomView.link, req.session.headers));
+
+            Promise.all(requests).then(function(results) {
+
+                let response = { data : null }
+
+                for(let result of results) {
+
+                    if(result.name == req.query.name) {
+                            response.data = {
+                            id        : result.id,
+                            name      : result.name,
+                            isDefault : result.isDefault,
+                            link      : result.__self__.link,
+                            urn       : result.__self__.urn
+                        };
+                        break;
+                    }
+
+                }
+
+                sendResponse(req, res, response, false);
+
+            }).catch(function(error) {
+                sendResponse(req, res, error.response, true);
+            });        
+
+        }).catch(function(error) {
+            sendResponse(req, res, error.response, true, 'bom-views');
+        });
+
+    }
     
 });
 
