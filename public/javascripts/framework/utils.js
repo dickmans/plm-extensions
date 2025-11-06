@@ -5002,19 +5002,6 @@ function getBOMPartsListChildren(bomPartsList, partNumber, edgeId, levels, inclu
 
 
 
-function onSerialNumberClick(elemClicked) {
-
-    if(elemClicked.hasClass('selected')) {
-        let partNumber = elemClicked.attr('data-part-number');
-        viewerSelectModel(partNumber);
-    } else {
-        viewerResetSelection();
-    }
-
-}
-
-
-
 // Validate if there are restricted columns in the BOM to validate item access permissions
 function hasBOMRestrictedFields(urn, nodes) {
 
