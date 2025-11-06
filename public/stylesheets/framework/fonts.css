@@ -358,6 +358,7 @@
 .icon-toggle-on::before         { content : '\e9f6'; }
 .icon-toggle-layout::before     { content : '\e42a'; }
 .icon-top::before               { content : '\e25a'; }
+.icon-tree::before              { content : '\e97a'; }
 .icon-trend-chart::before       { content : '\f190'; }
 .icon-type::before              { content : '\e574'; }
 .icon-undelete::before          { content : '\e938'; }
