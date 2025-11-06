@@ -4872,6 +4872,55 @@ function getBOMParts(settings, parts, parent, edges, nodes, quantity, level, num
     return result;
 
 }
+function extendBOMPartsList(settings, items) {
+
+    let fields = settings.viewFields || settings.columns;
+    let result = [];
+
+    for (let item of items) {
+
+        let node = {
+            link          : item.node.item.link,
+            root          : item.node.rootItem.link,
+            title         : item.node.item.title,
+            partNumber    : item.node.partNumber,
+            totalQuantity : item.node.totalQuantity,
+            edge          : item.edge,
+            node          : item.node,
+            fields        : [],
+            details       : {}
+        }
+
+        for(let field of fields) {
+
+            let fieldData = {
+                fieldId     : field.fieldId,
+                name        : field.name,
+                displayName : field.displayName,
+                urn         : field.__self__.urn,
+                value       : ''
+            }
+            
+            node.details[field.fieldId] = null;
+
+            for(let nodeField of item.node.fields) {
+                if(nodeField.metaData.urn === fieldData.urn) {
+                    fieldData.value = nodeField.value;
+                    node.details[field.fieldId] = nodeField.value;
+                }
+            }
+            
+            node.fields.push(fieldData);
+
+        }
+
+        result.push(node);
+
+    }
+
+    return result;
+
+}
 function getBOMRollUpValues(bom, rollUps, nodeId, edge) {
 
     let result = [];

@@ -5128,9 +5128,11 @@ function changeBOMView(id) {
             dataAdditional.push(responses[indexAdditional++]);
         } 
 
-        let responseData = {};
+        let responseData = { bomPartsList : []} ;
 
         if(settings.bom[id].includeBOMPartList) responseData.bomPartsList = getBOMPartsList(settings.bom[id], responses[0].data)
+
+        if(selectedItems.length > 0) selectedItems = extendBOMPartsList(settings.bom[id], selectedItems);
 
         changeBOMViewDone(id, settings.bom[id], responses[0].data, selectedItems, dataFlatBOM, dataAdditional);
         finishPanelContentUpdate(id, settings.bom[id], null, null, responseData);
