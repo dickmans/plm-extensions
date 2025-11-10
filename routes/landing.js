@@ -234,7 +234,8 @@ function launch(appURL, appTitle, req, res, next) {
             console.log('  revisionBias     = ' + reqRevisionBias); 
             console.log();
             
-            if((reqNumber !== '') || ((reqNumber === '') && (appURL === 'addins/item') && (reqDMS === ''))) {
+            if((reqNumber !== '') && (reqDMS === '')) {
+            // if((reqNumber !== '') || ((reqNumber === '') && (appURL === 'addins/item') && (reqDMS === ''))) {
 
                 res.render('framework/findItemByNumber', {
                     number       : reqNumber,
@@ -255,6 +256,7 @@ function launch(appURL, appTitle, req, res, next) {
                     wsId         : reqWS,
                     dmsId        : reqDMS,
                     descriptor   : reqDescriptor,
+                    number       : reqNumber,
                     fileId       : reqFileId,
                     vaultId      : req.session.vaultId,
                     type         : reqType,
