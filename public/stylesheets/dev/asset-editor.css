@@ -91,23 +91,42 @@
 .screen-landing #header-toolbar .button { display : none; }
 .screen-main #landing { display : none; }
 
-.embedded #bom { display : none; }
-.embedded .viewer {  right : unset; bottom : 0px; left : 0px; width : 400px; }
-.embedded #contents { top : 0px; left : 400px; }
-.embedded #message { 
+.panel-actions .with-toggle::after { line-height : 36px; }
+
+.is-addin {
+    --border-v     : 18px;
+    --border-h     : 18px;
+    --width-viewer : 400px;
+}
+
+.is-addin #bom,
+.is-addin #guiviewer3d-toolbar { display : none !important; }
+.is-addin .viewer {
+    right  : unset; 
+    bottom : 0px; 
+    left   : 0px; 
+     width : var(--width-viewer);
+}
+.is-addin #contents { 
+    top  : 0px; 
+    left : var(--width-viewer); 
+}
+.is-addin #message { 
     right   : 0px; 
     bottom  : 0px; 
     left    : 0px; 
     padding : 10px 20px 10px 64px;
 }
-.embedded #message::after {
+.is-addin #message::after {
     font-size   : 30px;
     font-weight : 200;
     top         : 16px;
     left        : 16px;
 }
+.is-addin #items {
+    top : 40px;
+}
 
-.panel-actions .with-toggle::after { line-height : 36px; }
 
 
 /*  BOM */
@@ -141,7 +160,7 @@ td.column-icon {
 
 /*  ITEMS */
 /* ----------------------------------------------------------------------------- */
- table.row-hovering tr.highlighted:hover > td,
+table.row-hovering tr.highlighted:hover > td,
 table.row-hovering tbody tr.highlighte:hover > td,
 tr.highlighted > td {
     border-color : var(--color-status-red) !important;
@@ -178,28 +197,9 @@ tr.highlighted > td {
 .sync-status > .icon-remove { color : var(--color-status-red   ); }
 .sync-status > .icon-info   { color : var(--color-status-yellow); }
 .sync-status > .icon-check  { color : var(--color-status-green ); }
-/*
-#items td {
-    background : var(--color-surface-level-2);
 
+.field-id-NR {
+    max-width : 22px !important;
+    min-width : 22px !important;
+    width     : 22px !important;
 }
-#items td input {
-    background : var(--color-surface-level-2);
-    width : auto;
-}
-
-#items .column-INSTANCE_ID {
-    display : none;
-}
-#items .column-BOM_PATH {
-    min-width : 26px;
-}
-#items .column-BOM_PATH input {
-    min-width : 260px;
-}
-#items .table.s td {
-    padding : 2px !important;
-}
-#items .table.s input {
-    padding : 4px;
-} */

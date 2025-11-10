@@ -1,8 +1,8 @@
-let urlParameters   = getURLParameters();
-let links           = {};
-let workspaces      = [];
-let messages        = [];
-let embedded        = false;
+let urlParameters    = getURLParameters();
+let links            = {};
+let workspaces       = [];
+let completionEvents = 0;
+
 
 let paramsDetails = {
     headerLabel     : 'descriptor',
@@ -17,9 +17,12 @@ $(document).ready(function() {
 
     appendOverlay(true);
     setUIEvents();
-    setEmbeddedMode();
+    setAddinEvents();
+    setAddinMode();
 
     viewerCacheBoundingBoxes = true;
+
+
 
     getFeatureSettings('assetEditor', [], function() {
 
@@ -101,6 +104,73 @@ function openEditor(link) {
     });
 
 }
+function onViewerLoadingDone() {
+
+    completionEvents++;
+
+    setGridSyncStatus();
+
+}
+function setGridSyncStatus() {
+
+    if(completionEvents <= workspaces.length) return;
+
+    let index = 0;
+
+    for(let workspace of workspaces) {
+
+        let elemTHead       = $('#table-' + index + '-thead');
+        let elemTHRow       = elemTHead.children().first();
+        let elemTBody       = $('#table-' + index + '-tbody');
+        let viewerInstances = [];
+
+        elemTBody.children().each(function() {
+
+            let elemRow = $(this);
+
+            if(elemRow.hasClass('table-group')) {
+
+                let elemCellGroup = elemRow.children().first(); 
+                    elemCellGroup.attr('colspan', elemTHRow.children().length);
+
+                let partNumber  = elemCellGroup.html();
+                viewerInstances = viewerGetComponentsInstances([partNumber])[0].instances;
+
+            } else {
+                
+                let instanceId  = elemRow.find('.field-id-INSTANCE_ID').children().first().val();
+                let boundingBox = elemRow.find('.field-id-INSTANCE_BOUNDING_BOX').children().first().val();
+                let elemCell    = $('<td></td>').insertAfter(elemRow.children().first()).addClass('sync-status').addClass('match');;
+                let elemIcon    = $('<div></div>').appendTo(elemCell).addClass('icon').addClass('filled');
+                let statusIcon  = 'icon-remove';
+                let statusTitle = 'No matching instance';
+
+                for(let viewerInstance of viewerInstances) {
+                    if(viewerInstance.instanceId == instanceId) {
+                        
+                        if(JSON.stringify(viewerInstance.boundingBox) === boundingBox) {
+                            statusIcon  = 'icon-check';
+                            statusTitle = 'Found matching instance ID at right position';
+                        } else {
+                            statusIcon  = 'icon-info';
+                            statusTitle = 'Found matching instance ID at different position';
+                        }
+                        break;
+                    }
+                }
+
+                elemCell.attr('title', statusTitle);
+                elemIcon.addClass(statusIcon);
+
+            }
+
+        });
+
+        index++;
+
+    }
+
+}
 
 
 // Set UI controls
@@ -160,55 +230,76 @@ function setUIEvents() {
 
 
 // Enable embedded mode to support usage as addin
-function setEmbeddedMode() {
+function setAddinMode() {
 
-    if(typeof chrome !== 'undefined') {
-        if(typeof chrome.webview !== 'undefined') {
+    if(!isAddin) return;
 
-            embedded = true;
+    console.log('setAddinMode START');
+    console.log('isAddin : ' + isAddin);
+
+
+
+    // $('#header').addClass('hidden');
+    // $('.screen').css('top', '0px');
+
+    $('body').addClass('is-addin');
+    // $('#bom').addClass('hidden');
+    // $('#toggle-layout').remove();
+    // $('#toggle-bom').remove();
+    // $('#toggle-details').remove();    
+
+    //selectInstance('002771.iam|Build Assembly:1|94500A231:6');
+
+    // if(typeof chrome !== 'undefined') {
+    //     if(typeof chrome.webview !== 'undefined') {
+
+    //         embedded = true;
+
+    //         console.log('setEmbeddedMode : adding Event Listener');
             
-            chrome.webview.addEventListener('message', arg => { 
+    //         window.chrome.webview.addEventListener('message', arg => { 
 
-                // 'response:title:text'
-                // 'selectInstance:instanceId'
+    //             console.log('---------------------------------------------------');
+    //             console.log('Received message from Inventor');
 
-                let response      = arg.data.split(':');
-                let messageType   = response[0];
+    //             // 'response:title:text'
+    //             // 'selectInstance:partNumber:instanceId'
+    //             // selectInstance:94500A231:002771.iam|Build Assembly: 1|94500A231:1
+    //             // selectComponent:94500A231
 
-                $('#overlay').hide();
+    //             $('#overlay').hide();
 
-                switch(messageType) {
+    //             switch(messageType) {
 
-                    case 'response': 
-                        let messageTitle = response[1];
-                        let messageText  = (response.length > 2) ? response[2] : 'Please contact your administrator';
-                        if(messageTitle != 'success') showErrorMessage(messageTitle, messageText);
-                        break;
+    //                 case 'response': 
+    //                     let messageTitle = response[1];
+    //                     let messageText  = (response.length > 2) ? response[2] : 'Please contact your administrator';
+    //                     if(messageTitle != 'success') showErrorMessage(messageTitle, messageText);
+    //                     break;
 
-                    case 'selectInstance':
-                        let instanceId = (response.length > 1) ? response[1] : '';
-                        selectInstance(instanceId);
-                        break;
+    //                 case 'selectInstance':
+    //                     let instanceId = (response.length > 2) ? response[2] : '';
+    //                     selectInstance(instanceId);
+    //                     break;
 
-                    default: break;
+    //                 case 'selectComponent':
+    //                     let partNumber = (response.length > 1) ? response[1] : '';
+    //                     selectComponent(partNumber);
+    //                     break;
 
-                }
+    //                 default: break;
 
-            });
+    //             }
 
-        }
-    }
+    //         });
 
-    console.log('embedded : ' + embedded);
+    //     }
+    // }
+
+    
     // embedded = true;
 
-    if(embedded) {
-        $('body').addClass('embedded');
-        $('#bom').addClass('hidden');
-        $('#toggle-layout').remove();
-        $('#toggle-bom').remove();
-        $('#toggle-details').remove();
-    }
+
 
 }
 
@@ -350,6 +441,8 @@ function insertTabContents() {
     for(let workspace of workspaces) {
 
         if(!isBlank(workspace.link)) {
+
+            workspace.fieldsIn.push('NR');
             
             insertGrid(workspace.link, {
                 id                : 'table-' + index++,
@@ -365,6 +458,7 @@ function insertTabContents() {
                 hideButtonCreate  : true,
                 hideButtonClone   : true,
                 singleToolbar     : 'actions',
+                sortBy            : 'INSTANCE_ID',
                 fieldsIn          : workspace.fieldsIn,
                 fieldsEx          : workspace.fieldsEx,
                 groupBy           : workspace.groupBy || '',
@@ -561,13 +655,23 @@ function onSelectBOMItem(elemClicked) {
 // Highlight viewer instances upon selection of item in tabs
 function afterGridCompletion(id) {
 
-    let elemTable  = $('#' + id);
-    let elemTHead  = $('#' + id + '-thead');
-    let elemTHRow  = elemTHead.children().first();
-    let elemTBody  = $('#' + id + '-tbody');
+    completionEvents++;
 
-    let partNumber       = '';
-    let viewerInstances  = [];
+    let elemTable   = $('#' + id);
+    let elemActions = $('#' + id + '-actions');
+    let elemTHead   = $('#' + id + '-thead');
+    let elemTHRow   = elemTHead.children().first();
+
+    console.log(elemActions.length);
+
+    $('<div></div>').prependTo(elemActions)
+        .addClass('button')
+        .addClass('with-toggle')
+        .addClass('toggle-isolate')
+        .html('Isolate')
+        .click(function() {
+            $(this).toggleClass('toggle-on').toggleClass('toggle-off');
+        });
 
     elemTable.find('input').click(function() {
         selectGridItem($(this).closest('tr'));
@@ -577,48 +681,7 @@ function afterGridCompletion(id) {
         .addClass('sync-status')
         .html('');
 
-
-    elemTBody.children().each(function() {
-
-        let elemRow = $(this);
-
-        if(elemRow.hasClass('table-group')) {
-
-            let elemCellGroup = elemRow.children().first(); 
-                elemCellGroup.attr('colspan', elemTHRow.children().length);
-
-            partNumber      = elemCellGroup.html();
-            viewerInstances = viewerGetComponentsInstances([partNumber])[0].instances;
-
-        } else {
-            
-            let instanceId  = elemRow.find('.field-id-INSTANCE_ID').children().first().val();
-            let boundingBox = elemRow.find('.field-id-INSTANCE_BOUNDING_BOX').children().first().val();
-            let elemCell    = $('<td></td>').insertAfter(elemRow.children().first()).addClass('sync-status').addClass('match');;
-            let elemIcon    = $('<div></div>').appendTo(elemCell).addClass('icon').addClass('filled');
-            let statusIcon  = 'icon-remove';
-            let statusTitle = 'No matching instance';
-
-            for(let viewerInstance of viewerInstances) {
-                if(viewerInstance.instanceId == instanceId) {
-                    
-                    if(JSON.stringify(viewerInstance.boundingBox) === boundingBox) {
-                        statusIcon  = 'icon-check';
-                        statusTitle = 'Found matching instance ID at right position';
-                    } else {
-                        statusIcon  = 'icon-info';
-                        statusTitle = 'Found matching instance ID at different position';
-                    }
-                    break;
-                }
-            }
-
-            elemCell.attr('title', statusTitle);
-            elemIcon.addClass(statusIcon);
-
-        }
-
-    });
+    setGridSyncStatus();
 
 }
 function selectGridItem(elemClicked) {
@@ -628,44 +691,62 @@ function selectGridItem(elemClicked) {
     let index      = elemPanel.index();
     let rowData    = getGridRowDetails(elemClicked, workspaces[index].fieldsList);
 
+    // console.log('selectGridItem');
+    // console.log(isAddin);
+    // console.log(sendAddinMessage);
+
     // console.log(rowData);
     // console.log(isSelected);
 
     $('.highlighted').removeClass('highlighted');
 
-    if(isSelected) {
+    // if(isSelected) {
 
-        viewerResetSelection();
+        // viewerResetSelection();
 
-    } else {
+    // } else {
+
+        let elemToggleIsolate = elemPanel.find('.toggle-isolate');
+        let addinAction = 'selectInstance';
+
+        if(elemToggleIsolate.length > 0) {
+            if(elemToggleIsolate.hasClass('toggle-on')) {
+                addinAction = 'isolateInstance';
+            }
+        }
 
         elemClicked.addClass('highlighted');
 
-        viewerHighlightInstances(rowData.partNumber, [], [rowData.instanceId], {});
-
-        if(embedded) {
-            console.log('post Message to ' + host);
+        if(isAddin && sendAddinMessage) {
+            console.log('addin message to ' + host);
             console.log(rowData);
             let selection = 'plm-item;' + rowData.partNumber + ';' + '--' + ';' + elemClicked.attr('data-link')+ ';' + rowData.instanceId;
             console.log(selection);
-            $('#overlay').show();
-            chrome.webview.postMessage("selectInstance:"  + getNewAddinMessageID(elemClicked) + selection.toString()); 
+            console.log("addin message = " + addinAction + ":"  + getNewAddinMessageID(elemClicked) + selection.toString());
+            // $('#overlay').show();
+            window.chrome.webview.postMessage(addinAction + ":"  + getNewAddinMessageID(elemClicked) + selection.toString()); 
         } else bomDisplayItemByPath(rowData.path);
+
+        // viewerHighlightInstances(rowData.partNumber, [], [rowData.instanceId], {});
 
         elemClicked.prevUntil('.table-group').each(function() { $(this).addClass('related'); })
         elemClicked.nextUntil('.table-group').each(function() { $(this).addClass('related'); })
 
-    }
+    // }
+
+    // sendAddinMessage = true;
 
 }
 function getNewAddinMessageID(elements) {
 
-    let now = new Date();
-    let id  = now.getTime();
+    // let now = new Date();
+    // let id  = now.getTime();
     
-    messages.push({ id : id, elements : elements });
+    // messages.push({ id : id, elements : elements });
 
-    return id + ';';
+    // return id + ';';
+
+    return '';
 
 }
 
@@ -687,7 +768,7 @@ function selectInstance(instanceId) {
             let value     = elemInput.val();
 
             if(value === instanceId) {
-                selectGridItem(elemInput.closest('tr'));
+                selectGridItem(elemInput.closest('tr'), );
                 $('#tabs').children().eq(workspace.index).click();
                 return;
             }
@@ -695,6 +776,8 @@ function selectInstance(instanceId) {
         });
             
     }
+
+    sendAddinMessage = true;
 
 }
 
