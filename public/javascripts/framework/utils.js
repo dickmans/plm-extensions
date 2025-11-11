@@ -650,7 +650,6 @@ function appendNoDataFound(id, icon, text) {
 }
 
 
-
 // Display Error & Success Message
 function showErrorMessage(title, message) {
 
@@ -702,6 +701,31 @@ function showMessage(type, title, message) {
 function hideMessage() {
 
     $('#message').remove();
+
+}
+
+
+// Browse responses for errors and print given details to the browser console
+function printResponsesErrorMessagesToConsole(responses) {
+
+    let error = false;
+
+    for(let response of responses) {
+        if(printResponseErrorMessagesToConsole(response)) {
+            error = true;
+        }
+    }
+
+    return error;
+}
+function printResponseErrorMessagesToConsole(response) {
+
+    if(!response.error) false;
+
+    console.log('!! Error when accessing ' + response.url + '. See request response details below.');
+    console.log(response);
+
+    return true;
 
 }
 
@@ -931,7 +955,6 @@ function setFormEvents() {
     });
 
 }
-
 
 
 // Insert Calendar Controls
