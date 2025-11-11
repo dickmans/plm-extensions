@@ -143,8 +143,10 @@ function initEditor(responses) {
 
     $('#header-subtitle').html(responses[0].data.title);
 
-    links.sourceBOM = getSectionFieldValue(responses[0].data.sections, config.sbom.sourceBOM.fieldId, '', 'link');
+    links.sourceBOM = urlParameters.link;
     links.targetBOM = getSectionFieldValue(responses[0].data.sections, config.sbom.targetBOM.fieldId, '', 'link');
+
+    if(config.sbom.sourceBOM.fieldId !== '') links.sourceBOM = getSectionFieldValue(responses[0].data.sections, config.sbom.sourceBOM.fieldId, '', 'link');
 
     wsConfigItems.fieldIds         = config.sbom.itemsFieldIds;
     wsConfigItems.sections         = responses[3].data;
@@ -306,8 +308,11 @@ function createTargetBOM(contextDetails, contextSections, callback) {
     if(isBlank(links.targetBOM)) {
 
         let params = {
-            wsId      : config.items.wsId,
-            sections  : []
+            wsId     : config.items.wsId,
+            sections : wsConfigItems.sections,
+            fields   : [
+                { fieldId : wsConfigItems.fieldIds.type , value : { link : wsConfigItems.linkTypeTargetBOM }}
+            ]
         };
         
         if(!isBlank(links.sourceBOM)) {
@@ -317,8 +322,6 @@ function createTargetBOM(contextDetails, contextSections, callback) {
                 setTargetBOMDefaults(params, contextDetails, response.data, config.sbom.targetBOM.defaults.number     , wsConfigItems.fieldIds.number     );
                 setTargetBOMDefaults(params, contextDetails, response.data, config.sbom.targetBOM.defaults.title      , wsConfigItems.fieldIds.title      );
                 setTargetBOMDefaults(params, contextDetails, response.data, config.sbom.targetBOM.defaults.description, wsConfigItems.fieldIds.description);
-
-                addFieldToPayload(params.sections, wsConfigItems.sections, null, wsConfigItems.fieldIds.type , { link : wsConfigItems.linkTypeTargetBOM } );
 
                 $.post({
                     url         : '/plm/create', 
@@ -350,7 +353,7 @@ function setTargetBOMDefaults(params, contextDetails, bomDetails, defaults, fiel
     let baseValue   = getSectionFieldValue(baseDetails.sections, copyFrom[1], '');
     let newValue    = defaults.prefix + baseValue + defaults.suffix;
 
-    if(!isBlank(newValue)) addFieldToPayload(params.sections, wsConfigItems.sections, null, fieldId, newValue);
+    if(!isBlank(newValue)) params.fields.push({fieldId : fieldId, value : newValue});
 
 }
 function storeTargetBOMLink(contextSections) {
