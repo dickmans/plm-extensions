@@ -167,9 +167,9 @@ function deleteServerFolderPath(path) {
 }
 function sortArray(array, key, type) {
 
-    if(typeof type === 'undefine') type = 'string';
+    if(typeof type === 'undefined') type = 'string';
 
-    if(type.toLowerCase === 'string') {
+    if(type.toLowerCase() === 'string') {
 
         array.sort(function(a, b){
             var nameA=a[key].toLowerCase(), nameB=b[key].toLowerCase()
