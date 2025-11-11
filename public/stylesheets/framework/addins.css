@@ -314,7 +314,10 @@
     height      : 22px;
     line-height : 22px !important;
 }
-
+.addin .field-value.field-type-image,
+.addin .field-value.field-type-radio {
+    height : unset;
+}
 
 
 /*  ATTACHMENTS */

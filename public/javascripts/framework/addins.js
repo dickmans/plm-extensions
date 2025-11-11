@@ -1,5 +1,83 @@
-let isolate  = false;
-let messages = [];
+let isolate          = false;
+let isAddin          = false;
+let sendAddinMessage = true;
+let messagesAddin    = [];
+
+
+
+// Register listener for CAD/PDM events
+function setAddinEvents() {
+
+    console.log('setAddinEvents START');
+
+    if(typeof chrome !== 'undefined') {
+        if(typeof chrome.webview !== 'undefined') {
+
+            console.log('setAddinEvents : adding Event Listener');
+            
+            $('body').addClass('addin');
+            $('body').addClass('is-addin');
+            isAddin = true;
+
+            window.chrome.webview.addEventListener('message', arg => { 
+
+                console.log('---------------------------------------------------');
+                console.log('Received message from Inventor');
+                console.log(arg);              
+
+                let message = arg.data.split(';');
+                let action  = message[0].split(':')[0];
+                let number  = message[0].split(':')[1];
+
+                // let response = arg.data.split(';');
+
+                // console.log(action);
+                // console.log(number);
+                // console.log(message.length);
+
+                // 
+
+                // 'response:title:text'
+                // 'selectInstance:partNumber:instanceId'
+                // selectInstance:94500A231:002771.iam|Build Assembly: 1|94500A231:1
+                // selectComponent:94500A231
+                // selectInstance('002771.iam|Build Assembly:1|94500A231:6');
+
+                $('#overlay').hide();
+
+                switch(action) {
+
+                    case 'response': 
+                        let messageTitle = response[1];
+                        console.log(' messageTitle = ' + messageTitle);
+                        let messageText  = (response.length > 2) ? response[2] : 'Please contact your administrator';
+                        if(messageTitle != 'success') showErrorMessage(messageTitle, messageText);
+                        break;
+
+                    case 'selectInstance':
+                        let instanceId = message[1] || '';
+                        console.log(' instanceId = ' + instanceId);
+                        sendAddinMessage = false;
+                        selectInstance(instanceId);
+                        break;
+
+                    case 'selectComponent':
+                        
+                        // let partNumber = (response.length > 1) ? response[1] : '';
+                        console.log(' partNumber = ' + number);
+                        selectComponent(number);
+                        break;
+
+                    default: break;
+
+                }
+
+            });
+
+        }
+    }
+
+}
 
 
 // Confirm successful login
@@ -109,14 +187,22 @@ async function invokeAddinAction(elements, action) {
     
     switch(action) {
 
-        case 'addComponent'     : chrome.webview.postMessage("addComponent:"     + getNewMessageID(null) + selection.toString()); break;
-        case 'openComponent'    : chrome.webview.postMessage("openComponent:"    + getNewMessageID(null) + selection.toString()); break;
-        case 'gotoVaultFolder'  : chrome.webview.postMessage("gotoVaultFolder:"  + getNewMessageID(null) + selection.toString()); break;
-        case 'gotoVaultFile'    : chrome.webview.postMessage("gotoVaultFile:"    + getNewMessageID(null) + selection.toString()); break;
-        case 'gotoVaultItem'    : chrome.webview.postMessage("gotoVaultItem:"    + getNewMessageID(null) + selection.toString()); break;
-        case 'gotoVaultECO'     : chrome.webview.postMessage("gotoVaultECO:"     + getNewMessageID(null) + selection.toString()); break;
-        case 'selectComponent'  : chrome.webview.postMessage("selectComponent:"  + getNewMessageID(null) + selection.toString()); break;
-        case 'isolateComponent' : chrome.webview.postMessage("isolateComponent:" + getNewMessageID(null) + selection.toString()); break;
+        case 'addComponent'     : chrome.webview.postMessage("addComponent:"      + selection.toString()); break;
+        case 'openComponent'    : chrome.webview.postMessage("openComponent:"     + selection.toString()); break;
+        case 'gotoVaultFolder'  : chrome.webview.postMessage("gotoVaultFolder:"   + selection.toString()); break;
+        case 'gotoVaultFile'    : chrome.webview.postMessage("gotoVaultFile:"     + selection.toString()); break;
+        case 'gotoVaultItem'    : chrome.webview.postMessage("gotoVaultItem:"     + selection.toString()); break;
+        case 'gotoVaultECO'     : chrome.webview.postMessage("gotoVaultECO:"      + selection.toString()); break;
+        case 'selectComponent'  : chrome.webview.postMessage("selectComponent:"   + selection.toString()); break;
+        case 'isolateComponent' : chrome.webview.postMessage("isolateComponent:"  + selection.toString()); break;
+        // case 'addComponent'     : chrome.webview.postMessage("addComponent:"     + getNewMessageID(null) + selection.toString()); break;
+        // case 'openComponent'    : chrome.webview.postMessage("openComponent:"    + getNewMessageID(null) + selection.toString()); break;
+        // case 'gotoVaultFolder'  : chrome.webview.postMessage("gotoVaultFolder:"  + getNewMessageID(null) + selection.toString()); break;
+        // case 'gotoVaultFile'    : chrome.webview.postMessage("gotoVaultFile:"    + getNewMessageID(null) + selection.toString()); break;
+        // case 'gotoVaultItem'    : chrome.webview.postMessage("gotoVaultItem:"    + getNewMessageID(null) + selection.toString()); break;
+        // case 'gotoVaultECO'     : chrome.webview.postMessage("gotoVaultECO:"     + getNewMessageID(null) + selection.toString()); break;
+        // case 'selectComponent'  : chrome.webview.postMessage("selectComponent:"  + getNewMessageID(null) + selection.toString()); break;
+        // case 'isolateComponent' : chrome.webview.postMessage("isolateComponent:" + getNewMessageID(null) + selection.toString()); break;
 
     }
 
@@ -162,7 +248,7 @@ function getNewMessageID(elements) {
     let now = new Date();
     let id  = now.getTime();
     
-    messages.push({ id : id, elements : elements });
+    messagesAddin.push({ id : id, elements : elements });
 
     return id + ';';
 

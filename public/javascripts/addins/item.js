@@ -3,6 +3,7 @@ let urlParameters = getURLParameters();
 $(document).ready(function() {
 
     setUIEvents();
+    setAddinEvents();
 
     insertItemSummary(urlParameters.link, {
         id         : 'item',
@@ -97,5 +98,14 @@ function selectBOMItem(elemClicked) {
         else invokeAddinAction([elemClicked], 'selectComponent');
 
     }
+
+}
+
+
+// Highlight item based on CAD/PDM selection
+function selectComponent(number) {
+
+    $('#item-tabs').children().eq(2).click();
+    bomDisplayItemByPartNumber(number, true, true);
 
 }

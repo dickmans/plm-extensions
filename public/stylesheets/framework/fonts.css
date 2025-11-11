@@ -226,6 +226,7 @@
 .icon-check-box::before         { content : '\e835'; }
 .icon-check-box-checked::before { content : '\e834'; }
 .icon-check-circle-add::before  { content : '\f23a'; }
+.icon-city::before              { content : '\e527'; }
 .icon-clear::before             { content : '\e14b'; }
 .icon-clear-cache::before       { content : '\f414'; }
 .icon-clipboard-add::before     { content : '\f848'; }
@@ -234,12 +235,15 @@
 .icon-close-window::before      { content : '\f745'; }
 .icon-collapse::before          { content : '\e5cf'; }
 .icon-columns::before           { content : '\e8f3'; }
+.icon-country::before           { content : '\e7e4'; }
 .icon-compare::before           { content : '\f459'; }
 .icon-contains::before          { content : '\f525'; }
 .icon-counter-1::before         { content : '\f784'; }
 .icon-counter-2::before         { content : '\f783'; }
+.icon-cpu::before               { content : '\e322'; }
 .icon-create::before            { content : '\e147'; }
 .icon-create-multiple::before   { content : '\e7e5'; }
+.icon-code::before              { content : '\e86f'; }
 .icon-dark::before              { content : '\f03d'; }
 .icon-dashboard::before         { content : '\e871'; }
 .icon-delete::before            { content : '\e872'; }
@@ -253,6 +257,7 @@
 .icon-equals::before            { content : '\f77b'; }
 .icon-expand::before            { content : '\e5cc'; }
 .icon-factory::before           { content : '\ebbc'; }
+.icon-flag::before              { content : '\f40f'; }
 .icon-file::before              { content : '\e66d'; }
 .icon-filter::before            { content : '\e152'; }
 .icon-filter-empty::before      { content : '\f703'; }
@@ -297,6 +302,8 @@
 .icon-open::before              { content : '\e89e'; }
 .icon-order-in-work::before     { content : '\f811'; }
 .icon-package::before           { content : '\f569'; }
+.icon-package-alt::before       { content : '\e48f'; }
+.icon-packaging::before         { content : '\ea74'; }
 .icon-panel::before             { content : '\f114'; }
 .icon-paste-below::before       { content : '\e861'; }
 .icon-pdf::before               { content : '\e415'; }
@@ -351,6 +358,7 @@
 .icon-toggle-on::before         { content : '\e9f6'; }
 .icon-toggle-layout::before     { content : '\e42a'; }
 .icon-top::before               { content : '\e25a'; }
+.icon-tree::before              { content : '\e97a'; }
 .icon-trend-chart::before       { content : '\f190'; }
 .icon-type::before              { content : '\e574'; }
 .icon-undelete::before          { content : '\e938'; }
@@ -363,6 +371,7 @@
 .icon-viewer::before            { content : '\e9fe'; }
 .icon-width::before             { content : '\f730'; }
 .icon-workflow::before          { content : '\e4fd'; }
+.icon-wrench::before            { content : '\e869'; }
 .icon-zoom-in::before           { content : '\e8ff'; }
 
 .icon-chevron-up::before        { content : '\e316'; }

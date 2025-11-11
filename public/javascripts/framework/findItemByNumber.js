@@ -29,9 +29,11 @@ $(document).ready(function() {
                 let url  = window.location.href.split('?')[0];
                     url += '?dmsId='      + link.split('/')[6];
                     url += '&wsId='       + link.split('/')[4];
+                    url += '&number='     + number;
                     url += '&descriptor=' + response.data.items[0].descriptor;
                     
                 if(!isBlank(options)) url += '&options=' + options;
+                if(!isBlank(type))    url += '&type='    + type;
                 if(!isBlank(host))    url += '&host='    + host;
 
                 if(theme !== '') url += '&theme=' + theme;
