@@ -673,12 +673,12 @@ exports.config = {
     sbom : {
         appTitle  : 'Vertriebs-BOM Editor',
         sourceBOM : {
-            fieldId     : 'ENGINEERING_BOM', //EBOM
+            fieldId     : '', //EBOM, ENGINEERING_BOM
             bomViewName : 'MBOM Transition', //Service
             headerLabel : 'Engineering BOM'
         },
         targetBOM : {
-            fieldId       : '', // SALES_VBOM
+            fieldId       : 'SALES_VBOM', // 
             bomViewName   : 'MBOM Transition', //Service
             itemTypeValue : 'Sales BOM',
             prefixTitle   : 'VBOM ', // Service BOM of 
