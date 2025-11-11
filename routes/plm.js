@@ -2718,7 +2718,6 @@ function setStatus(req, fileId, callback) {
 }
 
 
-
 /* ----- SCREENSHOT UPLOAD ----- */
 router.post('/upload-screenshot', function(req, res) {
    
@@ -2774,8 +2773,6 @@ router.post('/upload-screenshot', function(req, res) {
     }); 
    
 });
-
-
 
 
 /* ----- ATTACHMENT IMPORT ----- */
@@ -3029,7 +3026,6 @@ function importAttachment(req, res, folderName, pathFile, pathSuccess, pathSkipp
 }
 
 
-
 /* ----- ATTACHMENTS : Delete defined attachments ----- */
 router.get('/delete-attachments', function(req, res, next) {
     
@@ -3064,7 +3060,6 @@ router.get('/delete-attachments', function(req, res, next) {
     });
     
 });
-
 
 
 /* ----- LIST ALL VIEWABLE ATTACHMENTS ----- */
@@ -4185,7 +4180,6 @@ router.get('/lifecycle-transition', function(req, res, next) {
 });
 
 
-
 /* ----- MY OUTSTANDING WORK ----- */
 router.get('/mow', function(req, res, next) {
     
@@ -4608,7 +4602,6 @@ router.post('/search-descriptor', function(req, res, next) {
 });
 
 
-
 /* ----- SEARCH BULK ----- */
 router.get('/search-bulk', function(req, res, next) {
     
@@ -4653,7 +4646,7 @@ router.get('/search-bulk', function(req, res, next) {
         });
 
     }
-    
+
 });
 
 
