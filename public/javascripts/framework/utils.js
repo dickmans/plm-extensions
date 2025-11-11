@@ -2774,7 +2774,7 @@ function panelDeselectAll(id, elemClicked) {
     let elemContent        = $('#' + id + '-content');
     let elemFilterSelected = $('#' + id + '-filter-selected-only');
 
-    elemContent.find('.content-item').removeClass('selected').removeClass('checked');
+    elemContent.find('.content-item').removeClass('selected').removeClass('checked').removeClass('highlighted');
     elemContent.find('.content-select-all').removeClass('icon-check-box-checked').addClass('icon-check-box');
 
     if(elemFilterSelected.length > 0) elemFilterSelected.removeClass('icon-toggle-on').addClass('icon-toggle-off').removeClass('filled');
