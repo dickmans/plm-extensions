@@ -1637,6 +1637,7 @@ and (max-device-width : 1900px)  {
 .panel-content.with-toolbar       { overflow : hidden; }
 .panel-content.with-panel-options { top : 128px; }
 .panel-content.with-panel-footer  { bottom : 60px; }
+.panel-content.with-pagination-controls  { bottom : 60px; }
 /* .panel-content-toolbar {
     display  : flex;
     gap      : var(--spacer-xs);
@@ -1707,6 +1708,34 @@ and (max-device-width : 1900px)  {
     position        : absolute;
     right           : 0px;
     bottom          : 0px;
+}
+
+.panel-pagination-controls {
+    display         : flex;
+    gap             : 14px;
+    justify-content : flex-end;
+    padding         : 0px 14px;
+    position        : absolute;
+    right           : 0px;
+    bottom          : 0px;
+    left            : 0px;
+}
+.pagination-message {
+    line-height : 38px;
+}
+.pagination-next {
+    display        : flex;
+    flex-direction : row;
+    gap            : 8px;
+}
+.pagination-next::after {
+    content     : '\e5cc';
+    font        : normal normal normal 14px/1 'Material Symbols Sharp';
+    font-size   : 28px;
+    line-height : 20px;
+    max-width   : 20px;
+    min-width   : 20px;
+    width       : 20px;
 }
 
 /* Panel counters */

@@ -1189,6 +1189,8 @@ function getPanelSettings(link, params, defaults, additional) {
 
     if(config.printViewSettings) console.log(settings);
 
+    settings.mode = 'initial';
+
     return settings;
 
 }
@@ -2098,10 +2100,46 @@ function genPanelFooterActionButton(id, settings, suffix, params, callback) {
     return elemActionButton;
 
 }
+function genPanelPaginationControls(id, settings) {
+
+    if(isBlank(settings.pagination)) return;
+    if(!settings.pagination) return;
+
+    let elemPaginationControls = $('<div></div>', {
+        id : id + '-pagination-controls'
+    }).addClass('panel-pagination-controls').appendTo($('#' + id));
+
+    $('#' + id + '-content').addClass('with-pagination-controls');
+
+    $('<div></div>').appendTo(elemPaginationControls)
+        .addClass('pagination-message')
+        .attr('id', id + '-pagination-message');
+
+    $('<div></div>').appendTo(elemPaginationControls)
+        .addClass('button')
+        .addClass('pagination-next')
+        .addClass('hidden')
+        .attr('id', id + '-pagination-next')
+        .attr('title', 'Load next set of records')
+        .html('Load Next')
+        .click(function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            panelPaginationLoadNext(settings);
+        });
+
+}
 
 
 // Start & finish update of panel contents to display right contents
-function startPanelContentUpdate(id) {
+function startPanelContentUpdate(id, mode) {
+
+    if(isBlank(mode)) mode = 'initial';
+
+    $('#' + id + '-processing').show();
+    $('#' + id + '-content').hide();
+
+    if(mode !== 'initial') return new Date().getTime();
 
     let elemSearch         = $('#' + id + '-search-input');
     let elemSelects        = $('.' + id + '-filter');
@@ -2353,6 +2391,25 @@ function setPanelContentActions(id, settings, responses) {
         }
         // if(showActions) $('#' + id).addClass('with-panel-actions'); else $('#' + id).removeClass('with-panel-actions');
     });
+
+}
+function setPanelPaginationControls(id, settings, total) {
+
+    if(!settings.pagination) return;
+
+    let elemContent           = $('#' + id + '-content');
+    let elemPaginationNext    = $('#' + id + '-pagination-next');
+    let elemPaginationMessage = $('#' + id + '-pagination-message');
+    let count                 = elemContent.find('.content-item').length;
+    
+    if(elemPaginationNext.length > 0) {
+        if(count < total) elemPaginationMessage.html('Showing ' + count + ' of ' + total + ' records');
+                     else elemPaginationMessage.html('Showing all ' + total + ' records');
+    }
+
+    if(elemPaginationNext.length > 0) {
+        if(count >= total) elemPaginationNext.addClass('hidden'); else elemPaginationNext.removeClass('hidden');
+    }
 
 }
 function finishPanelContentUpdate(id, settings, items, linkNew, data) {
@@ -3292,39 +3349,6 @@ function addTilesListChevrons(id, settings, callback) {
 }
 
 
-
-// Generate single tile HTML
-// function genTile(link, urn, image, icon, title, subtitle) {
-
-//     let elemTile = $('<div></div>')
-//         .addClass('tile')
-//         .attr('data-title', title);
-
-//     if(link !== '') elemTile.attr('data-link', link);
-//     if(urn  !== '') elemTile.attr('data-urn',  urn );
-
-//     let elemTileImage   = $('<div></div>').appendTo(elemTile).addClass('tile-image');
-//     let elemTileDetails = $('<div></div>').appendTo(elemTile).addClass('tile-details');
-
-//     $('<div></div>').appendTo(elemTileDetails)
-//         .addClass('tile-title')
-//         .html(title);
-
-//     if(typeof subtitle !== 'undefined') {
-//         $('<div></div>')
-//             .addClass('tile-subtitle')
-//             .html(subtitle)
-//             .appendTo(elemTileDetails);
-//     }
-        
-//     getImageFromCache(elemTileImage, { 'link' : image }, icon, '', function() {});
-
-//     return elemTile;
-
-// }
-
-
-
 // Generate HTML Table & interactions
 function genTable(id, items, settings) {
 
@@ -3334,27 +3358,36 @@ function genTable(id, items, settings) {
     if(isBlank(settings.descriptor) ) settings.descriptor  = false;
     if(isBlank(settings.quantity)   ) settings.quantity    = false;
     if(isBlank(settings.hideDetails)) settings.hideDetails = false;
+    if(isBlank(settings.mode       )) settings.mode        = 'initial';
 
     let elemContent = $('#' + id + '-content');
-        elemContent.html('').show();
+    let elemTBody   = $('#' + id + '-tbody');
 
-    let elemTable = $('<table></table>').appendTo(elemContent)
-        .addClass('content-table')
-        .addClass('fixed-header')
-        .addClass('row-hovering')
-        .attr('id', id + '-table');
+    elemContent.show();
 
-    let elemTHead = $('<thead></thead>').appendTo(elemTable)
-        .addClass('content-thead')
-        .attr('id', id + '-thead');
+    if(settings.mode === 'initial') {
 
-    if(!settings.tableHeaders) { elemTHead.hide(); } else { genTableHeaders(id, elemTHead, settings); }
+        elemContent.html('');
+
+        let elemTable = $('<table></table>').appendTo(elemContent)
+            .addClass('content-table')
+            .addClass('fixed-header')
+            .addClass('row-hovering')
+            .attr('id', id + '-table');
+
+        let elemTHead = $('<thead></thead>').appendTo(elemTable)
+            .addClass('content-thead')
+            .attr('id', id + '-thead');
+
+        if(!settings.tableHeaders) { elemTHead.hide(); } else { genTableHeaders(id, elemTHead, settings); }
+
+        elemTBody = $('<tbody></tbody>').appendTo(elemTable)
+            .addClass('content-tbody')
+            .attr('id', id + '-tbody');
+
+    }
 
     let editableFields = (settings.editable) ? getEditableFields(settings.columns) : [];
-
-    let elemTBody = $('<tbody></tbody>').appendTo(elemTable)
-        .addClass('content-tbody')
-        .attr('id', id + '-tbody');
 
     genTableRows(id, elemTBody, settings, items, editableFields);
 
@@ -3478,7 +3511,8 @@ function genTableRanges(elemTHead, params) {
 }
 function genTableRows(id, elemTBody, settings, items, editableFields) {
 
-    let count = 1;
+    let count = elemTBody.children().length + 1;
+    let first = null;
 
     for(let item of items) {
 
@@ -3619,6 +3653,14 @@ function genTableRows(id, elemTBody, settings, items, editableFields) {
             for(let className of item.classNames) elemRow.addClass(className);
         }
 
+        if(first === null) first = elemRow.position().top;
+
+    }
+
+    if(settings.mode !== 'initial') {
+        let elemContent = $('#' + id + '-content');
+        let top = first - (elemContent.innerHeight() / 2);
+        elemContent.animate({ scrollTop: top }, 500);
     }
 
 }
@@ -3668,6 +3710,15 @@ function togglePanelToolbarActions(elemClicked) {
 
 }
 
+
+// Pagination : Load next page
+function panelPaginationLoadNext(settings) {
+
+    settings.page++;
+    settings.mode = 'next';
+    settings.next();
+
+}
 
 // function togglePanelToolbarActions(elemClicked) {
 
@@ -5180,7 +5231,6 @@ function getTableauFieldValue(row, fieldId, defaultValue, property) {
 }
 
 
-
 // Retrieve first image field ID
 function getFirstImageFieldID(fields) {
 
@@ -5215,7 +5265,6 @@ function getAllImageFieldIDs(fields) {
     return imageFields;
 
 }
-
 
 
 // Retrieve first image field value from item's sections data
