@@ -4,11 +4,12 @@ let now                 = new Date();
 let bomItems            = [];
 let editableFields      = [];
 let indexSelected       = -1;
-let wsItems             = { id : wsId, sections : [], fields : [], viewId : '' };
-let wsProblemReports    = { id : ''  , sections : [], fields : [] };
-let wsSupplierPackages  = { id : ''  , sections : [], fields : [] };
+let wsItems             = { id : '', sections : [], fields : [], viewId : '' };
+let wsProblemReports    = { id : '', sections : [], fields : [] };
+let wsSupplierPackages  = { id : '', sections : [], fields : [] };
 let kpis                = [];
 let rollUpFields        = [];
+let urlParameters       = getURLParameters();
 
 let paramsDetails = { 
     bookmark        : true,
@@ -29,29 +30,30 @@ let paramsAttachments = {
     singleToolbar : 'controls'
 }
 let paramsProcesses = { 
-    headerLabel         : 'Processes', 
-    filterByWorkspace   : true,
-    openInPLM           : true,
-    reload              : false,
-    editable            : true,
-    openOnDblClick      : true,
-    createWSID          : '' ,
-    fieldIdMarkup       : ''
+    headerLabel       : 'Processes', 
+    filterByWorkspace : true,
+    openInPLM         : true,
+    reload            : false,
+    editable          : true,
+    openOnDblClick    : true,
+    createWSID        : '' ,
+    fieldIdMarkup     : ''
 }
 let context = {}
  
 
 $(document).ready(function() {
     
-    wsProblemReports.id             = config.problemReports.wsId;
-    wsSupplierPackages.id           = config.explorer.wsIdSupplierPackages;
-    paramsProcesses.createWSID      = config.problemReports.wsId;
-    paramsProcesses.fieldIdMarkup   = config.explorer.fieldIdPRImage;
-    rollUpFields                    = config.explorer.rollUpFields;
-    paramsProcesses.createContext   = { fieldId : config.explorer.fieldIdPRContext };
+    wsProblemReports.id           = config.problemReports.wsId;
+    wsSupplierPackages.id         = config.explorer.wsIdSupplierPackages;
+    paramsProcesses.createWSID    = config.problemReports.wsId;
+    paramsProcesses.fieldIdMarkup = config.explorer.fieldIdPRImage;
+    rollUpFields                  = config.explorer.rollUpFields;
+    paramsProcesses.createContext = { fieldId : config.explorer.fieldIdPRContext };
+    urlParameters.bom             = urlParameters.link;
 
-    let link = '/api/v3/workspaces/' + wsId + '/items/' + dmsId;
-    
+    let requests = [];
+
     appendProcessing('dashboard', false);
     appendProcessing('bom', false);
     appendProcessing('details', false);
@@ -59,9 +61,18 @@ $(document).ready(function() {
     appendOverlay(false);
     insertMenu();
 
-    if(isBlank(wsItems.id)) wsItems.id = config.items.wsId;
-
-    getFeatureSettings('explorer', [], function(responses) {
+    if(!isBlank(urlParameters.fieldidebom)) requests.push($.get('/plm/details', { link : urlParameters.link}));
+    
+    getFeatureSettings('explorer', requests, function(responses) {
+        
+        if(!isBlank(urlParameters.fieldidebom)) {
+            urlParameters.bom = getSectionFieldValue(responses[0].data.sections, urlParameters.fieldidebom, '');
+            wsItems.id = urlParameters.bom.split('/')[4];
+        } else if(isBlank(urlParameters.wsid)) {
+            wsItems.id = config.items.wsId;
+        } else {
+            wsItems.id = urlParameters.wsid;
+        }
 
         insertRecentItems({
             headerLabel  : 'Recently Viewed',
@@ -87,6 +98,8 @@ $(document).ready(function() {
             headerLabel : 'Items Workspace',
             number      : true,
             search      : true,
+            pagination  : true,
+            limit       : 50,
             onClickItem : function(elemClicked) { openSelectedItem(elemClicked); },
             tableColumnsLimit : 10
         });
@@ -104,8 +117,8 @@ $(document).ready(function() {
             $('#overlay').hide();
             $('body').removeClass('screen-startup');
 
-            if(!isBlank(dmsId)) {
-                openItem(link);
+            if(!isBlank(urlParameters.dmsid)) {
+                openItem(urlParameters.bom);
             } else {
                 $('body').addClass('screen-landing');
             }
@@ -253,12 +266,12 @@ function setUIEvents() {
 function getInitialData(callback) {
 
     let requests = [
-        $.get('/plm/bom-views-and-fields'   , { wsId : wsItems.id, useCache : false }),
-        $.get('/plm/details'                , { wsId : wsItems.id, dmsId : dmsId }),
-        $.get('/plm/sections'               , { wsId : wsItems.id, useCache : true }),
-        $.get('/plm/fields'                 , { wsId : wsItems.id, useCache : true }),
-        $.get('/plm/sections'               , { wsId : wsProblemReports.id, useCache : true }),
-        $.get('/plm/fields'                 , { wsId : wsProblemReports.id, useCache : true })
+        $.get('/plm/bom-views-and-fields' , { wsId : wsItems.id, useCache : false }),
+        $.get('/plm/details'              , { link : urlParameters.bom }),
+        $.get('/plm/sections'             , { wsId : wsItems.id, useCache : true }),
+        $.get('/plm/fields'               , { wsId : wsItems.id, useCache : true }),
+        $.get('/plm/sections'             , { wsId : wsProblemReports.id, useCache : true }),
+        $.get('/plm/fields'               , { wsId : wsProblemReports.id, useCache : true })
     ];
 
     if(!isBlank(config.explorer.wsIdSupplierPackages)) {
@@ -277,11 +290,11 @@ function getInitialData(callback) {
 
         if(wsItems.viewId === '') showErrorMessage('Error in configuration. Could not find BOM view "' + config.explorer.bomViewName + '"');
 
-        wsItems.sections            = responses[2].data;
-        wsItems.fields              = responses[3].data;
-        wsProblemReports.sections   = responses[4].data;
-        wsProblemReports.fields     = responses[5].data;
-        editableFields              = getEditableFields(wsItems.fields);
+        wsItems.sections          = responses[2].data;
+        wsItems.fields            = responses[3].data;
+        wsProblemReports.sections = responses[4].data;
+        wsProblemReports.fields   = responses[5].data;
+        editableFields            = getEditableFields(wsItems.fields);
 
         if(!isBlank(config.explorer.wsIdSupplierPackages)) {
             wsSupplierPackages.sections = responses[6].data;

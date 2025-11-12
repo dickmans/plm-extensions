@@ -23,6 +23,7 @@ block body
                 .landing.button.with-toggle.toggle-on.filled#button-toggle-search(title='Click to toggle Search panel on/off') Show Search
                 select.explorer#select-version.button.main
                 .explorer#button-home.button.with-icon.icon-home(title='Browse availalbe products') Home
+                .explorer#button-download.button.icon.icon-download(title='Export Parts List')
                 .explorer#button-toggle-dashboard.button.with-icon.icon-dashboard(title='Click to toggle dashboard panel on/off') Dashboard
                 .explorer#button-toggle-bom.button.with-icon.icon-bom(title='Click to switch BOM display form tree to table and back') BOM
                 .explorer#button-toggle-attachments.button.with-icon.icon-pdf(title='Click to toggle files panel on/off') Files
@@ -91,3 +92,5 @@ block body
                 .dialog-footer
                     #create-connect-confirm.button.default Confirm
                     #create-connect-cancel.button Cancel
+
+        iframe#frame-download(name='frame-download' style="display:none")
