@@ -5703,9 +5703,9 @@ router.get('/workspace-workflow-transitions', function(req, res, next) {
     console.log(' ');
     console.log('  /workspace-workflow-transitions');
     console.log(' --------------------------------------------');  
-    console.log('  req.query.wsId   = ' + req.query.wsId);
-    console.log('  req.query.link   = ' + req.query.link);
-    console.log('  req.query.tenant = ' + req.query.tenant);
+    console.log('  req.query.wsId     = ' + req.query.wsId);
+    console.log('  req.query.link     = ' + req.query.link);
+    console.log('  req.query.tenant   = ' + req.query.tenant);
     console.log('  req.query.useCache = ' + req.query.useCache);
     console.log();
 
