@@ -396,13 +396,13 @@ function insertManagedItemsDataDone(id, items, fields) {
             productionOrders  : productionOrders
         });
 
-        if(!isRevisioningWS) {
-            transition === '';
-            for(field of affectedItem.linkedFields) {
-                let fieldId = field.__self__.split('/')[8];
-                if(fieldId === config.impactanalysis.fieldIdProposedChange) transition = field.value;
-            }
-        }
+        // if(!isRevisioningWS) {
+        //     transition === '';
+        //     for(field of affectedItem.linkedFields) {
+        //         let fieldId = field.__self__.split('/')[8];
+        //         if(fieldId === config.impactanalysis.fieldIdProposedChange) transition = field.value;
+        //     }
+        // }
 
         $('#managed-items-content').children().each(function() {
 
