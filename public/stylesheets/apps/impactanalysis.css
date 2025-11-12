@@ -9,8 +9,6 @@
     background: var(--color-surface-level-3);
 }
 .field .picklist { left : 0px; }
-.picklist-actions { right : 44px; }
-.picklist-actions > .button { max-height : 28px; }
 
 
 /*  MAIN LAYOUT */
