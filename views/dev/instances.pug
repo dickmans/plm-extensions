@@ -2,8 +2,9 @@ extends ../framework/layout
 
 block head
     
-    link(rel='stylesheet', href='/stylesheets/dev/asset-editor.css')
-    script(src='/javascripts/dev/asset-editor.js')
+    link(rel='stylesheet', href='/stylesheets/dev/instances.css')
+    script(src='/javascripts/framework/addins.js')
+    script(src='/javascripts/dev/instances.js')
     script.
         config = !{JSON.stringify(config)};
 

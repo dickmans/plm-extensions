@@ -105,56 +105,6 @@ exports.config = {
         lightPreset             : 4
     },
 
-    assetEditor : {
-        workspaceId     : 312,
-        landingHeader   : 'Select From Exsiting Assets',
-        bomViewName     : 'Basic',
-        fieldIdBOM      : 'EBOM',
-        exportFileName  : 'Serial Numbers',
-        workspaces      : [{
-            label       : 'Serial Numbers',
-            fieldId     : 'SERIAL_NUMBERS_LIST',
-            workspaceId : 275,
-            colorIndex  : 1,
-            bomIcon     : 'icon-tag',
-            fieldsIn    : ['Serial #', 'Installation Date', 'Location', 'Item Number', 'Instance ID'],
-            fieldsList  : {
-                partNumber   : 'NUMBER',
-                path         : 'LOCATION',
-                instanceId   : 'INSTANCE_ID',
-                bomReference : 'ITEM_REFERENCE'
-            },
-            groupBy     : 'NUMBER',
-            filter      : {
-                fieldId : 'SERIAL_NUMBER',
-                value   : true
-            }
-        }],
-        viewerFeatures : {
-            contextMenu   : false,
-            cube          : false,
-            orbit         : false,
-            firstPerson   : false,
-            camera        : false,
-            measure       : true,
-            section       : true,
-            explodedView  : true,
-            modelBrowser  : false,
-            properties    : false,
-            settings      : false,
-            fullscreen    : true,
-            markup        : true,
-            hide          : true,
-            ghosting      : true,
-            highlight     : true,
-            single        : true,
-            fitToView     : false,
-            reset         : true,
-            views         : true,
-            selectFile    : false
-        }
-    },
-
     classes : {
         viewerFeatures : {
             contextMenu   : false,
@@ -479,6 +429,60 @@ exports.config = {
         maxEventLogEntries  : 10000, // Set this to 0 in order to disable the Event Log tab overall; a maximum of 50.000 gets applied anyway
         usersExcluded       : ['Administrator', 'Import User', 'Job User', 'Integration User'],
         workspacesExcluded  : ['Approval Lists', 'Change Approval Templates', 'Checklist Templates', 'Project Templates']
+    },
+
+    instances : {
+        assets : {
+            workspaceId : 280,
+            fieldIdBOM  : 'EBOM'
+        },
+        landingHeader     : 'Select From Exsiting Assets',
+        bomViewName       : 'Instance Editor',
+        exportFileName    : 'Serial Numbers',
+        tabs : [{
+            label       : 'Serial Numbers',
+            fieldId     : 'SERIAL_NUMBERS_LIST',
+            workspaceId : 275,
+            colorIndex  : 1,
+            bomIcon     : 'icon-tag',
+            fieldsIn    : ['Serial #', 'Installation Date', 'Location', 'Item Number', 'Instance #', 'Instance Path'],
+            fieldsList  : {
+                partNumber   : 'NUMBER',
+                path         : 'LOCATION',
+                instanceId   : 'INSTANCE_ID',
+                instancePath : 'INSTANCE_PATH',
+                boundingBox  : 'BOUNDING_BOX'
+                // bomReference : 'ITEM_REFERENCE'
+            },
+            groupBy     : 'NUMBER',
+            filter      : {
+                fieldId : 'SERIAL_NUMBER',
+                value   : true
+            }
+        }],
+        viewerFeatures : {
+            contextMenu   : false,
+            cube          : false,
+            orbit         : false,
+            firstPerson   : false,
+            camera        : false,
+            measure       : true,
+            section       : true,
+            explodedView  : true,
+            modelBrowser  : false,
+            properties    : false,
+            settings      : false,
+            fullscreen    : true,
+            markup        : true,
+            hide          : true,
+            ghosting      : true,
+            highlight     : true,
+            single        : true,
+            fitToView     : false,
+            reset         : true,
+            views         : true,
+            selectFile    : false
+        }
     },
 
     mbom : {
