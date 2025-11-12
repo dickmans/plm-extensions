@@ -444,7 +444,6 @@ exports.config = {
     },
 
     impactanalysis : {
-        fieldIdProposedChange             : 'PROPOSED_CHANGE',
         fieldIdStockQuantity              : 'STOCK_QUANTITY',
         fieldIdNextProductionOrderQantity : 'NEXT_PO_QUANTITY',
         fieldIdPendingSupplies            : 'PENDING_SUPPLIES',

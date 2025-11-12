@@ -370,8 +370,6 @@ function insertManagedItemsDataDone(id, items, fields) {
 
             }
 
-            if(fieldId === config.impactanalysis.fieldIdProposedChange) transition = field.value;
-
         }
 
         if(!isBlank(productionOrders)) {
@@ -395,14 +393,6 @@ function insertManagedItemsDataDone(id, items, fields) {
             prevLink          : null,
             productionOrders  : productionOrders
         });
-
-        // if(!isRevisioningWS) {
-        //     transition === '';
-        //     for(field of affectedItem.linkedFields) {
-        //         let fieldId = field.__self__.split('/')[8];
-        //         if(fieldId === config.impactanalysis.fieldIdProposedChange) transition = field.value;
-        //     }
-        // }
 
         $('#managed-items-content').children().each(function() {
 
