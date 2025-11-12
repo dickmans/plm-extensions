@@ -21,9 +21,9 @@ block body
                 #header-descriptor
                 #header-description
             #header-toolbar
-                #toggle-list.button.with-icon.icon-toggle-on.filled(title='Click to toggle affected items panel on/off') Affected Items
-                #toggle-tabs.button.with-icon.icon-toggle-on.filled(title='Click to toggle tabs at bottom on/off') Tabs
-                #toggle-side.button.with-icon.icon-toggle-on.filled(title='Click to toggle Change and Item Details panel on/off') Details Panel
+                #toggle-list.button.with-toggle.toggle-on.filled(title='Click to toggle affected items panel on/off') Affected Items
+                #toggle-tabs.button.with-toggle.toggle-on.filled(title='Click to toggle tabs at bottom on/off') Tabs
+                #toggle-side.button.with-toggle.toggle-on.filled(title='Click to toggle Change and Item Details panel on/off') Details Panel
                 //- #toggle-comparison.button.with-icon.icon-list Toggle Comparison
                 //- #toggle-viewer.button.with-icon.icon-viewer(title='Click to toggle viewer on/off') Viewer
                 //- #toggle-details.button.with-icon.icon-panel(title='Click to toggle details panel on/off') Details
@@ -171,8 +171,8 @@ block body
                 .tabs(data-tab-group='tab-group-side')
                     div#tab-change.selected Change
                     div#tab-details Item Details
-                .tab-group-side
+                .tab-group-side#change
                     .panel-actions#change-actions 
                         #save.button.default Save
-                    .panel-content#change
+                    .panel-content#change-fields
                 .tab-group-side#details.surface-level-2

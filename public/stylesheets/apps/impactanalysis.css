@@ -8,6 +8,9 @@
 .surface-level-2 td {
     background: var(--color-surface-level-3);
 }
+.field .picklist { left : 0px; }
+.picklist-actions { right : 44px; }
+.picklist-actions > .button { max-height : 28px; }
 
 
 /*  MAIN LAYOUT */
@@ -98,6 +101,7 @@ body.no-viewer #hide-viewer { display : none; }
 #managed-items-content .tile-item-status {
     display     : flex;
     gap         : 1px;
+    height      : 48px;
     margin-top  : 8px;
     width       : 122px;
 }
@@ -124,7 +128,8 @@ body.no-viewer #hide-viewer { display : none; }
 #managed-items-content .highlight-stock, 
 #managed-items-content .highlight-orders, 
 #managed-items-content .highlight-suppliers {
-    color : var(--color-status-red); 
+    background : var(--color-status-red); 
+    color      : white;
 }
 
 
@@ -153,17 +158,18 @@ body.no-viewer #hide-viewer { display : none; }
     bottom   : 0px;
     left     : 0px;
 }
-#change {
-    display         : flex;
-    flex-direction  : column;
-    gap             : 16px;
-    top             : 76px;
-}
+
 #change-actions {
     top : 0px;
 }
 #save { 
     display : none; 
+}
+#change-fields {
+    display         : flex;
+    flex-direction  : column;
+    gap             : 4px;
+    top             : 68px;
 }
 #change > .field {
     display         : flex;
@@ -171,7 +177,7 @@ body.no-viewer #hide-viewer { display : none; }
     gap             : 2px;    
 }
 #change .field-label {
-    padding     : 0px 0px 4px;
+    padding     : 0px 0px 2px;
     text-align  : left;
 }
 #details-header {
