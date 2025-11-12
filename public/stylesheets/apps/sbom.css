@@ -91,11 +91,20 @@ td.type {
     width       : 30px;
 }
 td.type i {
-    border-radius   : 3px;
-    color           : white;
-    font-size       : 18px;
-    font-weight     : 300;
-    text-align      : center;
+    border-radius : 3px;
+    color         : white;
+    font-size     : 18px;
+    font-weight   : 300;
+    margin-left   : 1px;
+    margin-left   : 1px;
+    text-align    : center;
+    max-height    : 28px;
+    min-height    : 28px;
+    height        : 28px;
+    margin-top    : 1px;
+    max-width     : 28px;
+    min-width     : 28px;
+    width         : 28px;
 }
 td.srv i { background: var(--color-status-red   ); }
 td.kit i { background: var(--color-status-yellow); }

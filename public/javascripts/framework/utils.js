@@ -1078,7 +1078,7 @@ function getPanelSettings(link, params, defaults, additional) {
     if(isBlank(defaults.headerSubLabel)         ) defaults.headerSubLabel           = '';
     if(isBlank(defaults.openInPLM)              ) defaults.openInPLM                = false;
     if(isBlank(defaults.openOnDblClick)         ) defaults.openOnDblClick           = false;
-    if(isBlank(defaults.placeholder)            ) defaults.placeholder              = 'Type to search';
+    if(isBlank(defaults.placeholder)            ) defaults.placeholder              = 'Search';
     if(isBlank(defaults.reload)                 ) defaults.reload                   = false;
     if(isBlank(defaults.reset)                  ) defaults.reset                    = false;
     if(isBlank(defaults.search)                 ) defaults.search                   = false;

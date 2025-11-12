@@ -283,7 +283,7 @@ function initEditor(responses) {
             includeBOMPartList : true,
             headerLabel        : config.sbom.sourceBOM.headerLabel,
             hideHeaderLabel    : (config.sbom.sourceBOM.headerLabel === ''),
-            contentSize        : 'l',
+            contentSize        : 's',
             fieldsIn           : ['Quantity'],
             bomViewName        : config.sbom.sourceBOM.bomViewName,
             onClickItem        : function(elemClicked) { insertDetails(elemClicked.attr('data-link'), paramsDetails); },
