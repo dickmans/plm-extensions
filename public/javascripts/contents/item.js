@@ -4275,6 +4275,9 @@ function insertGrid(link, params) {
         [ 'hideButtonDisconnect', false ],
         [ 'hideButtonLabels'    , false ],
         [ 'rotate'              , false ],
+        [ 'sortBy'              , '' ],
+        [ 'sortDirection'       , 'ascending' ],
+        [ 'sortType'            , 'string' ],
         [ 'bookmark'            , false ],
         [ 'picklistLimit'       , 10    ],
         [ 'picklistShortcuts'   , false ]
@@ -4433,6 +4436,16 @@ function insertGridData(id) {
             }
 
             if(settings.grid[id].tableHeaders) elemTHead.prependTo(elemTable);
+
+            if(!isBlank(settings.grid[id].sortBy)) {
+                for(let row of rows) {
+                    row.sort = getFieldValueFromResponseData(settings.grid[id].sortBy, row.rowData) || '';
+                }
+                if(settings.grid[id].sortType.toLowerCase() === 'integer') {
+                    for(let row of rows) row.sort = Number(row.sort);
+                }
+                sortArray(rows, 'sort', settings.grid[id].sortType, settings.grid[id].sortDirection);
+            }
 
             if(rows.length > 0 ) {
                 if(!isBlank(settings.grid[id].groupBy)) {
