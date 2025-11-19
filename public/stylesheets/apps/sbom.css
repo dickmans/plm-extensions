@@ -76,6 +76,9 @@
 
 /*  BOM */
 /* ----------------------------------------------------------------------------- */
+#bom-controls >.button.icon-open {
+    order : -1;
+}
 .bom-column-highlighted {
     width : 86px;
 }
@@ -131,7 +134,7 @@ td.spr i { background: var(--color-status-green ); }
 }
 .tab-group-main {
     position : absolute;
-    top      : 56px;
+    top      : 50px;
     right    : 0px;
     bottom   : 0px;
     left     : 0px;
@@ -203,8 +206,8 @@ td.spr i { background: var(--color-status-green ); }
     display : none;
 }
 .panel-content.items-list.tiles.list.xs {
-    gap : 2px;
-    padding : 12px;
+    gap     : 2px;
+    padding : 0px;
 }
 .node.drag-hover,
 .panel-content.items-list.drag-hover {
@@ -223,6 +226,7 @@ td.spr i { background: var(--color-status-green ); }
     width      : 100%;
 }
 .items-list-row > .tile {
+    background   : var(--color-surface-level-3);
     border-color : var(--color-surface-level-3);
     flex-grow    : 1;
     gap          : 12px;
@@ -240,19 +244,23 @@ td.spr i { background: var(--color-status-green ); }
     line-height  : 30px;
     max-width    : 36px;
     min-width    : 36px;
-    padding      : 4px 12px 3px;
+    padding      : 3px 12px 3px;
     width        : 36px;
     text-align   : right;
 }
 .items-list-row > .tile > .tile-image {
-    height      : 38px !important;
-    line-height : 38px !important;
+    background  : var(--color-surface-level-4);
+    height      : 36px !important;
+    line-height : 36px !important;
     max-width   : 52px !important;
     min-width   : 52px !important;
     width       : 52px !important;
 }
 .tiles.list.xs .tile-counter {
-    line-height : 38px;
+    line-height : 36px;
+}
+.tiles.list.xs .tile-title { 
+    line-height : 36px; 
 }
 .items-list-row.drag-hover .tile-image {  
     background : var(--color-yellow-800) ; 

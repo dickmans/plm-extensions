@@ -241,7 +241,12 @@ function initEditor(responses) {
                 .addClass('items-list')
                 .addClass('tiles')
                 .addClass('list')
-                .addClass('xs');
+                .addClass('xs')
+                .attr('data-link', bomType.linkRoot)
+                .attr('ondragenter', 'dragEnterList(event)'   )
+                .attr('ondragover' , 'dragEnterList(event)'   )
+                .attr('ondragleave', 'dragLeaveHandler(event)')
+                .attr('ondrop'     , 'dropHandler(event)'     );  
 
         }
 
@@ -296,7 +301,7 @@ function initEditor(responses) {
             }
         }); 
 
-        }
+    }
     
     createTargetBOM(responses[0].data, responses[2].data, function() {
         getTargetBOM();
@@ -330,6 +335,7 @@ function createTargetBOM(contextDetails, contextSections, callback) {
                 }, function(response) {
                     if(response.error) {
                         showErrorMessage('Error', 'Error while creating Target BOM root item, the editor cannot be used at this time. Please review your server configuration.');
+                        printResponseErrorMessagesToConsole(response);
                     } else {
                         links.targetBOM = response.data.split('.autodeskplm360.net')[1];
                         storeTargetBOMLink(contextSections);
@@ -424,11 +430,7 @@ function getTargetBOM() {
 
                 case 'list':
                     if(level === 1) {
-                        bomType.elemContent.attr('data-link', bomType.linkRoot)
-                            .attr('ondragenter', 'dragEnterList(event)'   )
-                            .attr('ondragover' , 'dragEnterList(event)'   )
-                            .attr('ondragleave', 'dragLeaveHandler(event)')
-                            .attr('ondrop'     , 'dropHandler(event)'     );  
+                        bomType.elemContent.attr('data-link', bomType.linkRoot);
                     } else if(level === 2) insertItem(bomType.elemContent, part);
                     break;
 
@@ -1437,10 +1439,6 @@ function renameItems(action) {
                 let title = elemItem.find('.node-title').first().val();
 
                 addFieldToPayload(params.sections, wsConfigItems.sections, null, wsConfigItems.fieldIds.title, title);
-
-                console.log(wsConfigItems);
-                console.log(title);
-                console.log(params);
 
                 requests.push($.post('/plm/edit', params));
                 elemItem.removeClass(action.className);
