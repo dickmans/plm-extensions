@@ -710,7 +710,7 @@ function showTimeoutError() {
 
     let site = document.location.href.split('/');
 
-    // $('body').children().addClass('hidden');
+    if($('#timeout').length > 0) return;
 
     $('<div></div>').appendTo('body')
         .attr('id', 'timeout')
