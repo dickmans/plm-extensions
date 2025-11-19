@@ -2505,6 +2505,45 @@ select.button.main:hover {
 
 
 
+/*  TIMEOUT ERROR */
+/* ----------------------------------------------------------------------------- */
+#timeout {
+    position    : absolute;
+    top         : 0px;
+    right       : 0px;
+    bottom      : 0px;
+    left        : 0px;
+    z-index     : 10;
+}
+#timeout-wrapper {
+    display        : flex;
+    flex-direction : column;
+    gap            : 12px;
+    position       : absolute;
+    top            : calc(50% - 100px);
+    left           : calc(50% - 130px);
+    width          : 260px;
+}
+#timeout-wrapper > div {
+    text-align : center;
+}
+#timeout-icon {
+    color       : var(--color-blue-500);
+    font-weight : 200;
+    font-size   : 48px;
+}
+#timeout-title {
+    font-size   : 1.2em;
+    font-weight : 700;
+}
+#timeout-actions {
+    display         : flex;
+    gap             : 10px;
+    justify-content : center;
+}
+
+
+
 /*  OVERLAY */
 /* ----------------------------------------------------------------------------- */
 #overlay, .overlay {

@@ -705,6 +705,60 @@ function hideMessage() {
 }
 
 
+// Display Timeout Error
+function showTimeoutError() {
+
+    let site = document.location.href.split('/');
+
+    // $('body').children().addClass('hidden');
+
+    $('<div></div>').appendTo('body')
+        .attr('id', 'timeout')
+        .addClass(getSurfaceLevel($('body')));
+
+    let elemWrapper = $('<div></div>').appendTo($('#timeout'))
+        .attr('id', 'timeout-wrapper');
+
+    $('<div></div>').appendTo(elemWrapper)
+        .attr('id', 'timeout-icon')
+        .addClass('icon')
+        .addClass('icon-timeout');
+
+     $('<div></div>').appendTo(elemWrapper)
+        .attr('id', 'timeout-title') 
+        .html('Requested Timed Oout');
+
+     $('<div></div>').appendTo(elemWrapper)
+        .attr('id', 'timeout-message') 
+        .html('Check your internet connection and validate access to ' + site[0]+'//' + site[2]);
+
+    let elemActions = $('<div></div>').appendTo(elemWrapper)
+        .attr('id', 'timeout-actions');
+
+    $('<div></div>').appendTo(elemActions)
+        .addClass('button')
+        .html('Close Message')
+        .click(function() {
+            $('#timeout').remove();
+        });
+        
+    $('<div></div>').appendTo(elemActions)
+        .addClass('button')
+        .addClass('default')
+        .html('Reload Page')
+        .click(function() {
+            document.location.href = document.location.href;
+        });        
+}
+function hideStartupDialog() {
+
+    $('#startup').remove();
+    $('#startup-logo').remove();
+    $('body').children().removeClass('hidden');
+
+}
+
+
 // Browse responses for errors and print given details to the browser console
 function printResponsesErrorMessagesToConsole(responses) {
 

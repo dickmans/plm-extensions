@@ -210,7 +210,7 @@
 .icon-bar-chart::before         { content : '\e26b'; }
 .icon-bar-chart-stack::before   { content : '\e9e6'; }
 .icon-block::before             { content : '\e14b'; }
-.icon-book:before               { content : '\f53e'; }
+.icon-book:before               { content : '\e666'; }
 .icon-bookmark::before          { content : '\e838'; font-variation-settings: 'FILL' 1 }
 .icon-bookmark-off::before      { content : '\e838'; }
 .icon-bom::before               { content : '\e242'; }
@@ -353,6 +353,7 @@
 .icon-tiles::before             { content : '\e9b0'; }
 .icon-tiles-list::before        { content : '\e875'; }
 .icon-timeline::before          { content : '\eb85'; }
+.icon-timeout::before           { content : '\f034'; }
 .icon-toggle-collapse::before   { content : '\e5c7'; }
 .icon-toggle-expand::before     { content : '\e5c5'; }
 .icon-toggle-off::before        { content : '\e9f5'; }
