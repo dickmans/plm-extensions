@@ -726,7 +726,7 @@ function showTimeoutError() {
 
      $('<div></div>').appendTo(elemWrapper)
         .attr('id', 'timeout-title') 
-        .html('Requested Timed Oout');
+        .html('Requested Timed Out');
 
      $('<div></div>').appendTo(elemWrapper)
         .attr('id', 'timeout-message') 
