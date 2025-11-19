@@ -22,21 +22,24 @@ $(document).ready(function() {
 
     viewerCacheBoundingBoxes = true;
 
+    getFeatureSettings('instances', [], function() {
 
-
-    getFeatureSettings('assetEditor', [], function() {
-
-        workspaces = config.assetEditor.workspaces;
+        workspaces = config.instances.tabs;
         
-        if(urlParameters.wsId != config.assetEditor.workspaceId) {
+        if(urlParameters.wsId != config.instances.assets.workspaceId) {
 
-            insertResults(config.assetEditor.workspaceId, [{
-                field       : config.assetEditor.fieldIdBOM,       
+            insertResults(config.instances.assets.workspaceId, [{
+                field       : config.instances.assets.fieldIdBOM,       
                 type        : 0,
                 comparator  : 3,
-                value       : urlParameters.descriptor
+                value       : urlParameters.number
+                // value       : urlParameters.descriptor
+                // comparator  : 21,
+                // value       : ''
+                // comparator  : 3,
+                // value       : '00'
             }], {
-                headerLabel : config.assetEditor.landingHeader || 'Select Asset',
+                headerLabel : config.instances.landingHeader || 'Select Asset',
                 layout      : 'list',
                 contentSize : 'xs',
                 onClickItem : function(elemClicked) { selectResult(elemClicked); }
@@ -68,7 +71,7 @@ function openEditor(link) {
         $('#header-subtitle').html(urlParameters.title);
         $('#overlay').hide();
 
-        links.ebom = getSectionFieldValue(responses[0].data.sections, config.assetEditor.fieldIdBOM, '', 'link');
+        links.ebom = getSectionFieldValue(responses[0].data.sections, config.instances.assets.fieldIdBOM, '', 'link');
 
         insertDetails(links.ebom, paramsDetails);
 
@@ -81,7 +84,7 @@ function openEditor(link) {
             toggles             : true,
             viewerSelection     : false,
             includeBOMPartList  : true,
-            bomViewName         : config.assetEditor.bomViewName,
+            bomViewName         : config.instances.bomViewName,
             fieldsIn            : ['Quantity', 'Qty'],
             contentSize         : 'm',
             afterCompletion     : function(id, data) { afterBOMCompletion(id, data) },
@@ -201,7 +204,7 @@ function setUIEvents() {
         }
 
         $.post('/plm/excel-export', {
-            fileName   : config.assetEditor.exportFileName + ' ' + urlParameters.title.split(' - ')[0] + '.xlsx',
+            fileName   : config.instances.exportFileName + ' ' + urlParameters.title.split(' - ')[0] + '.xlsx',
             sheets     : sheets
         }, function(response) {
             $('#overlay').hide();
@@ -459,11 +462,12 @@ function insertTabContents() {
                 hideButtonClone   : true,
                 singleToolbar     : 'actions',
                 sortBy            : 'INSTANCE_ID',
+                sortType          : 'integer',
                 fieldsIn          : workspace.fieldsIn,
                 fieldsEx          : workspace.fieldsEx,
                 groupBy           : workspace.groupBy || '',
                 collapseContents  : workspace.collapseContents || false,
-                textNoData        : 'No items found. Use the EBOM sync to update this table.',
+                textNoData        : 'No items found. Use the button Snyc with BOM in the main toolbar to update this table.',
                 contentSizes      : ['s', 'xs', 'xxs', 'xxl', 'xl', 'l', 'm'],
                 afterCompletion   : function(id) { afterGridCompletion(id); },
                 // onClickItem       : function(elemClicked) { onSelectGridItem(elemClicked); }
@@ -608,6 +612,9 @@ function onSelectBOMItem(elemClicked) {
 
     let selected = $('#bom-tbody').find('tr.selected').length;
 
+    $('#items').find('.highlighted').removeClass('highlighted');
+    $('#items').find('.selected'   ).removeClass('selected'   );
+
     if(selected === 0) {
 
         $('#items').find('tr.content-item').removeClass('hidden');
@@ -662,8 +669,6 @@ function afterGridCompletion(id) {
     let elemTHead   = $('#' + id + '-thead');
     let elemTHRow   = elemTHead.children().first();
 
-    console.log(elemActions.length);
-
     $('<div></div>').prependTo(elemActions)
         .addClass('button')
         .addClass('with-toggle')
@@ -686,17 +691,9 @@ function afterGridCompletion(id) {
 }
 function selectGridItem(elemClicked) {
 
-    let isSelected = elemClicked.hasClass('highlighted');
     let elemPanel  = elemClicked.closest('.panel-top');
     let index      = elemPanel.index();
     let rowData    = getGridRowDetails(elemClicked, workspaces[index].fieldsList);
-
-    // console.log('selectGridItem');
-    // console.log(isAddin);
-    // console.log(sendAddinMessage);
-
-    // console.log(rowData);
-    // console.log(isSelected);
 
     $('.highlighted').removeClass('highlighted');
 
@@ -707,7 +704,7 @@ function selectGridItem(elemClicked) {
     // } else {
 
         let elemToggleIsolate = elemPanel.find('.toggle-isolate');
-        let addinAction = 'selectInstance';
+        let addinAction       = 'selectInstance';
 
         if(elemToggleIsolate.length > 0) {
             if(elemToggleIsolate.hasClass('toggle-on')) {
@@ -720,33 +717,21 @@ function selectGridItem(elemClicked) {
         if(isAddin && sendAddinMessage) {
             console.log('addin message to ' + host);
             console.log(rowData);
-            let selection = 'plm-item;' + rowData.partNumber + ';' + '--' + ';' + elemClicked.attr('data-link')+ ';' + rowData.instanceId;
+            let selection = 'plm-item;' + rowData.partNumber + ';' + '--' + ';' + elemClicked.attr('data-link')+ ';' + rowData.instancePath;
             console.log(selection);
-            console.log("addin message = " + addinAction + ":"  + getNewAddinMessageID(elemClicked) + selection.toString());
+            console.log("addin message = " +  addinAction + ":" + selection.toString());
             // $('#overlay').show();
-            window.chrome.webview.postMessage(addinAction + ":"  + getNewAddinMessageID(elemClicked) + selection.toString()); 
-        } else bomDisplayItemByPath(rowData.path);
+            window.chrome.webview.postMessage(addinAction + ":" + selection.toString()); 
+        } else {
+            bomDisplayItemByPath(rowData.path);
+        }
 
-        // viewerHighlightInstances(rowData.partNumber, [], [rowData.instanceId], {});
+        viewerHighlightInstances(rowData.partNumber, [], [rowData.instancePath], {});
 
         elemClicked.prevUntil('.table-group').each(function() { $(this).addClass('related'); })
         elemClicked.nextUntil('.table-group').each(function() { $(this).addClass('related'); })
 
     // }
-
-    // sendAddinMessage = true;
-
-}
-function getNewAddinMessageID(elements) {
-
-    // let now = new Date();
-    // let id  = now.getTime();
-    
-    // messages.push({ id : id, elements : elements });
-
-    // return id + ';';
-
-    return '';
 
 }
 
@@ -864,8 +849,6 @@ function syncItemsList() {
 
             let viewerInstances = viewerGetComponentsInstances([item.partNumber])[0];
 
-            console.log(viewerInstances);
-
             for(let viewerInstance of viewerInstances.instances) {
                 if(viewerInstance.pathNumbers === item.path) {
                     item.instances.push(viewerInstance);
@@ -873,8 +856,8 @@ function syncItemsList() {
             } 
 
             console.log(item);
-
         }     
+
 
         for(let item of workspace.items) {
 
@@ -883,7 +866,7 @@ function syncItemsList() {
                     if(item.path === gridRow.path) {
                         let index = 0;
                         for(let instance of item.instances) {
-                            if(instance.instanceId == gridRow.instanceId) {
+                            if(instance.instancePath == gridRow.instancePath) {
                                 item.instances.splice(index, 1);
                                 break;
                             }
@@ -895,18 +878,19 @@ function syncItemsList() {
 
             for(let instance of item.instances) {
 
+                console.log(instance);
+
                 let params = {
                     wsId : workspace.workspaceId,
                     link : workspace.link,
                     data : [
-                        { fieldId : workspace.fieldsList.partNumber , value : item.partNumber      },
-                        { fieldId : workspace.fieldsList.path       , value : item.path            },
-                        { fieldId : workspace.fieldsList.instanceId , value : instance.instanceId  },
-                        { fieldId : workspace.fieldsList.boundingBox, value : JSON.stringify(instance.boundingBox) }
+                        { fieldId : workspace.fieldsList.partNumber   , value : item.partNumber       },
+                        { fieldId : workspace.fieldsList.path         , value : item.path             },
+                        { fieldId : workspace.fieldsList.instanceId   , value : instance.instanceId   },
+                        { fieldId : workspace.fieldsList.instancePath , value : instance.instancePath },
+                        { fieldId : workspace.fieldsList.boundingBox  , value : JSON.stringify(instance.boundingBox) }
                     ]
                 }
-
-                console.log(params);
 
                 requests.push($.post('/plm/add-grid-row', params));
                 refresh = true;
@@ -921,6 +905,7 @@ function syncItemsList() {
     }
 
     Promise.all(requests).then(function(responses) {
+        printResponsesErrorMessagesToConsole(responses);
         for(let grid of grids) {
             settings.grid['table-' + grid].load();
         }
@@ -948,9 +933,9 @@ function getGridRows(index) {
 function getGridRowDetails(elemRow, columns) {
 
     let gridRow  =  {
-        partNumber : '',
-        path       : '',
-        instanceId : ''
+        partNumber   : '',
+        path         : '',
+        instancePath : ''
     }
 
     elemRow.children().each(function() {
@@ -970,8 +955,8 @@ function getGridRowDetails(elemRow, columns) {
                     gridRow.path = elemCell.children().first().val();
                     break;
 
-                case columns.instanceId:
-                    gridRow.instanceId = elemCell.children().first().val();
+                case columns.instancePath:
+                    gridRow.instancePath = elemCell.children().first().val();
                     break;
 
             }

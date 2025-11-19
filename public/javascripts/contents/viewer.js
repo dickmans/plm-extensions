@@ -481,9 +481,15 @@ function setViewerInstancedData() {
             getComponentPath(instance.dbId, instance.parents);
             
             let parentPartNumbers = instance.parents.filter(a => a.partNumber.indexOf('Pattern') < 0);
+                parentPartNumbers = parentPartNumbers.filter(a => ((a.name.indexOf(':') > 0) || (a.name.indexOf('.') > 0)));
+
+            let split = instance.name.split(':');
+
+            instance.instanceId   = (split.length === 1) ? '' : Number(split.pop());
             instance.path         =  instance.parents.map(function(parent) { return parent.partNumber }).join('|');
             instance.pathNumbers  = parentPartNumbers.map(function(parent) { return parent.partNumber }).join('|');
-            instance.instanceId   =  instance.parents.map(function(parent) { return parent.name       }).join('|');
+            instance.instancePath =  instance.parents.map(function(parent) { return parent.name       }).join('|');
+
 
         }
 
@@ -529,11 +535,12 @@ function getComponentPath(id, componentPath) {
 
     for(let dataInstance of dataInstances) {
         if(dataInstance.dbId === id) {
-            // if(dataInstance.partNumber.indexOf('Compon') === 0) { console.log(dataInstance);}
+
             componentPath.unshift({
                 partNumber : dataInstance.partNumber,
                 name       : dataInstance.name
             });
+
             for(let property of dataInstance.properties) {
                 if(property.attributeName === 'parent') {
                     getComponentPath(property.displayValue, componentPath);
@@ -875,14 +882,14 @@ function viewerSelectInstances(dbIds, params) {
     disableViewerSelectionEvent = false;
 
 }
-function viewerHighlightInstances(partNumber, dbIds, instanceIds, params) {
+function viewerHighlightInstances(partNumber, dbIds, instancePaths, params) {
     
     // Select all occurences of a partNumber and highlight defined instance IDs
 
     if(!isViewerStarted()) return;
     if(isBlank(partNumber)) return;
     if(viewer.model.is2d()) return;
-    if(isBlank(dbIds)) { if(isBlank(instanceIds)) return; else dbIds = []; }
+    if(isBlank(dbIds)) { if(isBlank(instancePaths)) return; else dbIds = []; }
 
     //  Set defaults for optional parameters
     // --------------------------------------
@@ -918,10 +925,10 @@ function viewerHighlightInstances(partNumber, dbIds, instanceIds, params) {
     if(resetColors) viewer.clearThemingColors();
 
     if(dbIds.length === 0) {
-        if(!isBlank(instanceIds)) {
-            for(let instanceId of instanceIds) {
+        if(!isBlank(instancePaths)) {
+            for(let instancePath of instancePaths) {
                 for(let dataInstance of dataInstances) {
-                    if(dataInstance.instanceId === instanceId) {
+                    if(dataInstance.instancePath === instancePath) {
                         dbIds.push(dataInstance.dbId);
                     }
                 }
@@ -1330,17 +1337,18 @@ function viewerGetComponentInstances(partNumber) {
         if(dataInstance.partNumber === partNumber) {
 
             result.push({
-                dbId        : dataInstance.dbId,
-                path        : dataInstance.path,
-                pathNumbers : dataInstance.pathNumbers,
-                instanceId  : dataInstance.instanceId,
-                boundingBox : dataInstance.boundingBox
+                dbId         : dataInstance.dbId,
+                path         : dataInstance.path,
+                pathNumbers  : dataInstance.pathNumbers,
+                instanceId   : dataInstance.instanceId,
+                instancePath : dataInstance.instancePath,
+                boundingBox  : dataInstance.boundingBox
             });
 
         }
     }
 
-    sortArray(result, 'instanceId');
+    sortArray(result, 'instanceId', 'integer');
 
     return result;
 

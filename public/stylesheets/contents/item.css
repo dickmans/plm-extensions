@@ -173,15 +173,15 @@
 .field-editable > .picklist-controls > .picklist-actions > .button {
     border        : none;
     border-radius : 0px;
-    font-size     : 22px;
-    max-height    : 32px;
-    min-height    : 32px;
-    height        : 32px;
-    line-height   : 32px;
+    font-size     : 20px;
+    max-height    : 30px;
+    min-height    : 30px;
+    height        : 30px;
+    line-height   : 30px;
     padding       : 0px;
-    max-width     : 32px;
-    min-width     : 32px;
-    width         : 32px;
+    max-width     : 30px;
+    min-width     : 30px;
+    width         : 30px;
 }
 .field-editable > .button.icon,
 .field-editable > .picklist-controls > .picklist-actions > .button.icon {
@@ -199,16 +199,16 @@
 }
 .field-value input {
     text-overflow : ellipsis;
-    max-width     : calc(100% - 16px);
-    min-width     : calc(100% - 16px);
-    width         : calc(100% - 16px);
+    max-width     : calc(100% - 28px);
+    min-width     : calc(100% - 28px);
+    width         : calc(100% - 28px);
 }
 .field-editable input {
-    max-height    : 20px;
-    min-height    : 20px;
-    height        : 20px;
-    line-height   : 20px;
-    padding       : 6px 8px;
+    max-height    : 30px;
+    min-height    : 30px;
+    height        : 30px;
+    line-height   : 30px;
+    padding       : 0px 14px;
 }
 .field-value > select {
     width : 100%;
@@ -460,8 +460,8 @@ input.field-value.readonly { border : none; }
     z-index    : 4;
 }
 .field .picklist {
-    right    : 34px;
-    left     :  calc(var(--width-field-label) + 28px);
+    right : 30px;
+    left  : calc(var(--width-field-label) + 28px);
 }
 td > .picklist-controls > .picklist {
     min-width : 400px;
@@ -565,7 +565,7 @@ td > .picklist-controls > .picklist {
     gap      : 2px;
     position : relative;
     top      : 0px;
-    right    : 32px;
+    right    : 30px;
 }
 .picklist-actions.with-shortcuts {
     right : 66px;
@@ -853,6 +853,12 @@ td.field-editable > .picklist-controls > .picklist-input {
 .grid th.required { color : var(--color-red-600); }
 /* .grid .content-item.selected > td { border-color : var(--color-selected-background); } */
 
+.surface-level-1 table.grid { border-bottom : 1px solid var(--color-surface-level-3); } 
+.surface-level-2 table.grid { border-bottom : 1px solid var(--color-surface-level-4); } 
+.surface-level-3 table.grid { border-bottom : 1px solid var(--color-surface-level-5); } 
+.surface-level-4 table.grid { border-bottom : 1px solid var(--color-surface-level-2); } 
+.surface-level-5 table.grid { border-bottom : 1px solid var(--color-surface-level-2); } 
+
 .surface-level-1 table.grid th, .surface-level-1 table.grid .table-check-box { background : var(--color-surface-level-3); } 
 .surface-level-2 table.grid th, .surface-level-2 table.grid .table-check-box { background : var(--color-surface-level-4); } 
 .surface-level-3 table.grid th, .surface-level-3 table.grid .table-check-box { background : var(--color-surface-level-5); } 
@@ -877,11 +883,11 @@ td.field-editable > .picklist-controls > .picklist-input {
 .surface-level-4 table.grid th:last-of-type, .surface-level-4 table.grid td:last-of-type { border-right-color : var(--color-surface-level-2); } 
 .surface-level-5 table.grid th:last-of-type, .surface-level-5 table.grid td:last-of-type { border-right-color : var(--color-surface-level-2); } 
 
-.surface-level-1 table.grid tr:last-of-type td { border-bottom-color : var(--color-surface-level-3); } 
+/* .surface-level-1 table.grid tr:last-of-type td { border-bottom-color : var(--color-surface-level-3); } 
 .surface-level-2 table.grid tr:last-of-type td { border-bottom-color : var(--color-surface-level-3); } 
 .surface-level-3 table.grid tr:last-of-type td { border-bottom-color : var(--color-surface-level-4); } 
 .surface-level-4 table.grid tr:last-of-type td { border-bottom-color : var(--color-surface-level-2); } 
-.surface-level-5 table.grid tr:last-of-type td { border-bottom-color : var(--color-surface-level-2); } 
+.surface-level-5 table.grid tr:last-of-type td { border-bottom-color : var(--color-surface-level-2); }  */
 
 .surface-level-1 table.grid td.field-editable { background : var(--color-surface-level-1); } 
 .surface-level-2 table.grid td.field-editable { background : var(--color-surface-level-1); } 

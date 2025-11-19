@@ -54,8 +54,10 @@
     padding-left : 2px !important;
 }
 .addin .panel-search-input {
-    margin-left : 2px;
-    width       : 78px;
+    margin-left    : 2px;
+    padding-top    : 0px;
+    padding-bottom : 0px;
+    width          : 78px;
 }
 .addin .attachments-content.list .attachment-summary {
     gap : var(--spacer-xs);
@@ -115,6 +117,7 @@
     line-height : 16px;
 }
 .addin .panel-title-sub {
+    display     : none;
     font-size   : 11px;
     line-height : 14px;
 }
@@ -166,11 +169,11 @@
 /* ----------------------------------------------------------------------------- */
 .addin .item.with-tabs > .panel-tabs,
 .addin .panel-tabs {
-    top : 66px;
+    top : 46px;
 }
 .addin .panel-top.with-tabs > .panel-content {
     border-width : 12px;
-    top          : 100px;
+    top          : 80px;
     right        : 0px;
     bottom       : 0px;
     left         : 0px;
@@ -272,11 +275,14 @@
     padding-top    : 0px;
     padding-bottom : 0px;
 } */
+.addin .bom-descriptor {
+    flex-grow : 1;
+}
 .addin .table-actions {
     display  : none;
     gap      : 2px;
-    position : absolute;
-    right    : 4px;
+    /* position : absolute; */
+    /* right    : 4px; */
     z-index  : 5;
 }
 .addin .tree-item:hover .table-actions {
@@ -290,13 +296,29 @@
     font-size : 11px;
     padding   : 2px 12px;
 }
+.addin .bom-path { 
+    height : 24px; 
+    right  : 52px; 
+}
+.addin .bom-path > div {
+    height      : 24px;
+    line-height : 24px;
+}
+.addin .panel-counters {
+    padding-top    : 1px;
+    padding-bottom : 0px;  
+}
+.addin .panel-counters > div {
+    padding-top    : 2px;
+    padding-bottom : 1px;
+}
 .addin .panel-top.with-panel-counters.with-bom-path > .panel-content {
-    bottom : 64px;
+    bottom : 54px;
 }
-.addin .panel-top.with-panel-counters.with-bom-path > .bom-path {
-    bottom : 30px;
+.addin .panel-top.with-panel-counters.with-bom-path > .bom-path,
+.addin .panel-top.with-panel-counters.with-bom-path > .bom-go-to {
+    bottom : 26px;
 }
-
 
 
 /*  DETAILS */
@@ -310,13 +332,30 @@
     top : 0px;
 }
 .addin .field-label,
-.addin .field-value {
-    height      : 22px;
-    line-height : 22px !important;
+.addin .field-value,
+.addin .field-value .field-unit {
+    height: 22px;
+    line-height: 22px !important;
+    padding-top: 0px !important;
+}
+.addin .field-value .field-unit {
+    padding : 0px 0px 0px 8px !important;
 }
 .addin .field-value.field-type-image,
 .addin .field-value.field-type-radio {
     height : unset;
+}
+.addin .field-value.field-editable {
+    margin-bottom : 6px !important;
+}
+.addin .radio-option {
+    gap : 4px;
+}
+.addin .radio-option > * {
+    line-height : 18px;
+}
+.addin .radio-icon {
+    font-size : 16px;
 }
 
 

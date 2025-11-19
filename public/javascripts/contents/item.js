@@ -305,6 +305,7 @@ function insertCreate(workspaceNames, workspaceIds, params) {
         [ 'cancelButtonIcon'    , '' ],
         [ 'cancelButtonLabel'   , 'Cancel' ],
         [ 'cancelButtonTitle'   , '' ],
+        [ 'performTransition'   , '' ],
         [ 'getDetails'          , false ],
         [ 'onClickCancel'       , function(id) { } ],
         [ 'afterCreation'       , function(id, link, data, contextId) { console.log('New item link : ' + link ); } ]
@@ -472,16 +473,39 @@ function insertCreateData(id) {
         requests.push($.get('/plm/recent'));
     }
     
+    if(!isBlank(settings.create[id].performTransition)) {
+        requests.push($.get('/plm/workspace-workflow-transitions', { wsId : settings.create[id].wsId }));
+    }
+
     Promise.all(requests).then(function(responses) {
 
         if(stopPanelContentUpdate(responses[0], settings.create[id])) return;
 
-        let bookmarks = [];
-        let recents   = [];
+        let bookmarks   = [];
+        let recents     = [];
+        let transitions = [];
 
-        if((settings.create[id].picklistShortcuts)) {
-            bookmarks = responses[responses.length - 2].data.bookmarks;
-            recents   = responses[responses.length - 1].data.recentlyViewedItems;
+        for(let response of responses) {
+
+            let url = response.url.split('?')[0];
+
+            switch(url) {
+
+                case '/bookmarks'                     : bookmarks   = response.data.bookmarks;           break;
+                case '/recent'                        : recents     = response.data.recentlyViewedItems; break;
+                case '/workspace-workflow-transitions': transitions = response.data;                     break;
+
+            }
+            
+        }
+
+        if(!isBlank(settings.create[id].performTransition)) {
+            for(let transition of transitions) {
+                if(transition.customLabel === settings.create[id].performTransition) {
+                    settings.create[id].transition = transition.__self__;
+                    break;
+                }
+            }
         }
 
         settings.create[id].sections = responses[0].data;
@@ -695,7 +719,14 @@ function submitCreate(wsIdNew, sections, elemParent, settings, callback) {
                     let result = {};
                     result.link = (settings.getDetails) ? response.data.__self__ : response.data.split('.autodeskplm360.net')[1];
                     result.data = (settings.getDetails) ? response.data : {};
-                    callback(result);
+
+                    if(isBlank(settings.transition)) callback(result);
+                    else {
+                        $.get('/plm/transition', { link : result.link, transition : settings.transition}, function() {
+                            callback(result);
+                        });
+                    }
+                    
                 }
                 
             });
@@ -4244,6 +4275,9 @@ function insertGrid(link, params) {
         [ 'hideButtonDisconnect', false ],
         [ 'hideButtonLabels'    , false ],
         [ 'rotate'              , false ],
+        [ 'sortBy'              , '' ],
+        [ 'sortDirection'       , 'ascending' ],
+        [ 'sortType'            , 'string' ],
         [ 'bookmark'            , false ],
         [ 'picklistLimit'       , 10    ],
         [ 'picklistShortcuts'   , false ]
@@ -4402,6 +4436,16 @@ function insertGridData(id) {
             }
 
             if(settings.grid[id].tableHeaders) elemTHead.prependTo(elemTable);
+
+            if(!isBlank(settings.grid[id].sortBy)) {
+                for(let row of rows) {
+                    row.sort = getFieldValueFromResponseData(settings.grid[id].sortBy, row.rowData) || '';
+                }
+                if(settings.grid[id].sortType.toLowerCase() === 'integer') {
+                    for(let row of rows) row.sort = Number(row.sort);
+                }
+                sortArray(rows, 'sort', settings.grid[id].sortType, settings.grid[id].sortDirection);
+            }
 
             if(rows.length > 0 ) {
                 if(!isBlank(settings.grid[id].groupBy)) {
@@ -7400,6 +7444,7 @@ function insertChangeProcesses(link, params) {
         [ 'createContextItems'       , [] ], // ['/api/v3/workspaces/57/items/12345']
         [ 'createContextItemFields'  , [] ], // ['AFFECTED_ITEM']
         [ 'createViewerImageFields'  , [] ], // 'IMAGE_1'
+        [ 'createPerformTransition'  , '' ], // 'SUBMIT'
         [ 'createConnectAffectedItem', true ]
     ]);
 
@@ -7432,6 +7477,7 @@ function insertChangeProcesses(link, params) {
                 contextItems        : settings.processes[id].createContextItems,
                 contextItemFields   : settings.processes[id].createContextItemFields,
                 viewerImageFields   : settings.processes[id].createViewerImageFields,
+                performTransition   : settings.processes[id].createPerformTransition,
                 afterCreation       : function(createId, createLink, data, id) { afterChangeProcessCreation(createId, createLink, id); }
             });
         }).addClass('panel-action-create').addClass('default');

@@ -98,7 +98,7 @@ body.screen-landing .explorer { display : none;  }
 body.screen-main    #landing  { display : none;  }
 body.screen-main    .landing  { display : none;  }
 body.screen-main    #main     { display : block; }
-body.screen-main    .explorer { display : flex;  }
+/* body.screen-main    .explorer { display : flex;  } */
 
 body.no-recents   #recents,
 body.no-recents #bookmarks  { left : calc(0px - var(--width-recents) - (2 * var(--padding-landing-h))); }

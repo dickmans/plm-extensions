@@ -920,9 +920,21 @@ let categories = [
 },{
     name        : 'autoClick',
     description : 'Once the contents have been loaded, the first entry will be clicked / selected automatically when set to true',
-    type        : 'Booleand',
+    type        : 'Boolean',
     default     : 'false',
     supportedBy : []
+},{
+    name        : 'performTransition',
+    description : 'Provide the internal ID of a workflow transition from the initial status to let this transition be performed right after item creation',
+    type        : 'String',
+    default     : '',
+    supportedBy : ['insertCreate']
+},{
+    name        : 'createPerformTransition',
+    description : 'Provide the internal ID of a workflow transition from the initial status to let this transition be performed right after new change process creation',
+    type        : 'String',
+    default     : '',
+    supportedBy : ['insertChangeProcesses']
 
 }]}];
 

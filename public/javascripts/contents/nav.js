@@ -357,18 +357,23 @@ function insertWorkspaceViews(wsId, params) {
         tileTitle       : 'DESCRIPTOR',
         tileSubtitle    : 'WF_CURRENT_STATE'
     }, [
-        [ 'viewSelector'        , true  ],
-        [ 'startupView'         , ''    ],
-        [ 'includeMOW'          , false ],
-        [ 'includeBookmarks'    , false ],
-        [ 'includeRecents'      , false ],
-        [ 'groupBy'             , '' ],
-        [ 'tileImageFieldId'    , '' ],
+        [ 'viewSelector'        ,   true ],
+        [ 'startupView'         ,     '' ],
+        [ 'includeMOW'          ,  false ],
+        [ 'includeBookmarks'    ,  false ],
+        [ 'includeRecents'      ,  false ],
+        [ 'pagination'          ,   true ],
+        [ 'page'                ,      1 ],
+        [ 'limit'               ,     25 ],
+        [ 'groupBy'             ,     '' ],
+        [ 'tileImageFieldId'    ,     '' ],
         [ 'workspacesIn'        , [wsId] ]
     ]);
 
     settings.workspaceViews[id].wsId = wsId;
-    settings.workspaceViews[id].load = function() { changeWorkspaceView(id); }
+    settings.workspaceViews[id].mode = 'initial';
+    settings.workspaceViews[id].load = function() { changeWorkspaceView(id);     }
+    settings.workspaceViews[id].next = function() { insertWorkspaceViewData(id); }
 
     genPanelTop(id, settings.workspaceViews[id], 'workspace-views');
     genPanelHeader(id, settings.workspaceViews[id]);
@@ -392,13 +397,14 @@ function insertWorkspaceViews(wsId, params) {
             changeWorkspaceView(id);
         });
 
-    genPanelSearchInput(id, settings.workspaceViews[id]);
+    genPanelSearchInput( id, settings.workspaceViews[id]);
     genPanelResizeButton(id, settings.workspaceViews[id]);
     genPanelReloadButton(id, settings.workspaceViews[id]);
     
     setWorkspaceViewsSelector(id);
-
+    
     genPanelContents(id, settings.workspaceViews[id]).addClass(getSurfaceLevel($('#' + id)));
+    genPanelPaginationControls(id, settings.workspaceViews[id]);
 
 }
 function setWorkspaceViewsSelector(id) {
@@ -491,35 +497,46 @@ function changeWorkspaceView(id) {
 }
 function insertWorkspaceViewData(id) {
 
-    settings.workspaceViews[id].timestamp = startPanelContentUpdate(id);
+    settings.workspaceViews[id].timestamp = startPanelContentUpdate(id, settings.workspaceViews[id].mode);
     settings.workspaceViews[id].link      = $('#' + id + '-view-selector').val();
 
-    let requests = [
-        $.get('/plm/tableau-columns', { link : settings.workspaceViews[id].link , timestamp : settings.workspaceViews[id].timestamp }),
-        $.get('/plm/tableau-data'   , { link : settings.workspaceViews[id].link , timestamp : settings.workspaceViews[id].timestamp })
-    ];
+    let params = { 
+        link      : settings.workspaceViews[id].link, 
+        page      : settings.workspaceViews[id].page,
+        size      : settings.workspaceViews[id].limit,
+        timestamp : settings.workspaceViews[id].timestamp
+    };
+
+    let requests = [ $.get('/plm/tableau-data', params )];
+
+    if(settings.workspaceViews[id].mode === 'initial') {
+        requests.push($.get('/plm/tableau-columns', { link : settings.workspaceViews[id].link} ));
+    }
 
     Promise.all(requests).then(function(responses) {
 
-        if(stopPanelContentUpdate(responses[0], settings.workspaceViews[id])) return;
+        if(settings.workspaceViews[id].mode === 'initial') {
 
-        let items = [];
+            if(stopPanelContentUpdate(responses[0], settings.workspaceViews[id])) return;
 
-        for(let column of responses[0].data) {
-            if(!isBlank(column.displayOrder)) {
-                if(!isBlank(column.field.urn)) {
-                    let fieldId = column.field.urn.split('.').pop();
-                    if(includePanelTableColumn(fieldId, column.field.title, settings.workspaceViews[id], settings.workspaceViews[id].columns.length)) {
-                        settings.workspaceViews[id].columns.push({
-                            displayName : column.field.title,
-                            fieldId     : fieldId
-                        });    
+            for(let column of responses[1].data) {
+                if(!isBlank(column.displayOrder)) {
+                    if(!isBlank(column.field.urn)) {
+                        let fieldId = column.field.urn.split('.').pop();
+                        if(includePanelTableColumn(fieldId, column.field.title, settings.workspaceViews[id], settings.workspaceViews[id].columns.length)) {
+                            settings.workspaceViews[id].columns.push({
+                                displayName : column.field.title,
+                                fieldId     : fieldId
+                            });    
+                        }
                     }
                 }
             }
         }
 
-        for(let row of responses[1].data.items) {
+        let items = [];
+
+        for(let row of responses[0].data.items) {0
 
             let item = genPanelContentItem(settings.workspaceViews[id], { link : row.item.link} );
 
@@ -558,13 +575,14 @@ function insertWorkspaceViewData(id) {
         }
 
         finishPanelContentUpdate(id, settings.workspaceViews[id], items);
-        changeWorkspaceViewDone(id, responses[0], responses[1].data);
+        setPanelPaginationControls(id, settings.workspaceViews[id], responses[0].data.total);
+        changeWorkspaceViewDone(id, responses[0]);
 
     });
 
 }
 function insertWorkspaceViewsDone(id, data) {}
-function changeWorkspaceViewDone(id, columns, data) {}
+function changeWorkspaceViewDone(id, data) {}
 
 
 

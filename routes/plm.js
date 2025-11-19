@@ -167,9 +167,9 @@ function deleteServerFolderPath(path) {
 }
 function sortArray(array, key, type) {
 
-    if(typeof type === 'undefine') type = 'string';
+    if(typeof type === 'undefined') type = 'string';
 
-    if(type.toLowerCase === 'string') {
+    if(type.toLowerCase() === 'string') {
 
         array.sort(function(a, b){
             var nameA=a[key].toLowerCase(), nameB=b[key].toLowerCase()
@@ -2718,7 +2718,6 @@ function setStatus(req, fileId, callback) {
 }
 
 
-
 /* ----- SCREENSHOT UPLOAD ----- */
 router.post('/upload-screenshot', function(req, res) {
    
@@ -2774,8 +2773,6 @@ router.post('/upload-screenshot', function(req, res) {
     }); 
    
 });
-
-
 
 
 /* ----- ATTACHMENT IMPORT ----- */
@@ -3029,7 +3026,6 @@ function importAttachment(req, res, folderName, pathFile, pathSuccess, pathSkipp
 }
 
 
-
 /* ----- ATTACHMENTS : Delete defined attachments ----- */
 router.get('/delete-attachments', function(req, res, next) {
     
@@ -3064,7 +3060,6 @@ router.get('/delete-attachments', function(req, res, next) {
     });
     
 });
-
 
 
 /* ----- LIST ALL VIEWABLE ATTACHMENTS ----- */
@@ -4185,7 +4180,6 @@ router.get('/lifecycle-transition', function(req, res, next) {
 });
 
 
-
 /* ----- MY OUTSTANDING WORK ----- */
 router.get('/mow', function(req, res, next) {
     
@@ -4608,7 +4602,6 @@ router.post('/search-descriptor', function(req, res, next) {
 });
 
 
-
 /* ----- SEARCH BULK ----- */
 router.get('/search-bulk', function(req, res, next) {
     
@@ -4641,7 +4634,7 @@ router.get('/search-bulk', function(req, res, next) {
     
     if(bulk) headers.Accept = 'application/vnd.autodesk.plm.items.bulk+json';
     
-    if(notCached(req, res, 'search-bulk', url)) {
+    if(notCached(req, res)) {
 
         axios.get(url, {
             headers : headers
@@ -4654,6 +4647,179 @@ router.get('/search-bulk', function(req, res, next) {
 
     }
     
+});
+
+
+/* ----- SEARCH IN CLASS ----- */
+router.get('/search-class', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /search-class');
+    console.log(' --------------------------------------------'); 
+    console.log('  req.query.classId  = ' + req.query.classId);
+    console.log('  req.query.limit    = ' + req.query.limit);
+    console.log('  req.query.offset   = ' + req.query.offset); 
+    console.log('  req.query.page     = ' + req.query.page); 
+    console.log('  req.query.bulk     = ' + req.query.bulk); 
+    console.log('  req.query.revision = ' + req.query.revision); 
+    console.log('  req.query.useCache = ' + req.query.useCache); 
+    console.log();
+
+    let limit       = (typeof req.query.limit    === 'undefined') ?   10 : req.query.limit;
+    let offset      = (typeof req.query.offset   === 'undefined') ?    0 : req.query.offset;
+    let page        = (typeof req.query.page     === 'undefined') ?  '1' : req.query.page;
+    let bulk        = (typeof req.query.bulk     === 'undefined') ? true : req.query.bulk;
+    let revision    = (typeof req.query.revision === 'undefined') ?  '1' : req.query.revision;
+
+    let url  = req.app.locals.tenantLink + '/api/v3/search-results?limit=' + limit + '&offset=' + offset + '&page=' + page + '&revision=' + revision ;
+        url += '&query=(CLASS:CLASS_PATH="' + req.query.classId + '")';
+
+    let headers = getCustomHeaders(req);
+
+    if(bulk) headers.Accept = 'application/vnd.autodesk.plm.items.bulk+json';
+    
+    if(notCached(req, res)) {
+
+        axios.get(url, {
+            headers : headers
+        }).then(function(response) {
+            console.log(response.data);
+            if(response.data === "") response.data = { 'items' : [] }
+            sendResponse(req, res, response, false);
+        }).catch(function(error) {
+            sendResponse(req, res, error.response, true);
+        });
+
+    }
+    
+});
+
+
+/* ----- GET CLASSIFICATION CLASSES ----- */
+router.get('/classes', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /classes');
+    console.log(' --------------------------------------------');  
+    console.log('  req.query.size     = ' + req.query.size);
+    console.log('  req.query.page     = ' + req.query.page);
+    console.log('  req.query.useCache = ' + req.query.useCache);
+    console.log();
+
+    if(notCached(req, res)) {
+
+        let size = (typeof req.query.size === 'undefined') ? 500 : req.query.size;
+        let page = (typeof req.query.page === 'undefined') ?   1 : req.query.page;
+        let url  = getTenantLink(req) + '/api/v2/classifications?size=' + size + '&page=' + page;
+
+        axios.get(url, {
+            headers : req.session.headers
+        }).then(function(response) {
+            sendResponse(req, res, response, false);
+        }).catch(function(error) {
+            sendResponse(req, res, error.response, true);
+        });
+
+    }
+
+});
+
+
+/* ----- GET CLASSIFICATION TREE ----- */
+router.get('/classes-tree', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /classes-tree');
+    console.log(' --------------------------------------------');  
+    console.log('  req.query.useCache = ' + req.query.useCache);
+    console.log();
+
+    if(notCached(req, res)) {
+
+        let url  = getTenantLink(req) + '/api/v2/classifications/1/graphs/adjacency-set';
+
+        axios.get(url, {
+            headers : req.session.headers
+        }).then(function(response) {
+            sendResponse(req, res, response, false);
+        }).catch(function(error) {
+            sendResponse(req, res, error.response, true);
+        });
+
+    }
+
+});
+
+
+/* ----- GET CLASSIFICATION PROPERTIES ----- */
+router.get('/class-properties', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /class-properties');
+    console.log(' --------------------------------------------');  
+    console.log('  req.query.classId  = ' + req.query.classId);
+    console.log('  req.query.link     = ' + req.query.link);
+    console.log('  req.query.size     = ' + req.query.size);
+    console.log('  req.query.page     = ' + req.query.page);
+    console.log('  req.query.useCache = ' + req.query.useCache);
+    console.log();
+
+    if(notCached(req, res)) {
+
+        let classId = (typeof req.query.classId === 'undefined') ? req.query.link.split('/').pop() : req.query.classId;
+        let size    = (typeof req.query.size === 'undefined') ? 500 : req.query.size;
+        let page    = (typeof req.query.page === 'undefined') ?   1 : req.query.page;
+        let baseURL = getTenantLink(req);
+        let url     = baseURL + '/api/v2/property-instances?'
+            + 'classification=' + classId
+            + '&inherited=true'
+            + '&page=' + page
+            + '&size=' + size;
+
+        axios.get(url, {
+            headers : req.session.headers
+        }).then(function(propertyData) {
+
+            let requests = [];
+            let results  = { data : [], status : 200 };
+
+            for(let property of propertyData.data.propertyInstances) {
+                requests.push(runPromised(baseURL + '/api/v2/property-instances/' + property.id + '/properties', req.session.headers));
+            }
+
+            Promise.all(requests).then(function(properties) {
+
+                let index = 0;
+
+                for(let property of properties) {
+
+                    let property = properties[index].properties[0];
+                    let instance = propertyData.data.propertyInstances[index++];
+
+                    results.data.push({
+                        type        : property.type,
+                        name        : property.name,
+                        displayName : property.displayName,
+                        rank        : property.rank,
+                        required    : property.required,
+                        readOnly    : property.readOnly,
+                        defaultValue : property.defaultValue,
+                        inherited : instance.inherited
+                    });
+
+                }
+
+                sortArray(results.data, 'displayName');
+                sendResponse(req, res, results, false);
+
+            });
+
+        }).catch(function(error) {
+            sendResponse(req, res, error.response, true);
+        });
+
+    }
+
 });
 
 
@@ -5537,9 +5703,9 @@ router.get('/workspace-workflow-transitions', function(req, res, next) {
     console.log(' ');
     console.log('  /workspace-workflow-transitions');
     console.log(' --------------------------------------------');  
-    console.log('  req.query.wsId   = ' + req.query.wsId);
-    console.log('  req.query.link   = ' + req.query.link);
-    console.log('  req.query.tenant = ' + req.query.tenant);
+    console.log('  req.query.wsId     = ' + req.query.wsId);
+    console.log('  req.query.link     = ' + req.query.link);
+    console.log('  req.query.tenant   = ' + req.query.tenant);
     console.log('  req.query.useCache = ' + req.query.useCache);
     console.log();
 

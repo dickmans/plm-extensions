@@ -18,6 +18,9 @@
 
 /* OVERRIDE */
 /* ----------------------------------------------------------------------------- */
+#item-title {
+    padding-left : 8px;
+}
 #item-close,
 #theadfields {
     display : none;
