@@ -484,6 +484,7 @@ function insertBOMItemFilter() {
     }
 
 }
+/*
 function createListParents(callback) {
 
     let requests = [];
@@ -518,6 +519,34 @@ function createListParents(callback) {
         }
 
     }
+*/
+// *** Anpassung Hawa ohne List-Position
+function createListParents(callback) {
+
+    // Für bomTypes mit mode 'list' wird KEIN eigener Parent-Artikel mehr erzeugt.
+    // Die Liste hängt direkt am TargetBOM.
+    for (let bomType of bomTypes) {
+
+        if (bomType.mode === 'list') {
+
+            // Falls beim Einlesen der BOM kein Root gefunden wurde:
+            // Root auf das Haupt-Item setzen.
+            if (isBlank(bomType.linkRoot)) {
+                bomType.linkRoot = links.targetBOM;
+            }
+
+            // UI-Element bekommt den Link auf das Haupt-Item
+            if (bomType.elemContent) {
+                bomType.elemContent.attr('data-link', bomType.linkRoot);
+            }
+        }
+    }
+
+    // Keine Async-Requests mehr, Callback direkt ausführen
+    if (typeof callback === 'function') {
+        callback();
+    }
+} // ** bis hier hin.
 
     Promise.all(requests).then(function(responses) {
 
