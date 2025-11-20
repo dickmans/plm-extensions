@@ -560,11 +560,8 @@ function createListParents(callback) {
 
         if (bomType.mode === 'list') {
 
-            // Falls beim Einlesen der BOM kein Root gefunden wurde:
-            // Root auf das Haupt-Item setzen.
-            if (isBlank(bomType.linkRoot)) {
-                bomType.linkRoot = links.targetBOM;
-            }
+            // Immer auf das Haupt-Item mappen, egal was vorher (Source-BOM) gesetzt hat
+            bomType.linkRoot = links.targetBOM;
 
             // UI-Element bekommt den Link auf das Haupt-Item
             if (bomType.elemContent) {
@@ -573,11 +570,11 @@ function createListParents(callback) {
         }
     }
 
-    // Keine Async-Requests mehr, Callback direkt ausführen
+    // Direktes Callback, da keine Async-Calls mehr
     if (typeof callback === 'function') {
         callback();
     }
-} // ** bis hier hin.
+} // *** Anpassung Hawa ohne List-Position
 
 function insertBOMIndicators() {
 
