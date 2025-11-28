@@ -4656,23 +4656,31 @@ router.get('/search-class', function(req, res, next) {
     console.log(' ');
     console.log('  /search-class');
     console.log(' --------------------------------------------'); 
-    console.log('  req.query.classId  = ' + req.query.classId);
-    console.log('  req.query.limit    = ' + req.query.limit);
-    console.log('  req.query.offset   = ' + req.query.offset); 
-    console.log('  req.query.page     = ' + req.query.page); 
-    console.log('  req.query.bulk     = ' + req.query.bulk); 
-    console.log('  req.query.revision = ' + req.query.revision); 
-    console.log('  req.query.useCache = ' + req.query.useCache); 
+    console.log('  req.query.className = ' + req.query.className);
+    console.log('  req.query.query     = ' + req.query.query);
+    console.log('  req.query.sort      = ' + req.query.sort);
+    console.log('  req.query.limit     = ' + req.query.limit);
+    console.log('  req.query.offset    = ' + req.query.offset); 
+    console.log('  req.query.page      = ' + req.query.page); 
+    console.log('  req.query.bulk      = ' + req.query.bulk); 
+    console.log('  req.query.revision  = ' + req.query.revision); 
+    console.log('  req.query.useCache  = ' + req.query.useCache); 
     console.log();
 
+    let query       = (typeof req.query.query    === 'undefined') ?   '' : req.query.query;
+    let sort        = (typeof req.query.sort     === 'undefined') ?   '' : req.query.sort;
     let limit       = (typeof req.query.limit    === 'undefined') ?   10 : req.query.limit;
     let offset      = (typeof req.query.offset   === 'undefined') ?    0 : req.query.offset;
     let page        = (typeof req.query.page     === 'undefined') ?  '1' : req.query.page;
     let bulk        = (typeof req.query.bulk     === 'undefined') ? true : req.query.bulk;
     let revision    = (typeof req.query.revision === 'undefined') ?  '1' : req.query.revision;
 
+    if(query === '') query = '(CLASS:CLASS_PATH="' + req.query.className + '")';
+
     let url  = req.app.locals.tenantLink + '/api/v3/search-results?limit=' + limit + '&offset=' + offset + '&page=' + page + '&revision=' + revision ;
-        url += '&query=(CLASS:CLASS_PATH="' + req.query.classId + '")';
+        url += '&query=' + query;
+
+    if(sort !== '') url += '&sort=' + sort;
 
     let headers = getCustomHeaders(req);
 
@@ -4683,7 +4691,6 @@ router.get('/search-class', function(req, res, next) {
         axios.get(url, {
             headers : headers
         }).then(function(response) {
-            console.log(response.data);
             if(response.data === "") response.data = { 'items' : [] }
             sendResponse(req, res, response, false);
         }).catch(function(error) {
@@ -4789,7 +4796,8 @@ router.get('/class-properties', function(req, res, next) {
 
             Promise.all(requests).then(function(properties) {
 
-                let index = 0;
+                let index             = 0;
+                let requestsPicklists = [];
 
                 for(let property of properties) {
 
@@ -4797,15 +4805,23 @@ router.get('/class-properties', function(req, res, next) {
                     let instance = propertyData.data.propertyInstances[index++];
 
                     results.data.push({
-                        type        : property.type,
-                        name        : property.name,
-                        displayName : property.displayName,
-                        rank        : property.rank,
-                        required    : property.required,
-                        readOnly    : property.readOnly,
+                        type         : property.type,
+                        name         : property.name,
+                        displayName  : property.displayName,
+                        rank         : property.rank,
+                        required     : property.required,
+                        readOnly     : property.readOnly,
                         defaultValue : property.defaultValue,
-                        inherited : instance.inherited
+                        picklist     : [],
+                        inherited    : instance.inherited
                     });
+
+                    console.log(property.type);
+
+                    if(property.type === 'picklist') {
+                        requestsPicklists.push(runPromised(baseURL + '/api/v3/lookups/CUSTOM_LOOKUP_0CWS_' + property.name + '_' + classId +  '?asc=title&filter=&limit=100&offset=0', req.session.headers));
+                    }
+
 
                 }
 

@@ -106,29 +106,7 @@ exports.config = {
     },
 
     classes : {
-        viewerFeatures : {
-            contextMenu   : false,
-            cube          : false,
-            orbit         : false,
-            firstPerson   : false,
-            camera        : false,
-            measure       : true,
-            section       : true,
-            explodedView  : true,
-            modelBrowser  : false,
-            properties    : false,
-            settings      : false,
-            fullscreen    : false,
-            markup        : false,
-            hide          : false,
-            ghosting      : false,
-            highlight     : false,
-            single        : false,
-            fitToView     : false,
-            reset         : false,
-            views         : true,
-            selectFile    : true
-        }
+        fieldsIncluded : ['DESCRIPTOR', 'WORKSPACE', 'REVISION']
     },
 
     configurator : {
@@ -1083,10 +1061,15 @@ exports.chrome = {
         icon       : 'zmdi-chart',
         workspaces : ['items']
     },{
-        id         : 'class-browser',
-        url        : '/classes?',
-        label      : 'Classification Browser',
-        icon       : 'zmdi-library',
+        id         : 'insights-asset',
+        url        : '/explorer?options=fieldIdEBOM:EBOM&',
+        label      : 'Insights',
+        icon       : 'zmdi-chart',
+        workspaces : ['assets']  
+    },{
+        id         : 'mbom',
+        url        : '/mbom?',
+        label      : 'Edit MBOM',
         workspaces : ['items']
     },{
         id         : 'product-variants',

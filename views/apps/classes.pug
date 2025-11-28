@@ -5,32 +5,25 @@ block head
     link(rel='stylesheet', href='/stylesheets/apps/classes.css')
     script(src='/javascripts/apps/classes.js')
     script.
-        config = !{JSON.stringify(config)};
+        config = !{JSON.stringify(config)}
+        menu   = !{JSON.stringify(menu)};
 
 block body
 
-    body.surface-level-1
+    body.surface-level-1.no-summary
         
         #header.dark
             #header-logo
             #header-title= title
-            #header-subtitle
+            #header-subtitle.hidden
             #header-toolbar
+                .button#toggle-classes.with-toggle.toggle-off.hidden(title='Toggle class tree on the left side on / off') Toggle Class Tree
+                .button#toggle-summary.with-toggle.toggle-off(title='Toggle details panel on the right side on / off') Toggle Details Panel
                 #header-avatar
         
-        #main.screen
+        #landing.screen 
 
-            #items.panel-top.with-toggles.with-toolbar.surface-level-1
-                .panel-header#items-header
-                    .panel-title
-                        .panel-title-main#items-title
-                .panel-content#items-content
-                    table.row-hovering.fixed-header#items-list(cellspacing='0')
-                    .panel-footer 
-                .panel-footer#items-toggles
-                    .panel-toggles
-                        .nowrap#show-all.selected Show All
-                        .nowrap#hide-non-matching Hide Non Matching
-                        .nowrap#show-matches-only Show Exact Matches Only
-
-            #item.surface-level-2
+            .surface-level-3#classes.pos-abs-left
+            .surface-level-2#filters
+            .surface-level-1#contents
+            .surface-level-3#summary.pos-abs-right
