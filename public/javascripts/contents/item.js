@@ -4217,7 +4217,6 @@ function selectFileForUpload(id) {
 function fileUploadDone(id) {
 
     settings.attachments[id].timestamp = new Date().getTime();
-
     insertAttachmentsData(id, true);
 
 }
@@ -4273,8 +4272,8 @@ function insertGrid(link, params) {
         [ 'hideButtonCreate'    , false ],
         [ 'hideButtonClone'     , false ],
         [ 'hideButtonDisconnect', false ],
-        [ 'hideButtonLabels'    , false ],
         [ 'rotate'              , false ],
+        [ 'sortOrder'           , [] ],
         [ 'sortBy'              , '' ],
         [ 'sortDirection'       , 'ascending' ],
         [ 'sortType'            , 'string' ],
@@ -4380,7 +4379,7 @@ function insertGridData(id) {
 
     let params = {
         link      : settings.grid[id].link,
-        timestamp : settings.grid[id].timestamp
+        timestamp : settings.grid[id].timestamp,
     }
 
     let requests    = [
@@ -4397,8 +4396,6 @@ function insertGridData(id) {
     if(settings.grid[id].headerLabel == 'descriptor') requests.push($.get('/plm/details', { link : settings.grid[id].link })); 
 
     Promise.all(requests).then(function(responses) {
-
-        console.log(responses);
 
         if(stopPanelContentUpdate(responses[0], settings.grid[id])) return;
 
@@ -4445,6 +4442,18 @@ function insertGridData(id) {
                     for(let row of rows) row.sort = Number(row.sort);
                 }
                 sortArray(rows, 'sort', settings.grid[id].sortType, settings.grid[id].sortDirection);
+            }
+
+            if(!isBlank(settings.grid[id].sortOrder)) {
+                for(let sort of settings.grid[id].sortOrder) {
+                    for(let row of rows) {
+                        row.sort = getFieldValueFromResponseData(sort.sortBy, row.rowData) || '';
+                    }
+                    if(sort.sortType.toLowerCase() === 'integer') {
+                        for(let row of rows) row.sort = Number(row.sort);
+                    }
+                    sortArray(rows, 'sort', sort.sortType, sort.sortDirection);
+                }
             }
 
             if(rows.length > 0 ) {

@@ -348,6 +348,30 @@ let categories = [
             'nav-recent-items' : 'recents'
         }
     },{
+        name        : 'sortBy',
+        description : 'Sort the grid based on the Field ID provided',
+        type        : 'String',
+        default     : '',
+        supportedBy : ['item-grid']
+    },{
+        name        : 'sortDirection',
+        description : 'Sort the grid in ascending or descending order',
+        type        : 'String',
+        default     : 'asending',
+        supportedBy : ['item-grid']
+    },{
+        name        : 'sortType',
+        description : 'Define the field type for proper sorting',
+        type        : 'String',
+        default     : 'string',
+        supportedBy : ['item-grid']
+    },{
+        name        : 'sortOrder',
+        description : 'Provide an array of value pairs with sortBy, sortType and sortDirection to enable sorting by multiple columns',
+        type        : 'Array',
+        default     : '[]',
+        supportedBy : ['item-grid']
+    },{
         name        : 'multiSelect',
         description : 'Enables selection of multiple items within the same panel. This also adds buttons to the panel toolbar to select all or none items.',
         type        : 'Boolean',
