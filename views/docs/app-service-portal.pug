@@ -18,14 +18,17 @@
             li Access list of defined Spare Parts
             li Submit Spare Part Requests 
             li Capture Problem Reports
-            li Browse catalog of serviceable products 
-            li Track progression of and update formerly create spare part requests
+            li Browse catalog of serviceable products and assets
+            li View and update assigned Asset Services
+            li Track progression of and update formerly created Spare Parts Requests
+            li Track progression of and update formerly created Problem Reports
         a(href='https://youtu.be/gYAyASE3vAU') See introduction video
         h1 Prerequisites
         ul
             li This solution is based on the standard 
                 strong Items 
                 | workspace and its standard properties.
+            li If the Service Portal should (also) be launched from the Fusion Manage standard user interface, the Chrome Exteionns provided with this package must be installed.
             li Spare parts get identified by the standard field 
                 strong Spare Wear Part 
                 | of workspace 
@@ -34,19 +37,15 @@
                 strong Spare Part 
                 | or 
                 strong Wear Part 
-                | for an item, it will be treated as spare part in this portal.
+                | for an item, it will be treated as spare part in this portal. The list of valid values can be configured in the settings.js file.
+            li If the portal is opened in context of a Product or Asset having a related Service BOM defined, this Service BOM will be used instead.
             li In order to create and manage the 
                 strong Spare Part Requests 
-                | processes, you have to add the given workspace to your tenant as described below.
-        h1 Limitations 
-        p Note that there is no capability to track the progress of 
-            strong Spare Part Requests 
-            | in this application. The given button 
-            strong Pending Requests 
-            | has no function. Tracking of requests in only possible in the standard user interface of PLM for now. This might change in future releases of this application.
-            br
-            | The application indicates the stock availability of each spare part using colors. As this solution does not have a real time connection to an ERP, the given information is generated randomly.
-        h1 Create BOM View 'Service' for workspace Items
+                | processes, the given workspace is required in your tenant. Recent demo and trial tenants include this workspace already. If the workspace does not exist, you can follow the steps described further down below for a basic configuration of this workspace - or download the Spare Parts Requests template from the library. In the latter case, make sure that the request's details tab and grid entries can link to your Items workspace in the given fields.
+        p If Spare Parts Requests are used, users will be able to track and update these requests within the Service Portal as well:
+        img(src='images/apps/services-portal-9.png' style='width:100%;max-width:768px;margin:10px 0px;')        
+        h1 Setup Instructions
+        h2 Create BOM View 'Service' for workspace Items
         p Create a new BOM view 
             strong Service 
             | for workspace 
@@ -93,7 +92,7 @@
                 td BOM Fields
                 td Quantity
                 td Quantity
-        h1 Configure Workspace Relationships of Problem Reports
+        h2 Configure Workspace Relationships of Problem Reports
         p Open the 
             strong Workspace Relationships 
             | control for workspace 
@@ -106,28 +105,39 @@
             strong Managed Items Tab 
             | in order to support creation of new PRs.
         img(src='images/apps/services-portal-1.png' style='max-width:960px;')
-        h1 Add button to launch the portal 
-        p Users can access the service portal by passing the dmsId and wsId of a given record, allowing to encode this information in a qr-code for example (see the end of this page for the given URL). 
-            br
-            |In addition, you may want to provide a button within the details page of an item to open the given portal from there. For this, add a new field 
-            strong Actions 
-            | which contains the computed formula shown below. In case your tenant has the given field already, please add this button to the existing 
-            strong Actions 
-            | field.
-        p Note that this computed field requires the field 
-            strong DMS_ID 
-            | which must contain the dmsId of the current record. As the other solutions of this package require this field as well, it is assumed that the given field exists already. If not, please add the field as single line text and let it be set upon item creation.
-        p Keep in mind to update the workspace id contained in the formula below if needed. It refers to workspace ID 57 which matches the standard 
-            strong Items 
-            | workspace. If you are using another id, please adjust the value of parameter wsId.
-        p.code CASE 
-            span WHEN (DMS_ID is null) THEN ''
-            span ELSE '&lt;a style="color: #0a131c;border: 1px solid #bec8d2;border-radius:3px;text-align:center;text-decoration:none !important;line-height:26px;white-space:nowrap;padding:4px 20px;width:140px;font-weight:600;" target="_blank" href ="LOCATIONservice?wsId=57&dmsId='||DMS_ID||'"&gt;Service Portal&lt;/a&gt;'
-            span END       
+        h1 Modes
+        p The Service Portal can be opened in different modes, it will automatically adapt to the given use case. 
+        h2 Mode #1 : In context of an Item defined by wsId/dmsId
+        p When opening the portal with URL parameters wsId and dmsId pointing to an item record, the portal will retrieve the EBOM of the given item and display its structure. Service technicians can navigate through the BOM, select spare parts and create Spare Parts Requests or Problem Reports in context of the selected item. In this scenario, Spare Parts are determined by the defined property on the EBOM items.
+        p See below the example layout of 
+            span.code http://localhost:8080/service?wsId=57&amp;dmsId=14669 
+        img(src='images/apps/services-portal-10.png' style='max-width:640px;')
+        a(href='service?wsId=57&dmsId=14669' target='_blank')
+        h2 Mode #2 : In context of an Item defined by Part Number
+        p Note that the same can be achieved by passing the URL parameter 
+            span.code number 
+            |followed by an item part number. In this case, the system will retreive the matching item first before then opening the related item's EBOM and viewable.
+        p See belw the example layout of 
+            span.code http://localhost:8080/service?number=002771 
+        img(src='images/apps/services-portal-11.png' style='max-width:640px;')
+        a(href='service?number=002771' target='_blank')
+        h2 Mode #3 : Product Browser 
+        p If no wsId and dmsId are provided, the portal will open a landing page showing a catalog of serviceable products. Users can navigate through this catalog, select a product of interest and open its BOM to create Spare Parts Requests or Problem Reports in context of the selected product. The list of products being shown in the landing page can be configured using settings.js. The Spare Parts will be determined by the Product's Service BOM if available - if not, the related EBOM and the defined Spare Part flag attribute will be used.
+        p See below the example layout of 
+            span.code http://localhost:8080/service 
+        img(src='images/apps/services-portal-12.png' style='max-width:640px;')
+        a(href='service' target='_blank')
+        h2 Mode #4 : Asset Browser
+        p If no wsId and dmsId are provided and the URL parameter 
+            span.code &amp;type=assets 
+            |is contained instead, the portal will open a landing page showing an Asset browser as well as assigned Asset Service Tickets. Users can open such a service ticket or an asset directly. In both cases, the asset's Service BOM or Engieering BOM will be used for the viewer, BOM and Spare Parts list generation. This mode requires the installation of the given template from the library for the Asset management.
+        p See below the example layout of 
+            span.code http://localhost:8080/service?type=assets 
+        img(src='images/apps/services-portal-13.png' style='max-width:640px;')
+        a(href='service?type=assets' target='_blank')
         h1 Add New Workspace Spare Parts Requests
-        p The Service Portal can be used to initiate spare parts requests processes with reference to the currently selected spare parts. Howeever, this feature requires the given workspace to manage these requests. If you do not want to manage these requests in PLM, you may skip this chapter. 
-        p If you are using a trial or demo tenant, you can take benefit of the preview version of a Spare Parts Requests solution in the template library. Simply download this given template to your tenant and make sure that you replace the placeholder text fields with the given linking picklists (i.e. field LNKED_ITEM in the details tab and ITEM in the grid tab). Afterwards, you can proceed with the next chapter, too.
-        p In any other case perform the following steps to manually create a new workspaces for management of the spare parts requests.
+        p The Service Portal can be used to initiate Spare Parts Requests processes with reference to the currently selected spare parts. However, this feature requires the given workspace to manage these requests. If you do not want to manage these requests in PLM or if this workspace is availalbe in your tenant already, please skip this chapter. 
+        p If the workspace does not exist, you can follow the steps below for a basic configuration of this workspace - or download the Spare Parts Requests template from the library. In the latter case, make sure that the request's details tab and grid entries can link to your Items workspace in the given fields.
         h2 Add Workspace
         p Add a new workspace named 
             strong Spare Parts Requests 
@@ -310,23 +320,6 @@
         h2 Access Permission 
         p Add a role for this new workspace and assign this given role to your users to enable access. Grant full access (add, delete, edit and view) to the tabs Attachments, Grid, and Workflow.
         img(src='images/apps/services-portal-6.png' style='width:100%;max-width:368px;margin:10px 0px;')
-        h1 Landing Page Configuration
-        p You may provide a landing page as part of the Service Portal, enabling users to navigate to the product of interest. If this is configured properly, users do no longer require direct access to a given BOM using the workspace ID and dms ID. Instead, they can click on a given product and with this open the matching service information of the related BOM.
-        img(src='images/apps/services-portal-8.png' style='width:100%;max-height:722px;margin:10px 0px;')
-        p In addition, they can track their formerly created spare parts requests.
-        img(src='images/apps/services-portal-9.png' style='width:100%;max-height:915px;margin:10px 0px;')
-        p With the default configuration, this capability involves the Products workspace. All products matching a defined search critieria will be displayed on the Landing Page. In addition, these products must link to the matching EBOM which will be used to open the given serivce information for the selected product.
-        p Various configuration settings drive this landing page: productsFilter, productsSortBy, productsGroupBy, productsFieldImage, ... wsIdProducts. See their description in the next chapter.
-        p The default configuration of the landing page uses the following settings: 
-            ol 
-                li All products of workspace 95 having an Engineering BOM will be shown (settings products.workspaceId and products.filter)
-                li These products will be grouped by Product Line (setting products.groupBy)
-                li Each product tile will show the image of field IMAGE as well as the products' TITLE and DESCRIPTION property values (settings products.fieldIdTileImage , products.fieldIdTileTitle and products.fieldIdTileSubtitle)
-                li When users click a product, its field ENGINEERING_BOM will be used to open the related BOM and to open the matching Service Portal for this item (setting products.fieldIdBOM)
-                li The header of the landing page's list of products is set to 'Serviceable Products' (settings products.headerLabel)
-        p You can disable access to this landing page with the home button by setting 'features.homeButton = false'. See chapter 
-            strong Feature Availability 
-            |for details.
         h1 Configuration Settings
         p Once the previous steps have been completed, you should review the solution's settings in file 
             strong settings.js 
@@ -334,36 +327,22 @@
         p.code
             span export.config = {
             span.indent service : {
+            span.indent-2 labels : { .. },
+            span.indent-2 products : { .. },
+            span.indent-2 items : { .. },
+            span.indent-2 sparePartsRequests : { .. },
+            span.indent-2 problemReports : { .. },
+            span.indent-2 serviceBOMTypes : { .. },
+            span.indent-2 assetServices : { .. },
+            span.indent-2 projects : { .. },
+            span.indent-2 assets : { .. },
+            span.indent-2 serialNumbers : { .. },
+            span.indent-2 ..
             span.indent-2 applicationFeatures : {
-            span.indent-3     homeButton            : true,
-            span.indent-3     toggleItemAttachments : true,
-            span.indent-3     toggleItemDetails     : true,
+            span.indent-3     homeButton : true,
+            span.indent-3     itemDetails : true,
             span.indent-3     ..
-            span.indent-3     enableCustomRequests     : true
-            span.indent-2 },
-            span.indent-2 products : {
-            span.indent-3     workspaceId            : 95,
-            span.indent-3     icon : 'icon-product',
-            span.indent-3     headerLabel     : 'Serviceable Products',
-            span.indent-3     ..
-            span.indent-3     filter     : [..]
-            span.indent-2 },
-            span.indent-2 items : {
-            span.indent-3     bmoViewName            : 'Service',
-            span.indent-3     bomRevisionBias : 'release',
-            span.indent-3     fieldIdImage     : 'IMAGE',
-            span.indent-3     ..
-            span.indent-3     sparePartTileDetails     : ['MATERIAL', 'ITEM_WEIGHT', 'DIMENSIONS']
-            span.indent-2 },
-            span.indent-2 problemReports : {
-            span.indent-3     workspaceId            : 82,
-            span.indent-3     fieldIdImage : 'IMAGE_1',
-            span.indent-2 },
-            span.indent-2 sparePartsRequests : {
-            span.indent-3     workspaceId            : 241,
-            span.indent-3     sectionsExpanded : [ 'Requestor Contact Details', 'Request Details' ],
-            span.indent-3     sectionsExcluded     : [ 'Planning &amp; Tracking', 'Request Confirmation', 'Quote Submission &amp; Response', 'Real Time KPIs', 'Workflow Activity', 'Quote Summary', 'Order Processing', 'Related Processes' ],
-            span.indent-3     gridColumnsExcluded     : [ 'Line Item Cost', 'Availability [%]', 'Manufacturer', 'Manufacturer P/N', 'Unit Cost', 'Total Cost', 'Make or Buy', 'Lead Time (w)', 'Long Lead Time']
+            span.indent-3     openInPLM : true
             span.indent-2 },
             span.indent-2 viewerFeatures : {
             span.indent-3 contextMenu   : false,
@@ -374,119 +353,187 @@
             span.indent-2 } 
             span.indent }
             span }                         
-        h2 Basic Settings
-        p 
-            table 
-                tr
-                    th Setting 
-                    th Default Value 
-                    th Description  
-                tr 
-                    td products.workspaceId
-                    td 95
-                    td Provide the workspace ID of 
-                        strong Products 
-                        | to enable navigation to given product BOM via a landing page
-                tr 
-                    td products.icon
-                    td 'icon-product'
-                    td The icon to use for products in the landing page if no image is available
-                tr 
-                    td products.headerLabel
-                    td Serviceable Products
-                    td Defines the header being shown on top of the products list in the landing page
-                tr 
-                    td products.groupBy
-                    td 'PRODUCT_LINE'
-                    td This optional setting enables to group the prdoducts in the landing page based on the given field's values                    
-                tr 
-                    td products.contentSize
-                    td 'l'
-                    td Defines the size of tiles in the products landing page
-                tr 
-                    td products.fieldIdTileImage
-                    td 'IMAGE'
-                    td The field ID to use for retrieving the products' images in the landing page
-                tr 
-                    td products.fieldIdTileTitle
-                    td 'TITLE'
-                    td The field ID to use for the products' tiles title in the landing page
-                tr 
-                    td products.fieldIdTileSubtitle
-                    td 'DESCRIPTION'
-                    td The field ID to use for the products' tiles subtitles in the landing page
-                tr 
-                    td products.fieldIdBOM
-                    td ENGINEERING_BOM
-                    td Field of Products workspace that links the given BOM that will be used to retrive product information once a user clicks on a product tile
-                tr 
-                    td products.filter
-                    td [..]
-                    td List of filters to determine the products displayed in the landing page. The default filter will search for all records having a value in field ENGINEERING_BOM.
-                tr 
-                    td items.bomViewName
-                    td 'Service'
-                    td Provide name of the BOM view that has been created in the previous steps
-                tr 
-                    td items.bomRevisionBias
-                    td 'release'
-                    td Select the revision bias when expanding the BOM. Select 'working' or 'release'.
-                tr 
-                    td items.fieldIdImage
-                    td IMAGE
-                    td ID of field containing the item image being used for the spare parts list panel
-                tr 
-                    td items.fieldIdSparePart
-                    td SPARE_WEAR_PART
-                    td ID of field being used to identify spare parts (the next setting defines the possible values of this field)
-                tr 
-                    td items.fieldValuesSparePart
-                    td ['spare part', 'yes', 'x', 'y', 'wear part']
-                    td List of values (for the previous field) which are used to identify spare parts 
-                tr 
-                    td items.endItemFilter
-                    td { 'fieldId' : 'SBOM_END_ITEM', 'value' : true }
-                    td BOM items having the given value in the defined field will be considered as end nodes. Users will not be able to see the items below.
-                        br
-                        |This filter only applies if the given fieldId is present in your Items workspace. 
-                        br
-                        |If the field does not exist, this setting will be ignored automatically.
-                        br
-                        |Of course you can change this setting to make use of another field. 
-                        br
-                        |In any case, this field must be included in the BOM view being used by the Service Portal (default is 'Service').
-                tr 
-                    td items.sparePartDetails
-                    td ['MATERIAL', 'ITEM_WEIGHT', 'DIMENSIONS']
-                    td Each spare part tile can show 3 additional fields. If other fields than the default fields are relevent, change this list. However, make sure that there are exactly 3 entries and these fields also must be contained in the given BOM view.
-                tr 
-                    td problemReports.workspaceId
-                    td 82
-                    td Provide the workspace ID of 
-                        strong Problem Reports 
-                        | to enable creation of new processes from within the application (82 matches the default tenant configuration)
-                tr 
-                    td problemReports.fieldIdImage
-                    td IMAGE_1
-                    td Provide image field ID to be use for storing the markup image of new Problem Reports
-                tr 
-                    td sparePartsRequests.workspaceId
-                    td ?
-                    td Provide ID of the new workspace 
-                        strong Spare Parts Requests 
-                        | to enable creation of new requests from within the application
-                tr 
-                    td sparePartsRequests.sectionsExpanded
-                    td [ 'Requestor Contact Details', 'Request Details' ]
-                    td Defines sections to be expandend in Spare Part Request details pages. Sections not listed will be collapsed automatically.
-                tr 
-                    td sparePartsRequests.sectionsExcluded
-                    td [ 'Planning &amp; Tracking', 'Request Confirmation', 'Quote Submission &amp; Response', 'Real Time KPIs', 'Workflow Activity', 'Quote Summary', 'Order Processing', 'Related Processes' ]
-                    td Defines sections to be hidden from Spare Part Request details display.
-                tr 
-                    td sparePartsRequests.gridColumnsExcluded
-                    td ['UNIT_COST', 'TOTAL_COST', 'MAKE_OR_BUY', 'MANUFACTURER', 'MANUFACTURER_PN', 'LEAD_TIME', 'LONG_LEAD_TIME']
-                    td Defines columns to be hidden from Part List when users open a given spare part request within the portal to track its progression.
+        h2 Configuring Basic Settings
+        table 
+            tr
+                th Setting 
+                th Default Value 
+                th Description  
+            tr  
+                td labels.homeSparePartRequests
+                td 'Spare Part Requests'
+                td Sets label of side panel in landing page
+            tr  
+                td labels.homeProblemReports
+                td 'Problem Reports'
+                td Sets label of side panel in landing page
+            tr 
+                td products.workspaceId
+                td 95
+                td Provide the workspace ID of 
+            tr 
+                td products.headerLabel
+                td 'Serviceable Products'
+                td Sets label of product navigator in landing page      
+            tr 
+                td products.icon
+                td 'icon-product'
+                td The icon to use for products in the landing page if no image is available 
+            tr 
+                td products.groupBy
+                td 'PRODUCT_LINE'
+                td This optional setting enables to group the prdoducts in the landing page based on the given field's values                                            
+            tr 
+                td products.contentSize
+                td 'l'
+                td Defines the size of tiles in the products landing page
+            tr 
+                td products.tileImage
+                td 'IMAGE'
+                td The field ID to use for retrieving the products' images in the landing page
+            tr 
+                td products.tileTitle
+                td 'TITLE'
+                td The field ID to use for the products' tiles title in the landing page
+            tr 
+                td products.tileSubtitle
+                td 'DESCRIPTION'
+                td The field ID to use for the products' tiles subtitles in the landing page
+            tr 
+                td products.filter
+                td [..]
+                td List of filters to determine the products displayed in the landing page. The default filter will search for all records having a value in field ENGINEERING_BOM.                    
+            tr 
+                td products.fieldIDs.ebom
+                td 'ENGINEERING_BOM'
+                td Field of Products workspace that links the Engineering BOM being used to retrive product information (and viewable) once a user clicks on a product tile   
+            tr 
+                td products.fieldIDs.sbom
+                td 'SERVICE_BOM'
+                td Field of Products workspace that links the Service BOM being used to retrive Spare Parts information created by the Service BOM Editor
+            tr 
+                td items.bomViewName
+                td 'Service'
+                td Provide name of the Engineering BOM view that has been created in the previous steps
+            tr 
+                td items.bomRevisionBias
+                td 'release'
+                td Select the revision bias when expanding the Engineering BOM. Select 'working' or 'release'.
+            tr 
+                td items.fieldIdSparePart
+                td 'SPARE_WEAR_PART'
+                td ID of field being used to identify Spare Parts in the Engineering BOM (the next setting defines the possible values of this field)
+            tr 
+                td items.fieldValuesSparePart
+                td ['spare part', 'yes', 'x', 'y', 'wear part']
+                td List of values (for the field defined by items.fieldIdSparePart) which are used to identify spare parts 
+            tr 
+                td items.endItemFilter
+                td { 'fieldId' : 'SBOM_END_ITEM', 'value' : true }
+                td BOM items having the given value in the defined field will be considered as end nodes. Users will not be able to see the items below.
+                    br
+                    |This filter only applies if the given fieldId is present in your Items workspace. 
+                    br
+                    |If the field does not exist, this setting will be ignored automatically.
+                    br
+                    |Of course you can change this setting to make use of another field. 
+                    br
+                    |In any case, this field must be included in the BOM view being used by the Service Portal (default is 'Service').
+            tr 
+                td items.sparePartDetails
+                td ['MATERIAL', 'ITEM_WEIGHT', 'DIMENSIONS']
+                td Each spare part tile can show 3 additional fields. If other fields than the default fields are relevent, change this list. However, make sure that there are exactly 3 entries and these fields also must be contained in the given BOM view.                
+            tr  
+                td sparePartsRequests.workspaceId
+                td 241
+                td Provide the workspace ID of 
+                    strong Spare Parts Requests 
+                    | to enable creation of new processes from within the application
+            tr  
+                td sparePartsRequests.sectionsExpanded
+                td [ 'Requestor Contact Details', 'Request Details' ]
+                td Provide titles of sections to be expanded by default in Spare Parts Request details views
+            tr  
+                td sparePartsRequests.sectionsExcluded
+                td [ 'Planning &amp; Tracking', 'Request Confirmation', 'Quote Submission &amp; Response', 'Real Time KPIs', 'Workflow Activity', 'Quote Summary', 'Order Processing', 'Related Processes' ]
+                td Provide titles of sections to be excluded in Spare Parts Request details views
+            tr  
+                td sparePartsRequests.gridColumnsExcluded
+                td [ 'Line Item Cost', 'Availability [%]', 'Manufacturer', 'Manufacturer P/N', 'Unit Cost', 'Total Cost', 'Make or Buy', 'Lead Time (w)', 'Long Lead Time']
+                td Provide titles of grid columns of the Spare Parts Requests workspace to be excluded in details view
+            tr  
+                td sparePartsRequests.stateColors
+                td [..]
+                td Sets colors for defined states of Spare Parts Requests in landing page panel
+            tr  
+                td problemReports.workspaceId
+                td 82
+                td Provide the workspace ID of 
+                    strong Problem Reports
+                    | to enable creation of new processes from within the application (82 matches the default tenant configuration)
+            tr  
+                td problemReports.fieldIdImage
+                td 'IMAGE_1'
+                td ID of field to be used as preview image in Problem Reports panel in landing page
+            tr  
+                td problemReports.stateColors
+                td [..]
+                td Sets colors for defined states of Spare Parts Requests in landing page panel
+ 
+        h2 Configuring Service BOM Support
+        p The following settings are required if the Service Portal should use the related Service BOM for the Spare Parts list creation instead of the Engineering BOM items. These settings must be aligned with the given configuration settings of the Service BOM Editor. Multiple settings must be defined for each major item type in the Service BOM, especially the Type field value (fieldValue). Both groupLabel and icon impact the disply of given BOM entries in the Service Portal. 
+        table 
+            tr
+                th Setting 
+                th Default Value 
+                th Description  
+            tr  
+                td serviceBOMTypes.sparePart
+                td { fieldValue : 'Spare Parts List', groupLabel : 'Spare Parts', icon : 'icon-package' }
+                td This will drive the list of items that can be ordered as single Spare Parts
+            tr  
+                td serviceBOMTypes.kit
+                td { fieldValue : 'Service Kit', groupLabel : 'Kits', icon : 'icon-list' }
+                td This will drive the list of items that can only be ordered as part of a Maintenance Kit
+            tr  
+                td serviceBOMTypes.offering
+                td { fieldValue : 'Service Offering', groupLabel : 'Service Offerings', icon : 'icon-layers' }
+                td This will drive the list of items that can only be ordered as part of Service Offerings
+        h2 Configuring support for Assets  
+        p The following settings are required if the Service Portal should support Assets and Asset Services based on the given template in the library (which is avaialble for testing only as of December 2025). They only apply when opening the portal with parameter 
+            span.code &amp;type=assets
+            |.
+        table
+            tr
+                th Setting 
+                th Default Value 
+                th Description  
+            tr 
+                td assetServices
+                td { workspaceId : 284, .. }
+                td These settings define the support of Asset Services in the portal from the landing page display to fieldIDs for BOM retrieval to process display
+            tr 
+                td projects
+                td { workspaceId : 283, .. }
+                td These settings define the support of Order Projects in the portal
+            tr 
+                td assets
+                td { workspaceId : 280, .. }
+                td These settings define the support of Assets in the portal. The fieldIDs are specifically important as they determine how to retrieve the related Engineering BOM, Service BOM and Serial Numbers List of a selected Asset.
+            tr 
+                td serialNumbers
+                td {}
+                td These settings define the support of serial numbers management of the selected Asset in the portal. Setting 
+                    span.code tableColumns 
+                    |defines the grid columns to be displayed in the given panel. The setting 
+                    span.code fieldIDs 
+                    |is used for locating the matching item instances in the BOM and viewer.
+        h2 Configuring Panels 
+        p The portal contains multiple configurable panels: the Documentation tabe, the Item Details panel and the related Item Attachmens. The following settings can be used to adjust these panels' contents and behaviors if needed: 
+        ul 
+            li paramsItemDetails
+            li paramsItemAttachments
+            li paramsDocumentation
         h2 Configuring Application Features
         p Selected application features can be restricted using the applicationFeatures property in settings.js. In general, if a property equals true, the given feature will be available for the user. You can use basic boolean values, but also make use of groups to grant access for defined user groups only. Examples: 
             ul 
@@ -505,20 +552,24 @@
                     td Enables Home button in global toolbar to close a given product's spare parts view and to return to the landing page 
                     td true
                 tr 
-                    td features.toggleItemAttachments 
-                    td Enables button 'Toggle Files' in global toolbar to toggle the selected item's attachments on/off
-                    td true
-                tr 
-                    td features.toggleItemDetails 
+                    td features.itemDetails 
                     td Enables button 'Toggle Details' in global toolbar to toggle the selected item's details on/off
                     td true
                 tr 
-                    td features.productDocumentation 
-                    td Enables tab 'Documentation' next to the tab 'Spare Parts', enabling users to download files attached to the context product. Note that this list will be empty if users access the Service Portal with a defined item dmsId. Only if users click on a product in the landing page of the Service Portal, this tab will contain data.
+                    td features.itemAttachments 
+                    td When enabled, the Item Details panel enabled by features.itemDetails will contain an attachments section to download files attached to the selected item
+                    td true
+                tr 
+                    td features.contextDocumentation 
+                    td Enables tab 'Documentation' next to the tab 'Spare Parts', enabling users to download files attached to the context product/asset. Note that this list will be empty if users access the Service Portal with a defined item dmsId. Only if users click on a product in the landing page of the Service Portal, this tab will contain data.
+                    td true
+                tr 
+                    td features.manageSparePartRequests 
+                    td Enables the landing page panel to track Spare Parts Requests in progress
                     td true
                 tr 
                     td features.manageProblemReports 
-                    td Enables tab 'Problem Reports' next to the tab 'Spare Parts', enabling users to reveal related PRs and also to create new ones
+                    td Enables tab 'Problem Reports' next to the tab 'Spare Parts', enabling users to reveal related PRs and also to create new ones. This also adds the given panel in the landing page to review processes in progress.
                     td true
                 tr 
                     td features.showStock 
@@ -526,26 +577,53 @@
                     td true
                 tr 
                     td features.requestWorkflowActions 
-                    td Enables display of workflow actions menu when opening a spare part request from the landing page
+                    td Enables display of workflow actions menu when opening a Spare Parts Request from the landing page
+                    td true
+                tr 
+                    td features.problemWorkflowActions 
+                    td Enables display of workflow actions menu when opening a Problem Report from the landing page
                     td true
                 tr 
                     td features.enableCustomRequests 
                     td When set to true, users can add non-spare-parts to service requests as well
                     td true
-
+                tr 
+                    td features.openInPLM 
+                    td Enables button 'Open in PLM' in panel toolbars to open the current selected item in the standard PLM user interface. Disable this property if users should not be aware of the PLM standard user interface.
+                    td true
         h2 Configuring Viewer Features
         include ../framework/viewer.pug
-        h1 Access the Services Portal
-        p You can access the Services Portal portal with the /service endpoint:
-        a(href='service' target='_blank')
-        p To open the portal for a given item directly, provide the wsId dmsId of the 
-            strong Items 
-            |record as URL parameters. The following links will work for default demo tenants containing the default demo data. Please note that none of the demo items has been set as spare part yet:
-        a(href='service?wsId=57&dmsId=14669' target='_blank')
-        a(href='service?wsId=57&dmsId=14849' target='_blank' style='margin-left:20px;')
     .log 
         h1 Services Portal Change Log 
         table 
+            tr 
+                td 2. December 2025
+                td Changed Settings
+                td To enable the new features of this release, the settings had to be updated. Please review the new settings.js file and update it accordingly.
+            tr 
+                td 
+                td Enhancement
+                td Additional settings now provide more control of the application features, labels and icons
+            tr 
+                td 
+                td Enhancement
+                td The portal now is compliant with the Service BOM editor: If the context item has a Service BOM connected, this given BOM's spare part information will be used instead of the EBOM data.
+            tr 
+                td 
+                td New Feature
+                td Users will find their list of pending Problem Reports in the landing page of the portal now as well to easily track and update their formerly created PRs.
+            tr 
+                td 
+                td New Feature
+                td When opened with URL parameter 'type=assets', the portal will display pending Asset Services as well as a navigator for Assets instead of Products
+            tr 
+                td 
+                td New Feature
+                td Users can access pending Asset Services in the landing page now and open the related Asset's BOM to create Spare Part Requests or Problem Reports in context of the Asset.
+            tr 
+                td 
+                td New Feature
+                td The solution now can be launched in context of Assets as well and with this is compliant with the upcoming template library solution. When accessing an Asset or Asset Service, users can update the list of Serial Numbers as well as the service ticket.
             tr 
                 td 23. September 2025
                 td Quality

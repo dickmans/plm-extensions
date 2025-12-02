@@ -1,41 +1,65 @@
 :root {
-
-    --width-requests         : 650px;
-    --padding-landing-top    : 24px;
-    --padding-landing-side   : 40px;
-    --padding-landing-bottom : 16px;
-    --width-bom              : 550px;
-    --width-details          : 350px;
-    --width-panel            : 560px;
-    --height-attachments     : 176px;
-    --width-request-history  : 300px;
-    --width-request-details  : 500px;
-    --padding-panel          :  32px;
+    
+    --border-v : 24px;
+    --border-h : 36px;
+    
+    --height-assets              : 500px;
+    --height-item-attachments    : 300px;
+    --height-request-attachments : 300px;
+    --height-snl                 : 400px;
+    
+    --width-bom             : 580px;
+    --width-details         : 350px;
+    --width-panel           : 560px;
+    --width-request-history : 300px;
+    --width-request-details : 500px;
+    --width-service         : 500px;
+    --width-services        : 400px;
+    --width-your-processes  : 500px;
 
 }
-.screen { display : none; }
-#panel .icon::before { font-weight : 200; }
 
 
 /* MASTER LAYOUT */
 /* ----------------------------------------------------------------------------- */
-#products {
-    border-width : var(--padding-landing-top) var(--padding-landing-side) var(--padding-landing-bottom);
+#services {
+    border-width : var(--border-v) var(--border-h);
     top          : 0px;
-    right        : calc(var(--width-requests) + (2 * var(--padding-landing-side)));
+    bottom       : 0px;
+    left         : 0px;
+    width        : var(--width-services);
+}
+#projects {
+    border-width : var(--border-v) var(--border-h);
+    top          : 0px;
+    right        : calc(var(--width-your-processes) + (2 * var(--border-h)));
+    bottom       : calc(var(--height-assets) + (2 * var(--border-v)));
+    left         : calc(var(--width-services) + (2 * var(--border-h)));
+}
+#assets {
+    border-width : var(--border-v) var(--border-h);
+    right        : calc(var(--width-your-processes) + (2 * var(--border-h)));
+    bottom       : 0px;
+    left         : calc(var(--width-services) + (2 * var(--border-h)));
+    height       : var(--height-assets);
+}
+#products {
+    border-width : var(--border-v) var(--border-h);
+    top          : 0px;
+    right        : calc(var(--width-your-processes) + (2 * var(--border-h)));
     bottom       : 0px;
     left         : 0px;
 }
-#requests {
-    border-width : var(--padding-landing-top) var(--padding-landing-side) var(--padding-landing-bottom);
+#your-processes {
+    border-width : var(--border-v) var(--border-h);
     top          : 0px;
     right        : 0px;
     bottom       : 0px;
-    width        : var(--width-requests);
+    width        : var(--width-your-processes);
 }
 
 #item {
-    border-width : var(--padding-panel);
+    border-width : var(--border-v) var(--border-h);
 }
 #request-workflow-history {
     top     : 0px;
@@ -52,75 +76,155 @@
 #request-grid {
     top     : 0px;
     right   : 0px;
-    bottom  : calc(var(--height-attachments) + (2 * var(--item-content-border-v)) + var(--item-content-gap));
+    bottom  : calc(var(--height-request-attachments) + (2 * var(--item-content-border-v)) + var(--item-content-gap));
     left    : calc(var(--width-request-history) + var(--width-request-details) + (4 * var(--item-content-border-h)) + (2 * var(--item-content-gap)));
 }
 #request-attachments {
     bottom  : 0px;
     right   : 0px;
     left    : calc(var(--width-request-history) + var(--width-request-details) + (4 * var(--item-content-border-h)) + (2 * var(--item-content-gap)));
-    height  : var(--height-attachments);
+    height  : var(--height-request-attachments);
 }
 
-#bom, .viewer, #panel, #details {
+#main {
+    --border-v : 16px;
+    --border-h : 24px;
+}
+#service, .viewer, #panel, #details {
     top     : 0px;
     bottom  : 0px;
 }
-#bom {
-    border-width : var(--padding-panel);
+#service {
+    border-width : var(--border-v) var(--border-h);
     left         : 0px;
+    width        : var(--width-service);
+}
+#bom {
+    border-width : var(--border-v) var(--border-h);
+    top          : 0px;
+    bottom       : 0px;
+    left         : calc(var(--width-service) + (2 * var(--border-h)));
     width        : var(--width-bom);
 }
 .viewer {
-    bottom : calc(var(--height-attachments) + (2 * var(--padding-panel)));
+    bottom : calc(var(--height-snl) + (2 * var(--border-v)));
 }
 .viewer,
-#attachments {
-    right  :  calc(var(--width-panel) + var(--width-details) + (4 * var(--padding-panel)));
-    left   :  calc(var(--width-bom)   + (2 * var(--padding-panel)));
+#snl {
+    right  :  calc(var(--width-panel) + var(--width-details) + (4 * var(--border-h)));
+    left   :  calc(var(--width-service) + var(--width-bom)   + (4 * var(--border-h)));
 }
-#attachments {
-    border-width : var(--padding-panel);
+#snl {
+    border-width : var(--border-v) var(--border-h);
     bottom       : 0px;
-    height       : var(--height-attachments);
+    left         : calc(var(--width-service) + var(--width-bom)   + (4 * var(--border-h)));
+    height       : var(--height-snl);
 }
 #panel {
-    border-width : var(--padding-panel) 0px var(--padding-panel) var(--padding-panel);
-    right        : calc(var(--width-details) + (2 * var(--padding-panel)));;
+    border-width : var(--border-v) var(--border-h);
+    right        : calc(var(--width-details) + (2 * var(--border-h)));;
     width        : var(--width-panel);
 }
 #details {
-    border-width : var(--padding-panel);
+    border-width : var(--border-v) var(--border-h);
     right        : 0px;
     width        : var(--width-details); 
     z-index      : 4;
 }
 
+.screen { display : none; }
+
 .screen-landing #landing { display : block; }
 .screen-landing #header-subtitle,
 .screen-landing #header-toolbar .button { display : none; }
-.screen-main     #main { display : block; }
+.screen-main    #landing { display : none; }
+.screen-main    #main { display : block; }
+
+.no-your-processes #assets,
+.no-your-processes #products { right : 0px; }
+
+.no-assets-list #projects { bottom : 0px; }
+.no-assets-list #assets { bottom : calc(0px - var(--height-assets) - (2 * var(--border-v))); }
+
+.no-asset-service #service { left : calc(0px - var(--width-service) - (2 * var(--border-h)));}
+.no-asset-service #bom     { left : 0px;}
+.no-asset-service .viewer,
+.no-asset-service #snl     { left : calc(var(--width-bom) + (2 * var(--border-h))); }
 
 .no-panel.no-details .viewer,
-.no-panel.no-details #attachments      { right : 0px !important; }
+.no-panel.no-details #snl { right : 0px !important; }
 .no-panel #details          { right : 0px; } 
-.no-panel #panel            { right : calc(0px - var(--width-panel) - (2 * var(--padding-panel))) !important; }
+.no-panel #panel            { right : calc(0px - var(--width-panel) - (2 * var(--border-h))) !important; }
 
-.no-panel .viewer,
-.no-panel #attachments { right  :  calc(var(--width-details) + (2 * var(--padding-panel))); }
+.no-panel .viewer { right  :  calc(var(--width-details) + (2 * var(--border-h))); }
 
 .no-details .viewer,
-.no-details #attachments { right  :  calc(var(--width-panel) + (2 * var(--padding-panel))); }
-.no-details #panel { right : 0px; border-width : var(--padding-panel); }
-.no-details #details { right : calc(0px - var(--width-details) - (2 * var(--padding-panel))); }
+.no-details #snl  { right  :  calc(var(--width-panel) + (2 * var(--border-h))); }
+.no-details #panel { right : 0px; }
+.no-details #details { right : calc(0px - var(--width-details) - (2 * var(--border-h))); }
 
-.no-bom #bom         { left : calc(0px - var(--width-bom) - (2 * var(--padding-panel))); }
-.no-bom .viewer      { left : 0px; }
-.no-bom #attachments { left : 0px; }
+.no-bom #bom { left : calc(0px - var(--width-bom) - (2 * var(--border-h))); }
+.no-bom .viewer,
+.no-bom #snl { left : calc(var(--width-service) + (2 * var(--border-h))); }
 
-.no-attachments .viewer      { bottom : 0px; }
-.no-attachments #attachments { bottom : calc(2 * var(--height-attachments) * -1); }
+.no-asset-service.no-bom .viewer,
+.no-asset-service.no-bom #snl { left : 0px; }
 
+.no-snl .viewer { bottom : 0px; }
+.no-snl #snl { bottom : calc(0px - var(--height-snl) - (2 * var(--border-v))); }
+
+.panel-actions { justify-content : end; }
+
+
+/* HEADER TOOLBAR */
+/* ----------------------------------------------------------------------------- */
+#header-toolbar > .with-icon::before {
+    font-variation-settings: 'FILL' 1, 'wght' 200, 'GRAD' 0, 'opsz' 48;
+}
+.no-asset-service #toggle-service::before,
+.no-bom           #toggle-bom::before,
+.no-snl           #toggle-snl::before,
+.no-panel         #toggle-panel::before,
+.no-details       #toggle-details::before,
+.no-attachments   #toggle-attachments::before { font-variation-settings : unset; }
+
+
+/* LANDING PAGE PROJECTS */
+/* ----------------------------------------------------------------------------- */
+#projects-content .tile-details {
+    margin-top : 12px;
+}
+#projects-content .tile-subtitle {
+    height : 18px;
+}
+#projects-content .tile-data {
+    gap : 6px;
+}
+
+
+/* LANDING PAGE PANEL */
+/* ----------------------------------------------------------------------------- */
+#your-processes .panel-content.l .tile-title {
+    line-height : 22px;
+}
+#your-processes .panel-content.l .tile-details {
+    gap        : 4px;
+    margin-top : 10px;
+}
+#your-processes .panel-content.l .tile-subtitle {
+    font-size: 12px;
+    line-height: 14px;
+}
+#your-processes .panel-content.l .tile-data {
+    flex-direction : row;
+}
+#your-processes .panel-content.m .tile-details {
+    gap        : 2px;
+    margin-top : 2px;
+}
+#your-processes .panel-content.m .tile-data {
+    flex-direction : row;
+}
 
 
 /* REQUEST DETAILS */
@@ -133,27 +237,46 @@
 }
 
 
+/* ASSET SERVICE */
+/* ----------------------------------------------------------------------------- */
+#service-descriptor {
+    font-size   : 18px;
+    font-weight : 700;
+    height      : 38px;
+    line-height : 38px;
+}
+#service-title {
+    gap    : 20px;
+    height : 74px;
+}
+#service-subtitle {
+    height : 28px;
+}
+#service-summary {
+    font-size : 12px;
+}
+
 
 /* BOM */
 /* ----------------------------------------------------------------------------- */
-.spare-part-custom .bom-column-icon { 
-    color : var(--color-blue-500);
- }
 .bom-column-spare-parts {
     padding-right : 6px !important;
 }
 
 
-
-/* ATTACHMENTS */
+/* DETAILS */
 /* ----------------------------------------------------------------------------- */
-#attachments {
-    text-align : center;
+#details-top {
+    bottom : calc(var(--height-item-attachments) + var(--border-v));
 }
-#attachments-content {
-    justify-content: center;
+#details-bottom {
+    height : var(--height-item-attachments);
 }
 
+
+/* PANEL */
+/* ----------------------------------------------------------------------------- */
+#panel .icon::before { font-weight : 200; }
 
 
 /* SPARE PARTS LIST */
@@ -266,6 +389,8 @@
 #items-content.m .spare-part-side {
     flex-direction : row;
     gap            : 8px;
+    max-width      : 160px;
+    min-width      : 160px;
     width          : 160px;
 }
 #items-content.m .cart-add { 
@@ -282,7 +407,10 @@
 #items-content.m .spare-part-stock {
     padding : 12px 6px;
 }
-
+#items-content.service-bom {
+    flex-direction : row;
+    gap : 4px;
+}
 #items-content .cart-quantity,
 #items-content .cart-remove { display : none; }
 #cart-list .cart-add,
@@ -291,6 +419,80 @@
     min-width : unset !important;
     max-width : 14px;
  }
+.no-match { 
+    display : none !important;
+}
+
+
+
+/* SERVICE BOM */
+/* ----------------------------------------------------------------------------- */
+.spare-parts-group {
+    background  : var(--color-surface-level-4);
+    cursor      : pointer;
+    padding     : 4px 10px;
+    display     : flex;
+    max-height  : 24px;
+    min-height  : 24px;
+    height      : 24px;
+    line-height : 24px;
+    width       : 100%;
+}
+.spare-parts-group:hover {
+    background : var(--color-surface-level-5);
+}
+.spare-parts-list {
+    display        : flex;
+    flex-direction : column;
+    gap            : 1px;
+    width          : 100%;
+}
+.spare-part-components {
+    border         : 1px solid var(--color-surface-level-2);
+    display        : flex;
+    flex-direction : column;
+    font-size      : 12px;
+    line-height    : 22px;
+    gap            : 1px;
+    margin-bottom  : 10px;
+}
+.spare-part-component {
+    background : var(--color-surface-level-1);
+    cursor     : pointer;
+    display    : flex;
+    gap        : 10px;
+    width      : 100%;
+}
+.spare-part-component:hover {
+    background : var(--color-hover-background) !important;
+}
+.spare-part-component:hover .spare-part-component-quantity {
+    background : var(--color-hover-border) !important;
+}
+.spare-part-component-quantity {
+    background : var(--color-surface-level-3);
+    max-width  : 64px;
+    min-width  : 64px;
+    width      : 64px;
+    text-align : center;
+}
+.spare-part-component.selected {
+    background : var(--color-selected-background);
+}
+.spare-part-component.selected .spare-part-component-quantity {
+    background : var(--color-selected-image);
+}
+.spare-part-components-toggle {
+    background  : var(--color-surface-level-3);
+    cursor      : pointer;
+    height      : 18px;
+    line-height : 18px;
+    text-align  : center;
+    width       : 100%;
+}
+.spare-part-components-toggle:hover {
+    background : var(--color-surface-level-4);
+}
 
 
 
@@ -397,6 +599,9 @@
 #items-content {
     transition  : all ease 0.3s;
 }
+.in-cart { 
+    display : none !important;
+}
 
 
 
@@ -483,12 +688,20 @@
     line-height     : 28px;
     min-height      : 60px;
 }
+#request-list .spare-part .tile-image {
+    background  : var(--color-surface-level-4);
+    font-size   : 28px;
+    line-height : 60px;
+    max-width   : 60px;
+    min-width   : 60px;
+    width       : 60px;
+}
 #request-list .spare-part .tile-details {
-    flex-direction  : row;
-    gap             : 20px;
-    line-height     : 30px;
-    margin          : 10px 20px;
-    width           : calc(100% - 366px);
+    flex-direction : row;
+    gap            : 20px;
+    line-height    : 30px;
+    margin         : 10px 20px;
+    width          : calc(100% - 366px);
 }
 #request-list .spare-part-quantity,
 #request-list .spare-part-number,

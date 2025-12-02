@@ -736,52 +736,167 @@ exports.config = {
     },
 
     service : {
-        applicationFeatures : {
-            homeButton             : true,
-            toggleItemAttachments  : true,
-            toggleItemDetails      : true,
-            productDocumentation   : true,
-            manageProblemReports   : true,
-            showStock              : true,
-            requestWorkflowActions : true,
-            enableCustomRequests   : true
+        labels : {
+            homeSparePartRequests : 'Spare Part Requests',
+            homeProblemReports    : 'Problem Reports'
         },
         products : {
-            workspaceId         : 95,
-            icon                : 'icon-product',
-            headerLabel         : 'Serviceable Products',
-            groupBy             : 'PRODUCT_LINE',
-            contentSize         : 'l',
-            fieldIdTileImage    : 'IMAGE',
-            fieldIdTileTitle    : 'TITLE',
-            fieldIdTileSubtitle : 'DESCRIPTION',
-            fieldIdBOM          : 'ENGINEERING_BOM',
-            filter              : [{
-                field       : 'ENGINEERING_BOM',
-                type        : 0,
-                comparator  : 21,
-                value       : ''
-            }]
+            workspaceId  : 95,
+            headerLabel  : 'Serviceable Products',
+            icon         : 'icon-product',
+            groupBy      : 'PRODUCT_LINE',
+            contentSize  : 'l',
+            tileImage    : 'IMAGE',
+            tileTitle    : 'TITLE',
+            tileSubtitle : 'DESCRIPTION',
+            filter       : [{
+                field      : 'ENGINEERING_BOM',
+                type       : 0,
+                comparator : 21,
+                value      : ''
+            }],
+            fieldIDs : {
+                ebom : 'ENGINEERING_BOM',
+                sbom : 'SERVICE_BOM'
+            }           
         },
         items : {
-            bmoViewName          : 'Service',
+            bomViewName          : 'Service',
             bomRevisionBias      : 'release',
-            fieldIdImage         : 'IMAGE',
             fieldIdSparePart     : 'SPARE_WEAR_PART',
             fieldValuesSparePart : ['spare part', 'yes', 'x', 'y', 'wear part'],
             endItemFilter        : { fieldId : 'SBOM_END_ITEM', value : true },
             sparePartTileDetails : ['MATERIAL', 'ITEM_WEIGHT', 'DIMENSIONS']
-        },
-        problemReports : {
-            workspaceId  : 82,
-            fieldIdImage : 'IMAGE_1'
-        },
+        },       
         sparePartsRequests : {
             workspaceId         : 241,
             sectionsExpanded    : [ 'Requestor Contact Details', 'Request Details' ],
             sectionsExcluded    : [ 'Planning & Tracking', 'Request Confirmation', 'Quote Submission & Response', 'Real Time KPIs', 'Workflow Activity', 'Quote Summary', 'Order Processing', 'Related Processes' ],
             gridColumnsExcluded : [ 'Line Item Cost', 'Availability [%]', 'Manufacturer', 'Manufacturer P/N', 'Unit Cost', 'Total Cost', 'Make or Buy', 'Lead Time (w)', 'Long Lead Time'],
+            stateColors         : [
+                { color : '#faa21b', states : ['Received']                            , label : 'New'      },
+                { color : '#dd2222', states : ['Awaiting Response', 'Quote Submitted'], label : 'TODO'     },
+                { color : '#faa21b', states : ['Order in process', 'Shipment']        , label : 'Shipment' },
+                { color : '#6a9728', state  : 'Completed'                             , label : 'Complete' }
+            ],
         },
+        problemReports : {
+            workspaceId  : 82,
+            fieldIdImage : 'IMAGE_1',
+            stateColors  : [
+                { color : '#222222', state  : 'Create'                                           , label : 'New'      },
+                { color : '#faa21b', states : ['Review','Technical Analysis']                    , label : 'Review'   },
+                { color : '#6a9728', state  : 'Completed'                                        , label : 'Complete' },
+                { color : '#dd2222', states : ['Change Request in progress', 'CAPA in prorgress'], label : 'In Work'  }
+            ]
+        },  
+        serviceBOMTypes : {
+            sparePart : {
+                fieldValue : 'Spare Parts List',
+                groupLabel : 'Spare Parts',
+                icon       : 'icon-package'
+            },
+            kit : {
+                fieldValue : 'Service Kit',
+                groupLabel : 'Kits',
+                icon       : 'icon-list'
+            },
+            offering : {
+                fieldValue : 'Service Offering',
+                groupLabel : 'Service Offerings',
+                icon       : 'icon-layers'
+            },
+            custom : {
+                icon      : 'icon-settings'
+            }
+        },                 
+        assetServices : {
+            workspaceId     : 284,
+            headerLabel     : 'Pending Asset Services',
+            icon            : 'icon-product',
+            fieldIDAssignee : 'ASSIGNEE',
+            hideStates      : ['Completed', 'Cancelled'],
+            fieldIDs        : {
+                asset       : 'ASSET',
+                assignee    : 'ASSIGNEE',
+                serialnrs   : 'SERIAL_NUMBERS_LIST'
+            },
+            detailsPanel : {
+                headerLabel     : 'Asset Service Ticket',
+                expandSections  : ['Asset Details'],
+                excludeSections : ['Images'],
+                layout          : 'narrow',
+            }
+        },
+        projects : {
+            workspaceId  : 283,
+            headerLabel  : 'Projects / Facilities',
+            hideStates   : ['Archived', 'Decomissioned'],
+            tileSubtitle : 'CUSTOMER',
+            tileDetails  : [{
+                icon     : 'icon-flag',
+                fieldId  : 'COUNTRY',
+                prefix   : 'Country'
+            }, {
+                icon    : 'icon-city',
+                fieldId : 'CITY',
+                prefix  : 'City'
+            }],
+        },
+        assets : {
+            workspaceId  : 280,
+            icon         : 'icon-product',
+            tableColumns : ['ASSET_SN', 'ASSET_GROUP', 'ASSET_TYPE', 'ASSET_SYSTEM', 'ASSET_FUNCTION'],
+            fieldIDs     : {
+                project   : 'PROJECT',
+                ebom      : 'ENGINEERING_BOM',
+                sbom      : 'SERVICE_BOM',
+                serialnrs : 'SERIAL_NUMBERS_LIST'
+            }
+        },
+        serialNumbers : {
+            tableColumns : ['ID', 'STATUS', 'SERIAL', 'ITEM_NUMBER', 'NUMBER', 'ITEM_REV', 'LOCATION', 'SUPPLIER', 'PREVIOUS_SERIAL', 'INSTANCE_ID', 'INSTANCE_PATH'],
+            fieldIDs : {
+                partNumber   : 'NUMBER',
+                path         : 'LOCATION',
+                instanceId   : 'INSTANCE_ID',
+                instancePath : 'INSTANCE_PATH'
+            },
+        },      
+        paramsItemDetails : {
+            id               : 'details-top',
+            headerLabel      : 'descriptor',
+            layout           : 'narrow',
+            collapseContents : true,
+            useCache         : true,
+            fieldsEx         : ['ACTIONS'],
+            sectionsEx       : ['Sourcing Summary','Others']
+        },
+        paramsItemAttachments : { 
+            extensionsEx    : ['.dwf','.dwfx'],
+            headerLabel     : 'Files',
+            layout          : 'list',
+            filterByType    : true,
+            contentSize     : 'xs'
+        },
+        paramsDocumentation : {
+            extensionsEx : ['.dwf','.dwfx'],
+            layout       : 'list',
+            size         : 'm'
+        },
+        applicationFeatures : {
+            homeButton              : true,
+            itemDetails             : true,
+            itemAttachments         : true,
+            contextDocumentation    : true,
+            manageSparePartRequests : true,
+            manageProblemReports    : true,
+            showStock               : true,
+            requestWorkflowActions  : true,
+            problemWorkflowActions  : true,
+            enableCustomRequests    : true,
+            openInPLM               : true
+        },        
         viewerFeatures : {
             contextMenu   : false,
             cube          : false,
@@ -1088,7 +1203,8 @@ exports.chrome = {
         pr       : 82,
         cr       : 83,
         co       : 84,
-        products : 95
+        products : 95,
+        assets   : 280
     },
     customStyle : true
 }
