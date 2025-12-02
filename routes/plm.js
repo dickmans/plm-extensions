@@ -652,8 +652,9 @@ router.post('/create', function(req, res) {
     console.log('  /create');
     console.log(' --------------------------------------------');
     console.log('  req.body.wsId            = ' + req.body.wsId);
-    console.log('  req.body.sections.length = ' + ((typeof req.body.sections === 'undefined') ? 0 : req.body.sections.length));
-    console.log('  req.body.fields.length   = ' + ((typeof req.body.fields   === 'undefined') ? 0 : req.body.fields.length  ));
+    console.log('  req.body.sections.length = ' + ((typeof req.body.sections === 'undefined') ? 0 : req.body.sections.length         ));
+    console.log('  req.body.fields.length   = ' + ((typeof req.body.fields   === 'undefined') ? 0 : req.body.fields.length           ));
+    console.log('  req.body.derived.length  = ' + ((typeof req.body.derived  === 'undefined') ? 0 : req.body.derived.sections.length ));
     console.log('  req.body.image           = ' + req.body.image);
     console.log('  req.body.getDetails      = ' + req.body.getDetails);
     console.log(' ');
@@ -718,34 +719,50 @@ function genPayloadSectionsFields(req, prefix, mode) {
 
         if(fieldSection !== null) {
 
-            let sectionLink  = prefix + insertion + '/sections/' + fieldSection.__self__.split('/').pop();;
-            let isNewSection = true;
+            let sectionId = fieldSection.__self__.split('/').pop();
 
             let fieldData = {
                 __self__ : prefix   + '/views/1/fields/' + field.fieldId,
                 value    : getFieldValue(field)
             }
 
-            for(let section of sections) {
-                if(section.link === sectionLink) {
-                    isNewSection = false;
-                    section.fields.push(fieldData);
-                    break;
-                }
-            }
-
-            if(isNewSection) {
-                sections.push({
-                    link   : sectionLink,
-                    fields : [fieldData]
-                });
-            }
+            addPayloadSectionField(sections, prefix, insertion, sectionId, fieldData);
 
         }
 
     }
 
+    if(!isBlank(req.body.derived)) {
+        for(let derivedSection of req.body.derived.sections) {
+            let sectionId = derivedSection.link.split('/').pop();
+            for(let field of derivedSection.fields) {
+                addPayloadSectionField(sections, prefix, insertion, sectionId, field);
+            }
+        }
+    }
+
     return sections;
+
+}
+function addPayloadSectionField(sections, prefix, insertion, sectionId, fieldData) {
+
+    let sectionLink  = prefix + insertion + '/sections/' + sectionId;
+    let isNewSection = true;
+
+    for(let section of sections) {
+        if(section.link === sectionLink) {
+            isNewSection = false;
+            section.fields.push(fieldData);
+            break;
+        }
+    }
+
+    if(isNewSection) {
+        sections.push({
+            link   : sectionLink,
+            fields : [fieldData]
+        });
+    }
 
 }
 function getFieldSection(sections, field) {
@@ -1470,18 +1487,23 @@ router.get('/derived', function(req, res, next) {
     console.log(' ');
     console.log('  /derived');
     console.log(' --------------------------------------------');
-    console.log('  req.query.pivotItemId    = ' + req.query.pivotItemId);
-    console.log('  req.query.wsId           = ' + req.query.wsId);
-    console.log('  req.query.fieldId        = ' + req.query.fieldId);
+    console.log('  req.query.wsId        = ' + req.query.wsId);
+    console.log('  req.query.fieldId     = ' + req.query.fieldId);
+    console.log('  req.query.pivotItemId = ' + req.query.pivotItemId);
+    console.log('  req.query.link        = ' + req.query.link);
     console.log();
 
+    let pivotItemId = (typeof req.query.pivotItemId !== 'undefined') ? req.query.pivotItemId : req.query.link.split('/')[6];
+
     let  url = req.app.locals.tenantLink 
-        + '/api/v3/workspaces/' + req.query.wsId + '/views/1/pivots/' + req.query.fieldId
-        + '?pivotItemId=' + req.query.pivotItemId;
+        + '/api/v3/workspaces/' + req.query.wsId
+        + '/views/1/pivots/' + req.query.fieldId
+        + '?pivotItemId=' + pivotItemId;
 
     axios.get(url, {
         headers : req.session.headers
     }).then(function(response) {
+        if(response.data === '') response.data = { sections : [] }
         sendResponse(req, res, response, false);
     }).catch(function(error) {
         sendResponse(req, res, error.response, true);
