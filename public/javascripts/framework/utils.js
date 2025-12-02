@@ -420,6 +420,7 @@ function getURLParameters() {
         wsId       : wsId,
         dmsId      : dmsId,
         descriptor : descriptor || '',
+        number     : number || '',
         type       : type || ''
     };
 
