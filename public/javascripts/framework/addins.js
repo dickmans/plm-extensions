@@ -8,7 +8,7 @@ let messagesAddin    = [];
 // Register listener for CAD/PDM events
 function setAddinEvents() {
 
-    console.log('setAddinEvents START');
+    // console.log('setAddinEvents START');
 
     if(typeof chrome !== 'undefined') {
         if(typeof chrome.webview !== 'undefined') {
