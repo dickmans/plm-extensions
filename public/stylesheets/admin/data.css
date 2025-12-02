@@ -184,7 +184,7 @@ select.button {
 .filter > .value {
     display         : flex;
     flex-direction  : column;
-    gap             : 4px;
+    gap             : 0px;
 }
 .filter > .value > .inputs { 
     display : flex; 
@@ -327,7 +327,7 @@ select#workspace {
     border-radius : 0px;
 }
 .definition .label {
-    background  : var(--color-selected-background);
+    background  : var(--color-blue-700);
     line-height : 36px;
     padding     : 0px 20px;
     text-align  : right;
