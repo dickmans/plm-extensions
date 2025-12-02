@@ -778,7 +778,7 @@ function printResponsesErrorMessagesToConsole(responses) {
 }
 function printResponseErrorMessagesToConsole(response) {
 
-    if(!response.error) false;
+    if(!response.error) return false;
 
     console.log('!! Error when accessing ' + response.url + '. See request response details below.');
     console.log(response);
@@ -1591,15 +1591,15 @@ function genPanelSelectionControls(id, settings) {
             $('<div></div>').appendTo(elemToolbar)
                 .hide()    
                 .addClass('button')
-                .addClass('with-icon')
-                .addClass('icon-toggle-off')
+                .addClass('with-toggle')
+                .addClass('toggle-off')
                 .addClass('multi-select-action')
                 .html('Selected')
                 .attr('id', id + '-filter-selected-only')
                 .click(function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    $(this).toggleClass('icon-toggle-off').toggleClass('icon-toggle-on').toggleClass('filled');
+                    $(this).toggleClass('toggle-off').toggleClass('toggle-on');
                     filterPanelContent(id);
                 });
 
@@ -2163,6 +2163,10 @@ function genPanelPaginationControls(id, settings) {
     if(isBlank(settings.pagination)) return;
     if(!settings.pagination) return;
 
+    settings.offset = 0;
+    settings.page   = 1;
+    settings.mode   = 'initial';
+
     let elemPaginationControls = $('<div></div>', {
         id : id + '-pagination-controls'
     }).addClass('panel-pagination-controls').appendTo($('#' + id));
@@ -2236,7 +2240,7 @@ function startPanelContentUpdate(id, mode) {
         })
     }
 
-    if(elemFilterSelected.length > 0) elemFilterSelected.removeClass('icon-toggle-on').addClass('icon-toggle-off').removeClass('filled');
+    if(elemFilterSelected.length > 0) elemFilterSelected.removeClass('toggle-on').addClass('toggle-off');
 
     if(elemFilterEmpty.length > 0) elemFilterEmpty.removeClass('icon-toggle-on').addClass('icon-toggle-off').removeClass('filled');
 
@@ -2249,7 +2253,7 @@ function startPanelContentUpdate(id, mode) {
     $('#' + id + '-actions').children('.panel-action').hide();
     $('#' + id + '-action-create').show().addClass('disabled');
     $('#' + id + '-content').html('').hide();
-    $('#' + id + '-processing').show();
+    
     $('#' + id + '-no-data').hide();    
 
     return new Date().getTime();
@@ -5460,52 +5464,6 @@ function hasBOMRestrictedFields(urn, nodes) {
 }
 
 
-
-// Retrieve field value from item's grid row data
-function getGridRowValue(row, fieldId, defaultValue, property) {
-
-    if(isBlank(row)) return defaultValue;
-
-    for(let iField = 1; iField < row.rowData.length; iField++) {
-
-        let field   = row.rowData[iField];
-        let id      = field.__self__.split('/')[10];
-
-        if(id === fieldId) {
-
-            let value = field.value;
-
-            if(isBlank(value)) return defaultValue;
-
-            if(typeof value === 'object') {
-
-                if(isBlank(property)) { return field.value.link;
-                } else if(property == 'title') { 
-                    let result = field.value.title;
-                    if(!isBlank(field.value.version)) result += ' ' + field.value.version;
-                    return result;
-                } else return field.value[property];
-                
-            } else if(field.type.title === 'Paragraph') {
-
-                var txt = document.createElement("textarea");
-                    txt.innerHTML = field.value;
-
-                return txt.value;
-
-            } else {
-
-                return field.value;
-            }
-
-        }
-    }
-
-    return defaultValue;
-
-}
-
-
 // Retrieve field value from bom's nodes data
 function getNodeFieldValue(node, fieldId, defaultValue, property) {
 
@@ -5625,6 +5583,68 @@ function getFirstImageFieldValue(sections) {
     }
 
     return '';
+
+}
+
+
+// Retrieve field value from item's grid row data
+function getGridRowValue(row, fieldId, defaultValue, property) {
+
+    if(isBlank(row)) return defaultValue;
+
+    for(let iField = 1; iField < row.rowData.length; iField++) {
+
+        let field   = row.rowData[iField];
+        let id      = field.__self__.split('/')[10];
+
+        if(id === fieldId) {
+
+            let value = field.value;
+
+            if(isBlank(value)) return defaultValue;
+
+            if(typeof value === 'object') {
+
+                if(isBlank(property)) { return field.value.link;
+                } else if(property == 'title') { 
+                    let result = field.value.title;
+                    if(!isBlank(field.value.version)) result += ' ' + field.value.version;
+                    return result;
+                } else return field.value[property];
+                
+            } else if(field.type.title === 'Paragraph') {
+
+                var txt = document.createElement("textarea");
+                    txt.innerHTML = field.value;
+
+                return txt.value;
+
+            } else {
+
+                return field.value;
+            }
+
+        }
+    }
+
+    return defaultValue;
+
+}
+
+
+// Retrieve field value from managed item's  row data
+function getManagedItemFieldValue(data, fieldId, defaultValue) {
+
+    if(isBlank(data)) return defaultValue;
+
+    for(let field of data.linkedFields) {
+        let id = field.__self__.split('/').pop();
+        if(id === fieldId) {
+            return field.value;
+        }
+    }
+
+    return defaultValue;
 
 }
 
@@ -5834,6 +5854,24 @@ function hasPermission(permissions, id) {
     }
 
     return false;
+
+}
+
+
+// Convert date value to locale string
+function convertDateToLocaleDate(value) {
+
+    if(!isBlank(value)) {
+
+        let valueDate = value.split(' ')[0]
+        let splitDate = valueDate.split('-');
+        let date      = new Date(splitDate[0], Number(splitDate[1] - 1), splitDate[2]);
+
+        return date.toLocaleDateString();
+
+    }
+
+    return '';
 
 }
 
