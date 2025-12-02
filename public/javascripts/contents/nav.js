@@ -12,7 +12,8 @@ function insertMOW(params) {
         [ 'filterByDueDate'  , false ],
         [ 'filterByStatus'   , false ],
         [ 'filterByWorkspace', false ],
-        [ 'userId'           , ''    ]
+        [ 'userId'           , ''    ],
+        [ 'timeout'          , 5000  ]
     ]);
 
     settings.mow[id].load = function() { insertMOWData(id); }
@@ -38,10 +39,14 @@ function insertMOWData(id) {
 
     settings.mow[id].timestamp = startPanelContentUpdate(id);
 
-    $.get('/plm/mow', { 
-        timestamp : settings.mow[id].timestamp,
-        userId    : settings.mow[id].userId
-     }, function(response) {
+    $.get({
+        url     : '/plm/mow',
+        timeout : settings.mow[id].timeout,
+        data    : { 
+            timestamp : settings.mow[id].timestamp,
+            userId    : settings.mow[id].userId
+        }
+    }, function(response) {
 
         if(stopPanelContentUpdate(response, settings.mow[id])) return;
 
@@ -132,6 +137,8 @@ function insertMOWData(id) {
         finishPanelContentUpdate(id, settings.mow[id], items);
         insertMOWDataDone(id, response);
 
+    }).catch(function(error) {
+        showTimeoutError();
     });
 
 }
@@ -363,7 +370,7 @@ function insertWorkspaceViews(wsId, params) {
         [ 'includeBookmarks'    ,  false ],
         [ 'includeRecents'      ,  false ],
         [ 'pagination'          ,   true ],
-        [ 'page'                ,      1 ],
+        // [ 'page'                ,      1 ],
         [ 'limit'               ,     25 ],
         [ 'groupBy'             ,     '' ],
         [ 'tileImageFieldId'    ,     '' ],
@@ -371,7 +378,7 @@ function insertWorkspaceViews(wsId, params) {
     ]);
 
     settings.workspaceViews[id].wsId = wsId;
-    settings.workspaceViews[id].mode = 'initial';
+    // settings.workspaceViews[id].mode = 'initial';
     settings.workspaceViews[id].load = function() { changeWorkspaceView(id);     }
     settings.workspaceViews[id].next = function() { insertWorkspaceViewData(id); }
 
@@ -968,7 +975,7 @@ function insertSearchData(id) {
         finishPanelContentUpdate(id, settings.search[id], items);
 
         if(settings.search[id].autoClick) {
-            if($('#' + id + '-content').find('.content-item').length === 1) {
+            if($('#' + id + '-content').find('.content-item').length > 0) {
                 $('#' + id + '-content').find('.content-item').first().click();
             }
         }
@@ -1227,7 +1234,9 @@ function insertResultsData(id) {
 
                 for(let tileDetail of contentItem.details) {
                     if(field.key === tileDetail.fieldId) {
-                        tileDetail.value = field.fieldData.value;
+                        if(field.fieldData.dataType == 'Date') {
+                            tileDetail.value = convertDateToLocaleDate(field.fieldData.value);
+                        } else tileDetail.value = field.fieldData.value;
                     }
                 }
 

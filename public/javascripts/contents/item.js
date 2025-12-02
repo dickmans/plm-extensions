@@ -874,6 +874,7 @@ function getFieldValue(elemField) {
         case 'buom':
         case 'single-select':
             result.value = elemField.find('.picklist-input').first().attr('data-value');
+            result.lookup = { link : result.value }
             break;
 
         case 'multi-select':
@@ -1507,7 +1508,11 @@ function insertDetailsFields(id, sections, fields, data, settings, bookmarks, re
                             for(let wsField of fields) {
                                 if(wsField.urn === sectionField.urn) {
                                     if(fieldValue.fieldId === fieldId) {
-                                        insertHiddenDetailsField(wsField, elemFields, fieldValue);
+                                       
+                                        wsField.visible = true;
+                                        let elemField = insertDetailsField(wsField, data, elemFields, settings, sectionLock, bookmarks, recents, picklistsData);
+                                        // elemField.addClass('hidden');
+                                        // insertHiddenDetailsField(wsField, elemFields, fieldValue);
                                     }
                                 }
                             }
@@ -1698,6 +1703,10 @@ function getAllVisibleSectionsFieldIDs(sections) {
 function insertDetailsField(field, data, elemFields, settings, sectionLock, bookmarks, recents, picklistsData) {
 
     if(!field.visible) return;
+
+    if(isBlank(sectionLock)) sectionLock = false;
+    if(isBlank(bookmarks  )) bookmarks   = false;
+    if(isBlank(recents    )) recents     = false;
 
     if(isBlank(settings)) {
         settings = {
@@ -3241,6 +3250,9 @@ function getFilteredPicklistOptions(elemClicked) {
     });   
 
 }
+
+
+// TODO : REMOVE
 function insertHiddenDetailsField(field, elemFields, fieldValue) {
 
     // insert fields that must not be shown but have predefined values to be set as defined by setting fieldValues
@@ -3530,7 +3542,7 @@ function insertAttachments(link, params) {
                 .addClass('icon-screenshot')
                 .attr('id', id + '-screenshot')
                 .attr('title', settings.attachments[id].uploadScreenshotLabel)
-                .html(settings.attachments[id].uploadScreenshotLabel)
+                
                 .click(function(e) {
                     e.preventDefault();
                     e.stopPropagation();
@@ -3540,7 +3552,11 @@ function insertAttachments(link, params) {
             if(isBlank(settings.attachments[id].uploadScreenshotLabel)) {
                 elemSaveScreenshot.addClass('icon');
             } else {
-                elemSaveScreenshot.addClass('with-icon');
+                if(settings.attachments[id].hideButtonLabels) {
+                    elemSaveScreenshot.addClass('icon');
+                } else {
+                    elemSaveScreenshot.addClass('with-icon').html(settings.attachments[id].uploadScreenshotLabel)
+                }
             }
 
             if($('#' + id + '-screenshot-canvas').length === 0) {
@@ -5181,13 +5197,13 @@ function changeBOMView(id) {
             dataAdditional.push(responses[indexAdditional++]);
         } 
 
-        let responseData = { bomPartsList : []} ;
+        let responseData = { bomPartsList : [] } ;
 
         if(settings.bom[id].includeBOMPartList) responseData.bomPartsList = getBOMPartsList(settings.bom[id], responses[0].data)
 
         if(selectedItems.length > 0) selectedItems = extendBOMPartsList(settings.bom[id], selectedItems);
 
-        changeBOMViewDone(id, settings.bom[id], responses[0].data, selectedItems, dataFlatBOM, dataAdditional);
+        changeBOMViewDone(id, settings.bom[id], responses[0].data, selectedItems, dataFlatBOM, dataAdditional, responseData.bomPartsList);
         finishPanelContentUpdate(id, settings.bom[id], null, null, responseData);
 
     });
@@ -5816,8 +5832,11 @@ function bomDisplayItem(elemItem) {
 }
 function bomDisplayItemByPartNumber(number, select, deselect) {
 
+    if(isBlank(number  )) return;
     if(isBlank(select  )) select   = true;
     if(isBlank(deselect)) deselect = true;
+
+    let proceed = true;
 
     let result = {
         elements : [],
@@ -5826,10 +5845,11 @@ function bomDisplayItemByPartNumber(number, select, deselect) {
 
     $('.bom-item').each(function() {
         if(number === $(this).attr('data-part-number')) {
-            bomDisplayItem($(this));
             result.links.push($(this).attr('data-link'));
             result.elements.push($(this));
             if(select) $(this).addClass('selected');
+            if(proceed) bomDisplayItem($(this));
+            proceed = false;
         } else {
             if(deselect) $(this).removeClass('selected');
         }
@@ -5912,7 +5932,7 @@ function expandBOMParents(level, elem) {
 
 }
 function updateBOMPath(elemClicked) {
-    
+
     let elemBOM  = elemClicked.closest('.bom');
     let id       = elemBOM.attr('id');
     let elemPath = $('#' + id + '-bom-path');
@@ -8509,6 +8529,8 @@ function insertItemSummary(link, params) {
             .addClass('screen');
     } else elemItemTop.html('');
 
+    if(settings.summary[id].hideHeader) elemItemTop.addClass('no-header');
+
     elemItemTop.attr('data-link', settings.summary[id].link)
         .addClass('item')
         .addClass('panel-top')
@@ -8671,11 +8693,17 @@ function setItemSummaryData(id) {
                     elemItemStatus.hide();
                 } else {
 
-                    let stateLabel = responses[0].data.currentState.title;
-                    let stateColor = '#000';
+                    let stateLabel   = responses[0].data.currentState.title;
+                    let stateColor   = '#000';
+                    let statesColors = settings.summary[id].statesColors || settings.summary[id].stateColors;
 
-                    for(let statesColor of settings.summary[id].statesColors) {
-                        if(statesColor.states.indexOf(responses[0].data.currentState.title) > -1) {
+                    for(let statesColor of statesColors) {
+                        if(isBlank(statesColor.states)) {
+                            if(statesColor.state == stateLabel) {
+                                stateColor = statesColor.color;
+                                stateLabel = statesColor.label;
+                            }
+                        } else if (statesColor.states.indexOf(stateLabel) > -1) {
                             if(!isBlank(statesColor.color)) stateColor = statesColor.color;
                             if(!isBlank(statesColor.label)) stateLabel = statesColor.label;
                             break;
@@ -8773,7 +8801,7 @@ function insertItemSummaryContents(id, details, fields, tabs) {
 
         if(isBlank(content.params)) content.params = {};
 
-        let link      = settings.summary[id].link;
+        let link      =  content.link || settings.summary[id].link;
         let contentId = (isBlank(content.params.id)) ? 'item-' + content.type : content.params.id;
         let className = (isBlank(content.className)) ? settings.summary[id].contentSurfaceLevel : content.className;
         let elemTop   = $('#' + contentId);

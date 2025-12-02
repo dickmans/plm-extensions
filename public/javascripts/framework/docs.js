@@ -367,7 +367,7 @@ let categories = [
         supportedBy : ['item-grid']
     },{
         name        : 'sortOrder',
-        description : 'Provide an array of value pairs with sortBy, sortType and sortDirection to enable sorting by multiple columns',
+        description : 'Provide an array of value pairs with sortBy, sortDirection and sortType to define multiple sorting levels',
         type        : 'Array',
         default     : '[]',
         supportedBy : ['item-grid']
@@ -799,10 +799,10 @@ let categories = [
     supportedBy : []
 },{
     name        : 'limit',
-    description : 'Sets search results limit of the initial search',
+    description : 'Sets limit of records being displayed at initial load',
     type        : 'Integer',
     default     : '25',
-    supportedBy : []
+    supportedBy : ['nav-search', 'nav-workspace-views']
 },{
     name        : 'workspaceIds',
     description : 'Will override workspacesIn if defined, will restrict search within the given list of workspaces',
