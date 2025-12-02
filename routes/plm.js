@@ -3506,7 +3506,7 @@ router.get('/bom-view-by-name', function(req, res, next) {
                 for(let result of results) {
 
                     if(result.name == req.query.name) {
-                            response.data = {
+                        response.data = {
                             id        : result.id,
                             name      : result.name,
                             isDefault : result.isDefault,
@@ -4838,17 +4838,28 @@ router.get('/class-properties', function(req, res, next) {
                         inherited    : instance.inherited
                     });
 
-                    console.log(property.type);
-
                     if(property.type === 'picklist') {
                         requestsPicklists.push(runPromised(baseURL + '/api/v3/lookups/CUSTOM_LOOKUP_0CWS_' + property.name + '_' + classId +  '?asc=title&filter=&limit=100&offset=0', req.session.headers));
                     }
 
-
                 }
 
                 sortArray(results.data, 'displayName');
-                sendResponse(req, res, results, false);
+
+                Promise.all(requestsPicklists).then(function(responses) {
+
+                    for(let response of responses) {
+                        for(let property of results.data) {
+                            let name = response.urn.split('CUSTOM_LOOKUP_0CWS_')[1];
+                            if((property.name + '_' + classId) === name) {
+                                property.picklist = response.items;
+                            }
+                        }
+                    }
+
+                    sendResponse(req, res, results, false);
+
+                });
 
             });
 
