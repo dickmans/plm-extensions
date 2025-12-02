@@ -378,6 +378,7 @@ function setDetails() {
             search           : true,
             toggles          : true,
             bomViewName      : config.reviews.bomViewName,
+            depth            : config.reviews.bomDepth,
             collapseContents : true,
             path             : true,
             counters         : true,

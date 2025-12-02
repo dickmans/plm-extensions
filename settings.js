@@ -606,6 +606,7 @@ exports.config = {
         fieldIdMarkup : 'MARKUP',
         transitionId  : 'CLOSE_REVIEW',
         bomViewName   : 'Basic',
+        bomDepth      : 3,
         viewerFeatures  : {
             contextMenu   : false,
             cube          : false,
