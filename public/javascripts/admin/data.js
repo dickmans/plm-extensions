@@ -81,7 +81,7 @@ function setUIEvents() {
             case 'Date'             : $('#input-set-value').removeClass('hidden').attr('type', 'date'); break;
             case 'Check Box'        : $('#input-set-value').removeClass('hidden').attr('type', 'checkbox'); break;
             case 'Radio Button'     :
-            case 'Single Selection' : $('#plist-set-value').removeClass('hidden'); setPicklistValues($('#plist-set-value'), picklist); break;
+            case 'Single Selection' : $('#plist-set-value').removeClass('hidden'); setPicklistValues($('#plist-set-value'), picklist, true); break;
             default                 : $('#input-set-value').removeClass('hidden').removeAttr('type'); break;
         }
 
@@ -555,7 +555,7 @@ function insertPropertyFilter() {
     for(let field of wsConfig.fields) {
 
         if(field.id === value) {
-            
+
             let elemFilter = $('<div></div>').appendTo($('#filter-properties'))
                 .addClass('property-filter')
                 .addClass('filter')
@@ -584,11 +584,12 @@ function insertPropertyFilter() {
 
             let elemSelect = $('<select></select').appendTo(elemValue)
                 .addClass('button')
+                .addClass('property-comparator')
                 .attr('id', 'fieldid-' + field.id)
                 .attr('data-type', field.type.title)
                 .attr('data-field-id', field.id)
                 .on('change', function() { 
-                    getMatches()
+                    getMatches();
                 });
                 
             $('<option></option>').appendTo(elemSelect)
@@ -639,6 +640,16 @@ function insertPropertyFilter() {
                         $('<input></input>').appendTo(elemInputs).attr('type', 'number').addClass('hidden').addClass('number').attr('placeholder', '# of days').on('change', function() { getMatches(); });
                         break;
 
+                    case 'Radio Button':
+                    case 'Single Select':
+                        $('<option></option>').appendTo(elemSelect).attr('value', 'radio-is').html('Is');  
+                        $('<option></option>').appendTo(elemSelect).attr('value', 'radio-in').html('Is Not'); 
+                        $('<option></option>').appendTo(elemSelect).attr('value', 'radio-co').html('Contains'); 
+                        $('<input></input>').appendTo(elemValue).attr('placeholder', 'Enter Text').addClass('inputs').addClass('hidden').on('change', function() { getMatches(); });
+                        let elemValues = $('<select></select>').appendTo(elemValue).addClass('inputs').addClass('hidden').on('change', function() { getMatches(); });
+                        setPicklistValues(elemValues, field.picklist, false); 
+                        break;
+
                 }
 
             }
@@ -654,6 +665,8 @@ function setFilters() {
     let elemSelect = $('#workspace-view');
     let value      = elemSelect.val();
     let groups     = elemSelect.closest('.group').nextAll();
+
+    stopped = false
 
     if(value === '--') {
 
@@ -721,16 +734,17 @@ function getSearchFilters() {
 
     let filters = [];
 
-    $('.filter select').each(function() {
+    $('.filter select.property-comparator').each(function() {
 
         let elemSelect  = $(this);
         let elemFilter  = $(this).closest('.filter');
         let filterId    = elemSelect.attr('id');
+        let filterType  = elemSelect.attr('data-type');
         let filterValue = elemSelect.children('option:selected').val();
 
         elemFilter.find('input').addClass('hidden');
         elemSelect.siblings('.inputs').addClass('hidden');
-        
+
         if(!isBlank(filterValue)) {
             if(filterValue !== '--') {
 
@@ -754,6 +768,15 @@ function getSearchFilters() {
                     case '+d': 
                         elemSelect.siblings('.inputs').removeClass('hidden');
                         elemFilter.find('input.number').removeClass('hidden'); 
+                        break;
+
+                    case 'radio-is':
+                    case 'radio-in':
+                        elemSelect.siblings('select.inputs').removeClass('hidden');
+                        break;
+
+                    case 'radio-co':
+                        elemSelect.siblings('input.inputs').removeClass('hidden');
                         break;
 
                     default:
@@ -837,11 +860,13 @@ function getSearchFilters() {
                         break;
 
                     default:
-                        if(elemSelect.attr('data-type') === 'Date') {
+                        if(filterType === 'Date') {
                             filter = getDateFilter(elemSelect, 0, filterValue);
                             if(filterValue === 'bw') {
                                 filters.push(getDateFilter(elemSelect, 0, 'br'));
                             }
+                        } else if(filterType === 'Radio Button') {
+                            filter = getPicklistFilter(elemSelect, filterValue);
                         } else {
                             filter = getPropertyFilter(elemSelect, filterValue);
                         }
@@ -933,6 +958,31 @@ function getDateFilter(elemSelect, fieldType, filterValue) {
     return filter;
 
 }
+function getPicklistFilter(elemSelect, filterValue) {
+
+    let fieldId    = elemSelect.attr('data-field-id');
+    let elemInput  = elemSelect.siblings('input').first();
+    let elemOption = elemSelect.siblings('select').first();
+    let option     = elemOption.children('option:selected').html();   
+
+    let filter = {
+        field      : fieldId,
+        type       : 0,
+    };
+
+    switch(filterValue) {
+
+        case 'ib'       : filter.comparator = 20; filter.value = ''; break;
+        case 'nb'       : filter.comparator = 21; filter.value = ''; break;
+        case 'radio-is' : filter.comparator = 15; filter.value = option; break;
+        case 'radio-in' : filter.comparator =  5; filter.value = option; break;
+        case 'radio-co' : filter.comparator =  2; filter.value = elemInput.val(); break;
+
+    }
+
+    return filter;
+
+}
 function getPropertyFilter(elemSelect, filterValue) {
 
     let filter = {
@@ -967,9 +1017,9 @@ function getPropertyFilter(elemSelect, filterValue) {
 
 
 // Update picklist value selectors
-function setPicklistValues(elemSelect, link) {
-
-    elemSelect.children().remove();
+function setPicklistValues(elemSelect, link, clearExisting) {
+   
+    if(clearExisting) elemSelect.children().remove();
 
     let timestamp = new Date().getTime();
 
@@ -1295,6 +1345,7 @@ function genRequests(limit) {
             params.link       = record.link;
             params.descriptor = record.descriptor;
             params.sections   = [];
+            params.fields     = [];
             
             let message = (options.testRun) ? 'Would process' : 'Processing';
             let link    = genItemURL({ link : record.link });
@@ -1311,9 +1362,14 @@ function genRequests(limit) {
 
                 let fieldId = $('#select-store-dmsid').val();
                 let value   = getRecordFieldValue(record, fieldId, '');
+
+                params.sections = wsConfig.sections;
                 
                 if(value != record.dmsId) {
-                    addFieldToPayload(params.sections, wsConfig.sections, null, fieldId, record.dmsId);
+                    params.fields.push({
+                        fieldId : fieldId,
+                        value   : record.dmsId
+                    }); 
                     requests.push($.post('/plm/edit', params));
                 } else {
                     let link = genItemURL({ link : record.link });
@@ -1327,11 +1383,19 @@ function genRequests(limit) {
 
                 if(type === 'Check Box') {
                     value = $('#input-set-value').is(":checked")
+                } else if(type === 'Radio Button') {
+                    value = { link : $('#plist-set-value').val() };
                 } else if(type === 'Single Selection') {
                     value = { link : $('#plist-set-value').val() };
                 }
 
-                addFieldToPayload(params.sections, wsConfig.sections, null, $('#select-set-value').val(), value, false);
+                params.sections = wsConfig.sections;
+
+                params.fields.push({
+                    fieldId : $('#select-set-value').val(),
+                    value   : value
+                }); 
+                
                 requests.push($.post('/plm/edit', params));
 
             } else if(run.actionId === 'copy-value') {
@@ -1340,7 +1404,13 @@ function genRequests(limit) {
 
             } else if(run.actionId === 'clear-field') {
 
-                addFieldToPayload(params.sections, wsConfig.sections, null, $('#select-clear-field').val(), null, false);
+                params.sections = wsConfig.sections;
+
+                params.fields.push({
+                    fieldId : $('#select-clear-field').val(),
+                    value   : null
+                });
+
                 requests.push($.post('/plm/edit', params));
 
             } else if(run.actionId === 'set-owner') {
@@ -1469,7 +1539,8 @@ function genUpdateRequests(responses) {
         let params = {
             link       : response.params.link,
             descriptor : response.params.descriptor,
-            sections   : []
+            sections   : wsConfig.sections,
+            fields     : []
         }
 
         if(run.actionId === 'copy-value') {
@@ -1477,15 +1548,16 @@ function genUpdateRequests(responses) {
             let value = getSectionFieldValue(response.data.sections, $('#select-copy-from').val(), '');
             let fieldId = $('#select-copy-to').val();
 
-            addFieldToPayload(params.sections, wsConfig.sections, null, fieldId, value, false);
+            params.fields.push({
+                fieldId : fieldId,
+                value   : value
+            }); 
 
             requests.push($.post('/plm/edit', params));
                 
         } else if(run.actionId === 'delete-attachments') {
 
             if(response.data.length > 0) {
-
-                params.fileIds = [];
 
                 for(let attachment of response.data) {
 
