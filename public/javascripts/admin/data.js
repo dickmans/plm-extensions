@@ -80,9 +80,11 @@ function setUIEvents() {
         switch(type) {
             case 'Date'             : $('#input-set-value').removeClass('hidden').attr('type', 'date'); break;
             case 'Check Box'        : $('#input-set-value').removeClass('hidden').attr('type', 'checkbox'); break;
+            case 'Radio Button'     :
             case 'Single Selection' : $('#plist-set-value').removeClass('hidden'); setPicklistValues($('#plist-set-value'), picklist); break;
             default                 : $('#input-set-value').removeClass('hidden').removeAttr('type'); break;
         }
+
     });
     $('#select-perform-transition').on('change', function() {
         let comments = $(this).children('option:selected').attr('data-comments');
@@ -146,7 +148,7 @@ function setUIEvents() {
     });
     $('.toggle').click(function() {
         $(this).toggleClass('filled').toggleClass('icon-toggle-on').toggleClass('icon-toggle-off');
-    })
+    });
 
 
     // Header Toolbar Controls
