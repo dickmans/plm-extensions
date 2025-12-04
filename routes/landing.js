@@ -52,21 +52,23 @@ router.get('/start', function(req, res, next) {
 /* ------------------------------------------------------------------------------
     STANDARD APPLICATIONS
    ------------------------------------------------------------------------------ */
-router.get('/classes'       , function(req, res, next) { launch('apps/classes'         , 'Classification Browser'       , req, res, next); });
-router.get('/client'        , function(req, res, next) { launch('apps/client'          , 'Mobile PLM Client'            , req, res, next); });
-router.get('/dashboard'     , function(req, res, next) { launch('apps/dashboard'       , 'Dashboard'                    , req, res, next); });
-router.get('/explorer'      , function(req, res, next) { launch('apps/explorer'        , 'Product Data Explorer'        , req, res, next); });
-router.get('/impactanalysis', function(req, res, next) { launch('apps/impactanalysis'  , 'Change Impact Analysis'       , req, res, next); });
-router.get('/mbom'          , function(req, res, next) { launch('apps/mbom'            , 'Manufacturing BOM Editor'     , req, res, next); });
-router.get('/navigator'     , function(req, res, next) { launch('apps/navigator'       , 'Workspace Navigator'          , req, res, next); });
-router.get('/portal'        , function(req, res, next) { launch('apps/portal'          , 'PLM Portal'                   , req, res, next); });
-router.get('/portfolio'     , function(req, res, next) { launch('apps/portfolio'       , 'Product Portfolio Catalog'    , req, res, next); });
-router.get('/projects'      , function(req, res, next) { launch('apps/projects'        , 'Projects Dashboard'           , req, res, next); });
-router.get('/reports'       , function(req, res, next) { launch('apps/reports'         , 'Reports Dashboard'            , req, res, next); });
-router.get('/reviews'       , function(req, res, next) { launch('apps/reviews'         , 'Design Reviews'               , req, res, next); });
-router.get('/sbom'          , function(req, res, next) { launch('apps/sbom'            , 'Service BOM Editor'           , req, res, next); });
-router.get('/service'       , function(req, res, next) { launch('apps/service'         , 'Services Portal'              , req, res, next); });
-router.get('/variants'      , function(req, res, next) { launch('apps/variants'        , 'Variants Manager'             , req, res, next); });
+router.get('/abom'          , function(req, res, next) { launch('apps/abom'          , 'Asset BOM Editor'         , req, res, next); });
+router.get('/classes'       , function(req, res, next) { launch('apps/classes'       , 'Classification Browser'   , req, res, next); });
+router.get('/client'        , function(req, res, next) { launch('apps/client'        , 'Mobile PLM Client'        , req, res, next); });
+router.get('/dashboard'     , function(req, res, next) { launch('apps/dashboard'     , 'Dashboard'                , req, res, next); });
+router.get('/explorer'      , function(req, res, next) { launch('apps/explorer'      , 'Product Data Explorer'    , req, res, next); });
+router.get('/impactanalysis', function(req, res, next) { launch('apps/impactanalysis', 'Change Impact Analysis'   , req, res, next); });
+router.get('/instances'     , function(req, res, next) { launch('apps/instances'     , 'BOM Instances Editor'     , req, res, next); });
+router.get('/mbom'          , function(req, res, next) { launch('apps/mbom'          , 'Manufacturing BOM Editor' , req, res, next); });
+router.get('/navigator'     , function(req, res, next) { launch('apps/navigator'     , 'Workspace Navigator'      , req, res, next); });
+router.get('/portal'        , function(req, res, next) { launch('apps/portal'        , 'PLM Portal'               , req, res, next); });
+router.get('/portfolio'     , function(req, res, next) { launch('apps/portfolio'     , 'Product Portfolio Catalog', req, res, next); });
+router.get('/projects'      , function(req, res, next) { launch('apps/projects'      , 'Projects Dashboard'       , req, res, next); });
+router.get('/reports'       , function(req, res, next) { launch('apps/reports'       , 'Reports Dashboard'        , req, res, next); });
+router.get('/reviews'       , function(req, res, next) { launch('apps/reviews'       , 'Design Reviews'           , req, res, next); });
+router.get('/sbom'          , function(req, res, next) { launch('apps/sbom'          , 'Service BOM Editor'       , req, res, next); });
+router.get('/service'       , function(req, res, next) { launch('apps/service'       , 'Services Portal'          , req, res, next); });
+router.get('/variants'      , function(req, res, next) { launch('apps/variants'      , 'Variants Manager'         , req, res, next); });
 
 
 
@@ -113,24 +115,22 @@ router.get('/playground' , function(req, res, next) { launch('custom/playground'
 /* ------------------------------------------------------------------------------
     APPLICATIONS IN DEVELOPMENT
    ------------------------------------------------------------------------------ */
-router.get('/assets'         , function(req, res, next) { launch('dev/assets'         , 'Asset Management'                  , req, res, next); });
-router.get('/asset-bom'      , function(req, res, next) { launch('dev/asset-bom'      , 'Asset BOM Editor'                  , req, res, next); });
-router.get('/browser'        , function(req, res, next) { launch('dev/browser'        , 'PLM Browser'                       , req, res, next); });
-router.get('/change'         , function(req, res, next) { launch('dev/change'         , 'Change Manager'                    , req, res, next); });
-router.get('/configurator'   , function(req, res, next) { launch('dev/configurator'   , 'Product Configuration Editor'      , req, res, next); });
-router.get('/control'        , function(req, res, next) { launch('dev/control'        , 'Remote Device Control'             , req, res, next); });
-router.get('/customer'       , function(req, res, next) { launch('dev/customer'       , 'Customer Services'                 , req, res, next); });
-router.get('/editor'         , function(req, res, next) { launch('dev/editor'         , 'Content Editor'                    , req, res, next); });
-router.get('/instances'      , function(req, res, next) { launch('dev/instances'      , 'BOM Instances Editor'              , req, res, next); });
-router.get('/matrix'         , function(req, res, next) { launch('dev/matrix'         , 'Portfolio Matrix'                  , req, res, next); });
-router.get('/mbom-upgrade'   , function(req, res, next) { launch('dev/mbom-upgrade'   , 'MBOM Upgrade Editor'               , req, res, next); });
-router.get('/pbom'           , function(req, res, next) { launch('dev/pbom'           , 'Manufacturing Process Editor'      , req, res, next); });
-router.get('/pdm'            , function(req, res, next) { launch('dev/pdm'            , 'Vault Browser'                     , req, res, next); });
-router.get('/pdm-explorer'   , function(req, res, next) { launch('dev/pdm-explorer'   , 'PDM Explorer'                      , req, res, next); });
-router.get('/pnd'            , function(req, res, next) { launch('dev/pnd'            , 'Product Data & Processes Explorer' , req, res, next); });
-router.get('/resources'      , function(req, res, next) { launch('dev/resources'      , 'Resource Allocation'               , req, res, next); });
-router.get('/specification'  , function(req, res, next) { launch('dev/specification'  , 'Product Specification Editor'      , req, res, next); });
-router.get('/transmittals'   , function(req, res, next) { launch('dev/transmittals'   , 'Transmittals Client'               , req, res, next); });
+router.get('/assets'        , function(req, res, next) { launch('dev/assets'        , 'Asset Management'                  , req, res, next); });
+router.get('/browser'       , function(req, res, next) { launch('dev/browser'       , 'PLM Browser'                       , req, res, next); });
+router.get('/change'        , function(req, res, next) { launch('dev/change'        , 'Change Manager'                    , req, res, next); });
+router.get('/configurator'  , function(req, res, next) { launch('dev/configurator'  , 'Product Configuration Editor'      , req, res, next); });
+router.get('/control'       , function(req, res, next) { launch('dev/control'       , 'Remote Device Control'             , req, res, next); });
+router.get('/customer'      , function(req, res, next) { launch('dev/customer'      , 'Customer Services'                 , req, res, next); });
+router.get('/editor'        , function(req, res, next) { launch('dev/editor'        , 'Content Editor'                    , req, res, next); });
+router.get('/matrix'        , function(req, res, next) { launch('dev/matrix'        , 'Portfolio Matrix'                  , req, res, next); });
+router.get('/mbom-upgrade'  , function(req, res, next) { launch('dev/mbom-upgrade'  , 'MBOM Upgrade Editor'               , req, res, next); });
+router.get('/pbom'          , function(req, res, next) { launch('dev/pbom'          , 'Manufacturing Process Editor'      , req, res, next); });
+router.get('/pdm'           , function(req, res, next) { launch('dev/pdm'           , 'Vault Browser'                     , req, res, next); });
+router.get('/pdm-explorer'  , function(req, res, next) { launch('dev/pdm-explorer'  , 'PDM Explorer'                      , req, res, next); });
+router.get('/pnd'           , function(req, res, next) { launch('dev/pnd'           , 'Product Data & Processes Explorer' , req, res, next); });
+router.get('/resources'     , function(req, res, next) { launch('dev/resources'     , 'Resource Allocation'               , req, res, next); });
+router.get('/specification' , function(req, res, next) { launch('dev/specification' , 'Product Specification Editor'      , req, res, next); });
+router.get('/transmittals'  , function(req, res, next) { launch('dev/transmittals'  , 'Transmittals Client'               , req, res, next); });
 
       
 
@@ -179,7 +179,7 @@ function launch(appURL, appTitle, req, res, next) {
     } else {
 
         let reqTheme        = req.app.locals.defaultTheme;
-        let reqWS           = ''
+        let reqWS           = '';
         let reqDMS          = '';
         let reqDescriptor   = '';
         let reqNumber       = '';

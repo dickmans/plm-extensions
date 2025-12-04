@@ -100,8 +100,6 @@ function openEditor(link) {
                 workspace.index   = index - 1;
         }
 
-        console.log(workspaces);
-
         $('#excel-export').removeClass('disabled');
 
     });
@@ -208,7 +206,7 @@ function setUIEvents() {
             sheets     : sheets
         }, function(response) {
             $('#overlay').hide();
-            let url = document.location.href.split('/asset-editor')[0] + '/' + response.data.fileUrl;
+            let url = document.location.href.split('/instances')[0] + '/' + response.data.fileUrl;
             document.getElementById('frame-download').src = url;
         });
         
@@ -445,7 +443,7 @@ function insertTabContents() {
 
         if(!isBlank(workspace.link)) {
 
-            workspace.fieldsIn.push('NR');
+            // workspace.fieldsIn.push('NR');
             
             insertGrid(workspace.link, {
                 id                : 'table-' + index++,
@@ -461,8 +459,7 @@ function insertTabContents() {
                 hideButtonCreate  : true,
                 hideButtonClone   : true,
                 singleToolbar     : 'actions',
-                sortBy            : 'INSTANCE_ID',
-                sortType          : 'integer',
+                sortOrder         : workspace.sortOrder,
                 fieldsIn          : workspace.fieldsIn,
                 fieldsEx          : workspace.fieldsEx,
                 groupBy           : workspace.groupBy || '',
@@ -630,21 +627,26 @@ function onSelectBOMItem(elemClicked) {
         let partNumber = elemClicked.attr('data-part-number');
         let index     = 0;
 
+        $('.table-group').removeClass('keep');
+
         for(let workspace of workspaces) {
 
             let elemGrid = $('#table-' + index++ + '-tbody');
 
             elemGrid.find('tr.content-item').each(function() {
 
-                let elemRow = $(this);
-                let gridRow = getGridRowDetails(elemRow, workspace.fieldsList);
+                let elemRow   = $(this);
+                let gridRow   = getGridRowDetails(elemRow, workspace.fieldsList);
+                let elemGroup = elemRow.prevAll('.table-group').first();
 
                 if(gridRow.path.indexOf(path.string) < 0) {
                     elemRow.addClass('hidden');
-                    elemRow.prev('.table-group').addClass('hidden');
+                    // elemRow.prev('.table-group').addClass('hidden');
+                    if(!elemGroup.hasClass('keep')) elemGroup.addClass('hidden');
                 } else {
                     elemRow.removeClass('hidden');
-                    elemRow.prev('.table-group').removeClass('hidden');
+                    // elemRow.prev('.table-group').removeClass('hidden');
+                    elemGroup.removeClass('hidden').addClass('keep');
                 }
 
             });
@@ -852,12 +854,12 @@ function syncItemsList() {
             for(let viewerInstance of viewerInstances.instances) {
                 if(viewerInstance.pathNumbers === item.path) {
                     item.instances.push(viewerInstance);
+                } else if(viewerInstance.path === item.path) {
+                    item.instances.push(viewerInstance);
                 }
             } 
 
-            console.log(item);
         }     
-
 
         for(let item of workspace.items) {
 
@@ -878,13 +880,13 @@ function syncItemsList() {
 
             for(let instance of item.instances) {
 
-                console.log(instance);
-
                 let params = {
                     wsId : workspace.workspaceId,
                     link : workspace.link,
                     data : [
                         { fieldId : workspace.fieldsList.partNumber   , value : item.partNumber       },
+                        { fieldId : workspace.fieldsList.title        , value : item.details.TITLE    },
+                        { fieldId : workspace.fieldsList.revision     , value : item.details.REVISION },
                         { fieldId : workspace.fieldsList.path         , value : item.path             },
                         { fieldId : workspace.fieldsList.instanceId   , value : instance.instanceId   },
                         { fieldId : workspace.fieldsList.instancePath , value : instance.instancePath },

@@ -1,0 +1,226 @@
+.tile(data-name='BOM Instances Editor')
+    .tile-image(style="background: url('images/app-instances.png') no-repeat;background-size:contain;")
+    .tile-details
+        .tile-title BOM Instances Editor
+        .tile-subtitle Manage defined attributes for each instance of an iten in your Bill of Materials with visual assistance. Use this utility for management of Serial Numbers or the alignment of mechanical and electrical engineering.
+        .tile-access 
+            .tile-endpoint /instances
+    .instructions
+        h1 Features 
+        ul 
+            li Can be launched in context of an Asset 
+            li Reuse the Engineering BOM and viewable for a best in class user experience 
+            li Configurable framework allows reuse of this editor for multiple use cases 
+            li The editor is preconfigured for the management of Serial Numbers as reference 
+            li Automatic sync of instance data with the Engineering BOM ensures data integrity
+        h1 Preconfigured use case of Serial Numbers
+        p This solution's preconfiguration requires installation of the new template 
+            strong Assets Lifecycle &amp; Projects 
+            |which is available for testing only (as of December 2025). This template includes the required workspaces of 
+            strong Assets 
+            |and 
+            strong Serial Numbers Lists
+            |. As the configuration settings of this application eanble use of custom workspaces and fields, similar workspaces also can be created manually. With the preconfiguration, the solution can immediately manage the 
+            strong Serial Numbers List 
+            |of an Asset within the list's grid. The solution also requires the 
+            strong Chrome Extensions 
+            |of this package to be installed on the clients, providing access to the editor in context of an Asset.
+        a(href='chrome-extension' target='_blank') Learn about the Chrome Extensions
+        p If both prerequisites are met, users can launch the given editor using the button in the item header as shown below. This button will be displayed in the header of each Asset and use the related 
+            strong Serial Numbers List 
+            |referenced in the item details page.
+        img.border(src='images/apps/instances-1.png' style='max-width:860px;')
+        p Once launched, the editor will display the Asset's Engineering BOM on the left side and its root item's viewable on top. The main action button in the main toolbar then can be used to retrieve all items in the Engineering BOM that match the defined property filtes. The default configuration profle for example will locat all items being flagged as item with serial number (per workspace configuration described in next chapter).
+        p For each of these items, the system will create one entry per instance in the grid table below the viewer, allowing to manage instance specific data for each of these items. Users can select these table rows to have the matching component highlighted in the viewer and to have the BOM structure displayed accordingly. The BOM also can be used to filter the list of table entries by the instances within the selected context.
+        img.border(src='images/apps/instances-2.png' style='max-width:860px;')
+        p When users hit the Save button, the given data will be stored in the grid tab of the related Serial Nunbers List item:
+        img.border(src='images/apps/instances-3.png' style='max-width:860px;')
+        h2 Setup Items Workspace
+        p The default configuration requires the field 
+            strong Serial Number 
+            |which must be added to your Items workspace before. 
+            br
+            |Add a new field as shown below and place this field in any of your item workspace's sections:
+        img.border(src='images/apps/instances-4.png' style='max-width:720px;')
+        p This field (as well as the field Number) must be contained in the BOM view used by the BOM Instance Editor. According to default configuration, this utility will use the BOM view 
+            strong Instance Editor 
+            |- which you will also have to create if it does not exist yet. However, you can also use an existing BOM view instead. Simply add the Serial Number field (and Number field) to this BOM view and update the configuration setting 
+            span.code instances.bomViewName 
+            |in settings.js accordingly (see later chapter for details on configuration settings).
+        h1 Adoption for further use cases
+        p Although the default configuration is preconfigured for the management of Serial Numbers of Assets, you can easily adapt this solution to other use cases. For example, you can replace Assets with another workspace but also use other worksapces than the Serial Numbers List for the management of instance specific properties. You can also use multiple workspaces with dedicated properties to manage a list of motors and a list of sensors as well as a list of control elements at the same time. When configured properly, the editor then will display one tab for each of these workspaces with a unique set of properties: 
+        img.border(src='images/apps/instances-5.png' style='max-width:860px;')
+        h2 Replacing the Assets workspace 
+        P In order to use another workspace as context element, provide this workspace's ID in setting 
+            span.code instances.assets.workspaceId
+            |. If this workspace connects the matching EBOM in a field other than the default field 
+            strong ENGINEERING_BOM
+            |, you also will have to update the setting 
+            span.code instances.assets.fieldIdBOM 
+            |accordingly.
+        img.border(src='images/apps/instances-6.png' style='max-width:501px;')
+        h2 Adding further tabs / workspaces
+        p As can be seen in the application screenshot above, the schema can be adjusted to allow for management of other information other than Serial Numbers. There can even be multiple tabs to split information by instance and to manage dedicated properties within defined columns.
+        p For this, you will have to create the new workspaces that will store the instance specific data for each item in your BOM. You may clone the existing 
+            strong Serial Number Lists 
+            |workspace as a starting point as it has all required information already. Your new workspaces must contain the following columns in their grid tabs to enable location of matching instances in the viewer and BOM:
+            table.row-hovering 
+                tr 
+                    th Field Name 
+                    th Field ID
+                    th Type 
+                    th Details 
+                    th Visibility
+                    th Editable
+                tr 
+                    td Item Number
+                    td NUMBER
+                    td String
+                    td Length : 50
+                    td Always 
+                    td True
+                tr 
+                    td Location
+                    td LOCATION
+                    td String
+                    td Length : 500
+                    td Always 
+                    td True
+                tr 
+                    td Instance #
+                    td INSTANCE_ID
+                    td Integer
+                    td Length : 5
+                    td Always 
+                    td True
+                tr 
+                    td Instance Path
+                    td INSTANCE_PATH
+                    td String
+                    td Length : 1000
+                    td Always 
+                    td True
+                tr 
+                    td Bounding Box
+                    td BOUNDING_BOX
+                    td String
+                    td Length : 1000
+                    td Never 
+                    td True
+        p Do not forget to configure the matching access permissions for your new workspaces. Include permission to adjust the Grid tab entries as well as they will be adjusted by the editor.
+            br
+            |Once the custom workpaces are available, you must add linking picklist fields on your context element (i.e. the Asset) for each of them. There must be one field per workspace.
+        p The editor can add the BOM entries to the matching tab automatically. However, this requires a property on the BOM items to identify the entries of interest. Add a property in the Items workspace which can be used later to filter for the items of interest. For example, the capability of Serial Numbers management uses the checkbox field SERIAL_NUBMER. You can also add specific checkboxes, but can also use pick list fields for example.
+        p Once the workspaces have been configured properly, you must update the configuration settings of this application to take these workspaces into account. The setting 
+            span.code instances.tabs 
+            |can be used to provide a list of tabs to be displayed. It is recommended to copy the existing configuration profile of serial numbers and to adopt it for the additional workspaces. The standard settings.js file even contains further templates that were commented out. They also can be used as a starting point.
+        img.border(src='images/apps/instances-7.png' style='max-width:960px;')
+        p All settings listed below must be provided for each tab / workspace. The default values in this table refer to the Serial Numbers setup.
+        table.row-hovering 
+            tr 
+                th Setting 
+                th Description
+                th Type 
+                th Default Value 
+            tr 
+                td label
+                td Label to display for the tab within the editor
+                td String
+                td 'Serial Numbers'
+            tr 
+                td fieldId
+                td The linking picklist field of context item to access the given record with the grid columns
+                td String
+                td 'SERIAL_NUMBERS_LIST'
+            tr 
+                td workspaceId
+                td ID of the related workspace (ie. the Serial Number Lists)
+                td Integer
+                td 275
+            tr 
+                td colorIndex
+                td The index of the color to use for the highlight of matching items in the BOM ( refers to colors.list defined in settings.js as well )
+                td integer
+                td 1
+            tr 
+                td bomIcon
+                td The icon to use for the given tab and for the BOM highlight; use any icon provided by this framework (see the Developer Guide for the given gallery of icons included)
+                td String
+                td 'icon-tag'
+            tr 
+                td fieldsIn
+                td Defines the grid columns to be displayed by column names
+                td Array
+                td ['Serial #', ..]
+            tr 
+                td fieldsList
+                td Map you grid field IDs to the key fields required for the instance mapping. 
+                    br
+                    |This includes partNumber, path, instanceId, instancePath and boundingBox.
+                td JSON
+                td {..}
+            tr 
+                td groupBy
+                td Select the grid column for row grouping
+                td String
+                td 'NUMBER'
+            tr 
+                td sortOrder
+                td Set the sort order for the grid row entries
+                td Array 
+                td [2]
+            tr 
+                td filter
+                td This setting is used to determine the EBOM items of relevance when performing the automatic sync. Provide the Items workspace field to use as well as the field value that indicates a match. This field must be included in the Items BOM view defined by 
+                    span.code instances.bomViewName
+                    |.
+                td JSON 
+                td { fieldId : 'SERIAL_NUMBER', value  true }
+
+        h1 All Configuration Settings Explained 
+        p This secion describes all the configuration settings of this application which can be found in settings.js. Note that changes to this file require a restart of your server.
+        table.row-hovering 
+            tr 
+                th Setting 
+                th Description
+                th Type 
+                th Default Value 
+            tr 
+                td assets.workspaceId
+                td The ID of the context workspace form which the editor will be launched
+                td Integer
+                td 280
+            tr 
+                td assets.fieldIdBOM
+                td The linking picklist field of the context workspace with the EBOM reference
+                td String
+                td 'ENGINEERING_BOM'
+            tr 
+                td landingHeader
+                td If the editor is launched from an EBOM item instead of the context element, a landing page will prompt the user for the related asset to open. This setting defines the header label of this select dialog which is skipped if the editor is opened from the context element (i.e. the Asset).
+                td String
+                td 'Select From Exsiting Assets'
+            tr 
+                td bomViewName
+                td The BOM view to use when expanding the EBOM of the context element. This view must contain the part number and all the fields defined by the filter settings of each of the tabs.
+                td String
+                td 'Instance Editor'
+            tr 
+                td exportFileName
+                td Users can export the tab data into an Excel file. This setting defines the given file's prefix.
+                td String
+                td 'Serial Numbers'
+            tr 
+                td tabs
+                td This array defines the list of tabs to be displayed and the given workspaces / fields to use. See the previous chapter for details.
+                td Array
+                td []
+        h2 Configuring Viewer Features
+        include ../framework/viewer.pug
+    .log 
+        h1 Variant Manager Change Log 
+        table 
+            tr 
+                td 4. December 2025
+                td Initial Release
+                td This is the very first version of this application

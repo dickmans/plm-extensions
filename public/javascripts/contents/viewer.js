@@ -523,7 +523,8 @@ function getInstancePartNumber(instance) {
                         partNumber += splitPartNumberSpacer + split[i];
                     }
                 }
-                return partNumber;
+                // console.log(partNumber);
+                return partNumber.trim();
             }
         }
     }
