@@ -178,7 +178,11 @@
                 td { fieldId : 'SERIAL_NUMBER', value  true }
 
         h1 All Configuration Settings Explained 
-        p This secion describes all the configuration settings of this application which can be found in settings.js. Note that changes to this file require a restart of your server.
+        p This secion describes all the configuration settings of this application which can be found in settings.js within 
+            span.code exports.config.instances
+            |. 
+        img.border(src='images/apps/instances-8.png' style='max-width:505px;')
+        p Note that changes to this file require a restart of your server.
         table.row-hovering 
             tr 
                 th Setting 
