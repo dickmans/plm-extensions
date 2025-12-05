@@ -607,6 +607,7 @@ exports.config = {
         autoClick        : true,
         openMostRecent   : true,
         searchInputText  : 'Enter part number', 
+        searchTileImages : true,
         workspacesIn     : ['Items'],
         bomViewName      : 'Basic',
         bomLevels        : 10,

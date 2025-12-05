@@ -39,6 +39,10 @@
                     td Placeholder text to be displayed in search input field at startup
                     td 'Enter part number'
                 tr 
+                    td portal.searchTileImages
+                    td When set to true, tile images will be displayed for search results. Disable this feature to improve response times.
+                    td true
+                tr 
                     td portal.workspacesIn
                     td Defines the list of workspaces to search in. In addition, only recently viewed items of the defined workspaces will be displayed in the panel Recent Items.
                     td ['Items']
@@ -82,22 +86,6 @@
                     td portal.suppressLinks
                     td When set to false, the details pages will not contain the links to open related PLM data 
                     td []
-        p.code
-            span export.config = {
-            span.indent 'portal' : {
-            span.indent-2 autoClick : true
-            span.indent-2 searchInputText  : 'Enter part number'
-            span.indent-2 workspacesIn     : ['Items'],
-            span.indent-2 expandSections   : ['Basic'],
-            span.indent-2 sectionsExcluded : ['AML Summary', 'Quality Inspection', 'Sustainability', 'Compliance', 'Others'],
-            span.indent-2 sectionsIncluded : [],
-            span.indent-2 sectionsOrder    : ['Basic', 'Technical Details', 'PDM Data'],
-            span.indent-2 fieldsExcluded   : ['ESTIMATED_COST', 'PENDING_PACKAGES'],
-            span.indent-2 fieldsIncluded   : [],
-            span.indent-2 suppressLinks    : false,
-            span.indent-2 viewerFeatures   : { .. }
-            span.indent }
-            span }  
         p This utility also uses the following common configuration settings
         table(style='margin:10px 0px 30px')
             tr
@@ -113,6 +101,10 @@
     .log 
         h1 PLM Portal Change Log 
         table 
+            tr 
+                td 5. December 2025
+                td Enhancement
+                td New settings help improving performance (searchTileImages, bomLevels, viewingFormats)
             tr 
                 td 9. Oktober 2025
                 td Enhancement

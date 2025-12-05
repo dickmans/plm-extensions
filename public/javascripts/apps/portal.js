@@ -12,6 +12,7 @@ $(document).ready(function() {
             number       : true,
             contentSize  : 'xs',
             tileSubtitle : 'Owner',
+            tileImage    : config.portal.searchTileImages,
             search       : false,
             workspacesIn : config.portal.workspacesIn,
             onClickItem  : function(elemClicked) { openItem(elemClicked); }
