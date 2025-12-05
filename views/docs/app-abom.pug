@@ -1,0 +1,181 @@
+.tile(data-name='Asset BOM Editor')
+    .tile-image(style="background: url('images/app-abom.png') no-repeat;background-size:contain;")
+    .tile-details
+        .tile-title Asset BOM Editor
+        .tile-subtitle Creates a unique copy of an existing BOM to manage the individual items of an Asset. The given asset specific items can be used to manage the whole lifecycle of physical items from production through delivery and scrapping.
+        .tile-access 
+            .tile-endpoint /bom
+    .instructions
+        h1 Features 
+        ul 
+            li Can be launched in context of an Asset 
+            li Reuse the Engineering BOM and viewable for a best in class user experience 
+            li Create the derived Asset Items BOM with single clicks 
+            li Creates asset items for all intermediate parents automatically
+            li Colors indicate the levels containing asset specific items 
+            li Manage instance specific properties and derive information from the referenced base item
+        h1 Prerequisites
+        p This solution requires installation of the new template 
+            strong Assets Lifecycle &amp; Projects 
+            |which is available for testing only (as of December 2025). This template includes the required workspaces of 
+            strong Assets 
+            |and 
+            strong Asset Items
+            |. The solution also requires the 
+            strong Chrome Extensions 
+            |of this package on each client, providing access to the editor in context of Assets.
+        a(href='chrome-extension' target='_blank') Learn about the Chrome Extensions
+        h1 User Guide
+        h2 Launching the editor
+        p Once the prerequisites are met, users can launch the  editor using the button in the Asset's header as shown below. If the editor is launched for the first time for an asset, it will create and connect the given root Asset BOM item automatically. This item can be found in section 
+            strong Asset Configuration 
+            |and will be reused when the editor is launched next time.
+        img.border(src='images/apps/abom-1.png' style='max-width:860px;')
+        h2 Deriving the Asset BOM
+        p Once launched, the editor will display the Asset's Engineering BOM and its root item's viewable. 
+            br 
+            |The column 
+            strong Asset Item 
+            |is added to the EBOM display, enabling the derivation of the Asset BOM.
+        p At the very beginning, there will be no Asset Items at all and users can create the required Asset Items within this BOM column by simply clicking the 
+            strong Create Item 
+            |button. This can be done on any level, the system will automatically create Asset Items for all the intermediate parents in the Asset BOM if needed. Once an Asset Item has been created, the given item's number will be displayed and the color indicator of the BOM row will turn to green. For proper lifecycle management on all levels, the editor will always create a new Asset Item for each BOM row, even if an item is reused within the same assembly. With this, users can later on document the replacement of a given component in a speciic location only.
+        img.border(src='images/apps/abom-2.png' style='max-width:860px;')
+        p Next to this column, key properties can be managed for each Asset Item, including Spare Part and Serial Number indicators. While the Asset Item has not been created, these columns indicate the given EBOM item's defaults. When the Asset Item gets created with the given button, this default will be copied to the new Asset Item. Aftewrwards, users can still modify this property for the given Asset Item using the checkboxes if needed.
+        h2 Advanced Features
+        p Once the 
+            strong Asset Items 
+            |got created, users benefit from additional features provided by the buttons in the main toolbar as well as the BOM's toolbar. The buttons 
+            strong Spare Parts
+            | and 
+            strong Purchased Parts
+            |will list all Asset Items that were flagged accoridingly. With button 
+            strong Serial Numbers 
+            |user can access the Serial Numbers List entries connected with the context Asset.
+        p The button 
+            strong Side Panel 
+            |can be used to toggle the details panel for the selected component on/off. When users select a row with an Asset Item, this will display this item's details. If the Asset Item has not been created yet for the selected BOM row, the Engineering BOM item's details will be displayed instead. If no BOM row is selected, the Asset's details will be displayed.
+        p If there are 
+            strong Order Project Deliveries 
+            |defined for the context Asset, the toggle 
+            strong Deliveries Assignment 
+            |can be used to easily connect the Asset Items with the given deliveries. These deliveries then will be used for the lifecycle management of the given items, similar to the Change Orders for Engineering BOM items.
+        h1 Items Workspace Adjustments
+        h2 BOM View
+        p For the alignment of EBOM and Asset BOM, the editor requires a BOM view in the Items workspace with all the fields listed below. Per default configuration, this BOM view must be named 
+            strong Asset BOM Editor 
+            |, but this name can be changed using the given configuration setting (see further down below). This also allows to reuse an existing BOM view as long as the view contains at least all the fields listed below.
+        table.row-hovering 
+            tr 
+                th Field Label
+                th Field ID 
+                th Description
+                th Field Type
+                th Details
+                th Custom Field
+            tr 
+                td Spare / Wear Part
+                td SPARE_WEAR_PART
+                td Used to indicate the default Spare Parts
+                td Single Line Text
+                td Length : 50
+                td No
+            tr 
+                td Serial Number
+                td SERIAL_NUMBER
+                td Used to indicate the items requiring a Serial Number per default
+                td Checkbox
+                td 
+                td Yes
+            tr 
+                td PDM Category
+                td PDM_CATEGORY
+                td Stores the item category provided by the Vault connector
+                td Single Line Text
+                td Length : 50
+                td No
+        h2 Derived Fields
+        p This editor uses the workspace 
+            strong Asset Items 
+            |provided by the template 
+            strong Assets Lifecycle &amp; Projects
+            |. These items not only are connected to the context Asset, but also the EBOM's source item. This connection to the Refernce Item can be used to derive properties from the source EBOM item. Use the 
+            strong Workspace Manager 
+            |to configure these derived fields if needed.
+        img.border(src='images/apps/abom-3.png' style='max-width:860px;')
+        h1 Configuration Settings 
+        p This secion describes all the configuration settings of this application which can be found in settings.js within 
+            span.code exports.config.abom
+            |. 
+        img.border(src='images/apps/abom-4.png' style='max-width:372px;')
+        p These settings allow for adoption to your environment if needed. Note that changes to this file require a restart of your server.
+        table.row-hovering 
+            tr 
+                th Setting 
+                th Description
+                th Type 
+                th Default Value 
+            tr 
+                td bomLabel
+                td Sets the label on top of the BOM display and the given main toolbar button
+                td String
+                td 'Asset BOM'
+            tr 
+                td assetFieldIDs.ebom
+                td The linking picklist field of the context workspace (Assets) with the EBOM reference
+                td String
+                td 'ENGINEERING_BOM'
+            tr 
+                td assetFieldIDs.abom
+                td The linking picklist field of the context workspace (Assets) with the Asset Items BOM reference
+                td String
+                td 'ASSET_BOM'
+            tr 
+                td assetFieldIDs.serialNumbers
+                td The linking picklist field of the context workspace (Assets) with the Serial Numbers List reference
+                td String
+                td 'SERIAL_NUMBERS_LIST'
+            tr 
+                td assetItems.workspaceId
+                td ID of the Asset Items workspace
+                td Integer
+                td 282
+            tr 
+                td assetItems.workspaceName
+                td Name of the Asset Items workspace
+                td String
+                td 'Asset Item'
+            tr 
+                td assetItems.bomViewName
+                td BOM view of the Asset Items workspace to use for the BOM retrieval. This BOM view must contain all the fields referenced by the next setting assetItems.fieldIDs.
+                td String
+                td 'Default View'
+            tr 
+                td assetItems.fieldIDs
+                td This setting can be used to map the Asset Items workspace fields to the key properties required by the editor. The default settings are aligned with the standard Asset Items workspace already. Note that all these fields must be contained in the BOM view defined in the previous setting assetItems.bomViewName.
+                td JSON
+                td {..}
+            tr 
+                td items.bomViewName
+                td BOM view of the Items workspace to use for the EBOM display. This BOM view must contain all the fields referenced by the next setting items.fields.
+                td String
+                td 'Asset BOM Editor'
+            tr 
+                td items.fields
+                td Use this setting to define the key fields required by the editor in the Items workspace. For each field, define the fieldID and also the possible values that will evaluate to true. These values are used to determine the default values for the checkboxes displayed in the editor.
+                td JSON
+                td {..}
+            tr 
+                td deliveriesWorkspaceId
+                td Provide the workspace ID of your Order Projects Deliveries workspace for the Deliveries Assignment feature
+                td Integer
+                td 279
+        h2 Configuring Viewer Features
+        include ../framework/viewer.pug
+    .log 
+        h1 Variant Manager Change Log 
+        table 
+            tr 
+                td 5. December 2025
+                td Initial Release
+                td This is the very first version of this application

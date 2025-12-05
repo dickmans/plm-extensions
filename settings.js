@@ -105,6 +105,65 @@ exports.config = {
         lightPreset             : 4
     },
 
+    abom : {
+        bomLabel      : 'Asset BOM',
+        assetFieldIDs : {
+            ebom          : 'ENGINEERING_BOM',
+            abom          : 'ASSET_BOM',
+            serialNumbers : 'SERIAL_NUMBERS_LIST'
+        },
+        assetItems : {
+            workspaceId   : 282,
+            workspaceName : 'Asset Item',
+            bomViewName   : 'Default View',
+            fieldIDs: {
+                id        : 'ID',
+                asset     : 'ASSET',
+                item      : 'REFERENCE_ITEM',
+                number    : 'REFERENCE_ITEM_NUMBER',
+                root      : 'REFERENCE_ITEM_ROOT',
+                path      : 'REFERENCE_ITEM_PATH',
+                endItem   : 'END_ITEM',
+                sparePart : 'SPARE_PART',
+                purchased : 'PURCHASED',
+                serial    : 'SERIAL',
+                supplier  : 'SUPPLIER',
+            }
+        },
+        items : {
+            bomViewName : 'Asset BOM Editor',
+            fields : {
+                sparePart     : { fieldId : 'SPARE_WEAR_PART', values : ['spare part', 'yes', 'y']     },
+                serialNumber  : { fieldId : 'SERIAL_NUMBER'  , value  : true                           },
+                purchasedPart : { fieldId : 'PDM_CATEGORY'   , values : ['purchased', 'purchased part']}
+            }
+        },
+        deliveriesWorkspaceId : 279,
+        viewerFeatures : {
+            contextMenu   : false,
+            cube          : false,
+            orbit         : false,
+            firstPerson   : false,
+            camera        : false,
+            measure       : true,
+            section       : true,
+            explodedView  : true,
+            modelBrowser  : false,
+            properties    : false,
+            settings      : false,
+            fullscreen    : false,
+            markup        : false,
+            hide          : true,
+            ghosting      : true,
+            highlight     : true,
+            single        : true,
+            fitToView     : true,
+            reset         : true,
+            views         : true,
+            selectFile    : true
+        }
+    },
+
     classes : {
         fieldsIncluded : ['DESCRIPTOR', 'WORKSPACE', 'REVISION']
     },
@@ -1279,11 +1338,11 @@ exports.chrome = {
         url        : '/instances?',
         label      : 'Instance Editor',
         workspaces : ['assets']
-    // },{
-    //     id         : 'abom',
-    //     url        : '/abom?',
-    //     label      : 'Edit Asset BOM',
-    //     workspaces : ['assets']
+    },{
+        id         : 'abom',
+        url        : '/abom?',
+        label      : 'Edit Asset BOM',
+        workspaces : ['assets']
     },{
         id         : 'sbom',
         url        : '/sbom?',
