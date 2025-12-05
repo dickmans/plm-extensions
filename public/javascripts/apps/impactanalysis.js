@@ -54,7 +54,7 @@ function setUIEvents() {
     $('#toggle-comparison').click(function() {
 
     
-        $.get( '/plm/get-viewables', { 'wsId' : selectedManagedItem.wsId, 'dmsId' : selectedManagedItem.prev }, function(response) {
+        $.post( '/plm/get-viewables', { 'wsId' : selectedManagedItem.wsId, 'dmsId' : selectedManagedItem.prev }, function(response) {
     
             if(response.data.length > 0) {
     

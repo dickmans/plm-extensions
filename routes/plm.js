@@ -3180,28 +3180,28 @@ function getViewerData(req, res, url, headers, enforce) {
 
 
 /* ----- GET ALL VIEWABLES  TO INIT FORGE VIEWER ----- */
-router.get('/get-viewables', function(req, res, next) {
+router.post('/get-viewables', function(req, res, next) {
     
     // same as list viewables, but also includes request to translate viewable if needed
 
     console.log(' ');
     console.log('  /get-viewables');
     console.log(' --------------------------------------------');  
-    console.log('  req.query.wsId           = ' + req.query.wsId);
-    console.log('  req.query.dmsId          = ' + req.query.dmsId);
-    console.log('  req.query.link           = ' + req.query.link);
-    console.log('  req.query.fileId         = ' + req.query.fileId);
-    console.log('  req.query.filename       = ' + req.query.filename);
-    console.log('  req.query.extensionsIn   = ' + req.query.extensionsIn);
-    console.log('  req.query.extensionsEx   = ' + req.query.extensionsEx);
+    console.log('  req.body.wsId           = ' + req.body.wsId);
+    console.log('  req.body.dmsId          = ' + req.body.dmsId);
+    console.log('  req.body.link           = ' + req.body.link);
+    console.log('  req.body.fileId         = ' + req.body.fileId);
+    console.log('  req.body.filename       = ' + req.body.filename);
+    console.log('  req.body.extensionsIn   = ' + req.body.extensionsIn);
+    console.log('  req.body.extensionsEx   = ' + req.body.extensionsEx);
     console.log();
     
-    let link         = (typeof req.query.link === 'undefined') ? '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId : req.query.link;
+    let link         = (typeof req.body.link === 'undefined') ? '/api/v3/workspaces/' + req.body.wsId + '/items/' + req.body.dmsId : req.body.link;
     let url          = req.app.locals.tenantLink + link + '/attachments?asc=name';
-    let fileId       = (typeof req.query.fileId       === 'undefined') ? '' : req.query.fileId;
-    let filename     = (typeof req.query.filename     === 'undefined') ? '' : req.query.filename;
-    let extensionsIn = (typeof req.query.extensionsIn === 'undefined') ? ['dwf', 'dwfx', 'ipt', 'stp', 'step', 'sldprt', 'nwd', 'rvt'] : req.query.extensionsIn;
-    let extensionsEx = (typeof req.query.extensionsEx === 'undefined') ? [] : req.query.extensionsEx;
+    let fileId       = (typeof req.body.fileId       === 'undefined') ? '' : req.body.fileId;
+    let filename     = (typeof req.body.filename     === 'undefined') ? '' : req.body.filename;
+    let extensionsIn = (typeof req.body.extensionsIn === 'undefined') ? ['dwf', 'dwfx', 'ipt', 'stp', 'step', 'sldprt', 'nwd', 'rvt'] : req.body.extensionsIn;
+    let extensionsEx = (typeof req.body.extensionsEx === 'undefined') ? [] : req.body.extensionsEx;
 
     let headers = getCustomHeaders(req);
         headers.Accept = 'application/vnd.autodesk.plm.attachments.bulk+json';
@@ -3213,6 +3213,7 @@ router.get('/get-viewables', function(req, res, next) {
         let viewables = [];
 
         if(response.data !== '') {
+
 
             for(let i = 0; i < response.data.attachments.length; i++) {
 
