@@ -43,13 +43,18 @@ function getTenantLink(req) {
 function runPromised(url, headers) {
 
     return axios.get(url, {
-        'headers' : headers
+        headers : headers
     }).then(function(response) {
         return response.data;
     }).catch(function(error) {
         console.log('error');
         console.log(error);
     });
+
+}
+function validateFileInCache(filename) {
+
+    return fs.existsSync('storage/cache/' + filename);
 
 }
 function downloadFileToCache(url, filename) {
@@ -2307,13 +2312,21 @@ router.get('/attachments', function(req, res, next) {
     console.log(' ');
     console.log('  /attachments');
     console.log(' --------------------------------------------');  
-    console.log('  req.query.wsId  = ' + req.query.wsId);
-    console.log('  req.query.dmsId = ' + req.query.dmsId);
-    console.log('  req.query.link  = ' + req.query.link);
+    console.log('  req.query.wsId        = ' + req.query.wsId);
+    console.log('  req.query.dmsId       = ' + req.query.dmsId);
+    console.log('  req.query.link        = ' + req.query.link);
+    console.log('  req.query.filenamesIn = ' + req.query.filenamesIn);
+    console.log('  req.query.filenamesEx = ' + req.query.filenamesEx);
     console.log();
 
     let url =  (typeof req.query.link !== 'undefined') ? req.query.link : '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId;
         url = req.app.locals.tenantLink + url + '/attachments?asc=name';
+
+    let filenamesIn = (typeof req.query.filenamesIn === 'undefined') ? [] : req.query.filenamesIn;
+    let filenamesEx = (typeof req.query.filenamesEx === 'undefined') ? [] : req.query.filenamesEx; 
+    
+    if(!Array.isArray(filenamesIn)) filenamesIn = [filenamesIn];
+    if(!Array.isArray(filenamesEx)) filenamesEx = [filenamesEx];
     
     let headers = getCustomHeaders(req);
         headers.Accept = 'application/vnd.autodesk.plm.attachments.bulk+json';
@@ -2321,15 +2334,44 @@ router.get('/attachments', function(req, res, next) {
     axios.get(url, {
         headers : headers
     }).then(function(response) {
-        let result = (response.data === '') ? [] : response.data.attachments;
-        for(let attachment of result) {
-            if(!isBlank(attachment.type)) {
-                if(isBlank(attachment.type.extension)) {
-                    attachment.type.extension = '';
+
+        let result = [];
+
+        if(response.data !== '') {
+
+            for(let attachment of response.data.attachments) {
+                if(!isBlank(attachment.type)) {
+                    if(isBlank(attachment.type.extension)) {
+                        attachment.type.extension = '';
+                    }
                 }
+                let fileName  = attachment.resourceName + attachment.type.extension;
+                let included  = (filenamesIn.length === 0);
+
+                fileName = fileName.toLowerCase();
+
+                if(!included) {
+                    for(let filenameIn of filenamesIn) {
+                        if((fileName.indexOf(filenameIn.toLowerCase()) >= 0)) {
+                            included = true;
+                        }
+                    }
+                }
+
+                if(included) {
+                    for(let filenameEx of filenamesEx) {
+                        if((fileName.indexOf(filenameEx.toLowerCase()) >= 0)) {
+                            included = false;
+                        }
+                    }
+                }
+
+                if(included) result.push(attachment);
+
             }
+
         }
-        sendResponse(req, res, { 'data' : result, 'status' : response.status }, false);
+        sendResponse(req, res, { data : result, status : response.status }, false);
     }).catch(function(error) {
         sendResponse(req, res, error.response, true);
     });
