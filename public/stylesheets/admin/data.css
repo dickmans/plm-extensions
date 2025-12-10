@@ -312,7 +312,7 @@ select#workspace {
 }
 .action .definition input {
     min-width : 190px;
-    padding   : 8px 16px;
+    padding   : 8px 20px;
 }
 #delete-attachments input {
     width : 50%;
