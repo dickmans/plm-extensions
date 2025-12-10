@@ -324,6 +324,7 @@
 .icon-remove::before            { content : '\e644'; }
 .icon-reset::before             { content : '\f053'; }
 .icon-resize::before            { content : '\ea10'; }
+.icon-rewind::before            { content : '\e020'; }
 .icon-role::before              { content : '\ea67'; }
 .icon-rules::before             { content : '\f1c2'; }
 .icon-save::before              { content : '\e2c3'; }
@@ -339,6 +340,7 @@
 .icon-settings::before          { content : '\e8b8'; }
 .icon-shipping::before          { content : '\e558'; }
 .icon-show::before              { content : '\e8f4'; }
+.icon-skip::before              { content : '\e01f'; }
 .icon-sliders::before           { content : '\e429'; }
 .icon-start::before             { content : '\e1c4'; }
 .icon-starts-with::before       { content : '\ec73'; }
