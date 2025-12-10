@@ -3,6 +3,7 @@ extends ../framework/layout
 block head
     
     link(rel='stylesheet', href='/stylesheets/apps/portal.css')
+    link(rel='stylesheet', href='/stylesheets/custom/portal.css')
     script(src='/javascripts/apps/portal.js')
     script.
         config = !{JSON.stringify(config)}
@@ -27,7 +28,7 @@ block body
             .surface-level-2#search
             .surface-level-2#recents
 
-            .surface-level-1.item-panel#bom
-            .surface-level-1.item-panel#viewer.viewer
-            .surface-level-2.item-panel#details
-            .surface-level-2.item-panel#attachments
+            .surface-level-1.hidden#bom
+            .surface-level-1.hidden#viewer.viewer
+            .surface-level-2.hidden#details
+            .surface-level-2.hidden#attachments
