@@ -254,6 +254,7 @@
 .icon-disconnect::before        { content : '\e16f'; }
 .icon-donut-chart::before       { content : '\e917'; }
 .icon-download::before          { content : '\e8d7'; }
+.icon-duration::before          { content : '\f3e5'; }
 .icon-ends-with::before         { content : '\e31c'; }
 .icon-equals::before            { content : '\f77b'; }
 .icon-expand::before            { content : '\e5cc'; }
