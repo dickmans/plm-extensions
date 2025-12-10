@@ -1,11 +1,11 @@
 :root {
 
-    --width-border-v    : 30px;
-    --width-border-h    : 45px;
+    --width-border-v    : 24px;
+    --width-border-h    : 36px;
     --width-search      : 380px;
-    --width-bom         : 500px;
-    --width-panels      : 550px;
-    --width-field-label : 240px;
+    --width-bom         : 620px;
+    --width-panels      : 500px;
+    --width-field-label : 200px;
 
     --height-recents : 320px;
     --height-files   : 280px;
@@ -70,8 +70,6 @@ body.no-search.no-bom .viewer { left : 0px; }
 
 body.no-attachments #details { bottom : 0px; }
 body.no-attachments #attachments { bottom : calc(0px - var(--height-files) - (2 * var(--width-border-v))); }
-
-.item-panel { display : none; }
 
 #header-subtitle { display : none; }
 

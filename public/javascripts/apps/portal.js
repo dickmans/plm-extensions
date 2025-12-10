@@ -12,6 +12,7 @@ $(document).ready(function() {
             number       : true,
             contentSize  : 'xs',
             tileSubtitle : 'Owner',
+            tileImage    : config.portal.searchTileImages,
             search       : false,
             workspacesIn : config.portal.workspacesIn,
             onClickItem  : function(elemClicked) { openItem(elemClicked); }
@@ -88,30 +89,34 @@ function openItem(elemClicked) {
     document.title = title;
 
     insertBOM(link, {
-        contentSizes        : ['m', 'l', 'xl', 'xs', 's'],
-        reload              : false,
-        openInPLM           : true,
-        toggles             : true,
-        search              : true,
-        path                : true,
-        counters            : true,
-        tableColumnsLimit   : 1
+        contentSizes      : ['m', 'l', 'xl', 'xs', 's'],
+        bomViewName       : config.portal.bomViewName,
+        depth             : config.portal.bomLevels,
+        reload            : false,
+        openInPLM         : true,
+        toggles           : true,
+        search            : true,
+        path              : true,
+        counters          : true,
+        tableColumnsLimit : 1
     });
 
-    insertViewer(link);
+    insertViewer(link, {
+        extensionsIn : config.portal.viewingFormats
+    });
 
     insertDetails(link, {
-        collapseContents    : true,
-        hideComputed        : true,
-        openInPLM           : true,
-        toggles             : true,
-        suppressLinks       : config.portal.suppressLinks,
-        expandSections      : config.portal.expandSections,
-        sectionsEx          : config.portal.sectionsExcluded,
-        sectionsIn          : config.portal.sectionsIncluded,
-        sectionsOrder       : config.portal.sectionsOrder,
-        fieldsEx            : config.portal.fieldsExcluded,
-        fieldsIn            : config.portal.fieldsIncluded
+        collapseContents : true,
+        hideComputed     : true,
+        openInPLM        : true,
+        toggles          : true,
+        suppressLinks    : config.portal.suppressLinks,
+        expandSections   : config.portal.expandSections,
+        sectionsEx       : config.portal.sectionsExcluded,
+        sectionsIn       : config.portal.sectionsIncluded,
+        sectionsOrder    : config.portal.sectionsOrder,
+        fieldsEx         : config.portal.fieldsExcluded,
+        fieldsIn         : config.portal.fieldsIncluded,
     });
 
     insertAttachments(link, {

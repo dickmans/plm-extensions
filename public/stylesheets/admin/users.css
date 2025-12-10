@@ -321,18 +321,6 @@ body.no-console #console { right : calc(-10px - var(--width-console) - var(--pan
     font-size   : 16px;
     line-height : 24px;
 }
-.group-assignment.action-remove .button-group-keep,
-.group-assignment.action-remove .button-group-add {
-    color : var(--color-surface-level-1);
-}
-.group-assignment.action-keep .button-group-remove,
-.group-assignment.action-keep .button-group-add {
-    color : var(--color-surface-level-1);
-}
-.group-assignment.action-add .button-group-remove,
-.group-assignment.action-add .button-group-keep {
-    color : var(--color-surface-level-1);
-}
 .group-assignment.action-remove .button-group-remove {
     background   : var(--color-status-red);
     border-color : var(--color-status-red);
@@ -410,10 +398,10 @@ body.no-console #console { right : calc(-10px - var(--width-console) - var(--pan
 }
 #new-single-user-groups {
     position   : absolute;
-    top        : 82px;
-    right      : 40px;
+    top        : 52px;
+    right      : 0px;
     bottom     : 0px;
-    left       : 40px;
+    left       : 0px;
     overflow-y : hidden;
 }
 #new-single-user-groups-list {
@@ -527,7 +515,6 @@ th.mail-column{
 .group-column-toggle,
 .group-column-filter,
 .user-groups-filter {
-    color       : var(--color-surface-level-1);
     cursor      : pointer;
     font-weight : 200;
     font-size   : 22px;
@@ -687,15 +674,9 @@ tr:hover .row-actions {
     width : 100%;
     background : var(--color-surface-level-4);
 }
-.icon-radio-unchecked {
-
-    color : var(--color-surface-level-1);
-}
 .user-group-toggle.changed {
     background : var(--color-status-red);
-}
-.user-group-toggle.changed .icon-radio-unchecked {
-    color : white !important;
+    color      : white;
 }
 #users-groups-grid-thead .group-column-wrapper {
     gap : 2px;

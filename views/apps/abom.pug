@@ -1,0 +1,35 @@
+extends ../framework/layout
+
+block head
+
+    link(rel='stylesheet', href='/stylesheets/apps/abom.css')
+    script(src='/javascripts/apps/abom.js')
+    script.
+        config = !{JSON.stringify(config)};
+
+block body
+
+    body.surface-level-1.text-selection-off.mode-features.no-details.no-grid.no-summary
+
+        #header.dark
+            #header-logo
+            #header-title= title
+            #header-subtitle
+            #header-toolbar
+                .button#toggle-bom.with-icon.icon-bom-tree(data-panel-id='bom')
+                .button#toggle-spl.with-icon.icon-package( data-panel-id='spl') Spare Parts
+                .button#toggle-ppl.with-icon.icon-shipping(data-panel-id='ppl') Purchased Parts
+                .button#toggle-snl.with-icon.icon-tag(data-panel-id='snl') Serial Numbers
+                .button#toggle-summary.with-toggle.toggle-off(title='Toggle side panel on/off to prevent new tabs from being opened when clicking an item ID') Side Panel
+                #header-avatar
+        
+        .screen
+
+            #viewer.viewer
+
+            #bom.surface-level-1.panel.hidden
+            #spl.surface-level-1.panel.hidden
+            #ppl.surface-level-1.panel.hidden
+            #snl.surface-level-1.panel.hidden
+           
+            #summary.surface-level-2

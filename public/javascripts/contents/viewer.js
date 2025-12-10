@@ -133,7 +133,7 @@ function initViewer(id, viewables, params) {
     dataInstances = [];
 
     let options = {
-        logLevel    : 1,
+        logLevel    : 0,
         env         : 'AutodeskProduction',
         api         : 'derivativeV2',  // for models uploaded to EMEA change this option to 'derivativeV2_EU'
         // region : 'EMEA',
@@ -523,7 +523,8 @@ function getInstancePartNumber(instance) {
                         partNumber += splitPartNumberSpacer + split[i];
                     }
                 }
-                return partNumber;
+                // console.log(partNumber);
+                return partNumber.trim();
             }
         }
     }

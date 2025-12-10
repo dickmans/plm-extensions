@@ -652,8 +652,9 @@ router.post('/create', function(req, res) {
     console.log('  /create');
     console.log(' --------------------------------------------');
     console.log('  req.body.wsId            = ' + req.body.wsId);
-    console.log('  req.body.sections.length = ' + ((typeof req.body.sections === 'undefined') ? 0 : req.body.sections.length));
-    console.log('  req.body.fields.length   = ' + ((typeof req.body.fields   === 'undefined') ? 0 : req.body.fields.length  ));
+    console.log('  req.body.sections.length = ' + ((typeof req.body.sections === 'undefined') ? 0 : req.body.sections.length         ));
+    console.log('  req.body.fields.length   = ' + ((typeof req.body.fields   === 'undefined') ? 0 : req.body.fields.length           ));
+    console.log('  req.body.derived.length  = ' + ((typeof req.body.derived  === 'undefined') ? 0 : req.body.derived.sections.length ));
     console.log('  req.body.image           = ' + req.body.image);
     console.log('  req.body.getDetails      = ' + req.body.getDetails);
     console.log(' ');
@@ -718,34 +719,50 @@ function genPayloadSectionsFields(req, prefix, mode) {
 
         if(fieldSection !== null) {
 
-            let sectionLink  = prefix + insertion + '/sections/' + fieldSection.__self__.split('/').pop();;
-            let isNewSection = true;
+            let sectionId = fieldSection.__self__.split('/').pop();
 
             let fieldData = {
                 __self__ : prefix   + '/views/1/fields/' + field.fieldId,
                 value    : getFieldValue(field)
             }
 
-            for(let section of sections) {
-                if(section.link === sectionLink) {
-                    isNewSection = false;
-                    section.fields.push(fieldData);
-                    break;
-                }
-            }
-
-            if(isNewSection) {
-                sections.push({
-                    link   : sectionLink,
-                    fields : [fieldData]
-                });
-            }
+            addPayloadSectionField(sections, prefix, insertion, sectionId, fieldData);
 
         }
 
     }
 
+    if(!isBlank(req.body.derived)) {
+        for(let derivedSection of req.body.derived.sections) {
+            let sectionId = derivedSection.link.split('/').pop();
+            for(let field of derivedSection.fields) {
+                addPayloadSectionField(sections, prefix, insertion, sectionId, field);
+            }
+        }
+    }
+
     return sections;
+
+}
+function addPayloadSectionField(sections, prefix, insertion, sectionId, fieldData) {
+
+    let sectionLink  = prefix + insertion + '/sections/' + sectionId;
+    let isNewSection = true;
+
+    for(let section of sections) {
+        if(section.link === sectionLink) {
+            isNewSection = false;
+            section.fields.push(fieldData);
+            break;
+        }
+    }
+
+    if(isNewSection) {
+        sections.push({
+            link   : sectionLink,
+            fields : [fieldData]
+        });
+    }
 
 }
 function getFieldSection(sections, field) {
@@ -1470,18 +1487,23 @@ router.get('/derived', function(req, res, next) {
     console.log(' ');
     console.log('  /derived');
     console.log(' --------------------------------------------');
-    console.log('  req.query.pivotItemId    = ' + req.query.pivotItemId);
-    console.log('  req.query.wsId           = ' + req.query.wsId);
-    console.log('  req.query.fieldId        = ' + req.query.fieldId);
+    console.log('  req.query.wsId        = ' + req.query.wsId);
+    console.log('  req.query.fieldId     = ' + req.query.fieldId);
+    console.log('  req.query.pivotItemId = ' + req.query.pivotItemId);
+    console.log('  req.query.link        = ' + req.query.link);
     console.log();
 
+    let pivotItemId = (typeof req.query.pivotItemId !== 'undefined') ? req.query.pivotItemId : req.query.link.split('/')[6];
+
     let  url = req.app.locals.tenantLink 
-        + '/api/v3/workspaces/' + req.query.wsId + '/views/1/pivots/' + req.query.fieldId
-        + '?pivotItemId=' + req.query.pivotItemId;
+        + '/api/v3/workspaces/' + req.query.wsId
+        + '/views/1/pivots/' + req.query.fieldId
+        + '?pivotItemId=' + pivotItemId;
 
     axios.get(url, {
         headers : req.session.headers
     }).then(function(response) {
+        if(response.data === '') response.data = { sections : [] }
         sendResponse(req, res, response, false);
     }).catch(function(error) {
         sendResponse(req, res, error.response, true);
@@ -2300,6 +2322,13 @@ router.get('/attachments', function(req, res, next) {
         headers : headers
     }).then(function(response) {
         let result = (response.data === '') ? [] : response.data.attachments;
+        for(let attachment of result) {
+            if(!isBlank(attachment.type)) {
+                if(isBlank(attachment.type.extension)) {
+                    attachment.type.extension = '';
+                }
+            }
+        }
         sendResponse(req, res, { 'data' : result, 'status' : response.status }, false);
     }).catch(function(error) {
         sendResponse(req, res, error.response, true);
@@ -3158,28 +3187,28 @@ function getViewerData(req, res, url, headers, enforce) {
 
 
 /* ----- GET ALL VIEWABLES  TO INIT FORGE VIEWER ----- */
-router.get('/get-viewables', function(req, res, next) {
+router.post('/get-viewables', function(req, res, next) {
     
     // same as list viewables, but also includes request to translate viewable if needed
 
     console.log(' ');
     console.log('  /get-viewables');
     console.log(' --------------------------------------------');  
-    console.log('  req.query.wsId           = ' + req.query.wsId);
-    console.log('  req.query.dmsId          = ' + req.query.dmsId);
-    console.log('  req.query.link           = ' + req.query.link);
-    console.log('  req.query.fileId         = ' + req.query.fileId);
-    console.log('  req.query.filename       = ' + req.query.filename);
-    console.log('  req.query.extensionsIn   = ' + req.query.extensionsIn);
-    console.log('  req.query.extensionsEx   = ' + req.query.extensionsEx);
+    console.log('  req.body.wsId           = ' + req.body.wsId);
+    console.log('  req.body.dmsId          = ' + req.body.dmsId);
+    console.log('  req.body.link           = ' + req.body.link);
+    console.log('  req.body.fileId         = ' + req.body.fileId);
+    console.log('  req.body.filename       = ' + req.body.filename);
+    console.log('  req.body.extensionsIn   = ' + req.body.extensionsIn);
+    console.log('  req.body.extensionsEx   = ' + req.body.extensionsEx);
     console.log();
     
-    let link         = (typeof req.query.link === 'undefined') ? '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId : req.query.link;
+    let link         = (typeof req.body.link === 'undefined') ? '/api/v3/workspaces/' + req.body.wsId + '/items/' + req.body.dmsId : req.body.link;
     let url          = req.app.locals.tenantLink + link + '/attachments?asc=name';
-    let fileId       = (typeof req.query.fileId       === 'undefined') ? '' : req.query.fileId;
-    let filename     = (typeof req.query.filename     === 'undefined') ? '' : req.query.filename;
-    let extensionsIn = (typeof req.query.extensionsIn === 'undefined') ? ['dwf', 'dwfx', 'ipt', 'stp', 'step', 'sldprt', 'nwd', 'rvt'] : req.query.extensionsIn;
-    let extensionsEx = (typeof req.query.extensionsEx === 'undefined') ? [] : req.query.extensionsEx;
+    let fileId       = (typeof req.body.fileId       === 'undefined') ? '' : req.body.fileId;
+    let filename     = (typeof req.body.filename     === 'undefined') ? '' : req.body.filename;
+    let extensionsIn = (typeof req.body.extensionsIn === 'undefined') ? ['dwf', 'dwfx', 'ipt', 'stp', 'step', 'sldprt', 'nwd', 'rvt'] : req.body.extensionsIn;
+    let extensionsEx = (typeof req.body.extensionsEx === 'undefined') ? [] : req.body.extensionsEx;
 
     let headers = getCustomHeaders(req);
         headers.Accept = 'application/vnd.autodesk.plm.attachments.bulk+json';
@@ -3191,6 +3220,7 @@ router.get('/get-viewables', function(req, res, next) {
         let viewables = [];
 
         if(response.data !== '') {
+
 
             for(let i = 0; i < response.data.attachments.length; i++) {
 
@@ -3484,7 +3514,7 @@ router.get('/bom-view-by-name', function(req, res, next) {
                 for(let result of results) {
 
                     if(result.name == req.query.name) {
-                            response.data = {
+                        response.data = {
                             id        : result.id,
                             name      : result.name,
                             isDefault : result.isDefault,
@@ -4656,23 +4686,31 @@ router.get('/search-class', function(req, res, next) {
     console.log(' ');
     console.log('  /search-class');
     console.log(' --------------------------------------------'); 
-    console.log('  req.query.classId  = ' + req.query.classId);
-    console.log('  req.query.limit    = ' + req.query.limit);
-    console.log('  req.query.offset   = ' + req.query.offset); 
-    console.log('  req.query.page     = ' + req.query.page); 
-    console.log('  req.query.bulk     = ' + req.query.bulk); 
-    console.log('  req.query.revision = ' + req.query.revision); 
-    console.log('  req.query.useCache = ' + req.query.useCache); 
+    console.log('  req.query.className = ' + req.query.className);
+    console.log('  req.query.query     = ' + req.query.query);
+    console.log('  req.query.sort      = ' + req.query.sort);
+    console.log('  req.query.limit     = ' + req.query.limit);
+    console.log('  req.query.offset    = ' + req.query.offset); 
+    console.log('  req.query.page      = ' + req.query.page); 
+    console.log('  req.query.bulk      = ' + req.query.bulk); 
+    console.log('  req.query.revision  = ' + req.query.revision); 
+    console.log('  req.query.useCache  = ' + req.query.useCache); 
     console.log();
 
+    let query       = (typeof req.query.query    === 'undefined') ?   '' : req.query.query;
+    let sort        = (typeof req.query.sort     === 'undefined') ?   '' : req.query.sort;
     let limit       = (typeof req.query.limit    === 'undefined') ?   10 : req.query.limit;
     let offset      = (typeof req.query.offset   === 'undefined') ?    0 : req.query.offset;
     let page        = (typeof req.query.page     === 'undefined') ?  '1' : req.query.page;
     let bulk        = (typeof req.query.bulk     === 'undefined') ? true : req.query.bulk;
     let revision    = (typeof req.query.revision === 'undefined') ?  '1' : req.query.revision;
 
+    if(query === '') query = '(CLASS:CLASS_PATH="' + req.query.className + '")';
+
     let url  = req.app.locals.tenantLink + '/api/v3/search-results?limit=' + limit + '&offset=' + offset + '&page=' + page + '&revision=' + revision ;
-        url += '&query=(CLASS:CLASS_PATH="' + req.query.classId + '")';
+        url += '&query=' + query;
+
+    if(sort !== '') url += '&sort=' + sort;
 
     let headers = getCustomHeaders(req);
 
@@ -4683,7 +4721,6 @@ router.get('/search-class', function(req, res, next) {
         axios.get(url, {
             headers : headers
         }).then(function(response) {
-            console.log(response.data);
             if(response.data === "") response.data = { 'items' : [] }
             sendResponse(req, res, response, false);
         }).catch(function(error) {
@@ -4789,7 +4826,8 @@ router.get('/class-properties', function(req, res, next) {
 
             Promise.all(requests).then(function(properties) {
 
-                let index = 0;
+                let index             = 0;
+                let requestsPicklists = [];
 
                 for(let property of properties) {
 
@@ -4797,20 +4835,39 @@ router.get('/class-properties', function(req, res, next) {
                     let instance = propertyData.data.propertyInstances[index++];
 
                     results.data.push({
-                        type        : property.type,
-                        name        : property.name,
-                        displayName : property.displayName,
-                        rank        : property.rank,
-                        required    : property.required,
-                        readOnly    : property.readOnly,
+                        type         : property.type,
+                        name         : property.name,
+                        displayName  : property.displayName,
+                        rank         : property.rank,
+                        required     : property.required,
+                        readOnly     : property.readOnly,
                         defaultValue : property.defaultValue,
-                        inherited : instance.inherited
+                        picklist     : [],
+                        inherited    : instance.inherited
                     });
+
+                    if(property.type === 'picklist') {
+                        requestsPicklists.push(runPromised(baseURL + '/api/v3/lookups/CUSTOM_LOOKUP_0CWS_' + property.name + '_' + classId +  '?asc=title&filter=&limit=100&offset=0', req.session.headers));
+                    }
 
                 }
 
                 sortArray(results.data, 'displayName');
-                sendResponse(req, res, results, false);
+
+                Promise.all(requestsPicklists).then(function(responses) {
+
+                    for(let response of responses) {
+                        for(let property of results.data) {
+                            let name = response.urn.split('CUSTOM_LOOKUP_0CWS_')[1];
+                            if((property.name + '_' + classId) === name) {
+                                property.picklist = response.items;
+                            }
+                        }
+                    }
+
+                    sendResponse(req, res, results, false);
+
+                });
 
             });
 

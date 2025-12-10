@@ -348,6 +348,30 @@ let categories = [
             'nav-recent-items' : 'recents'
         }
     },{
+        name        : 'sortBy',
+        description : 'Sort the grid based on the Field ID provided',
+        type        : 'String',
+        default     : '',
+        supportedBy : ['item-grid']
+    },{
+        name        : 'sortDirection',
+        description : 'Sort the grid in ascending or descending order',
+        type        : 'String',
+        default     : 'asending',
+        supportedBy : ['item-grid']
+    },{
+        name        : 'sortType',
+        description : 'Define the field type for proper sorting',
+        type        : 'String',
+        default     : 'string',
+        supportedBy : ['item-grid']
+    },{
+        name        : 'sortOrder',
+        description : 'Provide an array of value pairs with sortBy, sortDirection and sortType to define multiple sorting levels',
+        type        : 'Array',
+        default     : '[]',
+        supportedBy : ['item-grid']
+    },{
         name        : 'multiSelect',
         description : 'Enables selection of multiple items within the same panel. This also adds buttons to the panel toolbar to select all or none items.',
         type        : 'Boolean',
@@ -775,10 +799,10 @@ let categories = [
     supportedBy : []
 },{
     name        : 'limit',
-    description : 'Sets search results limit of the initial search',
+    description : 'Sets limit of records being displayed at initial load',
     type        : 'Integer',
     default     : '25',
-    supportedBy : []
+    supportedBy : ['nav-search', 'nav-workspace-views']
 },{
     name        : 'workspaceIds',
     description : 'Will override workspacesIn if defined, will restrict search within the given list of workspaces',

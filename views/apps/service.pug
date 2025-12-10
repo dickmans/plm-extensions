@@ -12,35 +12,45 @@ block head
 
 block body
 
-    body.text-selection-off.surface-level-1.screen-landing.no-attachments.no-details
+    body.text-selection-off.surface-level-1.screen-landing.no-attachments.no-details.no-assets-list.no-snl.no-asset-service
 
         #header.dark
             #header-logo
             #header-title= title
             #header-subtitle
             #header-toolbar
-                #home.button.with-icon.icon-home.requires(title='Close this product display and return to landing page') Home
-                #toggle-bom.button.with-icon.icon-bom-tree(title='Toggle BOM display on/off') Toggle BOM
-                #toggle-attachments.button.with-icon.icon-pdf(title='Toggle selected items files list on/off') Toggle Files
-                #toggle-panel.button.with-icon.icon-tiles-list(title='Toggle right hand side panel on and off') Toggle Panel
-                #toggle-details.button.with-icon.icon-details(title='Toggle selected item details on/off') Toggle Details
+                #home.button.icon.icon-home.default(title='Close this product display and return to landing page')
+                #toggle-service.button.with-icon.icon-service.hidden(title='Toggle service ticket display to the left on/off') Service Ticket
+                #toggle-bom.button.with-icon.icon-tree(title='Toggle BOM display on/off') BOM
+                #toggle-snl.button.with-icon.icon-tag(title='Toggle BOM display on/off') Serial Numbers
+                #toggle-panel.button.with-icon.icon-tiles-list(title='Toggle right hand side panel on and off') Spare Parts
+                #toggle-details.button.with-icon.icon-details(title='Toggle selected item details on/off') Item Details
                 #header-avatar
 
         .screen#landing 
-            .panel#products.surface-level-1 
-            .panel#requests.surface-level-2
+            .surface-level-2#services
+            .surface-level-1#projects
+            .surface-level-1#assets
+            .surface-level-1#products
+            .surface-level-2#your-processes
+                .tabs(data-tab-group="tab-group-landing")
+                    #tab-your-requests(data-id='your-requests') 
+                    #tab-your-problems(data-id='your-problems')
+                .panel-content#your-requests.surface-level-2.tab-group-landing
+                .panel-content#your-problems.surface-level-2.tab-group-landing          
 
         .screen#main
 
-            .panel#bom.surface-level-1
+            .surface-level-2#service
+            .surface-level-1#bom
+            .surface-level-1#snl
+            .surface-level-1#viewer.viewer
+            .surface-level-1#attachments         
+            .surface-level-3#details
+                .surface-level-3#details-top.pos-abs-top
+                .surface-level-3#details-bottom.pos-abs-bottom
+            .surface-level-2#panel
 
-            #viewer.viewer.surface-level-1
-
-            #attachments.surface-level-1           
-
-            #details.panel.surface-level-2
-
-            .panel#panel.surface-level-2
                 #cart.surface-level-3.collapsed
                     #cart-header
                         #cart-title.with-icon Your Cart

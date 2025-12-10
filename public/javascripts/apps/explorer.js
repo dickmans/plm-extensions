@@ -266,7 +266,7 @@ function setUIEvents() {
 function getInitialData(callback) {
 
     let requests = [
-        $.get('/plm/bom-views-and-fields' , { wsId : wsItems.id, useCache : false }),
+        $.get('/plm/bom-views-and-fields' , { wsId : wsItems.id, useCache : true }),
         $.get('/plm/details'              , { link : urlParameters.bom }),
         $.get('/plm/sections'             , { wsId : wsItems.id, useCache : true }),
         $.get('/plm/fields'               , { wsId : wsItems.id, useCache : true }),
@@ -294,7 +294,8 @@ function getInitialData(callback) {
         wsItems.fields            = responses[3].data;
         wsProblemReports.sections = responses[4].data;
         wsProblemReports.fields   = responses[5].data;
-        editableFields            = getEditableFields(wsItems.fields);
+        // editableFields            = getEditableFields(wsItems.fields);
+        editableFields = [];
 
         if(!isBlank(config.explorer.wsIdSupplierPackages)) {
             wsSupplierPackages.sections = responses[6].data;
@@ -446,7 +447,12 @@ function getBOMData(link, revBias) {
 
     let promises = [
         $.get('/plm/bom'     , params),
-        $.get('/plm/bom-flat', params)
+        // $.get('/plm/bom-flat', {
+        //      link          : link,
+        // depth         : 1,
+        // revisionBias  : revBias,
+        // viewId        : wsItems.viewId       
+        // })
     ];
 
     Promise.all(promises).then(function(responses) {
@@ -469,7 +475,8 @@ function getBOMData(link, revBias) {
         $('#dashboard-processing').hide();
         $('#bom-processing').hide();
         setFlatBOMHeader();
-        setBOMData(responses[0].data, responses[1].data);
+        // setBOMData(responses[0].data, responses[1].data);
+        setBOMData(responses[0].data, null);
 
     });
 
@@ -540,7 +547,7 @@ function setBOMData(bom, flatBom) {
         let elemHead = $('<tr></tr>').appendTo($('#bom-table-tree'));
 
         $('<th></th>').appendTo(elemHead).addClass('bom-color');
-        $('<th></th>').appendTo(elemHead).addClass('bom-first-col');
+        $('<th></th>').appendTo(elemHead).addClass('bom-first-col').addClass('tree-first-col');
 
         for(let rollUp of urns.rollUps) {
 
@@ -553,8 +560,9 @@ function setBOMData(bom, flatBom) {
 
     }
 
+    // insertNextBOMLevel(bom, elemRoot, bom.root, null, rollUpValues);
     insertNextBOMLevel(bom, elemRoot, bom.root, flatBom, rollUpValues);
-    insertFlatBOM(flatBom);
+    // insertFlatBOM(flatBom);
 
     for(let kpi of kpis) insertKPI(kpi);
 
@@ -652,9 +660,11 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom, parentRollUps) {
             $('<td></td>').appendTo(elemRow).addClass('bom-color');
 
             let elemCell = $('<td></td>').appendTo(elemRow)
-                .addClass('bom-first-col');
+                .addClass('bom-first-col')
+                .addClass('tree-first-col');
 
             $('<span></span>').appendTo(elemCell)
+                .addClass('tree-number')
                 .addClass('bom-number')
                 .html(edge.depth + '.' + edge.itemNumber);
 
@@ -703,11 +713,11 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom, parentRollUps) {
                 
                 if(hasChildren) {
 
-                    let elemNav = $('<span></span>');
-                        elemNav.addClass('bom-nav');
-                        elemNav.addClass('icon');
-                        elemNav.addClass('expanded');
-                        elemNav.prependTo(elemCell);
+                    $('<span></span>').prependTo(elemCell)
+                        .addClass('tree-nav')
+                        .addClass('bom-nav')
+                        .addClass('icon')
+                        .addClass('expanded');
 
                     elemRow.addClass('node');
 
