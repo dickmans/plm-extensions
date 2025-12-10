@@ -2322,6 +2322,13 @@ router.get('/attachments', function(req, res, next) {
         headers : headers
     }).then(function(response) {
         let result = (response.data === '') ? [] : response.data.attachments;
+        for(let attachment of result) {
+            if(!isBlank(attachment.type)) {
+                if(isBlank(attachment.type.extension)) {
+                    attachment.type.extension = '';
+                }
+            }
+        }
         sendResponse(req, res, { 'data' : result, 'status' : response.status }, false);
     }).catch(function(error) {
         sendResponse(req, res, error.response, true);
