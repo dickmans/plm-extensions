@@ -1709,7 +1709,7 @@ and (max-device-width : 1900px)  {
 }
 .screen > div {
     position    : absolute;
-    transition  : all ease 0.2s;
+    transition  : left ease 0.2s, top ease 0.2s, right ease 0.2s, bottom ease 0.2s;
 }
 .screen-divider {
     background : var(--color-surface-level-2);
