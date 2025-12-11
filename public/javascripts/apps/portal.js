@@ -83,7 +83,7 @@ function openItem(elemClicked) {
     $('.content-item').removeClass('selected');
     elemClicked.addClass('selected');
 
-    $('.item-panel').show();
+    $('#main').children().removeClass('hidden');
     $('#header-subtitle').html(title).show();
 
     document.title = title;
