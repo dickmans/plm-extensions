@@ -114,10 +114,12 @@ router.get('/storage/folders', function(req, res, next) {
 
     let response = {
         path    : path,
-        folders : []
+        folders : [],
+        url     : '/storage/folders'
     };
 
     if(fs.existsSync(path)) {
+        console.log(path);
         fs.readdir(path, function (err, files) {
             files.forEach(function (file) {
                 if(fs.lstatSync(path + '/' + file).isDirectory()) {
@@ -148,7 +150,8 @@ router.get('/storage/files', function(req, res, next) {
     let response = {
         path       : path,
         files      : [],
-        totalCount : 0
+        totalCount : 0,
+        url        : '/storage/files'
     };
 
     if(fs.existsSync(path)) {
