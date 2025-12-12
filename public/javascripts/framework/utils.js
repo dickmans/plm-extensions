@@ -347,11 +347,11 @@ function insertMenuContents(elemParent, id) {
         }
     }
 
-    let elemLastColumn = elemColumns.children().last();
+    let elemLastColumn = elemColumns.children().first();
 
     $('<div></div>').appendTo(elemLastColumn)
         .addClass('button')
-        .css('margin', '62px 10px 0px 10px')
+        .css('margin', '68px 10px 0px 10px')
         .css('gap', '6px')
         .css('padding', '12px')
         .html('Fusion Manage Home')

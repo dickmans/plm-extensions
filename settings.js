@@ -1164,11 +1164,29 @@ exports.menu = [
             subtitle : 'Browse your current product portfolio',
             url      : '/portfolio'
         },{
+            icon     : 'icon-book',
+            title    : 'Class Browser',
+            subtitle : 'Use classification for your data research',
+            url      : '/classes'
+        },{
             icon     : 'icon-trend-chart',
             title    : 'Product Data Explorer',
             subtitle : 'Track design maturity using defined KPIs',
             url      : '/explorer'
         },{
+            icon     : 'icon-columns',
+            title    : 'Workspace Navigator',
+            subtitle : 'Manage your master data easily',
+            url      : '/navigator'
+        },{
+            icon     : 'icon-service',
+            title    : 'Service Portal',
+            subtitle : 'Real time spare parts information',
+            url      : '/service'
+        }]
+    }],[{
+        label : 'Dashboards',
+        commands : [{
             icon     : 'icon-important',
             title    : 'Problem Reporting Dashboard',
             subtitle : 'Capture and resolve problem reports',
@@ -1194,11 +1212,6 @@ exports.menu = [
             subtitle : 'Review, perform and complete assigned tasks',
             url      : '/dashboard?wsId=80'    
         },{
-            icon     : 'icon-columns',
-            title    : 'Workspace Navigator',
-            subtitle : 'Manage your master data easily',
-            url      : '/navigator'
-        },{
             icon     : 'icon-dashboard',
             title    : 'Reports Dashboard',
             subtitle : 'Gain insights using your PLM reports',
@@ -1208,13 +1221,8 @@ exports.menu = [
             title    : 'Projects Dashboard',
             subtitle : 'Review timeline of NPI projects in progress',
             url      : '/projects'
-        },{
-            icon     : 'icon-service',
-            title    : 'Service Portal',
-            subtitle : 'Real time spare parts information',
-            url      : '/service'
         }]
-    }], [{
+    }],[{
         label : 'Administration Utilities',
         commands : [{
             icon     : 'icon-status',

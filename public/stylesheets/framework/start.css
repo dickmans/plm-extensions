@@ -1,29 +1,29 @@
 :root {
-    --content-height : 740px;
-    --content-width  : 850px;
+    --content-height : 658px;
+    --content-width  : 1240px;
 }
 
 #content {
-    display         : flex;
+    display        : flex;
     flex-direction : column;
-    position        : absolute;
-    top             : calc(50% - (var(--content-height) / 2) - 40px);
-    right           : calc(50% - (var(--content-width) / 2));
-    left            : calc(50% - (var(--content-width) / 2));
+    position       : absolute;
+    top            : calc(50% - (var(--content-height) / 2) - 2%);
+    right          : calc(50% - (var(--content-width)  / 2));
+    left           : calc(50% - (var(--content-width)  / 2));
 }
 #title {
-    background      : var(--color-surface-level-4);
-    font-size       : 32px;
-    font-weight     : 800;
-    line-height     : 32px;
-    padding         : 24px 0px;
-    text-align      : center;
+    background  : var(--color-surface-level-4);
+    font-size   : 32px;
+    font-weight : 800;
+    line-height : 32px;
+    padding     : 24px 0px;
+    text-align  : center;
 }
 #applications {
     background      : var(--color-surface-level-2);
     display         : flex;
     justify-content : space-between;
-    padding         : 24px 56px;
+    padding         : 24px 56px 38px;
 }
 #applications-columns {
     display : flex;
