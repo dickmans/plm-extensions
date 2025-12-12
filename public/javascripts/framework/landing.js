@@ -74,6 +74,13 @@ $(document).ready(function() {
         $(this).toggleClass('icon-tiles').toggleClass('icon-tiles-list');
         $('body').toggleClass('layout-tiles-list');
     });    
+    $('#start').click(function() {
+        let href = document.location.href.split('?');
+        let url  = href[0] += 'start?theme=' + $('#theme-selector').val();
+
+        document.location.href = url;
+
+    });    
 
     $('.tile').addClass('min');
 

@@ -38,6 +38,14 @@
     left          : calc(var(--width-side) + 160px - 22px);
     z-index       : 2;
 }
+#start {
+    border-radius : 50%;
+    font-size     : 28px;
+    position      : absolute;
+    top           : 178px;
+    left          : calc(var(--width-side) + 160px - 22px);
+    z-index       : 2;
+}
 #main {
     border-width    : 60px 60px;
     position        : absolute;
@@ -52,7 +60,8 @@
 body > div { transition  : all ease 0.2s; }
 
 body.no-side-panel #toggle,
-body.no-side-panel #layout { left : 12px; }
+body.no-side-panel #layout,
+body.no-side-panel #start  { left : 12px; }
 body.no-side-panel #side   { left : calc(34px - var(--width-side) - 160px); }
 body.no-side-panel #main   { left : 34px; }
 
