@@ -6,7 +6,7 @@ $(document).ready(function() {
 
     updateLinks();
 
-    $('#theme-selector').val(theme + '-theme');
+    $('#theme-selector').val(theme);
 
     $('#tenant-name').html(tenant);
     
@@ -28,9 +28,9 @@ $(document).ready(function() {
         $('body').removeClass('dark-theme');
         $('body').removeClass('black-theme');
         $('body').removeClass('light-theme');
-        $('body').addClass($(this).val());
+        $('body').addClass($(this).val() + '-theme');
 
-        theme = $(this).val().split('-theme')[0];
+        theme = $(this).val();
 
         $('a').each(function() {
 
@@ -155,7 +155,14 @@ $(document).ready(function() {
             let location = document.location.href.split('?');
             url = location[0] + url;
             let concat = (url.indexOf('?') > -1) ? '&' : '?';
-            if(location.length > 1)url += concat + location[1];
+            if(location.length > 1) {
+                url += concat + location[1];
+                concat = '&';
+            }
+
+            if(url.indexOf('theme=') < 0) {
+                url += concat + 'theme=' + $('#theme-selector').val();
+            }
 
         }
 
