@@ -578,17 +578,47 @@ function appendViewerProcessing(id, hidden) {
     $('<div></div>').appendTo(elemProcessing).addClass('bounce2');
     $('<div></div>').appendTo(elemProcessing).addClass('bounce3');
 
+    $('<div></div>').appendTo(elemWrapper)
+        .addClass('viewer-processing-message')
+        .attr('id', id + '-processing-message');
+
     let elemMessage = $('<div></div>').insertAfter(elemViewer)
         .attr('id', id + '-message')
         .addClass('viewer-message')
-        .addClass('viewer');
+        .addClass('viewer')
+        .addClass('hidden');
 
     $('<span></span>').appendTo(elemMessage)
         .addClass('icon')
         .html('view_in_ar');
 
     $('<span></span>').appendTo(elemMessage)
+        .addClass('text')
         .html('No Viewable Found');
+
+    let elemConversionError = $('<div></div>').insertAfter(elemViewer)
+        .attr('id', id + '-conversion-error')
+        .addClass('viewer-conversion-error')
+        .addClass('viewer')
+        .addClass('hidden');
+
+    let elemConversionWrapper = $('<div></div>').appendTo(elemConversionError)
+        .addClass('viewer-conversion-error-wrapper');
+
+    $('<div></div>').appendTo(elemConversionWrapper)
+        .addClass('icon')
+        .addClass('filled')
+        .addClass('icon-important');
+
+    $('<div></div>').appendTo(elemConversionWrapper)
+        .html('Error when converting file');
+
+    $('<div></div>').appendTo(elemConversionWrapper)
+        .attr('id', id + '-conversion-error-filename')
+        .addClass('viewer-conversion-error-filename');
+
+    $('<div></div>').appendTo(elemConversionWrapper)
+        .html('Please try again by refreshing the viewer. If the error remains, please get in touch with your administrator.');
 
     let classNames = elemViewer.attr('class');
 
@@ -601,6 +631,8 @@ function appendViewerProcessing(id, hidden) {
             }
         }
     }
+
+    if(!hidden) elemWrapper.removeClass('hidden');
 
 }
 function appendOverlay(hidden) {

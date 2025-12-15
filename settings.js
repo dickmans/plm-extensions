@@ -92,17 +92,22 @@ exports.config = {
     
     // Set default settings for all viewer instances
     viewer  : {
-        preferredFileSuffixes   : ['.ipt.dwf', '.iam.dwf'],   // case does not matter
-        numberProperties        : ['Part Number', 'Name', 'label', 'Artikelnummer', 'Bauteilnummer'],
-        splitPartNumberBy       : ' v',
-        splitPartNumberIndexes  : [0],
-        splitPartNumberSpacer   : '',
-        backgroundColor         : [255, 255, 255, 255, 255, 255],
-        antiAliasing            : true,
-        ambientShadows          : true,
-        groundReflection        : false,
-        groundShadow            : true,
-        lightPreset             : 4
+        numberProperties       : ['Part Number', 'Name', 'label', 'Artikelnummer', 'Bauteilnummer'],
+        suffixPrimaryFile      : ['.iam.dwf', '.iam.dwfx', '.ipt.dwf', '.ipt.dwfx'],
+        extensionsIncluded     : ['dwf', 'dwfx', 'nwd', 'iam', 'ipt', 'stp', 'step', 'sldprt', 'pdf'],
+        extensionsExcluded     : [],
+        splitPartNumberBy      : ' v',
+        splitPartNumberIndexes : [0],
+        splitPartNumberSpacer  : '',
+        backgroundColor        : [255, 255, 255, 255, 255, 255],
+        cacheInstances         : true,
+        antiAliasing           : true,
+        ambientShadows         : true,
+        groundReflection       : false,
+        groundShadow           : true,
+        lightPreset            : 4,
+        conversionAttempts     : 10,
+        conversionDelay        : 3000
     },
 
     abom : {

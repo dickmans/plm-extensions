@@ -1,17 +1,48 @@
 /*  VIEWER */
 /* ----------------------------------------------------------------------------- */
+.viewer-processing-message {
+    position   : absolute;
+    top        : calc(50% + 30px);
+    left       : calc(50% - 100px);
+    text-align : center;
+    max-width  : 200px;
+    min-width  : 200px;
+    width      : 200px;
+    z-index    : 9;
+}
 .viewer-message {
-    display         : none;
+    display         : flex;
     flex-flow       : column;
     gap             : 10px;
     justify-content : center;
     text-align      : center;
-    /* height          : 100%; */
 }
 .viewer-message > .icon {
     color       : var(--color-blue-500);
-    font-size   : 56px;
+    font-size   : 100px;
     font-weight : 200;
+}
+.viewer-conversion-error-wrapper {
+    display    : flex;
+    flex-direction : column;
+    gap        : 10px;
+    text-align : center;
+    position   : absolute;
+    top        : calc(50% - 180px);
+    left       : calc(50% - 100px);
+    text-align : center;
+    max-width  : 200px;
+    min-width  : 200px;
+    width      : 200px;
+    z-index    : 9;
+}
+.viewer-conversion-error .icon {
+    color       : var(--color-red-500);
+    font-size   : 100px;
+    font-weight : 200;
+}
+.viewer-conversion-error-filename {
+    font-weight : 800;
 }
 .no-viewer-cube .viewcubeWrapper {
     z-index : -10;

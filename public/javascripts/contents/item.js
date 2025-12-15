@@ -7066,84 +7066,69 @@ function insertViewer(link, params) {
     if(!isBlank(params.fileId)  )   fileId = params.fileId;
     if(!isBlank(params.filename)) filename = params.filename;
 
-    settings.viewer[id]               = {};
-    settings.viewer[id].link          = link;
-    settings.viewer[id].timeStamp     = new Date().getTime();
-    settings.viewer[id].extensionsIn  = ['dwf','dwfx','iam','ipt','stp','step','sldprt','pdf'];
-    settings.viewer[id].extensionsEx  = [];
-    settings.viewer[id].restartViewer = params.restartViewer || false;
+    settings.viewer[id]                   = {};
+    settings.viewer[id].link              = link;
+    settings.viewer[id].timeStamp         = new Date().getTime();
+    settings.viewer[id].suffixPrimaryFile = config.viewer.suffixPrimaryFile  || ['.iam.dwf', '.iam.dwfx', '.ipt.dwf', '.ipt.dwfx'];
+    settings.viewer[id].extensionsIn      = config.viewer.extensionsIncluded || ['dwf', 'dwfx', 'nwd', 'iam', 'ipt', 'stp', 'step', 'sldprt', 'pdf'];
+    settings.viewer[id].extensionsEx      = config.viewer.extensionsExcluded || [];
+    settings.viewer[id].restartViewer     = params.restartViewer || false;
 
-    if(!isBlank(params.extensionsIn)    ) settings.viewer[id].extensionsIn     = params.extensionsIn;
-    if(!isBlank(params.extensionsEx)    ) settings.viewer[id].extensionsEx     = params.extensionsEx;
-    if(!isBlank(params.backgroundColor) ) settings.viewer[id].backgroundColor  = params.backgroundColor;
-    if(!isBlank(params.antiAliasing)    ) settings.viewer[id].antiAliasing     = params.antiAliasing;
-    if(!isBlank(params.ambientShadows)  ) settings.viewer[id].ambientShadows   = params.ambientShadows;
-    if(!isBlank(params.groundReflection)) settings.viewer[id].groundReflection = params.groundReflection;
-    if(!isBlank(params.groundShadow)    ) settings.viewer[id].groundShadow     = params.groundShadow;
-    if(!isBlank(params.lightPreset)     ) settings.viewer[id].lightPreset      = params.lightPreset;
+    if(!isBlank(params.suffixPrimaryFile)) settings.viewer[id].suffixPrimaryFile = params.suffixPrimaryFile;
+    if(!isBlank(params.extensionsIn)     ) settings.viewer[id].extensionsIn      = params.extensionsIn;
+    if(!isBlank(params.extensionsEx)     ) settings.viewer[id].extensionsEx      = params.extensionsEx;
+    if(!isBlank(params.backgroundColor)  ) settings.viewer[id].backgroundColor   = params.backgroundColor;
+    if(!isBlank(params.antiAliasing)     ) settings.viewer[id].antiAliasing      = params.antiAliasing;
+    if(!isBlank(params.ambientShadows)   ) settings.viewer[id].ambientShadows    = params.ambientShadows;
+    if(!isBlank(params.groundReflection) ) settings.viewer[id].groundReflection  = params.groundReflection;
+    if(!isBlank(params.groundShadow)     ) settings.viewer[id].groundShadow      = params.groundShadow;
+    if(!isBlank(params.lightPreset)      ) settings.viewer[id].lightPreset       = params.lightPreset;
 
     let elemInstance = $('#' + id).children('.adsk-viewing-viewer');
     if(elemInstance.length > 0) elemInstance.hide();
 
     $('#' + id).attr('data-link', link);
+    $('#' + id).addClass('hidden');
+    $('#' + id + '-message').addClass('hidden');
+    $('#' + id + '-conversion-error').addClass('hidden');
 
     let elemProcessing = $('#' + id + '-processing');
 
-    if(elemProcessing.length === 0) {
-        appendViewerProcessing(id, false);
-    } else {
-        elemProcessing.show();
-        $('#' + id + '-message').hide();
-    }
+    if(elemProcessing.length === 0) appendViewerProcessing(id, false);
+
+    elemProcessing.removeClass('hidden');
+
+    $('#' + id + '-processing-message').html('Getting Viewables');
 
     $.post('/plm/get-viewables', { 
-        link          : link, 
-        fileId        : fileId, 
-        filename      : filename, 
-        extensionsIn  : settings.viewer[id].extensionsIn, 
-        extensionsEx  : settings.viewer[id].extensionsEx, 
-        timeStamp     : settings.viewer[id].timeStamp
+
+        link              : link, 
+        fileId            : fileId, 
+        filename          : filename, 
+        suffixPrimaryFile : settings.viewer[id].suffixPrimaryFile, 
+        extensionsIn      : settings.viewer[id].extensionsIn, 
+        extensionsEx      : settings.viewer[id].extensionsEx, 
+        timeStamp         : settings.viewer[id].timeStamp
+
     }, function(response) {
 
         if(settings.viewer[id].link      !== response.params.link     ) return;
         if(settings.viewer[id].timeStamp !=  response.params.timeStamp) return;
-
+        
         if(response.data.length > 0) {
             
-            sortArray(response.data, 'size', 'integer', 'descending');
+            // sortArray(response.data, 'size', 'integer', 'descending');
             
-            let formats3D  = config.viewer.preferredFileSuffixes || ['.ipt.dwf', '.ipt.dwfx', '.iam.dwf', '.iam.dwfx'];
-            let viewables  = [];
-            let found3DDWF = false;
-
-            for(let viewable of response.data) {
-                let add = true;
-                if(!found3DDWF){
-                    for(let format of formats3D) {
-                        if(viewable.name.toLowerCase().indexOf(format.toLowerCase()) > -1) {
-                            found3DDWF = true;
-                            viewables.unshift(viewable);
-                            add = false;
-                            break;
-                        }
-                    }
-                }  
-                if(add) viewables.push(viewable);
-            }
-
+            $('#' + id).removeClass('hidden');
             $('body').removeClass('no-viewer');
 
-            if(elemInstance.length > 0) elemInstance.show();
-
             insertViewerDone(id, response.data);
-            initViewer(id, viewables, settings.viewer[id]);
+            initViewer(id, link, response.data, settings.viewer[id]);
 
         } else {
 
-            $('#' + id).hide();
-            $('#' + id + '-processing').hide();
-            $('#' + id + '-message').css('display', 'flex');
             $('body').addClass('no-viewer');
+            viewerShowErrorMessage('No viewable found'); return;
 
         }
         
