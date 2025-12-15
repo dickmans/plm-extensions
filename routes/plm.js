@@ -3173,62 +3173,55 @@ router.get('/delete-attachments', function(req, res, next) {
 // });
 
 
-/* ----- INIT VIEWER FOR DEFINED ATTACHMENT ----- */
+/* ----- GET SINGLE VIEWABLE TO INIT APS VIEWER ----- */
 router.get('/get-viewable', function(req, res, next) {
     
     console.log(' ');
     console.log('  /get-viewable');
     console.log(' --------------------------------------------');  
-    console.log('  req.query.wsId           = ' + req.query.wsId);
-    console.log('  req.query.dmsId          = ' + req.query.dmsId);
-    console.log('  req.query.attachmentId   = ' + req.query.attachmentId);
-    console.log('  req.query.link           = ' + req.query.link);
+    console.log('  req.query.wsId         = ' + req.query.wsId);
+    console.log('  req.query.dmsId        = ' + req.query.dmsId);
+    console.log('  req.query.link         = ' + req.query.link);
+    console.log('  req.query.attachmentId = ' + req.query.attachmentId);
+    console.log('  req.query.forceUpdate  = ' + req.query.forceUpdate);
+    console.log('  req.query.isPDF        = ' + req.query.isPDF);
+    console.log('  req.query.filename     = ' + req.query.filename);
+    console.log('  req.query.thumbnail    = ' + req.query.thumbnail);
     console.log();
 
-    let url =  (typeof req.query.link !== 'undefined') ? req.query.link : '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId;
-        url = req.app.locals.tenantLink + url;
+    let force  = (typeof req.query.forceUpdate === 'undefined') ? false : (req.query.forceUpdate == 'true');
+    let link   = (typeof req.query.link        === 'undefined') ? '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId : req.query.link;
+    let isPDF  = (typeof req.query.isPDF       === 'undefined') ? false : (req.query.isPDF == 'true');
+    let url    = getTenantLink(req) + link;
 
-    if(url.indexOf('/attachments/') === -1) url += '/attachments/' + req.query.attachmentId;
+    if(isPDF) {
 
-    let headers = getCustomHeaders(req);
-        headers.Accept = 'application/vnd.autodesk.plm.attachment.viewable+json';
-    
-    getViewerData(req, res, url, headers, false);
+        downloadFileToCache(req.query.thumbnail, req.query.filename);
+        sendResponse(req, res, { data : { status : 'DONE' } }, false);
+
+    } else {
+
+        if(url.indexOf('/attachments/') === -1) url += '/attachments/' + req.query.attachmentId;
+        if(force) url += '?force=true';
+
+        let headers = getCustomHeaders(req);
+            headers.Accept = 'application/vnd.autodesk.plm.attachment.viewable+json';
+        
+        axios.get(url, {
+            headers : headers
+        }).then(function(response) {
+            console.log(response);
+            sendResponse(req, res, response, false);
+        }).catch(function(error) {
+            sendResponse(req, res, error.response, true);
+        });
+
+    }
 
 });
-function getViewerData(req, res, url, headers, enforce) {
-
-    let suffix = (enforce) ? '?force=true' : '';
-
-    axios.get(url + suffix, {
-        headers : headers
-    }).then(function(response) {
-
-        if(response.data.status === 'FAILED') {
-            console.log('  Conversion of viewable failed, enforcing update with next request');
-            getViewerData(req, res, url, headers, true);
-        } else if(response.data.status === 'DONE') {
-            sendResponse(req, res, {
-                data : {
-                    urn   : response.data.fileUrn,
-                    token : req.session.headers.token                
-                }
-            }, false);
-        } else {
-            setTimeout(function() {
-                console.log('  Conversion of viewable pending - waiting for 2 seconds');
-                getViewerData(req, res, url, headers, false);
-            }, 2000);
-        }
-
-    }).catch(function(error) {
-        sendResponse(req, res, error.response, true);
-    });
-    
-}
 
 
-/* ----- GET ALL VIEWABLES  TO INIT FORGE VIEWER ----- */
+/* ----- GET ALL VIEWABLES TO INIT APS VIEWER ----- */
 router.post('/get-viewables', function(req, res, next) {
     
     // same as list viewables, but also includes request to translate viewable if needed
@@ -3236,33 +3229,36 @@ router.post('/get-viewables', function(req, res, next) {
     console.log(' ');
     console.log('  /get-viewables');
     console.log(' --------------------------------------------');  
-    console.log('  req.body.wsId           = ' + req.body.wsId);
-    console.log('  req.body.dmsId          = ' + req.body.dmsId);
-    console.log('  req.body.link           = ' + req.body.link);
-    console.log('  req.body.fileId         = ' + req.body.fileId);
-    console.log('  req.body.filename       = ' + req.body.filename);
-    console.log('  req.body.extensionsIn   = ' + req.body.extensionsIn);
-    console.log('  req.body.extensionsEx   = ' + req.body.extensionsEx);
+    console.log('  req.body.wsId              = ' + req.body.wsId);
+    console.log('  req.body.dmsId             = ' + req.body.dmsId);
+    console.log('  req.body.link              = ' + req.body.link);
+    console.log('  req.body.fileId            = ' + req.body.fileId);
+    console.log('  req.body.filename          = ' + req.body.filename);
+    console.log('  req.body.suffixPrimaryFile = ' + req.body.suffixPrimaryFile);
+    console.log('  req.body.extensionsIn      = ' + req.body.extensionsIn);
+    console.log('  req.body.extensionsEx      = ' + req.body.extensionsEx);
     console.log();
     
-    let link         = (typeof req.body.link === 'undefined') ? '/api/v3/workspaces/' + req.body.wsId + '/items/' + req.body.dmsId : req.body.link;
-    let url          = req.app.locals.tenantLink + link + '/attachments?asc=name';
-    let fileId       = (typeof req.body.fileId       === 'undefined') ? '' : req.body.fileId;
-    let filename     = (typeof req.body.filename     === 'undefined') ? '' : req.body.filename;
-    let extensionsIn = (typeof req.body.extensionsIn === 'undefined') ? ['dwf', 'dwfx', 'ipt', 'stp', 'step', 'sldprt', 'nwd', 'rvt'] : req.body.extensionsIn;
-    let extensionsEx = (typeof req.body.extensionsEx === 'undefined') ? [] : req.body.extensionsEx;
+    let link              = (typeof req.body.link === 'undefined') ? '/api/v3/workspaces/' + req.body.wsId + '/items/' + req.body.dmsId : req.body.link;
+    let urlBase           = getTenantLink(req) + link + '/attachments';
+    let fileId            = (typeof req.body.fileId            === 'undefined') ? '' : req.body.fileId;
+    let filename          = (typeof req.body.filename          === 'undefined') ? '' : req.body.filename;
+    let suffixPrimaryFile = (typeof req.body.suffixPrimaryFile === 'undefined') ? ['.iam.dwf', '.iam.dwfx', '.ipt.dwf', '.ipt.dwfx'] : req.body.suffixPrimaryFile;
+    let extensionsIn      = (typeof req.body.extensionsIn      === 'undefined') ? ['dwf', 'dwfx', 'nwd', 'iam', 'ipt', 'stp', 'step', 'sldprt', 'pdf'] : req.body.extensionsIn;
+    let extensionsEx      = (typeof req.body.extensionsEx      === 'undefined') ? [] : req.body.extensionsEx;
 
     let headers = getCustomHeaders(req);
         headers.Accept = 'application/vnd.autodesk.plm.attachments.bulk+json';
 
-    axios.get(url, {
-        headers : headers
-    }).then(function(response) {
-
-        let viewables = [];
+    axios.get(urlBase + '?asc=name', { headers : headers }).then(function(response) {
 
         if(response.data !== '') {
 
+            let viewables = [];
+            let requests  = [];
+            let iPrimary  = 1000;
+
+            headers.Accept = 'application/vnd.autodesk.plm.attachment.viewable+json';
 
             for(let i = 0; i < response.data.attachments.length; i++) {
 
@@ -3270,46 +3266,92 @@ router.post('/get-viewables', function(req, res, next) {
 
                 if(attachment.type.extension !== null) {
 
-                    let include     = false;
-                    let extension   = attachment.type.extension.toLowerCase().split('.').pop();
+                    let include   = false;
+                    let primary   = false;
+                    let extension = attachment.type.extension.toLowerCase().split('.').pop();
+                        extension = extension.toLowerCase();
 
-                    if(fileId === '' || fileId === attachment.id) {
-                        if(filename === '' || filename === attachment.resourceName) {
-                            if(extensionsIn.length === 0 || extensionsIn.includes(extension)) {
-                                if(extensionsEx.length === 0 || !extensionsEx.includes(extension)) {
-                                    include = true;
+                    if(fileId !== filename) {
+                        if((attachment.id === fileId) || (attachment.resourceName == filename)) {
+                            include = true;
+                            primary = true;
+                        }
+                    } else if(extensionsIn.length === 0 || extensionsIn.includes(extension)) {
+                        if(extensionsEx.length === 0 || !extensionsEx.includes(extension)) {
+                            include = true;
+                            for(let index in suffixPrimaryFile) {
+                                let suffix = suffixPrimaryFile[index];
+                                if(attachment.name.endsWith(suffix)) {
+                                    if(index < iPrimary) {
+                                        iPrimary = index;
+                                        primary = true;
+                                        for(let viewable of viewables) viewable.primary = false;
+                                    }
                                 }
                             }
                         }
                     }
 
                     if(include) {
+
                         viewables.push({
-                            id            : attachment.id,
-                            name          : attachment.name,
-                            resourceName  : attachment.resourceName,
-                            description   : attachment.description,
-                            version       : attachment.version,
-                            user          : attachment.created.user.title,
-                            type          : attachment.type.fileType,
-                            extension     : attachment.type.extension,
-                            size          : attachment.size,
-                            status        : '',
-                            fileUrn       : '',
-                            thumbnail     : attachment.thumbnails.large,
-                            timestamp     : attachment.created.timeStamp,
-                            token         : req.session.headers.token
+                            id           : attachment.id,
+                            name         : attachment.name,
+                            resourceName : attachment.resourceName,
+                            description  : attachment.description,
+                            version      : attachment.version,
+                            user         : attachment.created.user.title,
+                            type         : attachment.type.fileType,
+                            extension    : attachment.type.extension,
+                            primary      : primary,
+                            size         : attachment.size,
+                            thumbnail    : attachment.thumbnails.large,
+                            timestamp    : attachment.created.timeStamp,
+                            token        : req.session.headers.token,
+                            status       : '',
+                            urn          : ''
                         });
+
+                        if(attachment.type.fileType != 'Adobe PDF') requests.push(axios.get(urlBase + '/' + attachment.id, { headers : headers}));
+
                     }
                     
                 }
             }
 
-            headers.Accept = 'application/vnd.autodesk.plm.attachment.viewable+json';
-            getViewables(req, res, headers, link, viewables, 1);
+            Promise.all(requests).then(function(responses) {
+
+                let hasPrimary = false;
+
+                for(let viewable of viewables) {
+
+                    if(viewable.primary) hasPrimary = true;
+
+                    for(let response of responses) {
+                        if((viewable.name === response.data.fileName) || ((viewable.name + viewable.extension) === response.data.fileName)) {
+                            viewable.status = response.data.status;
+                            viewable.urn    = response.data.fileUrn;
+                        }
+                    }
+                    
+                    if(viewable.type == 'Adobe PDF') {
+                        viewable.filename = viewable.name.split('.pdf')[0] + '-V' + viewable.version + '.pdf';
+                        viewable.link     = 'storage/cache/' + viewable.filename;
+                        viewable.status   = validateFileInCache(viewable.filename) ? 'DONE' : 'PENDING';
+                    }
+
+                }
+
+                if(viewables.length > 0) {
+                    if(!hasPrimary) viewables[0].primary = true;
+                }
+
+                sendResponse(req, res, { data : viewables }, false);
+
+            });
 
         } else {
-            sendResponse(req, res, { 'data' : [] , 'status' : response.status }, false);
+            sendResponse(req, res, { data : [] , status : response.status }, false);
         }
 
     }).catch(function(error) {
@@ -3317,68 +3359,6 @@ router.post('/get-viewables', function(req, res, next) {
     });
     
 });
-function getViewables(req, res, headers, link, viewables, attempt) {
-
-    let requests = [];
-
-    for(let viewable of viewables) {
-        if(viewable.status !== 'DONE') {
-            if(viewable.type === 'Adobe PDF') {
-                viewable.filename = viewable.name.split('.pdf')[0] + '-V' + viewable.version + '.pdf';
-                requests.push(downloadFileToCache(viewable.thumbnail, viewable.filename));
-            } else {
-                let url = req.app.locals.tenantLink + link + '/attachments/' + viewable.id;
-                if(viewable.status === 'FAILED') url += '?force=true';
-                requests.push(runPromised(url, headers));
-            }
-        }
-    }
-
-    Promise.all(requests).then(function(responses) {
-
-        let success = true;
-
-        for(let viewable of viewables) {
-
-            if(viewable.type !== 'Adobe PDF') {
-
-                for(let response of responses) {
-                    if((viewable.name === response.fileName) || ((viewable.name + viewable.extension) === response.fileName)) {
-                        if(response.status !== 'DONE') {
-                            success = false;
-                            break
-                        }
-                        viewable.status = response.status;
-                        viewable.urn    = response.fileUrn;
-                    }
-                }
-
-            } else {
-                viewable.link = '/storage/cache/' + viewable.filename;
-            }
-
-        }
-
-        if(success) {
-            sendResponse(req, res, { 'data' : viewables }, false);
-        } else if(attempt > 20) {
-            for(let index = viewables.length - 1; index >= 0; index--) {
-                if(viewables[index].status !== 'DONE') {
-                    viewables.splice(index, 1);
-                }
-            }
-            if(viewables.length > 0) sendResponse(req, res, { 'data' : viewables }, false);
-            else  sendResponse(req, res, {}, true);
-        } else {
-            setTimeout(function() {
-                getViewables(req, res, headers, link, viewables, ++attempt);
-            }, 2000);
-        }
-    }).catch(function(error) {
-        sendResponse(req, res, error.response, true,);
-    });
-
-}
 
 
 /* ----- BOM VIEWS LIST ----- */
