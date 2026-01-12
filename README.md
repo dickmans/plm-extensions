@@ -22,11 +22,11 @@ Pefrorm the steps listed below to run this server on your local system for testi
 <li>Open a command prompt and navigate to the unzipped folder of step #1</li>
 <li>In this command prompt, download required node modules by running 
     <br>
-    <span style="font-family:courier">npm install</span>
+    <strong>npm install</strong>
 </li>
 <li>Launch the server from the command prompt by running
     <br>
-    <span style="font-family:courier">npm start</span>
+    <strong>npm start</strong>
 </li>
 <li>In your browser, navigate to the server's landing page at http://localhost:8080</li>
 <li>In this landing page, you will find the list of available applications as well as additional setup instructions if required</li>
