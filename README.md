@@ -7,9 +7,7 @@
 ## Introduction
 These User Experiences based on Fusion Manage improve adoption of your PLM solution and increase end user efficiency. This package provides dedicated applications running on top of Fusion Manage and Autodesk Platform Services. The applications use the REST APIs of Fusion Manage to retrieve and update PLM data, but do not store any data outside of PLM. All applications included in this extensions package are hosted by a single web server to keep deployment effort at a mininum. Configuration settings enable adjustments of the applications and alignment with individual tenant configurations. This source code is provided as is for free and can be adjusted, integrated, extended, reused and shared as needed.
 
-This is <ins>not an official Autodesk product</ins>. Instead, the solutions listed below are provided by a custom built server based on node.js connecting to Fusion Manage tenants using REST APIs. This server must be hosted individually. It can be downloaded and hosted on premise, but it can also hosted in the cloud to stay up-to-date easily. When using a cloud based platform like AWS, Azure or Google, it can be deployed directly from Github after forking this repository. 
-
-See the following 10 minutes video for a quick introduction of the solutions and its setup using Google Cloud Run: https://youtu.be/9EtlCDzmWWE.
+This is <ins>not an official Autodesk product</ins>. Instead, the solutions listed below are provided by a custom built server based on node.js connecting to Fusion Manage tenants using REST APIs. This server must be hosted individually. It can be downloaded and hosted on premise, but it can also hosted in the cloud to stay up-to-date easily. When using a cloud based platform like AWS, Azure or Google, it can be deployed directly from Github after forking this repository. See the following 10 minutes video for a quick introduction of the solutions and its setup using Google Cloud Run: https://youtu.be/9EtlCDzmWWE.
 
 Disclaimer: In any case all source code of this solution is of "work in progress" character. Neither of the contributors nor Autodesk represent that theses code samples are reliable, accurate, complete, or otherwise valid. Accordingly, those configuration samples are provided “as is” with no warranty of any kind and you use the applications at your own risk. 
 
@@ -18,9 +16,9 @@ Pefrorm the steps listed below to run this server on your local system for testi
 <ol>
 <li>Download and unzip this package from Github</li>
 <li>Create an application at aps.autodesk.com of type "Desktop, Mobile, Single-Page App" and set its callback URL to http://localhost:8080/callback (the APS APIs being used are free of charge).</li>
-<li>Whitelist this application's clientID in your tenant' General Settings</li>
+<li>Whitelist this application's clientID in your tenant's General Settings</li>
 <li>Using a text-editor, open file environment.js and provide the following information: tenant and clientId</li>
-<li>Install node.js from [nodejs.org](https://nodejs.org/en/download/current)</li>
+<li>Install node.js from https://nodejs.org/en/download/current</li>
 <li>Open a command prompt and navigate to the unzipped folder of step #1</li>
 <li>In this command prompt, download required node modules by running **npm install**</li>
 <li>Launch the server from the command prompt by running **npm start**</li>
@@ -37,7 +35,7 @@ Once the server is available, you can launch the applications from the landing p
 The UX server requires few information to be provided in the environment file(s): tenant name, Client ID and so on. When hosting this server in the cloudd, you may prefer to use environment variables instead. See the end of file <a href="https://github.com/dickmans/plm-extensions/tree/main/environment.js" target="_blank">environment.js</a> for the list of supported environment variables.
 
 ### Workspace IDs List ###
-This package has been aligned with the default tenant configuration of Fusion Manage as much as possible. Anyway, you should review the list of Workspace IDs being used by the server. This list of IDs is defined at beginning of <a href="https://github.com/dickmans/plm-extensions/tree/main/settings/custom.js" target="_blank">/settings/custom.js</a> as shown below. Update the numbers if needed and skip the workspaces that do you exist in your tenant.
+This package has been aligned with the default tenant configuration of Fusion Manage as much as possible. Anyway, you should review the list of Workspace IDs being used by the server. This list of IDs is defined at beginning of <a href="https://github.com/dickmans/plm-extensions/tree/main/settings/custom.js" target="_blank">/settings/custom.js</a> as shown below. Update the numbers if needed and skip the workspaces that do not exist in your tenant.
 
 <img src="public/images/docs/workspace-ids.png" width="300">
 
