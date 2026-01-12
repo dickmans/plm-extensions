@@ -15,13 +15,19 @@ Disclaimer: In any case all source code of this solution is of "work in progress
 Pefrorm the steps listed below to run this server on your local system for testing purposes. For an advanced setup using Google Cloud, see this video: https://youtu.be/9EtlCDzmWWE
 <ol>
 <li>Download and unzip this package from Github</li>
-<li>Create an application at aps.autodesk.com of type "Desktop, Mobile, Single-Page App" and set its callback URL to http://localhost:8080/callback (the APS APIs being used are free of charge).</li>
+<li>Create an application at https://aps.autodesk.com of type "Desktop, Mobile, Single-Page App" and set its callback URL to http://localhost:8080/callback (the APS APIs being used are free of charge).</li>
 <li>Whitelist this application's clientID in your tenant's General Settings</li>
 <li>Using a text-editor, open file environment.js and provide the following information: tenant and clientId</li>
 <li>Install node.js from https://nodejs.org/en/download/current</li>
 <li>Open a command prompt and navigate to the unzipped folder of step #1</li>
-<li>In this command prompt, download required node modules by running **npm install**</li>
-<li>Launch the server from the command prompt by running **npm start**</li>
+<li>In this command prompt, download required node modules by running 
+    <br>
+    <span style="font-family:courier">npm install</span>
+</li>
+<li>Launch the server from the command prompt by running
+    <br>
+    <span style="font-family:courier">npm start</span>
+</li>
 <li>In your browser, navigate to the server's landing page at http://localhost:8080</li>
 <li>In this landing page, you will find the list of available applications as well as additional setup instructions if required</li>
 </ol>
