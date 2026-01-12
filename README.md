@@ -29,13 +29,8 @@ Pefrorm the steps listed below to run this server on your local system for testi
     <strong>npm start</strong>
 </li>
 <li>In your browser, navigate to the server's landing page at http://localhost:8080</li>
-<li>In this landing page, you will find the list of available applications as well as additional setup instructions if required</li>
+<li>In this landing page, you will find the list of available applications as well as additional setup instructions for each application if required</li>
 </ol>
-
-### Launching Applications ###
-Once the server is available, you can launch the applications from the landing page (http://localhost:8080). You can also access most applications with the common Start Menu (http://localhost:8080/start). This menu provides access to all applications not requiring a context item in PLM:
-
-<img src="public/images/docs/start-menu.png" width="640px">
 
 ### Environment Variables ###
 The UX server requires few information to be provided in the environment file(s): tenant name, Client ID and so on. When hosting this server in the cloudd, you may prefer to use environment variables instead. See the end of file <a href="https://github.com/dickmans/plm-extensions/tree/main/environment.js" target="_blank">environment.js</a> for the list of supported environment variables.
@@ -44,6 +39,11 @@ The UX server requires few information to be provided in the environment file(s)
 This package has been aligned with the default tenant configuration of Fusion Manage as much as possible. Anyway, you should review the list of Workspace IDs being used by the server. This list of IDs is defined at beginning of <a href="https://github.com/dickmans/plm-extensions/tree/main/settings/custom.js" target="_blank">/settings/custom.js</a> as shown below. Update the numbers if needed and skip the workspaces that do not exist in your tenant.
 
 <img src="public/images/docs/workspace-ids.png" width="300">
+
+### Launching Applications ###
+Once the server is available, you can launch the applications from the landing page (http://localhost:8080). You can also access most applications with the common Start Menu (http://localhost:8080/start). This menu provides access to all applications not requiring a context item in PLM:
+
+<img src="public/images/docs/start-menu.png" width="640px">
 
 ### Changing Configuration Settings
 The file <a href="https://github.com/dickmans/plm-extensions/tree/main/settings.js" target="_blank">settings.js</a> contains configuration settings for the UX server and all its applications. While these settings can be changed - and even must be changed for some applications - it is recommended to not modify this settings.js file directly. Instead, it is recommended to provide the custom configuration settings in file <a href="https://github.com/dickmans/plm-extensions/tree/main/settings/custom.js" target="_blank">/settings/custom.js</a>. This file is supposed to only contain the settings being changed, not the full list of all settings. It provides a template for the most commonly changed settings, but you can also copy further settings from settings.js to this file to overwrite the default settings. See the instructions in file custom.js for details.
@@ -80,7 +80,7 @@ Once installed, additional controls will be added to the standard Fusion Manage 
 ## End User Applications Included
 The following extensions are included in this package. Each application can be accessed by a dedicated endpoint or by using the [Start Menu](https://youtu.be/ImnXV0HF3PA). This menu can be configured in the settings file to remove unwanted applications, rename existing ones or just to change the sequences of entries.
 
-| &nbsp; | &nbsp; |
+| Screenshots | Applications |
 | -- | -- |
 | <img src="public/images/app-portal.jpg" width="600"> | **PLM Portal**<br/>Provides quick access to latest product data in PLM using a very basic frontend for casual users, working well on tablets. See video at https://youtu.be/tM8why6ybAU. |
 | <img src="public/images/app-product-catalog.png" width="600"> | **Product Portfolio Catalog**<br/>The sales team can browse the Product Portfolio by Product Categories and Product Lines and retrieve latest product data including technical specification, documentation and Bill of Materials. See video at (https://youtu.be/hroRMjZzueQ). |
@@ -106,7 +106,7 @@ The following extensions are included in this package. Each application can be a
 Reduce deployment and administration efforts with the following utilities addressing the needs of administrators specifically. The utilities require administration permission, in some cases even a specific APS application type is needed.
 
 
-| &nbsp; | &nbsp; |
+| Admin Utilities | Screenshots |
 | -- | -- |
 | **Data Manager**<br/>When existing workspaces with data get modified or when data gets imported, administrators often have to cleanup and adjust the data afterwards. With this utlity, such changes can be performed in batch to improve data quatliy. See video at https://youtu.be/hL4UblHbXw0.| <img src="public/images/admin-data.png" width="600"> |
 | **Tenant Insights**<br/>Administrators can track user activity and data modifications of a tenant using this graphic dashboard. It uses the standard system log entries and requires system admin privileges to run. See video at https://youtu.be/WZXGfDKGRHY. | <img src="public/images/admin-insights.png" width="600"> |
