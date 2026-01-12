@@ -44,7 +44,6 @@
     width        : var(--width-side);
 }
 .viewer {
-    height   : var(--height-viewer);
     position : absolute;
     top      : 6px;
     right    : 0px;
@@ -134,8 +133,7 @@ body.no-viewer #hide-viewer { display : none; }
 
 /*  ITEM */
 /* ----------------------------------------------------------------------------- */
-#item > div { transition : all .25s ease; }
-#save { display : none; }
+/* #item > div { transition : all .25s ease; } */
 
 
 

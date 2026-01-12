@@ -5,7 +5,7 @@ function insertMOW(params) {
 
     let id = isBlank(params.id) ? 'mow' : params.id;
 
-    settings.mow[id] = getPanelSettings('', params, {
+    settings[id] = getPanelSettings('', params, {
         headerLabel : 'My Outstanding Work',
         layout      : 'table'
     }, [
@@ -16,41 +16,41 @@ function insertMOW(params) {
         [ 'timeout'          , 5000  ]
     ]);
 
-    settings.mow[id].load = function() { insertMOWData(id); }
+    settings[id].load = function() { insertMOWData(id); }
 
-    genPanelTop(id, settings.mow[id], 'mow');
-    genPanelHeader(id, settings.mow[id]);
-    genPanelOpenSelectedInPLMButton(id, settings.mow[id]);
-    genPanelSelectionControls(id, settings.mow[id]);
-    genPanelFilterToggle(id, settings.mow[id], 'filterByDueDate', 'due', 'Due Tasks');
-    genPanelFilterSelect(id, settings.mow[id], 'filterByStatus', 'status', 'All States');
-    genPanelFilterSelect(id, settings.mow[id], 'filterByWorkspace', 'workspace', 'All Workspaces');
-    genPanelSearchInput(id, settings.mow[id]);
-    genPanelResizeButton(id, settings.mow[id]);
-    genPanelReloadButton(id, settings.mow[id]);
-    genPanelContents(id, settings.mow[id]);
+    genPanelTop(id, settings[id], 'mow');
+    genPanelHeader(id, settings[id]);
+    genPanelOpenSelectedInPLMButton(id, settings[id]);
+    genPanelSelectionControls(id, settings[id]);
+    genPanelFilterToggle(id, settings[id], 'filterByDueDate', 'due', 'Due Tasks');
+    genPanelFilterSelect(id, settings[id], 'filterByStatus', 'status', 'All States');
+    genPanelFilterSelect(id, settings[id], 'filterByWorkspace', 'workspace', 'All Workspaces');
+    genPanelSearchInput(id, settings[id]);
+    genPanelResizeButton(id, settings[id]);
+    genPanelReloadButton(id, settings[id]);
+    genPanelContents(id, settings[id]);
 
     insertMOWDone(id);
 
-    settings.mow[id].load();
+    settings[id].load();
 
 }
 function insertMOWData(id) {
 
-    settings.mow[id].timestamp = startPanelContentUpdate(id);
+    settings[id].timestamp = startPanelContentUpdate(id);
 
     $.get({
         url     : '/plm/mow',
-        timeout : settings.mow[id].timeout,
+        timeout : settings[id].timeout,
         data    : { 
-            timestamp : settings.mow[id].timestamp,
-            userId    : settings.mow[id].userId
+            timestamp : settings[id].timestamp,
+            userId    : settings[id].userId
         }
     }, function(response) {
 
-        if(stopPanelContentUpdate(response, settings.mow[id])) return;
+        if(stopPanelContentUpdate(response, settings[id])) return;
 
-        settings.mow[id].columns = [];
+        settings[id].columns = [];
 
         let items           = [];
         let listStates      = [];
@@ -66,8 +66,8 @@ function insertMOWData(id) {
         ]
 
         for(let column of columns) {
-            if(includePanelTableColumn(column.fieldId, column.displayName, settings.mow[id], settings.mow[id].columns.length)) {
-                settings.mow[id].columns.push(column);
+            if(includePanelTableColumn(column.fieldId, column.displayName, settings[id], settings[id].columns.length)) {
+                settings[id].columns.push(column);
             }
         }
 
@@ -78,8 +78,8 @@ function insertMOWData(id) {
             let dueFilter   = '';
             let workspace   = item.workspace.title;
             
-            if((settings.mow[id].workspacesIn.length === 0) || ( settings.mow[id].workspacesIn.includes(workspace))) {
-                if((settings.mow[id].workspacesEx.length === 0) || (!settings.mow[id].workspacesEx.includes(workspace))) {
+            if((settings[id].workspacesIn.length === 0) || ( settings[id].workspacesIn.includes(workspace))) {
+                if((settings[id].workspacesEx.length === 0) || (!settings[id].workspacesEx.includes(workspace))) {
 
                     if(!listStates.includes(item.workflowStateName)) listStates.push(item.workflowStateName);
                     if(!listWorkspaces.includes(workspace)) listWorkspaces.push(workspace);
@@ -88,7 +88,7 @@ function insertMOWData(id) {
                             let targetDate = new Date(item.milestoneDate);
                             date = targetDate.toLocaleDateString();
                             dateClass = 'in-time';
-                            if(settings.mow[id].filters) elemDue.show();
+                            if(settings[id].filters) elemDue.show();
                     }
                     if(item.hasOwnProperty('milestoneStatus')) {
                         if(item.milestoneStatus === 'CRITICAL') {
@@ -134,7 +134,7 @@ function insertMOWData(id) {
         sortArray(listWorkspaces, 0);
         setPanelFilterOptions(id, 'status', listStates);
         setPanelFilterOptions(id, 'workspace', listWorkspaces);
-        finishPanelContentUpdate(id, settings.mow[id], items);
+        finishPanelContentUpdate(id, settings[id], items);
         insertMOWDataDone(id, response);
 
     }).catch(function(error) {
@@ -154,7 +154,7 @@ function insertRecentItems(params) {
 
     let id = isBlank(params.id) ? 'recents' : params.id;
 
-    settings.recents[id] = getPanelSettings('', params, {
+    settings[id] = getPanelSettings('', params, {
         headerLabel : 'Recently Viewed Items',
         layout      : 'list',
         tileIcon    : 'icon-history',
@@ -163,33 +163,32 @@ function insertRecentItems(params) {
         [ 'filterByWorkspace', false ]
     ]);
 
-    settings.recents[id].load = function() { insertRecentItemsData(id); }
+    settings[id].load = function() { insertRecentItemsData(id); }
 
-    genPanelTop(id, settings.recents[id], 'recents');
-    genPanelHeader(id, settings.recents[id]);
-    genPanelOpenSelectedInPLMButton(id, settings.recents[id]);
-    genPanelSelectionControls(id, settings.recents[id]);
-    genPanelFilterSelect(id, settings.recents[id], 'filterByWorkspace', 'workspace', 'All Workspaces');
-    genPanelSearchInput(id, settings.recents[id]);
-    genPanelResizeButton(id, settings.recents[id]);
-    genPanelReloadButton(id, settings.recents[id]);
-    
-    genPanelContents(id, settings.recents[id]);
+    genPanelTop                    (id, settings[id], 'recents');
+    genPanelHeader                 (id, settings[id]);
+    genPanelOpenSelectedInPLMButton(id, settings[id]);
+    genPanelSelectionControls      (id, settings[id]);
+    genPanelFilterSelect           (id, settings[id], 'filterByWorkspace', 'workspace', 'All Workspaces');
+    genPanelSearchInput            (id, settings[id]);
+    genPanelResizeButton           (id, settings[id]);
+    genPanelReloadButton           (id, settings[id]);
+    genPanelContents               (id, settings[id]);
 
     insertRecentItemsDone(id);
     
-    settings.recents[id].load();
+    settings[id].load();
 
 }
 function insertRecentItemsData(id) {
 
-    settings.recents[id].timestamp = startPanelContentUpdate(id);
+    settings[id].timestamp = startPanelContentUpdate(id);
 
-    $.get('/plm/recent', { timestamp : settings.recents[id].timestamp }, function(response) {
+    $.get('/plm/recent', { timestamp : settings[id].timestamp }, function(response) {
 
-        if(stopPanelContentUpdate(response, settings.recents[id])) return;
+        if(stopPanelContentUpdate(response, settings[id])) return;
 
-        settings.recents[id].columns = [];
+        settings[id].columns = [];
 
         let items           = [];
         let listWorkspaces  = [];
@@ -199,8 +198,8 @@ function insertRecentItemsData(id) {
         ]
 
         for(let column of columns) {
-            if(includePanelTableColumn(column.displayName, settings.recents[id], settings.recents[id].columns.length)) {
-                settings.recents[id].columns.push(column);
+            if(includePanelTableColumn(column.displayName, settings[id], settings[id].columns.length)) {
+                settings[id].columns.push(column);
             }
         }
 
@@ -209,7 +208,7 @@ function insertRecentItemsData(id) {
             let workspace   = item.workspace.title;
             let workspaceId = item.workspace.link.split('/')[4];
 
-            if(includePanelWorkspace(settings.recents[id], workspace, workspaceId)) {
+            if(includePanelWorkspace(settings[id], workspace, workspaceId)) {
 
                 if(!listWorkspaces.includes(workspace)) listWorkspaces.push(workspace);
 
@@ -237,7 +236,7 @@ function insertRecentItemsData(id) {
 
         sortArray(listWorkspaces, 0);
         setPanelFilterOptions(id, 'workspace', listWorkspaces);
-        finishPanelContentUpdate(id, settings.recents[id], items);
+        finishPanelContentUpdate(id, settings[id], items);
         insertRecentItemsDataDone(id, response);
 
     });
@@ -255,7 +254,7 @@ function insertBookmarks(params) {
 
     let id = isBlank(params.id) ? 'bookmarks' : params.id;
 
-    settings.bookmarks[id] = getPanelSettings('', params, {
+    settings[id] = getPanelSettings('', params, {
         headerLabel : 'Bookmarks',
         layout      : 'list',
         tileImage   : true,
@@ -264,33 +263,33 @@ function insertBookmarks(params) {
         [ 'filterByWorkspace', false ]
     ]);
 
-    settings.bookmarks[id].load = function() { insertBookmarksData(id); }
+    settings[id].load = function() { insertBookmarksData(id); }
 
-    genPanelTop(id, settings.bookmarks[id], 'bookmarks');
-    genPanelHeader(id, settings.bookmarks[id]);
-    genPanelOpenSelectedInPLMButton(id, settings.bookmarks[id]);
-    genPanelSelectionControls(id, settings.bookmarks[id]);
-    genPanelFilterSelect(id, settings.bookmarks[id], 'filterByWorkspace', 'workspace', 'All Workspaces');
-    genPanelSearchInput(id, settings.bookmarks[id]);
-    genPanelResizeButton(id, settings.bookmarks[id]);
-    genPanelReloadButton(id, settings.bookmarks[id]);
+    genPanelTop(id, settings[id], 'bookmarks');
+    genPanelHeader(id, settings[id]);
+    genPanelOpenSelectedInPLMButton(id, settings[id]);
+    genPanelSelectionControls(id, settings[id]);
+    genPanelFilterSelect(id, settings[id], 'filterByWorkspace', 'workspace', 'All Workspaces');
+    genPanelSearchInput(id, settings[id]);
+    genPanelResizeButton(id, settings[id]);
+    genPanelReloadButton(id, settings[id]);
     
-    genPanelContents(id, settings.bookmarks[id]);
+    genPanelContents(id, settings[id]);
 
     insertBookmarksDone(id);
 
-    settings.bookmarks[id].load();
+    settings[id].load();
 
 }
 function insertBookmarksData(id) {
 
-    settings.bookmarks[id].timestamp = startPanelContentUpdate(id);
+    settings[id].timestamp = startPanelContentUpdate(id);
 
-    $.get('/plm/bookmarks', { timestamp : settings.bookmarks[id].timestamp, useCache : settings.bookmarks[id].useCache }, function(response) {
+    $.get('/plm/bookmarks', { timestamp : settings[id].timestamp, useCache : settings[id].useCache }, function(response) {
 
-        if(stopPanelContentUpdate(response, settings.bookmarks[id])) return;
+        if(stopPanelContentUpdate(response, settings[id])) return;
 
-        settings.bookmarks[id].columns = [];
+        settings[id].columns = [];
 
         let items           = [];
         let listWorkspaces  = [];
@@ -301,8 +300,8 @@ function insertBookmarksData(id) {
         ]
 
         for(let column of columns) {
-            if(includePanelTableColumn(column.displayName, settings.bookmarks[id], settings.bookmarks[id].columns.length)) {
-                settings.bookmarks[id].columns.push(column);
+            if(includePanelTableColumn(column.displayName, settings[id], settings[id].columns.length)) {
+                settings[id].columns.push(column);
             }
         }
 
@@ -311,7 +310,7 @@ function insertBookmarksData(id) {
             let workspace = item.workspace.title;
             let workspaceId = item.workspace.link.split('/')[4];
 
-            if(includePanelWorkspace(settings.bookmarks[id], workspace, workspaceId)) {
+            if(includePanelWorkspace(settings[id], workspace, workspaceId)) {
 
                 if(!listWorkspaces.includes(workspace)) listWorkspaces.push(workspace);
 
@@ -339,7 +338,7 @@ function insertBookmarksData(id) {
 
         sortArray(listWorkspaces, 0);
         setPanelFilterOptions(id, 'workspace', listWorkspaces);
-        finishPanelContentUpdate(id, settings.bookmarks[id], items);
+        finishPanelContentUpdate(id, settings[id], items);
         insertBookmarksDataDone(id, response);
 
     });
@@ -357,7 +356,7 @@ function insertWorkspaceViews(wsId, params) {
 
     let id = isBlank(params.id) ? 'workspace-views' : params.id;
 
-    settings.workspaceViews[id] = getPanelSettings('', params, {
+    settings[id] = getPanelSettings('', params, {
         headerLabel     : '',
         layout          : 'table',
         contentSize     : 'm',
@@ -369,25 +368,22 @@ function insertWorkspaceViews(wsId, params) {
         [ 'includeMOW'          ,  false ],
         [ 'includeBookmarks'    ,  false ],
         [ 'includeRecents'      ,  false ],
-        [ 'pagination'          ,   true ],
-        // [ 'page'                ,      1 ],
         [ 'limit'               ,     25 ],
         [ 'groupBy'             ,     '' ],
         [ 'tileImageFieldId'    ,     '' ],
         [ 'workspacesIn'        , [wsId] ]
     ]);
 
-    settings.workspaceViews[id].wsId = wsId;
-    // settings.workspaceViews[id].mode = 'initial';
-    settings.workspaceViews[id].load = function() { changeWorkspaceView(id);     }
-    settings.workspaceViews[id].next = function() { insertWorkspaceViewData(id); }
+    settings[id].wsId = wsId;
+    settings[id].load = function() { changeWorkspaceView(id);     }
+    settings[id].next = function() { insertWorkspaceViewData(id); }
 
-    genPanelTop(id, settings.workspaceViews[id], 'workspace-views');
-    genPanelHeader(id, settings.workspaceViews[id]);
-    genPanelOpenSelectedInPLMButton(id, settings.workspaceViews[id]);
-    genPanelSelectionControls(id, settings.workspaceViews[id]);
+    genPanelTop(id, settings[id], 'workspace-views');
+    genPanelHeader(id, settings[id]);
+    genPanelOpenSelectedInPLMButton(id, settings[id]);
+    genPanelSelectionControls(id, settings[id]);
 
-    let elemToolbar = genPanelToolbar(id, settings.workspaceViews[id], 'controls');
+    let elemToolbar = genPanelToolbar(id, settings[id], 'controls');
 
     $('<select></select>').appendTo(elemToolbar)
         .attr('id', id + '-view-selector')
@@ -404,14 +400,14 @@ function insertWorkspaceViews(wsId, params) {
             changeWorkspaceView(id);
         });
 
-    genPanelSearchInput( id, settings.workspaceViews[id]);
-    genPanelResizeButton(id, settings.workspaceViews[id]);
-    genPanelReloadButton(id, settings.workspaceViews[id]);
+    genPanelSearchInput( id, settings[id]);
+    genPanelResizeButton(id, settings[id]);
+    genPanelReloadButton(id, settings[id]);
     
     setWorkspaceViewsSelector(id);
     
-    genPanelContents(id, settings.workspaceViews[id]).addClass(getSurfaceLevel($('#' + id)));
-    genPanelPaginationControls(id, settings.workspaceViews[id]);
+    genPanelContents(id, settings[id]).addClass(getSurfaceLevel($('#' + id)));
+    genPanelPaginationControls(id, settings[id]);
 
 }
 function setWorkspaceViewsSelector(id) {
@@ -419,35 +415,35 @@ function setWorkspaceViewsSelector(id) {
     let elemSelect = $('#' + id + '-view-selector');
 
     let requests = [
-        $.get('/plm/tableaus'  , { 'wsId' : settings.workspaceViews[id].wsId }),
+        $.get('/plm/tableaus'  , { 'wsId' : settings[id].wsId }),
         $.get('/plm/workspaces', { } )
     ]
 
     Promise.all(requests).then(function(responses) {
 
-        if(settings.workspaceViews[id].viewSelector) elemSelect.show();
+        if(settings[id].viewSelector) elemSelect.show();
 
         if(responses[0].error) {
 
-            showErrorMessage('Error when accessing workspace with id ' + settings.workspaceViews[id].wsId, responses[0].data.message);
+            showErrorMessage('Error when accessing workspace with id ' + settings[id].wsId, responses[0].data.message);
 
         } else {
 
             let elemTitle                           = $('#' + id + '-title');
             let selectDefault                       = true;
-            settings.workspaceViews[id].workspace   = getWorkspaceName(settings.workspaceViews[id].wsId, responses[1]);
+            settings[id].workspace   = getWorkspaceName(settings[id].wsId, responses[1]);
 
-            if(isBlank(settings.workspaceViews[id].headerLabel)) {
+            if(isBlank(settings[id].headerLabel)) {
                 elemTitle.html('');
                 $('<div></div>').appendTo(elemTitle)
                     .attr('id',  id + '-title-main')
                     .addClass('panel-title-main')
-                    .html(settings.workspaceViews[id].workspace);
+                    .html(settings[id].workspace);
             }
 
-                 if(settings.workspaceViews[id].includeMOW       && (settings.workspaceViews[id].startupView.toLowerCase() === 'mow')      ) { selectDefault = false; elemSelect.val('mow'); }
-            else if(settings.workspaceViews[id].includeBookmarks && (settings.workspaceViews[id].startupView.toLowerCase() === 'bookmarks')) { selectDefault = false; elemSelect.val('bookmarks'); }
-            else if(settings.workspaceViews[id].includeRecents   && (settings.workspaceViews[id].startupView.toLowerCase() === 'recents')  ) { selectDefault = false; elemSelect.val('recents'); }
+                 if(settings[id].includeMOW       && (settings[id].startupView.toLowerCase() === 'mow')      ) { selectDefault = false; elemSelect.val('mow'); }
+            else if(settings[id].includeBookmarks && (settings[id].startupView.toLowerCase() === 'bookmarks')) { selectDefault = false; elemSelect.val('bookmarks'); }
+            else if(settings[id].includeRecents   && (settings[id].startupView.toLowerCase() === 'recents')  ) { selectDefault = false; elemSelect.val('recents'); }
 
             for(let tableau of responses[0].data) {
 
@@ -456,9 +452,9 @@ function setWorkspaceViewsSelector(id) {
                     .attr('value', tableau.link);
 
                 if(selectDefault) {
-                    if(settings.workspaceViews[id].startupView.toLowerCase() === tableau.title.toLowerCase()) {
+                    if(settings[id].startupView.toLowerCase() === tableau.title.toLowerCase()) {
                         elemSelect.val(tableau.link);
-                    } else if(settings.workspaceViews[id].startupView.toLowerCase() === '') {
+                    } else if(settings[id].startupView.toLowerCase() === '') {
                         if(!isBlank(tableau.type)) {
                             if(tableau.type.toLowerCase() === 'default') {
                                 elemSelect.val(tableau.link);
@@ -469,12 +465,12 @@ function setWorkspaceViewsSelector(id) {
 
             }
 
-            if(settings.workspaceViews[id].includeMOW)       $('<option></option>').appendTo(elemSelect).html('My Outstanding Work').attr('value', 'mow');       
-            if(settings.workspaceViews[id].includeBookmarks) $('<option></option>').appendTo(elemSelect).html('My Bookmarks').attr('value', 'bookmarks');
-            if(settings.workspaceViews[id].includeRecents)   $('<option></option>').appendTo(elemSelect).html('Recently Viewed').attr('value', 'recents');
+            if(settings[id].includeMOW)       $('<option></option>').appendTo(elemSelect).html('My Outstanding Work').attr('value', 'mow');       
+            if(settings[id].includeBookmarks) $('<option></option>').appendTo(elemSelect).html('My Bookmarks').attr('value', 'bookmarks');
+            if(settings[id].includeRecents)   $('<option></option>').appendTo(elemSelect).html('Recently Viewed').attr('value', 'recents');
     
             insertWorkspaceViewsDone(id, responses[0]);
-            settings.workspaceViews[id].load();
+            settings[id].load();
 
         }
 
@@ -488,10 +484,10 @@ function changeWorkspaceView(id) {
     let params      = { 
         id              : id + '-content', 
         hideHeader      : true, 
-        openInPLM       : settings.workspaceViews[id].openInPLM,
-        onItemClick     : settings.workspaceViews[id].onItemClick,
-        onItemDblClick  : settings.workspaceViews[id].onItemDblClick,
-        workspacesIn    : [settings.workspaceViews[id].wsId]
+        openInPLM       : settings[id].openInPLM,
+        onItemClick     : settings[id].onItemClick,
+        onItemDblClick  : settings[id].onItemDblClick,
+        workspacesIn    : [settings[id].wsId]
      }
 
            if(linkView === 'mow'      ) {         insertMOW(params);      
@@ -504,34 +500,34 @@ function changeWorkspaceView(id) {
 }
 function insertWorkspaceViewData(id) {
 
-    settings.workspaceViews[id].timestamp = startPanelContentUpdate(id, settings.workspaceViews[id].mode);
-    settings.workspaceViews[id].link      = $('#' + id + '-view-selector').val();
+    settings[id].timestamp = startPanelContentUpdate(id, settings[id].mode);
+    settings[id].link      = $('#' + id + '-view-selector').val();
 
     let params = { 
-        link      : settings.workspaceViews[id].link, 
-        page      : settings.workspaceViews[id].page,
-        size      : settings.workspaceViews[id].limit,
-        timestamp : settings.workspaceViews[id].timestamp
+        link      : settings[id].link, 
+        page      : settings[id].page,
+        size      : settings[id].limit,
+        timestamp : settings[id].timestamp
     };
 
     let requests = [ $.get('/plm/tableau-data', params )];
 
-    if(settings.workspaceViews[id].mode === 'initial') {
-        requests.push($.get('/plm/tableau-columns', { link : settings.workspaceViews[id].link} ));
+    if(settings[id].mode === 'initial') {
+        requests.push($.get('/plm/tableau-columns', { link : settings[id].link} ));
     }
 
     Promise.all(requests).then(function(responses) {
 
-        if(settings.workspaceViews[id].mode === 'initial') {
+        if(settings[id].mode === 'initial') {
 
-            if(stopPanelContentUpdate(responses[0], settings.workspaceViews[id])) return;
+            if(stopPanelContentUpdate(responses[0], settings[id])) return;
 
             for(let column of responses[1].data) {
                 if(!isBlank(column.displayOrder)) {
                     if(!isBlank(column.field.urn)) {
                         let fieldId = column.field.urn.split('.').pop();
-                        if(includePanelTableColumn(fieldId, column.field.title, settings.workspaceViews[id], settings.workspaceViews[id].columns.length)) {
-                            settings.workspaceViews[id].columns.push({
+                        if(includePanelTableColumn(fieldId, column.field.title, settings[id], settings[id].columns.length)) {
+                            settings[id].columns.push({
                                 displayName : column.field.title,
                                 fieldId     : fieldId
                             });    
@@ -545,9 +541,9 @@ function insertWorkspaceViewData(id) {
 
         for(let row of responses[0].data.items) {0
 
-            let item = genPanelContentItem(settings.workspaceViews[id], { link : row.item.link} );
+            let item = genPanelContentItem(settings[id], { link : row.item.link} );
 
-            for(let column of  settings.workspaceViews[id].columns) {
+            for(let column of  settings[id].columns) {
                 for(let field of row.fields) {
                     if(field.id === column.fieldId) {
                         item.data.push({
@@ -560,13 +556,13 @@ function insertWorkspaceViewData(id) {
 
             for(let field of row.fields) {
 
-                if(field.id === settings.workspaceViews[id].tileTitle   ) item.title      = field.value;
-                if(field.id === settings.workspaceViews[id].tileSubtitle) item.subtitle   = field.value;
-                if(field.id === settings.workspaceViews[id].tileImage   ) item.image      = field.value;
-                if(field.id === settings.workspaceViews[id].groupBy       ) item.group      = field.value;
-                if(field.id === config.items.fieldIdNumber                     ) item.partNumber = field.value;
+                if(field.id === settings[id].tileTitle   ) item.title    = field.value;
+                if(field.id === settings[id].tileSubtitle) item.subtitle = field.value;
+                if(field.id === settings[id].tileImage   ) item.image    = field.value;
+                if(field.id === settings[id].groupBy     ) item.group    = field.value;
+                if(field.id === common.workspaces.items.fieldIdNumber) item.partNumber = field.value;
 
-                if(settings.workspaceViews[id].additionalData.includes(field.id)) {
+                if(settings[id].additionalData.includes(field.id)) {
                     item.attributes.push({
                         key : field.id.toLowerCase(),
                         value : field.value
@@ -581,8 +577,8 @@ function insertWorkspaceViewData(id) {
     
         }
 
-        finishPanelContentUpdate(id, settings.workspaceViews[id], items);
-        setPanelPaginationControls(id, settings.workspaceViews[id], responses[0].data.total);
+        finishPanelContentUpdate(id, settings[id], items);
+        setPanelPaginationControls(id, settings[id], responses[0].data.total);
         changeWorkspaceViewDone(id, responses[0]);
 
     });
@@ -600,7 +596,7 @@ function insertWorkspaceItems(wsId, params) {
 
     let id = isBlank(params.id) ? 'workspace-items' : params.id;
 
-    settings.workspaceItems[id] = getPanelSettings('', params, {
+    settings[id] = getPanelSettings('', params, {
         headerLabel : 'Workspace Items',
         layout      : 'grid',
         contentSize : 's'
@@ -610,65 +606,65 @@ function insertWorkspaceItems(wsId, params) {
         [ 'groupBy' , '' ]
     ]);
 
-    settings.workspaceItems[id].wsId   = wsId;
-    settings.workspaceItems[id].load = function() { insertWorkspaceItemsData(id); }
+    settings[id].wsId   = wsId;
+    settings[id].load = function() { insertWorkspaceItemsData(id); }
 
-    genPanelTop(id, settings.workspaceItems[id], 'bookmarks');
-    genPanelHeader(id, settings.workspaceItems[id]);
-    genPanelOpenSelectedInPLMButton(id, settings.workspaceItems[id]);
-    genPanelSelectionControls(id, settings.workspaceItems[id]);
+    genPanelTop(id, settings[id], 'bookmarks');
+    genPanelHeader(id, settings[id]);
+    genPanelOpenSelectedInPLMButton(id, settings[id]);
+    genPanelSelectionControls(id, settings[id]);
 
-    genPanelSearchInput(id, settings.workspaceItems[id]);
-    genPanelResizeButton(id, settings.workspaceItems[id]);
-    genPanelReloadButton(id, settings.workspaceItems[id]);
+    genPanelSearchInput(id, settings[id]);
+    genPanelResizeButton(id, settings[id]);
+    genPanelReloadButton(id, settings[id]);
     
-    genPanelContents(id, settings.workspaceItems[id]);
+    genPanelContents(id, settings[id]);
 
-    settings.workspaceItems[id].load();
+    settings[id].load();
     
 }
 function insertWorkspaceItemsData(id) {
 
-    settings.workspaceItems[id].timestamp = startPanelContentUpdate(id);
+    settings[id].timestamp = startPanelContentUpdate(id);
 
-    let url = (isBlank(settings.workspaceItems[id].filter)) ? '/plm/items' : '/plm/search-bulk';
+    let url = (isBlank(settings[id].filter)) ? '/plm/items' : '/plm/search-bulk';
 
-    switch(typeof settings.workspaceItems[id].tileImage) {
-        case 'boolean': if(settings.workspaceItems[id].tileImage) url = '/plm/search-bulk'; break;
+    switch(typeof settings[id].tileImage) {
+        case 'boolean': if(settings[id].tileImage) url = '/plm/search-bulk'; break;
         case 'string' : url = '/plm/search-bulk'; break;
     }
 
     $.get(url, { 
-        timestamp : settings.workspaceItems[id].timestamp, 
-        wsId      : settings.workspaceItems[id].wsId,
-        query     : (isBlank(settings.workspaceItems[id].filter)) ? '*' : settings.workspaceItems[id].filter,
-        useCache  : settings.workspaceItems[id].useCache,
+        timestamp : settings[id].timestamp, 
+        wsId      : settings[id].wsId,
+        query     : (isBlank(settings[id].filter)) ? '*' : settings[id].filter,
+        useCache  : settings[id].useCache,
         bulk      : false,
         useCace   : true,
         limit     : 250
     }, function(response) {
         
-        if(stopPanelContentUpdate(response, settings.workspaceItems[id])) return;
+        if(stopPanelContentUpdate(response, settings[id])) return;
 
         let items                           = [];
         let columns                         = []
-        settings.workspaceItems[id].columns = [];
+        settings[id].columns = [];
 
-        if(!isBlank(settings.workspaceItems[id].tileTitle)) {
+        if(!isBlank(settings[id].tileTitle)) {
             columns.push({
                 displayName : 'Item',
-                fieldId     : settings.workspaceItems[id].tileTitle 
+                fieldId     : settings[id].tileTitle 
             }); 
         };
 
-        if(!isBlank(settings.workspaceItems[id].tileSubtitle)) {
+        if(!isBlank(settings[id].tileSubtitle)) {
             columns.push({
                 displayName : '',
-                fieldId     : settings.workspaceItems[id].tileSubtitle 
+                fieldId     : settings[id].tileSubtitle 
             }); 
         };
 
-        for(let detail of settings.workspaceItems[id].tileDetails) {
+        for(let detail of settings[id].tileDetails) {
             columns.push({
                 displayName : detail[1],
                 fieldId     : detail[2] 
@@ -676,39 +672,39 @@ function insertWorkspaceItemsData(id) {
         }
 
         for(let column of columns) {
-            if(includePanelTableColumn(column.displayName, settings.workspaceItems[id], settings.workspaceItems[id].columns.length)) {
-                settings.workspaceItems[id].columns.push(column);    
+            if(includePanelTableColumn(column.displayName, settings[id], settings[id].columns.length)) {
+                settings[id].columns.push(column);    
             }
         }
 
-        if(!isBlank(settings.workspaceItems[id].sortBy)) {
+        if(!isBlank(settings[id].sortBy)) {
             for(let item of response.data.items) {
-                item.sortKey = getSectionFieldValue(item.sections, settings.workspaceItems[id].sortBy, '', 'title');
+                item.sortKey = getSectionFieldValue(item.sections, settings[id].sortBy, '', 'title');
             }
             sortArray(response.data.items, 'sortKey', 'string', 'ascending');
         }
 
         for(let item of response.data.items) {
 
-            let contentItem = genPanelContentItem(settings.workspaceItems[id], {
+            let contentItem = genPanelContentItem(settings[id], {
                 link  : item.__self__, 
                 title : item.title
             });
 
-            for(let column of  settings.workspaceItems[id].columns) {
+            for(let column of  settings[id].columns) {
 
                 if(column.fieldId === 'DESCRIPTOR') {
-                    if(settings.workspaceItems[id].tileTitle    === column.fieldId) contentItem.title    = item.title;
-                    if(settings.workspaceItems[id].tileSubtitle === column.fieldId) contentItem.subtitle = item.title;
-                    if(settings.workspaceItems[id].groupBy        === column.fieldId) contentItem.group    = item.title;
+                    if(settings[id].tileTitle    === column.fieldId) contentItem.title    = item.title;
+                    if(settings[id].tileSubtitle === column.fieldId) contentItem.subtitle = item.title;
+                    if(settings[id].groupBy        === column.fieldId) contentItem.group    = item.title;
                     contentItem.data.push({
                         fieldId : column.fieldId,
                         value   : item.title
                     });
                 } else if(column.fieldId === 'WF_CURRENT_STATE') {
-                    if(settings.workspaceItems[id].tileTitle    === column.fieldId) contentItem.title    = item.currentState.title;
-                    if(settings.workspaceItems[id].tileSubtitle === column.fieldId) contentItem.subtitle = item.currentState.title;
-                    if(settings.workspaceItems[id].groupBy        === column.fieldId) contentItem.group    = item.currentState.title;
+                    if(settings[id].tileTitle    === column.fieldId) contentItem.title    = item.currentState.title;
+                    if(settings[id].tileSubtitle === column.fieldId) contentItem.subtitle = item.currentState.title;
+                    if(settings[id].groupBy        === column.fieldId) contentItem.group    = item.currentState.title;
                     contentItem.data.push({
                         fieldId : column.fieldId,
                         value   : item.currentState.title
@@ -733,13 +729,13 @@ function insertWorkspaceItemsData(id) {
 
                     if(typeof value === 'object') value = value.title;
 
-                    if(fieldId === settings.workspaceItems[id].tileTitle   ) contentItem.title      = value;
-                    if(fieldId === settings.workspaceItems[id].tileSubtitle) contentItem.subtitle   = value
-                    if(fieldId === settings.workspaceItems[id].tileImage   ) contentItem.imageLink  = (isBlank(field.value)) ? '' : field.value.link;
-                    if(fieldId === settings.workspaceItems[id].groupBy     ) contentItem.group      = value;
-                    if(fieldId === config.items.fieldIdNumber              ) contentItem.partNumber = value;
+                    if(fieldId === settings[id].tileTitle   ) contentItem.title      = value;
+                    if(fieldId === settings[id].tileSubtitle) contentItem.subtitle   = value
+                    if(fieldId === settings[id].tileImage   ) contentItem.imageLink  = (isBlank(field.value)) ? '' : field.value.link;
+                    if(fieldId === settings[id].groupBy     ) contentItem.group      = value;
+                    if(fieldId === common.workspaces.items.fieldIdNumber              ) contentItem.partNumber = value;
 
-                    if(settings.workspaceItems[id].additionalData.includes(fieldId)) {
+                    if(settings[id].additionalData.includes(fieldId)) {
 
                         let attributeValue = isBlank(field.value) ? '' : field.value;
                         if(typeof attributeValue === 'object') attributeValue = attributeValue.link;
@@ -761,7 +757,7 @@ function insertWorkspaceItemsData(id) {
 
         }
 
-        finishPanelContentUpdate(id, settings.workspaceItems[id], items);
+        finishPanelContentUpdate(id, settings[id], items);
         insertWorkspaceItemsDataDone(id, response);
 
     });
@@ -778,7 +774,7 @@ function insertSearch(params) {
 
     let id = isBlank(params.id) ? 'search' : params.id;
 
-    settings.search[id] = getPanelSettings('', params, {
+    settings[id] = getPanelSettings('', params, {
         headerLabel  : 'Search',
         placeholder  : 'Filter results' ,
         layout       : 'list',
@@ -800,31 +796,34 @@ function insertSearch(params) {
         [ 'filterByWorkspace'   , true ]
     ]);
 
-    settings.search[id].load = function() { resetSearch(id, true); }
+    settings[id].load = function() { resetSearch(id, true); }
+    settings[id].next = function() { insertSearchData(id); }
 
-    genPanelTop(id, settings.search[id], 'search');
-    genPanelHeader(id, settings.search[id]);
-    genPanelOpenSelectedInPLMButton(id, settings.search[id]);
-    genPanelSelectionControls(id, settings.search[id]);
-    genPanelFilterSelect(id, settings.search[id].filterByOwner, 'owner', 'All Owners');
-    genPanelFilterSelect(id, settings.search[id].filterByWorkspace, 'workspace', 'All Workspaces');
-    genPanelSearchInput(id, settings.search[id]).hide();
-    genPanelResizeButton(id, settings.search[id]);
-    genPanelReloadButton(id, settings.search[id]);
+    genPanelTop                    (id, settings[id], 'search');
+    genPanelHeader                 (id, settings[id]);
+    genPanelOpenSelectedInPLMButton(id, settings[id]);
+    genPanelSelectionControls      (id, settings[id]);
+    genPanelFilterSelect           (id, settings[id].filterByOwner, 'owner', 'All Owners');
+    genPanelFilterSelect           (id, settings[id].filterByWorkspace, 'workspace', 'All Workspaces');
+    genPanelSearchInput            (id, settings[id]).hide();
+    genPanelResizeButton           (id, settings[id]);
+    genPanelReloadButton           (id, settings[id]);
+    genPanelContents               (id, settings[id]);
+    genPanelPaginationControls     (id, settings[id]);
 
-    genPanelToolbar(id, settings.search[id], 'actions');
+    genPanelToolbar(id, settings[id], 'actions');
 
     $('<input></input>').appendTo($('#' + id + '-actions'))
-        .attr('placeholder', settings.search[id].inputLabel)
+        .attr('placeholder', settings[id].inputLabel)
         .attr('id', id + '-search-content-input')
         .addClass('search-content-input')
-        // .hide()
         .click(function(e){
             e.preventDefault();
             e.stopPropagation();
         })
         .keypress(function(e) {
             if(e.which == 13) {
+                settings[id].mode = 'initial';
                 insertSearchData(id);
             }
         });
@@ -835,26 +834,23 @@ function insertSearch(params) {
         .addClass('button')
         .addClass('default')
         .addClass('disabled')
-        // .hide()
-        .html(settings.search[id].buttonLabel)
+        .html(settings[id].buttonLabel)
         .click(function(e) {
             e.preventDefault();
             e.stopPropagation();
             resetSearch(id, false);
+            settings[id].mode = 'initial';
             insertSearchData(id);
         });
 
-    if(!isBlank(settings.search[id].buttonIcon)) elemButton.addClass('with-icon').addClass(settings.search[id].buttonIcon);
+    if(!isBlank(settings[id].buttonIcon)) elemButton.addClass('with-icon').addClass(settings[id].buttonIcon);
 
-    genPanelContents(id, settings.search[id]);
-
-    getWorkspaceIdsFromNames(settings.search[id], function(workspaceIds) {
-        settings.search[id].workspaceIds = workspaceIds;
-        settings.search[id].load();
+     getWorkspaceIdsFromNames(settings[id], function(workspaceIds) {
+        settings[id].workspaceIds = workspaceIds;
+        settings[id].load();
     });
 
     insertSearchDone(id);
-
 
 }
 function insertSearchDone(id) {}
@@ -873,27 +869,27 @@ function resetSearch(id, resetInput) {
 }
 function insertSearchData(id) {
 
-    settings.search[id].timestamp = startPanelContentUpdate(id);
+    settings[id].timestamp = startPanelContentUpdate(id, settings[id].mode);
 
     let params = {
         query     : $('#' + id + '-search-content-input').val(),
-        limit     : settings.search[id].limit,
-        timestamp : settings.search[id].timestamp
+        limit     : settings[id].limit,
+        page      : settings[id].page,
+        offset    : settings[id].offset,
+        timestamp : settings[id].timestamp
     }
 
-    if(!isBlank(settings.search[id].baseQuery)   ) params.query     += '+AND+' + settings.search[id].baseQuery;
-    if(!isBlank(settings.search[id].workspaceIds)) params.workspaces = settings.search[id].workspaceIds;
-    if(settings.search[id].exactMatch            ) params.wildcard   = false;
+    if(!isBlank(settings[id].baseQuery)   ) params.query     += '+AND+' + settings[id].baseQuery;
+    if(!isBlank(settings[id].workspaceIds)) params.workspaces = settings[id].workspaceIds;
+    if(settings[id].exactMatch            ) params.wildcard   = false;
 
     $.post('/plm/search-descriptor', params, function(response) {
 
-        if(stopPanelContentUpdate(response, settings.search[id])) return;
+        if(stopPanelContentUpdate(response, settings[id])) return;
             
         let items           = [];
         let listWorkspaces  = [];
         let listOwners      = [];
-
-        settings.search[id].columns = [];
 
         let columns = [
             { displayName : 'Descriptor', fieldId : 'descriptor' },
@@ -904,8 +900,8 @@ function insertSearchData(id) {
         ]; 
 
         for(let column of columns) {
-            if(includePanelTableColumn(column.displayName, settings.search[id], settings.search[id].columns.length)) {
-                settings.search[id].columns.push(column);    
+            if(includePanelTableColumn(column.displayName, settings[id], settings[id].columns.length)) {
+                settings[id].columns.push(column);    
             }
         }
 
@@ -916,16 +912,16 @@ function insertSearchData(id) {
 
             record.tileTitle    = '';
             record.tileSubitle  = '';
-            record.group        = (settings.search[id].groupBy === '') ? '' : record[settings.search[id].groupBy];
+            record.group        = (settings[id].groupBy === '') ? '' : record[settings[id].groupBy];
 
             for(let column of columns) {
 
-                if(settings.search[id].tileTitle === column.displayName) record.tileTitle = record[column.fieldId];
-                if(settings.search[id].tileSubtitle === column.displayName) record.tileSubitle = record[column.fieldId];
+                if(settings[id].tileTitle === column.displayName) record.tileTitle = record[column.fieldId];
+                if(settings[id].tileSubtitle === column.displayName) record.tileSubitle = record[column.fieldId];
 
             }
 
-            let contentItem = genPanelContentItem(settings.search[id], {
+            let contentItem = genPanelContentItem(settings[id], {
                 link     : record.__self__,
                 title    : record.tileTitle,
                 subtitle : record.tileSubitle,
@@ -949,37 +945,18 @@ function insertSearchData(id) {
 
         }
 
-        // if(response.data.items.length === 0) {
-        //     $('#' + id + '-no-data').show();
-        //     $('#' + id + '-content').hide();
-        // } else {
-        //     if(settings.search[id].search) $('#' + id + '-search').show();
-        //     if(settings.search[id].autoClick) {
-        //         $('#' + id + '-content').find('.content-item').first().click();
-        //     }
-        // }
-
-        // if(response.data.items.length < response.data.totalCount) {
-
-        //     $('<div></div>').appendTo($('#' + id + '-content'))
-        //         .addClass('search-content-status')
-        //         .html('Showing ' + response.data.items.length + ' out of ' + response.data.totalCount + ' total matches');
-
-        // }
-
         sortArray(listOwners, 0);
-        sortArray(listWorkspaces, 0);
-        
+        sortArray(listWorkspaces, 0);  
         setPanelFilterOptions(id, 'owner', listOwners);
         setPanelFilterOptions(id, 'workspace', listWorkspaces);
-        finishPanelContentUpdate(id, settings.search[id], items);
+        finishPanelContentUpdate(id, settings[id], items);
+        setPanelPaginationControls(id, settings[id], response.data.totalCount);
 
-        if(settings.search[id].autoClick) {
+        if(settings[id].autoClick) {
             if($('#' + id + '-content').find('.content-item').length > 0) {
                 $('#' + id + '-content').find('.content-item').first().click();
             }
         }
-
 
         insertSearchDataDone(id, response);
 
@@ -1000,7 +977,7 @@ function insertResults(wsId, filters, params) {
 
     let id = isBlank(params.id) ? 'results' : params.id;
 
-    settings.results[id] = getPanelSettings('', params, {
+    settings[id] = getPanelSettings('', params, {
         headerLabel  : 'Results',
         layout       : 'table',
         contentSize  : 'xs',
@@ -1019,99 +996,99 @@ function insertResults(wsId, filters, params) {
         [ 'tileSubtitle'    , ''    ]
     ]);
 
-    if(!settings.results[id].fields.includes('DESCRIPTOR')) {
-        settings.results[id].fields.unshift('DESCRIPTOR');
+    if(!settings[id].fields.includes('DESCRIPTOR')) {
+        settings[id].fields.unshift('DESCRIPTOR');
     }
 
-    if(!isBlank(settings.results[id].groupBy)) {
-        if(!settings.results[id].fields.includes(settings.results[id].groupBy)) {
-            settings.results[id].fields.push(settings.results[id].groupBy);
+    if(!isBlank(settings[id].groupBy)) {
+        if(!settings[id].fields.includes(settings[id].groupBy)) {
+            settings[id].fields.push(settings[id].groupBy);
         }
     }
 
-    if(!isBlank(settings.results[id].additionalData)) {
-        for(let additionalData of settings.results[id].additionalData) {
-            if(!settings.results[id].fields.includes(additionalData)) {
-                settings.results[id].fields.push(additionalData);
+    if(!isBlank(settings[id].additionalData)) {
+        for(let additionalData of settings[id].additionalData) {
+            if(!settings[id].fields.includes(additionalData)) {
+                settings[id].fields.push(additionalData);
             }
         }
     }
 
-    if(typeof settings.results[id].tileImage == 'string') {
-        settings.results[id].tileImageFieldId = settings.results[id].tileImage;
-        if(!settings.results[id].fields.includes(settings.results[id].tileImage)) {
-            settings.results[id].fields.push(settings.results[id].tileImage);
+    if(typeof settings[id].tileImage == 'string') {
+        settings[id].tileImageFieldId = settings[id].tileImage;
+        if(!settings[id].fields.includes(settings[id].tileImage)) {
+            settings[id].fields.push(settings[id].tileImage);
         }      
     }
 
-    if(typeof settings.results[id].tileTitle == 'string') {
-        if(!isBlank(settings.results[id].tileTitle)) {
-            if(!settings.results[id].fields.includes(settings.results[id].tileTitle)) {
-                settings.results[id].fields.push(settings.results[id].tileTitle);
+    if(typeof settings[id].tileTitle == 'string') {
+        if(!isBlank(settings[id].tileTitle)) {
+            if(!settings[id].fields.includes(settings[id].tileTitle)) {
+                settings[id].fields.push(settings[id].tileTitle);
             }
         }
-    } else if(typeof settings.results[id].tileTitle == 'object') {
-        for(let tileTitle of settings.results[id].tileTitle) {
-            if(!settings.results[id].fields.includes(tileTitle)) {
-                settings.results[id].fields.push(tileTitle);
-            }
-        }
-    }
-
-    if(typeof settings.results[id].tileSubtitle == 'string') {
-        if(!isBlank(settings.results[id].tileSubtitle)) {
-            if(!settings.results[id].fields.includes(settings.results[id].tileSubtitle)) {
-                settings.results[id].fields.push(settings.results[id].tileSubtitle);
-            }
-        }
-    } else if(typeof settings.results[id].tileSubtitle == 'object') {
-        for(let tileSubtitle of settings.results[id].tileSubtitle) {
-            if(!settings.results[id].fields.includes(tileSubtitle)) {
-                settings.results[id].fields.push(tileSubtitle);
+    } else if(typeof settings[id].tileTitle == 'object') {
+        for(let tileTitle of settings[id].tileTitle) {
+            if(!settings[id].fields.includes(tileTitle)) {
+                settings[id].fields.push(tileTitle);
             }
         }
     }
 
-    if(!isBlank(settings.results[id].tileDetails)) {
-        for(let tileDetail of settings.results[id].tileDetails) {
+    if(typeof settings[id].tileSubtitle == 'string') {
+        if(!isBlank(settings[id].tileSubtitle)) {
+            if(!settings[id].fields.includes(settings[id].tileSubtitle)) {
+                settings[id].fields.push(settings[id].tileSubtitle);
+            }
+        }
+    } else if(typeof settings[id].tileSubtitle == 'object') {
+        for(let tileSubtitle of settings[id].tileSubtitle) {
+            if(!settings[id].fields.includes(tileSubtitle)) {
+                settings[id].fields.push(tileSubtitle);
+            }
+        }
+    }
+
+    if(!isBlank(settings[id].tileDetails)) {
+        for(let tileDetail of settings[id].tileDetails) {
             if(!isBlank(tileDetail.fieldId)) {
-                if(!settings.results[id].fields.includes(tileDetail.fieldId)) {
-                    settings.results[id].fields.push(tileDetail.fieldId);
+                if(!settings[id].fields.includes(tileDetail.fieldId)) {
+                    settings[id].fields.push(tileDetail.fieldId);
                 }
             }
         }
     }
 
-    if(!isBlank(settings.results[id].fieldsIn)) {
-        for(let fieldId of settings.results[id].fieldsIn) {
-            if(!settings.results[id].fields.includes(fieldId)) {
-                settings.results[id].fields.push(fieldId);
+    if(!isBlank(settings[id].fieldsIn)) {
+        for(let fieldId of settings[id].fieldsIn) {
+            if(!settings[id].fields.includes(fieldId)) {
+                settings[id].fields.push(fieldId);
             }
         }
     }
 
-    if(settings.results[id].stateColors.length > 0) {
-        if(!settings.results[id].fields.includes('WF_CURRENT_STATE')) {
-            settings.results[id].fields.push('WF_CURRENT_STATE');
+    if(settings[id].stateColors.length > 0) {
+        if(!settings[id].fields.includes('WF_CURRENT_STATE')) {
+            settings[id].fields.push('WF_CURRENT_STATE');
         }
     }
 
-    settings.results[id].load = function() { insertResultsData(id, true); }
+    settings[id].load = function() { insertResultsData(id, true); }
 
-    genPanelTop(id, settings.results[id], 'results');
-    genPanelHeader(id, settings.results[id]);
-    genPanelOpenSelectedInPLMButton(id, settings.results[id]);
-    genPanelSelectionControls(id, settings.results[id]);
-    genPanelFilterToggleEmpty(id, settings.results[id]);
-    genPanelSearchInput(id, settings.results[id]);
-    genPanelResizeButton(id, settings.results[id]);
-    genPanelReloadButton(id, settings.results[id]);
+    genPanelTop(id, settings[id], 'results');
+    genPanelHeader(id, settings[id]);
+    genPanelOpenSelectedInPLMButton(id, settings[id]);
+    genPanelSelectionControls(id, settings[id]);
+    genPanelFilterToggleEmpty(id, settings[id]);
+    genPanelSearchInput(id, settings[id]);
+    genPanelResizeButton(id, settings[id]);
+    genPanelReloadButton(id, settings[id]);
 
-    genPanelContents(id, settings.results[id]);
+    genPanelContents(id, settings[id]);
 
-    if(settings.results[id].editable) {
+    if(settings[id].editable) {
 
-        let elemToolbar = genPanelToolbar(id, settings.results[id], 'controls');
+        let elemToolbar = genPanelToolbar(id, settings[id], 'controls');
 
         $('<div></div>').prependTo(elemToolbar)
             .addClass('button')
@@ -1122,54 +1099,54 @@ function insertResults(wsId, filters, params) {
             .html('Save')
             .hide()
             .click(function() {
-                savePanelTableChanges(id, settings.results[id]);
+                savePanelTableChanges(id, settings[id]);
             });
         
     }
     
     insertResultsDone(id);
-    settings.results[id].load();
+    settings[id].load();
 
 }
 function insertResultsData(id) {
 
-    settings.results[id].timestamp = startPanelContentUpdate(id);
+    settings[id].timestamp = startPanelContentUpdate(id);
 
     let elemCounters =  $('#' + id + '-content-counters');
     
     if(elemCounters.length > 0) elemCounters.children().each(function() { $(this).html('').removeClass('not-empty'); })
 
     let params = {
-        wsId        : settings.results[id].wsId,
-        filter      : settings.results[id].filters,
-        fields      : settings.results[id].fields,
-        sort        : settings.results[id].sortBy,
-        timestamp   : settings.results[id].timestamp,
-        useCache    : settings.results[id].useCache
+        wsId        : settings[id].wsId,
+        filter      : settings[id].filters,
+        fields      : settings[id].fields,
+        sort        : settings[id].sortBy,
+        timestamp   : settings[id].timestamp,
+        useCache    : settings[id].useCache
     }
 
     let requests = [
         $.post( '/plm/search', params),
-        $.get( '/plm/fields',  { wsId : settings.results[id].wsId} ),
+        $.get( '/plm/fields',  { wsId : settings[id].wsId} ),
     ];
 
     Promise.all(requests).then(function(responses) {
 
-        if(stopPanelContentUpdate(responses[0], settings.results[id])) return;
+        if(stopPanelContentUpdate(responses[0], settings[id])) return;
 
         let items = [];
 
-        settings.results[id].columns = [];
+        settings[id].columns = [];
 
-        for(let fieldId of settings.results[id].fields) {
-            if(includePanelTableColumn(fieldId, '', settings.results[id], settings.results[id].columns.length)) {
+        for(let fieldId of settings[id].fields) {
+            if(includePanelTableColumn(fieldId, '', settings[id], settings[id].columns.length)) {
                 if(fieldId === 'DESCRIPTOR') {
-                    settings.results[id].columns.push({
+                    settings[id].columns.push({
                         'displayName' : 'Descriptor',
                         'fieldId'     : 'DESCRIPTOR'
                     });
                 } else if(fieldId === 'WF_CURRENT_STATE') {
-                    settings.results[id].columns.push({
+                    settings[id].columns.push({
                         'displayName' : 'Current Status',
                         'fieldId'     : 'WF_CURRENT_STATE'
                     });
@@ -1179,7 +1156,7 @@ function insertResultsData(id) {
                         if(fieldId === workspaceFieldId) {
                             // field.displayName = field.name;
                             // field.fieldId = column;
-                            settings.results[id].columns.push({
+                            settings[id].columns.push({
                                 displayName : workspaceField.name,
                                 fieldId : workspaceFieldId,
                             });
@@ -1191,43 +1168,43 @@ function insertResultsData(id) {
 
         for(let row of responses[0].data.row) {
 
-            let contentItem = genPanelContentItem(settings.results[id], {
-                link : '/api/v3/workspaces/' + settings.results[id].wsId + '/items/' + row.dmsId
+            let contentItem = genPanelContentItem(settings[id], {
+                link : '/api/v3/workspaces/' + settings[id].wsId + '/items/' + row.dmsId
             })
 
-            if(typeof settings.results[id].tileTitle == 'object') {
+            if(typeof settings[id].tileTitle == 'object') {
                 contentItem.tileTitles = [];
-                for(let tileTitle of settings.results[id].tileTitle) {
+                for(let tileTitle of settings[id].tileTitle) {
                     contentItem.tileTitles[tileTitle] = '';
                 }
             }
-            if(typeof settings.results[id].tileSubtitle == 'object') {
+            if(typeof settings[id].tileSubtitle == 'object') {
                 contentItem.tileSubtitles = [];
-                for(let tileSubtitle of settings.results[id].tileSubtitle) {
+                for(let tileSubtitle of settings[id].tileSubtitle) {
                     contentItem.tileSubtitles[tileSubtitle] = '';
                 }
             }
 
             for(let field of row.fields.entry) {
 
-                if(field.key === config.items.fieldIdNumber           ) contentItem.partNumber = field.fieldData.value;
-                if(field.key === settings.results[id].tileImageFieldId) contentItem.imageId    = field.fieldData.value;
-                if(field.key === settings.results[id].groupBy         ) contentItem.group      = field.fieldData.value;
+                if(field.key === common.workspaces.items.fieldIdNumber) contentItem.partNumber = field.fieldData.value;
+                if(field.key === settings[id].tileImageFieldId) contentItem.imageId    = field.fieldData.value;
+                if(field.key === settings[id].groupBy         ) contentItem.group      = field.fieldData.value;
                 if(field.key === 'DESCRIPTOR'                         ) contentItem.descriptor = field.fieldData.value;
                 if(field.key === 'WF_CURRENT_STATE'                   ) contentItem.status     = field.fieldData.value;
 
-                if(typeof settings.results[id].tileTitle == 'string') {
-                    if(field.key === settings.results[id].tileTitle) contentItem.title = field.fieldData.value;
-                } else if(typeof settings.results[id].tileTitle == 'object') {
-                    for(let tileTitle of settings.results[id].tileTitle) {
+                if(typeof settings[id].tileTitle == 'string') {
+                    if(field.key === settings[id].tileTitle) contentItem.title = field.fieldData.value;
+                } else if(typeof settings[id].tileTitle == 'object') {
+                    for(let tileTitle of settings[id].tileTitle) {
                         if(field.key === tileTitle) contentItem.tileTitles[tileTitle] = field.fieldData.value;
                     }
                 }
 
-                if(typeof settings.results[id].tileSubtitle == 'string') {
-                    if(field.key === settings.results[id].tileSubtitle) contentItem.subtitle = field.fieldData.value;
-                } else if(typeof settings.results[id].tileSubtitle == 'object') {
-                    for(let tileSubtitle of settings.results[id].tileSubtitle) {
+                if(typeof settings[id].tileSubtitle == 'string') {
+                    if(field.key === settings[id].tileSubtitle) contentItem.subtitle = field.fieldData.value;
+                } else if(typeof settings[id].tileSubtitle == 'object') {
+                    for(let tileSubtitle of settings[id].tileSubtitle) {
                         if(field.key === tileSubtitle) contentItem.tileSubtitles[tileSubtitle] = field.fieldData.value;
                     }
                 } 
@@ -1240,14 +1217,14 @@ function insertResultsData(id) {
                     }
                 }
 
-                if(settings.results[id].additionalData.includes(field.key)) {
+                if(settings[id].additionalData.includes(field.key)) {
                     contentItem.attributes.push({
                         key   : field.key.toLowerCase(),
                         value : field.fieldData.value
                     });
                 }
 
-                for(let column of settings.results[id].columns) {
+                for(let column of settings[id].columns) {
 
                     if(field.key === column.fieldId) {
 
@@ -1278,16 +1255,16 @@ function insertResultsData(id) {
 
             }
 
-            if(typeof settings.results[id].tileTitle == 'object') {
-                for(let tileTitle of settings.results[id].tileTitle) {
+            if(typeof settings[id].tileTitle == 'object') {
+                for(let tileTitle of settings[id].tileTitle) {
                     if(contentItem.tileTitles[tileTitle] !== '') {
                         contentItem.title = contentItem.tileTitles[tileTitle];
                         break;
                     }
                 }
             }
-            if(typeof settings.results[id].tileSubtitle == 'object') {
-                for(let tileSubtitle of settings.results[id].tileSubtitle) {
+            if(typeof settings[id].tileSubtitle == 'object') {
+                for(let tileSubtitle of settings[id].tileSubtitle) {
                     if(contentItem.tileSubtitles[tileSubtitle] !== '') {
                         contentItem.subtitle = contentItem.tileSubtitles[tileSubtitle];
                         break;
@@ -1299,9 +1276,9 @@ function insertResultsData(id) {
 
         }
 
-        finishPanelContentUpdate(id, settings.results[id], items);
+        finishPanelContentUpdate(id, settings[id], items);
 
-        if(settings.results[id].autoClick) {
+        if(settings[id].autoClick) {
             if($('#' + id + '-content').find('.content-item').length > 0) {
                 $('#' + id + '-content').find('.content-item').first().click();
             }
@@ -1324,7 +1301,7 @@ function insertClasses(params) {
 
     let id = isBlank(params.id) ? 'classes' : params.id;
 
-    settings.classes[id] = getPanelSettings('', params, {
+    settings[id] = getPanelSettings('', params, {
         headerLabel : 'Classes',
         placeholder : 'Filter clases' ,
         contentSize : 'm'
@@ -1336,27 +1313,27 @@ function insertClasses(params) {
         [ 'hideTableHeader', true  ]
     ]);
 
-    settings.classes[id].load         = function() { insertClassesData(id); }
-    settings.classes[id].layout       = 'tree';
-    settings.classes[id].skipRootItem = true;
+    settings[id].load         = function() { insertClassesData(id); }
+    settings[id].layout       = 'tree';
+    settings[id].skipRootItem = true;
 
-    genPanelTop(id, settings.classes[id], 'classes');
-    genPanelHeader(id, settings.classes[id]);
-    genPanelSelectionControls(id, settings.classes[id]);
+    genPanelTop(id, settings[id], 'classes');
+    genPanelHeader(id, settings[id]);
+    genPanelSelectionControls(id, settings[id]);
 
-    genPanelToggleButtons(id, settings.classes[id], 
+    genPanelToggleButtons(id, settings[id], 
         function() {   expandAllNodes(id); }, 
         function() { collapseAllNodes(id); }
     );
 
-    genPanelResizeButton(id, settings.classes[id]);
-    genPanelSearchInput(id, settings.classes[id]);
-    genPanelResetButton(id, settings.classes[id]);
-    genPanelReloadButton(id, settings.classes[id]);
+    genPanelResizeButton(id, settings[id]);
+    genPanelSearchInput(id, settings[id]);
+    genPanelResetButton(id, settings[id]);
+    genPanelReloadButton(id, settings[id]);
     
-    genPanelContents(id, settings.classes[id]);
+    genPanelContents(id, settings[id]);
 
-    if(settings.classes[id].path) {
+    if(settings[id].path) {
 
         $('<div></div>').appendTo($('#' + id))
             .attr('id', id + '-tree-path')
@@ -1396,21 +1373,21 @@ function insertClasses(params) {
 
     insertClassesDone(id);
 
-    settings.classes[id].load();
+    settings[id].load();
 
 }
 function insertClassesData(id) {
 
-    settings.classes[id].timestamp = startPanelContentUpdate(id);
+    settings[id].timestamp = startPanelContentUpdate(id);
 
     let requests = [
-        $.get('/plm/classes'     , { useCache : settings.classes[id].useCache, timestamp : settings.classes[id].timestamp}),
-        $.get('/plm/classes-tree', { useCache : settings.classes[id].useCache})
+        $.get('/plm/classes'     , { useCache : settings[id].useCache, timestamp : settings[id].timestamp}),
+        $.get('/plm/classes-tree', { useCache : settings[id].useCache})
     ];
 
     Promise.all(requests).then(function(responses) {
 
-        if(stopPanelContentUpdate(responses[0], settings.classes[id])) return;
+        if(stopPanelContentUpdate(responses[0], settings[id])) return;
 
         let items = [];
 
@@ -1439,9 +1416,9 @@ function insertClassesData(id) {
 
         let contentItems = [];
 
-        setClassLevels(settings.classes[id], responses[1].data, items, items[0], 0, items[0].id, '');
+        setClassLevels(settings[id], responses[1].data, items, items[0], 0, items[0].id, '');
         buildClassesTree(items, contentItems, items[0]);
-        finishPanelContentUpdate(id, settings.classes[id], contentItems, null, responses[0].data);
+        finishPanelContentUpdate(id, settings[id], contentItems, null, responses[0].data);
 
     });
 
@@ -1507,7 +1484,7 @@ function insertClassContents(classId, className, params) {
 
     let id = isBlank(params.id) ? 'contents' : params.id;
 
-    settings.classContents[id] = getPanelSettings('', params, {
+    settings[id] = getPanelSettings('', params, {
         contentSize : 'm',
         headerLabel : 'Class Items'
     }, [
@@ -1522,25 +1499,25 @@ function insertClassContents(classId, className, params) {
         [ 'referenceData'    , {}             ],
     ]);
 
-    settings.classContents[id].load      = function() { insertClassData(id); }
-    settings.classContents[id].next      = function() { insertClassData(id); }
-    settings.classContents[id].classId   = (typeof classId === 'string') ? classId.split('/').pop() : classId;
-    settings.classContents[id].className = className;
+    settings[id].load      = function() { insertClassData(id); }
+    settings[id].next      = function() { insertClassData(id); }
+    settings[id].classId   = (typeof classId === 'string') ? classId.split('/').pop() : classId;
+    settings[id].className = className;
 
-    genPanelTop                     (id, settings.classContents[id], 'classContents');
-    genPanelHeader                  (id, settings.classContents[id]);
-    genPanelOpenSelectedInPLMButton (id, settings.classContents[id]);
-    genPanelSelectionControls       (id, settings.classContents[id]);
-    genPanelFilterSelect            (id, settings.classContents[id], 'filterByStatus', 'status', 'All States');
-    genPanelFilterSelect            (id, settings.classContents[id], 'filterByWorkspace', 'workspace', 'All Workspaces');    
-    genPanelResizeButton            (id, settings.classContents[id]);
-    genPanelSearchInput             (id, settings.classContents[id]);
-    genPanelResetButton             (id, settings.classContents[id]);
-    genPanelReloadButton            (id, settings.classContents[id]);
-    genPanelContents                (id, settings.classContents[id]);
-    genPanelPaginationControls      (id, settings.classContents[id]);
+    genPanelTop                     (id, settings[id], 'classContents');
+    genPanelHeader                  (id, settings[id]);
+    genPanelOpenSelectedInPLMButton (id, settings[id]);
+    genPanelSelectionControls       (id, settings[id]);
+    genPanelFilterSelect            (id, settings[id], 'filterByStatus', 'status', 'All States');
+    genPanelFilterSelect            (id, settings[id], 'filterByWorkspace', 'workspace', 'All Workspaces');    
+    genPanelResizeButton            (id, settings[id]);
+    genPanelSearchInput             (id, settings[id]);
+    genPanelResetButton             (id, settings[id]);
+    genPanelReloadButton            (id, settings[id]);
+    genPanelContents                (id, settings[id]);
+    genPanelPaginationControls      (id, settings[id]);
 
-    let elemToolbar = genPanelToolbar(id, settings.classContents[id], 'controls');
+    let elemToolbar = genPanelToolbar(id, settings[id], 'controls');
 
     let elemSort = $('<select></select>').prependTo(elemToolbar)
         .addClass('button')
@@ -1553,8 +1530,8 @@ function insertClassContents(classId, className, params) {
         .on('change', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            settings.classContents[id].sort = $('#' + id + '-sort-by').val();
-            settings.classContents[id].load();
+            settings[id].sort = $('#' + id + '-sort-by').val();
+            settings[id].load();
         });
 
     elemSort.append($('<option></option>').attr('value', 'score asc').html('Sort by relevance'));
@@ -1567,54 +1544,54 @@ function insertClassContents(classId, className, params) {
 
     insertClassDone(id);
 
-    settings.classContents[id].load();
+    settings[id].load();
 
 }
 function insertClassData(id) {
 
-    settings.classContents[id].timestamp = startPanelContentUpdate(id, settings.classContents[id].mode);
+    settings[id].timestamp = startPanelContentUpdate(id, settings[id].mode);
 
     let params = { 
-        className : settings.classContents[id].className, 
-        classId   : settings.classContents[id].classId, 
-        query     : settings.classContents[id].query,
-        sort      : settings.classContents[id].sort,
-        page      : settings.classContents[id].page,
-        limit     : settings.classContents[id].limit,
-        offset    : settings.classContents[id].offset,
-        timestamp : settings.classContents[id].timestamp
+        className : settings[id].className, 
+        classId   : settings[id].classId, 
+        query     : settings[id].query,
+        sort      : settings[id].sort,
+        page      : settings[id].page,
+        limit     : settings[id].limit,
+        offset    : settings[id].offset,
+        timestamp : settings[id].timestamp
     };
 
     let requests = [
         $.get('/plm/search-class', params),
         $.get('/plm/class-properties', { 
-            classId   : settings.classContents[id].classId, 
-            timestamp : settings.classContents[id].timestamp,
+            classId   : settings[id].classId, 
+            timestamp : settings[id].timestamp,
             useCache  : true
         })
     ];
 
     Promise.all(requests).then(function(responses) {
 
-        if(stopPanelContentUpdate(responses[0], settings.classContents[id])) return;
+        if(stopPanelContentUpdate(responses[0], settings[id])) return;
 
         let items           = [];
         let listFields      = [];
         let listStates      = [];
         let listWorkspaces  = [];
 
-        for(let fieldId of settings.classContents[id].fields) {
-            if(includePanelTableColumn(fieldId, '', settings.classContents[id], settings.classContents[id].columns.length)) {
+        for(let fieldId of settings[id].fields) {
+            if(includePanelTableColumn(fieldId, '', settings[id], settings[id].columns.length)) {
 
                 switch(fieldId) {
 
-                    case 'DESCRIPTOR'      : settings.classContents[id].columns.push({ displayName : 'Descriptor', fieldId : 'DESCRIPTOR'      }); break;
-                    case 'WORKSPACE'       : settings.classContents[id].columns.push({ displayName : 'Workspace' , fieldId : 'WORKSPACE'       }); break;
-                    case 'REVISION'        : settings.classContents[id].columns.push({ displayName : 'Revision'  , fieldId : 'REVISION'        }); break;
-                    case 'LIFECYCLE'       : settings.classContents[id].columns.push({ displayName : 'Lifecycle' , fieldId : 'LIFECYCLE'       }); break;
-                    case 'WF_CURRENT_STATE': settings.classContents[id].columns.push({ displayName : 'Status'    , fieldId : 'WF_CURRENT_STATE'}); break;
+                    case 'DESCRIPTOR'      : settings[id].columns.push({ displayName : 'Descriptor', fieldId : 'DESCRIPTOR'      }); break;
+                    case 'WORKSPACE'       : settings[id].columns.push({ displayName : 'Workspace' , fieldId : 'WORKSPACE'       }); break;
+                    case 'REVISION'        : settings[id].columns.push({ displayName : 'Revision'  , fieldId : 'REVISION'        }); break;
+                    case 'LIFECYCLE'       : settings[id].columns.push({ displayName : 'Lifecycle' , fieldId : 'LIFECYCLE'       }); break;
+                    case 'WF_CURRENT_STATE': settings[id].columns.push({ displayName : 'Status'    , fieldId : 'WF_CURRENT_STATE'}); break;
 
-                    default : settings.classContents[id].columns.push({
+                    default : settings[id].columns.push({
                         displayName : fieldId,
                         fieldId     : fieldId
                     }); break;
@@ -1626,7 +1603,7 @@ function insertClassData(id) {
 
         for(let property of responses[1].data) {
             if(!listFields.includes(property.name)) {
-                settings.classContents[id].columns.push({
+                settings[id].columns.push({
                     displayName : property.displayName,
                     fieldId     : '0CWS_' + property.name
                 });
@@ -1634,23 +1611,23 @@ function insertClassData(id) {
             }
         }
 
-        if(settings.classContents[id].referenceItem !== null) {
+        if(settings[id].referenceItem !== null) {
             let index = 0;
             for(let item of responses[0].data.items) {
-                if(item.__self__ === settings.classContents[id].referenceItem.__self__) {
+                if(item.__self__ === settings[id].referenceItem.__self__) {
                     responses[0].data.items.splice(index, 1);
                     break;
                 }
                 index++;
             }
-            responses[0].data.items.unshift(settings.classContents[id].referenceItem);
+            responses[0].data.items.unshift(settings[id].referenceItem);
         }
 
         for(let item of responses[0].data.items) {
 
             if(item.hasOwnProperty('title')) {
 
-                let contentItem = genPanelContentItem(settings.classContents[id], { link : item.__self__ });
+                let contentItem = genPanelContentItem(settings[id], { link : item.__self__ });
                 let workspace   = item.workspace.title;
                 let status      = item.workflowStateName || '';
 
@@ -1659,7 +1636,7 @@ function insertClassData(id) {
                 if(!listStates.includes(status)) listStates.push(status);
                 if(!listWorkspaces.includes(workspace)) listWorkspaces.push(workspace);            
 
-                for(let column of  settings.classContents[id].columns) {
+                for(let column of  settings[id].columns) {
 
                     let value = '';
 
@@ -1703,10 +1680,10 @@ function insertClassData(id) {
         sortArray(listWorkspaces, 0);
         setPanelFilterOptions(id, 'status', listStates);
         setPanelFilterOptions(id, 'workspace', listWorkspaces);
-        finishPanelContentUpdate(id, settings.classContents[id], items);
-        setPanelPaginationControls(id, settings.classContents[id], responses[0].data.totalCount);
+        finishPanelContentUpdate(id, settings[id], items);
+        setPanelPaginationControls(id, settings[id], responses[0].data.totalCount);
 
-        if(!isBlank(settings.classContents[id].referenceItem)) {
+        if(!isBlank(settings[id].referenceItem)) {
             let elemFirst = $('#' + id).find('.content-item').first();
             if(elemFirst.length > 0) elemFirst.addClass('reference');
         }
@@ -1730,7 +1707,7 @@ function insertClassFilters(classId, className, params) {
 
     let id = isBlank(params.id) ? 'classFilters' : params.id;
 
-    settings.classFilters[id] = getPanelSettings('', params, {
+    settings[id] = getPanelSettings('', params, {
         contentSize : 'm',
         headerLabel : 'Filters'
     }, [
@@ -1741,14 +1718,14 @@ function insertClassFilters(classId, className, params) {
         [ 'limit'      , 25             ]
     ]);
 
-    settings.classFilters[id].load      = function() { insertClassFiltersData(id); }
-    settings.classFilters[id].classId   = (typeof classId === 'string') ? classId.split('/').pop() : classId;
-    settings.classFilters[id].className = className;
+    settings[id].load      = function() { insertClassFiltersData(id); }
+    settings[id].classId   = (typeof classId === 'string') ? classId.split('/').pop() : classId;
+    settings[id].className = className;
 
-    genPanelTop         (id, settings.classFilters[id], 'class');
-    genPanelHeader      (id, settings.classFilters[id]);
-    genPanelSearchInput (id, settings.classFilters[id]);
-    genPanelContents    (id, settings.classFilters[id]);
+    genPanelTop         (id, settings[id], 'class');
+    genPanelHeader      (id, settings[id]);
+    genPanelSearchInput (id, settings[id]);
+    genPanelContents    (id, settings[id]);
 
     genPanelActionButton(id, { singleToolbar : 'controls'}, 'apply', 'Apply', 'Apply the defined filters', function() {
         applyClassFilters(id);
@@ -1756,35 +1733,35 @@ function insertClassFilters(classId, className, params) {
 
     insertClassFiltersDone(id);
 
-    settings.classFilters[id].load();
+    settings[id].load();
 
 }
 function insertClassFiltersData(id) {
 
-    settings.classFilters[id].timestamp = startPanelContentUpdate(id);
+    settings[id].timestamp = startPanelContentUpdate(id);
 
     let params = {
-        classId   : settings.classFilters[id].classId, 
-        timestamp : settings.classFilters[id].timestamp, 
+        classId   : settings[id].classId, 
+        timestamp : settings[id].timestamp, 
         useCache  : true
     }
 
     $.get('/plm/class-properties', params, function(response) {
 
-        if(stopPanelContentUpdate(response, settings.classFilters[id])) return;
+        if(stopPanelContentUpdate(response, settings[id])) return;
 
-        settings.classFilters[id].fields = [];
+        settings[id].fields = [];
 
         let listExisting = [];
 
         for(let field of response.data) {
             if(!listExisting.includes(field.name)) {
-                settings.classFilters[id].fields.push(field)
+                settings[id].fields.push(field)
                 listExisting.push(field.name)
             }
         }
 
-        sortArray(settings.classFilters[id].fields, 'displayName', 'string');
+        sortArray(settings[id].fields, 'displayName', 'string');
 
         let elemContent = $('#' + id + '-content');
             elemContent.addClass('with-panel-sections');
@@ -1801,7 +1778,7 @@ function insertClassFiltersData(id) {
             .addClass('panel-section-subtitle')
             .html('Any of the following conditions must be met');
 
-        insertClassPropertySelector(id, elemSection1, settings.classFilters[id].fields);
+        insertClassPropertySelector(id, elemSection1, settings[id].fields);
 
         $('<div></div>').appendTo(elemSection1)
             .addClass('class-filters')  
@@ -1818,7 +1795,7 @@ function insertClassFiltersData(id) {
             .addClass('panel-section-subtitle')
             .html('All of the following conditions must be met');
 
-        insertClassPropertySelector(id, elemSection2, settings.classFilters[id].fields);
+        insertClassPropertySelector(id, elemSection2, settings[id].fields);
         
         $('<div></div>').appendTo(elemSection2)
             .addClass('class-filters')            
@@ -1882,7 +1859,7 @@ function insertClassPropertyFilter(id, elemSelect) {
     let value      = elemSelect.val();
     let elemParent = elemSelect.next();
 
-    for(let field of settings.classFilters[id].fields) {
+    for(let field of settings[id].fields) {
         
         if(field.name === value) {
 
@@ -1967,7 +1944,7 @@ function insertClassPropertyFilter(id, elemSelect) {
 }
 function applyClassFilters(id) {
 
-    let query    = '(CLASS:SYSTEM_NAME=' + settings.classFilters[id].className + ')';
+    let query    = '(CLASS:SYSTEM_NAME=' + settings[id].className + ')';
     let advanced = $('#' + id + '-content').find('.panel-section-textarea').first().val().trim();
     let filters  = $('#' + id + '-content').find('.class-filter');
 
@@ -2015,8 +1992,8 @@ function applyClassFilters(id) {
 
     }
 
-    let idContents = settings.classFilters[id].idContents;
-    let settingsContents = settings.classContents[idContents];
+    let idContents = settings[id].idContents;
+    let settingsContents = settings[idContents];
 
     settingsContents.query = query;
     settingsContents.load();

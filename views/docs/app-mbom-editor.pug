@@ -1,4 +1,4 @@
-.tile(data-name='MBOM Editor')
+.tile(data-name='MBOM Editor' data-id='mbom')
     .tile-image(style="background: url('images/app-mbom-editor.png') no-repeat;background-size:contain;")
     .tile-details
         .tile-title Manufacturing BOM Editor
@@ -15,34 +15,115 @@
             li Use color codes to identify mismatches in EBOM and MBOM 
             li Access details of selected items in right hand side panel whenever needed
             li Manage multiple MBOMs per EBOM item (i.e. site specific BOMs)
+            li Define manufacturing instructions per item (including attachments and viewer screenshots)
+            li Set the Make/Buy flag for all items in the MBOM 
+            li Export the list of purchased parts to Excel
         h1 Important - Read before proceeding
-        p This editor helps in transitioning an Engineering BOM to a Manufacturing BOM. This may involve one or two item workspaces, depending on your tenant configuration and preference. If your tenant has been created before Mid 2023, your tenant will most likelly have two workspaces to manage items: 
-            strong Items and BOMs 
-            |as well as 
-            strong Vault Items and BOMs
-            |. If your tenant is more recent, it will only contain the new workspace named 
+        p This editor helps in transitioning an Engineering BOM to a Manufacturing BOM. This may involve one or two item workspaces, depending on your tenant configuration and preference. If your tenant only has the single 
             strong Items 
-            |(unless you installed the Vault Items and BOMs from the template library).
-        p If your tenant only has the single 
-            strong Items 
-            |workspace, this workspace will be used to manage both the EBOMs and the MBOMs. In this case, all installation steps referring to both EBOM and MBOM must be applied to this workspace. You can skip all steps referring to the 
+            |(or Items and BOMs) workspace, this workspace can be used to manage both the EBOMs and the MBOMs. In this case, all installation steps referring to EBOM or MBOM must be applied to this workspace. You can skip all steps referring to the 
             strong 2 Workspaces 
             |setup.
-        p On the other hand, if you have two workspaces, you can use the one for the EBOM and the other one for the MBOM. In this case, you will most likely use 
-            strong Vault Items and BOMs 
-            |as the EBOM workspace and 
-            strong Items and BOMs 
-            |as the MBOM workspace. This setup is referred to as the 
+        p On the other hand, if you have two workspaces, you can use one for the EBOM and the other one for the MBOM. In this case, you will most likely use the standard 
+            strong Items 
+            |(or Items and BOMs) workspace as the EBOM workspacee and a custom workspace for the MBOM. This setup is referred to as the 
             strong 2 Workspaces 
-            |setup in the instructions below. Of course, you can also choose one of these workpaces and use it for both EBOM and MBOM at the same time.
-        p Note that the viewer inside the MBOM Editor will only work if the base EBOM item has a dwf file attached.
-        h1 Configuration Changes for EBOM Workspace
-        h2 Extend Item Details
+            |setup in the instructions below.
+        p Note that the viewer inside the MBOM Editor will only work if the rott EBOM item has a viewable file attached (dwf).
+        h2 Copy New Settings 
+        p With the release of November 2025, this editor requires new settings in the settings.js file. 
+            br
+            |So if you used a previous version of this editor, make sure to copy the latest default settings from the master file to your copy of the settings file. 
+            br
+            |The editor will fail to launch when being used with old settings.
+        h1 Setup Step #1 : Add Picklist for Make / Buy
+        p In order to define the components to be purchased within the MBOM, a picklist with the given possible values is required. This picklist will be used in the following steps for both the EBOM and MBOM. Tenants created after 2023 contain the picklist below already. If such a picklist does not exist in your tenant, create it first. Note that the picklist name / ID must be provided in the setting 
+            span.code mbom.picklistIDMakeOrBuy
+            |. So if your picklist has another internal name than 
+            strong CUSTOM_LOOKUP_ITEM_MAKE_OR_BUY
+            |, make sure to update the given parameter in the settings file.
+        img.border(src='images/apps/mbom-editor-11.png' style='width:100%;max-width:1041px')
+        p In the screenshot above, the standard picklist got extended by the new value 
+            strong Shelf 
+            |allowing to flag standard components that are always in stock and do not require a dedicated procurement process. This option is not required for the MBOM Editor to work, but might be useful in your environment.
+        h1 Setup Step #2 : Enable Operations &amp; Suppliers tab 
+        p If setting 
+            span.code mbom.displayOptions.tabOperations 
+            |is set to true, the editor will display the tab 
+            strong Operations &amp; Suppliers
+            |, allowing for management of manufacturing operations and access to the selected item's sources. This feature requires additional configuration as described next. 
+        h2 Configure Grid tab for EBOM and MBOM workspace
+        p The tab will display the selected item's grid tab in edit mode for management of related manufacturing operations - which must be configured before. The grid tab must be configured for both the EBOM and MBOM workspace - which might be the same, but also different. Also, users require edit permission for the grid tab in both workspaces. 
+        p You can add the columns listed below to the grid tab, but you can also choose different columns. The list below just explains an example configuration.
+            br
+            |The editor does not require specific fields to work and the columns can be changed at anytime without the need of changes in the settings file.
+        table.row-hovering   
+            tr 
+                th Field Name 
+                th Field ID
+                th Data Type
+                th Options
+            tr 
+                td ID 
+                td ID
+                td Single Line Text 
+                td Length : 20
+            tr 
+                td Title 
+                td TITLE
+                td Single Line Text 
+                td Length : 200
+            tr 
+                td Instructions 
+                td INSTRUCTIONS
+                td Paragraph
+                td Length : 10.000
+            tr 
+                td Duration 
+                td DURATION
+                td Integer
+                td Unit : seconds
+            tr 
+                td Repetitions 
+                td REPETITIONS
+                td Integer
+                td No unit
+            tr 
+                td Tools 
+                td TOOLS
+                td Single Line Text 
+                td Length : 200, Unit : seconds
+            tr 
+                td Materials 
+                td MATERIALS
+                td Single Line Text 
+                td Length : 200                                
+            tr 
+                td Lead Time 
+                td LEAD_TIME
+                td Float 
+                td Decimals : 1, Unit : days
+        h2 Rename Grid tab 
+        p For consistency in the standard user interface, you may want to rename the grid tab to 
+            strong Manufacturing Instructions 
+            |and move it in between the BOM tabs and the Sourcing tab. 
+            br
+            |Remember to do this for both the EBOM and MBOM workspace in a 2-workspaces setup.
+        img.border(src='images/apps/mbom-editor-14.png' style='width:100%;max-width:1128px')
+        h2 Grant access to Grid tab
+        p The MBOM editor relies on the user's access permission. In order to enable modifications of data in the grid tab, you will therefore have to grant edit permissions for the uers in both items workspaces (EBOM and MBOM). Add the following permissions to the editor roles:
+        img.border(src='images/apps/mbom-editor-15.png' style='width:100%;max-width:920px')
+        h2 Grant access to Sourcing tab
+        p When defining the manufacturing instructions of items, users can access the item's sourcing information at the same time for proper make/buy decision. This feature requires view access to the Sourcing tab. Make sure that uers have access to the given tab in the EBOM and MBOM workspace, by granting at least the permission 
+            strong View Sourcing 
+            |as shown below
+        img.border(src='images/apps/mbom-editor-16.png' style='width:100%;max-width:920px')
+        h1 Setup Step #3 : Configure EBOM Workspace
+        h2 Extend Item Details Tab
         p Add a new section 
             strong Manufacturing BOM 
             | with the following fields to this workspace:
-
-        table   
+        table.row-hovering   
             tr 
                 th Field Name 
                 th Field ID    
@@ -106,6 +187,10 @@
                 td To MBOM workspace ([WS] Items), Single Selection
                 td Always
                 td True
+        p If your EBOM workspace does not contain the Make/Buy property yet, add this one also to the 
+            strong Item Details
+            |. You can add this field to any section. Tenants created in 2024 or later have such a field already as shown below. Note that this field's ID is referenced by the applicaiton settings as described further down below, so it is recommend (but not required) to reuse the one shown below for ease of administration.
+        img.border(src='images/apps/mbom-editor-12.png' style='width:100%;max-width:737px')
         p Finally, add a  computed field 'MBOM_EDITOR' with the following formula. Make sure to provide the right workspace ID (...?wsId=57...). It has to match the EBOM workspace ID (57 matches the standard Items workspace).
         p.code CASE 
             span WHEN (DMS_ID is null) THEN '<span style="white-space:nowrap;color:#bbb;font-style:italic;">Item ID is not set</span>'
@@ -118,33 +203,99 @@
         h2 New BOM View 
         p Add a new BOM view 
             strong MBOM Transition 
-            | to the EBOM workspace. Add all the fields that were created in the step before to this view - plus a few others. You may also add any further column as you like. The sequence of columns does not matter.
-        ol  
-            li Descriptor
-            li PDM Category
-            li Quantity
-            li Number
-            li MBOM
-            li Last MBOM Sync
-            li Process Code
-            li End Item
-            li Matches MBOM
-            li Ignore in MBOM
-            li Revision
-        h1 Configuration Changes for MBOM Workspace
-        p The following steps must be performed in the workspace to manage the MBOMs - which could be the same one as for the previous steps or a second one in case of a 2 workspaces setup.
+            | to the EBOM workspace. Add all the fields that were created in the step before to this view - plus a few others. You may also add any further column as you like. The sequence of columns does not matter. You can also use a different name for this BOM view - just make sure to update the setting accordingly.
+        table.row-hovering 
+            thead 
+                tr 
+                    th Field
+                    th Source (default tenant)
+                    th Required
+            tbody 
+                tr 
+                    td Descriptor
+                    td System Fields 
+                    td Yes
+                tr 
+                    td Revision
+                    td System Fields 
+                    td Yes
+                tr 
+                    td Quantity 
+                    td BOM Fields 
+                    td Yes
+                tr 
+                    td Number 
+                    td Item Details Fields / Basic
+                    td Yes
+                tr 
+                    td Type 
+                    td Item Details Fields / Basic
+                    td No, is used to set the right type icon    
+                tr 
+                    td PDM Category  
+                    td Item Details Fields / PDM Data    
+                    td No, is used to set the right type icon color                                       
+                tr 
+                    td Make or Buy 
+                    td Item Details Fields / Procurement
+                    td Only if displayOptions.bomColumnMakeBuy is enabled
+                tr 
+                    td MBOM 
+                    td Item Details Fields / Manufacturing BOM
+                    td Yes
+                tr 
+                    td Process Code 
+                    td Item Details Fields / Manufacturing BOM
+                    td Only if displayOptions.bomColumnCode is enabled
+                tr 
+                    td End Iem 
+                    td Item Details Fields / Manufacturing BOM
+                    td Yes
+                tr 
+                    td Matches MBOM 
+                    td Item Details Fields / Manufacturing BOM
+                    td Yes
+                tr 
+                    td Ignore in MBOM
+                    td Item Details Fields / Manufacturing BOM
+                    td Yes
+        h1 Setup Step #4 : Configure MBOM Workspace
+        p The following steps must be performed in the workspace managing the MBOM - which can be the same one as in the previous steps or a second one (2 workspaces setup).
         h2 Adjust Item Details
-        p Make sure that the NUMBER field of your MBOM workspace is editable (always or at item creation).
-        h2 Extend Item Details
-        p If you use the same workspace for both the EBOM and MBOM, simply add the following fields to this EBOM &amp; MBOM workspace. You may add these fields to the matrix created before:
-        ol 
-            li Add field EBOM as linking pick list to the EBOM workspace (EBOM, Single Selection, editable)
-            li Add checkbox 'Is Process' (IS_PROCESS, hidden, editable)
-        p If instead you will use two different workspaces (i.e. manage the EBOM in 
-            strong Vault Items and BOMs 
-            | and the MBOM in 
-            strong Items and BOMs 
-            | workspace), you also have to add the following fields to the MBOM workspace in addition: 
+        p Make sure that the NUMBER field of your MBOM workspace is editable (always or at item creation). Next, add the following fields to the MBOM workspace:
+        table.row-hovering 
+            thead 
+                tr 
+                    th Type 
+                    th Label 
+                    th ID 
+                    th Visibility 
+                    th Editability 
+                    th Details
+            tbody 
+                tr 
+                    td Picklist Single Select
+                    td EBOM
+                    td EBOM
+                    td visible 
+                    td editable
+                    td Link to EBOM workspace
+                tr 
+                    td Checkbox
+                    td Is Process 
+                    td IS_PROCESS
+                    td hidden 
+                    td editable 
+                    td
+                tr 
+                    td Single Line Text
+                    td EBOM Root Item
+                    td EBOM_ROOT_ITEM
+                    td hidden 
+                    td editable 
+                    td Length : 200
+        h2 Additional Item Details (2 workspaces setup only)
+        p If you will use two different workspaces for the EBOM and MBOM, you also have to add the following fields to the MBOM workspace: 
         ol 
             li If it does not exist yet, add Single Line Text field 'DMS_ID' (DMS_ID, length 20, not editable, hidden)
             li Add date field  'Last MBOM Sync' (LAST_MBOM_SYNC, visible, editable)
@@ -158,169 +309,280 @@
         p These fields once again can be managed in a dedicated section and matrix when using two distinct workspaces: 
         img.border(src='images/apps/mbom-editor-2.png' style='width:100%;max-width:1223;')
         h2 Add new fields to Bill of Materials tab
-        p Add two new fields to the Bill of Materials tab in your MBOM workspace. These fields will be required for the next step and added to the given BOM view.
-        ul 
-            li Add Checkbox field 'Is EBOM Item' (IS_EBOM_ITEM, hidden, editable)
-            li Add Single Line Text field 'EBOM Root Item' (EBOM_ROOT_ITEM, length 50, hidden, editable)
-        img.border(src='images/apps/mbom-editor-10.png' style='width:100%;max-width:1260px')
+        p Add the following fields to the Bill of Materials tab in your MBOM workspace. These fields will be required for the next step and added to the given BOM view.
+        table.row-hovering 
+            thead 
+                tr 
+                    th Type
+                    th Label
+                    th ID
+                    th Options
+                    th Visibility
+                    th Editable
+            tbody 
+                tr 
+                    td Picklist Single Select
+                    td BOM Make or Buy
+                    td BOM_MAKE_OR_BUY
+                    td Use picklist 'Item Make or Buy' that was created at the very beginning
+                    td Always
+                    td True
+                tr 
+                    td Checkbox
+                    td Is EBOM Item
+                    td IS_EBOM_ITEM
+                    td
+                    td Never
+                    td False
+        img.border(src='images/apps/mbom-editor-10.png' style='width:100%;max-width:783px')
         h2 BOM View
         p If you use the same workspace for both the EBOM and MBOM, add the following fields to the existing BOM view 
             strong MBOM Transition
             |:
-        ol 
-            li EBOM 
-            li Is Process
-            li Is EBOM Item 
-            li EBOM Root Item
-        p If instead you will use two different workspaces, you have to add a new BOM view 
+        table.row-hovering 
+            thead 
+                tr 
+                    th Field
+                    th Source
+                    th Required
+            tbody 
+                tr 
+                    td EBOM
+                    td Item Details / Manufacturing BOM
+                    td Yes
+                tr 
+                    td Is Process
+                    td Item Details / Manufacturing BOM
+                    td Yes
+                tr 
+                    td EBOM Root Item
+                    td Item Details / Manufacturing BOM
+                    td Yes
+                tr 
+                    td Is EBOM Item
+                    td BOM Fields
+                    td Yes
+                tr 
+                    td BOM Make or Buy
+                    td BOM Fields
+                    td Yes                    
+        p If you will use two different workspaces, you have to add a new BOM view 
             strong MBOM Transition 
             |with at least the following columnns:
-        ol  
-            li EBOM
-            li Is Process
-            li Process Code
-            li Descriptor
-            li Revision
-            li Quantity
-            li Is EBOM Item 
-            li EBOM Root Item
-        h1 Additional step for 2 workspaces setup 
+        table.row-hovering 
+            thead 
+                tr 
+                    th Field
+                    th Source
+                    th Required
+            tbody 
+                tr 
+                    td Descriptor
+                    td System Fields
+                    td Yes
+                tr 
+                    td Revision
+                    td System Fields
+                    td Yes
+                tr 
+                    td Quantity
+                    td BOM Fields
+                    td Yes
+                tr 
+                    td Process Code
+                    td Item Details / Manufacturing BOM
+                    td Yes                    
+                tr 
+                    td EBOM
+                    td Item Details / Manufacturing BOM
+                    td Yes
+                tr 
+                    td Is Process
+                    td Item Details / Manufacturing BOM
+                    td Yes
+                tr 
+                    td EBOM Root Item
+                    td Item Details / Manufacturing BOM
+                    td Yes
+                tr 
+                    td Is EBOM Item
+                    td BOM Fields
+                    td Yes    
+                tr 
+                    td BOM Make or Buy
+                    td BOM Fields
+                    td Yes                            
+        h2 Workspace Relationships (2 workspaces setup only)
         p Make sure that the MBOM workspace allows for BOM connections to the EBOM workspace:
         img.border(src='images/apps/mbom-editor-4.jpg' style='width:100%;max-width:900px;')
-        h1 Scripts
+        h1 Setup Step #5 : Scripts
         p For both the EBOM and MBOM workspace, the system has to store the dmsID for new records in field DMS_ID. Add the following script code to the creation event of both workspaces. If your tenant is based on the template released in April 2023, this field exists in your tenant and will be set by script already.
         p.code
             span item.DMS_ID = dmsID;
-        h1 Default Values for new items 
-        p When users add operations and MBOM items, these new items may receive default values for defined fields, like a specific type. Such defaults can be defined in the file settings.js - see next chapter for details. The default settings file provides a placeholder example:
-        img.border(src='images/apps/mbom-editor-9.png' style='width:100%;max-width:725px;')
-        p You can provide an array of all the fields to be populated with default values. As shown in the example above, this requires the field's ID (TYPE) and value. In addition, the setting 
-            strong fieldsToCopy 
-            |enables definition of a list of fields which will be copied from the given related EBOM item to the new MBOM item.
-        h1 Server Settings File
-        p Review the following contents in file 
-            strong settings.js
-            |. The default configuration matches the standard tenant template and makes use of the 
+        h1 Setup Step #6 : Defaults for new MBOM Items
+        h2 MBOM Root Item
+        p If the MBOM Editor is launched from an EBOM item which does not have a MBOM item defined yet, the editor will automatically create the MBOM root node and link both items. While doing so, the utility can copy defined properties from the source EBOM item to the MBOM item. The list of properties to copy is defined in settings 
+            span.code mbomRootFieldsToCopy
+            |. This list of fields also is used when creating the MBOM sub assemblies in the editor. With the default settings enabled, only the fields 
+            strong TITLE 
+            |and 
+            strong DESCRIPTION 
+            |will be copied from the EBOM item to the matching MBOM item. Update this list if needed.
+        img.border(src='images/apps/mbom-editor-13.png' style='width:100%;max-width:549px;')        
+        h2 MBOM Processes / Nodes 
+        p When users add processes to the MBOM, these new items may receive default values for defined fields (for example the type field). You can define such default values for new processes in setting 
+            span.code newProcessDefaults
+            |. You can provide an array of all the fields to be populated with default values. The default settings file provides a placeholder example to explain the required structure. As shown in the example below, each default value requires the field's ID (TYPE) and given value property.
+        img.border(src='images/apps/mbom-editor-9.png' style='width:100%;max-width:812px;')
+        h1 Application Configuration Settings
+        p The following application specific settings can be adjusted in your custom settings file in 
+            span.code exports.applications.mbom 
+            br
+            |In order to change any of these settings, copy the standard value from settings.js to your custom settings file in folder settings.
+        p The default configuration matches the standard tenant template, uses the 
             strong Items 
-            | workspace only. If you change this file, a restart of your server is required.
-        p.code  
-            span export.config = {
-            span.indent 'mbom' : {
-            span.indent-2 'wsIdEBOM' : '57',
-            span.indent-2 'wsIdMBOM' : '57',
-            span.indent-2 'bomViewNameEBOM' : 'MBOM Transition'
-            span.indent-2 'bomViewNameMBOM' : 'MBOM Transition'
-            span.indent-2 'fieldIdEBOM' : 'EBOM'
-            span.indent-2 ...
-            span.indent }
-            span }  
-        h2 Field Mapping 
-        p This area within settings.js contains a couple of parameters to adjust the field IDs being used whenever needed. You may want to review this list, but if you followed the setup instructions, this mapping should be fine already.
-            table   
-                tr 
-                    td fieldIdEBOM
-                    td Field of MBOM workspace to refer to given EBOM item
-                tr 
-                    td fieldIdMBOM
-                    td Field of EBOM workspace to refer to given MBOM item
-                tr 
-                    td fieldIdNumber
-                    td Number field of both EBOM and MBOM Workspace
-                tr 
-                    td fieldIdTitle
-                    td Title field of MBOM Workspace that will be used when creating new processes
-                tr 
-                    td fieldIdCategory
-                    td Category field of EBOM Workspace (being used to highlight certain categories)
-                tr 
-                    td fieldIdProcessCode
-                    td Process Code field of both EBOM and MBOM Workspace
-                tr 
-                    td fieldIdEndItem
-                    td End Item field of EBOM Workspace
-                tr 
-                    td fieldIdMatchesMBOM
-                    td Matches MBOM field of EBOM Workspace
-                tr 
-                    td fieldIdIgnoreInMBOM
-                    td Ignore in MBOM field of EBOM Workspace
-                tr 
-                    td fieldIdIsProcess
-                    td Is Process field of MBOM Workspace
-                tr 
-                    td fieldIdLastSync
-                    td Last MBOM Sync field of EBOM and MBOM Workspace
-                tr 
-                    td fieldIdLastUser
-                    td Last MBOM User field of EBOM Workspace
-                tr 
-                    td fieldIdEBOMItem
-                    td Field 'Is EBOM Item' in MBOM Workspace BOM
-                tr 
-                    td fieldIdEBOMRootItem
-                    td Field 'EBOM Root Item' in MBOM Workspace BOM
-        h2 Application Options
-        p Following settings are much more important. They impact the mechanism of the MBOM Editor. Please review these settings carefully.
-            table   
-                tr 
-                    th Setting 
-                    th Default Value    
-                    th Description
-                tr 
-                    td wsIdEBOM 
-                    td 57
-                    td Workspace ID of your EBOM Workspace 
-                tr 
-                    td wsIDMBOM 
-                    td 57
-                    td Workspaces ID of your MBOM Workspace (can be the same as EBOM or a different one)
-                tr 
-                    td bomViewNameEBOM
-                    td MBOM Transition
-                    td BOM View being used to expand the EBOM
-                tr 
-                    td bomViewNameMBOM
-                    td MBOM Transition
-                    td BOM View being used to expand the MBOM
-                tr 
-                    td fieldsToCopy
-                    td ['TITLE', 'DESCRIPTION']
-                    td Defines a list of fields to be copied from EBOM to MBOM when the editor creates the MBOM root node. This is happening when the editor is launched for the first time for a given EBOM item. These fields must be available in both the EBOM and MBOM workspace with the same id.
-                tr  
-                    td revisionBias
-                    td working 
-                    td Defines the BOM expansion bias, ensuring to use working versions of all items automatically. Change this to release if you want to work with released data instead. Note that if set to working, the MBOM Editor will automatically navigate to the latest working version of an EBOM item, even if it gets opened from a released item.
-                tr  
-                    td pinMBOMItems
-                    td false 
-                    td Determines if relationship in MBOM should be pinned to the given revision
-                tr  
-                    td suffixItemNumber
-                    td -M
-                    td When the editor is opened for an EBOM item that does not have matching MBOM item yet, this given MBOM root item will be created automatically. If this parameter is set, this MBOM root item will be created with the same part number as the matching EBOM item plus the given suffix. With this standard value, EBOM item 00812 will be connected to MBOM item 00812-M for example.
-                tr 
-                    td newDefaults
-                    td ['ITEM_TYPE' , { 'link' : '/api/v3/lookups/CUSTOM_LOOKUP_ITEM_TYPES/options/34' }]
-                    td Provide default values for new items being created by the MBOM Editor (i.e. the Processes). Provide an array of pairs containing fieldId and given value. The default value sets the item to 'Process' (works with latest tenant template only).
-                tr 
-                    td searches
-                    td [{ 'title' : 'Purchased Parts', 'query' : 'ITEM_DETAILS:CATEGORY%3DPurchased' }, { 'title' : 'Packaging Parts', 'query' : 'ITEM_DETAILS:CATEGORY%3DPackaging' }]
-                    td The Add Items tab may provide preconfigured queries for quick access to relevant MBOM items, right underneath the generic Search view. This list of predefined views can be adjusted here. Provide a list of views, defined by a title to be displayed in the editor and the given query string to execute. If you are not sure about the query string, please have a look at the standard search dialog and review the Network tab in your browser to grab the matching search filters.
+            | workspace only and matches the setup instructions above. If other field names, BOM views or workspaces should be used, you can achieve this by updating the settings listed below. As always, after changing the given settings file, a restart of your server is required.
+        h2 EBOM Workspace
+        table.row-hovering
+            tr 
+                th Setting 
+                th Default Value
+                th Description 
+            tr 
+                td workspaceEBOM.workspaceId
+                td null
+                td ID of workspace containing EBOM items. If set to null, value of 
+                    span.code export.common.workspaceIds.items 
+                    |will be used.
+            tr 
+                td workspaceEBOM.bomView
+                td 'MBOM Transition'
+                td BOM view for EBOM expansion
+            tr 
+                td workspaceEBOM.depth
+                td 10
+                td EBOM levels to expand
+            tr 
+                td workspaceEBOM.fieldIDs
+                td {..}
+                td List of item details tab fieldIDs to use in EBOM workspace
+        h2 MBOM Workspace 
+        table.row-hovering
+            tr 
+                th Setting 
+                th Default Value
+                th Description                   
+            tr 
+                td workspaceMBOM.workspaceId
+                td null
+                td ID of workspace containing EBOM items. If set to null, value of 
+                    span.code export.common.workspaceIds.items 
+                    |will be used.
+            tr 
+                td workspaceMBOM.bomView
+                td 'MBOM Transition'
+                td BOM view for MBOM expansion   
+            tr 
+                td workspaceMBOM.depth
+                td 10
+                td MBOM levels to expand 
+            tr 
+                td workspaceMBOM.fieldIDs
+                td {..}
+                td List of item details tab fieldIDs to use in MBOM workspace                                              
+            tr 
+                td workspaceMBOM.bomFieldIDs
+                td {..}
+                td List of BOM tab fieldIDs to use in MBOM workspace                                              
+        h2 Additional Settings 
+        table.row-hovering
+            tr 
+                th Setting 
+                th Default Value
+                th Description
+            tr 
+                td mbomRootFieldsToCopy
+                td [..]
+                td Defines fields to copy from root ebom item to root mbom item when new MBOM item gets craeted                    
+            tr 
+                td newProcessDefaults
+                td [..]
+                td Defines default property values when creating new MBOM processes items / nodes                   
+            tr 
+                td matchNewProcessNumber
+                td true
+                td When set to true, new MBOM proces items / nodes will reuse the root MBOM item's number together with the defined code as suffix                
+            tr 
+                td switchEBOMRevision
+                td 'no'
+                td When set to 'latest' or 'working', the editor will switch the base EBOM to the given EBOM's revision automatically at startup               
+            tr 
+                td picklistIDMakeOrBuy
+                td 'CUSTOM_LOOKUP_ITEM_MAKE_OR_BUY'
+                td ID of picklist containing Make / Buy options                 
+            tr 
+                td labelInsertNode
+                td 'Add Process'
+                td Sets text to display next to the input for creating of new MBOM process items / nodes                    
+            tr 
+                td pinEBOMItemsInMBOM
+                td true
+                td When set to true, the revision pin will be set for EBOM items being added to the MBOM
+            tr 
+                td suffixMBOMNumber
+                td '-M'
+                td The suffix to add to the root MBOM item when the given item get created at MBOM Editor startup
+            tr 
+                td predefinedSearchesInAddItems
+                td [..]
+                td Defines predefined filters in 'Add Items' panel on left hand side
+            tr 
+                td sectionsInCreateForm
+                td [ 'Basic', 'Technical Details' ]
+                td Defines sections being displayed when creating new items in 'Add Items' paneö
+        h2 Display Options
+        table.row-hovering
+            tr 
+                th Setting 
+                th Default Value
+                th Description
+            tr 
+                td displayOptions.bomColumnNumber
+                td true
+                td Enables display of BOM find number column             
+            tr 
+                td displayOptions.bomColumnCode
+                td true
+                td Enables display of code column in the BOM trees            
+            tr 
+                td displayOptions.bomColumnMakeBuy
+                td true
+                td Enables display of Make / Buy column and controls          
+            tr 
+                td displayOptions.tabDisassemble
+                td true
+                td Enables tab 'Disassemble Mode'            
+            tr 
+                td displayOptions.tabOperations
+                td true
+                td Enables tab 'Operations &amp; Suppliers'         
+            tr 
+                td displayOptions.excelExport
+                td true
+                td Enables export of MBOM items with Buy flag     
+        h1 Common Configuration Settings
+        p This utility uses the following common configuration settings
+        table(style='margin:10px 0px 30px').row-hovering
+            tr
+                th Setting
+                th Default Value 
+                th Description
+            tr  
+                td exports.common.workspaceIds.items
+                td 57
+                td ID of workspace Items being used as default for EBOM and MBOM workspace if the given workspaces IDs are not defined in the application specific settings 
+        h1 Viewer Configuration Settings
         include ../framework/viewer.pug
-        h2 Viewer Part Number Mapping
-        p The MBOM Editor will load the selected EBOM item's viewable in the viewer and allow for interactions between the BOMs and the viewer. However, this requires a mappging of your item numbers and the property within the dwf which holds the item number as well. 
-        p For a proper match, see the 'viewer' parameters at the end of settings.js. Provide the field ID of your Number field in EBOM workspace as 'fieldIdPartNumber'. Additionally, provide a list of possible property names in 'partNumberProperties' that might be present in your dwf files and contain the matching number too - the first occurence will be taken into account.
-        p.code  
-            span export.config = {
-            span.indent 'viewer' : {
-            span.indent-2 'fieldIdPartNumber' : 'NUMBER'
-            span.indent-2 'partNumberProperties' : ['Part Number', 'Name', 'label', 'Artikelnummer', 'Bauteilnummer'],
-            span.indent-2 'backgroundColor' : 255,
-            span.indent-2 'groundReflection' : false,
-            span.indent-2 'groundShadow' : true
-            span.indent-2 ...
-            span.indent }
-            span }  
         h1 Launching the MBOM Editor in context 
         p The editor cannot only be launched from an item, but also from context records which refer to both an Engineering BOM and a Manufacturing BOM. For example, you may want to launch the MBOM Editor from a Product, a Project or an Asset to transform its EBOM to a MBOM. This can be accomplished by adding the link for starting the MBOM Editor to the Item Details of the given workspace as well.
         p The given context workspace only requires the two fields to link the EBOM and MBOM. It does not require any adjustments to the BOM tab and its permissions as the editor will determine the base EBOM and from there use the Items workspace configuration settings. Note that the editor can only be launched in context if either the EBOM or MBOM is selected for the context object (Product, Project, Asset). If the EBOM item is found, but the matching MBOM item does not exist yet, the latter one will be created and linked to the context object automatically.
@@ -375,7 +637,61 @@
             img.border(src='images/apps/mbom-editor-8.png' style='max-width:1188px;')
     .log 
         h1 MBOM Editor Change Log 
-        table 
+        table      
+            tr 
+                td 12. January 2026
+                td Changed Settings
+                td For easier administration, the settings of the mbom application got changed. Please review your settings file when upgrading to this new version.
+            tr 
+                td 
+                td Enhancement
+                td The styling and layout of the editor have been changed to allow for new features and a better user experience. The MBOM now is always displayed to the left, no matter which other tab / edit mode is selected.
+            tr 
+                td 
+                td New Feature
+                td New options were added to the settings file to enable / disable new features like the Make/Buy column and the management of manufacturing instructions 
+            tr 
+                td 
+                td New Feature
+                td If the given display option is enabled the position numbers are displayed both the EBOM and the MBOM (enabled per default)
+            tr 
+                td 
+                td New Feature
+                td If the given display option is enabled, users can now manage manufacturing instructions per item, including file attachment and viewer screenshots with markup (enabled per default)
+            tr 
+                td 
+                td New Feature
+                td If the given display option is enabled, users can now select the Make/Buy flag in the MBOM, based on the EBOM's default value (enabled per default)
+            tr 
+                td 
+                td New Feature
+                td To support the Make/Buy decision, the sourcing information is displayed for the selected item in the new tab Instructions
+            tr 
+                td 
+                td New Feature
+                td A new button in the main toolbar will export all items with the Buy flag to an Excel file (if not disabled with the given option)
+            tr 
+                td 
+                td New Feature
+                td Quantities can now be set for the sub nodes / processes in the MBOM
+            tr 
+                td 
+                td Enhancement
+                td The items' revisions now are displayed as separate column
+            tr 
+                td 
+                td Enhancement
+                td The comparison of total quantities of the selected item in both the EBOM and MBOM got improved
+            tr 
+                td 
+                td New Setting
+                td The setting 
+                    span.code switchEBOMRevision 
+                    | now can be used to automatically switch to the given item's latest working or released revision
+            tr 
+                td 
+                td Documentation
+                td Setup instructions were updated to reflect the new features and settings
             tr 
                 td September 27, 2024
                 td Bugfix

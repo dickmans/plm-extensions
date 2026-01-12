@@ -1074,13 +1074,13 @@ function updateViewer() {
     }
 
     $('.spare-part.selected').each(function() {
-        viewerSetColor($(this).attr('data-part-number'), config.vectors.blue, false, false);
+        viewerSetColor($(this).attr('data-part-number'), colors.vectors.blue, false, false);
     });
 
     if(zoomPart.length > 0) {
         $('#button-reset').show();
-        viewerSetColorToAll(config.vectors.gray);
-        viewerSetColor(zoomPart.attr('data-part-number'), config.vectors.red, true, false);
+        viewerSetColorToAll(colors.vectors.gray);
+        viewerSetColor(zoomPart.attr('data-part-number'), colors.vectors.red, true, false);
 
     }
 

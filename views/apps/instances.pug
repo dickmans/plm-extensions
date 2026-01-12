@@ -2,11 +2,13 @@ extends ../framework/layout
 
 block head
     
+    link(rel='stylesheet', href='/stylesheets/framework/addins.css')
     link(rel='stylesheet', href='/stylesheets/apps/instances.css')
+    link(rel='stylesheet', href='/stylesheets/custom/instances.css')
+
     script(src='/javascripts/framework/addins.js')
     script(src='/javascripts/apps/instances.js')
-    script.
-        config = !{JSON.stringify(config)};
+    script(src='/javascripts/custom/instances.js')
 
 block body
 
@@ -24,7 +26,7 @@ block body
                 #toggle-details.button.with-toggle.toggle-off(title="Toggle Item Details panel on and off") Display Details
                 #header-avatar
         
-        #landing.screen
+        #landing.screen.no-header
 
             #results.surface-level-1
 

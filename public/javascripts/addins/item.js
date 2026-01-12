@@ -1,5 +1,3 @@
-let urlParameters = getURLParameters();
-
 $(document).ready(function() {
 
     setUIEvents();
@@ -18,9 +16,9 @@ $(document).ready(function() {
                 collapsed       : true, 
                 editable        : true,
                 toggles         : true,
-                expandSections  : config.addins.item.expandSections,
-                sectionsEx      : config.addins.item.sectionsEx,
-                fieldsEx        : config.addins.item.fieldsEx
+                expandSections  : config.item.expandSections,
+                sectionsEx      : config.item.sectionsEx,
+                fieldsEx        : config.item.fieldsEx
             } 
         },{ 
             type   : 'attachments', 

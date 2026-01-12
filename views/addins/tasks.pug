@@ -3,18 +3,17 @@ extends ../framework/addins
 block head
 
     link(rel='stylesheet', href='/stylesheets/addins/tasks.css')
-    script.
-        config = !{JSON.stringify(config)};
+
     script(src='/javascripts/addins/tasks.js')
 
 block body
 
     body.addin
 
-        .screen.surface-level-2#scrmow
+        .screen.no-header.surface-level-2#scrmow
             #mow.surface-level-2  
 
-        .screen.surface-level-2#scrtask
+        .screen.no-header.surface-level-2#scrtask
             #task.surface-level-1            
         
         //- .screen#task.surface-level-2.with-subtitle

@@ -1,4 +1,4 @@
-.tile(data-name='Reports Dashboard')
+.tile(data-name='Reports Dashboard' data-id='reports')
     .tile-image(style="background: url('images/app-reports-dashboard.png') no-repeat;background-size:contain;")
     .tile-details
         .tile-title Reports Dashboard
@@ -18,15 +18,18 @@
         h1 Limitations
         p This solution only supports non-stacked column charts and pie charts. All other charts require further developoments.
         h1 Configure Startup Reports 
+        p The following settings can be adjusted in your custom settings file within 
+            span.code exports.applications 
+            |to adjust the application's behavior.
         p The dashboard will automatically load a defined set of reports at startup before users can select their preferred reports using the 
             strong Select Reports
             | button. These startup reports can be defined in the 
             strong settings.js
             | file.
         p.code
-            span 'reports' : {
-            span.indent 'startupReportNames' : ['Audits by Workflow State', 'CR approval status', 'DR: Rework Required', 'EX: Change Requests'],
-            span.indent 'startupReportNames' : 5
+            span reports : {
+            span.indent startupReportNames : ['Audits by Workflow State', 'CR approval status', 'DR: Rework Required', 'EX: Change Requests'],
+            span.indent startupReportNames : 5
             span }
         p The list of startup repports can be defined by their names using the setting 
             strong startupReportNames
@@ -36,6 +39,10 @@
     .log 
         h1 Reports Dashboard Change Log 
         table 
+            tr 
+                td 12. January 2026
+                td Documentation
+                td Documentation has been updated to match the new custom settings and environments management           
             tr 
                 td 9. January 2023
                 td Library Update 

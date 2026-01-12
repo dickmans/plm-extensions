@@ -1,4 +1,4 @@
-.tile(data-name='Variant Manager')
+.tile(data-name='Variant Manager' data-id='variants')
     .tile-image(style="background: url('images/app-variant-manager.png') no-repeat;background-size:contain;")
     .tile-details
         .tile-title Variants Manager
@@ -81,8 +81,8 @@
             strong Variant Definition
             |. This section may include any type of field, including pick lists (with single selection) but not Images. The fields of this section later on will be used to automatically generate a title for the new variant items being created. See the follwoing properties in file settings.js as described in a later step.
         p.code 
-            span config.variants.newItemVariantsTitle.fieldsToConcatenate : ['COLOUR', 'MATERIAL']
-            span config.variants.newItemVariantsTitle.separator : ' / '
+            span variants.newItemVariantsTitle.fieldsToConcatenate : ['COLOUR', 'MATERIAL']
+            span variants.newItemVariantsTitle.separator : ' / '
         img.border(src='images/apps/variant-manager-4.png' style='max-width:773px;')
         h2 Descriptor
         p Set the workspace's 
@@ -175,14 +175,12 @@
         h2 Access Permissions
         p Create a role for the new workspace enabling creation of new records, BOM management and attachments. Access to the Sourcing tab is not required, but can be granted to allow for cost comparison across variants. Make sure that users also can access the working versions of records.
         img.border(src='images/apps/variant-manager-3.png' style='max-width:336px;')
-        h2 Server Settings File 
+        h2 Settings Update 
         p The Workspace ID of this new workspace 
             strong Item Variants 
             |must be provided in the server settings file. Locate the property 
-            span.code config.variants.workspaceItemVariants.workspaceId 
+            span.code   variants.workspaceItemVariants.workspaceId 
             |and update the given value.
-        img.border(src='images/apps/variant-manager-9.png' style='max-width:523px;')
-        
         h1 Adjust Change Management Workspaces
         p As 
             strong Item Variants 
@@ -196,12 +194,10 @@
                 li Change Requests
                 li Change Orders
         
-        h1 Adjust Items Workspace
-        
-        h2 Configure BOM View 
+        h1 Items BOM View 
         p The application requires a BOM view in workspace 
             strong Items 
-            |with at least the following columns: 
+            |with at least the following columns for the base BOM expansion:
             table   
                 tr 
                     th Field
@@ -215,13 +211,13 @@
                 tr 
                     td Number
                     td Item Details Fields
-        p This view will be used to expand the base BOM. You may reuse an existing view (i.e. Basic) or add a new view instead. While this given view may also contain further columns without impacting the Variant Manager, the performance of the editor will be better the less columns are contained in this BOM view.
-        p If you prefer to / or cannot use the BOM view 
-            strong Basic
-            |, you have to speficfy this view's name in the server's settings file in parameter.
+        p With the default configuration, the application will reuse the default BOM view used by other applications as well: 
+            strong Tree Navigator
+            |. If you prefer to use another BOM view or cannot use this default BOM view, you can also specify another BOM view name in the server setting
         p.code 
-            span config.variants.workspaceItems.bomViewName : 'Basic'      
-        h2 Add Button
+            span variants.workspaceItems.bomViewName    
+        p While this BOM view may also contain further columns without impacting the Variant Manager, the performance of the editor will be better the less columns are contained in this BOM view.
+        h1 Starting the application
         p Users should be able to launch the 
             strong Variant Manager 
             |from any item of workspace 
@@ -299,96 +295,93 @@
             strong Products 
             |workspace.
         p.code '&lt;a style="border: 1px solid #bec8d2;border-radius:3px;color: #0a131c;font-weight:600;line-height:32px;padding:4px 20px;text-align:center;text-decoration:none !important;white-space:nowrap;" target="_blank" href ="LOCATIONvariants?wsId=95&dmsId='||DMS_ID||'&options=fieldIdEBOM:ENGINEERING_BOM"&gt;Variant Manager&lt;/a&gt;'
-        h1 Server Settings File Details
+        h1 Application Configuration Settings
+        p The following application specific settings can be adjusted in your custom settings file in 
+            span.code exports.applications.variants 
+            br
+            |In order to change any of these settings, copy the standard value from settings.js to your custom settings file in folder settings.
         p If you require usage of different field names, table names etc, please have a look at the settings.js file and locate section variants, listing all possible configurable settings as shown below. You will have to change the first option's value ( 
             strong workspaceItemVariants.workspaceId 
             |) which must contain the workspace ID of your newly created workspace
             strong Item Variants
             |. You can retrieve this ID from your browser's URL when navigating to this workspace using the workspaces menu. The remaining options are aligned with default tenants and the preceeding instructions already.
-        p.code  
-            span export.config = {
-            span.indent variants : {
-            span.indent-2 workspaceItems : {
-            span.indent-3 bomViewName : 'Basic'
-            span.indent-2 },
-            span.indent-2 workspaceItemVariants : {
-            span.indent-3 workspaceId : 373,
-            span.indent-3 sectionLabel : 'Variant Definition',
-            span.indent-3 fieldIds : {
-            span.indent-4 baseItem : 'BASE_ITEM',
-            span.indent-4 title : 'TITLE',
-            span.indent-4 rootDMSId : 'BASE_ROOT_DMS_ID'
-            span.indent-3 },
-            span.indent-3 bomFieldIdBaseBOMPath : 'BASE_BOM_PATH',
-            span.indent-3 bomViewName : 'Variant Manager'
-            span.indent-2 },
-            span.indent-2 newItemVariantsTitle : {
-            span.indent-3 fieldsToConcatenate : ['COLOUR', 'MATERIAL'],
-            span.indent-3 separator : ' / '
-            span.indent-2 },
-            span.indent-2 maxBOMLevels : 4
-            span.indent-2 viewerFeatures : {..}
-            span.indent }
-            span }
-        p Adjust these settings if needed and restart your server afterwards to apply the given changes.
-            table 
-                tr 
-                    th Setting 
-                    th Default Value 
-                    th Description  
-                tr 
-                    td workspaceItems.bomViewName
-                    td 'Basic'
-                    td BOM view of workspace Items which contains the required (and minimal) fields                    
-                tr
-                    td workspaceItemVariants.workspaceId
-                    td -
-                    td Workspace ID of your new 
-                        strong Item Variants 
-                        |workspace
-                tr  
-                    td workspaceItemVariants.sectionLabel
-                    td 'Variant Definition' 
-                    td Name of section in the Item Variants workspace which contians all the fields that define a variant. 
-                        br
-                        |This section will drive the columns of the Variant Manager display.
-                tr 
-                    td workspaceItemVariants.fieldIds.baseItem
-                    td 'BASE_ITEM' 
-                    td Field ID of the Item Variants workspace that links to the matching base item (single select picklist)
-                tr 
-                    td workspaceItemVariants.fieldIds.title
-                    td 'TITLE' 
-                    td Field ID of the Item Variants workspace that stores the title being generated automaticall
-                tr 
-                    td workspaceItemVariants.fieldIds.rootDMSId
-                    td 'BASE_ROOT_DMS_ID' 
-                    td Field ID of your Item Variants workspace that stores the dmsId of the matching root item
-                tr 
-                    td workspaceItemVariants.bomFieldIdBaseBOMPath
-                    td 'BASE_BOM_PATH' 
-                    td BOM Field ID of your Item Variants workspace that stores the matching item's BOM path
-                tr 
-                    td workspaceItemVariants.bomViewName
-                    td 'Variant Manager' 
-                    td BOM view of workspace Item Variants which contains the required fields    
-                tr 
-                    td newItemVariantsTitle.fieldsToConcatenate
-                    td ['COLOUR', 'MATERIAL']
-                    td If this array is not empty, the given fields' values will be concatenated to generate the title of newly created item variants
-                tr 
-                    td newItemVariantsTitle.separator
-                    td [' / ']
-                    td If the previous array is not empty, this string will be used to separate the given fields' values in the title
-                tr 
-                    td maxBOMLevels
-                    td 4
-                    td This integer defines the maximum BOM levels to be expanded in the Variant Manager
-        h2 Configuring Viewer Features
+        table 
+            tr 
+                th Setting 
+                th Default Value 
+                th Description  
+            tr 
+                td workspaceItems.bomViewName
+                td null
+                td BOM view of workspace Items which contains the required (and minimal) fields, if different from the common setting exports.common.workspaces.items.defaultBOMView                    
+            tr
+                td workspaceItemVariants.workspaceId
+                td -
+                td Workspace ID of your new 
+                    strong Item Variants 
+                    |workspace
+            tr  
+                td workspaceItemVariants.sectionLabel
+                td 'Variant Definition' 
+                td Name of section in the Item Variants workspace which contians all the fields that define a variant. 
+                    br
+                    |This section will drive the columns of the Variant Manager display.
+            tr 
+                td workspaceItemVariants.fieldIds.baseItem
+                td 'BASE_ITEM' 
+                td Field ID of the Item Variants workspace that links to the matching base item (single select picklist)
+            tr 
+                td workspaceItemVariants.fieldIds.title
+                td 'TITLE' 
+                td Field ID of the Item Variants workspace that stores the title being generated automaticall
+            tr 
+                td workspaceItemVariants.fieldIds.rootDMSId
+                td 'BASE_ROOT_DMS_ID' 
+                td Field ID of your Item Variants workspace that stores the dmsId of the matching root item
+            tr 
+                td workspaceItemVariants.bomFieldIdBaseBOMPath
+                td 'BASE_BOM_PATH' 
+                td BOM Field ID of your Item Variants workspace that stores the matching item's BOM path
+            tr 
+                td workspaceItemVariants.bomViewName
+                td 'Variant Manager' 
+                td BOM view of workspace Item Variants which contains the required fields    
+            tr 
+                td newItemVariantsTitle.fieldsToConcatenate
+                td ['COLOUR', 'MATERIAL']
+                td If this array is not empty, the given fields' values will be concatenated to generate the title of newly created item variants
+            tr 
+                td newItemVariantsTitle.separator
+                td [' / ']
+                td If the previous array is not empty, this string will be used to separate the given fields' values in the title
+            tr 
+                td maxBOMLevels
+                td 4
+                td This integer defines the maximum BOM levels to be expanded in the Variant Manager
+        h1 Common Configuration Settings
+        p This utility uses the following common configuration settings
+        table(style='margin:10px 0px 30px')
+            tr
+                th Setting
+                th Default Value 
+                th Description
+            tr  
+                td exports.common.workspaces.items.defaultBOMView
+                td 'Tree Navigator'       
+                td The default BOM view to be used for the BOM display. 
+            tr  
+                td exports.common.workspaces.items.fieldIdNumber
+                td 'NUMBER'       
+                td ID of field containing the item number in workspace Items
+        h1 Viewer Configuration Settings
         include ../framework/viewer.pug
     .log 
         h1 Variant Manager Change Log 
         table 
+            tr 
+                td 12. January 2026
+                td Documentation
+                td Documentation has been updated to match the new custom settings and environments management        
             tr 
                 td 28. October 2025
                 td Quality

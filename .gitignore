@@ -1,8 +1,10 @@
 /keys/*.pem
 /node_modules
+/environments/*
 /uploads/*
 /settings/*
 /storage/cache/*
+/storage/downloads/*
 /storage/excel-export/*
 /storage/exports/*
 /storage/imports/*
@@ -10,6 +12,8 @@
 /views/custom/*
 /views/.DS_Store
 package-lock.json
+!/environments/template.js
+!/settings/custom.js
 !.gitkeep
 .DS_Store*
 run.sh

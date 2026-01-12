@@ -1,4 +1,4 @@
-.tile(data-name='Projects Dashboard')
+.tile(data-name='Projects Dashboard' data-id='projects')
     .tile-image(style="background: url('images/app-projects-dashboard.png') no-repeat;background-size:contain;")
     .tile-details
         .tile-title Projects Dashboard
@@ -17,19 +17,32 @@
             li Current progress, project budget and progress of current phase of each project
             li The planned effort for each project's phase
             li Deviations of project end dates
-        h1 Configuration Settings
-        p Provide the ID of your Projects workspace in file 
-            strong settings.js.
-            |  Adjust the value of the following variable which is set to 86 to match the default Projects workspace.
-        p.code
-            span export.config = {
-            span.indent 'projects' : {
-            span.indent-2 'wsIdProjects' : '86',
-            span.indent }
-            span }   
+        h1 Application Configuration Settings
+        p The following settings can be adjusted in your custom settings file within 
+            span.code exports.applications 
+            |to adjust the application's behavior. In order to change any of these settings, copy the standard value from settings.js to your custom settings file in folder settings.               
+        p 
+            table 
+                tr 
+                    th Setting 
+                    th Description 
+                    th Default Value
+                tr 
+                    td projects.workspaceId
+                    td The Projects workspace ID. If this parameter is not defined, the default Projects workspace ID will be used based on 
+                        span.code exports.common.workspaceIds.projects
+                    td null
+                tr 
+                    td projects.query
+                    td Filter the list of projects by defining a query string. If this parameter is not defined, all projects accessible to the user will be displayed.
+                    td '*'               
     .log 
         h1 Projects Dashboard Change Log 
         table 
+            tr 
+                td 12. January 2026
+                td Documentation
+                td Documentation has been updated to match the new custom settings and environments management 
             tr 
                 td 21. November 2023
                 td Enhancement

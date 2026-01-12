@@ -3,112 +3,183 @@ p This application enables configuration of features within the viewer by using 
         li viewerFeatures.measure = true &gt; Measurements will be possible for all users
         li viewerFeatures.measure = false &gt; Measurements will not be possible for any user
         li viewerFeatures.measure = ['Employees','Service Technician'] &gt; The measurements button will only be shown for users in group Employees or Service Technician
-p
-    table
-        tr 
-            th Setting 
-            th Icon 
-            th Description 
-        tr 
-            td contextMenu 
-            td   
-            td Enables / disables the viewer standard context menu
-        tr 
-            td cube 
-            td   
-            td Enables the cube / home button in top right corner of the viewer. Parameter 'views' can be used instead, providing dedicated buttons.
-        tr 
-            td orbit 
-            td
-                .adsk-button-icon.adsk-icon-orbit-constrained
-            td Enables the orbit controls
-        tr 
-            td firstPerson 
-            td
-                .adsk-button-icon.adsk-icon-first-person
-            td Enables first person view
-        tr 
-            td camera 
-            td
-                .adsk-button-icon.adsk-icon-camera
-            td Enables camera interactions
-        tr 
-            td measure 
-            td
-                .adsk-button-icon.adsk-icon-measure
-            td Enables the measurements toolbar
-        tr 
-            td section 
-            td
-                .adsk-button-icon.adsk-icon-section-analysis
-            td Enables sectioning
-        tr 
-            td explodedView 
-            td
-                .adsk-button-icon.adsk-icon-explode
-            td Enables exploded views
-        tr 
-            td modelBrowser 
-            td
-                .adsk-button-icon.adsk-icon-structure
-            td Enables browsing the model hierarchy within the viewer
-        tr 
-            td properties 
-            td
-                .adsk-button-icon.adsk-icon-properties
-            td Enables access to the selected component's properties stored in the viewable file
-        tr 
-            td settings 
-            td
-                .adsk-button-icon.adsk-icon-settings
-            td Enables viewer settings
-        tr 
-            td fullscreen 
-            td
-                .adsk-button-icon.adsk-icon-fullscreen
-            td Enables fullscreen toggle
-        tr 
-            td markup 
-            td
-                .adsk-button-icon.icon.icon-markup(style="font-size:14px;")
-            td Enables markup toolbar
-        tr 
-            td hide 
-            td
-                .adsk-button-icon.icon.icon-remove(style="font-size:14px;")
-            td Enables easy hiding of (selected) components
-        tr 
-            td ghosting 
-            td
-                .adsk-button-icon.icon.icon-show(style="font-size:14px;")
-            td Enables toggling ghosting mode on/off
-        tr 
-            td highlight 
-            td
-                .adsk-button-icon.icon.icon-highlight(style="font-size:14px;")
-            td Enables toggling highlight of selected models on/off
-        tr 
-            td single 
-            td
-                .adsk-button-icon.icon.icon-first(style="font-size:14px;")
-            td Enables fitting of first instance to viewer
-        tr 
-            td fitToView 
-            td
-                .adsk-button-icon.icon.icon-viewer(style="font-size:14px;")
-            td Enables reframing all visible items
-        tr 
-            td reset 
-            td
-                .adsk-button-icon.icon.icon-reset(style="font-size:14px;")
-            td Enables to deselect all, invoking viewerClickReset()
-        tr 
-            td views 
-            td
-                .adsk-button-icon.icon.icon-home(style="font-size:14px;")
-            td Enables toolbar to quickly access main views
-        tr 
-            td selectFile 
-            td
-                .adsk-button-icon.icon.icon-folder(style="font-size:14px;")
-            td Enables switching between multiple viewable files for the given item  (3D and 2D)
+table.row-hovering
+    tr 
+        th Setting 
+        th Icon 
+        th Description 
+    tr 
+        td contextMenu 
+        td   
+        td Enables / disables the viewer standard context menu
+    tr 
+        td cube 
+        td   
+        td Enables the cube / home button in top right corner of the viewer. Parameter 'views' can be used instead, providing dedicated buttons.
+    tr 
+        td orbit 
+        td
+            .adsk-button-icon.adsk-icon-orbit-constrained
+        td Enables the orbit controls
+    tr 
+        td firstPerson 
+        td
+            .adsk-button-icon.adsk-icon-first-person
+        td Enables first person view
+    tr 
+        td camera 
+        td
+            .adsk-button-icon.adsk-icon-camera
+        td Enables camera interactions
+    tr 
+        td measure 
+        td
+            .adsk-button-icon.adsk-icon-measure
+        td Enables the measurements toolbar
+    tr 
+        td section 
+        td
+            .adsk-button-icon.adsk-icon-section-analysis
+        td Enables sectioning
+    tr 
+        td explodedView 
+        td
+            .adsk-button-icon.adsk-icon-explode
+        td Enables exploded views
+    tr 
+        td modelBrowser 
+        td
+            .adsk-button-icon.adsk-icon-structure
+        td Enables browsing the model hierarchy within the viewer
+    tr 
+        td properties 
+        td
+            .adsk-button-icon.adsk-icon-properties
+        td Enables access to the selected component's properties stored in the viewable file
+    tr 
+        td settings 
+        td
+            .adsk-button-icon.adsk-icon-settings
+        td Enables viewer settings
+    tr 
+        td fullscreen 
+        td
+            .adsk-button-icon.adsk-icon-fullscreen
+        td Enables fullscreen toggle
+    tr 
+        td markup 
+        td
+            .adsk-button-icon.icon.icon-markup(style="font-size:14px;")
+        td Enables markup toolbar
+    tr 
+        td hide 
+        td
+            .adsk-button-icon.icon.icon-remove(style="font-size:14px;")
+        td Enables easy hiding of (selected) components
+    tr 
+        td ghosting 
+        td
+            .adsk-button-icon.icon.icon-show(style="font-size:14px;")
+        td Enables toggling ghosting mode on/off
+    tr 
+        td highlight 
+        td
+            .adsk-button-icon.icon.icon-highlight(style="font-size:14px;")
+        td Enables toggling highlight of selected models on/off
+    tr 
+        td single 
+        td
+            .adsk-button-icon.icon.icon-first(style="font-size:14px;")
+        td Enables fitting of first instance to viewer
+    tr 
+        td fitToView 
+        td
+            .adsk-button-icon.icon.icon-viewer(style="font-size:14px;")
+        td Enables reframing all visible items
+    tr 
+        td reset 
+        td
+            .adsk-button-icon.icon.icon-reset(style="font-size:14px;")
+        td Enables to deselect all, invoking viewerClickReset()
+    tr 
+        td views 
+        td
+            .adsk-button-icon.icon.icon-home(style="font-size:14px;")
+        td Enables toolbar to quickly access main views
+    tr 
+        td selectFile 
+        td
+            .adsk-button-icon.icon.icon-folder(style="font-size:14px;")
+        td Enables switching between multiple viewable files for the given item  (3D and 2D)
+p The viewer can further be adjusted by using common settings that apply to all applications. All settings listed below can be changed in 
+    span.code exports.common.viewer
+    |:
+table.row-hovering
+    tr 
+        th Setting 
+        th Icon 
+        th Description 
+    tr 
+        td numberProperties 
+        td ['Part Number', 'Name', 'label', 'Artikelnummer', 'Bauteilnummer']
+        td List of item properties to be considered as number properties. The first property found will be used to match components in the viewable file to items in the PLM system (based on field defined in exports.common.workspaces.items.fieldIdNumber).
+    tr 
+        td suffixPrimaryFile
+        td ['.iam.dwf', '.iam.dwfx', '.ipt.dwf', '.ipt.dwfx']
+        td Defines sequence of preferred file suffixes to identify the primary viewable file if multiple viewable files are available for the given item.
+    tr 
+        td extensionsIncluded
+        td ['dwf', 'dwfx', 'nwd', 'ipt', 'stp', 'step', 'sldprt', 'pdf']
+        td List of file formats to be considered as viewable formats.
+    tr 
+        td extensionsExcluded
+        td []
+        td List of file formats not to be considered as viewable formats.
+    tr 
+        td splitPartNumberBy
+        td ' v'
+        td If the number property in the viewer does not match the item number exactly, its value can be split by the given string to remove suffixes like version information. 
+    tr 
+        td splitPartNumberIndexes 
+        td [0]
+        td If the number property in the viewer does not match the item number exactly, its value can be split and selected indizes can be contatenated. This property defines the split elements to concatenate.
+    tr 
+        td splitPartNumberSpacer
+        td ''
+        td If the number property in the viewer does not match the item number exactly, its value can be split and selected indizes can be contatenated. The concatenated strings will be separated by this spacer.
+    tr 
+        td backgroundColor
+        td [255, 255, 255, 255, 255, 255]
+        td Default background color of viewer instances if not specified by theme.
+    tr 
+        td cacheInstances
+        td false
+        td Enables / disables caching of instances data in the viewer for improved performance. Enabling this cache will incread initial load time.
+    tr 
+        td antiAliasing
+        td true
+        td Enables / disables anti-aliasing in the viewer.
+    tr 
+        td ambientShadows
+        td true
+        td Enables / disables ambient shadows in the viewer.
+    tr 
+        td groundReflection
+        td true
+        td Enables / disables ground reflections in the viewer.
+    tr 
+        td groundShadow
+        td true
+        td Enables / disables ground shadow in the viewer.
+    tr 
+        td lightPreset
+        td 4
+        td Changes the default light preset of the viewer.
+    tr 
+        td conversionAttempts
+        td 10
+        td If viewables need to be converted, this number of attempts will be made to check for the conversion completion status.
+    tr 
+        td conversionDelay
+        td 3000
+        td If viewables need to be converted, this delay (in milliseconds) will be applied before starting to check for the conversion completion status.

@@ -19,7 +19,7 @@
     right   : calc(var(--width-bom-min) + var(--width-panel) + var(--width-details) + (6 * var(--border-h)));
     bottom  : 0px;
     left    : 0px;
-    display : none;
+    /* display : none; */
 }
 #bom {
     border-width : var(--border-v) var(--border-h) var(--border-v);

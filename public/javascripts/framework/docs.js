@@ -276,6 +276,12 @@ let categories = [
         default     : '[]',
         supportedBy : ['nav-mow', 'nav-recent-items']
     },{
+        name        : 'pagination',
+        description : "Enables pagination controls if needed",
+        type        : 'Boolean',
+        default     : 'true',
+        supportedBy : ['nav-class-contents', 'nav-search', 'nav-workspace-views']
+    },{
         name        : 'userId',
         description : 'Retrieve data in context of another user, specified by the userId provided (use the mail address used for logging in).<br>This requires impersonation which can only be used if adminClientId and adminClientSecret are provided in the settings file.',
         type        : 'String',
@@ -857,6 +863,24 @@ let categories = [
     type        : 'Boolean',
     default     : 'true',
     supportedBy : []
+},{
+    name        : 'downloadFiles',
+    description : 'Enables download of files from PLM  BOM(requires given permission in PLM)',
+    type        : 'Boolean',
+    default     : 'true',
+    supportedBy : ['insert-bom']
+},{
+    name        : 'downloadFormats',
+    description : 'Defines list of available formats for BOM file download, based on an array with key / value pairs made of label, filter and tooltip',
+    type        : 'Array',
+    default     : "[ { label : 'STEP'  , filter : ['.step', '.stp'], tooltip : 'File suffix stp and step will be taken into account' },]",
+    supportedBy : ['insert-bom']
+},{
+    name        : 'downloadRequests',
+    description : 'Sets the maximum number of parallel download processes',
+    type        : 'Integer',
+    default     : 3,
+    supportedBy : ['insert-bom']
 },{
     name        : 'includeRelatedFiles',
     description : 'When enabled, related attachments will be displayed as well',

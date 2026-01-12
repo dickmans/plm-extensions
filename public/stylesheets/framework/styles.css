@@ -574,6 +574,206 @@ td.tree-first-col {
     width       : 26px;
 }
 
+.tree-files-download-panel {
+    position : absolute;
+    top      : 56px;
+    right    : 0px;
+    left     : 0px;
+}
+.tree-files-download-options {
+    border-width   : 18px 18px;
+    display        : grid;
+    flex-direction : column;
+    height         : 290px;
+    line-height    : 38px;
+    grid-template-columns: 140px calc(100% - 140px);
+}
+.tree-files-download-options-label {
+    padding-right : 10px;
+    text-align    : right;
+}
+.tree-files-download-options select {
+    padding     : 0px 16px;
+    max-height  : 38px !important;
+    min-height  : 38px !important;
+    height      : 38px !important;
+    line-height : 38px !important;
+    text-align  : left;
+    width       : 100%;
+}
+.tree-files-download-formats {
+    display : flex;
+    gap     : 2px;
+}
+.tree-files-download-format {
+    display   : flex;
+    flex-grow : 1;
+    min-width : unset !important;
+}
+.tree-files-download-format.button.with-icon::before {
+    font-size : 20px;
+}
+.tree-files-download-format-filter.button {
+    min-width  : 0px;
+    text-align : center;
+    flex-grow  : 1;
+}
+.tree-files-download-options-actions {
+    display     : flex;
+    gap         : 10px;
+    padding-top : 10px;
+}
+.tree-files-download-options-actions > div {
+    flex-grow : 1;
+}
+.tree-files-download-start {
+    justify-content : center;
+}
+.tree-files-download-progress {
+    height : 326px;
+}
+.tree-files-download-progress > div {
+    border-width : 18px 18px;
+}
+.tree-files-download-counters {
+    display     : grid;
+    gap         : 4px;
+    padding-top : 20px;
+    width       : 250px;
+    grid-template-columns : 60px auto;
+    grid-template-rows : 26px 26px 26px 26px 100px auto;
+}
+.tree-files-download-counters-value {
+    font-weight   : bold;
+    padding-right : 8px;
+    text-align    : right;
+}
+.tree-files-download-counters-progress-bar {
+    position : absolute;
+    top      : 170px;
+    left     : 8px;
+    right    : 8px;
+}
+.tree-files-download-counters-progress-bar > div {
+    display    : flex;
+    position   : absolute;
+    top        : 0px;
+    right      : 0px;
+    left       : 0px;
+    height     : 32px;
+    transition : all ease 0.2s;
+}
+.tree-files-download-counters-progress-done {
+    background : var(--color-blue-500);
+    width      : 0%;
+    z-index    : 1;
+}
+.tree-files-download-counters-progress-curr {
+    background : var(--color-yellow-600);
+    width      : 10%;
+    z-index    : 1;
+}
+.tree-files-download-counters-progress-pend {
+    background        : linear-gradient(90deg, var(--color-blue-800) 60%, var(--color-blue-600) 80%, var(--color-blue-800) 100%);
+    background-size   : 200% 200%;
+    -webkit-animation : animProgressBar 2s infinite;
+       -moz-animation : animProgressBar 2s infinite;
+            animation : animProgressBar 2s infinite;
+}
+@keyframes animProgressBar {
+      0% { background-position: 200% 0%; }
+    100% { background-position:  20% 0%; }
+}
+.tree-files-download-counters-progress-text {
+    color       : white;
+    font-size   : 12px;
+    position    : absolute;
+    top         : 0px;
+    right       : 0px;
+    left        : 0px;
+    height      : 20px;
+    line-height : 20px;
+    text-align  : center;
+    z-index     : 2;
+}
+.tree-files-download-counters-actions {
+    display     : flex;
+    gap         : 12px;
+    grid-column : 1 / 2;
+    margin      : 110px 8px 0px;
+    width       : 236px;
+    justify-content : center;
+}
+.tree-files-download-counters-actions > div {
+    flex-grow : 1;
+    min-width : unset;
+}
+.tree-files-download-stop {
+    justify-content : center;
+}
+.tree-files-download-files {
+    left : 286px;
+}
+.tree-files-download-files-header {
+    font-weight   : bold;
+    height        : 28px;
+    overflow      : hidden;
+    text-overflow : ellipsis;
+    white-space   : nowrap;
+}
+.tree-files-download-files-list {
+    max-height : 264px;
+    min-height : 264px;
+    height     : 264px;
+    overflow-y : auto;
+}
+.tree-files-download-files-list > div {
+    font-size     : 12px;
+    line-height   : 18px;
+    overflow      : hidden;
+    text-overflow : ellipsis;
+    white-space   : nowrap;
+}
+.tree-files-downloaded {
+    display : flex;
+    gap     : 16px;
+}
+.tree-files-download-status {
+    display   : none;
+    max-width : 0px;
+    min-width : 120px;
+    width     : 120px;
+}
+.tree-files-download-status > .processing > div {
+    background-color : var(--color-blue-500);
+    height : 12px;
+    width  : 12px;
+}
+.tree-files-download-options,
+.tree-files-download-progress {
+    overflow : hidden;
+}
+.tree-file-downloaded.icon-check::before {
+    color : var(--color-status-green);
+}
+.tree-file-downloaded.icon-cancel::before {
+    color : var(--color-status-red);
+}
+.tree-file-downloaded.icon-skip::before {
+    color : var(--color-blue-500);
+}
+.with-files-download .panel-content {
+    top : 386px;
+}
+.with-files-download .tree-files-download-status {
+    display : table-cell;
+}
+.processing.tree-files-download-processing {
+    display  : inline-block;
+    position : unset;
+}
+
+
 .panel-top.with-tree-path > .panel-content { bottom : 30px; }
 .panel-top.with-panel-counters.with-tree-path > .tree-path, 
 .panel-top.with-panel-counters.with-tree-path > .tree-go-to { bottom: 30px; }
@@ -1200,6 +1400,12 @@ tr.checked > td.content-item-check-box > .icon::before {
     content : '\e834';
 }
 
+.table-group-title {
+    cursor : pointer;
+}
+.table-group-title:hover {
+    color : var(--color-blue-500)
+}
 .table-group-title::before {
     content                 : '\e5cf';
     font-family             : 'Material Symbols Sharp';
@@ -3041,98 +3247,6 @@ select.button.main:hover {
     font-size : 12px;
 }
 
-
-
-/*  OVERRIDES WHEN LAUNCHED AS ADDIN */
-/* ----------------------------------------------------------------------------- */
-body.is-addin { 
-    font-size : 12px;
-}
-.is-addin #header { display : none; }
-.is-addin .screen { top : 0px; }
-.is-addin .panel-header, 
-.is-addin .panel-title { 
-    height : 30px;
-}
-.is-addin .panel-title-main { 
-    font-size   : 14px;
-    font-weight : 600px;
-    height      : 22px;
-    line-height : 22px;
-}
-.is-addin .panel-content {
-    top : 40px;
-}
-.is-addin .tiles.list.xs .tile-title {
-    font-size : 12px;
-}
-.is-addin .tabs {
-    font-size   : 12px;
-    padding-top : 0px;
-}
-.is-addin .tabs,
-.is-addin .tabs > div {
-    height : 28px;
-}
-.is-addin .tabs  > .selected {
-    font-weight : 700;
-}
-.is-addin .panel-actions {
-    gap     : 4px;
-    height  : 24px;
-    padding : 0px;
-}
-.is-addin .button {
-    height      : 22px;
-    line-height : 22px;
-    font-size   : 12px;
-}
-.is-addin .button.icon {
-    padding   : 0px;
-    max-width : 22px;
-    min-width : 22px;
-    width     : 22px;
-} 
-.is-addin .button.icon,
-.is-addin .button.with-icon::before,
-.is-addin .button.with-toggle::after {
-    font-size   : 16px;
-    line-height : 22px;
-}
-.is-addin .panel-top.with-panel-actions.no-header > .panel-content {
-    top : 32px;
-}
-.is-addin .panel-content.s thead th {
-    height      : 22px;
-    line-height : 22px;
-    padding     : 0px 4px;
-}
-.is-addin .table-check-box {
-    max-width : 24px;
-    min-width : 24px;
-    width     : 24px;
-}
-.is-addin .panel-content.s th.table-check-box > .icon,
-.is-addin .panel-content.s tr.content-item > td > .icon {
-    font-size : 16px;
-}
-.is-addin .panel-content.s tr > td, 
-.is-addin .panel-content.s tr.content-item > td > input, 
-.is-addin .panel-content.s tr.content-item > td > select, 
-.is-addin .panel-content.s tr.content-item > td > textarea {
-    font-size   : 12px;
-    height      : 24px;
-    line-height : 24px;
-    padding     : 0px 4px;
-    min-height  : 24px;
-    max-width   : calc(100% - 8px);
-    min-width   : calc(100% - 8px);
-    width       : calc(100% - 8px);
-}
-.is-addin .table-group-title::before {
-    font-size : 16px;
-    top       : 4px;
-}
 
 
 /*  PREVIEW */

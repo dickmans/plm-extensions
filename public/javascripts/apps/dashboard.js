@@ -1,5 +1,4 @@
 let chart;
-let urlParameters   = getURLParameters();
 let title           = 'Activity Dashboard';
 let enableMarkup    = false;
 let fieldIdsMarkup  = [];
@@ -22,11 +21,15 @@ let wsConfig        = {
 
 $(document).ready(function() {
 
-    for(let profile of config.dashboard) {
+    for(let profile of config) {
 
-        if(wsId === profile.wsId.toString()) {
+        let workspaceName = profile.workspace;
 
-            wsConfig.id              = profile.wsId.toString();
+        profile.workspaceId   = common.workspaceIds[workspaceName];
+    
+        if(urlParameters.wsid == profile.workspaceId) {
+
+            wsConfig.id              = profile.workspaceId;
             wsConfig.newHeader       = profile.newHeader || 'Initiate New Process';
             wsConfig.newMessage      = profile.newMessage || 'You encountered an issue? Please provide a few details below and let us fix the problem. You can provide more details and also upload files in the next step.';
             wsConfig.className       = profile.className;
@@ -52,23 +55,25 @@ $(document).ready(function() {
     if(isBlank(wsConfig.id)) {
 
         $('body').addClass('no-profile');
-        sortArray(config.dashboard, 'title');
+        sortArray(config, 'title');
 
-        for(let profile of config.dashboard) {
+        for(let profile of config) {
 
             let icon = (isBlank(profile.icon)) ? 'icon-workflow' : profile.icon;
         
             let elemProfile = $('<div></div>').appendTo($('.screen-list'))
                 .addClass('screen-list-tile')
                 .addClass('surface-level-4')
-                .attr('data-id', profile.wsId)
+                .attr('data-id', profile.workspaceId)
                 .click(function() {
 
                     let location = document.location.href.split('?');
                     let params   = (location.length === 1) ? [] : location[1].split('&');
                     let url      = location [0] + '?'
 
-                    url += 'wsId='+$(this).attr('data-id');
+                    url += 'wsId=' + $(this).attr('data-id');
+
+                    console.log(url);
 
                     for(let param of params) {
                         if(param.toLowerCase().indexOf('wsid') < 0) url += '&' + param;
@@ -136,7 +141,7 @@ function setStatusColumns() {
 
         $('<div></div>').appendTo(elemState)
             .html(state.label)
-            .css('background-color', state.color)
+            .css('background-color', colors[state.color])
             .addClass('progress-title');
         
         $('<div></div>').appendTo(elemState)
@@ -147,7 +152,7 @@ function setStatusColumns() {
             .addClass('l')
             .attr('data-states', state.states)
             .attr('data-label', state.label)
-            .attr('data-color', state.color);
+            .attr('data-color', colors[state.color]);
 
     }
 
@@ -187,8 +192,8 @@ function setChart() {
         data: {
             labels: [],
             datasets: [
-                { data: [], backgroundColor: config.colors.red,    label : 'Age (days since process creation)' },
-                { data: [], backgroundColor: config.colors.yellow, label : 'Last Update (days since last modification)' }
+                { data: [], backgroundColor: colors.red,    label : 'Age (days since process creation)' },
+                { data: [], backgroundColor: colors.yellow, label : 'Last Update (days since last modification)' }
             ]
         },
         options: {
@@ -349,8 +354,8 @@ function getProcesses() {
             let dateCreated;
 
             appendTileDetails(elemTile, [
-                ['with-icon icon-start'  , 'Created on ' + item.fields[1].value      , false],
-                ['with-icon icon-calendar', 'Last update on ' + item.fields[2].value  , false]
+                ['with-icon icon-start'   , 'Created on '     + item.fields[1].value, false],
+                ['with-icon icon-calendar', 'Last update on ' + item.fields[2].value, false]
             ]);
 
             if(!isBlank(valueCreated)) {

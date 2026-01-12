@@ -1,4 +1,4 @@
-.tile(data-name='Service Portal')
+.tile(data-name='Service Portal' data-id='service')
     .tile-image(style='background: url("images/app-services-portal.png") no-repeat;background-size:contain;')
     .tile-details
         .tile-title Service Portal
@@ -320,39 +320,12 @@
         h2 Access Permission 
         p Add a role for this new workspace and assign this given role to your users to enable access. Grant full access (add, delete, edit and view) to the tabs Attachments, Grid, and Workflow.
         img(src='images/apps/services-portal-6.png' style='width:100%;max-width:368px;margin:10px 0px;')
-        h1 Configuration Settings
-        p Once the previous steps have been completed, you should review the solution's settings in file 
-            strong settings.js 
-            | before using the application:
-        p.code
-            span export.config = {
-            span.indent service : {
-            span.indent-2 labels : { .. },
-            span.indent-2 products : { .. },
-            span.indent-2 items : { .. },
-            span.indent-2 sparePartsRequests : { .. },
-            span.indent-2 problemReports : { .. },
-            span.indent-2 serviceBOMTypes : { .. },
-            span.indent-2 assetServices : { .. },
-            span.indent-2 projects : { .. },
-            span.indent-2 assets : { .. },
-            span.indent-2 serialNumbers : { .. },
-            span.indent-2 ..
-            span.indent-2 applicationFeatures : {
-            span.indent-3     homeButton : true,
-            span.indent-3     itemDetails : true,
-            span.indent-3     ..
-            span.indent-3     openInPLM : true
-            span.indent-2 },
-            span.indent-2 viewerFeatures : {
-            span.indent-3 contextMenu   : false,
-            span.indent-3 cube          : false,
-            span.indent-3 orbit         : false,
-            span.indent-3 ..
-            span.indent-3 selectFile    : true
-            span.indent-2 } 
-            span.indent }
-            span }                         
+        h1 Application Configuration Settings
+        p The following settings can be adjusted in your custom settings file within 
+            span.code exports.applications.service 
+            |to adjust the application's behavior. 
+            br
+            |In order to change any of these settings, copy the standard value from settings.js to your custom settings file in folder settings.                        
         h2 Configuring Basic Settings
         table 
             tr
@@ -548,54 +521,89 @@
                     th Description 
                     th Default Value
                 tr 
-                    td features.homeButton 
+                    td applicationFeatures.homeButton 
                     td Enables Home button in global toolbar to close a given product's spare parts view and to return to the landing page 
                     td true
                 tr 
-                    td features.itemDetails 
+                    td applicationFeatures.itemDetails 
                     td Enables button 'Toggle Details' in global toolbar to toggle the selected item's details on/off
                     td true
                 tr 
-                    td features.itemAttachments 
+                    td applicationFeatures.itemAttachments 
                     td When enabled, the Item Details panel enabled by features.itemDetails will contain an attachments section to download files attached to the selected item
                     td true
                 tr 
-                    td features.contextDocumentation 
+                    td applicationFeatures.contextDocumentation 
                     td Enables tab 'Documentation' next to the tab 'Spare Parts', enabling users to download files attached to the context product/asset. Note that this list will be empty if users access the Service Portal with a defined item dmsId. Only if users click on a product in the landing page of the Service Portal, this tab will contain data.
                     td true
                 tr 
-                    td features.manageSparePartRequests 
+                    td applicationFeatures.manageSparePartRequests 
                     td Enables the landing page panel to track Spare Parts Requests in progress
                     td true
                 tr 
-                    td features.manageProblemReports 
+                    td applicationFeatures.manageProblemReports 
                     td Enables tab 'Problem Reports' next to the tab 'Spare Parts', enabling users to reveal related PRs and also to create new ones. This also adds the given panel in the landing page to review processes in progress.
                     td true
                 tr 
-                    td features.showStock 
+                    td applicationFeatures.showStock 
                     td Enables display of stock information in spare parts list
                     td true
                 tr 
-                    td features.requestWorkflowActions 
+                    td applicationFeatures.requestWorkflowActions 
                     td Enables display of workflow actions menu when opening a Spare Parts Request from the landing page
                     td true
                 tr 
-                    td features.problemWorkflowActions 
+                    td applicationFeatures.problemWorkflowActions 
                     td Enables display of workflow actions menu when opening a Problem Report from the landing page
                     td true
                 tr 
-                    td features.enableCustomRequests 
+                    td applicationFeatures.enableCustomRequests 
                     td When set to true, users can add non-spare-parts to service requests as well
                     td true
                 tr 
-                    td features.openInPLM 
+                    td applicationFeatures.openInPLM 
                     td Enables button 'Open in PLM' in panel toolbars to open the current selected item in the standard PLM user interface. Disable this property if users should not be aware of the PLM standard user interface.
                     td true
-        h2 Configuring Viewer Features
-        include ../framework/viewer.pug
+        h1 Common Configuration Settings
+        p This utility also uses the following common configuration settings
+        table(style='margin:10px 0px 30px')
+            tr
+                th Setting
+                th Description
+                th Default Value 
+            tr  
+                td exports.common.workspaceIds.products
+                td ID of Products workspace
+                td 95  
+            tr  
+                td exports.common.workspaceIds.sparePartsRequests
+                td ID of Spare Parts Requests workspace
+                td 241  
+            tr  
+                td exports.common.workspaceIds.problemReports
+                td ID of Problem Reports workspace
+                td 82  
+            tr  
+                td exports.common.workspaceIds.assets
+                td ID of Assets workspace
+                td 280  
+            tr  
+                td exports.common.workspaceIds.orderProjects
+                td ID of Order Projects workspace
+                td 283  
+            tr  
+                td exports.common.workspaceIds.assetServices
+                td ID of Asset Services workspace
+                td 284  
+        h1 Viewer Configuration Settings
+        include ../framework/viewer.pug   
     .log 
         h1 Services Portal Change Log 
         table 
+            tr 
+                td 12. January 2026
+                td Documentation
+                td Documentation has been updated to match the new custom settings and environments management
             tr 
                 td 2. December 2025
                 td Changed Settings

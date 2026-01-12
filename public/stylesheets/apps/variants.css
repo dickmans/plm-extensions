@@ -84,8 +84,12 @@ td > .picklist-controls > .picklist { min-width: 320px; }
     top : 26px;
 }
 
-.variant-spacer {
-    background  : var(--color-surface-level-1) !important;
+.surface-level-1 > .bom-table th.variant-spacer,
+.surface-level-1 > .bom-table td.variant-spacer {
+    background  : var(--color-surface-level-1);
+}
+td.variant-spacer {
+    background  : var(--color-surface-level-1);
     padding     : 0px !important;
     max-width   : var(--width-bom-spacer);
     min-width   : var(--width-bom-spacer);
@@ -144,8 +148,8 @@ td.bom-color { display : none; }
     border-color : transparent !important; 
 }
 .content-item:hover td.variant-spacer {
-    background   : var(--color-surface-level-1) !important; 
-    border-color : var(--color-surface-level-1) !important; 
+    background   : var(--color-hover-border) !important; 
+    border-color : var(--color-hover-border) !important; 
 }
 
 tr.selected > td.bbom-color,
@@ -175,6 +179,12 @@ td.variant-item.change-bom,
 td.variant-item.change-properties,
 td.variant-item.change-item {
     background : var(--color-status-yellow-bright) !important;
+}
+tr.content-item.selected > td {
+    border-color : var(--color-selected-background);
+}
+tr.content-item.selected > td.variant-spacer {
+    background : var(--color-selected-background);
 }
 
 

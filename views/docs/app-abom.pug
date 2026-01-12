@@ -1,10 +1,10 @@
-.tile(data-name='Asset BOM Editor')
+.tile(data-name='Asset BOM Editor', data-id='abom')
     .tile-image(style="background: url('images/app-abom.png') no-repeat;background-size:contain;")
     .tile-details
         .tile-title Asset BOM Editor
         .tile-subtitle Creates a unique copy of an existing BOM to manage the individual items of an Asset. The given asset specific items can be used to manage the whole lifecycle of physical items from production through delivery and scrapping.
         .tile-access 
-            .tile-endpoint /bom
+            .tile-endpoint /abom
     .instructions
         h1 Features 
         ul 
@@ -24,7 +24,7 @@
             |. The solution also requires the 
             strong Chrome Extensions 
             |of this package on each client, providing access to the editor in context of Assets.
-        a(href='chrome-extension' target='_blank') Learn about the Chrome Extensions
+        a(href='chrome-extension' target='_blank') Learn about the Chrome Extension
         h1 User Guide
         h2 Launching the editor
         p Once the prerequisites are met, users can launch the  editor using the button in the Asset's header as shown below. If the editor is launched for the first time for an asset, it will create and connect the given root Asset BOM item automatically. This item can be found in section 
@@ -103,11 +103,12 @@
             strong Workspace Manager 
             |to configure these derived fields if needed.
         img.border(src='images/apps/abom-3.png' style='max-width:860px;')
-        h1 Configuration Settings 
-        p This secion describes all the configuration settings of this application which can be found in settings.js within 
-            span.code exports.config.abom
-            |. 
-        img.border(src='images/apps/abom-4.png' style='max-width:372px;')
+        h1 Application Configuration Settings 
+        p The following application specific settings can be adjusted in your custom settings file in 
+            span.code exports.applications.abom 
+            br
+            |In order to change any of these settings, copy the standard value from settings.js to your custom settings file in folder settings.
+        p         
         p These settings allow for adoption to your environment if needed. Note that changes to this file require a restart of your server.
         table.row-hovering 
             tr 
@@ -166,15 +167,34 @@
                 td JSON
                 td {..}
             tr 
-                td deliveriesWorkspaceId
+                td orderProjectDeliveries.workspaceId
                 td Provide the workspace ID of your Order Projects Deliveries workspace for the Deliveries Assignment feature
                 td Integer
                 td 279
-        h2 Configuring Viewer Features
+        h1 Common Configuration Settings
+        p This utility also uses the following common configuration settings
+        table(style='margin:10px 0px 30px')
+            tr
+                th Setting
+                th Default Value 
+                th Description
+            tr  
+                td exports.common.workspaceIds.assetItems
+                td 282    
+                td ID of workspace Asset Items
+            tr  
+                td exports.common.workspaceIds.orderProjectDeliveries
+                td 279  
+                td ID of workspace Order Project Deliveries
+        h1 Viewer Configuration Settings
         include ../framework/viewer.pug
     .log 
         h1 Variant Manager Change Log 
         table 
+            tr 
+                td 12. January 2026
+                td Documentation
+                td Documentation has been updated to match the new custom settings and environments management 
             tr 
                 td 5. December 2025
                 td Initial Release

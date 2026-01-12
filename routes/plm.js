@@ -75,13 +75,42 @@ function downloadFileToCache(url, filename) {
     });
 
 }
-function downloadFileToServer(rootFolder, subFolder, itemFolder, itemTitle, attachment, fileName, clearExistingFolder, indexFile) {
+function downloadFileToServer(rootFolder, subFolder, itemFolder, itemTitle, itemVersion, attachment, fileName, clearExistingFolder, rename, indexFile) {
 
     if(typeof subFolder === 'undefined') subFolder = '';
+    if(typeof rename    === 'undefined') rename   = 'no';
 
     if(subFolder           !== ''  ) subFolder += '/';
-    if(fileName            === null) fileName = attachment.resourceName + attachment.type.extension;
+    if(fileName            === null) fileName = attachment.name;
     if(clearExistingFolder === null) clearExistingFolder = false;
+
+    if(rename !== 'no') {
+
+        let date       = attachment.created.timeStamp.split('T')[0]; 
+        let index      = attachment.name.lastIndexOf('.');
+        let fileSuffix = attachment.name.substring(index);   
+            fileName   = attachment.name.substring(0, index);
+
+        switch(rename) {
+            case 'fd'  : attachment.name = fileName + ' ' + date + fileSuffix; break;
+            case 'df'  : attachment.name = date + ' ' + fileName + fileSuffix; break;
+            case 'fv'  : attachment.name = fileName + ' V' + attachment.version + fileSuffix; break;
+            case 'fvd' : attachment.name = fileName + ' V' + attachment.version + ' ' + date + fileSuffix; break;
+            case 'frv' : attachment.name = fileName + ' ' + itemVersion + '.' + attachment.version + ' ' + date + fileSuffix; break;
+            case 'frvd': attachment.name = fileName + ' ' + itemVersion + '.' + attachment.version + ' ' + date + fileSuffix; break;
+            case 'd'   : attachment.name = itemTitle + fileSuffix; break;
+            case 'dv'  : attachment.name = itemTitle + ' V' + attachment.version + fileSuffix; break;
+            case 'dd'  : attachment.name = itemTitle + ' ' + date + fileSuffix; break;
+            case 'dvd' : attachment.name = itemTitle + ' V' + attachment.version + ' ' + date + fileSuffix; break;
+            case 'drv' : attachment.name = itemTitle + ' ' + itemVersion + '.' + attachment.version + fileSuffix; break;
+            case 'drvd': attachment.name = itemTitle + ' ' + itemVersion + '.' + attachment.version + ' ' + date + fileSuffix; break;
+        }
+
+        fileName = attachment.name;
+
+    }
+
+    // if(!fileName.endsWith(attachment.type.extension)) fileName += attachment.type.extension
 
     let rootPath  = 'storage/' + rootFolder;
     let indexPath = rootPath + '/' + subFolder + 'list.txt';
@@ -123,8 +152,8 @@ function downloadFileToServer(rootFolder, subFolder, itemFolder, itemTitle, atta
         }
 
         return { 
-            fileName : fileName,
-            success  : true
+            attachment : attachment,
+            success    : true
         };
     }).catch(function(error) {
         console.log('error');
@@ -2317,17 +2346,16 @@ router.get('/attachments', function(req, res, next) {
     console.log('  req.query.link        = ' + req.query.link);
     console.log('  req.query.filenamesIn = ' + req.query.filenamesIn);
     console.log('  req.query.filenamesEx = ' + req.query.filenamesEx);
+    console.log('  req.query.range       = ' + req.query.range);
     console.log();
 
     let url =  (typeof req.query.link !== 'undefined') ? req.query.link : '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId;
         url = req.app.locals.tenantLink + url + '/attachments?asc=name';
 
-    let filenamesIn = (typeof req.query.filenamesIn === 'undefined') ? [] : req.query.filenamesIn;
-    let filenamesEx = (typeof req.query.filenamesEx === 'undefined') ? [] : req.query.filenamesEx; 
-    
-    if(!Array.isArray(filenamesIn)) filenamesIn = [filenamesIn];
-    if(!Array.isArray(filenamesEx)) filenamesEx = [filenamesEx];
-    
+    let filenamesIn = (typeof req.query.filenamesIn !== 'undefined') ? req.query.filenamesIn.toLowerCase().split(',') : [];
+    let filenamesEx = (typeof req.query.filenamesEx !== 'undefined') ? req.query.filenamesEx.toLowerCase().split(',') : [];
+    let range       = (typeof req.query.range       !== 'undefined') ? Number(req.query.range) : '';
+
     let headers = getCustomHeaders(req);
         headers.Accept = 'application/vnd.autodesk.plm.attachments.bulk+json';
 
@@ -2352,7 +2380,7 @@ router.get('/attachments', function(req, res, next) {
 
                 if(!included) {
                     for(let filenameIn of filenamesIn) {
-                        if((fileName.indexOf(filenameIn.toLowerCase()) >= 0)) {
+                        if((fileName.indexOf(filenameIn) >= 0)) {
                             included = true;
                         }
                     }
@@ -2360,9 +2388,17 @@ router.get('/attachments', function(req, res, next) {
 
                 if(included) {
                     for(let filenameEx of filenamesEx) {
-                        if((fileName.indexOf(filenameEx.toLowerCase()) >= 0)) {
+                        if((fileName.indexOf(filenameEx) >= 0)) {
                             included = false;
                         }
+                    }
+                }
+
+                if(included) {
+                    if(range !== '') {
+                        let created = attachment.created.timeStamp.split('T')[0].split('-');
+                        let date    = new Date(created[0], created[1], created[2]).getTime();
+                        included    = (date >= range);
                     }
                 }
 
@@ -2448,39 +2484,46 @@ router.post('/export-attachments', function(req, res, next) {
     console.log(' ');
     console.log('  /export-attachments');
     console.log(' --------------------------------------------');  
-    console.log('  req.body.wsId         = ' + req.body.wsId);
-    console.log('  req.body.dmsId        = ' + req.body.dmsId);
-    console.log('  req.body.link         = ' + req.body.link);
-    console.log('  req.body.rootFolder   = ' + req.body.rootFolder);
-    console.log('  req.body.folder       = ' + req.body.folder);
-    console.log('  req.body.clearFolder  = ' + req.body.clearFolder);
-    console.log('  req.body.includeDMSID = ' + req.body.includeDMSID);
-    console.log('  req.body.filenamesIn  = ' + req.body.filenamesIn);
-    console.log('  req.body.filenamesEx  = ' + req.body.filenamesEx);
-    console.log('  req.body.indexFile    = ' + req.body.indexFile);
+    console.log('  req.body.wsId          = ' + req.body.wsId);
+    console.log('  req.body.dmsId         = ' + req.body.dmsId);
+    console.log('  req.body.link          = ' + req.body.link);
+    console.log('  req.body.version       = ' + req.body.version);
+    console.log('  req.body.rootFolder    = ' + req.body.rootFolder);
+    console.log('  req.body.subFolder     = ' + req.body.subFolder);
+    console.log('  req.body.clearFolder   = ' + req.body.clearFolder);
+    console.log('  req.body.folderPerItem = ' + req.body.folderPerItem);
+    console.log('  req.body.includeDMSID  = ' + req.body.includeDMSID);
+    console.log('  req.body.filenamesIn   = ' + req.body.filenamesIn);
+    console.log('  req.body.filenamesEx   = ' + req.body.filenamesEx);
+    console.log('  req.body.range         = ' + req.body.range);
+    console.log('  req.body.rename        = ' + req.body.rename);
+    console.log('  req.body.indexFile     = ' + req.body.indexFile);
     console.log();
 
     let url =  (typeof req.body.link !== 'undefined') ? req.body.link : '/api/v3/workspaces/' + req.body.wsId + '/items/' + req.body.dmsId;
         url = req.app.locals.tenantLink + url + '/attachments?asc=name';
 
-    let rootFolder   = req.body.rootFolder || 'exports';
-    let subFolder    = req.body.folder || '';
-    let includeDMSID = req.body.includeDMSID || 'no';
-    let dmsID        = req.body.dmsId || req.body.link.split('/').pop();
-    let filenamesIn  = (typeof req.body.filenamesIn === 'undefined') ? '' : req.body.filenamesIn;
-    let filenamesEx  = (typeof req.body.filenamesEx === 'undefined') ? '' : req.body.filenamesEx;
-    let clearFolder  = false;
-    let indexFile    = true;
+    let itemVersion    = req.body.version || '';
+    let rootFolder     = (typeof req.body.rootFolder === 'undefined') ? 'exports' : req.body.rootFolder;
+    let subFolder      = (typeof req.body.subFolder  === 'undefined') ? ''        : req.body.subFolder;
+    let includeDMSID   = req.body.includeDMSID || 'no';
+    let dmsID          = req.body.dmsId || req.body.link.split('/').pop();
+    let filenamesIn    = (typeof req.body.filenamesIn   === 'undefined') ? []   : req.body.filenamesIn;
+    let filenamesEx    = (typeof req.body.filenamesEx   === 'undefined') ? []   : req.body.filenamesEx;
+    let folderPerItem  = (typeof req.body.folderPerItem === 'undefined') ? true : (req.body.folderPerItem.toLowerCase() === 'true');
+    let range          = (typeof req.body.range         === 'undefined') ? ''   : Number(req.body.range);
+    let rename         = (typeof req.body.rename        === 'undefined') ? 'no' : req.body.rename;
+    let clearFolder    = false;
+    let indexFile      = true;
 
     if(typeof req.body.clearFolder !== 'undefined') clearFolder = (req.body.clearFolder.toLowerCase() === 'true');
     if(typeof req.body.indexFile   !== 'undefined') indexFile   = (  req.body.indexFile.toLowerCase() === 'true');
 
-    filenamesIn = filenamesIn || '';
-    filenamesEx = filenamesEx || '';
+    if(!Array.isArray(filenamesIn)) filenamesIn = [filenamesIn];
+    if(!Array.isArray(filenamesEx)) filenamesEx = [filenamesEx];
 
     let headers = getCustomHeaders(req);
         headers.Accept = 'application/vnd.autodesk.plm.attachments.bulk+json';
-
 
     if(subFolder !== '') {
         if(clearFolder) {
@@ -2504,18 +2547,45 @@ router.post('/export-attachments', function(req, res, next) {
 
                 let fileName  = attachment.resourceName + attachment.type.extension;
                 let itemTitle = response.data.item.title;
+                let included  = (filenamesIn.length === 0);
 
-                if((filenamesIn === '') || (fileName.indexOf(filenamesIn) >= 0)) {
-                    if((filenamesEx === '') || (fileName.indexOf(filenamesEx) < 0)) {
+                fileName = fileName.toLowerCase();
 
-                        let itemFolder = response.data.item.title;
-
-                             if(includeDMSID === 'prefix') itemFolder  = '[' + dmsID + '] ' + response.data.item.title;
-                        else if(includeDMSID === 'suffix') itemFolder += ' [' + dmsID + ']';
-
-                        requests.push(downloadFileToServer(rootFolder, subFolder, itemFolder, itemTitle, attachment, null, true, indexFile));
-
+                if(!included) {
+                    for(let filenameIn of filenamesIn) {
+                        if((fileName.indexOf(filenameIn.toLowerCase()) >= 0)) {
+                            included = true;
+                        }
                     }
+                }
+
+                if(included) {
+                    for(let filenameEx of filenamesEx) {
+                        if((fileName.indexOf(filenameEx.toLowerCase()) >= 0)) {
+                            included = false;
+                        }
+                    }
+                }
+
+                if(included) {
+                    if(range !== '') {
+                        let created = attachment.created.timeStamp.split('T')[0].split('-');
+                        let date    = new Date(created[0], created[1], created[2]).getTime();
+                        included    = (date >= range);
+                    }
+                }
+
+                if(included) {
+
+                    let itemFolder = response.data.item.title;
+
+                         if(includeDMSID === 'prefix') itemFolder  = '[' + dmsID + '] ' + response.data.item.title;
+                    else if(includeDMSID === 'suffix') itemFolder += ' [' + dmsID + ']';
+
+                    if(!folderPerItem) itemFolder = '';
+
+                    requests.push(downloadFileToServer(rootFolder, subFolder, itemFolder, itemTitle, itemVersion, attachment, null, clearFolder, rename, indexFile));
+
                 }
 
             }
@@ -2524,7 +2594,7 @@ router.post('/export-attachments', function(req, res, next) {
         
                 for(let response of responses) {
                     if(!response.success) success = false;
-                    data.push(response.fileName);
+                    data.push(response.attachment);
                 }
         
                 sendResponse(req, res, { data : data }, !success);
@@ -3197,7 +3267,9 @@ router.get('/get-viewable', function(req, res, next) {
     if(isPDF) {
 
         downloadFileToCache(req.query.thumbnail, req.query.filename);
-        sendResponse(req, res, { data : { status : 'DONE' } }, false);
+        let status   = validateFileInCache(req.query.filename) ? 'DONE' : 'PENDING';
+
+        sendResponse(req, res, { data : { status : status } }, false);
 
     } else {
 

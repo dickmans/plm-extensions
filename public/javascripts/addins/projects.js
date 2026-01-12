@@ -3,20 +3,20 @@ $(document).ready(function() {
 
     setUIEvents();
 
-    let workspaceId = config.addins.project.workspaceId;
+    let workspaceId = config.projects.workspaceId || common.workspaceIds.engineeringProjects;
 
     insertResults(workspaceId, [{
         field       : 'WF_CURRENT_STATE',       
         type        : 1,
         comparator  : 5,
-        value       : config.addins.project.stateCompleted
+        value       : config.projects.stateCompleted
     }], {
         id          : 'projects',
-        headerLabel : config.addins.project.headerLabelProjects,
+        headerLabel : config.projects.headerLabelProjects,
         reload      : true,
         search      : true,
         layout      : 'list',
-        contentSize : 'm',
+        contentSize : 'xs',
         onClickItem : function(elemClicked) { openProject(elemClicked); }
     });
 
@@ -37,10 +37,10 @@ function openProject(elemClicked) {
         toggleBodyClass : 'display-project',
         contents        : [{ 
             type   : 'bom', 
-            link   : config.addins.project.fieldIdBOM,
+            link   : config.projects.fieldIdBOM,
             params : { 
                 id               : 'project-bom',
-                headerLabel      : config.addins.project.tabNameBOM,
+                headerLabel      : config.projects.tabNameBOM,
                 collapseContents : true,
                 search           : true,
                 toggles          : true,
@@ -62,10 +62,10 @@ function openProject(elemClicked) {
             params : { 
                 id              : 'project-details', 
                 hideHeader      : true,
-                headerLabel     : config.addins.project.tabNameDetails,
-                sectionsEx      : config.addins.project.projectDetailsSectionsEx,
+                headerLabel     : config.projects.tabNameDetails,
+                sectionsEx      : config.projects.projectDetailsSectionsEx,
                 fieldsEx        : ['TIMELINE'],
-                expandSections  : config.addins.project.projectDetailsExpandSections, 
+                expandSections  : config.projects.projectDetailsExpandSections, 
                 editable        : false
             } 
 

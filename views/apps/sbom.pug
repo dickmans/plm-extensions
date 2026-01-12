@@ -3,9 +3,10 @@ extends ../framework/layout
 block head
 
     link(rel='stylesheet', href='/stylesheets/apps/sbom.css')
+    link(rel='stylesheet', href='/stylesheets/custom/sbom.css')
+
     script(src='/javascripts/apps/sbom.js')
-    script.
-        config = !{JSON.stringify(config)};
+    script(src='/javascripts/custom/sbom.js')
         
 block body
 

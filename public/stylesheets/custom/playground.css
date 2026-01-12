@@ -2,7 +2,10 @@
     border-width : 24px 36px;
     position     : absolute;
     top          : 0px;
-    right        : 0px;
+    /* right        : 0px; */
     bottom       : 0px;
-    left         : 0px;
+
+    width        : 40%;
 }
+#panel{    left         : 0px; }
+#files{    right         : 0px; }

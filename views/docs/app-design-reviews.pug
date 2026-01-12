@@ -1,4 +1,4 @@
-.tile(data-name='Design Reviews')
+.tile(data-name='Design Reviews' data-id='reviews')
     .tile-image(style='background: url("images/app-design-review.png") no-repeat;background-size:contain;')
     .tile-details
         .tile-title Design Reviews
@@ -8,10 +8,11 @@
             .tile-button.button.default(href="reviews" target="_blank") Open
     .instructions
         h1 Prerequisites
-        p You must have the latest Design Review app installed from the App Store. If your tenant is based on a template past April 2021, this given app is included already. To check if your tenant contains this latest app, please verify that the workspace 
+        p You must have the Design Reviews template installed from the Template Library. If your tenant is based on a template past April 2021, this given app is included already. To check if your tenant contains this latest app, please verify that the workspace 
             strong Design Review Tasks 
             | is available in your tenant.
-        h1 Configure Workspace Design Reviews
+        h1 Workspaces Configuration
+        h2 Workspace Design Reviews
         p Use the 
             strong Workspace Manager 
             | to perform the following changes to your workspace 
@@ -23,14 +24,16 @@
                 | if it does not exist
             li Add the field 
                 strong Item 
-                |(id ITEM) to it if it does not exist yet. Make this a single selection picklist field referring to workspace  
+                |(id ITEM) to it if it does not exist yet. 
+                br
+                |Make this a single selection picklist field referring to workspace  
                 strong Items 
-                |(or Vault Items and BOMs if Items does not exist)
+                |(or Items and BOMs).
             li Also, add the field 
                 strong Image 
                 |(id IMAGE) as derived field of the previous field and let it derive the image field
         img(src='images/apps/design-review-2.png' style='width:100%;max-width:769px;margin-bottom:10px;')
-        h1 Configure Workspace Design Review Tasks
+        h2 Workspace Design Review Tasks
         p Use the 
             strong Workspace Manager 
             | to perform the following changes to your workspace 
@@ -42,9 +45,13 @@
                 strong MARKUPSTATE 
                 | and 
                 strong MARKUPSVG
-                | . Set maximum length to 1.000.000 for both fields and set their visibility to 
+                |.
+                br
+                |Set maximum length of 1.000.000 for both fields and set their visibility to 
                 strong Never
-                | . Set them to be editable anyway. Add these two fields to the first section of Item Details.
+                |. 
+                br
+                |Set them to be editable and add them to the first section of Item Details.
                 img(src='images/apps/design-review-3.png' style='width:100%;max-width:439px;margin-bottom:10px;')
             li The following fields must be  
                 strong editable at creation:  
@@ -83,110 +90,84 @@
             | by extending the if statement with the following condition as shown in the screenshot below: 
         p.code item.project.children.length === 0
         img(src='images/apps/design-review-1.jpg' style='width:100%;max-width:900px;margin-bottom:10px;')
-        h1 BOM View configuration for Items workspace 
-        p This solution requires a BOM view in the Items workspace which includes the Number field. Only if this column is present, the cross-highlight between the BOM and the viewer will work. The latest tenant template includes such a view 
-            strong Basic 
-            |already and this solution will use this view automatically. Perform the following steps if this standard Basic view does not exist in your tenant. If it exists, make sure that the basic columns required are included in this view: 
-            ol 
-                li Descriptor 
-                li Quantity 
-                li Number
-        p Use the 
-            strong Workspace Manager 
-            |to add a new view in the 
-            strong Bill of Materials Tab 
-            |with the columns shown in the screenshot below. Note that for performance reasons, it is recommended to use a BOM view with the bare minimum of fields only. Anyway, you can add further fields to this view or reuse another view which includes these fields already to not mess up your BOM views. 
-        img(src='images/apps/design-review-5.png' style='width:100%;max-width:728px;margin-bottom:10px;')
-        p If your BOM view of choice is not named 
-            strong Basic
-            |, you will have to provide this view's name in file settings.js using parameter 
-            strong bomViewName
-            |. See the next chapter for details. Keep in mind that you have restart your server to apply the changes to settings.js.
-        h1 Configuration Settings
-        p Locate the reviews section in file 
-            strong settings.js 
-            |shown below to adjust your confiugration if needed. These settings are aligned with the latest default tenant as much as possible. After changing this settings file, you have to restart your node server to get them applied.
-        p.code
-            span export.config = {
-            span.indent 'reviews' : {
-            span.indent-2 'fieldIdItem' : 'ITEM',
-            span.indent-2 'fieldIdImage' : 'IMAGE',
-            span.indent-2 'fieldIdMarkup' : 'MARKUP',
-            span.indent-2 'transitionId' : 'CLOSE_REVIEW',
-            span.indent-2 'bomViewName' : 'Basic',
-            span.indent-2 'viewerFeatures' : {
-            span.indent-3 'cube'          : false,
-            span.indent-3 'orbit'         : false,
-            span.indent-3 ..
-            span.indent-2 },
-            span.indent-2 'workspaces' : {
-            span.indent-3 'reviews' : {
-            span.indent-4 'id' : 76,
-            span.indent-4 'sections' : [ { 'name' : 'Review Findings' } ],
-            span.indent-4 'states'    : [ 'Planning', 'Preparation', 'In Progress' ]
-            span.indent-3 },
-            span.indent-3 'tasks' : {
-            span.indent-4 'id' : '',
-            span.indent-4 'sections' : [ { 'name' : 'Definition' }, { 'name' : 'Schedule' } ],
-            span.indent-4 'states'    : [ 'Assigned', 'On Hold', 'In Work', 'Review', 'Complete' ]
-            span.indent-3 }
-            span.indent-2 },
-            span.indent }
-            span }   
-        p   
+        h1 Application Configuration Settings
+        p The following settings can be adjusted in your custom settings file within 
+            span.code exports.applications.reviews 
+            |to adjust the application's behavior. In order to change any of these settings, copy the standard value from settings.js to your custom settings file in folder settings.
+        p 
             table 
                 tr 
                     th Setting 
-                    th Description 
                     th Default Value
+                    th Description 
                 tr 
-                    td fieldIdItem 
-                    td Defines the Design Review's fieldID used to link the Item to be reviewed 
-                    td ITEM
+                    td fieldIdItem
+                    td 'ITEM'
+                    td Defines the Design Review's fieldID used to link the Item to be reviewed
                 tr 
-                    td fieldIdImage 
-                    td Defines the Design Review's fieldID used to store the linkede Item's preview image 
-                    td IMAGE
+                    td fieldIdImage
+                    td 'IMAGE'        
+                    td Defines the Design Review's fieldID used to store the linkede Item's preview image
                 tr 
                     td fieldIdMarkup
+                    td 'MARKUP'
                     td FieldID of Design Review Task to use for storing the Markup image
-                    td MARKUP
                 tr 
                     td transitionId
+                    td 'CLOSE_REVIEW'        
                     td Defines the workflow action ID that can be used to close / finish a given design review. If the user has permission to perform this defined transition, the given button 
                         strong Finish 
                         |will be displayed when opening a design review.
-                    td CLOSE_REVIEW
-                tr 
-                    td bomViewName
-                    td The Item workspace's BOM view to use for expanding the BOM. See instructions above about minimum columns required in this view.
-                    td Basic
                 tr 
                     td bomDepth
-                    td Defines the BOM levels to expand when opening a Design Review
                     td 3
+                    td Restrict the BOM expansion to the defined levels when opening a Design Review
                 tr 
                     td workspaces
                     td(colspan="2") The workspaces parameter enables to align this solution with your workspace configuation:     
                         ul 
-                            li reviews.id is used to determine the workspace ID of 
-                                strong Design Reviews
-                            li reviews.sections is required to locate the section in 
+                            li designReviews.workspaceId is used to determine the workspace ID of 
+                                strong Design Reviews 
+                                |(if not defined, 
+                                span.code exports.common.workspaceIds.designReviews 
+                                |will be used)
+                            li designReviews.sections is required to locate the section in 
                                 strong Item Details 
                                 |of Design Reviews which contains the fields to store the findings (Issue, Deficiencies ...)
-                            li reviews.states defines the list of states that will be used for filtering the reviews in the landing page. 
-                            li tasks.id is used to determine the workspace ID of 
+                            li designReviews.states defines the list of states that will be used for filtering the reviews in the landing page. 
+                            li designReviewTasks.workspaceId is used to determine the workspace ID of 
                                 strong Design Review Tasks 
-                                |. If no id is provided, the solution will determine this id automatically by retrieving the workspaces enabled in the project tab of design reviews 
-                            li tasks.sections is used to determine the required sections in 
+                                |(if not defined, 
+                                span.code exports.common.workspaceIds.designReviewTasks 
+                                |will be used).
+                            li designReviewTasks.sections is used to determine the required sections in 
                                 strong Item Details 
                                 |of design review tasks workspace (the ones containing the fields required)
-                            li tasks.states is used to determine the color highlight of actions being shown in context of a review (states 1 &amp; 2 will be shown as new, 2 &amp; 3 as pending and state 4 as complete)
-        h2 Configuring Viewer Features
+                            li designReviewTasks.states is used to determine the color highlight of actions being shown in context of a review (states 1 &amp; 2 will be shown as new, 2 &amp; 3 as pending and state 4 as complete)
+        h1 Common Configuration Settings
+        p This utility also uses the following common configuration settings
+        table(style='margin:10px 0px 30px')
+            tr
+                th Setting
+                th Default Value 
+                th Description
+            tr  
+                td exports.common.workspaces.items.defaultBOMView
+                td 'Tree Navigator'  
+                td The default BOM view to be used for the BOM display. 
+                    br
+                    |If the defined view does not exist, the default BOM view will be used instead.
+                    br
+                    |For best performance, it is recommended to use a BOM view containing only the columns Descriptor, Number and Quantity.
+        h1 Viewer Configuration Settings
         include ../framework/viewer.pug
     .log 
         h1 Design Reviews Change Log 
         table 
+            tr 
+                td 12. January 2026
+                td Documentation
+                td Documentation has been updated to match the new custom settings and environments management 
             tr 
                 td 2. December 2025
                 td Enhancement 

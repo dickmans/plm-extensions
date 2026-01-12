@@ -24,11 +24,11 @@ $(document).ready(function() {
 // Set UI Labels
 function setLabels() {
 
-    $('#landing-title').html(config.portfolio.hierarchy[0]);
-    $('#lines-back').html(config.portfolio.hierarchy[0]);
-    $('#lines-header').html(config.portfolio.hierarchy[1]);
-    $('#products-back').html(config.portfolio.hierarchy[1]);
-    $('#products-header').html(config.portfolio.hierarchy[2]);
+    $('#landing-title'  ).html(config.hierarchy[0]);
+    $('#lines-back'     ).html(config.hierarchy[0]);
+    $('#lines-header'   ).html(config.hierarchy[1]);
+    $('#products-back'  ).html(config.hierarchy[1]);
+    $('#products-header').html(config.hierarchy[2]);
 
 }
 
@@ -119,7 +119,7 @@ function setUIEvents() {
 function getWorkspaceIds(callback) {
 
     $.get('/plm/workspaces', { limit : 250, useCache : true }, function(response) {
-        for(let level of config.portfolio.hierarchy) {
+        for(let level of config.hierarchy) {
             for(let workspace of response.data.items) {
                 if(workspace.title === level) {
                     workspaces.push({
@@ -423,7 +423,8 @@ function selectProduct(elemClicked) {
                 { type : 'attachments' , className : 'surface-level-2', params : { id : 'item-section-attachments', editable : false, contentSize : 's' , singleToolbar : 'controls'} },
                 { type : 'bom'         , className : 'surface-level-2', params : { 
                     id                  : 'item-section-bom', 
-                    bomViewName         : config.portfolio.bomViewName,
+                    bomViewName         : common.workspaces.items.defaultBOMView,
+                    depth               : config.bomLevels,                  
                     collapseContents    : true, 
                     hideDetails         : true,
                     openInPLM           : true,

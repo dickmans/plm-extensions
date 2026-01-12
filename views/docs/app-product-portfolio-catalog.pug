@@ -1,4 +1,4 @@
-.tile(data-name='Product Portfolio Catalog') 
+.tile(data-name='Product Portfolio Catalog' data-id='portfolio') 
     .tile-image(style='background: url("images/app-product-catalog.png") no-repeat;background-size:contain;')
     .tile-details
         .tile-title Product Portofolio Catalog
@@ -10,7 +10,9 @@
         h1 Prerequisites
         p Your tenant must have the 
             strong Product Portfolio Management 
-            | app installed (providing the workspaces Product Categories, Product Lines and Products). If your tenant has been created after April 2021, changes are high that it meets this requirement.
+            | app installed (providing the workspaces Product Categories, Product Lines and Products).
+            br
+            |If your tenant has been created after April 2021, changes are high that it meets this requirement.
         h1 Features
         p Users can navigate the various level of the portfolio from Product Categories down to Products in an easy manner. Once a product is selected, users can retrieve a couple of information: 
         ul  
@@ -32,36 +34,55 @@
             | to be a pick list, enabling references to the workspace 
             strong Items 
             | (if existent, otherwise use 
-            strong Vault Items and BOMs
+            strong Items and BOMs
             | ). When using the app, only if an item is selected in this field, the product catalog will be able to render the 3D design of the product (as this will render the related item's dwf). Also, this given item will be used to retrieve the product 
             strong Bill of Materials
             | .
         img(src='images/apps/product-catalog-2.png' style='max-width:736px;')
-        h1 Configuration Settings
-        p A couple of settings can be adjusted in file 
-            strong settings.js 
-            | to match your environment if needed:
-        p.code
-            span export.config = {
-            span.indent 'portfolio' : {
-            span.indent-2 'bomViewName' : 'Basic',
-            span.indent-2 'hierarchy' : ['Product Categories', 'Product Lines', 'Products']
-            span.indent }
-            span }                         
-        ul 
-            li In setting 
-                strong bomViewName
-                |, provide the name of a BOM view of your items workspace which contains the Number field as column. If this column is missing, the highlighting of BOM items in the viewer will fail. Make sure that this number's Field ID is also properly defined in 
-                strong viewer.fieldIdPartNumber 
-                | within the settings file.
-            li If you renamed the standard workspaces of 
-                strong Product Portfolio Management
-                |, you can provide the new names in parameter 
-                strong hierarchy
-                |.
+        h1 Application Configuration Settings
+        p The following settings can be adjusted in your custom settings file within 
+            span.code exports.applications 
+            |to adjust the application's behavior. In order to change any of these settings, copy the standard value from settings.js to your custom settings file in folder settings.
+        p 
+            table 
+                tr 
+                    th Setting 
+                    th Description 
+                    th Default Value
+                tr 
+                    td portfolio.hierarchy
+                    td If you renamed the standard workspaces of 
+                        strong Product Portfolio Management
+                        |, you can provide the new names here
+                    td ['Product Categories', 'Product Lines', 'Products']
+                tr 
+                    td portfolio.bomLevels
+                    td Restrict the BOM expansion to the defined number of levels
+                    td 3
+        h1 Common Configuration Settings
+        p This utility also uses the following common configuration settings
+        table(style='margin:10px 0px 30px')
+            tr
+                th Setting
+                th Description
+                th Default Value 
+            tr  
+                td exports.common.workspaces.items.defaultBOMView
+                td The default BOM view to be used for the BOM display. 
+                    br
+                    |If the defined view does not exist, the default BOM view will be used instead.
+                    br
+                    |For best performance, it is recommended to use a BOM view containing only the columns Descriptor, Number and Quantity.
+                td 'Tree Navigator'  
+        h1 Viewer Configuration Settings
+        include ../framework/viewer.pug                
     .log 
         h1 Product Portfolio Catalog Change Log 
         table 
+            tr 
+                td 12. January 2026
+                td Documentation
+                td Documentation has been updated to match the new custom settings and environments management
             tr 
                 td 9. October 2025
                 td Enhancement

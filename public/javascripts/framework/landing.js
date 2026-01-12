@@ -93,6 +93,11 @@ $(document).ready(function() {
         $('body').removeClass('logs');
         $('.with-log').removeClass('with-log');
         $('.with-troubleshooting').removeClass('with-troubleshooting');
+
+        let url = document.location.href.split('?');
+            url = url[0] + '?app=' + $(this).attr('data-id') + '&theme=' + $('#theme-selector').val();
+
+        window.history.replaceState(null, null, url);
     
     });
 
@@ -112,6 +117,9 @@ $(document).ready(function() {
                 $('.tile').removeClass('with-log');
                 e.preventDefault();
                 e.stopPropagation();
+                let url = document.location.href.split('?');
+                    url = url[0] + '?theme=' + $('#theme-selector').val();
+                window.history.replaceState(null, null, url);
             });
 
         if($(this).children('.troubleshooting').length) {
@@ -185,6 +193,8 @@ $(document).ready(function() {
         $('.close-app').click();
         $('body').toggleClass('logs');
     });
+
+    openSelectedApp()
     
 });
 
@@ -221,5 +231,24 @@ function updateLinks() {
     $('.url').each(function() {
         $(this).html(location[0]);
     });
+
+}
+
+function openSelectedApp() {
+    
+    let params = new URLSearchParams(window.location.search);
+ 
+    let app    = params.get('app');
+
+    console.log('App to open:', app);
+
+    if(app) {
+        $('.tile').each(function() {
+            let tileApp = $(this).attr('data-id');
+            if(tileApp === app) {
+                $(this).click();
+            }
+        });
+    }
 
 }

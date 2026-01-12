@@ -3,7 +3,7 @@ $(document).ready(function() {
     appendOverlay(false);
     setUIEvents();
     insertMenu();
-    insertReportDefinitions('list', config.reports.startupReportNames);
+    insertReportDefinitions('list', config.startupReportNames);
 
 });
 
@@ -37,7 +37,7 @@ function insertReportDefinitionsDone(elemReports, selectedReports) {
 
     if(elemReports.children('.selected').length === 0) {
         elemReports.children().each(function() {
-            if($(this).index() < config.reports.startupReportCount) $(this).addClass('selected');
+            if($(this).index() < config.startupReportCount) $(this).addClass('selected');
         })
     }
 

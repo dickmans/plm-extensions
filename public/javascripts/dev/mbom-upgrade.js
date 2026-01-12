@@ -29,7 +29,6 @@ let paramsSummary = {
 let eBOM            = {};
 let mBOM            = {};
 let uBOM            = {};
-let urlParameters   = getURLParameters();
 let instructions    = [];
 let itemsToValidate = [];
 let bomListPrevious  = [];
@@ -869,9 +868,9 @@ function setStatusBar() {
     viewerResetColors();
 
     if(viewerStatusColors) {
-        viewerSetColors(listRed    , { keepHidden : true, unhide : false, resetColors : false, color : config.vectors.red}    );
-        viewerSetColors(listYellow , { keepHidden : true, unhide : false, resetColors : false, color : config.vectors.yellow} );
-        viewerSetColors(listGreen  , { keepHidden : true, unhide : false, resetColors : false, color : config.vectors.green}  );
+        viewerSetColors(listRed    , { keepHidden : true, unhide : false, resetColors : false, color : colors.vectors.red}    );
+        viewerSetColors(listYellow , { keepHidden : true, unhide : false, resetColors : false, color : colors.vectors.yellow} );
+        viewerSetColors(listGreen  , { keepHidden : true, unhide : false, resetColors : false, color : colors.vectors.green}  );
     }
 
 }
@@ -913,7 +912,7 @@ function setEBOM(elemParent, urn, level, qty) {
     let descriptor  = getDescriptor(eBOM, urn);
     let nodeLink    = getLink(eBOM, urn);
     let rootLink    = getRootLink(eBOM, urn);
-    let partNumber  = getNodeProperty(eBOM, urn, wsEBOM.viewColumns, config.items.fieldIdNumber, '');
+    let partNumber  = getNodeProperty(eBOM, urn, wsEBOM.viewColumns, common.workspaces.items.fieldIdNumber, '');
     let category    = getNodeProperty(eBOM, urn, wsEBOM.viewColumns, config.mbom.fieldIdCategory, '');
     let type        = getNodeProperty(eBOM, urn, wsEBOM.viewColumns, 'TYPE', '');
     let code        = getNodeProperty(eBOM, urn, wsEBOM.viewColumns, config.mbom.fieldIdProcessCode, '');
@@ -1736,7 +1735,7 @@ function setMBOM(elemParent, urn, level, qty, urnParent, additionalItem) {
     let descriptor   = getDescriptor(mBOM, urn);
     let nodeLink     = getLink(mBOM, urn);
     let rootLink     = getRootLink(mBOM, urn);
-    let partNumber   = getNodeProperty(mBOM, urn, wsMBOM.viewColumns, config.items.fieldIdNumber, '');
+    let partNumber   = getNodeProperty(mBOM, urn, wsMBOM.viewColumns, common.workspaces.items.fieldIdNumber, '');
     let category     = getNodeProperty(mBOM, urn, wsMBOM.viewColumns, 'TYPE', '');
     let type         = getNodeProperty(mBOM, urn, wsMBOM.viewColumns, 'TYPE', '');
     let code         = getNodeProperty(mBOM, urn, wsMBOM.viewColumns, config.mbom.fieldIdProcessCode, '');
@@ -2469,7 +2468,7 @@ function selectAdjacentMBOMModels() {
         if(elemPrev.length > 0) {
             let prevPartNumber = elemPrev.attr('data-part-number');
             elemPrev.addClass('adjacent-prev');
-            viewerSetColor(prevPartNumber, { 'color' : config.vectors.green, resetColors : false } );
+            viewerSetColor(prevPartNumber, { 'color' : colors.vectors.green, resetColors : false } );
         }
     }
 
@@ -2480,7 +2479,7 @@ function selectAdjacentMBOMModels() {
         if(elemNext.length > 0) {
             let nextPartNumber = elemNext.attr('data-part-number');
             elemNext.addClass('adjacent-next');
-            viewerSetColor(nextPartNumber, { 'color' : config.vectors.red, resetColors : false } );
+            viewerSetColor(nextPartNumber, { 'color' : colors.vectors.red, resetColors : false } );
         }
     }
 

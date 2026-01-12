@@ -1,8 +1,7 @@
-let urlParameters = getURLParameters();
-let tenants       = []
-let windows       = [];
-let allSccrips    = [];
-let completed     = 0;
+let tenants    = []
+let windows    = [];
+let allSccrips = [];
+let completed  = 0;
 
 $(document).ready(function() {
 

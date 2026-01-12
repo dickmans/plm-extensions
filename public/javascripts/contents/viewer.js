@@ -82,13 +82,13 @@ function initViewer(id, link, viewables, params) {
     viewerGeometryLoaded    = false;
     viewerObjectTreeCreated = false;
     viewerInstanceDataSet   = false;
-    conversionAttempts      = config.viewer.conversionAttempts || 10;
-    conversionDelay         = config.viewer.conversionDelay    || 2000;
+    conversionAttempts      = common.viewer.conversionAttempts || 10;
+    conversionDelay         = common.viewer.conversionDelay    || 2000;
 
     let surfaceLevel = getSurfaceLevel($('#' + viewerId)).split('surface-')[1];
     
     if(!isBlank(params.backgroundColor)) viewerSettings.backgroundColor = params.backgroundColor;
-    else if(surfaceLevel === 'level-0') viewerSettings.backgroundColor = config.viewer.backgroundColor;
+    else if(surfaceLevel === 'level-0') viewerSettings.backgroundColor = common.viewer.backgroundColor;
     else viewerSettings.backgroundColor = viewerBGColors[theme][surfaceLevel];
     
     if(Array.isArray(viewerSettings.backgroundColor)) {
@@ -101,12 +101,12 @@ function initViewer(id, link, viewables, params) {
         viewerSettings.backgroundColor = [viewerSettings.backgroundColor, viewerSettings.backgroundColor, viewerSettings.backgroundColor, viewerSettings.backgroundColor, viewerSettings.backgroundColor, viewerSettings.backgroundColor];
     }
     
-    if(!isBlank(params.antiAliasing    )) viewerSettings.antiAliasing     = params.antiAliasing;     else if(!isBlank(config.viewer.antiAliasing    )) viewerSettings.antiAliasing     = config.viewer.antiAliasing;
-    if(!isBlank(params.ambientShadows  )) viewerSettings.ambientShadows   = params.ambientShadows;   else if(!isBlank(config.viewer.ambientShadows  )) viewerSettings.ambientShadows   = config.viewer.ambientShadows;
-    if(!isBlank(params.groundReflection)) viewerSettings.groundReflection = params.groundReflection; else if(!isBlank(config.viewer.groundReflection)) viewerSettings.groundReflection = config.viewer.groundReflection;
-    if(!isBlank(params.groundShadow    )) viewerSettings.groundShadow     = params.groundShadow;     else if(!isBlank(config.viewer.groundShadow    )) viewerSettings.groundShadow     = config.viewer.groundShadow;
-    if(!isBlank(params.lightPreset     )) viewerSettings.lightPreset      = params.lightPreset;      else if(!isBlank(config.viewer.lightPreset     )) viewerSettings.lightPreset      = config.viewer.lightPreset;
-    if(!isBlank(params.cacheInstances  )) viewerSettings.cacheInstances   = params.cacheInstances;   else if(!isBlank(config.viewer.cacheInstances  )) viewerSettings.cacheInstances   = config.viewer.cacheInstances;
+    if(!isBlank(params.antiAliasing    )) viewerSettings.antiAliasing     = params.antiAliasing;     else if(!isBlank(common.viewer.antiAliasing    )) viewerSettings.antiAliasing     = common.viewer.antiAliasing;
+    if(!isBlank(params.ambientShadows  )) viewerSettings.ambientShadows   = params.ambientShadows;   else if(!isBlank(common.viewer.ambientShadows  )) viewerSettings.ambientShadows   = common.viewer.ambientShadows;
+    if(!isBlank(params.groundReflection)) viewerSettings.groundReflection = params.groundReflection; else if(!isBlank(common.viewer.groundReflection)) viewerSettings.groundReflection = common.viewer.groundReflection;
+    if(!isBlank(params.groundShadow    )) viewerSettings.groundShadow     = params.groundShadow;     else if(!isBlank(common.viewer.groundShadow    )) viewerSettings.groundShadow     = common.viewer.groundShadow;
+    if(!isBlank(params.lightPreset     )) viewerSettings.lightPreset      = params.lightPreset;      else if(!isBlank(common.viewer.lightPreset     )) viewerSettings.lightPreset      = common.viewer.lightPreset;
+    if(!isBlank(params.cacheInstances  )) viewerSettings.cacheInstances   = params.cacheInstances;   else if(!isBlank(common.viewer.cacheInstances  )) viewerSettings.cacheInstances   = common.viewer.cacheInstances;
     
     $('body').addClass('no-viewer-cube');
     $('#' + viewerId + '-processing').removeClass('hidden');
@@ -145,6 +145,21 @@ function convertViewable(id, link, params, viewable, attempt) {
         elemProcessingMessage.html('');
         launchViewer(params, viewable);
         return;
+    } else if(viewable.status === 'PENDING') {
+        elemProcessingMessage.html('Downloading ' + viewable.name);
+        setTimeout(function () {
+            $.get('/plm/get-viewable', { 
+                link         : link,
+                attachmentId : viewable.id,
+                forceUpdate  : false,
+                isPDF        : (viewable.type === 'Adobe PDF'),
+                filename     : viewable.filename,
+                thumbnail    : viewable.thumbnail
+            }, function(response) {
+                viewable.status = response.data.status;
+                convertViewable(id, link, params, viewable, attempt + 1);
+            });
+        }, conversionDelay);
     } else {
         elemProcessingMessage.html('Converting ' + viewable.name);
         setTimeout(function () {
@@ -184,9 +199,9 @@ function launchViewer(params, viewable) {
 
         $('#' + viewerId + '-processing').addClass('hidden');
 
-        splitPartNumberBy      = (isBlank(config.viewer.splitPartNumberBy))      ? ''  : config.viewer.splitPartNumberBy;
-        splitPartNumberIndexes = (isBlank(config.viewer.splitPartNumberIndexes)) ? [0] : config.viewer.splitPartNumberIndexes;
-        splitPartNumberSpacer  = (isBlank(config.viewer.splitPartNumberSpacer))  ? ''  : config.viewer.splitPartNumberSpacer;
+        splitPartNumberBy      = (isBlank(common.viewer.splitPartNumberBy))      ? ''  : common.viewer.splitPartNumberBy;
+        splitPartNumberIndexes = (isBlank(common.viewer.splitPartNumberIndexes)) ? [0] : common.viewer.splitPartNumberIndexes;
+        splitPartNumberSpacer  = (isBlank(common.viewer.splitPartNumberSpacer))  ? ''  : common.viewer.splitPartNumberSpacer;
 
         Autodesk.Viewing.Initializer(options, function() {
 
@@ -208,7 +223,7 @@ function launchViewer(params, viewable) {
                 console.error('Failed to create a Viewer: WebGL not supported.');
                 return;
             }      
-            
+
             if(!isBlank(viewerFeatures.contextMenu)) {
                 if(!viewerFeatures.contextMenu) viewer.setContextMenu(null);
             }
@@ -216,6 +231,7 @@ function launchViewer(params, viewable) {
             $('#' + viewerId).show();
 
             if(viewable.type === 'Adobe PDF') {
+                console.log('hier');
                 viewer.loadExtension('Autodesk.PDF').then( () => {
                     viewerFeatures.markup = true;
                     viewer.setBackgroundColor(viewerSettings.backgroundColor[0], viewerSettings.backgroundColor[1], viewerSettings.backgroundColor[2], viewerSettings.backgroundColor[3], viewerSettings.backgroundColor[4], viewerSettings.backgroundColor[5]);
@@ -551,26 +567,34 @@ function extendViewerInstanceData() {
 
     if(!viewerSettings.cacheInstances) return;
 
+    let instancesCount = [];
+
     for(let instance of dataInstances) {
         
         getComponentPath(instance.dbId, instance.parents);
         
         let parentPartNumbers = instance.parents.filter(a => a.partNumber.indexOf('Pattern') < 0);
-            parentPartNumbers = parentPartNumbers.filter(a => ((a.name.indexOf(':') > 0) || (a.name.indexOf('.') > 0)));
+            // parentPartNumbers = parentPartNumbers.filter(a => ((a.name.indexOf(':') > 0) || (a.name.indexOf('.') > 0)));
 
-        let split = instance.name.split(':');
+        // let split = instance.name.split(':');
 
-        instance.instanceId   = (split.length === 1) ? '' : Number(split.pop());
+        if(typeof instancesCount[instance.partNumber] === 'undefined') instancesCount[instance.partNumber] = 1; else instancesCount[instance.partNumber]++;
+
+        instance.instanceId   = instancesCount[instance.partNumber];
         instance.path         =  instance.parents.map(function(parent) { return parent.partNumber }).join('|');
         instance.pathNumbers  = parentPartNumbers.map(function(parent) { return parent.partNumber }).join('|');
         instance.instancePath =  instance.parents.map(function(parent) { return parent.name       }).join('|');
+
+        // if(split.length === 1) {
+        //     instance.pathNumbers += '|' + instance.partNumber;
+        // } else instance.instanceId = Number(split.pop());
 
     }
 
 }
 function getInstancePartNumber(instance) {
 
-    for(let partNumberPropery of config.viewer.numberProperties) {
+    for(let partNumberPropery of common.viewer.numberProperties) {
         for(let property of instance.properties) {
             // if(partNumberPropery === property.attributeName) {
             if(partNumberPropery === property.displayName) {
@@ -746,7 +770,7 @@ function viewerGetSelectedPartNumber(event, callback) {
             let partNumber = data.name.split(':')[0];
             let match      = false;
 
-            for(let partNumberProperty of config.viewer.numberProperties) {
+            for(let partNumberProperty of common.viewer.numberProperties) {
                 if(!match) {
                     for(let property of data.properties) {
                         if(property.displayName === partNumberProperty) {

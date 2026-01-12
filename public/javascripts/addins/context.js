@@ -1,6 +1,3 @@
-let urlParameters = getURLParameters();
-
-
 $(document).ready(function() {
 
     setUIEvents();

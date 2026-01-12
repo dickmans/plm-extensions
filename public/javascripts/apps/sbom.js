@@ -1,4 +1,3 @@
-let urlParameters      = getURLParameters();
 let links              = {}
 let wsConfigItems      = {};
 let bomCompleted       = 0;
@@ -51,14 +50,14 @@ $(document).ready(function() {
     appendOverlay(true);
     appendProcessing('panel', false);
 
-    $('#header-title').html(config.sbom.appTitle);
+    $('#header-title').html(config.appTitle);
 
     let requests = [
         $.get('/plm/details'             , { link : urlParameters.link }),
-        $.get('/plm/picklist'            , { link : '/api/v3/lookups/' + config.sbom.picklistIdItemType }),
+        $.get('/plm/picklist'            , { link : '/api/v3/lookups/' + config.picklistIdItemType }),
         $.get('/plm/sections'            , { wsId : urlParameters.wsId }),
-        $.get('/plm/sections'            , { wsId : config.items.wsId }),
-        $.get('/plm/bom-views-and-fields', { wsId : config.items.wsId })
+        $.get('/plm/sections'            , { wsId : common.workspaceIds.items }),
+        $.get('/plm/bom-views-and-fields', { wsId : common.workspaceIds.items })
     ]; 
 
     getFeatureSettings('sbom', requests, function(responses) {
@@ -71,7 +70,7 @@ $(document).ready(function() {
             label   : 'All Items', 
             type    : 'views',
             id      : 'browser-views',
-            wsId    : config.items.wsId,
+            wsId    : common.workspaceIds.items,
             settings : { 
                 reload : true
             }
@@ -80,21 +79,21 @@ $(document).ready(function() {
             type    : 'search',
             settings : {
                 id          : 'browser-search',
-                workspaceId : [ config.items.wsId ],
+                workspaceId : [ common.workspaceIds.items ],
             }
         },{
             label    : 'Bookmarks', 
             type     : 'bookmarks',
             settings : {
                 reload       : true,
-                workspacesIn : [ config.items.wsId ]
+                workspacesIn : [ common.workspaceIds.items ]
             }
         },{
             label    : 'Recent', 
             type     : 'recents',
             settings : {
                 reload       : true,
-                workspacesIn : [ config.items.wsId ]
+                workspacesIn : [ common.workspaceIds.items ]
             }
         }], {
             enableDragging  : true,
@@ -144,30 +143,30 @@ function initEditor(responses) {
     $('#header-subtitle').html(responses[0].data.title);
 
     links.sourceBOM = urlParameters.link;
-    links.targetBOM = getSectionFieldValue(responses[0].data.sections, config.sbom.targetBOM.fieldId, '', 'link');
+    links.targetBOM = getSectionFieldValue(responses[0].data.sections, config.targetBOM.fieldId, '', 'link');
 
-    if(config.sbom.sourceBOM.fieldId !== '') links.sourceBOM = getSectionFieldValue(responses[0].data.sections, config.sbom.sourceBOM.fieldId, '', 'link');
+    if(config.sourceBOM.fieldId !== '') links.sourceBOM = getSectionFieldValue(responses[0].data.sections, config.sourceBOM.fieldId, '', 'link');
 
-    wsConfigItems.fieldIds         = config.sbom.itemsFieldIds;
+    wsConfigItems.fieldIds         = config.itemsFieldIds;
     wsConfigItems.sections         = responses[3].data;
-    wsConfigItems.fieldIdHighlight = config.sbom.itemHighlight.fieldId;
+    wsConfigItems.fieldIdHighlight = config.itemHighlight.fieldId;
     wsConfigItems.valuesHighlight  = [];
 
-    for(let value of config.sbom.itemHighlight.fieldValues) wsConfigItems.valuesHighlight.push(value.toLowerCase());
+    for(let value of config.itemHighlight.fieldValues) wsConfigItems.valuesHighlight.push(value.toLowerCase());
     
     for(let type of responses[1].data.items) {
-        if(type.title === config.sbom.targetBOM.itemTypeValue) wsConfigItems.linkTypeTargetBOM = type.link;
+        if(type.title === config.targetBOM.itemTypeValue) wsConfigItems.linkTypeTargetBOM = type.link;
     }
     
     for(let bomView of responses[4].data) {
-        if(bomView.name === config.sbom.targetBOM.bomViewName) {
+        if(bomView.name === config.targetBOM.bomViewName) {
             wsConfigItems.bomViewId     = bomView.id;
             wsConfigItems.bomViewFields = bomView.fields;
             break;
         }
     }
 
-    bomTypes = config.sbom.bomTypes;
+    bomTypes = config.bomTypes;
 
     for(let bomType of bomTypes) {
 
@@ -271,7 +270,7 @@ function initEditor(responses) {
 
     if(isBlank(links.sourceBOM)) {
 
-        showErrorMessage('Failure when loading Source BOM', 'Could not find the source BOM item in field ' + config.sbom.sourceBOM.fieldId + '. Please contact your administrator to review your server settings file.')
+        showErrorMessage('Failure when loading Source BOM', 'Could not find the source BOM item in field ' + config.sourceBOM.fieldId + '. Please contact your administrator to review your server settings file.')
 
     } else {
 
@@ -285,12 +284,12 @@ function initEditor(responses) {
             toggles            : true,
             viewerSelection    : true,
             openInPLM          : true,
-            includeBOMPartList : true,
-            headerLabel        : config.sbom.sourceBOM.headerLabel,
-            hideHeaderLabel    : (config.sbom.sourceBOM.headerLabel === ''),
+            includeBOMPartList : true,         
+            headerLabel        : config.sourceBOM.headerLabel,
+            hideHeaderLabel    : (config.sourceBOM.headerLabel === ''),
             contentSize        : 's',
             fieldsIn           : ['Quantity'],
-            bomViewName        : config.sbom.sourceBOM.bomViewName,
+            bomViewName        : config.sourceBOM.bomViewName,
             onClickItem        : function(elemClicked) { insertDetails(elemClicked.attr('data-link'), paramsDetails); },
             afterCompletion    : function(id, data)    { 
                 partsListSourceBOM = data.bomPartsList; 
@@ -313,7 +312,7 @@ function createTargetBOM(contextDetails, contextSections, callback) {
     if(isBlank(links.targetBOM)) {
 
         let params = {
-            wsId     : config.items.wsId,
+            wsId     : common.workspaceIds.items,
             sections : wsConfigItems.sections,
             fields   : [
                 { fieldId : wsConfigItems.fieldIds.type , value : { link : wsConfigItems.linkTypeTargetBOM }}
@@ -324,9 +323,9 @@ function createTargetBOM(contextDetails, contextSections, callback) {
 
             $.get('/plm/details', { link : links.sourceBOM }, function(response) {
 
-                setTargetBOMDefaults(params, contextDetails, response.data, config.sbom.targetBOM.defaults.number     , wsConfigItems.fieldIds.number     );
-                setTargetBOMDefaults(params, contextDetails, response.data, config.sbom.targetBOM.defaults.title      , wsConfigItems.fieldIds.title      );
-                setTargetBOMDefaults(params, contextDetails, response.data, config.sbom.targetBOM.defaults.description, wsConfigItems.fieldIds.description);
+                setTargetBOMDefaults(params, contextDetails, response.data, config.targetBOM.defaults.number     , wsConfigItems.fieldIds.number     );
+                setTargetBOMDefaults(params, contextDetails, response.data, config.targetBOM.defaults.title      , wsConfigItems.fieldIds.title      );
+                setTargetBOMDefaults(params, contextDetails, response.data, config.targetBOM.defaults.description, wsConfigItems.fieldIds.description);
 
                 $.post({
                     url         : '/plm/create', 
@@ -366,7 +365,7 @@ function storeTargetBOMLink(contextSections) {
 
     let params = { link : urlParameters.link, sections : [] }
 
-    addFieldToPayload(params.sections, contextSections, null, config.sbom.targetBOM.fieldId, { link : links.targetBOM} );
+    addFieldToPayload(params.sections, contextSections, null, config.targetBOM.fieldId, { link : links.targetBOM} );
 
     $.post('/plm/edit', params, function() {});
 
@@ -451,13 +450,13 @@ function insertBOMItemFilter() {
 
     let filters = [];
 
-    if(!isBlank(config.sbom.itemHighlight)) {
-        if(!isBlank(config.sbom.itemHighlight.filterLabelIn)) filters.push({ type : 'in', className : 'highlighted', label : config.sbom.itemHighlight.filterLabelIn })
-        if(!isBlank(config.sbom.itemHighlight.filterLabelEx)) filters.push({ type : 'ex', className : 'highlighted', label : config.sbom.itemHighlight.filterLabelEx })
+    if(!isBlank(config.itemHighlight)) {
+        if(!isBlank(config.itemHighlight.filterLabelIn)) filters.push({ type : 'in', className : 'highlighted', label : config.itemHighlight.filterLabelIn })
+        if(!isBlank(config.itemHighlight.filterLabelEx)) filters.push({ type : 'ex', className : 'highlighted', label : config.itemHighlight.filterLabelEx })
     }
 
-    if(!isBlank(config.sbom.targetBOM.filterLabelIn)) filters.push({ type : 'in', className : 'in-use', label : config.sbom.targetBOM.filterLabelIn })
-    if(!isBlank(config.sbom.targetBOM.filterLabelEx)) filters.push({ type : 'ex', className : 'in-use', label : config.sbom.targetBOM.filterLabelEx })
+    if(!isBlank(config.targetBOM.filterLabelIn)) filters.push({ type : 'in', className : 'in-use', label : config.targetBOM.filterLabelIn })
+    if(!isBlank(config.targetBOM.filterLabelEx)) filters.push({ type : 'ex', className : 'in-use', label : config.targetBOM.filterLabelEx })
 
     for(let bomType of bomTypes) {
         if(!isBlank(bomType.filterLabelIn)) filters.push({ type : 'in', className : bomType.className, label : bomType.filterLabelIn })
@@ -496,7 +495,7 @@ function createListParents(callback) {
             if(isBlank(bomType.linkRoot)) {
 
                 let params = {
-                    wsId      : config.items.wsId,
+                    wsId      : common.workspaceIds.items,
                     sections  : []
                 };
         
@@ -533,7 +532,7 @@ function createListParents(callback) {
                 linkChild  : link,
                 quantity   : 1,
                 number     : types[index].basePosNumber,
-                pinned     : config.sbom.enableBOMPin
+                pinned     : config.enableBOMPin
             }
 
             requests.push($.post('/plm/bom-add', params));
@@ -560,10 +559,10 @@ function insertBOMIndicators() {
 
         let elemTHRow = $('#bom-thead-row');
         
-        if(!isBlank(config.sbom.itemHighlight)) {
+        if(!isBlank(config.itemHighlight)) {
             $('<th></th>').appendTo(elemTHRow) 
                 .addClass('bom-column-highlighted')
-                .html(config.sbom.itemHighlight.bomColumnTitle);
+                .html(config.itemHighlight.bomColumnTitle);
         }
 
         for(let bomType of bomTypes) {
@@ -648,7 +647,7 @@ function updateBOMIndicators() {
                         $('<i></i>').appendTo(elemCell)
                             .addClass('icon')
                             .addClass(bomType.icon)
-                            .css('background', bomType.color)
+                            .css('background', colors[bomType.color])
                             .attr('title', bomType.tabLabel);
                     }
                 }
@@ -1297,7 +1296,7 @@ function createNewItems(action) {
             if(requests.length < action.maxRequests) {
 
                 let params = {
-                    wsId      : config.items.wsId,
+                    wsId      : common.workspaceIds.items,
                     sections  : []
                 };
 

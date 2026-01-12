@@ -19,28 +19,42 @@ block body
             #header-title=title
             #header-subtitle
             #header-toolbar
-                #toggle-details.button.with-icon.icon-toggle-off(title='Click to toggle details panel on/off')  Toggle Details
-                #reset.button.with-icon.icon-refresh(title='Reset all changes by reloading the editor') Reset
                 #save.button.default(title='Apply changes to the database') Save
+                #reset.button.with-icon.icon-refresh(title='Reset all changes by reloading the editor') Reset
+                #export.button.with-icon.icon-download.hidden(title='Export list of purchased parts to Excel') Purchased Parts
+                #toggle-details.button.with-toggle.toggle-off(title='Click to toggle details panel on/off') Details Panel
                 #header-avatar
 
         #main.screen
 
-            .panel#tabs 
+            #mbom.surface-level-2
+                .panel-header
+                    .panel-title
+                        .panel-title-main Manufacturing BOM
+                        .panel-toolbar 
+                            select#make-buy-filter.button.hidden
+                                option(value = 'all' ) No Filter
+                                option(value = 'empty' ) Empty
+                .panel-content#mbom-tree.no-scrollbar
+                #mbom-add-process.surface-level-3
+                    span#mbom-add-text
+                    input#mbom-add-name(placeholder="Title")
+                    input#mbom-add-code(placeholder="Code" )
+                    input#mbom-add-qty( placeholder="Qty"  )
+
+            #tabs.surface-level-1 
 
                 .panel-header.tabs.no-auto-select
-                    #mode-disassemble(data-id='disassemble') Disassemble
-                    #mode-ebom.selected(data-id='ebom') EBOM Alignment
-                    #mode-add(data-id='add') Add Items 
-                    //- #mode-instructions(data-id='instructions') Instructions ** custom
+                    .panel-title-main#mode-disassemble.hidden(data-id='disassemble') Disassemble
+                    .panel-title-main#mode-ebom.selected(data-id='ebom') EBOM Alignment
+                    .panel-title-main#mode-add(data-id='add') Add Items 
+                    .panel-title-main#mode-operations.hidden(data-id='operations') Operations &amp; Suppliers 
 
                 .panel-content.tab-group-main.viewer#viewer.surface-level-1
                 
                 .panel-content.tab-group-main#ebom
-                    #ebom-tree
-                    .bom-panel
-                        span Total Quantity : 
-                        span#ebom-total-qty
+                    #ebom-tree.no-scrollbar.pos-abs-top
+                    #ebom-qty-comparison
                     .progress
                         .bounce1
                         .bounce2
@@ -53,83 +67,68 @@ block body
                     #ebom-actions
                         #add-all.button(title='Click all Add buttons in EBOM to add all missing items at once to the MBOM') Add All
                         #deselect-all.button(title='Reset item selection in viewer, EBOM and MBOM') Deselect All
-                        #toggle-colors.button.with-icon.icon-toggle-off(title='When enabled, the component colors in the viewer will be replaced by red, yellow and green to indicate their consumption in the MBOM') Apply Colors
-                        #toggle-viewer.button.with-icon.icon-toggle-off(title='Hide / show the 3D viewer') Viewer
+                        #toggle-colors.button.with-toggle.toggle-off(title='When enabled, the component colors in the viewer will be replaced by red, yellow and green to indicate their consumption in the MBOM') Apply Colors
+                        #toggle-viewer.button.with-toggle.toggle-off(title='Hide / show the 3D viewer') Hide Viewer
 
                 .panel-content.tab-group-main#add
-                        .panel-left
-                            #nav-search-items.panel-nav(data-id='search-items') Search
-                            #nav-workspace-views-ebom.panel-nav.blank(data-id='workspace-views-ebom') Workspace Views
-                            #nav-workspace-views-mbom.panel-nav.blank(data-id='workspace-views-mbom') MBOM Workspace
-                            #nav-bookmark-items.panel-nav.blank(data-id='bookmark-items') Bookmarks
-                            #nav-recent-items.panel-nav.blank(data-id='recent-items') Recents
-                            #nav-create-assembly.panel-nav.blank(data-id='create-item') New
-                        .panel-right#add-views
-                            #search-items
-                                .panel-list-toolbar
-                                    span Search for:
-                                    input#search-input
-                                    i.icon search
-                                #search-items-list.panel-list
-                            #create-item
-                                #create-item-form.surface-level-2
-                                #create-item-panel 
-                                    //- #create-operation.button.default(title="New item will be considered as operation, consisting of sub MBOM items to define a manufacturing process") Save As Node
-                                    //- #create-end-item.button(title="New item will be considered as end item beinb consumed in a manufacturing process") Save As End Item
-                                    .list-header New Items 
-                                    #create-item-list.list
-                            //- #saved-search
-                            //-     .panel-list-toolbar
-                            //-         span Filter List:
-                            //-         input.list-filter
-                            //-         i.icon filter_list
-                            //-     #saved-search-list.panel-list
-                            #workspace-views-mbom(data-link='')
-                                .panel-list-toolbar
-                                    span Select View:
-                                    select.button.view-selector#view-selector-mbom
-                                    span Filter List:
-                                    input.list-filter
-                                    i.icon filter_list
-                                #workspace-view-list-mbom.panel-list
-                            #workspace-views-ebom(data-link='/api/v3/workspaces/79/tableaus')
-                                .panel-list-toolbar
-                                    span Select View:
-                                    select.button.view-selector#view-selector-ebom
-                                    span Filter List:
-                                    input.list-filter
-                                    i.icon filter_list
-                                #workspace-view-list-ebom.panel-list
-                            #bookmark-items
-                                #bookmark-items-list.panel-list
-                            #recent-items
-                                #recent-items-list.panel-list
-                        .panel-right#add-processing
-                            .processing
-                                .bounce1
-                                .bounce2
-                                .bounce3
+                    .panel-left
+                        #nav-search-items.panel-nav(data-id='search-items') Search
+                        #nav-workspace-views-ebom.panel-nav.blank(data-id='workspace-views-ebom') Workspace Views
+                        #nav-workspace-views-mbom.panel-nav.blank(data-id='workspace-views-mbom') MBOM Workspace
+                        #nav-bookmark-items.panel-nav.blank(data-id='bookmark-items') Bookmarks
+                        #nav-recent-items.panel-nav.blank(data-id='recent-items') Recents
+                        #nav-create-assembly.panel-nav.blank(data-id='create-item') New
+                    .panel-right#add-views
+                        #search-items
+                            .panel-list-toolbar
+                                span Search for:
+                                input#search-input
+                                i.icon search
+                            #search-items-list.panel-list
+                        #create-item
+                            #create-item-form.surface-level-2
+                            #create-item-panel 
+                                //- #create-operation.button.default(title="New item will be considered as operation, consisting of sub MBOM items to define a manufacturing process") Save As Node
+                                //- #create-end-item.button(title="New item will be considered as end item beinb consumed in a manufacturing process") Save As End Item
+                                .list-header New Items 
+                                #create-item-list.list
+                        //- #saved-search
+                        //-     .panel-list-toolbar
+                        //-         span Filter List:
+                        //-         input.list-filter
+                        //-         i.icon filter_list
+                        //-     #saved-search-list.panel-list
+                        #workspace-views-mbom(data-link='')
+                            .panel-list-toolbar
+                                span Select View:
+                                select.button.view-selector#view-selector-mbom
+                                span Filter List:
+                                input.list-filter
+                                i.icon filter_list
+                            #workspace-view-list-mbom.panel-list
+                        #workspace-views-ebom(data-link='/api/v3/workspaces/79/tableaus')
+                            .panel-list-toolbar
+                                span Select View:
+                                select.button.view-selector#view-selector-ebom
+                                span Filter List:
+                                input.list-filter
+                                i.icon filter_list
+                            #workspace-view-list-ebom.panel-list
+                        #bookmark-items
+                            #bookmark-items-list.panel-list
+                        #recent-items
+                            #recent-items-list.panel-list
+                    .panel-right#add-processing
+                        .processing
+                            .bounce1
+                            .bounce2
+                            .bounce3
         
-                .panel-content#instructions
+                .panel-content#operations
+                    .surface-level-2#operations-sourcing.pos-abs-left
+                    .surface-level-2#operations-grid.pos-abs-bottom
 
-            #divider-mbom.screen-divider.vertical 
-            
-            .panel#mbom
-                .panel-header
-                    .panel-title
-                        .panel-title-main Manufacturing BOM
-                .panel-content#mbom-tree
-                #mbom-add-operation.surface-level-3
-                    span#mbom-add-text Add MBOM Node
-                    input#mbom-add-name(placeholder="Title")
-                    input#mbom-add-code(placeholder="Code")
-                .bom-panel
-                    span Total Quantity : 
-                    span#mbom-total-qty
-
-            .panel.surface-level-3#summary
-            //- .panel.surface-level-3#details
-            //- .panel.surface-level-3#attachments
+            .surface-level-1#details
 
         #dialog-copy.dialog
             .dialog-header Copy / Move Item

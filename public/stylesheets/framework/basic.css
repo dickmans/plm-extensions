@@ -183,7 +183,7 @@ table.grid.rotated th {
 }
 table.row-hovering tr:hover td,
 table.row-hovering tbody tr:hover td {
-    border-color    : var(--color-hover-border) !important;
+    border-color    : var(--color-hover-border);
     cursor          : pointer;
 }
 table.row-hovering tr:hover td.field-readonly,

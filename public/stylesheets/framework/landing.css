@@ -57,7 +57,7 @@
     left            : calc(var(--width-side) + 160px);
 }
 
-body > div { transition  : all ease 0.2s; }
+body > div { transition : none; }
 
 body.no-side-panel #toggle,
 body.no-side-panel #layout,
@@ -174,7 +174,7 @@ body.layout-tiles-list .tile.min .tile-access .button {
 .tiles-group-list {
     display     : flex;
     flex-wrap   : wrap;
-    gap         : 20px;
+    gap         : 8px;
     padding-top : 10px;
 }
 
@@ -183,24 +183,24 @@ body.layout-tiles-list .tile.min .tile-access .button {
 /*  TILES */
 /* ----------------------------------------------------------------------------- */
 .tile {
-    background      : var(--color-surface-level-3);
-    display         : flex;
-    flex-direction  : column;
-    height          : 460px;
+    background     : var(--color-surface-level-2);
+    display        : flex;
+    flex-direction : column;
+    height         : 420px;
 }
 .tile-image {
-    max-height  : 226px;
-    min-height  : 226px;
-    height      : 226px;
+    max-height : 192px;
+    min-height : 192px;
+    height     : 192px;
 }
 .tile,
 .tile-image {
-    min-width : 400px;
-    width     : 400px;
+    min-width : 340px;
+    width     : 340px;
 }
 .tile-details {
     gap     : 10px;
-    margin  : 20px 40px;
+    margin  : 16px 28px;
 }
 .tile-title { 
     font-size   : 20px;
@@ -209,7 +209,7 @@ body.layout-tiles-list .tile.min .tile-access .button {
 }
 .tile-subtitle {     
     font-size   : 12px;
-    height      : 80px;
+    height      : 90px;
     line-height : 16px;
     white-space : wrap !important;
 }
@@ -259,6 +259,10 @@ body.layout-tiles-list .tile.min .tile-access .button {
 .tile.max .tile-image {
     border              : 30px solid var(--color-surface-level-2);
     border-left-width   : 60px;
+    max-width           : 400px;
+    min-width           : 400px;
+    max-height          : 226px;
+    min-height          : 226px;
     position            : absolute;
     top                 : 0px;
     left                : 0px;

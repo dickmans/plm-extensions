@@ -1,4 +1,3 @@
-let urlParameters       = getURLParameters();
 let wsConfig            = { items : {}, processes : {}, operations : {} };
 let links               = {};
 let bomPartsList        = [];
@@ -375,8 +374,8 @@ function applyViewerColors() {
             else if(elemNode.hasClass('status-red')) pnRed.push(elemNode.attr('data-part-number'));
         });
 
-        viewerSetColors(pnGreen, { color : config.vectors.green});
-        viewerSetColors(pnRed, { color : config.vectors.red, resetColors : false});
+        viewerSetColors(pnGreen, { color : colors.vectors.green});
+        viewerSetColors(pnRed, { color : colors.vectors.red, resetColors : false});
 
     } else {
         viewerResetColors();

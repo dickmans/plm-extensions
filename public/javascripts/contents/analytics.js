@@ -244,7 +244,7 @@ function insertReportChart(idChart, elemReport, data) {
 
             labels.push(row.fields.entry[0].fieldData.value);
             values.push(value);
-            styles.push(config.colors.list[index++]);
+            styles.push(colors.list[index++]);
 
         }
 
@@ -254,7 +254,7 @@ function insertReportChart(idChart, elemReport, data) {
                 labels  : labels,
                 datasets: [{
                     data            : values,
-                    backgroundColor : config.colors.list,
+                    backgroundColor : colors.list,
                     borderWidth     : 1
                 }]
             },

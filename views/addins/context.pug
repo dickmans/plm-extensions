@@ -3,13 +3,12 @@ extends ../framework/addins
 block head
     
     link(rel='stylesheet', href='/stylesheets/addins/context.css')
+    
     script(src='/javascripts/addins/context.js')
-    script.
-        config = !{JSON.stringify(config)};
 
 block body 
 
     body.addin
 
-        .screen.surface-level-1  
+        .screen.no-header.surface-level-1  
             #item.surface-level-1

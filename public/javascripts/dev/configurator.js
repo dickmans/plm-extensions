@@ -450,7 +450,7 @@ function clickBOMItemDone(elemClicked, e) {
 
     if(elemClicked.hasClass('selected')) {
         viewerSetColor(partNumber, { 
-            color     : config.vectors.red,
+            color     : colors.vectors.red,
             fitToView : true,
             unhide    : false
         });
@@ -870,11 +870,11 @@ function updateViewer() {
 
                 pathLast = dataPath;
 
-                // viewerSetColor(config.vectors.yellow);
+                // viewerSetColor(colors.vectors.yellow);
             } else {
                 pathsHighlight.push(dataPath);
 
-                // viewerSetColor(config.vectors.blue);
+                // viewerSetColor(colors.vectors.blue);
             }
         } else {
             viewerHideModel(dataPath, { usePath : true, fitToView: false, ghosting : false });
@@ -885,7 +885,7 @@ function updateViewer() {
     // viewerResetColors();
     viewerSetColors(pathsHighlight, { resetColors: true, usePath : true, fitToView: false, unhide : false});
 
-    if(pathLast !== '') viewerSetColor(pathLast, { resetColors : false, usePath : true, fitToView: false, unhide : false, color : config.vectors.yellow });
+    if(pathLast !== '') viewerSetColor(pathLast, { resetColors : false, usePath : true, fitToView: false, unhide : false, color : colors.vectors.yellow });
 
 }
 

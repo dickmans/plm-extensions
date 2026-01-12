@@ -1,4 +1,4 @@
-.tile(data-name='Tenant Insights')
+.tile(data-name='Tenant Insights' data-id='addins-plm')
     .tile-image(style="background: url('images/addins-plm.png') no-repeat;background-size:contain;")
     .tile-details
         .tile-title Vault &amp; Inventor Addins
@@ -13,8 +13,10 @@
             a(target="_blank" href="https://github.com/koechlm/Autodesk.TS.PlmDesktopExtensions/raw/refs/heads/master/Autodesk.TS.VaultPlmClientExtensions.pptx" style="margin-left:10px;") Open the PLM Desktop Extensions Setup Instructions
             br
             br
-        p In order to use these addins with the PLM Desktop Extensions mentioned above, you must provide bour your Vault Gateway and Vault Name in your settings file:
-            img.border(src='images/apps/addins-plm-1.png' style='margin:8px 0px;width:100%;max-width:967px;min-width:967px;')
+        p In order to use these addins with the PLM Desktop Extensions mentioned above, you must provide bour your Vault Gateway and Vault Name in your environment file. 
+            br
+            |You can also use the given environment variables instead.
+            img.border(src='images/apps/addins-plm-1.png' style='margin:8px 0px;width:100%;max-width:960px;min-width:960px;')
             br
         table 
             tr 
@@ -72,9 +74,14 @@
                     a(href='addins/projects' target='_blank')
                 td
                     img.border(src='images/apps/addin-projects.png' style='margin:8px 0px;width:100%;max-width:495px;min-width:495px;')
-        p
-        h2 Configuration Settings 
-        p The following parameters can be changed in your settings file to adjust these panels to your needs.
+        br
+        br
+        h1 Application Configuration Settings 
+        p The following settings can be adjusted in your custom settings file within 
+            span.code exports.applications.addins 
+            |to adjust the addins' behavior.
+            br
+            |In order to change any of these settings, copy the standard value from settings.js to your custom settings file in folder settings.
         table 
             tr 
                 th Addin
@@ -83,70 +90,75 @@
                 th Description
             tr 
                 td(rowspan="3" style="border-right:1px solid var(--color-surface-level-1);") Item Master Data
-                td config.addins.item.expandSections
+                td item.expandSections
                 td [ 'Basic', 'Technical Details' ]
                 td Select the sections to be expanded in the Item Details. All sections not contained will be collapsed.
             tr 
-                td config.addins.item.sectionsEx 
+                td item.sectionsEx 
                 td [ 'Others' ]
                 td Defines sections to be excluded in the Item Details page. Leave this array blank to show all sections.
             tr 
-                td config.addins.item.fieldsEx 
+                td item.fieldsEx 
                 td [ 'ACTIONS' ]
                 td Defines fieldIDs to exclude in the Item Details page. Leave this array blank to show all fields.
             tr 
                 td(rowspan="8" style="border-right:1px solid var(--color-surface-level-1);") Engineering Projects
-                td config.addins.projects.workspaceId 
-                td 213
-                td The workspace ID of your Engineering Projects workspace
+                td projects.workspaceId 
+                td null
+                td The workspace ID of your Engineering Projects workspace. If no value is provided, the default ID will be used per definitio in 
+                    span.code exports.common.workspaceIds.engineeringProjects
             tr 
-                td config.addins.projects.stateCompleted 
+                td projects.stateCompleted 
                 td 'Completed'
                 td The final state of your Engineering Projects. Projects in this status will not be displayed.
             tr 
-                td config.addins.projects.headerLabelProjects 
+                td projects.headerLabelProjects 
                 td 'Engineering Projects'
                 td Sets the label being displayed on top of the list of Engineering Projects
             tr 
-                td config.addins.projects.fieldIdBOM 
+                td projects.fieldIdBOM 
                 td 'DELIVERABLE_4'
                 td The fieldId of Engineering Projects that stores the link to the Engineering BOM
             tr 
-                td config.addins.projects.tabNameBOM 
+                td projects.tabNameBOM 
                 td 'BOM'
                 td Label of the tab providing access to the Engineering Project's BOM
             tr 
-                td config.addins.projects.tabNameDetails 
+                td projects.tabNameDetails 
                 td 'Details'
                 td Label of the tab with the Engineering Project details
             tr 
-                td config.addins.projects.projectDetailsSectionsEx 
+                td projects.projectDetailsSectionsEx 
                 td [ 'Project Schedule', 'Closure' ]
                 td Defines sections to be excluded in the Item Details page. Leave this array blank to show all sections.
             tr 
-                td config.addins.projects.projectDetailsExpandSections 
+                td projects.projectDetailsExpandSections 
                 td [ 'Task Details', 'Header', 'Details' ]
                 td Defines sections to be expanded in the Item Details page.
             tr 
                 td(rowspan="4" style="border-right:1px solid var(--color-surface-level-1);") My Tasks List
-                td config.addins.tasks.headerLabelTasks 
+                td tasks.headerLabelTasks 
                 td 'My Work List'
                 td Sets the label being displayed on top of the list of tasks
             tr 
-                td config.addins.tasks.columnsExTasks 
+                td tasks.columnsExTasks 
                 td [ 'State Set On', 'State Set By', 'State' ]
                 td Columns to be hidden in the tasks list
             tr 
-                td config.addins.tasks.workspacesInTasks 
+                td tasks.workspacesInTasks 
                 td [ 'Change Tasks', 'Change Requests', 'Change Orders', 'Problem Reports' ]
                 td List of workspaces to be included in the tasks list. Workspaces not contained in this list will not be displayed.
             tr 
-                td config.addins.tasks.expandSectionsTask 
+                td tasks.expandSectionsTask 
                 td [ 'Task Details', 'Header', 'Details' ]
                 td Sections to be expanded when details of a task are displayed
     .log 
         h1 PLM Addin Change Log 
         table 
+            tr 
+                td 12. January 2026
+                td Documentation
+                td Documentation has been updated to match the new custom settings and environments management
             tr 
                 td April 16, 2025
                 td Initial Release

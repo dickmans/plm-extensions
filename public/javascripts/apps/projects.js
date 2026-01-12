@@ -16,10 +16,10 @@ $(document).ready(function() {
 function getData() {
 
     $.get('/plm/search-bulk', { 
-        'wsId'   : config.projects.wsIdProjects,
-        'limit'  : 100,
-        'offset' : 0,
-        'query'  : config.projects.query
+        wsId   : config.workspaceId || common.workspaceIds.projects,
+        limit  : 20,
+        offset : 0,
+        query  : config.query
     }, function(response) {
 
         sortArray(response.data.items, 'title', 'string', 'ascending');
@@ -52,35 +52,21 @@ function setStatusTable(projects) {
 
     let elemTable = $('#table-status');
 
-    for(project of projects) {
+    for(let project of projects) {
 
-        let elemRow = $('<tr></tr>');
-            elemRow.appendTo(elemTable);
-            elemRow.attr('data-urn', project.urn);
-            elemRow.click(function() {
+        let elemRow = $('<tr></tr>').appendTo(elemTable)
+            .attr('data-link', project.__self__)
+            .attr('data-urn', project.urn)
+            .click(function() {
                 let urn = $(this).attr('data-urn');
                 openItemByURN(urn);
             });
-
-        let elemCellName = $('<td></td>');
-            elemCellName.html(project.title);
-            elemCellName.appendTo(elemRow);
-
-        let elemCell1 = $('<td></td>');
-            elemCell1.append(getProjectStatus(project, 'STATUS_REPORT_1'));
-            elemCell1.appendTo(elemRow);
         
-        let elemCell2 = $('<td></td>');
-            elemCell2.append(getProjectStatus(project, 'STATUS_REPORT_2'));
-            elemCell2.appendTo(elemRow);
-        
-        let elemCell3 = $('<td></td>');
-            elemCell3.append(getProjectStatus(project, 'STATUS_REPORT_3'));
-            elemCell3.appendTo(elemRow);
-        
-        let elemCell4 = $('<td></td>');
-            elemCell4.append(getProjectStatus(project, 'STATUS_REPORT_4'));
-            elemCell4.appendTo(elemRow);
+        $('<td></td>').appendTo(elemRow).html(project.title);
+        $('<td></td>').appendTo(elemRow).append(getProjectStatus(project, 'STATUS_REPORT_1'));
+        $('<td></td>').appendTo(elemRow).append(getProjectStatus(project, 'STATUS_REPORT_2'));
+        $('<td></td>').appendTo(elemRow).append(getProjectStatus(project, 'STATUS_REPORT_3'));
+        $('<td></td>').appendTo(elemRow).append(getProjectStatus(project, 'STATUS_REPORT_4'));
 
     }
 
@@ -88,34 +74,23 @@ function setStatusTable(projects) {
 function getProjectStatus(data, fieldId) {
 
     let status = getSectionFieldValue(data.sections, fieldId, '', 'title');
-    let style = 'bg-gray';
+    let style  = 'bg-gray';
 
     if(status.length > 0) status = status.substring(0, 1);
 
     switch (status) {
 
-        case '1':
-            style = 'bg-dark-green';
-            break;
-
-        case '2':
-            style = 'bg-green';
-            break;
-
-        case '3':
-            style = 'bg-orange';
-            break;
-
-        case '4':
-            style = 'bg-red';
-            break;
+        case '1': style = 'bg-dark-green'; break;
+        case '2': style = 'bg-green'     ; break;
+        case '3': style = 'bg-orange'    ; break;
+        case '4': style = 'bg-red'       ; break;
 
     }
 
-    let elemStatus = $('<div></div>');
-        elemStatus.addClass('project-status');
-        elemStatus.addClass(style);
-        elemStatus.html(status);
+    let elemStatus = $('<div></div>')
+        .addClass('project-status')
+        .addClass(style)
+        .html(status);
 
     return elemStatus;
 
@@ -172,23 +147,23 @@ function setGatesTimeline(id, projects, projectNames) {
         data: {
             datasets: [{
                 label : "G1",
-                backgroundColor: config.colors.list[0],
+                backgroundColor: colors.list[0],
                 data: []
             },{
                 label : "G2",
-                backgroundColor: config.colors.list[2],
+                backgroundColor: colors.list[2],
                 data: []
             },{
                 label : "G3",
-                backgroundColor: config.colors.list[4],
+                backgroundColor: colors.list[4],
                 data: []
             },{
                 label : "G4",
-                backgroundColor: config.colors.list[6],
+                backgroundColor: colors.list[6],
                 data: []
             },{
                 label : "G5",
-                backgroundColor: config.colors.list[8],
+                backgroundColor: colors.list[8],
                 data: []
             }]
         },
@@ -258,23 +233,23 @@ function setEfforts(id, projects, projectNames) {
             labels : projectNames,
             datasets: [{
                 label : "Phase Specification",
-                backgroundColor: config.colors.list[0],
+                backgroundColor: colors.list[0],
                 data: [],
             },{
                 label : "Phase Concept",
-                backgroundColor: config.colors.list[2],
+                backgroundColor: colors.list[2],
                 data: []
             },{
                 label : "Phase Development",
-                backgroundColor: config.colors.list[4],
+                backgroundColor: colors.list[4],
                 data: []
             },{
                 label : "Phase Validation",
-                backgroundColor: config.colors.list[6],
+                backgroundColor: colors.list[6],
                 data: []
             },{
                 label : "Phase Production",
-                backgroundColor: config.colors.list[8],
+                backgroundColor: colors.list[8],
                 data: []
             }]
         },
@@ -489,7 +464,7 @@ function getRemainingBuffer(project) {
         let expGate     = getSectionFieldValue(project.sections, 'EXPECTED_COMPLETION_GATE_' + i);
 
         if(expPhase !== '') planPhase = expPhase;
-        if(expGate !== '') planGate = expGate;
+        if(expGate  !== '') planGate  = expGate;
 
         let dayPhase = planPhase.split('-');
         let datePhase = new Date(dayPhase[0], dayPhase[1]-1, dayPhase[2]); 
@@ -506,13 +481,9 @@ function getRemainingBuffer(project) {
             }
         } while(dateGate.getTime() > datePhase.getTime());
 
-
-        // result += getProjectProperty(project, 'DURATION_REVIEW_' + i, 0);
-
     }
 
     return result;
-
 
 }
 
@@ -579,76 +550,18 @@ function setDeviations(id, projects, projectNames) {
 
     for(project of projects) {
 
-        let plan    = getSectionFieldValue(project.sections, 'PLANNED_COMPLETION_GATE_5', '');
-        let exp     = getSectionFieldValue(project.sections, 'EXPECTED_COMPLETION_GATE_5', '');
+        let plan = getSectionFieldValue(project.sections, 'PLANNED_COMPLETION_GATE_5', '');
+        let exp  = getSectionFieldValue(project.sections, 'EXPECTED_COMPLETION_GATE_5', '');
 
         if(exp === '') exp = plan;
 
-        let dayPlan = plan.split('-');
+        let dayPlan  = plan.split('-');
         let datePlan = new Date(dayPlan[0], dayPlan[1]-1, dayPlan[2]); 
-
-        let dayExp = exp.split('-');
-        let dateExp = new Date(dayExp[0], dayExp[1]-1, dayExp[2]);
-
-                // if(value !== '') {
-                //     chart.data.datasets[i-1].data.push(value);
-                // }
-    
-            // }
-
-
-        // chart.data.datasets[0].data.push([{
-        //     x : datePlan.getTime()}, {
-        //     x : dateExp.getTime()
-        
-        // }]
-
+        let dayExp   = exp.split('-');
+        let dateExp  = new Date(dayExp[0], dayExp[1]-1, dayExp[2]);
 
         chart.data.datasets[0].data.push(
-            
-
-            // {
-            //     x: {
-            //         min : datePlan.getTime(),
-            //         max : dateExp.getTime()
-            //     }
-            // }
-
-            // [{
-            //     x: datePlan.getTime()
-            // },{
-            //     x: dateExp.getTime()
-            // }]
-            
-             [datePlan.getTime(), dateExp.getTime()]
-
-
-
-            // {
-            //     // y : project.title,
-            //     y : 5,
-            // x: [datePlan.getTime(), dateExp.getTime()]
-            // }
-
-
-            // y : project.title,
-            // x :[
-
-                // dayPlan[0] + '-' + (dayPlan[1]-1) + '-' + dayPlan[2],
-                // dayExp[0] + '-' + (dayExp[1]-1) + '-' + dayExp[2]
-
-            // x : datePlan.getTime(),
-            // y : dateExp.getTime()
-        
-            // ]
-        // }
-
-
-            // [ datePlan.getTime(), dateExp.getTime() ]
-        //     {
-        //     label : project.title,
-        //     data : [ datePlan.getTime(), dateExp.getTime() ]
-        // })
+            [datePlan.getTime(), dateExp.getTime()]
         );
     
     }

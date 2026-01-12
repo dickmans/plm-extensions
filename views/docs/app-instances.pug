@@ -1,4 +1,4 @@
-.tile(data-name='BOM Instances Editor')
+.tile(data-name='BOM Instances Editor' data-id='instances')
     .tile-image(style="background: url('images/app-instances.png') no-repeat;background-size:contain;")
     .tile-details
         .tile-title BOM Instances Editor
@@ -35,30 +35,60 @@
         img.border(src='images/apps/instances-2.png' style='max-width:860px;')
         p When users hit the Save button, the given data will be stored in the grid tab of the related Serial Nunbers List item:
         img.border(src='images/apps/instances-3.png' style='max-width:860px;')
-        h2 Setup Items Workspace
+        h1 Enable Preconfigured Use Case
+        h2 Setup Items Workspace Details
         p The default configuration requires the field 
             strong Serial Number 
-            |which must be added to your Items workspace before. 
+            |which must be added to your Items workspace.
             br
-            |Add a new field as shown below and place this field in any of your item workspace's sections:
+            |Add this new field as shown below and place this field in any of your item workspace's sections:
         img.border(src='images/apps/instances-4.png' style='max-width:720px;')
-        p This field (as well as the field Number) must be contained in the BOM view used by the BOM Instance Editor. According to default configuration, this utility will use the BOM view 
+        h2 Setup Items Workspace BOM View
+        p The utility requires a BOM view that contains all the fields listed below. According to default configuration, this utility will access the BOM view named 
             strong Instance Editor 
-            |- which you will also have to create if it does not exist yet. However, you can also use an existing BOM view instead. Simply add the Serial Number field (and Number field) to this BOM view and update the configuration setting 
-            span.code instances.bomViewName 
-            |in settings.js accordingly (see later chapter for details on configuration settings).
-        h1 Adoption for further use cases
-        p Although the default configuration is preconfigured for the management of Serial Numbers of Assets, you can easily adapt this solution to other use cases. For example, you can replace Assets with another workspace but also use other worksapces than the Serial Numbers List for the management of instance specific properties. You can also use multiple workspaces with dedicated properties to manage a list of motors and a list of sensors as well as a list of control elements at the same time. When configured properly, the editor then will display one tab for each of these workspaces with a unique set of properties: 
-        img.border(src='images/apps/instances-5.png' style='max-width:860px;')
-        h2 Replacing the Assets workspace 
-        P In order to use another workspace as context element, provide this workspace's ID in setting 
+            |- which you will also have to create if it does not exist yet. However, you can also use an existing BOM view (name) instead. If you have another BOM view with (at least) all the required fields defined, provide its name in the configuration setting 
+            span.code instances.bomViewName       
+            | (see later chapter for details on configuration settings).
+        table.row-hovering 
+            tr 
+                th Source 
+                th Source Field
+                th Display Name
+            tr 
+                td System Fields
+                td Descriptor
+                td Descriptor
+            tr 
+                td System Fields       
+                td Revision
+                td Revision       
+            tr 
+                td BOM Fields
+                td Quantity
+                td Quantity
+            tr 
+                td Item Details Fields
+                td Serial Number
+                td Serial Number
+            tr 
+                td Item Details Fields
+                td Title
+                td Title
+            tr 
+                td Item Details Fields       
+                td Number
+                td Number     
+        h2 Replacing Context Workspace 
+        P In order to use another workspace than the Assets as context element (i.e. Products), provide this workspace's ID in setting 
             span.code instances.assets.workspaceId
             |. If this workspace connects the matching EBOM in a field other than the default field 
             strong ENGINEERING_BOM
             |, you also will have to update the setting 
             span.code instances.assets.fieldIdBOM 
             |accordingly.
-        img.border(src='images/apps/instances-6.png' style='max-width:501px;')
+        h1 Setup Additional Use Cases
+        p While the default configuration is preconfigured for the management of Serial Numbers of Assets, you can easily adapt this solution to other use cases. For example, you can replace Assets with another workspace but also use other worksapces than the Serial Numbers List for the management of instance specific properties. You can also use multiple workspaces with dedicated properties to manage a list of motors and a list of sensors as well as a list of control elements at the same time. When configured properly, the editor then will display one tab for each of these workspaces with a unique set of properties: 
+        img.border(src='images/apps/instances-5.png' style='max-width:860px;')  
         h2 Adding further tabs / workspaces
         p As can be seen in the application screenshot above, the schema can be adjusted to allow for management of other information other than Serial Numbers. There can even be multiple tabs to split information by instance and to manage dedicated properties within defined columns.
         p For this, you will have to create the new workspaces that will store the instance specific data for each item in your BOM. You may clone the existing 
@@ -177,12 +207,11 @@
                 td JSON 
                 td { fieldId : 'SERIAL_NUMBER', value  true }
 
-        h1 All Configuration Settings Explained 
-        p This secion describes all the configuration settings of this application which can be found in settings.js within 
-            span.code exports.config.instances
-            |. 
-        img.border(src='images/apps/instances-8.png' style='max-width:505px;')
-        p Note that changes to this file require a restart of your server.
+        h1 Application Configuration Settings
+        p The following application specific settings can be adjusted in your custom settings file in 
+            span.code exports.applications.instances 
+            br
+            |In order to change any of these settings, copy the standard value from settings.js to your custom settings file in folder settings.
         table.row-hovering 
             tr 
                 th Setting 
@@ -219,11 +248,26 @@
                 td This array defines the list of tabs to be displayed and the given workspaces / fields to use. See the previous chapter for details.
                 td Array
                 td []
-        h2 Configuring Viewer Features
+        h1 Common Configuration Settings
+        p This utility also uses the following common configuration settings
+        table(style='margin:10px 0px 30px')
+            tr
+                th Setting
+                th Default Value 
+                th Description
+            tr  
+                td exports.common.workspaceIds.assets
+                td 280      
+                td ID of workspace Assets
+        h1 Viewer Configuration Settings
         include ../framework/viewer.pug
     .log 
         h1 Variant Manager Change Log 
         table 
+            tr 
+                td 12. January 2026
+                td Documentation
+                td Documentation has been updated to match the new custom settings and environments management        
             tr 
                 td 4. December 2025
                 td Initial Release

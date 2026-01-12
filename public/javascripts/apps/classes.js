@@ -1,5 +1,3 @@
-let urlParameters = getURLParameters();
-
 let paramsSummary = {
     id       : 'summary',
     contents : [ { 
@@ -86,7 +84,7 @@ $(document).ready(function() {
                 reset             : true,
                 search            : true,
                 openInPLM         : true,
-                fields            : config.classes.fieldsIncluded,
+                fields            : config.fieldsIncluded,
                 referenceItem     : responses[0].data,
                 referenceData     : data,
                 onClickItem       : function(elemClicked) { clickClassItem(elemClicked); }
@@ -136,7 +134,7 @@ function selectClass(elemClicked) {
         reset             : true,
         search            : true,
         openInPLM         : true,
-        fields            : config.classes.fieldsIncluded,
+        fields            : config.fieldsIncluded,
         onClickItem       : function(elemClicked) { clickClassItem(elemClicked); }
     });
 

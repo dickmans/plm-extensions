@@ -1,4 +1,4 @@
-.tile(data-name='Product Data Explorer') 
+.tile(data-name='Product Data Explorer' data-id='explorer') 
     .tile-image(style='background: url("images/app-product-data-explorer.png") no-repeat;background-size:contain;')
     .tile-details
         .tile-title Product Data Explorer
@@ -12,10 +12,8 @@
         p This app works best with the 
             strong Items 
             | workspace, but can also be used with the former 
-            strong Vault Items and BOMs 
-            | and 
             strong Items and BOMs 
-            | workspaces. However, it is recommended to be used with a workspace where the items have viewable files (dwf) attached.
+            | workspaces. It is recommended to be used with a workspace where the items have viewable files (dwf) attached.
         h1 Features
         ul  
             li Navigate and visualize BOM of a given item
@@ -29,16 +27,13 @@
             li Perform markups and initate new Problem Reports for given items
             li Manage master data of single records 
             li Manage master data of multiple records in flat BOM view
-        h1 Configure Workspace BOM View 
+        h1 Setup Instructions
+        h2 Configure Items Workspace BOM View 
         p This application requires a BOM view that contains all fields required to determine the KPIs for the dashboard shown on the left hand side of the application. It is recommended to create a new BOM view named 
             strong Details 
             | for workspace 
             strong Items 
-            | if it does not exist yet - with all the columns shown below. If you omit some of these columns (as they might not exist in your tenant), the given KPIs will be hidden automatically and the dashboard will still work. If you want to reuse an existing BOM view instead, you can change the view's name in file 
-            strong  settings.js 
-            | . Locate the parameter 
-            strong explorer.bomViewName 
-            | (see given chapter) and change it accordingly (restart the application server afterwards).
+            | if it does not exist yet - with all the columns shown below. If you omit some of these columns (as they might not exist in your tenant), the given KPIs will be hidden automatically and the dashboard will still work. If you want to reuse an existing BOM view instead, you can change the view's name in the application configuration settings as described in the given chapter. 
         p List of recommended columns to match the standard KPIs:
         ul 
             li Descriptor 
@@ -62,60 +57,46 @@
             li Has Pending Packages
             li Total Cost (BOM Field)
             li Total Weight (BOM Field)
-        h1 Extend Workspace Item Details
-        p If the field 
-            strong DMS_ID 
-            | does not exist yet in your workspace, add it as 
-            strong Single Line Text 
-            | (length 20, not visible) in tab 
-            strong Item Details
-            | . Let this field be set upon item creation using the following script code: 
-        p.code item.DMS_ID = dmsID;
-        p In addition, add a new computed field 
-            strong Actions 
-            | to 
-            strong Item Details 
-            | that renders a button to open the explorer for the current record. Use the formula shown below. In this formula, adjust the workspace ID to match your environment if needed (57 matches the standard Items workspace).
-            br
-            |If an Actions field is already present in your Items workspace, add the given formula to your existing Actions field. Note that the latest standard tenant renders multiple buttons in a standard Actions field which are all aligned thanks to a wrapping table. If this table is present in your tenant's Actions field, insert the formula accordingly to the other buttons.
-        p.code '&lt;a style="border: 1px solid #bec8d2;border-radius:3px;color: #0a131c;font-weight:600;line-height:32px;padding:4px 20px;text-align:center;text-decoration:none !important;white-space:nowrap;" target="_blank" href ="
-            span.url 
-            | explorer?wsId=57&amp;dmsId='||DMS_ID||'"&gt;Explorer&lt;/a&gt;'
+        h2 Configure Workspace Relationships  
         p Make sure that  
             strong Items  
             | can be connected to 
             strong Problem Reports 
             |as affected items. The retrieval of related PRs and also creation of new PRs will fail otherwise.
-        h1 Configuration Settings
-        p Users can create new 
-            strong Problem Reports 
-            | for the selected items and also reveal existing processes. As your tenant might be configured differently, you can define the Workspace ID of the matching 
-            strong Problem Reports 
-            | workspace in your tenant. Open file 
-            strong settings.js 
-            | and adjust the value of the variable 
-            strong explorer.wsIdProblemReports 
-            | if needed. This parameter is set to 82 per default to match the default 
-            strong Problem Reports 
-            | workspace of standard tenants.
-        p Locate the explorer section in file 
-            strong settings.js 
-            |shown below to adjust your confiugration if needed. These settings are aligned with the latest default tenant as much as possible. After changing this settings file, you have to restart your node server to get them applied.
-        p.code
-            span exports.config = {
-            span.indent 'explorer' : {
-            span.indent-2 bomViewName : 'Details',
-            span.indent-2 fieldIdPRImage : 'IMAGE_1',
-            span.indent-2 fieldIdPRContext : 'AFFECTED_ITEM',
-            span.indent-2 wsIdSupplierPackages      : 147,
-            span.indent-2 kpis : [..],
-            span.indent-2 viewerFeatures : {
-            span.indent-3 cube          : false,
-            span.indent-3 orbit         : false,
-            span.indent-3 ..
-            span.indent-2 }            
-            span.indent }
-            span }
+        h1 Starting the application
+        p Users can access this application standalone but also in context of a given item. It can be opened in context by passing either the item number or both the wsId and dmsId. The latter capability can be used to launch the application from PLM in context of an item.
+        p Opening the application from an item in PLM can be achieved in two ways: 
+        ol
+            li By using the framework's Chrome Extension that adds an Explorer button in the PLM item's header toolbar. 
+                br
+                |This option is recommneded and does not require any further configuration.
+            li If the Chrome Extension cannot be used, a computed field must be added to the details page to render a button opening the Explorer. 
+                br
+                |See the required configuration steps below only if this option is needed.
+        a(href='chrome-extension' target='_blank') Learn about the Chrome Extension
+        h2 Adding an Explorer button to Item Details page
+        p If the field 
+            strong DMS_ID 
+            | does not exist yet in your Items workspace, add it as 
+            strong Single Line Text 
+            | (length 20, not visible) in tab 
+            strong Item Details
+            |. 
+            br
+            |Let this field be set upon item creation using the following script code in your item creation script: 
+        p.code item.DMS_ID = dmsID;
+        p In addition, add a computed field 
+            strong Actions 
+            | to 
+            strong Item Details 
+            | that renders a button to open the explorer for the current record. Use the formula shown below. In this formula, adjust the workspace ID to match your environment if needed (57 matches the standard Items workspace).
+        p.code '&lt;a style="border: 1px solid #bec8d2;border-radius:3px;color: #0a131c;font-weight:600;line-height:32px;padding:4px 20px;text-align:center;text-decoration:none !important;white-space:nowrap;" target="_blank" href ="
+            span.url 
+            | explorer?wsId=57&amp;dmsId='||DMS_ID||'"&gt;Explorer&lt;/a&gt;'
+        h1 Application Configuration Settings
+        p Multiple settings can be adjusted in your custom settings file within 
+            span.code exports.applications.explorer 
+            |to adjust the application's behavior. In order to change any of these settings, copy the standard value from settings.js to your custom settings file in folder settings.
         h2 Core Settings
         p Review the following settings to enable startup of the explorer
         table(style='margin:10px 0px 30px')
@@ -136,40 +117,28 @@
                 td New PRs can be connected to the currently selected item with this property. Provide a field ID of a linking pick list that allows to select items. The given input in the create dialog then will automatically be set to the current item.
                 td AFFECTED_ITEM
             tr  
-                td rollupTotalCost
-                td When set to true and when the 'Total Cost' column of the sourcing tab is included in the selected BOM view, a cost roll up bar will be displayed in the BOM tree
+                td rollupFields
+                td Provide a list of BOM rollup field IDs being present in the given BOM view to enable rollup calculation for these fields. Supported field types are single line text, number, currency and date fields.
                 td false
             tr  
-                td wsIdSupplierPackages
+                td problemReports.workspaceId
+                td The Problem Reports workspace ID. This optional parameter is required is users should be able to create and view PRs related to the selected item.
+                td null
+            tr  
+                td supplierPackages.workspaceId
                 td The Supplier Packages workspace ID. This optional parameter is required for sending selected data to suppliers using the given workspace (see the following screenshot).
-                td 147
-        p This utility also uses the following common configuration settings
-        table(style='margin:10px 0px 30px')
-            tr
-                th Setting
-                th Description
-                th Default Value 
-            tr  
-                td config.items.wsId
-                td The Items workspace ID. This parameter is required when opening a product.
-                td 57
-            tr  
-                td config.problemReports.wsId
-                td The Problem Report workspace ID. This parameter is required for creation of new PRs.
-                td 82
+                td null
         p This explorer also can be used to identify items to be shared with suppliers (i.e. new or changed components). Therefore, one can provide the Workspace ID of 
             strong Supplier Packages 
             |in setting 
-            strong wsIdSupplierPackages 
+            span.code supplierPackages.workspaceId
             |. If this setting is provided, users can click the given icon to create a new package for selected BOM components easily
         img(src='images/apps/product-data-explorer-1.png' style='max-width:1280px;')
-        h2 Configuring the Dashsboard
-        p The 'kpis' parameter of config.explorer defines the KPIs being displayed in the explorer's dashboard to the left. You may change them, but please create a backup copy of the original 
-            strong settings.js 
-            |file before. Keep in mind that all KPIs require you to include the given data as column to the BOM view (which is defined by explorer.bomViewName). If you want to visualise the value of field 
-            strong Material 
-            | for example, this field must be included in the new BOM view as well.
-        p Certain KPIs are preconfigured to match the standard 
+        h2 Dashboard KPI Settings
+        p Parameter 
+            span.code exports.applications.explorer.kpis 
+            |defines the KPIs being displayed in the explorer's dashboard to the left. You may change these kpis, but keep in mind that all KPIs require you to include the given field as column to the BOM view of this application. The more fields you add, the lower the performance will be.
+        p Standard KPIs are preconfigured to match the standard 
             strong Items 
             | workspace. For example, the dasboard will display counters to reveal items undergoing a change, and also display bars to indicate the PDM category:
         p.code  
@@ -193,7 +162,7 @@
             span.indent 'style'     : 'bars',
             span.indent 'data'      : []
             span }
-        p Each KPI is configured with the same parameters:  
+        p Each KPI is configured with the same set of parameters:  
             table 
                 tr 
                     td id 
@@ -219,7 +188,30 @@
                 tr  
                     td data 
                     td Leave this array blank for a dynamic range of values. If you want to predefine the range of interest and given colors, define the given datapoints in this array as shown for the Pending Changes.
-        h2 Configuring Viewer Features
+        h1 Common Configuration Settings
+        p This utility also uses the following common configuration settings
+        table(style='margin:10px 0px 30px')
+            tr
+                th Setting
+                th Description
+                th Default Value 
+            tr  
+                td exports.common.workspaceIds.problemReports
+                td ID of Problem Reports workspace which will be used if problemReports.workspaceId is not defined
+                td 82  
+            tr  
+                td exports.common.workspaceIds.supplierPackages
+                td ID of Supplier Packages workspace which will be used if supplierPackages.workspaceId is not defined
+                td 147  
+            tr  
+                td exports.common.workspaceIds.items
+                td ID of Items workspace
+                td 57  
+            tr  
+                td exports.common.workspaces.items.fieldIdNumber
+                td Field ID of the Item Number field in Items workspace
+                td 'NUMBER'      
+        h1 Viewer Configuration Settings
         include ../framework/viewer.pug
         h1 Access the Explorer
         p If your tenant contains the default demo datasets and once you have the BOM view configured as described above, you can open the explorer using the link below:
@@ -229,6 +221,10 @@
     .log 
         h1 Product Data Explorer Change Log 
         table 
+            tr 
+                td 12. January 2026
+                td Documentation
+                td Documentation has been updated to match the new custom settings and environments management        
             tr 
                 td April 3, 2025
                 td Enhancement 

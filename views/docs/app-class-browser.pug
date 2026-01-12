@@ -1,4 +1,4 @@
-.tile(data-name='Class Browser')
+.tile(data-name='Class Browser' data-id='classes')
     .tile-image(style="background: url('images/app-class-browser.png') no-repeat;background-size:contain;")
     .tile-details
         .tile-title Classification Browser
@@ -10,20 +10,61 @@
         h1 Features
         p You can use this solution with any workspace that has the 
             strong Classification 
-            |section enabled. When opened as standalone application, users can browse the classification tree and search within the classes. On the other hand, when the Chrome Extensions are installed, users can also open the browser from an item that has been classified and see all items that share the same class as the source item.
-        h1 Prerequisites 
-        p The browser can be used as standalone application without any further setup. Once the Chrome Extensions are installed, the browser also is automatically preconfigured to be launched from the Items workspace. Only if the browser also should be accessible from other workspaces, you will have to add the given button for your workspace using the settings file.
-        p In such cases, locate the workspaces definition of 
-            span.code exports.chrome
-            |. Ensure that your workspace ID is listed and correct. Validate that the configuration of the 
-            strong Class Browser 
-            |button in 
-            span.code buttons 
-            |has the given workspace name in the list of workspaces.
-        img(src='images/apps/class-browser-1.png' style='width:100%;max-width:938px;margin:10px 0px;')
+            |section enabled. When opened as standalone application, users can browse the classification tree and search within the classes. In addition, if the Chrome Extension is installed (or a matching computed fields is added), users can also open the browser from an item that has been classified and see all items that share the same class as the source item.
+        h1 Starting the Application
+        p Users can access this application standalone using the 
+            span.code /classes 
+            |endpoint, but also in context of a given item. It can be opened in context by passing either the item number or both the wsId and dmsId. The latter capability can be used to launch the application from PLM in context of an item.
+        p Opening the application from an item in PLM can be achieved in two ways: 
+        ol
+            li By using the framework's Chrome Extension that adds a button in the PLM item's header toolbar. 
+                br
+                |This option is recommneded and does not require any further configuration.
+            li If the Chrome Extension cannot be used, a computed field must be added to the details page to render the given button instead. 
+                br
+                |See the required configuration steps below only if this option is needed.
+        a(href='chrome-extension' target='_blank') Learn about the Chrome Extension
+        h2 Adding the button to Item Details page
+        p If the field 
+            strong DMS_ID 
+            | does not exist yet in your context workspace, add it as 
+            strong Single Line Text 
+            | (length 20, not visible) in the item details tab. 
+            br
+            |Let this field be set upon item creation using the following script code in your item creation script. If your workspaces uses a workflow, you may add this script also to the initial workflow transition.
+        p.code item.DMS_ID = dmsID;
+        p In addition, add a computed field 
+            strong Actions 
+            | to 
+            strong Item Details 
+            | that renders a button to open this application for the current record. Use the formula shown below.
+            br
+            |In this formula, adjust the workspace ID (57) to match your workspace's ID.
+        p.code '&lt;a style="border: 1px solid #bec8d2;border-radius:3px;color: #0a131c;font-weight:600;line-height:32px;padding:4px 20px;text-align:center;text-decoration:none !important;white-space:nowrap;" target="_blank" href ="
+            span.url 
+            | classes?wsId=57&amp;dmsId='||DMS_ID||'"&gt;Explorer&lt;/a&gt;'
+        h1 Application Configuration Settings
+        p The following application specific settings can be adjusted in your custom settings file in 
+            span.code exports.applications.classes
+            br
+            |In order to change any of these settings, copy the standard value from settings.js to your custom settings file in the settings folder.
+        p 
+            table 
+                tr 
+                    th Setting 
+                    th Default Value
+                    th Description 
+                tr 
+                    td fieldsIncluded
+                    td ['DESCRIPTOR', 'WORKSPACE', 'REVISION']
+                    td This array defines the default columns being included in the class browser results table
     .log 
         h1 Class Browser Change Log 
-        table 
+        table
+            tr 
+                td 12. January 2026
+                td Documentation
+                td Documentation has been updated to match the new custom settings and environments management
             tr 
                 td 28. November 2025
                 td Enhancement

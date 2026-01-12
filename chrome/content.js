@@ -39,7 +39,7 @@ chrome.storage.sync.get(['serverUrl'], (result) => {
 
 // Add commands to Hamburger Menu
 window.addEventListener('click', (e) =>  {
-    
+
     if('hamburger-menu-icon' === e.target.className) {
 
         let elemMenuIcon       = e.target;

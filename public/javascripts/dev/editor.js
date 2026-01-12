@@ -954,7 +954,7 @@ function parseKPI(kpi, value) {
         'value'     : value, 
         'count'     : 1, 
         'color'     : config.colors.list[ kpi.data.length % config.colors.list.length ],
-        'vector'    : config.vectors.list[kpi.data.length % config.vectors.list.length] 
+        'vector'    : colors.vectors.list[kpi.data.length % colors.vectors.list.length] 
     });
 
 }

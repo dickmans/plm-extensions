@@ -1,6 +1,6 @@
 {
   "name": "plm-extensions",
-  "version": "May 2025",
+  "version": "January 2026",
   "private": true,
   "scripts": {
     "start": "node --max-http-header-size=16384 ./bin/www"

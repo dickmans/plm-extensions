@@ -343,7 +343,7 @@ function changeBOMViewDone(id, fields, viewBOM, viewFlatBOM) {
     for(field of fields) {
     
              if(field.fieldId === 'NUMBER')                             urns.partNumber     = field.__self__.urn;
-        else if(field.fieldId === config.items.fieldIdNumber)           urns.partNumber     = field.__self__.urn;
+        else if(field.fieldId === common.workspaces.items.fieldIdNumber)           urns.partNumber     = field.__self__.urn;
         else if(field.fieldId === 'THUMBNAIL')                          urns.thumbnail      = field.__self__.urn;
         else if(field.fieldId === 'TITLE')                              urns.title          = field.__self__.urn;
         else if(field.fieldId === 'DESCRIPTION')                        urns.description    = field.__self__.urn;
@@ -761,7 +761,7 @@ function clickSparePart(e, elemClicked) {
     elemClicked.toggleClass('selected');
 
     let partNumber = elemClicked.attr('data-part-number');
-    let color      = (elemClicked.hasClass('selected')) ? config.vectors.blue : null;
+    let color      = (elemClicked.hasClass('selected')) ? colors.vectors.blue : null;
 
     viewerSetColor(partNumber, color, false, false);
     updateCounter();

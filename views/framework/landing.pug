@@ -15,7 +15,7 @@ block body
             p Unleash the power of Fusion Manage by utilizing its REST API to provide custom built frontends based on Autodesk Platform Services. All solutions manage data in PLM only. All business rules of PLM as well as access permissions still apply.
             div.side-toolbar
                 .button#version Review changes by 
-                    span#version-name 5. December 2025
+                    span#version-name 12. January 2026
                 .button#tenant Connected to 
                     span#tenant-name
                 .button#chrome Setup the matching 
@@ -44,6 +44,18 @@ block body
             .log#framework-changes 
                 h1 Framework Changes
                 table 
+                    tr  
+                        td 12. January 2026
+                        td Framework Change
+                        td The definition of custom settings and usage with multiple environments has been improved. Connection data now is defined in specific environment files and dedicated settings files will only contain the custom settings.
+                    tr  
+                        td 
+                        td Framework Enhancement
+                        td BOM panels now support bulk file downloads. This feature is enabled in the Service Portal and may be added to furher applications in future.
+                    tr  
+                        td 
+                        td Quality Improvement
+                        td The viewer now provides enhanced configuration settings, reliability and usability
                     tr  
                         td 5. December 2025
                         td *NEW* Asset BOM Editor
@@ -233,6 +245,7 @@ block body
                     include ../docs/app-product-portfolio-catalog.pug
                     include ../docs/app-workspace-navigator.pug
                     include ../docs/app-mobile-client.pug
+                    include ../docs/app-service-portal.pug
             .tiles-group 
                 .tiles-group-title Dashboards
                 .tiles-group-subtitle Gain valuable insights using PLM data. These applications require demo data, but will work immediately when using the default demo tenant.
@@ -257,7 +270,6 @@ block body
                 .tiles-group-list
                     include ../docs/app-design-reviews.pug
                     include ../docs/app-change-impact-analysis.pug                
-                    include ../docs/app-service-portal.pug
             .tiles-group
                 .tiles-group-title Administration Utilities
                 .tiles-group-subtitle Utilities made for Tenant Administrators only.

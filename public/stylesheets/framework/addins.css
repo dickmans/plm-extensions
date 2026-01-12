@@ -9,7 +9,7 @@
 .addin .attachment-size, 
 .addin .attachment-user, 
 .addin .attachment-date { 
-    font-size   : 11px; 
+    font-size   : 12px; 
     line-height : 16px;
 }
 .addin th,
@@ -33,6 +33,9 @@
     padding     : 1px 4px; 
 }
 .addin .screen { 
+    top : 42px;
+}
+.addin .screen.no-header { 
     top : 0px;
 }
 .addin .section {
@@ -77,6 +80,55 @@
 }
 
 
+/*  HEADER */
+/* ----------------------------------------------------------------------------- */
+.addin.light-theme #header,
+.addin.dark-theme  #header,
+.addin.black-theme #header {
+    background : transparent;
+}
+.addin.dark-theme #header.dark .button,
+.addin.black-theme #header.dark .button {
+    background   : var(--color-surface-level-4);
+    border-color : var(--color-surface-level-4);
+}
+.addin #header {
+    height : 42px;
+}
+.addin #header-logo,
+.addin #header-title,
+.addin #header-avatar {
+    display : none;
+}
+.addin #header-subtitle {
+    border       : none;
+    font-size    : 14px;
+    font-weight  : 800;
+    height       : 42px;
+    line-height  : 42px;
+    margin       : 0px;
+    padding-left : 24px;
+}
+.addin #header-toolbar {
+    height  : 24px;
+    margin  : 0px;
+    padding : 9px 24px;
+}
+.addin #header .button {
+    margin : 0px;
+}
+.light-theme #header.dark .button,
+ .dark-theme #header.dark .button,
+.black-theme #header.dark .button {
+    color : var(--color-font);
+}
+.light-theme #header.dark .button.default,
+ .dark-theme #header.dark .button.default,
+.black-theme #header.dark .button.default {
+    color : white;
+}
+
+
 /*  BUTTONS */
 /* ----------------------------------------------------------------------------- */
 .addin div.button {
@@ -95,11 +147,16 @@
     width       : 22px;
 }
 .addin .button.with-icon { padding-left : 8px; }
-.addin .button.with-icon::before { 
+.addin .button.with-icon::before,
+.addin .button.with-toggle::after { 
     font-size   : 20px; 
     line-height : 22px; 
+    margin-left : 0px;
 }
-
+.addin .button.with-toggle { 
+    gap       : 8px;
+    min-width : unset;
+}
 
 
 /*  PANEL HEADER & CONTENT */
@@ -178,6 +235,14 @@
     bottom       : 0px;
     left         : 0px;
 }
+.addin .tabs {
+    font-size   : 12px;
+    padding-top : 0px;
+}
+.addin .tabs,
+.addin .tabs > div {
+    height : 28px;
+}
 
 
 
@@ -205,7 +270,7 @@
 .addin .tiles.list.xs .tile-image { width : 72px; }
 .addin .tile-title { 
     display     : flex;
-    font-size   : 11px !important;
+    font-size   : 12px !important;
     gap         : 12px;
     line-height : 12px;
 }
@@ -218,7 +283,7 @@
     font-size   : 12px;
     line-height : 14px;
 }
-.addin .tile-subtitle { font-size : 11px !important; }
+.addin .tile-subtitle { font-size : 12px !important; }
 .addin .tiles.wide.s { padding-top: var(--spacer-s); }
 
 /* Tile Actions */
@@ -257,6 +322,37 @@
 .addin .content-column-number {
     max-width : 28px;
     width     : 28px;
+}
+.addin .table-check-box {
+    max-width : 24px;
+    min-width : 24px;
+    width     : 24px;
+}
+.addin .table-group-title::before {
+    font-size : 16px;
+    top       : 4px;
+}
+.addin .panel-content.s th.table-check-box > .icon,
+.addin .panel-content.s tr.content-item > td > .icon {
+    font-size : 16px;
+}
+.addin .panel-content.s thead th {
+    height      : 22px;
+    line-height : 22px;
+    padding     : 0px 4px;
+}
+.addin .panel-content.s tr > td, 
+.addin .panel-content.s tr.content-item > td > input, 
+.addin .panel-content.s tr.content-item > td > select, 
+.addin .panel-content.s tr.content-item > td > textarea {
+    font-size   : 12px;
+    height      : 22px;
+    line-height : 22px;
+    padding     : 0px 6px;
+    min-height  : 22px;
+    max-width   : calc(100% - 12px);
+    min-width   : calc(100% - 12px);
+    width       : calc(100% - 12px);
 }
 
 
@@ -389,4 +485,35 @@
 }
 .path-actions > div {
     color : var(--color-surface-level-4);
+}
+
+
+
+/*  RESPONSIVE LAYOUT */
+/* ----------------------------------------------------------------------------- */
+@media (max-width: 1440px) {
+   
+    #header-toolbar .button.with-icon {
+        min-width : 80px;
+        max-width : unset;
+        overflow  : visible;
+    }
+ 
+    #header-toolbar .button.with-icon::before {
+        margin-right: 4px;
+    }
+
+}
+@media (max-width: 640px) {
+    
+    #header-toolbar .button.with-icon {
+        min-width: unset;
+        max-width: 22px;
+        overflow: hidden;
+    }
+    
+    #header-toolbar .button.with-icon::before {
+        margin-right: 24px;
+    }
+
 }

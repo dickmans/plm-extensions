@@ -3,11 +3,8 @@
     --border-h : 28px;
     --border-v : 16px;
 
-    --width-grid    : 500px;
     --width-panel   : 860px;
     --width-summary : 500px;
-
-    --height-grid : 400px;
 
 }
 
@@ -25,7 +22,7 @@
     border-width : var(--border-v) var(--border-h);
     top     : 0px;
     right   : calc(var(--width-summary) + (2 * var(--border-h)));
-    bottom  : calc(var(--height-grid) + var(--border-h) + var(--border-v)); 
+    bottom  : 0px; 
     width   : var(--width-panel);
 }
 #summary {

@@ -1242,9 +1242,11 @@ tr.content-item.selected > td {
 .content-item.selected > td {
     background : var(--color-selected-background);
 }
-.content-item:hover td {
-    border-color     : var(--color-blue-500) !important;
-    background-color : var(--color-hover-background) !important;
+.content-item:hover td ,
+table.grid .content-item:hover td,
+table.bom-table .content-item:hover td {
+    border-color     : var(--color-blue-500);
+    background-color : var(--color-hover-background);
 }
 .bom-color {
     background  : transparent;
@@ -1289,7 +1291,9 @@ td.bom-first-col {
     font-weight : bold;
 }   
 .bom-descriptor {
-    padding : 0px;
+    padding       : 0px;
+    overflow      : hidden;
+    text-overflow : ellipsis;
 }
 .bom-actions {
     display : flex;

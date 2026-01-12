@@ -3,10 +3,10 @@ extends ../framework/layout
 block head
 
     link(rel='stylesheet', href='/stylesheets/apps/classes.css')
+    link(rel='stylesheet', href='/stylesheets/custom/classes.css')
+    
     script(src='/javascripts/apps/classes.js')
-    script.
-        config = !{JSON.stringify(config)}
-        menu   = !{JSON.stringify(menu)};
+    script(src='/javascripts/custom/classes.js')
 
 block body
 

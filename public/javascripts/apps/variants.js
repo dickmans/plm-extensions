@@ -5,7 +5,6 @@ let fieldsVariant    = [];
 let variantBOMClenup = [];
 let classesViewer    = [ 'standard', 'viewer-left', 'viewer-off'];
 let modeViewer       = 0;
-let urlParameters    = getURLParameters();
 let derivedData;
 
 let saveActions = {
@@ -28,7 +27,7 @@ let saveActions = {
         maxRequests : 5,
     },
     addition : {
-        label        : 'Adding BOM entries',
+        label       : 'Adding BOM entries',
         className   : 'pending-addition',
         selector    : '.variant-item',
         maxRequests : 5,
@@ -94,7 +93,7 @@ let paramsSummary = {
 $(document).ready(function() {
 
     wsContext.id  = wsId;
-    wsVariants.id = config.variants.workspaceItemVariants.workspaceId;
+    wsVariants.id = config.workspaceItemVariants.workspaceId;
 
     appendOverlay(true);
     setUIEvents();
@@ -108,14 +107,14 @@ $(document).ready(function() {
 
             $.get( '/plm/details', { link : urlParameters.link }, function(response) {
                 urlParameters.root       = response.data.root.link.split('/').pop();
-                urlParameters.partNumber = getSectionFieldValue(response.data.sections, config.items.fieldIdNumber, '');
+                urlParameters.partNumber = getSectionFieldValue(response.data.sections, common.workspaces.items.fieldIdNumber, '');
                 initEditor();
             });
 
         } else {
 
             urlParameters.root       = responses[0].data.root.link.split('/').pop();
-            urlParameters.partNumber = getSectionFieldValue(responses[0].data.sections, config.items.fieldIdNumber, '');
+            urlParameters.partNumber = getSectionFieldValue(responses[0].data.sections, common.workspaces.items.fieldIdNumber, '');
             initEditor();
 
         }
@@ -137,12 +136,12 @@ function setUIEvents() {
             createButtonLabel : 'Submit',
             headerLabel       : 'Create new variant for ' + urlParameters.partNumber,
             hideComputed      : true,
-            fieldsIn          : ['TITLE', config.variants.workspaceItemVariants.fieldIds.baseItem],
+            fieldsIn          : ['TITLE', config.workspaceItemVariants.fieldIds.baseItem],
             contextItem       : urlParameters.link,
-            contextItemFields : [ config.variants.workspaceItemVariants.fieldIds.baseItem ],
+            contextItemFields : [ config.workspaceItemVariants.fieldIds.baseItem ],
             fieldValues       : [{
-                fieldId  : config.variants.workspaceItemVariants.fieldIds.rootDMSId,
-                value    : urlParameters.root
+                fieldId : config.workspaceItemVariants.fieldIds.rootDMSId,
+                value   : urlParameters.root
             }],
             hideSections      : true,
             afterCreation     : function(id, link, data, contextId) { addNewVariant(link); }
@@ -179,7 +178,6 @@ function initEditor() {
     insertViewer(urlParameters.link);
     insertItemSummary(urlParameters.link, paramsSummary);
 }
-
 function getInitialData() {
 
     let requests = [
@@ -192,10 +190,10 @@ function getInitialData() {
 
     requests.push($.post( '/plm/search', {
         wsId   : wsVariants.id,
-        fields : [ 'TITLE', config.variants.workspaceItemVariants.fieldIds.rootDMSId ],
+        fields : [ 'TITLE', config.workspaceItemVariants.fieldIds.rootDMSId ],
         sort   : [ 'TITLE' ],
         filter : [{
-            field       : config.variants.workspaceItemVariants.fieldIds.rootDMSId,
+            field       : config.workspaceItemVariants.fieldIds.rootDMSId,
             type        : 0,
             comparator  : 15,
             value       : urlParameters.root
@@ -238,7 +236,7 @@ function getVariantsWSConfig() {
     let foundSection = false;
 
     for(let section of wsVariants.sections) {
-        if(section.name === config.variants.workspaceItemVariants.sectionLabel) {
+        if(section.name === config.workspaceItemVariants.sectionLabel) {
             
             foundSection = true;
             
@@ -255,10 +253,10 @@ function getVariantsWSConfig() {
         }
     }
 
-    if(!foundSection) showErrorMessage('Error loading data', 'Cannot find section with name  ' + config.variants.workspaceItemVariants.sectionLabel + ' in workspace ' +  config.variants.workspaceItemVariants.workspaceId + ' (wsIdItemVariants)');
+    if(!foundSection) showErrorMessage('Error loading data', 'Cannot find section with name  ' + config.workspaceItemVariants.sectionLabel + ' in workspace ' +  config.workspaceItemVariants.workspaceId + ' (wsIdItemVariants)');
 
     for(let bomView of wsVariants.bomViews) {
-        if(bomView.name === config.variants.workspaceItemVariants.bomViewName) {
+        if(bomView.name === config.workspaceItemVariants.bomViewName) {
 
             wsVariants.viewId       = bomView.id;
             wsVariants.columns      = bomView.fields;
@@ -267,7 +265,7 @@ function getVariantsWSConfig() {
             for(let field of bomView.fields) {
 
                 if(field.fieldId === 'QUANTITY') wsVariants.bomViewLinks.quality  = field.__self__.link;
-                if(field.fieldId === config.variants.workspaceItemVariants.bomFieldIdBaseBOMPath) wsVariants.bomViewLinks.baseBOMPath  = field.__self__.link;
+                if(field.fieldId === config.workspaceItemVariants.bomFieldIdBaseBOMPath) wsVariants.bomViewLinks.baseBOMPath  = field.__self__.link;
 
                 for(let fieldVariant of fieldsVariant) {
                     if(fieldVariant.id === field.fieldId) fieldVariant.link = field.__self__.link;
@@ -278,7 +276,7 @@ function getVariantsWSConfig() {
         }
     }
 
-    if(isBlank(wsVariants.columns)) showErrorMessage('Error loading workspace configuration', 'Cannot find BOM view with name "' + config.variants.workspaceItemVariants.bomViewName + '" in workspace ' +  config.variants.workspaceItemVariants.workspaceId + ' (wsIdItemVariants)');
+    if(isBlank(wsVariants.columns)) showErrorMessage('Error loading workspace configuration', 'Cannot find BOM view with name "' + config.workspaceItemVariants.bomViewName + '" in workspace ' +  config.workspaceItemVariants.workspaceId + ' (wsIdItemVariants)');
 
     $('#button-create-variant').removeClass('disabled');
 
@@ -288,7 +286,7 @@ function getVariantsWSConfig() {
 
         insertBOM(urlParameters.link, { 
             headerLabel       : 'BOM & Variants', 
-            bomViewName       : config.variants.workspaceItems.bomViewName, 
+            bomViewName       : config.workspaceItems.bomViewName || common.workspaces.items.defaultBOMView, 
             contentSize       : 'xs',
             reload            : true, 
             hideDetails       : false, 
@@ -302,7 +300,7 @@ function getVariantsWSConfig() {
             collapseContents  : true,
             viewerSelection   : true,
             fieldsIn          : ['Item', 'Quantity', 'Qty'],
-            depth             : config.variants.maxBOMLevels,
+            depth             : config.maxBOMLevels,
             onClickItem       : function(elemClicked) { setItemSummary(elemClicked); },
             afterCompletion   : function (id, data) { insertVariants(id, data); }
         });
@@ -358,7 +356,7 @@ function insertVariants(id, data) {
 
     for(let variant of listVariants) requests.push($.get('/plm/bom', { 
         link         : variant.link, 
-        depth        : config.variants.maxBOMLevels,
+        depth        : config.maxBOMLevels,
         revisionBias : 'working',
         viewId       : wsVariants.viewId 
     } ));
@@ -441,7 +439,7 @@ function insertVariantTableCells(variant, index, response) {
                 status = 'update';
             } else if(baseRootLink === variantItem.root) {
                 status = 'identical';
-            } else if(baseRootLink.split('/').pop() === variantItem.details[config.variants.workspaceItemVariants.fieldIds.rootDMSId]) {
+            } else if(baseRootLink.split('/').pop() === variantItem.details[config.workspaceItemVariants.fieldIds.rootDMSId]) {
                 status = 'match';
             } 
         }
@@ -698,17 +696,11 @@ function valueChanged(elemControl) {
         
         let linkBaseItemParentRoot = elemPrev.attr('data-root-link');
 
-        console.log(console.log(levelNext));
-
         if(elemPrev.length > 0) {
 
             let level = Number(elemPrev.attr('data-level'));
 
             if(level === levelNext) {
-
-                console.log('found Parent');
-
-                console.log(index);
 
                 levelNext--;
                 let elemVariantParent     = elemPrev.children().eq(index);
@@ -768,7 +760,7 @@ function clickItemCell(e, elemClicked) {
         insertResults(
             wsVariants.id, 
             [{
-                field      : config.variants.workspaceItemVariants.fieldIds.rootDMSId,
+                field      : config.workspaceItemVariants.fieldIds.rootDMSId,
                 type       : 0,
                 comparator : 15,
                 value      : elemClicked.closest('tr').attr('data-root-link').split('/').pop()
@@ -823,7 +815,7 @@ function insertSelectedItem(elemSelected) {
         $.get('/plm/details', { link : linkNew }),
         $.get('/plm/bom',     { 
             link   : linkNew, 
-            depth  : config.variants.maxBOMLevels - level,
+            depth  : config.maxBOMLevels - level,
             viewId : wsVariants.viewId 
         })
     ];
@@ -873,7 +865,7 @@ function insertSelectedItem(elemSelected) {
                         status = 'update';
                     } else if(baseRootLink === variantItem.root) {
                         status = 'identical';
-                    } else if(baseRootLink.split('/').pop() === variantItem.details[config.variants.workspaceItemVariants.fieldIds.rootDMSId]) {
+                    } else if(baseRootLink.split('/').pop() === variantItem.details[config.workspaceItemVariants.fieldIds.rootDMSId]) {
                         status = 'match';
                     } 
                 }
@@ -1067,7 +1059,7 @@ function getDerivedData(action) {
 
                 requests.push($.get('/plm/derived', {
                     wsId        : wsVariants.id,                            //'create item wsid
-                    fieldId     : config.variants.workspaceItemVariants.fieldIds.baseItem,               //'BASE_ITEM'
+                    fieldId     : config.workspaceItemVariants.fieldIds.baseItem,               //'BASE_ITEM'
                     pivotItemId : $(this).attr('data-link').split('/')[6],  //'dmsid of selected picklist ittem;
                     link        : $(this).attr('data-link')
                 }));
@@ -1126,10 +1118,10 @@ function createNewItems(action) {
                     sections    : wsVariants.sections,
                     getDetails  : true,
                     fields      : [{
-                        fieldId : config.variants.workspaceItemVariants.fieldIds.baseItem,
+                        fieldId : config.workspaceItemVariants.fieldIds.baseItem,
                         value   : elemBaseItem.attr('data-link')
                     },{
-                        fieldId : config.variants.workspaceItemVariants.fieldIds.rootDMSId,
+                        fieldId : config.workspaceItemVariants.fieldIds.rootDMSId,
                         value   : elemBaseItem.attr('data-root-link').split('/').pop()
                     }]
                 };
@@ -1148,16 +1140,16 @@ function createNewItems(action) {
 
                 }
 
-                if(config.variants.newItemVariantsTitle.fieldsToConcatenate.length === 0) {
+                if(config.newItemVariantsTitle.fieldsToConcatenate.length === 0) {
 
                     for(let fieldValue of fieldValues) {
-                        if(title !== '') title += config.variants.newItemVariantsTitle.separator;
+                        if(title !== '') title += config.newItemVariantsTitle.separator;
                         title += fieldValue.value;
                     }
 
                 } else {
-                    for(let fieldId of config.variants.newItemVariantsTitle.fieldsToConcatenate) {
-                        if(title !== '') title += config.variants.newItemVariantsTitle.separator;
+                    for(let fieldId of config.newItemVariantsTitle.fieldsToConcatenate) {
+                        if(title !== '') title += config.newItemVariantsTitle.separator;
                         title += fieldValues[fieldId];
                     }
                 }
@@ -1165,7 +1157,7 @@ function createNewItems(action) {
                 if(title === '') title = elemBaseItem.attr('data-title');
 
                 params.fields.push({
-                    fieldId : config.variants.workspaceItemVariants.fieldIds.title,
+                    fieldId : config.workspaceItemVariants.fieldIds.title,
                     value   : title
                 })
 

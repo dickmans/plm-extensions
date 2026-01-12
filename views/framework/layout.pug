@@ -7,7 +7,6 @@ html
         meta(name='viewport' content='width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=no')
         meta(charset='utf-8')
         link(rel="icon", href="/favicon.ico")
-
     
         link(rel='stylesheet', href='/stylesheets/framework/basic.css')
         link(rel='stylesheet', href='/stylesheets/framework/colors.css')
@@ -54,6 +53,11 @@ html
             revisionBias='#{revisionBias}'
             options='#{options}'.split(',')
             type='#{type}'
+            common=!{JSON.stringify(common)}
+            config=!{JSON.stringify(config)}
+            menu=!{JSON.stringify(menu)}
+            colors=!{JSON.stringify(colors)}
+            debugMode='#{debugMode}' == 'true' 
     
         block head
 

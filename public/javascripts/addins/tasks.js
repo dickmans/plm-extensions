@@ -7,15 +7,15 @@ $(document).ready(function() {
     appendOverlay();
 
     insertMOW({
-        headerLabel       : config.addins.tasks.headerLabelTasks,
+        headerLabel       : config.tasks.headerLabelTasks,
         number            : true,
         filterByDueDate   : true,
         filterByWorkspace : true,
         reload            : true,
         search            : false,
         contentSize       : 'xxs',
-        fieldsEx          : config.addins.tasks.columnsExTasks,
-        workspacesIn      : config.addins.tasks.workspacesInTasks,
+        fieldsEx          : config.tasks.columnsExTasks,
+        workspacesIn      : config.tasks.workspacesInTasks,
         onClickItem : function(elemClicked) { openTask(elemClicked); }
     });
 
@@ -112,7 +112,7 @@ function openTask(elemClicked) {
             type   : 'details', 
             params : { 
                 id              : 'task-details', 
-                expandSections  : config.addins.tasks.expandSectionsTask, 
+                expandSections  : config.tasks.expandSectionsTask, 
                 editable        : true,
                 toggles         : true,
                 afterCompletion : function(id) { setPicklistActions(id); }
@@ -172,13 +172,13 @@ function setPicklistActions(id) {
             let wsId       = fieldItemLink.split('/')[4];
             let elemParent = elemFieldItem.parent();
 
-            if(wsId == config.items.wsId) {
+            if(wsId == config.items.workspaceId) {
 
                 elemParent.addClass('tiles').addClass('list').addClass('xxs').addClass('surface-level-2');
 
                 $.get('/plm/details', { link : fieldItemLink} , function(response) {
 
-                    let partNumber  = getSectionFieldValue(response.data.sections, config.items.fieldIdNumber, '');
+                    let partNumber  = getSectionFieldValue(response.data.sections, common.workspaces.items.fieldIdNumber, '');
                     let pdmFileName = getSectionFieldValue(response.data.sections, 'PRIMARY_FILE_NAME', '');
                     let pdmLocation = getSectionFieldValue(response.data.sections, 'PDM_LOCATION', '');
 
@@ -240,8 +240,8 @@ function addSelected() {
         $('#managed-items-processing').show();
 
         let requests = [
-            $.post('/plm/search-descriptor' , { wsId : config.items.wsId, limit : 1, query : partNumber }),
-            $.get('/plm/sections'           , { wsId : config.items.wsId }  ),
+            $.post('/plm/search-descriptor' , { wsId : config.items.workspaceId, limit : 1, query : partNumber }),
+            $.get('/plm/sections'           , { wsId : config.items.workspaceId }  ),
             $.get('/vault/search-items'     , { query : partNumber }),
         ]
 
@@ -252,7 +252,7 @@ function addSelected() {
             let vaultItems  = responses[2].data.results;
             let params      = { sections : [] }
 
-            addFieldToPayload(params.sections, plmSections, null, config.items.fieldIdNumber, partNumber);
+            addFieldToPayload(params.sections, plmSections, null, common.workspaces.items.fieldIdNumber, partNumber);
             
             if(vaultItems.length > 0) {
 
@@ -269,7 +269,7 @@ function addSelected() {
 
             if(plmItems.length === 0) {
 
-                params.wsId = config.items.wsId;
+                params.wsId = config.items.workspaceId;
 
                 $.post('/plm/create', params, function(response) {
 

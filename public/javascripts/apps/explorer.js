@@ -9,7 +9,6 @@ let wsProblemReports    = { id : '', sections : [], fields : [] };
 let wsSupplierPackages  = { id : '', sections : [], fields : [] };
 let kpis                = [];
 let rollUpFields        = [];
-let urlParameters       = getURLParameters();
 
 let paramsDetails = { 
     bookmark        : true,
@@ -43,13 +42,13 @@ let context = {}
  
 
 $(document).ready(function() {
-    
-    wsProblemReports.id           = config.problemReports.wsId;
-    wsSupplierPackages.id         = config.explorer.wsIdSupplierPackages;
-    paramsProcesses.createWSID    = config.problemReports.wsId;
-    paramsProcesses.fieldIdMarkup = config.explorer.fieldIdPRImage;
-    rollUpFields                  = config.explorer.rollUpFields;
-    paramsProcesses.createContext = { fieldId : config.explorer.fieldIdPRContext };
+
+    wsProblemReports.id           = config.problemReports.workspaceId   || common.workspaceIds.problemReports;
+    wsSupplierPackages.id         = config.supplierPackages.workspaceId || common.workspaceIds.supplierPackages;
+    paramsProcesses.createWSID    = config.problemReports.workspaceId   || common.workspaceIds.problemReports;
+    paramsProcesses.fieldIdMarkup = config.fieldIdPRImage;
+    rollUpFields                  = config.rollUpFields;
+    paramsProcesses.createContext = { fieldId : config.fieldIdPRContext };
     urlParameters.bom             = urlParameters.link;
 
     let requests = [];
@@ -69,7 +68,7 @@ $(document).ready(function() {
             urlParameters.bom = getSectionFieldValue(responses[0].data.sections, urlParameters.fieldidebom, '');
             wsItems.id = urlParameters.bom.split('/')[4];
         } else if(isBlank(urlParameters.wsid)) {
-            wsItems.id = config.items.wsId;
+            wsItems.id = common.workspaceIds.items;
         } else {
             wsItems.id = urlParameters.wsid;
         }
@@ -274,7 +273,7 @@ function getInitialData(callback) {
         $.get('/plm/fields'               , { wsId : wsProblemReports.id, useCache : true })
     ];
 
-    if(!isBlank(config.explorer.wsIdSupplierPackages)) {
+    if(!isBlank(wsSupplierPackages.id)) {
         requests.push($.get('/plm/sections', { wsId : wsSupplierPackages.id, useCache : true }));
         requests.push($.get('/plm/fields'  , { wsId : wsSupplierPackages.id, useCache : true }));
     }
@@ -282,13 +281,13 @@ function getInitialData(callback) {
     Promise.all(requests).then(function(responses) {
 
         for(let view of responses[0].data) {
-            if(view.name === config.explorer.bomViewName) {
+            if(view.name === config.bomViewName) {
                 wsItems.viewId = view.id;
                 wsItems.viewColumns = view.fields;
             }
         }
 
-        if(wsItems.viewId === '') showErrorMessage('Error in configuration. Could not find BOM view "' + config.explorer.bomViewName + '"');
+        if(wsItems.viewId === '') showErrorMessage('Error in configuration. Could not find BOM view "' + config.bomViewName + '"');
 
         wsItems.sections          = responses[2].data;
         wsItems.fields            = responses[3].data;
@@ -297,7 +296,7 @@ function getInitialData(callback) {
         // editableFields            = getEditableFields(wsItems.fields);
         editableFields = [];
 
-        if(!isBlank(config.explorer.wsIdSupplierPackages)) {
+        if(!isBlank(wsSupplierPackages.id)) {
             wsSupplierPackages.sections = responses[6].data;
             wsSupplierPackages.fields   = responses[7].data;
         } else {
@@ -318,7 +317,7 @@ function openItem(link) {
     $('body').addClass('screen-main').removeClass('screen-landing');
     $('#select-version').children().remove();
     
-    $.get('/plm/versions', { link : link}, function(response) {
+    $.get('/plm/versions', { link : link }, function(response) {
 
         for(let version of response.data.versions) {
 
@@ -392,7 +391,7 @@ function onViewerSelectionChanged(event) {
 
             for(property of data.properties) {
 
-                if(config.viewer.numberProperties.indexOf(property.displayName) > -1) {
+                if(common.viewer.numberProperties.indexOf(property.displayName) > -1) {
 
                     let partNumber = property.displayValue;
 
@@ -430,7 +429,7 @@ function onViewerSelectionChanged(event) {
 }
 function initViewerDone() {
     
-    $('#viewer-markup-image').attr('data-field-id', config.explorer.fieldIdProblemReportImage);
+    $('#viewer-markup-image').attr('data-field-id', config.fieldIdPRImage);
 
 }
 
@@ -458,7 +457,7 @@ function getBOMData(link, revBias) {
     Promise.all(promises).then(function(responses) {
 
         // Copy KPIs contained in BOM View
-        for(let kpi of config.explorer.kpis) {
+        for(let kpi of config.kpis) {
             for(let field of wsItems.viewColumns) {
                 if(field.fieldId === kpi.fieldId) {
                     kpis.push(Object.assign({}, kpi));
@@ -518,7 +517,7 @@ function setBOMData(bom, flatBom) {
 
     for(let field of wsItems.viewColumns) {
 
-        if(field.fieldId === config.items.fieldIdNumber) urns.partNumber = field.__self__.urn;
+        if(field.fieldId === common.workspaces.items.fieldIdNumber) urns.partNumber = field.__self__.urn;
 
         if(rollUpFields.includes(field.fieldId)) {
             urns.rollUps.push({
@@ -599,14 +598,13 @@ function insertNextBOMLevel(bom, elemRoot, parent, flatBom, parentRollUps) {
 
             if(partNumber === '') partNumber = title.split(' - ')[0];
 
-            let elemRow = $('<tr></tr>');
-                elemRow.attr('data-number', edge.itemNumber);
-                elemRow.attr('data-part-number', partNumber);
-                elemRow.attr('data-title', title);
-                elemRow.attr('data-qty', '1');
-                elemRow.addClass('bom-item');
-                elemRow.addClass('content-item');
-                elemRow.appendTo(elemRoot);
+            let elemRow = $('<tr></tr>').appendTo(elemRoot)
+                .attr('data-number', edge.itemNumber)
+                .attr('data-part-number', partNumber)
+                .attr('data-title', title)
+                .attr('data-qty', '1')
+                .addClass('bom-item')
+                .addClass('content-item');
     
             for(let kpi of kpis) {
 
@@ -965,7 +963,7 @@ function insertFlatBOM(flatBom) {
 
             elemRowCell.appendTo(elemRow); 
 
-            for(editableField of editableFields) {
+            for(let editableField of editableFields) {
 
                 if(kpi.fieldId === editableField.id) {
 
@@ -1045,8 +1043,8 @@ function parseKPI(kpi, value, label) {
         value     : value, 
         label     : label,
         count     : 1, 
-        color     : config.colors.list[ kpi.data.length % config.colors.list.length ],
-        vector    : config.vectors.list[kpi.data.length % config.vectors.list.length] 
+        color     : colors.list[ kpi.data.length % colors.list.length ],
+        vector    : colors.vectors.list[kpi.data.length % colors.vectors.list.length] 
     });
 
 }
@@ -1101,8 +1099,14 @@ function insertKPI(kpi) {
 
     for(let entry of kpi.data) {
 
-        let color =  entry.color;
+        let color = entry.color;
         let label = entry.label || entry.value;
+
+        if(typeof color === 'string') {
+            if(color.indexOf('#')  < 0) color = colors[color]; 
+        } else color = colors.list[color];
+
+        entry.color = color;
 
         if(label === '') label = '-';
 
@@ -1127,7 +1131,7 @@ function insertKPI(kpi) {
             let width = entry.count * 100 / kpi.max;
             elemKPIValue.css('background', 'linear-gradient(90deg, ' + color + ' 0 ' + width + '%, var(--color-surface-level-1) ' + width + '% 100%)');
         } else {
-            elemKPILabel.css('border-color', entry.color);
+            elemKPILabel.css('border-color', color);
         }
 
     }
@@ -1162,11 +1166,9 @@ function selectKPI(elemClicked) {
 
     if(kpiData === null) return;
 
-    // $('#bom').removeClass('no-colors');
-    // $('#flat-bom').removeClass('no-colors');
     elemClicked.addClass('selected');
 
-    viewerResetColors();
+    // viewerResetColors();
 
     elemClicked.find('.kpi-value').each(function() {
     
@@ -1206,7 +1208,7 @@ function selectKPI(elemClicked) {
             let value   = null;
             let urn     = $(this).attr('data-urn');
 
-            for (bomItem of bomItems) {
+            for(let bomItem of bomItems) {
                 if(bomItem.urn === urn) {
                     value = bomItem[id];
                 }
@@ -1218,9 +1220,13 @@ function selectKPI(elemClicked) {
 
         });
 
+        if(vector !== null) {
+            if(typeof vector === 'string') vector = colors.vectors[vector]; else vector = colors.list[vector];
+        }
+
         viewerSetColors(partNumbers, { 
-            'color' : vector ,
-            'resetColors' : false
+            color       : vector,
+            resetColors : false
         });
 
     });
@@ -1325,14 +1331,11 @@ function applyFilters() {
 function refreshKPIs() {
 
     let params = {
-        'wsId'          : wsId,
-        'dmsId'         : dmsId,
-        'depth'         : 10,
-        // 'revisionBias'  : 'allChangeOrder',
-        // 'revisionBias'  : 'changeOrder',
-        'revisionBias'  : 'release',
-        // 'revisionBias'  : 'working',
-        'viewId'        : wsItems.viewId
+        wsId         : wsId,
+        dmsId        : dmsId,
+        depth        : 10,
+        revisionBias : 'release',
+        viewId       : wsItems.viewId
     }
 
     let promises = [
@@ -1371,17 +1374,15 @@ function refreshKPIs() {
 }
 function parsetNextBOMLevelKPIs(bom, parent) {
 
-    for(edge of bom.edges) {
+    for(let edge of bom.edges) {
 
         if(edge.parent === parent) {
 
-            let partNumber  = getBOMCellValue(edge.child, urns.partNumber , bom.nodes);
-            // let link        = getBOMNodeLink(edge.child, bom.nodes);
-            let newBOMItem  = { 'urn' : edge.child, 'part-number' : partNumber };
-            let newItem     = true;
+            let partNumber = getBOMCellValue(edge.child, urns.partNumber , bom.nodes);
+            let newBOMItem = { 'urn' : edge.child, 'part-number' : partNumber };
+            let newItem    = true;
 
-
-            for(kpi of kpis) {
+            for(let kpi of kpis) {
 
                 let kpiValue = getBOMCellValue(edge.child, kpi.urn, bom.nodes, 'title');
 
@@ -1410,8 +1411,6 @@ function parsetNextBOMLevelKPIs(bom, parent) {
                 }
     
                 if(newItem) bomItems.push(newBOMItem);
-
-                
     
             }
 
@@ -1452,7 +1451,6 @@ function refreshKPI(kpi) {
 
             if(elemKPI.hasClass('selected')) {
                 elemKPI.removeClass('selected');
-                // selectKPI(elemKPISelector);
                 elemKPISelector.click();
             }
             
@@ -1464,25 +1462,23 @@ function refreshKPI(kpi) {
             let color =  entry.color;
             let label = (entry.value === '') ? '-' : entry.value;
     
-            let elemKPIValue = $('<div></div>');
-                elemKPIValue.attr('data-filter', entry.value);
-                elemKPIValue.addClass('kpi-value');
-                elemKPIValue.appendTo(elemKPIValues);
-                elemKPIValue.click(function(e) {
+            let elemKPIValue = $('<div></div>').appendTo(elemKPIValues)
+                .attr('data-filter', entry.value)
+                .addClass('kpi-value')
+                .click(function(e) {
                     e.preventDefault();
                     e.stopPropagation();
                     selectKPIValue(e, $(this));
                 });
         
-            let elemKPILabel = $('<div></div>');
-                elemKPILabel.addClass('kpi-label');
-                elemKPILabel.html(label);
-                elemKPILabel.appendTo(elemKPIValue);
+            let elemKPILabel = $('<div></div>').appendTo(elemKPIValue)
+                .addClass('kpi-label')
+                .html(label);
+
     
-            let elemKPICounter = $('<div></div>');
-                elemKPICounter.addClass('kpi-counter');
-                elemKPICounter.html(entry.count);
-                elemKPICounter.appendTo(elemKPIValue);
+            $('<div></div>').appendTo(elemKPIValue)
+                .addClass('kpi-counter')
+                .html(entry.count);
     
             if(kpi.style === 'bars') {
                 let width = entry.count * 100 / kpi.max;
@@ -1496,35 +1492,7 @@ function refreshKPI(kpi) {
 
     });
     
-    
 }
- 
-
-// Display create & connect dialog
-// function showCreateDialog() {
-
-//     $('#overlay').show();
-//     $('#create-connect').show();
-
-//     insertItemDetailsFields('', 'create-connect', wsSupplierPackages.sections, wsSupplierPackages.fields, null, true, true, true);
-
-//     let elemField;
-
-//     $('#create-connect-sections').find('.multi-picklist').each(function() {
-//         if($(this).attr('data-id') === 'SHARED_ITEMS') elemField = $(this);
-//     });
-
-//     $('#bom-table-tree').children('.selected').each(function() {
-
-//         let elemOption = $('<div></div>');
-//             elemOption.attr('data-link', $(this).attr('data-link'));
-//             elemOption.html($(this).attr('data-title'));
-//             elemOption.appendTo(elemField);
-        
-//     });
-
-// }
-
 
 
 // Save BOM Changes
@@ -1553,8 +1521,8 @@ function saveBOMChange() {
                 let elemItem = $(this);
 
                 let params = { 
-                    'link'     : elemItem.attr('data-link'),
-                    'sections' : []
+                    link     : elemItem.attr('data-link'),
+                    sections : []
                 };      
         
                 elemItem.children('.changed').each(function() {

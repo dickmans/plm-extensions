@@ -1477,7 +1477,7 @@ function genRequests(limit) {
 
             } else if(run.actionId === 'export-attachments') {
 
-                params.folder       = $('#workspace').children('option:selected').html() + ' Files';
+                params.subFolder    = $('#workspace').children('option:selected').html() + ' Files';
                 params.includeDMSID = $('#select-export-attachments-dmsid').val().toLowerCase();
                 params.filenamesIn  = $('#input-export-attachments-in').val().toLowerCase();
                 params.filenamesEx  = $('#input-export-attachments-ex').val().toLowerCase();

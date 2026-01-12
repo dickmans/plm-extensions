@@ -49,6 +49,11 @@ html
             revisionBias='#{revisionBias}' 
             options='#{options}'.split(',')
             type='#{type}'
+            common=!{JSON.stringify(common)}
+            config=!{JSON.stringify(config)}
+            menu=!{JSON.stringify(menu)}
+            colors=!{JSON.stringify(colors)}
+            debugMode='#{debugMode}' == 'true' 
     
         block head
 

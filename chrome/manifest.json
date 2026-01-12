@@ -22,7 +22,7 @@
     "host_permissions": [   
         // Adjust this list to match all the possible UX servers you may want to connect to
         "http://localhost:8080/*",
-        "https://www.plm.tools:9300/*"
+        "https://plm-extensions-adsk2504demo-439208211811.europe-west1.run.app/*"
     ],
     "content_scripts": [{
         "matches": [

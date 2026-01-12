@@ -1,4 +1,4 @@
-.tile(data-name='Change Impact Analysis')
+.tile(data-name='Change Impact Analysis' data-id='impact-analysis')
     .tile-image(style='background: url("images/app-impact-analysis.png") no-repeat;background-size:contain;')
     .tile-details
         .tile-title Change Impact Analysis
@@ -9,13 +9,11 @@
             .tile-button.button.icon.icon-start.default(href="https://youtu.be/6A9ZNCxqRKg" target="_blank")
     .instructions
         h1 Features
-        p With this application, users can by far better assess the impact of changes by reviewing all details of the given 
-            strong Change Order's 
-            | list of 
+        p With this application, users can by far better assess the impact of changes by reviewing all details of the given change processes's list of 
             strong Affected Items
             |. 
             br
-            | To do so, multiple information is retrieved in parallel and devided in various tables. So for each affected item, users can easily review the following information:
+            | To do so, multiple information is retrieved in parallel and accessible using tabbed navigation So for each affected item, users can easily review the following information:
         ul  
             li 3D view of the attached dwf
             li 
@@ -35,60 +33,88 @@
             li In tab Changed Items, users can get the list of all BOM sub items where the working version got modified and which are not listed in the list of Affected Items yet
             li The item's Attachments can be opened in the Files tab
             li All item related change processes are listed in tab Processes
-        h1 Configuration Changes
-        p Peform the following changes to workspace 
-            strong Change Orders 
-            |to enable the impact analysis before releasing a change. In addition, you can perform the same changes in workspace 
-            strong Change Requests 
-            |to benefit of the exact same features while accessing impact of a proposed change.
-        h2 Store DMSID
-        p In order to make this dashboard work, you have to add a (hidden) field 
-            strong DMS_ID 
-            | to the item details tab. This field must store the dmsID of the current process. 
-            br
-        img(src='images/apps/impact-analysis-2.png' style='max-width:640px;')
-        p Use the following script code at 
-            strong Change Orders 
-            |/ 
-            strong Change Requests 
-            | creation to store the given dmsID (attach this script to the initial workflow transition or the given create event):
-        p.code item.DMS_ID = dmsID;
-        h2 Action Button
-        p Add a button to the 
-            strong Item Details 
-            |tab, enabling to open the analysis dashboard in context ...
-        img(src='images/apps/impact-analysis-1.jpg' style='height:240px;')
-        p ... implement this button by adding a computed field 
-            strong Actions 
-            |with the formula shown below. Replace the workspace ID to match yours (..wsId=84..). In a standard tenant, 84 matches the 
-            strong Change Orders 
-            | and 83 matches the 
-            strong Change Requests 
-            | workspace.
-        p.code '&lt;a style="border: 1px solid #bec8d2;border-radius:3px;color: #0a131c;font-weight:600;line-height:32px;padding:4px 20px;text-align:center;text-decoration:none !important;white-space:nowrap;width:160px;" target="_blank" href ="LOCATIONimpactanalysis?wsId=84&dmsId='||DMS_ID||'"&gt;Impact Analysis&lt;/a&gt;'
-        h2 Set Workspace Relationships (optional)
+        h1 Set Workspace Relationships (optional)
         p The impact analysis dashboard enables to connect records of interest to the current change process. For example, the dashboard will retrieve related 
             strong Requirements 
             | of each affected item - which then can be connected to the change process inside the dashboard for reference. This helps to create a comprehensive list of all data being impacted by a change.
             b 
-            | This mechanism requires to allow the given workspace relationships within the 
+            | This mechanism requires definition of addditional workspace relationships within the 
             strong Workspace Manager
             |. For example, you may want to enable 
             strong Relationships 
-            | for the change proceses to the workspaces 
+            | from the change proceses to the workspaces 
             strong Requirements 
             | and 
             strong Supplier Packages
             |. The dashboard will take this workspace configuration into account and only offer to connect workspaces that are valid.
         img(src='images/apps/impact-analysis-3.png' style='max-width:889px;')
-        h1 Access the Dashboard
-        p The dashboard also can be opened by using the  
-            strong /impactanalysis 
-            | endpoint, followed by wsId and dmsId. If your tenant contains the standard demo dataset, you can use the following link to open the dashboard for a given Change Order:
-        a(href='impactanalysis?wsId=84&dmsId=14993' target='_blank')
+        p With the configuration shown above, if an Affected Item is linked to a requirement or a supplier package, users can connect these records to the current change process in the relationships tab. 
+        h1 Starting the Application
+        p This application can be started from any business process having affected items enabled (Change Order, Change Requests, Problem Reports). It can be opened in context by passing both the wsId and dmsId of the given change process. The latter capability can be used to launch the application from PLM in context of a change process.
+        p Opening the application from a change process in PLM can be achieved in two ways: 
+        ol
+            li By using the framework's Chrome Extension that adds an Impact Analysis button in the PLM processes header toolbar. 
+                br
+                |This option is recommneded and does not require any further configuration.
+            li If the Chrome Extension cannot be used, a computed field must be added to the details pages of the given change processes to render a button opening the dashboard. 
+                br
+                |See the required configuration steps below only if this option is needed.
+        a(href='chrome-extension' target='_blank') Learn about the Chrome Extension
+        h2 Adding action buttons to details pages
+        p For each workspace of interest (i.e. Change Order, Change Requests, Problem Reports), perform the following steps to add a button opening the impact analysis dashboard in context of the given record.
+        p If the field 
+            strong DMS_ID 
+            | does not exist yet in the workspace, add it as 
+            strong Single Line Text 
+            | (length 20, not visible) in tab 
+            strong Item Details
+            |. 
+            br
+            |Let this field be set upon process creation using the following script code (either in your on create script or attached to the initial workflow transition): 
+        p.code item.DMS_ID = dmsID;
+        p In addition, add a computed field 
+            strong Actions 
+            | to the
+            strong Item Details 
+            | tab that renders a button to open the dashboard for the current record. Use the formula shown below. In this formula, adjust the workspace ID to match the given processes' workspace ID.
+        p.code '&lt;a style="border: 1px solid #bec8d2;border-radius:3px;color: #0a131c;font-weight:600;line-height:32px;padding:4px 20px;text-align:center;text-decoration:none !important;white-space:nowrap;width:160px;" target="_blank" href ="LOCATIONimpactanalysis?wsId=84&dmsId='||DMS_ID||'"&gt;Impact Analysis&lt;/a&gt;'               
+        img(src='images/apps/impact-analysis-1.jpg' style='height:320px;')
+        h1 Application Configuration Settings
+        p The following settings can be adjusted in your custom settings file within 
+            span.code exports.applications.impactanalysis
+            |to adjust the application's behavior. In order to change any of these settings, copy the standard value from settings.js to your custom settings file in folder settings.
+        p These settings contain various Field IDs of the context processes' Managed Items tab. These fields values will be used to highlight given information in the Affected Items list.
+        p 
+            table 
+                tr 
+                    th Setting 
+                    th Default Value
+                    th Description 
+                tr 
+                    td fieldIdStockQuantity
+                    td 'STOCK_QUANTITY'
+                    td Field in Managed Items tab containing stock quantity information
+                tr 
+                    td fieldIdNextProductionOrderQantity
+                    td 'NEXT_PO_QUANTITY'
+                    td td Field in Managed Items tab containing next production order date
+                tr 
+                    td fieldIdPendingSupplies
+                    td 'PENDING_SUPPLIES'
+                    td Field in Managed Items tab containing pending supplies information
+                tr 
+                    td fieldIdProductionOrdersData
+                    td 'PO_DATA'
+                    td Field in Managed Items tab containing production orders information
+        h1 Viewer Configuration Settings
+        include ../framework/viewer.pug        
     .log 
         h1 Change Impact Analysis Change Log 
         table 
+            tr 
+                td 12. January 2026
+                td Documentation
+                td Documentation has been updated to match the new custom settings and environments management        
             tr 
                 td 20. June 2024
                 td Enhancement

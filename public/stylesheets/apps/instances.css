@@ -13,6 +13,8 @@
 
 .sync-status { display : none; }
 
+
+
 /*  MASTER LAYOUT */
 /* ----------------------------------------------------------------------------- */
 #results {
@@ -95,40 +97,6 @@
 
 .panel-actions .with-toggle::after { line-height : 36px; }
 
-.is-addin {
-    --border-v     : 18px;
-    --border-h     : 18px;
-    --width-viewer : 400px;
-}
-
-.is-addin #bom,
-.is-addin #guiviewer3d-toolbar { display : none !important; }
-.is-addin .viewer {
-    right  : unset; 
-    bottom : 0px; 
-    left   : 0px; 
-     width : var(--width-viewer);
-}
-.is-addin #contents { 
-    top  : 0px; 
-    left : var(--width-viewer); 
-}
-.is-addin #message { 
-    right   : 0px; 
-    bottom  : 0px; 
-    left    : 0px; 
-    padding : 10px 20px 10px 64px;
-}
-.is-addin #message::after {
-    font-size   : 30px;
-    font-weight : 200;
-    top         : 16px;
-    left        : 16px;
-}
-.is-addin #items {
-    top : 40px;
-}
-
 
 
 /*  BOM */
@@ -162,10 +130,14 @@ td.column-icon {
 
 /*  ITEMS */
 /* ----------------------------------------------------------------------------- */
-table.row-hovering tr.highlighted:hover > td,
-table.row-hovering tbody tr.highlighte:hover > td,
+table.row-hovering tr.highlighted:hover td,
+table.row-hovering tbody tr.highlighted:hover td,
 tr.highlighted > td {
     border-color : var(--color-status-red) !important;
+}
+table.row-hovering tr.highlighted:hover td.table-check-box,
+table.row-hovering tbody tr.highlighted:hover td.table-check-box,
+tr.highlighted > td.table-check-box {
     background   : var(--color-status-red) !important;
 }
 #items .panel-actions {
@@ -200,8 +172,65 @@ tr.highlighted > td {
 .sync-status > .icon-info   { color : var(--color-status-yellow); }
 .sync-status > .icon-check  { color : var(--color-status-green ); }
 
-.field-id-NR {
-    max-width : 22px !important;
-    min-width : 22px !important;
-    width     : 22px !important;
+.field-id-ITEM_REV      { max-width :  32px !important; min-width :  32px !important; width :  32px !important; text-align : center; }
+.field-id-INSTANCE_ID   { max-width :  32px !important; min-width :  32px !important; width :  32px !important; text-align : right;  }
+.field-id-INSTANCE_PATH { max-width : 360px !important; min-width : 360px !important; width : 360px !important; }
+
+
+
+/*  ITEMS */
+/* ----------------------------------------------------------------------------- */
+.addin {
+    --border-v      : 18px;
+    --border-h      : 18px;
+    --height-viewer : 1px;
+    --width-viewer  : 1px;
+}
+.addin #toggle-layout,
+.addin #toggle-bom,
+.addin #toggle-details,
+.addin #bom,
+.addin #guiviewer3d-toolbar { display : none !important; }
+.addin .viewer {
+    right  : unset; 
+    left   : -10px; 
+    overflow : hidden;
+    width : var(--width-viewer);
+}
+.addin #contents { 
+    top  : 0px; 
+    left : var(--width-viewer); 
+}
+.addin #message { 
+    right   : 0px; 
+    bottom  : 0px; 
+    left    : 0px; 
+    padding : 10px 20px 10px 64px;
+}
+.addin #message::after {
+    font-size   : 30px;
+    font-weight : 200;
+    top         : 16px;
+    left        : 16px;
+}
+.addin #items {
+    top : 40px;
+}
+
+
+
+/*  ADDIN MODE */
+/* ----------------------------------------------------------------------------- */
+.addin #header-subtitle {
+    padding-left : var(--border-h);
+}
+.addin #header-toolbar {
+    padding-right : var(--border-h);
+}
+.addin .panel-actions {
+    height  : 24px;
+    padding : 0px;
+}
+.addin #items > * > .panel-content {
+    top : 40px;
 }

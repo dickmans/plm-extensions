@@ -455,6 +455,7 @@
     line-height    : 22px;
     gap            : 1px;
     margin-bottom  : 10px;
+    overflow       : hidden;
 }
 .spare-part-component {
     background : var(--color-surface-level-1);

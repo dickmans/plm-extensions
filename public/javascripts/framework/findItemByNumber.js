@@ -11,7 +11,7 @@ $(document).ready(function() {
     } else {
 
         let params = {
-            wsId     : config.items.wsId,
+            wsId     : common.workspaceIds.items,
             limit    : 1,
             query    : number,
             wildcard : false
@@ -82,7 +82,7 @@ function setUIEvents() {
 
     $('#create-action').click(function() {
         $('#create-processing').show();
-        insertCreateForm(config.search.wsId, 'create', true);
+        // insertCreateForm(config.search.wsId, 'create', true);
         $('#create-title').html($(this).html());
         $('#search-screen').hide();
         $('#create-screen').show();

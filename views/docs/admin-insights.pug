@@ -1,4 +1,4 @@
-.tile(data-name='Tenant Insights')
+.tile(data-name='Tenant Insights' data-id='insights')
     .tile-image(style="background: url('images/admin-insights.png') no-repeat;background-size:contain;")
     .tile-details
         .tile-title Tenant Insights
@@ -10,17 +10,10 @@
         h1 Prerequisites
         p Your user must have admin privileges to use this dashboard as it uses the system log entries which are hidden for standard users. This privilege will be validated during startup and an error message is shown if permissions are missing. Your user also must have access to the given workspaces that should be taken into account in the insights dashboard.
         p Please note that the dashboard will retrieve the system log information in small packages. This process takes some time. There is a progress inidicator in top right corner and on top of the header to inform you about the data retrieval progress. You can also review the total number of log entries being processed in tab 'System'.
-        h1 Configuration Settings
-        p You may want to review the solution's configuration settings in file settings.js to adjust this solution to your needs. This is the default configuration:
-        p.code
-            span insights : {
-            span.indent hideUserNames : false,
-            span.indent maxLogEntries : 500000,
-            span.indent maxEventLogEntries : 10000
-            span.indent usersExcluded : ['Administrator', 'Import User', 'Job User', 'Integration User']
-            span.indent workspacesExcluded : ['Approval Lists', 'Change Approval Templates', 'Checklist Templates', 'Project Templates']
-            span }
-        p See a description of these settings below. Note that you have to restart your UX server after changing any of these settings.
+        h1 Application Configuration Settings
+        p The following settings can be adjusted in your custom settings file within 
+            span.code exports.applications.insights 
+            |to adjust the application's behavior. In order to change any of these settings, copy the standard value from settings.js to your custom settings file in folder settings.        
         p 
             table 
                 tr
@@ -58,6 +51,10 @@
     .log 
         h1 Tenant Insights Change Log 
         table 
+            tr 
+                td 12. January 2026
+                td Documentation
+                td Documentation has been updated to match the new custom settings and environments management        
             tr 
                 td 18. August 2025
                 td Enhancement

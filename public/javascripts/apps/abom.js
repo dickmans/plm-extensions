@@ -1,5 +1,4 @@
 let links         = {}
-let urlParameters = getURLParameters();
 let wsItems       = {};
 let wsAssetItems  = { linkEndItem : null, linkSparePart : null, linkPurchased : null, linkSerial : null };
 let projectItems  = [];
@@ -95,9 +94,9 @@ let contentsAssetItem = [{
 $(document).ready(function() {
 
     links.asset              = urlParameters.link;
-    wsAssetItems.workspaceId = config.abom.assetItems.workspaceId;
+    wsAssetItems.workspaceId = config.assetItems.workspaceId || common.workspaceIds.assetItems;
 
-    $('#toggle-bom').html(config.abom.bomLabel);
+    $('#toggle-bom').html(config.bomLabel);
 
     appendOverlay(true);
 
@@ -200,19 +199,22 @@ function startEditor(responses) {
 
     $('#header-subtitle').html(responses[0].data.title);
 
-    let fieldIdEBOM = urlParameters.fieldidebom || config.abom.assetFieldIDs.ebom;
+    let fieldIdEBOM = urlParameters.fieldidebom || config.assetFieldIDs.ebom;
     
     links.ebom    = getSectionFieldValue(responses[0].data.sections, fieldIdEBOM, '', 'link');
-    links.abom    = getSectionFieldValue(responses[0].data.sections, config.abom.assetFieldIDs.abom, '', 'link');
-    links.serials = getSectionFieldValue(responses[0].data.sections, config.abom.assetFieldIDs.serialNumbers, '', 'link');
+    links.abom    = getSectionFieldValue(responses[0].data.sections, config.assetFieldIDs.abom, '', 'link');
+    links.serials = getSectionFieldValue(responses[0].data.sections, config.assetFieldIDs.serialNumbers, '', 'link');
     
-    insertViewer(links.ebom); 
+    insertViewer(links.ebom, {
+        cacheInstances : true
+    }); 
 
     for(let projectItem of responses[1].data.projectItems) {
         if(!isBlank(projectItem.item)) {
             let projectItemLink = projectItem.item.link;
             let projectItemWSID = projectItemLink.split('/')[4];
-            if(projectItemWSID == config.abom.deliveriesWorkspaceId) {
+            let deliveriesWorkspaceId = config.orderProjectDeliveries.workspaceId || common.workspaceIds.orderProjectDeliveries;
+            if(projectItemWSID == deliveriesWorkspaceId) {
                 projectItems.push({
                     link  : projectItemLink,
                     title : projectItem.title,
@@ -246,12 +248,20 @@ function startEditor(responses) {
         }
     }    
 
-    if(isBlank(links.abom)) {
-        createRootAssetItem(function() {
-            insertEditor();
-        });
+    if(isBlank(links.ebom)) {
+
+        showErrorMessage('No Engineering BOM', 'There is no Engineering BOM defined for this Asset, which is required by the editor.');
+
     } else {
-        insertEditor();
+
+        if(isBlank(links.abom)) {
+            createRootAssetItem(function() {
+                insertEditor();
+            });
+        } else {
+            insertEditor();
+        }
+
     }
 
 }
@@ -259,7 +269,7 @@ function createRootAssetItem(callback) {
 
     let paramsDerived = {
         wsId    : wsAssetItems.workspaceId,
-        fieldId : config.abom.assetItems.fieldIDs.item,
+        fieldId : config.assetItems.fieldIDs.item,
         link    : links.ebom
     };
 
@@ -275,8 +285,8 @@ function createRootAssetItem(callback) {
             sections : wsAssetItems.sections,
             derived  : responses[0].data,
             fields   : [
-                { fieldId : config.abom.assetItems.fieldIDs.asset, value : links.asset },
-                { fieldId : config.abom.assetItems.fieldIDs.item , value : links.ebom  }
+                { fieldId : config.assetItems.fieldIDs.asset, value : links.asset },
+                { fieldId : config.assetItems.fieldIDs.item , value : links.ebom  }
             ]
         };
 
@@ -289,7 +299,7 @@ function createRootAssetItem(callback) {
         $.post('/plm/create', paramsCreate, function(response) {
             
             links.abom = response.data.split('plm360.net')[1];
-            paramsEdit.fields.push({ fieldId : config.abom.assetFieldIDs.abom, value : { link : links.abom}});
+            paramsEdit.fields.push({ fieldId : config.assetFieldIDs.abom, value : { link : links.abom}});
             $.post('/plm/edit', paramsEdit);
             callback();
 
@@ -310,18 +320,18 @@ function insertEditor() {
     }
 
     insertBOM(links.ebom, {
-        headerLabel         : config.abom.bomLabel,
+        headerLabel         : config.bomLabel,
         fieldsIn            : ['Quantity'],
         contentSize         : 's',
         collapseContents    : true,
-        openInPLM           : true,
-        search              : true,
-        reload              : true,
-        toggles             : true,
+        counters            : true,
         includeBOMPartList  : true,
-        counters : true,
-        path : true,
-        bomViewName         : config.abom.items.bomViewName,
+        openInPLM           : true,
+        path                : true,
+        reload              : true,
+        search              : true,
+        toggles             : true,
+        bomViewName         : config.items.bomViewName,
         additionalRequests  : additionalRequests,
         onClickItem         : function(elemClicked) { onBOMItemClick(elemClicked); }
     }); 
@@ -342,7 +352,7 @@ function onBOMItemClick(elemClicked) {
             paramsSummary.contents = contentsAssetItem;
             insertItemSummary(linkABOM, paramsSummary);
         }
-        viewerSelectModel(ebomPart.path, { ghosting : true, usePath : true});
+        viewerSelectModel(ebomPart.path, { ghosting : true, usePath : true });
     } else {
         paramsSummary.contents = contentsAsset;
         insertItemSummary(links.asset, paramsSummary);
@@ -521,7 +531,7 @@ function changeBOMViewDone(id, settings, bomData, selectedItems, dataFlatBOM, da
 
     $('<th></th>').appendTo(elemTHeadRow)
         .addClass('column-id')
-        .html(config.abom.assetItems.workspaceName);
+        .html(config.assetItems.workspaceName);
 
     $('<th></th>').appendTo(elemTHeadRow)
         .addClass('column-end-item')
@@ -541,8 +551,6 @@ function changeBOMViewDone(id, settings, bomData, selectedItems, dataFlatBOM, da
 
     for(let projectItem of projectItems) {
 
-        console.log(projectItem)
-
         let title = projectItem.title.split(' - ');
 
         $('<th></th>').appendTo(elemTHeadRow)
@@ -556,20 +564,18 @@ function changeBOMViewDone(id, settings, bomData, selectedItems, dataFlatBOM, da
     elemTBody.children().each(function() {
 
         let elemBOMItem = $(this);
-        let edgeId      = elemBOMItem.attr('data-edgeid');
-        let linkItem    = elemBOMItem.attr('data-link');
         let hasABOM     = false;
         let isEndItem   = false;
         let index       = $(this).index();
         let ebomPart    = ebomPartsList[index];
-        
-        let valueSparePart     = ebomPart.details[config.abom.items.fields.sparePart.fieldId]   || '';
-        let valueSerialNumber  = ebomPart.details[config.abom.items.fields.serialNumber.fieldId]  || 'false';
-        let valuePurchasedPart = ebomPart.details[config.abom.items.fields.purchasedPart.fieldId] || '';
 
-        let isSparePart = config.abom.items.fields.sparePart.values.includes(valueSparePart.toLowerCase());
+        let valueSparePart     = ebomPart.details[config.items.fields.sparePart.fieldId]   || '';
+        let valueSerialNumber  = ebomPart.details[config.items.fields.serialNumber.fieldId]  || 'false';
+        let valuePurchasedPart = ebomPart.details[config.items.fields.purchasedPart.fieldId] || '';
+
+        let isSparePart = config.items.fields.sparePart.values.includes(valueSparePart.toLowerCase());
         let isSerial    = (valueSerialNumber == 'true');
-        let isPurchased = config.abom.items.fields.purchasedPart.values.includes(valuePurchasedPart.toLowerCase());
+        let isPurchased = config.items.fields.purchasedPart.values.includes(valuePurchasedPart.toLowerCase());
 
         let elemCellID = $('<td></td>').appendTo(elemBOMItem)
             .addClass('column-id')
@@ -580,8 +586,6 @@ function changeBOMViewDone(id, settings, bomData, selectedItems, dataFlatBOM, da
             });
 
         for(let abomPart of abomPartsList) {
-            // console.log(ebomPart);
-            // console.log(abomPart);
             if(abomPart.details.REFERENCE_ITEM_ROOT === ebomPart.root) {
                 if(abomPart.details.REFERENCE_ITEM_PATH === ebomPart.path) {
                     
@@ -589,44 +593,15 @@ function changeBOMViewDone(id, settings, bomData, selectedItems, dataFlatBOM, da
                     elemBOMItem.attr('data-abom', abomPart.link);
                     elemBOMItem.addClass('match');
 
-                    isSparePart = (abomPart.details[config.abom.assetItems.fieldIDs.sparePart] == 'true');
-                    isSerial    = (abomPart.details[config.abom.assetItems.fieldIDs.serial]    == 'true');
-                    isPurchased = (abomPart.details[config.abom.assetItems.fieldIDs.purchased] == 'true');
+                    isSparePart = (abomPart.details[config.assetItems.fieldIDs.sparePart] == 'true');
+                    isSerial    = (abomPart.details[config.assetItems.fieldIDs.serial]    == 'true');
+                    isPurchased = (abomPart.details[config.assetItems.fieldIDs.purchased] == 'true');
 
-                    elemCellID.html(abomPart.details[config.abom.assetItems.fieldIDs.id]);
+                    elemCellID.html(abomPart.details[config.assetItems.fieldIDs.id]);
 
                 }
             }
         }
-
-        // for(let node of abom.nodes) {
-        //     for(let field of node.fields) {
-        //         // console.log(field);
-        //         if(field.metaData.link === wsAssetItems.linkFieldEdgeId) {
-        //             if(field.value === edgeId) {
-        //                 hasSBOM = true;
-        //                 elemBOMItem.attr('data-abom', node.item.link);
-        //                 elemBOMItem.addClass('match');
-
-        //                 for(let nodeField of node.fields) {
-        //                     switch(nodeField.metaData.link) {
-
-        //                         case wsAssetItems.linkFieldId   : elemCellID.html(nodeField.value); break;
-        //                         case wsAssetItems.linkEndItem   : isEndItem     = nodeField.value === 'true'; break;
-        //                         case wsAssetItems.linkSparePart : isSparePart   = nodeField.value === 'true'; break;
-        //                         case wsAssetItems.linkPurchased : isPurchased   = nodeField.value === 'true'; break;
-        //                         case wsAssetItems.linkSerial    : isSerial      = nodeField.value === 'true'; console.log(nodeField.value); break;
-
-        //                     }
-
-        //                 }
-
-
-        //             }
-        //         }
-        //     }
-
-        // }
 
         if(!hasABOM) {
 
@@ -838,7 +813,7 @@ function clickCreateAssetItem(elemClicked) {
 
             let params = {
                 wsId    : wsAssetItems.workspaceId,
-                fieldId : config.abom.assetItems.fieldIDs.item,
+                fieldId : config.assetItems.fieldIDs.item,
                 link    : item.attr('data-link'),
                 index   : item.index()
             };
@@ -870,15 +845,15 @@ function clickCreateAssetItem(elemClicked) {
                     sections : wsAssetItems.sections,
                     derived  : [],
                     fields   : [
-                        { fieldId : config.abom.assetItems.fieldIDs.asset    , value : links.asset },
-                        { fieldId : config.abom.assetItems.fieldIDs.item     , value : linkItem    },
-                        { fieldId : config.abom.assetItems.fieldIDs.number   , value : item.attr('data-part-number')  },
-                        { fieldId : config.abom.assetItems.fieldIDs.root     , value : item.attr('data-root-link'), type : 'string'  },
-                        { fieldId : config.abom.assetItems.fieldIDs.path     , value : bomPath                        },
-                        { fieldId : config.abom.assetItems.fieldIDs.endItem  , value : item.hasClass('is-end-item'  ) },
-                        { fieldId : config.abom.assetItems.fieldIDs.sparePart, value : item.hasClass('is-spare-part') },
-                        { fieldId : config.abom.assetItems.fieldIDs.purchased, value : item.hasClass('is-purchased' ) },
-                        { fieldId : config.abom.assetItems.fieldIDs.serial   , value : item.hasClass('is-serial'    ) },
+                        { fieldId : config.assetItems.fieldIDs.asset    , value : links.asset },
+                        { fieldId : config.assetItems.fieldIDs.item     , value : linkItem    },
+                        { fieldId : config.assetItems.fieldIDs.number   , value : item.attr('data-part-number')  },
+                        { fieldId : config.assetItems.fieldIDs.root     , value : item.attr('data-root-link'), type : 'string'  },
+                        { fieldId : config.assetItems.fieldIDs.path     , value : bomPath                        },
+                        { fieldId : config.assetItems.fieldIDs.endItem  , value : item.hasClass('is-end-item'  ) },
+                        { fieldId : config.assetItems.fieldIDs.sparePart, value : item.hasClass('is-spare-part') },
+                        { fieldId : config.assetItems.fieldIDs.purchased, value : item.hasClass('is-purchased' ) },
+                        { fieldId : config.assetItems.fieldIDs.serial   , value : item.hasClass('is-serial'    ) },
                     ]
                 };
 
@@ -923,7 +898,7 @@ function clickCreateAssetItem(elemClicked) {
                     if(response.url.indexOf('/details') === 0) {
                         let elemBOMItem = $('.content-item:eq(' + response.params.index + ')');
                         let elemCellID  = elemBOMItem.find('.column-id');
-                        elemCellID.html(getSectionFieldValue(response.data.sections, config.abom.assetItems.fieldIDs.id, ''));
+                        elemCellID.html(getSectionFieldValue(response.data.sections, config.assetItems.fieldIDs.id, ''));
                     }
                 }
 

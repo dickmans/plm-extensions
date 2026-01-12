@@ -47,6 +47,12 @@ function setAddinEvents() {
 
                 switch(action) {
 
+                    case 'plm-item': 
+                        console.log(' message = ' + arg.data);
+                        // let elemFocus = $('.addin-focus-element');
+                        // if(elemFocus.length === 1) elemFocus.focus();
+                        break;
+
                     case 'response': 
                         let messageTitle = response[1];
                         console.log(' messageTitle = ' + messageTitle);

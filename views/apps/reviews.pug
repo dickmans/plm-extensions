@@ -3,9 +3,10 @@ extends ../framework/layout
 block head
 
     link(rel='stylesheet', href='/stylesheets/apps/reviews.css')
+    link(rel='stylesheet', href='/stylesheets/custom/reviews.css')
+
     script(src='/javascripts/apps/reviews.js') 
-    script.
-        config = !{JSON.stringify(config)};
+    script(src='/javascripts/custom/reviews.js') 
 
 block body
 

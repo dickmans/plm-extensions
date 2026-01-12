@@ -1,8 +1,6 @@
-let urlParameters    = getURLParameters();
 let links            = {};
 let workspaces       = [];
 let completionEvents = 0;
-
 
 let paramsDetails = {
     headerLabel     : 'descriptor',
@@ -24,22 +22,19 @@ $(document).ready(function() {
 
     getFeatureSettings('instances', [], function() {
 
-        workspaces = config.instances.tabs;
-        
-        if(urlParameters.wsId != config.instances.assets.workspaceId) {
+        workspaces = config.tabs;
 
-            insertResults(config.instances.assets.workspaceId, [{
-                field       : config.instances.assets.fieldIdBOM,       
+        let wsIdAssets = config.assets.workspaceId || common.workspaceIds.assets;
+
+        if(urlParameters.wsId != wsIdAssets) {
+
+            insertResults(wsIdAssets, [{
+                field       : config.assets.fieldIdBOM,       
                 type        : 0,
                 comparator  : 3,
                 value       : urlParameters.number
-                // value       : urlParameters.descriptor
-                // comparator  : 21,
-                // value       : ''
-                // comparator  : 3,
-                // value       : '00'
             }], {
-                headerLabel : config.instances.landingHeader || 'Select Asset',
+                headerLabel : config.landingHeader || 'Select Asset',
                 layout      : 'list',
                 contentSize : 'xs',
                 onClickItem : function(elemClicked) { selectResult(elemClicked); }
@@ -50,6 +45,65 @@ $(document).ready(function() {
     });
 
 });
+
+
+// Set UI controls
+function setUIEvents() {
+
+    // Header Toolbar Buttons
+    $('#bom-sync').click(function() {
+        syncItemsList();
+    });
+    $('#excel-export').click(function() {
+
+        if($(this).hasClass('disabled')) return;
+
+        $('#overlay').show();
+
+        let sheets = [];
+
+        for(let workspace of workspaces) {
+            sheets.push({ 
+                type      : 'grid',
+                link      : workspace.link,
+                name      : workspace.label,
+                color     : colors.list[workspace.colorIndex].split('#')[1],
+                fieldsIn  : workspace.fieldsIn || [],
+                fieldsEx  : workspace.fieldsEx || [],
+                colWidths : []
+            });
+        }
+
+        $.post('/plm/excel-export', {
+            fileName   : config.exportFileName + ' ' + urlParameters.title.split(' - ')[0] + '.xlsx',
+            sheets     : sheets
+        }, function(response) {
+            $('#overlay').hide();
+            let url = document.location.href.split('/instances')[0] + '/' + response.data.fileUrl;
+            document.getElementById('frame-download').src = url;
+        });
+        
+    });
+    $('#toggle-layout').click(function() {
+        $('body').toggleClass('layout-h');
+        $(this).toggleClass('toggle-on');
+        viewerResize(200);
+    });
+    $('#toggle-bom').click(function() {
+        $('body').toggleClass('no-bom');
+        $(this).toggleClass('toggle-on');
+        viewerResize(200);
+    });
+    $('#toggle-details').click(function() {
+        $('body').toggleClass('no-details');
+        $(this).toggleClass('toggle-on');
+        viewerResize(200);
+    });
+
+}
+
+
+// Start Editor
 function selectResult(elemClicked) {
 
     openEditor(elemClicked.attr('data-link'));
@@ -71,7 +125,7 @@ function openEditor(link) {
         $('#header-subtitle').html(urlParameters.title);
         $('#overlay').hide();
 
-        links.ebom = getSectionFieldValue(responses[0].data.sections, config.instances.assets.fieldIdBOM, '', 'link');
+        links.ebom = getSectionFieldValue(responses[0].data.sections, config.assets.fieldIdBOM, '', 'link');
 
         insertDetails(links.ebom, paramsDetails);
 
@@ -84,14 +138,14 @@ function openEditor(link) {
             toggles             : true,
             viewerSelection     : false,
             includeBOMPartList  : true,
-            bomViewName         : config.instances.bomViewName,
+            bomViewName         : config.bomViewName,
             fieldsIn            : ['Quantity', 'Qty'],
             contentSize         : 'm',
             afterCompletion     : function(id, data) { afterBOMCompletion(id, data) },
             onClickItem         : function(elemClicked) { onSelectBOMItem(elemClicked); }
         });
 
-        insertViewer(links.ebom);
+        insertViewer(links.ebom, { cacheInstances : true });
 
         for(let index = 1; index < responses.length; index++) {
             let workspace         = workspaces[index-1];
@@ -174,76 +228,20 @@ function setGridSyncStatus() {
 }
 
 
-// Set UI controls
-function setUIEvents() {
-
-    // Header Toolbar Buttons
-    $('#bom-sync').click(function() {
-        syncItemsList();
-    });
-    $('#excel-export').click(function() {
-
-        if($(this).hasClass('disabled')) return;
-
-        $('#overlay').show();
-
-        let sheets = [];
-
-        for(let workspace of workspaces) {
-            sheets.push({ 
-                type      : 'grid',
-                link      : workspace.link,
-                name      : workspace.label,
-                color     : config.colors.list[workspace.colorIndex].split('#')[1],
-                fieldsIn  : workspace.fieldsIn || [],
-                fieldsEx  : workspace.fieldsEx || [],
-                colWidths : []
-            });
-        }
-
-        $.post('/plm/excel-export', {
-            fileName   : config.instances.exportFileName + ' ' + urlParameters.title.split(' - ')[0] + '.xlsx',
-            sheets     : sheets
-        }, function(response) {
-            $('#overlay').hide();
-            let url = document.location.href.split('/instances')[0] + '/' + response.data.fileUrl;
-            document.getElementById('frame-download').src = url;
-        });
-        
-    });
-    $('#toggle-layout').click(function() {
-        $('body').toggleClass('layout-h');
-        $(this).toggleClass('toggle-on');
-        viewerResize(200);
-    });
-    $('#toggle-bom').click(function() {
-        $('body').toggleClass('no-bom');
-        $(this).toggleClass('toggle-on');
-        viewerResize(200);
-    });
-    $('#toggle-details').click(function() {
-        $('body').toggleClass('no-details');
-        $(this).toggleClass('toggle-on');
-        viewerResize(200);
-    });
-
-}
-
-
 // Enable embedded mode to support usage as addin
 function setAddinMode() {
+
+    isAddin = true;
 
     if(!isAddin) return;
 
     console.log('setAddinMode START');
     console.log('isAddin : ' + isAddin);
 
-
-
     // $('#header').addClass('hidden');
     // $('.screen').css('top', '0px');
 
-    $('body').addClass('is-addin');
+    $('body').addClass('addin');
     // $('#bom').addClass('hidden');
     // $('#toggle-layout').remove();
     // $('#toggle-bom').remove();
@@ -363,7 +361,7 @@ function addBOMIconColumn(id) {
                         elemIcon.addClass('icon');
                         elemIcon.addClass(workspace.bomIcon);
                         elemIcon.attr('title', workspace.label);
-                        elemIcon.css('background', config.colors.list[workspace.colorIndex]);
+                        elemIcon.css('background', colors.list[workspace.colorIndex]);
                         elemRow.addClass('workspace-type-' + index);
                         break;
                     }
@@ -458,6 +456,7 @@ function insertTabContents() {
                 filterBySelection : true,
                 hideButtonCreate  : true,
                 hideButtonClone   : true,
+                hideButtonLabels  : isAddin,
                 singleToolbar     : 'actions',
                 sortOrder         : workspace.sortOrder,
                 fieldsIn          : workspace.fieldsIn,
@@ -465,7 +464,7 @@ function insertTabContents() {
                 groupBy           : workspace.groupBy || '',
                 collapseContents  : workspace.collapseContents || false,
                 textNoData        : 'No items found. Use the button Snyc with BOM in the main toolbar to update this table.',
-                contentSizes      : ['s', 'xs', 'xxs', 'xxl', 'xl', 'l', 'm'],
+                contentSizes      : isAddin ? ['s'] : ['s', 'xs', 'xxs', 'xxl', 'xl', 'l', 'm'],
                 afterCompletion   : function(id) { afterGridCompletion(id); },
                 // onClickItem       : function(elemClicked) { onSelectGridItem(elemClicked); }
             });
@@ -590,7 +589,7 @@ function applyViewerColors() {
 
             for(let item of workspace.items) partNumbers.push(item.partNumber);
 
-            viewerSetColors(partNumbers, { unhide : true, color : config.vectors.list[workspace.colorIndex], resetColors : false } );
+            viewerSetColors(partNumbers, { unhide : true, color : colors.vectors.list[workspace.colorIndex], resetColors : false } );
 
         }
 
@@ -668,17 +667,26 @@ function afterGridCompletion(id) {
 
     let elemTable   = $('#' + id);
     let elemActions = $('#' + id + '-actions');
+    let elemToggle  = $('#' + id + '-toggle-isolate');
     let elemTHead   = $('#' + id + '-thead');
     let elemTHRow   = elemTHead.children().first();
 
-    $('<div></div>').prependTo(elemActions)
-        .addClass('button')
-        .addClass('with-toggle')
-        .addClass('toggle-isolate')
-        .html('Isolate')
-        .click(function() {
-            $(this).toggleClass('toggle-on').toggleClass('toggle-off');
-        });
+    if(isAddin) {
+        if(elemToggle.length === 0) {
+            
+            $('<div></div>').prependTo(elemActions)
+            .addClass('button')
+            .addClass('with-toggle')
+            .addClass('toggle-isolate')
+            .attr('id', id + '-toggle-isolate')
+            .html('Isolate')
+            .click(function() {
+                $(this).toggleClass('toggle-on').toggleClass('toggle-off');
+                updateIsolate($(this));
+            });
+            
+        }
+    }
 
     elemTable.find('input').click(function() {
         selectGridItem($(this).closest('tr'));
@@ -693,11 +701,24 @@ function afterGridCompletion(id) {
 }
 function selectGridItem(elemClicked) {
 
-    let elemPanel  = elemClicked.closest('.panel-top');
-    let index      = elemPanel.index();
-    let rowData    = getGridRowDetails(elemClicked, workspaces[index].fieldsList);
+    console.log('selectGridItem START');
+
+    let elemPanel     = elemClicked.closest('.panel-top');
+    let isHighlighted = elemClicked.hasClass('highlighted');
+    let index         = elemPanel.index();
+    let rowData       = getGridRowDetails(elemClicked, workspaces[index].fieldsList);
+
+    $('.content-item.selected').removeClass('selected');
+
+    elemClicked.addClass('selected');
+
+    togglePanelToolbarActions(elemClicked);
+
+    if(isHighlighted) return;
 
     $('.highlighted').removeClass('highlighted');
+    $('.addin-context-element').removeClass('addin-context-element');
+    $('.addin-focus-element').removeClass('addin-focus-element');
 
     // if(isSelected) {
 
@@ -714,7 +735,7 @@ function selectGridItem(elemClicked) {
             }
         }
 
-        elemClicked.addClass('highlighted');
+        elemClicked.addClass('highlighted').addClass('addin-context-element');
 
         if(isAddin && sendAddinMessage) {
             console.log('addin message to ' + host);
@@ -723,6 +744,7 @@ function selectGridItem(elemClicked) {
             console.log(selection);
             console.log("addin message = " +  addinAction + ":" + selection.toString());
             // $('#overlay').show();
+            $(':focus').addClass('addin-focus-element');
             window.chrome.webview.postMessage(addinAction + ":" + selection.toString()); 
         } else {
             bomDisplayItemByPath(rowData.path);
@@ -736,26 +758,54 @@ function selectGridItem(elemClicked) {
     // }
 
 }
+function updateIsolate(elemToggleIsolate) {
+
+    if(!isAddin) return;
+
+
+    let elemHighlighted = $('.highlighted').first();
+
+    if(  elemHighlighted.length === 0) return;
+    if(elemToggleIsolate.length === 0) return;
+
+    $('.addin-context-element').removeClass('addin-context-element');
+    
+    elemHighlighted.addClass('addin-context-element');
+    
+    let elemPanel   = elemHighlighted.closest('.panel-top'); 
+    let index       = elemPanel.index();
+    let rowData     = getGridRowDetails(elemHighlighted, workspaces[index].fieldsList);
+    let addinAction = (elemToggleIsolate.hasClass('toggle-on')) ? 'isolateInstance' : 'selectInstance';
+    let selection   = 'plm-item;' + rowData.partNumber + ';' + '--' + ';' + elemHighlighted.attr('data-link')+ ';' + rowData.instancePath;
+
+    window.chrome.webview.postMessage(addinAction + ":" + selection.toString()); 
+
+}
 
 
 // Highlight matching instance upon selection in Inventor
 // selectInstance('002771.iam|Build Assembly:1|94500A231:2')
-function selectInstance(instanceId) {
+// selectInstance('01-0289.iam|01-0745:1|01-0743:1')
+function selectInstance(instancePath) {
 
-    if(isBlank(instanceId)) return;
+    console.log('selectInstance START')
+
+    if(isBlank(instancePath)) return;
 
     for(let workspace of workspaces) {
 
-        let fieldId = workspace.fieldsList.instanceId;
+        let fieldId = workspace.fieldsList.instancePath;
         let tableId = 'table-' + workspace.index;
+
+        console.log(fieldId);
 
         $('#' + tableId + '-table').find('.field-id-' + fieldId).each(function() {
 
             let elemInput = $(this).children('input');
             let value     = elemInput.val();
 
-            if(value === instanceId) {
-                selectGridItem(elemInput.closest('tr'), );
+            if(value === instancePath) {
+                selectGridItem(elemInput.closest('tr'));
                 $('#tabs').children().eq(workspace.index).click();
                 return;
             }
@@ -909,7 +959,7 @@ function syncItemsList() {
     Promise.all(requests).then(function(responses) {
         printResponsesErrorMessagesToConsole(responses);
         for(let grid of grids) {
-            settings.grid['table-' + grid].load();
+            settings['table-' + grid].load();
         }
         $('#overlay').hide();
     });

@@ -1,21 +1,49 @@
+let paramsDetails     = {}
+let paramsAttachments = {}
+let linkSelected      = '';
+
 $(document).ready(function() {
     
     setUIEvents();
     insertMenu();
 
+    paramsDetails = {
+        collapseContents : true,
+        hideComputed     : true,
+        openInPLM        : true,
+        toggles          : true,
+        useCache         : true,
+        suppressLinks    : config.suppressLinks,
+        expandSections   : config.expandSections,
+        sectionsEx       : config.sectionsExcluded,
+        sectionsIn       : config.sectionsIncluded,
+        sectionsOrder    : config.sectionsOrder,
+        fieldsEx         : config.fieldsExcluded,
+        fieldsIn         : config.fieldsIncluded,
+    };
+
+    paramsAttachments = {
+        headerLabel : 'Files',
+        editable    : false,
+        layout      : 'list',
+        reload      : false,
+        contentSize : 's'
+    }
+
     getFeatureSettings('portal', [], function() {
 
         insertSearch({ 
-            autoClick    : config.portal.autoClick,
-            inputLabel   : config.portal.searchInputText,
-            limit        : 15,
+            autoClick    : config.autoClick,
+            inputLabel   : config.searchInputText,
+            limit        : 10,
             number       : true,
+            pagination   : true,
             contentSize  : 'xs',
             tileSubtitle : 'Owner',
-            tileImage    : config.portal.searchTileImages,
+            tileImage    : config.searchTileImages,
             search       : false,
-            workspacesIn : config.portal.workspacesIn,
-            onClickItem  : function(elemClicked) { openItem(elemClicked); }
+            workspacesIn : config.workspacesIn,
+            onClickItem  : function(elemClicked) { clickTile(elemClicked); }
         });
 
         insertRecentItems({ 
@@ -23,16 +51,22 @@ $(document).ready(function() {
             search          : false,
             reload          : true,
             contentSize     : 'xs',
-            workspacesIn    : config.portal.workspacesIn,
+            tileImage       : config.searchTileImages,
+            workspacesIn    : config.workspacesIn,
             afterCompletion : function(id) { openMostRecentItem(); },
-            onClickItem     : function(elemClicked) { openItem(elemClicked); },
+            onClickItem     : function(elemClicked) { clickTile(elemClicked); },
         });
 
-        if(!isBlank(wsId) && !isBlank(dmsId)) {
+        if(!isBlank(urlParameters.link)) {
 
             $('#toggle-search').click();
             $('#toggle-bom').click();
-            openItem('/api/v3/workspaces/' + wsId + '/items/' + dmsId);
+
+            linkSelected = urlParameters.link;
+
+            $.get('/plm/descriptor', { link : linkSelected}, function(response) {
+                openItem(response.data);
+            });
 
         }
 
@@ -64,73 +98,63 @@ function setUIEvents() {
 
 function openMostRecentItem() {
 
-    if(config.portal.openMostRecent) {
-        
-        let elemMostRecent = $('#recents').find('.content-item').first();
-        if(elemMostRecent.length > 0) openItem(elemMostRecent);
-
+    if(config.openMostRecent) {
+        if(isBlank(urlParameters.link)) {
+            let elemMostRecent = $('#recents').find('.content-item').first();
+            if(elemMostRecent.length > 0) clickTile(elemMostRecent);
+        }
     }
 
     $('#search-search-content-input').focus();
 
 }
 
-function openItem(elemClicked) {
-
-    let link  = elemClicked.attr('data-link');
-    let title = elemClicked.attr('data-title');
-
+function clickTile(elemClicked) {
+    
     $('.content-item').removeClass('selected');
     elemClicked.addClass('selected');
+
+    linkSelected = elemClicked.attr('data-link');
+    let title    = elemClicked.attr('data-title');
+
+    
+    openItem(title);
+
+}
+function openItem(title) {
 
     $('#main').children().removeClass('hidden');
     $('#header-subtitle').html(title).show();
 
-    document.title = title;
-
-    insertBOM(link, {
-        contentSizes      : ['m', 'l', 'xl', 'xs', 's'],
-        bomViewName       : config.portal.bomViewName,
-        depth             : config.portal.bomLevels,
-        reload            : false,
-        openInPLM         : true,
-        toggles           : true,
-        search            : true,
-        path              : true,
-        counters          : true,
-        tableColumnsLimit : 1
+    document.title = title; 
+    insertViewer(linkSelected, {
+        extensionsIn : config.viewingFormats || common.viewer.extensionsIncluded
     });
 
-    insertViewer(link, {
-        extensionsIn : config.portal.viewingFormats
-    });
-
-    insertDetails(link, {
-        collapseContents : true,
-        hideComputed     : true,
-        openInPLM        : true,
-        toggles          : true,
-        suppressLinks    : config.portal.suppressLinks,
-        expandSections   : config.portal.expandSections,
-        sectionsEx       : config.portal.sectionsExcluded,
-        sectionsIn       : config.portal.sectionsIncluded,
-        sectionsOrder    : config.portal.sectionsOrder,
-        fieldsEx         : config.portal.fieldsExcluded,
-        fieldsIn         : config.portal.fieldsIncluded,
-    });
-
-    insertAttachments(link, {
-        headerLabel : 'Files',
-        editable    : false,
-        layout      : 'list',
-        reload      : false,
-        contentSize : 's'
+    insertDetails(linkSelected, paramsDetails);
+    insertAttachments(linkSelected, paramsAttachments);
+    insertBOM(linkSelected, {
+        contentSizes        : ['m', 'l', 'xl', 'xs', 's'],
+        bomViewName         : common.workspaces.items.defaultBOMView,
+        depth               : config.bomLevels,
+        downloadFiles       : config.downloadFiles,
+        downloadRequests    : config.downloadRequests,
+        downloadFormats     : config.downloadFormats,
+        counters            : true,
+        reload              : false,
+        openInPLM           : true,
+        path                : true,
+        search              : true,
+        toggles             : true,
+        useCache            : true,
+        tableColumnsLimit   : 1
     });
 
 }
 
-
 function clickBOMItem(elemClicked) {
+
+    let link = elemClicked.attr('data-link');
 
     if(elemClicked.hasClass('selected')) { 
 
@@ -142,9 +166,14 @@ function clickBOMItem(elemClicked) {
             highlight : true
         });
 
+        insertDetails(link, paramsDetails);
+        insertAttachments(link, paramsAttachments);
+
     } else {
 
         viewerResetSelection();
+        insertDetails(linkSelected, paramsDetails);
+        insertAttachments(linkSelected, paramsAttachments);
 
     }
 

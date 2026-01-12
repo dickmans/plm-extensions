@@ -1,56 +1,48 @@
 #!/usr/bin/env node
-let fileSettings = (process.argv.length > 2) ? '/settings/' + process.argv[2] + '.js' : '/settings.js';
 
 const fs  = require('fs');
 const app = require('../app');
 
-let server, settings, protocol, port;
+let server, port;
 
-if ((process.argv.length < 2) || (fs.existsSync('.' + fileSettings))) {
+if(app.locals.protocol === 'https') {
 
-  settings = require('..' + fileSettings);
-  protocol = settings.protocol;
-  port     = settings.port;
+	if (fs.existsSync('./keys/privkey.pem')) {
 
-  if (protocol === 'https') {
+		const https       = require('https');
+		const privateKey  = fs.readFileSync('./keys/privkey.pem', 'utf8');
+		const certificate = fs.readFileSync('./keys/fullchain.pem', 'utf8');
+		const credentials = { key: privateKey, cert: certificate };
 
-    if (fs.existsSync('./keys/privkey.pem')) {
+		server = https.createServer(credentials, app);
 
-      const https       = require('https');
-      const privateKey  = fs.readFileSync('./keys/privkey.pem', 'utf8');
-      const certificate = fs.readFileSync('./keys/fullchain.pem', 'utf8');
-      const credentials = { key: privateKey, cert: certificate };
+	} else {
 
-      server = https.createServer(credentials, app);
+		console.log();
+		console.log('  ERROR ! File privkey.pem not available in folder /keys');
+		console.log('        ! Server will be started using http instead of https');
+		console.log();
 
-    } else {
+		const http = require('http');
 
-      console.log();
-      console.log('  ERROR ! File privkey.pem not available in folder /keys');
-      console.log('        ! Server will be started using http instead of https');
-      console.log();
+		server = http.createServer(app);
 
-      const http = require('http');
+	}
 
-      server = http.createServer(app);
+} else {
 
-    }
-
-  } else {
-
-    const http = require('http');
-
-    server = http.createServer(app);
-
-  }
-
-  app.set('port', port);
-
-  server.listen(port);
-  server.on('error', onError);
-  server.on('listening', onListening);
+	const http = require('http');
+	server = http.createServer(app);
 
 }
+
+app.set('port', app.locals.port);
+
+
+server.listen(app.locals.port);
+server.on('error', onError);
+server.on('listening', onListening);
+
 
 if(!fs.existsSync('storage'      )) fs.mkdirSync('storage'      );
 if(!fs.existsSync('storage/cache')) fs.mkdirSync('storage/cache');
@@ -61,27 +53,27 @@ if(!fs.existsSync('storage/cache')) fs.mkdirSync('storage/cache');
  */
 
 function onError(error) {
-  if (error.syscall !== 'listen') {
-    throw error;
-  }
+	if (error.syscall !== 'listen') {
+		throw error;
+	}
 
-  var bind = typeof port === 'string'
-    ? 'Pipe ' + port
-    : 'Port ' + port;
+	var bind = typeof port === 'string'
+		? 'Pipe ' + port
+		: 'Port ' + port;
 
-  // handle specific listen errors with friendly messages
-  switch (error.code) {
-    case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
-      process.exit(1);
-      break;
-    case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
-      process.exit(1);
-      break;
-    default:
-      throw error;
-  }
+	// handle specific listen errors with friendly messages
+	switch (error.code) {
+		case 'EACCES':
+			console.error(bind + ' requires elevated privileges');
+			process.exit(1);
+			break;
+		case 'EADDRINUSE':
+			console.error(bind + ' is already in use');
+			process.exit(1);
+			break;
+		default:
+			throw error;
+	}
 }
 
 /**
@@ -90,53 +82,56 @@ function onError(error) {
 
 function onListening() {
 
-  let addr = server.address();
-  let bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port;
+	let addr = server.address();
+	let bind = typeof addr === 'string'
+	? 'pipe ' + addr
+	: 'port ' + addr.port;
 
-  console.log();
-  console.log('  >> Using settings file     ' + fileSettings);
-  console.log('  >> Using Client ID         ' + settings.clientId.substring(0, 8) + '...');
-  console.log('  >> Using redirect Uri      ' + settings.redirectUri);
-  console.log('  >> Using PLM Tenant        ' + settings.tenant);
-  console.log('  >> Listening on            ' + bind);
-  console.log('  >> Cache Enabled?          ' + settings.enableCache);
-  console.log('  >> Using Default Theme     ' + settings.defaultTheme);
+	console.log();
+	console.log('  >> Using PLM Tenant         ' + app.locals.tenant);
+	console.log('  >> Using Client ID          ' + app.locals.clientId.substring(0, 8) + '...');
+	console.log('  >> Using redirect Uri       ' + app.locals.redirectUri);
+	console.log('  >> Using settings file      ' + app.locals.settings);
+	console.log('  >> Using Default Theme      ' + app.locals.defaultTheme);
+	console.log('  >> Cache Enabled?           ' + app.locals.enableCache);
+	console.log('  >> Debug Mode Enabled?      ' + app.locals.debugMode);
+	console.log('  >> Listening on             ' + bind);
 
-  if((settings.adminClientId === '') || (settings.adminClientSecret === '')) {
-    console.log();
-    console.log('  The USER SETTINGS MANAGER cannot be used as Admin Client ID/Secret is missing');
-  } else {
-    console.log('  >> Using Admin Client ID   ' + settings.adminClientId.substring(0, 8) + '...');
-  }
-  
-  if((settings.vaultGateway === '') || (settings.vaultGateway === '')) {
-    console.log();
-    console.log('  Not connected to Vault as Vault Gateway and/or Vault Name are not defined');
-  } else {
-    console.log('  >> Using Vault Gateway     ' + settings.vaultGateway);
-    console.log('  >> Using Vault Name        ' + settings.vaultName);
-  }
+	if((app.locals.adminClientId === '') || (app.locals.adminClientSecret === '')) {
+		console.log();	
+		console.log('  The USER SETTINGS MANAGER cannot be used as Admin Client ID/Secret is missing');
+	} else {
+		console.log('  >> Using Admin Client ID    ' + app.locals.adminClientId.substring(0, 8) + '...');
+	}
 
-  if(typeof settings.chrome === 'undefined') {
-    console.log();
-    console.log('  !! The CHROME EXTENSION cannot be used as exports.chrome does not exist in ' + fileSettings);
-  }
+	if((app.locals.vaultGateway === '') || (app.locals.vaultGateway === '')) {
+		console.log();
+		console.log('  Not connected to Vault as Vault Gateway and/or Vault Name are not defined');
+	} else {
+		console.log('  >> Using Vault Gateway      ' + app.locals.vaultGateway);
+		console.log('  >> Using Vault Name         ' + app.locals.vaultName);
+	}
 
-  console.log();
-  console.log('  REMINDER');
-  console.log(' --------------------------------------------------------------------------------------------------');
-  console.log('  Since the release of July 2024, the UX server uses PKCE for authentication instead of the');
-  console.log('  former mechanism involving the Client Secret. This requries an APS application of type');
-  console.log('  "Desktop, Mobile, Single-Page App" for successful authentication.');
-  console.log('    If not done so yet, create such an app at aps.autodesk.com and provide the given ');
-  console.log('  Client ID in file settings.js as in previous releases. The Client Secret now can be omitted.');
-  console.log('  This new app must use the same callback URL as your previous app and end with "/callback"');
-  console.log('  (i.e. http://localhost:8080/callback).');
-  console.log('    If your login to the UX solutions fails with an error code 401, you most likely are still ');
-  console.log('  using an APS of another type.')
-  console.log();
-  console.log();
+	if(typeof app.locals.chrome === 'undefined') {
+		console.log();
+		console.log('  !! The CHROME EXTENSION cannot be used as exports.chrome does not exist in settings');
+	}
+
+	console.log();
+	console.log();
+	console.log('  REMINDERS');
+	console.log(' --------------------------------------------------------------------------------------------------');
+	console.log('  Since the release of July 2024, the UX server uses PKCE for authentication instead of the');
+	console.log('  former mechanism involving the Client Secret. This requries an APS application of type');
+	console.log('  "Desktop, Mobile, Single-Page App" for successful authentication.');
+	console.log('  ');
+	console.log('  If not done so yet, create such an app at aps.autodesk.com and provide the given ');
+	console.log('  Client ID in file environments.js. This app must use a callback URL that end with "/callback"');
+	console.log('  (i.e. http://localhost:8080/callback).');
+	console.log('  ');
+	console.log('  If your login to the UX solutions fails with an error code 401, you most likely are');
+	console.log('  using an APS of wrong type or with wrong callback URL.')
+	console.log();
+	console.log();
 
 }

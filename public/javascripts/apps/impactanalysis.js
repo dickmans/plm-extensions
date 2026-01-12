@@ -6,7 +6,6 @@ let relatedWorkspaces   = [];
 let relatedItems        = [];
 let isRevisioningWS     = false;
 let isEditable          = false;
-let urlParameters       = getURLParameters();
 let loadCompleted       = 0;
 
 
@@ -356,14 +355,14 @@ function insertManagedItemsDataDone(id, items, fields) {
 
         for(let field of item.linkedFields) {
                     
-            let fieldId = field.__self__.split('/')[8];
+            let fieldId = field.__self__.split('/').pop();
 
             switch(fieldId) {
 
-                case config.impactanalysis.fieldIdStockQuantity              : countStock        = field.value; break;
-                case config.impactanalysis.fieldIdNextProductionOrderQantity : countOrders       = field.value; break;
-                case config.impactanalysis.fieldIdPendingSupplies            : countSupplies     = (field.value === 'true') ? 1 : 0; break;
-                case config.impactanalysis.fieldIdProductionOrdersData       : productionOrders  = field.value; break;
+                case config.fieldIdStockQuantity              : countStock        = field.value; break;
+                case config.fieldIdNextProductionOrderQantity : countOrders       = field.value; break;
+                case config.fieldIdPendingSupplies            : countSupplies     = (field.value === 'true') ? 1 : 0; break;
+                case config.fieldIdProductionOrdersData       : productionOrders  = field.value; break;
 
             }
 
@@ -549,8 +548,6 @@ function selectManagedItem(elemClicked) {
 function reset() {
    
     $('#item').show();
-
-    $('#viewer').hide();
 
     $('#tabs').children().removeClass('count-none');
     $('#tabs').children().removeClass('count-done');
@@ -1348,10 +1345,10 @@ function setItemColorsInViewer() {
 
     if($('#apply-to-viewer').is(":checked")) {
 
-        viewerSetColors(bomItemsByStatus.new        , { 'resetColors' : false, 'color' : config.colors.red    });
-        viewerSetColors(bomItemsByStatus.additional , { 'resetColors' : false, 'color' : config.colors.blue   });
-        viewerSetColors(bomItemsByStatus.different  , { 'resetColors' : false, 'color' : config.colors.yellow });
-        viewerSetColors(bomItemsByStatus.match      , { 'resetColors' : false, 'color' : config.colors.green  });
+        viewerSetColors(bomItemsByStatus.new        , { 'resetColors' : false, 'color' : colors.red    });
+        viewerSetColors(bomItemsByStatus.additional , { 'resetColors' : false, 'color' : colors.blue   });
+        viewerSetColors(bomItemsByStatus.different  , { 'resetColors' : false, 'color' : colors.yellow });
+        viewerSetColors(bomItemsByStatus.match      , { 'resetColors' : false, 'color' : colors.green  });
 
     }
 
