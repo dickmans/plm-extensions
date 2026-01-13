@@ -49,6 +49,7 @@ exports.common = {
         assets                 : 280,
         assetItems             : 282,
         assetServices          : 284,
+        serialNumbers          : 277,
 
     },
 

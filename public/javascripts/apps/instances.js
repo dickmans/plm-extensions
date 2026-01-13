@@ -21,6 +21,10 @@ $(document).ready(function() {
     viewerCacheBoundingBoxes = true;
 
     getFeatureSettings('instances', [], function() {
+        
+        for(let workspace of config.tabs) {
+            if(isBlank(workspace.workspaceId)) workspace.workspaceId = common.workspaceIds.serialNumbers;
+        };
 
         workspaces = config.tabs;
 
@@ -148,10 +152,12 @@ function openEditor(link) {
         insertViewer(links.ebom, { cacheInstances : true });
 
         for(let index = 1; index < responses.length; index++) {
+
             let workspace         = workspaces[index-1];
                 workspace.columns = responses[index].data.fields;
                 workspace.link    = getSectionFieldValue(responses[0].data.sections, workspace.fieldId, '', 'link');
                 workspace.index   = index - 1;
+
         }
 
         $('#excel-export').removeClass('disabled');
@@ -231,7 +237,7 @@ function setGridSyncStatus() {
 // Enable embedded mode to support usage as addin
 function setAddinMode() {
 
-    isAddin = true;
+    // isAddin = true;
 
     if(!isAddin) return;
 

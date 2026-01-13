@@ -68,6 +68,7 @@ exports.common = {
         assets                 : 280,
         assetItems             : 282,
         assetServices          : 284,
+        serialNumbers          : 277,
 
     },
 
@@ -477,7 +478,7 @@ exports.applications = {
 
     instances : {
         assets : {
-            workspaceId : null,   // uses common.workspaceIds per default
+            workspaceId : null,   // uses common.workspaceIds.assets per default
             fieldIdBOM  : 'ENGINEERING_BOM'
         },
         landingHeader     : 'Select From Exsiting Assets',
@@ -486,7 +487,7 @@ exports.applications = {
         tabs : [{
             label       : 'Serial Numbers',
             fieldId     : 'SERIAL_NUMBERS_LIST',
-            workspaceId : 285,
+            workspaceId : null, // uses common.workspaceIds.serialNumbers per default
             colorIndex  : 1,
             bomIcon     : 'icon-tag',
             fieldsIn    : ['Serial #', 'Installation Date', 'Item Title', 'Rev', '#', 'Instance Path'],
