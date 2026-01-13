@@ -460,6 +460,7 @@ function insertTabContents() {
                 search            : false,
                 filterEmpty       : false,
                 filterBySelection : true,
+                toggles           : true,
                 hideButtonCreate  : true,
                 hideButtonClone   : true,
                 hideButtonLabels  : isAddin,
