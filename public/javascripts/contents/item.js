@@ -5278,8 +5278,9 @@ function setBOMHeaders(id, elemTHead) {
 
     if(settings[id].showRestricted) $('<th></th>').appendTo(elemTHRow).html('').addClass('bom-column-locks');
 
-    for(let index in settings[id].columns) {
-        let column = settings[id].columns[index];
+    let index = 0;
+
+    for(let column of settings[id].columns) {
         if(column.included) {
             if(!settings[id].hideDescriptor || (index > 0)) {
                 $('<th></th>').appendTo(elemTHRow)
@@ -5287,8 +5288,11 @@ function setBOMHeaders(id, elemTHead) {
                     .addClass('bom-column-' + column.fieldId.toLowerCase())
                     .addClass('tree-column-' + column.fieldId.toLowerCase());
             } else {
-                elemFirst.html(column.displayName);
+                elemFirst.html(column.displayName)
+                    .addClass('bom-column-' + column.fieldId.toLowerCase())
+                    .addClass('tree-column-' + column.fieldId.toLowerCase());
             }
+            index++;
         }
     }
 
@@ -5443,14 +5447,20 @@ function insertNextBOMLevel(id, elemTable, bom, parent, parentQuantity, numberPa
 
                         if(settings[id].showRestricted) elemCellLocks.appendTo(elemRow);
 
-                        for(let index in settings[id].columns) {
+                        let index = 0;
 
-                            let column = settings[id].columns[index];
+                        for(let column of settings[id].columns) {
 
                             if(column.included) {
 
                                 let value    = '';
-                                let elemCell = (!settings[id].hideDescriptor || (index > 0)) ? $('<td></td>').appendTo(elemRow) : $('<span></span>').addClass('bom-descriptor').appendTo(elemFirst);
+                                let elemCell = $('<td></td>');
+                                
+                                if(!settings[id].hideDescriptor || (index > 0)) {
+                                    elemCell.appendTo(elemRow);
+                                } else {
+                                    elemCell = $('<span></span>').appendTo(elemFirst).addClass('bom-descriptor');
+                                }
 
                                 if(column.fieldTab === 'STANDARD_BOM') value = getBOMEdgeValue(edge, column.__self__.urn, null, '');
                                 else value = getBOMCellValue(edge.child, column.__self__.urn, bom.nodes, 'title');
@@ -5458,6 +5468,8 @@ function insertNextBOMLevel(id, elemTable, bom, parent, parentQuantity, numberPa
                                 elemCell.html(value)
                                     .addClass('bom-column-'  + column.fieldId.toLowerCase())
                                     .addClass('tree-column-' + column.fieldId.toLowerCase());
+
+                                index++;
 
                             }
 
