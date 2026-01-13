@@ -420,6 +420,12 @@ let categories = [
         default     : 'false',
         supportedBy : []
     },{
+        name        : 'hideDescriptor',
+        description : 'This will hide the descriptor column which is used as first column otherwise',
+        type        : 'Boolean',
+        default     : 'false',
+        supportedBy : ['insertBOM']
+    },{
         name        : 'editable',
         description : 'Enables edit capabilities within the panel',
         type        : 'Boolean',

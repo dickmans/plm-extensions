@@ -4928,6 +4928,7 @@ function insertBOM(link , params) {
         [ 'endItemValue'        , ''    ],
         [ 'getFlatBOM'          , false ],
         [ 'goThere'             , false ],
+        [ 'hideDescriptor'      , false ],
         [ 'hideDetails'         , hideDetails ],
         [ 'includeBOMPartList'  , false ],
         [ 'path'                , false ],
@@ -5123,9 +5124,10 @@ function getBOMTabViews(id, settings) {
                     if(includePanelTableColumn(field.fieldId, field.displayName, settings, columnsCount++)) {
                         if(!settings.hideDetails) {
                             field.included = true;
+                            field.sortFieldsIncluded = settings.fieldsIn.indexOf(field.displayName) + 1;
                         }      
                     }
-                }
+                } else field.sortFieldsIncluded = 0;
 
                 view.columns.push(field);
 
@@ -5143,6 +5145,7 @@ function getBOMTabViews(id, settings) {
 
             }
 
+            sortArray(view.columns, 'sortFieldsIncluded', 'integer');
             settings.bomViews.push(view);
         
         }
@@ -5269,15 +5272,23 @@ function setBOMHeaders(id, elemTHead) {
     let elemTHRow = $('<tr></tr>').appendTo(elemTHead).attr('id', id + '-thead-row');
 
     $('<th></th>').appendTo(elemTHRow).html('').addClass('bom-color');
-    $('<th></th>').appendTo(elemTHRow).html('Item').addClass('bom-first-col');
+    let elemFirst = $('<th></th>').appendTo(elemTHRow).addClass('bom-first-col');
+
+    if(!settings[id].hideDescriptor) elemFirst.html('Item');
 
     if(settings[id].showRestricted) $('<th></th>').appendTo(elemTHRow).html('').addClass('bom-column-locks');
-    
-    for(let column of settings[id].columns) {
+
+    for(let index in settings[id].columns) {
+        let column = settings[id].columns[index];
         if(column.included) {
-            $('<th></th>').appendTo(elemTHRow)
-                .html(column.displayName)
-                .addClass('bom-column-' + column.fieldId.toLowerCase());
+            if(!settings[id].hideDescriptor || (index > 0)) {
+                $('<th></th>').appendTo(elemTHRow)
+                    .html(column.displayName)
+                    .addClass('bom-column-' + column.fieldId.toLowerCase())
+                    .addClass('tree-column-' + column.fieldId.toLowerCase());
+            } else {
+                elemFirst.html(column.displayName);
+            }
         }
     }
 
@@ -5404,19 +5415,19 @@ function insertNextBOMLevel(id, elemTable, bom, parent, parentQuantity, numberPa
                             });
 
                         let elemColor = $('<td></td>').appendTo(elemRow).addClass('bom-color');
-                        let elemCell  = $('<td></td>').appendTo(elemRow).addClass('bom-first-col');
+                        let elemFirst = $('<td></td>').appendTo(elemRow).addClass('bom-first-col');
 
                         if(settings[id].position) {
-
-                            $('<span></span>').appendTo(elemCell)
+                            $('<span></span>').appendTo(elemFirst)
                                 .addClass('bom-number')
                                 .html(edge.depth + '.' + edge.itemNumber);
-
                         }
 
-                        $('<span></span>').appendTo(elemCell)
-                            .addClass('bom-descriptor')
-                            .html(node.item.title);
+                        if(!settings[id].hideDescriptor) {
+                            $('<span></span>').appendTo(elemFirst)
+                                .addClass('bom-descriptor')
+                                .html(node.item.title);
+                        }
 
                         // if(settings[id].quantity) {
 
@@ -5432,18 +5443,21 @@ function insertNextBOMLevel(id, elemTable, bom, parent, parentQuantity, numberPa
 
                         if(settings[id].showRestricted) elemCellLocks.appendTo(elemRow);
 
-                        for(let column of settings[id].columns) {
+                        for(let index in settings[id].columns) {
+
+                            let column = settings[id].columns[index];
 
                             if(column.included) {
 
-                                let value = '';
+                                let value    = '';
+                                let elemCell = (!settings[id].hideDescriptor || (index > 0)) ? $('<td></td>').appendTo(elemRow) : $('<span></span>').addClass('bom-descriptor').appendTo(elemFirst);
 
                                 if(column.fieldTab === 'STANDARD_BOM') value = getBOMEdgeValue(edge, column.__self__.urn, null, '');
                                 else value = getBOMCellValue(edge.child, column.__self__.urn, bom.nodes, 'title');
 
-                                $('<td></td>').appendTo(elemRow)
-                                    .html(value)
-                                    .addClass('bom-column-' + column.fieldId.toLowerCase());
+                                elemCell.html(value)
+                                    .addClass('bom-column-'  + column.fieldId.toLowerCase())
+                                    .addClass('tree-column-' + column.fieldId.toLowerCase());
 
                             }
 
@@ -5490,7 +5504,7 @@ function insertNextBOMLevel(id, elemTable, bom, parent, parentQuantity, numberPa
 
                         } else {
 
-                            $('<span></span>').prependTo(elemCell)
+                            $('<span></span>').prependTo(elemFirst)
                                 .addClass('bom-nav')
                                 .addClass('icon')
 
