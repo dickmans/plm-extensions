@@ -2180,6 +2180,8 @@ function insertField(settings, elemParent, field, data, picklistsData, bookmarks
                 break; 
 
             case 'Single Selection':
+            case 'Pick List (With search filter)':
+            case 'Linking Pick List (With search filter)':                
                 elemParent.addClass('nowrap');
                 if(!isBlank(value)) elemParent.html(value.title);
                 if(!isBlank(field.picklistFieldDefinition)) {
@@ -2320,6 +2322,8 @@ function insertField(settings, elemParent, field, data, picklistsData, bookmarks
             case 'Single Selection':
             case 'Multiple Selection':
             case 'BOM UOM Pick List':
+            case 'Pick List (With search filter)':
+            case 'Linking Pick List (With search filter)':
                 elemInput = insertFieldPicklistControls(settings, field, elemParent, value, bookmarks, recents);
                 updatePickListOptions(elemInput, 0, false, picklistsData);
                 break;
