@@ -4883,6 +4883,18 @@ function togglePanelToolbarActions(elemClicked) {
 
 
 }
+function expandAllTableGroups(id) {
+
+    $('#' + id + '-content').find('.content-item').removeClass('hidden');
+    $('#' + id + '-content').find('.table-group-title').removeClass('collapsed');
+    
+}
+function collapseAllTableGroups(id) {
+
+    $('#' + id + '-content').find('.content-item').addClass('hidden');
+    $('#' + id + '-content').find('.table-group-title').addClass('collapsed');
+    
+}
 
 
 // Pagination : Load next page

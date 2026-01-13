@@ -4310,11 +4310,14 @@ function insertGrid(link, params) {
         [ 'sortType'            , 'string' ],
         [ 'bookmark'            , false ],
         [ 'picklistLimit'       , 10    ],
-        [ 'picklistShortcuts'   , false ]
+        [ 'picklistShortcuts'   , false ],
+        [ 'toggles'             , false ],
     ]);
 
     settings[id].layout = 'table';
     settings[id].load   = function() { insertGridData(id); }
+
+    if(isBlank(settings[id].groupBy)) settings[id].toggles = false;
 
     genPanelTop              (id, settings[id], 'grid');
     genPanelHeader           (id, settings[id]);
@@ -4322,10 +4325,16 @@ function insertGrid(link, params) {
     genPanelOpenInPLMButton  (id, settings[id]);
     genPanelSelectionControls(id, settings[id]);
     genPanelFilterToggleEmpty(id, settings[id]);
+    genPanelToggleButtons    (id, settings[id], 
+        function() {   expandAllTableGroups(id); }, 
+        function() { collapseAllTableGroups(id); }
+    );    
     genPanelSearchInput      (id, settings[id]);
     genPanelResizeButton     (id, settings[id]);
     genPanelReloadButton     (id, settings[id]);
     genPanelContents         (id, settings[id]);
+
+    console.log(settings[id]);
 
     if(settings[id].editable) {
 
@@ -4551,9 +4560,9 @@ function insertGridData(id) {
                                 .click(function() {
                                     $(this).toggleClass('collapsed');
                                     if($(this).hasClass('collapsed')) {
-                                        $(this).parent().nextUntil('.table-group').hide();
+                                        $(this).parent().nextUntil('.table-group').addClass('hidden');
                                     } else {
-                                        $(this).parent().nextUntil('.table-group').show();
+                                        $(this).parent().nextUntil('.table-group').removeClass('hidden');
                                     }
                                 });
 

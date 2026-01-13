@@ -700,7 +700,7 @@ let categories = [
     description : 'Displays toggle buttons in panel header toolbar to quickly expand and collapse the contents being displayed',
     type        : 'Boolean',
     default     : 'false',
-    supportedBy : []
+    supportedBy : ['insertGrid']
 },{
     name        : 'saveTabSelection',
     description : 'When switching between records, the summary will automatically select the previously selected tab if layout "tabs" is used',
