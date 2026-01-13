@@ -413,9 +413,13 @@
                     br
                     |In any case, this field must be included in the BOM view being used by the Service Portal (default is 'Service').
             tr 
-                td items.sparePartDetails
-                td ['MATERIAL', 'ITEM_WEIGHT', 'DIMENSIONS']
-                td Each spare part tile can show 3 additional fields. If other fields than the default fields are relevent, change this list. However, make sure that there are exactly 3 entries and these fields also must be contained in the given BOM view.                
+                td items.sparePartTileTitle
+                td 'NUMBER'
+                td Select field ID of BOM view to use as Spare Part tile title
+            tr 
+                td items.sparePartTileSubtitle
+                td 'TITLE'
+                td Select field ID of BOM view to use as Spare Part tile subtitle
             tr  
                 td sparePartsRequests.workspaceId
                 td 241
@@ -632,6 +636,10 @@
                 td 13. January 2026
                 td Enhancement
                 td Additional configuration settings for BOM tree display
+            tr 
+                td 
+                td Bugfix
+                td Updated Spare Part tile details configuration
             tr 
                 td 12. January 2026
                 td Documentation

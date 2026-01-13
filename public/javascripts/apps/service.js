@@ -1203,11 +1203,11 @@ function insertSparePart(elemParent, bomPart, type) {
     $('<div></div>').appendTo(elemSparePartID)
         .addClass('spare-part-number')
         .addClass('tile-title')
-        .html(bomPart.partNumber);    
+        .html(bomPart.details[config.items.sparePartTileTitle]);    
 
     $('<div></div>').appendTo(elemSparePartDetails)
         .addClass('spare-part-title')
-        .html(bomPart.title);  
+        .html(bomPart.details[config.items.sparePartTileSubtitle]);  
 
     // $('<div></div>').appendTo(elemSparePartDetails)
     //     .addClass('spare-part-material')

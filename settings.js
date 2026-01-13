@@ -950,12 +950,13 @@ exports.applications = {
             }           
         },
         items : {
-            bomViewName          : 'Service',
-            bomRevisionBias      : 'release',
-            fieldIdSparePart     : 'SPARE_WEAR_PART',
-            fieldValuesSparePart : ['spare part', 'yes', 'x', 'y', 'wear part'],
-            endItemFilter        : { fieldId : 'SBOM_END_ITEM', value : true },
-            sparePartTileDetails : ['MATERIAL', 'ITEM_WEIGHT', 'DIMENSIONS']
+            bomViewName           : 'Service',
+            bomRevisionBias       : 'release',
+            fieldIdSparePart      : 'SPARE_WEAR_PART',
+            fieldValuesSparePart  : ['spare part', 'yes', 'x', 'y', 'wear part'],
+            endItemFilter         : { fieldId : 'SBOM_END_ITEM', value : true },
+            sparePartTileTitle    : 'NUMBER',
+            sparePartTileSubtitle : 'TITLE',
         },       
         sparePartsRequests : {
             workspaceId         : null,   // uses common.workspaceIds per default
