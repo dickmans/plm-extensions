@@ -1055,13 +1055,17 @@ exports.applications = {
                 instancePath : 'INSTANCE_PATH'
             },
         },  
-        downloadFiles    : true,
-        downloadRequests : 5,
-        downloadFormats  : [
-            { label : 'PDF'   , filter : ['.pdf']         , tooltip : '' },
-            { label : 'STEP'  , filter : ['.step', '.stp'], tooltip : 'File suffix stp and step will be taken into account' },
-            { label : 'Office', filter : ['.docx', '.doc', 'xls', 'xlsx', 'ppt', 'pptx'], tooltip : 'This will download all files with suffix doc, docx, xls, xlsx, ppt and pptx' },
-        ],    
+        paramsBOM : {
+            hideDescriptor   : false,
+            fieldsIn         : [ 'Item', 'Quantity', 'Qty' ],
+            downloadFiles    : true,
+            downloadRequests : 5,
+            downloadFormats  : [
+                { label : 'PDF'   , filter : ['.pdf']         , tooltip : '' },
+                { label : 'STEP'  , filter : ['.step', '.stp'], tooltip : 'File suffix stp and step will be taken into account' },
+                { label : 'Office', filter : ['.docx', '.doc', 'xls', 'xlsx', 'ppt', 'pptx'], tooltip : 'This will download all files with suffix doc, docx, xls, xlsx, ppt and pptx' },
+            ], 
+        },
         paramsItemDetails : {
             id               : 'details-top',
             headerLabel      : 'descriptor',

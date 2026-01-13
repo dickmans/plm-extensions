@@ -682,11 +682,10 @@ function openItem() {
 
     // if(isBlank(sections)) getInitialData(links.bom.split('/')[4]);
 
-    insertBOM(links.ebom, { 
+    let paramsBOM = {
         bomViewName         : config.items.bomViewName, 
         collapseContents    : true,
         contentSize         : 's',
-        fieldsIn            : [ 'Item' , 'Quantity', 'Qty' ],
         reset               : true, 
         path                : true, 
         hideDetails         : false, 
@@ -696,15 +695,18 @@ function openItem() {
         search              : true,
         showRestricted      : false,
         toggles             : true,
-        downloadFiles       : config.downloadFiles,
-        downloadRequests    : config.downloadRequests,
-        downloadFormats     : config.downloadFormats,
         openInPLM           : config.applicationFeatures.openInPLM,
         revisionBias        : config.items.bomRevisionBias,
         endItem             : config.items.endItemFilter,
         selectItems         : { fieldId : config.items.fieldIdSparePart, values : config.items.fieldValuesSparePart }
-    });
-    insertViewer(links.ebom);
+    }
+
+    let keys = Object.keys(config.paramsBOM);
+
+    for(let key of keys) paramsBOM[key] = config.paramsBOM[key];
+
+    insertBOM          (links.ebom, paramsBOM);
+    insertViewer       (links.ebom);
     updateRelatedPanels(links.ebom);
 
     if(!isBlank(links.sbom)) insertServiceBOM();

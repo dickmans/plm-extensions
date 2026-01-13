@@ -452,7 +452,35 @@
                 td problemReports.stateColors
                 td [..]
                 td Sets colors for defined states of Spare Parts Requests in landing page panel
- 
+        h2 BOM Display Configuration
+        p The BOM tree on the left hand side can be configured with these options:
+        table 
+            tr
+                th Setting 
+                th Default Value 
+                th Description  
+            tr  
+                td paramsBOM.hideDescriptor
+                td false
+                td When enabled, the descriptor column will not be shown
+            tr  
+                td paramsBOM.fieldsIn
+                td [ 'Item', 'Quantity', 'Qty' ]
+                td Columns of BOM view (defined in 
+                    span.code items.bomViewName
+                    |) to be displayed (if existent)
+            tr  
+                td paramsBOM.downloadFiles
+                td true
+                td Enables bulk file download in BOM tree
+            tr  
+                td paramsBOM.downloadRequests
+                td 5
+                td Sets maximum number of download requests for BOM bulk file download
+            tr  
+                td paramsBOM.downloadFormats
+                td [..]
+                td Defines standard filters for BOM bulk file download
         h2 Configuring Service BOM Support
         p The following settings are required if the Service Portal should use the related Service BOM for the Spare Parts list creation instead of the Engineering BOM items. These settings must be aligned with the given configuration settings of the Service BOM Editor. Multiple settings must be defined for each major item type in the Service BOM, especially the Type field value (fieldValue). Both groupLabel and icon impact the disply of given BOM entries in the Service Portal. 
         table 
@@ -600,6 +628,10 @@
     .log 
         h1 Services Portal Change Log 
         table 
+            tr 
+                td 13. January 2026
+                td Enhancement
+                td Additional configuration settings for BOM tree display
             tr 
                 td 12. January 2026
                 td Documentation
