@@ -17,6 +17,7 @@ block body
             #header-title=title
             #header-subtitle Keep workspaces in sync across your tenants
             #header-toolbar
+                #export-workspaces.button.with-icon.icon-download(title='Export list of workspaces of source tenant to Excel') Workspaces
                 #header-avatar
         .screen.surface-level-2#comparison
             
@@ -209,3 +210,5 @@ block body
                 .dialog-content#report-content
                 .dialog-footer
                     #close-report.button.default Close
+
+            iframe#frame-download(name='frame-download').hidden

@@ -37,6 +37,30 @@ $(document).ready(function() {
 
 function setUIEvents() {
 
+
+    // Header Toolbar
+    $('#export-workspaces').click(function() {
+
+        if($(this).hasClass('disabled')) return;
+
+        $('#overlay').show();
+
+        let sheets = [{
+            type : 'workspaces',
+        }];
+
+        $.post('/plm/excel-export', {
+            fileName   : 'Workspaces ' + tenant + '.xlsx',
+            sheets     : sheets
+        }, function(response) {
+            $('#overlay').hide();
+            let url = document.location.href.split('/workspace-comparison')[0] + '/' + response.data.fileUrl;
+            document.getElementById('frame-download').src = url;
+        });
+        
+    });
+
+
     $('#source-tenant').keydown(function (e) {
         if (e.keyCode == 13) {
             getWorkspaces('source');

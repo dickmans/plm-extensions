@@ -6432,8 +6432,13 @@ async function getExcelExportData(req, res, path) {
 
             switch(sheet.type.toLowerCase()) {
 
-                case 'bom'  : getExcelExportBOM (req, res, path, sheet); break;
-                case 'grid' : getExcelExportGrid(req, res, path, sheet); break;
+                case 'bom'        : getExcelExportBOM (req, res, path, sheet); break;
+                case 'grid'       : getExcelExportGrid(req, res, path, sheet); break;
+                case 'workspaces' : getExcelExportWorkspaces(req, res, path, sheet); break;
+
+                default:
+                    console.log('Sheet Type ' + sheet.type + ' is not supported');
+                    break;
 
             }
 
@@ -6939,6 +6944,61 @@ function getExcelExportGrid(req, res, path, sheet) {
         getExcelExportData(req, res, path);
 
     });
+
+}
+function getExcelExportWorkspaces(req, res, path, sheet) {
+
+    let url = getTenantLink(req) + '/api/v3/workspaces?offset=0&limit=500'
+    
+    sheet.columns.push({ header : 'Name'       , key : 'name'       , width : 35});
+    sheet.columns.push({ header : 'Internal'   , key : 'internal'   , width : 35});
+    sheet.columns.push({ header : 'ID'         , key : 'id'         , width : 10});
+    sheet.columns.push({ header : 'Category'   , key : 'category'   , width : 35});
+    sheet.columns.push({ header : 'Type'       , key : 'type'       , width : 20});
+    sheet.columns.push({ header : 'Description', key : 'description', width : 35});
+
+    let headers = getCustomHeaders(req);
+        headers.Accept = 'application/vnd.autodesk.plm.workspaces.bulk+json';
+
+    axios.get(url, { headers : headers }).then(function(response) {
+
+        sortArray(response.data.items, 'name');
+
+        for(let workspace of response.data.items) {
+
+            sheet.rows.push({
+                'name'        : workspace.name,
+                'internal'    : workspace.systemName,
+                'id'          : workspace.__self__.split('/').pop(),
+                'category'    : workspace.category.name,
+                'type'        : getWorkspaceTypeLabel(workspace.type),
+                'description' : workspace.description,
+            });
+
+        }
+
+        sheet.pending = false;
+        getExcelExportData(req, res, path);
+
+    });
+
+}
+function getWorkspaceTypeLabel(type) {
+
+    let id = type.split('/').pop();
+    let result = id;
+
+    switch(id) {
+
+        case '1': result = 'Basic'; break;
+        case '2': result = 'Workflow'; break;
+        case '6': result = 'Revision Controlled'; break;
+        case '7': result = 'Revisioning'; break;
+        case '8': result = 'Suppliers'; break;
+
+    }
+
+    return result;
 
 }
 
