@@ -46,6 +46,7 @@ function setUIEvents() {
         $('#overlay').show();
 
         let sheets = [{
+            name : 'Workspaces',
             type : 'workspaces',
         }];
 
