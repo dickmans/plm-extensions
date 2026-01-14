@@ -39,19 +39,19 @@ function setUIEvents() {
 
 
     // Header Toolbar
-    $('#export-workspaces').click(function() {
+    $('#export').click(function() {
 
         if($(this).hasClass('disabled')) return;
 
         $('#overlay').show();
 
-        let sheets = [{
-            name : 'Workspaces',
-            type : 'workspaces',
-        }];
+        let sheets = [
+            { name : 'Workspaces', type : 'workspaces' },
+            { name : 'Picklists' , type : 'picklists'  }
+        ];
 
         $.post('/plm/excel-export', {
-            fileName   : 'Workspaces ' + tenant + '.xlsx',
+            fileName   : 'Tenant ' + tenant + '.xlsx',
             sheets     : sheets
         }, function(response) {
             $('#overlay').hide();

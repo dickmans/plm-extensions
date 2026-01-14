@@ -6434,6 +6434,7 @@ async function getExcelExportData(req, res, path) {
 
                 case 'bom'        : getExcelExportBOM (req, res, path, sheet); break;
                 case 'grid'       : getExcelExportGrid(req, res, path, sheet); break;
+                case 'picklists'  : getExcelExportPicklists(req, res, path, sheet); break;
                 case 'workspaces' : getExcelExportWorkspaces(req, res, path, sheet); break;
 
                 default:
@@ -6944,6 +6945,41 @@ function getExcelExportGrid(req, res, path, sheet) {
         getExcelExportData(req, res, path);
 
     });
+
+}
+function getExcelExportPicklists(req, res, path, sheet) {
+
+    let url = getTenantLink(req) + '/api/rest/v1/setups/picklists'
+    
+    sheet.columns.push({ header : 'Name'     , key : 'name'     , width : 50});
+    sheet.columns.push({ header : 'ID'       , key : 'id'       , width : 60});
+    sheet.columns.push({ header : 'Type'     , key : 'type'     , width : 20});
+    sheet.columns.push({ header : 'Workspace', key : 'workspace', width : 10});
+
+    axios.get(url, { headers : req.session.headers }).then(function(response) {
+
+        sortArray(response.data.list.picklist, 'name');
+
+        for(let picklist of response.data.list.picklist) {
+
+            sheet.rows.push({
+                'name'     : picklist.name,
+                'id'       : picklist.id,
+                'type'     : getPicklistTypeLabel(picklist),
+                'workspace': picklist.workspaceId,
+            });
+
+        }
+
+        sheet.pending = false;
+        getExcelExportData(req, res, path);
+
+    });
+
+}
+function getPicklistTypeLabel(picklist) {
+
+    if(picklist.view) return 'Workspace View'; else return 'Static List';
 
 }
 function getExcelExportWorkspaces(req, res, path, sheet) {
