@@ -47,7 +47,8 @@ function setUIEvents() {
 
         let sheets = [
             { name : 'Workspaces', type : 'workspaces' },
-            { name : 'Picklists' , type : 'picklists'  }
+            { name : 'Picklists' , type : 'picklists'  },
+            { name : 'Scripts'   , type : 'scripts'    },
         ];
 
         $.post('/plm/excel-export', {

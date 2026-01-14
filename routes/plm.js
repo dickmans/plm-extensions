@@ -476,6 +476,7 @@ router.get('/fields', function(req, res, next) {
             headers : req.session.headers
         }).then(function(response) {
             let result = { 'data' : response.data.fields, 'status' : response.status }
+            if(typeof result.data === 'undefined') result.data = [];
             sendResponse(req, res, result, false);
         }).catch(function(error) {
             sendResponse(req, res, error.response, true);
@@ -6435,6 +6436,7 @@ async function getExcelExportData(req, res, path) {
                 case 'bom'        : getExcelExportBOM (req, res, path, sheet); break;
                 case 'grid'       : getExcelExportGrid(req, res, path, sheet); break;
                 case 'picklists'  : getExcelExportPicklists(req, res, path, sheet); break;
+                case 'scripts'    : getExcelExportScripts(req, res, path, sheet); break;
                 case 'workspaces' : getExcelExportWorkspaces(req, res, path, sheet); break;
 
                 default:
@@ -6982,6 +6984,60 @@ function getPicklistTypeLabel(picklist) {
     if(picklist.view) return 'Workspace View'; else return 'Static List';
 
 }
+function getExcelExportScripts(req, res, path, sheet) {
+
+    let url = getTenantLink(req) + '/api/v3/scripts'
+    
+    sheet.columns.push({ header : 'Name'       , key : 'name'       , width : 45});
+    sheet.columns.push({ header : 'Version'    , key : 'version'    , width : 10});
+    sheet.columns.push({ header : 'Type'       , key : 'type'       , width : 20});
+    sheet.columns.push({ header : 'ID'         , key : 'id'         , width : 10});
+    sheet.columns.push({ header : 'Description', key : 'description', width : 70});
+    sheet.columns.push({ header : 'Imports'    , key : 'imports'    , width : 50});
+
+    axios.get(url, { headers : req.session.headers }).then(function(response) {
+
+        sortArray(response.data.scripts, 'uniqueName');
+
+        for(let script of response.data.scripts) {
+
+            sheet.rows.push({
+                'name'        : script.uniqueName,
+                'version'     : script.version,
+                'type'        : script.scriptType,
+                'id'          : script.__self__.split('/').pop(),
+                'description' : script.displayName,
+                'imports'     : getScriptImports(script)
+            });
+
+        }
+
+        sheet.pending = false;
+        getExcelExportData(req, res, path);
+
+    });
+
+}
+function getScriptImports(script) {
+
+    let result = '';
+
+    if(script.hasOwnProperty('dependsOn')) {
+
+        console.log(script.dependsOn);
+
+        sortArray(script.dependsOn, 'title');
+
+        for(let dependency of script.dependsOn) {
+            if(result !== '') result += ', ';
+            result += dependency.title;
+        }
+
+    }
+
+    return result;
+
+}
 function getExcelExportWorkspaces(req, res, path, sheet) {
 
     let url = getTenantLink(req) + '/api/v3/workspaces?offset=0&limit=500'
@@ -7007,7 +7063,7 @@ function getExcelExportWorkspaces(req, res, path, sheet) {
                 'internal'    : workspace.systemName,
                 'id'          : workspace.__self__.split('/').pop(),
                 'category'    : workspace.category.name,
-                'type'        : getWorkspaceTypeLabel(workspace.type),
+                'type'        : getWorkspaceTypeLabel(workspace),
                 'description' : workspace.description,
             });
 
@@ -7019,9 +7075,9 @@ function getExcelExportWorkspaces(req, res, path, sheet) {
     });
 
 }
-function getWorkspaceTypeLabel(type) {
+function getWorkspaceTypeLabel(workspace) {
 
-    let id = type.split('/').pop();
+    let id = workspace.type.split('/').pop();
     let result = id;
 
     switch(id) {
