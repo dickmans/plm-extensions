@@ -1773,15 +1773,17 @@ function compareBOMTab() {
             for(let viewField of viewTarget.fields) {
                 let fieldMatch = false;
                 for(let targetField of fieldsTarget) {
-                    if(targetField.fieldId === viewField.fieldId) {
-                        fieldMatch = true;
-                        targetField.views.push({ name : viewTarget.name, order : viewField.displayOrder, displayName : viewField.displayName, hasMatch : false });
-                        break;
+                    if(targetField.fieldTab === viewField.fieldTab) {
+                        if(targetField.fieldId === viewField.fieldId) {
+                            fieldMatch = true;
+                            targetField.views.push({ name : viewTarget.name, order : viewField.displayOrder, displayName : viewField.displayName, hasMatch : false });
+                            break;
+                        }
                     }
                 }
                 if(!fieldMatch) {
                     viewField.views    = [{ name : viewTarget.name, order : viewField.displayOrder, displayName : viewField.displayName, hasMatch : false }];
-                    viewField.label    = '<b>' + viewField.name + ' (' + viewField.fieldId + ')</b>';
+                    viewField.label    = '<b>' + viewField.name + ' (id:' + viewField.fieldId + ', source: ' + viewField.fieldTab +  ')</b>';
                     viewField.hasMatch = false;
                     fieldsTarget.push(viewField);
                 }
@@ -1872,155 +1874,155 @@ function compareBOMTab() {
 
         for(let fieldSource of fieldsSource) {
 
-            
-
             let hasMatch   = false;
             let isBOMField = (typeof fieldSource.visibleOnPreview) === 'undefined';
             
             for(let fieldTarget of fieldsTarget) {
 
-                if(fieldSource.fieldId === fieldTarget.fieldId) {
-                        
-                    hasMatch             = true;
-                    fieldTarget.hasMatch = true;
+                if(fieldSource.fieldTab === fieldTarget.fieldTab) {
+                    if(fieldSource.fieldId === fieldTarget.fieldId) {
+                            
+                        hasMatch             = true;
+                        fieldTarget.hasMatch = true;
 
-                    if(isBOMField) {
+                        if(isBOMField) {
 
-                        countBOMFields++;
+                            countBOMFields++;
 
-                        if(fieldSource.name !== fieldTarget.name) {
-                            matches.fieldsNames = false;
-                            addActionEntry({
-                                text : 'Change name of BOM field ' + fieldTarget.label + ' to <b>' + fieldSource.name + '</b>',
-                                step : step,
-                                url  : url
-                            });
-                        }
-
-                        if(fieldSource.unitOfMeasure !== fieldTarget.unitOfMeasure) {
-                            matches.fieldsUoM = false;
-                            addActionEntry({
-                                text : 'Set UOM of BOM field ' + fieldTarget.label + ' to <b>' + fieldSource.unitOfMeasure + '</b>',
-                                step : step,
-                                url  : url
-                            });
-                        }
-
-                        if(fieldSource.lookups !== fieldTarget.lookups) {
-                            matches.fieldsPicklist = false;
-                            reportMatch       = false;
-                            let text          = '';
-                            if(isBlank(fieldSource.lookups)) {
-                                text = 'Field ' + fieldTarget.label + ' should not use a picklist';
-                            } else {
-                                text = 'Field ' + fieldTarget.label + ' should use picklist <b>' + getPicklistLabel(fieldSource.lookups, environments.source.picklists) + '</b>';
-                            }
-                            addActionEntry({
-                                text : text,
-                                step : step,
-                                url  : url
-                            });
-                        }
-
-                        if(fieldSource.fieldLength !== fieldTarget.fieldLength) {
-                            matches.fieldsLength = false;
-                            addActionEntry({
-                                text : 'Set BOM field length of ' + fieldTarget.label + ' to <b>' + fieldSource.fieldLength + '</b>',
-                                step : step,
-                                url  : url
-                            });
-                        }
-
-                        if(fieldSource.displayLength !== fieldTarget.displayLength) {
-                            matches.fieldsDisplay = false;
-                            addActionEntry({
-                                text : 'Set display width of BOM field ' + fieldTarget.label + ' to <b>' + fieldSource.displayLength + '</b>',
-                                step : step,
-                                url  : url
-                            });
-                        }
-
-                        if(fieldSource.visibility !== fieldTarget.visibility) {
-                            matches.fieldsVisibility = false;
-                            addActionEntry({
-                                text : 'Set visibility of BOM field ' + fieldTarget.label + ' to <b>' + fieldSource.visibility + '</b>',
-                                step : step,
-                                url  : url
-                            });
-                        }
-
-                        if(fieldSource.editability !== fieldTarget.editability) {
-                            matches.fieldsEditability = false;
-                            addActionEntry({
-                                text : 'Set editability of BOM field ' + fieldTarget.label + ' to ' + getFieldEditabilityLabel(fieldSource.editability),
-                                step : step,
-                                url  : url
-                            });
-                        }
-
-                        if(fieldSource.defaultValue !== fieldTarget.defaultValue) {
-                            matches.fieldsDefault = false;
-                            addActionEntry({
-                                text : 'Set default value of ' + fieldTarget.label + ' to <b>' + fieldSource.defaultValue + '</b>',
-                                step : step,
-                                url  : url
-                            });
-                        }
-
-                        if(fieldSource.formulaField !== fieldTarget.formulaField) {
-                            matches.fieldsFormula = false;
-                            let label = (fieldSource.formulaField) ? ' ' : ' not ';
-                            addActionEntry({
-                                text : fieldTarget.label + ' must' + label + 'be a computed field',
-                                step : step,
-                                url  : url
-                            });
-                        }    
-
-                    }
-
-                    for(let sourceFieldView of fieldSource.views) {
-
-                        let included = false;
-
-                        for(targetFieldView of fieldTarget.views) {
-
-                            if(sourceFieldView.name === targetFieldView.name) {
-
-                                included                 = true;
-                                targetFieldView.hasMatch = true;
-
-                                if(sourceFieldView.displayName !== targetFieldView.displayName) {
-                                    matches.fieldsViews = false;
-                                    addActionEntry({
-                                        text : 'Change Display Name of ' + fieldTarget.label + ' to <b>' + sourceFieldView.displayName + '</b>',
-                                        step : step,
-                                        url  : url
-                                    });
-                                }
-
-                                if(sourceFieldView.order !== targetFieldView.order) {
-                                    matches.fieldsViews = false;
-                                    addActionEntry({
-                                        text : 'Move ' + fieldTarget.label + ' to position <b>' + (sourceFieldView.order) + '</b> in view <b>' + sourceFieldView.name + '</b>',
-                                        step : step,
-                                        url  : url
-                                    });
-                                }
-
+                            if(fieldSource.name !== fieldTarget.name) {
+                                matches.fieldsNames = false;
+                                addActionEntry({
+                                    text : 'Change name of BOM field ' + fieldTarget.label + ' to <b>' + fieldSource.name + '</b>',
+                                    step : step,
+                                    url  : url
+                                });
                             }
 
+                            if(fieldSource.unitOfMeasure !== fieldTarget.unitOfMeasure) {
+                                matches.fieldsUoM = false;
+                                addActionEntry({
+                                    text : 'Set UOM of BOM field ' + fieldTarget.label + ' to <b>' + fieldSource.unitOfMeasure + '</b>',
+                                    step : step,
+                                    url  : url
+                                });
+                            }
+
+                            if(fieldSource.lookups !== fieldTarget.lookups) {
+                                matches.fieldsPicklist = false;
+                                reportMatch       = false;
+                                let text          = '';
+                                if(isBlank(fieldSource.lookups)) {
+                                    text = 'Field ' + fieldTarget.label + ' should not use a picklist';
+                                } else {
+                                    text = 'Field ' + fieldTarget.label + ' should use picklist <b>' + getPicklistLabel(fieldSource.lookups, environments.source.picklists) + '</b>';
+                                }
+                                addActionEntry({
+                                    text : text,
+                                    step : step,
+                                    url  : url
+                                });
+                            }
+
+                            if(fieldSource.fieldLength !== fieldTarget.fieldLength) {
+                                matches.fieldsLength = false;
+                                addActionEntry({
+                                    text : 'Set BOM field length of ' + fieldTarget.label + ' to <b>' + fieldSource.fieldLength + '</b>',
+                                    step : step,
+                                    url  : url
+                                });
+                            }
+
+                            if(fieldSource.displayLength !== fieldTarget.displayLength) {
+                                matches.fieldsDisplay = false;
+                                addActionEntry({
+                                    text : 'Set display width of BOM field ' + fieldTarget.label + ' to <b>' + fieldSource.displayLength + '</b>',
+                                    step : step,
+                                    url  : url
+                                });
+                            }
+
+                            if(fieldSource.visibility !== fieldTarget.visibility) {
+                                matches.fieldsVisibility = false;
+                                addActionEntry({
+                                    text : 'Set visibility of BOM field ' + fieldTarget.label + ' to <b>' + fieldSource.visibility + '</b>',
+                                    step : step,
+                                    url  : url
+                                });
+                            }
+
+                            if(fieldSource.editability !== fieldTarget.editability) {
+                                matches.fieldsEditability = false;
+                                addActionEntry({
+                                    text : 'Set editability of BOM field ' + fieldTarget.label + ' to ' + getFieldEditabilityLabel(fieldSource.editability),
+                                    step : step,
+                                    url  : url
+                                });
+                            }
+
+                            if(fieldSource.defaultValue !== fieldTarget.defaultValue) {
+                                matches.fieldsDefault = false;
+                                addActionEntry({
+                                    text : 'Set default value of ' + fieldTarget.label + ' to <b>' + fieldSource.defaultValue + '</b>',
+                                    step : step,
+                                    url  : url
+                                });
+                            }
+
+                            if(fieldSource.formulaField !== fieldTarget.formulaField) {
+                                matches.fieldsFormula = false;
+                                let label = (fieldSource.formulaField) ? ' ' : ' not ';
+                                addActionEntry({
+                                    text : fieldTarget.label + ' must' + label + 'be a computed field',
+                                    step : step,
+                                    url  : url
+                                });
+                            }    
+
                         }
 
-                        if(!included) {
-                            matches.fieldsViews = false;
-                            addActionEntry({
-                                text : 'Add field ' + fieldSource.label + ' to BOM view <b>' + sourceFieldView.name + '</b> at position <b>' + (sourceFieldView.order) + '</b>',
-                                step : step,
-                                url  : url
-                            });
-                        }
+                        for(let sourceFieldView of fieldSource.views) {
 
+                            let included = false;
+
+                            for(targetFieldView of fieldTarget.views) {
+
+                                if(sourceFieldView.name === targetFieldView.name) {
+
+                                    included                 = true;
+                                    targetFieldView.hasMatch = true;
+
+                                    if(sourceFieldView.displayName !== targetFieldView.displayName) {
+                                        matches.fieldsViews = false;
+                                        addActionEntry({
+                                            text : 'Change Display Name of ' + fieldTarget.label + ' to <b>' + sourceFieldView.displayName + '</b>',
+                                            step : step,
+                                            url  : url
+                                        });
+                                    }
+
+                                    if(sourceFieldView.order !== targetFieldView.order) {
+                                        matches.fieldsViews = false;
+                                        addActionEntry({
+                                            text : 'Move ' + fieldTarget.label + ' to position <b>' + (sourceFieldView.order) + '</b> in view <b>' + sourceFieldView.name + '</b>',
+                                            step : step,
+                                            url  : url
+                                        });
+                                    }
+
+                                }
+
+                            }
+
+                            if(!included) {
+                                matches.fieldsViews = false;
+                                addActionEntry({
+                                    text : 'Add field ' + fieldSource.label + ' to BOM view <b>' + sourceFieldView.name + '</b> at position <b>' + (sourceFieldView.order) + '</b>',
+                                    step : step,
+                                    url  : url
+                                });
+                            }
+
+                        }
                     }
                 }
             }
@@ -2484,7 +2486,7 @@ function compareWorkflowStates() {
             names   : true,
             extra   : false
         }
-        
+
         for(let target of listTarget) {
             target.hasMatch = false;
             target.label    = '<b>' + target.name + ' (' + target.customLabel + ')</b>';
@@ -2495,7 +2497,8 @@ function compareWorkflowStates() {
 
             let hasMatch    = false;
             let reportMatch = false;
-            let layout   = source.coordinateX + ',' + source.coordinateY + ',' + source.height + ',' + source.width;
+            let layout      = source.coordinateX + ',' + source.coordinateY + ',' + source.height + ',' + source.width;
+            source.label    = '<b>' + source.name + ' (' + source.customLabel + ')</b>';
 
             for(let target of listTarget) {
 
@@ -2504,8 +2507,7 @@ function compareWorkflowStates() {
                     hasMatch        = true;
                     reportMatch     = true;
                     target.hasMatch = true;
-                    source.label    = '<b>' + source.name + ' (' + source.customLabel + ')</b>';
-
+                    
                     if(source.name !== target.name) {
                         matches.names = false;
                         reportMatch = false;
@@ -2518,7 +2520,7 @@ function compareWorkflowStates() {
                     if(source.locked !== target.locked) {
                         matches.locked = false;
                         reportMatch = false;
-                        if(stateSource.locked) addActionEntry({ 
+                        if(source.locked) addActionEntry({ 
                             text : 'Set state ' + source.label + ' as lock state using the Workflow Editor',
                             step : step,
                             url  : url 
@@ -2533,7 +2535,7 @@ function compareWorkflowStates() {
                     if(source.managed !== target.managed) {
                         matches.managed = false;
                         reportMatch = false;
-                        if(stateSource.managed) addActionEntry({ 
+                        if(source.managed) addActionEntry({ 
                             text : 'Set state ' + source.label + ' as managed state using the Workflow Editor',
                             step : step,
                             url  : url 
@@ -2555,9 +2557,9 @@ function compareWorkflowStates() {
             if(!hasMatch) {
                 match = false;
                 addActionEntry({ 
-                    text  : 'Add state ' + source.label + ' to the workflow', 
-                    steap : step,
-                    url   : url });
+                    text : 'Add state ' + source.label + ' to the workflow', 
+                    step : step,
+                    url  : url });
             }
 
             addReportDetail(source.customLabel, source.name, reportMatch);
@@ -3051,7 +3053,8 @@ function comparePermissions() {
     let requests = [
         $.get('/plm/roles', { tenant : environments.source.tenantName }),
         $.get('/plm/roles', { tenant : environments.target.tenantName }),
-        $.get('/plm/permissions-definition', { tenant : environments.source.tenantName })
+        $.get('/plm/permissions-definition', { tenant : environments.source.tenantName }),
+        $.get('/plm/permissions-definition', { tenant : environments.target.tenantName })
     ]
 
     Promise.all(requests).then(function(responses) {
@@ -3059,6 +3062,7 @@ function comparePermissions() {
         let url         = '/admin#section=adminusers&tab=roles';
         let step        = 'roles';
         let definitions = responses[2].data.list.permission;
+        let permTarget  = responses[3].data.list.permission;
         let listSource  = [];
         let listTarget  = [];
         let match       = true;
@@ -3091,6 +3095,8 @@ function comparePermissions() {
             let reportMatch = false;
 
             for(let target of listTarget) {
+
+               
 
                 if(source.name === target.name) {
                     
@@ -3163,8 +3169,12 @@ function comparePermissions() {
                     if(!permission.hasMatch) {
                         match = false;
                         matches.extraPermissions = true;
+                        console.log('2');
+                        console.log(definitions);
+                        console.log(permTarget);
+                        console.log(permission.id);
                         addActionEntry({ 
-                            text : 'Remove permission <b>' + getPermissionLabel(definitions, permission.id) + '</b> from role <b>' + target.name + '</b>', 
+                            text : 'Remove permission <b>' + getPermissionLabel(permTarget, permission.id) + '</b> from role <b>' + target.name + '</b>', 
                             step : step,
                             url  : url
                             // comp : {
@@ -3175,9 +3185,7 @@ function comparePermissions() {
                     }
                 }
             }
-        }
-
-        
+        }    
 
         if(!matches.description     ) { match = false; addLogEntry('Descriptions of roles do not match'); }
         if(!matches.permissions     ) { match = false; addLogEntry('Permission in roles do not match'); }
@@ -3207,7 +3215,7 @@ function getPermissionLabel(definitions, id) {
 
     for(let definition of definitions) {
         if(definition.id === id) {
-            label = definition.shortName
+            label = definition.name
             break;
         }
     }
