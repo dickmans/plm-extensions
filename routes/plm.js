@@ -5647,17 +5647,22 @@ router.get('/workspaces', function(req, res, next) {
     console.log('  req.query.offset   = ' + req.query.offset);
     console.log('  req.query.limit    = ' + req.query.limit);
     console.log('  req.query.tenant   = ' + req.query.tenant);
+    console.log('  req.query.bulk     = ' + req.query.bulk);
     console.log('  req.query.useCache = ' + req.query.useCache);
     console.log();
 
     if(notCached(req, res)) {
 
-        let offset = (typeof req.query.offset === 'undefined') ?   0 : req.query.offset;
-        let limit  = (typeof req.query.limit  === 'undefined') ? 250 : req.query.limit;
-        let url    = getTenantLink(req) + '/api/v3/workspaces?offset=' + offset + '&limit=' + limit;
+        let offset  = (typeof req.query.offset === 'undefined') ?     0 : req.query.offset;
+        let limit   = (typeof req.query.limit  === 'undefined') ?   250 : req.query.limit;
+        let bulk    = (typeof req.query.bulk   === 'undefined') ? false : req.query.bulk;
+        let url     = getTenantLink(req) + '/api/v3/workspaces?offset=' + offset + '&limit=' + limit;
+        let headers = getCustomHeaders(req);
+
+        if(bulk) headers.Accept = 'application/vnd.autodesk.plm.workspaces.bulk+json';
 
         axios.get(url, {
-            headers : req.session.headers
+            headers : headers
         }).then(function(response) {
             sendResponse(req, res, response, false);
         }).catch(function(error) {
@@ -5792,6 +5797,44 @@ router.get('/workspace-relationships', function(req, res, next) {
         sendResponse(req, res, response, false);
     }).catch(function(error) {
         sendResponse(req, res, error.response, true);
+    });
+
+});
+
+
+/* ----- GET ALL WORKSPACE RELATIONSHIPS ----- */
+router.get('/workspace-all-relationships', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /workspace-relationships');
+    console.log(' --------------------------------------------');  
+    console.log('  req.query.wsId   = ' + req.query.wsId);
+    console.log('  req.query.link   = ' + req.query.link);
+    console.log('  req.query.tenant = ' + req.query.tenant);
+    console.log();
+
+    let wsId     = (typeof req.query.wsId === 'undefined') ? req.query.link.split('/')[4] : req.query.wsId;
+    let urlBase  = getTenantLink(req) + '/api/v3/workspaces/' + wsId + '/views/';
+    let requests = [
+        runPromised(urlBase +  '10/related-workspaces', req.session.headers),
+        runPromised(urlBase + '200/related-workspaces', req.session.headers),
+        runPromised(urlBase +  '16/related-workspaces', req.session.headers),
+        runPromised(urlBase + '100/related-workspaces', req.session.headers),
+        runPromised(urlBase + '100/related-workspaces', req.session.headers),
+    ];
+
+    Promise.all(requests).then(function(responses) {
+
+        let results  = { data : [], status : 200 };
+
+        for(let response of responses) {
+            if(response !== '') {
+                for(let result of response.workspaces) results.data.push(result);
+            }           
+        }
+
+        sendResponse(req, res, results, false);
+
     });
 
 });
@@ -6311,6 +6354,20 @@ router.get('/permissions-definition', function(req, res, next) {
     axios.get(url, {
         headers : req.session.headers
     }).then(function(response) {
+        if(typeof response.data !== 'undefined') {
+            if(response.data.hasOwnProperty('list')) {
+                if(response.data.list.hasOwnProperty('permission')) {
+                    for(let permission of response.data.list.permission) {
+                        permission.name = '';
+                        if(typeof permission.shortName !== 'undefined') {
+                            let split = permission.shortName.split('[failed to localize]');
+                            permission.name = (split.length > 1) ? split[1] : permission.shortName;
+                            permission.name = permission.name.split('()')[0].trim();
+                        }
+                    }
+                }
+            }
+        }
         sendResponse(req, res, response, false);
     }).catch(function(error) {
         sendResponse(req, res, error.response, true);
@@ -6394,6 +6451,7 @@ router.post('/excel-export', function(req, res, next) {
     console.log(' --------------------------------------------');
     console.log('  req.body.fileName      = ' + req.body.fileName);
     console.log('  req.body.sheets.length = ' + req.body.sheets.length);
+    console.log('  req.body.tenant        = ' + req.body.tenant);
     console.log(' ');
     
     let path = 'storage/excel-export';
@@ -7023,8 +7081,6 @@ function getScriptImports(script) {
     let result = '';
 
     if(script.hasOwnProperty('dependsOn')) {
-
-        console.log(script.dependsOn);
 
         sortArray(script.dependsOn, 'title');
 
