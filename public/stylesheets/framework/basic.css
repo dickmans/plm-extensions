@@ -181,6 +181,15 @@ table.grid.rotated th {
     top     : 0; 
     z-index : 5;
 }
+.fixed-column > thead > tr > th:first-of-type,
+.fixed-column > tbody > tr > td:first-of-type {
+    left     : 0px;
+    position : sticky;
+    z-index  : 6;
+}
+.fixed-column > thead > tr > th:first-of-type {
+    z-index : 7;
+}
 table.row-hovering tr:hover td,
 table.row-hovering tbody tr:hover td {
     border-color    : var(--color-hover-border);
