@@ -535,13 +535,13 @@ function insertCreateData(id) {
                     });
                 }
 
-                for(let contextItemField of settings[id].contextItemFields) {
-                    settings[id].fieldValues.push({
-                        fieldId      : contextItemField,
-                        value        : settings[id].contextItem,
-                        displayValue : responses[2].data.title
-                    });
-                }
+                // for(let contextItemField of settings[id].contextItemFields) {
+                //     settings[id].fieldValues.push({
+                //         fieldId      : contextItemField,
+                //         value        : settings[id].contextItem,
+                //         displayValue : responses[2].data.title
+                //     });
+                // }
 
             }
             
@@ -575,8 +575,19 @@ function insertCreateDataSetFieldValues(id, settings) {
 
                 if(fieldValue.fieldId === fieldId) {
 
-                    elemField.removeClass('field-editable').addClass('field-locked');
-                    setFieldValue(elemField, fieldValue.value, fieldValue.displayValue);
+                    if(isBlank(fieldValue.viewerImage)) { 
+
+                        elemField.removeClass('field-editable').addClass('field-locked');
+                        setFieldValue(elemField, fieldValue.value, fieldValue.displayValue);
+
+                    } else {
+                        let elemCanvas = $('#viewer-markup-' + fieldValue.fieldId);
+                        if(elemCanvas.length === 0) {
+                            elemCanvas = $('<canvas>').attr('id', 'viewer-markup-' + fieldValue.fieldId).addClass('viewer-screenshot');
+                        }
+                        elemField.html('').append(elemCanvas);
+                        viewerCaptureScreenshot('viewer-markup-' + fieldValue.fieldId, function() {});
+                    }
 
                     // if(elemField.hasClass('field-type-single-select')) {
 

@@ -24,7 +24,7 @@ let paramsProcesses       = {
     createWSID          : '',
     createHeaderLabel       : 'Create Problem Report',
     createContextItemFields : ['AFFECTED_ITEM'],
-    createViewerImageFields : ['IMAGE_1'],
+    createViewerImageFields : [],
     editable            : true,
     fieldIdMarkup       : '',
     openInPLM           : true,
@@ -70,13 +70,14 @@ $(document).ready(function() {
         $('#request-postal' ).val(user.postal      || '');
         $('#request-country').val(user.country     || '');  
 
+        paramsProcesses.createViewerImageFields.push(config.problemReports.fieldIdImage);
+
         paramsProcesses.createWSID    = workspaceIds.problemReports;
         paramsProcesses.workspacesIn  = [workspaceIds.problemReports.toString()];
-        paramsProcesses.fieldIdMarkup = config.problemReports.fieldIdImage;
         wsProblemReports.id           = workspaceIds.problemReports;
         wsSparePartsRequests.id       = workspaceIds.sparePartsRequests;       
-        wsSparePartsRequests.sections = responses[1].data;       
-        
+        wsSparePartsRequests.sections = responses[1].data;
+
         paramsItemDetails        = config.paramsItemDetails;
         paramsItemDetails.id     = 'details-top';
         paramsItemAttachments    = config.paramsItemAttachments;
@@ -717,9 +718,6 @@ function openItem() {
         $('#toggle-snl').addClass('hidden');
     
     } else {
-
-        console.log(config.serialNumbers.fieldIDs.partNumber);
-        console.log(config.serialNumbers.fieldIDs.instanceId);
 
         $('body').removeClass('no-snl');
         $('#toggle-snl').removeClass('hidden');
