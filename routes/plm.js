@@ -1877,7 +1877,10 @@ router.get('/grid-columns', function(req, res, next) {
 
                 });
 
-            } else sendResponse(req, res, response, false);
+            } else {
+                response.data = { fields : [] };
+                sendResponse(req, res, response, false);
+            }
             
             
         }).catch(function(error) {
@@ -5819,8 +5822,7 @@ router.get('/workspace-all-relationships', function(req, res, next) {
         runPromised(urlBase +  '10/related-workspaces', req.session.headers),
         runPromised(urlBase + '200/related-workspaces', req.session.headers),
         runPromised(urlBase +  '16/related-workspaces', req.session.headers),
-        runPromised(urlBase + '100/related-workspaces', req.session.headers),
-        runPromised(urlBase + '100/related-workspaces', req.session.headers),
+        runPromised(urlBase + '100/related-workspaces', req.session.headers)
     ];
 
     Promise.all(requests).then(function(responses) {
@@ -5831,6 +5833,18 @@ router.get('/workspace-all-relationships', function(req, res, next) {
             if(response !== '') {
                 for(let result of response.workspaces) results.data.push(result);
             }           
+        }
+
+        for(let result of results.data) {
+
+            switch(result.type) {
+                case '/bomlist'       : result.tab = 'Bill of Materials' ; break;
+                case '/workflowItems' : result.tab = 'Managed Items'     ; break;
+                case '/projectItems'  : result.tab = 'Project Management'; break;
+                case '/relation'      : result.tab = 'Relationships'     ; break;
+                default               : result.tab = ''                  ; break;
+            }
+
         }
 
         sendResponse(req, res, results, false);

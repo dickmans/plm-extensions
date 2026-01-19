@@ -1,4 +1,5 @@
-let stopped = false;
+let stopped    = false;
+let autoScroll = true;
 
 
 $(document).ready(function() {
@@ -8,6 +9,15 @@ $(document).ready(function() {
         $(this).toggleClass('icon-chevron-right').toggleClass('icon-chevron-left');
         $('body').toggleClass('no-console');
     })
+
+    $('#console-clear').click(function() {
+       $('#console-content').html('');
+    });
+
+    $('#console-scroll').click(function() {
+        $(this).toggleClass('toggle-on').toggleClass('toggle-off');
+        autoScroll = !autoScroll;
+    });    
 
 });
 
@@ -40,6 +50,9 @@ function addLogEntry(text, type, number) {
         .addClass(className)
         .html('<span>' + prefix + '</span>' + text);
 
+
+    if(!autoScroll) return;
+
     let divElement = document.getElementById('console-content');
         divElement.scrollTop = divElement.scrollHeight;
 
@@ -52,6 +65,8 @@ function addLogSeparator() {
         .addClass('console-separator')
         .html('-------------------------------------------------------------');
 
+    if(!autoScroll) return;
+
     let divElement = document.getElementById('console-content');
         divElement.scrollTop = divElement.scrollHeight;
 
@@ -61,6 +76,8 @@ function addLogSpacer() {
     if(stopped) return;
 
     $('<div></div>').appendTo($('#console-content')).addClass('console-spacer');
+
+    if(!autoScroll) return;
 
     let divElement = document.getElementById('console');
         divElement.scrollTop = divElement.scrollHeight;
@@ -75,6 +92,8 @@ function addLogEnd() {
         .addClass('final')
         .html('### END ###');
 
+    if(!autoScroll) return;
+
     let divElement = document.getElementById('console-content');
         divElement.scrollTop = divElement.scrollHeight
 
@@ -87,6 +106,8 @@ function addLogStopped() {
         .addClass('console-text')
         .addClass('final')
         .html('### STOPPED BY USER ###');
+
+    if(!autoScroll) return;
 
     let divElement = document.getElementById('console-content');
         divElement.scrollTop = divElement.scrollHeight
@@ -123,6 +144,8 @@ function addLogStoppedByErrors(errors) {
     }
 
     stopped = true;
+
+    if(!autoScroll) return;
 
     let divElement = document.getElementById('console-content');
         divElement.scrollTop = divElement.scrollHeight

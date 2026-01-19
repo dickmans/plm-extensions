@@ -5,25 +5,37 @@
     top         : 0px;
     bottom      : 0px;
     width       : 442px;
+
 }
 #console-toggle {
     border        : 2px solid var(--color-surface-level-2);
     border-radius : 50%;
     position      : absolute;
-    top           : 0px;
+    top           : -2px;
     right         : calc(var(--width-console) - 19px + (1 * var(--panel-border-width-h)));
 }
 #console-header {
     font-size   : 18px;
-    line-height : 42px;
+    line-height : 38px;
+}
+#console-toolbar {
+    display  : flex;
+    gap      : 8px;
+    position : absolute;
+    top      : 0px;
+    right    : 0px;
+}
+#console-toolbar > div {
+    background : none;
 }
 #console-content {
     overflow-y  : auto;
     position    : absolute;
-    top         : 50px;
+    top         : 58px;
     right       : 0px;
     bottom      : 0px;
     left        : 0px;
+    scroll-behavior : smooth;
 }
 #console-content::-webkit-scrollbar {
     display : none;
@@ -33,9 +45,12 @@
     height        : 18px;
     line-height   : 18px;
     overflow      : hidden;
-    padding       : 0px 10px;
+    padding       : 0px 0px;
     white-space   : nowrap;
     text-overflow : ellipsis;
+}
+.console-text:hover {
+    background : var(--color-surface-level-3);
 }
 .console-text.head { 
     font-weight   : bold; 
@@ -46,6 +61,9 @@
 .console-text.green span { color : var(--color-status-green); }
 .console-text b {
     font-weight : normal !important;
+}
+.console-text:last-of-type {
+    color : var(--color-status-yellow);
 }
 .console-separator {
     padding : 8px 0px 2px !important; 

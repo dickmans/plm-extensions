@@ -5651,6 +5651,111 @@ function genItemURL(params) {
 }
 
 
+// Open admin control for given configuration type
+function openAdminControl(type, link, tenantName) {
+
+    if(isBlank(type      )) return;
+    if(isBlank(link      )) return;
+    if(isBlank(tenantName)) tenantName = tenant;
+
+    let url = 'https://' + tenantName + '.autodeskplm360.net' + getAdminControlURL(type, link);
+
+    window.open(url, '_blank');
+
+}
+function getAdminControlURL(type, link) {
+
+    let url = '';
+
+    switch(type) {
+
+        case 'script':
+            url += '/script.form?ID=' + link.split('/').pop()
+            break;
+
+        case 'picklist':
+            url += '/admin#section=setuphome&tab=general&item=picklistedit&params={%22name%22:%22' + link.split('/').pop() + '%22}';
+            break;
+
+        case 'role':
+            url += '/adminRolePermissionsManage.do?roleId=' + link.split('/').pop();
+            break;
+
+        case 'group':
+            url += '/adminGroupEdit.do?groupID=' + link.split('/').pop();
+            break;
+
+        case 'workspace-settings':
+            url += '/admin#section=setuphome&tab=workspaces&item=workspaceedit&params={%22workspaceID%22:%22' + link.split('/').pop() + '%22}';
+            break;
+            
+        case 'workspace-tabs':
+            url += '/admin#section=setuphome&tab=workspaces&item=tabsedit&params={%22workspaceID%22:%22' + link.split('/').pop() + '%22}';
+            break;
+        
+        case 'workspace-details':
+            url += '/admin#section=setuphome&tab=workspaces&item=itemdetails&params={%22workspaceID%22:%22' + link.split('/').pop() + '%22,%22metaType%22:%22D%22}';
+            break;
+
+        case 'workspace-grid':
+            url += '/admin#section=setuphome&tab=workspaces&item=grid&params={%22workspaceID%22:%22' + link.split('/').pop() + '%22,%22metaType%22:%22G%22}';
+            break;
+
+        case 'workspace-managed':
+            url += '/admin#section=setuphome&tab=workspaces&item=workflowitems&params={%22workspaceID%22:%22' + link.split('/').pop() + '%22,%22metaType%22:%22L%22}';
+            break;
+
+        case 'workspace-bom':
+            url += '/admin#section=setuphome&tab=workspaces&item=bom&params={%22workspaceID%22:%22' + link.split('/').pop() + '%22,%22metaType%22:%22B%22}';
+            break;
+
+        case 'workspace-relationships':
+            url += '/admin#section=setuphome&tab=workspaces&item=relationship&params={%22workspaceID%22:%22' + link.split('/').pop() + '%22}';
+            break;
+
+        case 'workspace-apv':
+            url += '/admin#section=setuphome&tab=workspaces&item=advancedPrintViewList&params={%22workspaceID%22:%22' + link.split('/').pop() + '%22}';
+            break;
+
+        case 'workspace-behaviors':
+            url += '/admin#section=setuphome&tab=workspaces&item=behavior&params={%22workspaceID%22:%22' + link.split('/').pop() + '%22}';
+            break;
+
+        case 'workspace-workflow':
+            url += '/workflowEditor.form?workspaceId=' + link.split('/').pop();
+            break;
+
+        case 'workspace-category':
+            url += '/plm/admin/system-configuration/main-menu-designer';
+            break;
+
+    }
+
+    return url;
+
+}
+function openAdminControlsSideBySide(type, linkLeft, linkRight, tenantLeft, tenantRight) {
+
+    if(isBlank(type       )) return;
+    if(isBlank(linkLeft   )) return;
+    if(isBlank(linkRight  )) return;
+    if(isBlank(tenantLeft )) tenantLeft  = tenant;
+    if(isBlank(tenantRight)) tenantRight = tenant;
+
+    let urlLeft  = 'https://' + tenantLeft  + '.autodeskplm360.net' + getAdminControlURL(type, linkLeft );
+    let urlRight = 'https://' + tenantRight + '.autodeskplm360.net' + getAdminControlURL(type, linkRight);
+
+    let height  = screen.height * 0.6;
+    let width   = screen.width / 2 * 0.6;
+    let options = 'height=' + height
+        + ',width=' + width 
+        + ',top=0,toolbar=1,Location=0,Directxories=0,Status=0,menubar=1,Scrollbars=1,Resizable=1';
+
+    const handle = window.open( urlLeft, 'comparisonLeft' , options + ',left=0'       );
+        if(handle) window.open(urlRight, 'comparisonRight', options + ',left=' + width);
+
+}
+
 
 // Get workspace name based on workspace id and vice versa
 function getWorkspaceIdsFromNames(panelSettings, callback) {
@@ -5706,6 +5811,27 @@ function getWorkspaceName(wsId, response) {
             result = workspace.title;
             break;
         }
+    }
+
+    return result;
+
+}
+
+
+// Get workspace type label
+function getWorkspaceTypeLabel(workspace) {
+
+    let id = workspace.type.split('/').pop();
+    let result = id;
+
+    switch(id) {
+
+        case '1': result = 'Basic'; break;
+        case '2': result = 'Workflow'; break;
+        case '6': result = 'Revision Controlled'; break;
+        case '7': result = 'Revisioning'; break;
+        case '8': result = 'Suppliers'; break;
+
     }
 
     return result;
