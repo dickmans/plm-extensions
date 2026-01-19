@@ -39,6 +39,7 @@ function performBasicSearch(next) {
         elemList.html(''); 
         params.query       = value,
         params.placeholder = true,
+        params.latestOnly  = true,
         params.extended    = false,
         params.limit       = 20,
         params.timestamp   = timestamp
@@ -72,13 +73,13 @@ function performBasicSearch(next) {
                 } else {
 
                     for(let result of response.data.results) {
-                        if(result.entityType !== 'Folder') {
+                        // if(result.entityType !== 'Folder') {
                             let elemTile = genPDMTile(result, {
                                 tileNumber : elemList.children().length + 1,
                                 addTileActions : true
                             });
                             if(elemTile !== null) elemTile.appendTo(elemList);
-                        }
+                        // }
                     }
 
                     var counter = elemList.children().length;
