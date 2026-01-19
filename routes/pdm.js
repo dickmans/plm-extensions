@@ -65,6 +65,7 @@ function sendResponse(req, res, response, error) {
 }
 
 
+
 /* ----- GET SERVER INFO ----- */
 router.get('/server-info', function(req, res, next) {
     
@@ -561,14 +562,15 @@ router.get('/image-cache', function(req, res) {
     console.log('  req.query.fileName = ' + req.query.fileName);
     console.log();
    
-    let url  = req.app.locals.vaultGatewayLink  + req.query.link + '/thumbnail';
-    let path = 'public/cache/' + req.query.fileName + '.jpg';
+    let url      = req.app.locals.vaultGatewayLink  + req.query.link + '/thumbnail';
+    let fileName = (typeof req.query.fileName === 'undefined') ? (req.query.link.split('/').pop() + '.jpg') : req.query.fileName;
+    let path     = 'storage/cache/' + fileName;
 
-    fs.stat('public/cache/' + req.query.fileName, function(err, stat) {
+    fs.stat(path, function(err, stat) {
 
         if(err === null) {
             
-            sendResponse(req, res, { 'data' : { 'url' : path } }, false);
+            sendResponse(req, res, { data : { url : 'storage/cache/' + fileName }, status : 200 }, false);
 
         } else if(err.code == 'ENOENT') {
 
@@ -578,7 +580,7 @@ router.get('/image-cache', function(req, res) {
                 responseEncoding : 'binary'
             }).then(function(response) {
                 fs.appendFileSync(path , response.data);
-                sendResponse(req, res, { 'data' : { 'url' : '/cache/' + req.query.fileName + '.jpg' } }, false);
+                sendResponse(req, res, { data : { url : 'storage/cache/' + fileName }, status : 200 }, false);
             }).catch(function(error) {
                 sendResponse(req, res, error.response, true);
             });
@@ -1157,13 +1159,15 @@ router.get('/file-thumbnail', function(req, res, next) {
 
     let url = req.app.locals.vaultGatewayLink + req.query.url + '/thumbnail';
 
+    console.log(url);
+
     axios.get(url, {
         headers          : req.session.headers,
         responseType     : 'arraybuffer',
         responseEncoding : 'binary'
     }).then(function(response) {
 
-        fs.appendFileSync('public/cache/raw.jpg' , response.data);
+        fs.appendFileSync('storage/cache/raw.jpg' , response.data);
         // response.data = Buffer.from(response.data, 'binary').toString('base64');
 
         // fs.appendFileSync('public/cache/rw.jpg' , response.data);
@@ -1174,6 +1178,7 @@ router.get('/file-thumbnail', function(req, res, next) {
 
         sendResponse(req, res, response, false);
     }).catch(function(error) {
+        console.log(error);
         sendResponse(req, res, error.response, true);
     });
     

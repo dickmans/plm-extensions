@@ -211,7 +211,19 @@ function genPDMTileFileVersion(file, params) {
     params.imageFile    = file.file.id + '-' + file.version;
     params.details      = 'data';
 
-    return genSingleTile(params);
+    let elemTile  = genSingleTile(params);
+
+    $.get('/vault/image-cache', { link : file.url }, function(response) {
+        if(response.status === 200) {
+            let elemParent = elemTile.find('.tile-image');
+            $('<img>').attr('src', '../' + response.data.url).on('load', function() {
+                elemParent.html('');
+                elemParent.append($(this));
+            });
+        }
+    });
+
+    return elemTile;
 
 }
 function genPDMTileItemVersion(item, params) {
