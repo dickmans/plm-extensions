@@ -1553,7 +1553,7 @@ function finishSparePartsList() {
                         $(this).addClass('is-spare-part');
                         $('<span></span>').appendTo(elemCell)
                             .addClass('icon')
-                            .addClass(config.serviceBOMTypes.offering.icong)
+                            .addClass(config.serviceBOMTypes.offering.icon)
                             .addClass('filled')
                             .attr('title', 'Included in offering');
                     }
