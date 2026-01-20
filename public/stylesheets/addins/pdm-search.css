@@ -1,3 +1,13 @@
+#basic-clear {
+    cursor      : pointer;
+    font-size   : 16px;
+    left        : 244px;
+    line-height : 22px;
+    position    : relative;
+}
+#basic-clear:hover {
+    color : var(--color-blue-500);
+}
 #basic-search {
     border-width    : 14px;
     top             : 0px;
@@ -21,10 +31,11 @@
     border-bottom : 1px solid var(--color-surface-level-3);
     height        : 24px;
     line-height   : 24px;
-    max-width     : 300px;
-    padding       : 0px 4px;
-    text-align    : center;
-    width         : calc(100% - 180px); 
+    max-width     : 200px;
+    min-width     : 200px;
+    width         : 200px;
+    padding       : 0px 30px 0px 14px;
+    text-align    : left;
 }
 .search-result-message {
     display     : none;

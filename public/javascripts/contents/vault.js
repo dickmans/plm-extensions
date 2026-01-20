@@ -213,6 +213,8 @@ function genPDMTileFileVersion(file, params) {
 
     let elemTile  = genSingleTile(params);
 
+    if(isDrawingFile(file)) elemTile.addClass('drawing'); else elemTile.addClass('model');
+
     $.get('/vault/image-cache', { link : file.url }, function(response) {
         if(response.status === 200) {
             let elemParent = elemTile.find('.tile-image');
@@ -249,7 +251,7 @@ function genPDMTileItemVersion(item, params) {
         details     : 'data'
     }
 
-    return  genSingleTile(tileParams);
+    return genSingleTile(tileParams);
 
 }
 function genPDMTileChangeOrder(eco, params) {
@@ -261,6 +263,20 @@ function genPDMTileChangeOrder(eco, params) {
 
     return genSingleTile(params);
 
+}
+function isDrawingFile(file) {
+
+    let suffix = file.name.split('.').pop();
+
+    switch(suffix) {
+
+        case 'dwg':
+        case 'idw':
+            return true;
+
+    }
+
+    return false;
 }
 function insertEntityTypeIcon(elemTile) {
 

@@ -10,6 +10,9 @@ $(document).ready(function() {
 
 function setUIEvents() {
 
+    $('#basic-clear').click(function() {
+        $('#basic-input').val('');
+    });
     $('#basic-input').focus();
     $('#basic-input').keypress(function(e) {
         if(e.which == 13) {
@@ -17,6 +20,7 @@ function setUIEvents() {
         }
     });
     $('#basic-submit').click(function() { performBasicSearch(false); });    
+    $('#basic-reload').click(function() { performBasicSearch(false); });    
     $('#basic-next'  ).click(function() { performBasicSearch(true);  });
 
 }
