@@ -650,10 +650,13 @@ exports.applications = {
                 isEBOMItem : 'IS_EBOM_ITEM',
             }
         },
-        mbomRootFieldsToCopy : [
-            { ebom : 'TITLE'      , mbom : 'TITLE'       },
-            { ebom : 'DESCRIPTION', mbom : 'DESCRIPTION' }
-        ],
+        mbomRoot : {
+            fieldsToCopy : [
+                { ebom : 'TITLE'      , mbom : 'TITLE'       },
+                { ebom : 'DESCRIPTION', mbom : 'DESCRIPTION' }
+            ],
+            typeValue : '/api/v3/lookups/CUSTOM_LOOKUP_ITEM_TYPES/options/34'
+        },
         newProcessDefaults : [ 
             //['TYPE',        { link : '/api/v3/lookups/CUSTOM_LOOKUP_ITEM_TYPES/options/34'      }],
             //['MAKE_OR_BUY', { link : '/api/v3/lookups/CUSTOM_LOOKUP_ITEM_MAKE_OR_BUY/options/2' }] 

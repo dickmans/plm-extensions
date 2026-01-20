@@ -494,16 +494,26 @@
                 td workspaceMBOM.bomFieldIDs
                 td {..}
                 td List of BOM tab fieldIDs to use in MBOM workspace                                              
-        h2 Additional Settings 
+        h2 MBOM Root Node Creation
         table.row-hovering
             tr 
                 th Setting 
                 th Default Value
                 th Description
             tr 
-                td mbomRootFieldsToCopy
+                td mbomRoot.fieldsToCopy
                 td [..]
                 td Defines fields to copy from root ebom item to root mbom item when new MBOM item gets craeted                    
+            tr 
+                td mbomRoot.typeValue
+                td '..TYPES/options/34''
+                td If not set to empty string, this value will be used to set the Type property of the MBOM root node item
+        h2 Additional Settings 
+        table.row-hovering
+            tr 
+                th Setting 
+                th Default Value
+                th Description
             tr 
                 td newProcessDefaults
                 td [..]
