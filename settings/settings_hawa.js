@@ -1380,7 +1380,7 @@ exports.chrome = {
         workspaces : ['items']
     }],
     workspaces : {
-        items    : 57,
+        items    : 79,
         pr       : 82,
         cr       : 83,
         co       : 84,
