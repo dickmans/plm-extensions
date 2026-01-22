@@ -3286,7 +3286,6 @@ router.get('/get-viewable', function(req, res, next) {
         axios.get(url, {
             headers : headers
         }).then(function(response) {
-            console.log(response);
             sendResponse(req, res, response, false);
         }).catch(function(error) {
             sendResponse(req, res, error.response, true);
