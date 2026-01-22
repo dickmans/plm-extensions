@@ -9,30 +9,46 @@ const router  = express.Router();
     DEFAULT LANDING PAGE & DOCUMENTATION
    ------------------------------------------------------------------------------ */
 router.get('/', function(req, res, next) {
-    res.render('framework/landing', {
-        title : 'PLM TS User Experiences',
-        theme : (typeof req.query.theme === 'undefined') ? req.app.locals.defaultTheme : req.query.theme
-    });
+
+    if(req.app.locals.server.landingPage !== '') {
+       res.redirect(req.app.locals.server.landingPage);
+    } else {
+        res.render('framework/landing', {
+            title : 'PLM TS User Experiences',
+            theme : (typeof req.query.theme === 'undefined') ? req.app.locals.defaultTheme : req.query.theme
+        });
+    }   
 });
 router.get('/chrome-extension', function(req, res, next) {
+    if(isServiceDisabled('chrome-extension', req, res)) return;
     res.render('framework/chrome-extension', {
         title : 'PLM UX Chrome Extension',
         theme : (typeof req.query.theme === 'undefined') ? req.app.locals.defaultTheme : req.query.theme
     });
 });
 router.get('/docs', function(req, res, next) {
+    if(isServiceDisabled('docs', req, res)) return;
     res.render('framework/docs', {
         title : 'PLM UX Developer Guide',
         theme : (typeof req.query.theme === 'undefined') ? req.app.locals.defaultTheme : req.query.theme
     });
 });
+router.get('/landing', function(req, res, next) {
+    if(isServiceDisabled('landing', req, res)) return;
+    res.render('framework/landing', {
+        title : 'PLM TS User Experiences',
+        theme : (typeof req.query.theme === 'undefined') ? req.app.locals.defaultTheme : req.query.theme
+    });
+});
 router.get('/troubleshooting', function(req, res, next) {
+    if(isServiceDisabled('troubleshooting', req, res)) return;
     res.render('framework/troubleshooting.pug', {
         title : 'PLM UX Troubleshooting Guide',
         theme : (typeof req.query.theme === 'undefined') ? req.app.locals.defaultTheme : req.query.theme
     });
 });
 router.get('/start', function(req, res, next) {
+    if(isServiceDisabled('start', req, res)) return;
     res.render('framework/start.pug', {
         title : 'PLM UX Extensions',
         theme : (typeof req.query.theme === 'undefined') ? req.app.locals.defaultTheme : req.query.theme
@@ -137,6 +153,8 @@ router.get('/transmittals' , function(req, res, next) { launch('dev/transmittals
     LAUNCH APPLICATION
    ------------------------------------------------------------------------------ */
 function launch(appURL, appSettings, appTitle, req, res, next) {
+
+    if(isServiceDisabled(appURL, req, res)) return;
 
     let redirect = false;
     let refresh  = false;
@@ -271,7 +289,19 @@ function launch(appURL, appSettings, appTitle, req, res, next) {
         });
 
     }
+}
+function isServiceDisabled(appURL, req, res) {
 
+    let urlEnd = appURL.split('/').pop();
+
+    if(req.app.locals.server.servicesEnabled.length === 0) {
+        if(req.app.locals.server.servicesDisabled.length === 0)     { return false; }
+        if(req.app.locals.server.servicesDisabled.includes(urlEnd)) { return false; }
+    } if(req.app.locals.server.servicesEnabled.includes(urlEnd))    { return false; }
+
+    res.render('framework/notFound');
+    
+    return true;
 }
 function base64URLEncode(str) {
     return str.toString('base64')

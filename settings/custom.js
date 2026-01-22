@@ -128,6 +128,28 @@ exports.menu = []
 
 
 
+
+// ---------------------------------------------------------------------------------------------------------------------------
+//  SERVER ROUTING
+// ---------------------------------------------------------------------------------------------------------------------------
+exports.server = {
+    landingPage      : '',  // Set the default URL to be opened if no app URL is provided (default is '')
+    servicesEnabled  : [],  // List the services to enable (all others will be disabled)
+    servicesDisabled : [
+        // As an alternative, list services to disable (all others will be enabled)
+        // See list of example values below
+        // ---------------------------------------
+        // 'client',
+        // 'insights',
+        // 'outstanding-work',
+        // 'portal',
+        // 'projects',
+        // 'projects',
+    ],  
+}
+
+
+
 // ---------------------------------------------------------------------------------------------------------------------------
 //  CUSTOM CHOROME EXTENSION SETTINGS
 // ---------------------------------------------------------------------------------------------------------------------------

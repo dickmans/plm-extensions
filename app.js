@@ -73,6 +73,7 @@ if ((process.argv.length > 2) && (!fs.existsSync('./' + fileEnvironment))) {
     app.locals.common       = settings.common;
     app.locals.applications = settings.applications;
     app.locals.menu         = settings.menu;
+    app.locals.server       = settings.server;
     app.locals.chrome       = settings.chrome;
     app.locals.colors       = settings.colors;
 
@@ -136,6 +137,7 @@ function mergeSettings(master, custom) {
     mergeSettingsProperty(master, custom, 'common');
     mergeSettingsProperty(master, custom, 'applications');
     mergeSettingsProperty(master, custom, 'menu');
+    mergeSettingsProperty(master, custom, 'server');
     mergeSettingsProperty(master, custom, 'chrome');
 
 }
