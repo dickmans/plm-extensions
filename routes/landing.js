@@ -199,6 +199,7 @@ function launch(appURL, appSettings, appTitle, req, res, next) {
         let reqWS           = '';
         let reqDMS          = '';
         let reqDescriptor   = '';
+        let reqLanguage     = '';
         let reqNumber       = '';
         let reqFileId       = '';
         let reqType         = '';
@@ -212,6 +213,7 @@ function launch(appURL, appSettings, appTitle, req, res, next) {
                 case 'wsid'         :           reqWS = req.query[key]; break;
                 case 'dmsid'        :          reqDMS = req.query[key]; break;
                 case 'descriptor'   :   reqDescriptor = req.query[key]; break;
+                case 'language'     :     reqLanguage = req.query[key]; break;
                 case 'number'       :       reqNumber = req.query[key]; break;
                 case 'fileid'       :       reqFileId = req.query[key]; break;
                 case 'type'         :         reqType = req.query[key]; break;
@@ -243,6 +245,7 @@ function launch(appURL, appSettings, appTitle, req, res, next) {
             console.log('  wsId             = ' + reqWS); 
             console.log('  dmsId            = ' + reqDMS); 
             console.log('  descriptor       = ' + reqDescriptor); 
+            console.log('  language         = ' + reqLanguage); 
             console.log('  number           = ' + reqNumber); 
             console.log('  fileId           = ' + reqFileId); 
             console.log('  type             = ' + reqType); 
@@ -275,6 +278,7 @@ function launch(appURL, appSettings, appTitle, req, res, next) {
                     number       : reqNumber,
                     fileId       : reqFileId,
                     vaultId      : req.session.vaultId,
+                    language     : reqLanguage,
                     type         : reqType,
                     revisionBias : reqRevisionBias,
                     options      : reqOptions.split(','),
