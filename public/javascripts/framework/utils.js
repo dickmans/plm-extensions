@@ -23,6 +23,7 @@ $(document).ready(function() {
     else if(theme.toLowerCase() === 'black') { $('body').addClass('black-theme'); theme = 'black'; }
     else                                     { $('body').addClass('light-theme'); theme = 'light'; }
 
+    beforeApplicationStart();
     insertAvatar();  
     enableTabs();
     enablePanelToggles();
@@ -33,6 +34,12 @@ $(document).ready(function() {
     $('#header-subtitle').click(function() { reloadPage(false); });
 
 });
+function beforeApplicationStart() {
+    
+    // Insert custom code here
+    // Update object config to modify application settings on demand
+
+}
 
 
 // Validate System Admin permission
