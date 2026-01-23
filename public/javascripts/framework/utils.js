@@ -2639,10 +2639,10 @@ function filterPanelContent(id) {
 
         if(searchInputValue !== '') {
 
-            let content = '';
+            let content = elemContentItem.attr('data-part-number') || '';
 
             if(elemContentItem.hasClass('tile')) {
-                content = elemContentItem.find('.tile-title').html();
+                content += elemContentItem.find('.tile-title').html();
                 content += elemContentItem.find('.tile-subtitle').html();
                 elemContentItem.find('.tile-data').children().each(function() {
                     content += $(this).html();  
