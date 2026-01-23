@@ -411,9 +411,14 @@ function getURLParameters() {
             let key   = split[0].toLowerCase();
 
             if(key == 'options') {
-                let option = split[1].split(':');
-                key = option[0].toLowerCase();
-                result[key] = option[1];
+                let options = split[1].split(',');
+                for(let option of options) {
+                    let temp = option.split(':');
+                    if(temp.length = 2) {
+                        key = option[0].toLowerCase();
+                        result[temp[0].toLowerCase()] = temp[1];
+                    }
+                }
             } else result[key] = split[1];
 
         }
