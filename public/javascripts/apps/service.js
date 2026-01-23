@@ -1216,9 +1216,12 @@ function insertSparePart(elemParent, bomPart, type) {
         $('<div></div>').appendTo(elemSparePartSide).addClass('spare-part-stock');
     }
 
+    afterInsertSparePart(elemParent, bomPart, elemSparePart);
+
     return elemSparePart;
 
 }
+function afterInsertSparePart(elemParent, bomPart, elemSparePart) {}
 function insertNonSparePartMessage() {
 
     if(isBlank(applicationFeatures.enableCustomRequests)) return;
@@ -1563,6 +1566,14 @@ function finishSparePartsList() {
         }
         
     });
+
+    onSparePartsListDone();
+
+}
+function onSparePartsListDone() {
+
+    // Use listServiceItems to access list of spare parts with defined properties
+    // Use CSS class spare-part to access all spare part DOM elements
 
 }
 
