@@ -5143,6 +5143,7 @@ function getBOMTabViews(id, settings) {
             for(let field of bomView.fields) {
                 
                 field.included = false;
+                field.sortFieldsIncluded = bomView.fields.length + 1;
 
                 if(field.displayName !== 'Descriptor') {
                     if(includePanelTableColumn(field.fieldId, field.displayName, settings, columnsCount++)) {
