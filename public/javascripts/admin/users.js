@@ -431,8 +431,8 @@ function getWorkspaces() {
 
         for(let workspace of response.data.items) {
             workspaces.push({
-                link  : workspace.link,
-                title : workspace.title
+                link  : workspace.link  || workspace.__self__,
+                title : workspace.title || workspace.name
             })
         }
 
