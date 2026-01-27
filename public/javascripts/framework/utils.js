@@ -268,57 +268,81 @@ function insertMenu() {
             $('#menu').fadeOut(150);
         });
 
-    insertMenuContents(elemMenu, 'menu-columns');
+
+    $.get('/plm/groups-assigned', { useCache : true }, function(response) {
+        let isAdmin = false;
+        for(let group of response.data) {
+            if(group.shortName === 'Administration [SYSTEM]') {
+                isAdmin = true;
+                break;
+            }
+        }
+        insertMenuContents(elemMenu, 'menu-columns', isAdmin);
+    });
 
 }
-function insertMenuContents(elemParent, id) {
+function insertMenuContents(elemParent, id, isAdmin) {
+
+    if(typeof isAdmin === 'undefined') isAdmin = true;
 
     let elemColumns = $('<div></div>').appendTo(elemParent).attr('id', id);
 
     for(let column of menu) {
 
-        let elemColumn = $('<div></div>').appendTo(elemColumns)
+        let elemColumn = $('<div></div>').appendTo(elemColumns);
         let first      = true;
 
         for(let category of column) {
 
-            let elemTitle = $('<div></div>').appendTo(elemColumn)
-                .addClass('menu-title')
-                .html(category.label);
+            let adminsOnly = category.adminsOnly || false;
 
-            if(!first) elemTitle.css('margin-top', '20px');
+            if(!adminsOnly || isAdmin) {
 
-            let elemCommands = $('<div></div>').appendTo(elemColumn)
-                .addClass('menu-commands');
+                let elemTitle = $('<div></div>').appendTo(elemColumn)
+                    .addClass('menu-title')
+                    .html(category.label);
 
-            for(let command of category.commands) {
+                if(!first) elemTitle.css('margin-top', '20px');
 
-                let elemCommand = $('<div></div>').appendTo(elemCommands)
-                    .addClass('menu-command')
-                    .attr('data-url', command.url)
-                    .click(function(e) {
-                        clickMenuCommand($(this));
-                    });
+                let elemCommands = $('<div></div>').appendTo(elemColumn)
+                    .addClass('menu-commands');
 
-                $('<div></div>').appendTo(elemCommand)
-                    .addClass('menu-command-icon')
-                    .addClass('icon')
-                    .addClass(command.icon);
+                for(let command of category.commands) {
 
-                let elemCommandName = $('<div></div>').appendTo(elemCommand)
-                    .addClass('menu-command-name');
+                    command.adminsOnly = command.adminsOnly || false;
 
-                $('<div></div>').appendTo(elemCommandName)
-                    .addClass('menu-command-title')
-                    .html(command.title);
+                    if(!command.adminsOnly || isAdmin) {
 
-                $('<div></div>').appendTo(elemCommandName)
-                    .addClass('menu-command-subtitle')
-                    .html(command.subtitle);
+                        let elemCommand = $('<div></div>').appendTo(elemCommands)
+                            .addClass('menu-command')
+                            .attr('data-url', command.url)
+                            .click(function(e) {
+                                clickMenuCommand($(this));
+                            });
+
+                        $('<div></div>').appendTo(elemCommand)
+                            .addClass('menu-command-icon')
+                            .addClass('icon')
+                            .addClass(command.icon);
+
+                        let elemCommandName = $('<div></div>').appendTo(elemCommand)
+                            .addClass('menu-command-name');
+
+                        $('<div></div>').appendTo(elemCommandName)
+                            .addClass('menu-command-title')
+                            .html(command.title);
+
+                        $('<div></div>').appendTo(elemCommandName)
+                            .addClass('menu-command-subtitle')
+                            .html(command.subtitle);
+
+                    }
+
+                }
+
+                first = false;
 
             }
-
-            first = false;
 
         }
     }

@@ -1217,12 +1217,14 @@ exports.applications = {
 // Set the lists of commands to an empty array (commands : []) to disable the given menu
 exports.menu = [
     [{
-        label : 'Business Applications',
-        commands : [{
-            icon     : 'icon-3d',
-            title    : 'Portal',
-            subtitle : 'Quick access to all product data',
-            url      : '/portal'
+        label      : 'Business Applications',
+        adminsOnly : false,
+        commands   : [{
+            icon       : 'icon-3d',
+            title      : 'Portal',
+            subtitle   : 'Quick access to all product data',
+            url        : '/portal',
+            adminsOnly : false
         },{
             icon     : 'icon-tiles',
             title    : 'Product Portfolio Catalog',
@@ -1250,8 +1252,9 @@ exports.menu = [
             url      : '/service'
         }]
     }],[{
-        label : 'Dashboards',
-        commands : [{
+        label      : 'Dashboards',
+        adminsOnly : false,
+        commands   : [{
             icon     : 'icon-important',
             title    : 'Problem Reporting Dashboard',
             subtitle : 'Capture and resolve problem reports',
@@ -1288,8 +1291,9 @@ exports.menu = [
             url      : '/projects'
         }]
     }],[{
-        label : 'Administration Utilities',
-        commands : [{
+        label      : 'Administration Utilities',
+        adminsOnly : true,
+        commands   : [{
             icon     : 'icon-status',
             title    : 'Data Manager',
             subtitle : 'Automate data processing tasks',
@@ -1311,8 +1315,9 @@ exports.menu = [
             url      : '/shortcuts'
         }]
     },{
-        label : 'Advanced Administration Utilities',
-        commands : [{
+        label      : 'Advanced Administration Utilities',
+        adminsOnly : true,
+        commands   : [{
             icon     : 'icon-problem',
             title    : 'Outstanding Work Report',
             subtitle : 'Review &amp update Outstanding Work lists of users',

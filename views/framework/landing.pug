@@ -15,7 +15,7 @@ block body
             p Unleash the power of Fusion Manage by utilizing its REST API to provide custom built frontends based on Autodesk Platform Services. All solutions manage data in PLM only. All business rules of PLM as well as access permissions still apply.
             div.side-toolbar
                 .button#version Review changes by 
-                    span#version-name 22. January 2026
+                    span#version-name 27. January 2026
                 .button#tenant Connected to 
                     span#tenant-name
                 .button#chrome Setup the matching 
@@ -44,6 +44,16 @@ block body
             .log#framework-changes 
                 h1 Framework Changes
                 table 
+                    tr  
+                        td 27. January 2026
+                        td Enhancement
+                        td The start menu configuration now uses the property 
+                            span.code adminsOnly 
+                            |to recognize menu entries that should only be shown for Administrators. This property can be set on column level and also on command level. See the given menu configuration in the settings file for an example configuration. Users are considered as Administrator if they are assigned to group 
+                            span.code 'Administration [SYSTEM]'
+                            |). This can only be validated after logging in, so the default start menu accessible via 
+                            span.code /start 
+                            |will always show all menu entries as it only requires a login once an appliation is started from within this menu.
                     tr  
                         td 22. January 2026
                         td New Setting
