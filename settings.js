@@ -1199,7 +1199,7 @@ exports.applications = {
 
             headerLabelTasks    : 'My Work List',
             columnsExTasks      : [ 'State Set On', 'State Set By', 'State' ],
-            workspacesInTasks   : [ 'Change Tasks', 'Change Requests', 'Change Orders', 'Problem Reports' ],
+            workspacesInTasks   : [ 'Change Tasks', 'Change Requests', 'Change Orders', 'Problem Reports', 'Project Tasks' ],
             expandSectionsTask  : [ 'Task Details', 'Header', 'Details' ]
 
         }
