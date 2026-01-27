@@ -205,6 +205,10 @@
 /* Icons */
 .icon-3d::before                { content : '\e9fe'; }
 .icon-activity::before          { content : '\e53f'; }
+.icon-alert-1::before           { content : '\e000'; }
+.icon-alert-2::before           { content : '\f654'; }
+.icon-alert-3::before           { content : '\e99a'; }
+.icon-alert-4::before           { content : '\e160'; }
 .icon-arrow-right::before       { content : '\f81d'; }
 .icon-attachment::before        { content : '\e226'; }
 .icon-bar-chart::before         { content : '\e26b'; }
@@ -374,6 +378,7 @@
 .icon-user-info::before         { content : '\f567'; }
 .icon-vault-item::before        { content : '\e991'; }
 .icon-viewer::before            { content : '\e9fe'; }
+.icon-warning::before           { content : '\e002'; }
 .icon-width::before             { content : '\f730'; }
 .icon-workflow::before          { content : '\e4fd'; }
 .icon-wrench::before            { content : '\e869'; }
