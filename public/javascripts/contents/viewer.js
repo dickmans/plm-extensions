@@ -1580,18 +1580,19 @@ function viewerAddHideSelected(toolbar) {
             e.preventDefault();
             e.stopPropagation();
 
-            let enabled     = $('#customSelectionToolbar').hasClass('hide-selectd');
+            let enabled     = $('#customSelectionToolbar').hasClass('hide-selected');
             let selected    = viewer.getSelection().length;
 
             if(!enabled && selected > 0) {
+                $('#customSelectionToolbar').addClass('hide-selected')
                 for(let dbId of viewer.getSelection()) {
                     hideInstance(dbId);
                 }
             } else if(enabled) {
-                $('#customSelectionToolbar').toggleClass('hide-selectd');
+                $('#customSelectionToolbar').toggleClass('hide-selected');
                 $('#hidden-instances-toggle').addClass('icon-chevron-down').removeClass('icon-chevron-up');
             } else if(selected === 0) {
-                $('#customSelectionToolbar').toggleClass('hide-selectd');
+                $('#customSelectionToolbar').toggleClass('hide-selected');
             }
 
             updateHiddenInstancesControls();
@@ -1655,7 +1656,7 @@ function viewerHideSelected(event) {
     let toolbar = $('#customSelectionToolbar');
 
     if(toolbar.length > 0) {
-        if(toolbar.hasClass('hide-selectd')) {
+        if(toolbar.hasClass('hide-selected')) {
             hideSelectedInstance(event);
             return true;
         }
@@ -1668,7 +1669,7 @@ function hideSelectedInstance(event) {
     let toolbar = $('#customSelectionToolbar');
 
     if(toolbar.length > 0) {
-        if(toolbar.hasClass('hide-selectd')) {
+        if(toolbar.hasClass('hide-selected')) {
 
             if(hiddenInstances.length === 0) $('#hidden-instances-toggle').addClass('icon-chevron-down').removeClass('icon-chevron-up');
 

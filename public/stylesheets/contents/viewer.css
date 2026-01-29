@@ -98,11 +98,11 @@ body.dark-theme  #guiviewer3d-toolbar #toolbar-measureTool-done.adsk-button:hove
 
 /*  APS VIEWER CUSTOM TOOLBARS */
 /* ----------------------------------------------------------------------------- */
-#customSelectionToolbar.hide-selectd  #button-toggle-hide-selected  { 
+#customSelectionToolbar.hide-selected  #button-toggle-hide-selected  { 
     background   : var(--color-blue-500) !important; 
     border-color : var(--color-blue-500) !important; 
 }
-#customSelectionToolbar.hide-selectd #button-toggle-hide-selected .icon-remove::before { color : white !important; }
+#customSelectionToolbar.hide-selected #button-toggle-hide-selected .icon-remove::before { color : white !important; }
 #hidden-instances {
     font-family     : 'ArtifaktElement';
     border-radius   : 3px;
