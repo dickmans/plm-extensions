@@ -178,3 +178,52 @@ function clickBOMItem(elemClicked) {
     }
 
 }
+
+// Select BOM item upon viewer selection
+function onViewerSelectionChanged(event) {
+
+    if(viewerHideSelected(event)) return;
+
+    if(disableViewerSelectionEvent) return;
+
+    $('.tree-item').removeClass('selected');
+
+    if (event.dbIdArray.length === 1) {
+
+        let parents  = getComponentParents(event.dbIdArray[0]);
+        let index    = parents.length -1;
+        let elemItem = null;
+
+        for(index; index >= 0; index--) {
+
+            let parent     = parents[index];
+            let partNumber = parent.partNumber;
+
+            if(!isBlank(partNumber)) {
+                $('.tree-item').each(function() {
+                    if($(this).attr('data-part-number') === partNumber) {
+                        elemItem = $(this);
+                        return false;
+                    }
+                });
+            }
+        }
+
+        if(elemItem != null) {
+            elemItem.addClass('selected');
+            bomDisplayItem(elemItem);
+            insertDetails(elemItem.attr('data-link'), paramsDetails);
+            insertAttachments(elemItem.attr('data-link'), paramsAttachments);
+        }
+        
+    } else {
+        treeScrollToTop('bom');
+        resetBOMPath('bom');
+        insertDetails(linkSelected, paramsDetails);
+        insertAttachments(linkSelected, paramsAttachments);
+        viewerResetSelection();
+    }
+
+    updatePanelCalculations('bom');
+
+}
