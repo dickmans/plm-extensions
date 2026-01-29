@@ -4063,6 +4063,7 @@ async function processTreeDownloads(fileHandler, downloadQueue) {
 
         if(downloadQueue.folder === 'local-drive') {
             for(let attachment of response.data) {
+                sanitizeFilename(attachment);
                 await saveAttachment(fileHandler, attachment, response.params.subFolder);
             }
         }
@@ -4164,6 +4165,24 @@ async function processTreeDownloads(fileHandler, downloadQueue) {
         processTreeDownloads(fileHandler, downloadQueue)
 
     }
+
+}
+function sanitizeFilename(attachment) {
+  
+    let replacement = '_';
+    let filename    = attachment.name;
+    let lastDot     = filename.lastIndexOf('.');
+    let name        = filename.slice(0, lastDot);
+    let ext         = filename.slice(lastDot);
+
+    name = name.replace(/[\\\/:*?"<>|]/g, replacement)
+        .replace(/[\x00-\x1F\x80-\x9F]/g, replacement)
+        .replace(new RegExp(`${replacement}{2,}`, "g"), replacement)
+        .trim()
+        .replace(/[. ]+$/, "");
+
+    
+    attachment.name = name + ext;
 
 }
 async function saveAttachment(fileHandler, attachment, folder) {
