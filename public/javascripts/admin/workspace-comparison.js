@@ -1,6 +1,6 @@
-let mode         = 'all';
-let timestamp    = 0;
-let environments = { 
+let mode          = 'all';
+let timestamp     = 0;
+let environments  = { 
     source     : { workspace : {}, workspaces : [], scripts : {}, picklists : [], groups : [], roles : [] },
     target     : { workspace : {}, workspaces : [], scripts : {}, picklists : [], groups : [], roles : [] },
     picklists  : [],
@@ -29,14 +29,25 @@ $(document).ready(function() {
         if(isAdmin) {
 
             appendOverlay(false);
-            getWorkspaces('source');
+            getWorkspaces('source', function() {
 
-            if(!isBlank(options)) {
-                if(options.length > 0) {
-                    $('#target-tenant').val(options[0]);
-                    getWorkspaces('target');
+                if(!isBlank(urlParameters.workspace)) {
+                    if(this.value === 'all-workspaces') $('body').addClass('mode-all'); else $('body').removeClass('mode-all');
+                    $('#source-workspaces').val(urlParameters.workspace);
                 }
-            }
+
+                if(!isBlank(urlParameters.target)) {
+                    $('#target-tenant').val(urlParameters.target);
+                    getWorkspaces('target', function() {
+                        if(!isBlank(urlParameters.start)) {
+                            if(urlParameters.start === 'true') {
+                                $('#comparison-start').click();
+                            }
+                        }
+                    });
+                }
+
+            });
 
         }
 
@@ -255,7 +266,7 @@ function exportTenantConfiguration(elemButton, id) {
 
 
 // Set workspace selectors for both tenants
-function getWorkspaces(id) {
+function getWorkspaces(id, callback) {
 
     let tenantName = $('#' + id + '-tenant').val();
     
@@ -297,7 +308,9 @@ function getWorkspaces(id) {
 
         if(id === 'target') {
             $('#target-workspaces').val($('#source-workspaces').val());
-        }
+        } 
+        
+        if( typeof callback !== 'undefined') { callback(); }
 
     });
 
@@ -649,8 +662,8 @@ function compareWorkspacesSettings() {
         }
 
         $('#result-settings').find('.result-compare').show();
-
-        compareWorkspaceTabs();
+        
+        comparePermissions();
 
     });
 
@@ -658,6 +671,204 @@ function compareWorkspacesSettings() {
 
 
 // STEP #2
+function comparePermissions() {
+
+    if(stopped) return;
+
+    addLogSeparator();
+    addLogEntry('Starting Roles comparison', 'head');
+    addReportHeader('icon-released', 'Permissions (Roles)');
+
+    let requests = [
+        $.get('/plm/roles', { tenant : environments.source.tenantName }),
+        $.get('/plm/roles', { tenant : environments.target.tenantName }),
+        $.get('/plm/permissions-definition', { tenant : environments.source.tenantName }),
+        $.get('/plm/permissions-definition', { tenant : environments.target.tenantName })
+    ]
+
+    Promise.all(requests).then(function(responses) {
+
+        let url         = '/admin#section=adminusers&tab=roles';
+        let step        = 'roles';
+        let definitions = responses[2].data.list.permission;
+        let permTarget  = responses[3].data.list.permission;
+        let listSource  = [];
+        let listTarget  = [];
+        let match       = true;
+        let matches     = {
+            description      : true,
+            permissions      : true,
+            extraRoles       : false,
+            extraPermissions : false
+        }
+        
+        for(let role of responses[0].data.list.role) {
+            if(role.workspaceID == environments.source.workspace.wsId) {
+                role.hasMatch = false;
+                listSource.push(role);
+                for(let permission of role.permissions.permission) permission.hasMatch = false;
+            }
+        }
+
+        for(let role of responses[1].data.list.role) {
+            if(role.workspaceID == environments.target.workspace.wsId) {
+                role.hasMatch = false;
+                listTarget.push(role);
+                for(let permission of role.permissions.permission) permission.hasMatch = false;
+            }
+        }
+
+        for(let source of listSource) {
+
+            let hasMatch    = false;
+            let reportMatch = false;
+
+            for(let target of listTarget) {
+
+                if(source.name === target.name) {
+                    
+                    hasMatch        = true;
+                    reportMatch     = true;
+                    target.hasMatch = true;
+                    target.sourceId = source.id;
+
+                    if(source.description !== target.description) {
+                        matches.description = false;
+                        reportMatch         = false;
+                        addActionEntry({ 
+                            text : 'Change description of <b>' + target.name + '</b> to <b>' + source.description + '</b>', 
+                            step : step,
+                            url  : url 
+                        });
+                    }
+
+                    for(let permission of source.permissions.permission) {
+
+                        let match = false;
+
+                        for(let targetPermission of target.permissions.permission) {
+                            if(permission.id === targetPermission.id) {
+                                match = true;
+                                targetPermission.hasMatch = true;
+                                break;
+                            }
+                        }
+
+                        if(!match) {
+                            // Compare workflow permissions by label if ids do not match
+                            let sourceDefinition = getPermissionDefinition(definitions, permission.id);
+                            if(sourceDefinition.isWorkflowPermission) {
+                                for(let targetPermission of target.permissions.permission) {
+                                    let targetDefinition = getPermissionDefinition(permTarget, targetPermission.id);
+                                    if(targetDefinition.isWorkflowPermission) {
+                                        if(sourceDefinition.name = targetDefinition.name) {
+                                            match = true;
+                                            targetPermission.hasMatch = true;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        if(!match) {
+                            let label = getPermissionDefinition(definitions, permission.id).name;
+                            matches.permissions = false;
+                            reportMatch         = false;
+                            addActionEntry({ 
+                                text : 'Add permission <b>' + label + '</b> to role <b>' + source.name + '</b>', 
+                                step : step,
+                                url  : url 
+                            });
+                        }
+
+                    }
+
+                }
+            }
+
+            if(!hasMatch) {
+                match = false;
+                addActionEntry({ 
+                    text  : 'Add role <b>' + source.name + '</b>', 
+                    step : step,
+                    url   : url });
+            }
+
+            addReportDetail('Role', source.name, reportMatch);
+
+        }
+
+        for(let target of listTarget) {
+            if(!target.hasMatch) {
+                match = false;
+                matches.extraRoles = true;
+                addActionEntry({ 
+                    text : 'Remove role <b>' + target.name + '</b> in ' + environments.target.tenantName, 
+                    step : step,
+                    url  : url
+                });
+            } else {
+                for(let permission of target.permissions.permission) {
+                    if(!permission.hasMatch) {
+                        match = false;
+                        matches.extraPermissions = true;
+                        addActionEntry({ 
+                            text : 'Remove permission <b>' + getPermissionDefinition(permTarget, permission.id).name + '</b> from role <b>' + target.name + '</b>', 
+                            step : step,
+                            url  : url
+                            // comp : {
+                            //     source : '/adminRolePermissionsManage.do?roleId=' + target.sourceId,
+                            //     target : '/adminRolePermissionsManage.do?roleId=' + target.id
+                            // }
+                        });
+                    }
+                }
+            }
+        }    
+
+        if(!matches.description     ) { match = false; addLogEntry('Descriptions of roles do not match'); }
+        if(!matches.permissions     ) { match = false; addLogEntry('Permission in roles do not match'); }
+        if( matches.extraRoles      ) { match = false; addLogEntry('There are additional roles in '+ environments.target.tenantName); }
+        if( matches.extraPermissions) { match = false; addLogEntry('There are additional permisions in matching roles in '+ environments.target.tenantName); }
+
+        $('#summary-roles').html('Roles : ' + listSource.length);
+
+        if(match) {
+            addLogEntry('Workspace Roles match', 'match');
+            $('#result-roles').addClass('match');
+        } else {
+            addLogEntry('Workspace Roles do not match', 'diff');
+            $('#result-roles').addClass('diff');
+        }
+
+        $('#result-roles').find('.result-compare').show();
+
+        compareWorkspaceTabs();
+
+    });
+
+}
+function getPermissionDefinition(definitions, id) {
+
+    let result = { 
+        label                : '' ,
+        isWorkflowPermission : false
+    };
+
+    for(let definition of definitions) {
+        if(definition.id === id) {
+            result.name = definition.name;
+            result.isWorkflowPermission = (definition.groupName.indexOf('Workflow Permission')  >= 0);
+            break;
+        }
+    }
+
+    return result;
+
+}
+
+
+// STEP #3
 function compareWorkspaceTabs() {
 
     if(stopped) return;
@@ -865,7 +1076,7 @@ function getTabsMatch(tabsSource, tabsTarget, logPrefix) {
 }
 
 
-// STEP #3
+// STEP #4
 function compareItemDetailsTab() {
 
     if(stopped) return;
@@ -1551,7 +1762,7 @@ function getFieldEditabilityLabel(value) {
 }
 
 
-// STEP #4
+// STEP #5
 function compareGridTab() {
 
     if(stopped) return;
@@ -1794,7 +2005,7 @@ function getDefaultFieldValue(field) {
 }
 
 
-// STEP #5
+// STEP #6
 function compareManagedItemsTab() {
 
     if(stopped) return;
@@ -2059,7 +2270,7 @@ function getManagedItemsMatch(fieldsSource, fieldsTarget, logPrefix) {
 }
 
 
-// STEP #6
+// STEP #7
 function compareBOMTab() {
 
     if(stopped) return;
@@ -2443,7 +2654,7 @@ function getBOMTabMatch(viewsSource, viewsTarget, logPrefix) {
 }
 
 
-// STEP #7
+// STEP #8
 function compareWorkspaceRelationships() {
 
     if(stopped) return;
@@ -2536,7 +2747,7 @@ function getWorkspaceRelationshipsMatch(relSource, relTarget, logPrefix) {
 }
 
 
-// STEP #8
+// STEP #9
 function comparePrintViews() {
 
     if(stopped) return;
@@ -2651,7 +2862,7 @@ function getPrintViewsMatch(listSource, listTarget, logPrefix) {
 }
 
 
-// STEP #9
+// STEP #10
 function compareBehaviors() {
 
     if(stopped) return;
@@ -2817,7 +3028,7 @@ function getBehaviorsMatch(listSource, listTarget, logPrefix) {
 }
 
 
-// STEP #10
+// STEP #11
 function compareWorkflowStates() {
 
     if(stopped) return;
@@ -2973,7 +3184,7 @@ function getWorkflowStatesMatch(listSource, listTarget, logPrefix) {
 }
 
 
-// STEP #11
+// STEP #12
 function compareWorkflowTransistions() {
 
     if(stopped) return;
@@ -3245,7 +3456,7 @@ function addScriptForComparison(type, name, source, target) {
 }
 
 
-// STEP #14
+// STEP #13
 function comparePicklists() {
 
     if(stopped) return;
@@ -3369,7 +3580,7 @@ function comparePicklists() {
 
             $('#result-picklists').find('.result-compare').show();
 
-            comparePermissions();
+            compareScriptSources();
 
         });
        
@@ -3416,190 +3627,6 @@ function comparePicklistValues(sourcePicklist, targetPicklist, step, urlPicklist
     }
 
     return match;
-
-}
-
-
-// STEP #13
-function comparePermissions() {
-
-    if(stopped) return;
-
-    addLogSeparator();
-    addLogEntry('Starting Roles comparison', 'head');
-    addReportHeader('icon-released', 'Permissions (Roles)');
-
-    let requests = [
-        $.get('/plm/roles', { tenant : environments.source.tenantName }),
-        $.get('/plm/roles', { tenant : environments.target.tenantName }),
-        $.get('/plm/permissions-definition', { tenant : environments.source.tenantName }),
-        $.get('/plm/permissions-definition', { tenant : environments.target.tenantName })
-    ]
-
-    Promise.all(requests).then(function(responses) {
-
-        let url         = '/admin#section=adminusers&tab=roles';
-        let step        = 'roles';
-        let definitions = responses[2].data.list.permission;
-        let permTarget  = responses[3].data.list.permission;
-        let listSource  = [];
-        let listTarget  = [];
-        let match       = true;
-        let matches     = {
-            description      : true,
-            permissions      : true,
-            extraRoles       : false,
-            extraPermissions : false
-        }
-        
-        for(let role of responses[0].data.list.role) {
-            if(role.workspaceID == environments.source.workspace.wsId) {
-                role.hasMatch = false;
-                listSource.push(role);
-                for(let permission of role.permissions.permission) permission.hasMatch = false;
-            }
-        }
-
-        for(let role of responses[1].data.list.role) {
-            if(role.workspaceID == environments.target.workspace.wsId) {
-                role.hasMatch = false;
-                listTarget.push(role);
-                for(let permission of role.permissions.permission) permission.hasMatch = false;
-            }
-        }
-
-        for(let source of listSource) {
-
-            let hasMatch    = false;
-            let reportMatch = false;
-
-            for(let target of listTarget) {
-
-               
-
-                if(source.name === target.name) {
-                    
-                    hasMatch        = true;
-                    reportMatch     = true;
-                    target.hasMatch = true;
-                    target.sourceId = source.id;
-
-                    if(source.description !== target.description) {
-                        matches.description = false;
-                        reportMatch         = false;
-                        addActionEntry({ 
-                            text : 'Change description of <b>' + target.name + '</b> to <b>' + source.description + '</b>', 
-                            step : step,
-                            url  : url 
-                        });
-                    }
-
-                    for(let permission of source.permissions.permission) {
-
-                        let match = false;
-
-                        for(let permTarget of target.permissions.permission) {
-                            if(permission.id === permTarget.id) {
-                                match = true;
-                                permTarget.hasMatch = true;
-                                break;
-                            }
-                        }
-
-                        if(!match) {
-                            let label = getPermissionLabel(definitions, permission.id);
-                            matches.permissions = false;
-                            reportMatch         = false;
-                            addActionEntry({ 
-                                text : 'Add permission <b>' + label + '</b> to role <b>' + source.name + '</b>', 
-                                step : step,
-                                url  : url 
-                            });
-                        }
-
-                    }
-
-                }
-            }
-
-            if(!hasMatch) {
-                match = false;
-                addActionEntry({ 
-                    text  : 'Add role <b>' + source.name + '</b>', 
-                    step : step,
-                    url   : url });
-            }
-
-            addReportDetail('Role', source.name, reportMatch);
-
-        }
-
-        for(let target of listTarget) {
-            if(!target.hasMatch) {
-                match = false;
-                matches.extraRoles = true;
-                addActionEntry({ 
-                    text : 'Remove role <b>' + target.name + '</b> in ' + environments.target.tenantName, 
-                    step : step,
-                    url  : url
-                });
-            } else {
-                for(let permission of target.permissions.permission) {
-                    if(!permission.hasMatch) {
-                        match = false;
-                        matches.extraPermissions = true;
-                        console.log('2');
-                        console.log(definitions);
-                        console.log(permTarget);
-                        console.log(permission.id);
-                        addActionEntry({ 
-                            text : 'Remove permission <b>' + getPermissionLabel(permTarget, permission.id) + '</b> from role <b>' + target.name + '</b>', 
-                            step : step,
-                            url  : url
-                            // comp : {
-                            //     source : '/adminRolePermissionsManage.do?roleId=' + target.sourceId,
-                            //     target : '/adminRolePermissionsManage.do?roleId=' + target.id
-                            // }
-                        });
-                    }
-                }
-            }
-        }    
-
-        if(!matches.description     ) { match = false; addLogEntry('Descriptions of roles do not match'); }
-        if(!matches.permissions     ) { match = false; addLogEntry('Permission in roles do not match'); }
-        if( matches.extraRoles      ) { match = false; addLogEntry('There are additional roles in '+ environments.target.tenantName); }
-        if( matches.extraPermissions) { match = false; addLogEntry('There are additional permisions in matching roles in '+ environments.target.tenantName); }
-
-        $('#summary-roles').html('Roles : ' + listSource.length);
-
-        if(match) {
-            addLogEntry('Workspace Roles match', 'match');
-            $('#result-roles').addClass('match');
-        } else {
-            addLogEntry('Workspace Roles do not match', 'diff');
-            $('#result-roles').addClass('diff');
-        }
-
-        $('#result-roles').find('.result-compare').show();
-
-        compareScriptSources();
-
-    });
-
-}
-function getPermissionLabel(definitions, id) {
-
-    let label = '';
-
-    for(let definition of definitions) {
-        if(definition.id === id) {
-            label = definition.name
-            break;
-        }
-    }
-
-    return label;
 
 }
 

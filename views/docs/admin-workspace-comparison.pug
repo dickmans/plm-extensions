@@ -32,12 +32,19 @@
         p As the REST API does not reveal all details about the workspace configuration, some information cannot be compared automatically (for example the formulas of computed fields). Please see the given details about such limitations within this utility.
         p Before starting any comparison, you must define the tenants to compare. To do so, enter the given tenant names (without the autodeskplm360.net domain) in the given input fields on top. The default tenant of the UX extensions server will be set automatically at startup. As you enter the tenant names, their list of worksapces will be retrieved in order to populate the workspaces drop downs below the tenant names. When using option #2, you may also use the same tenant name in order to compare two different workspaces within the same tenant. 
         img(src='images/apps/workspace-comparison-6.png' style='max-width:1200px;')
-        p You can also predefine the second tenant at startup by appending the URL parameter options followed by the tenant's name when accessing the comparison utility:
-            br
-            span.code &amp;options=adsk2504test01.
-            br
-            |Once the tenants have been defined, you can already export key configuration information of your tenants using the given buttons in the global header toolbar: 
+        p Once the tenants have been defined, you can already export key configuration information of your tenants using the given buttons in the global header toolbar: 
         img(src='images/apps/workspace-comparison-5.png' style='max-width:1200px;')
+        h2 Startup Parameters 
+        p You can use the options parameter in the URL to predefine key options and to let the comparison start automatically. The following parameters are supported: 
+        ul 
+            li target can be used to define the target tenant name
+            li workspace can be used to select the workspace to be compared by providing the workspace ID 
+            li start can be set to true in order to let the comparison start once the initial workspace list has been loaded for both the source and target tenant. 
+                br
+                |This option requires the previous options target and workspace.
+        p As an example, you can set the target tenant, the workspace name and let the comparison start automatically like this: 
+            br
+            span.code ../workspace-comparison?options=target:adsk2504test01,workspace:WS_CHANGE_ORDERS,start:true
         h1 Mode #1: Comparing Full Tenants
         p The full tenant comparison can be started immediately, as this is the default option. If you do not select a specific workspace in the base tenant's list of workspaces, the system will automatically perform a comparison of all 
         ul 
@@ -84,6 +91,18 @@
     .log 
         h1 Tenant Insights Change Log 
         table 
+            tr 
+                td 30. January 2026
+                td Enhancement
+                td Updated the options URL parameter to target the 2nd tenant and workspace drop down directly. One can now also start the comparison automatically.
+            tr 
+                td 
+                td Enhancement
+                td As the current user's workspace permissions impact the comparison results, the given comparison has been moved to the beginning of the process
+            tr 
+                td 
+                td Enhancement
+                td Workflow permissions now get compared by name as well, not only by ids
             tr 
                 td 19. January 2026
                 td Enhancement
