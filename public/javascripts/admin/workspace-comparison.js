@@ -29,6 +29,11 @@ $(document).ready(function() {
         if(isAdmin) {
 
             appendOverlay(false);
+
+            if(!isBlank(urlParameters.source)) {
+                $('#source-tenant').val(urlParameters.source);
+            }
+
             getWorkspaces('source', function() {
 
                 if(!isBlank(urlParameters.workspace)) {
