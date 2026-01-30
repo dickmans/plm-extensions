@@ -1094,16 +1094,16 @@ function compareItemDetailsTab() {
         $.get('/plm/picklists', { tenant : environments.target.tenantName })
     ]
 
-    Promise.all(requests).then(function(responses) {      
+    Promise.all(requests).then(function(responses) {     
+        
+        environments.source.picklists = responses[2].data.list.picklist;
+        environments.target.picklists = responses[5].data.list.picklist;
         
         let sectionsSource  = responses[0].data;
         let fieldsSource    = responses[1].data;
         let sectionsTarget  = responses[3].data;
         let fieldsTarget    = responses[4].data;
         let matches         = getItemDetailsMatch(sectionsSource, sectionsTarget, fieldsSource, fieldsTarget);
-
-        environments.source.picklists = responses[2].data.list.picklist;
-        environments.target.picklists = responses[5].data.list.picklist;
 
         $('#summary-details').html(' Sections : ' + sectionsSource.length + ' / Fields : ' + fieldsSource.length);
 
