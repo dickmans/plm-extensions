@@ -336,6 +336,10 @@ body.dark-theme #console-toggle:hover { background : var(--color-surface-level-4
     left     : 0px;
     justify-content: space-between;
 }
+.comparison-contents-actions {
+    display : flex;
+    gap     : 10px;
+}
 .comparison-contents-filters {
     display : flex;
     gap     : 10px;

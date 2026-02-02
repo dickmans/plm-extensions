@@ -1,6 +1,7 @@
-let mode          = 'all';
-let timestamp     = 0;
-let environments  = { 
+let fileHandler  =  null;
+let mode         = 'all';
+let timestamp    = 0;
+let environments = { 
     source     : { workspace : {}, workspaces : [], scripts : {}, picklists : [], groups : [], roles : [] },
     target     : { workspace : {}, workspaces : [], scripts : {}, picklists : [], groups : [], roles : [] },
     picklists  : [],
@@ -159,6 +160,13 @@ function setUIEvents() {
 
     $('.comparison-update').click(function() {
         updateComparison($(this));
+    });
+
+    $('#download-modified-scripts').click(function() {
+        $(this).toggleClass('toggle-on').toggleClass('toggle-off');
+        if($(this).hasClass('toggle-on')) {
+            fileHandler = window.showDirectoryPicker() ;
+        }
     });
 
     $('#comparison-contents input').on('keyup', function() {
@@ -3182,7 +3190,7 @@ function getWorkflowStatesMatch(listSource, listTarget, logPrefix) {
     if(!matches.locked ) { matches.all = false; addLogEntry(logPrefix + 'Workflow Lock State does not match', 'diff'); }
     if(!matches.managed) { matches.all = false; addLogEntry(logPrefix + 'Workflow Managed State does not match', 'diff'); }
     if( matches.extra  ) { matches.all = false; addLogEntry(logPrefix + 'There are additional workflow states in '+ environments.target.tenantName, 'diff'); }
-    if(!matches.layout ) addLogEntry(logPrefix + 'Workflow Layout does not match', 'diff');    
+    // if(!matches.layout ) addLogEntry(logPrefix + 'Workflow Layout does not match', 'diff');    
 
     return matches;
 
@@ -3723,6 +3731,7 @@ function compareScriptSources() {
                         target : '/script.form?ID=' + target.params.link.split('/').pop()
                     }
                 });
+                downloadModifiedScript(source, target);
             }
 
             if(source.importNames.toString() !== target.importNames.toString()) {
@@ -4817,6 +4826,7 @@ function compareNextScript(update) {
                 elemRow.find('.source' ).html(length.count ).prepend(getComparisonIcon(true,  length.match)); 
 
                 script.completed = true;
+                downloadModifiedScript(length.match, imports.match, script.uniqueName, responses)
                 applyContentFilters('comparison-scripts-filters');
                 compareNextScript(update);
 
@@ -4834,6 +4844,30 @@ function compareNextScript(update) {
     if(proceed) {
         if(update) endComparison(); else compareAllPicklists(false);
     }
+
+}
+function downloadModifiedScript(lengthsMatch, importsMatch, scriptName, responses) {
+
+    if($('#download-modified-scripts').hasClass('toggle-off')) return;
+
+    if(lengthsMatch) {
+        if(importsMatch) return;
+    }
+    if(responses.length < 2) return;
+
+    downloadModifiedScriptFile(scriptName, ' - SRC - ' + environments.source.tenantName, responses[0].data.code);
+    downloadModifiedScriptFile(scriptName, ' - TGT - ' + environments.target.tenantName, responses[1].data.code);
+
+}
+async function downloadModifiedScriptFile(scriptName, suffix, code) {
+
+    let fileName   = scriptName + suffix + '.js';
+    let dirHandler = await createDirectory(fileHandler, '');
+    let fileHandle = await dirHandler.getFileHandle(fileName, { create: true });
+    let writable   = await fileHandle.createWritable();
+
+    await writable.write(code);
+    await writable.close();
 
 }
 function compareAllPicklists(update) {

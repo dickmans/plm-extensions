@@ -192,15 +192,16 @@ block body
                             .comparison-update.button.with-icon.icon-refresh(data-context='workspaces') Update Comparison
                         #comparison-workspaces-filters.comparison-contents-filters
                             input.button.hidden(type="text" placeholder='Type to search')
-                            select.button.hidden#comparison-filter(name="")                   
+                            select.button.hidden(name="")                   
                     #comparison-workspaces-table.comparison-contents-table.no-scrollbar
                 #comparison-scripts
                     .comparison-contents-toolbar
                         .comparison-contents-actions
                             .comparison-update.button.with-icon.icon-refresh(data-context='scripts') Update Comparison
+                            .button.with-toggle.toggle-off#download-modified-scripts Download Non-Matching Scripts
                         #comparison-scripts-filters.comparison-contents-filters
                             input.button.hidden(type="text" placeholder='Type to search')
-                            select.button.hidden#comparison-filter(name="")                    
+                            select.button.hidden(name="")                    
                     #comparison-scripts-table.comparison-contents-table.no-scrollbar
                 #comparison-picklists
                     .comparison-contents-toolbar
@@ -208,7 +209,7 @@ block body
                             .comparison-update.button.with-icon.icon-refresh(data-context='picklists') Update Comparison
                         #comparison-picklists-filters.comparison-contents-filters
                             input.button.hidden(type="text" placeholder='Type to search')
-                            select.button.hidden#comparison-filter(name="")                     
+                            select.button.hidden(name="")                     
                     #comparison-picklists-table.comparison-contents-table.no-scrollbar
                 #comparison-roles
                     .comparison-contents-toolbar
@@ -216,7 +217,7 @@ block body
                             .comparison-update.button.with-icon.icon-refresh(data-context='roles') Update Comparison
                         #comparison-roles-filters.comparison-contents-filters
                             input.button.hidden(type="text" placeholder='Type to search')
-                            select.button.hidden#comparison-filter(name="")                
+                            select.button.hidden(name="")                
                     #comparison-roles-table.comparison-contents-table.no-scrollbar            
                 #comparison-groups
                     .comparison-contents-toolbar
@@ -224,7 +225,7 @@ block body
                             .comparison-update.button.with-icon.icon-refresh(data-context='groups') Update Comparison
                         #comparison-groups-filters.comparison-contents-filters
                             input.button.hidden(type="text" placeholder='Type to search')
-                            select.button.hidden#comparison-filter(name="")                   
+                            select.button.hidden(name="")                   
                     #comparison-groups-table.comparison-contents-table.no-scrollbar            
 
             #dialog-limitations.dialog
