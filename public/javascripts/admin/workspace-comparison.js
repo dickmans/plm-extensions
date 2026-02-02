@@ -3932,12 +3932,13 @@ function getAllWorkspaces(update) {
                 source.categoryName = source.category.name;
                 all.names.push(source.systemName);
                 all.workspaces.push({
-                    systemName : source.systemName,
-                    name       : source.name,
-                    category   : source.category.name,
-                    type       : getWorkspaceTypeLabel(source),
-                    source     : source,
-                    target     : {}
+                    systemName  : source.systemName,
+                    name        : source.name,
+                    category    : source.category.name,
+                    description : source.description,
+                    type        : getWorkspaceTypeLabel(source),
+                    source      : source,
+                    target      : {}
                 });
             }
 
@@ -3950,12 +3951,13 @@ function getAllWorkspaces(update) {
             if(!all.names.includes(target.systemName)) {
                 all.names.push(target.systemName);
                 all.workspaces.push({
-                    systemName : target.systemName,
-                    name       : target.name,
-                    category   : target.category.name,
-                    type       : getWorkspaceTypeLabel(target),
-                    source     : {},
-                    target     : target
+                    systemName  : target.systemName,
+                    name        : target.name,
+                    category    : target.category.name,
+                    description : target.description,
+                    type        : getWorkspaceTypeLabel(target),
+                    source      : {},
+                    target      : target
                 });
             } else {
                 let entry = all.workspaces[all.names.indexOf(target.systemName)];
@@ -3981,6 +3983,7 @@ function getAllWorkspaces(update) {
         $('<th></th>').appendTo(elemTHRow).addClass('exists').html('Tenants');
         $('<th></th>').appendTo(elemTHRow).addClass('name').html('Name');
         $('<th></th>').appendTo(elemTHRow).addClass('category').html('Category');
+        $('<th></th>').appendTo(elemTHRow).addClass('description').html('Description');
         $('<th></th>').appendTo(elemTHRow).addClass('type').html('Type');
         $('<th></th>').appendTo(elemTHRow).addClass('wstabs').html('TAB').attr('title', 'Workspace Tabs configuration settings, counters indicate number of visible tabs');
         $('<th></th>').appendTo(elemTHRow).addClass('details').html('DET').attr('title', 'Item Details tab configuration settings, counters inidicate number of sections');
@@ -4012,6 +4015,7 @@ function getAllWorkspaces(update) {
 
             $('<td></td>').appendTo(elemRow).addClass('name').html(workspace.name).prepend(getComparisonIcon(workspace.source.name, workspace.target.name)); 
             $('<td></td>').appendTo(elemRow).addClass('category').html(workspace.category).prepend(getComparisonIcon(workspace.source.categoryName, workspace.target.categoryName)); 
+            $('<td></td>').appendTo(elemRow).addClass('description').html(workspace.description).prepend(getComparisonIcon(workspace.source.description, workspace.target.description)); 
             $('<td></td>').appendTo(elemRow).addClass('type').html(workspace.type).prepend(getComparisonIcon(workspace.source.type, workspace.target.type)); 
             $('<td></td>').appendTo(elemRow).addClass('wstabs').append(elemIconPending.clone());
             $('<td></td>').appendTo(elemRow).addClass('details').append(elemIconPending.clone());
@@ -4050,6 +4054,7 @@ function openWorkspaceControlSideBySide(elemClicked) {
 
          if(elemClicked.hasClass('name'         )) type = 'workspace-settings';
     else if(elemClicked.hasClass('category'     )) type = 'workspace-category';
+    else if(elemClicked.hasClass('description'  )) type = 'workspace-settings';
     else if(elemClicked.hasClass('type'         )) type = 'workspace-settings';
     else if(elemClicked.hasClass('wstabs'       )) type = 'workspace-tabs';
     else if(elemClicked.hasClass('details'      )) type = 'workspace-details';

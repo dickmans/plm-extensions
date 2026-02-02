@@ -397,6 +397,7 @@ td.exists > div.icon-compare {
 .row-workspace .icon-compare { display : none; }
 .row-workspace .name,
 .row-workspace .category,
+.row-workspace .description,
 .row-workspace .type,
 .row-workspace .wstabs,
 .row-workspace .details,
@@ -411,6 +412,7 @@ td.exists > div.icon-compare {
 .row-workspace .icon-compare { display : none; }
 .row-workspace .name:hover,
 .row-workspace .category:hover,
+.row-workspace .description:hover,
 .row-workspace .type:hover,
 .row-workspace .wstabs:hover,
 .row-workspace .details:hover,
@@ -422,6 +424,10 @@ td.exists > div.icon-compare {
 .row-workspace .behaviors:hover,
 .row-workspace .states:hover,
 .row-workspace .transitions:hover { background : var(--color-blue-600); color : white; }
+
+.row-workspace .description {
+    max-width : 100px;
+}
 
 
 .missing-base   > .exists > .base,
