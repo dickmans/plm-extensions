@@ -6126,30 +6126,35 @@ router.get('/users', function(req, res, next) {
     console.log('  req.query.activeOnly = ' + req.query.activeOnly);
     console.log('  req.query.mappedOnly = ' + req.query.mappedOnly);
     console.log('  req.query.tenant     = ' + req.query.tenant);
+    console.log('  req.query.useCache   = ' + req.query.useCache);
     console.log();
 
-    let bulk       = (typeof req.query.bulk       === 'undefined') ?    true : req.query.bulk;
-    let limit      = (typeof req.query.limit      === 'undefined') ?    1000 : req.query.limit;
-    let offset     = (typeof req.query.offset     === 'undefined') ?       0 : req.query.offset;
-    let activeOnly = (typeof req.query.activeOnly === 'undefined') ? 'false' : req.query.activeOnly;
-    let mappedOnly = (typeof req.query.mappedOnly === 'undefined') ? 'false' : req.query.mappedOnly;
-    let url = getTenantLink(req) + '/api/v3/users?sort=displayName'
-        + '&activeOnly=' + activeOnly
-        + '&mappedOnly=' + mappedOnly
-        + '&offset='     + offset
-        + '&limit='      + limit;
+    if(notCached(req, res)) {   
 
-    let headers = getCustomHeaders(req);
-        
-    if(bulk) headers.Accept = 'application/vnd.autodesk.plm.users.bulk+json';
+        let bulk       = (typeof req.query.bulk       === 'undefined') ?    true : req.query.bulk;
+        let limit      = (typeof req.query.limit      === 'undefined') ?    1000 : req.query.limit;
+        let offset     = (typeof req.query.offset     === 'undefined') ?       0 : req.query.offset;
+        let activeOnly = (typeof req.query.activeOnly === 'undefined') ? 'false' : req.query.activeOnly;
+        let mappedOnly = (typeof req.query.mappedOnly === 'undefined') ? 'false' : req.query.mappedOnly;
+        let url = getTenantLink(req) + '/api/v3/users?sort=displayName'
+            + '&activeOnly=' + activeOnly
+            + '&mappedOnly=' + mappedOnly
+            + '&offset='     + offset
+            + '&limit='      + limit;
 
-    axios.get(url, {
-        headers : headers
-    }).then(function(response) {
-        sendResponse(req, res, response, false);
-    }).catch(function(error) {
-        sendResponse(req, res, error.response, true);
-    });
+        let headers = getCustomHeaders(req);
+            
+        if(bulk) headers.Accept = 'application/vnd.autodesk.plm.users.bulk+json';
+
+        axios.get(url, {
+            headers : headers
+        }).then(function(response) {
+            sendResponse(req, res, response, false);
+        }).catch(function(error) {
+            sendResponse(req, res, error.response, true);
+        });
+
+    }
 
 });
 
