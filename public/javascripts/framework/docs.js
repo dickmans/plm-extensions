@@ -888,6 +888,12 @@ let categories = [
     default     : 3,
     supportedBy : ['insert-bom']
 },{
+    name        : 'downloadRenames',
+    description : "Adds additional rename patterns to the download panel. Must contain properties fields, separator and label ( Example: [{ fields : ['NUMBER', 'PDM_ITEM_REVISION'], separator : ' ', label : 'Number PDM-Revision' }]",
+    type        : 'Array',
+    default     : [],
+    supportedBy : ['insert-bom']
+},{
     name        : 'includeRelatedFiles',
     description : 'When enabled, related attachments will be displayed as well',
     type        : 'Boolean',

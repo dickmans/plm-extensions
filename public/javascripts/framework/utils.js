@@ -3421,7 +3421,7 @@ function treeScrollToItem(elemClicked) {
     elemTree.animate({ scrollTop: top }, 500);
 
 }
-function treeToggleDownloadPanelAndColumn(id, downloadFormats) {
+function treeToggleDownloadPanelAndColumn(id, settings) {
 
     let elemTHRow           = $('#' + id + '-thead-row');
     let elmTHStatus         = elemTHRow.children('.tree-files-download-status');
@@ -3519,7 +3519,7 @@ function treeToggleDownloadPanelAndColumn(id, downloadFormats) {
             .attr('id', id + '-tree-files-download-formats');
 
 
-        for(let fileFormat of downloadFormats) {
+        for(let fileFormat of settings.downloadFormats) {
             
             let elemFormat = $('<div></div>').appendTo(elemFormats)
                 .addClass('tree-files-download-format')
@@ -3553,7 +3553,7 @@ function treeToggleDownloadPanelAndColumn(id, downloadFormats) {
             .attr('value', 'local-drive')
             .html('Local Drive');            
 
-        for(let folder of settings[id].downloadFolders) {
+        for(let folder of settings.downloadFolders) {
             $('<option></option>').appendTo(elemSelectFolder)
                 .attr('value', folder)
                 .html(folder);
@@ -3593,8 +3593,17 @@ function treeToggleDownloadPanelAndColumn(id, downloadFormats) {
             .addClass('button')
             .addClass('tree-files-download-rename')
             .attr('id', id + '-tree-files-download-rename');
+        
+            $('<option></option>').appendTo(elemSelectRename).attr('value', 'no'  ).html('No');
 
-        $('<option></option>').appendTo(elemSelectRename).attr('value', 'no'  ).html('No');
+        for(let option of settings.downloadRenames) {
+
+            let value = 'cust-' + elemSelectRename.children().length;
+
+            $('<option></option>').appendTo(elemSelectRename).attr('value', value).html(option.label);
+            
+        }
+
         $('<option></option>').appendTo(elemSelectRename).attr('value', 'fd'  ).html('Filename Date');
         $('<option></option>').appendTo(elemSelectRename).attr('value', 'df'  ).html('Date Filename');
         $('<option></option>').appendTo(elemSelectRename).attr('value', 'fv'  ).html('Filename Version');
@@ -3930,14 +3939,14 @@ async function startTreeDownload(id) {
         $('#' + downloadQueue.id + '-tree-files-download-counters-progress-done').css('width', '0%');
         $('#' + downloadQueue.id + '-tree-files-download-counters-progress-curr').css('width', '0%');
 
-        for(let i = 0; i < downloadQueue.requests; i++) processTreeDownloads(fileHandler, downloadQueue);
+        for(let i = 0; i < downloadQueue.requests; i++) processTreeDownloads(fileHandler, downloadQueue, settings[id]);
 
         // processTreeDownloads(fileHandler, downloadQueue);
 
     } catch (err) {}
 
 }
-async function processTreeDownloads(fileHandler, downloadQueue) {
+async function processTreeDownloads(fileHandler, downloadQueue, settings) {
 
     $('#' + downloadQueue.id + '-tree-files-download-counters-pending').html(downloadQueue.pending.length);
 
@@ -3956,6 +3965,8 @@ async function processTreeDownloads(fileHandler, downloadQueue) {
         let link      = downloadQueue.pending[0].link;
         let widthDone = (downloadQueue.counters.completed * 100 / downloadQueue.counters.total);
         let widthCurr = (1 * 100 / downloadQueue.counters.total);
+        let elemFiles = $('<div></div>').addClass('tree-files-downloaded');
+        let rename    = $('#' + downloadQueue.id + '-tree-files-download-rename').val();
 
         $('#' + downloadQueue.id + '-tree-files-download-counters-progress-done').css('width', widthDone + '%');
         $('#' + downloadQueue.id + '-tree-files-download-counters-progress-curr').css('width', widthCurr + '%');
@@ -3970,13 +3981,13 @@ async function processTreeDownloads(fileHandler, downloadQueue) {
             rootFolder    : downloadQueue.rootFolder,
             filenamesIn   : downloadQueue.formats,
             range         : downloadQueue.range,
+            getDetails    : (rename.indexOf('cust-') === 0),
             rename        : $('#' + downloadQueue.id + '-tree-files-download-rename').val(),
             folderPerItem : false,
             indexFile     : false,
             clearFolder   : false
         }
 
-        
         if((downloadQueue.subFolders === 'top') || (downloadQueue.subFolders === 'path')) {
 
             if(typeof downloadQueue.pending[0].index !== 'undefined') {
@@ -4027,10 +4038,6 @@ async function processTreeDownloads(fileHandler, downloadQueue) {
             url    : downloadQueue.endpoint
         }, params);
 
-        let elemFiles = $('<div></div>').addClass('tree-files-downloaded');
-        let rename    = $('#' + downloadQueue.id + '-tree-files-download-rename').val();
-
-
         if(rename !== 'no') {
             for(let attachment of response.data) {
 
@@ -4056,6 +4063,9 @@ async function processTreeDownloads(fileHandler, downloadQueue) {
                     case 'dvd' : attachment.name = title + ' V' + attachment.version + ' ' + date + fileSuffix; break;
                     case 'drv' : attachment.name = title + ' ' + revision + '.' + attachment.version + fileSuffix; break;
                     case 'drvd': attachment.name = title + ' ' + revision + '.' + attachment.version + ' ' + date + fileSuffix; break;
+                    default : 
+                        genNewCustomFilename(rename, attachment, settings);
+                        break;
                 }
 
             }
@@ -4162,9 +4172,29 @@ async function processTreeDownloads(fileHandler, downloadQueue) {
         }
 
         downloadQueue.success.push(response.params.link);
-        processTreeDownloads(fileHandler, downloadQueue)
+        processTreeDownloads(fileHandler, downloadQueue, settings)
 
     }
+
+}
+function genNewCustomFilename(rename, attachment, settings) {
+
+    let index = Number(rename.split('-')[1]) - 1;
+    let cust = settings.downloadRenames[index];
+
+    attachment.name = '';
+
+    for(let field of cust.fields) {
+
+        let value = getSectionFieldValue(attachment.details.sections, field, '');
+
+        if(attachment.name !== '') attachment.name += cust.separator;
+
+        attachment.name += value;
+
+    }
+
+    attachment.name += attachment.type.extension;
 
 }
 function sanitizeFilename(attachment) {

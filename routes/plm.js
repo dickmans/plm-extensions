@@ -2351,67 +2351,77 @@ router.get('/attachments', function(req, res, next) {
     console.log('  req.query.filenamesIn = ' + req.query.filenamesIn);
     console.log('  req.query.filenamesEx = ' + req.query.filenamesEx);
     console.log('  req.query.range       = ' + req.query.range);
+    console.log('  req.query.getDetails  = ' + req.query.getDetails);
     console.log();
 
-    let url =  (typeof req.query.link !== 'undefined') ? req.query.link : '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId;
-        url = req.app.locals.tenantLink + url + '/attachments?asc=name';
-
+    let link        = (typeof req.query.link !== 'undefined') ? req.query.link : '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId;
     let filenamesIn = (typeof req.query.filenamesIn !== 'undefined') ? req.query.filenamesIn.toLowerCase().split(',') : [];
     let filenamesEx = (typeof req.query.filenamesEx !== 'undefined') ? req.query.filenamesEx.toLowerCase().split(',') : [];
     let range       = (typeof req.query.range       !== 'undefined') ? Number(req.query.range) : '';
+    let getDetails  = (typeof req.query.getDetails  === 'undefined') ? false : (req.query.getDetails.toLowerCase() === 'true');
+    
+    let baseUrl     = getTenantLink(req);
+    let headers     = getCustomHeaders(req);
+    
+    headers.Accept = 'application/vnd.autodesk.plm.attachments.bulk+json';
 
-    let headers = getCustomHeaders(req);
-        headers.Accept = 'application/vnd.autodesk.plm.attachments.bulk+json';
+    let requests = [runPromised(baseUrl + link + '/attachments?asc=name', headers)];
 
-    axios.get(url, {
-        headers : headers
-    }).then(function(response) {
+    if(getDetails) requests.push(runPromised(baseUrl + link, req.session.headers));
 
-        let result = [];
+    Promise.all(requests).then(function(responses) {
 
-        if(response.data !== '') {
+        let result  = [];
 
-            for(let attachment of response.data.attachments) {
-                if(!isBlank(attachment.type)) {
-                    if(isBlank(attachment.type.extension)) {
-                        attachment.type.extension = '';
-                    }
-                }
-                let fileName  = attachment.resourceName + attachment.type.extension;
-                let included  = (filenamesIn.length === 0);
+        if(responses[0] !== '') {
+            if(responses[0].attachments !== '') {
 
-                fileName = fileName.toLowerCase();
+                for(let attachment of responses[0].attachments) {
 
-                if(!included) {
-                    for(let filenameIn of filenamesIn) {
-                        if((fileName.indexOf(filenameIn) >= 0)) {
-                            included = true;
+                    if(!isBlank(attachment.type)) {
+                        if(isBlank(attachment.type.extension)) {
+                            attachment.type.extension = '';
                         }
                     }
-                }
+                    let fileName  = attachment.resourceName + attachment.type.extension;
+                    let included  = (filenamesIn.length === 0);
 
-                if(included) {
-                    for(let filenameEx of filenamesEx) {
-                        if((fileName.indexOf(filenameEx) >= 0)) {
-                            included = false;
+                    fileName = fileName.toLowerCase();
+
+                    if(!included) {
+                        for(let filenameIn of filenamesIn) {
+                            if((fileName.indexOf(filenameIn) >= 0)) {
+                                included = true;
+                            }
                         }
                     }
-                }
 
-                if(included) {
-                    if(range !== '') {
-                        let created = attachment.created.timeStamp.split('T')[0].split('-');
-                        let date    = new Date(created[0], created[1], created[2]).getTime();
-                        included    = (date >= range);
+                    if(included) {
+                        for(let filenameEx of filenamesEx) {
+                            if((fileName.indexOf(filenameEx) >= 0)) {
+                                included = false;
+                            }
+                        }
                     }
+
+                    if(included) {
+                        if(range !== '') {
+                            let created = attachment.created.timeStamp.split('T')[0].split('-');
+                            let date    = new Date(created[0], created[1], created[2]).getTime();
+                            included    = (date >= range);
+                        }
+                    }
+
+                    if(responses.length > 1) attachment.details = responses[1];
+
+                    if(included) result.push(attachment);
+
                 }
 
-                if(included) result.push(attachment);
+            }        
+        }        
 
-            }
-
-        }
-        sendResponse(req, res, { data : result, status : response.status }, false);
+        sendResponse(req, res, { data : result, status : 200 }, false);
     }).catch(function(error) {
         sendResponse(req, res, error.response, true);
     });

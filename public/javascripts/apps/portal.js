@@ -140,6 +140,7 @@ function openItem(title) {
         downloadFiles       : config.downloadFiles,
         downloadRequests    : config.downloadRequests,
         downloadFormats     : config.downloadFormats,
+        downloadRenames     : config.downloadRenames || [],
         counters            : true,
         reload              : false,
         openInPLM           : true,

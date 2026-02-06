@@ -4966,6 +4966,7 @@ function insertBOM(link , params) {
         [ 'viewerSelection'     , false ],
         [ 'downloadFiles'       , false ],
         [ 'downloadRequests'    ,     1 ],
+        [ 'downloadRenames'     , []    ],
         [ 'downloadFormats'     , [
             { label : 'PDF'   , filter : ['.pdf']         , tooltip : '' },
             { label : 'STEP'  , filter : ['.step', '.stp'], tooltip : 'File suffix stp and step will be taken into account' },
@@ -5015,7 +5016,7 @@ function insertBOM(link , params) {
                 e.preventDefault();
                 e.stopPropagation();
                 if($(this).hasClass('disabled')) return;
-                treeToggleDownloadPanelAndColumn(id, settings[id].downloadFormats);
+                treeToggleDownloadPanelAndColumn(id, settings[id]);
             });
 
     }    

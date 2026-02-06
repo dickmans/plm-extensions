@@ -103,7 +103,13 @@ exports.applications = {
         //     workspaceId : null, // uses common.workspaceIds.items per default
         // }
     },
-    portal         : {},
+    portal         : {
+        // downloadRenames: [{
+        //     fields    : ['NUMBER', 'PDM_ITEM_REVISION'],
+        //     separator : ' ',
+        //     label     : 'Number PDM-Revision'
+        // }]        
+    },
     portfolio      : {},
     projects       : {},
     reports        : {},
