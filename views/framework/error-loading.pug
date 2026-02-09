@@ -1,0 +1,22 @@
+extends layout
+
+block head
+
+    link(rel='stylesheet', href='/stylesheets/framework/error.css')
+
+block body
+
+    .wrapper.centered.light.m
+        .error-icon.icon.icon-info 
+        .error-title Error Loading Page 
+        .error-message Please inform your administrator that the following URL could not be loaded: 
+            span.error-url#referrer
+        #error-retry.button.default(onclick="retry();") Retry
+
+    script.
+        document.getElementById('referrer').innerHTML = document.referrer;
+
+    script.
+        function retry() {
+            document.location.href = document.referrer;
+        }

@@ -35,9 +35,11 @@ $(document).ready(function() {
 
 });
 function beforeApplicationStart() {
-    
-    // Insert custom code here
-    // Update object config to modify application settings on demand
+
+    // Override this function to insert custom code befor applcation start
+    // You can update object config to modify application settings on demand
+    // To interrupt further page loading, you may render an error page:
+    // document.location.href = '../error-loading';
 
 }
 

@@ -54,6 +54,9 @@ router.get('/start', function(req, res, next) {
         theme : (typeof req.query.theme === 'undefined') ? req.app.locals.defaultTheme : req.query.theme
     });
 });
+router.get('/error-loading', function(req, res, next) {
+    res.render('framework/error-loading.pug');
+});
 
 
 
