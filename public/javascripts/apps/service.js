@@ -249,6 +249,9 @@ function setLandingPage(userName) {
 
         }
 
+    } else {
+        applicationFeatures.manageSparePartRequests = false;
+        applicationFeatures.manageProblemReports    = false;
     }
 
     if(applicationFeatures.manageSparePartRequests) {
