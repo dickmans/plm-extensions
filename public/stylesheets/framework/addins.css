@@ -117,14 +117,14 @@
 .addin #header .button {
     margin : 0px;
 }
-.light-theme #header.dark .button,
- .dark-theme #header.dark .button,
-.black-theme #header.dark .button {
+.addin.light-theme #header.dark .button,
+.addin.dark-theme  #header.dark .button,
+.addin.black-theme #header.dark .button {
     color : var(--color-font);
 }
-.light-theme #header.dark .button.default,
- .dark-theme #header.dark .button.default,
-.black-theme #header.dark .button.default {
+.addin.light-theme #header.dark .button.default,
+.addin.dark-theme  #header.dark .button.default,
+.addin.black-theme #header.dark .button.default {
     color : white;
 }
 
