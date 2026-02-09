@@ -15,7 +15,7 @@ block body
             p Unleash the power of Fusion Manage by utilizing its REST API to provide custom built frontends based on Autodesk Platform Services. All solutions manage data in PLM only. All business rules of PLM as well as access permissions still apply.
             div.side-toolbar
                 .button#version Review changes by 
-                    span#version-name 2. February 2026
+                    span#version-name 9. February 2026
                 .button#tenant Connected to 
                     span#tenant-name
                 .button#chrome Setup the matching 
@@ -44,6 +44,16 @@ block body
             .log#framework-changes 
                 h1 Framework Changes
                 table 
+                    tr  
+                        td 9. February 2026
+                        td Update
+                        td The definition of available services has been simplified by changing the logic of 
+                            span.code exports.server.servicesEnabled 
+                            |and removing the property 
+                            span.code exports.server.servicesDisabled
+                            |. 
+                            br
+                            |When users try accessing a disabled service, the default 404 error message will be displayed now. The disabled services also will be removed from the start menu now.
                     tr  
                         td 27. January 2026
                         td Enhancement

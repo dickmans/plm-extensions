@@ -1338,9 +1338,55 @@ exports.menu = [
 //  SERVER ROUTING
 // ---------------------------------------------------------------------------------------------------------------------------
 exports.server = {
-    landingPage      : '',  // Set the default URL to be opened if no app URL is provided (ie. '/portal', default is '')
-    servicesEnabled  : [],  // List the services to enable. Services not included will be disabled. Keep this array empty to keep all services enabled.
-    servicesDisabled : [],  // As an alternative to servicesEnabled, list services to disable here. Only services not included will be enabled.
+    landingPage     : '',  // Set the default URL to be opened if no app URL is provided (ie. '/portal', default is '')
+    servicesEnabled : {    // Defines the applications to enable. When an application is set to false, an error 404 page will be shown when users try accessing the given page.
+        
+        // End User Applications
+        abom           : true,  // Asset BOM Editor
+        classes        : true,  // Class Browser
+        client         : true,  // Mobile Client
+        dashboard      : true,  // Process Dashboard
+        explorer       : true,  // Product Data Explorer
+        impactanalysis : true,  // Change Impact Analysis
+        instances      : true,  // BOM Instances Editor
+        mbom           : true,  // Manufacturing BOM Editor
+        navigator      : true,  // Workspace Navigator
+        portal         : true,  // PLM POrtal
+        portfolio      : true,  // Product Portfoliio Catalog
+        projects       : true,  // Projects Dashobard
+        reports        : true,  // Reports Dashboard
+        reviews        : true,  // Design Reviews
+        sbom           : true,  // Service BOM Editor
+        service        : true,  // Service Portal
+        variants       : true,  // Variants Manager
+
+        // Administration Utitliies
+        comparison         : true,  // Tenant Comparison
+        data               : true,  // Data Manager
+        insights           : true,  // Tenant Insights
+        'outstanding-work' : true,  // Outstanding Works Report
+        shortcuts          : true,  // Administration Shortcuts
+        users              : true,  // User Settings Manager
+
+        // Addins
+        context      : true,  // Item Where used
+        item         : true,  // Item Master Data
+        login        : true,  // PDM Login
+        'pdm-search' : true,  // PDM Search
+        projects     : true,  // Engineering Projects
+        tasks        : true,  // My Tasks List
+
+        // Framework Services
+        docs               : true,
+        landing            : true,
+        troubleshooting    : true,
+        start              : true,
+        gallery            : true,
+        template           : true,
+        playground         : true,
+        'chrome-extension' : true,
+
+    }
 }
 
 

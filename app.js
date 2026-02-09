@@ -66,6 +66,7 @@ if ((process.argv.length > 2) && (!fs.existsSync('./' + fileEnvironment))) {
     let custom   = require('./settings/' + environment.settings);
 
     mergeSettings(settings, custom);
+    removeDisabledServicesFromMenu(settings.menu, settings.server);
 
     settings.chrome.workspaces = settings.common.workspaceIds;
 
@@ -107,9 +108,10 @@ if ((process.argv.length > 2) && (!fs.existsSync('./' + fileEnvironment))) {
 
     // CATCH 404 AND FORWARD TO ERROR HANDLER
     app.use(function(req, res, next) {
-        var err = new Error('Not Found');
-        err.status = 404;
-        next(err);
+        res.locals.message = 'Page not found';
+        res.locals.error = { status : 404 };
+        res.status(404);
+        res.render('framework/error');
     });
 
 
@@ -177,5 +179,25 @@ function mergeSettingsProperty(master, custom, property) {
             }
         }
    } else master[property] = custom[property];
+
+}
+
+function removeDisabledServicesFromMenu(menu, server) {
+
+    for(let column of menu) {
+        for(let category of column) {
+            for(let index = category.commands.length - 1; index >= 0; index--) {
+
+                let command = category.commands[index];
+                let url     = command.url.split('/')[1];
+                    url     = url.split('?')[0];
+
+                if(!server.servicesEnabled[url]) {
+                    category.commands.splice(index, 1); 
+                }
+                    
+            }
+        }
+    }
 
 }

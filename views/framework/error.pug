@@ -1,6 +1,12 @@
 extends layout
 
+block head
+
+    link(rel='stylesheet', href='/stylesheets/framework/error.css')
+
 block body
-    h1= message
-    h2= error.status
-    pre #{error.stack}
+
+    .wrapper.centered.light
+        .error-code= error.status
+        .error-title= message
+        .error-message= error.stack

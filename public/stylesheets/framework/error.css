@@ -10,6 +10,20 @@
     top             : calc(50% - 300px);
     left            : calc(50% - 355px);
 }
+.wrapper.centered > div {
+    text-align : center;
+}
+.wrapper.light {
+    background : white;
+    color      : black;
+}
+.error-code {
+    color       : var(--color-blue-500);
+    font-size   : 128px;
+    font-weight : 800;
+    line-height : 96px;
+    padding     : 10px;
+}
 .error-title {
     font-size   : 32px;
     font-weight : 800;

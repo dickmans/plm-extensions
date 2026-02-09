@@ -139,26 +139,8 @@ exports.menu = []
 //  SERVER ROUTING
 // ---------------------------------------------------------------------------------------------------------------------------
 exports.server = {
-    landingPage      : '',  // Set the default URL to be opened if no app URL is provided (ie. '/portal', default is '')
-    servicesEnabled  : [
-        // List the services to enable. Services not included will be disabled. 
-        // Keep this array empty to keep all services enabled.  
-        // See list of example values below.
-        // ----------------------------------------------------------
-        // 'client',
-        // 'portal',
-        // 'service',
-    ],  
-    servicesDisabled : [
-        // As an alternative to servicesEnabled, list services to disable here.
-        // Only services not included will be enabled.
-        // See list of example values below.
-        // ----------------------------------------------------------
-        // 'client',
-        // 'insights',
-        // 'outstanding-work',
-        // 'projects',
-    ],  
+    landingPage     : '',  // Set the default URL to be opened if no app URL is provided (default is '')
+    servicesEnabled : {}   // Defines the applications to enable. When an application is set to false, an error 404 page will be shown when users try accessing the given page.
 }
 
 

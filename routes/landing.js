@@ -152,7 +152,7 @@ router.get('/transmittals' , function(req, res, next) { launch('dev/transmittals
 /* ------------------------------------------------------------------------------
     LAUNCH APPLICATION
    ------------------------------------------------------------------------------ */
-function launch(appURL, appSettings, appTitle, req, res, next) {
+function launch(appURL, appSettings, appTitle, req, res) {
 
     if(isServiceDisabled(appURL, req, res)) return;
 
@@ -298,14 +298,16 @@ function isServiceDisabled(appURL, req, res) {
 
     let urlEnd = appURL.split('/').pop();
 
-    if(req.app.locals.server.servicesEnabled.length === 0) {
-        if(req.app.locals.server.servicesDisabled.length === 0)     { return false; }
-        if(req.app.locals.server.servicesDisabled.includes(urlEnd)) { return false; }
-    } if(req.app.locals.server.servicesEnabled.includes(urlEnd))    { return false; }
+    if(req.app.locals.server.servicesEnabled[urlEnd]) return false;
 
-    res.render('framework/notFound');
+    res.locals.message = 'Page not found';
+    res.locals.error = { status : 404, stack : 'Cound not find /' + urlEnd + ' on this server'};
     
+    res.status(404);
+    res.render('framework/error');
+
     return true;
+
 }
 function base64URLEncode(str) {
     return str.toString('base64')
