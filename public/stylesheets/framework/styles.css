@@ -2085,12 +2085,16 @@ and (max-device-width : 1900px)  {
 .black-theme.surface-level-5 .panel-controls-spacer {  background : var(--color-surface-level-2); }
 
 .panel-search.button {
-    gap     : 2px;
-    height  : 24px;
-    padding : 6px;
+    gap       : 2px;
+    height    : 24px;
+    padding   : 6px;
+    max-width : 220px;
+    min-width : 220px;
+    width     : 220px;
 }
 .panel-search-input {
-    width : 76px;
+    flex-grow : 1;
+    min-width : 76px;
 }
 .panel-controls > .panel-search > .button {
     font-size   : 22px;

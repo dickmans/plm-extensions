@@ -1839,7 +1839,7 @@ function genPanelSearchInput(id, panelSettings) {
         .addClass('icon')
         .addClass('icon-prev')
         .addClass('icon-continue')
-        .css('z-index', -1)
+        .addClass('hidden')
         .attr('id', id + '-filter').click(function() {
             panelContinueSearch(id, 'prev');
         });
@@ -1849,7 +1849,7 @@ function genPanelSearchInput(id, panelSettings) {
         .addClass('icon')
         .addClass('icon-next')
         .addClass('icon-continue')
-        .css('z-index', -1)
+        .addClass('hidden')
         .attr('id', id + '-filter').click(function() {
             panelContinueSearch(id, 'next');
         });
@@ -1863,7 +1863,7 @@ function panelToggleSearchMode(id, elemClicked) {
 
     elemClicked.addClass('default');
     elemClicked.siblings('.icon').removeClass('default');
-    elemClicked.siblings('.icon-continue').css('z-index', '-1');  
+    elemClicked.siblings('.icon-continue').addClass('hidden') 
 
     filterPanelContent(id);
 
@@ -2772,15 +2772,15 @@ function filterPanelContent(id) {
     elemContent.find('.content-item').removeClass('search-match');
 
     if(searchMode === 'search') {
+        elemSearchInput.siblings('.icon-continue').removeClass('hidden')
         if(searchInputValue !== '') {
-            elemSearchInput.siblings('.icon-continue').css('z-index', '');
             elemContent.find('.content-item.result').first().each(function() {
                 $(this).addClass('search-match');
                 let top = $(this).position().top - (elemContent.innerHeight() / 2);
                 elemContent.animate({ scrollTop: top }, 500);
             });
         } else {
-            elemSearchInput.siblings('.icon-continue').css('z-index', '-1');
+            elemSearchInput.siblings('.icon-continue').addClass('hidden');
         }
     }
 
