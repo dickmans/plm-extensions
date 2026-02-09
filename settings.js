@@ -88,7 +88,7 @@ exports.common = {
         splitPartNumberIndexes : [0],
         splitPartNumberSpacer  : '',
         backgroundColor        : [255, 255, 255, 255, 255, 255],
-        cacheInstances         : false,
+        cacheInstances         : true,
         antiAliasing           : true,
         ambientShadows         : true,
         groundReflection       : false,
