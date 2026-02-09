@@ -1,11 +1,11 @@
-.tile(data-name='Workspace Comparison' data-id='comparison')
-    .tile-image(style="background: url('images/admin-workspace-comparison.png') no-repeat;background-size:contain;")
+.tile(data-name='Tenant Comparison' data-id='comparison')
+    .tile-image(style="background: url('images/admin-comparison.png') no-repeat;background-size:contain;")
     .tile-details
-        .tile-title Workspace Comparison
-        .tile-subtitle Deploy changes across multiple tenants with confidence with this automated comparison of selected workspaces
+        .tile-title Tenant Comparison
+        .tile-subtitle Deploy changes across multiple tenants with confidence by using this automated comparison of tenants or selected workspaces
         .tile-access 
-            .tile-endpoint /workspace-comparison
-            .tile-button.button.default(href="workspace-comparison" target="_blank") Open
+            .tile-endpoint /comparison
+            .tile-button.button.default(href="comparison" target="_blank") Open
             .tile-button.button.icon.icon-start.default(href="https://youtu.be/llQtsclH-L0" target="_blank")
     .instructions
         h1 Features &amp; Base Instructions
@@ -31,9 +31,9 @@
             li Workflow Scripts
         p As the REST API does not reveal all details about the workspace configuration, some information cannot be compared automatically (for example the formulas of computed fields). Please see the given details about such limitations within this utility.
         p Before starting any comparison, you must define the tenants to compare. To do so, enter the given tenant names (without the autodeskplm360.net domain) in the given input fields on top. The default tenant of the UX extensions server will be set automatically at startup. As you enter the tenant names, their list of worksapces will be retrieved in order to populate the workspaces drop downs below the tenant names. When using option #2, you may also use the same tenant name in order to compare two different workspaces within the same tenant. 
-        img(src='images/apps/workspace-comparison-6.png' style='max-width:1200px;')
+        img(src='images/apps/comparison-6.png' style='max-width:1200px;')
         p Once the tenants have been defined, you can already export key configuration information of your tenants using the given buttons in the global header toolbar: 
-        img(src='images/apps/workspace-comparison-5.png' style='max-width:1200px;')
+        img(src='images/apps/comparison-5.png' style='max-width:1200px;')
         h2 Startup Parameters 
         p You can use the options parameter in the URL to predefine key options and to let the comparison start automatically. The following parameters are supported: 
         ul 
@@ -45,7 +45,7 @@
                 |This option requires the previous options target and workspace.
         p As an example, you can set the target tenant, the workspace name and let the comparison start automatically like this: 
             br
-            span.code ../workspace-comparison?options=target:adsk2504test01,workspace:WS_CHANGE_ORDERS,start:true
+            span.code ../comparison?options=target:adsk2504test01,workspace:WS_CHANGE_ORDERS,start:true
         h1 Mode #1: Comparing Full Tenants
         p The full tenant comparison can be started immediately, as this is the default option. If you do not select a specific workspace in the base tenant's list of workspaces, the system will automatically perform a comparison of all 
         ul 
@@ -57,11 +57,11 @@
         p Simply click the Start button to the right to start the comparison. If you are interested in only one of these configuration areas, you can also click the button 
             strong Update Comparison 
             |in the given tab of interest. In any case, the system will first get the list of all elements from both tenants to reveal missing elements (like missing workspaces) before comparing the details by using additional requests.
-        img(src='images/apps/workspace-comparison-7.png' style='max-width:1200px;')
+        img(src='images/apps/comparison-7.png' style='max-width:1200px;')
         p You can track the comparison progression in the console panel to the right, highlighting the differences being found. If needed, you can disable the automatic scrolling by using toggel in the console's top right corner. You can also clear the console contents with the given actioni button when needed.
-        img(src='images/apps/workspace-comparison-8.png' style='max-width:1200px;')
+        img(src='images/apps/comparison-8.png' style='max-width:1200px;')
         p Each tab (Workspaces, Scripts, Picklists ...) indicates if the given elements exist in both or only one of the defined tenants in column Tenants. In all tabs (except the Workspaces tab), you can click the green elements of column Tenants to open the given admin utility. However, in the Workspaces tab, you can instead click the counters in columns TAB, DET etc to open the given workspace manager utility of both tenants side by side.
-        img(src='images/apps/workspace-comparison-10.png' style='max-width:1200px;')
+        img(src='images/apps/comparison-10.png' style='max-width:1200px;')
         p The columns with counters in the first tab 
             strong Workspaces 
             |indiciate differences in the given workspace manager utility by color: 
@@ -77,21 +77,25 @@
             li WFL = Workflow States, counters inidicate the total number of workflow steps
             li TRS = Workflow Transitions, counters inidicate the number of workflow transitions
         p Free-text filters and predefined filters are available in all of the tabs. They get applied automatically as the table refreshes, so you do not need to wait for the comparison to finish.
-        img(src='images/apps/workspace-comparison-9.png' style='max-width:1200px;')
+        img(src='images/apps/comparison-9.png' style='max-width:1200px;')
         h1 Mode #2: Comparing Selected Workspaces 
         p In order to launch the detaile workspace based comparion, simply select the workspaces to compare in each tenant's workspaces drop donw. As you select a workspace in the Base Tenant, the utility will automatically unhide the workspaces list of the target tenant and select the matching entry if available. You can always return to mode #1 and its results by selecting the first entry of the base tenant's workspaces list named 
             strong All Workspaces, Scripts, etc. 
             |You can run the comparison by clicking the blue Start button. Once the comparison is running, you can click the Stop button to end the process whenever needed.
-        img(src='images/apps/workspace-comparison-1.png' style='max-height:800px;max-width:1200px;')
+        img(src='images/apps/comparison-1.png' style='max-height:800px;max-width:1200px;')
         p While the comparison is running, summary information will be added to the sections at bottom. These counters relate to the Base Tenant and show the nubmer of field being found for example. The color indicator reveals if the given configuration settings match with the Target Tenant.
-        img(src='images/apps/workspace-comparison-2.png' style='max-height:286px;max-width:1200px;')
+        img(src='images/apps/comparison-2.png' style='max-height:286px;max-width:1200px;')
         p Next to these indicators, you will find instructions about how to sync the given workspaces. These instructions refer to the field and setting to be changed and provide the given details. You can click these instructions to open the given administration utility for the Target Tenant. Once the given change has been applied, you can click the checkbox to remind yourself about your progress.
-        img(src='images/apps/workspace-comparison-3.png' style='max-height:437px;max-width:1200px;')
+        img(src='images/apps/comparison-3.png' style='max-height:437px;max-width:1200px;')
         p If you prefer a graphic report about matches and differences, click the Report button which gets enabled once the comparison is complete. This report may be helpful to when reviewing the differences.
-        img(src='images/apps/workspace-comparison-4.png' style='max-height:800px;max-width:1200px;')
+        img(src='images/apps/comparison-4.png' style='max-height:800px;max-width:1200px;')
     .log 
         h1 Tenant Insights Change Log 
         table 
+            tr 
+                td 9. February 2026
+                td Update
+                td Renamed endpoint of this solution to /comparison to better reflect its new set of capabilities
             tr 
                 td 2. February 2026
                 td Enhancement

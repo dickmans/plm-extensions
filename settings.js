@@ -1301,9 +1301,9 @@ exports.menu = [
             url      : '/data'
         },{
             icon     : 'icon-rules',
-            title    : 'Workspace Comparison',
+            title    : 'Tenant Comparison',
             subtitle : 'Deploy changes securely with automated comparison',
-            url      : '/workspace-comparison'
+            url      : '/comparison'
         },{
             icon     : 'icon-bar-chart-stack',
             title    : 'Tenant Insights',
