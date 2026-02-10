@@ -3600,7 +3600,7 @@ function treeToggleDownloadPanelAndColumn(id, settings) {
         
             $('<option></option>').appendTo(elemSelectRename).attr('value', 'no'  ).html('No');
 
-        for(let option of settings.downloadRenames) {
+        for(let option of settings.downloadPatterns) {
 
             let value = 'cust-' + elemSelectRename.children().length;
 
@@ -4184,7 +4184,7 @@ async function processTreeDownloads(fileHandler, downloadQueue, settings) {
 function genNewCustomFilename(rename, attachment, settings) {
 
     let index = Number(rename.split('-')[1]) - 1;
-    let cust = settings.downloadRenames[index];
+    let cust = settings.downloadPatterns[index];
 
     attachment.name = '';
 

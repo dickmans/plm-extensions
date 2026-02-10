@@ -721,7 +721,7 @@ exports.applications = {
             { label : 'STEP'  , filter : ['.step', '.stp'], tooltip : 'File suffix stp and step will be taken into account' },
             { label : 'Office', filter : ['.docx', '.doc', 'xls', 'xlsx', 'ppt', 'pptx'], tooltip : 'This will download all files with suffix doc, docx, xls, xlsx, ppt and pptx' },
         ],
-        downloadRenames  : [],
+        downloadPatterns : [],
         expandSections   : ['Basic'],
         sectionsExcluded : ['AML Summary', 'Quality Inspection', 'Sustainability', 'Compliance', 'Others'],
         sectionsIncluded : [],

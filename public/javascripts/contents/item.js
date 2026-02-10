@@ -4966,7 +4966,7 @@ function insertBOM(link , params) {
         [ 'viewerSelection'     , false ],
         [ 'downloadFiles'       , false ],
         [ 'downloadRequests'    ,     1 ],
-        [ 'downloadRenames'     , []    ],
+        [ 'downloadPatterns'    , []    ],
         [ 'downloadFormats'     , [
             { label : 'PDF'   , filter : ['.pdf']         , tooltip : '' },
             { label : 'STEP'  , filter : ['.step', '.stp'], tooltip : 'File suffix stp and step will be taken into account' },

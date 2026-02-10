@@ -104,7 +104,7 @@ exports.applications = {
         // }
     },
     portal         : {
-        // downloadRenames: [{
+        // downloadPatterns : [{
         //     fields    : ['NUMBER', 'PDM_ITEM_REVISION'],
         //     separator : ' ',
         //     label     : 'Number PDM-Revision'
