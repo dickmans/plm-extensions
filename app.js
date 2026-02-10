@@ -156,7 +156,9 @@ function mergeSettingsProperty(master, custom, property) {
     } else if(keysCustom.length > 0) {
         for(let key of keysCustom) {
             let keyProperty = custom[property][key];
-            if(Array.isArray(keyProperty)) {  
+            if(!master[property].hasOwnProperty(key)) {
+                master[property][key] = keyProperty;
+            } else if(Array.isArray(keyProperty)) {  
                 if(keyProperty.length === 0) {
                     master[property][key] = keyProperty;
                 } else if(typeof keyProperty[0] === 'string') {
