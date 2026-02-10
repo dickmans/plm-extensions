@@ -260,6 +260,7 @@
 .icon-download::before          { content : '\e8d7'; }
 .icon-duration::before          { content : '\f3e5'; }
 .icon-ends-with::before         { content : '\e31c'; }
+.icon-motor::before             { content : '\f168'; }
 .icon-equals::before            { content : '\f77b'; }
 .icon-expand::before            { content : '\e5cc'; }
 .icon-factory::before           { content : '\ebbc'; }
@@ -272,11 +273,13 @@
 .icon-fold::before              { content : '\e5d6'; }
 .icon-folder::before            { content : '\e2c7'; }
 .icon-folder-open::before       { content : '\e2c8'; }
+.icon-gears::before             { content : '\e726'; }
 .icon-go-there::before          { content : '\e5da'; }
 .icon-goto-folder::before       { content : '\e675'; }
 .icon-group::before             { content : '\e7ef'; }
 .icon-group-add::before         { content : '\e7f0'; }
 .icon-help::before              { content : '\f1c0'; }
+.icon-help-circle::before       { content : '\e887'; }
 .icon-hide::before              { content : '\e8f5'; }
 .icon-highlight::before         { content : '\e518'; }
 .icon-history::before           { content : '\e889'; }
@@ -331,6 +334,7 @@
 .icon-rewind::before            { content : '\e020'; }
 .icon-role::before              { content : '\ea67'; }
 .icon-rules::before             { content : '\f1c2'; }
+.icon-safety::before            { content : '\e1d5'; }
 .icon-save::before              { content : '\e2c3'; }
 .icon-screenshot::before        { content : '\e412'; }
 .icon-script::before            { content : '\e86f'; }
@@ -340,6 +344,7 @@
 .icon-select::before            { content : '\f718'; }
 .icon-select-circle::before     { content : '\f511'; }
 .icon-select-all::before        { content : '\e877'; }
+.icon-sensor::before            { content : '\e51e'; }
 .icon-service::before           { content : '\f10b'; }
 .icon-settings::before          { content : '\e8b8'; }
 .icon-shipping::before          { content : '\e558'; }
