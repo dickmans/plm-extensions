@@ -4349,8 +4349,6 @@ function insertGrid(link, params) {
     genPanelReloadButton     (id, settings[id]);
     genPanelContents         (id, settings[id]);
 
-    console.log(settings[id]);
-
     if(settings[id].editable) {
 
         genPanelAutoSaveToggle(id, settings[id]);
@@ -4555,38 +4553,16 @@ function insertGridData(id) {
                 }
 
                 let groupName = null;
-                let groupSpan = settings[id].columns.length;
+                
+                settings[id].groupSpan = settings[id].columns.length;
 
-                if(settings[id].editable && settings[id].multiSelect) groupSpan++;
+                if(settings[id].editable && settings[id].multiSelect) settings[id].groupSpan++;
 
                 for(let row of rows) {
 
                     if(!isBlank(settings[id].groupBy)) {
-
-                        if(groupName !== row.group) {
-
-                            let elemGroup = $('<tr></tr>').appendTo(elemTBody)
-                                .addClass('table-group');
-
-                            let elemGroupTitle = $('<td></td>').appendTo(elemGroup)
-                                .addClass('table-group-title')
-                                .attr('colspan', groupSpan)
-                                .html(isBlank(row.group) ? 'n/a' : row.group)
-                                .click(function() {
-                                    $(this).toggleClass('collapsed');
-                                    if($(this).hasClass('collapsed')) {
-                                        $(this).parent().nextUntil('.table-group').addClass('hidden');
-                                    } else {
-                                        $(this).parent().nextUntil('.table-group').removeClass('hidden');
-                                    }
-                                });
-
-                            if(settings[id].collapseContents) elemGroupTitle.addClass('collapsed');
-
-                        }
-
+                        if(groupName !== row.group) insertGridGroup(id, row.group);
                         groupName = row.group;
-
                     }
 
                     insertGridRow(id, row, picklistsData);
@@ -4638,13 +4614,48 @@ function insertGridData(id) {
 
 }
 function insertGridDataDone(id, rows, columns) {}
-function insertGridRow(id, row, picklistsData) {
+function insertGridGroup(id, title) {
+
+    let elemTBody = $('#' + id + '-tbody');
+    let groupTitle = isBlank(title) ? 'n/a' : title;
+
+    let elemGroup = $('<tr></tr>').appendTo(elemTBody)
+        .addClass('table-group')
+        .attr('data-title', groupTitle);
+
+    let elemGroupTitle = $('<td></td>').appendTo(elemGroup)
+        .addClass('table-group-title')
+        .attr('colspan', settings[id].groupSpan)
+        .html(groupTitle)
+        .click(function() {
+            $(this).toggleClass('collapsed');
+            if($(this).hasClass('collapsed')) {
+                $(this).parent().nextUntil('.table-group').addClass('hidden');
+            } else {
+                $(this).parent().nextUntil('.table-group').removeClass('hidden');
+            }
+        });
+
+    if(settings[id].collapseContents) elemGroupTitle.addClass('collapsed');
+
+}
+function insertGridRow(id, row, picklistsData, groupName) {
 
     let elemTBody = $('#' + id + '-tbody');
 
     let elemTableRow = $('<tr></tr>').appendTo(elemTBody)
         .addClass('content-item')
         .attr('data-link', '');
+
+    if(!isBlank(groupName)) {
+        elemTBody.children('.table-group').each(function() {
+            let elemGroup = $(this);
+            if(elemGroup.attr('data-title') === groupName) {
+                let elemLast = elemGroup.nextUntil('.table-group').last();
+                if(elemLast.length > 0) elemTableRow.insertBefore(elemLast);
+            }
+        });
+    }
 
     if(isBlank(row)) {
         elemTableRow.addClass('new');
