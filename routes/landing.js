@@ -146,9 +146,10 @@ router.get('/pbom'         , function(req, res, next) { launch('dev/pbom'       
 router.get('/pdm'          , function(req, res, next) { launch('dev/pdm'          , '', 'Vault Browser'                    , req, res, next); });
 router.get('/pdm-explorer' , function(req, res, next) { launch('dev/pdm-explorer' , '', 'PDM Explorer'                     , req, res, next); });
 router.get('/pnd'          , function(req, res, next) { launch('dev/pnd'          , '', 'Product Data & Processes Explorer', req, res, next); });
-router.get('/resources'    , function(req, res, next) { launch('dev/resources'    , '', 'Resource Allocation'              , req, res, next); });
+router.get('/resources'    , function(req, res, next) { launch('dev/resources'    , 'resources', 'Resource Allocation'              , req, res, next); });
 router.get('/specification', function(req, res, next) { launch('dev/specification', '', 'Product Specification Editor'     , req, res, next); });
 router.get('/transmittals' , function(req, res, next) { launch('dev/transmittals' , '', 'Transmittals Client'              , req, res, next); });
+router.get('/worklist' , function(req, res, next) { launch('dev/worklist' , 'worklist', 'Worklist'              , req, res, next); });
 
       
 
@@ -255,16 +256,16 @@ function launch(appURL, appSettings, appTitle, req, res) {
             console.log('  options          = ' + reqOptions); 
             console.log('  revisionBias     = ' + reqRevisionBias); 
             console.log();
+
+            let findItem = ((reqNumber !== '') && (reqDMS === ''));
+
+            if(!findItem) findItem = ((reqNumber === '') && (appURL === 'addins/item') && (reqDMS === ''));    // Display create dialog
             
-            if((reqNumber !== '') && (reqDMS === '')) {
-            // if((reqNumber !== '') || ((reqNumber === '') && (appURL === 'addins/item') && (reqDMS === ''))) {
+            if(findItem) {
 
                 res.render('framework/findItemByNumber', {
-                    number       : reqNumber,
-                    revisionBias : reqRevisionBias,
-                    theme        : reqTheme,
-                    host         : reqHost,
-                    options      : reqOptions.split(',')
+                    number : reqNumber,
+                    theme  : reqTheme
                 });
 
             } else {

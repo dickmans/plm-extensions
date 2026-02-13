@@ -11,19 +11,16 @@ block body
     body.surface-level-2
 
         script.
-            number="#{number}"
             title='#{title}'
-            revisionBias='#{revisionBias}' 
-            options='#{options}' 
 
         .screen#search-screen
-
-            .processing
+            #startup-logo
+            #search-processing.processing
                 .bounce1
                 .bounce2
                 .bounce3
             #search-message.message
-                #text Searching for item
+                #text Searching for 
                 #number.number= number
             #create-message.message 
                 div Requested item 

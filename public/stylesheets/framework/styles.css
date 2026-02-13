@@ -3106,7 +3106,7 @@ select.button.main:hover {
     height              : 258px;
     width               : 390px;
     position            : absolute;
-    top                 : calc(50% - 160px);
+    top                 : calc(50% - 220px);
     left                : calc(50% - 195px);
 }
 .dark-theme #startup-logo {

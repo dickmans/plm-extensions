@@ -5,39 +5,39 @@
     display : none;
 }
 
-.processing {
-    top : 150px;
+#search-processing {
+    top : calc(50% + 60px);
 }
 .processing > div {
     background : var(--color-blue-500) !important
 }
 .message {
-    left        : calc(50% - 150px);
-    margin      : auto;
-    position    : absolute;
-    text-align  : center;
-    width       : 300px;
+    left       : calc(50% - 150px);
+    margin     : auto;
+    position   : absolute;
+    text-align : center;
+    width      : 300px;
 }
 #search-message {
-    display : block;
-    top     : 200px;
+    display : flex;
+    gap     : 6px;
+    top     : calc(50% + 110px);
+    justify-content : center;
+}
+.number {
+    font-weight : 800;
 }
 #create-message {
     display : none;
     top     : 100px;
 }
 #create-action {
-    float : unset;
+    float      : unset;
     margin-top : 24px;
 }
-.number {
-    font-weight : 800;
-}
-
-
 #create {
-    top: 60px;
-    right: calc(50% - 300px);
-    bottom: 60px;
-    left: calc(50% - 300px);
+    top    : 60px;
+    right  : calc(50% - 300px);
+    bottom : 60px;
+    left   : calc(50% - 300px);
 }

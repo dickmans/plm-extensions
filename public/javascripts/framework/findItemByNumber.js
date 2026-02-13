@@ -3,7 +3,15 @@ $(document).ready(function() {
     setUIEvents();
     appendProcessing('create');
 
-    if(number === '') { 
+    if(!isBlank(urlParameters.level)) {
+        $('body').removeClass('surface-level-2').addClass('surface-level-' + urlParameters.level);
+    }
+
+    //  http://localhost:8080/addins/item?number=002771&level=1
+    //  http://localhost:8080/service?number=002771&level=1
+    //  http://localhost:8080/service?number=3D-25-000035&wsid=95&level=1&reference=ENGINEERING_BOM&level=1
+    
+    if(urlParameters.number === '') { 
 
         $('#create-message').show();
         $('.processing').hide();
@@ -11,32 +19,45 @@ $(document).ready(function() {
     } else {
 
         let params = {
-            wsId     : common.workspaceIds.items,
+            wsId     : urlParameters.wsid || common.workspaceIds.items,
             limit    : 1,
-            query    : number,
+            query    : urlParameters.number,
             wildcard : false
         }
+
+        console.log(params);
+
+        if(!isBlank(urlParameters.reference)) params.bulk = true;
 
         $.post('/plm/search-descriptor', params, function(response) {
 
             if(response.data.items.length > 0) {
 
-                $('.processing').hide();
-                $('#search-message').hide();
-
+                let data = response.data.items[0];
                 let link = response.data.items[0].__self__;
-
                 let url  = window.location.href.split('?')[0];
-                    url += '?dmsId='      + link.split('/')[6];
-                    url += '&wsId='       + link.split('/')[4];
-                    url += '&number='     + number;
-                    url += '&descriptor=' + response.data.items[0].descriptor;
+                
+                if(isBlank(urlParameters.reference)) {
+
+                    url += '?dmsId=' + link.split('/')[6];
+                    url += '&wsId='  + link.split('/')[4];
+
+                } else {
+
+                    let reference = getSectionFieldValue(data.sections, urlParameters.reference, '', 'link');
+
+                    url += '?dmsId='        + reference.split('/')[6];
+                    url += '&wsId='         + reference.split('/')[4];
+                    url += '&dmsidcontext=' +      link.split('/')[6];
+                    url += '&wsidcontext='  +      link.split('/')[4];
+
+                }
                     
                 if(!isBlank(options)) url += '&options=' + options;
-                if(!isBlank(type))    url += '&type='    + type;
-                if(!isBlank(host))    url += '&host='    + host;
 
-                if(theme !== '') url += '&theme=' + theme;
+                if(!isBlank(urlParameters.type))  url += '&type='  + urlParameters.type;
+                if(!isBlank(urlParameters.host))  url += '&host='  + urlParameters.host;
+                if(!isBlank(urlParameters.theme)) url += '&theme=' + urlParameters.theme;
 
                 window.location = url;
 
