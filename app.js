@@ -1,8 +1,13 @@
-let fileEnvironment = (process.argv.length > 2) ? './environments/' + process.argv[2] + '.js' : './environment.js';
+let pathEnvironment = './environment.js';
+if (process.argv.length > 2) {
+    let fileEnvironment = process.argv[2];
+    if(!fileEnvironment.endsWith('.js')) fileEnvironment += '.js';
+    pathEnvironment = './environments/' + fileEnvironment;
+}
 
 const fs = require('fs');
 
-if ((process.argv.length > 2) && (!fs.existsSync('./' + fileEnvironment))) {
+if ((process.argv.length > 2) && (!fs.existsSync(pathEnvironment))) {
 
     console.log();
     console.log('  ERROR ! File ' + process.argv[2] + '.js could not be found in folder environments');
@@ -34,7 +39,7 @@ if ((process.argv.length > 2) && (!fs.existsSync('./' + fileEnvironment))) {
     const vault       = require('./routes/pdm');
     const services    = require('./routes/services');
     const { fchmodSync } = require('fs');
-    const environment = require(fileEnvironment);
+    const environment = require(pathEnvironment);
     const app         = express();
 
 

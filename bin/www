@@ -3,6 +3,8 @@
 const fs  = require('fs');
 const app = require('../app');
 
+if(typeof app.locals === 'undefined') return;
+
 let server, port;
 
 if(app.locals.protocol === 'https') {
