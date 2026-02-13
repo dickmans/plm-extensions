@@ -12,7 +12,6 @@ let viewerFiles                 = [];
 let dataInstances               = [];
 let hiddenInstances             = [];
 let markupStyle                 = {};
-let viewerCacheBoundingBoxes    = false;
 
 let viewer, markup, markupsvg, curViewerState, restoreMarkupSVG, restoreMarkupState, baseStrokeWidth;
 let splitPartNumberBy, splitPartNumberIndexes, splitPartNumberSpacer, conversionAttempts, conversionDelay;
@@ -57,13 +56,14 @@ let viewerBGColors = {
 }
 
 let viewerSettings = {
-    backgroundColor  : [255, 255, 255, 255, 255, 255],
-    antiAliasing     : true,
-    ambientShadows   : true,
-    groundReflection : false,
-    groundShadow     : true,
-    cacheInstances   : true,
-    lightPreset      : 4
+    backgroundColor    : [255, 255, 255, 255, 255, 255],
+    antiAliasing       : true,
+    ambientShadows     : true,
+    groundReflection   : false,
+    groundShadow       : true,
+    cacheBoundingBoxes : false,
+    cacheInstances     : true,
+    lightPreset        : 4
 }
 
 
@@ -535,7 +535,7 @@ function setViewerInstancedData() {
                     instance.partNumber  = partNumber;
                     instance.parents     = [];
                     instance.boundingBox = {};
-                    if(viewerCacheBoundingBoxes) {
+                    if(viewerSettings.cacheBoundingBoxes) {
                         viewer.select(instance.dbId);
                         instance.boundingBox = viewer.utilities.getBoundingBox();
                     }
@@ -544,7 +544,7 @@ function setViewerInstancedData() {
             }
         }
 
-        if(viewerCacheBoundingBoxes) viewer.clearSelection();
+        if(viewerSettings.cacheBoundingBoxes) viewer.clearSelection();
 
         extendViewerInstanceData();
         setViewerInstanceDataDone();
@@ -568,6 +568,16 @@ function extendViewerInstanceData() {
     if(!viewerSettings.cacheInstances) return;
 
     let instancesCount = [];
+
+    for(let instance of dataInstances) {
+        instance.isPattern = true;
+        for(let property of instance.properties) {
+            if(property.attributeName === 'BOMType') {
+                instance.isPattern = false;
+                break;
+            }
+        }
+    }
 
     for(let instance of dataInstances) {
         
@@ -617,15 +627,17 @@ function getInstancePartNumber(instance) {
 }
 function getComponentPath(id, componentPath) {
 
-    for(let dataInstance of dataInstances) {
-        if(dataInstance.dbId === id) {
+    for(let instance of dataInstances) {
+        if(instance.dbId === id) {
 
-            componentPath.unshift({
-                partNumber : dataInstance.partNumber,
-                name       : dataInstance.name
-            });
-
-            for(let property of dataInstance.properties) {
+            if(!instance.isPattern) {
+                componentPath.unshift({
+                    partNumber : instance.partNumber,
+                    name       : instance.name
+                });
+            }
+                
+            for(let property of instance.properties) {
                 if(property.attributeName === 'parent') {
                     getComponentPath(property.displayValue, componentPath);
                 }

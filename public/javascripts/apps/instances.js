@@ -1,6 +1,8 @@
 let links            = {};
 let workspaces       = [];
-let completionEvents = 0;
+let completionEvents = { viewer : false, bom : false, grids : 0 };
+let pendingProcesses = 0;
+
 
 let paramsDetails = {
     headerLabel     : 'descriptor',
@@ -13,20 +15,23 @@ let paramsDetails = {
 
 $(document).ready(function() {
 
-    appendOverlay(true);
     setUIEvents();
     setAddinEvents();
     setAddinMode();
 
-    viewerCacheBoundingBoxes = true;
+    viewerSettings.cacheBoundingBoxes = true;
+    viewerSettings.cacheInstances     = true;
 
     getFeatureSettings('instances', [], function() {
         
-        for(let workspace of config.tabs) {
-            if(isBlank(workspace.workspaceId)) workspace.workspaceId = common.workspaceIds.serialNumbers;
-        };
+        let index = 0;
 
         workspaces = config.tabs;
+
+        for(let workspace of workspaces) {
+            workspace.id = 'table-' + index++;
+            if(isBlank(workspace.workspaceId)) workspace.workspaceId = common.workspaceIds.serialNumbers;
+        };      
 
         let wsIdAssets = config.assets.workspaceId || common.workspaceIds.assets;
 
@@ -36,7 +41,7 @@ $(document).ready(function() {
                 field       : config.assets.fieldIdBOM,       
                 type        : 0,
                 comparator  : 3,
-                value       : urlParameters.number
+                value       : urlParameters.number   // partNumber to prevent findByPartNumber
             }], {
                 headerLabel : config.landingHeader || 'Select Asset',
                 layout      : 'list',
@@ -56,6 +61,7 @@ function setUIEvents() {
 
     // Header Toolbar Buttons
     $('#bom-sync').click(function() {
+        if($(this).hasClass('disabled')) return;
         syncItemsList();
     });
     $('#excel-export').click(function() {
@@ -104,6 +110,29 @@ function setUIEvents() {
         viewerResize(200);
     });
 
+    // Deselect grid item
+    $('body').click(function(e) {
+        let elemGrid = $(e.target).closest('table.grid');
+        if(elemGrid.length === 0) {
+            viewerResetSelection();
+            applyViewerColors();
+            insertDetails(links.ebom, paramsDetails);
+            $('*').removeClass('highlighted');
+            $('#bom').find('.selected').removeClass('selected');
+        }
+    });
+
+    // Sync Dialog
+    $('.sync-close').click(function() {
+        $('#overlay').hide();
+        $('#sync').hide();
+    });
+    $('#sync-save').click(function() {
+        $('#sync').hide();
+        pendingProcesses = workspaces.length;
+        for(let workspace of workspaces) saveGridData(workspace.id);
+    });
+
 }
 
 
@@ -118,8 +147,24 @@ function openEditor(link) {
     appendOverlay(false);
 
     let requests = [ $.get('/plm/details', { link : link }) ];
+    let syncTHRow = $('#sync-throw');
 
-    for(let workspace of workspaces) requests.push($.get('/plm/grid-columns', { wsId : workspace.workspaceId }));
+    for(let workspace of workspaces) {
+        
+        requests.push($.get('/plm/grid-columns', { wsId : workspace.workspaceId }));
+
+        $('<th></th>').appendTo(syncTHRow)
+            .addClass('sync-column')
+            .css('background', colors.list[workspace.colorIndex])
+            .css('width', 520 / workspaces.length)
+            .html(workspace.label);  
+
+        $('<td></td>').addClass('sync-column').appendTo($('#sync-new'));
+        $('<td></td>').addClass('sync-column').appendTo($('#sync-update'));
+        $('<td></td>').addClass('sync-column').appendTo($('#sync-mismatch'));
+        $('<td></td>').addClass('sync-column').appendTo($('#sync-matches'));
+
+    }
 
     Promise.all(requests).then(function(responses) {
 
@@ -160,78 +205,115 @@ function openEditor(link) {
 
         }
 
-        $('#excel-export').removeClass('disabled');
-
     });
 
 }
 function onViewerLoadingDone() {
 
-    completionEvents++;
+    completionEvents.viewer = true;
+    matchBOMViewerInstances();
 
-    setGridSyncStatus();
+    // setGridSyncStatus();
 
 }
-function setGridSyncStatus() {
+// function setGridSyncStatus() {
 
-    if(completionEvents <= workspaces.length) return;
+//     return;
 
-    let index = 0;
+//     if(completionEvents <= workspaces.length) return;
 
-    for(let workspace of workspaces) {
+//     let index = 0;
 
-        let elemTHead       = $('#table-' + index + '-thead');
-        let elemTHRow       = elemTHead.children().first();
-        let elemTBody       = $('#table-' + index + '-tbody');
-        let viewerInstances = [];
+//     for(let workspace of workspaces) {
 
-        elemTBody.children().each(function() {
+//         let elemCounter     = $('.tab-counter').eq(index);
+//         let elemTHead       = $('#table-' + index + '-thead');
+//         let elemTHRow       = elemTHead.children().first();
+//         let elemTBody       = $('#table-' + index + '-tbody');
+//         let viewerInstances = [];
+//         let countMismatches = 0;
 
-            let elemRow = $(this);
+//         elemCounter.addClass('hidden');
 
-            if(elemRow.hasClass('table-group')) {
+//         elemTBody.children().each(function() {
 
-                let elemCellGroup = elemRow.children().first(); 
-                    elemCellGroup.attr('colspan', elemTHRow.children().length);
+//             let elemRow = $(this);
 
-                let partNumber  = elemCellGroup.html();
-                viewerInstances = viewerGetComponentsInstances([partNumber])[0].instances;
+//             if(elemRow.hasClass('table-group')) {
 
-            } else {
+//                 let elemCellGroup = elemRow.children().first(); 
+//                     elemCellGroup.attr('colspan', elemTHRow.children().length);
+
+//                 let partNumber  = elemCellGroup.html();
+//                 viewerInstances = viewerGetComponentsInstances([partNumber])[0].instances;
+
+//             } else {
+
+//                 let elemCell = elemRow.children('.sync-status').first();
+//                     elemCell.html('');
+
+//                 // let instanceId   = elemRow.find('.field-id-INSTANCE_ID').children().first().val();
+//                 let instancePath = elemRow.find('.field-id-INSTANCE_PATH').children().first().val();
+//                 let boundingBox  = elemRow.find('.field-id-BOUNDING_BOX').children().first().val();
+//                 let elemIcon     = $('<div></div>').appendTo(elemCell).addClass('icon');
+//                 let statusIcon   = 'icon-checkmark';
+//                 let statusTitle  = 'No matching instance';
+//                 let matches      = { path : false, box : false, instance : null }
+
+//                 for(let viewerInstance of viewerInstances) {
+
+//                     let matchBox  = (JSON.stringify(viewerInstance.boundingBox) == boundingBox);
+//                     let matchPath = viewerInstance.instancePath == instancePath;
+
+//                     if(matchBox && matchPath) {
+//                         matches.box  = true;
+//                         matches.path = true;
+//                         break;
+//                     } else if(matchPath) {
+//                         matches.box  = false;
+//                         matches.path = true;
+//                         break;
+//                     } else if(matchBox) {
+//                         matches.box = true;
+//                     }
+                    
+//                 }
                 
-                let instanceId  = elemRow.find('.field-id-INSTANCE_ID').children().first().val();
-                let boundingBox = elemRow.find('.field-id-INSTANCE_BOUNDING_BOX').children().first().val();
-                let elemCell    = $('<td></td>').insertAfter(elemRow.children().first()).addClass('sync-status').addClass('match');;
-                let elemIcon    = $('<div></div>').appendTo(elemCell).addClass('icon').addClass('filled');
-                let statusIcon  = 'icon-remove';
-                let statusTitle = 'No matching instance';
+//                 if(matches.box && matches.path) {
+//                     statusIcon  = 'icon-checkmark';
+//                     statusTitle = 'Found matching instance ID at right position';
+//                     elemIcon.css('background', 'none');
+//                 } else {
+//                     if(matches.path) {
+//                         statusIcon  = 'icon-product-alert';
+//                         statusTitle = 'Found instance BOM, but at different 3D position. Use BOM sync to update the reference.';
+//                     } else if(matches.box) {
+//                         statusIcon  = 'icon-list-alert';
+//                         statusTitle = 'Found instance in 3D, but at different BOM position. Use BOM sync to update the reference.';
+//                     } else if(!matches.box && !matches.path) {
+//                         statusIcon  = 'icon-cancel';
+//                         statusTitle = 'No matching instance found. Use BOM sync to update this table.';
+//                     }
+//                     countMismatches++;
+//                     elemIcon.css('background', colors.list[workspace.colorIndex]);
+//                 }
 
-                for(let viewerInstance of viewerInstances) {
-                    if(viewerInstance.instanceId == instanceId) {
-                        
-                        if(JSON.stringify(viewerInstance.boundingBox) === boundingBox) {
-                            statusIcon  = 'icon-check';
-                            statusTitle = 'Found matching instance ID at right position';
-                        } else {
-                            statusIcon  = 'icon-info';
-                            statusTitle = 'Found matching instance ID at different position';
-                        }
-                        break;
-                    }
-                }
+//                 elemCell.attr('title', statusTitle);
+//                 elemIcon.addClass(statusIcon);
 
-                elemCell.attr('title', statusTitle);
-                elemIcon.addClass(statusIcon);
+//             }
 
-            }
+//         });
 
-        });
+//         elemCounter.html(countMismatches);
 
-        index++;
+//         if(countMismatches > 0) elemCounter.removeClass('hidden');
 
-    }
+//         index++;
 
-}
+//     }
+
+// }
 
 
 // Enable embedded mode to support usage as addin
@@ -241,70 +323,7 @@ function setAddinMode() {
 
     if(!isAddin) return;
 
-    console.log('setAddinMode START');
-    console.log('isAddin : ' + isAddin);
-
-    // $('#header').addClass('hidden');
-    // $('.screen').css('top', '0px');
-
     $('body').addClass('addin');
-    // $('#bom').addClass('hidden');
-    // $('#toggle-layout').remove();
-    // $('#toggle-bom').remove();
-    // $('#toggle-details').remove();    
-
-    //selectInstance('002771.iam|Build Assembly:1|94500A231:6');
-
-    // if(typeof chrome !== 'undefined') {
-    //     if(typeof chrome.webview !== 'undefined') {
-
-    //         embedded = true;
-
-    //         console.log('setEmbeddedMode : adding Event Listener');
-            
-    //         window.chrome.webview.addEventListener('message', arg => { 
-
-    //             console.log('---------------------------------------------------');
-    //             console.log('Received message from Inventor');
-
-    //             // 'response:title:text'
-    //             // 'selectInstance:partNumber:instanceId'
-    //             // selectInstance:94500A231:002771.iam|Build Assembly: 1|94500A231:1
-    //             // selectComponent:94500A231
-
-    //             $('#overlay').hide();
-
-    //             switch(messageType) {
-
-    //                 case 'response': 
-    //                     let messageTitle = response[1];
-    //                     let messageText  = (response.length > 2) ? response[2] : 'Please contact your administrator';
-    //                     if(messageTitle != 'success') showErrorMessage(messageTitle, messageText);
-    //                     break;
-
-    //                 case 'selectInstance':
-    //                     let instanceId = (response.length > 2) ? response[2] : '';
-    //                     selectInstance(instanceId);
-    //                     break;
-
-    //                 case 'selectComponent':
-    //                     let partNumber = (response.length > 1) ? response[1] : '';
-    //                     selectComponent(partNumber);
-    //                     break;
-
-    //                 default: break;
-
-    //             }
-
-    //         });
-
-    //     }
-    // }
-
-    
-    // embedded = true;
-
-
 
 }
 
@@ -313,6 +332,8 @@ function setAddinMode() {
 function afterBOMCompletion(id, data) {  
 
     $('#overlay').hide();
+
+    completionEvents.bom = true;
 
     getMatchingBOMItems(data.bomPartsList);
     addBOMIconColumn(id);
@@ -337,6 +358,37 @@ function getMatchingBOMItems(bomPartsList) {
             }
         }
 
+    }
+
+    matchBOMViewerInstances();
+
+}
+function matchBOMViewerInstances() {
+
+    if(!completionEvents.viewer) return;
+    if(!completionEvents.bom   ) return;
+
+    if(completionEvents.grids === workspaces.length) {
+        $('#bom-sync').removeClass('disabled');
+        $('#excel-export').removeClass('disabled');
+    }
+
+    for(let workspace of workspaces) {
+        for(let item of workspace.items) {
+            
+            let viewerInstances = viewerGetComponentsInstances([item.partNumber])[0];
+
+            item.instances = [];
+            
+            for(let item of workspace.items) {
+                for(let viewerInstance of viewerInstances.instances) {
+                    if(viewerInstance.pathNumbers === item.path) {
+                        item.instances.push(viewerInstance);
+                    }
+                } 
+            }
+
+        }
     }
 
 }
@@ -386,25 +438,37 @@ function insertTabControls() {
 
     for(let workspace of workspaces) {
 
-        $('<div></div>').appendTo($('#tabs'))
+        let elemTab = $('<div></div>').appendTo($('#tabs'))
             .attr('data-index', index)
             .attr('data-tab-group', 'tab-item-type')
-            .addClass('with-icon')
-            .addClass(workspace.bomIcon)
             .html(workspace.label)
             .click(function() {
                 clickTab($(this));
                 let index = $(this).index() + 0;
                 $('#items').children().addClass('hidden');
                 $('#table-' + index).removeClass('hidden');
+                $('*').removeClass('selected-for-mapping');
+                $('*').removeClass('mapping-start');
+                $('.bom-sync-result-match').removeClass('hidden');
+                $('.bom-sync-result-update').removeClass('hidden');
             });
 
-        // $('<table></table>').appendTo($('#items'))
+        $('<div></div>').prependTo(elemTab)
+            .addClass('icon')
+            .addClass(workspace.bomIcon)
+            .css('color', colors.list[workspace.colorIndex]);
+
+        $('<div></div>').appendTo(elemTab)
+            .addClass('tab-counter')
+            .addClass('hidden')
+            .css('background-color', colors.list[workspace.colorIndex])
+            .html(0);
+
         $('<div></div>').appendTo($('#items'))
             .addClass('tab-item-type')
             .addClass('hidden')
             .addClass('row-hovering')
-            .attr('id', 'table-' + index)
+            .attr('id', workspace.id)
             .attr('data-index', index++);
 
     }
@@ -441,16 +505,14 @@ function insertTabHeaders() {
 }
 function insertTabContents() {
 
-    let index = 0;
-
     for(let workspace of workspaces) {
 
         if(!isBlank(workspace.link)) {
 
-            // workspace.fieldsIn.push('NR');
+            $('#' + workspace.id).addClass('no-bom-sync');
             
             insertGrid(workspace.link, {
-                id                : 'table-' + index++,
+                id                : workspace.id,
                 autoSave          : true,
                 counters          : false,
                 editable          : true,
@@ -473,95 +535,11 @@ function insertTabContents() {
                 textNoData        : 'No items found. Use the button Snyc with BOM in the main toolbar to update this table.',
                 contentSizes      : isAddin ? ['s'] : ['s', 'xs', 'xxs', 'xxl', 'xl', 'l', 'm'],
                 afterCompletion   : function(id) { afterGridCompletion(id); },
-                // onClickItem       : function(elemClicked) { onSelectGridItem(elemClicked); }
+                afterSave         : function(id) { afterGridSave(id); },
             });
         }
 
     }
-
-
-    // let requests = [];
-
-    // for(let workspace of workspaces) requests.push($.get('/plm/grid', { link : workspace.link}));
-
-    // Promise.all(requests).then(function(responses) {
-
-
-    //     // console.log(responses);
-
-    //     let index = 0;   
-
-    //     for(let workspace of workspaces) {
-
-    //         let elemParent = $('#items').children(':eq(' + index++ + ')');
-    //         let elemTBody  = $('<tbody></tbody>').appendTo(elemParent);
-        
-    //         for(let item of workspace.items) {
-
-    //             console.log(item);
-
-    //             let itemInstances = viewerGetComponentsInstances([item.partNumber]);
-
-    //             console.log(itemInstances);
-
-
-    //             for(let instance = 0; instance < item.totalQuantity; instance++) {
-
-    //                 let eleTBRow = $('<tr></tr>').appendTo(elemTBody)
-    //                     .attr('data-edgeid', item.edgeId)
-    //                     .attr('data-link', item.link)
-    //                     .attr('data-part-number', item.partNumber)
-    //                     // .attr('data-viewer-id', itemInstances[0].instances[instance].dbId)
-    //                     .click(function() {
-    //                         selectContentRow($(this));
-    //                     })
-
-    //                 if(!isBlank(itemInstances.length)) {
-    //                     if(itemInstances.length > 0) {
-    //                         if(!isBlank(itemInstances[0].instances)) {
-    //                             console.log(itemInstances[0].instances[instance]);
-    //                             eleTBRow.attr('data-viewer-dbid', itemInstances[0].instances[instance].dbId);
-    //                         }
-    //                     }
-    //                 }
-
-
-    //                 for(let column of workspace.columns) {
-
-    //                     let columnId = column.__self__.split('/').pop();
-
-
-                                
-    //                             let elemCell = $('<td></td>').appendTo(eleTBRow)
-    //                                 .addClass('grid-column-' + columnId)
-    //                                 .html('-');
-
-    //                             let fields = Object.keys(item.details);
-
-    //                             for(let field of fields) {
-
-    //                                 // console.log(field + ' ---' + columnId);
-
-    //                                 if(field === columnId) {
-    //                                     elemCell.html(item.details[field]);
-    //                                     break;
-    //                                 }
-
-    //                             }
-
-
-    //                 }
-    //             }
-
-
-
-
-    //         }
-
-    //     }
-
-
-    // });
 
 }
 function addBOMToolbarActions() {
@@ -670,12 +648,13 @@ function onSelectBOMItem(elemClicked) {
 // Highlight viewer instances upon selection of item in tabs
 function afterGridCompletion(id) {
 
-    completionEvents++;
+    completionEvents.grids++;
 
     let elemTable   = $('#' + id);
     let elemActions = $('#' + id + '-actions');
     let elemToggle  = $('#' + id + '-toggle-isolate');
     let elemTHead   = $('#' + id + '-thead');
+    let elemTBody   = $('#' + id + '-tbody');
     let elemTHRow   = elemTHead.children().first();
 
     if(isAddin) {
@@ -701,14 +680,28 @@ function afterGridCompletion(id) {
 
     $('<th></th>').insertAfter(elemTHRow.children().first())
         .addClass('sync-status')
-        .html('');
+        .html('BOM Sync');
 
-    setGridSyncStatus();
+    elemTBody.children('.content-item').each(function() {
+
+        let elemRow  = $(this);
+        let elemCell = $('<td></td>').insertAfter(elemRow.children().first()).addClass('sync-status');
+
+        elemRow.attr('data-mapped', false);
+
+        $('<div></div>').appendTo(elemCell)
+            .addClass('icon')
+            .addClass('icon-help-circle');
+
+    });
+
+    if(completionEvents.grids === workspaces.length) {
+        $('#bom-sync').removeClass('disabled');
+        $('#excel-export').removeClass('disabled');
+    }
 
 }
 function selectGridItem(elemClicked) {
-
-    console.log('selectGridItem START');
 
     let elemPanel     = elemClicked.closest('.panel-top');
     let isHighlighted = elemClicked.hasClass('highlighted');
@@ -769,7 +762,6 @@ function updateIsolate(elemToggleIsolate) {
 
     if(!isAddin) return;
 
-
     let elemHighlighted = $('.highlighted').first();
 
     if(  elemHighlighted.length === 0) return;
@@ -788,6 +780,12 @@ function updateIsolate(elemToggleIsolate) {
     window.chrome.webview.postMessage(addinAction + ":" + selection.toString()); 
 
 }
+function afterGridSave(id) {
+
+    $('#' + id).addClass('no-bom-sync');
+    if(--pendingProcesses > 0) $('#overlay').show();
+
+}
 
 
 // Highlight matching instance upon selection in Inventor
@@ -802,11 +800,8 @@ function selectInstance(instancePath) {
     for(let workspace of workspaces) {
 
         let fieldId = workspace.fieldsList.instancePath;
-        let tableId = 'table-' + workspace.index;
 
-        console.log(fieldId);
-
-        $('#' + tableId + '-table').find('.field-id-' + fieldId).each(function() {
+        $('#' + workspace.id + '-table').find('.field-id-' + fieldId).each(function() {
 
             let elemInput = $(this).children('input');
             let value     = elemInput.val();
@@ -863,8 +858,6 @@ function onViewerSelectionChanged(event) {
 }
 function selectContentRow(elemRow) {
 
-    console.log('selectContentRow');
-
     let partNumber = elemRow.attr('data-part-number');
     let dbId       = elemRow.attr('data-viewer-dbid');
     
@@ -887,89 +880,172 @@ function selectContentRow(elemRow) {
 }
 
 
-
 // Update grid data with EBOM entries
 function syncItemsList() {
 
     $('#overlay').show();
+    $('#sync').show();
+    $('*').removeClass('bom-sync-result-new');
+    $('*').removeClass('bom-sync-result-match');
+    $('*').removeClass('bom-sync-result-update');
+    $('*').removeClass('bom-sync-result-mismatch');
 
-    let iWS      = 0;
-    let requests = [];
-    let grids    = [];
-    
+    let iWS   = 0;
+    let grids = [];
+
     for(let workspace of workspaces) {
 
         let gridRows = getGridRows(iWS);
         let refresh  = false;
 
-        for(let item of workspace.items) {
+        $('#' + workspace.id).removeClass('no-bom-sync');
 
-            item.instances = [];
-
-            let viewerInstances = viewerGetComponentsInstances([item.partNumber])[0];
-
-            for(let viewerInstance of viewerInstances.instances) {
-                if(viewerInstance.pathNumbers === item.path) {
-                    item.instances.push(viewerInstance);
-                } else if(viewerInstance.path === item.path) {
-                    item.instances.push(viewerInstance);
-                }
-            } 
-
-        }     
+        workspace.counters = {
+            new      : 0,
+            match    : 0,
+            update   : 0,
+            mismatch : 0
+        }
 
         for(let item of workspace.items) {
-
-            for(let gridRow of gridRows) {
-                if(item.partNumber === gridRow.partNumber) {
-                    if(item.path === gridRow.path) {
-                        let index = 0;
-                        for(let instance of item.instances) {
-                            if(instance.instancePath == gridRow.instancePath) {
-                                item.instances.splice(index, 1);
-                                break;
-                            }
-                            index++;
-                        }
-                    }
-                }
-            }
 
             for(let instance of item.instances) {
+                
+                if(isBlank(instance.action)) instance.action = 'add';
 
-                let params = {
-                    wsId : workspace.workspaceId,
-                    link : workspace.link,
-                    data : [
-                        { fieldId : workspace.fieldsList.partNumber   , value : item.partNumber       },
-                        { fieldId : workspace.fieldsList.title        , value : item.details.TITLE    },
-                        { fieldId : workspace.fieldsList.revision     , value : item.details.REVISION },
-                        { fieldId : workspace.fieldsList.path         , value : item.path             },
-                        { fieldId : workspace.fieldsList.instanceId   , value : instance.instanceId   },
-                        { fieldId : workspace.fieldsList.instancePath , value : instance.instancePath },
-                        { fieldId : workspace.fieldsList.boundingBox  , value : JSON.stringify(instance.boundingBox) }
-                    ]
+                instance.status = 'new';
+
+                for(let gridRow of gridRows) {
+                    if(item.partNumber === gridRow.partNumber) {
+                        if(instance.instancePath == gridRow.instancePath) {
+
+                            if(!gridRow.elem.hasClass('new')) {
+                                instance.status = 'match';
+                                instance.action = '';
+                                workspace.counters.match++;
+                                setGridRowSyncStatus(workspace, gridRow, 'match');
+                            } else {
+                                instance.action = '';
+                            }
+
+                            gridRow.elem.attr('data-mapped', true);
+
+                        } else if(gridRow.boundingBox === JSON.stringify(instance.boundingBox)) {
+                            
+                            instance.status = 'update';
+                            instance.action = 'update';
+                            workspace.counters.update++;
+                            
+                            gridRow.elem.attr('data-mapped', true);
+                            gridRow.elem.addClass('changed');
+
+                            let elemCell = gridRow.elem.find('.field-id-' + workspace.fieldsList.instancePath);
+                                elemCell.children().first().val(instance.instancePath);
+                                elemCell.addClass('changed');
+                        
+                            setGridRowSyncStatus(workspace, gridRow, 'update');
+
+                        }
+
+                    }
                 }
 
-                requests.push($.post('/plm/add-grid-row', params));
-                refresh = true;
+                if(instance.status === 'new') workspace.counters.new++;
 
             }
 
         }
+
+        for(let item of workspace.items) {
+            
+            let gridGroups = getGridGroups(iWS);
+            let elemGroup = null;
+
+            gridGroups.each(function() {
+                let gridGroup = $(this);
+                if(gridGroup.attr('data-title') === item.partNumber) {
+                    elemGroup = gridGroup;
+                }
+            });
+
+            for(let instance of item.instances) {
+                if(instance.action == 'add') {
+                    
+                    if(elemGroup === null) elemGroup = insertGridGroup(workspace.id, item.partNumber);
+                    
+                    let elemRow  = insertGridRow(workspace.id, null, null, item.partNumber);
+                    let elemCell = $('<td></td>').insertAfter(elemRow.children().first()).addClass('sync-status');
+
+                    elemRow.find('.field-id-' + workspace.fieldsList.partNumber  ).children().first().val(item.partNumber);
+                    elemRow.find('.field-id-' + workspace.fieldsList.title       ).children().first().val(item.details.TITLE);
+                    elemRow.find('.field-id-' + workspace.fieldsList.revision    ).children().first().val(item.details.REVISION);
+                    elemRow.find('.field-id-' + workspace.fieldsList.instanceId  ).children().first().val(instance.instanceId);
+                    elemRow.find('.field-id-' + workspace.fieldsList.instancePath).children().first().val(instance.instancePath);
+                    elemRow.find('.field-id-' + workspace.fieldsList.path        ).children().first().val(item.path);
+                    elemRow.find('.field-id-' + workspace.fieldsList.boundingBox ).children().first().val(JSON.stringify(instance.boundingBox));
+
+                    elemRow.find('input').click(function() {
+                        selectGridItem($(this).closest('tr'));
+                    });
+
+                    elemRow.addClass('bom-sync-result-new');
+
+                    $('<div></div>').appendTo(elemCell)
+                        .addClass('icon')
+                        .addClass('icon-create')
+                        .addClass('filled')
+                        .attr('title', 'This line will be added to match the BOM instances');
+
+                    let elemActions = $('<div></div>').appendTo(elemCell)
+                        .addClass('sync-actions')
+
+                    $('<div></div>').appendTo(elemActions)
+                        .addClass('button')
+                        .addClass('match-select')
+                        .html('Select')
+                        .attr('title', 'Match the instance to this line')
+                        .click(function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            selectInstanceMapping($(this));
+                            stopInstanceMapping($(this));
+                        });
+
+                    $('#' + workspace.id + '-no-data').hide();
+                    $('#' + workspace.id + '-content').show();
+
+                    instance.action = '';
+
+                }
+            }
+            
+        }
+
+        for(let gridRow of gridRows) {
+            if(gridRow.elem.attr('data-mapped') === 'false') {
+                setGridRowSyncStatus(workspace, gridRow, 'mismatch');
+                workspace.counters.mismatch++;
+            }
+        }
+
+        $('#sync-new'     ).children().eq(iWS + 2).html(workspace.counters.new);
+        $('#sync-matches' ).children().eq(iWS + 2).html(workspace.counters.match);
+        $('#sync-update'  ).children().eq(iWS + 2).html(workspace.counters.update);
+        $('#sync-mismatch').children().eq(iWS + 2).html(workspace.counters.mismatch);
 
         if(refresh) grids.push(iWS);
         iWS++;
 
     }
 
-    Promise.all(requests).then(function(responses) {
-        printResponsesErrorMessagesToConsole(responses);
-        for(let grid of grids) {
-            settings['table-' + grid].load();
-        }
-        $('#overlay').hide();
-    });
+    return;
+
+}
+function getGridGroups(index) {
+
+    let elemTBody = $('#table-' + index + '-tbody');
+
+    return elemTBody.children('.table-group');
 
 }
 function getGridRows(index) {
@@ -994,7 +1070,8 @@ function getGridRowDetails(elemRow, columns) {
     let gridRow  =  {
         partNumber   : '',
         path         : '',
-        instancePath : ''
+        instancePath : '',
+        status       : 'mismatch'
     }
 
     elemRow.children().each(function() {
@@ -1018,6 +1095,10 @@ function getGridRowDetails(elemRow, columns) {
                     gridRow.instancePath = elemCell.children().first().val();
                     break;
 
+                case columns.boundingBox:
+                    gridRow.boundingBox = elemCell.children().first().val();
+                    break;
+
             }
 
         }           
@@ -1025,5 +1106,135 @@ function getGridRowDetails(elemRow, columns) {
     });
 
     return gridRow;
+
+}
+function setGridRowSyncStatus(workspace, gridRow, status) {
+
+    let elemCell = gridRow.elem.find('.sync-status');
+        elemCell.html('');
+
+    let elemIcon = $('<div></div>').appendTo(elemCell).addClass('icon');
+
+    switch(status) {
+
+        case 'match':
+            gridRow.elem.addClass('bom-sync-result-match');
+            elemIcon.addClass('icon-checkmark')
+                .addClass('filled')
+                .attr('title', 'This line is in sync with the BOM')
+            break;
+
+        case 'update':
+            gridRow.elem.addClass('bom-sync-result-update');
+            elemIcon.addClass('icon-product-alert')
+                .addClass('filled')
+                .attr('title', 'This instance has been moved in the structure, but will be mapped based on matching bounding box');
+            break;
+
+        case 'mismatch':
+            gridRow.elem.addClass('bom-sync-result-mismatch');
+            elemIcon.addClass('icon-warning')
+                .attr('title', 'Requires manual action as there is no match in BOM')
+                .addClass('filled')
+                .css('color', colors.list[workspace.colorIndex]);
+
+            let elemActions = $('<div></div>').appendTo(elemCell)
+                    .addClass('sync-actions')
+
+            $('<div></div>').appendTo(elemActions)
+                .addClass('button')
+                .addClass('match-start')
+                .html('Match')
+                .attr('title', 'Match this row to a new row')
+                .click(function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    startInstanceMapping($(this));
+                });
+
+            $('<div></div>').appendTo(elemActions)
+                .addClass('button')
+                .addClass('match-stop')
+                .html('Stop')
+                .attr('title', 'Stop matching this row to an existing one')
+                .click(function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    stopInstanceMapping($(this));
+                });
+
+            break;
+
+    }
+
+}
+function startInstanceMapping(elemClicked) {
+
+    $('*').removeClass('selected-for-mapping');
+    $('.bom-sync-result-match').addClass('hidden');
+    $('.bom-sync-result-update').addClass('hidden');
+    $('.mapped').addClass('hidden');
+
+    elemClicked.closest('table').addClass('mapping-start');
+
+    let elemRow = elemClicked.closest('tr');
+        elemRow.addClass('selected-for-mapping');
+
+}
+function stopInstanceMapping(elemClicked) {
+
+    $('*').removeClass('mapping-start');
+
+    $('*').removeClass('selected-for-mapping');
+    $('.bom-sync-result-match').removeClass('hidden');
+    $('.bom-sync-result-update').removeClass('hidden');
+    $('.mapped').removeClass('hidden');
+
+}
+function selectInstanceMapping(elemClicked) {
+
+    let elemTarget = elemClicked.closest('tr');
+        elemTarget.addClass('mapped');
+
+    let elemIcon = elemTarget.find('.sync-status').find('.icon');
+        elemIcon.removeClass('icon-create').addClass('icon-swap-circle');
+
+    let elemSource = $('.selected-for-mapping');
+        elemSource.addClass('hidden');
+
+    copyInstanceValues(elemSource, elemTarget);    
+
+}
+function copyInstanceValues(elemSource, elemTarget) {
+    
+    let elemTop      = elemSource.closest('.panel-top');
+    let indexTop     = Number(elemTop.attr('data-index'));
+    let workspace    = workspaces[indexTop];
+    let sourceValues = elemSource.find('input');
+    let targetValues = elemTarget.find('input');
+    let index        = 0;
+    let fieldsEx     = [];
+
+    fieldsEx.push(workspace.fieldsList.partNumber);
+    fieldsEx.push(workspace.fieldsList.title);
+    fieldsEx.push(workspace.fieldsList.revision);
+    fieldsEx.push(workspace.fieldsList.path);
+    fieldsEx.push(workspace.fieldsList.instanceId);
+    fieldsEx.push(workspace.fieldsList.instancePath);
+    fieldsEx.push(workspace.fieldsList.boundingBox);
+
+    sourceValues.each(function() {
+
+        let elemInput = targetValues.eq(index);
+        let idInput   = elemInput.attr('data-id');
+
+        if(!fieldsEx.includes(idInput)) {
+            elemInput.val($(this).val());
+            elemInput.parent().addClass('changed');
+        }
+
+        index++;
+        
+    })
 
 }

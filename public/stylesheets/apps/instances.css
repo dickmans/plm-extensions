@@ -8,49 +8,47 @@
     --width-details : 400px;
     --width-viewer  : 600px;
     --height-viewer : 400px;
+    --height-counter  : 22px;
+    --width-counter  : 33px;
 }
-
-
-.sync-status { display : none; }
-
 
 
 /*  MASTER LAYOUT */
 /* ----------------------------------------------------------------------------- */
 #results {
-    border-width    : var(--border-v) var(--border-h);
-    top             : 0px;
-    bottom          : 0px;
-    left            : 0px;  
-    right : 0px;
+    border-width : var(--border-v) var(--border-h);
+    top          : 0px;
+    bottom       : 0px;
+    left         : 0px;  
+    right        : 0px;
 }
 #bom {
-    border-width    : var(--border-v) var(--border-h);
-    top             : 0px;
-    bottom          : 0px;
-    left            : 0px;
-    width           : var(--width-bom);
-    z-index         : 1;
+    border-width : var(--border-v) var(--border-h);
+    top          : 0px;
+    bottom       : 0px;
+    left         : 0px;
+    width        : var(--width-bom);
+    z-index      : 1;
 }
 #details {
-    border-width    : var(--border-v) var(--border-h) var(--border-v) 0px;
-    top             : 0px;
-    bottom          : 0px;
-    left            : calc(var(--width-bom) + (2 * var(--border-h)));;
-    width           : var(--width-details);
+    border-width : var(--border-v) var(--border-h) var(--border-v) 0px;
+    top          : 0px;
+    bottom       : 0px;
+    left         : calc(var(--width-bom) + (2 * var(--border-h)));;
+    width        : var(--width-details);
 }
 .viewer {
-    top     : 0px;
-    right   : 0px;
-    bottom  : 60%;
-    left    : calc(var(--width-bom) + var(--width-details) + (3 * var(--border-h)));
+    top    : 0px;
+    right  : 0px;
+    bottom : 60%;
+    left   : calc(var(--width-bom) + var(--width-details) + (3 * var(--border-h)));
 }
 #contents {
-    border-width    : var(--border-v) var(--border-h);
-    top             : 40%;
-    right           : 0px;
-    left            : calc(var(--width-bom) + var(--width-details) + (3 * var(--border-h)));
-    bottom          : 0px;
+    border-width : var(--border-v) var(--border-h);
+    top          : 40%;
+    right        : 0px;
+    left         : calc(var(--width-bom) + var(--width-details) + (3 * var(--border-h)));
+    bottom       : 0px;
 }
 #items {
     position : absolute;
@@ -58,6 +56,12 @@
     right    : 0px;
     left     : 0px;
     bottom   : 0px;
+}
+#sync {
+    height  : 542px;
+    left    : calc(50% - 600px);
+    top     : calc(50% - 300px);
+    width   : 1200px;
 }
 
 
@@ -102,15 +106,15 @@
 /*  BOM */
 /* ----------------------------------------------------------------------------- */
 .column-icon {
-    text-align  : center;
-    width       : 34px;
+    text-align : center;
+    width      : 30px;
 }
 td.column-icon {
-    font-size       : 22px;
-    font-weight     : 200;
-    line-height     : 34px;
-    padding-bottom  : 0px !important;
-    padding-top     : 0px !important;
+    font-size      : 22px;
+    font-weight    : 200;
+    line-height    : 34px;
+    padding-bottom : 0px !important;
+    padding-top    : 0px !important;
 }
 
 
@@ -118,13 +122,31 @@ td.column-icon {
 /*  TABS */
 /* ----------------------------------------------------------------------------- */
 #tabs > div {
-    display         : flex;
-    gap             : 6px;
+    display     : flex;
+    font-size   : 14px;
+    gap         : 8px;
+    height      : 40px;
+    line-height : 38px;
     justify-content : center;
 }
-#tabs > div::before {
-    font-weight : 300;
+#tabs .icon {
+    line-height : 36px;
 } 
+.tab-counter {
+    font-size     : 10px;
+    font-weight   : 700;
+    border-radius : 4px;
+    position      : relative;
+    top           : 7px;
+    text-align    : center;
+    max-width     : var(--width-counter);
+    min-width     : var(--width-counter);
+    width         : var(--width-counter);
+    max-height    : var(--height-counter);
+    min-height    : var(--height-counter);
+    height        : var(--height-counter);
+    line-height   : var(--height-counter);
+}
 
 
 
@@ -143,7 +165,6 @@ tr.highlighted > td.table-check-box {
 #items .panel-actions {
     justify-content : end;
 }
-
 #items .column-NUMBER {
     max-width : 140px;
     min-width : 140px;
@@ -168,9 +189,49 @@ tr.highlighted > td.table-check-box {
 .panel-action-clone {
     order : -1;
 }
-.sync-status > .icon-remove { color : var(--color-status-red   ); }
-.sync-status > .icon-info   { color : var(--color-status-yellow); }
-.sync-status > .icon-check  { color : var(--color-status-green ); }
+td.sync-status { 
+    display : flex;
+}
+.sync-actions {
+    display      : flex;
+    gap          : 2px;
+    padding-left : 12px;
+}
+.sync-actions > .button {
+    height : 23px;
+    line-height : 23px !important;
+    margin-top : 3px;
+    padding-top : 0px;
+    padding-bottom : 0px;
+    font-size : 12px;
+    min-width : unset;
+}
+.sync-actions > .button.icon {
+    font-size : 20px;
+}
+.no-bom-sync .sync-status {
+    display : none;
+}
+.match-stop {
+    display : none;
+}
+.sync-actions > div {
+    max-width : 36px;
+    min-width : 36px;
+    width     : 36px;
+}
+.selected-for-mapping .match-stop {
+    display : block;
+}
+.selected-for-mapping .match-start {
+    display : none;
+}
+.match-select {
+    display : none;
+}
+.mapping-start .match-select {
+    display : block;
+}
 
 .field-id-ITEM_REV      { max-width :  32px !important; min-width :  32px !important; width :  32px !important; text-align : center; }
 .field-id-INSTANCE_ID   { max-width :  32px !important; min-width :  32px !important; width :  32px !important; text-align : right;  }
@@ -178,7 +239,57 @@ tr.highlighted > td.table-check-box {
 
 
 
-/*  ITEMS */
+/*  SYNC DIALOG */
+/* ----------------------------------------------------------------------------- */
+#sync .dialog-content {
+    overflow : hidden;
+}
+th.sync-column {
+    padding : 12px;
+    border-bottom : 4px solid var(--color-surface-level-1);
+
+}
+.sync-column {
+    border-left : 10px solid var(--color-surface-level-1);
+    text-align  : center;
+}
+#sync-throw > th:first-of-type {
+    background  : none;
+    border-left : none;
+    width       : 460px;
+}
+.sync-icon {
+    background    : var(--color-surface-level-3) !important;
+    padding-right : 0px;
+    padding-left  : 0px;
+    max-width     : 42px;
+    min-width     : 42px;
+    width         : 42px;
+    text-align    : center;
+}
+.sync-icon .icon {
+    font-size   : 22px;
+    font-weight : 200;
+    line-height : 36px;
+}
+#sync td {
+    border-bottom-color : var(--color-surface-level-1);
+    line-height         : 24px;
+}
+#sync-message {
+    padding : 28px 56px 0px;
+}
+#sync.no-changes #sync-review-changes,
+#sync.no-changes #sync-save {
+    display : none;
+}
+#sync.review-changes #sync-no-changes {
+    display : none;
+}
+
+
+
+/*  ADDIN MODE */
 /* ----------------------------------------------------------------------------- */
 .addin {
     --border-v      : 18px;
@@ -216,11 +327,6 @@ tr.highlighted > td.table-check-box {
 .addin #items {
     top : 40px;
 }
-
-
-
-/*  ADDIN MODE */
-/* ----------------------------------------------------------------------------- */
 .addin #header-subtitle {
     padding-left : var(--border-h);
 }
