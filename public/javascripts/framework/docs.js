@@ -940,7 +940,7 @@ let categories = [
     description : 'Sets the label of the Save button',
     type        : 'String',
     default     : 'Save',
-    supportedBy : []   
+    supportedBy : ['insertGrid']   
 },{
     name        : 'includeBookmarks',
     description : 'When enabled, users also can select the list of bookmarked items of the defined workspace using the views drop down',

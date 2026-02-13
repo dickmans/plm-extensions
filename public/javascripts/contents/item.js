@@ -4318,6 +4318,7 @@ function insertGrid(link, params) {
         [ 'hideButtonCreate'    , false ],
         [ 'hideButtonClone'     , false ],
         [ 'hideButtonDisconnect', false ],
+        [ 'saveButtonLabel'     , 'Save Changes' ],
         [ 'rotate'              , false ],
         [ 'sortOrder'           , [] ],
         [ 'sortBy'              , '' ],
@@ -4360,7 +4361,7 @@ function insertGrid(link, params) {
             .addClass('default')
             .attr('id', id + '-action-save') 
             .attr('title', 'Save all changes to PLM')
-            .html('Save Changes')
+            .html(settings[id].saveButtonLabel)
             .addClass('hidden')
             .click(function(e) {
                 e.preventDefault();
@@ -4652,7 +4653,7 @@ function insertGridRow(id, row, picklistsData, groupName) {
             let elemGroup = $(this);
             if(elemGroup.attr('data-title') === groupName) {
                 let elemLast = elemGroup.nextUntil('.table-group').last();
-                if(elemLast.length > 0) elemTableRow.insertBefore(elemLast);
+                if(elemLast.length > 0) elemTableRow.insertAfter(elemLast);
             }
         });
     }
@@ -4907,6 +4908,14 @@ function saveGridData(id) {
         $('#overlay').hide();
         updateListCalculations(id);
         updatePanelCalculations(id);
+
+        if(elemTBody.children().length === 0) {
+            $('#' + id + '-content').hide();
+            $('#' + id + '-select-all').addClass('icon-check-box').removeClass('icon-check-box-checked');
+            $('#' + id + '-no-data').show();
+        }
+
+        if(!isBlank(settings[id].afterSave)) settings[id].afterSave(id);
         
     });
 

@@ -1214,6 +1214,7 @@ function getPanelSettings(link, params, defaults, additional) {
     if(isBlank(defaults.tileTitle)            ) defaults.tileTitle             = 'DESCRIPTOR';
     if(isBlank(defaults.useCache)             ) defaults.useCache              = false;
     if(isBlank(defaults.afterCompletion)      ) defaults.afterCompletion       = function (id) {};
+    if(isBlank(defaults.afterSave)            ) defaults.afterSave             = function (id) {};
 
     if(!isBlank(params.contentSizes)) params.contentSize = params.contentSizes[0];
 
@@ -1275,6 +1276,7 @@ function getPanelSettings(link, params, defaults, additional) {
         onClickItem           : isBlank(params.onClickItem)           ? null : params.onClickItem,
         onDblClickItem        : isBlank(params.onDblClickItem)        ? null : params.onDblClickItem,
         afterCompletion       : isBlank(params.afterCompletion)       ? defaults.afterCompletion : params.afterCompletion,
+        afterSave             : isBlank(params.afterSave)             ? defaults.afterSave : params.afterSave,
         createWorkspaceIds    : [],
         columns               : [],
     }
