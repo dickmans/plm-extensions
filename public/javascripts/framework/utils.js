@@ -528,6 +528,16 @@ function sortArray(array, key, type, direction) {
 }
 
 
+// Get date from string property value
+function getDateFromString(string) {
+
+    let value = string.split(' ')[0].split('-');
+
+    return new Date(value[0], Number(value[1]) - 1, value[2]);
+
+}
+
+
 // Get day of the year
 function getDayOfYear(date = new Date()) {
     
