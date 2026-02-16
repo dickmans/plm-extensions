@@ -3873,8 +3873,11 @@ async function startTreeDownload(id) {
                     } else {
                         let path = getTreeItemPath(elemRow, ';');
                         for(let parent of path.links) {
-                            if(downloadQueue.pending.includes(parent)) {
-                                valid = true;
+                            for(let downloadPending of downloadQueue.pending) {
+                                if(downloadPending.link === parent) {
+                                    valid = true;
+                                    break;
+                                }
                             }
                         }
                     }
@@ -3890,28 +3893,27 @@ async function startTreeDownload(id) {
 
                 if(!items.includes(link)) {
                     if(valid) {
-                        if(valid) {
                             
-                            if(subFolders !== 'top') {
-                                if(subFolders !== 'path') {
-                                    items.push(link);
-                                }
+                        if(subFolders !== 'top') {
+                            if(subFolders !== 'path') {
+                                items.push(link);
                             }
-
-                            let subFolder = '';
-
-                                 if(subFolders === 'item') subFolder = elemRow.attr('data-title').split(' [REV:')[0];
-                            else if(subFolders === 'top' ) subFolder = topLevelFolder;
-                            else if(subFolders === 'path') subFolder = bomTreeFolders.toString().replaceAll(',', '/');
-
-                            downloadQueue.pending.push({
-                                link      : link,
-                                title     : elemRow.attr('data-title'),
-                                version   : getItemRevisionFromDescriptor(elemRow.attr('data-title')),
-                                subFolder : subFolder.trim(),
-                                index     : elemRow.index()
-                            });
                         }
+
+                        let subFolder = '';
+
+                                if(subFolders === 'item') subFolder = elemRow.attr('data-title').split(' [REV:')[0];
+                        else if(subFolders === 'top' ) subFolder = topLevelFolder;
+                        else if(subFolders === 'path') subFolder = bomTreeFolders.toString().replaceAll(',', '/');
+
+                        downloadQueue.pending.push({
+                            link      : link,
+                            title     : elemRow.attr('data-title'),
+                            version   : getItemRevisionFromDescriptor(elemRow.attr('data-title')),
+                            subFolder : subFolder.trim(),
+                            index     : elemRow.index()
+                        });
+
                     } 
                 }
             }
