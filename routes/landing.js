@@ -305,7 +305,7 @@ function isServiceDisabled(appURL, req, res) {
     if(req.app.locals.server.servicesEnabled[urlEnd]) return false;
 
     res.locals.message = 'Page not found';
-    res.locals.error = { status : 404, stack : 'Cound not find /' + urlEnd + ' on this server'};
+    res.locals.error = { status : 404, stack : 'Cannot find /' + urlEnd + ' on this server'};
     
     res.status(404);
     res.render('framework/error');
