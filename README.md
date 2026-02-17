@@ -21,12 +21,10 @@ Pefrorm the steps listed below to run this server on your local system for testi
 <li>Install node.js from https://nodejs.org/en/download/current</li>
 <li>Open a command prompt and navigate to the unzipped folder of step #1</li>
 <li>In this command prompt, download required node modules by running 
-    <br>
-    <strong>npm install</strong>
+    <pre>npm install</pre>
 </li>
 <li>Launch the server from the command prompt by running
-    <br>
-    <strong>npm start</strong>
+    <pre>npm start</pre>
 </li>
 <li>In your browser, navigate to the server's landing page at http://localhost:8080</li>
 <li>In this landing page, you will find the list of available applications as well as additional setup instructions for each application if required</li>
@@ -52,7 +50,8 @@ The file <a href="https://github.com/dickmans/plm-extensions/tree/main/settings.
 If the UX server should be used with multiple Fusion Manage tenants, you can use multiple environment files in folder /environments and multiple custom setting files in folder /settings. 
 
 For each tenant, create a copy of file <a href="https://github.com/dickmans/plm-extensions/tree/main/environments/template.js" target="_blank">/environments/template.js</a> in the same folder and give it a unique name (ie. use the tenant's name). In each of these environment files, you can now define a specific tenant and Client ID to be used. Now, you can launch the server with a specific environment file by passing the given filename when starting the server. For example, if file /environments/adsktenant.js should be used, launch the server with this command:
-**npm start adsktenant**. In this case, the contents of the standard environment.js file will be ignored.
+<pre>npm start adsktenant</pre>
+In this case, the contents of the standard environment.js file will be ignored.
 
 If an environment also requires a specific custom setting file, create a copy of file <a href="https://github.com/dickmans/plm-extensions/tree/main/settings/custom.js" target="_blank">/settings/custom.js</a> in the settings folder. The environment file defines the custom settings file to use in exports.settings (with custom.js being the default value). If you want to use another file than custom.js, you must therefore update the given reference in exports.settings of your environment file. 
 
