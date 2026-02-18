@@ -806,20 +806,20 @@ function getFieldSection(sections, field) {
         for(let sectionField of section.fields) {
             if(field.fieldId === sectionField.link.split('/').pop()) return section;
             if(field.link === sectionField.link) return section;
-
             if(sectionField.type === 'MATRIX') {
                 for(let matrix of section.matrices) {
                     for(let matrixFields of matrix.fields) {
                         for(let matrixField  of matrixFields) {
                             if(matrixField !== null) {
+                                if(typeof matrixField !== 'string') {
+                                    let temp = matrixField.link.split('/');
+                                    let id   = temp[temp.length - 1];
+                                                
+                                    if(id === field.fieldId) {
+                                        return section;
+                                    }
 
-                                let temp = matrixField.link.split('/');
-                                let id   = temp[temp.length - 1];
-                                            
-                                if(id === field.fieldId) {
-                                    return section;
                                 }
-
                             }
                         }
                     }
