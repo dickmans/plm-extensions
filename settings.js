@@ -124,8 +124,8 @@ exports.applications = {
             fieldIDs: {
                 id        : 'ID',
                 asset     : 'ASSET',
+                number    : 'ITEM_NUMBER',
                 item      : 'REFERENCE_ITEM',
-                number    : 'REFERENCE_ITEM_NUMBER',
                 root      : 'REFERENCE_ITEM_ROOT',
                 path      : 'REFERENCE_ITEM_PATH',
                 endItem   : 'END_ITEM',

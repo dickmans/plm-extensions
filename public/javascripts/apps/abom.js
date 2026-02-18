@@ -586,8 +586,8 @@ function changeBOMViewDone(id, settings, bomData, selectedItems, dataFlatBOM, da
             });
 
         for(let abomPart of abomPartsList) {
-            if(abomPart.details.REFERENCE_ITEM_ROOT === ebomPart.root) {
-                if(abomPart.details.REFERENCE_ITEM_PATH === ebomPart.path) {
+            if(abomPart.details[config.assetItems.fieldIDs.root] === ebomPart.root) {
+                if(abomPart.details[config.assetItems.fieldIDs.path] === ebomPart.path) {
                     
                     hasABOM = true;
                     elemBOMItem.attr('data-abom', abomPart.link);

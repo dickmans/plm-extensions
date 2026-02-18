@@ -60,7 +60,92 @@
             |defined for the context Asset, the toggle 
             strong Deliveries Assignment 
             |can be used to easily connect the Asset Items with the given deliveries. These deliveries then will be used for the lifecycle management of the given items, similar to the Change Orders for Engineering BOM items.
-        h1 Items Workspace Adjustments
+        h1 Setup Step #1 : Adjust workspace Asset Items
+        p As mentioned in the prerequisites, this solution requires installation of the template 
+            strong Assets Lifecycle &amp; Projects 
+            |which is available for testing only (as of December 2025). Amongst others, this template provides the workspace 
+            strong Asset Items 
+            |which is required by this application. Once this template has been downloaded from the library, the configuration steps of this chapter must be performed to make this application work properly.
+        h2 Item Details Tab 
+        p Change the field 
+            strong Reference Item 
+            |to type single picklist, referencing your Items workspace:         
+        img.border(src='images/apps/abom-6.png' style='max-width:960px;')
+        h2 BOM View
+        p A BOM view with a defined list of fields is required in the 
+            strong Asset Items 
+            |workspace. Per default configuration, these fields must be added to the BOM 
+            strong Default View  
+            |, but you can also choose another BOM view name if needed by changing the given configuration setting (see configuration settings overview further down below).
+        table.row-hovering 
+            tr 
+                th Field Label
+                th Field ID
+                th Source
+            tr 
+                td Descriptor
+                td 
+                td System Fields
+            tr 
+                td Quatity
+                td 
+                td BOM Fields
+            tr 
+                td ID
+                td ID
+                td Item Details Fields / Header
+            tr 
+                td Asset
+                td ASSET
+                td Item Details Fields / Header
+            tr 
+                td Item Number
+                td ITEM_NUMBER
+                td Item Details Fields / Header
+            tr 
+                td Reference Item
+                td REFERENCE_ITEM
+                td Item Details Fields / Header
+            tr 
+                td REFERENCE_ITEM_ROOT
+                td REFERENCE_ITEM_ROOT
+                td Item Details Fields / Header
+            tr 
+                td REFERENCE_ITEM_PATH
+                td REFERENCE_ITEM_PATH
+                td Item Details Fields / Header
+            tr 
+                td Serial #
+                td SERIAL
+                td Item Details Fields / Details
+            tr 
+                td END_ITEM
+                td END_ITEM
+                td Item Details Fields / Details
+            tr 
+                td Spare Part
+                td SPARE_PART
+                td Item Details Fields / Details
+            tr 
+                td Purchased
+                td PURCHASED
+                td Item Details Fields / Details
+            tr 
+                td Supplier
+                td SUPPLIER
+                td Item Details Fields / Details
+        h1 Setup Step #2 : Adjust workspace Assets
+        p The workspace 
+            strong Assets 
+            |also is provided by the template 
+            strong Assets Lifecycle &amp; Projects
+            |. 
+            br
+            |Launching the editor from records in this workspace is only possible if the field 
+            span.code ENGINEERING_BOM 
+            |is set to type single picklist referencing your Items workspace:
+        img.border(src='images/apps/abom-4.png' style='max-width:960px;')
+        h1 Setup Step #3 : Adjust workspace Items
         h2 BOM View
         p For the alignment of EBOM and Asset BOM, the editor requires a BOM view in the Items workspace with all the fields listed below. Per default configuration, this BOM view must be named 
             strong Asset BOM Editor 
@@ -103,6 +188,16 @@
             strong Workspace Manager 
             |to configure these derived fields if needed.
         img.border(src='images/apps/abom-3.png' style='max-width:860px;')
+        h1 Setup Step #4 : Workspace IDs in settings file 
+        p Update the IDs for the workspaces being used by this application in your server's settings file (i.e. 
+            span.code /settings/custom.js
+            |): 
+            ul 
+                li
+                    span.code assets 
+                li
+                    span.code assetItems
+        img.border(src='images/apps/abom-5.png' style='max-width:398px;')           
         h1 Application Configuration Settings 
         p The following application specific settings can be adjusted in your custom settings file in 
             span.code exports.applications.abom 
