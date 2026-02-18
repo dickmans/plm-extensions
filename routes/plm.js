@@ -6343,6 +6343,7 @@ router.get('/me', function(req, res, next) {
         axios.get(url, {
             headers : req.session.headers
         }).then(function(response) {
+            response.data.fullName = response.data.lastName + ', ' + response.data.firstName;
             sendResponse(req, res, response, false);
         }).catch(function(error) {
             sendResponse(req, res, error.response, true);
