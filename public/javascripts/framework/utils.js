@@ -5943,17 +5943,20 @@ function getWorkspaceTypeLabel(workspace) {
 
 
 // Get V1 search result field value
-function getSearchResultFieldValue(item, fieldId, defaultValue) {
+function getSearchResultFieldValue(item, fieldId, defaultValue, fieldKey) {
+
+    // Valid options for fieldKey : 'value' ||' formattedValue'
 
     if(isBlank(defaultValue)) defaultValue = ''; 
+    if(isBlank(fieldKey    )) fieldKey     = 'value';
 
-    for(field of item.fields.entry) {
+    for(let field of item.fields.entry) {
         if(field.key === fieldId) {
             switch(field.fieldData.dataType) {
                 case 'Image':
                     return field.fieldData.uri;
                 default:
-                    return field.fieldData.value;
+                    return field.fieldData[fieldKey];
             }
         }
     }
