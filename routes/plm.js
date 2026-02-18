@@ -4629,12 +4629,10 @@ function setBodySort(body, sorts) {
 
             var sort = {
                 fieldID           : sorts[i],
-                fieldTypeID       : 0,
+                fieldTypeID       : getFieldType(sorts[i]),
                 sortDescending    : false    
             }
 
-            if(sort.fieldID === 'DESCRIPTOR') sort.fieldTypeID = 15;
-            
             body.sort.push(sort);
             
         }
@@ -4655,14 +4653,53 @@ function setBodyFilter(body, filters) {
             body.filter.push({
                 fieldID       : filter.field,
                 fieldTypeID   : Number(filter.type),
-                filterType    : { filterID : filter.comparator },
+                filterType    : { filterID : getFilterComparator(filter) },
                 filterValue   : filter.value         
             });
         }
-        
+
     }
 
 }
+function getFilterComparator(filter) {
+
+    let result = filter.comparator;
+
+    switch(filter.comparator) {
+
+        case 'not-empty': 
+        case 'not-empty-picklist': 
+        case 'not-empty-multi-picklist': 
+            result = '21'; 
+            break;
+
+        case 'not-included-in-multi-picklist': 
+            result = '38'; 
+            break;
+
+        case '<>>':
+        case '!=':
+        case '!==':
+        case 'not-equal':
+        case 'not-equal-to':
+        case 'does-not-equal':
+            if(filter.type === '1') result = '5';
+            break;
+
+        case 'after': 
+            result = '18'; 
+            break;
+            
+        case 'before': 
+            result = '19'; 
+            break;
+
+    }
+
+    return result;
+
+}
+
 
 
 /* ----- SEARCH DESCRIPTOR ----- */
