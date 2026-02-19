@@ -4546,6 +4546,15 @@ router.post('/search', function(req, res) {
                 result = response.data;
             }
         }
+        for(let row of result.row) {
+            row.data = {};
+            for(let field of row.fields.entry) {
+                row.data[field.key] = {
+                    value : field.fieldData.value,
+                    displayValue : field.fieldData.formattedValue,
+                }
+            }
+        }
         sendResponse(req, res, { 'data' : result, 'status' : response.status }, false);
     }).catch(function (error) {
         error.response.data = { row : [] };
