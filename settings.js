@@ -173,7 +173,7 @@ exports.applications = {
     },
 
     classes : {
-        fieldsIncluded : ['DESCRIPTOR', 'WORKSPACE', 'REVISION']
+        fieldsIncluded : ['DESCRIPTOR', 'WORKSPACE', 'REVISION', 'CLASS_NAME']
     },
 
     configurator : {
