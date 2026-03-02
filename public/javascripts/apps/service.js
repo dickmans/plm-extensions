@@ -91,9 +91,6 @@ $(document).ready(function() {
         setUIElements();
         setUIEvents();   
         
-        console.log(urlParameters);
-        console.log(user);
-
         if(urlParameters.link !== '') {
 
             $('body').addClass('screen-main').removeClass('screen-landing').removeClass('screen-request');
@@ -719,6 +716,8 @@ function openItem() {
 
     let keys = Object.keys(config.paramsBOM);
 
+    if(isiPad) paramsBOM.singleToolbar = 'actions';
+
     for(let key of keys) paramsBOM[key] = config.paramsBOM[key];
 
     insertBOM          (links.ebom, paramsBOM);
@@ -819,7 +818,7 @@ function changeBOMViewDone(id, settings, bom, selectedItems, flatBOM) {
     $('#bom-processing').hide();
 
     if(!isBlank(links.sbom)) {
-        finishSparePartsList();
+        // finishSparePartsList();
         return;
     }
 

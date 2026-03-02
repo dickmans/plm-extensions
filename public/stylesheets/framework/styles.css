@@ -3293,20 +3293,27 @@ select.button.main:hover {
        only screen and (max-device-width : 1366px) and (max-device-height : 1024px) {
 
     .tabs {
-        font-size : 16px;
+        font-size : 14px;
     }
 
     .tabs > div {
-        height : 30px;
+        height : 28px;
     }
 
-    .panel-content {
-        top : 50px;
+    .panel-header {
+        height : 42px;
+    }
+
+    .panel-title-main {
+        font-size : 14px;
     }
 
     .panel-search.button {
         height    : 32px;
         padding   : 2px;
+        max-width : 160px;
+        min-width : 160px;
+        width     : 160px;
     }
 
     .panel-search.button > .button {
@@ -3318,6 +3325,21 @@ select.button.main:hover {
         max-width   : 30px;
         min-width   : 30px;
         width       : 30px;
+    }
+
+    .panel-actions {
+        top : 42px;
+    }
+
+    .panel-content {
+        top : 48px;
+    }
+    .panel-top.with-panel-actions > .panel-content {
+        top : 106px;
+    }
+
+    .panel-content.s tr > td, .panel-content.s tr.content-item > td > input, .panel-content.s tr.content-item > td > select, .panel-content.s tr.content-item > td > textarea {
+        padding: 0px 6px;
     }
 
 }

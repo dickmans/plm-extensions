@@ -838,3 +838,64 @@
     }
 
 }
+
+
+/* iPads (portrait and landscape) ----------- */
+@media only screen and (min-device-width : 768px) and (max-device-width : 1280px) {
+
+    :root {
+        --border-v : 22px;
+        --border-h : 22px;
+
+        --width-your-processes  : 420px;
+
+    }
+
+
+}
+
+/* iPads (portrait and landscape) ----------- */
+@media only screen and (max-device-width : 1180px) and (max-device-height :  820px),
+       only screen and (max-device-width : 1366px) and (max-device-height : 1024px) {
+
+    :root {
+
+        --border-v : 18px;
+        --border-h : 18px;
+        --width-your-processes : 420px;
+
+        --width-bom   : 360px;
+        --width-panel : 380px;
+
+    }
+
+    #main {
+        --border-v : 14px;
+        --border-h : 14px;
+    }
+
+    .bom-column-quantity,
+    .tree-column-type {
+        display : none;
+    }
+
+    .spare-parts-group {
+        max-height  : 28px;
+        min-height  : 28px;
+        height      : 28px;
+    }
+    .spare-parts-group,
+    .spare-parts-group > .icon {        
+        line-height : 28px;
+    }
+
+    .spare-part-components-toggle { 
+        font-size   : 32px;
+        max-height  : 22px;
+        min-height  : 22px;
+        height      : 22px;
+        line-height : 22px;
+
+    }
+
+}
