@@ -1980,7 +1980,9 @@ function addCustomViewControl(toolbar, id, view, icon, tooltip) {
         button.onClick = function(e) { viewer.setViewFromFile(); };
     } else {
         button.onClick = function(e) { 
+            alert(view);
             viewer.getExtension('Autodesk.ViewCubeUi', function(viewCubeExtension) {
+                alert('1');
                 viewCubeExtension.setViewCube(view);
             });
         };

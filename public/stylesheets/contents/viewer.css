@@ -84,7 +84,11 @@ body.dark-theme  #guiviewer3d-toolbar #toolbar-measureTool-done.adsk-button:hove
 }
 .adsk-toolbar .adsk-control-group { margin : 0px !important; }
 .adsk-viewing-viewer.dark-theme .adsk-control-tooltip { background : black !important; }
-.adsk-viewing-viewer .adsk-button { margin : 2px ! important; }
+#viewer .adsk-viewing-viewer .adsk-button { 
+    border-radius : 2px;
+    margin        : 2px;
+    padding       : 4px;
+}
 
 
 /* #my-custom-toolbar-views{ margin-left : 20px !important; } */
@@ -374,8 +378,8 @@ body.dark-theme  #guiviewer3d-toolbar #toolbar-measureTool-done.adsk-button:hove
                        or (min-resolution: 192dpi)
                    ) {
     
-    .adsk-viewing-viewer .adsk-button {
-        padding : 4px !important;
+    #guiviewer3d-toolbar > div {
+        margin  : 0px 2px !important;
     }
 
 }
