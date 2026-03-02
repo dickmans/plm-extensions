@@ -2085,6 +2085,7 @@ and (max-device-width : 1900px)  {
 .black-theme.surface-level-5 .panel-controls-spacer {  background : var(--color-surface-level-2); }
 
 .panel-search.button {
+    display   : flex;
     gap       : 2px;
     height    : 24px;
     padding   : 6px;
@@ -2098,11 +2099,16 @@ and (max-device-width : 1900px)  {
 }
 .panel-controls > .panel-search > .button {
     font-size   : 22px;
+    max-height  : 22px;
+    min-height  : 22px;
     height      : 22px;
     line-height : 22px;
     max-width   : 22px;
     min-width   : 22px;
     width       : 22px;
+}
+.panel-controls > .panel-search > input {
+    font-size : 14px;
 }
 
 
@@ -2161,12 +2167,12 @@ and (max-device-width : 1900px)  {
     right           : 0px;
     left            : 0px;
 }
-.panel-actions > .button,
+/* .panel-actions > .button,
 .panel-actions > input {
     height          : 36px;
     line-height     : 36px;
     padding         : 0px 16px;
-}
+} */
 .panel-actions > .button.with-icon::before {
     line-height : 35px;
     width       : 32px;
@@ -2177,22 +2183,23 @@ and (max-device-width : 1900px)  {
     border-top   : 1px solid var(--color-surface-level-3);;
     padding      : 0px 16px;
 }
-.panel-actions > .panel-search {
+/* .panel-actions > .panel-search {
     height  : 28px;
     padding : 4px;
+} */
+.panel-actions > .panel-search > .button {
+    font-size   : 22px;
+    max-height  : 22px;
+    min-height  : 22px;
+    height      : 22px;
+    line-height : 22px;
+    max-width   : 22px;
+    min-width   : 22px;
+    width       : 22px;
 }
 .panel-actions > .panel-search > input {
-    padding : 2px 
-}
-.panel-actions > .panel-search > .button {
-    max-height  : 24px;
-    min-height  : 24px;
-    height      : 24px;
-    line-height : 24px;
-    margin-top  : 1px;
-    max-width   : 24px;
-    min-width   : 24px;
-    width       : 24px;
+    font-size : 14px;
+    /* padding : 2px  */
 }
 .panel-top.search > .panel-actions { justify-content: center; }
 
@@ -2994,17 +3001,19 @@ select.button.main:hover {
     border-color : var(--color-surface-level-3) !important;
 }
 
-.button.icon {
-    font-family : 'Material Symbols Sharp';
-    font-size   : 24px;
-    font-weight : 200;
+.button.icon,
+.button.with-icon {
     height      : 36px;
     line-height : 36px;
     min-width   : 36px;
     padding     : 0px;
-    width       : 36px;
     text-rendering          : optimizeLegibility;
     -webkit-font-smoothing  : antialiased;
+}
+.button.icon {
+    font-size   : 24px;
+    font-weight : 200;
+    width       : 36px;
 }
 .button.with-icon { 
     display : flex;

@@ -87,3 +87,8 @@ body.no-attachments #attachments { bottom : calc(0px - var(--height-files) - (2 
     height      : 38px;
     text-align  : center;
 }
+#search-search-content-button {
+    max-width : 98px;
+    min-width : 98px;
+    width     : 98px;
+}

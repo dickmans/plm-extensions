@@ -1848,7 +1848,6 @@ function genPanelSearchInput(id, panelSettings) {
     let elemSearch = $('<div></div>').appendTo(elemToolbar)
         .addClass('button')
         .addClass('panel-search')
-        .addClass('with-icon')
         .attr('id', id + '-search');
 
     $('<div></div>').appendTo(elemSearch)
