@@ -1960,7 +1960,7 @@ function viewerAddViewsToolbar() {
     
     addCustomViewControl(newToolbar, 'my-view-home-button'  , 'home'  , 'icon-home', 'Home');
 
-    // if(!isiPad) {
+    if(!isiPad) {
 
         addCustomViewControl(newToolbar, 'my-view-front-button' , 'front' , 'icon-north-east', 'Front View');
         addCustomViewControl(newToolbar, 'my-view-back-button'  , 'back'  , 'icon-south-west', 'Back View');
@@ -1969,7 +1969,7 @@ function viewerAddViewsToolbar() {
         addCustomViewControl(newToolbar, 'my-view-top-button'   , 'top'   , 'icon-south', 'Top View');
         addCustomViewControl(newToolbar, 'my-view-bottom-button', 'bottom', 'icon-north', 'Bottom View');
 
-    // }
+    }
 
     viewer.toolbar.addControl(newToolbar);
 
@@ -1985,7 +1985,6 @@ function addCustomViewControl(toolbar, id, view, icon, tooltip) {
         button.onClick = function(e) { viewer.setViewFromFile(); };
     } else {
         button.onClick = function(e) { 
-            localStorage.setItem('Autodesk.Viewing.Private.GuiViewer3D.SavedSettings.viewCube', 'true');
             viewer.getExtension('Autodesk.ViewCubeUi', function(viewCubeExtension) {
                 viewCubeExtension.setViewCube(view);
             });
