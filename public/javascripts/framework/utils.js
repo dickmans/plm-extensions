@@ -2,7 +2,7 @@ let userAccount         = { displayName : '', groupsAssigned : [] };
 let urlParameters       = {};
 let languageId          = '1';
 let username            = '';
-let isiPad              = navigator.userAgent.match(/iPad/i)   != null;
+const isiPad            = ( navigator.userAgent.includes('iPad') || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) );
 let isiPhone            = navigator.userAgent.match(/iPhone/i) != null;
 let applicationFeatures = {}
 let viewerFeatures      = {};

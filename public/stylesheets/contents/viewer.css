@@ -364,10 +364,15 @@ body.dark-theme  #guiviewer3d-toolbar #toolbar-measureTool-done.adsk-button:hove
 
 
 
-/* iPads (portrait and landscape) ----------- */
-@media only screen and (orientation : landscape) and (max-device-width :  768px) and (max-device-height : 1024px) and (min-resolution: 2dppx),
-       only screen and (orientation : landscape) and (max-device-width :  820px) and (max-device-height : 1180px) and (min-resolution: 2dppx),
-       only screen and (orientation : landscape) and (max-device-width : 1024px) and (max-device-height : 1366px) and (min-resolution: 2dppx) {
+/* iPads (landscape) ----------- */
+@media only screen and (orientation: landscape)
+                   and (min-width: 768px)    /* smallest iPad landscape viewport */
+                   and (max-width: 1366px)   /* largest iPad Pro landscape viewport */
+                   and (
+                       (min-resolution: 2dppx) 
+                       or (-webkit-min-device-pixel-ratio: 2)
+                       or (min-resolution: 192dpi)
+                   ) {
     
     .adsk-viewing-viewer .adsk-button {
         padding : 4px !important;
