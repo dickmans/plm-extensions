@@ -1959,12 +1959,17 @@ function viewerAddViewsToolbar() {
     let newToolbar  = new Autodesk.Viewing.UI.ControlGroup('my-custom-toolbar-views');
     
     addCustomViewControl(newToolbar, 'my-view-home-button'  , 'home'  , 'icon-home', 'Home');
-    addCustomViewControl(newToolbar, 'my-view-front-button' , 'front' , 'icon-north-east', 'Front View');
-    addCustomViewControl(newToolbar, 'my-view-back-button'  , 'back'  , 'icon-south-west', 'Back View');
-    addCustomViewControl(newToolbar, 'my-view-left-button'  , 'left'  , 'icon-east', 'Left View');
-    addCustomViewControl(newToolbar, 'my-view-right-button' , 'right' , 'icon-west', 'Right View');
-    addCustomViewControl(newToolbar, 'my-view-top-button'   , 'top'   , 'icon-south', 'Top View');
-    addCustomViewControl(newToolbar, 'my-view-bottom-button', 'bottom', 'icon-north', 'Bottom View');
+
+    // if(!isiPad) {
+
+        addCustomViewControl(newToolbar, 'my-view-front-button' , 'front' , 'icon-north-east', 'Front View');
+        addCustomViewControl(newToolbar, 'my-view-back-button'  , 'back'  , 'icon-south-west', 'Back View');
+        addCustomViewControl(newToolbar, 'my-view-left-button'  , 'left'  , 'icon-east', 'Left View');
+        addCustomViewControl(newToolbar, 'my-view-right-button' , 'right' , 'icon-west', 'Right View');
+        addCustomViewControl(newToolbar, 'my-view-top-button'   , 'top'   , 'icon-south', 'Top View');
+        addCustomViewControl(newToolbar, 'my-view-bottom-button', 'bottom', 'icon-north', 'Bottom View');
+
+    // }
 
     viewer.toolbar.addControl(newToolbar);
 
@@ -1980,9 +1985,8 @@ function addCustomViewControl(toolbar, id, view, icon, tooltip) {
         button.onClick = function(e) { viewer.setViewFromFile(); };
     } else {
         button.onClick = function(e) { 
-            alert(view);
+            localStorage.setItem('Autodesk.Viewing.Private.GuiViewer3D.SavedSettings.viewCube', 'true');
             viewer.getExtension('Autodesk.ViewCubeUi', function(viewCubeExtension) {
-                alert('1');
                 viewCubeExtension.setViewCube(view);
             });
         };
