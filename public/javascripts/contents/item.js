@@ -4998,6 +4998,8 @@ function insertBOM(link , params) {
         ]]
     ]);
 
+    if(isiPad) settings[id].downloadFiles = false;
+
     settings[id].load = function() { changeBOMView(id); }
 
     if(!isBlank(params.endItem)) {

@@ -858,13 +858,13 @@
         --width-your-processes : 420px;
 
         --width-bom   : 360px;
-        --width-panel : 380px;
+        --width-panel : 420px;
 
     }
 
     #main {
-        --border-v : 14px;
-        --border-h : 14px;
+        --border-v : 12px;
+        --border-h : 18px;
     }
 
     .bom-column-quantity,
@@ -888,7 +888,20 @@
         min-height  : 22px;
         height      : 22px;
         line-height : 22px;
+    }
 
+    #cart {
+        padding : 20px 16px 20px 16px;
+        top     : -12px;
+        right   : calc(0px - var(--border-h));
+        left    : calc(0px - var(--border-h));
+    }
+    #cart-counter {
+        right : 10px;
+    }
+    #cart-list {
+        left  : 16px;
+        right : 16px;
     }
 
 }

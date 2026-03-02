@@ -1,5 +1,6 @@
 let fields, sections, bomViewIdItems;
 let workspaceIds = {};
+
 let links        = {};
 let user         = {};
 let urns         = {
@@ -17,6 +18,7 @@ let urns         = {
 let listServiceItems      = { spareParts : [], kit : [], offering : [], wearParts : []};
 let wsProblemReports      = { id : '', sections : [], fields : [] };
 let wsSparePartsRequests  = { id : '', sections : [], fields : [] };
+let finishedLoading       = {};
 let paramsItemDetails     = {}
 let paramsItemAttachments = {}
 let paramsDocumentation   = {}
@@ -471,6 +473,7 @@ function setUIEvents() {
             .removeClass('screen-request'); 
     });
 
+    if(isiPad) $('#toggle-bom').click();
 }
 
 
@@ -720,11 +723,14 @@ function openItem() {
 
     for(let key of keys) paramsBOM[key] = config.paramsBOM[key];
 
+    finishedLoading.engineeringBOM = false;
+    finishedLoading.serviceBOM     = false;
+
     insertBOM          (links.ebom, paramsBOM);
     insertViewer       (links.ebom);
     updateRelatedPanels(links.ebom);
 
-    if(!isBlank(links.sbom)) insertServiceBOM();
+    if(!isBlank(links.sbom)) insertServiceBOM(); else finishedLoading.serviceBOM = true;
 
     if(isBlank(links.snl)) {
         
@@ -817,8 +823,10 @@ function changeBOMViewDone(id, settings, bom, selectedItems, flatBOM) {
 
     $('#bom-processing').hide();
 
+    finishedLoading.engineeringBOM = true;
+
     if(!isBlank(links.sbom)) {
-        // finishSparePartsList();
+        finishSparePartsList();
         return;
     }
 
@@ -857,9 +865,12 @@ function changeBOMViewDone(id, settings, bom, selectedItems, flatBOM) {
     // }
     
     // insertBOMSpareParts(elemContent, selectedItems, urnsSpareParts, flatBOM);
+    
+    $('#items-processing').hide();
 
     for(let selectedItem of selectedItems) insertSparePart(elemContent, selectedItem, 'sparePart');
-    
+
+
     setSparePartStockStatus();
     insertNonSparePartMessage();
     finishSparePartsList();
@@ -1059,6 +1070,10 @@ function insertServiceBOM() {
             }
 
         }
+
+        $('#items-processing').hide();
+
+        finishedLoading.serviceBOM = true;
 
         setSparePartStockStatus();
         insertNonSparePartMessage();
@@ -1522,7 +1537,8 @@ function setSparePartStockStatus() {
 }
 function finishSparePartsList() {
 
-    $('#items-processing').hide();
+    if(!finishedLoading.engineeringBOM) return;
+    if(!finishedLoading.serviceBOM    ) return;
 
     if($('#bom-thead-row').length === 0) return;
 
@@ -2190,7 +2206,7 @@ function adjustCartHeight() {
     let heightCart          = 38;
     let heightCartList      = 0;
     let maxHeight           = ($('#main').height() - 50) * 0.5;
-    let heightTiles         = 68;
+    let heightTiles         = 65;
     let isVisible           = elemCart.is(':visible');
 
     if(countPartsInCart === 0) {
@@ -2201,7 +2217,7 @@ function adjustCartHeight() {
 
         if(!isVisible) setTimeout(function() { elemCart.fadeIn(); }, 300);
 
-        topTabs = 100;
+        topTabs = (isiPad) ? 80 : 100;
 
     } else {
 
@@ -2215,7 +2231,7 @@ function adjustCartHeight() {
             heightCartList  = countPartsInCart * heightTiles;
         }
 
-        topTabs = heightCart + 70;
+        topTabs = heightCart + ((isiPad) ? 50 : 70);
 
     }
 
