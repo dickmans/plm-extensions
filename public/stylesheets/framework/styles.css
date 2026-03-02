@@ -2093,11 +2093,7 @@ and (max-device-width : 1900px)  {
     min-width : 220px;
     width     : 220px;
 }
-.panel-search-input {
-    flex-grow : 1;
-    min-width : 76px;
-}
-.panel-controls > .panel-search > .button {
+.panel-search.button > .button {
     font-size   : 22px;
     max-height  : 22px;
     min-height  : 22px;
@@ -2107,8 +2103,10 @@ and (max-device-width : 1900px)  {
     min-width   : 22px;
     width       : 22px;
 }
-.panel-controls > .panel-search > input {
+.panel-search.button > input {
+    flex-grow : 1;
     font-size : 14px;
+    min-width : 76px;
 }
 
 
@@ -2173,34 +2171,17 @@ and (max-device-width : 1900px)  {
     line-height     : 36px;
     padding         : 0px 16px;
 } */
-.panel-actions > .button.with-icon::before {
+/* .panel-actions > .button.with-icon::before {
     line-height : 35px;
     width       : 32px;
-}
+} */
 .panel-actions > input {
     background   : var(--color-surface-level-3);
     border-color : var(--color-surface-level-5);
     border-top   : 1px solid var(--color-surface-level-3);;
     padding      : 0px 16px;
 }
-/* .panel-actions > .panel-search {
-    height  : 28px;
-    padding : 4px;
-} */
-.panel-actions > .panel-search > .button {
-    font-size   : 22px;
-    max-height  : 22px;
-    min-height  : 22px;
-    height      : 22px;
-    line-height : 22px;
-    max-width   : 22px;
-    min-width   : 22px;
-    width       : 22px;
-}
-.panel-actions > .panel-search > input {
-    font-size : 14px;
-    /* padding : 2px  */
-}
+
 .panel-top.search > .panel-actions { justify-content: center; }
 
 .panel-options {
@@ -3001,23 +2982,18 @@ select.button.main:hover {
     border-color : var(--color-surface-level-3) !important;
 }
 
-.button.icon,
-.button.with-icon {
+.button.icon {
+    font-family : 'Material Symbols Sharp';
+    font-size   : 24px;
+    font-weight : 200;
     height      : 36px;
     line-height : 36px;
     min-width   : 36px;
     padding     : 0px;
+    width       : 36px;
     text-rendering          : optimizeLegibility;
     -webkit-font-smoothing  : antialiased;
 }
-.button.icon {
-    font-size   : 24px;
-    font-weight : 200;
-    width       : 36px;
-}
-.button.with-icon { 
-    display : flex;
- }
 .button.with-icon > input {
     border-color : transparent;
 }
@@ -3308,6 +3284,42 @@ select.button.main:hover {
 }
 .message-footer {
     font-size : 12px;
+}
+
+
+
+/* iPads (portrait and landscape) ----------- */
+@media only screen and (max-device-width : 1180px) and (max-device-height :  820px),
+       only screen and (max-device-width : 1366px) and (max-device-height : 1024px) {
+
+    .tabs {
+        font-size : 16px;
+    }
+
+    .tabs > div {
+        height : 30px;
+    }
+
+    .panel-content {
+        top : 50px;
+    }
+
+    .panel-search.button {
+        height    : 32px;
+        padding   : 2px;
+    }
+
+    .panel-search.button > .button {
+        font-size   : 24px;
+        max-height  : 30px;
+        min-height  : 30px;
+        height      : 30px;
+        line-height : 30px;
+        max-width   : 30px;
+        min-width   : 30px;
+        width       : 30px;
+    }
+
 }
 
 
