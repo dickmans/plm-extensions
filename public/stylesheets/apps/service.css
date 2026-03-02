@@ -840,23 +840,11 @@
 }
 
 
-/* iPads (portrait and landscape) ----------- */
-@media only screen and (min-device-width : 768px) and (max-device-width : 1280px) {
-
-    :root {
-        --border-v : 22px;
-        --border-h : 22px;
-
-        --width-your-processes  : 420px;
-
-    }
-
-
-}
 
 /* iPads (portrait and landscape) ----------- */
-@media only screen and (max-device-width : 1180px) and (max-device-height :  820px),
-       only screen and (max-device-width : 1366px) and (max-device-height : 1024px) {
+@media only screen and (orientation : landscape) and (max-device-width :  768px) and (max-device-height : 1024px) and (min-resolution: 2dppx),
+       only screen and (orientation : landscape) and (max-device-width :  820px) and (max-device-height : 1180px) and (min-resolution: 2dppx),
+       only screen and (orientation : landscape) and (max-device-width : 1024px) and (max-device-height : 1366px) and (min-resolution: 2dppx) {
 
     :root {
 
