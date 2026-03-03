@@ -841,9 +841,9 @@
 
 
 
-/* iPads (landscape) ----------- */
-@media only screen and (orientation: landscape)
-                   and (min-width: 768px)    /* smallest iPad landscape viewport */
+/* RESPONSIVE LAYOUT : iPads */
+/* ----------------------------------------------------------------------------- */
+@media only screen and (min-width: 768px)    /* smallest iPad landscape viewport */
                    and (max-width: 1366px)   /* largest iPad Pro landscape viewport */
                    and (
                        (min-resolution: 2dppx) 
@@ -855,17 +855,8 @@
 
         --border-v : 18px;
         --border-h : 18px;
-        --width-your-processes : 420px;
 
-        --width-bom   : 360px;
-        --width-panel : 420px;
-
-    }
-
-    #main {
-        --border-v : 12px;
-        --border-h : 18px;
-    }
+    }                    
 
     .bom-column-quantity,
     .tree-column-type {
@@ -902,6 +893,73 @@
     #cart-list {
         left  : 16px;
         right : 16px;
+    }
+
+}
+@media only screen and (orientation: landscape)
+                   and (min-width: 768px)    /* smallest iPad landscape viewport */
+                   and (max-width: 1366px)   /* largest iPad Pro landscape viewport */
+                   and (
+                       (min-resolution: 2dppx) 
+                       or (-webkit-min-device-pixel-ratio: 2)
+                       or (min-resolution: 192dpi)
+                   ) {
+
+    :root {
+
+        --width-your-processes : 420px;
+
+        --width-bom   : 360px;
+        --width-panel : 420px;
+
+    }
+
+    #main {
+        --border-v : 12px;
+        --border-h : 18px;
+    }
+}
+@media only screen and (orientation: portrait)
+                   and (min-width: 768px)    /* smallest iPad landscape viewport */
+                   and (max-width: 1366px)   /* largest iPad Pro landscape viewport */
+                   and (
+                       (min-resolution: 2dppx) 
+                       or (-webkit-min-device-pixel-ratio: 2)
+                       or (min-resolution: 192dpi)
+                   ) {
+
+    :root {
+
+        --height-viewer : 360px;
+
+        --width-your-processes : 420px;
+
+        --width-bom   : 360px;
+        --width-panel : 420px;
+
+    }
+
+    #main {
+        --border-v : 12px;
+        --border-h : 18px;
+    }
+
+    .viewer {
+        right  : 0px !important;
+        bottom : unset !important;
+        left   : 0px !important;
+        height : var(--height-viewer);
+    }
+
+    #bom,
+    #panel,
+    #details {
+        top : var(--height-viewer);
+    }
+
+    #bom,
+    #panel {
+        width : calc(50% - (2 * var(--border-h)));
     }
 
 }
