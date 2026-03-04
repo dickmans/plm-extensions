@@ -4944,7 +4944,39 @@ router.get('/classes-tree', function(req, res, next) {
 });
 
 
-/* ----- GET CLASSIFICATION PROPERTIES ----- */
+/* ----- GET CLASS FIELDS (V3) ----- */
+router.get('/class-fields', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /class-fields');
+    console.log(' --------------------------------------------');  
+    console.log('  req.query.classId  = ' + req.query.classId);
+    console.log('  req.query.useCache = ' + req.query.useCache);
+    console.log();
+
+    if(notCached(req, res)) {
+
+        let baseURL = getTenantLink(req);
+        let url     = baseURL + '/api/v3/classifications/' + req.query.classId + '/fields';
+        let headers = getCustomHeaders(req);
+
+        headers.Accept = 'application/vnd.autodesk.plm.fields.bulk+json';
+
+        axios.get(url, {
+            headers : headers
+        }).then(function(response) {
+            sendResponse(req, res, response, false);
+        }).catch(function(error) {
+            sendResponse(req, res, error.response, true);
+        });
+
+    }
+
+});
+
+
+
+/* ----- GET CLASS PROPERTIES (V2) ----- */
 router.get('/class-properties', function(req, res, next) {
     
     console.log(' ');
