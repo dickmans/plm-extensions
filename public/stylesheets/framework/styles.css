@@ -3290,13 +3290,14 @@ select.button.main:hover {
 
 /* RESPONSIVE LAYOUT : iPads */
 /* ----------------------------------------------------------------------------- */
-@media only screen and (min-width: 768px)    /* smallest iPad landscape viewport */
+@media only screen and (hover: none)
+                   and (min-width: 768px)    /* smallest iPad landscape viewport    */
                    and (max-width: 1366px)   /* largest iPad Pro landscape viewport */
                    and (
                        (min-resolution: 2dppx) 
                        or (-webkit-min-device-pixel-ratio: 2)
                        or (min-resolution: 192dpi)
-                   ) {
+                   ) { 
 
     .tabs {
         font-size : 16px;
