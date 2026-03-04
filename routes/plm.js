@@ -4437,6 +4437,9 @@ router.get('/recent', function(req, res, next) {
     axios.get(url, {
         headers : req.session.headers
     }).then(function(response) {
+        if(typeof response.data === 'undefined') response.data = { recentlyViewedItems : [] };
+        else if(response.data === '') response.data = { recentlyViewedItems : [] };
+        else if(typeof response.data.recentlyViewedItems === 'undefined') response.data.recentlyViewedItems = [];
         sendResponse(req, res, response, false);
     }).catch(function(error) {
         sendResponse(req, res, error.response, true);
