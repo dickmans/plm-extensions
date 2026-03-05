@@ -1626,7 +1626,7 @@ router.get('/image-cache', function(req, res) {
 
         if(err === null) {
             
-            sendResponse(req, res, { data : { url : '/storage/cache/' + fileName } }, false);
+            sendResponse(req, res, { data : { url : 'storage/cache/' + fileName } }, false);
 
         } else if(err.code == 'ENOENT') {
 
