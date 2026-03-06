@@ -720,6 +720,7 @@ function createMBOMForEBOM(ebomItemDetails, number, type, callback) {
         contentType : 'application/json',
         data        : JSON.stringify(params)
     }, function(response) {
+        printResponseErrorMessagesToConsole(response);
         if(response.error) {
             showErrorMessage('Error', 'Error while creating MBOM root item, the editor cannot be used at this time. Please review your server configuration.');
         } else {
@@ -746,7 +747,9 @@ function storeMBOMLink(link) {
         ] 
     }
 
-    $.post('/plm/edit', params, function() {});
+    $.post('/plm/edit', params, function(response) {        
+        printResponseErrorMessagesToConsole(response);
+    });
 
 }
 function storeContextMBOMLink() {
@@ -4368,7 +4371,7 @@ function endProcessing() {
     paramsEBOM.fields.push({ fieldId : config.workspaceEBOM.fieldIDs.lastMBOMUser, value : userAccount.displayName });
     paramsMBOM.fields.push({ fieldId : config.workspaceMBOM.fieldIDs.lastMBOMUser, value : userAccount.displayName });
 
-    $.post('/plm/edit', paramsEBOM, function() {});
-    $.post('/plm/edit', paramsMBOM, function() {});
+    $.post('/plm/edit', paramsEBOM, function(response) { printResponseErrorMessagesToConsole(response); });
+    $.post('/plm/edit', paramsMBOM, function(response) { printResponseErrorMessagesToConsole(response); });
 
 }

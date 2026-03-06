@@ -333,7 +333,7 @@
                     td IS_EBOM_ITEM
                     td
                     td Never
-                    td False
+                    td True
         img.border(src='images/apps/mbom-editor-10.png' style='width:100%;max-width:783px')
         h2 BOM View
         p If you use the same workspace for both the EBOM and MBOM, add the following fields to the existing BOM view 
@@ -428,6 +428,7 @@
             |and 
             strong DESCRIPTION 
             |will be copied from the EBOM item to the matching MBOM item. Update this list if needed.
+        p If the MBOM workspace has required fields defined, make sure that these fields are mapped to a valid source field. The MBOM root creation will fail otherwise and prevent the MBOM editor from launching properly.
         img.border(src='images/apps/mbom-editor-13.png' style='width:100%;max-width:549px;')        
         h2 MBOM Processes / Nodes 
         p When users add processes to the MBOM, these new items may receive default values for defined fields (for example the type field). You can define such default values for new processes in setting 
@@ -648,6 +649,10 @@
     .log 
         h1 MBOM Editor Change Log 
         table      
+            tr 
+                td 6. March 2026
+                td Documentation Update
+                td Fixed an error in the documentation preventing the MBOM Editor from working properly (color indicator in MBOM failed to identify consumption of matching EBOM items)
             tr 
                 td 12. January 2026
                 td Changed Settings
