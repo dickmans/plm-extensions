@@ -2,9 +2,11 @@ extends ../framework/layout
 
 block head
 
+    link(rel='stylesheet', href='/stylesheets/framework/addins.css')
     link(rel='stylesheet', href='/stylesheets/apps/classes.css')
     link(rel='stylesheet', href='/stylesheets/custom/classes.css')
     
+    script(src='/javascripts/framework/addins.js')
     script(src='/javascripts/apps/classes.js')
     script(src='/javascripts/custom/classes.js')
 
@@ -17,8 +19,9 @@ block body
             #header-title= title
             #header-subtitle.hidden
             #header-toolbar
-                .button#toggle-classes.with-toggle.toggle-off.hidden(title='Toggle class tree on the left side on / off') Toggle Class Tree
-                .button#toggle-summary.with-toggle.toggle-off(title='Toggle details panel on the right side on / off') Toggle Details Panel
+                .button#toggle-classes.with-toggle.toggle-on.hidden(title='Toggle class tree on the left side on / off') Classes Tree
+                .button#toggle-filters.with-toggle.toggle-on(title='Toggle filters panel on the left side on / off') Filters Panel
+                .button#toggle-summary.with-toggle.toggle-off(title='Toggle details panel on the right side on / off') Details Panel
                 #header-avatar
         
         #landing.screen 
