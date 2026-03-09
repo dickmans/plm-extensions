@@ -5318,7 +5318,7 @@ function changeBOMView(id) {
     });
 
 }
-function changeBOMViewDone(id, settings, bom, selectedItems, dataFlatBOM, dataAdditional) {}
+function changeBOMViewDone(id, settings, bom, selectedItems, dataFlatBOM, dataAdditional, bomPartsList) {}
 function setBOMHeaders(id, elemTHead) {
 
     let elemTHRow = $('<tr></tr>').appendTo(elemTHead).attr('id', id + '-thead-row');

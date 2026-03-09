@@ -6343,8 +6343,9 @@ function getBOMPartsList(panelSettings, data) {
 }
 function getBOMParts(panelSettings, parts, parent, edges, nodes, quantity, level, numberPath, parents) {
 
-    let result = { hasChildren : false };
-    let fields = panelSettings.viewFields || panelSettings.columns;
+    let result     = { hasChildren : false };
+    let fields     = panelSettings.viewFields || panelSettings.columns;
+    let includeAll = panelSettings.includeBOMPartList || false;
 
     for(let i = panelSettings.iEdge; i < edges.length; i++) {
 
@@ -6412,7 +6413,9 @@ function getBOMParts(panelSettings, parts, parent, edges, nodes, quantity, level
                 }
             }
 
-            if(!isBlank(panelSettings.selectItems)) {
+            if(includeAll) {
+                parts.push(node);
+            } else if(!isBlank(panelSettings.selectItems)) {
                 if(panelSettings.selectItems.hasOwnProperty('values')) {
                     let selectValue = getBOMCellValue(edge.child, panelSettings.urns.selectItems, nodes);
                     if(panelSettings.selectItems.values.includes(selectValue)) parts.push(node);

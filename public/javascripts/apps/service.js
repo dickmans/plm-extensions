@@ -1,6 +1,6 @@
 let fields, sections, bomViewIdItems;
 let workspaceIds = {};
-
+let bomPartList  = [];
 let links        = {};
 let user         = {};
 let urns         = {
@@ -708,6 +708,7 @@ function openItem() {
         quantity            : true,
         counters            : true,
         getFlatBOM          : false, 
+        includeBOMPartList  : true, 
         search              : true,
         showRestricted      : false,
         toggles             : true,
@@ -819,9 +820,10 @@ function updateRelatedPanels(link) {
 
 
 // Parse BOM for Spare Parts
-function changeBOMViewDone(id, settings, bom, selectedItems, flatBOM) {
+function changeBOMViewDone(id, settings, bom, selectedItems, flatBOM, additionalData, partList) {
 
     $('#bom-processing').hide();
+    bomPartList = partList;
 
     finishedLoading.engineeringBOM = true;
 
@@ -1178,6 +1180,8 @@ function insertSparePart(elemParent, bomPart, type) {
         .click(function(e) {
             clickSparePart($(this));
         });
+
+    if(type === 'custom') elemSparePart.insertAfter($('#custom-message'));
                     
     let elemSparePartImage = $('<div></div>').appendTo(elemSparePart)
         .addClass('spare-part-image')
@@ -1271,58 +1275,47 @@ function insertNonSparePartMessage() {
         .addClass('button')
         .addClass('default')
         .html('Confirm')
-        .click(function(){
+        .click(function() {
+
+            let link = $('#custom-message').attr('data-link');
+
+            for(let bomPart of bomPartList) {
+
+                if(bomPart.link === link) {
+                    
+                    let elemSparePart = insertSparePart($('#items-content'), bomPart, 'custom');
+
+                    $('.bom-item').each(function() {
+                        if($(this).attr('data-link') === link) {
+                            $(this).addClass('is-spare-part').addClass('spare-part-custom');
+                            let elemCell = $(this).find('.bom-column-icon');
+                            $('<span></span>').appendTo(elemCell)
+                                .addClass('icon')
+                                .addClass(config.serviceBOMTypes.custom.icon)
+                                .addClass('filled')
+                                .attr('Custom spare part request');
+                        }
+                    });
+
+                    if(applicationFeatures.showStock) {
+
+                        let elemStock  = elemSparePart.find('.spare-part-stock');
+                        let stockLabel = 'No spare part';
+                        let stockClass = 'custom';
+            
+                        elemSparePart.addClass('spare-part-stock-' + stockClass);
+                        elemStock.attr('title', stockLabel);
+            
+                        $('<div></div>').appendTo(elemStock).addClass('spare-part-stock-icon');
+                        $('<div></div>').appendTo(elemStock).addClass('spare-part-stock-label').html(stockLabel);
+
+                    }
+
+                    break;
+                }
+            }
 
             $('#custom-message').hide();
-            // let link = $('#custom-message').attr('data-link');
-            let itemData = {
-                link          : $('#custom-message').attr('data-link'),
-                root          : $('#custom-message').attr('data-root'),
-                quantity      : 1,
-                totalQuantity : 1
-            };
-
-            $('.bom-item').each(function() {
-                if($(this).attr('data-link') === itemData.link) {
-                    itemData.urn = $(this).attr('data-urn');
-                    itemData.partNumber = $(this).attr('data-part-number');
-                    itemData.title = $(this).attr('data-title');
-                    $(this).addClass('is-spare-part').addClass('spare-part-custom');
-                    let elemCell = $(this).find('.bom-column-icon');
-                    $('<span></span>').appendTo(elemCell)
-                        .addClass('icon')
-                        .addClass(config.serviceBOMTypes.custom.icon)
-                        .addClass('filled')
-                        .attr('Custom spare part request');
-
-                }
-            });
-
-            // let elemSparePart = genTileSparePart(link, itemData.urn, itemData.partNumber, itemData.title, 1.0);
-            // let elemSparePart = genTileSparePart(link, itemData.partNumber, 1.0, itemData.title);
-
-            // let bomPart = {
-            //     link : link,
-
-            // }
-
-            let elemSparePart = insertSparePart($('#items-content'), itemData, 'custom');
-                elemSparePart.insertAfter($('#custom-message'));
-                elemSparePart.addClass('spare-part-custom');
-
-            if(applicationFeatures.showStock) {
-
-                let elemStock  = elemSparePart.find('.spare-part-stock');
-                let stockLabel = 'No spare part';
-                let stockClass = 'custom';
-        
-                elemSparePart.addClass('spare-part-stock-' + stockClass);
-                elemStock.attr('title', stockLabel);
-        
-                $('<div></div>').appendTo(elemStock).addClass('spare-part-stock-icon');
-                $('<div></div>').appendTo(elemStock).addClass('spare-part-stock-label').html(stockLabel);
-
-            }
 
         });
 
@@ -2174,6 +2167,7 @@ function addCartItem(elemClicked) {
         if(elemSparePart.hasClass('spare-part-stock-none'  )) elemCartItem.addClass('spare-part-stock-none'  );
         if(elemSparePart.hasClass('spare-part-stock-low'   )) elemCartItem.addClass('spare-part-stock-low'   );
         if(elemSparePart.hasClass('spare-part-stock-normal')) elemCartItem.addClass('spare-part-stock-normal');
+        if(elemSparePart.hasClass('spare-part-stock-custom')) elemCartItem.addClass('spare-part-stock-custom');
 
     }
 
