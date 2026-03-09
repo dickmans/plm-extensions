@@ -757,7 +757,9 @@ function getFieldValues(elemParent, filter) {
     elemParent.find('.field-value' + filter).each(function() {
 
         let elemField = $(this);
-        let included  = elemField.hasClass('field-editable') || elemField.hasClass('field-locked');  // field-locked is used when fields are disabled per contextItem* parameters
+        let included  = elemField.hasClass('field-editable') || elemField.hasClass('field-locked') || elemField.hasClass('field-classification');  
+                        // field-locked is used when fields are disabled per contextItem* parameters
+                        // field-classification is used for fields driven by classification which must always be included in the payload
         let fieldData = getFieldValue(elemField);
 
         if(included) {

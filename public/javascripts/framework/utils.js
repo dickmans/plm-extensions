@@ -954,6 +954,8 @@ function insertAvatar() {
         userAccount.displayName  = response.data.displayName;
         userAccount.email        = response.data.email;
         userAccount.organization = response.data.organization;
+        userAccount.fullName     = response.data.fullName;
+        userAccount.userNumber   = response.data.userNumber;
 
         if(isBlank(response.data.image.large)) {
 
@@ -2207,6 +2209,24 @@ function genPanelContentItem(panelSettings, params) {
     }
 
     return item;
+
+}
+function genPanelContentTileDetails(items, details) {
+
+    for(let item of items) {
+        for(let detail of details) {
+            for(let property of item.data) {
+                if(property.fieldId === detail.fieldId) {
+                    item.details.push({
+                        label  : detail.label   || '',
+                        value  : property.value || '',
+                        icon   : detail.icon    || '',
+                        prefix : detail.prefix  || ''
+                    })
+                }
+            }
+        }
+    }
 
 }
 function genPanelFooterActionButton(id, panelSettings, suffix, params, callback) {
@@ -6154,6 +6174,19 @@ function getSectionFieldValue(sections, fieldId, defaultValue, property) {
     }
 
     return defaultValue;
+
+}
+
+
+
+// Retrieve item's classification section
+function getClassificationSection(sections) {
+
+    for(let section of sections) {
+       if(section.type === 'CLASSIFICATION') return section;
+    }
+
+    return {};
 
 }
 
