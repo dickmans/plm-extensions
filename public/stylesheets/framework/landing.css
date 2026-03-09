@@ -181,7 +181,12 @@ body.layout-tiles-list .tile.min .tile-access .button {
     padding         : 0px;
     gap             : 0px;
 }
+.tiles-group.first {
+    padding-top: 16px;
+}
 .tiles-group-title {
+    font-weight  : 800;
+    font-size    : 20px;
     padding-left : 10px;
 }
 .tiles-group-subtitle {
@@ -194,7 +199,7 @@ body.layout-tiles-list .tile.min .tile-access .button {
     gap         : 8px;
     padding-top : 10px;
 }
-
+.surface-level-1 .tiles-group-title { background : none; }
 
 
 /*  TILES */
