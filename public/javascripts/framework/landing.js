@@ -172,7 +172,9 @@ $(document).ready(function() {
         if(url.indexOf('//youtu') < 0) {
 
             let location = document.location.href.split('?');
-            url = location[0] + url;
+            let baseURL = location[0].split('/landing')[0];
+            if(!baseURL.endsWith('/')) baseURL += '/';
+            url = baseURL + url;
             let concat = (url.indexOf('?') > -1) ? '&' : '?';
             if(location.length > 1) {
                 url += concat + location[1];
