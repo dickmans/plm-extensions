@@ -29,16 +29,20 @@ let paramsSummary = {
 $(document).ready(function() {
     
     setUIEvents();
-    insertMenu();
+    setAddinEvents();
+    setAddinMode();
+    
+    if(!isAddin) insertMenu();
 
     if(urlParameters.link === '') {
 
         $('#toggle-classes').removeClass('hidden');
 
         insertClasses({
+            contentSize      : (isAddin) ? 's' : 'm',
             collapseContents : true,
-            counters         : true,
-            path             : true,
+            counters         : (!isAddin),
+            path             : (!isAddin),
             reset            : true,
             search           : true,
             toggles          : true,
@@ -111,10 +115,24 @@ function setUIEvents() {
         $(this).toggleClass('toggle-on').toggleClass('toggle-off');
         $('body').toggleClass('no-classes');
     })
+    $('#toggle-filters').click(function() {
+        $(this).toggleClass('toggle-on').toggleClass('toggle-off');
+        $('body').toggleClass('no-filters');
+    })
     $('#toggle-summary').click(function() {
         $(this).toggleClass('toggle-on').toggleClass('toggle-off');
         $('body').toggleClass('no-summary');
     })
+
+}
+
+function setAddinMode() {
+
+    // isAddin = true;
+
+    if(!isAddin) return;
+
+    $('body').addClass('addin');
 
 }
 
@@ -129,6 +147,7 @@ function selectClass(elemClicked) {
     insertClassContents(classId, className, {
         id                : 'contents',
         headerLabel       : path.path,
+        singleToolbar     : 'actions',
         filterByStatus    : true,
         filterByWorkspace : true,
         reset             : true,
@@ -139,8 +158,9 @@ function selectClass(elemClicked) {
     });
 
     insertClassFilters(classId, className, {
-        id         : 'filters',
-        idContents : 'contents'
+        id            : 'filters',
+        idContents    : 'contents',
+        singleToolbar : 'controls'
     });
 
 }

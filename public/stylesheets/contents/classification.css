@@ -1,0 +1,70 @@
+/* FORM SECTIONS */
+/* ----------------------------------------------------------------------------- */
+.surface-level-1 .classification-data,
+.classification-content > .section-fields,
+.classification-content .field.content-item,
+.classification-content .field-label {
+    background : var(--color-surface-level-2);
+}
+
+
+/* CURRENT CLASS */
+/* ----------------------------------------------------------------------------- */
+.classification-header.classification-data {
+    display  : grid;
+    padding  : 12px 18px;
+    grid-gap : 2px;
+    grid-template-columns: 134px 1fr;
+    margin   : 10px;
+    width    : calc(100% - 56px);
+}
+.classification-header .classification-label {
+    font-weight   : bold;
+    padding-right : 14px;
+    text-align    : right;
+}
+.classification-header .button.classification-change {
+    display : inline-block;
+    margin  : 6px 0px 2px;
+}
+
+
+
+/* CLASS TREE */
+/* ----------------------------------------------------------------------------- */
+.classification-header.classification-tree {
+    position : absolute;
+    top      : 0px;
+    right    : 0px;
+    bottom   : 0px;
+    left     : 0px;
+}
+.classification-header.classification-tree .panel-header {
+    border : none;
+}
+.classification-header.classification-tree .panel-title-main {
+    font-size : 12px;
+}
+.classification-header.classification-tree .panel-actions {
+    justify-content : right;
+    top : 34px;
+}
+
+
+
+/* FORM FIELDS */
+/* ----------------------------------------------------------------------------- */
+.classification-content > .section-fields {
+    margin  : 0px 10px;
+    padding : 12px 18px;
+    width   : calc(100% - 56px);
+}
+.classification-content .field-label {
+    padding-left : 0px !important;
+    max-width    : 120px;
+    min-width    : 120px;
+    width        : 120px;
+}
+.classification-content .field-editable input {
+    background :  var(--color-surface-level-1) !important;
+}

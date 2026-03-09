@@ -1,14 +1,25 @@
 
 :root {
 
-    --border-v : 22px;
-    --border-h : 33px;
+    --border-v : 18px;
+    --border-h : 26px;
 
     --width-tree    : 360px;
-    --width-filters : 400px;
+    --width-filters : 440px;
     --width-summary : 360px;
 
 }
+
+.addin {
+
+    --border-v : 6px;
+    --border-h : 10px;
+
+    --width-tree    : 280px;
+    --width-filters : 330px;
+
+}
+
 .single-select-action { order : -1; }
 
 
@@ -17,6 +28,7 @@
 #classes {
     border-width : var(--border-v) var(--border-h);
     width        : var(--width-tree);
+    z-index      : 3;
 }
 #filters {
     border-width : var(--border-v) var(--border-h);
@@ -44,8 +56,16 @@
 .no-classes #filters  { left : 0px; }
 .no-classes #contents { left : calc(var(--width-filters) + (2 * var(--border-h))); }
 
+.no-filters #filters { left : calc(var(--width-tree) - var(--width-filters)); }
+
+.no-classes.no-filters #filters  { left : calc(0px - var(--width-filters)); }
+.no-classes.no-filters #contents { left : 0px; }
+
 .no-summary #contents { right : 0px; }
 .no-summary #summary  { right : calc(0px - var(--width-summary) - (2 * var(--border-h))); }
+
+.addin #classes,
+.addin #filters { top : -40px; }
 
 
 /* CLASSES TREE */
@@ -54,6 +74,7 @@
     justify-content: center;;
 }
 
+.addin #classes-search-input { min-width : 68px; }
 
 
 /* CLASS FILTERS */
@@ -62,7 +83,10 @@
     padding-top : 4px;
 }
 #filters select {
-    height : 38px;
+    height        : 38px;
+    padding-right : 10px;
+    padding-left  : 10px;
+    text-align    : left;
 }
 .class-filters {
     display        : flex;
@@ -79,7 +103,7 @@
     background    : var(--color-surface-level-3);
     flex-grow     : 1;
     line-height   : 38px;
-    padding       : 0px 6px;
+    padding       : 0px 6px 0px 14px;
     overflow      : hidden;
     text-overflow : ellipsis;
     white-space   : nowrap;
@@ -96,17 +120,22 @@
 .class-filter > select.class-filter-symbol {
     font-size : 20px;
 }
+.class-filter > select.class-filter-comparator {
+    max-width    : 116px;
+    min-width    : 116px;
+    width        : 116px;
+}
 .class-filter > select.class-filter-picklist {
     margin-right : 1px;
-    max-width    : 171px;
-    min-width    : 171px;
-    width        : 171px;
+    max-width    : 221px;
+    min-width    : 221px;
+    width        : 221px;
 }
 .class-filter > input {
     text-align : center;
-    max-width  : 110px;
-    min-width  : 110px;
-    width      : 110px;
+    max-width  : 90px;
+    min-width  : 90px;
+    width      : 90px;
 }
 .class-property-selector {
     width : 100%; 
@@ -136,9 +165,41 @@
     border-top-color : var(--color-yellow-500) !important;
 }
 
+.addin #filters-content { 
+    padding-top : 0px; 
+    top         : 36px;
+}
+.addin .class-filter-property {
+    line-height : 24px;
+    padding     : 0px 4px 0px 16px;
+}
+.addin .class-filter > select.class-filter-picklist {
+    padding-left : 4px !important;
+    max-width    : 167px;
+    min-width    : 167px;
+    width        : 167px;
+}
+.addin .class-filter > select.class-filter-comparator {
+    padding-right : 4px !important;
+    padding-left  : 4px !important;
+    max-width     : 90px;
+    min-width     : 90px;
+    width         : 90px;
+}
+.addin .class-filter > select.class-filter-symbol {
+    font-size : 12px;
+}
+.addin .class-filter-input {
+    padding   : 0px 4px;
+    max-width : 70px;
+    min-width : 70px;
+    width     : 70px;
+}
+
 
 /* ITEMS */
 /* ----------------------------------------------------------------------------- */
+#contents-actions { justify-content : right; }
 .value.neutral {  font-weight : normal;}
 .value.diff  { background : var(--color-status-red-bright);   }
 .value.match { background : var(--color-status-green-bright); }
