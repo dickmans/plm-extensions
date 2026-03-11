@@ -298,6 +298,7 @@ function insertCreate(workspaceNames, workspaceIds, params) {
         [ 'contextItem'         , null ],
         [ 'contextItemField'    , null ],
         [ 'contextItems'        , [] ],
+        [ 'contextItemsField'   , null ],
         [ 'contextItemFields'   , [] ],
         [ 'viewerImageFields'   , [] ],
         [ 'createButtonTitle'   , '' ],
@@ -460,11 +461,15 @@ function insertCreateData(id) {
     ]
 
     for(let contextItem of settings[id].contextItems) {
-        requests.push($.get('/plm/details', { link : contextItem }));
+        if(typeof contextItem === 'string') {
+            requests.push($.get('/plm/details', { link : contextItem }));
+        }
     }
 
     if(!isBlank(settings[id].contextItem)) {
-        requests.push($.get('/plm/details', { link : settings[id].contextItem }));
+        if(typeof contextItem === 'string') {
+            requests.push($.get('/plm/details', { link : settings[id].contextItem }));
+        }
     }
 
     if((settings[id].picklistShortcuts)) {
@@ -511,19 +516,43 @@ function insertCreateData(id) {
 
         insertDetailsFields(id, responses[0].data, responses[1].data, null, settings[id], bookmarks, recents, function() {
 
-            if(settings[id].contextItems.length === settings[id].contextItemFields.length) {
-            
+
+            if(settings[id].contextItems.length > 0) {
+
                 let index = 0;
 
-                for(let contextItemField of settings[id].contextItemFields) {
-                    settings[id].fieldValues.push({
-                        fieldId      : contextItemField,
-                        value        : settings[id].contextItems[index],
-                        displayValue : responses[2 + index++].data.title
-                    });
-                }
+                if(settings[id].contextItems.length === settings[id].contextItemFields.length) {
 
-            } 
+                    for(let contextItemField of settings[id].contextItemFields) {
+                        settings[id].fieldValues.push({
+                            fieldId      : contextItemField,
+                            value        : settings[id].contextItems[index],
+                            displayValue : responses[2 + index++].data.title
+                        });
+                    }
+
+                } if(!isBlank(settings[id].contextItemsField)) {
+
+                    let fieldValue = {
+                        fieldId      : settings[id].contextItemsField,
+                        value        : [],
+                        displayValue : []
+                    }
+
+                    for(let contextItem of settings[id].contextItems) {
+                        if(typeof contextItem === 'string') {
+                            fieldValue.value.push(contextItem),
+                            fieldValue.displayValue.push(responses[2 + index++].data.title)
+                        } else {
+                            fieldValue.value.push(contextItem.value);
+                            fieldValue.displayValue.push(contextItem.display);
+                        }
+                    }
+
+                    settings[id].fieldValues.push(fieldValue);
+
+                }
+            }
 
             if(!isBlank(settings[id].contextItem)) {
 
@@ -635,6 +664,7 @@ function insertCreateDataSetFieldValues(id, settings) {
 
                 }
 
+                elemField.removeClass('editable').addClass('readonly').addClass('locked');
                 elemField.parent().removeClass('editable').addClass('readonly').addClass('locked');
 
 
@@ -692,6 +722,8 @@ function submitCreate(wsIdNew, sections, elemParent, settings, callback) {
             }
         }
 
+        console.log(params);
+
     // if(!isBlank(idMarkup)) {
 
     //     let elemMarkupImage = $('#' + idMarkup);
@@ -723,6 +755,8 @@ function submitCreate(wsIdNew, sections, elemParent, settings, callback) {
                 contentType : 'application/json',
                 data        : JSON.stringify(params)
             }, function(response) {
+
+                printResponseErrorMessagesToConsole(response);
 
                 if(response.error) {
                     showErrorMessage('Error creating item', response.message);
@@ -757,14 +791,17 @@ function getFieldValues(elemParent, filter) {
     elemParent.find('.field-value' + filter).each(function() {
 
         let elemField = $(this);
-        let included  = elemField.hasClass('field-editable') || elemField.hasClass('field-locked') || elemField.hasClass('field-classification');  
-                        // field-locked is used when fields are disabled per contextItem* parameters
-                        // field-classification is used for fields driven by classification which must always be included in the payload
         let fieldData = getFieldValue(elemField);
-
+        let included  = elemField.hasClass('field-editable') || elemField.hasClass('field-locked');  
+        // field-locked is used when fields are disabled per contextItem* parameters
+                        
         if(included) {
-
-            if(typeof fieldData.value !== 'undefined') {
+                            
+            if(elemField.hasClass('field-classification')) {
+                // field-classification is used for fields driven by classification which must always be included in the payload
+                fieldData.fieldTypeId = elemField.attr('data-type-id');
+                fields.push(fieldData);
+            } else if(typeof fieldData.value !== 'undefined') {
                 if(fieldData.type !== 'image') {
                     fields.push(fieldData);
                 }
@@ -838,9 +875,12 @@ function getFieldValue(elemField) {
     // Returns basic link value for picklist fields instead of object as 
     // processing will be performed in the create/edit wrapper call
 
-    let elemInput = elemField.find('input');
-    let value     = (elemInput.length > 0) ? elemInput.val() : '';
+    let elemSection = elemField.closest('.section-fields');
+    let elemInput   = elemField.find('input');
+    let value       = (elemInput.length > 0) ? elemInput.val() : '';
     // let hasSelect = (elemField.find('select').length > 0);
+
+    if(elemField.children().length === 0) value = elemField.html();
 
     let result = {
         fieldId   : elemField.attr('data-id'),
@@ -849,7 +889,13 @@ function getFieldValue(elemField) {
         typeId    : elemField.attr('data-type-id'),
         value     : value,
         display   : value,
-        type      : elemField.attr('data-type') || 'string'
+        type      : elemField.attr('data-type') || 'string',
+        sectionId : '',
+        classId   : elemField.attr('data-class-id') || ''
+    }
+
+    if(elemSection.length === 1) {
+        result.sectionId = elemSection.attr('data-id') || '';
     }
 
     switch(elemField.attr('data-type')) {
@@ -887,8 +933,12 @@ function getFieldValue(elemField) {
 
         case 'buom':
         case 'single-select':
-            result.value = elemField.find('.picklist-input').first().attr('data-value');
+            result.value  = elemField.find('.picklist-input').first().attr('data-value');
             result.lookup = { link : result.value }
+            if(typeof result.value === 'undefined') {
+                result.value  = null;
+                result.lookup = { link : null };
+            }
             break;
 
         case 'multi-select':
@@ -1226,35 +1276,35 @@ function insertDetailsData(id) {
     });
 
 }
-function insertDetailsFields(id, sections, fields, data, settings, bookmarks, recents, callback) {
+function insertDetailsFields(id, sections, fields, data, panelSettings, bookmarks, recents, callback) {
 
     $('#' + id + '-processing').hide();
 
-    if(isBlank(settings)) settings = {};
+    if(isBlank(panelSettings)) panelSettings = {};
 
     let elemContent = $('#' + id + '-content');
-    let sectionsIn  = settings.sectionsIn;
-    let sectionsEx  = settings.sectionsEx;
-    let fieldsIn    = settings.fieldsIn;
-    let fieldsEx    = settings.fieldsEx;
-    let fieldValues = (isBlank(settings.fieldValues)) ? [] : settings.fieldValues;
+    let sectionsIn  = panelSettings.sectionsIn || [];
+    let sectionsEx  = panelSettings.sectionsEx || [];
+    let fieldsIn    = panelSettings.fieldsIn   || [];
+    let fieldsEx    = panelSettings.fieldsEx   || [];
+    let fieldValues = (isBlank(panelSettings.fieldValues)) ? [] : panelSettings.fieldValues;
 
     elemContent.scrollTop();
-    settings.derived = [];
+    panelSettings.derived = [];
 
-    if(isBlank(settings.expandSections  )) settings.expandSections   = [];
-    if(isBlank(settings.collapseContents)) settings.collapseContents = false;
-    if(isBlank(settings.firstSectionOnly)) settings.firstSectionOnly = false;
-    if(isBlank(settings.editable        )) settings.editable         = false;
+    if(isBlank(panelSettings.expandSections  )) panelSettings.expandSections   = [];
+    if(isBlank(panelSettings.collapseContents)) panelSettings.collapseContents = false;
+    if(isBlank(panelSettings.firstSectionOnly)) panelSettings.firstSectionOnly = false;
+    if(isBlank(panelSettings.editable        )) panelSettings.editable         = false;
 
-    if(!settings.editable   ) elemContent.addClass('readonly');    
-    if(settings.hideSections) elemContent.addClass('sections-hidden');    
+    if(!panelSettings.editable   ) elemContent.addClass('readonly');    
+    if(panelSettings.hideSections) elemContent.addClass('sections-hidden');    
 
-    if(!isBlank(settings.sectionsOrder)) {
+    if(!isBlank(panelSettings.sectionsOrder)) {
 
         let sort = 1;
 
-        for(let orderedSection of settings.sectionsOrder) {
+        for(let orderedSection of panelSettings.sectionsOrder) {
             for(let section of sections) {
                 if(orderedSection === section.name) {
                     section.order = sort++;
@@ -1272,7 +1322,7 @@ function insertDetailsFields(id, sections, fields, data, settings, bookmarks, re
 
     }
 
-    if(settings.firstSectionOnly) {
+    if(panelSettings.firstSectionOnly) {
 
         if(sectionsIn.length > 0) {
             
@@ -1310,26 +1360,36 @@ function insertDetailsFields(id, sections, fields, data, settings, bookmarks, re
 
         field.id       = field.urn.split('.').pop();
         field.visible  = false;
+        field.hasValue = false;
+        field.setValue = null;
         field.required = isFieldRequired(field);
 
-        if(!settings.requiredFieldsOnly || field.required) {
-            if(fieldsIn.length === 0 || fieldsIn.includes(field.id)) {
-                if(fieldsEx.length === 0 || !fieldsEx.includes(field.id)) {
-                    for(let section of allVisibleSectionsFields) {
-                        if(section.fields.includes(field.id)) {
-                            field.visible = true;
-                            break;
+        if(field.visibility !== 'NEVER') {
+            if(!panelSettings.requiredFieldsOnly || field.required) {
+                if(fieldsIn.length === 0 || fieldsIn.includes(field.id)) {
+                    if(fieldsEx.length === 0 || !fieldsEx.includes(field.id)) {
+                        for(let section of allVisibleSectionsFields) {
+                            if(section.fields.includes(field.id)) {
+                                field.visible = true;
+                                break;
+                            }
                         }
                     }
                 }
             }
         }
-
+        for(let fieldValue of fieldValues) {
+            if(fieldValue.fieldId === field.id) {
+                field.hasValue = true;
+                field.setValue = fieldValue.value;
+                continue;
+            }
+        }
     }
 
-    getFieldsPicklistsData(settings, fields, function(picklistsData) {
+    getFieldsPicklistsData(panelSettings, fields, function(picklistsData) {
 
-        if(settings.editable) {
+        if(panelSettings.editable) {
             for(let field of fields) {
                 if(!isBlank(field.derived)) {
                     if(field.derived) {
@@ -1337,7 +1397,7 @@ function insertDetailsFields(id, sections, fields, data, settings, bookmarks, re
                         let source = field.derivedFieldSource.__self__.split('/').pop();
                         let isNew  = true;
 
-                        for(let derived of settings.derived) {
+                        for(let derived of panelSettings.derived) {
                             if(derived.source === source) {
                                 isNew = false;
                                 break;
@@ -1345,7 +1405,7 @@ function insertDetailsFields(id, sections, fields, data, settings, bookmarks, re
                         }
 
                         if(isNew) {
-                            settings.derived.push({
+                            panelSettings.derived.push({
                                 fieldId : field.__self__.split('/').pop(),
                                 source  : source
                             });
@@ -1362,12 +1422,12 @@ function insertDetailsFields(id, sections, fields, data, settings, bookmarks, re
             let sectionId   = section.__self__.split('/')[6];
             let isNew       = true;
             let sectionLock = false;
-            let className   = (settings.collapseContents) ? 'collapsed' : 'expanded';
+            let className   = (panelSettings.collapseContents) ? 'collapsed' : 'expanded';
             let elemSection = $('<div></div>');
 
-            if(!isBlank(settings.expandSections)) {
-                if(settings.expandSections.length > 0) {
-                    className = (settings.expandSections.includes(section.name)) ? 'expanded' : 'collapsed';
+            if(!isBlank(panelSettings.expandSections)) {
+                if(panelSettings.expandSections.length > 0) {
+                    className = (panelSettings.expandSections.includes(section.name)) ? 'expanded' : 'collapsed';
                 }
             }
 
@@ -1381,7 +1441,7 @@ function insertDetailsFields(id, sections, fields, data, settings, bookmarks, re
                 }
             }
 
-            if(!settings.hideSections) {
+            if(!panelSettings.hideSections) {
 
                 for(let cacheSection of cacheSections) {
                     if(cacheSection.link === id + section.__self__) {
@@ -1447,6 +1507,8 @@ function insertDetailsFields(id, sections, fields, data, settings, bookmarks, re
 
                         elemSection.html(section.name + ' : ' + dataSection.classificationName);
 
+                        sortArray(dataSection.fields, 'title');
+
                         for(let dataSectionField of dataSection.fields) {
 
                             let fieldId = dataSectionField.__self__.split('/').pop();
@@ -1455,16 +1517,35 @@ function insertDetailsFields(id, sections, fields, data, settings, bookmarks, re
                                 if(fieldsEx.length === 0 || !fieldsEx.includes(fieldId)) {
 
                                     let wsField = {
+                                        id              : dataSectionField.__self__.split('/').pop(),
                                         name            : dataSectionField.title,
                                         type            : dataSectionField.type,
+                                        classId         : dataSection.classificationId,
                                         unitOfMeasure   : null,
                                         urn             : dataSectionField.urn,
-                                        value           : dataSectionField.value,
+                                        value           : dataSectionField.value || null,
+                                        editability     : dataSectionField.editability || 'NEVER',
+                                        visible         : true,
                                         visibility      : 'ALWAYS'
                                     };
 
-                                    wsField.type.title = 'Single Line Text';
-                                    insertDetailsField(wsField, data, elemFields, settings, sectionLock, bookmarks, recents, picklistsData);
+                                    let fieldTypeId = wsField.type.link.split('/').pop();
+
+                                    switch(fieldTypeId) {
+
+                                        case '2':
+                                        case '4':
+                                            wsField.type.title = 'Single Line Text';
+                                            break;
+                                        
+                                        case '20':
+                                            wsField.type.title = 'Single Selection';
+                                            break;
+
+                                    }
+
+                                    let elemField = insertDetailsField(wsField, data, elemFields, panelSettings, sectionLock, bookmarks, recents, picklistsData);
+                                        elemField.find('.field-value').addClass('field-classification');
 
                                 }
                             }
@@ -1492,7 +1573,7 @@ function insertDetailsFields(id, sections, fields, data, settings, bookmarks, re
                                                     if(wsField.visible) {
                                                     // if(fieldsIn.length === 0 || fieldsIn.includes(matrixFieldId)) {
                                                         // if(fieldsEx.length === 0 || !fieldsEx.includes(matrixFieldId)) {
-                                                            insertDetailsField(wsField, data, elemFields, settings, sectionLock, bookmarks, recents, picklistsData);
+                                                            insertDetailsField(wsField, data, elemFields, panelSettings, sectionLock, bookmarks, recents, picklistsData);
                                                             included = true;
                                                         // }
                                                     }
@@ -1507,7 +1588,7 @@ function insertDetailsFields(id, sections, fields, data, settings, bookmarks, re
                         for(let wsField of fields) {
                             if(wsField.urn === sectionField.urn) {
                                 if(wsField.visible) {
-                                    insertDetailsField(wsField, data, elemFields, settings, sectionLock, bookmarks, recents, picklistsData);
+                                    insertDetailsField(wsField, data, elemFields, panelSettings, sectionLock, bookmarks, recents, picklistsData);
                                     included = true;
                                 }
                             }
@@ -1522,9 +1603,9 @@ function insertDetailsFields(id, sections, fields, data, settings, bookmarks, re
                                 if(wsField.urn === sectionField.urn) {
                                     if(fieldValue.fieldId === fieldId) {
                                        
-                                        wsField.visible = true;
-                                        let elemField = insertDetailsField(wsField, data, elemFields, settings, sectionLock, bookmarks, recents, picklistsData);
-                                        // elemField.addClass('hidden');
+                                        wsField.hasValue = true;
+                                        let elemField = insertDetailsField(wsField, data, elemFields, panelSettings, sectionLock, bookmarks, recents, picklistsData);
+                                        elemField.addClass('hidden');
                                         // insertHiddenDetailsField(wsField, elemFields, fieldValue);
                                     }
                                 }
@@ -1543,7 +1624,7 @@ function insertDetailsFields(id, sections, fields, data, settings, bookmarks, re
 
         }
 
-        insertAllPicklistData(settings, picklistsData, elemContent);
+        insertAllPicklistData(panelSettings, picklistsData, elemContent);
 
         callback();
 
@@ -1564,8 +1645,6 @@ function submitEdit(link, sections, elemParent, callback) {
             sections : sections,
             fields   : getFieldValues(elemParent, '.changed')
         };
-
-        console.log(params);
 
         if(params.fields.length === 0) callback();
         else {
@@ -1715,8 +1794,6 @@ function getAllVisibleSectionsFieldIDs(sections) {
 }
 function insertDetailsField(field, data, elemFields, settings, sectionLock, bookmarks, recents, picklistsData) {
 
-    if(!field.visible) return;
-
     if(isBlank(sectionLock)) sectionLock = false;
     if(isBlank(bookmarks  )) bookmarks   = false;
     if(isBlank(recents    )) recents     = false;
@@ -1735,18 +1812,22 @@ function insertDetailsField(field, data, elemFields, settings, sectionLock, book
         if(isBlank(settings.fieldsIn)) settings.fieldsIn = [];
     }
 
-    let hideComputed    = (isBlank(settings.hideComputed)) ? false : settings.hideComputed;
-    let hideReadOnly    = (isBlank(settings.hideReadOnly)) ? false : settings.hideReadOnly;
-    let hideLabels      = (isBlank(settings.hideLabels  )) ? false : settings.hideLabels;
-    let suppressLinks   = (isBlank(settings.suppressLink)) ? false : settings.suppressLinks;
-    let editable        = (isBlank(settings.editable    )) ? false : settings.editable;
+    let hideComputed = settings.hideComputed || false;
+    let hideReadOnly = settings.hideReadOnly || false;
+    let hideLabels   = settings.hideLabels   || false;
+    let editable     = settings.editable     || false;
 
-    if(field.visibility === 'NEVER') return;
-    if((field.editability === 'NEVER') && hideReadOnly) return;
-    if(field.formulaField  && hideComputed) return;
+    if(!field.hasValue) {
+        if(!field.visible) return;
+        if(field.visibility === 'NEVER') return;
+        if((field.editability === 'NEVER') && hideReadOnly) return;
+        if(field.formulaField  && hideComputed) return;
+    }
 
-    let value    = null;
-    let urn      = field.urn.split('.');
+
+
+    // let value    = null;
+    // let urn      = field.urn.split('.');
     // let fieldId  = urn[urn.length - 1];
     let readonly = (!settings.editable || field.editability === 'NEVER' || (field.editability !== 'ALWAYS' && (typeof data === 'undefined')) || field.formulaField);
     // let required = isFieldRequired(field, fieldId, settings);
@@ -1757,8 +1838,11 @@ function insertDetailsField(field, data, elemFields, settings, sectionLock, book
 
     // if(!required && settings.requiredFieldsOnly) return;
 
-    let elemField = $('<div></div>').addClass('field').addClass('content-item').attr('id', 'field-' + field.id);
-    let elemValue = $('<div></div>');
+    let elemField = $('<div></div>')
+        .addClass('field')
+        .addClass('content-item')
+        .attr('id', 'field-' + field.id)
+    let elemValue = $('<div></div>').attr('data-class-id', field.classId || '');
     let elemInput = $('<input>');
 
     // setFieldDataAndClasses(elemValue, field, settings.editable); // moved to function insertField
@@ -1772,7 +1856,7 @@ function insertDetailsField(field, data, elemFields, settings, sectionLock, book
                     let urn = itemField.urn.split('.');
                     let itemFieldId = urn[urn.length - 1];
                     if(field.id === itemFieldId) {
-                        value = itemField.value;
+                        // value = itemField.value;
                         break;
                     }
                 }
@@ -1780,11 +1864,11 @@ function insertDetailsField(field, data, elemFields, settings, sectionLock, book
         }
     }
 
-    if(isBlank(value)) {
-        if(field.hasOwnProperty('value')) value = field.value;
-    }
+    // if(isBlank(value)) {
+        // if(field.hasOwnProperty('value')) value = field.value;
+    // }
 
-    if(typeof value === 'undefined') value = null;
+    // if(typeof value === 'undefined') value = null;
 
     insertField(settings, elemValue, field, data, picklistsData, bookmarks, recents);
 
@@ -2102,12 +2186,12 @@ function insertDetailsField(field, data, elemFields, settings, sectionLock, book
 }
 function insertField(settings, elemParent, field, data, picklistsData, bookmarks, recents) {
 
-    if(field.visibility === 'NEVER') return null;
+    if(field.visibility === 'NEVER') elemParent.addClass('hidden');
 
     if(isBlank(field.id)) field.id = field.urn.split('.').pop();
 
-    let value     = getFieldValueFromResponseData(field.id, data) || '';
-    let editable  = (isBlank(settings.editable)) ? false : settings.editable;
+    let value     = (field.hasValue) ? field.setValue : getFieldValueFromResponseData(field.id, data) || '';
+    let editable  = settings.editable || false;
     let elemInput = $('<input>').attr('data-id', field.id);
 
     settings.readonly = (field.editability === 'NEVER') || (field.formulaField) || (field.type.title === 'Image') || false;
@@ -2367,7 +2451,21 @@ function insertField(settings, elemParent, field, data, picklistsData, bookmarks
 }
 function setFieldValue(elemField, value, display) {
 
-    if(elemField.hasClass('field-type-single-select')) {
+    if(elemField.hasClass('field-type-multi-select')) {
+        
+
+        console.log(value);
+        console.log(display);
+
+        let elemList = elemField.find('.picklist-selected-items');
+            elemList.removeClass('hidden');
+            elemList.siblings().addClass('hidden');
+
+        for(let index in value) {
+            insertPicklistSelectedItem({}, elemList, value[index], display[index]);
+        }
+
+    } else if(elemField.hasClass('field-type-single-select')) {
         
         let elemInput = elemField.find('.picklist-input');
 
@@ -2391,7 +2489,7 @@ function setFieldValue(elemField, value, display) {
                 if($(this).attr('data-link') === value) $(this).addClass('selected');
             });
         }
-
+        
     } else if(elemField.hasClass('field-type-checkbox')) {
     } else elemField.children().val(value);
 
@@ -2740,8 +2838,11 @@ function insertFieldPicklistControls(settings, field, elemParent, value, bookmar
 }
 function updatePickListOptions(elemInput, offset, isUpdate, picklistsData) {
 
+    let elemField    = elemInput.closest('.field-value');
     let elemPicklist = elemInput.next();
     let filterValue  = elemInput.val().toLowerCase();
+
+    if(elemField.hasClass('field-classification')) return;
 
     if(elemInput.val() === '') elemInput.removeClass('filtering');
 
@@ -5021,7 +5122,7 @@ function insertBOM(link , params) {
             .addClass('icon')
             .addClass('icon-go-there')
             .addClass('xs')
-            .addClass('bom-single-select-action')
+            .addClass('single-select-action')
             .attr('title', 'Open this view for the selected item')
             .click(function() {
                 clickBOMGoThere($(this));

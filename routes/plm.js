@@ -895,6 +895,19 @@ function getFieldValue(field) {
 
     switch(type) {
 
+        case 'date':
+            if(value == '') value = null;
+            else {
+                if (value !== null) value = value.replaceAll('/', '-');
+                let split = value.split('-');
+                value = split[0] + '-';
+                value += (split[1].length === 1) ? '0' : '';
+                value += split[1] + '-';
+                value += (split[2].length === 1) ? '0' : '';
+                value += split[2];
+            }
+            break;
+
         case 'integer':
             value = parseInt(field.value);
             break;
