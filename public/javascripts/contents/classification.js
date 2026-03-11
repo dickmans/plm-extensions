@@ -1151,9 +1151,10 @@ function submitClassificationEdit(id, callback) {
 function insertItemClassContents(link, paramsContents, paramsFilters) {
 
     if(isBlank(paramsContents)) paramsContents = {};
+    if(isBlank(paramsFilters )) paramsFilters  = {};
 
     let requests = [
-        $.get('/plm/details' , { link :link }),
+        $.get('/plm/details' , { link : link }),
         $.get('/plm/classes' , { useCache : paramsContents.useCache || true }),
     ];
 
