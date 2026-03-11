@@ -103,9 +103,9 @@ $(document).ready(function() {
         $('.with-log').removeClass('with-log');
         $('.with-troubleshooting').removeClass('with-troubleshooting');
 
-        let url = document.location.href.split('?');
-            url = url[0] + '?app=' + $(this).attr('data-id') + '&theme=' + $('#theme-selector').val();
-
+        let base = document.location.href.split('?')[0];
+        if(base.endsWith('/')) base = base.substring(0, base.length - 1);
+        let url = base + '?app=' + $(this).attr('data-id') + '&theme=' + $('#theme-selector').val();
         window.history.replaceState(null, null, url);
     
     });
@@ -254,8 +254,9 @@ function updateLinks() {
 
         if(href.indexOf('youtu.be') < 0) {
             if(href.indexOf('https://github.com') < 0) {
-
-                let url = location[0] + href;
+                let base = location[0].split('/landing')[0];
+                if(!base.endsWith('/')) base += '/';
+                let url = base + href;
                 if($(this).html() === '') $(this).html(url);
                 let concat = (url.indexOf('?') > -1) ? '&' : '?';
                 if(location.length > 1)url += concat + location[1];
