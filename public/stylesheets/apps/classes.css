@@ -64,8 +64,14 @@
 .no-summary #contents { right : 0px; }
 .no-summary #summary  { right : calc(0px - var(--width-summary) - (2 * var(--border-h))); }
 
+.addin #header {
+    background : var(--color-surface-level-1) !important;
+    left       : unset;
+    z-index    : 3;
+}
 .addin #classes,
-.addin #filters { top : -40px; }
+.addin #filters,
+.addin #contents { top : -40px; }
 
 
 /* CLASSES TREE */
@@ -165,6 +171,12 @@
     border-top-color : var(--color-yellow-500) !important;
 }
 
+.light-theme .class-property-selector { margin-bottom : 4px; }
+.light-theme .class-filters,
+.light-theme .class-filter { gap : 4px; }
+.light-theme .class-filter > input { border-color : var(--color-surface-level-5); }
+.light-theme .class-filter > select.class-filter-picklist { max-width : 225px; min-width : 225px; }
+
 .addin #filters-content { 
     padding-top : 0px; 
     top         : 36px;
@@ -203,7 +215,18 @@
 .value.neutral {  font-weight : normal;}
 .value.diff  { background : var(--color-status-red-bright);   }
 .value.match { background : var(--color-status-green-bright); }
-
+.content-column-number {
+    left     : 0;
+    position : sticky;
+    z-index  : 7 !important;
+}
+.content-column-descriptor,
+.list-column-descriptor {
+    left      : 40px;
+    max-width : 220px;
+    position  : sticky;
+    z-index   : 7 !important;
+}
 
 
 /* SUMMARY */

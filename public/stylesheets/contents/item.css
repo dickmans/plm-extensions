@@ -641,6 +641,9 @@ td.field-editable > .picklist-controls > .picklist-input {
     white-space     : nowrap;
     width           : 100%;
 }
+.readonly > .picklist-selected-items > * > .picklist-selected-item-remove {
+    display : none;
+}
 .multi-picklist.readonly:has(.picklist-selected-item:nth-child(2)) {
     padding : 7px 0px 7px 0px;
 }
@@ -1245,7 +1248,7 @@ tr.content-item.selected > td {
 .content-item:hover td ,
 table.grid .content-item:hover td,
 table.bom-table .content-item:hover td {
-    border-color     : var(--color-blue-500);
+    border-color     : var(--color-blue-500) !important;
     background-color : var(--color-hover-background);
 }
 .bom-color {

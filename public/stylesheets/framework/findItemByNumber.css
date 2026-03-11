@@ -1,5 +1,19 @@
+.addin #startup-logo {
+    background-size : 200px;
+    height : 140px;
+    width  : 200px;
+    top    : calc(50% - 164px);
+    left   : calc(50% - 100px);
+}
+.addin #search-processing { top : calc(50% - 30px); }
+.addin #search-message    { top : calc(50% + 20px); }
+
+
 .screen {
     top : 0px;
+}
+#search-screen > * {
+    transition : none;
 }
 #create-screen {
     display : none;

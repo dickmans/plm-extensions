@@ -11,6 +11,10 @@ $(document).ready(function() {
     //  http://localhost:8080/service?number=002771&level=1
     //  http://localhost:8080/service?number=3D-25-000035&wsid=95&level=1&reference=ENGINEERING_BOM&level=1
     
+    if(urlParameters.hasOwnProperty('host')) {
+        if(urlParameters.host !== '') $('body').addClass('addin');
+    }
+
     if(urlParameters.number === '') { 
 
         $('#create-message').show();

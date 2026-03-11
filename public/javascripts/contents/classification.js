@@ -476,6 +476,7 @@ function insertClassFilters(classId, className, params) {
         [ 'idContents' , 'contents'     ],
         [ 'layout'     , 'table'        ],
         [ 'fields'     , ['DESCRIPTOR'] ],
+        [ 'advanced'   , true           ],
         [ 'pagination' , true           ],
         [ 'limit'      , 25             ]
     ]);
@@ -509,6 +510,7 @@ function insertClassFiltersData(id) {
     }
 
     $('#' + id + '-controls').children('.panel-action').hide();
+    $('#' + id + '-actions').children('.panel-action').hide();
 
     $.get('/plm/class-properties', params, function(response) {
 
@@ -524,6 +526,7 @@ function insertClassFiltersData(id) {
         if(stopPanelContentUpdate(response, settings[id])) return;
         
         $('#' + id + '-controls').children('.panel-action').show();
+        $('#' + id + '-actions').children('.panel-action').show();
         $('#' + id + '-no-data').hide();
         $('#' + id + '-processing').hide();
 
@@ -559,6 +562,7 @@ function insertClassFiltersData(id) {
 
         $('<div></div>').appendTo(elemSection1)
             .addClass('class-filters')  
+            .addClass('no-scrollbar');
 
         let elemSection2 = $('<div></div>').appendTo(elemContent)
             .addClass('panel-section')
@@ -578,28 +582,32 @@ function insertClassFiltersData(id) {
             .addClass('class-filters')            
 
 
-        let elemSection3 = $('<div></div>').appendTo(elemContent)
-            .addClass('panel-section')
-            .addClass('filter-section-advanced')
+        if(settings[id].advanced) {
 
-        $('<div></div>').appendTo(elemSection3)
-            .addClass('panel-section-title')   
-            .html('Advanced');
+            let elemSection3 = $('<div></div>').appendTo(elemContent)
+                .addClass('panel-section')
+                .addClass('filter-section-advanced')
 
-         $('<div></div>').appendTo(elemSection3)
-            .addClass('panel-section-subtitle')
-            .html('Provide any filter for your custom conditions. This filter condition will be added using AND to the above conditions.');    
+            $('<div></div>').appendTo(elemSection3)
+                .addClass('panel-section-title')   
+                .html('Advanced');
 
-        $('<textarea></textarea>').appendTo(elemSection3)
-            .addClass('panel-section-textarea')
-            .addClass('class-filter-advanced')
-            .attr('placeholder', 'Type basic text or property filter conditions. Example: P1000 AND CLASS:TITLE=Value')
-            .keypress(function(e) {
-                if (e.keyCode == 13) {
-                    e.preventDefault();
-                    applyClassFilters(id);
-                }
-            });         
+            $('<div></div>').appendTo(elemSection3)
+                .addClass('panel-section-subtitle')
+                .html('Provide any filter for your custom conditions. This filter condition will be added using AND to the above conditions.');    
+
+            $('<textarea></textarea>').appendTo(elemSection3)
+                .addClass('panel-section-textarea')
+                .addClass('class-filter-advanced')
+                .attr('placeholder', 'Type basic text or property filter conditions. Example: P1000 AND CLASS:TITLE=Value')
+                .keypress(function(e) {
+                    if (e.keyCode == 13) {
+                        e.preventDefault();
+                        applyClassFilters(id);
+                    }
+                });  
+            
+        }
 
         elemContent.show();
 
@@ -719,11 +727,13 @@ function insertClassPropertyFilter(id, elemSelect) {
 }
 function applyClassFilters(id) {
 
-    let query    = '(CLASS:SYSTEM_NAME=' + settings[id].className + ')';
-    let advanced = $('#' + id + '-content').find('.panel-section-textarea').first().val().trim();
-    let filters  = $('#' + id + '-content').find('.class-filter');
-
-    if(!isBlank(advanced)) { query += '+AND+' + advanced; }
+    let query   = '(CLASS:SYSTEM_NAME=' + settings[id].className + ')';
+    let filters = $('#' + id + '-content').find('.class-filter');
+    
+    if(settings[id].advanced) {
+        let advanced = $('#' + id + '-content').find('.panel-section-textarea').first().val().trim();
+        if(!isBlank(advanced)) { query += '+AND+' + advanced; }
+    }
     
     if(filters.length > 0) {
     
@@ -767,7 +777,7 @@ function applyClassFilters(id) {
 
     }
 
-    let idContents = settings[id].idContents;
+    let idContents       = settings[id].idContents;
     let settingsContents = settings[idContents];
 
     settingsContents.query = query;
@@ -792,19 +802,12 @@ function insertItemClassification(link, params) {
         headerSubLabel : 'Classifcation Data',
         textNoData     : 'No Classification Data Available'
     }, [
-        [ 'bookmark'           , false ],
-        [ 'cloneable'          , false ],
-        [ 'hideLabels'         , false ],
-        [ 'hideReadOnly'       , false ],
-        [ 'hideSections'       , true ],
-        // [ 'picklistLimit'      , 10    ],
-        // [ 'picklistShortcuts'  , true  ],
-        [ 'requiredFieldsOnly' , false ],
-        [ 'saveButtonLabel'    , 'Save'],
-        // [ 'suppressLinks'      , false ],
-        // [ 'toggles'            , false ],
-        // [ 'workflowActions'    , false ],
-        // [ 'afterCloning'       , function(id, link) { console.log('New item link : ' + link ); } ]
+        [ 'bookmark'           , false  ],
+        [ 'hideLabels'         , false  ],
+        [ 'hideReadOnly'       , false  ],
+        [ 'hideSections'       , true   ],
+        [ 'requiredFieldsOnly' , false  ],
+        [ 'saveButtonLabel'    , 'Save' ],
     ]);
 
     settings[id].load = function() { insertItemClassificationData(id); }
@@ -871,8 +874,8 @@ function insertItemClassificationData(id) {
         settings[id].descriptor    = responses[0].data.title;
         settings[id].sectionsIn    = [section.title];      
 
-        let elemClassification = $('<div></div>').appendTo(elemContent).addClass('classification-header').addClass('classification-data');
-        let elemButton         = $('<div></div>').addClass('button').addClass('default').addClass('classification-change').html('Change Class').click(function() { selectNewClassification($(this)); });
+        let elemClassification = $('<div></div>').appendTo(elemContent).addClass('classification-header').addClass('classification-data').addClass('surface-level-2');
+        let elemButton         = $('<div></div>').addClass('button').addClass('default').addClass('classification-change').html('Change Class').click(function() { selectNewClassification(); });
 
         $('<div></div>').appendTo(elemClassification).addClass('classification-label').html('Top Level Class');
         $('<div></div>').appendTo(elemClassification).addClass('classification-value').html(getSectionFieldValue(responses[0].data.sections, 'TOP_LEVEL_CLASS', '')).addClass('class-top');
@@ -882,10 +885,8 @@ function insertItemClassificationData(id) {
         $('<div></div>').appendTo(elemClassification).addClass('classification-value').html(getSectionFieldValue(responses[0].data.sections, 'CLASS_NAME', '')).addClass('class-name');
         $('<div></div>').appendTo(elemClassification).addClass('classification-label');
         $('<div></div>').appendTo(elemClassification).addClass('classification-value').append(elemButton);
-
-        let elemClassBrowser = $('<div></div>').appendTo(elemContent).addClass('classification-header').addClass('classification-tree').addClass('hidden');
-        
-        $('<div></div>').appendTo(elemClassBrowser).attr('id', id + '-classification-tree');
+        $('<div></div>').appendTo(elemClassification).addClass('classification-label').addClass('class-new').addClass('hidden').html('Select New Class');
+        $('<div></div>').appendTo(elemClassification).addClass('classification-value').addClass('class-new').addClass('hidden').attr('id', id + '-classification-tree')    ;   
 
         insertClasses({
             id               : id + '-classification-tree',
@@ -893,8 +894,9 @@ function insertItemClassificationData(id) {
             placeholder      : 'Search',
             topClassId       : topClassId,
             contentSize      : 's',
+            hideHeader       : true,
+            hidePanel        : true,
             collapseContents : true,
-            path             : true,
             search           : true,
             toggles          : true,
             useCache         : true,
@@ -903,11 +905,15 @@ function insertItemClassificationData(id) {
             afterCompletion  : function(id) { addNewClassificationButtons(id); }
         });            
         
-        $.get('/plm/class-fields', { classId : section.classificationId, useCache : settings[id].useCache}, function(response) {
+        let requestsClass = [ $.get('/plm/class-fields', { classId : section.classificationId, useCache : settings[id].useCache}) ];
+
+        if(settings[id].editable) requestsClass.push($.get('/plm/class-properties', { classId : section.classificationId, useCache : settings[id].useCache}));
+
+        Promise.all(requestsClass).then(function(responsesClass) {
 
             for(let field of section.fields) {
                 let fieldId = field.urn.split('.').pop();
-                for(let wsField of response.data.fields) {
+                for(let wsField of responsesClass[0].data.fields) {
                     let wsFieldId = wsField.urn.split('.').pop();
                     if(fieldId === wsFieldId) {
                         field.defaultValue            = wsField.defaultValue;
@@ -922,9 +928,12 @@ function insertItemClassificationData(id) {
             responses[0].data.sections = [section];
 
             setPanelBookmarkStatus(id, settings[id], responses);
-            setPanelCloneStatus   (id, settings[id], responses);
 
             insertDetailsFields(id, settings[id].sections, responses[2].data, responses[0].data, settings[id], false, false, function() {
+                if(settings[id].editable) {
+                    setClassificationFieldsConstraints(id, responsesClass[0].data.fields);
+                    insertClassificationFieldsPicklistValues(id, responsesClass[1]);
+                }
                 finishPanelContentUpdate(id, settings[id]);
                 insertDetailsDataDone(id, responses[1].data, responses[2].data, responses[0].data);
             });
@@ -934,13 +943,82 @@ function insertItemClassificationData(id) {
     });
 
 }
-function selectNewClassification(elemClicked) {
+function setClassificationFieldsConstraints(id, fields) {
 
-    let elemParent = elemClicked.closest('.classification-header');
-        elemParent.addClass('hidden');
+    let elemContent = $('#' + id + '-content');
 
-    elemParent.next('.classification-header').removeClass('hidden');
-    elemParent.nextAll('.section-fields').addClass('hidden');
+    elemContent.find('.field-editable').each(function() {
+
+        let elemField = $(this);
+        let fieldId   = elemField.attr('data-id');
+
+        for(let field of fields) {
+
+            if(fieldId === field.__self__.split('/').pop()) {
+
+                let fieldType = field.type.link.split('/').pop();
+
+                if(fieldType == '2') {
+                    elemField.find('input').attr('type', 'number');
+                }
+            
+                if(field.hasOwnProperty('fieldValidators')) {
+                    if(field.fieldValidators !== null) {
+                        if(field.fieldValidators[0].validatorName === 'required') {
+                            elemField.closest('.field').addClass('required');
+                        }
+                    }
+                }
+
+            }
+        }
+    });
+
+}
+function insertClassificationFieldsPicklistValues(id, properties) {
+
+    let elemContent = $('#' + id + '-content');
+
+    elemContent.find('.field-editable.field-type-single-select').each(function() {
+
+        let elemField   = $(this);
+        let fieldId     = elemField.attr('data-id');
+        let elemOptions = elemField.find('.picklist-options');
+
+        for(let property of properties.data) {
+
+            if(fieldId === '0CWS_' + property.name) {
+
+                for(let option of property.picklist) {
+
+                    let elemOption = $('<div></div>').appendTo(elemOptions)
+                        .addClass('picklist-option')
+                        .addClass('picklist-option-result')
+                        .attr('id', option.link)
+                        .attr('value', option.link)
+                        .attr('displayValue', option.title)
+                        .click(function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            selectPicklistValue($(this));
+                        });     
+            
+                    $('<div></div>').appendTo(elemOption)
+                        .addClass('picklist-option-title')
+                        .html(option.title);
+        
+                }
+            }
+        }
+
+    });
+
+}
+function selectNewClassification() {
+
+    $('.classification-header').addClass('pos-abs-max');
+    $('.button.classification-change').addClass('hidden');
+    $('.class-new').removeClass('hidden');
 
 }
 function addNewClassificationButtons(id) {
@@ -952,7 +1030,7 @@ function addNewClassificationButtons(id) {
         .addClass('button')
         .html('Cancel')
         .click(function() { 
-            cancelNewClassification($(this));
+            endNewClassification();
         });
 
     $('<div></div>').prependTo(elemParent)
@@ -969,28 +1047,29 @@ function submitNewClassification(id, elemClicked) {
 
     if(elemClicked.hasClass('disabled')) return;
 
+    let elemContent  = elemClicked.closest('.panel-content');
     let elemTree     = elemClicked.closest('.tree');
     let elemSelected = elemTree.find('.content-item.selected');
     let classId      = elemSelected.attr('data-link').split('/')[1];
     let className    = elemSelected.find('.tree-title').html();
     let classPath    = getTreeItemPath(elemSelected, ' / ');
 
-    let elemHeader = elemClicked.closest('.classification-tree');
-        elemHeader.addClass('hidden');
-
-    let elemData = elemHeader.prev('.classification-header');
-        elemData.removeClass('hidden');
-        elemData.find('.class-path').html(classPath.path);
-        elemData.find('.class-name').html(className);
-
+    elemContent.find('.class-path').html(classPath.path);
+    elemContent.find('.class-name').html(className);
+    
     $('#overlay').show();
 
-    $.get('/plm/class-fields', { classId : classId, useCache : settings[id].useCache }, function(response) {
+    let requestsClass = [ $.get('/plm/class-fields', { classId : classId, useCache : settings[id].useCache}) ];
 
+    if(settings[id].editable) requestsClass.push($.get('/plm/class-properties', { classId : classId, useCache : settings[id].useCache}));
+
+    Promise.all(requestsClass).then(function(responses) {
+
+        endNewClassification();
         $('#' + id + '-content').find('.section-fields').remove();
         $('#overlay').hide();
 
-        for(let field of response.data.fields) {
+        for(let field of responses[0].data.fields) {
             field.value  = field.defaultValue || null;
             field.title = field.name;
             field.link  = field.__self__;
@@ -999,40 +1078,46 @@ function submitNewClassification(id, elemClicked) {
         let data = {
             sections : [{
                 link               : '/' + settings[id].sectionConfig.__self__,
-                classificationId : classId,
+                classificationId   : classId,
                 classificationName : settings[id].sectionConfig.name,
-                fields             : response.data.fields
+                fields             : responses[0].data.fields
             }]
         };
 
         settings[id].classId = classId;
-        settings[id].sectionConfig.fields = response.data.fields;
+        settings[id].sectionConfig.fields = responses[0].data.fields;
 
-        insertDetailsFields(id, settings[id].sections, response.data.fields, data, settings[id], false, false, function() {
+        insertDetailsFields(id, settings[id].sections, responses[0].data.fields, data, settings[id], false, false, function() {
+            if(settings[id].editable) {
+                setClassificationFieldsConstraints(id, responses[0].data.fields);
+                insertClassificationFieldsPicklistValues(id, responses[1]);
+            }
         });
 
     });
 
 }
-function cancelNewClassification(elemClicked) {
+function endNewClassification() {
 
-    let elemParent = elemClicked.closest('.classification-header');
-        elemParent.addClass('hidden');
-
-    elemParent.prev().removeClass('hidden');
-    elemParent.next().removeClass('hidden');
+    $('.classification-header').removeClass('pos-abs-max');
+    $('.button.classification-change').removeClass('hidden');
+    $('.class-new').addClass('hidden');    
 
 }
 function enableNewClassificationSubmit(elemClicked) {
 
-    let elemParent = elemClicked.closest('.panel-top');
-        elemParent.find('.disabled').removeClass('disabled');
+    let elemParent    = elemClicked.closest('.panel-top');
+    let countSelected = elemParent.find('tr.content-item.selected').length;
 
+    if(countSelected > 0) elemParent.find('.disabled').removeClass('disabled');
+    else $('#classification-classification-tree-actions').children('.default').addClass('disabled');
 
 }
 function submitClassificationEdit(id, callback) {
 
     let elemParent = $('#' + id + '-content');
+
+    elemParent.find('.field-value').each(function() { $(this).addClass('field-locked'); });
 
     if(!validateForm(elemParent)) {
 
@@ -1048,11 +1133,10 @@ function submitClassificationEdit(id, callback) {
             classId  : settings[id].classId
         };
 
-        console.log(params);
-
         if(params.fields.length === 0) callback();
         else {
             $.post('/plm/edit', params, function(response) {
+                printResponseErrorMessagesToConsole(response);
                 elemParent.find('.field-value.changed').removeClass('changed');
                 callback(response);
             });

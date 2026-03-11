@@ -32,15 +32,36 @@
                     img.border(src='images/apps/addin-item.png' style='margin:8px 0px;width:100%;max-width:495px;min-width:495px;')
             tr 
                 td(style='padding:32px;vertical-align:top;') 
+                    h2(style='border:none;padding:0px;margin-top:0px;') Item Classification
+                    |By passing a part number or a dmsId with wsId, users can view and update classifiation data of the related item in PLM.
+                    p You can access this addin with the 
+                        strong /addins/item-classification 
+                        |endpoint, just click this link:
+                    a(href='addins/item-classification?number=001-ELC-0058' target='_blank')
+                td
+                    img.border(src='images/apps/addin-item-classification.png' style='margin:8px 0px;width:100%;max-width:495px;min-width:495px;')
+            tr 
+                td(style='padding:32px;vertical-align:top;') 
                     h2(style='border:none;padding:0px;margin-top:0px;') Item Where Used
                     |By passing a part number or a dmsId with wsId, users can access Where Used information of the related item in PLM.
                     |The tabs enable access to the immediate parents and their BOM as well as the root parents and relationships.
                     p You can access this addin with the 
                         strong /addins/context?number=WG1-6062 
-                        | endpoint, just click this link:
+                        |endpoint, just click this link:
                     a(href='addins/context?number=WG1-6062' target='_blank')
                 td
                     img.border(src='images/apps/addin-context.png' style='margin:8px 0px;width:100%;max-width:495px;min-width:495px;')
+            tr 
+                td(style='padding:32px;vertical-align:top;') 
+                    h2(style='border:none;padding:0px;margin-top:0px;') Similar Items
+                    |This panel can be used to identify similar / alternate items based on classification information. By passing a part number or a dmsId with wsId, users can navigate to the matching item's class and find the full list of items in this class.
+                    |The filters panel at bottom of the screen can be used to search within the given class. Action button are inserted to allow for interactions with the host application (Vault / Inventor).
+                    p You can access this addin with the 
+                        strong /addins/similar 
+                        |endpoint, just click this link:
+                    a(href='addins/similar?number001-ELC-0058' target='_blank')
+                td
+                    img.border(src='images/apps/addin-similar.png' style='margin:8px 0px;width:100%;max-width:495px;min-width:495px;')
             tr 
                 td(style='padding:32px;vertical-align:top;') 
                     h2(style='border:none;padding:0px;margin-top:0px;') My Tasks List
@@ -155,6 +176,14 @@
     .log 
         h1 PLM Addin Change Log 
         table 
+            tr 
+                td 11. March 2026
+                td New Addin
+                td The new Item Classification addin can be used to manage classification data of an item
+            tr 
+                td 11. March 2026
+                td New Addin
+                td The new Similar Itemms addin can be used to locate alternate items based on classification data
             tr 
                 td 12. January 2026
                 td Documentation

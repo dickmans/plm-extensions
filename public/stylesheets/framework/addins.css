@@ -56,12 +56,6 @@
 .addin .panel-search {
     padding-left : 2px !important;
 }
-.addin .panel-search-input {
-    margin-left    : 2px;
-    padding-top    : 0px;
-    padding-bottom : 0px;
-    width          : 78px;
-}
 .addin .attachments-content.list .attachment-summary {
     gap : var(--spacer-xs);
 }
@@ -131,10 +125,11 @@
 
 /*  BUTTONS */
 /* ----------------------------------------------------------------------------- */
-.addin div.button {
+.addin .button {
     font-size   : 12px;
     height      : 22px;
     line-height : 22px;
+    min-width   : 42px;
     padding     : 0px 8px;
 }
 .addin .button.icon {
@@ -159,22 +154,50 @@
 }
 
 
-/*  PANEL HEADER & CONTENT */
+/*  PICKLIST CONTROLS */
 /* ----------------------------------------------------------------------------- */
+.addin .field-editable > .button, 
+.addin .field-editable > .picklist-controls > .picklist-actions > .button {
+    border      : none;
+    box-shadow  : none;
+    line-height : 21px;
+    max-height  : 21px;
+    min-height  : 21px;
+    height      : 21px;
+    max-width   : 21px;
+    min-width   : 21px;
+    width       : 21px;
+}
+.addin .picklist-actions {
+    right: 24px;
+}
+.addin .field-value input,
+.addin .picklist-input {
+    max-width : calc(100% - 14px);
+    min-width : calc(100% - 14px);
+    width     : calc(100% - 14px);
+}
+
+
+
+/*  PANEL HEADER & ACTIONS */
+/* ----------------------------------------------------------------------------- */
+.addin .panel-header {
+    height  : 34px;
+    padding : 0px 10px 0px 18px;
+}
 .addin .panel-title {
-    gap       : 10px;
-    padding   : 12px 0px 0px 18px;
-    min-width : calc(100% - 36px);
-    width     : calc(100% - 36px);
+    gap         : 0px;
+    height      : 34px;
+    padding     : 0px;
 }
 .addin .panel-title-main {
     font-size   : 14px;
     font-weight : 600;
-    height      : 16px;
-    line-height : 16px;
+    height      : 34px;
+    line-height : 34px;
 }
 .addin .panel-title-sub {
-    display     : none;
     font-size   : 11px;
     line-height : 14px;
 }
@@ -183,13 +206,27 @@
     height      : 14px;
     line-height : 14px;
 }
+.addin .panel-controls {
+    height     : 24px;
+    margin-top : 2px;
+}
+.addin .panel-header.multi-line {
+    height     : 42px;
+    margin-top : 6px;
+}
+.addin .panel-header.multi-line .panel-title {
+    height : 36px;
+}
+.addin .panel-header.multi-line .panel-controls {
+    margin-top : 4px;
+}
 .addin .panel-summary {
     overflow        : hidden;
     text-overflow   : ellipsis;
     min-width       : unset;
     width           : unset;
 }
-.addin .panel-controls,
+/* .addin .panel-controls,
 .addin .panel-actions {
     gap      : 4px;
     padding  : 8px 18px 0px;
@@ -197,16 +234,42 @@
     top      : 0px;
     right    : 0px;
     z-index  : 5;
+} */
+
+.addin .panel-actions {
+    height  : 24px;
+    padding : 0px;
+    top     : 42px;
+    right   : 10px;
+    left    : 18px;
 }
-.addin .panel-controls > .panel-search > .button {
+.addin .panel-search.button {
+    max-width     : 140px;
+    min-width     : 140px;
+    width         : 140px;
+}
+.addin .panel-search.button >  .button {
+    line-height : 16px;
+    max-height  : 16px;
+    min-height  : 16px;
     height      : 16px;
     font-size   : 16px;
-    line-height : 16px;
     margin-top  : 2px;
+    max-width   : 16px;
+    min-width   : 16px;
     width       : 16px;
 }
-.addin .panel-top.with-sub-title > .panel-header > .panel-title {
-    padding-top : 12px;
+.addin .panel-search.button > input {
+    border-bottom : none;
+    font-size     : 12px;
+    padding       : 0px 4px;
+    line-height   : 22px;
+    max-height    : 22px;
+    min-height    : 22px;
+    height        : 22px;
+    max-width     : 56px;
+    min-width     : 56px;
+    width         : 56px;    
 }
 .addin .panel-top.with-tabs > .panel-content > .panel-top > .panel-header > .panel-controls {
     height  : 22px;
@@ -217,8 +280,26 @@
     right   : unset;
     padding : 0px;
 }
+
+
+/*  PANEL CONTENTS */
+/* ----------------------------------------------------------------------------- */
+.addin .panel-top.with-panel-actions > .panel-content {
+    top : 72px;
+}    
 .addin .panel-top.with-tabs > .panel-content > .panel-top > .panel-content {
     top : 34px;
+}
+
+
+/*  PAGINATION */
+/* ----------------------------------------------------------------------------- */
+.addin .pagination-message {
+    height      : 24px;
+    line-height : 24px;
+}
+.addin .pagination-next::after {
+    font-size : 16px;
 }
 
 
@@ -354,6 +435,9 @@
     min-width   : calc(100% - 12px);
     width       : calc(100% - 12px);
 }
+.addin .panel-content.s tr.content-item > td > span {
+    line-height : 22px;
+}
 
 
 
@@ -408,11 +492,25 @@
     padding-top    : 2px;
     padding-bottom : 1px;
 }
-.addin .panel-top.with-panel-counters.with-bom-path > .panel-content {
+.addin .panel-top.with-panel-counters.with-bom-path  > .panel-content,
+.addin .panel-top.with-panel-counters.with-tree-path > .panel-content {
     bottom : 54px;
 }
 .addin .panel-top.with-panel-counters.with-bom-path > .bom-path,
 .addin .panel-top.with-panel-counters.with-bom-path > .bom-go-to {
+    bottom : 26px;
+}
+.addin .tree-path {
+    height : 24px;
+    right : 52px;
+}
+.addin .tree-path > div {
+    font-size   : 11px;
+    height      : 24px;
+    line-height : 24px;
+}
+.addin .panel-top.with-panel-counters.with-tree-path > .tree-path, 
+.addin .panel-top.with-panel-counters.with-tree-path > .tree-go-to {
     bottom : 26px;
 }
 
@@ -443,6 +541,9 @@
 }
 .addin .field-value.field-editable {
     margin-bottom : 6px !important;
+}
+.addin .field-value.field-editable input {
+    padding : 0px 6px;
 }
 .addin .radio-option {
     gap : 4px;

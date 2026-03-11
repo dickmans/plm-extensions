@@ -1,0 +1,82 @@
+:root {
+
+    --border-h : 8px;
+    --border-v : 8px;
+
+}
+
+
+/* MASTER LAYOUT */
+/* ----------------------------------------------------------------------------- */
+.addin .screen {
+    top : 0px;
+}
+.screen > div {
+    border-width : var(--border-v) var(--border-h);
+}
+
+
+/* PANEL HEADER */
+/* ----------------------------------------------------------------------------- */
+#classification-action-save { order : 1; }
+#classification-open        { order : 2; }
+#classification-reload      { order : 3; }
+
+
+/* PANEL CONTENT */
+/* ----------------------------------------------------------------------------- */
+#classification-content { 
+    overflow : hidden;
+    padding  : 0px; 
+}
+
+
+/* CLASS SELECTION */
+/* ----------------------------------------------------------------------------- */
+.classification-header.classification-tree {
+    border-width : 12px;
+    margin : 10px;
+}
+#classification-classification-tree-actions,
+#classification-classification-tree-content {
+    position : unset;
+}
+.classification-label.class-new {
+    padding-top : 10px;
+}
+.classification-value.class-new {
+    overflow-y : auto;
+}
+.classification-value.class-new::-webkit-scrollbar {
+    display: none;
+}
+#classification-classification-tree-actions {
+    padding-top    : 6px;
+    padding-bottom : 6px;
+}
+.pos-abs-max.classification-header.classification-data {
+    grid-template-rows : auto auto auto 0px 1fr;
+}
+#classification-classification-tree-tbody td {
+    max-width : unset;
+    min-width : unset;
+    width     : unset;
+}
+
+/* CLASS PROPERTIES */
+/* ----------------------------------------------------------------------------- */
+.classification-content > .section-fields {
+    padding : 12px;
+    width   : calc(100% - 42px);
+}
+.field .picklist {
+    box-shadow : rgba(0, 0, 0, 0.19) 0px 0px 1px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
+    margin-top : 26px;
+    right      : 20px;
+    left       : 156px;
+}
+.picklist-input {
+    max-width : 100%;
+    min-width : 100%;
+    width     : 100%;
+}

@@ -106,12 +106,14 @@ router.get('/comparison'      , function(req, res, next) { launch('admin/compari
 /* ------------------------------------------------------------------------------
     Vault & INVENTOR ADDINS
    ------------------------------------------------------------------------------ */
-router.get('/addins/context'   , function(req, res, next) { launch('addins/context'   , 'addins', 'Context Browser', req, res, next); });
-router.get('/addins/item'      , function(req, res, next) { launch('addins/item'      , 'addins', 'Item Master'    , req, res, next); });
-router.get('/addins/login'     , function(req, res, next) { launch('addins/login'     , 'addins', 'Autodesk Login' , req, res, next); });
-router.get('/addins/pdm-search', function(req, res, next) { launch('addins/pdm-search', 'addins', 'PDM Search'     , req, res, next); });
-router.get('/addins/projects'  , function(req, res, next) { launch('addins/projects'  , 'addins', 'PLM Projects'   , req, res, next); });
-router.get('/addins/tasks'     , function(req, res, next) { launch('addins/tasks'     , 'addins', 'My Tasks'       , req, res, next); });
+router.get('/addins/similar'            , function(req, res, next) { launch('addins/similar'            , 'addins', 'Similar Items'      , req, res, next); });
+router.get('/addins/item-classification', function(req, res, next) { launch('addins/item-classification', 'addins', 'Item Classification', req, res, next); });
+router.get('/addins/context'            , function(req, res, next) { launch('addins/context'            , 'addins', 'Context Browser'    , req, res, next); });
+router.get('/addins/item'               , function(req, res, next) { launch('addins/item'               , 'addins', 'Item Master'        , req, res, next); });
+router.get('/addins/login'              , function(req, res, next) { launch('addins/login'              , 'addins', 'Autodesk Login'     , req, res, next); });
+router.get('/addins/pdm-search'         , function(req, res, next) { launch('addins/pdm-search'         , 'addins', 'PDM Search'         , req, res, next); });
+router.get('/addins/projects'           , function(req, res, next) { launch('addins/projects'           , 'addins', 'PLM Projects'       , req, res, next); });
+router.get('/addins/tasks'              , function(req, res, next) { launch('addins/tasks'              , 'addins', 'My Tasks'           , req, res, next); });
 
 
 

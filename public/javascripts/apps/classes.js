@@ -31,7 +31,7 @@ $(document).ready(function() {
     setUIEvents();
     setAddinEvents();
     setAddinMode();
-    
+
     if(!isAddin) insertMenu();
 
     if(urlParameters.link === '') {
@@ -96,7 +96,8 @@ $(document).ready(function() {
 
             insertClassFilters(classId, className, {
                 id         : 'filters',
-                idContents : 'contents'
+                idContents : 'contents',
+                advanced   : false
             });
 
             insertItemSummary(urlParameters.link, paramsSummary);
@@ -128,7 +129,7 @@ function setUIEvents() {
 
 function setAddinMode() {
 
-    // isAddin = true;
+    isAddin = (!isBlank(urlParameters.host));
 
     if(!isAddin) return;
 
@@ -148,6 +149,7 @@ function selectClass(elemClicked) {
         id                : 'contents',
         headerLabel       : path.path,
         singleToolbar     : 'actions',
+        contentSize       : (isAddin) ? 'xxs' : 'm',
         filterByStatus    : true,
         filterByWorkspace : true,
         reset             : true,
@@ -160,7 +162,8 @@ function selectClass(elemClicked) {
     insertClassFilters(classId, className, {
         id            : 'filters',
         idContents    : 'contents',
-        singleToolbar : 'controls'
+        singleToolbar : 'controls',
+        advanced      : false
     });
 
 }

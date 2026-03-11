@@ -1370,12 +1370,14 @@ exports.server = {
         users              : true,  // User Settings Manager
 
         // Addins
-        context      : true,  // Item Where used
-        item         : true,  // Item Master Data
-        login        : true,  // PDM Login
-        'pdm-search' : true,  // PDM Search
-        projects     : true,  // Engineering Projects
-        tasks        : true,  // My Tasks List
+        similar               : true,  // Browse similar items based on classification
+        'item-classification' : true,  // Manage Item Classification
+        context               : true,  // Item Where used
+        item                  : true,  // Item Master Data
+        login                 : true,  // PDM Login
+        'pdm-search'          : true,  // PDM Search
+        projects              : true,  // Engineering Projects
+        tasks                 : true,  // My Tasks List
 
         // Framework Services
         docs               : true,

@@ -750,20 +750,44 @@ function genPayloadSectionsFields(req, prefix, mode) {
 
     for(let field of req.body.fields) {
 
-        let fieldSection = getFieldSection(req.body.sections, field);
+        let fieldData = {
+            __self__ : prefix   + '/views/1/fields/' + field.fieldId,
+            title    : field.title,
+            value    : getFieldValue(field)
+        }
 
-        if(fieldSection !== null) {
+        if(field.hasOwnProperty('fieldTypeId')) fieldData.type = genPayloadFieldType(req, field)
 
-            let sectionId = fieldSection.__self__.split('/').pop();
+        if(typeof field.classId !== 'undefined') {
+            if(field.classId !== '') {
+                if(field.type === 'single-select') {
+                    if(fieldData.value !== null) {
+                        let linkValue = fieldData.value.link;
+                        fieldData.value = { 
+                            label    : field.display,
+                            title    : field.display,
+                            link     : linkValue,
+                            value    : linkValue,
+                            __self__ : fieldData.__self__
+                        };
+                    }
+                }
+            }
+        }
 
-            let fieldData = {
-                __self__ : prefix   + '/views/1/fields/' + field.fieldId,
-                value    : getFieldValue(field)
+        let sectionId = field.sectionId;
+
+        if(isBlank(sectionId)) {
+
+            let fieldSection = getFieldSection(req.body.sections, field);
+
+            if(fieldSection !== null) {
+                sectionId = fieldSection.__self__.split('/').pop();
             }
 
-            addPayloadSectionField(sections, prefix, insertion, sectionId, fieldData);
-
         }
+ 
+        addPayloadSectionField(sections, prefix, insertion, sectionId, fieldData, field.classId);
 
     }
 
@@ -771,7 +795,7 @@ function genPayloadSectionsFields(req, prefix, mode) {
         for(let derivedSection of req.body.derived.sections) {
             let sectionId = derivedSection.link.split('/').pop();
             for(let field of derivedSection.fields) {
-                addPayloadSectionField(sections, prefix, insertion, sectionId, field);
+                addPayloadSectionField(sections, prefix, insertion, sectionId, field, null);
             }
         }
     }
@@ -779,7 +803,20 @@ function genPayloadSectionsFields(req, prefix, mode) {
     return sections;
 
 }
-function addPayloadSectionField(sections, prefix, insertion, sectionId, fieldData) {
+function genPayloadFieldType(req, field) {
+
+    let result = {
+        link    : '/api/v3/field-types/' + field.fieldTypeId,
+        urn     : 'urn:adsk.plm:tenant.field-type:' + req.app.locals.tenant.toUpperCase() + '.' + field.fieldTypeId,
+        deleted : false
+    }
+
+    return result;
+
+}
+function addPayloadSectionField(sections, prefix, insertion, sectionId, fieldData, classId) {
+
+    if(isBlank(sectionId)) return;
 
     let sectionLink  = prefix + insertion + '/sections/' + sectionId;
     let isNewSection = true;
@@ -793,10 +830,21 @@ function addPayloadSectionField(sections, prefix, insertion, sectionId, fieldDat
     }
 
     if(isNewSection) {
-        sections.push({
+
+        let section = {
             link   : sectionLink,
             fields : [fieldData]
-        });
+        }
+
+        if(typeof classId !== 'undefined') {
+            if(classId !== null) {
+                if(classId !== '') {
+                    section.classificationId = Number(classId);
+                }
+            }
+        }
+
+        sections.push(section);
     }
 
 }
@@ -855,6 +903,7 @@ function getFieldValue(field) {
         case 'buom':
         case 'single-select':
             if(value !== null) {
+                if(value === '') value = null;
                 if(typeof value !== 'object') value = { link : value };
             }
             break;
@@ -864,7 +913,10 @@ function getFieldValue(field) {
                 if(value === '') value = null;
                 else {
                     value = [];
-                    for(let link of field.value) value.push({ link : link });
+                    for(let link of field.value) value.push({ 
+                        link : link, 
+                        value : link 
+                    });
                 }
             }
             break;
