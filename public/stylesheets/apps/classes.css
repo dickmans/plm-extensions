@@ -56,7 +56,8 @@
 .no-classes #filters  { left : 0px; }
 .no-classes #contents { left : calc(var(--width-filters) + (2 * var(--border-h))); }
 
-.no-filters #filters { left : calc(var(--width-tree) - var(--width-filters)); }
+.no-filters #filters  { left : calc(var(--width-tree) - var(--width-filters)); }
+.no-filters #contents { left : calc(var(--width-tree) + (2 * var(--border-h))); }
 
 .no-classes.no-filters #filters  { left : calc(0px - var(--width-filters)); }
 .no-classes.no-filters #contents { left : 0px; }
