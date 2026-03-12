@@ -9,10 +9,10 @@
 
 :root {
 
-    --width-recents         : 360px;
-    --width-search          : 360px;
-    --padding-landing-v     : 40px;
-    --padding-landing-h     : 60px;
+    --width-recents      : 360px;
+    --width-search       : 360px;
+    --padding-landing-v  : 40px;
+    --padding-landing-h  : 60px;
 
     --width-dashboard       : 450px;
     --width-bom             : 600px;

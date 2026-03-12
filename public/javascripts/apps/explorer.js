@@ -73,44 +73,6 @@ $(document).ready(function() {
             wsItems.id = urlParameters.wsid;
         }
 
-        insertRecentItems({
-            headerLabel  : 'Recently Viewed',
-            reload       : true,
-            contentSize  : 'xs',
-            workspacesIn : [ wsItems.id ],
-            onClickItem : function(elemClicked) { openSelectedItem(elemClicked); }
-        });
-
-        insertSearch({
-            autoClick    : false,
-            contentSize  : 'xs',
-            images       : true,
-            limit        : 50,
-            workspaceIds : [ wsItems.id ],
-            tileCounter  : true,
-            onClickItem  : function(elemClicked) { openSelectedItem(elemClicked); }
-        });
-
-        insertWorkspaceViews(wsItems.id, {
-            id          : 'products',
-            fieldsEx    : [ 'Image', 'PDM Status' ],
-            headerLabel : 'Items Workspace',
-            number      : true,
-            search      : true,
-            pagination  : true,
-            limit       : 50,
-            onClickItem : function(elemClicked) { openSelectedItem(elemClicked); },
-            tableColumnsLimit : 10
-        });
-
-        insertBookmarks({
-            headerLabel  : 'Bookmarks',
-            reload       : true,
-            contentSize  : 'xs',
-            workspacesIn : [ wsItems.id ],
-            onClickItem  : function(elemClicked) { openSelectedItem(elemClicked); }
-        });
-
         getInitialData(function() {
 
             $('#overlay').hide();
@@ -119,7 +81,7 @@ $(document).ready(function() {
             if(!isBlank(urlParameters.dmsid)) {
                 openItem(urlParameters.bom);
             } else {
-                $('body').addClass('screen-landing');
+                openLandingPage();
             }
         });
 
@@ -145,10 +107,10 @@ function setUIEvents() {
 
     });
     $('#button-home').click(function() {
-        $('body').addClass('screen-landing').removeClass('screen-main');
-        $('#header-subtitle').hide();
-        document.title = documentTitle;
-        window.history.replaceState(null, null, '/explorer?theme=' + theme);
+        // $('body').addClass('screen-landing').removeClass('screen-main');
+        
+
+        openLandingPage();
     });
     $('#button-toggle-dashboard').click(function() {
         $('body').toggleClass('no-dashboard');
@@ -306,6 +268,63 @@ function getInitialData(callback) {
         callback();
 
     });
+
+}
+
+
+// Open landing page if no item is defined and when clicking the home button
+function openLandingPage() {
+
+    document.title = documentTitle;
+    window.history.replaceState(null, null, '/explorer?theme=' + theme);
+
+    $('#header-subtitle').hide();
+    $('body').addClass('screen-landing').removeClass('screen-main');
+
+    if($('body').hasClass('home-pending')) {
+
+        insertRecentItems({
+            headerLabel  : 'Recently Viewed',
+            reload       : true,
+            contentSize  : 'xs',
+            workspacesIn : [ wsItems.id ],
+            onClickItem : function(elemClicked) { openSelectedItem(elemClicked); }
+        });
+
+        insertSearch({
+            autoClick    : false,
+            contentSize  : 'xs',
+            images       : true,
+            limit        : 50,
+            workspaceIds : [ wsItems.id ],
+            tileCounter  : true,
+            onClickItem  : function(elemClicked) { openSelectedItem(elemClicked); }
+        });
+
+        insertWorkspaceViews(wsItems.id, {
+            id          : 'products',
+            fieldsEx    : [ 'Image', 'PDM Status' ],
+            headerLabel : 'Items Workspace',
+            number      : true,
+            search      : true,
+            pagination  : true,
+            reload      : true,
+            limit       : 50,
+            onClickItem : function(elemClicked) { openSelectedItem(elemClicked); },
+            tableColumnsLimit : 10
+        });
+
+        insertBookmarks({
+            headerLabel  : 'Bookmarks',
+            reload       : true,
+            contentSize  : 'xs',
+            workspacesIn : [ wsItems.id ],
+            onClickItem  : function(elemClicked) { openSelectedItem(elemClicked); }
+        });
+
+    }
+
+    $('body').removeClass('home-pending');
 
 }
 

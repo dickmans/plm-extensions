@@ -537,6 +537,14 @@ function sortArray(array, key, type, direction) {
             var nameA=a[key], nameB=b[key];
 
             if(type.toLowerCase() === 'string') nameA=a[key].toLowerCase(), nameB=b[key].toLowerCase()
+            else if(type == 'number') {
+                nameA = Number(nameA);
+                nameB = Number(nameB);
+            }
+            else if(type == 'float') {
+                nameA = parseFloat(nameA);
+                nameB = parseFloat(nameB);
+            }
 
             // var nameA=a[key].toLowerCase(), nameB=b[key].toLowerCase()
             if (nameA < nameB) //sort string ascending

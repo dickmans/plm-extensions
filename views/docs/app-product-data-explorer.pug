@@ -38,25 +38,31 @@
         ul 
             li Descriptor 
             li Number
+            li Quantity (BOM Fields)
+            li Status (System Field)
             li Lifecycle (System Field)
-            li Change Pending
+            li Change Pending (System Field)
+            li Revision (System Field)
+            li Release Date (System Field)
             li Type
             li Class Name
             li PDM Category
             li PDM Location 
+            li PDM Last Modification Date
             li Responsible Designer
+            li Spare / Wear Part
+            li Make or Buy
+            li Vendor
+            li Country 
+            li Long Lead Time
+            li Has Pending Packages
+            li Weight
             li Material
             li REACH
             li RoHS
-            li Spare / Wear Part
-            li Make or Buy
-            li Lead Time
-            li Long Lead Time
-            li Vendor
-            li Country 
-            li Has Pending Packages
-            li Total Cost (BOM Field)
-            li Total Weight (BOM Field)
+            li Carbon Emissions
+            li Inspection Required
+            li Latest QI Result
         h2 Configure Workspace Relationships  
         p Make sure that  
             strong Items  
@@ -116,10 +122,10 @@
                 td fieldIdPRContext
                 td New PRs can be connected to the currently selected item with this property. Provide a field ID of a linking pick list that allows to select items. The given input in the create dialog then will automatically be set to the current item.
                 td AFFECTED_ITEM
-            tr  
-                td rollupFields
-                td Provide a list of BOM rollup field IDs being present in the given BOM view to enable rollup calculation for these fields. Supported field types are single line text, number, currency and date fields.
-                td false
+            //- tr  
+            //-     td rollupFields
+            //-     td Provide a list of BOM rollup field IDs being present in the given BOM view to enable rollup calculation for these fields. Supported field types are single line text, number, currency and date fields.
+            //-     td false
             tr  
                 td problemReports.workspaceId
                 td The Problem Reports workspace ID. This optional parameter is required is users should be able to create and view PRs related to the selected item.
@@ -221,6 +227,10 @@
     .log 
         h1 Product Data Explorer Change Log 
         table 
+            tr 
+                td 11. March 2026
+                td Documentation
+                td For better application performance, the list of BOM view columns has been reduced in alignment with the updated KPI definition in the settings file
             tr 
                 td 12. January 2026
                 td Documentation

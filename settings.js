@@ -326,7 +326,7 @@ exports.applications = {
         bomViewName      : 'Details',
         fieldIdPRImage   : 'IMAGE_1',
         fieldIdPRContext : 'AFFECTED_ITEM',
-        rollUpFields     : [],
+        // rollUpFields     : [],
         problemReports   : { workspaceId : null },   // uses common.workspaceIds per default
         supplierPackages : { workspaceId : null },   // uses common.workspaceIds per default
         kpis : [
@@ -335,10 +335,16 @@ exports.applications = {
             //  - fieldId       : Field / selectable containing the value of the KPI
             //  - sortBy        : value (numeric value), label (text being displayed) or count (item count). Default is count
             //  - sortDirection : ascending or descending. Default is descending
+            //  - digits        : in case of float fields, defines digits to be displayed in bars (default is 2)
             //  - title         : Label being displayed as KPI title
             //  - type          : non-empty (validates if value is set or not), value, days
             // ------------------------------------------------------------------------------------------------------------------
-            { id : 'lifecycle', title : 'Item Lifecycle', fieldId : 'LIFECYCLE', type : 'value', style : 'counters', data : [
+            { id : 'status', title : 'Status', fieldId : 'STATUS', type : 'value', style : 'counters', data : [
+                { value : 'Superseded', color : 0, vector : 'red'    },
+                { value : 'Working'   , color : 2, vector : 'yellow' },
+                { value : 'Latest'    , color : 4, vector : 'green'  }
+            ]},   
+            { id : 'lifecycle', title : 'Lifecycle', fieldId : 'LIFECYCLE', type : 'value', style : 'counters', data : [
                 { value : 'Working',     color : 0, vector : 'red'    },
                 { value : 'Pre-Release', color : 2, vector : 'yellow' },
                 { value : 'Production',  color : 4, vector : 'green'  }
@@ -349,14 +355,8 @@ exports.applications = {
             ]},
             { id : 'change-order', title : 'Change Orders', fieldId : 'WORKING_CHANGE_ORDER', type : 'value',  style : 'bars',  data : [] },
             { id : 'revision', title : 'Revision', fieldId : 'REVISION', type : 'value', style : 'bars', data : [] },
-            { id : 'status', title : 'Status', fieldId : 'STATUS', type : 'value', style : 'counters', data : [
-                { value : 'Superseded', color : 0, vector : 'red'    },
-                { value : 'Working'   , color : 2, vector : 'yellow' },
-                { value : 'Latest'    , color : 4, vector : 'green'  }
-            ]},   
             { id : 'release-date', title : 'Release Date', fieldId : 'RELEASE_DATE', type : 'days', style : 'bars', data : [], sortBy : 'value', sortDirection : 'ascending' },
             { id : 'type', title : 'Type', fieldId : 'TYPE', type : 'value', style : 'bars', data : [] },
-            { id : 'top-level-class-name', title : 'Top Level Class', fieldId : 'TOP_LEVEL_CLASS', type : 'value', style : 'bars', data : [] },
             { id : 'class-name', title : 'Class', fieldId : 'CLASS_NAME', type : 'value', style : 'bars', data : [] },
             { id : 'pdm-category', title : 'PDM Category', fieldId : 'PDM_CATEGORY', type : 'value', style : 'bars', data : [] },
             { id : 'pdm-location', title : 'PDM Location', fieldId : 'PDM_LOCATION', type : 'value', style : 'bars', data : [] },
@@ -367,11 +367,6 @@ exports.applications = {
                 { value : 'Wear Part' , color : 2, vector : 'yellow' },
                 { value : 'Spare Part', color : 4, vector : 'green'  }
             ]},
-            { id : 'has-pending-packages', title : 'Has Pending Packages', fieldId : 'HAS_PENDING_PACKAGES', type : 'value', style : 'counters', data : [
-                { value : 'Yes' , color : 0, vector : 'red'    },
-                { value : '-'   , color : 2, vector : 'yellow' },
-                { value : 'No'  , color : 4, vector : 'green'  }
-            ]},
             { id : 'make-or-buy', title : 'Make or Buy', fieldId : 'MAKE_OR_BUY', type : 'value', style : 'counters', data : [
                 { value : 'Buy' , color : 0, vector : 'red'    },
                 { value : '-'   , color : 2, vector : 'yellow' },
@@ -379,26 +374,18 @@ exports.applications = {
             ]},
             { id : 'vendor', title : 'Vendor', fieldId : 'VENDOR', type : 'value', style : 'bars', data : [] },
             { id : 'country', title : 'Country', fieldId : 'COUNTRY', type : 'value', style : 'bars', data : [] },
-            { id : 'total-cost', title : 'Total Cost', fieldId : 'TOTAL_COST', type : 'value', style : 'bars', data : [] },
-            { id : 'lead-time', title : 'Lead Time', fieldId : 'LEAD_TIME', type : 'value', sortBy : 'value', style : 'bars', data : [] },
             { id : 'long-lead-time', title : 'Long Lead Time', fieldId : 'LONG_LEAD_TIME', type : 'value', style : 'counters', data : [
                 { value : 'Yes' , color : 0, vector : 'red'    },
                 { value : '-'   , color : 2, vector : 'yellow' },
                 { value : 'No'  , color : 4, vector : 'green'  }
             ]},
-            { id : 'material', title : 'Material', fieldId : 'MATERIAL', type : 'value', style : 'bars', data : [] },
-            { id : 'total-weight', title : 'Total Weight', fieldId : 'TOTAL_WEIGHT', type : 'value', style : 'bars', data : [] },
-            { id : 'quality-inspection-required', title : 'Quality Inspection Required', fieldId : 'INSPECTION_REQUIRED', type : 'value', style : 'counters', data : [
-                { value : 'Yes' , color : 0, vector : 'red'   },
+            { id : 'has-pending-packages', title : 'Has Pending Packages', fieldId : 'HAS_PENDING_PACKAGES', type : 'value', style : 'counters', data : [
+                { value : 'Yes' , color : 0, vector : 'red'    },
                 { value : '-'   , color : 2, vector : 'yellow' },
                 { value : 'No'  , color : 4, vector : 'green'  }
             ]},
-            { id : 'quality-inspection-result', title : 'Latest Quality Inspection Result', fieldId : 'LATEST_QI_RESULT', type : 'value', style : 'bars', data : [
-                { value : '-'          , color : 3, vector : 0        },
-                { value : 'FAIL'       , color : 0, vector : 'red'    },
-                { value : 'In Progress', color : 2, vector : 'yellow' },
-                { value : 'PASS'       , color : 4, vector : 'green'  }
-            ]},
+            { id : 'weight', title : 'Weight', fieldId : 'ITEM_WEIGHT', type : 'value', style : 'bars', data : [], sortBy : 'value', sortDirection : 'descending', digits : 3 },
+            { id : 'material', title : 'Material', fieldId : 'MATERIAL', type : 'value', style : 'bars', data : [] },
             { id : 'reach', title : 'REACH', fieldId : 'REACH', type : 'value', style : 'bars', data : [
                 { value : 'Not Compliant' , color : 0, vector : 'red'    },
                 { value : 'Unknown'       , color : 1, vector : 'yellow' },
@@ -412,7 +399,19 @@ exports.applications = {
                 { value : 'Not Validated' , color : 2, vector : 'yellow' },
                 { value : 'Not Required'  , color : 3, vector : 0        },
                 { value : 'Compliant'     , color : 4, vector : 'green'  }
-            ]}
+            ]},
+            { id : 'carbon-emissions', title : 'Carbon Emissions', fieldId : 'CARBON_EMISSIONS', type : 'value', style : 'bars', data : [], sortBy : 'value', sortDirection : 'descending' },
+            { id : 'quality-inspection-required', title : 'Quality Inspection Required', fieldId : 'INSPECTION_REQUIRED', type : 'value', style : 'counters', data : [
+                { value : 'Yes' , color : 0, vector : 'red'   },
+                { value : '-'   , color : 2, vector : 'yellow' },
+                { value : 'No'  , color : 4, vector : 'green'  }
+            ]},
+            { id : 'quality-inspection-result', title : 'Latest Quality Inspection Result', fieldId : 'LATEST_QI_RESULT', type : 'value', style : 'bars', data : [
+                { value : '-'          , color : 3, vector : 0        },
+                { value : 'FAIL'       , color : 0, vector : 'red'    },
+                { value : 'In Progress', color : 2, vector : 'yellow' },
+                { value : 'PASS'       , color : 4, vector : 'green'  }
+            ]},
         ],
         viewerFeatures: {
             contextMenu   : true,
