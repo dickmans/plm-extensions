@@ -2286,7 +2286,7 @@ function insertField(settings, elemParent, field, data, picklistsData, bookmarks
                 if(!isBlank(field.picklistFieldDefinition)) {
                     if(!settings.suppressLinks) {
                         elemParent.addClass('with-link');
-                        elemParent.click(function() { openItemByLink(value.link); })
+                        if(value !== '') elemParent.click(function() { openItemByLink(value.link); })
                     }
                 }
                 break;           
