@@ -11,4 +11,5 @@
 
 /* OVERRIDE */
 /* ----------------------------------------------------------------------------- */
- #item-close { display : none; }
+#item-subtitle,
+#item-close { display : none; }

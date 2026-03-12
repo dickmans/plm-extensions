@@ -885,39 +885,44 @@ function printResponseErrorMessagesToConsole(response) {
 
 
 // Get CSS class defining the element's surface level
-function getSurfaceLevel(elem, includeParents) {
+function getSurfaceLevel(elem, includeParents, asNumber) {
 
     if(isBlank(includeParents)) includeParents = true;
+    if(isBlank(asNumber      )) asNumber       = false;
 
-    if(elem.hasClass('surface-level-1')) return 'surface-level-1';
-    if(elem.hasClass('surface-level-2')) return 'surface-level-2';
-    if(elem.hasClass('surface-level-3')) return 'surface-level-3';
-    if(elem.hasClass('surface-level-4')) return 'surface-level-4';
-    if(elem.hasClass('surface-level-5')) return 'surface-level-5';
+    let result = 'surface-level-1';
 
-    if(includeParents) {
+         if(elem.hasClass('surface-level-1')) result = 'surface-level-1';
+    else if(elem.hasClass('surface-level-2')) result = 'surface-level-2';
+    else if(elem.hasClass('surface-level-3')) result = 'surface-level-3';
+    else if(elem.hasClass('surface-level-4')) result = 'surface-level-4';
+    else if(elem.hasClass('surface-level-5')) result = 'surface-level-5';
 
-        if(elem.parent().hasClass('surface-level-1')) return 'surface-level-1';
-        if(elem.parent().hasClass('surface-level-2')) return 'surface-level-2';
-        if(elem.parent().hasClass('surface-level-3')) return 'surface-level-3';
-        if(elem.parent().hasClass('surface-level-4')) return 'surface-level-4';
-        if(elem.parent().hasClass('surface-level-5')) return 'surface-level-5';
+    else if(includeParents) {
 
-        if(elem.parent().parent().hasClass('surface-level-1')) return 'surface-level-1';
-        if(elem.parent().parent().hasClass('surface-level-2')) return 'surface-level-2';
-        if(elem.parent().parent().hasClass('surface-level-3')) return 'surface-level-3';
-        if(elem.parent().parent().hasClass('surface-level-4')) return 'surface-level-4';
-        if(elem.parent().parent().hasClass('surface-level-5')) return 'surface-level-5';
+             if(elem.parent().hasClass('surface-level-1')) result = 'surface-level-1';
+        else if(elem.parent().hasClass('surface-level-2')) result = 'surface-level-2';
+        else if(elem.parent().hasClass('surface-level-3')) result = 'surface-level-3';
+        else if(elem.parent().hasClass('surface-level-4')) result = 'surface-level-4';
+        else if(elem.parent().hasClass('surface-level-5')) result = 'surface-level-5';
 
-        if(elem.parent().parent().parent().hasClass('surface-level-1')) return 'surface-level-1';
-        if(elem.parent().parent().parent().hasClass('surface-level-2')) return 'surface-level-2';
-        if(elem.parent().parent().parent().hasClass('surface-level-3')) return 'surface-level-3';
-        if(elem.parent().parent().parent().hasClass('surface-level-4')) return 'surface-level-4';
-        if(elem.parent().parent().parent().hasClass('surface-level-5')) return 'surface-level-5';
+        else if(elem.parent().parent().hasClass('surface-level-1')) result = 'surface-level-1';
+        else if(elem.parent().parent().hasClass('surface-level-2')) result = 'surface-level-2';
+        else if(elem.parent().parent().hasClass('surface-level-3')) result = 'surface-level-3';
+        else if(elem.parent().parent().hasClass('surface-level-4')) result = 'surface-level-4';
+        else if(elem.parent().parent().hasClass('surface-level-5')) result = 'surface-level-5';
+
+        else if(elem.parent().parent().parent().hasClass('surface-level-1')) result = 'surface-level-1';
+        else if(elem.parent().parent().parent().hasClass('surface-level-2')) result = 'surface-level-2';
+        else if(elem.parent().parent().parent().hasClass('surface-level-3')) result = 'surface-level-3';
+        else if(elem.parent().parent().parent().hasClass('surface-level-4')) result = 'surface-level-4';
+        else if(elem.parent().parent().parent().hasClass('surface-level-5')) result = 'surface-level-5';
 
     }
 
-    return 'surface-level-1';
+    if(asNumber) result = Number(result.split('-').pop());
+
+    return result;
 
 }
 
@@ -4631,6 +4636,8 @@ function genSingleTile(params, panelSettings) {
 
     }
 
+    addTileActions(params, elemTile);
+
     return elemTile;
 
 }
@@ -4680,6 +4687,27 @@ function addTilesListChevrons(id, panelSettings, callback) {
             });
 
     });
+
+}
+function addTileActions(params, elemTile) {
+
+    if(isBlank(params.link)) return;
+    if(typeof genAddinPLMItemTileActions !== 'function') return;
+    if(typeof host !== 'string') return;
+
+    let workspaceId = params.link.split('/')[4];
+
+    if(workspaceId != common.workspaceIds.items) return;
+
+    host = (urlParameters.host || '').toLowerCase();
+
+    if(host !== 'inventor') {
+        if(host !== 'vault') {
+            return;
+        }
+    }
+
+    genAddinTileActions(elemTile);
 
 }
 

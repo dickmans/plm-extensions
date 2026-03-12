@@ -33,6 +33,12 @@ body.display-task #scrtask { display : block; }
 
 
 
+/* TASK */
+/* ----------------------------------------------------------------------------- */
+#task-summary { display : none; }
+.item-status { color : var(--color-font); }
+
+
 /* ADD MANAGED ITEMS DIALOG */
 /* ----------------------------------------------------------------------------- */
 #add {

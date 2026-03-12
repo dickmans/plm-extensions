@@ -1179,9 +1179,82 @@ exports.applications = {
     addins : {
 
         item : {
-            expandSections : [ 'Basic', 'Technical Details' ],
-            sectionsEx     : [ 'Others' ],
-            fieldsEx       : [ 'ACTIONS' ]
+            tabs : [{ 
+                type   : 'details', 
+                params : { 
+                    id              : 'item-details', 
+                    singleToolbar   : 'controls',
+                    collapsed       : true, 
+                    editable        : true,
+                    toggles         : true,
+                    expandSections  : [ 'Basic', 'Technical Details' ],
+                    sectionsEx      : [ 'Classification', 'Classification Summary', 'Others' ],
+                    fieldsEx        : [ 'ACTIONS' ]
+                } 
+            },{ 
+                type   : 'classification', 
+                params : { 
+                    id              : 'item-classification',
+                    singleToolbar   : 'controls',
+                    editable        : true,
+                    hideHeaderLabel : true
+                } 
+            },{ 
+                type   : 'attachments', 
+                params : { 
+                    id                  : 'item-attachments',
+                    editable            : true,
+                    includeVaultFiles   : true,
+                    layout              : 'list',
+                    search              : false,
+                    filterByType        : true,
+                    singleToolbar       : 'controls',
+                    contentSize         : 'm'
+                } 
+            },{ 
+                type   : 'bom', 
+                params : { 
+                    id               : 'item-bom',
+                    bomViewName      : 'Basic',
+                    headerLabel      : 'BOM',
+                    collapseContents : true,
+                    contentSize      : 'xs',
+                    counters         : true,
+                    openInPLM        : true,
+                    path             : true,
+                    search           : true,
+                    toggles          : true,
+                    onClickItem      : function(elemClicked) { selectBOMItem(elemClicked); },
+                    afterCompletion  : function(id) { genAddinPLMBOMActions(id); }
+                } 
+            },{ 
+                type   : 'similar-items', 
+                label  : 'Similar',
+                params : { 
+                    id                 : 'similar',
+                    layout             : 'list',
+                    contentSizes       : ['l', 'm', 'xs'],
+                    singleToolbar      : 'actions',
+                    fields             : ['DESCRIPTOR', 'REVISION', 'LIFECYCLE'],
+                    hideHeader         : true,
+                    sortSelection      : false,
+                    filterByStatus     : true,
+                    filterByWorkspace  : true,
+                    search             : true,
+                    openInPLM          : true,
+                    useCache           : true,
+                    advancedFilter     : false,
+                    labelFiltersToggle : 'Filters'
+                }             
+            },{ 
+                type   : 'change-processes', 
+                params : { 
+                    id          : 'item-change-processes',
+                    headerLabel : 'Processes',
+                    editable    : false,
+                    search      : true
+                } 
+            }]
         },
 
         projects : {

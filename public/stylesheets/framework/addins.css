@@ -309,6 +309,10 @@
 .addin .panel-tabs {
     top : 46px;
 }
+.addin .panel-tabs > div {
+    padding-left  : 8px;
+    padding-right : 8px;
+}
 .addin .panel-top.with-tabs > .panel-content {
     border-width : 12px;
     top          : 80px;
@@ -385,6 +389,7 @@
 }
 
 .addin .tiles.list.m > .tile { gap: 14px; height: 48px; }
+.addin .tiles.list.m .tile-toggle { line-height : 48px; padding-left : 14px; width : 28px; }
 .addin .tiles.list.m .tile-counter { line-height : 48px; font-size : 22px; }
 .addin .tiles.list.m .tile-image { height: 48px; line-height: 48px; font-size: 28px; max-width: 48px; min-width: 48px; width: 48px; }
 .addin .tiles.list.m .attachment-graphic > img { height: 28px; width: 28px; }

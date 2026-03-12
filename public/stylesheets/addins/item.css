@@ -22,6 +22,8 @@
     padding-left : 8px;
 }
 #item-close,
+#item-subtitle,
+#item-summary,
 #theadfields {
     display : none;
 }
@@ -32,3 +34,66 @@
     padding : 4px 0px;
 }
 .addin .table-actions { top : 0px; }
+
+
+/* CLASSIFICATION */
+/* ----------------------------------------------------------------------------- */
+#item-classification-header   { margin-top : 0px; }
+#item-classification-controls  {margin-top : 2px; }
+#item-classification-content  { padding    : 0px; }
+#item-classification .classification-header,
+#item-classification .section-fields {
+    margin : 0px;
+}
+.classification-header.classification-data {
+    display : flex;
+    flex-direction : column;
+    width   : calc(100% - 36px);
+}
+#item-classification .section-fields {
+    padding-left  : 0px;
+    padding-right : 0px;
+    width         : 100%;
+}
+#item-classification .field .picklist {
+    right      : 36px;
+    left       : calc(var(--width-field-label) + 24px);
+    margin-top : 26px;
+}
+#item-classification-classification-tree-actions,
+#item-classification-classification-tree-content {
+    position : unset;
+}
+
+.classification-header .classification-label {
+    text-align: left;
+}
+.classification-header .classification-value {
+    padding-bottom : 6px;
+}
+.classification-content .field-label {
+    padding-left: 0px !important;
+    max-width: 100px;
+    min-width: 100px;
+    width: 100px;
+}
+
+#item-classification-classification-tree-actions {
+    padding : 4px 0px;
+}
+
+
+/* SIMILAR */
+/* ----------------------------------------------------------------------------- */
+#similar-contents-actions { top : 2px; right : 16px; }
+#similar-contents-content {
+    top : 38px;
+}
+.no-filters-panel .similar-filters {
+    bottom : calc(18px - var(--height-similar-filters));
+}
+#similar-filters-toggle,
+#similar-filters,
+#similar-filters .panel-section {
+    background : var(--color-surface-level-3);
+}

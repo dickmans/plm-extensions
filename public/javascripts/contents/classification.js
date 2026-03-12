@@ -95,14 +95,10 @@ function insertClassesData(id) {
 
         if(stopPanelContentUpdate(responses[0], settings[id])) return;
 
-        let items    = [];
-        // let rootItem = null;
-        // let include   = false;
-        // let rootLevel = -1;
+        let items        = [];
+        let contentItems = [];
 
         for(let classification of responses[0].data.classifications) {
-
-            // console.log(classification);
 
             let contentItem = {
                 id              : classification.id,
@@ -114,19 +110,17 @@ function insertClassesData(id) {
                 properties      : classification.effectiveSchema,
                 childrenCount   : classification.children.size,
                 hasChildren     : (classification.children.size > 0),
+                phantom         : classification.ext.abstract,
                 path            : '',
                 level           : -1,
                 domProperties   : [{
                     key : 'NAME', value : classification.name
                 }]
             }
-
                 
             items.push(contentItem);
 
         }
-
-        let contentItems = [];
 
         setClassLevels(settings[id], responses[1].data, items, items[0], 0, items[0].id, '');
         buildClassesTree(items, contentItems, items[0]);
@@ -244,6 +238,7 @@ function insertClassContents(classId, className, params) {
         headerLabel : 'Class Items'
     }, [
         [ 'layout'           , 'table'        ],
+        [ 'sortSelection'    , true           ],
         [ 'filterByStatus'   , false          ],
         [ 'filterByWorkspace', false          ],        
         [ 'fields'           , ['DESCRIPTOR'] ],
@@ -274,28 +269,32 @@ function insertClassContents(classId, className, params) {
 
     let elemToolbar = genPanelToolbar(id, settings[id], 'controls');
 
-    let elemSort = $('<select></select>').prependTo(elemToolbar)
-        .addClass('button')
-        .addClass(id + '-sort-by')
-        .attr('id', id + '-sort-by')
-        .click(function(e) {
-            e.preventDefault();
-            e.stopPropagation();     
-        })
-        .on('change', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            settings[id].sort = $('#' + id + '-sort-by').val();
-            settings[id].load();
-        });
+    if(settings[id].sortSelection) {
 
-    elemSort.append($('<option></option>').attr('value', 'score asc').html('Sort by relevance'));
-    elemSort.append($('<option></option>').attr('value', 'itemDescriptor asc').html('Sort by Descriptor (ascending)'));
-    elemSort.append($('<option></option>').attr('value', 'itemDescriptor desc').html('Sort by Descriptor (decending)'));
-    elemSort.append($('<option></option>').attr('value', 'createdOn asc').html('Sort by Creation Date (ascending)'));
-    elemSort.append($('<option></option>').attr('value', 'createdOn desc').html('Sort by Creation Date (decending)'));
-    elemSort.append($('<option></option>').attr('value', 'lastModifiedOn asc').html('Sort by Last Modification Date (ascending)'));
-    elemSort.append($('<option></option>').attr('value', 'lastModifiedOn desc').html('Sort by Last Modification Date (decending)'));
+        let elemSort = $('<select></select>').prependTo(elemToolbar)
+            .addClass('button')
+            .addClass(id + '-sort-by')
+            .attr('id', id + '-sort-by')
+            .click(function(e) {
+                e.preventDefault();
+                e.stopPropagation();     
+            })
+            .on('change', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                settings[id].sort = $('#' + id + '-sort-by').val();
+                settings[id].load();
+            });
+
+        elemSort.append($('<option></option>').attr('value', 'score asc').html('Sort by relevance'));
+        elemSort.append($('<option></option>').attr('value', 'itemDescriptor asc').html('Sort by Descriptor (ascending)'));
+        elemSort.append($('<option></option>').attr('value', 'itemDescriptor desc').html('Sort by Descriptor (decending)'));
+        elemSort.append($('<option></option>').attr('value', 'createdOn asc').html('Sort by Creation Date (ascending)'));
+        elemSort.append($('<option></option>').attr('value', 'createdOn desc').html('Sort by Creation Date (decending)'));
+        elemSort.append($('<option></option>').attr('value', 'lastModifiedOn asc').html('Sort by Last Modification Date (ascending)'));
+        elemSort.append($('<option></option>').attr('value', 'lastModifiedOn desc').html('Sort by Last Modification Date (decending)'));
+
+    }
 
     insertClassDone(id);
 
@@ -473,12 +472,12 @@ function insertClassFilters(classId, className, params) {
         headerLabel : 'Filters',
         textNoData  : 'No properties found for the selected class'
     }, [
-        [ 'idContents' , 'contents'     ],
-        [ 'layout'     , 'table'        ],
-        [ 'fields'     , ['DESCRIPTOR'] ],
-        [ 'advanced'   , true           ],
-        [ 'pagination' , true           ],
-        [ 'limit'      , 25             ]
+        [ 'idContents'    , 'contents'     ],
+        [ 'layout'        , 'table'        ],
+        [ 'fields'        , ['DESCRIPTOR'] ],
+        [ 'advancedFilter', true           ],
+        [ 'pagination'    , true           ],
+        [ 'limit'         , 25             ]
     ]);
 
     settings[id].load      = function() { insertClassFiltersData(id); }
@@ -490,9 +489,12 @@ function insertClassFilters(classId, className, params) {
     genPanelSearchInput (id, settings[id]);
     genPanelContents    (id, settings[id]);
 
-    genPanelActionButton(id, settings[id], 'apply', 'Apply', 'Apply the defined filters', function() {
+    let elemButton = genPanelActionButton(id, settings[id], 'apply', 'Apply', 'Apply the defined filters', function() {
         applyClassFilters(id);
-    }).addClass('default').addClass('with-icon').addClass('icon-start');
+    });
+
+    elemButton.addClass('default').addClass('with-icon').addClass('icon-start');
+    elemButton.parent().addClass(id + '-actions');
 
     insertClassFiltersDone(id);
 
@@ -506,11 +508,11 @@ function insertClassFiltersData(id) {
     let params = {
         classId   : settings[id].classId, 
         timestamp : settings[id].timestamp, 
-        useCache  : true
+        useCache  : settings[id].useCache
     }
 
     $('#' + id + '-controls').children('.panel-action').hide();
-    $('#' + id + '-actions').children('.panel-action').hide();
+    $('#' + id + '-actions' ).children('.panel-action').hide();
 
     $.get('/plm/class-properties', params, function(response) {
 
@@ -525,9 +527,9 @@ function insertClassFiltersData(id) {
         
         if(stopPanelContentUpdate(response, settings[id])) return;
         
-        $('#' + id + '-controls').children('.panel-action').show();
-        $('#' + id + '-actions').children('.panel-action').show();
-        $('#' + id + '-no-data').hide();
+        $('#' + id + '-controls'  ).children('.panel-action').show();
+        $('#' + id + '-actions'   ).children('.panel-action').show();
+        $('#' + id + '-no-data'   ).hide();
         $('#' + id + '-processing').hide();
 
         settings[id].fields = [];
@@ -581,8 +583,7 @@ function insertClassFiltersData(id) {
         $('<div></div>').appendTo(elemSection2)
             .addClass('class-filters')            
 
-
-        if(settings[id].advanced) {
+        if(settings[id].advancedFilter) {
 
             let elemSection3 = $('<div></div>').appendTo(elemContent)
                 .addClass('panel-section')
@@ -729,8 +730,8 @@ function applyClassFilters(id) {
 
     let query   = '(CLASS:SYSTEM_NAME=' + settings[id].className + ')';
     let filters = $('#' + id + '-content').find('.class-filter');
-    
-    if(settings[id].advanced) {
+
+    if(settings[id].advancedFilter) {
         let advanced = $('#' + id + '-content').find('.panel-section-textarea').first().val().trim();
         if(!isBlank(advanced)) { query += '+AND+' + advanced; }
     }
@@ -1024,7 +1025,6 @@ function selectNewClassification() {
 function addNewClassificationButtons(id) {
 
     let elemParent = $('#' + id + '-actions');
-    let idTop      = id.split('-')[0];
 
     $('<div></div>').prependTo(elemParent)
         .addClass('button')
@@ -1039,20 +1039,22 @@ function addNewClassificationButtons(id) {
         .addClass('disabled')
         .html('Confirm')
         .click(function() {
-            submitNewClassification(idTop, $(this));
+            submitNewClassification($(this));
         });
 
 }
-function submitNewClassification(id, elemClicked) { 
+function submitNewClassification(elemClicked) { 
 
     if(elemClicked.hasClass('disabled')) return;
 
     let elemContent  = elemClicked.closest('.panel-content');
+    let elemTop      = elemContent.closest('.panel-top');
     let elemTree     = elemClicked.closest('.tree');
     let elemSelected = elemTree.find('.content-item.selected');
     let classId      = elemSelected.attr('data-link').split('/')[1];
     let className    = elemSelected.find('.tree-title').html();
     let classPath    = getTreeItemPath(elemSelected, ' / ');
+    let id           = elemTop.attr('id');
 
     elemContent.find('.class-path').html(classPath.path);
     elemContent.find('.class-name').html(className);
@@ -1147,27 +1149,89 @@ function submitClassificationEdit(id, callback) {
 
 
 
-// Insert contents of item's class
-function insertItemClassContents(link, paramsContents, paramsFilters) {
+// Insert contents of item's class to identify similar items
+function insertSimilarItems(link, params, data) {
 
-    if(isBlank(paramsContents)) paramsContents = {};
-    if(isBlank(paramsFilters )) paramsFilters  = {};
+    if(isBlank(link  )) return;
+    if(isBlank(params)) params = {};
+    if(isBlank(data  )) data   = { details : null, classes : null };
 
-    let requests = [
-        $.get('/plm/details' , { link : link }),
-        $.get('/plm/classes' , { useCache : paramsContents.useCache || true }),
-    ];
+    let id = isBlank(params.id) ? 'similar' : params.id;
+    let labelFiltersToggle = params.labelFiltersToggle || 'Filters';
+
+    settings[id] = getPanelSettings(link, params, {
+    }, [
+    ]);
+
+    let elemTop      = genPanelTop (id, settings[id], 'similar');
+    let surfaceLevel = Number(getSurfaceLevel(elemTop, false, true));
+
+    $('body').addClass('no-filters-panel');
+
+    $('<div></div>').appendTo(elemTop)
+        .addClass('surface-level-' + surfaceLevel)
+        .addClass('similar-contents')
+        .addClass('pos-abs-top')
+        .attr('id', id + '-contents');
+
+    let elemFilters = $('<div></div>').appendTo(elemTop)
+        .addClass('surface-level-' + (surfaceLevel + 1))
+        .addClass('similar-filters')
+        .addClass('pos-abs-bottom')
+        .attr('id', id + '-filters');
+
+    $('<div></div>').appendTo(elemFilters)
+        .addClass('surface-level-' + (surfaceLevel + 1))
+        .addClass('similar-filters-toggle')
+        .attr('id', id + '-filters-toggle')
+        .html(labelFiltersToggle)
+        .click(function() {
+            $('body').toggleClass('no-filters-panel');
+        });
+
+    $('<div></div>').appendTo(elemFilters)
+        .addClass('surface-level-' + (surfaceLevel + 1))
+        .addClass('similar-filters-list')
+        .attr('id', id + '-filters-list');
+
+    let requests = [];
+
+    if(data.details === null) requests.push($.get('/plm/details' , { link : link }));
+    if(data.classes === null) requests.push($.get('/plm/classes' , { useCache : settings[id].useCache }));
 
     Promise.all(requests).then(function(responses) {
 
-        let data      = getClassificationData(responses[0].data);
-        let path      = getSectionFieldValue(responses[0].data.sections, 'CLASS_PATH', '');
-        let classId   = data.classificationId;
-        let className = data.classificationName
+        if(data.details === null) data.details = responses[0].data;
+        if(data.classes === null) data.classes = responses[1].data.classifications;
 
-        if(isBlank(paramsContents.headerLabel)) paramsContents.headerLabel = path;
+        let classData = getClassificationData(data.details);
+        let classPath = getSectionFieldValue(data.details.sections, 'CLASS_PATH', '');
+        let classId   = classData.classificationId;
+        let className = classData.classificationName;
 
-        for(let classification of responses[1].data.classifications) {
+        let paramsContents = {
+            id                : id + '-contents',
+            headerLabel       : params.headerLabel || classPath,
+            referenceItem     : link,
+            layout            : params.layout,
+            contentSizes      : params.contentSizes,
+            singleToolbar     : params.singleToolbar,
+            fields            : params.fields,
+            sortSelection     : params.sortSelection,
+            filterByStatus    : params.filterByStatus,
+            filterByWorkspace : params.filterByWorkspace,
+            reload            : params.reload,
+            search            : params.search,
+            openInPLM         : params.openInPLM,
+        };
+        let paramsFilters = {
+            id             : id + '-filters-list',
+            idContents     : id + '-contents',
+            hideHeader     : true,
+            advancedFilter : params.advancedFilter
+        };
+
+        for(let classification of data.classes) {
             if(classification.id == classId) {
                 className = classification.name;
                 break;
