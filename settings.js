@@ -511,11 +511,11 @@ exports.applications = {
             }
         // },{            
         //     label       : 'Motors',
-        //     fieldId     : 'SERIAL_NUMBERS_LIST',
+        //     fieldId     : 'MOTORS_LIST',
         //     workspaceId : 276,
-        //     colorIndex  : 2,
-        //     bomIcon     : 'icon-item',
-        //     fieldsIn    : ['Supplier', 'Model', 'Serial #', 'Power Supply', 'Installation Date', 'Location', 'Item Title', 'Item Rev', 'Instance #', 'Instance Path'],
+        //     colorIndex  : 5,
+        //     bomIcon     : 'icon-motor',
+        //     fieldsIn    : ['Serial #', 'Installation Date', 'Item Title', 'Rev', '#', 'Instance Path'],
         //     fieldsList  : {
         //         partNumber   : 'NUMBER',
         //         title        : 'ITEM_TITLE',
@@ -531,16 +531,16 @@ exports.applications = {
         //         { sortBy : 'LOCATION'   , sortType : 'string' , sortDirection : 'ascending' }
         //     ],
         //     filter      : {
-        //         fieldId : 'MOTOR',
-        //         value   : true
+        //          fieldId : 'INSTANCE_TYPE',
+        //          value   : 'Motor'
         //     }
         // },{
         //     label       : 'Sensors',
-        //     fieldId     : 'SERIAL_NUMBERS_LIST',
+        //     fieldId     : 'SENSORS_LIST',
         //     workspaceId : 277,
-        //     colorIndex  : 3,
-        //     bomIcon     : 'icon-highlight',
-        //     fieldsIn    : ['Serial #', 'Installation Date', 'Location', 'Item Title', 'Item Rev', 'Instance #', 'Instance Path'],
+        //     colorIndex  : 7,
+        //     bomIcon     : 'icon-sensor',
+        //     fieldsIn    : ['Serial #', 'Installation Date', 'Item Title', 'Rev', '#', 'Instance Path'],,
         //     fieldsList  : {
         //         partNumber   : 'NUMBER',
         //         title        : 'ITEM_TITLE',
@@ -556,16 +556,16 @@ exports.applications = {
         //         { sortBy : 'LOCATION'   , sortType : 'string' , sortDirection : 'ascending' }
         //     ],
         //     filter      : {
-        //         fieldId : 'SENSOR',
-        //         value   : true
+        //          fieldId : 'INSTANCE_TYPE',
+        //          value   : 'Sensor'
         //     }
         // },{
         //     label       : 'Control Elements',
-        //     fieldId     : 'SERIAL_NUMBERS_LIST',
+        //     fieldId     : 'CONTROL_ELEMENTS_LIST',
         //     workspaceId : 278,
-        //     colorIndex  : 4,
-        //     bomIcon     : 'icon-sliders',
-        //     fieldsIn    : ['Serial #', 'Installation Date', 'Location', 'Item Title', 'Item Rev', 'Instance #', 'Instance Path'],
+        //     colorIndex  : 9,
+        //     bomIcon     : 'icon-gears',
+        //     fieldsIn    : ['Serial #', 'Installation Date', 'Item Title', 'Rev', '#', 'Instance Path'],
         //     fieldsList  : {
         //         partNumber   : 'NUMBER',
         //         title        : 'ITEM_TITLE',
@@ -581,9 +581,9 @@ exports.applications = {
         //         { sortBy : 'LOCATION'   , sortType : 'string' , sortDirection : 'ascending' }
         //     ],
         //     filter      : {
-        //         fieldId : 'CONTROL_ELEMENT',
-        //         value   : true
-        //     }            
+        //          fieldId : 'INSTANCE_TYPE',
+        //          value   : 'Control Element'
+        //     }           
         }],
         viewerFeatures : {
             contextMenu   : false,
