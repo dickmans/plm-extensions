@@ -148,10 +148,10 @@ router.get('/pbom'         , function(req, res, next) { launch('dev/pbom'       
 router.get('/pdm'          , function(req, res, next) { launch('dev/pdm'          , '', 'Vault Browser'                    , req, res, next); });
 router.get('/pdm-explorer' , function(req, res, next) { launch('dev/pdm-explorer' , '', 'PDM Explorer'                     , req, res, next); });
 router.get('/pnd'          , function(req, res, next) { launch('dev/pnd'          , '', 'Product Data & Processes Explorer', req, res, next); });
-router.get('/resources'    , function(req, res, next) { launch('dev/resources'    , 'resources', 'Resource Allocation'              , req, res, next); });
+router.get('/resources'    , function(req, res, next) { launch('dev/resources'    , 'resources', 'Resource Allocation'     , req, res, next); });
 router.get('/specification', function(req, res, next) { launch('dev/specification', '', 'Product Specification Editor'     , req, res, next); });
 router.get('/transmittals' , function(req, res, next) { launch('dev/transmittals' , '', 'Transmittals Client'              , req, res, next); });
-router.get('/worklist' , function(req, res, next) { launch('dev/worklist' , 'worklist', 'Worklist'              , req, res, next); });
+router.get('/worklist'     , function(req, res, next) { launch('dev/worklist'     , 'worklist', 'Worklist'                 , req, res, next); });
 
       
 

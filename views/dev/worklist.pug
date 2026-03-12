@@ -1,0 +1,44 @@
+extends ../framework/layout
+
+block head
+
+    link(rel='stylesheet', href='/stylesheets/dev/worklist.css')
+    //- link(rel='stylesheet', href='/stylesheets/custom/worklist.css')
+    
+    script(src='/javascripts/dev/worklist.js')
+    //- script(src='/javascripts/custom/worklist.js')
+
+block body
+
+    body.surface-level-1.no-summary
+        
+        #header.dark
+            #header-logo
+            #header-title= title
+            #header-subtitle Manage your personal project contribution
+            #header-toolbar
+                select.button.disabled#filter-project(disabled='disabled')
+                    option(value='all') All Projects
+                select.button.disabled#filter-tasks(disabled='disabled')
+                    option(value='all') All Tasks
+                    option(value='due') Due Tasks
+                    option(value='this-week') This Week
+                    option(value='next-week') Next Week
+                    option(value='previous-week') Previous Week
+                    option(value='3-6') -3/+6 Weeks
+                    option(value='6-12') -6/+12 Weeks
+                    option(value='6-26') -6/+26 Weeks
+                    option(value='this-month') This Month
+                    option(value='next-month') Next Month
+                    option(value='previous-month') Previous Month
+                    option(value='this-year') This Year
+                    option(value='next-year') Next Year
+                .button#toggle-new-tasks.with-toggle.toggle-on(title='Left hand side panel on / off') New Tasks Panel
+                .button#toggle-summary.with-toggle.toggle-off(title='Toggle details panel on the right side on / off') Details Panel
+                #header-avatar
+        
+        .screen 
+
+            .surface-level-3#new-tasks.pos-abs-left.panel-top
+            .surface-level-1#your-tasks.pos-abs-right
+            .surface-level-3#summary.pos-abs-right
