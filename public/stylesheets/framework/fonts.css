@@ -166,17 +166,23 @@
     cursor : pointer;
 }
 
-.with-icon {
+.with-icon,
+.append-icon {
     display : flex;
 }
-.with-icon::before {
-    font-family             : 'Material Symbols Sharp';
-    margin-right            : var(--spacer-xxs);
-    text-rendering          : optimizeLegibility;
-    -webkit-font-smoothing  : antialiased;
+.append-icon {
+    justify-content : space-between;
+}
+.with-icon::before,
+.append-icon::after {
+    font-family            : 'Material Symbols Sharp';
+    margin-right           : var(--spacer-xxs);
+    text-rendering         : optimizeLegibility;
+    -webkit-font-smoothing : antialiased;
 }
 .icon.filled,
-.with-icon.filled::before {
+.with-icon.filled::before,
+.append-icon.filled::after {
     font-variation-settings : 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48
 }
 
