@@ -2609,12 +2609,13 @@ function finishPanelContentUpdate(id, panelSettings, items, linkNew, data) {
     }
 
     if(!isBlank(items)) {
-        if(panelSettings.layout === 'tree') {                 
-            genTree(id, panelSettings, items);
-        } else if(panelSettings.layout === 'table') {                 
-            genTable(id, items, panelSettings);
-        } else {
-            genTilesList(id, items, panelSettings);
+        if(items.length > 0) {
+            switch(panelSettings.layout) {
+                case 'tree' : genTree (id, panelSettings, items); break;
+                case 'table': genTable(id, panelSettings, items); break;
+                case 'list' : genTiles(id, panelSettings, items); break;
+                case 'grid' : genTiles(id, panelSettings, items); break;
+            }
         }
     }
 
@@ -2809,6 +2810,19 @@ function filterPanelContent(id) {
             }
         }
 
+        if(showContentItem) {
+
+            let matchAdditionalFilter = applyAdditionalContentItemFilter(elemContentItem, showContentItem);
+
+            if(matchAdditionalFilter !== -1) { // if external logic involved
+                if(!matchAdditionalFilter) {
+                    showContentItem = false;
+                    clearAllFilters = false;
+                }
+            }
+
+        }
+
         if(!showContentItem) {
             elemContentItem.hide(); 
         } else if((searchMode === 'filter') && (!searchMatch)) {
@@ -2829,7 +2843,7 @@ function filterPanelContent(id) {
         if(!clearAllFilters) {
             if(!filterSelected) {
                 if(isTree) {
-                    
+
                     let parents = [];
 
                     elemContent.find('.content-item').each(function() {
@@ -2885,6 +2899,11 @@ function panelContinueSearch(id, direction) {
         elemContent.animate({ scrollTop: top }, 250);
 
     }
+
+}
+function applyAdditionalContentItemFilter(elemContentItem, showContentItem) {
+
+    return -1;
 
 }
 
@@ -3061,7 +3080,7 @@ function panelReset(id, elemClicked) {
 
     if(elemTop.hasClass('bom')) {
         updateBOMPath(elemClicked);
-        if(panelSettings.bom[id].viewerSelection) selectInViewer(id);
+        if(settings[id].viewerSelection) selectInViewer(id);
     }
 
     panelResetDone(id, elemClicked);
@@ -4367,14 +4386,13 @@ function closeTreeDownloadPanel(id) {
 
 
 // Generate list of tiles
-function genTilesList(id, items, panelSettings) {
+function genTiles(id, panelSettings, items) {
 
     let elemGroupList;
     let groupName   = null;
     let elemContent = $('#' + id + '-content');
     let countPrev   = elemContent.children('.content-item').length ;
     let count       = countPrev + 1;
-
     
     if(!isBlank(panelSettings.groupBy)) {
         sortArray(items, 'group', 'string', 'ascending');
@@ -4397,6 +4415,14 @@ function genTilesList(id, items, panelSettings) {
                 let elemGroupTitle = $('<div></div>').appendTo(elemGroup)
                     .addClass('tiles-group-title')
                     .html(isBlank(item.group) ? 'n/a' : item.group);
+
+                if(panelSettings.layout === 'list') {
+                    elemGroupTitle.addClass('with-icon').addClass('icon-chevron-down');
+                    elemGroupTitle.click(function() {
+                        $(this).toggleClass('icon-chevron-down').toggleClass('icon-chevron-right');
+                        $(this).next().toggleClass('hidden');
+                    });
+                }                    
 
                 elemGroupList = $('<div></div>').appendTo(elemGroup)
                     .addClass('tiles-group-list')
@@ -4444,6 +4470,7 @@ function genTilesList(id, items, panelSettings) {
             partNumber  : item.partNumber,
             imageId     : item.imageId, 
             imageLink   : item.imageLink, 
+            pretitle    : item.pretitle, 
             title       : item.title, 
             subtitle    : item.subtitle,
             details     : item.details,
@@ -4451,7 +4478,8 @@ function genTilesList(id, items, panelSettings) {
             status      : item.status
         }, panelSettings).appendTo(elemContent);
         
-        if(!isBlank(panelSettings.groupBy) && (panelSettings.groupLayout === 'horizontal')) elemTile.appendTo(elemGroupList);
+        // if(!isBlank(panelSettings.groupBy) && (panelSettings.groupLayout === 'horizontal')) elemTile.appendTo(elemGroupList);
+        if(!isBlank(panelSettings.groupBy)) elemTile.appendTo(elemGroupList);
 
         if(!isBlank(item.filters)) {
             for(let filter of item.filters) {
@@ -4525,6 +4553,12 @@ function genSingleTile(params, panelSettings) {
         elemTile.attr('data-descriptor', params.descriptor); 
     }
 
+    if(!isBlank(params.pretitle)) { 
+        $('<div></div>').prependTo(elemTileDetails)
+        .addClass('tile-pretitle')
+        .html(params.pretitle); 
+    }
+
     if(!isBlank(params.title)) { 
         elemTile.attr('data-title', params.title); 
         elemTitle.html(params.title); 
@@ -4541,12 +4575,35 @@ function genSingleTile(params, panelSettings) {
     if(!isBlank(params.details)) {
 
         let elemData = $('<div></div>').appendTo(elemTileDetails).addClass('tile-data');
+        let isTable  = false;
         
         for(let detail of params.details) {
-            let elemDetails = $('<div></div>').appendTo(elemData);
-            if(!isBlank(detail.icon)) elemDetails.addClass('with-icon').addClass(detail.icon).html(detail.value);
-            else if(!isBlank(detail.prefix)) elemDetails.html(detail.prefix + ': ' + detail.value);
+
+            let elemDetails = $('<div></div>').appendTo(elemData).addClass('tile-data-row');
+            let detailValue = $('<div></div>').html(detail.value);
+            
+            if(!isBlank(detail.icon)) {
+                detailValue = $('<div></div>').appendTo(elemDetails)
+                    .addClass('with-icon')
+                    .addClass(detail.icon)
+                    .html(detail.value);
+            } else {
+                detailValue.appendTo(elemDetails);
+            } 
+
+            if(!isBlank(detail.label)) {
+                $('<div></div>').html(detail.label).prependTo(elemDetails);
+                isTable = true;
+            } else if(!isBlank(detail.prefix)) {
+                $('<div></div>').html(':').prependTo(elemDetails);
+                $('<div></div>').html(detail.prefix).prependTo(elemDetails);
+            }
+
+            // if(!isBlank(detail.icon)) elemDetails.addClass('with-icon').addClass(detail.icon).html(detail.value);
+            // else if(!isBlank(detail.prefix)) elemDetails.html(detail.prefix + ': ' + detail.value);
         }
+
+        if(isTable) elemData.css('display', 'table').addClass('table');
             
     }
 
@@ -4721,7 +4778,7 @@ function addTileActions(params, elemTile) {
 
 
 // Generate HTML Table & interactions
-function genTable(id, items, panelSettings) {
+function genTable(id, panelSettings, items) {
 
     if(isBlank(panelSettings.multiSelect)) panelSettings.multiSelect = false;
     if(isBlank(panelSettings.editable)   ) panelSettings.editable    = false;
@@ -6220,6 +6277,7 @@ function getClassificationSection(sections) {
 
     for(let section of sections) {
        if(section.type === 'CLASSIFICATION') return section;
+       if(section.hasOwnProperty('classificationId')) return section;
     }
 
     return {};

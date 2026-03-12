@@ -722,8 +722,6 @@ function submitCreate(wsIdNew, sections, elemParent, settings, callback) {
             }
         }
 
-        console.log(params);
-
     // if(!isBlank(idMarkup)) {
 
     //     let elemMarkupImage = $('#' + idMarkup);
@@ -2452,10 +2450,6 @@ function insertField(settings, elemParent, field, data, picklistsData, bookmarks
 function setFieldValue(elemField, value, display) {
 
     if(elemField.hasClass('field-type-multi-select')) {
-        
-
-        console.log(value);
-        console.log(display);
 
         let elemList = elemField.find('.picklist-selected-items');
             elemList.removeClass('hidden');
@@ -6881,7 +6875,7 @@ function insertRootParentsData(id) {
         }
 
         if(settings[id].layout.toLowerCase() === 'table') {
-            genTable(id ,items, settings[id]);
+            genTable(id, settings[id], items);
             $('#' + id + '-tbody').children().each(function() {
                 
                 let elemCell = $(this).children().last();
@@ -6918,7 +6912,7 @@ function insertRootParentsData(id) {
 
             });
         } else {
-            genTilesList(id, items, settings[id]);   
+            genTiles(id, settings[id], items);   
             // addTilesListImages(id, settings[id]);
         }
 
@@ -7083,9 +7077,9 @@ function insertParentsData(id) {
         }
 
         if(settings[id].layout.toLowerCase() === 'table') {
-            genTable(id, items, settings[id]);
+            genTable(id, settings[id], items);
         } else {
-            genTilesList(id, items, settings[id]);   
+            genTiles(id, settings[id], items);   
             addTilesListChevrons(id, settings[id], function(elemClicked) { insertParentBOM(id, elemClicked); });
         }
 
@@ -9149,10 +9143,11 @@ function insertItemSummaryContents(id, details, fields, tabs) {
 
         if(isBlank(content.params)) content.params = {};
 
-        let link      =  content.link || settings[id].link;
-        let contentId = (isBlank(content.params.id)) ? 'item-' + content.type : content.params.id;
-        let className = (isBlank(content.className)) ? settings[id].contentSurfaceLevel : content.className;
-        let elemTop   = $('#' + contentId);
+        let link         =  content.link || settings[id].link;
+        let contentId    = (isBlank(content.params.id)) ? 'item-' + content.type : content.params.id;
+        let className    = (isBlank(content.className)) ? settings[id].contentSurfaceLevel : content.className;
+        let sectionClass = getClassificationSection(details.sections);
+        let elemTop      = $('#' + contentId);
         
         content.params.id = contentId;
 
@@ -9181,6 +9176,24 @@ function insertItemSummaryContents(id, details, fields, tabs) {
                     insertDetails(link, content.params);
                 }
                 break;
+
+            case 'classification':
+                if(sectionClass.hasOwnProperty('link')) {
+                    if(tabsAccessible.includes('ITEM_DETAILS') || (!isBlank(content.params.link))) {
+                        insertItemSummaryContentTab(id, contentId, sectionClass.title, content.params, isFirst);  
+                        insertItemClassification(link, content.params);
+                    }
+                }
+                break;
+
+            case 'similar-items':
+                if(sectionClass.hasOwnProperty('link')) {
+                    if(tabsAccessible.includes('ITEM_DETAILS') || (!isBlank(content.params.link))) {
+                        insertItemSummaryContentTab(id, contentId, content.label, content.params, isFirst);
+                        insertSimilarItems(link, content.params);
+                    }
+                }
+                break;                
 
             case 'images':
                 if(tabsAccessible.includes('ITEM_DETAILS') || (!isBlank(content.params.link))) {
@@ -9329,10 +9342,8 @@ function insertItemSummaryContentTab(id, contentId, label, params, isFirst) {
     if(settings[id].layout !== 'tabs') return;
 
     let elemTabs = $('#' + id + '-tabs');
-    let tabLabel = isBlank(params.headerLabel) ? label : params.headerLabel;
+    let tabLabel = params.headerLabel || label;
     
-
-
     $('<div></div>').appendTo(elemTabs)
         .attr('data-content-id', contentId)
         .html(tabLabel)
@@ -9364,6 +9375,18 @@ function insertItemSummaryContentTab(id, contentId, label, params, isFirst) {
     
     params.hideHeaderLabel = true;
     params.hidePanel       = !isFirst;
+
+}
+function insertItemSummaryContentPanel(elemTop, id, content, surfaceLevel) {
+
+    let elemContentPanel = $('#' + id);
+    
+    if(elemContentPanel.length > 0) return;
+    
+    $('<div></div>').appendTo(elemTop)
+        .attr('id', id)
+        .addClass(surfaceLevel)
+        .addClass('item-' + content.type.toLowerCase());
 
 }
 function insertItemSummaryDone(id) {}

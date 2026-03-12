@@ -29,13 +29,13 @@ function setAddinEvents() {
                 let action  = message[0].split(':')[0];
                 let number  = message[0].split(':')[1];
 
-                // let response = arg.data.split(';');
-
-                // console.log(action);
-                // console.log(number);
-                // console.log(message.length);
-
-                // 
+                // am 9.2.2ß26 haben wir die absicht besprochen, das messaging zu vereinfachen
+                // es soll nur noch semicolon als trennzeichen verwendete werden
+                // wir wollen das mit messaging id verknüpfen
+                // Beispiel
+                //  - action : message[0]
+                //  - reqId : message[1]
+                //  - parmas[2..n] : Funktionsparameter
 
                 // 'response:title:text'
                 // 'selectInstance:partNumber:instanceId'
@@ -46,6 +46,10 @@ function setAddinEvents() {
                 $('#overlay').hide();
 
                 switch(action) {
+
+                    case 'activeDocument': 
+                        console.log(' activeDocument = ' + number);
+                        break;
 
                     case 'plm-item': 
                         console.log(' message = ' + arg.data);
@@ -278,27 +282,36 @@ function genAddinPLMBOMActions(id) {
 
 
 // Get current active document to be added to BOM
-async function getActiveDocument(context) {
+async function getActiveDocument() {
 
     console.log('GetActiveDocument START');
-
-    if(isBlank(context)) context = '-';
-
-    console.log(context);
-
-    if(typeof chrome.webview === 'undefined') return;
     
-
-    const plmAddin = chrome.webview.hostObjects.plmAddin;
-    let partNumber = await plmAddin.getActiveDocument(context);
-
-    console.log(partNumber);
-
-    if(isBlank(partNumber)) partNumber = '01-0712';
-
-    return partNumber;
+    chrome.webview.postMessage("getActiveDocument");
 
 }
+// async function getActiveDocument(context) {
+
+//     console.log('GetActiveDocument START');
+
+//     if(isBlank(context)) context = '-';
+
+//     console.log(context);
+
+//     if(typeof chrome.webview === 'undefined') return;
+    
+//     chrome.webview.postMessage("getActiveDocument:");
+
+
+//     const plmAddin = chrome.webview.hostObjects.plmAddin;
+//     let partNumber = await plmAddin.getActiveDocument(context);
+
+//     console.log(partNumber);
+
+//     if(isBlank(partNumber)) partNumber = '01-0712';
+
+//     return partNumber;
+
+// }
 
 
 
