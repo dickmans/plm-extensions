@@ -1506,6 +1506,16 @@ tr.checked > td.content-item-check-box > .icon::before {
 .panel-content.xl  tr > td, .panel-content.xl  tr.content-item > td > input, .panel-content.xl  tr.content-item > td > select, .panel-content.xl  tr.content-item > td > textarea {  height : 38px; line-height : 38px; padding : 0px 16px; }
 .panel-content.xxl tr > td, .panel-content.xxl tr.content-item > td > input, .panel-content.xxl tr.content-item > td > select, .panel-content.xxl tr.content-item > td > textarea {  height : 42px; line-height : 42px; padding : 0px 18px; }
 
+.panel-content.xxs tr > td > .table-actions > .button {
+    line-height : 18px;
+    max-height  : 18px;
+    min-height  : 18px;
+    height      : 18px;
+    max-width   : 18px;
+    min-width   : 18px;
+    width       : 18px;
+}
+
 .panel-content.xxs .bom-first-col { gap :  4px; }
 .panel-content.xs  .bom-first-col { gap :  6px; }
 .panel-content.s   .bom-first-col { gap :  8px; }
@@ -1736,6 +1746,19 @@ tr.checked > td.content-item-check-box > .icon::before {
 th.column-required,
 td.column-required > * { border-left : 2px solid var(--color-status-red) !important; }
 .content-item.search-match { color : var(--color-blue-500);}
+
+/* TABLE ACTIONS */
+.table-actions {
+    display : none;
+    gap     : 2px;
+    z-index : 5;
+}
+.content-item .table-actions {
+    position : absolute;
+    top      : 0px;
+    right    : 0px;
+}
+.content-item:hover .table-actions { display : flex; }
 
 /* .content-item.selected > td.field-editable > * { background : var(--color-blue-600); } */
 

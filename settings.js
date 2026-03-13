@@ -1177,6 +1177,22 @@ exports.applications = {
 
     addins : {
 
+        hostApplicationActions : {
+
+            vault : {
+                gotoVaultFile : true,
+                gotoVaultItem : true,
+                openComponent : true,
+                addComponent  : true
+            }, 
+
+            inventor : {
+                openComponent : true,
+                addComponent  : true,
+            }
+
+        },
+
         item : {
             tabs : [{ 
                 type   : 'details', 

@@ -4772,7 +4772,9 @@ function addTileActions(params, elemTile) {
         }
     }
 
-    genAddinTileActions(elemTile);
+    let elemActions = $('<div></div>').appendTo(elemTile).addClass('tile-actions');
+
+    genAddinPLMItemTileActions(elemActions);
 
 }
 
@@ -5004,7 +5006,8 @@ function genTableRows(id, elemTBody, panelSettings, items, editableFields) {
                 let value       = '';
                 let elemRowCell = $('<td></td>').appendTo(elemRow)
                     .attr('data-id', column.fieldId)
-                    .addClass('list-column-' + column.fieldId.toLowerCase());
+                    .addClass('list-column-' + column.fieldId.toLowerCase())
+                    .addClass('content-column-' + column.fieldId.toLowerCase());
 
                 for(let field of item.data) {
                     
@@ -5081,6 +5084,8 @@ function genTableRows(id, elemTBody, panelSettings, items, editableFields) {
             for(let className of item.classNames) elemRow.addClass(className);
         }
 
+        addTableActions(item, elemRow, panelSettings);
+
         if(first === null) first = elemRow.position().top;
 
     }
@@ -5090,6 +5095,41 @@ function genTableRows(id, elemTBody, panelSettings, items, editableFields) {
         let top = first - (elemContent.innerHeight() / 2);
         elemContent.animate({ scrollTop: top }, 500);
     }
+
+}
+function addTableActions(item, elemRow, panelSettings) {
+
+    // console.log(addTableActions);
+
+    if(isBlank(item.link)) return;
+    if(typeof genAddinPLMItemTileActions !== 'function') return;
+    if(typeof host !== 'string') return;
+
+    let workspaceId = item.link.split('/')[4];
+
+    if(workspaceId != common.workspaceIds.items) return;
+
+    host = (urlParameters.host || '').toLowerCase();
+
+    if(host !== 'inventor') {
+        if(host !== 'vault') {
+            return;
+        }
+    }
+
+    let elemColumn  = $(elemRow).find('.content-column-descriptor');
+
+    if(elemColumn.length === 0) {
+        if(panelSettings.number) elemColumn = elemRow.find('.content-column-number');
+        else elemColumn =elemRow.children().first();
+    }
+
+    if(elemColumn.length === 0) return;
+    
+    let elemActions = $('<div></div>').appendTo(elemColumn).addClass('table-actions');
+
+    genAddinPLMItemTileActions(elemActions);
+
 
 }
 function panelTableCellValueChanged(elemControl) {

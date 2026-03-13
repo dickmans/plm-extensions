@@ -463,16 +463,6 @@
 .addin .bom-descriptor {
     flex-grow : 1;
 }
-.addin .table-actions {
-    display  : none;
-    gap      : 2px;
-    /* position : absolute; */
-    /* right    : 4px; */
-    z-index  : 5;
-}
-.addin .tree-item:hover .table-actions {
-    display : flex;
-}
 .addin .bom-number,
 .addin .bom-descriptor {
     padding : 0px;
