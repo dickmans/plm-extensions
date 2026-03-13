@@ -219,14 +219,33 @@
 .content-column-number {
     left     : 0;
     position : sticky;
-    z-index  : 7 !important;
 }
 .content-column-descriptor,
 .list-column-descriptor {
     left      : 40px;
     max-width : 220px;
     position  : sticky;
-    z-index   : 7 !important;
+}
+th.content-column-number,
+th.content-column-descriptor {
+    z-index  : 6 !important;
+}
+td.content-column-number,
+td.content-column-descriptor {
+    z-index  : 4 !important;
+}
+#contents-content {
+    bottom : 0px;
+}
+#contents-pagination-controls {
+    top    : 64px;
+    right  : unset;
+    bottom : unset;
+    left   : 0px;
+}
+.addin #contents-pagination-controls {
+    padding-left : 18px;
+    top : 42px;
 }
 
 
@@ -237,3 +256,4 @@
     flex-direction : column;
     gap            : 16px;
 }
+.addin #summary-subtitle { display : none; }
