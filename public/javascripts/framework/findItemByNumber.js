@@ -7,10 +7,6 @@ $(document).ready(function() {
         $('body').removeClass('surface-level-2').addClass('surface-level-' + urlParameters.level);
     }
 
-    //  http://localhost:8080/addins/item?number=002771&level=1
-    //  http://localhost:8080/service?number=002771&level=1
-    //  http://localhost:8080/service?number=3D-25-000035&wsid=95&level=1&reference=ENGINEERING_BOM&level=1
-    
     if(urlParameters.hasOwnProperty('host')) {
         if(urlParameters.host !== '') $('body').addClass('addin');
     }
@@ -22,18 +18,22 @@ $(document).ready(function() {
 
     } else {
 
+        let url = '/plm/find-match';
+
         let params = {
             wsId     : urlParameters.wsid || common.workspaceIds.items,
-            limit    : 1,
             query    : urlParameters.number,
-            wildcard : false
+            fieldId  : common.workspaces.items.fieldIdNumber
         }
 
-        console.log(params);
+        if(!isBlank(urlParameters.reference)) {
+            params.bulk     = true;
+            params.limit    = 1;
+            params.wildcard = false;
+            url             = '/plm/search-descriptor';
+        }
 
-        if(!isBlank(urlParameters.reference)) params.bulk = true;
-
-        $.post('/plm/search-descriptor', params, function(response) {
+        $.post(url, params, function(response) {
 
             if(response.data.items.length > 0) {
 
@@ -65,29 +65,29 @@ $(document).ready(function() {
 
                 window.location = url;
 
-            } else if(options.includes('autoCreate')) {
+            // } else if(options.includes('autoCreate')) {
 
-                console.log('Item not found in PLM, searching in Vault ...');
+            //     console.log('Item not found in PLM, searching in Vault ...');
 
-                $.get('/vault/basic-search', {
-                    query       : number,
-                    placeholder : false,
-                    extended    : true,
-                    limit       : 1
-                }, function(response) {
+            //     $.get('/vault/basic-search', {
+            //         query       : number,
+            //         placeholder : false,
+            //         extended    : true,
+            //         limit       : 1
+            //     }, function(response) {
 
-                    if(response.data.results.length === 0) {
+            //         if(response.data.results.length === 0) {
 
-                        $('.processing').hide();
-                        $('#search-message').hide();
-                        $('.copyFromVaultFailed').show();
-                        itemNotFound();
+            //             $('.processing').hide();
+            //             $('#search-message').hide();
+            //             $('.copyFromVaultFailed').show();
+            //             itemNotFound();
 
-                    } else {
-                        console.log('Copying item from Vault');
-                    }
+            //         } else {
+            //             console.log('Copying item from Vault');
+            //         }
 
-                });
+            //     });
             } else {
                 $('.processing').hide();
                 $('#search-message').hide();

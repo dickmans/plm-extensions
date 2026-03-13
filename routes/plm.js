@@ -4784,7 +4784,63 @@ function getFilterComparator(filter) {
 
 
 
-/* ----- SEARCH DESCRIPTOR ----- */
+/* ----- SEARCH IN DESCRIPTOR (V1) ----- */
+router.post('/find-match', function(req, res, next) {
+    
+    console.log(' ');
+    console.log('  /find-match');
+    console.log(' --------------------------------------------'); 
+    console.log('  req.body.wsId    = ' + req.body.wsId);
+    console.log('  req.body.query   = ' + req.body.query); 
+    console.log('  req.body.fieldId = ' + req.body.fieldId); 
+    console.log();
+
+    let url         = getTenantLink(req) + '/api/rest/v1/workspaces/' + req.body.wsId + '/items/search';
+    let fieldId     = (typeof req.body.fieldId === 'undefined') ? 'DESCRIPTOR' : req.body.fieldId;
+    let fieldTypeID = getFieldType(fieldId);
+
+    let params = {
+        pageNo      : 1,
+        pageSize    : 1,
+        logicClause : 'AND',
+        fields : [{ 
+            fieldID     : req.body.fieldId,
+            fieldTypeID : fieldTypeID
+        }],
+        filter : [{
+            fieldID      : req.body.fieldId,
+            fieldTypeID  : fieldTypeID,
+            filterType   : {
+                filterID : 21
+            },
+            filterValue : req.body.query
+        }],
+        sort : [{
+            fieldID       : req.body.fieldId,
+            fieldTypeID   : fieldTypeID,
+            sortAscending : true
+        }]
+    }
+
+    axios.post(url, params, {
+        headers : req.session.headers
+    }).then(function(response) {
+        if(response.data === "") response.data = { 'items' : [] }
+        else {
+            response.data.items = response.data.row;
+            response.data.items[0].__self__ = '/api/v3/workspaces/' + req.body.wsId + '/items/' + response.data.items[0].dmsId;
+        }
+        sendResponse(req, res, response, false);
+    }).catch(function(error) {
+        sendResponse(req, res, error.response, true);
+    });
+    
+});
+
+
+
+
+/* ----- SEARCH IN DESCRIPTOR ----- */
 router.post('/search-descriptor', function(req, res, next) {
     
     console.log(' ');
