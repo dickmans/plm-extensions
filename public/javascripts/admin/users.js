@@ -1665,7 +1665,6 @@ function assignGroups(index) {
         }
 
         Promise.all(requests).then(function(responses) {
-            console.log(responses);
             assignGroups(index + 1);
         });
  
