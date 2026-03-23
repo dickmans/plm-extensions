@@ -5788,7 +5788,7 @@ router.get('/login-admin', function(req, res, next) {
    
     let data = {
         'grant_type' : 'client_credentials',
-        'scope'      : 'data:read'
+        'scope'      : 'profapi:img-profile:read'
     }
     
     axios.post('https://developer.api.autodesk.com/authentication/v2/token', data, {

@@ -192,7 +192,7 @@ function launch(appURL, appSettings, appTitle, req, res) {
             + '?response_type=code'
             + '&client_id=' + req.app.locals.clientId
             + '&redirect_uri=' + encodeURIComponent(req.app.locals.redirectUri)
-            + '&scope=data:read'
+            + '&scope=profapi:img-profile:read'
             + '&code_challenge=' + req.session.code_challenge
             + '&code_challenge_method=S256'
             + '&state=' + encodeURIComponent(req.url);
