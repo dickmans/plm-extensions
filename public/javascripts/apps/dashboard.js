@@ -73,8 +73,6 @@ $(document).ready(function() {
 
                     url += 'wsId=' + $(this).attr('data-id');
 
-                    console.log(url);
-
                     for(let param of params) {
                         if(param.toLowerCase().indexOf('wsid') < 0) url += '&' + param;
                     }
@@ -582,29 +580,7 @@ function openItem(link) {
 }
 
 
-// // Viewer
-// function selectMarkup(elemClicked) {
 
-//     elemClicked.siblings().removeClass('selected');
-//     elemClicked.toggleClass('selected');
-//     if(elemClicked.hasClass('selected')) {
-//         if($('#viewer-markup-toolbar').hasClass('hidden')) {
-//             $('#my-markup-button').click();
-//         }
-//     } else if(!$('#viewer-markup-toolbar').hasClass('hidden')) {
-//         viewerLeaveMarkupMode();
-//     }
-
-
-// }
-// function initViewerDone() {
-
-//     if(enableMarkup) viewerAddMarkupControls(true);
-
-//     if($('body').hasClass('no-viewer')) { $('#attachments-list').addClass('l').removeClass('xs');}
-//                                    else { $('#attachments-list').addClass('xs').removeClass('l');}
-
-// }
 // function viewerSaveMarkup() {
 
 //     let fieldId = $('.markup.selected').first().attr('id');
