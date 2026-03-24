@@ -734,7 +734,7 @@ function getSearchFilters() {
 
     let filters = [];
 
-    $('.filter select.property-comparator').each(function() {
+    $('.filter select.button').each(function() {
 
         let elemSelect  = $(this);
         let elemFilter  = $(this).closest('.filter');
