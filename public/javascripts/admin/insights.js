@@ -1293,8 +1293,6 @@ function addUserLogin(userName, eventDate) {
 }
 function addUserActivity(index, userName, eventDate) {
 
-    console.log(userName, eventDate);
-    
     let exists   = false;
     let datasets = chartTimelineUsers.data.datasets[index].data;
     
