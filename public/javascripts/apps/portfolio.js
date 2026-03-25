@@ -148,7 +148,8 @@ function getProductCatgories() {
         hideHeader       : true,
         layout           : 'grid',
         contentSize      : 'xxl',
-        tileImage        : 'IMAGE',
+        tileImage        : true,
+        tileImageFieldId : 'IMAGE',
         tileTitle        : ['MARKETING_NAME_' + languageId, 'MARKETING_NAME_1'],
         tileSubtitle     : ['MARKETING_TEXT_' + languageId, 'MARKETING_TEXT_1'],
         useCache         : true,
@@ -191,7 +192,8 @@ function selectProductCategory(elemClicked) {
         hideHeader       : true,
         layout           : 'list',
         contentSize      : 'xxl',
-        tileImage        : 'IMAGE',
+        tileImage        : true,
+        tileImageFieldId : 'IMAGE',
         tileTitle        : ['MARKETING_NAME_' + languageId, 'MARKETING_NAME_1'],
         tileSubtitle     : ['MARKETING_TEXT_' + languageId, 'MARKETING_TEXT_1'],
         useCache         : true,
@@ -248,13 +250,13 @@ function getRecentProducts() {
 
     $.get('/plm/recent', {}, function(response) {
 
-        for(item of response.data.recentlyViewedItems) {
+        for(let item of response.data.recentlyViewedItems) {
             let workspace = item.workspace.link.split('/')[4];
             if(workspace === workspaces[2].wsId) links.push(item.item.link);
         }
 
-        for(link of links) {
-            $.get('/plm/details', { 'link' : link }, function(response) {
+        for(let link of links) {
+            $.get('/plm/details', { link : link }, function(response) {
                 addProductTile(response.data, $('#landing-tiles-recents'));
             });
         }
@@ -311,22 +313,30 @@ function searchProducts() {
 }
 function addProductTile(item, elemParent) {
 
-    let title       = getSectionFieldValue(item.sections, 'MARKETING_NAME_' + languageId, '');
-    let subtitle    = getSectionFieldValue(item.sections, 'MARKETING_TEXT_' + languageId, '');
-    let imageLink   = getSectionFieldValue(item.sections, 'IMAGE', '');
+    let title     = getSectionFieldValue(item.sections, 'MARKETING_NAME_' + languageId, '');
+    let subtitle  = getSectionFieldValue(item.sections, 'MARKETING_TEXT_' + languageId, '');
+    let imageLink = getSectionFieldValue(item.sections, 'IMAGE', '');
 
-    if(title === '') title = getSectionFieldValue(item.sections, 'MARKETING_NAME_1', '');
+    if(title     === '') title     = getSectionFieldValue(item.sections, 'MARKETING_NAME_1', '');
     if(subtitle  === '') subtitle  = getSectionFieldValue(item.sections, 'MARKETING_TEXT_1', '');
 
     let imageIds = getMarketingImages(item.sections);
 
     let elemTile = genSingleTile({
-        link        : item.__self__,
-        imageLink   : imageLink,
-        tileIcon    : 'icon-product',
-        title       : title,
-        subtitle    : subtitle
+        link      : item.__self__,
+        imageLink : imageLink,
+        tileImage : true,
+        tileIcon  : 'icon-product',
+        title     : title,
+        subtitle  : subtitle
     });
+
+    let elemImage = elemTile.find('.tile-image').first();
+
+    appendImageFromCache(elemImage, {}, { 
+        imageLink : imageLink, 
+        link      : elemTile.attr('data-link')
+    }, function() {}); 
 
     elemTile.appendTo(elemParent)
         .addClass('product')
@@ -373,7 +383,8 @@ function selectProductLine(elemClicked) {
         hideHeader       : true,
         layout           : 'grid',
         contentSize      : 'xxl',
-        tileImage        : 'IMAGE',
+        tileImage        : true,
+        tileImageFieldId : 'IMAGE',
         tileTitle        : ['MARKETING_NAME_' + languageId, 'MARKETING_NAME_1'],
         tileSubtitle     : ['MARKETING_TEXT_' + languageId, 'MARKETING_TEXT_1'],
         useCache         : false,
@@ -427,6 +438,7 @@ function selectProduct(elemClicked) {
                     depth               : config.bomLevels,                  
                     collapseContents    : true, 
                     hideDetails         : true,
+                    hideTableHeader     : true,
                     openInPLM           : true,
                     search              : true,
                     singleToolbar       : 'actions',

@@ -2,11 +2,12 @@
 /* ----------------------------------------------------------------------------- */
 :root {
 
-    --border-h      : 32px;
-    --border-v      : 24px;
-    --width-bom     : 600px;
+    --border-h      : 18px;
+    --border-v      : 18px;
+    --width-bom     : 500px;
     --width-details : 400px;
     --width-viewer  : 600px;
+    --width-ecad    : 600px;
     --height-viewer : 400px;
     --height-counter  : 22px;
     --width-counter  : 33px;
@@ -34,19 +35,19 @@
     border-width : var(--border-v) var(--border-h) var(--border-v) 0px;
     top          : 0px;
     bottom       : 0px;
-    left         : calc(var(--width-bom) + (2 * var(--border-h)));;
+    left         : calc(var(--width-bom) + (2 * var(--border-h)));
     width        : var(--width-details);
 }
 .viewer {
     top    : 0px;
-    right  : 0px;
+    right  : calc(var(--width-ecad) + (2 * var(--border-h)));
     bottom : 60%;
     left   : calc(var(--width-bom) + var(--width-details) + (3 * var(--border-h)));
 }
 #contents {
     border-width : var(--border-v) var(--border-h);
     top          : 40%;
-    right        : 0px;
+    right        : calc(var(--width-ecad) + (2 * var(--border-h)));
     left         : calc(var(--width-bom) + var(--width-details) + (3 * var(--border-h)));
     bottom       : 0px;
 }
@@ -57,12 +58,22 @@
     left     : 0px;
     bottom   : 0px;
 }
-#sync {
-    height  : 542px;
-    left    : calc(50% - 600px);
-    top     : calc(50% - 300px);
-    width   : 1200px;
+#ecad {
+    border-width : var(--border-v) var(--border-h);
+    width : var(--width-ecad);
 }
+#sync {
+    height : 592px;
+    left   : calc(50% - 600px);
+    top    : calc(50% - 320px);
+    width  : 1200px;
+}
+
+.no-ecad #mode { display : none; }
+.no-ecad .viewer,
+.no-ecad #contents { right : 0px; }
+.no-ecad #ecad { right : calc(-1px - var(--width-ecad) - (2 * var(--border-h))); }
+.no-ecad #sync { height : 542px; top : calc(50% - 300px);}
 
 
 .layout-h .viewer {
@@ -79,6 +90,10 @@
 .no-bom #contents { left : calc(var(--width-details) + (2 * var(--border-h))); }
 .no-bom #bom      { left : calc(-1px - var(--width-bom) - (2 * var(--border-h))); }
 .no-bom #details  { left : 0px; border-left-width : var(--border-h); }
+
+.no-ecad-bom .viewer,
+.no-ecad-bom #contents { right : 0px; }
+.no-ecad-bom #ecad  { right : calc(-1px - var(--width-ecad) - (2 * var(--border-h))); }
 
 .no-bom.layout-h #contents {
     left : calc(var(--width-viewer) + (1 * var(--border-h)));
@@ -99,8 +114,10 @@
 .screen-landing #header-toolbar .button { display : none; }
 .screen-main #landing { display : none; }
 
-.panel-actions .with-toggle::after { line-height : 36px; }
-
+/* .panel-actions .with-toggle::after { line-height : 36px; } */
+.panel-actions {
+    justify-content: right;
+}
 
 
 /*  BOM */
@@ -116,7 +133,23 @@ td.column-icon {
     padding-bottom : 0px !important;
     padding-top    : 0px !important;
 }
-
+ #mcad-bom-sync::after { content : '\e5cc';}
+/* #mcad-bom-sync::after {
+     content : '\e5cc';
+         font-family: 'Material Symbols Sharp';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+} */
 
 
 /*  TABS */
@@ -155,15 +188,20 @@ td.column-icon {
 table.row-hovering tr.highlighted:hover td,
 table.row-hovering tbody tr.highlighted:hover td,
 tr.highlighted > td {
-    border-color : var(--color-status-red) !important;
+    /* border-color : var(--color-status-red) !important; */
 }
-table.row-hovering tr.highlighted:hover td.table-check-box,
-table.row-hovering tbody tr.highlighted:hover td.table-check-box,
-tr.highlighted > td.table-check-box {
+table.row-hovering tr.highlighted:hover td.content-item-check-box,
+table.row-hovering tbody tr.highlighted:hover td.content-item-check-box,
+tr.highlighted > td.content-item-check-box {
     background   : var(--color-status-red) !important;
 }
 #items .panel-actions {
     justify-content : end;
+}
+#items .field-id-SOURCE {
+    max-width : 20px;
+    min-width : 20px;
+    width     : 20px;
 }
 #items .column-NUMBER {
     max-width : 140px;
@@ -233,10 +271,33 @@ td.sync-status {
     display : block;
 }
 
+th.field-id-SOURCE span::before {
+    line-height : 38px;
+    font-size   : 15px;
+}
+
 .field-id-ITEM_REV      { max-width :  32px !important; min-width :  32px !important; width :  32px !important; text-align : center; }
 .field-id-INSTANCE_ID   { max-width :  32px !important; min-width :  32px !important; width :  32px !important; text-align : right;  }
 .field-id-INSTANCE_PATH { max-width : 360px !important; min-width : 360px !important; width : 360px !important; }
 
+
+
+/*  BOM MATCH COLUMN */
+/* ----------------------------------------------------------------------------- */
+.bom-match-icons {
+    display : flex;
+    gap     : 4px;
+}
+.bom-match-icon::before {
+    font-size   : 16px;
+    line-height : 24px;
+}
+.no-mcad-match       .bom-match-icon.mechanical::before,
+.no-ecad-match       .bom-match-icon.electrical::before { content : '\e644'; color: var(--color-status-red); }
+.mcad-match          .bom-match-icon.mechanical::before,
+.ecad-match          .bom-match-icon.electrical::before { content : '\e5ca'; color: var(--color-status-yellow); }
+.mcad-instance-match .bom-match-icon.mechanical::before,
+.ecad-tag-match      .bom-match-icon.electrical::before { content : '\e877'; color: var(--color-status-green); }
 
 
 /*  SYNC DIALOG */

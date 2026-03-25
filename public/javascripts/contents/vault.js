@@ -5,7 +5,7 @@ function insertPDMFileProperties(link, params) {
     if(isBlank(params)) params = {};
 
 
-    let id = isBlank(params.id) ? 'file-properties' : params.id; 
+    let id = isBlank(params.id) ? 'pdm-file-properties' : params.id; 
 
     //  Set defaults for optional parameters
     // // --------------------------------------
@@ -19,7 +19,7 @@ function insertPDMFileProperties(link, params) {
     // if(!isBlank(params.header)      )       header = params.header;
     // if(!isBlank(params.headerLabel) )  headerLabel = params.headerLabel;
 
-    settings.pdmFileProperties[id] = getPanelSettings(link, params, {
+    settings[id] = getPanelSettings(link, params, {
         headerLabel : 'Properties',
         layout : 'normal'
     }, [
@@ -39,41 +39,24 @@ function insertPDMFileProperties(link, params) {
         // [ 'fieldsEx'           , [] ]
     ]);
 
-    settings.pdmFileProperties[id].load = function() { insertPDMFilePropertiesData(id); }
+    settings[id].load = function() { insertPDMFilePropertiesData(id); }
 
 
 
     // settings.pdmFileProperties[id]      = {};
     // settings.pdmFileProperties[id].link = link;
 
-    genPanelTop(id, settings.pdmFileProperties[id], 'vault-file-properties');
-    genPanelHeader(id, settings.pdmFileProperties[id]);
-    genPanelSearchInput(id, settings.pdmFileProperties[id]);
-    genPanelReloadButton(id, settings.pdmFileProperties[id]);
+    genPanelTop(id, 'vault-file-properties');
+    genPanelHeader(id, settings[id]);
+    genPanelSearchInput(id, settings[id]);
+    genPanelReloadButton(id, settings[id]);
 
-    genPanelContents(id, settings.pdmFileProperties[id]).addClass(settings.pdmFileProperties[id].layout);
+    genPanelContents(id, settings[id]).addClass(settings[id].layout);
 
 
     insertPDMFilePropertiesDone(id);
 
-    settings.pdmFileProperties[id].load();
-
-    // let elemTop = $('#' + id)
-    //     .addClass('vault-file-properties')
-    //     .addClass('panel-top')
-    //     .html('');
-
-    // if(header) {
-
-    //     appendPanelHeader(elemTop, id, headerLabel);
-
-    // }
-
-    // appendPanelContent(elemTop, id, ['vault-file-properties-content']);
-    // appendProcessing(id, true);
-
-    // insertFilePropertiesDone(id);
-    // insertFilePropertiesData(id);
+    settings[id].load();
 
 }
 function insertPDMFilePropertiesDone(id) {}
@@ -399,12 +382,12 @@ function insertFileBOM(link, params) {
 
     if(path) {
         $('<div></div>').appendTo(elemTop)
-            .attr('id', id + '-bom-path')
-            .addClass('bom-path-empty')
-            .addClass('bom-path')
+            .attr('id', id + '-tree-path')
+            .addClass('tree-path-empty')
+            .addClass('tree-path')
             .hide();
 
-        elemTop.addClass('with-bom-path');
+        elemTop.addClass('with-tree-path');
     }
 
     let elemBOMCounters = $('<div></div>').appendTo(elemTop)
@@ -415,20 +398,20 @@ function insertFileBOM(link, params) {
     if(counters) {
 
         $('<div></div>').appendTo(elemBOMCounters)
-            .attr('id', id + '-bom-counter-total')
-            .addClass('bom-counter-total');
+            .attr('id', id + '-counter-total')
+            .addClass('panel-counter-total');
         
         $('<div></div>').appendTo(elemBOMCounters)
-            .attr('id', id + '-bom-counter-unique')
-            .addClass('bom-counter-unique');
+            .attr('id', id + '-counter-unique')
+            .addClass('panel-counter-unique');
         
         $('<div></div>').appendTo(elemBOMCounters)
-            .attr('id', id + '-bom-counter-filtered')
-            .addClass('bom-counter-filtered');
+            .attr('id', id + '-counter-filtered')
+            .addClass('panel-counter-filtered');
         
         $('<div></div>').appendTo(elemBOMCounters)
-            .attr('id', id + '-bom-counter-selected')
-            .addClass('bom-counter-selected');      
+            .attr('id', id + '-counter-selected')
+            .addClass('panel-counter-selected');      
 
     } else elemTop.addClass('no-bom-counters');
 
@@ -494,7 +477,7 @@ function insertFileBOMData(id) {
 
         setFileBOMHeaders(id);
         insertNextFileBOMLevel(id, elemBOMTableBody, responses[0].data.results, settings.pdmFileBOM[id].link.split('/').pop(), 1, 1, selectedItems);
-        enableBOMToggles(id);
+        enableTreeToggles(id);
         // updateBOMCounters(id);
 
         if(settings.pdmFileBOM[id].collapsed) clickBOMCollapseAll($('#' + id + '-toolbar'));

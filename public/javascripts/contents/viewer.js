@@ -72,11 +72,11 @@ function initViewer(id, link, viewables, params) {
 
     if(!isBlank(id)       ) viewerId = id;
     if( isBlank(params)   ) params   = {};
-    if( isBlank(viewables)) { viewerShowErrorMessage('No viewable found'); return; }
+    if( isBlank(viewables)) { viewerShowErrorMessage(id, 'No viewable found'); return; }
 
     if(!Array.isArray(viewables)) viewables = [viewables];
 
-    if(viewables.length === 0) { viewerShowErrorMessage('No viewable found'); return; }
+    if(viewables.length === 0) { viewerShowErrorMessage(id, 'No viewable found'); return; }
 
     viewerFiles             = viewables;
     viewerGeometryLoaded    = false;
@@ -254,15 +254,15 @@ function launchViewer(params, viewable) {
     }  
     
 }
-function viewerShowErrorMessage(text) {
+function viewerShowErrorMessage(id, text) {
 
-    let elemMessage = $('#' + viewerId + '-message');
+    let elemMessage = $('#' + id + '-message');
     let elemText    = elemMessage.find('.text');
 
     elemText.html(text);
     elemMessage.removeClass('hidden');
 
-    $('#' + viewerId + '-processing').addClass('hidden');
+    $('#' + id + '-processing').addClass('hidden');
 
 }
 function onPDFLoadSuccess(doc) {

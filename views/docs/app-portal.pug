@@ -34,6 +34,16 @@
                 th Default Value
                 th Description 
             tr 
+                td workspaceId
+                td null
+                td The ID of the Items workspaces. This value is set to null per default to reuse the ID of settings 
+                    span.code common.workspaceIds.items
+            tr 
+                td viewingFormats
+                td null
+                td The file formats to use when rendering the selected item in the viewer. This value is set to null per default to reuse the standard value of 
+                    span.code common.viewer.extensionsIncluded
+            tr 
                 td autoClick
                 td true
                 td When set to true and the search returns one result only, the given item will be selected automatically
@@ -42,65 +52,9 @@
                 td true
                 td When set to true the first item of the Recent Items list will be opened automatically
             tr 
-                td searchInputText
-                td 'Enter part number'
-                td Placeholder text to be displayed in search input field at startup
-            tr 
-                td searchTileImages
-                td true
-                td When set to true, tile images will be displayed for search results. Disable this feature to improve response times.
-            tr 
-                td workspacesIn
-                td ['Items', 'Items and BOMs']
-                td Defines the list of workspaces to search in. In addition, only recently viewed items of the defined workspaces will be displayed in the panel Recent Items.
-            tr 
-                td bomLevels
-                td 10
-                td Restrict the BOM expansion to the defined number of levels
-            tr 
-                td downloadFiles
-                td true
-                td Adds file downlaod capability to BOM tree
-            tr 
-                td downloadRequests
-                td 5
-                td Maximum number of concurrent download requests when downloading BOM files
-            tr 
-                td downloadFormats
-                td [..]
-                td Default filters for BOM file downloads
-            tr 
-                td expandSections
-                td ['Basic']
-                td Defines sections to be expanded per default in the item details panel. All other sections will be collapsed.
-            tr 
-                td sectionsExcluded
-                td ['AML Summary', 'Quality Inspection', 'Sustainability', 'Compliance', 'Others']
-                td Provide list of sections (by name) that should be excluded from the Details display
-            tr 
-                td sectionsIncluded
-                td []
-                td Restrict the Details display to a defined list of sections (defined by name) 
-            tr 
-                td sectionsOrder
-                td ['Basic', 'Technical Details', 'PDM Data']
-                td Defines the order of the sections being shown, defined by an array with list of section names 
-            tr 
-                td fieldsExcluded
-                td ['CLASS_DATA', 'ESTIMATED_COST', 'PENDING_PACKAGES']
-                td Provide list of fields (by field ID) that should be excluded from the Details display
-            tr 
-                td fieldsIncluded
-                td []
-                td Restrict the Details display to a defined list of fields (defined by field ID) 
-            tr 
-                td viewingFormats
-                td ['dwf', 'dwfx']
-                td Define list of viewable format to take into account 
-            tr 
-                td suppressLinks
-                td []
-                td When set to false, the details pages will not contain the links to open related PLM data 
+                td panels
+                td { insertSearch : [], insertRecentItems : []}
+                td This setting and its nodes can be used to adjust the various panels of the application based on the standard configuration capabilities of the given panels for Searches, the Recently Viewed list, BOM trees, Item Details pages and the Files panel.
         h1 Common Configuration Settings
         p This utility uses the following common configuration settings
         table(style='margin:10px 0px 30px')
@@ -108,6 +62,14 @@
                 th Setting
                 th Default Value 
                 th Description
+            tr  
+                td exports.common.workspaceIds.items
+                td 57
+                td The default ID of the Items workspace
+            tr  
+                td exports.common.viewer.extensionsIncluded
+                td ['dwf', 'dwfx', 'nwd', ...]
+                td The sequence of file formats to use when rendering the items in the viewer. The first format being available will be used.
             tr  
                 td exports.common.workspaces.items.defaultBOMView
                 td 'Tree Navigator'
@@ -121,6 +83,18 @@
     .log 
         h1 PLM Portal Change Log 
         table 
+            tr 
+                td 25. March 2026
+                td Bugfix
+                td Prevent auto-selection of first item when refreshing the Recent Items list
+            tr 
+                td 
+                td Performance
+                td When caching is eanbled, the application now uses cached data if available. A comparison with latest data will be performed in the background - and inform the user in case of a mismatch, allowing to reload from the refreshed cache.
+            tr 
+                td 19. March 2026
+                td Settings Update
+                td Update configuration settings to offer more flexibility
             tr 
                 td 12. January 2026
                 td Enhancement

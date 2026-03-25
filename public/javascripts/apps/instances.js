@@ -2,6 +2,7 @@ let links            = {};
 let workspaces       = [];
 let completionEvents = { viewer : false, bom : false, grids : 0 };
 let pendingProcesses = 0;
+let includeECAD      = false;
 
 
 let paramsDetails = {
@@ -21,6 +22,8 @@ $(document).ready(function() {
 
     viewerSettings.cacheBoundingBoxes = true;
     viewerSettings.cacheInstances     = true;
+
+    includeECAD = config.hasOwnProperty('ecad');
 
     getFeatureSettings('instances', [], function() {
         
@@ -60,12 +63,13 @@ $(document).ready(function() {
 function setUIEvents() {
 
     // Header Toolbar Buttons
-    $('#bom-sync').click(function() {
+    $('#bom-sync').click(function(e) {
+        e.stopPropagation();
         if($(this).hasClass('disabled')) return;
         syncItemsList();
     });
-    $('#excel-export').click(function() {
-
+    $('#excel-export').click(function(e) {
+        e.stopPropagation();
         if($(this).hasClass('disabled')) return;
 
         $('#overlay').show();
@@ -94,33 +98,43 @@ function setUIEvents() {
         });
         
     });
-    $('#toggle-layout').click(function() {
+    $('#toggle-layout').click(function(e) {
+        e.stopPropagation();
         $('body').toggleClass('layout-h');
         $(this).toggleClass('toggle-on');
         viewerResize(200);
     });
-    $('#toggle-bom').click(function() {
+    $('#toggle-bom').click(function(e) {
+        e.stopPropagation();
         $('body').toggleClass('no-bom');
         $(this).toggleClass('toggle-on');
         viewerResize(200);
     });
-    $('#toggle-details').click(function() {
+    $('#toggle-ecad-bom').click(function(e) {
+        e.stopPropagation();
+        $('body').toggleClass('no-ecad-bom');
+        $(this).toggleClass('toggle-on');
+        viewerResize(200);
+    });
+    $('#toggle-details').click(function(e) {
+        e.stopPropagation();
         $('body').toggleClass('no-details');
         $(this).toggleClass('toggle-on');
         viewerResize(200);
     });
 
     // Deselect grid item
-    $('body').click(function(e) {
-        let elemGrid = $(e.target).closest('table.grid');
-        if(elemGrid.length === 0) {
-            viewerResetSelection();
-            applyViewerColors();
-            insertDetails(links.ebom, paramsDetails);
-            $('*').removeClass('highlighted');
-            $('#bom').find('.selected').removeClass('selected');
-        }
-    });
+    // $('body').click(function(e) {
+    //     let elemGrid = $(e.target).closest('table.grid');
+    //     if(elemGrid.length === 0) {
+    //         viewerResetSelection();
+    //         applyViewerColors();
+    //         insertDetails(links.ebom, paramsDetails);
+    //         $('*').removeClass('highlighted');
+    //         $('#bom').find('.selected').removeClass('selected');
+    //         gridResetSelection('ecad');
+    //     }
+    // });
 
     // Sync Dialog
     $('.sync-close').click(function() {
@@ -159,10 +173,11 @@ function openEditor(link) {
             .css('width', 520 / workspaces.length)
             .html(workspace.label);  
 
-        $('<td></td>').addClass('sync-column').appendTo($('#sync-new'));
-        $('<td></td>').addClass('sync-column').appendTo($('#sync-update'));
-        $('<td></td>').addClass('sync-column').appendTo($('#sync-mismatch'));
         $('<td></td>').addClass('sync-column').appendTo($('#sync-matches'));
+        $('<td></td>').addClass('sync-column').appendTo($('#sync-update'));
+        $('<td></td>').addClass('sync-column').appendTo($('#sync-new'));
+        $('<td></td>').addClass('sync-column').appendTo($('#sync-ecad'));
+        $('<td></td>').addClass('sync-column').appendTo($('#sync-mismatch'));
 
     }
 
@@ -176,7 +191,21 @@ function openEditor(link) {
         $('#header-subtitle').html(urlParameters.title);
         $('#overlay').hide();
 
-        links.ebom = getSectionFieldValue(responses[0].data.sections, config.assets.fieldIdBOM, '', 'link');
+        links.ebom = getSectionFieldValue(responses[0].data.sections, config.assets.fieldIdBOM , '', 'link');
+
+        if(includeECAD) links.ecad = getSectionFieldValue(responses[0].data.sections, config.assets.fieldIdECAD, '', 'link');
+        if(links.ecad === '') includeECAD = false;
+
+        if(includeECAD) {
+            $('#bom-sync').remove();
+            $('body').removeClass('no-ecad');
+            $('#toggle-layout').addClass('hidden');
+            $('#toggle-bom').html('Mechanical BOM');
+            $('#toggle-ecad-bom').removeClass('hidden');
+        } else {
+            $('#bom-sync').removeClass('hidden');
+            $('#sync-ecad').addClass('hidden');
+        }
 
         if(isBlank(links.ebom)) {
 
@@ -188,9 +217,8 @@ function openEditor(link) {
 
         } else {
 
-            insertDetails(links.ebom, paramsDetails);
-
-            insertBOM(links.ebom, {
+            let paramsBOM = {
+                headerLabel         : 'BOM',
                 search              : true,
                 path                : true,
                 counters            : true,
@@ -202,9 +230,19 @@ function openEditor(link) {
                 bomViewName         : config.bomViewName,
                 fieldsIn            : ['Quantity', 'Qty'],
                 contentSize         : 'm',
-                afterCompletion     : function(id, data) { afterBOMCompletion(id, data) },
-                onClickItem         : function(elemClicked) { onSelectBOMItem(elemClicked); }
-            });
+                afterCompletion     : function(id, data)    { afterBOMCompletion(id, data)  },
+                onClickItem         : function(elemClicked) { onClickBOMItem(elemClicked); }
+            }
+
+            if(includeECAD) {
+                paramsBOM.headerLabel   = 'Mechanical BOM';
+                paramsBOM.contentSize   = 'xs';
+                paramsBOM.singleToolbar = 'actions';
+            }
+
+            insertDetails(links.ebom, paramsDetails);
+
+            insertBOM(links.ebom, paramsBOM);
 
             insertViewer(links.ebom, { cacheInstances : true });
 
@@ -214,6 +252,28 @@ function openEditor(link) {
                     workspace.columns = responses[index].data.fields;
                     workspace.link    = getSectionFieldValue(responses[0].data.sections, workspace.fieldId, '', 'link');
                     workspace.index   = index - 1;
+
+            }
+
+            if(includeECAD) {
+
+                insertGrid(links.ecad, {
+                    id            : 'ecad',
+                    headerLabel   : 'Electrical BOM',
+                    contentSize   : 'xs',
+                    singleToolbar : 'actions',
+                    groupBy       : 'NUMBER',
+                    fieldsIn      : config.ecad.fieldsIn,
+                    attributes : [
+                        { name : 'data-part-number', fieldId : config.ecad.fieldsList.partNumber },
+                        { name : 'data-tag',         fieldId : config.ecad.fieldsList.tag        }
+                    ],
+                    search    : true,
+                    openInPLM : true,
+                    reload    : true,
+                    toggles   : true,
+                    afterCompletion : function(id, data) { afterECADCompletion(id, data) },
+                })
 
             }
 
@@ -349,6 +409,24 @@ function afterBOMCompletion(id, data) {
 
     completionEvents.bom = true;
 
+    if(includeECAD  ) {
+
+        let elemControls = $('<div></div>').appendTo($('#bom-header')).addClass('panel-controls'); 
+
+        $('<div></div>').appendTo(elemControls)
+            .attr('id', 'mcad-bom-sync')
+            .addClass('button')
+            .addClass('append-icon')
+            .addClass('default')
+            .html('Sync')
+            .click(function() {
+                syncItemsList();
+            });
+
+    // #bom-sync.disabled.button.default.with-icon.icon-refresh.hidden(title="Synchronize grid entries with the BOM tree") Sync with BOM
+
+    }
+
     getMatchingBOMItems(data.bomPartsList);
     addBOMIconColumn(id);
     insertTabControls();
@@ -383,6 +461,7 @@ function matchBOMViewerInstances() {
     if(!completionEvents.bom   ) return;
 
     if(completionEvents.grids === workspaces.length) {
+        $('#mode').removeClass('disabled');
         $('#bom-sync').removeClass('disabled');
         $('#excel-export').removeClass('disabled');
     }
@@ -527,6 +606,13 @@ function insertTabContents() {
             
             insertGrid(workspace.link, {
                 id                : workspace.id,
+                attributes : [
+                    { name : 'data-part-number'  , fieldId : workspace.fieldsList.partNumber   },
+                    { name : 'data-tag'          , fieldId : workspace.fieldsList.tag          },
+                    { name : 'data-instance-path', fieldId : workspace.fieldsList.instancePath },
+                    { name : 'data-source'       , fieldId : workspace.fieldsList.source       }
+                ],
+                contentSize       : 's',
                 autoSave          : true,
                 counters          : false,
                 editable          : true,
@@ -603,7 +689,7 @@ function applyViewerColors() {
 
 
 // Filter tables upon BOM selection
-function onSelectBOMItem(elemClicked) {
+function onClickBOMItem(elemClicked) {
 
     let selected = $('#bom-tbody').find('tr.selected').length;
 
@@ -614,14 +700,15 @@ function onSelectBOMItem(elemClicked) {
 
         $('#items').find('tr.content-item').removeClass('hidden');
         $('#items').find('tr.table-group').removeClass('hidden');
+
         viewerResetSelection();
         applyViewerColors();
-
         insertDetails(links.ebom, paramsDetails);
+        gridResetSelection('ecad');
 
     } else {
 
-        let path       = getBOMItemPath(elemClicked);
+        let path       = getTreeItemPath(elemClicked).string;
         let partNumber = elemClicked.attr('data-part-number');
         let index     = 0;
 
@@ -637,7 +724,7 @@ function onSelectBOMItem(elemClicked) {
                 let gridRow   = getGridRowDetails(elemRow, workspace.fieldsList);
                 let elemGroup = elemRow.prevAll('.table-group').first();
 
-                if(gridRow.path.indexOf(path.string) < 0) {
+                if(gridRow.path.indexOf(path) < 0) {
                     elemRow.addClass('hidden');
                     // elemRow.prev('.table-group').addClass('hidden');
                     if(!elemGroup.hasClass('keep')) elemGroup.addClass('hidden');
@@ -653,6 +740,10 @@ function onSelectBOMItem(elemClicked) {
 
         viewerSelectModel(partNumber);
         insertDetails(elemClicked.attr('data-link'), paramsDetails);
+
+        gridSelectRows('ecad', [
+            { attribute : 'data-part-number', value : elemClicked.attr('data-part-number') }
+        ]);
 
     }
 
@@ -670,6 +761,9 @@ function afterGridCompletion(id) {
     let elemTHead   = $('#' + id + '-thead');
     let elemTBody   = $('#' + id + '-tbody');
     let elemTHRow   = elemTHead.children().first();
+    let syncLabel   = (links.ecad === '') ? 'BOM Sync' : 'MCAD Sync';
+
+    elemTHead.find('.field-id-SOURCE').html('<span class="icon icon-script"></span>');
 
     if(isAddin) {
         if(elemToggle.length === 0) {
@@ -692,13 +786,22 @@ function afterGridCompletion(id) {
         selectGridItem($(this).closest('tr'));
     });
 
+    if(includeECAD) {
+    $('<th></th>').insertAfter(elemTHRow.children().first())
+        .addClass('column-bom-matches')
+        .html('M/E Match');
+    }
+
     $('<th></th>').insertAfter(elemTHRow.children().first())
         .addClass('sync-status')
-        .html('BOM Sync');
+        .html(syncLabel);
 
     elemTBody.children('.content-item').each(function() {
 
         let elemRow  = $(this);
+
+        insertBOMMatchesIcons(elemRow);
+
         let elemCell = $('<td></td>').insertAfter(elemRow.children().first()).addClass('sync-status');
 
         elemRow.attr('data-mapped', false);
@@ -707,12 +810,104 @@ function afterGridCompletion(id) {
             .addClass('icon')
             .addClass('icon-help-circle');
 
+        
+
     });
 
     if(completionEvents.grids === workspaces.length) {
+        $('#mode').removeClass('disabled');
         $('#bom-sync').removeClass('disabled');
         $('#excel-export').removeClass('disabled');
     }
+
+}
+function insertBOMMatchesIcons(elemRow) {
+
+    if(!includeECAD) return;
+
+    let elemCell = $('<td></td>').insertAfter(elemRow.children().first()).addClass('column-bom-matches');
+
+    let elemIcons = $('<div></div>').appendTo(elemCell)
+        .addClass('bom-match-icons');
+
+    $('<div></div>').appendTo(elemIcons)
+        .addClass('icon')
+        .addClass('bom-match-icon')
+        .addClass('mechanical');
+
+    $('<div></div>').appendTo(elemIcons)
+        .addClass('icon')
+        .addClass('bom-match-icon')
+        .addClass('electrical');
+
+    let classNameMCAD = getMCADMatchIcon(elemRow);
+    let classNameECAD = getECADMatchIcon(elemRow);
+
+    elemRow.addClass(classNameMCAD);
+    elemRow.addClass(classNameECAD);
+
+}
+function getMCADMatchIcon(elemRow) {
+
+    let className       = 'no-mcad-match';
+    let partNumber      = elemRow.attr('data-part-number');
+    let instancePath    = elemRow.attr('data-instance-path');
+    let matchesNumber   = false;
+    let matchesInstance = false;
+    let viewerInstances = viewerGetComponentsInstances([partNumber])[0];
+
+    for(let viewerInstance of viewerInstances.instances) {
+        if(instancePath == viewerInstance.instancePath) {
+            matchesInstance = true;
+            matchesNumber = true;
+        }
+    }
+
+    if(!matchesInstance) {
+        if(viewerInstances.length > 0) matchesNumber = true;
+    }
+
+    if(matchesNumber) {
+        if(matchesInstance) className = 'mcad-instance-match';
+        else className = 'mcad-match';
+    }
+
+    return className
+
+}
+function getECADMatchIcon(elemRow) {
+
+    let className     = 'no-ecad-match';
+    let partNumber    = elemRow.attr('data-part-number');
+    let tag           = elemRow.attr('data-tag');
+    let matchesNumber = false;
+    let matchesTag    = false;
+
+    $('#ecad-tbody').children('.content-item').each(function() {
+
+        if(!matchesTag) {
+
+            let elemECAD   = $(this);
+            let ecadNumber = elemECAD.attr('data-part-number');
+            let ecadTag    = elemECAD.attr('data-tag');
+
+            if(tag == ecadTag) {
+                matchesTag    = true;
+                matchesNumber = (partNumber === ecadNumber);
+            } else if(!matchesNumber) {
+                matchesNumber = (partNumber === ecadNumber);
+            }
+
+        }
+
+    });
+
+    if(matchesNumber) {
+        if(matchesTag) className = 'ecad-tag-match';
+        else className = 'ecad-match';
+    }
+
+    return className;
 
 }
 function selectGridItem(elemClicked) {
@@ -721,12 +916,13 @@ function selectGridItem(elemClicked) {
     let isHighlighted = elemClicked.hasClass('highlighted');
     let index         = elemPanel.index();
     let rowData       = getGridRowDetails(elemClicked, workspaces[index].fieldsList);
+    let id            = elemPanel.attr('id');
 
     $('.content-item.selected').removeClass('selected');
 
     elemClicked.addClass('selected');
 
-    togglePanelToolbarActions(elemClicked);
+    togglePanelToolbarActions(id);
 
     if(isHighlighted) return;
 
@@ -766,6 +962,12 @@ function selectGridItem(elemClicked) {
 
         viewerHighlightInstances(rowData.partNumber, [], [rowData.instancePath], {});
 
+        gridSelectRows('ecad', [
+            { attribute : 'data-part-number', value  : elemClicked.attr('data-part-number') }
+        ],[
+            { attribute : 'data-tag', value  : elemClicked.attr('data-tag') }
+        ]);
+
         elemClicked.prevUntil('.table-group').each(function() { $(this).addClass('related'); })
         elemClicked.nextUntil('.table-group').each(function() { $(this).addClass('related'); })
 
@@ -800,6 +1002,79 @@ function afterGridSave(id) {
     if(--pendingProcesses > 0) $('#overlay').show();
 
 }
+
+
+
+// ECAD BOM 
+function afterECADCompletion(id, data) {
+
+    $('#' + id).find('.content-item').each(function() {
+
+        let elemRow = $(this);
+        let link    = elemRow.attr('data-link');
+        let rowId   = link.split('/').pop();
+
+        // for(let row of data.rows) {
+            
+        //     let dataId = getGridRowId(row);
+
+        //     if(rowId == dataId) {
+                
+        //         let number = getGridRowValue(row, 'NUMBER', '');
+        //         let tag    = getGridRowValue(row, 'TAG', '');
+                
+        //         elemRow.attr('data-part-number', number);
+        //         elemRow.attr('data-tag', tag);
+                
+        //         break;
+
+        //     }
+        // }
+
+        elemRow.click(function() {
+
+            selectECADInstance($(this));
+
+        });
+
+    });
+
+}
+function selectECADInstance(elemClicked) {
+
+    let number       = elemClicked.attr('data-part-number');
+    let tag          = elemClicked.attr('data-tag');
+    let instancePath = '';
+
+    if(isBlank(number)) return;
+
+    for(let workspace of workspaces) {
+
+        gridResetSelection(workspace.id);
+
+        let rows = gridFilterRows(workspace.id, [ { attribute : 'data-part-number', value : number } ]);
+
+        // select tab if grid rows.length > 0
+
+        for(let row of rows) {
+            if(row.attr('data-tag') == tag) {
+                instancePath = row.attr('data-instance-path');
+                row.addClass('highlighted');
+            }
+        }
+
+    }
+
+    console.log(instancePath);
+
+    if(instancePath === '') bomDisplayItemByPartNumber(number, true, true); else bomDisplayItemByPath(rowData.instancePath);
+
+    viewerHighlightInstances(number, [], [instancePath], {});
+
+
+}
+
+
 
 
 // Highlight matching instance upon selection in Inventor
@@ -872,6 +1147,8 @@ function onViewerSelectionChanged(event) {
 }
 function selectContentRow(elemRow) {
 
+    console.log('selectContentRow');
+
     let partNumber = elemRow.attr('data-part-number');
     let dbId       = elemRow.attr('data-viewer-dbid');
     
@@ -918,7 +1195,8 @@ function syncItemsList() {
             new      : 0,
             match    : 0,
             update   : 0,
-            mismatch : 0
+            mismatch : 0,
+            ecad     : 0
         }
 
         for(let item of workspace.items) {
@@ -990,6 +1268,7 @@ function syncItemsList() {
                     let elemRow  = insertGridRow(workspace.id, null, null, item.partNumber);
                     let elemCell = $('<td></td>').insertAfter(elemRow.children().first()).addClass('sync-status');
 
+                    elemRow.find('.field-id-' + workspace.fieldsList.source      ).children().first().val('M');
                     elemRow.find('.field-id-' + workspace.fieldsList.partNumber  ).children().first().val(item.partNumber);
                     elemRow.find('.field-id-' + workspace.fieldsList.title       ).children().first().val(item.details.TITLE);
                     elemRow.find('.field-id-' + workspace.fieldsList.revision    ).children().first().val(item.details.REVISION);
@@ -1005,9 +1284,10 @@ function syncItemsList() {
                     elemRow.addClass('bom-sync-result-new');
 
                     $('<div></div>').appendTo(elemCell)
-                        .addClass('icon')
+                        .addClass('with-icon')
                         .addClass('icon-create')
                         .addClass('filled')
+                        .html('New')
                         .attr('title', 'This line will be added to match the BOM instances');
 
                     let elemActions = $('<div></div>').appendTo(elemCell)
@@ -1037,14 +1317,22 @@ function syncItemsList() {
 
         for(let gridRow of gridRows) {
             if(gridRow.elem.attr('data-mapped') === 'false') {
-                setGridRowSyncStatus(workspace, gridRow, 'mismatch');
-                workspace.counters.mismatch++;
+                let source = gridRow.elem.attr('data-source') || 'M';
+                let isECAD = (source === 'E');
+                if(isECAD) {
+                    setGridRowSyncStatus(workspace, gridRow, 'ecad');
+                    workspace.counters.ecad++;
+                } else {
+                    setGridRowSyncStatus(workspace, gridRow, 'mismatch');
+                    workspace.counters.mismatch++;
+                }
             }
         }
 
-        $('#sync-new'     ).children().eq(iWS + 2).html(workspace.counters.new);
         $('#sync-matches' ).children().eq(iWS + 2).html(workspace.counters.match);
         $('#sync-update'  ).children().eq(iWS + 2).html(workspace.counters.update);
+        $('#sync-new'     ).children().eq(iWS + 2).html(workspace.counters.new);
+        $('#sync-ecad'    ).children().eq(iWS + 2).html(workspace.counters.ecad);
         $('#sync-mismatch').children().eq(iWS + 2).html(workspace.counters.mismatch);
 
         if(refresh) grids.push(iWS);
@@ -1085,6 +1373,7 @@ function getGridRowDetails(elemRow, columns) {
         partNumber   : '',
         path         : '',
         instancePath : '',
+        tag          : '',
         status       : 'mismatch'
     }
 
@@ -1113,6 +1402,10 @@ function getGridRowDetails(elemRow, columns) {
                     gridRow.boundingBox = elemCell.children().first().val();
                     break;
 
+                case columns.tag:
+                    gridRow.tag = elemCell.children().first().val();
+                    break;
+
             }
 
         }           
@@ -1127,7 +1420,7 @@ function setGridRowSyncStatus(workspace, gridRow, status) {
     let elemCell = gridRow.elem.find('.sync-status');
         elemCell.html('');
 
-    let elemIcon = $('<div></div>').appendTo(elemCell).addClass('icon');
+    let elemIcon = $('<div></div>').appendTo(elemCell).addClass('with-icon');
 
     switch(status) {
 
@@ -1135,6 +1428,7 @@ function setGridRowSyncStatus(workspace, gridRow, status) {
             gridRow.elem.addClass('bom-sync-result-match');
             elemIcon.addClass('icon-checkmark')
                 .addClass('filled')
+                .html('Match')
                 .attr('title', 'This line is in sync with the BOM')
             break;
 
@@ -1142,14 +1436,24 @@ function setGridRowSyncStatus(workspace, gridRow, status) {
             gridRow.elem.addClass('bom-sync-result-update');
             elemIcon.addClass('icon-product-alert')
                 .addClass('filled')
+                .html('Update')
                 .attr('title', 'This instance has been moved in the structure, but will be mapped based on matching bounding box');
             break;
+
+        case 'ecad':
+            gridRow.elem.addClass('bom-sync-result-ecad');
+            elemIcon.addClass('icon-cpu')
+                .addClass('filled')
+                .html('ECAD Item')
+                .attr('title', 'This instance has been added from ECAD BOM');
+            break;            
 
         case 'mismatch':
             gridRow.elem.addClass('bom-sync-result-mismatch');
             elemIcon.addClass('icon-warning')
                 .attr('title', 'Requires manual action as there is no match in BOM')
                 .addClass('filled')
+                // .html('Requires Action')
                 .css('color', colors.list[workspace.colorIndex]);
 
             let elemActions = $('<div></div>').appendTo(elemCell)

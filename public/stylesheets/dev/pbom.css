@@ -158,16 +158,11 @@
 }
 /* th.column-status { background : var(--color-surface-level-2) !important; } */
 
-.bom-column-make_or_buy {
+.tree-column-make_or_buy {
     max-width : 40px;
     min-width : 40px;
     width     : 40px;
 }
-/* .bom-column-type {
-    max-width : 100px;
-    min-width : 100px;
-    width : 100px;
-} */
 /* .column-type {
     max-width : 36px;
     min-width : 36px;

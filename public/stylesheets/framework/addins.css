@@ -194,8 +194,8 @@
 .addin .panel-title-main {
     font-size   : 14px;
     font-weight : 600;
-    height      : 34px;
-    line-height : 34px;
+    height      : 28px;
+    line-height : 28px;
 }
 .addin .panel-title-sub {
     font-size   : 11px;
@@ -221,10 +221,15 @@
     margin-top : 4px;
 }
 .addin .panel-summary {
-    overflow        : hidden;
-    text-overflow   : ellipsis;
+    font-size       : 11px;
+    max-height      : 14px;
+    min-height      : 14px;
+    height          : 14px;
+    line-height     : 14px;
     min-width       : unset;
     width           : unset;
+    overflow        : hidden;
+    text-overflow   : ellipsis;
 }
 /* .addin .panel-controls,
 .addin .panel-actions {
@@ -409,7 +414,7 @@
     max-width : 28px;
     width     : 28px;
 }
-.addin .table-check-box {
+.addin .content-item-check-box {
     max-width : 24px;
     min-width : 24px;
     width     : 24px;
@@ -418,7 +423,7 @@
     font-size : 16px;
     top       : 4px;
 }
-.addin .panel-content.s th.table-check-box > .icon,
+.addin .panel-content.s th.content-item-check-box > .icon,
 .addin .panel-content.s tr.content-item > td > .icon {
     font-size : 16px;
 }
@@ -448,36 +453,16 @@
 
 /*  BOM */
 /* ----------------------------------------------------------------------------- */
-/* .addin .bom-nav {
-    font-size   : 16px;
-    line-height : 26px;
-    top         : 0px;
-}
-.addin .bom-first-col {
-    display        : flex;
-    height         : 24px;
-    line-height    : 24px;
-    padding-top    : 0px;
-    padding-bottom : 0px;
-} */
-.addin .bom-descriptor {
+.addin .tree-descriptor {
     flex-grow : 1;
 }
-.addin .bom-number,
-.addin .bom-descriptor {
+.addin .tree-number,
+.addin .tree-descriptor {
     padding : 0px;
 }
 .addin .panel-counters {
     font-size : 11px;
     padding   : 2px 12px;
-}
-.addin .bom-path { 
-    height : 24px; 
-    right  : 52px; 
-}
-.addin .bom-path > div {
-    height      : 24px;
-    line-height : 24px;
 }
 .addin .panel-counters {
     padding-top    : 1px;
@@ -487,13 +472,8 @@
     padding-top    : 2px;
     padding-bottom : 1px;
 }
-.addin .panel-top.with-panel-counters.with-bom-path  > .panel-content,
 .addin .panel-top.with-panel-counters.with-tree-path > .panel-content {
     bottom : 54px;
-}
-.addin .panel-top.with-panel-counters.with-bom-path > .bom-path,
-.addin .panel-top.with-panel-counters.with-bom-path > .bom-go-to {
-    bottom : 26px;
 }
 .addin .tree-path {
     height : 24px;
@@ -523,9 +503,15 @@
 .addin .field-label,
 .addin .field-value,
 .addin .field-value .field-unit {
-    height: 22px;
-    line-height: 22px !important;
-    padding-top: 0px !important;
+    line-height : 22px !important;
+    padding-top : 0px !important;
+}
+.addin .field-editable input,
+.addin .field-editable .picklist-controls {
+    max-height  : 22px;
+    min-height  : 22px;
+    height      : 22px;
+    line-height : 22px;
 }
 .addin .field-value .field-unit {
     padding : 0px 0px 0px 8px !important;
@@ -548,6 +534,25 @@
 }
 .addin .radio-icon {
     font-size : 16px;
+}
+.addin .picklist {
+    margin-top : 28px;
+}
+.addin .field-type-multi-select {
+    background     : none !important;
+    flex-direction : column;
+    gap            : 6px;
+}
+.addin .picklist.with-footer .picklist-options {
+    bottom : 38px;
+}
+.addin .picklist-footer {
+    line-height : 22px;
+    padding     : 6px 18px;
+}
+.addin .picklist-next::before {
+    top   : 7px;
+    right : 18px;
 }
 
 

@@ -296,8 +296,8 @@ function insertCreate(workspaceNames, workspaceIds, params) {
         [ 'fieldValues'         , [] ],
         [ 'contextId'           , null ],
         [ 'contextItem'         , null ],
-        [ 'contextItemField'    , null ],
         [ 'contextItems'        , [] ],
+        [ 'contextItemField'    , null ],
         [ 'contextItemsField'   , null ],
         [ 'contextItemFields'   , [] ],
         [ 'viewerImageFields'   , [] ],
@@ -317,19 +317,19 @@ function insertCreate(workspaceNames, workspaceIds, params) {
     settings[id].derived  = [];
     settings[id].load     = function() { insertCreateData(id); }
 
-    genPanelTop   (id, settings[id], 'create');
-    genPanelHeader(id, settings[id]);
-    genPanelToggleButtons(id, settings[id], function() {
+    genPanelTop   (id, 'create');
+    genPanelHeader(id);
+    genPanelToggleButtons(id, function() {
         $('#' + id + '-content').find('.section.collapsed').click();
     }, function() {
         $('#' + id + '-content').find('.section.expanded').click();
     });
-    genPanelResizeButton(id, settings[id]);
-    genPanelReloadButton(id, settings[id]);
-    genPanelContents    (id, settings[id]).addClass(settings[id].layout).addClass('sections');
+    genPanelResizeButton(id);
+    genPanelReloadButton(id);
+    genPanelContents    (id).addClass(settings[id].layout).addClass('sections');
 
     if(settings[id].cancelButton) {
-        genPanelFooterActionButton(id, settings[id], 'cancel', {
+        genPanelFooterActionButton(id, 'cancel', {
 
             label   : settings[id].cancelButtonLabel,
             icon    : settings[id].cancelButtonIcon,
@@ -344,7 +344,7 @@ function insertCreate(workspaceNames, workspaceIds, params) {
         });
     }
 
-    genPanelFooterActionButton(id, settings[id], 'save', {
+    genPanelFooterActionButton(id, 'save', {
 
         label   : settings[id].createButtonLabel,
         icon    : settings[id].createButtonIcon,
@@ -398,7 +398,7 @@ function insertCreate(workspaceNames, workspaceIds, params) {
 
             } else {
 
-                let elemToolbar = genPanelToolbar(id, settings[id], 'actions').css('justify-content', 'center');
+                let elemToolbar = genPanelToolbar(id, 'actions').css('justify-content', 'center');
 
                 $('<span></span>').appendTo(elemToolbar)
                     .html('Select workspace of new record:');
@@ -467,7 +467,7 @@ function insertCreateData(id) {
     }
 
     if(!isBlank(settings[id].contextItem)) {
-        if(typeof contextItem === 'string') {
+        if(typeof settings[id].contextItem === 'string') {
             requests.push($.get('/plm/details', { link : settings[id].contextItem }));
         }
     }
@@ -516,7 +516,6 @@ function insertCreateData(id) {
 
         insertDetailsFields(id, responses[0].data, responses[1].data, null, settings[id], bookmarks, recents, function() {
 
-
             if(settings[id].contextItems.length > 0) {
 
                 let index = 0;
@@ -557,11 +556,15 @@ function insertCreateData(id) {
             if(!isBlank(settings[id].contextItem)) {
 
                 if(!isBlank(settings[id].contextItemField)) {
+
+                    let response = getResponseFromResponses(responses, '/plm/details', settings[id].contextItem);
+
                     settings[id].fieldValues.push({
                         fieldId      : settings[id].contextItemField,
                         value        : settings[id].contextItem,
-                        displayValue : responses[2].data.title
+                        displayValue : response.data.title
                     });
+
                 }
 
                 // for(let contextItemField of settings[id].contextItemFields) {
@@ -581,17 +584,17 @@ function insertCreateData(id) {
                 });
             }
 
-            insertCreateDataSetFieldValues(id, settings[id]);
-            finishPanelContentUpdate(id, settings[id]);
+            insertCreateDataSetFieldValues(id);
+            finishPanelContentUpdate(id);
             
         });
 
     });
 
 }
-function insertCreateDataSetFieldValues(id, settings) {
+function insertCreateDataSetFieldValues(id) {
 
-    if(isBlank(settings.fieldValues)) return;
+    if(isBlank(settings[id].fieldValues)) return;
 
     $('#' + id + '-content').find('.field-value').each(function() {
 
@@ -600,13 +603,14 @@ function insertCreateDataSetFieldValues(id, settings) {
 
         if(!isBlank(fieldId)) {
 
-            for(let fieldValue of settings.fieldValues) {
+            for(let fieldValue of settings[id].fieldValues) {
 
                 if(fieldValue.fieldId === fieldId) {
 
                     if(isBlank(fieldValue.viewerImage)) { 
 
                         elemField.removeClass('field-editable').addClass('field-locked');
+                        elemField.find('input').attr('disabled', 'disabled');
                         setFieldValue(elemField, fieldValue.value, fieldValue.displayValue);
 
                     } else {
@@ -1123,10 +1127,11 @@ function clearAllFormFields(id) {
 
 
 // Insert Item Details
-function insertDetails(link, params) {
+function insertDetails(link, params, data) {
 
-    if(isBlank(link)) return;
+    if(isBlank(link  )) return;
     if(isBlank(params)) params = {};
+    if(isBlank(data  )) data   = {};
 
     let id = isBlank(params.id) ? 'details' : params.id;
     
@@ -1155,27 +1160,31 @@ function insertDetails(link, params) {
         [ 'afterCloning'       , function(id, link) { console.log('New item link : ' + link ); } ]
     ]);
 
-    settings[id].load = function() { insertDetailsData(id); }
+    settings[id].sections    = data.sections    || [];
+    settings[id].fields      = data.fields      || [];
+    settings[id].permissions = data.permissions || [];
+    settings[id].picklists   = data.picklists   || [];
+    settings[id].load        = function() { insertDetailsData(id); }
 
-    genPanelTop   (id, settings[id], 'details');
-    genPanelHeader(id, settings[id]);
-    genPanelToggleButtons(id, settings[id], function() {
+    genPanelTop            (id, 'details');
+    genPanelHeader         (id);
+    genPanelToggleButtons  (id, function() {
         $('#' + id + '-content').find('.section.collapsed').click();
     }, function() {
         $('#' + id + '-content').find('.section.expanded').click();
     });
-    genPanelBookmarkButton (id, settings[id]);
-    genPanelCloneButton    (id, settings[id]);
-    genPanelOpenInPLMButton(id, settings[id]);
-    genPanelWorkflowActions(id, settings[id]);
-    genPanelSearchInput    (id, settings[id]);
-    genPanelResizeButton   (id, settings[id]);
-    genPanelReloadButton   (id, settings[id]);
-    genPanelContents       (id, settings[id]).addClass(settings[id].layout).addClass('sections');
+    genPanelBookmarkButton (id);
+    genPanelCloneButton    (id);
+    genPanelOpenInPLMButton(id);
+    genPanelWorkflowActions(id);
+    genPanelSearchInput    (id);
+    genPanelResizeButton   (id);
+    genPanelReloadButton   (id);
+    genPanelContents       (id).addClass(settings[id].layout).addClass('sections');
 
     if(settings[id].cloneDialog) {
 
-        genPanelFooterActionButton(id, settings[id], 'clone-cancel', {
+        genPanelFooterActionButton(id, 'clone-cancel', {
             label   : 'Cancel',
             title   : 'Cancel',
             default : false
@@ -1184,7 +1193,7 @@ function insertDetails(link, params) {
             $('#' + id).hide();
         });
 
-        genPanelFooterActionButton(id, settings[id], 'clone-confirm', {
+        genPanelFooterActionButton(id, 'clone-confirm', {
             label   : 'Clone',
             title   : 'Create clone in PLM',
             default : true
@@ -1199,7 +1208,7 @@ function insertDetails(link, params) {
 
     } else if(settings[id].editable) {
 
-        genPanelFooterActionButton(id, settings[id], 'save', {
+        genPanelFooterActionButton(id, 'save', {
 
             label   : settings[id].saveButtonLabel,
             title   : 'Save changes to PLM',
@@ -1226,28 +1235,39 @@ function insertDetailsData(id) {
 
     settings[id].timestamp = startPanelContentUpdate(id);
 
-    let requests = [ 
-        $.get('/plm/details' , { link : settings[id].link, timestamp : settings[id].timestamp }),
-        $.get('/plm/sections', { wsId : settings[id].link.split('/')[4], useCache : settings[id].useCache }),
-        $.get('/plm/fields'  , { wsId : settings[id].link.split('/')[4], useCache : settings[id].useCache })
-    ];
+    let requestor = 'item.js | insertDetailsData()';
 
-    if((settings[id].bookmark) ) requests.push($.get('/plm/bookmarks'  , { link : settings[id].link }));
-    if((settings[id].cloneable)) requests.push($.get('/plm/permissions', { link : settings[id].link }));
-    if((settings[id].picklistShortcuts)) {
-        requests.push($.get('/plm/bookmarks'));
-        requests.push($.get('/plm/recent'));
+    let params = { 
+        link      : settings[id].link, 
+        timestamp : settings[id].timestamp,
+        requestor : requestor
     }
+
+    let requests = [ $.get('/plm/details', params) ];
+
+    params.useCache = settings[id].useCache;
+
+    if(settings[id].sections.length === 0) requests.push($.get('/plm/sections', params));
+    if(settings[id].fields.length   === 0) requests.push($.get('/plm/fields'  , params));
+
+    if((settings[id].cloneable)) requests.push($.get('/plm/permissions', { link : settings[id].link, requestor : requestor}));
+
+    if((settings[id].picklistShortcuts) && (settings[id].editable)) {
+        requests.push($.get('/plm/bookmarks', { requestor : requestor }));
+        requests.push($.get('/plm/recent'   , { requestor : requestor }));
+    } else if((settings[id].bookmark) ) requests.push($.get('/plm/bookmarks', { requestor : requestor }));
 
     Promise.all(requests).then(function(responses) {
 
         if(stopPanelContentUpdate(responses[0], settings[id])) return;
 
-        settings[id].sections   = responses[1].data;
+        if(settings[id].sections.length === 0) settings[id].sections = getResponseFromResponses(responses, '/plm/sections', settings[id].link).data;
+        if(settings[id].fields.length   === 0) settings[id].fields   = getResponseFromResponses(responses, '/plm/fields'  , settings[id].link).data;
+
         settings[id].descriptor = responses[0].data.title;
 
-        setPanelBookmarkStatus(id, settings[id], responses);
-        setPanelCloneStatus(id, settings[id], responses);
+        setPanelBookmarkStatus(id, responses);
+        setPanelCloneStatus(id, responses);
 
         if(settings[id].workflowActions) {
             insertWorkflowActions(settings[id].link, {
@@ -1261,15 +1281,16 @@ function insertDetailsData(id) {
         let recents   = [];
 
         if((settings[id].picklistShortcuts)) {
-            bookmarks = responses[responses.length - 2].data.bookmarks;
-            recents   = responses[responses.length - 1].data.recentlyViewedItems;
+            bookmarks = getResponseFromResponses(responses, '/plm/bookmarks').data;
+            recents   = getResponseFromResponses(responses, '/plm/recent'   ).data;
+            if(!bookmarks.hasOwnProperty('bookmarks'        )) bookmarks.bookmarks         = [];
+            if(!recents.hasOwnProperty('recentlyViewedItems')) recents.recentlyViewedItems = [];;
         }
 
-        insertDetailsFields(id, responses[1].data, responses[2].data, responses[0].data, settings[id], bookmarks, recents, function() {
-            finishPanelContentUpdate(id, settings[id]);
-            insertDetailsDataDone(id, responses[1].data, responses[2].data, responses[0].data);
+        insertDetailsFields(id, null, null, responses[0].data, settings[id], bookmarks, recents, function() {
+            finishPanelContentUpdate(id);
+            insertDetailsDataDone(id, responses[0].data);
         });
-
 
     });
 
@@ -1278,7 +1299,9 @@ function insertDetailsFields(id, sections, fields, data, panelSettings, bookmark
 
     $('#' + id + '-processing').hide();
 
-    if(isBlank(panelSettings)) panelSettings = {};
+    if(isBlank(sections     )) sections      = settings[id].sections || [];
+    if(isBlank(fields       )) fields        = settings[id].fields   || [];
+    if(isBlank(panelSettings)) panelSettings = settings[id]          || {};
 
     let elemContent = $('#' + id + '-content');
     let sectionsIn  = panelSettings.sectionsIn || [];
@@ -1385,7 +1408,7 @@ function insertDetailsFields(id, sections, fields, data, panelSettings, bookmark
         }
     }
 
-    getFieldsPicklistsData(panelSettings, fields, function(picklistsData) {
+    getFieldsPicklistsData(id, fields, function(picklistsData) {
 
         if(panelSettings.editable) {
             for(let field of fields) {
@@ -1654,12 +1677,17 @@ function submitEdit(link, sections, elemParent, callback) {
     }
         
 }
-function getFieldsPicklistsData(settings, fields, callback) {
+function getFieldsPicklistsData(id, fields, callback) {
     
-    if(!settings.editable) { callback([]); return; }
-    if(isBlank(settings.contextItemFields)) settings.contextItemFields = [];
-    if(isBlank(settings.fieldsIn         )) settings.fieldsIn          = [];
-    if(isBlank(settings.fieldsEx         )) settings.fieldsEx          = [];
+    if(!settings[id].editable) { callback([]); return; }
+
+    if(settings[id].hasOwnProperty('picklists')) {
+        if(settings[id].picklists.length > 0) { callback(settings[id].picklists); return; }
+    }
+
+    if(isBlank(settings[id].contextItemFields)) settings[id].contextItemFields = [];
+    if(isBlank(settings[id].fieldsIn         )) settings[id].fieldsIn          = [];
+    if(isBlank(settings[id].fieldsEx         )) settings[id].fieldsEx          = [];
 
     let picklistsData     = [];
     let picklistsLinks    = [];
@@ -1670,19 +1698,19 @@ function getFieldsPicklistsData(settings, fields, callback) {
         let fieldId   = field.urn.split('.').pop();
         let fieldName = field.name;
 
-        if(fieldId !== settings.contextItemField) {
-            if(!settings.contextItemFields.includes(fieldId)) {
+        if(fieldId !== settings[id].contextItemField) {
+            if(!settings[id].contextItemFields.includes(fieldId)) {
                 if(field.visibility !== 'NEVER') {
                     if(field.editability !== 'NEVER') {
                         if(isBlank(field.visible)) field.visible = true;
                         if(field.visible) {
-                            if(settings.fieldsIn.length === 0 || settings.fieldsIn.includes(fieldId) || settings.fieldsIn.includes(fieldName)) {
-                                if(settings.fieldsEx.length === 0 || ((!settings.fieldsEx.includes(fieldId)) && (!settings.fieldsEx.includes(fieldName)))) {
+                            if(settings[id].fieldsIn.length === 0 || settings[id].fieldsIn.includes(fieldId) || settings[id].fieldsIn.includes(fieldName)) {
+                                if(settings[id].fieldsEx.length === 0 || ((!settings[id].fieldsEx.includes(fieldId)) && (!settings[id].fieldsEx.includes(fieldName)))) {
                                     if(!isBlank(field.picklist)) {
                                         if(!picklistsLinks.includes(field.picklist)) {
                                             picklistsLinks.push(field.picklist);
                                             if(field.type.title === 'Radio Button') {
-                                                let useCache = isBlank(field.picklistFieldDefinition) ? settings.useCache : false;
+                                                let useCache = isBlank(field.picklistFieldDefinition) ? settings[id].useCache : false;
                                                 let limit    = isBlank(field.picklistFieldDefinition) ? 100 : 15;
                                                 picklistsRequests.push($.get('/plm/picklist', { link : field.picklist, limit : limit, useCache : useCache }));
                                             } else {
@@ -1705,12 +1733,9 @@ function getFieldsPicklistsData(settings, fields, callback) {
 
     Promise.all(picklistsRequests).then(function(responses) {   
         for(let response of responses) {
-            picklistsData.push({
-                link       : response.params.link,
-                items      : response.data.items,
-                totalCount : response.data.totalCount
-            });
+            picklistsData.push(response.data);
         }
+        if(settings[id].useCache) settings[id].picklists = picklistsData;
         callback(picklistsData);
     });
 
@@ -2186,6 +2211,7 @@ function insertField(settings, elemParent, field, data, picklistsData, bookmarks
 
     if(field.visibility === 'NEVER') elemParent.addClass('hidden');
 
+    if(isBlank(field.id)) field.id = field.fieldId;
     if(isBlank(field.id)) field.id = field.urn.split('.').pop();
 
     let value     = (field.hasValue) ? field.setValue : getFieldValueFromResponseData(field.id, data) || '';
@@ -2334,8 +2360,10 @@ function insertField(settings, elemParent, field, data, picklistsData, bookmarks
                 });
                 elemInput.on('keyup', function() { 
                     let elemField = $(this).parent();
-                    if($(this).val() !== $(this).attr('data-initial-value')) elemField.addClass('changed');
-                    else elemField.removeClass('changed');
+                    if($(this).val() !== $(this).attr('data-initial-value')) {
+                        elemField.addClass('changed');
+                        matchSelectionAndInstancesOnEdit(elemField);
+                    } else elemField.removeClass('changed');
                     if($(this).val() !== '') $(this).parent().removeClass('required-empty');
                 });
                 if(!isBlank(value)) elemInput.val(value).attr('data-initial-value', value);
@@ -2343,7 +2371,14 @@ function insertField(settings, elemParent, field, data, picklistsData, bookmarks
 
             case 'Date':
                 elemInput.appendTo(elemParent).attr('type', 'date').addClass('date');
-                elemInput.on('change', function() { $(this).parent().addClass('changed')});
+                elemInput.click(function(e) {
+                    e.stopPropagation();
+                });
+                elemInput.on('change', function() { 
+                    let elemField = $(this).parent();
+                    elemField.addClass('changed');
+                    matchSelectionAndInstancesOnEdit(elemField);
+                });
                 if(!isBlank(value)) {
                     if(value.indexOf('/') > -1) {
                         let split = value.split('/');
@@ -2434,10 +2469,12 @@ function insertField(settings, elemParent, field, data, picklistsData, bookmarks
 
         }
 
-        if(field.unitOfMeasure !== null) {
-            $('<div></div>').appendTo(elemParent)
-                .addClass('field-unit')
-                .html(field.unitOfMeasure);
+        if(field.hasOwnProperty('unitOfMeasure')) {
+            if(field.unitOfMeasure !== null) {
+                $('<div></div>').appendTo(elemParent)
+                    .addClass('field-unit')
+                    .html(getUnitAbbreviation(field.unitOfMeasure));
+            }
         }
 
         if(field.required) elemInput.addClass('column-required');
@@ -2446,6 +2483,42 @@ function insertField(settings, elemParent, field, data, picklistsData, bookmarks
 
     return elemInput; 
   
+}
+function matchSelectionAndInstancesOnEdit(elemField) {
+
+    let elemContentItem = elemField.closest('.content-item');
+    let elemContent     = elemContentItem.parent();
+    let isTypeTBody     = elemContent.is('tbody');
+    let topPanel        = getTopPanel(elemField);
+
+
+    if(!isTypeTBody) return;
+
+    let link     = elemContentItem.attr('data-link');
+    let indexRow = elemField.parent().index();
+    let indexCol = elemField.index();
+
+    elemContent.children('.content-item').each(function() {
+
+        let elemRow = $(this);
+
+        if(elemRow.index() !== indexRow) {
+
+            if(elemRow.hasClass('checked') || elemRow.attr('data-link') === link) {
+
+                elemRow.addClass('changed');
+                let elemCopy = elemRow.children().eq(indexCol);
+                copyFieldValue(elemField, elemCopy);
+                elemCopy.addClass('changed');
+
+            }
+
+        }
+
+    });
+
+    updatePanelCalculations(topPanel.id);
+
 }
 function setFieldValue(elemField, value, display) {
 
@@ -2488,6 +2561,13 @@ function setFieldValue(elemField, value, display) {
     } else elemField.children().val(value);
 
 }
+function copyFieldValue(elemSource, elemTarget) {
+
+    let fieldData = getFieldValue(elemSource);
+
+    setFieldValue(elemTarget, fieldData.value, fieldData.display);
+
+}
 function getFieldValueFromResponseData(fieldId, data) {
 
     if(isBlank(data)) return null;
@@ -2503,6 +2583,8 @@ function getFieldValueFromResponseData(fieldId, data) {
             }
         }
 
+    } else if(data.hasOwnProperty(fieldId)) {
+        return data[fieldId];
     } else {
         for(let field of data) {
             let id = field.id || '';
@@ -2533,9 +2615,12 @@ function setFieldDataAndClasses(elem, field, editable) {
 
     if(readonly) editable = false;
     if(editable) elem.addClass('field-editable'); else elem.addClass('field-readonly');
-    if(field.unitOfMeasure !== null) elem.addClass('field-with-unit');
     if(field.type.title === 'URL'  ) elem.addClass('field-with-action');
     if(field.type.title === 'Email') elem.addClass('field-with-action');
+
+    if(field.hasOwnProperty('unitOfMeasure')) {
+        if(field.unitOfMeasure !== null) elem.addClass('field-with-unit');
+    }
 
     switch(field.type.title) {
 
@@ -2587,9 +2672,10 @@ function insertFieldRadios(field, picklistsData, value) {
 
     let elemInput     = $('<div></div>').addClass('radio-options');
     let picklistItems = [];
+    let picklistLink  = field.picklist || field.lookups;
 
     for(let picklist of picklistsData ) {
-        if(picklist.link === field.picklist) {
+        if(picklist.link === picklistLink) {
             picklistItems = picklist.items;
             break;
         }
@@ -2635,10 +2721,16 @@ function insertFieldRadios(field, picklistsData, value) {
 function insertFieldImage(elemParent, value) {
 
     if(isBlank(value)) return;
-    
-    $.get('/plm/image', { link : value.link }, function(response) {
-                                
-        $("<img class='thumbnail' src='data:image/png;base64," + response.data + "'>").appendTo(elemParent);
+
+    if(value.hasOwnProperty('imageFile')) {
+        if(value.imageFile !== '') {
+            $("<img src='/storage/cache/" + value.imageFile + "'>").appendTo(elemParent);
+            return;
+        }
+    }
+
+    $.get('/plm/image-cache', { imageLink : value.link }, function(response) {
+        $("<img src='" + response.data.url + "'>").appendTo(elemParent);
                                 
     });
     
@@ -2657,7 +2749,7 @@ function insertFieldPicklistControls(settings, field, elemParent, value, bookmar
         .addClass('picklist-input')
         .attr('data-last-filter', '')
         .attr('placeholder', 'Type to search')
-        .attr('data-picklist', field.picklist)
+        .attr('data-picklist', field.picklist || field.lookups)
         .attr('data-picklist-ws', field.picklistFieldDefinition || '')
         .keyup(function(e) {
             if(e.key === 'Tab') return;
@@ -2667,7 +2759,6 @@ function insertFieldPicklistControls(settings, field, elemParent, value, bookmar
         })
         .focus(function() {
             $('.picklist').addClass('hidden');
-            elemInput.next().removeClass('hidden');
         });
 
     if(!isBlank(value)) {
@@ -2687,6 +2778,7 @@ function insertFieldPicklistControls(settings, field, elemParent, value, bookmar
 
     let elemPicklist = $('<div></div>').appendTo(elemControls)
         .addClass('picklist')
+        .addClass('box-shadow')
         .addClass('query')
         .addClass('no-scrollbar')
         .addClass('hidden')
@@ -3014,6 +3106,7 @@ function selectPicklistValue(elemClicked) {
     let elemPicklist    = elemClicked.closest('.picklist');
     let isMultiPicklist = elemControls.hasClass('picklist-multi-select');
 
+
     elemClicked.closest('.field-value').addClass('changed');
 
     if(isMultiPicklist) {
@@ -3058,11 +3151,12 @@ function selectPicklistValue(elemClicked) {
 
         elemPicklist.addClass('hidden');
 
-        let elemCell = elemInput.closest('td.field-editable');
+        let elemField = elemInput.closest('td.field-editable');
 
-        if(elemCell.length > 0) {
-            elemCell.addClass('changed');
-            elemCell.parent().addClass('changed');
+        if(elemField.length > 0) {
+            elemField.addClass('changed');
+            elemField.parent().addClass('changed');
+            matchSelectionAndInstancesOnEdit(elemField);
         }
 
     }   
@@ -3407,7 +3501,7 @@ function insertHiddenDetailsField(field, elemFields, fieldValue) {
     elemInput.appendTo(elemValue)
 
 }
-function insertDetailsDataDone(id, sections, fields, data) {}
+function insertDetailsDataDone(id, data) {}
 
 
 
@@ -3473,12 +3567,12 @@ function insertImages(link, params) {
 
     settings[id].load = function() { insertImagesData(id); }
 
-    genPanelTop            (id, settings[id], 'images');
-    genPanelHeader         (id, settings[id]);
-    genPanelBookmarkButton (id, settings[id]);
-    genPanelOpenInPLMButton(id, settings[id]);
-    genPanelReloadButton   (id, settings[id]);
-    genPanelContents       (id, settings[id]).addClass('panel-images');
+    genPanelTop            (id, 'images');
+    genPanelHeader         (id);
+    genPanelBookmarkButton (id);
+    genPanelOpenInPLMButton(id);
+    genPanelReloadButton   (id);
+    genPanelContents       (id).addClass('panel-images');
 
     insertImagesDone(id);
 
@@ -3508,7 +3602,7 @@ function insertImagesData(id) {
 
         settings[id].descriptor = responses[0].data.title;
 
-        setPanelBookmarkStatus(id, settings[id], responses);
+        setPanelBookmarkStatus(id, responses);
 
         for(let section of responses[0].data.sections) {
 
@@ -3540,7 +3634,7 @@ function insertImagesData(id) {
             }
         }
 
-        finishPanelContentUpdate(id, settings[id]);
+        finishPanelContentUpdate(id);
         insertImagesDataDone(id, responses[0].data);
 
     });
@@ -3551,10 +3645,11 @@ function insertImagesDataDone(id, data) {}
 
 
 // Insert attachments as tiles or table
-function insertAttachments(link, params) {
+function insertAttachments(link, params, data) {
 
-    if(isBlank(link)) return;
+    if(isBlank(link  )) return;
     if(isBlank(params)) params = {};
+    if(isBlank(data  )) data   = {};
 
     let id = isBlank(params.id) ? 'attachments' : params.id;
     
@@ -3580,21 +3675,22 @@ function insertAttachments(link, params) {
         [ 'extensionsEx'          , [] ]
     ]);
 
+    settings[id].permissions = data.permissions || [];
     settings[id].load = function() { fileUploadDone(id); }
 
-    genPanelTop            (id, settings[id], 'attachments');
-    genPanelHeader         (id, settings[id]);
-    genPanelBookmarkButton (id, settings[id]);
-    genPanelOpenInPLMButton(id, settings[id]);
-    genPanelFilterSelect   (id, settings[id], 'filterByType', 'type', 'All Types');
-    genPanelSearchInput    (id, settings[id]);
-    genPanelResizeButton   (id, settings[id]);
-    genPanelReloadButton   (id, settings[id]);
-    genPanelContents       (id, settings[id]).addClass('attachments-content');
+    genPanelTop            (id, 'attachments');
+    genPanelHeader         (id);
+    genPanelBookmarkButton (id);
+    genPanelOpenInPLMButton(id);
+    genPanelFilterSelect   (id, 'filterByType', 'type', 'All Types');
+    genPanelSearchInput    (id);
+    genPanelResizeButton   (id);
+    genPanelReloadButton   (id);
+    genPanelContents       (id).addClass('attachments-content');
 
     if(settings[id].editable) {
 
-        let elemToolbar = genPanelToolbar(id, settings[id], 'actions');
+        let elemToolbar = genPanelToolbar(id, 'actions');
 
         let elemUpload = $('<div></div>').prependTo(elemToolbar)
             .addClass('button')
@@ -3721,30 +3817,30 @@ function insertAttachmentsData(id, update) {
     if(!update) elemContent.html(''); 
     if(elemUpload.length > 0) elemUpload.addClass('disabled');
 
-    let requests = [
-        $.get('/plm/attachments', params),
-        $.get('/plm/permissions', { link : settings[id].link })
-    ];
+    let requests = [ $.get('/plm/attachments', params) ];
+
+    if(settings[id].permissions.length === 0) requests.push($.get('/plm/permissions',         { link : settings[id].link }));
+    if(settings[id].includeRelatedFiles     ) requests.push($.get('/plm/related-attachments', { link : settings[id].link })); 
+    if(settings[id].bookmark                ) requests.push($.get('/plm/bookmarks',           { link : settings[id].link })); 
+    if(settings[id].includeVaultFiles       ) requests.push($.get('/plm/details',             { link : settings[id].link })); 
 
     elemContent.hide();
     $('#' + id + '-no-data').hide();
     $('#' + id + '-processing').show();
 
-    if((settings[id].includeRelatedFiles)) requests.push($.get('/plm/related-attachments', { link : settings[id].link })); 
-    if((settings[id].bookmark           )) requests.push($.get('/plm/bookmarks', { link : settings[id].link })); 
-    if((settings[id].includeVaultFiles  )) requests.push($.get('/plm/details', { link : settings[id].link })); 
-
     Promise.all(requests).then(function(responses) {
 
         if(stopPanelContentUpdate(responses[0], settings[id])) return;
 
-        setPanelBookmarkStatus(id, settings[id], responses);
+        setPanelBookmarkStatus(id, responses);
 
         let attachments = responses[0].data;
         let currentIDs  = [];
         let folders     = [];
         let listTypes   = [];
         let listRelated = false;
+
+        if(settings[id].permissions.length === 0) settings[id].permissions = getResponseFromResponses(responses, '/plm/permissions').data;
 
         elemContent.find('.attachment').each(function() {
 
@@ -3899,7 +3995,7 @@ function insertAttachmentsData(id, update) {
                     }
 
                     if(settings[id].download) {
-                        if(hasPermission(responses[1].data, 'view_attachments')) {
+                        if(hasPermission(settings[id].permissions, 'view_attachments')) {
                             elemAttachment.click(function() {
                                 clickAttachment($(this));      
                                 if(!isBlank(settings[id].onItemClick)) settings[id].onItemClick($(this));                          
@@ -3961,7 +4057,7 @@ function insertAttachmentsData(id, update) {
 
         }
 
-        if(hasPermission(responses[1].data, 'add_attachments')) {
+        if(hasPermission(settings[id].permissions, 'add_attachments')) {
             if(elemUpload.length > 0) elemUpload.removeClass('disabled');
         }
 
@@ -3984,7 +4080,7 @@ function insertAttachmentsData(id, update) {
             listTypes.sort();
 
             setPanelFilterOptions(id, 'type', listTypes);
-            finishPanelContentUpdate(id, settings[id]);
+            finishPanelContentUpdate(id);
             insertAttachmentsDone(id, responses[0], update);
 
         });
@@ -4415,6 +4511,7 @@ function insertGrid(link, params) {
         layout      : 'table'
     }, [
         [ 'autoSave'            , false ],
+        [ 'attributes'          , []    ],
         [ 'filterEmpty'         , false ],
         [ 'hideButtonCreate'    , false ],
         [ 'hideButtonClone'     , false ],
@@ -4436,26 +4533,26 @@ function insertGrid(link, params) {
 
     if(isBlank(settings[id].groupBy)) settings[id].toggles = false;
 
-    genPanelTop              (id, settings[id], 'grid');
-    genPanelHeader           (id, settings[id]);
-    genPanelBookmarkButton   (id, settings[id]);
-    genPanelOpenInPLMButton  (id, settings[id]);
-    genPanelSelectionControls(id, settings[id]);
-    genPanelFilterToggleEmpty(id, settings[id]);
-    genPanelToggleButtons    (id, settings[id], 
+    genPanelTop              (id, 'grid');
+    genPanelHeader           (id);
+    genPanelBookmarkButton   (id);
+    genPanelOpenInPLMButton  (id);
+    genPanelSelectionControls(id);
+    genPanelFilterToggleEmpty(id);
+    genPanelToggleButtons    (id, 
         function() {   expandAllTableGroups(id); }, 
         function() { collapseAllTableGroups(id); }
     );    
-    genPanelSearchInput      (id, settings[id]);
-    genPanelResizeButton     (id, settings[id]);
-    genPanelReloadButton     (id, settings[id]);
-    genPanelContents         (id, settings[id]);
+    genPanelSearchInput      (id);
+    genPanelResizeButton     (id);
+    genPanelReloadButton     (id);
+    genPanelContents         (id);
 
     if(settings[id].editable) {
 
-        genPanelAutoSaveToggle(id, settings[id]);
+        genPanelAutoSaveToggle(id);
 
-        let elemToolbar = genPanelToolbar(id, settings[id], 'actions');
+        let elemToolbar = genPanelToolbar(id, 'actions');
 
         $('<div></div>').prependTo(elemToolbar)
             .addClass('button')
@@ -4484,7 +4581,7 @@ function insertGrid(link, params) {
                     insertGridRow(id, null);
                     $('#' + id + '-no-data').hide();
                     $('#' + id + '-content').show();
-                    resetTableSelectAllCheckBox($(this));
+                    resetSelectAllCheckBox(id);
                 });
 
             if(settings[id].hideButtonLabels) elemButtonAdd.addClass('icon'); else elemButtonAdd.addClass('with-icon').html('Insert Row');
@@ -4506,14 +4603,14 @@ function insertGrid(link, params) {
                     e.preventDefault();
                     e.stopPropagation();
                     cloneGridRows(id);
-                    resetTableSelectAllCheckBox($(this));
+                    resetSelectAllCheckBox(id);
                 });
 
             if(settings[id].hideButtonLabels) elemButtonClone.addClass('icon'); else elemButtonClone.addClass('with-icon').html('Clone Selected');                
 
         }
 
-        let elemDisconnect = genPanelDisconnectButton(id, settings[id], function() { deleteGridRows(id); });
+        let elemDisconnect = genPanelDisconnectButton(id, function() { deleteGridRows(id); });
             elemDisconnect.attr('title', 'Removes the selected rows from the view with the next Save operation');
             elemDisconnect.prependTo(elemToolbar);
 
@@ -4536,7 +4633,7 @@ function insertGridData(id) {
         timestamp : settings[id].timestamp,
     }
 
-    let requests    = [
+    let requests = [
         $.get('/plm/grid'        , params),
         $.get('/plm/permissions' , params),
         $.get('/plm/grid-columns', { 
@@ -4562,7 +4659,7 @@ function insertGridData(id) {
 
         if(settings[id].headerLabel == 'descriptor') settings[id].descriptor = responses[responses.length - 1].data.title;
 
-        setPanelBookmarkStatus(id, settings[id], responses);
+        setPanelBookmarkStatus(id, responses);
 
         if(!hasPermission(permissions, 'edit_grid')) settings[id].editable = false;
 
@@ -4572,7 +4669,7 @@ function insertGridData(id) {
         let elemTBody      = $('<tbody></tbody>').appendTo(elemTable).attr('id', id + '-tbody').attr('id', id + '-tbody');
         let elemTHRow      = $('<tr></tr>').appendTo(elemTHead).addClass('fixed');
 
-        getFieldsPicklistsData(settings[id], columns.fields, function(picklistsData) {
+        getFieldsPicklistsData(id, columns.fields, function(picklistsData) {
 
             for(let field of columns.fields) {
                 field.id       = field.__self__.split('/').pop();
@@ -4630,7 +4727,7 @@ function insertGridData(id) {
                     
                     if(settings[id].multiSelect) {
 
-                        elemHeadCell.addClass('table-check-box');
+                        elemHeadCell.addClass('content-item-check-box');
 
                         $('<div></div>').appendTo(elemHeadCell)
                             .attr('id', id + '-select-all')
@@ -4638,9 +4735,7 @@ function insertGridData(id) {
                             .addClass('icon')
                             .addClass('icon-check-box')
                             .click(function(e) {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                clickTableToggleAll($(this));
+                                clickSelectAllCheckbox(e, $(this));
                             });
 
                     }
@@ -4682,9 +4777,7 @@ function insertGridData(id) {
                     let elemTableRow = $('<tr></tr>').appendTo(elemTBody)
                         .addClass('content-item')
                         .click(function(e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            clickContentItemSelect($(this), e);
+                            clickContentItem(e, $(this));
                         });
 
                     $('<th></th>').appendTo(elemTableRow).html(column.name);
@@ -4707,7 +4800,10 @@ function insertGridData(id) {
                 if(hasPermission(permissions, 'delete_from_grid')) { $('#' + id + '-action-remove').removeClass('hidden'); } else { $('#' + id + '-action-remove').remove(); }
             }
 
-            finishPanelContentUpdate(id, settings[id]);
+            finishPanelContentUpdate(id, null, null, {
+                rows    : rows,
+                columns : columns
+            });
             insertGridDataDone(id, rows, columns);
 
         });
@@ -4779,8 +4875,7 @@ function insertGridRow(id, row, picklistsData, groupName) {
 
         $('<td></td>').appendTo(elemTableRow)
             .html('<div class="icon icon-check-box"></div>')
-            .addClass('content-item-check-box')
-            .addClass('table-check-box');
+            .addClass('content-item-check-box');
 
     }
 
@@ -4799,6 +4894,12 @@ function insertGridRow(id, row, picklistsData, groupName) {
             elemCell.attr('data-value', value);
         }
         
+        for(let attribute of settings[id].attributes) {
+            if(attribute.fieldId == field.id) {
+                elemTableRow.attr(attribute.name, getGridRowValue(row, field.id, '', 'title'));
+            }
+        }
+
     } 
 
     setGridRowEvents(id, elemTableRow);
@@ -4809,26 +4910,18 @@ function insertGridRow(id, row, picklistsData, groupName) {
 function setGridRowEvents(id, elemRow) {
 
     elemRow.click(function(e) {
-        clickContentItemSelect($(this), e);
-        if(!isBlank(settings[id].onClickItem)) settings[id].onClickItem($(this));
-    }).dblclick(function() {
+        clickContentItem(e, $(this));
+    }).dblclick(function(e) {
+        e.preventDefault();
+        e.stopPropagation();
         if(!isBlank(settings[id].onDblClickItem)) settings[id].onDblClickItem($(this));
     });
 
-    let elemCheckbox = elemRow.children('td.table-check-box');
+    let elemCheckbox = elemRow.children('td.content-item-check-box');
 
     if(elemCheckbox.length > 0) {
         elemCheckbox.click(function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            let elemContentItem = $(this).closest('.content-item');
-                elemContentItem.toggleClass('checked');
-            clickContentItemSelect(elemContentItem);
-            resetTableSelectAllCheckBox(elemContentItem);
-        })              
-        .dblclick(function(e){
-            e.preventDefault();
-            e.stopPropagation();
+            clickContentItemCheckbox(e, $(this));
         });
     }
 
@@ -4865,7 +4958,6 @@ function changedGridValue(elemInput) {
             $(this).children().eq(index).children().first().val(value);
         });
 
-        updateListCalculations(id);
         updatePanelCalculations(id);
 
     }
@@ -5007,7 +5099,6 @@ function saveGridData(id) {
         elemTBody.find('.changed').removeClass('changed');
         cleanupEmptyGridGroups(id);
         $('#overlay').hide();
-        updateListCalculations(id);
         updatePanelCalculations(id);
 
         if(elemTBody.children().length === 0) {
@@ -5048,42 +5139,143 @@ function cleanupEmptyGridGroups(id) {
     });
 
 }
+function gridFilterRows(id, filters) {
+
+    let result = [];
+
+    if(isBlank(filters)) return result;
+
+    let elemTBody = $('#' + id + '-tbody');
+        elemTBody.children('.hidden').removeClass('hidden');
+
+    elemTBody.children().each(function() {
+
+        let elemRow = $(this);
+        let visible = true;
+
+        for(let filter of filters) {
+
+            let value = elemRow.attr(filter.attribute) || '';
+
+            if(value != filter.value) {
+                visible = false;
+                break;
+            }
+
+        }
+
+        if(!visible) elemRow.addClass('hidden'); else result.push(elemRow);
+
+    });
+
+    return result;
+
+}
+function gridSelectRows(id, filtersSelect, filtersHighlight) {
+
+    if(isBlank(filtersHighlight)) filtersHighlight = [];
+
+    let elemTBody = $('#' + id + '-tbody');
+        elemTBody.find('.selected'   ).removeClass('selected'   );
+        elemTBody.find('.highlighted').removeClass('highlighted');
+
+    elemTBody.children('.content-item').each(function() {
+
+        let elemRow  = $(this);
+        let selected = true;
+
+        for(let filterSelect of filtersSelect) {
+
+            let value = elemRow.attr(filterSelect.attribute) || '';
+
+            if(value != filterSelect.value) {
+                selected = false;
+                break;
+            }
+
+        }
+
+        if(selected) {
+
+            elemRow.addClass('selected'); 
+
+            if(filtersHighlight.length > 0) {
+
+                let highlighted = true;
+
+                for(let filterHighlight of filtersHighlight) {
+
+                    let value = elemRow.attr(filterHighlight.attribute) || '';
+
+                    if(value != filterHighlight.value) {
+                        highlighted = false;
+                        break;
+                    }
+
+                }            
+                
+                if(highlighted) elemRow.addClass('highlighted'); 
+
+            }
+
+        }
+
+    });
+
+}
+function gridResetSelection(id, unhideAll) {
+
+    if(isBlank(unhideAll)) unhideAll = false;
+
+    $('#' + id).find('.selected').removeClass('selected');
+    $('#' + id).find('.highlighted').removeClass('highlighted');
+
+    if(unhideAll) $('#' + id + '-tbody').children('.hidden').removeClass('hidden');
+
+}
 
 
 // Insert BOM tree with selected controls
-function insertBOM(link , params) {
+function insertBOM(link , params, data) {
 
-    if(isBlank(link)) return;
+    if(isBlank(link  )) return;
     if(isBlank(params)) params = {};
+    if(isBlank(data  )) data   = {};
 
     let id          = isBlank(params.id) ? 'bom' : params.id;
     let hideDetails = true;
     
-    if(!isBlank(params.fieldsIn)) hideDetails = false;
-    if(!isBlank(params.fieldsEx)) hideDetails = false;
+    if(!isBlank(params.fieldsIn       )) hideDetails = false;
+    if(!isBlank(params.fieldsEx       )) hideDetails = false;
+    if(!isBlank(params.bomViewSelector)) hideDetails = false;
 
     settings[id] = getPanelSettings(link, params, {
         headerLabel : 'BOM',
         contentSize : 'm',
+        layout      : 'tree',
     }, [
         [ 'additionalRequests'  , []    ],
+        [ 'bomViewSelector'     , false ],
         [ 'bomViewName'         , ''    ],
+        [ 'bomViewId'           , ''    ],
         [ 'depth'               , 10    ],
         [ 'endItemFieldId'      , ''    ],
         [ 'endItemValue'        , ''    ],
-        [ 'getFlatBOM'          , false ],
         [ 'goThere'             , false ],
+        [ 'hideNumber'          , false ],
         [ 'hideDescriptor'      , false ],
         [ 'hideDetails'         , hideDetails ],
-        [ 'includeBOMPartList'  , false ],
+        [ 'hideTableHeader'     , false ],
+        [ 'includeBOMPartList'  , true  ],
         [ 'path'                , false ],
         [ 'position'            , true  ],
         [ 'revisionBias'        , 'release' ],
+        [ 'saveButtonLabel'     , 'Save' ],
         [ 'selectItems'         , {}    ],
         [ 'selectUnique'        , true  ],
+        [ 'showQuantity'        , false ],
         [ 'showRestricted'      , false ],
         [ 'toggles'             , false ],
-        [ 'viewSelector'        , false ],
         [ 'viewerSelection'     , false ],
         [ 'downloadFiles'       , false ],
         [ 'downloadRequests'    ,     1 ],
@@ -5097,6 +5289,12 @@ function insertBOM(link , params) {
 
     if(isiPad) settings[id].downloadFiles = false;
 
+    settings[id].details     = data.details     || null;
+    settings[id].sections    = data.sections    || [];
+    settings[id].viewColumns = data.viewColumns || [];
+    settings[id].picklists   = data.picklists   || [];
+    settings[id].workspaces  = data.workspaces  || [];
+
     settings[id].load = function() { changeBOMView(id); }
 
     if(!isBlank(params.endItem)) {
@@ -5104,14 +5302,27 @@ function insertBOM(link , params) {
         if(!isBlank(params.endItem.value  )) settings[id].endItemValue   = params.endItem.value;
     }
 
-    genPanelTop                    (id, settings[id], 'bom');
-    genPanelHeader                 (id, settings[id]);
-    genPanelOpenSelectedInPLMButton(id, settings[id]);
-    genPanelSelectionControls      (id, settings[id]);
+    genPanelTop                    (id, 'bom').addClass('tree');
+    genPanelHeader                 (id);
+    genPanelOpenSelectedInPLMButton(id);
+    genPanelSelectionControls      (id);
+
+    if(settings[id].editable) {
+
+        genPanelActionButton(id, 'save', settings[id].saveButtonLabel, 'Save Changes', function() { 
+
+            appendOverlay(false);
+            treeSaveChanges(id, function() {
+                $('#overlay').hide();
+            });
+
+        }).addClass('default').addClass('hidden');
+
+    }
 
     if(settings[id].goThere) {
 
-        $('<div></div>').appendTo(genPanelToolbar(id, settings[id], 'controls'))
+        $('<div></div>').appendTo(genPanelToolbar(id, 'controls'))
             .addClass('button')
             .addClass('icon')
             .addClass('icon-go-there')
@@ -5126,7 +5337,7 @@ function insertBOM(link , params) {
 
     if(settings[id].downloadFiles) {
 
-        let elemToolbar = genPanelToolbar(id, settings[id], 'controls');
+        let elemToolbar = genPanelToolbar(id, 'controls');
 
         $('<div></div>').appendTo(elemToolbar)
             .addClass('disabled')
@@ -5139,102 +5350,54 @@ function insertBOM(link , params) {
                 e.preventDefault();
                 e.stopPropagation();
                 if($(this).hasClass('disabled')) return;
-                treeToggleDownloadPanelAndColumn(id, settings[id]);
+                treeToggleDownloadPanelAndColumn(id);
             });
 
     }    
 
-    genPanelToggleButtons(id, settings[id], 
+    genPanelToggleButtons(id, 
         function() {   expandAllNodes(id); }, 
         function() { collapseAllNodes(id); }
-    );
+    );    
 
-    $('<select></select>').appendTo(genPanelToolbar(id, settings[id], 'controls'))
-        .addClass('bom-view-selector')
-        .addClass('button')
-        .attr('id', id + '-view-selector')
-        .hide()
-        .change(function() {
-            changeBOMView(id);
-        });
-   
+    genPanelResizeButton(id);
+    genPanelSearchInput (id);
+    genPanelResetButton (id);
+    genPanelReloadButton(id);    
+    genPanelContents    (id);
 
-    //  Set defaults for optional parameters
-    // --------------------------------------
-    // let deselect            = true;      // Adds button to deselect selected element (not available if multiSelect is enabled)
-    // let position            = true;      // When set to true, the position / find number will be displayed
+    if(isBlank(params.bomViewId)) {
 
-    // let revisionBias        = 'release'; // Set BOM configuration to expand [release, working, changeOrder, allChangeOrder]
-    // let selectItems         = {};
-    // let selectUnique        = true;      // Defines if only unique items should be returned based on selectItems filter, skipping following instances of the same item
-    // let showRestricted      = false;     // When set to true, red lock icons will be shown if an item's BOM contains items that are not accessilbe for the user due to access permissions
-    // let views               = false;     // Adds drop down menu to select from the available PLM BOM views
-
-    // settings[id].position           = position;
-    // settings[id].quantity           = quantity;
-    // settings[id].hideDetails        = hideDetails;
-    // settings[id].showRestricted     = showRestricted;
-    // settings[id].selectItems        = selectItems;
-    // settings[id].selectUnique       = selectUnique;
-    // settings[id].endItemFieldId     = null;
-    // settings[id].endItemValue       = null;
-
-
-    genPanelResizeButton(id, settings[id]);
-    genPanelSearchInput (id, settings[id]);
-    genPanelResetButton (id, settings[id]);
-    genPanelReloadButton(id, settings[id]);
-    genPanelContents    (id, settings[id]);
-
-    if(settings[id].path) {
-
-        $('<div></div>').appendTo($('#' + id))
-            .attr('id', id + '-bom-path')
-            .addClass('bom-path-empty')
-            .addClass('bom-path')
-            .addClass('no-scrollbar');
-
-        let elemBOMGoTo = $('<div></div>').appendTo($('#' + id))
-            .attr('id', id + '-bom-goto')
-            .addClass('bom-go-to');
-
-        $('<div></div>').appendTo(elemBOMGoTo)
-            .attr('id', id + '-bom-go-to-top')
-            .addClass('bom-go-to-top')
+        $('<select></select>').appendTo(genPanelToolbar(id, 'controls'))
+            .addClass('bom-view-selector')
             .addClass('button')
-            .addClass('icon')
-            .addClass('icon-top')
-            .attr('title', 'Scroll to top of BOM')
-            .click(function() {
-                bomScrollToTop(id);
-            });
+            .attr('id', id + '-view-selector')
+            .hide()
+            .change(function() {
+                changeBOMView(id);
+            });    
 
-        $('<div></div>').appendTo(elemBOMGoTo)
-            .attr('id', id + '-bom-go-to-bottom')
-            .addClass('bom-go-to-bottom')
-            .addClass('button')
-            .addClass('icon')
-            .addClass('icon-bottom')
-            .attr('title', 'Scroll to bottom of BOM')
-            .click(function() {
-                bomScrollToBottom(id);
-            });
+        getBOMViews(id);
 
-        $('#' + id).addClass('with-bom-path');
+    } else {
+        
+        settings[id].load = function() { openBOMView(id); }
+        settings[id].viewId = params.bomViewId;
+        settings[id].load();
 
-    } 
+    }
 
     insertBOMDone(id);
-    getBOMTabViews(id, settings[id]);
 
 }
-function getBOMTabViews(id, settings) {
+function insertBOMDone(id) {}
+function getBOMViews(id) {
 
     let elemSelect = $('#' + id + '-view-selector');
 
-    $.get('/plm/bom-views-and-fields', { link : settings.link, useCache : settings.useCache }, function(response) {
+    $.get('/plm/bom-views-and-fields', { link : settings[id].link, useCache : settings[id].useCache }, function(response) {
 
-        settings.bomViews = [];
+        settings[id].bomViews = [];
 
         sortArray(response.data, 'name');
 
@@ -5244,8 +5407,8 @@ function getBOMTabViews(id, settings) {
                 .html(bomView.name)
                 .attr('value', bomView.id);
 
-            if(!isBlank(settings.bomViewName)) {
-                if(bomView.name === settings.bomViewName) {
+            if(!isBlank(settings[id].bomViewName)) {
+                if(bomView.name === settings[id].bomViewName) {
                     elemSelect.val(bomView.id);
                 }
             }
@@ -5265,73 +5428,123 @@ function getBOMTabViews(id, settings) {
             let columnsCount = 1;
 
             for(let field of bomView.fields) {
-                
+
                 field.included = false;
                 field.sortFieldsIncluded = bomView.fields.length + 1;
 
                 if(field.displayName !== 'Descriptor') {
-                    if(includePanelTableColumn(field.fieldId, field.displayName, settings, columnsCount++)) {
-                        if(!settings.hideDetails) {
+                    if(includePanelTableColumn(field.fieldId, field.displayName, settings[id], columnsCount++)) {
+
+                        
+                        if(!settings[id].hideDetails) {
                             field.included = true;
-                            field.sortFieldsIncluded = settings.fieldsIn.indexOf(field.displayName) + 1;
+                            field.sortFieldsIncluded = field.displayOrder;
+                            if(settings[id].fieldsIn.length > 0) {
+                                let fieldIndex = settings[id].fieldsIn.indexOf(field.displayName);
+                                if(fieldIndex >= 0) {
+                                    field.sortFieldsIncluded = fieldIndex + 1;
+                                } else {
+                                    field.sortFieldsIncluded = settings[id].fieldsIn.length + 1 + Number(field.displayOrder);
+                                }
+                            } 
                         }      
                     }
-                } else field.sortFieldsIncluded = 0;
+                } else { field.sortFieldsIncluded = 0; }
+
+                // console.log(field);
+
+                // switch(field.fieldId) {
+                //     case settings[id].fieldIdPartNumber   : view.urns.partNumber   = field.__self__.urn; break;
+                //     case common.workspaces.items.fieldIdNumber : if(isBlank(view.urns.partNumber)) view.urns.partNumber  = field.__self__.urn; break;
+                //     case 'QUANTITY'                   : view.urns.quantity    = field.__self__.urn; break;
+                //     case settings[id].endItemFieldId      : view.urns.endItem     = field.__self__.urn; break;
+                //     default:
+                //         if(!isBlank(settings[id].selectItems)) {
+                //             if(field.fieldId === settings[id].selectItems.fieldId) view.urns.selectItems = field.__self__.urn;
+                //         }
+                //         break;
+                // }
 
                 view.columns.push(field);
-
-                switch(field.fieldId) {
-                    case settings.fieldIdPartNumber   : view.urns.partNumber   = field.__self__.urn; break;
-                    case common.workspaces.items.fieldIdNumber : if(isBlank(view.urns.partNumber)) view.urns.partNumber  = field.__self__.urn; break;
-                    case 'QUANTITY'                   : view.urns.quantity    = field.__self__.urn; break;
-                    case settings.endItemFieldId      : view.urns.endItem     = field.__self__.urn; break;
-                    default:
-                        if(!isBlank(settings.selectItems)) {
-                            if(field.fieldId === settings.selectItems.fieldId) view.urns.selectItems = field.__self__.urn;
-                        }
-                        break;
-                }
 
             }
 
             sortArray(view.columns, 'sortFieldsIncluded', 'integer');
-            settings.bomViews.push(view);
-        
+            settings[id].bomViews.push(view);
+
         }
 
-        if(settings.viewSelector) elemSelect.show();
+        if(settings[id].bomViewSelector) elemSelect.show();
 
-        settings.load();
+        getBOMViewsDone(id);
+        settings[id].load();
 
     });
 
 }
-function insertBOMDone(id) {}
+function getBOMViewsDone(id) {}
 function changeBOMView(id) {
 
+    settings[id].viewId = $('#' +  id + '-view-selector').val();
+    settings[id].picklists = [];
+
+    openBOMView(id);
+
+} 
+function openBOMView(id) {
+
     settings[id].timestamp = startPanelContentUpdate(id);
-    settings[id].viewId    = $('#' +  id + '-view-selector').val();
     settings[id].indexEdge = 0;
 
-    let elemBOM         = $('#' + id);
-    let selectedItems   = [];
+    let elemBOM = $('#' + id);
+
+ 
 
     let params = {
-        link          : settings[id].link,
-        depth         : settings[id].depth,
-        revisionBias  : settings[id].revisionBias,
-        viewId        : settings[id].viewId,
-        timestamp     : settings[id].timestamp
+        link            : settings[id].link,
+        depth           : settings[id].depth,
+        revisionBias    : settings[id].revisionBias,
+        viewId          : settings[id].viewId,
+        getBOMPartsList : true,
+        useCache        : settings[id].useCache,
+        sharedCache     : settings[id].sharedCache,
+        requestor       : 'item.js | openBOMView()',
+        timestamp       : settings[id].timestamp
     }
 
-    let requests = [
-        $.get('/plm/bom', params),
-        $.get('/plm/workspaces', { useCache : true }),
-        $.get('/plm/details', params)  // required for downloadFiles
-    ];
+    let requests = [ $.get('/plm/bom', params) ];
 
-    if(settings[id].getFlatBOM) requests.push($.get('/plm/bom-flat', params));
-    if(settings[id].downloadFiles) requests.push($.get('/services/storage/folders', { path : 'downloads' }));
+    if(settings[id].details        === null) requests.push($.get('/plm/details'   , { link : params.link }));
+    if(settings[id].workspaces.length === 0) requests.push($.get('/plm/workspaces', { useCache : settings[id].useCache }));
+    if(settings[id].downloadFiles          ) requests.push($.get('/services/storage/folders', { path : 'downloads'     }));
+
+ 
+
+    if(settings[id].editable) {
+    
+        if(settings[id].sections.length === 0) { requests.push($.get( '/plm/sections', { link : settings[id].link, useCache : settings[id].useCache })); }
+
+        if(settings[id].picklists.length === 0) {
+            for(let bomView of settings[id].bomViews) {
+                if(bomView.id == settings[id].viewId) {
+                    for(let field of bomView.columns) {
+                        if(field.hasOwnProperty('lookups')) {
+                            if(!settings[id].picklists.includes(field.lookups)) {
+                                settings[id].picklists.push(field.lookups);
+                                requests.push($.get( '/plm/picklist', { link : field.lookups, limit : 20, offset : 0 }));
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
+    }
+
+
+
+    let indexAdditional = requests.length;
 
     for(let request of settings[id].additionalRequests) requests.push(request);
 
@@ -5339,89 +5552,146 @@ function changeBOMView(id) {
 
         if(stopPanelContentUpdate(responses[0], settings[id])) return;
 
-        settings[id].downloadFolders = [];
-
-        for(let response of responses) {
-            if(response.url.indexOf('/details?') === 0) {
-                settings[id].descriptor = response.data.title;
-                settings[id].version    = response.data.version;
-            } else if(response.url.indexOf('/storage/folders') === 0) settings[id].downloadFolders = response.folders;
-        }
-
-        for(let view of settings[id].bomViews) {
-            if( settings[id].viewId == view.id) {
-                settings[id].columns              = view.columns;
-                settings[id].fieldURNPartNumber   = view.urns.partNumber;
-                settings[id].fieldURNLastModified = view.urns.lastModified;
-                settings[id].fieldURNQuantity     = view.urns.quantity;
-                settings[id].fieldURNEndItem      = view.urns.endItem;
-                settings[id].fieldURNSelectItems  = view.urns.selectItems;
-                break;
+        if(settings[id].useCache) {
+            if(responses[0].fromCache) {
+                insertCacheStatusIndicator();
+                updateCacheStatusIndicator(id, '/plm/bom', params, responses[0].data, responses[0].timestamp);
             }
         }
 
-        $('#' + id + '-content').addClass('tree');
 
-        let elemTable = $('<table></table').appendTo($('#' + id + '-content'))
-            .attr('id', id + '-table')
-            .addClass('bom-table')
-            // .addClass('tree-table')
-            // .addClass('tree')
-            .addClass('fixed-header');
 
-        let elemTHead = $('<thead></thead>').appendTo(elemTable).attr('id', id + '-thead').addClass('bom-thead');
-        let elemTBody = $('<tbody></tbody>').appendTo(elemTable).attr('id', id + '-tbody').addClass('bom-tbody');
-            
-        if(!settings[id].tableHeaders) elemTHead.hide();
+        if(settings[id].details        === null) settings[id].details    = getResponseFromResponses(responses, '/plm/details'   ).data;
+        if(settings[id].workspaces.length === 0) settings[id].workspaces = getResponseFromResponses(responses, '/plm/workspaces').data;
+        if(settings[id].sections.length   === 0) settings[id].sections   = getResponseFromResponses(responses, '/plm/sections'  ).data;
 
+        settings[id].descriptor      = settings[id].details.title;
+        settings[id].version         = settings[id].details.version;
+        settings[id].downloadFolders = getResponseFromResponses(responses, '/plm/storage/folders').folders;
+
+        if(settings[id].picklists.length === 0) {
+            for(let response of responses) {
+                if(response.url.indexOf('/picklist?') === 0) {
+                    settings[id].picklists.push(response)
+                }
+            }
+        }
+
+      
+
+        if(settings[id].hasOwnProperty('bomViews')) {
+            for(let view of settings[id].bomViews) {
+                if( settings[id].viewId == view.id) {
+                    settings[id].columns              = view.columns;
+                    settings[id].fieldURNPartNumber   = view.urns.partNumber;
+                    settings[id].fieldURNLastModified = view.urns.lastModified;
+                    settings[id].fieldURNQuantity     = view.urns.quantity;
+                    settings[id].fieldURNEndItem      = view.urns.endItem;
+                    settings[id].fieldURNSelectItems  = view.urns.selectItems;
+                    break;
+                }
+            }
+        }
+
+
+
+        if(settings[id].columns.length === 0) {
+            let columnsCount = 1;
+            if(settings[id].hasOwnProperty('viewColumns')) {
+                for(let field of settings[id].viewColumns) {
+                    if(field.nane !== 'Descriptor') {
+                        if(includePanelTableColumn(field.fieldId, field.displayName, settings[id], columnsCount++)) {
+                            if(!settings[id].hideDetails) {
+                                field.included = true;
+                                field.sortFieldsIncluded = field.displayOrder;
+                                if(settings[id].fieldsIn.length > 0) {
+                                    let fieldIndex = settings[id].fieldsIn.indexOf(field.displayName);
+                                    if(fieldIndex >= 0) {
+                                        field.sortFieldsIncluded = fieldIndex + 1
+                                    } else {
+                                        field.sortFieldsIncluded = settings[id].fieldsIn.length + 1 + field.displayOrder;
+                                    }
+                                } 
+                            }      
+                        }
+                    } else field.sortFieldsIncluded = 0;
+                    settings[id].columns.push(field);
+                }
+                sortArray(settings[id].columns, 'sortFieldsIncluded', 'integer');
+            }
+        }       
+
+        
         if(!isBlank(settings[id].selectItems.values)) {
             settings[id].selectItems.values = settings[id].selectItems.values.map(function(item) { 
                 return item.toLowerCase(); 
             }); 
-        }
+        }        
 
-        setBOMHeaders(id, elemTHead);
-        insertNextBOMLevel(id, elemTBody, responses[0].data, responses[0].data.root, 1, '', selectedItems, responses[1].data.items);
-        enableBOMToggles(id);
+        let elemContent = $('#' + id + '-content');
+        let elemTable = $('<table></table>').appendTo(elemContent)
+            .attr('id', id + '-table')
+            .addClass('bom-table')
+            .addClass('tree-table')
+            .addClass('fixed-header');
+
+        genBOMHeaders(id, elemTable);    
+        genBOMRows(id, elemTable, responses[0].data.bomPartsList);
+        genTreePath(id);
+        enableTreeToggles(id);
+
+        // insertNextBOMLevel(id, elemTBody, responses[0].data, responses[0].data.root, 1, '', selectedItems);
 
         if(settings[id].collapseContents) collapseAllNodes(id);
 
         if(!elemBOM.hasClass('no-bom-counters')) { $('#' + id + '-bom-counters').show(); }
 
-        let dataFlatBOM     = null;
-        let dataAdditional  = [];
-        let indexAdditional = 3;
+        let dataAdditional  = [];      
 
-        if(settings[id].getFlatBOM) dataFlatBOM = responses[indexAdditional++].data;
+        while (indexAdditional < responses.length) dataAdditional.push(responses[indexAdditional++]);
 
-        while (indexAdditional < responses.length) {
-            dataAdditional.push(responses[indexAdditional++]);
-        } 
+        let selectedItems = getSelectedItems(id, responses[0].data.bomPartsList);
 
-        let responseData = { bomPartsList : [] } ;
-
-        if(settings[id].includeBOMPartList) responseData.bomPartsList = getBOMPartsList(settings[id], responses[0].data)
-
-        if(selectedItems.length > 0) selectedItems = extendBOMPartsList(settings[id], selectedItems);
-
+        // if(selectedItems.length > 0) selectedItems = extendBOMPartsList(settings[id], selectedItems);
 
         let elemDownload = $('#' + id + '-download-files');
 
         if(elemDownload.length > 0) elemDownload.removeClass('disabled');
 
-        changeBOMViewDone(id, settings[id], responses[0].data, selectedItems, dataFlatBOM, dataAdditional, responseData.bomPartsList);
-        finishPanelContentUpdate(id, settings[id], null, null, responseData);
+        $('#' + id + '-action-save'  ).show().removeClass('hidden').removeClass('disabled');
+
+        openBOMViewDone(id, responses[0].data, selectedItems, dataAdditional, responses[0].data.bomPartsList);
+        finishPanelContentUpdate(id, null, null, { bomPartsList : responses[0].data.bomPartsList });
 
     });
 
 }
-function changeBOMViewDone(id, settings, bom, selectedItems, dataFlatBOM, dataAdditional, bomPartsList) {}
-function setBOMHeaders(id, elemTHead) {
+function openBOMViewDone(id, bom, selectedItems, dataAdditional, bomPartsList) {}
+function genBOMHeaders(id, elemTable) {
 
+    if(settings[id].hideTableHeader) return null;
+
+    let elemTHead = $('<thead></thead>').appendTo(elemTable).attr('id', id + '-thead').addClass('tree-thead').addClass('bom-thead');
     let elemTHRow = $('<tr></tr>').appendTo(elemTHead).attr('id', id + '-thead-row');
 
-    $('<th></th>').appendTo(elemTHRow).html('').addClass('bom-color');
-    let elemFirst = $('<th></th>').appendTo(elemTHRow).addClass('bom-first-col');
+    if(settings[id].multiSelect) {
+
+        let elemToggleAll = $('<div></div>')
+            .attr('id', id + '-select-all')
+            .addClass('content-select-all')
+            .addClass('icon')
+            .addClass('icon-check-box')
+            .click(function(e) {
+                clickSelectAllCheckbox(e, $(this));
+            });
+
+
+        $('<th></th>').addClass('content-item-check-box').appendTo(elemTHRow).append(elemToggleAll);
+
+    }
+
+    $('<th></th>').appendTo(elemTHRow).html('').addClass('tree-color');
+    let elemFirst = $('<th></th>').appendTo(elemTHRow).addClass('tree-first-col');
 
     if(!settings[id].hideDescriptor) elemFirst.html('Item');
 
@@ -5445,428 +5715,567 @@ function setBOMHeaders(id, elemTHead) {
         }
     }
 
-}
-function insertNextBOMLevel(id, elemTable, bom, parent, parentQuantity, numberPath, selectedItems, workspaces) {
+    return elemTHead;
 
-    let result    = { hasChildren : false, hasRestricted : false};
+}
+function genBOMRows(id, elemTable, items) {   
+
+    let elemTBody = $('<tbody></tbody>').appendTo(elemTable).attr('id', id + '-tbody').addClass('tree-tbody').addClass('bom-tbody');
+
+    if(isBlank(settings[id].skipRootItem)) settings[id].skipRootItem = true;
+    if(isBlank(settings[id].hideNumber  )) settings[id].hideNumber =  true;
+
+    let index     = (settings[id].skipRootItem) ? 1 : 0;
     let firstLeaf = true;
 
-    for(let i = settings[id].indexEdge; i < bom.edges.length; i++) {
+    for(index; index < items.length; index++) {
 
-        let edge = bom.edges[i];
+        let item          = items[index];
+        let workspaceLink = item.link.split('/items/')[0];
+        let workspaceName = '';
 
-        if(edge.parent === parent) {
+        for(let ws of settings[id].workspaces.items) if(ws.link === workspaceLink) { workspaceName = ws.title; break; }
 
-            if(i === settings[id].indexEdge + 1) settings[id].indexEdge = i;
+        if((settings[id].workspacesIn.length === 0) || ( settings[id].workspacesIn.includes(workspaceName))) {
+            if((settings[id].workspacesEx.length === 0) || (!settings[id].workspacesEx.includes(workspaceName))) {
 
-            let node = {}
-                        
-            for(let bomNode of bom.nodes) {
-                if(bomNode.item.urn === edge.child) {
-                    node = bomNode;
-                    break;
+                let elemRow = $('<tr></tr>').appendTo(elemTBody)
+                    .attr('data-number'        , item.number)
+                    .attr('data-number-path'   , item.path)
+                    // .attr('data-number-path'   , item.path + item.number)
+                    .attr('data-part-number'   , item.partNumber)
+                    .attr('data-dmsId'         , item.link.split('/')[6])
+                    .attr('data-link'          , item.link)
+                    .attr('data-root-link'     , item.root)
+                    .attr('data-title'         , item.title)
+                    .attr('data-edgeId'        , item.edgeId)
+                    .attr('data-level'         , item.level)
+                    .attr('data-quantity'      , item.quantity)
+                    .attr('data-total-quantity', item.totalQuantity)
+                    .addClass('level-' + item.level)
+                    .addClass('content-item')
+                    .addClass('bom-item')
+                    .addClass('tree-item')
+                    .click(function (e) {
+                        clickContentItem(e, $(this));
+                    }).dblclick(function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if(!isBlank(settings[id].onDblClickItem)) settings[id].onDblClickItem($(this));
+                        else if(settings[id].openOnDblClick) openItemByLink($(this).attr('data-link'));
+                    });
+
+
+                if(!isBlank(item.domProperties)) {
+                    for(domProperty of item.domProperties) {
+                        elemRow.attr('data-' + domProperty.key, domProperty.value);
+                    }
+                }
+
+                if(settings[id].multiSelect) {
+
+                    $('<td></td>').appendTo(elemRow)
+                        .html('<div class="icon icon-check-box xxs"></div>')
+                        .addClass('content-item-check-box')
+                        .click(function(e) {
+                            clickContentItemCheckbox(e, $(this));
+                        });
+            
+                }        
+
+                $('<td></td>').appendTo(elemRow).addClass('tree-color');
+
+                let elemFirstCol = $('<td></td>').appendTo(elemRow).addClass('tree-first-col').addClass('bom-first-col');
+
+                if(item.hasChildren) {
+                    $('<span></span>').appendTo(elemFirstCol).addClass('tree-nav').addClass('icon');
+                    elemRow.addClass('node');
+                } else elemRow.addClass('leaf');
+
+                if(!settings[id].hideNumber    ) $('<span></span>').appendTo(elemFirstCol).addClass('tree-number').html(item.level + '.' + item.number);
+                if(!settings[id].hideDescriptor) $('<span></span>').appendTo(elemFirstCol).addClass('tree-descriptor').html(item.title);
+                if( settings[id].showQuantity  ) $('<span></span>').appendTo(elemRow).addClass('tree-quantity').html(bomQuantity);
+
+                let elemCellLocks = $('<td></td>')
+                    .addClass('tree-icon')
+                    .addClass('bom-column-locks');
+
+                if(settings[id].showRestricted) if(settings[id].showRestricted) elemCellLocks.appendTo(elemRow);
+
+                genBOMRowCells(id, item, elemRow, elemFirstCol);
+
+                if(!item.hasChildren) {
+                    elemRow.addClass('leaf');
+                    if(firstLeaf) elemRow.addClass('first-leaf');
+                    firstLeaf = false;
+                }
+
+                // if(!isBlank(settings[id].selectItems.values)) {
+                //         if(!isBlank(edge.selectItems)) {
+                //                 if(settings[id].selectItems.values.indexOf(edge.selectItems.toLowerCase()) > -1) {
+
+                //                     let selectItem = true;
+
+                //                     if(settings[id].selectUnique) {
+                //                         for(let selectedItem of selectedItems) {
+                //                             if(selectedItem.node.item.link === node.item.link) {
+                //                                 selectItem = false;
+                //                                 break;
+                //                             }
+                //                         }
+                //                     }
+
+                //                     if(selectItem) {
+                //                         selectedItems.push({
+                //                             'node' : node,
+                //                             'edge' : edge
+                //                         })
+                //                     }
+
+                //                 }
+                //             }
+
+                //         }                
+
+            }
+        }
+
+    }
+
+}
+function genBOMRowCells(id, item, elemRow, elemFirstCol) {
+
+    let index = 0;
+
+    for(let column of settings[id].columns) {
+
+        if(column.included) {
+
+            let value      = item.details[column.fieldId];
+            let elemCell   = $('<td></td>');
+            let isEditable = false;
+
+            if(column.hasOwnProperty('editability')) {
+                if(column.editability === 'ALWAYS') {
+                    isEditable = true;
                 }
             }
-            
-            node.quantity = getBOMEdgeValue(edge, settings[id].fieldURNQuantity, null, 0);
-            
-            if((typeof node.restricted === 'undefined') || (node.restricted === false)) {
 
-                node.restricted    = false;
-                node.totalQuantity = node.quantity * parentQuantity;
+            if(!settings[id].hideDescriptor || (index > 0)) {
+                elemCell.appendTo(elemRow);
+            } else {
+                elemCell = $('<span></span>').appendTo(elemFirstCol).addClass('bom-descriptor');
+            }
 
-                for(let field of node.fields) {
+            if(settings[id].editable && isEditable) {
 
-                    if('context' in field) {
-                        node.restricted = true;
-                    }
-
-                    let fieldValue = (typeof field.value === 'object') ? field.value.title : field.value;
-
-                    switch(field.metaData.urn) {
-
-                        case settings[id].fieldURNPartNumber:
-                            node.partNumber = fieldValue;
-                            break;
-
-                        case settings[id].fieldURNEndItem:
-                            node.endItem = fieldValue;
-                            break;
-
-                        case settings[id].fieldURNSelectItems:
-                            node.selectItems = fieldValue;
-                            edge.selectItems = fieldValue;
-                            break;
-
-                    }
-
+                if(column.type.title === 'Radio Button') {
+                    column.type.title = 'Single Selection';
                 }
 
-                if(!isBlank(settings[id].fieldURNSelectItems)) {
-                    for(let fieldEdge of edge.fields) {
-                        if(fieldEdge.metaData.urn === settings[id].fieldURNSelectItems) {
-                            edge.selectItems = (typeof fieldEdge.value === 'object') ? fieldEdge.value.title : fieldEdge.value;
-                            node.selectItems = edge.selectItems;
-                        }
-                    }
-                }
-
-            } else node.totalQuantity += node.quantity * parentQuantity;
-
-            if(node.restricted) {
-
-                result.hasRestricted = true;
+                // column.id = column.fieldId;
+                // let data = [{ id : column.fieldId, value : getBOMCellValue(edge.child, column.__self__.urn, bom.nodes, 'title')}];
+                insertField(settings[id], elemCell, column, item.details, settings[id].picklists, false, false);
 
             } else {
 
-                result.hasChildren  = true;
-                let urnEdgeChild    = edge.child;
-                let isEndItem       = false;
-                let workspace       = '';
-                let workspaceLink   = node.item.link.split('/items/')[0];
+                // if(column.fieldTab === 'STANDARD_BOM') value = getBOMEdgeValue(edge, column.__self__.urn, null, '');
+                // else value = getBOMCellValue(edge.child, column.__self__.urn, bom.nodes, 'title');
 
-                for(let ws of workspaces) if(ws.link === workspaceLink) { workspace = ws.title; break; }
+                elemCell.html(value)
+                    .addClass('bom-column-'  + column.fieldId.toLowerCase())
+                    .addClass('tree-column-' + column.fieldId.toLowerCase());
 
-                if((settings[id].workspacesIn.length === 0) || ( settings[id].workspacesIn.includes(workspace))) {
-                    if((settings[id].workspacesEx.length === 0) || (!settings[id].workspacesEx.includes(workspace))) {
+            }
 
-                        let elemRow = $('<tr></tr>').appendTo(elemTable)
-                            .attr('data-number',         edge.itemNumber)
-                            .attr('data-number-path',    numberPath + edge.itemNumber)
-                            .attr('data-part-number',    node.partNumber)
-                            .attr('data-quantity',       node.quantity)
-                            .attr('data-total-quantity', node.totalQuantity)
-                            .attr('data-number',         edge.itemNumber)
-                            // .attr('data-dmsId',       node.item.link.split('/')[6])
-                            .attr('data-link',           node.item.link)
-                            .attr('data-root-link',      node.rootItem.link)
-                            .attr('data-urn',            edge.child)
-                            .attr('data-title',          node.item.title)
-                            .attr('data-edgeId',         edge.edgeId)
-                            .attr('data-edge-Link',      edge.edgeLink)
-                            .attr('data-level',          edge.depth)
-                            .addClass('level-' + edge.depth)
-                            .addClass('bom-item')
-                            .addClass('tree-item')
-                            .addClass('content-item')
-                            .click(function (e) {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                // toggleBOMItemActions($(this));
-                                clickContentItem($(this), e);
-                                updateBOMPath($(this));
-                                togglePanelToolbarActions($(this));
-                                updatePanelCalculations(id);
-                                if(settings[id].viewerSelection) selectInViewer(id);
-                                clickBOMItem($(this), e);
-                                if(!isBlank(settings[id].onClickItem)) settings[id].onClickItem($(this));
-                            }).dblclick(function(e) {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                if(!isBlank(settings[id].onDblClickItem)) settings[id].onDblClickItem($(this));
-                                else if(settings[id].openOnDblClick) openItemByLink($(this).attr('data-link'));
-                            });
+            index++;
 
-                        let elemColor = $('<td></td>').appendTo(elemRow).addClass('bom-color');
-                        let elemFirst = $('<td></td>').appendTo(elemRow).addClass('bom-first-col');
+        }
 
-                        if(settings[id].position) {
-                            $('<span></span>').appendTo(elemFirst)
-                                .addClass('bom-number')
-                                .html(edge.depth + '.' + edge.itemNumber);
-                        }
+    }
 
-                        if(!settings[id].hideDescriptor) {
-                            $('<span></span>').appendTo(elemFirst)
-                                .addClass('bom-descriptor')
-                                .html(node.item.title);
-                        }
+}
+function getSelectedItems(id, bomPartsList) {
 
-                        // if(settings[id].quantity) {
+    if(isBlank(settings[id].selectItems)) return [];
+    if(isBlank(settings[id].selectItems.values)) return [];
 
-                        //     $('<td></td>').appendTo(elemRow)
-                        //         .addClass('bom-quantity')
-                        //         .html(bomQuantity);
+    let result            = [];
+    let listSelectedItems = [];
+    let fieldId           = settings[id].selectItems.fieldId;
 
-                        // }
+    for(let index in settings[id].selectItems.values) settings[id].selectItems.values[index] = settings[id].selectItems.values[index].toLowerCase();
 
-                        let elemCellLocks = $('<td></td>')
-                            .addClass('bom-column-icon')
-                            .addClass('bom-column-locks');
+    for(let bomPart of bomPartsList) {
 
-                        if(settings[id].showRestricted) elemCellLocks.appendTo(elemRow);
+        let value = bomPart.details[fieldId];
 
-                        let index = 0;
+        if(!isBlank(value)) {
 
-                        for(let column of settings[id].columns) {
+            value = value.toLowerCase();
 
-                            if(column.included) {
+            if(settings[id].selectItems.values.includes(value)) {
 
-                                let value    = '';
-                                let elemCell = $('<td></td>');
-                                
-                                if(!settings[id].hideDescriptor || (index > 0)) {
-                                    elemCell.appendTo(elemRow);
-                                } else {
-                                    elemCell = $('<span></span>').appendTo(elemFirst).addClass('bom-descriptor');
-                                }
+                let selectedItem = JSON.parse(JSON.stringify(bomPart));
 
-                                if(column.fieldTab === 'STANDARD_BOM') value = getBOMEdgeValue(edge, column.__self__.urn, null, '');
-                                else value = getBOMCellValue(edge.child, column.__self__.urn, bom.nodes, 'title');
+                result.push(selectedItem);
 
-                                elemCell.html(value)
-                                    .addClass('bom-column-'  + column.fieldId.toLowerCase())
-                                    .addClass('tree-column-' + column.fieldId.toLowerCase());
-
-                                index++;
-
-                            }
-
-                        }
-
-                        if(!isBlank(settings[id].selectItems.values)) {
-                            if(!isBlank(edge.selectItems)) {
-                                if(settings[id].selectItems.values.indexOf(edge.selectItems.toLowerCase()) > -1) {
-
-                                    let selectItem = true;
-
-                                    if(settings[id].selectUnique) {
-                                        for(let selectedItem of selectedItems) {
-                                            if(selectedItem.node.item.link === node.item.link) {
-                                                selectItem = false;
-                                                break;
-                                            }
-                                        }
-                                    }
-
-                                    if(selectItem) {
-                                        selectedItems.push({
-                                            'node' : node,
-                                            'edge' : edge
-                                        })
-                                    }
-
-                                }
-                            }
-
-                        }
-
-                        if(!isBlank(settings[id].fieldURNEndItem)) {
-                            isEndItem = (settings[id].endItemValue.toString().toLowerCase() === node.endItem.toString().toLowerCase());
-                        }
-
-                        let itemBOM = (isEndItem) ? { hasChildren : false, hasRestricted : false } : insertNextBOMLevel(id, elemTable, bom, urnEdgeChild, node.quantity * parentQuantity, numberPath + edge.itemNumber + '.', selectedItems, workspaces);
-
-                        if(!itemBOM.hasChildren) {
-
-                            elemRow.addClass('leaf');
-                            if(firstLeaf) elemRow.addClass('first-leaf');
-                            firstLeaf = false;
-
-                        } else {
-
-                            $('<span></span>').prependTo(elemFirst)
-                                .addClass('bom-nav')
-                                .addClass('icon')
-
-                            elemRow.addClass('node');
-
-                        }
-
-                        if(itemBOM.hasRestricted) {
-                            if(settings[id].showRestricted) {
-                                $('<span></span>').appendTo(elemCellLocks)
-                                    .addClass('bom-restricted')
-                                    .addClass('icon')
-                                    .addClass('icon-lock')
-                                    .addClass('filled')
-                                    .attr('title', 'You do not have access to all items in this BOM');
-                            }
-                        }
-                    }
-                }
+                if(!listSelectedItems.includes(bomPart.root)) listSelectedItems.push(bomPart.root)
             }
         }
+
     }
 
     return result;
 
+//                             if(!isBlank(edge.selectItems)) {
+//                                 if(settings[id].selectItems.values.indexOf(edge.selectItems.toLowerCase()) > -1) {
+
+//                                     let selectItem = true;
+
+//                                     if(settings[id].selectUnique) {
+//                                         for(let selectedItem of selectedItems) {
+//                                             if(selectedItem.node.item.link === node.item.link) {
+//                                                 selectItem = false;
+//                                                 break;
+//                                             }
+//                                         }
+//                                     }
+
+//                                     if(selectItem) {
+//                                         selectedItems.push({
+//                                             'node' : node,
+//                                             'edge' : edge
+//                                         })
+//                                     }
+
+//                                 }
+//                             }
+
+//                         }
+
 }
-function enableBOMToggles(id) {
+// function insertNextBOMLevel(id, elemTable, bom, parent, parentQuantity, numberPath, selectedItems) {
 
-    $('#' + id).find('.bom-nav').click(function(e) {
-    
-        e.stopPropagation();
-        e.preventDefault();
+//     let result    = { hasChildren : false, hasRestricted : false};
+//     let firstLeaf = true;
 
-        let elemItem    = $(this).closest('tr');
-        let level       = Number(elemItem.attr('data-level'));
-        let levelNext   = level - 1;
-        let levelHide   = level + 2;
-        let elemNext    = $(this).closest('tr');
-        let doExpand    = elemItem.hasClass('collapsed');
-        let filterValue = $('#' + id + '-search-input').val().toLowerCase();
-        let isFiltered  = (isBlank(filterValue)) ? false : true;
+//     for(let i = settings[id].indexEdge; i < bom.edges.length; i++) {
 
-        if(e.shiftKey) levelHide = 100;
+//         let edge = bom.edges[i];
 
-        elemItem.toggleClass('collapsed');
+//         if(edge.parent === parent) {
 
-        do {
+//             if(i === settings[id].indexEdge + 1) settings[id].indexEdge = i;
 
-            elemNext  = elemNext.next();
-            levelNext = Number(elemNext.attr('data-level'));
-
-            if(levelNext > level) {
-                if(doExpand) {
-                    if(levelHide > levelNext) {
-                        if((!isFiltered) || elemNext.hasClass('result') || elemNext.hasClass('result-parent')) {
-                            elemNext.removeClass('hidden');
-                            if(e.shiftKey) {
-                                elemNext.removeClass('collapsed');
-                            }
-                        }
-                    }
-                } else {
-                    elemNext.addClass('hidden');
-                    elemNext.addClass('collapsed');
-                }
-            }
-
-        } while(levelNext > level);
-
-
-        // if(!elemItem.hasClass('collapsed')) {
-
-        //     let elemInput   = $('#' + id + '-search-input');
-        //     let filterValue = elemInput.val().toLowerCase();
-
-        //     if(!isBlank(filterValue)) searchInBOM(id, elemInput);
+//             let node = {}
+                        
+//             for(let bomNode of bom.nodes) {
+//                 if(bomNode.item.urn === edge.child) {
+//                     node = bomNode;
+//                     break;
+//                 }
+//             }
             
-        // }
+//             node.quantity = getBOMEdgeValue(edge, settings[id].fieldURNQuantity, null, 0);
+            
+//             if((typeof node.restricted === 'undefined') || (node.restricted === false)) {
 
-    });
+//                 node.restricted    = false;
+//                 node.totalQuantity = node.quantity * parentQuantity;
 
-}
-// function toggleBOMItemActions(elemClicked) {
+//                 for(let field of node.fields) {
 
-//     let elemBOM             = elemClicked.closest('.bom');
-//     let actionsMultiSelect  = elemBOM.find('.bom-multi-select-action');
-//     let actionsSingleSelect = elemBOM.find('.bom-single-select-action');
+//                     if('context' in field) {
+//                         node.restricted = true;
+//                     }
 
-//     if(elemBOM.find('.bom-item.selected').length === 1) actionsSingleSelect.show(); else actionsSingleSelect.hide();
-//     if(elemBOM.find('.bom-item.selected').length   > 0)  actionsMultiSelect.show(); else  actionsMultiSelect.hide();
+//                     let fieldValue = (typeof field.value === 'object') ? field.value.title : field.value;
 
-// }
-// function clickBOMSelectAll(elemClicked) {
+//                     switch(field.metaData.urn) {
 
-//     let elemBOM = elemClicked.closest('.bom');
+//                         case settings[id].fieldURNPartNumber:
+//                             node.partNumber = fieldValue;
+//                             break;
 
-//     elemBOM.find('.bom-item').addClass('selected');
+//                         case settings[id].fieldURNEndItem:
+//                             node.endItem = fieldValue;
+//                             break;
 
-//     toggleBOMItemActions(elemClicked);
-//     updateBOMCounters(elemBOM.attr('id'));
+//                         case settings[id].fieldURNSelectItems:
+//                             node.selectItems = fieldValue;
+//                             edge.selectItems = fieldValue;
+//                             break;
 
-// }
-// function clickBOMDeselectAll(elemClicked) {
+//                     }
 
-//     // let elemBOM = elemClicked.closest('.bom');
+//                 }
 
-//     // elemBOM.find('.bom-item').removeClass('selected');
+//                 if(!isBlank(settings[id].fieldURNSelectItems)) {
+//                     for(let fieldEdge of edge.fields) {
+//                         if(fieldEdge.metaData.urn === settings[id].fieldURNSelectItems) {
+//                             edge.selectItems = (typeof fieldEdge.value === 'object') ? fieldEdge.value.title : fieldEdge.value;
+//                             node.selectItems = edge.selectItems;
+//                         }
+//                     }
+//                 }
 
-//     // toggleBOMItemActions(elemClicked);
-//     // updateBOMPath(elemClicked);
-//     // updateBOMCounters(elemBOM.attr('id'));
+//             } else node.totalQuantity += node.quantity * parentQuantity;
+
+//             if(node.restricted) {
+
+//                 result.hasRestricted = true;
+
+//             } else {
+
+//                 result.hasChildren  = true;
+//                 let urnEdgeChild    = edge.child;
+//                 let isEndItem       = false;
+//                 let workspace       = '';
+//                 let workspaceLink   = node.item.link.split('/items/')[0];
+
+//                 for(let ws of settings[id].workspaces.items) if(ws.link === workspaceLink) { workspace = ws.title; break; }
+
+//                 if((settings[id].workspacesIn.length === 0) || ( settings[id].workspacesIn.includes(workspace))) {
+//                     if((settings[id].workspacesEx.length === 0) || (!settings[id].workspacesEx.includes(workspace))) {
+
+//                         let elemRow = $('<tr></tr>').appendTo(elemTable)
+//                             .attr('data-number',         edge.itemNumber)
+//                             .attr('data-number-path',    numberPath + edge.itemNumber)
+//                             .attr('data-part-number',    node.partNumber)
+//                             .attr('data-dmsId',          node.item.link.split('/')[6])
+//                             .attr('data-link',           node.item.link)
+//                             .attr('data-root-link',      node.rootItem.link)
+//                             .attr('data-title',          node.item.title)
+//                             .attr('data-edgeId',         edge.edgeId)
+//                             .attr('data-level',          edge.depth)
+//                             .attr('data-quantity',       node.quantity)
+//                             .attr('data-total-quantity', node.totalQuantity)
+//                             .attr('data-urn',            edge.child)
+//                             .attr('data-edge-Link',      edge.edgeLink)
+//                             .addClass('level-' + edge.depth)
+//                             .addClass('bom-item')
+//                             .addClass('tree-item')
+//                             .addClass('content-item')
+//                             .click(function (e) {
+//                                 clickContentItem(e, $(this));
+//                             }).dblclick(function(e) {
+//                                 e.preventDefault();
+//                                 e.stopPropagation();
+//                                 if(!isBlank(settings[id].onDblClickItem)) settings[id].onDblClickItem($(this));
+//                                 else if(settings[id].openOnDblClick) openItemByLink($(this).attr('data-link'));
+//                             });
+
+//                         if(settings[id].editable && settings[id].multiSelect) {
+
+//                             $('<td></td>').appendTo(elemRow)
+//                                 .html('<div class="icon icon-check-box xxs"></div>')
+//                                 .addClass('content-item-check-box')
+//                                 .click(function(e) {
+//                                     clickContentItemCheckbox(e, $(this));
+//                                 });
+                    
+//                         }                            
+
+//                         let elemColor = $('<td></td>').appendTo(elemRow).addClass('tree-color');
+//                         let elemFirst = $('<td></td>').appendTo(elemRow).addClass('tree-first-col');
+
+//                         if(settings[id].position) {
+//                             $('<span></span>').appendTo(elemFirst)
+//                                 .addClass('tree-number')
+//                                 .html(edge.depth + '.' + edge.itemNumber);
+//                         }
+
+//                         if(!settings[id].hideDescriptor) {
+//                             $('<span></span>').appendTo(elemFirst)
+//                                 .addClass('bom-descriptor')
+//                                 .html(node.item.title);
+//                         }
+
+//                         if(settings[id].showQuantity) {
+
+//                             $('<td></td>').appendTo(elemRow)
+//                                 .addClass('bom-quantity')
+//                                 .html(bomQuantity);
+
+//                         }
+
+//                         let elemCellLocks = $('<td></td>')
+//                             .addClass('tree-icon')
+//                             .addClass('bom-column-locks');
+
+//                         if(settings[id].showRestricted) elemCellLocks.appendTo(elemRow);
+
+
+//                         elemRow.find('.field-editable').each(function() {
+                        
+//                             let elemInput = $(this).children().first();
+
+//                             // elemInput.click   (function(e) { $(this).select(); });
+//                             elemInput.dblclick(function(e) { e.stopPropagation(); });
+//                             elemInput.change  (function(e) { console.log('1'); updatePanelCalculations(id); });
+
+//                         });
+
+//                         genBOMRowCellsOld(id, elemRow, elemFirst, bom, edge);
 
 
 
-//     let id          = elemClicked.closest('.bom').attr('id');
-//     let elemContent = elemClicked.closest('.bom').find('.bom-tbody');
+//                         // let index = 0;
 
-//     elemContent.children().removeClass('selected');
+//                         // for(let column of settings[id].columns) {
 
-//     updateBOMPath(elemClicked);
-//     togglePanelToolbarActions($(this));
-//     updatePanelCalculations(id);
-//     if(settings[id].viewerSelection) selectInViewer(id);
-     
-//     clickBOMDeselectAllDone(elemClicked);
+//                         //     if(column.included) {
 
-// }
-// function clickBOMDeselectAllDone(elemClicked) {}
-// function clickBOMExpandAll(elemClicked) {
 
-//     let elemBOM     = elemClicked.closest('.bom');
-//     let id          = elemBOM.attr('id');
-//     let elemContent = $('#' + id + '-tbody');
-//     let elemInput   = $('#' + id + '-search-input');
-//     let filterValue = elemInput.val().toLowerCase();
+//                         //         genTreeCell();
 
-//     if(!isBlank(filterValue)) {
-//         // searchInBOM(id, elemInput);
-//         filterPanelContent(id);
-//     } else {
-//         elemContent.children().removeClass('bom-hidden').removeClass('collapsed');
+//                         //         let value    = '';
+//                         //         let elemCell = $('<td></td>');
+
+//                         //         console.log(column);
+                                
+//                         //         if(!settings[id].hideDescriptor || (index > 0)) {
+//                         //             elemCell.appendTo(elemRow);
+//                         //         } else {
+//                         //             elemCell = $('<span></span>').appendTo(elemFirst).addClass('bom-descriptor');
+//                         //         }
+
+//                         //         if(settings[id].editable) {
+
+//                         //             insertField(settings[id], elemCell, column, bom.nodes, [], false, false);
+
+//                         //         } else {
+
+//                         //             if(column.fieldTab === 'STANDARD_BOM') value = getBOMEdgeValue(edge, column.__self__.urn, null, '');
+//                         //             else value = getBOMCellValue(edge.child, column.__self__.urn, bom.nodes, 'title');
+
+//                         //             elemCell.html(value)
+//                         //                 .addClass('bom-column-'  + column.fieldId.toLowerCase())
+//                         //                 .addClass('tree-column-' + column.fieldId.toLowerCase());
+
+//                         //         }
+
+//                         //         index++;
+
+//                         //     }
+
+//                         // }
+
+//                         if(!isBlank(settings[id].selectItems.values)) {
+//                             if(!isBlank(edge.selectItems)) {
+//                                 if(settings[id].selectItems.values.indexOf(edge.selectItems.toLowerCase()) > -1) {
+
+//                                     let selectItem = true;
+
+//                                     if(settings[id].selectUnique) {
+//                                         for(let selectedItem of selectedItems) {
+//                                             if(selectedItem.node.item.link === node.item.link) {
+//                                                 selectItem = false;
+//                                                 break;
+//                                             }
+//                                         }
+//                                     }
+
+//                                     if(selectItem) {
+//                                         selectedItems.push({
+//                                             'node' : node,
+//                                             'edge' : edge
+//                                         })
+//                                     }
+
+//                                 }
+//                             }
+
+//                         }
+
+//                         if(!isBlank(settings[id].fieldURNEndItem)) {
+//                             isEndItem = (settings[id].endItemValue.toString().toLowerCase() === node.endItem.toString().toLowerCase());
+//                         }
+
+//                         let itemBOM = (isEndItem) ? { hasChildren : false, hasRestricted : false } : insertNextBOMLevel(id, elemTable, bom, urnEdgeChild, node.quantity * parentQuantity, numberPath + edge.itemNumber + '.', selectedItems);
+
+//                         if(!itemBOM.hasChildren) {
+
+//                             elemRow.addClass('leaf');
+//                             if(firstLeaf) elemRow.addClass('first-leaf');
+//                             firstLeaf = false;
+
+//                         } else {
+
+//                             $('<span></span>').prependTo(elemFirst)
+//                                 .addClass('tree-nav')
+//                                 .addClass('icon')
+
+//                             elemRow.addClass('node');
+
+//                         }
+
+//                         if(itemBOM.hasRestricted) {
+//                             if(settings[id].showRestricted) {
+//                                 $('<span></span>').appendTo(elemCellLocks)
+//                                     .addClass('bom-restricted')
+//                                     .addClass('icon')
+//                                     .addClass('icon-lock')
+//                                     .addClass('filled')
+//                                     .attr('title', 'You do not have access to all items in this BOM');
+//                             }
+//                         }
+//                     }
+//                 }
+//             }
+//         }
 //     }
 
+//     return result;
+
 // }
-// function clickBOMCollapseAll(elemClicked) {
+// function genBOMRowCellsOld(id, elemRow, elemFirst, bom, edge) {
 
-//     let elemBOM     = elemClicked.closest('.bom');
-//     let id          = elemBOM.attr('id');
-//     let elemContent = $('#' + id + '-tbody');
+//     let index = 0;
 
-//     elemContent.children().each(function() {
-//         if($(this).children('th').length === 0) {
-//             if(!$(this).hasClass('bom-level-1')) {
-//                 $(this).addClass('bom-hidden');
+//     for(let column of settings[id].columns) {
+
+//         if(column.included) {
+
+//             let value      = '';
+//             let elemCell   = $('<td></td>');
+//             let isEditable = false;
+
+//             if(column.hasOwnProperty('editability')) {
+//                 if(column.editability === 'ALWAYS') {
+//                     isEditable = true;
+//                 }
 //             }
-//             if($(this).hasClass('node')) $(this).addClass('collapsed');
+
+//             if(!settings[id].hideDescriptor || (index > 0)) {
+//                     elemCell.appendTo(elemRow);
+//             } else {
+//                 elemCell = $('<span></span>').appendTo(elemFirst).addClass('bom-descriptor');
+//             }
+
+//             if(settings[id].editable && isEditable) {
+
+//                 column.id = column.fieldId;
+//                 let data = [{ id : column.fieldId, value : getBOMCellValue(edge.child, column.__self__.urn, bom.nodes, 'title')}];
+//                 insertField(settings[id], elemCell, column, data, settings[id].picklistData, false, false);
+
+//             } else {
+
+//                 if(column.fieldTab === 'STANDARD_BOM') value = getBOMEdgeValue(edge, column.__self__.urn, null, '');
+//                 else value = getBOMCellValue(edge.child, column.__self__.urn, bom.nodes, 'title');
+
+//                 elemCell.html(value)
+//                     .addClass('bom-column-'  + column.fieldId.toLowerCase())
+//                     .addClass('tree-column-' + column.fieldId.toLowerCase());
+
+//             }
+
+//             index++;
+
 //         }
-//     });
 
-// }
-function unhideBOMParents(level, elem) {
-
-    elem.prevAll().each(function() {
-
-        let prevLevel = Number($(this).attr('data-level'));
-
-        console.log(prevLevel);
-
-
-        if(level === prevLevel) {
-            level--;
-            $(this).show();
-        }
-
-    });
-
-}
-// function clickBOMReset(elemClicked) {
-
-//     let id          = elemClicked.closest('.bom').attr('id');
-//     let elemContent = elemClicked.closest('.bom').find('.bom-tbody');
-
-//     elemContent.children().removeClass('result').removeClass('selected').removeClass('bom-hidden');
-    
-//     $('#' + id + '-search-input').val('');
-
-//     updateBOMPath(elemClicked);
-//     togglePanelToolbarActions($(this));
-//     updatePanelCalculations(id);
-//     if(settings[id].viewerSelection) selectInViewer(id);
-
-//     clickBOMResetDone(elemClicked);
-
-// }
-// function clickBOMResetDone(elemClicked) {}
-// function clickBOMOpenInPLM(elemClicked) {
-
-//     let elemBOM   = elemClicked.closest('.bom');
-//     let elemItem  = elemBOM.find('.bom-item.selected').first();
-    
-//     openItemByLink(elemItem.attr('data-link'));
+//     }
 
 // }
 function clickBOMGoThere(elemClicked) {
@@ -5901,95 +6310,6 @@ function clickBOMGoThere(elemClicked) {
     } 
 
 }
-function selectInViewer(id) {
-
-    let listSelected = $('#' + id).find('.content-item.selected');
-
-    if(listSelected.length === 0) {
-      
-        viewerResetSelection();
-        
-    } else {
-
-        let partNumbers = [];
-
-        listSelected.each(function() {
-            let partNumber = $(this).attr('data-part-number');
-            if(!partNumbers.includes(partNumber)) partNumbers.push(partNumber);
-            
-        });
-
-        viewerSelectModels(partNumbers);
-
-    }
-
-}
-function clickBOMItem(elemClicked, e) {}
-function getBOMItemChildren(elemClicked, firstLevelOnly) {
-
-    if(isBlank(firstLevelOnly)) firstLevelOnly = false;
-
-    let level     = Number(elemClicked.attr('data-level'));
-    let levelNext = level - 1;
-    let elemNext  = elemClicked;
-    let children  = [];
-
-    do {
-
-        elemNext  = elemNext.next();
-        levelNext = Number(elemNext.attr('data-level'));
-
-        if(levelNext > level) {
-            if(firstLevelOnly) {
-                if((levelNext - level) === 1 ) {
-                    children.push(elemNext); 
-                }
-            } else children.push(elemNext);
-        }
-
-    } while(levelNext > level);
-
-    return children;
-
-}
-function getBOMItemParent(elemItem) {
-
-    let level = Number(elemItem.attr('data-level'));
-    let elemParent = null;
-
-    elemItem.prevAll().each(function() {
-        let nextLevel = Number($(this).attr('data-level'));
-        if(elemParent === null) {
-        if(nextLevel < level) {
-            elemParent = $(this);
-        }
-    }
-    });
-
-    return elemParent;
-
-}
-function getBOMItemPath(elemItem) {
-
-    let result = {
-        string : elemItem.attr('data-part-number'),
-        items  : [elemItem]
-    }
-
-    let level = Number(elemItem.attr('data-level'));
-
-    elemItem.prevAll().each(function() {
-        let nextLevel = Number($(this).attr('data-level'));
-        if(nextLevel < level) {
-            result.string = $(this).attr('data-part-number') + '|' + result.string;
-            result.items.unshift($(this));
-            level = nextLevel;
-        }
-    });
-
-    return result;
-
-}
 function getBOMItemByEdgeId(id, edgeId) {
 
     let elemTop = $('#' + id);
@@ -6008,40 +6328,6 @@ function getBOMItemByEdgeId(id, edgeId) {
     return result;
 
 }
-function bomScrollToTop(id) {
-
-    let elemBOM = $('#' + id + '-content');
-
-    elemBOM.animate({ scrollTop: 0 }, 200);
-
-}
-function bomScrollToBottom(id) {
-
-    let elemBOM  = $('#' + id + '-content');
-    let elemItem = elemBOM.find('.content-item').last();
-    let top      = elemItem.position().top;
-
-    elemBOM.animate({ scrollTop: top }, 200);
-
-}
-function bomScrollToItem(elemClicked) {
-
-    let panel   = elemClicked.closest('.panel-top');
-    let id      = panel.attr('id');
-    let elemBOM = $('#' + id + '-content');
-    let edgeId  = elemClicked.attr('data-edgeid');
-    let top     = elemBOM.innerHeight() / 2;
-
-    $('#' + id + '-tbody').find('.bom-item').each(function() {
-        if($(this).attr('data-edgeid') === edgeId) {
-            console.log($(this).position().top);
-            top = $(this).position().top - top;
-        }
-    });
-
-    elemBOM.animate({ scrollTop: top }, 500);
-
-}
 function bomDisplayItem(elemItem) {
 
     let level = Number(elemItem.attr('data-level'));
@@ -6055,7 +6341,7 @@ function bomDisplayItem(elemItem) {
     
     elemBOM.animate({ scrollTop: top }, 500);
 
-    if(settings[id].path) updateBOMPath(elemItem);
+    if(settings[id].path) updateTreePath(elemItem);
 
 }
 function bomDisplayItemByPartNumber(number, select, deselect) {
@@ -6124,7 +6410,7 @@ function getBOMPathElements(path, index, result, elemItem, select, deselect) {
 
     } else {
         
-        let children = getBOMItemChildren(elemItem, true);
+        let children = treeGetItemChildren(elemItem, true);
 
         for(let child of children) {
 
@@ -6151,76 +6437,13 @@ function expandBOMParents(level, elem) {
             $(this).show();
             if(isNode) {
                 if(isCollapsed) {
-                    $(this).find('.bom-nav').click();
+                    $(this).find('.tree-nav').click();
                 }
             }
         }
 
     });
 
-}
-function updateBOMPath(elemClicked) {
-
-    let elemBOM  = elemClicked.closest('.bom');
-    let id       = elemBOM.attr('id');
-    let elemPath = $('#' + id + '-bom-path');
-
-    if(elemPath.length === 0) return;
-    
-    elemPath.html('').addClass('bom-path-empty');
-    
-    if(!elemClicked.hasClass('selected')) return;
-    
-    let path        = getBOMItemPath(elemClicked);
-    let index       = 0;
-
-    elemPath.removeClass('bom-path-empty');
-
-    for(let item of path.items) {
-
-        let label = item.attr('data-part-number');
-
-        if(isBlank(label)) label = item.attr('data-title');
-
-        label = label.split(' - ')[0];
-
-        let elemItem = $('<div></div>').appendTo(elemPath)
-            .attr('data-edgeid', item.attr('data-edgeid'))
-            .html(label);
-
-        if(path.items.length === 1) elemItem.addClass('bom-path-selected-single');
-
-        if(index < path.items.length - 1) {
-            elemItem.addClass('bom-path-parent');
-            elemItem.click(function() {
-                let edgeId = $(this).attr('data-edgeid');
-                $('#' + id + '-tbody').find('.bom-item').each(function() {
-                    if($(this).attr('data-edgeid') === edgeId) {
-                        bomDisplayItem($(this));
-                        $(this).click();
-                    }
-                });
-            });
-        } else {
-            elemItem.addClass('bom-path-selected');
-            elemItem.click(function() {
-                bomScrollToItem($(this));
-            });
-        }
-
-        index++;
-
-    }
-
-}
-function resetBOMPath(id) {
-
-    let elemPath = $('#' + id + '-bom-path');
-
-    if(elemPath.length === 0) return;
-    
-    elemPath.html('').addClass('bom-path-empty');
-    
 }
 
 
@@ -6246,14 +6469,14 @@ function insertBOMPartsList(link , params) {
 
     settings[id].load = function() { insertBOMPartsListData(id); }
 
-    genPanelTop                    (id, settings[id], 'partList');
-    genPanelHeader                 (id, settings[id]);
-    genPanelOpenSelectedInPLMButton(id, settings[id]);
-    genPanelSelectionControls      (id, settings[id]);
-    genPanelSearchInput            (id, settings[id]);
-    genPanelResizeButton           (id, settings[id]);
-    genPanelReloadButton           (id, settings[id]);
-    genPanelContents               (id, settings[id]);
+    genPanelTop                    (id, 'partList');
+    genPanelHeader                 (id);
+    genPanelOpenSelectedInPLMButton(id);
+    genPanelSelectionControls      (id);
+    genPanelSearchInput            (id);
+    genPanelResizeButton           (id);
+    genPanelReloadButton           (id);
+    genPanelContents               (id);
 
     insertBOMPartsListDone(id);
 
@@ -6351,7 +6574,7 @@ function insertBOMPartsListData(id) {
         }
 
         insertBOMPartsListDataDone(id, response);
-        finishPanelContentUpdate(id, settings[id], items);
+        finishPanelContentUpdate(id, items);
 
     });
 
@@ -6370,7 +6593,7 @@ function insertFlatBOM(link , params) {
     settings[id] = getPanelSettings(link, params, {
         headerLabel : 'Flat BOM'
     }, [
-        [ 'viewSelector'    , false ],
+        [ 'bomViewSelector'    , false ],
         [ 'fieldIdPartNumber'    , 'NUMBER' ],
         // [ 'filterEmpty'     , false ],
         // [ 'counters'        , false ],
@@ -6385,12 +6608,12 @@ function insertFlatBOM(link , params) {
     settings[id].layout = 'table';
     settings[id].load   = function() { insertFlatBOMData(id); }
 
-    genPanelTop                    (id, settings[id], 'flat-bom');
-    genPanelHeader                 (id, settings[id]);
-    genPanelOpenSelectedInPLMButton(id, settings[id]);
-    genPanelSelectionControls      (id, settings[id]);
+    genPanelTop                    (id, 'flat-bom');
+    genPanelHeader                 (id);
+    genPanelOpenSelectedInPLMButton(id);
+    genPanelSelectionControls      (id);
 
-    let elemToolbar = genPanelToolbar(id, settings[id], 'controls');
+    let elemToolbar = genPanelToolbar(id, 'controls');
 
     $('<select></select>').appendTo(elemToolbar)
         .addClass('flat-bom-view-selector')
@@ -6401,14 +6624,14 @@ function insertFlatBOM(link , params) {
             insertFlatBOMData(id);
         });
 
-    genPanelSearchInput (id, settings[id]);
-    genPanelResizeButton(id, settings[id]);
-    genPanelReloadButton(id, settings[id] );
-    genPanelContents    (id, settings[id]);
+    genPanelSearchInput (id);
+    genPanelResizeButton(id);
+    genPanelReloadButton(id );
+    genPanelContents    (id);
 
     if(settings[id].editable) {
 
-        let elemToolbar = genPanelToolbar(id, settings[id], 'controls');
+        let elemToolbar = genPanelToolbar(id, 'controls');
 
         $('<div></div>').prependTo(elemToolbar)
             .addClass('button')
@@ -6419,13 +6642,13 @@ function insertFlatBOM(link , params) {
             .click(function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                savePanelTableChanges(id, settings[id]);
+                savePanelTableChanges(id);
             });
 
     }
 
     insertFlatBOMDone(id);        
-    getBOMTabViews(id,  settings[id]);
+    getBOMViews(id);
 
 
     //  Set defaults for optional parameters
@@ -6445,10 +6668,8 @@ function insertFlatBOM(link , params) {
     // let bomViewName     = '';              // BOM view of PLM to display (if no value is provided, bomViewId will be used)
     // let bomViewId       = '';              // BOM view of PLM to display (if no value is provided, the first view available will be used)
     
-    // if(!isBlank(params.viewSelector)  )   viewSelector = params.viewSelector;
     // if(!isBlank(params.search)        )         search = params.search;
     // if(!isBlank(params.placeholder)   )    placeholder = params.placeholder;
-    // if(!isBlank(params.multiSelect)   )    multiSelect = params.multiSelect;
     // if(!isBlank(params.filterSelected)) filterSelected = params.filterSelected;
     // if(!isBlank(params.tableHeaders)  )   tableHeaders = params.tableHeaders;
     // if(!isBlank(params.number)        )         number = params.number;
@@ -6599,7 +6820,7 @@ function insertFlatBOMData(id) {
 
         }
 
-        finishPanelContentUpdate(id, settings[id], items);
+        finishPanelContentUpdate(id, items);
         insertFlatBOMDataDone(id, responses);
 
     });
@@ -6756,16 +6977,16 @@ function insertRootParents(link, params) {
 
     settings[id].load = function() { insertRootParentsData(id); }
 
-    genPanelTop                    (id, settings[id], 'roots');
-    genPanelHeader                 (id, settings[id]);
-    genPanelOpenSelectedInPLMButton(id, settings[id]);
-    genPanelSelectionControls      (id, settings[id]);
-    genPanelFilterSelect           (id, settings[id], 'filterByLifecycle', 'lifecycle', 'All Lifecycles');
-    genPanelFilterSelect           (id, settings[id], 'filterByWorkspace', 'workspace', 'All Workspaces');
-    genPanelSearchInput            (id, settings[id]);
-    genPanelResizeButton           (id, settings[id]);
-    genPanelReloadButton           (id, settings[id]);
-    genPanelContents               (id, settings[id]);
+    genPanelTop                    (id, 'roots');
+    genPanelHeader                 (id);
+    genPanelOpenSelectedInPLMButton(id);
+    genPanelSelectionControls      (id);
+    genPanelFilterSelect           (id, 'filterByLifecycle', 'lifecycle', 'All Lifecycles');
+    genPanelFilterSelect           (id, 'filterByWorkspace', 'workspace', 'All Workspaces');
+    genPanelSearchInput            (id);
+    genPanelResizeButton           (id);
+    genPanelReloadButton           (id);
+    genPanelContents               (id);
 
     insertRootParentsDone(id);
     
@@ -6875,7 +7096,7 @@ function insertRootParentsData(id) {
         }
 
         if(settings[id].layout.toLowerCase() === 'table') {
-            genTable(id, settings[id], items);
+            genTable(id, items);
             $('#' + id + '-tbody').children().each(function() {
                 
                 let elemCell = $(this).children().last();
@@ -6912,13 +7133,12 @@ function insertRootParentsData(id) {
 
             });
         } else {
-            genTiles(id, settings[id], items);   
-            // addTilesListImages(id, settings[id]);
+            genTiles(id, items); 
         }
 
         setPanelFilterOptions(id, 'lifecycle', listLifecycles);
         setPanelFilterOptions(id, 'workspace', listWorkspaces);
-        finishPanelContentUpdate(id, settings[id]);
+        finishPanelContentUpdate(id);
         insertRootParentsDataDone(id, responses[0].data);
            
     });
@@ -6973,16 +7193,16 @@ function insertParents(link, params) {
     settings[id].expand = settings[id].displayParentsBOM;
     settings[id].load = function() { insertParentsData(id); }
 
-    genPanelTop                    (id, settings[id], 'parents');
-    genPanelHeader                 (id, settings[id]);
-    genPanelOpenSelectedInPLMButton(id, settings[id]);
-    genPanelSelectionControls      (id, settings[id]);
-    genPanelFilterSelect           (id, settings[id], 'filterByLifecycle', 'lifecycle', 'All Lifecycles');
-    genPanelFilterSelect           (id, settings[id], 'filterByWorkspace', 'workspace', 'All Workspaces');
-    genPanelSearchInput            (id, settings[id]);
-    genPanelResizeButton           (id, settings[id]);
-    genPanelReloadButton           (id, settings[id]);
-    genPanelContents               (id, settings[id]);
+    genPanelTop                    (id, 'parents');
+    genPanelHeader                 (id);
+    genPanelOpenSelectedInPLMButton(id);
+    genPanelSelectionControls      (id);
+    genPanelFilterSelect           (id, 'filterByLifecycle', 'lifecycle', 'All Lifecycles');
+    genPanelFilterSelect           (id, 'filterByWorkspace', 'workspace', 'All Workspaces');
+    genPanelSearchInput            (id);
+    genPanelResizeButton           (id);
+    genPanelReloadButton           (id);
+    genPanelContents               (id);
 
     insertParentsDone(id);
     
@@ -7077,10 +7297,10 @@ function insertParentsData(id) {
         }
 
         if(settings[id].layout.toLowerCase() === 'table') {
-            genTable(id, settings[id], items);
+            genTable(id, items);
         } else {
-            genTiles(id, settings[id], items);   
-            addTilesListChevrons(id, settings[id], function(elemClicked) { insertParentBOM(id, elemClicked); });
+            genTiles(id, items);   
+            addTilesListChevrons(id, function(elemClicked) { insertParentBOM(id, elemClicked); });
         }
 
         sortArray(listLifecycles, 0);
@@ -7088,7 +7308,7 @@ function insertParentsData(id) {
 
         setPanelFilterOptions(id, 'lifecycle', listLifecycles);
         setPanelFilterOptions(id, 'workspace', listWorkspaces);
-        finishPanelContentUpdate(id, settings[id]);
+        finishPanelContentUpdate(id);
         insertParentsDataDone(id, responses[0].data);
         
     });
@@ -7149,16 +7369,16 @@ function insertBOMChanges(link, params) {
 
     settings[id].load = function() { insertBOMChangesData(id); }
 
-    genPanelTop                    (id, settings[id], 'changes');
-    genPanelHeader                 (id, settings[id]);
-    genPanelOpenSelectedInPLMButton(id, settings[id]);
-    genPanelSelectionControls      (id, settings[id]);
-    genPanelFilterSelect           (id, settings[id], 'filterByLifecycle', 'lifecycle', 'All Lifecycles');
-    genPanelFilterSelect           (id, settings[id], 'filterByWorkspace', 'workspace', 'All Workspaces');
-    genPanelSearchInput            (id, settings[id]);
-    genPanelResizeButton           (id, settings[id]);
-    genPanelReloadButton           (id, settings[id]);
-    genPanelContents               (id, settings[id]);
+    genPanelTop                    (id, 'changes');
+    genPanelHeader                 (id);
+    genPanelOpenSelectedInPLMButton(id);
+    genPanelSelectionControls      (id);
+    genPanelFilterSelect           (id, 'filterByLifecycle', 'lifecycle', 'All Lifecycles');
+    genPanelFilterSelect           (id, 'filterByWorkspace', 'workspace', 'All Workspaces');
+    genPanelSearchInput            (id);
+    genPanelResizeButton           (id);
+    genPanelReloadButton           (id);
+    genPanelContents               (id);
 
     insertBOMChangesDone(id);
 
@@ -7247,7 +7467,7 @@ function insertBOMChangesData(id) {
 
         setPanelFilterOptions(id, 'lifecycle', listLifecycles);
         setPanelFilterOptions(id, 'workspace', listWorkspaces);
-        finishPanelContentUpdate(id, settings[id], items);
+        finishPanelContentUpdate(id, items);
         insertBOMChangesDataDone(id, responses[0].data);
         
     });
@@ -7326,8 +7546,6 @@ function insertViewer(link, params) {
         
         if(response.data.length > 0) {
             
-        //     // sortArray(response.data, 'size', 'integer', 'descending');
-            
             $('#' + id).removeClass('hidden');
             $('body').removeClass('no-viewer');
 
@@ -7337,7 +7555,7 @@ function insertViewer(link, params) {
         } else {
 
             $('body').addClass('no-viewer');
-            viewerShowErrorMessage('No viewable found'); return;
+            viewerShowErrorMessage(id, 'No viewable found'); return;
 
         }
         
@@ -7485,17 +7703,17 @@ function insertManagedItems(link, params) {
 
     settings[id].load = function() { insertManagedItemsData(id); }
 
-    genPanelTop                    (id, settings[id], 'managed-items');
-    genPanelHeader                 (id, settings[id]);
-    genPanelOpenSelectedInPLMButton(id, settings[id]);
-    genPanelDisconnectButton       (id, settings[id], function() { removeManagedItems(id); } );
-    genPanelSelectionControls      (id, settings[id]);
-    genPanelFilterSelect           (id, settings[id], 'filterByLifecycle', 'lifecycle', 'All Lifecycle Transitions');
-    genPanelFilterSelect           (id, settings[id], 'filterByWorkspace', 'workspace', 'All Workspaces');
-    genPanelSearchInput            (id, settings[id]);
-    genPanelResizeButton           (id, settings[id]);
-    genPanelReloadButton           (id, settings[id]);
-    genPanelContents               (id, settings[id]);
+    genPanelTop                    (id, 'managed-items');
+    genPanelHeader                 (id);
+    genPanelOpenSelectedInPLMButton(id);
+    genPanelDisconnectButton       (id, function() { removeManagedItems(id); } );
+    genPanelSelectionControls      (id);
+    genPanelFilterSelect           (id, 'filterByLifecycle', 'lifecycle', 'All Lifecycle Transitions');
+    genPanelFilterSelect           (id, 'filterByWorkspace', 'workspace', 'All Workspaces');
+    genPanelSearchInput            (id);
+    genPanelResizeButton           (id);
+    genPanelReloadButton           (id);
+    genPanelContents               (id);
 
     insertManagedItemsDone(id);
     
@@ -7632,7 +7850,7 @@ function insertManagedItemsData(id, linkNew) {
 
         setPanelFilterOptions(id, 'lifecycle', listLifecycles);
         setPanelFilterOptions(id, 'workspace', listWorkspaces);
-        finishPanelContentUpdate(id, settings[id], items);
+        finishPanelContentUpdate(id, items);
         insertManagedItemsDataDone(id, responses[0].data, responses[1].data);
 
     });
@@ -7663,9 +7881,11 @@ function insertManagedItemsDataDone(id, items, fields) {}
 
 
 // Insert related processes
-function insertChangeProcesses(link, params) {
+function insertChangeProcesses(link, params, data) {
 
-    if(isBlank(link)) return;
+    if(isBlank(link  )) return;
+    if(isBlank(params)) params = {};
+    if(isBlank(data  )) data   = {};
 
     let id = isBlank(params.id) ? 'processes' : params.id;
     
@@ -7678,35 +7898,43 @@ function insertChangeProcesses(link, params) {
         [ 'filterByWorkspace'        , false ],
         [ 'createId'                 , 'create' ],
         [ 'createHeaderLabel'        , 'Create Process' ],
+        [ 'createButtonLabel'        , 'Create New' ],
         [ 'createSectionsIn'         , [] ],
         [ 'createSectionsEx'         , [] ],
         [ 'createFieldsIn'           , [] ],
         [ 'createFieldsEx'           , [] ],
         [ 'createWorkspaceIds'       , [] ],
         [ 'createWorkspaceNames'     , [] ],
+        [ 'createContextItem'        , '' ], // '/api/v3/workspaces/57/items/12345'
         [ 'createContextItems'       , [] ], // ['/api/v3/workspaces/57/items/12345']
-        [ 'createContextItemFields'  , [] ], // ['AFFECTED_ITEM']
+        [ 'createContextItemField'   , '' ], // 'AFFECTED_ITEM'
+        [ 'createContextItemsField'  , [] ], // 'AFFECTED_ITEMS'
+        [ 'createContextItemFields'  , [] ], // ['AFFECTED_ITEM', 'RELATED_ITEM']
         [ 'createViewerImageFields'  , [] ], // 'IMAGE_1'
         [ 'createPerformTransition'  , '' ], // 'SUBMIT'
         [ 'createConnectAffectedItem', true ]
     ]);
 
-    settings[id].load = function() { insertChangeProcessesData(id); }
+    settings[id].permissions        = data.permissions        || [];
+    settings[id].workspaces         = data.workspaces         || [];
+    settings[id].relatedWorkspaces  = data.relatedWorkspaces  || [];
+    settings[id].relatedPermissions = data.relatedPermissions || [];
+    settings[id].load               = function() { insertChangeProcessesData(id); }
 
-    genPanelTop                    (id, settings[id], 'processes');
-    genPanelHeader                 (id, settings[id]);
-    genPanelOpenSelectedInPLMButton(id, settings[id]);
-    genPanelSelectionControls      (id, settings[id]);
-    genPanelFilterSelect           (id, settings[id], 'filterByStatus'   , 'status'   , 'All States'    );
-    genPanelFilterSelect           (id, settings[id], 'filterByWorkspace', 'workspace', 'All Workspaces');
-    genPanelSearchInput            (id, settings[id]);
-    genPanelResizeButton           (id, settings[id]);
-    genPanelReloadButton           (id, settings[id]);
-    genPanelContents               (id, settings[id]);
+    genPanelTop                    (id, 'processes');
+    genPanelHeader                 (id);
+    genPanelOpenSelectedInPLMButton(id);
+    genPanelSelectionControls      (id);
+    genPanelFilterSelect           (id, 'filterByStatus'   , 'status'   , 'All States'    );
+    genPanelFilterSelect           (id, 'filterByWorkspace', 'workspace', 'All Workspaces');
+    genPanelSearchInput            (id);
+    genPanelResizeButton           (id);
+    genPanelReloadButton           (id);
+    genPanelContents               (id);
 
     if(settings[id].editable) {
 
-        genPanelActionButton(id, {}, 'create', 'Create New', 'Create new process', function() {
+        genPanelActionButton(id, 'create', settings[id].createButtonLabel, 'Create new process', function() {
             insertCreate(settings[id].createWorkspaceNames, settings[id].createWorkspaceIds, {
                 id                  : settings[id].createId,
                 headerLabel         : settings[id].createHeaderLabel,
@@ -7716,7 +7944,10 @@ function insertChangeProcesses(link, params) {
                 fieldsEx            : settings[id].createFieldsEx,
                 contextId           : id,
                 contextItem         : settings[id].link,
+                contextItem         : settings[id].createContextItem,
                 contextItems        : settings[id].createContextItems,
+                contextItemField    : settings[id].createContextItemField,
+                contextItemsField   : settings[id].createContextItemsField,
                 contextItemFields   : settings[id].createContextItemFields,
                 viewerImageFields   : settings[id].createViewerImageFields,
                 performTransition   : settings[id].createPerformTransition,
@@ -7735,19 +7966,23 @@ function insertChangeProcessesData(id, linkNew) {
 
     settings[id].timestamp = startPanelContentUpdate(id);
 
+    let requestor = 'item.js | insertChangeProcessesData()';
+
     let params = {
         link      : settings[id].link,
-        timestamp : settings[id].timestamp
+        timestamp : settings[id].timestamp,
+        requestor : requestor
     }
 
-    let requests = [
-        $.get('/plm/changes', params),
-        $.get('/plm/workspaces?limit=250', { useCache : true })
-    ]
+    let requests = [ $.get('/plm/changes', params) ]
 
+    if(settings[id].workspaces.length === 0) requests.push($.get('/plm/workspaces', { useCache : settings[id].useCache }));
+    
     if(settings[id].editable) {
-        requests.push($.get('/plm/permissions', params));
-        requests.push($.get('/plm/linked-workspaces', { link : settings[id].link, useCache : true }));
+        if(settings[id].permissions.length       === 0) requests.push($.get('/plm/permissions'      , { requestor : requestor, link : settings[id].link         }));
+        if(settings[id].relatedWorkspaces.length === 0) requests.push($.get('/plm/linked-workspaces', { requestor : requestor, link : settings[id].link, useCache : settings[id].useCache }));
+        // addRequestIfNotInCache(id, requests, '/plm/linked-workspaces?limit=250', { link : settings[id].link });
+        // requests.push($.get('/plm/linked-workspaces', { link : settings[id].link, useCache : true }));
     }
 
     Promise.all(requests).then(function(responses) {
@@ -7756,10 +7991,14 @@ function insertChangeProcessesData(id, linkNew) {
 
         settings[id].columns = [];
 
-        let items           = [];
-        let listWorkspaces  = [];
-        let listStates      = [];
-        let columns         = [
+        if(settings[id].workspaces.length        === 0) settings[id].workspaces        = getResponseFromResponses(responses, '/plm/workspaces'       ).data;
+        if(settings[id].permissions.length       === 0) settings[id].permissions       = getResponseFromResponses(responses, '/plm/permissions'      ).data;
+        if(settings[id].relatedWorkspaces.length === 0) settings[id].relatedWorkspaces = getResponseFromResponses(responses, '/plm/linked-workspaces').data;
+
+        let items            = [];
+        let listWorkspaces   = [];
+        let listStates       = [];
+        let columns          = [
             { displayName : 'Item',                 fieldId : 'item'      },
             { displayName : 'Workspace',            fieldId : 'workspace' },
             { displayName : 'Current State',        fieldId : 'current'   },
@@ -7782,7 +8021,7 @@ function insertChangeProcessesData(id, linkNew) {
 
             let workspaceLink = process.item.link.split('/items/')[0];
 
-            for(let workspace of responses[1].data.items) {
+            for(let workspace of settings[id].workspaces.items) {
                 if(workspace.link === workspaceLink) {
                     process.workspace = workspace.title;
                     break;
@@ -7845,8 +8084,8 @@ function insertChangeProcessesData(id, linkNew) {
 
         setPanelFilterOptions(id, 'status', listStates);
         setPanelFilterOptions(id, 'workspace', listWorkspaces);
-        setPanelContentActions(id, settings[id], responses);
-        finishPanelContentUpdate(id, settings[id], items, linkNew);
+        setPanelContentActions(id);
+        finishPanelContentUpdate(id, items, linkNew);
         insertChangeProcessesDataDone(id, responses[0].data);
 
     });
@@ -7913,21 +8152,21 @@ function insertProject(link, params) {
 
     settings[id].load = function() { insertProjectData(id); }
 
-    genPanelTop                    (id, settings[id], 'project');
-    genPanelHeader                 (id, settings[id]);
-    genPanelOpenSelectedInPLMButton(id, settings[id]);
-    genPanelSelectionControls      (id, settings[id]);
-    genPanelFilterSelect           (id, settings[id], 'filterByStatus'   , 'status'   , 'All States'    );
-    genPanelFilterSelect           (id, settings[id], 'filterByWorkspace', 'workspace', 'All Workspaces');
-    genPanelSearchInput            (id, settings[id]);
-    genPanelResizeButton           (id, settings[id]);
-    genPanelReloadButton           (id, settings[id]);
-    genPanelContents               (id, settings[id]);
+    genPanelTop                    (id, 'project');
+    genPanelHeader                 (id);
+    genPanelOpenSelectedInPLMButton(id);
+    genPanelSelectionControls      (id);
+    genPanelFilterSelect           (id, 'filterByStatus'   , 'status'   , 'All States'    );
+    genPanelFilterSelect           (id, 'filterByWorkspace', 'workspace', 'All Workspaces');
+    genPanelSearchInput            (id);
+    genPanelResizeButton           (id);
+    genPanelReloadButton           (id);
+    genPanelContents               (id);
 
     if(settings[id].editable) {
 
-        genPanelCreateButton(id, settings[id], function(createId, createLink, data, id) { afterProjectItemCreation(createId, createLink, data, id); });
-        genPanelDisconnectButton(id, settings[id], function() { disconnectProjectItems(id); });
+        genPanelCreateButton(id, function(createId, createLink, data, id) { afterProjectItemCreation(createId, createLink, data, id); });
+        genPanelDisconnectButton(id, function() { disconnectProjectItems(id); });
 
     }
 
@@ -7960,7 +8199,8 @@ function insertProjectData(id, linkNew) {
 
         if(stopPanelContentUpdate(responses[0], settings[id])) return;
 
-        settings[id].columns = [];
+        settings[id].columns     = [];
+        settings[id].permissions = getResponseFromResponses(responses, '/plm/permissions').data;
 
         let items           = [];
         let listWorkspaces  = [];
@@ -8057,8 +8297,8 @@ function insertProjectData(id, linkNew) {
 
         setPanelFilterOptions(id, 'status', listStates);
         setPanelFilterOptions(id, 'workspace', listWorkspaces);
-        setPanelContentActions(id, settings[id], responses);
-        finishPanelContentUpdate(id, settings[id], items, linkNew);
+        setPanelContentActions(id);
+        finishPanelContentUpdate(id, items, linkNew);
         insertProjectDataDone(id, responses[0].data);
 
     });
@@ -8127,15 +8367,15 @@ function insertRelationships(link, params) {
 
     settings[id].load = function() { insertRelationshipsData(id); }
 
-    genPanelTop                    (id, settings[id], 'managed-items');
-    genPanelHeader                 (id, settings[id]);
-    genPanelOpenSelectedInPLMButton(id, settings[id]);
-    genPanelSelectionControls      (id, settings[id]);
-    genPanelFilterSelect           (id, settings[id], 'filterByWorkspace', 'workspace', 'All Workspaces');
-    genPanelSearchInput            (id, settings[id]);
-    genPanelResizeButton           (id, settings[id]);
-    genPanelReloadButton           (id, settings[id]);
-    genPanelContents               (id, settings[id]);
+    genPanelTop                    (id, 'managed-items');
+    genPanelHeader                 (id);
+    genPanelOpenSelectedInPLMButton(id);
+    genPanelSelectionControls      (id);
+    genPanelFilterSelect           (id, 'filterByWorkspace', 'workspace', 'All Workspaces');
+    genPanelSearchInput            (id);
+    genPanelResizeButton           (id);
+    genPanelReloadButton           (id);
+    genPanelContents               (id);
 
     insertRelationshipsDone(id);
 
@@ -8215,16 +8455,9 @@ function insertRelationshipsData(id) {
 
         }
 
-        // if(settings[id].layout.toLowerCase() === 'table') {
-        //     genTable(id ,settings[id], items);
-        // } else {
-        //     genTilesList(id, items, settings[id]);   
-        // }
-
         sortArray(listWorkspaces, 0);
         setPanelFilterOptions(id, 'workspace', listWorkspaces);
-
-        finishPanelContentUpdate(id, settings[id], items);
+        finishPanelContentUpdate(id, items);
         insertRelationshipsDataDone(id, response);
 
 
@@ -8255,16 +8488,16 @@ function insertSourcing(link, params) {
 
     settings[id].load   = function() { insertSourcingData(id); }
 
-    genPanelTop            (id, settings[id], 'sourcing');
-    genPanelHeader         (id, settings[id]);
-    genPanelBookmarkButton (id, settings[id]);
-    genPanelOpenInPLMButton(id, settings[id]);
-    genPanelFilterSelect   (id, settings[id], 'filterBySupplier', 'supplier', 'All Suppliers');
-    genPanelFilterSelect   (id, settings[id], 'filterByManufacturer', 'manufacturer', 'All Manufacturers');
-    genPanelSearchInput    (id, settings[id]);
-    genPanelResizeButton   (id, settings[id]);
-    genPanelReloadButton   (id, settings[id]);
-    genPanelContents       (id, settings[id]);
+    genPanelTop            (id, 'sourcing');
+    genPanelHeader         (id);
+    genPanelBookmarkButton (id);
+    genPanelOpenInPLMButton(id);
+    genPanelFilterSelect   (id, 'filterBySupplier', 'supplier', 'All Suppliers');
+    genPanelFilterSelect   (id, 'filterByManufacturer', 'manufacturer', 'All Manufacturers');
+    genPanelSearchInput    (id);
+    genPanelResizeButton   (id);
+    genPanelReloadButton   (id);
+    genPanelContents       (id);
 
     insertSourcingDone(id);
 
@@ -8288,7 +8521,7 @@ function insertSourcingData(id) {
 
         if(stopPanelContentUpdate(responses[0], settings[id])) return;
 
-        setPanelBookmarkStatus(id, settings[id], responses);
+        setPanelBookmarkStatus(id, responses);
 
         settings[id].columns = [];
 
@@ -8369,8 +8602,7 @@ function insertSourcingData(id) {
         sortArray(listManufacturers, 0);
         setPanelFilterOptions(id, 'supplier', listSuppliers);
         setPanelFilterOptions(id, 'manufacturer', listManufacturers);
-
-        finishPanelContentUpdate(id, settings[id], items);
+        finishPanelContentUpdate(id, items);
         insertSourcingDataDone(id, responses[0]);        
  
     });
@@ -8399,13 +8631,13 @@ function insertWorkflowHistory(link, params) {
 
     settings[id].load = function() { insertWorkflowHistoryData(id); }
 
-    genPanelTop            (id, settings[id], 'processes');
-    genPanelHeader         (id, settings[id]);
-    genPanelOpenInPLMButton(id, settings[id]);
-    genPanelSearchInput    (id, settings[id]);
-    genPanelResizeButton   (id, settings[id]);
-    genPanelReloadButton   (id, settings[id]);
-    genPanelContents       (id, settings[id]).addClass('workflow-history-content').removeClass('list');
+    genPanelTop            (id, 'processes');
+    genPanelHeader         (id);
+    genPanelOpenInPLMButton(id);
+    genPanelSearchInput    (id);
+    genPanelResizeButton   (id);
+    genPanelReloadButton   (id);
+    genPanelContents       (id).addClass('workflow-history-content').removeClass('list');
 
     insertWorkflowHistoryDone(id);
 
@@ -8518,7 +8750,7 @@ function insertWorkflowHistoryData(id) {
             }
         }
 
-        finishPanelContentUpdate(id, settings[id]);
+        finishPanelContentUpdate(id);
         insertWorkflowHistoryDone(id, responses[0].data, responses[1].data);
 
     });
@@ -8685,15 +8917,15 @@ function insertChangeLog(link, params) {
     settings[id].layout = 'table';
     settings[id].load   = function() {  insertChangeLogData(id); }
 
-    genPanelTop            (id, settings[id], 'managed-items', []);
-    genPanelHeader         (id, settings[id]);
-    genPanelOpenInPLMButton(id, settings[id]);
-    genPanelFilterSelect   (id, settings[id], 'filterByUser', 'user', 'All Users');
-    genPanelFilterSelect   (id, settings[id], 'filterByAction', 'action', 'All Actions');
-    genPanelSearchInput    (id, settings[id]);
-    genPanelResizeButton   (id, settings[id]);
-    genPanelReloadButton   (id, settings[id]);
-    genPanelContents       (id, settings[id]);
+    genPanelTop            (id, 'managed-items', []);
+    genPanelHeader         (id);
+    genPanelOpenInPLMButton(id);
+    genPanelFilterSelect   (id, 'filterByUser', 'user', 'All Users');
+    genPanelFilterSelect   (id, 'filterByAction', 'action', 'All Actions');
+    genPanelSearchInput    (id);
+    genPanelResizeButton   (id);
+    genPanelReloadButton   (id);
+    genPanelContents       (id);
 
     insertChangeLogDone(id);
 
@@ -8815,11 +9047,9 @@ function insertChangeLogData(id) {
 
         sortArray(listUsers, 0);
         sortArray(listActions, 0);
-        
         setPanelFilterOptions(id, 'user', listUsers);
         setPanelFilterOptions(id, 'action', listActions);
-
-        finishPanelContentUpdate(id, settings[id]);
+        finishPanelContentUpdate(id);
         insertChangeLogDataDone(id, response);
    
     });
@@ -8923,10 +9153,10 @@ function insertItemSummary(link, params) {
        elemItemSummary.html('');
        elemItemContent.html('');
 
-    genPanelBookmarkButton (id, settings[id]);
-    genPanelCloneButton    (id, settings[id]);
-    genPanelOpenInPLMButton(id, settings[id]);
-    genPanelReloadButton   (id, settings[id]);
+    genPanelBookmarkButton (id);
+    genPanelCloneButton    (id);
+    genPanelOpenInPLMButton(id);
+    genPanelReloadButton   (id);
 
     if(settings[id].workflowActions) {
         if(elemItemWorkflowActions.length === 0) {
@@ -9046,7 +9276,10 @@ function setItemSummaryData(id) {
                                 stateLabel = statesColor.label;
                             }
                         } else if (statesColor.states.indexOf(stateLabel) > -1) {
-                            if(!isBlank(statesColor.color)) stateColor = colors[statesColor.color];
+                            if(!isBlank(statesColor.color)) {
+                                if(typeof statesColor.color === 'string') stateColor = statesColor.color;
+                                else stateColor = colors[statesColor.color];
+                            }
                             if(!isBlank(statesColor.label)) stateLabel = statesColor.label;
                             break;
                         }
@@ -9097,8 +9330,8 @@ function setItemSummaryData(id) {
 
                 }
 
-                setPanelBookmarkStatus(id, settings[id], responses);
-                setPanelCloneStatus(id, settings[id], responses);
+                setPanelBookmarkStatus(id, responses);
+                setPanelCloneStatus(id, responses);
 
                 if(settings[id].workflowActions) {
                     insertWorkflowActions(settings[id].link, {

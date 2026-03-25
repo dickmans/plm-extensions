@@ -177,7 +177,6 @@ function setUIEvents() {
 
                 let newLink = response.data.split('.autodeskplm360.net')[1];
                 $.post('/plm/add-managed-items', { 'link' : newLink, 'items' : [ link ] }, function(response) {
-                // $.get('/plm/add-relationship', { 'link' : newLink, 'relatedId' : link.split('/')[6] }, function(response) {
                     setProcesses($('#processes-list').attr('data-source'));
                     $('.process-dialog').hide();
                     $('#create-process').show();
@@ -189,12 +188,6 @@ function setUIEvents() {
         });
 
     });
-
-
-    // BOM Tree Actions
-    // $('#bom-search-input').keyup(function() {
-    //     filterBOMTree();
-    // });
 
 
     // Tab Control
@@ -334,7 +327,7 @@ function getInitialData(wsId) {
 
 
 // Parse BOM for Spare Parts
-function changeBOMViewDone(id, fields, viewBOM, viewFlatBOM) {
+function openBOMViewDone(id, fields, viewBOM, viewFlatBOM) {
 
     let link = $('#' + id).attr('data-link');
     bom      = viewBOM;
@@ -359,7 +352,7 @@ function changeBOMViewDone(id, fields, viewBOM, viewFlatBOM) {
     getBOMSpareParts(bom, flatBOM, 'urn:adsk.plm:tenant.workspace.item:' + tenant.toUpperCase() + '.' + link.split('/')[4] + '.' + link.split('/')[6], 1.0);
 
     $('.bom-item').each(function() {
-        let elemCell = $('<td></td>').addClass('bom-column-icon').addClass('bom-column-spare-parts').appendTo(this);
+        let elemCell = $('<td></td>').addClass('tree-icon').addClass('tree-column-spare-parts').appendTo(this);
         for(sparePart of listSpareParts) {
             if($(this).attr('data-link') === sparePart) {
                 $(this).addClass('is-spare-part');
@@ -672,18 +665,6 @@ function clickBOMItem(e, elemClicked) {
     // }
 
 }
-// function clickBOMResetDone() {
-    
-//     let link = $('#bom').attr('data-link');
-    
-//     $('.spare-part').removeClass('zoom');
-
-//     insertItemDetails(link);
-//     insertAttachments(link, paramsAttachments);
-//     resetSparePartsList();
-//     updateViewer();
-
-// }
 
 
 // Manage Spare Parts List Panel
@@ -816,7 +797,6 @@ function viewerClickReset() {
     viewer.showAll();
     viewer.setViewFromFile();
     // clickBOMDeselectAll($('#bom-action-reset'));
-    // clickBOMResetDone();
 }
 function onViewerSelectionChanged(event) {
 

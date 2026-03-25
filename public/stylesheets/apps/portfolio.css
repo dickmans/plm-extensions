@@ -283,6 +283,8 @@
 #products-tiles-content .tile {
     height : 456px;
 }
+#landing-tiles-recents,
+#landing-tiles-pinned { width : unset; }
 
 
 /*  LINES */

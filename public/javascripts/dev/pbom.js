@@ -323,7 +323,7 @@ function afterSourceBOMCompletion(id, data) {
 
         let elemRow = $(this);
         let isLeaf  = elemRow.hasClass('leaf');
-        let mob     = $(this).find('.bom-column-make_or_buy').html();
+        let mob     = $(this).find('.tree-column-make_or_buy').html();
 
         $('<td></td>').appendTo(elemRow).addClass('column-process');
 
@@ -488,7 +488,7 @@ function syncBOMNodes(nodes, partsList) {
 
         }
 
-        let children = getBOMItemChildren(node, true);
+        let children = treeGetItemChildren(node, true);
         syncBOMNodes(children, partsList)
 
     }
@@ -623,7 +623,7 @@ function selectItemsProcess(link) {
 
     } else {
 
-        let elemBOMParent = getBOMItemParent(elemSelected);
+        let elemBOMParent = treeGetItemParent(elemSelected);
 
         if(elemBOMParent.length > 0) {
             if(!isBlank(elemBOMParent.attr('data-bop-link'))) {

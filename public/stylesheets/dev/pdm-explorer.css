@@ -107,7 +107,7 @@ body.no-properties #file-properties { right : calc(0px - var(--width-panel) - (2
     white-space : nowrap;
     text-overflow: ellipsis;
 }
-.bom-first-col { width : 200px;}
+.tree-first-col { width : 200px;}
 .bom-column-2 { width : 60px; text-align : right; padding-right : 16px !important; }
 
 

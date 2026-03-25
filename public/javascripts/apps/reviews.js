@@ -1,6 +1,7 @@
 let selectDefaults  = true;
 let selectedLink    = '';
 let workspaceIds    = {};
+let wsConfig        = {}
 
 
 $(document).ready(function() {  
@@ -16,10 +17,17 @@ $(document).ready(function() {
     appendProcessing('comments', false);
     appendViewerProcessing();
     appendOverlay();
+
+    settings['pending'  ] = { tileImage : true }
+    settings['completed'] = { tileImage : true }
+    settings['all'      ] = { tileImage : true }
+
+    let requests = [ $.get('/plm/sections', { wsId : workspaceIds.designReviews, useCache : true }) ]
     
-    getFeatureSettings('reviews', [], function() {
+    getFeatureSettings('reviews', requests, function(responses) {
+
+        wsConfig.sections = responses[0].data;
         getTasksWorkspace();
-        // getSectionIds(config.workspaces.designReviews);
         setUIEvents();
     });
     
@@ -102,36 +110,12 @@ function getTasksWorkspace() {
             if(response.data.length > 0) {
                 let link = response.data[0].link.split('/');
                 workspaceIds.designReviewTaskss = link[link.length - 1];
-                // getSectionIds(config.workspaces.designReviewTasks);
             }
         });
-
-    } else {
-        
-        // getSectionIds(config.workspaces.designReviewTasks);
 
     }
 
 }
-
-
-// Determine sectionIDs for later update and creation requests
-// function getSectionIds(workspace) {
-
-//     $.get( '/plm/sections', { 'wsId' : workspace.workspaceId }, function(response) { 
-//         for(section of response.data) {
-//             for(wsSection of workspace.sections) {
-//                 if(section.name === wsSection.name) {
-//                     let urn = section.urn.split(".");
-//                     wsSection.id = urn[urn.length - 1];
-//                     break;
-//                 }
-//             }
-//         }
-//     });
-
-// }
-
 
 
 // function onViewerLoadingDone() {
@@ -183,7 +167,7 @@ function getReviews(statusFilter, id) {
     });
     
     let params = {
-        wsId : workspaceIds.designReviews,
+        wsId   : workspaceIds.designReviews,
         fields : [
             'TITLE', 
             'TYPE', 
@@ -193,12 +177,14 @@ function getReviews(statusFilter, id) {
             'WF_CURRENT_STATE',
             'DESCRIPTOR'
         ],
-        sort : ['TITLE'],
-        filter : statusFilter,
-        selectedTab : $('#main-tabs').find('.selected').attr('id')
+        sort             : ['TITLE'],
+        tileImage        : true,
+        tileImageFieldId : config.fieldIdImage,
+        filter           : statusFilter,
+        selectedTab      : $('#main-tabs').find('.selected').attr('id')
     }
 
-    let elemTiles = $('#list-' + id);
+    let elemTiles = $('#' + id + '-content');
         elemTiles.html('');
 
     let elemProcessing = $('#panel-' + id).find('.processing').first();
@@ -223,11 +209,12 @@ function getReviews(statusFilter, id) {
                 
                 let elemData = getItemData(params.fields, this.fields.entry);
                 let elemTile = genSingleTile({
-                    link : '',
+                    link      : '',
+                    imageFile : this.imageFile,
                     imageLink : '/api/v2/workspaces/' + workspaceIds.designReviews + '/items/' + this.dmsId + '/field-values/' + config.fieldIdImage + '/image/' + elemData[config.fieldIdImage],
-                    tileIcon : 'icon-product',
-                    title : elemData[config.fieldIdItem],
-                    subtitle : elemData.TITLE
+                    tileIcon  : 'icon-product',
+                    title     : elemData[config.fieldIdItem],
+                    subtitle  : elemData.TITLE
                 });
                     
                 elemTile.appendTo(elemTiles)
@@ -247,6 +234,8 @@ function getReviews(statusFilter, id) {
                 ]);
 
             });
+
+            addTilesListImages(id);
             
         }
         
@@ -327,18 +316,22 @@ function openSelectedItem(elemSelected) {
         comparator  : 15, 
         value       : $('#header-subtitle').html() 
     }],{
-        id              : 'actions',
-        hideHeaderLabel : true,
-        openOnDblClick  : true,
-        openInPLM       : true,
-        reload          : true,
-        search          : true,
-        layout          : 'list',
-        contentSize     : 'xl',
-        tileTitle       : 'DESCRIPTOR',
-        tileSubtitle    : 'DESCRIPTION',
-        tileDetails     : [ {icon : 'icon-calendar', fieldId : 'TARGET_COMPLETION_DATE'}],
-        stateColors     : [
+        id               : 'actions',
+        hideHeaderLabel  : true,
+        openOnDblClick   : true,
+        openInPLM        : true,
+        reload           : true,
+        search           : true,
+        filterByStatus   : true,
+        layout           : 'list',
+        contentSize      : 'xl',
+        singleToolbar    : 'controls',
+        tileImage        : true,
+        tileImageFieldId : 'MARKUP',
+        tileTitle        : 'DESCRIPTOR',
+        tileSubtitle     : 'DESCRIPTION',
+        tileDetails      : [ {icon : 'icon-calendar', fieldId : 'TARGET_COMPLETION_DATE'}],
+        stateColors      : [
             { color : '#dd2222', state : 'Assigned', label : 'New'     },
             { color : '#ed8d16', state : 'In Work' , label : 'In Work' },
             { color : '#6a9728', states : ['Review', 'Complete'], label : 'Complete' }
@@ -355,7 +348,6 @@ function openSelectedItem(elemSelected) {
             'WF_CURRENT_STATE'
         ],
         sortBy           : ['NUMBER'],
-        tileImageFIeldId : 'MARKUP',
         afterCompletion  : function(id) { insertCreateActionButton(id); }
     })
 
@@ -463,20 +455,19 @@ function saveComments() {
     $('#comments-processing').show();
 
     let params = { 
-        link       : $('#panel').attr('data-link'),
-        sections   : [{
-            id     : config.workspaces.designReviews.sections[0].id,
-            fields : [
-                { 'fieldId' : 'REQUIREMENTS', 'value' : $('#requirements').val() },
-                { 'fieldId' : 'ISSUES'      , 'value' : $('#issues').val()       },
-                { 'fieldId' : 'CONCERNS'    , 'value' : $('#concerns').val()     },
-                { 'fieldId' : 'ALTERNATIVES', 'value' : $('#alternatives').val() },
-                { 'fieldId' : 'DEFICIENCIES', 'value' : $('#deficiencies').val() }
-            ]
-        }]
+        link     : $('#panel').attr('data-link'),
+        sections : wsConfig.sections,
+        fields   : [
+            { fieldId : 'REQUIREMENTS', value : $('#requirements').val() },
+            { fieldId : 'ISSUES'      , value : $('#issues').val()       },
+            { fieldId : 'CONCERNS'    , value : $('#concerns').val()     },
+            { fieldId : 'ALTERNATIVES', value : $('#alternatives').val() },
+            { fieldId : 'DEFICIENCIES', value : $('#deficiencies').val() }
+        ]
     }
 
-    $.post('/plm/edit', params, function() {
+    $.post('/plm/edit', params, function(response) {
+        printResponseErrorMessagesToConsole(response);
         $('#comments-data').show();
         $('#comments-processing').hide();
     });
@@ -486,9 +477,7 @@ function saveComments() {
 
 function insertCreateActionButton(id) {
 
-    genPanelActionButton(id, { singleToolbar : 'controls' }, 'create', 'Create Action', 'Create new actions', function() {
-
-        console.log(selectedLink);
+    genPanelActionButton(id, 'create', 'Create Action', 'Create new actions', function() {
 
         insertCreate(null, [workspaceIds.designReviewTaskss], {
             id                  : 'create-task',
@@ -512,13 +501,11 @@ function insertCreateActionButton(id) {
 
     }).addClass('default');
 
-
-
 }
 function afterChangeTaskCreation(createId, link, id) {
 
-    settings.results['actions'].load();
-    $('#actions-action-create').removeClass('disabled');
+    settings['actions'].load();
+    $('#actions-action-create').removeClass('disabled').removeAttr('disabled');
     
 }
 

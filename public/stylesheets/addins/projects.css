@@ -7,7 +7,7 @@
 
 #input-configuration { border : none; padding-top : 9px; padding-bottom : 9px;}
 /* .standalone #button-load { display : none; } */
-#features-tbody .bom-descriptor { display : none; }
+#features-tbody .tree-descriptor { display : none; }
 
 /* MASTER LAYOUT */
 /* ----------------------------------------------------------------------------- */
@@ -311,8 +311,8 @@
 /* #features-toolbar {
     padding : 15px 30px;
 } */
-#features .bom-color,
-#features .bom-title {
+#features .tree-color,
+#features .tree-descriptor {
     display : none;
 }
 #features th:first-of-type {
@@ -351,10 +351,10 @@
     font-size   : 18px;
     font-weight : 400;
 }
-#features .bom-nav {
+#features .tree-nav {
     padding-right : 0px;
 }
-#features .leaf .bom-first-col {
+#features .leaf .tree-first-col {
     height       : 24px;
     padding-left : 6px;
 }

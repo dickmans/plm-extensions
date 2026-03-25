@@ -1,68 +1,62 @@
-let maxRequests         = 5;
-let urns                = { partNumber : '', rollUps : [] }
-let now                 = new Date();
-let bomItems            = [];
-let editableFields      = [];
-let indexSelected       = -1;
-let wsItems             = { id : '', sections : [], fields : [], viewId : '' };
-let wsProblemReports    = { id : '', sections : [], fields : [] };
-let wsSupplierPackages  = { id : '', sections : [], fields : [] };
-let kpis                = [];
-let rollUpFields        = [];
-
-let paramsDetails = { 
-    bookmark        : true,
-    editable        : true,
-    openInPLM       : true,
-    sectionsEx      : ['AML Summary', 'Sourcing Summary', 'Others'],
-    expandSections  : ['Basic'],
-    fieldsEx        : ['ACTIONS'],
-    toggles         : true
-}
-let paramsAttachments = { 
-    editable      : true,
-    layout        : 'row',
-    reload        : false,
-    extensionsEx  : ['.dwf', '.dwfx'],
-    filterByType  : true,
-    search        : false,
-    singleToolbar : 'controls'
-}
-let paramsProcesses = { 
-    headerLabel       : 'Processes', 
-    filterByWorkspace : true,
-    openInPLM         : true,
-    reload            : false,
-    editable          : true,
-    openOnDblClick    : true,
-    createWSID        : '' ,
-    fieldIdMarkup     : ''
-}
+let now                = new Date();
+let bomItems           = [];
+let wsItems            = { id : '', sections : [], fields : [], picklists : [], viewId : '' };
+let wsProblemReports   = { id : '', sections : [], fields : [] };
+let wsSupplierPackages = { id : '', sections : [], fields : [] };
+let kpis               = [];
+let kpiFilters         = [];
+let partNumbers        = [];
+let workspaces         = [];
+let relatedWorkspaces  = [];
+let bomViewName        = 'Details';
+let paramsBOM          = {};
+let paramsDetails      = {};
+let paramsAttachments  = {};
+let paramsProcesses    = {};
+let paramsCreateSupplierPackage = {}
 let context = {}
  
 
 $(document).ready(function() {
 
-    wsProblemReports.id           = config.problemReports.workspaceId   || common.workspaceIds.problemReports;
-    wsSupplierPackages.id         = config.supplierPackages.workspaceId || common.workspaceIds.supplierPackages;
-    paramsProcesses.createWSID    = config.problemReports.workspaceId   || common.workspaceIds.problemReports;
-    paramsProcesses.fieldIdMarkup = config.fieldIdPRImage;
-    rollUpFields                  = config.rollUpFields;
-    paramsProcesses.createContext = { fieldId : config.fieldIdPRContext };
-    urlParameters.bom             = urlParameters.link;
+    let createWorkspaceIds = config.workspaces.problemReports.workspaceId   || common.workspaceIds.problemReports;
+    
 
-    let requests = [];
+    urlParameters.bom           = urlParameters.link;
+    bomViewName                 = config.panels.insertBOM.bomViewName || bomViewName;
+    paramsDetails               = config.panels.insertDetails         || {};
+    paramsAttachments           = config.panels.insertAttachments     || {};
+    paramsProcesses             = config.panels.insertChangeProcesses || {};
+    paramsCreateSupplierPackage = config.panels.createSupplierPackage || {};
+    wsProblemReports.id         = config.workspaces.problemReports.workspaceId   || common.workspaceIds.problemReports;
+    wsSupplierPackages.id       = config.workspaces.supplierPackages.workspaceId || common.workspaceIds.supplierPackages;
+    
+    paramsBOM = config.panels.insertBOM;
+    paramsBOM.useCache = paramsBOM.useCache || true;
+
+    paramsProcesses.createWorkspaceIds        = [createWorkspaceIds];
+    paramsProcesses.createViewerImageFields   = [config.workspaces.problemReports.fieldIdImage];
+    paramsProcesses.createContextItem         = urlParameters.link;
+    paramsProcesses.createContextItemField    = config.workspaces.problemReports.fieldIdAffectedItem;
+    paramsProcesses.createConnectAffectedItem = true;
+
+    paramsCreateSupplierPackage.id                = 'create-connect';
+    paramsCreateSupplierPackage.contextItemsField = 'SHARED_ITEMS';
+
+    let requests = [ $.get('/plm/workspaces', {})];
 
     appendProcessing('dashboard', false);
     appendProcessing('bom', false);
     appendProcessing('details', false);
     appendViewerProcessing();
-    appendOverlay(false);
+    appendOverlay(true);
     insertMenu();
 
     if(!isBlank(urlParameters.fieldidebom)) requests.push($.get('/plm/details', { link : urlParameters.link}));
     
     getFeatureSettings('explorer', requests, function(responses) {
+
+        workspaces = responses[0].data;
         
         if(!isBlank(urlParameters.fieldidebom)) {
             urlParameters.bom = getSectionFieldValue(responses[0].data.sections, urlParameters.fieldidebom, '');
@@ -73,14 +67,15 @@ $(document).ready(function() {
             wsItems.id = urlParameters.wsid;
         }
 
-        getInitialData(function() {
+        showStartupDialog();
 
-            $('#overlay').hide();
-            $('body').removeClass('screen-startup');
-
+        getInitialData(function() {        
             if(!isBlank(urlParameters.dmsid)) {
                 openItem(urlParameters.bom);
             } else {
+                $('#startup').remove();
+                $('body').removeClass('screen-startup');
+                $('body').children().removeClass('hidden');
                 openLandingPage();
             }
         });
@@ -116,19 +111,20 @@ function setUIEvents() {
         $('body').toggleClass('no-dashboard');
         viewerResize();
     });
-    $('#button-toggle-bom').click(function() {
-        if($('body').hasClass('no-bom-tree')) {
-            $('body').removeClass('no-bom-tree');
-            $('body').addClass('no-bom');
-        } else if($('body').hasClass('no-bom')) {
-            $('body').removeClass('no-bom');
-        } else {
-            $('body').addClass('no-bom-tree');
-        }
+    $('#button-toggle-layout').click(function() {
+
+        let elemBody = $('body')
+
+             if(elemBody.hasClass('layout-1')) elemBody.addClass('layout-2').removeClass('layout-1');
+        else if(elemBody.hasClass('layout-2')) elemBody.addClass('layout-3').removeClass('layout-2');
+        else if(elemBody.hasClass('layout-3')) elemBody.addClass('layout-4').removeClass('layout-3');
+        else if(elemBody.hasClass('layout-4')) elemBody.addClass('layout-1').removeClass('layout-4');
+
+        toggleBOMLayout();
         viewerResize();
     });
     $('#button-toggle-attachments').click(function() {
-        $('body').toggleClass('no-attachments');
+        $('body').toggleClass('with-attachments');
         viewerResize();
     });
     $('#button-toggle-details').click(function() {
@@ -166,40 +162,11 @@ function setUIEvents() {
     });
     $('#dashboard-reset').click(function() {
         $('.kpi-value.selected').removeClass('selected');
-        applyFilters();
+        $('#dashboard-reset').addClass('hidden');
+        applyKPIFilters();
     });
     $('#dashboard-refresh').click(function() {
         refreshKPIs();
-    });
-
-
-    // BOM Actions
-    $('#save-bom-changes').click(function() {
-        saveBOMChanges();
-    });
-    $('#send-selected').click(function() {
-        showCreateDialog();
-    });
-    $('#go-there').click(function() {
-        let link = $('tr.selected').attr('data-link').split('/');
-        let url = document.location.href.split('?')[0];
-            url += '?';
-            url += 'wsId=' + link[4];
-            url += '&dmsId=' + link[6];
-        document.location.href = url;
-    });
-    $('#bom-reset').click(function() {
-        $('tr.selected').click();
-        viewerResetSelection(true);
-    });
-    $('#bom-search-input').keyup(function() {
-        filterBOMTree();
-    });
-
-
-    // Item Details Actions
-    $('#save').click(function() {
-        saveChanges();
     });
 
 
@@ -221,48 +188,115 @@ function setUIEvents() {
     });
 
 }
+function toggleBOMLayout() {
+
+    if($('body').hasClass('layout-1')) {
+
+        $('#bom-thead').children('tr').each(function() {
+            $(this).children('th').each(function() {
+                if($(this).index() > 2) $(this).addClass('hidden');
+            });
+        });
+
+        $('#bom-tbody').children('tr').each(function() {
+            $(this).children('td').each(function() {
+                if($(this).index() > 2) $(this).addClass('hidden');
+            });
+        });
+
+    } else {
+
+        $('#bom-thead').find('th.hidden').removeClass('hidden');
+        $('#bom-tbody').find('td.hidden').removeClass('hidden');
+
+    }
+
+}
+function selectBOMItem(elemClicked) {
+
+    $('#create-process').show();
+    $('#cancel-process').hide();
+    $('#save-process').hide();
+    $('#processes-details').hide();
+    
+    let partNumbers = [];
+
+    if(!elemClicked.hasClass('selected')) {
+        paramsProcesses.createContextItem = urlParameters.link;
+
+        insertAttachments($('#viewer').attr('data-link'), paramsAttachments);
+        insertDetails(context.link, paramsDetails, {
+            sections  : wsItems.sections,
+            fields    : wsItems.fields,
+            picklists : wsItems.picklists
+        });
+        insertChangeProcesses(context.link, paramsProcesses);
+
+    } else {      
+
+        partNumbers.push(elemClicked.attr('data-part-number'));
+
+        let linkSelected   = elemClicked.attr('data-link');
+
+        $('#details').attr('data-link', linkSelected);
+        
+        paramsProcesses.createContextItem = elemClicked.attr('data-link');
+
+        insertDetails(linkSelected, paramsDetails, {
+            sections  : wsItems.sections,
+            fields    : wsItems.fields,
+            picklists : wsItems.picklists
+        });
+        insertAttachments(linkSelected, paramsAttachments);
+        insertChangeProcesses(linkSelected, paramsProcesses);
+        
+    }
+
+}
 
 
 // Retrieve Workspace Details, BOM and details
 function getInitialData(callback) {
 
     let requests = [
-        $.get('/plm/bom-views-and-fields' , { wsId : wsItems.id, useCache : true }),
-        $.get('/plm/details'              , { link : urlParameters.bom }),
-        $.get('/plm/sections'             , { wsId : wsItems.id, useCache : true }),
-        $.get('/plm/fields'               , { wsId : wsItems.id, useCache : true }),
-        $.get('/plm/sections'             , { wsId : wsProblemReports.id, useCache : true }),
-        $.get('/plm/fields'               , { wsId : wsProblemReports.id, useCache : true })
+        $.get('/plm/bom-views-and-fields' , { wsId : wsItems.id, useCache : paramsBOM.useCache     || true }),
+        $.get('/plm/sections'             , { wsId : wsItems.id, useCache : paramsDetails.useCache || true }),
+        $.get('/plm/fields'               , { wsId : wsItems.id, useCache : paramsDetails.useCache || true }),
+        // $.get('/plm/details'              , { link : urlParameters.bom })
     ];
 
+    if(!isBlank(wsProblemReports.id)) {
+        requests.push($.get('/plm/sections', { wsId : wsProblemReports.id, useCache : paramsProcesses.useCache || true }));
+        requests.push($.get('/plm/fields'  , { wsId : wsProblemReports.id, useCache : paramsProcesses.useCache || true }));
+    }
+
     if(!isBlank(wsSupplierPackages.id)) {
-        requests.push($.get('/plm/sections', { wsId : wsSupplierPackages.id, useCache : true }));
-        requests.push($.get('/plm/fields'  , { wsId : wsSupplierPackages.id, useCache : true }));
+        requests.push($.get('/plm/sections', { wsId : wsSupplierPackages.id, useCache : paramsCreateSupplierPackage.useCache || true }));
+        requests.push($.get('/plm/fields'  , { wsId : wsSupplierPackages.id, useCache : paramsCreateSupplierPackage.useCache || true }));
     }
 
     Promise.all(requests).then(function(responses) {
 
         for(let view of responses[0].data) {
-            if(view.name === config.bomViewName) {
+            if(view.name === bomViewName) {
                 wsItems.viewId = view.id;
                 wsItems.viewColumns = view.fields;
             }
         }
 
-        if(wsItems.viewId === '') showErrorMessage('Error in configuration. Could not find BOM view "' + config.bomViewName + '"');
+        if(wsItems.viewId === '') showErrorMessage('Error in configuration. Could not find BOM view "' + bomViewName + '"');
 
-        wsItems.sections          = responses[2].data;
-        wsItems.fields            = responses[3].data;
-        wsProblemReports.sections = responses[4].data;
-        wsProblemReports.fields   = responses[5].data;
-        // editableFields            = getEditableFields(wsItems.fields);
-        editableFields = [];
+        wsItems.sections = responses[1].data;
+        wsItems.fields   = responses[2].data;
+
+        if(!isBlank(wsProblemReports.id)) {
+            wsProblemReports.sections = responses[3].data;
+            wsProblemReports.fields   = responses[4].data;
+        }
 
         if(!isBlank(wsSupplierPackages.id)) {
-            wsSupplierPackages.sections = responses[6].data;
-            wsSupplierPackages.fields   = responses[7].data;
-        } else {
-            $('#send-selected').remove();
+            wsSupplierPackages.sections = responses[5].data;
+            wsSupplierPackages.fields   = responses[6].data;
         }
 
         callback();
@@ -330,15 +364,32 @@ function openLandingPage() {
 
 
 // Open by id or click in landing page
-function openSelectedItem(elemClicked) { openItem(elemClicked.attr('data-link')); }
+function openSelectedItem(elemClicked) { 
+    $('#overlay').show();
+    openItem(elemClicked.attr('data-link')); 
+}
 function openItem(link) {
 
-    $('body').addClass('screen-main').removeClass('screen-landing');
+    setCacheStatusIndicator('pending');
     $('#select-version').children().remove();
-    
-    $.get('/plm/versions', { link : link }, function(response) {
 
-        for(let version of response.data.versions) {
+    let requests = [ $.get('/plm/versions', { link : link }) ]
+
+    if(paramsProcesses.editable) {
+        if(relatedWorkspaces.length === 0) {
+            requests.push($.get('/plm/linked-workspaces', { link : link, useCache : paramsProcesses.useCache || true }));
+        }
+    }
+    
+    Promise.all(requests).then(function(responses) {
+        
+        $('#overlay').hide();
+        $('#startup').remove();
+        $('body').removeClass('screen-startup');
+        $('body').children().removeClass('hidden');
+        $('body').addClass('screen-main').removeClass('screen-landing');
+
+        for(let version of responses[0].data.versions) {
 
             let label = (isBlank(version.version)) ? version.status : 'Rev ' + version.version;
 
@@ -351,6 +402,8 @@ function openItem(link) {
                 .html(label);
 
         }
+
+        if(responses.length > 1) relatedWorkspaces = responses[1].data;
 
         $('#select-version').val(link);
         selectItemVersion();
@@ -365,13 +418,12 @@ function selectItemVersion() {
     let selOption   = $('#select-version').find(':selected');
     let title       = selOption.attr('data-title');
     let status      = selOption.attr('data-status');
-    let revBias     = (status === 'WORKING') ? 'working' : 'release';
 
     window.history.replaceState(null, null, '/explorer?wsid=' + split[4] + '&dmsid=' + split[6] + '&theme=' + theme);
     
-    document.title  = title;
-    context.title   = title;
-    context.link    = linkVersion;
+    document.title = title;
+    context.title  = title;
+    context.link   = linkVersion;
 
     $('#header-subtitle').html(title).show();
     $('#details').attr('data-link', linkVersion);
@@ -381,14 +433,87 @@ function selectItemVersion() {
     $('#dashboard-processing').show();
     $('#bom-processing').show();
 
-    kpis = [];
+    kpis     = [];
+    bomItems = [];     
 
-    viewerLeaveMarkupMode();
-    getBOMData(linkVersion, revBias);
-    insertViewer(linkVersion);
-    insertDetails(linkVersion, paramsDetails);
-    insertAttachments(linkVersion, paramsAttachments);
-    insertChangeProcesses(linkVersion, paramsProcesses);
+    let requests = [ 
+        $.get('/plm/permissions', { link : linkVersion }),
+        $.get('/plm/details'    , { link : linkVersion }) 
+    ];
+
+    if(wsItems.picklists.length === 0) {
+
+        let picklistsDetails = getFieldsPicklists({
+            fields   : wsItems.fields,
+            editable : paramsDetails.editable || false,
+            fieldsIn : paramsDetails.fieldsIn || [],
+            fieldsEx : paramsDetails.fieldsEx || [],
+        });
+
+        let picklistsBOM = getFieldsPicklists({
+            fields   : wsItems.viewColumns,
+            editable : paramsBOM.editable || false,
+            fieldsIn : paramsBOM.fieldsIn || [],
+            fieldsEx : paramsBOM.fieldsEx || [],
+        });
+
+        let picklistsAll = picklistsDetails.concat(picklistsBOM.filter(item => !picklistsDetails.includes(item)));
+
+        for(let picklist of picklistsAll) {
+            requests.push($.get('/plm/picklist', { 
+                link      : picklist, 
+                useCache  : paramsDetails.useCache,
+                requestor : 'explorer.js / selectItemVersion()'
+            }));
+        }
+
+    }
+
+    Promise.all(requests).then(function(responses) {
+
+        for(let index = 2; index < responses.length; index++) wsItems.picklists.push(responses[index].data);
+
+        let editDetails = hasPermission(responses[0].data, 'edit_items');
+        let editBOM     = hasPermission(responses[0].data, 'edit_bom');       
+
+        paramsBOM.bomViewName        = bomViewName;
+        paramsBOM.bomViewId          = wsItems.viewId;
+        paramsBOM.singleToolbar      = 'controls';
+        paramsBOM.includeBOMPartList = true;
+        paramsBOM.revisionBias       = (status === 'WORKING') ? 'working' : 'release';
+        paramsBOM.onClickItem        = function(elemClicked) { selectBOMItem(elemClicked); }
+        paramsBOM.afterCompletion    = function(id, data) { 
+            getBOMKPIs(id, data); 
+            toggleBOMLayout();
+            insertSupplierPackageCreationButton();
+        }
+
+        if(!editDetails) paramsDetails.editable = false;
+        if(!editBOM    ) paramsBOM.editable     = false;
+        
+        viewerLeaveMarkupMode();
+        insertBOM(linkVersion, paramsBOM, {
+            details     : responses[1].data,
+            viewColumns : wsItems.viewColumns,
+            sections    : wsItems.sections,
+            picklists   : wsItems.picklists,
+            workspaces  : workspaces
+        });
+        insertViewer(linkVersion);
+        insertDetails(linkVersion, paramsDetails, {
+            sections    : wsItems.sections,
+            fields      : wsItems.fields,
+            picklists   : wsItems.picklists,
+            permissions : responses[0].data,
+        });
+        insertAttachments(linkVersion, paramsAttachments, { permissions : responses[0].data });
+        insertChangeProcesses(linkVersion, paramsProcesses, {
+            permissions       : responses[0].data,
+            workspaces        : workspaces,
+            relatedWorkspaces : relatedWorkspaces
+        });
+
+    });
 
 }
 
@@ -448,607 +573,131 @@ function onViewerSelectionChanged(event) {
 }
 function initViewerDone() {
     
-    $('#viewer-markup-image').attr('data-field-id', config.fieldIdPRImage);
+    $('#viewer-markup-image').attr('data-field-id', config.workspaces.problemReports.fieldIdImage);
 
 }
 
 
-// Insert Selected item's data
-function getBOMData(link, revBias) {
-    
-    let params = {
-        link          : link,
-        depth         : 10,
-        revisionBias  : revBias,
-        viewId        : wsItems.viewId
-    }
+// Add Button to BOM tree for Supplier Package creation
+function insertSupplierPackageCreationButton() {
 
-    let promises = [
-        $.get('/plm/bom'     , params),
-        // $.get('/plm/bom-flat', {
-        //      link          : link,
-        // depth         : 1,
-        // revisionBias  : revBias,
-        // viewId        : wsItems.viewId       
-        // })
-    ];
+    let elemToolbar = $('#bom-controls');
 
-    Promise.all(promises).then(function(responses) {
+    $('<div></div>').prependTo(elemToolbar)
+        .addClass('button')
+        .addClass('icon')
+        .addClass('icon-send')
+        .addClass('multi-select-action')
+        .attr('title', 'Create new Supplier Package for selected item')
+        .click(function() {
+            
+            paramsCreateSupplierPackage.contextItems = [];
 
-        // Copy KPIs contained in BOM View
-        for(let kpi of config.kpis) {
-            for(let field of wsItems.viewColumns) {
-                if(field.fieldId === kpi.fieldId) {
-                    kpis.push(Object.assign({}, kpi));
-                }
-            }
-        }
+            $('#bom-tbody').find('.selected').each(function() {
+                let link = $(this).attr('data-link');
+                if(!paramsCreateSupplierPackage.contextItems.includes(link)) 
+                    paramsCreateSupplierPackage.contextItems.push(link);
+            });
 
-        for(let kpi of kpis) {
-            for(let entry of kpi.data) {
-                entry.count = 0;
-            }
-        }
-
-        $('#dashboard-processing').hide();
-        $('#bom-processing').hide();
-        setFlatBOMHeader();
-        // setBOMData(responses[0].data, responses[1].data);
-        setBOMData(responses[0].data, null);
-
-    });
-
-}
-function setFlatBOMHeader() {
-
-    let elemFlatBOMTHead = $('<thead></thead>').appendTo($('#bom-table-flat'));
-    let elemFlatBOMHead  = $('<tr></tr>').appendTo(elemFlatBOMTHead);
-    
-    let elemFlatBOMHeadCheck = $('<th></th>');
-        elemFlatBOMHeadCheck.html('<div id="flat-bom-select-all" class="icon flat-bom-check-box xxs"></div>');
-        elemFlatBOMHeadCheck.appendTo(elemFlatBOMHead);
-        elemFlatBOMHeadCheck.click(function() {
-            toggleSelectAll();
+            insertCreate([], [common.workspaceIds.supplierPackages], paramsCreateSupplierPackage);
         });
 
-    $('<th></th>').appendTo(elemFlatBOMHead)
-        .html('Nr')
-        .addClass('sticky');
-
-    $('<th></th>').appendTo(elemFlatBOMHead)
-        .html('Item')
-        .addClass('sticky');
-
-    $('<th></th>').appendTo(elemFlatBOMHead).html('Qty');
-
-    for(let kpi of kpis) {
-        let elemFlatBOMHeadCell = $('<th></th>');
-            elemFlatBOMHeadCell.html(kpi.title);
-            elemFlatBOMHeadCell.appendTo(elemFlatBOMHead);       
-    }
-   
-    $('<tbody></tbody>').appendTo($('#bom-table-flat')).attr('id', 'bom-table-flat-tbody');
-
 }
-function setBOMData(bom, flatBom) {
 
-    let elemRoot = $('#bom-table-tree').html('');
 
-    for(let field of wsItems.viewColumns) {
+// Parse BOM data to derive KPIs
+function getBOMKPIs(id, data) {
 
-        if(field.fieldId === common.workspaces.items.fieldIdNumber) urns.partNumber = field.__self__.urn;
+    kpis = [];
 
-        if(rollUpFields.includes(field.fieldId)) {
-            urns.rollUps.push({
-                fieldId     : field.fieldId, 
-                fieldTab    : field.fieldTab,
-                displayName : field.displayName,
-                urn         : field.__self__.urn
-            });
-        }
-
-        for(let kpi of kpis) {
+    for(let kpi of config.kpis) {
+        for(let field of settings[id].columns) {
             if(field.fieldId === kpi.fieldId) {
-                kpi.urn       = field.__self__.urn;
-                kpi.fieldType = field.type.title;
+                let newKPI = Object.assign({}, kpi);
+                newKPI.fieldType = field.type.title;
+                kpis.push(newKPI);
+            }
+        }
+    }
+    
+    for(let kpi of kpis) {
+        for(let entry of kpi.data) {
+            entry.count = 0;
+        }
+    }
+
+    let index = 0;
+
+    for(let bomItem of data.bomPartsList) {
+
+        if(index > 0) {
+        
+            bomItem.kpis = {};
+
+            for(let kpi of kpis) {
+
+                let kpiValue = bomItem.details[kpi.fieldId];
+                let kpiLabel = kpiValue;
+                let digits   = kpi.digits  || 2;
+
+                if(kpi.hasOwnProperty('digits')) kpi.fieldType = 'Float';
+
+                if(kpiValue !== null) {
+
+                    if(typeof kpiValue === 'object') kpiValue = kpiValue.title;
+
+                        if(kpi.type === 'non-empty') {
+                        if(kpiValue === null) kpiValue = 'No';
+                        else kpiValue = (kpiValue === '' ) ? 'No' : 'Yes';
+                        kpiLabel = kpiValue;
+                    } else if(kpi.type ==  'days'     ) {
+                        if(kpiValue === '') {
+                            kpiLabel = '-';
+                        } else if(kpiValue === null) {
+                            kpiLabel = '-';
+                        } else {
+                            let day  = kpiValue.split(' ')[0].split('-');
+                            let date = new Date(day[0], day[1], day[2].split('T')[0]);
+                            var diff = now.getTime() - date.getTime();
+                            kpiValue = diff / (1000 * 3600 * 24);
+                            kpiValue = Math.round(kpiValue, 0);
+                            kpiLabel = kpiValue + ' days ago';
+                        }
+                    } else if(kpi.type === 'value'    ) {
+                        if(kpi.fieldType === 'Float') kpiLabel = parseFloat(kpiValue).toFixed(digits);
+                        else kpiLabel = (kpiValue === '' ) ? '-' : kpiValue;
+                    }
+
+                    if(kpiValue === ''  ) kpiValue = '-';
+
+                } else kpiValue = '-';
+
+                bomItem.kpis[kpi.id] = kpiValue;
+                parseKPI(kpi, kpiValue, kpiLabel);
+
             }
         }
 
-    }
-
-    let rollUpValues = getBOMRollUpValues(bom, urns.rollUps, bom.root);
-
-    if(urns.rollUps.length > 0) {
-
-        $('#bom-table-tree').addClass('fixed-header');
-
-        let elemHead = $('<tr></tr>').appendTo($('#bom-table-tree'));
-
-        $('<th></th>').appendTo(elemHead).addClass('bom-color');
-        $('<th></th>').appendTo(elemHead).addClass('bom-first-col').addClass('tree-first-col');
-
-        for(let rollUp of urns.rollUps) {
-
-            $('<th></th>').appendTo(elemHead)
-                .addClass('bom-column-roll-up')
-                .addClass('column-' + rollUp.fieldId)
-                .html(rollUp.displayName);
-
-        }
+        bomItems.push(bomItem);
+        index++;
 
     }
 
-    // insertNextBOMLevel(bom, elemRoot, bom.root, null, rollUpValues);
-    insertNextBOMLevel(bom, elemRoot, bom.root, flatBom, rollUpValues);
-    // insertFlatBOM(flatBom);
+    $('#dashboard-panel').html('');
+
+    $('<span></span>').appendTo($('#dashboard-panel'))
+        .html('Click the KPI values and bars below to filter the BOM and viewer for the matching items. Keep [SHIFT] pressed to select multiple values from the same and / or different KPIs to combine the filters. Deselect a single value by clicking it again. Once a value is selected, the reset button in the top toolbar can be used to clear all selections at once.')
+        .attr('title', 'Click this text to remove it')
+        .click(function() { $(this).remove(); });
 
     for(let kpi of kpis) insertKPI(kpi);
 
-    $('#items-processing').hide();
-
-    enableBOMToggles('bom');
-
-    $('#bom-table-tree').children('tr').click(function(e) {
-        selectBOMItem(e, $(this));
-    });
-
-    $('tr.flat-bom-row').click(function(e) {
-        selectBOMItem(e, $(this));
-    });
-
-}
-function insertNextBOMLevel(bom, elemRoot, parent, flatBom, parentRollUps) {
-
-    let result = false;
-
-    for(let edge of bom.edges) {
-
-        if(edge.parent === parent) {
-
-            result = true;
-
-            let title        = getBOMItem(edge.child, bom.nodes);
-            let partNumber   = getBOMCellValue(edge.child, urns.partNumber, bom.nodes);
-            let newBOMItem   = { 'urn' : edge.child, 'part-number' : partNumber };
-            let newItem      = true;
-            let rollUpValues = getBOMRollUpValues(bom, urns.rollUps, edge.child, edge);
-
-            for(let rollUp of urns.rollUps) rollUpValues.push(getBOMCellValue(edge.child, rollUp.urn, bom.nodes));
-
-            if(partNumber === '') partNumber = title.split(' - ')[0];
-
-            let elemRow = $('<tr></tr>').appendTo(elemRoot)
-                .attr('data-number', edge.itemNumber)
-                .attr('data-part-number', partNumber)
-                .attr('data-title', title)
-                .attr('data-qty', '1')
-                .addClass('bom-item')
-                .addClass('content-item');
-    
-            for(let kpi of kpis) {
-
-                let kpiValue = getBOMCellValue(edge.child, kpi.urn, bom.nodes, 'title');
-                let kpiLabel = kpiValue;
-
-                if(kpi.type === 'non-empty') {
-                    kpiValue = (kpiValue === '' ) ? 'No' : 'Yes';
-                    kpiLabel = kpiValue;
-                } else if(kpi.type == 'days') {
-                    if(kpiValue === '') {
-                        kpiLabel = '-';
-                    } else {
-                        let day  = kpiValue.split(' ')[0].split('-');
-                        let date = new Date(day[0], day[1], day[2].split('T')[0]);
-                        var diff = now.getTime() - date.getTime();
-                        kpiValue = diff / (1000 * 3600 * 24);
-                        kpiValue = Math.round(kpiValue, 0);
-                        kpiLabel = kpiValue + ' days ago';
-                    }
-                } else if(kpi.type === 'value') {
-                    kpiLabel = (kpiValue === '' ) ? '-' : kpiValue;
-                }
-
-                if(kpiValue === '') kpiValue = '-';
-
-                newBOMItem[kpi.id] = kpiValue;
-                parseKPI(kpi, kpiValue, kpiLabel);
-    
-            }
-
-            for(let bomItem of bomItems) {
-
-                if(bomItem.urn === edge.child) { newItem = false; break; }
-            }
-
-            if(newItem) bomItems.push(newBOMItem);
-
-            for(let node of bom.nodes) {
-                if(node.item.urn === edge.child) {
-                    elemRow.attr('data-dmsId',      node.item.link.split('/')[6]);
-                    elemRow.attr('data-link',       node.item.link);
-                    elemRow.attr('data-urn',        edge.child);
-                    elemRow.attr('data-edgeId',     edge.edgeId);
-                    elemRow.attr('data-edgeLink',   edge.edgeLink);
-                    elemRow.attr('data-level',      edge.depth);
-                    elemRow.addClass('level-' + edge.depth);
-                }
-            }
-            
-            $('<td></td>').appendTo(elemRow).addClass('bom-color');
-
-            let elemCell = $('<td></td>').appendTo(elemRow)
-                .addClass('bom-first-col')
-                .addClass('tree-first-col');
-
-            $('<span></span>').appendTo(elemCell)
-                .addClass('tree-number')
-                .addClass('bom-number')
-                .html(edge.depth + '.' + edge.itemNumber);
-
-            $('<span></span>').appendTo(elemCell)
-                .addClass('bom-title')
-                .html(title);
-
-            if(urns.rollUps.length > 0) {
-
-                for(let index in urns.rollUps) {
-
-                    let elemCellRollUp = $('<td></td>').appendTo(elemRow)
-                        .addClass('bom-column-roll-up')
-                        .addClass('column-' + urns.rollUps[index].fieldId);
-
-                    let rollUpValue = rollUpValues[index];
-
-                    if(!isBlank(rollUpValue)) {
-
-                        let elemBar = $('<div></div>').appendTo(elemCellRollUp).addClass('bom-column-roll-up-bar');
-                        let noValue = false;
-
-                             if(rollUpValue ===      0) noValue = true;
-                        else if(rollUpValue ===    '0') noValue = true;
-                        else if(rollUpValue ===  '0.0') noValue = true;
-                        else if(rollUpValue === '0.00') noValue = true;
-
-                        if(noValue) {
-                            elemBar.css('color', 'var(--color-surface-level-1)');
-                            elemBar.html('0.00');
-                        } else {
-                            let width = (rollUpValue * 100 / parentRollUps[index]);
-                            elemBar.html(rollUpValue);
-                            elemBar.css('background', 'linear-gradient(to right, var(--color-green-600) ' + width + '%, var(--color-surface-level-3) ' + width + '%)');
-                        }
-                    
-                    }
-
-                }
-
-            }
-
-            let hasChildren = insertNextBOMLevel(bom, elemRoot, edge.child, flatBom, rollUpValues);
-
-            elemRow.children().first().each(function() {
-                
-                if(hasChildren) {
-
-                    $('<span></span>').prependTo(elemCell)
-                        .addClass('tree-nav')
-                        .addClass('bom-nav')
-                        .addClass('icon')
-                        .addClass('expanded');
-
-                    elemRow.addClass('node');
-
-                }
-
-                let elemColor = $('<span></span>');
-                    elemColor.addClass('bom-color');
-                    elemColor.prependTo($(this));
-
-            });
-
-        }
-    }
-
-    return result;
-
-}
-function getBOMItem(id, nodes) {
-
-    for(node of nodes) {
-        if(node.item.urn === id) {
-            return node.item.title;
-        }
-    }
-
-    return '';
-    
-}
-function getBOMNodeLink(id, nodes) {
-    for(node of nodes) {
-        if(node.item.urn === id) {
-            return node.item.link;
-        }
-    }
-    return '';
-}
-function filterBOMTree() {
-
-    $('tr.result').removeClass('result');
-    $('.bom-nav.collapsed').removeClass('collapsed');
-
-    let filterValue = $('#bom-search-input').val().toLowerCase();
-
-    if(filterValue === '') {
-
-        $('#bom-table-tree').children().each(function() {
-            $(this).show();
-        });
-        $('.flat-bom-item').each(function() {
-            $(this).parent().show();
-        });
-
-    } else {
-
-        $('.bom-nav.collapsed').removeClass('collapsed').addClass('expanded');
-        
-        $('#bom-table-tree').children().each(function() {
-            $(this).hide();
-        });
-        $('.flat-bom-item').each(function() {
-            $(this).parent().hide();
-        });
-
-        $('#bom-table-tree').children().each(function() {
-
-            let cellValue = $(this).children('.bom-first-col').html().toLowerCase();
-
-            if(cellValue.indexOf(filterValue) > -1) {
-             
-                $(this).show();
-                $(this).addClass('result');
-             
-                let level = Number($(this).attr('data-level'));
-                unhideParents(level - 1, $(this));
-
-            }
-
-        });
-
-        $('.flat-bom-row').each(function() {
-
-            let elemRow   = $(this);
-
-            elemRow.children().each(function() {
-                let cellValue = $(this).html().toLowerCase();
-                if(cellValue.indexOf(filterValue) > -1) {
-                    elemRow.show();
-                }
-            });
-
-        });
-
-    }
-
-}
-function unhideParents(level, elem) {
-
-    elem.prevAll().each(function() {
-
-        let prevLevel = Number($(this).attr('data-level'));
-
-        if(level === prevLevel) {
-            level--;
-            $(this).show();
-        }
-
-    });
-
-}
-function selectBOMItem(e, elemClicked) {
-
-    $('#create-process').show();
-    $('#cancel-process').hide();
-    $('#save-process').hide();
-    $('#processes-details').hide();
-    
-    let partNumbers = [];
-
-    if(elemClicked.hasClass('selected')) {
-        
-        paramsProcesses.createContext.link  = context.link;
-        paramsProcesses.createContext.title = context.title;
-
-        elemClicked.removeClass('selected');
-        
-        viewerResetSelection();
-        insertAttachments($('#viewer').attr('data-link'), paramsAttachments);
-        insertDetails(context.link, paramsDetails);
-        insertChangeProcesses(context.link, paramsProcesses);
-
-    } else {      
-
-        if(e.shiftKey) {
-
-            if(indexSelected > -1) {
-                let increment = (indexSelected < elemClicked.index()) ? 1 : -1;
-                do {
-                    $('.flat-bom-row').eq(indexSelected).addClass('selected');
-                    indexSelected += increment;
-                } while (indexSelected !== elemClicked.index());
-            }
-            $('.flat-bom-row.selected').each(function() {
-                partNumbers.push($(this).attr('data-part-number'));
-            });
-            viewerSelectModels(partNumbers);
-
-        } else if(e.ctrlKey || event.metaKey) {
-
-            $('.flat-bom-row.selected').each(function() {
-                partNumbers.push($(this).attr('data-part-number'));
-            });
-            viewerSelectModels(partNumbers);
-
-        } else {
-            
-            $('#bom-table-tree').children().removeClass('selected');
-            $('.flat-bom-row').removeClass('selected');
-            // viewerResetColors();
-            
-        }
-
-        elemClicked.addClass('selected');
-        partNumbers.push(elemClicked.attr('data-part-number'));
-
-        indexSelected = elemClicked.index();
-
-        let linkSelected   = elemClicked.attr('data-link');
-
-        $('#details').attr('data-link', linkSelected);
-        $('.bom-action').show();
-        $('#go-there').show();
-        
-        paramsProcesses.createContext.title = elemClicked.attr('data-title');
-        paramsProcesses.createContext.link  = linkSelected;
-        
-        viewerSelectModels(partNumbers);
-        insertDetails(linkSelected, paramsDetails);
-        insertAttachments(linkSelected, paramsAttachments);
-        insertChangeProcesses(linkSelected, paramsProcesses);
-        
-    }
-
-}
-function toggleSelectAll() {
- 
-    let elemControl = $('#flat-bom-select-all');
-        elemControl.toggleClass('selected');
-
-    if(elemControl.hasClass('selected')) {
-        $('.flat-bom-row').addClass('selected');
-        viewerSelectAll();
-    } else {
-        $('.flat-bom-row').removeClass('selected');
-        viewerResetSelection(true);
-    }
-
-}
-function insertFlatBOM(flatBom) {
-
-    let elemParent = $('#bom-table-flat-tbody');
-    let count      = 1;
-
-    for(item of flatBom) {
-
-        let link        = item.item.link.toString();
-        let urn         = item.item.urn;
-        let title       = item.item.title;
-        let qty         = Number(item.totalQuantity).toFixed(2);
-        let partNumber  = getFlatBOMCellValue(flatBom, link, urns.partNumber, 'title');
-
-        if(partNumber === '') partNumber = title.split(' - ')[0];
-
-        let elemRow = $('<tr></tr>');
-            elemRow.attr('data-link', link);
-            elemRow.attr('data-urn', urn);
-            elemRow.attr('data-part-number', partNumber);
-            elemRow.addClass('flat-bom-row');
-            elemRow.appendTo(elemParent);
-
-        let elemRowCheck = $('<td></td>');
-            elemRowCheck.html('<div class="icon flat-bom-check-box xxs"></div>');
-            elemRowCheck.addClass('flat-bom-check');
-            elemRowCheck.appendTo(elemRow);
-
-        let elemRowNumber = $('<td></td>');
-            elemRowNumber.html(count++);
-            elemRowNumber.addClass('flat-bom-number');
-            elemRowNumber.appendTo(elemRow);
-
-        let elemRowItem = $('<td></td>');
-            elemRowItem.html(title)
-            elemRowItem.addClass('flat-bom-item');
-            elemRowItem.appendTo(elemRow);
-
-        let elemRowQty = $('<td></td>');
-            elemRowQty.html(qty);
-            elemRowQty.addClass('flat-bom-qty');
-            elemRowQty.appendTo(elemRow);
-
-        for(kpi of kpis) {
-
-            let value       = getFlatBOMCellValue(flatBom, link, kpi.urn, 'title');
-            let isEditable  = false;
-            let elemRowCell = $('<td></td>');
-
-            elemRowCell.appendTo(elemRow); 
-
-            for(let editableField of editableFields) {
-
-                if(kpi.fieldId === editableField.id) {
-
-                    if(!isBlank(editableField.control)) {
-
-                        let elemControl = editableField.control.clone();
-                            elemControl.appendTo(elemRowCell);
-                            elemRowCell.attr('data-id', editableField.id);
-                            elemControl.click(function(e) {
-                                e.stopPropagation();
-                            });
-                            elemControl.change(function() {
-                                valueChanged($(this));
-                            });
-
-                        switch (editableField.type) {
-
-                            case 'Single Selection':
-                                elemControl.val(value.link);
-                                break;
-
-                            default:
-                                elemControl.val(value);
-                                break;
-
-                        }
-
-                        isEditable = true;
-                    }
-
-                }
-
-            }
-
-            if(!isEditable) elemRowCell.html(value);
-                         
-        }
-
-    }
-
-}
-function valueChanged(elemControl) {
-
-    let index = elemControl.parent().index();
-    let value = elemControl.val();
-
-    elemControl.parent().addClass('changed');
-    elemControl.closest('tr').addClass('changed');
-
-    $('#save-bom-changes').show();
-
-    $('.flat-bom-row.selected').each(function() {
-        $(this).addClass('changed');
-        $(this).children().eq(index).addClass('changed');
-        $(this).children().eq(index).children().first().val(value);
-    })
+    $('#dashboard-processing').hide();
 
 }
 function parseKPI(kpi, value, label) {
 
     let isNew = true;
-    let type  = kpi.fieldType;
-
-    if(value !== '-') {
-        if(type === 'Float') value = parseFloat(value);
-    }
 
     for(let entry of kpi.data) {
         if(entry.value == value) {
@@ -1104,7 +753,7 @@ function insertKPI(kpi) {
         sortBy        = sortBy.toLowerCase();
         sortDirection = sortDirection.toLowerCase();
 
-        sortArray(kpi.data, sortBy, 'number', sortDirection);
+        sortArray(kpi.data, sortBy, kpi.fieldType, sortDirection);
 
         let max = 1; 
 
@@ -1118,8 +767,8 @@ function insertKPI(kpi) {
 
     for(let entry of kpi.data) {
 
-        let color = entry.color;
-        let label = entry.label || entry.value;
+        let color  = entry.color;
+        let label  = entry.label || entry.value;
 
         if(typeof color === 'string') {
             if(color.indexOf('#')  < 0) color = colors[color]; 
@@ -1158,21 +807,16 @@ function insertKPI(kpi) {
 }
 
 
-// KPI Handling
+// KPI Selection & Filtering
 function selectKPI(elemClicked) {
-
-    viewerResetColors();
-
-    let id          = elemClicked.attr('data-kpi-id');
-    let isSelected  = elemClicked.hasClass('selected');
-    let kpiData     = null;
-
+    
+    let id         = elemClicked.attr('data-kpi-id');
+    let isSelected = elemClicked.hasClass('selected');
+    let kpiData    = null;
+    
     $('.kpi').removeClass('selected');
-    // $('.kpi-value').removeClass('selected');
-    // $('#bom').addClass('no-colors');
-    // $('#flat-bom').addClass('no-colors');
-    $('.bom-color').each(function() { $(this).css('background', '') });
-    $('.flat-bom-number').each(function() { $(this).css('background', '') });
+    $('.tree-color').each(function() { $(this).css('background', '') });
+    viewerResetColors();
 
     if(isSelected) return; 
         
@@ -1186,8 +830,6 @@ function selectKPI(elemClicked) {
     if(kpiData === null) return;
 
     elemClicked.addClass('selected');
-
-    // viewerResetColors();
 
     elemClicked.find('.kpi-value').each(function() {
     
@@ -1204,43 +846,28 @@ function selectKPI(elemClicked) {
             }
         }
 
-        $('#bom-table-tree').children().each(function() {
+        $('#bom-tbody').children().each(function() {
             
-            let value   = null;
-            let urn     = $(this).attr('data-urn');
+            let value  = null;
+            let link   = $(this).attr('data-link');
+            let isNode = $(this).hasClass('node');
 
             for (let bomItem of bomItems) {
-                if(bomItem.urn === urn) {
-                    value = bomItem[id].toString();
+                if(bomItem.link === link) {
+                    value = bomItem.kpis[id].toString();
                 }
             }
 
             if(value == filter) {
-                partNumbers.push($(this).attr('data-part-number'));
-                $(this).find('.bom-color').css('background', color);
-            }
-
-        });
-
-        $('#bom-table-flat').find('tr').each(function() {
-
-            let value   = null;
-            let urn     = $(this).attr('data-urn');
-
-            for(let bomItem of bomItems) {
-                if(bomItem.urn === urn) {
-                    value = bomItem[id];
-                }
-            }
-
-            if(value === filter) {
-                $(this).children('.flat-bom-number').first().css('background', color);
+                if(!isNode) partNumbers.push($(this).attr('data-part-number'));
+                $(this).find('.tree-color').css('background', color);
             }
 
         });
 
         if(vector !== null) {
-            if(typeof vector === 'string') vector = colors.vectors[vector]; else vector = colors.list[vector];
+            if(typeof vector === 'string') vector = colors.vectors[vector]; 
+            else if(typeof vector === 'number') vector = colors.vectors.list[vector]; 
         }
 
         viewerSetColors(partNumbers, { 
@@ -1260,29 +887,30 @@ function selectKPIValue(e, elemClicked) {
     if(isSelected) elemClicked.removeClass('selected');
     else           elemClicked.addClass('selected');
     
-    applyFilters();
+    if($('.kpi-value.selected').length > 0) $('#dashboard-reset').removeClass('hidden'); else $('#dashboard-reset').addClass('hidden');
+
+    applyKPIFilters();
 
 }
-function applyFilters() {
+function applyKPIFilters() {
 
-    let partNumbers = [];
-    let filters     = [];
-    let counter     = 0;
+    kpiFilters  = [];
+    partNumbers = [];
 
     $('.kpi-value.selected').each(function() {
 
-        let id      = $(this).closest('.kpi').attr('data-kpi-id');
-        let value   = $(this).attr('data-filter');
-        let isNew   = true;
+        let id    = $(this).closest('.kpi').attr('data-kpi-id');
+        let value = $(this).attr('data-filter');
+        let isNew = true;
 
-        for(let filter of filters) {
+        for(let filter of kpiFilters) {
             if(filter.id === id) {
                 filter.values.push(value);
                 isNew = false;
             }
         }
 
-        if(isNew) filters.push({
+        if(isNew) kpiFilters.push({
             id     : id,
             values : [value]
         });
@@ -1290,86 +918,126 @@ function applyFilters() {
     });
 
     viewerResetSelection(true);
+    filterPanelContent('bom');
 
-    $('#bom-table-tree').children().each(function() {
+    if(!config.kpiDrillDown) return;
 
-        let isVisible   = true;
-        let urn         = $(this).attr('data-urn');
-
-        for(let bomItem of bomItems) {
-            if(bomItem.urn === urn) {
-                for(let filter of filters) {
-                    let value = bomItem[filter.id].toString();
-                    if(filter.values.indexOf(value) < 0) isVisible = false;
-                }
-                break;
-            }
+    for(let kpi of kpis) {
+        kpi.max = 0;
+        for(let entry of kpi.data) {
+            entry.count = 0;
+            
         }
-
-        if(isVisible) {
-            $(this).show().removeClass('hidden');
-            counter++;
-            partNumbers.push($(this).attr('data-part-number'));
-        } else $(this).hide().addClass('hidden');;
-
-    });
-
-
-    $('.flat-bom-row').each(function() {
-
-        let isVisible   = true;
-        let urn         = $(this).attr('data-urn');
-
-        for(bomItem of bomItems) {
-            if(bomItem.urn === urn) {
-                for(filter of filters) {
-                    let value = bomItem[filter.id];
-                    if(filter.values.indexOf(value) < 0) isVisible = false;
-                }
-                break;
-            }
-        }
-
-        if(isVisible) $(this).show().removeClass('hidden');
-        else          $(this).hide().addClass('hidden');
-
-    });
-
-    if($('.kpi-value.selected').length > 0) {
-        $('#dashboard').removeClass('no-toolbar');
-        $('#dashboard-counter').html(counter + ' matches');
-        if(counter === 1) $('#dashboard-counter').html('1 match');
-    } else {
-        $('#dashboard').addClass('no-toolbar');
     }
 
-    if(filters.length === 0) viewerResetColors();
+    let bomMatches = [];
+
+    for(let bomItem of bomItems) {
+        if(bomItem.hasOwnProperty('kpis')) {
+            let isMatch = true;
+            for(let kpiFilter of kpiFilters) {
+                let value = bomItem.kpis[kpiFilter.id].toString();
+                if(kpiFilter.values.indexOf(value) < 0) isMatch = false;
+            }
+            if(isMatch) bomMatches.push(bomItem);
+        }
+    }
+
+    for(let bomMatch of bomMatches) {
+        for(let kpi of kpis) {
+            let value = bomMatch.kpis[kpi.id].toString();
+            for(let entry of kpi.data) {
+                if(value == entry.value) {
+                    entry.count++;
+                    if(entry.count > kpi.max) kpi.max = entry.count;
+                }
+            }
+        }
+    }
+
+    $('.kpi-counter').html(0);
+
+    $('.kpi-values').each(function() {
+
+        let elemValues = $(this);
+        let kpiId      = elemValues.parent().attr('data-kpi-id');
+
+        for(let kpi of kpis) {
+
+            if(kpi.id === kpiId) {
+
+                for(let entry of kpi.data) {
+
+                    if(elemValues.hasClass('counters')) {
+
+                        elemValues.children().each(function() {
+                            let elemValue = $(this);
+                            if(elemValue.attr('data-filter') === entry.value) {
+                                elemValue.find('.kpi-counter').html(entry.count);
+                            }
+                        });
+
+                    } else {
+
+                        elemValues.children().each(function() {
+                            let elemValue = $(this);
+                            if(elemValue.attr('data-filter') == entry.value) {
+                                elemValue.find('.kpi-counter').html(entry.count);
+                                let percent = (kpi.max === 0) ? 0 : (entry.count * 100 / kpi.max);
+                                elemValue.css('background', 'linear-gradient(90deg, ' + entry.color + ' 0% ' + percent + '%, var(--color-surface-level-1) ' + percent + '% 100%)');
+                            }
+                        });                        
+
+                    }
+                }
+
+            }
+
+        }
+
+    });
+
+    if(kpiFilters.length === 0) viewerResetColors();
     else viewerSelectModels(partNumbers);
+
+}
+function applyAdditionalContentItemFilter(elemContentItem, showContentItem) {
+
+    if(!showContentItem) return -1;
+    if(kpiFilters.length === 0) return 0;
+
+    let link = elemContentItem.attr('data-link');
+
+    for(let bomItem of bomItems) {
+        if(bomItem.link === link) {
+            for(let kpiFilter of kpiFilters) {
+                let value = bomItem.kpis[kpiFilter.id].toString();
+                if(kpiFilter.values.indexOf(value) < 0) showContentItem = false;
+            }
+        }
+    }
+
+    if(showContentItem) {
+        partNumbers.push(elemContentItem.attr('data-part-number'));
+    }
+
+    return showContentItem;
 
 }
 function refreshKPIs() {
 
     let params = {
-        wsId         : wsId,
-        dmsId        : dmsId,
-        depth        : 10,
-        revisionBias : 'release',
-        viewId       : wsItems.viewId
+        link            : settings['bom'].link,
+        depth           : settings['bom'].depth,
+        revisionBias    : settings['bom'].revisionBias,
+        viewId          : settings['bom'].viewId,
+        getBOMPartsList : true
     }
 
-    let promises = [
-        $.get('/plm/bom'     , params),
-        $.get('/plm/bom-flat', params)
-    ];
-
-
-    // $('#dashboard-panel').html('');
     $('#dashboard-panel').addClass('hidden');
     $('#dashboard-processing').show();
 
-    Promise.all(promises).then(function(responses) {
-
-        let bom = responses[0].data;
+    $.get('/plm/bom', params, function(response) {
 
         bomItems = [];
 
@@ -1379,65 +1047,13 @@ function refreshKPIs() {
             }
         };
 
-        parsetNextBOMLevelKPIs(bom, bom.root);
-
+        getBOMKPIs('bom', response.data); 
+        
         $('#dashboard-panel').removeClass('hidden');
         $('#dashboard-processing').hide();
 
-        
-        for(kpi of kpis) refreshKPI(kpi);
-
-
     });
     
-}
-function parsetNextBOMLevelKPIs(bom, parent) {
-
-    for(let edge of bom.edges) {
-
-        if(edge.parent === parent) {
-
-            let partNumber = getBOMCellValue(edge.child, urns.partNumber , bom.nodes);
-            let newBOMItem = { 'urn' : edge.child, 'part-number' : partNumber };
-            let newItem    = true;
-
-            for(let kpi of kpis) {
-
-                let kpiValue = getBOMCellValue(edge.child, kpi.urn, bom.nodes, 'title');
-
-                if(kpi.type === 'non-empty') {
-                    kpiValue = (kpiValue === '' ) ? 'No' : 'Yes';
-                } else if(kpi.type === 'days') {
-                    if(kpiValue === '') kpiValue = '-'
-                    else {
-                        let day  = kpiValue.split(' ')[0].split('-');
-                        let date = new Date(day[0], day[1], day[2].split('T')[0]);
-                        var diff = now.getTime() - date.getTime();
-                        kpiValue = diff / (1000 * 3600 * 24);
-                        kpiValue = Math.round(kpiValue, 0);
-                        kpiValue = kpiValue + ' days ago';
-                    }
-                } else if(kpi.type === 'value') {
-                    kpiValue = (kpiValue === '' ) ? '-' : kpiValue;
-                }
-
-                newBOMItem[kpi.id] = kpiValue;
-                parseKPI(kpi, kpiValue);
-
-                for(bomItem of bomItems) {
-
-                    if(bomItem.urn === edge.child) { newItem = false; break; }
-                }
-    
-                if(newItem) bomItems.push(newBOMItem);
-    
-            }
-
-            parsetNextBOMLevelKPIs(bom, edge.child);
-
-        }
-    }
-
 }
 function refreshKPI(kpi) {
 
@@ -1514,83 +1130,8 @@ function refreshKPI(kpi) {
 }
 
 
-// Save BOM Changes
-function saveBOMChanges() {
-
-    $('#overlay').show();
-    saveBOMChange();
-
-}
-function saveBOMChange() {
-
-    if($('tr.changed').length === 0) {
-
-        $('#save-bom-changes').hide();
-        $('#overlay').hide();
-
-    } else {
-
-        let requests = [];
-        let elements = [];
-
-        $('tr.changed').each(function() {
-
-            if(requests.length < maxRequests) {
-
-                let elemItem = $(this);
-
-                let params = { 
-                    link     : elemItem.attr('data-link'),
-                    sections : []
-                };      
-        
-                elemItem.children('.changed').each(function() {
-                    let elemField = getFieldValue($(this));
-                    addFieldToPayload(params.sections, wsItems.sections, null, elemField.fieldId, elemField.value);
-                });
-
-                requests.push($.post('/plm/edit', params));
-                elements.push(elemItem);
-
-            }
-
-        });
-
-        Promise.all(requests).then(function(responses) {
-
-            for(let element of elements) {
-                element.removeClass('changed');
-                element.children().removeClass('changed');
-            }
-            saveBOMChange();
-
-        });
-
-    }
-
-}
-
-
-// Save Item Details Changes
-function saveChanges() {
-    
-    $('#overlay').show();
-    saveItem();
-
-}
-function saveItem() {
-
-    let params = { 
-        link     : $('#details').attr('data-link'),
-        sections : getSectionsPayload($('#details-sections')) 
-    };
-
-    $.post('/plm/edit', params, function(response) {
-        if(response.error) {
-            console.log(response);
-            showErrorMessage('Save Failed', response.data.message);
-        }
-        $('#overlay').hide();
-    });
-
+// Reset BOM selection
+function panelResetDone(id, elemClicked) {
+    viewerResetSelection(true);
+    $('#dashboard-reset').click();
 }

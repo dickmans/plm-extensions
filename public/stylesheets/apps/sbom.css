@@ -5,7 +5,7 @@
     --border-h       : 40px;
     --border-v       : 20px;
     --width-bom-min  : 520px;
-    --width-bom      : 860px;
+    --width-bom      : 810px;
     --width-panel    : 680px;
     --width-details  : 300px;
 
@@ -19,6 +19,7 @@
     right   : calc(var(--width-bom-min) + var(--width-panel) + var(--width-details) + (6 * var(--border-h)));
     bottom  : 0px;
     left    : 0px;
+    z-index : 5;
     /* display : none; */
 }
 #bom {
@@ -27,7 +28,7 @@
     right   : calc(var(--width-panel) + var(--width-details) + (4 * var(--border-h)));
     bottom  : 0px;
     width   : var(--width-bom-min);
-    z-index : 5;
+    z-index : 3;
     display : none;
 }
 #browser {
@@ -57,6 +58,8 @@
 }
 
 
+.no-viewer .viewer { top : unset; left : 58px; right : unset; bottom : 96px; }
+.no-viewer .tree-first-col { max-width : unset !important; }
 .no-viewer #bom   { left : 0px; right : unset ; width : calc(50% - (var(--width-details) / 2) - (3 * var(--border-h))); }
 .no-viewer #panel { left : unset; right : calc(var(--width-details) + (2 * var(--border-h)));;  width  : calc(50% - (var(--width-details) / 2) - (3 * var(--border-h))); }
 
@@ -94,7 +97,7 @@ td.type {
     width       : 30px;
 }
 td.type i {
-    border-radius : 3px;
+    border-radius : 50%;
     color         : white;
     font-size     : 18px;
     font-weight   : 300;
@@ -108,6 +111,9 @@ td.type i {
     max-width     : 28px;
     min-width     : 28px;
     width         : 28px;
+}
+.icon, .panel-content.s tr.content-item > td > .icon {
+    line-height   : 28px;
 }
 td.srv i { background: var(--color-status-red   ); }
 td.kit i { background: var(--color-status-yellow); }

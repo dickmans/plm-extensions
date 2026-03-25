@@ -180,7 +180,6 @@ function setUIEvents() {
 
                 let newLink = response.data.split('.autodeskplm360.net')[1];
                 $.post('/plm/add-managed-items', { 'link' : newLink, 'items' : [ link ] }, function(response) {
-                // $.get('/plm/add-relationship', { 'link' : newLink, 'relatedId' : link.split('/')[6] }, function(response) {
                     setProcesses($('#processes-list').attr('data-source'));
                     $('.process-dialog').hide();
                     $('#create-process').show();
@@ -346,17 +345,6 @@ function clickBOMItem(elemClicked, e) {
     }
 
 }
-// function clickBOMResetDone() {
-    
-//     $('.application-data-instance').show();
-
-//     let link = $('#bom').attr('data-link');
-    
-//     insertItemDetails(link);
-//     insertAttachments(link, paramsAttachments);
-//     updateViewer();
-
-// }
 function filterPartList(elemClicked) {
 
     let children = getBOMItemChhildren(elemClicked);
@@ -397,7 +385,7 @@ function filterApplicationData(elemClicked) {
 
 
 // Parse BOM for Spare Parts
-function changeBOMViewDone(id, fields, viewBOM, viewFlatBOM) {
+function openBOMViewDone(id, fields, viewBOM, viewFlatBOM) {
 
     ebom        = viewBOM;
     ebomFields  = fields;

@@ -286,12 +286,14 @@ function getManagedFields() {
     $.get('/plm/managed-fields', { wsId : urlParameters.wsId, useCache : true }, function(response) {
 
         let elemFields   = $('#change-fields');
-        let formSettings = { editable : true }
+        // let formSettings = { editable : true }
 
-        getFieldsPicklistsData(formSettings, response.data, function(picklistsData) {
+        settings['change-fields'] = { editable : true };
+
+        getFieldsPicklistsData('change-fields', response.data, function(picklistsData) {
 
             for(let field of response.data) {
-                insertDetailsField(field, null, elemFields, formSettings, false, false, false, picklistsData);
+                insertDetailsField(field, null, elemFields, settings['change-fields'], false, false, false, picklistsData);
             }
 
             insertAllPicklistData({}, picklistsData, elemFields);
@@ -1644,7 +1646,7 @@ function addRelationship(elemButton) {
         'type'          : 'bi'
     }
 
-    $.get('/plm/add-relationship', params, function() {
+    $.post('/plm/add-relationship', params, function() {
         getRelationships(function() {
             setImpactedStatus();
             $('#overlay').hide();

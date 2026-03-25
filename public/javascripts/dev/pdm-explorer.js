@@ -837,7 +837,7 @@ function selectKPI(elemKPI) {
     // $('.kpi-value').removeClass('selected');
     // $('#bom').addClass('no-colors');
     // $('#flat-bom').addClass('no-colors');
-    $('.bom-color').each(function() { $(this).css('background', '') });
+    $('.tree-color').each(function() { $(this).css('background', '') });
     // $('.flat-bom-number').each(function() { $(this).css('background', '') });
 
     if(isSelected) return; 
@@ -904,7 +904,7 @@ function selectKPI(elemKPI) {
 
             if(value === filter) {
                 // partNumbers.push($(this).attr('data-part-number'));
-                $(this).find('.bom-color').css('background', color);
+                $(this).find('.tree-color').css('background', color);
             }
 
         });
@@ -1613,7 +1613,6 @@ function applyTreeFilter() {
 // function filterBOMTree() {
 
 //     $('tr.result').removeClass('result');
-//     $('.bom-nav.collapsed').removeClass('collapsed');
 
 //     let filterValue = $('#bom-search-input').val().toLowerCase();
 
@@ -1628,8 +1627,6 @@ function applyTreeFilter() {
 
 //     } else {
 
-//         $('.bom-nav.collapsed').removeClass('collapsed').addClass('expanded');
-        
 //         $('#bom-table-tree').children().each(function() {
 //             $(this).hide();
 //         });
@@ -2015,242 +2012,7 @@ function applyTreeFilter() {
 
 
 
-// // KPI Handling
-// function selectKPI(elemClicked) {
 
-//     viewerResetColors();
-
-//     let id          = elemClicked.attr('data-kpi-id');
-//     let isSelected  = elemClicked.hasClass('selected');
-//     let kpiData     = null;
-
-//     $('.kpi').removeClass('selected');
-//     // $('.kpi-value').removeClass('selected');
-//     // $('#bom').addClass('no-colors');
-//     // $('#flat-bom').addClass('no-colors');
-//     $('.bom-color').each(function() { $(this).css('background', '') });
-//     $('.flat-bom-number').each(function() { $(this).css('background', '') });
-
-//     if(isSelected) return; 
-        
-//     for(kpi of config.explorer.kpis) {
-//         if(kpi.id === id) {
-//             kpiData = kpi.data;
-//             break;
-//         }
-//     }
-
-//     if(kpiData === null) return;
-
-//     // $('#bom').removeClass('no-colors');
-//     // $('#flat-bom').removeClass('no-colors');
-//     elemClicked.addClass('selected');
-
-//     viewerResetColors();
-
-//     elemClicked.find('.kpi-value').each(function() {
-    
-//         let filter      = $(this).attr('data-filter');
-//         let color       = '';
-//         let vector      = null;
-//         let partNumbers = [];
-
-//         for(entry of kpiData) {
-//             if(entry.value === filter) {
-//                 color  = entry.color;
-//                 vector = entry.vector;
-//                 break;
-//             }
-//         }
-
-//         $('#bom-table-tree').children().each(function() {
-            
-//             let value   = null;
-//             let urn     = $(this).attr('data-urn');
-
-//             for (bomItem of bomItems) {
-//                 if(bomItem.urn === urn) {
-//                     value = bomItem[id];
-//                 }
-//             }
-
-//             if(value === filter) {
-//                 partNumbers.push($(this).attr('data-part-number'));
-//                 $(this).find('.bom-color').css('background', color);
-//             }
-
-//         });
-
-//         $('#bom-table-flat').find('tr').each(function() {
-
-//             let value   = null;
-//             let urn     = $(this).attr('data-urn');
-
-//             for (bomItem of bomItems) {
-//                 if(bomItem.urn === urn) {
-//                     value = bomItem[id];
-//                 }
-//             }
-
-//             if(value === filter) {
-//                 $(this).children('.flat-bom-number').first().css('background', color);
-//             }
-
-//         });
-
-//         viewerSetColors(partNumbers, { 
-//             'color' : vector ,
-//             'resetColors' : false
-//         });
-
-//     });
-
-// }
-// function selectKPIValue(e, elemClicked) {
-
-//     let isSelected = elemClicked.hasClass('selected');
-    
-//     if(!e.shiftKey) $('.kpi-value').removeClass('selected');
-
-//     if(isSelected) elemClicked.removeClass('selected');
-//     else           elemClicked.addClass('selected');
-    
-//     applyFilters();
-
-// }
-// function applyFilters() {
-
-//     let partNumbers = [];
-//     let filters     = [];
-//     let counter     = 0;
-
-//     $('.kpi-value.selected').each(function() {
-
-//         let id      = $(this).closest('.kpi').attr('data-kpi-id');
-//         let value   = $(this).attr('data-filter');
-//         let isNew   = true;
-
-//         for(filter of filters) {
-//             if(filter.id === id) {
-//                 filter.values.push(value);
-//                 isNew = false;
-//             }
-//         }
-
-//         if(isNew) filters.push({
-//             'id'     : id,
-//             'values' : [value]
-//         });
-
-//     });
-
-//     viewerResetSelection(true);
-
-//     $('#bom-table-tree').children().each(function() {
-
-//         let isVisible   = true;
-//         let urn         = $(this).attr('data-urn');
-
-//         for(bomItem of bomItems) {
-//             if(bomItem.urn === urn) {
-//                 for(filter of filters) {
-//                     let value = bomItem[filter.id];
-//                     if(filter.values.indexOf(value) < 0) isVisible = false;
-//                 }
-//                 break;
-//             }
-//         }
-
-//         if(isVisible) {
-//             $(this).show().removeClass('hidden');
-//             counter++;
-//             partNumbers.push($(this).attr('data-part-number'));
-//         } else $(this).hide().addClass('hidden');;
-
-//     });
-
-
-//     $('.flat-bom-row').each(function() {
-
-//         let isVisible   = true;
-//         let urn         = $(this).attr('data-urn');
-
-//         for(bomItem of bomItems) {
-//             if(bomItem.urn === urn) {
-//                 for(filter of filters) {
-//                     let value = bomItem[filter.id];
-//                     if(filter.values.indexOf(value) < 0) isVisible = false;
-//                 }
-//                 break;
-//             }
-//         }
-
-//         if(isVisible) $(this).show().removeClass('hidden');
-//         else          $(this).hide().addClass('hidden');
-
-//     });
-
-//     if($('.kpi-value.selected').length > 0) {
-//         $('#dashboard').removeClass('no-toolbar');
-//         $('#dashboard-counter').html(counter + ' matches');
-//         if(counter === 1) $('#dashboard-counter').html('1 match');
-//     } else {
-//         $('#dashboard').addClass('no-toolbar');
-//     }
-
-//     if(filters.length === 0) viewerResetColors();
-//     else viewerSelectModels(partNumbers);
-
-// }
-// function refreshKPIs() {
-
-//     let params = {
-//         'wsId'          : wsId,
-//         'dmsId'         : dmsId,
-//         'depth'         : 10,
-//         // 'revisionBias'  : 'allChangeOrder',
-//         // 'revisionBias'  : 'changeOrder',
-//         'revisionBias'  : 'release',
-//         // 'revisionBias'  : 'working',
-//         'viewId'        : wsItems.viewId
-//     }
-
-//     let promises = [
-//         $.get('/plm/bom'     , params),
-//         $.get('/plm/bom-flat', params)
-//     ];
-
-
-//     // $('#dashboard-panel').html('');
-//     $('#dashboard-panel').addClass('hidden');
-//     $('#dashboard-processing').show();
-
-//     Promise.all(promises).then(function(responses) {
-
-
-//         let bom = responses[0].data;
-
-//         bomItems = [];
-
-
-//         for(kpi of config.explorer.kpis) {
-//             for(data of kpi.data) {
-//                 data.count = 0;
-//             }
-//         };
-
-//         parsetNextBOMLevelKPIs(bom, bom.root);
-
-//         $('#dashboard-panel').removeClass('hidden');
-//         $('#dashboard-processing').hide();
-
-        
-//         for(kpi of config.explorer.kpis) refreshKPI(kpi);
-
-
-//     });
-    
-// }
 // function parsetNextBOMLevelKPIs(bom, parent) {
 
 //     for(edge of bom.edges) {

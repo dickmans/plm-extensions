@@ -12,17 +12,23 @@ block head
 
 block body
 
-    body.surface-level-1.no-details.screen-landing
+    body.surface-level-1.no-details.screen-landing.no-ecad
 
         #header.dark
             #header-logo
             #header-title= title
             #header-subtitle
             #header-toolbar
-                #bom-sync.disabled.button.default.with-icon.icon-refresh(title="Synchronize grid entries with the BOM tree") Sync with BOM
+                select#mode.button.disabled
+                    option(value='all') Display All Items
+                    option(value='tab') Selected Tab / Type
+                    option(value='mat') Matched Items
+                    option(value='not') Non-Matched Items
+                #bom-sync.disabled.button.default.with-icon.icon-refresh.hidden(title="Synchronize grid entries with the BOM tree") Sync with BOM
                 #excel-export.disabled.button.with-icon.icon-download(title="Download the grid to an Excel sheet") Download Excel
                 #toggle-layout.button(title="Toggle between horizontal and vertical layout") Toggle Layout
                 #toggle-bom.button.with-toggle.toggle-on(title="Toggle BOM display to the left on and off") Display BOM
+                #toggle-ecad-bom.button.with-toggle.toggle-on.hidden(title="Toggle BOM display to the right on and off") Electrical BOM
                 #toggle-details.button.with-toggle.toggle-off(title="Toggle Item Details panel on and off") Display Details
                 #header-avatar
         
@@ -38,6 +44,7 @@ block body
             #contents.surface-level-1
                 #tabs.tabs
                 #items
+            #ecad.surface-level-2.pos-abs-right
 
             #sync.dialog.review-changes
                 .dialog-header 
@@ -49,22 +56,26 @@ block body
                             tr#sync-throw
                                 th(colspan='2')
                         tbody#sync-tbody
-                            tr#sync-new
-                                td.sync-icon 
-                                    .icon.icon-create.filled
-                                td New Instances
-                            tr#sync-update
-                                td.sync-icon  
-                                    .icon.icon-product-alert.filled
-                                td Instances with path update
-                            tr#sync-mismatch
-                                td.sync-icon  
-                                    .icon.icon-warning.filled
-                                td Entries requiring action (mapping / removal)
                             tr#sync-matches
                                 td.sync-icon 
                                     .icon.icon-checkmark.filled
                                 td Matching Instances
+                            tr#sync-update
+                                td.sync-icon  
+                                    .icon.icon-product-alert.filled
+                                td Instances with path update
+                            tr#sync-new
+                                td.sync-icon 
+                                    .icon.icon-create.filled
+                                td New Instances
+                            tr#sync-ecad
+                                td.sync-icon 
+                                    .icon.icon-cpu.filled
+                                td ECAD Instances
+                            tr#sync-mismatch
+                                td.sync-icon  
+                                    .icon.icon-warning.filled
+                                td Entries requiring action (mapping / removal)
                     #sync-message 
                         #sync-no-changes There are no changes required. You can close this dialog.
                         #sync-review-changes Multiple changes are required as can be seen above. 

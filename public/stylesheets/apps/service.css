@@ -266,7 +266,7 @@
 
 /* BOM */
 /* ----------------------------------------------------------------------------- */
-.bom-column-spare-parts {
+.tree-column-spare-parts {
     padding-right : 6px !important;
 }
 
@@ -865,7 +865,7 @@
 
     }                    
 
-    .bom-column-quantity,
+    .tree-column-quantity,
     .tree-column-type {
         display : none;
     }

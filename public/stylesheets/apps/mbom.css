@@ -55,24 +55,25 @@
 /* ----------------------------------------------------------------------------- */
 #mbom {
     border-width : var(--border-v) var(--border-h);
-    top     : 0px;
-    bottom  : 0px;
-    left    : 0px;
-    width   : var(--width-mbom);
+    top    : 0px;
+    right  : 0px;
+    bottom : 0px;
+    width  : var(--width-mbom);
 }
 #tabs {
     border-width : var(--border-v) var(--border-h);
-    top     : 0px;
-    right   : 0px;
-    bottom  : 0px;
-    left    : calc(var(--width-mbom) + (2 * var(--border-h)));
+    top    : 0px;
+    right  : calc(var(--width-mbom) + (2 * var(--border-h)));
+    bottom : 0px;
+    left   : 0px;
 }
 .viewer {
-    right : 0px;
-    left  : calc(var(--width-ebom) + var(--border-h));
+    left  : 0px;
+    right : calc(var(--width-ebom) + var(--border-h));
 }
 #ebom {
-    left  : 0px;
+    right : 0px;
+    left  : unset;
     width : var(--width-ebom);
 }
 #operations {
@@ -97,11 +98,12 @@ body.mode-ebom.no-viewer #ebom { left  : 0px; right : 0px; width : unset; }
 body.mode-ebom.no-viewer .viewer { left : 100%; }
 
 body.mode-disassemble #ebom, body.mode-disassemble #add { display : none; }
-body.mode-disassemble .viewer { left : 0px; }
+body.mode-disassemble .viewer { right : 0px; }
+body.mode-disassemble #operations { display : none; }
 body.mode-ebom #viewer { display : block !important; }
 body.mode-ebom #add, body.mode-ebom #operations { display : none; }
 body.mode-add .viewer, body.mode-add #ebom, body.mode-add #operations { display : none !important; }
-body.mode-operations #viewer { display : block !important; top : 42px; left : unset; right : 0px; height : var(--width-operations-viewer); width : var(--width-operations-viewer); }
+body.mode-operations #viewer { display : block !important; top : 42px; left : 0px; right : unset; height : var(--width-operations-viewer); width : var(--width-operations-viewer); }
 body.mode-operations #ebom, body.mode-operations #add { display : none !important; }
 body.mode-operations #my-custom-toolbar-views { display : none !important; }
 
@@ -661,8 +663,9 @@ body.with-quantity-comparison #ebom-qty-comparison {
     border-width : var(--border-v) var(--border-h);
 }
 #operations-sourcing {
-    right  : calc(var(--width-operations-viewer) + (1 * var(--border-h)));
+    right  : 0px;
     bottom : 0px;
+    left   : calc(var(--width-operations-viewer) + (1 * var(--border-h)));
     height : calc(var(--width-operations-viewer) - (2 * var(--border-v)));
 }
 #operations-grid {

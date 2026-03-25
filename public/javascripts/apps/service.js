@@ -32,6 +32,7 @@ let paramsProcesses       = {
     fieldIdMarkup       : '',
     openInPLM           : true,
     reload              : true,
+    useCache            : true,
     contentSize         : 'm',
     singleToolbar       : 'actions'
 }
@@ -182,18 +183,19 @@ function setLandingPage() {
             if(!isBlank(workspaceIds.products)) {
                 
                 insertResults(workspaceIds.products, config.products.filter ,{
-                    id              : 'products',
-                    headerLabel     : config.products.headerLabel, 
-                    icon            : config.products.icon,
-                    groupBy         : config.products.groupBy,
-                    contentSize     : config.products.contentSize,
-                    // sortBy          : config.products.sortBy, 
-                    tileImage       : config.products.tileImage, 
-                    tileTitle       : config.products.tileTitle, 
-                    tileSubtitle    : config.products.tileSubtitle, 
-                    search          : true,
-                    layout          : 'grid',
-                    groupLayout     : 'horizontal',
+                    id          : 'products',
+                    headerLabel : config.products.headerLabel, 
+                    icon        : config.products.icon,
+                    groupBy     : config.products.groupBy,
+                    contentSize : config.products.contentSize,
+                    // sortBy      : config.products.sortBy, 
+                    tileImage   : config.products.tileImage, 
+                    tileImageFieldId  : config.products.tileImageFieldId, 
+                    tileTitle   : config.products.tileTitle, 
+                    tileSubtitle: config.products.tileSubtitle, 
+                    search      : true,
+                    layout      : 'grid',
+                    groupLayout : 'horizontal',
                     onClickItem : function(elemClicked) { openSelectedProductOrAsset(elemClicked.attr('data-link'), 'product', config.products.fieldIDs); }
                 });
 
@@ -245,7 +247,8 @@ function setLandingPage() {
                 headerLabel    : config.orderProjects.headerLabel,
                 layout         : 'grid',
                 contentSize    : 'l',
-                tileImage      : 'IMAGE',
+                tileImage      : true,
+                tileImageFieldId : 'IMAGE',
                 tileTitle      : 'TITLE',
                 tileSubtitle   : config.orderProjects.tileSubtitle,
                 tileDetails    : config.orderProjects.tileDetails,
@@ -275,6 +278,7 @@ function setLandingPage() {
             number       : false,
             search       : true,
             reload       : true,
+            tileImage    : false,
             tileTitle    : 'DESCRIPTOR',
             tileSubtitle : 'REQUEST_DATE',
             stateColors  : config.sparePartsRequests.stateColors,
@@ -311,18 +315,21 @@ function setLandingPage() {
     if(applicationFeatures.manageProblemReports) {
 
         let params = {
-            id             : 'your-problems',
-            headerLabel    : config.labels.homeProblemReports,
-            layout         : 'list',
-            contentSizes   : ['l', 'm', 'xs', 'xxs'],
-            search         : true,
-            reload         : true,
-            openOnDblClick : true,
-            openInPLM      : applicationFeatures.openInPLM,
-            openOnDblClick : applicationFeatures.openInPLM,
-            tileTitle      : 'DESCRIPTOR',
-            tileSubtitle   : 'DESCRIPTION',
-            tileDetails    : [{
+            id               : 'your-problems',
+            headerLabel      : config.labels.homeProblemReports,
+            layout           : 'list',
+            contentSizes     : ['l', 'm', 'xs', 'xxs'],
+            search           : true,
+            reload           : true,
+            openOnDblClick   : true,
+            // imagtileImag  e  : false,
+            openInPLM        : applicationFeatures.openInPLM,
+            openOnDblClick   : applicationFeatures.openInPLM,
+            tileImage        : true,
+            tileImageFieldId : 'IMAGE_1',
+            tileTitle        : 'DESCRIPTOR',
+            tileSubtitle     : 'DESCRIPTION',
+            tileDetails      : [{
                 icon    : 'icon-tag',
                 fieldId : 'TYPE',
                 prefix  : 'PR Type'
@@ -525,7 +532,7 @@ function openRequest(elemClicked) {
             { type : 'workflow-history', className : 'surface-level-1', params : { id : 'request-workflow-history' } },
             { type : 'details'         , className : 'surface-level-1', params : { id : 'request-details', expandSections : config.sparePartsRequests.sectionsExpanded, suppressLinks : true, sectionsEx : config.sparePartsRequests.sectionsExcluded } },
             { type : 'grid'            , className : 'surface-level-1', params : { id : 'request-grid', headerLabel : 'Part List', fieldsEx : config.sparePartsRequests.gridColumnsExcluded } },
-            { type : 'attachments'     , className : 'surface-level-1', params : { id : 'request-attachments', editable : true, layout : 'tiles', singleToolbar : 'controls' } },
+            { type : 'attachments'     , className : 'surface-level-1', params : { id : 'request-attachments', editable : true, contentSize : 'm', layout : 'list', singleToolbar : 'controls' } },
         ],
         statesColors    : config.sparePartsRequests.stateColors,  
         layout          : 'dashboard',
@@ -635,7 +642,7 @@ function openSelectedProductOrAsset(link, type, fieldIDs, linkService, linkSNL) 
 
     }
     
-    $.get('/plm/details', { link : links.context }, function(response) {
+    $.get('/plm/details', { link : links.context, requestor : 'service.js | openSelectedProductOrAsset()' }, function(response) {
 
         links.ebom = getSectionFieldValue(response.data.sections, fieldIDs.ebom, '', 'link');
         links.sbom = getSectionFieldValue(response.data.sections, fieldIDs.sbom, '', 'link');
@@ -707,7 +714,6 @@ function openItem() {
         hideDetails         : false, 
         quantity            : true,
         counters            : true,
-        getFlatBOM          : false, 
         includeBOMPartList  : true, 
         search              : true,
         showRestricted      : false,
@@ -715,7 +721,8 @@ function openItem() {
         openInPLM           : config.applicationFeatures.openInPLM,
         revisionBias        : config.items.bomRevisionBias,
         endItem             : config.items.endItemFilter,
-        selectItems         : { fieldId : config.items.fieldIdSparePart, values : config.items.fieldValuesSparePart }
+        selectItems         : { fieldId : config.items.fieldIdSparePart, values : config.items.fieldValuesSparePart },
+        onClickItem         : function(elemClicked) { onClickBOMItem(elemClicked); }
     }
 
     let keys = Object.keys(config.paramsBOM);
@@ -726,7 +733,7 @@ function openItem() {
 
     finishedLoading.engineeringBOM = false;
     finishedLoading.serviceBOM     = false;
-
+    
     insertBOM          (links.ebom, paramsBOM);
     insertViewer       (links.ebom);
     updateRelatedPanels(links.ebom);
@@ -767,7 +774,7 @@ function updateRelatedPanels(link) {
         paramsProcesses.createContextItemFields.push('AFFECTED_PRODUCT');
     }
 
-    if(applicationFeatures.itemDetails        )          insertDetails(link, paramsItemDetails    );
+    if(applicationFeatures.itemDetails         )         insertDetails(link, paramsItemDetails    );
     if(applicationFeatures.itemAttachments     )     insertAttachments(link, paramsItemAttachments);
     if(applicationFeatures.manageProblemReports) insertChangeProcesses(link, paramsProcesses      );
 
@@ -820,62 +827,63 @@ function updateRelatedPanels(link) {
 
 
 // Parse BOM for Spare Parts
-function changeBOMViewDone(id, settings, bom, selectedItems, flatBOM, additionalData, partList) {
+function openBOMViewDone(id, bom, selectedItems, additionalData, partList) {
 
     $('#bom-processing').hide();
     bomPartList = partList;
 
     finishedLoading.engineeringBOM = true;
 
-    if(!isBlank(links.sbom)) {
-        finishSparePartsList();
-        return;
+    if(isBlank(links.sbom)) {
+        
+        if(selectedItems.length > 15) $('#items-content').removeClass('l').addClass('m');
+
+        // let fields         = [];
+        // let urnsSpareParts = [];
+        // let fieldIdImage   = config.items.fieldIdImage;
+        let elemContent    = $('#items-content');
+
+        // for(let bomView of settings.bomViews) {
+        //     if(bomView.id == settings.viewId) {
+        //         fields = bomView.columns;
+        //         break;
+        //     }
+        // }
+
+        // if(isBlank(fieldIdImage)) fieldIdImage = getFirstImageFieldID(fields);
+
+        // for(let field of fields) {
+
+        //     let urnField = field.__self__.urn;
+
+        //     switch(field.fieldId) {
+        //         case 'NUMBER'                                     : urnsSpareParts.partNumber   = urnField; break;
+        //         case 'TITLE'                                      : urnsSpareParts.title        = urnField; break;
+        //         case 'DESCRIPTION'                                : urnsSpareParts.description  = urnField; break;
+        //         case fieldIdImage                                 : urnsSpareParts.image        = urnField; break;
+        //         case common.workspaces.items.fieldIdNumber                   : urnsSpareParts.partNumber   = urnField; break;
+        //         case config.fieldId                       : urnsSpareParts.spareWearPart= urnField; break;
+        //         case config.items.sparePartTileDetails[0] : urnsSpareParts.material     = urnField; break;
+        //         case config.items.sparePartTileDetails[1] : urnsSpareParts.weight       = urnField; break;
+        //         case config.items.sparePartTileDetails[2] : urnsSpareParts.dimensions   = urnField; break;
+        //     }
+
+        // }
+        
+        // insertBOMSpareParts(elemContent, selectedItems, urnsSpareParts, flatBOM);
+        
+        $('#items-processing').hide();
+
+        for(let selectedItem of selectedItems) insertSparePart(elemContent, selectedItem, 'sparePart');
+
+        setSparePartStockStatus();
+        insertNonSparePartMessage();
+        
+
     }
 
-    if(selectedItems.length > 15) $('#items-content').removeClass('l').addClass('m');
-
-    // let fields         = [];
-    // let urnsSpareParts = [];
-    // let fieldIdImage   = config.items.fieldIdImage;
-    let elemContent    = $('#items-content');
-
-    // for(let bomView of settings.bomViews) {
-    //     if(bomView.id == settings.viewId) {
-    //         fields = bomView.columns;
-    //         break;
-    //     }
-    // }
-
-    // if(isBlank(fieldIdImage)) fieldIdImage = getFirstImageFieldID(fields);
-
-    // for(let field of fields) {
-
-    //     let urnField = field.__self__.urn;
-
-    //     switch(field.fieldId) {
-    //         case 'NUMBER'                                     : urnsSpareParts.partNumber   = urnField; break;
-    //         case 'TITLE'                                      : urnsSpareParts.title        = urnField; break;
-    //         case 'DESCRIPTION'                                : urnsSpareParts.description  = urnField; break;
-    //         case fieldIdImage                                 : urnsSpareParts.image        = urnField; break;
-    //         case common.workspaces.items.fieldIdNumber                   : urnsSpareParts.partNumber   = urnField; break;
-    //         case config.fieldId                       : urnsSpareParts.spareWearPart= urnField; break;
-    //         case config.items.sparePartTileDetails[0] : urnsSpareParts.material     = urnField; break;
-    //         case config.items.sparePartTileDetails[1] : urnsSpareParts.weight       = urnField; break;
-    //         case config.items.sparePartTileDetails[2] : urnsSpareParts.dimensions   = urnField; break;
-    //     }
-
-    // }
-    
-    // insertBOMSpareParts(elemContent, selectedItems, urnsSpareParts, flatBOM);
-    
-    $('#items-processing').hide();
-
-    for(let selectedItem of selectedItems) insertSparePart(elemContent, selectedItem, 'sparePart');
-
-
-    setSparePartStockStatus();
-    insertNonSparePartMessage();
     finishSparePartsList();
+    
 
 }
 // function insertBOMSpareParts(elemParent, selectedItems, urnsSpareParts, flatBOM) {
@@ -1288,7 +1296,7 @@ function insertNonSparePartMessage() {
                     $('.bom-item').each(function() {
                         if($(this).attr('data-link') === link) {
                             $(this).addClass('is-spare-part').addClass('spare-part-custom');
-                            let elemCell = $(this).find('.bom-column-icon');
+                            let elemCell = $(this).find('.tree-icon');
                             $('<span></span>').appendTo(elemCell)
                                 .addClass('icon')
                                 .addClass(config.serviceBOMTypes.custom.icon)
@@ -1535,13 +1543,13 @@ function finishSparePartsList() {
 
     if($('#bom-thead-row').length === 0) return;
 
-    $('<th></th>').addClass('bom-column-icon').addClass('bom-column-spare-parts').appendTo($('#bom-thead-row'));
+    $('<th></th>').addClass('tree-icon').addClass('tree-column-spare-parts').appendTo($('#bom-thead-row'));
 
-    $('.bom-item').each(function() {
+    $('#bom').find('.bom-item').each(function() {
 
         let elemBOMItem = $(this);
         let rootLink     = elemBOMItem.attr('data-root-link');
-        let elemCell    = $('<td></td>').appendTo(elemBOMItem).addClass('bom-column-icon').addClass('bom-column-spare-parts');
+        let elemCell    = $('<td></td>').appendTo(elemBOMItem).addClass('tree-icon').addClass('tree-column-spare-parts');
         let proceed     = true;
 
         for(let sparePart of listServiceItems.spareParts) {
@@ -1602,7 +1610,7 @@ function onSparePartsListDone() {
 
 
 // BOM User Interactions
-function clickBOMItem(elemClicked, e) {
+function onClickBOMItem(elemClicked) {
 
     $('.bom-item').removeClass('selected-context');
 
@@ -1653,9 +1661,9 @@ function setSparePartsList(elemItem) {
 
     let levelNext = level - 1;
     
-    $('.spare-part').addClass('hidden');
-    $('.spare-part-components').addClass('hidden');
-    $('.spare-part-component').each(function() {$(this).removeClass('selected'); });    
+    $('#items .spare-part').addClass('hidden');
+    $('#items .spare-part-components').addClass('hidden');
+    $('#items .spare-part-component').each(function() {$(this).removeClass('selected'); });    
 
     do {
 
@@ -1681,7 +1689,7 @@ function setSparePartsList(elemItem) {
 
     // If no spare part is present, validate if parents are spare parts
     if(listBOMItems.length === 0) {
-        let parents = getBOMItemPath(elemItem);
+        let parents = getTreeItemPath(elemItem);
         for(let parent of parents.items) {
             if(parent.hasClass('is-spare-part')) {
                 let rootParent = parent.attr('data-root-link');
@@ -1708,10 +1716,10 @@ function setSparePartsList(elemItem) {
 }
 function unhideMatchingSpareParts(root) {
 
-    $('.spare-part').each(function() {
+    $('#items .spare-part').each(function() {
         if($(this).attr('data-root') === root) $(this).removeClass('hidden');
     });
-    $('.spare-part-component').each(function() {
+    $('#items .spare-part-component').each(function() {
         if($(this).attr('data-root') === root) {
             // $(this).addClass('selected');
             $(this).parent().removeClass('hidden');
@@ -1842,8 +1850,6 @@ function filterSparePartsByInput() {
 // Serial Number interactions
 function selectSerialNumber(elemClicked) {
 
-    console.log('selectSerialNumber START');
-
 let gridRow  =  {
         partNumber   : '',
         path         : '',
@@ -1881,9 +1887,6 @@ elemClicked.children().each(function() {
         
     });
 
-
-    console.log(gridRow);
-
     // $('.highlighted').removeClass('highlighted');
 
     // // if(isSelected) {
@@ -1915,7 +1918,7 @@ elemClicked.children().each(function() {
             bomDisplayItemByPath(gridRow.path);
         // }
 
-        viewerHighlightInstances(gridRow.partNumber, [], [gridRow.instancePath], {});
+    viewerHighlightInstances(gridRow.partNumber, [], [gridRow.instancePath], {});
 
         // elemClicked.prevUntil('.table-group').each(function() { $(this).addClass('related'); })
         // elemClicked.nextUntil('.table-group').each(function() { $(this).addClass('related'); })
@@ -2031,14 +2034,14 @@ function onViewerSelectionChanged(event) {
 
         if(elemContext.length === 0) {
             resetSparePartsList();
-            resetBOMPath('bom');
+            treeResetPath('bom');
         } else {
     
             let linkItem = elemContext.attr('data-link');
             elemContext.addClass('selected');
             bomDisplayItem(elemContext);
             setSparePartsList(elemContext);
-            updateBOMPath($(this));
+            updateTreePath($(this));
             updateRelatedPanels(linkItem);           
 
         }
@@ -2200,7 +2203,7 @@ function adjustCartHeight() {
     let heightCart          = 38;
     let heightCartList      = 0;
     let maxHeight           = ($('#main').height() - 50) * 0.5;
-    let heightTiles         = 65;
+    let heightTiles         = 66;
     let isVisible           = elemCart.is(':visible');
 
     if(countPartsInCart === 0) {

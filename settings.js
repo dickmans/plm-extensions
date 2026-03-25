@@ -201,6 +201,7 @@ exports.applications = {
             { type : 'workflow-history', params : { id : 'workflow-history' } },
             { type : 'details'         , params : { id : 'details', collapseContents : true, editable : true, toggles : true, singleToolbar : 'controls' } },
             { type : 'markup'          , params : { id : 'markup', fieldIdViewable : 'AFFECTED_ITEM', markupsImageFieldsPrefix : 'IMAGE_' } },
+            { type : 'project'         , params : { id : 'project', createViewerImageFields : ['IMAGE_1'] , headerLabel : 'Tasks', editable : true, singleToolbar : 'controls', openInPLM : true, openOnDblClick : false, multiSelect : false, createWorkspaceIds : ['80'], createHeaderLabel : 'New Task'} },
             { type : 'attachments'     , params : { id : 'attachments', editable : true, headerLabel : 'Files', singleToolbar : 'controls', layout : 'list', tileSize : 'xs' } }
         ],
         icon            : 'icon-problem',
@@ -323,12 +324,85 @@ exports.applications = {
     }],
 
     explorer : {
-        bomViewName      : 'Details',
-        fieldIdPRImage   : 'IMAGE_1',
-        fieldIdPRContext : 'AFFECTED_ITEM',
-        // rollUpFields     : [],
-        problemReports   : { workspaceId : null },   // uses common.workspaceIds per default
-        supplierPackages : { workspaceId : null },   // uses common.workspaceIds per default
+        workspaces : {
+            problemReports   : { 
+                workspaceId         : null,  // uses common.workspaceIds per default
+                fieldIdImage        : 'IMAGE_1',
+                fieldIdAffectedItem : 'AFFECTED_ITEM'
+            },   
+            supplierPackages : { 
+                workspaceId  : null  // uses common.workspaceIds per default
+            },   
+        },
+        panels : {
+            insertBOM : {
+                headerLabel      : 'BOM',
+                bomViewName      : 'Details',
+                fieldsEx         : ['Number'],
+                contentSizes     : ['s', 'm', 'l', 'xs', 'xxs'],
+                saveButtonLabel  : 'Save Changes',
+                singleToolbar    : 'controls',
+                downloadFiles    : true,
+                downloadRequests : 5,
+                downloadFormats  : [
+                    { label : 'PDF'   , filter : ['.pdf']         , tooltip : '' },
+                    { label : 'STEP'  , filter : ['.step', '.stp'], tooltip : 'File suffix stp and step will be taken into account' },
+                    { label : 'Office', filter : ['.docx', '.doc', 'xls', 'xlsx', 'ppt', 'pptx'], tooltip : 'This will download all files with suffix doc, docx, xls, xlsx, ppt and pptx' },
+                ],
+                useCache        : true,
+                toggles         : true,
+                goThere         : true,
+                search          : true,
+                editable        : true,
+                multiSelect     : true,
+                path            : true,
+                counters        : true,
+                viewerSelection : true,
+            },
+            insertDetails : { 
+                sectionsEx      : ['AML Summary', 'Sourcing Summary', 'Others'],
+                expandSections  : ['Basic'],
+                fieldsEx        : ['ACTIONS'],
+                useCache        : true,
+                reload          : true,
+                bookmark        : true,
+                openInPLM       : true,
+                toggles         : true,
+                editable        : true,
+            },
+            insertAttachments : {
+                layout        : 'row',
+                extensionsEx  : ['.dwf', '.dwfx'],
+                singleToolbar : 'controls',
+                filterByType  : true,
+                search        : false,
+                reload        : false,
+                editable      : true,
+            },
+            insertChangeProcesses : {
+                headerLabel             : 'Processes', 
+                createHeaderLabel       : 'Create Problem Report',
+                createButtonLabel       : 'Create new PR',
+                createPerformTransition : 'SUBMIT',
+                singleToolbar           : 'controls',
+                useCache                : true,
+                filterByWorkspace       : true,
+                reload                  : false,
+                editable                : true,
+                reload                  : true,
+                openInPLM               : true,
+                openOnDblClick          : true,
+            },
+            createSupplierPackage : {
+                headerLabel       : 'Create New Supplier Package',
+                fieldsEx          : ['SUBMITTAL_DATE'],
+                contextItemsField : 'SHARED_ITEMS',
+                hideSections      : true,
+                firstSectionOnly  : true,
+            }
+        },
+        sharedCache : 'Employees',
+        kpiDrillDown : true,        
         kpis : [
             // ------------------------------------------------------------------------------------------------------------------
             // Use the following parameters to define the KPIs:
@@ -341,6 +415,7 @@ exports.applications = {
             // ------------------------------------------------------------------------------------------------------------------
             { id : 'status', title : 'Status', fieldId : 'STATUS', type : 'value', style : 'counters', data : [
                 { value : 'Superseded', color : 0, vector : 'red'    },
+                { value : 'Unreleased', color : 2, vector : 'yellow' },
                 { value : 'Working'   , color : 2, vector : 'yellow' },
                 { value : 'Latest'    , color : 4, vector : 'green'  }
             ]},   
@@ -384,7 +459,7 @@ exports.applications = {
                 { value : '-'   , color : 2, vector : 'yellow' },
                 { value : 'No'  , color : 4, vector : 'green'  }
             ]},
-            { id : 'weight', title : 'Weight', fieldId : 'ITEM_WEIGHT', type : 'value', style : 'bars', data : [], sortBy : 'value', sortDirection : 'descending', digits : 3 },
+            { id : 'weight', title : 'Weight', fieldId : 'ITEM_WEIGHT', fieldType : 'Float', type : 'value', style : 'bars', data : [], sortBy : 'value', sortDirection : 'descending', digits : 3 },
             { id : 'material', title : 'Material', fieldId : 'MATERIAL', type : 'value', style : 'bars', data : [] },
             { id : 'reach', title : 'REACH', fieldId : 'REACH', type : 'value', style : 'bars', data : [
                 { value : 'Not Compliant' , color : 0, vector : 'red'    },
@@ -407,7 +482,7 @@ exports.applications = {
                 { value : 'No'  , color : 4, vector : 'green'  }
             ]},
             { id : 'quality-inspection-result', title : 'Latest Quality Inspection Result', fieldId : 'LATEST_QI_RESULT', type : 'value', style : 'bars', data : [
-                { value : '-'          , color : 3, vector : 0        },
+                { value : '-'          , color : 3, vector : 3        },
                 { value : 'FAIL'       , color : 0, vector : 'red'    },
                 { value : 'In Progress', color : 2, vector : 'yellow' },
                 { value : 'PASS'       , color : 4, vector : 'green'  }
@@ -479,7 +554,8 @@ exports.applications = {
     instances : {
         assets : {
             workspaceId : null,   // uses common.workspaceIds.assets per default
-            fieldIdBOM  : 'ENGINEERING_BOM'
+            fieldIdBOM  : 'ENGINEERING_BOM',
+            fieldIdECAD : 'ELECTRICAL_BOM'
         },
         landingHeader     : 'Select From Exsiting Assets',
         bomViewName       : 'Instance Editor',
@@ -585,6 +661,15 @@ exports.applications = {
         //          value   : 'Control Element'
         //     }           
         }],
+        // ecad : {
+        //     fieldsList : {
+        //         partNumber : 'NUMBER',
+        //         locaton    : 'LOCATION',
+        //         tag        : 'TAG',
+        //         category   : 'CATEGORY'
+        //     },
+        //     fieldsIn : ['Title', 'Location', 'Tag', 'Vendor', 'MPN', 'Category']
+        // },
         viewerFeatures : {
             contextMenu   : false,
             cube          : false,
@@ -708,28 +793,72 @@ exports.applications = {
     },
 
     portal : {
+        workspaceId      : null,  // uses common.workspaceIds.items per default
+        viewingFormats   : null,  // uses common.viewer.extensionsIncluded per default
         autoClick        : true,
         openMostRecent   : true,
-        searchInputText  : 'Enter part number', 
-        searchTileImages : true,
-        workspacesIn     : ['Items', 'Items and BOMs'],
-        bomLevels        : 10,
-        downloadFiles    : true,
-        downloadRequests : 5,
-        downloadFormats  : [
-            { label : 'PDF'   , filter : ['.pdf']         , tooltip : '' },
-            { label : 'STEP'  , filter : ['.step', '.stp'], tooltip : 'File suffix stp and step will be taken into account' },
-            { label : 'Office', filter : ['.docx', '.doc', 'xls', 'xlsx', 'ppt', 'pptx'], tooltip : 'This will download all files with suffix doc, docx, xls, xlsx, ppt and pptx' },
-        ],
-        downloadPatterns : [],
-        expandSections   : ['Basic'],
-        sectionsExcluded : ['Sourcing Summary', 'Compliance', 'Others'],
-        sectionsIncluded : [],
-        sectionsOrder    : ['Basic', 'Technical Details', 'PDM Data'],
-        fieldsExcluded   : ['CLASSIFICATION_STATUS', 'CLASS_DATA', 'ESTIMATED_COST', 'PENDING_PACKAGES'],
-        fieldsIncluded   : [],
-        viewingFormats   : ['dwf', 'dwfx'],
-        suppressLinks    : false,
+        panels : {
+            insertSearch : { 
+                autoClick    : true,
+                inputLabel   : 'Enter part number',
+                limit        : 10,
+                number       : true,
+                pagination   : true,
+                contentSize  : 'xs',
+                tileImage    : true
+            },
+            insertRecentItems : { 
+                headerLabel   : 'Recent Items',
+                search        : false,
+                reload        : true,
+                contentSize   : 'xs',
+                tileImage     : true,
+            },
+            insertBOM : {
+                bomViewName       : null,  // uses common.workspaces.items.defaultBOMView per default
+                contentSizes      : ['m', 'l', 'xl', 'xs', 's'],
+                tableColumnsLimit : 1,
+                depth             : 10,
+                openInPLM         : true,
+                toggles           : true,
+                reload            : false,
+                search            : true,
+                path              : true,
+                counters          : true,
+                useCache          : true,
+                downloadFiles     : true,
+                downloadRequests  : 5,
+                downloadFormats   : [
+                    { label : 'PDF'   , filter : ['.pdf']         , tooltip : '' },
+                    { label : 'STEP'  , filter : ['.step', '.stp'], tooltip : 'File suffix stp and step will be taken into account' },
+                    { label : 'Office', filter : ['.docx', '.doc', 'xls', 'xlsx', 'ppt', 'pptx'], tooltip : 'This will download all files with suffix doc, docx, xls, xlsx, ppt and pptx' },
+                ],
+                downloadPatterns : []
+            },
+            insertDetails : {
+                expandSections   : ['Basic'],
+                sectionsExcluded : ['Sourcing Summary', 'Compliance', 'Others'],
+                sectionsIncluded : [],
+                sectionsOrder    : ['Basic', 'Technical Details', 'PDM Data'],
+                fieldsExcluded   : ['CLASSIFICATION_STATUS', 'CLASS_DATA', 'ESTIMATED_COST', 'PENDING_PACKAGES'],
+                fieldsIncluded   : [],
+                bookmark         : true,
+                openInPLM        : true,
+                toggles          : true,
+                collapseContents : true,
+                hideComputed     : true,
+                suppressLinks    : false,
+                useCache         : true
+            },
+            insertAttachments : {
+                headerLabel   : 'Files',
+                contentSize   : 'm',
+                layout        : 'list',
+                singleToolbar : 'controls',
+                editable      : false,
+                filterByType  : true
+            }
+        },
         viewerFeatures   : {
             contextMenu   : false,
             cube          : false,
@@ -758,28 +887,29 @@ exports.applications = {
     portfolio : {
         hierarchy        : ['Product Categories', 'Product Lines', 'Products'],
         bomLevels        : 10,
-        viewerFeatures    : {
-            contextMenu   : false,
-            cube          : false,
-            orbit         : false,
-            firstPerson   : false,
-            camera        : false,
-            measure       : true,
-            section       : true,
-            explodedView  : true,
-            modelBrowser  : false,
-            properties    : false,
-            settings      : false,
-            fullscreen    : true,
-            markup        : false,
-            hide          : true,
-            ghosting      : true,
-            highlight     : true,
-            single        : true,
-            fitToView     : true,
-            reset         : true,
-            views         : true,
-            selectFile    : true
+        sharedCache      : 'Employees',
+        viewerFeatures   : {
+            contextMenu  : false,
+            cube         : false,
+            orbit        : false,
+            firstPerson  : false,
+            camera       : false,
+            measure      : true,
+            section      : true,
+            explodedView : true,
+            modelBrowser : false,
+            properties   : false,
+            settings     : false,
+            fullscreen   : true,
+            markup       : false,
+            hide         : true,
+            ghosting     : true,
+            highlight    : true,
+            single       : true,
+            fitToView    : true,
+            reset        : true,
+            views        : true,
+            selectFile   : true
         }
     },
 
@@ -939,7 +1069,8 @@ exports.applications = {
             icon         : 'icon-product',
             groupBy      : 'PRODUCT_LINE',
             contentSize  : 'l',
-            tileImage    : 'IMAGE',
+            tileImage    : true,
+            tileImageFieldId : 'IMAGE',
             tileTitle    : 'TITLE',
             tileSubtitle : 'DESCRIPTION',
             filter       : [{

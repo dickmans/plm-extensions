@@ -32,10 +32,11 @@
 }
 #filters {
     border-width : var(--border-v) var(--border-h);
-    top    : 0px;
-    bottom : 0px;
-    left   : calc(var(--width-tree) + (2 * var(--border-h)));
-    width  : var(--width-filters);
+    top     : 0px;
+    bottom  : 0px;
+    left    : calc(var(--width-tree) + (2 * var(--border-h)));
+    width   : var(--width-filters);
+    z-index : 2;
 }
 #contents {
     border-width : var(--border-v) var(--border-h);

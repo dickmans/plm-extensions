@@ -6,7 +6,13 @@ th.bom-first-col { z-index : 6 !important; }
 .panel-content.xs thead th { height: 26px; line-height: 26px; padding: 0px 4px; }
 .surface-level-1 > table > tbody > tr > td.field-editable { border-left : 1px solid var(--color-surface-level-1); }
 td > .picklist-controls > .picklist { min-width: 320px; }
+.item-subtitle, .item-subtitle > * { font-size : 14px; }
 
+.content-item:hover td, table.grid .content-item:hover td, table.bom-table .content-item:hover td {
+
+    background-color: var(--color-blue-500);
+ 
+}
 
 :root {
     --padding-v         : 24px;
@@ -136,25 +142,28 @@ td.field-editable .picklist-actions {
     display: none !important;
 }
 
-th.bom-color,
-td.bom-color { display : none; }
+th.tree-color,
+td.tree-color { display : none; }
 
-.content-item:hover td.bom-color, 
-.content-item:hover td.bom-first-col, 
-.content-item:hover td.bom-column-quantity,
+.content-item:hover td.tree-color, 
+.content-item:hover td.tree-first-col, 
+.content-item:hover td.tree-quantity,
 .content-item:hover td.field-value,
 .content-item:hover td.variant-item {
     background   : var(--color-hover-border) !important; 
     border-color : transparent !important; 
+}
+.content-item:hover td.tree-first-col > .tree-nav.icon { 
+    color : white !important;
 }
 .content-item:hover td.variant-spacer {
     background   : var(--color-hover-border) !important; 
     border-color : var(--color-hover-border) !important; 
 }
 
-tr.selected > td.bbom-color,
-tr.selected > td.bom-first-col,
-tr.selected > td.bom-column-quantity {
+tr.selected > td.tree-color,
+tr.selected > td.tree-first-col,
+tr.selected > td.tree-quantity {
     background : var(--color-selected-background) !important;
 }
 
@@ -218,9 +227,26 @@ tr.content-item.selected > td.variant-spacer {
     padding : 6px 3px;
 }
 
+
 /* CREATE VARIANT DIALOG */
 /* ----------------------------------------------------------------------------- */
 #create {
     top    : calc(50% - 200px);
     bottom : calc(50% - 200px);
+}
+
+
+/* SAVE DIALOG */
+/* ----------------------------------------------------------------------------- */
+#dialog-saving {
+    left  : calc(50% - 380px);
+    width : 780px;
+}
+.step-label { 
+    max-width : 340px;
+    min-width : 340px;
+    width     : 340px;
+}
+.step-progress {
+    width : calc(100% - 352px);
 }

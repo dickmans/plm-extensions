@@ -356,7 +356,7 @@ function insertNewTasks(wsId, transitions, params) {
     settings[id].filters = config.filters.newTasks;
     settings[id].load    = function() { insertNewTasksData(id, true); }
 
-    genPanelTop                    (id, settings[id], 'new-tasks');
+    genPanelTop                    (id, 'new-tasks');
     genPanelHeader                 (id, settings[id]);
     genPanelOpenSelectedInPLMButton(id, settings[id]);
     genPanelSearchInput            (id, settings[id]);
@@ -418,7 +418,7 @@ function insertNewTasksData(id) {
 
         }
 
-        finishPanelContentUpdate(id, settings[id], items);
+        finishPanelContentUpdate(id, items);
 
         let elemContent = $('#' + id + '-content');
         let index       = 0;
@@ -523,7 +523,7 @@ function insertYourTasks(filters, params) {
     settings[id].filters = filters;
     settings[id].load = function() { insertYourTasksData(id); }
 
-    genPanelTop                    (id, settings[id], id);
+    genPanelTop                    (id, id);
     genPanelHeader                 (id, settings[id]);
     genPanelOpenSelectedInPLMButton(id, settings[id]);
     genPanelSearchInput            (id, settings[id]);
@@ -640,7 +640,7 @@ function insertYourTasksData(id) {
 
         setTableEvents();
         updateProgressBarsOfAllTasks();
-        finishPanelContentUpdate(id, settings[id], [], null, response.data);
+        finishPanelContentUpdate(id, [], null, response.data);
         selectWeek($('.timeline-week.week-now').first());
 
     });

@@ -129,6 +129,10 @@
     white-space     : nowrap;
     width           : 240px;
 }
+.in-work .step-label,
+.in-work .step-counter {
+    color : var(--color-yellow-600);
+}
 .in-work .step-label {
     font-weight : 800;
 }

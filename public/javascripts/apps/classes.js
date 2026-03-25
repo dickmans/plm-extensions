@@ -143,11 +143,11 @@ function selectClass(elemClicked) {
     let link      = elemClicked.attr('data-link');
     let classId   = link.split('/').pop();
     let className = elemClicked.attr('data-name');
-    let path      = getTreeItemPath(elemClicked, ' / ');
+    let path      = getTreeItemPath(elemClicked, ' / ').string;
 
     insertClassContents(classId, className, {
         id                : 'contents',
-        headerLabel       : path.path,
+        headerLabel       : path,
         singleToolbar     : 'actions',
         contentSize       : (isAddin) ? 'xxs' : 'm',
         filterByStatus    : true,

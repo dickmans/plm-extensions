@@ -13,3 +13,72 @@
 #header-title {
     margin-left : 20px;
 }*/
+
+/* 
+:root ,
+.light-theme,
+.dark-theme,
+body.dark-theme {
+
+    --color-font : #000000;
+    --color-surface-level-1 : #FFFFFF;
+    --color-surface-level-2 : #F3F3F3;
+    --color-surface-level-3 : #E0E0E0;
+}
+.dark-theme { color : var(--color-font);}
+#header-title,
+#header-subtitle { color : #ffffff; }
+.surface-level-1 { background : var(--color-surface-level-1); }
+.surface-level-2 { background : var(--color-surface-level-2); }
+.surface-level-3 { background : var(--color-surface-level-3); }
+
+.light-theme #header.dark,
+.dark-theme #header.dark,
+#header.dark #header-toolbar {
+    background : #004878;
+}
+#header-title {
+    margin-left : 24px;
+}
+
+.dark-theme #header.dark .button,
+.dark-theme .button, 
+.black-theme .button {
+    background : white;
+    border-color: #08346A;
+}
+.dark-theme #header.dark .button:hover,
+.dark-theme .button:hover, 
+.black-theme .button:hover {
+        background : white;
+    border-color: #004878;
+}
+#header.dark #header-logo {
+    background-image: url(https://www.eggersmann-recyclingtechnology.com/fileadmin/logo/Logo_Eggersmann_Recycling_Technology_white.png?v=3);
+    background-size : 130px;
+    height : 42px;
+    max-width : 130px;
+    min-width : 130px;
+    width : 130px;
+}
+
+.dark-theme .button input,
+.dark-theme .button input:hover {
+    background : #ffffff;
+}
+
+.tile:hover { 
+    background-color : #004878 !important;
+    border-color     : #004878 !important;
+    color : white;
+}
+.tile:hover > .tile-image { 
+    background-color : var(--color-hover-image) !important;
+    opacity          : 0.6;
+}
+
+
+.spare-parts-group {
+    background : #E0E0E0;
+    border-color     : #B0B0B0;
+} */

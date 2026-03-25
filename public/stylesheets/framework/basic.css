@@ -171,7 +171,7 @@ table.grid.rotated th {
     padding : 5px 16px;
     text-align : right;
 }
- table.grid.rotated tr:first-of-type > td {
+table.grid.rotated tr:first-of-type > td {
     border-top : 1px solid var(--color-surfac-level-3);
 }
 .fixed-header > thead > tr > th,

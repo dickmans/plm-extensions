@@ -522,7 +522,7 @@ function saveChanges() {
 
 
 // Add columns to EBOM display
-function changeBOMViewDone(id, settings, bomData, selectedItems, dataFlatBOM, dataAdditional, partsList) {
+function openBOMViewDone(id, bomData, selectedItems, dataAdditional, partsList) {
 
     ebomPartsList = partsList;
     abomPartsList = dataAdditional[0].data.bomPartsList;
@@ -798,7 +798,7 @@ function selectSerialNumberInList(elemClicked) {
 function clickCreateAssetItem(elemClicked) {
 
     let elemBOMItem    = elemClicked.closest('.content-item');
-    let itemPath       = getBOMItemPath(elemBOMItem);
+    let itemPath       = getTreeItemPath(elemBOMItem);
     let requestsDerive = [];
     let requestsCreate = [];
     let requestsUpdate = [];
@@ -879,7 +879,7 @@ function clickCreateAssetItem(elemClicked) {
                 let linkAssetItem   = response.data.split('plm360.net')[1];
                 let linkAssetParent = links.abom;
                 let elemBOMItem     = $('.content-item:eq(' + response.params.index + ')');
-                let elemBOMParent   = getBOMItemParent(elemBOMItem);
+                let elemBOMParent   = treeGetItemParent(elemBOMItem);
 
                 if(elemBOMParent !== null) linkAssetParent = elemBOMParent.attr('data-abom');
 

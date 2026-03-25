@@ -119,7 +119,7 @@ function setUIEvents() {
 
     $('#toggle-viewer').click(function() {
         $(this).toggleClass('toggle-on');
-        $('body').toggleClass('no-viewer');
+        $('body').toggleClass('no-viewer').toggleClass('tiny-viewer');;
         viewerResize(100);
     });
 
@@ -934,7 +934,7 @@ function insertItem(elemParent, part) {
                         if(first) {
                             $(this).addClass('selected');
                             bomDisplayItem($(this));
-                            updateBOMPath($(this));
+                            updateTreePath($(this));
                             updatePanelCalculations('bom');
                             first = false;
                         }
@@ -944,7 +944,7 @@ function insertItem(elemParent, part) {
                 viewerResetSelection();
                 $('.bom-item').removeClass('selected');
                 updatePanelCalculations('bom');
-                resetBOMPath('bom')
+                treeResetPath('bom')
             }
         });
 

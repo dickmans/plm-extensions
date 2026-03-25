@@ -23,59 +23,19 @@ function insertClasses(params) {
     settings[id].layout       = 'tree';
     settings[id].skipRootItem = true;
 
-    genPanelTop(id, settings[id], 'classes');
-    genPanelHeader(id, settings[id]);
-    genPanelSelectionControls(id, settings[id]);
-
-    genPanelToggleButtons(id, settings[id], 
+    genPanelTop              (id, 'classes');
+    genPanelHeader           (id);
+    genPanelSelectionControls(id);
+    genPanelToggleButtons    (id, 
         function() {   expandAllNodes(id); }, 
         function() { collapseAllNodes(id); }
-    );
+    ); 
 
-    genPanelResizeButton(id, settings[id]);
-    genPanelSearchInput (id, settings[id]);
-    genPanelResetButton (id, settings[id]);
-    genPanelReloadButton(id, settings[id]);
-    
-    genPanelContents(id, settings[id]);
-
-    if(settings[id].path) {
-
-        $('<div></div>').appendTo($('#' + id))
-            .attr('id', id + '-tree-path')
-            .addClass('tree-path-empty')
-            .addClass('tree-path')
-            .addClass('no-scrollbar');
-
-        let elemTreeGoTo = $('<div></div>').appendTo($('#' + id))
-            .attr('id', id + '-tree-goto')
-            .addClass('tree-go-to');
-
-        $('<div></div>').appendTo(elemTreeGoTo)
-            .attr('id', id + '-tree-go-to-top')
-            .addClass('tree-go-to-top')
-            .addClass('button')
-            .addClass('icon')
-            .addClass('icon-top')
-            .attr('title', 'Scroll to top')
-            .click(function() {
-                treeScrollToTop(id);
-            });
-
-        $('<div></div>').appendTo(elemTreeGoTo)
-            .attr('id', id + '-tree-go-to-bottom')
-            .addClass('tree-go-to-bottom')
-            .addClass('button')
-            .addClass('icon')
-            .addClass('icon-bottom')
-            .attr('title', 'Scroll to bottom')
-            .click(function() {
-                treeScrollToBottom(id);
-            });
-
-        $('#' + id).addClass('with-tree-path');
-
-    } 
+    genPanelResizeButton(id);
+    genPanelSearchInput (id);
+    genPanelResetButton (id);
+    genPanelReloadButton(id);
+    genPanelContents(id);
 
     insertClassesDone(id);
 
@@ -125,7 +85,7 @@ function insertClassesData(id) {
         setClassLevels(settings[id], responses[1].data, items, items[0], 0, items[0].id, '');
         buildClassesTree(items, contentItems, items[0]);
         filterRootClassTree(settings[id], contentItems);
-        finishPanelContentUpdate(id, settings[id], contentItems, null, responses[0].data);
+        finishPanelContentUpdate(id, contentItems, null, responses[0].data);
 
     });
 
@@ -254,20 +214,20 @@ function insertClassContents(classId, className, params) {
     settings[id].classId   = (typeof classId === 'string') ? classId.split('/').pop() : classId;
     settings[id].className = className;
 
-    genPanelTop                     (id, settings[id], 'classContents');
-    genPanelHeader                  (id, settings[id]);
-    genPanelOpenSelectedInPLMButton (id, settings[id]);
-    genPanelSelectionControls       (id, settings[id]);
-    genPanelFilterSelect            (id, settings[id], 'filterByStatus', 'status', 'All States');
-    genPanelFilterSelect            (id, settings[id], 'filterByWorkspace', 'workspace', 'All Workspaces');    
-    genPanelResizeButton            (id, settings[id]);
-    genPanelSearchInput             (id, settings[id]);
-    genPanelResetButton             (id, settings[id]);
-    genPanelReloadButton            (id, settings[id]);
-    genPanelContents                (id, settings[id]);
-    genPanelPaginationControls      (id, settings[id]);
+    genPanelTop                     (id, 'classContents');
+    genPanelHeader                  (id);
+    genPanelOpenSelectedInPLMButton (id);
+    genPanelSelectionControls       (id);
+    genPanelFilterSelect            (id, 'filterByStatus', 'status', 'All States');
+    genPanelFilterSelect            (id, 'filterByWorkspace', 'workspace', 'All Workspaces');    
+    genPanelResizeButton            (id);
+    genPanelSearchInput             (id);
+    genPanelResetButton             (id);
+    genPanelReloadButton            (id);
+    genPanelContents                (id);
+    genPanelPaginationControls      (id);
 
-    let elemToolbar = genPanelToolbar(id, settings[id], 'controls');
+    let elemToolbar = genPanelToolbar(id, 'controls');
 
     if(settings[id].sortSelection) {
 
@@ -325,7 +285,11 @@ function insertClassData(id) {
         })
     ];
 
+    console.log(params);
+
     Promise.all(requests).then(function(responses) {
+
+        console.log(responses);
 
         if(stopPanelContentUpdate(responses[0], settings[id])) return;
 
@@ -435,13 +399,15 @@ function insertClassData(id) {
 
         }
 
+        console.log(items);
+
         sortArray(listStates, 0);
         sortArray(listWorkspaces, 0);
         setPanelFilterOptions(id, 'status', listStates);
         setPanelFilterOptions(id, 'workspace', listWorkspaces);
         genPanelContentTileDetails(items, tileDetails);
-        finishPanelContentUpdate(id, settings[id], items);
-        setPanelPaginationControls(id, settings[id], responses[0].data.totalCount);
+        finishPanelContentUpdate(id, items);
+        setPanelPaginationControls(id, responses[0].data.totalCount);
 
         if(!isBlank(settings[id].referenceItem)) {
             let elemFirst = $('#' + id).find('.content-item').first();
@@ -484,12 +450,12 @@ function insertClassFilters(classId, className, params) {
     settings[id].classId   = (typeof classId === 'string') ? classId.split('/').pop() : classId;
     settings[id].className = className;
 
-    genPanelTop         (id, settings[id], 'class');
-    genPanelHeader      (id, settings[id]);
+    genPanelTop         (id, 'class');
+    genPanelHeader      (id);
     genPanelSearchInput (id, settings[id]);
     genPanelContents    (id, settings[id]);
 
-    let elemButton = genPanelActionButton(id, settings[id], 'apply', 'Apply', 'Apply the defined filters', function() {
+    let elemButton = genPanelActionButton(id, 'apply', 'Apply', 'Apply the defined filters', function() {
         applyClassFilters(id);
     });
 
@@ -728,17 +694,12 @@ function insertClassPropertyFilter(id, elemSelect) {
 }
 function applyClassFilters(id) {
 
-    let query   = '(CLASS:SYSTEM_NAME=' + settings[id].className + ')';
+    let query   = '(CLASS:CLASS_PATH=' + settings[id].className + ')';
     let filters = $('#' + id + '-content').find('.class-filter');
-
-    if(settings[id].advancedFilter) {
-        let advanced = $('#' + id + '-content').find('.panel-section-textarea').first().val().trim();
-        if(!isBlank(advanced)) { query += '+AND+' + advanced; }
-    }
     
     if(filters.length > 0) {
     
-        query += '+AND+(';
+        query = '((CLASS:SYSTEM_NAME="' + settings[id].className + '"+AND+(' ;
 
         filters.each(function() {
 
@@ -774,10 +735,17 @@ function applyClassFilters(id) {
 
         });
 
-        query += ')';
+        query += ')))';
 
     }
 
+    // if(query !== '') query = '(CLASS:SYSTEM_NAME=' + settings[id].className + ')+AND+(' + query + ')';
+    
+    if(settings[id].advancedFilter) {
+        let advanced = $('#' + id + '-content').find('.panel-section-textarea').first().val().trim();
+        if(!isBlank(advanced)) { query += '+AND+' + advanced; }
+    }    
+    
     let idContents       = settings[id].idContents;
     let settingsContents = settings[idContents];
 
@@ -813,16 +781,16 @@ function insertItemClassification(link, params) {
 
     settings[id].load = function() { insertItemClassificationData(id); }
 
-    genPanelTop            (id, settings[id], 'details');
-    genPanelHeader         (id, settings[id]);
-    genPanelBookmarkButton (id, settings[id]);
-    genPanelOpenInPLMButton(id, settings[id]);
-    genPanelReloadButton   (id, settings[id]);
-    genPanelContents       (id, settings[id]).addClass(settings[id].layout).addClass('sections');
+    genPanelTop            (id, 'details');
+    genPanelHeader         (id);
+    genPanelBookmarkButton (id);
+    genPanelOpenInPLMButton(id);
+    genPanelReloadButton   (id);
+    genPanelContents       (id).addClass(settings[id].layout).addClass('sections');
 
     if(settings[id].editable) {
 
-        genPanelFooterActionButton(id, settings[id], 'save', {
+        genPanelFooterActionButton(id, 'save', {
 
             label   : settings[id].saveButtonLabel,
             title   : 'Save changes to PLM',
@@ -928,15 +896,15 @@ function insertItemClassificationData(id) {
 
             responses[0].data.sections = [section];
 
-            setPanelBookmarkStatus(id, settings[id], responses);
+            setPanelBookmarkStatus(id, responses);
 
             insertDetailsFields(id, settings[id].sections, responses[2].data, responses[0].data, settings[id], false, false, function() {
                 if(settings[id].editable) {
                     setClassificationFieldsConstraints(id, responsesClass[0].data.fields);
                     insertClassificationFieldsPicklistValues(id, responsesClass[1]);
                 }
-                finishPanelContentUpdate(id, settings[id]);
-                insertDetailsDataDone(id, responses[1].data, responses[2].data, responses[0].data);
+                finishPanelContentUpdate(id);
+                insertDetailsDataDone(id, responses[0].data);
             });
 
         });
@@ -1056,7 +1024,7 @@ function submitNewClassification(elemClicked) {
     let classPath    = getTreeItemPath(elemSelected, ' / ');
     let id           = elemTop.attr('id');
 
-    elemContent.find('.class-path').html(classPath.path);
+    elemContent.find('.class-path').html(classPath.string);
     elemContent.find('.class-name').html(className);
     
     $('#overlay').show();
@@ -1163,7 +1131,7 @@ function insertSimilarItems(link, params, data) {
     }, [
     ]);
 
-    let elemTop      = genPanelTop (id, settings[id], 'similar');
+    let elemTop      = genPanelTop (id, 'similar');
     let surfaceLevel = Number(getSurfaceLevel(elemTop, false, true));
 
     $('body').addClass('no-filters-panel');

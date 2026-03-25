@@ -35,7 +35,11 @@ body.display-task #scrtask { display : block; }
 
 /* TASK */
 /* ----------------------------------------------------------------------------- */
-#task-summary { display : none; }
+#task-descriptor {
+    min-height  : 20px;
+    line-height : 16px;
+    max-height  : 20px;
+}
 .item-status { color : var(--color-font); }
 
 

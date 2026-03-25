@@ -1,61 +1,44 @@
 let paramsDetails     = {}
 let paramsAttachments = {}
 let linkSelected      = '';
+let wsConfig          = { workspaceId : '' };
 
 $(document).ready(function() {
     
     setUIEvents();
     insertMenu();
 
-    paramsDetails = {
-        collapseContents : true,
-        hideComputed     : true,
-        openInPLM        : true,
-        toggles          : true,
-        useCache         : true,
-        suppressLinks    : config.suppressLinks,
-        expandSections   : config.expandSections,
-        sectionsEx       : config.sectionsExcluded,
-        sectionsIn       : config.sectionsIncluded,
-        sectionsOrder    : config.sectionsOrder,
-        fieldsEx         : config.fieldsExcluded,
-        fieldsIn         : config.fieldsIncluded,
-    };
+    wsConfig.workspaceId = config.workspaceId || common.workspaceIds.items;
+    wsConfig.bomViewName = config.panels.insertDetails.bomViewName || common.workspaces.items.defaultBOMView;
 
-    paramsAttachments = {
-        headerLabel : 'Files',
-        editable    : false,
-        layout      : 'list',
-        reload      : false,
-        contentSize : 's'
-    }
+    let requests = [
+        $.get('/plm/sections' , { wsId : wsConfig.workspaceId, useCache : config.panels.insertDetails.useCache || true }),
+        $.get('/plm/fields'   , { wsId : wsConfig.workspaceId, useCache : config.panels.insertDetails.useCache || true }),
+        $.get('/plm/bom-views', { wsId : wsConfig.workspaceId, useCache : config.panels.insertBOM.useCache     || true })
+    ];
 
-    getFeatureSettings('portal', [], function() {
+    getFeatureSettings('portal', requests, function(responses) {
 
-        insertSearch({ 
-            autoClick    : config.autoClick,
-            inputLabel   : config.searchInputText,
-            limit        : 10,
-            number       : true,
-            pagination   : true,
-            contentSize  : 'xs',
-            tileSubtitle : 'Owner',
-            tileImage    : config.searchTileImages,
-            search       : false,
-            workspacesIn : config.workspacesIn,
-            onClickItem  : function(elemClicked) { clickTile(elemClicked); }
-        });
+        wsConfig.sections = responses[0].data;
+        wsConfig.fields   = responses[1].data;
 
-        insertRecentItems({ 
-            headerLabel     : 'Recent Items',
-            search          : false,
-            reload          : true,
-            contentSize     : 'xs',
-            tileImage       : config.searchTileImages,
-            workspacesIn    : config.workspacesIn,
-            afterCompletion : function(id) { openMostRecentItem(); },
-            onClickItem     : function(elemClicked) { clickTile(elemClicked); },
-        });
+        getBOMViewDefinition(responses[2].data.bomViews, wsConfig.bomViewName, wsConfig);
+
+        let paramsSearch = config.panels.insertSearch;
+            paramsSearch.workspacesIn = [wsConfig.workspaceId];
+            paramsSearch.onClickItem  = function(elemClicked) { clickTile(elemClicked); };
+
+        insertSearch(paramsSearch);
+
+        let paramsRecentItems = config.panels.insertRecentItems;
+            paramsRecentItems.workspacesIn    = [wsConfig.workspaceId];
+            paramsRecentItems.afterCompletion = function(id) { openMostRecentItem(); };
+            paramsRecentItems.onClickItem     = function(elemClicked) { clickTile(elemClicked); };
+
+        insertRecentItems(paramsRecentItems);
+
+        paramsDetails     = config.panels.insertDetails;
+        paramsAttachments = config.panels.insertAttachments;
 
         if(!isBlank(urlParameters.link)) {
 
@@ -64,7 +47,7 @@ $(document).ready(function() {
 
             linkSelected = urlParameters.link;
 
-            $.get('/plm/descriptor', { link : linkSelected}, function(response) {
+            $.get('/plm/descriptor', { link : linkSelected }, function(response) {
                 openItem(response.data);
             });
 
@@ -89,6 +72,12 @@ function setUIEvents() {
         viewerResize();
     });
 
+    $('#toggle-details').click(function() {
+        $('body').toggleClass('no-details');
+        $(this).toggleClass('toggle-off').toggleClass('toggle-on').toggleClass('filled');
+        viewerResize();
+    });
+
     $('#toggle-attachments').click(function() {
         $('body').toggleClass('no-attachments');
         $(this).toggleClass('toggle-off').toggleClass('toggle-on').toggleClass('filled');
@@ -99,9 +88,11 @@ function setUIEvents() {
 function openMostRecentItem() {
 
     if(config.openMostRecent) {
-        if(isBlank(urlParameters.link)) {
-            let elemMostRecent = $('#recents').find('.content-item').first();
-            if(elemMostRecent.length > 0) clickTile(elemMostRecent);
+        if(!settings['recents'].isReload) {
+            if(isBlank(urlParameters.link)) {
+                let elemMostRecent = $('#recents').find('.content-item').first();
+                if(elemMostRecent.length > 0) clickTile(elemMostRecent);
+            }
         }
     }
 
@@ -116,7 +107,6 @@ function clickTile(elemClicked) {
 
     linkSelected = elemClicked.attr('data-link');
     let title    = elemClicked.attr('data-title');
-
     
     openItem(title);
 
@@ -131,29 +121,17 @@ function openItem(title) {
         extensionsIn : config.viewingFormats || common.viewer.extensionsIncluded
     });
 
-    insertDetails(linkSelected, paramsDetails);
+    let paramsBOM = config.panels.insertBOM;
+        paramsBOM.bomViewId = wsConfig.bomViewId;
+        paramsBOM.onClickItem = function(elemClicked) { onClickBOMItem(elemClicked); }
+
+    insertDetails(linkSelected, paramsDetails, wsConfig);
     insertAttachments(linkSelected, paramsAttachments);
-    insertBOM(linkSelected, {
-        contentSizes        : ['m', 'l', 'xl', 'xs', 's'],
-        bomViewName         : common.workspaces.items.defaultBOMView,
-        depth               : config.bomLevels,
-        downloadFiles       : config.downloadFiles,
-        downloadRequests    : config.downloadRequests,
-        downloadFormats     : config.downloadFormats,
-        downloadPatterns    : config.downloadPatterns || [],
-        counters            : true,
-        reload              : false,
-        openInPLM           : true,
-        path                : true,
-        search              : true,
-        toggles             : true,
-        useCache            : true,
-        tableColumnsLimit   : 1
-    });
+    insertBOM(linkSelected, paramsBOM);
 
 }
 
-function clickBOMItem(elemClicked) {
+function onClickBOMItem(elemClicked) {
 
     let link = elemClicked.attr('data-link');
 
@@ -167,13 +145,13 @@ function clickBOMItem(elemClicked) {
             highlight : true
         });
 
-        insertDetails(link, paramsDetails);
+        insertDetails(link, paramsDetails, wsConfig);
         insertAttachments(link, paramsAttachments);
 
     } else {
 
         viewerResetSelection();
-        insertDetails(linkSelected, paramsDetails);
+        insertDetails(linkSelected, paramsDetails, wsConfig);
         insertAttachments(linkSelected, paramsAttachments);
 
     }
@@ -219,7 +197,7 @@ function onViewerSelectionChanged(event) {
         
     } else {
         treeScrollToTop('bom');
-        resetBOMPath('bom');
+        treeResetPath('bom');
         insertDetails(linkSelected, paramsDetails);
         insertAttachments(linkSelected, paramsAttachments);
         viewerResetSelection();

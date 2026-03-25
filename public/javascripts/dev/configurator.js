@@ -435,7 +435,7 @@ function resetEditor() {
     // $('#features-list').html('');
 
 }
-function insertDetailsDataDone(id, sections, fields, data) {
+function insertDetailsDataDone(id, data) {
 
     console.log(data);
 
@@ -457,7 +457,7 @@ function clickBOMItemDone(elemClicked, e) {
     } else viewerResetColors();
 
 }
-function changeBOMViewDone(id, fields, bom, selectedItems, dataFlatBOM, dataAdditional) {
+function openBOMViewDone(id, fields, bom, selectedItems, dataAdditional) {
 
     let elemTop = $('#features-list')
     // let selectedOptions = [];
@@ -680,9 +680,7 @@ function changeBOMViewDone(id, fields, bom, selectedItems, dataFlatBOM, dataAddi
                 if($(this).attr('data-edge-link') === edgeLink) {
                     $(this).addClass(className);
 
-                    // console.log(getBOMItemPath($(this)));
-
-                    let bomPath = getBOMItemPath($(this)).string;
+                    let bomPath = getTreeItemPath($(this)).string;
 
                     elemOption.attr('data-path', bomPath);
 

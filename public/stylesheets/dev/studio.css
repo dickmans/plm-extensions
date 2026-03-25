@@ -1,0 +1,272 @@
+
+
+:root {
+
+    --border-v : 36px;
+    --border-h : 48px;
+
+    --width-library  : 386px;
+    --width-settings : 720px;
+
+}
+
+@media (min-width: 2160px) {
+    :root {
+       --width-settings : 980px;
+    }
+}
+
+
+
+/* MASTER LAYOUT */
+/* ----------------------------------------------------------------------------- */
+#library { 
+    border-width : var(--border-v) var(--border-h);
+    width        : var(--width-library); 
+}
+#settings { 
+    border-width : var(--border-v) var(--border-h);
+    position     : absolute;
+    top          : 0px;
+    bottom       : 0px;
+    left         : calc(var(--width-library) + (2 * var(--border-h)));
+    width        : var(--width-settings);
+}
+#panel { 
+    border-width : var(--border-v) var(--border-h);
+    position     : absolute;
+    top          : 0px;
+    right        : 0px;
+    bottom       : 300px;
+    left         : calc(var(--width-library) + var(--width-settings) + (4 * var(--border-h)));
+}
+
+body.wide #settings { right : 0px; bottom : 50%; }
+body.wide #panel { top : 50%; left : calc(var(--width-library) + (2 * var(--border-h))); }
+
+
+
+/* LIBRARY */
+/* ----------------------------------------------------------------------------- */
+#library-title {
+    border-bottom : 2px solid var(--color-surface-level-4);
+    padding       : 0px 14px;
+    font-size     : 18px;
+    font-weight   : 700;
+    height        : 48px;
+    line-height   : 38px;
+}
+#library-list {
+    display        : flex;
+    flex-direction : column;
+    gap            : 0px; 
+    overflow-y     : auto;
+    top            : 58px;
+}
+.panel-section {
+    margin-top : 12px;
+    padding    : 6px 10px;
+}
+.panel-section:first-of-type {
+    margin-top : 0px;
+}
+.panel-type {
+    border     : 1px solid var(--color-surface-level-1);
+    cursor     : pointer;
+    display    : grid;
+    gap        : 0px;
+    padding    : 0px;
+    position   : relative;
+    flex-direction        : column;
+    grid-template-rows    : 24px 24px;
+    grid-template-columns : 48px 1fr;
+}
+.panel-type:hover {
+    border-color : var(--color-hover-border) !important;
+}
+.panel-type:hover > div {
+    background-color : var(--color-selected-image);
+}
+.panel-type .panel-icon {
+    background  : var(--color-surface-level-2);
+    font-size   : 28px;
+    font-weight : 200;
+    grid-row    : 1 / 3;
+    line-height : 48px;
+    text-align  : center;
+}
+.panel-type .panel-title {
+    background  : var(--color-surface-level-2);
+    display     : block;
+    font-weight : 700;
+    height      : 24px;
+    line-height : 24px;
+    padding     : 4px 10px 0px 2px;
+}
+.panel-type .panel-description {
+    background  : var(--color-surface-level-2);
+    font-size   : 10px;
+    line-height : 16px;
+    padding     : 0px 10px 2px 2px;
+}
+.panel-type.selected > div {
+    background-color : var(--color-selected-background);
+}
+
+
+
+
+/* SETTINGS */
+/* ----------------------------------------------------------------------------- */
+#settings-header {
+    border-bottom : 2px solid var(--color-surface-level-4);
+    display       : flex;
+    gap           : 10px;
+    height        : 48px;
+    padding       : 0px 14px 0px;
+    margin-bottom : 10px;
+}
+#settings-title {
+    flex-grow   : 1;
+    font-size   : 18px;
+    font-weight : 700;
+    line-height : 38px;
+}
+#settings-description {
+    padding : 4px 14px 14px;
+}
+#settings-function {
+    display : none;
+}
+#settings-inputs {
+    display : flex;
+    gap     : 1px;
+    flex-direction: column;
+}
+#settings input {
+    background : var(--color-surface-level-4);
+    padding   : 4px 14px;
+    height : 20px;
+    line-height : 20px;    
+}
+#settings textarea {
+    background : var(--color-surface-level-4);
+    height     : 100px;
+}
+#settings select {
+    padding     : 0px 10px;
+    max-height  : 30px;
+    min-height  : 30px;
+    height      : 30px;
+    line-height : 30px;
+    max-width   : 210px;
+    min-width   : 210px;
+    width       : 210px;
+}
+#settings .required .panel-input-title {
+    color : var(--color-status-red);
+}
+#settings .required input,
+#settings .required textarea {
+    border-color : var(--color-status-red);
+}
+
+
+
+.panel-input,
+.panel-setting {
+    display : flex;
+    gap     : 0px;
+}
+.panel-input-title,
+.panel-setting-title {
+    background    : var(--color-surface-level-3);
+    padding       : 8px 14px;
+    text-overflow : ellipsis;
+    overflow      : hidden;
+    text-align    : right;
+    white-space   : nowrap;
+    height        : 22px;
+    line-height   : 22px;
+    max-width     : 140px;
+    min-width     : 140px;
+    width         : 140px;
+    padding       : 4px 14px;
+}
+.panel-setting-control {
+    border-radius : 0px;
+    overflow      : hidden;
+    text-align    : left;
+    text-overflow : ellipsis;
+    white-space   : nowrap;
+}
+input.panel-setting-control {
+    max-width : 180px;
+    min-width : 180px;
+    width     : 180px;
+}
+.panel-setting-control.panel-setting-checkbox {
+    font-size   : 20px;
+    font-weight : 200;
+    padding     : 0px 11px;
+    max-height  : 28px;
+    min-height  : 28px;
+    height      : 28px;
+    line-height : 28px;
+    max-width   : 186px;
+    min-width   : 186px;
+    width       : 186px;
+}
+.panel-setting-checkbox input[type="checkbox"] {
+    margin    : 8px 120px 0px 12px;
+    padding   : 0px;
+    max-width : 20px;
+    min-width : 20px;
+    width     : 20px;
+}
+.panel-setting-description {
+    line-height : 20px;
+    padding     : 4px 12px;
+}
+#settings-json {
+    display    : grid;
+    margin-top : 28px;
+    grid-template-columns : 220px 1fr;
+    grid-template-rows    : 22px 1fr;
+    grid-column-gap : 14px;
+    grid-row-gap    : 12px;
+}
+#settings-json-title {
+    font-weight  : bold;
+    line-height  : 22px;
+    padding-top  : 8px;
+    padding-left : 14px;
+    text-align   : right;
+}
+#settings-json-description {
+    line-height  : 18px;
+    padding-left : 14px;
+    text-align   : right;
+}
+#settings-json-string {
+    font-family : monospace;
+    font-size   : 12px;
+    line-height : 16px;
+    grid-row    : 1 / 3;
+    grid-column : 2;
+    min-height  : 300px;
+    padding     : 12px 14px;
+}
+
+
+
+/* PANEL */
+/* ----------------------------------------------------------------------------- */
+#panel-message {
+    position   : absolute;
+    text-align : center;
+    top        : 100px;
+    left       : calc(50% - 150px);
+    height     : 300px;
+    width      : 300px;
+}

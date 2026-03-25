@@ -13,13 +13,13 @@ function insertUsers(params) {
 
     settings[id].load = function() { insertUsersData(id); }
 
-    genPanelTop              (id, settings[id], 'users');
-    genPanelHeader           (id, settings[id]);
-    genPanelSelectionControls(id, settings[id]);
-    genPanelSearchInput      (id, settings[id]);
-    genPanelResizeButton     (id, settings[id]);
-    genPanelReloadButton     (id, settings[id]);
-    genPanelContents         (id, settings[id]);
+    genPanelTop              (id, 'users');
+    genPanelHeader           (id);
+    genPanelSelectionControls(id);
+    genPanelSearchInput      (id);
+    genPanelResizeButton     (id);
+    genPanelReloadButton     (id);
+    genPanelContents         (id);
 
     insertUsersDone(id);
 
@@ -104,7 +104,7 @@ function insertUsersData(id) {
 
         }
 
-        finishPanelContentUpdate(id, settings[id], users);
+        finishPanelContentUpdate(id, users);
         insertUsersDataDone(id, response);
 
     })

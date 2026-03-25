@@ -368,6 +368,19 @@ body.dark-theme  #guiviewer3d-toolbar #toolbar-measureTool-done.adsk-button:hove
 
 
 
+/*  TINY VIEWER */
+/* ----------------------------------------------------------------------------- */
+body.tiny-viewer #viewer {
+    border     : 1px solid var(--color-surface-level-5);
+    box-shadow : 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); 
+    height     : 240px;
+    width      : 240px;
+}
+body.tiny-viewer #guiviewer3d-toolbar {
+    display : none !important;
+}
+
+
 /* iPads (landscape) ----------- */
 @media only screen and (orientation: landscape)
                    and (min-width: 768px)    /* smallest iPad landscape viewport */

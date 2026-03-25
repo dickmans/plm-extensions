@@ -62,7 +62,7 @@ body {
     left : 40px;
     animation: pj-small 2s forwards;
 }
-#job-medium {
+#job-ium {
     border-color : var(--color-status-yellow);
     background : var(--color-status-yellow);
     height : 80px;
@@ -70,7 +70,7 @@ body {
     top : 195px;
     left : 180px;
     padding : 40px;
-    animation: pj-medium 4s ease;
+    animation: pj-ium 4s ease;
 }
 #job-large {
     border-color : var(--color-status-red);
@@ -86,8 +86,8 @@ body {
 #job-small.active {
     animation : pj-shadow-small 1s forwards;
 }
-#job-medium.active {
-    animation : pj-shadow-medium 1s forwards;
+#job-ium.active {
+    animation : pj-shadow-ium 1s forwards;
 }
 #job-large.active {
     animation : pj-shadow-large 1s forwards;
@@ -99,7 +99,7 @@ body {
     40% {box-shadow : 0px 0px 6px 6px var(--color-status-green-bright);}
     100% {box-shadow : 0px 0px 8px 8px var(--color-status-green-bright);}
 }
-@keyframes pj-shadow-medium {
+@keyframes pj-shadow-ium {
     0% {box-shadow : 0px 0px 14px 14px var(--color-status-yellow-bright);}
     40% {box-shadow : 0px 0px 6px 6px var(--color-status-yellow-bright);}
     100% {box-shadow : 0px 0px 8px 8px var(--color-status-yellow-bright);}
@@ -115,7 +115,7 @@ body {
     0%{background: #eee}
     100%{background: var(--color-status-green)}
 }
-@keyframes pj-medium { 
+@keyframes pj-ium { 
     0%{background: #eee}
     100%{background: var(--color-status-yellow)}
 }
@@ -155,7 +155,7 @@ body {
 }
 
 
-@media only screen 
+@ia only screen 
    and (min-device-width : 400px) 
    and (max-device-width : 880px) {
 

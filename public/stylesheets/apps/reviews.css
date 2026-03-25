@@ -70,19 +70,20 @@ textarea:focus {
     padding : 40px; 
 }
 #list .tile {
-    max-height  : 424px;
-    min-height  : 424px;
-    height      : 424px;
+    max-height : 416px;
+    min-height : 416px;
+    height     : 416px;
 }
 #list .tile-data {
     width : 100%;
+    gap : 2px;
 }
 #list .tile-data > div {
-    line-height     : 16px;
-    margin          : auto;
-    overflow        : hidden;
-    text-overflow   : ellipsis;
-    white-space     : nowrap;
+    line-height   : 16px;
+    margin        : auto;
+    overflow      : hidden;
+    text-overflow : ellipsis;
+    white-space   : nowrap;
 }
 #empty {
     display     : none;
@@ -216,6 +217,9 @@ textarea:focus {
 #field-MARKUP {
     max-height : 300px;
     order      : 1;
+}
+#actions-action-create {
+    order : -1;
 }
 
 

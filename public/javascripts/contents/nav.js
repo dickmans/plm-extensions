@@ -18,17 +18,17 @@ function insertMOW(params) {
 
     settings[id].load = function() { insertMOWData(id); }
 
-    genPanelTop(id, settings[id], 'mow');
-    genPanelHeader(id, settings[id]);
-    genPanelOpenSelectedInPLMButton(id, settings[id]);
-    genPanelSelectionControls(id, settings[id]);
-    genPanelFilterToggle(id, settings[id], 'filterByDueDate', 'due', 'Due Tasks');
-    genPanelFilterSelect(id, settings[id], 'filterByStatus', 'status', 'All States');
-    genPanelFilterSelect(id, settings[id], 'filterByWorkspace', 'workspace', 'All Workspaces');
-    genPanelSearchInput(id, settings[id]);
-    genPanelResizeButton(id, settings[id]);
-    genPanelReloadButton(id, settings[id]);
-    genPanelContents(id, settings[id]);
+    genPanelTop                    (id, 'mow');
+    genPanelHeader                 (id);
+    genPanelOpenSelectedInPLMButton(id);
+    genPanelSelectionControls      (id);
+    genPanelFilterToggle           (id, 'filterByDueDate', 'due', 'Due Tasks');
+    genPanelFilterSelect           (id, 'filterByStatus', 'status', 'All States');
+    genPanelFilterSelect           (id, 'filterByWorkspace', 'workspace', 'All Workspaces');
+    genPanelSearchInput            (id);
+    genPanelResizeButton           (id);
+    genPanelReloadButton           (id);
+    genPanelContents               (id);
 
     insertMOWDone(id);
 
@@ -134,7 +134,7 @@ function insertMOWData(id) {
         sortArray(listWorkspaces, 0);
         setPanelFilterOptions(id, 'status', listStates);
         setPanelFilterOptions(id, 'workspace', listWorkspaces);
-        finishPanelContentUpdate(id, settings[id], items);
+        finishPanelContentUpdate(id, items);
         insertMOWDataDone(id, response);
 
     }).catch(function(error) {
@@ -165,15 +165,15 @@ function insertRecentItems(params) {
 
     settings[id].load = function() { insertRecentItemsData(id); }
 
-    genPanelTop                    (id, settings[id], 'recents');
-    genPanelHeader                 (id, settings[id]);
-    genPanelOpenSelectedInPLMButton(id, settings[id]);
-    genPanelSelectionControls      (id, settings[id]);
-    genPanelFilterSelect           (id, settings[id], 'filterByWorkspace', 'workspace', 'All Workspaces');
-    genPanelSearchInput            (id, settings[id]);
-    genPanelResizeButton           (id, settings[id]);
-    genPanelReloadButton           (id, settings[id]);
-    genPanelContents               (id, settings[id]);
+    genPanelTop                    (id, 'recents');
+    genPanelHeader                 (id);
+    genPanelOpenSelectedInPLMButton(id);
+    genPanelSelectionControls      (id);
+    genPanelFilterSelect           (id, 'filterByWorkspace', 'workspace', 'All Workspaces');
+    genPanelSearchInput            (id);
+    genPanelResizeButton           (id);
+    genPanelReloadButton           (id);
+    genPanelContents               (id);
 
     insertRecentItemsDone(id);
     
@@ -236,7 +236,7 @@ function insertRecentItemsData(id) {
 
         sortArray(listWorkspaces, 0);
         setPanelFilterOptions(id, 'workspace', listWorkspaces);
-        finishPanelContentUpdate(id, settings[id], items);
+        finishPanelContentUpdate(id, items);
         insertRecentItemsDataDone(id, response);
 
     });
@@ -265,16 +265,15 @@ function insertBookmarks(params) {
 
     settings[id].load = function() { insertBookmarksData(id); }
 
-    genPanelTop(id, settings[id], 'bookmarks');
-    genPanelHeader(id, settings[id]);
-    genPanelOpenSelectedInPLMButton(id, settings[id]);
-    genPanelSelectionControls(id, settings[id]);
-    genPanelFilterSelect(id, settings[id], 'filterByWorkspace', 'workspace', 'All Workspaces');
-    genPanelSearchInput(id, settings[id]);
-    genPanelResizeButton(id, settings[id]);
-    genPanelReloadButton(id, settings[id]);
-    
-    genPanelContents(id, settings[id]);
+    genPanelTop                    (id, 'bookmarks');
+    genPanelHeader                 (id);
+    genPanelOpenSelectedInPLMButton(id);
+    genPanelSelectionControls      (id);
+    genPanelFilterSelect           (id, 'filterByWorkspace', 'workspace', 'All Workspaces');
+    genPanelSearchInput            (id);
+    genPanelResizeButton           (id);
+    genPanelReloadButton           (id);      
+    genPanelContents               (id);
 
     insertBookmarksDone(id);
 
@@ -338,7 +337,7 @@ function insertBookmarksData(id) {
 
         sortArray(listWorkspaces, 0);
         setPanelFilterOptions(id, 'workspace', listWorkspaces);
-        finishPanelContentUpdate(id, settings[id], items);
+        finishPanelContentUpdate(id, items);
         insertBookmarksDataDone(id, response);
 
     });
@@ -378,12 +377,12 @@ function insertWorkspaceViews(wsId, params) {
     settings[id].load = function() { changeWorkspaceView(id);     }
     settings[id].next = function() { insertWorkspaceViewData(id); }
 
-    genPanelTop(id, settings[id], 'workspace-views');
-    genPanelHeader(id, settings[id]);
-    genPanelOpenSelectedInPLMButton(id, settings[id]);
-    genPanelSelectionControls(id, settings[id]);
+    genPanelTop                    (id, 'workspace-views');
+    genPanelHeader                 (id);
+    genPanelOpenSelectedInPLMButton(id);
+    genPanelSelectionControls      (id);
 
-    let elemToolbar = genPanelToolbar(id, settings[id], 'controls');
+    let elemToolbar = genPanelToolbar(id, 'controls');
 
     $('<select></select>').appendTo(elemToolbar)
         .attr('id', id + '-view-selector')
@@ -400,14 +399,13 @@ function insertWorkspaceViews(wsId, params) {
             changeWorkspaceView(id);
         });
 
-    genPanelSearchInput( id, settings[id]);
-    genPanelResizeButton(id, settings[id]);
-    genPanelReloadButton(id, settings[id]);
-    
+    genPanelSearchInput      (id);
+    genPanelResizeButton     (id);
+    genPanelReloadButton     (id);
     setWorkspaceViewsSelector(id);
     
-    genPanelContents(id, settings[id]).addClass(getSurfaceLevel($('#' + id)));
-    genPanelPaginationControls(id, settings[id]);
+    genPanelContents(id).addClass(getSurfaceLevel($('#' + id)));
+    genPanelPaginationControls(id);
 
 }
 function setWorkspaceViewsSelector(id) {
@@ -577,8 +575,8 @@ function insertWorkspaceViewData(id) {
     
         }
 
-        finishPanelContentUpdate(id, settings[id], items);
-        setPanelPaginationControls(id, settings[id], responses[0].data.total);
+        finishPanelContentUpdate(id, items);
+        setPanelPaginationControls(id, responses[0].data.total);
         changeWorkspaceViewDone(id, responses[0]);
 
     });
@@ -601,24 +599,22 @@ function insertWorkspaceItems(wsId, params) {
         layout      : 'grid',
         contentSize : 's'
     }, [
-        [ 'filter'  , '' ],
-        [ 'sortBy'  , 'DESCRIPTOR' ],
-        [ 'groupBy' , '' ]
+        [ 'filter' , '' ],
+        [ 'sortBy' , 'DESCRIPTOR' ],
+        [ 'groupBy', '' ]
     ]);
 
-    settings[id].wsId   = wsId;
+    settings[id].wsId = wsId;
     settings[id].load = function() { insertWorkspaceItemsData(id); }
 
-    genPanelTop(id, settings[id], 'bookmarks');
-    genPanelHeader(id, settings[id]);
-    genPanelOpenSelectedInPLMButton(id, settings[id]);
-    genPanelSelectionControls(id, settings[id]);
-
-    genPanelSearchInput(id, settings[id]);
-    genPanelResizeButton(id, settings[id]);
-    genPanelReloadButton(id, settings[id]);
-    
-    genPanelContents(id, settings[id]);
+    genPanelTop                    (id, 'bookmarks');
+    genPanelHeader                 (id);
+    genPanelOpenSelectedInPLMButton(id);
+    genPanelSelectionControls      (id);
+    genPanelSearchInput            (id);
+    genPanelResizeButton           (id);
+    genPanelReloadButton           (id);
+    genPanelContents               (id);
 
     settings[id].load();
     
@@ -757,7 +753,7 @@ function insertWorkspaceItemsData(id) {
 
         }
 
-        finishPanelContentUpdate(id, settings[id], items);
+        finishPanelContentUpdate(id, items);
         insertWorkspaceItemsDataDone(id, response);
 
     });
@@ -792,26 +788,26 @@ function insertSearch(params) {
         [ 'workspaceIds'        , [] ],
         [ 'exactMatch'          , false ],
         [ 'autoClick'           , false ],
-        [ 'filterByOwner'       , true ],
-        [ 'filterByWorkspace'   , true ]
+        [ 'filterByOwner'       , false ],
+        [ 'filterByWorkspace'   , false ]
     ]);
 
     settings[id].load = function() { resetSearch(id, true); }
-    settings[id].next = function() { insertSearchData(id); }
+    settings[id].next = function() { insertSearchData(id, true); }
 
-    genPanelTop                    (id, settings[id], 'search');
-    genPanelHeader                 (id, settings[id]);
-    genPanelOpenSelectedInPLMButton(id, settings[id]);
-    genPanelSelectionControls      (id, settings[id]);
-    genPanelFilterSelect           (id, settings[id].filterByOwner, 'owner', 'All Owners');
-    genPanelFilterSelect           (id, settings[id].filterByWorkspace, 'workspace', 'All Workspaces');
-    genPanelSearchInput            (id, settings[id]).hide();
-    genPanelResizeButton           (id, settings[id]);
-    genPanelReloadButton           (id, settings[id]);
-    genPanelContents               (id, settings[id]);
-    genPanelPaginationControls     (id, settings[id]);
+    genPanelTop                    (id, 'search');
+    genPanelHeader                 (id);
+    genPanelOpenSelectedInPLMButton(id);
+    genPanelSelectionControls      (id);
+    genPanelFilterSelect           (id, 'filterByOwner', 'owner', 'All Owners');
+    genPanelFilterSelect           (id, 'filterByWorkspace', 'workspace', 'All Workspaces');
+    genPanelSearchInput            (id).hide();
+    genPanelResizeButton           (id);
+    genPanelReloadButton           (id);
+    genPanelContents               (id);
+    genPanelPaginationControls     (id);
 
-    genPanelToolbar(id, settings[id], 'actions');
+    genPanelToolbar(id, 'actions');
 
     $('<input></input>').appendTo($('#' + id + '-actions'))
         .attr('placeholder', settings[id].inputLabel)
@@ -824,7 +820,7 @@ function insertSearch(params) {
         .keypress(function(e) {
             if(e.which == 13) {
                 settings[id].mode = 'initial';
-                insertSearchData(id);
+                insertSearchData(id, false);
             }
         });
 
@@ -840,7 +836,7 @@ function insertSearch(params) {
             e.stopPropagation();
             resetSearch(id, false);
             settings[id].mode = 'initial';
-            insertSearchData(id);
+            insertSearchData(id, false);
         });
 
     if(!isBlank(settings[id].buttonIcon)) elemButton.addClass('with-icon').addClass(settings[id].buttonIcon);
@@ -867,7 +863,7 @@ function resetSearch(id, resetInput) {
     $('#' + id + '-search-content-button').removeClass('disabled');
 
 }
-function insertSearchData(id) {
+function insertSearchData(id, isNext) {
 
     settings[id].timestamp = startPanelContentUpdate(id, settings[id].mode);
 
@@ -949,21 +945,23 @@ function insertSearchData(id) {
         sortArray(listWorkspaces, 0);  
         setPanelFilterOptions(id, 'owner', listOwners);
         setPanelFilterOptions(id, 'workspace', listWorkspaces);
-        finishPanelContentUpdate(id, settings[id], items);
-        setPanelPaginationControls(id, settings[id], response.data.totalCount);
+        finishPanelContentUpdate(id, items);
+        setPanelPaginationControls(id, response.data.totalCount);
 
-        if(settings[id].autoClick) {
-            if($('#' + id + '-content').find('.content-item').length > 0) {
-                $('#' + id + '-content').find('.content-item').first().click();
+        if(!isNext) {
+            if(settings[id].autoClick) {
+                if($('#' + id + '-content').find('.content-item').length > 0) {
+                    $('#' + id + '-content').find('.content-item').first().click();
+                }
             }
         }
 
-        insertSearchDataDone(id, response);
+        insertSearchDataDone(id, response, isNext);
 
     });
 
 }
-function insertSearchDataDone(id, data) {}
+function insertSearchDataDone(id, data, isNext) {}
 function clickSearchResult(elemClicked, e) {
     openItemByLink(elemClicked.attr('data-link'));
 }
@@ -984,16 +982,17 @@ function insertResults(wsId, filters, params) {
         tileTitle    : 'DESCRIPTOR',
         tileSubtitle : ''
     }, [
-        [ 'wsId'            , wsId ],
-        [ 'filters'         , filters ],
-        [ 'fields'          , ['DESCRIPTOR'] ],
-        [ 'sortBy'          , ['DESCRIPTOR'] ],
-        [ 'groupBy'         , '' ],
-        [ 'autoClick'       , false ],
-        [ 'editable'        , false ],
-        [ 'filterEmpty'     , false ],
-        [ 'tileImageFieldId', ''    ],
-        [ 'tileSubtitle'    , ''    ]
+        [ 'wsId'             , wsId ],
+        [ 'filters'          , filters ],
+        [ 'fields'           , ['DESCRIPTOR'] ],
+        [ 'sortBy'           , ['DESCRIPTOR'] ],
+        [ 'groupBy'          , ''     ],
+        [ 'autoClick'        , false  ],
+        [ 'editable'         , false  ],
+        [ 'filterEmpty'      , false  ],
+        [ 'filterByStatus'   , false  ],
+        [ 'tileImageFieldId' , 'IMAGE'],
+        [ 'tileSubtitle'     , ''     ]
     ]);
 
     if(!settings[id].fields.includes('DESCRIPTOR')) {
@@ -1019,7 +1018,13 @@ function insertResults(wsId, filters, params) {
         if(!settings[id].fields.includes(settings[id].tileImage)) {
             settings[id].fields.push(settings[id].tileImage);
         }      
-    }
+    } else if(settings[id].tileImage === true) {
+        if(!isBlank(settings[id].tileImageFieldId)) {
+            if(!settings[id].fields.includes(settings[id].tileImageFieldId)) {
+                settings[id].fields.push(settings[id].tileImageFieldId);
+            }
+        }    
+       }
 
     if(typeof settings[id].tileTitle == 'string') {
         if(!isBlank(settings[id].tileTitle)) {
@@ -1066,6 +1071,12 @@ function insertResults(wsId, filters, params) {
             }
         }
     }
+    
+    if(settings[id].filterByStatus) {
+        if(!settings[id].fields.includes('WF_CURRENT_STATE')) {
+            settings[id].fields.push('WF_CURRENT_STATE');
+        } 
+    }
 
     if(settings[id].stateColors.length > 0) {
         if(!settings[id].fields.includes('WF_CURRENT_STATE')) {
@@ -1073,22 +1084,24 @@ function insertResults(wsId, filters, params) {
         }
     }
 
+    console.log(settings[id]);
+
     settings[id].load = function() { insertResultsData(id, true); }
 
-    genPanelTop(id, settings[id], 'results');
-    genPanelHeader(id, settings[id]);
-    genPanelOpenSelectedInPLMButton(id, settings[id]);
-    genPanelSelectionControls(id, settings[id]);
-    genPanelFilterToggleEmpty(id, settings[id]);
-    genPanelSearchInput(id, settings[id]);
-    genPanelResizeButton(id, settings[id]);
-    genPanelReloadButton(id, settings[id]);
-
-    genPanelContents(id, settings[id]);
+    genPanelTop                    (id, 'results');
+    genPanelHeader                 (id);
+    genPanelOpenSelectedInPLMButton(id);
+    genPanelSelectionControls      (id);
+    genPanelFilterToggleEmpty      (id);
+    genPanelFilterSelect           (id, 'filterByStatus', 'status', 'All States');
+    genPanelSearchInput            (id);
+    genPanelResizeButton           (id);
+    genPanelReloadButton           (id);
+    genPanelContents               (id);
 
     if(settings[id].editable) {
 
-        let elemToolbar = genPanelToolbar(id, settings[id], 'controls');
+        let elemToolbar = genPanelToolbar(id, 'controls');
 
         $('<div></div>').prependTo(elemToolbar)
             .addClass('button')
@@ -1099,7 +1112,7 @@ function insertResults(wsId, filters, params) {
             .html('Save')
             .hide()
             .click(function() {
-                savePanelTableChanges(id, settings[id]);
+                savePanelTableChanges(id);
             });
         
     }
@@ -1117,12 +1130,14 @@ function insertResultsData(id) {
     if(elemCounters.length > 0) elemCounters.children().each(function() { $(this).html('').removeClass('not-empty'); })
 
     let params = {
-        wsId        : settings[id].wsId,
-        filter      : settings[id].filters,
-        fields      : settings[id].fields,
-        sort        : settings[id].sortBy,
-        timestamp   : settings[id].timestamp,
-        useCache    : settings[id].useCache
+        wsId             : settings[id].wsId,
+        filter           : settings[id].filters,
+        fields           : settings[id].fields,
+        sort             : settings[id].sortBy,
+        timestamp        : settings[id].timestamp,
+        useCache         : settings[id].useCache,
+        tileImage        : settings[id].tileImage,
+        tileImageFieldId : settings[id].tileImageFieldId,
     }
 
     let requests = [
@@ -1134,7 +1149,8 @@ function insertResultsData(id) {
 
         if(stopPanelContentUpdate(responses[0], settings[id])) return;
 
-        let items = [];
+        let items      = [];
+        let listStates = [];
 
         settings[id].columns = [];
 
@@ -1168,10 +1184,25 @@ function insertResultsData(id) {
 
         for(let row of responses[0].data.row) {
 
+            let stateName = '';
+
             let contentItem = genPanelContentItem(settings[id], {
                 link : '/api/v3/workspaces/' + settings[id].wsId + '/items/' + row.dmsId
             })
 
+            contentItem.filters = [];
+
+            if(settings[id].filterByStatus) {
+                stateName = row.data.WF_CURRENT_STATE.displayValue;
+                if(!listStates.includes(stateName)) listStates.push(stateName);
+                contentItem.filters.push({
+                    key : 'status', value : stateName
+                })
+
+            }
+
+            if(settings[id].tileImage === true) contentItem.imageFile = row.imageFile
+            
             if(typeof settings[id].tileTitle == 'object') {
                 contentItem.tileTitles = [];
                 for(let tileTitle of settings[id].tileTitle) {
@@ -1276,7 +1307,9 @@ function insertResultsData(id) {
 
         }
 
-        finishPanelContentUpdate(id, settings[id], items);
+        sortArray(listStates, 0);
+        setPanelFilterOptions(id, 'status', listStates);
+        finishPanelContentUpdate(id, items);
 
         if(settings[id].autoClick) {
             if($('#' + id + '-content').find('.content-item').length > 0) {

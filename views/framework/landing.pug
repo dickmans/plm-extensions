@@ -15,7 +15,7 @@ block body
             p Unleash the power of Fusion Manage by utilizing its REST API to provide custom built frontends based on Autodesk Platform Services. All solutions manage data in PLM only and take into account the given user's access permission in PLM.
             #side-toolbar.side-toolbar
                 .button#version Review changes by 
-                    span#version-name 12. March 2026
+                    span#version-name 25. March 2026
                 .button#tenant Open related tenant
                     span#tenant-name
                 .button#chrome Learn about the
@@ -27,8 +27,7 @@ block body
                 select#theme-selector.button 
                     option(value='light') Light Theme
                     option(value='dark') Dark Theme
-                    option(value='black') Black Theme                        
-            p#disclaimer These solutions are provided by Autodesk Technical Sales without warranty and support. There should be no assumption that updates, patches, bug fixes and / or new features will be delivered to you. There will also be no support available either through Autodesk Support channels or by the Autodesk Pre-sales Technical Team. Please feel free to take the source code and ideas from this tool to develop your own production ready tool and products. Change and reuse the source code as you like.
+                    option(value='black') Black Theme            
             p Reuse this framework and its examples to build your own custom solutions. The Developer Guide provides documentation for key library functionality, the main framework asset and includes tutorials to get started quickly:
             div.side-toolbar
                 .button#docs Explore the    
@@ -36,15 +35,29 @@ block body
                 .button#troubleshooting Having issues? Use the    
                     span#troubleshooting-name Troubleshooting 
                     |Guide
+        #disclaimer.pos-abs-bottom 
+            div These solutions are provided by Autodesk Technical Sales without warranty and support. There should be no assumption that updates, patches, bug fixes and / or new features will be delivered to you. There will also be no support available either through Autodesk Support channels or by the Autodesk Pre-sales Technical Team. Please feel free to take the source code and ideas from this tool to develop your own production ready tool and products. Change and reuse the source code as you like.
 
         #toggle.button.icon.icon-chevron-left(title="Hide / unhide side panel")
         #layout.button.icon.icon-tiles(title="Toggle tiles display")
         #start.button.icon.icon-start(title="Open the application start menu")
 
+
+
         #main.surface-level-1.no-scrollbar
             .log#framework-changes 
                 h1 Framework Changes
                 table 
+                    tr  
+                        td 25. March 2026
+                        td Improved Cache
+                        td The setting 
+                            span.code sharedCache 
+                            |has been added, allowing to establish a cache being shared by users of the defined group. This helps reducing load times of BOM displays for example.
+                    tr  
+                        td 
+                        td Improved Image Cache
+                        td Panels based on searches now load images faster. Same is true for Item Details panels.
                     tr  
                         td 24. February 2026
                         td Enhancement

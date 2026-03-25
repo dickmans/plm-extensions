@@ -49,6 +49,7 @@
     right : -100%;
 }
 .columns { display : flex; }
+.box-shadow { box-shadow : 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); }
 
 
 
@@ -137,6 +138,7 @@
     flex-direction : column;
 }
 
+
 /*  MENU */
 /* ----------------------------------------------------------------------------- */
 #menu-button {
@@ -158,7 +160,6 @@
     padding         : 10px;
 }
 #menu-columns {
-    box-shadow      : 4px 4px 8px 1px var(--color-surface-level-3);
     display         : flex;
     background      : white;
     border-radius   : 0px 10px 10px 10px;
@@ -261,23 +262,49 @@
 .tree-color {
     background : transparent;
     padding    : 0px !important;
+    max-width  : 6px;
+    min-width  : 6px;
     width      : 6px;
     position   : sticky;
     left       : 0;
-    z-index    : 4;
 }
-th.tree-first-col {
+th.tree-color { z-index : 6 !important; }
+td.tree-color { z-index : 4; }
+
+.tree-first-col {
     position      : sticky;
     left          : 1px;
-    z-index       : 4;
 }
+th.tree-first-col { z-index : 6 !important; }
+td.tree-first-col { z-index : 4; }
 td.tree-first-col {
     display : flex;
 }
+
+
 .tree-number {
     padding     : 0px;
     font-weight : bold;
 }  
+.tree-descriptor {
+    padding       : 0px;
+    overflow      : hidden;
+    text-overflow : ellipsis;
+}
+.tree-quantity,
+.tree-column-quantity {
+    padding-right : 22px !important;
+    text-align    : right;  
+    width         : 80px; 
+}
+.tree-icon {
+    text-align  : center;
+    width       : 26px;    
+}
+.tree-icon > span {
+    font-size   : 20px;
+    font-weight : 300;
+}
 
 .panel-content.xxs .tree-first-col { gap :  4px; }
 .panel-content.xs  .tree-first-col { gap :  6px; }
@@ -325,49 +352,49 @@ td.tree-first-col {
 .panel-content.xxs tr.node.level-9  .tree-first-col  { padding-left : 138px !important; }
 .panel-content.xxs tr.node.level-10 .tree-first-col  { padding-left : 156px !important; }
 
-.panel-content.xs .level-1  .tree-first-col { padding-left :  26px !important; }
-.panel-content.xs .level-2  .tree-first-col { padding-left :  46px !important; }
-.panel-content.xs .level-3  .tree-first-col { padding-left :  66px !important; }
-.panel-content.xs .level-4  .tree-first-col { padding-left :  86px !important; }
-.panel-content.xs .level-5  .tree-first-col { padding-left : 106px !important; }
-.panel-content.xs .level-6  .tree-first-col { padding-left : 126px !important; }
-.panel-content.xs .level-7  .tree-first-col { padding-left : 146px !important; }
-.panel-content.xs .level-8  .tree-first-col { padding-left : 166px !important; }
-.panel-content.xs .level-9  .tree-first-col { padding-left : 186px !important; }
-.panel-content.xs .level-10 .tree-first-col { padding-left : 206px !important; }
+.panel-content.xs .level-1  .tree-first-col { padding-left :  26px !important; max-width : 410px; }
+.panel-content.xs .level-2  .tree-first-col { padding-left :  46px !important; max-width : 390px; }
+.panel-content.xs .level-3  .tree-first-col { padding-left :  66px !important; max-width : 370px; }
+.panel-content.xs .level-4  .tree-first-col { padding-left :  86px !important; max-width : 350px; }
+.panel-content.xs .level-5  .tree-first-col { padding-left : 106px !important; max-width : 330px; }
+.panel-content.xs .level-6  .tree-first-col { padding-left : 126px !important; max-width : 310px; }
+.panel-content.xs .level-7  .tree-first-col { padding-left : 146px !important; max-width : 290px; }
+.panel-content.xs .level-8  .tree-first-col { padding-left : 166px !important; max-width : 270px; }
+.panel-content.xs .level-9  .tree-first-col { padding-left : 186px !important; max-width : 250px; }
+.panel-content.xs .level-10 .tree-first-col { padding-left : 206px !important; max-width : 230px; }
 
-.panel-content.xs tr.node.level-1  .tree-first-col  { padding-left :   4px !important; }
-.panel-content.xs tr.node.level-2  .tree-first-col  { padding-left :  26px !important; }
-.panel-content.xs tr.node.level-3  .tree-first-col  { padding-left :  46px !important; }
-.panel-content.xs tr.node.level-4  .tree-first-col  { padding-left :  66px !important; }
-.panel-content.xs tr.node.level-5  .tree-first-col  { padding-left :  86px !important; }
-.panel-content.xs tr.node.level-6  .tree-first-col  { padding-left : 106px !important; }
-.panel-content.xs tr.node.level-7  .tree-first-col  { padding-left : 126px !important; }
-.panel-content.xs tr.node.level-8  .tree-first-col  { padding-left : 146px !important; }
-.panel-content.xs tr.node.level-9  .tree-first-col  { padding-left : 166px !important; }
-.panel-content.xs tr.node.level-10 .tree-first-col  { padding-left : 186px !important; }
+.panel-content.xs tr.node.level-1  .tree-first-col  { padding-left :   4px !important; max-width : 432px; }
+.panel-content.xs tr.node.level-2  .tree-first-col  { padding-left :  26px !important; max-width : 410px; }
+.panel-content.xs tr.node.level-3  .tree-first-col  { padding-left :  46px !important; max-width : 390px; }
+.panel-content.xs tr.node.level-4  .tree-first-col  { padding-left :  66px !important; max-width : 370px; }
+.panel-content.xs tr.node.level-5  .tree-first-col  { padding-left :  86px !important; max-width : 350px; }
+.panel-content.xs tr.node.level-6  .tree-first-col  { padding-left : 106px !important; max-width : 330px; }
+.panel-content.xs tr.node.level-7  .tree-first-col  { padding-left : 126px !important; max-width : 310px; }
+.panel-content.xs tr.node.level-8  .tree-first-col  { padding-left : 146px !important; max-width : 290px; }
+.panel-content.xs tr.node.level-9  .tree-first-col  { padding-left : 166px !important; max-width : 270px; }
+.panel-content.xs tr.node.level-10 .tree-first-col  { padding-left : 186px !important; max-width : 250px; }
 
-.panel-content.s .level-1  .tree-first-col { padding-left :  28px !important; }
-.panel-content.s .level-2  .tree-first-col { padding-left :  50px !important; }
-.panel-content.s .level-3  .tree-first-col { padding-left :  70px !important; }
-.panel-content.s .level-4  .tree-first-col { padding-left :  90px !important; }
-.panel-content.s .level-5  .tree-first-col { padding-left : 110px !important; }
-.panel-content.s .level-6  .tree-first-col { padding-left : 130px !important; }
-.panel-content.s .level-7  .tree-first-col { padding-left : 150px !important; }
-.panel-content.s .level-8  .tree-first-col { padding-left : 170px !important; }
-.panel-content.s .level-9  .tree-first-col { padding-left : 190px !important; }
-.panel-content.s .level-10 .tree-first-col { padding-left : 210px !important; }
+.panel-content.s .level-1  .tree-first-col { padding-left :  28px !important; max-width : 468px; }
+.panel-content.s .level-2  .tree-first-col { padding-left :  50px !important; max-width : 446px; }
+.panel-content.s .level-3  .tree-first-col { padding-left :  70px !important; max-width : 426px; }
+.panel-content.s .level-4  .tree-first-col { padding-left :  90px !important; max-width : 406px; }
+.panel-content.s .level-5  .tree-first-col { padding-left : 110px !important; max-width : 386px; }
+.panel-content.s .level-6  .tree-first-col { padding-left : 130px !important; max-width : 366px; }
+.panel-content.s .level-7  .tree-first-col { padding-left : 150px !important; max-width : 346px; }
+.panel-content.s .level-8  .tree-first-col { padding-left : 170px !important; max-width : 326px; }
+.panel-content.s .level-9  .tree-first-col { padding-left : 190px !important; max-width : 306px; }
+.panel-content.s .level-10 .tree-first-col { padding-left : 210px !important; max-width : 286px; }
 
-.panel-content.s tr.node.level-1  .tree-first-col  { padding-left :   4px !important; }
-.panel-content.s tr.node.level-2  .tree-first-col  { padding-left :  26px !important; }
-.panel-content.s tr.node.level-3  .tree-first-col  { padding-left :  46px !important; }
-.panel-content.s tr.node.level-4  .tree-first-col  { padding-left :  66px !important; }
-.panel-content.s tr.node.level-5  .tree-first-col  { padding-left :  86px !important; }
-.panel-content.s tr.node.level-6  .tree-first-col  { padding-left : 106px !important; }
-.panel-content.s tr.node.level-7  .tree-first-col  { padding-left : 126px !important; }
-.panel-content.s tr.node.level-8  .tree-first-col  { padding-left : 146px !important; }
-.panel-content.s tr.node.level-9  .tree-first-col  { padding-left : 166px !important; }
-.panel-content.s tr.node.level-10 .tree-first-col  { padding-left : 186px !important; }
+.panel-content.s tr.node.level-1  .tree-first-col  { padding-left :   4px !important; max-width : 492px; }
+.panel-content.s tr.node.level-2  .tree-first-col  { padding-left :  26px !important; max-width : 470px; }
+.panel-content.s tr.node.level-3  .tree-first-col  { padding-left :  46px !important; max-width : 450px; }
+.panel-content.s tr.node.level-4  .tree-first-col  { padding-left :  66px !important; max-width : 430px; }
+.panel-content.s tr.node.level-5  .tree-first-col  { padding-left :  86px !important; max-width : 410px; }
+.panel-content.s tr.node.level-6  .tree-first-col  { padding-left : 106px !important; max-width : 390px; }
+.panel-content.s tr.node.level-7  .tree-first-col  { padding-left : 126px !important; max-width : 370px; }
+.panel-content.s tr.node.level-8  .tree-first-col  { padding-left : 146px !important; max-width : 350px; }
+.panel-content.s tr.node.level-9  .tree-first-col  { padding-left : 166px !important; max-width : 430px; }
+.panel-content.s tr.node.level-10 .tree-first-col  { padding-left : 186px !important; max-width : 310px; }
 
 .panel-content.m .level-1  .tree-first-col { padding-left :  32px !important; }
 .panel-content.m .level-2  .tree-first-col { padding-left :  55px !important; }
@@ -762,7 +789,8 @@ td.tree-first-col {
 .tree-file-downloaded.icon-skip::before {
     color : var(--color-blue-500);
 }
-.with-files-download .panel-content {
+.with-files-download .panel-content ,
+.with-files-download.panel-top.with-panel-actions > .panel-content {
     top : 386px;
 }
 .with-files-download .tree-files-download-status {
@@ -1444,16 +1472,21 @@ td.tree-first-col {
 
 
 /* MULTI SELECT CHECKBOXES */
-.table-check-box {
-    max-width   : 30px;
-    min-width   : 30px;
-    width       : 30px;
-    text-align  : center;
+.content-item-check-box {
+    max-width  : 30px;
+    min-width  : 30px;
+    width      : 30px;
+    text-align : center;
+    position   : sticky;
+    left       : 0;
 }
+th.content-item-check-box { z-index : 6 !important; }
+td.content-item-check-box { z-index : 4; }
 tr.checked > td.content-item-check-box > .icon::before {
     content : '\e834';
 }
 
+/* GROUPS */
 .table-group-title {
     cursor : pointer;
 }
@@ -1473,6 +1506,31 @@ tr.checked > td.content-item-check-box > .icon::before {
     -webkit-font-smoothing  : antialiased;
 }
 .table-group-title.collapsed::before { content : '\e5cc'; }
+
+
+/* EDIT MODE */
+.content-item td.field-editable { padding-left : 0px; padding-right : 0px; }
+.content-item td.field-editable.field-type-string,
+.content-item td.field-editable.field-type-buom { background : var(--color-surface-level-1); }
+
+.panel-content.surface-level-1 > table > tbody > tr > td.field-editable { background : var(--color-surface-level-1); border-top-color : var(--color-surface-level-2); border-bottom-color : var(--color-surface-level-1); border-right : 1px solid var(--color-surface-level-2); }
+.panel-content.surface-level-2 > table > tbody > tr > td.field-editable { background : var(--color-surface-level-2); border-top-color : var(--color-surface-level-3); border-bottom-color : var(--color-surface-level-2); border-right : 1px solid var(--color-surface-level-3); }
+.panel-content.surface-level-3 > table > tbody > tr > td.field-editable { background : var(--color-surface-level-3); border-top-color : var(--color-surface-level-4); border-bottom-color : var(--color-surface-level-3); border-right : 1px solid var(--color-surface-level-4); }
+.panel-content.surface-level-4 > table > tbody > tr > td.field-editable { background : var(--color-surface-level-4); border-top-color : var(--color-surface-level-5); border-bottom-color : var(--color-surface-level-4); border-right : 1px solid var(--color-surface-level-5); }
+.panel-content.surface-level-5 > table > tbody > tr > td.field-editable { background : var(--color-surface-level-5); border-top-color : var(--color-surface-level-3); border-bottom-color : var(--color-surface-level-5); border-right : 1px solid var(--color-surface-level-3); }
+
+.panel-content.surface-level-1 > table > tbody > tr.selected > td.field-editable,
+.panel-content.surface-level-2 > table > tbody > tr.selected > td.field-editable,
+.panel-content.surface-level-3 > table > tbody > tr.selected > td.field-editable,
+.panel-content.surface-level-4 > table > tbody > tr.selected > td.field-editable,
+.panel-content.surface-level-5 > table > tbody > tr.selected > td.field-editable { background : var(--color-blue-600); border-bottom-color : var(--color-blue-600); border-top-color : var(--color-blue-600);}
+
+tr.selected > td.field-editable > input,
+tr.selected > td.field-editable .picklist-controls,
+tr.selected > td.field-editable .picklist-input { background : var(--color-hover-border); }
+
+
+/* .content-item td.field-editable.field-type-checkbox { display : flex; } */
 
 /* .panel-content.xxs .table-group-title { line-height : 32px; padding : 0px 10px; }
 .panel-content.xs  .table-group-title { line-height : 32px; padding : 0px 10px; }
@@ -1498,13 +1556,29 @@ tr.checked > td.content-item-check-box > .icon::before {
 .panel-content.xl  thead th {  height : 40px; line-height : 40px; padding : 0px 16px; }
 .panel-content.xxl thead th {  height : 44px; line-height : 44px; padding : 0px 18px; }
 
-.panel-content.xxs tr > td, .panel-content.xxs tr.content-item > td > input, .panel-content.xxs tr.content-item > td > select, .panel-content.xxs tr.content-item > td > textarea {  height : 20px; line-height : 20px; padding : 0px  6px; font-size : 12px; }
-.panel-content.xs  tr > td, .panel-content.xs  tr.content-item > td > input, .panel-content.xs  tr.content-item > td > select, .panel-content.xs  tr.content-item > td > textarea {  height : 26px; line-height : 26px; padding : 0px 10px; font-size : 12px; }
-.panel-content.s   tr > td, .panel-content.s   tr.content-item > td > input, .panel-content.s   tr.content-item > td > select, .panel-content.s   tr.content-item > td > textarea {  height : 30px; line-height : 30px; padding : 0px 14px; }
-.panel-content.m   tr > td, .panel-content.m   tr.content-item > td > input, .panel-content.m   tr.content-item > td > select, .panel-content.m   tr.content-item > td > textarea {  height : 32px; line-height : 32px; padding : 0px 14px; }
-.panel-content.l   tr > td, .panel-content.l   tr.content-item > td > input, .panel-content.l   tr.content-item > td > select, .panel-content.l   tr.content-item > td > textarea {  height : 34px; line-height : 34px; padding : 0px 16px; }
-.panel-content.xl  tr > td, .panel-content.xl  tr.content-item > td > input, .panel-content.xl  tr.content-item > td > select, .panel-content.xl  tr.content-item > td > textarea {  height : 38px; line-height : 38px; padding : 0px 16px; }
-.panel-content.xxl tr > td, .panel-content.xxl tr.content-item > td > input, .panel-content.xxl tr.content-item > td > select, .panel-content.xxl tr.content-item > td > textarea {  height : 42px; line-height : 42px; padding : 0px 18px; }
+.panel-content.xxs tr > td, .panel-content.xxs tr.content-item > td input, .panel-content.xxs tr.content-item > td > select, .panel-content.xxs tr.content-item > td > textarea { max-height : 20px; min-height : 20px; height : 20px; line-height : 20px; padding : 0px  6px; font-size : 12px; }
+.panel-content.xs  tr > td, .panel-content.xs  tr.content-item > td input, .panel-content.xs  tr.content-item > td > select, .panel-content.xs  tr.content-item > td > textarea { max-height : 26px; min-height : 26px; height : 26px; line-height : 26px; padding : 0px 10px; font-size : 12px; }
+.panel-content.s   tr > td, .panel-content.s   tr.content-item > td input, .panel-content.s   tr.content-item > td > select, .panel-content.s   tr.content-item > td > textarea { max-height : 30px; min-height : 30px; height : 30px; line-height : 30px; padding : 0px 14px; }
+.panel-content.m   tr > td, .panel-content.m   tr.content-item > td input, .panel-content.m   tr.content-item > td > select, .panel-content.m   tr.content-item > td > textarea { max-height : 32px; min-height : 32px; height : 32px; line-height : 32px; padding : 0px 14px; }
+.panel-content.l   tr > td, .panel-content.l   tr.content-item > td input, .panel-content.l   tr.content-item > td > select, .panel-content.l   tr.content-item > td > textarea { max-height : 34px; min-height : 34px; height : 34px; line-height : 34px; padding : 0px 16px; }
+.panel-content.xl  tr > td, .panel-content.xl  tr.content-item > td input, .panel-content.xl  tr.content-item > td > select, .panel-content.xl  tr.content-item > td > textarea { max-height : 38px; min-height : 38px; height : 38px; line-height : 38px; padding : 0px 16px; }
+.panel-content.xxl tr > td, .panel-content.xxl tr.content-item > td input, .panel-content.xxl tr.content-item > td > select, .panel-content.xxl tr.content-item > td > textarea { max-height : 42px; min-height : 42px; height : 42px; line-height : 42px; padding : 0px 18px; }
+
+.panel-content.xs  tr.content-item > td.field-editable .picklist-actions { max-height : 20px; min-height : 20px; height : 20px; line-height : 20px; max-width : 20px; min-width : 20px; width : 20px; }
+.panel-content.xs  tr.content-item > td.field-editable .picklist-actions { max-height : 26px; min-height : 26px; height : 26px; line-height : 26px; max-width : 26px; min-width : 26px; width : 26px; }
+.panel-content.s   tr.content-item > td.field-editable .picklist-actions { max-height : 30px; min-height : 30px; height : 30px; line-height : 30px; max-width : 30px; min-width : 30px; width : 30px; }
+.panel-content.m   tr.content-item > td.field-editable .picklist-actions { max-height : 32px; min-height : 32px; height : 32px; line-height : 32px; max-width : 32px; min-width : 32px; width : 32px; }
+.panel-content.l   tr.content-item > td.field-editable .picklist-actions { max-height : 34px; min-height : 34px; height : 34px; line-height : 34px; max-width : 34px; min-width : 34px; width : 34px; }
+.panel-content.xl  tr.content-item > td.field-editable .picklist-actions { max-height : 38px; min-height : 38px; height : 38px; line-height : 38px; max-width : 38px; min-width : 38px; width : 38px; }
+.panel-content.xxl tr.content-item > td.field-editable .picklist-actions { max-height : 42px; min-height : 42px; height : 42px; line-height : 42px; max-width : 42px; min-width : 42px; width : 42px; }
+
+.panel-content.xxs tr > td.field-with-unit .field-unit {  height : 20px; line-height : 20px; padding : 0px  6px; font-size : 12px; }
+.panel-content.xs  tr > td.field-with-unit .field-unit {  height : 26px; line-height : 26px; padding : 0px 10px; font-size : 12px; }
+.panel-content.s   tr > td.field-with-unit .field-unit {  height : 30px; line-height : 30px; padding : 0px 14px; }
+.panel-content.m   tr > td.field-with-unit .field-unit {  height : 32px; line-height : 32px; padding : 0px 14px; }
+.panel-content.l   tr > td.field-with-unit .field-unit {  height : 34px; line-height : 34px; padding : 0px 16px; }
+.panel-content.xl  tr > td.field-with-unit .field-unit {  height : 38px; line-height : 38px; padding : 0px 16px; }
+.panel-content.xxl tr > td.field-with-unit .field-unit {  height : 42px; line-height : 42px; padding : 0px 18px; }
 
 .panel-content.xxs tr > td > .table-actions > .button {
     line-height : 18px;
@@ -1515,185 +1589,6 @@ tr.checked > td.content-item-check-box > .icon::before {
     min-width   : 18px;
     width       : 18px;
 }
-
-.panel-content.xxs .bom-first-col { gap :  4px; }
-.panel-content.xs  .bom-first-col { gap :  6px; }
-.panel-content.s   .bom-first-col { gap :  8px; }
-.panel-content.m   .bom-first-col { gap :  8px; }
-.panel-content.l   .bom-first-col { gap :  8px; }
-.panel-content.xl  .bom-first-col { gap :  8px; }
-.panel-content.xxl .bom-first-col { gap : 10px; }
-
-.panel-content.xxs .bom-nav {  height : 20px; line-height : 20px; max-width : 14px; min-width : 14px; width : 14px; }
-.panel-content.xs  .bom-nav {  height : 26px; line-height : 26px; max-width : 14px; min-width : 14px; width : 14px; }
-.panel-content.s   .bom-nav {  height : 30px; line-height : 30px; max-width : 16px; min-width : 16px; width : 16px; }
-.panel-content.m   .bom-nav {  height : 32px; line-height : 32px; max-width : 20px; min-width : 20px; width : 20px; }
-.panel-content.l   .bom-nav {  height : 34px; line-height : 34px; max-width : 20px; min-width : 20px; width : 20px; }
-.panel-content.xl  .bom-nav {  height : 38px; line-height : 38px; max-width : 22px; min-width : 22px; width : 22px; }
-.panel-content.xxl .bom-nav {  height : 42px; line-height : 42px; max-width : 22px; min-width : 22px; width : 22px; }
-
-.panel-content.xxs .bom-number {  min-width : 26px; }
-.panel-content.xs  .bom-number {  min-width : 28px; }
-.panel-content.s   .bom-number {  min-width : 30px; }
-.panel-content.m   .bom-number {  min-width : 32px; }
-.panel-content.l   .bom-number {  min-width : 34px; }
-.panel-content.xl  .bom-number {  min-width : 36px; }
-.panel-content.xxl .bom-number {  min-width : 38px; }
-
-.panel-content.xxs .level-1  .bom-first-col { padding-left :  22px !important; }
-.panel-content.xxs .level-2  .bom-first-col { padding-left :  40px !important; }
-.panel-content.xxs .level-3  .bom-first-col { padding-left :  58px !important; }
-.panel-content.xxs .level-4  .bom-first-col { padding-left :  76px !important; }
-.panel-content.xxs .level-5  .bom-first-col { padding-left :  94px !important; }
-.panel-content.xxs .level-6  .bom-first-col { padding-left : 112px !important; }
-.panel-content.xxs .level-7  .bom-first-col { padding-left : 120px !important; }
-.panel-content.xxs .level-8  .bom-first-col { padding-left : 138px !important; }
-.panel-content.xxs .level-9  .bom-first-col { padding-left : 156px !important; }
-.panel-content.xxs .level-10 .bom-first-col { padding-left : 174px !important; }
-
-.panel-content.xxs tr.node.level-1  .bom-first-col  { padding-left :   4px !important; }
-.panel-content.xxs tr.node.level-2  .bom-first-col  { padding-left :  22px !important; }
-.panel-content.xxs tr.node.level-3  .bom-first-col  { padding-left :  40px !important; }
-.panel-content.xxs tr.node.level-4  .bom-first-col  { padding-left :  58px !important; }
-.panel-content.xxs tr.node.level-5  .bom-first-col  { padding-left :  76px !important; }
-.panel-content.xxs tr.node.level-6  .bom-first-col  { padding-left :  94px !important; }
-.panel-content.xxs tr.node.level-7  .bom-first-col  { padding-left : 112px !important; }
-.panel-content.xxs tr.node.level-8  .bom-first-col  { padding-left : 120px !important; }
-.panel-content.xxs tr.node.level-9  .bom-first-col  { padding-left : 138px !important; }
-.panel-content.xxs tr.node.level-10 .bom-first-col  { padding-left : 156px !important; }
-
-.panel-content.xs .level-1  .bom-first-col { padding-left :  26px !important; }
-.panel-content.xs .level-2  .bom-first-col { padding-left :  46px !important; }
-.panel-content.xs .level-3  .bom-first-col { padding-left :  66px !important; }
-.panel-content.xs .level-4  .bom-first-col { padding-left :  86px !important; }
-.panel-content.xs .level-5  .bom-first-col { padding-left : 106px !important; }
-.panel-content.xs .level-6  .bom-first-col { padding-left : 126px !important; }
-.panel-content.xs .level-7  .bom-first-col { padding-left : 146px !important; }
-.panel-content.xs .level-8  .bom-first-col { padding-left : 166px !important; }
-.panel-content.xs .level-9  .bom-first-col { padding-left : 186px !important; }
-.panel-content.xs .level-10 .bom-first-col { padding-left : 206px !important; }
-
-.panel-content.xs tr.node.level-1  .bom-first-col  { padding-left :   4px !important; }
-.panel-content.xs tr.node.level-2  .bom-first-col  { padding-left :  26px !important; }
-.panel-content.xs tr.node.level-3  .bom-first-col  { padding-left :  46px !important; }
-.panel-content.xs tr.node.level-4  .bom-first-col  { padding-left :  66px !important; }
-.panel-content.xs tr.node.level-5  .bom-first-col  { padding-left :  86px !important; }
-.panel-content.xs tr.node.level-6  .bom-first-col  { padding-left : 106px !important; }
-.panel-content.xs tr.node.level-7  .bom-first-col  { padding-left : 126px !important; }
-.panel-content.xs tr.node.level-8  .bom-first-col  { padding-left : 146px !important; }
-.panel-content.xs tr.node.level-9  .bom-first-col  { padding-left : 166px !important; }
-.panel-content.xs tr.node.level-10 .bom-first-col  { padding-left : 186px !important; }
-
-.panel-content.s .level-1  .bom-first-col { padding-left :  28px !important; }
-.panel-content.s .level-2  .bom-first-col { padding-left :  50px !important; }
-.panel-content.s .level-3  .bom-first-col { padding-left :  70px !important; }
-.panel-content.s .level-4  .bom-first-col { padding-left :  90px !important; }
-.panel-content.s .level-5  .bom-first-col { padding-left : 110px !important; }
-.panel-content.s .level-6  .bom-first-col { padding-left : 130px !important; }
-.panel-content.s .level-7  .bom-first-col { padding-left : 150px !important; }
-.panel-content.s .level-8  .bom-first-col { padding-left : 170px !important; }
-.panel-content.s .level-9  .bom-first-col { padding-left : 190px !important; }
-.panel-content.s .level-10 .bom-first-col { padding-left : 210px !important; }
-
-.panel-content.s tr.node.level-1  .bom-first-col  { padding-left :   4px !important; }
-.panel-content.s tr.node.level-2  .bom-first-col  { padding-left :  26px !important; }
-.panel-content.s tr.node.level-3  .bom-first-col  { padding-left :  46px !important; }
-.panel-content.s tr.node.level-4  .bom-first-col  { padding-left :  66px !important; }
-.panel-content.s tr.node.level-5  .bom-first-col  { padding-left :  86px !important; }
-.panel-content.s tr.node.level-6  .bom-first-col  { padding-left : 106px !important; }
-.panel-content.s tr.node.level-7  .bom-first-col  { padding-left : 126px !important; }
-.panel-content.s tr.node.level-8  .bom-first-col  { padding-left : 146px !important; }
-.panel-content.s tr.node.level-9  .bom-first-col  { padding-left : 166px !important; }
-.panel-content.s tr.node.level-10 .bom-first-col  { padding-left : 186px !important; }
-
-.panel-content.m .level-1  .bom-first-col { padding-left :  32px !important; }
-.panel-content.m .level-2  .bom-first-col { padding-left :  55px !important; }
-.panel-content.m .level-3  .bom-first-col { padding-left :  74px !important; }
-.panel-content.m .level-4  .bom-first-col { padding-left :  96px !important; }
-.panel-content.m .level-5  .bom-first-col { padding-left : 116px !important; }
-.panel-content.m .level-6  .bom-first-col { padding-left : 131px !important; }
-.panel-content.m .level-7  .bom-first-col { padding-left : 146px !important; }
-.panel-content.m .level-8  .bom-first-col { padding-left : 166px !important; }
-.panel-content.m .level-9  .bom-first-col { padding-left : 186px !important; }
-.panel-content.m .level-10 .bom-first-col { padding-left : 206px !important; }
-
-.panel-content.m tr.node.level-1  .bom-first-col  { padding-left :   4px !important; }
-.panel-content.m tr.node.level-2  .bom-first-col  { padding-left :  26px !important; }
-.panel-content.m tr.node.level-3  .bom-first-col  { padding-left :  46px !important; }
-.panel-content.m tr.node.level-4  .bom-first-col  { padding-left :  66px !important; }
-.panel-content.m tr.node.level-5  .bom-first-col  { padding-left :  86px !important; }
-.panel-content.m tr.node.level-6  .bom-first-col  { padding-left : 106px !important; }
-.panel-content.m tr.node.level-7  .bom-first-col  { padding-left : 126px !important; }
-.panel-content.m tr.node.level-8  .bom-first-col  { padding-left : 146px !important; }
-.panel-content.m tr.node.level-9  .bom-first-col  { padding-left : 166px !important; }
-.panel-content.m tr.node.level-10 .bom-first-col  { padding-left : 186px !important; }
-
-.panel-content.l .level-1  .bom-first-col { padding-left :  32px !important; }
-.panel-content.l .level-2  .bom-first-col { padding-left :  55px !important; }
-.panel-content.l .level-3  .bom-first-col { padding-left :  74px !important; }
-.panel-content.l .level-4  .bom-first-col { padding-left :  96px !important; }
-.panel-content.l .level-5  .bom-first-col { padding-left : 116px !important; }
-.panel-content.l .level-6  .bom-first-col { padding-left : 131px !important; }
-.panel-content.l .level-7  .bom-first-col { padding-left : 146px !important; }
-.panel-content.l .level-8  .bom-first-col { padding-left : 166px !important; }
-.panel-content.l .level-9  .bom-first-col { padding-left : 186px !important; }
-.panel-content.l .level-10 .bom-first-col { padding-left : 206px !important; }
-
-.panel-content.l tr.node.level-1  .bom-first-col  { padding-left :   4px !important; }
-.panel-content.l tr.node.level-2  .bom-first-col  { padding-left :  26px !important; }
-.panel-content.l tr.node.level-3  .bom-first-col  { padding-left :  46px !important; }
-.panel-content.l tr.node.level-4  .bom-first-col  { padding-left :  66px !important; }
-.panel-content.l tr.node.level-5  .bom-first-col  { padding-left :  86px !important; }
-.panel-content.l tr.node.level-6  .bom-first-col  { padding-left : 106px !important; }
-.panel-content.l tr.node.level-7  .bom-first-col  { padding-left : 126px !important; }
-.panel-content.l tr.node.level-8  .bom-first-col  { padding-left : 146px !important; }
-.panel-content.l tr.node.level-9  .bom-first-col  { padding-left : 166px !important; }
-.panel-content.xl tr.node.level-10 .bom-first-col  { padding-left : 186px !important; }
-
-.panel-content.xl .level-1  .bom-first-col { padding-left :  32px !important; }
-.panel-content.xl .level-2  .bom-first-col { padding-left :  55px !important; }
-.panel-content.xl .level-3  .bom-first-col { padding-left :  74px !important; }
-.panel-content.xl .level-4  .bom-first-col { padding-left :  96px !important; }
-.panel-content.xl .level-5  .bom-first-col { padding-left : 116px !important; }
-.panel-content.xl .level-6  .bom-first-col { padding-left : 131px !important; }
-.panel-content.xl .level-7  .bom-first-col { padding-left : 146px !important; }
-.panel-content.xl .level-8  .bom-first-col { padding-left : 166px !important; }
-.panel-content.xl .level-9  .bom-first-col { padding-left : 186px !important; }
-.panel-content.xl .level-10 .bom-first-col { padding-left : 206px !important; }
-
-.panel-content.xl tr.node.level-1  .bom-first-col  { padding-left :   4px !important; }
-.panel-content.xl tr.node.level-2  .bom-first-col  { padding-left :  26px !important; }
-.panel-content.xl tr.node.level-3  .bom-first-col  { padding-left :  46px !important; }
-.panel-content.xl tr.node.level-4  .bom-first-col  { padding-left :  66px !important; }
-.panel-content.xl tr.node.level-5  .bom-first-col  { padding-left :  86px !important; }
-.panel-content.xl tr.node.level-6  .bom-first-col  { padding-left : 106px !important; }
-.panel-content.xl tr.node.level-7  .bom-first-col  { padding-left : 126px !important; }
-.panel-content.xl tr.node.level-8  .bom-first-col  { padding-left : 146px !important; }
-.panel-content.xl tr.node.level-9  .bom-first-col  { padding-left : 166px !important; }
-.panel-content.xl tr.node.level-10 .bom-first-col  { padding-left : 186px !important; }
-
-.panel-content.xxl .level-1  .bom-first-col { padding-left :  32px !important; }
-.panel-content.xxl .level-2  .bom-first-col { padding-left :  55px !important; }
-.panel-content.xxl .level-3  .bom-first-col { padding-left :  74px !important; }
-.panel-content.xxl .level-4  .bom-first-col { padding-left :  96px !important; }
-.panel-content.xxl .level-5  .bom-first-col { padding-left : 116px !important; }
-.panel-content.xxl .level-6  .bom-first-col { padding-left : 131px !important; }
-.panel-content.xxl .level-7  .bom-first-col { padding-left : 146px !important; }
-.panel-content.xxl .level-8  .bom-first-col { padding-left : 166px !important; }
-.panel-content.xxl .level-9  .bom-first-col { padding-left : 186px !important; }
-.panel-content.xxl .level-10 .bom-first-col { padding-left : 206px !important; }
-
-.panel-content.xxl tr.node.level-1  .bom-first-col  { padding-left :   4px !important; }
-.panel-content.xxl tr.node.level-2  .bom-first-col  { padding-left :  26px !important; }
-.panel-content.xxl tr.node.level-3  .bom-first-col  { padding-left :  46px !important; }
-.panel-content.xxl tr.node.level-4  .bom-first-col  { padding-left :  66px !important; }
-.panel-content.xxl tr.node.level-5  .bom-first-col  { padding-left :  86px !important; }
-.panel-content.xxl tr.node.level-6  .bom-first-col  { padding-left : 106px !important; }
-.panel-content.xxl tr.node.level-7  .bom-first-col  { padding-left : 126px !important; }
-.panel-content.xxl tr.node.level-8  .bom-first-col  { padding-left : 146px !important; }
-.panel-content.xxl tr.node.level-9  .bom-first-col  { padding-left : 166px !important; }
-.panel-content.xxl tr.node.level-10 .bom-first-col  { padding-left : 186px !important; }
-
 
 .panel-content td.field-type-paragraph { line-height : 0px !important; }
 .panel-content td.field-type-date      { max-width : 128px; min-width : 128px; width : 128px; }
@@ -1730,13 +1625,38 @@ tr.checked > td.content-item-check-box > .icon::before {
 .panel-content.xl  tr.content-item > td > select {  width : 100%; }
 .panel-content.xxl tr.content-item > td > select {  width : 100%; }
 
-.panel-content.xxs th.table-check-box > .icon, .panel-content.xxs tr.content-item > td > .icon {  font-size : 15px; font-weight : 200; line-height : 20px; display : block; }
-.panel-content.xs  th.table-check-box > .icon, .panel-content.xs  tr.content-item > td > .icon {  font-size : 17px; font-weight : 200; line-height : 26px; display : block; }
-.panel-content.s   th.table-check-box > .icon, .panel-content.s   tr.content-item > td > .icon {  font-size : 19px; font-weight : 200; line-height : 30px; display : block; }
-.panel-content.m   th.table-check-box > .icon, .panel-content.m   tr.content-item > td > .icon {  font-size : 21px; font-weight : 200; line-height : 32px; display : block; }
-.panel-content.l   th.table-check-box > .icon, .panel-content.l   tr.content-item > td > .icon {  font-size : 22px; font-weight : 200; line-height : 34px; display : block; }
-.panel-content.xl  th.table-check-box > .icon, .panel-content.xl  tr.content-item > td > .icon {  font-size : 24px; font-weight : 200; line-height : 38px; display : block; }
-.panel-content.xxl th.table-check-box > .icon, .panel-content.xxl tr.content-item > td > .icon {  font-size : 26px; font-weight : 200; line-height : 42px; display : block; }
+.panel-content.xxs .content-item-check-box { padding : 0px; max-width: 22px; min-width: 22px; width: 22px; }
+.panel-content.xs  .content-item-check-box { padding : 0px; max-width: 26px; min-width: 26px; width: 26px; }
+.panel-content.s   .content-item-check-box { padding : 0px; max-width: 30px; min-width: 30px; width: 30px; }
+.panel-content.m   .content-item-check-box { padding : 0px; max-width: 34px; min-width: 34px; width: 34px; }
+.panel-content.l   .content-item-check-box { padding : 0px; max-width: 36px; min-width: 36px; width: 36px; }
+.panel-content.xl  .content-item-check-box { padding : 0px; max-width: 44px; min-width: 44px; width: 44px; }
+.panel-content.xxl .content-item-check-box { padding : 0px; max-width: 48px; min-width: 48px; width: 48px; }
+
+.panel-content.xxs th.content-item-check-box > .icon, .panel-content.xxs tr.content-item > td > .icon {  font-size : 14px; font-weight : 200; line-height : 20px; display : block; }
+.panel-content.xs  th.content-item-check-box > .icon, .panel-content.xs  tr.content-item > td > .icon {  font-size : 16px; font-weight : 200; line-height : 26px; display : block; }
+.panel-content.s   th.content-item-check-box > .icon, .panel-content.s   tr.content-item > td > .icon {  font-size : 18px; font-weight : 200; line-height : 30px; display : block; }
+.panel-content.m   th.content-item-check-box > .icon, .panel-content.m   tr.content-item > td > .icon {  font-size : 20px; font-weight : 200; line-height : 32px; display : block; }
+.panel-content.l   th.content-item-check-box > .icon, .panel-content.l   tr.content-item > td > .icon {  font-size : 22px; font-weight : 200; line-height : 34px; display : block; }
+.panel-content.xl  th.content-item-check-box > .icon, .panel-content.xl  tr.content-item > td > .icon {  font-size : 24px; font-weight : 200; line-height : 38px; display : block; }
+.panel-content.xxl th.content-item-check-box > .icon, .panel-content.xxl tr.content-item > td > .icon {  font-size : 26px; font-weight : 200; line-height : 42px; display : block; }
+
+.multi-select >.panel-content.xxs .tree-color { left : 23px; }
+.multi-select >.panel-content.xs  .tree-color { left : 27px; }
+.multi-select >.panel-content.s   .tree-color { left : 31px; }
+.multi-select >.panel-content.m   .tree-color { left : 35px; }
+.multi-select >.panel-content.l   .tree-color { left : 37px; }
+.multi-select >.panel-content.xl  .tree-color { left : 41px; }
+.multi-select >.panel-content.xxl .tree-color { left : 45px; }
+
+.multi-select >.panel-content.xxs .tree-first-col { left : 29px; }
+.multi-select >.panel-content.xs  .tree-first-col { left : 33px; }
+.multi-select >.panel-content.s   .tree-first-col { left : 37px; }
+.multi-select >.panel-content.m   .tree-first-col { left : 41px; }
+.multi-select >.panel-content.l   .tree-first-col { left : 43px; }
+.multi-select >.panel-content.xl  .tree-first-col { left : 47px; }
+.multi-select >.panel-content.xxl .tree-first-col { left : 51px; }
+
 
 .panel-content .content-item .column-icon.icon { display : table-cell; }
 
@@ -1882,6 +1802,14 @@ td.column-required > * { border-left : 2px solid var(--color-status-red) !import
 #header .button {
     margin-top : 2px;
 }
+#header-cache-status-indicator {
+    font-weight : 200;
+    line-height : 38px;
+    margin      : 2px 0px 0px 8px;
+}
+#header-cache-status-indicator.pending::before { content : '\e160'; color : var(--color-status-yellow); }
+#header-cache-status-indicator.success::before { content : '\e86c'; color : var(--color-status-green); }
+#header-cache-status-indicator.warning::before { content : '\e002'; color : var(--color-status-red); cursor : pointer; }
 #header-avatar {
     background    : var(--color-surface-level-4);
     display       : inline-block;
@@ -2335,8 +2263,8 @@ and (max-device-width : 1900px)  {
     flex-direction : column;
 }
 
-.panel-content tr.table-ranges > th,
-.panel-content tr.table-totals > th { 
+.panel-content tr.panel-ranges > th,
+.panel-content tr.panel-totals > th { 
     background : var(--color-surface-level-4);
     z-index : 2;
  }
@@ -3023,11 +2951,13 @@ and (max-device-width : 1900px)  {
     border-color : var(--color-blue-600); 
     color        : white; 
 }
+.button.enabled,
 .button.main {
     background   : var(--color-yellow-500) !important; 
     border-color : var(--color-yellow-500);
     color        : white; 
 }
+.button.enabled:hover,
 .button.main:hover {
     background   : var(--color-yellow-600) !important; 
     border-color : var(--color-yellow-600) !important; 
