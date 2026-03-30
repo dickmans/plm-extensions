@@ -66,8 +66,8 @@ function setUIEvents() {
 
 
     // Header Toolbar
-    $('#export-base'  ).click(function() { exportTenantConfiguration($(this), 'base'); });
-    $('#export-target').click(function() { exportTenantConfiguration($(this), 'target'); });
+    $('#export-base'  ).click(function() { exportTenantConfiguration($(this)); });
+    $('#export-target').click(function() { exportTenantConfiguration($(this)); });
 
 
     $('#source-tenant').keydown(function (e) {
@@ -251,30 +251,107 @@ function applyContentFilter(elemInput, elemSelect) {
     });
 
 }
-function exportTenantConfiguration(elemButton, id) {
+async function exportTenantConfiguration(elemButton, id) {
 
     if(elemButton.hasClass('disabled')) return;
 
-    $('#overlay').show();
+    let fileHandler = window.showDirectoryPicker();
+    let tenantName  = (elemButton.attr('id') === 'export-base') ? $('#source-tenant').val() : $('#target-tenant').val();
 
-    let sheets = [
-        { name : 'Workspaces', type : 'workspaces' },
-        { name : 'Picklists' , type : 'picklists'  },
-        { name : 'Scripts'   , type : 'scripts'    },
-    ];
+    try {
 
-    let tenantName = (elemButton.attr('id') === 'export-base') ? $('#source-tenant').val() : $('#target-tenant').val();
+        await createDirectory(fileHandler, '');
 
-    $.post('/plm/excel-export', {
-        fileName : 'Tenant ' + tenantName + '.xlsx',
-        sheets   : sheets,
-        tenant   : tenantName
-    }, function(response) {
-        $('#overlay').hide();
-        let url = document.location.href.split('/workspace-comparison')[0] + '/' + response.data.fileUrl;
-        document.getElementById('frame-download').src = url;
-    });
+        addLogSeparator();
+        addLogEntry('Downloading Scripts', 'head');
+        addLogEntry('Tenant Name : ' + tenantName);
+
+        $.get('/plm/scripts', { tenant : tenantName }, function(response) {
+
+            addLogEntry('Scripts Count : ' + response.data.scripts.length);
+            addLogSpacer();
+
+            let scriptsList = response.data.scripts;
+            sortArray(scriptsList, 'uniqueName');
+            downloadScripts(fileHandler, tenantName, scriptsList, 0);
+
+        });
+
+    } catch (err) {}
         
+}
+function downloadScripts(fileHandler, tenantName, scriptsList, index) {
+
+    if(index < scriptsList.length) {
+
+        let requests = [];
+        let max      = index + 10;
+
+        if(max > scriptsList.length) max = scriptsList.length;
+
+        for(let count = index; count < max; count++) {
+            if(requests.length < max) {
+                requests.push($.get('/plm/script', { tenant : tenantName, link : scriptsList[count].__self__}));
+            }
+        }
+
+        Promise.all(requests).then(function(responses) {
+            let count = 1;
+            for(let response of responses) {
+                addLogEntry('Saving ' + response.data.uniqueName, 'count', index + (count++))
+                saveFile(fileHandler, response.data.uniqueName + '.js', response.data.code);
+            }
+            index += responses.length;
+            downloadScripts(fileHandler, tenantName, scriptsList, index);
+        });
+
+    } else {
+
+        addLogSpacer();
+        addLogEntry('Finished saving scripts', 'notice');
+        addLogEntry('Getting Workspaces, Picklists and Scripts Data', 'notice');
+
+        let fileName = 'Tenant ' + tenantName + '.xlsx';
+
+        let sheets = [
+            { name : 'Workspaces', type : 'workspaces' },
+            { name : 'Picklists' , type : 'picklists'  },
+            { name : 'Scripts'   , type : 'scripts'    },
+        ];
+
+        $.ajax({
+            url    : '/plm/excel-export',
+            method : 'POST',
+            data   : {
+                fileName  : 'Tenant ' + tenantName + '.xlsx',
+                sheets    : sheets,
+                tenant    : tenantName,
+                storeFile : false
+            },
+            processData : true,
+            xhrFields   : {
+                responseType : 'blob'
+            },
+            success: function (data) {
+                saveFile(fileHandler, fileName, data);
+                addLogEntry('Saved report as ' + fileName, 'notice');
+                addLogSpacer();
+                addLogEnd();
+            }
+        });
+       
+    }
+
+}
+async function saveFile(fileHandler, fileName, fileContent) {
+
+    let dirHandler = await createDirectory(fileHandler, '');
+    let fileHandle = await dirHandler.getFileHandle(fileName, { create: true });
+    let writable   = await fileHandle.createWritable();
+
+    await writable.write(fileContent);
+    await writable.close();
+
 }
 
 

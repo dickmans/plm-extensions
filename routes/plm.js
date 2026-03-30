@@ -6846,14 +6846,18 @@ router.post('/excel-export', function(req, res, next) {
     console.log('  req.body.fileName      = ' + req.body.fileName);
     console.log('  req.body.sheets.length = ' + req.body.sheets.length);
     console.log('  req.body.tenant        = ' + req.body.tenant);
+    console.log('  req.body.storeFile     = ' + req.body.storeFile);
     console.log(' ');
     
-    let path = 'storage/excel-export';
+    let storeFile = (typeof req.body.storeFile === 'undefined') ? true : (req.body.storeFile == 'true');
+    let path      = 'storage/excel-export';
     
-    console.log('  >> Excel export files will be stored at ' + path);
-    console.log(' ');
-       
-    createServerFolderPath(path, false);
+
+    if(storeFile) {
+        console.log('  >> Excel export files will be stored at ' + path);
+        console.log(' ');
+        createServerFolderPath(path, false);
+    }
 
     for(let sheet of req.body.sheets) {
         
@@ -6870,10 +6874,12 @@ router.post('/excel-export', function(req, res, next) {
 
     }
     
-    getExcelExportData(req, res, path);
+    getExcelExportData(req, res, path, storeFile);
 
 });
-async function getExcelExportData(req, res, path) {
+async function getExcelExportData(req, res, path, storeFile) {
+
+    if(typeof storeFile === 'undefined') storeFile = true;
 
     let proceed = true;
 
@@ -6885,11 +6891,11 @@ async function getExcelExportData(req, res, path) {
 
             switch(sheet.type.toLowerCase()) {
 
-                case 'bom'        : getExcelExportBOM (req, res, path, sheet); break;
-                case 'grid'       : getExcelExportGrid(req, res, path, sheet); break;
-                case 'picklists'  : getExcelExportPicklists(req, res, path, sheet); break;
-                case 'scripts'    : getExcelExportScripts(req, res, path, sheet); break;
-                case 'workspaces' : getExcelExportWorkspaces(req, res, path, sheet); break;
+                case 'bom'        : getExcelExportBOM       (req, res, path, storeFile, sheet); break;
+                case 'grid'       : getExcelExportGrid      (req, res, path, storeFile, sheet); break;
+                case 'picklists'  : getExcelExportPicklists (req, res, path, storeFile, sheet); break;
+                case 'scripts'    : getExcelExportScripts   (req, res, path, storeFile, sheet); break;
+                case 'workspaces' : getExcelExportWorkspaces(req, res, path, storeFile, sheet); break;
 
                 default:
                     console.log('Sheet Type ' + sheet.type + ' is not supported');
@@ -6973,14 +6979,24 @@ async function getExcelExportData(req, res, path) {
 
         }
 
-        await workbook.xlsx.writeFile(path + '/' + req.body.fileName);
+        if(storeFile) {
+            
+            await workbook.xlsx.writeFile(path + '/' + req.body.fileName);
+            sendResponse(req, res, { data : { fileUrl : path + '/' + req.body.fileName } } , false);
 
-        sendResponse(req, res, { data : { fileUrl : path + '/' + req.body.fileName} } , false);
+        } else {
+            const buffer = await workbook.xlsx.writeBuffer();
+
+            res.setHeader("Content-Type","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            res.setHeader("Content-Disposition",'attachment; filename="report.xlsx"');
+            res.send(Buffer.from(buffer));
+
+        }
 
     }
 
 }
-function getExcelExportBOM(req, res, path, sheet) {
+function getExcelExportBOM(req, res, path, storeFile, sheet) {
 
     if(typeof sheet.hideRoot     === 'undefined') sheet.hideRoot     = false;
     if(typeof sheet.bomView      === 'undefined') sheet.bomView      = '';
@@ -7130,7 +7146,7 @@ function getExcelExportBOM(req, res, path, sheet) {
                     }
 
                     sheet.pending = false;
-                    getExcelExportData(req, res, path);
+                    getExcelExportData(req, res, path, storeFile);
 
                 });
             });
@@ -7157,8 +7173,6 @@ function getBOMPartsList(data, fields, selectItems, hideRoot) {
             if(field.fieldId === selectItems.fieldId) urns.selectItems = field.__self__.urn;
         }
     }
-
-   
 
     let node = { 
         quantity      : '0',
@@ -7348,7 +7362,7 @@ function getBOMEdgeValue(edge, key, property, defaultValue) {
     return defaultValue;
     
 }
-function getExcelExportGrid(req, res, path, sheet) {
+function getExcelExportGrid(req, res, path, storeFile, sheet) {
 
     let baseURL = getTenantLink(req);
     
@@ -7396,12 +7410,12 @@ function getExcelExportGrid(req, res, path, sheet) {
         }
 
         sheet.pending = false;
-        getExcelExportData(req, res, path);
+        getExcelExportData(req, res, path, storeFile);
 
     });
 
 }
-function getExcelExportPicklists(req, res, path, sheet) {
+function getExcelExportPicklists(req, res, path, storeFile, sheet) {
 
     let url = getTenantLink(req) + '/api/rest/v1/setups/picklists'
     
@@ -7426,7 +7440,7 @@ function getExcelExportPicklists(req, res, path, sheet) {
         }
 
         sheet.pending = false;
-        getExcelExportData(req, res, path);
+        getExcelExportData(req, res, path, storeFile);
 
     });
 
@@ -7436,7 +7450,7 @@ function getPicklistTypeLabel(picklist) {
     if(picklist.view) return 'Workspace View'; else return 'Static List';
 
 }
-function getExcelExportScripts(req, res, path, sheet) {
+function getExcelExportScripts(req, res, path, storeFile, sheet) {
 
     let url = getTenantLink(req) + '/api/v3/scripts'
     
@@ -7465,7 +7479,7 @@ function getExcelExportScripts(req, res, path, sheet) {
         }
 
         sheet.pending = false;
-        getExcelExportData(req, res, path);
+        getExcelExportData(req, res, path, storeFile);
 
     });
 
@@ -7488,7 +7502,7 @@ function getScriptImports(script) {
     return result;
 
 }
-function getExcelExportWorkspaces(req, res, path, sheet) {
+function getExcelExportWorkspaces(req, res, path, storeFile, sheet) {
 
     let url = getTenantLink(req) + '/api/v3/workspaces?offset=0&limit=500'
     
@@ -7520,7 +7534,7 @@ function getExcelExportWorkspaces(req, res, path, sheet) {
         }
 
         sheet.pending = false;
-        getExcelExportData(req, res, path);
+        getExcelExportData(req, res, path, storeFile);
 
     });
 
