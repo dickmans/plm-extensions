@@ -666,14 +666,14 @@ function createMBOMRoot(ebomItemDetails, callback) {
             }
         }
 
-        createMBOMForEBOM(ebomItemDetails, number, config.mbomRoot.typeValue, function() {
+        createMBOMForEBOM(ebomItemDetails, number, function() {
             callback();
         });
 
     }
 
 }
-function createMBOMForEBOM(ebomItemDetails, number, type, callback) {
+function createMBOMForEBOM(ebomItemDetails, number, callback) {
 
     let timestamp  = new Date();
     let syncDate   = timestamp.getFullYear() + '-' + (timestamp.getMonth()+1) + '-' + timestamp.getDate();
@@ -696,16 +696,15 @@ function createMBOMForEBOM(ebomItemDetails, number, type, callback) {
         }]
     };
 
-    if(!isBlank(type)) params.fields.push({
-        fieldId : config.workspaceMBOM.fieldIDs.type, 
-        value   : { link : type }
-    })
-
     for(let fieldToCopy of config.mbomRoot.fieldsToCopy) {
         params.fields.push({
             fieldId : fieldToCopy.mbom,
             value   : getSectionFieldValue(ebomItemDetails.sections, fieldToCopy.ebom)
         });
+    }
+
+    for(let defaultValue of config.mbomRoot.defaultValues) {
+        params.fields.push({ fieldId : defaultValue[0], value : defaultValue[1] });
     }
 
     if(!isBlank(number)) {
@@ -3511,7 +3510,7 @@ function setItemsList(idView, idList, list) {
         let className   = getIconClassName(link);
         let ws          = link.split('/')[4];
 
-        if(ws === wsMBOM.wsId) addItemListEntry(link, urn, title, className, elemList, false);
+        if(ws == wsMBOM.wsId) addItemListEntry(link, urn, title, className, elemList, false);
 
     }
 

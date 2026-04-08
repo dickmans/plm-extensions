@@ -740,7 +740,9 @@ exports.applications = {
                 { ebom : 'TITLE'      , mbom : 'TITLE'       },
                 { ebom : 'DESCRIPTION', mbom : 'DESCRIPTION' }
             ],
-            typeValue : '/api/v3/lookups/CUSTOM_LOOKUP_ITEM_TYPES/options/34'
+            defaultValues : [
+                [ 'TYPE', { link : '/api/v3/lookups/CUSTOM_LOOKUP_ITEM_TYPES/options/34' } ],
+            ]
         },
         newProcessDefaults : [ 
             //['TYPE',        { link : '/api/v3/lookups/CUSTOM_LOOKUP_ITEM_TYPES/options/34'      }],
