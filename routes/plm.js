@@ -2676,7 +2676,7 @@ router.post('/export-attachments', function(req, res, next) {
     let dmsID          = req.body.dmsId || req.body.link.split('/').pop();
     let filenamesIn    = (typeof req.body.filenamesIn   === 'undefined') ? []   : req.body.filenamesIn;
     let filenamesEx    = (typeof req.body.filenamesEx   === 'undefined') ? []   : req.body.filenamesEx;
-    let folderPerItem  = (typeof req.body.folderPerItem === 'undefined') ? true : (req.body.folderPerItem.toLowerCase() === 'true');
+    let folderPerItem  = (typeof req.body.folderPerItem === 'undefined') ? true : (req.body.folderPerItem == 'true');
     let range          = (typeof req.body.range         === 'undefined') ? ''   : Number(req.body.range);
     let rename         = (typeof req.body.rename        === 'undefined') ? 'no' : req.body.rename;
     let clearFolder    = false;
@@ -2796,7 +2796,7 @@ router.post('/upload/:wsId/:dmsId', function(req, res) {
     //    return res.status(400).send('No files were uploaded.');
 
     let files          = [];
-    let folderName     = (typeof req.params.folderName === 'undefined') ? '' : req.params.folderName;
+    let folderName     = (typeof req.params.folderName     === 'undefined') ?   '' : req.params.folderName;
     let updateExisting = (typeof req.params.updateExisting === 'undefined') ? true : (req.params.updateExisting == 'true');
 
     if(Array.isArray(req.files.newFiles)) {
@@ -5090,7 +5090,7 @@ router.get('/search-bulk', function(req, res, next) {
 
     let limit       = (typeof req.query.limit    === 'undefined') ?   100 : req.query.limit;
     let offset      = (typeof req.query.offset   === 'undefined') ?     0 : req.query.offset;
-    let bulk        = (typeof req.query.bulk     === 'undefined') ?  true : req.query.bulk;
+    let bulk        = (typeof req.query.bulk     === 'undefined') ?  true : (req.query.bulk == 'true');
     let page        = (typeof req.query.page     === 'undefined') ?   '1' : req.query.page;
     let revision    = (typeof req.query.revision === 'undefined') ?   '1' : req.query.revision;
 
@@ -5142,7 +5142,7 @@ router.get('/search-class', function(req, res, next) {
     let limit       = (typeof req.query.limit    === 'undefined') ?   10 : req.query.limit;
     let offset      = (typeof req.query.offset   === 'undefined') ?    0 : req.query.offset;
     let page        = (typeof req.query.page     === 'undefined') ?  '1' : req.query.page;
-    let bulk        = (typeof req.query.bulk     === 'undefined') ? true : req.query.bulk;
+    let bulk        = (typeof req.query.bulk     === 'undefined') ? true : (req.query.bulk == 'true')
     let revision    = (typeof req.query.revision === 'undefined') ?  '1' : req.query.revision;
 
     if(query === '') query = '(CLASS:CLASS_PATH="' + req.query.className + '")';
@@ -6505,7 +6505,7 @@ router.get('/users', function(req, res, next) {
 
     if(notCached(req, res)) {   
 
-        let bulk       = (typeof req.query.bulk       === 'undefined') ?    true : req.query.bulk;
+        let bulk       = (typeof req.query.bulk       === 'undefined') ?    true : (req.query.bulk == 'true');
         let limit      = (typeof req.query.limit      === 'undefined') ?    1000 : req.query.limit;
         let offset     = (typeof req.query.offset     === 'undefined') ?       0 : req.query.offset;
         let activeOnly = (typeof req.query.activeOnly === 'undefined') ? 'false' : req.query.activeOnly;
