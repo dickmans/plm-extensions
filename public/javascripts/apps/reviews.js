@@ -10,6 +10,8 @@ $(document).ready(function() {
         designReviews     : config.workspaces.designReviews.workspaceId     || common.workspaceIds.designReviews,
         designReviewTasks : config.workspaces.designReviewTasks.workspaceId || common.workspaceIds.designReviewTasks,
     }
+
+    insertMenu();
     
     appendProcessing('panel-pending', false);
     appendProcessing('panel-completed', false);

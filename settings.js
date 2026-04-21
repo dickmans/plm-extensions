@@ -1459,6 +1459,11 @@ exports.menu = [
             subtitle : 'Manage your master data easily',
             url      : '/navigator'
         },{
+            icon     : 'icon-markup',
+            title    : 'Design Reviews',
+            subtitle : 'Perform online design reviews',
+            url      : '/reviews'
+        },{
             icon     : 'icon-book',
             title    : 'Class Browser',
             subtitle : 'Use classification for your data research',

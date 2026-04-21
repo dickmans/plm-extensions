@@ -400,7 +400,9 @@ function insertMenuContents(elemParent, id, isAdmin) {
 
     $('<div></div>').appendTo(elemLastColumn)
         .addClass('button')
-        .css('margin', '78px 10px 0px 10px')
+        .addClass('with-icon')
+        .addClass('icon-home')
+        .css('margin', '32px 10px 0px 10px')
         .css('gap', '6px')
         .css('padding', '12px')
         .html('Fusion Manage Home')
