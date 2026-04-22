@@ -1289,6 +1289,7 @@ function setFormEvents() {
         let clickedInPicklist  = (elemClicked.closest('.picklist').length > 0);
         let elemPicklist       = elemClicked.next('.picklist');
         let isPicklistInput    = elemClicked.hasClass('picklist-input');
+        let isEditableField    = (elemClicked.closest('.field-editable').length > 0);
         let elemField          = elemClicked.parent().parent();
 
         if(elemPicklist.length === 0) {
@@ -1302,7 +1303,7 @@ function setFormEvents() {
         $('.picklist').addClass('hidden');          
            
         if(elemClicked.is('input')) {
-            elemClicked.select();
+            if(isEditableField) elemClicked.select();
         }
 
         if(elemField.length > 0) {
