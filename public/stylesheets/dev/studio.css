@@ -2,8 +2,8 @@
 
 :root {
 
-    --border-v : 36px;
-    --border-h : 48px;
+    --border-v : 24px;
+    --border-h : 36px;
 
     --width-library  : 386px;
     --width-settings : 720px;
@@ -37,7 +37,7 @@
     position     : absolute;
     top          : 0px;
     right        : 0px;
-    bottom       : 300px;
+    bottom       : 0px;
     left         : calc(var(--width-library) + var(--width-settings) + (4 * var(--border-h)));
 }
 
@@ -133,21 +133,28 @@ body.wide #panel { top : 50%; left : calc(var(--width-library) + (2 * var(--bord
     line-height : 38px;
 }
 #settings-description {
-    padding : 4px 14px 14px;
+    padding : 0px 14px 0px;
 }
 #settings-function {
     display : none;
 }
-#settings-inputs {
+#settings-inputs,
+#settings-options {
     display : flex;
     gap     : 1px;
     flex-direction: column;
 }
+#settings-inputs {
+    margin : 12px 0px 0px;
+}
 #settings input {
-    background : var(--color-surface-level-4);
-    padding   : 4px 14px;
-    height : 20px;
+    background  : var(--color-surface-level-4);
+    padding     : 4px 14px;
+    height      : 20px;
     line-height : 20px;    
+    max-width   : 180px;
+    min-width   : 180px;
+    width       : 180px;
 }
 #settings textarea {
     background : var(--color-surface-level-4);
@@ -170,16 +177,18 @@ body.wide #panel { top : 50%; left : calc(var(--width-library) + (2 * var(--bord
 #settings .required textarea {
     border-color : var(--color-status-red);
 }
-
-
+.settings-category {
+    font-weight : bold;
+    padding     : 14px 14px 8px;
+}
 
 .panel-input,
-.panel-setting {
+.panel-option {
     display : flex;
     gap     : 0px;
 }
 .panel-input-title,
-.panel-setting-title {
+.panel-option-title {
     background    : var(--color-surface-level-3);
     padding       : 8px 14px;
     text-overflow : ellipsis;
@@ -193,19 +202,14 @@ body.wide #panel { top : 50%; left : calc(var(--width-library) + (2 * var(--bord
     width         : 140px;
     padding       : 4px 14px;
 }
-.panel-setting-control {
+.panel-option-control {
     border-radius : 0px;
     overflow      : hidden;
     text-align    : left;
     text-overflow : ellipsis;
     white-space   : nowrap;
 }
-input.panel-setting-control {
-    max-width : 180px;
-    min-width : 180px;
-    width     : 180px;
-}
-.panel-setting-control.panel-setting-checkbox {
+.panel-option-control.panel-option-checkbox {
     font-size   : 20px;
     font-weight : 200;
     padding     : 0px 11px;
@@ -217,14 +221,17 @@ input.panel-setting-control {
     min-width   : 186px;
     width       : 186px;
 }
-.panel-setting-checkbox input[type="checkbox"] {
+.panel-option-checkbox input[type="checkbox"] {
     margin    : 8px 120px 0px 12px;
     padding   : 0px;
     max-width : 20px;
     min-width : 20px;
     width     : 20px;
 }
-.panel-setting-description {
+.panel-input-description,
+.panel-option-description {
+    background : var(--color-surface-level-3);
+    flex-grow : 1;
     line-height : 20px;
     padding     : 4px 12px;
 }
