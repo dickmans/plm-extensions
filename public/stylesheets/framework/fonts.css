@@ -246,6 +246,8 @@
 .icon-close-window::before      { content : '\f745'; }
 .icon-collapse::before          { content : '\e5cf'; }
 .icon-columns::before           { content : '\e8f3'; }
+.icon-copy-to-left::before      { content : '\f73a'; }
+.icon-copy-to-right::before     { content : '\f737'; }
 .icon-country::before           { content : '\e7e4'; }
 .icon-compare::before           { content : '\f459'; }
 .icon-contains::before          { content : '\f525'; }
