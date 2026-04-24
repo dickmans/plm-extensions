@@ -11,6 +11,15 @@
         h1 Features
         p Once the Chrome Extension of this UX server is installed, users can open the BOM comparison from any item. It will automatically open the comparison against the working version or latest released version, depending from where it is opened. Users can select another BOM to compare against by using searches, the revision list, bookmarks and recent items.
         a(href='chrome-extension' target='_blank') Learn about the Chrome Extension
+        p If the Chrome Extension should or cannot be used, you can also add a Computed Field to the Items workspace in order to launch the BOM comparison. 
+            br
+            |However, this requires a (hidden) field DMS_ID being set by script to store the current item's dmsId.
+        p The following field will render a button to launch the BOM comparison for the current item, but lets the user select the target BOM to compare against:
+        p.code '&lt;a style="border: 1px solid #bec8d2;border-radius:4px;padding:5px 16px;color: #0a131c;font-size:12px;font-weight:700;line-height:30px;text-align:center;text-decoration:none !important;white-space:nowrap;" target="_blank" href ="LOCATIONcompare?wsId=57&dmsId='||DMS_ID||'"&gt;BOM Comparison&lt;/a&gt;'
+        p If the comparison should be launched automatically against the latest released revision or the working version, simply append the parameter 
+            span.code compareWith 
+            |to the button's URL:
+        p.code '&lt;a style="border: 1px solid #bec8d2;border-radius:4px;padding:5px 16px;color: #0a131c;font-size:12px;font-weight:700;line-height:30px;text-align:center;text-decoration:none !important;white-space:nowrap;" target="_blank" href ="LOCATIONcompare?wsId=57&dmsId='||DMS_ID||'&compareWith=self"&gt;BOM Comparison&lt;/a&gt;'
         p Once the comparison has been started, the following features are available: 
             ul 
                 li Select from multiple viewer sizes 
