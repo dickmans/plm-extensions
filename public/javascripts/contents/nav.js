@@ -1084,8 +1084,6 @@ function insertResults(wsId, filters, params) {
         }
     }
 
-    console.log(settings[id]);
-
     settings[id].load = function() { insertResultsData(id, true); }
 
     genPanelTop                    (id, 'results');
