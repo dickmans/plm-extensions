@@ -599,6 +599,22 @@ function getURLParameters() {
 }
 
 
+// Update value of defined URL parameter
+function updateURLParameter(url, parameter, value, updateLocation) {
+
+    if(isBlank(url)) url = document.location.href;
+
+    const parsedUrl = new URL(url);
+
+    parsedUrl.searchParams.set(parameter, value);
+
+    if(updateLocation) window.history.replaceState(null, null, parsedUrl.toString()); 
+
+    return parsedUrl.toString();
+
+}
+
+
 // Validate if given variable is null or empty
 function isBlank(value) {
 
@@ -2063,6 +2079,7 @@ function genPanelSearchInput(id) {
         .addClass('icon-filter')
         .attr('data-mode', 'filter')
         .attr('id', id + '-mode-filter').click(function() {
+            $(this).parent().removeClass('mode-search');
             panelToggleSearchMode(id, $(this));
         });
 
@@ -2073,6 +2090,7 @@ function genPanelSearchInput(id) {
         .attr('id', id + '-mode-search')
         .attr('data-mode', 'search')
         .click(function() {
+            $(this).parent().addClass('mode-search');
             panelToggleSearchMode(id, $(this));
         });
 
@@ -2088,9 +2106,14 @@ function genPanelSearchInput(id) {
             e.preventDefault();
             e.stopPropagation();
             filterPanelContent(id);
+            // if($(this).val() !== '') $(this).next().find('.icon-cancel').removeClass('hidden');
         });
 
-    $('<div></div>').appendTo(elemSearch)
+    let elemActions = $('<div></div>').appendTo(elemSearch)
+        .attr('id', id + '-search-actions')
+        .addClass('panel-search-actions');
+
+    $('<div></div>').appendTo(elemActions)
         .addClass('button')
         .addClass('icon')
         .addClass('icon-prev')
@@ -2100,7 +2123,7 @@ function genPanelSearchInput(id) {
             panelContinueSearch(id, 'prev');
         });
 
-    $('<div></div>').appendTo(elemSearch)
+    $('<div></div>').appendTo(elemActions)
         .addClass('button')
         .addClass('icon')
         .addClass('icon-next')
@@ -2109,6 +2132,18 @@ function genPanelSearchInput(id) {
         .attr('id', id + '-filter').click(function() {
             panelContinueSearch(id, 'next');
         });
+
+    $('<div></div>').appendTo(elemActions)
+        .addClass('button')
+        .addClass('icon')
+        .addClass('icon-cancel')
+        .addClass('hidden')
+        .attr('id', id + '-filter-clear').click(function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(this).parent().prev().val('');
+            filterPanelContent(id);
+        });        
 
     if(!settings[id].search) elemSearch.hide();
 
@@ -2119,7 +2154,10 @@ function panelToggleSearchMode(id, elemClicked) {
 
     elemClicked.addClass('default');
     elemClicked.siblings('.icon').removeClass('default');
-    elemClicked.siblings('.icon-continue').addClass('hidden') 
+
+    let elemActions = elemClicked.siblings('.panel-search-actions');
+
+        elemActions.children('.icon-continue').addClass('hidden') 
 
     filterPanelContent(id);
 
@@ -2880,22 +2918,23 @@ function setPanelPaginationControls(id, total) {
 // Filter panel content based on search input
 function filterPanelContent(id) {
 
-    let elemSearchInput  = $('#' + id + '-search-input');
-    let searchMode       = elemSearchInput.siblings('.icon.default').attr('data-mode');
-    let searchInputValue = elemSearchInput.val().toUpperCase();
-    let elemTop          = $('#' + id);
-    let elemContent      = $('#' + id + '-content');
-    let elemNoData       = $('#' + id + '-no-data');
-    let toggleSelected   = $('#' + id + '-filter-selected-only');
-    let toggleEmpty      = $('#' + id + '-filter-empty-only');
-    let toggleFilters    = $('.' + id + '-filter-toggle');
-    let selectFilters    = $('.' + id + '-filter');
-    let filterSelected   = false;
-    let filterEmpty      = false;
-    let filters          = [];
-    let allHidden        = true;
-    let clearAllFilters  = (searchInputValue === '');
-    let isTree           = elemTop.hasClass('tree') || elemContent.hasClass('tree');
+    let elemSearchInput   = $('#' + id + '-search-input');
+    let elemSearchActions = $('#' + id + '-search-actions');
+    let searchMode        = elemSearchInput.siblings('.icon.default').attr('data-mode');
+    let searchInputValue  = elemSearchInput.val().toUpperCase();
+    let elemTop           = $('#' + id);
+    let elemContent       = $('#' + id + '-content');
+    let elemNoData        = $('#' + id + '-no-data');
+    let toggleSelected    = $('#' + id + '-filter-selected-only');
+    let toggleEmpty       = $('#' + id + '-filter-empty-only');
+    let toggleFilters     = $('.' + id + '-filter-toggle');
+    let selectFilters     = $('.' + id + '-filter');
+    let filterSelected    = false;
+    let filterEmpty       = false;
+    let filters           = [];
+    let allHidden         = true;
+    let clearAllFilters   = (searchInputValue === '');
+    let isTree            = elemTop.hasClass('tree') || elemContent.hasClass('tree');
 
     toggleFilters.each(function() {
         let elemToggle = $(this);
@@ -3084,7 +3123,7 @@ function filterPanelContent(id) {
     elemContent.find('.content-item').removeClass('search-match');
 
     if(searchMode === 'search') {
-        elemSearchInput.siblings('.icon-continue').removeClass('hidden')
+        elemSearchActions.children('.icon-continue').removeClass('hidden')
         if(searchInputValue !== '') {
             elemContent.find('.content-item.result').first().each(function() {
                 $(this).addClass('search-match');
@@ -3092,9 +3131,12 @@ function filterPanelContent(id) {
                 elemContent.animate({ scrollTop: top }, 500);
             });
         } else {
-            elemSearchInput.siblings('.icon-continue').addClass('hidden');
+            elemSearchActions.children('.icon-continue').addClass('hidden');
         }
     }
+
+    if(searchInputValue === '') elemSearchActions.children('.icon-cancel').addClass('hidden');
+    else elemSearchActions.children('.icon-cancel').removeClass('hidden');
 
     updatePanelCalculations(id);
 
@@ -3871,9 +3913,10 @@ function treeScrollToBottom(id) {
     elemTree.animate({ scrollTop: top }, 200);
 
 }
-function treeScrollToItem(elemClicked) {
+function treeScrollToItem(elemClicked, duration) {
 
-    let index    = elemClicked.attr('data-index');
+
+    let index    = elemClicked.attr('data-index') || elemClicked.index();
     let panel    = elemClicked.closest('.panel-top');
     let id       = panel.attr('id');
     let elemTree = $('#' + id + '-content');
@@ -3882,7 +3925,91 @@ function treeScrollToItem(elemClicked) {
 
     top = elemItem.position().top - top;
 
+    elemTree.animate({ scrollTop: top }, duration || 500);
+
+}
+function treeDisplayItemByPropertyValue(id, property, value, select, deselect) {
+
+    if(isBlank(id      )) return;
+    if(isBlank(property)) property = 'data-part-number';
+    if(isBlank(value   )) return;
+    if(isBlank(select  )) select   = true;
+    if(isBlank(deselect)) deselect = true;
+
+    let proceed = true;
+    let elemTop = $('#' + id);
+
+    let result = {
+        elements : [],
+        links    : []
+    }
+
+    elemTop.find('.content-item').each(function() {
+        if(value == $(this).attr(property)) {
+            result.links.push($(this).attr('data-link'));
+            result.elements.push($(this));
+            if(select) $(this).addClass('selected');
+            if(proceed) treeDisplayItem($(this));
+            proceed = false;
+        } else {
+            if(deselect) $(this).removeClass('selected');
+        }
+    });
+
+    return result;
+
+}
+function treeDisplayItem(elemItem) {
+
+    let level = Number(elemItem.attr('data-level'));
+    let panel = elemItem.closest('.panel-top');
+    let id    = panel.attr('id');
+
+    treeExpandParents(level - 1, elemItem);
+    
+    let elemTree = elemItem.closest('.panel-content');
+    let top     = elemItem.position().top - (elemTree.innerHeight() / 2);
+    
     elemTree.animate({ scrollTop: top }, 500);
+
+    if(settings[id].path) updateTreePath(elemItem);
+
+}
+function treeExpandParents(level, elem) {
+
+    elem.prevAll('.content-item.node').each(function() {
+
+        let prevLevel   = Number($(this).attr('data-level'));
+        let isNode      = $(this).hasClass('node');
+        let isCollapsed = $(this).hasClass('collapsed');
+
+        if(level === prevLevel) {
+            level--;
+            $(this).show();
+            if(isNode) {
+                if(isCollapsed) {
+                    $(this).find('.tree-nav').click();
+                }
+            }
+        }
+
+    });
+
+}
+function treeUnhideParents(elem) {
+
+    let level = Number(elem.attr('data-level')) - 1;
+
+    elem.prevAll().each(function() {
+
+        let prevLevel = Number($(this).attr('data-level'));
+
+        if(level === prevLevel) {
+            level--;
+            $(this).show();
+        }
+
+    });
 
 }
 function treeToggleDownloadPanelAndColumn(id) {
