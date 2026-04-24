@@ -6,13 +6,22 @@ let panelTypes = {
             id          : 'mow',
             description : 'Displays the My Outstanding Work list of the given user',
             inputs      : [],
-            common      : [
-                ['headerLabel', 'My Outstanding Work'],
-                ['layout'     , 'table'],
-                ['contentSize'],
-                ['number'],
-                ['tileIcon'],
-                ['tileImage'],
+            defaults    : {
+                headerLabel : 'My Outstanding Work',
+                layout      : 'table'
+            },
+            options : [
+                'headerLabel',
+                'headerTopLabel',
+                'headerSubLabel',
+                'hideHeader',
+                'hideHeaderLabel',
+                'search',
+                'layout',
+                'contentSize',
+                'number',
+                'tileIcon',
+                'tileImage',
             ],
             special    : [{
                 title       : 'Filter by Due Date',
@@ -45,11 +54,19 @@ let panelTypes = {
             id          : 'recents',
             description : "Displays the user's Recently Viewed Items",
             inputs      : [],
-            common      : [
-                ['headerLabel', 'Recently Viewed Items'],
-                ['layout'     , 'list'],
-                ['contentSize', 'xs'],
-                ['tileIcon'   , 'icon-history'],
+            defaults : {
+                headerLabel : 'Recently Viewed Items',
+                layout      : 'list',
+                contentSize : 'xs',
+                tileIcon    : 'icon-history'
+            },
+            options : [
+                'headerLabel',
+                'layout',
+                'contentSize',
+                'number',
+                'tileIcon',
+                'tileImage',
             ],
             special    : [{
                 title       : 'Filter by Workspace',
@@ -64,7 +81,7 @@ let panelTypes = {
             id          : 'bookmarks',
             description : "Displays the user's Bookmarked items",
             inputs      : [],
-            common      : [
+            options      : [
                 ['headerLabel', 'Bookmarks'],
                 ['layout'     , 'list'],
                 ['contentSize', 'xs'],
@@ -90,7 +107,7 @@ let panelTypes = {
                 type        : 'string',
                 required    : true
             }],
-            common      : [
+            options      : [
                 ['headerLabel'                     ],
                 ['layout'      , 'table'           ],
                 ['contentSize' , 'm'               ],
@@ -146,7 +163,7 @@ let panelTypes = {
             id          : 'search',
             description : 'Displays panel to find items by descriptor',
             inputs      : [],
-            common      : [
+            options      : [
                 ['headerLabel' , 'Search'        ],
                 ['placeholder' , 'Filter results'],
                 ['layout'      , 'list'          ],
@@ -178,7 +195,7 @@ let panelTypes = {
                 type        : 'textarea',
                 required    : true
             }],
-            common : [
+            options : [
                 ['layout', 'list'],
                 ['contentSize', 'xs'],
                 ['tileImage', true],
@@ -196,7 +213,28 @@ let panelTypes = {
         }
     ],
     items : [
-        {   // insertAttachments
+        {   // insertDetails
+            title       : 'insertDetails()',
+            function    : 'insertDetails',
+            id          : 'details',
+            description : 'Inserts the Item Details tab of an item defined by API link',
+            inputs : [{
+                title       : 'Item link',
+                id          : 'link',
+                description : 'API link of the item for which the Attachments should be displayed',
+                default     : '/api/v3/workspaces/57/items/14669',
+                type        : 'string',
+                required    : true
+            }],
+            defaults    : {
+                headerLabel : 'Details'
+            },            
+            options : [
+                'headerLabel',
+                'headerTopLabel',
+                'headerSubLabel',
+            ]
+        },{ // insertAttachments
             title       : 'insertAttachments()',
             function    : 'insertAttachments',
             id          : 'attachments',
@@ -209,7 +247,32 @@ let panelTypes = {
                 type        : 'string',
                 required    : true
             }],
-            common : [
+            defaults    : {
+                headerLabel : 'Attachments',
+                layout      : 'list',
+                tileIcon      : 'icon-pdf',
+                contentSize      : 'm'
+            },            
+            options : [
+                'headerLabel',
+                'layout',
+                'tileIcon',
+                'contentSize',
+            ]
+        },{ // insertGrid
+            title       : 'insertGrid()',
+            function    : 'insertGrid',
+            id          : 'grid',
+            description : 'Inserts the Grid tab of an item defined by API link',
+            inputs      : [{
+                title       : 'link',
+                id          : 'link',
+                description : 'API link of the item for which the Grid tab should be displayed',
+                default     : '/api/v3/workspaces/84/items/22131',
+                type        : 'string',
+                required    : true
+            }],
+            options : [
                 ['layout', 'table']
             ]
         },{ // insertBOM
@@ -218,15 +281,14 @@ let panelTypes = {
             id          : 'bom',
             description : 'Inserts the Bill of Materials tab of an item defined by API link',
             inputs : [{
-                title       : 'link',
+                title       : 'Item link',
                 id          : 'link',
                 description : 'API link of the item for which the Bill of Materials should be displayed',
-                // default     : '/api/v3/workspaces/57/items/14669',
-                default     : '/api/v3/workspaces/57/items/18709',
+                default     : '/api/v3/workspaces/57/items/18685',
                 type        : 'string',
                 required    : true
             }],
-            common : [
+            options : [
                 ['headerLabel', 'BOM'],
                 ['contentSize', 'm'],
                 ['search'],
@@ -244,22 +306,91 @@ let panelTypes = {
                 description : 'The BOM view to open',
                 default     : 'Details',
                 type        : 'string'
+            },{
+                title       : 'Download Files',
+                id          : 'downloadFiles',
+                description : 'Enables mass file download feature',
+                default     : true,
+                type        : 'boolean'
             }]
-        },{ // insertGrid
-            title       : 'insertGrid()',
-            function    : 'insertGrid',
-            id          : 'grid',
-            description : 'Inserts the Grid tab of an item defined by API link',
-            inputs      : [{
-                title       : 'link',
+        },{ // insertFlatBOM
+            title       : 'insertFlatBOM()',
+            function    : 'insertFlatBOM',
+            id          : 'flat-bom',
+            description : 'Inserts the Flat BOM of an item defined by API link',
+            inputs : [{
+                title       : 'Item link',
                 id          : 'link',
-                description : 'API link of the item for which the Grid tab should be displayed',
-                default     : '/api/v3/workspaces/84/items/22131',
+                description : 'API link of the item for which the Flat BOM should be displayed',
+                default     : '/api/v3/workspaces/57/items/18685',
                 type        : 'string',
                 required    : true
             }],
-            common : [
-                ['layout', 'table']
+            options : [
+                ['headerLabel', 'Flat BOM']
+            ],
+            special    : [{
+                title       : 'BOM View Name',
+                id          : 'bomViewName',
+                description : 'The BOM view to open',
+                default     : 'Details',
+                type        : 'string'
+            }]
+        },{ // insertRootParents
+            title       : 'insertRootParents()',
+            function    : 'insertRootParents',
+            id          : 'roots',
+            description : 'Inserts the root items of the Where Used tab of an item',
+            inputs : [{
+                title       : 'Item link',
+                id          : 'link',
+                description : 'API link of the item for which the root items and paths should be displayed',
+                default     : '/api/v3/workspaces/57/items/18702',
+                type        : 'string',
+                required    : true
+            }],
+            options : [
+                ['headerLabel', 'Root Parents'],
+                ['layout', 'table'],
+                ['tileIcon', 'icon-link']
+            ],
+            special    : []
+        },{ // insertParents
+            title       : 'insertParents()',
+            function    : 'insertParents',
+            id          : 'parents',
+            description : 'Inserts the immediate parents',
+            inputs : [{
+                title       : 'Item link',
+                id          : 'link',
+                description : 'API link of the item for which the immediate parents should be displayed',
+                default     : '/api/v3/workspaces/57/items/18702',
+                type        : 'string',
+                required    : true
+            }],
+            options : [
+                ['headerLabel', 'Parents'],
+                ['layout', 'list'],
+                ['tileIcon', 'icon-product']
+            ],
+            special    : []
+        },{ // insertManagedItems
+            title       : 'insertManagedItems()',
+            function    : 'insertManagedItems',
+            id          : 'processes',
+            description : 'Inserts the Managed Items tab of the defined item',
+            inputs      : [{
+                title       : 'Item Link',
+                id          : 'link',
+                description : 'API link of the item for which the Change Processes should be displayed',
+                default     : '/api/v3/workspaces/84/items/16911',
+                type        : 'string',
+                required    : true
+            }],
+            options : [
+                ['headerLabel', 'Managed Items'],
+                ['layout', 'table'],
+                ['tileIcon', 'icon-product']
             ]
         },{ // insertChangeProcesses
             title       : 'insertChangeProcesses()',
@@ -267,37 +398,56 @@ let panelTypes = {
             id          : 'processes',
             description : 'Inserts the related Change Proceses of the defined item',
             inputs      : [{
-                title       : 'link',
+                title       : 'Item Link',
                 id          : 'link',
                 description : 'API link of the item for which the Change Processes should be displayed',
                 default     : '/api/v3/workspaces/57/items/14669',
                 type        : 'string',
                 required    : true
             }],
-            common : [
+            options : [
                 ['headerLabel', 'Processes'],
                 ['layout', 'list'],
                 ['number'],
                 ['tileIcon', 'icon-status']
-            ]
+            ]            
         },{ // insertProject
             title       : 'insertProject()',
             function    : 'insertProject',
             id          : 'project',
             description : 'Inserts the Project tab of an item defined by API link',
             inputs : [{
-                title       : 'link',
+                title       : 'Item Link',
                 id          : 'link',
-                description : 'API link of the item for which the Project should be displayed',
+                description : 'API link of the item for which the Project tab should be displayed',
                 default     : '/api/v3/workspaces/213/items/18866',
                 type        : 'string',
                 required    : true
             }],
-            common : [
+            options : [
                 ['layout', 'list'],
                 ['contentSize'],
                 ['tileImage'],
                 ['tileImageFieldId']
+            ]
+        },{ // insertRelationships
+            title       : 'insertRelationships()',
+            function    : 'insertRelationships',
+            id          : 'relationships',
+            description : 'Inserts the Relationships tab of an item defined by API link',
+            inputs : [{
+                title       : 'Item Link',
+                id          : 'link',
+                description : 'API link of the item for which the Relationships tab should be displayed',
+                default     : '/api/v3/workspaces/95/items/14444',
+                type        : 'string',
+                required    : true
+            }],
+            options : [
+                ['headerLabel', 'Relationships'],
+                ['layout', 'list'],
+                ['contentSize'],
+                ['tileIcon', 'icon-link']
             ]
         },{ // insertSourcing
             title       : 'insertSourcing()',
@@ -312,12 +462,70 @@ let panelTypes = {
                 type : 'string',
                 required    : true
             }],
-            common : [
+            options : [
                 ['layout', 'table']
             ]
+        },{ // insertWorkflowHistory
+            title       : 'insertWorkflowHistory()',
+            function    : 'insertWorkflowHistory',
+            id          : 'workflow-history',
+            description : 'Inserts the Workflow History of an item defined by API link',
+            inputs : [{
+                title       : 'Item Link',
+                id          : 'link',
+                description : 'API link of the item for which the Chagne Log tab should be displayed',
+                default     : '/api/v3/workspaces/95/items/14444',
+                type        : 'string',
+                required    : true
+            }],
+            options : [
+                ['headerLabel', 'Workflow History']
+            ]            
+        },{ // insertRevisions
+            title       : 'insertRevisions()',
+            function    : 'insertRevisions',
+            id          : 'revisions',
+            description : 'Inserts the Revisions list of an item defined by API link',
+            inputs : [{
+                title       : 'Item Link',
+                id          : 'link',
+                description : 'API link of the item for which the Chagne Log tab should be displayed',
+                default     : '/api/v3/workspaces/57/items/18685',
+                type        : 'string',
+                required    : true
+            }],
+            options : [
+                ['headerLabel', 'Revisions']
+            ]            
+        },{ // insertChangeLog
+            title       : 'insertChangeLog()',
+            function    : 'insertChangeLog',
+            id          : 'change-log',
+            description : 'Inserts the Change Log tab of an item defined by API link',
+            inputs : [{
+                title       : 'Item Link',
+                id          : 'link',
+                description : 'API link of the item for which the Change Log tab should be displayed',
+                default     : '/api/v3/workspaces/95/items/14444',
+                type        : 'string',
+                required    : true
+            }],
+            options : [
+                ['headerLabel', 'Change Log'],
+                ['textNoData', 'No change log entries found']
+            ]            
         }
     ],
     classification : [{
+        title       : 'insertClasses()',
+        function    : 'insertClasses',
+        id          : 'classes',
+        description : 'Display classification tree',
+        inputs : [],
+        options : [
+            ['headerLabel', 'Classes']
+        ]
+    },{
         title       : 'insertClassContents()',
         function    : 'insertClassContents',
         id          : 'class',
@@ -337,24 +545,72 @@ let panelTypes = {
             type        : 'string',
             required    : true
         }],
-        common : [
+        options : [
             ['layout', 'table']
+        ]
+    },{
+        title       : 'insertClassFilters()',
+        function    : 'insertClassFilters',
+        id          : 'classFilters',
+        description : 'Display class properties and filters',
+        inputs : [{
+            title       : 'Class ID',
+            id          : 'classId',
+            description : 'Internal ID of the given Class',
+            default     : '142',
+            type        : 'string',
+            required    : true
+        },{
+            title       : 'Class Name',
+            id          : 'className',
+            description : 'Internal Name of the given Class',
+            default     : 'CABLES_AND_WIRES',
+            type        : 'string',
+            required    : true
+        }],
+        options : [
+            ['headerLabel', 'Filters'],
+            ['contentSize', 'm'],
+            ['textNoData', 'No properties found for the selected class']
         ]
     }]
 }
 
 
-let commonSettings = {
+let headerOptions = {
     headerLabel : {
         title       : 'Header Label',
         id          : 'headerLabel',
-        description : 'Panel header being shown on top',
+        description : 'Panel Header',
         default     : '',
         type        : 'string',
     },
+    headerTopLabel : {
+        title       : 'Header Top Label',
+        description : 'Text being shown on top of Panel Header',
+        default     : '',
+        type        : 'string',
+    },
+    headerSubLabel : {
+        title       : 'Header Sub Label',
+        description : 'Text being shown below Panel Header',
+        default     : '',
+        type        : 'string',
+    },
+    hideHeader : {
+        title       : 'Hide Header',
+        description : 'Hides header',
+        default     : false,
+        type        : 'boolean',
+    },
+    hideHeaderLabel : {
+        title       : 'Hide Header Label',
+        description : 'Hides header Label element',
+        default     : false,
+        type        : 'boolean',
+    },
     search : {
         title       : 'Search',
-        id          : 'search',
         description : 'Enables quick filtering in panel contents when typing',
         default     : false,
         type        : 'boolean',
@@ -366,13 +622,37 @@ let commonSettings = {
         default     : 'placeholder',
         type        : 'string',
     },
+    editable : {
+        title       : 'Editable',
+        id          : 'editable',
+        description : "Enables edit controls, depending on user's permissions",
+        default     : true,
+        type        : 'boolean'
+    },
+    textNoData : {
+        title       : 'Text No Data',
+        id          : 'textNoData',
+        description : 'Text being shown when there is no data',
+        default     : 'No Entries',
+        type        : 'string'
+    }
+}
+
+let contentOptions = {
     layout : {
         title : 'Layout',
         id : 'layout',
         description : 'Content Layout',
         default : 'grid',
         type : 'select',
-        options : ['table', 'list', 'grid']
+        list : ['table', 'list', 'grid']
+    },
+    collapseContents : {
+        title       : 'Collapse Contents',
+        id          : 'collapseContents',
+        description : 'When enabled, contents will be collapsed per default',
+        default     : false,
+        type        : 'boolean'
     },
     contentSize : {
         title : 'Content Size',
@@ -380,7 +660,7 @@ let commonSettings = {
         description : 'Size of panel contents',
         default : 'm',
         type : 'select',
-        options : ['xxs', 'xs', 's', 'm', 'l', 'xl', 'xxl']
+        list : ['xxs', 'xs', 's', 'm', 'l', 'xl', 'xxl']
     },
     editable : {
         title       : 'Editable',
@@ -429,6 +709,13 @@ let commonSettings = {
         id          : 'tileSubtitle',
         description : 'Sets the Tile Subtile',
         default     : 'WF_CURRENT_STATE',
+        type        : 'string'
+    },
+    textNoData : {
+        title       : 'Text No Data',
+        id          : 'textNoData',
+        description : 'Text being shown when there is no data',
+        default     : 'No Entries',
         type        : 'string'
     }
 }

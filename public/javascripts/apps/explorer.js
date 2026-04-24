@@ -499,7 +499,7 @@ function selectItemVersion() {
             picklists   : wsItems.picklists,
             workspaces  : workspaces
         });
-        insertViewer(linkVersion);
+        insertViewer(linkVersion, { features : config.viewerFeatures });
         insertDetails(linkVersion, paramsDetails, {
             sections    : wsItems.sections,
             fields      : wsItems.fields,

@@ -2003,7 +2003,7 @@ function onViewerSelectionChanged(event) {
     if (event.dbIdArray.length === 1) {
 
         let proceed = true;
-        let parents = getComponentParents(event.dbIdArray[0]);
+        let parents = viewerGetComponentParents(event);
 
         for(let parent of parents) {
             if(proceed) {

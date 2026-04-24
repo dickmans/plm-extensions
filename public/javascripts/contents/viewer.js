@@ -1,22 +1,16 @@
-let colorModelSelected          = new THREE.Vector4(0.02, 0.58, 0.84, 0.5);
-let colorModelHighlighted       = new THREE.Vector4(0.9, 0.1, 0.1, 0.5);
-let newInstance                 = true;
-let ghosting                    = true;
-let disableViewerSelectionEvent = false;
-let viewerId                    = 'viewer';
-let viewerDone                  = false;
-let viewerGeometryLoaded        = false;
-let viewerObjectTreeCreated     = false;
-let viewerInstanceDataSet       = false;
-let viewerFiles                 = [];
-let dataInstances               = [];
-let hiddenInstances             = [];
-let markupStyle                 = {};
 
-let viewer, markup, markupsvg, curViewerState, restoreMarkupSVG, restoreMarkupState, baseStrokeWidth;
-let splitPartNumberBy, splitPartNumberIndexes, splitPartNumberSpacer, conversionAttempts, conversionDelay;
+let viewers             = [];
+let viewersSyncDisabled = false;
 
-let vectorRange  = [ 
+
+let markup, markupsvg, restoreMarkupSVG, restoreMarkupState, baseStrokeWidth;
+let conversionAttempts, conversionDelay;
+let splitPartNumberBy, splitPartNumberIndexes, splitPartNumberSpacer;
+
+const colorModelSelected    = new THREE.Vector4(0.02, 0.58, 0.84, 0.5);
+const colorModelHighlighted = new THREE.Vector4(0.9, 0.1, 0.1, 0.5);
+
+const vectorRange = [ 
     new THREE.Vector4(206/255, 101/255, 101/255, 0.8),
     new THREE.Vector4(224/255, 175/255,  75/255, 0.8), 
     new THREE.Vector4(225/255, 225/255,  84/255, 0.8), 
@@ -31,7 +25,7 @@ let vectorRange  = [
     new THREE.Vector4(206/255,  92/255, 149/255, 0.8)
 ]; 
 
-let viewerBGColors = {
+const viewerBGColors = {
     light : {
         'level-1' : [255, 255, 255],
         'level-2' : [245, 245, 245],
@@ -55,70 +49,101 @@ let viewerBGColors = {
     }
 }
 
-let viewerSettings = {
-    backgroundColor    : [255, 255, 255, 255, 255, 255],
-    antiAliasing       : true,
-    ambientShadows     : true,
-    groundReflection   : false,
-    groundShadow       : true,
-    cacheBoundingBoxes : false,
-    cacheInstances     : true,
-    lightPreset        : 4
-}
+
+$(document).ready(function() {
+
+    conversionAttempts = common.viewer.conversionAttempts || 10;
+    conversionDelay    = common.viewer.conversionDelay    || 2000;
+
+    splitPartNumberBy      = (isBlank(common.viewer.splitPartNumberBy))      ? ''  : common.viewer.splitPartNumberBy;
+    splitPartNumberIndexes = (isBlank(common.viewer.splitPartNumberIndexes)) ? [0] : common.viewer.splitPartNumberIndexes;
+    splitPartNumberSpacer  = (isBlank(common.viewer.splitPartNumberSpacer))  ? ''  : common.viewer.splitPartNumberSpacer; 
+
+});
 
 
 // Launch Viewer
 function initViewer(id, link, viewables, params) {
 
-    if(!isBlank(id)       ) viewerId = id;
-    if( isBlank(params)   ) params   = {};
-    if( isBlank(viewables)) { viewerShowErrorMessage(id, 'No viewable found'); return; }
+    if(isBlank(id)       ) id     = 'viewer';
+    if(isBlank(params)   ) params = {};
+    if(isBlank(viewables)) { viewerShowErrorMessage(id, 'No viewable found'); return; }
 
     if(!Array.isArray(viewables)) viewables = [viewables];
 
     if(viewables.length === 0) { viewerShowErrorMessage(id, 'No viewable found'); return; }
 
-    viewerFiles             = viewables;
-    viewerGeometryLoaded    = false;
-    viewerObjectTreeCreated = false;
-    viewerInstanceDataSet   = false;
-    conversionAttempts      = common.viewer.conversionAttempts || 10;
-    conversionDelay         = common.viewer.conversionDelay    || 2000;
+    let viewerInstance = getViewerInstance(id);
 
-    let surfaceLevel = getSurfaceLevel($('#' + viewerId)).split('surface-')[1];
+    if(viewerInstance === null) {
+        viewerInstance = {
+            viewer             : null,
+            id                 : id,
+            startupCompleted   : false,
+            restoreMarkupState : '',
+            markupStyle        : { 'stroke-color' : '#ev5555' },
+            settings           : {
+                backgroundColor    : [255, 255, 255, 255, 255, 255],
+                antiAliasing       : true,
+                ambientShadows     : true,
+                groundReflection   : false,
+                groundShadow       : true,
+                cacheInstances     : common.viewer.cacheInstances ?? true,
+                cacheBoundingBoxes : common.viewer.cacheBoundingBoxes ?? false,
+                lightPreset        : 4
+            }            
+        };
+        viewers.push(viewerInstance);
+    }
+
+    console.log(id);
+
+    viewerInstance.link               = link;
+    viewerInstance.viewable           = null;
+    viewerInstance.viewables          = viewables;
+    viewerInstance.features           = params.features;
+    viewerInstance.dataInstances      = [],
+    viewerInstance.hiddenInstances    = [],
+    viewerInstance.disableSelectEvent = false;
+    viewerInstance.objectTreeCreated  = false;
+    viewerInstance.geometryLoaded     = false;
+    viewerInstance.instanceDataSet    = false;
+
+    console.log(viewerInstance);
+
+    let surfaceLevel = getSurfaceLevel($('#' + id)).split('surface-')[1];
     
-    if(!isBlank(params.backgroundColor)) viewerSettings.backgroundColor = params.backgroundColor;
-    else if(surfaceLevel === 'level-0') viewerSettings.backgroundColor = common.viewer.backgroundColor;
-    else viewerSettings.backgroundColor = viewerBGColors[theme][surfaceLevel];
+    if(!isBlank(params.backgroundColor)) viewerInstance.settings.backgroundColor = params.backgroundColor;
+    else if(surfaceLevel === 'level-0')  viewerInstance.settings.backgroundColor = common.viewer.backgroundColor;
+    else                                 viewerInstance.settings.backgroundColor = viewerBGColors[theme][surfaceLevel];
     
-    if(Array.isArray(viewerSettings.backgroundColor)) {
-        if(viewerSettings.backgroundColor.length === 3) {
-            viewerSettings.backgroundColor.push(viewerSettings.backgroundColor[0]);
-            viewerSettings.backgroundColor.push(viewerSettings.backgroundColor[1]);
-            viewerSettings.backgroundColor.push(viewerSettings.backgroundColor[2]);
+    if(Array.isArray(viewerInstance.settings.backgroundColor)) {
+        if(viewerInstance.settings.backgroundColor.length === 3) {
+            viewerInstance.settings.backgroundColor.push(viewerInstance.settings.backgroundColor[0]);
+            viewerInstance.settings.backgroundColor.push(viewerInstance.settings.backgroundColor[1]);
+            viewerInstance.settings.backgroundColor.push(viewerInstance.settings.backgroundColor[2]);
         }
     } else {
-        viewerSettings.backgroundColor = [viewerSettings.backgroundColor, viewerSettings.backgroundColor, viewerSettings.backgroundColor, viewerSettings.backgroundColor, viewerSettings.backgroundColor, viewerSettings.backgroundColor];
+        viewerInstance.settings.backgroundColor = [viewerInstance.settings.backgroundColor, viewerInstance.settings.backgroundColor, viewerInstance.settings.backgroundColor, viewerInstance.settings.backgroundColor, viewerInstance.settings.backgroundColor, viewerInstance.settings.backgroundColor];
     }
     
-    if(!isBlank(params.antiAliasing    )) viewerSettings.antiAliasing     = params.antiAliasing;     else if(!isBlank(common.viewer.antiAliasing    )) viewerSettings.antiAliasing     = common.viewer.antiAliasing;
-    if(!isBlank(params.ambientShadows  )) viewerSettings.ambientShadows   = params.ambientShadows;   else if(!isBlank(common.viewer.ambientShadows  )) viewerSettings.ambientShadows   = common.viewer.ambientShadows;
-    if(!isBlank(params.groundReflection)) viewerSettings.groundReflection = params.groundReflection; else if(!isBlank(common.viewer.groundReflection)) viewerSettings.groundReflection = common.viewer.groundReflection;
-    if(!isBlank(params.groundShadow    )) viewerSettings.groundShadow     = params.groundShadow;     else if(!isBlank(common.viewer.groundShadow    )) viewerSettings.groundShadow     = common.viewer.groundShadow;
-    if(!isBlank(params.lightPreset     )) viewerSettings.lightPreset      = params.lightPreset;      else if(!isBlank(common.viewer.lightPreset     )) viewerSettings.lightPreset      = common.viewer.lightPreset;
-    if(!isBlank(params.cacheInstances  )) viewerSettings.cacheInstances   = params.cacheInstances;   else if(!isBlank(common.viewer.cacheInstances  )) viewerSettings.cacheInstances   = common.viewer.cacheInstances;
+    if(!isBlank(params.antiAliasing      )) viewerInstance.settings.antiAliasing       = params.antiAliasing;       else if(!isBlank(common.viewer.antiAliasing      )) viewerInstance.settings.antiAliasing       = common.viewer.antiAliasing;
+    if(!isBlank(params.ambientShadows    )) viewerInstance.settings.ambientShadows     = params.ambientShadows;     else if(!isBlank(common.viewer.ambientShadows    )) viewerInstance.settings.ambientShadows     = common.viewer.ambientShadows;
+    if(!isBlank(params.groundReflection  )) viewerInstance.settings.groundReflection   = params.groundReflection;   else if(!isBlank(common.viewer.groundReflection  )) viewerInstance.settings.groundReflection   = common.viewer.groundReflection;
+    if(!isBlank(params.groundShadow      )) viewerInstance.settings.groundShadow       = params.groundShadow;       else if(!isBlank(common.viewer.groundShadow      )) viewerInstance.settings.groundShadow       = common.viewer.groundShadow;
+    if(!isBlank(params.lightPreset       )) viewerInstance.settings.lightPreset        = params.lightPreset;        else if(!isBlank(common.viewer.lightPreset       )) viewerInstance.settings.lightPreset        = common.viewer.lightPreset;
+    if(!isBlank(params.cacheInstances    )) viewerInstance.settings.cacheInstances     = params.cacheInstances;     else if(!isBlank(common.viewer.cacheInstances    )) viewerInstance.settings.cacheInstances     = common.viewer.cacheInstances;
+    if(!isBlank(params.cacheBoundingBoxes)) viewerInstance.settings.cacheBoundingBoxes = params.cacheBoundingBoxes; else if(!isBlank(common.viewer.cacheBoundingBoxes)) viewerInstance.settings.cacheBoundingBoxes = common.viewer.cacheBoundingBoxes;
     
-    $('body').addClass('no-viewer-cube');
-    $('#' + viewerId + '-processing').removeClass('hidden');
-    $('#' + viewerId + '-message').addClass('hidden');
-    $('#' + viewerId + '-file-browser').remove();
-    $('#' + viewerId + '-conversion-error').addClass('hidden');
+    $('#' + id).addClass('no-viewer-cube');
+    $('#' + id + '-processing'      ).removeClass('hidden');
+    $('#' + id + '-message'         ).addClass('hidden');
+    $('#' + id + '-conversion-error').addClass('hidden');
+    $('#' + id + '-file-browser'    ).remove();
     
-    dataInstances = [];
-    
-    let viewable = getPrimaryViewable(viewables);
+    viewerInstance.viewable = getPrimaryViewable(viewables);
 
-    convertViewable(id, link, params, viewable, 1);
+    convertViewable(viewerInstance, params, 1);
 
 }
 function getPrimaryViewable(viewables) {
@@ -130,26 +155,31 @@ function getPrimaryViewable(viewables) {
     return null;
 
 }
-function convertViewable(id, link, params, viewable, attempt) {
+function convertViewable(viewerInstance, params, attempt) {
+
+    let viewable = viewerInstance.viewable;
 
     if((viewable.status === 'FAILED') && (attempt > conversionAttempts)) {
-        $('#' + viewerId + '-processing').addClass('hidden');
-        $('#' + viewerId + '-conversion-error').removeClass('hidden');
-        $('#' + viewerId + '-conversion-error-filename').html(viewable.name);
+        $('#' + viewerInstance.id + '-processing').addClass('hidden');
+        $('#' + viewerInstance.id + '-conversion-error').removeClass('hidden');
+        $('#' + viewerInstance.id + '-conversion-error-filename').html(viewable.name);
         return;
     } 
 
-    let elemProcessingMessage = $('#' + id + '-processing-message').html('Getting Viewables');
+    $('#' + viewerInstance.id + '-processing').removeClass('hidden');
+    $('#' + viewerInstance.id).hide();
+
+    let elemProcessingMessage = $('#' + viewerInstance.id + '-processing-message').html('Getting Viewables');
 
     if(viewable.status === 'DONE') {
         elemProcessingMessage.html('');
-        launchViewer(params, viewable);
+        launchViewer(viewerInstance, params);
         return;
     } else if(viewable.status === 'PENDING') {
         elemProcessingMessage.html('Downloading ' + viewable.name);
         setTimeout(function () {
             $.get('/plm/get-viewable', { 
-                link         : link,
+                link         : viewerInstance.link,
                 attachmentId : viewable.id,
                 forceUpdate  : false,
                 isPDF        : (viewable.type === 'Adobe PDF'),
@@ -157,14 +187,14 @@ function convertViewable(id, link, params, viewable, attempt) {
                 thumbnail    : viewable.thumbnail
             }, function(response) {
                 viewable.status = response.data.status;
-                convertViewable(id, link, params, viewable, attempt + 1);
+                convertViewable(viewerInstance, params, attempt + 1);
             });
         }, conversionDelay);
     } else {
         elemProcessingMessage.html('Converting ' + viewable.name);
         setTimeout(function () {
             $.get('/plm/get-viewable', { 
-                link         : link,
+                link         : viewerInstance.link,
                 attachmentId : viewable.id,
                 forceUpdate  : (viewable.status === 'FAILED'),
                 isPDF        : (viewable.type === 'Adobe PDF'),
@@ -172,87 +202,128 @@ function convertViewable(id, link, params, viewable, attempt) {
                 thumbnail    : viewable.thumbnail
             }, function(response) {
                 viewable.status = response.data.status;
-                convertViewable(id, link, params, viewable, attempt + 1);
+                convertViewable(viewerInstance, params, attempt + 1);
             });
         }, conversionDelay);
     }
 
 }
-function launchViewer(params, viewable) {
+function launchViewer(viewerInstance, params) {
 
-    let options = {
-        logLevel : 0,
-        env      : 'AutodeskProduction',
-        api      : 'derivativeV2',  // for models uploaded to EMEA change this option to 'derivativeV2_EU'
-        // region : 'EMEA',
-        // api         : 'derivativeV2_EU',  // for models uploaded to EMEA change this option to 'derivativeV2_EU'
-        // env: 'AutodeskProduction2',
-        // api: 'streamingV2',   // for models uploaded to EMEA change this option to 'streamingV2_EU'
-        getAccessToken  : function(onTokenReady) {
-            var token = viewable.token;
-            var timeInSeconds = 3600; 
-            onTokenReady(token, timeInSeconds);
-        }
-    }; // see https://aps.autodesk.com/en/docs/viewer/v7/reference/globals/TypeDefs/InitOptions/
+    let viewable = viewerInstance.viewable;
 
-    if((typeof viewer === 'undefined') || (params.restartViewer)) { 
+    $('#' + viewerInstance.id + '-processing').addClass('hidden');
 
-        $('#' + viewerId + '-processing').addClass('hidden');
+    if((!viewerInstance.startupCompleted) || (params.restartViewer)) {
 
-        splitPartNumberBy      = (isBlank(common.viewer.splitPartNumberBy))      ? ''  : common.viewer.splitPartNumberBy;
-        splitPartNumberIndexes = (isBlank(common.viewer.splitPartNumberIndexes)) ? [0] : common.viewer.splitPartNumberIndexes;
-        splitPartNumberSpacer  = (isBlank(common.viewer.splitPartNumberSpacer))  ? ''  : common.viewer.splitPartNumberSpacer;
+        console.log('viewer new');
+
+        let options = {
+            logLevel : 0,
+            env      : 'AutodeskProduction',
+            api      : 'derivativeV2',  // for models uploaded to EMEA change this option to 'derivativeV2_EU'
+            // region : 'EMEA',
+            // api         : 'derivativeV2_EU',  // for models uploaded to EMEA change this option to 'derivativeV2_EU'
+            // env: 'AutodeskProduction2',
+            // api: 'streamingV2',   // for models uploaded to EMEA change this option to 'streamingV2_EU'
+            getAccessToken  : function(onTokenReady) {
+                var token = viewable.token;
+                var timeInSeconds = 3600; 
+                onTokenReady(token, timeInSeconds);
+            }
+        }; // see https://aps.autodesk.com/en/docs/viewer/v7/reference/globals/TypeDefs/InitOptions/
 
         Autodesk.Viewing.Initializer(options, function() {
 
-            let elemViewer = document.getElementById(viewerId);
-            
-            viewer = new Autodesk.Viewing.GuiViewer3D(elemViewer, { 
-                modelBrowserExcludeRoot     : false,
-                modelBrowserStartCollapsed  : true
+            let elemViewer     = document.getElementById(viewerInstance.id);
+            let viewerFeatures = viewerInstance.features;
+                
+            viewerInstance.viewer = new Autodesk.Viewing.GuiViewer3D(elemViewer, { 
+                modelBrowserExcludeRoot    : false,
+                modelBrowserStartCollapsed : true
             });
 
-            viewer.addEventListener(Autodesk.Viewing.TOOLBAR_CREATED_EVENT,       onViewerToolbarCreated   );
-            viewer.addEventListener(Autodesk.Viewing.GEOMETRY_LOADED_EVENT,       onViewerGeometryLoaded   );
-            viewer.addEventListener(Autodesk.Viewing.OBJECT_TREE_CREATED_EVENT,   onObjectTreeCreated      );
-            viewer.addEventListener(Autodesk.Viewing.SELECTION_CHANGED_EVENT,     onViewerSelectionChanged );
-            viewer.addEventListener(Autodesk.Viewing.VIEWER_STATE_RESTORED_EVENT, onViewerRestore          );
+            viewerInstance.viewer.panelId = viewerInstance.id;   // required by viewer events to identify the right instance
 
-            var startedCode = viewer.start();
+            viewerInstance.viewer.addEventListener(Autodesk.Viewing.TOOLBAR_CREATED_EVENT,       onViewerToolbarCreated   );
+            viewerInstance.viewer.addEventListener(Autodesk.Viewing.GEOMETRY_LOADED_EVENT,       onViewerGeometryLoaded   );
+            viewerInstance.viewer.addEventListener(Autodesk.Viewing.OBJECT_TREE_CREATED_EVENT,   onViewerObjectTreeCreated);
+            viewerInstance.viewer.addEventListener(Autodesk.Viewing.SELECTION_CHANGED_EVENT,     onViewerSelectionChanged );
+            viewerInstance.viewer.addEventListener(Autodesk.Viewing.VIEWER_STATE_RESTORED_EVENT, onViewerStateRestored    );
+
+            if(params.syncViewpoint) {
+                viewerInstance.viewer.addEventListener(Autodesk.Viewing.CAMERA_CHANGE_EVENT , (event) => {
+                    syncViewpoint(event);
+                });
+            }
+            if(params.syncExplosion) {
+                viewerInstance.viewer.addEventListener(Autodesk.Viewing.EXPLODE_CHANGE_EVENT , (event) => {
+                    syncExplosion(event);
+                });
+            }
+
+            let startedCode = viewerInstance.viewer.start();
             if (startedCode > 0) {
                 console.error('Failed to create a Viewer: WebGL not supported.');
                 return;
             }      
 
             if(!isBlank(viewerFeatures.contextMenu)) {
-                if(!viewerFeatures.contextMenu) viewer.setContextMenu(null);
+                if(!viewerFeatures.contextMenu) viewerInstance.viewer.setContextMenu(null);
             }
 
-            $('#' + viewerId).show();
+            $('#' + viewerInstance.id).show();
 
-            if(viewable.type === 'Adobe PDF') {
-                console.log('hier');
-                viewer.loadExtension('Autodesk.PDF').then( () => {
-                    viewerFeatures.markup = true;
-                    viewer.setBackgroundColor(viewerSettings.backgroundColor[0], viewerSettings.backgroundColor[1], viewerSettings.backgroundColor[2], viewerSettings.backgroundColor[3], viewerSettings.backgroundColor[4], viewerSettings.backgroundColor[5]);
-                    viewer.loadModel(viewable.link, viewer, onPDFLoadSuccess, onDocumentLoadFailure);
-                });
-            } else {
-                Autodesk.Viewing.Document.load('urn:'+ viewable.urn, onDocumentLoadSuccess, onDocumentLoadFailure);
-            }
-            
+            loadViewableInViewer(viewerInstance);
+                
         });
     
     } else {
         
-        viewerLeaveMarkupMode();
-        viewerUnloadAllModels();
-        newInstance = false;
-        $('#' + viewerId + '-processing').addClass('hidden');
-        Autodesk.Viewing.Document.load('urn:'+ viewable.urn, onDocumentLoadSuccess, onDocumentLoadFailure);
+    console.log('viewer reset');
+    console.log(viewerInstance.id);
+
+        viewerLeaveMarkupMode({ id : viewerInstance.id });
+        viewerUnloadAllModels({ id : viewerInstance.id });
+        $('#' + viewerInstance.id).show();
+        loadViewableInViewer(viewerInstance)
 
     }  
     
+}
+function loadViewableInViewer(viewerInstance) {
+
+    let viewable       = viewerInstance.viewable;
+    let viewer         = viewerInstance.viewer;
+    let viewerSettings = viewerInstance.settings;
+
+    if(viewable.type === 'Adobe PDF') {
+        viewer.loadExtension('Autodesk.PDF').then( () => {
+            viewer.setBackgroundColor(viewerSettings.backgroundColor[0], viewerSettings.backgroundColor[1], viewerSettings.backgroundColor[2], viewerSettings.backgroundColor[3], viewerSettings.backgroundColor[4], viewerSettings.backgroundColor[5]);
+            viewer.loadModel(viewable.link, viewer, function(doc) {
+                viewerInstance.startupCompleted = true;
+                initViewerDone(viewerInstance.id);
+                setViewerFeatures(viewerInstance);
+            }, onDocumentLoadFailure);
+        });
+    } else {
+
+        Autodesk.Viewing.Document.load('urn:'+ viewable.urn, function(doc) {
+
+            viewer.setGhosting(true);
+            viewer.setGroundReflection(viewerSettings.groundReflection);
+            viewer.setGroundShadow(viewerSettings.groundShadow);
+            viewer.setQualityLevel(viewerSettings.ambientShadows, viewerSettings.antiAliasing);
+            viewer.setLightPreset(viewerSettings.lightPreset);
+            viewer.setEnvMapBackground(false);
+            viewer.setProgressiveRendering(true);                    
+
+            onDocumentLoadSuccess(viewerInstance, doc);
+
+        }, onDocumentLoadFailure);
+
+    }
+
 }
 function viewerShowErrorMessage(id, text) {
 
@@ -265,98 +336,107 @@ function viewerShowErrorMessage(id, text) {
     $('#' + id + '-processing').addClass('hidden');
 
 }
-function onPDFLoadSuccess(doc) {
-
-    viewerDone = true;
-    setViewerFeatures();
-}
-function onDocumentLoadSuccess(doc) {
-
-    let elemInstance = $('#' + viewerId).children('.adsk-viewing-viewer');
+function onDocumentLoadSuccess(viewerInstance, doc) {     
+    
+    let elemInstance = $('#' + viewerInstance.id).children('.adsk-viewing-viewer');
+    
     if(elemInstance.length > 0) elemInstance.show();
 
-    viewer.setGhosting(true);
-    viewer.setGroundReflection(viewerSettings.groundReflection);
-    viewer.setGroundShadow(viewerSettings.groundShadow);
-    viewer.setQualityLevel(viewerSettings.ambientShadows, viewerSettings.antiAliasing);
-    viewer.setLightPreset(viewerSettings.lightPreset);
-    viewer.setEnvMapBackground(false);
-    viewer.setProgressiveRendering(true);
-
-    let viewable = doc.getRoot().getDefaultGeometry();
+    let viewableGeometry = doc.getRoot().getDefaultGeometry();
     
-    if (viewable) {
+    if(viewableGeometry) {
 
-        $('#' + viewerId + '-processing').addClass('hidden');
+        let viewerSettings = viewerInstance.settings;
 
-        viewer.loadDocumentNode(doc, viewable).then(function(result) {
+        viewerInstance.viewer.loadDocumentNode(doc, viewableGeometry).then(function(result) {
         // viewer.loadDocumentNode(doc, viewable, {globalOffset: {x:0,y:0,z:0}}).then(function(result) {
-            // viewer.hideAll
-            viewer.setBackgroundColor(viewerSettings.backgroundColor[0], viewerSettings.backgroundColor[1], viewerSettings.backgroundColor[2], viewerSettings.backgroundColor[3], viewerSettings.backgroundColor[4], viewerSettings.backgroundColor[5]);
-            viewerDone = true;
-            initViewerDone();
+            viewerInstance.viewer.setBackgroundColor(viewerSettings.backgroundColor[0], viewerSettings.backgroundColor[1], viewerSettings.backgroundColor[2], viewerSettings.backgroundColor[3], viewerSettings.backgroundColor[4], viewerSettings.backgroundColor[5]);
+            viewerInstance.startupCompleted = true;
+            initViewerDone(viewerInstance.id);
         }).catch(function(err) {
             console.log(err);
         });
     }
+
 }
 function onDocumentLoadFailure() {
     console.error('Failed launching viewer');
 }
-function initViewerDone() {
-    $('#viewer-progress').addClass('hidden');
+function initViewerDone(id) {
+    $('#' + id + '-progress').addClass('hidden');
 }
 function onViewerToolbarCreated(event) {  
     event.target.toolbar.setVisible(false); 
 }
+function onViewerGeometryLoaded(event) {
 
-function onViewerGeometryLoaded() {
-    viewerGeometryLoaded = true;
-    if(viewerObjectTreeCreated) processViewerFeaturesAndData();
+    let panelId        = event.target.panelId;
+    let viewerInstance = getViewerInstance(panelId);
+
+    event.target.geometryLoaded   = true;
+    viewerInstance.geometryLoaded = true;
+
+    processViewerFeaturesAndData(viewerInstance);
+
 }
-function onObjectTreeCreated() {
-    viewerObjectTreeCreated = true;
-    if(viewerGeometryLoaded) processViewerFeaturesAndData(); 
+function onViewerObjectTreeCreated(event) {
+
+    let panelId        = event.target.eventTarget.panelId;
+    let viewerInstance = getViewerInstance(panelId);
+
+    viewerInstance.objectTreeCreated = true;
+
+    processViewerFeaturesAndData(viewerInstance); 
+
 }
-function processViewerFeaturesAndData() {
-    setViewerFeatures();
-    setViewerInstancedData();
+function processViewerFeaturesAndData(viewerInstance) {
+
+    if(!viewerInstance.geometryLoaded   ) return;
+    if(!viewerInstance.objectTreeCreated) return;
+
+    setViewerFeatures    (viewerInstance);
+    setViewerInstanceData(viewerInstance);
+
 }
-function onViewerLoadingDone() {}
-function setViewerFeatures() {
+function setViewerFeatures(viewerInstance) {
+
+    // let panelId        = event.target.panelId;
+    // let viewerInstance = viewers[panelId];
+    let viewer = viewerInstance.viewer;
 
     if(viewer.model === null) return;
 
-    if (Object.keys(viewerFeatures).length === 0) {
+    if(Object.keys(viewerInstance.features).length === 0) {
         viewer.toolbar.setVisible(true);
         return;
     }
 
     let selectionToolbarFeatures = [];
-    let viewsToolbar             = false;
+    let showViewsToolbar         = false;
     let selectFiles              = false;
 
-    for(let viewerFeature of Object.keys(viewerFeatures)) {
+    for(let feature of Object.keys(viewerInstance.features)) {
 
-        if(viewerFeatures[viewerFeature] === false) {
+        if(viewerInstance.features[feature] === false) {
 
             let elemParent = null;
             let controlId  = '';
 
-            switch(viewerFeature) {
+            switch(feature) {
 
-                case 'orbit'        : elemParent = viewer.toolbar.getControl('navTools');       controlId = 'toolbar-orbitTools'; break;
-                case 'firstPerson'  : elemParent = viewer.toolbar.getControl('navTools');       controlId = 'toolbar-bimWalkTool'; break;
-                case 'camera'       : elemParent = viewer.toolbar.getControl('navTools');       controlId = 'toolbar-cameraSubmenuTool'; break;
+                case 'orbit'        : elemParent = viewer.toolbar.getControl('navTools');       controlId = 'toolbar-orbitTools'            ; break;
+                case 'firstPerson'  : elemParent = viewer.toolbar.getControl('navTools');       controlId = 'toolbar-bimWalkTool'           ; break;
+                case 'camera'       : elemParent = viewer.toolbar.getControl('navTools');       controlId = 'toolbar-cameraSubmenuTool'     ; break;
                 case 'measure'      : elemParent = viewer.toolbar.getControl('modelTools');     controlId = 'toolbar-measurementSubmenuTool'; break;
-                case 'section'      : elemParent = viewer.toolbar.getControl('modelTools');     controlId = 'toolbar-sectionTool'; break;
-                case 'explodedView' : elemParent = viewer.toolbar.getControl('modelTools');     controlId = 'toolbar-explodeTool'; break;
-                case 'modelBrowser' : elemParent = viewer.toolbar.getControl('settingsTools');  controlId = 'toolbar-modelStructureTool'; break;
-                case 'properties'   : elemParent = viewer.toolbar.getControl('settingsTools');  controlId = 'toolbar-propertiesTool'; break;
-                case 'settings'     : elemParent = viewer.toolbar.getControl('settingsTools');  controlId = 'toolbar-settingsTool'; break;
-                case 'fullscreen'   : elemParent = viewer.toolbar.getControl('settingsTools');  controlId = 'toolbar-fullscreenTool'; break;
+                case 'section'      : elemParent = viewer.toolbar.getControl('modelTools');     controlId = 'toolbar-sectionTool'           ; break;
+                case 'explodedView' : elemParent = viewer.toolbar.getControl('modelTools');     controlId = 'toolbar-explodeTool'           ; break;
+                case 'modelBrowser' : elemParent = viewer.toolbar.getControl('settingsTools');  controlId = 'toolbar-modelStructureTool'    ; break;
+                case 'properties'   : elemParent = viewer.toolbar.getControl('settingsTools');  controlId = 'toolbar-propertiesTool'        ; break;
+                case 'settings'     : elemParent = viewer.toolbar.getControl('settingsTools');  controlId = 'toolbar-settingsTool'          ; break;
+                case 'fullscreen'   : elemParent = viewer.toolbar.getControl('settingsTools');  controlId = 'toolbar-fullscreenTool'        ; break;
 
             }
+
             if(elemParent !== null) {
                 if(controlId !== '') {
                     let elemControl = elemParent.getControl(controlId);
@@ -366,25 +446,25 @@ function setViewerFeatures() {
                     
         } else {
 
-            if(viewerFeature === 'markup') {
+            if(feature === 'markup') {
 
-                viewerAddMarkupControls(); 
+                viewerAddMarkupControls(viewerInstance); 
             
-            } else if(viewerFeature === 'selectFile') {
+            } else if(feature === 'selectFile') {
 
-                selectFiles = viewerFeatures[viewerFeature]; 
+                selectFiles = viewerInstance.features[feature]; 
 
             } else if(viewer.model.is3d()) {
 
-                switch(viewerFeature) {
+                switch(feature) {
                     
-                    case 'hide'      : selectionToolbarFeatures.push(viewerFeature); break;
-                    case 'ghosting'  : selectionToolbarFeatures.push(viewerFeature); break;
-                    case 'highlight' : selectionToolbarFeatures.push(viewerFeature); break;
-                    case 'single'    : selectionToolbarFeatures.push(viewerFeature); break;
-                    case 'fitToView' : selectionToolbarFeatures.push(viewerFeature); break;
-                    case 'reset'     : selectionToolbarFeatures.push(viewerFeature); break;
-                    case 'views'     : viewsToolbar = true;      break;
+                    case 'hide'      : selectionToolbarFeatures.push(feature); break;
+                    case 'ghosting'  : selectionToolbarFeatures.push(feature); viewerInstance.ghosting  =  true; break;
+                    case 'highlight' : selectionToolbarFeatures.push(feature); viewerInstance.highlight = false; break;
+                    case 'single'    : selectionToolbarFeatures.push(feature); break;
+                    case 'fitToView' : selectionToolbarFeatures.push(feature); break;
+                    case 'reset'     : selectionToolbarFeatures.push(feature); break;
+                    case 'views'     : showViewsToolbar = true;      break;
 
                 }
 
@@ -395,136 +475,38 @@ function setViewerFeatures() {
 
     if(viewer.model.is2d()) {
 
-        $('#customSelectionToolbar').hide();
-        $('#my-custom-toolbar-views').hide();
+        $('#' + viewerInstance.id + '-customSelectionToolbar').hide();
+        $('#' + viewerInstance.id + '-customViewsToolbar'    ).hide();
 
     } else {
 
-        addCustomSelectionToolbar(selectionToolbarFeatures);
-        if(viewsToolbar) viewerAddViewsToolbar();
+        addCustomSelectionToolbar(viewerInstance, selectionToolbarFeatures);
+        if(showViewsToolbar) viewerAddViewsToolbar(viewerInstance);
 
     }
 
-    if(!isBlank(viewerFeatures.cube)) {
-        if(viewerFeatures.cube) $('body').removeClass('no-viewer-cube');
+    if(!isBlank(viewerInstance.features.cube)) {
+        if(viewerInstance.features.cube) $('#' + viewerInstance.id).removeClass('no-viewer-cube');
     }
 
-    if(selectFiles) insertFileBrowser();
+    if(selectFiles) insertFileBrowser(viewerInstance);
     viewer.toolbar.setVisible(true);
 
 }
-function insertFileBrowser() {
+function setViewerInstanceData(viewerInstance) {
 
-    let elemFileBrowser = $('#viewer-file-browser');
-    let elemFileToolbar = $('#customFileBrowserToolbar');
+    // let panelId        = event.target.panelId;
+    // let viewerInstance = viewers[panelId];
+    let viewerSettings = viewerInstance.settings;
 
-    if(viewerFiles.length > 1) {
+    viewerInstance.dataInstances = [];
 
-        if(elemFileToolbar.length === 0) {
+    if(viewerInstance.viewer.model.is2d()) return;
 
-            let fileBrowserToolbar = new Autodesk.Viewing.UI.ControlGroup('customFileBrowserToolbar');
-                viewer.toolbar.addControl(fileBrowserToolbar);
+    let instanceTree = viewerInstance.viewer.model.getInstanceTree();
+    let promises     = [];
 
-            let button = addCustomControl(fileBrowserToolbar, 'button-file-browser', 'icon-folder', 'Switch viewable file');
-                button.onClick = function() { 
-                    $('#viewer-file-browser').css('display', 'flex');
-                };
-
-        } else elemFileToolbar.show();
-
-        elemFileToolbar.appendTo($('#guiviewer3d-toolbar'));
-
-        if(elemFileBrowser.length === 0) {
-
-            elemFileBrowser = $('<div></div>').appendTo($('#viewer'))
-                .attr('id', 'viewer-file-browser');
-
-            let elemFileBrowserPanel = $('<div></div>').appendTo(elemFileBrowser)
-                .addClass('surface-level-1')
-                .attr('id', 'viewer-file-browser-panel');
-
-            let elemFilesHeader = $('<div></div>').appendTo(elemFileBrowserPanel)
-                .attr('id', 'viewer-file-browser-header');
-
-            $('<div></div>').appendTo(elemFilesHeader)
-                .attr('id', 'viewer-file-browser-title')
-                .html('Select Viewing File');
-
-            $('<div></div>').appendTo(elemFilesHeader)
-                .addClass('button')
-                .addClass('icon')
-                .addClass('icon-close')
-                .click(function() {
-                    $('#viewer-file-browser').hide();
-                });
-           
-            let elemFilesList = $('<div></div>').appendTo(elemFileBrowserPanel)
-                .addClass('tiles')    
-                .addClass('list')    
-                .addClass('xl')    
-                .attr('id', 'viewer-file-browser-list');
-
-            for(let viewerFile of viewerFiles) {
-
-                let elemFile = $('<div></div>').appendTo(elemFilesList)
-                    .addClass('tile')
-                    .click(function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        $(this).siblings().removeClass('selected');
-                        $(this).addClass('selected');
-                        $('#viewer-file-browser').hide();
-                        viewerSwitchFile($(this).index());
-                    })
-
-                let elemFileThumbnail = $('<div></div>').appendTo(elemFile)
-                    .addClass('tile-image');
-
-                if(viewerFile.type === 'Adobe PDF') {
-                    elemFileThumbnail.addClass('icon').addClass('icon-pdf');
-                } else {                    
-                    $('<img></img>').appendTo(elemFileThumbnail)
-                        .attr('src', viewerFile.thumbnail);
-                }
-
-                let elemFileDetails = $('<div></div>').appendTo(elemFile)
-                    .addClass('tile-details');
-
-                $('<div></div>').appendTo(elemFileDetails)
-                    .addClass('tile-title')
-                    .html(viewerFile.name);
-                
-                $('<div></div>').appendTo(elemFileDetails)
-                    .html('User : ' + viewerFile.user);
-                
-                $('<div></div>').appendTo(elemFileDetails)
-                    .html('Version : ' + viewerFile.version);
-                
-                let creationDate = new Date(viewerFile.timestamp);
-
-                $('<div></div>').appendTo(elemFileDetails)
-                    .html('Date : ' + creationDate.toLocaleString());
-
-            }
-
-            elemFilesList.children('.tile').first().addClass('selected');
-
-        }
-
-    } else if(elemFileToolbar.length > 0) elemFileToolbar.hide();
-
-}
-
-function setViewerInstancedData() {
-
-    dataInstances = [];
-
-    if(viewer.model.is2d()) return;
-
-    let instanceTree    = viewer.model.getInstanceTree();
-    let promises        = [];
-
-    for(let i = 1; i < instanceTree.objectCount; i++) promises.push(getPropertiesAsync(i));
+    for(let i = 1; i < instanceTree.objectCount; i++) promises.push(getPropertiesAsync(viewerInstance.viewer, i));
 
     Promise.all(promises).then(function(instances) {
 
@@ -536,23 +518,25 @@ function setViewerInstancedData() {
                     instance.parents     = [];
                     instance.boundingBox = {};
                     if(viewerSettings.cacheBoundingBoxes) {
-                        viewer.select(instance.dbId);
-                        instance.boundingBox = viewer.utilities.getBoundingBox();
+                        viewerInstance.viewer.select(instance.dbId);
+                        instance.boundingBox = viewerInstance.viewer.utilities.getBoundingBox();
                     }
-                    dataInstances.push(instance);
+                    viewerInstance.dataInstances.push(instance);
                 }
             }
         }
 
-        if(viewerSettings.cacheBoundingBoxes) viewer.clearSelection();
+        if(viewerSettings.cacheBoundingBoxes) viewerInstance.viewer.clearSelection();
 
-        extendViewerInstanceData();
-        setViewerInstanceDataDone();
+        viewerInstance.instanceDataSet = true;
+
+        extendViewerInstanceData(viewerInstance);
+        onViewerLoadingDone     (viewerInstance);
 
     });
 
 }
-const getPropertiesAsync = (id) => {
+const getPropertiesAsync = (viewer, id) => {
     
     return new Promise((resolve, reject) => {
         viewer.getProperties(id, (result) => {
@@ -563,13 +547,13 @@ const getPropertiesAsync = (id) => {
     });
  
 }
-function extendViewerInstanceData() {
+function extendViewerInstanceData(viewerInstance) {
 
-    if(!viewerSettings.cacheInstances) return;
+    if(!viewerInstance.settings.cacheInstances) return;
 
     let instancesCount = [];
 
-    for(let instance of dataInstances) {
+    for(let instance of viewerInstance.dataInstances) {
         instance.isPattern = true;
         for(let property of instance.properties) {
             if(property.attributeName === 'BOMType') {
@@ -579,9 +563,9 @@ function extendViewerInstanceData() {
         }
     }
 
-    for(let instance of dataInstances) {
+    for(let instance of viewerInstance.dataInstances) {
         
-        getComponentPath(instance.dbId, instance.parents);
+        getComponentPath(viewerInstance, instance.dbId, instance.parents);
         
         let parentPartNumbers = instance.parents.filter(a => a.partNumber.indexOf('Pattern') < 0);
             // parentPartNumbers = parentPartNumbers.filter(a => ((a.name.indexOf(':') > 0) || (a.name.indexOf('.') > 0)));
@@ -625,9 +609,9 @@ function getInstancePartNumber(instance) {
     return null;
 
 }
-function getComponentPath(id, componentPath) {
+function getComponentPath(viewerInstance, id, componentPath) {
 
-    for(let instance of dataInstances) {
+    for(let instance of viewerInstance.dataInstances) {
         if(instance.dbId === id) {
 
             if(!instance.isPattern) {
@@ -639,7 +623,7 @@ function getComponentPath(id, componentPath) {
                 
             for(let property of instance.properties) {
                 if(property.attributeName === 'parent') {
-                    getComponentPath(property.displayValue, componentPath);
+                    getComponentPath(viewerInstance, property.displayValue, componentPath);
                 }
             }
 
@@ -647,115 +631,349 @@ function getComponentPath(id, componentPath) {
     }
 
 }
-// function getInstanceParents(instance) {
+function onViewerLoadingDone(viewerInstance) {}
 
-//     let result = '';
 
-//     for(let property of instance.properties) {
-//         if(property.attributeName === 'parent') {
-//             for(let dataInstance of dataInstances) {
-//                 if(dataInstance.dbId === property.displayValue) {
-//                     let parents = getInstanceParents(dataInstance);
-//                     if(parents !== '') parents += '|';
-//                     result = parents + dataInstance.partNumber;
-//                     break;
-//                 }
-//             }
-//             break;
-//         }
-//     }
+// Handle Multiple Viewer Instances
+function getViewerInstance(id) {
+
+    if(viewers.length === 0) return null;
+
+    if(isBlank(id)) return viewers[0];
+
+    for(let viewerInstance of viewers) {
+        if(viewerInstance.id === id) return viewerInstance;
+    }
     
-//     return result;
+    return null;
 
-// }
-function setViewerInstanceDataDone() {
-    viewerInstanceDataSet = true;
-    onViewerLoadingDone();
 }
+function getViewerInstanceRunning(id, requires3D) {
 
+    if(isBlank(requires3D)) requires3D = true;
 
+    if(viewers.length === 0) return [ null, null, false ];
 
-// Switch to other file
-function viewerSwitchFile(index) {
+    let viewerInstance = null;
 
-    let viewerFile = viewerFiles[index];
-
-    newInstance             = false;
-    viewerDone              = false;
-    viewerGeometryLoaded    = false;
-    viewerObjectTreeCreated = false;
-
-    viewer.toolbar.setVisible(false);
-    
-    viewerUnloadAllModels();
-
-    if(viewerFile.type === 'Adobe PDF') {
-
-        viewer.loadExtension('Autodesk.PDF').then( () => {
-            viewerFeatures.markup = true;
-            viewer.setBackgroundColor(viewerSettings.backgroundColor[0], viewerSettings.backgroundColor[1], viewerSettings.backgroundColor[2], viewerSettings.backgroundColor[3], viewerSettings.backgroundColor[4], viewerSettings.backgroundColor[5]);
-            viewer.loadModel(viewerFile.link, viewer, onPDFLoadSuccess, onDocumentLoadFailure);
-        });    
-
+    if(isBlank(id)) {
+        viewerInstance = viewers[0];
     } else {
-
-        Autodesk.Viewing.Document.load('urn:'+ viewerFile.urn, onDocumentLoadSuccess, onDocumentLoadFailure);
-
-        // Autodesk.Viewing.Document.load('urn:' + viewerFile.urn, function(doc) { 
-        //     let viewable = doc.getRoot().getDefaultGeometry(); 
-        //     if (viewable) {
-        //         // viewer.loadDocumentNode(doc, viewable, {globalOffset: {x:0,y:0,z:0}}).then(function(result) {
-        //         viewer.loadDocumentNode(doc, viewable).then(function(result) {
-        //             viewer.setBackgroundColor(viewerSettings.backgroundColor[0], viewerSettings.backgroundColor[1], viewerSettings.backgroundColor[2], viewerSettings.backgroundColor[3], viewerSettings.backgroundColor[4], viewerSettings.backgroundColor[5]);
-        //             viewerDone = true;
-        //         }).catch(function(err) {
-        //             console.log(err);
-        //         });
-        //     }                
-        // });
-            
+        for(let instance of viewers) {
+            if(instance.id === id) viewerInstance = instance;
+        }
     }
 
+    if(viewerInstance === null) return [ null, null, false ];
+    if(!viewerInstance.startupCompleted) return [ null, null, false ];
+    if(typeof viewerInstance.viewer === 'undefined') return [ null, null, false ];
+    
+    let proceed = (requires3D) ?  (!viewerInstance.viewer.model.is2d()) : true;
+
+    return [ viewerInstance, viewerInstance.viewer, proceed ];
+
+}
+function getEventViewerInstance(event) {
+
+    if(event.target === null) return null;
+
+    if(event.target.hasOwnProperty('panelId')) {
+        return getViewerInstance(event.target.panelId);
+    }
+
+    let elemEvent = $(event.target);
+
+    if(elemEvent.length === 0) return null;
+
+    let elemViewer = elemEvent.closest('.viewer');
+
+    if(elemViewer.length === 0) return null;;
+
+    let viewerId = elemViewer.attr('id');
+
+    if(isBlank(viewerId)) return null;
+
+    return getViewerInstance(viewerId);
+
+}
+function getRootViewerInstance(elemClicked) {
+
+    let elemViewer = elemClicked.closest('.viewer');
+    let viewerId   = elemViewer.attr('id');
+
+    return getViewerInstance(viewerId);
+
 }
 
+
+// File Browser
+function insertFileBrowser(viewerInstance) {
+
+    let elemFileBrowser = $('#' + viewerInstance.id + '-file-browser');
+    let elemFileToolbar = $('#' + viewerInstance.id + '-customFileBrowserToolbar');
+
+    if(viewerInstance.viewables.length > 1) {
+
+        if(elemFileToolbar.length === 0) {
+
+            let fileBrowserToolbar = new Autodesk.Viewing.UI.ControlGroup(viewerInstance.id + 'customFileBrowserToolbar');
+                viewerInstance.viewer.toolbar.addControl(fileBrowserToolbar);
+
+            let button = addCustomControl(fileBrowserToolbar, viewerInstance.id + 'button-file-browser', 'icon-folder', 'Switch viewable file');
+                button.onClick = function(event) { 
+                    let viewerInstance = getEventViewerInstance(event);
+                    $('#' + viewerInstance.id + '-viewer-file-browser').css('display', 'flex');
+                };
+
+        } else elemFileToolbar.show();
+
+        elemFileToolbar.appendTo($('#guiviewer3d-toolbar'));
+
+        if(elemFileBrowser.length === 0) {
+
+            elemFileBrowser = $('<div></div>').appendTo($('#' + viewerInstance.id))
+                .attr('id', viewerInstance.id + '-viewer-file-browser')
+                .addClass('viewer-file-browser');
+
+            let elemFileBrowserPanel = $('<div></div>').appendTo(elemFileBrowser)
+                .addClass('viewer-file-browser-panel')
+                .addClass('surface-level-1')
+                .attr('id', 'viewer-file-browser-panel');
+
+            let elemFilesHeader = $('<div></div>').appendTo(elemFileBrowserPanel)
+                .attr('id', viewerInstance.id + '-viewer-file-browser-header')
+                .addClass('viewer-file-browser-header');
+
+            $('<div></div>').appendTo(elemFilesHeader)
+                .attr('id', viewerInstance.id + '-viewer-file-browser-title')
+                .addClass('viewer-file-browser-title')
+                .html('Select Viewing File');
+
+            $('<div></div>').appendTo(elemFilesHeader)
+                .addClass('button')
+                .addClass('icon')
+                .addClass('icon-close')
+                .click(function() {
+                    $(this).closest('.viewer-file-browser').hide();
+                });
+           
+            let elemFilesList = $('<div></div>').appendTo(elemFileBrowserPanel)
+                .addClass('tiles')    
+                .addClass('list')    
+                .addClass('xl')    
+                .addClass('viewer-file-browser-list')    
+                .attr('id', viewerInstance.id + '-viewer-file-browser-list');
+
+            for(let viewerFile of viewerInstance.viewables) {
+
+                let elemFile = $('<div></div>').appendTo(elemFilesList)
+                    .attr('data-id', viewerFile.id)
+                    .attr('data-name', viewerFile.name)
+                    .addClass('tile')
+                    .click(function(event) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        $(this).siblings().removeClass('selected');
+                        $(this).addClass('selected');
+                        $(this).closest('.viewer-file-browser').hide();
+                        viewerSwitchFile($(this));
+                    });
+
+                if(viewerInstance.viewable.id == viewerFile.id) elemFile.addClass('selected');
+
+                let elemFileThumbnail = $('<div></div>').appendTo(elemFile)
+                    .addClass('tile-image');
+
+                if(viewerFile.type === 'Adobe PDF') {
+                    elemFileThumbnail.addClass('icon').addClass('icon-pdf');
+                } else {                    
+                    $('<img></img>').appendTo(elemFileThumbnail)
+                        .attr('src', viewerFile.thumbnail);
+                }
+
+                let elemFileDetails = $('<div></div>').appendTo(elemFile)
+                    .addClass('tile-details');
+
+                $('<div></div>').appendTo(elemFileDetails)
+                    .addClass('tile-title')
+                    .html(viewerFile.name);
+                
+                $('<div></div>').appendTo(elemFileDetails)
+                    .html('User : ' + viewerFile.user);
+                
+                $('<div></div>').appendTo(elemFileDetails)
+                    .html('Version : ' + viewerFile.version);
+                
+                let creationDate = new Date(viewerFile.timestamp);
+
+                $('<div></div>').appendTo(elemFileDetails)
+                    .html('Date : ' + creationDate.toLocaleString());
+
+            }
+
+        }
+
+    } else if(elemFileToolbar.length > 0) elemFileToolbar.hide();
+
+}
+function viewerSwitchFile(elemClicked) {
+
+    let viewableId     = elemClicked.attr('data-id');
+    let viewerInstance = getRootViewerInstance(elemClicked);
+
+    for(let viewable of viewerInstance.viewables) {
+        if(viewable.id == viewableId) {
+            viewerInstance.viewable = viewable;
+            break;
+        }
+    }
+
+    viewerInstance.objectTreeCreated = false;
+    viewerInstance.geometryLoaded    = false;
+
+    viewerInstance.viewer.toolbar.setVisible(false);
+
+    convertViewable(viewerInstance, {}, 1);
+
+
+    // if(viewable.type === 'Adobe PDF') {
+
+    //     console.log(viewable);
+
+    //     viewerInstance.viewer.loadExtension('Autodesk.PDF').then( () => {
+    //         viewerFeatures.markup = true;
+    //         viewerInstance.viewer.setBackgroundColor(
+    //             viewerInstance.settings.backgroundColor[0], 
+    //             viewerInstance.settings.backgroundColor[1], 
+    //             viewerInstance.settings.backgroundColor[2], 
+    //             viewerInstance.settings.backgroundColor[3], 
+    //             viewerInstance.settings.backgroundColor[4],
+    //             viewerInstance.settings.backgroundColor[5]
+    //         );
+    //         viewerInstance.viewer.loadModel(viewable.link, viewer, onPDFLoadSuccess, onDocumentLoadFailure);
+    //     });    
+
+    // } else {
+
+    //     Autodesk.Viewing.Document.load('urn:'+ viewable.urn, function(doc) {
+    //         onDocumentLoadSuccess(viewerInstance, doc);
+    //     }, onDocumentLoadFailure);
+            
+    // }
+
+}
 
 
 // Resize Viewer
 function viewerResize(delay) {
 
-    if(!viewerDone) return;
-
     if(typeof delay === 'undefined') delay = 250;
 
-    setTimeout(function() { viewer.resize(); }, delay);
+    for(let viewerInstance of viewers) {
+        if(viewerInstance.startupCompleted) {
+            setTimeout(function() { viewerInstance.viewer.resize(); }, delay);
+        }
+    }
 
 }
 
 
-
 // Validate viewer finished loading
-function isViewerStarted() {
- 
-    if(!viewerDone) return false;
-    if(typeof viewer === 'undefined') return false;
-    if(!viewer.started) return false;
+// TODO : REMOVE
+function isViewerStarted(id) {
+
+    if(viewers.length === 0) return false;
+
+    let viewerInstance = getViewerInstance(id);
+
+    if(viewerInstance === null) return false;
+    if(!viewerInstance.startupCompleted) return false;
+    if(typeof viewerInstance.viewer === 'undefined') return false;
+    
+    return true;
+    
+}
+function isViewerInstanceStarted(viewerInstance) {
+    
+    if(viewerInstance === null) return false;
+    if(!viewerInstance.startupCompleted) return false;
+    if(typeof viewerInstance.viewer === 'undefined') return false;
 
     return true;
 
 }
 
 
+// When multiple viewer instance are aviailable, their viewpoints can be synced
+function syncViewpoint(event) {
+
+    if(viewersSyncDisabled) return;
+    if(viewers.length < 2) return;
+
+    if(event.target.geometryLoaded === null) return;
+    if(event.target.geometryLoaded !== true) return;
+    if(event.target.syncingViewPoint) { event.target.syncingViewPoint = false; return; }
+
+    let sourceId   = event.target.panelId;
+    let sourceView = event.target.navigation;
+    const position = sourceView.getPosition();
+    const target   = sourceView.getTarget();
+    const camera   = sourceView.getCameraUpVector();
+
+    for(let viewerInstance of viewers) {
+        if(viewerInstance.id !== sourceId) {
+            let viewer = viewerInstance.viewer;
+            if(viewer !== null) {
+                viewer.syncingViewPoint = true;
+                viewer.navigation.setView(position, target);
+                viewer.navigation.setCameraUpVector(camera);
+            }
+        }
+    }
+
+}
+
+
+// When multiple viewer instance are aviailable, their explosion scale can be synced
+function syncExplosion(event) {
+
+    if(viewersSyncDisabled) return;
+    if(viewers.length < 2) return;
+
+    if(event.target.geometryLoaded === null) return;
+    if(event.target.geometryLoaded !== true) return;
+    if(event.target.syncExplosion) { event.target.syncExplosion = false; return; } 
+
+    let sourceId = event.target.panelId;
+    let scale    = event.target.getExplodeScale();
+
+    for(let viewerInstance of viewers) {
+
+        if(viewerInstance.id !== sourceId) {
+            let viewer = viewerInstance.viewer;
+            if(viewer !== null) {
+                viewer.syncExplosion = true;
+                viewer.explode(scale);
+            }
+        }
+    }
+
+}
+
 
 // Event listener for user selecting geometry in the viewer
 function onViewerSelectionChanged(event) {
 
-    if(!viewerInstanceDataSet)      return;
-    if(disableViewerSelectionEvent) return;
-    if(dataInstances.length  === 0) return;
+    let panelId        = event.target.panelId;
+    let viewerInstance = getViewerInstance(panelId);
+
+    if(!viewerInstance.instanceDataSet            ) return;
+    if( viewerInstance.disableSelectEvent         ) return;
+    if( viewerInstance.dataInstances.length  === 0) return;
 
     let partNumbers = [];
 
-    for(let dataInstance of dataInstances) {
+    for(let dataInstance of viewerInstance.dataInstances) {
         for(let dbId of event.dbIdArray) {
             if(dataInstance.dbId === dbId) {
                 partNumbers.push(dataInstance.partNumber);
@@ -763,21 +981,596 @@ function onViewerSelectionChanged(event) {
         }
     }
 
-    hideSelectedInstance(event);
-    onViewerSelectionChangedDone(partNumbers, event);
+    viewerHideSelected(event);
+
+    onViewerSelectionChangedDone(viewerInstance, partNumbers, event);
 
 }
-function onViewerSelectionChangedDone(partNumbers, event) {}
+function onViewerSelectionChangedDone(viewerInstance, partNumbers, event) {}
 
 
+// Select / deselect items in the viewer
+function viewerSelectModel(partNumber, params) {
+
+    viewerSelectModels([partNumber], params);
+
+}
+function viewerSelectModels(partNumbers, params) {
+
+    if(isBlank(params)) params = {};
+
+    let [ viewerInstance, viewer, proceed ] = getViewerInstanceRunning(params.id, true);
+
+    if(!proceed) return;
+
+
+    //  Set defaults for optional parameters
+    // --------------------------------------
+    let isolate     = params.isolate     ?? true;  // Enable isolation of selected component(s)
+    let ghosting    = params.ghosting    ?? false; // Enforce ghosting of hidden components
+    let fitToView   = params.fitToView   ?? true;  // Zoom in / out to fit selection into view 
+    let highlight   = params.highlight   ?? true;  // Highlight given partNumber(s) by defined color (colorModelSelected)
+    let resetColors = params.resetColors ?? true;  // Reset colors of all componente before highlighting the partNumber(s)
+    let keepHidden  = params.keepHidden  ?? true;  // Keep selectively hidden components hidden
+    let usePath     = params.usePath     ?? false; // If list of paths is provided instead of part numbers
+    let color       = colorModelSelected; 
+
+    if(viewerInstance.hasOwnProperty('highlight')) highlight = viewerInstance.highlight;
+
+    viewerInstance.disableSelectEvent = true;
+
+    if(!keepHidden) {
+        viewerInstance.hiddenInstances = [];
+        updateHiddenInstancesControls(viewerInstance);
+        updateHiddenInstancesList(viewerInstance);
+    }
+
+    let dbIds = [];
+    
+    if(isolate)     viewer.hideAll();
+    if(resetColors) viewer.clearThemingColors();
+
+    for(let dataInstance of viewerInstance.dataInstances) {
+        
+        let isSelected     = false;
+        // let instanceNumber =  (usePath) ? dataInstance.pathShort : dataInstance.partNumber;
+        let instanceNumber =  (usePath) ? dataInstance.path : dataInstance.partNumber;
+
+        for(let partNumber of partNumbers) {
+            if(instanceNumber === partNumber) {
+                dbIds.push(dataInstance.dbId);
+                viewer.show(dataInstance.dbId);
+                isSelected = true;
+                if(highlight) viewer.setThemingColor(dataInstance.dbId, color, null, true );
+            }
+        }
+        dataInstance.selected = isSelected;
+    }
+
+    for(let hiddenInstance of viewerInstance.hiddenInstances) viewer.hide(hiddenInstance.dbId);
+
+    viewerSetGhosting(viewerInstance, ghosting);
+    if(fitToView) viewer.fitToView(dbIds);
+
+    viewerInstance.disableSelectEvent = false;
+
+}
+function viewerSelectAll(params) {
+
+    if(isBlank(params)) params = {};
+    let [ viewerInstance, viewer, proceed ] = getViewerInstanceRunning(params.id, true);
+    if(!proceed) return;
+
+
+    //  Set defaults for optional parameters
+    // --------------------------------------
+    let fitToView   = params.fitToView   ?? true;  // Zoom in / out to fit selection into view 
+    let highlight   = params.highlight   ?? true;  // Highlight given partNumber(s) by defined color (colorModelSelected)
+    let resetColors = params.resetColors ?? true;  // Reset colors of all componente before highlighting the partNumber(s)
+    let keepHidden  = params.keepHidden  ?? true;  // Keep selectively hidden components hidden
+    let color       = params.color       ?? colorModelSelected; 
+
+    viewerInstance.disableSelectEvent = true;
+    viewer.showAll();
+
+    if(!keepHidden) {
+        viewerInstance.hiddenInstances = [];
+        updateHiddenInstancesControls(viewerInstance);
+        updateHiddenInstancesList(viewerInstance);
+    }
+    
+    if(resetColors) viewer.clearThemingColors();
+
+    if(highlight) {
+        for(let dataInstance of viewerInstance.dataInstances) {
+            viewer.setThemingColor(dataInstance.dbId, color, null, true );
+        }
+    }
+
+    for(let instance of viewerInstance.hiddenInstances) viewer.hide(instance.dbId);
+
+    if(fitToView) viewer.setViewFromFile();
+
+    viewerInstance.disableSelectEvent = false;
+
+}
+function viewerSelectInstances(dbIds, params) {
+
+    if(isBlank(params)) params = {};
+    let [ viewerInstance, viewer, proceed ] = getViewerInstanceRunning(params.id, true);
+    if(!proceed) return;
+
+
+    //  Set defaults for optional parameters
+    // --------------------------------------
+    let isolate     = params.isolate     ?? true;  // Enable isolation of selected component(s)
+    let ghosting    = params.ghosting    ?? false; // Enforce ghosting of hidden components
+    let fitToView   = params.fitToView   ?? true;  // Zoom in / out to fit selection into view 
+    let highlight   = params.highlight   ?? true;  // Highlight given partNumber(s) by defined color (colorModelSelected)
+    let resetColors = params.resetColors ?? true;  // Reset colors of all componente before highlighting the partNumber(s)
+    let keepHidden  = params.keepHidden  ?? true;  // Keep selectively hidden components hidden
+    let color       = params.color       ?? colorModelSelected; 
+
+    viewerInstance.disableSelectEvent = true;
+
+    if(!keepHidden) {
+        viewerInstance.hiddenInstances = [];
+        updateHiddenInstancesControls(viewerInstance);
+        updateHiddenInstancesList(viewerInstance);
+    }   
+
+    if(isolate)     viewer.hideAll();
+    if(resetColors) viewer.clearThemingColors();
+    
+    for(let dbId of dbIds) {
+        dbId = Number(dbId);
+        if(viewerInstance.hiddenInstances.indexOf(dbId < 0)) {
+            viewer.show(dbId);
+            if(highlight) viewer.setThemingColor(dbId, color, null, true );
+        }
+    }
+    
+    viewerSetGhosting(viewerInstance, ghosting);
+    if(fitToView) viewer.fitToView(dbIds);
+
+   viewerInstance.disableSelectEvent = false;
+
+}
+function viewerHighlightInstances(partNumber, dbIds, instancePaths, params) {
+    
+    // Select all occurences of a partNumber and highlight defined instance IDs
+
+    if(isBlank(partNumber)) return;
+    if(isBlank(dbIds     )) { if(isBlank(instancePaths)) return; else dbIds = []; }
+    if(isBlank(params    )) params = {};
+
+    let [ viewerInstance, viewer, proceed ] = getViewerInstanceRunning(params.id, true);
+
+    if(!proceed) return;
+
+
+    //  Set defaults for optional parameters
+    // --------------------------------------
+    let isolate         = params.isolate        ?? true;  // Enable isolation of selected component(s)
+    let ghosting        = params.ghosting       ?? false; // Enforce ghosting of hidden components
+    let fitToView       = params.fitToView      ?? true;  // Zoom in / out to fit selection into view 
+    let resetColors     = params.resetColors    ?? true;  // Reset colors of all componente before highlighting the partNumber(s)
+    let keepHidden      = params.keepHidden     ?? true;  // Keep selectively hidden components hidden
+    let color           = params.color          ?? colorModelSelected; 
+    let colorHighlight  = params.colorHighlight ?? colorModelHighlighted; 
+
+    viewerInstance.disableSelectEvent = true;
+
+    if(!keepHidden) {
+        viewerInstance.hiddenInstances = [];
+        updateHiddenInstancesControls(viewerInstance);
+        updateHiddenInstancesList(viewerInstance);
+    } 
+    
+    let matchingdbIds = [];
+
+    if(isolate)     viewer.hideAll();
+    if(resetColors) viewer.clearThemingColors();
+
+    if(dbIds.length === 0) {
+        if(!isBlank(instancePaths)) {
+            for(let instancePath of instancePaths) {
+                for(let dataInstance of viewerInstance.dataInstances) {
+                    if(dataInstance.instancePath === instancePath) {
+                        dbIds.push(dataInstance.dbId);
+                    }
+                }
+            }
+        }
+    }
+
+    for(let dbId of dbIds) {
+        for(let dataInstance of viewerInstance.dataInstances) {
+            if(dataInstance.partNumber === partNumber) {
+                if(viewerInstance.hiddenInstances.indexOf(dbId < 0)) {
+                    matchingdbIds.push(dataInstance.dbId);
+                    viewer.show(dataInstance.dbId);
+                }
+            }
+        }
+    }
+
+    for(let dbId of matchingdbIds) {
+        viewer.setThemingColor(Number(dbId), color, null, true );
+    }
+    for(let dbIdHighlight of dbIds) {
+        viewer.setThemingColor(Number(dbIdHighlight), colorHighlight, null, true );
+    }
+     
+    viewerSetGhosting(viewerInstance, ghosting);
+    if(fitToView) viewer.fitToView(matchingdbIds);
+    
+    viewerInstance.disableSelectEvent = false;
+
+}
+function viewerResetSelection(params) {
+
+    if(isBlank(params)) params = {};
+
+    let [ viewerInstance, viewer, proceed ] = getViewerInstanceRunning(params.id, true);
+
+    if(!proceed) return;
+
+
+    //  Set defaults for optional parameters
+    // --------------------------------------
+    let fitToView   = params.fitToView   || true;   // Zoom in / out to fit all into view
+    let resetView   = params.resetView   || false;  // Reset view to initial view from file
+    let resetColors = params.resetColors || true;   // Highlight given partNumber(s) by defined color (colorModelSelected)
+    let keepHidden  = params.keepHidden  || true;   // Keep selectively hidden components hidden
+    let showAll     = params.showAll     || true;   // Show all components
+
+    viewerInstance.disableSelectEvent = true;
+
+    if(showAll) viewer.showAll();
+    viewer.clearSelection();
+
+    if(keepHidden) {
+        for(let instance of viewerInstance.hiddenInstances) {
+            viewer.hide(instance.dbId);
+        }
+    } else { 
+        viewerInstance.hiddenInstances = [];
+        updateHiddenInstancesControls(viewerInstance);
+        updateHiddenInstancesList(viewerInstance);
+    }
+    
+         if(resetColors) viewer.clearThemingColors();
+         if(resetView  ) viewer.setViewFromFile();
+    else if(fitToView  ) viewer.fitToView();
+
+    viewerInstance.disableSelectEvent = false;
+
+}
+
+
+// Set Component Colors
+function viewerSetColor(partNumber, params) {
+
+    viewerSetColors([partNumber], params);
+
+}
+function viewerSetColors(partNumbers, params) {
+
+    if(isBlank(params)) params = {};
+
+    let [ viewerInstance, viewer, proceed ] = getViewerInstanceRunning(params.id, true);
+
+    if(!proceed) return;
+    
+
+    //  Set defaults for optional parameters
+    // --------------------------------------
+    let isolate     = params.isolate     ?? false;  // Enable isolation of selected component(s)
+    let ghosting    = params.ghosting    ?? false; // Enforce ghosting of hidden components
+    let fitToView   = params.fitToView   ?? false;  // Zoom in / out to fit selection into view 
+    let resetColors = params.resetColors ?? true;  // Reset colors of all componente before highlighting the partNumber(s)
+    let keepHidden  = params.keepHidden  ?? true;  // Keep selectively hidden components hidden
+    let unhide      = params.unhide      ?? true; // If list of paths is provided instead of part numbers
+    let usePath     = params.usePath     ?? false; // If list of paths is provided instead of part numbers
+    let color       = colorModelSelected;   
+
+    if(!isBlank(params.color)) color = new THREE.Vector4(params.color[0], params.color[1], params.color[2], params.color[3]);
+
+    let dbIds  = [];
+
+    if(isolate)     viewer.hideAll();
+    if(resetColors) viewer.clearThemingColors();
+
+    if(!keepHidden) {
+        viewerInstance.hiddenInstances = [];
+        updateHiddenInstancesControls(viewerInstance);
+        updateHiddenInstancesList(viewerInstance);
+    }
+
+    for(let dataInstance of viewerInstance.dataInstances) {
+        // let instanceNumber =  (usePath) ? dataInstance.pathShort : dataInstance.partNumber;
+        let instanceNumber =  (usePath) ? dataInstance.path : dataInstance.partNumber;
+        for(let partNumber of partNumbers) {
+            if(instanceNumber === partNumber) {
+                if(viewerInstance.hiddenInstances.indexOf(dataInstance.dbId < 0)) {
+                    dbIds.push(dataInstance.dbId);
+                    if(unhide) viewer.show(dataInstance.dbId);
+                    viewer.setThemingColor(dataInstance.dbId, color, null, true );
+                }
+            }
+        }
+    }
+
+    viewerSetGhosting(viewerInstance, ghosting);
+    if(fitToView) viewer.fitToView(dbIds);
+
+}
+function viewerSetColorToAll(color, params) {
+
+    if(isBlank(color )) return;
+    if(isBlank(params)) params = {};
+
+    let [ viewerInstance, viewer, proceed ] = getViewerInstanceRunning(params.id, true);
+
+    if(!proceed) return;
+
+    let vector      = new THREE.Vector4(color[0], color[1], color[2], color[3]);
+    let instances   = viewer.model.getInstanceTree();
+
+    for(var i = 0; i < instances.objectCount; i++) {
+        viewer.model.getProperties(i, function(data) { 
+            viewer.setThemingColor(data.dbId, vector, null, true);
+        })
+    }
+
+}
+function viewerResetColors(params) {
+
+    if(isBlank(params)) params = {};
+
+    let [ viewerInstance, viewer, proceed ] = getViewerInstanceRunning(params.id, true);
+
+    if(!proceed) return;
+
+    viewer.clearThemingColors();
+
+}
+
+
+// Hide / unhide elements from viewer
+function viewerHideAll(params) {
+
+    if(isBlank(params)) params = {};
+
+    let [ viewerInstance, viewer, proceed ] = getViewerInstanceRunning(params.id, true);
+
+    if(!proceed) return;
+
+    viewer.hideAll();
+
+}
+function viewerHideModel(partNumber, params) {
+
+    viewerHideModels([partNumber], params);
+
+}
+function viewerHideModels(partNumbers, params) {
+
+    if(isBlank(params)) params = {};
+
+    let [ viewerInstance, viewer, proceed ] = getViewerInstanceRunning(params.id, true);
+
+    if(!proceed) return;
+
+
+    //  Set defaults for optional parameters
+    // --------------------------------------
+    let ghosting    = params.ghosting ?? true;   // Enforce ghosting of hidden components
+    let usePath     = params.usePath  ?? false;  // If list of paths is provided instead of part numbers
+
+
+    for(let dataInstance of viewerInstance.dataInstances) {
+        // let instanceNumber =  (usePath) ? dataInstance.pathShort : dataInstance.partNumber;
+        let instanceNumber =  (usePath) ? dataInstance.path : dataInstance.partNumber;
+        for(let partNumber of partNumbers) {
+            if(instanceNumber === partNumber) {
+                viewer.hide(dataInstance.dbId);
+                if(usePath) break;
+            }
+        }
+
+    }
+
+    viewerSetGhosting(viewerInstance, ghosting);
+
+}
+function viewerUnhideModel(partNumber, params) {
+
+    viewerUnhideModels([partNumber], params);
+
+}
+function viewerUnhideModels(partNumbers, params) {
+
+    if(isBlank(params)) params = {};
+
+    let [ viewerInstance, viewer, proceed ] = getViewerInstanceRunning(params.id, true);
+
+    if(!proceed) return;
+
+
+    //  Set defaults for optional parameters
+    // --------------------------------------
+    let fitToView   = params.fitToView   ?? true;  // Zoom in / out to fit selection into view 
+    let highlight   = params.highlight   ?? true;  // Highlight given partNumber(s) by defined color (colorModelSelected)
+    let resetColors = params.resetColors ?? true;  // Reset colors of all componente before highlighting the partNumber(s)
+    let usePath     = params.usePath     ?? false; // If list of paths is provided instead of part numbers
+    let color       = colorModelSelected; 
+
+    if(!isBlank(params.color)) color = new THREE.Vector4(params.color[0], params.color[1], params.color[2], params.color[3]);
+
+    let dbIds = [];
+    
+    if(resetColors) viewer.clearThemingColors();
+
+    for(let dataInstance of viewerInstance.dataInstances) {
+        // let instanceNumber =  (usePath) ? dataInstance.pathShort : dataInstance.partNumber;
+        let instanceNumber =  (usePath) ? dataInstance.path : dataInstance.partNumber;
+        for(let partNumber of partNumbers) {
+            if(instanceNumber === partNumber) {
+                dbIds.push(dataInstance.dbId);
+                viewer.show(dataInstance.dbId);
+                if(highlight) viewer.setThemingColor(dataInstance.dbId, color, null, true );
+                if(usePath) break;
+            }
+        }
+    }
+
+    if(fitToView) viewer.fitToView(dbIds);
+
+}
+function viewerUnhideAll(params) {
+
+    if(isBlank(params)) params = {};
+
+    let [ viewerInstance, viewer, proceed ] = getViewerInstanceRunning(params.id, true);
+
+    if(!proceed) return;
+
+
+    //  Set defaults for optional parameters
+    // --------------------------------------
+    let fitToView   = params.fitToView   ?? true;  // Zoom in / out to fit selection into view 
+    let resetColors = params.resetColors ?? true;  // Reset colors of all componente before highlighting the partNumber(s)
+    let keepHidden  = params.keepHidden  ?? true;  // Keep selectively hidden components hidden
+
+
+    if(!keepHidden) {
+        viewerInstance.hiddenInstances = [];
+        updateHiddenInstancesControls(viewerInstance);
+        updateHiddenInstancesList(viewerInstance);
+    }
+
+    if(resetColors) viewer.clearThemingColors();
+
+    viewer.showAll();
+
+    for(let instance of viewerInstance.hiddenInstances) viewer.hide(instance.dbId);
+
+    if(fitToView) viewer.setViewFromFile();
+}
+
+
+// Add & unload models to session
+// function viewerAddModel(model) {
+    
+//     viewerAddModels([model]);
+
+// }
+// function viewerAddModels(models) {
+
+//     for(let model of models) addModel(model);
+
+// }
+// function addModel(model) {
+
+//     if(!isViewerStarted()) return;
+
+//     // see https://aps.autodesk.com/blog/loading-multiple-models-forge-viewer-v7 about transformation
+    
+//     if(typeof model.offsetX === 'undefined') model.offsetX = 0;
+//     if(typeof model.offsetY === 'undefined') model.offsetY = 0;
+//     if(typeof model.offsetZ === 'undefined') model.offsetZ = 0;
+
+//     if(typeof model.angleX === 'undefined') model.angleX = 0;
+//     if(typeof model.angleY === 'undefined') model.angleY = 0;
+//     if(typeof model.angleZ === 'undefined') model.angleZ = 0;
+
+//     Autodesk.Viewing.Document.load('urn:'+ model.urn, function(doc) {
+
+
+//         // const rotation = new THREE.Matrix4().makeRotationY(0);
+//         // const rotation = new THREE.Matrix4().makeRotationX(Number(model.angleX)).makeRotationY(Number(model.angleY)).makeRotationZ(Number(model.angleZ));
+//         // const rotation = new THREE.Matrix4().makeRotationX(Number(model.angleX));
+//         // const rotation = new THREE.Matrix4().makeRotationY(Number(model.angleY));
+//         // const rotation = new THREE.Matrix4().makeRotationZ(Number(model.angleZ));
+//         // const translation = new THREE.Matrix4().makeTranslation(0, 0, 0);
+//         // const rotation = new THREE.Matrix4().makeRotationX(Number(model.angleX));// works
+//         const rotation = new THREE.Matrix4().makeRotationX(Number(model.angleX)).makeRotationY(Number(model.angleY));
+//         const translation = new THREE.Matrix4().makeTranslation(Number(model.offsetX), Number(model.offsetY), Number(model.offsetZ));
+//         // const translation = new THREE.Matrix4();
+
+//         // console.log(Number(model.offsetX) + ',' + Number(model.offsetY) + ',' + Number(model.offsetZ) + '    /     ' + Number(model.angleX) + ',' + Number(model.angleY) + ',' + Number(model.angleZ));
+//         // console.log(Number(model.angleY));
+//         // console.log(Number(model.angleZ));
+
+//         var viewable = doc.getRoot().getDefaultGeometry();
+//         viewer.loadDocumentNode(doc, viewable, {
+//             preserveView: false,
+//             // keepCurrentModels: true,
+//             // placementTransform: (new THREE.Matrix4()).setPosition({x:-1000,y:1000,z:0}),
+//             // placementTransform: (new THREE.Matrix4()).makeRotationY(90).makeRotationZ(90).setPosition({x:-1000,y:1000,z:0}),
+//             // placementTransform: (new THREE.Matrix4()).makeRotationX(Number(model.angleX)).makeRotationY(Number(model.angleY)).makeRotationZ(Number(model.angleZ)).setPosition({x:Number(model.offsetX), y:Number(model.offsetY), z:Number(model.offsetZ)}),
+//             // placementTransform: translation,   // works
+//             // placementTransform: rotation, // fails
+//             // placementTransform: new THREE.Matrix4().makeRotationX(Number(model.angleX)), // works
+//             // placementTransform: new THREE.Matrix4().makeRotationX(Number(model.angleX)).makeTranslation(Number(model.offsetX), Number(model.offsetY), Number(model.offsetZ)), // fails
+//             placementTransform: rotation.multiply(translation), // works
+//             keepCurrentModels: true,
+//             globalOffset: {x:0,y:0,z:0}
+//         }).then(function(result) {
+//             // viewer.showAll();
+//         }).catch(function(err) {
+//             console.log(err);
+//         });
+
+//     }, onDocumentLoadFailure);
+
+// }
+// function viewerUnloadModel(urn) {
+
+//     viewerUnloadModels([urn]);
+
+// }
+// function viewerUnloadModels(urns) {
+
+//     for(let urn of urns) unloadModel(urn);
+
+// }
+// function unloadModel(urn) {
+
+//     if(!isViewerStarted()) return;
+
+//     let models = viewer.impl.modelQueue().getModels();
+
+//     for(let model of models) {
+//         if(model.myData.urn === urn) viewer.unloadModel(model);
+//     }
+
+// }
+function viewerUnloadAllModels(params) {
+
+    if(isBlank(params)) params = {};
+
+    let [ viewerInstance, viewer, proceed ] = getViewerInstanceRunning(params.id, false);
+
+    if(!proceed) return;    
+
+    let models = viewer.impl.modelQueue().getModels();
+
+    for(let model of models) viewer.impl.unloadModel(model);
+
+}
 
 
 // Get part number of selected component
 function viewerGetSelectedPartNumber(event, callback) {
 
+    let viewerInstance = getEventViewerInstance(event);
+
     if(event.dbIdArray.length === 1) {
 
-        viewer.getProperties(event.dbIdArray[0], function(data) {
+        viewerInstance.viewer.getProperties(event.dbIdArray[0], function(data) {
 
             let partNumber = data.name.split(':')[0];
             let match      = false;
@@ -804,632 +1597,32 @@ function viewerGetSelectedPartNumber(event, callback) {
 }
 
 
-
-// Select / deselect items in the viewer
-function viewerSelectModel(partNumber, params) {
-
-    viewerSelectModels([partNumber], params);
-
-}
-function viewerSelectModels(partNumbers, params) {
-
-    if(!isViewerStarted()) return;
-    if(viewer.model.is2d()) return;
-
-    //  Set defaults for optional parameters
-    // --------------------------------------
-    let isolate     = true;    // Enable isolation of selected component(s)
-    let ghosting    = false;   // Enforce ghosting of hidden components
-    let fitToView   = true;    // Zoom in / out to fit selection into view 
-    let highlight   = true;    // Highlight given partNumber(s) by defined color (colorModelSelected)
-    let resetColors = true;    // Reset colors of all componente before highlighting the partNumber(s)
-    let keepHidden  = true;    // Keep selectively hidden components hidden
-    let usePath     = false;   // If list of paths is provided instead of part numbers
-    let color       = colorModelSelected; 
-
-
-    if( isBlank(params)            )      params = {};
-    if(!isBlank(params.isolate)    )     isolate = params.isolate;
-    if(!isBlank(params.ghosting)   )    ghosting = params.ghosting;
-    if(!isBlank(params.fitToView)  )   fitToView = params.fitToView;
-    if(!isBlank(params.highlight)  )   highlight = params.highlight;
-    if(!isBlank(params.resetColors)) resetColors = params.resetColors;
-    if(!isBlank(params.keepHidden) )  keepHidden = params.keepHidden;
-    if(!isBlank(params.usePath)    )     usePath = params.usePath;
-    if(!isBlank(params.color)      )       color = params.color;
-
-    disableViewerSelectionEvent = true;
-
-    if(!keepHidden) {
-        hiddenInstances = [];
-        updateHiddenInstancesControls();
-        updateHiddenInstancesList();
-    }
-
-    let dbIds = [];
-    
-    if(isolate)     viewer.hideAll();
-    if(resetColors) viewer.clearThemingColors();
-
-    if(!isBlank(viewerFeatures.highlight)) {
-        if(viewerFeatures.highlight) {
-            let toolbar = $('#customSelectionToolbar');
-            if(toolbar.length > 0) {
-                highlight = toolbar.hasClass('highlight-on');
-            }
-        }
-    }
-
-    for(let dataInstance of dataInstances) {
-        
-        let isSelected     = false;
-        // let instanceNumber =  (usePath) ? dataInstance.pathShort : dataInstance.partNumber;
-        let instanceNumber =  (usePath) ? dataInstance.path : dataInstance.partNumber;
-        
-        for(let partNumber of partNumbers) {
-            if(instanceNumber === partNumber) {
-                dbIds.push(dataInstance.dbId);
-                viewer.show(dataInstance.dbId);
-                isSelected = true;
-                if(highlight) viewer.setThemingColor(dataInstance.dbId, color, null, true );
-            }
-        }
-        dataInstance.selected = isSelected;
-    }
-
-    for(instance of hiddenInstances) viewer.hide(instance.dbId);
-
-    viewerSetGhosting(ghosting);
-    if(fitToView) viewer.fitToView(dbIds);
-
-    disableViewerSelectionEvent = false;
-
-}
-function viewerSelectAll(params) {
-
-    if(!isViewerStarted()) return;
-    if(viewer.model.is2d()) return;
-
-    //  Set defaults for optional parameters
-    // --------------------------------------
-    let fitToView   = true;     // Zoom in / out to fit selection into view 
-    let highlight   = true;     // Highlight given partNumber(s) by defined color (colorModelSelected)
-    let resetColors = true;     // Reset colors of all componente before highlighting the partNumber(s)
-    let keepHidden  = true;     // Keep selectively hidden components hidden
-    let color       = colorModelSelected; 
-
-    if( isBlank(params)            )      params = {};
-    if(!isBlank(params.fitToView)  )   fitToView = params.fitToView;
-    if(!isBlank(params.highlight)  )   highlight = params.highlight;
-    if(!isBlank(params.resetColors)) resetColors = params.resetColors;
-    if(!isBlank(params.keepHidden) )  keepHidden = params.keepHidden;
-    if(!isBlank(params.color)      )       color = params.color;
-
-    disableViewerSelectionEvent = true;
-    viewer.showAll();
-
-    if(!keepHidden) {
-        hiddenInstances = [];
-        updateHiddenInstancesControls();
-        updateHiddenInstancesList();
-    }
-    
-    if(resetColors) viewer.clearThemingColors();
-
-    if(highlight) {
-        for(let dataInstance of dataInstances) {
-            viewer.setThemingColor(dataInstance.dbId, color, null, true );
-        }
-    }
-
-    for(instance of hiddenInstances) viewer.hide(instance.dbId);
-
-    if(fitToView) viewer.setViewFromFile();
-
-    disableViewerSelectionEvent = false;
-
-}
-function viewerSelectInstances(dbIds, params) {
-
-    if(!isViewerStarted()) return;
-    if(viewer.model.is2d()) return;
-
-    //  Set defaults for optional parameters
-    // --------------------------------------
-    let isolate     = true;    // Enable isolation of selected component(s)
-    let ghosting    = false;   // Enforce ghosting of hidden components
-    let fitToView   = true;    // Zoom in / out to fit selection into view 
-    let highlight   = true;    // Highlight given partNumber(s) by defined color (colorModelSelected)
-    let resetColors = true;    // Reset colors of all componente before highlighting the partNumber(s)
-    let keepHidden  = true;    // Keep selectively hidden components hidden
-    let color       = colorModelSelected; 
-
-    if( isBlank(params)            )      params = {};
-    if(!isBlank(params.isolate)    )     isolate = params.isolate;
-    if(!isBlank(params.ghosting)   )    ghosting = params.ghosting;
-    if(!isBlank(params.fitToView)  )   fitToView = params.fitToView;
-    if(!isBlank(params.highlight)  )   highlight = params.highlight;
-    if(!isBlank(params.resetColors)) resetColors = params.resetColors;
-    if(!isBlank(params.keepHidden) )  keepHidden = params.keepHidden;
-    if(!isBlank(params.color)      )       color = params.color;
-
-    disableViewerSelectionEvent = true;
-
-    if(!keepHidden) {
-        hiddenInstances = [];
-        updateHiddenInstancesControls();
-        updateHiddenInstancesList();
-    }    
-
-    if(isolate)     viewer.hideAll();
-    if(resetColors) viewer.clearThemingColors();
-    
-    for(let dbId of dbIds) {
-        dbId = Number(dbId);
-        if(hiddenInstances.indexOf(dbId < 0)) {
-            viewer.show(dbId);
-            if(highlight) viewer.setThemingColor(dbId, color, null, true );
-        }
-    }
-    
-    viewerSetGhosting(ghosting);
-    if(fitToView) viewer.fitToView(dbIds);
-
-    disableViewerSelectionEvent = false;
-
-}
-function viewerHighlightInstances(partNumber, dbIds, instancePaths, params) {
-    
-    // Select all occurences of a partNumber and highlight defined instance IDs
-
-    if(!isViewerStarted()) return;
-    if(isBlank(partNumber)) return;
-    if(viewer.model.is2d()) return;
-    if(isBlank(dbIds)) { if(isBlank(instancePaths)) return; else dbIds = []; }
-
-    //  Set defaults for optional parameters
-    // --------------------------------------
-    let isolate         = true;    // Enable isolation of selected component(s)
-    let ghosting        = false;   // Enforce ghosting of hidden components
-    let fitToView       = true;    // Zoom in / out to fit selection into view 
-    let resetColors     = true;    // Reset colors of all componente before highlighting the partNumber(s)
-    let keepHidden      = true;    // Keep selectively hidden components hidden
-    let color           = colorModelSelected; 
-    let colorHighlight  = colorModelHighlighted; 
-
-
-    if( isBlank(params)               )         params = {};
-    if(!isBlank(params.isolate)       )        isolate = params.isolate;
-    if(!isBlank(params.ghosting)      )       ghosting = params.ghosting;
-    if(!isBlank(params.fitToView)     )      fitToView = params.fitToView;
-    if(!isBlank(params.resetColors)   )    resetColors = params.resetColors;
-    if(!isBlank(params.keepHidden)    )     keepHidden = params.keepHidden;
-    if(!isBlank(params.color)         )          color = params.color;
-    if(!isBlank(params.colorHighlight)) colorHighlight = params.colorHighlight;
-
-    disableViewerSelectionEvent = true;
-
-    if(!keepHidden) {
-        hiddenInstances = [];
-        updateHiddenInstancesControls();
-        updateHiddenInstancesList();
-    }    
-    
-    let matchingdbIds   = [];
-
-    if(isolate)     viewer.hideAll();
-    if(resetColors) viewer.clearThemingColors();
-
-    if(dbIds.length === 0) {
-        if(!isBlank(instancePaths)) {
-            for(let instancePath of instancePaths) {
-                for(let dataInstance of dataInstances) {
-                    if(dataInstance.instancePath === instancePath) {
-                        dbIds.push(dataInstance.dbId);
-                    }
-                }
-            }
-        }
-    }
-
-    for(let dbId of dbIds) {
-        for(let dataInstance of dataInstances) {
-            if(dataInstance.partNumber === partNumber) {
-                if(hiddenInstances.indexOf(dbId < 0)) {
-                    matchingdbIds.push(dataInstance.dbId);
-                    viewer.show(dataInstance.dbId);
-                }
-            }
-        }
-    }
-
-    for(let dbId of matchingdbIds) {
-        viewer.setThemingColor(Number(dbId), colorModelSelected, null, true );
-    }
-    for(let dbIdHighlight of dbIds) {
-        viewer.setThemingColor(Number(dbIdHighlight), colorModelHighlighted, null, true );
-    }
-     
-    viewerSetGhosting(ghosting);
-    if(fitToView) viewer.fitToView(matchingdbIds);
-    
-    disableViewerSelectionEvent = false;
-
-}
-function viewerResetSelection(params) {
-
-    if(!isViewerStarted()) return;
-    if(viewer.model.is2d()) return;
-
-    disableViewerSelectionEvent = true;
-
-    //  Set defaults for optional parameters
-    // --------------------------------------
-    let fitToView   = true;     // Zoom in / out to fit all into view
-    let resetView   = false;    // Reset view to initial view from file
-    let resetColors = true;     // Highlight given partNumber(s) by defined color (colorModelSelected)
-    let keepHidden  = true;     // Keep selectively hidden components hidden
-    let showAll     = true;     // Show all components
-
-    if( isBlank(params)            )      params = {};
-    if(!isBlank(params.fitToView)  )   fitToView = params.fitToView;
-    if(!isBlank(params.resetView)  )   resetView = params.resetView;
-    if(!isBlank(params.resetColors)) resetColors = params.resetColors;
-    if(!isBlank(params.keepHidden) )  keepHidden = params.keepHidden;
-    if(!isBlank(params.showAll)    )     showAll = params.showAll;
-
-    if(showAll) viewer.showAll();
-    viewer.clearSelection();
-
-    if(keepHidden) {
-        for(let instance of hiddenInstances) {
-            viewer.hide(instance.dbId);
-        }
-    } else { 
-        hiddenInstances = [];
-        updateHiddenInstancesControls();
-        updateHiddenInstancesList();
-    }
-    
-         if(resetColors) viewer.clearThemingColors();
-         if(resetView  ) viewer.setViewFromFile();
-    else if(fitToView  ) viewer.fitToView();
-
-    disableViewerSelectionEvent = false;
-
-}
-
-
-
-// Set Component Colors
-function viewerSetColor(partNumber, params) {
-
-    viewerSetColors([partNumber], params);
-
-}
-function viewerSetColors(partNumbers, params) {
-
-    if(!isViewerStarted()) return;
-    if(viewer.model.is2d()) return;
-
-    //  Set defaults for optional parameters
-    // --------------------------------------
-    let isolate     = false;   // Enable isolation of selected component(s)
-    let ghosting    = false;   // Enforce ghosting of hidden components
-    let fitToView   = false;   // Zoom in / out to fit selection into view 
-    let resetColors = true;    // Reset colors of all componente before highlighting the partNumber(s)
-    let usePath     = false;   // If list of paths is provided instead of part numbers
-    let keepHidden  = true;    // Keep selectively hidden components hidden
-    let unhide      = true;    // Unhide component if it is currently hidden
-    let color       = colorModelSelected; 
-
-
-    if( isBlank(params)            )      params = {};
-    if(!isBlank(params.isolate)    )     isolate = params.isolate;
-    if(!isBlank(params.ghosting)   )    ghosting = params.ghosting;
-    if(!isBlank(params.fitToView)  )   fitToView = params.fitToView;
-    if(!isBlank(params.resetColors)) resetColors = params.resetColors;
-    if(!isBlank(params.usePath)    )     usePath = params.usePath;
-    if(!isBlank(params.keepHidden) )  keepHidden = params.keepHidden;
-    if(!isBlank(params.unhide)     )      unhide = params.unhide;
-    if(!isBlank(params.color)      )       color = new THREE.Vector4(params.color[0], params.color[1], params.color[2], params.color[3]);
-
-    let dbIds  = [];
-
-    if(isolate)     viewer.hideAll();
-    if(resetColors) viewer.clearThemingColors();
-
-    if(!keepHidden) {
-        hiddenInstances = [];
-        updateHiddenInstancesControls();
-        updateHiddenInstancesList();
-    }
-
-    for(let dataInstance of dataInstances) {
-        // let instanceNumber =  (usePath) ? dataInstance.pathShort : dataInstance.partNumber;
-        let instanceNumber =  (usePath) ? dataInstance.path : dataInstance.partNumber;
-        for(let partNumber of partNumbers) {
-            if(instanceNumber === partNumber) {
-                if(hiddenInstances.indexOf(dataInstance.dbId < 0)) {
-                    dbIds.push(dataInstance.dbId);
-                    if(unhide) viewer.show(dataInstance.dbId);
-                    viewer.setThemingColor(dataInstance.dbId, color, null, true );
-                }
-            }
-        }
-    }
-
-    viewerSetGhosting(ghosting);
-    if(fitToView) viewer.fitToView(dbIds);
-
-}
-function viewerSetColorToAll(color) {
-
-    if(!isViewerStarted()) return;
-    if(viewer.model.is2d()) return;
-
-    let vector      = new THREE.Vector4(color[0], color[1], color[2], color[3]);
-    let instances   = viewer.model.getInstanceTree();
-
-    for(var i = 0; i < instances.objectCount; i++) {
-        viewer.model.getProperties(i, function(data) { 
-            viewer.setThemingColor(data.dbId, vector, null, true);
-        })
-    }
-
-}
-function viewerResetColors() {
-
-    if(!isViewerStarted()) return;
-    if(viewer.model.is2d()) return;
-
-    viewer.clearThemingColors();
-
-}
-
-
-
-// Hide / unhide elements from viewer
-function viewerHideModel(partNumber, params) {
-
-    viewerHideModels([partNumber], params);
-
-}
-function viewerHideModels(partNumbers, params) {
-
-    if(!isViewerStarted()) return;
-    if(viewer.model.is2d()) return;
-
-    //  Set defaults for optional parameters
-    // --------------------------------------
-    let ghosting    = true;   // Enforce ghosting of hidden components
-    let usePath     = false;   // If list of paths is provided instead of part numbers
-
-    if( isBlank(params)         )   params = {};
-    if(!isBlank(params.ghosting)) ghosting = params.ghosting;
-    if(!isBlank(params.usePath) )  usePath = params.usePath;
-
-    for(let dataInstance of dataInstances) {
-        // let instanceNumber =  (usePath) ? dataInstance.pathShort : dataInstance.partNumber;
-        let instanceNumber =  (usePath) ? dataInstance.path : dataInstance.partNumber;
-        for(let partNumber of partNumbers) {
-            if(instanceNumber === partNumber) {
-                viewer.hide(dataInstance.dbId);
-                if(usePath) break;
-            }
-        }
-
-    }
-
-    viewerSetGhosting(ghosting);
-
-}
-function viewerUnhideModel(partNumber, params) {
-
-    viewerUnhideModels([partNumber], params);
-
-}
-function viewerUnhideModels(partNumbers, params) {
-
-    if(!isViewerStarted()) return;
-    if(viewer.model.is2d()) return;
-
-    //  Set defaults for optional parameters
-    // --------------------------------------
-    let fitToView   = true;    // Zoom in / out to fit selection into view 
-    let highlight   = true;    // Highlight given partNumber(s) by defined color (colorModelSelected)
-    let resetColors = true;    // Reset colors of all componente before highlighting the partNumber(s)
-    let usePath     = false;   // If list of paths is provided instead of part numbers
-    let color       = colorModelSelected; 
-
-
-    if( isBlank(params)            )      params = {};
-    if(!isBlank(params.fitToView)  )   fitToView = params.fitToView;
-    if(!isBlank(params.highlight)  )   highlight = params.highlight;
-    if(!isBlank(params.resetColors)) resetColors = params.resetColors;
-    if(!isBlank(params.usePath)    )     usePath = params.usePath;
-    if(!isBlank(params.color)      )       color = new THREE.Vector4(params.color[0], params.color[1], params.color[2], params.color[3]);
-
-    let dbIds = [];
-    
-    if(resetColors) viewer.clearThemingColors();
-
-    for(let dataInstance of dataInstances) {
-        // let instanceNumber =  (usePath) ? dataInstance.pathShort : dataInstance.partNumber;
-        let instanceNumber =  (usePath) ? dataInstance.path : dataInstance.partNumber;
-        for(let partNumber of partNumbers) {
-            if(instanceNumber === partNumber) {
-                                dbIds.push(dataInstance.dbId);
-                viewer.show(dataInstance.dbId);
-                if(highlight) viewer.setThemingColor(dataInstance.dbId, color, null, true );
-                if(usePath) break;
-            }
-        }
-    }
-
-    if(fitToView) viewer.fitToView(dbIds);
-
-}
-function viewerUnhideAll(params) {
-
-    if(!isViewerStarted()) return;
-    if(viewer.model.is2d()) return;
-
-    //  Set defaults for optional parameters
-    // --------------------------------------
-    let fitToView   = true;    // Zoom in / out to fit selection into view 
-    let resetColors = true;    // Reset colors of all componente before highlighting the partNumber(s)
-    let keepHidden  = true;    // Keep selectively hidden components hidden
-
-
-    if( isBlank(params)            )      params = {};
-    if(!isBlank(params.fitToView)  )   fitToView = params.fitToView;
-    if(!isBlank(params.resetColors)) resetColors = params.resetColors;
-    if(!isBlank(params.keepHidden) )  keepHidden = params.keepHidden;
-
-    if(!keepHidden) {
-        hiddenInstances = [];
-        updateHiddenInstancesControls();
-        updateHiddenInstancesList();
-    }
-
-    if(resetColors) viewer.clearThemingColors();
-
-    viewer.showAll();
-
-    for(let instance of hiddenInstances) viewer.hide(instance.dbId);
-
-    if(fitToView) viewer.setViewFromFile();
-}
-
-
-
-
-// Add & unload models to session
-function viewerAddModel(model) {
-    
-    viewerAddModels([model]);
-
-}
-function viewerAddModels(models) {
-
-    for(let model of models) addModel(model);
-
-}
-function addModel(model) {
-
-    if(!isViewerStarted()) return;
-
-    // see https://aps.autodesk.com/blog/loading-multiple-models-forge-viewer-v7 about transformation
-    
-    if(typeof model.offsetX === 'undefined') model.offsetX = 0;
-    if(typeof model.offsetY === 'undefined') model.offsetY = 0;
-    if(typeof model.offsetZ === 'undefined') model.offsetZ = 0;
-
-    if(typeof model.angleX === 'undefined') model.angleX = 0;
-    if(typeof model.angleY === 'undefined') model.angleY = 0;
-    if(typeof model.angleZ === 'undefined') model.angleZ = 0;
-
-    Autodesk.Viewing.Document.load('urn:'+ model.urn, function(doc) {
-
-
-        // const rotation = new THREE.Matrix4().makeRotationY(0);
-        // const rotation = new THREE.Matrix4().makeRotationX(Number(model.angleX)).makeRotationY(Number(model.angleY)).makeRotationZ(Number(model.angleZ));
-        // const rotation = new THREE.Matrix4().makeRotationX(Number(model.angleX));
-        // const rotation = new THREE.Matrix4().makeRotationY(Number(model.angleY));
-        // const rotation = new THREE.Matrix4().makeRotationZ(Number(model.angleZ));
-        // const translation = new THREE.Matrix4().makeTranslation(0, 0, 0);
-        // const rotation = new THREE.Matrix4().makeRotationX(Number(model.angleX));// works
-        const rotation = new THREE.Matrix4().makeRotationX(Number(model.angleX)).makeRotationY(Number(model.angleY));
-        const translation = new THREE.Matrix4().makeTranslation(Number(model.offsetX), Number(model.offsetY), Number(model.offsetZ));
-        // const translation = new THREE.Matrix4();
-
-        // console.log(Number(model.offsetX) + ',' + Number(model.offsetY) + ',' + Number(model.offsetZ) + '    /     ' + Number(model.angleX) + ',' + Number(model.angleY) + ',' + Number(model.angleZ));
-        // console.log(Number(model.angleY));
-        // console.log(Number(model.angleZ));
-
-        var viewable = doc.getRoot().getDefaultGeometry();
-        viewer.loadDocumentNode(doc, viewable, {
-            preserveView: false,
-            // keepCurrentModels: true,
-            // placementTransform: (new THREE.Matrix4()).setPosition({x:-1000,y:1000,z:0}),
-            // placementTransform: (new THREE.Matrix4()).makeRotationY(90).makeRotationZ(90).setPosition({x:-1000,y:1000,z:0}),
-            // placementTransform: (new THREE.Matrix4()).makeRotationX(Number(model.angleX)).makeRotationY(Number(model.angleY)).makeRotationZ(Number(model.angleZ)).setPosition({x:Number(model.offsetX), y:Number(model.offsetY), z:Number(model.offsetZ)}),
-            // placementTransform: translation,   // works
-            // placementTransform: rotation, // fails
-            // placementTransform: new THREE.Matrix4().makeRotationX(Number(model.angleX)), // works
-            // placementTransform: new THREE.Matrix4().makeRotationX(Number(model.angleX)).makeTranslation(Number(model.offsetX), Number(model.offsetY), Number(model.offsetZ)), // fails
-            placementTransform: rotation.multiply(translation), // works
-            keepCurrentModels: true,
-            globalOffset: {x:0,y:0,z:0}
-        }).then(function(result) {
-            // viewer.showAll();
-        }).catch(function(err) {
-            console.log(err);
-        });
-
-    }, onDocumentLoadFailure);
-
-}
-function viewerUnloadModel(urn) {
-
-    viewerUnloadModels([urn]);
-
-}
-function viewerUnloadModels(urns) {
-
-    for(let urn of urns) unloadModel(urn);
-
-}
-function unloadModel(urn) {
-
-    if(!isViewerStarted()) return;
-
-    let models = viewer.impl.modelQueue().getModels();
-
-    for(let model of models) {
-        if(model.myData.urn === urn) viewer.unloadModel(model);
-    }
-
-}
-function viewerUnloadAllModels() {
-
-    if(!isViewerStarted()) return;
-
-    let models = viewer.impl.modelQueue().getModels();
-
-    for(let model of models) viewer.impl.unloadModel(model);
-
-}
-
-
-
 // Get paths / instances of defined part numbers
-function viewerGetComponentsInstances(partNumbers) {
+function viewerGetComponentsInstances(partNumbers, params) {
 
-    if(!isViewerStarted()) return [];
-    if(viewer.model.is2d()) return;
+    if(isBlank(params)) params = {};
+
+    let [ viewerInstance, viewer, proceed ] = getViewerInstanceRunning(params.id, true);
+
+    if(!proceed) return;
 
     let result = [];
 
     for(let partNumber of partNumbers) {
         result.push({
             partNumber : partNumber,
-            instances  : viewerGetComponentInstances(partNumber)
+            instances  : viewerGetComponentInstances(viewerInstance, partNumber)
         });
     };
 
     return result;
 
 }
-function viewerGetComponentInstances(partNumber) {
-
-    if(!isViewerStarted()) return [];
-    if(viewer.model.is2d()) return;
+function viewerGetComponentInstances(viewerInstance, partNumber) {
 
     let result = [];
 
-    for(let dataInstance of dataInstances) {
+    for(let dataInstance of viewerInstance.dataInstances) {
         if(dataInstance.partNumber === partNumber) {
 
             result.push({
@@ -1484,29 +1677,33 @@ function viewerGetComponentInstances(partNumber) {
 //     return result;
 
 // }
-function getComponentParents(id) {
+function viewerGetComponentParents(event) {
 
-    let result = []
+    let id             = event.dbIdArray[0];
+    let viewerInstance = getEventViewerInstance(event);
+    let result         = []
 
-    getComponentParent(result, id);
+    if(viewerInstance === null) return;
+
+    getComponentParent(viewerInstance, result, id);
 
     return result;
 
 }
-function getComponentParent(parents, id) {
+function getComponentParent(viewerInstance, parents, id) {
 
-    for(let dataInstance of dataInstances) {
+    for(let dataInstance of viewerInstance.dataInstances) {
         if(dataInstance.dbId === id) {
 
             parents.push({
-                'dbId'       : id,
-                'partNumber' : dataInstance.partNumber,
-                'name'       : dataInstance.name
+                dbId       : id,
+                partNumber : dataInstance.partNumber,
+                name       : dataInstance.name
             });
 
             for(let property of dataInstance.properties) {
                 if(property.attributeName === 'parent') {
-                    getComponentParent(parents, property.displayValue);
+                    getComponentParent(viewerInstance, parents, property.displayValue);
                 }
             }
 
@@ -1514,59 +1711,60 @@ function getComponentParent(parents, id) {
     }
 
 }
-function viewerGetSelectedComponentPaths() {
+// function viewerGetSelectedComponentPaths() {
 
-    if(!isViewerStarted()) return [];
-    if(viewer.model.is2d()) return;
+//     if(!isViewerStarted()) return [];
+//     if(viewer.model.is2d()) return;
 
-    let result = [];
+//     let result = [];
 
-    for(let selection of viewer.getSelection()) {
+//     for(let selection of viewer.getSelection()) {
 
-        let componentPath   = getComponentPath(selection).split('|');
-        let newPath         = '';
+//         let componentPath   = getComponentPath(selection).split('|');
+//         let newPath         = '';
 
-        for(let index = 0; index <= componentPath.length - 1; index++) {
+//         for(let index = 0; index <= componentPath.length - 1; index++) {
 
-            let segment = componentPath[index];
+//             let segment = componentPath[index];
 
-            if(segment.indexOf('Component Pattern') < 0) {
-                if(newPath !== '') newPath += '|';
-                newPath += segment;
-            }
+//             if(segment.indexOf('Component Pattern') < 0) {
+//                 if(newPath !== '') newPath += '|';
+//                 newPath += segment;
+//             }
 
-        }
+//         }
 
-        result.push(newPath);
+//         result.push(newPath);
 
-    }
+//     }
 
-    return result;
+//     return result;
 
-}
-
+// }
 
 
 // Custom Controls: Add Selection Toolbar
-function addCustomSelectionToolbar(selectionToolbarFeatures) {
+function addCustomSelectionToolbar(viewerInstance, selectionToolbarFeatures) {
 
-    let elemToolbar = $('#customSelectionToolbar');
+    let elemToolbar = $('#' + viewerInstance.id + '-customSelectionToolbar');
 
     if(elemToolbar.length > 0) {
         elemToolbar.show();
         return;
     }
 
-    let selectToolbar = new Autodesk.Viewing.UI.ControlGroup('customSelectionToolbar');
-    
-    viewer.toolbar.addControl(selectToolbar);
+    let selectToolbar = new Autodesk.Viewing.UI.ControlGroup(viewerInstance.id + '-customSelectionToolbar');
 
-    if(selectionToolbarFeatures.includes('hide')     ) viewerAddHideSelected(selectToolbar);
-    if(selectionToolbarFeatures.includes('ghosting') ) viewerAddGhostingToggle(selectToolbar);
-    if(selectionToolbarFeatures.includes('highlight')) viewerAddHighlightToggle(selectToolbar);
+    selectToolbar.addClass('customSelectionToolbar');
+    
+    viewerInstance.viewer.toolbar.addControl(selectToolbar);
+
+    if(selectionToolbarFeatures.includes('hide')     ) viewerAddHideSelected    (viewerInstance.id, selectToolbar);
+    if(selectionToolbarFeatures.includes('ghosting') ) viewerAddGhostingToggle  (viewerInstance.id, selectToolbar);
+    if(selectionToolbarFeatures.includes('highlight')) viewerAddHighlightToggle (viewerInstance.id, selectToolbar);
     if(selectionToolbarFeatures.includes('single')   ) viewerAddFitFirstInstance(selectToolbar);
-    if(selectionToolbarFeatures.includes('fitToView')) viewerAddFitToView(selectToolbar);
-    if(selectionToolbarFeatures.includes('reset')    ) viewerAddResetButton(selectToolbar);
+    if(selectionToolbarFeatures.includes('fitToView')) viewerAddFitToView       (selectToolbar);
+    if(selectionToolbarFeatures.includes('reset')    ) viewerAddResetButton     (selectToolbar);
 
 }
 function addCustomControl(toolbar, id, icon, tooltip) {
@@ -1584,125 +1782,135 @@ function addCustomControl(toolbar, id, icon, tooltip) {
 
 
 // Custom Controls : Controls to hide selected components
-function viewerAddHideSelected(toolbar) {
+function viewerAddHideSelected(id, toolbar) {
 
-    let buttonHide = addCustomControl(toolbar, 'button-toggle-hide-selected', 'icon-remove', 'Hide selected components');
-        buttonHide.onClick = function(e) { 
+    let buttonHide = addCustomControl(toolbar, id + '-button-toggle-hide-selected', 'icon-remove', 'Hide selected components');
+        buttonHide.addClass('button-toggle-hide-selected');
+        buttonHide.onClick = function(event) { 
 
-            e.preventDefault();
-            e.stopPropagation();
+            event.preventDefault();
+            event.stopPropagation();
 
-            let enabled     = $('#customSelectionToolbar').hasClass('hide-selected');
-            let selected    = viewer.getSelection().length;
+            let viewerInstance = getEventViewerInstance(event);
+            let elemEvent      = $(event.target);
+            let elemViewer     = elemEvent.closest('.viewer');
+            let elemToolbar    = elemEvent.closest('.customSelectionToolbar');
+            let elemToggle     = elemViewer.find('.hidden-instances-toggle');
+            let enabled        = elemToolbar.hasClass('hide-selected');
+            let selected       = viewerInstance.viewer.getSelection().length;
 
             if(!enabled && selected > 0) {
-                $('#customSelectionToolbar').addClass('hide-selected')
-                for(let dbId of viewer.getSelection()) {
-                    hideInstance(dbId);
+                elemToolbar.addClass('hide-selected')
+                for(let dbId of viewerInstance.viewer.getSelection()) {
+                    hideInstance(viewerInstance, dbId);
                 }
             } else if(enabled) {
-                $('#customSelectionToolbar').toggleClass('hide-selected');
-                $('#hidden-instances-toggle').addClass('icon-chevron-down').removeClass('icon-chevron-up');
+                elemToolbar.toggleClass('hide-selected');
+                elemToggle.addClass('icon-chevron-down').removeClass('icon-chevron-up');
             } else if(selected === 0) {
-                $('#customSelectionToolbar').toggleClass('hide-selected');
+                elemToolbar.toggleClass('hide-selected');
             }
 
-            updateHiddenInstancesControls();
+            updateHiddenInstancesControls(viewerInstance);
 
         };
 
-    let elemHiddenInstances = $('<div></div>').appendTo($('#viewer'))
-        .attr('id', 'hidden-instances')
+    let elemHiddenInstances = $('<div></div>').appendTo($('#' + id))
+        .attr('id', id + '-hidden-instances')
+        .addClass('hidden-instances')
         .hide();
 
     let elemHiddenInstancesLabel = $('<div></div>').appendTo(elemHiddenInstances)
-        .attr('id', 'hidden-instances-label');
+        .attr('id', id + '-hidden-instances-label')
+        .addClass('hidden-instances-label');
 
     $('<div></div>').appendTo(elemHiddenInstancesLabel)
-        .attr('id', 'hidden-instances-counter');
+        .attr('id', id + '-hidden-instances-counter')
+        .addClass('hidden-instances-counter');
 
     $('<div></div>').appendTo(elemHiddenInstancesLabel)
-        .attr('id', 'hidden-instances-text');
+        .attr('id', id + '-hidden-instances-text')
+        .addClass('hidden-instances-text');
 
     $('<div></div>').appendTo(elemHiddenInstances)
-        .attr('id', 'hidden-instances-undo')
+        .attr('id', id + '-hidden-instances-undo')
+        .addClass('hidden-instances-undo')
         .addClass('button')
         .addClass('icon')
         .addClass('icon-undo')
         .attr('title', 'Unhide last component')
         .click(function() {
-            viewer.show(hiddenInstances[hiddenInstances.length - 1].dbId);
-            hiddenInstances.pop()
-            updateHiddenInstancesControls();
-            updateHiddenInstancesList();
+            let viewerInstance = getRootViewerInstance($(this));
+            let hiddenInstances = viewerInstance.hiddenInstances;
+            viewerInstance.viewer.show(hiddenInstances[hiddenInstances.length - 1].dbId);
+            viewerInstance.hiddenInstances.pop()
+            updateHiddenInstancesControls(viewerInstance);
+            updateHiddenInstancesList(viewerInstance);
 
         });
 
     $('<div></div>').appendTo(elemHiddenInstances)
-        .attr('id', 'hidden-instances-toggle')
+        .attr('id', id + '-hidden-instances-toggle')
+        .addClass('hidden-instances-toggle')
         .addClass('button')
         .addClass('icon')
         .addClass('icon-chevron-down')
         .attr('title', 'Toggle list of hidden components')
         .click(function() {
             $(this).toggleClass('icon-chevron-down').toggleClass('icon-chevron-up');
-            updateHiddenInstancesList();
+            let viewerInstance = getRootViewerInstance($(this));
+            updateHiddenInstancesList(viewerInstance);
         });
 
     $('<div></div>').appendTo(elemHiddenInstances)
-        .attr('id', 'hidden-instances-clear')
+        .attr('id', id + '-hidden-instances-clear')
+        .addClass('hidden-instances-clear')
         .addClass('button')
         .addClass('icon')
         .addClass('icon-close')
         .attr('title', 'Unhide all components')
         .click(function() {
-            for(let instance of hiddenInstances) viewer.show(instance.dbId);
-            hiddenInstances = [];
-            updateHiddenInstancesControls();
-            updateHiddenInstancesList();
+            let viewerInstance = getRootViewerInstance($(this));
+            for(let instance of viewerInstance.hiddenInstances) viewerInstance.viewer.show(instance.dbId);
+            viewerInstance.hiddenInstances = [];
+            updateHiddenInstancesControls(viewerInstance);
+            updateHiddenInstancesList(viewerInstance);
         });
 
 }
 function viewerHideSelected(event) {
 
-    let toolbar = $('#customSelectionToolbar');
+    let panelId = event.target.panelId;
+    let toolbar = $('#' + panelId + '-customSelectionToolbar');
 
     if(toolbar.length > 0) {
         if(toolbar.hasClass('hide-selected')) {
-            hideSelectedInstance(event);
+
+            let viewerInstance   = getViewerInstance(panelId);
+            let elemHiddenToggle = $('#' + panelId + '-hidden-instances-toggle');
+
+            if(viewerInstance.hiddenInstances.length === 0) elemHiddenToggle.addClass('icon-chevron-down').removeClass('icon-chevron-up');
+
+            for(let dbId of event.dbIdArray) {
+                hideInstance(viewerInstance, dbId)
+            }
+
+            updateHiddenInstancesControls(viewerInstance);
+            updateHiddenInstancesList(viewerInstance);
+
             return true;
         }
     }
     
     return false;
 }
-function hideSelectedInstance(event) {
+function hideInstance(viewerInstance, dbId) {
 
-    let toolbar = $('#customSelectionToolbar');
+    viewerInstance.viewer.hide(dbId);
 
-    if(toolbar.length > 0) {
-        if(toolbar.hasClass('hide-selected')) {
-
-            if(hiddenInstances.length === 0) $('#hidden-instances-toggle').addClass('icon-chevron-down').removeClass('icon-chevron-up');
-
-            for(let dbId of event.dbIdArray) {
-                hideInstance(dbId)
-            }
-
-            updateHiddenInstancesControls();
-            updateHiddenInstancesList();
-
-        }
-    }
-    
-}
-function hideInstance(dbId) {
-
-    viewer.hide(dbId);
-
-    for(let instance of dataInstances) {
+    for(let instance of viewerInstance.dataInstances) {
         if(instance.dbId === dbId) {
-            hiddenInstances.push({
+            viewerInstance.hiddenInstances.push({
                 dbId        : dbId,
                 partNumber  : instance.partNumber,
                 name        : instance.name
@@ -1712,41 +1920,43 @@ function hideInstance(dbId) {
     }
 
 }
-function updateHiddenInstancesControls() {
+function updateHiddenInstancesControls(viewerInstance) {
 
-    $('#hidden-instances-counter').html(hiddenInstances.length);
+    let elemHiddenInstances = $('#' + viewerInstance.id + '-hidden-instances');
+    let elemHiddenText      = $('#' + viewerInstance.id + '-hidden-instances-text');
 
-    if(hiddenInstances.length === 1) $('#hidden-instances-text').html('hidden component');
-    else $('#hidden-instances-text').html('hidden components');
+    $('#' + viewerInstance.id + '-hidden-instances-counter').html(viewerInstance.hiddenInstances.length);
 
-    if(hiddenInstances.length === 0) {
-        $('#hidden-instances').hide();
-    } else {
-        $('#hidden-instances').css('display', 'flex');
-    }
+    if(viewerInstance.hiddenInstances.length === 1) elemHiddenText.html('hidden component');
+    else                                            elemHiddenText.html('hidden components');
+
+    if(viewerInstance.hiddenInstances.length === 0)  elemHiddenInstances.hide();
+    else                                             elemHiddenInstances.css('display', 'flex');
 
 }
-function updateHiddenInstancesList() {
+function updateHiddenInstancesList(viewerInstance) {
 
-    if($($('#hidden-instances-toggle')).hasClass('icon-chevron-down')) {
+    let elemHiddenToggle = $('#' + viewerInstance.id + '-hidden-instances-toggle');
+    let elemHiddenList   = $('#' + viewerInstance.id + '-hidden-instances-list');
 
-        $('#hidden-instances-list').remove();
+    if(elemHiddenToggle.hasClass('icon-chevron-down')) {
+
+        elemHiddenList.remove();
 
     } else {
         
-        let elemHiddenInstancesList = $('#hidden-instances-list');
-
-        if(elemHiddenInstancesList.length === 0) {
-            elemHiddenInstancesList = $('<div></div>').appendTo($('#viewer'))
-            .attr('id', 'hidden-instances-list')
+        if(elemHiddenList.length === 0) {
+            elemHiddenList = $('<div></div>').appendTo($('#' + viewerInstance.id))
+            .attr('id', viewerInstance.id + '-hidden-instances-list')
+            .addClass('hidden-instances-list')
             .addClass('no-scrollbar');
         } else {
-            elemHiddenInstancesList.html('');
+            elemHiddenList.html('');
         }
      
-        for(let instance of hiddenInstances) {
+        for(let instance of viewerInstance.hiddenInstances) {
 
-            let elemHiddenInstance = $('<div></div>').appendTo(elemHiddenInstancesList)
+            let elemHiddenInstance = $('<div></div>').appendTo(elemHiddenList)
                 .addClass('hidden-instance')
                 .attr('data-id', instance.dbId);
 
@@ -1768,15 +1978,15 @@ function updateHiddenInstancesList() {
                 .addClass('icon-close')
                 .attr('title', 'Unhide this component')
                 .click(function() {
-                    for(let index = 0; index < hiddenInstances.length; index++) {
-                        if(hiddenInstances[index].dbId == $(this).parent().attr('data-id')) {
-                            viewer.show(hiddenInstances[index].dbId);
-                            hiddenInstances.splice(index, 1);
+                    for(let index = 0; index < viewerInstance.hiddenInstances.length; index++) {
+                        if(viewerInstance.hiddenInstances[index].dbId == $(this).parent().attr('data-id')) {
+                            viewerInstance.viewer.show(viewerInstance.hiddenInstances[index].dbId);
+                            viewerInstance.hiddenInstances.splice(index, 1);
                             break;
                         }
                     }
-                    updateHiddenInstancesControls();
-                    updateHiddenInstancesList();
+                    updateHiddenInstancesControls(viewerInstance);
+                    updateHiddenInstancesList(viewerInstance);
                 });
 
         }
@@ -1794,71 +2004,75 @@ function resetHiddenInstances() {
 
 
 // Custom Controls : Ghosting Toggle
-function viewerAddGhostingToggle(toolbar) {
+function viewerAddGhostingToggle(id, toolbar) {
 
-    let buttonEnableGosting = addCustomControl(toolbar, 'button-toggle-ghosting-enable', 'icon-hide', 'Click to enable ghosting mode');
-        buttonEnableGosting.onClick = function(e) { 
-            viewer.setGhosting(true);
-            $('#customSelectionToolbar').addClass('ghosting');
+    let buttonEnableGosting = addCustomControl(toolbar, id + '-button-toggle-ghosting-enable', 'icon-hide', 'Click to enable ghosting mode');
+        buttonEnableGosting.addClass('button-toggle-ghosting-enable');
+        buttonEnableGosting.onClick = function(event, id) { 
+            let viewerInstance = getEventViewerInstance(event);
+            viewerInstance.viewer.setGhosting(true);
+            viewerInstance.ghosting = true;
+            $('#' + viewerInstance.id + '-customSelectionToolbar').addClass('ghosting');
         };
 
-    let buttonDisableGosting = addCustomControl(toolbar, 'button-toggle-ghosting-disable', 'icon-show', 'Click to disable ghosting mode');
-        buttonDisableGosting.onClick = function(e) { 
-            viewer.setGhosting(false);
-            $('#customSelectionToolbar').removeClass('ghosting');
+    let buttonDisableGosting = addCustomControl(toolbar, id + '-button-toggle-ghosting-disable', 'icon-show', 'Click to disable ghosting mode');
+        buttonDisableGosting.addClass('button-toggle-ghosting-disable');
+        buttonDisableGosting.onClick = function(event) { 
+            let viewerInstance = getEventViewerInstance(event);
+            viewerInstance.viewer.setGhosting(false);
+            viewerInstance.ghosting = false;
+            $('#' + viewerInstance.id + '-customSelectionToolbar').removeClass('ghosting');            
         };
 
     toolbar.addClass('ghosting');
 
 }
-function viewerSetGhosting(value) {
+function viewerSetGhosting(viewerInstance, value) {
 
     let ghosting = value; 
 
-    if(!isBlank(viewerFeatures.ghosting)) {
-        if(viewerFeatures.ghosting) {
-            let toolbar  = $('#customSelectionToolbar');
-            if(toolbar.length > 0) {
-                ghosting = (toolbar.hasClass('ghosting'));
-            }
-        }
-    }
+    if(viewerInstance.hasOwnProperty('ghosting')) ghosting = viewerInstance.ghosting;
 
-    viewer.setGhosting(ghosting);
+    viewerInstance.viewer.setGhosting(ghosting);
 
 }
 
 
 // Custom Controls : Highlight Toggle
-function viewerAddHighlightToggle(toolbar) {
+function viewerAddHighlightToggle(id, toolbar) {
 
-    let buttonOff = addCustomControl(toolbar, 'button-toggle-highlight-off', 'icon-highlight', 'Enable selection hihglight by color');
-        buttonOff.onClick = function(e) { 
-            toggleSelectionHighlight(true);
-            $('#customSelectionToolbar').addClass('highlight-on');
-            $('#customSelectionToolbar').removeClass('highlight-off');
+    let buttonOff = addCustomControl(toolbar, id + '-button-toggle-highlight-off', 'icon-highlight', 'Enable selection hihglight by color');
+        buttonOff.addClass('button-toggle-highlight-off');
+        buttonOff.onClick = function(event) { 
+            let viewerInstance = getEventViewerInstance(event);
+            toggleSelectionHighlight(viewerInstance, true);
+            $('#' + viewerInstance.id + '-customSelectionToolbar').addClass('highlight-on');
+            $('#' + viewerInstance.id + '-customSelectionToolbar').removeClass('highlight-off');
         };
 
-    let buttonOn = addCustomControl(toolbar, 'button-toggle-highlight-on', 'icon-highlight', 'Disable selection highlight by color');
-        buttonOn.onClick = function(e) { 
-            toggleSelectionHighlight(false);
-            $('#customSelectionToolbar').removeClass('highlight-on');
-            $('#customSelectionToolbar').addClass('highlight-off');
+    let buttonOn = addCustomControl(toolbar, id + '-button-toggle-highlight-on', 'icon-highlight', 'Disable selection highlight by color');
+        buttonOn.addClass('button-toggle-highlight-on');
+        buttonOn.onClick = function(event) { 
+            let viewerInstance = getEventViewerInstance(event);
+            toggleSelectionHighlight(viewerInstance, false);
+            $('#' + viewerInstance.id + '-customSelectionToolbar').removeClass('highlight-on');
+            $('#' + viewerInstance.id + '-customSelectionToolbar').addClass('highlight-off');
         };
 
     toolbar.addClass('highlight-off');
 
 }
-function toggleSelectionHighlight(enabled) {
+function toggleSelectionHighlight(viewerInstance, enabled) {
 
-    viewer.clearThemingColors();
+    viewerInstance.viewer.clearThemingColors();
+    viewerInstance.highlight = enabled;
 
     if(!enabled) return;
 
     let allVisible = true;
 
-    for(let dataInstance of dataInstances) {
-        if(!viewer.isNodeVisible(dataInstance.dbId)) {
+    for(let dataInstance of viewerInstance.dataInstances) {
+        if(!viewerInstance.viewer.isNodeVisible(dataInstance.dbId)) {
             allVisible = false;
             break;
         }
@@ -1866,9 +2080,9 @@ function toggleSelectionHighlight(enabled) {
 
     if(allVisible) return;
 
-    for(let dataInstance of dataInstances) {
-        if(viewer.isNodeVisible(dataInstance.dbId)) {
-            viewer.setThemingColor(dataInstance.dbId, colorModelSelected, null, true );
+    for(let dataInstance of viewerInstance.dataInstances) {
+        if(viewerInstance.viewer.isNodeVisible(dataInstance.dbId)) {
+            viewerInstance.viewer.setThemingColor(dataInstance.dbId, colorModelSelected, null, true );
         }
     }
 
@@ -1879,11 +2093,12 @@ function toggleSelectionHighlight(enabled) {
 function viewerAddFitFirstInstance(toolbar) {
 
     let buttionFitFirst = addCustomControl(toolbar, 'button-fit-first', 'icon-first', 'Fit first instance to view');
-        buttionFitFirst.onClick = function() { 
+        buttionFitFirst.onClick = function(event) { 
 
-            let dbIdFirst = [];
+            let dbIdFirst      = [];
+            let viewerInstance = getEventViewerInstance(event);
 
-            for(let dataInstance of dataInstances) {
+            for(let dataInstance of viewerInstance.dataInstances) {
                 if(dataInstance.selected === true) {
                     if(!isBlank(dataInstance.name)) {
                         if(dbIdFirst.length === 0) {
@@ -1893,7 +2108,7 @@ function viewerAddFitFirstInstance(toolbar) {
                 }
             }
 
-            viewer.fitToView(dbIdFirst);
+            viewerInstance.viewer.fitToView(dbIdFirst);
             
         };
         
@@ -1904,17 +2119,18 @@ function viewerAddFitFirstInstance(toolbar) {
 function viewerAddFitToView(toolbar) {
 
     let buttionFitToView = addCustomControl(toolbar, 'button-fit-to-view', 'icon-viewer', 'Fit (selected) components to view');
-        buttionFitToView.onClick = function() { 
+        buttionFitToView.onClick = function(event) { 
 
-            let dbIds = [];
+            let dbIds          = [];
+            let viewerInstance = getEventViewerInstance(event);
 
-            for(let dataInstance of dataInstances) {
-                if(viewer.isNodeVisible(dataInstance.dbId)) {
+            for(let dataInstance of viewerInstance.dataInstances) {
+                if(viewerInstance.viewer.isNodeVisible(dataInstance.dbId)) {
                     dbIds.push(dataInstance.dbId);
                 }
             }
 
-            viewer.fitToView(dbIds);
+            viewerInstance.viewer.fitToView(dbIds);
 
         };
         
@@ -1924,68 +2140,76 @@ function viewerAddFitToView(toolbar) {
 // Custom Controls : Reset Button
 function viewerAddResetButton(toolbar) {
 
-
     let buttonReset = addCustomControl(toolbar, 'button-reset-selection', 'icon-reset', 'Reset selection and show all models');
-        buttonReset.onClick = function() { 
-            viewerClickReset();
+        buttonReset.onClick = function(event) { 
+            viewerClickReset(event);
         };
         
 }
-function viewerClickReset() {
-    viewer.showAll();
-    viewer.setViewFromFile();
-    hiddenInstances = [];
-    updateHiddenInstancesControls();
-    updateHiddenInstancesList();
-    viewerResetColors();
-    viewerResetSelection();
-    viewerClickResetDone();
-}
-function viewerClickResetDone() {
+function viewerClickReset(event) {
 
-    $('.bom-item').removeClass('selected');
+    let viewerInstance = getEventViewerInstance(event);
+
+    if(viewerInstance === null) return;
+
+    viewerInstance.viewer.showAll();
+    viewerInstance.viewer.setViewFromFile();
+    viewerInstance.hiddenInstances = [];
+
+    updateHiddenInstancesControls(viewerInstance);
+    updateHiddenInstancesList(viewerInstance);
+    viewerResetColors(viewerInstance.id);
+    viewerResetSelection(viewerInstance.id);
+    viewerClickResetDone(viewerInstance);
+}
+function viewerClickResetDone(viewerInstance) {
+
+    $('.tree-item'    ).removeClass('selected');
+    $('.bom-item'     ).removeClass('selected');
     $('.flat-bom-item').removeClass('selected');
 
 }
 
 
 // Custom Controls : Standard Views Toolbar
-function viewerAddViewsToolbar() {
+function viewerAddViewsToolbar(viewerInstance) {
 
-    let elemToolbar = $('#my-custom-toolbar-views');
+    let elemToolbar = $('#' + viewerInstance.id + '-customViewsToolbar');
 
     if(elemToolbar.length > 0) { elemToolbar.show(); return; }
 
-    let newToolbar  = new Autodesk.Viewing.UI.ControlGroup('my-custom-toolbar-views');
+    let newToolbar = new Autodesk.Viewing.UI.ControlGroup(viewerInstance.id + '-customViewsToolbar');
+
+    newToolbar.addClass('customViewsToolbar');
     
-    addCustomViewControl(newToolbar, 'my-view-home-button'  , 'home'  , 'icon-home', 'Home');
+    addCustomViewControl(viewerInstance, newToolbar, 'my-view-home-button', 'home', 'icon-home', 'Home');
 
     if(!isiPad) {
 
-        addCustomViewControl(newToolbar, 'my-view-front-button' , 'front' , 'icon-north-east', 'Front View');
-        addCustomViewControl(newToolbar, 'my-view-back-button'  , 'back'  , 'icon-south-west', 'Back View');
-        addCustomViewControl(newToolbar, 'my-view-left-button'  , 'left'  , 'icon-east', 'Left View');
-        addCustomViewControl(newToolbar, 'my-view-right-button' , 'right' , 'icon-west', 'Right View');
-        addCustomViewControl(newToolbar, 'my-view-top-button'   , 'top'   , 'icon-south', 'Top View');
-        addCustomViewControl(newToolbar, 'my-view-bottom-button', 'bottom', 'icon-north', 'Bottom View');
+        addCustomViewControl(viewerInstance, newToolbar, 'my-view-front-button' , 'front' , 'icon-north-east', 'Front View');
+        addCustomViewControl(viewerInstance, newToolbar, 'my-view-back-button'  , 'back'  , 'icon-south-west', 'Back View');
+        addCustomViewControl(viewerInstance, newToolbar, 'my-view-left-button'  , 'left'  , 'icon-east', 'Left View');
+        addCustomViewControl(viewerInstance, newToolbar, 'my-view-right-button' , 'right' , 'icon-west', 'Right View');
+        addCustomViewControl(viewerInstance, newToolbar, 'my-view-top-button'   , 'top'   , 'icon-south', 'Top View');
+        addCustomViewControl(viewerInstance, newToolbar, 'my-view-bottom-button', 'bottom', 'icon-north', 'Bottom View');
 
     }
 
-    viewer.toolbar.addControl(newToolbar);
+    viewerInstance.viewer.toolbar.addControl(newToolbar);
 
 }
-function addCustomViewControl(toolbar, id, view, icon, tooltip) {
+function addCustomViewControl(viewerInstance, toolbar, id, view, icon, tooltip) {
     
-    var button = new Autodesk.Viewing.UI.Button(id);
+    var button = new Autodesk.Viewing.UI.Button(viewerInstance.id + '-' + id);
         button.addClass('icon');
         button.setIcon(icon);
         button.setToolTip(tooltip);
     
-    if(view === "home") {
-        button.onClick = function(e) { viewer.setViewFromFile(); };
+    if(view === 'home') {
+        button.onClick = function(e) { viewerInstance.viewer.setViewFromFile(); };
     } else {
         button.onClick = function(e) { 
-            viewer.getExtension('Autodesk.ViewCubeUi', function(viewCubeExtension) {
+            viewerInstance.viewer.getExtension('Autodesk.ViewCubeUi', function(viewCubeExtension) {
                 viewCubeExtension.setViewCube(view);
             });
         };
@@ -1996,36 +2220,18 @@ function addCustomViewControl(toolbar, id, view, icon, tooltip) {
 }
 
 
-// Custom Controls : Notes
-function viewerAddNoteControls() {
-
-    let elemNoteToolbar = $('<div></div>');
-        elemNoteToolbar.attr('id', 'viewer-note-toolbar');
-        elemNoteToolbar.addClass('hidden');
-        elemNoteToolbar.appendTo($('#viewer'));
-
-    let elemNoteGroup = addMarkupControlGroup(elemNoteToolbar, 'markup-toolbar-note', 'Note');
-
-    let elemInput = $('<textarea></textarea>');
-        elemInput.addClass('viewer-note');
-        elemInput.attr('id', 'viewer-note');
-        elemInput.appendTo(elemNoteGroup);
-
-}
-
-
 // Custom Controls : Markups
-function viewerAddMarkupControls() {
+function viewerAddMarkupControls(viewerInstance) {
 
     // if(typeof includeSaveButton === 'undefined') includeSaveButton = false;
 
-    let elemToolbar       =  $('#' + viewerId + '-custom-markup-toolbar');
-    let includeSaveButton = ($('#' + viewerId + '-markups-list').length > 0);
+    let elemToolbar       =  $('#' + viewerInstance.id + '-custom-markup-toolbar');
+    let includeSaveButton = ($('#' + viewerInstance.id + '-markups-list').length > 0);
 
     if(elemToolbar.length > 0) { elemToolbar.show(); return; }
 
-    let elemMarkupToolbar = $('<div></div>').appendTo($('#' + viewerId))
-        .attr('id', viewerId + '-markup-toolbar')
+    let elemMarkupToolbar = $('<div></div>').appendTo($('#' + viewerInstance.id))
+        .attr('id', viewerInstance.id + '-markup-toolbar')
         .addClass('viewer-markup-toolbar')
         .addClass('hidden')
         .addClass('set-defaults');
@@ -2062,80 +2268,78 @@ function viewerAddMarkupControls() {
 
     let elemMarkupGroupActions = addMarkupControlGroup(elemMarkupToolbar, 'markup-toolbar-actions', 'Actions');
 
+    addMarkupActionControl(elemMarkupGroupActions, true, 'undo', 'undo', 'Undo');
+    addMarkupActionControl(elemMarkupGroupActions, true, 'redo', 'redo', 'Redo');
+
     if(includeSaveButton) {
-        addMarkupActionControl(elemMarkupGroupActions, true, 'undo', 'markup.undo();', 'Undo');
-        addMarkupActionControl(elemMarkupGroupActions, true, 'redo', 'markup.redo();', 'Redo');
-        addMarkupActionControl(elemMarkupGroupActions, true, 'delete', 'markup.clear();', 'Clear all markups');
-        addMarkupActionControl(elemMarkupGroupActions, true, 'close', 'viewerLeaveMarkupMode();', 'Close markup toolbar');
-        addMarkupActionControl(elemMarkupGroupActions, false, 'Save', 'viewerSaveItemMarkup();', 'Save markup');
+        addMarkupActionControl(elemMarkupGroupActions, true, 'delete', 'clear', 'Clear all markups');
+        addMarkupActionControl(elemMarkupGroupActions, true, 'close' , 'exit' , 'Close markup toolbar');
+        addMarkupActionControl(elemMarkupGroupActions, false, 'Save' , 'save' , 'Save markup');
         elemMarkupGroupActions.addClass('with-save-button');
     } else {
-        addMarkupActionControl(elemMarkupGroupActions, true, 'undo', 'markup.undo();', 'Undo');
-        addMarkupActionControl(elemMarkupGroupActions, true, 'redo', 'markup.redo();', 'Redo');
-        addMarkupActionControl(elemMarkupGroupActions, false, 'Clear', 'markup.clear();', 'Clear all markups');
-        addMarkupActionControl(elemMarkupGroupActions, false, 'Close', 'viewerLeaveMarkupMode();', 'Close markup toolbar');
+        addMarkupActionControl(elemMarkupGroupActions, false, 'Clear', 'clear', 'Clear all markups');
+        addMarkupActionControl(elemMarkupGroupActions, false, 'Close', 'exit' , 'Close markup toolbar');
     }
 
-    $('<canvas>').appendTo($('body')).attr('id', 'viewer-markup-image').addClass('hidden');
+    $('<canvas>').appendTo($('body')).attr('id', viewerInstance.id + '-markup-image').addClass('hidden');
 
-    let newToolbar = new Autodesk.Viewing.UI.ControlGroup(viewerId + '-custom-markup-toolbar');
+    let newToolbar = new Autodesk.Viewing.UI.ControlGroup(viewerInstance.id + '-custom-markup-toolbar');
     // let newButton  = addCustomControl(newToolbar, 'my-markup-button', 'icon-markup', 'Markup');
-    let newButton  = addCustomControl(newToolbar, viewerId + '-markup-button', 'icon-markup', 'Markup');
+    let newButton  = addCustomControl(newToolbar, viewerInstance.id + '-markup-button', 'icon-markup', 'Markup');
     
     newButton.addClass('viewer-markup-button');
     newButton.addClass('enable-markup');
     newButton.onClick = function() {
 
-        var promise = viewer.loadExtension('Autodesk.Viewing.MarkupsCore');
-    
-        promise.then(function(extension){ markup = extension; 
+        let viewerInstance = getRootViewerInstance($(this));
+        var promise        = viewerInstance.viewer.loadExtension('Autodesk.Viewing.MarkupsCore');
 
-            if(restoreMarkupState !== '') {
+        promise.then(function(extension){  
+
+            viewerInstance.markup = extension; 
+
+            if(viewerInstance.restoreMarkupState !== '') {
 
                 markupsvg = restoreMarkupSVG;
-                viewer.restoreState(restoreMarkupState, null, true);
+                viewerInstance.viewer.restoreState(viewerInstance.restoreMarkupState, null, true);
 
             }
 
-            markup.enterEditMode();
-            markup.show();
+            viewerInstance.markup.enterEditMode();
+            viewerInstance.markup.show();
 
-            // let markupsId   = viewerId.split('-viewer')[0] + '-markups-list';
-            let elemMarkups = $('#' + viewerId + '-markups-list');
+            let elemMarkupsList = $('#' + viewerInstance.id + '-markups-list');
 
-            if(elemMarkups.length > 0) {
-                if(elemMarkups.children('.selected').length === 0) {
-                    let placeholders = elemMarkups.children('.placeholder');
-                    if(placeholders.length === 0) elemMarkups.children().first().addClass('selected');
+            if(elemMarkupsList.length > 0) {
+                if(elemMarkupsList.children('.selected').length === 0) {
+                    let placeholders = elemMarkupsList.children('.placeholder');
+                    if(placeholders.length === 0) elemMarkupsList.children().first().addClass('selected');
                     else placeholders.first().addClass('selected');
                 }
             }
 
-            baseStrokeWidth = markup.getStyle()['stroke-width'];
+            baseStrokeWidth = viewerInstance.markup.getStyle()['stroke-width'];
+
+            let elemMarkupToolbar = $('#' + viewerInstance.id + '-markup-toolbar');
                 
-            if($('#' + viewerId + '-markup-toolbar').hasClass('set-defaults')) {
-                $('.viewer-markup-toggle.color').first().click();
-                $('.viewer-markup-toggle.width').first().click();
-                $('.viewer-markup-toggle.shape').first().click();
-                $('#viewer-markup-toolbar').removeClass('set-defaults');
+            if(elemMarkupToolbar.hasClass('set-defaults')) {
+                elemMarkupToolbar.find('.viewer-markup-toggle.color').first().click();
+                elemMarkupToolbar.find('.viewer-markup-toggle.width').first().click();
+                elemMarkupToolbar.find('.viewer-markup-toggle.shape').first().click();
+                elemMarkupToolbar.removeClass('set-defaults');
             } else {
-                $('.viewer-markup-toggle.color.selected').click();
-                $('.viewer-markup-toggle.width.selected').click();
-                $('.viewer-markup-toggle.shape.selected').click();
+                elemMarkupToolbar.find('.viewer-markup-toggle.color.selected').click();
+                elemMarkupToolbar.find('.viewer-markup-toggle.width.selected').click();
+                elemMarkupToolbar.find('.viewer-markup-toggle.shape.selected').click();
             }
             
-            $('#' + viewerId + '-markup-toolbar').toggleClass('hidden');
-
-            let elemNoteControl = $('#' + viewerId+ '-note-toolbar');
-
-            if(elemNoteControl.length > 0) elemNoteControl.toggleClass('hidden');
-
+            elemMarkupToolbar.toggleClass('hidden');
         
         });
 
     };
 
-    viewer.toolbar.addControl(newToolbar);
+    viewerInstance.viewer.toolbar.addControl(newToolbar);
 
 
 }
@@ -2161,80 +2365,92 @@ function addMarkupControlGroup(elemParent, id, label) {
 }
 function addMarkupColorControl(elemParent, color) {
 
-    let elemControl = $('<div></div>');
-        elemControl.addClass('viewer-markup-toggle');
-        elemControl.addClass('color');
-        elemControl.css('background', '#' + color);
-        elemControl.attr('data-color', color);
-        elemControl.appendTo(elemParent);
-
-    elemControl.click(function() {
-        markupStyle['stroke-color'] = '#' + $(this).attr('data-color');
-        markup.setStyle(markupStyle);
-        $(this).siblings().removeClass('selected');
-        $(this).addClass('selected');
-    });
+    $('<div></div>').appendTo(elemParent)
+        .addClass('viewer-markup-toggle')
+        .addClass('color')
+        .css('background', '#' + color)
+        .attr('data-color', color)
+        .click(function() {
+            let viewerInstance = getRootViewerInstance($(this));
+            viewerInstance.markupStyle['stroke-color'] = '#' + $(this).attr('data-color');
+            viewerInstance.markup.setStyle(viewerInstance.markupStyle);
+            $(this).siblings().removeClass('selected');
+            $(this).addClass('selected');
+        });
 
 }
 function addMarkupWidthControl(elemParent, label, width) {
 
-    let elemControl = $('<div></div>');
-        elemControl.addClass('viewer-markup-toggle');
-        elemControl.addClass('width');
-        elemControl.html(label);
-        elemControl.attr('data-width', width);
-        elemControl.appendTo(elemParent);
-
-    elemControl.click(function() {
-        markupStyle['stroke-width'] = baseStrokeWidth * Number($(this).attr('data-width'));
-        markupStyle['font-size'] = baseStrokeWidth * 5 * Number($(this).attr('data-width'));
-        markup.setStyle(markupStyle);
-        $(this).siblings().removeClass('selected');
-        $(this).addClass('selected');
-    });
+    $('<div></div>').appendTo(elemParent)
+        .addClass('viewer-markup-toggle')
+        .addClass('width')
+        .html(label)
+        .attr('data-width', width)
+        .click(function() {
+            let viewerInstance = getRootViewerInstance($(this));
+            viewerInstance.markupStyle['stroke-width'] = baseStrokeWidth * 1 * Number($(this).attr('data-width'));
+            viewerInstance.markupStyle['font-size'   ] = baseStrokeWidth * 5 * Number($(this).attr('data-width'));
+            viewerInstance.markup.setStyle(viewerInstance.markupStyle);
+            $(this).siblings().removeClass('selected');
+            $(this).addClass('selected');
+        });
 
 }
 function addMarkupShapeControl(elemParent, shape, icon) {
 
-    let elemControl = $('<div></div>');
-        elemControl.addClass('viewer-markup-toggle');
-        elemControl.addClass('shape');
-        elemControl.addClass('icon');
-        elemControl.attr('data-shape', shape);
-        elemControl.html(icon);
-        elemControl.appendTo(elemParent);
+    $('<div></div>').appendTo(elemParent)
+        .addClass('viewer-markup-toggle')
+        .addClass('shape')
+        .addClass('icon')
+        .attr('data-shape', shape)
+        .html(icon)
+        .click(function() {
 
-    elemControl.click(function() {
+            let viewerInstance = getRootViewerInstance($(this));
+            let markup         = viewerInstance.markup;
+            let shape          = $(this).attr('data-shape');
+            let mode;
 
-        let shape = $(this).attr('data-shape');
-        let mode;
+            switch (shape) {
 
-        switch (shape) {
+                case 'arrow':       mode = new Autodesk.Viewing.Extensions.Markups.Core.EditModeArrow(markup);      break;
+                case 'circle':      mode = new Autodesk.Viewing.Extensions.Markups.Core.EditModeCircle(markup);     break;
+                case 'cloud':       mode = new Autodesk.Viewing.Extensions.Markups.Core.EditModeCloud(markup);      break;
+                case 'freehand':    mode = new Autodesk.Viewing.Extensions.Markups.Core.EditModeFreehand(markup);   break;
+                case 'rectangle':   mode = new Autodesk.Viewing.Extensions.Markups.Core.EditModeRectangle(markup);  break;
+                case 'text':        mode = new Autodesk.Viewing.Extensions.Markups.Core.EditModeText(markup);       break;
+                case 'polycloud':   mode = new Autodesk.Viewing.Extensions.Markups.Core.EditModePolycloud(markup);  break;
+                case 'polyline':    mode = new Autodesk.Viewing.Extensions.Markups.Core.EditModePolyline(markup);   break;
+            }
 
-            case 'arrow':       mode = new Autodesk.Viewing.Extensions.Markups.Core.EditModeArrow(markup);      break;
-            case 'circle':      mode = new Autodesk.Viewing.Extensions.Markups.Core.EditModeCircle(markup);     break;
-            case 'cloud':       mode = new Autodesk.Viewing.Extensions.Markups.Core.EditModeCloud(markup);      break;
-            case 'freehand':    mode = new Autodesk.Viewing.Extensions.Markups.Core.EditModeFreehand(markup);   break;
-            case 'rectangle':   mode = new Autodesk.Viewing.Extensions.Markups.Core.EditModeRectangle(markup);  break;
-            case 'text':        mode = new Autodesk.Viewing.Extensions.Markups.Core.EditModeText(markup);       break;
-            case 'polycloud':   mode = new Autodesk.Viewing.Extensions.Markups.Core.EditModePolycloud(markup);  break;
-            case 'polyline':    mode = new Autodesk.Viewing.Extensions.Markups.Core.EditModePolyline(markup);   break;
-        }
+            viewerInstance.markup.changeEditMode(mode);
+            viewerInstance.markup.setStyle(viewerInstance.markupStyle);
+            $(this).siblings().removeClass('selected');
+            $(this).addClass('selected');
 
-        markup.changeEditMode(mode);
-        markup.setStyle(markupStyle);
-        $(this).siblings().removeClass('selected');
-        $(this).addClass('selected');
-
-    });
+        });
 
 }
-function addMarkupActionControl(elemParent, icon, content, script, tooltip) {
+function addMarkupActionControl(elemParent, icon, content, action, tooltip) {
 
-    let elemControl = $('<div></div>');
-        elemControl.html(content);
-        elemControl.attr('onclick', script);
-        elemControl.appendTo(elemParent);
+    let elemControl = $('<div></div>').appendTo(elemParent)
+        .html(content)
+        .attr('data-action', action)
+        .click(function() {
+
+            let viewerInstance = getRootViewerInstance($(this));
+
+            switch(action) {
+
+                case 'undo'  : viewerInstance.markup.undo();  break;
+                case 'redo'  : viewerInstance.markup.redo();  break;
+                case 'clear' : viewerInstance.markup.clear(); break;
+                case 'exit'  : viewerLeaveMarkupMode({ id : viewerInstance.id }); break;
+                case 'save'  : viewerSaveItemMarkup(viewerInstance.id); break;
+
+            }
+
+        });
 
     if(typeof tooltip !== 'undefined') elemControl.attr('title', tooltip);
         
@@ -2246,43 +2462,47 @@ function addMarkupActionControl(elemParent, icon, content, script, tooltip) {
     }
 
 }
-function viewerLeaveMarkupMode() {
+function viewerLeaveMarkupMode(params) {
 
-    if(!isViewerStarted()) return;
+    if(isBlank(params)) params = {};
 
-    let elemNoteControl = $('#' + viewerId + '-note-toolbar');
+    let [ viewerInstance, viewer, proceed ] = getViewerInstanceRunning(params.id, true);
 
-    if(elemNoteControl.length > 0) {
-        elemNoteControl.toggleClass('hidden');
-        closedViewerMarkup(markup.generateData(), viewer.getState());
-    }
+    if(!proceed) return;    
 
-    $('#' + viewerId + '-markup-toolbar').addClass('hidden');
+    let elemNoteControl = $('#' + viewerInstance.id + '-note-toolbar');
 
-    if(typeof markup === 'undefined') return;
+    // if(elemNoteControl.length > 0) {
+    //     elemNoteControl.toggleClass('hidden');
+    //     closedViewerMarkup(markup.generateData(), viewer.getState());
+    // }
 
-    markup.leaveEditMode();
-    markup.hide();
+    $('#' + viewerInstance.id + '-markup-toolbar').addClass('hidden');
 
-    viewer.unloadExtension('Autodesk.Viewing.MarkupsCore');
+    if(typeof viewerInstance.markup === 'undefined') return;
 
-    setViewerFeatures();
+    viewerInstance.markup.leaveEditMode();
+    viewerInstance.markup.hide();
 
-    restoreMarkupSVG   = '';
-    restoreMarkupState = '';
+    viewerInstance.viewer.unloadExtension('Autodesk.Viewing.MarkupsCore');
 
-    $('#' + viewerId + '-markups-list').children('.selected').removeClass('selected');
+    setViewerFeatures(viewerInstance);
+
+    viewerInstance.restoreMarkupSVG   = '';
+    viewerInstance.restoreMarkupState = '';
+
+    $('#' + viewerInstance.id + '-markups-list').children('.selected').removeClass('selected');
 
 
 }
-function viewerSaveItemMarkup() {
+function viewerSaveItemMarkup(viewerId) {
 
     let fieldId  = $('#' + viewerId + '-markups-list').find('.markup.selected').first().attr('id');
     let linkItem = $('#' + viewerId).closest('.item').attr('data-link');
 
     $('#overlay').show();
 
-    viewerCaptureScreenshot(fieldId, function() {
+    viewerCaptureScreenshot('viewer', fieldId, function() {
 
         let elemMarkupImage = $('#' + fieldId);
 
@@ -2305,51 +2525,54 @@ function viewerSaveItemMarkup() {
 
     });
 
-
-
 }
 
 
 // Capture screenshot with markup for image upload
-function viewerCaptureScreenshot(id, callback) {
-   
-    if(!isViewerStarted()) callback();
+function viewerCaptureScreenshot(viewerId, canvasId, callback) {
 
-    if(isBlank(id)) id = 'viewer-markup-image';
+    let [ viewerInstance, viewer, proceed ] = getViewerInstanceRunning(viewerId, false);
 
-    if($('#' + id).length === 0) {
-
+    if(!proceed) {
         callback();
-        
     } else {
 
-        var screenshot  = new Image();
-        var imageWidth  = viewer.container.clientWidth;
-        var imageHeight = viewer.container.clientHeight;
+        if(isBlank(canvasId)) canvasId = 'viewer-markup-image';
 
-        screenshot.onload = function () {
-                
-            let canvas          = document.getElementById(id);
-                canvas.width    = viewer.container.clientWidth;
-                canvas.height   = viewer.container.clientHeight;
+        if($('#' + canvasId).length === 0) {
 
-            let context = canvas.getContext('2d');
-                context.clearRect(0, 0, canvas.width, canvas.height);
-                context.drawImage(screenshot, 0, 0, canvas.width, canvas.height); 
-                
-            if(!$('#viewer-markup-toolbar').hasClass('hidden')) {
-                markup.renderToCanvas(context, function() {
+            callback();
+            
+        } else {
+
+            var screenshot  = new Image();
+            var imageWidth  = viewer.container.clientWidth;
+            var imageHeight = viewer.container.clientHeight;
+
+            screenshot.onload = function () {
+                    
+                let canvas        = document.getElementById(canvasId);
+                    canvas.width  = viewer.container.clientWidth;
+                    canvas.height = viewer.container.clientHeight;
+
+                let context = canvas.getContext('2d');
+                    context.clearRect(0, 0, canvas.width, canvas.height);
+                    context.drawImage(screenshot, 0, 0, canvas.width, canvas.height); 
+                    
+                if(!$('#' + viewerId + '-markup-toolbar').hasClass('hidden')) {
+                    viewerInstance.markup.renderToCanvas(context, function() {
+                        callback();
+                    });
+                } else {
                     callback();
-                });
-            } else {
-                callback();
+                }
+                    
             }
-                
+            viewer.getScreenShot(imageWidth, imageHeight, function (blobURL) {
+                screenshot.src = blobURL;
+            });
+            
         }
-        viewer.getScreenShot(imageWidth, imageHeight, function (blobURL) {
-            screenshot.src = blobURL;
-        });
-        
     }
 
 }
@@ -2390,9 +2613,10 @@ function viewerCapturePerspective(view, id, callback) {
 }
 
 
-// Markup restore
-function onViewerRestore(event) {
-
+function onViewerStateRestored(event) {
+    
+    // Markup restore
+    
     if(typeof markup === 'undefined') return;
      
     markup.unloadMarkupsAllLayers();

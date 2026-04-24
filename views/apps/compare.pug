@@ -1,0 +1,86 @@
+extends ../framework/layout
+
+block head
+
+    link(rel='stylesheet', href='/stylesheets/apps/compare.css')
+    script(src='/javascripts/apps/compare.js')
+    script.
+        config = !{JSON.stringify(config)};
+
+block body
+
+    body.surface-level-1.no-details-panels.viewer-size-normal.no-selector
+
+        #header.dark
+            #header-logo
+            #header-title=title
+            #header-subtitle
+            #header-toolbar
+                //- #save.button.default Save Changes
+                #open-selector.button.with-icon.icon-search.default Select BOM For Comparison
+                select#viewer-size.button(style="text-align : left;")
+                    option(value='normal') Normal Viewer Size
+                    option(value='large') Large Viewers
+                    option(value='small') Small Viewers
+                    option(value='float') Floating Viewers
+                    option(value='none') No Viewers
+                #toggle-sync-viewers.button.with-toggle.toggle-on Sync Viewers
+                #toggle-details.button.with-toggle.toggle-off Details Panels
+                //- select#header-filter.button(style="text-align : left;")
+                //-     option(value='all') Show All Items
+                //-     option(value='non') Only Show Matching Entries
+                //-     option(value='non') Only Show Non-Matching Entries
+                //-     option(value='qty') Only Show Quantity Differences
+                //-     option(value='qty') Only Show Items Missing On Left Side
+                //-     option(value='qty') Only Show Items Missing On Right Side
+                #header-avatar
+
+        .screen 
+
+            .surface-level-1#viewerLeft.viewer-left
+            .surface-level-1#bomLeft.bom-panel
+            .surface-level-1#detailsLeft.details-panel           
+
+            .surface-level-1#viewerRight.viewer-right
+            .surface-level-1#bomRight.bom-panel
+            .surface-level-1#detailsRight.details-panel
+
+            .surface-level-2#selector.pos-abs-right
+                #search.pos-abs-top.surface-level-2
+                #panel-tabs.panel-tabs 
+                    .tab(data-content-id='revisions') Revisions
+                    .tab(data-content-id='bookmarks') Bookmarks 
+                    .tab(data-content-id='recents'  ) Recents
+                #panel-tabs-contents.panel-tabs-contents.surface-level-1.pos-abs-bottom
+                    .hidden.surface-level-1#revisions
+                    .hidden.surface-level-1#bookmarks
+                    .hidden.surface-level-1#recents
+
+            .surface-level-1#counters.pos-abs-bottom
+                .button.counter#matchingItems(data-class-name='bom-comparison-match')
+                    .number#matchingItemsCounter ?
+                    .label Matches
+                    .button.icon.icon-prev
+                    .button.icon.icon-next
+                    .button.icon.icon-hide#hide-matches(title='Toggles display of matching BOM rows on / off')
+                .button.counter#differentQuantity(data-class-name='bom-comparison-different-quantity')
+                    .number#differentQuantityCounter ?
+                    .label Different Quantities
+                    .button.icon.icon-prev
+                    .button.icon.icon-next
+                .button.counter#differentRevision(data-class-name='bom-comparison-different-revision')
+                    .number#differentRevisionCounter ?
+                    .label Different Revisions
+                    .button.icon.icon-prev
+                    .button.icon.icon-next
+                .button.counter#differentNumber(data-class-name='bom-comparison-different-number')
+                    .number#differentNumberCounter ?
+                    .label Different Items
+                    .button.icon.icon-prev
+                    .button.icon.icon-next
+                .button.counter#missingItem(data-class-name='bom-comparison-missing')
+                    .number#missingItemCounter ?
+                    .label Missing Items
+                    .button.icon.icon-prev
+                    .button.icon.icon-next
+                .button.with-toggle.toggle-off#apply-colors Apply Colors in Viewer

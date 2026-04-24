@@ -84,7 +84,7 @@ body.dark-theme  #guiviewer3d-toolbar #toolbar-measureTool-done.adsk-button:hove
 }
 .adsk-toolbar .adsk-control-group { margin : 0px !important; }
 .adsk-viewing-viewer.dark-theme .adsk-control-tooltip { background : black !important; }
-#viewer .adsk-viewing-viewer .adsk-button { 
+.viewer .adsk-viewing-viewer .adsk-button { 
     border-radius : 2px;
     margin        : 2px;
     padding       : 4px;
@@ -93,21 +93,29 @@ body.dark-theme  #guiviewer3d-toolbar #toolbar-measureTool-done.adsk-button:hove
 
 /* #my-custom-toolbar-views{ margin-left : 20px !important; } */
 [class*=" adsk-icon-"]:before, [class^=adsk-icon-]:before, [data-icon]:before { font-weight : 100; }
-#guiviewer3d-toolbar .adsk-button .adsk-button-icon::before { font-weight : 300; }
 
+.adsk-viewing-viewer .adsk-toolbar .adsk-button-icon {
+    line-height : 28px;
+    padding     : 0px;
+}
+.adsk-viewing-viewer .adsk-toolbar .adsk-button-icon::before { 
+    font-weight : 300 !important; 
+    line-height : 28px;
+}
 .adsk-toolbar .measure-toolbar-seperator {
     margin : 14px 10px !important;
 }
 
 
-/*  APS VIEWER CUSTOM TOOLBARS */
+/*  VISIBILITY CONTROLS */
 /* ----------------------------------------------------------------------------- */
-#customSelectionToolbar.hide-selected  #button-toggle-hide-selected  { 
+.customSelectionToolbar.hide-selected  .button-toggle-hide-selected,
+body.dark-theme  #guiviewer3d-toolbar  .customSelectionToolbar.hide-selected  .button-toggle-hide-selected:hover  { 
     background   : var(--color-blue-500) !important; 
     border-color : var(--color-blue-500) !important; 
 }
-#customSelectionToolbar.hide-selected #button-toggle-hide-selected .icon-remove::before { color : white !important; }
-#hidden-instances {
+.customSelectionToolbar.hide-selected .button-toggle-hide-selected .icon-remove::before { color : white !important; }
+.hidden-instances {
     font-family     : 'ArtifaktElement';
     border-radius   : 3px;
     color           : white;
@@ -126,7 +134,7 @@ body.dark-theme  #guiviewer3d-toolbar #toolbar-measureTool-done.adsk-button:hove
     width           : 420px;
     z-index         : 4;
 }
-#hidden-instances-label {
+.hidden-instances-label {
     background      : var(--color-yellow-500);
     border          : 1px solid transparent;
     border-radius   : 2px;
@@ -136,12 +144,12 @@ body.dark-theme  #guiviewer3d-toolbar #toolbar-measureTool-done.adsk-button:hove
     margin-right    : 4px;
     padding         : 0px 12px;
 }
-#hidden-instances-counter {
+.hidden-instances-counter {
     font-weight : 800;
     text-align  : right;
     width       : 20px;
 }
-#hidden-instances-list {
+.hidden-instances-list {
     display         : flex;
     flex-direction  : column;
     gap             : 2px;
@@ -180,28 +188,37 @@ body.dark-theme  #guiviewer3d-toolbar #toolbar-measureTool-done.adsk-button:hove
     line-height     : 26px;
 }
 
-#button-toggle-ghosting-enable { 
-    background : var(--color-blue-500) !important; 
-    border-color : var(--color-blue-500) !important; 
-}
-#button-toggle-ghosting-enable .icon-hide::before { color : white !important; }
-#button-toggle-ghosting-disable  { display : none; }
-#customSelectionToolbar.ghosting #button-toggle-ghosting-disable  { display : block; }
-#customSelectionToolbar.ghosting #button-toggle-ghosting-enable  { display : none; }
 
-#button-toggle-highlight-on { 
+/*  GHOSTING TOGGLE */
+/* ----------------------------------------------------------------------------- */
+.button-toggle-ghosting-enable,
+.button-toggle-ghosting-enable:hover,
+body.dark-theme  #guiviewer3d-toolbar .button-toggle-ghosting-enable:hover { 
     background   : var(--color-blue-500) !important; 
     border-color : var(--color-blue-500) !important; 
 }
-#button-toggle-highlight-on .icon-highlight::before { color : white !important; }
-#customSelectionToolbar.highlight-on  #button-toggle-highlight-off { display : none; }
-#customSelectionToolbar.highlight-off #button-toggle-highlight-on  { display : none; }
+.button-toggle-ghosting-enable .icon-hide::before { color : white !important; }
+.button-toggle-ghosting-disable  { display : none; }
+.customSelectionToolbar.ghosting .button-toggle-ghosting-disable { display : block; }
+.customSelectionToolbar.ghosting .button-toggle-ghosting-enable  { display : none; }
 
+
+/*  HIGHLIGHT TOGGLE */
+/* ----------------------------------------------------------------------------- */
+.button-toggle-highlight-on,
+.button-toggle-highlight-on:hover,
+body.dark-theme  #guiviewer3d-toolbar .button-toggle-highlight-on:hover {
+    background   : var(--color-blue-500) !important; 
+    border-color : var(--color-blue-500) !important; 
+}
+.button-toggle-highlight-on .icon-highlight::before { color : white !important; }
+.customSelectionToolbar.highlight-on  .button-toggle-highlight-off { display : none; }
+.customSelectionToolbar.highlight-off .button-toggle-highlight-on  { display : none; }
 
 
 /*  FILE BROWSER */
 /* ----------------------------------------------------------------------------- */
-#viewer-file-browser {
+.viewer-file-browser {
     background      : rgba(33, 33, 33, 0.6);
     display         : none;
     position        : absolute;
@@ -215,33 +232,33 @@ body.dark-theme  #guiviewer3d-toolbar #toolbar-measureTool-done.adsk-button:hove
     align-items     : center;
     justify-content : center;
 }
-#viewer-file-browser-panel {
+.viewer-file-browser-panel {
     border-radius   : 4px;
     border-width    : 40px;
     max-width       : 500px;
     min-width       : 250px;
     width           : 500px;
 }
-#viewer-file-browser-header {
+.viewer-file-browser-header {
     display         : flex;
     justify-content : space-between;
     margin          : 0px 10px 20px;
 }
-#viewer-file-browser-title {
+.viewer-file-browser-title {
     color       : white;
     font-size   : 18px;
     font-weight : 800;
     line-height : 40px;
 }
-#viewer-file-browser-list {
+.viewer-file-browser-list {
     margin-bottom : 20px;
 }
-#viewer-file-browser-list .tile-title {
-    line-height : 22px;
+.viewer-file-browser-list .tile-title {
+    line-height : 22px !important;
 }
-#viewer-file-browser-list .tile-details {
-    gap        : 2px;
-    margin-top : 14px;
+.viewer-file-browser-list .tile-details {
+    gap        : 2px !important;
+    margin-top : 14px !important;
 }
 
 

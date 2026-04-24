@@ -118,7 +118,8 @@ function openItem(title) {
 
     document.title = title; 
     insertViewer(linkSelected, {
-        extensionsIn : config.viewingFormats || common.viewer.extensionsIncluded
+        extensionsIn : config.viewingFormats || common.viewer.extensionsIncluded,
+        features     : config.viewerFeatures
     });
 
     let paramsBOM = config.panels.insertBOM;
@@ -161,15 +162,17 @@ function onClickBOMItem(elemClicked) {
 // Select BOM item upon viewer selection
 function onViewerSelectionChanged(event) {
 
-    if(viewerHideSelected(event)) return;
+    let viewerInstance = getViewerInstance();
 
-    if(disableViewerSelectionEvent) return;
+    if(viewerInstance === null) return;
+    if(viewerInstance.disableSelectEvent) return;
+    if(viewerHideSelected(event)) return;
 
     $('.tree-item').removeClass('selected');
 
-    if (event.dbIdArray.length === 1) {
+    if(event.dbIdArray.length === 1) {
 
-        let parents  = getComponentParents(event.dbIdArray[0]);
+        let parents  = viewerGetComponentParents(event);
         let index    = parents.length -1;
         let elemItem = null;
 

@@ -1020,7 +1020,7 @@ function uploadImage() {
     $('#overlay').show();
 
 
-    viewerCaptureScreenshot('viewer-markup-image', function() {
+    viewerCaptureScreenshot('viewer', 'viewer-markup-image', function() {
     // viewerCapturePerspective('perspective', 'viewer-markup-image', function() {
 
         // values.push(elemImage[0].toDataURL('image/jpg'));

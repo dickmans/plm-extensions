@@ -74,6 +74,7 @@ router.get('/error-loading', function(req, res, next) {
 router.get('/abom'          , function(req, res, next) { launch('apps/abom'          , 'abom'          , 'Asset BOM Editor'         , req, res, next); });
 router.get('/classes'       , function(req, res, next) { launch('apps/classes'       , 'classes'       , 'Classification Browser'   , req, res, next); });
 router.get('/client'        , function(req, res, next) { launch('apps/client'        , ''              , 'Mobile PLM Client'        , req, res, next); });
+router.get('/compare'       , function(req, res, next) { launch('apps/compare'       , 'compare'       , 'BOM Comparison'           , req, res, next); });
 router.get('/dashboard'     , function(req, res, next) { launch('apps/dashboard'     , 'dashboard'     , 'Dashboard'                , req, res, next); });
 router.get('/explorer'      , function(req, res, next) { launch('apps/explorer'      , 'explorer'      , 'Product Data Explorer'    , req, res, next); });
 router.get('/impactanalysis', function(req, res, next) { launch('apps/impactanalysis', 'impactanalysis', 'Change Impact Analysis'   , req, res, next); });

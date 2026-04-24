@@ -166,7 +166,7 @@ function setUIEvents() {
 
         if(!validateForm($('#processes-sections'))) return;
 
-        viewerCaptureScreenshot(null, function() {
+        viewerCaptureScreenshot('viewer', null, function() {
 
             $('#processes-toolbar').hide();
             $('#processes-sections').hide();
@@ -930,7 +930,6 @@ function initViewerDone() {
 
     insertElementLists();
     viewerAddMarkupControls();   
-    viewerAddGhostingToggle();
     viewerAddResetButton();   
     viewerAddViewsToolbar();
 

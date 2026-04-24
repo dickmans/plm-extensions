@@ -223,7 +223,7 @@ function setUIEvents() {
             return;
         }
 
-        viewerCaptureScreenshot(null, function() {
+        viewerCaptureScreenshot('viewer', null, function() {
 
             $('#processes-sections').hide();
             $('#processes-list').html('');

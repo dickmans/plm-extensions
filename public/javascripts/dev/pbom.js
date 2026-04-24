@@ -213,7 +213,7 @@ function setUIEvents() {
 
         elemParent.removeClass('no-canvas').removeClass('no-image');
 
-        viewerCaptureScreenshot(id, function() {});
+        viewerCaptureScreenshot('viewer', id, function() {});
 
     });
     $('#process-images').find('.icon-delete').click(function() {
@@ -1338,7 +1338,7 @@ function captureOperationScreenshot(elemButton, index) {
 
     //     elemParent.removeClass('no-canvas').removeClass('no-image');
 
-        viewerCaptureScreenshot(id, function() {});
+        viewerCaptureScreenshot('viewer', id, function() {});
 
     // });
 

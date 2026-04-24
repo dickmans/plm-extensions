@@ -367,7 +367,9 @@ function setDetails() {
         $('#alternatives').val($('<div></div>').html(getSectionFieldValue(response.data.sections, 'ALTERNATIVES', '')).text());
         $('#deficiencies').val($('<div></div>').html(getSectionFieldValue(response.data.sections, 'DEFICIENCIES', '')).text());
 
-        insertViewer(linkItem);
+        insertViewer(linkItem, {
+            features : config.viewerFeatures
+        });
         insertBOM(linkItem, { 
             id               : 'bom',
             hideHeaderLabel  : true,

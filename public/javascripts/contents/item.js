@@ -619,7 +619,7 @@ function insertCreateDataSetFieldValues(id) {
                             elemCanvas = $('<canvas>').attr('id', 'viewer-markup-' + fieldValue.fieldId).addClass('viewer-screenshot');
                         }
                         elemField.html('').append(elemCanvas);
-                        viewerCaptureScreenshot('viewer-markup-' + fieldValue.fieldId, function() {});
+                        viewerCaptureScreenshot('viewer', 'viewer-markup-' + fieldValue.fieldId, function() {});
                     }
 
                     // if(elemField.hasClass('field-type-single-select')) {
@@ -652,7 +652,7 @@ function insertCreateDataSetFieldValues(id) {
                     //         elemCanvas = $('<canvas>').attr('id', 'viewer-markup-' + fieldValue.fieldId).addClass('viewer-screenshot');
                     //     }
                     //     elemField.html('').append(elemCanvas);
-                    //     viewerCaptureScreenshot('viewer-markup-' + fieldValue.fieldId, function() {});
+                    //     viewerCaptureScreenshot('viewer', 'viewer-markup-' + fieldValue.fieldId, function() {});
                     // } else {
 
                     //     let elemInput    = elemField.children('input').first();
@@ -1265,6 +1265,10 @@ function insertDetailsData(id) {
         if(settings[id].fields.length   === 0) settings[id].fields   = getResponseFromResponses(responses, '/plm/fields'  , settings[id].link).data;
 
         settings[id].descriptor = responses[0].data.title;
+        
+        if(responses[0].data.hasOwnProperty('version')) {
+            settings[id].descriptor = responses[0].data.title + ' ' + responses[0].data.version;
+        }
 
         setPanelBookmarkStatus(id, responses);
         setPanelCloneStatus(id, responses);
@@ -4471,7 +4475,7 @@ function clickScreenshotUpload(id, elemClicked) {
 
     let idCanvas = id + '-screenshot-canvas';
 
-    viewerCaptureScreenshot(idCanvas, function() {
+    viewerCaptureScreenshot('viewer', idCanvas, function() {
 
         let elemScreenshot = $('#' + idCanvas);
 
@@ -5264,6 +5268,7 @@ function insertBOM(link , params, data) {
         [ 'goThere'             , false ],
         [ 'hideNumber'          , false ],
         [ 'hideDescriptor'      , false ],
+        [ 'hideDescriptorRev'   , false ],
         [ 'hideDetails'         , hideDetails ],
         [ 'hideTableHeader'     , false ],
         [ 'includeBOMPartList'  , true  ],
@@ -5498,8 +5503,6 @@ function openBOMView(id) {
 
     let elemBOM = $('#' + id);
 
- 
-
     let params = {
         link            : settings[id].link,
         depth           : settings[id].depth,
@@ -5517,8 +5520,6 @@ function openBOMView(id) {
     if(settings[id].details        === null) requests.push($.get('/plm/details'   , { link : params.link }));
     if(settings[id].workspaces.length === 0) requests.push($.get('/plm/workspaces', { useCache : settings[id].useCache }));
     if(settings[id].downloadFiles          ) requests.push($.get('/services/storage/folders', { path : 'downloads'     }));
-
- 
 
     if(settings[id].editable) {
     
@@ -5542,8 +5543,6 @@ function openBOMView(id) {
 
     }
 
-
-
     let indexAdditional = requests.length;
 
     for(let request of settings[id].additionalRequests) requests.push(request);
@@ -5559,8 +5558,6 @@ function openBOMView(id) {
             }
         }
 
-
-
         if(settings[id].details        === null) settings[id].details    = getResponseFromResponses(responses, '/plm/details'   ).data;
         if(settings[id].workspaces.length === 0) settings[id].workspaces = getResponseFromResponses(responses, '/plm/workspaces').data;
         if(settings[id].sections.length   === 0) settings[id].sections   = getResponseFromResponses(responses, '/plm/sections'  ).data;
@@ -5569,15 +5566,17 @@ function openBOMView(id) {
         settings[id].version         = settings[id].details.version;
         settings[id].downloadFolders = getResponseFromResponses(responses, '/plm/storage/folders').folders;
 
+        if(settings[id].details.hasOwnProperty('version')) {
+            settings[id].descriptor = settings[id].details.title + ' ' + settings[id].details.version;
+        }
+
         if(settings[id].picklists.length === 0) {
             for(let response of responses) {
                 if(response.url.indexOf('/picklist?') === 0) {
                     settings[id].picklists.push(response)
                 }
             }
-        }
-
-      
+        }      
 
         if(settings[id].hasOwnProperty('bomViews')) {
             for(let view of settings[id].bomViews) {
@@ -5592,8 +5591,6 @@ function openBOMView(id) {
                 }
             }
         }
-
-
 
         if(settings[id].columns.length === 0) {
             let columnsCount = 1;
@@ -5620,7 +5617,6 @@ function openBOMView(id) {
                 sortArray(settings[id].columns, 'sortFieldsIncluded', 'integer');
             }
         }       
-
         
         if(!isBlank(settings[id].selectItems.values)) {
             settings[id].selectItems.values = settings[id].selectItems.values.map(function(item) { 
@@ -5734,6 +5730,8 @@ function genBOMRows(id, elemTable, items) {
         let workspaceLink = item.link.split('/items/')[0];
         let workspaceName = '';
 
+        if(settings[id].hideDescriptorRev) item.title = item.title.split(' [REV')[0];
+
         for(let ws of settings[id].workspaces.items) if(ws.link === workspaceLink) { workspaceName = ws.title; break; }
 
         if((settings[id].workspacesIn.length === 0) || ( settings[id].workspacesIn.includes(workspaceName))) {
@@ -5742,8 +5740,10 @@ function genBOMRows(id, elemTable, items) {
                 let elemRow = $('<tr></tr>').appendTo(elemTBody)
                     .attr('data-number'        , item.number)
                     .attr('data-number-path'   , item.path)
+                    .attr('data-level-path'    , item.numberPath)
                     // .attr('data-number-path'   , item.path + item.number)
                     .attr('data-part-number'   , item.partNumber)
+                    .attr('data-revision'      , item.revision)
                     .attr('data-dmsId'         , item.link.split('/')[6])
                     .attr('data-link'          , item.link)
                     .attr('data-root-link'     , item.root)
@@ -7501,23 +7501,50 @@ function insertViewer(link, params) {
     settings[id].extensionsIn      = common.viewer.extensionsIncluded || ['dwf', 'dwfx', 'nwd', 'iam', 'ipt', 'stp', 'step', 'sldprt', 'pdf'];
     settings[id].extensionsEx      = common.viewer.extensionsExcluded || [];
     settings[id].restartViewer     = params.restartViewer || false;
+    settings[id].features          = params.features || {
+        contextMenu   : true,
+        cube          : false,
+        orbit         : false,
+        firstPerson   : false,
+        camera        : false,
+        measure       : true,
+        section       : true,
+        explodedView  : true,
+        modelBrowser  : false,
+        properties    : false,
+        settings      : false,
+        fullscreen    : true,
+        markup        : false,
+        hide          : true,
+        ghosting      : true,
+        highlight     : true,
+        single        : true,
+        fitToView     : true,
+        reset         : true,
+        views         : false,
+        selectFile    : true
+    };
 
-    if(!isBlank(params.suffixPrimaryFile)) settings[id].suffixPrimaryFile = params.suffixPrimaryFile;
-    if(!isBlank(params.extensionsIn)     ) settings[id].extensionsIn      = params.extensionsIn;
-    if(!isBlank(params.extensionsEx)     ) settings[id].extensionsEx      = params.extensionsEx;
-    if(!isBlank(params.backgroundColor)  ) settings[id].backgroundColor   = params.backgroundColor;
-    if(!isBlank(params.antiAliasing)     ) settings[id].antiAliasing      = params.antiAliasing;
-    if(!isBlank(params.ambientShadows)   ) settings[id].ambientShadows    = params.ambientShadows;
-    if(!isBlank(params.groundReflection) ) settings[id].groundReflection  = params.groundReflection;
-    if(!isBlank(params.groundShadow)     ) settings[id].groundShadow      = params.groundShadow;
-    if(!isBlank(params.lightPreset)      ) settings[id].lightPreset       = params.lightPreset;
-    if(!isBlank(params.cacheInstances)   ) settings[id].cacheInstances    = params.cacheInstances;
+    if(!isBlank(params.suffixPrimaryFile) ) settings[id].suffixPrimaryFile  = params.suffixPrimaryFile;
+    if(!isBlank(params.extensionsIn)      ) settings[id].extensionsIn       = params.extensionsIn;
+    if(!isBlank(params.extensionsEx)      ) settings[id].extensionsEx       = params.extensionsEx;
+    if(!isBlank(params.backgroundColor)   ) settings[id].backgroundColor    = params.backgroundColor;
+    if(!isBlank(params.antiAliasing)      ) settings[id].antiAliasing       = params.antiAliasing;
+    if(!isBlank(params.ambientShadows)    ) settings[id].ambientShadows     = params.ambientShadows;
+    if(!isBlank(params.groundReflection)  ) settings[id].groundReflection   = params.groundReflection;
+    if(!isBlank(params.groundShadow)      ) settings[id].groundShadow       = params.groundShadow;
+    if(!isBlank(params.lightPreset)       ) settings[id].lightPreset        = params.lightPreset;
+    if(!isBlank(params.cacheInstances)    ) settings[id].cacheInstances     = params.cacheInstances;
+    if(!isBlank(params.cacheBoundingBoxes)) settings[id].cacheBoundingBoxes = params.cacheBoundingBoxes;
+
+    settings[id].syncViewpoint = params.syncViewpoint || false;
+    settings[id].syncExplosion = params.syncExplosion || false;
 
     let elemInstance = $('#' + id).children('.adsk-viewing-viewer');
     if(elemInstance.length > 0) elemInstance.hide();
 
     $('#' + id).attr('data-link', link);
-    $('#' + id).addClass('hidden');
+    $('#' + id).addClass('hidden').addClass('viewer');
     $('#' + id + '-message').addClass('hidden');
     $('#' + id + '-conversion-error').addClass('hidden');
 
@@ -8107,7 +8134,6 @@ function insertChangeProcessesDataDone(id, data) {}
 
 
 
-
 // Insert Project tab data
 function insertProject(link, params) {
 
@@ -8345,8 +8371,6 @@ function disconnectProjectItems(id) {
     });
 
 }
-
-
 
 
 
@@ -8892,6 +8916,94 @@ function insertWorkflowTransitionDialog(link, descriptor, type, transition, call
     }
 
 }
+
+
+
+// Insert Revisions List
+function insertRevisions(link, params) {
+    
+    if(isBlank(link)) return;
+
+    let id = isBlank(params.id) ? 'revisions' : params.id;
+    
+    settings[id] = getPanelSettings(link, params, {
+        headerLabel : 'Revisions',
+        layout      : 'table',
+        tileIcon    : 'icon-product',
+        number      : false
+    }, []);
+
+    settings[id].load = function() { insertRevisionsData(id); }
+
+    genPanelTop                    (id, 'revisions');
+    genPanelHeader                 (id);
+    genPanelOpenSelectedInPLMButton(id);
+    genPanelReloadButton           (id);
+    genPanelContents               (id);
+
+    insertRevisionsDone(id);
+
+    settings[id].load();
+
+}
+function insertRevisionsDone(id) {}
+function insertRevisionsData(id) {
+
+    settings[id].timestamp = startPanelContentUpdate(id);
+
+    let params = {
+        link        : settings[id].link,
+        timestamp   : settings[id].timestamp
+    }
+
+    $.get('/plm/versions', params, function(response) {
+
+        if(stopPanelContentUpdate(response, settings[id])) return;
+
+        settings[id].columns = [];
+
+        let items           = [];
+        let columns         = [
+            { displayName : 'Revision' , fieldId : 'revision'  },
+            { displayName : 'Status'   , fieldId : 'status'    },
+            { displayName : 'Lifecycle', fieldId : 'lifecycle' },
+            { displayName : 'Effective', fieldId : 'effective' },
+            { displayName : 'Item'     , fieldId : 'item'      },
+        ]
+
+        for(let column of columns) {
+            if(includePanelTableColumn(column.fieldId, column.displayName, settings[id], settings[id].columns.length)) {
+                settings[id].columns.push(column);
+            }
+        }
+
+        for(let version of response.data.versions) {
+
+            let contentItem = genPanelContentItem(settings[id], {
+                link        : version.item.link, 
+                title       : version.item.title,
+                subtitle    : version.lifecycle.title
+            });
+
+            contentItem.data = [
+                { fieldId : 'item'     , value : version.item.title       },
+                { fieldId : 'revision' , value : version.version ?? 'WIP' },
+                { fieldId : 'status'   , value : version.status           },
+                { fieldId : 'lifecycle', value : version.lifecycle.title  },
+                { fieldId : 'effective', value : version.effectivity.startDate ?? '--' },
+            ];
+
+            items.push(contentItem);
+
+        }
+
+        finishPanelContentUpdate(id, items);
+        insertRelationshipsDataDone(id, response);
+
+    })
+    
+}
+function insertRevisionsDataDone(id, data) {}
 
 
 

@@ -20,9 +20,6 @@ $(document).ready(function() {
     setAddinEvents();
     setAddinMode();
 
-    viewerSettings.cacheBoundingBoxes = true;
-    viewerSettings.cacheInstances     = true;
-
     includeECAD = config.hasOwnProperty('ecad');
 
     getFeatureSettings('instances', [], function() {
@@ -244,7 +241,11 @@ function openEditor(link) {
 
             insertBOM(links.ebom, paramsBOM);
 
-            insertViewer(links.ebom, { cacheInstances : true });
+            insertViewer(links.ebom, { 
+                cacheInstances     : true,
+                cacheBoundingBoxes : true,
+                features           : config.viewerFeatures
+            });
 
             for(let index = 1; index < responses.length; index++) {
 
@@ -666,7 +667,7 @@ function applyViewerColors() {
 
     if(applyBOMColors) {
 
-        viewer.hideAll();
+        viewerHideAll();
 
         for(let workspace of workspaces) {
 
@@ -1111,38 +1112,34 @@ function selectInstance(instancePath) {
 
 
 // Highlight matching items upon selection in viewer
-function onViewerSelectionChanged(event) {
+function onViewerSelectionChangedDone(viewerInstance, partNumbers, event) {
 
-    if(!viewerInstanceDataSet) return;
-    if(viewerHideSelected(event)) return;
+    if(partNumbers.length === 0) return;
 
-    viewerGetSelectedPartNumber(event, function(partNumber) {
+    let partNumber = partNumbers.pop();
+    let instanceId = event.dbIdArray[0];
+
+    treeDisplayItemByPropertyValue('bom', 'data-part-number', partNumber);
 
     $('#items').find('tr.content-item').removeClass('selected').removeClass('highlighted');
 
-        let instanceId  = event.dbIdArray[0];
+    for(let index = 0; index < workspaces.length; index++) {
 
-        for(let index = 0; index < workspaces.length; index++) {
+        let gridRows = getGridRows(index);
 
-            let gridRows = getGridRows(index);
+        for(let gridRow of gridRows) {
 
-            for(let gridRow of gridRows) {
+            if(gridRow.instanceId == instanceId) {                    
+                gridRow.elem.addClass('highlighted');
+                $('#items').children().addClass('hidden');
+                $('#table-' + index).removeClass('hidden');
+                index =  workspaces.length + 1;
+            } else if(gridRow.partNumber === partNumber) {
+                gridRow.elem.addClass('selected');
 
-                if(gridRow.instanceId == instanceId) {                    
-                    gridRow.elem.addClass('highlighted');
-                    $('#items').children().addClass('hidden');
-                    $('#table-' + index).removeClass('hidden');
-                    index =  workspaces.length + 1;
-                } else if(gridRow.partNumber === partNumber) {
-                    gridRow.elem.addClass('selected');
-
-                }
             }
         }
-
-        bomDisplayItemByPartNumber(partNumber);
-
-    });
+    }
 
 }
 function selectContentRow(elemRow) {

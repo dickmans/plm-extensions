@@ -15,7 +15,7 @@ block body
             p Unleash the power of Fusion Manage by utilizing its REST API to provide custom built frontends based on Autodesk Platform Services. All solutions manage data in PLM only and take into account the given user's access permission in PLM.
             #side-toolbar.side-toolbar
                 .button#version Review changes by 
-                    span#version-name 25. March 2026
+                    span#version-name 24. April 2026
                 .button#tenant Open related tenant
                     span#tenant-name
                 .button#chrome Learn about the
@@ -48,6 +48,10 @@ block body
             .log#framework-changes 
                 h1 Framework Changes
                 table 
+                    tr  
+                        td 24. April 2026
+                        td New Application
+                        td The new BOM comparison utility enables a graphic and easy-to-use comparion of Bill of Materials
                     tr  
                         td 25. March 2026
                         td Improved Cache
@@ -322,6 +326,7 @@ block body
                 .tiles-group-title Item &amp; BOM Management
                 .tiles-group-subtitle Manage multiple Bill of Materials based on your initial Engineering BOM. These Applications require configuration changes using the Workspace Manager and/or even changes to scripts. 
                 .tiles-group-list
+                    include ../docs/app-bom-comparison.pug
                     include ../docs/app-mbom-editor.pug
                     include ../docs/app-sbom-editor.pug
                     include ../docs/app-variants-manager.pug

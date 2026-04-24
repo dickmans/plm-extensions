@@ -1,0 +1,72 @@
+.tile(data-name='BOM Comparison' data-id='compare')
+    .tile-image(style="background: url('images/app-compare.png') no-repeat;background-size:contain;")
+    .tile-details
+        .tile-title BOM Comparison
+        .tile-subtitle Compare two selected BOMs side by side and benefit from color highligting, filtering and synchronised viewers when reviewing changes across revisions or alternatives of a design
+        .tile-access 
+            .tile-endpoint /compare
+            .tile-button.button.default(href="compare?compareWith=18764&wsId=57&dmsid=18685" target="_blank") Open
+            .tile-button.button.icon.icon-start.default(href="https://youtu.be/LCwprtYzqqg" target="_blank")            
+    .instructions
+        h1 Features
+        p Once the Chrome Extension of this UX server is installed, users can open the BOM comparison from any item. It will automatically open the comparison against the working version or latest released version, depending from where it is opened. Users can select another BOM to compare against by using searches, the revision list, bookmarks and recent items.
+        a(href='chrome-extension' target='_blank') Learn about the Chrome Extension
+        p Once the comparison has been started, the following features are available: 
+            ul 
+                li Select from multiple viewer sizes 
+                li Filter the BOM trees by type of change 
+                li Display item details for selected items 
+                li Apply change type colors to the viewer 
+                li Enable / disable viewer sync
+        p This application does not require any configuration changes in the tenant.
+        h1 Application Configuration Settings
+        p The following settings can be adjusted in your custom settings file within 
+            span.code exports.applications.compare 
+            |to adjust the application's behavior. 
+            br
+            |In order to change any of these settings, copy the standard value from settings.js to your custom settings file in folder settings.                        
+        table 
+            tr
+                th Setting 
+                th Default Value 
+                th Description  
+            tr  
+                td panels.insertBOMLeft
+                td {..}
+                td Configures the left BOM tree display
+            tr  
+                td panels.insertBOMRight
+                td {..}
+                td Configures the right BOM tree display
+            tr  
+                td panels.insertDetailsLeft
+                td {..}
+                td Configures the left Item Details panel
+            tr  
+                td panels.insertDetailsRight
+                td {..}
+                td Configures the left Item Details panel
+            tr  
+                td panels.insertSearch
+                td {..}
+                td Configures the Search panel for selection of the BOM to compare
+            tr  
+                td panels.insertRevisions
+                td {..}
+                td Configures the Revisions list for selection of the BOM to compare
+            tr  
+                td panels.insertRecentItems
+                td {..}
+                td Configures the Recent Items panel for selection of the BOM to compare
+            tr  
+                td panels.insertBookmarks
+                td {..}
+                td Configures the Bookmarks panel for selection of the BOM to compare
+        h1 Viewer Configuration Settings
+        include ../framework/viewer.pug                  
+    .log 
+        h1 BOM Comparison Change Log 
+        table
+                td 7. July 2023
+                td Release
+                td This is the initial release of this application

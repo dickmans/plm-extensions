@@ -352,7 +352,7 @@ td.tree-first-col {
 .panel-content.xxs tr.node.level-9  .tree-first-col  { padding-left : 138px !important; }
 .panel-content.xxs tr.node.level-10 .tree-first-col  { padding-left : 156px !important; }
 
-.panel-content.xs .level-1  .tree-first-col { padding-left :  26px !important; max-width : 410px; }
+.panel-content.xs .level-1  .tree-first-col { padding-left :  24px !important; max-width : 410px; }
 .panel-content.xs .level-2  .tree-first-col { padding-left :  46px !important; max-width : 390px; }
 .panel-content.xs .level-3  .tree-first-col { padding-left :  66px !important; max-width : 370px; }
 .panel-content.xs .level-4  .tree-first-col { padding-left :  86px !important; max-width : 350px; }
@@ -2169,11 +2169,20 @@ and (max-device-width : 1900px)  {
     font-weight : normal;
 }
 
+.panel-tabs-contents > div {
+    display  : none;
+    position : absolute;
+    top      : 0px;
+    right    : 0px;
+    bottom   : 0px;
+    left     : 0px;
+}
+
 .panel-actions {
     display     : flex;
     gap         : 4px;
-    height      : 36px;
-    line-height : 36px;
+    height      : 38px;
+    line-height : 38px;
     overflow    : hidden;
     padding     : 14px 14px;
     position    : absolute;

@@ -214,14 +214,13 @@ function setUIEvents() {
     });
     $('#mode-add').click(function() { 
         $('body').removeClass('mode-disassemble').removeClass('mode-ebom').addClass('mode-add').removeClass('mode-operations');
-        setTimeout(function() { viewer.resize(); }, 250); 
         disassembleMode = false;
         $(this).addClass('selected');
         $(this).siblings().removeClass('selected');
+        viewerResize();
     });
     $('#mode-operations').click(function() { 
         $('body').removeClass('mode-disassemble').removeClass('mode-ebom').removeClass('mode-add').addClass('mode-operations');
-        setTimeout(function() { viewer.resize(); }, 250); 
         disassembleMode = false;
         $(this).addClass('selected');
         $(this).siblings().removeClass('selected');

@@ -587,7 +587,7 @@ function openItem(link) {
 
 //     $('#overlay').show();
 
-//     viewerCaptureScreenshot(fieldId, function() {
+//     viewerCaptureScreenshot('viewer', fieldId, function() {
 
 //         let elemMarkupImage = $('#' + fieldId);
 
