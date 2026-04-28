@@ -249,7 +249,7 @@ function getUsers() {
     dataUsers = null;
 
     $.get('/plm/users', { 
-        bulk       : false,
+        bulk       : true,
         activeOnly : true, 
         mappedOnly : false
     }, function(response) {
