@@ -2153,18 +2153,14 @@ function convertEBOMtoMBOM() {
                 }
             }
 
-            createMBOMRoot(responses[0].data, partNumber, function(linkMBOM) {
-
-                elemItem.attr('data-link-mbom', linkMBOM);
-                    
-                    // storeMBOMLink(link, linkNew);
-
+            createMBOMForEBOM(responses[0].data, partNumber, function(linkMBOM) {
 
                 let elemItem        = $('.item.to-convert');
                 let elemItemHead    = elemItem.children('.item-head');
                 let elemItemToggle  = elemItemHead.children('.item-toggle');
                 let elemItemActions = elemItemHead.children('.item-actions');
 
+                elemItem.attr('data-link-mbom', linkMBOM);
                 elemItem.addClass('leaf');
                 elemItem.children('.item-bom').remove();
                 elemItem.removeClass('item-has-bom');
