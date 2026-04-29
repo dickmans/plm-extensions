@@ -659,7 +659,9 @@ function createMBOMRoot(ebomItemDetails, callback) {
             }
         }
 
-        createMBOMForEBOM(ebomItemDetails, number, function() {
+        createMBOMForEBOM(ebomItemDetails, number, function(linkMBOM) {
+            links.mbom = linkMBOM;
+            storeContextMBOMLink();
             callback();
         });
 
@@ -679,7 +681,8 @@ function createMBOMForEBOM(ebomItemDetails, number, callback) {
             value   : { link : ebomItemDetails.__self__ }
         },{
             fieldId : config.workspaceMBOM.fieldIDs.ebomRoot,
-            value   : ebomItemDetails.root.link
+            value   : ebomItemDetails.root.link,
+            type    : 'string'
         },{
             fieldId : config.workspaceMBOM.fieldIDs.lastMBOMSync,
             value   : syncDate
@@ -716,24 +719,23 @@ function createMBOMForEBOM(ebomItemDetails, number, callback) {
         if(response.error) {
             showErrorMessage('Error', 'Error while creating MBOM root item, the editor cannot be used at this time. Please review your server configuration.');
         } else {
-            links.mbom = response.data.split('.autodeskplm360.net')[1];
-            storeMBOMLink(ebomItemDetails.__self__);
-            storeContextMBOMLink()
-            callback();
+            let linkMBOM = response.data.split('.autodeskplm360.net')[1];
+            storeMBOMLink(ebomItemDetails.__self__, linkMBOM);
+            callback(linkMBOM);
         }
     }); 
     
 }
-function storeMBOMLink(link) {
+function storeMBOMLink(linkEBOM, linkMBOM) {
 
     let timestamp  = new Date();
     let lastSync   = timestamp.getFullYear() + '-' + (timestamp.getMonth()+1) + '-' + timestamp.getDate();
 
     let params   = { 
-        link     : link, 
+        link     : linkEBOM, 
         sections : wsEBOM.sections,
         fields   : [
-            { fieldId : config.workspaceEBOM.fieldIDs.mbom         + siteSuffix, value : { link : links.mbom } },
+            { fieldId : config.workspaceEBOM.fieldIDs.mbom         + siteSuffix, value : { link : linkMBOM } },
             { fieldId : config.workspaceEBOM.fieldIDs.lastMBOMSync + siteSuffix, value : lastSync },
             { fieldId : config.workspaceEBOM.fieldIDs.lastMBOMUser + siteSuffix, value : userAccount.displayName }
         ] 
