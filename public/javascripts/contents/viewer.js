@@ -96,8 +96,6 @@ function initViewer(id, link, viewables, params) {
         viewers.push(viewerInstance);
     }
 
-    console.log(id);
-
     viewerInstance.link               = link;
     viewerInstance.viewable           = null;
     viewerInstance.viewables          = viewables;
@@ -108,8 +106,6 @@ function initViewer(id, link, viewables, params) {
     viewerInstance.objectTreeCreated  = false;
     viewerInstance.geometryLoaded     = false;
     viewerInstance.instanceDataSet    = false;
-
-    console.log(viewerInstance);
 
     let surfaceLevel = getSurfaceLevel($('#' + id)).split('surface-')[1];
     
@@ -216,8 +212,6 @@ function launchViewer(viewerInstance, params) {
 
     if((!viewerInstance.startupCompleted) || (params.restartViewer)) {
 
-        console.log('viewer new');
-
         let options = {
             logLevel : 0,
             env      : 'AutodeskProduction',
@@ -280,9 +274,6 @@ function launchViewer(viewerInstance, params) {
     
     } else {
         
-    console.log('viewer reset');
-    console.log(viewerInstance.id);
-
         viewerLeaveMarkupMode({ id : viewerInstance.id });
         viewerUnloadAllModels({ id : viewerInstance.id });
         $('#' + viewerInstance.id).show();
@@ -873,6 +864,26 @@ function viewerResize(delay) {
         if(viewerInstance.startupCompleted) {
             setTimeout(function() { viewerInstance.viewer.resize(); }, delay);
         }
+    }
+
+}
+
+
+// Toggle features in viewer
+function viewerSetFeature(params, feature, value) {
+
+    if(isBlank(params)) params = { id : 'viewer' }
+
+    let [ viewerInstance, viewer, proceed ] = getViewerInstanceRunning(params.id, true);
+
+    if(!proceed) return;   
+    
+    switch(feature) {
+
+        case 'ghosting': 
+            viewer.setGhosting(value);
+            break;
+
     }
 
 }
@@ -1994,11 +2005,17 @@ function updateHiddenInstancesList(viewerInstance) {
     }
 
 }
-function resetHiddenInstances() {
+function resetHiddenInstances(params) {
 
-    hiddenInstances = [];
-    updateHiddenInstancesControls();
-    updateHiddenInstancesList();
+    if(isBlank(params)) params = { id : 'viewer' }
+
+    let [ viewerInstance, viewer, proceed ] = getViewerInstanceRunning(params.id, true);
+
+    if(!proceed) return;
+
+    viewerInstance.hiddenInstances = [];
+    updateHiddenInstancesControls(viewerInstance);
+    updateHiddenInstancesList(viewerInstance);
 
 }
 

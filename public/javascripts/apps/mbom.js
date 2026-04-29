@@ -170,7 +170,7 @@ function setUIEvents() {
     $('#toggle-details').click(function() { 
         $('body').toggleClass('details-on');
         $(this).toggleClass('toggle-on').toggleClass('toggle-off');
-        setTimeout(function() { viewer.resize(); }, 250); 
+        viewerResize();
     })
     $('#reset').click(function() { reloadPage(); });  
     $('#save').click(function() {
@@ -188,26 +188,20 @@ function setUIEvents() {
 
     // Tabs
     $('#mode-disassemble').click(function() { 
-        resetHiddenInstances();
+        resetHiddenInstances({ id : 'viewer' });
         $('body').addClass('mode-disassemble').removeClass('mode-ebom').removeClass('mode-add').removeClass('mode-operations');
-        setTimeout(function() { 
-            viewer.resize(); 
-            viewer.setGhosting(false);
-            restoreAssembly();
-        }, 250); 
+        viewerResize();
+        viewerSetFeature({ id : 'viewer' }, 'ghosting', false);
+        restoreAssembly();
         disassembleMode = true;
         $(this).addClass('selected');
         $(this).siblings().removeClass('selected');
     });
     $('#mode-ebom').click(function() { 
         $('body').removeClass('mode-disassemble').addClass('mode-ebom').removeClass('mode-add').removeClass('mode-operations');
-        if(typeof viewer !== 'undefined') {
-            setTimeout(function() { 
-                viewer.resize(); 
-                viewer.setGhosting(true);
-                viewerResetSelection(false);
-            }, 250); 
-        }
+        viewerResize();
+        viewerSetFeature({ id : 'viewer' }, 'ghosting', true);
+        viewerResetSelection(false);
         disassembleMode = false;
         $(this).addClass('selected');
         $(this).siblings().removeClass('selected');
@@ -1286,8 +1280,8 @@ function insertTileActions(elemActions, bomType) {
             if(isSelected) {
 
                 $('#mbom-root-bom').find('.item').removeClass('invisible');
-                viewer.setGhosting(true);
-                viewer.showAll();
+                viewerSetFeature({ id : 'viewer' }, 'ghosting', true);
+                viewerUnhideAll({ id : 'viewer', fitToView : false, resetColors : false, keepHidden : false });
                 
             } else {   
                 
@@ -3781,8 +3775,8 @@ function onViewerSelectionChanged(event) {
         $('.item.leaf').show();
         $('.item.selected').removeClass('selected');
         $('body').removeClass('with-quantity-comparison');
-        
-       viewer.clearThemingColors();
+       
+        viewerResetColors({ id : 'viewer' });
 
     }
 
@@ -3819,9 +3813,9 @@ function viewerHideInvisibleItems(elemStart) {
         });
     }
 
-    viewer.setGhosting(false);
-    viewer.hideAll();
-    viewerUnhideModels(partNumbers);
+    viewerSetFeature({ id : 'viewer' }, 'ghosting', false);
+    viewerHideAll({ id : 'viewer' });
+    viewerUnhideModels(partNumbers, { id : 'viewer' });
 
 }
 function addPartNumber(partNumbers, partsColored, elemItem, expand) {
@@ -3851,7 +3845,7 @@ function restoreAssembly() {
 
     if(!disassembleMode) return;
 
-    viewer.showAll();
+    viewerUnhideAll({ id : 'viewer', fitToView : false, resetColors : false, keepHidden : false });
     let partNumbers = [];
 
     $('#mbom').find('.item').each(function() {
