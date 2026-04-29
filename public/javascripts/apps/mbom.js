@@ -258,7 +258,7 @@ function setUIEvents() {
     $('.panel-nav').first().click();
     $('#search-input').keypress(function (e) {
         if (e.which === 13) {
-            searchItems('search-items', 'search-items-list', $('#search-input').val());
+            searchItems('search-items', 'search-items-list', 'DESCRIPTOR', $('#search-input').val());
             $('#search-items-list').html('');
         }
     });
@@ -272,10 +272,10 @@ function setUIEvents() {
         if(e.which === 13) {
             $('#add-processing').show().siblings().hide();
             let elemActive = $('.panel-nav.active').first();
-            let query = elemActive.attr('data-query');
+            let query = elemActive.attr('data-value');
             let value = $(this).val();
-            if(value !== '')  query = '(' + query + ')+AND+' + $(this).val();
-            searchItems(elemActive.attr('data-id') + '-list', query);
+            // if(value !== '')  query = '(' + query + ')+AND+' + $(this).val();
+            searchItems(elemActive.attr('data-id') + '-list', 'DESCRIPTOR', query);
         }
     });
     $('input.list-filter').keypress(function() {
@@ -3349,7 +3349,8 @@ function insertSearchFilters() {
             .html(view.title)
             .attr('data-id', 'saved-search-' + index)
             .attr('data-wsid', view.wsId)
-            .attr('data-query', view.query);
+            .attr('data-field', view.fieldId)
+            .attr('data-value', view.value);
 
         let elemSearchPanel = $('<div></div>').appendTo($('#add-views'))
             .attr('id', 'saved-search-' + index);
@@ -3380,7 +3381,7 @@ function clickPanelNav(elemClicked) {
 
     if(elemClicked.hasClass('saved-search')) {
         if(update) {
-            searchItems(id, id + '-list', elemClicked.attr('data-query'));
+            searchItems(id, id + '-list', elemClicked.attr('data-field'), elemClicked.attr('data-value'));
         } else {
             $('#' + id).show().siblings().hide();
         }
@@ -3404,27 +3405,46 @@ function clickPanelNav(elemClicked) {
     }
 
 }
-function searchItems(idView, idList, query) {
+function searchItems(idView, idList, field, query) {
 
     $('#' + idList).html('');
     $('#add-processing').show();
 
-    if(query === $('.panel-nav.active').first().attr('data-query') ) {
+    if(query === $('.panel-nav.active').first().attr('data-value') ) {
         if($('#' + idList).children().length > 0) {
             $('#' + idList).parent().show().siblings().hide();
             return;
         }
     }
 
-    let params = { 
-        'wsId'   : wsMBOM.wsId,
-        'limit'  : 50,
-        'offset' : 0,
-        'query'  : query,
-        'bulk'   : false
+    let params = {
+        wsId     : wsMBOM.wsId,
+        pageSize : 1000,
+        latest   : true,
+        fields   : [ 'DESCRIPTOR' ],
+        sort     : [ 'DESCRIPTOR' ],
+        filter   : [{
+            field      : field,
+            type       : (field === 'DESCRIPTOR') ? 15 : 0,
+            comparator : 'contains',
+            value      : query
+        }]
     }
 
-    $.get('/plm/search-bulk', params, function(response) {
+    if(!params.fields.includes(field)) params.fields.push(field);
+
+    $.post('/plm/search', params, function(response) {
+
+        response.data.items = [];
+        for(let row of response.data.row) {
+            response.data.items.push({
+                item : {
+                    link  : '/api/v3/workspaces/' + wsMBOM.wsId + '/items/' + row.dmsId,
+                    urn   : '-',
+                    title : row.data.DESCRIPTOR.displayValue
+                }
+            });
+        }
         setItemsList(idView, idList, response.data.items);
     });
 

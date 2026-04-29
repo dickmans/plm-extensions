@@ -897,7 +897,7 @@ select.view-selector {
 .item > .item-head > .item-icon { 
     background    : var(--color-surface-level-5); 
     border-top    : 1px solid transparent;
-    border-right  : 2px solid var(--color-font); 
+    /* border-right  : 2px solid var(--color-font);  */
     border-bottom : 1px solid transparent;
     border-left   : 1px solid transparent;
     color         : var(--color-font); 
@@ -1013,7 +1013,8 @@ select.view-selector {
     font-weight : bold;
 }
 #convert-confirm {
-    background : var(--color-status-red) !important;
+    background   : var(--color-status-red) !important;
+    border-color : var(--color-status-red) !important;
 }
 
 

@@ -839,9 +839,9 @@ exports.applications = {
         suffixMBOMNumber      : '-M',
 
         predefinedSearchesInAddItems : [
-            { title : 'Purchased Parts', query : 'ITEM_DETAILS:MAKE_OR_BUY%3DBuy' },
-            { title : 'Packaging Parts', query : 'ITEM_DETAILS:TYPE%3DPackaging'  },
-            { title : 'Processes'      , query : 'ITEM_DETAILS:TYPE%3DProcess'    }
+            { title : 'Purchased Parts', fieldId : 'MAKE_OR_BUY', value : 'Buy'       },
+            { title : 'Packaging Parts', fieldId : 'TYPE'       , value : 'Packaging' },
+            { title : 'Processes'      , fieldId : 'TYPE'       , value : 'Process'   }
         ],
         sectionsInCreateForm : [ 'Basic', 'Technical Details' ],
         displayOptions : {
