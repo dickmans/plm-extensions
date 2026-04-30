@@ -27,10 +27,16 @@
 .viewer-left  { top : 0px; left : 0px; height : var(--height-viewer); right : 50%;  }
 .viewer-right { top : 0px; left : 50%; height : var(--height-viewer); right : 0px; border-left-width  : var(--border-h-2); z-index: 7; }
 #bomLeft      { right : calc(50% + var(--width-details) + var(--border-h)); left : 0px; }
-#bomRight     { right : calc(0px + var(--width-details) + var(--border-h)); left : 50%; z-index: 6; }
+#bomRight     { right : calc(0px + var(--width-details) + var(--border-h)); left : 50%; z-index: 4; }
 #detailsLeft  { right : 50%; }
 #detailsRight { right : 0px; z-index: 6; }
-#counters     { height : var(--height-counters); display : flex; gap : 10px; bottom : calc(-1px - (2 * var(--border-v)) - var(--height-counters)); }
+#counters     { 
+    bottom  : calc(-1px - (2 * var(--border-v)) - var(--height-counters)); 
+    display : flex; 
+    gap     : 10px; 
+    height  : var(--height-counters); 
+    z-index : 5;
+}
 
 #selector  { 
     border-width : calc(2 * var(--border-v)) calc(2 * var(--border-v));  
