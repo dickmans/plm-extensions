@@ -311,6 +311,9 @@ body.with-processes #processes { right : 0px; }
 #bom-table {
     width : auto;
 }
+.tree-first-col {
+    border-right : 1px solid var(--color-surface-level-1);
+}
 
 
 /* ATTACHMENTS */
