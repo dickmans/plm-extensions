@@ -4036,7 +4036,7 @@ function insertAttachmentsData(id, update) {
                     // .addClass('icon-collapse')
 
                 $('<div></div>').appendTo(elemFolderHeader)
-                    .addCklass('folder-icon')
+                    .addClass('folder-icon')
                     .addClass('icon')
                     .addClass('icon-folder');
 
