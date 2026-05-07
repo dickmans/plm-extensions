@@ -116,6 +116,14 @@ body.layout-4 {  --width-bom : calc(0px - var(--padding-panel)); }
 body.layout-4 #bom { display : none; }
 body.layout-4 .viewer { left : calc(var(--width-dashboard) + (3 * var(--padding-panel))); }
 
+body.layout-1 .tree-first-col { border-right : 1px solid var(--color-surface-level-1); }
+body.layout-2 .content-item-check-box,
+body.layout-2 .tree-color,
+body.layout-2 .tree-first-col,
+body.layout-3 .content-item-check-box,
+body.layout-3 .tree-color,
+body.layout-3 .tree-first-col { background : var(--color-surface-level-3); }
+
 body.screen-startup > .screen { display : none; }
 body.screen-startup .landing  { display : none; }
 body.screen-startup .explorer { display : none; }
@@ -310,9 +318,6 @@ body.with-processes #processes { right : 0px; }
 #bom-actions { justify-content : end; }
 #bom-table {
     width : auto;
-}
-.tree-first-col {
-    border-right : 1px solid var(--color-surface-level-1);
 }
 
 
