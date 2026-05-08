@@ -471,7 +471,7 @@ function getWorkspaceViews(iWorkspace) {
                         .attr('data-workspace', response.params.title)
                         .on('dblclick', function() {
                             let ws = $(this).attr('data-workspace');
-                            $('.view').each(function() {
+                            $('.view:visible').each(function() {
                                 if($(this).attr('data-workspace') === ws) {
                                     $(this).addClass('selected');
                                 }
@@ -570,7 +570,7 @@ function getCharts() {
                 .attr('data-link', chart.__self__)
                 .on('dblclick', function() {
                     let ws = $(this).attr('data-workspace');
-                    $('.chart').each(function() {
+                    $('.chart:visible').each(function() {
                         if($(this).attr('data-workspace') === ws) {
                             $(this).addClass('selected');
                         }
