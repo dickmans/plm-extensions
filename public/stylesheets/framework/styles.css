@@ -501,7 +501,7 @@ td.tree-first-col {
 .tree-path > div {
     height      : 28px;
     line-height : 28px;
-    padding     : 0px 2px;
+    padding     : 0px 6px;
     white-space : nowrap;
 }
 .tree-path-parent {
@@ -560,7 +560,7 @@ td.tree-first-col {
     background  : var(--color-surface-level-5);
     cursor      : pointer;
     flex-grow   : 1;
-    padding     : 0px 16px 0px 2px !important;
+    padding     : 0px 16px 0px 6px !important;
     position    : relative;
 }
 .tree-path-selected:before {
@@ -1514,20 +1514,22 @@ tr.checked > td.content-item-check-box > .icon::before {
 .content-item td.field-editable.field-type-buom { background : var(--color-surface-level-1); }
 
 .panel-content.surface-level-1 > table > tbody > tr > td.field-editable { background : var(--color-surface-level-1); border-top-color : var(--color-surface-level-2); border-bottom-color : var(--color-surface-level-1); border-right : 1px solid var(--color-surface-level-2); }
-.panel-content.surface-level-2 > table > tbody > tr > td.field-editable { background : var(--color-surface-level-2); border-top-color : var(--color-surface-level-3); border-bottom-color : var(--color-surface-level-2); border-right : 1px solid var(--color-surface-level-3); }
-.panel-content.surface-level-3 > table > tbody > tr > td.field-editable { background : var(--color-surface-level-3); border-top-color : var(--color-surface-level-4); border-bottom-color : var(--color-surface-level-3); border-right : 1px solid var(--color-surface-level-4); }
-.panel-content.surface-level-4 > table > tbody > tr > td.field-editable { background : var(--color-surface-level-4); border-top-color : var(--color-surface-level-5); border-bottom-color : var(--color-surface-level-4); border-right : 1px solid var(--color-surface-level-5); }
-.panel-content.surface-level-5 > table > tbody > tr > td.field-editable { background : var(--color-surface-level-5); border-top-color : var(--color-surface-level-3); border-bottom-color : var(--color-surface-level-5); border-right : 1px solid var(--color-surface-level-3); }
+.panel-content.surface-level-2 > table > tbody > tr > td.field-editable { background : var(--color-surface-level-1); border-top-color : var(--color-surface-level-3); border-bottom-color : var(--color-surface-level-2); border-right : 1px solid var(--color-surface-level-3); }
+.panel-content.surface-level-3 > table > tbody > tr > td.field-editable { background : var(--color-surface-level-2); border-top-color : var(--color-surface-level-4); border-bottom-color : var(--color-surface-level-3); border-right : 1px solid var(--color-surface-level-4); }
+.panel-content.surface-level-4 > table > tbody > tr > td.field-editable { background : var(--color-surface-level-1); border-top-color : var(--color-surface-level-5); border-bottom-color : var(--color-surface-level-4); border-right : 1px solid var(--color-surface-level-5); }
+.panel-content.surface-level-5 > table > tbody > tr > td.field-editable { background : var(--color-surface-level-1); border-top-color : var(--color-surface-level-3); border-bottom-color : var(--color-surface-level-5); border-right : 1px solid var(--color-surface-level-3); }
 
 .panel-content.surface-level-1 > table > tbody > tr.selected > td.field-editable,
 .panel-content.surface-level-2 > table > tbody > tr.selected > td.field-editable,
 .panel-content.surface-level-3 > table > tbody > tr.selected > td.field-editable,
 .panel-content.surface-level-4 > table > tbody > tr.selected > td.field-editable,
-.panel-content.surface-level-5 > table > tbody > tr.selected > td.field-editable { background : var(--color-blue-600); border-bottom-color : var(--color-blue-600); border-top-color : var(--color-blue-600);}
+.panel-content.surface-level-5 > table > tbody > tr.selected > td.field-editable { background : var(--color-blue-500) !important; border-bottom-color : var(--color-blue-600); border-top-color : var(--color-blue-600);}
 
 tr.selected > td.field-editable > input,
+tr.selected > td.field-editable > textarea,
+tr.selected > td.field-editable > .field-unit,
 tr.selected > td.field-editable .picklist-controls,
-tr.selected > td.field-editable .picklist-input { background : var(--color-hover-border); }
+tr.selected > td.field-editable .picklist-input { background : var(--color-hover-border) !important; }
 
 
 /* .content-item td.field-editable.field-type-checkbox { display : flex; } */

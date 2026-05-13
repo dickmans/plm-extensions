@@ -116,10 +116,10 @@
     width           : var(--width-field-label);
 }
 
-.panel-content.xxs .field > .field-label { padding : 6px  8px; }
-.panel-content.xs  .field > .field-label { padding : 6px  8px; }
-.panel-content.s   .field > .field-label { padding : 6px 14px; }
-.panel-content.m   .field > .field-label { padding : 6px 14px; }
+.panel-content.xxs .field > .field-label { padding : 2px  4px; }
+.panel-content.xs  .field > .field-label { padding : 3px  6px; }
+.panel-content.s   .field > .field-label { padding : 4px 10px; }
+.panel-content.m   .field > .field-label { padding : 4px 14px; }
 .panel-content.l   .field > .field-label { padding : 6px 16px; }
 .panel-content.xl  .field > .field-label { padding : 6px 16px; }
 .panel-content.xxl .field > .field-label { padding : 8px 18px; }
@@ -142,18 +142,18 @@
     margin : 0px;
 }
 
-.panel-content.xxs .field > .field-readonly { padding : 6px 8px; }
-.panel-content.xs  .field > .field-readonly { padding : 6px 8px; }
-.panel-content.s   .field > .field-readonly { padding : 6px 8px; }
-.panel-content.m   .field > .field-readonly { padding : 6px 8px; }
+.panel-content.xxs .field > .field-readonly { padding : 2px 4px; }
+.panel-content.xs  .field > .field-readonly { padding : 3px 8px; }
+.panel-content.s   .field > .field-readonly { padding : 4px 8px; }
+.panel-content.m   .field > .field-readonly { padding : 4px 8px; }
 .panel-content.l   .field > .field-readonly { padding : 6px 8px; }
 .panel-content.xl  .field > .field-readonly { padding : 6px 8px; }
 .panel-content.xxl .field > .field-readonly { padding : 8px 8px; }
 
-.panel-content.xxs .field > .field-readonly.field-computed { padding : 8px; }
-.panel-content.xs  .field > .field-readonly.field-computed { padding : 8px; }
-.panel-content.s   .field > .field-readonly.field-computed { padding : 8px; }
-.panel-content.m   .field > .field-readonly.field-computed { padding : 6px 8px; }
+.panel-content.xxs .field > .field-readonly.field-computed { padding : 2px 4px; }
+.panel-content.xs  .field > .field-readonly.field-computed { padding : 3px 8px; }
+.panel-content.s   .field > .field-readonly.field-computed { padding : 4px 8px; }
+.panel-content.m   .field > .field-readonly.field-computed { padding : 4px 8px; }
 .panel-content.l   .field > .field-readonly.field-computed { padding : 8px; }
 .panel-content.xl  .field > .field-readonly.field-computed { padding : 8px; }
 .panel-content.xxl .field > .field-readonly.field-computed { padding : 8px; }
@@ -918,11 +918,11 @@ td.field-editable > .picklist-controls > .picklist-input {
 .surface-level-4 table.grid td.field-editable { background : var(--color-surface-level-1); } 
 .surface-level-5 table.grid td.field-editable { background : var(--color-surface-level-1); }
 
-.surface-level-1 .grid .content-item:hover td.field-editable { background : var(--color-surface-level-1) !important; } 
+/* .surface-level-1 .grid .content-item:hover td.field-editable { background : var(--color-surface-level-1) !important; } 
 .surface-level-2 .grid .content-item:hover td.field-editable { background : var(--color-surface-level-1) !important; } 
 .surface-level-3 .grid .content-item:hover td.field-editable { background : var(--color-surface-level-2) !important; } 
 .surface-level-4 .grid .content-item:hover td.field-editable { background : var(--color-surface-level-1) !important; } 
-.surface-level-5 .grid .content-item:hover td.field-editable { background : var(--color-surface-level-1) !important; }
+.surface-level-5 .grid .content-item:hover td.field-editable { background : var(--color-surface-level-1) !important; } */
 
 .light-theme .surface-level-1 .grid .content-item:hover td.field-editable.changed { background : var(--color-red-300) !important; } 
 .light-theme .surface-level-2 .grid .content-item:hover td.field-editable.changed { background : var(--color-red-300) !important; } 
