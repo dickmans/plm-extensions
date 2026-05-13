@@ -1792,7 +1792,7 @@ exports.chrome = {
         workspaces : ['assets']  
     },{
         id         : 'mbom-assets',
-        url        : '/mbom?options=contextfieldidebom:ENGINEERING_BOM,contextfieldidmbom:MANUFACTURINGBOM&',
+        url        : '/mbom?options=contextfieldidebom:ENGINEERING_BOM,contextfieldidmbom:MANUFACTURING_BOM&',
         label      : 'Edit MBOM',
         workspaces : ['assets']    
     },{
