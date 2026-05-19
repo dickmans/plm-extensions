@@ -102,7 +102,7 @@ $(document).ready(function() {
                 let link = '/api/v3/workspaces/' + urlParameters.wsidcontext + '/items/' + urlParameters.dmsidcontext;
                 openSelectedProductOrAsset(link, 'assets', config.assets.fieldIDs);
             } else if(urlParameters.wsidcontext == workspaceIds.products) {
-                let link = '/api/v3/workspaces/' + urlParameters.wsidcontext + '/items/' + urlParameters.dmsidcontext;
+                let link = '/api/v3/workspaces/' + urlParameters.wsidcontext + '/items/' + (urlParameters.dmsidcontext || urlParameters.dmsId);
                 openSelectedProductOrAsset(link, 'products', config.products.fieldIDs);
             } else if(urlParameters.link !== '') {
                 links.ebom = urlParameters.link;

@@ -475,9 +475,10 @@ function insertItemSummaryDone(id) {
             .addClass('icon-service')
             .attr('title', 'Navigate to Services Portal for this product in a new tab')
             .click(function() {
+                let prodLink = product.link.split('/');
                 let itemLink = product.ebom.split('/');
-                let url = document.location.href.split('/portfolio')[0];
-                window.open(url + '/service?wsId=' + itemLink[4] + '&dmsId=' + itemLink[6] + '&theme=' + theme);
+                let url      = document.location.href.split('/portfolio')[0];
+                window.open(url + '/service?wsidcontext=' + prodLink[4] + '&dmsidcontext=' + prodLink[6] + '&wsId=' + itemLink[4] + '&dmsId=' + itemLink[6] + '&theme=' + theme);
             });
 
     }

@@ -1804,7 +1804,13 @@ exports.chrome = {
         id         : 'variants-products',
         url        : '/variants?options=fieldIdEBOM:ENGINEERING_BOM&',
         label      : 'Manage Variants',
-        workspaces : ['products']          
+        workspaces : ['products']     
+    },{
+        id         : 'service-products',
+        url        : '/service?wsidcontext=95&',
+        label      : 'Service Portal',
+        icon       : 'zmdi-wrench',
+        workspaces : ['products']                  
     },{
         id         : 'instances',
         url        : '/instances?',
