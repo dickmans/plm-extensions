@@ -219,20 +219,20 @@ function insertItemHeaderButtons() {
                     elemButton.id        = 'plm-extensions-button-' + button.id;
 
                     elemButton.style.setProperty('border-radius', '3px');
-                    elemButton.style.setProperty('line-height', '20px');
-                    elemButton.style.setProperty('margin-top', '2px');
+                    elemButton.style.setProperty('line-height', '16px');
+                    elemButton.style.setProperty('margin-top', '0px');
 
                     if(typeof button.icon === 'undefined') {
                         elemButton.textContent = button.label;
-                        elemButton.style.setProperty('padding', '4px 14px');
+                        elemButton.style.setProperty('padding', '8px 16px');
                     } else {
                         elemButton.classList.add('zmdi');
                         elemButton.classList.add(button.icon);
-                        elemButton.style.setProperty('font-size', '20px');
+                        elemButton.style.setProperty('font-size', '18px');
                         elemButton.style.setProperty('padding', '4px 8px');
-                        elemButton.style.setProperty('max-width', '40px');
-                        elemButton.style.setProperty('min-width', '40px');
-                        elemButton.style.setProperty('width', '40px');
+                        elemButton.style.setProperty('max-width', '38px');
+                        elemButton.style.setProperty('min-width', '38px');
+                        elemButton.style.setProperty('width', '38px');
                         elemButton.setAttribute('title', button.label);
                     }
 
