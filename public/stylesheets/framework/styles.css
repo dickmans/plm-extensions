@@ -1888,6 +1888,9 @@ td.column-required > * { border-left : 2px solid var(--color-status-red) !import
     padding-top    : 4px;
     padding-bottom : 4px;
 }
+.fusion-theme #header-toolbar select {
+    height : 30px;
+}
 .fusion-theme #header-cache-status-indicator {
     line-height : 32px;
     margin-top  : 0px;
