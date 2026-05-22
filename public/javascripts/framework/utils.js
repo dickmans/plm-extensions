@@ -333,8 +333,10 @@ function insertMenuContents(elemParent, id, isAdmin) {
 
     if(typeof isAdmin === 'undefined') isAdmin = true;
 
-    let elemColumns = $('<div></div>').appendTo(elemParent).attr('id', id)
-        .addClass('box-shadow');
+    let elemColumns = $('<div></div>').appendTo(elemParent).attr('id', id);
+    let idParent    = elemParent.attr('id');
+    
+    if(idParent === 'menu') elemColumns.addClass('box-shadow');
 
     for(let column of menu) {
 

@@ -12,7 +12,7 @@
     left           : calc(50% - (var(--content-width)  / 2));
 }
 #title {
-    background  : var(--color-surface-level-4);
+    background  : var(--color-surface-level-5);
     font-size   : 32px;
     font-weight : 800;
     line-height : 32px;
