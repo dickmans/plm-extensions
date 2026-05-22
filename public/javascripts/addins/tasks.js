@@ -172,7 +172,7 @@ function setPicklistActions(id) {
             let wsId       = fieldItemLink.split('/')[4];
             let elemParent = elemFieldItem.parent();
 
-            if(wsId == config.items.workspaceId) {
+            if(wsId == common.workspaceIds.items) {
 
                 elemParent.addClass('tiles').addClass('list').addClass('xxs').addClass('surface-level-2');
 
@@ -199,7 +199,7 @@ function setPicklistActions(id) {
                         .attr('data-name'  , pdmFileName)
                         .attr('data-folder', pdmLocation);
 
-                    genAddinTileActions(elemTile);
+                    // genAddinTileActions(elemTile);
 
                     elemFieldItem.remove();
 

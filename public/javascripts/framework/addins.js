@@ -161,7 +161,7 @@ function genAddinPLMItemTileActions(elemActions) {
         // genAddinTileAction(elemActions, 'gotoVaultItem', 'icon-vault-item' , 'Go To Item'); 
         genAddinTileAction(elemActions, 'openComponent', 'icon-folder-open', 'Open Component');  
         genAddinTileAction(elemActions, 'addComponent' , 'icon-product'    , 'Place Component'); 
-    } else {
+    } else if(host !== '') {
         genAddinTileAction(elemActions, 'gotoVaultFile', 'icon-goto-folder', 'Go To Folder'); 
         genAddinTileAction(elemActions, 'gotoVaultItem', 'icon-vault-item' , 'Go To Item'); 
         genAddinTileAction(elemActions, 'openComponent', 'icon-folder-open', 'Open in CAD'); 
