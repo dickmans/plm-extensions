@@ -37,11 +37,13 @@
 }
 
              .menu-command:hover { color      : white;}
-.light-theme .menu-command:hover { background : var(--color-blue-400); }
- .dark-theme .menu-command:hover { background : var(--color-blue-700); }
-.black-theme .menu-command:hover { background : var(--color-blue-700); }
- 
-             .menu-command:hover .menu-command-icon { color      : white;  }
-.light-theme .menu-command:hover .menu-command-icon { background : var(--color-blue-700); }
- .dark-theme .menu-command:hover .menu-command-icon { background : var(--color-blue-900); }
-.black-theme .menu-command:hover .menu-command-icon { background : var(--color-blue-900); }
+ .light-theme .menu-command:hover { background : var(--color-blue-400); }
+  .dark-theme .menu-command:hover { background : var(--color-blue-700); }
+ .black-theme .menu-command:hover { background : var(--color-blue-700); }
+.fusion-theme .menu-command:hover { background : #2185d0; }
+
+              .menu-command:hover .menu-command-icon { color      : white;  }
+ .light-theme .menu-command:hover .menu-command-icon { background : var(--color-blue-700); }
+  .dark-theme .menu-command:hover .menu-command-icon { background : var(--color-blue-900); }
+ .black-theme .menu-command:hover .menu-command-icon { background : var(--color-blue-900); }
+.fusion-theme .menu-command:hover .menu-command-icon { background : #1678c2; }

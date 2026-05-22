@@ -20,9 +20,10 @@ $(document).ready(function() {
 
     urlParameters = getURLParameters();
           
-         if(theme.toLowerCase() ===  'dark') { $('body').addClass( 'dark-theme'); theme =  'dark'; }
-    else if(theme.toLowerCase() === 'black') { $('body').addClass('black-theme'); theme = 'black'; }
-    else                                     { $('body').addClass('light-theme'); theme = 'light'; }
+         if(theme.toLowerCase() ===   'dark') { $('body').addClass(  'dark-theme'); theme =   'dark'; }
+    else if(theme.toLowerCase() ===  'black') { $('body').addClass( 'black-theme'); theme =  'black'; }
+    else if(theme.toLowerCase() === 'fusion') { $('body').addClass('fusion-theme'); theme = 'fusion'; }
+    else                                      { $('body').addClass( 'light-theme'); theme =  'light'; }
 
     beforeApplicationStart();
     insertAvatar();  
@@ -32,7 +33,6 @@ $(document).ready(function() {
 
     $('#header-logo'    ).click(function() { reloadPage(true); });
     $('#header-title'   ).click(function() { reloadPage(false); });
-    $('#header-subtitle').click(function() { reloadPage(false); });
 
 });
 function beforeApplicationStart() {

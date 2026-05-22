@@ -76,9 +76,10 @@
 
 /*  HEADER */
 /* ----------------------------------------------------------------------------- */
-.addin.light-theme #header,
-.addin.dark-theme  #header,
-.addin.black-theme #header {
+.addin.light-theme  #header,
+.addin.dark-theme   #header,
+.addin.black-theme  #header,
+.addin.fusion-theme #header {
     background : transparent;
 }
 .addin.dark-theme #header.dark .button,
@@ -111,14 +112,16 @@
 .addin #header .button {
     margin : 0px;
 }
-.addin.light-theme #header.dark .button,
-.addin.dark-theme  #header.dark .button,
-.addin.black-theme #header.dark .button {
+.addin.light-theme  #header.dark .button,
+.addin.dark-theme   #header.dark .button,
+.addin.black-theme  #header.dark .button,
+.addin.fusion-theme #header.dark .button {
     color : var(--color-font);
 }
-.addin.light-theme #header.dark .button.default,
-.addin.dark-theme  #header.dark .button.default,
-.addin.black-theme #header.dark .button.default {
+.addin.light-theme  #header.dark .button.default,
+.addin.dark-theme   #header.dark .button.default,
+.addin.black-theme  #header.dark .button.default,
+.addin.fusion-theme #header.dark .button.default {
     color : white;
 }
 

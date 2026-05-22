@@ -324,8 +324,12 @@ body.dark-theme  #guiviewer3d-toolbar .button-toggle-highlight-on:hover {
 .viewer-markup-toggle.selected { border-color : white !important; }
 .viewer-markup-button { width : 76px; }
 
-.light-theme .viewer-markup-toggle, 
+.light-theme .viewer-markup-toggle,
 .light-theme .viewer-markup-button {
+    border-color : var(--color-gray-800);
+}
+.fusion-theme .viewer-markup-toggle,
+.fusion-theme .viewer-markup-button {
     border-color : var(--color-gray-800);
 }
 

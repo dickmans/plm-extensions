@@ -179,6 +179,12 @@
 .light-theme .class-filter > input { border-color : var(--color-surface-level-5); }
 .light-theme .class-filter > select.class-filter-picklist { max-width : 225px; min-width : 225px; }
 
+.fusion-theme .class-property-selector { margin-bottom : 4px; }
+.fusion-theme .class-filters,
+.fusion-theme .class-filter { gap : 4px; }
+.fusion-theme .class-filter > input { border-color : var(--color-surface-level-5); }
+.fusion-theme .class-filter > select.class-filter-picklist { max-width : 225px; min-width : 225px; }
+
 .addin #filters-content { 
     padding-top : 0px; 
     top         : 36px;

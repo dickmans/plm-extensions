@@ -376,6 +376,10 @@ h2 {
     border      : 1px solid var(--color-surface-level-4);
     max-width   : calc(100% - 2px);
 }
+.fusion-theme .instructions img {
+    border      : 1px solid var(--color-surface-level-4);
+    max-width   : calc(100% - 2px);
+}
 .tiles {
     justify-content : left;
     width           : calc(100% - 600px);

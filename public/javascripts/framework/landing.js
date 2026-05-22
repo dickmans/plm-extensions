@@ -1,8 +1,9 @@
 $(document).ready(function() {
 
-         if(theme.toLowerCase() ===  'dark') { $('body').addClass( 'dark-theme'); theme =  'dark'; }
-    else if(theme.toLowerCase() === 'black') { $('body').addClass('black-theme'); theme = 'black'; }
-    else                                     { $('body').addClass('light-theme'); theme = 'light'; }
+         if(theme.toLowerCase() ===  'dark' ) { $('body').addClass( 'dark-theme' ); theme =  'dark' ; }
+    else if(theme.toLowerCase() === 'black' ) { $('body').addClass('black-theme' ); theme = 'black' ; }
+    else if(theme.toLowerCase() === 'fusion') { $('body').addClass('fusion-theme'); theme = 'fusion'; }
+    else                                      { $('body').addClass('light-theme' ); theme = 'light' ; }
 
     updateLinks();
 
@@ -32,6 +33,7 @@ $(document).ready(function() {
         $('body').removeClass('dark-theme');
         $('body').removeClass('black-theme');
         $('body').removeClass('light-theme');
+        $('body').removeClass('fusion-theme');
         $('body').addClass($(this).val() + '-theme');
 
         theme = $(this).val();
@@ -189,6 +191,8 @@ $(document).ready(function() {
             if(url.indexOf('theme=') < 0) {
                 url += concat + 'theme=' + $('#theme-selector').val();
             }
+
+            url = updateURLParameter(url, 'theme', $('#theme-selector').val());
 
         }
 

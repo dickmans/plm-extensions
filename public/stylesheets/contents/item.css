@@ -924,17 +924,23 @@ td.field-editable > .picklist-controls > .picklist-input {
 .surface-level-4 .grid .content-item:hover td.field-editable { background : var(--color-surface-level-1) !important; } 
 .surface-level-5 .grid .content-item:hover td.field-editable { background : var(--color-surface-level-1) !important; } */
 
-.light-theme .surface-level-1 .grid .content-item:hover td.field-editable.changed { background : var(--color-red-300) !important; } 
-.light-theme .surface-level-2 .grid .content-item:hover td.field-editable.changed { background : var(--color-red-300) !important; } 
-.light-theme .surface-level-3 .grid .content-item:hover td.field-editable.changed { background : var(--color-red-300) !important; } 
-.light-theme .surface-level-4 .grid .content-item:hover td.field-editable.changed { background : var(--color-red-300) !important; } 
-.light-theme .surface-level-5 .grid .content-item:hover td.field-editable.changed { background : var(--color-red-300) !important; }
+.light-theme  .surface-level-1 .grid .content-item:hover td.field-editable.changed { background : var(--color-red-300) !important; }
+.light-theme  .surface-level-2 .grid .content-item:hover td.field-editable.changed { background : var(--color-red-300) !important; }
+.light-theme  .surface-level-3 .grid .content-item:hover td.field-editable.changed { background : var(--color-red-300) !important; }
+.light-theme  .surface-level-4 .grid .content-item:hover td.field-editable.changed { background : var(--color-red-300) !important; }
+.light-theme  .surface-level-5 .grid .content-item:hover td.field-editable.changed { background : var(--color-red-300) !important; }
 
-.dark-theme .surface-level-1 .grid .content-item:hover td.field-editable.changed { background : var(--color-red-800) !important; } 
-.dark-theme .surface-level-2 .grid .content-item:hover td.field-editable.changed { background : var(--color-red-800) !important; } 
-.dark-theme .surface-level-3 .grid .content-item:hover td.field-editable.changed { background : var(--color-red-800) !important; } 
-.dark-theme .surface-level-4 .grid .content-item:hover td.field-editable.changed { background : var(--color-red-800) !important; } 
-.dark-theme .surface-level-5 .grid .content-item:hover td.field-editable.changed { background : var(--color-red-800) !important; }
+.dark-theme   .surface-level-1 .grid .content-item:hover td.field-editable.changed { background : var(--color-red-800) !important; }
+.dark-theme   .surface-level-2 .grid .content-item:hover td.field-editable.changed { background : var(--color-red-800) !important; }
+.dark-theme   .surface-level-3 .grid .content-item:hover td.field-editable.changed { background : var(--color-red-800) !important; }
+.dark-theme   .surface-level-4 .grid .content-item:hover td.field-editable.changed { background : var(--color-red-800) !important; }
+.dark-theme   .surface-level-5 .grid .content-item:hover td.field-editable.changed { background : var(--color-red-800) !important; }
+
+.fusion-theme .surface-level-1 .grid .content-item:hover td.field-editable.changed { background : var(--color-red-300) !important; }
+.fusion-theme .surface-level-2 .grid .content-item:hover td.field-editable.changed { background : var(--color-red-300) !important; }
+.fusion-theme .surface-level-3 .grid .content-item:hover td.field-editable.changed { background : var(--color-red-300) !important; }
+.fusion-theme .surface-level-4 .grid .content-item:hover td.field-editable.changed { background : var(--color-red-300) !important; }
+.fusion-theme .surface-level-5 .grid .content-item:hover td.field-editable.changed { background : var(--color-red-300) !important; }
 
 .surface-level-1 td.field-editable input, .surface-level-1 td > select, .surface-level-1 td > textarea { background : var(--color-surface-level-1); border-bottom : none; } 
 .surface-level-2 td.field-editable input, .surface-level-2 td > select, .surface-level-2 td > textarea { background : var(--color-surface-level-1); border-bottom : none; } 
@@ -954,15 +960,15 @@ td.field-editable > .picklist-controls > .picklist-input {
 .surface-level-4 .grid .content-item:hover td.field-editable { background-color : var(--color-surface-level-1) !important; }
 .surface-level-5 .grid .content-item:hover td.field-editable { background-color : var(--color-surface-level-1) !important; } */
 
-.light-theme .content-item > td.changed,
-.light-theme .content-item > td.changed > *,
-.light-theme .content-item > td.changed > * > input,
-.light-theme .content-item > td.changed.field-type-checkbox { background : var(--color-red-300) !important; }
+.light-theme  .content-item > td.changed,
+.light-theme  .content-item > td.changed > *,
+.light-theme  .content-item > td.changed > * > input,
+.light-theme  .content-item > td.changed.field-type-checkbox { background : var(--color-red-300) !important; }
 
-.dark-theme .content-item > td.changed,
-.dark-theme .content-item > td.changed > *,
-.dark-theme .content-item > td.changed > * > input,
-.dark-theme .content-item > td.changed.field-type-checkbox { background : var(--color-red-800) !important; }
+.dark-theme   .content-item > td.changed,
+.dark-theme   .content-item > td.changed > *,
+.dark-theme   .content-item > td.changed > * > input,
+.dark-theme   .content-item > td.changed.field-type-checkbox { background : var(--color-red-800) !important; }
 
 .black-theme .content-item > td.changed,
 .black-theme .content-item > td.changed > *,

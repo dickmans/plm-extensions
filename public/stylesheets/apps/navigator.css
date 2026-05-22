@@ -224,9 +224,10 @@ th.changed .table-column-top {
     background  : var(--color-status-red);
     color       : white;
 }
-.dark-theme  th.changed .table-column-toolbar { background : var(--color-status-red-bright); }
-.black-theme th.changed .table-column-toolbar { background : var(--color-status-red-bright); }
-.light-theme th.changed .table-column-toolbar { background : var(--color-status-red-brighter); }
+.light-theme  th.changed .table-column-toolbar { background : var(--color-status-red-brighter); }
+.dark-theme   th.changed .table-column-toolbar { background : var(--color-status-red-bright); }
+.black-theme  th.changed .table-column-toolbar { background : var(--color-status-red-bright); }
+.fusion-theme th.changed .table-column-toolbar { background : var(--color-status-red-brighter); }
 .table-column-descriptor, 
 .table-column-selector {
     padding : 10px;
@@ -334,11 +335,21 @@ td.first-col  {
 .light-theme #tableau-table th.changed {
     background : var(--color-status-red-brighter);
 }
-.light-theme #tableau-table td.changed, 
+.light-theme #tableau-table td.changed,
 .light-theme #tableau-table td.changed > * {
     background : var(--color-status-red-brighter) !important;
 }
 .light-theme  #tableau-table td.changed select {
+    border-color : var(--color-status-red-brighter) !important;
+}
+.fusion-theme #tableau-table th.changed {
+    background : var(--color-status-red-brighter);
+}
+.fusion-theme #tableau-table td.changed,
+.fusion-theme #tableau-table td.changed > * {
+    background : var(--color-status-red-brighter) !important;
+}
+.fusion-theme #tableau-table td.changed select {
     border-color : var(--color-status-red-brighter) !important;
 }
 tr.match {
