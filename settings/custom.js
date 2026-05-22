@@ -86,6 +86,7 @@ exports.applications = {
         // },
     },
     classes        : {},
+    compare        : {},
     configurator   : {},
     dashboard      : {},
     explorer       : {},
