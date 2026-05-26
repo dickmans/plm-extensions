@@ -32,7 +32,7 @@ function insertUsersData(id) {
     settings[id].timestamp = startPanelContentUpdate(id);
 
     $.get('/plm/users', { 
-        bulk       : false,
+        bulk       : true,
         activeOnly : true, 
         mappedOnly : true,
         timestamp  : settings[id].timestamp
