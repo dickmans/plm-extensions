@@ -13,7 +13,12 @@ let chartThemes = {
         fontColor : '#eee',
         axisColor : '#fff',
         gridColor : '#474747'
-    }
+    },
+    'fusion' : {
+        fontColor : '#444',
+        axisColor : '#000',
+        gridColor : '#eeeeee'
+    },
 }
 
 

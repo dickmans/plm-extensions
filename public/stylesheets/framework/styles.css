@@ -1922,9 +1922,14 @@ td.column-required > * { border-left : 2px solid var(--color-status-red) !import
     color        : white;
 }
 .fusion-theme #header.dark #header-search {
-    background   : #1b1c1d;
+    background   : #fff;
     border-color : rgba(255, 255, 255, 0.4);
-    color        : rgba(255, 255, 255, 0.9);
+    color        : var(--color-font);
+    height       : 24px;
+    margin-top   : 0px;
+}
+.fusion-theme #header-search-icon {
+    top : 4px;
 }
 .dark-theme #header-search {
     border-color : white;
