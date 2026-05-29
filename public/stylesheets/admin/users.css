@@ -642,7 +642,15 @@ tr:hover .row-actions {
     font-size : 20px;
     line-height : 30px;
 }
-#users-groups-grid td.user-group-name { padding : 0px 48px 0px 12px; }
+#users-groups-grid td.user-group-name { 
+    left     : 28px;
+    padding  : 0px 48px 0px 12px; 
+    position : sticky;
+}
+#users-groups-grid td.user-groups-filter { 
+    left     : 288px;
+    position : sticky;
+}
 .user-group-name {
     max-width : 200px;
     min-width : 200px;
