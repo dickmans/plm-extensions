@@ -364,7 +364,7 @@ function getGroups() {
 
     dataGroups = null;
 
-    $.get('/plm/groups', { bulk : true }, function(response) {
+    $.get('/plm/groups', { bulk : true, limit : 500 }, function(response) {
 
         for(let group of response.data.items) {
 
