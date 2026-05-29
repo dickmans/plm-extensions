@@ -1722,9 +1722,9 @@ exports.chrome = {
         icon  : 'zmdi-storage',
         order : 102
     },{
-        id    : 'workspace-comparison',
-        url   : '/workspace-comparison',
-        label : 'Workspace Comparison',
+        id    : 'tenant-comparison',
+        url   : '/comparison',
+        label : 'Tenant Comparison',
         icon  : 'zmdi-blur-linear',
         order : 103
     },{   
