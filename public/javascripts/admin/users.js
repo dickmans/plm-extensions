@@ -985,19 +985,22 @@ function insertUsersGroupsGrid() {
             .addClass('group-column-filter')
             .addClass('icon')
             .addClass('icon-starts-with')
-            .attr('title', 'Filter for users assigned to this group')
-            .click(function() {
+            .attr('title', 'Filter for users assigned to this group. Use [Shift] to select multiple groups.')
+            .click(function(e) {
 
                 $(this).toggleClass('active');
 
                 let isActive = $(this).hasClass('active');
 
-                $('.icon-starts-with').removeClass('active');
+                if(!e.shiftKey) $('.icon-starts-with').removeClass('active');
+
                 $('#users-groups-grid-tbody').children().removeClass('hidden');
 
-                if(isActive) {
+                if(isActive) $(this).addClass('active');
 
-                    $(this).addClass('active');
+                let listActive = $('.icon-starts-with.active');
+
+                listActive.each(function() {
 
                     let elemCell = $(this).closest('th');
                     let index    = elemCell.index() + 3;
@@ -1011,7 +1014,7 @@ function insertUsersGroupsGrid() {
 
                     });
                     
-                }
+                });
 
             });
 
