@@ -36,8 +36,11 @@
         h2 Workspace Design Review Tasks
         p Use the 
             strong Workspace Manager 
-            | to perform the following changes to your workspace 
-            strong Design Review Tasks
+            | to perform the following changes to the 
+            strong Item Details 
+            |tab of your 
+            strong Design Review Tasks 
+            |workspace 
             |:
         ol
             li Add an image field MARKUP to the first section
@@ -64,7 +67,9 @@
                 strong ASSIGNEE 
                 | must 
                 strong NOT 
-                | be mandatory
+                | be mandatory, so remove the validation 
+                strong Selection Required 
+                |if needed.
             li Disable 
                 strong Workflow Locking 
                 | for all sections
@@ -78,16 +83,24 @@
             strong Design Review Tasks 
             | for all the users which will use the Design Review Portal.
         h1 Script Changes
-        p Let new 
+        p When users create new actions in the portal, the given new 
             strong Design Review Tasks 
-            | be connected to the related 
+            | should be connected to the related 
             strong Design Review 
-            | by adding the following script to the initial workflow transition (from the Start Node) in workspaces 
-            strong Design Review Tasks:
+            | in tab 
+            strong Tasks Schedule
+            |. To achieve this, open script 
+            strong Design Reviews Tasks WF Actions 
+            |and locate the section of code being executed at transition 
+            strong START
+            |. Add the following line of code as shown in the screenshot below:
         p.code if(item.DESIGN_REVIEW !== null) { item.DESIGN_REVIEW.project.addTask(item); }
-        p Adjust the script 
+        img(src='images/apps/design-review-5.png' style='width:100%;max-width:818px;margin-bottom:10px;')
+        p Next, adjust another script: 
             strong Design Reviews WF Actions 
-            | by extending the if statement with the following condition as shown in the screenshot below: 
+            |. Extend the if statement in function 
+            strong autoTransition() 
+            |with the following condition as shown in the screenshot below: 
         p.code item.project.children.length === 0
         img(src='images/apps/design-review-1.jpg' style='width:100%;max-width:900px;margin-bottom:10px;')
         h1 Application Configuration Settings
