@@ -3929,8 +3929,6 @@ router.get('/bom-item', function(req, res, next) {
 
     let url = (typeof req.query.link !== 'undefined') ? req.query.link : req.app.locals.tenantLink + '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId + '/bom-items/' + req.query.edgeId;
 
-    console.log(url);
-
     axios.get(url, {
         headers : req.session.headers
     }).then(function(response) {
@@ -3952,8 +3950,6 @@ router.get('/bom-edge', function(req, res, next) {
     console.log();
 
     let url = req.app.locals.tenantLink + req.query.edgeLink;
-
-    console.log(url);
 
     axios.get(url, {
         headers : req.session.headers
