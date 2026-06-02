@@ -220,6 +220,7 @@
 .icon-alert-3::before           { content : '\e99a'; }
 .icon-alert-4::before           { content : '\e160'; }
 .icon-arrow-right::before       { content : '\f81d'; }
+.icon-arrow-left::before        { content : '\f818'; }
 .icon-attachment::before        { content : '\e226'; }
 .icon-bar-chart::before         { content : '\e26b'; }
 .icon-bar-chart-stack::before   { content : '\e9e6'; }
@@ -333,6 +334,8 @@
 .icon-minus::before             { content : '\e909'; }
 .icon-move-left::before         { content : '\f3d3'; }
 .icon-move-right::before        { content : '\f3d2'; }
+.icon-move-up::before           { content : '\f736'; }
+.icon-move-down::before         { content : '\f739'; }
 .icon-mow::before               { content : '\e85f'; }
 .icon-new-window::before        { content : '\f710'; }
 .icon-next::before              { content : '\eaaa'; }
