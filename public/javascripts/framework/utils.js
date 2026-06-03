@@ -89,7 +89,10 @@ function getSystemAdminSession(callback) {
         } else {
             $.get('/plm/login-admin', {}, function (response) {
                 if(response.error) {
-                    showErrorMessage('Login Error', 'Failed to login with system admin privileges. Please review your Admin Client ID and Admin Client Secret in the settings file.');
+                    showStartupError({
+                        title   : 'System Admin access required',
+                        details : 'Failed to login with system admin privileges. Please review the Admin Client ID and Admin Client Secret in your environments file.',
+                    });
                 } else {
                     $('#startup').fadeOut();
                     $('body').children().removeClass('hidden');

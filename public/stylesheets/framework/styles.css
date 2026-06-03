@@ -3265,38 +3265,39 @@ select.button.main:hover {
     justify-content : center;
     z-index         : 10;
 }
-#startup-error .wrapper {
+.startup-error-wrapper {
     display : flex;
     gap     : 12px;
     height  : unset;
     margin  : auto;
     padding : 48px;
-    width   : 400px;
+    width   : 440px;
     flex-direction : column;
 }
-#startup-error.surface-level-1 .wrapper { background : var(--color-surface-level-3); }
-#startup-error.surface-level-2 .wrapper { background : var(--color-surface-level-4); }
-#startup-error.surface-level-3 .wrapper { background : var(--color-surface-level-5); }
-#startup-error .header {
+#startup-error.surface-level-1 .startup-error-wrapper { background : var(--color-surface-level-3); }
+#startup-error.surface-level-2 .startup-error-wrapper { background : var(--color-surface-level-4); }
+#startup-error.surface-level-3 .startup-error-wrapper { background : var(--color-surface-level-5); }
+
+.startup-error-header {
     display : flex;
     gap     : 14px;
 }
-#startup-error .header > div {
+.startup-error-header > div {
     line-height : 48px;
 }
-#startup-error .icon {
+.startup-error-icon {
     color       : var(--color-blue-500);
     font-weight : 400;
     font-size   : 42px;
 }
-#startup-error .title {
+.startup-error-title {
     font-size   : 24px;
     font-weight : 800;
 }
 #startup-error strong {
     color : var(--color-blue-500);
 }
-#startup-error .actions {
+.startup-error-actions {
     display         : flex;
     justify-content : end;
     padding-top     : 12px;
