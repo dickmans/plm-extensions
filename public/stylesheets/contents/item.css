@@ -1257,7 +1257,8 @@ tr.content-item {
     text-overflow : ellipsis;
     white-space   : nowrap;
 }
-tr.content-item.selected > td {
+tr.content-item.selected > td,
+  .content-item.selected > td {
     background : var(--color-selected-background);
 }
 /* .content-item > td:first-child {
@@ -1269,14 +1270,28 @@ tr.content-item.selected > td {
 .content-item.result > td.tree-color { 
     background : var(--color-status-yellow); 
 }
-.content-item.selected > td {
-    background : var(--color-selected-background);
+.fusion-theme .content-item.selected > td {
+    border-color : var(--color-selected-border);
 }
-.content-item:hover td ,
-table.grid .content-item:hover td,
-table.bom-table .content-item:hover td {
-    border-color     : var(--color-blue-500) !important;
+table.bom-table .content-item:hover td,
+     table.grid .content-item:hover td,
+                .content-item:hover td {
     background-color : var(--color-hover-background);
+}
+.light-theme .content-item:hover td,
+ .dark-theme .content-item:hover td,
+.black-theme .content-item:hover td,
+.light-theme table.grid .content-item:hover td,
+ .dark-theme table.grid .content-item:hover td
+.black-theme table.grid .content-item:hover td,
+.light-theme table.bom-table .content-item:hover td,
+ .dark-theme table.bom-table .content-item:hover td,
+.black-theme table.bom-table .content-item:hover td {
+    border-color : var(--color-blue-500) !important;
+}
+.fusion-theme tr.content-item.selected:hover td,
+.fusion-theme   .content-item.selected:hover td {
+    background : var(--color-hover-selected);
 }
 .bom-actions {
     display : flex;
@@ -1314,18 +1329,6 @@ td.bom-column-roll-up {
 .no-bom-counters .bom-content {
     bottom : 34px;
 }
-
-/* .surface-level-1 > .bom-table th, .surface-level-1.bom > .panel-counters { background : var(--color-surface-level-3); }
-.surface-level-2 > .bom-table th, .surface-level-2.bom > .panel-counters { background : var(--color-surface-level-3); }
-.surface-level-3 > .bom-table th, .surface-level-3.bom > .panel-counters { background : var(--color-surface-level-5); }
-.surface-level-4 > .bom-table th, .surface-level-4.bom > .panel-counters { background : var(--color-surface-level-5); }
-.surface-level-5 > .bom-table th, .surface-level-5.bom > .panel-counters { background : var(--color-surface-level-4); } */
-
-.surface-level-1 > .bom-table td { background : var(--color-surface-level-2); border-top-color: var(--color-surface-level-1); }
-.surface-level-2 > .bom-table td { background : var(--color-surface-level-1); border-top-color: var(--color-surface-level-2); }
-.surface-level-3 > .bom-table td { background : var(--color-surface-level-2); border-top-color: var(--color-surface-level-3); }
-.surface-level-4 > .bom-table td { background : var(--color-surface-level-3); border-top-color: var(--color-surface-level-4); }
-.surface-level-5 > .bom-table td { background : var(--color-surface-level-3); border-top-color: var(--color-surface-level-5); }
 
 .bom-counters {
     background      : var(--color-surface-level-5);

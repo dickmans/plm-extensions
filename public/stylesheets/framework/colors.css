@@ -132,7 +132,7 @@ body.fusion-theme {
     --color-surface-level-1 : #ffffff;
     --color-surface-level-2 : #f5f5f5;
     --color-surface-level-3 : #ededed;
-    --color-surface-level-4 : #f0f0f0;
+    --color-surface-level-4 : #c8c8c8;
     --color-surface-level-5 : #B4B4B4;
 
 }
@@ -175,6 +175,7 @@ body.fusion-theme {
     --color-hover-background    : rgba(0, 0, 0, 0.05);
     --color-hover-border        : rgba(34, 36, 38, 0.15);
     --color-hover-image         : rgba(0, 0, 0, 0.05);
+    --color-hover-selected      : #B9E2F4;
     --color-selected-background : #DAECF4;
     --color-selected-border     : #6FC0E5;
     --color-selected-image      : #B9E2F4;
