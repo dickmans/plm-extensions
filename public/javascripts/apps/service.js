@@ -37,6 +37,8 @@ let paramsProcesses       = {
     singleToolbar       : 'actions'
 }
 
+let disableViewerSelectionEvent = false;
+
 
 $(document).ready(function() {
 
