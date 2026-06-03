@@ -2174,8 +2174,8 @@ and (max-device-width : 1900px)  {
 .panel-actions  > select {
     font-size   : 14px;
     font-weight : 600;
-    height      : 38px !important;
-    line-height : 38px !important;
+    height      : 34px !important;
+    line-height : 32px !important;
     padding     : 0px 8px;
 }
 .panel-controls > .button.panel-close { order : 100; }
@@ -3108,8 +3108,8 @@ and (max-device-width : 1900px)  {
 }
 select.button.main {
     background   : var(--color-green-600) !important; 
-    border-color : var(--color-green-600);
-    color        : white; 
+    border-color : var(--color-green-600) !important;
+    color        : white !important; 
 }
 select.button.main:hover {
     background   : var(--color-green-700) !important; 
