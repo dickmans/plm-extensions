@@ -6920,6 +6920,26 @@ function getSectionFieldValue(sections, fieldId, defaultValue, property) {
 }
 
 
+// Retrieve field type from item's sections data
+function getSectionFieldType(sections, fieldId) {
+
+    if(typeof sections === 'undefined') return '';
+    if(sections === null) return '';
+
+    for(let section of sections) {
+        for(let field of section.fields) {
+            let id = field.__self__.split('/')[10];
+            if(id === fieldId) {
+                return field.type.title;
+            }
+        }
+    }
+
+    return '';
+
+}
+
+
 // Retrieve item's classification section
 function getClassificationSection(sections) {
 

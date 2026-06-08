@@ -15,7 +15,7 @@
     --width-quantity : 42px;
     --width-make-buy : 60px;
 
-    --icon-size     : 22px;
+    --icon-size     : 20px;
     --height-item   : 26px;
     --padding-panel : 20px;
 
@@ -125,7 +125,6 @@ body.details-on.no-viewer #tabs         { left : calc(50% + (2 * var(--border-h)
 .item.root { border-top : none; }
 .item.root > .item-head { background : var(--color-surface-level-3); }
 .item.root > .item-head .item-toggle,
-.item.root > .item-head .button-filter,
 .item.root > .item-head .button-view,
 .item.root > .item-head .button-view,
 .item.root > .item-head .button-copy,
@@ -216,10 +215,10 @@ body.details-on.no-viewer #tabs         { left : calc(50% + (2 * var(--border-h)
     max-height  : calc(var(--height-item) - 2px);
     min-height  : calc(var(--height-item) - 2px);
     height      : calc(var(--height-item) - 2px);
-    line-height : var(--height-item);
-    max-width   : var(--height-item);
-    min-width   : var(--height-item);
-    width       : var(--height-item);
+    line-height : calc(var(--height-item) - 2px);
+    max-width   : calc(var(--height-item) - 2px);
+    min-width   : calc(var(--height-item) - 2px);
+    width       : calc(var(--height-item) - 2px);
 }
 .item-head-action.button-remove { order : 1; }
 .item-head-action.button-copy   { order : 2; }

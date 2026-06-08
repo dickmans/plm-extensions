@@ -979,6 +979,7 @@ function getFieldValue(field) {
             value = parseInt(field.value);
             break;
 
+        case 'image':
         case 'radio':
         case 'buom':
         case 'single-select':
@@ -4096,23 +4097,23 @@ router.post('/bom-update', function(req, res, next) {
 
 
 /* ----- REMOVE BOM ITEM ----- */
-router.get('/bom-remove', function(req, res, next) {
+router.post('/bom-remove', function(req, res, next) {
     
     console.log(' ');
     console.log('  /bom-remove');
     console.log(' --------------------------------------------');  
-    console.log('  req.query.wsId     = ' + req.query.wsId);
-    console.log('  req.query.dmsId    = ' + req.query.dmsId);
-    console.log('  req.query.link     = ' + req.query.link);
-    console.log('  req.query.edgeId   = ' + req.query.edgeId);
-    console.log('  req.query.edgeLink = ' + req.query.edgeLink);
+    console.log('  req.body.wsId     = ' + req.body.wsId);
+    console.log('  req.body.dmsId    = ' + req.body.dmsId);
+    console.log('  req.body.link     = ' + req.body.link);
+    console.log('  req.body.edgeId   = ' + req.body.edgeId);
+    console.log('  req.body.edgeLink = ' + req.body.edgeLink);
     console.log();
 
-    let edgeLink = req.query.edgeLink;
+    let edgeLink = req.body.edgeLink;
 
     if (typeof edgeLink === 'undefined') {
-        edgeLink  = (typeof req.query.link !== 'undefined') ? req.query.link : '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId;
-        edgeLink += '/bom-items/' + req.query.edgeId;
+        edgeLink  = (typeof req.body.link !== 'undefined') ? req.body.link : '/api/v3/workspaces/' + req.body.wsId + '/items/' + req.body.dmsId;
+        edgeLink += '/bom-items/' + req.body.edgeId;
     }
     
     let url  = req.app.locals.tenantLink + edgeLink;

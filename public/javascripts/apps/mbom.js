@@ -695,7 +695,8 @@ function createMBOMForEBOM(ebomItemDetails, number, callback) {
     for(let fieldToCopy of config.mbomRoot.fieldsToCopy) {
         params.fields.push({
             fieldId : fieldToCopy.mbom,
-            value   : getSectionFieldValue(ebomItemDetails.sections, fieldToCopy.ebom)
+            value   : getSectionFieldValue(ebomItemDetails.sections, fieldToCopy.ebom),
+            type    : getSectionFieldType(ebomItemDetails.sections, fieldToCopy.ebom)
         });
     }
 
@@ -3742,7 +3743,10 @@ function onViewerSelectionChanged(event) {
 
     if(viewerHideSelected(event)) return;
 
-    if(disableViewerSelectionEvent) return;
+    let panelId        = event.target.panelId;
+    let viewerInstance = getViewerInstance(panelId);
+
+    if(viewerInstance.disableSelectEvent) return;
 
     if(event.dbIdArray.length === 1) {
 
@@ -3754,9 +3758,9 @@ function onViewerSelectionChanged(event) {
 
                 if((event.mouseButton === 0) || isBlank(event.mouseButton)) {
 
-                    disableViewerSelectionEvent = true;
+                    viewerInstance.disableSelectEvent = true;
                     viewerHideModel(partNumber);
-                    disableViewerSelectionEvent = false;
+                    viewerInstance.disableSelectEvent = false;
                     $('#ebom').find('.item.leaf').each(function() {
                         let elemEBOM = $(this);
                         if(elemEBOM.attr('data-part-number') === partNumber) {
