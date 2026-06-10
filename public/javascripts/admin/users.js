@@ -1,12 +1,16 @@
-let maxRequests = 5;
+const maxRequests    = 5;
+const usersThreshold = 200;
+
 let workspaces  = [];
-let dataGroups  = null;
 let dataUsers   = null;
+let dataGroups  = null;
 let users       = [];
 let views       = [];
 let assignments = { remove : [], add : [] };
 let deleteViews = false;
 let iProgress   = 0;
+let splitLoad   = false;
+let completed   = { users : false, groups : false }
 
 
 $(document).ready(function() {
@@ -20,12 +24,24 @@ $(document).ready(function() {
             setUIEvents();
             insertMenu();
             appendOverlay(true);
+            appendProcessing('assignment', false);
+            appendProcessing('views', false);
+            appendProcessing('charts', false);
 
             getWorkspaces();
-            getUsers();
-            getGroups();
             getCharts();
 
+            $.get('/plm/users', { 
+                bulk       : false,
+                activeOnly : true, 
+                mappedOnly : false,
+                limit      : 1
+            }, function(response) {
+                splitLoad = (response.data.totalCount > usersThreshold);
+                getUsers();
+                getGroups();
+            });
+            
         }
 
     });
@@ -36,20 +52,26 @@ function setUIEvents() {
 
     // Main Toolbar Actions
     $('#show-new-single-user').click(function() {
+        if($(this).hasClass('disabled')) return;
         $('#overlay').show();
         $('#new-single-user').show();
     });    
     $('#show-new-multi-users').click(function() {
+        if($(this).hasClass('disabled')) return;
         $('#overlay').show();
         $('#new-multi-users').show();
     });    
     $('#show-users-groups-grid').click(function() {
-        $('#overlay').show();
-        $('#users-groups-grid').show();
+        if($(this).hasClass('disabled')) return;
+        // $('#overlay').show();
+        showUsersGroupsGrid();
     });    
 
 
     // Groups & Users Selection
+    $('#groups-reload').click(function() {
+        getGroups();
+    });
     $('.groups-select-all').click(function() {
         let elemList = $(this).closest('.list-header').next('.list');
         elemList.children(':visible').addClass('selected');
@@ -70,6 +92,9 @@ function setUIEvents() {
             if(matches) $(this).show(); else $(this).hide();
         });
     });
+    $('#users-reload').click(function() {
+        getUsers();
+    });    
     $('#users-select-all').click(function() {
         $('#users').children(':visible').addClass('selected').removeClass('last');
         updateCounters();
@@ -92,6 +117,9 @@ function setUIEvents() {
 
 
     // Group Assignment
+    $('#assignment-reload').click(function() {
+        getGroups();
+    });
     $('#assignment-remove-all').click(function() {
         $('.group-assignment').find('.button-group-remove').each(function() { $(this).click(); })
     });
@@ -120,6 +148,14 @@ function setUIEvents() {
 
 
     // Workspace Views buttons
+    $('#views-reload').click(function() {
+        $('#views-list').html('');
+        $('#views-processing').show();
+        $('#views-toolbar').addClass('hidden');
+        $('#views-list').addClass('hidden');
+        updateCounters();
+        getWorkspaceViews(0);
+    });
     $('#views-select-all').click(function() {
         $('#views-list').children(':visible').addClass('selected');
         updateCounters();
@@ -173,6 +209,9 @@ function setUIEvents() {
 
 
     // Charts buttons
+    $('#charts-reload').click(function() {  
+        getCharts();  
+    });
     $('#charts-my-defaults').click(function() {
         $('.is-pinned').each(function() {
             $(this).addClass('selected');
@@ -244,37 +283,55 @@ function setUIEvents() {
 // Get Tenant Information
 function getUsers() {
 
-    $('#users').html('');
+    $('#users').addClass('hidden').html('');
+    $('#users-toolbar').addClass('hidden');
+    $('#users-processing').removeClass('hidden');
+    $('#users-group-filter').addClass('hidden').attr('disabled', 'disabled');
 
-    dataUsers = null;
+    dataUsers       = null;
+    completed.users = false;
 
     $.get('/plm/users', { 
-        bulk       : true,
+        bulk       : (!splitLoad),
         activeOnly : true, 
         mappedOnly : false
     }, function(response) {
 
         dataUsers = [];
 
-        for(let user of response.data.items) {
-            user.displayName = (user.displayName === ' ') ? user.email : user.displayName;
+        let listUsers = response.data.items || response.data.users;
+
+        for(let user of listUsers) {
+            
+            user.userId = user.userId || user.link.split('/').pop();
+
+            if(user.hasOwnProperty('displayName')) {
+                if(user.displayName === ' ') user.displayName = null;
+            }
+            if(user.hasOwnProperty('title')) {
+                if(user.title === ' ') user.title = null;
+            }
+
+            user.displayName = user.displayName || user.title || user.email || '[' + user.userId + ']';
+            
         }
 
-        sortArray(response.data.items, 'displayName');
+        sortArray(listUsers, 'displayName');
 
-        for(let user of response.data.items) {
+        for(let user of listUsers) {
 
-            if(!user.tenantAdmin) {
+            if(user.userId !== 'tenant_admin') {
 
-                if(userAccount.email !== user.id) {
+                if(userAccount.userId !== user.userId) {
 
                     dataUsers.push(user);
 
-                    let elemNew = $('<div></div>').appendTo($('#users'))
+                    let elemUser = $('<div></div>').appendTo($('#users'))
                         .addClass('surface-level-3')
+                        .addClass('user-' + user.userId)
                         .attr('data-sort', user.displayName)
                         .attr('data-id', user.userId)
-                        .attr('data-email', user.email)
+                        .attr('data-email', '')
                         .attr('data-login', '')
                         .click(function(e) {
                             
@@ -300,47 +357,56 @@ function getUsers() {
 
                         });
                     
-                    $('<div></div>').appendTo(elemNew)
+                    $('<div></div>').appendTo(elemUser)
                         .addClass('icon')
                         .addClass('icon-check-box')
                         .addClass('user-checkbox')
                         .addClass('surface-level-4');
 
-                    $('<div></div>').appendTo(elemNew)
+                    let elemName = $('<div></div>').appendTo(elemUser)
                         .addClass('label')
                         .addClass('user-name')
-                        .html(user.displayName)
-                        .attr('title', user.email);
+                        .html(user.displayName);
 
-                    let elemLogin = $('<div></div>').appendTo(elemNew)
+                    if(user.hasOwnProperty('email')) {
+                        elemUser.attr('data-email', user.email);
+                        elemName.attr('title', user.email);
+                    }
+
+                    let elemLogin = $('<div></div>').appendTo(elemUser)
                         .addClass('user-login')
                         .attr('title', 'Last Login Date');
 
-                    if(!isBlank(user.lastLoginTime)) {
-                        
-                        let lastLogin = user.lastLoginTime.split('T')[0].split('-');
-
-                        $('<div></div>').appendTo(elemLogin).addClass('user-login-y').html(lastLogin[0]);
-                        $('<div></div>').appendTo(elemLogin).addClass('user-login-s').html('-');
-                        $('<div></div>').appendTo(elemLogin).addClass('user-login-m').html(lastLogin[1]);
-                        $('<div></div>').appendTo(elemLogin).addClass('user-login-s').html('-');
-                        $('<div></div>').appendTo(elemLogin).addClass('user-login-y').html(lastLogin[2]);
-
-                        elemNew.attr('data-login', user.lastLoginTime.split('T')[0])
-                        elemNew.addClass('existing');
-
-                    } else elemNew.addClass('new');
-
-                    let elemIcon = $('<div></div>').appendTo(elemNew)
+                    let elemIcon = $('<div></div>').appendTo(elemUser)
                         .addClass('icon')
-                        .addClass('user-icon');
+                        .addClass('user-icon');                        
 
-                    if(isBlank(user.lastLoginTime)) {
-                        elemIcon.attr('title', 'This user never logged in to PLM yet');
-                        elemIcon.addClass('icon-contains').css('color', 'var(--color-yellow-500)');
-                    } else {
-                        elemIcon.attr('title', 'Last Login at ' + user.lastLoginTime);
-                        elemIcon.addClass('icon-user').addClass('filled');
+                    if(!splitLoad) {
+
+                        if(!isBlank(user.lastLoginTime)) {
+                            
+                            let lastLogin = user.lastLoginTime.split('T')[0].split('-');
+
+                            $('<div></div>').appendTo(elemLogin).addClass('user-login-y').html(lastLogin[0]);
+                            $('<div></div>').appendTo(elemLogin).addClass('user-login-s').html('-');
+                            $('<div></div>').appendTo(elemLogin).addClass('user-login-m').html(lastLogin[1]);
+                            $('<div></div>').appendTo(elemLogin).addClass('user-login-s').html('-');
+                            $('<div></div>').appendTo(elemLogin).addClass('user-login-y').html(lastLogin[2]);
+
+                            elemUser.attr('data-login', user.lastLoginTime.split('T')[0])
+                            elemUser.addClass('existing');
+
+                            elemIcon.attr('title', 'Last Login at ' + user.lastLoginTime);
+                            elemIcon.addClass('icon-user').addClass('filled');
+
+                        } else {
+
+                            elemUser.addClass('new');
+                            elemIcon.attr('title', 'This user never logged in to PLM yet');
+                            elemIcon.addClass('icon-contains').css('color', 'var(--color-yellow-500)');
+
+                        }
+
                     }
 
                 }
@@ -348,36 +414,127 @@ function getUsers() {
 
         }
 
-        insertUsersGroupsGrid();
+        $('#users').removeClass('hidden');
+        $('#users-toolbar').removeClass('hidden');
+        $('#users-processing').addClass('hidden');        
+        $('#users-group-filter').removeClass('hidden');
 
+        completed.users = true;
+
+        if(splitLoad) {
+            getUsersDetails();
+        } else {
+            $('#start').removeClass('disabled');
+            insertUsersGroupsGrid(dataGroups, dataUsers);
+        }
+        
+    })
+
+}
+function getUsersDetails() {
+
+    $.get('/plm/users', { 
+        bulk       : true,
+        activeOnly : true, 
+        mappedOnly : false
+    }, function(response) {
+
+        dataUsers = [];
+
+        for(let user of response.data.items) {
+            
+            if(user.userId !== 'tenant_admin') {
+
+                if(userAccount.userId !== user.userId) {
+
+                    if(user.hasOwnProperty('displayName')) {
+                        if(user.displayName === ' ') user.displayName = null;
+                    }
+                    if(user.hasOwnProperty('title')) {
+                        if(user.title === ' ') user.title = null;
+                    }
+
+                    user.displayName = user.displayName || user.title || user.email || '[' + user.userId + ']';
+
+                    dataUsers.push(user);
+
+                    let elemUser = $('.user-' + user.userId);
+
+                    if(elemUser.length > 0) {
+
+                        elemUser.attr('data-email', user.email);
+                        elemUser.find('.user-name').html(user.displayName).attr('title', user.email);
+
+                        let elemLogin = elemUser.find('.user-login');
+                        let elemIcon  = elemUser.find('.user-icon');
+
+                        if(!isBlank(user.lastLoginTime)) {
+                            
+                            let lastLogin = user.lastLoginTime.split('T')[0].split('-');
+
+                            $('<div></div>').appendTo(elemLogin).addClass('user-login-y').html(lastLogin[0]);
+                            $('<div></div>').appendTo(elemLogin).addClass('user-login-s').html('-');
+                            $('<div></div>').appendTo(elemLogin).addClass('user-login-m').html(lastLogin[1]);
+                            $('<div></div>').appendTo(elemLogin).addClass('user-login-s').html('-');
+                            $('<div></div>').appendTo(elemLogin).addClass('user-login-y').html(lastLogin[2]);
+
+                            elemUser.attr('data-login', user.lastLoginTime.split('T')[0])
+                            elemUser.addClass('existing');
+
+                            elemIcon.attr('title', 'Last Login at ' + user.lastLoginTime);
+                            elemIcon.addClass('icon-user').addClass('filled');
+
+                        } else {
+
+                            elemUser.addClass('new');
+                            elemIcon.attr('title', 'This user never logged in to PLM yet');
+                            elemIcon.addClass('icon-contains').css('color', 'var(--color-yellow-500)');
+
+                        }
+
+                    }
+                }
+            }
+        }
+
+        completed.users = true;
+        
     })
 
 }
 function getGroups() {
 
-    $('#groups').html('');
+    $('#groups').addClass('hidden').html('');
+    $('#groups-toolbar').addClass('hidden');
+    $('#groups-processing').removeClass('hidden');
     $('#users-group-filter').children().remove();
+    $('#users-group-filter').attr('disabled', 'disabled');
+
+    $('#assignment-processing').removeClass('hidden');
+    $('#assignment-list').addClass('hidden').html('');
+    $('#assignment-toolbar').addClass('hidden');     
+
+    updateCounters();
 
     $('<option></option>').appendTo($('#users-group-filter'))
         .attr('value', '--')
         .html('- Display users of all groups -');    
 
-    dataGroups = null;
+    dataGroups       = null;
+    completed.groups = false;
 
-    $.get('/plm/groups', { bulk : true, limit : 500 }, function(response) {
+    $.get('/plm/groups', { bulk : (!splitLoad), limit : 500 }, function(response) {
 
-        for(let group of response.data.items) {
+        dataGroups = response.data.items || response.data.groups;
 
-            for(let index = group.users.length - 1; index >= 0; index--) {
-                let user = group.users[index];
-                if(user.tenantAdmin) group.users.splice(index, 1);
-                else if(!user.userActive) group.users.splice(index, 1);
-                else if(!user.regularUser) group.users.splice(index, 1);
-                else if(userAccount.email === user.email) group.users.splice(index, 1);
-            }
+        for(let group of dataGroups) {
+
+            group.userCount = '';
+            group.id        = group.__self__.split('/').pop();
 
             let elemNew = $('<div></div>').appendTo($('#groups'))
                 .addClass('surface-level-3')
+                .addClass('group-' + group.id)
                 .attr('data-link', group.__self__)
                 .attr('data-sort', group.shortName)
                 .click(function() {
@@ -392,30 +549,101 @@ function getGroups() {
 
             $('<div></div>').appendTo(elemNew)
                 .addClass('label')
+                .addClass('nowrap')
                 .html(group.shortName);
+
+            if(group.hasOwnProperty('users')) {
+
+                for(let index = group.users.length - 1; index >= 0; index--) {
+                    let user = group.users[index];
+                    if(user.tenantAdmin) group.users.splice(index, 1);
+                    else if(!user.userActive) group.users.splice(index, 1);
+                    else if(!user.regularUser) group.users.splice(index, 1);
+                    else if(userAccount.email === user.email) group.users.splice(index, 1);
+                }                
+
+                group.userCount = group.users.length;
+
+                let elemOption = $('<option></option>').appendTo($('#users-group-filter'))
+                    .attr('value', group.__self__)
+                    .html(group.shortName + ' (' + group.userCount + ')');
+
+            }
 
             $('<div></div>').appendTo(elemNew)
                 .addClass('group-count')
-                .html(group.users.length);
+                .html(group.userCount);            
 
             $('<div></div>').appendTo(elemNew)
                 .addClass('icon')
                 .addClass('icon-group')
                 .addClass('group-icon')
-                .addClass('filled');
-
-            $('<option></option>').appendTo($('#users-group-filter'))
-                .attr('value', group.__self__)
-                .html(group.shortName + ' (' + group.users.length + ')');
+                .addClass('filled');            
 
         }
 
-        dataGroups = response.data.items;
+        $('#groups').removeClass('hidden');
+        $('#groups-toolbar').removeClass('hidden');
+        $('#groups-processing').addClass('hidden');
 
-        insertGroupAssignment()
+        completed.groups = true;
+
+        insertGroupAssignment();
         insertGroupSelector();
         insertGroupColumns();
-        insertUsersGroupsGrid();
+
+        $('#start').removeClass('disabled');
+
+        if(splitLoad) { 
+            getGroupDetails();
+        } else {
+            $('#start').removeClass('disabled');
+            $('#users-group-filter').removeAttr('disabled');
+            insertUsersGroupsGrid(dataGroups, dataUsers);
+        }
+
+    });
+
+}
+function getGroupDetails() {
+
+    $.get('/plm/groups', { bulk : true, limit : 500 }, function(response) {
+
+        dataGroups = response.data.items;
+
+        for(let group of dataGroups) {
+
+            group.id = group.__self__.split('/').pop();
+
+            let elemOption = $('<option></option>')
+                .attr('value', group.__self__)
+                .html(group.shortName);            
+
+            if(group.hasOwnProperty('users')) {
+
+                for(let iUser = group.users.length - 1; iUser >= 0; iUser--) {
+                    let user = group.users[iUser];
+                    if(user.tenantAdmin) group.users.splice(iUser, 1);
+                    else if(!user.userActive) group.users.splice(iUser, 1);
+                    else if(!user.regularUser) group.users.splice(iUser, 1);
+                    else if(userAccount.email === user.email) group.users.splice(iUser, 1);
+                }                
+
+                group.userCount = group.users.length;
+                elemOption.html(group.shortName + ' (' + group.users.length + ')');
+
+            }
+
+            elemOption.appendTo($('#users-group-filter'));
+            $('.group-' + group.id).each(function() {
+                let elemCount = $(this).find('.group-count');
+                elemCount.html(group.userCount);
+            });
+
+        }
+
+        $('#users-group-filter').removeAttr('disabled');
+        $('#show-users-groups-grid').removeClass('disabled');
 
     });
 
@@ -539,12 +767,19 @@ function getWorkspaceViews(iWorkspace) {
 
     } else {
         // $('#overlay').hide();
+        $('#views-list').removeClass('hidden');
+        $('#views-toolbar').removeClass('hidden');
+        $('#views-processing').hide();
     }
 
 }
 function getCharts() {
 
-    $('#charts-list').html('');
+    $('#charts-processing').show();
+    $('#charts-list').addClass('hidden').html('');
+    $('#charts-toolbar').addClass('hidden');
+
+    updateCounters();
 
     let requests = [
         $.get('/plm/charts-available', {}),
@@ -609,6 +844,10 @@ function getCharts() {
 
         }
 
+        $('#charts-processing').hide();
+        $('#charts-list').removeClass('hidden');
+        $('#charts-toolbar').removeClass('hidden');
+
     });
 
 }
@@ -665,6 +904,10 @@ function insertGroupAssignment() {
             .addClass('group-name')
             .html(group.shortName);
 
+        $('#assignment-processing').addClass('hidden');
+        $('#assignment-list').removeClass('hidden');
+        $('#assignment-toolbar').removeClass('hidden'); 
+
     } 
 
 }
@@ -692,6 +935,7 @@ function insertGroupSelector() {
         let elemNew = $('<div></div>').appendTo(elemParent)
             .addClass('surface-level-2')
             .addClass('group')
+            .addClass('group-' + group.id)
             .attr('data-urn', group.urn)
             .attr('data-link', group.__self__)
             .attr('data-sort', group.shortName)
@@ -718,7 +962,7 @@ function insertGroupSelector() {
         $('<div></div>').appendTo(elemNew)
             .addClass('label')
             .addClass('group-count')
-            .html(group.users.length);
+            .html(group.userCount);
 
         $('<div></div>').appendTo(elemNew)
             .addClass('icon')
@@ -728,13 +972,15 @@ function insertGroupSelector() {
 
     } 
 
+    $('#show-new-single-user').removeClass('disabled');
+
 }
 function insertGroupColumns() {
 
     $('#new-multi-users-processing').hide();
 
     let elemTHead = $('#new-multi-users-thead').html('');
-    let elemTHRow = $('<tr></td>').appendTo(elemTHead);
+    let elemTHRow = $('<tr></tr>').appendTo(elemTHead);
 
     $('<th></th>').appendTo(elemTHRow).addClass('mail-column').html('You can type a single mail address or paste a list of multiple addresses in the fields below. In the latter case, separate the addresses by semicolon to create multiple rows in one step.')
     // $('<th></th>').appendTo(elemTHRow).addClass('actions-column');
@@ -743,6 +989,7 @@ function insertGroupColumns() {
 
         let elemTH = $('<th></th>').appendTo(elemTHRow)
             .addClass('group-column')
+            .addClass('group-' + group.id)
             .attr('data-urn', group.urn)
             .attr('data-link', group.__self__)
             .attr('data-sort', group.shortName);
@@ -775,12 +1022,13 @@ function insertGroupColumns() {
             })
 
         $('<div></div>').appendTo(elemWrapper).addClass('group-column-name').html(group.shortName);
-        $('<div></div>').appendTo(elemWrapper).addClass('group-column-users').html(group.users.length);
+        $('<div></div>').appendTo(elemWrapper).addClass('group-column-users').html(group.userCount).addClass('group-count');
 
 
     } 
 
     $('#new-multi-users-tbody').html('');
+    $('#show-new-multi-users').removeClass('disabled');
 
     insertMultiUsersRow();
 
@@ -808,16 +1056,12 @@ function insertMultiUsersRow(value, insertAfter) {
         .on('paste', function(e) {
             let elemInput = $(this);
             catchPaste(e, this, function(clipData) {
-                console.log('1');
-                console.log(clipData);
                 clipData = clipData.trim();
                 let users = clipData.split(';');
                 if(users.length === 1) users = clipData.split(',');
                 if(users.length === 1) users = clipData.split(' ');
                 // if(users.length === 0) users = clipData.split('\r\n');
-                console.log(users.length);
                 if(users.length === 1) users = clipData.split(/\r\n/);
-                console.log(users);
                 if(users.length > 0) {
                     elemInput.val(users[0]);
                     for(let index = 1; index < users.length; index++) insertMultiUsersRow(users[index].trim());
@@ -935,295 +1179,6 @@ function catchPaste(evt, elem, callback) {
     }
 
 }
-function insertUsersGroupsGrid() {
-
-    if(isBlank(dataUsers )) return;
-    if(isBlank(dataGroups)) return;
-
-    let elemTHead = $('#users-groups-grid-thead').html('');
-    let elemTBody = $('#users-groups-grid-tbody').html('');
-    let elemTHRow = $('<tr></tr>').appendTo(elemTHead);
-
-    $('#users-groups-grid-processing').hide();
-
-    let elemFirst  = $('<th></th>').appendTo(elemTHRow)
-        .addClass('user-group-name')
-        .addClass('users-groups-grid-first')
-        .attr('colspan', '3');
-
-    let elemSelect = $('<select></select>').appendTo(elemFirst)
-        .addClass('button')
-        .attr('id', 'users-groups-grid-filter')
-        .on('change', function() {
-            filterUserGroupsRows();
-        });
-
-    $('<option></option>').appendTo(elemSelect).attr('value', 'all').html('All Users');
-    $('<option></option>').appendTo(elemSelect).attr('value', 'cha').html('Show Changed Users Only');
-    $('<option></option>').appendTo(elemSelect).attr('value', 'new').html('Show New Users Only');
-    $('<option></option>').appendTo(elemSelect).attr('value', 'sel').html('Show Selected Users Only');
-    $('<option></option>').appendTo(elemSelect).attr('value', 'nog').html('Show Users Without Groups Only');
-    $('<option></option>').appendTo(elemSelect).attr('value', 'noc').html('Hide Changed Users');
-    $('<option></option>').appendTo(elemSelect).attr('value', 'old').html('Hide New Users');
-    $('<option></option>').appendTo(elemSelect).attr('value', 'des').html('Hide Selected Users');
-
-    for(let group of dataGroups) {
-
-        let elemTH = $('<th></th>').appendTo(elemTHRow)
-            .addClass('group-column')
-            .attr('data-urn', group.urn)
-            .attr('data-link', group.__self__)
-            .attr('data-sort', group.shortName);
-            
-        let elemContent = $('<div></div>').appendTo(elemTH)
-            .addClass('group-column-content');
-
-        let elemWrapper = $('<div></div>').appendTo(elemContent)
-            .addClass('group-column-wrapper');
-
-        $('<div></div>').appendTo(elemWrapper)
-            .addClass('group-column-filter')
-            .addClass('icon')
-            .addClass('icon-starts-with')
-            .attr('title', 'Filter for users assigned to this group. Use [Shift] to select multiple groups.')
-            .click(function(e) {
-
-                $(this).toggleClass('active');
-
-                let isActive = $(this).hasClass('active');
-
-                if(!e.shiftKey) $('.icon-starts-with').removeClass('active');
-
-                $('#users-groups-grid-tbody').children().removeClass('hidden');
-
-                if(isActive) $(this).addClass('active');
-
-                let listActive = $('.icon-starts-with.active');
-
-                listActive.each(function() {
-
-                    let elemCell = $(this).closest('th');
-                    let index    = elemCell.index() + 3;
-
-                    $('#users-groups-grid-tbody').children().each(function() {
-                        
-                        let elemParent = $(this).find('td:nth-child(' + index + ')');
-                        let isSelected = elemParent.find('.icon-check').length > 0;
-
-                        if(!isSelected) elemParent.closest('tr').addClass('hidden');
-
-                    });
-                    
-                });
-
-            });
-
-        $('<div></div>').appendTo(elemWrapper)
-            .addClass('icon')
-            .addClass('icon-select-all')
-            .addClass('group-column-toggle')
-            .attr('title', 'Select / deselect all')
-            .click(function(e) {
-                
-                let elemIcon = $(this);
-                let index    = $(this).closest('th').index() + 3;
-
-                elemIcon.toggleClass('selected-all');
-
-                let select = elemIcon.hasClass('selected-all');
-
-                $('#users-groups-grid-tbody').children().each(function() {
-
-                    let elemCell = $(this).find('td:nth-child(' + index + ')');
-                    toggleUserGroupAssignment(elemCell, select); 
-
-                });
-            })
-
-        $('<div></div>').appendTo(elemWrapper).addClass('group-column-name').html(group.shortName);
-        $('<div></div>').appendTo(elemWrapper).addClass('group-column-users').html(group.users.length);
-
-    }
-
-    for(let user of dataUsers) {
-
-        let elemRow = $('<tr></tr>').appendTo(elemTBody);
-            elemRow.attr('data-id', user.userId);
-
-        if(isBlank(user.lastLoginTime)) elemRow.addClass('new');
-
-        let elemCheckbox = $('<td></td>').appendTo(elemRow).addClass('user-group-checkbox');
-
-        $('<div></div>').appendTo(elemCheckbox)
-            .addClass('icon')
-            .addClass('icon-check-box')
-            .click(function() {
-                $(this).toggleClass('icon-check-box').toggleClass('icon-check-box-checked');
-            });
-
-        $('<td></td>').appendTo(elemRow).html(user.displayName).addClass('user-group-name');
-
-        $('<td></td>').appendTo(elemRow)
-            .addClass('icon')
-            .addClass('icon-ends-with')
-            .addClass('user-groups-filter')
-            .attr('title', 'Filter for groups assigned to this user')
-            .click(function() {
-
-                $(this).toggleClass('active');
-
-                let isActive = $(this).hasClass('active');
-
-                $('.icon-ends-with').removeClass('active');
-                $('.group-column').removeClass('hidden');
-                $('.user-group-toggle').removeClass('hidden');
-
-                if(isActive) {
-
-                    $(this).addClass('active');
-
-                    let elemRow = $(this).closest('tr');
-                    
-                    $('.group-column').each(function() {
-                        
-                        let elemColumn = $(this);
-                        let index      = elemColumn.index() + 3;
-                        let elemCell   = elemRow.find('td:nth-child(' + index + ')');
-                        let isSelected = elemCell.find('.icon-check').length > 0;
-
-                        if(!isSelected) {
-                            
-                            elemColumn.addClass('hidden');
-
-                            $('#users-groups-grid-tbody').children().each(function() {
-                                let elemCellToggle = $(this).find('td:nth-child(' + index + ')');
-                                    elemCellToggle.addClass('hidden');
-                            });
-   
-                        }
-
-                    });
-    
-                }
-
-            });
-
-        for(let group of dataGroups) {
-
-            let elemCell   = $('<td></td>').appendTo(elemRow).addClass('user-group-toggle');
-            let elemIcon   = $('<div></div>').appendTo(elemCell).addClass('user-group-toggle-icon').addClass('icon')
-
-            for(let groupUser of group.users) {
-                if(user.userId === groupUser.userId) {
-                    elemCell.addClass('assigned');
-                    elemIcon.addClass('icon-check');
-                }
-            }
-
-            if(!elemCell.hasClass('assigned')) elemIcon.addClass('icon-radio-unchecked')
-
-            elemCell.click(function(e) {
-                clickUserGroupToggle(e, $(this));
-            });
-                
-        }
-    }
-
-}
-function clickUserGroupToggle(e, elemClicked) {
-
-    let elemLast = $('.user-group-toggle.last').first();
-
-    if((e.shiftKey) && (elemLast.length > 0)) {
-
-        let selected = elemLast.find('.icon-check').length > 0;
-        let xStart   = elemLast.index();
-        let yStart   = elemLast.closest('tr').index();
-        let xEnd     = elemClicked.index();
-        let yEnd     = elemClicked.closest('tr').index();
-
-        if(xStart > xEnd) { xStart = xEnd; xEnd = elemLast.index();}
-        if(yStart > yEnd) { yStart = yEnd; yEnd = elemLast.closest('tr').index(); }
-
-        for(let iCol = xStart; iCol <= xEnd; iCol++) {
-            for(let iRow = yStart; iRow <= yEnd; iRow++) {
-                let elemRow  = $('#users-groups-grid-tbody tr').eq(iRow);
-                let elemCell = elemRow.find('td').eq(iCol);
-                if(!elemRow.hasClass('hidden')) {
-                    if(!elemCell.hasClass('hidden')) {
-                        toggleUserGroupAssignment(elemCell, selected);                
-                    }
-                }
-            }
-        }
-
-    } else {
-
-        let select = elemClicked.find('.icon-check').length === 0;
-        toggleUserGroupAssignment(elemClicked, select);
-
-    }
-
-    $('.user-group-toggle').removeClass('last');
-    elemClicked.addClass('last');
-
-}
-function toggleUserGroupAssignment(elemCell, select) {
-
-    elemCell.removeClass('changed');
-
-    let elemIcon   = elemCell.children().first();
-    let isAssigned = elemCell.hasClass('assigned');
-
-    if(select) elemIcon.addClass('icon-check').removeClass('icon-radio-unchecked');
-            else elemIcon.removeClass('icon-check').addClass('icon-radio-unchecked');
-
-    if(isAssigned) { if(elemIcon.hasClass('icon-radio-unchecked')) elemCell.addClass('changed'); }
-              else { if(elemIcon.hasClass('icon-check'          )) elemCell.addClass('changed'); }
-
-}
-function filterUserGroupsRows() {
-
-    let elemTBody = $('#users-groups-grid-tbody');
-    let value     = $('#users-groups-grid-filter').val();
-
-    elemTBody.children().show();
-
-    switch(value) {
-
-        case 'cha':
-            elemTBody.children().each(function() { if($(this).find('.changed').length === 0) $(this).hide(); });
-            break;
-
-        case 'new':
-            elemTBody.children().hide();
-            elemTBody.children('.new').show();
-            break;
-
-        case 'sel':
-            elemTBody.children().each(function() { if($(this).find('.icon-check-box-checked').length === 0) $(this).hide(); });
-            break;            
-
-        case 'nog':
-            elemTBody.children().each(function() { if($(this).find('.assigned').length > 0) $(this).hide(); });
-            break;            
-
-        case 'noc':
-            elemTBody.children().each(function() { if($(this).find('.changed').length > 0) $(this).hide(); });
-            break;
-
-        case 'old':
-            elemTBody.children().show();
-            elemTBody.children('.new').hide();
-            break;
-
-        case 'des':
-            elemTBody.children().each(function() { if($(this).find('.icon-check-box-checked').length > 0) $(this).hide(); });
-            break;   
-
-    }
-
-}
 function filterUsers() {
 
     let filterNew   = $('#users-filter-new').hasClass('active');
@@ -1233,7 +1188,7 @@ function filterUsers() {
     $('#users').children().show();
 
     $('#users').children().each(function() {
-        let cellValue = $(this).attr('data-sort').toLowerCase() + $(this).attr('data-email').toLowerCase() + $(this).attr('data-login').toLowerCase();
+        let cellValue = $(this).find('.user-name').html() + $(this).attr('data-sort').toLowerCase() + $(this).attr('data-email').toLowerCase() + $(this).attr('data-login').toLowerCase();
         let matches   = (cellValue.indexOf(filterValue) > -1);
         if($(this).hasClass('selected')) matches = true;
         if(matches) $(this).show(); else $(this).hide();
@@ -1258,8 +1213,6 @@ function filterUsers() {
 
                     }
 
-                    console.log(hide);
-
                     if(hide) elemUser.hide();
 
                 });
@@ -1269,7 +1222,6 @@ function filterUsers() {
     }
 
 }
-
 
 
 // Update tab counters
@@ -1446,8 +1398,377 @@ function createNewUsers() {
 }
 
 
-
 // Users Groups Assignment
+function showUsersGroupsGrid() {
+
+    let selectedGroups = $('#groups').children('.selected');
+    let selectedUsers  = $('#users' ).children('.selected');
+
+    if(!splitLoad) {
+    
+        $('#users-groups-grid').find('.hidden').removeClass('hidden');
+
+        if(selectedGroups.length > 0) {
+
+            for(let group of dataGroups) {
+
+                let isSelected = false;
+
+                selectedGroups.each(function() {
+                    let id = $(this).attr('data-link').split('/').pop();
+                    if(id === group.id) {
+                        isSelected = true;
+                        return;
+                    }
+                });
+
+                if(!isSelected) $('.column-group-' + group.id).addClass('hidden');
+
+            }
+
+        }
+
+        if(selectedUsers.length > 0) {
+
+            for(let user of dataUsers) {
+
+                let isSelected = false;
+
+                selectedUsers.each(function() {
+                    if($(this).attr('data-id') === user.userId) {
+                        isSelected = true;
+                        return;
+                    }
+                });
+
+                if(!isSelected) $('.row-user-' + user.userId).addClass('hidden');
+
+            }
+
+        }
+
+    } else {
+
+        let listGroups = [];
+        let listUsers  = [];
+
+        if(selectedGroups.length > 0) {
+            for(let group of dataGroups) {
+                selectedGroups.each(function() {
+                    let id = $(this).attr('data-link').split('/').pop();
+                    if(id === group.id) {
+                        listGroups.push(group);
+                        return;
+                    }
+                });
+            }
+        }
+
+        if(selectedUsers.length > 0) {
+            for(let user of dataUsers) {
+                selectedUsers.each(function() {
+                    if($(this).attr('data-id') === user.userId) {
+                        listUsers.push(user);
+                        return;
+                    }
+                });
+            }
+        }        
+
+        insertUsersGroupsGrid(listGroups, listUsers);
+
+    }
+    
+    $('#overlay').show();
+    $('#users-groups-grid').show();
+
+}
+function insertUsersGroupsGrid(listGroups, listUsers) {
+
+    if(!completed.users ) return;
+    if(!completed.groups) return;
+
+    let elemTHead = $('#users-groups-grid-thead').html('');
+    let elemTBody = $('#users-groups-grid-tbody').html('');
+    let elemTHRow = $('<tr></tr>').appendTo(elemTHead);
+
+    $('#users-groups-grid-processing').hide();
+
+    let elemFirst  = $('<th></th>').appendTo(elemTHRow)
+        .addClass('user-group-name')
+        .addClass('users-groups-grid-first')
+        .attr('colspan', '3');
+
+    let elemSelect = $('<select></select>').appendTo(elemFirst)
+        .addClass('button')
+        .attr('id', 'users-groups-grid-filter')
+        .on('change', function() {
+            filterUserGroupsRows();
+        });
+
+    $('<option></option>').appendTo(elemSelect).attr('value', 'all').html('All Users');
+    $('<option></option>').appendTo(elemSelect).attr('value', 'cha').html('Show Changed Users Only');
+    $('<option></option>').appendTo(elemSelect).attr('value', 'new').html('Show New Users Only');
+    $('<option></option>').appendTo(elemSelect).attr('value', 'sel').html('Show Selected Users Only');
+    $('<option></option>').appendTo(elemSelect).attr('value', 'nog').html('Show Users Without Groups Only');
+    $('<option></option>').appendTo(elemSelect).attr('value', 'noc').html('Hide Changed Users');
+    $('<option></option>').appendTo(elemSelect).attr('value', 'old').html('Hide New Users');
+    $('<option></option>').appendTo(elemSelect).attr('value', 'des').html('Hide Selected Users');
+
+    for(let group of listGroups) {
+
+        let elemTH = $('<th></th>').appendTo(elemTHRow)
+            .addClass('group-column')
+            .addClass('column-group-' + group.id)
+            .attr('data-urn', group.urn)
+            .attr('data-link', group.__self__)
+            .attr('data-sort', group.shortName);
+            
+        let elemContent = $('<div></div>').appendTo(elemTH)
+            .addClass('group-column-content');
+
+        let elemWrapper = $('<div></div>').appendTo(elemContent)
+            .addClass('group-column-wrapper');
+
+        $('<div></div>').appendTo(elemWrapper)
+            .addClass('group-column-filter')
+            .addClass('icon')
+            .addClass('icon-starts-with')
+            .attr('title', 'Filter for users assigned to this group. Use [Shift] to select multiple groups.')
+            .click(function(e) {
+
+                $(this).toggleClass('active');
+
+                let isActive = $(this).hasClass('active');
+
+                if(!e.shiftKey) $('.icon-starts-with').removeClass('active');
+
+                $('#users-groups-grid-tbody').children().removeClass('hidden');
+
+                if(isActive) $(this).addClass('active');
+
+                let listActive = $('.icon-starts-with.active');
+
+                listActive.each(function() {
+
+                    let elemCell = $(this).closest('th');
+                    let index    = elemCell.index() + 3;
+
+                    $('#users-groups-grid-tbody').children().each(function() {
+                        
+                        let elemParent = $(this).find('td:nth-child(' + index + ')');
+                        let isSelected = elemParent.find('.icon-check').length > 0;
+
+                        if(!isSelected) elemParent.closest('tr').addClass('hidden');
+
+                    });
+                    
+                });
+
+            });
+
+        $('<div></div>').appendTo(elemWrapper)
+            .addClass('icon')
+            .addClass('icon-select-all')
+            .addClass('group-column-toggle')
+            .attr('title', 'Select / deselect all')
+            .click(function(e) {
+                
+                let elemIcon = $(this);
+                let index    = $(this).closest('th').index() + 3;
+
+                elemIcon.toggleClass('selected-all');
+
+                let select = elemIcon.hasClass('selected-all');
+
+                $('#users-groups-grid-tbody').children().each(function() {
+
+                    let elemCell = $(this).find('td:nth-child(' + index + ')');
+                    toggleUserGroupAssignment(elemCell, select); 
+
+                });
+            })
+
+        $('<div></div>').appendTo(elemWrapper).addClass('group-column-name').html(group.shortName);
+        $('<div></div>').appendTo(elemWrapper).addClass('group-column-users').html(group.users.length);
+
+    }
+
+    for(let user of listUsers) {
+
+        let elemRow = $('<tr></tr>')
+            .addClass('row-user')
+            .addClass('row-user-' + user.userId)
+            .attr('data-id', user.userId);
+
+        if(isBlank(user.lastLoginTime)) elemRow.addClass('new');
+
+        let elemCheckbox = $('<td></td>').appendTo(elemRow).addClass('user-group-checkbox');
+
+        $('<div></div>').appendTo(elemCheckbox)
+            .addClass('icon')
+            .addClass('icon-check-box')
+            .click(function() {
+                $(this).toggleClass('icon-check-box').toggleClass('icon-check-box-checked');
+            });
+
+        $('<td></td>').appendTo(elemRow).html(user.displayName).addClass('user-group-name');
+
+        $('<td></td>').appendTo(elemRow)
+            .addClass('icon')
+            .addClass('icon-ends-with')
+            .addClass('user-groups-filter')
+            .attr('title', 'Filter for groups assigned to this user')
+            .click(function() {
+
+                $(this).toggleClass('active');
+
+                let isActive = $(this).hasClass('active');
+
+                $('.icon-ends-with').removeClass('active');
+                $('.group-column').removeClass('hidden');
+                $('.user-group-toggle').removeClass('hidden');
+
+                if(isActive) {
+
+                    $(this).addClass('active');
+
+                    let elemRow = $(this).closest('tr');
+                    
+                    $('.group-column').each(function() {
+                        
+                        let elemColumn = $(this);
+                        let index      = elemColumn.index() + 3;
+                        let elemCell   = elemRow.find('td:nth-child(' + index + ')');
+                        let isSelected = elemCell.find('.icon-check').length > 0;
+
+                        if(!isSelected) {
+                            
+                            elemColumn.addClass('hidden');
+
+                            $('#users-groups-grid-tbody').children().each(function() {
+                                let elemCellToggle = $(this).find('td:nth-child(' + index + ')');
+                                    elemCellToggle.addClass('hidden');
+                            });
+   
+                        }
+
+                    });
+    
+                }
+
+            });
+
+        for(let group of listGroups) {
+
+            let elemCell   = $('<td></td>').appendTo(elemRow)
+                .addClass('column-group-' + group.id)
+                .addClass('user-group-toggle');
+
+            let elemIcon   = $('<div></div>').appendTo(elemCell).addClass('user-group-toggle-icon').addClass('icon');
+
+            for(let groupUser of group.users) {
+                if(user.userId === groupUser.userId) {
+                    elemCell.addClass('assigned');
+                    elemIcon.addClass('icon-check');
+                }
+            }
+
+            if(!elemCell.hasClass('assigned')) elemIcon.addClass('icon-radio-unchecked')
+
+            elemCell.click(function(e) {
+                clickUserGroupToggle(e, $(this));
+            });
+                
+        }
+
+        elemRow.appendTo(elemTBody);
+
+    }
+
+    $('#show-users-groups-grid').removeClass('disabled');
+
+}
+function filterUserGroupsRows() {
+
+    let elemTBody = $('#users-groups-grid-tbody');
+    let value     = $('#users-groups-grid-filter').val();
+
+    elemTBody.children().show();
+
+    switch(value) {
+
+        case 'cha':
+            elemTBody.children().each(function() { if($(this).find('.changed').length === 0) $(this).hide(); });
+            break;
+
+        case 'new':
+            elemTBody.children().hide();
+            elemTBody.children('.new').show();
+            break;
+
+        case 'sel':
+            elemTBody.children().each(function() { if($(this).find('.icon-check-box-checked').length === 0) $(this).hide(); });
+            break;            
+
+        case 'nog':
+            elemTBody.children().each(function() { if($(this).find('.assigned').length > 0) $(this).hide(); });
+            break;            
+
+        case 'noc':
+            elemTBody.children().each(function() { if($(this).find('.changed').length > 0) $(this).hide(); });
+            break;
+
+        case 'old':
+            elemTBody.children().show();
+            elemTBody.children('.new').hide();
+            break;
+
+        case 'des':
+            elemTBody.children().each(function() { if($(this).find('.icon-check-box-checked').length > 0) $(this).hide(); });
+            break;   
+
+    }
+
+}
+function clickUserGroupToggle(e, elemClicked) {
+
+    let elemLast = $('.user-group-toggle.last').first();
+
+    if((e.shiftKey) && (elemLast.length > 0)) {
+
+        let selected = elemLast.find('.icon-check').length > 0;
+        let xStart   = elemLast.index();
+        let yStart   = elemLast.closest('tr').index();
+        let xEnd     = elemClicked.index();
+        let yEnd     = elemClicked.closest('tr').index();
+
+        if(xStart > xEnd) { xStart = xEnd; xEnd = elemLast.index();}
+        if(yStart > yEnd) { yStart = yEnd; yEnd = elemLast.closest('tr').index(); }
+
+        for(let iCol = xStart; iCol <= xEnd; iCol++) {
+            for(let iRow = yStart; iRow <= yEnd; iRow++) {
+                let elemRow  = $('#users-groups-grid-tbody tr').eq(iRow);
+                let elemCell = elemRow.find('td').eq(iCol);
+                if(!elemRow.hasClass('hidden')) {
+                    if(!elemCell.hasClass('hidden')) {
+                        toggleUserGroupAssignment(elemCell, selected);                
+                    }
+                }
+            }
+        }
+
+    } else {
+
+        let select = elemClicked.find('.icon-check').length === 0;
+        toggleUserGroupAssignment(elemClicked, select);
+
+    }
+
+    $('.user-group-toggle').removeClass('last');
+    elemClicked.addClass('last');
+
+}
 function updateUserGroupsAssignments(close) {
 
     $('#users-groups-grid-processing').show();
@@ -1495,6 +1816,20 @@ function updateUserGroupsAssignments(close) {
     applyUsersGroupsChanges(changes, close);
 
     $('#users-groups-grid-tbody').find('.changed').removeClass('changed');
+
+}
+function toggleUserGroupAssignment(elemCell, select) {
+
+    elemCell.removeClass('changed');
+
+    let elemIcon   = elemCell.children().first();
+    let isAssigned = elemCell.hasClass('assigned');
+
+    if(select) elemIcon.addClass('icon-check').removeClass('icon-radio-unchecked');
+            else elemIcon.removeClass('icon-check').addClass('icon-radio-unchecked');
+
+    if(isAssigned) { if(elemIcon.hasClass('icon-radio-unchecked')) elemCell.addClass('changed'); }
+              else { if(elemIcon.hasClass('icon-check'          )) elemCell.addClass('changed'); }
 
 }
 function applyUsersGroupsChanges(changes, close) {
@@ -1612,10 +1947,9 @@ function endProcessing() {
     $('#start').removeClass('disabled');
 
     if((assignments.remove.length > 0) || (assignments.add.length > 0)) {
-        getUsers();
+        // getUsers();
         getGroups();
     }
-
 
 }
 
@@ -1634,7 +1968,7 @@ function setAssignments() {
 
     } else {
 
-        addLogEntry('Seeting Groups (remove ' + assignments.remove.length + ', add ' + assignments.add.length + ')', 'head');
+        addLogEntry('Setting Groups (remove ' + assignments.remove.length + ', add ' + assignments.add.length + ')', 'head');
         addLogSpacer();
 
         if(assignments.add.length > 0) assignGroups(0);
@@ -1706,7 +2040,6 @@ function removeGroups(index) {
 }
 
 
-
 // #2 Apply Workspace Views
 function setWorkspaceViews() {
 
@@ -1765,10 +2098,12 @@ function getTableaus(index) {
         
         limit += index;
 
+       
+
         for(let i = index; i < limit; i++) {
             let view = views[i];
             requests.push($.get('/plm/tableau-columns', { link : view.link }));
-            addLogEntry(view.title, 'notice');
+            addLogEntry(view.workspace + ' | ' + view.title, 'notice');
         }
 
         Promise.all(requests).then(function(responses) {
@@ -1807,9 +2142,15 @@ function updateUserWorkspaceViews(indexUser, indexView) {
 
             $.get('/plm/tableaus', params, function(response) {
 
-                if(response.status === 403) {
+                if(response.status === 401) {
 
-                    addLogEntry('Error copying view ' + views[indexView].workspace + ' | ' + views[indexView++].title, 'error');
+                    addLogEntry("Can't copy view <strong>" + views[indexView].title + '</strong> (user is new / not mapped)', 'error');
+                    indexView++;
+
+                } else if(response.status === 403) {
+
+                    addLogEntry("User has no access to <strong>" + views[indexView].workspace + '</strong>', 'error');
+                    indexView++;
 
                 } else {
 
@@ -1830,9 +2171,9 @@ function updateUserWorkspaceViews(indexUser, indexView) {
                                             user         : user.eMail
                                         };
                                         requests.push($.post('/plm/tableau-update', paramsUpdate));
-                                        addLogEntry('Updating existing view ' + view.title, 'notice');
+                                        addLogEntry('Updating existing view <strong>' + view.title + '</strong> in <strong>' + view.workspace + '</strong>', 'notice');
                                     } else {
-                                        addLogEntry('Skipping existing view ' + view.title, 'notice');
+                                        addLogEntry('Skipping existing view <strong>' + view.title + '</strong> in <strong>' + view.workspace + '</strong>', 'notice');
                                     }
                                 }
                             }
@@ -1861,7 +2202,7 @@ function updateUserWorkspaceViews(indexUser, indexView) {
                                     user         : user.eMail
                                 };
                                 requests.push($.post('/plm/tableau-clone', paramsCreate))
-                                addLogEntry('Creating view ' + view.title, 'notice');
+                                addLogEntry('Creating view <strong>' + view.title + '</strong> in <strong>' + view.workspace + '</strong>', 'notice');
                             }
                         }
                     }   
@@ -1943,23 +2284,31 @@ function updateUserCharts(index) {
 
                 if(requests.length < 9) {
                     requests.push($.get('/plm/chart-set', { 
-                        title : $(this).attr('data-sort'),
-                        index : iChart++, 
-                        link : link, 
-                        eMail : user.eMail, 
-                        userId : user.userId
+                        title  : $(this).attr('data-sort'),
+                        index  : iChart++, 
+                        link   : link, 
+                        eMail  : user.eMail, 
+                        userId : user.userId,
+                        action : 'add'
                     }));
                 }
 
             });
 
-            for(iChart; iChart <= count; iChart++) requests.push($.get('/plm/chart-set', { index : iChart, eMail : user.eMail, userId : user.userId}));
+            for(iChart; iChart <= count; iChart++) requests.push($.get('/plm/chart-set', { index : iChart, eMail : user.eMail, userId : user.userId, action : 'remove'}));
 
             Promise.all(requests).then(function(responses) {
+                let countRemoved = 0;
                 for(let response of responses) {
                     if(response.error) addLogEntry('Error adding chart ' + response.params.title, 'error');
-                    else addLogEntry('Added chart ' + response.params.title, 'success');
+                    else if(response.params.action === 'remove') {
+                        countRemoved++;
+                    } else if(response.params.action === 'add') {
+                        addLogEntry('Added chart ' + response.params.title, 'success');
+                    }
                 }
+                if(countRemoved > 0) addLogEntry('Removed ' + countRemoved + ' charts', 'success');
+
                 updateUserCharts(++index);
             });
 

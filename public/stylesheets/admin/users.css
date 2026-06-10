@@ -5,8 +5,8 @@
     --panel-border-width-v  : 34px;
     --panel-border-width-h  : 42px;
     --panel-border-width-b  : 24px;
-    --width-users           : 380px;
-    --width-console         : 440px;
+    --width-users           : 400px;
+    --width-console         : 460px;
 
 }
 
@@ -20,7 +20,7 @@
 }
 #controls {
     border-width    : var(--panel-border-width-v) var(--panel-border-width-h) var(--panel-border-width-b);
-    bottom          : 86px;
+    bottom          : 68px;
     top             : 0px;
     right           : calc(var(--width-console) + (2 * var(--panel-border-width-h)));
     left            : calc(var(--width-users) + (2 * var(--panel-border-width-h)));
@@ -43,7 +43,7 @@
     top             : 0px;
     right           : 0px;
     bottom          : 0px;
-    width           : var(--width-console);
+    width           : var(--width-console) !important;
 }
 
 
@@ -73,8 +73,8 @@ body.no-console #console { right : calc(-10px - var(--width-console) - var(--pan
     border       : 1px solid transparent;
     cursor       : pointer;
     display      : flex;
-    gap          : 6px;
-    line-height  : 26px;
+    gap          : 4px;
+    line-height  : 24px;
 }
 .list > div:hover {
     border-color : var(--color-hover-border);
@@ -83,7 +83,7 @@ body.no-console #console { right : calc(-10px - var(--width-console) - var(--pan
 .list .icon {
     font-size   : 18px;
     font-weight : 300;
-    line-height : 26px;
+    line-height : 24px;
     text-align  : center;
     max-width   : 28px;
     min-width   : 28px;
@@ -108,29 +108,36 @@ body.no-console #console { right : calc(-10px - var(--width-console) - var(--pan
     justify-content : space-between;
 }
 .list-header > .list-title {
-    line-height : 38px;
-    padding : 0px 0px 0px 20px;
+    line-height : 34px;
+    padding     : 0px 0px 0px 16px;
 }
 .list-toolbar {
-    background   : var(--color-surface-level-2);
+    background   : var(--color-surface-level-1);
     display      : flex;
-    gap          : 2px;
-    height       : 38px;
-    padding-left : 2px;
+    gap          : 1px;
+    height       : 34px;
+    padding-left : 1px;
 }
 .list-filter {
-    padding-left : 20px;
     width        : 100px;
+    height       : 20px;
+    line-height  : 20px;
+    padding      : 7px 16px;
 }
 .list-toolbar > .button {
     background    : var(--color-surface-level-4) !important;
     border-radius : 0px;
     border        : none;
-    height        : 38px;
-    min-width     : 38px;
+    height        : 34px;
+    min-width     : 34px;
 }
 .list-toolbar > .button.active {
     background    : var(--color-yellow-500) !important;
+}
+.list-toolbar > div:hover {
+    box-shadow : none !important;
+    border-color : var(--color-hover-border) !important;
+    background : var(--color-hover-border) !important;
 }
 
 
@@ -142,10 +149,12 @@ body.no-console #console { right : calc(-10px - var(--width-console) - var(--pan
     left       : 0px;
 }
 #groups-header      { top : 68px; }
-#groups             { top : 108px; bottom : 60%; }
+#groups             { top : 104px; bottom : 60%; }
+#groups-processing  { top : 144px; bottom : 60%; }
 #users-header       { top : calc(40% +  32px); }
-#users-group-filter { top : calc(40% +  72px); height : 38px; text-align : left; }
-#users              { top : calc(40% + 112px); bottom : 0px; }
+#users-group-filter { top : calc(40% +  68px); height : 34px; text-align : left; }
+#users              { top : calc(40% + 104px); bottom : 0px; }
+#users-processing   { top : calc(40% + 144px); bottom : 0px; }
 
 .user-login { 
     display         : flex;
@@ -223,8 +232,8 @@ body.no-console #console { right : calc(-10px - var(--width-console) - var(--pan
     top : 90px;
 }
 #views-list {
-    top    : 129px;
-    bottom : 52px;
+    top    : 125px;
+    bottom : 48px;
 }
 #views-list > div.is-default > .default-view::before {
     content : '\e9f6';
@@ -241,8 +250,8 @@ body.no-console #console { right : calc(-10px - var(--width-console) - var(--pan
 .list-footer {
     display         : flex;
     gap             : 8px;
-    height          : 38px;
-    line-height     : 38px;
+    height          : 34px;
+    line-height     : 34px;
     justify-content : center;
     position        : absolute;
     right           : 0px;
@@ -252,6 +261,10 @@ body.no-console #console { right : calc(-10px - var(--width-console) - var(--pan
 .views-delete-check {
     cursor      : pointer;
     line-height : 38px;
+}
+.views-delete-check::before {
+    font-size   : 20px;
+    font-weight : 300;
 }
 #views-label {
     flex-grow : 1;
@@ -272,7 +285,7 @@ body.no-console #console { right : calc(-10px - var(--width-console) - var(--pan
     top : 90px;
 }
 #charts-list {
-    top    : 129px;
+    top    : 125px;
     bottom : 0px;
 }
 #charts-list .label { width : calc(50% - 54px - 24px); }
@@ -301,7 +314,7 @@ body.no-console #console { right : calc(-10px - var(--width-console) - var(--pan
     top : 90px;
 }
 #assignment-list {
-    top    : 129px;
+    top    : 125px;
     bottom : 0px;
 }
 #assignment-list > div {
@@ -324,10 +337,15 @@ body.no-console #console { right : calc(-10px - var(--width-console) - var(--pan
 .group-assignment.action-remove .button-group-remove {
     background   : var(--color-status-red);
     border-color : var(--color-status-red);
+    color        : white !important;
 }
 .group-assignment.action-add .button-group-add {
     background   : var(--color-status-green);
     border-color : var(--color-status-green);
+    color        : white !important;
+}
+.group-assignment .group-name {
+    max-width : unset !important;
 }
 #assignment-list .icon-radio-unchecked::before {
     font-weight : 100;
@@ -406,7 +424,7 @@ body.no-console #console { right : calc(-10px - var(--width-console) - var(--pan
 }
 #new-single-user-groups-list {
     position   : absolute;
-    top        : 38px;
+    top        : 36px;
     right      : 0px;
     bottom     : 0px;
     left       : 0px;
@@ -429,6 +447,7 @@ body.no-console #console { right : calc(-10px - var(--width-console) - var(--pan
     white-space   : nowrap;
 }
 .group-count {
+    font-size  : 12px;
     max-width  : 36px;
     min-width  : 36px;
     width      : 36px;
@@ -494,7 +513,7 @@ th.mail-column{
 }
 .group-column {
     border-left : 1px solid var(--color-surface-level-1);
-    height      : 260px;
+    height      : 290px;
     padding     : 0px;
     max-width   : 30px;
     min-width   : 30px;
@@ -510,7 +529,7 @@ th.mail-column{
     gap             : 10px;
     justify-content : space-between;
     transform       : rotate(-90deg);
-    width           : 240px;
+    width           : 270px;
 }
 .group-column-toggle,
 .group-column-filter,
@@ -623,24 +642,25 @@ tr:hover .row-actions {
 }
 #users-groups-grid td {
     border-left : 1px solid var(--color-surface-level-1);
-    height      : 30px;
+    height      : 26px;
     padding     : 0px;
 }
 .user-group-toggle {
     text-align : center;
 }
 .user-group-checkbox {
-    cursor : pointer;
+    cursor     : pointer;
     background : var(--color-surface-level-4) !important;
     text-align : center;
-    max-width : 32px;
-    min-width : 32px;
-    width : 32px;
+    max-width  : 30px;
+    min-width  : 30px;
+    width      : 30px;
     
 }
 .user-group-checkbox > .icon {
-    font-size : 20px;
-    line-height : 30px;
+    font-size   : 18px;
+    font-weight : 300;
+    line-height : 26px;
 }
 #users-groups-grid td.user-group-name { 
     left     : 28px;
@@ -654,19 +674,20 @@ tr:hover .row-actions {
 .user-group-name {
     max-width : 200px;
     min-width : 200px;
-    width : 200px;
-    overflow : hidden;
+    width     : 200px;
+    overflow      : hidden;
     text-overflow : ellipsis;
-    white-space: nowrap;
+    white-space   : nowrap;
 }
 .user-group-toggle > .icon {
-    cursor : pointer;
-        line-height : 30px;
-        max-width : 30px;
-    min-width : 30px;
-    max-height : 30px;
-    min-height : 30px;
-    font-size : 20px;
+    cursor      : pointer;
+    font-size   : 18px;
+    font-weight : 300;
+    line-height : 26px;
+    max-width   : 26px;
+    min-width   : 26px;
+    max-height  : 26px;
+    min-height  : 26px;
 }
 .user-group-toggle:hover > div{
     color : var(--color-blue-500);

@@ -9,6 +9,7 @@ let viewerFeatures      = {};
 let responseCache       = [];
 let allWorkspaces       = [];
 let downloadQueue       = [];
+let lastTimer           = new Date();
 
 
 let settings = {}
@@ -1066,6 +1067,23 @@ function getResponseFromCache(url, link) {
     }
 
     return null;
+
+}
+
+
+// Print current time to console
+function printTimer(label) {
+
+    let prefix = label || '';
+    let now    = new Date();
+    let diff   = now.getTime() - lastTimer;
+    let time   = now.toTimeString().split(' ')[0];
+
+    if(prefix !== '') prefix += ' - ';
+
+    console.log(prefix + time + ' + ' + (diff/1000) );
+
+    lastTimer = now.getTime();
 
 }
 

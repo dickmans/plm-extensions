@@ -17,9 +17,9 @@ block body
             #header-title=title
             #header-subtitle Improve user experience for new and existing users
             #header-toolbar
-                #show-new-single-user.button.with-icon.icon-create(title="Create new single user in your tenant") Add New User
-                #show-new-multi-users.button.with-icon.icon-create-multiple(title="Create multiple new users in your tenant") Add Multiple Users
-                #show-users-groups-grid.button.with-icon.icon-table(title="Review and adjust the groups assigned to the users") Group Assignment
+                .button.with-icon.disabled#show-new-single-user.icon-create(title="Create new single user in your tenant") Add New User
+                .button.with-icon.disabled#show-new-multi-users.icon-create-multiple(title="Create multiple new users in your tenant") Add Multiple Users
+                .button.with-icon.disabled#show-users-groups-grid.icon-table(title="Assign/unassign the selected users to the selected groups") Group Assignment
                 #header-avatar
         .screen.surface-level-1
 
@@ -27,20 +27,30 @@ block body
                 .text Select the groups and / or users that should be updated.<br>Your account is excluded as it will never be updated.
                 .list-header.surface-level-4#groups-header 
                     .list-title Groups 
-                    .list-toolbar 
+                    .list-toolbar#groups-toolbar.hidden 
+                        .button.icon.icon-refresh#groups-reload(title='Reload the list of Groups')
                         .button.icon.icon-select-all.groups-select-all(title='Select All')
                         .button.icon.icon-deselect-all.groups-deselect-all(title='Deselect All')
                         input.list-filter.surface-level-3.groups-filter(placeholder='Type to filter')
-                .list#groups.surface-level-1
+                .list#groups.surface-level-1.hidden
+                #groups-processing.processing   
+                    .bounce1
+                    .bounce2
+                    .bounce3                
                 .list-header.surface-level-4#users-header 
                     .list-title Users 
-                    .list-toolbar 
+                    .list-toolbar#users-toolbar.hidden 
+                        .button.icon.icon-refresh#users-reload(title='Reload the list of Users')
                         .button.icon.icon-select-all#users-select-all(title='Select All')
                         .button.icon.icon-deselect-all#users-deselect-all(title='Deselect All')
                         .button.icon.icon-contains#users-filter-new(title='Filter for new users that never logged in yet')
                         input.list-filter.surface-level-3#users-filter(placeholder='Type to filter')
                 select#users-group-filter.button(name="")
-                .list#users.surface-level-1
+                .list#users.surface-level-1.hidden
+                #users-processing.processing   
+                    .bounce1
+                    .bounce2
+                    .bounce3
 
             #controls.surface-level-1 
 
@@ -56,9 +66,10 @@ block body
                         |Per default, the user list of each group will not be changed at all.
                     .list-header.surface-level-4#assignment-header 
                         .list-title Groups 
-                        .list-toolbar 
+                        .list-toolbar#assignment-toolbar.hidden 
+                            .button.icon.icon-refresh#assignment-reload(title='Reload the list of Groups')
                             .button.icon.icon-remove#assignment-remove-all(title='Remove All Groups')
-                            .button.icon.icon-check#assignment-reset-all(title='Reset All Groups')
+                            .button.icon.icon-check#assignment-reset-all(title='Skip All Groups')
                             .button.icon.icon-create#assignment-add-all(title='Add All Groups')
                             input.list-filter.surface-level-3#assignment-filter(placeholder='Type to filter')
                     .list#assignment-list   
@@ -69,13 +80,14 @@ block body
                         .button#views-force.with-icon.icon-toggle-off(title='When enabled, existing views will be updated') Force Update
                     .list-header.surface-level-4#views-header 
                         .list-title Your Views 
-                        .list-toolbar 
+                        .list-toolbar#views-toolbar.hidden 
+                            .button.icon.icon-refresh#views-reload(title='Reload the list of Workspace Views')
                             .button.icon.icon-bookmark#views-my-defaults(title='Set default toggles to match your defaults')
                             .button.icon.icon-bookmark-off#views-clear-defaults(title='Clear all default toggles')
                             .button.icon.icon-select-all#views-select-all(title='Select All')
                             .button.icon.icon-deselect-all#views-deselect-all(title='Deselect All')
                             input.list-filter.surface-level-3#views-filter(placeholder='Type to filter')
-                    .list#views-list    
+                    .list#views-list.hidden    
                     .list-footer 
                         .views-delete-check.icon.icon-check-box#views-check-box
                         .views-delete-check.label#views-label Delete existing views in workspaces that will be updated
@@ -85,7 +97,8 @@ block body
                     .instructions Select the charts to be added to the users's landing page. You can copy shared charts only. If you do not select any chart, the landing page will not be modified. Once you select at least one chart, each user's landing page will be reset to display the selected chart(s) only.
                     .list-header.surface-level-4#charts-header 
                         .list-title Available Charts 
-                        .list-toolbar 
+                        .list-toolbar#charts-toolbar 
+                            .button.icon.icon-refresh#charts-reload(title='Reload the list of Charts')
                             .button.icon.icon-bookmark#charts-my-defaults(title='Select the charts available in your dashboard')
                             .button.icon.icon-select-all#charts-select-all(title='Select All')
                             .button.icon.icon-deselect-all#charts-deselect-all(title='Deselect All')
@@ -113,7 +126,7 @@ block body
                         .counter#count-theme 
                 .buttons    
                     .button.disabled.with-icon.icon-stop#stop Stop
-                    .button.default.with-icon.icon-start#start Start
+                    .button.disabled.default.with-icon.icon-start#start Start
 
             #console.surface-level-4
                 #console-header.surface-level-4 Console                    
