@@ -181,7 +181,7 @@ td.spr i { background: var(--color-status-green ); }
 .node-header {
     display : flex;
     gap     : 10px;
-    height  : 38px;
+    height  : 34px;
 }
 .node-title {
     background   : var(--color-surface-level-2);
@@ -236,22 +236,22 @@ td.spr i { background: var(--color-status-green ); }
     border-color : var(--color-surface-level-3);
     flex-grow    : 1;
     gap          : 12px;
-    max-height   : 36px;
-    min-height   : 36px;
-    height       : 36px;
+    max-height   : 32px;
+    min-height   : 32px;
+    height       : 32px;
     width        : unset !important;
 }
 .list-item-quantity {
     background   : var(--color-surface-level-2);
     border-color : var(--color-surface-level-4);
-    max-height   : 30px;
-    min-height   : 30px;
-    height       : 30px;
-    line-height  : 30px;
-    max-width    : 36px;
-    min-width    : 36px;
+    max-height   : 26px;
+    min-height   : 26px;
+    height       : 26px;
+    line-height  : 26px;
+    max-width    : 32px;
+    min-width    : 32px;
     padding      : 3px 12px 3px;
-    width        : 36px;
+    width        : 32px;
     text-align   : right;
 }
 .items-list-row > .tile > .tile-image {
@@ -263,10 +263,10 @@ td.spr i { background: var(--color-status-green ); }
     width       : 52px !important;
 }
 .tiles.list.xs .tile-counter {
-    line-height : 36px;
+    line-height : 32px;
 }
 .tiles.list.xs .tile-title { 
-    line-height : 36px; 
+    line-height : 32px; 
 }
 .items-list-row.drag-hover .tile-image {  
     background : var(--color-yellow-800) ; 

@@ -1349,7 +1349,7 @@ function removeBOMItems(action) {
                 let edgeId     = elemItem.attr('data-edgeid');
 
                 if(!isBlank(linkParent)) {
-                    requests.push($.get('/plm/bom-remove', {
+                    requests.push($.post('/plm/bom-remove', {
                         link   : linkParent,
                         edgeId : edgeId
                     }));
