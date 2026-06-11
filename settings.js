@@ -1778,18 +1778,24 @@ exports.chrome = {
         url        : '/service?',
         label      : 'Service Portal',
         icon       : 'zmdi-wrench',
-        workspaces : ['items']        
+        workspaces : ['items']      
+    },{
+        id         : 'insights-context',
+        url        : '/explorer?options=fieldIdEBOM:ENGINEERING_BOM&',
+        label      : 'Insights',
+        icon       : 'zmdi-chart',
+        workspaces : ['products', 'assets']                   
+    },{
+        id         : 'insights-epm',
+        url        : '/explorer?options=fieldIdEBOM:DELIVERABLE_4&',
+        label      : 'Insights',
+        icon       : 'zmdi-chart',
+        workspaces : ['engineeringProjects']                   
     },{
         id         : 'mbom-products',
         url        : '/mbom?options=contextfieldidebom:ENGINEERING_BOM,contextfieldidmbom:MANUFACTURING_BOM&',
         label      : 'Edit MBOM',
-        workspaces : ['products']      
-    },{
-        id         : 'insights-asset',
-        url        : '/explorer?options=fieldIdEBOM:ENGINEERING_BOM&',
-        label      : 'Insights',
-        icon       : 'zmdi-chart',
-        workspaces : ['assets']  
+        workspaces : ['products']
     },{
         id         : 'mbom-assets',
         url        : '/mbom?options=contextfieldidebom:ENGINEERING_BOM,contextfieldidmbom:MANUFACTURING_BOM&',

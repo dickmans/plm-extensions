@@ -59,7 +59,7 @@ $(document).ready(function() {
         workspaces = responses[0].data;
         
         if(!isBlank(urlParameters.fieldidebom)) {
-            urlParameters.bom = getSectionFieldValue(responses[0].data.sections, urlParameters.fieldidebom, '');
+            urlParameters.bom = getSectionFieldValue(responses[1].data.sections, urlParameters.fieldidebom, '');
             wsItems.id = urlParameters.bom.split('/')[4];
         } else if(isBlank(urlParameters.wsid)) {
             wsItems.id = common.workspaceIds.items;
