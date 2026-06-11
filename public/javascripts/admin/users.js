@@ -419,11 +419,10 @@ function getUsers() {
         $('#users-processing').addClass('hidden');        
         $('#users-group-filter').removeClass('hidden');
 
-        completed.users = true;
-
         if(splitLoad) {
             getUsersDetails();
         } else {
+            completed.users = true;
             $('#start').removeClass('disabled');
             insertUsersGroupsGrid(dataGroups, dataUsers);
         }
@@ -498,6 +497,7 @@ function getUsersDetails() {
         }
 
         completed.users = true;
+        if(completed.groups) $('#start').removeClass('disabled');
         
     })
 
@@ -586,17 +586,16 @@ function getGroups() {
         $('#groups-toolbar').removeClass('hidden');
         $('#groups-processing').addClass('hidden');
 
-        completed.groups = true;
+        
 
         insertGroupAssignment();
         insertGroupSelector();
         insertGroupColumns();
 
-        $('#start').removeClass('disabled');
-
         if(splitLoad) { 
             getGroupDetails();
         } else {
+            completed.groups = true;
             $('#start').removeClass('disabled');
             $('#users-group-filter').removeAttr('disabled');
             insertUsersGroupsGrid(dataGroups, dataUsers);
@@ -642,8 +641,12 @@ function getGroupDetails() {
 
         }
 
+        completed.groups = true;
+
         $('#users-group-filter').removeAttr('disabled');
         $('#show-users-groups-grid').removeClass('disabled');
+
+        if(completed.users) $('#start').removeClass('disabled');
 
     });
 

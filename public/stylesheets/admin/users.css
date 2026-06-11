@@ -33,7 +33,7 @@
     left     : calc(50% - 400px);
 }
 #toolbar {
-    border-width    : var(--panel-border-width-b) var(--panel-border-width-h) var(--panel-border-width-v);
+    border-width    : 0px var(--panel-border-width-h) var(--panel-border-width-v);
     right           : calc(var(--width-console) + (2 * var(--panel-border-width-h)));
     bottom          : 0px;
     left            : calc(var(--width-users) + (2 * var(--panel-border-width-h)));
@@ -260,7 +260,7 @@ body.no-console #console { right : calc(-10px - var(--width-console) - var(--pan
 }
 .views-delete-check {
     cursor      : pointer;
-    line-height : 38px;
+    line-height : 34px;
 }
 .views-delete-check::before {
     font-size   : 20px;
@@ -269,6 +269,7 @@ body.no-console #console { right : calc(-10px - var(--width-console) - var(--pan
 #views-label {
     flex-grow : 1;
 }
+#views-check-box { line-height : 30px; }
 #views-confirm.filled {
     background   : var(--color-status-red);
     border-color : var(--color-status-red);
