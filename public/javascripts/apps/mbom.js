@@ -51,6 +51,7 @@ let paramsoperationsGrid = {
 
 let ebomPartsList      = [];
 let mbomPartsList      = [];
+let templatePartsList  = [];
 let picklistMakeBuy    = [];
 let wsEBOM             = { id : '', sections : [], fields : [], viewId : '', viewFields : [] };
 let wsMBOM             = { id : '', sections : [], fields : [], viewId : '', viewFields : [] };
@@ -76,6 +77,7 @@ $(document).ready(function() {
         if(param[0].toLowerCase() === 'site') {
             siteSuffix = '_' + param[1];
             siteLabel        = param[1];
+            $('#mbom .panel-title-main').html('Manufacturing BOM [' + siteLabel + ']');
         }
     }
 
@@ -98,6 +100,7 @@ $(document).ready(function() {
     getFeatureSettings('mbom', requests, function(responses) {
 
         insertSearchFilters();
+        insertTemplates();
         setUIEvents();
 
         if( config.displayOptions.tabDisassemble  ) $('#mode-disassemble' ).removeClass('hidden');
@@ -107,8 +110,8 @@ $(document).ready(function() {
         let fieldIdEBOM = urlParameters.contextfieldidebom || config.workspaceMBOM.fieldIDs.ebom;
         let fieldIdMBOM = urlParameters.contextfieldidmbom || config.workspaceEBOM.fieldIDs.mbom;
 
-        links.ebom    = getSectionFieldValue(responses[0].data.sections, fieldIdEBOM, '', 'link');
-        links.mbom    = getSectionFieldValue(responses[0].data.sections, fieldIdMBOM + siteSuffix, '', 'link');
+        links.ebom = getSectionFieldValue(responses[0].data.sections, fieldIdEBOM, '', 'link');
+        links.mbom = getSectionFieldValue(responses[0].data.sections, fieldIdMBOM + siteSuffix, '', 'link');
 
         if(urlParameters.wsId == wsEBOM.wsId) {
             if(isBlank(links.ebom)) {
@@ -286,12 +289,29 @@ function setUIEvents() {
     })  
 
 
+    // MBOM Templates
+    $('#insert-template').click(function() {
+        $('#dialog-templates').show();
+        $('#overlay').show();
+    });    
+    $('#template-cancel').click(function() {
+        $('#dialog-templates').hide();
+        $('#overlay').hide();
+    });    
+    $('#template-confirm').click(function() {
+        if($(this).hasClass('disabled')) return;
+        $('#dialog-templates').hide();
+        $('#overlay').hide();
+        confirmTemplate();
+    });    
+
+
     // Controls to add new process in BOM
     $('#mbom-add-process > input').keypress(function (e) { 
         if (e.which == 13) {
             insertNewProcess();
         }
-     });
+    });
     $('#mbom-add-button').click(function (e) { insertNewProcess(); });
 
 
@@ -3148,19 +3168,33 @@ function insertNewProcess() {
     
     if($('#mbom-add-name').val() === '') return;
 
+    let elemNew = insertNewProcessNode($('#mbom-add-name').val(), $('#mbom-add-code').val(), $('#mbom-add-qty').val());
+    
+    selectProcess(elemNew);
+    
+    $('#mbom-add-name').val('');
+    $('#mbom-add-code').val('');
+    $('#mbom-add-qty' ).val('');
+    $('#mbom-add-name').focus();    
+    
+}
+function insertNewProcessNode(title, code, quantity, revision) {
+
     let node = {
         level       : 1,
         bomType     : 'mbom',
-        title       : $('#mbom-add-name').val(),
+        title       : title,
         hasChildren : true,
         isEBOMItem  : false,
         isProcess   : true,
         isLeaf      : false,
         icon        : 'radio-process',
-        code        : $('#mbom-add-code').val(),
-        revision    : '-',
-        quantity    : $('#mbom-add-qty' ).val() || 1
+        code        : code || '',
+        revision    : revision || '-',
+        quantity    : quantity || 1
     }
+
+    console.log(node);
 
     let elemNew = insertBOMPartListNode('mbom', null, node);
     
@@ -3170,14 +3204,9 @@ function insertNewProcess() {
     else elemBOM.append(elemNew);
 
     updateMBOMNumbers();
-    selectProcess(elemNew);
-    
-    $('#mbom-add-name').val('');
-    $('#mbom-add-code').val('');
-    $('#mbom-add-qty' ).val('');
-    $('#mbom-add-name').focus();
-        
-    
+
+    return elemNew;
+
 }
 
 
@@ -3237,6 +3266,62 @@ function setBOMTotalQuantities(linkRoot) {
 
 }
 
+
+// Templates Functionality
+function insertTemplates() {
+
+    let params = config.mbomTemplates.paramsList;
+
+    params.id          = 'template-list';
+    params.onClickItem = function(elemClicked) { selectTemplate(elemClicked); };
+
+    insertResults(wsMBOM.wsId, config.mbomTemplates.filters, params);
+
+}
+function selectTemplate(elemClicked) {
+
+    $('#template-confirm').addClass('disabled');
+
+    let link   = elemClicked.attr('data-link');
+    let params = config.mbomTemplates.paramsPreview;
+
+    params.id              = 'template-preview';
+    params.depth           = 1;
+    params.afterCompletion = function(id, data) { completedTemplate(id, data); };
+
+    templatePartsList = [];
+
+    insertBOM(link, params);
+
+}
+function completedTemplate(id, data) {
+
+    $('#template-confirm').removeClass('disabled');
+
+    templatePartsList = data.bomPartsList;
+
+}
+function confirmTemplate() {
+
+    if(templatePartsList.length === 0) return;
+
+    let fieldIdTitle = config.workspaceMBOM.fieldIDs.title;
+    let fieldIdCode  = config.workspaceMBOM.fieldIDs.code;
+
+    templatePartsList.splice(0,1);
+
+    for(let templatePart of templatePartsList) {
+        console.log(templatePart);
+        let title = templatePart.details[fieldIdTitle];
+        if(typeof title === 'undefined') {
+            title = templatePart.title;
+            title = title.split(' [REV')[0];
+            title = title.split(' - ')[1];
+        }
+        insertNewProcessNode(title, templatePart.details[fieldIdCode], templatePart.quantity);
+    }
+    
+}
 
 
 // Drag & Drop functions
@@ -4131,7 +4216,7 @@ function deleteBOMItems() {
             index--;
 
         for(index; index >= 0; index--) {
-            requests.push($.get('/plm/bom-remove', pendingRemovals[index]));
+            requests.push($.post('/plm/bom-remove', pendingRemovals[index]));
             pendingRemovals.splice(index,1);
         }
 

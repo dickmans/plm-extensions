@@ -827,6 +827,24 @@ exports.applications = {
                 [ 'TYPE', { link : '/api/v3/lookups/CUSTOM_LOOKUP_ITEM_TYPES/options/34' } ],
             ]
         },
+        mbomTemplates : {
+            filters : [{field : 'TITLE', type : '0', comparator : 'contains' , value : 'MBOM Template' }],
+            paramsList : {
+                headerLabel : 'Available Templates',
+                layout      : 'list',
+                contentSize : 'xxs',
+                autoClick   : true,
+                openInPLM   : true,
+                search      : true
+            },
+            paramsPreview : {
+                bomViewName : 'MBOM Transition',      
+                headerLabel : 'descriptor',
+                contentSize : 'xs', 
+                fieldsIn    : ['PROCESS_CODE', 'QUANTITY'],
+                hideNumber  : true,
+            }
+        },
         newProcessDefaults : [ 
             //['TYPE',        { link : '/api/v3/lookups/CUSTOM_LOOKUP_ITEM_TYPES/options/34'      }],
             //['MAKE_OR_BUY', { link : '/api/v3/lookups/CUSTOM_LOOKUP_ITEM_MAKE_OR_BUY/options/2' }] 

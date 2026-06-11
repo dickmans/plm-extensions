@@ -31,7 +31,8 @@ block body
                 .panel-header
                     .panel-title
                         .panel-title-main Manufacturing BOM
-                        .panel-toolbar 
+                        .panel-controls 
+                            #insert-template.button.icon.icon-book(title='Insert template')
                             select#make-buy-filter.button.hidden
                                 option(value = 'all' ) No Filter
                                 option(value = 'empty' ) Empty
@@ -130,6 +131,16 @@ block body
                     .surface-level-2#operations-grid.pos-abs-bottom
 
             .surface-level-3#details
+
+        #dialog-templates.dialog
+            .dialog-header Select template from library
+            .dialog-content
+                .surface-level-2#template-list
+                .surface-level-2#template-preview
+            .dialog-footer
+                #template-confirm.button.default.disabled Confirm
+                #template-cancel.button Cancel
+
 
         #dialog-copy.dialog
             .dialog-header Copy / Move Item

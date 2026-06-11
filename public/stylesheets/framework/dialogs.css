@@ -4,7 +4,7 @@
     background      : var(--color-surface-level-1);
     border-radius   : 4px;
     border-width    : 26px 40px !important;
-    box-shadow      : 0px 0px 16px rgba(0, 0, 0, 0.2);
+    box-shadow      : 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
     display         : none;
     position        : absolute;
     top             : 100px;
@@ -28,7 +28,7 @@
     border-radius   : 4px 4px 0px 0px;
     display         : flex;
     font-size       : 22px;
-    font-weight     : 800;
+    font-weight     : 700;
     height          : 22px;
     line-height     : 22px;
     padding         : 24px 40px 24px;

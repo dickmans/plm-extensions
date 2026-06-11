@@ -18,6 +18,7 @@
             li Define manufacturing instructions per item (including attachments and viewer screenshots)
             li Set the Make/Buy flag for all items in the MBOM 
             li Export the list of purchased parts to Excel
+            li Build new MBOMs quickly by inserting proesses from templates
         h1 Important - Read before proceeding
         p This editor helps in transitioning an Engineering BOM to a Manufacturing BOM. This may involve one or two item workspaces, depending on your tenant configuration and preference. If your tenant only has the single 
             strong Items 
@@ -435,6 +436,27 @@
             span.code newProcessDefaults
             |. You can provide an array of all the fields to be populated with default values. The default settings file provides a placeholder example to explain the required structure. As shown in the example below, each default value requires the field's ID (TYPE) and given value property.
         img.border(src='images/apps/mbom-editor-9.png' style='width:100%;max-width:812px;')
+        h1 Setup Step #7 : Templates (optional)
+        p Creation of processes in the MBOM can be based on predefined templates, saving time while also establishing common standard routings easily. For this capability, you will have to create the given template BOMs in your tenant and also review the given configuration settings.
+        h2 Create Templates 
+        p Templates are defined by Items matching a defined filter condition. The first level of these BOMs then is used to define the template structure. If a Process Code and Quantity are defined in the template, they will be reused then copying the template into a MBOM. The default configuration will use all items having 
+            strong MBOM Template 
+            |in their title and offer these Items' BOMs as templates. This filter condition can be adjusted using the configuration settings.
+        img.border(src='images/apps/mbom-editor-17.png' style='width:100%;max-width:720px;')            
+        h2 Template Configuration Settings
+        p The template functionality can be adjusted by     
+            span.code exports.applications.mbom.mbomTemplates
+            |. 
+            br
+            |See details about these settings in the section 
+            strong Application Configuration Settings 
+            |at bottom of this page.
+        img.border(src='images/apps/mbom-editor-19.png' style='width:100%;max-width:720px;')
+        h2 Inserting Templates
+        p The template library icon on top of the MBOM provides access to all templates available. Once a template has been selected, a preview of the template's BOM is displayed. By clicking 
+            strong Confirm
+            |, the entries will be copied as new processes to the MBOM.
+        img.border(src='images/apps/mbom-editor-18.png' style='width:100%;max-width:900px;')    
         h1 Application Configuration Settings
         p The following application specific settings can be adjusted in your custom settings file in 
             span.code exports.applications.mbom 
@@ -509,6 +531,24 @@
                 td mbomRoot.defaultValues
                 td [..]
                 td Defines list of default values for the new MBOM item being created  
+        h2 MBOM Templates
+        table.row-hovering
+            tr 
+                th Setting 
+                th Default Value
+                th Description
+            tr 
+                td mbomTemplates.filters
+                td [..]
+                td Defines a list of fields that will be used to search for available templates
+            tr 
+                td mbomTemplates.paramsList
+                td {..}
+                td This set of parameters controls the display of the available templates and is based on the capabilities of insertResults().
+            tr 
+                td mbomTemplates.paramsPreview
+                td {..}
+                td This set of parameters controls the display of the selected template's BOM preview and is based on the capabilities of insertBOM().
         h2 Additional Settings 
         table.row-hovering
             tr 
@@ -649,6 +689,10 @@
     .log 
         h1 MBOM Editor Change Log 
         table      
+            tr 
+                td 11. June 2026
+                td New Feature
+                td Added capability to insert MBOM templates. See installation instructions for required adjustments.
             tr 
                 td 8. April 2026
                 td Configuration Settings Update

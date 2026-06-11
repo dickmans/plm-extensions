@@ -42,7 +42,7 @@
 }
 .adsk-viewing-viewer .adsk-button-icon { padding-top : 1px; }
 .adsk-viewing-viewer .adsk-button { margin: 1px ! important; }
-.panel-title { text-align : center; }
+/* .panel-title { text-align : center; } */
 .panel-nav { 
     display         : flex;
     height          : 48px;
@@ -378,9 +378,16 @@ body.details-on.no-viewer #tabs         { left : calc(50% + (2 * var(--border-h)
     flex-direction  : row;
     justify-content : space-between;
 }
+#insert-template {
+    height      : 28px;
+    line-height : 28px;
+    min-width   : 28px;
+    width       : 28px;
+}
 #make-buy-filter {
-    height  : 30px;
-    padding : 0px 16px;
+    height      :30px !important;
+    line-height : 30px !important;
+    padding     : 0px 16px;
 }
 #mbom .root > .item-head {
     margin-right : 14px;
@@ -944,6 +951,35 @@ select.view-selector {
 
 .item.different-revision .item-revision { background : var(--color-status-yellow); }
 .item.different-qty .item-qty { background : var(--color-status-yellow); }
+
+
+
+/* TEMPLATE SELECTION DIALOG */
+/* ----------------------------------------------------------------------------- */
+#dialog-templates {
+    left  : calc(50% - 730px);
+    width : 1460px;
+}
+#template-list, 
+#template-preview {
+    position : absolute;
+    top      : 40px;
+    bottom   : 0px;
+}
+#template-list { 
+    border-width : 30px 30px;
+    width        : 540px; 
+    left         : 40px;
+}
+#template-preview { 
+    border-width : 30px 30px;
+    right        : 40px;
+    left         : 670px; 
+}
+#template-list-header,
+#template-preview-header {
+    border-bottom : none;
+}
 
 
 
