@@ -4,7 +4,7 @@
     --border-h : 20px;
     
     --width-mbom         : 640px;
-    --width-ebom         : 800px;
+    --width-ebom         : 740px;
     --width-details      : 400px;
 
     --width-operations-viewer : 480px;
@@ -29,6 +29,9 @@
 .panel-title-main { 
     font-size   : 16px; 
     line-height : 26px; }
+.adsk-viewing-viewer .adsk-toolbar {
+    bottom : -3px;
+}
 .adsk-viewing-viewer .adsk-button { 
     border-radius : 2px; 
     line-height : 26px; 
@@ -92,8 +95,8 @@
 
 /* MASTER LAYOUT ADJUSTMENTS */
 /* ----------------------------------------------------------------------------- */
-body.mode-ebom.no-viewer #mbom { right : 50%; width : unset; }
-body.mode-ebom.no-viewer #tabs { left  : 50%; width : unset; }
+body.mode-ebom.no-viewer #mbom { width : calc(50% - (2 * var(--border-h))); }
+body.mode-ebom.no-viewer #tabs { left  : 0px; right : unset; width : calc(50% - (2 * var(--border-h))); }
 body.mode-ebom.no-viewer #ebom { left  : 0px; right : 0px; width : unset; }
 body.mode-ebom.no-viewer .viewer { left : 100%; }
 
@@ -144,9 +147,9 @@ body.details-on.no-viewer #tabs         { left : calc(50% + (2 * var(--border-h)
 }
 .item-toggle {
     text-align   : center;
-    max-width    : calc(var(--height-item) + 6px);
-    min-width    : calc(var(--height-item) + 6px);
-    width        : calc(var(--height-item) + 6px);
+    max-width    : calc(var(--height-item) + 2px);
+    min-width    : calc(var(--height-item) + 2px);
+    width        : calc(var(--height-item) + 2px);
 }
 .item-toggle.icon {
     cursor      : pointer;
@@ -275,9 +278,9 @@ body.details-on.no-viewer #tabs         { left : calc(50% + (2 * var(--border-h)
     border-top    : 1px solid transparent;
     border-bottom : 1px solid transparent;
     margin        : 0px 0px 0px 4px;
-    max-width     : 10px;
-    min-width     : 10px;
-    width         : 10px;
+    max-width     : 6px;
+    min-width     : 6px;
+    width         : 6px;
 }
 .item-root-extension {
     border-top    : 1px solid transparent;
@@ -365,7 +368,7 @@ body.details-on.no-viewer #tabs         { left : calc(50% + (2 * var(--border-h)
     display : flex;
 }
 .item-bom {
-    padding  : 0px 0px 0px 33px;
+    padding  : 0px 0px 0px 24px;
 }
 .item.leaf.selected {
     border-left : none;
@@ -391,7 +394,7 @@ body.details-on.no-viewer #tabs         { left : calc(50% + (2 * var(--border-h)
     padding     : 0px 16px;
 }
 #mbom .root > .item-head {
-    margin-right : 14px;
+    margin-right : 10px;
 }
 #mbom .item-root-extension {
     max-width : 102px;
@@ -517,7 +520,7 @@ select.button.view-selector { height : 36px; }
     bottom      : 74px;
 }
 #ebom .root > .item-head { 
-   margin-right : 133px;
+   margin-right : 114px;
 }
 #ebom .item-qty {
     border-top    : 1px solid transparent;
@@ -569,11 +572,11 @@ select:disabled{
 #ebom .additional > div > .item-actions > .item-action-add { display : block; }
 #ebom .item-actions > .with-icon,
 #ebom .item-actions > .with-icon::before {
-    line-height : 26px !important;
+    line-height     : 22px !important;
     justify-content : center;
 }
 #ebom .item-actions > .with-icon::before {
-    font-size    : 22px;
+    font-size    : 18px;
     margin-right : 1px;
 }
 #ebom .item.different.enable-update.different-qty > div > .item-actions > .update-quantity { display : flex; }
@@ -622,7 +625,7 @@ body.with-quantity-comparison #ebom-qty-comparison {
 }
 #ebom-actions {
     display  : flex;
-    gap      : var(--spacer-xs);
+    gap      : 4px;
     height   : 38px;
     justify-content: center;
     position : absolute;
@@ -912,9 +915,9 @@ select.view-selector {
     font-size     : var(--icon-size);
     font-weight   : 300;
     text-align    : center;
-    max-width     : calc(var(--height-item) + 6px);
-    min-width     : calc(var(--height-item) + 6px);
-    width         : calc(var(--height-item) + 6px);
+    max-width     : calc(var(--height-item) + 2px);
+    min-width     : calc(var(--height-item) + 2px);
+    width         : calc(var(--height-item) + 2px);
 }
 .item > .item-head > .item-icon::before {
     position : relative;

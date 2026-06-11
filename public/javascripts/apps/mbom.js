@@ -3256,13 +3256,16 @@ function setBOMTotalQuantities(linkRoot) {
         }
     });
 
-    if(qtyMBOM === qtyEBOM) {
-        $('#ebom-qty-comparison').html('Total quantity matches in EBOM and MBOM : ' + qtyMBOM); 
-    } else if(qtyMBOM < qtyEBOM) {
-        $('#ebom-qty-comparison').html((qtyEBOM - qtyMBOM) + ' units less in MBOM : (M) ' + qtyMBOM + ' < ' + qtyEBOM + ' (E)'); 
-    } else {
-        $('#ebom-qty-comparison').html((qtyMBOM-qtyEBOM) + ' units more in MBOM : (M) ' + qtyMBOM + ' > ' + qtyEBOM + ' (E)'); 
-    }
+    if(qtyEBOM > -1) {
+        if(qtyMBOM === qtyEBOM) {
+            $('#ebom-qty-comparison').html('Total quantity matches in EBOM and MBOM : ' + qtyMBOM); 
+        } else if(qtyMBOM < qtyEBOM) {
+         $('#ebom-qty-comparison').html((qtyEBOM - qtyMBOM) + ' units less in MBOM : (M) ' + qtyMBOM + ' < ' + qtyEBOM + ' (E)'); 
+        } else {
+            $('#ebom-qty-comparison').html((qtyMBOM-qtyEBOM) + ' units more in MBOM : (M) ' + qtyMBOM + ' > ' + qtyEBOM + ' (E)'); 
+        }
+        $('body').addClass('with-quantity-comparison');
+    } else $('body').removeClass('with-quantity-comparison');
 
 }
 
