@@ -3,8 +3,8 @@
     --border-v : 14px;
     --border-h : 20px;
     
-    --width-mbom         : 620px;
-    --width-ebom         : 820px;
+    --width-mbom         : 640px;
+    --width-ebom         : 800px;
     --width-details      : 400px;
 
     --width-operations-viewer : 480px;
@@ -15,8 +15,8 @@
     --width-quantity : 42px;
     --width-make-buy : 60px;
 
-    --icon-size     : 20px;
-    --height-item   : 26px;
+    --icon-size     : 18px;
+    --height-item   : 22px;
     --padding-panel : 20px;
 
 }
@@ -120,6 +120,7 @@ body.details-on.no-viewer #tabs         { left : calc(50% + (2 * var(--border-h)
 /* ----------------------------------------------------------------------------- */
 .item {
     display    : block;
+    font-size  : 12px;
     margin-top : 1px;
 }
 .item.root { border-top : none; }
@@ -203,7 +204,7 @@ body.details-on.no-viewer #tabs         { left : calc(50% + (2 * var(--border-h)
 }
 .item-head-actions {
     display  : none;
-    gap      : 1px;
+    gap      : 2px;
     position : relative;
     top      : 0px;
     right    : 0px;
@@ -211,7 +212,6 @@ body.details-on.no-viewer #tabs         { left : calc(50% + (2 * var(--border-h)
 .item-head-actions > .button.icon {
     cursor      : pointer;
     font-size   : var(--icon-size);
-    font-weight : 200;
     max-height  : calc(var(--height-item) - 2px);
     min-height  : calc(var(--height-item) - 2px);
     height      : calc(var(--height-item) - 2px);
@@ -220,9 +220,9 @@ body.details-on.no-viewer #tabs         { left : calc(50% + (2 * var(--border-h)
     min-width   : calc(var(--height-item) - 2px);
     width       : calc(var(--height-item) - 2px);
 }
-.item-head-action.button-remove { order : 1; }
-.item-head-action.button-copy   { order : 2; }
-.item-head-action.button-view   { order : 3; }
+.item-head-action.button-remove { order : 1; line-height : 20px !important; }
+.item-head-action.button-copy   { order : 2; line-height : 20px !important;  }
+.item-head-action.button-view   { order : 3; line-height : 20px !important; }
 .item-head-action.button-filter { order : 4; }
 .item-head-action.button-open   { order : 5; }
 .item-code {
@@ -253,6 +253,7 @@ body.details-on.no-viewer #tabs         { left : calc(50% + (2 * var(--border-h)
 .item-qty > input {
     border-top    : 1px solid transparent;
     border-bottom : 1px solid transparent;
+    font-size     : 12px;
     text-align    : right;
     height        : calc(var(--height-item) - 8px);
     line-height   : calc(var(--height-item) - 8px);
@@ -288,15 +289,15 @@ body.details-on.no-viewer #tabs         { left : calc(50% + (2 * var(--border-h)
     gap     : 1px;
 }
 .item-action {
-    height          : var(--height-item) !important;
-    line-height     : var(--height-item) !important;
-    min-width       : 28px;
-    padding         : 0px;
-    text-align      : center;
+    font-size   : 12px;
+    height      : var(--height-item) !important;
+    line-height : var(--height-item) !important;
+    min-width   : 28px;
+    padding     : 0px;
+    text-align  : center;
 }
 .item-action.icon {
-    font-weight : 200;
-    padding     : 0px 0px;
+    padding : 0px 0px;
 }
 
 .item.deployed_code > .item-head > .item-icon > span.icon::before { content : '\f720'; }
@@ -467,10 +468,10 @@ body.details-on.no-viewer #tabs         { left : calc(50% + (2 * var(--border-h)
     left        : 0px;
 }
 #mbom-add-process > * {
+    font-size      : 12px;
     line-height    : 28px;
 }
 #mbom-add-text {
-    font-weight   : 800;
     overflow      : hidden;
     padding       : 0px 30px 0px 10px;
     text-overflow : ellipsis;
@@ -545,9 +546,9 @@ select.button.view-selector { height : 36px; }
 }
 #ebom .item-actions {
     margin-left : 4px;
-    max-width   : 115px;
-    min-width   : 115px;
-    width       : 115px;
+    max-width   : 100px;
+    min-width   : 100px;
+    width       : 100px;
 }
 #ebom .item-action {
     display   : none;
@@ -589,12 +590,13 @@ select:disabled{
 #ebom .item-has-bom > .item-head > .item-actions > div { display : block; }
 #ebom .item-has-bom > .item-head:hover .item-actions > div { display : block !important; }
 
-body.with-quantity-comparison #ebom-tree { bottom : 106px; }
+body.with-quantity-comparison #ebom-tree { bottom : 102px; }
 #ebom-qty-comparison {
     background  : var(--color-surface-level-5);
     cursor      : pointer;
     display     : none;
-    padding     : 5px;
+    font-size   : 12px;
+    padding     : 3px;
     position    : absolute;
     right       : 0px;
     bottom      : 70px;
@@ -907,8 +909,8 @@ select.view-selector {
     border-bottom : 1px solid transparent;
     border-left   : 1px solid transparent;
     color         : var(--color-font); 
-    font-size     : 20px;
-    font-weight   : 400;
+    font-size     : var(--icon-size);
+    font-weight   : 300;
     text-align    : center;
     max-width     : calc(var(--height-item) + 6px);
     min-width     : calc(var(--height-item) + 6px);
