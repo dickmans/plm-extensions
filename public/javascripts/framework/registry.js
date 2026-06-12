@@ -4,7 +4,8 @@ let panelTypes = {
             title       : 'insertMOW()',
             function    : 'insertMOW',
             id          : 'mow',
-            description : 'Displays the My Outstanding Work list of the given user',
+            description : "Shows the signed-in user's My Outstanding Work: the workflow tasks currently assigned to them across all workspaces, with optional filtering by due date, status and workspace. Use it as the personal to-do list on a landing page.",
+            usage       : "Use on a personal landing or home screen so each user immediately sees the workflow tasks waiting on them. Typical cases: a 'My Work' dashboard, or the first tab of a role-based home page. Enable the due-date, status and workspace filters when users juggle many tasks across processes.",
             inputs      : [],
             defaults    : {
                 headerLabel : 'My Outstanding Work',
@@ -52,7 +53,8 @@ let panelTypes = {
             title       : 'insertRecentItems()',
             function    : 'insertRecentItems',
             id          : 'recents',
-            description : "Displays the user's Recently Viewed Items",
+            description : "Shows the items the user has most recently opened, as a quick-access list for jumping back into recent work.",
+            usage       : "Use to give users a fast way back to items they were just working on, without searching again. Good on a home screen or in a side rail next to a details view. Pair it with insertSearch and insertBookmarks for a complete quick-access area.",
             inputs      : [],
             defaults : {
                 headerLabel : 'Recently Viewed Items',
@@ -79,7 +81,8 @@ let panelTypes = {
             title       : 'insertBookmarks()',
             function    : 'insertBookmarks',
             id          : 'bookmarks',
-            description : "Displays the user's Bookmarked items",
+            description : "Shows the items the user has bookmarked (favourited), giving one-click access to the records they return to most often.",
+            usage       : "Use to surface the items a user has explicitly flagged as important, for one-click return. Best on a home screen or navigation rail. Choose this over Recent Items when users curate a stable working set rather than relying on recency.",
             inputs      : [],
             options      : [
                 ['headerLabel', 'Bookmarks'],
@@ -98,8 +101,9 @@ let panelTypes = {
             title       : 'insertWorkspaceViews()',
             function    : 'insertWorkspaceViews',
             id          : 'workspaceViews',
-            description : "Displays the user's Workspaces Views for the definde workspace",
-            inputs : [{
+            description : "Shows the saved Views of a workspace (e.g. 'All Items', 'My Items') and lets the user switch between them to browse that workspace's records. Can optionally fold in My Outstanding Work, Bookmarks and Recent Items as extra views.",
+            usage       : "Use to let users browse a workspace through its predefined Views and switch between them. Ideal as the main navigator of a workspace-centric app. Fold in MOW, Bookmarks and Recents as extra views when you want a single combined navigation panel.",
+            inputs      : [{
                 title       : 'Workspace ID',
                 id          : 'wsId',
                 description : 'ID of the workspace for which the views should be listed',
@@ -161,7 +165,8 @@ let panelTypes = {
             title       : 'insertSearch()',
             function    : 'insertSearch',
             id          : 'search',
-            description : 'Displays panel to find items by descriptor',
+            description : "A cross-workspace search box: finds items by descriptor across the entire tenant and lists the matches (descriptor, workspace, owner). Use it as a global 'find any item' control.",
+            usage       : "Use as the global 'find anything' box when users do not know which workspace an item lives in - it searches descriptors tenant-wide. Good on a home screen or in a picker. If results must come from one workspace and show its own fields, use insertWorkspaceSearch instead.",
             inputs      : [],
             options      : [
                 ['headerLabel' , 'Search'        ],
@@ -179,17 +184,16 @@ let panelTypes = {
             title       : 'insertResults()',
             function    : 'insertResults',
             id          : 'results',
-            description : 'Displays list of items matching a defined set of search criteria',
-            inputs : [{
+            description : "Shows the items matching a fixed query (workspace + filters) supplied by the developer - a results list with no search box. Use it to display a predetermined set of items.",
+            usage       : "Use to display a fixed, developer-defined query (workspace plus filters) with no search box - the panel just shows the matching items. Typical cases: 'Items pending my approval', 'Parts in this project', or dashboard widgets. Set the filters in configuration; users only see and act on the results.",
+            inputs      : [{
                 title       : 'Workspace ID',
-                id          : 'wsId',
                 description : 'Workspace ID of items to display',
                 default     : '95',
                 type        : 'string',
                 required    : true
             },{
                 title       : 'Filters',
-                id          : 'filters',
                 description : 'Search parameters to identify the items to display',
                 default     : '[{"field" : "TITLE","type" : "0","comparator" : "contains" ,"value" : "r"}]',
                 type        : 'textarea',
@@ -217,11 +221,11 @@ let panelTypes = {
             title       : 'insertDetails()',
             function    : 'insertDetails',
             id          : 'details',
-            description : 'Inserts the Item Details tab of an item defined by API link',
-            inputs : [{
+            description : "Shows the Details of an item (the item identified by API link): its field sections and values. Supports inline editing, cloning, bookmarking and workflow actions depending on the user's permissions.",
+            usage       : "Use as the main field-editing surface of an item screen. Typical cases: the 'Details' tab of an item page, or a read-only summary on a dashboard. Enable editing, clone and workflow options per the user's role; hide sections or fields to tailor the form to a specific audience.",
+            inputs      : [{
                 title       : 'Item link',
-                id          : 'link',
-                description : 'API link of the item for which the Attachments should be displayed',
+                description : 'API link of the item for which the Details should be displayed',
                 default     : '/api/v3/workspaces/57/items/14669',
                 type        : 'string',
                 required    : true
@@ -238,10 +242,10 @@ let panelTypes = {
             title       : 'insertAttachments()',
             function    : 'insertAttachments',
             id          : 'attachments',
-            description : 'Inserts the Attachments tab of an item defined by API link',
-            inputs : [{
+            description : "Shows the file attachments of an item: uploaded files, and optionally related or Vault files. Supports preview, download, folder grouping and uploading new files (including viewer screenshots).",
+            usage       : "Use to let users view, download and upload an item's files. Typical cases: a 'Files' tab, a document-centric workspace, or surfacing related and Vault files alongside the record. Enable upload (and viewer-screenshot capture) on screens where users contribute files.",
+            inputs      : [{
                 title       : 'Item link',
-                id          : 'link',
                 description : 'API link of the item for which the Attachments should be displayed',
                 default     : '/api/v3/workspaces/57/items/14669',
                 type        : 'string',
@@ -263,10 +267,10 @@ let panelTypes = {
             title       : 'insertGrid()',
             function    : 'insertGrid',
             id          : 'grid',
-            description : 'Inserts the Grid tab of an item defined by API link',
+            description : "Shows an item's grid as an editable table. Supports inline editing, adding / cloning and removing rows",
+            usage       : "Use to edit an item's set of related rows in a spreadsheet-like table. Typical cases: editing line items, characteristics, or any one-to-many list in place. Enable add, clone, remove and inline editing for data-entry screens; leave it read-only for review screens.",
             inputs      : [{
                 title       : 'link',
-                id          : 'link',
                 description : 'API link of the item for which the Grid tab should be displayed',
                 default     : '/api/v3/workspaces/84/items/22131',
                 type        : 'string',
@@ -279,10 +283,10 @@ let panelTypes = {
             title       : 'insertBOM()',
             function    : 'insertBOM',
             id          : 'bom',
-            description : 'Inserts the Bill of Materials tab of an item defined by API link',
-            inputs : [{
+            description : "Shows the multi-level Bill of Materials tree of an item, with quantities and BOM-view selection. Optionally supports file download, drag-and-drop and selecting rows in a connected viewer.",
+            usage       : "Use to show an item's multi-level Bill of Materials as an expandable tree with quantities. Typical cases: an engineering or manufacturing BOM tab, where-used review, or a download point for BOM files. Enable drag-and-drop or viewer selection for interactive assembly screens; use insertFlatBOM or insertBOMPartsList when a flat list fits better.",
+            inputs      : [{
                 title       : 'Item link',
-                id          : 'link',
                 description : 'API link of the item for which the Bill of Materials should be displayed',
                 default     : '/api/v3/workspaces/57/items/18685',
                 type        : 'string',
@@ -317,10 +321,10 @@ let panelTypes = {
             title       : 'insertFlatBOM()',
             function    : 'insertFlatBOM',
             id          : 'flat-bom',
-            description : 'Inserts the Flat BOM of an item defined by API link',
-            inputs : [{
+            description : "Shows the fully flattened BOM of an item - every part with its rolled-up total quantity - as a single list rather than a tree.",
+            usage       : "Use when users need every part and its total rolled-up quantity in one flat list rather than a tree. Typical cases: procurement and shopping lists, costing roll-ups, or exporting a consolidated parts list. Choose insertBOM instead when the assembly structure matters.",
+            inputs      : [{
                 title       : 'Item link',
-                id          : 'link',
                 description : 'API link of the item for which the Flat BOM should be displayed',
                 default     : '/api/v3/workspaces/57/items/18685',
                 type        : 'string',
@@ -340,10 +344,10 @@ let panelTypes = {
             title       : 'insertRootParents()',
             function    : 'insertRootParents',
             id          : 'roots',
-            description : 'Inserts the root items of the Where Used tab of an item',
+            description : "Shows the top-level (root) assemblies that ultimately contain the item, taken from its Where-Used, together with the path to each.",
+            usage       : "Use to answer 'which top-level products ultimately contain this part?' from where-used. Typical cases: impact analysis before a change, or navigating up to finished assemblies. Pair it with insertParents when users also need the immediate level.",
             inputs : [{
                 title       : 'Item link',
-                id          : 'link',
                 description : 'API link of the item for which the root items and paths should be displayed',
                 default     : '/api/v3/workspaces/57/items/18702',
                 type        : 'string',
@@ -359,10 +363,10 @@ let panelTypes = {
             title       : 'insertParents()',
             function    : 'insertParents',
             id          : 'parents',
-            description : 'Inserts the immediate parents',
-            inputs : [{
+            description : "Shows the immediate (first-level) parents of an item - the assemblies that directly use it.",
+            usage       : "Use to show only the direct parents of an item (the assemblies that use it one level up). Typical cases: quick upward navigation, or confirming immediate usage before editing. Use insertRootParents for the full top-level rollup.",
+            inputs      : [{
                 title       : 'Item link',
-                id          : 'link',
                 description : 'API link of the item for which the immediate parents should be displayed',
                 default     : '/api/v3/workspaces/57/items/18702',
                 type        : 'string',
@@ -377,12 +381,12 @@ let panelTypes = {
         },{ // insertManagedItems
             title       : 'insertManagedItems()',
             function    : 'insertManagedItems',
-            id          : 'processes',
-            description : 'Inserts the Managed Items tab of the defined item',
+            id          : 'managed-items',
+            description : "Shows the Managed Items of an item: the records it manages through a managed-item relationship.",
+            usage       : "Use to display the records an item manages through a managed-item relationship. Typical cases: a controlling document showing the items it governs, or a master record listing its dependents.",
             inputs      : [{
                 title       : 'Item Link',
-                id          : 'link',
-                description : 'API link of the item for which the Change Processes should be displayed',
+                description : 'API link of the item whose managed items should be displayed',
                 default     : '/api/v3/workspaces/84/items/16911',
                 type        : 'string',
                 required    : true
@@ -396,10 +400,10 @@ let panelTypes = {
             title       : 'insertChangeProcesses()',
             function    : 'insertChangeProcesses',
             id          : 'processes',
-            description : 'Inserts the related Change Proceses of the defined item',
+            description : "Shows the change processes (e.g. COs / CRs) related to an item, and lets the user create a new one against it.",
+            usage       : "Use to show the change processes (COs, CRs, etc.) linked to an item and let users start a new one against it. Typical cases: a 'Changes' tab on an item, or a launch point for raising a change directly from the affected record.",
             inputs      : [{
                 title       : 'Item Link',
-                id          : 'link',
                 description : 'API link of the item for which the Change Processes should be displayed',
                 default     : '/api/v3/workspaces/57/items/14669',
                 type        : 'string',
@@ -415,10 +419,10 @@ let panelTypes = {
             title       : 'insertProject()',
             function    : 'insertProject',
             id          : 'project',
-            description : 'Inserts the Project tab of an item defined by API link',
-            inputs : [{
+            description : "Shows the Project tab of an item: the project tasks and deliverables associated with it.",
+            usage       : "Use to surface the project tasks and deliverables tied to an item. Typical cases: a 'Project' tab linking engineering records to project management, or tracking deliverable status from the item.",
+            inputs      : [{
                 title       : 'Item Link',
-                id          : 'link',
                 description : 'API link of the item for which the Project tab should be displayed',
                 default     : '/api/v3/workspaces/213/items/18866',
                 type        : 'string',
@@ -434,10 +438,10 @@ let panelTypes = {
             title       : 'insertRelationships()',
             function    : 'insertRelationships',
             id          : 'relationships',
-            description : 'Inserts the Relationships tab of an item defined by API link',
-            inputs : [{
+            description : "Shows the Relationships of an item: the records linked to it through relationship fields.",
+            usage       : "Use to show records linked to an item via relationship fields. Typical cases: a generic 'Related Items' tab, or exposing cross-workspace links such as requirements to parts.",
+            inputs      : [{
                 title       : 'Item Link',
-                id          : 'link',
                 description : 'API link of the item for which the Relationships tab should be displayed',
                 default     : '/api/v3/workspaces/95/items/14444',
                 type        : 'string',
@@ -453,13 +457,13 @@ let panelTypes = {
             title       : 'insertSourcing()',
             function    : 'insertSourcing',
             id          : 'sourcing',
-            description : 'Inserts the Sourcing tab of an item defined by API link',
+            description : "Shows the Sourcing information of an item: its manufacturers, suppliers and sourced part numbers.",
+            usage       : "Use to display an item's manufacturers, suppliers and sourced part numbers. Typical cases: a 'Sourcing' or 'Procurement' tab on a part, or supplier review screens.",
             inputs      : [{
-                title : 'link',
-                id : 'link',
+                title       : 'link',
                 description : 'API link of the item for which the Sourcing should be displayed',
-                default : '/api/v3/workspaces/57/items/9913',
-                type : 'string',
+                default     : '/api/v3/workspaces/57/items/9913',
+                type        : 'string',
                 required    : true
             }],
             options : [
@@ -469,11 +473,11 @@ let panelTypes = {
             title       : 'insertWorkflowHistory()',
             function    : 'insertWorkflowHistory',
             id          : 'workflow-history',
-            description : 'Inserts the Workflow History of an item defined by API link',
-            inputs : [{
+            description : "Shows the workflow history of an item - every state transition with who performed it and when - and optionally the transitions available from the current state.",
+            usage       : "Use to show the full audit trail of state transitions on an item - who moved it where, and when. Typical cases: a 'History' tab for compliance and traceability, or troubleshooting why an item is in its current state. Configure final states and excluded transitions to tidy the timeline.",
+            inputs      : [{
                 title       : 'Item Link',
-                id          : 'link',
-                description : 'API link of the item for which the Chagne Log tab should be displayed',
+                description : 'API link of the item whose workflow history should be displayed',
                 default     : '/api/v3/workspaces/95/items/14444',
                 type        : 'string',
                 required    : true
@@ -485,11 +489,11 @@ let panelTypes = {
             title       : 'insertRevisions()',
             function    : 'insertRevisions',
             id          : 'revisions',
-            description : 'Inserts the Revisions list of an item defined by API link',
-            inputs : [{
+            description : "Shows the revision list of an item: all its revisions / versions, for navigating between them.",
+            usage       : "Use to list an item's revisions or versions and navigate between them. Typical cases: a 'Revisions' tab for comparing or opening prior versions of a controlled record.",
+            inputs      : [{
                 title       : 'Item Link',
-                id          : 'link',
-                description : 'API link of the item for which the Chagne Log tab should be displayed',
+                description : 'API link of the item whose revision list should be displayed',
                 default     : '/api/v3/workspaces/57/items/18685',
                 type        : 'string',
                 required    : true
@@ -501,10 +505,10 @@ let panelTypes = {
             title       : 'insertChangeLog()',
             function    : 'insertChangeLog',
             id          : 'change-log',
-            description : 'Inserts the Change Log tab of an item defined by API link',
-            inputs : [{
+            description : "Shows the change log of an item: a chronological audit trail of field changes, with optional filtering by user and by action type.",
+            usage       : "Use to show a field-level audit trail of who changed what on an item. Typical cases: a compliance 'Change Log' tab, or investigating data changes. Enable the user and action filters when logs get long.",
+            inputs      : [{
                 title       : 'Item Link',
-                id          : 'link',
                 description : 'API link of the item for which the Change Log tab should be displayed',
                 default     : '/api/v3/workspaces/95/items/14444',
                 type        : 'string',
@@ -520,8 +524,17 @@ let panelTypes = {
         title       : 'insertClasses()',
         function    : 'insertClasses',
         id          : 'classes',
-        description : 'Display classification tree',
-        inputs : [],
+        description : "Shows the classification tree of the tenant, letting the user browse and pick a classification class.",
+        usage       : "Use to let users browse the classification hierarchy and pick a class. Typical cases: the left-hand tree of a classification browser, or a class picker that feeds insertClassContents and insertClassFilters. Restrict it to a sub-tree with the topClass settings when only part of the taxonomy is relevant.",
+        inputs      : [],
+        defaults    : {
+            headerLabel     : 'Classes',
+            placeholder     : 'Filter classes',
+            contentSize     : 'm',
+            depth           : 10,
+            hideNumber      : true,
+            hideTableHeader : true
+        },
         options : [
             ['headerLabel', 'Classes']
         ]
@@ -529,17 +542,16 @@ let panelTypes = {
         title       : 'insertClassContents()',
         function    : 'insertClassContents',
         id          : 'class',
-        description : 'Finds all items related to the defined Classification Class',
-        inputs : [{
+        description : "Lists all items classified under a given classification class (identified by class id / name).",
+        usage       : "Use to list the items belonging to a chosen classification class. Typical cases: the results pane of a classification browser (driven by insertClasses), or finding standard and library parts by category.",
+        inputs      : [{
             title       : 'Class ID',
-            id          : 'classId',
             description : 'Internal ID of the given Class',
             default     : '142',
             type        : 'string',
             required    : true
         },{
             title       : 'Class Name',
-            id          : 'className',
             description : 'Internal Name of the given Class',
             default     : 'CABLES_AND_WIRES',
             type        : 'string',
@@ -552,17 +564,16 @@ let panelTypes = {
         title       : 'insertClassFilters()',
         function    : 'insertClassFilters',
         id          : 'classFilters',
-        description : 'Display class properties and filters',
-        inputs : [{
+        description : "Shows the properties of a classification class and the filter controls for narrowing its contents.",
+        usage       : "Use to show a class's properties as filter controls so users can narrow its contents by attribute values. Typical cases: faceted search within a class (e.g. filter resistors by resistance and package), paired with insertClassContents.",
+        inputs      : [{
             title       : 'Class ID',
-            id          : 'classId',
             description : 'Internal ID of the given Class',
             default     : '142',
             type        : 'string',
             required    : true
         },{
             title       : 'Class Name',
-            id          : 'className',
             description : 'Internal Name of the given Class',
             default     : 'CABLES_AND_WIRES',
             type        : 'string',
@@ -671,49 +682,42 @@ let contentOptions = {
     },
     number : {
         title       : 'Number',
-        id          : 'number',
         description : 'Enables numbers in tables, grids and lists (setting tileIcon will be ignored when enabled)',
         default     : true,
         type        : 'boolean'
     },
     tileIcon : {
         title : 'Tile Icon',
-        id : 'tileIcon',
         description : 'The icon to be displayed for entries if no image is available and if setting number is disabled',
         default : 'icon-product',
         type : 'string'
     },
     tileImage : {
         title : 'Tile Image',
-        id : 'tileImage',
         description : 'Enables images for tiles. If settings tileImageFieldId is provided, this given field will be used to determine the image. If not, the first image field will be used instead.',
         default : false,
         type : 'boolean'
     },
     tileImageFieldId : {
         title : 'Tile Image Field ID',
-        id : 'tileImageFieldId',
         description : 'If tileImage is enabled, this field will be used to retrieve the matching image. If this settings is left blank, the first image field of item details will be used automatically, but at lower performane. It is recommended to always provide this settings if images shoule be displayed.',
         default : '',
         type : 'string'
     },
     tileTitle : {
         title       : 'Tile Title Field ID',
-        id          : 'tileTitle',
         description : 'Sets the Tile Title',
         default     : 'DESCRIPTOR',
         type        : 'string'
     },
     tileSubtitle : {
         title       : 'Tile Subtitle Field ID',
-        id          : 'tileSubtitle',
         description : 'Sets the Tile Subtile',
         default     : 'WF_CURRENT_STATE',
         type        : 'string'
     },
     textNoData : {
         title       : 'Text No Data',
-        id          : 'textNoData',
         description : 'Text being shown when there is no data',
         default     : 'No Entries',
         type        : 'string'
