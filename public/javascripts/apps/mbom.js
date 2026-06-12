@@ -563,7 +563,8 @@ function processItemData(itemDetails) {
 
     $('#header-subtitle').html(itemDetails.title);
 
-    basePartNumber = getSectionFieldValue(itemDetails.sections, config.workspaceEBOM.fieldIDs.number, '', null);
+    basePartNumber  = getSectionFieldValue(itemDetails.sections, config.workspaceEBOM.fieldIDs.number, '', null);
+    basePartNumber += (config.suffixMBOMNumber || '') + siteLabel;
 
     insertViewer(links.ebom);
 
@@ -612,7 +613,7 @@ function processItemData(itemDetails) {
             for(let ebomPart of ebomPartsList) {
 
                 ebomPart.bomType  = 'ebom';
-                ebomPart.mbom     = getBOMPartFieldValue(ebomPart, config.workspaceEBOM.fieldIDs.mbom);
+                ebomPart.mbom     = getBOMPartFieldValue(ebomPart, config.workspaceEBOM.fieldIDs.mbom + siteSuffix);
                 ebomPart.type     = ebomPart.details[config.workspaceEBOM.fieldIDs.type    ] || '';
                 ebomPart.category = ebomPart.details[config.workspaceEBOM.fieldIDs.category] || '';
                 ebomPart.code     = ebomPart.details[config.workspaceEBOM.fieldIDs.code    ] || '';
@@ -670,16 +671,7 @@ function createMBOMRoot(ebomItemDetails, callback) {
         
     } else {
 
-        let number = null;
-
-        if(!isBlank(config.workspaceMBOM.fieldIDs.number)) {
-            if(!isBlank(config.suffixMBOMNumber)) {
-                basePartNumber += config.suffixMBOMNumber + siteLabel;
-                number = basePartNumber;
-            }
-        }
-
-        createMBOMForEBOM(ebomItemDetails, number, function(linkMBOM) {
+        createMBOMForEBOM(ebomItemDetails, basePartNumber, function(linkMBOM) {
             links.mbom = linkMBOM;
             storeContextMBOMLink();
             callback();
@@ -1897,20 +1889,20 @@ function getBOMNode(node, edge, level, linkEBOMRoot, icon, qty, bomType, isLeaf)
 // }
 function insertFromEBOMToMBOM(elemAction) {
     
-    let elemItem    = elemAction.closest('.item');
-    let code        = elemItem.attr('data-code');
+    let elemItem     = elemAction.closest('.item');
+    let code         = elemItem.attr('data-code');
+    let elemTarget   = $('#mbom').find('.root');
+    let processMatch = false;
     // let category    = elemItem.attr('category');
-    let elemTarget  = $('#mbom').find('.root');
-    let operationMatch = false;
     
     if(code !== '') {
-        if($('.operation').length > 0) {
+        if($('.process').length > 0) {
             
-            $('.operation').each(function() {
-                if(!operationMatch) {
+            $('.process').each(function() {
+                if(!processMatch) {
                     let operationCode = $(this).attr('data-code');
                     if(operationCode === code) {
-                        operationMatch = true;
+                        processMatch = true;
                         elemTarget = $(this); 
                     }
                 };
@@ -1919,7 +1911,7 @@ function insertFromEBOMToMBOM(elemAction) {
         }
     }
 
-    if(!operationMatch) {
+    if(!processMatch) {
         elemTarget = $('.selected-target');
     }
     
@@ -2000,7 +1992,6 @@ function insertFromEBOMToMBOM(elemAction) {
 
     }
     
-
 }
 function updateQuantityFromEBOMToMBOM(elemAction) {
     
@@ -2593,9 +2584,13 @@ function addMBOMShortcut(elemParent) {
             let url = '/mbom'
                 + '?wsId='    + linkMBOM.split('/')[4]
                 + '&dmsId='   + linkMBOM.split('/')[6]
-                + '&theme='   + theme
-                + '&options=' + options;
-                        
+                + '&theme='   + theme;
+                // + '&options=' + options;
+            
+            if(urlParameters.hasOwnProperty('site')) {
+                url += '&options=site:' + urlParameters.site;
+            }
+
             window.open(url);
 
         });
@@ -2743,7 +2738,7 @@ function selectItem(elemItem, filter) {
             $('.leaf').hide();
             $('.item-has-bom').hide();
             $('.item.root').show();
-            $('.operation').hide();
+            $('.process').hide();
             $('.item.filter').removeClass('filter');
             $('#make-buy-filter').val('all');
             elemItem.addClass('filter');
@@ -3624,6 +3619,9 @@ function addItemListEntry(link, urn, title, className, elemParent, isProcess) {
 
     let elemItem = $('<div></div>').appendTo(elemParent)
         .addClass('additional-item')
+        .addClass('with-icon')
+        .addClass('icon-wrench')
+        .addClass('filled')
         .attr('data-link', link)
         .attr('data-urn', urn)
         .html(title)

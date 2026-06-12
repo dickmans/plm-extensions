@@ -1780,7 +1780,20 @@ exports.chrome = {
         url        : '/mbom?',
         label      : 'Edit MBOM',
         workspaces : ['items']
-    },{
+    },
+    //  Placeholders for definition of site specific MBOMs
+    //  { 
+    //     id         : 'mbom',
+    //     url        : '/mbom?options=site:A&',
+    //     label      : 'Edit MBOM site A',
+    //     workspaces : ['items']
+    //  },{
+    //     id         : 'mbom',
+    //     url        : '/mbom?options=site:B&',
+    //     label      : 'Edit MBOM site B',
+    //     workspaces : ['items']
+    //  },
+    {
         id         : 'variants-items',
         url        : '/variants?',
         label      : 'Manage Variants',
@@ -1814,7 +1827,20 @@ exports.chrome = {
         url        : '/mbom?options=contextfieldidebom:ENGINEERING_BOM,contextfieldidmbom:MANUFACTURING_BOM&',
         label      : 'Edit MBOM',
         workspaces : ['products']
-    },{
+    },
+    //  Placeholders for definition of site specific MBOMs
+    //  {
+    //     id         : 'mbom-products',
+    //     url        : '/mbom?options=contextfieldidebom:ENGINEERING_BOM,contextfieldidmbom:MANUFACTURING_BOM,site:A&',
+    //     label      : 'Edit MBOM site A',
+    //     workspaces : ['products']
+    //  },{
+    //     id         : 'mbom-products',
+    //     url        : '/mbom?options=contextfieldidebom:ENGINEERING_BOM,contextfieldidmbom:MANUFACTURING_BOM,site:B&',
+    //     label      : 'Edit MBOM site B',
+    //     workspaces : ['products']
+    //  },
+    {
         id         : 'mbom-assets',
         url        : '/mbom?options=contextfieldidebom:ENGINEERING_BOM,contextfieldidmbom:MANUFACTURING_BOM&',
         label      : 'Edit MBOM',

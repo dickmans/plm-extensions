@@ -658,14 +658,19 @@
                     li MBOM_G: Linking picklist to MBOM item workspace (single selection, editable)
                     li LAST_MBOM_SYNC_G: Date field (editable)
                     li LAST_MBOM_USER_G: Single Line Text (length 100, editable)
-                    li MBOM_EDITOR_G: Computed field with the following formula. Note that the URL contains a parameter to identify the site (G)
+                p If the editor should be launched by buttons in the items details page, you also have to add the editor fields - one for each site. Use the formula below and adapt it for each site (the URL contains a parameter to identify the site). The name of the fields does not matter, but you can reuse the pattern of having the site at end of the field ID (i.e. MBOM_EDITOR_G).
                 p.code CASE 
                     span WHEN (DMS_ID is null) THEN '<span style="white-space:nowrap;color:#bbb;font-style:italic;">Item ID is not set</span>'
                     span WHEN (END_ITEM = true) THEN '<span style="white-space:nowrap;color:#bbb;font-style:italic;">Not available for end items</span>'
                     span WHEN (MATCHES_MBOM = true) THEN '<span style="white-space:nowrap;color:#bbb;font-style:italic;">EBOM matches MBOM</span>'
                     span ELSE '&lt;a style="color: #0a131c;border: 1px solid #bec8d2;border-radius:3px;text-align:center;text-decoration:none !important;line-height:32px;white-space:nowrap;padding:4px 20px;width:140px;font-weight:600;" target="_blank" href ="LOCATIONmbom?wsId=57&dmsId='||DMS_ID||'&options=site:G"&gt;Edit MBOM&lt;/a&gt;'
                     span END   
-                p Repeat these steps for site 1 and 2 accordingly. 
+                p These fields are not required when using the Chrome Extension of this server. In this case, add the button definition to your settings in 
+                    span.code exports.chrome.buttons
+                    |. You can use the placeholder definition in the standard settings file as reference: 
+                    img.border(src='images/apps/mbom-editor-20.png' style='max-width:510px;')
+                    span This will then render matchinng buttons to access each MBOM:
+                    img.border(src='images/apps/mbom-editor-21.png' style='max-width:900px;')
             li If you followed the setup instructions for a single MBOM before, remove the following fields as they are no longer required:
                 ul  
                     li MBOM 
