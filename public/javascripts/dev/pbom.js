@@ -605,7 +605,7 @@ function selectItemsProcess(link) {
     ];
 
     if(!isBlank(elemSelected.attr('data-bop-edge-link'))) {
-        requests.push($.get('/plm/bom-remove', { edgeLink : elemSelected.attr('data-bop-edge-link') }));
+        requests.push($.post('/plm/bom-remove', { edgeLink : elemSelected.attr('data-bop-edge-link') }));
     }  
 
     let paramsBOMLink = {
@@ -1698,7 +1698,7 @@ function saveOperations() {
         if(isRemoved ) {
 
             if(edgeId !== '') {
-                requests.push($.get('/plm/bom-remove', {
+                requests.push($.post('/plm/bom-remove', {
                     edgeLink : dataParent + '/bom-items/' + edgeId
                 }));
             } else {
@@ -1874,7 +1874,7 @@ function saveOpertionsMaterials() {
             if(isBlank(edgeId)) {
                 elemPart.remove();
             } else {
-                $.get('/plm/bom-remove', {
+                $.post('/plm/bom-remove', {
                     link   : linkParent,
                     edgeId : edgeId
                 });
@@ -2000,7 +2000,7 @@ function selectSource() {
                 quantity   : elemBOM.attr('data-quantity')
             })];
 
-            if(!isBlank(linkEdge)) requests.push($.get('/plm/bom-remove', { edgeLink : linkEdge }));
+            if(!isBlank(linkEdge)) requests.push($.post('/plm/bom-remove', { edgeLink : linkEdge }));
 
             Promise.all(requests).then(function(responses) {
                 elemBOM.attr('data-pbom-edge-link', responses[0].data.split('.autodeskplm360.ne')[1]);

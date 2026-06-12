@@ -1494,7 +1494,7 @@ function endProcessing() {
 
 //         for(let cleanup of variantBOMClenup) {
 //             if(requests.length < action.maxRequests) {
-//                 requests.push($.get('/plm/bom-remove', cleanup));
+//                 requests.push($.post('/plm/bom-remove', cleanup));
 //             }
 //         }
 
@@ -1523,7 +1523,7 @@ function endProcessing() {
 //                 let linkParent = getParentLink(elemItem);
 
 //                 if(!isBlank(linkParent)) {
-//                     // requests.push($.get('/plm/bom-remove', {
+//                     // requests.push($.post('/plm/bom-remove', {
 //                     //     link   : linkParent,
 //                     //     edgeId : elemItem.attr('data-edgeid')
 //                     // }));
