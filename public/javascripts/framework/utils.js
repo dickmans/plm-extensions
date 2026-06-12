@@ -247,16 +247,16 @@ function showStartupError(params) {
         .addClass('pos-abs-max')
         .addClass(getSurfaceLevel($('body')));
 
-    let elemWrapper = $('<div></div>').appendTo(elemParent).addClass('wrapper');
+    let elemWrapper = $('<div></div>').appendTo(elemParent).addClass('startup-error-wrapper');
 
-    let elemHeader = $('<div></div>').appendTo(elemWrapper).addClass('header');
-    $('<div></div>').appendTo(elemHeader).addClass('icon').addClass(icon);
-    $('<div></div>').appendTo(elemHeader).addClass('title').html(title);
+    let elemHeader = $('<div></div>').appendTo(elemWrapper).addClass('startup-error-header');
+    $('<div></div>').appendTo(elemHeader).addClass('startup-error-icon').addClass('icon').addClass(icon);
+    $('<div></div>').appendTo(elemHeader).addClass('startup-error-title').html(title);
     
-    $('<div></div>').appendTo(elemWrapper).addClass('details').html(details);
-    $('<div></div>').appendTo(elemWrapper).addClass('instructions').html(instructions);
+    $('<div></div>').appendTo(elemWrapper).addClass('startup-error-details').html(details);
+    $('<div></div>').appendTo(elemWrapper).addClass('startup-error-instructions').html(instructions);
     
-    let elemActions = $('<div></div>').appendTo(elemWrapper).addClass('actions')
+    let elemActions = $('<div></div>').appendTo(elemWrapper).addClass('startup-error-actions')
 
     $('<div></div>').appendTo(elemActions)
         .addClass('button')
@@ -3774,6 +3774,28 @@ function collapseAllNodes(id) {
     });
     
 }
+function getTreeItemParent(elemItem, selector) {
+
+    if(isBlank(selector)) selector = '.tree-item';
+
+    let level = Number(elemItem.attr('data-level'));
+    
+    elemItem.prevAll(selector).each(function() {
+
+        let elemNext  = $(this);
+        let nextLevel = Number(elemNext.attr('data-level'));
+
+        if(nextLevel < level) {
+
+            return elemNext;
+
+        }
+
+    });
+
+    return null;
+
+}
 function getTreeItemPath(elemItem, pathSeparator) {
 
     if(isBlank(pathSeparator)) pathSeparator = '|'
@@ -3983,6 +4005,8 @@ function treeDisplayItemByPropertyValue(id, property, value, select, deselect) {
 
 }
 function treeDisplayItem(elemItem) {
+
+    if(elemItem.length === 0) return;
 
     let level = Number(elemItem.attr('data-level'));
     let panel = elemItem.closest('.panel-top');
@@ -4899,13 +4923,13 @@ function closeTreeDownloadPanel(id) {
     $('#' + id + '-tree-files-download-progress').addClass('hidden');
 
 }
-function treeGetItemChildren(elemClicked, firstLevelOnly) {
+function treeGetItemChildren(elemRef, firstLevelOnly) {
 
     if(isBlank(firstLevelOnly)) firstLevelOnly = false;
 
-    let level     = Number(elemClicked.attr('data-level'));
+    let level     = Number(elemRef.attr('data-level'));
     let levelNext = level - 1;
-    let elemNext  = elemClicked;
+    let elemNext  = elemRef;
     let children  = [];
 
     do {
@@ -4928,7 +4952,7 @@ function treeGetItemChildren(elemClicked, firstLevelOnly) {
 }
 function treeGetItemParent(elemItem) {
 
-    let level = Number(elemItem.attr('data-level'));
+    const level = Number(elemItem.attr('data-level'));
     let elemParent = null;
 
     elemItem.prevAll().each(function() {
@@ -4941,6 +4965,57 @@ function treeGetItemParent(elemItem) {
     });
 
     return elemParent;
+
+}
+function treeToggleItemNodeClass(elemItem) {
+
+    if(elemItem        === null) return;
+    if(elemItem.length ===    0) return;
+
+    const listChildren = treeGetItemChildren(elemItem, false);
+
+    if(listChildren.length > 0) {
+        if(elemItem.hasClass('leaf')) {
+            elemItem.addClass('node').removeClass('leaf').removeClass('first-leaf');
+            const elemFirstCol = elemItem.find('.tree-first-col');
+            $('<span></span>').prependTo(elemFirstCol)
+                .addClass('tree-nav')
+                .addClass('icon')
+                .click(function(e) {
+                    clickTreeToggle(e, $(this));
+                })
+        }
+    } else {
+        if(elemItem.hasClass('node')) {
+            elemItem.addClass('leaf').removeClass('node');
+            elemItem.find('.tree-nav').remove();
+        }        
+    }
+
+}
+function treeSetItemChanged(elemItem) {
+
+    if(elemItem       === null) return;
+    if(elemItem.length ===   0) return;
+
+    let elemChangeIndicator = elemItem.find('.tree-change-indicator');
+    
+    if(elemChangeIndicator.length === 0) {
+        let elemCellLast = elemItem.children().last();
+        elemChangeIndicator = $('<span></span>').appendTo(elemCellLast).addClass('tree-change-indicator');
+    }
+
+    elemItem.addClass('changed');
+
+    return elemChangeIndicator;
+
+}
+function treeResetItemsChanged(id) {
+
+    $('#' + id).find('.changed').each(function() {
+        $(this).removeClass('changed');
+        $(this).find('.tree-change-indicator').remove();
+    });
 
 }
 
@@ -6170,11 +6245,19 @@ function storeNewBOMEdgeId(action, elements, responses) {
     let index = 0;
 
     for(let element of elements) {
+
+        let response = responses[index++];
+
+        if(response.url === '/bom-add') {
+
+            const edgeId = response.data.split('/bom-items/')[1];
+            
+            element.attr('data-parent', response.params.linkParent);
+            element.attr('data-edgeid', edgeId);
+
+        }
         
-        let edgeId = responses[index++].data.split('/bom-items/')[1];
-        
-        element.attr('data-edgeid', edgeId);
-        element.removeClass(action.className);
+        element.removeClass(action.className);    
 
     }
 
@@ -6436,7 +6519,7 @@ function replaceBOMItems(link, itemsPrev, itemsNext, callback) {
                 dataReplacements[indexBOMRemoval].quantity = response.data.quantity;
                 dataReplacements[indexBOMRemoval].number   = response.data.itemNumber;
 
-                reqBOMRemovals.push($.get('/plm/bom-remove', { edgeLink : response.params.edgeLink }));
+                reqBOMRemovals.push($.post('/plm/bom-remove', { edgeLink : response.params.edgeLink }));
 
                 indexBOMRemoval++;
 
@@ -7547,7 +7630,9 @@ function getGridRowValue(row, fieldId, defaultValue, property) {
 
             if(isBlank(value)) return defaultValue;
 
-            if(typeof value === 'object') {
+            if(Array.isArray(value)) { 
+                return value;
+            } else if(typeof value === 'object') {
 
                 if(isBlank(property)) { return field.value.link;
                 } else if(property == 'title') { 

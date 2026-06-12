@@ -142,8 +142,8 @@ router.get('/change'       , function(req, res, next) { launch('dev/change'     
 router.get('/configurator' , function(req, res, next) { launch('dev/configurator' , '', 'Product Configuration Editor'     , req, res, next); });
 router.get('/control'      , function(req, res, next) { launch('dev/control'      , '', 'Remote Device Control'            , req, res, next); });
 router.get('/customer'     , function(req, res, next) { launch('dev/customer'     , '', 'Customer Services'                , req, res, next); });
-router.get('/editor'       , function(req, res, next) { launch('dev/editor'       , '', 'Content Editor'                   , req, res, next); });
-router.get('/matrix'       , function(req, res, next) { launch('dev/matrix'       , '', 'Portfolio Matrix'                 , req, res, next); });
+router.get('/editor'       , function(req, res, next) { launch('dev/editor'       , 'editor', 'Content Editor'             , req, res, next); });
+router.get('/matrix'       , function(req, res, next) { launch('dev/matrix'       , 'matrix', 'Matrix'                     , req, res, next); });
 router.get('/mbom-upgrade' , function(req, res, next) { launch('dev/mbom-upgrade' , '', 'MBOM Upgrade Editor'              , req, res, next); });
 router.get('/pbom'         , function(req, res, next) { launch('dev/pbom'         , '', 'Manufacturing Process Editor'     , req, res, next); });
 router.get('/pdm'          , function(req, res, next) { launch('dev/pdm'          , '', 'Vault Browser'                    , req, res, next); });

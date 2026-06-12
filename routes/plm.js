@@ -5388,17 +5388,25 @@ router.get('/tableaus', function(req, res, next) {
 
 
 /* ----- CREATE INITIAL TABLEAU ----- */
-router.get('/tableau-init', function(req, res, next) {
+router.post('/tableau-init', function(req, res, next) {
     
     console.log(' ');
     console.log('  /tableau-init');
     console.log(' --------------------------------------------');  
-    console.log('  req.query.wsId  = ' + req.query.wsId);
+    console.log('  req.body.wsId   = ' + req.body.wsId);
+    console.log('  req.body.tenant = ' + req.body.tenant);
+    console.log('  req.body.user   = ' + req.body.user);
     
-    let url = req.app.locals.tenantLink + '/api/v3/workspaces/' + req.query.wsId + '/tableaus';
+    let url    = getTenantLink(req)  + '/api/v3/workspaces/' + req.body.wsId + '/tableaus';
+    let headers = getCustomHeaders(req);
+
+    if(typeof req.body.user !== 'undefined') {
+        headers['Authorization'] = req.session.admin;
+        headers['X-user-id']     = req.body.user;
+    }    
     
     axios.post(url, {}, {
-        headers : req.session.headers
+        headers : headers
     }).then(function(response) {
         sendResponse(req, res, response, false);
     }).catch(function(error) {
@@ -6503,7 +6511,7 @@ router.get('/users', function(req, res, next) {
     if(notCached(req, res)) {   
 
         let bulk       = (typeof req.query.bulk       === 'undefined') ?    true : (req.query.bulk == 'true');
-        let limit      = (typeof req.query.limit      === 'undefined') ?    1000 : req.query.limit;
+        let limit      = (typeof req.query.limit      === 'undefined') ?    2000 : req.query.limit;
         let offset     = (typeof req.query.offset     === 'undefined') ?       0 : req.query.offset;
         let activeOnly = (typeof req.query.activeOnly === 'undefined') ? 'false' : req.query.activeOnly;
         let mappedOnly = (typeof req.query.mappedOnly === 'undefined') ? 'false' : req.query.mappedOnly;
@@ -6514,9 +6522,10 @@ router.get('/users', function(req, res, next) {
             + '&limit='      + limit;
 
         let headers = getCustomHeaders(req);
-            
+        
         if(bulk) headers.Accept = 'application/vnd.autodesk.plm.users.bulk+json';
-
+        else if (typeof req.query.limit !== 'undefined') headers.Accept = '*/*';
+        
         axios.get(url, {
             headers : headers
         }).then(function(response) {

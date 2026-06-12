@@ -530,7 +530,7 @@ function openWorkspaceView(wsId) {
     if(ws.tableaus.length === 0) {
         $.get('/plm/tableaus', { 'wsId' : wsId }, function(response) {
             if(response.status === 204) {
-                $.get('/plm/tableau-init', { 'wsId' : wsId }, function(response) {
+                $.post('/plm/tableau-init', { 'wsId' : wsId }, function(response) {
                     openWorkspaceView(wsId);
                 });
             } else {
