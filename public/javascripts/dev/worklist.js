@@ -53,7 +53,7 @@ $(document).ready(function() {
     setUIEvents();
     insertMenu();
 
-    wsConfig.workspaceId = config.workspaceId || common.workspaceIds.engineeringProjectTasks;
+    wsConfig.workspaceId = config.workspaceId || common.workspaceIds.engineeringProjectActivities;
     wsConfig.fieldIDs    = config.fieldIDs;
 
     let requests = [
