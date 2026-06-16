@@ -5918,9 +5918,10 @@ function getSelectedItems(id, bomPartsList) {
 
                 let selectedItem = JSON.parse(JSON.stringify(bomPart));
 
-                result.push(selectedItem);
-
-                if(!listSelectedItems.includes(bomPart.root)) listSelectedItems.push(bomPart.root)
+                if(!listSelectedItems.includes(bomPart.root)) {
+                    listSelectedItems.push(bomPart.root)
+                    result.push(selectedItem);
+                }
             }
         }
 
