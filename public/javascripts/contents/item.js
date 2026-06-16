@@ -5917,10 +5917,13 @@ function getSelectedItems(id, bomPartsList) {
             if(settings[id].selectItems.values.includes(value)) {
 
                 let selectedItem = JSON.parse(JSON.stringify(bomPart));
+                const listIndex  = listSelectedItems.indexOf(bomPart.root);
 
-                if(!listSelectedItems.includes(bomPart.root)) {
+                if(listIndex < 0) {
                     listSelectedItems.push(bomPart.root)
                     result.push(selectedItem);
+                } else {
+                    result[listIndex].totalQuantity += Number(selectedItem.totalQuantity);
                 }
             }
         }
@@ -5928,32 +5931,6 @@ function getSelectedItems(id, bomPartsList) {
     }
 
     return result;
-
-//                             if(!isBlank(edge.selectItems)) {
-//                                 if(settings[id].selectItems.values.indexOf(edge.selectItems.toLowerCase()) > -1) {
-
-//                                     let selectItem = true;
-
-//                                     if(settings[id].selectUnique) {
-//                                         for(let selectedItem of selectedItems) {
-//                                             if(selectedItem.node.item.link === node.item.link) {
-//                                                 selectItem = false;
-//                                                 break;
-//                                             }
-//                                         }
-//                                     }
-
-//                                     if(selectItem) {
-//                                         selectedItems.push({
-//                                             'node' : node,
-//                                             'edge' : edge
-//                                         })
-//                                     }
-
-//                                 }
-//                             }
-
-//                         }
 
 }
 // function insertNextBOMLevel(id, elemTable, bom, parent, parentQuantity, numberPath, selectedItems) {
