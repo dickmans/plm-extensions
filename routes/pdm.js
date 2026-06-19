@@ -24,12 +24,12 @@ function sendResponse(req, res, response, error) {
     if(typeof req.body === 'undefined') req.body = {};
 
     let result = {
-        'url'       : req.url,
-        'params'    : (Object.keys(req.body).length === 0) ? req.query : req.body,
-        'data'      : [],
-        'status'    : '',
-        'message'   : '',
-        'error'     : error       
+        url     : req.url,
+        params  : (Object.keys(req.body).length === 0) ? req.query : req.body,
+        data    : [],
+        status  : '',
+        message : '',
+        error   : error       
     }
 
     if(error) {
@@ -149,7 +149,7 @@ router.get('/id', function(req, res, next) {
 
         let result = {
             success : false,
-            message : 'Vault name has not been defined in server settings file'
+            message : 'Vault name has not been defined in server environments file'
         }
         res.json(result);
 
@@ -191,7 +191,9 @@ router.get('/id', function(req, res, next) {
             res.json(result);
 
         }).catch(function(error) {
-            console.log(error);
+            if(error.response.status === 500) {
+                error.response.message = 'Connection timed out when connectiong to Vault <strong>' + req.app.locals.vaultName + '</strong> at Gateway <strong>' + req.app.locals.vaultGateway + '</strong>';
+            }
             sendResponse(req, res, error.response, true);
         });
 
