@@ -1868,8 +1868,8 @@ function compareGridTab() {
 
     Promise.all(requests).then(function(responses) {
 
-        let gridSource = (responses[0].data === '') ? [] : responses[0].data.fields;
-        let gridTarget = (responses[1].data === '') ? [] : responses[1].data.fields;
+        let gridSource = (responses[0].data === '') ? [] : ((responses[0].status === 403) ? [] : responses[0].data.fields);
+        let gridTarget = (responses[1].data === '') ? [] : ((responses[1].status === 403) ? [] : responses[1].data.fields);
         let matches    = getGridMatch(gridSource, gridTarget);
 
         $('#summary-grid').html('Fields : ' + gridSource.length);
