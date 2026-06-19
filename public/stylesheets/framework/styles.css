@@ -142,20 +142,22 @@
 /*  MENU */
 /* ----------------------------------------------------------------------------- */
 #menu-button {
-    margin-top  : 15px !important;
+    font-size   : 24px;
+    margin-top  : 17px !important;
     margin-left : 26px;
 }
 #menu {
     display     : none;
     position    : absolute;
-    top         : 12px;
-    left        : 23px;
+    top         : 14px;
+    left        : 22px;
     color       : black;
     z-index     : 10;
 }
 #menu-icon {
     background      : white;
     border-radius   : 10px 10px 0px 0px;
+    cursor          : pointer;
     height          : 26px;
     padding         : 10px;
 }
@@ -3305,6 +3307,35 @@ select.button.main:hover {
 #startup-error .button {
     display : inline-block;
 }
+
+
+@media only screen and (max-width: 600px) { 
+
+    #startup-error { 
+         background : var(--color-surface-level-3);
+    }
+    .startup-error-wrapper {
+        width : calc(100% - 96px);
+    }
+
+}
+@media only screen and (max-width: 460px) { 
+
+    .startup-error-header {
+        flex-direction: column;
+    }
+    .startup-error-wrapper > div {
+        text-align : center;
+    }
+    .startup-error-title {
+        line-height : 32px !important;
+    }
+    .startup-error-wrapper > div {
+        justify-content: center;
+    }
+
+}
+
 
 
 
