@@ -404,6 +404,7 @@
 .icon-tabs::before              { content : '\e265'; }
 .icon-tag::before               { content : '\f05b'; }
 .icon-target::before            { content : '\f70c'; }
+.icon-template::before          { content : '\e2ec'; }
 .icon-text-increase::before     { content : '\eae2'; }
 .icon-text-decrease::before     { content : '\eadd'; }
 .icon-tiles::before             { content : '\e9b0'; }
