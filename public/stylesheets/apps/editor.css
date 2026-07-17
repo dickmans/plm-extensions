@@ -361,7 +361,8 @@ body.landing #header-toolbar > .button { display : none; }
 .editor-item-recover > div {
     border-radius : 0px;
 }
-.editor-item-actions > .button.icon {
+.editor-item-actions > .button.icon,
+.editor-item-recover > .button.icon {
     font-size     : 20px;
     line-height   : 28px;
     max-height    : 28px;

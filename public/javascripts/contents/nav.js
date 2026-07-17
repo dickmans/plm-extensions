@@ -672,8 +672,6 @@ function insertWorkspaceSearchData(id, isNext) {
         tileImageFieldId   : settings[id].tileImageFieldId
     }
 
-    console.log(params);
-
     let requests = [
         $.post('/plm/search', params),
         $.get( '/plm/fields',  { wsId : settings[id].wsId, useCache : settings[id].useCache } ),
@@ -835,6 +833,7 @@ function insertWorkspaceSearchData(id, isNext) {
         sortArray(listStates, 0);
         setPanelFilterOptions(id, 'status', listStates);
         finishPanelContentUpdate(id, items);
+        $('#' + id + '-search-content-input').focus();
 
         // The v1 /plm/search response carries no total count, so derive the
         // pagination state from the page fill: a full page implies there may be more.
@@ -1008,6 +1007,8 @@ function insertSearchData(id, isNext) {
         setPanelFilterOptions(id, 'workspace', listWorkspaces);
         finishPanelContentUpdate(id, items);
         setPanelPaginationControls(id, response.data.totalCount);
+        $('#' + id + '-search-content-input').focus();
+
 
         if(!isNext) {
             if(settings[id].autoClick) {

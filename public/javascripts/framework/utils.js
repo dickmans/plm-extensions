@@ -3175,6 +3175,7 @@ function finishPanelContentUpdate(id, items, linkNew, data) {
 
     if(settings[id].counters) updatePanelCalculations(id);
     if(!isBlank(settings[id].afterCompletion)) settings[id].afterCompletion(id, data);
+    unhideAllPanelToolbars(id);
 
 }
 function highlightNewPanelContent(id, linkNew) {
@@ -3206,6 +3207,13 @@ function setPanelPaginationControls(id, total) {
     if(elemPaginationNext.length > 0) {
         if(count >= total) elemPaginationNext.addClass('hidden'); else elemPaginationNext.removeClass('hidden');
     }
+
+}
+function unhideAllPanelToolbars(id) {
+
+    $('#' + id + '-controls').show();
+    $('#' + id + '-actions' ).show();
+    $('#' + id + '-footer'  ).show();
 
 }
 
@@ -3992,7 +4000,17 @@ function genTreeRow(id, item) {
         elemRow.attr('ondragstart', settings[id].onDragStart);
         elemRow.attr('ondragend'  , settings[id].onDragEnd  );
 
-    }    
+    }
+
+    if(settings[id].dropable) {
+
+        elemRow.attr('ondragenter', settings[id].onDragEnter);
+        elemRow.attr('ondragover' , settings[id].onDragOver );
+        elemRow.attr('ondragleave', settings[id].onDragLeave);
+        elemRow.attr('ondrop'     , settings[id].onDrop     );
+
+    }
+
 
     $('<td></td>').appendTo(elemRow).addClass('tree-color');
 

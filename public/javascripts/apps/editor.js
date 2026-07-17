@@ -902,15 +902,17 @@ function setLockedStatus(elemEditor, elemTitle, revision, data) {
     let isLocked  = (editMode === 'template') ? true : false;
     let lockValue = data[config.wsMain.itemsLocked.fieldId] || '';
 
+    console.log(lockValue);
+
     if(revision !== '') {
         if(revision !== 'WIP') { 
             isLocked = true;
-
         }
     }  
 
     if(!isLocked) {
         isLocked = (lockValue == config.wsMain.itemsLocked.value);
+        console.log((lockValue == config.wsMain.itemsLocked.value));
     }
 
     if(isLocked) {
@@ -961,6 +963,9 @@ function setEditorItemReused(elemEditor) {
     elemEditor.addClass('reused'); 
 
     const elemTitle = elemEditor.find('.editor-item-title');
+    const elemReuse = elemEditor.find('.editor-item-reuse');
+
+    if(elemReuse.length > 0) return;
 
     $('<div></div>').insertBefore(elemTitle)
         .attr('title', config.wsMain.itemsReused.title || '')
@@ -1998,10 +2003,6 @@ function onTreeDrop(e) {
         const elemEditor       = getMatchById(elemItem);
         const elemEditorParent = getMatchById(elemParent);
 
-        console.log(elemEditor.length);
-        console.log(elemEditor.hasClass('tree-item'));
-        console.log(elemEditor.hasClass('editor-item'));
-
           elemItem.attr('data-level', levelNew);
         elemEditor.attr('data-level', levelNew);
 
@@ -2194,9 +2195,11 @@ function onEditorDrop(e) {
         }
 
         data[config.wsMain.itemsLocked.fieldId] = getSectionFieldValue(response.data.sections, config.wsMain.itemsLocked.fieldId, '', 'title');
-        data[config.wsMain.itemsReused.fieldId] = getSectionFieldValue(response.data.sections, config.wsMain.itemsReused.fieldId, '', 'title');
+        data[config.wsMain.itemsReused.fieldId] = config.wsMain.itemsReused.value;
 
         let elemTop = insertContentEditorElement(elemPrevious, link, '', revision, '', '', level, data);
+
+        data[config.wsMain.itemsReused.fieldId] = getSectionFieldValue(response.data.sections, config.wsMain.itemsReused.fieldId, '', 'title');
 
         if(data[config.wsMain.itemsReused.fieldId] != config.wsMain.itemsReused.value) {
 
