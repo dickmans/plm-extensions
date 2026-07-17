@@ -5,12 +5,12 @@ $(document).ready(function() {
     setAddinEvents();
 
     insertItemSummary(urlParameters.link, {
-        id         : 'item',
-        bookmark   : true,
-        layout     : 'tabs',
-        openInPLM  : true,
-        reload     : true,
-        contents   : config.item.tabs
+        id              : 'item',
+        bookmark        : true,
+        openInPLM       : true,
+        reload          : true,
+        summaryLayout   : 'tabs',
+        summaryContents : config.item.tabs
 
     });    
 

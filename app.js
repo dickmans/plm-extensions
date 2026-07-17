@@ -37,6 +37,7 @@ if ((process.argv.length > 2) && (!fs.existsSync(pathEnvironment))) {
     const landing     = require('./routes/landing');
     const plm         = require('./routes/plm');
     const vault       = require('./routes/pdm');
+    const aps         = require('./routes/aps');
     const services    = require('./routes/services');
     const { fchmodSync } = require('fs');
     const environment = require(pathEnvironment);
@@ -47,18 +48,23 @@ if ((process.argv.length > 2) && (!fs.existsSync(pathEnvironment))) {
     app.locals.clientId          = process.env.CLIENT_ID           || environment.clientId;
     app.locals.redirectUri       = process.env.REDIRECT_URI        || environment.redirectUri;
     app.locals.tenant            = process.env.TENANT              || environment.tenant;
-    app.locals.defaultTheme      = process.env.DEFAULT_THEME       || environment.defaultTheme;
-    app.locals.enableCache       = process.env.ENABLE_CACHE        || environment.enableCache;
-    app.locals.debugMode         = process.env.DEBUG_MODE          || environment.debugMode;
+    app.locals.environment       = pathEnvironment;
     app.locals.settings          = process.env.SETTINGS            || environment.settings;
-    app.locals.adminClientId     = process.env.ADMIN_CLIENT_ID     || environment.adminClientId;
-    app.locals.adminClientSecret = process.env.ADMIN_CLIENT_SECRET || environment.adminClientSecret;
-    app.locals.vaultGateway      = process.env.VAULT_GATEWAY       || environment.vaultGateway;
-    app.locals.vaultName         = process.env.VAULT_NAME          || environment.vaultName;
+    app.locals.defaultTheme      = process.env.DEFAULT_THEME       || environment.defaultTheme      || 'dark';
+    app.locals.enableCache       = process.env.ENABLE_CACHE        || environment.enableCache       || true;
+    app.locals.debugMode         = process.env.DEBUG_MODE          || environment.debugMode         || false;
+    app.locals.fusionConnected   = process.env.FUSION_CONNECTED    || environment.fusionConnected   || false;
+    app.locals.adminClientId     = process.env.ADMIN_CLIENT_ID     || environment.adminClientId     || '' ;
+    app.locals.adminClientSecret = process.env.ADMIN_CLIENT_SECRET || environment.adminClientSecret || '';
+    app.locals.vaultGateway      = process.env.VAULT_GATEWAY       || environment.vaultGateway      || '';
+    app.locals.vaultName         = process.env.VAULT_NAME          || environment.vaultName         || '';
     app.locals.tenantLink        = 'https://' + app.locals.tenant + '.autodeskplm360.net';
-    app.locals.vaultGatewayLink  = (app.locals.vaultGateway === '') ? '' : 'https://' + app.locals.vaultGateway + '.vg.autodesk.com';
     app.locals.protocol          = process.env.PROTOCOL || app.locals.redirectUri.split('://')[0];
     app.locals.port              = process.env.PORT;
+    app.locals.hubId             = '';
+    
+    app.locals.vaultGateway      = app.locals.vaultGateway.split('.vg.autodesk.com')[0];
+    app.locals.vaultGatewayLink  = (app.locals.vaultGateway === '') ? '' : 'https://' + app.locals.vaultGateway + '.vg.autodesk.com';
 
     if(typeof app.locals.port === 'undefined') {
         let redirectSplit = app.locals.redirectUri .split(':');
@@ -107,6 +113,7 @@ if ((process.argv.length > 2) && (!fs.existsSync(pathEnvironment))) {
     app.use('/', landing);
     app.use('/plm', plm);
     app.use('/vault', vault);
+    app.use('/aps', aps);
     app.use('/services', services);
     app.use('/storage', express.static(__dirname + '/storage'), serveIndex(__dirname + '/storage', { icons: true }));
 

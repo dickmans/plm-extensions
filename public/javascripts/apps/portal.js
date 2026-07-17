@@ -1,7 +1,7 @@
 let paramsDetails     = {}
 let paramsAttachments = {}
 let linkSelected      = '';
-let wsConfig          = { workspaceId : '' };
+let wsConfig          = { workspaceId : '' , isComponent : false };
 
 $(document).ready(function() {
     
@@ -11,47 +11,53 @@ $(document).ready(function() {
     wsConfig.workspaceId = config.workspaceId || common.workspaceIds.items;
     wsConfig.bomViewName = config.panels.insertDetails.bomViewName || common.workspaces.items.defaultBOMView;
 
-    let requests = [
-        $.get('/plm/sections' , { wsId : wsConfig.workspaceId, useCache : config.panels.insertDetails.useCache || true }),
-        $.get('/plm/fields'   , { wsId : wsConfig.workspaceId, useCache : config.panels.insertDetails.useCache || true }),
-        $.get('/plm/bom-views', { wsId : wsConfig.workspaceId, useCache : config.panels.insertBOM.useCache     || true })
-    ];
+    $.get('/plm/workspace', { wsId : wsConfig.workspaceId, useCache : true }, function(response) {
 
-    getFeatureSettings('portal', requests, function(responses) {
+        if(response.data.systemName === 'CW_COMPONENTS') wsConfig.isComponent = true;
 
-        wsConfig.sections = responses[0].data;
-        wsConfig.fields   = responses[1].data;
+        let requests = [
+            $.get('/plm/sections' , { wsId : wsConfig.workspaceId, isComponent : wsConfig.isComponent, useCache : config.panels.insertDetails.useCache || true }),
+            $.get('/plm/fields'   , { wsId : wsConfig.workspaceId, isComponent : wsConfig.isComponent, useCache : config.panels.insertDetails.useCache || true }),
+            $.get('/plm/bom-views', { wsId : wsConfig.workspaceId, isComponent : wsConfig.isComponent, useCache : config.panels.insertBOM.useCache     || true }),
+        ];
 
-        getBOMViewDefinition(responses[2].data.bomViews, wsConfig.bomViewName, wsConfig);
+        getFeatureSettings('portal', requests, function(responses) {
 
-        let paramsSearch = config.panels.insertSearch;
-            paramsSearch.workspacesIn = [wsConfig.workspaceId];
-            paramsSearch.onClickItem  = function(elemClicked) { clickTile(elemClicked); };
+            wsConfig.sections = responses[0].data;
+            wsConfig.fields   = responses[1].data;
 
-        insertSearch(paramsSearch);
+            if(!wsConfig.isComponent) getBOMViewDefinition(responses[2].data.bomViews, wsConfig.bomViewName, wsConfig);
 
-        let paramsRecentItems = config.panels.insertRecentItems;
-            paramsRecentItems.workspacesIn    = [wsConfig.workspaceId];
-            paramsRecentItems.afterCompletion = function(id) { openMostRecentItem(); };
-            paramsRecentItems.onClickItem     = function(elemClicked) { clickTile(elemClicked); };
+            let paramsSearch = config.panels.insertSearch;
+                paramsSearch.workspacesIn = [wsConfig.workspaceId];
+                paramsSearch.onClickItem  = function(elemClicked) { clickTile(elemClicked); };
 
-        insertRecentItems(paramsRecentItems);
+            insertSearch(paramsSearch);
 
-        paramsDetails     = config.panels.insertDetails;
-        paramsAttachments = config.panels.insertAttachments;
+            let paramsRecentItems = config.panels.insertRecentItems;
+                paramsRecentItems.workspacesIn    = [wsConfig.workspaceId];
+                paramsRecentItems.afterCompletion = function(id) { openMostRecentItem(); };
+                paramsRecentItems.onClickItem     = function(elemClicked) { clickTile(elemClicked); };
 
-        if(!isBlank(urlParameters.link)) {
+            insertRecentItems(paramsRecentItems);
 
-            $('#toggle-search').click();
-            $('#toggle-bom').click();
+            paramsDetails     = config.panels.insertDetails;
+            paramsAttachments = config.panels.insertAttachments;
 
-            linkSelected = urlParameters.link;
+            if(!isBlank(urlParameters.link)) {
 
-            $.get('/plm/descriptor', { link : linkSelected }, function(response) {
-                openItem(response.data);
-            });
+                $('#toggle-search').click();
+                $('#toggle-bom').click();
 
-        }
+                linkSelected = urlParameters.link;
+
+                $.get('/plm/descriptor', { link : linkSelected }, function(response) {
+                    openItem(response.data);
+                });
+
+            }
+
+        });
 
     });
 
@@ -117,14 +123,20 @@ function openItem(title) {
     $('#header-subtitle').html(title).show();
 
     document.title = title; 
+
     insertViewer(linkSelected, {
         extensionsIn : config.viewingFormats || common.viewer.extensionsIncluded,
-        features     : config.viewerFeatures
+        features     : config.viewerFeatures,
+        isComponent  : wsConfig.isComponent
     });
 
-    let paramsBOM = config.panels.insertBOM;
-        paramsBOM.bomViewId = wsConfig.bomViewId;
+    let paramsBOM             = config.panels.insertBOM;
+        paramsBOM.bomViewId   = wsConfig.bomViewId;
+        paramsBOM.isComponent = wsConfig.isComponent;
         paramsBOM.onClickItem = function(elemClicked) { onClickBOMItem(elemClicked); }
+
+    paramsDetails.isComponent = wsConfig.isComponent
+    paramsDetails.useCache = false;
 
     insertDetails(linkSelected, paramsDetails, wsConfig);
     insertAttachments(linkSelected, paramsAttachments);
@@ -135,18 +147,22 @@ function openItem(title) {
 function onClickBOMItem(elemClicked) {
 
     let link = elemClicked.attr('data-link');
-
+    
     if(elemClicked.hasClass('selected')) { 
 
         let partNumber = elemClicked.attr('data-part-number');
-        if(isBlank) partNumber = elemClicked.attr('data-title').split(' - ')[0];
+        let modelId    = elemClicked.attr('data-modelid');
+
+        if(isBlank(partNumber)) partNumber = elemClicked.attr('data-title').split(' - ')[0];
         viewerSelectModel(partNumber, {
             isolate   : true,
             ghosting  : true,
             highlight : true
         });
 
-        insertDetails(link, paramsDetails, wsConfig);
+        if(isBlank(modelId)) insertDetails(link, paramsDetails, wsConfig);
+                        else insertDetails(link, paramsDetails, { modelId : modelId });
+        
         insertAttachments(link, paramsAttachments);
 
     } else {

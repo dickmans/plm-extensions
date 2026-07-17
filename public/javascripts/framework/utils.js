@@ -190,21 +190,24 @@ function getFeatureSettingsDone() {
 }
 
 
-// Retrieve configuration profile from application settings for defined workspace ID
-function getProfileSettings(appConfiguration, wsId) {
+// Get Vault ID
+function getVaultId() {
 
-    let result = {};
+    showStartupDialog();
 
-    for(let appProfile of appConfiguration) {
+    $.get('/vault/id', function(response) {
 
-        if(wsId === appProfile.wsId.toString()) {
-            result = appProfile;
+        if(response.success) {
+            hideStartupDialog();
+        } else {
+            showStartupError({
+                title        : 'No Vault Connection',
+                details      : 'Please forward this message to your administrator :<br/>' + response.message
+            });
         }
 
-    }
-
-    return result;
-
+    });
+    
 }
 
 
@@ -540,6 +543,378 @@ function setCacheStatusIndicator(result) {
 }
 
 
+// Set user profile picture
+function insertAvatar() {
+
+    let elemAvatar = $('#header-avatar');
+
+    if(elemAvatar.length === 0) return;
+
+    $.get('/plm/me', { useCache : false }, function(response) {
+
+        userAccount.displayName  = response.data.displayName;
+        userAccount.email        = response.data.email;
+        userAccount.organization = response.data.organization;
+        userAccount.fullName     = response.data.fullName;
+        userAccount.userId       = response.data.userId;
+        userAccount.userNumber   = response.data.userNumber;
+
+        if(isBlank(response.data.image.large)) {
+
+            elemAvatar.addClass('icon').addClass('icon-user').addClass('filled');
+
+        } else {
+
+            elemAvatar.html('')
+                .addClass('no-icon')
+                .attr('title', response.data.displayName + ' @ ' + tenant)
+                .css('background', 'url(' + response.data.image.large + ')')
+                .css('background-position', 'center')
+                .css('background-size', elemAvatar.css('height'));
+
+        }
+
+        insertAvatarDone(response.data);
+
+    });
+
+}
+function insertAvatarDone(data) {}
+
+
+// Insert Rich Text Editor elements
+function insertRichTextEditor(elemParent, value, params, classNameOfChangedElement) {
+
+    if(isBlank(params)) {
+
+        params = {
+            styles : true,
+            font   : true,
+            links  : true,
+            insert : true,
+            color  : true,
+            back   : true,
+            indent : true,
+            table  : true
+        };
+
+    } else {
+
+        if(isBlank(params.styles)) params.styles = true;
+        if(isBlank(params.font  )) params.font   = true;
+        if(isBlank(params.links )) params.links  = true;
+        if(isBlank(params.insert)) params.insert = true;
+        if(isBlank(params.color )) params.color  = true;
+        if(isBlank(params.back  )) params.back   = true;
+        if(isBlank(params.indent)) params.indent = true;
+        if(isBlank(params.table )) params.table  = true;
+
+    }
+
+    let elemInput = $('<div></div>').appendTo(elemParent)
+        .html(value)
+        .addClass('rte-input')
+        .attr('data-class-name-changed-element', classNameOfChangedElement)
+        .attr('contenteditable', true);
+
+
+    let elemToolbar = $('<div></div>').appendTo(elemParent).addClass('rte-toolbar');
+
+    if(params.styles) {
+
+        let elemStyles = $('<select></select>').appendTo(elemToolbar)
+            .addClass('button')
+            .on('change', function() {
+                setRTEFormat($(this), 'formatBlock', $(this).val());
+            });        
+
+        $('<option></option>').appendTo(elemStyles).attr('value', 'h1').html('Heading 1');
+        $('<option></option>').appendTo(elemStyles).attr('value', 'h2').html('Heading 2');
+        $('<option></option>').appendTo(elemStyles).attr('value', 'h3').html('Heading 3');
+        $('<option></option>').appendTo(elemStyles).attr('value', 'h4').html('Heading 4');
+        $('<option></option>').appendTo(elemStyles).attr('value', 'p').html('Paragraph');
+
+    }
+
+    if(params.font) {
+
+        insertRichTextEditorButton(elemToolbar, 'icon-bold'          , 'Bold'         , 'bold');
+        insertRichTextEditorButton(elemToolbar, 'icon-underline'     , 'Underline'    , 'underline');
+        insertRichTextEditorButton(elemToolbar, 'icon-strike-through', 'Strikethrough', 'strikeThrough');
+        insertRichTextEditorButton(elemToolbar, 'icon-remove-format' , 'Remove Format', 'removeFormat');
+
+    }
+
+    if(params.links) {
+
+        $('<div></div>').appendTo(elemToolbar)
+            .addClass('button')
+            .addClass('icon')
+            .addClass('icon-link')
+            .attr('title', 'Paste Link')
+            .click(function() {
+                let clipboard = navigator.clipboard.readText();
+                clipboard.then(function(link) {
+                    setRTEFormat($(this), 'createLink', link);
+                });
+            });
+
+        insertRichTextEditorButton(elemToolbar, 'icon-disconnect'     , 'Remove Link'    , 'unlink');
+
+    }
+
+    if(params.insert) {
+
+        insertRichTextEditorButton(elemToolbar, 'icon-list'           , 'Insert Bulleted List'  , 'insertUnorderedList');
+        insertRichTextEditorButton(elemToolbar, 'icon-bom'            , 'Insert Numbered List'  , 'insertOrderedList');
+        insertRichTextEditorButton(elemToolbar, 'icon-horizontal-rule', 'Insert Horizontal Rule', 'insertHorizontalRule');
+
+    }
+
+    if(params.color) {
+
+        insertRichTextEditorButtonColor(elemToolbar, '#ee4400');
+        insertRichTextEditorButtonColor(elemToolbar, '#ffa600');
+        insertRichTextEditorButtonColor(elemToolbar, '#8fc844');
+        insertRichTextEditorButtonColor(elemToolbar, '#0696d7');
+
+        elemToolbar.children().last().addClass('last');
+
+    }
+
+    if(params.back) {
+
+        insertRichTextEditorButtonBackground(elemToolbar, '#ee4400');
+        insertRichTextEditorButtonBackground(elemToolbar, '#ffa600');
+        insertRichTextEditorButtonBackground(elemToolbar, '#8fc844');
+        insertRichTextEditorButtonBackground(elemToolbar, '#0696d7');  
+        
+        elemToolbar.children().last().addClass('last');
+
+    }
+
+    if(params.indent) {
+
+        insertRichTextEditorButton(elemToolbar, 'icon-indent' , 'Indent' , 'indent' );
+        insertRichTextEditorButton(elemToolbar, 'icon-outdent', 'Outdent', 'outdent');
+
+    }
+
+    if(params.table) {
+
+        insertRichTextEditorButtonTable(elemToolbar, 'icon-table-alt', 'Insert Table').click(function() {
+            
+            let table = '<table><tbody>';
+            for (let row = 0; row < 3; row += 1) {
+                table += '<tr>';
+                for (let column = 0; column < 3; column += 1) {
+                    table += `<td>&nbsp;</td>`;
+                }
+                table += '</tr>';
+            }
+            table += '</tbody></table><p><br></p>';
+            setRTEFormat($(this), 'insertHTML', table);
+
+        });
+
+        insertRichTextEditorButtonTable(elemToolbar, 'icon-add-left', 'Add Column Left').click(function() {
+            
+            let activeCell = getRichtTextEditorActiveTableCell();
+            let index      = activeCell.index();
+            let elemTable  = activeCell.closest('table');
+
+            elemTable.find('tr').each(function() {
+
+                let elemRow = $(this);
+                let elemCell = $('<td></td>').html('&nbsp;');
+                let elemRef = elemRow.children().eq(index);
+
+                elemCell.insertBefore(elemRef);
+
+            });
+
+        });
+
+        insertRichTextEditorButtonTable(elemToolbar, 'icon-add-right', 'Add Column Right').click(function() {
+            
+            let activeCell = getRichtTextEditorActiveTableCell();
+            let index      = activeCell.index();
+            let elemTable  = activeCell.closest('table');
+
+            elemTable.find('tr').each(function() {
+
+                let elemRow = $(this);
+                let elemCell = $('<td></td>').html('&nbsp;');
+                let elemRef = elemRow.children().eq(index);
+
+                elemCell.insertAfter(elemRef);
+
+            });
+
+        });
+
+        insertRichTextEditorButtonTable(elemToolbar, 'icon-add-above', 'Add Row Above').click(function() {
+            
+            let activeCell = getRichtTextEditorActiveTableCell();
+            let elemCur   = activeCell.closest('tr');
+            let elemNew   = elemCur.clone();
+
+            elemNew.find('td').each(function() { $(this).html('&nbsp;'); });
+            elemNew.insertBefore(elemCur);
+
+        });
+
+        insertRichTextEditorButtonTable(elemToolbar, 'icon-add-below', 'Add Row Below').click(function() {
+            
+            let activeCell = getRichtTextEditorActiveTableCell();
+            let elemCur   = activeCell.closest('tr');
+            let elemNew   = elemCur.clone();
+
+            elemNew.find('td').each(function() { $(this).html('&nbsp;'); });
+            elemNew.insertAfter(elemCur);
+
+        });
+
+        insertRichTextEditorButtonTable(elemToolbar, 'icon-delete-row', 'Delete Row').click(function() {
+            
+            let activeCell = getRichtTextEditorActiveTableCell();
+            let elemRow   = activeCell.closest('tr');
+
+            elemRow.remove();
+
+        });
+
+        insertRichTextEditorButtonTable(elemToolbar, 'icon-delete-column', 'Delete Column').click(function() {
+            
+            let activeCell = getRichtTextEditorActiveTableCell();
+            let index      = activeCell.index();
+            let elemTable  = activeCell.closest('table');
+
+            elemTable.find('tr').each(function() {
+                $(this).children().eq(index).remove();
+            });
+
+        });
+
+        insertRichTextEditorButtonTable(elemToolbar, 'icon-delete-selection', 'Delete Table').click(function() {
+            
+            let activeCell = getRichtTextEditorActiveTableCell();
+            let elemTable  = activeCell.closest('table');
+
+            elemTable.remove();
+
+        });
+
+    }
+
+    return elemInput;
+
+}
+function insertRichTextEditorButton(elemToolbar, icon, title, command) {
+
+    $('<div></div>').appendTo(elemToolbar)
+        .addClass('button')
+        .addClass('icon')
+        .addClass(icon)
+        .attr('title', title)
+        .click(function() {
+            setRTEFormat($(this), command, null);
+        });
+
+}
+function insertRichTextEditorButtonColor(elemToolbar, color) {
+
+    $('<div></div>').appendTo(elemToolbar)
+        .addClass('button')
+        .addClass('color')
+        .css('color', color)
+        .attr('title', 'Select text color')
+        .html('A')
+        .click(function() {
+            setRTEFormat($(this), 'foreColor', color);
+        });
+
+}
+function insertRichTextEditorButtonBackground(elemToolbar, color) {
+
+    let elemText = $('<div>A</div>').css('background', color)
+
+    $('<div></div>').appendTo(elemToolbar)
+        .addClass('button')
+        .addClass('background')
+        .attr('title', 'Select background color')
+        .append(elemText)
+        .click(function() {
+            setRTEFormat($(this), 'backColor', color);
+        });
+
+}
+function insertRichTextEditorButtonTable(elemToolbar, icon, title) {
+
+    let elemButton = $('<div></div>').appendTo(elemToolbar)
+        .addClass('button')
+        .addClass('icon')
+        .addClass(icon)
+        .attr('title', title);
+
+    return elemButton;
+
+}
+function setRTEFormat(elemClicked, format, value) {
+
+    let elemInput = elemClicked.parent().siblings('.rte-input');
+    let className = elemInput.attr('data-class-name-changed-element');
+
+    elemInput.focus();
+
+    if(format !== null) document.execCommand(format, false, value || null);
+
+    if(!isBlank(className)) {
+        let elemChanged = elemInput.closest('.' + className);
+        if(elemChanged.length > 0) elemChanged.addClass('changed');
+    }
+
+}
+function getRichtTextEditorActiveTableCell() {
+
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return null;
+
+    let node = selection.anchorNode;
+    if (node && node.nodeType === Node.TEXT_NODE) node = node.parentElement;
+
+    let result = node ? node.closest('td, th') : null;
+
+    return $(result);
+
+}
+
+
+// Validate required inputs
+function hasRequiredInput(elemInput, text) {
+
+    if(elemInput.length === 0) return false;
+
+    elemInput.siblings('.missing-text').remove();
+
+    if(elemInput.val() === '') {
+
+        elemInput.addClass('missing-input');
+
+        let elemText = $('<div></div>').insertAfter(elemInput)
+            .addClass('missing-text')    
+            .html(text);
+
+        return false;
+
+    } else {
+
+        elemInput.removeClass('missing');
+        return true;
+
+    }
+
+}
 
 
 // Reset current page
@@ -692,6 +1067,38 @@ function sortArray(array, key, type, direction) {
     });
 
 }
+
+
+// Validate if string is JSON
+function isJSON(str) {
+    try {
+        return (JSON.parse(str) && !!str);
+    } catch (e) {
+        return false;
+    }
+}
+
+
+// Sort JSON by key names
+function sortJSON(obj) {
+
+    if (Array.isArray(obj)) {
+        return obj.map(sortJSON);
+    }
+
+    if (obj !== null && typeof obj === "object") {
+        return Object.keys(obj)
+            .sort()
+            .reduce((result, key) => {
+                result[key] = sortJSON(obj[key]);
+                return result;
+            }, {});
+    }
+
+    return obj;
+
+}
+
 
 
 // Get date from string property value
@@ -1177,44 +1584,6 @@ function getMatchingContentSurfaceLevels(parentLevel) {
 }
 
 
-// Set user profile picture
-function insertAvatar() {
-
-    let elemAvatar = $('#header-avatar');
-
-    if(elemAvatar.length === 0) return;
-
-    $.get('/plm/me', { useCache : false }, function(response) {
-
-        userAccount.displayName  = response.data.displayName;
-        userAccount.email        = response.data.email;
-        userAccount.organization = response.data.organization;
-        userAccount.fullName     = response.data.fullName;
-        userAccount.userNumber   = response.data.userNumber;
-
-        if(isBlank(response.data.image.large)) {
-
-            elemAvatar.addClass('icon').addClass('icon-user').addClass('filled');
-
-        } else {
-
-            elemAvatar.html('')
-                .addClass('no-icon')
-                .attr('title', response.data.displayName + ' @ ' + tenant)
-                .css('background', 'url(' + response.data.image.large + ')')
-                .css('background-position', 'center')
-                .css('background-size', elemAvatar.css('height'));
-
-        }
-
-        insertAvatarDone(response.data);
-
-    });
-
-}
-function insertAvatarDone(data) {}
-
-
 // Panel Header collapse / expand
 function togglePanelHeader(elemClicked) {
 
@@ -1459,150 +1828,34 @@ function insertCalendarMonth(id, currentDate) {
 }
 
 
-// Generate default settings object for item based and navigation views using genPanel*
-function getPanelSettings(link, params, defaults, additional) {
+// --- Registry-driven panel initialization -------------------------------------------------
+// Generate and return panel elements
+function genPanelElements(id) {
 
-    if(isBlank(defaults.additionalData)       ) defaults.additionalData        = [];
-    if(isBlank(defaults.collapsePanel)        ) defaults.collapsePanel         = false;
-    if(isBlank(defaults.collapseContents)     ) defaults.collapseContents      = false;
-    if(isBlank(defaults.contentSize)          ) defaults.contentSize           = 'm';
-    if(isBlank(defaults.contentSizes)         ) defaults.contentSizes          = [];
-    if(isBlank(defaults.counters)             ) defaults.counters              = false;
-    if(isBlank(defaults.createButtonIcon)     ) defaults.createButtonIcon      = 'icon-create';
-    if(isBlank(defaults.createButtonLabel)    ) defaults.createButtonLabel     = 'Create';
-    if(isBlank(defaults.disconnectButtonIcon) ) defaults.disconnectButtonIcon  = 'icon-list-remove';
-    if(isBlank(defaults.disconnectButtonLabel)) defaults.disconnectButtonLabel = 'Remove Selected';
-    if(isBlank(defaults.editable)             ) defaults.editable              = false;
-    if(isBlank(defaults.fieldsEx)             ) defaults.fieldsEx              = [];
-    if(isBlank(defaults.fieldsIn)             ) defaults.fieldsIn              = [];
-    if(isBlank(defaults.filterBySelection)    ) defaults.filterBySelection     = false;
-    if(isBlank(defaults.groupBy)              ) defaults.groupBy               = '';
-    if(isBlank(defaults.groupLayout)          ) defaults.groupLayout           = 'column';
-    if(isBlank(defaults.hideButtonLabels)     ) defaults.hideButtonLabels      = false;
-    if(isBlank(defaults.hideHeader)           ) defaults.hideHeader            = false;
-    if(isBlank(defaults.hideHeaderControls)   ) defaults.hideHeaderControls    = false;
-    if(isBlank(defaults.hideHeaderLabel)      ) defaults.hideHeaderLabel       = false;
-    if(isBlank(defaults.hidePanel)            ) defaults.hidePanel             = false;
-    if(isBlank(defaults.headerLabel)          ) defaults.headerLabel           = '';
-    if(isBlank(defaults.headerSubLabel)       ) defaults.headerSubLabel        = '';
-    if(isBlank(defaults.headerTopLabel)       ) defaults.headerTopLabel        = '';
-    if(isBlank(defaults.layout)               ) defaults.layout                = 'list';
-    if(isBlank(defaults.multiSelect)          ) defaults.multiSelect           = false;
-    if(isBlank(defaults.number)               ) defaults.number                = true;
-    if(isBlank(defaults.openInPLM)            ) defaults.openInPLM             = false;
-    if(isBlank(defaults.openOnDblClick)       ) defaults.openOnDblClick        = false;
-    if(isBlank(defaults.pagination)           ) defaults.pagination            = true;
-    if(isBlank(defaults.placeholder)          ) defaults.placeholder           = 'Search';
-    if(isBlank(defaults.reload)               ) defaults.reload                = false;
-    if(isBlank(defaults.reset)                ) defaults.reset                 = false;
-    if(isBlank(defaults.search)               ) defaults.search                = false;
-    if(isBlank(defaults.showInDialog)         ) defaults.showInDialog          = false;
-    if(isBlank(defaults.singleToolbar)        ) defaults.singleToolbar         = '';
-    if(isBlank(defaults.stateColors)          ) defaults.stateColors           = [];
-    if(isBlank(defaults.tableColumnsLimit)    ) defaults.tableColumnsLimit     = 100;
-    if(isBlank(defaults.tableRanges)          ) defaults.tableRanges           = false;
-    if(isBlank(defaults.tableTotals)          ) defaults.tableTotals           = false;
-    if(isBlank(defaults.textNoData)           ) defaults.textNoData            = 'No Entries';
-    if(isBlank(defaults.tileDetails)          ) defaults.tileDetails           = [];
-    if(isBlank(defaults.tileIcon)             ) defaults.tileIcon              = 'icon-product';
-    if(isBlank(defaults.tileImage)            ) defaults.tileImage             = false;
-    if(isBlank(defaults.tileSubtitle)         ) defaults.tileSubtitle          = 'WF_CURRENT_STATE';
-    if(isBlank(defaults.tileTitle)            ) defaults.tileTitle             = 'DESCRIPTOR';
-    if(isBlank(defaults.useCache)             ) defaults.useCache              = false;
-    if(isBlank(defaults.afterCompletion)      ) defaults.afterCompletion       = function (id) {};
-    if(isBlank(defaults.afterSave)            ) defaults.afterSave             = function (id) {};
+    genPanelTop                    (id);
+    genPanelHeader                 (id);
+    genPanelOpenSelectedInPLMButton(id);
+    genPanelBookmarkButton         (id);
+    genPanelWorkflowActions        (id);
+    genPanelOpenInPLMButton        (id);
+    genPanelSelectionControls      (id);
+    genPanelFilterToggleEmpty      (id);    
 
-    if(!isBlank(params.contentSizes)) params.contentSize = params.contentSizes[0];
-
-    let panelSettings = {
-        link                  : link,
-        additionalData        : isBlank(params.additionalData)        ? defaults.additionalData : params.additionalData,
-        collapsePanel         : isBlank(params.collapsePanel)         ? defaults.collapsePanel : params.collapsePanel,
-        collapseContents      : isBlank(params.collapseContents)      ? defaults.collapseContents : params.collapseContents,
-        compactDisplay        : isBlank(params.compactDisplay)        ? false : params.compactDisplay,
-        contentSize           : isBlank(params.contentSize)           ? defaults.contentSize : params.contentSize,
-        contentSizes          : isBlank(params.contentSizes)          ? defaults.contentSizes : params.contentSizes,
-        counters              : isBlank(params.counters)              ? defaults.counters : params.counters,
-        createButtonIcon      : isBlank(params.createButtonIcon)      ? defaults.createButtonIcon : params.createButtonIcon,
-        createButtonLabel     : isBlank(params.createButtonLabel)     ? defaults.createButtonLabel : params.createButtonLabel,
-        disconnectButtonIcon  : isBlank(params.disconnectButtonIcon)  ? defaults.disconnectButtonIcon : params.disconnectButtonIcon,
-        disconnectButtonLabel : isBlank(params.disconnectButtonLabel) ? defaults.disconnectButtonLabel : params.disconnectButtonLabel,
-        editable              : isBlank(params.editable)              ? defaults.editable : params.editable,
-        fieldsEx              : isBlank(params.fieldsEx)              ? defaults.fieldsEx : params.fieldsEx,
-        fieldsIn              : isBlank(params.fieldsIn)              ? defaults.fieldsIn : params.fieldsIn,
-        filterBySelection     : isBlank(params.filterBySelection)     ? defaults.filterBySelection : params.filterBySelection,
-        groupBy               : isBlank(params.groupBy)               ? defaults.groupBy : params.groupBy,
-        groupLayout           : isBlank(params.groupLayout)           ? defaults.groupLayout : params.groupLayout,
-        hideButtonLabels      : isBlank(params.hideButtonLabels)      ? defaults.hideButtonLabels : params.hideButtonLabels,
-        hideHeader            : isBlank(params.hideHeader)            ? defaults.hideHeader : params.hideHeader,
-        hideHeaderLabel       : isBlank(params.hideHeaderLabel)       ? defaults.hideHeaderLabel : params.hideHeaderLabel,
-        hideHeaderControls    : isBlank(params.hideHeaderControls)    ? defaults.hideHeaderControls : params.hideHeaderControls,
-        hidePanel             : isBlank(params.hidePanel)             ? defaults.hidePanel : params.hidePanel,
-        headerLabel           : isBlank(params.headerLabel)           ? defaults.headerLabel : params.headerLabel,
-        headerSubLabel        : isBlank(params.headerSubLabel)        ? defaults.headerSubLabel : params.headerSubLabel,
-        headerToggle          : isBlank(params.headerToggle)          ? false : params.headerToggle,
-        headerTopLabel        : isBlank(params.headerTopLabel)        ? defaults.headerTopLabel : params.headerTopLabel,
-        layout                : isBlank(params.layout)                ? defaults.layout : params.layout,
-        multiSelect           : isBlank(params.multiSelect)           ? defaults.multiSelect : params.multiSelect,
-        number                : isBlank(params.number)                ? defaults.number : params.number,
-        openInPLM             : isBlank(params.openInPLM)             ? defaults.openInPLM : params.openInPLM,
-        openOnDblClick        : isBlank(params.openOnDblClick)        ? defaults.openOnDblClick : params.openOnDblClick,
-        pagination            : isBlank(params.pagination)            ? defaults.pagination : params.pagination,
-        placeholder           : isBlank(params.placeholder)           ? defaults.placeholder : params.placeholder,
-        reload                : isBlank(params.reload)                ? defaults.reload : params.reload,
-        reset                 : isBlank(params.reset)                 ? defaults.reset : params.reset,
-        search                : isBlank(params.search)                ? defaults.search : params.search,
-        showInDialog          : isBlank(params.showInDialog)          ? defaults.showInDialog : params.showInDialog,
-        singleToolbar         : isBlank(params.singleToolbar)         ? defaults.singleToolbar : params.singleToolbar,
-        stateColors           : isBlank(params.stateColors)           ? defaults.stateColors : params.stateColors,
-        tileDetails           : isBlank(params.tileDetails)           ? defaults.tileDetails : params.tileDetails,
-        tileIcon              : isBlank(params.tileIcon)              ? defaults.tileIcon  : params.tileIcon,
-        tileImage             : isBlank(params.tileImage)             ? defaults.tileImage : params.tileImage,
-        tileImageFieldId      : isBlank(params.tileImage)             ? '' : params.tileImage,
-        tileSubtitle          : isBlank(params.tileSubtitle)          ? defaults.tileSubtitle : params.tileSubtitle,
-        tileTitle             : isBlank(params.tileTitle)             ? defaults.tileTitle : params.tileTitle,
-        tableColumnsLimit     : isBlank(params.tableColumnsLimit)     ? defaults.tableColumnsLimit : params.tableColumnsLimit,
-        tableHeaders          : isBlank(params.tableHeaders)          ? true : params.tableHeaders,
-        tableRanges           : isBlank(params.tableRanges)           ? defaults.tableRanges : params.tableRanges,
-        tableTotals           : isBlank(params.tableTotals)           ? defaults.tableTotals : params.tableTotals,
-        textNoData            : isBlank(params.textNoData)            ? defaults.textNoData : params.textNoData,
-        useCache              : isBlank(params.useCache)              ? defaults.useCache : params.useCache,
-        workspacesIn          : isBlank(params.workspacesIn)          ? [] : params.workspacesIn,
-        workspacesEx          : isBlank(params.workspacesEx)          ? [] : params.workspacesEx,
-        onClickItem           : isBlank(params.onClickItem)           ? null : params.onClickItem,
-        onDblClickItem        : isBlank(params.onDblClickItem)        ? null : params.onDblClickItem,
-        afterCompletion       : isBlank(params.afterCompletion)       ? defaults.afterCompletion : params.afterCompletion,
-        afterSave             : isBlank(params.afterSave)             ? defaults.afterSave : params.afterSave,
-        createWorkspaceIds    : [],
-        columns               : [],
-        isReload              : false,
-        sharedCache           : config.sharedCache || ''
+    for(let filter of settings[id].panelFilters)  {
+        if(filter[0] == 'toggle') genPanelFilterToggle (id, filter[1], filter[2], filter[3]);
+        else                      genPanelFilterSelect (id, filter[1], filter[2], filter[3]);
     }
 
-    if(panelSettings.collapsePanel) panelSettings.headerToggle = true;
+    delete settings[id].panelFilters;
 
-    if(!isBlank(additional)) {
-        for(let entry of additional) {
-
-            let key   = entry[0];
-            let value = entry[1];
-
-            panelSettings[key] = isEmpty(params[key]) ? value : params[key]
-    
-        }
-    }
-
-    if(debugMode) console.log(panelSettings);
-
-    panelSettings.mode = 'initial';
-
-    return panelSettings;
+    genPanelResizeButton      (id);
+    genPanelReloadButton      (id);
+    genPanelSearchInput       (id);
+    genPanelContents          (id);
+    genPanelPaginationControls(id);
 
 }
-
-
-// Generate and return panel elements
-function genPanelTop(id, className) {
+function genPanelTop(id) {
 
     let elemTop = $('#' + id);
 
@@ -1613,7 +1866,7 @@ function genPanelTop(id, className) {
 
     } else {
 
-        elemTop.addClass(className)
+        elemTop.addClass(settings[id].panelClassName)
             .addClass('panel-top')
             .html('')
             .show();
@@ -1626,8 +1879,9 @@ function genPanelTop(id, className) {
     if(settings[id].compactDisplay) { elemTop.addClass('compact'); }
     if(settings[id].counters      ) { elemTop.addClass('with-panel-counters'); }
     if(settings[id].multiSelect   ) { elemTop.addClass('multi-select'); }
-    if(settings[id].hidePanel     ) { elemTop.addClass('hidden'); }
+    if(settings[id].hidePanel     ) { elemTop.addClass('hidden'); } 
     if(settings[id].hideHeader    ) { elemTop.addClass('no-header'); }
+    if(settings[id].surfaceLevel  ) { elemTop.addClass('surface-level-' + settings[id].surfaceLevel); }
 
     if(!isBlank(settings[id].link)) elemTop.attr('data-link', settings[id].link);
 
@@ -1643,6 +1897,8 @@ function genPanelToolbar(id, name) {
         suffix = suffix.toLowerCase();
 
     let elemToolbar = $('#' + id + '-' + suffix);
+
+    elemToolbar.hide();
 
     if(elemToolbar.length > 0) return elemToolbar;
 
@@ -1725,7 +1981,7 @@ function genPanelHeader(id) {
 
     elemHeader.addClass(classNameTitle);
 
-    if(settings[id].hideHeaderLabel) $('#' + id).addClass('no-header-title');
+    if(settings[id].hideHeaderLabel) $('#' + id).addClass('no-header-title'); else $('#' + id).removeClass('no-header-title');
 
     genPanelHeaderCloseButton(id);
 
@@ -1872,7 +2128,7 @@ function genPanelOpenInPLMButton(id,) {
 }
 function genPanelOpenSelectedInPLMButton(id) {
 
-    if(!settings[id].openInPLM) return;
+    if(!settings[id].openSelectedInPLM) return;
 
     let elemToolbar = genPanelToolbar(id, 'controls');
 
@@ -1935,20 +2191,20 @@ function genPanelSelectionControls(id) {
 
         if(settings[id].filterBySelection) {
 
-        $('<div></div>').appendTo(elemToolbar)
-            .addClass('button')
-            .addClass('icon')
-            .addClass('icon-filter-selected')
-            .addClass('xs')
-            .addClass('multi-select-action')
-            .attr('id', id + '-filter-selected-only')
-            .attr('title', 'Display selected items only')
-            .click(function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                $(this).toggleClass('enabled');
-                filterPanelContent(id);
-            });
+            $('<div></div>').appendTo(elemToolbar)
+                .addClass('button')
+                .addClass('icon')
+                .addClass('icon-filter-selected')
+                .addClass('xs')
+                .addClass('multi-select-action')
+                .attr('id', id + '-filter-selected-only')
+                .attr('title', 'Display selected items only')
+                .click(function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    $(this).toggleClass('enabled');
+                    filterPanelContent(id);
+                });
 
         }
     }
@@ -1960,7 +2216,7 @@ function genPanelToggleButtons(id, callbackExpand, callbackCollapse) {
 
     let elemToolbar = genPanelToolbar(id, 'controls');
 
-    $('<div></div>').appendTo(elemToolbar)
+    $('<div></div>').prependTo(elemToolbar)
         .addClass('button')
         .addClass('icon')
         .addClass('xs')
@@ -1973,7 +2229,7 @@ function genPanelToggleButtons(id, callbackExpand, callbackCollapse) {
             callbackExpand($(this));
         });
 
-    $('<div></div>').appendTo(elemToolbar)
+    $('<div></div>').prependTo(elemToolbar)
         .addClass('button')
         .addClass('icon')
         .addClass('xs')
@@ -2046,8 +2302,8 @@ function genPanelFilterToggle(id, property, suffix, label) {
     let elemToggle =  $('<div></div>').appendTo(elemToolbar)
         .hide()    
         .addClass('button')
-        .addClass('with-icon')
-        .addClass('icon-toggle-off')
+        .addClass('with-toggle')
+        .addClass('toggle-off')
         .addClass(id + '-filter-toggle')
         .html(label)
         .attr('id', id + '-filter-'+ suffix)
@@ -2056,7 +2312,7 @@ function genPanelFilterToggle(id, property, suffix, label) {
         .click(function(e) {
             e.preventDefault();
             e.stopPropagation();
-            $(this).toggleClass('icon-toggle-off').toggleClass('icon-toggle-on').toggleClass('filled');
+            $(this).toggleClass('toggle-off').toggleClass('toggle-on');
             filterPanelContent(id);
         });
 
@@ -2071,15 +2327,15 @@ function genPanelFilterToggleEmpty(id) {
 
     let elemToggle = $('<div></div>').appendTo(elemToolbar)
         .addClass('button')
-        .addClass('with-icon')
-        .addClass('icon-toggle-off')
+        .addClass('with-toggle')
+        .addClass('toggle-off')
         .html('Empty Cell')
         .attr('title', 'Focus on rows having empty inputs')
         .attr('id', id + '-filter-empty-only')
         .click(function(e) {
             e.preventDefault();
             e.stopPropagation();
-            $(this).toggleClass('icon-toggle-off').toggleClass('icon-toggle-on').toggleClass('filled');
+             $(this).toggleClass('toggle-off').toggleClass('toggle-on');
             filterPanelContent(id);
         });
 
@@ -2087,6 +2343,8 @@ function genPanelFilterToggleEmpty(id) {
 
 }
 function genPanelSearchInput(id) {
+
+    if(!settings[id].search) return;
 
     let elemToolbar = genPanelToolbar(id, 'controls');
 
@@ -2160,6 +2418,7 @@ function genPanelSearchInput(id) {
         .addClass('button')
         .addClass('icon')
         .addClass('icon-cancel')
+        .addClass('filled')
         .addClass('hidden')
         .attr('id', id + '-filter-clear').click(function(e) {
             e.preventDefault();
@@ -2309,6 +2568,8 @@ function genPanelCreateButton(id, callback) {
             e.preventDefault();
             e.stopPropagation();
 
+            if($(this).hasClass('disabled')) return;
+
             insertCreate(settings[id].createWorkspaceNames, settings[id].createWorkspaceIds, {
                 id                  : settings[id].createId,
                 headerLabel         : settings[id].createHeaderLabel,
@@ -2345,7 +2606,6 @@ function genPanelDisconnectButton(id, callback) {
 
     let elemButtonDisconnect = $('<div></div>').appendTo(elemToolbar)
         .addClass('button')
-        .addClass('with-icon')
         .addClass('panel-action-remove')
         .addClass(settings[id].disconnectButtonIcon)
         .addClass('xs')
@@ -2353,12 +2613,18 @@ function genPanelDisconnectButton(id, callback) {
         .addClass('multi-select-action')
         .attr('id', id + '-action-disconnect')
         .attr('title', 'Removes the selected elements from the view. The given items will remain in the database.')
-        .html(settings[id].disconnectButtonLabel)
         .click(function(e) {
             e.preventDefault();
             e.stopPropagation();
             callback($(this));
         });
+
+    if(settings[id].disconnectButtonLabel === '') {
+        elemButtonDisconnect.addClass('icon');
+    } else {
+        elemButtonDisconnect.html(settings[id].disconnectButtonLabel);
+        elemButtonDisconnect.addClass('with-icon');
+    }
 
     return elemButtonDisconnect;
 
@@ -2638,16 +2904,16 @@ function startPanelContentUpdate(id, mode) {
 
     if(elemToggles.length > 0) {
         elemToggles.each(function() { 
-            $(this).removeClass('icon-toggle-on')
+            $(this).removeClass('toggle-on')
                 .removeClass('filled')
-                .addClass('icon-toggle-off')
+                .addClass('toggle-off')
                 .hide();
         })
     }
 
     if(elemFilterSelected.length > 0) elemFilterSelected.removeClass('toggle-on').addClass('toggle-off');
 
-    if(elemFilterEmpty.length > 0) elemFilterEmpty.removeClass('icon-toggle-on').addClass('icon-toggle-off').removeClass('filled');
+    if(elemFilterEmpty.length > 0) elemFilterEmpty.removeClass('toggle-on').addClass('toggle-off').removeClass('filled');
 
     if(elemCounters.length > 0) elemCounters.children().each(function() {
         $(this).html('').removeClass('not-empty');
@@ -2655,7 +2921,9 @@ function startPanelContentUpdate(id, mode) {
 
     $('#' + id).find('.single-select-action').hide();
     $('#' + id).find('.multi-select-action').hide();
-    $('#' + id + '-actions').children('.panel-action').hide();
+    $('#' + id + '-controls').hide();
+    $('#' + id + '-actions').hide();
+    $('#' + id + '-footer').hide();
     $('#' + id + '-action-create').show().addClass('disabled');
     $('#' + id + '-content').html('').hide();
     
@@ -2739,7 +3007,7 @@ function setPanelCloneStatus(id, responses) {
 }
 function includePanelTableColumn (fieldId, fieldName, panelSettings, counter) {
 
-    if(panelSettings.tableColumnsLimit > counter) {
+    if(Number(panelSettings.tableColumnsLimit) > counter) {
         if((panelSettings.fieldsIn.length === 0) || ( panelSettings.fieldsIn.includes(fieldId)) || ( panelSettings.fieldsIn.includes(fieldName))) {
             if((panelSettings.fieldsEx.length === 0) || ((!panelSettings.fieldsEx.includes(fieldId)) && (!panelSettings.fieldsEx.includes(fieldName)))) {
                 return true;
@@ -2829,8 +3097,9 @@ function setPanelContentActions(id) {
         }
     }
 
+    
     Promise.all(requests).then(function(responses) {
-
+        
         if(responses.length > 0) settings[id].relatedPermissions = responses;
 
         if(settings[id].createWorkspaceIds.length === 0) {
@@ -2883,6 +3152,7 @@ function finishPanelContentUpdate(id, items, linkNew, data) {
                 case 'table': genTable(id, items); break;
                 case 'list' : genTiles(id, items); break;
                 case 'grid' : genTiles(id, items); break;
+                default     : genTiles(id, items); break;
             }
         }
     }
@@ -2893,6 +3163,9 @@ function finishPanelContentUpdate(id, items, linkNew, data) {
 
     if(elemContent.find('.content-item').length > 0) {
         elemContent.show();
+        $('#' + id + '-controls').show();
+        $('#' + id + '-actions').show();
+        $('#' + id + '-footer').show();
     } else {
         elemContent.hide();
         $('#' + id + '-no-data').show();
@@ -2943,8 +3216,8 @@ function filterPanelContent(id) {
 
     let elemSearchInput   = $('#' + id + '-search-input');
     let elemSearchActions = $('#' + id + '-search-actions');
+    let searchInputValue  = (elemSearchInput.length === 0) ? '' : elemSearchInput.val().toUpperCase();
     let searchMode        = elemSearchInput.siblings('.icon.default').attr('data-mode');
-    let searchInputValue  = elemSearchInput.val().toUpperCase();
     let elemTop           = $('#' + id);
     let elemContent       = $('#' + id + '-content');
     let elemNoData        = $('#' + id + '-no-data');
@@ -2961,7 +3234,7 @@ function filterPanelContent(id) {
 
     toggleFilters.each(function() {
         let elemToggle = $(this);
-        if(elemToggle.hasClass('icon-toggle-on')) {
+        if(elemToggle.hasClass('toggle-on')) {
             filters.push({
                 key   : elemToggle.attr('data-key'),
                 value : elemToggle.attr('data-value')
@@ -2993,7 +3266,7 @@ function filterPanelContent(id) {
     }
 
     if(toggleEmpty.length > 0) {
-        if(toggleEmpty.hasClass('icon-toggle-on')) {
+        if(toggleEmpty.hasClass('toggle-on')) {
             filterEmpty     = true;
             clearAllFilters = false;
         }
@@ -3612,8 +3885,8 @@ function genTreeHeaders(id, elemTHead) {
 }
 function genTreeRows(id, elemTBody, items) {   
 
-    if(isBlank(settings[id].skipRootItem)) settings[id].skipRootItem = true;
-    if(isBlank(settings[id].hideNumber  )) settings[id].hideNumber =  true;
+    if(isBlank(settings[id].skipRootItem  )) settings[id].skipRootItem = true;
+    if(isBlank(settings[id].hideTreeNumber)) settings[id].hideTreeNumber =  true;
 
     let index = (settings[id].skipRootItem) ? 1 : 0;
 
@@ -3621,61 +3894,126 @@ function genTreeRows(id, elemTBody, items) {
 
         let item = items[index];
 
-        let elemRow = $('<tr></tr>').appendTo(elemTBody)
-            .attr('data-part-number', item.partNumber)
-            .attr('data-link'       , item.link)
-            .attr('data-title'      , item.title)
-            .attr('data-title'      , item.title)
-            .attr('data-level'      , item.level)
-            .addClass('level-' + item.level)
-            .addClass('content-item')
-            .click(function (e) {
-                clickContentItem(e, $(this));
-            }).dblclick(function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                if(!isBlank(settings[id].onDblClickItem)) settings[id].onDblClickItem($(this));
-                else if(settings[id].openOnDblClick) openItemByLink($(this).attr('data-link'));
-            });
+        let elemRow = genTreeRow(id, item); 
+            elemRow.appendTo(elemTBody);
+
+        // let elemRow = $('<tr></tr>').appendTo(elemTBody)
+        //     .attr('data-part-number', item.partNumber)
+        //     .attr('data-link'       , item.link)
+        //     .attr('data-title'      , item.title)
+        //     .attr('data-title'      , item.title)
+        //     .attr('data-level'      , item.level)
+        //     .addClass('level-' + item.level)
+        //     .addClass('content-item')
+        //     .click(function (e) {
+        //         clickContentItem(e, $(this));
+        //     }).dblclick(function(e) {
+        //         e.preventDefault();
+        //         e.stopPropagation();
+        //         if(!isBlank(settings[id].onDblClickItem)) settings[id].onDblClickItem($(this));
+        //         else if(settings[id].openOnDblClick) openItemByLink($(this).attr('data-link'));
+        //     });
 
 
-        if(!isBlank(item.domProperties)) {
-            for(domProperty of item.domProperties) {
-                elemRow.attr('data-' + domProperty.key, domProperty.value);
-            }
-        }
+        // if(!isBlank(item.domProperties)) {
+        //     for(domProperty of item.domProperties) {
+        //         elemRow.attr('data-' + domProperty.key, domProperty.value);
+        //     }
+        // }
 
-        if(settings[id].multiSelect) {
+        // if(settings[id].multiSelect) {
 
-            $('<td></td>').appendTo(elemRow)
-                .html('<div class="icon icon-check-box xxs"></div>')
-                .addClass('content-item-check-box')
-                .click(function(e) {
-                    clickContentItemCheckbox(e, $(this));
-                });
+        //     $('<td></td>').appendTo(elemRow)
+        //         .html('<div class="icon icon-check-box xxs"></div>')
+        //         .addClass('content-item-check-box')
+        //         .click(function(e) {
+        //             clickContentItemCheckbox(e, $(this));
+        //         });
     
-        }        
+        // }        
 
-        $('<td></td>').appendTo(elemRow).addClass('tree-color');
+        // $('<td></td>').appendTo(elemRow).addClass('tree-color');
 
-        let elemFirstCol = $('<td></td>').appendTo(elemRow).addClass('tree-first-col');
+        // let elemFirstCol = $('<td></td>').appendTo(elemRow).addClass('tree-first-col');
 
-        if(item.hasChildren) {
-            $('<span></span>').appendTo(elemFirstCol).addClass('tree-nav').addClass('icon');
-            elemRow.addClass('node');
-        } else elemRow.addClass('leaf');
+        // if(item.hasChildren) {
+        //     $('<span></span>').appendTo(elemFirstCol).addClass('tree-nav').addClass('icon');
+        //     elemRow.addClass('node');
+        // } else elemRow.addClass('leaf');
 
-        if(!settings[id].hideNumber) $('<span></span>').appendTo(elemFirstCol).addClass('tree-number');
+        // if(!settings[id].hideTreeNumber) $('<span></span>').appendTo(elemFirstCol).addClass('tree-number');
 
-        $('<span></span>').appendTo(elemFirstCol).addClass('tree-title').html(item.title);
+        // $('<span></span>').appendTo(elemFirstCol).addClass('tree-title').html(item.title);
 
     }
 
 }
+function genTreeRow(id, item) {
+
+    let elemRow = $('<tr></tr>')
+        .attr('data-part-number', item.partNumber)
+        .attr('data-link'       , item.link)
+        .attr('data-title'      , item.title)
+        .attr('data-title'      , item.title)
+        .attr('data-level'      , item.level)
+        .addClass('level-' + item.level)
+        .addClass('content-item')
+        .addClass('tree-item')
+        .click(function (e) {
+            clickContentItem(e, $(this));
+        }).dblclick(function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if(!isBlank(settings[id].onDblClickItem)) settings[id].onDblClickItem($(this));
+            else if(settings[id].openOnDblClick) openItemByLink($(this).attr('data-link'));
+        });
+
+
+    if(!isBlank(item.domProperties)) {
+        for(domProperty of item.domProperties) {
+            elemRow.attr('data-' + domProperty.key, domProperty.value);
+        }
+    }
+
+    if(settings[id].multiSelect) {
+
+        $('<td></td>').appendTo(elemRow)
+            .html('<div class="icon icon-check-box xxs"></div>')
+            .addClass('content-item-check-box')
+            .click(function(e) {
+                clickContentItemCheckbox(e, $(this));
+            });
+
+    }        
+
+    if(settings[id].dragable) {
+
+        elemRow.attr('draggable'  , 'true');
+        elemRow.attr('ondragstart', settings[id].onDragStart);
+        elemRow.attr('ondragend'  , settings[id].onDragEnd  );
+
+    }    
+
+    $('<td></td>').appendTo(elemRow).addClass('tree-color');
+
+    let elemFirstCol = $('<td></td>').appendTo(elemRow).addClass('tree-first-col');
+
+    if(item.hasChildren) {
+        $('<span></span>').appendTo(elemFirstCol).addClass('tree-nav').addClass('icon');
+        elemRow.addClass('node');
+    } else elemRow.addClass('leaf');
+
+    if(!settings[id].hideTreeNumber) $('<span></span>').appendTo(elemFirstCol).addClass('tree-number');
+
+    $('<span></span>').appendTo(elemFirstCol).addClass('tree-title').html(item.title);
+
+    return elemRow;
+
+}
 function genTreePath(id) {
 
-    if(!settings[id].hasOwnProperty('path')) return;
-    if(!settings[id].path) return;
+    if(!settings[id].hasOwnProperty('treePath')) return;
+    if(!settings[id].treePath) return;
 
     $('<div></div>').appendTo($('#' + id))
         .attr('id', id + '-tree-path')
@@ -3715,47 +4053,53 @@ function genTreePath(id) {
 function enableTreeToggles(id) {
 
     $('#' + id).find('.tree-nav').click(function(e) {
-    
-        e.stopPropagation();
-        e.preventDefault();
+        clickTreeToggle(e, $(this))
+    });
 
-        let elemItem    = $(this).closest('tr');
-        let level       = Number(elemItem.attr('data-level'));
-        let levelNext   = level - 1;
-        let levelHide   = level + 2;
-        let elemNext    = $(this).closest('tr');
-        let doExpand    = elemItem.hasClass('collapsed');
-        let filterValue = $('#' + id + '-search-input').val().toLowerCase();
-        let isFiltered  = (isBlank(filterValue)) ? false : true;
+}
+function clickTreeToggle(e, elemClicked) {
 
-        if(e.shiftKey) levelHide = 100;
+    e.stopPropagation();
+    e.preventDefault();
 
-        elemItem.toggleClass('collapsed');
+    let elemItem    = elemClicked.closest('tr');
+    let elemTop     = elemItem.closest('.panel-top');
+    let id          = elemTop.attr('id');
+    let level       = Number(elemItem.attr('data-level'));
+    let levelNext   = level - 1;
+    let levelHide   = level + 2;
+    let elemNext    = elemClicked.closest('tr');
+    let elemSearch  = $('#' + id + '-search-input');
+    let filterValue = (elemSearch.length > 0) ? elemSearch.val().toLowerCase() : '';
+    let doExpand    = elemItem.hasClass('collapsed');
+    let isFiltered  = (isBlank(filterValue)) ? false : true;
 
-        do {
+    if(e.shiftKey) levelHide = 100;
 
-            elemNext  = elemNext.next();
-            levelNext = Number(elemNext.attr('data-level'));
+    elemItem.toggleClass('collapsed');
 
-            if(levelNext > level) {
-                if(doExpand) {
-                    if(levelHide > levelNext) {
-                        if((!isFiltered) || elemNext.hasClass('result') || elemNext.hasClass('result-parent')) {
-                            elemNext.removeClass('hidden');
-                            if(e.shiftKey) {
-                                elemNext.removeClass('collapsed');
-                            }
+    do {
+
+        elemNext  = elemNext.next();
+        levelNext = Number(elemNext.attr('data-level'));
+
+        if(levelNext > level) {
+            if(doExpand) {
+                if(levelHide > levelNext) {
+                    if((!isFiltered) || elemNext.hasClass('result') || elemNext.hasClass('result-parent')) {
+                        elemNext.removeClass('hidden');
+                        if(e.shiftKey) {
+                            elemNext.removeClass('collapsed');
                         }
                     }
-                } else {
-                    elemNext.addClass('hidden');
-                    elemNext.addClass('collapsed');
                 }
+            } else {
+                elemNext.addClass('hidden');
+                elemNext.addClass('collapsed');
             }
+        }
 
-        } while(levelNext > level);
-
-    });
+    } while(levelNext > level);
 
 }
 function expandAllNodes(id) {
@@ -3840,7 +4184,7 @@ function getTreeItemPath(elemItem, pathSeparator) {
 }
 function updateTreePath(elemClicked) {
 
-    let elemTop = elemClicked.closest('.panel-top');
+    let elemTop  = elemClicked.closest('.panel-top');
     let id       = elemTop.attr('id');
     let elemPath = $('#' + id + '-tree-path');
 
@@ -3851,16 +4195,30 @@ function updateTreePath(elemClicked) {
     
     if(!elemClicked.hasClass('selected')) return;
     
-    let path  = getTreeItemPath(elemClicked);
-    let index = 0;
+    let path      = getTreeItemPath(elemClicked);
+    let index     = 0;
+    let pathTitle = settings[id].treePathTitle;
 
     elemPath.removeClass('tree-path-empty');
 
     for(let item of path.items) {
 
-        let title = item.attr('data-part-number') || item.attr('data-title');
+        let title = item.attr('data-part-number') || item.attr('data-title') || '';
 
-        title = title.split(' - ')[0];
+        if(title !== '') title = title.split(' - ')[0];
+       
+        if(pathTitle == 'dynamic') {
+            if(index < path.items.length - 1) {
+                title = item.children('.tree-first-col').find('.tree-number').html();
+            } else {
+                title = item.children('.tree-first-col').children().last().html();
+            }
+        }
+
+        if(title === '') {
+            let elemNumber = item.find('.tree-number').first();
+            if(elemNumber.length > 0) title = elemNumber.html();
+        }
 
         let elemItem = $('<div></div>').appendTo(elemPath)
             .attr('data-number', item.attr('data-number'))
@@ -4019,7 +4377,7 @@ function treeDisplayItem(elemItem) {
     
     elemTree.animate({ scrollTop: top }, 500);
 
-    if(settings[id].path) updateTreePath(elemItem);
+    if(settings[id].treePath) updateTreePath(elemItem);
 
 }
 function treeExpandParents(level, elem) {
@@ -5115,7 +5473,6 @@ function genTiles(id, items) {
         }, settings[id]).appendTo(elemContent);
 
         
-        // if(!isBlank(settings[id].groupBy) && (settings[id].groupLayout === 'horizontal')) elemTile.appendTo(elemGroupList);
         if(!isBlank(settings[id].groupBy)) elemTile.appendTo(elemGroupList);
 
         if(!isBlank(item.filters)) {
@@ -5337,6 +5694,23 @@ function genSingleTile(params, panelSettings) {
 
     }
 
+    if(panelSettings.dragable) {
+
+        elemTile.attr('draggable'  , 'true');
+        elemTile.attr('ondragstart', panelSettings.onDragStart);
+        elemTile.attr('ondragend'  , panelSettings.onDragEnd  );
+
+    }        
+    
+    if(panelSettings.dropable) {
+
+        elemTile.attr('ondragenter', panelSettings.onDragEnter);
+        elemTile.attr('ondragover' , panelSettings.onDragOver );
+        elemTile.attr('ondragleave', panelSettings.onDragLeave);
+        elemTile.attr('ondrop'     , panelSettings.onDrop     );
+
+    }      
+
     addTileActions(params, elemTile);
 
     return elemTile;
@@ -5385,7 +5759,7 @@ function addTilesListImages(id) {
 }
 function addTilesListChevrons(id, callback) {
 
-    if(!settings[id].expand) return;
+    if(!settings[id].tileToggle) return;
 
     $('#' + id + '-content').children('.tile').each(function() {
         
@@ -5938,6 +6312,36 @@ function clickContentItemDone(e, elemClicked) {}
 
 
 
+// Panel Drag & Drop placeholders
+function onDragStart(e) {
+
+    $('.dragged'   ).removeClass('dragged'   );
+    $('.drag-hover').removeClass('drag-hover');
+
+    $(e.target).addClass('dragged');
+
+}
+function onDragEnd  (e) {}
+function onDragEnter(e) {
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    $(e.target).addClass('drag-hover');
+
+}
+function onDragOver (e) {
+
+    e.preventDefault();
+    e.stopPropagation();
+
+}
+function onDragLeave(e) { 
+
+    $('.drag-hover').removeClass('drag-hover'); 
+
+}
+function onDrop(e) {}
 
 
 

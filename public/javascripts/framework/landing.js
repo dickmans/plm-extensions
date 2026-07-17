@@ -53,6 +53,17 @@ $(document).ready(function() {
 
     });
 
+    $('#studio').click(function() {
+
+        let href = document.location.href.split('?');
+        let base = href[0] += 'studio';
+
+        if(href.length > 1) base += '?' + href[1];
+        
+        window.open(base);
+        
+    });    
+
     $('#troubleshooting').click(function() {
         let href = document.location.href.split('?');
         let base = href[0] += 'troubleshooting';

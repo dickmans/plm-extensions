@@ -1,0 +1,50 @@
+extends ../framework/layout
+
+block head
+    
+    link(rel='stylesheet', href='/stylesheets/framework/studio.css')
+    script(src='/javascripts/framework/studio.js')
+    script.
+        config = !{JSON.stringify(config)};
+
+block body
+
+    body.surface-level-1
+
+        #header.dark
+            #header-logo
+            #header-title= title
+            #header-toolbar
+                #toggle-panels.button.with-toggle.toggle-on Panel Types List
+                #toggle-descriptions.button.with-toggle.toggle-off Hide Descriptions
+                #toggle-json.button.with-toggle.toggle-on JSON Output
+                #toggle-layout.button Toggle Layout
+                #header-avatar
+        
+        #main.screen
+
+            #library.surface-level-2.pos-abs-left 
+                #library-title Panel Types
+                #library-list.pos-abs-bottom.no-scrollbar
+
+            #settings.surface-level-2
+
+                #settings-header
+                    #settings-title
+                    #settings-controls.pos-abs-right
+                        #settings-fold.button.icon.icon-fold
+                        #settings-unfold.button.icon.icon-unfold
+                        #settings-run.button.default.with-icon.icon-start Run
+                #settings-description
+                #settings-usage
+                #settings-options.no-scrollbar.pos-abs-bottom
+
+            .panel.surface-level-1
+                #panel-message Select a panel type to the left, set the panel's properties and then click Apply in order to see the preview of the given panel here.
+
+            #json.pos-abs-right.surface-level-2
+                #json-description.surface-level-2 Copy this JSON string to your settings file to adjust the applications supporting direct panel configuration
+                textarea#json-string.surface-level-2.pos-abs-bottom
+                #json-copy.button.icon.icon-clipboard-add(title='Copy JSON to clipboard')
+
+        #create.dialog

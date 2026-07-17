@@ -155,7 +155,7 @@ function selectClass(elemClicked) {
         reset             : true,
         search            : true,
         openInPLM         : true,
-        fields            : config.fieldsIncluded,
+        fieldsIn          : config.fieldsIncluded,
         onClickItem       : function(elemClicked) { clickClassItem(elemClicked); }
     });
 

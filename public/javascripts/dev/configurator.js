@@ -151,7 +151,7 @@ function setUIEvents() {
 
                                             console.log( edge.edgeLink);
 
-                                            reqRemoval.push($.get('/plm/bom-remove', { edgeLink : edge.edgeLink }))
+                                            reqRemoval.push($.post('/plm/bom-remove', { edgeLink : edge.edgeLink }))
                                         }
 
 

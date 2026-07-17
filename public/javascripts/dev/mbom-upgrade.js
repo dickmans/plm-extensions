@@ -3426,7 +3426,7 @@ function deleteBOMItems() {
 
         for(index; index >= 0; index--) {
 
-            requests.push($.get('/plm/bom-remove', pendingRemovals[index]));
+            requests.push($.post('/plm/bom-remove', pendingRemovals[index]));
             pendingRemovals.splice(index,1);
 
         }

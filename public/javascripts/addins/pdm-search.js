@@ -3,6 +3,7 @@ $(document).ready(function() {
 
     appendOverlay(true);
     appendProcessing('basic-search');  
+    getVaultId();
     setUIEvents();
 
 });

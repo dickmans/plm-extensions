@@ -43,7 +43,7 @@ input.changed {
     bottom       : 0px;
     width        : var(--width-new);
 }
-#your-tasks { 
+#tasks-manager { 
     border-width : var(--border-v) var(--border-h);
     right        : calc(var(--width-summary) + (2 * var(--border-h)));
     bottom       : 0px;
@@ -56,10 +56,10 @@ input.changed {
 }
 
 .no-new-tasks #new-tasks  { left : calc(0px - var(--width-new) - (2 * var(--border-h))); }
-.no-new-tasks #your-tasks { left : 0px; }
+.no-new-tasks #tasks-manager { left : 0px; }
 
 .no-summary #summary { right : calc(0px - var(--width-summary) - (2 * var(--border-h))); }
-.no-summary #your-tasks { right : 0px; }
+.no-summary #tasks-manager { right : 0px; }
 
 
 
@@ -153,24 +153,24 @@ input.changed {
 
 /* YOUR TASKS */
 /* ----------------------------------------------------------------------------- */
-#your-tasks-table {
+#tasks-manager-table {
     width : unset;
 }
-.your-tasks th {
+.tasks-manager th {
     padding   : 4px 10px;
 }
-.your-tasks .th-sub {
+.tasks-manager .th-sub {
     font-size   : 12px;
     font-weight : 300;
 }
-.your-tasks th.selected {
+.tasks-manager th.selected {
     background : var(--color-blue-700);
 }
-.your-tasks td {
+.tasks-manager td {
     line-height : 36px;
     padding     : 0px 10px;
 }
-#your-tasks .separator {
+#tasks-manager .separator {
     background : var(--color-surfac-level-1) !important;
     cursor     : pointer;
     padding    : 0px !important;
@@ -178,30 +178,30 @@ input.changed {
     min-width  : 18px;
     width      : 18px;
 }
-#your-tasks th.separator.collapsed {
+#tasks-manager th.separator.collapsed {
     border-left : 7px solid var(--color-surface-level-3);
 }
-#your-tasks td.separator.collapsed {
+#tasks-manager td.separator.collapsed {
     border-left : 7px solid var(--color-surface-level-2);
 }
-#your-tasks .separator.hover {
+#tasks-manager .separator.hover {
     border-left         : 1px solid var(--color-surface-level-1);
     border-right        : 1px solid var(--color-surface-level-1);
     max-width           : 16px;
     min-width           : 16px;
     width               : 16px;
 }
-#your-tasks th.separator.hover {
+#tasks-manager th.separator.hover {
     background          : var(--color-blue-900) !important;
     border-top-color    : var(--color-blue-900) !important;
     border-bottom-color : var(--color-blue-900) !important;
 }
-#your-tasks td.separator.hover {
+#tasks-manager td.separator.hover {
     background          : var(--color-blue-800) !important;
     border-top-color    : var(--color-blue-800) !important;
     border-bottom-color : var(--color-blue-800) !important;
 }
-#your-tasks th.separator.hover::before {
+#tasks-manager th.separator.hover::before {
     content        : '\e5cb';
     font-family    : 'Material Symbols Sharp';
     font-size      : 20px;
@@ -212,22 +212,22 @@ input.changed {
     left     : -2px;
     top      : 2px;
 }
-#your-tasks .separator.hover.collapsed {
+#tasks-manager .separator.hover.collapsed {
     max-width : 17px;
     min-width : 17px;
     width     : 17px;
 }
-#your-tasks th.separator.hover.collapsed {
+#tasks-manager th.separator.hover.collapsed {
     border-left-color : var(--color-blue-800) !important;
 }
-#your-tasks td.separator.hover.collapsed {
+#tasks-manager td.separator.hover.collapsed {
     border-left-color : var(--color-blue-700) !important;
 }
-#your-tasks th.separator.hover.collapsed::before {
+#tasks-manager th.separator.hover.collapsed::before {
     content : '\e5cc';
 }
 
-.your-tasks .root {
+.tasks-manager .root {
     left      : 0px;
     position  : sticky;
     z-index   : 6;
@@ -235,7 +235,7 @@ input.changed {
     min-width : var(--width-project-number);
     width     : var(--width-project-number);
 }
-.your-tasks .title {
+.tasks-manager .title {
     left     : calc(var(--width-project-number) + 21px);
     position : sticky;
     z-index  : 6;
@@ -252,16 +252,16 @@ td.description {
 }
 
 /* Schedule */
-#your-tasks .task-schedule {
+#tasks-manager .task-schedule {
     display : flex;
 }
-#your-tasks .task-schedule > .date {
+#tasks-manager .task-schedule > .date {
     max-width  : 74px;
     min-width  : 74px;
     width      : 74px;
     text-align : right;
 }
-#your-tasks .task-schedule > .char {
+#tasks-manager .task-schedule > .char {
     font-size   : 10px;
     height      : 36px;
     line-height : 36px;
@@ -269,22 +269,22 @@ td.description {
 }
 
 /* Progress */
-#your-tasks td.cell-progress-controls {
+#tasks-manager td.cell-progress-controls {
     background : none !important;
     padding    : 0px;
     width      : 366px;
 }
-#your-tasks .grid-progress {
+#tasks-manager .grid-progress {
     display               : grid;
     grid-column-gap       : 1px;
     grid-template-columns : 66px 300px;
     grid-template-rows    : 32px 4px;
 }
-#your-tasks .grid-progress .button {
+#tasks-manager .grid-progress .button {
     border-radius : 0px;
     font-size     : 12px;
 }
-#your-tasks select.task-progress {
+#tasks-manager select.task-progress {
     height       : 32px;
     line-height  : 30px;
     margin-right : 2px;
@@ -294,17 +294,17 @@ td.description {
     min-width    : 66px;
     width        : 66px;
 }
-#your-tasks .grid-progress input {
+#tasks-manager .grid-progress input {
     height      : 30px;
     line-height : 30px;
     padding     : 0px 8px;
     text-align  : left;
 }
-#your-tasks .grid-progress .task-progress-bar {
+#tasks-manager .grid-progress .task-progress-bar {
     grid-column : 1 / 3;
     height      : 4px;
 }
-#your-tasks .last-update {
+#tasks-manager .last-update {
     text-align : right;
     max-width  : 78px;
     min-width  : 78px;
@@ -312,22 +312,22 @@ td.description {
 }
 
 /* Efforts */
-#your-tasks th.efforts {
+#tasks-manager th.efforts {
     display : flex;
     justify-content: space-between;
     max-height : 40px;
     min-height : 40px;
     height     : 40px;
 }
-#your-tasks th.efforts .th-top {
+#tasks-manager th.efforts .th-top {
     display : flex;
     gap     : 8px;
     line-height : 40px;
 }
-#your-tasks th.efforts .th-top > div:first-child {
+#tasks-manager th.efforts .th-top > div:first-child {
     margin-right : 24px;
 }
-#your-tasks th.efforts .button {
+#tasks-manager th.efforts .button {
     font-size   : 18px;
     margin-top  : 10px;
     height      : var(--size-week-switcher);
@@ -336,7 +336,7 @@ td.description {
     min-width   : var(--size-week-switcher);
     width       : var(--size-week-switcher);
 }
-#your-tasks th.efforts .grid-counters {
+#tasks-manager th.efforts .grid-counters {
     display               : grid;
     grid-column-gap       : 8px;
     grid-template-columns : 40px 48px;
@@ -348,7 +348,7 @@ td.description {
 #effort-total-actual {
     text-align : right;
 }
-#your-tasks td.cell-effort-controls {
+#tasks-manager td.cell-effort-controls {
     background : none !important;
     padding    : 0px;
 }

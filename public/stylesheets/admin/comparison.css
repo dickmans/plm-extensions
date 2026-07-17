@@ -68,6 +68,7 @@ body.mode-all #comparison-contents { display : block; }
 
 /* CONSOLE */
 /* ----------------------------------------------------------------------------- */
+#console-toggle { top : 0px !important; }
 #console-toggle::before { content : '\e5cc'; }
 body.no-console #console-toggle::before { content : '\e5cb'; }
 body.dark-theme #console-toggle { background : var(--color-surface-level-5); }
@@ -227,9 +228,9 @@ body.dark-theme #console-toggle:hover { background : var(--color-surface-level-4
     flex-direction  : column;
     flex-grow       : 1;
     gap             : 1px;
-    max-width       : calc(100% - 606px);    
-    min-width       : calc(100% - 606px);    
-    width           : calc(100% - 606px);    
+    max-width       : calc(100% - 604px);    
+    min-width       : calc(100% - 604px);    
+    width           : calc(100% - 604px);    
 }
 .result-compare {
     background    : var(--color-surface-level-2);
@@ -245,7 +246,9 @@ body.dark-theme #console-toggle:hover { background : var(--color-surface-level-4
     background      : var(--color-surface-level-3);
     border-color    : var(--color-surface-level-3);
     border-radius   :  0px;
-    max-width       : calc(100% - 72px);
+    font-size       : 12px;
+    max-width       : calc(100% - 56px);
+    padding         : 4px 12px;
 }
 .action.with-comparison-button > .action-text.button {
     max-width       : calc(100% - 112px);
@@ -258,6 +261,14 @@ body.dark-theme #console-toggle:hover { background : var(--color-surface-level-4
     background    : var(--color-surface-level-4);
     border-color  : var(--color-surface-level-4);
     border-radius : 0px;
+    font-size     : 18px;
+    line-height   : 28px;
+    max-height    : 28px;
+    min-height    : 28px;
+    height        : 28px;
+    max-width     : 28px;
+    min-width     : 28px;
+    width         : 28px;
 }
 .action-text {
     display : flex;
@@ -285,6 +296,17 @@ body.dark-theme #console-toggle:hover { background : var(--color-surface-level-4
 .action-text:hover,
 .action-icon:hover {
     background : var(--color-surface-level-5) !important;
+}
+.icon-compare.button {
+    border-radius : 0px;
+    font-size     : 24px;
+    line-height   : 36px;
+    max-height    : 36px;
+    min-height    : 36px;
+    height        : 36px;
+    max-width     : 36px;
+    min-width     : 36px;
+    width         : 36px;
 }
 
 
@@ -321,10 +343,10 @@ body.dark-theme #console-toggle:hover { background : var(--color-surface-level-4
 .comparison-contents-table {
     overflow : auto;
     position : absolute;
-    top : 62px;
-    right : 0px;
-    bottom : 0px;
-    left : 0px;
+    top      : 58px;
+    right    : 0px;
+    bottom   : 0px;
+    left     : 0px;
 }
 .comparison-contents-toolbar {
     display  : flex;
@@ -346,8 +368,7 @@ body.dark-theme #console-toggle:hover { background : var(--color-surface-level-4
     justify-content: end;
 }
 .comparison-contents-filters > select {
-    
-    height : 38px;
+    height : 34px;
 }
 #comparison-contents td {
     overflow      : hidden;

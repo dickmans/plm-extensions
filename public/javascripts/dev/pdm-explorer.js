@@ -23,7 +23,7 @@ let treeItems  = [];
 // }
 // let paramsProcesses = { 
 //     'headerLabel'    : 'Change Processes', 
-//     'createWSID'     : '' ,
+//     'createWorkspaceId'     : '' ,
 //     'fieldIdMarkup'  : ''
 // }
 // let context = {}

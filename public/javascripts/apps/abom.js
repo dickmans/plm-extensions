@@ -141,7 +141,7 @@ function setUIEvents() {
                 reload          : true,
                 layout          : 'table',
                 openInPLM       : true,
-                hideParents     : false,
+                hideParentNodes : false,
                 search          : true,
                 selectItems     : { fieldId : 'SPARE_PART', values :['true'] },
                 viewerSelection : true
@@ -157,7 +157,7 @@ function setUIEvents() {
                 reload          : true,
                 layout          : 'list',
                 contentSize     : 's',
-                hideParents     : false,
+                hideParentNodes : false,
                 search          : true,
                 selectItems     : { fieldId : 'PURCHASED', values :['true'] }
             });

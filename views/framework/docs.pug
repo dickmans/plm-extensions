@@ -9,7 +9,7 @@ block body
 
     body
         .split.left-350.surface-level-1
-            .split-left.padding-100.surface-level-3
+            .split-left.padding-100.surface-level-3.no-scrollbar
                 h1 User Experiences Developer Guide
                 .nav-subtitle You can use this package to also build your own applications based on modular components being used for the preconfigured apps as well
                 .nav-header Tutorials
@@ -25,28 +25,30 @@ block body
                 .nav-toolbar 
                     .button#gallery See examples in the 
                         span demo gallery
+                    .button#studio Build your own in the 
+                        span panel configuration studio
                 .nav-header Framework
                 .nav-description Use standard building blocks in your own apps
                 .nav-contents
                     .nav-content(data-id='header-screens') Header &amp; Screens
                     .nav-content(data-id='buttons') Buttons
                     .nav-content(data-id='icons') Icons
-                    .nav-content(data-id='create') Create Items
-                    .nav-content(data-id='workflow-actions') Workflow Actions Menu
+                    //- .nav-content(data-id='create') Create Items
+                    //- .nav-content(data-id='workflow-actions') Workflow Actions Menu
                 .nav-header Navigation Views
                 .nav-description The capabilities of nav.js enable displaying multiple records to let users navigate to information of interest
                 .nav-contents
-                    .nav-content(data-id='nav-mow') My Outstanding Work
-                    .nav-content(data-id='nav-recent-items') Recently Viewed Items
-                    .nav-content(data-id='nav-bookmarks') Bookmarks
-                    .nav-content(data-id='nav-workspace-views') Workspace Views
-                    .nav-content(data-id='nav-workspace-items') Workspace Items
-                    .nav-content(data-id='nav-results') Search Results
-                    .nav-content(data-id='nav-search') Search
+                    .nav-content(data-id='nav-mow' data-name='insertMOW') My Outstanding Work
+                    .nav-content(data-id='nav-recent-items' data-name='insertRecentItems') Recently Viewed Items
+                    .nav-content(data-id='nav-bookmarks' data-name='insertBookmarks') Bookmarks
+                    .nav-content(data-id='nav-workspace-views' data-name='insertWorkspaceViews') Workspace Views
+                    //- .nav-content(data-id='nav-workspace-items' data-name='') Workspace Items
+                    .nav-content(data-id='nav-results' data-name='insertResults') Insert Results
+                    .nav-content(data-id='nav-search' data-name='insertSearch') Search
                 .nav-header Item Tab Contents
                 .nav-description Insert data of a given record using the functions defined in item.js
                 .nav-contents
-                    .nav-content(data-id='item-details') Details
+                    .nav-content(data-id='item-details' data-name='insertDetails') Details
                     .nav-content(data-id='item-attachments') Attachments
                     .nav-content(data-id='item-viewer') Viewer
                     .nav-content(data-id='item-bom') BOM

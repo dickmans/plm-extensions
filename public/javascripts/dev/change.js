@@ -16,7 +16,7 @@ let paramsAttachments = {
 }
 let paramsProcesses = { 
     'headerLabel'    : 'Change Processes', 
-    'createWSID'     : '' ,
+    'createWorkspaceId'     : '' ,
     'fieldIdMarkup'  : ''
 }
 let context = {}
@@ -26,7 +26,7 @@ $(document).ready(function() {
     
     wsProblemReports.id             = config.explorer.wsIdProblemReports;
     wsSupplierPackages.id           = config.explorer.wsIdSupplierPackages;
-    paramsProcesses.createWSID      = config.explorer.wsIdProblemReports;
+    paramsProcesses.createWorkspaceId      = config.explorer.wsIdProblemReports;
     paramsProcesses.fieldIdMarkup   = config.explorer.fieldIdPRImage;
     applicationFeatures.viewer      = config.explorer.viewerFeatures;
 

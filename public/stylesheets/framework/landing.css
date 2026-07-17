@@ -24,25 +24,28 @@
 }
 #toggle {
     border-radius : 50%;
-    font-size     : 32px;
+    font-size     : 28px;
+    font-weight   : 200;
     position      : absolute;
-    top           : 78px;
+    top           : 108px;
     left          : calc(var(--width-side) + 160px - 22px);
     z-index       : 2;
 }
 #layout {
     border-radius : 50%;
-    font-size     : 28px;
+    font-size     : 24px;
+    font-weight   : 200;
     position      : absolute;
-    top           : 128px;
+    top           : 150px;
     left          : calc(var(--width-side) + 160px - 22px);
     z-index       : 2;
 }
 #start {
     border-radius : 50%;
-    font-size     : 28px;
+    font-size     : 24px;
+    font-weight   : 200;
     position      : absolute;
-    top           : 178px;
+    top           : 192px;
     left          : calc(var(--width-side) + 160px - 22px);
     z-index       : 2;
 }
@@ -142,6 +145,9 @@ body.layout-tiles-list .tile.min .tile-access .button {
 #side-toolbar > div > span {
     display : block;
     color   : var(--color-blue-500);
+}
+span.link {
+    color: var(--color-blue-500);
 }
 #themes {
     display         : flex;

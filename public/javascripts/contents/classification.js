@@ -1,44 +1,22 @@
 // Insert Classification Browser
 function insertClasses(params) {
 
-    if(isBlank(params)) params = {};
+    const id = getPanelSettings('insertClasses', params);
+    
+    genPanelElements(id);     
 
-    let id = isBlank(params.id) ? 'classes' : params.id;
-
-    settings[id] = getPanelSettings('', params, {
-        headerLabel : 'Classes',
-        placeholder : 'Filter clases' ,
-        contentSize : 'm'
-    }, [
-        [ 'depth'          , 10    ],
-        [ 'path'           , false ],
-        [ 'toggles'        , false ],
-        [ 'hideNumber'     , true  ],
-        [ 'hideTableHeader', true  ],
-        [ 'topClassName'   , ''    ],
-        [ 'topClassId'     , ''    ]
-    ]);
-
-    settings[id].load         = function() { insertClassesData(id); }
-    settings[id].layout       = 'tree';
-    settings[id].skipRootItem = true;
-
-    genPanelTop              (id, 'classes');
-    genPanelHeader           (id);
-    genPanelSelectionControls(id);
-    genPanelToggleButtons    (id, 
+    genPanelToggleButtons(id, 
         function() {   expandAllNodes(id); }, 
         function() { collapseAllNodes(id); }
-    ); 
+    );    
 
-    genPanelResizeButton(id);
-    genPanelSearchInput (id);
-    genPanelResetButton (id);
-    genPanelReloadButton(id);
-    genPanelContents(id);
+    settings[id].layout          = 'tree';
+    settings[id].hideTableHeader = true;
+    settings[id].hideTreeNumber  = true;
+    settings[id].skipRootItem    = true;
 
     insertClassesDone(id);
-
+    
     settings[id].load();
 
 }
@@ -57,6 +35,7 @@ function insertClassesData(id) {
 
         let items        = [];
         let contentItems = [];
+        let hierarchy    = responses[1].data;
 
         for(let classification of responses[0].data.classifications) {
 
@@ -81,8 +60,8 @@ function insertClassesData(id) {
             items.push(contentItem);
 
         }
-
-        setClassLevels(settings[id], responses[1].data, items, items[0], 0, items[0].id, '');
+        
+        setClassLevels(settings[id], hierarchy, items, items[0], 0, items[0].id, '');
         buildClassesTree(items, contentItems, items[0]);
         filterRootClassTree(settings[id], contentItems);
         finishPanelContentUpdate(id, contentItems, null, responses[0].data);
@@ -186,46 +165,29 @@ function insertClassesDataDone(id, data) {}
 // Insert Class Contents
 function insertClassContents(classId, className, params) {
 
-    if(isBlank(params)) params = {};
-
     if(isBlank(classId))   { console.log('insertClassContents() invoked without parameter classId'  ); return; }
     if(isBlank(className)) { console.log('insertClassContents() invoked without parameter className'); return; }
 
-    let id = isBlank(params.id) ? 'contents' : params.id;
+    const id = getPanelSettings('insertClassContents', params);
+    
+    genPanelElements(id);     
 
-    settings[id] = getPanelSettings('', params, {
-        contentSize : 'm',
-        headerLabel : 'Class Items'
-    }, [
-        [ 'layout'           , 'table'        ],
-        [ 'sortSelection'    , true           ],
-        [ 'filterByStatus'   , false          ],
-        [ 'filterByWorkspace', false          ],        
-        [ 'fields'           , ['DESCRIPTOR'] ],
-        [ 'query'            , ''             ],
-        [ 'pagination'       , true           ],
-        [ 'limit'            , 20             ],
-        [ 'referenceItem'    , null           ],
-        [ 'referenceData'    , {}             ],
-    ]);
+    // const id = isBlank(params.id) ? 'contents' : params.id;
 
-    settings[id].load      = function() { insertClassData(id); }
-    settings[id].next      = function() { insertClassData(id); }
-    settings[id].classId   = (typeof classId === 'string') ? classId.split('/').pop() : classId;
-    settings[id].className = className;
+    // getPanelSettings('insertBOM', id, params);
+    // getPanelSettings('insertBOM', id, params,  {}, [
+    //     [ 'referenceItem', null ],
+    //     [ 'referenceData', {}   ]
+    // ]);
+    // genPanelElements(id, 'contents'); 
 
-    genPanelTop                     (id, 'classContents');
-    genPanelHeader                  (id);
-    genPanelOpenSelectedInPLMButton (id);
-    genPanelSelectionControls       (id);
-    genPanelFilterSelect            (id, 'filterByStatus', 'status', 'All States');
-    genPanelFilterSelect            (id, 'filterByWorkspace', 'workspace', 'All Workspaces');    
-    genPanelResizeButton            (id);
-    genPanelSearchInput             (id);
-    genPanelResetButton             (id);
-    genPanelReloadButton            (id);
-    genPanelContents                (id);
-    genPanelPaginationControls      (id);
+    settings[id].load          = function() { insertClassData(id); }
+    settings[id].next          = function() { insertClassData(id); }
+    settings[id].classId       = (typeof classId === 'string') ? classId.split('/').pop() : classId;
+    settings[id].className     = className;
+    settings[id].layout        = 'table';
+    settings[id].referenceItem = null;
+    settings[id].referenceData = {};
 
     let elemToolbar = genPanelToolbar(id, 'controls');
 
@@ -257,7 +219,6 @@ function insertClassContents(classId, className, params) {
     }
 
     insertClassDone(id);
-
     settings[id].load();
 
 }
@@ -276,6 +237,8 @@ function insertClassData(id) {
         timestamp : settings[id].timestamp
     };
 
+    console.log(params);
+
     let requests = [
         $.get('/plm/search-class', params),
         $.get('/plm/class-properties', { 
@@ -284,8 +247,6 @@ function insertClassData(id) {
             useCache  : true
         })
     ];
-
-    console.log(params);
 
     Promise.all(requests).then(function(responses) {
 
@@ -299,7 +260,7 @@ function insertClassData(id) {
         let listStates      = [];
         let listWorkspaces  = [];
 
-        for(let fieldId of settings[id].fields) {
+        for(let fieldId of settings[id].fieldsIn) {
             if(includePanelTableColumn(fieldId, '', settings[id], settings[id].columns.length)) {
 
                 switch(fieldId) {
@@ -399,8 +360,6 @@ function insertClassData(id) {
 
         }
 
-        console.log(items);
-
         sortArray(listStates, 0);
         sortArray(listWorkspaces, 0);
         setPanelFilterOptions(id, 'status', listStates);
@@ -427,33 +386,16 @@ function insertClassDataDone(id, data) {}
 // Insert Class Filters
 function insertClassFilters(classId, className, params) {
 
-    if(isBlank(params)) params = {};
+    if(isBlank(classId  )) { console.log('insertClassFilters() invoked without parameter classId'  ); return; }
+    if(isBlank(className)) { console.log('insertClassContents() invoked without parameter className'); return; }
 
-    if(isBlank(classId)) { console.log('insertClassFilters() invoked without parameter classId'  ); return; }
-
-    let id = isBlank(params.id) ? 'classFilters' : params.id;
-
-    settings[id] = getPanelSettings('', params, {
-        contentSize : 'm',
-        headerLabel : 'Filters',
-        textNoData  : 'No properties found for the selected class'
-    }, [
-        [ 'idContents'    , 'contents'     ],
-        [ 'layout'        , 'table'        ],
-        [ 'fields'        , ['DESCRIPTOR'] ],
-        [ 'advancedFilter', true           ],
-        [ 'pagination'    , true           ],
-        [ 'limit'         , 25             ]
-    ]);
+    const id = getPanelSettings('insertClassFilters', params);
+    
+    genPanelElements(id);  
 
     settings[id].load      = function() { insertClassFiltersData(id); }
     settings[id].classId   = (typeof classId === 'string') ? classId.split('/').pop() : classId;
     settings[id].className = className;
-
-    genPanelTop         (id, 'class');
-    genPanelHeader      (id);
-    genPanelSearchInput (id, settings[id]);
-    genPanelContents    (id, settings[id]);
 
     let elemButton = genPanelActionButton(id, 'apply', 'Apply', 'Apply the defined filters', function() {
         applyClassFilters(id);
@@ -463,7 +405,6 @@ function insertClassFilters(classId, className, params) {
     elemButton.parent().addClass(id + '-actions');
 
     insertClassFiltersDone(id);
-
     settings[id].load();
 
 }
@@ -579,6 +520,8 @@ function insertClassFiltersData(id) {
         elemContent.show();
 
         insertClassFiltersDataDone(id);
+
+        $('#' + id + '-controls').show();
                 
     });
 
@@ -740,6 +683,10 @@ function applyClassFilters(id) {
     }
 
     // if(query !== '') query = '(CLASS:SYSTEM_NAME=' + settings[id].className + ')+AND+(' + query + ')';
+
+    // query = '(CLASS:SYSTEM_NAME=)+AND+(' + query + ')';
+    // query = '(CLASS:CLASS_PATH="METRIC_FASTENERS" OR (CLASS:SYSTEM_NAME="HARDWARE" AND (CLASS:MATERIAL="Stainless Steel")))';
+    // query = '(CLASS:CLASS_PATH="METRIC_FASTENERS" OR (CLASS:SYSTEM_NAME="HARDWARE" AND (CLASS:MATERIAL="Stainless Steel")))';
     
     if(settings[id].advancedFilter) {
         let advanced = $('#' + id + '-content').find('.panel-section-textarea').first().val().trim();
@@ -748,6 +695,8 @@ function applyClassFilters(id) {
     
     let idContents       = settings[id].idContents;
     let settingsContents = settings[idContents];
+
+    console.log(query);
 
     settingsContents.query = query;
     settingsContents.load();
@@ -762,31 +711,14 @@ function insertClassFiltersDataDone(id) {}
 function insertItemClassification(link, params) {
 
     if(isBlank(link)) return;
-    if(isBlank(params)) params = {};
 
-    let id = isBlank(params.id) ? 'classification' : params.id;
+    const id = getPanelSettings('insertItemClassification', params, { link : link });
     
-    settings[id] = getPanelSettings(link, params, {
-        headerLabel    : 'descriptor',
-        headerSubLabel : 'Classifcation Data',
-        textNoData     : 'No Classification Data Available'
-    }, [
-        [ 'bookmark'           , false  ],
-        [ 'hideLabels'         , false  ],
-        [ 'hideReadOnly'       , false  ],
-        [ 'hideSections'       , true   ],
-        [ 'requiredFieldsOnly' , false  ],
-        [ 'saveButtonLabel'    , 'Save' ],
-    ]);
+    genPanelElements(id);  
 
-    settings[id].load = function() { insertItemClassificationData(id); }
+    // settings[id].load = function() { insertItemClassificationData(id); }
 
-    genPanelTop            (id, 'details');
-    genPanelHeader         (id);
-    genPanelBookmarkButton (id);
-    genPanelOpenInPLMButton(id);
-    genPanelReloadButton   (id);
-    genPanelContents       (id).addClass(settings[id].layout).addClass('sections');
+    // genPanelContents       (id).addClass(settings[id].layout).addClass('sections');
 
     if(settings[id].editable) {
 
@@ -808,7 +740,6 @@ function insertItemClassification(link, params) {
     }
 
     insertItemClassificationDone(id);
-
     settings[id].load();
 
 }
@@ -842,6 +773,7 @@ function insertItemClassificationData(id) {
         settings[id].classId       = section.classificationId;
         settings[id].descriptor    = responses[0].data.title;
         settings[id].sectionsIn    = [section.title];      
+        settings[id].hideSections = true;      
 
         let elemClassification = $('<div></div>').appendTo(elemContent).addClass('classification-header').addClass('classification-data').addClass('surface-level-2');
         let elemButton         = $('<div></div>').addClass('button').addClass('default').addClass('classification-change').html('Change Class').click(function() { selectNewClassification(); });
@@ -1124,12 +1056,10 @@ function insertSimilarItems(link, params, data) {
     if(isBlank(params)) params = {};
     if(isBlank(data  )) data   = { details : null, classes : null };
 
-    let id = isBlank(params.id) ? 'similar' : params.id;
-    let labelFiltersToggle = params.labelFiltersToggle || 'Filters';
-
-    settings[id] = getPanelSettings(link, params, {
-    }, [
-    ]);
+    const labelFiltersToggle = params.labelFiltersToggle || 'Filters';
+    const id = getPanelSettings('insertSimilarItems', params, { link : link });
+    
+    genPanelElements(id);  
 
     let elemTop      = genPanelTop (id, 'similar');
     let surfaceLevel = Number(getSurfaceLevel(elemTop, false, true));

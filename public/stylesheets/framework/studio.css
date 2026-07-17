@@ -1,0 +1,352 @@
+
+
+:root {
+
+    --border-v : 18px;
+    --border-h : 32px;
+
+    --width-library  : 220px;
+    --width-settings : 720px;
+    --width-json     : 280px;
+
+}
+
+@media (min-width: 2160px) {
+    :root {
+       --width-settings : 980px;
+    }
+}
+
+
+
+/* MASTER LAYOUT */
+/* ----------------------------------------------------------------------------- */
+#main > div { border-width : var(--border-v) var(--border-h); }
+#library { 
+    width        : var(--width-library); 
+}
+#settings { 
+    position     : absolute;
+    top          : 0px;
+    bottom       : 0px;
+    left         : calc(var(--width-library) + (1 * var(--border-h)));
+    width        : var(--width-settings);
+}
+.panel { 
+    position     : absolute;
+    top          : 0px;
+    right        : calc(var(--width-json) + (2 * var(--border-h)));
+    bottom       : 0px;
+    left         : calc(var(--width-library) + var(--width-settings) + (3 * var(--border-h)));
+}
+#json {
+    width : var(--width-json);
+}
+
+body.no-panels #library  { left : calc(-1px - (2 * var(--border-h)) - var(--width-library)); }
+body.no-panels #settings { left : 0px; }
+body.no-panels .panel    { left : calc(var(--width-settings) + (2 * var(--border-h))); }
+
+body.no-descriptions #settings-description,
+body.no-descriptions #settings-usage,
+body.no-descriptions .panel-option-description { display : none; }
+body.no-descriptions #settings-options { top : 56px; }
+body.no-descriptions {
+    --width-settings : 348px;
+}
+
+body.no-json .panel { right : 0px; }
+body.no-json #json  { right : calc(-1px - var(--width-json) - (2 * var(--border-h))); }
+
+body.wide #settings { right : 0px; bottom : 50%; }
+body.wide .panel    { top : 50%; left : calc(var(--width-library) + (2 * var(--border-h))); }
+
+
+
+/* LIBRARY */
+/* ----------------------------------------------------------------------------- */
+#library-title {
+    border-bottom : 2px solid var(--color-surface-level-4);
+    padding       : 0px 14px;
+    font-size     : 18px;
+    font-weight   : 700;
+    height        : 44px;
+    line-height   : 34px;
+}
+#library-list {
+    display        : flex;
+    flex-direction : column;
+    gap            : 1px; 
+    overflow-y     : auto;
+    top            : 56px;
+}
+.panel-section {
+    font-size   : 12px;
+    font-weight : bold;
+    margin-top  : 16px;
+    padding     : 4px 2px;
+}
+.panel-section:first-of-type {
+    margin-top : 0px;
+}
+.panel-type {
+    border  : 1px solid var(--color-surface-level-3);
+    cursor  : pointer;
+    display : flex;
+    height  : 26px;
+}
+.panel-type:hover {
+    border-color : var(--color-hover-border) !important;
+}
+.panel-type:hover > div {
+    background-color : var(--color-selected-image);
+}
+.panel-type .panel-icon {
+    background  : var(--color-surface-level-3);
+    font-size   : 14px;
+    font-weight : 300;
+    grid-row    : 1 / 3;
+    line-height : 26px;
+    max-width       : 28px;
+    min-width       : 28px;
+    width       : 28px;
+    text-align  : center;
+}
+.panel-type .panel-title {
+    background  : var(--color-surface-level-3);
+    display     : block;
+    font-size   : 12px;
+    /* font-weight : 700; */
+    height      : 26px;
+    line-height : 26px;
+    padding     : 0px 10px 0px 2px;
+}
+.panel-type .panel-description {
+    background  : var(--color-surface-level-3);
+    font-size   : 10px;
+    line-height : 16px;
+    padding     : 0px 10px 2px 2px;
+}
+.panel-type.selected {
+
+    border-color : var(--color-selected-background);
+}
+.panel-type.selected > div {
+    background-color : var(--color-selected-background);
+}
+#library-list .panel-description {
+    display : none;
+}
+
+
+
+
+/* SETTINGS */
+/* ----------------------------------------------------------------------------- */
+#settings-header {
+    border-bottom : 2px solid var(--color-surface-level-4);
+    height        : 44px;
+    line-height   : 44px;
+    padding       : 0px 14px;
+}
+#settings-title {
+    flex-grow   : 1;
+    font-size   : 18px;
+    font-weight : 700;
+    line-height : 34px;
+}
+#settings-controls {
+    display : flex;
+    gap     : 4px;
+    right   : 14px;
+}
+#settings-description,
+#settings-usage {
+    font-size   : 12px;
+    line-height : 16px;
+    padding     : 10px 14px 0px;
+}
+#settings-inputs,
+#settings-options {
+    display : flex;
+    gap     : 1px;
+    flex-direction: column;
+}
+#settings-inputs {
+    margin : 12px 0px 0px;
+}
+#settings-options {
+    position : absolute;
+    top      : 160px;
+    /* right : 0px;
+    bottom : calc(var(--height-json) + 28px);;
+    left : 0px; */
+    overflow-y : auto;
+}
+.settings-category {
+    /* background : var(--color-surface-level-4); */
+    /* cursor : pointer; */
+    font-weight : bold;
+    padding     : 4px 8px 4px;
+    font-size : 12px;
+}
+#settings input {
+    background  : var(--color-surface-level-4);
+    font-size   : 12px;
+    padding     : 4px 14px;
+    height      : 18px;
+    line-height : 18px;    
+    max-width   : 150px;
+    min-width   : 150px;
+    width       : 15px;
+}
+#settings textarea {
+    background : var(--color-surface-level-4);
+    font-size  : 12px;
+    height     : 18px;
+    padding    : 4px 16px;
+}
+#settings select {
+    font-size   : 12px;
+    padding     : 0px 10px;
+    max-height  : 28px;
+    min-height  : 28px;
+    height      : 28px;
+    line-height : 28px;
+    max-width   : 180px;
+    min-width   : 180px;
+    width       : 180px;
+}
+#settings .required .panel-input-title {
+    color : var(--color-status-red);
+}
+#settings .required input,
+#settings .required textarea {
+    border-color : var(--color-status-red);
+}
+
+.panel-input,
+.panel-option {
+    display : flex;
+    gap     : 0px;
+}
+.panel-option textarea {
+    width : 146px;
+}
+.panel-input-title,
+.panel-option-title {
+    background    : var(--color-surface-level-3);
+    font-size     : 12px;
+    padding       : 8px 14px;
+    text-overflow : ellipsis;
+    overflow      : hidden;
+    text-align    : right;
+    white-space   : nowrap;
+    height        : 20px;
+    line-height   : 20px;
+    max-width     : 140px;
+    min-width     : 140px;
+    width         : 140px;
+    padding       : 4px 14px;
+    user-select   : all;
+}
+.panel-option-control {
+    border-radius : 0px;
+    overflow      : hidden;
+    text-align    : left;
+    text-overflow : ellipsis;
+    white-space   : nowrap;
+}
+.panel-option-control.panel-option-checkbox {
+    font-size   : 20px;
+    font-weight : 200;
+    padding     : 0px 11px;
+    max-height  : 26px;
+    min-height  : 26px;
+    height      : 26px;
+    line-height : 26px;
+    max-width   : 156px;
+    min-width   : 156px;
+    width       : 156px;
+}
+.panel-option-checkbox input[type="checkbox"] {
+    margin    : 8px 120px 0px 12px;
+    padding   : 0px;
+    max-width : 20px;
+    min-width : 20px;
+    width     : 20px;
+}
+.panel-input-description,
+.panel-option-description {
+    background  : var(--color-surface-level-3);
+    flex-grow   : 1;
+    font-size   : 12px;
+    line-height : 20px;
+    padding     : 4px 12px;
+}
+
+
+/* PANEL */
+/* ----------------------------------------------------------------------------- */
+#panel-message {
+    position   : absolute;
+    text-align : center;
+    top        : 100px;
+    left       : calc(50% - 150px);
+    height     : 300px;
+    width      : 300px;
+}
+
+
+
+/* JSON */
+/* ----------------------------------------------------------------------------- */
+#json {
+    /* background : var(--color-surface-level-4); */
+    /* display    : flex;
+    flex-direction : column;
+    height     : var(--height-json); */
+}
+/* #json-title { */
+    /* font-weight  : bold;
+    line-height  : 22px;
+    padding-top  : 8px;
+    padding-left : 14px; */
+    /* text-align   : right; */
+/* } */
+#json-description,
+#json-string {
+    /* padding    : 12px 14px; */
+    max-height : calc(var(--height-json) - 24px);
+    min-height : calc(var(--height-json) - 24px);
+    height     : calc(var(--height-json) - 24px);
+}
+#json-description {
+    font-size   : 12px;
+    line-height : 18px;
+}
+#json-string {
+    font-family : monospace;
+    font-size   : 10px;
+    line-height : 16px;
+    /* margin      : 4px 16px; */
+    padding     : 0px;
+    /* width       : calc(100% - 236px); */
+    top : 74px;
+}
+#json-copy {
+    position    : absolute;
+    top         : 80px;
+    /* bottom      : 12px; */
+    right       : 10px;
+    width       : 32px;
+    display     : flex;
+    align-items : center;
+    justify-content : center;
+    border-radius   : 6px;
+    font-size   : 16px;
+    cursor      : pointer;
+}
+#json-copy.copied {
+    color : var(--color-status-green, #3ea24b);
+}

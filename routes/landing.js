@@ -76,6 +76,7 @@ router.get('/classes'       , function(req, res, next) { launch('apps/classes'  
 router.get('/client'        , function(req, res, next) { launch('apps/client'        , ''              , 'Mobile PLM Client'        , req, res, next); });
 router.get('/compare'       , function(req, res, next) { launch('apps/compare'       , 'compare'       , 'BOM Comparison'           , req, res, next); });
 router.get('/dashboard'     , function(req, res, next) { launch('apps/dashboard'     , 'dashboard'     , 'Dashboard'                , req, res, next); });
+router.get('/editor'        , function(req, res, next) { launch('apps/editor'        , 'editor'        , 'Specification Editor'     , req, res, next); });
 router.get('/explorer'      , function(req, res, next) { launch('apps/explorer'      , 'explorer'      , 'Product Data Explorer'    , req, res, next); });
 router.get('/impactanalysis', function(req, res, next) { launch('apps/impactanalysis', 'impactanalysis', 'Change Impact Analysis'   , req, res, next); });
 router.get('/instances'     , function(req, res, next) { launch('apps/instances'     , 'instances'     , 'BOM Instances Editor'     , req, res, next); });
@@ -121,8 +122,9 @@ router.get('/addins/tasks'              , function(req, res, next) { launch('add
 /* ------------------------------------------------------------------------------
     UX DEVELOPERS APPLICATIONS
    ------------------------------------------------------------------------------ */
-router.get('/gallery' , function(req, res, next) { launch('framework/gallery'  , '', 'UX Components Gallery', req, res, next); });
-router.get('/template', function(req, res, next) { launch('tutorial/1-template', '', 'App Template Page'    , req, res, next); });
+router.get('/gallery' , function(req, res, next) { launch('framework/gallery'  , '', 'UX Components Gallery'     , req, res, next); });
+router.get('/studio'  , function(req, res, next) { launch('framework/studio'   , '', 'Panel Configuration Studio', req, res, next); });
+router.get('/template', function(req, res, next) { launch('tutorial/1-template', '', 'App Template Page'         , req, res, next); });
 
 
 
@@ -142,15 +144,14 @@ router.get('/change'       , function(req, res, next) { launch('dev/change'     
 router.get('/configurator' , function(req, res, next) { launch('dev/configurator' , '', 'Product Configuration Editor'     , req, res, next); });
 router.get('/control'      , function(req, res, next) { launch('dev/control'      , '', 'Remote Device Control'            , req, res, next); });
 router.get('/customer'     , function(req, res, next) { launch('dev/customer'     , '', 'Customer Services'                , req, res, next); });
-router.get('/editor'       , function(req, res, next) { launch('dev/editor'       , 'editor', 'Content Editor'             , req, res, next); });
 router.get('/matrix'       , function(req, res, next) { launch('dev/matrix'       , 'matrix', 'Matrix'                     , req, res, next); });
 router.get('/mbom-upgrade' , function(req, res, next) { launch('dev/mbom-upgrade' , '', 'MBOM Upgrade Editor'              , req, res, next); });
+router.get('/mebom'        , function(req, res, next) { launch('dev/mebom'        , 'mebom', 'Mechatronic BOM Editor'      , req, res, next); });
 router.get('/pbom'         , function(req, res, next) { launch('dev/pbom'         , '', 'Manufacturing Process Editor'     , req, res, next); });
 router.get('/pdm'          , function(req, res, next) { launch('dev/pdm'          , '', 'Vault Browser'                    , req, res, next); });
 router.get('/pdm-explorer' , function(req, res, next) { launch('dev/pdm-explorer' , '', 'PDM Explorer'                     , req, res, next); });
 router.get('/pnd'          , function(req, res, next) { launch('dev/pnd'          , '', 'Product Data & Processes Explorer', req, res, next); });
 router.get('/resources'    , function(req, res, next) { launch('dev/resources'    , 'resources', 'Resource Allocation'     , req, res, next); });
-router.get('/studio'       , function(req, res, next) { launch('dev/studio'       , '', 'Panel Configuration Studio'       , req, res, next); });
 router.get('/transmittals' , function(req, res, next) { launch('dev/transmittals' , '', 'Transmittals Client'              , req, res, next); });
 router.get('/worklist'     , function(req, res, next) { launch('dev/worklist'     , 'worklist', 'Worklist'                 , req, res, next); });
 
@@ -169,8 +170,7 @@ function launch(appURL, appSettings, appTitle, req, res) {
 
     if(req.session.hasOwnProperty('headers')) {
         if(req.session.headers.hasOwnProperty('expires')) {
-            let expires = new Date(req.session.headers.expires).getTime();
-            if(expires > now) {
+            if(req.session.headers.expires > now) {
                 refresh = true;
             } else {
                 redirect = true;
@@ -193,7 +193,7 @@ function launch(appURL, appSettings, appTitle, req, res) {
             + '?response_type=code'
             + '&client_id=' + req.app.locals.clientId
             + '&redirect_uri=' + encodeURIComponent(req.app.locals.redirectUri)
-            + '&scope=profapi:img-profile:read'
+            + '&scope=profapi:img-profile:read data:read data:search data:write'
             + '&code_challenge=' + req.session.code_challenge
             + '&code_challenge_method=S256'
             + '&state=' + encodeURIComponent(req.url);
@@ -232,7 +232,7 @@ function launch(appURL, appSettings, appTitle, req, res) {
 
         reqHost = reqHost.toLowerCase();
 
-        getVaultId(req, function() {
+        getHubId(req, function() {
 
             console.log(' ');
             console.log('  Launching Application');
@@ -246,7 +246,6 @@ function launch(appURL, appSettings, appTitle, req, res) {
             console.log('  defaultTheme     = ' + req.app.locals.defaultTheme); 
             console.log('  vaultGatewayLink = ' + req.app.locals.vaultGatewayLink); 
             console.log('  vaultName        = ' + req.app.locals.vaultName); 
-            console.log('  vaultId          = ' + req.session.vaultId); 
             console.log('  theme            = ' + reqTheme); 
             console.log('  host             = ' + reqHost); 
             console.log('  wsId             = ' + reqWS); 
@@ -284,7 +283,6 @@ function launch(appURL, appSettings, appTitle, req, res) {
                     descriptor   : reqDescriptor,
                     number       : reqNumber,
                     fileId       : reqFileId,
-                    vaultId      : req.session.vaultId,
                     language     : reqLanguage,
                     type         : reqType,
                     revisionBias : reqRevisionBias,
@@ -297,6 +295,7 @@ function launch(appURL, appSettings, appTitle, req, res) {
                 });    
                 
             }
+
         });
 
     }
@@ -329,39 +328,49 @@ function sha256(buffer) {
 
 
 /* ------------------------------------------------------------------------------
-    DETERMINE VAULT ID BASED ON GATEWAY & APS LOGIN
+    DETERMINE APS HUB ID WHEN CONNECTED TO FUSION
    ------------------------------------------------------------------------------ */
-function getVaultId(req, callback) {
+function getHubId(req, callback) {
 
-    if(typeof req.query.vaultId !== 'undefined') {
-        req.session.vaultId = req.query.vaultId;
+    if(!req.app.locals.fusionConnected) {
         callback();
-    } else if((req.app.locals.vaultGatewayLink === '') || (req.app.locals.vaultName === '')) {
-        req.session.vaultId = '';
-        callback();
-    } else if((typeof req.session.vaultId !== 'undefined') && (req.session.vaultId !== '')) {
+    } else if(req.app.locals.hubId !== '') {
         callback();
     } else {
 
         console.log(' ');
-        console.log('  Validating Vault Settings');
+        console.log('  Getting connected Hub ID');
         console.log(' --------------------------------------------');
 
-        let url = req.app.locals.vaultGatewayLink + '/AutodeskDM/Services/api/vault/v2/vaults';
+        let url = req.app.locals.tenantLink + '/api/v3/tenant';
 
-        axios.get(url).then(function(response) {
-            for(let vault of response.data.results) {
-                if(vault.name === req.app.locals.vaultName) {
-                    req.session.vaultId = vault.id;
-                    console.log('  Found Vault ' +  req.app.locals.vaultName + ' with id ' + req.session.vaultId); 
-                    break;
+        axios.get(url, { headers : req.session.headers }).then(function(response) {
+            let forgeId = response.data.forgeId;
+            console.log('  > Tenant ID : ' + forgeId);
+
+            axios.post('https://developer.api.autodesk.com/mfg/v3/graphql/public', { 
+                query : `query CDE_PROPERTIES_GetGQLHubId($dataManagementAPIHubId: ID!) {
+                    hubByDataManagementAPIId(dataManagementAPIHubId: $dataManagementAPIHubId) {
+                        id
+                    }
+                }`,
+                variables : {
+                    dataManagementAPIHubId : forgeId,
                 }
-            }
-            console.log(' ');
-            callback();
+            },{                
+                headers : req.session.headers 
+            }).then(function(response) {
+                req.app.locals.hubId = response.data.data.hubByDataManagementAPIId.id;
+                console.log('  > Hub ID    : ' + req.app.locals.hubId);
+                console.log(' ');
+                callback();
+            }).catch(function(error) {
+                console.log('  !ERROR! Could not determine Hub ID');
+                callback();
+            });
+
         }).catch(function(error) {
-            console.log('  !ERROR! Could not connect to Vault ' +  req.app.locals.vaultName + ' with id ' + req.session.vaultId);
-            req.session.vaultId = '';
+            console.log('  !ERROR! Could not determine Hub ID');
             callback();
         });
 
@@ -410,17 +419,14 @@ function getToken(req, code, res, callback) {
             console.log('  Login to Autodesk Platform Services (APS) successful');
             console.log();
 
-            let expiration = new Date();
-                expiration.setSeconds(expiration.getSeconds() + (response.data.expires_in - 90));
-
             req.session.headers = {
-                'Content-Type'  : 'application/json',
-                'Accept'        : 'application/json',
-                'X-Tenant'      : req.app.locals.tenant,
-                'token'         : response.data.access_token,
-                'Authorization' : 'Bearer ' + response.data.access_token,
-                'expires'       : expiration,
-                'refresh_token' : response.data.refresh_token
+                'Content-Type' : 'application/json',
+                Accept         : 'application/json',
+                'X-Tenant'     : req.app.locals.tenant,
+                token          : response.data.access_token,
+                Authorization  : 'Bearer ' + response.data.access_token,
+                expires        : Date.now() + response.data.expires_in * 1000,
+                refreshToken   : response.data.refresh_token
             };
             
             callback();
@@ -442,7 +448,6 @@ function getToken(req, code, res, callback) {
             code    : error.response.status,
             text    : error.response.data.error
         });
-
 
     });
     

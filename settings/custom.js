@@ -34,6 +34,7 @@ exports.common = {
         items                        : 57,
         nonConformances              : 98,
         problemReports               : 82,
+        requirements                 : 143,
 
         // Products & Projects Workspaces
         products               : 95,
@@ -89,6 +90,7 @@ exports.applications = {
     compare        : {},
     configurator   : {},
     dashboard      : {},
+    editor         : {},
     explorer       : {},
     impactanalysis : {},
     insights       : {},
@@ -97,6 +99,7 @@ exports.applications = {
         //     workspaceId : 308
         // }]
     },
+    matrix         : {},
     mbom           : {
         // workspaceEBOM : {
         //     workspaceId : null, // uses common.workspaceIds.items per default
@@ -106,11 +109,36 @@ exports.applications = {
         // }
     },
     portal         : {
-        // downloadPatterns : [{
-        //     fields    : ['NUMBER', 'PDM_ITEM_REVISION'],
-        //     separator : ' ',
-        //     label     : 'Number PDM-Revision'
-        // }]        
+        // panels : {
+        //     insertSearch : {},
+        //     insertRecentItems : {},
+        //     insertBOM : {},
+        //     insertDetails : {},
+        //     insertDetails : {},
+        // },
+        // viewerFeatures   : {
+        //     contextMenu   : false,
+        //     cube          : false,
+        //     orbit         : false,
+        //     firstPerson   : false,
+        //     camera        : false,
+        //     measure       : true,
+        //     section       : true,
+        //     explodedView  : true,
+        //     modelBrowser  : false,
+        //     properties    : false,
+        //     settings      : false,
+        //     fullscreen    : true,
+        //     markup        : false,
+        //     hide          : true,
+        //     ghosting      : true,
+        //     highlight     : true,
+        //     single        : true,
+        //     fitToView     : true,
+        //     reset         : true,
+        //     views         : true,
+        //     selectFile    : true
+        // }   
     },
     portfolio      : {},
     projects       : {},
@@ -118,6 +146,7 @@ exports.applications = {
     reviews        : {},
     sbom           : {},
     service        : {},
+    worklist       : {},
     variants       : {
         // workspaceItemVariants : {
             // workspaceId : 571,

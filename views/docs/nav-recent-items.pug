@@ -23,73 +23,7 @@
     p Various parameters can be provided using a JSON object as shown below. Note that all parameters are optional.
     p.code insertRecentItems({ 'headerLabel' : 'Your Recent Data', 'headerToggle' : true });
     p   
-        table.parameters.row-hovering 
-            tr 
-                th.nowrap Parameter 
-                th Description
-                th Type 
-                th Required 
-                th Default 
-            tr 
-                td id 
-                td ID of the DOM element where the list should be inserted
-                td String
-                td No
-                td recents
-            tr 
-                td header 
-                td Can be used to suppress addition of the panel header element
-                td Boolean
-                td No
-                td true
-            tr 
-                td headerLabel
-                td Sets the header label (if header is enabled)
-                td String
-                td No
-                td Recently Viewed Items
-            tr 
-                td headerToggle 
-                td Enables collapsing and expanding the list display
-                td Boolean
-                td No 
-                td false
-            tr 
-                td reload 
-                td Enables reload button for the panel
-                td Boolean
-                td No
-                td true
-            tr 
-                td icon 
-                td Sets the icon to be displayed for each tile (see fonts.css for available icons, default will use .icon-history)
-                td String
-                td No
-                td history
-            tr 
-                td images 
-                td Display first image field as tile image
-                td Boolean
-                td No
-                td true
-            tr 
-                td size 
-                td Set the size of contents (xxs, xs, s, m, l, xl or xxl)
-                td String
-                td No
-                td s
-            tr 
-                td workspacesIn 
-                td List of workspace IDs to be included. Items from other workspaces will not be shown (example: ['82', '57'])
-                td Array
-                td No 
-                td []
-            tr 
-                td workspacesEx 
-                td List of workspace IDs to be excluded. Items of these workspaces will not be shown (example: ['82', '57'])
-                td Array
-                td No 
-                td []
+        table.parameters.row-hovering
     h2 Examples 
     p   
         table.row-hovering 

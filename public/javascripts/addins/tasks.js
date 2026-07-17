@@ -11,12 +11,13 @@ $(document).ready(function() {
         number            : true,
         filterByDueDate   : true,
         filterByWorkspace : true,
+        openSelectedInPLM : true,
         reload            : true,
         search            : false,
         contentSize       : 'xxs',
         fieldsEx          : config.tasks.columnsExTasks,
         workspacesIn      : config.tasks.workspacesInTasks,
-        onClickItem : function(elemClicked) { openTask(elemClicked); }
+        onClickItem       : function(elemClicked) { openTask(elemClicked); }
     });
 
 });
@@ -103,12 +104,12 @@ function openTask(elemClicked) {
     insertItemSummary(linkTask, {
         id              : 'task',
         bookmark        : false,
-        layout          : 'tabs',
         openInPLM       : true,
         reload          : true,
         toggleBodyClass : 'display-task',
         workflowActions : true,
-        contents        : [{ 
+        summaryLayout   : 'tabs',
+        summaryContents : [{ 
             type   : 'details', 
             params : { 
                 id              : 'task-details', 

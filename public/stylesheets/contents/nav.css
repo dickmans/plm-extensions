@@ -74,6 +74,62 @@
 }
 
 
+/*  NEW TASKS */
+/* ----------------------------------------------------------------------------- */
+.new-task.content-item {
+    flex-direction : column;
+    gap            : 0px;
+    height         : unset !important;
+    position       : relative;
+}
+.new-task.content-item .tile-image {
+    display : none;
+}
+.new-task.content-item .tile-details {
+    margin  : 0px;
+    padding : 18px 24px;
+}
+.new-task.content-item .tile-title {
+    display        : flex;
+    font-size      : 14px;
+    padding-bottom : 8px;
+}
+.new-task.content-item .tile-title::before {
+    color          : var(--color-blue-500);
+    content        : '\e85f';
+    font-family    : 'Material Symbols Sharp';
+    font-size      : 22px;
+    font-weight    : 300;
+    margin-right   : 10px;
+    text-rendering : optimizeLegibility;
+    -webkit-font-smoothing : antialiased;
+}
+.new-task.content-item .tile-subtitle {
+    font-size   : 14px;
+    line-height : 18px;
+    white-space : normal;
+}
+.new-task.content-item .task-actions {
+    display  : none;
+    gap      : 4px;
+    position : absolute;
+    bottom   : 18px;
+    right    : 18px;    
+    justify-content : center;    
+}
+.new-task.content-item:hover .task-actions {
+    display : flex;
+}
+.new-task.content-item .task-actions > .button {
+    font-size   : 20px;
+    line-height : 28px;
+    max-height  : 28px;
+    min-height  : 28px;
+    max-width   : 28px;
+    min-width   : 28px;
+}
+
+
 /*  WORKSPACE ITEMS */
 /* ----------------------------------------------------------------------------- */
 .workspace-items-search-input {

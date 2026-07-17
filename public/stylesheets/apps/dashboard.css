@@ -38,6 +38,7 @@
 .tiles.list.m .tile-details { gap : 3px; }
 .item-workflow-actions { width : unset; max-width : unset; }
 #new-sections .picklist { left : 10px; right : 10px; }
+.item-status { min-width : unset; }
 
 
 /* MASTER LAYOUT */
@@ -177,7 +178,7 @@ body.no-profile #profiles { display : block; }
 }
 #new-sections .field-label {
     color       : var(--color-font) !important;
-    min-width:   100px;
+    min-width   : 100px;
     max-width   : 100px;
     width       : 100px;
 }
@@ -193,8 +194,7 @@ body.no-profile #profiles { display : block; }
 }
 #new-sections-action-save::before {
     position : absolute;
-    top      : 10px;
-    right    : 10px;
+    right    : 20px;
 }
 
 

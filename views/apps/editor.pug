@@ -1,0 +1,105 @@
+extends ../framework/layout
+
+block head
+
+    link(rel='stylesheet', href='/stylesheets/apps/editor.css')
+    link(rel='stylesheet', href='/stylesheets/custom/editor.css')
+    
+    script(src='/javascripts/apps/editor.js')
+    script(src='/javascripts/custom/editor.js')
+
+block body
+
+    body.surface-level-1.text-selection-off.no-advanced-mode.no-side.no-pins.no-add-existing
+
+        #header.dark
+            #header-logo
+            #header-title Advanced Content Editor
+            #header-subtitle
+            #header-toolbar
+                #button-toggle-navigator.button.with-toggle.toggle-on(title='Click to toggle Navigator to the left on/off') Navigator
+                #button-toggle-advanced-mode.button.with-toggle.toggle-off(title='Click to toggle additional fields on/off') Advanced Mode
+                //- #button-toggle-revie-mode.button.with-toggle.toggle-off(title='Click to toggle review controls on/off') Review Mode
+                #button-toggle-add-existing.button.with-toggle.toggle-off(title='Click to toggle side panel with library entries to add them using drag & drop')
+                #header-avatar
+        
+        #landing.screen.surface-level-1
+
+        #start.screen       
+
+            #start-wrapper.surface-level-2.box-shadow
+                #start-header.pos-abs-top
+                #start-content 
+                    #start-top
+                        span#start-descriptor 
+                        span &nbsp;does not have any structure defined yet. 
+                    #start-title
+                        .label Provide a title for the new structure to create:
+                        input.value#start-name(placeholder='Enter Title')
+                        //- div To build a new structure from scratch, click the button Confirm at buttom.
+                    #start-draft
+                        .label If you have a draft created in Word, paste the contents here to let the system detect the required nodes automatically.
+                        textarea.value#start-paste(placeholder='Paste your draft contents here')
+                    #start-templates
+                        .label If there is no draft, you can select a template from the library instead (optional):
+                        .value#start-templates-list.surface-level-2
+                #start-button.button.default.pos-abs-bottom Confirm
+
+        #main.screen                  
+
+            #tree.surface-level-1.pos-abs-left
+
+            #editor.surface-level-1.pos-abs-right
+                .panel-header   
+                    .panel-title 
+                        .panel-title-main Content Editor
+                    .panel-controls 
+                        #create.button.default.with-icon.icon-checkmark(title='Create new structure from template') Confirm Selection
+                        #save.button.default(title='Save changes') Save All Changes
+                        //- #add-existing.button.with-icon.icon-list-add(title='Add existing entries from the library') Add Existing
+                        //- #auto-save.button.with-toggle.toggle-off(title='Click to toggle additional fields on/off') Auto Save
+                        select#editor-side-panel.button   
+                            option(value='hide'   ) Hide Side Panel  
+                            option(value='details') Display All Details
+                            option(value='files'  ) Display Files
+                            option(value='items'  ) Display Implemented By
+                            option(value='log'    ) Display Change Log
+                        #editor-collapse-all.button.icon.icon-minus(title='Collapse Expand All')
+                        #editor-expand-all.button.icon.icon-plus(title='Expand All')
+                .panel-content.surface-level-1#editor-content.no-scrollbar
+                #min-max-controls.pos-abs-bottom 
+                    #max-first.button.with-icon.icon-starts-with First
+                    #max-parent.button.with-icon.icon-goto-parent Parent
+                    #max-prev-sibling.button.with-icon.icon-double-arrow-left Sibling
+                    #max-prev.button.with-icon.icon-chevron-left Previous
+                    #max-next.button Next
+                    #max-next-sibling.button Sibling
+                    #max-last.button Last
+
+            #pins.surface-level-1.pos-abs-right
+                .panel-header   
+                    .panel-title 
+                        .panel-title-main Pinned Entries
+                    .panel-controls 
+                        #pins-close.button.icon.icon-close
+                .panel-content.surface-level-1#pins-content.no-scrollbar
+
+            #side.surface-level-1.pos-abs-right
+
+            #add.surface-level-2.pos-abs-right
+                .panel-header   
+                    .panel-title 
+                        .panel-title-main#add-title
+                    .panel-controls 
+                        select#add-select.button
+                            option(name='search'    value='search'   ) Search
+                            option(name='views'     value='views'    ) Workspace Views
+                            option(name='bookmarks' value='bookmarks') Bookmarks
+                            option(name='recents'   value='recents'  ) Recently Viewed
+                .panel-content.surface-level-2.no-scrollbar.hidden#add-search
+                .panel-content.surface-level-2.no-scrollbar.hidden#add-views
+                .panel-content.surface-level-2.no-scrollbar.hidden#add-bookmarks
+                .panel-content.surface-level-2.no-scrollbar.hidden#add-recents
+
+        iframe#frame-download.hidden
+            

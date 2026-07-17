@@ -2,34 +2,29 @@ extends ../framework/layout
 
 block head
 
-    link(rel='stylesheet', href='/stylesheets/apps/matrix.css')
-    script(src='/javascripts/apps/matrix.js')
-    script.
-        config = !{JSON.stringify(config)};
+    link(rel='stylesheet', href='/stylesheets/dev/matrix.css')
+    //- link(rel='stylesheet', href='/stylesheets/custom/matrix.css')
+
+    script(src='/javascripts/dev/matrix.js')
+    //- script(src='/javascripts/custom/matrix.js')
 
 block body
 
-    body.surface-level-1
+    body.surface-level-1.no-details
         
         #header.dark
             #header-logo
             #header-title= title
             #header-subtitle
             #header-toolbar
-                .button#button-toggle-details.with-icon.icon-details(title='Toggle selected item details on/off') Toggle Details
-                .button#button-toggle-viewer.with-icon.icon-save.default(title='Click to toggle size of the viewer') Save
+                #create-button.button.with-icon.icon-create(title='Click to create new validation process for selected requirements') New Validation
+                #toggle-details.button.with-toggle.toggle-off(title='Toggle Details panel on/off') Details
                 #header-avatar
         
         #main.screen
 
-            table#matrix
-                thead   
-                tbody#matrix-body
+            #tree.surface-level-1
+            #details.surface-level-2.pos-abs-right
+            #related.surface-level-2.pos-abs-bottom
 
-            #details.panel
-                .panel-header   
-                    .panel-title Details 
-                    .panel-toolbar 
-                        .button.icon.icon-bookmark#bookmark
-                        .button.icon.icon-open#open
-                .panel-content.surface-level-2.compact#details-sections
+            #create.dialog

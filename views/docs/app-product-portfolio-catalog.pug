@@ -56,9 +56,18 @@
                         |, you can provide the new names here
                     td ['Product Categories', 'Product Lines', 'Products']
                 tr 
-                    td portfolio.bomLevels
-                    td Restrict the BOM expansion to the defined number of levels
-                    td 3
+                    td portfolio.sharedCache
+                    td If caching  is enable for the server in the environments file, this setting establishes a shared cache for the given user group in PLM: If users belong to this defined PLM user group, their requests will be evaluated against the cache before pulling data from the database. In the latter case, the database response will be used to update the cache. With this settings, the application performance can be improved.
+                    td 'Employees'
+                tr 
+                    td portfolio.panels
+                    td { insertDetails : {}, insertAttachments : {}, insertBOM: {} }
+                    td This setting and its nodes can be used to adjust the panels being displayed in context of a product, which is based on commonly used UI panel elements.
+                        br
+                        |You can use the 
+                        strong Panel Configuration Studio 
+                        |to explore these panels' features and derive teh matching configuration settings.
+                        a(href='studio?panel=insertAttachments' target='_blank' style='margin:18px 0px;') Open Panel Configuration Studio                    
         h1 Common Configuration Settings
         p This utility also uses the following common configuration settings
         table(style='margin:10px 0px 30px')

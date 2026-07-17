@@ -515,10 +515,10 @@ function openItem(link) {
     insertItemSummary(link, {
         bookmark        : true,
         className       : wsConfig.className,
-        contents        : wsConfig.contents,
+        summaryContents : wsConfig.contents,
         openInPLM       : true,
         reload          : true,
-        layout          : 'dashboard',
+        summaryLayout   : 'dashboard',
         statesColors    : wsConfig.progress,
         surfaceLevel    : '1',
         workflowActions : true,

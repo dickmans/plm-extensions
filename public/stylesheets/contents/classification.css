@@ -75,7 +75,7 @@
     --height-similar-filters : 300px;
 }
 .similar-contents {
-    bottom : calc(var(--height-similar-filters) + 24px);
+    bottom : calc(var(--height-similar-filters) + 38px);
     transition : left ease 0.2s, top ease 0.2s, right ease 0.2s, bottom ease 0.2s;
 }
 .similar-filters {
@@ -113,7 +113,7 @@
     -webkit-font-smoothing: antialiased; 
 }
 
-.no-filters-panel .similar-contents { bottom : 30px; }
+.no-filters-panel .similar-contents { bottom : 46px; }
 .no-filters-panel .similar-filters  { bottom : calc(10px - var(--height-similar-filters)); }
 .no-filters-panel .similar-filters-toggle::after { content : '\e316'; }
 .no-filters-panel .similar-filters-list-actions { display : none; }

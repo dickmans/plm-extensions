@@ -1,0 +1,403 @@
+/*  VARIABLES */
+/* ----------------------------------------------------------------------------- */
+:root {
+
+    --border-h      : 18px;
+    --border-v      : 18px;
+    --width-bom     : 500px;
+    --width-details : 400px;
+    --width-viewer  : 600px;
+    --width-ecad    : 600px;
+    --height-viewer : 400px;
+    --height-counter  : 22px;
+    --width-counter  : 33px;
+}
+
+
+/*  MASTER LAYOUT */
+/* ----------------------------------------------------------------------------- */
+#results {
+    border-width : var(--border-v) var(--border-h);
+    top          : 0px;
+    bottom       : 0px;
+    left         : 0px;  
+    right        : 0px;
+}
+#bom {
+    border-width : var(--border-v) var(--border-h);
+    top          : 0px;
+    bottom       : 0px;
+    left         : 0px;
+    width        : var(--width-bom);
+    z-index      : 1;
+}
+#details {
+    border-width : var(--border-v) var(--border-h) var(--border-v) 0px;
+    top          : 0px;
+    bottom       : 0px;
+    left         : calc(var(--width-bom) + (2 * var(--border-h)));
+    width        : var(--width-details);
+}
+.viewer {
+    top    : 0px;
+    right  : calc(var(--width-ecad) + (2 * var(--border-h)));
+    bottom : 60%;
+    left   : calc(var(--width-bom) + var(--width-details) + (3 * var(--border-h)));
+}
+#contents {
+    border-width : var(--border-v) var(--border-h);
+    top          : 40%;
+    right        : calc(var(--width-ecad) + (2 * var(--border-h)));
+    left         : calc(var(--width-bom) + var(--width-details) + (3 * var(--border-h)));
+    bottom       : 0px;
+}
+#items {
+    position : absolute;
+    top      : 58px;
+    right    : 0px;
+    left     : 0px;
+    bottom   : 0px;
+}
+#ecad {
+    border-width : var(--border-v) var(--border-h);
+    width : var(--width-ecad);
+}
+#sync {
+    height : 592px;
+    left   : calc(50% - 600px);
+    top    : calc(50% - 320px);
+    width  : 1200px;
+}
+
+.no-ecad #mode { display : none; }
+.no-ecad .viewer,
+.no-ecad #contents { right : 0px; }
+.no-ecad #ecad { right : calc(-1px - var(--width-ecad) - (2 * var(--border-h))); }
+.no-ecad #sync { height : 542px; top : calc(50% - 300px);}
+
+
+.layout-h .viewer {
+    right  : unset;
+    bottom : 0px;
+    width  : var(--width-viewer);
+}
+.layout-h #contents {
+    top  : 0px;
+    left : calc(var(--width-bom) + var(--width-viewer) + (2 * var(--border-h)));
+}
+
+.no-bom .viewer,
+.no-bom #contents { left : calc(var(--width-details) + (2 * var(--border-h))); }
+.no-bom #bom      { left : calc(-1px - var(--width-bom) - (2 * var(--border-h))); }
+.no-bom #details  { left : 0px; border-left-width : var(--border-h); }
+
+.no-ecad-bom .viewer,
+.no-ecad-bom #contents { right : 0px; }
+.no-ecad-bom #ecad  { right : calc(-1px - var(--width-ecad) - (2 * var(--border-h))); }
+
+.no-bom.layout-h #contents {
+    left : calc(var(--width-viewer) + (1 * var(--border-h)));
+}
+
+.no-details #details  { left : calc(-1px - var(--width-details) - (2 * var(--border-h)));}
+.no-details .viewer   { left : calc(var(--width-bom) + (2 * var(--border-h)));}
+.no-details #contents { left : calc(var(--width-bom) + (2 * var(--border-h)));}
+
+.no-bom.no-details .viewer,
+.no-bom.no-details #contents {
+    left : 0px;
+}
+.no-bom.no-details #bom { left : calc(-1px - var(--width-bom) - (2 * var(--border-h))); }
+
+.screen-landing #main,
+.screen-landing #header-subtitle,
+.screen-landing #header-toolbar .button { display : none; }
+.screen-main #landing { display : none; }
+
+/* .panel-actions .with-toggle::after { line-height : 36px; } */
+.panel-actions {
+    justify-content: right;
+}
+
+
+/*  BOM */
+/* ----------------------------------------------------------------------------- */
+.column-icon {
+    text-align : center;
+    width      : 30px;
+}
+td.column-icon {
+    font-size      : 22px;
+    font-weight    : 200;
+    line-height    : 34px;
+    padding-bottom : 0px !important;
+    padding-top    : 0px !important;
+}
+ #mcad-bom-sync::after { content : '\e5cc';}
+/* #mcad-bom-sync::after {
+     content : '\e5cc';
+         font-family: 'Material Symbols Sharp';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+} */
+
+
+/*  TABS */
+/* ----------------------------------------------------------------------------- */
+#tabs > div {
+    display     : flex;
+    font-size   : 14px;
+    gap         : 8px;
+    height      : 40px;
+    line-height : 38px;
+    justify-content : center;
+}
+#tabs .icon {
+    line-height : 36px;
+} 
+.tab-counter {
+    font-size     : 10px;
+    font-weight   : 700;
+    border-radius : 4px;
+    position      : relative;
+    top           : 7px;
+    text-align    : center;
+    max-width     : var(--width-counter);
+    min-width     : var(--width-counter);
+    width         : var(--width-counter);
+    max-height    : var(--height-counter);
+    min-height    : var(--height-counter);
+    height        : var(--height-counter);
+    line-height   : var(--height-counter);
+}
+
+
+
+/*  ITEMS */
+/* ----------------------------------------------------------------------------- */
+table.row-hovering tr.highlighted:hover td,
+table.row-hovering tbody tr.highlighted:hover td,
+tr.highlighted > td {
+    /* border-color : var(--color-status-red) !important; */
+}
+table.row-hovering tr.highlighted:hover td.content-item-check-box,
+table.row-hovering tbody tr.highlighted:hover td.content-item-check-box,
+tr.highlighted > td.content-item-check-box {
+    background   : var(--color-status-red) !important;
+}
+#items .panel-actions {
+    justify-content : end;
+}
+#items .field-id-SOURCE {
+    max-width : 20px;
+    min-width : 20px;
+    width     : 20px;
+}
+#items .column-NUMBER {
+    max-width : 140px;
+    min-width : 140px;
+    width     : 140px;
+}
+#items .column-SERIAL {
+    max-width : 140px;
+    min-width : 140px;
+    width     : 140px;
+}
+#items .column-INSTALLATION_DATE {
+    max-width : 106px;
+    min-width : 106px;
+    width     : 106px;
+}
+#items .column-INSTANCE_ID {
+    display : none;
+}
+.panel-action-remove {
+    order : -2;
+}
+.panel-action-clone {
+    order : -1;
+}
+td.sync-status { 
+    display : flex;
+}
+.sync-actions {
+    display      : flex;
+    gap          : 2px;
+    padding-left : 12px;
+}
+.sync-actions > .button {
+    height : 23px;
+    line-height : 23px !important;
+    margin-top : 3px;
+    padding-top : 0px;
+    padding-bottom : 0px;
+    font-size : 12px;
+    min-width : unset;
+}
+.sync-actions > .button.icon {
+    font-size : 20px;
+}
+.no-bom-sync .sync-status {
+    display : none;
+}
+.match-stop {
+    display : none;
+}
+.sync-actions > div {
+    max-width : 36px;
+    min-width : 36px;
+    width     : 36px;
+}
+.selected-for-mapping .match-stop {
+    display : block;
+}
+.selected-for-mapping .match-start {
+    display : none;
+}
+.match-select {
+    display : none;
+}
+.mapping-start .match-select {
+    display : block;
+}
+
+th.field-id-SOURCE span::before {
+    line-height : 38px;
+    font-size   : 15px;
+}
+
+.field-id-ITEM_REV      { max-width :  32px !important; min-width :  32px !important; width :  32px !important; text-align : center; }
+.field-id-INSTANCE_ID   { max-width :  32px !important; min-width :  32px !important; width :  32px !important; text-align : right;  }
+.field-id-INSTANCE_PATH { max-width : 360px !important; min-width : 360px !important; width : 360px !important; }
+
+
+
+/*  BOM MATCH COLUMN */
+/* ----------------------------------------------------------------------------- */
+.bom-match-icons {
+    display : flex;
+    gap     : 4px;
+}
+.bom-match-icon::before {
+    font-size   : 16px;
+    line-height : 24px;
+}
+.no-mcad-match       .bom-match-icon.mechanical::before,
+.no-ecad-match       .bom-match-icon.electrical::before { content : '\e644'; color: var(--color-status-red); }
+.mcad-match          .bom-match-icon.mechanical::before,
+.ecad-match          .bom-match-icon.electrical::before { content : '\e5ca'; color: var(--color-status-yellow); }
+.mcad-instance-match .bom-match-icon.mechanical::before,
+.ecad-tag-match      .bom-match-icon.electrical::before { content : '\e877'; color: var(--color-status-green); }
+
+
+/*  SYNC DIALOG */
+/* ----------------------------------------------------------------------------- */
+#sync .dialog-content {
+    overflow : hidden;
+}
+th.sync-column {
+    padding : 12px;
+    border-bottom : 4px solid var(--color-surface-level-1);
+
+}
+.sync-column {
+    border-left : 10px solid var(--color-surface-level-1);
+    text-align  : center;
+}
+#sync-throw > th:first-of-type {
+    background  : none;
+    border-left : none;
+    width       : 460px;
+}
+.sync-icon {
+    background    : var(--color-surface-level-3) !important;
+    padding-right : 0px;
+    padding-left  : 0px;
+    max-width     : 42px;
+    min-width     : 42px;
+    width         : 42px;
+    text-align    : center;
+}
+.sync-icon .icon {
+    font-size   : 22px;
+    font-weight : 200;
+    line-height : 36px;
+}
+#sync td {
+    border-bottom-color : var(--color-surface-level-1);
+    line-height         : 24px;
+}
+#sync-message {
+    padding : 28px 56px 0px;
+}
+#sync.no-changes #sync-review-changes,
+#sync.no-changes #sync-save {
+    display : none;
+}
+#sync.review-changes #sync-no-changes {
+    display : none;
+}
+
+
+
+/*  ADDIN MODE */
+/* ----------------------------------------------------------------------------- */
+.addin {
+    --border-v      : 18px;
+    --border-h      : 18px;
+    --height-viewer : 1px;
+    --width-viewer  : 1px;
+}
+.addin #toggle-layout,
+.addin #toggle-bom,
+.addin #toggle-details,
+.addin #bom,
+.addin #guiviewer3d-toolbar { display : none !important; }
+.addin .viewer {
+    right  : unset; 
+    left   : -10px; 
+    overflow : hidden;
+    width : var(--width-viewer);
+}
+.addin #contents { 
+    top  : 0px; 
+    left : var(--width-viewer); 
+}
+.addin #message { 
+    right   : 0px; 
+    bottom  : 0px; 
+    left    : 0px; 
+    padding : 10px 20px 10px 64px;
+}
+.addin #message::after {
+    font-size   : 30px;
+    font-weight : 200;
+    top         : 16px;
+    left        : 16px;
+}
+.addin #items {
+    top : 40px;
+}
+.addin #header-subtitle {
+    padding-left : var(--border-h);
+}
+.addin #header-toolbar {
+    padding-right : var(--border-h);
+}
+.addin .panel-actions {
+    height  : 24px;
+    padding : 0px;
+}
+.addin #items > * > .panel-content {
+    top : 40px;
+}

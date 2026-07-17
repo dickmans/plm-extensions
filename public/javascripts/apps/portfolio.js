@@ -415,6 +415,45 @@ function selectProduct(elemClicked) {
     $('#product').show();
     $('#product').removeClass('has-viewable');
 
+    let paramsSummary = {
+        id              : 'summary',
+        bookmark        : true,
+        hideSubtitle    : true,
+        summaryLayout   : 'sections',
+        openInPLM       : true,        
+        summaryContents : [{
+                type      : 'details', 
+                className : 'surface-level-2', 
+                params    : config.panels.insertDetails
+            },{ 
+                type      : 'grid', 
+                className : 'surface-level-2', 
+                params    : config.panels.insertGrid
+            },{ 
+                type      : 'images', 
+                className : 'surface-level-2', 
+                params    : { id : 'item-section-images' , layout : 'grid', contentSize : 'm' } 
+            },{ 
+                type      : 'attachments', 
+                className : 'surface-level-2', 
+                params    : config.panels.insertAttachments
+            },{ 
+                type      : 'bom', 
+                className : 'surface-level-2', 
+                params    : config.panels.insertBOM
+            }
+        ],
+        onClickClose  : function(id, link) { $('#product').hide(); }
+    };
+
+    paramsSummary.summaryContents[0].params.id = 'item-section-details';
+    paramsSummary.summaryContents[1].params.id = 'item-section-grid';
+    paramsSummary.summaryContents[3].params.id = 'item-section-attachments';
+    paramsSummary.summaryContents[4].params.id = 'item-section-bom';
+
+    paramsSummary.summaryContents[4].params.bomViewName = config.panels.insertBOM.bomViewName || common.workspaces.items.defaultBOMView;
+    paramsSummary.summaryContents[4].params.onClickItem = function(elemClicked) { onClickBOMItem(elemClicked); }
+
     $.get('/plm/details', { link : link }, function(response) {
         
         product.link     = link;
@@ -423,41 +462,19 @@ function selectProduct(elemClicked) {
         product.title    = getSectionFieldValue(response.data.sections, 'MARKETING_NAME_' + languageId, '');
         product.text     = getSectionFieldValue(response.data.sections, 'MARKETING_TEXT_' + languageId, '');
         product.ebom     = getSectionFieldValue(response.data.sections, 'ENGINEERING_BOM', '');
-
-        insertItemSummary(link, {
-            id          : 'summary',
-            bookmark    : true,
-            contents    : [
-                { type : 'details'     , className : 'surface-level-2', params : { id : 'item-section-details', hideSections : true, sectionsIn: ['Specification'], headerLabel : 'Technical Specification' } },
-                { type : 'grid'        , className : 'surface-level-2', params : { id : 'item-section-grid'   , headerLabel : 'Variants', fieldsIn : ['Title', 'Region', 'SKU', 'Target Launch'] } },
-                { type : 'images'      , className : 'surface-level-2', params : { id : 'item-section-images' , layout : 'grid', contentSize : 'm'} },
-                { type : 'attachments' , className : 'surface-level-2', params : { id : 'item-section-attachments', editable : false, contentSize : 's' , singleToolbar : 'controls'} },
-                { type : 'bom'         , className : 'surface-level-2', params : { 
-                    id                  : 'item-section-bom', 
-                    bomViewName         : common.workspaces.items.defaultBOMView,
-                    depth               : config.bomLevels,                  
-                    collapseContents    : true, 
-                    hideDetails         : true,
-                    hideTableHeader     : true,
-                    openInPLM           : true,
-                    search              : true,
-                    singleToolbar       : 'actions',
-                    tableHeaders        : false,
-                    toggles             : true,
-                    onClickItem  : function(elemClicked) { onClickBOMItem(elemClicked); }
-                }, link : product.ebom }
-            ],
-            headerTopLabel  : '<span class="product-category">' + product.category + '</span>|<span class="product-line">' + product.line + '</span>',
-            hideSubtitle    : true,
-            layout          : 'sections',
-            openInPLM       : true,
-            onClickClose    : function(id, link) { $('#product').hide(); }
-        });
-
+        
         if(isBlank(product.ebom)) product.ebom = product.link;
 
-        insertViewer(product.ebom);
+        paramsSummary.headerTopLabel          = '<span class="product-category">' + product.category + '</span>|<span class="product-line">' + product.line + '</span>';
+        paramsSummary.summaryContents[4].link = product.ebom;
 
+        console.log(link);
+
+        insertItemSummary(link, paramsSummary);
+
+        insertViewer(product.ebom, {
+            features : config.viewerFeatures
+        });
 
     });
 

@@ -53,8 +53,13 @@
                 td When set to true the first item of the Recent Items list will be opened automatically
             tr 
                 td panels
-                td { insertSearch : [], insertRecentItems : []}
+                td { insertSearch : {}, insertRecentItems : {} }
                 td This setting and its nodes can be used to adjust the various panels of the application based on the standard configuration capabilities of the given panels for Searches, the Recently Viewed list, BOM trees, Item Details pages and the Files panel.
+                    br
+                    |You can use the 
+                    strong Panel Configuration Studio 
+                    |to explore these panels' features and derive teh matching configuration settings.
+                    a(href='studio?panel=insertSearch' target='_blank' style='margin:18px 0px;') Open Panel Configuration Studio
         h1 Common Configuration Settings
         p This utility uses the following common configuration settings
         table(style='margin:10px 0px 30px')

@@ -19,24 +19,8 @@ function insertPDMFileProperties(link, params) {
     // if(!isBlank(params.header)      )       header = params.header;
     // if(!isBlank(params.headerLabel) )  headerLabel = params.headerLabel;
 
-    settings[id] = getPanelSettings(link, params, {
-        headerLabel : 'Properties',
-        layout : 'normal'
-    }, [
-        // [ 'bookmark'           , false ],
-        // [ 'collapsed'          , false ],
-        // [ 'hideComputed'       , false ],
-        // [ 'hideLabels'         , false ],
-        // [ 'hideReadOnly'       , false ],
-        // [ 'hideSections'       , false ],
-        // [ 'requiredFieldsOnly' , false ],
-        // [ 'suppressLinks'      , false ],
-        // [ 'toggles'            , false ],
-        // [ 'sectionsIn'         , [] ],
-        // [ 'sectionsEx'         , [] ],
-        // [ 'sectionsOrder'      , [] ],
-        // [ 'fieldsIn'           , [] ],
-        // [ 'fieldsEx'           , [] ]
+    settings[id] = getPanelSettings('insertPDMFileProperties', params, {}, [
+        [ 'link', link ]
     ]);
 
     settings[id].load = function() { insertPDMFilePropertiesData(id); }

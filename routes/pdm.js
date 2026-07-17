@@ -145,15 +145,7 @@ router.get('/id', function(req, res, next) {
 
     let url = req.app.locals.vaultGatewayLink + '/AutodeskDM/Services/api/vault/v2/vaults';
 
-    if(req.app.locals.vaultName === '') {
-
-        let result = {
-            success : false,
-            message : 'Vault name has not been defined in server environments file'
-        }
-        res.json(result);
-
-    } else if(req.app.locals.vaultGatewayLink === '') {
+    if(req.app.locals.vaultGatewayLink === '') {
 
         let result = {
             success : false,
@@ -171,28 +163,52 @@ router.get('/id', function(req, res, next) {
 
     } else {
 
-        axios.get(url, {
-            headers : req.session.headers
-        }).then(function(response) {
+        axios.get(url).then(function(response) {
 
             let result = {
                 success : false,
                 message : 'Could not connect to vault ' + req.app.locals.vaultName
             }
 
+            console.log('  ');
+            console.log('  >> Found ' + response.data.results.length + ' Vaults at ' + req.app.locals.vaultGatewayLink);
             for(let vault of response.data.results) {
-                if(vault.name === req.app.locals.vaultName) {
+                console.log('   - ' + vault.name);
+            }
+            console.log('  ');
+
+            if(req.app.locals.vaultName === '') {
+                if(response.data.results.length > 0) {
                     result.success = true;
-                    result.message = 'Connected to vault ' + req.app.locals.vaultName;
-                    req.session.vaultId = vault.id;
+                    result.message = 'Connected to vault ' + response.data.results[0].name;
+                    req.app.locals.vaultName = response.data.results[0].name;
+                    req.session.vaultId = response.data.results[0].id;
+                    console.log('  Using 1st Vault as no vaultName has been specified in environment file : ' + req.app.locals.vaultName + ' (' + response.data.results[0].id + ')');
+                }
+            } else {                
+                for(let vault of response.data.results) {
+                    if(vault.name === req.app.locals.vaultName) {
+                        result.success = true;
+                        result.message = 'Connected to vault ' + req.app.locals.vaultName;
+                        req.session.vaultId = vault.id;
+                        console.log('  Using Vault ' + req.app.locals.vaultName + ' (' + vault.id + ') per definition in environments file');
+                    }
                 }
             }
+
+            console.log('  ');
             
             res.json(result);
 
         }).catch(function(error) {
-            if(error.response.status === 500) {
-                error.response.message = 'Connection timed out when connectiong to Vault <strong>' + req.app.locals.vaultName + '</strong> at Gateway <strong>' + req.app.locals.vaultGateway + '</strong>';
+            console.log(error);
+            let vaultName = (req.app.locals.vaultName === '') ? '' :  ' Vault <strong>' + req.app.locals.vaultName + '</strong> ';
+            if(error.response.status === 403) {
+                if(vaultName !== '') vaultName = 'in' + vaultName;
+                error.response.message = 'You do not have adequate permissions to perform this operation ' + vaultName + 'at Vault Gateway <strong>' + req.app.locals.vaultGateway + '</strong>';
+            } else if(error.response.status === 500) {
+                if(vaultName !== '') vaultName = 'to' + vaultName;
+                error.response.message = 'Connection timed out when connecting ' + vaultName +  'at Vault Gateway <strong>' + req.app.locals.vaultGateway + '</strong>';
             }
             sendResponse(req, res, error.response, true);
         });
