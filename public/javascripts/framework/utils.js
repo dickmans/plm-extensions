@@ -2570,22 +2570,23 @@ function genPanelCreateButton(id, callback) {
             if($(this).hasClass('disabled')) return;
 
             insertCreate(settings[id].createWorkspaceNames, settings[id].createWorkspaceIds, {
-                id                  : settings[id].createId,
-                headerLabel         : settings[id].createHeaderLabel,
-                hideSections        : settings[id].createHideSections,
-                sectionsIn          : settings[id].createSectionsIn,
-                sectionsEx          : settings[id].createSectionsEx,
-                fieldsIn            : settings[id].createFieldsIn,
-                fieldsEx            : settings[id].createFieldsEx,
-                contextId           : id,
-                contextItem         : settings[id].link,
-                contextItems        : settings[id].createContextItems,
-                contextItemField    : settings[id].createContextItemField,
-                contextItemFields   : settings[id].createContextItemFields,
-                viewerImageFields   : settings[id].createViewerImageFields,
-                toggles             : settings[id].createToggles,
-                useCache            : settings[id].useCache,
-                afterCreation       : function(createId, createLink, data, contextId) { callback(createId, createLink, data, contextId); }
+                id                      : settings[id].createId,
+                headerLabel             : settings[id].createHeaderLabel,
+                hideSections            : settings[id].createHideSections,
+                sectionsIn              : settings[id].createSectionsIn,
+                sectionsEx              : settings[id].createSectionsEx,
+                fieldsIn                : settings[id].createFieldsIn,
+                fieldsEx                : settings[id].createFieldsEx,
+                contextPanelId          : id,
+                createContextItem       : settings[id].link,
+                createContextItemField  : settings[id].createContextItemField,
+                createContextItemFields : settings[id].createContextItemFields,
+                createContextItems      : settings[id].createContextItems,
+                createContextItemsField : settings[id].createContextItemsField,
+                createViewerImageFields : settings[id].createViewerImageFields,
+                toggles                 : settings[id].createToggles,
+                useCache                : settings[id].useCache,
+                afterCreation           : function(createId, createLink, data, contextId) { callback(createId, createLink, data, contextId); }
             });
             
         });

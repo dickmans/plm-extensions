@@ -322,17 +322,20 @@ const registry = {
                     picklistShortcuts : true,
                     createButtonLabel : 'Create'
                 },
+                data       : [ 'fieldsEx', 'fieldsIn', 'workspacesIn', 'workspacesEx' ],                  
                 additional : [
                     'cancelButton', 'cancelButtonIcon', 'cancelButtonLabel', 'cancelButtonTitle',
-                    'contextItem', 'contextItemField', 'createContextItemFields',
-                    'contextItems', 'contextItemsField',
                     'createButtonIcon', 'createButtonLabel', 'createButtonTitle',
+                    'contextPanelId',
+                    'createContextItem', 'createContextItemField', 'createContextItemFields',
+                    'createContextItems', 'createContextItemsField',                     
+                    'createFieldValues',
                     'getDetails',
                     'hideReadOnly', 'hideSections',
                     'requiredFieldsOnly',
                     'sectionsIn', 'sectionsEx',
                     'toggles',
-                    'viewerImageFields'
+                    'createViewerImageFields', 'createPerformTransition'
                 ]
             }
         ],
@@ -683,15 +686,14 @@ const registry = {
                 data       : [ 'fieldsEx', 'fieldsIn', 'workspacesIn', 'workspacesEx' ],                
                 filters    : [ 'filterByStatus', 'filterByWorkspace' ],                
                 additional : [ 
+                    'editable',
+                    'createId', 'createWorkspaceId', 'createWorkspaceIds', 'createWorkspaceNames',
                     'createButtonIcon', 'createButtonLabel', 'createButtonTitle',
-                    'createWorkspaceId', 'createWorkspaceIds', 'createHeaderLabel',
-                    // 'createContextItem', 'createContextItemField', 'createContextItemFields',
-                    // 'createContextItems', 'createContextItemsField', 
-                    'contextItem', 'contextItemField', 'createContextItemFields',
-                    'contextItems', 'contextItemsField',                    
-                    'createConnectAffectedItem',
-                    'createHideSections', 'createSectionsIn', 'createSectionsEx',
-                    'editable' 
+                    'createHeaderLabel', 'createHideSections', 'createSectionsIn', 'createSectionsEx', 'createFieldsIn', 'createFieldsEx',
+                    'createContextItem', 'createContextItemField', 'createContextItemFields',
+                    'createContextItems', 'createContextItemsField',
+                    'createFieldValues',
+                    'createViewerImageFields', 'createPerformTransition', 'createConnectAffectedItem', 
                 ]
             },{ // insertProject
                 id          : 'insertProject',
@@ -1311,10 +1313,10 @@ const registry = {
 
         tiles : {
             tileIcon : {
-                title : 'Tile Icon',
+                title       : 'Tile Icon',
                 description : 'The icon to be displayed for entries if no image is available and if setting number is disabled',
-                default : 'icon-product',
-                type : 'string'
+                default     : 'icon-product',
+                type        : 'string'
             },            
             tileImage : {
                 title       : 'Tile Image',
@@ -1410,12 +1412,6 @@ const registry = {
         //     //     default     : '[]',
         //     //     type        : 'textarea'
         //     // },
-        //     performTransition : {
-        //         title       : 'Perform Transition',
-        //         description : 'Internal ID of a workflow transition to be performed right after item creation',
-        //         default     : '',
-        //         type        : 'string'
-        //     },
 
 
         // insertWorkflowActions exclusive
@@ -1636,7 +1632,7 @@ const registry = {
             createButtonIcon : {
                 title       : 'Create Button Icon',
                 description : 'Icon class for the Create button in the panel',
-                default     : 'icon-create',
+                default     : '',
                 type        : 'string'
             },
             createButtonLabel : {
@@ -1650,60 +1646,6 @@ const registry = {
                 description : 'Title for Create Cancel button in the panel',
                 default     : 'Submit and create item',
                 type        : 'string'
-            },               
-            createWorkspaceId : {
-                title       : 'Create Workspace ID',
-                description : 'Items will be created in the defined Workspace',
-                default     : '',
-                type        : 'string'
-            },
-            createWorkspaceIds : {
-                title       : 'Create Workspace IDs',
-                description : 'Items will be created in (one of) the selected workspaces',
-                default     : [],
-                type        : 'array'
-            },
-            createHeaderLabel : {
-                title       : 'Create Header Label',
-                description : 'Label of the item creation dialog',
-                default     : 'Create New Item',
-                type        : 'string'
-            },
-            contextItem : {
-                title       : 'Context Item',
-                description : 'API link of item being used for linking picklist field(s)',
-                default     : '',
-                type        : 'string'
-            },
-            contextItemField : {
-                title       : 'Context Item Field',
-                description : 'Field ID of linking picklist storing the contextItem link',
-                default     : '',
-                type        : 'string'               
-            },
-            createContextItemFields : {
-                title       : 'Context Item Fields',
-                description : 'List of Field IDs of linking picklists storing the contextItem link',
-                default     : [],
-                type        : 'array'               
-            },
-            contextItems : {
-                title       : 'Context Items',
-                description : 'List of API links of items being used for linking picklist field',
-                default     : [],
-                type        : 'array'               
-            },
-            contextItemsField : {
-                title       : 'Context Items Field',
-                description : 'Field ID of multi linking picklist storing the contextItems links',
-                default     : '',
-                type        : 'string'               
-            },            
-            viewerImageFields : {
-                title       : 'Viewer Image Fields',
-                description : 'List of fields to be used for storing the viewer snapshot',
-                default     : [],
-                type        : 'array'               
             },
             cancelButton : {
                 title       : 'Cancel Button',
@@ -1728,7 +1670,31 @@ const registry = {
                 description : 'Title for the Cancel button in the panel',
                 default     : 'Cancel creation',
                 type        : 'string'
+            }, 
+            contextPanelId : {
+                title       : 'Context Panel ID',
+                description : 'ID of panel which invoked the create dialog (can be used used for post processing after item creation)',
+                default     : '',
+                type        : 'string'
+            },                             
+            createWorkspaceId : {
+                title       : 'Create Workspace ID',
+                description : 'Items will be created in the defined Workspace',
+                default     : '',
+                type        : 'string'
             },
+            createWorkspaceIds : {
+                title       : 'Create Workspace IDs',
+                description : 'Items will be created in (one of) the selected workspaces',
+                default     : [],
+                type        : 'array'
+            },
+            createHeaderLabel : {
+                title       : 'Create Header Label',
+                description : 'Label of the item creation dialog',
+                default     : 'Create New Item',
+                type        : 'string'
+            },      
             createHideSections : {
                 title       : 'Create Hide Sections',
                 description : 'Hide sections in create dialog',
@@ -1746,10 +1712,70 @@ const registry = {
                 description : 'Sections to be hidden in create dialog (comma-separated list of section titles)',
                 default     : '',
                 type        : 'array'
-            },              
+            },
+            createFieldsIn : {
+                title       : 'Create Fields Included',
+                description : 'Fields to be shown in create dialog (comma-separated list of Field IDs)',
+                default     : [],
+                type        : 'array'
+            },  
+            createFieldsEx : {
+                title       : 'Create Fields Excluded',
+                description : 'Fiels to be hidden in create dialog (comma-separated list of Field IDs)',
+                default     : [],
+                type        : 'array'
+            },
+            createFieldValues : {
+                title       : 'Create Field Values',
+                description : 'List of defined values to be set at item creation (provide array of elements with fieldId, value and displayValue property)',
+                default     : [],
+                type        : 'array'
+            },
+            createContextItem : {
+                title       : 'Create Context Item',
+                description : 'API link of item being used for linking picklist field(s)',
+                default     : '',
+                type        : 'string'
+            },
+            createContextItemField : {
+                title       : 'Create Context Item Field',
+                description : 'Field ID of linking picklist storing the contextItem link',
+                default     : '',
+                type        : 'string'               
+            },
+            createContextItemFields : {
+                title       : 'Create Context Item Fields',
+                description : 'List of Field IDs of linking picklists storing the contextItem link',
+                default     : [],
+                type        : 'array'               
+            },
+            createContextItems : {
+                title       : 'Create Context Items',
+                description : 'List of API links of items being used for linking picklist field',
+                default     : [],
+                type        : 'array'               
+            },
+            createContextItemsField : {
+                title       : 'Create Context Items Field',
+                description : 'Field ID of multi linking picklist storing the contextItems links',
+                default     : '',
+                type        : 'string'               
+            },
+            createViewerImageFields : {
+                title       : 'Create  Viewer Image Fields',
+                description : 'List of fields to be used for storing the viewer snapshot',
+                default     : [],
+                type        : 'array'               
+            },
+            createPerformTransition : {
+                title       : 'Create Perform Transition',
+                description : 'Internal ID of a workflow transition to be performed right after item creation',
+                default     : '',
+                type        : 'string'
+            },
             createConnectAffectedItem : {
-                title       : 'Link Affected Item',
-                description : 'Links the current item as Affected Item to new process',
+                title       : 'Create Connect Affected Item',
+                description : 'Links the current item as Affected Item to new processes',
                 default     : false,
                 type        : 'boolean'               
             },

@@ -29,48 +29,48 @@
                 li Enable / disable viewer sync
         p This application does not require any configuration changes in the tenant.
         h1 Application Configuration Settings
-        p The following settings can be adjusted in your custom settings file within 
-            span.code exports.applications.compare 
-            |to adjust the application's behavior. 
+        p The application uses multiple configurable user interface panals as listed below. You can adjust these panels with the common framework's capabilities. Use the 
+            strong Panel Configuration Studio 
+            |to explore available configuration settings for each panel type. Once you adjusted the panel to your preferences in the studio, you can copy the matching JSON configuration output to your settings file.
             br
-            |In order to change any of these settings, copy the standard value from settings.js to your custom settings file in folder settings.                        
-        table 
+            a(href='studio' target='_blank' style='margin:10px 0px') Launch the Panel Configuration Studio                             
+        table.row-hovering
             tr
-                th Setting 
-                th Default Value 
-                th Description  
-            tr  
+                th Property 
+                th Descripton
+                th Panel Type
+            tr 
                 td panels.insertBOMLeft
-                td {..}
                 td Configures the left BOM tree display
-            tr  
+                td insertBOM
+            tr 
                 td panels.insertBOMRight
-                td {..}
                 td Configures the right BOM tree display
-            tr  
+                td insertBOM
+            tr 
                 td panels.insertDetailsLeft
-                td {..}
                 td Configures the left Item Details panel
-            tr  
+                td insertDetails
+            tr 
                 td panels.insertDetailsRight
-                td {..}
-                td Configures the left Item Details panel
-            tr  
+                td Configures the right Item Details panel
+                td insertDetails
+            tr 
                 td panels.insertSearch
-                td {..}
                 td Configures the Search panel for selection of the BOM to compare
-            tr  
+                td insertSearch
+            tr 
                 td panels.insertRevisions
-                td {..}
                 td Configures the Revisions list for selection of the BOM to compare
-            tr  
+                td insertRevisions
+            tr 
                 td panels.insertRecentItems
-                td {..}
                 td Configures the Recent Items panel for selection of the BOM to compare
-            tr  
+                td insertRecentItems
+            tr 
                 td panels.insertBookmarks
-                td {..}
                 td Configures the Bookmarks panel for selection of the BOM to compare
+                td insertBookmarks
         h1 Viewer Configuration Settings
         include ../framework/viewer.pug                  
     .log 

@@ -21,19 +21,7 @@ let finishedLoading       = {};
 let paramsItemDetails     = {}
 let paramsItemAttachments = {}
 let paramsDocumentation   = {}
-// let paramsProcesses       = { 
-//     hideHeader          : true, 
-//     createHeaderLabel       : 'Create Problem Report',
-//     createContextItemFields : ['AFFECTED_ITEM'],
-//     createViewerImageFields : [],
-//     editable            : true,
-//     fieldIdMarkup       : '',
-//     openInPLM           : true,
-//     reload              : true,
-//     useCache            : true,
-//     contentSize         : 'm',
-//     singleToolbar       : 'actions'
-// }
+
 
 let disableViewerSelectionEvent = false;
 
@@ -78,12 +66,12 @@ $(document).ready(function() {
         wsSparePartsRequests.id       = workspaceIds.sparePartsRequests;       
         wsSparePartsRequests.sections = responses[1].data;
 
-        paramsItemDetails        = config.paramsItemDetails;
+        paramsItemDetails        = config.panels.itemDetails;
         paramsItemDetails.id     = 'details-top';
-        paramsItemAttachments    = config.paramsItemAttachments;
+        paramsItemAttachments    = config.panels.itemAttachments;
         paramsItemAttachments.id = 'details-bottom';
         
-        paramsDocumentation            = config.paramsDocumentation;
+        paramsDocumentation            = config.panels.tabDocumentation;
         paramsDocumentation.id         = 'documentation';
         paramsDocumentation.hideHeader = true;
         
@@ -184,10 +172,6 @@ function setLandingPage() {
                 params.onClickItem = function(elemClicked) { openSelectedContext(elemClicked.attr('data-link'), 'product', config.fieldIds.products); }
                 
                 insertResults(workspaceIds.products, config.panels.products.filter, params);
-                // {
-                    // sortBy      : config.products.sortBy, 
-                    // onClickItem : function(elemClicked) { openSelectedProductOrAsset(elemClicked.attr('data-link'), 'product', config.products.fieldIds); }
-                // });
 
             }
 
@@ -297,9 +281,9 @@ function setLandingPage() {
 
         let params = config.panels.problemReports;
 
-        params.id                =  'your-problems';
+        params.id                = 'your-problems';
         params.openSelectedInPLM = params.openSelectedInPLM || applicationFeatures.openInPLM,
-        params.openOnDblClick    = params.openOnDblClick || applicationFeatures.openOnDblClick,
+        params.openOnDblClick    = params.openOnDblClick    || applicationFeatures.openOnDblClick,
         params.onClickItem       = function(elemClicked) { openProblemReport(elemClicked); }
 
         if(applicationFeatures.manageSparePartRequests) {
@@ -646,46 +630,20 @@ function openItem() {
 
     $('#tabs').children().first().click();
 
-    // if(isBlank(sections)) getInitialData(links.bom.split('/')[4]);
-
     let paramsBOM = config.panels.itemBOM; 
 
     paramsBOM.bomViewName       = paramsBOM.bomViewName || 'Service';
     paramsBOM.openSelectedInPLM = paramsBOM.openSelectedInPLM || config.applicationFeatures.openInPLM;
-    paramsBOM.selectItems       = { fieldId : config.fieldIds.items.sparePart, values : config.fieldValuesSparePart };
+    paramsBOM.selectItems       = { fieldId : config.items.fieldIdSparePart, values : config.items.fieldValuesSparePart };
     paramsBOM.onClickItem       = function(elemClicked) { onClickBOMItem(elemClicked); }
 
-    // let paramsBOM = {
-        // bomViewName         : config.items.bomViewName, 
-        // collapseContents    : true,
-        // contentSize         : 's',
-        // reset               : true, 
-        // path                : true, 
-        // hideDetails         : false, 
-        // quantity            : true,
-        // counters            : true,
-        // includeBOMPartList  : true, 
-        // search              : true,
-        // showRestricted      : false,
-        // toggles             : true,
-        // openInPLM           : config.applicationFeatures.openInPLM,
-        // revisionBias        : config.items.bomRevisionBias,
-        // endItem             : config.items.endItemFilter,
-        // selectItems         : { fieldId : config.items.fieldIdSparePart, values : config.items.fieldValuesSparePart },
-        // onClickItem         : function(elemClicked) { onClickBOMItem(elemClicked); }
-    // }
-
-    let keys = Object.keys(config.paramsBOM);
-
     if(isiPad) paramsBOM.singleToolbar = 'actions';
-
-    for(let key of keys) paramsBOM[key] = config.paramsBOM[key];
 
     finishedLoading.engineeringBOM = false;
     finishedLoading.serviceBOM     = false;
     
     insertBOM          (links.ebom, paramsBOM);
-    insertViewer       (links.ebom);
+    insertViewer       (links.ebom, { features : config.viewerFeatures });
     updateRelatedPanels(links.ebom);
 
     if(!isBlank(links.sbom)) insertServiceBOM(); else finishedLoading.serviceBOM = true;
@@ -716,12 +674,10 @@ function openItem() {
 }
 function updateRelatedPanels(link) {
 
-    let paramsProcesses = config.panels.itemProblemReports;
+    let paramsProcesses = config.panels.tabProblemReports;
 
             // paramsProcesses.createPerformTransition = config.problemReports.transitionOnCreate;
     paramsProcesses.createViewerImageFields = [ config.fieldIds.problemReports.image ];
-    // .push(config.problemReports.fieldIdImage);
-
     paramsProcesses.createWorkspaceId       = workspaceIds.problemReports;
     paramsProcesses.workspacesIn            = [workspaceIds.problemReports.toString()];
     paramsProcesses.createContextItems      = [ link ];
@@ -798,7 +754,6 @@ function openBOMViewDone(id, bom, selectedItems, additionalData, partList) {
         if(selectedItems.length > 15) $('#items-content').removeClass('l').addClass('m');
 
         // let fields         = [];
-        // let urnsSpareParts = [];
         // let fieldIdImage   = config.items.fieldIdImage;
         let elemContent    = $('#items-content');
 
@@ -808,26 +763,6 @@ function openBOMViewDone(id, bom, selectedItems, additionalData, partList) {
         //         break;
         //     }
         // }
-
-        // if(isBlank(fieldIdImage)) fieldIdImage = getFirstImageFieldID(fields);
-
-        // for(let field of fields) {
-
-        //     let urnField = field.__self__.urn;
-
-        //     switch(field.fieldId) {
-        //         case 'NUMBER'                                     : urnsSpareParts.partNumber   = urnField; break;
-        //         case 'TITLE'                                      : urnsSpareParts.title        = urnField; break;
-        //         case 'DESCRIPTION'                                : urnsSpareParts.description  = urnField; break;
-        //         case fieldIdImage                                 : urnsSpareParts.image        = urnField; break;
-        //         case common.workspaces.items.fieldIdNumber                   : urnsSpareParts.partNumber   = urnField; break;
-        //         case config.fieldId                       : urnsSpareParts.spareWearPart= urnField; break;
-        //         case config.items.sparePartTileDetails[0] : urnsSpareParts.material     = urnField; break;
-        //         case config.items.sparePartTileDetails[1] : urnsSpareParts.weight       = urnField; break;
-        //         case config.items.sparePartTileDetails[2] : urnsSpareParts.dimensions   = urnField; break;
-        //     }
-
-        // }
         
         $('#items-processing').hide();
 
@@ -835,7 +770,6 @@ function openBOMViewDone(id, bom, selectedItems, additionalData, partList) {
 
         setSparePartStockStatus();
         insertNonSparePartMessage();
-        
 
     }
 

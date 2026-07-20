@@ -988,7 +988,6 @@ exports.applications = {
         labelInsertNode       : 'Add Process',
         pinEBOMItemsInMBOM    : true,
         suffixMBOMNumber      : '-M',
-
         predefinedSearchesInAddItems : [
             { title : 'Purchased Parts', fieldId : 'MAKE_OR_BUY', value : 'Buy'       },
             { title : 'Packaging Parts', fieldId : 'TYPE'       , value : 'Packaging' },
@@ -1002,7 +1001,53 @@ exports.applications = {
             tabDisassemble   : true,
             tabOperations    : true,
             excelExport      : true
-        },        
+        },
+        panels : {
+            itemDetailsPanel : {  // Based on insertItemSummary
+                summaryLayout   : 'tabs',
+                summaryContents : [ { 
+                    type   : 'details', 
+                    params : {
+                        id               : 'details-details', 
+                        collapseContents : true, 
+                        hideHeader       : true,
+                        layout           : 'narrow'
+                    }
+                },{
+                    type   : 'attachments',
+                    params : { 
+                        id               : 'details-attachments', 
+                        contentSize      : 's',
+                        editable         : true, 
+                        reload           : true, 
+                        uploadScreenshot : true, 
+                        singleToolbar    : 'controls'
+                    }
+                }],
+                hideSubtitle     : true,
+                hideCloseButton  : true,
+                openInPLM        : true,
+                bookmark         : true,
+                saveTabSelection : true
+            },
+            listSuppliers : { // Based on insertSourcing
+                headerLabel : 'Suppliers',
+                reload      : true,
+                openInPLM   : true,
+                layout      : 'table',
+                fieldsEx    : [ 'Manufacturer Part Number' ]
+            },
+            listOperations : { // Based on insertGrid
+                headerLabel      : 'List of Operations',
+                editable         : true,
+                hideButtonLabels : true,
+                reload           : true,
+                multiSelect      : true,
+                openInPLM        : true,
+                useCache         : true,
+                singleToolbar    : 'controls'                
+            }
+        },
         viewerFeatures : {
             markup        : true,
             highlight     : false,
@@ -1275,6 +1320,20 @@ exports.applications = {
             basePosNumber : 301
         }],
         enableBOMPin : false,
+        panels : {
+            itemDetails : { // Based on insertDetails
+                headerLabel    : 'descriptor',
+                expandSections : ['Basic'],
+                narrowPanel    : true,
+                editable       : false,
+                openInPLM      : true,
+                bookmark       : true,
+            },
+            insertAllItems        : { headerLabel : 'All Items' },
+            insertWorkspaceSearch : { headerLabel : 'Search'    },
+            insertRecentItems     : { headerLabel : 'Recents'   },
+            insertBookmarks       : {                           }
+        },
         viewerFeatures : {
             views      : true,
             selectFile : false
@@ -1282,13 +1341,6 @@ exports.applications = {
     },
 
     service : {
-        items : {
-            fieldIdSparePart      : 'SPARE_WEAR_PART',
-            fieldValuesSparePart  : ['spare part', 'yes', 'x', 'y', 'wear part'],
-            endItemFilter         : { fieldId : 'SBOM_END_ITEM', value : true },
-            sparePartTileTitle    : 'NUMBER',
-            sparePartTileSubtitle : 'TITLE',
-        },    
         workspaceIds : {
             products           : null,   // uses match in common.workspaceIds per default
             sparePartsRequests : null,   // uses match in common.workspaceIds per default
@@ -1302,9 +1354,6 @@ exports.applications = {
                 ebom : 'ENGINEERING_BOM',
                 sbom : 'SERVICE_BOM'
             },
-            items : {
-                sparePart : 'SPARE_WEAR_PART'
-            },
             problemReports : {
                 image : 'IMAGE_1'
             },
@@ -1314,10 +1363,16 @@ exports.applications = {
                 instanceId   : 'INSTANCE_ID',
                 instancePath : 'INSTANCE_PATH'
             },
+        },        
+        items : {
+            fieldIdSparePart      : 'SPARE_WEAR_PART',
+            fieldValuesSparePart  : ['spare part', 'yes', 'x', 'y', 'wear part'],
+            endItemFilter         : { fieldId : 'SBOM_END_ITEM', value : true },
+            sparePartTileTitle    : 'NUMBER',
+            sparePartTileSubtitle : 'TITLE',
         },
-        fieldValuesSparePart  : ['spare part', 'yes', 'x', 'y', 'wear part'],
         panels : {
-            products : {
+            products           : { // Displays list of products in landing page, based on insertResults
                 headerLabel  : 'Serviceable Products',
                 search       : true,
                 contentSize  : 'l',
@@ -1337,7 +1392,7 @@ exports.applications = {
                     value      : ''
                 }]
             },
-            sparePartsRequests: {
+            sparePartsRequests : { // Displays list of Spare Parts Requests in landing page, based on insertResults
                 stateColors         : [
                     { color : '#faa21b', states : ['Received', 'Review']                  , label : 'New'      },
                     { color : '#dd2222', states : ['Awaiting Response', 'Quote Submitted'], label : 'TODO'     },
@@ -1355,28 +1410,7 @@ exports.applications = {
                 tileTitle    : 'DESCRIPTOR',
                 tileSubtitle : 'REQUESTOR_COMPANY'
             },
-            sparePartsRequest : {
-                bookmark        : false,
-                reload          : false,
-                workflowActions : true,
-                summaryLayout   : 'dashboard',
-                summaryContents : [
-                    { type : 'workflow-history', className : 'surface-level-1', params : { id : 'request-workflow-history' } },
-                    { type : 'details'         , className : 'surface-level-1', params : { 
-                        id             : 'request-details', 
-                        expandSections : [ 'Requestor Contact Details', 'Request Details' ], 
-                        suppressLinks  : true, 
-                        sectionsEx     : [ 'Planning & Tracking', 'Request Confirmation', 'Quote Submission & Response', 'Real Time KPIs', 'Workflow Activity', 'Quote Summary', 'Order Processing', 'Related Processes' ]
-                    }},
-                    { type : 'grid'            , className : 'surface-level-1', params : { 
-                        id          : 'request-grid', 
-                        headerLabel : 'Part List', 
-                        fieldsEx    : [ 'Line Item Cost', 'Availability [%]', 'Manufacturer', 'Manufacturer P/N', 'Unit Cost', 'Total Cost', 'Make or Buy', 'Lead Time (w)', 'Long Lead Time']
-                    }},
-                    { type : 'attachments'     , className : 'surface-level-1', params : { id : 'request-attachments', editable : true, contentSize : 'm', layout : 'list', singleToolbar : 'controls' } },
-                ]
-            },
-            problemReports : {
+            problemReports     : { // Displays list of Problem Reports in landing page, based on insertResults
                 headerLabel      : 'Problem Reports',
                 layout           : 'list',
                 contentSizes     : ['l', 'm', 'xs', 'xxs'],
@@ -1404,8 +1438,29 @@ exports.applications = {
                     { color : '#6a9728', state  : 'Completed'                                        , label : 'Complete' },
                     { color : '#dd2222', states : ['Change Request in progress', 'CAPA in prorgress'], label : 'In Work'  }
                 ]
+            },            
+            sparePartsRequest  : { // Configuration of insertItemSummary for display of selected Spare Parts Request
+                bookmark        : false,
+                reload          : false,
+                workflowActions : true,
+                summaryLayout   : 'dashboard',
+                summaryContents : [
+                    { type : 'workflow-history', className : 'surface-level-1', params : { id : 'request-workflow-history' } },
+                    { type : 'details'         , className : 'surface-level-1', params : { 
+                        id             : 'request-details', 
+                        expandSections : [ 'Requestor Contact Details', 'Request Details' ], 
+                        suppressLinks  : true, 
+                        sectionsEx     : [ 'Planning & Tracking', 'Request Confirmation', 'Quote Submission & Response', 'Real Time KPIs', 'Workflow Activity', 'Quote Summary', 'Order Processing', 'Related Processes' ]
+                    }},
+                    { type : 'grid'            , className : 'surface-level-1', params : { 
+                        id          : 'request-grid', 
+                        headerLabel : 'Part List', 
+                        fieldsEx    : [ 'Line Item Cost', 'Availability [%]', 'Manufacturer', 'Manufacturer P/N', 'Unit Cost', 'Total Cost', 'Make or Buy', 'Lead Time (w)', 'Long Lead Time']
+                    }},
+                    { type : 'attachments'     , className : 'surface-level-1', params : { id : 'request-attachments', editable : true, contentSize : 'm', layout : 'list', singleToolbar : 'controls' } },
+                ]
             },
-            problemReport : {
+            problemReport      : { // Configuration of insertItemSummary for display of selected Problem Report
                 bookmark        : false,
                 reload          : false,
                 workflowActions : true,
@@ -1426,7 +1481,7 @@ exports.applications = {
                     { type : 'attachments'     , className : 'surface-level-1', params : { id : 'request-attachments', editable : true, layout : 'tiles', singleToolbar : 'controls' } },
                 ]
             },
-            itemBOM : {
+            itemBOM            : {  // Definition of BOM display on the left, based on insertBOM
                 headerLabel      : 'BOM',
                 bomViewName      : 'Service', 
                 revisionBias     : 'release',
@@ -1439,9 +1494,23 @@ exports.applications = {
                 counters         : true,
                 search           : true,
                 showRestricted   : false,
-                toggles          : true,                
+                toggles          : true,   
+                hideDescriptor   : false,
+                fieldsIn         : [ 'Item', 'Quantity', 'Qty' ],
+                downloadFiles    : true,
+                downloadRequests : 5,
+                downloadFormats  : [
+                    { label : 'PDF'   , filter : ['.pdf']         , tooltip : '' },
+                    { label : 'STEP'  , filter : ['.step', '.stp'], tooltip : 'File suffix stp and step will be taken into account' },
+                    { label : 'Office', filter : ['.docx', '.doc', 'xls', 'xlsx', 'ppt', 'pptx'], tooltip : 'This will download all files with suffix doc, docx, xls, xlsx, ppt and pptx' },
+                ]                           
             },
-            itemProblemReports : {
+            tabDocumentation   : { // Definition of tab Documentation list all files of selected context (product), based on insertAttachments
+                extensionsEx : ['.dwf','.dwfx'],
+                layout       : 'list',
+                size         : 'm'
+            },
+            tabProblemReports  : { // Definiion of Problem Reports listing for selected item based on insertChangeProcesses
                 hideHeader       : true, 
                 editable         : true,
                 reload           : true,
@@ -1455,10 +1524,28 @@ exports.applications = {
                 tileImageFieldId : 'IMAGE_1',
                 tileTitle        : 'DESCRIPTOR',
                 tileSubtitle     : 'DESCRIPTION',  
-                createHeaderLabel       : 'Create Problem Report',
-                createSectionsIn        : [ 'Header', 'Details', 'Images' ],
-                createContextItemFields : [ 'AFFECTED_ITEM' ],
-                createViewerImageFields : [],              
+                createHeaderLabel         : 'Create Problem Report',
+                createSectionsIn          : [ 'Header', 'Details', 'Images' ],
+                createContextItemFields   : [ 'AFFECTED_ITEM' ],
+                createViewerImageFields   : [ 'IMAGE_1' ],
+                createPerformTransition   : 'SUBMIT',
+                createConnectAffectedItem : true
+            },
+            itemDetails        : { // Configures insertDetails for the display of selected item's details page
+                id               : 'details-top',
+                headerLabel      : 'descriptor',
+                layout           : 'narrow',
+                collapseContents : true,
+                useCache         : true,
+                fieldsEx         : ['ACTIONS'],
+                sectionsEx       : ['Sourcing Summary','Others']
+            },
+            itemAttachments    : { // Confiures insertAttachments for the display of selected item's files list
+                extensionsEx    : ['.dwf','.dwfx'],
+                headerLabel     : 'Files',
+                layout          : 'list',
+                filterByType    : true,
+                contentSize     : 'xs'
             }
         },     
         serviceBOMTypes : {
@@ -1527,39 +1614,7 @@ exports.applications = {
         },
         serialNumbers : {
             tableColumns : ['ID', 'STATUS', 'SERIAL', 'ITEM_NUMBER', 'NUMBER', 'ITEM_REV', 'LOCATION', 'SUPPLIER', 'PREVIOUS_SERIAL', 'INSTANCE_ID', 'INSTANCE_PATH']
-        },  
-        paramsBOM : {
-            hideDescriptor   : false,
-            fieldsIn         : [ 'Item', 'Quantity', 'Qty' ],
-            downloadFiles    : true,
-            downloadRequests : 5,
-            downloadFormats  : [
-                { label : 'PDF'   , filter : ['.pdf']         , tooltip : '' },
-                { label : 'STEP'  , filter : ['.step', '.stp'], tooltip : 'File suffix stp and step will be taken into account' },
-                { label : 'Office', filter : ['.docx', '.doc', 'xls', 'xlsx', 'ppt', 'pptx'], tooltip : 'This will download all files with suffix doc, docx, xls, xlsx, ppt and pptx' },
-            ], 
-        },
-        paramsItemDetails : {
-            id               : 'details-top',
-            headerLabel      : 'descriptor',
-            layout           : 'narrow',
-            collapseContents : true,
-            useCache         : true,
-            fieldsEx         : ['ACTIONS'],
-            sectionsEx       : ['Sourcing Summary','Others']
-        },
-        paramsItemAttachments : { 
-            extensionsEx    : ['.dwf','.dwfx'],
-            headerLabel     : 'Files',
-            layout          : 'list',
-            filterByType    : true,
-            contentSize     : 'xs'
-        },
-        paramsDocumentation : {
-            extensionsEx : ['.dwf','.dwfx'],
-            layout       : 'list',
-            size         : 'm'
-        },
+        }, 
         applicationFeatures : {
             homeButton              : true,
             itemDetails             : true,
@@ -1618,6 +1673,60 @@ exports.applications = {
             separator           : ' / '
         },
         maxBOMLevels : 4,
+        panels : {
+            createVariant : { // Based on insertCreate
+                createButtonLabel : 'Submit',
+                hideComputed      : true,
+                hideSections      : true,
+            },
+            itemSummary   : { // Baaed on insertItemSummary
+                bookmark        : true,
+                openInPLM       : true,
+                hideCloseButton : true,
+                summaryLayout   : 'tabs',
+                summaryContents : [{ 
+                    type         : 'details',
+                    params       : { 
+                        id               : 'item-details', 
+                        editable         : true,
+                        toggles          : true,
+                        collapseContents : true
+                    }
+                }, { 
+                    type        : 'attachments',
+                    params      : { 
+                        id            : 'item-attachments',
+                        editable      : true,
+                        singleToolbar : 'controls',
+                        contentSize   : 'xl'
+                    }
+                }, { 
+                    type        : 'bom',
+                    params      : { 
+                        id      : 'item-bom',
+                        headerLabel      : 'BOM',
+                        hideTreeHeader   : true,
+                        hideTreeColumns  : true,
+                        search           : true,
+                        toggles          : true,
+                        collapseContents : true
+                    }
+                }, { 
+                    type        : 'relationships',
+                    params      : { 
+                        id         : 'item-relationships',
+                        hideHeader : true
+                    }
+                }, { 
+                    type        : 'change-processes',
+                    params      : { 
+                        id          : 'item-change-processes',
+                        headerLabel : ' Processes',
+                        hideHeader  : true
+                    }
+                }]
+            }
+        },
         viewerFeatures : {
             views : true
         }

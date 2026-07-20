@@ -295,7 +295,7 @@ function insertCreate(workspaceNames, workspaceIds, params) {
     settings[id].editable       = true;
     settings[id].derived        = [];
     settings[id].onClickCancel  = params.onClickCancel || function(id) { };
-    settings[id].afterCreation  = params.afterCreation || function(id, link, data, contextId) { };
+    settings[id].afterCreation  = params.afterCreation || function(id, link, data, contextPanelId) { };
 
     genPanelToggleButtons(id, function() {
         $('#' + id + '-content').find('.section.collapsed').click();
@@ -337,8 +337,6 @@ function insertCreate(workspaceNames, workspaceIds, params) {
 
         submitCreate(settings[id].wsId, settings[id].sections, $('#' + id + '-content'), settings[id], function(response) {
 
-            console.log(response);
-
             $('#' + id + '-processing').hide();
             $('#' + id + '-actions'   ).show();
             $('#' + id + '-content'   ).show();
@@ -347,7 +345,7 @@ function insertCreate(workspaceNames, workspaceIds, params) {
             if(response !== null) {
                 if(!isBlank(response.link)) {
                     insertCreateAfterCreation(id, response.link);
-                    settings[id].afterCreation(id, response.link, response.data, settings[id].contextId);
+                    settings[id].afterCreation(id, response.link, response.data, settings[id].contextPanelId);
                 }
             }
 
@@ -439,15 +437,15 @@ function insertCreateData(id) {
         $.get('/plm/fields'  , { wsId : settings[id].wsId, useCache : settings[id].useCache } )
     ]
 
-    for(let contextItem of settings[id].contextItems) {
+    for(let contextItem of settings[id].createContextItems) {
         if(typeof contextItem === 'string') {
             requests.push($.get('/plm/details', { link : contextItem }));
         }
     }
 
-    if(!isBlank(settings[id].contextItem)) {
-        if(typeof settings[id].contextItem === 'string') {
-            requests.push($.get('/plm/details', { link : settings[id].contextItem }));
+    if(!isBlank(settings[id].createContextItem)) {
+        if(typeof settings[id].createContextItem === 'string') {
+            requests.push($.get('/plm/details', { link : settings[id].createContextItem }));
         }
     }
 
@@ -456,7 +454,7 @@ function insertCreateData(id) {
         requests.push($.get('/plm/recent'));
     }
     
-    if(!isBlank(settings[id].performTransition)) {
+    if(!isBlank(settings[id].createPerformTransition)) {
         requests.push($.get('/plm/workspace-workflow-transitions', { wsId : settings[id].wsId }));
     }
 
@@ -482,9 +480,9 @@ function insertCreateData(id) {
             
         }
 
-        if(!isBlank(settings[id].performTransition)) {
+        if(!isBlank(settings[id].createPerformTransition)) {
             for(let transition of transitions) {
-                if(transition.customLabel === settings[id].performTransition) {
+                if(transition.customLabel === settings[id].createPerformTransition) {
                     settings[id].transition = transition.__self__;
                     break;
                 }
@@ -495,29 +493,29 @@ function insertCreateData(id) {
 
         insertDetailsFields(id, responses[0].data, responses[1].data, null, settings[id], bookmarks, recents, function() {
 
-            if(settings[id].contextItems.length > 0) {
+            if(settings[id].createContextItems.length > 0) {
 
                 let index = 0;
 
-                if(settings[id].contextItems.length === settings[id].contextItemFields.length) {
+                if(settings[id].createContextItems.length === settings[id].createContextItemFields.length) {
 
-                    for(let contextItemField of settings[id].contextItemFields) {
-                        settings[id].fieldValues.push({
+                    for(let contextItemField of settings[id].createContextItemFields) {
+                        settings[id].createFieldValues.push({
                             fieldId      : contextItemField,
-                            value        : settings[id].contextItems[index],
+                            value        : settings[id].createContextItems[index],
                             displayValue : responses[2 + index++].data.title
                         });
                     }
 
-                } if(!isBlank(settings[id].contextItemsField)) {
+                } if(!isBlank(settings[id].createContextItemsField)) {
 
                     let fieldValue = {
-                        fieldId      : settings[id].contextItemsField,
+                        fieldId      : settings[id].createContextItemsField,
                         value        : [],
                         displayValue : []
                     }
 
-                    for(let contextItem of settings[id].contextItems) {
+                    for(let contextItem of settings[id].createContextItems) {
                         if(typeof contextItem === 'string') {
                             fieldValue.value.push(contextItem),
                             fieldValue.displayValue.push(responses[2 + index++].data.title)
@@ -527,37 +525,37 @@ function insertCreateData(id) {
                         }
                     }
 
-                    settings[id].fieldValues.push(fieldValue);
+                    settings[id].createFieldValues.push(fieldValue);
 
                 }
             }
 
-            if(!isBlank(settings[id].contextItem)) {
+            if(!isBlank(settings[id].createContextItem)) {
 
-                if(!isBlank(settings[id].contextItemField)) {
+                if(!isBlank(settings[id].createContextItemField)) {
 
-                    let response = getResponseFromResponses(responses, '/plm/details', settings[id].contextItem);
+                    let response = getResponseFromResponses(responses, '/plm/details', settings[id].createContextItem);
 
-                    settings[id].fieldValues.push({
-                        fieldId      : settings[id].contextItemField,
-                        value        : settings[id].contextItem,
+                    settings[id].createFieldValues.push({
+                        fieldId      : settings[id].createContextItemField,
+                        value        : settings[id].createContextItem,
                         displayValue : response.data.title
                     });
 
                 }
 
-                // for(let contextItemField of settings[id].contextItemFields) {
-                //     settings[id].fieldValues.push({
+                // for(let contextItemField of settings[id].createContextItemFields) {
+                //     settings[id].createFieldValues.push({
                 //         fieldId      : contextItemField,
-                //         value        : settings[id].contextItem,
+                //         value        : settings[id].createContextItem,
                 //         displayValue : responses[2].data.title
                 //     });
                 // }
 
             }
             
-            for(let viewerImageField of settings[id].viewerImageFields) {
-                settings[id].fieldValues.push({
+            for(let viewerImageField of settings[id].createViewerImageFields) {
+                settings[id].createFieldValues.push({
                     fieldId      : viewerImageField,
                     viewerImage  : 'viewer-markup-image'
                 });
@@ -573,7 +571,7 @@ function insertCreateData(id) {
 }
 function insertCreateDataSetFieldValues(id) {
 
-    if(isBlank(settings[id].fieldValues)) return;
+    if(isBlank(settings[id].createFieldValues)) return;
 
     $('#' + id + '-content').find('.field-value').each(function() {
 
@@ -582,7 +580,7 @@ function insertCreateDataSetFieldValues(id) {
 
         if(!isBlank(fieldId)) {
 
-            for(let fieldValue of settings[id].fieldValues) {
+            for(let fieldValue of settings[id].createFieldValues) {
 
                 if(fieldValue.fieldId === fieldId) {
 
@@ -1272,11 +1270,11 @@ function insertDetailsFields(id, sections, fields, data, panelSettings, bookmark
     if(isBlank(panelSettings)) panelSettings = settings[id]          || {};
 
     let elemContent = $('#' + id + '-content');
-    let sectionsIn  = panelSettings.sectionsIn || [];
-    let sectionsEx  = panelSettings.sectionsEx || [];
-    let fieldsIn    = panelSettings.fieldsIn   || [];
-    let fieldsEx    = panelSettings.fieldsEx   || [];
-    let fieldValues = (isBlank(panelSettings.fieldValues)) ? [] : panelSettings.fieldValues;
+    let sectionsIn  = panelSettings.sectionsIn  || [];
+    let sectionsEx  = panelSettings.sectionsEx  || [];
+    let fieldsIn    = panelSettings.fieldsIn    || [];
+    let fieldsEx    = panelSettings.fieldsEx    || [];
+    let fieldValues = panelSettings.fieldValues || panelSettings.createFieldValues || [];
 
     elemContent.scrollTop();
     panelSettings.derived = [];
@@ -1669,7 +1667,7 @@ function getFieldsPicklistsData(id, fields, callback) {
         if(settings[id].picklists.length > 0) { callback(settings[id].picklists); return; }
     }
 
-    if(isBlank(settings[id].contextItemFields)) settings[id].contextItemFields = [];
+    if(isBlank(settings[id].createContextItemFields)) settings[id].createContextItemFields = [];
     if(isBlank(settings[id].fieldsIn         )) settings[id].fieldsIn          = [];
     if(isBlank(settings[id].fieldsEx         )) settings[id].fieldsEx          = [];
 
@@ -1682,8 +1680,8 @@ function getFieldsPicklistsData(id, fields, callback) {
         let fieldId   = field.urn.split('.').pop();
         let fieldName = field.name;
 
-        if(fieldId !== settings[id].contextItemField) {
-            if(!settings[id].contextItemFields.includes(fieldId)) {
+        if(fieldId !== settings[id].createContextItemField) {
+            if(!settings[id].createContextItemFields.includes(fieldId)) {
                 if(field.visibility !== 'NEVER') {
                     if(field.editability !== 'NEVER') {
                         if(isBlank(field.visible)) field.visible = true;
@@ -3585,7 +3583,7 @@ function insertImages(link, params) {
 
     if(isBlank(link)) return;
 
-    const id = getPanelSettings('insertImages', params);
+    const id = getPanelSettings('insertImages', params, { link : link });
     
     genPanelElements(id);       
     insertImagesDone(id);
@@ -4490,7 +4488,7 @@ function insertGrid(link, params) {
 
     if(isBlank(link)) return;
 
-    const id = getPanelSettings('insertGrid', params);
+    const id = getPanelSettings('insertGrid', params, { link : link });
     
     genPanelElements(id);    
 
@@ -7240,9 +7238,10 @@ function insertViewer(link, params) {
     settings[id].suffixPrimaryFile = common.viewer.suffixPrimaryFile  || ['.iam.dwf', '.iam.dwfx', '.ipt.dwf', '.ipt.dwfx'];
     settings[id].extensionsIn      = common.viewer.extensionsIncluded || ['dwf', 'dwfx', 'nwd', 'iam', 'ipt', 'stp', 'step', 'sldprt', 'pdf'];
     settings[id].extensionsEx      = common.viewer.extensionsExcluded || [];
-    settings[id].isComponent       = params.isComponent || false;
-    settings[id].restartViewer     = params.restartViewer || false;
-    settings[id].features          = params.features || {
+    settings[id].isComponent       = params.isComponent     || false;
+    settings[id].restartViewer     = params.restartViewer   || false;
+    settings[id].afterCompletion   = params.afterCompletion || function(id) {}
+    settings[id].features          = params.features        || {
         contextMenu   : true,
         cube          : false,
         orbit         : false,
@@ -7364,9 +7363,9 @@ function insertViewerMarkups(contentId, link, params, sections, fields) {
 
     }
     
-    params.id             = contentId + '-viewer';
-    params.restartViewer  = true;
-    viewerFeatures.markup = true;
+    params.id            = contentId + '-viewer';
+    params.restartViewer = true;
+    params.features      = { markup : true };
 
     insertViewer(linkViewable, params);
     
@@ -7413,14 +7412,15 @@ function insertViewerMarkups(contentId, link, params, sections, fields) {
                 $('#' + response.params.fieldId).removeClass('placeholder');
 
                 let canvas = document.getElementById(response.params.fieldId);
-                    // canvas.width  = 100;
                     canvas.height = 80;
 
                 let ctx  = canvas.getContext('2d');
                 let img = new Image();
                     img.src = response.data.url;
                     img.onload = function() {
-                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        let imgWidth =  (img.naturalWidth / img.naturalHeight * 80);
+                        canvas.width = imgWidth;
+                        ctx.drawImage(img, 0, 0, (img.naturalWidth / img.naturalHeight * 80), canvas.height);
                     };
             
             });
@@ -7646,23 +7646,24 @@ function insertChangeProcesses(link, params, data) {
 
         let elemCreate = genPanelActionButton(id, 'create', settings[id].createButtonLabel, settings[id].createButtonTitle, function() {
             insertCreate(settings[id].createWorkspaceNames, settings[id].createWorkspaceIds, {
-                id                  : settings[id].createId,
-                headerLabel         : settings[id].createHeaderLabel,
-                hideSections        : settings[id].createHideSections,
-                sectionsIn          : settings[id].createSectionsIn,
-                sectionsEx          : settings[id].createSectionsEx,
-                fieldsIn            : settings[id].createFieldsIn,
-                fieldsEx            : settings[id].createFieldsEx,
-                contextId           : id,
-                contextItem         : settings[id].link,
-                contextItem         : settings[id].createContextItem,
-                contextItemField    : settings[id].createContextItemField,
-                contextItemFields   : settings[id].createContextItemFields,
-                contextItems        : settings[id].createContextItems,
-                contextItemsField   : settings[id].createContextItemsField,
-                viewerImageFields   : settings[id].createViewerImageFields,
-                performTransition   : settings[id].createPerformTransition,
-                afterCreation       : function(createId, createLink, data, id) { afterChangeProcessCreation(createId, createLink, id); }
+                id                      : settings[id].createId,
+                headerLabel             : settings[id].createHeaderLabel,
+                hideSections            : settings[id].createHideSections,
+                sectionsIn              : settings[id].createSectionsIn,
+                sectionsEx              : settings[id].createSectionsEx,
+                fieldsIn                : settings[id].createFieldsIn,
+                fieldsEx                : settings[id].createFieldsEx,
+                contextPanelId          : id,
+                createContextItem       : settings[id].link,
+                createContextItem       : settings[id].createContextItem,
+                createContextItemField  : settings[id].createContextItemField,
+                createContextItemFields : settings[id].createContextItemFields,
+                createContextItems      : settings[id].createContextItems,
+                createContextItemsField : settings[id].createContextItemsField,
+                createFieldValues       : settings[id].createFieldValues,
+                createViewerImageFields : settings[id].createViewerImageFields,
+                createPerformTransition : settings[id].createPerformTransition,
+                afterCreation           : function(createId, createLink, data, id) { console.log(id); afterChangeProcessCreation(createId, createLink, id); }
             });
         }).addClass('panel-action-create').addClass('default');
 
@@ -7804,6 +7805,11 @@ function insertChangeProcessesData(id, linkNew) {
     
 }
 function afterChangeProcessCreation(createId, createLink, id) {
+
+    console.log(createId);
+    console.log(createLink);
+    console.log(id);
+    console.log(settings);
 
     if(!settings[id].createConnectAffectedItem) return;
 
@@ -9062,8 +9068,6 @@ function insertItemSummaryContents(id, details, fields, tabs) {
 
     for(let content of settings[id].summaryContents) {
 
-        console.log(content);
-
         if(isBlank(content.params)) content.params = {};
 
         let link         =  content.link || settings[id].link;
@@ -9142,7 +9146,6 @@ function insertItemSummaryContents(id, details, fields, tabs) {
                 } else {
                     settings[id].linkViewable = getSectionFieldValue(details.sections, content.params.fieldIdViewable, '', 'link');
                     insertItemSummaryContentTab(id, contentId, 'Viewer', content.params, isFirst);
-                    viewerFeatures.markup = true;
                     if(settings[id].summaryLayout !== 'tabs') insertViewer(settings[id].linkViewable, content.params);
                 }
                 break;

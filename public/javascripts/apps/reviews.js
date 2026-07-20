@@ -27,7 +27,6 @@ $(document).ready(function() {
     let requests = [ $.get('/plm/sections', { wsId : workspaceIds.designReviews, useCache : true }) ]
     
     getFeatureSettings('reviews', requests, function(responses) {
-
         wsConfig.sections = responses[0].data;
         getTasksWorkspace();
         setUIEvents();
@@ -493,12 +492,12 @@ function insertCreateActionButton(id) {
             // contextItem         : $('#panel').attr('data-link'),
             // contextItemFields   : [ 'DESIGN_REVIEW' ],
 
-            fieldValues      : [{
-                fieldId      : 'DESIGN_REVIEW',
-                value        :  selectedLink,
-                displayValue : $('#header-subtitle').html()
+            createFieldValues : [{
+                fieldId       : 'DESIGN_REVIEW',
+                value         :  selectedLink,
+                displayValue  : $('#header-subtitle').html()
             }],
-            viewerImageFields   : [ 'MARKUP' ],
+            createViewerImageFields   : [ 'MARKUP' ],
             afterCreation       : function(createId, createLink, id) { afterChangeTaskCreation(createId, createLink, id); }
         });
 
