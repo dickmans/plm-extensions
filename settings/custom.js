@@ -48,10 +48,13 @@ exports.common = {
         // Asset Management Workspaces
         orderProjects          : 283,
         orderProjectDeliveries : 279,
+        equipments             : 280,
+        equipmentServices      : 284,
+        serialNumbers          : 277,
+        serializedItems        : 282,
         assets                 : 280,
         assetItems             : 282,
         assetServices          : 284,
-        serialNumbers          : 277,
 
     },
 
@@ -66,6 +69,7 @@ exports.common = {
         numberProperties   : ['Part Number', 'Name', 'label', 'Artikelnummer', 'Bauteilnummer'],
         suffixPrimaryFile  : ['.iam.dwf', '.iam.dwfx', '.ipt.dwf', '.ipt.dwfx'],
         extensionsIncluded : ['dwf', 'dwfx', 'nwd', 'ipt', 'stp', 'step', 'sldprt', 'pdf'],
+        standardFeatures   : {}
     }
 
 }
@@ -110,34 +114,14 @@ exports.applications = {
     },
     portal         : {
         // panels : {
-        //     insertSearch : {},
+        //     insertSearch      : {},
         //     insertRecentItems : {},
-        //     insertBOM : {},
-        //     insertDetails : {},
-        //     insertDetails : {},
+        //     insertBOM         : {},
+        //     insertDetails     : {},
+        //     insertDetails     : {},
         // },
-        // viewerFeatures   : {
-        //     contextMenu   : false,
-        //     cube          : false,
-        //     orbit         : false,
-        //     firstPerson   : false,
-        //     camera        : false,
-        //     measure       : true,
-        //     section       : true,
-        //     explodedView  : true,
-        //     modelBrowser  : false,
-        //     properties    : false,
-        //     settings      : false,
-        //     fullscreen    : true,
-        //     markup        : false,
-        //     hide          : true,
-        //     ghosting      : true,
-        //     highlight     : true,
-        //     single        : true,
-        //     fitToView     : true,
-        //     reset         : true,
-        //     views         : true,
-        //     selectFile    : true
+        // viewerFeatures  : {
+        //     contextMenu : false
         // }   
     },
     portfolio      : {},
@@ -146,12 +130,12 @@ exports.applications = {
     reviews        : {},
     sbom           : {},
     service        : {},
-    worklist       : {},
     variants       : {
         // workspaceItemVariants : {
             // workspaceId : 571,
         // }
     },
+    worklist       : {},
     addins : {}
 
 }
