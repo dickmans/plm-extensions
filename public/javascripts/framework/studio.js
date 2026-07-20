@@ -47,9 +47,6 @@ function setUIEvents() {
         $('body').toggleClass('no-json');
         $(this).toggleClass('toggle-on').toggleClass('toggle-off');
     });
-    $('#toggle-layout').click(function() {
-        $('body').toggleClass('wide');
-    });
 
     $('#settings-fold').click(function() {
         $('.settings-category').addClass('icon-expand').removeClass('icon-collapse');
