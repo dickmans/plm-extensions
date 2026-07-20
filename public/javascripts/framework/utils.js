@@ -1876,7 +1876,6 @@ function genPanelTop(id) {
     if(elemTop.hasClass('dialog')) settings[id].showInDialog = true;
 
     if(settings[id].showInDialog  ) { elemTop.addClass('surface-level-1').addClass('dialog'); appendOverlay(false); }
-    if(settings[id].compactDisplay) { elemTop.addClass('compact'); }
     if(settings[id].counters      ) { elemTop.addClass('with-panel-counters'); }
     if(settings[id].multiSelect   ) { elemTop.addClass('multi-select'); }
     if(settings[id].hidePanel     ) { elemTop.addClass('hidden'); } 

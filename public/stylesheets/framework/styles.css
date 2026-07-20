@@ -2621,77 +2621,20 @@ and (max-device-width : 1900px)  {
 
 
 
-/* COMPACT DISPLAY */
-.panel-top.compact > .panel-header {
-    gap : var(--spacer-xs);
+/*  BROWSER */
+/* ----------------------------------------------------------------------------- */
+.panel-top.browser-content > .panel-actions {
+    justify-content: center;
 }
-.panel-top.compact > .panel-header > .panel-header-toggle {
-    font-size   : 20px;
-    padding-top : 4px;
+.panel-top.no-header.browser-content > .panel-content {
+    top : 58px;
 }
-.panel-top.compact > .panel-header > .panel-title {
-    font-size : 16px;
-    padding   : 5px 14px 10px;
+.panel-top.with-panel-actions.no-header.browser-content > .panel-actions {
+    top : 52px;
 }
-.panel-top.compact > .panel-header > .panel-controls  {
-    gap: var(--spacer-xxs);
-}
-.panel-top.compact > .panel-header > .panel-controls > .button {
-    height      : 26px;
-    line-height : 26px;
-    padding     : 0px 8px;
-}
-.panel-top.compact > .panel-header > .panel-controls > select.button {
-    height      : 28px;
-    line-height : 26px;
-    max-width   : 160px;
-    width       : unset;
-}
-.panel-top.compact > .panel-header > .panel-controls > .button.icon {
-    font-size   : 20px;
-    line-height : 26px;
-    padding     : 0px;
-    width       : 30px;
-}
-.panel-top.compact > .panel-header > .panel-controls > .button.with-icon::before {
-    font-size   : 20px;
-    line-height : 24px;
-    width       : 24px;
-}
-.panel-top.compact > .panel-header > .panel-controls > .button > .panel-search-input {
-    padding : 0px;
-}
-.panel-top.compact .panel-actions {
-    padding : 8px 16px;
-}
-.panel-top.compact .panel-actions > .button {
-    height      : 26px;
-    line-height : 26px;
-    max-width   : 160px;
-    padding     : 0px 16px;
-    width       : unset;
-}
-.panel-top.compact .panel-actions > .button.with-icon::before {
-    line-height : 26px;
-    font-size  : 20px;
-}
-.panel-top.compact .panel-actions > input {
-    padding : 0px 16px;
-}
-.panel-top.compact .panel-content {
-    top : 40px;
-}
-.panel-top.compact.with-panel-actions .panel-content {
-    top : 80px;
-}
-.panel-top.compact .panel-content table thead th {
-    padding : 3px 6px;
-}
-.panel-top.compact .panel-content table tbody td {
-    padding : 3px 6px;   
-}
-.panel-action-remove::before { 
-    color : var(--color-red-500);
+.panel-top.with-panel-actions.no-header.browser-content > .panel-content,
+.panel-top.with-panel-actions.no-header.browser-content > .panel-content {
+    top : 114px;
 }
 
 

@@ -817,21 +817,6 @@ td.field-editable > .picklist-controls > .picklist-input {
 
 
 
-
-/* ENABLE COMPACT DISPLAY */
-.compact .section-fields { padding : 4px 10px; }
-.compact .section-fields .field { gap : 10px; padding : 2px 0px; }
-.compact .section-fields .field-label { font-size : 12px; padding : 0px; max-width : 30%; min-width : 30%; width : 30%; }
-.compact .section-fields .field-value { font-size : 12px; }
-.compact .section-fields .field-value.image > img { max-width : 150px; }
-.compact .section-fields .field-value.readonly input { font-size : 12px; padding : 0px 0px; }
-.compact .section-fields .field-value.readonly div { font-size : 12px; padding : 0px 0px; }
-.compact .section-fields .field-value.computed { font-size : 12px; padding-top : 0px; }
-.compact .section-fields .field-value.checkbox > input { margin : 3px 0px 0px 0px; }
-.compact .section-fields .field .field-unit { font-size : 12px; padding : 0px; }
-.compact p { margin : 0px;  padding : 0px; }
-
-
 /* ENABLE NARROW DISPLAY */
 .narrow.panel-content.readonly .section-fields,
 .narrow .section-fields { padding : 0px; display : flex; flex-direction : column; gap : 1px; }
@@ -1513,54 +1498,6 @@ tr.list-item > td.changed > select {
 .list-counter-changed.not-empty {
     border-color : var(--color-status-red-bright) !important;
 }
-.list-parent.compact,
-.list-parent.compact input,
-.list-parent.compact select {
-    font-size   : 12px;
-    line-height : 12px;
-}
-.list-parent.compact th { 
-    padding     : 8px 4px; 
-    white-space : nowrap;
-}
-.list-parent.compact td { 
-    padding     : 2px 4px; 
-    white-space : nowrap;
-}
-.list-parent.compact table .icon-check-box,
-.list-parent.compact table .icon-check-box-checked {
-    font-size   : 16px;
-    position    : relative;
-}
-.list-parent.compact th .icon-check-box,
-.list-parent.compact th .icon-check-box-checked {
-    top : 0px;
-}
-.list-parent.compact td .icon-check-box,
-.list-parent.compact td .icon-check-box-checked {
-    top : 2px;
-}
-.list-parent.compact table input {
-    min-width : 40px;
-    padding   : 4px 6px;
-    width     : calc(100% - 12px);
-}
-.list-parent.compact table select {
-    padding : 3px 2px;
-    width   : 100%;
-}
-.list-parent.compact .panel-totals {
-    top : 34px;
-}
-.list-parent.compact .panel-ranges {
-    top : 56px;
-}
-.list-parent.compact .panel-totals th, 
-.list-parent.compact .panel-ranges th {
-    padding-top    : 4px;
-    padding-bottom : 6px;
-}
-
 
 
 
