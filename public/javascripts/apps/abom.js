@@ -500,18 +500,14 @@ function saveChanges() {
     });
 
     for(let projectItem of projectItems) {
-
         if(projectItem.items.length > 0) {
-            // console.log(projectItem.items);
             requests.push($.post('/plm/add-managed-items', { link : projectItem.link, items : projectItem.items }))
         }
-
     }
 
     Promise.all(reqRemove).then(function(responses) {
         console.log(responses);
         Promise.all(requests).then(function(responses) {
-            console.log(responses);
             $('#overlay').hide();
             $('#bom').removeClass('changed');
             $('td').removeClass('changed');
