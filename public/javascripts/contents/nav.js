@@ -281,8 +281,6 @@ function insertWorkspaceViews(wsId, params) {
 
     genPanelElements(id);
 
-    console.log(settings[id]);
-
     settings[id].wsId = wsId;
     settings[id].load = function() { changeWorkspaceView(id);     }
     settings[id].next = function() { insertWorkspaceViewData(id); }
@@ -2110,5 +2108,139 @@ function tasksManagerUpdateProgressBarsOfAllTasks(id) {
         tasksManagerSetLinearGradient(elemTimeline, '60', progress, 'yellow', '--color-surface-level-2');
 
     });
+
+}
+
+
+
+// Combine multiple browsing panels in a single view
+function insertBrowser(params) {
+
+    if(isBlank(params)) params = {};
+
+    const id = params.id || 'browser';
+
+    params.browserLayout   = 'tabs';
+    params.browserContents = params.browserContents || [];
+    params.dragable        = params.dragable  || false;
+    params.itemPanel       = params.itemPanel || null;
+
+    let elemBrowser = $('#' + id);
+    
+    elemBrowser.html('').addClass('browser-top').show();
+        
+    let elemBrowserTabs = $('<div></div>').appendTo(elemBrowser)
+        .attr('id', id + '-tabs')
+        .addClass('tabs')
+        .addClass('browser-tabs');
+
+    let elemBrowserContents = $('<div></div>').appendTo(elemBrowser)
+        .attr('id', id + '-contents')
+        .addClass('browser-contents');
+
+    let index        = 1;
+    let surfaceLevel = getSurfaceLevel(elemBrowser);
+
+    for(let browserContent of params.browserContents) {
+
+        let elemTab = $('<div></div>').appendTo(elemBrowserTabs)
+            .click(function() {
+                clickBrowserTab($(this));
+            });
+
+        if(!isBlank(browserContent.icon    )) elemTab.addClass('with-icon').addClass(browserContent.icon);
+        if( isBlank(browserContent.settings)) browserContent.settings = {};
+
+        if(params.itemPanel !== null) {
+
+            switch(params.itemPanel.type) {
+
+                case 'details':
+                case 'insertDetails':
+                    browserContent.settings.onClickItem = function(elemClicked) { insertDetails(elemClicked.attr('data-link'), params.itemPanel.settings); };
+                    break;
+
+                case 'summary':
+                case 'insertSummary':
+                case 'insertItemSummary':
+                    browserContent.settings.onClickItem = function(elemClicked) { insertItemSummary(elemClicked.attr('data-link'), params.itemPanel.settings); };
+                    break;
+
+            }
+            
+        }
+
+        if(params.dragable) {
+            browserContent.settings.afterCompletion = function(id, data) { 
+                $('#' + id).find('.content-item').each(function() {
+                    $(this).attr('draggable', 'true')
+                        // .attr('ondragstart', params.ondragstart)
+                        // .attr('ondragend', params.ondragend);
+                        .attr('ondragstart', 'dragStartHandler(event)')
+                        .attr('ondragend', 'dragEndHandler(event)');
+                });
+            }
+        }
+
+        browserContent.settings.id            = browserContent.settings.id || 'browser-tab-' + index++;
+        browserContent.settings.hideHeader    = true;
+        browserContent.settings.singleToolbar = 'actions';
+
+        $('<div></div>').appendTo(elemBrowserContents)
+            .attr('id', browserContent.settings.id)
+            .addClass('browser-content')
+            .addClass(surfaceLevel);
+            
+        insertBrowserContent(browserContent);
+
+        elemTab.html(settings[browserContent.settings.id].headerLabel);
+
+    }
+
+    elemBrowserTabs.children().first().click();
+
+}
+function insertBrowserContent(browserContent) {
+
+    switch(browserContent.type) {
+
+        case 'bookmarks':
+        case 'insertBookmarks':
+            insertBookmarks(browserContent.settings);
+            break;
+
+        case 'recents':
+        case 'insertRecentItems':
+            insertRecentItems(browserContent.settings)
+            break;
+
+        // case 'results':
+        //     insertResults(tab.wsId, tab.filters, tab.settings);
+        //     break;
+
+        case 'workspaceSearch':
+        case 'insertWorkspaceSearch':
+            browserContent.settings.hideHeader = true;
+            insertWorkspaceSearch(browserContent.wsId, browserContent.settings)
+            break;
+
+        case 'views':
+        case 'workspaceViews':
+        case 'insertWorkspaceViews':
+            insertWorkspaceViews(browserContent.wsId, browserContent.settings);
+            break;
+
+    }
+
+}
+function clickBrowserTab(elemTab) {
+
+    elemTab.addClass('selected');
+    elemTab.siblings().removeClass('selected');
+
+    let elemContents = elemTab.parent().next().children();
+
+    elemContents.each(function() { $(this).addClass('hidden') });
+    elemTab.parent().next().children(':eq(' + elemTab.index() + ')').removeClass('hidden');
 
 }
