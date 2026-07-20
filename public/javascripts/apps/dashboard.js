@@ -513,12 +513,14 @@ function openItem(link) {
     });
 
     insertItemSummary(link, {
-        bookmark        : true,
         className       : wsConfig.className,
-        summaryContents : wsConfig.contents,
+        bookmark        : true,
         openInPLM       : true,
         reload          : true,
+        workflowActions : true,
+        surfaceLevel    : '1',
         summaryLayout   : 'dashboard',
+        summaryContents : wsConfig.contents,
         statesColors    : wsConfig.progress,
         surfaceLevel    : '1',
         workflowActions : true,
@@ -528,54 +530,6 @@ function openItem(link) {
             window.history.replaceState(null, null, '/dashboard?wsid=' + split[4] + '&theme=' + theme);   
         }
     });
-
-
-    // viewerUnloadAllModels();
-    // insertWorkflowActions(link);
-
-    //     if(enableMarkup) {
-    //         for(fieldId of fieldIdsMarkup) {
-
-    //             let elemMarkup = $('<canvas></canvas>');
-    //                 elemMarkup.attr('id', fieldId);
-    //                 elemMarkup.attr('data-fieldid', fieldId);
-    //                 elemMarkup.addClass('markup');
-    //                 elemMarkup.addClass('placeholder');
-    //                 elemMarkup.appendTo($('#markup-list'));
-    //                 elemMarkup.click(function() {
-    //                     selectMarkup($(this));
-    //                 });
-
-    //             let value = getSectionFieldValue(response.data.sections, fieldId, '', 'link');
-
-    //             if(value !== '') {
-
-    //                 $.get('/plm/image-cache', {
-    //                     'link' : value,
-    //                     'fieldId' : fieldId
-    //                 }, function(response) {
-
-    //                     $('#' + response.params.fieldId).removeClass('placeholder');
-
-    //                     let canvas = document.getElementById(response.params.fieldId);
-    //                         canvas.width = 200;
-    //                         canvas.height = 100;
-
-    //                     let ctx  = canvas.getContext('2d');
-    //                     let img = new Image();
-    //                         img.src = response.data.url;
-    //                         img.onload = function() {
-    //                             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    //                         };
-                    
-    //                 });
-
-    //             }
-    //         }
-    //     }
-
-    // });
-
 
 }
 

@@ -290,7 +290,8 @@ exports.applications = {
         valueOptional             : 'Optional'
     },
 
-    dashboard : [{
+    dashboard : [
+      { // Problem Reports
         title      : 'Problem Reporting Dashboard',
         workspace  : 'problemReports',
         newHeader  : 'Create new Problem Report',
@@ -311,7 +312,7 @@ exports.applications = {
             { label : 'Improvement', color : 'yellow', states : ['CAPA in progress', 'Change Request in progress'] },
             { label : 'Completed',   color : 'green',  states : ['Completed'] }
         ]
-    },{
+    },{ // Change Requests
         title     : 'Change Requests Management',
         workspace : 'changeRequests',
         className : 'change-request',
@@ -328,7 +329,7 @@ exports.applications = {
             { label : 'In Work',     color : 'yellow', states : ['Change Order in progress']   },
             { label : 'Completed',   color : 'green',  states : ['Completed'] }
         ]
-    },{
+    },{ // Change Orders
         title     : 'Change Orders Dashboard',
         workspace : 'changeOrders',
         newHeader  : 'Create new Change Order',
@@ -349,7 +350,7 @@ exports.applications = {
             { label : 'Acknowledgement', color : 'green' , states : ['Released'] },
             { label : 'Completed'      , color : 'green' , states : ['Implemented'] }
         ]
-    },{
+    },{ // Change Tasks
         title     : 'Change Tasks Dashboard',
         workspace : 'changeTasks',
         className : 'change-task',
@@ -368,7 +369,7 @@ exports.applications = {
             { label : 'Owner Review', color : 'green',  states : ['On Hold', 'Review']},
             { label : 'Done',         color : '#000000',     states : ['Completed']}
         ]
-    },{
+    },{ // Non Conformances
         title     : 'Non Conformances Tracking Dashboard',
         workspace : 'nonConformances',
         className : 'non-conformance',
@@ -386,7 +387,7 @@ exports.applications = {
             { label : 'Improvement', color : 'yellow', states : ['Disposition In Progress', 'CAPA In Progress'] },
             { label : 'Closed',      color : 'green',  states : ['Closed'] }
         ]
-    },{
+    },{ // Project Tasks
         title     : 'Project Tasks Management',
         workspace : 'projectTasks',
         className : 'project-task',
@@ -405,7 +406,7 @@ exports.applications = {
             { label : 'Review',      color : 'green',  states : ['Review']    },
             { label : 'Completed',   color : 'green',  states : ['Completed'] }
         ]
-    },{
+    },{ // Supplier Packages
         title     : 'Supplier Collaboration Platform',
         workspace : 'supplierPackages',
         className : 'supplier-package',
