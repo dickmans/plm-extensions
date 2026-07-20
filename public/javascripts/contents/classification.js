@@ -237,8 +237,6 @@ function insertClassData(id) {
         timestamp : settings[id].timestamp
     };
 
-    console.log(params);
-
     let requests = [
         $.get('/plm/search-class', params),
         $.get('/plm/class-properties', { 
@@ -249,8 +247,6 @@ function insertClassData(id) {
     ];
 
     Promise.all(requests).then(function(responses) {
-
-        console.log(responses);
 
         if(stopPanelContentUpdate(responses[0], settings[id])) return;
 
