@@ -57,7 +57,15 @@ block body
                         td Framework Enhancement
                         td Add 
                             strong Panel Configuration Studio 
-                            |for easy configuration settings definition
+                            |for easy configuration of UI panels
+                    tr  
+                        td 
+                        td Viewer Standard Features
+                        td The new setting 
+                            span.code common.viewer.standardFeatures 
+                            |now defines the standard viewer features for all viewer instances. While it can be changed globally, application specific overrides still are possible. Either by providing the full set of features or single features only (ie 
+                            span.code viewerFeatures : { markup : true, selectFile : false} 
+                            |). The viewerFeatures settings of various applications have been changed in settings.js so that they only change settings that are different from the default values. This way, changes can be applied faster and the settings file size decreases.
                     tr  
                         td 24. April 2026
                         td New Application

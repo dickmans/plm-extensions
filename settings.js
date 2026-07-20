@@ -101,7 +101,30 @@ exports.common = {
         groundShadow           : true,
         lightPreset            : 4,
         conversionAttempts     : 10,
-        conversionDelay        : 3000
+        conversionDelay        : 3000,
+        standardFeatures       : {
+            contextMenu   : false,
+            cube          : false,
+            orbit         : false,
+            firstPerson   : false,
+            camera        : false,
+            measure       : true,
+            section       : true,
+            explodedView  : true,
+            modelBrowser  : false,
+            properties    : false,
+            settings      : false,
+            fullscreen    : true,
+            markup        : false,
+            hide          : true,
+            ghosting      : true,
+            highlight     : true,
+            single        : true,
+            fitToView     : true,
+            reset         : true,
+            views         : false,
+            selectFile    : true
+        }
     }
 
 }
@@ -245,25 +268,8 @@ exports.applications = {
             }
         },
         viewerFeatures : {
-            contextMenu  : false,
-            cube         : false,
-            orbit        : false,
-            firstPerson  : false,
-            camera       : false,
-            measure      : true,
-            section      : true,
-            explodedView : true,
-            modelBrowser : false,
-            properties   : false,
             settings     : false,
             fullscreen   : false,
-            markup       : false,
-            hide         : true,
-            ghosting     : true,
-            highlight    : true,
-            single       : true,
-            fitToView    : true,
-            reset        : true,
             views        : true,
             selectFile   : false
         }
@@ -691,27 +697,7 @@ exports.applications = {
             ]},
         ],
         viewerFeatures: {
-            contextMenu   : true,
-            cube          : false,
-            orbit         : false,
-            firstPerson   : false,
-            camera        : false,
-            measure       : true,
-            section       : true,
-            explodedView  : true,
-            modelBrowser  : false,
-            properties    : false,
-            settings      : false,
-            fullscreen    : true,
-            markup        : true,
-            hide          : true,
-            ghosting      : true,
-            highlight     : true,
-            single        : true,
-            fitToView     : true,
-            reset         : true,
-            views         : true,
-            selectFile    : true
+            views : true,
         }
     },
 
@@ -1017,26 +1003,9 @@ exports.applications = {
             excelExport      : true
         },        
         viewerFeatures : {
-            contextMenu   : false,
-            cube          : false,
-            orbit         : false,
-            firstPerson   : false,
-            camera        : false,
-            measure       : true,
-            section       : true,
-            explodedView  : true,
-            modelBrowser  : false,
-            properties    : false,
-            settings      : false,
-            fullscreen    : true,
             markup        : true,
-            hide          : true,
-            ghosting      : true,
             highlight     : false,
-            single        : true,
-            fitToView     : true,
-            reset         : true,
-            views         : true,
+            views         : false,
             selectFile    : true
         }
     },
@@ -1306,27 +1275,8 @@ exports.applications = {
         }],
         enableBOMPin : false,
         viewerFeatures : {
-            contextMenu   : false,
-            cube          : false,
-            orbit         : false,
-            firstPerson   : false,
-            camera        : false,
-            measure       : true,
-            section       : true,
-            explodedView  : true,
-            modelBrowser  : false,
-            properties    : false,
-            settings      : false,
-            fullscreen    : true,
-            markup        : false,
-            hide          : true,
-            ghosting      : true,
-            highlight     : true,
-            single        : true,
-            fitToView     : true,
-            reset         : true,
-            views         : true,
-            selectFile    : false
+            views      : true,
+            selectFile : false
         }
     },
 
@@ -1668,27 +1618,7 @@ exports.applications = {
         },
         maxBOMLevels : 4,
         viewerFeatures : {
-            contextMenu   : false,
-            cube          : false,
-            orbit         : false,
-            firstPerson   : false,
-            camera        : false,
-            measure       : true,
-            section       : true,
-            explodedView  : true,
-            modelBrowser  : false,
-            properties    : false,
-            settings      : false,
-            fullscreen    : true,
-            markup        : false,
-            hide          : true,
-            ghosting      : true,
-            highlight     : true,
-            single        : true,
-            fitToView     : true,
-            reset         : true,
-            views         : true,
-            selectFile    : true
+            views : true
         }
     },
 

@@ -5,9 +5,9 @@ p This application enables configuration of features within the viewer by using 
         li viewerFeatures.measure = ['Employees','Service Technician'] &gt; The measurements button will only be shown for users in group Employees or Service Technician
 table.row-hovering
     tr 
-        th Setting 
+        th Feature 
         th Icon 
-        th Description 
+        th Description
     tr 
         td contextMenu 
         td   
@@ -183,3 +183,7 @@ table.row-hovering
         td conversionDelay
         td 3000
         td If viewables need to be converted, this delay (in milliseconds) will be applied before starting to check for the conversion completion status.
+    tr 
+        td standardFeatures
+        td { .. }
+        td Defines standard viewer features for all viewer instances of all applications (see list of viewer features in previous table)

@@ -274,7 +274,10 @@ function initEditor(responses) {
 
     } else {
 
-        insertViewer(links.sourceBOM); 
+        insertViewer(links.sourceBOM, { 
+            features        : config.viewerFeatures,
+            afterCompletion : function(id) { initEditorViewerDone(id); }
+         } ); 
 
         insertBOM(links.sourceBOM, {
             collapseContents   : false,
@@ -710,6 +713,12 @@ function updateItemListPosNumbers(elemParent) {
         });
 
     }
+
+}
+function initEditorViewerDone(id) {
+
+    $('#' + id + '-processing').removeClass('mode-ebom');
+    $('#' + id + '-message'   ).removeClass('mode-ebom');
 
 }
 

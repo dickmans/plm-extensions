@@ -106,7 +106,7 @@ function initViewer(id, link, viewables, params) {
     viewerInstance.link               = link;
     viewerInstance.viewable           = null;
     viewerInstance.viewables          = viewables;
-    viewerInstance.features           = params.features;
+    viewerInstance.features           = getViewerFeatures(params);
     viewerInstance.dataInstances      = [],
     viewerInstance.hiddenInstances    = [],
     viewerInstance.disableSelectEvent = false;
@@ -137,7 +137,7 @@ function initViewer(id, link, viewables, params) {
     if(!isBlank(params.lightPreset       )) viewerInstance.settings.lightPreset        = params.lightPreset;        else if(!isBlank(common.viewer.lightPreset       )) viewerInstance.settings.lightPreset        = common.viewer.lightPreset;
     if(!isBlank(params.cacheInstances    )) viewerInstance.settings.cacheInstances     = params.cacheInstances;     else if(!isBlank(common.viewer.cacheInstances    )) viewerInstance.settings.cacheInstances     = common.viewer.cacheInstances;
     if(!isBlank(params.cacheBoundingBoxes)) viewerInstance.settings.cacheBoundingBoxes = params.cacheBoundingBoxes; else if(!isBlank(common.viewer.cacheBoundingBoxes)) viewerInstance.settings.cacheBoundingBoxes = common.viewer.cacheBoundingBoxes;
-    
+
     $('#' + id).addClass('no-viewer-cube');
     $('#' + id + '-processing'      ).removeClass('hidden');
     $('#' + id + '-message'         ).addClass('hidden');
@@ -147,6 +147,16 @@ function initViewer(id, link, viewables, params) {
     viewerInstance.viewable = getPrimaryViewable(viewables);
 
     convertViewable(viewerInstance, params, 1);
+
+}
+function getViewerFeatures(params) {
+
+    let features = common.viewer.standardFeatures;
+    let keys     = Object.keys(params.features);
+
+    for(let key of keys) features[key] = params.features[key];
+
+    return features;
 
 }
 function getPrimaryViewable(viewables) {
@@ -361,7 +371,11 @@ function onDocumentLoadFailure() {
     console.error('Failed launching viewer');
 }
 function initViewerDone(id) {
+    
     $('#' + id + '-progress').addClass('hidden');
+
+    settings[id].afterCompletion(id);
+
 }
 function onViewerToolbarCreated(event) {  
     event.target.toolbar.setVisible(false); 
@@ -2526,13 +2540,13 @@ function viewerSaveItemMarkup(viewerId) {
 
     $('#overlay').show();
 
-    viewerCaptureScreenshot('viewer', fieldId, function() {
+    viewerCaptureScreenshot(viewerId, fieldId, function() {
 
         let elemMarkupImage = $('#' + fieldId);
 
         let params = { 
-            link      : linkItem,
-            image     : {
+            link  : linkItem,
+            image : {
                 fieldId : fieldId,
                 value   : elemMarkupImage[0].toDataURL('image/jpg')
             }
@@ -2572,6 +2586,7 @@ function viewerCaptureScreenshot(viewerId, canvasId, callback) {
             var screenshot  = new Image();
             var imageWidth  = viewer.container.clientWidth;
             var imageHeight = viewer.container.clientHeight;
+            var noMarkup    = ((typeof viewerInstance.markup === 'undefined') || ($('#' + viewerId + '-markup-toolbar').hasClass('hidden')));
 
             screenshot.onload = function () {
                     
@@ -2582,13 +2597,13 @@ function viewerCaptureScreenshot(viewerId, canvasId, callback) {
                 let context = canvas.getContext('2d');
                     context.clearRect(0, 0, canvas.width, canvas.height);
                     context.drawImage(screenshot, 0, 0, canvas.width, canvas.height); 
-                    
-                if(!$('#' + viewerId + '-markup-toolbar').hasClass('hidden')) {
+                  
+                if(noMarkup) {
+                    callback();
+                } else {   
                     viewerInstance.markup.renderToCanvas(context, function() {
                         callback();
                     });
-                } else {
-                    callback();
                 }
                     
             }
