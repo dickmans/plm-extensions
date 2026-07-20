@@ -468,8 +468,6 @@ function selectProduct(elemClicked) {
         paramsSummary.headerTopLabel          = '<span class="product-category">' + product.category + '</span>|<span class="product-line">' + product.line + '</span>';
         paramsSummary.summaryContents[4].link = product.ebom;
 
-        console.log(link);
-
         insertItemSummary(link, paramsSummary);
 
         insertViewer(product.ebom, {
