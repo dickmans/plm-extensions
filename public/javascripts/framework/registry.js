@@ -438,7 +438,7 @@ const registry = {
                     id          : 'link',
                     title       : 'link',
                     description : 'API link of the item for which the Grid tab should be displayed',
-                    default     : '/api/v3/workspaces/84/items/22131',
+                    default     : '/api/v3/workspaces/84/items/16911',
                     type        : 'string',
                     required    : true
                 }],
