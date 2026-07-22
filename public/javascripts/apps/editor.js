@@ -902,8 +902,6 @@ function setLockedStatus(elemEditor, elemTitle, revision, data) {
     let isLocked  = (editMode === 'template') ? true : false;
     let lockValue = data[config.wsMain.itemsLocked.fieldId] || '';
 
-    console.log(lockValue);
-
     if(revision !== '') {
         if(revision !== 'WIP') { 
             isLocked = true;
@@ -912,7 +910,6 @@ function setLockedStatus(elemEditor, elemTitle, revision, data) {
 
     if(!isLocked) {
         isLocked = (lockValue == config.wsMain.itemsLocked.value);
-        console.log((lockValue == config.wsMain.itemsLocked.value));
     }
 
     if(isLocked) {
@@ -2231,8 +2228,6 @@ function saveChanges() {
 
     $('*').removeClass('missing');
 
-    console.log(editMode);
-
     $('#editor .editor-item').each(function() {
 
         const elemItem = $(this);
@@ -2510,7 +2505,7 @@ function editExistingItems(action) {
 }
 function removeBOMItems(action) {
 
-    console.log('removeBOMItems START');
+    // console.log('removeBOMItems START');
 
     let pending  = updateSaveProgressBar(action);
     let requests = [];

@@ -2074,6 +2074,7 @@ exports.server = {
         client         : true,  // Mobile Client
         compare        : true,  // BOM Comparison
         dashboard      : true,  // Process Dashboard
+        editor         : true,  // Specification Editor
         explorer       : true,  // Product Data Explorer
         impactanalysis : true,  // Change Impact Analysis
         instances      : true,  // BOM Instances Editor

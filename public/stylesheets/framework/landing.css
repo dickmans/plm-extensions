@@ -492,7 +492,6 @@ a:hover {
 /*  CHANGE LOG */
 /* ----------------------------------------------------------------------------- */
 #framework-changes { 
-    background  : var(--color-surface-level-2);
     color       : var(--color-font);
     display     : none; 
 }

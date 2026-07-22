@@ -1,0 +1,325 @@
+.tile(data-name='Specification Editor' data-id='editor')
+    .tile-image(style="background: url('images/app-editor.png') no-repeat;background-size:contain;")
+    .tile-details
+        .tile-title Specification Editor
+        .tile-subtitle Define a product specification based on structured requirements with ease, enabling precise goals definition for your product development teams 
+        .tile-access 
+            .tile-endpoint /editor
+            .tile-button.button.default(href="editor?wsid=143&dmsid=14435&working=true" target="_blank") Open
+            .tile-button.button.icon.icon-start.default(href="https://youtu.be/tM8why6ybAU" target="_blank")
+    .instructions
+        h1 Features
+        p Managing requirement structures in PLM can be a complex activity requiring many tabs and clicks. With this editor, creation of new requirements, edition of existing requirements and structural changes are by far easier to accomplish. Requirements will be defined in a familar experience, similar to management of Word Documents.
+        ul
+            li Use templates when creating new specifications
+            li Paste Word contents to derive a requirement specification from a Word document
+            li Edit requireents with rich text editing functionality
+            li Change the structure easily (drag &amp; drop, indent button, outdent button)
+            li Manage additional requirement details when needed
+            li Side panel provides comprehensive information per requirement 
+            li Maximize display of a single requirement to focus on proper requirement definition
+            li Pinning capability makes navigation in structure easy
+            li Reuse existing requirements from library
+            li Launch the editor for a requirement or context object (ie. Product)
+        p While this solution is focusing on management of requirements, its configuration settings enable reuse of the editor for other workspaces / use cases as well. Please review section 
+            strong Configuration Settings 
+            |for details.
+        h1 Setup Instructions
+        p This editor makes use of the standard 
+            strong Requirements Management 
+            |solution provided by all standard tenants and the Template Library. 
+            br
+            |However, multiple changes must be performed to workspace 
+            strong Requirements 
+            |to make this editor work properly.
+        h2 Disable Requirements Specifications dependency for Requirements
+        p As the editor does not use the 
+            strong Requirements Specifications 
+            |workspace for better usability, the dependency of requirements on this workspace must be removed per the steps described below.
+        ol 
+            li Edit script 
+                strong Requirements onCreate
+                |as shown below: Function setNumber must be changed to use a sequencer without reference to the specification. 
+                img.border(src='images/apps/editor-5.png' style='max-width:580px;')
+                p Copy / paste the following code:
+                p.code 
+                    span.indent-1 if(specID === null) {
+                    span.indent-2 var seq = new Sequencer("Requirements");
+                    span.indent-2 item.ID = "REQ-" + ('0000' + seq.nextValue().toString()).slice(-4);
+                    span.indent-2 return;
+                    span.indent-1 }        
+            li In the 
+                strong Requirements Item Details 
+                | remove the 
+                strong Selection Required 
+                |validation of field 
+                strong Related Specification 
+                |by clicking the red X icon
+                img.border(src='images/apps/editor-4.png' style='max-width:580px;')
+        h2 Add Type Template 
+        p To enable recognition of templates, the option 
+            span.code Template 
+            |must be added to picklist 
+            strong Requirement Types
+            |:
+            img.border(src='images/apps/editor-6.png' style='max-width:580px;')
+        p As the selected type drives the computed field Icon, add a new entry in the 
+            strong Computed Field Formula 
+            |of field 
+            strong Icon 
+            |as shown below. Note that the integer value matching the new entry Temmplate may be different from 67 in your environment.
+            img.border(src='images/apps/editor-7.png' style='max-width:580px;')
+        h2 Create new Item Details fields for Requirements
+        p The editor can automatically lock library requirements to prevent accidential modifications. It can also flag requirements that are reused across multiple structures. However, both features require two additional fields that must be added to your 
+            strong Requirements 
+            |workspace. Add the two fields 
+            strong Library Requirement 
+            |and 
+            strong Reused 
+            |as shown in the screenshots below. Of course, you can also change the 
+            strong Field names 
+            |and even the 
+            strong Field IDs 
+            |by changing the application's Configuration Settings.
+        table 
+            tr 
+                td 
+                    img.border(src='images/apps/editor-1.png' style='max-width:580px;')
+                td 
+                    img.border(src='images/apps/editor-2.png' style='max-width:580px;')
+        p You can add these fields to any section of your 
+            strong Requirements 
+            |workspace, for example to section
+            strong Details
+            |.
+            img.border(src='images/apps/editor-3.png' style='max-width:320px;')
+        h2 Create new BOM View for Requirements
+        p The editor requires a new BOM view to retrieve all required information in a single request. Per standard configuration, this is accomplished by adding the new view 
+            strong Editor 
+            |for workspace 
+            strong Requirements
+            |. Of course, the BOM view to be used can be changed as described in the Cofiguration Settings chapter. 
+        p Create this new BOM view and add the required columns (sequence of columns does not matter). Per standard configuration, the colums listed below are required. Once you change this application's Configuration Settings, this list might be different. In general, any field referenced in 
+            span.code editor.requirements.wsMain 
+            |should be added to this view.
+        table.row-hovering 
+            tr 
+                th Field 
+                th ID
+                th Source 
+                th Remark
+            tr 
+                td Descriptor
+                td DESCRIPTOR
+                td System Fields
+                td Required
+            tr 
+                td Title
+                td TITLE
+                td Item Details [Basic] 
+                td Required
+            tr 
+                td Description
+                td DESCRIPTION
+                td Item Details [Basic] 
+                td Required
+            tr 
+                td Material Cost
+                td MATERIAL_COST
+                td Item Details [Cost &amp; Effort]
+                td Optional (used by Advanced fields toggle)
+            tr 
+                td Tooling Cost
+                td TOOLING_COST
+                td Item Details [Cost &amp; Effort]
+                td Optional (used by Advanced fields toggle)
+            tr 
+                td Effort [days]
+                td EFFORT
+                td Item Details [Cost &amp; Effort]
+                td Optional (used by Advanced fields toggle)
+            tr 
+                td Test Procedure
+                td TEST_PROCEDURE
+                td Item Details [Validation]
+                td Optional (used by Advanced fields toggle)
+            tr 
+                td Expected Result
+                td EXPECTED_RESULT
+                td Item Details [Validation]
+                td Optional (used by Advanced fields toggle)
+            tr 
+                td Success Criteria
+                td EXPECTED_RESULT
+                td Item Details [Validation]
+                td Optional (used by Advanced fields toggle)
+            tr 
+                td Library Requirement
+                td LIBRARY_REQUIREMENT
+                td Item Details [Details]
+                td Required
+            tr 
+                td Reused
+                td REUSED
+                td Item Details [Details]
+                td Required
+        h2 Install Chrome Extension
+        p The editor is launched by a new button being added to the header of requirements and workspace. This is accomplished by installing this UX package's Chrome Extensions, which must be installed on all clients that should use this new editor. Please click the button 
+            strong Download the Chrome Extension 
+            |on the left to download the required installer.
+        a(href='/chrome' target='_blank') Learn more about the Chrome Extension
+        h2 
+        h1 Application Configuration Settings
+        p The following application specific settings can be adjusted in your custom settings file in 
+            span.code exports.applications.editor.requirements 
+            br
+            |In order to change any of these settings, copy the standard value from settings.js to your custom settings file in folder settings.
+        table.row-hovering 
+            tr 
+                th Setting 
+                th Default Value
+                th Description 
+            tr 
+                td labels.appTitle
+                td 'Requirements Editor'
+                td The application title shown in the main toolbar
+            tr 
+                td labels.newTitle
+                td 'New Requirements Structure Creation'
+                td Title of the startup screen being displayed if there is no main item for the context object yet (ie if you launch the editor from a Product which does not have a Requirement linked yet)
+            tr 
+                td labels.addExisting
+                td 'Add From Library'
+                td Label of toggle and panel for addition of existing library requirements
+            tr 
+                td wsMain.workspaceId
+                td null
+                td Workspace ID of main workspace, the one used to build the structure. Provide the ID of your requirements workspace or set to null to automatically reuse the ID defined in exports.common.workspaceIds.requirements
+            tr 
+                td wsMain.workspaceName
+                td 'Requirements'
+                td Name to use for this main workspace
+            tr 
+                td wsMain.bomViewName
+                td 'Editor'
+                td BOM view of the main workspace to use for the structure expansion. This view must contain all required fields.
+            tr 
+                td wsMain.copyFromTemplate
+                td [ 'TITLE', 'DESCRIPTION' ]
+                td Array of fieldIds defining the fields to be copied from the requirement templates to their derived requirements
+            tr 
+                td wsMain.advancedFieldIds
+                td [ .. ]
+                td Array of fieldIds being accessible in 
+                    strong Advanced Mode
+                    |. These fields are hidden per default, but can be displayed when using the given toggle.
+            tr 
+                td wsMain.itemsLocked
+                td { fieldId : .. , value : .. , title : .. }
+                td Defines field and matching value for recognition of library requirements which will then be locked. Property title can be used to define the tooltip of the given icon being displayed in the editor for locked requirements.
+            tr 
+                td wsMain.itemsReused
+                td { fieldId : .. , value : .. , title : .. }
+                td Defines field and matching value for recognition and flagging of reused requirement. Property title can be used to define the tooltip of the given icon being displayed in the editor for reused requirements.
+            tr 
+                td wsMain.newDefaultValues
+                td []
+                td Array defining standard field values to be set for new requirements being created by the editor
+            tr 
+                td wsContexts
+                td []
+                td This array defines multiple context workspaces which can link to matching requirements and from which the editor should be accessible. 
+            tr 
+                td wsContexts[i].workspace
+                td 'products'
+                td Defines the context workspace ID by providing the matching name of the entry in 
+                    span.code exports.common.workspaceIds 
+            tr
+                td wsContexts[i].fieldIds.link
+                td 'REQUIREMENTS'
+                td (Linking picklist) Field ID of context workspace refering to the related Requirements structure
+            tr 
+                td wsContexts[i].fieldIds.title
+                td 'REQUIREMENTS'
+                td Field ID of context workspace that will be used to derive the name of new structures being created
+        p The standard configuration support the requirements editing use case only. However, you can also create further profiles and use the same editor also for BOM changes for example. To achieve this, copy the 
+            span.code requirements 
+            |property in 
+            span.code exports.applications.editor 
+            |and rename it to 
+            span.code bom 
+            |for example. Once the property 
+            span.code exports.applications.editor 
+            |has more than one configuration profile, you will then have to append a URL parameter to select the configuration profile to use. To launch the editor with your new profile 
+            span.code bom
+            |, you must append the following suffix to the URL of the editor: 
+            span.code &amp;config=bom
+            |. If the config URL parameter is not provided, the editor will use the first configuration profile found in 
+            span.code exports.applications.editor
+            |.
+        h1 Panel Configuration Settings
+        p This application uses multiple configurable panels which you can adjust to better meet your needs and tenant configuration.
+            br  
+            |You can use the 
+            strong Panel Configuration Studio 
+            |to explore these panels' features and derive the matching configuration settings.
+            br
+            a(href='studio?panel=insertSearch' target='_blank' style='margin:18px 0px;') Open Panel Configuration Studio
+        p The application uses the panels listed below, which are all configured in property 
+            span.code exports.applications.editor.requirements.panels
+        table.row-hovering
+            tr
+                th Property 
+                th Descripton
+                th Panel Type
+            tr 
+                td ..panels.insertTemplates
+                td Drives the list of available templates in startup screen when creating a new structure
+                td insertResults
+            tr 
+                td ..panels.insertBOM
+                td Drives the navigation tree on the left
+                td insertBOM            
+            tr 
+                td ..panels.insertDetails
+                td Configures the Details display in side panel 
+                td insertDetails          
+            tr 
+                td ..panels.insertAttachments
+                td Configures the Files display in side panel 
+                td insertAttachments        
+            tr 
+                td ..panels.insertRelationships
+                td Configures the Implemented By display in side panel 
+                td insertRelationships         
+            tr 
+                td ..panels.insertChangeLog
+                td Configures the Change Log display in side panel 
+                td insertChangeLog            
+            tr 
+                td ..panels.insertWorkspaceSearch
+                td Drives the Search panel in
+                    strong Add From Library
+                td insertWorkspaceSearch            
+            tr 
+                td ..panels.insertWorkspaceViews
+                td Drives the Workspace Views panel in
+                    strong Add From Library
+                td insertWorkspaceViews            
+            tr 
+                td ..panels.insertBookmarks
+                td Drives the Bookmarks panel in
+                    strong Add From Library
+                td insertBookmarks            
+            tr 
+                td ..panels.insertRecentItems
+                td Drives the Recently Viewed panel in
+                    strong Add From Library
+                td insertRecentItems           
+    .log 
+        h1 PLM Portal Change Log 
+        table.row-hovering
+            tr 
+                td 22. July 2026
+                td Initial Release
+                td Addition of this utility to the UX Extensions
