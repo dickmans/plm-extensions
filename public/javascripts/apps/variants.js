@@ -4,6 +4,8 @@ let listVariants     = [];
 let fieldsVariant    = [];
 let variantBOMClenup = [];
 let classesViewer    = [ 'standard', 'viewer-left', 'viewer-off'];
+let paramsCreate     = {}
+let paramsSummary    = {}
 let modeViewer       = 0;
 let derivedData;
 
@@ -41,60 +43,13 @@ let saveActions = {
     }
 }
 
-let paramsSummary = {
-    bookmark        : true,
-    openInPLM       : true,
-    hideCloseButton : true,
-    layout          : 'tabs',
-    contents        : [{ 
-        type         : 'details',
-        params       : { 
-            id               : 'item-details', 
-            hideHeaderLabel  : true,
-            editable : true,
-            toggles          : true,
-            collapseContents : true
-        }
-    }, { 
-        type        : 'attachments',
-        params      : { 
-            id         : 'item-attachments',
-            hideHeaderLabel : true,
-            editable        : true,
-            singleToolbar   : 'controls',
-            contentSize     : 'xl'
-        }
-    }, { 
-        type        : 'bom',
-        params      : { 
-            id      : 'item-bom',
-            headerLabel : 'BOM',
-            hideHeaderLabel  : true,
-            search           : true,
-            toggles          : true,
-            collapseContents : true
-        }
-    }, { 
-        type        : 'relationships',
-        params      : { 
-            id         : 'item-relationships',
-            hideHeader : true
-        }
-    }, { 
-        type        : 'change-processes',
-        params      : { 
-            id         : 'item-change-processes',
-            headerLabel : ' Processes',
-            hideHeader : true
-        }
-    }]
-}
-
 
 $(document).ready(function() {
 
     wsContext.id  = wsId;
     wsVariants.id = config.workspaceItemVariants.workspaceId;
+    paramsCreate  = config.panels.createVariant;
+    paramsSummary = config.panels.itemSummary;
 
     appendOverlay(true);
     setUIEvents();
@@ -131,22 +86,24 @@ function setUIEvents() {
 
         if($(this).hasClass('disabled')) return;
 
-        insertCreate(null, [wsVariants.id], { 
-            id                : 'create',
-            createButtonIcon  : '',
-            createButtonLabel : 'Submit',
-            headerLabel       : 'Create new variant for ' + urlParameters.partNumber,
-            hideComputed      : true,
-            fieldsIn          : [config.workspaceItemVariants.fieldIds.title, config.workspaceItemVariants.fieldIds.baseItem],
-            contextItem       : urlParameters.link,
-            contextItemField  : config.workspaceItemVariants.fieldIds.baseItem,
-            fieldValues       : [{
-                fieldId : config.workspaceItemVariants.fieldIds.rootDMSId,
-                value   : urlParameters.root
-            }],
-            hideSections      : true,
-            afterCreation     : function(id, link, data, contextId) { addNewVariant(link); }
-        });
+        paramsCreate.headerLabel = 'Create new variant for ' + urlParameters.partNumber;
+
+        insertCreate(null, [wsVariants.id], paramsCreate);
+        
+        // { 
+            // id                : 'create',
+            // createButtonIcon  : '',
+            // createButtonLabel : 'Submit',
+            // headerLabel       : 'Create new variant for ' + urlParameters.partNumber,
+            // hideComputed      : true,
+            // fieldsIn          : [config.workspaceItemVariants.fieldIds.title, config.workspaceItemVariants.fieldIds.baseItem],
+            // contextItemField  : config.workspaceItemVariants.fieldIds.baseItem,
+            // createFieldValues : [{
+            //     fieldId : config.workspaceItemVariants.fieldIds.rootDMSId,
+            //     value   : urlParameters.root
+    
+            
+        // });
 
     });
     $('#button-toggle-viewer').click(function() {
@@ -175,8 +132,18 @@ function setUIEvents() {
 // Get item details to pull further information from PLM
 function initEditor() {
 
+    paramsCreate.id                     = 'create';
+    paramsCreate.fieldsIn               = [ config.workspaceItemVariants.fieldIds.title, config.workspaceItemVariants.fieldIds.baseItem ];
+    paramsCreate.createContextItemField = config.workspaceItemVariants.fieldIds.baseItem;
+    paramsCreate.createContextItem      = urlParameters.link;
+    paramsCreate.afterCreation          = function(id, link, data, contextId) { addNewVariant(link); }
+    paramsCreate.createFieldValues      = [{
+        fieldId : config.workspaceItemVariants.fieldIds.rootDMSId,
+        value   : urlParameters.root
+    }]; 
+
     getInitialData();
-    insertViewer(urlParameters.link);
+    insertViewer(urlParameters.link, { features : config.viewerFeatures });
     insertItemSummary(urlParameters.link, paramsSummary);
 }
 function getInitialData() {

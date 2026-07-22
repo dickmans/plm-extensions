@@ -1,28 +1,11 @@
 // Inser PLM Users selector
 function insertUsers(params) {
 
-    if(isBlank(params)) params = {};
-
-    let id = isBlank(params.id) ? 'users' : params.id;
-
-    settings[id] = getPanelSettings('', params, {
-        headerLabel : 'Users',
-        contentSize : 'm',
-        layout      : 'table'
-    }, [ ]);
-
-    settings[id].load = function() { insertUsersData(id); }
-
-    genPanelTop              (id, 'users');
-    genPanelHeader           (id);
-    genPanelSelectionControls(id);
-    genPanelSearchInput      (id);
-    genPanelResizeButton     (id);
-    genPanelReloadButton     (id);
-    genPanelContents         (id);
+    const id = getPanelSettings('insertUsers', params);
+    
+    genPanelElements(id);  
 
     insertUsersDone(id);
-
     settings[id].load();
 
 }

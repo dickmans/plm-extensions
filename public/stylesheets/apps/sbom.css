@@ -54,12 +54,13 @@
 }
 #dialog-save {
     top    : calc(50% - 230px);
-    bottom : calc(50% - 140px);
+    bottom : calc(50% - 150px);
 }
 
 
 .no-viewer .viewer { top : unset; left : 58px; right : unset; bottom : 96px; }
 .no-viewer .tree-first-col { max-width : unset !important; }
+.no-viewer #browser,
 .no-viewer #bom   { left : 0px; right : unset ; width : calc(50% - (var(--width-details) / 2) - (3 * var(--border-h))); }
 .no-viewer #panel { left : unset; right : calc(var(--width-details) + (2 * var(--border-h)));;  width  : calc(50% - (var(--width-details) / 2) - (3 * var(--border-h))); }
 
@@ -69,6 +70,7 @@
 .no-details #panel   { right : 0px; }
 .no-details #details { right : calc(-1px - var(--width-details) - (2 * var(--border-h))); }
 
+.no-details.no-viewer #browser,
 .no-details.no-viewer #bom     { left : 0px; right:  50%; width : unset; }
 .no-details.no-viewer #panel   { left : 50%; right : 0px; width : unset; }
 .no-details.no-viewer #details { right : calc(-1px - var(--width-details) - (2 * var(--border-h))); }

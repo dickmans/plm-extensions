@@ -14,13 +14,14 @@
 //  me merged with your custom settings before. This enables administrators to copy individual settings to be changed
 //  from settings.js to custom.js. When updates to settings.js will be provided, the custom settings will still remain
 // ---------------------------------------------------------------------------------------------------------------------------
-exports.tenant       = '';
-exports.clientId     = '';
-exports.redirectUri  = 'http://localhost:8080/callback';
-exports.defaultTheme = 'dark';
-exports.enableCache  = true;    
-exports.debugMode    = false;         // Enables printout of view configuration settings to console for debugging purposes (ie when using insertBOM, insertDetails, ...)
-exports.settings     = 'custom.js';   // This file must be stored in folder /settings
+exports.tenant          = '';
+exports.clientId        = '';
+exports.redirectUri     = 'http://localhost:8080/callback';
+exports.settings        = 'custom.js';   // This file must be stored in folder /settings
+exports.defaultTheme    = 'dark';
+exports.enableCache     = true;    // Enables / disables cache globally. When enabled, dedicated API call responses will be cached for better performance
+exports.debugMode       = false;   // Enables printout of view configuration settings to console for debugging purposes (ie when using insertBOM, insertDetails, ...)
+exports.fusionConnected = false;   // When UX Extensions will be used with Components provided by the Fusion connector, set this to true
 
 
 // ---------------------------------------------------------------------------------------------------------------------------
@@ -54,10 +55,11 @@ exports.vaultName    = '';
 //   - TENANT
 //   - CLIENT_ID
 //   - REDIRECT_URI
+//   - SETTINGS
 //   - DEFAULT_THEME
 //   - ENABLE_CACHE
-//   - SETTINGS
 //   - DEBUG_MODE
+//   - FUSION_CONNECTED
 //   - ADMIN_CLIENT_ID
 //   - ADMIN_CLIENT_SECRET
 //   - VAULT_GATEWAY

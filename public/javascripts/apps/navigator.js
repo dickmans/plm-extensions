@@ -2,8 +2,6 @@ let wsConfig        = { 'permissions' : { 'workflow' : false } };
 let links           = [];
 let fields          = [];
 let picklistsData   = [];
-let tableSettings   = {};
-let formSettings    = {};
 
 $(document).ready(function() {
     
@@ -15,18 +13,6 @@ $(document).ready(function() {
     insertMenu();
 
     $('#button-toggle-create').hide();
-
-    tableSettings = getPanelSettings('', { id : 'table'}, {}, [
-        ['editable'     , true  ],
-        ['hideLabels'   , true  ],
-        ['hideComputed' , false ]
-    ]);
-
-    formSettings = getPanelSettings('', { id : 'table'}, {}, [
-        ['editable'     , true  ],
-        ['hideLabels'   , false ],
-        ['hideComputed' , false ]
-    ]);
 
     if(wsId === '') {
         $('#main').hide();
@@ -154,6 +140,8 @@ function getInitialData() {
     ]
 
     Promise.all(requests).then(function(responses) {
+
+        console.log(responses);
 
         let name            = responses[0].data.name;
         let elemBtnCreate   = $('#button-toggle-create');
@@ -520,12 +508,6 @@ function setWorkspacesFields(elemTable) {
 
                                 fields.push(field);
 
-                                // console.log(field);
-
-                                // insertField(field, { 'sections': [{ 'fields' : fields }] }, $('#edit-fields'), true, true, true);
-                                // insertDetailsField(field, { 'sections': [{ 'fields' : fields }] }, $('#edit-fields'), false, formSettings);
-                                // insertField(fieldSettings, elemCell, field);
-
                             }
 
                         } else console.log('matrix');
@@ -721,8 +703,6 @@ function setTableauColumns(elemTable, tableauRecords) {
 
                 // let elemControl = insertField(fields[index], { 'sections': [{ 'fields' : tableauRecord.fields }] }, null, false, false, true, true);
 
-                // let elemControl = insertDetailsField(fields[index], { 'sections': [{ 'fields' : tableauRecord.fields }] }, null, false, tableSettings);
-
                 // if(typeof elemControl !== 'undefined') {
                 //     let fieldValue = getFieldValue(elemControl);
                 //     elemControl.appendTo(elemCell);
@@ -896,10 +876,13 @@ function setItemSummary(link) {
 
     $('body').removeClass('with-edit');
 
+    console.log('setItemSummary');
+
     insertItemSummary(link, {
-        id       : 'summary',
-        bookmark : true,
-        contents : [
+        id              : 'summary',
+        bookmark        : true,
+        summaryLayout   : 'tabs',
+        summaryContents : [
             { 
                 type        : 'details', 
                 params      : { 
@@ -931,7 +914,6 @@ function setItemSummary(link) {
         ],
         afterCloning    : function(id, link) { setTableau(); },
         cloneable       : true,
-        layout          : 'tabs',
         hideSubtitle    : true,
         openInPLM       : true,
         reload          : true,

@@ -22,9 +22,9 @@ a.button:hover {
 }
 .dark-theme a.button,
 .black-theme a.button {
-    background  : var(--color-blue-500);
-    border      : none;
-    color       : white;
+    background : var(--color-blue-500);
+    border     : none;
+    color      : white;
 }
 .dark-theme a.button:hover,
 .black-theme a.button:hover {
@@ -51,27 +51,27 @@ a.button:hover {
     color : var(--color-blue-500);
 }
 .nav-header::before {
-    font-family             : 'Material Symbols Sharp';
-    margin-right            : var(--spacer-xxs);
-    text-rendering          : optimizeLegibility;
-    -webkit-font-smoothing  : antialiased;
-    content                 : '\e5cf';
-    line-height             : 24px;
-    font-size               : 24px;
+    font-family            : 'Material Symbols Sharp';
+    margin-right           : var(--spacer-xxs);
+    text-rendering         : optimizeLegibility;
+    -webkit-font-smoothing : antialiased;
+    content                : '\e5cf';
+    line-height            : 24px;
+    font-size              : 24px;
 }
 .nav-header.collapsed::before {
-    content: '\e5cc';
+    content : '\e5cc';
 }
 .nav-description {
     padding-left : 28px;
 }
 .nav-contents {
-    display         : flex;
-    flex-direction  : column;
-    font-size       : 16px;
-    gap             : var(--spacer-xxs);
-    line-height     : 22px;
-    padding         : var(--spacer-xs) 0px 40px 0px;
+    display        : flex;
+    flex-direction : column;
+    font-size      : 16px;
+    gap            : var(--spacer-xxs);
+    line-height    : 22px;
+    padding        : var(--spacer-xs) 0px 40px 0px;
 }
 .nav-content {
     color       : var(--color-blue-500);
@@ -104,6 +104,8 @@ a.button:hover {
     padding-bottom : 18px;
 }
 
+#studio { margin-top : 8px; }
+
 #doc-contents {
     overflow-x : hidden;
 }
@@ -112,11 +114,11 @@ a.button:hover {
 }
 .definition {
     border-top : 2px solid var(--color-surface-level-5);
-    font-size : 16px;
-    padding : 20px 0px;
+    font-size  : 16px;
+    padding    : 20px 0px;
 }
 .path {
-    font-family     : 'Courier New', monospace;
+    font-family : 'Courier New', monospace;
     font-weight : bold;
 }
 .gallery {
@@ -126,8 +128,8 @@ a.button:hover {
     overflow-x  : auto;
 }
 .gallery img {
-    border-radius   : 10px;
-    height          : 160px;
+    border-radius : 10px;
+    height        : 160px;
 }
 .code {
     background      : var(--color-surface-level-4);

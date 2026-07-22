@@ -475,7 +475,7 @@ select#workspace {
     .filter > .label ,
     .filter > .property-name {
         background  : var(--color-surface-level-3);
-        line-height : 38px;
+        line-height : 34px;
         padding     : 0px 20px;
         text-align  : left;
     }

@@ -3,14 +3,7 @@ let wsConfigItems      = {};
 let bomCompleted       = 0;
 let partsListSourceBOM = [];
 let bomTypes           = [];
-let paramsDetails      = {
-    editable       : false,
-    openInPLM      : true,
-    bookmark       : true,
-    layout         : 'narrow',
-    headerLabel    : 'descriptor',
-    expandSections : ['Basic']
-}
+let paramsDetails      = {}
 
 let saveActions = {
     create : {
@@ -52,6 +45,8 @@ $(document).ready(function() {
 
     $('#header-title').html(config.appTitle);
 
+    paramsDetails = config.panels.itemDetails;
+
     let requests = [
         $.get('/plm/details'             , { link : urlParameters.link }),
         $.get('/plm/picklist'            , { link : '/api/v3/lookups/' + config.picklistIdItemType }),
@@ -66,41 +61,29 @@ $(document).ready(function() {
         setUIEvents();
         insertDetails(urlParameters.link, paramsDetails);
 
-        insertBrowser('browser', [{
-            label   : 'All Items', 
-            type    : 'views',
-            id      : 'browser-views',
-            wsId    : common.workspaceIds.items,
-            settings : { 
-                reload : true
+        insertBrowser({
+            id              : 'browser', 
+            browserContents : [{
+                type     : 'insertWorkspaceViews',
+                wsId     : common.workspaceIds.items,
+                settings : config.panels.insertAllItems
+            },{
+                type     : 'insertWorkspaceSearch',
+                wsId     : common.workspaceIds.items,
+                settings : config.panels.insertWorkspaceSearch
+            },{
+                type     : 'bookmarks',
+                settings : config.panels.insertBookmarks
+            },{
+                type     : 'insertRecentItems',
+                settings : config.panels.insertRecentItems
+            }], 
+            dragable  : true,
+            itemPanel : {
+                type     : 'details',
+                settings : paramsDetails
             }
-        },{
-            label   : 'Search', 
-            type    : 'search',
-            settings : {
-                id          : 'browser-search',
-                workspaceId : [ common.workspaceIds.items ],
-            }
-        },{
-            label    : 'Bookmarks', 
-            type     : 'bookmarks',
-            settings : {
-                reload       : true,
-                workspacesIn : [ common.workspaceIds.items ]
-            }
-        },{
-            label    : 'Recent', 
-            type     : 'recents',
-            settings : {
-                reload       : true,
-                workspacesIn : [ common.workspaceIds.items ]
-            }
-        }], {
-            enableDragging  : true,
-            enableDetails   : true,
-            settingsDetails : paramsDetails
         });
-
     });
 
 });
@@ -274,7 +257,10 @@ function initEditor(responses) {
 
     } else {
 
-        insertViewer(links.sourceBOM); 
+        insertViewer(links.sourceBOM, { 
+            features        : config.viewerFeatures,
+            afterCompletion : function(id) { initEditorViewerDone(id); }
+         } ); 
 
         insertBOM(links.sourceBOM, {
             collapseContents   : false,
@@ -710,6 +696,12 @@ function updateItemListPosNumbers(elemParent) {
         });
 
     }
+
+}
+function initEditorViewerDone(id) {
+
+    $('#' + id + '-processing').removeClass('mode-ebom');
+    $('#' + id + '-message'   ).removeClass('mode-ebom');
 
 }
 

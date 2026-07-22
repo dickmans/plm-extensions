@@ -85,10 +85,10 @@ body.no-attachments #attachments { bottom : calc(0px - var(--height-files) - (2 
 }
 
 #search-search-content-input {
-    background  : var(--color-surface-level-1);
-    border-top  : none;
+    /* background  : var(--color-surface-level-1); */
+    /* border-top  : none; */
     flex-grow   : 1;
-    line-height : 38px;
-    height      : 38px;
-    text-align  : center;
+    /* line-height : 38px; */
+    /* height      : 38px; */
+    /* text-align  : center; */
 }

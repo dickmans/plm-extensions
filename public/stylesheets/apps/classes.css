@@ -82,6 +82,7 @@
     justify-content: center;;
 }
 
+#classes-search { flex-grow : 1; max-width : unset; }
 .addin #classes-search-input { min-width : 68px; }
 
 
@@ -91,7 +92,7 @@
     padding-top : 4px;
 }
 #filters select {
-    height        : 38px;
+    height        : 34px;
     padding-right : 10px;
     padding-left  : 10px;
     text-align    : left;
@@ -110,7 +111,7 @@
 .class-filter-property {
     background    : var(--color-surface-level-3);
     flex-grow     : 1;
-    line-height   : 38px;
+    line-height   : 34px;
     padding       : 0px 6px 0px 14px;
     overflow      : hidden;
     text-overflow : ellipsis;
@@ -229,7 +230,7 @@
 }
 .content-column-descriptor,
 .list-column-descriptor {
-    left      : 40px;
+    /* left      : 40px; */
     max-width : 220px;
     position  : sticky;
 }

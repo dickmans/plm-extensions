@@ -1,54 +1,4 @@
-let maxRequests = 5;
-
-let paramsSummary = {
-    id       : 'details',
-    contents : [ { 
-        type   : 'details', 
-        params : {
-            id               : 'details-details', 
-            collapseContents : true, 
-            hideHeader       : true,
-            layout           : 'narrow'
-        }
-    },{
-        type   : 'attachments',
-        params : { 
-            id               : 'details-attachments', 
-            contentSize      : 's',
-            editable         : true, 
-            reload           : true, 
-            uploadScreenshot : true, 
-            singleToolbar    : 'controls'
-        }
-    }],
-    layout           : 'tabs',
-    hideSubtitle     : true,
-    hideCloseButton  : true,
-    openInPLM        : true,
-    bookmark         : true,
-    saveTabSelection : true
-}
-let paramsoperationsSourcing = {
-    id               : 'operations-sourcing',
-    headerLabel      : 'Suppliers',
-    reload           : true,
-    openInPLM        : true,
-    layout           : 'table',
-    contentSize      : 'm',
-    fieldsEx         : ['Manufacturer Part Number']
-}
-let paramsoperationsGrid = {
-    id               : 'operations-grid',
-    headerLabel      : 'List of Operations',
-    editable         : true,
-    hideButtonLabels : true,
-    reload           : true,
-    multiSelect      : true,
-    openInPLM        : true,
-    useCache         : true,
-    singleToolbar    : 'controls'
-}
-
+let maxRequests        = 5;
 let ebomPartsList      = [];
 let mbomPartsList      = [];
 let templatePartsList  = [];
@@ -66,6 +16,9 @@ let siteSuffix         = '';
 let siteLabel          = '';
 let effectiveDate      = '';
 let revisionBias       = '';
+let paramsSummary      = {}
+let paramsSourcing     = {}
+let paramsGrid         = {}
 
 let pendingActions, pendingRemovals;
 
@@ -84,6 +37,14 @@ $(document).ready(function() {
     wsEBOM.wsId = config.workspaceEBOM.workspaceId || common.workspaceIds.items
     wsMBOM.wsId = config.workspaceMBOM.workspaceId || common.workspaceIds.items;
     links.start = urlParameters.link;
+
+    paramsSummary  = config.panels.itemDetailsPanel;
+    paramsSourcing = config.panels.listSuppliers;
+    paramsGrid     = config.panels.listOperations;
+
+    paramsSummary.id  = 'details';
+    paramsSourcing.id = 'operations-sourcing';
+    paramsGrid.id     = 'operations-grid';
 
     appendProcessing('ebom', false);
     appendProcessing('mbom', false);
@@ -822,8 +783,8 @@ function initEditor() {
     insertMBOMNode($('#mbom-tree'), 0, false);
 
     if(config.displayOptions.tabOperations) {
-        insertSourcing(links.mbom, paramsoperationsSourcing);
-        insertGrid(links.mbom, paramsoperationsGrid );
+        insertSourcing(links.mbom, paramsSourcing);
+        insertGrid(links.mbom, paramsGrid );
     }
 
     $('#mbom-tree').find('.item-head').first().attr('id', 'mbom-root-head');
@@ -890,8 +851,8 @@ function editorResetSelection() {
     insertItemSummary(links.mbom, paramsSummary);
 
     if(config.displayOptions.tabOperations) {
-        insertSourcing(links.mbom, paramsoperationsSourcing);
-        insertGrid(links.mbom, paramsoperationsGrid );
+        insertSourcing(links.mbom, paramsSourcing);
+        insertGrid(links.mbom, paramsGrid );
     } 
 
 }
@@ -2506,8 +2467,8 @@ function insertMBOMSelectEvent(elemItem) {
         e.preventDefault();
         selectBOMItem($(this), false);
         if(config.displayOptions.tabOperations) {
-            insertSourcing(elemItem.attr('data-link'), paramsoperationsSourcing);
-            insertGrid(elemItem.attr('data-link') , paramsoperationsGrid );
+            insertSourcing(elemItem.attr('data-link'), paramsSourcing);
+            insertGrid(elemItem.attr('data-link') , paramsGrid );
         }
     });
 
@@ -2671,8 +2632,8 @@ function selectProcess(elemClicked) {
             insertItemSummary(itemLink, paramsSummary);
 
             if(config.displayOptions.tabOperations) {
-                insertSourcing(itemLink, paramsoperationsSourcing);
-                insertGrid(itemLink, paramsoperationsGrid );
+                insertSourcing(itemLink, paramsSourcing);
+                insertGrid(itemLink, paramsGrid );
             }    
 
         }        
@@ -2775,8 +2736,8 @@ function selectItem(elemItem, filter) {
                     if(!filter) {
                         selectAdjacentMBOMModels();
                         if(config.displayOptions.tabOperations) {
-                            insertSourcing(elemItem.attr('data-link'), paramsoperationsSourcing);
-                            insertGrid(elemItem.attr('data-link') , paramsoperationsGrid );
+                            insertSourcing(elemItem.attr('data-link'), paramsSourcing);
+                            insertGrid(elemItem.attr('data-link') , paramsGrid );
                         }
                     }
                 } else {

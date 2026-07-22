@@ -3,12 +3,12 @@ $(document).ready(function() {
     setUIEvents();
 
     insertItemSummary(urlParameters.link, {
-        id         : 'item',
-        bookmark   : true,
-        layout     : 'tabs',
-        openInPLM  : true,
-        reload     : true,
-        contents   : [{ 
+        id              : 'item',
+        bookmark        : true,
+        openInPLM       : true,
+        reload          : true,
+        summaryLayout   : 'tabs',
+        summaryContents : [{ 
             type   : 'parents', 
             params : { 
                 id                : 'parents',

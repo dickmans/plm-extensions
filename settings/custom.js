@@ -34,6 +34,7 @@ exports.common = {
         items                        : 57,
         nonConformances              : 98,
         problemReports               : 82,
+        requirements                 : 143,
 
         // Products & Projects Workspaces
         products               : 95,
@@ -47,10 +48,13 @@ exports.common = {
         // Asset Management Workspaces
         orderProjects          : 283,
         orderProjectDeliveries : 279,
+        equipments             : 280,
+        equipmentServices      : 284,
+        serialNumbers          : 277,
+        serializedItems        : 282,
         assets                 : 280,
         assetItems             : 282,
         assetServices          : 284,
-        serialNumbers          : 277,
 
     },
 
@@ -65,6 +69,7 @@ exports.common = {
         numberProperties   : ['Part Number', 'Name', 'label', 'Artikelnummer', 'Bauteilnummer'],
         suffixPrimaryFile  : ['.iam.dwf', '.iam.dwfx', '.ipt.dwf', '.ipt.dwfx'],
         extensionsIncluded : ['dwf', 'dwfx', 'nwd', 'ipt', 'stp', 'step', 'sldprt', 'pdf'],
+        standardFeatures   : {}
     }
 
 }
@@ -89,6 +94,7 @@ exports.applications = {
     compare        : {},
     configurator   : {},
     dashboard      : {},
+    editor         : {},
     explorer       : {},
     impactanalysis : {},
     insights       : {},
@@ -97,6 +103,7 @@ exports.applications = {
         //     workspaceId : 308
         // }]
     },
+    matrix         : {},
     mbom           : {
         // workspaceEBOM : {
         //     workspaceId : null, // uses common.workspaceIds.items per default
@@ -106,11 +113,16 @@ exports.applications = {
         // }
     },
     portal         : {
-        // downloadPatterns : [{
-        //     fields    : ['NUMBER', 'PDM_ITEM_REVISION'],
-        //     separator : ' ',
-        //     label     : 'Number PDM-Revision'
-        // }]        
+        // panels : {
+        //     insertSearch      : {},
+        //     insertRecentItems : {},
+        //     insertBOM         : {},
+        //     insertDetails     : {},
+        //     insertDetails     : {},
+        // },
+        // viewerFeatures  : {
+        //     contextMenu : false
+        // }   
     },
     portfolio      : {},
     projects       : {},
@@ -123,6 +135,7 @@ exports.applications = {
             // workspaceId : 571,
         // }
     },
+    worklist       : {},
     addins : {}
 
 }

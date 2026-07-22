@@ -304,6 +304,45 @@
                     td true
                     td -
                     td -
+        h1 Configuring Panels 
+        p The application uses multiple configurable user interface panals as listed below. You can adjust these panels with the common framework's capabilities. Use the 
+            strong Panel Configuration Studio 
+            |to explore available configuration settings for each panel type. Once you adjusted the panel to your preferences in the studio, you can copy the matching JSON configuration output to your settings file.
+            br
+            a(href='studio' target='_blank' style='margin:10px 0px') Launch the Panel Configuration Studio
+        table.row-hovering
+            tr
+                th Property 
+                th Descripton
+                th Panel Type
+            tr 
+                td panels.itemDetails
+                td Drives the Details panel on the right side of the screen that can be toggled on / off
+                td insertDetails
+            tr 
+                td panels.insertAllItems
+                td Configues the tab 
+                    strong All Items 
+                    |when inserting items from Library
+                td insertWorkspaceViews
+            tr 
+                td panels.insertWorkspaceSearch
+                td Configues the tab 
+                    strong Search 
+                    |when inserting items from Library
+                td insertWorkspaceSearch
+            tr 
+                td panels.insertRecentItems
+                td Configues the tab 
+                    strong Recents 
+                    |when inserting items from Library
+                td insertRecentItems
+            tr 
+                td panels.insertBookmarks
+                td Configues the tab 
+                    strong Bookmarks 
+                    |when inserting items from Library
+                td insertBookmarks
         h1 Common Configuration Settings
         p This utility also uses the following common configuration settings
         table(style='margin:10px 0px 30px')
@@ -319,7 +358,17 @@
         include ../framework/viewer.pug
     .log 
         h1 Service BOM Editor Change Log 
-        table 
+        table.row-hovering
+            tr 
+                td 20. July 2026
+                td Enhancement
+                td Enhanced configurability with introduction of consistent panel settings in alignment with new 
+                    strong Panel Configuration Studio
+                    |. Documenation got updated accordingly.        
+            tr 
+                td 
+                td Bugfix
+                td Fixed layout issues when toggling panels and insert modes
             tr 
                 td 12. January 2026
                 td Documentation

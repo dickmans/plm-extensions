@@ -1102,6 +1102,9 @@ function processSystemLog(response) {
                 case 'Delete Relationship':
                 case 'Release item':
                 case 'Edit Project Item':
+                case 'Add Sourcing Supplier':
+                case 'Add Sourcing Quotes':
+                case 'Edit Sourcing Supplier':
                     addUserActivity(2, userName, eventDate);
                     addWorkspaceEdit(event, eventDate, 1);
                     addEventLog(event, date);

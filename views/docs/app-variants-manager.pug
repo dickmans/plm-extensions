@@ -358,6 +358,25 @@
                 td maxBOMLevels
                 td 4
                 td This integer defines the maximum BOM levels to be expanded in the Variant Manager
+        h1 Configuring Panels 
+        p The application uses multiple configurable user interface panals as listed below. You can adjust these panels with the common framework's capabilities. Use the 
+            strong Panel Configuration Studio 
+            |to explore available configuration settings for each panel type. Once you adjusted the panel to your preferences in the studio, you can copy the matching JSON configuration output to your settings file.
+            br
+            a(href='studio' target='_blank' style='margin:10px 0px') Launch the Panel Configuration Studio
+        table.row-hovering
+            tr
+                th Property 
+                th Descripton
+                th Panel Type
+            tr 
+                td panels.createVariant
+                td Configures the creation dialog of new variants (accessible by the default action button in the header toolbar)
+                td insertCreate
+            tr 
+                td panels.itemSummary
+                td Drives the details panel on the right hand side which can be toggled on / off
+                td insertItemSummary
         h1 Common Configuration Settings
         p This utility uses the following common configuration settings
         table(style='margin:10px 0px 30px')

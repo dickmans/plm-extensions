@@ -53,6 +53,7 @@ exports.common = {
         items                        : 57,
         nonConformances              : 98,
         problemReports               : 82,
+        requirements                 : 143,
 
         // Products & Projects Workspaces
         products               : 95,
@@ -63,13 +64,16 @@ exports.common = {
         sparePartsRequests     : 241,
         supplierPackages       : 147,
 
-        // Asset Management Workspaces
+        // Equipment Lifecycle Management Workspaces
         orderProjects          : 283,
         orderProjectDeliveries : 279,
+        equipments             : 280,
+        equipmentServices      : 284,
+        serialNumbers          : 277,
+        serializedItems        : 282,
         assets                 : 280,
         assetItems             : 282,
         assetServices          : 284,
-        serialNumbers          : 277,
 
     },
 
@@ -97,7 +101,30 @@ exports.common = {
         groundShadow           : true,
         lightPreset            : 4,
         conversionAttempts     : 10,
-        conversionDelay        : 3000
+        conversionDelay        : 3000,
+        standardFeatures       : {
+            contextMenu   : false,
+            cube          : false,
+            orbit         : false,
+            firstPerson   : false,
+            camera        : false,
+            measure       : true,
+            section       : true,
+            explodedView  : true,
+            modelBrowser  : false,
+            properties    : false,
+            settings      : false,
+            fullscreen    : true,
+            markup        : false,
+            hide          : true,
+            ghosting      : true,
+            highlight     : true,
+            single        : true,
+            fitToView     : true,
+            reset         : true,
+            views         : false,
+            selectFile    : true
+        }
     }
 
 }
@@ -203,13 +230,19 @@ exports.applications = {
                 path              : true,
                 openInPLM         : true,
             },   
-            insertDetailsLeft : {
-                layout         : 'narrow',
-                expandSections : ['Basic']
+            insertDetailsLeft  : {
+                expandSections : ['Basic'],
+                contentSize    : 'xs',
+                narrowPanel    : true,
+                openInPLM      : true,
+                toggles        : true,
             },
             insertDetailsRight : {
-                layout         : 'narrow',
-                expandSections : ['Basic']
+                expandSections : ['Basic'],
+                contentSize    : 'xs',
+                narrowPanel    : true,
+                openInPLM      : true,
+                toggles        : true,
             },                     
             insertSearch : {
                 headerLabel : 'Select BOM for Comparison',
@@ -235,25 +268,8 @@ exports.applications = {
             }
         },
         viewerFeatures : {
-            contextMenu  : false,
-            cube         : false,
-            orbit        : false,
-            firstPerson  : false,
-            camera       : false,
-            measure      : true,
-            section      : true,
-            explodedView : true,
-            modelBrowser : false,
-            properties   : false,
             settings     : false,
             fullscreen   : false,
-            markup       : false,
-            hide         : true,
-            ghosting     : true,
-            highlight    : true,
-            single       : true,
-            fitToView    : true,
-            reset        : true,
             views        : true,
             selectFile   : false
         }
@@ -274,7 +290,8 @@ exports.applications = {
         valueOptional             : 'Optional'
     },
 
-    dashboard : [{
+    dashboard : [
+      { // Problem Reports
         title      : 'Problem Reporting Dashboard',
         workspace  : 'problemReports',
         newHeader  : 'Create new Problem Report',
@@ -284,7 +301,7 @@ exports.applications = {
             { type : 'workflow-history', params : { id : 'workflow-history' } },
             { type : 'details'         , params : { id : 'details', collapseContents : true, editable : true, toggles : true, singleToolbar : 'controls' } },
             { type : 'markup'          , params : { id : 'markup', fieldIdViewable : 'AFFECTED_ITEM', markupsImageFieldsPrefix : 'IMAGE_' } },
-            { type : 'project'         , params : { id : 'project', createViewerImageFields : ['IMAGE_1'] , headerLabel : 'Tasks', editable : true, singleToolbar : 'controls', openInPLM : true, openOnDblClick : false, multiSelect : false, createWorkspaceIds : ['80'], createHeaderLabel : 'New Task'} },
+            { type : 'project'         , params : { id : 'project', createViewerImageFields : ['IMAGE_1'] , headerLabel : 'Tasks', editable : true, singleToolbar : 'controls', openInPLM : true, openOnDblClick : false, multiSelect : false, createWorkspaceIds : ['80'], createHeaderLabel : 'New Task', disconnectButtonLabel : ''} },
             { type : 'attachments'     , params : { id : 'attachments', editable : true, headerLabel : 'Files', singleToolbar : 'controls', layout : 'list', tileSize : 'xs' } }
         ],
         icon            : 'icon-problem',
@@ -295,7 +312,7 @@ exports.applications = {
             { label : 'Improvement', color : 'yellow', states : ['CAPA in progress', 'Change Request in progress'] },
             { label : 'Completed',   color : 'green',  states : ['Completed'] }
         ]
-    },{
+    },{ // Change Requests
         title     : 'Change Requests Management',
         workspace : 'changeRequests',
         className : 'change-request',
@@ -312,7 +329,7 @@ exports.applications = {
             { label : 'In Work',     color : 'yellow', states : ['Change Order in progress']   },
             { label : 'Completed',   color : 'green',  states : ['Completed'] }
         ]
-    },{
+    },{ // Change Orders
         title     : 'Change Orders Dashboard',
         workspace : 'changeOrders',
         newHeader  : 'Create new Change Order',
@@ -333,7 +350,7 @@ exports.applications = {
             { label : 'Acknowledgement', color : 'green' , states : ['Released'] },
             { label : 'Completed'      , color : 'green' , states : ['Implemented'] }
         ]
-    },{
+    },{ // Change Tasks
         title     : 'Change Tasks Dashboard',
         workspace : 'changeTasks',
         className : 'change-task',
@@ -352,7 +369,7 @@ exports.applications = {
             { label : 'Owner Review', color : 'green',  states : ['On Hold', 'Review']},
             { label : 'Done',         color : '#000000',     states : ['Completed']}
         ]
-    },{
+    },{ // Non Conformances
         title     : 'Non Conformances Tracking Dashboard',
         workspace : 'nonConformances',
         className : 'non-conformance',
@@ -370,7 +387,7 @@ exports.applications = {
             { label : 'Improvement', color : 'yellow', states : ['Disposition In Progress', 'CAPA In Progress'] },
             { label : 'Closed',      color : 'green',  states : ['Closed'] }
         ]
-    },{
+    },{ // Project Tasks
         title     : 'Project Tasks Management',
         workspace : 'projectTasks',
         className : 'project-task',
@@ -389,7 +406,7 @@ exports.applications = {
             { label : 'Review',      color : 'green',  states : ['Review']    },
             { label : 'Completed',   color : 'green',  states : ['Completed'] }
         ]
-    },{
+    },{ // Supplier Packages
         title     : 'Supplier Collaboration Platform',
         workspace : 'supplierPackages',
         className : 'supplier-package',
@@ -405,6 +422,115 @@ exports.applications = {
             { label : 'Completed',     color : 'green',   states : ['Completed'] }
         ]
     }],
+
+    editor : {
+        requirements : {
+            labels : {
+                appTitle    : 'Requirements Editor',
+                newTitle    : 'New Requirements Structure Creation',
+                addExisting : 'Add From Library'
+            },
+            wsMain   : {
+                workspaceId      : null,   // uses common.workspaceIds.requirements per default
+                workspaceName    : 'Requirements',
+                bomViewName      : 'Editor',  // This view must contain all fields listed in the next settings (copyFromTemplate, advancedFields, itemsLocked, itemsReused)
+                copyFromTemplate : [ 'TITLE', 'DESCRIPTION' ],
+                advancedFieldIds : [ 'MATERIAL_COST', 'TOOLING_COST', 'EFFORT', 'TEST_PROCEDURE', 'EXPECTED_RESULT', 'SUCCESS_CRITERIA' ],
+                itemsLocked      : { fieldId : 'LIBRARY_REQUIREMENT', value : 'true', title : 'Library requirements are locked' },
+                itemsReused      : { fieldId : 'REUSED', value : 'true', title : 'This requirement is referenced by other requirements as well' },
+                newDefaultValues : [
+                    [ 'TYPE', { link : '/api/v3/lookups/CUSTOM_LOOKUP_REQUIREMENT_TYPES/options/34' } ],
+                ]
+            },
+            wsContexts : [{
+                workspace : 'products', // uses common.workspaceIds.products per default,
+                fieldIds  : {
+                    link  : 'REQUIREMENTS',  // Field in context workspaces referencing the Requirements Structure
+                    title : 'DESCRIPTOR'     // Title field being used as default title for the new root element
+                }
+            },{
+                workspace : 'equipments', // uses common.workspaceIds.equipments per default,
+                fieldIds  : {
+                    link  : 'REQUIREMENT_SPECIFICATION',  // Field in context workspaces referencing the Requirements Structure
+                    title : 'TITLE'    // Title field being used as default title for the new root element
+                }
+            }],
+            panels : {
+                insertTemplates     : { // Uses insertResults to show the list of available templates when creating a new structure
+                    contentSize     : 'xs',
+                    layout          : 'grid',
+                    tileIcon        : 'icon-template',
+                    hideHeader      : true,
+                    useCache        : true,
+                    filters         : [{
+                        field       : 'TYPE', 
+                        type        : '0',
+                        comparator  : 'is',
+                        value       : 'Template'
+                    }]
+                },
+                insertBOM           : { // Inserts the tree navigation to the left
+                    headerLabel     : 'Navigator',
+                    fieldsIn        : ['Title'],
+                    contentSize     : 's',
+                    pathTitle       : 'dynamic',
+                    hideTreeHeader  : true,
+                    hideDescriptor  : true,
+                    search          : true,
+                    toggles         : true,
+                    openInPLM       : true,
+                    path            : true
+                },
+                insertDetails       : { // Displays selected item's details in side panel
+                    headerLabel     : 'descriptor',
+                    expandSections  : ['Basic','KPIs & Latest Validation'],
+                    singleToolbar   : 'actions',
+                    contentSize     : 's',
+                    toggles         : true,
+                    editable        : true,
+                    narrowPanel     : true,
+                    expandSections  : [ 'Assessment', 'Cost & Effort' ],
+                    sectionsIn      : [ 'Basic', 'Details', 'Assessment', 'Cost & Effort' ]
+                },
+                insertAttachments   : { // Displays selected item's attachments in side panel
+                    headerLabel     : 'descriptor',
+                    singleToolbar   : 'controls',
+                    contentSize     : 's',
+                    filterByType    : true,
+                    editable        : true,
+                },
+                insertRelationships : { // Displays selected item's relationships in side panel
+                    headerLabel     : 'descriptor',
+                    singleToolbar   : 'controls',
+                    contentSize     : 's',
+                    filterByType    : true,
+                },
+                insertChangeLog     : { // Displays selected item's change log in side panel
+                    headerLabel     : 'descriptor',
+                    singleToolbar   : 'controls',
+                    contentSize     : 's',
+                    filterByType    : true,
+                },
+                insertWorkspaceSearch : { // Defines Search panel when adding entries from the library
+                    tileIcon           : 'icon-problem',
+                    openSelectedInPLM  : true,
+                    searchLatestOnly   : true,
+                    searchReleasedOnly : true,
+                },
+                insertWorkspaceViews  : { // Defines Workspace Views panel when adding entries from the library
+                    openSelectedInPLM  : true,
+                },                
+                insertBookmarks       : { // Defines Bookmarks panel when adding entries from the library
+                    contentSize        : 'xs',
+                    openSelectedInPLM  : true,
+                },
+                insertRecentItems     : { // Defines Recently Viewed panel when adding entries from the library
+                    contentSize        : 'xs',
+                    openSelectedInPLM  : true,
+                }
+            }
+        }
+    },
 
     explorer : {
         workspaces : {
@@ -572,27 +698,7 @@ exports.applications = {
             ]},
         ],
         viewerFeatures: {
-            contextMenu   : true,
-            cube          : false,
-            orbit         : false,
-            firstPerson   : false,
-            camera        : false,
-            measure       : true,
-            section       : true,
-            explodedView  : true,
-            modelBrowser  : false,
-            properties    : false,
-            settings      : false,
-            fullscreen    : true,
-            markup        : true,
-            hide          : true,
-            ghosting      : true,
-            highlight     : true,
-            single        : true,
-            fitToView     : true,
-            reset         : true,
-            views         : true,
-            selectFile    : true
+            views : true,
         }
     },
 
@@ -778,6 +884,33 @@ exports.applications = {
         }
     },
 
+    matrix : {
+        title : 'Requirements Validation Dashboard',
+        wsContext : {
+            fieldIdTree    : 'REQUIREMENTS',
+            fieldIdColumns : 'REQUIREMENT_VALIDATIONS'
+        },
+        valueMapping : {
+            failed  : 'Failed',
+            pending : 'Pending',
+            success : 'Success',
+            partial : 'Conditional Success'
+        },
+        panels : {
+            insertBOM : {
+                counters : true,
+                search   : true,
+                path     : true,
+                toggles  : true,
+            },
+            insertDetails : {
+                headerLabel    : 'descriptor',
+                expandSections : ['Basic'],
+                bookmark       : true,
+            }
+        }
+    },
+
     mbom : {
         workspaceEBOM : {
             workspaceId : null, // uses common.workspaceIds.items per default
@@ -838,11 +971,11 @@ exports.applications = {
                 search      : true
             },
             paramsPreview : {
-                bomViewName : 'MBOM Transition',      
-                headerLabel : 'descriptor',
-                contentSize : 'xs', 
-                fieldsIn    : ['PROCESS_CODE', 'QUANTITY'],
-                hideNumber  : true,
+                bomViewName    : 'MBOM Transition',      
+                headerLabel    : 'descriptor',
+                contentSize    : 'xs', 
+                fieldsIn       : ['PROCESS_CODE', 'QUANTITY'],
+                hideTreeNumber : true,
             }
         },
         newProcessDefaults : [ 
@@ -855,7 +988,6 @@ exports.applications = {
         labelInsertNode       : 'Add Process',
         pinEBOMItemsInMBOM    : true,
         suffixMBOMNumber      : '-M',
-
         predefinedSearchesInAddItems : [
             { title : 'Purchased Parts', fieldId : 'MAKE_OR_BUY', value : 'Buy'       },
             { title : 'Packaging Parts', fieldId : 'TYPE'       , value : 'Packaging' },
@@ -869,28 +1001,57 @@ exports.applications = {
             tabDisassemble   : true,
             tabOperations    : true,
             excelExport      : true
-        },        
+        },
+        panels : {
+            itemDetailsPanel : {  // Based on insertItemSummary
+                summaryLayout   : 'tabs',
+                summaryContents : [ { 
+                    type   : 'details', 
+                    params : {
+                        id               : 'details-details', 
+                        collapseContents : true, 
+                        hideHeader       : true,
+                        layout           : 'narrow'
+                    }
+                },{
+                    type   : 'attachments',
+                    params : { 
+                        id               : 'details-attachments', 
+                        contentSize      : 's',
+                        editable         : true, 
+                        reload           : true, 
+                        uploadScreenshot : true, 
+                        singleToolbar    : 'controls'
+                    }
+                }],
+                hideSubtitle     : true,
+                hideCloseButton  : true,
+                openInPLM        : true,
+                bookmark         : true,
+                saveTabSelection : true
+            },
+            listSuppliers : { // Based on insertSourcing
+                headerLabel : 'Suppliers',
+                reload      : true,
+                openInPLM   : true,
+                layout      : 'table',
+                fieldsEx    : [ 'Manufacturer Part Number' ]
+            },
+            listOperations : { // Based on insertGrid
+                headerLabel      : 'List of Operations',
+                editable         : true,
+                hideButtonLabels : true,
+                reload           : true,
+                multiSelect      : true,
+                openInPLM        : true,
+                useCache         : true,
+                singleToolbar    : 'controls'                
+            }
+        },
         viewerFeatures : {
-            contextMenu   : false,
-            cube          : false,
-            orbit         : false,
-            firstPerson   : false,
-            camera        : false,
-            measure       : true,
-            section       : true,
-            explodedView  : true,
-            modelBrowser  : false,
-            properties    : false,
-            settings      : false,
-            fullscreen    : true,
             markup        : true,
-            hide          : true,
-            ghosting      : true,
             highlight     : false,
-            single        : true,
-            fitToView     : true,
-            reset         : true,
-            views         : true,
+            views         : false,
             selectFile    : true
         }
     },
@@ -919,15 +1080,14 @@ exports.applications = {
             },
             insertBOM : {
                 bomViewName       : null,  // uses common.workspaces.items.defaultBOMView per default
-                contentSizes      : ['m', 'l', 'xl', 'xs', 's'],
                 tableColumnsLimit : 1,
+                counters          : true,
                 depth             : 10,
-                openInPLM         : true,
-                toggles           : true,
+                openSelectedInPLM : true,
                 reload            : false,
                 search            : true,
-                path              : true,
-                counters          : true,
+                toggles           : true,
+                treePath          : true,
                 useCache          : true,
                 downloadFiles     : true,
                 downloadRequests  : 5,
@@ -988,9 +1148,33 @@ exports.applications = {
     },  
 
     portfolio : {
-        hierarchy        : ['Product Categories', 'Product Lines', 'Products'],
-        bomLevels        : 10,
-        sharedCache      : 'Employees',
+        hierarchy   : ['Product Categories', 'Product Lines', 'Products'],
+        sharedCache : 'Employees',
+        panels      : {
+            insertDetails    : {
+                hideSections : true, 
+                sectionsIn   : [ 'Specification' ], 
+                headerLabel  : 'Technical Specification' 
+            },
+            insertGrid    : {
+                headerLabel : 'Variants',
+                fieldsIn    : ['Title', 'Region', 'SKU', 'Target Launch']
+            },
+            insertAttachments : {
+                contentSize   : 'xs' , 
+                editable      : false, 
+                singleToolbar : 'controls'
+            },
+            insertBOM : {
+                bomViewName      : null,              
+                collapseContents : true, 
+                hideTreeHeader   : true,
+                hideTreeColumns  : true,
+                search           : true,
+                singleToolbar    : 'actions',
+                toggles          : true
+            }
+        },
         viewerFeatures   : {
             contextMenu  : false,
             cube         : false,
@@ -1136,91 +1320,234 @@ exports.applications = {
             basePosNumber : 301
         }],
         enableBOMPin : false,
+        panels : {
+            itemDetails : { // Based on insertDetails
+                headerLabel    : 'descriptor',
+                expandSections : ['Basic'],
+                narrowPanel    : true,
+                editable       : false,
+                openInPLM      : true,
+                bookmark       : true,
+            },
+            insertAllItems        : { headerLabel : 'All Items' },
+            insertWorkspaceSearch : { headerLabel : 'Search'    },
+            insertRecentItems     : { headerLabel : 'Recents'   },
+            insertBookmarks       : {                           }
+        },
         viewerFeatures : {
-            contextMenu   : false,
-            cube          : false,
-            orbit         : false,
-            firstPerson   : false,
-            camera        : false,
-            measure       : true,
-            section       : true,
-            explodedView  : true,
-            modelBrowser  : false,
-            properties    : false,
-            settings      : false,
-            fullscreen    : true,
-            markup        : false,
-            hide          : true,
-            ghosting      : true,
-            highlight     : true,
-            single        : true,
-            fitToView     : true,
-            reset         : true,
-            views         : true,
-            selectFile    : false
+            views      : true,
+            selectFile : false
         }
     },
 
     service : {
-        labels : {
-            homeSparePartRequests : 'Spare Part Requests',
-            homeProblemReports    : 'Problem Reports'
+        workspaceIds : {
+            products           : null,   // uses match in common.workspaceIds per default
+            sparePartsRequests : null,   // uses match in common.workspaceIds per default
+            problemReports     : null,   // uses match in common.workspaceIds per default
+            orderProjects      : null,   // uses match in common.workspaceIds per default
+            equipments         : null,   // uses match in common.workspaceIds per default
+            equipmentServices  : null,   // uses match in common.workspaceIds per default
         },
-        products : {
-            workspaceId  : null,   // uses common.workspaceIds per default
-            headerLabel  : 'Serviceable Products',
-            icon         : 'icon-product',
-            groupBy      : 'PRODUCT_LINE',
-            contentSize  : 'l',
-            tileImage    : true,
-            tileImageFieldId : 'IMAGE',
-            tileTitle    : 'TITLE',
-            tileSubtitle : 'DESCRIPTION',
-            filter       : [{
-                field      : 'ENGINEERING_BOM',
-                type       : 0,
-                comparator : 21,
-                value      : ''
-            }],
-            fieldIDs : {
+        fieldIds : {
+            products : {
                 ebom : 'ENGINEERING_BOM',
                 sbom : 'SERVICE_BOM'
-            }           
-        },
+            },
+            problemReports : {
+                image : 'IMAGE_1'
+            },
+            serialNumbers : {
+                partNumber   : 'NUMBER',
+                path         : 'LOCATION',
+                instanceId   : 'INSTANCE_ID',
+                instancePath : 'INSTANCE_PATH'
+            },
+        },        
         items : {
-            bomViewName           : 'Service',
-            bomRevisionBias       : 'release',
             fieldIdSparePart      : 'SPARE_WEAR_PART',
             fieldValuesSparePart  : ['spare part', 'yes', 'x', 'y', 'wear part'],
             endItemFilter         : { fieldId : 'SBOM_END_ITEM', value : true },
             sparePartTileTitle    : 'NUMBER',
             sparePartTileSubtitle : 'TITLE',
-        },       
-        sparePartsRequests : {
-            workspaceId         : null,   // uses common.workspaceIds per default
-            sectionsExpanded    : [ 'Requestor Contact Details', 'Request Details' ],
-            sectionsExcluded    : [ 'Planning & Tracking', 'Request Confirmation', 'Quote Submission & Response', 'Real Time KPIs', 'Workflow Activity', 'Quote Summary', 'Order Processing', 'Related Processes' ],
-            gridColumnsExcluded : [ 'Line Item Cost', 'Availability [%]', 'Manufacturer', 'Manufacturer P/N', 'Unit Cost', 'Total Cost', 'Make or Buy', 'Lead Time (w)', 'Long Lead Time'],
-            stateColors         : [
-                { color : '#faa21b', states : ['Received']                            , label : 'New'      },
-                { color : '#dd2222', states : ['Awaiting Response', 'Quote Submitted'], label : 'TODO'     },
-                { color : '#faa21b', states : ['Order in process', 'Shipment']        , label : 'Shipment' },
-                { color : '#6a9728', state  : 'Completed'                             , label : 'Complete' }
-            ],
         },
-        problemReports : {
-            workspaceId        : null,   // uses common.workspaceIds per default
-            fieldIdImage       : 'IMAGE_1',
-            transitionOnCreate : 'SUBMIT',
-            sectionsExpanded   : ['Header', 'Details'],
-            sectionsExcluded   : [],
-            stateColors  : [
-                { color : '#222222', state  : 'Create'                                           , label : 'New'      },
-                { color : '#faa21b', states : ['Review','Technical Analysis']                    , label : 'Review'   },
-                { color : '#6a9728', state  : 'Completed'                                        , label : 'Complete' },
-                { color : '#dd2222', states : ['Change Request in progress', 'CAPA in prorgress'], label : 'In Work'  }
-            ]
-        },  
+        panels : {
+            products           : { // Displays list of products in landing page, based on insertResults
+                headerLabel  : 'Serviceable Products',
+                search       : true,
+                contentSize  : 'l',
+                layout       : 'grid',
+                groupBy      : 'PRODUCT_LINE',
+                groupLayout  : 'horizontal',
+                sortBy       : 'TITLE',
+                icon         : 'icon-product',
+                tileImage    : true,
+                tileImageFieldId : 'IMAGE',
+                tileTitle    : 'TITLE',
+                tileSubtitle : 'DESCRIPTION',
+                filter       : [{
+                    field      : 'ENGINEERING_BOM',
+                    type       : 0,
+                    comparator : 21,
+                    value      : ''
+                }]
+            },
+            sparePartsRequests : { // Displays list of Spare Parts Requests in landing page, based on insertResults
+                stateColors         : [
+                    { color : '#faa21b', states : ['Received', 'Review']                  , label : 'New'      },
+                    { color : '#dd2222', states : ['Awaiting Response', 'Quote Submitted'], label : 'TODO'     },
+                    { color : '#faa21b', states : ['Order in process', 'Shipment']        , label : 'Shipment' },
+                    { color : '#6a9728', state  : 'Completed'                             , label : 'Complete' }
+                ],
+                headerLabel  : 'Spare Part Requests',
+                layout       : 'list',
+                contentSize  : 'xs',                
+                search       : true,
+                reload       : true,
+                number       : false,
+                tileIcon     : 'icon-package',
+                tileImage    : false,
+                tileTitle    : 'DESCRIPTOR',
+                tileSubtitle : 'REQUESTOR_COMPANY'
+            },
+            problemReports     : { // Displays list of Problem Reports in landing page, based on insertResults
+                headerLabel      : 'Problem Reports',
+                layout           : 'list',
+                contentSizes     : ['l', 'm', 'xs', 'xxs'],
+                search           : true,
+                reload           : true,
+                fieldIdImage     : 'IMAGE_1',
+                tileIcon         : 'icon-problem',
+                tileImage        : true,
+                tileImageFieldId : 'IMAGE_1',
+                tileTitle        : 'DESCRIPTOR',
+                tileSubtitle     : 'DESCRIPTION',
+                tileDetails      : [{
+                    icon    : 'icon-tag',
+                    fieldId : 'TYPE',
+                    prefix  : 'PR Type'
+                }, {
+                    icon    : 'icon-select',
+                    fieldId : 'SOURCE',
+                    prefix  : 'PR Source'
+                }],
+                transitionOnCreate : 'SUBMIT',
+                stateColors  : [
+                    { color : '#222222', state  : 'Create'                                           , label : 'New'      },
+                    { color : '#faa21b', states : ['Review','Technical Analysis']                    , label : 'Review'   },
+                    { color : '#6a9728', state  : 'Completed'                                        , label : 'Complete' },
+                    { color : '#dd2222', states : ['Change Request in progress', 'CAPA in prorgress'], label : 'In Work'  }
+                ]
+            },            
+            sparePartsRequest  : { // Configuration of insertItemSummary for display of selected Spare Parts Request
+                bookmark        : false,
+                reload          : false,
+                workflowActions : true,
+                summaryLayout   : 'dashboard',
+                summaryContents : [
+                    { type : 'workflow-history', className : 'surface-level-1', params : { id : 'request-workflow-history' } },
+                    { type : 'details'         , className : 'surface-level-1', params : { 
+                        id             : 'request-details', 
+                        expandSections : [ 'Requestor Contact Details', 'Request Details' ], 
+                        suppressLinks  : true, 
+                        sectionsEx     : [ 'Planning & Tracking', 'Request Confirmation', 'Quote Submission & Response', 'Real Time KPIs', 'Workflow Activity', 'Quote Summary', 'Order Processing', 'Related Processes' ]
+                    }},
+                    { type : 'grid'            , className : 'surface-level-1', params : { 
+                        id          : 'request-grid', 
+                        headerLabel : 'Part List', 
+                        fieldsEx    : [ 'Line Item Cost', 'Availability [%]', 'Manufacturer', 'Manufacturer P/N', 'Unit Cost', 'Total Cost', 'Make or Buy', 'Lead Time (w)', 'Long Lead Time']
+                    }},
+                    { type : 'attachments'     , className : 'surface-level-1', params : { id : 'request-attachments', editable : true, contentSize : 'm', layout : 'list', singleToolbar : 'controls' } },
+                ]
+            },
+            problemReport      : { // Configuration of insertItemSummary for display of selected Problem Report
+                bookmark        : false,
+                reload          : false,
+                workflowActions : true,
+                summaryLayout   : 'dashboard',
+                summaryContents : [
+                    { type : 'workflow-history', className : 'surface-level-1', params : { id : 'request-workflow-history' } },
+                    { type : 'details'         , className : 'surface-level-1', params : { 
+                        id             : 'request-details', 
+                        expandSections : ['Header', 'Details'], 
+                        suppressLinks  : true
+                    }},
+                    { type : 'grid'            , className : 'surface-level-1', params : { 
+                        id            : 'request-grid', 
+                        headerLabel   : 'Notes',
+                        singleToolbar : 'controls',
+                        editable      : true
+                    }},
+                    { type : 'attachments'     , className : 'surface-level-1', params : { id : 'request-attachments', editable : true, layout : 'tiles', singleToolbar : 'controls' } },
+                ]
+            },
+            itemBOM            : {  // Definition of BOM display on the left, based on insertBOM
+                headerLabel      : 'BOM',
+                bomViewName      : 'Service', 
+                revisionBias     : 'release',
+                contentSize      : 's',
+                collapseContents : true,
+                reset            : true, 
+                treePath         : true, 
+                hideDetails      : false, 
+                quantity         : true,
+                counters         : true,
+                search           : true,
+                showRestricted   : false,
+                toggles          : true,   
+                hideDescriptor   : false,
+                fieldsIn         : [ 'Item', 'Quantity', 'Qty' ],
+                downloadFiles    : true,
+                downloadRequests : 5,
+                downloadFormats  : [
+                    { label : 'PDF'   , filter : ['.pdf']         , tooltip : '' },
+                    { label : 'STEP'  , filter : ['.step', '.stp'], tooltip : 'File suffix stp and step will be taken into account' },
+                    { label : 'Office', filter : ['.docx', '.doc', 'xls', 'xlsx', 'ppt', 'pptx'], tooltip : 'This will download all files with suffix doc, docx, xls, xlsx, ppt and pptx' },
+                ]                           
+            },
+            tabDocumentation   : { // Definition of tab Documentation list all files of selected context (product), based on insertAttachments
+                extensionsEx : ['.dwf','.dwfx'],
+                layout       : 'list',
+                size         : 'm'
+            },
+            tabProblemReports  : { // Definiion of Problem Reports listing for selected item based on insertChangeProcesses
+                hideHeader       : true, 
+                editable         : true,
+                reload           : true,
+                useCache         : true,
+                openSelectedInPLM : true,
+                singleToolbar    : 'actions',
+                fieldIdMarkup    : '',
+                fieldIdImage     : 'IMAGE_1',
+                tileIcon         : 'icon-problem',
+                tileImage        : true,
+                tileImageFieldId : 'IMAGE_1',
+                tileTitle        : 'DESCRIPTOR',
+                tileSubtitle     : 'DESCRIPTION',  
+                createHeaderLabel         : 'Create Problem Report',
+                createSectionsIn          : [ 'Header', 'Details', 'Images' ],
+                createContextItemFields   : [ 'AFFECTED_ITEM' ],
+                createViewerImageFields   : [ 'IMAGE_1' ],
+                createPerformTransition   : 'SUBMIT',
+                createConnectAffectedItem : true
+            },
+            itemDetails        : { // Configures insertDetails for the display of selected item's details page
+                id               : 'details-top',
+                headerLabel      : 'descriptor',
+                layout           : 'narrow',
+                collapseContents : true,
+                useCache         : true,
+                fieldsEx         : ['ACTIONS'],
+                sectionsEx       : ['Sourcing Summary','Others']
+            },
+            itemAttachments    : { // Confiures insertAttachments for the display of selected item's files list
+                extensionsEx    : ['.dwf','.dwfx'],
+                headerLabel     : 'Files',
+                layout          : 'list',
+                filterByType    : true,
+                contentSize     : 'xs'
+            }
+        },     
         serviceBOMTypes : {
             sparePart : {
                 fieldValue : 'Spare Parts List',
@@ -1241,7 +1568,7 @@ exports.applications = {
                 icon      : 'icon-settings'
             }
         },                 
-        assetServices : {
+        equipmentServices : {
             workspaceId     : null,   // uses common.workspaceIds per default
             headerLabel     : 'Pending Asset Services',
             icon            : 'icon-product',
@@ -1274,7 +1601,7 @@ exports.applications = {
                 prefix  : 'City'
             }],
         },
-        assets : {
+        equipments : {
             workspaceId  : null,   // uses common.workspaceIds per default
             icon         : 'icon-product',
             tableColumns : ['ASSET_SN', 'ASSET_GROUP', 'ASSET_TYPE', 'ASSET_SYSTEM', 'ASSET_FUNCTION'],
@@ -1286,46 +1613,8 @@ exports.applications = {
             }
         },
         serialNumbers : {
-            tableColumns : ['ID', 'STATUS', 'SERIAL', 'ITEM_NUMBER', 'NUMBER', 'ITEM_REV', 'LOCATION', 'SUPPLIER', 'PREVIOUS_SERIAL', 'INSTANCE_ID', 'INSTANCE_PATH'],
-            fieldIDs : {
-                partNumber   : 'NUMBER',
-                path         : 'LOCATION',
-                instanceId   : 'INSTANCE_ID',
-                instancePath : 'INSTANCE_PATH'
-            },
-        },  
-        paramsBOM : {
-            hideDescriptor   : false,
-            fieldsIn         : [ 'Item', 'Quantity', 'Qty' ],
-            downloadFiles    : true,
-            downloadRequests : 5,
-            downloadFormats  : [
-                { label : 'PDF'   , filter : ['.pdf']         , tooltip : '' },
-                { label : 'STEP'  , filter : ['.step', '.stp'], tooltip : 'File suffix stp and step will be taken into account' },
-                { label : 'Office', filter : ['.docx', '.doc', 'xls', 'xlsx', 'ppt', 'pptx'], tooltip : 'This will download all files with suffix doc, docx, xls, xlsx, ppt and pptx' },
-            ], 
-        },
-        paramsItemDetails : {
-            id               : 'details-top',
-            headerLabel      : 'descriptor',
-            layout           : 'narrow',
-            collapseContents : true,
-            useCache         : true,
-            fieldsEx         : ['ACTIONS'],
-            sectionsEx       : ['Sourcing Summary','Others']
-        },
-        paramsItemAttachments : { 
-            extensionsEx    : ['.dwf','.dwfx'],
-            headerLabel     : 'Files',
-            layout          : 'list',
-            filterByType    : true,
-            contentSize     : 'xs'
-        },
-        paramsDocumentation : {
-            extensionsEx : ['.dwf','.dwfx'],
-            layout       : 'list',
-            size         : 'm'
-        },
+            tableColumns : ['ID', 'STATUS', 'SERIAL', 'ITEM_NUMBER', 'NUMBER', 'ITEM_REV', 'LOCATION', 'SUPPLIER', 'PREVIOUS_SERIAL', 'INSTANCE_ID', 'INSTANCE_PATH']
+        }, 
         applicationFeatures : {
             homeButton              : true,
             itemDetails             : true,
@@ -1384,30 +1673,140 @@ exports.applications = {
             separator           : ' / '
         },
         maxBOMLevels : 4,
+        panels : {
+            createVariant : { // Based on insertCreate
+                createButtonLabel : 'Submit',
+                hideComputed      : true,
+                hideSections      : true,
+            },
+            itemSummary   : { // Baaed on insertItemSummary
+                bookmark        : true,
+                openInPLM       : true,
+                hideCloseButton : true,
+                summaryLayout   : 'tabs',
+                summaryContents : [{ 
+                    type         : 'details',
+                    params       : { 
+                        id               : 'item-details', 
+                        editable         : true,
+                        toggles          : true,
+                        collapseContents : true
+                    }
+                }, { 
+                    type        : 'attachments',
+                    params      : { 
+                        id            : 'item-attachments',
+                        editable      : true,
+                        singleToolbar : 'controls',
+                        contentSize   : 'xl'
+                    }
+                }, { 
+                    type        : 'bom',
+                    params      : { 
+                        id      : 'item-bom',
+                        headerLabel      : 'BOM',
+                        hideTreeHeader   : true,
+                        hideTreeColumns  : true,
+                        search           : true,
+                        toggles          : true,
+                        collapseContents : true
+                    }
+                }, { 
+                    type        : 'relationships',
+                    params      : { 
+                        id         : 'item-relationships',
+                        hideHeader : true
+                    }
+                }, { 
+                    type        : 'change-processes',
+                    params      : { 
+                        id          : 'item-change-processes',
+                        headerLabel : ' Processes',
+                        hideHeader  : true
+                    }
+                }]
+            }
+        },
         viewerFeatures : {
-            contextMenu   : false,
-            cube          : false,
-            orbit         : false,
-            firstPerson   : false,
-            camera        : false,
-            measure       : true,
-            section       : true,
-            explodedView  : true,
-            modelBrowser  : false,
-            properties    : false,
-            settings      : false,
-            fullscreen    : true,
-            markup        : false,
-            hide          : true,
-            ghosting      : true,
-            highlight     : true,
-            single        : true,
-            fitToView     : true,
-            reset         : true,
-            views         : true,
-            selectFile    : true
+            views : true
         }
     },
+
+    worklist : {
+        workspaceId : null,   // matches Engineering Project Activities
+        fieldIDs          : {
+            root          : 'PROJECT_NUMBER',
+            id            : 'ID',
+            title         : 'TITLE',
+            description   : 'DESCRIPTION',
+            priority      : 'PRIORITY',
+            start         : 'PLANNED_START_DATE',
+            end           : 'PLANNED_COMPLETION_DATE',
+            duration      : 'PLANNED_DURATION',
+            team          : 'TEAM',
+            members       : 'TEAM_MEMBERS',
+            assignee      : 'ASSIGNEE',
+            progress      : 'PERCENT_COMPLETE',
+            lastComment   : 'LAST_COMMENT',
+            lastUpdate    : 'LAST_UPDATE',
+            targetEffort  : 'TOTAL_EFFORT_D',
+            startEffort   : 'EFFORT_START_WEEK',
+            weeklyEffort  : 'EFFORT_BY_WEEK',
+            endEffort     : 'EFFORT_END_WEEK',
+            plannedEffort : 'PLANNED_EFFORT',
+            actualEffort  : 'ACTUAL_EFFORT',
+            status        : 'WF_CURRENT_STATE',
+        },        
+        transitions : {
+            accept  : { id : 'ACCEPT'       , icon : 'icon-check'       },
+            return  : { id : 'SET_ON_HOLD_1', icon : 'icon-undo'        },
+            finish  : { id : 'FINISH_3'     , icon : 'icon-flag-finish' }
+        },
+        filters : {
+            newTasks        : [{
+                field      : 'PARENT_ACTIVITY',
+                type       : 0,
+                comparator : 'not-empty-multi-picklist',
+                value      : ''
+            },{
+                field      : 'WF_CURRENT_STATE',
+                type       : 1,
+                comparator : 'status-is',
+                value      : 'Requested'
+            }]
+        },
+        actionScriptName : 'Update Task Efforts',
+        yourTasks : {
+            filters : [{
+                field      : 'PARENT_ACTIVITY',
+                type       : 0,
+                comparator : 'not-empty-picklist',
+                value      : ''
+            },{
+                field      : 'WF_CURRENT_STATE',
+                type       : 1,
+                comparator : '!=',
+                value      : 'Planning'
+            },{
+                field      : 'WF_CURRENT_STATE',
+                type       : 1,
+                comparator : '!=',
+                value      : 'Requested'
+            },{
+                field      : 'WF_CURRENT_STATE',
+                type       : 1,
+                comparator : '!=',
+                value      : 'Completed'
+            }],
+            transitions    : [
+                { value :  '20', id : 'SET_PROGRESS_20' },
+                { value :  '40', id : 'SET_PROGRESS_40' },
+                { value :  '60', id : 'SET_PROGRESS_60' },
+                { value :  '80', id : 'SET_PROGRESS_80' },
+                { value : '100', id : 'FINISH_1'        }
+            ]
+        }
+    },    
 
     addins : {
 
@@ -1675,6 +2074,7 @@ exports.server = {
         client         : true,  // Mobile Client
         compare        : true,  // BOM Comparison
         dashboard      : true,  // Process Dashboard
+        editor         : true,  // Specification Editor
         explorer       : true,  // Product Data Explorer
         impactanalysis : true,  // Change Impact Analysis
         instances      : true,  // BOM Instances Editor
@@ -1715,6 +2115,7 @@ exports.server = {
         gallery            : true,
         template           : true,
         playground         : true,
+        studio             : true,
         'chrome-extension' : true,
 
     }
@@ -1764,6 +2165,12 @@ exports.chrome = {
         label      : 'Change Impact Analysis',
         workspaces : ['problemReports', 'changeRequests', 'changeOrders']
     },{
+        id         : 'editor-requirements',
+        url        : '/editor?config=requirements&working=true&',
+        label      : 'Edit Requirements Specification',
+        icon       : 'zmdi-file-text',
+        workspaces : ['equipments', 'products', 'requirements']
+    },{        
         id         : 'pde',
         url        : '/explorer?',
         label      : 'Product Data Explorer',

@@ -151,7 +151,7 @@ function setUIEvents() {
 
                                             console.log( edge.edgeLink);
 
-                                            reqRemoval.push($.get('/plm/bom-remove', { edgeLink : edge.edgeLink }))
+                                            reqRemoval.push($.post('/plm/bom-remove', { edgeLink : edge.edgeLink }))
                                         }
 
 
@@ -354,10 +354,10 @@ function insertResultsDone(id) {
                 showCreateForm(config.configurator.workspaceVariant.workspaceId, {
                     headerLabel : 'Create New Variant',
                     sectionsIn : config.configurator.workspaceVariant.createSectionsIn,
-                    fieldValues : [{
-                        fieldId      : 'PRODUCT_LINE',
-                        value        : links.baseItem,
-                        displayValue : $('#header-subtitle').html()
+                    createFieldValues : [{
+                        fieldId       : 'PRODUCT_LINE',
+                        value         : links.baseItem,
+                        displayValue  : $('#header-subtitle').html()
                 }]
                 });
             });

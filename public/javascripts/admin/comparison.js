@@ -1912,6 +1912,9 @@ function getGridMatch(gridSource, gridTarget, logPrefix) {
 
     let index = 1;
 
+    if(typeof gridSource === 'undefined') gridSource = [];
+    if(typeof gridTarget === 'undefined') gridTarget = [];
+
     for(let colTarget of gridTarget) {
         colTarget.hasMatch = false;
         colTarget.fieldId  = colTarget.__self__.split('/').pop();
@@ -2423,6 +2426,9 @@ function getBOMTabMatch(viewsSource, viewsTarget, logPrefix) {
         fieldsViewsExtra  : false,
         fieldsCount       : 0
     }
+
+    if(!Array.isArray(viewsSource)) viewsSource = [];
+    if(!Array.isArray(viewsTarget)) viewsTarget = [];
 
     for(let viewTarget of viewsTarget) {
         viewTarget.hasMatch = false;
@@ -4789,9 +4795,9 @@ function compareNextWorkspace(update) {
                     transistions.match  = getWorkflowTransitionsMatch(responses[20].data, responses[21].data, 'TRS: ').all;
 
                     details.count       = responses[3].data.length
-                    grid.count          = (responses[6].data === '') ? 0 : responses[6].data.fields.length;
+                    grid.count          = (responses[6].data === '') ? 0 : ((typeof responses[6].data.fields === 'undefined') ? 0 : responses[6].data.fields.length);
                     managed.count       = responses[8].data.length;
-                    bom.count           = responses[10].data.length;
+                    bom.count           = (!Array.isArray(responses[10].data)) ? 0 : responses[10].data.length;
                     relationships.count = responses[12].data.length;
                     printViews.count    = responses[14].data.links.length;
                     behaviors.count     = responses[16].data.scripts.length;
@@ -4800,7 +4806,8 @@ function compareNextWorkspace(update) {
  
                 } else {
 
-                    grid.count = (responses[2].data === '') ? 0 : responses[2].data.fields.length;
+                    grid.count = (responses[2].data === '') ? 0 : ((typeof responses[2].data.fields === 'undefined') ? 0 : responses[2].data.fields.length);
+                    bom.count  = (responses[4].data === '') ? 0 : ((!Array.isArray(responses[4].data)) ? 0 : responses[4].data.length);
 
                 }
 

@@ -8,6 +8,7 @@ const ExcelJS       = require('exceljs/dist/es5');
 const FormData      = require('form-data');
 const { Console }   = require('console');
 const pathUploads   = 'uploads/';
+const urlGraphQL    = 'https://developer.api.autodesk.com/mfg/v3/graphql/public';
 
 router.use(fileUpload());
 
@@ -477,16 +478,19 @@ router.get('/sections', function(req, res, next) {
     console.log(' ');
     console.log('  /sections');
     console.log(' --------------------------------------------');
-    console.log('  req.query.wsId      = ' + req.query.wsId);
-    console.log('  req.query.link      = ' + req.query.link);
-    console.log('  req.query.tenant    = ' + req.query.tenant);
-    console.log('  req.query.useCache  = ' + req.query.useCache);
-    console.log('  req.query.requestor = ' + req.query.requestor);    
+    console.log('  req.query.wsId        = ' + req.query.wsId);
+    console.log('  req.query.link        = ' + req.query.link);
+    console.log('  req.query.isComponent = ' + req.query.isComponent);
+    console.log('  req.query.tenant      = ' + req.query.tenant);
+    console.log('  req.query.useCache    = ' + req.query.useCache);
+    console.log('  req.query.requestor   = ' + req.query.requestor);    
     console.log();
 
     if(notCached(req, res)) {
 
-        let wsId = req.query.wsId;
+        let isComponent = (typeof req.query.isComponent === 'undefined') ? false : (req.query.isComponent == 'true');
+        let headers     = getCustomHeaders(req);
+        let wsId        = req.query.wsId;
 
         if(typeof wsId === 'undefined') {
             if(typeof req.query.link !== 'undefined') {
@@ -494,17 +498,126 @@ router.get('/sections', function(req, res, next) {
             }
         }
 
-        let url = getTenantLink(req) + '/api/v3/workspaces/' + wsId + '/sections';
-        let headers = getCustomHeaders(req);
+        if(!isComponent) {
+
+            let url = getTenantLink(req) + '/api/v3/workspaces/' + wsId + '/sections';
+            
             headers.Accept = 'application/vnd.autodesk.plm.sections.bulk+json';
 
-        axios.get(url, {
-            headers : headers
-        }).then(function(response) {
-            sendResponse(req, res, response, false);
-        }).catch(function(error) {
-            sendResponse(req, res, error.response, true);
-        });
+            axios.get(url, {
+                headers : headers
+            }).then(function(response) {
+                sendResponse(req, res, response, false);
+            }).catch(function(error) {
+                sendResponse(req, res, error.response, true);
+            });
+
+        } else {
+
+            headers.Accept = 'multipart/mixed;deferSpec=20220824,application/json';
+
+            axios.post(urlGraphQL, {
+                query : `query CDE_PROPERTIES_CustomPropertyDefinitions($hubId: ID!, $fetchBaseDefinitions: Boolean!, $fetchCustomDefinitions: Boolean!) {
+                    hub(hubId: $hubId) {
+                        basePropertyDefinitionCollections @include(if: $fetchBaseDefinitions) {
+                        ... @defer {
+                            ...propertyCollections
+                        }
+                        }
+                        propertyDefinitionCollections @include(if: $fetchCustomDefinitions) {
+                        ... @defer {
+                            ...propertyCollections
+                        }
+                        }
+                    }
+                    }
+
+                    fragment propertyCollections on PropertyDefinitionCollections {
+                    results {
+                        name
+                        localizedName
+                        id
+                        description
+                        definitions(pagination: {limit: 500}) {
+                        results {
+                            id
+                            name
+                            localizedName
+                            propertyBehavior
+                            isArchived
+                            isHidden
+                            isReadOnly
+                            description
+                            specification
+                            units {
+                            id
+                            name
+                            }
+                            shouldCopy
+                        }
+                        }
+                    }
+                }`,
+                                    
+                variables : {
+                    fetchBaseDefinitions   : true,
+                    fetchCustomDefinitions : true,
+                    hubId                  : req.app.locals.hubId
+                }
+
+            },{
+                headers : headers
+            }).then(function(response) {
+                
+                let parts    = response.data.split('--graphql');
+                let sections = [];
+                let order    = 1;
+
+                for(let index = 2; index <= 3; index++) {
+
+                    let properties = JSON.parse(parts[index].split('content-type: application/json')[1].trim());
+                    
+                    for(let result of properties.incremental[0].data.results) {
+                        
+                        let section = {
+                            name         : result.name,
+                            description  : result.description,
+                            displayOrder : order++,
+                            id           : result.id,
+                            __self__     : '//////' + result.id,
+                            fields       : []
+                        }
+
+                        for(let property of result.definitions.results) {
+
+                            let field = {
+                                id        : property.name,
+                                link       : '///((///' + property.id,
+                                name       : property.name,
+                                type       : 'MDM',
+                                hasValue   : false,
+                                isHidden   : property.isHidden,
+                                isReadOnly : property.isReadOnly,
+                            }
+
+                            section.fields.push(field);
+
+                        }
+                    
+                        sections.push(section);    
+
+                    }
+
+                }
+
+                response.data = sections;
+
+                sendResponse(req, res, response, false);
+            }).catch(function(error) {
+                sendResponse(req, res, error.response, true);      
+            });            
+
+        }
 
     }
     
@@ -552,7 +665,7 @@ router.get('/fields', function(req, res, next) {
 
 
 /* ----- GET ALL PICKLISTS ----- */
-router.get('/picklists', function(req, res, next) {
+router.get('/picklists', async function(req, res, next) {
 
     console.log(' ');
     console.log('  /picklists');
@@ -561,14 +674,16 @@ router.get('/picklists', function(req, res, next) {
     console.log('  req.query.useCache = ' + req.query.useCache);
     console.log();
 
-    if(notCached(req, res)) {
+    let [url, headers] = await prepareRequest(req, res);
 
-        let url = getTenantLink(req) + '/api/rest/v1/setups/picklists';
+    if(headers !== null) {
+
+        url += '/api/rest/v1/setups/picklists';
         
-        axios.get(url, {
-            headers : req.session.headers
+        axios.get(url, { 
+            headers : headers
         }).then(function(response) {
-            if(response.data === "") response.data = { 'items' : [] };
+            if(response.data === '') response.data = { items : [] };
             sendResponse(req, res, response, false);
         }).catch(function (error) {
             sendResponse(req, res, error.response, true);
@@ -577,6 +692,113 @@ router.get('/picklists', function(req, res, next) {
     }
 
 });
+async function prepareRequest(req, res) {
+
+    if(notCached(req, res)) {
+
+        let tenant = req.app.locals.tenant;
+
+        if(typeof req.body !== 'undefined') {
+            if(typeof req.body.tenant !== 'undefined') tenant = req.body.tenant;
+        }
+        if(typeof req.query !== 'undefined') {
+            if(typeof req.query.tenant !== 'undefined') tenant = req.query.tenant;
+        }
+
+        const tenantLink = 'https://' + tenant + '.autodeskplm360.net';
+
+        let headers = {
+            'Content-Type'  : 'application/json',
+            'Accept'        : 'application/json',
+            'X-Tenant'      : req.app.locals.tenant,
+            'token'         : req.session.headers.token,
+            'Authorization' : req.session.headers.Authorization       
+        }
+
+        let expires = req.session.headers.expires;
+        let now     = new Date().getTime();
+        let expired = ((now - expires) > -10000);
+
+        // if(true) {
+        if(expired) {
+
+            // if(true) {
+            if((now - expires) < 86400000) {
+
+                console.log();
+                console.log(' --- start token refresh ---');
+                console.log();
+
+                let data = {
+                    grant_type    : 'refresh_token',
+                    refresh_token : req.session.headers.refreshToken,
+                    scope         : ["data:read"].join(" "),
+                    client_id     : req.app.locals.clientId,
+                    redirect_uri  : req.app.locals.redirectUri
+                }
+
+                const response = await axios.post('https://developer.api.autodesk.com/authentication/v2/token', data, {
+                    headers : {
+                        'accept'       : 'application/json',
+                        'content-type' : 'application/x-www-form-urlencoded'
+                    }
+                }).then(function (response) {
+
+                    req.session.headers.token         = response.data.access_token;
+                    req.session.headers.Authorization = 'Bearer ' + response.data.access_token,
+                    req.session.headers.expires       = Date.now() + response.data.expires_in * 1000;
+                    req.session.headers.refreshToken  = response.data.refresh_token;
+
+                    req.session.save(function(err) {});
+
+                    headers.token         = req.session.headers.token;
+                    headers.Authorization = req.session.headers.Authorization;
+
+                }).catch(function (error) {
+
+                    console.log();
+                    console.log(' !!! Error refreshing token !!!');
+                    console.log();
+
+                });
+
+                return [tenantLink, headers];
+
+            } else {
+
+                // Send authentication error message
+                let params = [];
+
+                if((typeof req.body !== 'undefined')) {
+                    if(JSON.stringify(req.body).length > 2) {
+                        params = req.body;
+                    } else params = req.query;
+                } else params = req.query;
+
+                let result = {
+                    params  : params,
+                    url     : req.url,
+                    data    : [],
+                    status  : 500,
+                    message : 'Error in authentication',
+                    error   : true
+                }
+
+                console.log();
+                console.log(' AUTHENTICATION ERROR IN ' + req.url);
+                console.log();
+
+                res.json(result); 
+
+                return ['', null];
+
+            }
+
+        } else return [tenantLink, headers];
+        
+    } else return ['', null];
+    
+}
 
 
 /* ----- GET PICKLIST DEFINITION ----- */
@@ -1628,42 +1850,163 @@ router.get('/details', function(req, res, next) {
     console.log(' ');
     console.log('  /details');
     console.log(' --------------------------------------------');
-    console.log('  req.query.wsId      = ' + req.query.wsId);
-    console.log('  req.query.dmsId     = ' + req.query.dmsId);
-    console.log('  req.query.link      = ' + req.query.link);
-    console.log('  req.query.useCache  = ' + req.query.useCache);
-    console.log('  req.query.requestor = ' + req.query.requestor);
+    console.log('  req.query.wsId        = ' + req.query.wsId);
+    console.log('  req.query.dmsId       = ' + req.query.dmsId);
+    console.log('  req.query.link        = ' + req.query.link);
+    console.log('  req.query.isComponent = ' + req.query.isComponent);
+    console.log('  req.query.modelId     = ' + req.query.modelId);
+    console.log('  req.query.useCache    = ' + req.query.useCache);
+    console.log('  req.query.requestor   = ' + req.query.requestor);
     console.log();
 
     if(notCached(req, res)) {
 
-        let link = (typeof req.query.link !== 'undefined') ? req.query.link : '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId;
-        let url  = req.app.locals.tenantLink + link;
+        let link        = (typeof req.query.link !== 'undefined') ? req.query.link : '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId;
+        let url         = getTenantLink(req) + link;
+        let isComponent = (typeof req.query.isComponent     === 'undefined') ? false : (req.query.isComponent == 'true');
 
-        axios.get(url, {
-            headers : req.session.headers
-        }).then(function(response) {
-            for(let section of response.data.sections) {
-                for(let field of section.fields) {
-                    if(field.type.title === 'Image') {
-                        if(typeof field.value !== 'undefined') {
-                            if(field.value !== null) {
-                                let imageId   = field.value.link.split('/').pop();
-                                let split     = link.split('/');
-                                let imageFile = split[4] + '-' + split[6] + '-' + field.__self__.split('/').pop() + '-' + imageId + '.jpg';
-                                let exists = fs.existsSync('storage/cache/' + imageFile);
-                                field.value.imageFile = (exists) ? imageFile : '';    
+        if(!isComponent) {
+
+            axios.get(url, {
+                headers : req.session.headers
+            }).then(function(response) {
+                for(let section of response.data.sections) {
+                    for(let field of section.fields) {
+                        if(field.type.title === 'Image') {
+                            if(typeof field.value !== 'undefined') {
+                                if(field.value !== null) {
+                                    let imageId   = field.value.link.split('/').pop();
+                                    let split     = link.split('/');
+                                    let imageFile = split[4] + '-' + split[6] + '-' + field.__self__.split('/').pop() + '-' + imageId + '.jpg';
+                                    let exists = fs.existsSync('storage/cache/' + imageFile);
+                                    field.value.imageFile = (exists) ? imageFile : '';    
+                                }
                             }
+                                                
                         }
-                                               
                     }
                 }
-            }
-            sendResponse(req, res, response, false);
-        }).catch(function(error) {
-            sendResponse(req, res, error.response, true);
-        });
+                sendResponse(req, res, response, false);
+            }).catch(function(error) {
+                sendResponse(req, res, error.response, true);
+            });
 
+        } else {
+
+            let requests = [];
+            let modelId  = (typeof req.query.modelId !== 'undefined') ? req.query.modelId : '';
+
+            if(modelId === '') {
+                requests.push(axios.get(url, { headers : req.session.headers }));
+            }
+
+            Promise.all(requests).then(function(responses) {
+
+                modelId = (requests.length > 0) ? responses[0].data.modelId : modelId;
+
+                axios.post(urlGraphQL, {
+                    query : `query GetModelProperties($modelId: ID!) {
+                        model(modelId : $modelId) {
+                        id
+                        isPrimary
+                        isConfiguration
+                            name {
+                                ...property
+                            }
+                        thumbnail {
+                        id
+                        signedUrl
+                        }
+                            physicalProperties {
+                        density {
+                            ...physicalProperty
+                        }
+                        mass {
+                            ...physicalProperty
+                        }
+                        volume {
+                            ...physicalProperty
+                        }
+                        }
+                            component {
+                                itemNumber {
+                                    id
+                                }
+                                description {
+                                    ...property
+                                }
+                                baseProperties {
+                                    ...customProperties
+                                }
+                                customProperties {
+                                    ...customProperties
+                                }			
+                            }
+                    }
+                    }
+
+                    fragment property on Property {
+                    value
+                    name
+                    displayValue
+                    }
+
+                    fragment physicalProperty on Property {
+                    value
+                    displayValue
+                    definition {
+                        specification
+                        units {
+                        name
+                        id
+                        }
+                    }
+                    }
+
+                    fragment customProperties on Properties {
+                    results {
+                        definition {
+                        id
+                        }
+                        ...property
+                    }
+                    }`,
+                       
+                    variables : {
+                        modelId : modelId,
+                    }
+
+                },{
+                    headers: req.session.headers
+                }).then(function(response) {
+
+                    let fields = [];
+                    let model  = response.data.data.model;
+
+                    fields.push(model.thumbnail);
+                    fields.push(model.physicalProperties.density);
+                    fields.push(model.physicalProperties.mass);
+                    fields.push(model.physicalProperties.volume);
+                    fields.push(model.component.itemNumber);
+                    fields.push(model.component.description);
+
+                    for(let property of model.component.baseProperties.results) {
+                        fields.push(property);
+                    }
+                    for(let property of model.component.customProperties.results) {
+                        fields.push(property);
+                    }
+
+                    response.data.fields   = fields;
+                    response.data.sections = [];
+                    sendResponse(req, res, response, false);
+
+                }).catch(function(error) {
+                    sendResponse(req, res, error.response, true);      
+                });
+            
+            });
+        }
     }
     
 });
@@ -3470,6 +3813,7 @@ router.post('/get-viewables', function(req, res, next) {
     console.log('  req.body.wsId              = ' + req.body.wsId);
     console.log('  req.body.dmsId             = ' + req.body.dmsId);
     console.log('  req.body.link              = ' + req.body.link);
+    console.log('  req.body.isComponent       = ' + req.body.isComponent);
     console.log('  req.body.fileId            = ' + req.body.fileId);
     console.log('  req.body.filename          = ' + req.body.filename);
     console.log('  req.body.suffixPrimaryFile = ' + req.body.suffixPrimaryFile);
@@ -3479,123 +3823,142 @@ router.post('/get-viewables', function(req, res, next) {
     
     let link              = (typeof req.body.link === 'undefined') ? '/api/v3/workspaces/' + req.body.wsId + '/items/' + req.body.dmsId : req.body.link;
     let urlBase           = getTenantLink(req) + link + '/attachments';
+    let isComponent       = (typeof req.body.isComponent       === 'undefined') ? false : (req.body.isComponent == 'true');
     let fileId            = (typeof req.body.fileId            === 'undefined') ? '' : req.body.fileId;
     let filename          = (typeof req.body.filename          === 'undefined') ? '' : req.body.filename;
     let suffixPrimaryFile = (typeof req.body.suffixPrimaryFile === 'undefined') ? ['.iam.dwf', '.iam.dwfx', '.ipt.dwf', '.ipt.dwfx'] : req.body.suffixPrimaryFile;
     let extensionsIn      = (typeof req.body.extensionsIn      === 'undefined') ? ['dwf', 'dwfx', 'nwd', 'iam', 'ipt', 'stp', 'step', 'sldprt', 'pdf'] : req.body.extensionsIn;
     let extensionsEx      = (typeof req.body.extensionsEx      === 'undefined') ? [] : req.body.extensionsEx;
 
-    let headers = getCustomHeaders(req);
-        headers.Accept = 'application/vnd.autodesk.plm.attachments.bulk+json';
+    if(isComponent) {
 
-    axios.get(urlBase + '?asc=name', { headers : headers }).then(function(response) {
+        axios.get(getTenantLink(req) + link + '/designs', { 
+            headers : req.session.headers 
+        }).then(function(response) {
+            for(let viewable of response.data) {
+                viewable.urn   = viewable.encodedDesignUrn;
+                viewable.token = req.session.headers.token;
+            }
+            sendResponse(req, res, response, false);
+        }).catch(function(error) {
+            sendResponse(req, res, error.response, true);
+        });
 
-        if(response.data !== '') {
+    } else {
 
-            let viewables = [];
-            let requests  = [];
-            let iPrimary  = 1000;
+        let headers = getCustomHeaders(req);
+            headers.Accept = 'application/vnd.autodesk.plm.attachments.bulk+json';
 
-            headers.Accept = 'application/vnd.autodesk.plm.attachment.viewable+json';
+        axios.get(urlBase + '?asc=name', { headers : headers }).then(function(response) {
 
-            for(let i = 0; i < response.data.attachments.length; i++) {
+            if(response.data !== '') {
 
-                let attachment = response.data.attachments[i];
+                let viewables = [];
+                let requests  = [];
+                let iPrimary  = 1000;
 
-                if(attachment.type.extension !== null) {
+                headers.Accept = 'application/vnd.autodesk.plm.attachment.viewable+json';
 
-                    let include   = false;
-                    let primary   = false;
-                    let extension = attachment.type.extension.toLowerCase().split('.').pop();
-                        extension = extension.toLowerCase();
+                for(let i = 0; i < response.data.attachments.length; i++) {
 
-                    if(fileId !== filename) {
-                        if((attachment.id === fileId) || (attachment.resourceName == filename)) {
-                            include = true;
-                            primary = true;
-                        }
-                    } else if(extensionsIn.length === 0 || extensionsIn.includes(extension)) {
-                        if(extensionsEx.length === 0 || !extensionsEx.includes(extension)) {
-                            include = true;
-                            for(let index in suffixPrimaryFile) {
-                                let suffix = suffixPrimaryFile[index].toLowerCase();
-                                if(attachment.name.toLowerCase().endsWith(suffix)) {
-                                    if(index < iPrimary) {
-                                        iPrimary = index;
-                                        primary = true;
-                                        for(let viewable of viewables) viewable.primary = false;
+                    let attachment = response.data.attachments[i];
+
+                    if(attachment.type.extension !== null) {
+
+                        let include   = false;
+                        let primary   = false;
+                        let extension = attachment.type.extension.toLowerCase().split('.').pop();
+                            extension = extension.toLowerCase();
+
+                        if(fileId !== filename) {
+                            if((attachment.id === fileId) || (attachment.resourceName == filename)) {
+                                include = true;
+                                primary = true;
+                            }
+                        } else if(extensionsIn.length === 0 || extensionsIn.includes(extension)) {
+                            if(extensionsEx.length === 0 || !extensionsEx.includes(extension)) {
+                                include = true;
+                                for(let index in suffixPrimaryFile) {
+                                    let suffix = suffixPrimaryFile[index].toLowerCase();
+                                    if(attachment.name.toLowerCase().endsWith(suffix)) {
+                                        if(index < iPrimary) {
+                                            iPrimary = index;
+                                            primary = true;
+                                            for(let viewable of viewables) viewable.primary = false;
+                                        }
                                     }
                                 }
                             }
                         }
+
+                        if(include) {
+
+                            viewables.push({
+                                id           : attachment.id,
+                                name         : attachment.name,
+                                resourceName : attachment.resourceName,
+                                description  : attachment.description,
+                                version      : attachment.version,
+                                user         : attachment.created.user.title,
+                                type         : attachment.type.fileType,
+                                extension    : attachment.type.extension,
+                                primary      : primary,
+                                size         : attachment.size,
+                                thumbnail    : attachment.thumbnails.large,
+                                timestamp    : attachment.created.timeStamp,
+                                token        : req.session.headers.token,
+                                status       : '',
+                                urn          : ''
+                            });
+
+                            if(attachment.type.fileType != 'Adobe PDF') requests.push(axios.get(urlBase + '/' + attachment.id, { headers : headers}));
+
+                        }
+                        
                     }
-
-                    if(include) {
-
-                        viewables.push({
-                            id           : attachment.id,
-                            name         : attachment.name,
-                            resourceName : attachment.resourceName,
-                            description  : attachment.description,
-                            version      : attachment.version,
-                            user         : attachment.created.user.title,
-                            type         : attachment.type.fileType,
-                            extension    : attachment.type.extension,
-                            primary      : primary,
-                            size         : attachment.size,
-                            thumbnail    : attachment.thumbnails.large,
-                            timestamp    : attachment.created.timeStamp,
-                            token        : req.session.headers.token,
-                            status       : '',
-                            urn          : ''
-                        });
-
-                        if(attachment.type.fileType != 'Adobe PDF') requests.push(axios.get(urlBase + '/' + attachment.id, { headers : headers}));
-
-                    }
-                    
                 }
+
+                Promise.all(requests).then(function(responses) {
+
+                    let hasPrimary = false;
+
+                    for(let viewable of viewables) {
+
+                        if(viewable.primary) hasPrimary = true;
+
+                        for(let response of responses) {
+                            if((viewable.name === response.data.fileName) || ((viewable.name + viewable.extension) === response.data.fileName)) {
+                                viewable.status = response.data.status;
+                                viewable.urn    = response.data.fileUrn;
+                            }
+                        }
+                        
+                        if(viewable.type == 'Adobe PDF') {
+                            viewable.filename = viewable.name.split('.pdf')[0] + '-V' + viewable.version + '.pdf';
+                            viewable.link     = 'storage/cache/' + viewable.filename;
+                            viewable.status   = validateFileInCache(viewable.filename) ? 'DONE' : 'PENDING';
+                        }
+
+                    }
+
+                    if(viewables.length > 0) {
+                        if(!hasPrimary) viewables[0].primary = true;
+                    }
+
+                    sendResponse(req, res, { data : viewables }, false);
+
+                });
+
+            } else {
+                sendResponse(req, res, { data : [] , status : response.status }, false);
             }
 
-            Promise.all(requests).then(function(responses) {
-
-                let hasPrimary = false;
-
-                for(let viewable of viewables) {
-
-                    if(viewable.primary) hasPrimary = true;
-
-                    for(let response of responses) {
-                        if((viewable.name === response.data.fileName) || ((viewable.name + viewable.extension) === response.data.fileName)) {
-                            viewable.status = response.data.status;
-                            viewable.urn    = response.data.fileUrn;
-                        }
-                    }
-                    
-                    if(viewable.type == 'Adobe PDF') {
-                        viewable.filename = viewable.name.split('.pdf')[0] + '-V' + viewable.version + '.pdf';
-                        viewable.link     = 'storage/cache/' + viewable.filename;
-                        viewable.status   = validateFileInCache(viewable.filename) ? 'DONE' : 'PENDING';
-                    }
-
-                }
-
-                if(viewables.length > 0) {
-                    if(!hasPrimary) viewables[0].primary = true;
-                }
-
-                sendResponse(req, res, { data : viewables }, false);
-
-            });
-
-        } else {
-            sendResponse(req, res, { data : [] , status : response.status }, false);
-        }
-
-    }).catch(function(error) {
-        sendResponse(req, res, error.response, true);
-    });
+        }).catch(function(error) {
+            sendResponse(req, res, error.response, true);
+        });
     
+    }
+
 });
 
 
@@ -3820,11 +4183,14 @@ router.get('/bom', function(req, res, next) {
     console.log('  req.query.wsId            = ' + req.query.wsId);
     console.log('  req.query.dmsId           = ' + req.query.dmsId);
     console.log('  req.query.link            = ' + req.query.link);
+    console.log('  req.query.isComponent     = ' + req.query.isComponent);
+    console.log('  req.query.componentId     = ' + req.query.componentId);
     console.log('  req.query.depth           = ' + req.query.depth);
     console.log('  req.query.revisionBias    = ' + req.query.revisionBias);
     console.log('  req.query.effectiveDate   = ' + req.query.effectiveDate);
     console.log('  req.query.viewId          = ' + req.query.viewId);
     console.log('  req.query.getBOMPartsList = ' + req.query.getBOMPartsList);
+    console.log('  req.query.hideRoot        = ' + req.query.hideRoot);
     console.log('  req.query.useCache        = ' + req.query.useCache);
     console.log('  req.query.updateCache     = ' + req.query.updateCache);
     console.log('  req.query.sharedCache     = ' + req.query.sharedCache);
@@ -3833,52 +4199,271 @@ router.get('/bom', function(req, res, next) {
 
     if(notCached(req, res)) {
 
+        let isComponent  = (typeof req.query.isComponent     === 'undefined') ? false : (req.query.isComponent == 'true');
+        let componentId  = (typeof req.query.componentId     !== 'undefined') ? req.query.componentId : '';
         let workspaceId  = (typeof req.query.wsId            !== 'undefined') ? req.query.wsId : req.query.link.split('/')[4];
         let link         = (typeof req.query.link            !== 'undefined') ? req.query.link : '/api/v3/workspaces/' + req.query.wsId + '/items/' + req.query.dmsId;
         let revisionBias = (typeof req.query.revisionBias    !== 'undefined') ? req.query.revisionBias : 'release';
         let depth        = (typeof req.query.depth           !== 'undefined') ? req.query.depth : 10;
-        let getPartsList = (typeof req.query.getBOMPartsList !== 'undefined') ? req.query.getBOMPartsList : false;
+        let getPartsList = (typeof req.query.getBOMPartsList !== 'undefined') ? (req.query.getBOMPartsList == 'true') : false;
+        let hideRoot     = (typeof req.query.hideRoot        !== 'undefined') ? (req.query.hideRoot == 'true') : false;
         let rootId       = (typeof req.query.link            !== 'undefined') ? req.query.link.split('/')[6] : req.query.dmsId;
         let viewId       = (typeof req.query.viewId          !== 'undefined') ? req.query.viewId : '';
-        let urlBOM       = getTenantLink(req) + link + '/bom?depth=' + depth + '&revisionBias=' + revisionBias + '&rootId=' + rootId;
-        let headers      = getCustomHeaders(req);
+        let requests     = [];
 
-        if(viewId !== '') urlBOM += '&viewDefId=' + viewId;
-        if(typeof req.query.effectiveDate !== 'undefined') urlBOM += '&effectiveDate=' + req.query.effectiveDate;
+        if(!isComponent) {
 
-        headers.Accept = 'application/vnd.autodesk.plm.bom.bulk+json';
+            let urlBOM       = getTenantLink(req) + link + '/bom?depth=' + depth + '&revisionBias=' + revisionBias + '&rootId=' + rootId;
+            let headers      = getCustomHeaders(req);
 
-        let requests = [];
+            if(viewId !== '') urlBOM += '&viewDefId=' + viewId;
+            if(typeof req.query.effectiveDate !== 'undefined') urlBOM += '&effectiveDate=' + req.query.effectiveDate;
 
-        requests.push(runPromised(urlBOM, headers));
+            headers.Accept = 'application/vnd.autodesk.plm.bom.bulk+json';
 
-        if(getPartsList) {
-            if(viewId !== '') {
-                let urlView = getTenantLink(req) + '/api/v3/workspaces/' + workspaceId + '/views/5/viewdef/' + viewId + '/fields';
-                requests.push(runPromised(urlView, req.session.headers)); 
+            requests.push(runPromised(urlBOM, headers));
+
+            if(getPartsList) {
+                if(viewId !== '') {
+                    let urlView = getTenantLink(req) + '/api/v3/workspaces/' + workspaceId + '/views/5/viewdef/' + viewId + '/fields';
+                    requests.push(runPromised(urlView, req.session.headers)); 
+                }
             }
+
+            Promise.all(requests).then(function(responses) {
+
+                sortArray(responses[0].data.edges, 'itemNumber', '');
+                sortArray(responses[0].data.edges, 'depth', '');
+
+                if(responses.length > 1) {
+
+                    responses[0].data.bomPartsList = getBOMPartsList(responses[0].data, responses[1].data, hideRoot);
+                    sendResponse(req, res, responses[0], false);
+
+
+                } else sendResponse(req, res, responses[0], false);
+
+            }).catch(function(error) {
+                sendResponse(req, res, error.response, true);
+            });
+
+        } else {
+
+            if(componentId === '') {
+                requests.push(axios.get(getTenantLink(req) + link, { headers : req.session.headers }));
+            }
+
+            Promise.all(requests).then(function(responses) {
+
+                componentId = responses[0].data.componentId;
+    
+                axios.post(urlGraphQL, {
+                    query : `query CDE_BOM_GetComponentStructure($componentId: ID!, $composition: BOMCompositionEnum!, $depth: Int, $time: DateTime, $cursor: String) {
+                            component(componentId: $componentId, composition: $composition, time: $time) {
+                                ...ComponentStructure
+                                ...BomRelations
+                            }
+                        }
+
+                        fragment OverrideableProperty on Property {
+                            name
+                            value
+                            displayValue
+                            definition {
+                            id
+                            }
+                        }
+
+                        fragment ComponentStructure on Component {
+                            id
+                            composition
+                            hasChildren
+                            componentState
+                            baseProperties {
+                                results {
+                                    name
+                                    displayValue
+                                }
+                            }
+                            name {
+                                value
+                            }
+                            itemNumber {
+                                id
+                            }
+                            lifecycle {
+                                itemUrl
+                            }
+                            primaryModel {
+                                id
+                            }
+                            isTip
+                        }
+
+                        fragment BomRelations on Component {
+                            bomRelations(depth: $depth, pagination: {cursor: $cursor}) {
+                                pagination {
+                                    cursor
+                                }
+                                results {
+                                    id
+                                    quantityProperty {
+                                        ...OverrideableProperty
+                                    }
+                                    sequenceNumber
+                                    fromComponent {
+                                        id
+                                    }
+                                    toComponent {
+                                        ...ComponentStructure
+                                    }
+                                    toComponentState
+                                }
+                        }
+                    }`,
+                       
+                    variables : {
+                        componentId : componentId,
+                        composition : 'WORKING',
+                        depth       : 1,
+                        cursor      : null,
+                        time        : null
+                    }
+
+                },{
+                    headers: req.session.headers
+                }).then(function(response) {
+                    let bomPartsList = getComponentBOMPartsList(response.data, [], false);
+                    response.data.bomPartsList = bomPartsList;
+                    sendResponse(req, res, response, false);
+                }).catch(function(error) {
+                    sendResponse(req, res, error.response, true);      
+                });
+
+            });
+
         }
-
-        Promise.all(requests).then(function(responses) {
-
-            sortArray(responses[0].data.edges, 'itemNumber', '');
-            sortArray(responses[0].data.edges, 'depth', '');
-
-            if(responses.length > 1) {
-
-                responses[0].data.bomPartsList = getBOMPartsList(responses[0].data, responses[1].data, null);
-                sendResponse(req, res, responses[0], false);
-
-
-            } else sendResponse(req, res, responses[0], false);
-
-        }).catch(function(error) {
-            sendResponse(req, res, error.response, true);
-        });
 
     }
     
 });
+function getComponentBOMPartsList(data, fields, hideRoot) {
+
+    if(isBlank(hideRoot)) hideRoot = false;
+
+    let parts     = [];
+    let component = data.data.component;
+    let itemUrl   = component.lifecycle.itemUrl;
+    let dmsId     = itemUrl.split('.').pop().split('&')[0];
+
+    let node = { 
+        link          : '/api/v3/workspaces/57/items/' + dmsId,
+        isComponent   : true,
+        componentId   : component.id,
+        modelId       : component.primaryModel.id,
+        partNumber    : component.name.value,
+        linkParent    : '',
+        level         : 0,
+        quantity      : '0',
+        parent        : '',
+        parents       : [],
+        fields        : [],
+        edgeId        : null,
+        number        : null,
+        numberPath    : '',
+        details       : {},
+        totalQuantity : 0,
+        hasChildren   : (component.bomRelations.results.length > 0)
+    }
+
+    node.path = node.partNumber;
+
+    // for(let relationship of data.nodes) {
+    //     if(bomNode.item.urn === urnRoot) {
+    //         insertBOMPartDetails(fields, node, bomNode, null);
+    //         break;
+    //     }
+    // }
+
+    if(!hideRoot) parts.push(node);
+
+    getComponentBOMParts(fields, component, component.id, parts, 1.0, 1, '', [node.partNumber]);
+
+    return parts;
+
+}
+function getComponentBOMParts(fields, component, parentId, parts, quantity, level, numberPath, parents) {
+
+    let result = { hasChildren : false };
+    let number = 1;
+
+    for(let relationship of component.bomRelations.results) {
+
+        if(relationship.fromComponent.id === parentId) {
+
+            let toComponent = relationship.toComponent;
+            let itemUrl     = toComponent.lifecycle.itemUrl;
+            let dmsId       = itemUrl.split('.').pop().split('&')[0];
+
+            let node = { 
+                isComponent : true,
+                link        : '/api/v3/workspaces/57/items/' + dmsId,
+                componentId : toComponent.id,
+                modelId     : toComponent.primaryModel.id,
+                partNumber  : toComponent.name.value,
+                level       : level,
+                quantity    : relationship.quantityProperty.value,
+                title       : toComponent.itemNumber.id + ' - ' + toComponent.name.value,
+                parent      : parents[parents.length - 1],
+                parents     : parents.slice(),
+                fields      : [],
+                number      : number++,
+                numberPath  : numberPath + number,
+                hasChildren : toComponent.hasChildren,
+                details     : { name :toComponent.name.value }
+            }
+
+            node.totalQuantity = node.quantity * quantity;
+
+            // node.path = node.parents.map(function(parent) {
+            //     return parent;
+            // }).join('|') + '|' + node.partNumber;
+
+            result.hasChildren = true;
+
+            // for(let bomNode of nodes) {
+
+            //     if(bomNode.item.urn === edge.child) {
+            //         insertBOMPartDetails(fields, node, bomNode, edge);
+            //         break;
+            //     }
+            // }
+
+            // if(!isBlank(selectItems)) {      
+            //     if(selectItems.hasOwnProperty('values')) {
+            //         let selectValue = getBOMCellValue(edge.child, urns.selectItems, nodes);
+            //         if(selectValue === '') selectValue = getBOMEdgeValue(edge, urns.selectItems, 'title', '');
+            //         if(selectItems.values.includes(selectValue)) parts.push(node);
+            //     } else parts.push(node);
+            // } else {
+                parts.push(node);
+            // }
+
+            let nextParents = parents.slice();
+                nextParents.push(node.partNumber);
+
+                // fields, model, parentId, parts, quantity, level, numberPath, parents
+
+            // let nodeBOM = getBOMParts(fields, selectItems, iEdge, urns, parts, edge.child, edges, nodes, node.totalQuantity, level + 1, numberPath + edge.itemNumber + '.', nextParents);
+            let nodeBOM = getComponentBOMParts(fields, component, node.id, parts, node.totalQuantity, level + 1, numberPath + '1' + '.', nextParents);
+
+        }
+
+    }
+
+    return result;
+
+}
 
 
 /* ----- FLAT BOM DATA ----- */
@@ -4668,19 +5253,22 @@ router.post('/search', function(req, res) {
     console.log(' ');
     console.log('  /search');
     console.log(' --------------------------------------------');
-    console.log('  req.body.wsId        = ' + req.body.wsId);
-    console.log('  req.body.link        = ' + req.body.link);
-    console.log('  req.body.latest      = ' + req.body.latest);
-    console.log('  req.body.useCache    = ' + req.body.useCache);
-    console.log('  req.body.sort        = ' + req.body.sort);
-    console.log('  req.body.fields      = ' + req.body.fields);
-    console.log('  req.body.grid        = ' + req.body.grid);
-    console.log('  req.body.filter      = ' + req.body.filter);
-    console.log('  req.body.pageNo      = ' + req.body.pageNo);
-    console.log('  req.body.pageSize    = ' + req.body.pageSize);
-    console.log('  req.body.logicClause = ' + req.body.logicClause);
-    console.log('  req.body.tileImage   = ' + req.body.tileImage);
-    console.log('  req.body.tileImageFieldId = ' + req.body.tileImageFieldId);
+    console.log('  req.body.wsId               = ' + req.body.wsId);
+    console.log('  req.body.link               = ' + req.body.link);
+    console.log('  req.body.searchLogicClause  = ' + req.body.searchLogicClause);
+    console.log('  req.body.searchLatestOnly   = ' + req.body.searchLatestOnly);
+    console.log('  req.body.searchReleasedOnly = ' + req.body.searchReleasedOnly);
+    console.log('  req.body.searchWorkingOnly  = ' + req.body.searchWorkingOnly);
+    console.log('  req.body.hideWorking        = ' + req.body.hideWorking);
+    console.log('  req.body.useCache           = ' + req.body.useCache);
+    console.log('  req.body.sort               = ' + req.body.sort);
+    console.log('  req.body.fields             = ' + req.body.fields);
+    console.log('  req.body.grid               = ' + req.body.grid);
+    console.log('  req.body.filter             = ' + req.body.filter);
+    console.log('  req.body.pageNo             = ' + req.body.pageNo);
+    console.log('  req.body.pageSize           = ' + req.body.pageSize);
+    console.log('  req.body.tileImage          = ' + req.body.tileImage);
+    console.log('  req.body.tileImageFieldId   = ' + req.body.tileImageFieldId);
     console.log();
 
 
@@ -4694,32 +5282,61 @@ router.post('/search', function(req, res) {
         let image  = (typeof req.body.tileImage        === 'undefined') ? false : (req.body.tileImage == 'true');
         let ifId   = (typeof req.body.tileImageFieldId === 'undefined') ? '' : req.body.tileImageFieldId;
         let url    = req.app.locals.tenantLink + '/api/rest/v1/workspaces/' + wsId + '/items/search';
-    
+
+        const searchLatestOnly   = (typeof req.body.searchLatestOnly   === 'undefined') ? false : (req.body.searchLatestOnly   == 'true');
+        const searchReleasedOnly = (typeof req.body.searchReleasedOnly === 'undefined') ? false : (req.body.searchReleasedOnly == 'true');
+        const searchWorkingOnly  = (typeof req.body.searchWorkingOnly  === 'undefined') ? false : (req.body.searchWorkingOnly  == 'true');
+        const hideWorking        = (typeof req.body.hideWorking        === 'undefined') ? false : (req.body.hideWorking        == 'true');
 
         if(!fields.includes('DESCRIPTOR')) fields.push('DESCRIPTOR');
 
         let params = {
-        pageNo      : req.body.pageNo || 1,
-        pageSize    : Number(req.body.pageSize) || 100,
-        logicClause : req.body.logicClause || 'AND',
-        fields      : [],
-        filter      : [],
-        sort        : []
+            pageNo      : req.body.pageNo            || 1,
+            pageSize    : Number(req.body.pageSize)  || 100,
+            logicClause : req.body.searchLogicClause || 'AND',
+            fields      : [],
+            filter      : [],
+            sort        : []
         };
 
         setBodyFields(params, fields, grid);
-        setBodySort(params  , sort);
+        setBodySort  (params, sort);
         setBodyFilter(params, filter);
 
-        if(typeof req.body.latest !== 'undefined') {
-            if(req.body.latest) {
-                params.filter.push({ 
-                    fieldID       : 'LC_RELEASE_LETTER',
-                    fieldTypeID   : '10',
-                    filterType    : { 'filterID' : 20 },
-                    filterValue   : 'true'      
-                }); 
-            }
+        if(searchLatestOnly) {
+            params.filter.push({ 
+                fieldID       : 'LATEST_RELEASE',
+                fieldTypeID   : '10',
+                filterType    : { 'filterID' : 13 },
+                filterValue   : ''     
+            }); 
+        }
+
+        if(searchReleasedOnly) {
+            params.filter.push({ 
+                fieldID       : 'LC_RELEASE_LETTER',
+                fieldTypeID   : '10',
+                filterType    : { 'filterID' : 21 },
+                filterValue   : ''       
+            }); 
+        }
+
+        if(searchWorkingOnly) {
+            params.filter.push({ 
+                fieldID       : 'LC_RELEASE_LETTER',
+                fieldTypeID   : '10',
+                filterType    : { 'filterID' : 20 },
+                filterValue   : ''
+            }); 
+        }
+
+        if(hideWorking) {
+            params.filter.push({ 
+                fieldID       : 'LIFECYCLE_NAME',
+                fieldTypeID   : '10',
+                filterType    : { 'filterID' : 5 },
+                filterValue   : 'Working'       
+            }); 
         }
 
         axios.post(url, params, { 
@@ -6020,7 +6637,7 @@ router.get('/workspace', function(req, res, next) {
 
 
 /* ----- GET WORKSPACES ----- */
-router.get('/workspaces', function(req, res, next) {
+router.get('/workspaces', async function(req, res, next) {
     
     console.log(' ');
     console.log('  /workspaces');
@@ -6032,16 +6649,18 @@ router.get('/workspaces', function(req, res, next) {
     console.log('  req.query.useCache = ' + req.query.useCache);
     console.log();
 
-    if(notCached(req, res)) {
+    let [url, headers] = await prepareRequest(req, res);
 
-        let offset  = (typeof req.query.offset === 'undefined') ?     0 : req.query.offset;
-        let limit   = (typeof req.query.limit  === 'undefined') ?   250 : req.query.limit;
-        let bulk    = (typeof req.query.bulk   === 'undefined') ? false : req.query.bulk;
-        let url     = getTenantLink(req) + '/api/v3/workspaces?offset=' + offset + '&limit=' + limit;
-        let headers = getCustomHeaders(req);
+    if(headers !== null) {    
 
+        let offset = (typeof req.query.offset === 'undefined') ?     0 : req.query.offset;
+        let limit  = (typeof req.query.limit  === 'undefined') ?   250 : req.query.limit;
+        let bulk   = (typeof req.query.bulk   === 'undefined') ? false : (req.query.bulk == 'true');
+        
         if(bulk) headers.Accept = 'application/vnd.autodesk.plm.workspaces.bulk+json';
 
+        url += '/api/v3/workspaces?offset=' + offset + '&limit=' + limit;
+        
         axios.get(url, {
             headers : headers
         }).then(function(response) {
@@ -7193,7 +7812,8 @@ function getBOMPartsList(data, fields, selectItems, hideRoot) {
         numberPath    : '',
         details       : {},
         totalQuantity : 0,
-        hasChildren   : (data.edges.length > 0)
+        hasChildren   : (data.edges.length > 0),
+        isComponent   : false
     }
 
     node.path = node.partNumber;
@@ -7235,7 +7855,8 @@ function getBOMParts(fields, selectItems, iEdge, urns, parts, parent, edges, nod
                 edgeId      : edge.edgeId,
                 number      : edge.itemNumber,
                 numberPath  : numberPath + edge.itemNumber,
-                details     : {}
+                details     : {},
+                isComponent : false
             }
 
             node.totalQuantity = node.quantity * quantity;

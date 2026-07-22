@@ -31,11 +31,11 @@ function openProject(elemClicked) {
 
     insertItemSummary(link, {
         id              : 'project',
-        layout          : 'tabs',
         openInPLM       : true,
         reload          : true,
         toggleBodyClass : 'display-project',
-        contents        : [{ 
+        summaryLayout   : 'tabs',
+        summaryContents : [{ 
             type   : 'bom', 
             link   : config.projects.fieldIdBOM,
             params : { 

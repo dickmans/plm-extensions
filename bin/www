@@ -90,28 +90,30 @@ function onListening() {
 	: 'port ' + addr.port;
 
 	console.log();
-	console.log('  >> Using PLM Tenant         ' + app.locals.tenant);
-	console.log('  >> Using Client ID          ' + app.locals.clientId.substring(0, 8) + '...');
-	console.log('  >> Using redirect Uri       ' + app.locals.redirectUri);
-	console.log('  >> Using settings file      ' + app.locals.settings);
-	console.log('  >> Using Default Theme      ' + app.locals.defaultTheme);
-	console.log('  >> Cache Enabled?           ' + app.locals.enableCache);
-	console.log('  >> Debug Mode Enabled?      ' + app.locals.debugMode);
-	console.log('  >> Listening on             ' + bind);
+	console.log('  >> Using PLM Tenant       ' + app.locals.tenant);
+	console.log('  >> Using Client ID        ' + app.locals.clientId.substring(0, 8) + '...');
+	console.log('  >> Using redirect Uri     ' + app.locals.redirectUri);
+	console.log('  >> Using environment file ' + app.locals.environment);
+	console.log('  >> Using settings file    ' + app.locals.settings);
+	console.log('  >> Using Default Theme    ' + app.locals.defaultTheme);
+	console.log('  >> Cache Enabled?         ' + app.locals.enableCache);
+	console.log('  >> Debug Mode Enabled?    ' + app.locals.debugMode);
+	console.log('  >> Fusion Connected?      ' + app.locals.fusionConnected);
+	console.log('  >> Listening on           ' + bind);
 
 	if((app.locals.adminClientId === '') || (app.locals.adminClientSecret === '')) {
 		console.log();	
 		console.log('  The USER SETTINGS MANAGER cannot be used as Admin Client ID/Secret is missing');
 	} else {
-		console.log('  >> Using Admin Client ID    ' + app.locals.adminClientId.substring(0, 8) + '...');
+		console.log('  >> Using Admin Client ID  ' + app.locals.adminClientId.substring(0, 8) + '...');
 	}
 
 	if((app.locals.vaultGateway === '') || (app.locals.vaultGateway === '')) {
 		console.log();
 		console.log('  Not connected to Vault as Vault Gateway and/or Vault Name are not defined');
 	} else {
-		console.log('  >> Using Vault Gateway      ' + app.locals.vaultGateway);
-		console.log('  >> Using Vault Name         ' + app.locals.vaultName);
+		console.log('  >> Using Vault Gateway    ' + app.locals.vaultGateway);
+		console.log('  >> Using Vault Name       ' + app.locals.vaultName);
 	}
 
 	if(typeof app.locals.chrome === 'undefined') {

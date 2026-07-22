@@ -10,7 +10,6 @@ $(document).ready(function() {
     setUIEvents();
 
     // insertFlatBOM('/api/v3/workspaces/57/items/17149', { ranges : false,  counters : true,
-    //     totals : true, compactDisplay : true,   
     //      filterSelected : true,
     //       filterEmpty:true, 
     //       bomViewName : 'Service', 
@@ -324,7 +323,6 @@ function performSearch() {
         number      : false,
         editable    : true,
         filterEmpty : true,
-        compactDisplay : true,
         filterSelected : true,
         counters    : true,
         totals  : false

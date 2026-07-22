@@ -549,6 +549,31 @@
                 td mbomTemplates.paramsPreview
                 td {..}
                 td This set of parameters controls the display of the selected template's BOM preview and is based on the capabilities of insertBOM().
+        h2 Configuring Panels 
+        p The application uses multiple configurable user interface panals as listed below. You can adjust these panels with the common framework's capabilities. Use the 
+            strong Panel Configuration Studio 
+            |to explore available configuration settings for each panel type. Once you adjusted the panel to your preferences in the studio, you can copy the matching JSON configuration output to your settings file.
+            br
+            a(href='studio' target='_blank' style='margin:10px 0px') Launch the Panel Configuration Studio
+        table.row-hovering
+            tr
+                th Property 
+                th Descripton
+                th Panel Type
+            tr 
+                td panels.itemDetailsPanel
+                td Drives the Details Panel on right hand side, showing details about the selected item
+                td insertItemSummary
+            tr 
+                td panels.listSuppliers
+                td Defines the Suppliers panel displayed in tab 
+                    strong Operations &amp; Suppliers
+                td insertSourcing
+            tr 
+                td panels.listOperations
+                td Configures the List of Operations panel displayed in tab 
+                    strong Operations &amp; Suppliers
+                td insertGrid
         h2 Additional Settings 
         table.row-hovering
             tr 
@@ -693,7 +718,13 @@
             img.border(src='images/apps/mbom-editor-8.png' style='max-width:1188px;')
     .log 
         h1 MBOM Editor Change Log 
-        table      
+        table.row-hovering 
+            tr 
+                td 20. July 2026
+                td Enhancement
+                td Enhanced configurability with introduction of consistent panel settings in alignment with new 
+                    strong Panel Configuration Studio
+                    |. Documenation got updated accordingly.        
             tr 
                 td 11. June 2026
                 td New Feature

@@ -26,9 +26,6 @@
 .panel-sections {
     gap : 26px;
 }
-.panel-header-toggle {
-    padding-left : 0px;
-}
 #item-section-images {
     background : none;
 }
@@ -65,9 +62,6 @@
     padding         : 8px;
     justify-content : right;
     position        : unset; 
-}
-#item-section-bom-search-input {
-    padding : 8px;
 }
 
 
@@ -367,6 +361,11 @@
 }
 #summary-content .panel-controls {
     display : none;
+}
+#item-section-images-content img {
+    object-fit : cover;
+    height     : 100%;
+    width      : 100%;
 }
 
 /*  SEARCH */
