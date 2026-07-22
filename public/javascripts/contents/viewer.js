@@ -680,7 +680,10 @@ function getViewerInstanceRunning(id, requires3D) {
     if(!viewerInstance.startupCompleted) return [ null, null, false ];
     if(typeof viewerInstance.viewer === 'undefined') return [ null, null, false ];
     
-    let proceed = (requires3D) ?  (!viewerInstance.viewer.model.is2d()) : true;
+    const hasModel  = (viewerInstance.viewer.model !== null);
+    const isDrawing = (!hasModel) ? false : viewerInstance.viewer.model.is2d();
+
+    let proceed = (requires3D) ? isDrawing : true;
 
     return [ viewerInstance, viewerInstance.viewer, proceed ];
 
