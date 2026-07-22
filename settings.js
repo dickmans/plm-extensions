@@ -1113,7 +1113,7 @@ exports.applications = {
                 suppressLinks    : false,
                 useCache         : true
             },
-            insertDetails : {
+            insertAttachments : {
                 headerLabel   : 'Files',
                 contentSize   : 'm',
                 layout        : 'list',
