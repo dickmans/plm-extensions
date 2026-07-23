@@ -5212,6 +5212,8 @@ function insertBOM(link , params, data) {
     settings[id].picklists   = data.picklists     || [];
     settings[id].workspaces  = data.workspaces    || [];
 
+    if(settings[id].hideTreeColumns) $('#' + id).addClass('tree-columns-hidden');
+
     settings[id].load = function() { changeBOMView(id); }
 
     // if(!isBlank(params.endItem)) {

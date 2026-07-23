@@ -334,6 +334,7 @@ td.tree-first-col {
     border-top  : 16px solid var(--color-status-yellow);
     border-left : 16px solid transparent;
 }
+.tree-columns-hidden .tree-first-col { max-width : unset !important; }
 
 
 
@@ -2219,7 +2220,8 @@ and (max-device-width : 1900px)  {
 .black-theme.surface-level-4 .panel-controls-spacer {  background : var(--color-surface-level-1); }
 .black-theme.surface-level-5 .panel-controls-spacer {  background : var(--color-surface-level-2); }
 
-.panel-controls > .single-select-action { order : -1; }
+.panel-controls > .single-select-action,
+.panel-actions  > .single-select-action { order : -1; }
 
 .panel-search.button {
     display   : flex;

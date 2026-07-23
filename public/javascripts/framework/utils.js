@@ -3856,6 +3856,8 @@ function genTree(id, items) {
 
     elemContent.closest('.panel-top').addClass('tree');
 
+    if(settings[id].hideTreeColumns) $('#' + id).addClass('tree-columns-hidden');
+
     genTreeHeaders(id, elemTHead);
     genTreeRows(id, elemTBody, items);
     genTreePath(id);
