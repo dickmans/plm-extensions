@@ -265,7 +265,7 @@ function openItem(link) {
         'reset'         : true, 
         'openInPLM'     : false, 
         'goThere'       : true, 
-        'hideDetails'   : true, 
+        'hideTableColumns'   : true, 
         'quantity'      : true,
         'counters'      : true,
         'getFlatBOM'    : true, 

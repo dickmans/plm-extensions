@@ -374,8 +374,6 @@ function initViewerDone(id) {
     
     $('#' + id + '-progress').addClass('hidden');
 
-    settings[id].afterCompletion(id);
-
 }
 function onViewerToolbarCreated(event) {  
     event.target.toolbar.setVisible(false); 
@@ -544,6 +542,8 @@ function setViewerInstanceData(viewerInstance) {
 
         extendViewerInstanceData(viewerInstance);
         onViewerLoadingDone     (viewerInstance);
+
+        settings[viewerInstance.id].afterCompletion(viewerInstance.id);
 
     });
 

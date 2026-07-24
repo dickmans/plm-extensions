@@ -266,7 +266,7 @@ function clickWorkspaceItem(elemClicked, e) {
     insertBOM(links.baseBOM, {
         bomViewName : config.configurator.workspaceBase.bomView,
         collapsed   : true,
-        hideDetails : true,
+        hideTableColumns : true,
         selectItems : {
             fieldId : config.configurator.fieldIdConfigurationType,
             values : [
@@ -405,7 +405,7 @@ function openEditor() {
 
     // insertBOM(links.baseBOM, {
     //     bomViewName : config.configurator.workspaceBase.bomView,
-    //     hideDetails : true,
+    //     hideTableColumns : true,
     //     selectItems : {
     //         fieldId : config.configurator.fieldIdConfigurationType,
     //         values : [

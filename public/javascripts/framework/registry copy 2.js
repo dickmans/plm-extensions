@@ -425,7 +425,7 @@ const registry = {
                 additional : [
                     'depth', 'downloadFiles', 'downloadRequests',
                     'revisionBias',
-                    'toggles', 'hideDetails', 'treePath', 'treePathTitle',
+                    'toggles', 'hideTableColumns', 'treePath', 'treePathTitle',
                     // 'additionalRequests'
                 ]
             },{ // insertBOMPartsList
@@ -2078,7 +2078,7 @@ const registry = {
                 default     : false,
                 type        : 'boolean'
             },
-            hideDetails : {
+            hideTableColumns : {
                 title       : 'Hide Detail Columns',
                 description : 'Hide all table columns except the descriptor (use for navigation trees)',
                 default     : false,

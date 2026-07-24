@@ -428,7 +428,8 @@ const registry = {
                     'includeVaultFiles', 'includeRelatedFiles',
                     'splitFileName',
                     'uploadScreenshot', 'uploadScreenshotLabel'
-                ]
+                ],
+                excluded : [ 'openSelectedInPLM' ]
             },{ // insertGrid
                 id          : 'insertGrid',
                 description : "Shows an item's grid as an editable table. Supports inline editing, adding / cloning and removing rows",
@@ -452,8 +453,11 @@ const registry = {
                 additional : [
                     'attributes', 'autoSave', 
                     'bookmark',
-                    'disconnectButtonIcon', 'disconnectButtonLabel',                    
+                    'disconnectButtonIcon', 'disconnectButtonLabel', 
+                    'dragable', 'onDragStart', 'onDragEnd',
+                    'dropable', 'onDragEnter', 'onDragOver', 'onDragLeave', 'onDrop',                                       
                     'editable',
+                    'groupBy',
                     'hideButtonLabels', 'hideButtonCreate', 'hideButtonClone', 'hideButtonDisconnect',
                     'rotate',
                     'picklistLimit', 'picklistShortcuts',
@@ -493,7 +497,7 @@ const registry = {
                     'bomViewSelector', 
                     'downloadFiles', 'downloadFormats', 'downloadRequests', 'downloadPatterns',
                     'dragable', 'onDragStart', 'onDragEnd',
-                    'dropable', 'onDragEnter', 'onDragOver', 'onDragLeave', 'onDrop',,
+                    'dropable', 'onDragEnter', 'onDragOver', 'onDragLeave', 'onDrop',
                     'editable', 'endItemFieldId', 'endItemFieldValue', 
                     'goThere',
                     'hideDescriptor', 'hideDescriptorRev', 'hideTreeNumber', 'hideTreeHeader', 'hideTreeColumns', 
@@ -522,12 +526,17 @@ const registry = {
                 },                
                 data : [
                     'bomViewName', 'bomViewId', 
-                    'depth',
+                    'depth',                  
                     'fieldsEx', 'fieldsIn',
                     'revisionBias',
                     'selectItems'
                 ],
-                additional : [ 'hideParentNodes', 'viewerSelection' ]
+                additional : [ 
+                    'dragable', 'onDragStart', 'onDragEnd',
+                    'dropable', 'onDragEnter', 'onDragOver', 'onDragLeave', 'onDrop',  
+                    'hideParentNodes', 
+                    'viewerSelection' 
+                ]
             },{ // insertFlatBOM
                 id          : 'insertFlatBOM',
                 description : "Shows the fully flattened BOM of an item - every part with its rolled-up total quantity - as a single list rather than a tree.",
@@ -1290,6 +1299,12 @@ const registry = {
                 description : "When true, table header cells are displayed in layout 'table'",
                 default     : true,
                 type        : 'boolean'
+            },            
+            hideTableColumns : {
+                title        : 'Hide Table Columns',
+                description  : 'Hides all table columns except the descriptor / first column (use for navigation trees)',
+                default      : false,
+                type         : 'boolean'
             },            
             tableColumnsLimit : {
                 title       : 'Table Columns Limit',
@@ -2388,13 +2403,7 @@ const registry = {
                 description : 'Display only icons on buttons; labels become tooltips',
                 default     : false,
                 type        : 'boolean'
-            },            
-            hideDetails : {
-                title       : 'Hide Detail Columns',
-                description : 'Hide all table columns except the descriptor (use for navigation trees)',
-                default     : false,
-                type        : 'boolean'
-            },   
+            },               
             hideParentNodes : {
                 title       : 'Hide Parent Nodes',
                 description : 'When true, hides tree parent nodes and shows leaf items only (flat list)',
@@ -2598,6 +2607,7 @@ function getPanelSettings(name, params, inputs) {
     settings[id].afterCompletion = params.afterCompletion || function(id) { }
     settings[id].onClickItem     = params.onClickItem     || function(elemClicked) { }
     settings[id].onDblClickItem  = params.onDblClickItem  || null;
+    settings[id].afterSave       = params.afterSave  || null;
 
     for(let input of panelType.inputs) {
 

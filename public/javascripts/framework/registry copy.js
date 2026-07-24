@@ -381,7 +381,7 @@ let panelTypes = {
             ],
             // special    : [{
             //     title       : 'Hide Details',
-            //     id          : 'hideDetails',
+            //     id          : 'hideTableColumns',
             //     description : 'Hides all table columns except for the descriptor. Use this option to render navigation trees',
             //     default     : true,
             //     type        : 'boolean'

@@ -232,6 +232,7 @@
 .icon-bom::before               { content : '\e242'; }
 .icon-bom-tree::before          { content : '\e94b'; }
 .icon-bottom::before            { content : '\e258'; }
+.icon-cable::before             { content : '\efe6'; }
 .icon-calendar::before          { content : '\ebcc'; }
 .icon-cancel::before            { content : '\e5c9'; }
 .icon-cart-add::before          { content : '\e854'; }

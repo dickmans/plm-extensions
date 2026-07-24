@@ -378,6 +378,14 @@ th.sync-column {
 
 
 
+/*  ECAD PANEL */
+/* ----------------------------------------------------------------------------- */
+.status-missing .ecad-sync-status-column { color : var(--color-status-red   ); }
+.status-mapped  .ecad-sync-status-column { color : var(--color-status-yellow); }
+.status-match   .ecad-sync-status-column { color : var(--color-status-green ); }
+
+
+
 /*  ADDIN MODE */
 /* ----------------------------------------------------------------------------- */
 .addin {

@@ -57,7 +57,7 @@ $(document).ready(function() {
     // insertFileBOM(link, {
     //     expandLimit : 500,
     //     expandFull  : true,
-    //     hideDetails : false,
+    //     hideTableColumns : false,
     //     columns     : ['Version', 'Category Name', 'Has Markup', 'Lifecycle Definition', 'Material']
     // });
     // // insertViewer('/api/v3/workspaces/57/items/14552');
