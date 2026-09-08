@@ -2607,13 +2607,9 @@ function getPanelSettings(name, params, inputs) {
     settings[id].afterCompletion = params.afterCompletion || function(id) { }
     settings[id].onClickItem     = params.onClickItem     || function(elemClicked) { }
     settings[id].onDblClickItem  = params.onDblClickItem  || null;
-<<<<<<< HEAD
-    settings[id].afterSave       = params.afterSave  || null;
-=======
     settings[id].afterSave       = params.afterSave       || null;
 
     if(settings[id].contentSizes.length > 0) settings[id].contentSize = settings[id].contentSizes[0];
->>>>>>> 2b439e8 ([UPD : Framework] Merge changes including registry)
 
     for(let input of panelType.inputs) {
 
