@@ -217,12 +217,18 @@ function showStartupDialog() {
 
     $('body').children().addClass('hidden');
 
-    $('<div></div>').appendTo('body')
-        .attr('id', 'startup')
-        .addClass(getSurfaceLevel($('body')));
+    let elemStartup = $('#startup');
 
-    $('<div></div>').appendTo($('#startup'))
-        .attr('id', 'startup-logo');
+    if(elemStartup.length === 0) {
+
+        $('<div></div>').appendTo('body')
+            .attr('id', 'startup')
+            .addClass(getSurfaceLevel($('body')));
+
+        $('<div></div>').appendTo($('#startup'))
+            .attr('id', 'startup-logo');
+
+    } 
 
 }
 function hideStartupDialog() {

@@ -7,6 +7,7 @@ $(document).ready(function() {
     
     setUIEvents();
     insertMenu();
+    showStartupDialog();
 
     wsConfig.workspaceId = config.workspaceId || common.workspaceIds.items;
     wsConfig.bomViewName = config.panels.insertDetails.bomViewName || common.workspaces.items.defaultBOMView;
