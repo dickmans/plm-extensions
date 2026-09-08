@@ -1294,9 +1294,6 @@ exports.applications = {
         viewingFormats   : null,  // uses common.viewer.extensionsIncluded per default
         autoClick        : true,
         openMostRecent   : true,
-        useSSA : true,
-        // runAs            : 'daniel.lutz@autodesk.com',
-        // runAs            : 'sven.dickmans@autodesk.com',
         panels : {
             insertSearch : { 
                 autoClick    : true,
