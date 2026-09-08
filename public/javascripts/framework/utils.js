@@ -3856,6 +3856,8 @@ function genTree(id, items) {
 
     elemContent.closest('.panel-top').addClass('tree');
 
+    if(settings[id].hideTreeColumns) $('#' + id).addClass('tree-columns-hidden');
+
     genTreeHeaders(id, elemTHead);
     genTreeRows(id, elemTBody, items);
     genTreePath(id);
@@ -4396,6 +4398,61 @@ function treeDisplayItem(elemItem) {
     elemTree.animate({ scrollTop: top }, 500);
 
     if(settings[id].treePath) updateTreePath(elemItem);
+
+}
+function treeDisplayItemByPath(id, path, select, deselect) {
+
+    if(isBlank(path)) return;
+
+    id       = id       || 'bom';
+    select   = select   || true;
+    deselect = deselect || true;
+
+    let split    = path.split('|');
+    let result   = {
+        elements : [],
+        links    : []
+    }
+
+    if(deselect) $('.tree-item').removeClass('selected');
+
+    $('#' + id + ' .tree-item.level-1').each(function() {
+
+        let partNumber = $(this).attr('data-part-number');
+
+        if(partNumber === split[1]) {
+            getTreePathElements(split, 1, result, $(this), select, deselect);
+        }
+
+    });    
+
+    return result;
+
+}
+function getTreePathElements(path, index, result, elemItem, select, deselect) {
+
+    result.elements.push(elemItem);
+    result.links.push(elemItem.attr('data-link'));
+
+    if(index === (path.length - 1)) {
+
+        if(select) elemItem.addClass('selected');
+        treeDisplayItem(elemItem);
+
+    } else {
+        
+        let children = treeGetItemChildren(elemItem, true);
+
+        for(let child of children) {
+
+            let partNumber = child.attr('data-part-number');
+
+            if(partNumber === path[index + 1]) {
+                getTreePathElements(path, index + 1, result, child, select, deselect);
+            }
+
+        }
+    }
 
 }
 function treeExpandParents(level, elem) {
@@ -5829,13 +5886,14 @@ function addTileActions(params, elemTile) {
 // Generate HTML Table & interactions
 function genTable(id, items) {
 
-    if(isBlank(settings[id].multiSelect)) settings[id].multiSelect = false;
-    if(isBlank(settings[id].editable)   ) settings[id].editable    = false;
-    if(isBlank(settings[id].position)   ) settings[id].position    = false;
-    if(isBlank(settings[id].descriptor) ) settings[id].descriptor  = false;
-    if(isBlank(settings[id].quantity)   ) settings[id].quantity    = false;
-    if(isBlank(settings[id].hideDetails)) settings[id].hideDetails = false;
-    if(isBlank(settings[id].mode       )) settings[id].mode        = 'initial';
+    settings[id].multiSelect       = settings[id].multiSelect       || false;
+    settings[id].editable          = settings[id].editable          || false;
+    settings[id].position          = settings[id].position          || false;
+    settings[id].descriptor        = settings[id].descriptor        || false;
+    settings[id].hideTableColumns  = settings[id].hideTableColumns  || false;
+    settings[id].tableColumnsLimit = settings[id].tableColumnsLimit || 100;
+    settings[id].quantity          = settings[id].quantity          || false;
+    settings[id].mode              = settings[id].mode              || 'initial';
 
     let elemContent = $('#' + id + '-content');
     let elemTBody   = $('#' + id + '-tbody');
@@ -5891,11 +5949,11 @@ function genTableHeaders(id, elemTHead) {
 
     }
 
-    if(settings[id].number    ) $('<th></th>').appendTo(elemTHRow).addClass('content-column-number').html('Nr');
+    if(settings[id].number    ) $('<th></th>').appendTo(elemTHRow).addClass('content-column-number'    ).html('Nr');
     if(settings[id].descriptor) $('<th></th>').appendTo(elemTHRow).addClass('content-column-descriptor').html('Item');
-    if(settings[id].quantity  ) $('<th></th>').appendTo(elemTHRow).addClass('content-column-quantity').html('Qty');
+    if(settings[id].quantity  ) $('<th></th>').appendTo(elemTHRow).addClass('content-column-quantity'  ).html('Qty');
 
-    if(!settings[id].hideDetails) {
+    if(!settings[id].hideTableColumns) {
 
         for(let column of settings[id].columns) {
             
@@ -5920,7 +5978,7 @@ function genTableTotals(elemTHead, params) {
     if(params.descriptor) $('<th></th>').appendTo(elemTotals).html('Totals');
     if(params.quantity  ) $('<th></th>').appendTo(elemTotals).html(0).addClass('panel-total').attr('data-id', 'quantity');
 
-    if(!params.hideDetails) {
+    if(!params.hideTableColumns) {
 
         for(let column of params.columns) {
 
@@ -5948,7 +6006,7 @@ function genTableRanges(elemTHead, params) {
     if(params.descriptor) $('<th></th>').appendTo(elemRanges).html('Range');
     if(params.quantity  ) $('<th></th>').appendTo(elemRanges).html(0).addClass('panel-range').attr('data-id', 'quantity');
 
-    if(!params.hideDetails) {
+    if(!params.hideTableColumns) {
 
         for(let column of params.columns) {
             
@@ -6007,7 +6065,7 @@ function genTableRows(id, elemTBody, items, editableFields) {
         if(settings[id].descriptor) $('<td></td>').appendTo(elemRow).addClass('content-column-descriptor').html(item.title);                
         if(settings[id].quantity  ) $('<td></td>').appendTo(elemRow).addClass('content-column-quantity').html(quantity);
 
-        if(!settings[id].hideDetails) {
+        if(!settings[id].hideTableColumns) {
 
             for(let column of settings[id].columns) {
 
@@ -6066,6 +6124,8 @@ function genTableRows(id, elemTBody, items, editableFields) {
                 
                                 }
                             }
+                        } else if(typeof value === 'object') {
+                            value = value.title || '';
                         }
 
                         if(!isBlank(field.classNames)) {
@@ -6096,6 +6156,23 @@ function genTableRows(id, elemTBody, items, editableFields) {
         addTableActions(item, elemRow, settings[id]);
 
         if(first === null) first = elemRow.position().top;
+
+        if(settings[id].dragable) {
+
+            elemRow.attr('draggable'  , 'true');
+            elemRow.attr('ondragstart', settings[id].onDragStart);
+            elemRow.attr('ondragend'  , settings[id].onDragEnd  );
+
+        }        
+        
+        if(settings[id].dropable) {
+
+            elemRow.attr('ondragenter', settings[id].onDragEnter);
+            elemRow.attr('ondragover' , settings[id].onDragOver );
+            elemRow.attr('ondragleave', settings[id].onDragLeave);
+            elemRow.attr('ondrop'     , settings[id].onDrop     );
+
+        }           
 
     }
 

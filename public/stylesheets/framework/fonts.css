@@ -232,6 +232,7 @@
 .icon-bom::before               { content : '\e242'; }
 .icon-bom-tree::before          { content : '\e94b'; }
 .icon-bottom::before            { content : '\e258'; }
+.icon-cable::before             { content : '\efe6'; }
 .icon-calendar::before          { content : '\ebcc'; }
 .icon-cancel::before            { content : '\e5c9'; }
 .icon-cart-add::before          { content : '\e854'; }
@@ -396,6 +397,7 @@
 .icon-stop:before               { content : '\ef71'; }
 .icon-stopwatch:before          { content : '\e425'; }
 .icon-strike-through:before     { content : '\e246'; }
+.icon-sum:before                { content : '\e24a'; }
 .icon-summary:before            { content : '\f071'; }
 .icon-swap:before               { content : '\e8d4'; }
 .icon-swap-circle:before        { content : '\e933'; }

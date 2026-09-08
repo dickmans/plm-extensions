@@ -4791,7 +4791,7 @@ function insertGridRow(id, row, picklistsData, groupName) {
 
     let elemTBody = $('#' + id + '-tbody');
 
-    let elemTableRow = $('<tr></tr>').appendTo(elemTBody)
+    let elemRow = $('<tr></tr>').appendTo(elemTBody)
         .addClass('content-item')
         .attr('data-link', '');
 
@@ -4800,30 +4800,30 @@ function insertGridRow(id, row, picklistsData, groupName) {
             let elemGroup = $(this);
             if(elemGroup.attr('data-title') === groupName) {
                 let elemLast = elemGroup.nextUntil('.table-group').last();
-                if(elemLast.length > 0) elemTableRow.insertAfter(elemLast);
+                if(elemLast.length > 0) elemRow.insertAfter(elemLast);
             }
         });
     }
 
     if(isBlank(row)) {
-        elemTableRow.addClass('new');
+        elemRow.addClass('new');
     } else {
         for(let field of row.rowData) {
             if(field.title === 'Row Id') {
-                elemTableRow.attr('data-link', field.__self__);
+                elemRow.attr('data-link', field.__self__);
             }
         }
     }
 
     if(settings[id].collapseContents) {
         if(!isBlank(settings[id].groupBy)) {
-            elemTableRow.hide();
+            elemRow.hide();
         }
     }
 
     if(settings[id].multiSelect) {
 
-        $('<td></td>').appendTo(elemTableRow)
+        $('<td></td>').appendTo(elemRow)
             .html('<div class="icon icon-check-box"></div>')
             .addClass('content-item-check-box');
 
@@ -4831,30 +4831,51 @@ function insertGridRow(id, row, picklistsData, groupName) {
 
     for(let field of settings[id].columns) {
 
-        let elemCell = $('<td></td>').appendTo(elemTableRow);
+        let elemCell = $('<td></td>').appendTo(elemRow);
 
         if(field.preserve) elemCell.addClass('hidden');
             
         if(isBlank(row)) insertField(settings[id], elemCell, field, null, picklistsData, [], []);
         else insertField(settings[id], elemCell, field, row.rowData, picklistsData, [], []);
         
-        if(field.editability === 'NEVER') {
+        // if(field.editability === 'NEVER') {
             let value  = '';
             if(!isBlank(row)) value = getFieldValueFromResponseData(field.id, row.rowData) || '';
-            elemCell.attr('data-value', value);
-        }
+            if(typeof value === 'object') {
+                elemCell.attr('data-display', value.title);
+                elemCell.attr('data-value', value.link);
+                
+            } else elemCell.attr('data-value', value);
+        // }
         
         for(let attribute of settings[id].attributes) {
             if(attribute.fieldId == field.id) {
-                elemTableRow.attr(attribute.name, getGridRowValue(row, field.id, '', 'title'));
+                elemRow.attr(attribute.name, getGridRowValue(row, field.id, '', 'title'));
             }
         }
 
     } 
 
-    setGridRowEvents(id, elemTableRow);
+    setGridRowEvents(id, elemRow);
 
-    return elemTableRow;
+    if(settings[id].dragable) {
+
+        elemRow.attr('draggable'  , 'true');
+        elemRow.attr('ondragstart', settings[id].onDragStart);
+        elemRow.attr('ondragend'  , settings[id].onDragEnd  );
+
+    }        
+    
+    if(settings[id].dropable) {
+
+        elemRow.attr('ondragenter', settings[id].onDragEnter);
+        elemRow.attr('ondragover' , settings[id].onDragOver );
+        elemRow.attr('ondragleave', settings[id].onDragLeave);
+        elemRow.attr('ondrop'     , settings[id].onDrop     );
+
+    }  
+
+    return elemRow;
 
 }
 function setGridRowEvents(id, elemRow) {
@@ -5212,6 +5233,8 @@ function insertBOM(link , params, data) {
     settings[id].picklists   = data.picklists     || [];
     settings[id].workspaces  = data.workspaces    || [];
 
+    if(settings[id].hideTreeColumns) $('#' + id).addClass('tree-columns-hidden');
+
     settings[id].load = function() { changeBOMView(id); }
 
     // if(!isBlank(params.endItem)) {
@@ -5324,12 +5347,7 @@ function getBOMViews(id) {
                 .html(bomView.name)
                 .attr('value', bomView.id);
 
-            if(!isBlank(settings[id].bomViewName)) {
-                if(bomView.name === settings[id].bomViewName) {
-                    elemSelect.val(bomView.id);
-                    bomViewMissing = false;
-                }
-            }
+
 
             let view = {
                 id      : bomView.id,
@@ -5350,13 +5368,13 @@ function getBOMViews(id) {
                 field.included = false;
                 field.sortFieldsIncluded = bomView.fields.length + 1;
 
-                if(field.displayName !== 'Descriptor') {
-                    if(includePanelTableColumn(field.fieldId, field.displayName, settings[id], columnsCount++)) {
-
-                        
+                if(includePanelTableColumn(field.fieldId, field.displayName, settings[id], columnsCount++)) {
+                    if(field.displayName !== 'Descriptor') {
                         if(!settings[id].hideTreeColumns) {
-                            field.included = true;
+
+                            field.included           = true;
                             field.sortFieldsIncluded = field.displayOrder;
+
                             if(settings[id].fieldsIn.length > 0) {
                                 let fieldIndex = settings[id].fieldsIn.indexOf(field.displayName);
                                 if(fieldIndex >= 0) {
@@ -5365,30 +5383,32 @@ function getBOMViews(id) {
                                     field.sortFieldsIncluded = settings[id].fieldsIn.length + 1 + Number(field.displayOrder);
                                 }
                             } 
-                        }      
+                        }
+                    } else { 
+                        field.sortFieldsIncluded = 0; 
                     }
-                } else { field.sortFieldsIncluded = 0; }
+                }      
 
-                // console.log(field);
-
-                // switch(field.fieldId) {
-                //     case settings[id].fieldIdPartNumber   : view.urns.partNumber   = field.__self__.urn; break;
-                //     case common.workspaces.items.fieldIdNumber : if(isBlank(view.urns.partNumber)) view.urns.partNumber  = field.__self__.urn; break;
-                //     case 'QUANTITY'                   : view.urns.quantity    = field.__self__.urn; break;
-                //     case settings[id].endItemFieldId      : view.urns.endItem     = field.__self__.urn; break;
-                //     default:
-                //         if(!isBlank(settings[id].selectItems)) {
-                //             if(field.fieldId === settings[id].selectItems.fieldId) view.urns.selectItems = field.__self__.urn;
-                //         }
-                //         break;
-                // }
-
-                view.columns.push(field);
+                if(field.included) view.columns.push(field);
 
             }
 
             sortArray(view.columns, 'sortFieldsIncluded', 'integer');
             settings[id].bomViews.push(view);
+
+            let selectView = (isBlank(settings[id].bomViewName)) ? (settings[id].bomViews.length === 0): (bomView.name === settings[id].bomViewName);
+
+            // if(!isBlank(settings[id].bomViewName)) {
+                // if(bomView.name === settings[id].bomViewName) {
+                if(selectView) {
+                    elemSelect.val(bomView.id);
+                    settings[id].viewId = bomView.id;
+                    settings[id].viewFields = bomView.fields;
+                    settings[id].viewColumns = view.columns.slice();
+                    bomViewMissing = false;
+                }
+                // }
+            // } 
 
         }
         
@@ -6356,32 +6376,13 @@ function insertBOMPartsList(link, params) {
     genPanelElements(id);      
 
     insertBOMPartsListDone(id);
-    getBOMViewId(id);
+    getBOMViews(id);
 
 }
 function insertBOMPartsListDone(id) {}
-function getBOMViewId(id) {
-
-    $.get('/plm/bom-views-and-fields', { link : settings[id].link, useCache : settings[id].useCache }, function(response) {
-
-        if(settings[id].bomViewName === '') settings[id].bomViewName = response.data[0].name;
-
-        for(let bomView of response.data) {
-            if(settings[id].bomViewName === bomView.name) {
-                settings[id].viewId     = bomView.id;
-                settings[id].viewFields = bomView.fields;
-                settings[id].load();
-                break;
-            }
-        }
-
-    });
-
-}
 function insertBOMPartsListData(id) {
 
     settings[id].timestamp = startPanelContentUpdate(id);
-    settings[id].columns   = [];
 
     let params = {
         link          : settings[id].link,
@@ -6398,13 +6399,13 @@ function insertBOMPartsListData(id) {
         let parts = getBOMPartsList(settings[id], response.data);
         let items = [];
 
-        if(parts.length > 0) {
-            for(let field of parts[0].fields) {
-                if(includePanelTableColumn(field.fieldId, field.displayName, settings[id], settings[id].columns.length)) {
-                    settings[id].columns.push(field);
-                }
-            }
+        for(let field of settings[id].viewColumns) {
+            // if(includePanelTableColumn(field.fieldId, field.displayName, settings[id], settings[id].columns.length)) {
+                settings[id].columns.push(field);
+            // }
         }
+
+        console.log(parts);
 
         for(let part of parts) {
 
