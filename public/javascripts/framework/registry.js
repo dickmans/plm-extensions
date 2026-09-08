@@ -500,7 +500,7 @@ const registry = {
                     'dropable', 'onDragEnter', 'onDragOver', 'onDragLeave', 'onDrop',
                     'editable', 'endItemFieldId', 'endItemFieldValue', 
                     'goThere',
-                    'hideDescriptor', 'hideDescriptorRev', 'hideTreeNumber', 'hideTreeHeader', 'hideTreeColumns', 
+                    'hideDescriptor', 'hideDescriptorRev', 'hideChildren', 'hideItems', 'hideTreeNumber', 'hideTreeHeader', 'hideTreeColumns', 
                     'saveButtonLabel', 'selectUnique',
                     'toggles', 'treePath', 'treePathTitle', 'treeShowQuantity', 'treeShowRestricted',
                     'viewerSelection'
@@ -1258,7 +1258,7 @@ const registry = {
                 description : 'Content Layout',
                 default     : 'list',
                 type        : 'select',
-                list        : ['table', 'list', 'grid']
+                list        : ['table', 'list', 'grid', 'row']
             },            
             contentSize : {
                 title       : 'Content Size',
@@ -1958,18 +1958,6 @@ const registry = {
                 description : 'Adds drop down with available BOM views',
                 default     : false,
                 type        : 'boolean',
-            },                
-            endItemFieldId : {
-                title       : 'End Item Field ID',
-                description : 'Prevents expansion of end items, recognized by given field ID and matching "End Item Field Value"',
-                default     : '',
-                type        : 'string'
-            },
-            endItemFieldValue : {
-                title       : 'End Item Field Value',
-                description : 'Prevents expansion of end items, recognized by defined value and field set with "End Item Field ID"',
-                default     : '',
-                type        : 'string'
             },
             goThere : {
                 title       : 'Go There',
@@ -2006,7 +1994,19 @@ const registry = {
                 description : "Hides revision in descriptor column",
                 default     : false,
                 type        : 'boolean'
-            },    
+            },
+            hideChildren : {
+                title       : 'Hide Children',
+                description : "Array with filter definitions to select items whose children must not be displayed in the tree. Provide an optional className to add a defined css class to the given tree items [{ fieldId : 'END_ITEM', value : 'true', className : 'hidden-children' }]",
+                default     : '',
+                type        : 'array'
+            },        
+            hideItems : {
+                title       : 'Hide Items',
+                description : "Array with filter definitions to select items being hidden from the tree [{ fieldId : 'IGNORE_IN_MBOM', value : 'true' }]",
+                default     : '',
+                type        : 'array'
+            },            
             selectUnique : {
                 title       : 'Select Unique',
                 description : 'When selecting BOM rows, deduplicate by item link',
@@ -2164,7 +2164,7 @@ const registry = {
                 type        : 'array'
             },
             summaryLayout : {
-                title       : 'Layout',
+                title       : 'Summary Layout',
                 description : 'Item Summary Layout',
                 default     : 'dashboard',
                 type        : 'select',
@@ -2599,7 +2599,7 @@ function getPanelSettings(name, params, inputs) {
 
     const panelType = getRegistryPanelType(name);
     const link      = inputs.link || '';
-    const id        = params.id || panelType.defaults.id;
+    const id        = params.id || panelType.defaults.id;
 
     settings[id]                 = getRegistryPanelSettings(params, panelType, link);
     settings[id].load            = function() { window[name + 'Data'](id); }
@@ -2607,7 +2607,13 @@ function getPanelSettings(name, params, inputs) {
     settings[id].afterCompletion = params.afterCompletion || function(id) { }
     settings[id].onClickItem     = params.onClickItem     || function(elemClicked) { }
     settings[id].onDblClickItem  = params.onDblClickItem  || null;
+<<<<<<< HEAD
     settings[id].afterSave       = params.afterSave  || null;
+=======
+    settings[id].afterSave       = params.afterSave       || null;
+
+    if(settings[id].contentSizes.length > 0) settings[id].contentSize = settings[id].contentSizes[0];
+>>>>>>> 2b439e8 ([UPD : Framework] Merge changes including registry)
 
     for(let input of panelType.inputs) {
 
