@@ -240,7 +240,7 @@ function setPanelTypeInputsAndOptions(panelType) {
     insertPanelOptions(panelType, registry.panelAdditionalOptions.sections , 'Item Details Sections & Fields', panelType.additional);
     insertPanelOptions(panelType, registry.panelAdditionalOptions.files    , 'Attachment Options'            , panelType.additional);    
     insertPanelOptions(panelType, registry.panelAdditionalOptions.grid     , 'Grid Options'                  , panelType.additional);    
-    insertPanelOptions(panelType, registry.panelAdditionalOptions.tree     , 'Tree Options'                  , panelType.additional);
+    insertPanelOptions(panelType, registry.panelAdditionalOptions.tree     , 'Tree Display Options'          , panelType.additional);
     insertPanelOptions(panelType, registry.panelAdditionalOptions.history  , 'Workflow History Options'      , panelType.additional);
     insertPanelOptions(panelType, registry.panelAdditionalOptions.summary  , 'Item Summary Options'          , panelType.additional);       
     insertPanelOptions(panelType, registry.panelAdditionalOptions.dnd      , 'Drag & Drop Features'          , panelType.additional);    

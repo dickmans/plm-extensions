@@ -38,6 +38,18 @@ exports.adminClientSecret = '';
 
 
 // ---------------------------------------------------------------------------------------------------------------------------
+//  OPTIONAL SETTINGS FOR SECURE SERVICE ACCOUNT (SSA)
+// ---------------------------------------------------------------------------------------------------------------------------
+// The following settings only are required if a SSA (Secure Service Account) should be used by defined apps. When enabled, users do not have to login to 
+// Fusion Manage before using the applications. Instead, the defined SSA account will be used, driving access permission within the
+// application. Once the SSA Account ID and keys are defined IN ADDITION to Admin Client ID/Secret, ssa mode can be enabled for each application
+// by adding the following setting to the application's settings: useSSA = true;
+exports.ssaAccountId  = '';       // Reference : 'R201IMWZR4B7VJT3'
+exports.ssaKeyId      = '';       // Reference : '1e2era89-8c5b-123a-85e3-ca537e4b5e7e'
+exports.ssaPrivateKey = '';       // Reference : '-----BEGIN RSA PRIVATE KEY-----\nMIIEpQIBAAKCAQ..aQhlG3WBdN4=\n-----END RSA PRIVATE KEY-----\n'
+
+
+// ---------------------------------------------------------------------------------------------------------------------------
 //  OPTIONAL VAULT SETTINGS
 // ---------------------------------------------------------------------------------------------------------------------------
 //  These optional settings are only required for connections to Vault using the REST API BETA (i.e. when using the addins)
@@ -51,17 +63,20 @@ exports.vaultName    = '';
 // ---------------------------------------------------------------------------------------------------------------------------
 //  When running the server in the cloud, changing this file might be a challenge
 //  This is why you can also provide all these settings by using the environment variables listed below. 
-//  Environment variables have higher priority, mattching environment variable values overwrite the value defined in this file
-//   - TENANT
-//   - CLIENT_ID
-//   - REDIRECT_URI
-//   - SETTINGS
-//   - DEFAULT_THEME
-//   - ENABLE_CACHE
-//   - DEBUG_MODE
-//   - FUSION_CONNECTED
-//   - ADMIN_CLIENT_ID
-//   - ADMIN_CLIENT_SECRET
-//   - VAULT_GATEWAY
-//   - VAULT_NAME
+//  Environment variables have higher priority, matching environment variable values overwrite the value defined in this file
+//   - TENANT              ( overrides exports.tenant            )
+//   - CLIENT_ID           ( overrides exports.clientId          )
+//   - REDIRECT_URI        ( overrides exports.redirectUri       )
+//   - SETTINGS            ( overrides exports.settings          )
+//   - DEFAULT_THEME       ( overrides exports.defaultTheme      )
+//   - ENABLE_CACHE        ( overrides exports.enableCache       )
+//   - DEBUG_MODE          ( overrides exports.debugMode         )
+//   - FUSION_CONNECTED    ( overrides exports.fusionConnected   )
+//   - ADMIN_CLIENT_ID     ( overrides exports.adminClientId     ) 
+//   - ADMIN_CLIENT_SECRET ( overrides exports.adminClientSecret )
+//   - SSA_ACCOUNT_ID      ( overrides exports.ssaAccountId      )
+//   - SSA_KEY_ID          ( overrides exports.ssaKeyId          )
+//   - SSA_PRIVATE_KEY     ( overrides exports.ssaPrivateKey     )
+//   - VAULT_GATEWAY       ( overrides exports.vaultGateway      )
+//   - VAULT_NAME          ( overrides exports.vaultName         )
 // ---------------------------------------------------------------------------------------------------------------------------

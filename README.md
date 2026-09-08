@@ -66,6 +66,18 @@ If you used the UX extensions in the past with a single settings.js file - witho
 </ol>
 
 
+## Developer Documentation
+The applications in this package are meant to be adjusted, extended and reused. If you intend to modify the code, configure it beyond the standard settings or build your own applications on top of this framework, start with the documents below. In addition, the running server itself provides a live developer guide at <b>/docs</b>, an interactive panel configurator at <b>/studio</b> and a components gallery at <b>/gallery</b>.
+
+| Document | Contents |
+| -- | -- |
+| <a href="https://github.com/dickmans/plm-extensions/tree/main/claude/ARCHITECTURE.md">claude/ARCHITECTURE.md</a> | How the server is put together: startup and settings merge, the route layers, the /plm wrapper and its response format, authentication, the client-side globals, response caching and the directory map |
+| <a href="https://github.com/dickmans/plm-extensions/tree/main/claude/CONFIGURATION.md">claude/CONFIGURATION.md</a> | The configuration model behind the setup instructions above: which file to edit, how the merge works, the settings conventions and a checklist for onboarding a new tenant |
+| <a href="https://github.com/dickmans/plm-extensions/tree/main/claude/PANELS.md">claude/PANELS.md</a> | The reusable UI building blocks (the insertXxx panel functions): the catalogue, how to mount them, how their options are resolved and how to extend them |
+| <a href="https://github.com/dickmans/plm-extensions/tree/main/claude/ADDING-APPLICATIONS.md">claude/ADDING-APPLICATIONS.md</a> | Step by step reference for scaffolding a new application on this server |
+| <a href="https://github.com/dickmans/plm-extensions/tree/main/CONTRIBUTING.md">CONTRIBUTING.md</a> | Coding conventions for JavaScript, Pug and CSS, how to verify a change and what not to commit |
+
+
 ## Optional Chrome Extension
 Accessibility of the UX extensions can be further improved by installing the Chrome Extension contained in folder <a href="https://github.com/dickmans/plm-extensions/tree/main/chrome" target="_blank">/chrome</a>. This Chrome Extension can be use with Google Chrome and Microsoft Edge only and must be installed on each client. 
 
@@ -95,7 +107,7 @@ The following extensions are included in this package. Each application can be a
 | <img src="public/images/app-sbom-editor.png" width="600"> | **Service BOM Editor**<br/>Users can define Spare Parts and Service Kits easily based on an Engineering BOM and define dedicated Service Offerings on top. See video at https://youtu.be/zVnsrQyO-1o. |
 | <img src="public/images/app-variant-manager.png" width="600"> | **Variants Manager**<br/>Engineers and Product Managers can define variants of an existing product design. This helps creating BOM variants based on color, material or other properties with ease. See video at https://youtu.be/v6ZZN3Xo-BM. |
 | <img src="public/images/app-instances.png" width="600"> | **BOM Instance Editor**<br/>Manage attributes of each item instance in your Bill of Materials with visual assistance. |
-| <img src="public/images/app-abom.png" width="600"> | **Asset BOM Editor**<br/>Create unique copies of a generic BOM to manage the lifecycle of individual items of an Asset. |
+| <img src="public/images/app-abom.png" width="600"> | **As-Built BOM Editor**<br/>Create unique copies of a generic BOM to manage the lifecycle of individual items of an Asset. |
 | <img src="public/images/app-class-browser.png" width="600"> | **Classification Browser**<br/>Engineers can use item classification data to easily browse for similar components. This helps increasing reuse of existing items and thus reducing development efforts. See video at https://youtu.be/uOyj52kFLlE.|
 | <img src="public/images/app-editor.png" width="600"> | **Specification Editor**<br/>Define a product specification based on structured requirements with ease, enabling precise goals definition for your product development teams. |
 | <img src="public/images/app-design-review.png" width="600"> | **Design Reviews Portal**<br/>This portal can involve customers in the review process. Driven by Design Review processes in PLM, it provides feedback & file sharing capabilities. Markups can be used to create corrective Design Review Tasks. See video at https://youtu.be/AU--qJIMmlE. |

@@ -70,10 +70,7 @@ exports.common = {
         equipments             : 280,
         equipmentServices      : 284,
         serialNumbers          : 277,
-        serializedItems        : 282,
-        assets                 : 280,
-        assetItems             : 282,
-        assetServices          : 284,
+        serializedItems        : 282
 
     },
 
@@ -1056,11 +1053,250 @@ exports.applications = {
         }
     },
 
+    mep : {
+        appAlignment : {
+            labels : {
+                appTitle            : 'M/E Alignment',
+                btnSyncMCAD         : 'Sync',
+                btnSyncECAD         : 'Sync',
+                syncMCAD            : 'Synchronize Mechanical BOM',
+                tooltipAlignMissing : 'There is no ECAD item assigned',
+                tooltipAlignDiffer  : 'This instanced is mapped to an ECAD item, but properties are different',
+                tooltipAlignMAtch   : 'This instance is mapped to a matching ECAD item',
+                tooltipECADOnly     : 'This item exists in ECAD only',
+                tooltipMissing      : 'Does not exist in mapping table',
+                tooltipMatchingTag  : 'Entry with matching tag has been found',
+                tooltipMatchDiff    : 'Entry with matching tag and location has been found, but properties differ',
+                tooltipMatch        : 'Exact match is available'
+            },            
+            panels : {
+                landingViews : {
+                    headerLabel       : 'Workspace Equipments',
+                    openSelectedInPLM : true
+                },
+                landingSearch : {
+                    headerLabel       : 'Search for Equipment',
+                    openSelectedInPLM : true
+                },
+                bomMCAD : { // Configure Mechanical BOM display based on insertBOM
+                    headerLabel       : 'Mechanical BOM',
+                    bomViewName       : 'M/E Alignment',
+                    contentSize       : 'xs',
+                    fieldsIn          : [ 'Descriptor', 'Rev', 'Qty'],
+                    search            : true,
+                    openSelectedInPLM : true,
+                    hideDescriptorRev : true,
+                    path              : true,
+                    counters          : true,
+                    collapseContents  : true,
+                    toggles           : true,
+                    hideTreeColumns   : true
+                },
+                alignmentGrids : {
+                    contentSizes      : ['xs', 's', 'm', 'xxs'],
+                    textNoData        : 'No items found. Use the button Snyc in Mechanical BOM panel to update this table.',
+                    autoSave          : true,
+                    collapseContents  : false,
+                    counters          : false,
+                    editable          : true,
+                    hideHeader        : true,
+                    multiSelect       : true,
+                    reload            : true,
+                    search            : false,
+                    filterEmpty       : false,
+                    filterBySelection : true,
+                    toggles           : true,
+                    hideButtonCreate  : true,
+                    hideButtonClone   : true,
+                    openInPLM         : true
+                },       
+                bomECAD : {
+                    headerLabel   : 'Electrical BOM',
+                    singleToolbar : 'actions',
+                    contentSize   : 'xs',
+                    fieldsIn      : [ 'Tag', 'Number', 'Title', 'Manufacturer', 'MPN', 'Ref Des', 'Class', 'Part Number' ],
+                    groupBy       : 'LOCATION',
+                    search        : true,
+                    reload        : true,
+                    openInPLM     : true,
+                    dragable      : true
+                },                
+                itemDetails : {
+                    layout         : 'narrow',
+                    expandSections : [ 'Basic', 'Equipment Configuration' ],
+                    singleToolbar  : 'actions',
+                    contentSize    : 'xs',
+                    openInPLM      : true,
+                    toggles        : true,
+                    narrowPanel    : true
+                }, 
+            },
+            viewerFeatures : {
+                views      : true,
+                selectFile : false
+            }            
+        },
+        appEditor    : {
+            labels : {
+                appTitle : 'Process BOM Editor',
+            },
+            panels : {
+                landingViews : {
+                    headerLabel       : 'Workspace Equipments',
+                    openSelectedInPLM : true
+                },
+                landingSearch : {
+                    headerLabel       : 'Search for Equipment',
+                    openSelectedInPLM : true
+                },                
+                insertMEBOM : {
+                    headerLabel       : 'M/E BOM',
+                    bomViewName       : 'MBOM Transition',
+                    fieldsIn          : [ 'Process Code', 'Quantity', 'Make or Buy' ],
+                    singleToolbar     : 'controls',                    
+                    contentSize       : 'xs',
+                    openSelectedInPLM : true,
+                    search            : true,
+                    toggles           : true,
+                    hideTreeHeader    : true,
+                    collapseContents  : true,
+                    path              : true,
+                    counters          : true,
+                },
+                insertPBOM : {
+                    headerLabel       : 'Process BOM',
+                    bomViewName       : 'MBOM Transition',
+                    fieldsIn          : [ 'Process Code', 'Quantity', 'Make or Buy' ],
+                    singleToolbar     : 'controls',
+                    contentSize       : 'xs',
+                    openSelectedInPLM : true,
+                    search            : true,
+                    toggles           : true,
+                    hideTreeHeader    : true,
+                    collapseContents  : true,
+                    path              : true,
+                    counters          : true,                  
+                },
+                itemDetails : {
+                    layout         : 'narrow',
+                    expandSections : [ 'Basic', 'Equipment Configuration' ],
+                    singleToolbar  : 'actions',
+                    contentSize    : 'xs',
+                    openInPLM      : true,
+                    toggles        : true,
+                    narrowPanel    : true
+                },                 
+            },
+            viewerFeatures : {
+                views      : true,
+                selectFile : false
+            }            
+        },
+        wsContext : {
+            workspaceId : null, // uses common.workspaceIds.equipments per default
+            fieldIds : {
+                mcad : 'MECHANICAL_BOM',  // Field in context workspace referencing the Mechanical BOM
+                ecad : 'ELECTRICAL_BOM',  // Field in context workspace referencing the Electrical BOM
+                pbom : 'PROCESS_BOM'      // Field in context workspace referencing the Process BOM
+            }            
+        },
+        exportFileName : 'Mechatronic Components',
+        mappingTables : {
+            fieldIds  : { // Field IDs required for the alignment in all related grids defined in types property
+                id           : 'ID',
+                tag          : 'TAG',
+                partNumber   : 'PART_NUMBER',
+                title        : 'TITLE',
+                rootMCAD     : 'MCAD_ROOT',
+                linkMCAD     : 'MCAD_ITEM',
+                locMCAD      : 'MCAD_LOCATION',
+                rootECAD     : 'ECAD_ROOT',
+                linkECAD     : 'ECAD_ITEM',
+                locECAD      : 'ECAD_LOCATION',
+                locViewer    : 'VIEWER_LOCATION',
+                manufacturer : 'MANUFACTURER',
+                mpn          : 'MPN',
+                instanceId   : 'INSTANCE_ID',
+                boundingBox  : 'BOUNDING_BOX',
+                linkECADBOM  : 'LINK_ECAD_BOM',
+            },
+            types : [{        
+                label       : 'Motors',
+                fieldId     : 'MOTORS_LIST',
+                workspaceId : 439,
+                colorIndex  : 1,
+                icon        : 'icon-motor',
+                fieldsIn    : [ 'Power Supply', 'Serial #', 'Installation Date' ],
+                filter      : { fieldId : 'ME_CLASS', value : 'Motors' }
+            },{
+                label       : 'Sensors',
+                fieldId     : 'SENSORS_LIST',
+                workspaceId : 440,
+                colorIndex  : 9,
+                icon        : 'icon-sensor',
+                fieldsIn    : [ 'Serial #' ],
+                filter      : { fieldId : 'ME_CLASS', value : 'Sensors' }
+            },{
+                label       : 'Control Elements',
+                fieldId     : 'CONTROL_ELEMENTS_LIST',
+                workspaceId : 441,
+                colorIndex  : 5,
+                icon        : 'icon-gears',
+                fieldsIn    : [ 'Serial #', 'Installation Date' ],
+                filter      : { fieldId : 'ME_CLASS', value : 'Control Elements' }           
+            // },{
+            //     label       : 'Mechatronic Components',
+            //     fieldId     : 'MECHATRONIC_COMPONENTS',
+            //     workspaceId : 373,
+            //     colorIndex  : 5,
+            //     icon        : 'icon-cpu',
+            //     fieldsIn    : ['Serial #', 'Installation Date', 'Item Title', 'Rev', '#', 'Instance Path'],
+            //     fieldsList  : {
+            //         partNumber   : 'NUMBER',
+            //         title        : 'ITEM_TITLE',
+            //         revision     : 'ITEM_REV',
+            //         path         : 'LOCATION',
+            //         instanceId   : 'INSTANCE_ID',
+            //         instancePath : 'INSTANCE_PATH',
+            //         boundingBox  : 'BOUNDING_BOX'
+            //     },
+            //     groupBy     : 'NUMBER',
+            //     sortOrder : [
+            //         { sortBy : 'INSTANCE_ID', sortType : 'integer', sortDirection : 'ascending' },
+            //         { sortBy : 'LOCATION'   , sortType : 'string' , sortDirection : 'ascending' }
+            //     ],
+            //     filter      : {
+            //          fieldId : 'ME_CLASS',
+            //          value   : ''
+            //     }           
+            }],            
+        },
+        ecadBOM : {
+            fieldIds : {
+                location     : 'LOCATION',
+                tag          : 'TAG',
+                item         : 'ITEM',
+                number       : 'NUMBER',
+                title        : 'TITLE',
+                manufacturer : 'MANUFACTURER',
+                mpn          : 'MPN',
+                class        : 'CLASS',
+                partNumber   : 'PART_NUMBER',
+                linkMapping  : 'LINK_MAPPING'
+            }
+            // fieldsIn : ['Title', 'Location', 'Tag', 'Vendor', 'MPN', 'Category']
+        },       
+
+    },
+
     portal : {
         workspaceId      : null,  // uses common.workspaceIds.items per default
         viewingFormats   : null,  // uses common.viewer.extensionsIncluded per default
         autoClick        : true,
         openMostRecent   : true,
+        useSSA : true,
+        // runAs            : 'daniel.lutz@autodesk.com',
+        // runAs            : 'sven.dickmans@autodesk.com',
         panels : {
             insertSearch : { 
                 autoClick    : true,
@@ -1356,6 +1592,12 @@ exports.applications = {
             },
             problemReports : {
                 image : 'IMAGE_1'
+            },            
+            equipments : {
+                project   : 'PROJECT',
+                ebom      : 'ENGINEERING_BOM',
+                sbom      : 'SERVICE_BOM',
+                serialnrs : 'SERIAL_NUMBERS_LIST'
             },
             serialNumbers : {
                 partNumber   : 'NUMBER',
@@ -1363,6 +1605,12 @@ exports.applications = {
                 instanceId   : 'INSTANCE_ID',
                 instancePath : 'INSTANCE_PATH'
             },
+            custom : {
+                project   : 'PROJECT',
+                ebom      : 'ENGINEERING_BOM',
+                sbom      : 'SERVICE_BOM',
+                serialnrs : 'SERIAL_NUMBERS_LIST'               
+            }
         },        
         items : {
             fieldIdSparePart      : 'SPARE_WEAR_PART',
@@ -1370,7 +1618,62 @@ exports.applications = {
             endItemFilter         : { fieldId : 'SBOM_END_ITEM', value : true },
             sparePartTileTitle    : 'NUMBER',
             sparePartTileSubtitle : 'TITLE',
+        }, 
+        serviceBOMTypes : {
+            sparePart : {
+                fieldValue : 'Spare Parts List',
+                groupLabel : 'Spare Parts',
+                icon       : 'icon-package'
+            },
+            kit : {
+                fieldValue : 'Service Kit',
+                groupLabel : 'Kits',
+                icon       : 'icon-list'
+            },
+            offering : {
+                fieldValue : 'Service Offering',
+                groupLabel : 'Service Offerings',
+                icon       : 'icon-layers'
+            },
+            custom : {
+                icon      : 'icon-settings'
+            }
+        },                 
+        equipmentServices : {
+            workspaceId     : null,   // uses common.workspaceIds per default
+            icon            : 'icon-product',
+            fieldIDAssignee : 'ASSIGNEE',
+            hideStates      : ['Completed', 'Cancelled'],
+            fieldIDs        : {
+                equipment   : 'ASSET',
+                assignee    : 'ASSIGNEE',
+                serialnrs   : 'SERIAL_NUMBERS_LIST'
+            },
+            detailsPanel : {
+                headerLabel     : 'Equipment Service Ticket',
+                layout          : 'narrow',
+            }
         },
+        orderProjects : {
+            workspaceId  : null,   // uses common.workspaceIds per default
+            hideStates   : ['Archived', 'Decomissioned']
+        },
+        serialNumbers : {
+            tableColumns : ['ID', 'STATUS', 'SERIAL', 'ITEM_NUMBER', 'NUMBER', 'ITEM_REV', 'LOCATION', 'SUPPLIER', 'PREVIOUS_SERIAL', 'INSTANCE_ID', 'INSTANCE_PATH']
+        }, 
+        applicationFeatures : {
+            homeButton              : true,
+            itemDetails             : true,
+            itemAttachments         : true,
+            contextDocumentation    : true,
+            manageSparePartRequests : true,
+            manageProblemReports    : true,
+            showStock               : true,
+            requestWorkflowActions  : true,
+            problemWorkflowActions  : true,
+            enableCustomRequests    : true,
+            openInPLM               : true
+        },  
         panels : {
             products           : { // Displays list of products in landing page, based on insertResults
                 headerLabel  : 'Serviceable Products',
@@ -1546,88 +1849,87 @@ exports.applications = {
                 layout          : 'list',
                 filterByType    : true,
                 contentSize     : 'xs'
-            }
-        },     
-        serviceBOMTypes : {
-            sparePart : {
-                fieldValue : 'Spare Parts List',
-                groupLabel : 'Spare Parts',
-                icon       : 'icon-package'
             },
-            kit : {
-                fieldValue : 'Service Kit',
-                groupLabel : 'Kits',
-                icon       : 'icon-list'
+            equipmentServices  : { // Displays list of pending Equipment Services in landing page (when using &mode=equipments)
+                headerLabel    : 'Pending Service Tickets',
+                layout         : 'list',
+                contentSize    : 'xs',
+                tileIcon       : 'icon-service',
+                number         : false,
+                reload         : true,
+                useCache       : false,   
             },
-            offering : {
-                fieldValue : 'Service Offering',
-                groupLabel : 'Service Offerings',
-                icon       : 'icon-layers'
+            orderProjects      : { // Displays list of Order Projects in landing page (when using &mode=equipments)
+                headerLabel    : 'Projects / Facilities',
+                layout         : 'grid',
+                contentSize    : 'l',
+                tileImage      : true,
+                tileImageFieldId : 'IMAGE',
+                tileTitle      : 'TITLE',
+                tileSubtitle   : 'CUSTOMER',
+                tileDetails    : [{
+                    icon       : 'icon-flag',
+                    fieldId    : 'COUNTRY',
+                    prefix     : 'Country'
+                }, {
+                    icon       : 'icon-city',
+                    fieldId    : 'CITY',
+                    prefix     : 'City'
+                }],
+                reload         : true,
+                search         : true,
+                useCache       : true,
             },
-            custom : {
-                icon      : 'icon-settings'
-            }
-        },                 
-        equipmentServices : {
-            workspaceId     : null,   // uses common.workspaceIds per default
-            headerLabel     : 'Pending Asset Services',
-            icon            : 'icon-product',
-            fieldIDAssignee : 'ASSIGNEE',
-            hideStates      : ['Completed', 'Cancelled'],
-            fieldIDs        : {
-                asset       : 'ASSET',
-                assignee    : 'ASSIGNEE',
-                serialnrs   : 'SERIAL_NUMBERS_LIST'
+            equipments         : { // List of related equipments of selected order project (when using &mode==equipment)
+                id           : 'equipments',
+                layout       : 'table',
+                contentSize  : 'm',
+                fieldsIn       : ['DESCRIPTOR', 'ASSET_SN', 'ASSET_GROUP', 'ASSET_TYPE', 'ASSET_SYSTEM', 'ASSET_FUNCTION'],
+                useCache     : true,
+                search       : true,
             },
-            detailsPanel : {
-                headerLabel     : 'Asset Service Ticket',
-                expandSections  : ['Asset Details'],
-                excludeSections : ['Images'],
-                layout          : 'narrow',
+            equipmentService   : {  // Configures insertItemSummary for the display of selected Equipment Service
+                summaryLayout   : 'tabs',
+                summaryContents : [{
+                    type : 'details',
+                    params : { 
+                        id             : 'service-details', 
+                        layout         : 'narrow',
+                        editable       : true,
+                        hideHeader     : true,
+                        expandSections : ['Asset Details'],
+                        sectionsEx     : ['Images']
+                    }
+                },{ 
+                    type   : 'grid',
+                    params : { 
+                        id         : 'service-grid', 
+                        fieldsEx   : ['Comments', 'Required Tools'], 
+                        hideHeader : true,
+                    } 
+                }, { 
+                    type : 'attachments',
+                    params : { 
+                        id : 'service-attachments', 
+                        editable : true, 
+                        layout : 'list', 
+                        contentSize : 'm', 
+                        singleToolbar : 'controls'
+                    }
+                }],
+                statesColors    : [
+                    { label : 'New',         color : 'red',    states : ['Received'] },
+                    { label : 'In Work',     color : 'yellow', states : ['Review', 'Quote Creation'] },
+                    { label : 'Waiting',     color : 'red',    states : ['Awaiting Response', 'Quote Submitted'] },
+                    { label : 'Delivery',    color : 'yellow', states : ['Order in process', 'Shipment'] },
+                    { label : 'Completed',   color : 'green',  states : ['Completed'] }
+                ],
+                hideCloseButton : true,
+                openInPLM       : false,
+                reload          : false,
+                workflowActions : true
             }
-        },
-        orderProjects : {
-            workspaceId  : null,   // uses common.workspaceIds per default
-            headerLabel  : 'Projects / Facilities',
-            hideStates   : ['Archived', 'Decomissioned'],
-            tileSubtitle : 'CUSTOMER',
-            tileDetails  : [{
-                icon     : 'icon-flag',
-                fieldId  : 'COUNTRY',
-                prefix   : 'Country'
-            }, {
-                icon    : 'icon-city',
-                fieldId : 'CITY',
-                prefix  : 'City'
-            }],
-        },
-        equipments : {
-            workspaceId  : null,   // uses common.workspaceIds per default
-            icon         : 'icon-product',
-            tableColumns : ['ASSET_SN', 'ASSET_GROUP', 'ASSET_TYPE', 'ASSET_SYSTEM', 'ASSET_FUNCTION'],
-            fieldIDs     : {
-                project   : 'PROJECT',
-                ebom      : 'ENGINEERING_BOM',
-                sbom      : 'SERVICE_BOM',
-                serialnrs : 'SERIAL_NUMBERS_LIST'
-            }
-        },
-        serialNumbers : {
-            tableColumns : ['ID', 'STATUS', 'SERIAL', 'ITEM_NUMBER', 'NUMBER', 'ITEM_REV', 'LOCATION', 'SUPPLIER', 'PREVIOUS_SERIAL', 'INSTANCE_ID', 'INSTANCE_PATH']
-        }, 
-        applicationFeatures : {
-            homeButton              : true,
-            itemDetails             : true,
-            itemAttachments         : true,
-            contextDocumentation    : true,
-            manageSparePartRequests : true,
-            manageProblemReports    : true,
-            showStock               : true,
-            requestWorkflowActions  : true,
-            problemWorkflowActions  : true,
-            enableCustomRequests    : true,
-            openInPLM               : true
-        },        
+        },         
         viewerFeatures : {
             contextMenu   : false,
             cube          : false,
@@ -1942,38 +2244,49 @@ exports.menu = [
     [{
         label      : 'Business Applications',
         adminsOnly : false,
-        commands   : [{
+        commands   : [
+          { // Portal
             icon       : 'icon-3d',
             title      : 'Portal',
             subtitle   : 'Quick access to all product data',
             url        : '/portal',
             adminsOnly : false
-        },{
+        },{ // Product Portfolio Catalog
             icon     : 'icon-tiles',
             title    : 'Product Portfolio Catalog',
             subtitle : 'Browse your current product portfolio',
             url      : '/portfolio'
-        },{
+        },{ // Workspace Navigator
             icon     : 'icon-columns',
             title    : 'Workspace Navigator',
             subtitle : 'Manage your master data easily',
             url      : '/navigator'
-        },{
+        },{ // Design Reviews
             icon     : 'icon-markup',
             title    : 'Design Reviews',
             subtitle : 'Perform online design reviews',
             url      : '/reviews'
-        },{
+        },{ // Class Browser
             icon     : 'icon-book',
             title    : 'Class Browser',
             subtitle : 'Use classification for your data research',
             url      : '/classes'
-        },{
+        },{ // Product Data Explorer
             icon     : 'icon-trend-chart',
             title    : 'Product Data Explorer',
             subtitle : 'Track design maturity using defined KPIs',
             url      : '/explorer'
-        },{
+        },{ // M/E Alignment
+            icon     : 'icon-cable',
+            title    : 'M/E Alignment',
+            subtitle : 'Align mechatronic Bill of Materials',
+            url      : '/mealign'
+        },{ // M/E & Process BOM
+            icon     : 'icon-cable',
+            title    : 'M/E & Proces BOM Editor',
+            subtitle : 'Create Process BOM from Mechatronic BOM',
+            url      : '/mepbom'
+        },{ // Service Portal
             icon     : 'icon-service',
             title    : 'Service Portal',
             subtitle : 'Real time spare parts information',
@@ -1982,37 +2295,38 @@ exports.menu = [
     }],[{
         label      : 'Dashboards',
         adminsOnly : false,
-        commands   : [{
+        commands   : [
+          { // Problem Reporting Dashboard
             icon     : 'icon-important',
             title    : 'Problem Reporting Dashboard',
             subtitle : 'Capture and resolve problem reports',
             url      : '/dashboard?wsId=82'
-        },{
+        },{ // Non Conformances Dashboard
             icon     : 'icon-released',
             title    : 'Non Conformances Dashboard',
             subtitle : 'Capture and resolve quality issues',
             url      : '/dashboard?wsId=98'
-        },{
+        },{ // Change Requests Dashboard
             icon     : 'icon-workflow',
             title    : 'Change Requests Dashboard',
             subtitle : 'Create and manage Change Requests',
             url      : '/dashboard?wsId=83'
-        },{
+        },{ // Change Orders Dashboard
             icon     : 'icon-markup',
             title    : 'Change Orders Dashboard',
             subtitle : 'Create and manage Change Orders & Tasks',
             url      : '/dashboard?wsId=84'
-        },{
+        },{ // Change Tasks Dashboard
             icon     : 'icon-mow',
             title    : 'Change Tasks Dashboard',
             subtitle : 'Review, perform and complete assigned tasks',
             url      : '/dashboard?wsId=80'    
-        },{
+        },{ // Reports Dashboard
             icon     : 'icon-dashboard',
             title    : 'Reports Dashboard',
             subtitle : 'Gain insights using your PLM reports',
             url      : '/reports'
-        },{
+        },{ // Projects Dashboard
             icon     : 'icon-timeline',
             title    : 'Projects Dashboard',
             subtitle : 'Review timeline of NPI projects in progress',
@@ -2074,12 +2388,16 @@ exports.server = {
         client         : true,  // Mobile Client
         compare        : true,  // BOM Comparison
         dashboard      : true,  // Process Dashboard
+        dpp            : true,  // Digital Product Passports
         editor         : true,  // Specification Editor
         explorer       : true,  // Product Data Explorer
         impactanalysis : true,  // Change Impact Analysis
         instances      : true,  // BOM Instances Editor
         mbom           : true,  // Manufacturing BOM Editor
+        mealign        : true,  // M/E Alignment
+        mepbom         : true,  // M/E & Process BOM Editor
         navigator      : true,  // Workspace Navigator
+        pbom           : true,  // Process BOM Editor
         portal         : true,  // PLM POrtal
         portfolio      : true,  // Product Portfoliio Catalog
         projects       : true,  // Projects Dashobard
@@ -2159,126 +2477,130 @@ exports.chrome = {
         icon  : 'zmdi-assignment-account',
         order : 105 
     }],  
-    buttons : [{
+    buttons : [
+      { // Change Impact Analysis for PR, CR and CO
         id         : 'cia',
         url        : '/impactanalysis?',
         label      : 'Change Impact Analysis',
         workspaces : ['problemReports', 'changeRequests', 'changeOrders']
-    },{
+    },{ // Requirements Specification Editor for Equipments, Products and Requirements
         id         : 'editor-requirements',
         url        : '/editor?config=requirements&working=true&',
         label      : 'Edit Requirements Specification',
         icon       : 'zmdi-file-text',
         workspaces : ['equipments', 'products', 'requirements']
-    },{        
-        id         : 'pde',
-        url        : '/explorer?',
-        label      : 'Product Data Explorer',
-        icon       : 'zmdi-chart',
-        workspaces : ['items']
-    },{
+
+    },{ // BOM Comparison for Items
         id         : 'compare',
         url        : '/compare?compareWith=self&',
         label      : 'Compare',
         icon       : 'zmdi-compare',
-        workspaces : ['items']
-    },{
-        id         : 'mbom',
-        url        : '/mbom?',
-        label      : 'Edit MBOM',
-        workspaces : ['items']
-    },
-    //  Placeholders for definition of site specific MBOMs
-    //  { 
-    //     id         : 'mbom',
-    //     url        : '/mbom?options=site:A&',
-    //     label      : 'Edit MBOM site A',
-    //     workspaces : ['items']
-    //  },{
-    //     id         : 'mbom',
-    //     url        : '/mbom?options=site:B&',
-    //     label      : 'Edit MBOM site B',
-    //     workspaces : ['items']
-    //  },
-    {
-        id         : 'variants-items',
-        url        : '/variants?',
-        label      : 'Manage Variants',
-        workspaces : ['items']        
-    },{
+        workspaces : ['items']     
+    },{ // Browse Class of Item
         id         : 'class-browser',
         url        : '/classes?',
         label      : 'Browse Class',
         icon       : 'zmdi-labels',
-        workspaces : ['items']             
-    },{
-        id         : 'service-portal',
-        url        : '/service?',
-        label      : 'Service Portal',
-        icon       : 'zmdi-wrench',
-        workspaces : ['items']      
-    },{
+        workspaces : ['items']               
+    },{ // Product Data Explorer for Items   
+        id         : 'pde',
+        url        : '/explorer?',
+        label      : 'Product Data Explorer',
+        icon       : 'zmdi-chart',
+        workspaces : ['items']    
+    },{ // Product Data Explorer for Projects & Equipments
         id         : 'insights-context',
         url        : '/explorer?options=fieldIdEBOM:ENGINEERING_BOM&',
         label      : 'Insights',
         icon       : 'zmdi-chart',
         workspaces : ['products', 'assets']                   
-    },{
+    },{ // Product Data Explorer for Engineering Projects
         id         : 'insights-epm',
         url        : '/explorer?options=fieldIdEBOM:DELIVERABLE_4&',
         label      : 'Insights',
         icon       : 'zmdi-chart',
         workspaces : ['engineeringProjects']                   
-    },{
+    },{ // Manufacturing BOM Editor for Items
+        id         : 'mbom',
+        url        : '/mbom?',
+        label      : 'Edit Manufacturing BOM',
+        workspaces : ['items']
+    },{ // Manufacturing BOM Editor for Products
         id         : 'mbom-products',
         url        : '/mbom?options=contextfieldidebom:ENGINEERING_BOM,contextfieldidmbom:MANUFACTURING_BOM&',
         label      : 'Edit MBOM',
         workspaces : ['products']
-    },
-    //  Placeholders for definition of site specific MBOMs
-    //  {
-    //     id         : 'mbom-products',
-    //     url        : '/mbom?options=contextfieldidebom:ENGINEERING_BOM,contextfieldidmbom:MANUFACTURING_BOM,site:A&',
-    //     label      : 'Edit MBOM site A',
-    //     workspaces : ['products']
-    //  },{
-    //     id         : 'mbom-products',
-    //     url        : '/mbom?options=contextfieldidebom:ENGINEERING_BOM,contextfieldidmbom:MANUFACTURING_BOM,site:B&',
-    //     label      : 'Edit MBOM site B',
-    //     workspaces : ['products']
-    //  },
-    {
-        id         : 'mbom-assets',
+    },{ // Manufacturing BOM Editor for Equipments
+        id         : 'mbom-equipments',
         url        : '/mbom?options=contextfieldidebom:ENGINEERING_BOM,contextfieldidmbom:MANUFACTURING_BOM&',
-        label      : 'Edit MBOM',
-        workspaces : ['assets']    
-    },{
+        label      : 'Edit Manufacturing BOM',
+        workspaces : ['equipments']    
+    },{ // M/E Alignment for Products and Equipments
+        id         : 'mealign',
+        url        : '/mealign?',
+        label      : 'M/E Alignment',
+        workspaces : ['products', 'equipments']
+    },{ // Process BOM for Products and Equipments
+        id         : 'mepbom',
+        url        : '/mepbom?',
+        label      : 'Edit Process BOM',
+        workspaces : ['products', 'equipments']                
+    },{ // Service BOM Editor for Products and Equipments
         id         : 'sbom',
         url        : '/sbom?',
         label      : 'Edit Service BOM',
         workspaces : ['products', 'assets']
-    },{
+    },{ // Variants Manager for Items
+        id         : 'variants-items',
+        url        : '/variants?',
+        label      : 'Manage Variants',
+        workspaces : ['items']   
+    },{ // Variants Manager for Products
         id         : 'variants-products',
         url        : '/variants?options=fieldIdEBOM:ENGINEERING_BOM&',
         label      : 'Manage Variants',
         workspaces : ['products']     
-    },{
-        id         : 'service-products',
-        url        : '/service?wsidcontext=95&',
+    },{ // Service Portal for Items, Products and Equipments
+        id         : 'service-portal',
+        url        : '/service?',
         label      : 'Service Portal',
         icon       : 'zmdi-wrench',
-        workspaces : ['products']                  
-    },{
+        workspaces : ['items', 'products', 'equipments']
+    },{ // BOM Instances management for equipments
         id         : 'instances',
         url        : '/instances?',
         label      : 'Edit BOM Instances',
-        workspaces : ['assets']
-    },{
+        workspaces : ['equipments']
+    },{ // As-Built BOM editor for equipments
         id         : 'abom',
         url        : '/abom?',
-        label      : 'Edit Asset BOM',
-        workspaces : ['assets']
-    }],
+        label      : 'Edit As-Built BOM',
+        workspaces : ['equipments']
+    }
+    // #region  Placeholders for definition of site specific MBOMs
+        //  ,{  // Manufacturing BOM Editor for Items Site A
+        //     id         : 'mbom',
+        //     url        : '/mbom?options=site:A&',
+        //     label      : 'Edit MBOM site A',
+        //     workspaces : ['items']
+        //  },{ // Manufacturing BOM Editor for Items Site B
+        //     id         : 'mbom',
+        //     url        : '/mbom?options=site:B&',
+        //     label      : 'Edit MBOM site B',
+        //     workspaces : ['items']
+        //  }, { // Manufacturing BOM Editor for Products Site A
+        //     id         : 'mbom-products',
+        //     url        : '/mbom?options=contextfieldidebom:ENGINEERING_BOM,contextfieldidmbom:MANUFACTURING_BOM,site:A&',
+        //     label      : 'Edit MBOM site A',
+        //     workspaces : ['products']
+        // },{ // Manufacturing BOM Editor for Products Site B
+        //     id         : 'mbom-products',
+        //     url        : '/mbom?options=contextfieldidebom:ENGINEERING_BOM,contextfieldidmbom:MANUFACTURING_BOM,site:B&',
+        //     label      : 'Edit MBOM site B',
+        //     workspaces : ['products']
+        // } 
+    // #endregion    
+    ],
     customStyle : true
 }
 

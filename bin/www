@@ -106,8 +106,17 @@ function onListening() {
 		console.log('  The USER SETTINGS MANAGER cannot be used as Admin Client ID/Secret is missing');
 	} else {
 		console.log('  >> Using Admin Client ID  ' + app.locals.adminClientId.substring(0, 8) + '...');
+		if((app.locals.ssaAccountId !== ''))  {
+			console.log('  >> Using SAA Account ID   ' + app.locals.ssaAccountId);
+		}
+		if((app.locals.ssaKeyId !== ''))  {
+			console.log('  >> Using SSA Key ID       ' + app.locals.ssaKeyId.substring(0,4) + '...');
+		}
+		if((app.locals.ssaPrivateKey !== ''))  {
+			console.log('  >> Using SSA Private Key  ' + app.locals.ssaPrivateKey.substring(0,42).replaceAll('\n', '') + '...');
+		}
 	}
-
+	
 	if((app.locals.vaultGateway === '') || (app.locals.vaultGateway === '')) {
 		console.log();
 		console.log('  Not connected to Vault as Vault Gateway and/or Vault Name are not defined');
@@ -119,6 +128,19 @@ function onListening() {
 	if(typeof app.locals.chrome === 'undefined') {
 		console.log();
 		console.log('  !! The CHROME EXTENSION cannot be used as exports.chrome does not exist in settings');
+	}
+
+	if(app.locals.adminClientId !== '') {
+		if(app.locals.adminClientSecret !== '') {
+			if(app.locals.ssaAccountId !== '') {
+				if(app.locals.ssaKeyId !== '') {
+					if(app.locals.ssaPrivateKey !== '') {
+						console.log();
+						console.log('  Secure Service Account can be used as Admin Client ID/Secret, SSA Account ID, Key ID and Private Key are all defined');
+					}
+				}
+			}
+		}
 	}
 
 	console.log();

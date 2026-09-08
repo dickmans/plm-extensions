@@ -1048,7 +1048,9 @@ function viewerSelectModels(partNumbers, params) {
     let resetColors = params.resetColors ?? true;  // Reset colors of all componente before highlighting the partNumber(s)
     let keepHidden  = params.keepHidden  ?? true;  // Keep selectively hidden components hidden
     let usePath     = params.usePath     ?? false; // If list of paths is provided instead of part numbers
-    let color       = colorModelSelected; 
+    let color       = colorModelSelected;
+
+    if(!common.viewer.cachInstances) usePath = false;
 
     if(viewerInstance.hasOwnProperty('highlight')) highlight = viewerInstance.highlight;
 
@@ -1072,6 +1074,7 @@ function viewerSelectModels(partNumbers, params) {
         let instanceNumber =  (usePath) ? dataInstance.path : dataInstance.partNumber;
 
         for(let partNumber of partNumbers) {
+            partNumber = partNumber.split('|').pop();
             if(instanceNumber === partNumber) {
                 dbIds.push(dataInstance.dbId);
                 viewer.show(dataInstance.dbId);

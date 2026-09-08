@@ -3,7 +3,7 @@
     --border-v : 24px;
     --border-h : 36px;
     
-    --height-assets              : 500px;
+    --height-equipments          : 500px;
     --height-item-attachments    : 300px;
     --height-request-attachments : 300px;
     --height-snl                 : 400px;
@@ -33,15 +33,15 @@
     border-width : var(--border-v) var(--border-h);
     top          : 0px;
     right        : calc(var(--width-your-processes) + (2 * var(--border-h)));
-    bottom       : calc(var(--height-assets) + (2 * var(--border-v)));
+    bottom       : calc(var(--height-equipments) + (2 * var(--border-v)));
     left         : calc(var(--width-services) + (2 * var(--border-h)));
 }
-#assets {
+#equipments {
     border-width : var(--border-v) var(--border-h);
     right        : calc(var(--width-your-processes) + (2 * var(--border-h)));
     bottom       : 0px;
     left         : calc(var(--width-services) + (2 * var(--border-h)));
-    height       : var(--height-assets);
+    height       : var(--height-equipments);
 }
 #products {
     border-width : var(--border-v) var(--border-h);
@@ -140,38 +140,38 @@
 .screen-main    #landing { display : none; }
 .screen-main    #main { display : block; }
 
-.no-your-processes #assets,
+.no-your-processes #equipments,
 .no-your-processes #products { right : 0px; }
 
-.no-assets-list #projects { bottom : 0px; }
-.no-assets-list #assets { bottom : calc(0px - var(--height-assets) - (2 * var(--border-v))); }
+.no-equipments-list #projects   { bottom : 0px; }
+.no-equipments-list #equipments { bottom : calc(0px - var(--height-equipments) - (2 * var(--border-v))); }
 
-.no-asset-service #service { left : calc(0px - var(--width-service) - (2 * var(--border-h)));}
-.no-asset-service #bom     { left : 0px;}
-.no-asset-service .viewer,
-.no-asset-service #snl     { left : calc(var(--width-bom) + (2 * var(--border-h))); }
+.no-equipment-service #service { left : calc(0px - var(--width-service) - (2 * var(--border-h)));}
+.no-equipment-service #bom     { left : 0px;}
+.no-equipment-service .viewer,
+.no-equipment-service #snl     { left : calc(var(--width-bom) + (2 * var(--border-h))); }
 
 .no-panel.no-details .viewer,
 .no-panel.no-details #snl { right : 0px !important; }
-.no-panel #details          { right : 0px; } 
-.no-panel #panel            { right : calc(0px - var(--width-panel) - (2 * var(--border-h))) !important; }
+.no-panel #details        { right : 0px; } 
+.no-panel #panel          { right : calc(0px - var(--width-panel) - (2 * var(--border-h))) !important; }
 
 .no-panel .viewer { right  :  calc(var(--width-details) + (2 * var(--border-h))); }
 
 .no-details .viewer,
-.no-details #snl  { right  :  calc(var(--width-panel) + (2 * var(--border-h))); }
-.no-details #panel { right : 0px; }
+.no-details #snl     { right  :  calc(var(--width-panel) + (2 * var(--border-h))); }
+.no-details #panel   { right : 0px; }
 .no-details #details { right : calc(0px - var(--width-details) - (2 * var(--border-h))); }
 
 .no-bom #bom { left : calc(0px - var(--width-bom) - (2 * var(--border-h))); }
 .no-bom .viewer,
 .no-bom #snl { left : calc(var(--width-service) + (2 * var(--border-h))); }
 
-.no-asset-service.no-bom .viewer,
-.no-asset-service.no-bom #snl { left : 0px; }
+.no-equipment-service.no-bom .viewer,
+.no-equipment-service.no-bom #snl { left : 0px; }
 
 .no-snl .viewer { bottom : 0px; }
-.no-snl #snl { bottom : calc(0px - var(--height-snl) - (2 * var(--border-v))); }
+.no-snl #snl    { bottom : calc(0px - var(--height-snl) - (2 * var(--border-v))); }
 
 .panel-actions { justify-content : end; }
 
@@ -181,12 +181,12 @@
 #header-toolbar > .with-icon::before {
     font-variation-settings: 'FILL' 1, 'wght' 200, 'GRAD' 0, 'opsz' 48;
 }
-.no-asset-service #toggle-service::before,
-.no-bom           #toggle-bom::before,
-.no-snl           #toggle-snl::before,
-.no-panel         #toggle-panel::before,
-.no-details       #toggle-details::before,
-.no-attachments   #toggle-attachments::before { font-variation-settings : unset; }
+.no-equipment-service #toggle-service::before,
+.no-bom               #toggle-bom::before,
+.no-snl               #toggle-snl::before,
+.no-panel             #toggle-panel::before,
+.no-details           #toggle-details::before,
+.no-attachments       #toggle-attachments::before { font-variation-settings : unset; }
 
 
 /* LANDING PAGE PRODUCTS */

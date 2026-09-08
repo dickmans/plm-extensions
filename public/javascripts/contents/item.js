@@ -912,7 +912,10 @@ function getFieldValue(elemField) {
 
         case 'buom':
         case 'single-select':
-            result.value  = elemField.find('.picklist-input').first().attr('data-value');
+            if(elemField.hasClass('field-readonly')) {
+                result.value    = elemField.attr('data-value');
+                result.display  = elemField.attr('data-display');
+            } else result.value = elemField.find('.picklist-input').first().attr('data-value');
             result.lookup = { link : result.value }
             if(typeof result.value === 'undefined') {
                 result.value  = null;
@@ -2563,9 +2566,10 @@ function setFieldValue(elemField, value, display) {
         if(value === null) {
             elemInput.val('').attr('data-value', '');
         } else if(typeof value === 'object') {
-            elemInput.val(value.title).attr('data-value', value.link)
+            elemInput.val(value.display || value.title).attr('data-value', value.value || value.link)
+        } else {
+            elemInput.val(display).attr('data-value', value);
         }
-        else elemInput.val(display).attr('data-value', value);
 
     } else if(elemField.hasClass('field-type-radio')) {
 
@@ -2582,7 +2586,9 @@ function setFieldValue(elemField, value, display) {
         }
         
     } else if(elemField.hasClass('field-type-checkbox')) {
-    } else elemField.children().val(value);
+    } else {
+        elemField.children().val(value.display || value);
+    }
 
 }
 function copyFieldValue(elemSource, elemTarget) {
@@ -4494,6 +4500,8 @@ function insertGrid(link, params) {
 
     if(isBlank(settings[id].groupBy)) settings[id].toggles = false;
 
+    settings[id].attributes = settings[id].attributes || [];
+
     genPanelToggleButtons    (id, 
         function() {   expandAllTableGroups(id); }, 
         function() { collapseAllTableGroups(id); }
@@ -5224,8 +5232,11 @@ function insertBOM(link , params, data) {
 
     if(isiPad) settings[id].downloadFiles = false;
 
+    // settings[id].hideChildren = params.hideChildren || [];
+    // settings[id].hideItems    = params.hideItems    || [];
+
     settings[id].additionalRequests = params.additionalRequests || [];
-    settings[id].isComponent = params.isComponent || false;
+    settings[id].isComponent  = params.isComponent  || false;
 
     settings[id].details     = data.details       || null;
     settings[id].sections    = data.sections      || [];
@@ -5661,139 +5672,186 @@ function genBOMRows(id, elemTable, items) {
 
     let index     = (settings[id].skipRootItem) ? 1 : 0;
     let firstLeaf = true;
+    let hideLevel = -1;
 
     for(index; index < items.length; index++) {
 
         let item          = items[index];
         let workspaceLink = item.link.split('/items/')[0];
         let workspaceName = '';
+        let hideItem      = false;
+        let hideChildren  = false;
+        let classesList   = [];
 
-        if(settings[id].hideDescriptorRev) item.title = item.title.split(' [REV')[0];
+        if(item.level <= hideLevel) {
+            hideLevel = -1; 
+            hideItem  = false;
+        } else if(hideLevel > -1) { hideItem = true; }
 
-        for(let ws of settings[id].workspaces.items) if(ws.link === workspaceLink) { workspaceName = ws.title; break; }
+        if(settings[id].hideItems.length > 0) {
+            for(let filter of settings[id].hideItems) {
+                if(item.details[filter.fieldId] == filter.value) {
+                    hideItem = true;
+                    hideLevel = item.level;
+                    break;
+                }
+            }
+        }
 
-        if((settings[id].workspacesIn.length === 0) || ( settings[id].workspacesIn.includes(workspaceName))) {
-            if((settings[id].workspacesEx.length === 0) || (!settings[id].workspacesEx.includes(workspaceName))) {
-
-                let elemRow = $('<tr></tr>').appendTo(elemTBody)
-                    .attr('data-number'        , item.number)
-                    .attr('data-number-path'   , item.path)
-                    .attr('data-level-path'    , item.numberPath)
-                    // .attr('data-number-path'   , item.path + item.number)
-                    .attr('data-part-number'   , item.partNumber)
-                    .attr('data-revision'      , item.revision)
-                    .attr('data-dmsId'         , item.link.split('/')[6])
-                    .attr('data-link'          , item.link)
-                    .attr('data-root-link'     , item.root)
-                    .attr('data-title'         , item.title)
-                    .attr('data-edgeId'        , item.edgeId)
-                    .attr('data-level'         , item.level)
-                    .attr('data-quantity'      , item.quantity)
-                    .attr('data-total-quantity', item.totalQuantity)
-                    .addClass('level-' + item.level)
-                    .addClass('content-item')
-                    .addClass('bom-item')
-                    .addClass('tree-item')
-                    .click(function (e) {
-                        clickContentItem(e, $(this));
-                    }).dblclick(function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        if(!isBlank(settings[id].onDblClickItem)) settings[id].onDblClickItem($(this));
-                        else if(settings[id].openOnDblClick) openItemByLink($(this).attr('data-link'));
-                    });
-
-                if(item.hasOwnProperty('modelId')) elemRow.attr('data-modelid', item.modelId);
-                if(item.hasOwnProperty('componentId')) elemRow.attr('data-componentid', item.componentId);
-
-                if(!isBlank(item.domProperties)) {
-                    for(domProperty of item.domProperties) {
-                        elemRow.attr('data-' + domProperty.key, domProperty.value);
+        if(!hideItem) {
+            if(settings[id].hideChildren.length > 0) {
+                for(let filter of settings[id].hideChildren) {
+                    if(item.details[filter.fieldId] == filter.value) {
+                        item.hasChildren = false;
+                        hiddenChildren   = true;
+                        hideLevel        = item.level;
+                        if(filter.hasOwnProperty('className')) classesList.push(filter.className);
+                        break;
                     }
                 }
+            }
+        }
 
-                if(settings[id].multiSelect) {
+        if(hideItem) {
 
-                    $('<td></td>').appendTo(elemRow)
-                        .html('<div class="icon icon-check-box xxs"></div>')
-                        .addClass('content-item-check-box')
-                        .click(function(e) {
-                            clickContentItemCheckbox(e, $(this));
+            item.hidenItem = true;
+
+        } else {
+
+            if(settings[id].hideDescriptorRev) item.title = item.title.split(' [REV')[0];
+
+            for(let ws of settings[id].workspaces.items) if(ws.link === workspaceLink) { workspaceName = ws.title; break; }
+
+            if((settings[id].workspacesIn.length === 0) || ( settings[id].workspacesIn.includes(workspaceName))) {
+                if((settings[id].workspacesEx.length === 0) || (!settings[id].workspacesEx.includes(workspaceName))) {
+
+                    let elemRow = $('<tr></tr>').appendTo(elemTBody)
+                        .attr('data-number'        , item.number)
+                        .attr('data-number-path'   , item.path)
+                        .attr('data-level-path'    , item.numberPath)
+                        // .attr('data-number-path'   , item.path + item.number)
+                        .attr('data-part-number'   , item.partNumber)
+                        .attr('data-revision'      , item.revision)
+                        .attr('data-dmsId'         , item.link.split('/')[6])
+                        .attr('data-link'          , item.link)
+                        .attr('data-root-link'     , item.root)
+                        .attr('data-title'         , item.title)
+                        .attr('data-edgeId'        , item.edgeId)
+                        .attr('data-level'         , item.level)
+                        .attr('data-quantity'      , item.quantity)
+                        .attr('data-total-quantity', item.totalQuantity)
+                        .addClass('level-' + item.level)
+                        .addClass('content-item')
+                        .addClass('bom-item')
+                        .addClass('tree-item')
+                        .click(function (e) {
+                            clickContentItem(e, $(this));
+                        }).dblclick(function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            if(!isBlank(settings[id].onDblClickItem)) settings[id].onDblClickItem($(this));
+                            else if(settings[id].openOnDblClick) openItemByLink($(this).attr('data-link'));
                         });
-            
-                }      
+
+                    if(item.hasOwnProperty('modelId')) elemRow.attr('data-modelid', item.modelId);
+                    if(item.hasOwnProperty('componentId')) elemRow.attr('data-componentid', item.componentId);
+
+                    if(!isBlank(item.domProperties)) {
+                        for(domProperty of item.domProperties) {
+                            elemRow.attr('data-' + domProperty.key, domProperty.value);
+                        }
+                    }
+
+                    if(settings[id].multiSelect) {
+
+                        $('<td></td>').appendTo(elemRow)
+                            .html('<div class="icon icon-check-box xxs"></div>')
+                            .addClass('content-item-check-box')
+                            .click(function(e) {
+                                clickContentItemCheckbox(e, $(this));
+                            });
                 
-                if(settings[id].dragable) {
+                    }      
+                    
+                    if(settings[id].dragable) {
 
-                    elemRow.attr('draggable'  , 'true');
-                    elemRow.attr('ondragstart', settings[id].onDragStart);
-                    elemRow.attr('ondragend'  , settings[id].onDragEnd  );
+                        elemRow.attr('draggable'  , 'true');
+                        elemRow.attr('ondragstart', settings[id].onDragStart);
+                        elemRow.attr('ondragend'  , settings[id].onDragEnd  );
 
-                }        
-                
-                if(settings[id].dropable) {
+                    }        
+                    
+                    if(settings[id].dropable) {
 
-                    elemRow.attr('ondragenter', settings[id].onDragEnter);
-                    elemRow.attr('ondragover' , settings[id].onDragOver );
-                    elemRow.attr('ondragleave', settings[id].onDragLeave);
-                    elemRow.attr('ondrop'     , settings[id].onDrop     );
+                        elemRow.attr('ondragenter', settings[id].onDragEnter);
+                        elemRow.attr('ondragover' , settings[id].onDragOver );
+                        elemRow.attr('ondragleave', settings[id].onDragLeave);
+                        elemRow.attr('ondrop'     , settings[id].onDrop     );
 
-                }                    
+                    }                    
 
-                $('<td></td>').appendTo(elemRow).addClass('tree-color');
+                    $('<td></td>').appendTo(elemRow).addClass('tree-color');
 
-                let elemFirstCol = $('<td></td>').appendTo(elemRow).addClass('tree-first-col').addClass('bom-first-col');
+                    let elemFirstCol = $('<td></td>').appendTo(elemRow).addClass('tree-first-col').addClass('bom-first-col');
 
-                if(item.hasChildren) {
-                    $('<span></span>').appendTo(elemFirstCol).addClass('tree-nav').addClass('icon');
-                    elemRow.addClass('node');
-                } else elemRow.addClass('leaf');
+                    if(item.hasChildren) {
+                        elemRow.addClass('node');
+                        $('<span></span>').appendTo(elemFirstCol)
+                            .addClass('tree-nav')
+                            .addClass('icon')
+                            .click(function(e) {
+                                clickTreeToggle(e, $(this))
+                            }); 
+                    } else elemRow.addClass('leaf');
 
-                if(!settings[id].hideTreeNumber  ) $('<span></span>').appendTo(elemFirstCol).addClass('tree-number').html(item.level + '.' + item.number);
-                if(!settings[id].hideDescriptor  ) $('<span></span>').appendTo(elemFirstCol).addClass('tree-descriptor').html(item.title);
-                if( settings[id].treeShowQuantity) $('<span></span>').appendTo(elemRow).addClass('tree-quantity').html(bomQuantity);
+                    if(!settings[id].hideTreeNumber  ) $('<span></span>').appendTo(elemFirstCol).addClass('tree-number').html(item.level + '.' + item.number);
+                    if(!settings[id].hideDescriptor  ) $('<span></span>').appendTo(elemFirstCol).addClass('tree-descriptor').html(item.title);
+                    if( settings[id].treeShowQuantity) $('<span></span>').appendTo(elemRow).addClass('tree-quantity').html(bomQuantity);
 
-                let elemCellLocks = $('<td></td>')
-                    .addClass('tree-icon')
-                    .addClass('bom-column-locks');
+                    let elemCellLocks = $('<td></td>')
+                        .addClass('tree-icon')
+                        .addClass('bom-column-locks');
 
-                if(settings[id].treeShowRestricted) if(settings[id].treeShowRestricted) elemCellLocks.appendTo(elemRow);
+                    if(settings[id].treeShowRestricted) if(settings[id].treeShowRestricted) elemCellLocks.appendTo(elemRow);
 
-                genBOMRowCells(id, item, elemRow, elemFirstCol);
+                    genBOMRowCells(id, item, elemRow, elemFirstCol);
 
-                if(!item.hasChildren) {
-                    elemRow.addClass('leaf');
-                    if(firstLeaf) elemRow.addClass('first-leaf');
-                    firstLeaf = false;
+                    if(!item.hasChildren) {
+                        elemRow.addClass('leaf');
+                        if(firstLeaf) elemRow.addClass('first-leaf');
+                        firstLeaf = false;
+                    }
+
+                    for(let className of classesList) elemRow.addClass(className);
+
+                    // if(!isBlank(settings[id].selectItems.values)) {
+                    //         if(!isBlank(edge.selectItems)) {
+                    //                 if(settings[id].selectItems.values.indexOf(edge.selectItems.toLowerCase()) > -1) {
+
+                    //                     let selectItem = true;
+
+                    //                     if(settings[id].selectUnique) {
+                    //                         for(let selectedItem of selectedItems) {
+                    //                             if(selectedItem.node.item.link === node.item.link) {
+                    //                                 selectItem = false;
+                    //                                 break;
+                    //                             }
+                    //                         }
+                    //                     }
+
+                    //                     if(selectItem) {
+                    //                         selectedItems.push({
+                    //                             'node' : node,
+                    //                             'edge' : edge
+                    //                         })
+                    //                     }
+
+                    //                 }
+                    //             }
+
+                    //         }                
+
                 }
-
-                // if(!isBlank(settings[id].selectItems.values)) {
-                //         if(!isBlank(edge.selectItems)) {
-                //                 if(settings[id].selectItems.values.indexOf(edge.selectItems.toLowerCase()) > -1) {
-
-                //                     let selectItem = true;
-
-                //                     if(settings[id].selectUnique) {
-                //                         for(let selectedItem of selectedItems) {
-                //                             if(selectedItem.node.item.link === node.item.link) {
-                //                                 selectItem = false;
-                //                                 break;
-                //                             }
-                //                         }
-                //                     }
-
-                //                     if(selectItem) {
-                //                         selectedItems.push({
-                //                             'node' : node,
-                //                             'edge' : edge
-                //                         })
-                //                     }
-
-                //                 }
-                //             }
-
-                //         }                
-
             }
         }
 

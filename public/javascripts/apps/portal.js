@@ -19,12 +19,14 @@ $(document).ready(function() {
             $.get('/plm/sections' , { wsId : wsConfig.workspaceId, isComponent : wsConfig.isComponent, useCache : config.panels.insertDetails.useCache || true }),
             $.get('/plm/fields'   , { wsId : wsConfig.workspaceId, isComponent : wsConfig.isComponent, useCache : config.panels.insertDetails.useCache || true }),
             $.get('/plm/bom-views', { wsId : wsConfig.workspaceId, isComponent : wsConfig.isComponent, useCache : config.panels.insertBOM.useCache     || true }),
+            $.get('/services/chrome')
         ];
 
         getFeatureSettings('portal', requests, function(responses) {
 
             wsConfig.sections = responses[0].data;
             wsConfig.fields   = responses[1].data;
+            dataContextMenu   = responses[3];
 
             if(!wsConfig.isComponent) getBOMViewDefinition(responses[2].data.bomViews, wsConfig.bomViewName, wsConfig);
 
@@ -121,6 +123,7 @@ function openItem(title) {
 
     $('#main').children().removeClass('hidden');
     $('#header-subtitle').html(title).show();
+    insertContextMenuEntries(linkSelected);
 
     document.title = title; 
 

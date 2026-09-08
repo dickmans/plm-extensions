@@ -43,7 +43,10 @@ $(document).ready(function() {
     paramsCreateSupplierPackage.id                = 'create-connect';
     paramsCreateSupplierPackage.contextItemsField = 'SHARED_ITEMS';
 
-    let requests = [ $.get('/plm/workspaces', {})];
+    let requests = [ 
+        $.get('/plm/workspaces', {}),
+        $.get('/services/chrome')
+    ];
 
     appendProcessing('dashboard', false);
     appendProcessing('bom', false);
@@ -56,7 +59,8 @@ $(document).ready(function() {
     
     getFeatureSettings('explorer', requests, function(responses) {
 
-        workspaces = responses[0].data;
+        workspaces      = responses[0].data;
+        dataContextMenu = responses[1];
         
         if(!isBlank(urlParameters.fieldidebom)) {
             urlParameters.bom = getSectionFieldValue(responses[1].data.sections, urlParameters.fieldidebom, '');
@@ -370,6 +374,7 @@ function openSelectedItem(elemClicked) {
 }
 function openItem(link) {
 
+    insertContextMenuEntries(link);
     setCacheStatusIndicator('pending');
     $('#select-version').children().remove();
 

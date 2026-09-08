@@ -1,0 +1,86 @@
+extends ../framework/layout
+
+block head
+    
+    //- link(rel='stylesheet', href='/stylesheets/framework/addins.css')
+    link(rel='stylesheet', href='/stylesheets/dev/mealign.css')
+    //- link(rel='stylesheet', href='/stylesheets/custom/mealign.css')
+
+    //- script(src='/javascripts/framework/addins.js')
+    script(src='/javascripts/dev/mealign.js')
+    //- script(src='/javascripts/custom/mealign.js')
+
+block body
+
+    body.surface-level-1.no-details.screen-landing
+
+        #header.dark
+            #header-logo
+            #header-title= title
+            #header-subtitle.hidden
+            #header-toolbar
+                //- select#filter.button.disabled
+                //-     option(value='all') Display All Items
+                //-     option(value='tab') Only Show Selected Tab / Type Items
+                //-     option(value='mat') Only Show Matched Items
+                //-     option(value='not') Only Show Non-Matched Items
+                #home.button.icon.icon-home(title="Click to return to landing page")
+                #excel-export.disabled.button.with-icon.icon-download(title="Download the grid to an Excel sheet") Download Excel
+                #toggle-mcad.button.with-toggle.toggle-on(title="Toggle BOM display to the left on and off") Mechanical BOM
+                #toggle-ecad.button.with-toggle.toggle-on(title="Toggle BOM display to the right on and off") Electrical BOM
+                #toggle-details.button.with-toggle.toggle-off(title="Toggle Item Details panel on and off") Details
+                #header-avatar
+        
+        #landing.screen.no-header
+
+            .surface-level-1.pos-abs-left#views
+            .surface-level-2.pos-abs-right#search
+
+        #main.screen
+
+            .surface-level-2#mcad.pos-abs-left
+            .surface-level-1#viewer.viewer
+            .surface-level-1#alignment.pos-abs-bottom
+                #tabs.tabs(data-tab-group='types')
+                #grids
+            .surface-level-2#ecad.pos-abs-right
+            .surface-level-2#details.pos-abs-right
+
+            #mcad-sync.dialog.review-changes
+                .dialog-header 
+                    .dialog-title#mcad-sync-title
+                    .dialog-close.icon.icon-close.button.sync-close
+                .dialog-content
+                    table#mcad-sync-table
+                        thead#mcad-sync-thead
+                            tr#mcad-sync-throw
+                                th(colspan='2')
+                        tbody#mcad-sync-tbody
+                            tr#mcad-sync-matches
+                                td.sync-icon 
+                                    .icon.icon-checkmark.filled
+                                td Matching Instances
+                            tr#mcad-sync-update
+                                td.sync-icon  
+                                    .icon.icon-product-alert.filled
+                                td Instances with path update
+                            tr#mcad-sync-new
+                                td.sync-icon 
+                                    .icon.icon-create.filled
+                                td New Instances
+                            tr#mcad-sync-mismatch
+                                td.sync-icon  
+                                    .icon.icon-warning.filled
+                                td Entries requiring action (mapping / removal)
+                    #mcad-sync-message 
+                        #mcad-sync-no-changes There are no changes required. You can close this dialog.
+                        #mcad-sync-review-changes Multiple changes are required as can be seen above. 
+                            br 
+                            |These changes have not been saved in PLM yet, you have to confirm by clicking the Save button.
+                            br
+                            |You can also close this dialog and review the outcome first before saving changes in each tab individually.
+                .dialog-footer
+                    #mcad-sync-close.button.sync-close.default Close
+                    #mcad-sync-save.button Save New &amp; Updated Entries
+
+            iframe#frame-download(name='frame-download' style="display:none")

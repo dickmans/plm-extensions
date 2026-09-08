@@ -3,16 +3,6 @@ let workspaceIds = {};
 let bomPartList  = [];
 let links        = {};
 let user         = {};
-let urns         = {
-    thumbnail     : '', 
-    partNumber    : '', 
-    title         : '', 
-    description   : '', 
-    spareWearPart : '', 
-    material      : '', 
-    mass          : '',
-    dimensions    : ''
-}
 
 let listServiceItems      = { spareParts : [], kit : [], offering : [], wearParts : []};
 let wsProblemReports      = { id : '', sections : [], fields : [] };
@@ -40,19 +30,19 @@ $(document).ready(function() {
     workspaceIds.orderProjects      = workspaceIds.orderProjects      || common.workspaceIds.orderProjects;
     workspaceIds.equipments         = workspaceIds.equipments         || common.workspaceIds.equipments;
     workspaceIds.equipmentServices  = workspaceIds.equipmentServices  || common.workspaceIds.equipmentServices;
-    workspaceIds.products           = workspaceIds.products           || common.workspaceIds.products;
 
-    
     let requests = [ 
         $.get('/plm/me', { useCache : true }),
         $.get('/plm/sections', { wsId : workspaceIds.sparePartsRequests, useCache : true }),
-        $.get('/plm/bom-view-by-name', { wsId : common.workspaceIds.items, name : (config.panels.itemBOM.bomViewName || 'Service'), useCache : true })
+        $.get('/plm/bom-view-by-name', { wsId : common.workspaceIds.items, name : (config.panels.itemBOM.bomViewName || 'Service'), useCache : true }),
+        $.get('/services/chrome')
     ];
 
     getFeatureSettings('service', requests, function(responses) {
 
-        user           = responses[0].data;
-        bomViewIdItems = responses[2].data.id;
+        user            = responses[0].data;
+        bomViewIdItems  = responses[2].data.id;
+        dataContextMenu = responses[3];
 
         $('#request-name'   ).val(user.displayName || '');
         $('#request-company').val(user.organization|| '');
@@ -82,12 +72,8 @@ $(document).ready(function() {
 
             $('body').addClass('screen-main').removeClass('screen-landing').removeClass('screen-request');
 
-            if(urlParameters.wsidcontext == workspaceIds.equipments) {
-                let link = '/api/v3/workspaces/' + urlParameters.wsidcontext + '/items/' + urlParameters.dmsidcontext;
-                openSelectedContext(link, 'assets', config.equipments.fieldIds);
-            } else if(urlParameters.wsidcontext == workspaceIds.products) {
-                let link = '/api/v3/workspaces/' + urlParameters.wsidcontext + '/items/' + (urlParameters.dmsidcontext || urlParameters.dmsId);
-                openSelectedContext(link, 'products', config.fieldIds.products);
+            if((urlParameters.wsId == workspaceIds.products) || (urlParameters.wsId == workspaceIds.equipments)) {
+                openSelectedContext(urlParameters.link);
             } else if(urlParameters.link !== '') {
                 links.ebom = urlParameters.link;
                 openItem();
@@ -133,12 +119,12 @@ function setUIElements() {
         $('#workflow-actions').remove();
     }
 
-    if(urlParameters.type === 'assets') {
+    if(urlParameters.mode === 'equipments') {
         $('#products').remove();
     } else {
-        $('#services').remove();
-        $('#projects').remove();
-        $('#assets'  ).remove();
+        $('#services'  ).remove();
+        $('#projects'  ).remove();
+        $('#equipments').remove();
     }
 
     $('#tab-your-requests').html(config.panels.sparePartsRequests.headerLabel);
@@ -169,7 +155,7 @@ function setLandingPage() {
                 let params = config.panels.products;
 
                 params.id          = 'products';
-                params.onClickItem = function(elemClicked) { openSelectedContext(elemClicked.attr('data-link'), 'product', config.fieldIds.products); }
+                params.onClickItem = function(elemClicked) { openSelectedContext(elemClicked.attr('data-link')); }
                 
                 insertResults(workspaceIds.products, config.panels.products.filter, params);
 
@@ -177,15 +163,15 @@ function setLandingPage() {
 
         } else {
 
-            let filterAssetServices = [{
-                field       : config.equipmentServices.fieldIds.assignee,
+            let filterEquipmentServices = [{
+                field       : config.equipmentServices.fieldIDs.assignee,
                 type        : 0,
                 comparator  : 5,
                 value       : user.displayName          
             }];
 
             for(let status of config.equipmentServices.hideStates) {
-                filterAssetServices.push({
+                filterEquipmentServices.push({
                     field       : 'WF_CURRENT_STATE',
                     type        : 1,
                     comparator  : 5,
@@ -193,22 +179,16 @@ function setLandingPage() {
                 });
             }
 
-            insertResults(workspaceIds.equipmentServices, filterAssetServices, {
-                id          : 'services',
-                headerLabel : config.equipmentServices.headerLabel,
-                layout      : 'list',
-                contentSize : 'xs',
-                tileIcon    : 'icon-service',
-                number      : false,
-                reload      : true,
-                useCache    : false,
-                onClickItem : function(elemClicked) { openSelectedAssetService(elemClicked); }
-            });
+            let paramsServices = config.panels.equipmentServices;
+                paramsServices.id          = 'services';
+                paramsServices.onClickItem = function(elemClicked) { openSelectedEquipmentService(elemClicked); };
 
-            let filterAssetProjects = [];                
+            insertResults(workspaceIds.equipmentServices, filterEquipmentServices, paramsServices);
+
+            let filterEquipmentProjects = [];                
 
             for(let status of config.orderProjects.hideStates) {
-                filterAssetProjects.push({
+                filterEquipmentProjects.push({
                     field       : 'WF_CURRENT_STATE',
                     type        : 1,
                     comparator  : 5,
@@ -216,23 +196,13 @@ function setLandingPage() {
                 });
             }
 
-            insertResults(workspaceIds.orderProjects, filterAssetProjects, {
-                id             : 'projects',
-                headerLabel    : config.orderProjects.headerLabel,
-                layout         : 'grid',
-                contentSize    : 'l',
-                tileImage      : true,
-                tileImageFieldId : 'IMAGE',
-                tileTitle      : 'TITLE',
-                tileSubtitle   : config.orderProjects.tileSubtitle,
-                tileDetails    : config.orderProjects.tileDetails,
-                reload         : true,
-                search         : true,
-                useCache       : true,
-                openInPLM      : applicationFeatures.openInPLM,
-                openOnDblClick : applicationFeatures.openInPLM,
-                onClickItem    : function(elemClicked) { selectProject (elemClicked); }
-            });
+            let paramsProjects = config.panels.orderProjects;
+                paramsProjects.id             = 'projects';
+                paramsProjects.openInPLM      = paramsProjects.openInPLM || applicationFeatures.openInPLM;
+                paramsProjects.openOnDblClick = paramsProjects.openOnDblClick || applicationFeatures.openInPLM;
+                paramsProjects.onClickItem    = function(elemClicked) { selectProject (elemClicked); }
+
+            insertResults(workspaceIds.orderProjects, filterEquipmentProjects, paramsProjects);
 
         }
 
@@ -308,42 +278,19 @@ function setLandingPage() {
         
     } else $('#tab-your-problems').remove();
 
-    
-    // if(!isBlank(dmsId)) {
-        
-    //     $('body').addClass('screen-main').removeClass('screen-landing').removeClass('screen-request');
-
-    //     let params       = document.location.href.split('?')[1].split('&');
-    //     let wsidcontext  = null;
-    //     let dmsidcontext = null;
-
-    //     for(let param of params) {
-    //                 if(param.toLowerCase().indexOf('wsidcontext=' ) === 0) { wsidcontext  = param.split('=')[1]; }
-    //         else if(param.toLowerCase().indexOf('dmsidcontext=') === 0) { dmsidcontext = param.split('=')[1]; }
-    //     }
-
-    //     if(!isBlank(wsidcontext)) {
-    //         if(!isBlank(dmsidcontext)) {
-    //             links.context = '/api/v3/workspaces/' + wsidcontext + '/items/' + dmsidcontext;
-    //         }
-    //     }
-
-    //     openItem();
-
-    // } else $('#landing').show();
-
 }
 function setUIEvents() {
 
     // Close current product display and return to landing page
     if(applicationFeatures.homeButton) {
         $('#home').click(function() {
+            removeContextMenuEntries();
             viewerLeaveMarkupMode();
             viewerUnloadAllModels();
             $('body').addClass('screen-landing').removeClass('screen-main').removeClass('screen-request');
             document.title = documentTitle;
             let url = '/service?theme=' + theme;
-            if(!isBlank(urlParameters.type)) url += '&type=' + urlParameters.type;
+            if(!isBlank(urlParameters.mode)) url += '&mode=' + urlParameters.mode;
             window.history.replaceState(null, null, url);
             setLandingPage();
         });
@@ -352,7 +299,7 @@ function setUIEvents() {
 
     // Toggles in header toolbar
     $('#toggle-service').click(function() {
-        $('body').toggleClass('no-asset-service');
+        $('body').toggleClass('no-equipment-service');
         viewerResize();
     })
     $('#toggle-bom').click(function() {
@@ -436,29 +383,24 @@ function selectProject(elemClicked) {
 
     if(!isSelected) {
 
-        $('body').addClass('no-assets-list');
+        $('body').addClass('no-equipments-list');
         return;
 
     } else {
 
-        $('body').removeClass('no-assets-list');
+        $('body').removeClass('no-equipments-list');
+
+        let paramsEquippments = config.panels.equipments;
+            paramsEquippments.headerLabel = paramsEquippments.headerLabel || 'Equipments of ' + descriptor;
+            paramsEquippments.openInPLM   = paramsEquippments.openInPLM   || applicationFeatures.openInPLM;
+            paramsEquippments.onClickItem = function(elemClicked) { openSelectedContext(elemClicked.attr('data-link')); }
 
         insertResults(workspaceIds.equipments, [{
-            field       : config.equipments.fieldIds.project,
+            field       : config.fieldIds.equipments.project,
             type        : 0,
             comparator  : 15,
             value       : descriptor
-        }], {
-            id           : 'assets',
-            headerLabel  : 'Assets of ' + descriptor,
-            layout       : 'table',
-            contentSize  : 'm',
-            fields       : config.equipments.tableColumns,
-            useCache     : true,
-            search       : true,
-            openInPLM    : applicationFeatures.openInPLM,
-            onClickItem  : function(elemClicked) { openSelectedContext(elemClicked.attr('data-link'), 'asset', config.equipments.fieldIds); }
-        });
+        }], paramsEquippments);
 
     }
 
@@ -490,8 +432,8 @@ function openProblemReport(elemClicked) {
 }
 
 
-// Click on Product or Asset in landing page
-function openSelectedAssetService(elemClicked) {
+// Click on Product or Equipment in landing page
+function openSelectedEquipmentService(elemClicked) {
 
     $('#overlay').show();
     $('#toggle-service').removeClass('hidden');
@@ -501,99 +443,62 @@ function openSelectedAssetService(elemClicked) {
 
     $.get('/plm/details', { link : links.service }, function(response) {
 
-        let linkAsset = getSectionFieldValue(response.data.sections, config.equipmentServices.fieldIds.asset    , '', 'link');
-        let linkSNL   = getSectionFieldValue(response.data.sections, config.equipmentServices.fieldIds.serialnrs, '', 'link');
+        links.context = getSectionFieldValue(response.data.sections, config.equipmentServices.fieldIDs.equipment, '', 'link');
+        links.snl     = getSectionFieldValue(response.data.sections, config.equipmentServices.fieldIDs.serialnrs, '', 'link');
 
-        openSelectedContext(linkAsset, 'asset', config.equipments.fieldIds, links.service, linkSNL);
+        openSelectedContext(links.context);
+
+        let paramsEquipmentService = config.panels.equipmentService;
+            paramsEquipmentService.id = 'service';
        
-        insertItemSummary(links.service, {
-            contents : [{
-                type : 'details',
-                params : { 
-                    id             : 'service-details', 
-                    editable       : true,
-                    hideHeader     : true,
-                    expandSections : config.equipmentServices.detailsPanel.expandSections,
-                    sectionsEx     : config.equipmentServices.detailsPanel.excludeSections
-                }
-            },{ 
-                type   : 'grid',
-                params : { 
-                    id         : 'service-grid', 
-                    fieldsEx   : ['Comments', 'Required Tools'], 
-                    hideHeader : true,
-                } 
-            }, { 
-                type : 'attachments',
-                params : { 
-                    id : 'service-attachments', 
-                    editable : true, 
-                    layout : 'list', 
-                    contentSize : 'm', 
-                    singleToolbar : 'controls'
-                }
-            }],
-            statesColors    : [
-                { label : 'New',         color : 'red',    states : ['Received'] },
-                { label : 'In Work',     color : 'yellow', states : ['Review', 'Quote Creation'] },
-                { label : 'Waiting',     color : 'red',    states : ['Awaiting Response', 'Quote Submitted'] },
-                { label : 'Delivery',    color : 'yellow', states : ['Order in process', 'Shipment'] },
-                { label : 'Completed',   color : 'green',  states : ['Completed'] }
-            ],
-            id              : 'service',
-            hideCloseButton : true,
-            layout          : 'tabs',
-            openInPLM       : false,
-            reload          : false,
-            workflowActions : true
-        });        
+        insertItemSummary(links.service, paramsEquipmentService);     
 
     });
 
 }
-function openSelectedContext(link, type, fieldIds, linkService, linkSNL) {
+function openSelectedContext(link) {
 
     $('#overlay').show();
 
     links.context = link;
 
-    if(isBlank(linkService)) {
+    let contextWsId = link.split('/')[4];
+    let fieldIds    = {};
 
-        $('body').addClass('no-asset-service').removeClass('no-panel');
+    switch(Number(contextWsId)) {
+
+        case workspaceIds.products:
+            fieldIds = config.fieldIds.products;
+            break;
+
+        case workspaceIds.equipments:
+            fieldIds = config.fieldIds.equipments;
+            break;
+
+        default:
+            fieldIds = config.fieldIds.custom;
+            break;
+
+    } 
+
+    if(isBlank(links.service)) {
+
+        $('body').addClass('no-equipment-service').removeClass('no-panel');
         $('#toggle-service').addClass('hidden');
 
     } else {
 
-        $('body').removeClass('no-asset-service');
+        $('body').removeClass('no-equipment-service');
 
     }
-    
+
     $.get('/plm/details', { link : links.context, requestor : 'service.js | openSelectedContext()' }, function(response) {
 
         links.ebom = getSectionFieldValue(response.data.sections, fieldIds.ebom, '', 'link');
         links.sbom = getSectionFieldValue(response.data.sections, fieldIds.sbom, '', 'link');
-        links.snl  = linkSNL;
-
-        if(isBlank(linkSNL)) {
-            if(type === 'asset') {
-                links.snl = getSectionFieldValue(response.data.sections, fieldIds.serialnrs, '', 'link');
-            } 
-        }
-
-        if(isBlank(links.ebom)) {
-            showErrorMessage('Invalid Product Data', 'BOM of the selected ' + type + ' is not availalbe, please contact your administrator');
-            return;
-        }
+        links.snl  = links.snl  ||  getSectionFieldValue(response.data.sections, fieldIds.serialnrs, '', 'link');
 
         $('body').addClass('screen-main').removeClass('screen-landing').removeClass('screen-request');
-
-        let splitEBOM    = links.ebom.split('/');
-        let splitContext = links.context.split('/');
-        let url          = '/service?wsid=' + splitEBOM[4] + '&dmsid=' + splitEBOM[6] + '&wsidcontext=' + splitContext[4] + '&dmsidcontext=' + splitContext[6] + '&theme=' + theme;
-
-        if(!isBlank(urlParameters.type)) url += '&type=' + urlParameters.type;
-
-        window.history.replaceState(null, null, url);
 
         openItem();
 
@@ -601,6 +506,8 @@ function openSelectedContext(link, type, fieldIds, linkService, linkSNL) {
 
 }
 function openItem() {
+
+    insertContextMenuEntries((links.context || links.ebom));
 
     listServiceItems = { spareParts : [], kit : [], offering : [], wearParts : [] }
 
@@ -612,7 +519,7 @@ function openItem() {
     $('#overlay').hide();
 
     if(isBlank(links.snl)) $('#toggle-snl').addClass('hidden'); else $('#toggle-snl').removeClass('hidden');
-    if(isBlank(links.context)) $('body').addClass('no-asset-service');
+    if(isBlank(links.context)) $('body').addClass('no-equipment-service');
     
     adjustCartHeight();
 
@@ -642,11 +549,20 @@ function openItem() {
     finishedLoading.engineeringBOM = false;
     finishedLoading.serviceBOM     = false;
     
-    insertBOM          (links.ebom, paramsBOM);
-    insertViewer       (links.ebom, { features : config.viewerFeatures });
-    updateRelatedPanels(links.ebom);
+    if(!isBlank(links.ebom)) {
+        $('#toggle-bom').removeClass('hidden');
+        insertBOM          (links.ebom, paramsBOM);
+        insertViewer       (links.ebom, { features : config.viewerFeatures });
+        updateRelatedPanels(links.ebom);
+    } else {
+        $('#toggle-bom').addClass('hidden');
+        finishedLoading.engineeringBOM = true;
+        $('body').addClass('no-bom');
+    }
 
-    if(!isBlank(links.sbom)) insertServiceBOM(); else finishedLoading.serviceBOM = true;
+    if(!isBlank(links.sbom)) {
+        insertServiceBOM(); 
+    } else finishedLoading.serviceBOM = true;
 
     if(isBlank(links.snl)) {
         
@@ -676,7 +592,7 @@ function updateRelatedPanels(link) {
 
     let paramsProcesses = config.panels.tabProblemReports;
 
-            // paramsProcesses.createPerformTransition = config.problemReports.transitionOnCreate;
+    // paramsProcesses.createPerformTransition = config.problemReports.transitionOnCreate;
     paramsProcesses.createViewerImageFields = [ config.fieldIds.problemReports.image ];
     paramsProcesses.createWorkspaceId       = workspaceIds.problemReports;
     paramsProcesses.workspacesIn            = [workspaceIds.problemReports.toString()];
@@ -694,51 +610,6 @@ function updateRelatedPanels(link) {
     if(applicationFeatures.manageProblemReports) insertChangeProcesses(link, paramsProcesses      );
 
 }
-
-
-// Retrieve Workspace Details
-// function getInitialData(wsId) {
-
-//     let promises = [
-//         $.get('/plm/sections'   , { wsId : wsId }),
-//         $.get('/plm/fields'     , { wsId : wsId }),
-//         $.get('/plm/sections'   , { wsId : wsProblemReports.id }),
-//         $.get('/plm/fields'     , { wsId : wsProblemReports.id }),
-//         $.get('/plm/sections'   , { wsId : wsSparePartsRequests.id })
-//     ];
-
-//     Promise.all(promises).then(function(responses) {
-
-//         let errors = false;
-
-//         for(let response of responses) {
-//             if(response.error) {
-//                 let message = (isBlank(response.data.message)) ? 'Error in accessing ' + response.params.url : response.data.message;
-//                 showErrorMessage('Error occured', message);
-//                 errors = true;
-//             }
-//         }
-
-//         if(!errors) {
-//             sections                        = responses[0].data;
-//             fields                          = responses[1].data;
-//             wsProblemReports.sections       = responses[2].data;
-//             wsProblemReports.fields         = responses[3].data;
-//             wsProblemReports.fieldIdImage   = config.problemReports.fieldIdImage;
-//             wsSparePartsRequests.sections   = responses[4].data;
-
-//             if(isBlank(config.problemReports.fieldIdImage)) {
-//                 wsProblemReports.fieldIdImage = getFirstImageFieldID(wsProblemReports.fields);
-//                 paramsProcesses.fieldIdMarkup = wsProblemReports.fieldIdImage;
-//                 if(applicationFeatures.manageProblemReports) insertChangeProcesses(link, paramsProcesses);
-//             }
-
-
-//         }
-
-//     });
-
-// }     
 
 
 // Parse BOM for Spare Parts
@@ -779,50 +650,65 @@ function openBOMViewDone(id, bom, selectedItems, additionalData, partList) {
 function insertServiceBOM() {
 
     let elemContent = $('#items-content');
-        elemContent.addClass('service-bom').removeClass('l').addClass('m');
 
     let params = {
         link            : links.sbom,
-        depth           : 4,
+        depth           : (links.ebom === '') ? 1 : 4,
         viewId          : bomViewIdItems,
         getBOMPartsList : true,
     }
 
     $.get('/plm/bom', params, function(response) {
 
-        let elemListGroup     = insertSparePartsGroup(elemContent, config.serviceBOMTypes.sparePart.groupLabel);
-        let elemListParts     = insertSparePartsList(elemContent);
-        let elemKitsGroup     = insertSparePartsGroup(elemContent, config.serviceBOMTypes.kit.groupLabel);
-        let elemKitsParts     = insertSparePartsList(elemContent);
-        let elemOfferingGroup = insertSparePartsGroup(elemContent, config.serviceBOMTypes.offering.groupLabel);
-        let elemOfferingParts = insertSparePartsList(elemContent);
-        let elemComponents    = null;
-        let type              = '';
+        if(links.ebom !== '') {
 
-        for(let bomPart of response.data.bomPartsList) {
+             elemContent.addClass('service-bom').removeClass('l').addClass('m');
 
-            if(bomPart.level === 1 && bomPart.details.TYPE === config.serviceBOMTypes.sparePart.fieldValue) { 
-                type = 'sparePart'; 
-            } else if(bomPart.level === 1 && bomPart.details.TYPE === config.serviceBOMTypes.kit.fieldValue) { 
-                type = 'kit'; 
-                let elemKit = insertSparePart(elemKitsParts, bomPart, 'kit');
-                elemComponents = insertSparePartComponents(elemKit);
-            } else if(bomPart.level === 1 && bomPart.details.TYPE === config.serviceBOMTypes.offering.fieldValue) { 
-                type = 'offering'; 
-                let elemOffering = insertSparePart(elemOfferingParts, bomPart, 'offering');
-                elemComponents = insertSparePartComponents(elemOffering);
-            } else if(bomPart.level === 2) {
-                if(type === 'sparePart') insertSparePart(elemListParts, bomPart, 'sparePart');
-                else if(type === 'kit') {
-                    listServiceItems.kit.push(bomPart.link);
-                    insertSparePartComponent(elemComponents, bomPart);
+            let elemListGroup     = insertSparePartsGroup(elemContent, config.serviceBOMTypes.sparePart.groupLabel);
+            let elemListParts     = insertSparePartsList(elemContent);
+            let elemKitsGroup     = insertSparePartsGroup(elemContent, config.serviceBOMTypes.kit.groupLabel);
+            let elemKitsParts     = insertSparePartsList(elemContent);
+            let elemOfferingGroup = insertSparePartsGroup(elemContent, config.serviceBOMTypes.offering.groupLabel);
+            let elemOfferingParts = insertSparePartsList(elemContent);
+            let elemComponents    = null;
+            let type              = '';
+
+            for(let bomPart of response.data.bomPartsList) {
+
+                if(bomPart.level === 1 && bomPart.details.TYPE === config.serviceBOMTypes.sparePart.fieldValue) { 
+                    type = 'sparePart'; 
+                } else if(bomPart.level === 1 && bomPart.details.TYPE === config.serviceBOMTypes.kit.fieldValue) { 
+                    type = 'kit'; 
+                    let elemKit = insertSparePart(elemKitsParts, bomPart, 'kit');
+                    elemComponents = insertSparePartComponents(elemKit);
+                } else if(bomPart.level === 1 && bomPart.details.TYPE === config.serviceBOMTypes.offering.fieldValue) { 
+                    type = 'offering'; 
+                    let elemOffering = insertSparePart(elemOfferingParts, bomPart, 'offering');
+                    elemComponents = insertSparePartComponents(elemOffering);
+                } else if(bomPart.level === 2) {
+                    if(type === 'sparePart') insertSparePart(elemListParts, bomPart, 'sparePart');
+                    else if(type === 'kit') {
+                        listServiceItems.kit.push(bomPart.link);
+                        insertSparePartComponent(elemComponents, bomPart);
+                    }
+                } else if(bomPart.level === 3) {
+                    if(type === 'offering') {
+                        listServiceItems.offering.push(bomPart.link);
+                        insertSparePartComponent(elemComponents, bomPart);
+                    }
                 }
-            } else if(bomPart.level === 3) {
-                if(type === 'offering') {
-                    listServiceItems.offering.push(bomPart.link);
-                    insertSparePartComponent(elemComponents, bomPart);
+
+            }
+
+        } else {
+
+            for(let bomPart of response.data.bomPartsList) {
+                if(bomPart.level === 1) {
+                    insertSparePart(elemContent, bomPart, 'sparePart');
                 }
             }
+
+            $('.spare-part').first().click();
 
         }
 
@@ -944,20 +830,25 @@ function insertSparePart(elemParent, bomPart, type) {
         .addClass('icon')
         .addClass('filled')
         .addClass(config.serviceBOMTypes[type].icon);
+
+    // $('<img>').attr('src', 'http://localhost:8080/storage/cache/0453.jpg').prependTo(elemSparePartImage);
+
+
+    addTileThumbnail(elemSparePart);
     
-    $.get('/plm/details', { link : bomPart.link }, function(response) {
-        let params = {
-            replace   : true,
-            icon      : config.serviceBOMTypes[type].icon,
-            imageLink : getFirstImageFieldValue(response.data.sections)
-        }
-        $('.spare-part').each(function() {
-            if($(this).attr('data-link') === response.params.link) {
-                let elemImage = $(this).find('.spare-part-image').first();
-                appendImageFromCache(elemImage, {}, params, function() {});
-            }
-        });
-    });
+    // $.get('/plm/details', { link : bomPart.link }, function(response) {
+    //     let params = {
+    //         replace   : true,
+    //         icon      : config.serviceBOMTypes[type].icon,
+    //         imageLink : getFirstImageFieldValue(response.data.sections)
+    //     }
+    //     $('.spare-part').each(function() {
+    //         if($(this).attr('data-link') === response.params.link) {
+    //             let elemImage = $(this).find('.spare-part-image').first();
+    //             appendImageFromCache(elemImage, {}, params, function() {});
+    //         }
+    //     });
+    // });
                 
     let elemSparePartDetails = $('<div></div>').appendTo(elemSparePart)
         .addClass('spare-part-details')
@@ -1717,8 +1608,15 @@ function clickSparePart(elemClicked) {
 
     if(applicationFeatures.itemDetails) insertDetails(link, paramsItemDetails);
     if(applicationFeatures.itemAttachments) insertAttachments(link, paramsItemAttachments);
-    viewerSelectModel(partNumber, { 'highlight' : false , 'isolate' : true } );
-    bomDisplayItemByPartNumber(partNumber, true, true);
+
+    if(links.ebom !== '') {
+        viewerSelectModel(partNumber, { 'highlight' : false , 'isolate' : true } );
+        bomDisplayItemByPartNumber(partNumber, true, true);
+    } else {
+        $('.spare-part').removeClass('selected');
+        elemClicked.addClass('selected');
+        insertViewer(link, { features : config.viewerFeatures });
+    }
 
 }
 
@@ -1872,7 +1770,10 @@ function addCartItem(elemClicked) {
         .attr('data-title', elemSparePart.attr('data-title'))
         .attr('data-type', elemSparePart.attr('data-type'))
         .attr('data-part-number', elemSparePart.attr('data-part-number'))
-        .attr('data-qty', elemSparePart.attr('data-qty'));
+        .attr('data-qty', elemSparePart.attr('data-qty'))
+        .click(function(e) {
+            clickSparePart($(this));
+        });
 
     elemSparePart.find('.spare-part-image'  ).clone().appendTo(elemCartItem);
     elemSparePart.find('.spare-part-details').clone().appendTo(elemCartItem);        
@@ -1906,7 +1807,7 @@ function addCartItem(elemClicked) {
             removeCartItem($(this));
         }); 
 
-     if(applicationFeatures.showStock) {
+    if(applicationFeatures.showStock) {
 
         elemSparePart.find('.spare-part-stock').clone().appendTo(elemCartItemSide); 
 

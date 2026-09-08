@@ -1,0 +1,58 @@
+:root {
+
+    --border-h : 42px;
+    --border-v : 26px;
+
+    --height-files : 178px;
+    
+    --width-details : 1280px;
+    --width-files   : 420px;
+
+}
+
+
+.light-theme #header-logo {
+    background-image : url(https://www.iamt-gruppe.de/fileadmin/iamt/Bilder/04-Logos-und-Grafiken/IAMT-Test-Systems_Logo_800x390.png);
+    background-size: 90px;
+    cursor: pointer;
+    height: 38px;
+    margin: 14px 0px 22px 18px;
+    max-width: 73px;
+    min-width: 90px;
+    width: 64px;
+}
+
+
+/* MASTER LAYOUT */
+/* ----------------------------------------------------------------------------- */
+#main > #details,
+#main > .viewer,
+#main > #files {
+    border-width : var(--border-v) var(--border-h);
+}
+#details {
+    width : var(--width-details);
+}
+.viewer {
+    top    : 0px;
+    /* right            : calc(var(--width-files) + (1 * var(--border-h))); */
+    right  : 0px;
+    bottom : calc(var(--height-files) + (1 * var(--border-h)));
+    left   : calc(var(--width-details) + (1 * var(--border-h)));
+}
+#files {
+    height   : var(--height-files);
+    position : absolute;
+    right    : 0px;
+    bottom   : 0px;
+    left     : calc(var(--width-details) + (1 * var(--border-h)));
+}
+
+
+
+.section-fields {
+    display : grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 10px;
+}
+.section-fields .field-label { padding-right : 0px; }

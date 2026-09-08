@@ -5,6 +5,7 @@ let username            = '';
 const isiPad            = ( navigator.userAgent.includes('iPad') || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) );
 let isiPhone            = navigator.userAgent.match(/iPhone/i) != null;
 let applicationFeatures = {}
+let dataContextMenu     = {}
 let viewerFeatures      = {};
 let responseCache       = [];
 let allWorkspaces       = [];
@@ -456,6 +457,123 @@ function clickMenuCommand(elemCommand) {
     }
 
     document.location.href = url;
+
+}
+function insertContextMenuEntries(link) {
+
+    let contextMenu  = [];
+    let workspaces   = dataContextMenu.workspaces;
+    let wsId         = Number(link.split('/')[4]);
+    let elemColumns  = $('#menu-columns')
+    let elemColumn   = $('#menu-context-actions');
+
+    if(elemColumn.length === 0) {
+        elemColumn = $('<div></div>').addClass('menu-context-actions').attr('id', 'menu-context-actions');
+    } else elemColumn.html('');
+
+    let elemCommands = $('<div></div>').addClass('menu-commands').appendTo(elemColumn);
+
+    $('<div></div>').addClass('menu-title').html('Context Actions').prependTo(elemColumn);
+
+    for(let button of dataContextMenu.buttons) {
+
+        let validWorkspaces = [];
+
+        for(let ws of button.workspaces) validWorkspaces.push(dataContextMenu.workspaces[ws]);
+
+        if(validWorkspaces.includes(wsId)) {
+            insertContextMenuCommand(elemCommands, button);
+        }
+
+    }
+
+    elemColumn.attr('data-wsid' , wsId);
+    elemColumn.attr('data-dmsid', (link.split('/')[6]));
+
+    if(elemCommands.children().length > 0) elemColumn.appendTo(elemColumns);
+
+}
+function insertContextMenuCommand(elemCommands, command) {
+
+    let elemCommand = $('<div></div>').appendTo(elemCommands)
+        .addClass('menu-command')
+        .addClass('menu-context-action')
+        .addClass('button')
+        .addClass('with-icon')
+        .addClass('icon-')
+        .attr('data-url', command.url)
+        .click(function(e) {
+            clickContxtMenuCommand($(this), false);
+        });
+
+    $('<div></div>').appendTo(elemCommand)
+        .addClass('menu-command-title')
+        .html(command.label);
+
+    $('<div></div>').appendTo(elemCommand)
+        .addClass('menu-command-popup')
+        .addClass('icon')
+        .addClass('icon-open')
+        .attr('title', 'Open in new tab')
+        .click(function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            clickContxtMenuCommand($(this), true);
+        });
+
+}
+function clickContxtMenuCommand(elemClicked, openInPopup) {
+
+    let elemCommand = elemClicked.closest('.menu-context-action');
+    let url         = elemCommand.attr('data-url');
+    let location    = document.location.href.split('?');
+    let newParams   = (url.indexOf('?') > -1) ? url.split('?')[1].split('&') : [];
+    let keepParams  = ['theme'];
+    let elemMenu    = $('#menu-context-actions');
+
+    if(location.length > 1) {
+        
+        let curParams = location[1].split('&');
+
+        for(let curParam of curParams) {
+
+            let curName = curParam.split('=')[0];
+            let add = keepParams.includes(curName);
+
+            for(let newParam of newParams) {
+
+                let newName = newParam.split('=')[0];
+
+                if(newName.toLowerCase() === curName.toLowerCase()) {
+                    add = false;
+                    break;
+                }
+
+            }
+
+            if(add) {
+                url += (url.indexOf('?') > 0) ? '&' : '?';
+                url += curParam;
+            }
+
+        }
+    }
+
+    url += '&wsId='  + elemMenu.attr('data-wsid');
+    url += '&dmsId=' + elemMenu.attr('data-dmsid');
+
+    if(openInPopup) {
+        window.open(url);
+        $('#menu').fadeOut(150);
+    } else {
+        showStartupDialog();
+        document.location.href = url;
+    }
+
+}
+function removeContextMenuEntries() {
+
+    $('#menu-context-actions').remove();
 
 }
 
@@ -988,6 +1106,33 @@ function updateURLParameter(url, parameter, value, updateLocation) {
     const parsedUrl = new URL(url);
 
     parsedUrl.searchParams.set(parameter, value);
+
+    if(updateLocation) window.history.replaceState(null, null, parsedUrl.toString()); 
+
+    return parsedUrl.toString();
+
+}
+
+
+// Update value of defined URL parameter
+function updateURLLink(link, updateLocation) {
+
+    updateLocation = updateLocation || true;
+
+    let url       = document.location.href;
+    let parsedUrl = new URL(url);
+
+    if(!isBlank(link)) {
+
+        parsedUrl.searchParams.set( 'wsid', link.split('/')[4]);
+        parsedUrl.searchParams.set('dmsid', link.split('/')[6]);
+
+    } else {
+
+        parsedUrl.searchParams.delete( 'wsid');
+        parsedUrl.searchParams.delete('dmsid');
+
+    }
 
     if(updateLocation) window.history.replaceState(null, null, parsedUrl.toString()); 
 
@@ -4019,15 +4164,97 @@ function genTreeRow(id, item) {
     let elemFirstCol = $('<td></td>').appendTo(elemRow).addClass('tree-first-col');
 
     if(item.hasChildren) {
-        $('<span></span>').appendTo(elemFirstCol).addClass('tree-nav').addClass('icon');
         elemRow.addClass('node');
-    } else elemRow.addClass('leaf');
+        $('<span></span>').appendTo(elemFirstCol)
+        .addClass('tree-nav')
+        .addClass('icon')
+        .click(function(e) {
+            clickTreeToggle(e, $(this))
+        });
+    } else {
+        elemRow.addClass('leaf');
+    }
 
-    if(!settings[id].hideTreeNumber) $('<span></span>').appendTo(elemFirstCol).addClass('tree-number');
+    if(!settings[id].hideTreeNumber) {
+        let elemTreeNumber = $('<span></span>').appendTo(elemFirstCol).addClass('tree-number');
+        if(typeof item.number !== 'undefined') elemTreeNumber.html(item.level + '.' + item.number);
+    }
 
-    $('<span></span>').appendTo(elemFirstCol).addClass('tree-title').html(item.title);
+    if(!settings[id].hideDescriptor  ) $('<span></span>').appendTo(elemFirstCol).addClass('tree-descriptor').html(item.title);
+    if( settings[id].treeShowQuantity) $('<span></span>').appendTo(elemRow).addClass('tree-quantity').html(bomQuantity);
+
+    if(settings[id].editable) {
+        console.log('999');
+        // elemFirstCol.children('.tree-descriptor').attr('contenteditable', true);
+        // elemFirstCol.children('.tree-quantity').attr('contenteditable', true);
+
+    }
+
+    if(settings[id].treeShowRestricted) {
+        $('<td></td>').appendTo(elemRow)
+            .addClass('tree-icon')
+            .addClass('tree-column-locks');
+    }
+
+    genTreeRowCells(id, item, elemRow, elemFirstCol);
+
+    // $('<span></span>').appendTo(elemFirstCol).addClass('tree-title').html(item.title);
 
     return elemRow;
+
+}
+function genTreeRowCells(id, item, elemRow, elemFirstCol) {
+
+    let index = 0;
+
+    item.details = item.details || [];
+
+    for(let column of settings[id].columns) {
+
+        if(column.included) {
+
+            let value      = item.details[column.fieldId];
+            let elemCell   = $('<td></td>');
+            let isEditable = false;
+
+            if(column.hasOwnProperty('editability')) {
+                if(column.editability === 'ALWAYS') {
+                    isEditable = true;
+                }
+            }
+
+            if(!settings[id].hideDescriptor || (index > 0)) {
+                elemCell.appendTo(elemRow);
+            } else {
+                elemCell = $('<span></span>').appendTo(elemFirstCol).addClass('bom-descriptor');
+            }
+
+            if(settings[id].editable && isEditable) {
+
+                if(column.type.title === 'Radio Button') {
+                    column.type.title = 'Single Selection';
+                }
+
+                // column.id = column.fieldId;
+                // let data = [{ id : column.fieldId, value : getBOMCellValue(edge.child, column.__self__.urn, bom.nodes, 'title')}];
+                insertField(settings[id], elemCell, column, item.details, settings[id].picklists, false, false);
+
+            } else {
+
+                // if(column.fieldTab === 'STANDARD_BOM') value = getBOMEdgeValue(edge, column.__self__.urn, null, '');
+                // else value = getBOMCellValue(edge.child, column.__self__.urn, bom.nodes, 'title');
+
+                elemCell.html(value)
+                    .addClass('bom-column-'  + column.fieldId.toLowerCase())
+                    .addClass('tree-column-' + column.fieldId.toLowerCase());
+
+            }
+
+            index++;
+
+        }
+
+    }
 
 }
 function genTreePath(id) {
@@ -4072,9 +4299,9 @@ function genTreePath(id) {
 }
 function enableTreeToggles(id) {
 
-    $('#' + id).find('.tree-nav').click(function(e) {
-        clickTreeToggle(e, $(this))
-    });
+//     $('#' + id).find('.tree-nav').click(function(e) {
+//         clickTreeToggle(e, $(this))
+//     });
 
 }
 function clickTreeToggle(e, elemClicked) {
@@ -5451,6 +5678,60 @@ function treeResetItemsChanged(id) {
     });
 
 }
+function treeInsertIconColumn(id, filled, icon) {
+
+    filled = filled || false;
+    icon   = icon   || '';
+
+    $('#' + id + ' .tree-item').each(function() {
+
+        let elemCell = $('<td></td>').appendTo($(this))
+            .addClass('tree-icon');
+
+        let elemIcon = $('<div></div>').appendTo(elemCell)
+            .addClass('icon');
+            
+        if(filled) elemIcon.addClass('filled');
+        if(icon !== '') elemIcon.addClass(icon);
+
+    });
+
+}
+function onTreeDragEnter(e) {
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    let elemTarget = $(e.target);
+
+    if(!elemTarget.hasClass('tree-item')) elemTarget = elemTarget.closest('.tree-item');
+
+    elemTarget.addClass('drag-hover');
+
+}
+function onTreeDragOver(e) {
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    let elemTarget = $(e.target);
+
+    if(!elemTarget.hasClass('tree-item')) elemTarget = elemTarget.closest('.tree-item');
+
+    elemTarget.addClass('drag-hover');
+
+}
+function onTreeDragLeave(e) {
+
+    $('.drag-hover').removeClass('drag-hover');
+
+}
+function onTreeDrop(e) {
+
+    e.preventDefault();
+    e.stopPropagation();
+
+}
 
 
 // Generate list of tiles
@@ -5830,6 +6111,27 @@ function addTilesListImages(id) {
             }, function() {});
         });
     });
+
+}
+function addTileThumbnail(elemTile) {
+
+    const link      =  elemTile.attr('data-link');
+    const dmsId     = link.split('/').pop();
+    const elemImage = elemTile.find('.tile-image');
+
+    $.get('/plm/image-cache', {
+        link     : link,
+        fileName : dmsId + '.jpg'
+    }, function(response) {
+
+        if(response.error) return;
+
+        $('<img>').attr('src', response.data.url).on('load', function() {
+            elemImage.html('');
+            elemImage.append($(this));
+        });
+
+    });    
 
 }
 function addTilesListChevrons(id, callback) {
@@ -8109,6 +8411,14 @@ function getFirstImageFieldValue(sections) {
 function getGridRowId(row) {
 
     return row.rowData[0].value;
+
+}
+
+
+// Retrieve link of grid row
+function getGridRowLink(row) {
+
+    return row.rowData[0].__self__;
 
 }
 

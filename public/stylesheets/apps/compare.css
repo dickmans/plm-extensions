@@ -96,8 +96,8 @@
 
 /* VIEWER SIZES */
 /* ----------------------------------------------------------------------------- */
-body.viewer-size-large  { --height-viewer : 400px; }
-body.viewer-size-normal { --height-viewer : 300px; }
+body.viewer-size-large  { --height-viewer : 520px; }
+body.viewer-size-normal { --height-viewer : 340px; }
 body.viewer-size-small  { --height-viewer : 200px; }
 body.viewer-size-none   { --height-viewer : 0px; }
 body.viewer-size-float .viewer-left,

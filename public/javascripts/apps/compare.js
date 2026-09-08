@@ -467,6 +467,7 @@ function clickBOMItem(elemClicked, side) {
     const idBOMOther = (side === 'Left') ? idBOMRight : idBOMLeft;
     const fitLeft    = (side === 'Left')  || (!syncView);
     const fitRight   = (side === 'Right') || (!syncView);
+    const usePaths   = common.viewer.cacheInstances || false;
 
     $('.tree-item').removeClass('selected');
 
@@ -475,8 +476,8 @@ function clickBOMItem(elemClicked, side) {
         let elemOther = $('#' + idBOMOther).find('.content-item:eq(' + index + ')');
         let linkLeft  = link;
         let linkRight = link;
-        let pathLeft  = elemClicked.attr('data-number-path');
-        let pathRight = elemClicked.attr('data-number-path');
+        let pathLeft  = (usePaths) ? elemClicked.attr('data-number-path') : elemClicked.attr('data-part-number');
+        let pathRight = (usePaths) ? elemClicked.attr('data-number-path') : elemClicked.attr('data-part-number');
 
         elemClicked.addClass('selected');
 
@@ -484,32 +485,31 @@ function clickBOMItem(elemClicked, side) {
 
             viewerSelectModel(pathLeft, {
                 id      : idViewerLeft,
-                usePath : true
+                usePath : usePaths
             });   
 
         } else {
 
             if(side === 'Left') {
                 linkRight = elemOther.attr('data-link');
-                pathRight = elemOther.attr('data-number-path');
+                pathRight = (usePaths) ? elemOther.attr('data-number-path') : elemOther.attr('data-part-number');
             } else {
                 linkLeft = elemOther.attr('data-link');
-                pathLeft = elemOther.attr('data-number-path');
+                pathLeft = (usePaths) ? elemOther.attr('data-number-path') : elemOther.attr('data-part-number');
             }
-
 
             elemOther.addClass('selected');
 
             viewerSelectModel(pathLeft, {
                 id        : idViewerLeft,
                 fitToView : fitLeft,
-                usePath   : true,
+                usePath   : usePaths,
             });
 
             viewerSelectModel(pathRight, {
                 id        : idViewerRight,
                 fitToView : fitRight,
-                usePath   : true,
+                usePath   : usePaths,
             });
 
             insertDetails(linkLeft , paramsDetailsLeft);

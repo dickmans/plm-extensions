@@ -227,6 +227,48 @@
     padding-top : 7px;
 
 }
+#menu-context-actions > .menu-commands {
+    gap     : 4px;
+    padding : 12px;
+}
+.menu-context-actions .button {
+    background    : var(--color-gray-100) !important;
+    border        : none;
+    border-radius : 3px;
+    color         : black;
+    font-weight   : 700;
+    padding       : 8px 8px 8px 16px;
+}
+.menu-context-actions .button:hover {
+    background : var(--color-gray-200) !important;
+}
+.menu-context-action.button {
+    border     : none;
+    box-shadow : none !important;
+    display    : flex;
+    gap        : 20px;
+    height     : 28px;
+    justify-content : space-between;
+}
+.menu-context-action .menu-command-title {
+    line-height : 28px;
+    padding     : 0px;
+}
+.menu-command-popup {
+    background  : var(--color-gray-100);
+    color       : var(--color-gray-100);
+    font-size   : 18px;
+    height      : 28px;
+    line-height : 28px;
+    width       : 28px;
+}
+.menu-context-action:hover > .menu-command-popup {
+    color      : black;
+    background : var(--color-gray-200);
+}
+.menu-command-popup:hover {
+    background : var(--color-gray-400) !important;
+}
 
 
 
@@ -1573,16 +1615,16 @@ tr.selected > td.field-editable .picklist-input { background : var(--color-hover
 
 /* .content-item td.field-editable.field-type-checkbox { display : flex; } */
 
-/* .panel-content.xxs .table-group-title { line-height : 32px; padding : 0px 10px; }
-.panel-content.xs  .table-group-title { line-height : 32px; padding : 0px 10px; }
-.panel-content.s   .table-group-title { line-height : 32px; padding : 0px 10px; }
+.panel-content.xxs .table-group-title { line-height : 22px; padding : 0px  4px; }
+.panel-content.xs  .table-group-title { line-height : 26px; padding : 0px  6px; }
+.panel-content.s   .table-group-title { line-height : 30px; padding : 0px  8px; }
 .panel-content.m   .table-group-title { line-height : 32px; padding : 0px 10px; }
-.panel-content.l   .table-group-title { line-height : 32px; padding : 0px 10px; }
-.panel-content.xl  .table-group-title { line-height : 32px; padding : 0px 10px; }
-.panel-content.xxl .table-group-title { line-height : 32px; padding : 0px 10px; } */
+.panel-content.l   .table-group-title { line-height : 34px; padding : 0px 10px; }
+.panel-content.xl  .table-group-title { line-height : 38px; padding : 0px 10px; }
+.panel-content.xxl .table-group-title { line-height : 42px; padding : 0px 10px; } 
 
-.panel-content.xxs .table-group-title::before { margin-right : 24px; }
-.panel-content.xs  .table-group-title::before { margin-right : 24px; }
+.panel-content.xxs .table-group-title::before { margin-right : 16px; font-size : 16px; top : 4px; }
+.panel-content.xs  .table-group-title::before { margin-right : 16px; font-size : 16px; top : 4px;  }
 .panel-content.s   .table-group-title::before { margin-right : 20px; }
 .panel-content.m   .table-group-title::before { margin-right : 24px; }
 .panel-content.l   .table-group-title::before { margin-right : 24px; }

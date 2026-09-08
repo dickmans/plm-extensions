@@ -26,6 +26,8 @@ function getCustomHeaders(req) {
         'Authorization' : req.session.headers.Authorization       
     }
 
+    if(req.session.headers.hasOwnProperty('X-user-id')) headers['X-user-id'] = req.session.headers['X-user-id'];
+
     return headers;
 }
 function getTenantLink(req) {
@@ -2087,6 +2089,7 @@ router.get('/image-cache', function(req, res) {
     console.log('  req.query.imageId   = ' + req.query.imageId);
     console.log('  req.query.imageLink = ' + req.query.imageLink);
     console.log('  req.query.link      = ' + req.query.link);
+    console.log('  req.query.fileName  = ' + req.query.fileName);
     console.log();
    
     let wsId      = req.query.wsId      || '';
@@ -2094,51 +2097,79 @@ router.get('/image-cache', function(req, res) {
     let fieldId   = req.query.fieldId   || '';
     let imageId   = req.query.imageId   || '';
     let imageLink = req.query.imageLink || '';
-
+    let fileName  = req.query.fileName  || '';
+    
     if(typeof req.query.link !== 'undefined') {
         wsId  = (wsId  === '') ? req.query.link.split('/')[4] : wsId;
         dmsId = (dmsId === '') ? req.query.link.split('/')[6] : dmsId;
     }
 
-    if(imageLink === '') {
-
-        imageLink = '/api/v2/workspaces/' + wsId + '/items/' + dmsId + '/field-values/' + fieldId + '/image/' + imageId;
-
-    } else {
-
-        let split = imageLink.split('/');
-
-        wsId    = split[4];
-        dmsId   = split[6];
-        fieldId = split[8];
-        imageId = split[10];
-
+    if(typeof req.query.imageLink !== 'undefined') {
+        wsId    = (   wsId === '') ? req.query.imageLink.split('/')[4]  : wsId;
+        dmsId   = (  dmsId === '') ? req.query.imageLink.split('/')[6]  : dmsId;
+        fieldId = (fieldId === '') ? req.query.imageLink.split('/')[8]  : fieldId;
+        imageId = (imageId === '') ? req.query.imageLink.split('/')[10] : imageId;
+    }    
+    
+    if(fileName === '') {
+        if(imageId !== '') {
+            fileName = wsId + '-' + dmsId + '-' + fieldId + '-' + imageId + '.jpg';
+        }
     }
-        
-    let url      = req.app.locals.tenantLink + imageLink;
-    let fileName = wsId + '-' + dmsId + '-' + fieldId + '-' + imageId + '.jpg';
 
     fs.stat('storage/cache/' + fileName, function(err, stat) {
 
         if(err === null) {
-            
+
             sendResponse(req, res, { data : { url : 'storage/cache/' + fileName } }, false);
 
         } else if(err.code == 'ENOENT') {
 
-            axios.get(url, { 
-                responseType     : 'arraybuffer',
-                responseEncoding : 'binary',
-                headers : {
-                    'Authorization' : req.session.headers['Authorization'],
-                    'Accept'        : 'image/avif,image/webp,image/apng,image/*,*/*;q=0.8'
+            if(!imageLink && !imageId) {
+
+                let url = getTenantLink(req) + link;
+
+                axios.get(url, {
+                    headers : req.session.headers
+                }).then(function(response) {
+                    for(let section of response.data.sections) {
+                        for(let field of section.fields) {
+                            if(field.type.title === 'Image') {
+                                if(field.value !== null) {
+                                    imageLink = field.value.link;
+                                }
+                            }
+                        }
+                    }
+
+                    if(imageLink === '') {
+                        sendResponse(req, res, {}, true);  
+                    } else {
+                        downloadImageToCache(req, res, imageLink, fileName);
+                    }
+
+                });
+
+            } else {
+
+                if(imageLink === '') {
+
+                    imageLink = '/api/v2/workspaces/' + wsId + '/items/' + dmsId + '/field-values/' + fieldId + '/image/' + imageId;
+
+                } else {
+
+                    let split = imageLink.split('/');
+
+                    wsId    = split[4];
+                    dmsId   = split[6];
+                    fieldId = split[8];
+                    imageId = split[10];
+
                 }
-            }).then(function (response) {
-                fs.appendFileSync('storage/cache/' + fileName, response.data);
-                sendResponse(req, res, { data : { url : '/storage/cache/' + fileName }  }, false);
-            }).catch(function (error) {
-                sendResponse(req, res, error.response, true);   
-            });
+
+                downloadImageToCache(req, res, imageLink, fileName);
+
+            }
 
         } else {
             console.log('Some other error: ', err.code);
@@ -2148,6 +2179,25 @@ router.get('/image-cache', function(req, res) {
     });
    
 });
+function downloadImageToCache(req, res, imageLink, fileName) {
+
+    let url = getTenantLink(req) + imageLink;
+
+    axios.get(url, { 
+        responseType     : 'arraybuffer',
+        responseEncoding : 'binary',
+        headers          : {
+            'Authorization' : req.session.headers['Authorization'],
+            'Accept'        : 'image/avif,image/webp,image/apng,image/*,*/*;q=0.8'
+        }
+    }).then(function (response) {
+        fs.appendFileSync('storage/cache/' + fileName, response.data);
+        sendResponse(req, res, { data : { url : '/storage/cache/' + fileName }  }, false);
+    }).catch(function (error) {
+        sendResponse(req, res, error.response, true);   
+    });        
+
+}
 
 
 /* ----- UPLOAD ITEM IMAGE ----- */
@@ -3788,7 +3838,7 @@ router.get('/get-viewable', function(req, res, next) {
 
         let headers = getCustomHeaders(req);
             headers.Accept = 'application/vnd.autodesk.plm.attachment.viewable+json';
-        
+
         axios.get(url, {
             headers : headers
         }).then(function(response) {
@@ -5080,7 +5130,7 @@ router.get('/mow', function(req, res, next) {
     console.log(' ');
     console.log('  /mow');
     console.log(' --------------------------------------------'); 
-    console.log('  req.query.userId       = ' + req.query.userId);     
+    console.log('  req.query.userId = ' + req.query.userId);     
     console.log('  ');
 
     let url      = req.app.locals.tenantLink + '/api/v3/users/@me/outstanding-work';
@@ -5191,7 +5241,7 @@ router.get('/recent', function(req, res, next) {
     console.log(' --------------------------------------------');  
     console.log('  req.query.requestor = ' + req.query.requestor);    
     console.log('  ');
-    
+
     let url = req.app.locals.tenantLink + '/api/v3/users/@me/recently-viewed';
     
     axios.get(url, {
@@ -6649,18 +6699,17 @@ router.get('/workspaces', async function(req, res, next) {
     console.log('  req.query.useCache = ' + req.query.useCache);
     console.log();
 
-    let [url, headers] = await prepareRequest(req, res);
+    if(notCached(req, res)) {
 
-    if(headers !== null) {    
-
-        let offset = (typeof req.query.offset === 'undefined') ?     0 : req.query.offset;
-        let limit  = (typeof req.query.limit  === 'undefined') ?   250 : req.query.limit;
-        let bulk   = (typeof req.query.bulk   === 'undefined') ? false : (req.query.bulk == 'true');
-        
+        let headers = getCustomHeaders(req);
+        let offset  = req.query.offset || 0;
+        let limit   = req.query.offset  || 250;
+        let bulk    = (typeof req.query.bulk   === 'undefined') ? false : (req.query.bulk == 'true');
+            
         if(bulk) headers.Accept = 'application/vnd.autodesk.plm.workspaces.bulk+json';
 
-        url += '/api/v3/workspaces?offset=' + offset + '&limit=' + limit;
-        
+        let url  = getTenantLink(req) + '/api/v3/workspaces?offset=' + offset + '&limit=' + limit;
+
         axios.get(url, {
             headers : headers
         }).then(function(response) {

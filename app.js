@@ -56,6 +56,9 @@ if ((process.argv.length > 2) && (!fs.existsSync(pathEnvironment))) {
     app.locals.fusionConnected   = process.env.FUSION_CONNECTED    || environment.fusionConnected   || false;
     app.locals.adminClientId     = process.env.ADMIN_CLIENT_ID     || environment.adminClientId     || '' ;
     app.locals.adminClientSecret = process.env.ADMIN_CLIENT_SECRET || environment.adminClientSecret || '';
+    app.locals.ssaAccountId      = process.env.SSA_ACCOUNT_ID      || environment.ssaAccountId      || '';
+    app.locals.ssaKeyId          = process.env.SSA_KEY_ID          || environment.ssaKeyId          || '';
+    app.locals.ssaPrivateKey     = process.env.SSA_PRIVATE_KEY     || environment.ssaPrivateKey     || '';
     app.locals.vaultGateway      = process.env.VAULT_GATEWAY       || environment.vaultGateway      || '';
     app.locals.vaultName         = process.env.VAULT_NAME          || environment.vaultName         || '';
     app.locals.tenantLink        = 'https://' + app.locals.tenant + '.autodeskplm360.net';
@@ -73,8 +76,8 @@ if ((process.argv.length > 2) && (!fs.existsSync(pathEnvironment))) {
         }
     } 
 
-    let settings = require('./settings.js');
-    let custom   = require('./settings/' + environment.settings);
+    let settings     = require('./settings.js');
+    let custom       = require('./settings/' + environment.settings);
 
     mergeSettings(settings, custom);
     removeDisabledServicesFromMenu(settings.menu, settings.server);
@@ -134,6 +137,9 @@ if ((process.argv.length > 2) && (!fs.existsSync(pathEnvironment))) {
         res.locals.message = err.message;
         res.locals.error = req.app.get('env') === 'development' ? err : {};
 
+        err.type        = err?.response?.data?.error             ?? '';
+        err.description = err?.response?.data?.error_description ?? '';
+
         // render the error page
         res.status(err.status || 500);
         res.render('framework/error');
@@ -153,6 +159,38 @@ function mergeSettings(master, custom) {
     mergeSettingsProperty(master, custom, 'menu');
     mergeSettingsProperty(master, custom, 'server');
     mergeSettingsProperty(master, custom, 'chrome');
+
+    let isFirst   = true;
+    let variables = Object.keys(process.env);
+
+    for(let variable of variables) {
+
+        if(variable.startsWith('settings_')) {
+
+            const path    = variable.substring(9);
+            const keys    = path.split("_");
+            const lastKey = keys.pop();
+            const target  = keys.reduce((current, key) => current[key], master);
+
+            target[lastKey] = process.env[variable];            
+
+            if(isFirst) {
+
+                console.log();
+                console.log('  Updating settings per environment variables');
+                console.log(' --------------------------------------------------------------------------------------------------');
+
+            }
+
+            console.log('  -> exports.' + variable.substring(9).replaceAll('_', '.') + ' = ' + process.env[variable])
+
+            isFirst = false;
+
+        }
+
+    }
+
+    if(!isFirst) console.log();
 
 }
 function mergeSettingsProperty(master, custom, property) {
@@ -195,6 +233,7 @@ function mergeSettingsProperty(master, custom, property) {
    } else master[property] = custom[property];
 
 }
+
 
 function removeDisabledServicesFromMenu(menu, server) {
 
