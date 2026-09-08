@@ -167,14 +167,17 @@
 }
 
 .with-icon,
-.append-icon {
+.append-icon,
+.append-chevron {
     display : flex;
 }
-.append-icon {
+.append-icon,
+.append-chevron {
     justify-content : space-between;
 }
 .with-icon::before,
-.append-icon::after {
+.append-icon::after,
+.append-chevron::after {
     font-family            : 'Material Symbols Sharp';
     margin-right           : var(--spacer-xxs);
     text-rendering         : optimizeLegibility;
@@ -185,6 +188,7 @@
 .append-icon.filled::after {
     font-variation-settings : 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48
 }
+.append-chevron::after { content : '\e5cc'; }
 
 
 /* Buttons with on/off toggles */
@@ -211,6 +215,7 @@
 /* Icons */
 .icon-3d::before                { content : '\e9fe'; }
 .icon-activity::before          { content : '\e53f'; }
+.icon-add::before               { content : '\e145'; }
 .icon-add-left::before          { content : '\f425'; }
 .icon-add-right::before         { content : '\f424'; }
 .icon-add-above::before         { content : '\f423'; }
@@ -390,6 +395,7 @@
 .icon-side-panel::before        { content : '\f7e5'; }
 .icon-skip::before              { content : '\e01f'; }
 .icon-sliders::before           { content : '\e429'; }
+.icon-square::before            { content : '\e3c6'; }
 .icon-start::before             { content : '\e1c4'; }
 .icon-starts-with::before       { content : '\ec73'; }
 .icon-status::before            { content : '\ea50'; }
