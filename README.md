@@ -14,7 +14,7 @@ Disclaimer: In any case all source code of this solution is of "work in progress
 ## Setup Instructions
 Pefrorm the steps listed below to run this server on your local system for testing purposes. For an advanced setup using Google Cloud, see this video: https://youtu.be/9EtlCDzmWWE
 <ol>
-<li>Download and unzip this package from Github</li>
+<li>Download this Github repository (click Code > Download ZIP) and unzip it afterwards</li>
 <li>Create an application at https://aps.autodesk.com of type "Desktop, Mobile, Single-Page App" and set its callback URL to http://localhost:8080/callback (the APS APIs being used are free of charge).</li>
 <li>Whitelist this application's clientID in your tenant's General Settings</li>
 <li>Using a text-editor, open file environment.js and provide the following information: tenant and clientId</li>
