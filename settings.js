@@ -2480,12 +2480,12 @@ exports.chrome = {
         url        : '/impactanalysis?',
         label      : 'Change Impact Analysis',
         workspaces : ['problemReports', 'changeRequests', 'changeOrders']
-    },{ // Requirements Specification Editor for Equipments, Products and Requirements
+    },{ // Requirements Specification Editor for Products, Equipments and Requirements
         id         : 'editor-requirements',
         url        : '/editor?config=requirements&working=true&',
         label      : 'Edit Requirements Specification',
         icon       : 'zmdi-file-text',
-        workspaces : ['equipments', 'products', 'requirements']
+        workspaces : ['products', 'equipments', 'requirements']
 
     },{ // BOM Comparison for Items
         id         : 'compare',
@@ -2505,12 +2505,12 @@ exports.chrome = {
         label      : 'Product Data Explorer',
         icon       : 'zmdi-chart',
         workspaces : ['items']    
-    },{ // Product Data Explorer for Projects & Equipments
+    },{ // Product Data Explorer for Projects and Equipments
         id         : 'insights-context',
         url        : '/explorer?options=fieldIdEBOM:ENGINEERING_BOM&',
         label      : 'Insights',
         icon       : 'zmdi-chart',
-        workspaces : ['products', 'assets']                   
+        workspaces : ['products', 'equipments']                   
     },{ // Product Data Explorer for Engineering Projects
         id         : 'insights-epm',
         url        : '/explorer?options=fieldIdEBOM:DELIVERABLE_4&',
@@ -2522,6 +2522,11 @@ exports.chrome = {
         url        : '/mbom?',
         label      : 'Edit Manufacturing BOM',
         workspaces : ['items']
+    },{ // M/E Alignment for Products and Equipments
+        id         : 'mealign',
+        url        : '/mealign?',
+        label      : 'M/E Alignment',
+        workspaces : ['products', 'equipments']
     },{ // Manufacturing BOM Editor for Products
         id         : 'mbom-products',
         url        : '/mbom?options=contextfieldidebom:ENGINEERING_BOM,contextfieldidmbom:MANUFACTURING_BOM&',
@@ -2532,21 +2537,11 @@ exports.chrome = {
         url        : '/mbom?options=contextfieldidebom:ENGINEERING_BOM,contextfieldidmbom:MANUFACTURING_BOM&',
         label      : 'Edit Manufacturing BOM',
         workspaces : ['equipments']    
-    },{ // M/E Alignment for Products and Equipments
-        id         : 'mealign',
-        url        : '/mealign?',
-        label      : 'M/E Alignment',
-        workspaces : ['products', 'equipments']
-    },{ // Process BOM for Products and Equipments
-        id         : 'mepbom',
-        url        : '/mepbom?',
-        label      : 'Edit Process BOM',
-        workspaces : ['products', 'equipments']                
-    },{ // Service BOM Editor for Products and Equipments
-        id         : 'sbom',
-        url        : '/sbom?',
-        label      : 'Edit Service BOM',
-        workspaces : ['products', 'assets']
+    // },{ // Process BOM for Products and Equipments
+    //     id         : 'mepbom',
+    //     url        : '/mepbom?',
+    //     label      : 'Edit Process BOM',
+    //     workspaces : ['products', 'equipments']                
     },{ // Variants Manager for Items
         id         : 'variants-items',
         url        : '/variants?',
@@ -2557,13 +2552,8 @@ exports.chrome = {
         url        : '/variants?options=fieldIdEBOM:ENGINEERING_BOM&',
         label      : 'Manage Variants',
         workspaces : ['products']     
-    },{ // Service Portal for Items, Products and Equipments
-        id         : 'service-portal',
-        url        : '/service?',
-        label      : 'Service Portal',
-        icon       : 'zmdi-wrench',
-        workspaces : ['items', 'products', 'equipments']
-    },{ // BOM Instances management for equipments
+
+    },{ // BOM Instances management for Equipments
         id         : 'instances',
         url        : '/instances?',
         label      : 'Edit BOM Instances',
@@ -2573,6 +2563,17 @@ exports.chrome = {
         url        : '/abom?',
         label      : 'Edit As-Built BOM',
         workspaces : ['equipments']
+    },{ // Service BOM Editor for Products and Equipments
+        id         : 'sbom',
+        url        : '/sbom?',
+        label      : 'Edit Service BOM',
+        workspaces : ['products', 'equipments']    
+    },{ // Service Portal for Items, Products and Equipments
+        id         : 'service-portal',
+        url        : '/service?',
+        label      : 'Service Portal',
+        icon       : 'zmdi-wrench',
+        workspaces : ['items', 'products', 'equipments']    
     }
     // #region  Placeholders for definition of site specific MBOMs
         //  ,{  // Manufacturing BOM Editor for Items Site A
