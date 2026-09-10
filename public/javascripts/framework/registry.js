@@ -1028,7 +1028,8 @@ const registry = {
                     hideSections   : true
                 },
                 additional : [
-                    'bookmark',
+                    'bookmark', 
+                    'editable',
                     'hideLabels', 'hideReadOnly', 'hideSections',
                     'requiredFieldsOnly', 'saveButtonLabel'
                 ],
