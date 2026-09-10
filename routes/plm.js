@@ -2097,6 +2097,7 @@ router.get('/image-cache', function(req, res) {
     let fieldId   = req.query.fieldId   || '';
     let imageId   = req.query.imageId   || '';
     let imageLink = req.query.imageLink || '';
+    let link      = req.query.link || '';
     let fileName  = req.query.fileName  || '';
     
     if(typeof req.query.link !== 'undefined') {
@@ -2110,6 +2111,10 @@ router.get('/image-cache', function(req, res) {
         fieldId = (fieldId === '') ? req.query.imageLink.split('/')[8]  : fieldId;
         imageId = (imageId === '') ? req.query.imageLink.split('/')[10] : imageId;
     }    
+
+    if(link === '') {
+        link = '/api/v3/workspaces/' + wsId + '/items/' + dmsId;
+    }
     
     if(fileName === '') {
         if(imageId !== '') {
