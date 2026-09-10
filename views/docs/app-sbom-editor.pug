@@ -157,16 +157,6 @@
                 td 'ENGINEERING_BOM'
                 td The fieldID of the context record containing the Source / Engineering BOM. This given BOM will be displayed as base BOM of the editor and its viewable will be used for the viewer.
             tr 
-                td sourceBOM.bomViewName
-                td 'Service'
-                td The BOM of workspace 
-                    strong Items 
-                    |with the required fields to display the base BOM tree
-            tr 
-                td sourceBOM.headerLabel
-                td 'Engineering BOM',
-                td The label to display above the base BOM
-            tr 
                 td targetBOM.fieldId 
                 td 'SERVICE_BOM'
                 td The fieldID of the context record to use in order to retrieve the matching Service BOM root node
@@ -316,6 +306,10 @@
                 th Descripton
                 th Panel Type
             tr 
+                td panels.insertBOM
+                td Drives the Engineering BOM tree display
+                td insertBOM
+            tr 
                 td panels.itemDetails
                 td Drives the Details panel on the right side of the screen that can be toggled on / off
                 td insertDetails
@@ -359,6 +353,10 @@
     .log 
         h1 Service BOM Editor Change Log 
         table.row-hovering
+            tr 
+                td 10. September 2026
+                td Enhancement
+                td Improved configuration settings, now enabling adjustments of the Engineering BOM display
             tr 
                 td 20. July 2026
                 td Enhancement

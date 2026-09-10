@@ -1491,8 +1491,8 @@ exports.applications = {
         appTitle  : 'Service BOM Editor',
         sourceBOM : {
             fieldId     : 'ENGINEERING_BOM',
-            bomViewName : 'Service',
-            headerLabel : 'Engineering BOM'
+            // bomViewName : 'Service',
+            // headerLabel : 'Engineering BOM'
         },
         targetBOM : {
             fieldId       : 'SERVICE_BOM',
@@ -1555,6 +1555,19 @@ exports.applications = {
         }],
         enableBOMPin : false,
         panels : {
+            insertBOM : {
+                bomViewName        : 'Service',
+                headerLabel        : 'Engineering BOM',
+                contentSize        : 's',
+                fieldsIn           : ['Quantity'],
+                collapseContents   : false,
+                counters           : true,
+                openInPLM          : true,
+                search             : true,
+                treePath           : true,
+                toggles            : true,
+                viewerSelection    : true,
+            },
             itemDetails : { // Based on insertDetails
                 headerLabel    : 'descriptor',
                 expandSections : ['Basic'],

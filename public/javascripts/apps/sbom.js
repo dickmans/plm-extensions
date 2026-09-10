@@ -260,31 +260,23 @@ function initEditor(responses) {
         insertViewer(links.sourceBOM, { 
             features        : config.viewerFeatures,
             afterCompletion : function(id) { initEditorViewerDone(id); }
-         } ); 
+         } );
+         
+        let paramsBOM = config.panels.insertBOM;
 
-        insertBOM(links.sourceBOM, {
-            collapseContents   : false,
-            counters           : true,
-            search             : true,
-            path               : true,
-            toggles            : true,
-            viewerSelection    : true,
-            openInPLM          : true,
-            includeBOMPartList : true,         
-            headerLabel        : config.sourceBOM.headerLabel,
-            hideHeaderLabel    : (config.sourceBOM.headerLabel === ''),
-            contentSize        : 's',
-            fieldsIn           : ['Quantity'],
-            bomViewName        : config.sourceBOM.bomViewName,
-            onClickItem        : function(elemClicked) { insertDetails(elemClicked.attr('data-link'), paramsDetails); },
-            afterCompletion    : function(id, data)    { 
-                partsListSourceBOM = data.bomPartsList; 
-                insertBOMItemFilter();
-                insertBOMIndicators(); 
-                enableBOMItemDragging();
-                $('#save').removeClass('disabled').addClass('default');
-            }
-        }); 
+        paramsBOM.includeBOMPartList = true;
+        
+        paramsBOM.onClickItem = function(elemClicked) { insertDetails(elemClicked.attr('data-link'), paramsDetails); };
+
+        paramsBOM.afterCompletion = function(id, data) { 
+            partsListSourceBOM = data.bomPartsList; 
+            insertBOMItemFilter();
+            insertBOMIndicators(); 
+            enableBOMItemDragging();
+            $('#save').removeClass('disabled').addClass('default');
+        }
+
+        insertBOM(links.sourceBOM, paramsBOM);
 
     }
     
