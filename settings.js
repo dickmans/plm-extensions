@@ -569,6 +569,7 @@ exports.applications = {
                 sectionsEx      : ['AML Summary', 'Sourcing Summary', 'Others'],
                 expandSections  : ['Basic'],
                 fieldsEx        : ['ACTIONS'],
+                narrowPanel     : true,
                 useCache        : true,
                 reload          : true,
                 bookmark        : true,
