@@ -480,10 +480,6 @@ class componentsListViews extends Autodesk.Viewing.Extension {
             return;
         }
 
-        console.time(
-            `componentsListViews-${mode}`
-        );
-
         try {
 
             const firstActivation =
@@ -593,12 +589,8 @@ class componentsListViews extends Autodesk.Viewing.Extension {
 
             this.updateLabels();
 
-        } finally {
-
-            console.timeEnd(
-                `componentsListViews-${mode}`
-            );
-        }
+        } finally { }
+        
     }
 
 
@@ -658,16 +650,6 @@ class componentsListViews extends Autodesk.Viewing.Extension {
             this.groupItems(
                 this.items
             );
-
-
-        console.log(
-            "Review View:",
-            visibleLeaves.length,
-            "occurrences,",
-            this.groups.length,
-            "unique component groups"
-        );
-
 
         this.sessionPrepared =
             true;
@@ -732,7 +714,7 @@ class componentsListViews extends Autodesk.Viewing.Extension {
             this.viewer.restoreState(
                 this.originalViewerState,
                 null,
-                true
+                false
             );
         }
 
