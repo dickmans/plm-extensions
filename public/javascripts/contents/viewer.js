@@ -472,8 +472,6 @@ function setViewerFeatures(viewerInstance) {
 
             } else if(feature === 'listViews') {
 
-                console.log('test');
-
                 viewerInstance.viewer.loadExtension('componentsListViews',  {
                     partNumberProperty    : "Part Number",
                     componentNameProperty : "Name",

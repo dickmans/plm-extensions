@@ -177,8 +177,6 @@ class componentsListViews extends Autodesk.Viewing.Extension {
             this.onWindowResize
         );
 
-        console.log("componentsListViews loaded");
-
         return true;
     }
 
