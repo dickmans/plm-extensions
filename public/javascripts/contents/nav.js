@@ -614,7 +614,11 @@ function insertWorkspaceSearch(wsId, params) {
             insertWorkspaceSearchData(id, false);
         });
 
-    if(!isBlank(settings[id].searchButtonIcon)) elemButton.addClass('with-icon').addClass(settings[id].searchButtonIcon);
+    if(!isBlank(settings[id].searchButtonIcon)) {
+        elemButton.addClass(settings[id].searchButtonIcon);
+        if(isBlank(settings[id].searchButtonLabel)) elemButton.addClass('icon'); else elemButton.addClass('with-icon');
+    }
+  
 
     insertWorkspaceSearchDone(id);
 
@@ -831,13 +835,9 @@ function insertWorkspaceSearchData(id, isNext) {
         sortArray(listStates, 0);
         setPanelFilterOptions(id, 'status', listStates);
         finishPanelContentUpdate(id, items);
-        $('#' + id + '-search-content-input').focus();
+        setPanelPaginationControls(id, responses[0].data.totalResultCount);
 
-        // The v1 /plm/search response carries no total count, so derive the
-        // pagination state from the page fill: a full page implies there may be more.
-        let pageRows = responses[0].data.row.length;
-        let shown    = $('#' + id + '-content').find('.content-item').length;
-        setPanelPaginationControls(id, (pageRows >= settings[id].limit) ? shown + 1 : shown);
+        $('#' + id + '-search-content-input').focus();
 
         if(!isNext) {
             if(settings[id].autoClick) {

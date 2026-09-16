@@ -77,7 +77,8 @@ exports.common = {
     workspaces : {
         items : {
             defaultBOMView : 'Tree Navigator', // This BOM view should contain columns Descriptor, Item and BOM Quantity only
-            fieldIdNumber  : 'NUMBER'
+            fieldIdNumber  : 'NUMBER',
+            fieldIdImage   : 'IMAGE'
         }
     },
 
@@ -1298,14 +1299,17 @@ exports.applications = {
         autoClick        : true,
         openMostRecent   : true,
         panels : {
-            insertSearch : { 
-                autoClick    : true,
-                inputLabel   : 'Enter part number',
-                limit        : 10,
-                number       : true,
-                pagination   : true,
-                contentSize  : 'xs',
-                tileImage    : true
+            insertWorkspaceSearch : { 
+                autoClick         : true,
+                headerLabel       : 'Search',
+                searchInputLabel  : 'Enter part number',
+                searchButtonLabel : '',
+                tileImageFieldId  : 'IMAGE',
+                limit             : 15,
+                number            : true,
+                pagination        : true,
+                contentSize       : 'xs',
+                tileImage         : true
             },
             insertRecentItems : { 
                 headerLabel   : 'Recent Items',

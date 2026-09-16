@@ -121,7 +121,9 @@ const registry = {
                     'dragable', 'onDragStart', 'onDragEnd',
                     'dropable', 'onDragEnter', 'onDragOver', 'onDragLeave', 'onDrop',
                     'groupBy', 'groupLayout',
+                    'limit',
                     'openOnDblClick',
+                    'pagination',
                     'searchInFields', 'searchReturnFields', 'searchForExactMatch', 'searchInputLabel', 'searchButtonIcon', 'searchButtonLabel', 'searchBaseFilters', 'searchLogicClause', 'sortBy', 'stateColors',
                     'searchLatestOnly', 'searchReleasedOnly', 'searchWorkingOnly', 'hideWorking'
                 ],

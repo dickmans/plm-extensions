@@ -31,11 +31,12 @@ $(document).ready(function() {
 
             if(!wsConfig.isComponent) getBOMViewDefinition(responses[2].data.bomViews, wsConfig.bomViewName, wsConfig);
 
-            let paramsSearch = config.panels.insertSearch;
-                paramsSearch.workspacesIn = [wsConfig.workspaceId];
-                paramsSearch.onClickItem  = function(elemClicked) { clickTile(elemClicked); };
+            let paramsSearch = config.panels.insertWorkspaceSearch;
+                paramsSearch.id               = 'search';
+                paramsSearch.tileImageFieldId = paramsSearch.tileImageFieldId || common.workspaces.items.fieldIdImage;
+                paramsSearch.onClickItem      = function(elemClicked) { clickTile(elemClicked); };
 
-            insertSearch(paramsSearch);
+            insertWorkspaceSearch(wsConfig.workspaceId, paramsSearch);
 
             let paramsRecentItems = config.panels.insertRecentItems;
                 paramsRecentItems.workspacesIn    = [wsConfig.workspaceId];
