@@ -2842,38 +2842,38 @@ class componentsListViews extends Autodesk.Viewing.Extension {
         /*
          * Straight-down tabletop view.
          */
-        const position =
-            new THREE.Vector3(
+        // const position =
+        //     new THREE.Vector3(
 
-                center.x,
+        //         center.x,
 
-                center.y,
+        //         center.y,
 
-                center.z +
-                    distance
-            );
-
-
-        this.viewer.navigation.setView(
-
-            position,
-
-            center
-        );
+        //         center.z +
+        //             distance
+        //     );
 
 
-        this.viewer.navigation.setWorldUpVector(
+        // this.viewer.navigation.setView(
 
-            new THREE.Vector3(
-                0,
-                1,
-                0
-            ),
+        //     position,
 
-            true,
+        //     center
+        // );
 
-            true
-        );
+
+        // this.viewer.navigation.setWorldUpVector(
+
+        //     new THREE.Vector3(
+        //         0,
+        //         1,
+        //         0
+        //     ),
+
+        //     true,
+
+        //     true
+        // );
 
 
         if (
@@ -2885,6 +2885,9 @@ class componentsListViews extends Autodesk.Viewing.Extension {
             this.viewer.navigation.toOrthographic();
         }
 
+        this.viewer.getExtension('Autodesk.ViewCubeUi', function(viewCubeExtension) {
+            viewCubeExtension.setViewCube('front top right');
+        });
 
         this.viewer.impl.invalidate(
             true,
