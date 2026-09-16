@@ -52,7 +52,7 @@
 }
 
 
-/*  STANDARD APS VIEWER OVERRIDES*/
+/*  STANDARD APS VIEWER OVERRIDES  */
 /* ----------------------------------------------------------------------------- */
 #guiviewer3d-toolbar > div {
     background : transparent;
@@ -214,6 +214,118 @@ body.dark-theme  #guiviewer3d-toolbar .button-toggle-highlight-on:hover {
 .button-toggle-highlight-on .icon-highlight::before { color : white !important; }
 .customSelectionToolbar.highlight-on  .button-toggle-highlight-off { display : none; }
 .customSelectionToolbar.highlight-off .button-toggle-highlight-on  { display : none; }
+
+
+
+/*  COMPONENTS LIST VIEWS EXTENSION  */
+/* ----------------------------------------------------------------------------- */
+.components-list-views-button::before {
+    font-weight : 300 !important;
+    line-height : 28px;
+    position    : absolute;
+    top         : 5px;
+    left        : 6px;
+}
+.shelf-view::before { content : '\f50d'; }
+.tear-down::before  { content : '\e3a5'; }
+
+body.dark-theme #guiviewer3d-toolbar .shelf-view.active,
+body.dark-theme #guiviewer3d-toolbar .tear-down.active {
+    color      : white !important;
+    background : var(--color-blue-500) !important;
+}
+body.dark-theme #guiviewer3d-toolbar .toggle-labels.active {
+    border-color : rgba(34,34,34,0) !important;
+}
+body.dark-theme #guiviewer3d-toolbar .toggle-labels.active::before {
+    color : white !important;
+    content : '\e9f6'; 
+    font-variation-settings:
+        'FILL' 1,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24
+}
+.toggle-labels::before  { 
+    color : white !important;
+    content : '\e9f5'; 
+    font-variation-settings:
+        'FILL' 0,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24
+}
+
+
+/*  PART NUMBER TAGS EXTENSION  */
+/* ----------------------------------------------------------------------------- */
+.part-number-tag-button::before {
+    font-weight : 300 !important;
+    line-height : 28px;
+    position    : absolute;
+    top         : 5px;
+    left        : 6px;
+}
+.part-number-tag-click-mode-button::before  { content : '\f52b'; }
+.part-number-tag-manual-button::before      { content : '\e266'; }
+.part-number-tag-all-visible-button::before { content : '\f216'; }
+.part-number-tag-clear-button::before       { content : '\f7ac'; }
+body.dark-theme #guiviewer3d-toolbar .part-number-tag-manual-button.active,
+body.dark-theme #guiviewer3d-toolbar .part-number-tag-click-mode-button.active {
+    color      : white !important;
+    background : var(--color-blue-500) !important;
+}
+.part-number-tag-overlay {
+    inset          : 0;
+    overflow       : hidden;
+    pointer-events : none;
+    position       : absolute;
+    z-index        : 20;
+}
+.part-number-tag-lines {
+    inset    : 0;
+    overflow : visible;
+    position : absolute;
+    height   : 100%;
+    width    : 100%;
+}
+.part-number-tag-line {
+    fill : none;
+    stroke-width : 1px;
+    vector-effect : non-scaling-stroke;
+}
+.part-number-tag {
+    position      : absolute;
+    top           : 0;
+    left          : 0;
+    background    : rgba(25, 25, 25, 0.7);
+    border        : 1px solid var(--part-number-tag-color);
+    border-radius : 4px;
+    box-sizing    : border-box;
+    color         : #ffffff;
+    min-width     : 110px;
+    max-width     : 220px;
+    padding       : 6px 10px;
+    font-family   : Arial, sans-serif;
+    font-size     : 12px;
+    line-height   : 16px;
+    box-shadow    : 0 2px 5px rgba(0, 0, 0, 0.35);
+    will-change   : transform;
+}
+.part-number-tag-name {
+    color         : #ffffff;
+    font-weight   : 600;
+    overflow      : hidden;
+    text-overflow : ellipsis;
+    white-space   : nowrap;
+}
+.part-number-tag-number {
+    color        : var(--part-number-tag-color);
+    font-weight   : 700;
+    overflow      : hidden;
+    text-overflow : ellipsis;
+    white-space   : nowrap;
+}
 
 
 /*  FILE BROWSER */

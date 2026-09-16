@@ -216,6 +216,7 @@
 .icon-3d::before                { content : '\e9fe'; }
 .icon-activity::before          { content : '\e53f'; }
 .icon-add::before               { content : '\e145'; }
+.icon-add-comment::before       { content : '\e266'; }
 .icon-add-left::before          { content : '\f425'; }
 .icon-add-right::before         { content : '\f424'; }
 .icon-add-above::before         { content : '\f423'; }
@@ -280,6 +281,7 @@
 .icon-deselect-all::before      { content : '\e9d3'; }
 .icon-details::before           { content : '\e0ee'; }
 .icon-disconnect::before        { content : '\e16f'; }
+.icon-dissolve::before          { content : '\f50d'; }
 .icon-donut-chart::before       { content : '\e917'; }
 .icon-double-arrow-left::before { content : '\eac3'; }
 .icon-download::before          { content : '\e8d7'; }

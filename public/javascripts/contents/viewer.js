@@ -290,6 +290,12 @@ function launchViewer(viewerInstance, params) {
         });
     
     } else {
+
+        // Disable custom viewer extensions
+        const extensionListViews = viewerInstance.viewer.getExtension("componentsListViews");
+        if (extensionListViews)    viewerInstance.viewer.unloadExtension("componentsListViews");
+        const extensionTags      = viewerInstance.viewer.getExtension("PartNumberTags");
+        if (extensionTags)       viewerInstance.viewer.unloadExtension("PartNumberTags");
         
         viewerLeaveMarkupMode({ id : viewerInstance.id });
         viewerUnloadAllModels({ id : viewerInstance.id });
@@ -460,6 +466,21 @@ function setViewerFeatures(viewerInstance) {
 
                 viewerAddMarkupControls(viewerInstance); 
             
+            } else if(feature === 'tags') {
+
+                viewerInstance.viewer.loadExtension('PartNumberTags');
+
+            } else if(feature === 'listViews') {
+
+                console.log('test');
+
+                viewerInstance.viewer.loadExtension('componentsListViews',  {
+                    partNumberProperty    : "Part Number",
+                    componentNameProperty : "Name",
+                    hideOriginalModel     : true,
+                    switchToOrthographic  : true
+                });
+
             } else if(feature === 'selectFile') {
 
                 selectFiles = viewerInstance.features[feature]; 
