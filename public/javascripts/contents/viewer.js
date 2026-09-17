@@ -2613,25 +2613,124 @@ function viewerCaptureScreenshot(viewerId, canvasId, callback) {
             var imageHeight = viewer.container.clientHeight;
             var noMarkup    = ((typeof viewerInstance.markup === 'undefined') || ($('#' + viewerId + '-markup-toolbar').hasClass('hidden')));
 
-            screenshot.onload = function () {
+            // screenshot.onload = function () {
                     
-                let canvas        = document.getElementById(canvasId);
-                    canvas.width  = viewer.container.clientWidth;
-                    canvas.height = viewer.container.clientHeight;
+            //     let canvas        = document.getElementById(canvasId);
+            //         canvas.width  = viewer.container.clientWidth;
+            //         canvas.height = viewer.container.clientHeight;
 
-                let context = canvas.getContext('2d');
-                    context.clearRect(0, 0, canvas.width, canvas.height);
-                    context.drawImage(screenshot, 0, 0, canvas.width, canvas.height); 
+            //     let context = canvas.getContext('2d');
+            //         context.clearRect(0, 0, canvas.width, canvas.height);
+            //         context.drawImage(screenshot, 0, 0, canvas.width, canvas.height); 
                   
-                if(noMarkup) {
-                    callback();
-                } else {   
-                    viewerInstance.markup.renderToCanvas(context, function() {
-                        callback();
-                    });
-                }
+            //     if(noMarkup) {
+            //         callback();
+            //     } else {   
+            //         viewerInstance.markup.renderToCanvas(context, function() {
+            //             callback();
+            //         });
+            //     }
                     
-            }
+            // }
+
+            screenshot.onload = function () {
+
+                /* Contains AI generated code */
+
+                let canvas =
+                    document.getElementById(
+                        canvasId
+                    );
+
+                canvas.width =
+                    viewer.container.clientWidth;
+
+                canvas.height =
+                    viewer.container.clientHeight;
+
+                let context =
+                    canvas.getContext('2d');
+
+                context.clearRect(
+                    0,
+                    0,
+                    canvas.width,
+                    canvas.height
+                );
+
+                /*
+                * 1. APS/WebGL scene
+                */
+                context.drawImage(
+                    screenshot,
+                    0,
+                    0,
+                    canvas.width,
+                    canvas.height
+                );
+
+
+                /*
+                * 3. PartNumberTags
+                *
+                * Defined here so it can be called either
+                * directly or after Markups has finished.
+                */
+                const renderPartNumberTags =
+                    function () {
+
+                        const partNumberTags =
+                            viewer.getExtension(
+                                'PartNumberTags'
+                            );
+
+                        if (
+                            partNumberTags &&
+                            typeof partNumberTags
+                                .renderToCanvas ===
+                                'function'
+                        ) {
+
+                            partNumberTags
+                                .renderToCanvas(
+                                    context,
+                                    function () {
+                                        callback();
+                                    }
+                                );
+
+                        } else {
+
+                            callback();
+                        }
+                    };
+
+
+                /*
+                * 2. Autodesk Markups
+                */
+                if (noMarkup) {
+
+                    renderPartNumberTags();
+
+                } else {
+
+                    viewerInstance.markup
+                        .renderToCanvas(
+                            context,
+                            function () {
+
+                                /*
+                                * Markups first, tags last,
+                                * matching their visual
+                                * stacking in the Viewer.
+                                */
+                                renderPartNumberTags();
+                            }
+                        );
+                }
+            };
+
             viewer.getScreenShot(imageWidth, imageHeight, function (blobURL) {
                 screenshot.src = blobURL;
             });

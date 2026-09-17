@@ -3294,6 +3294,494 @@ class PartNumberTags extends Autodesk.Viewing.Extension {
                 100
             );
     }
+
+    /* 
+    * Render elements to canvas for capturing screenshots with markups
+    */
+    renderToCanvas(context, callback) {
+
+        if (!context || !context.canvas) {
+            if (callback) callback();
+            return;
+        }
+
+        /*
+        * Make sure all tags and connector lines
+        * are in their final positions before capture.
+        */
+        this.layout();
+
+        const viewerRect =
+            this.viewer.container.getBoundingClientRect();
+
+        const canvas =
+            context.canvas;
+
+        /*
+        * Allows this to continue working if the
+        * screenshot canvas is created at a higher
+        * resolution than the Viewer CSS size.
+        */
+        const scaleX =
+            canvas.width / viewerRect.width;
+
+        const scaleY =
+            canvas.height / viewerRect.height;
+
+        context.save();
+
+        /*
+        * From here on we can work in Viewer CSS
+        * coordinates.
+        */
+        context.scale(
+            scaleX,
+            scaleY
+        );
+
+        /*
+        * ==========================================================
+        * CONNECTOR LINES
+        * ==========================================================
+        */
+
+        for (
+            const group
+            of this.groups.values()
+        ) {
+
+            for (
+                const line
+                of group.lineElements || []
+            ) {
+
+                if (
+                    !line ||
+                    line.style.display === "none"
+                ) {
+                    continue;
+                }
+
+                const pointsAttribute =
+                    line.getAttribute(
+                        "points"
+                    );
+
+                if (!pointsAttribute) {
+                    continue;
+                }
+
+                const points =
+                    pointsAttribute
+                        .trim()
+                        .split(/\s+/)
+                        .map(
+                            value => {
+
+                                const [
+                                    x,
+                                    y
+                                ] =
+                                    value
+                                        .split(",")
+                                        .map(Number);
+
+                                return {
+                                    x,
+                                    y
+                                };
+                            }
+                        )
+                        .filter(
+                            point =>
+                                Number.isFinite(point.x) &&
+                                Number.isFinite(point.y)
+                        );
+
+                if (points.length < 2) {
+                    continue;
+                }
+
+                const computedStyle =
+                    window.getComputedStyle(
+                        line
+                    );
+
+                context.save();
+
+                context.beginPath();
+
+                context.moveTo(
+                    points[0].x,
+                    points[0].y
+                );
+
+                for (
+                    let i = 1;
+                    i < points.length;
+                    i++
+                ) {
+                    context.lineTo(
+                        points[i].x,
+                        points[i].y
+                    );
+                }
+
+                context.strokeStyle =
+                    line.getAttribute("stroke") ||
+                    computedStyle.stroke ||
+                    this.vectorToCss(
+                        group.color
+                    );
+
+                const strokeWidth =
+                    parseFloat(
+                        computedStyle.strokeWidth
+                    );
+
+                context.lineWidth =
+                    Number.isFinite(strokeWidth)
+                        ? strokeWidth
+                        : 1.5;
+
+                const opacity =
+                    parseFloat(
+                        computedStyle.opacity
+                    );
+
+                if (Number.isFinite(opacity)) {
+                    context.globalAlpha =
+                        opacity;
+                }
+
+                context.stroke();
+
+                context.restore();
+            }
+        }
+
+        /*
+        * ==========================================================
+        * TAG LABELS
+        * ==========================================================
+        */
+
+        for (
+            const group
+            of this.groups.values()
+        ) {
+
+            const label =
+                group.labelElement;
+
+            if (
+                !label ||
+                label.style.display === "none"
+            ) {
+                continue;
+            }
+
+            const labelRect =
+                label.getBoundingClientRect();
+
+            /*
+            * Convert page coordinates into Viewer coordinates.
+            */
+            const x =
+                labelRect.left -
+                viewerRect.left;
+
+            const y =
+                labelRect.top -
+                viewerRect.top;
+
+            const width =
+                labelRect.width;
+
+            const height =
+                labelRect.height;
+
+            const style =
+                window.getComputedStyle(
+                    label
+                );
+
+            context.save();
+
+            /*
+            * --------------------------
+            * Tag background
+            * --------------------------
+            */
+
+            const backgroundColor =
+                style.backgroundColor;
+
+            const borderColor =
+                style.borderColor;
+
+            const borderWidth =
+                parseFloat(
+                    style.borderWidth
+                ) || 0;
+
+            const borderRadius =
+                parseFloat(
+                    style.borderRadius
+                ) || 0;
+
+            context.beginPath();
+
+            if (
+                typeof context.roundRect ===
+                "function"
+            ) {
+                context.roundRect(
+                    x,
+                    y,
+                    width,
+                    height,
+                    borderRadius
+                );
+            } else {
+
+                /*
+                * Fallback for older browsers.
+                */
+                this._canvasRoundedRect(
+                    context,
+                    x,
+                    y,
+                    width,
+                    height,
+                    borderRadius
+                );
+            }
+
+            if (
+                backgroundColor &&
+                backgroundColor !==
+                    "rgba(0, 0, 0, 0)"
+            ) {
+                context.fillStyle =
+                    backgroundColor;
+
+                context.fill();
+            }
+
+            if (
+                borderWidth > 0 &&
+                borderColor
+            ) {
+                context.lineWidth =
+                    borderWidth;
+
+                context.strokeStyle =
+                    borderColor;
+
+                context.stroke();
+            }
+
+            /*
+            * Draw every direct text element inside
+            * the tag. In the current implementation
+            * these are:
+            *
+            *   .part-number-tag-name
+            *   .part-number-tag-number
+            */
+            for (
+                const child
+                of label.children
+            ) {
+
+                const text =
+                    child.textContent;
+
+                if (!text) {
+                    continue;
+                }
+
+                const childRect =
+                    child.getBoundingClientRect();
+
+                const childStyle =
+                    window.getComputedStyle(
+                        child
+                    );
+
+                const childX =
+                    childRect.left -
+                    viewerRect.left;
+
+                const childY =
+                    childRect.top -
+                    viewerRect.top;
+
+                const childWidth =
+                    childRect.width;
+
+                const childHeight =
+                    childRect.height;
+
+                /*
+                * Build a Canvas font matching CSS.
+                */
+                context.font = [
+                    childStyle.fontStyle,
+                    childStyle.fontVariant,
+                    childStyle.fontWeight,
+                    childStyle.fontSize,
+                    childStyle.fontFamily
+                ]
+                    .filter(Boolean)
+                    .join(" ");
+
+                context.fillStyle =
+                    childStyle.color;
+
+                context.textBaseline =
+                    "middle";
+
+                switch (
+                    childStyle.textAlign
+                ) {
+
+                    case "center":
+
+                        context.textAlign =
+                            "center";
+
+                        context.fillText(
+                            text,
+                            childX +
+                                childWidth / 2,
+                            childY +
+                                childHeight / 2
+                        );
+
+                        break;
+
+                    case "right":
+                    case "end":
+
+                        context.textAlign =
+                            "right";
+
+                        context.fillText(
+                            text,
+                            childX +
+                                childWidth,
+                            childY +
+                                childHeight / 2
+                        );
+
+                        break;
+
+                    default:
+
+                        context.textAlign =
+                            "left";
+
+                        context.fillText(
+                            text,
+                            childX,
+                            childY +
+                                childHeight / 2
+                        );
+
+                        break;
+                }
+            }
+
+            context.restore();
+        }
+
+        context.restore();
+
+        if (callback) {
+            callback();
+        }
+    }
+
+    /*
+    * CanvasRenderingContext2D.roundRect() fallback.
+    */
+    _canvasRoundedRect(
+        context,
+        x,
+        y,
+        width,
+        height,
+        radius
+    ) {
+
+        radius =
+            Math.max(
+                0,
+                Math.min(
+                    radius,
+                    width / 2,
+                    height / 2
+                )
+            );
+
+        context.moveTo(
+            x + radius,
+            y
+        );
+
+        context.lineTo(
+            x + width - radius,
+            y
+        );
+
+        context.quadraticCurveTo(
+            x + width,
+            y,
+            x + width,
+            y + radius
+        );
+
+        context.lineTo(
+            x + width,
+            y + height - radius
+        );
+
+        context.quadraticCurveTo(
+            x + width,
+            y + height,
+            x + width - radius,
+            y + height
+        );
+
+        context.lineTo(
+            x + radius,
+            y + height
+        );
+
+        context.quadraticCurveTo(
+            x,
+            y + height,
+            x,
+            y + height - radius
+        );
+
+        context.lineTo(
+            x,
+            y + radius
+        );
+
+        context.quadraticCurveTo(
+            x,
+            y,
+            x + radius,
+            y
+        );
+
+        context.closePath();
+    }
+
 }
 
 Autodesk.Viewing.theExtensionManager.registerExtension(
