@@ -1304,12 +1304,14 @@ exports.applications = {
                 headerLabel       : 'Search',
                 searchInputLabel  : 'Enter part number',
                 searchButtonLabel : '',
-                tileImageFieldId  : 'IMAGE',
+                contentSize       : 'xs',
                 limit             : 15,
                 number            : true,
                 pagination        : true,
-                contentSize       : 'xs',
-                tileImage         : true
+                searchLatestOnly  : true,
+                tileImage         : true,
+                tileImageFieldId  : 'IMAGE',
+                tileRevision      : true
             },
             insertRecentItems : { 
                 headerLabel   : 'Recent Items',
