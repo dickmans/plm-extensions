@@ -1366,6 +1366,12 @@ const registry = {
                 default     : '[]',
                 type        : 'textarea'
             },
+            tileRevision : {
+                title       : 'Tile Revision',
+                description : "When enabled, revision of each item will be displayed in tile",
+                default     : false,
+                type        : 'boolean'
+            },
         },
 
 

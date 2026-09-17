@@ -1116,6 +1116,9 @@ td.tree-first-col {
     font-weight   : bold;
     padding-right : 10px;
 }
+.tile-revision {
+    text-align : center;
+}
 .tile-status {
     align-items     : center;
     display         : flex;
@@ -1161,23 +1164,23 @@ td.tree-first-col {
 }
 
 /* ----- Themes ----- */
-             .surface-level-1 > .tile,              .surface-level-1 > .tiles > .tile { background : var(--color-surface-level-2); border-color : var(--color-surface-level-1); }
-             .surface-level-2 > .tile,              .surface-level-2 > .tiles > .tile { background : var(--color-surface-level-1); border-color : var(--color-surface-level-2); }
+              .surface-level-1 > .tile,               .surface-level-1 > .tiles > .tile { background : var(--color-surface-level-2); border-color : var(--color-surface-level-1); }
+              .surface-level-2 > .tile,               .surface-level-2 > .tiles > .tile { background : var(--color-surface-level-1); border-color : var(--color-surface-level-2); }
  .light-theme .surface-level-3 > .tile,  .light-theme .surface-level-3 > .tiles > .tile { background : var(--color-surface-level-4); border-color : var(--color-surface-level-3); }
   .dark-theme .surface-level-3 > .tile,   .dark-theme .surface-level-3 > .tiles > .tile { background : var(--color-surface-level-1); border-color : var(--color-surface-level-3); }
  .black-theme .surface-level-3 > .tile,  .black-theme .surface-level-3 > .tiles > .tile { background : var(--color-surface-level-1); border-color : var(--color-surface-level-3); }
 .fusion-theme .surface-level-3 > .tile, .fusion-theme .surface-level-3 > .tiles > .tile { background : var(--color-surface-level-4); border-color : var(--color-surface-level-3); }
-             .surface-level-4 > .tile,              .surface-level-4 > .tiles > .tile { background : var(--color-surface-level-1); border-color : var(--color-surface-level-4); }
-             .surface-level-5 > .tile,              .surface-level-5 > .tiles > .tile { background : var(--color-surface-level-1); border-color : var(--color-surface-level-5); }
+              .surface-level-4 > .tile,               .surface-level-4 > .tiles > .tile { background : var(--color-surface-level-1); border-color : var(--color-surface-level-4); }
+              .surface-level-5 > .tile,               .surface-level-5 > .tiles > .tile { background : var(--color-surface-level-1); border-color : var(--color-surface-level-5); }
 
-             .surface-level-1 > .tile > .tile-image, .surface-level-1 > .tiles > .tile > .tile-image { background : var(--color-surface-level-3); }
-             .surface-level-2 > .tile > .tile-image, .surface-level-2 > .tiles > .tile > .tile-image { background : var(--color-surface-level-3); }
+              .surface-level-1 > .tile > .tile-image, .surface-level-1 > .tiles > .tile > .tile-image { background : var(--color-surface-level-3); }
+              .surface-level-2 > .tile > .tile-image, .surface-level-2 > .tiles > .tile > .tile-image { background : var(--color-surface-level-3); }
  .light-theme .surface-level-3 .tile-image,  .light-theme .surface-level-3 > .tiles > .tile > .tile-image { background : var(--color-surface-level-5); }
   .dark-theme .surface-level-3 .tile-image,   .dark-theme .surface-level-3 > .tiles > .tile > .tile-image { background : var(--color-surface-level-2); }
  .black-theme .surface-level-3 .tile-image,  .black-theme .surface-level-3 > .tiles > .tile > .tile-image { background : var(--color-surface-level-2); }
 .fusion-theme .surface-level-3 .tile-image, .fusion-theme .surface-level-3 > .tiles > .tile > .tile-image { background : var(--color-surface-level-5); }
-             .surface-level-4 > .tile > .tile-image, .surface-level-4 > .tiles > .tile > .tile-image  { background : var(--color-surface-level-2); }
-             .surface-level-5 > .tile > .tile-image, .surface-level-5 > .tiles > .tile > .tile-image  { background : var(--color-surface-level-2); }
+              .surface-level-4 > .tile > .tile-image, .surface-level-4 > .tiles > .tile > .tile-image  { background : var(--color-surface-level-2); }
+              .surface-level-5 > .tile > .tile-image, .surface-level-5 > .tiles > .tile > .tile-image  { background : var(--color-surface-level-2); }
 
 .surface-level-1 .tiles-group { border-color : var(--color-surface-level-3); }
 .surface-level-2 .tiles-group { border-color : var(--color-surface-level-4); }
@@ -1268,6 +1271,14 @@ td.tree-first-col {
 .tiles.list.l   .tile-subtitle { font-size : 14px; line-height : 18px; }
 .tiles.list.xl  .tile-subtitle { font-size : 14px; line-height : 18px; }
 .tiles.list.xxl .tile-subtitle { font-size : 14px; line-height : 18px; }
+
+.tiles.list.xxs .tile-revision { margin :  0px  0px 0px 0px; height : 26px; min-width : 26px; width : 26px; line-height : 26px; font-size : 12px; }
+.tiles.list.xs  .tile-revision { margin :  0px  0px 0px 0px; height : 34px; min-width : 34px; width : 34px; line-height : 34px; }
+.tiles.list.s   .tile-revision { margin :  8px  8px 0px 0px; height : 32px; min-width : 32px; width : 32px; line-height : 32px; }
+.tiles.list.m   .tile-revision { margin : 12px 12px 0px 0px; height : 24px; min-width : 32px; width : 32px; line-height : 24px; font-weight : bold; }
+.tiles.list.l   .tile-revision { margin : 18px 18px 0px 0px; height : 34px; min-width : 34px; width : 34px; line-height : 26px; font-weight : bold; font-size : 16px; }
+.tiles.list.xl  .tile-revision { margin : 18px 18px 0px 0px; height : 36px; min-width : 36px; width : 36px; line-height : 36px; font-weight : bold; font-size : 16px; }
+.tiles.list.xxl .tile-revision { margin : 18px 18px 0px 0px; height : 36px; min-width : 36px; width : 36px; line-height : 36px; font-weight : bold; font-size : 16px; }
 
 .tiles.list.xxs .tile-status-label { display : none; }
 .tiles.list.xs  .tile-status-label { display : none; }

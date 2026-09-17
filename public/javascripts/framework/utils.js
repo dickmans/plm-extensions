@@ -2863,6 +2863,7 @@ function genPanelContentItem(panelSettings, params) {
         link        : params.link,
         edge        : params.edge,
         partNumber  : params.partNumber,
+        revision    : '',
         imageId     : '',
         imageLink   : '',
         imageFile   : '',
@@ -5823,6 +5824,7 @@ function genTiles(id, items) {
             tileNumber  : count++, 
             number      : settings[id].number, 
             partNumber  : item.partNumber,
+            revision    : item.revision,
             imageId     : item.imageId, 
             imageLink   : item.imageLink, 
             imageFile   : item.imageFile, 
@@ -5961,6 +5963,14 @@ function genSingleTile(params, panelSettings) {
         elemTile.attr('data-' + attribute.key, value);
        }
     }
+
+    if(panelSettings.tileRevision) {
+        $('<div></div>')
+            .addClass('tile-revision')
+            .html(params.revision)
+            .appendTo(elemTile);
+    }
+
 
     if(!isBlank(panelSettings.stateColors)) {
 

@@ -573,6 +573,12 @@ function insertWorkspaceSearch(wsId, params) {
         }
     }
 
+    if(settings[id].tileRevision) {
+        if(!settings[id].searchReturnFields.includes('LC_RELEASE_LETTER')) {
+            settings[id].searchReturnFields.push('LC_RELEASE_LETTER');
+        }
+    }
+
     if(settings[id].stateColors.length > 0) {
         if(!settings[id].searchReturnFields.includes('WF_CURRENT_STATE')) {
             settings[id].searchReturnFields.push('WF_CURRENT_STATE');
@@ -722,7 +728,8 @@ function insertWorkspaceSearchData(id, isNext) {
                 link : '/api/v3/workspaces/' + settings[id].wsId + '/items/' + row.dmsId
             })
 
-            contentItem.filters = [];
+            contentItem.filters  = [];
+            contentItem.revision = 'w';
 
             if(settings[id].filterByStatus) {
                 stateName = row.data.WF_CURRENT_STATE.displayValue;
@@ -755,6 +762,7 @@ function insertWorkspaceSearchData(id, isNext) {
                 if(field.key === settings[id].groupBy         ) contentItem.group      = field.fieldData.value;
                 if(field.key === 'DESCRIPTOR'                 ) contentItem.descriptor = field.fieldData.value;
                 if(field.key === 'WF_CURRENT_STATE'           ) contentItem.status     = field.fieldData.value;
+                if(field.key === 'LC_RELEASE_LETTER'          ) contentItem.revision   = field.fieldData.value;
 
                 if(typeof settings[id].tileTitle == 'string') {
                     if(field.key === settings[id].tileTitle) contentItem.title = field.fieldData.value;
