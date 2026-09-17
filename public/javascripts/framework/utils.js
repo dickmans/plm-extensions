@@ -6607,7 +6607,7 @@ function collapseAllTableGroups(id) {
 function panelPaginationLoadNext(panelSettings) {
 
     panelSettings.page++;
-    panelSettings.offset += panelSettings.limit;
+    panelSettings.offset += Number(panelSettings.limit);
     panelSettings.mode = 'next';
 
     if(typeof panelSettings['next'] === 'undefined') panelSettings.load(); else panelSettings.next();

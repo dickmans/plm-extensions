@@ -878,6 +878,7 @@ function insertSearch(params) {
         })
         .keypress(function(e) {
             if(e.which == 13) {
+                resetSearch(id, false);
                 settings[id].mode = 'initial';
                 insertSearchData(id, false);
             }
@@ -919,6 +920,9 @@ function resetSearch(id, resetInput) {
     $('#' + id + '-processing').hide();
     $('#' + id + '-no-data'   ).hide();
     $('#' + id + '-search-content-button').removeClass('disabled');
+
+    settings[id].page   = 1;
+    settings[id].offset = 0;
 
 }
 function insertSearchData(id, isNext) {
