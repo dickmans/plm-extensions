@@ -4290,6 +4290,8 @@ router.get('/bom', function(req, res, next) {
                 sortArray(responses[0].data.edges, 'itemNumber', '');
                 sortArray(responses[0].data.edges, 'depth', '');
 
+                responses[0].data.bomPartsList = [];
+
                 if(responses.length > 1) {
 
                     responses[0].data.bomPartsList = getBOMPartsList(responses[0].data, responses[1].data, hideRoot);

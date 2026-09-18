@@ -397,16 +397,16 @@ function getInitialData() {
         
         } else {
 
-            $('#nav-workspace-views-mbom').html(responses[9].data.name);
+            $('#nav-workspace-views-mbom').html(responses[10].data.name);
 
-            for(let view of responses[8].data) {
+            for(let view of responses[9].data) {
                 if(view.name === config.workspaceMBOM.bomView) {
                     wsMBOM.viewId       = view.id;
                     wsMBOM.viewFields  = view.fields;
                 }
             }
 
-            wsMBOM.tableaus = responses[10].data;
+            wsMBOM.tableaus = responses[11].data;
 
             insertWorkspaceViewsOptions('mbom', wsMBOM.tableaus);
 
@@ -4277,6 +4277,7 @@ function addBOMItems() {
             for(let response of responses) {
                 if(response.error) {
                     showErrorMessage('Error while adding BOM items', response.message);
+                    printResponseErrorMessagesToConsole(response);
                     endProcessing();
                     return;
                 } else {
