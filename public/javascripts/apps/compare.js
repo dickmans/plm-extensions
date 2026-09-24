@@ -4,6 +4,7 @@ let links                 = {};
 let bomFinishedLoading    = {};
 let syncScrollBOM         = '';
 let comparisonKey         = 'data-level-path';
+let comparisonSplitBy     = '.';
 
 const idViewerLeft   = 'viewerLeft';
 const idViewerRight  = 'viewerRight';
@@ -38,7 +39,10 @@ $(document).ready(function() {
 
     compareBy = compareBy.toLowerCase();
 
-    if(compareBy === 'partnumber') comparisonKey = 'data-number-path';
+    if(compareBy === 'partnumber') {
+        comparisonKey     = 'data-number-path';
+        comparisonSplitBy = '|';
+    }
 
     getFeatureSettings('bomcompare', requests, function(responses) {
 
@@ -251,6 +255,13 @@ function compareBOMRow(elemSource, elemTarget) {
     let levelSource = elemSource.attr(comparisonKey);
     let levelTarget = elemTarget.attr(comparisonKey);
 
+    if(comparisonSplitBy === '|') {
+
+        levelSource = levelSource.slice(levelSource.indexOf(comparisonSplitBy) + 1);
+        levelTarget = levelTarget.slice(levelTarget.indexOf(comparisonSplitBy) + 1);
+
+    }
+
     if(levelSource === levelTarget) {
         if(elemSource.attr('data-root-link') === elemTarget.attr('data-root-link')) {
             if(elemSource.attr('data-revision') === elemTarget.attr('data-revision')) {
@@ -365,18 +376,18 @@ function getLowerLevel(levelSource, levelTarget) {
     if(typeof levelSource === 'undefined') return 'target';
     if(typeof levelTarget === 'undefined') return 'source';
         
-    let levelsSource = levelSource.split('.');
-    let levelsTarget = levelTarget.split('.');
+    let levelsSource = levelSource.split(comparisonSplitBy);
+    let levelsTarget = levelTarget.split(comparisonSplitBy);
 
     for(let index in levelsSource) {
 
         if(levelsTarget.length > index) {
             
-            let source = Number(levelsSource[index]);
-            let target = Number(levelsTarget[index]);
+            const levelComparison = compareValues(levelsSource[index], levelsTarget[index]);
 
-            if(source < target) return 'source';
-            if(target < source) return 'target';
+            if(levelComparison ===  1) return 'target';
+            if(levelComparison === -1) return 'source';
+
             
         }
     }
@@ -508,17 +519,25 @@ function clickBOMItem(elemClicked, side) {
 
             elemOther.addClass('selected');
 
-            viewerSelectModel(pathLeft, {
-                id        : idViewerLeft,
-                fitToView : fitLeft,
-                usePath   : usePaths,
-            });
+            if(typeof pathLeft === 'undefined') {
+                viewerHideAll({ id : idViewerLeft });
+            } else {
+                viewerSelectModel(pathLeft, {
+                    id        : idViewerLeft,
+                    fitToView : fitLeft,
+                    usePath   : usePaths,
+                });
+            }
 
-            viewerSelectModel(pathRight, {
-                id        : idViewerRight,
-                fitToView : fitRight,
-                usePath   : usePaths,
-            });
+            if(typeof pathRight === 'undefined') {
+                viewerHideAll({ id : idViewerRight });
+            } else {
+                viewerSelectModel(pathRight, {
+                    id        : idViewerRight,
+                    fitToView : fitRight,
+                    usePath   : usePaths,
+                });
+            }
 
             insertDetails(linkLeft , paramsDetailsLeft);
             insertDetails(linkRight, paramsDetailsRight);
@@ -530,6 +549,7 @@ function clickBOMItem(elemClicked, side) {
         insertDetails(links.right, paramsDetailsRight);
         viewerResetSelection({ id : idViewerLeft  });
         viewerResetSelection({ id : idViewerRight });
+        applyViewerColors();
     }
 
 }

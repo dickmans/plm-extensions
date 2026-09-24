@@ -270,6 +270,7 @@ exports.applications = {
         viewerFeatures : {
             settings     : false,
             fullscreen   : false,
+            tags         : true,
             views        : true,
             selectFile   : false
         }
