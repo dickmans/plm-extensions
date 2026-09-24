@@ -137,11 +137,11 @@ body.viewer-size-small .customViewsToolbar { display : none; }
 
 /* BOM DISPLAYS */
 /* ----------------------------------------------------------------------------- */
-tr.bom-comparison-match              > td.tree-color { background : var(--color-green-600);  }
-tr.bom-comparison-different-quantity > td.tree-color { background : var(--color-yellow-400); }
-tr.bom-comparison-different-revision > td.tree-color { background : var(--color-yellow-700); }
-tr.bom-comparison-different-number   > td.tree-color { background : var(--color-red-600);    }
-tr.bom-comparison-missing            > td.tree-color { background : var(--color-red-800);    }
+tr.bom-comparison-match              > td.tree-color { background : var(--color-green-600)  !important; }
+tr.bom-comparison-different-quantity > td.tree-color { background : var(--color-yellow-400) !important; }
+tr.bom-comparison-different-revision > td.tree-color { background : var(--color-yellow-700) !important; }
+tr.bom-comparison-different-number   > td.tree-color { background : var(--color-red-600)    !important; }
+tr.bom-comparison-missing            > td.tree-color { background : var(--color-red-800)    !important; }
 .tree-first-col {
     max-width : unset !important;
 }
