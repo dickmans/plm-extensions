@@ -5580,6 +5580,8 @@ function openBOMView(id) {
             .addClass('tree-table')
             .addClass('fixed-header');
 
+        if(settings[id].treeSortByPartNumber) sortArray(responses[0].data.bomPartsList, 'path', 'string', 'ascending');
+
         genBOMHeaders(id, elemTable);    
         genBOMRows(id, elemTable, responses[0].data.bomPartsList);
         genTreePath(id);

@@ -28,6 +28,10 @@
                 li Apply change type colors to the viewer 
                 li Enable / disable viewer sync
         p This application does not require any configuration changes in the tenant.
+        h2 Comparison Mode
+        p Per default, the comparison will use the BOM position number for comparison. If the comparison should be based on Part Number instead, append the following parameter to the URL launching the comparison: 
+        p.code &amp;compareBy=partNumber 
+        p Note that this will only work if the Part Number property is contained in the BOM view being used for the comparison. Per default, BOM view 'Basic' will be used, but your configuration might be different (see configuration settings panels.insertBOMLeft and panels.insertBOMRight).
         h1 Application Configuration Settings
         p The application uses multiple configurable user interface panals as listed below. You can adjust these panels with the common framework's capabilities. Use the 
             strong Panel Configuration Studio 
@@ -76,6 +80,11 @@
     .log 
         h1 BOM Comparison Change Log 
         table
+            tr
+                td 24. September 2026
+                td Enhancement
+                td Added optional URL parameter compareBy to select the comparison mode
+            tr
                 td 7. July 2023
                 td Release
                 td This is the initial release of this application

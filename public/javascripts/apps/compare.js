@@ -3,6 +3,7 @@ let dataItemVersions      = [];
 let links                 = {};
 let bomFinishedLoading    = {};
 let syncScrollBOM         = '';
+let comparisonKey         = 'data-level-path';
 
 const idViewerLeft   = 'viewerLeft';
 const idViewerRight  = 'viewerRight';
@@ -27,13 +28,18 @@ $(document).ready(function() {
     appendOverlay();
     setUIEvents();
 
-    let compareWith = urlParameters.comparewith  || '';
+    let compareBy   = urlParameters.compareby   || 'number';
+    let compareWith = urlParameters.comparewith || '';
     let compareSelf = (compareWith === 'self') ? true : (compareWith === urlParameters.dmsid);
     let requests    = [ 
         $.get('/plm/details', { link : urlParameters.link }),
         $.get('/plm/versions'  , { link : urlParameters.link }) 
     ];
-    
+
+    compareBy = compareBy.toLowerCase();
+
+    if(compareBy === 'partnumber') comparisonKey = 'data-number-path';
+
     getFeatureSettings('bomcompare', requests, function(responses) {
 
         dataItemVersions         = responses[1];
@@ -61,12 +67,13 @@ $(document).ready(function() {
         paramsDetailsRight    = config.panels.insertDetailsRight;
         paramsDetailsRight.id = idDetailsRight;  
        
-        paramsBOMRight                  = config.panels.insertBOMRight;
-        paramsBOMRight.id               = idBOMRight;
-        paramsBOMRight.collapseContents = true;
-        paramsBOMRight.onClickItem      = function(elemClicked) { clickBOMItem(elemClicked, 'Right'); };
-        paramsBOMRight.afterCompletion  = function(id) { bomFinishedLoading.right = true; afterBOMCompletion(id, idBOMLeft); };   
-        
+        paramsBOMRight                      = config.panels.insertBOMRight;
+        paramsBOMRight.id                   = idBOMRight;
+        paramsBOMRight.collapseContents     = true;
+        paramsBOMRight.treeSortByPartNumber = (compareBy === 'partnumber');
+        paramsBOMRight.onClickItem          = function(elemClicked) { clickBOMItem(elemClicked, 'Right'); };
+        paramsBOMRight.afterCompletion      = function(id) { bomFinishedLoading.right = true; afterBOMCompletion(id, idBOMLeft); };
+
         insertViewer(urlParameters.link, {
             id            : idViewerLeft,
             viewerId      : 0,
@@ -76,10 +83,11 @@ $(document).ready(function() {
         });
         
         let paramsBOMLeft = config.panels.insertBOMLeft;
-            paramsBOMLeft.id               = idBOMLeft;
-            paramsBOMLeft.collapseContents = true;
-            paramsBOMLeft.onClickItem      = function(elemClicked) { clickBOMItem(elemClicked, 'Left'); };
-            paramsBOMLeft.afterCompletion  = function(id) { bomFinishedLoading.left = true; afterBOMCompletion(id, idBOMRight); };
+            paramsBOMLeft.id                   = idBOMLeft;
+            paramsBOMLeft.collapseContents     = true;
+            paramsBOMLeft.treeSortByPartNumber = (compareBy === 'partnumber');
+            paramsBOMLeft.onClickItem          = function(elemClicked) { clickBOMItem(elemClicked, 'Left'); };
+            paramsBOMLeft.afterCompletion      = function(id) { bomFinishedLoading.left = true; afterBOMCompletion(id, idBOMRight); };
 
         insertBOM(urlParameters.link, paramsBOMLeft);  
 
@@ -240,8 +248,8 @@ function compareBOMs() {
 }
 function compareBOMRow(elemSource, elemTarget) {
 
-    let levelSource = elemSource.attr('data-level-path');
-    let levelTarget = elemTarget.attr('data-level-path');
+    let levelSource = elemSource.attr(comparisonKey);
+    let levelTarget = elemTarget.attr(comparisonKey);
 
     if(levelSource === levelTarget) {
         if(elemSource.attr('data-root-link') === elemTarget.attr('data-root-link')) {

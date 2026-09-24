@@ -1046,6 +1046,8 @@ function onViewerSelectionChangedDone(viewerInstance, partNumbers, event) {}
 // Select / deselect items in the viewer
 function viewerSelectModel(partNumber, params) {
 
+    if(typeof partNumber === 'undefined') return;
+
     viewerSelectModels([partNumber], params);
 
 }

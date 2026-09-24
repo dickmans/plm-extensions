@@ -504,7 +504,7 @@ const registry = {
                     'goThere',
                     'hideDescriptor', 'hideDescriptorRev', 'hideChildren', 'hideItems', 'hideTreeNumber', 'hideTreeHeader', 'hideTreeColumns', 
                     'saveButtonLabel', 'selectUnique',
-                    'toggles', 'treePath', 'treePathTitle', 'treeShowQuantity', 'treeShowRestricted',
+                    'toggles', 'treePath', 'treePathTitle', 'treeShowQuantity', 'treeShowRestricted', 'treeSortByPartNumber',
                     'viewerSelection'
                 ],
                 excluded : [ 'layout' ]
@@ -2031,6 +2031,12 @@ const registry = {
             treeShowRestricted : {
                 title       : 'Show Restricted',
                 description : 'Show restricted (access-controlled) BOM rows',
+                default     : false,
+                type        : 'boolean'
+            },            
+            treeSortByPartNumber : {
+                title       : 'Sort By Part Number',
+                description : 'If tree should be sorted by Part Number instead number set this to true',
                 default     : false,
                 type        : 'boolean'
             },            
