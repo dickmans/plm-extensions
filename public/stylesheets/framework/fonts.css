@@ -179,9 +179,14 @@
 .append-icon::after,
 .append-chevron::after {
     font-family            : 'Material Symbols Sharp';
-    margin-right           : var(--spacer-xxs);
     text-rendering         : optimizeLegibility;
     -webkit-font-smoothing : antialiased;
+}
+.with-icon::before {
+    margin-right : var(--spacer-xxs);
+}
+.append-icon::after {
+    margin-left : var(--spacer-xxs);
 }
 .icon.filled,
 .with-icon.filled::before,

@@ -3181,7 +3181,8 @@ select.button.main:hover {
 .button.with-icon > input:focus {
     box-shadow : none;
 }
-.button.with-icon::before {
+.button.with-icon::before,
+.button.append-icon::after {
     font-size   : 24px;
     font-weight : 200;
     line-height : 20px; 
