@@ -1220,6 +1220,18 @@ function sortArray(array, key, type, direction) {
 }
 
 
+// Compare any value (numeric, string, alphanumeric)
+function compareValues(a, b) {
+
+    // returns  1 if a > b
+    // returns  0 if a = b
+    // returns -1 if a < b
+
+    return String(a).localeCompare(String(b), undefined, { numeric: true, sensitivity: 'base' });
+    
+}
+
+
 // Validate if string is JSON
 function isJSON(str) {
     try {
