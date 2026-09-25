@@ -48,6 +48,15 @@ function setUIEvents() {
         $(this).toggleClass('toggle-on').toggleClass('toggle-off');
     });
 
+    $('#settings-search-input').keyup(function(e) {
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        filterPanelOptions();
+        
+    });
+
     $('#settings-fold').click(function() {
         $('.settings-category').addClass('icon-expand').removeClass('icon-collapse');
         $('.panel-option').addClass('hidden');
@@ -165,6 +174,8 @@ function selectPanelType(elemClicked) {
             runPanel();
         }
     }
+
+    filterPanelOptions();
 
 }
 function setPanelTypeInputsAndOptions(panelType) {
@@ -434,6 +445,20 @@ function insertCommonOptionControl(className, key, commonOption, defaultValue) {
         .html(commonOption.description);
 
 }
+function filterPanelOptions() {
+
+    let value = $('#settings-search-input').val().toLowerCase();
+
+    if(value === '') $('.panel-option').removeClass('hidden');
+
+    else {
+        $('.panel-option').each(function() {
+            let title = $(this).children('.panel-option-title').html().toLowerCase();
+            if(title.indexOf(value) < 0) $(this).addClass('hidden'); else $(this).removeClass('hidden');
+        });
+    }
+
+}
 
 
 function runPanel() {
@@ -549,7 +574,3 @@ function setJSONString() {
     $('#json-string').html(JSON.stringify(params, undefined, 4));
 
 }
-
-
- //   { "state":"Sales", "color":"#009c00" }
- //   { "state":"Sales", "color":"#009c00" }, { "state":"Sales", "color":"#009c00" }
