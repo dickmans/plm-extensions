@@ -215,7 +215,7 @@ exports.applications = {
                 useCache          : true,
                 toggles           : true,
                 search            : true,
-                path              : true,
+                treePath          : true,
                 openInPLM         : true,
             },
             insertBOMRight : {
@@ -227,7 +227,7 @@ exports.applications = {
                 useCache          : true,
                 toggles           : true,
                 search            : true,
-                path              : true,
+                treePath          : true,
                 openInPLM         : true,
             },   
             insertDetailsLeft  : {

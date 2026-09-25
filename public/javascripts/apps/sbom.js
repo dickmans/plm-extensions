@@ -918,7 +918,7 @@ function insertItem(elemParent, part) {
                         if(first) {
                             $(this).addClass('selected');
                             bomDisplayItem($(this));
-                            updateTreePath($(this));
+                            treeUpdatePath($(this));
                             updatePanelCalculations('bom');
                             first = false;
                         }

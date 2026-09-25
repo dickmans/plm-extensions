@@ -1175,47 +1175,53 @@ function sortArray(array, key, type, direction) {
 
     array.sort(function(a, b){
 
-        var valueA=a[key], valueB=b[key];
+        let valueA = a[key], valueB = b[key];
 
         switch(type.toLowerCase()) {
 
             case 'string':
                 valueA = a[key].toLowerCase();
                 valueB = b[key].toLowerCase();
+                if (valueA < valueB) result = -1;
+                else if (valueA > valueB) result = 1;                
                 break;
             
             case 'number':
                 valueA = Number(valueA);
                 valueB = Number(valueB);
+                result = valueA - valueB;
                 break;
 
             case 'float':
                 valueA = parseFloat(valueA);
                 valueB = parseFloat(valueB);
+                result = valueA - valueB;
                 break;
 
+            case 'level':
+                result = sortTreeLevels(valueA, valueB);
+                break;                
 
         }
-        if(direction == 'ascending') {
 
-            // var valueA=a[key].toLowerCase(), valueB=b[key].toLowerCase()
-            if (valueA < valueB) //sort string ascending
-                return -1 
-            if (valueA > valueB)
-                return 1
-            return 0 //default return value (no sorting)
-
-        } else {
-
-            if (valueA > valueB) //sort string ascending
-                return -1 
-            if (valueA < valueB)
-                return 1
-            return 0 //default return value (no sorting)
-
-        }
+        return (direction === 'ascending') ? result : -result;
 
     });
+
+}
+function sortTreeLevels(a, b) {
+
+    let partsA = String(a).split('.').map(Number);
+    let partsB = String(b).split('.').map(Number);
+    let len    = Math.max(partsA.length, partsB.length);
+
+    for (var i = 0; i < len; i++) {
+        let numA = partsA[i] || 0;
+        let numB = partsB[i] || 0;
+        if (numA !== numB) return numA - numB;
+    }
+
+    return 0;
 
 }
 
@@ -3760,7 +3766,7 @@ function panelSelectAll(id, elemClicked) {
     togglePanelToolbarActions(id);
 
     if(elemTop.hasClass('tree')) {
-        updateTreePath(elemClicked);
+        treeUpdatePath(elemClicked);
         selectInViewer(id);
     }
 
@@ -3784,7 +3790,7 @@ function panelDeselectAll(id, elemClicked) {
     togglePanelToolbarActions(id);
 
     if(elemTop.hasClass('tree')) {
-        updateTreePath(elemClicked);
+        treeUpdatePath(elemClicked);
         selectInViewer(id);
     }
 
@@ -4448,7 +4454,7 @@ function getTreeItemPath(elemItem, pathSeparator) {
     return result;
 
 }
-function updateTreePath(elemClicked) {
+function treeUpdatePath(elemClicked) {
 
     let elemTop  = elemClicked.closest('.panel-top');
     let id       = elemTop.attr('id');
@@ -4643,7 +4649,7 @@ function treeDisplayItem(elemItem) {
     
     elemTree.animate({ scrollTop: top }, 500);
 
-    if(settings[id].treePath) updateTreePath(elemItem);
+    if(settings[id].treePath) treeUpdatePath(elemItem);
 
 }
 function treeDisplayItemByPath(id, path, select, deselect) {
@@ -6721,7 +6727,7 @@ function clickContentItem(e, elemClicked) {
 
     togglePanelToolbarActions(id);
     updatePanelCalculations(id);
-    updateTreePath(elemClicked);
+    treeUpdatePath(elemClicked);
     selectInViewer(id);
     
     clickContentItemDone(e, elemClicked);

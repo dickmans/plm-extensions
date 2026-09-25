@@ -16,10 +16,10 @@ block body
             #header-title=title
             #header-subtitle
             #header-toolbar
-                #compare-selected.button.append-icon.hidden Compare Selected
-                #open-selector.button.with-icon.icon-search.default Select BOM For Comparison
+                #compare-selected.button.append-icon.hidden(title="Open comparison for selected elements in new tab") Compare Selected
+                #open-selector.button.default Select BOM to compare
                 select#viewer-size.button(style="text-align : left;")
-                    option(value='normal') Normal Viewer Size
+                    option(value='normal') Normal Viewer
                     option(value='large') Large Viewers
                     option(value='small') Small Viewers
                     option(value='float') Floating Viewers
@@ -83,4 +83,6 @@ block body
                     .label Missing Items
                     .button.icon.icon-prev
                     .button.icon.icon-next
+                .separator
                 .button.with-toggle.toggle-off#apply-colors Apply Colors in Viewer
+                .button.with-toggle.toggle-on#compare-by-number Compare by Position #

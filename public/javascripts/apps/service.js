@@ -1682,7 +1682,7 @@ function onViewerSelectionChanged(event) {
             elemContext.addClass('selected');
             bomDisplayItem(elemContext);
             setSparePartsList(elemContext);
-            updateTreePath($(this));
+            treeUpdatePath($(this));
             updateRelatedPanels(linkItem);           
 
         }

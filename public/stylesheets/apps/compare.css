@@ -9,6 +9,7 @@
     --height-shortcuts : 320px;
 
     --width-details : 300px;
+    --width-counter : calc((100% - 636px) / 5);
 
 }
 
@@ -27,7 +28,7 @@
 .viewer-left  { top : 0px; left : 0px; height : var(--height-viewer); right : 50%;  }
 .viewer-right { top : 0px; left : 50%; height : var(--height-viewer); right : 0px; border-left-width  : var(--border-h-2); z-index: 7; }
 #bomLeft      { right : calc(50% + var(--width-details) + var(--border-h)); left : 0px; }
-#bomRight     { right : calc(0px + var(--width-details) + var(--border-h)); left : 50%; z-index: 4; }
+#bomRight     { right : calc(0px + var(--width-details) + var(--border-h)); left : 50%; z-index: 4; border-left-width  : var(--border-h-2); }
 #detailsLeft  { right : 50%; }
 #detailsRight { right : 0px; z-index: 6; }
 #counters     { 
@@ -70,7 +71,7 @@
 .no-selector #selector { right : calc(-1px - 50% - (4 * var(--border-v))); }
 
 .no-details-panels #bomLeft  { right : 50%; }
-.no-details-panels #bomRight { right : 0px; border-left-width  : var(--border-h-2); }
+.no-details-panels #bomRight { right : 0px; }
 .no-details-panels .details-panel { display : none !important; }
 
 
@@ -182,8 +183,6 @@ tr.hovering > td {
 }
 
 
-
-
 /* SELECTORS */
 /* ----------------------------------------------------------------------------- */
 #search-header { text-align : center; }
@@ -196,13 +195,15 @@ tr.hovering > td {
     display   : flex;
     flex-grow : 1; 
     gap       : 2px;
-    width     : calc(100% / 6);
 }
 #counters > .counter {
     border-bottom  : 6px solid var(--color-surface-level-3);
     padding-top    : 4px;
     padding-bottom : 4px;
     padding-right  : 4px;
+    max-width      : var(--width-counter);
+    min-width      : var(--width-counter);
+    width          : var(--width-counter);
 }
 #counters > .counter,
 #counters > .counter > .number,
@@ -215,9 +216,9 @@ tr.hovering > td {
 }
 #counters > .counter > .number { 
     font-weight : 800; 
-    min-width   : 22px;
-    max-width   : 22px;
-    min-width   : 22px;
+    min-width   : 28px;
+    max-width   : 28px;
+    min-width   : 28px;
 }
 #counters > .counter > .label  { 
     direction     : rtl;
@@ -259,4 +260,20 @@ tr.hovering > td {
 .hide-matches #hide-matches {
     display : blocK !important;
     color : red;
+}
+
+
+/* BOTTOM TOGGLES */
+/* ----------------------------------------------------------------------------- */
+#counters .separator {
+    background : var(--color-surface-level-5);
+    margin     : 0px 6px;
+    max-width  : 2px;
+    min-width  : 2px;
+}
+#counters .button.with-toggle {
+    margin-top : 3px;
+    max-width  : 186px;
+    min-width  : 186px;
+    width      : 186px;
 }

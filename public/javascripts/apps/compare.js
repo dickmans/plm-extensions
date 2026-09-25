@@ -21,7 +21,7 @@ const classNames     = {
     placeholder       : 'bom-comparison-placeholder'
 }
 
-let paramsDetailsLeft, paramsDetailsRight, paramsBOMRight;
+let paramsDetailsLeft, paramsDetailsRight, paramsBOMLeft, paramsBOMRight;
 
 
 $(document).ready(function() {
@@ -42,7 +42,8 @@ $(document).ready(function() {
     if(compareBy === 'partnumber') {
         comparisonKey     = 'data-number-path';
         comparisonSplitBy = '|';
-    }
+        $('#compare-by-number').addClass('toggle-off').removeClass('toggle-on');
+    } else $('#compare-by-number').removeClass('toggle-off').addClass('toggle-on');
 
     getFeatureSettings('bomcompare', requests, function(responses) {
 
@@ -86,12 +87,12 @@ $(document).ready(function() {
             features      : config.viewerFeatures
         });
         
-        let paramsBOMLeft = config.panels.insertBOMLeft;
-            paramsBOMLeft.id                   = idBOMLeft;
-            paramsBOMLeft.collapseContents     = true;
-            paramsBOMLeft.treeSortByPartNumber = (compareBy === 'partnumber');
-            paramsBOMLeft.onClickItem          = function(elemClicked) { clickBOMItem(elemClicked, 'Left'); };
-            paramsBOMLeft.afterCompletion      = function(id) { bomFinishedLoading.left = true; afterBOMCompletion(id, idBOMRight); };
+        paramsBOMLeft = config.panels.insertBOMLeft;
+        paramsBOMLeft.id                   = idBOMLeft;
+        paramsBOMLeft.collapseContents     = true;
+        paramsBOMLeft.treeSortByPartNumber = (compareBy === 'partnumber');
+        paramsBOMLeft.onClickItem          = function(elemClicked) { clickBOMItem(elemClicked, 'Left'); };
+        paramsBOMLeft.afterCompletion      = function(id) { bomFinishedLoading.left = true; afterBOMCompletion(id, idBOMRight); };
 
         insertBOM(urlParameters.link, paramsBOMLeft);  
 
@@ -200,6 +201,11 @@ function setUIEvents() {
             viewerResetColors({ id : idViewerLeft });
             viewerResetColors({ id : idViewerRight });  
         } else applyViewerColors();
+    });
+
+    $('#compare-by-number').click(function() {
+        $(this).toggleClass('toggle-on').toggleClass('toggle-off');
+        toggleComparisonMode();
     });
 
 }
@@ -406,7 +412,6 @@ function getLowerLevel(levelSource, levelTarget) {
 
             if(levelComparison ===  1) return 'target';
             if(levelComparison === -1) return 'source';
-
             
         }
     }
@@ -435,7 +440,6 @@ function insertBOMComparisonPlaceholder(elemReference, elemBefore, elemAfter) {
     if(elemBefore !== null) elemPlaceholder.insertBefore(elemBefore); else elemPlaceholder.insertAfter(elemAfter);
 
 }
-
 
 
 // After comparison, set UI events to sync BOM interactions
@@ -528,8 +532,6 @@ function clickBOMItem(elemClicked, side) {
 
         } else {
 
-            
-
             if(side === 'Left') {
                 linkRight = elemOther.attr('data-link');
                 pathRight = (usePaths) ? elemOther.attr('data-number-path') : elemOther.attr('data-part-number');
@@ -539,6 +541,7 @@ function clickBOMItem(elemClicked, side) {
             }
 
             elemOther.addClass('selected');
+            treeUpdatePath(elemOther);
 
             if(typeof pathLeft === 'undefined') {
                 viewerHideAll({ id : idViewerLeft });
@@ -772,5 +775,50 @@ function applyViewerColors() {
         color       : colors.vectors.red,
         resetColors : false
     });
+
+}
+
+
+// Toggle comparison mode (number or part number)
+function toggleComparisonMode() {
+
+    const elemToggle = $('#compare-by-number');
+
+    if(elemToggle.hasClass('toggle-on')) {
+        compareBy         = 'number';
+        comparisonKey     = 'data-level-path';
+        comparisonSplitBy = '.';
+        paramsBOMLeft.treeSortByPartNumber  = false;
+        paramsBOMRight.treeSortByPartNumber = false;
+    } else {
+        compareBy         = 'partnumber';
+        comparisonKey     = 'data-number-path';
+        comparisonSplitBy = '|';
+        paramsBOMLeft.treeSortByPartNumber  = true;
+        paramsBOMRight.treeSortByPartNumber = true;
+    }
+
+    redrawBOM(idBOMLeft,  idViewerLeft );
+    redrawBOM(idBOMRight, idViewerRight);
+
+    compareBOMs();
+    setBOMComparisonEvents();
+
+}
+function redrawBOM(idBOM, idViewer) {
+
+    if(compareBy === 'partnumber') {
+        sortArray(settings[idBOM].bomPartsList, 'path');
+    } else {
+        sortArray(settings[idBOM].bomPartsList, 'numberPath', 'level');
+    }
+
+    let elemTableLeft = $('#' + idBOM + '-table');
+        elemTableLeft.html('');
+
+    genBOMHeaders(idBOM, elemTableLeft);  
+    genBOMRows(idBOM, elemTableLeft, settings[idBOM].bomPartsList);
+
+    viewerResetSelection({ id : idViewer });
 
 }
