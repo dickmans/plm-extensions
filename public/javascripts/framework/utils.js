@@ -3,7 +3,8 @@ let urlParameters       = {};
 let languageId          = '1';
 let username            = '';
 const isiPad            = ( navigator.userAgent.includes('iPad') || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) );
-let isiPhone            = navigator.userAgent.match(/iPhone/i) != null;
+const isiPhone          = navigator.userAgent.match(/iPhone/i) != null;
+const isMobile          = (isiPad || isiPhone) ;
 let applicationFeatures = {}
 let dataContextMenu     = {}
 let viewerFeatures      = {};
@@ -1291,6 +1292,25 @@ function getDayOfYear(date = new Date()) {
 }
 
 
+// Format file size to convenient format
+function formatFileSize(bytes) {
+
+    if (bytes < 1024) return `${bytes} B`;
+
+    const units = ['KB', 'MB', 'GB', 'TB'];
+    let size    = bytes / 1024;
+    let unit    = units[0];
+
+    for (let i = 1; size >= 1024 && i < units.length; i++) {
+        size /= 1024;
+        unit = units[i];
+    }
+
+    return `${size.toFixed(size < 10 ? 1 : 0)} ${unit}`;
+
+}
+
+
 // Determine browser language
 function getBrowserLanguage() {
 
@@ -1322,6 +1342,8 @@ function appendProcessing(id, hidden) {
     $('<div></div>').addClass('bounce1').appendTo(elemProcessing);
     $('<div></div>').addClass('bounce2').appendTo(elemProcessing);
     $('<div></div>').addClass('bounce3').appendTo(elemProcessing);
+
+    return elemProcessing;
 
 }
 function appendViewerProcessing(id, hidden) {

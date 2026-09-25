@@ -3673,7 +3673,7 @@ function insertAttachments(link, params, data) {
     genPanelElements(id);
 
     settings[id].permissions = data.permissions || [];
-    settings[id].load = function() { fileUploadDone(id); }
+    settings[id].load        = function() { fileUploadDone(id); }
 
     $('#' + id + '-panel-contents').addClass('attachments-content');
 
@@ -3681,59 +3681,128 @@ function insertAttachments(link, params, data) {
 
         let elemToolbar = genPanelToolbar(id, 'actions');
 
-        let elemUpload = $('<div></div>').prependTo(elemToolbar)
-            .addClass('button')
-            .addClass('icon-upload')
-            .addClass('disabled')
-            .attr('id', id + '-upload')
-            .attr('title', settings[id].uploadLabel)
-            .html(settings[id].uploadLabel)
-            .click(function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                clickAttachmentsUpload(id, $(this));
+        if(!isMobile) {
+
+            insertDropZone({
+                id      : id + '-drop-zone',
+                hidden  : true,
+                parent  : elemToolbar,
+                prepend : true,
+                onDrop  : function(e) {
+
+                    let files        = e.target.files || e.originalEvent.dataTransfer.files;
+                    let sizeTotal    = 0;
+                    let sizePending  = 0;
+                    let filesTotal   = files.length;
+                    let filesPending = files.length;
+                    let requests     = [];
+
+                    for(let file of files) sizeTotal += file.size;
+
+                    sizePending = sizeTotal;
+
+                    setDropZoneProgress(id, filesTotal, filesPending, sizeTotal, sizePending);
+
+                    settings[id].pendingUploadsCount = files.length;
+
+                    for(let file of files) {
+
+                        let fileId   = '';
+                        let folderId = '';
+
+                        for(let attachment of settings[id].data) {
+                            if(attachment.resourceName === file.name) {
+                                fileId   = attachment.id;
+                                folderId = attachment.folder;
+                                break;
+                            }
+                        }
+
+                        requests.push($.ajax({
+                            url         : '/plm/upload-file',
+                            method      : 'POST',
+                            data        : file,
+                            processData : false,
+                            contentType : file.type || "application/octet-stream",
+                            headers     : {
+                                "x-file-name" : encodeURIComponent(file.name),
+                                "x-file-size" : file.size,
+                                "x-file-id"   : fileId,
+                                "x-folder-id" : folderId,
+                                "link"        : settings[id].link,
+                            },
+                            success: function(response) {
+                                sizePending -= response.data.size
+                                filesPending--;
+                                setDropZoneProgress(id, filesTotal, filesPending, sizeTotal, sizePending);
+                            }
+                        }));
+
+                    }
+
+                    Promise.all(requests).then(function(responses) {
+                        fileUploadDone(id);
+                    }); 
+
+                }
             });
 
-        if(isBlank(settings[id].uploadLabel)) {
-            elemUpload.addClass('icon');
         } else {
-            elemUpload.addClass('with-icon');
-        }
 
-        let elemFrame  = $('#frame-upload');
-        let elemForm   = $('#uploadForm');
-        let elemSelect = $('#select-file');
-                
-        if(elemFrame.length === 0) {
-            $('<iframe>', {
-                id   : 'frame-upload',
-                name :  'frame-upload'
-            }).appendTo('body').on('load', function() {
-                fileUploadDone(id);
-            }).addClass('hidden');
-        }            
+            let elemUpload = $('<div></div>').prependTo(elemToolbar)
+                .addClass('button')
+                .addClass('icon-upload')
+                .addClass('disabled')
+                .attr('id', id + '-upload')
+                .attr('title', settings[id].uploadLabel)
+                .html(settings[id].uploadLabel)
+                .click(function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    clickAttachmentsUpload(id, $(this));
+                });
 
-        if(elemForm.length === 0) {
-            elemForm = $('<form>', {
-                id      : 'uploadForm',
-                method  : 'post',
-                encType : 'multipart/form-data',
-                target  : 'frame-upload'
-            }).appendTo('body');
-        }            
+            if(isBlank(settings[id].uploadLabel)) {
+                elemUpload.addClass('icon');
+            } else {
+                elemUpload.addClass('with-icon');
+            }
 
-        if(elemSelect.length === 0) {
-            elemSelect = $('<input>', {
-                id  : 'select-file',
-                type : 'file',
-                name : 'newFiles'
-            }).appendTo(elemForm)
-            .addClass('hidden')
-            .addClass('button')
-            .addClass('main')
-            .change(function() {
-                selectFileForUpload(id);
-            });
+            let elemFrame  = $('#frame-upload');
+            let elemForm   = $('#uploadForm');
+            let elemSelect = $('#select-file');
+                    
+            if(elemFrame.length === 0) {
+                $('<iframe>', {
+                    id   : 'frame-upload',
+                    name :  'frame-upload'
+                }).appendTo('body').on('load', function() {
+                    fileUploadDone(id);
+                }).addClass('hidden');
+            }            
+
+            if(elemForm.length === 0) {
+                elemForm = $('<form>', {
+                    id      : 'uploadForm',
+                    method  : 'post',
+                    encType : 'multipart/form-data',
+                    target  : 'frame-upload'
+                }).appendTo('body');
+            }            
+
+            if(elemSelect.length === 0) {
+                elemSelect = $('<input>', {
+                    id  : 'select-file',
+                    type : 'file',
+                    name : 'newFiles'
+                }).appendTo(elemForm)
+                .addClass('hidden')
+                .addClass('button')
+                .addClass('main')
+                .change(function() {
+                    selectFileForUpload(id);
+                });
+            }
         }
         
         if(settings[id].uploadScreenshot) {
@@ -3789,10 +3858,11 @@ function insertAttachmentsData(id, update) {
         timestamp : settings[id].timestamp
     }
 
-    let elemContent = $('#' + id + '-content');      
-    let elemUpload  = $('#' + id + '-upload');
-    let elemSelect  = $('#' + id + '-filter-type');
-    let isTable     = elemContent.hasClass('table');
+    let elemContent  = $('#' + id + '-content');      
+    let elemDropZone = $('#' + id + '-drop-zone');
+    let elemUpload   = $('#' + id + '-upload');
+    let elemSelect   = $('#' + id + '-filter-type');
+    let isTable      = elemContent.hasClass('table');
 
     if(elemSelect.length > 0) {
         elemSelect.children().remove();
@@ -3824,6 +3894,8 @@ function insertAttachmentsData(id, update) {
 
         setPanelBookmarkStatus(id, responses);
 
+        settings[id].data = responses[0].data;
+
         let attachments = responses[0].data;
         let currentIDs  = [];
         let folders     = [];
@@ -3851,17 +3923,13 @@ function insertAttachmentsData(id, update) {
 
         });
 
-
         if((settings[id].includeRelatedFiles)) {
             for(let related of responses[2].data) attachments.push(related);
         }
 
         for(let attachment of attachments) {
 
-            if(currentIDs.indexOf(attachment.id) > -1) continue;
-
             let extension = attachment.type.extension.split('.').pop();
-            let included  = true;
 
             if((settings[id].extensionsIn.length === 0) || ( settings[id].extensionsIn.includes(extension))) {
                 if((settings[id].extensionsEx.length === 0) || (!settings[id].extensionsEx.includes(extension))) { 
@@ -3871,6 +3939,8 @@ function insertAttachmentsData(id, update) {
                     let type        = attachment.type.fileType;
 
                     if(!listTypes.includes(type)) listTypes.push(type);
+
+                    if(currentIDs.indexOf(attachment.id) > -1) continue;
 
                     if(attFolder !== null) {
                         let isNewFolder = true;
@@ -4049,7 +4119,8 @@ function insertAttachmentsData(id, update) {
         }
 
         if(hasPermission(settings[id].permissions, 'add_attachments')) {
-            if(elemUpload.length > 0) elemUpload.removeClass('disabled');
+            if(  elemUpload.length > 0)   elemUpload.removeClass('disabled');
+            if(elemDropZone.length > 0) elemDropZone.removeClass('hidden');
         }
 
         insertVaultFiles(id, responses, listTypes, function() {
@@ -5607,6 +5678,8 @@ function openBOMView(id) {
 
         $('#' + id + '-action-save'  ).show().removeClass('hidden').removeClass('disabled');
 
+        settings[id].bomPartsList = responses[0].data.bomPartsList;
+
         openBOMViewDone(id, responses[0].data, selectedItems, dataAdditional, responses[0].data.bomPartsList);
         finishPanelContentUpdate(id, null, null, { bomPartsList : responses[0].data.bomPartsList, dataAdditional : dataAdditional });
 
@@ -6319,7 +6392,7 @@ function bomDisplayItem(elemItem) {
     
     elemBOM.animate({ scrollTop: top }, 500);
 
-    if(settings[id].treePath) updateTreePath(elemItem);
+    if(settings[id].treePath) treeUpdatePath(elemItem);
 
 }
 function bomDisplayItemByPartNumber(number, select, deselect) {

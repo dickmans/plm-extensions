@@ -1,0 +1,58 @@
+.drop-zone {
+    background    : var(--color-blue-900) !important;
+    border        : 1px dashed var(--color-blue-500) !important;
+    border-radius : 8px;
+    cursor        : pointer;
+    display       : flex;
+    gap           : 12px;
+    height        : 32px;
+    line-height   : 32px;
+    min-width     : 380px;
+    padding       : 0px 0px;
+    text-align    : center;
+    justify-content : center;
+}
+.drop-zone:hover,
+.drop-zone.drag-hover {
+    border-color : var(--color-blue-200);
+    color        : var(--color-blue-100);
+    background   : var(--color-blue-800) !important;
+}
+.drop-zone-icon {
+    color       : var(--color-blue-500);
+    line-height : 32px;
+    font-size   : 22px;
+    font-weight : 300;
+}
+.drop-zone-icon::before {
+    content : '\f1f0';
+}
+.drop-zone.upload-in-progress {
+    border-style : solid !important;
+}
+.drop-zone.upload-in-progress .drop-zone-content,
+.drop-zone.upload-in-progress .drop-zone-input,
+.drop-zone.upload-in-progress .drop-zone-icon {
+    display : none;
+}
+.drop-zone-message {
+    display : none;
+}
+.drop-zone.upload-in-progress .drop-zone-message {
+    display : block;
+}
+.drop-zone-processing {
+    padding-top : 9px;
+    position    : unset;
+}
+.drop-zone-processing > div {
+    background-color : var(--color-blue-500) !important;
+    height           : 14px;
+    width            : 14px;
+}
+.button:has(+ .drop-zone) {
+    margin-right : 10px;
+}
+.drop-zone:has(+ .button) {
+    margin-right : 10px;
+}
